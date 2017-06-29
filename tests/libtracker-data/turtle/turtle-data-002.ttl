@@ -1,5 +1,5 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix : <http://example.org/ns2#> .
+@prefix : <http://other.example.org/ns#> .
 
 <a1> a rdfs:Resource .
 

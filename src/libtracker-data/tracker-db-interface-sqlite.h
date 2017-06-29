@@ -32,10 +32,16 @@ G_BEGIN_DECLS
 
 #define TRACKER_COLLATION_NAME "TRACKER"
 
-typedef void (*TrackerDBWalCallback) (gint n_pages);
+typedef void (*TrackerDBWalCallback) (TrackerDBInterface *iface,
+                                      gint                n_pages);
+
+typedef enum {
+	TRACKER_DB_INTERFACE_READONLY  = 1 << 0,
+	TRACKER_DB_INTERFACE_USE_MUTEX = 1 << 1
+} TrackerDBInterfaceFlags;
 
 TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename,
-                                                                        gboolean                  readonly,
+                                                                        TrackerDBInterfaceFlags   flags,
                                                                         GError                  **error);
 gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_enable_shared_cache    (void);
@@ -46,6 +52,10 @@ void                tracker_db_interface_sqlite_fts_init               (TrackerD
 void                tracker_db_interface_sqlite_reset_collator         (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_wal_hook               (TrackerDBInterface       *interface,
                                                                         TrackerDBWalCallback      callback);
+gboolean            tracker_db_interface_sqlite_wal_checkpoint         (TrackerDBInterface       *interface,
+                                                                        gboolean                  blocking,
+                                                                        GError                  **error);
+
 
 #if HAVE_TRACKER_FTS
 void                tracker_db_interface_sqlite_fts_alter_table        (TrackerDBInterface       *interface,

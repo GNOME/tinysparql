@@ -248,6 +248,8 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 {
 	GError *error = NULL;
 	TrackerMinerRSSPrivate *priv;
+	TrackerDomainOntology *domain_ontology;
+	gchar *dbus_name;
 
 	g_message ("Initializing...");
 
@@ -278,9 +280,13 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 	g_message ("Listening for GraphUpdated changes on D-Bus interface...");
 	g_message ("  arg0:'%s'", TRACKER_PREFIX_MFO "FeedChannel");
 
+	domain_ontology = tracker_domain_ontology_new (tracker_sparql_connection_get_domain (),
+	                                               NULL, NULL);
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, NULL);
+
 	priv->graph_updated_id =
 		g_dbus_connection_signal_subscribe  (priv->connection,
-		                                     "org.freedesktop.Tracker1",
+		                                     dbus_name,
 		                                     "org.freedesktop.Tracker1.Resources",
 		                                     "GraphUpdated",
 		                                     "/org/freedesktop/Tracker1/Resources",
@@ -289,6 +295,8 @@ tracker_miner_rss_init (TrackerMinerRSS *object)
 		                                     graph_updated_cb,
 		                                     object,
 		                                     NULL);
+	g_free (dbus_name);
+	g_object_unref (domain_ontology);
 }
 
 static void
@@ -1401,6 +1409,5 @@ tracker_miner_rss_new (GError **error)
 	return g_initable_new (TRACKER_TYPE_MINER_RSS,
 	                       NULL,
 	                       error,
-	                       "name", "RSS",
 	                       NULL);
 }

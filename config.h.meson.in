@@ -69,9 +69,6 @@
 /* Define if we have libiptcdata */
 #mesondefine HAVE_LIBIPTCDATA
 
-/* Define if we have libmediaart */
-#mesondefine HAVE_LIBMEDIAART
-
 /* Define if we have libstemmer */
 #mesondefine HAVE_LIBSTEMMER
 

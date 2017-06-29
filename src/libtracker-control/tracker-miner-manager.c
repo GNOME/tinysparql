@@ -25,6 +25,7 @@
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-common/tracker-type-utils.h>
+#include <libtracker-common/tracker-domain-ontology.h>
 #include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-miner-manager.h"
@@ -42,7 +43,7 @@
 #define TRACKER_MINER_MANAGER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_MANAGER, TrackerMinerManagerPrivate))
 
 #define DESKTOP_ENTRY_GROUP "D-BUS Service"
-#define DBUS_NAME_KEY "Name"
+#define DBUS_NAME_SUFFIX_KEY "NameSuffix"
 #define DBUS_PATH_KEY "Path"
 #define DISPLAY_NAME_KEY "DisplayName"
 #define DESCRIPTION_KEY "Comment"
@@ -58,6 +59,7 @@ struct MinerData {
 	gchar *dbus_path;
 	gchar *display_name;
 	gchar *description;
+	gchar *name_suffix;
 
 	GDBusConnection *connection;
 	guint progress_signal;
@@ -74,6 +76,8 @@ struct TrackerMinerManagerPrivate {
 
 	/* Property values */
 	gboolean auto_start;
+	gchar *domain_ontology_name;
+	TrackerDomainOntology *domain_ontology;
 };
 
 static void miner_manager_initable_iface_init (GInitableIface         *iface);
@@ -94,7 +98,8 @@ G_DEFINE_TYPE_WITH_CODE (TrackerMinerManager, tracker_miner_manager, G_TYPE_OBJE
 
 enum {
 	PROP_0,
-	PROP_AUTO_START
+	PROP_AUTO_START,
+	PROP_DOMAIN_ONTOLOGY
 };
 
 enum {
@@ -124,6 +129,13 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	                                                      "If set, auto starts miners when querying their status",
 	                                                       TRUE,
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+	g_object_class_install_property (object_class,
+	                                 PROP_DOMAIN_ONTOLOGY,
+	                                 g_param_spec_string ("domain-ontology",
+	                                                      "Domain ontology",
+	                                                      "The domain ontology this object controls",
+	                                                      NULL,
+	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
 	/**
 	 * TrackerMinerManager::miner-progress:
@@ -248,6 +260,9 @@ miner_manager_set_property (GObject      *object,
 	case PROP_AUTO_START:
 		priv->auto_start = g_value_get_boolean (value);
 		break;
+	case PROP_DOMAIN_ONTOLOGY:
+		priv->domain_ontology_name = g_value_dup_string (value);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -269,6 +284,9 @@ miner_manager_get_property (GObject    *object,
 	switch (prop_id) {
 	case PROP_AUTO_START:
 		g_value_set_boolean (value, priv->auto_start);
+		break;
+	case PROP_DOMAIN_ONTOLOGY:
+		g_value_set_string (value, priv->domain_ontology_name);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -414,6 +432,13 @@ miner_manager_initable_init (GInitable     *initable,
 		return FALSE;
 	}
 
+	priv->domain_ontology = tracker_domain_ontology_new (priv->domain_ontology_name,
+	                                                     cancellable, &inner_error);
+	if (!priv->domain_ontology) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
 	initialize_miners_data (manager);
 
 	for (m = priv->miners; m; m = m->next) {
@@ -533,6 +558,7 @@ miner_data_free (MinerData *data)
 	g_free (data->dbus_name);
 	g_free (data->display_name);
 	g_free (data->description);
+	g_free (data->name_suffix);
 	g_slice_free (MinerData, data);
 }
 
@@ -550,6 +576,8 @@ miner_manager_finalize (GObject *object)
 	g_list_foreach (priv->miners, (GFunc) miner_data_free, NULL);
 	g_list_free (priv->miners);
 	g_hash_table_unref (priv->miner_proxies);
+	g_free (priv->domain_ontology_name);
+	g_object_unref (priv->domain_ontology);
 
 	G_OBJECT_CLASS (tracker_miner_manager_parent_class)->finalize (object);
 }
@@ -602,10 +630,13 @@ tracker_miner_manager_new_full (gboolean   auto_start,
 {
 	GError *inner_error = NULL;
 	TrackerMinerManager *manager;
+	const gchar *domain_ontology;
 
+	domain_ontology = tracker_sparql_connection_get_domain ();
 	manager = g_initable_new (TRACKER_TYPE_MINER_MANAGER,
 	                          NULL,
 	                          &inner_error,
+	                          "domain-ontology", domain_ontology,
 	                          "auto-start", auto_start,
 	                          NULL);
 	if (inner_error)
@@ -636,6 +667,7 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 	GVariant *v;
 	GVariantIter *iter;
 	const gchar *str = NULL;
+	gchar *prefix;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), NULL);
 
@@ -664,16 +696,11 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 		return NULL;
 	}
 
+	prefix = tracker_domain_ontology_get_domain (priv->domain_ontology, "Miner");
+
 	g_variant_get (v, "(as)", &iter);
 	while (g_variant_iter_loop (iter, "&s", &str)) {
-		if (!g_str_has_prefix (str, TRACKER_MINER_DBUS_NAME_PREFIX)) {
-			continue;
-		}
-
-		/* Special case miner-fs which has
-		 * additional D-Bus interface.
-		 */
-		if (strcmp (str, "org.freedesktop.Tracker1.Miner.Files.Index") == 0) {
+		if (!g_str_has_prefix (str, prefix)) {
 			continue;
 		}
 
@@ -682,45 +709,11 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 
 	g_variant_iter_free (iter);
 	g_variant_unref (v);
+	g_free (prefix);
 
 	list = g_slist_reverse (list);
 
 	return list;
-}
-
-static void
-load_running_miners_only (TrackerMinerManager *manager)
-{
-	TrackerMinerManagerPrivate *priv;
-	GSList *running, *l;
-	gint prefix_len;
-
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
-
-	running = tracker_miner_manager_get_running (manager);
-	prefix_len = strlen (TRACKER_MINER_DBUS_NAME_PREFIX);
-
-	for (l = running; l; l = l->next) {
-		MinerData *data;
-		const gchar *dbus_name;
-		gchar *p;
-
-		dbus_name = l->data;
-		data = g_slice_new0 (MinerData);
-		data->dbus_path = g_strdup_printf ("/%s", dbus_name);
-
-		p = data->dbus_path;
-		while ((p = strchr (p, '.')) != NULL) {
-			*p++ = '/';
-		}
-
-		data->dbus_name = l->data;
-		data->display_name = g_strdup (dbus_name + prefix_len);
-		data->description = g_strdup (data->display_name);
-		priv->miners = g_list_prepend (priv->miners, data);
-	}
-
-	g_slist_free (running);
 }
 
 static void
@@ -730,7 +723,7 @@ check_file (GFile    *file,
 	TrackerMinerManager *manager;
 	TrackerMinerManagerPrivate *priv;
 	GKeyFile *key_file;
-	gchar *path, *dbus_path, *dbus_name, *display_name, *description;
+	gchar *path, *dbus_path, *display_name, *name_suffix, *description;
 	GError *error = NULL;
 	MinerData *data;
 
@@ -749,15 +742,24 @@ check_file (GFile    *file,
 	}
 
 	dbus_path = g_key_file_get_string (key_file, DESKTOP_ENTRY_GROUP, DBUS_PATH_KEY, NULL);
-	dbus_name = g_key_file_get_string (key_file, DESKTOP_ENTRY_GROUP, DBUS_NAME_KEY, NULL);
 	display_name = g_key_file_get_locale_string (key_file, DESKTOP_ENTRY_GROUP, DISPLAY_NAME_KEY, NULL, NULL);
+	name_suffix = g_key_file_get_string (key_file, DESKTOP_ENTRY_GROUP, DBUS_NAME_SUFFIX_KEY, NULL);
 
-	if (!dbus_path || !dbus_name || !display_name) {
-		g_warning ("Essential data (DBusPath, DBusName or Name) are missing in miner .desktop file");
+	if (!dbus_path || !display_name || !name_suffix) {
+		g_warning ("Essential data (DBusPath, NameSuffix or Name) are missing in miner .desktop file");
 		g_key_file_free (key_file);
 		g_free (dbus_path);
 		g_free (display_name);
-		g_free (dbus_name);
+		g_free (name_suffix);
+		return;
+	}
+
+	if (!tracker_domain_ontology_uses_miner (priv->domain_ontology, name_suffix)) {
+		/* Silently ignore, this domain ontology is not meant to use this miner */
+		g_key_file_free (key_file);
+		g_free (dbus_path);
+		g_free (display_name);
+		g_free (name_suffix);
 		return;
 	}
 
@@ -765,7 +767,9 @@ check_file (GFile    *file,
 
 	data = g_slice_new0 (MinerData);
 	data->dbus_path = dbus_path;
-	data->dbus_name = dbus_name;        /* In .service file as Name */
+	data->name_suffix = name_suffix;
+	data->dbus_name = tracker_domain_ontology_get_domain (priv->domain_ontology,
+	                                                      name_suffix);
 	data->display_name = display_name;
 	data->description = description;    /* In .desktop file as _comment */
 
@@ -815,26 +819,9 @@ static void
 initialize_miners_data (TrackerMinerManager *manager)
 {
 	GFile *file;
-	const gchar *miners_dir, *miners_dir_disabled;
-
-	miners_dir_disabled = g_getenv ("TRACKER_MINERS_DIR_DISABLED");
-	if (G_UNLIKELY (miners_dir_disabled != NULL)) {
-		miners_dir = TRACKER_MINERS_DIR;
-		g_message ("Crawling miners found on DBus not from .desktop files (set in env)");
-
-		load_running_miners_only (manager);
-		return;
-	}
 
 	/* Go through service files */
-	miners_dir = g_getenv ("TRACKER_MINERS_DIR");
-	if (G_LIKELY (miners_dir == NULL)) {
-		miners_dir = TRACKER_MINERS_DIR;
-	} else {
-		g_message ("Crawling miners in '%s' (set in env)", miners_dir);
-	}
-
-	file = g_file_new_for_path (miners_dir);
+	file = g_file_new_for_path (TRACKER_MINERS_DIR);
 	directory_foreach (file, ".service", (GFunc) check_file, manager);
 	g_object_unref (file);
 }
@@ -1391,65 +1378,6 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
 	return NULL;
 }
 
-#ifndef TRACKER_DISABLE_DEPRECATED
-
-/**
- * tracker_miner_manager_ignore_next_update:
- * @manager: a #TrackerMinerManager
- * @miner: miner reference
- * @urls: (in): the subjects to ignore the next updates of
- *
- * Tells the @miner to ignore any events for the next @urls. This is
- * used for cases where a file is updated by Tracker by the
- * tracker-writeback service. This API is used to avoid signalling up
- * the stack the changes to @urls.
- *
- * Returns: %TRUE on success, otherwise %FALSE.
- *
- * Since: 0.8
- *
- * Deprecated: 0.12
- **/
-gboolean
-tracker_miner_manager_ignore_next_update (TrackerMinerManager *manager,
-                                          const gchar         *miner,
-                                          const gchar        **urls)
-{
-	GDBusProxy *proxy;
-	GError *error = NULL;
-	GVariant *v;
-
-	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
-	g_return_val_if_fail (miner != NULL, FALSE);
-
-	proxy = find_miner_proxy (manager, miner, TRUE);
-
-	if (!proxy) {
-		g_warning ("No D-Bus proxy found for miner '%s'", miner);
-		return FALSE;
-	}
-
-	v = g_dbus_proxy_call_sync (proxy,
-	                            "IgnoreNextUpdate",
-	                            g_variant_new ("(^as)", urls),
-	                            G_DBUS_CALL_FLAGS_NONE,
-	                            -1,
-	                            NULL,
-	                            &error);
-
-	if (error) {
-		g_warning ("Could not ignore next update for miner '%s': %s", miner, error->message);
-		g_error_free (error);
-		return FALSE;
-	}
-
-	g_variant_unref (v);
-
-	return TRUE;
-}
-
-#endif /* TRACKER_DISABLE_DEPRECATED */
-
 /**
  * tracker_miner_manager_error_quark:
  *
@@ -1510,7 +1438,7 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
 	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
 
 	v = g_dbus_connection_call_sync (priv->connection,
-	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
+	                                 "org.freedesktop.Tracker1.Miner.Files",
 	                                 "/org/freedesktop/Tracker1/Miner/Files/Index",
 	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
 	                                 "ReindexMimeTypes",
@@ -1565,7 +1493,7 @@ miner_manager_index_file_sync (TrackerMinerManager *manager,
 	uri = g_file_get_uri (file);
 
 	v = g_dbus_connection_call_sync (priv->connection,
-	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
+	                                 "org.freedesktop.Tracker1.Miner.Files",
 	                                 "/org/freedesktop/Tracker1/Miner/Files/Index",
 	                                 "org.freedesktop.Tracker1.Miner.Files.Index",
 	                                 method_name,

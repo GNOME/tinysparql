@@ -1,0 +1,8 @@
+# This will fail
+INSERT DATA { <cat> a ex:Mammal;
+                    ex:cromosomes 38;
+                    ex:cromosomes 42 }
+
+# This will succeed
+INSERT DATA { <donald> a ex:Mammal;
+                       ex:cromosomes 47 }

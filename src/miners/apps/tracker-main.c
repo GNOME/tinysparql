@@ -44,11 +44,15 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
+#define DBUS_NAME_SUFFIX "Miner.Applications"
+#define DBUS_PATH "/org/freedesktop/Tracker1/Miner/Applications"
+
 static GMainLoop *main_loop;
 
 static gint verbosity = -1;
 static gboolean no_daemon;
 static gboolean version;
+static gchar *domain_ontology_name = NULL;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
@@ -59,6 +63,10 @@ static GOptionEntry entries[] = {
 	{ "no-daemon", 'n', 0,
 	  G_OPTION_ARG_NONE, &no_daemon,
 	  N_("Runs until all applications are indexed and then exits"),
+	  NULL },
+	{ "domain-ontology", 'd', 0,
+	  G_OPTION_ARG_STRING, &domain_ontology_name,
+	  N_("Runs for an specific domain ontology"),
 	  NULL },
 	{ "version", 'V', 0,
 	  G_OPTION_ARG_NONE, &version,
@@ -159,6 +167,15 @@ miner_finished_cb (TrackerMinerFS *fs,
 	}
 }
 
+static void
+on_domain_vanished (GDBusConnection *connection,
+                    const gchar     *name,
+                    gpointer         user_data)
+{
+	GMainLoop *loop = user_data;
+	g_main_loop_quit (loop);
+}
+
 int
 main (gint argc, gchar *argv[])
 {
@@ -166,6 +183,10 @@ main (gint argc, gchar *argv[])
 	GOptionContext *context;
 	GError *error = NULL;
 	gchar *log_filename = NULL;
+	GDBusConnection *connection;
+	TrackerMinerProxy *proxy;
+	TrackerDomainOntology *domain_ontology;
+	gchar *dbus_name;
 
 	main_loop = NULL;
 
@@ -198,6 +219,36 @@ main (gint argc, gchar *argv[])
 		return EXIT_SUCCESS;
 	}
 
+	tracker_sparql_connection_set_domain (domain_ontology_name);
+
+	domain_ontology = tracker_domain_ontology_new (domain_ontology_name, NULL, &error);
+	if (error) {
+		g_critical ("Could not load domain ontology '%s': %s",
+		            domain_ontology_name, error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
+	if (error) {
+		g_critical ("Could not create DBus connection: %s\n",
+		            error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
+
+	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            dbus_name, error->message);
+		g_error_free (error);
+		g_free (dbus_name);
+		return EXIT_FAILURE;
+	}
+
+	g_free (dbus_name);
+
 	tracker_log_init (verbosity, &log_filename);
 	if (log_filename) {
 		g_message ("Using log file:'%s'", log_filename);
@@ -209,6 +260,13 @@ main (gint argc, gchar *argv[])
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 
+	if (domain_ontology && domain_ontology_name) {
+		g_bus_watch_name_on_connection (connection, domain_ontology_name,
+		                                G_BUS_NAME_WATCHER_FLAGS_NONE,
+		                                NULL, on_domain_vanished,
+		                                main_loop, NULL);
+	}
+
 	g_message ("Checking if we're running as a daemon:");
 	g_message ("  %s %s",
 	           no_daemon ? "No" : "Yes",
@@ -219,6 +277,14 @@ main (gint argc, gchar *argv[])
 	if (!miner_applications) {
 		g_critical ("Couldn't create new applications miner, '%s'",
 		            error ? error->message : "unknown error");
+		tracker_log_shutdown ();
+		return EXIT_FAILURE;
+	}
+
+	proxy = tracker_miner_proxy_new (miner_applications, connection, DBUS_PATH, NULL, &error);
+	if (!proxy) {
+		g_critical ("Couldn't create miner DBus proxy: %s", error->message);
+		g_error_free (error);
 		tracker_log_shutdown ();
 		return EXIT_FAILURE;
 	}
@@ -237,6 +303,9 @@ main (gint argc, gchar *argv[])
 
 	g_main_loop_unref (main_loop);
 	g_object_unref (G_OBJECT (miner_applications));
+	g_object_unref (connection);
+	g_object_unref (proxy);
+	g_object_unref (domain_ontology);
 
 	tracker_log_shutdown ();
 

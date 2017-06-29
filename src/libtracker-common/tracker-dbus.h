@@ -92,6 +92,10 @@ void                tracker_dbus_request_debug         (TrackerDBusRequest      
 
 void                tracker_dbus_enable_client_lookup  (gboolean                    enable);
 
+gboolean            tracker_dbus_request_name (GDBusConnection  *connection,
+                                               const gchar      *name,
+                                               GError          **error);
+
 /* GDBus convenience API */
 TrackerDBusRequest *tracker_g_dbus_request_begin       (GDBusMethodInvocation      *invocation,
                                                         const gchar                *format,

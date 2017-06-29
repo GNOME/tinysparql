@@ -58,7 +58,7 @@ namespace Tracker {
 	}
 
 	[CCode (has_target = false, cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
-	public delegate void DBWalCallback (int n_pages);
+	public delegate void DBWalCallback (DBInterface iface, int n_pages);
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
 	public interface DBInterface : GLib.Object {
@@ -68,6 +68,8 @@ namespace Tracker {
 		public void execute_query (...) throws DBInterfaceError;
 		[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
 		public void sqlite_wal_hook (DBWalCallback callback);
+		public void sqlite_wal_checkpoint (bool blocking) throws DBInterfaceError;
+		public unowned GLib.Object get_user_data ();
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-update.h")]
@@ -85,7 +87,6 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-manager.h")]
 	namespace DBManager {
-		public unowned DBInterface get_db_interface ();
 		public void lock ();
 		public bool trylock ();
 		public void unlock ();
@@ -97,7 +98,7 @@ namespace Tracker {
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
-	public interface DBStatement : GLib.Object {
+	public interface DBStatement : GLib.InitiallyUnowned {
 		public abstract void bind_double (int index, double value);
 		public abstract void bind_int (int index, int value);
 		public abstract void bind_text (int index, string value);
@@ -171,7 +172,7 @@ namespace Tracker {
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-ontologies.h")]
-	namespace Ontologies {
+	public class Ontologies : GLib.Object {
 		public unowned Class get_class_by_uri (string class_uri);
 		public unowned Property get_property_by_uri (string property_uri);
 		public unowned Namespace[] get_namespaces ();
@@ -180,10 +181,10 @@ namespace Tracker {
 	}
 
 	public delegate void StatementCallback (int graph_id, string? graph, int subject_id, string subject, int predicate_id, int object_id, string object, GLib.PtrArray rdf_types);
-	public delegate void CommitCallback (Data.CommitType commit_type);
+	public delegate void CommitCallback (Data.Update.CommitType commit_type);
 
-	[CCode (cheader_filename = "libtracker-data/tracker-data-query.h,libtracker-data/tracker-data-update.h,libtracker-data/tracker-data-backup.h")]
-	namespace Data {
+	[CCode (lower_case_cprefix="tracker_data_", cname = "TrackerData", cheader_filename = "libtracker-data/tracker-data-query.h,libtracker-data/tracker-data-update.h")]
+	public class Data.Update : GLib.Object {
 		[CCode (cprefix = "TRACKER_DATA_COMMIT_")]
 		public enum CommitType {
 			REGULAR,
@@ -191,8 +192,6 @@ namespace Tracker {
 			BATCH_LAST
 		}
 
-		public int query_resource_id (string uri);
-		public DBCursor query_sparql_cursor (string query) throws Sparql.Error;
 		public void begin_db_transaction ();
 		public void commit_db_transaction ();
 		public void begin_transaction () throws DBInterfaceError;
@@ -219,18 +218,26 @@ namespace Tracker {
 		public void remove_delete_statement_callback (StatementCallback callback);
 		public void remove_commit_statement_callback (CommitCallback callback);
 		public void remove_rollback_statement_callback (CommitCallback callback);
+	}
+
+	[CCode (cheader_filename = "libtracker-data/tracker-data-backup.h,libtracker-data/tracker-data-query.h")]
+	namespace Data {
+		public int query_resource_id (Data.Manager manager, string uri);
+		public DBCursor query_sparql_cursor (Data.Manager manager, string query) throws Sparql.Error;
+
+		public void backup_save (Data.Manager manager, GLib.File destination, GLib.File data_location, owned BackupFinished callback);
+		public void backup_restore (Data.Manager manager, GLib.File journal, string? cache_location, string? data_location, GLib.File? ontology_location, BusyCallback busy_callback) throws GLib.Error;
 
 		[CCode (cheader_filename = "libtracker-data/tracker-data-backup.h")]
 		public delegate void BackupFinished (GLib.Error error);
-
-		public void backup_save (GLib.File destination, owned BackupFinished callback);
-		public void backup_restore (GLib.File journal, [CCode (array_length = false)] string[]? test_schema, BusyCallback busy_callback) throws GLib.Error;
 	}
 
-	[CCode (cheader_filename = "libtracker-data/tracker-data-manager.h")]
-	namespace Data.Manager {
-		public bool init (DBManagerFlags flags, [CCode (array_length = false)] string[]? test_schema, out bool first_time, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size, BusyCallback? busy_callback, string? busy_status) throws DBInterfaceError, DBJournalError;
-		public void shutdown ();
+	[CCode (cheader_filename = "libtracker-data/tracker-data-manager.h", type_id = "TRACKER_TYPE_DATA_MANAGER")]
+	public class Data.Manager : GLib.Object, GLib.Initable {
+		public Manager (DBManagerFlags flags, GLib.File cache_location, GLib.File data_location, GLib.File ontology_location, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size);
+                public unowned Ontologies get_ontologies ();
+		public unowned DBInterface get_db_interface ();
+		public unowned Data.Update get_data ();
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]

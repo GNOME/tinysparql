@@ -1,0 +1,2 @@
+INSERT DATA { <merry> a ex:Mammal }
+INSERT DATA { <treebeard> a ex:Animal, ex:Plant }

@@ -30,7 +30,7 @@ G_BEGIN_DECLS
 
 typedef GStrv (*TrackerNotifyClassGetter)   (void);
 
-void           tracker_events_init              (void);
+void           tracker_events_init              (TrackerDataManager *data_manager);
 void           tracker_events_shutdown          (void);
 void           tracker_events_add_insert        (gint         graph_id,
                                                  gint         subject_id,

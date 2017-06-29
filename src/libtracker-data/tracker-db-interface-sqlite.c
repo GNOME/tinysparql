@@ -53,8 +53,7 @@
 
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-manager.h"
-
-#define UNKNOWN_STATUS 0.5
+#include "tracker-data-enum-types.h"
 
 typedef struct {
 	TrackerDBStatement *head;
@@ -83,21 +82,23 @@ struct TrackerDBInterface {
 	/* Number of active cursors */
 	gint n_active_cursors;
 
-	guint ro : 1;
+	guint flags;
 	GCancellable *cancellable;
 
 	TrackerDBStatementLru select_stmt_lru;
 	TrackerDBStatementLru update_stmt_lru;
 
-	TrackerBusyCallback busy_callback;
-	gpointer busy_user_data;
-	gchar *busy_status;
-
 	gchar *fts_properties;
 
-	/* Used if TRACKER_DB_MANAGER_ENABLE_MUTEXES is set */
+	/* Used if TRACKER_DB_INTERFACE_USE_MUTEX is set */
 	GMutex mutex;
-	guint use_mutex;
+
+	/* Wal */
+	TrackerDBWalCallback wal_hook;
+
+	/* User data */
+	gpointer user_data;
+	GDestroyNotify user_data_destroy_notify;
 };
 
 struct TrackerDBInterfaceClass {
@@ -150,7 +151,7 @@ static gboolean            db_cursor_iter_next                      (TrackerDBCu
 enum {
 	PROP_0,
 	PROP_FILENAME,
-	PROP_RO
+	PROP_FLAGS
 };
 
 enum {
@@ -1355,12 +1356,6 @@ check_interrupt (void *user_data)
 {
 	TrackerDBInterface *db_interface = user_data;
 
-	if (db_interface->busy_callback) {
-		db_interface->busy_callback (db_interface->busy_status,
-		                             UNKNOWN_STATUS, /* No idea to get the status from SQLite */
-		                             db_interface->busy_user_data);
-	}
-
 	return g_cancellable_is_cancelled (db_interface->cancellable) ? 1 : 0;
 }
 
@@ -1433,14 +1428,14 @@ initialize_functions (TrackerDBInterface *db_interface)
 static inline void
 tracker_db_interface_lock (TrackerDBInterface *iface)
 {
-	if (iface->use_mutex)
+	if (iface->flags & TRACKER_DB_INTERFACE_USE_MUTEX)
 		g_mutex_lock (&iface->mutex);
 }
 
 static inline void
 tracker_db_interface_unlock (TrackerDBInterface *iface)
 {
-	if (iface->use_mutex)
+	if (iface->flags & TRACKER_DB_INTERFACE_USE_MUTEX)
 		g_mutex_unlock (&iface->mutex);
 }
 
@@ -1453,7 +1448,7 @@ open_database (TrackerDBInterface  *db_interface,
 
 	g_assert (db_interface->filename != NULL);
 
-	if (!db_interface->ro) {
+	if ((db_interface->flags & TRACKER_DB_INTERFACE_READONLY) == 0) {
 		mode = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
 	} else {
 		mode = SQLITE_OPEN_READONLY;
@@ -1470,7 +1465,7 @@ open_database (TrackerDBInterface  *db_interface,
 		             "Could not open sqlite3 database:'%s': %s", db_interface->filename, str);
 		return;
 	} else {
-		g_message ("Opened sqlite3 database:'%s'", db_interface->filename);
+		g_info ("Opened sqlite3 database:'%s'", db_interface->filename);
 	}
 
 	/* Set our unicode collation function */
@@ -1483,6 +1478,7 @@ open_database (TrackerDBInterface  *db_interface,
 
 	sqlite3_extended_result_codes (db_interface->db, 0);
 	sqlite3_busy_timeout (db_interface->db, 100000);
+	sqlite3_db_config (db_interface->db, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 1, NULL);
 }
 
 static gboolean
@@ -1522,8 +1518,8 @@ tracker_db_interface_sqlite_set_property (GObject       *object,
 	db_iface = TRACKER_DB_INTERFACE (object);
 
 	switch (prop_id) {
-	case PROP_RO:
-		db_iface->ro = g_value_get_boolean (value);
+	case PROP_FLAGS:
+		db_iface->flags = g_value_get_flags (value);
 		break;
 	case PROP_FILENAME:
 		db_iface->filename = g_value_dup_string (value);
@@ -1544,8 +1540,8 @@ tracker_db_interface_sqlite_get_property (GObject    *object,
 	db_iface = TRACKER_DB_INTERFACE (object);
 
 	switch (prop_id) {
-	case PROP_RO:
-		g_value_set_boolean (value, db_iface->ro);
+	case PROP_FLAGS:
+		g_value_set_flags (value, db_iface->flags);
 		break;
 	case PROP_FILENAME:
 		g_value_set_string (value, db_iface->filename);
@@ -1615,7 +1611,7 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 #if HAVE_TRACKER_FTS
 	GStrv fts_columns;
 
-	tracker_fts_init_db (db_interface->db, properties);
+	tracker_fts_init_db (db_interface->db, db_interface, properties);
 
 	if (create &&
 	    !tracker_fts_create_table (db_interface->db, "fts5",
@@ -1854,8 +1850,9 @@ wal_hook (gpointer     user_data,
           const gchar *db_name,
           gint         n_pages)
 {
-	((TrackerDBWalCallback) user_data) (n_pages);
+	TrackerDBInterface *iface = user_data;
 
+	iface->wal_hook (iface, n_pages);
 	return SQLITE_OK;
 }
 
@@ -1863,9 +1860,33 @@ void
 tracker_db_interface_sqlite_wal_hook (TrackerDBInterface   *interface,
                                       TrackerDBWalCallback  callback)
 {
-	sqlite3_wal_hook (interface->db, wal_hook, callback);
+	interface->wal_hook = callback;
+	sqlite3_wal_hook (interface->db, wal_hook, interface);
 }
 
+gboolean
+tracker_db_interface_sqlite_wal_checkpoint (TrackerDBInterface  *interface,
+                                            gboolean             blocking,
+                                            GError             **error)
+{
+	int return_val;
+
+	tracker_db_interface_lock (interface);
+	return_val = sqlite3_wal_checkpoint_v2 (interface->db, NULL,
+	                                        blocking ? SQLITE_CHECKPOINT_FULL : SQLITE_CHECKPOINT_PASSIVE,
+	                                        NULL, NULL);
+	tracker_db_interface_unlock (interface);
+
+	if (return_val != SQLITE_OK) {
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_QUERY_ERROR,
+		             sqlite3_errstr (return_val));
+		return FALSE;
+	}
+
+	return TRUE;
+}
 
 static void
 tracker_db_interface_sqlite_finalize (GObject *object)
@@ -1877,10 +1898,12 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	close_database (db_interface);
 	g_free (db_interface->fts_properties);
 
-	g_message ("Closed sqlite3 database:'%s'", db_interface->filename);
+	g_info ("Closed sqlite3 database:'%s'", db_interface->filename);
 
 	g_free (db_interface->filename);
-	g_free (db_interface->busy_status);
+
+	if (db_interface->user_data && db_interface->user_data_destroy_notify)
+		db_interface->user_data_destroy_notify (db_interface->user_data);
 
 	G_OBJECT_CLASS (tracker_db_interface_parent_class)->finalize (object);
 }
@@ -1903,30 +1926,20 @@ tracker_db_interface_class_init (TrackerDBInterfaceClass *class)
 	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
 	g_object_class_install_property (object_class,
-	                                 PROP_RO,
-	                                 g_param_spec_boolean ("read-only",
-	                                                       "Read only",
-	                                                       "Whether the connection is read only",
-	                                                       FALSE,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
-}
-
-static void
-prepare_database (TrackerDBInterface *db_interface)
-{
-	db_interface->dynamic_statements = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                                          NULL,
-	                                                          (GDestroyNotify) g_object_unref);
+	                                 PROP_FLAGS,
+	                                 g_param_spec_flags ("flags",
+	                                                     "Flags",
+	                                                     "Interface flags",
+	                                                     TRACKER_TYPE_DB_INTERFACE_FLAGS, 0,
+	                                                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 }
 
 static void
 tracker_db_interface_init (TrackerDBInterface *db_interface)
 {
-	db_interface->ro = FALSE;
-	db_interface->use_mutex = (tracker_db_manager_get_flags (NULL, NULL) &
-	                           TRACKER_DB_MANAGER_ENABLE_MUTEXES) != 0;
-
-	prepare_database (db_interface);
+	db_interface->dynamic_statements = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                                          NULL,
+	                                                          (GDestroyNotify) g_object_unref);
 }
 
 void
@@ -1949,24 +1962,6 @@ tracker_db_interface_set_max_stmt_cache_size (TrackerDBInterface         *db_int
 		stmt_lru->max = max_size;
 	} else {
 		stmt_lru->max = 3;
-	}
-}
-
-void
-tracker_db_interface_set_busy_handler (TrackerDBInterface  *db_interface,
-                                       TrackerBusyCallback  busy_callback,
-                                       const gchar         *busy_status,
-                                       gpointer             busy_user_data)
-{
-	g_return_if_fail (TRACKER_IS_DB_INTERFACE (db_interface));
-	db_interface->busy_callback = busy_callback;
-	db_interface->busy_user_data = busy_user_data;
-	g_free (db_interface->busy_status);
-
-	if (busy_status) {
-		db_interface->busy_status = g_strdup (busy_status);
-	} else {
-		db_interface->busy_status = NULL;
 	}
 }
 
@@ -2317,9 +2312,9 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 }
 
 TrackerDBInterface *
-tracker_db_interface_sqlite_new (const gchar  *filename,
-                                 gboolean      readonly,
-                                 GError      **error)
+tracker_db_interface_sqlite_new (const gchar              *filename,
+                                 TrackerDBInterfaceFlags   flags,
+                                 GError                  **error)
 {
 	TrackerDBInterface *object;
 	GError *internal_error = NULL;
@@ -2328,7 +2323,7 @@ tracker_db_interface_sqlite_new (const gchar  *filename,
 	                         NULL,
 	                         &internal_error,
 	                         "filename", filename,
-	                         "read-only", !!readonly,
+	                         "flags", flags,
 	                         NULL);
 
 	if (internal_error) {
@@ -2928,4 +2923,23 @@ tracker_db_statement_sqlite_reset (TrackerDBStatement *stmt)
 
 	sqlite3_reset (stmt->stmt);
 	sqlite3_clear_bindings (stmt->stmt);
+}
+
+
+void
+tracker_db_interface_set_user_data (TrackerDBInterface *db_interface,
+                                    gpointer            user_data,
+                                    GDestroyNotify      destroy_notify)
+{
+	if (db_interface->user_data && db_interface->user_data_destroy_notify)
+		db_interface->user_data_destroy_notify (db_interface->user_data);
+
+	db_interface->user_data = user_data;
+	db_interface->user_data_destroy_notify = destroy_notify;
+}
+
+gpointer
+tracker_db_interface_get_user_data (TrackerDBInterface *db_interface)
+{
+	return db_interface->user_data;
 }

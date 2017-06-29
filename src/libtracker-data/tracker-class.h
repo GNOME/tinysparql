@@ -36,6 +36,7 @@ G_BEGIN_DECLS
 #define TRACKER_IS_CLASS_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_CLASS))
 #define TRACKER_CLASS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_CLASS, TrackerClassClass))
 
+typedef struct _TrackerOntologies TrackerOntologies;
 typedef struct _TrackerProperty TrackerProperty;
 typedef struct _TrackerClass TrackerClass;
 typedef struct _TrackerClassClass TrackerClassClass;
@@ -91,6 +92,9 @@ void              tracker_class_set_db_schema_changed  (TrackerClass        *ser
                                                         gboolean             value);
 void              tracker_class_set_notify             (TrackerClass        *service,
                                                         gboolean             value);
+
+void              tracker_class_set_ontologies         (TrackerClass        *class,
+                                                        TrackerOntologies   *ontologies);
 
 /* For signals API */
 void              tracker_class_foreach_delete_event   (TrackerClass        *class,

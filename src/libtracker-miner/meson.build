@@ -17,12 +17,7 @@ private_sources = [
     'tracker-priority-queue.c',
     'tracker-task-pool.c',
     'tracker-sparql-buffer.c',
-    'tracker-thumbnailer.c',
     'tracker-utils.c']
-
-if libmediaart.found()
-    private_sources.append(['tracker-media-art.c'])
-endif
 
 miner_headers = [
     'tracker-enumerator.h',
@@ -32,6 +27,7 @@ miner_headers = [
     'tracker-decorator-fs.h',
     'tracker-miner-fs.h',
     'tracker-miner-object.h',
+    'tracker-miner-proxy.h',
     'tracker-decorator.h',
     'tracker-miner-enums.h',
     'tracker-miner.h',
@@ -48,6 +44,7 @@ miner_sources = (
     'tracker-indexing-tree.c',
     'tracker-miner-object.c',
     'tracker-miner-online.c',
+    'tracker-miner-proxy.c',
     'tracker-miner-fs.c'])
 
 libtracker_miner_private = static_library(

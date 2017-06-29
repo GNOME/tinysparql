@@ -40,6 +40,8 @@ tracker_miner_fs_SOURCES =                             \
 	tracker-miner-files-peer-listener.h            \
 	tracker-storage.c                              \
 	tracker-storage.h                              \
+	tracker-thumbnailer.c                          \
+	tracker-thumbnailer.h                          \
 	tracker-writeback-listener.c                   \
 	tracker-writeback-listener.h                   \
 	tracker-writeback-dispatcher.c                 \
@@ -85,12 +87,6 @@ uninstall-local:
 	$(RM) "$(servicedir)/$(service_DATA)"
 
 # Desktop files: First we fix the VERSION and libexecdir
-if HAVE_LIBMEDIAART
-requires="libmediaart-1.0"
-else
-requires=
-endif
-
 %.desktop.in: %.desktop.in.in
 	@sed -e "s|@libexecdir[@]|${libexecdir}|" \
 	     -e "s|@VERSION[@]|${VERSION}|" $< > $@

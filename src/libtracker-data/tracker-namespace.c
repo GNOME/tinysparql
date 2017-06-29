@@ -37,6 +37,7 @@ struct _TrackerNamespacePrivate {
 
 	gchar *prefix;
 	gboolean is_new;
+	TrackerOntologies *ontologies;
 };
 
 static void namespace_finalize     (GObject      *object);
@@ -110,7 +111,7 @@ tracker_namespace_get_prefix (TrackerNamespace *namespace)
 	priv = GET_PRIV (namespace);
 
 	if (!priv->prefix && priv->use_gvdb) {
-		priv->prefix = g_strdup (tracker_ontologies_get_namespace_string_gvdb (priv->uri, "prefix"));
+		priv->prefix = g_strdup (tracker_ontologies_get_namespace_string_gvdb (priv->ontologies, priv->uri, "prefix"));
 	}
 
 	return priv->prefix;
@@ -177,4 +178,17 @@ tracker_namespace_set_is_new (TrackerNamespace *namespace,
 	priv = GET_PRIV (namespace);
 
 	priv->is_new = value;
+}
+
+void
+tracker_namespace_set_ontologies (TrackerNamespace  *namespace,
+                                  TrackerOntologies *ontologies)
+{
+	TrackerNamespacePrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
+	g_return_if_fail (ontologies != NULL);
+	priv = GET_PRIV (namespace);
+
+	priv->ontologies = ontologies;
 }

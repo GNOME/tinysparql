@@ -21,24 +21,40 @@
 #ifndef __LIBTRACKER_DATA_UPDATE_H__
 #define __LIBTRACKER_DATA_UPDATE_H__
 
-#include <glib.h>
-#include <gio/gio.h>
-
-#include <libtracker-sparql/tracker-sparql.h>
-
-#include "tracker-db-interface.h"
-
-G_BEGIN_DECLS
-
 #if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
+
+#include <glib.h>
+#include <gio/gio.h>
+
+G_BEGIN_DECLS
+
+typedef struct _TrackerData TrackerData;
+typedef struct _TrackerDataClass TrackerDataClass;
+
+#include <libtracker-sparql/tracker-sparql.h>
+#include "tracker-db-interface.h"
+#include "tracker-data-manager.h"
+
+#define TRACKER_TYPE_DATA         (tracker_data_get_type ())
+#define TRACKER_DATA(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DATA, TrackerData))
+#define TRACKER_DATA_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_DATA, TrackerDataClass))
+#define TRACKER_IS_DATA(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_DATA))
+#define TRACKER_IS_DATA_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_DATA))
+#define TRACKER_DATA_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_DATA, TrackerDataClass))
+
+typedef struct _TrackerData TrackerData;
+typedef struct _TrackerDataClass TrackerDataClass;
 
 typedef enum {
 	TRACKER_DATA_COMMIT_REGULAR,
 	TRACKER_DATA_COMMIT_BATCH,
 	TRACKER_DATA_COMMIT_BATCH_LAST
 } TrackerDataCommitType;
+
+typedef struct _TrackerData TrackerData;
+typedef struct _TrackerData TrackerDataUpdate;
 
 typedef void (*TrackerStatementCallback) (gint                  graph_id,
                                           const gchar          *graph,
@@ -55,74 +71,98 @@ typedef void (*TrackerCommitCallback)    (TrackerDataCommitType commit_type,
 GQuark   tracker_data_error_quark                   (void);
 
 /* Metadata */
-void     tracker_data_delete_statement              (const gchar               *graph,
+void     tracker_data_delete_statement              (TrackerData               *data,
+                                                     const gchar               *graph,
                                                      const gchar               *subject,
                                                      const gchar               *predicate,
                                                      const gchar               *object,
                                                      GError                   **error);
-void     tracker_data_insert_statement              (const gchar               *graph,
+void     tracker_data_insert_statement              (TrackerData               *data,
+                                                     const gchar               *graph,
                                                      const gchar               *subject,
                                                      const gchar               *predicate,
                                                      const gchar               *object,
                                                      GError                   **error);
-void     tracker_data_insert_statement_with_uri     (const gchar               *graph,
+void     tracker_data_insert_statement_with_uri     (TrackerData               *data,
+                                                     const gchar               *graph,
                                                      const gchar               *subject,
                                                      const gchar               *predicate,
                                                      const gchar               *object,
                                                      GError                   **error);
-void     tracker_data_insert_statement_with_string  (const gchar               *graph,
+void     tracker_data_insert_statement_with_string  (TrackerData               *data,
+                                                     const gchar               *graph,
                                                      const gchar               *subject,
                                                      const gchar               *predicate,
                                                      const gchar               *object,
                                                      GError                   **error);
-void     tracker_data_update_statement              (const gchar               *graph,
+void     tracker_data_update_statement              (TrackerData               *data,
+                                                     const gchar               *graph,
                                                      const gchar               *subject,
                                                      const gchar               *predicate,
                                                      const gchar               *object,
                                                      GError                   **error);
-void     tracker_data_begin_transaction             (GError                   **error);
-void     tracker_data_begin_ontology_transaction    (GError                   **error);
-void     tracker_data_begin_transaction_for_replay  (time_t                     time,
+void     tracker_data_begin_transaction             (TrackerData               *data,
                                                      GError                   **error);
-void     tracker_data_commit_transaction            (GError                   **error);
-void     tracker_data_notify_transaction            (TrackerDataCommitType      commit_type);
-void     tracker_data_rollback_transaction          (void);
-void     tracker_data_update_sparql                 (const gchar               *update,
+void     tracker_data_begin_ontology_transaction    (TrackerData               *data,
+                                                     GError                   **error);
+void     tracker_data_begin_transaction_for_replay  (TrackerData               *data,
+                                                     time_t                     time,
+                                                     GError                   **error);
+void     tracker_data_commit_transaction            (TrackerData               *data,
+                                                     GError                   **error);
+void     tracker_data_notify_transaction            (TrackerData               *data,
+                                                     TrackerDataCommitType      commit_type);
+void     tracker_data_rollback_transaction          (TrackerData               *data);
+void     tracker_data_update_sparql                 (TrackerData               *data,
+                                                     const gchar               *update,
                                                      GError                   **error);
 GVariant *
-         tracker_data_update_sparql_blank           (const gchar               *update,
+         tracker_data_update_sparql_blank           (TrackerData               *data,
+                                                     const gchar               *update,
                                                      GError                   **error);
-void     tracker_data_update_buffer_flush           (GError                   **error);
-void     tracker_data_update_buffer_might_flush     (GError                   **error);
-void     tracker_data_load_turtle_file              (GFile                     *file,
+void     tracker_data_update_buffer_flush           (TrackerData               *data,
+                                                     GError                   **error);
+void     tracker_data_update_buffer_might_flush     (TrackerData               *data,
+                                                     GError                   **error);
+void     tracker_data_load_turtle_file              (TrackerData               *data,
+                                                     GFile                     *file,
                                                      GError                   **error);
 
-void     tracker_data_sync                          (void);
-void     tracker_data_replay_journal                (TrackerBusyCallback        busy_callback,
+void     tracker_data_sync                          (TrackerData               *data);
+void     tracker_data_replay_journal                (TrackerData               *data,
+                                                     TrackerBusyCallback        busy_callback,
                                                      gpointer                   busy_user_data,
                                                      const gchar               *busy_status,
                                                      GError                   **error);
 
 /* Calling back */
-void     tracker_data_add_insert_statement_callback      (TrackerStatementCallback   callback,
+void     tracker_data_add_insert_statement_callback      (TrackerData               *data,
+                                                          TrackerStatementCallback   callback,
                                                           gpointer                   user_data);
-void     tracker_data_add_delete_statement_callback      (TrackerStatementCallback   callback,
+void     tracker_data_add_delete_statement_callback      (TrackerData               *data,
+                                                          TrackerStatementCallback   callback,
                                                           gpointer                   user_data);
-void     tracker_data_add_commit_statement_callback      (TrackerCommitCallback      callback,
+void     tracker_data_add_commit_statement_callback      (TrackerData               *data,
+                                                          TrackerCommitCallback      callback,
                                                           gpointer                   user_data);
-void     tracker_data_add_rollback_statement_callback    (TrackerCommitCallback      callback,
+void     tracker_data_add_rollback_statement_callback    (TrackerData               *data,
+                                                          TrackerCommitCallback      callback,
                                                           gpointer                   user_data);
-void     tracker_data_remove_insert_statement_callback   (TrackerStatementCallback   callback,
+void     tracker_data_remove_insert_statement_callback   (TrackerData               *data,
+                                                          TrackerStatementCallback   callback,
                                                           gpointer                   user_data);
-void     tracker_data_remove_delete_statement_callback   (TrackerStatementCallback   callback,
+void     tracker_data_remove_delete_statement_callback   (TrackerData               *data,
+                                                          TrackerStatementCallback   callback,
                                                           gpointer                   user_data);
-void     tracker_data_remove_commit_statement_callback   (TrackerCommitCallback      callback,
+void     tracker_data_remove_commit_statement_callback   (TrackerData               *data,
+                                                          TrackerCommitCallback      callback,
                                                           gpointer                   user_data);
-void     tracker_data_remove_rollback_statement_callback (TrackerCommitCallback      callback,
+void     tracker_data_remove_rollback_statement_callback (TrackerData               *data,
+                                                          TrackerCommitCallback      callback,
                                                           gpointer                   user_data);
 
-void     tracker_data_update_shutdown                 (void);
-#define  tracker_data_update_init                     tracker_data_update_shutdown
+GType         tracker_data_get_type (void) G_GNUC_CONST;
+TrackerData * tracker_data_new      (TrackerDataManager *manager);
 
 G_END_DECLS
 

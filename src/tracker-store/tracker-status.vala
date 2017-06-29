@@ -110,7 +110,7 @@ public class Tracker.Status : Object {
 	}
 
 	public async void wait () throws Error {
-		if (_progress == 1) {
+		if (status == "Idle") {
 			/* tracker-store is idle */
 		} else {
 			var context = new WaitContext ();

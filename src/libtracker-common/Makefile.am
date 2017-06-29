@@ -23,6 +23,7 @@ libtracker_common_la_SOURCES = \
 	$(BUILT_SOURCES) \
 	tracker-date-time.c \
 	tracker-dbus.c \
+	tracker-domain-ontology.c \
 	tracker-file-utils.c \
 	tracker-ioprio.c \
 	tracker-log.c \
@@ -41,6 +42,7 @@ noinst_HEADERS = \
 	tracker-log.h \
 	tracker-common.h \
 	tracker-date-time.h \
+	tracker-domain-ontology.h \
 	tracker-file-utils.h \
 	tracker-sched.h \
 	tracker-seccomp.h \

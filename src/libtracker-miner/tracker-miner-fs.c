@@ -23,10 +23,8 @@
 
 #include "tracker-crawler.h"
 #include "tracker-miner-fs.h"
-#include "tracker-media-art.h"
 #include "tracker-monitor.h"
 #include "tracker-utils.h"
-#include "tracker-thumbnailer.h"
 #include "tracker-priority-queue.h"
 #include "tracker-task-pool.h"
 #include "tracker-sparql-buffer.h"
@@ -160,17 +158,10 @@ typedef struct {
 typedef struct {
 	GFile *file;
 	gchar *urn;
-	gchar *parent_urn;
 	gint priority;
 	GCancellable *cancellable;
-	TrackerSparqlBuilder *builder;
 	TrackerMiner *miner;
 } UpdateProcessingTaskContext;
-
-typedef struct {
-	GMainLoop *main_loop;
-	TrackerMiner *miner;
-} ThumbnailMoveData;
 
 struct _TrackerMinerFSPrivate {
 	/* File queues for indexer */
@@ -182,7 +173,6 @@ struct _TrackerMinerFSPrivate {
 
 	guint item_queues_handler_id;
 	GFile *item_queue_blocker;
-	GHashTable *items_ignore_next_update;
 
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 	guint queue_status_timeout_id;
@@ -208,15 +198,9 @@ struct _TrackerMinerFSPrivate {
 
 	/* Properties */
 	gdouble throttle;
-	guint mtime_checking : 1;   /* TRUE if mtime checks should be done
-	                             * during initial crawling. */
-	guint initial_crawling : 1; /* TRUE if initial crawling should be
-	                             * done */
 
 	/* Writeback tasks */
 	TrackerTaskPool *writeback_pool;
-
-	TrackerThumbnailer *thumbnailer;
 
 	/* Status */
 	GTimer *timer;
@@ -258,7 +242,6 @@ typedef enum {
 	QUEUE_UPDATED,
 	QUEUE_DELETED,
 	QUEUE_MOVED,
-	QUEUE_IGNORE_NEXT_UPDATE,
 	QUEUE_WAIT,
 	QUEUE_WRITEBACK
 } QueueState;
@@ -266,11 +249,12 @@ typedef enum {
 enum {
 	PROCESS_FILE,
 	PROCESS_FILE_ATTRIBUTES,
-	IGNORE_NEXT_UPDATE_FILE,
 	FINISHED,
 	WRITEBACK_FILE,
 	FINISHED_ROOT,
 	REMOVE_FILE,
+	REMOVE_CHILDREN,
+	MOVE_FILE,
 	LAST_SIGNAL
 };
 
@@ -280,17 +264,11 @@ enum {
 	PROP_ROOT,
 	PROP_WAIT_POOL_LIMIT,
 	PROP_READY_POOL_LIMIT,
-	PROP_DATA_PROVIDER,
-	PROP_MTIME_CHECKING,
-	PROP_INITIAL_CRAWLING
+	PROP_DATA_PROVIDER
 };
 
 static void           miner_fs_initable_iface_init        (GInitableIface       *iface);
 
-static gboolean       miner_fs_remove_file                (TrackerMinerFS       *fs,
-                                                           GFile                *file,
-                                                           gboolean              children_only,
-                                                           TrackerSparqlBuilder *builder);
 static void           fs_finalize                         (GObject              *object);
 static void           fs_constructed                      (GObject              *object);
 static void           fs_set_property                     (GObject              *object,
@@ -306,8 +284,6 @@ static void           miner_started                       (TrackerMiner         
 static void           miner_stopped                       (TrackerMiner         *miner);
 static void           miner_paused                        (TrackerMiner         *miner);
 static void           miner_resumed                       (TrackerMiner         *miner);
-static void           miner_ignore_next_update            (TrackerMiner         *miner,
-                                                           const GStrv           subjects);
 static ItemMovedData *item_moved_data_new                 (GFile                *file,
                                                            GFile                *source_file);
 static void           item_moved_data_free                (ItemMovedData        *data);
@@ -379,8 +355,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	TrackerMinerClass *miner_class = TRACKER_MINER_CLASS (klass);
 
-	klass->remove_file = miner_fs_remove_file;
-
 	object_class->finalize = fs_finalize;
 	object_class->constructed = fs_constructed;
 	object_class->set_property = fs_set_property;
@@ -390,7 +364,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	miner_class->stopped = miner_stopped;
 	miner_class->paused  = miner_paused;
 	miner_class->resumed = miner_resumed;
-	miner_class->ignore_next_update = miner_ignore_next_update;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_THROTTLE,
@@ -429,20 +402,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	                                                      "Data provider populating data, e.g. like GFileEnumerator",
 	                                                      TRACKER_TYPE_DATA_PROVIDER,
 	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
-	g_object_class_install_property (object_class,
-	                                 PROP_MTIME_CHECKING,
-	                                 g_param_spec_boolean ("mtime-checking",
-	                                                       "Mtime checking",
-	                                                       "Whether to perform mtime checks during initial crawling or not",
-	                                                       TRUE,
-	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
-	g_object_class_install_property (object_class,
-	                                 PROP_INITIAL_CRAWLING,
-	                                 g_param_spec_boolean ("initial-crawling",
-	                                                       "Initial crawling",
-	                                                       "Whether to perform initial crawling or not",
-	                                                       TRUE,
-	                                                       G_PARAM_READWRITE));
 
 	/**
 	 * TrackerMinerFS::process-file:
@@ -460,7 +419,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 * This signal allows both synchronous and asynchronous extraction,
 	 * in the synchronous case @cancellable can be safely ignored. In
 	 * either case, on successful metadata extraction, implementations
-	 * must call tracker_miner_fs_file_notify() to indicate that
+	 * must call tracker_miner_fs_notify_finish() to indicate that
 	 * processing has finished on @file, so the miner can execute
 	 * the SPARQL updates and continue processing other files.
 	 *
@@ -477,7 +436,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              NULL, NULL,
 		              NULL,
 		              G_TYPE_BOOLEAN,
-		              3, G_TYPE_FILE, TRACKER_SPARQL_TYPE_BUILDER, G_TYPE_CANCELLABLE);
+		              2, G_TYPE_FILE, G_TYPE_TASK);
 
 	/**
 	 * TrackerMinerFS::process-file-attributes:
@@ -496,7 +455,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 	 * This signal allows both synchronous and asynchronous extraction,
 	 * in the synchronous case @cancellable can be safely ignored. In
 	 * either case, on successful metadata extraction, implementations
-	 * must call tracker_miner_fs_file_notify() to indicate that
+	 * must call tracker_miner_fs_notify_finish() to indicate that
 	 * processing has finished on @file, so the miner can execute
 	 * the SPARQL updates and continue processing other files.
 	 *
@@ -513,37 +472,7 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              NULL, NULL,
 		              NULL,
 		              G_TYPE_BOOLEAN,
-		              3, G_TYPE_FILE, TRACKER_SPARQL_TYPE_BUILDER, G_TYPE_CANCELLABLE);
-
-	/**
-	 * TrackerMinerFS::ignore-next-update-file:
-	 * @miner_fs: the #TrackerMinerFS
-	 * @file: a #GFile
-	 * @builder: a #TrackerSparqlBuilder
-	 * @cancellable: a #GCancellable
-	 *
-	 * The ::ignore-next-update-file signal is emitted whenever a file should
-	 * be marked as to ignore on next update, and it's metadata prepared for that.
-	 *
-	 * @builder is the #TrackerSparqlBuilder where all sparql updates
-	 * to be performed for @file will be appended.
-	 *
-	 * Returns: %TRUE on success
-	 *          %FALSE on failure
-	 *
-	 * Since: 0.8
-	 *
-	 * Deprecated: 0.12
-	 **/
-	signals[IGNORE_NEXT_UPDATE_FILE] =
-		g_signal_new ("ignore-next-update-file",
-		              G_OBJECT_CLASS_TYPE (object_class),
-		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerMinerFSClass, ignore_next_update_file),
-		              NULL, NULL,
-		              NULL,
-		              G_TYPE_BOOLEAN,
-		              3, G_TYPE_FILE, TRACKER_SPARQL_TYPE_BUILDER, G_TYPE_CANCELLABLE);
+		              2, G_TYPE_FILE, G_TYPE_TASK);
 
 	/**
 	 * TrackerMinerFS::finished:
@@ -667,10 +596,17 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerMinerFSClass, remove_file),
 		              NULL, NULL, NULL,
-		              G_TYPE_BOOLEAN,
-		              3,
-		              G_TYPE_FILE, G_TYPE_BOOLEAN,
-		              TRACKER_SPARQL_TYPE_BUILDER);
+		              G_TYPE_STRING,
+		              1, G_TYPE_FILE);
+
+	signals[REMOVE_CHILDREN] =
+		g_signal_new ("remove-children",
+		              G_TYPE_FROM_CLASS (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerFSClass, remove_children),
+		              NULL, NULL, NULL,
+		              G_TYPE_STRING,
+		              1, G_TYPE_FILE);
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerFSPrivate));
 
@@ -707,10 +643,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                                                       object);
 #endif /* PROCESSING_POOL_ENABLE_TRACE */
 
-	priv->items_ignore_next_update = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                                        (GDestroyNotify) g_free,
-	                                                        (GDestroyNotify) NULL);
-
 	/* Create processing pools */
 	priv->task_pool = tracker_task_pool_new (DEFAULT_WAIT_POOL_LIMIT);
 	g_signal_connect (priv->task_pool, "notify::limit-reached",
@@ -725,9 +657,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	priv->quark_directory_found_crawling = g_quark_from_static_string ("tracker-directory-found-crawling");
 	priv->quark_attribute_updated = g_quark_from_static_string ("tracker-attribute-updated");
 	priv->quark_reentry_counter = g_quark_from_static_string ("tracker-reentry-counter");
-
-	priv->mtime_checking = TRUE;
-	priv->initial_crawling = TRUE;
 
 	priv->roots_to_notify = g_hash_table_new_full (g_file_hash,
 	                                               (GEqualFunc) g_file_equal,
@@ -779,7 +708,8 @@ miner_fs_initable_init (GInitable     *initable,
 
 	/* Create the file notifier */
 	priv->file_notifier = tracker_file_notifier_new (priv->indexing_tree,
-	                                                 priv->data_provider);
+	                                                 priv->data_provider,
+							 tracker_miner_get_connection (TRACKER_MINER (initable)));
 
 	if (!priv->file_notifier) {
 		g_set_error (error,
@@ -811,8 +741,6 @@ miner_fs_initable_init (GInitable     *initable,
 	                  G_CALLBACK (file_notifier_finished),
 	                  initable);
 
-	priv->thumbnailer = tracker_thumbnailer_new ();
-
 	return TRUE;
 }
 
@@ -821,15 +749,6 @@ miner_fs_initable_iface_init (GInitableIface *iface)
 {
 	miner_fs_initable_parent_iface = g_type_interface_peek_parent (iface);
 	iface->init = miner_fs_initable_init;
-}
-
-static gboolean
-miner_fs_remove_file (TrackerMinerFS *fs,
-                      GFile                *file,
-                      gboolean              children_only,
-                      TrackerSparqlBuilder *builder)
-{
-	return FALSE;
 }
 
 static void
@@ -892,18 +811,12 @@ fs_finalize (GObject *object)
 	                                NULL);
 	tracker_priority_queue_unref (priv->items_writeback);
 
-	g_hash_table_unref (priv->items_ignore_next_update);
-
 	if (priv->indexing_tree) {
 		g_object_unref (priv->indexing_tree);
 	}
 
 	if (priv->file_notifier) {
 		g_object_unref (priv->file_notifier);
-	}
-
-	if (priv->thumbnailer) {
-		g_object_unref (priv->thumbnailer);
 	}
 
 	if (priv->roots_to_notify) {
@@ -982,12 +895,6 @@ fs_set_property (GObject      *object,
 	case PROP_DATA_PROVIDER:
 		fs->priv->data_provider = g_value_dup_object (value);
 		break;
-	case PROP_MTIME_CHECKING:
-		fs->priv->mtime_checking = g_value_get_boolean (value);
-		break;
-	case PROP_INITIAL_CRAWLING:
-		fs->priv->initial_crawling = g_value_get_boolean (value);
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -1017,14 +924,8 @@ fs_get_property (GObject    *object,
 	case PROP_READY_POOL_LIMIT:
 		g_value_set_uint (value, fs->priv->sparql_buffer_limit);
 		break;
-	case PROP_MTIME_CHECKING:
-		g_value_set_boolean (value, fs->priv->mtime_checking);
-		break;
 	case PROP_DATA_PROVIDER:
 		g_value_set_object (value, fs->priv->data_provider);
-		break;
-	case PROP_INITIAL_CRAWLING:
-		g_value_set_boolean (value, fs->priv->initial_crawling);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1110,23 +1011,6 @@ miner_resumed (TrackerMiner *miner)
 	}
 }
 
-
-static void
-miner_ignore_next_update (TrackerMiner *miner, const GStrv urls)
-{
-	TrackerMinerFS *fs;
-	guint n;
-
-	fs = TRACKER_MINER_FS (miner);
-
-	for (n = 0; urls[n] != NULL; n++) {
-		g_hash_table_insert (fs->priv->items_ignore_next_update,
-		                     g_strdup (urls[n]),
-		                     GINT_TO_POINTER (TRUE));
-	}
-
-	item_queue_handlers_set_up (fs);
-}
 
 static void
 notify_roots_finished (TrackerMinerFS *fs,
@@ -1368,24 +1252,17 @@ static UpdateProcessingTaskContext *
 update_processing_task_context_new (TrackerMiner         *miner,
                                     gint                  priority,
                                     const gchar          *urn,
-                                    const gchar          *parent_urn,
-                                    GCancellable         *cancellable,
-                                    TrackerSparqlBuilder *builder)
+                                    GCancellable         *cancellable)
 {
 	UpdateProcessingTaskContext *ctxt;
 
 	ctxt = g_slice_new0 (UpdateProcessingTaskContext);
 	ctxt->miner = miner;
 	ctxt->urn = g_strdup (urn);
-	ctxt->parent_urn = g_strdup (parent_urn);
 	ctxt->priority = priority;
 
 	if (cancellable) {
 		ctxt->cancellable = g_object_ref (cancellable);
-	}
-
-	if (builder) {
-		ctxt->builder = g_object_ref (builder);
 	}
 
 	return ctxt;
@@ -1395,38 +1272,43 @@ static void
 update_processing_task_context_free (UpdateProcessingTaskContext *ctxt)
 {
 	g_free (ctxt->urn);
-	g_free (ctxt->parent_urn);
 
 	if (ctxt->cancellable) {
 		g_object_unref (ctxt->cancellable);
-	}
-
-	if (ctxt->builder) {
-		g_object_unref (ctxt->builder);
 	}
 
 	g_slice_free (UpdateProcessingTaskContext, ctxt);
 }
 
 static void
-item_add_or_update_continue (TrackerMinerFS *fs,
-                             TrackerTask    *task,
-                             const GError   *error)
+on_signal_gtask_complete (GObject      *source,
+			  GAsyncResult *res,
+			  gpointer      user_data)
 {
+	TrackerMinerFS *fs = TRACKER_MINER_FS (source);
+	TrackerTask *task, *sparql_task = NULL;
 	UpdateProcessingTaskContext *ctxt;
-	TrackerTask *sparql_task = NULL;
-	GFile *file;
-	gchar *uri;
+	GError *error = NULL;
+	GFile *file = user_data;
+	gchar *uri, *sparql;
+
+	sparql = g_task_propagate_pointer (G_TASK (res), &error);
+	g_object_unref (res);
+
+	task = tracker_task_pool_find (fs->priv->task_pool, file);
+	g_assert (task != NULL);
 
 	ctxt = tracker_task_get_data (task);
-	file = tracker_task_get_file (task);
 	uri = g_file_get_uri (file);
 
 	if (error) {
 		g_message ("Could not process '%s': %s", uri, error->message);
+		g_error_free (error);
 
 		fs->priv->total_files_notified_error++;
 	} else {
+		fs->priv->total_files_notified++;
+
 		if (ctxt->urn) {
 			gboolean attribute_update_only;
 
@@ -1442,7 +1324,7 @@ item_add_or_update_continue (TrackerMinerFS *fs,
 			g_debug ("Creating new item '%s'", uri);
 		}
 
-		sparql_task = tracker_sparql_task_new_with_sparql (file, ctxt->builder);
+		sparql_task = tracker_sparql_task_new_take_sparql_str (file, sparql);
 	}
 
 	if (sparql_task) {
@@ -1518,21 +1400,18 @@ item_add_or_update (TrackerMinerFS *fs,
                     gint            priority)
 {
 	TrackerMinerFSPrivate *priv;
-	TrackerSparqlBuilder *sparql;
 	UpdateProcessingTaskContext *ctxt;
 	GCancellable *cancellable;
 	gboolean processing;
-	gboolean keep_processing;
 	gboolean attribute_update_only;
 	TrackerTask *task;
-	const gchar *parent_urn, *urn;
+	const gchar *urn;
 	gchar *uri;
-	GFile *parent;
+	GTask *gtask;
 
 	priv = fs->priv;
 
 	cancellable = g_cancellable_new ();
-	sparql = tracker_sparql_builder_new_update ();
 	g_object_ref (file);
 
 	/* Always query. No matter we are notified the file was just
@@ -1541,22 +1420,12 @@ item_add_or_update (TrackerMinerFS *fs,
 	 * we have to UPDATE, not INSERT. */
 	urn = lookup_file_urn (fs, file, FALSE);
 
-	if (!tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file)) {
-		parent = g_file_get_parent (file);
-		parent_urn = lookup_file_urn (fs, parent, TRUE);
-		g_object_unref (parent);
-	} else {
-		parent_urn = NULL;
-	}
-
 	/* Create task and add it to the pool as a WAIT task (we need to extract
 	 * the file metadata and such) */
 	ctxt = update_processing_task_context_new (TRACKER_MINER (fs),
 	                                           priority,
 	                                           urn,
-	                                           parent_urn,
-	                                           cancellable,
-	                                           sparql);
+	                                           cancellable);
 	task = tracker_task_new (file, ctxt,
 	                         (GDestroyNotify) update_processing_task_context_free);
 
@@ -1568,54 +1437,37 @@ item_add_or_update (TrackerMinerFS *fs,
 
 	attribute_update_only = GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (file), priv->quark_attribute_updated));
 
+	gtask = g_task_new (fs, ctxt->cancellable, on_signal_gtask_complete, file);
+
 	if (!attribute_update_only) {
 		g_debug ("Processing file '%s'...", uri);
 		g_signal_emit (fs, signals[PROCESS_FILE], 0,
-		               file,
-		               ctxt->builder,
-		               ctxt->cancellable,
+		               file, gtask,
 		               &processing);
 	} else {
 		g_debug ("Processing attributes in file '%s'...", uri);
 		g_signal_emit (fs, signals[PROCESS_FILE_ATTRIBUTES], 0,
-		               file,
-		               ctxt->builder,
-		               ctxt->cancellable,
+		               file, gtask,
 		               &processing);
 	}
 
-	keep_processing = TRUE;
-
 	if (!processing) {
-		/* Re-fetch data, since it might have been
-		 * removed in broken implementations
-		 */
-		task = tracker_task_pool_find (priv->task_pool, file);
+		GError *error;
 
-		g_message ("%s refused to process '%s'", G_OBJECT_TYPE_NAME (fs), uri);
-
-		if (!task) {
-			g_critical ("%s has returned FALSE in ::process-file for '%s', "
-			            "but it seems that this file has been processed through "
-			            "tracker_miner_fs_file_notify(), this is an "
-			            "implementation error", G_OBJECT_TYPE_NAME (fs), uri);
-		} else {
-			tracker_task_pool_remove (priv->task_pool, task);
-		}
+		error = g_error_new (tracker_miner_fs_error_quark (),
+				     TRACKER_MINER_FS_ERROR_INIT,
+				     "TrackerMinerFS::%s returned FALSE",
+				     attribute_update_only ? "process-file-attributes" : "process-file");
+		g_task_return_error (gtask, error);
 	} else {
 		fs->priv->total_files_processed++;
-
-		if (tracker_task_pool_limit_reached (priv->task_pool)) {
-			keep_processing = FALSE;
-		}
 	}
 
 	g_free (uri);
 	g_object_unref (file);
 	g_object_unref (cancellable);
-	g_object_unref (sparql);
 
-	return keep_processing;
+	return !tracker_task_pool_limit_reached (priv->task_pool);
 }
 
 static gboolean
@@ -1623,93 +1475,29 @@ item_remove (TrackerMinerFS *fs,
              GFile          *file,
              gboolean        only_children)
 {
-	TrackerSparqlBuilder *builder;
-	gboolean delete_handled = FALSE;
-	gchar *uri;
+	gchar *uri, *sparql;
 	TrackerTask *task;
-	guint flags = 0;
+	guint signal_num;
 
 	uri = g_file_get_uri (file);
 
 	g_debug ("Removing item: '%s' (Deleted from filesystem or no longer monitored)",
 	         uri);
 
-	if (!only_children) {
-		if (fs->priv->thumbnailer)
-			tracker_thumbnailer_remove_add (fs->priv->thumbnailer, uri, NULL);
-
-#ifdef HAVE_LIBMEDIAART
-		tracker_media_art_queue_remove (uri, NULL);
-#endif
-	}
-
 	g_object_set_qdata (G_OBJECT (file),
 	                    fs->priv->quark_recursive_removal,
 	                    GINT_TO_POINTER (TRUE));
 
-	builder = tracker_sparql_builder_new_update ();
-	g_signal_emit (fs, signals[REMOVE_FILE], 0,
-	               file, only_children, builder, &delete_handled);
+	signal_num = only_children ? REMOVE_CHILDREN : REMOVE_FILE;
+	g_signal_emit (fs, signals[signal_num], 0, file, &sparql);
 
-	if (tracker_sparql_builder_get_length (builder) > 0) {
-		task = tracker_sparql_task_new_with_sparql (file, builder);
+	if (sparql) {
+		task = tracker_sparql_task_new_take_sparql_str (file, sparql);
 		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
-		                            task,
-		                            G_PRIORITY_DEFAULT,
-		                            sparql_buffer_task_finished_cb,
-		                            fs);
-		tracker_task_unref (task);
-	}
-
-	g_object_unref (builder);
-
-	if (!delete_handled) {
-		if (!only_children)
-			flags = TRACKER_BULK_MATCH_EQUALS;
-
-		if (tracker_file_notifier_get_file_type (fs->priv->file_notifier, file) == G_FILE_TYPE_DIRECTORY)
-			flags |= TRACKER_BULK_MATCH_CHILDREN;
-
-		/* FIRST:
-		 * Remove tracker:available for the resources we're going to remove.
-		 * This is done so that unavailability of the resources is marked as soon
-		 * as possible, as the actual delete may take reaaaally a long time
-		 * (removing resources for 30GB of files takes even 30minutes in a 1-CPU
-		 * device). */
-
-		/* Add new task to processing pool */
-		task = tracker_sparql_task_new_bulk (file,
-		                                     "DELETE { "
-		                                     "  ?f tracker:available true "
-		                                     "}",
-		                                     flags);
-
-		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
-		                            task,
-		                            G_PRIORITY_DEFAULT,
-		                            sparql_buffer_task_finished_cb,
-		                            fs);
-		tracker_task_unref (task);
-
-		/* SECOND:
-		 * Actually remove all resources. This operation is the one which may take
-		 * a long time.
-		 */
-
-		/* Add new task to processing pool */
-		task = tracker_sparql_task_new_bulk (file,
-		                                     "DELETE { "
-		                                     "  ?f a rdfs:Resource . "
-		                                     "  ?ie a rdfs:Resource "
-		                                     "}",
-		                                     flags |
-		                                     TRACKER_BULK_MATCH_LOGICAL_RESOURCES);
-
-		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
-		                            task,
-		                            G_PRIORITY_DEFAULT,
-		                            sparql_buffer_task_finished_cb,
-		                            fs);
+					    task,
+					    G_PRIORITY_DEFAULT,
+					    sparql_buffer_task_finished_cb,
+					    fs);
 		tracker_task_unref (task);
 	}
 
@@ -1723,154 +1511,23 @@ item_remove (TrackerMinerFS *fs,
 }
 
 static gboolean
-item_ignore_next_update (TrackerMinerFS *fs,
-                         GFile          *file,
-                         GFile          *source_file)
-{
-	TrackerSparqlBuilder *sparql;
-	gchar *uri;
-	gboolean success = FALSE;
-	GCancellable *cancellable;
-	GFile *working_file;
-
-	/* While we are in ignore-on-next-update:
-	 * o. We always ignore deletes because it's never the final operation
-	 *    of a write. We have a delete when both are null.
-	 * o. A create means the write used rename(). This is the final
-	 *    operation of a write and thus we make the update query.
-	 *    We have a create when file == null and source_file != null
-	 * o. A move means the write used rename(). This is the final
-	 *    operation of a write and thus we make the update query.
-	 *    We have a move when both file and source_file aren't null.
-	 * o. A update means the write didn't use rename(). This is the
-	 *    final operation of a write and thus we make the update query.
-	 *    An update means that file != null and source_file == null. */
-
-	/* Happens on delete while in write */
-	if (!file && !source_file) {
-		return TRUE;
-	}
-
-	/* Create or update, we are the final one so we make the update query */
-
-	if (!file && source_file) {
-		/* Happens on create while in write */
-		working_file = source_file;
-	} else {
-		/* Happens on update while in write */
-		working_file = file;
-	}
-
-	uri = g_file_get_uri (working_file);
-
-	g_debug ("Updating item: '%s' (IgnoreNextUpdate event)", uri);
-
-	cancellable = g_cancellable_new ();
-	sparql = tracker_sparql_builder_new_update ();
-	g_object_ref (working_file);
-
-	/* IgnoreNextUpdate */
-	g_signal_emit (fs, signals[IGNORE_NEXT_UPDATE_FILE], 0,
-	               working_file, sparql, cancellable, &success);
-
-	if (success) {
-		gchar *query;
-
-		/* Perhaps we should move the DELETE to tracker-miner-files.c?
-		 * Or we add support for DELETE to TrackerSparqlBuilder ofcrs */
-
-		query = g_strdup_printf ("DELETE { GRAPH <%s> { "
-		                         "  ?u nfo:fileSize ?unknown1 ; "
-		                         "     nfo:fileLastModified ?unknown2 ; "
-		                         "     nfo:fileLastAccessed ?unknown3 ; "
-		                         "     nie:mimeType ?unknown4 } "
-		                         "} WHERE { GRAPH <%s> { "
-		                         "  ?u nfo:fileSize ?unknown1 ; "
-		                         "     nfo:fileLastModified ?unknown2 ; "
-		                         "     nfo:fileLastAccessed ?unknown3 ; "
-		                         "     nie:mimeType ?unknown4 ; "
-		                         "     nie:url \"%s\" } "
-		                         "} %s", TRACKER_OWN_GRAPH_URN,
-		                         TRACKER_OWN_GRAPH_URN, uri,
-		                         tracker_sparql_builder_get_result (sparql));
-
-		tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-		                                        query,
-		                                        G_PRIORITY_DEFAULT,
-		                                        NULL,
-		                                        NULL,
-		                                        NULL);
-
-		g_free (query);
-	}
-
-	g_hash_table_remove (fs->priv->items_ignore_next_update, uri);
-
-	g_object_unref (sparql);
-	g_object_unref (working_file);
-	g_object_unref (cancellable);
-
-	g_free (uri);
-
-	return FALSE;
-}
-
-static void
-move_thumbnails_cb (GObject      *object,
-                    GAsyncResult *result,
-                    gpointer      user_data)
-{
-	ThumbnailMoveData *data = user_data;
-	TrackerMinerFS *fs = TRACKER_MINER_FS (data->miner);
-	GError *error = NULL;
-
-	TrackerSparqlCursor *cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object), result, &error);
-
-	if (error) {
-		g_critical ("Could move thumbnails: %s", error->message);
-		g_error_free (error);
-	} else {
-		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			const gchar *src, *dst, *mimetype;
-
-			src = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-			dst = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-			mimetype = tracker_sparql_cursor_get_string (cursor, 2, NULL);
-
-			if (fs->priv->thumbnailer) {
-				tracker_thumbnailer_move_add (fs->priv->thumbnailer,
-				                              src, mimetype, dst);
-			}
-		}
-	}
-
-	g_object_unref (cursor);
-	g_main_loop_quit (data->main_loop);
-}
-
-static gboolean
 item_move (TrackerMinerFS *fs,
            GFile          *file,
            GFile          *source_file)
 {
-	gchar     *uri, *source_uri;
+	gchar     *uri, *source_uri, *sparql;
 	GFileInfo *file_info;
-	GString   *sparql;
 	TrackerTask *task;
 	const gchar *source_iri;
-	gchar *display_name;
 	gboolean source_exists;
-	GFile *new_parent;
-	const gchar *new_parent_iri;
 	TrackerDirectoryFlags source_flags, flags;
+	gboolean recursive;
 
 	uri = g_file_get_uri (file);
 	source_uri = g_file_get_uri (source_file);
 
 	/* FIXME: Should check the _NO_STAT on TrackerDirectoryFlags first! */
 	file_info = g_file_query_info (file,
-	                               G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME ","
-	                               G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE ","
 	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL, NULL);
@@ -1917,141 +1574,34 @@ item_move (TrackerMinerFS *fs,
 	         source_uri,
 	         uri);
 
-	if (fs->priv->thumbnailer)
-		tracker_thumbnailer_move_add (fs->priv->thumbnailer, source_uri,
-					      g_file_info_get_content_type (file_info),
-					      uri);
-
-	sparql = g_string_new ("");
+	tracker_indexing_tree_get_root (fs->priv->indexing_tree, source_file, &source_flags);
+	tracker_indexing_tree_get_root (fs->priv->indexing_tree, file, &flags);
+	recursive = ((source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
+	             (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
+	             g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY);
 
 	/* Delete destination item from store if any */
-	g_string_append_printf (sparql,
-	                        "DELETE { "
-	                        "  ?urn a rdfs:Resource "
-	                        "} WHERE {"
-	                        "  ?urn nie:url \"%s\" "
-	                        "}",
-	                        uri);
+	item_remove (fs, file, FALSE);
 
-	g_string_append_printf (sparql,
-	                        "DELETE { "
-	                        "  <%s> nfo:fileName ?f ; "
-	                        "       nie:url ?u ; "
-	                        "       nie:isStoredAs ?s ; "
-	                        "       nfo:belongsToContainer ?b"
-	                        "} WHERE { "
-	                        "  <%s> nfo:fileName ?f ; "
-	                        "       nie:url ?u ; "
-	                        "       nie:isStoredAs ?s . "
-	                        "       OPTIONAL { <%s> nfo:belongsToContainer ?b }"
-	                        "} ",
-	                        source_iri, source_iri, source_iri);
+	/* If the original location is recursive, but the destination location
+	 * is not, remove all children.
+	 */
+	if (!recursive &&
+	    (source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0)
+		item_remove (fs, source_file, TRUE);
 
-	display_name = tracker_sparql_escape_string (g_file_info_get_display_name (file_info));
+	g_signal_emit (fs, signals[MOVE_FILE], 0, file, source_file, recursive, &sparql);
 
-	/* Get new parent information */
-	new_parent = g_file_get_parent (file);
-	new_parent_iri = lookup_file_urn (fs, new_parent, TRUE);
-
-	if (new_parent && new_parent_iri) {
-		g_string_append_printf (sparql,
-		                        "INSERT INTO <%s> {"
-		                        "  <%s> nfo:fileName \"%s\" ; "
-		                        "       nie:url \"%s\" ; "
-		                        "       nie:isStoredAs <%s> ; "
-		                        "       nfo:belongsToContainer \"%s\""
-		                        "}"   ,
-		                        TRACKER_OWN_GRAPH_URN, source_iri,
-		                        display_name, uri,
-		                        source_iri,
-		                        new_parent_iri);
-	} else {
-		g_warning ("Adding moved item '%s' without nfo:belongsToContainer (new_parent: %p)",
-		           uri, new_parent);
-		g_string_append_printf (sparql,
-		                        "INSERT INTO <%s> {"
-		                        "  <%s> nfo:fileName \"%s\" ; "
-		                        "       nie:url \"%s\" ; "
-		                        "       nie:isStoredAs <%s>"
-		                        "} ",
-		                        TRACKER_OWN_GRAPH_URN, source_iri,
-		                        display_name, uri,
-		                        source_iri);
+	if (sparql) {
+		/* Add new task to processing pool */
+		task = tracker_sparql_task_new_take_sparql_str (file, sparql);
+		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
+		                            task,
+		                            G_PRIORITY_DEFAULT,
+		                            sparql_buffer_task_finished_cb,
+		                            fs);
+		tracker_task_unref (task);
 	}
-
-	if (new_parent)
-		g_object_unref (new_parent);
-	g_free (display_name);
-
-	tracker_indexing_tree_get_root (fs->priv->indexing_tree, source_file, &source_flags);
-
-	if ((source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
-	    g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
-		tracker_indexing_tree_get_root (fs->priv->indexing_tree,
-		                                file, &flags);
-
-		if ((flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0) {
-			if (fs->priv->thumbnailer) {
-				ThumbnailMoveData move_data;
-				gchar *query;
-
-				g_debug ("Moving thumbnails within '%s'", uri);
-
-				/* Push all moved files to thumbnailer */
-				move_data.main_loop = g_main_loop_new (NULL, FALSE);
-				move_data.miner = TRACKER_MINER (fs);
-
-				query = g_strdup_printf ("SELECT ?url ?new_url nie:mimeType(?u) {"
-				                         "  ?u a rdfs:Resource ;"
-				                         "     nie:url ?url ."
-				                         "  BIND (CONCAT (\"%s/\", SUBSTR (?url, STRLEN (\"%s/\") + 1)) AS ?new_url) ."
-				                         "  FILTER (STRSTARTS (?url, \"%s/\"))"
-				                         "}",
-				                         uri, source_uri, source_uri);
-
-				tracker_sparql_connection_query_async (tracker_miner_get_connection (TRACKER_MINER (fs)),
-				                                       query,
-				                                       NULL,
-				                                       move_thumbnails_cb,
-				                                       &move_data);
-
-				g_main_loop_run (move_data.main_loop);
-				g_main_loop_unref (move_data.main_loop);
-				g_free (query);
-			}
-
-			g_string_append_printf (sparql,
-			                        " DELETE {"
-			                        "  ?u nie:url ?url "
-			                        "} INSERT { "
-			                        "  GRAPH <" TRACKER_OWN_GRAPH_URN "> {"
-			                        "    ?u nie:url ?new_url "
-			                        "  }"
-			                        "} WHERE {"
-			                        "  ?u a rdfs:Resource;"
-			                        "     nie:url ?url ."
-			                        "  BIND (CONCAT (\"%s/\", SUBSTR (?url, STRLEN (\"%s/\") + 1)) AS ?new_url) ."
-			                        "  FILTER (STRSTARTS (?url, \"%s/\"))"
-			                        "} ",
-			                        uri, source_uri, source_uri);
-		} else {
-			/* A directory is being moved from a recursive location to
-			 * a non-recursive one, mark all children as deleted.
-			 */
-			item_remove (fs, source_file, TRUE);
-		}
-	}
-
-	/* Add new task to processing pool */
-	task = tracker_sparql_task_new_take_sparql_str (file,
-	                                                g_string_free (sparql,
-	                                                               FALSE));
-	tracker_sparql_buffer_push (fs->priv->sparql_buffer,
-	                            task,
-	                            G_PRIORITY_DEFAULT,
-	                            sparql_buffer_task_finished_cb,
-	                            fs);
-	tracker_task_unref (task);
 
 	if (!tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
 		item_queue_handlers_set_up (fs);
@@ -2062,18 +1612,6 @@ item_move (TrackerMinerFS *fs,
 	g_object_unref (file_info);
 
 	return TRUE;
-}
-
-static gboolean
-check_ignore_next_update (TrackerMinerFS *fs, GFile *queue_file)
-{
-	gchar *uri = g_file_get_uri (queue_file);
-	if (g_hash_table_lookup (fs->priv->items_ignore_next_update, uri)) {
-		g_free (uri);
-		return TRUE;
-	}
-	g_free (uri);
-	return FALSE;
 }
 
 static gboolean
@@ -2197,8 +1735,7 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 		trace_eq_pop_head ("DELETED", queue_file);
 
-		/* Do not ignore DELETED event even if file is marked as
-		   IgnoreNextUpdate. We should never see DELETED on update
+		/* Do not ignore DELETED event. We should never see DELETED on update
 		   (atomic rename or in-place update) but we may see DELETED
 		   due to actual file deletion right after update. */
 
@@ -2225,32 +1762,6 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 		trace_eq_pop_head ("CREATED", queue_file);
 
-		/* Note:
-		 * We won't be considering an IgnoreNextUpdate request if
-		 * the event being processed is a CREATED event and the
-		 * file was still unknown to tracker.
-		 */
-		if (check_ignore_next_update (fs, queue_file)) {
-			gchar *uri;
-
-			uri = g_file_get_uri (queue_file);
-
-			if (lookup_file_urn (fs, queue_file, FALSE) != NULL) {
-				g_debug ("CREATED event ignored on file '%s' as it already existed, "
-				         " processing as IgnoreNextUpdate...",
-				         uri);
-				g_free (uri);
-
-				return QUEUE_IGNORE_NEXT_UPDATE;
-			} else {
-				/* Just remove the IgnoreNextUpdate request */
-				g_debug ("Skipping the IgnoreNextUpdate request on CREATED event for '%s', file is actually new",
-				         uri);
-				g_hash_table_remove (fs->priv->items_ignore_next_update, uri);
-				g_free (uri);
-			}
-		}
-
 		/* If the same item OR its first parent is currently being processed,
 		 * we need to wait for this event */
 		if (should_wait (fs, queue_file)) {
@@ -2275,18 +1786,6 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 
 		trace_eq_pop_head ("UPDATED", queue_file);
 
-		if (check_ignore_next_update (fs, queue_file)) {
-			gchar *uri;
-
-			uri = g_file_get_uri (queue_file);
-			g_debug ("UPDATED event ignored on file '%s', "
-			         " processing as IgnoreNextUpdate...",
-			         uri);
-			g_free (uri);
-
-			return QUEUE_IGNORE_NEXT_UPDATE;
-		}
-
 		/* If the same item OR its first parent is currently being processed,
 		 * we need to wait for this event */
 		if (should_wait (fs, queue_file)) {
@@ -2307,24 +1806,6 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
 	                                    &priority);
 	if (data) {
 		trace_eq_pop_head_2 ("MOVED", data->file, data->source_file);
-
-		if (check_ignore_next_update (fs, data->file)) {
-			gchar *uri;
-			gchar *source_uri;
-
-			uri = g_file_get_uri (queue_file);
-			source_uri = g_file_get_uri (data->source_file);
-			g_debug ("MOVED event ignored on files '%s->%s', "
-			         " processing as IgnoreNextUpdate on '%s'",
-			         source_uri, uri, uri);
-			g_free (uri);
-			g_free (source_uri);
-
-			*file = g_object_ref (data->file);
-			*source_file = g_object_ref (data->source_file);
-			item_moved_data_free (data);
-			return QUEUE_IGNORE_NEXT_UPDATE;
-		}
 
 		/* If the same item OR its first parent is currently being processed,
 		 * we need to wait for this event */
@@ -2538,12 +2019,6 @@ item_queue_handlers_cb (gpointer user_data)
 			if (tracker_task_pool_get_size (TRACKER_TASK_POOL (fs->priv->sparql_buffer)) == 0) {
 				/* Print stats and signal finished */
 				process_stop (fs);
-
-				if (fs->priv->thumbnailer)
-					tracker_thumbnailer_send (fs->priv->thumbnailer);
-#ifdef HAVE_LIBMEDIAART
-				tracker_media_art_queue_empty (tracker_miner_get_connection (TRACKER_MINER (fs)));
-#endif
 			} else {
 				/* Flush any possible pending update here */
 				tracker_sparql_buffer_flush (fs->priv->sparql_buffer,
@@ -2601,9 +2076,6 @@ item_queue_handlers_cb (gpointer user_data)
 			g_object_unref (parent);
 		}
 
-		break;
-	case QUEUE_IGNORE_NEXT_UPDATE:
-		keep_processing = item_ignore_next_update (fs, file, source_file);
 		break;
 	case QUEUE_WRITEBACK:
 		/* Nothing to do here */
@@ -3222,43 +2694,6 @@ file_equal_or_descendant (GFile *file,
 	return FALSE;
 }
 
-/**
- * tracker_miner_fs_directory_add:
- * @fs: a #TrackerMinerFS
- * @file: #GFile for the directory to inspect
- * @recurse: whether the directory should be inspected recursively
- *
- * Tells the filesystem miner to inspect a directory.
- *
- * Since: 0.8
- **/
-void
-tracker_miner_fs_directory_add (TrackerMinerFS *fs,
-                                GFile          *file,
-                                gboolean        recurse)
-{
-	TrackerDirectoryFlags flags = TRACKER_DIRECTORY_FLAG_NONE;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (file));
-
-	if (recurse) {
-		flags |= TRACKER_DIRECTORY_FLAG_RECURSE;
-	}
-
-	if (!fs->priv->data_provider) {
-		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
-	}
-
-	if (fs->priv->mtime_checking) {
-		flags |= TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
-	}
-
-	tracker_indexing_tree_add (fs->priv->indexing_tree,
-	                           file,
-	                           flags);
-}
-
 static void
 task_pool_cancel_foreach (gpointer data,
                           gpointer user_data)
@@ -3342,82 +2777,6 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 	g_timer_destroy (timer);
 }
 
-/**
- * tracker_miner_fs_directory_remove:
- * @fs: a #TrackerMinerFS
- * @file: #GFile for the directory to be removed
- *
- * Removes a directory from being inspected by @fs. Note that only directory
- *  watches are removed.
- *
- * Returns: %TRUE if the directory was successfully removed.
- *
- * Since: 0.8
- **/
-gboolean
-tracker_miner_fs_directory_remove (TrackerMinerFS *fs,
-                                   GFile          *file)
-{
-	TrackerMinerFSPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
-	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-
-	priv = fs->priv;
-
-	if (!tracker_indexing_tree_file_is_root (priv->indexing_tree, file)) {
-		return FALSE;
-	}
-
-	g_debug ("Removing directory");
-	tracker_indexing_tree_remove (priv->indexing_tree, file);
-
-	return TRUE;
-}
-
-
-/**
- * tracker_miner_fs_directory_remove_full:
- * @fs: a #TrackerMinerFS
- * @file: #GFile for the directory to be removed
- *
- * Removes a directory from being inspected by @fs, and removes all
- * associated metadata of the directory (and its contents) from the
- * store.
- *
- * Returns: %TRUE if the directory was successfully removed.
- *
- * Since: 0.10
- **/
-gboolean
-tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
-                                        GFile          *file)
-{
-	TrackerDirectoryFlags flags;
-
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
-	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-
-	tracker_indexing_tree_get_root (fs->priv->indexing_tree, file, &flags);
-
-	if (tracker_miner_fs_directory_remove (fs, file)) {
-		if ((flags & TRACKER_DIRECTORY_FLAG_PRESERVE) != 0) {
-			/* If the preserve flag is unset, TrackerFileNotifier
-			 * will delete automatically files from this config
-			 * directory, if it's set, we force the delete here
-			 * to preserve remove_full() semantics.
-			 */
-			trace_eq_push_tail ("DELETED", file, "on remove full");
-			miner_fs_queue_file (fs, fs->priv->items_deleted, file, FALSE);
-			item_queue_handlers_set_up (fs);
-		}
-
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
 static gboolean
 check_file_parents (TrackerMinerFS *fs,
                     GFile          *file)
@@ -3462,7 +2821,7 @@ check_file_parents (TrackerMinerFS *fs,
 }
 
 /**
- * tracker_miner_fs_check_file_with_priority:
+ * tracker_miner_fs_check_file:
  * @fs: a #TrackerMinerFS
  * @file: #GFile for the file to check
  * @priority: the priority of the check task
@@ -3476,10 +2835,10 @@ check_file_parents (TrackerMinerFS *fs,
  * Since: 0.10
  **/
 void
-tracker_miner_fs_check_file_with_priority (TrackerMinerFS *fs,
-                                           GFile          *file,
-                                           gint            priority,
-                                           gboolean        check_parents)
+tracker_miner_fs_check_file (TrackerMinerFS *fs,
+                             GFile          *file,
+                             gint            priority,
+                             gboolean        check_parents)
 {
 	gboolean should_process = TRUE;
 	gchar *uri;
@@ -3621,159 +2980,35 @@ tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
 }
 
 /**
- * tracker_miner_fs_check_file:
+ * tracker_miner_fs_notify_finish:
  * @fs: a #TrackerMinerFS
- * @file: #GFile for the file to check
- * @check_parents: whether to check parents and eligibility or not
- *
- * Tells the filesystem miner to check and index a file,
- * this file must be part of the usual crawling directories
- * of #TrackerMinerFS. See tracker_miner_fs_directory_add().
- *
- * Since: 0.10
- **/
-void
-tracker_miner_fs_check_file (TrackerMinerFS *fs,
-                             GFile          *file,
-                             gboolean        check_parents)
-{
-	tracker_miner_fs_check_file_with_priority (fs, file,
-	                                           G_PRIORITY_HIGH,
-	                                           check_parents);
-}
-
-/**
- * tracker_miner_fs_check_directory_with_priority:
- * @fs: a #TrackerMinerFS
- * @file: #GFile for the directory to check
- * @priority: the priority of the check task
- * @check_parents: whether to check parents and eligibility or not
- *
- * Tells the filesystem miner to check and index a directory at
- * a given priority, this file must be part of the usual crawling
- * directories of #TrackerMinerFS. See tracker_miner_fs_directory_add().
- *
- * Since: 0.10
- **/
-void
-tracker_miner_fs_check_directory_with_priority (TrackerMinerFS *fs,
-                                                GFile          *file,
-                                                gint            priority,
-                                                gboolean        check_parents)
-{
-	gboolean should_process = TRUE;
-	gchar *uri;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (file));
-
-	if (check_parents) {
-		should_process = should_check_file (fs, file, TRUE);
-	}
-
-	uri = g_file_get_uri (file);
-
-	g_debug ("%s:'%s' (DIR) (requested by application)",
-	         should_process ? "Found " : "Ignored",
-	         uri);
-
-	if (should_process) {
-		TrackerDirectoryFlags flags;
-
-		if (check_parents && !check_file_parents (fs, file)) {
-			return;
-		}
-
-		flags = TRACKER_DIRECTORY_FLAG_RECURSE |
-			TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
-
-		if (!fs->priv->data_provider) {
-			flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
-		}
-
-		/* Priorities run from positive to negative */
-		if (priority < G_PRIORITY_DEFAULT)
-			flags |= TRACKER_DIRECTORY_FLAG_PRIORITY;
-
-		tracker_indexing_tree_add (fs->priv->indexing_tree,
-		                           file, flags);
-	}
-
-	g_free (uri);
-}
-
-/**
- * tracker_miner_fs_check_directory:
- * @fs: a #TrackerMinerFS
- * @file: #GFile for the directory to check
- * @check_parents: whether to check parents and eligibility or not
- *
- * Tells the filesystem miner to check and index a directory,
- * this file must be part of the usual crawling directories
- * of #TrackerMinerFS. See tracker_miner_fs_directory_add().
- *
- * Since: 0.10
- **/
-void
-tracker_miner_fs_check_directory (TrackerMinerFS *fs,
-                                  GFile          *file,
-                                  gboolean        check_parents)
-{
-	tracker_miner_fs_check_directory_with_priority (fs, file,
-	                                                G_PRIORITY_HIGH,
-	                                                check_parents);
-}
-
-/**
- * tracker_miner_fs_file_notify:
- * @fs: a #TrackerMinerFS
- * @file: a #GFile
+ * @task: a #GTask obtained in a #TrackerMinerFS signal/vmethod
+ * @sparql: (nullable): Resulting sparql for the given operation, or %NULL if
+ *   there is an error
  * @error: a #GError with the error that happened during processing, or %NULL.
  *
  * Notifies @fs that all processing on @file has been finished, if any error
  * happened during file data processing, it should be passed in @error, else
- * that parameter will contain %NULL to reflect success.
+ * @sparql should contain correct SPARQL representing the operation in
+ * particular.
  *
- * Since: 0.8
+ * This function is expected to be called in reaction to all #TrackerMinerFS
+ * signals
  **/
 void
-tracker_miner_fs_file_notify (TrackerMinerFS *fs,
-                              GFile          *file,
-                              const GError   *error)
+tracker_miner_fs_notify_finish (TrackerMinerFS *fs,
+                                GTask          *task,
+                                const gchar    *sparql,
+                                GError         *error)
 {
-	TrackerTask *task;
-
 	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (file));
+	g_return_if_fail (G_IS_TASK (task));
+	g_return_if_fail (sparql || error);
 
-	fs->priv->total_files_notified++;
-
-	task = tracker_task_pool_find (fs->priv->task_pool, file);
-
-	if (!task) {
-		gchar *uri;
-
-		uri = g_file_get_uri (file);
-		g_critical ("%s has notified that file '%s' has been processed, "
-		            "but that file was not in the processing queue. "
-		            "This is an implementation error, please ensure that "
-		            "tracker_miner_fs_file_notify() is called on the same "
-		            "GFile that is passed in ::process-file, and that this"
-		            "signal didn't return FALSE for it",
-		            G_OBJECT_TYPE_NAME (fs), uri);
-		g_free (uri);
-
-		if (item_queue_is_blocked_by_file (fs, file)) {
-			/* Ensure we don't stall, although this is a very ugly situation */
-			g_object_unref (fs->priv->item_queue_blocker);
-			fs->priv->item_queue_blocker = NULL;
-			item_queue_handlers_set_up (fs);
-		}
-
-		return;
-	}
-
-	item_add_or_update_continue (fs, task, error);
+	if (error)
+		g_task_return_error (task, error);
+	else
+		g_task_return_pointer (task, g_strdup (sparql), g_free);
 }
 
 /**
@@ -3918,230 +3153,6 @@ tracker_miner_fs_query_urn (TrackerMinerFS *fs,
 }
 
 /**
- * tracker_miner_fs_get_parent_urn:
- * @fs: a #TrackerMinerFS
- * @file: a #GFile obtained in #TrackerMinerFS::process-file
- *
- * If @file is currently being processed by @fs, this function
- * will return the parent folder URN if any. This function is
- * useful to set the nie:belongsToContainer relationship. The
- * processing order of #TrackerMinerFS guarantees that a folder
- * has been already fully processed for indexing before any
- * children is processed, so most usually this function should
- * return non-%NULL.
- *
- * Returns: (transfer none) (nullable): The parent folder URN, or %NULL.
- *
- * Since: 0.8
- **/
-const gchar *
-tracker_miner_fs_get_parent_urn (TrackerMinerFS *fs,
-                                 GFile          *file)
-{
-	TrackerTask *task;
-
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
-	g_return_val_if_fail (G_IS_FILE (file), NULL);
-
-	/* Check if found in currently processed data */
-	task = tracker_task_pool_find (fs->priv->task_pool, file);
-
-	if (!task) {
-		gchar *uri;
-
-		uri = g_file_get_uri (file);
-
-		g_critical ("File '%s' is not being currently processed, "
-		            "so the parent URN cannot be retrieved.", uri);
-		g_free (uri);
-
-		return NULL;
-	} else {
-		UpdateProcessingTaskContext *ctxt;
-
-		/* We are only storing the URN in the created/updated tasks */
-		ctxt = tracker_task_get_data (task);
-
-		if (!ctxt) {
-			gchar *uri;
-
-			uri = g_file_get_uri (file);
-			g_critical ("File '%s' is being processed, but not as a "
-			            "CREATED/UPDATED task, so cannot get parent "
-			            "URN",
-			            uri);
-			g_free (uri);
-			return NULL;
-		}
-
-		return ctxt->parent_urn;
-	}
-}
-
-void
-tracker_miner_fs_force_recheck (TrackerMinerFS *fs)
-{
-#if 0
-	GList *directories;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-
-	g_message ("Forcing re-check on all index directories");
-
-	directories = fs->priv->config_directories;
-
-	while (directories) {
-		tracker_priority_queue_add (fs->priv->directories,
-		                            directory_data_ref (directories->data),
-		                            G_PRIORITY_LOW);
-		directories = directories->next;
-	}
-
-	crawl_directories_start (fs);
-#endif
-}
-
-/**
- * tracker_miner_fs_set_mtime_checking:
- * @fs: a #TrackerMinerFS
- * @mtime_checking: a #gboolean
- *
- * Tells the miner-fs that during the crawling phase, directory mtime
- * checks should or shouldn't be performed against the database to
- * make sure we have the most up to date version of the file being
- * checked at the time. Setting this to #FALSE can dramatically
- * improve the start up the crawling of the @fs.
- *
- * The down side is that using this consistently means that some files
- * on the disk may be out of date with files in the database.
- *
- * The main purpose of this function is for systems where a @fs is
- * running the entire time and where it is very unlikely that a file
- * could be changed outside between startup and shutdown of the
- * process using this API.
- *
- * The default if not set directly is that @mtime_checking is %TRUE.
- *
- * Since: 0.10
- **/
-void
-tracker_miner_fs_set_mtime_checking (TrackerMinerFS *fs,
-                                     gboolean        mtime_checking)
-{
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-
-	fs->priv->mtime_checking = mtime_checking;
-}
-
-/**
- * tracker_miner_fs_get_mtime_checking:
- * @fs: a #TrackerMinerFS
- *
- * Returns a boolean used to identify if file modification time checks
- * are performed when processing content. This may be set to %FALSE if
- * working prodominently with cloud data where you can't perform these
- * checks. By default and for local file systems, this is enabled.
- *
- * Returns: %TRUE if mtime checks for directories against the database
- * are done when @fs crawls the file system, otherwise %FALSE.
- *
- * Since: 0.10
- **/
-gboolean
-tracker_miner_fs_get_mtime_checking (TrackerMinerFS *fs)
-{
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
-
-	return fs->priv->mtime_checking;
-}
-
-/**
- * tracker_miner_fs_force_mtime_checking:
- * @fs: a #TrackerMinerFS
- * @directory: a #GFile representing the directory
- *
- * Tells @fs to force mtime checking (regardless of the global mtime check
- * configuration) on the given @directory.
- *
- * Since: 0.12
- **/
-void
-tracker_miner_fs_force_mtime_checking (TrackerMinerFS *fs,
-                                       GFile          *directory)
-{
-	TrackerDirectoryFlags flags;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (directory));
-
-	flags = TRACKER_DIRECTORY_FLAG_RECURSE |
-		TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
-
-	if (!fs->priv->data_provider) {
-		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
-	}
-
-	tracker_indexing_tree_add (fs->priv->indexing_tree,
-	                           directory,
-	                           flags);
-}
-
-/**
- * tracker_miner_fs_set_initial_crawling:
- * @fs: a #TrackerMinerFS
- * @do_initial_crawling: a #gboolean
- *
- * Tells the @fs that crawling the #TrackerIndexingTree should happen
- * initially. This is actually required to set up file system monitor
- * using technologies like inotify, etc.
- *
- * Setting this to #FALSE can dramatically improve the start up the
- * crawling of the @fs.
- *
- * The down side is that using this consistently means that some files
- * on the disk may be out of date with files in the database.
- *
- * The main purpose of this function is for systems where a @fs is
- * running the entire time and where it is very unlikely that a file
- * could be changed outside between startup and shutdown of the
- * process using this API.
- *
- * The default if not set directly is that @do_initial_crawling is %TRUE.
- *
- * Since: 0.10
- **/
-void
-tracker_miner_fs_set_initial_crawling (TrackerMinerFS *fs,
-                                       gboolean        do_initial_crawling)
-{
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-
-	fs->priv->initial_crawling = do_initial_crawling;
-}
-
-/**
- * tracker_miner_fs_get_initial_crawling:
- * @fs: a #TrackerMinerFS
- *
- * Returns a boolean which indicates if the indexing tree is crawled
- * upon start up or not. This may be set to %FALSE if working
- * prodominently with cloud data where you can't perform these checks.
- * By default and for local file systems, this is enabled.
- *
- * Returns: %TRUE if a file system structure is crawled for new
- * updates on start up, otherwise %FALSE.
- *
- * Since: 0.10
- **/
-gboolean
-tracker_miner_fs_get_initial_crawling (TrackerMinerFS *fs)
-{
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), FALSE);
-
-	return fs->priv->initial_crawling;
-}
-
-/**
  * tracker_miner_fs_has_items_to_process:
  * @fs: a #TrackerMinerFS
  *
@@ -4171,43 +3182,6 @@ tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
 
 	return FALSE;
 }
-
-#ifndef TRACKER_DISABLE_DEPRECATED
-/**
- * tracker_miner_fs_add_directory_without_parent:
- * @fs: a #TrackerMinerFS
- * @file: a #GFile
- *
- * Tells the miner-fs that the given #GFile corresponds to a
- * directory which was created in the store without a specific
- * parent object. In this case, when regenerating internal
- * caches, an extra query will be done so that these elements
- * are taken into account.
- *
- * Since: 0.10
- **/
-void
-tracker_miner_fs_add_directory_without_parent (TrackerMinerFS *fs,
-                                               GFile          *file)
-{
-	TrackerDirectoryFlags flags;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (file));
-
-	flags = TRACKER_DIRECTORY_FLAG_RECURSE |
-		TRACKER_DIRECTORY_FLAG_PRESERVE |
-		TRACKER_DIRECTORY_FLAG_CHECK_MTIME;
-
-	if (!fs->priv->data_provider) {
-		flags |= TRACKER_DIRECTORY_FLAG_MONITOR;
-	}
-
-	tracker_indexing_tree_add (fs->priv->indexing_tree,
-	                           file,
-	                           flags);
-}
-#endif
 
 /**
  * tracker_miner_fs_get_indexing_tree:

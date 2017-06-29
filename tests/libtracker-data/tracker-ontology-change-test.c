@@ -90,7 +90,7 @@ delete_db (gboolean del_journal)
 }
 
 static void
-query_helper (const gchar *query_filename, const gchar *results_filename)
+query_helper (TrackerDataManager *manager, const gchar *query_filename, const gchar *results_filename)
 {
 	GError *error = NULL;
 	gchar *queries = NULL, *query;
@@ -110,7 +110,7 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 	while (query) {
 		TrackerDBCursor *cursor;
 
-		cursor = tracker_data_query_sparql_cursor (query, &error);
+		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */
@@ -182,21 +182,18 @@ test_ontology_change (void)
 {
 	gchar *ontology_file;
 	GFile *file2;
-	gchar *prefix, *build_prefix;
-	gchar *ontology_dir;
+	gchar *prefix, *build_prefix, *ontologies;
+	gchar *data_dir, *ontology_dir;
 	guint i;
 	GError *error = NULL;
-	gchar *test_schemas[5] = { NULL, NULL, NULL, NULL, NULL };
+	GFile *data_location, *test_schemas;
+	TrackerDataManager *manager;
 
 	delete_db (TRUE);
 
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
 	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "libtracker-data", NULL);
-
-	test_schemas[0] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "20-dc", NULL);
-	test_schemas[1] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "31-nao", NULL);
-	test_schemas[2] = g_build_path (G_DIR_SEPARATOR_S, prefix, "ontologies", "90-tracker", NULL);
-	test_schemas[3] = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", "99-example", NULL);
+	ontologies = g_build_filename (prefix, "ontologies", NULL);
 
 	ontology_file = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", "99-example.ontology", NULL);
 
@@ -206,7 +203,12 @@ test_ontology_change (void)
 
 	ontology_dir = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", NULL);
 	g_mkdir_with_parents (ontology_dir, 0777);
+	test_schemas = g_file_new_for_path (ontology_dir);
 	g_free (ontology_dir);
+
+	data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);
+	data_location = g_file_new_for_path (data_dir);
+	g_free (data_dir);
 
 	for (i = 0; changes[i].ontology; i++) {
 		GFile *file1;
@@ -214,6 +216,7 @@ test_ontology_change (void)
 		gchar *source = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "source", changes[i].ontology, NULL);
 		gchar *update = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "updates", changes[i].update, NULL);
 		gchar *from, *to;
+		TrackerData *data;
 
 		file1 = g_file_new_for_path (source);
 
@@ -228,17 +231,17 @@ test_ontology_change (void)
 		g_assert_no_error (error);
 		g_chmod (ontology_file, 0666);
 
-		tracker_data_manager_init (0, (const gchar **) test_schemas,
-		                           NULL, FALSE, FALSE,
-		                           100, 100, NULL, NULL, NULL, &error);
-
+		manager = tracker_data_manager_new (0, data_location, data_location, test_schemas,
+		                                    FALSE, FALSE, 100, 100);
+		g_initable_init (G_INITABLE (manager), NULL, &error);
 		g_assert_no_error (error);
+
+		data = tracker_data_manager_get_data (manager);
 
 		if (g_file_get_contents (update, &queries, NULL, NULL)) {
 			gchar *query = strtok (queries, "\n");
 			while (query) {
-
-				tracker_data_update_sparql (query, &error);
+				tracker_data_update_sparql (data, query, &error);
 
 				g_assert_no_error (error);
 				query = strtok (NULL, "\n");
@@ -260,22 +263,21 @@ test_ontology_change (void)
 			query_filename = g_strconcat (test_prefix, ".rq", NULL);
 			results_filename = g_strconcat (test_prefix, ".out", NULL);
 
-			query_helper (query_filename, results_filename);
+			query_helper (manager, query_filename, results_filename);
 
 			g_free (test_prefix);
 			g_free (query_filename);
 			g_free (results_filename);
 		}
 
-		tracker_data_manager_shutdown ();
+		g_object_unref (manager);
 	}
 
 	delete_db (FALSE);
 
-	tracker_data_manager_init (0, (const gchar **) test_schemas,
-	                           NULL, TRUE, FALSE,
-	                           100, 100, NULL, NULL, NULL, &error);
-
+	manager = tracker_data_manager_new (0, data_location, data_location, test_schemas,
+	                                    TRUE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
 	g_assert_no_error (error);
 
 	for (i = 0; change_tests[i].test_name != NULL; i++) {
@@ -287,21 +289,21 @@ test_ontology_change (void)
 		query_filename = g_strconcat (test_prefix, ".rq", NULL);
 		results_filename = g_strconcat (test_prefix, ".out", NULL);
 
-		query_helper (query_filename, results_filename);
+		query_helper (manager, query_filename, results_filename);
 
 		g_free (test_prefix);
 		g_free (query_filename);
 		g_free (results_filename);
 	}
 
-	tracker_data_manager_shutdown ();
+	g_object_unref (manager);
 
 	g_file_delete (file2, NULL, NULL);
 
 	g_object_unref (file2);
-	g_free (test_schemas[0]);
-	g_free (test_schemas[1]);
-	g_free (test_schemas[2]);
+	g_object_unref (test_schemas);
+	g_object_unref (data_location);
+	g_free (ontologies);
 	g_free (build_prefix);
 	g_free (prefix);
 }
@@ -310,15 +312,8 @@ int
 main (int argc, char **argv)
 {
 	gint result;
-	gchar *data_dir;
 
 	g_test_init (&argc, &argv, NULL);
-
-	data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);
-
-	g_setenv ("XDG_DATA_HOME", data_dir, TRUE);
-	g_setenv ("XDG_CACHE_HOME", data_dir, TRUE);
-	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/src/ontologies/", TRUE);
 
 	/* add test cases */
 
@@ -333,8 +328,6 @@ main (int argc, char **argv)
 	g_print ("Removing temporary data\n");
 	g_spawn_command_line_sync ("rm -R tracker/", NULL, NULL, NULL, NULL);
 	g_spawn_command_line_sync ("rm -R test-cache/", NULL, NULL, NULL, NULL);
-
-	g_free (data_dir);
 
 	return result;
 }

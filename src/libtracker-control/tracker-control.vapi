@@ -8,14 +8,12 @@ namespace Tracker {
 		public MinerManager ();
 		public static GLib.Quark error_quark ();
 		[CCode (has_construct_function = false)]
-		public MinerManager.full (bool auto_start) throws GLib.Error;
+		public MinerManager.full (string? domain_name, bool auto_start) throws GLib.Error;
 		public GLib.SList<string>? get_available ();
 		public unowned string get_description (string miner);
 		public unowned string get_display_name (string miner);
 		public GLib.SList<string>? get_running ();
 		public bool get_status (string miner, out string status, out double progress, out int remaining_time);
-		[Deprecated (since = "0.12")]
-		public bool ignore_next_update (string miner, string urls);
 		public bool index_file (GLib.File file) throws GLib.Error;
 		public async bool index_file_async (GLib.File file, GLib.Cancellable? cancellable = null) throws GLib.Error;
 		public bool is_active (string miner);

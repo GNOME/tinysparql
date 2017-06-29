@@ -18,14 +18,8 @@
  */
 
 #include <glib/gprintf.h>
-#include <string.h>
 
 #include "ttl_sgml.h"
-#include "qname.h"
-
-#define DEFAULT_COPYRIGHT "&copy; 2009, 2010 <ulink url=\"http://www.nokia.com/\">Nokia</ulink>"
-
-#define SIGNALS_DOC "http://live.gnome.org/Tracker/Documentation/SignalsOnChanges"
 
 typedef struct {
 	Ontology *ontology;
@@ -116,80 +110,20 @@ print_sgml_header (FILE *f, OntologyDescription *desc)
         print_link_as_varlistentry (f, "Upstream:", "Upstream version", desc->upstream);
         print_link_as_varlistentry (f, "ChangeLog:", "Tracker changes", desc->gitlog);
 
-        g_fprintf (f, "<varlistentry>\n");
-        g_fprintf (f, "  <term>Copyright:</term>\n");
-        g_fprintf (f, "  <listitem>\n");
-        g_fprintf (f, "<para>%s</para>\n", (desc->copyright ? desc->copyright : DEFAULT_COPYRIGHT));
-        g_fprintf (f, "  </listitem>\n");
-        g_fprintf (f, "</varlistentry>\n");
-}
-
-static void
-print_sgml_explanation (FILE *f, const gchar *explanation_file)
-{
-	gchar *raw_content;
-	gsize length;
-
-	if (explanation_file && g_file_test (explanation_file, G_FILE_TEST_EXISTS)) {
-		if (!g_file_get_contents (explanation_file, &raw_content, &length, NULL)) {
-			g_error ("Unable to load '%s'", explanation_file );
-		}
-		g_fprintf (f, "%s", raw_content);
-	}
+        if (desc->copyright) {
+	        g_fprintf (f, "<varlistentry>\n");
+	        g_fprintf (f, "  <term>Copyright:</term>\n");
+	        g_fprintf (f, "  <listitem>\n");
+	        g_fprintf (f, "<para>%s</para>\n", desc->copyright);
+	        g_fprintf (f, "  </listitem>\n");
+	        g_fprintf (f, "</varlistentry>\n");
+        }
 }
 
 static void
 print_sgml_footer (FILE *f)
 {
 	g_fprintf (f,"</chapter>\n");
-}
-
-static gchar *
-name_get_prefix (Ontology    *ontology,
-		 const gchar *name)
-{
-	const gchar *delim;
-
-	delim = g_strrstr (name, "#");
-
-	if (!delim)
-		delim = g_strrstr (name, "/");
-
-	if (!delim)
-		return NULL;
-
-	delim++;
-
-	return g_strndup (name, delim - name);
-}
-
-static gchar *
-name_to_shortname (Ontology    *ontology,
-		   const gchar *name,
-		   const gchar *separator)
-{
-	gchar *prefix, *short_prefix;
-	const gchar *suffix;
-
-	if (!separator)
-		separator = ":";
-
-	prefix = name_get_prefix (ontology, name);
-
-	if (!prefix)
-		return g_strdup (name);
-
-	short_prefix = g_hash_table_lookup (ontology->prefixes, prefix);
-
-	if (!short_prefix) {
-		g_free (prefix);
-		return g_strdup (name);
-	}
-
-	suffix = &name[strlen (prefix)];
-	g_free (prefix);
-
-	return g_strconcat (short_prefix, separator, suffix, NULL);
 }
 
 static void
@@ -201,8 +135,8 @@ print_ontology_class (Ontology      *ontology,
 
 	g_return_if_fail (f != NULL);
 
-	name = name_to_shortname (ontology, def->classname, NULL);
-	id = name_to_shortname (ontology, def->classname, "-");
+	name = ttl_model_name_to_shortname (ontology, def->classname, NULL);
+	id = ttl_model_name_to_shortname (ontology, def->classname, "-");
 	g_fprintf (f, "<xi:include href='%s.xml'/>\n", id);
 	g_free (id);
 
@@ -211,21 +145,23 @@ print_ontology_class (Ontology      *ontology,
 
 void
 ttl_sgml_print (OntologyDescription *description,
-                Ontology *ontology,
-                FILE *f,
-                const gchar *explanation_file)
+                Ontology            *ontology,
+                GFile               *file)
 {
 	GHashTableIter iter;
-        gchar *upper_name;
+	gchar *upper_name, *path;
 	OntologyClass *def;
+	FILE *f;
+
+	path = g_file_get_path (file);
+	f = fopen (path, "w");
+	g_assert (f != NULL);
 
         upper_name = g_ascii_strup (description->localPrefix, -1);
-
-        qname_init (description->baseUrl, description->localPrefix, NULL);
 	print_sgml_header (f, description);
 
-        /* FIXME: make desc files sgml */
-	print_sgml_explanation (f, explanation_file);
+	g_fprintf (f, "<xi:include href='../%s-introduction.xml'><xi:fallback/></xi:include>",
+		   description->localPrefix);
 
         g_fprintf (f, "<section id='%s-classes'>\n", description->localPrefix);
 	g_fprintf (f, "<title>%s Ontology Classes</title>\n", upper_name);
@@ -238,5 +174,6 @@ ttl_sgml_print (OntologyDescription *description,
         g_fprintf (f, "</section>\n");
 	print_sgml_footer (f);
 
-        g_free (upper_name);
+	g_free (upper_name);
+	fclose (f);
 }

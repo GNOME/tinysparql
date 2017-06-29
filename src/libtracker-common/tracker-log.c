@@ -38,7 +38,6 @@ static gboolean  initialized;
 static FILE     *fd;
 static gint      verbosity;
 static guint     log_handler_id;
-static guint     libmediaart_log_handler_id;
 static gboolean  use_log_files;
 static GMutex    mutex;
 
@@ -268,11 +267,6 @@ tracker_log_init (gint    this_verbosity,
 			                            hide_levels,
 			                            hide_log_handler,
 			                            NULL);
-
-		libmediaart_log_handler_id = g_log_set_handler ("libmediaart",
-		                                                hide_levels,
-		                                                hide_log_handler,
-		                                                NULL);
 	}
 
 	/* Set log handler function for the rest */
@@ -301,11 +295,6 @@ tracker_log_shutdown (void)
 	if (log_handler_id) {
 		g_log_remove_handler (G_LOG_DOMAIN, log_handler_id);
 		log_handler_id = 0;
-	}
-
-	if (libmediaart_log_handler_id) {
-		g_log_remove_handler ("libmediaart", libmediaart_log_handler_id);
-		libmediaart_log_handler_id = 0;
 	}
 
 	if (use_log_files && fd != NULL) {

@@ -683,7 +683,6 @@ tracker_extract_decorator_new (TrackerExtract  *extract,
 {
 	return g_initable_new (TRACKER_TYPE_EXTRACT_DECORATOR,
 	                       cancellable, error,
-	                       "name", "Extract",
 	                       "data-source", TRACKER_EXTRACT_DATA_SOURCE,
 	                       "class-names", supported_classes,
 	                       "extractor", extract,

@@ -21,6 +21,7 @@
 #define __LIBTRACKER_DATA_NAMESPACE_H__
 
 #include <glib-object.h>
+#include "tracker-class.h"
 
 G_BEGIN_DECLS
 
@@ -61,6 +62,8 @@ void              tracker_namespace_set_prefix    (TrackerNamespace *namespace_,
                                                    const gchar      *value);
 void              tracker_namespace_set_is_new    (TrackerNamespace *namespace_,
                                                    gboolean         value);
+void              tracker_namespace_set_ontologies (TrackerNamespace  *namespace,
+                                                    TrackerOntologies *ontologies);
 
 G_END_DECLS
 

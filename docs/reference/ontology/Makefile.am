@@ -1,19 +1,19 @@
 AUTOMAKE_OPTIONS = 1.6
 
 # The original Ontology explanation files
-ONTOLOGY_EXPLANATIONS =                                \
-	$(top_srcdir)/docs/ontologies/mfo/explanation.xml \
-	$(top_srcdir)/docs/ontologies/nmm/explanation.xml \
-	$(top_srcdir)/docs/ontologies/mlo/explanation.xml \
-	$(top_srcdir)/docs/ontologies/nie/explanation.xml \
-	$(top_srcdir)/docs/ontologies/nmm/explanation.xml \
-	$(top_srcdir)/docs/ontologies/nco/explanation.xml \
-	$(top_srcdir)/docs/ontologies/nmo/explanation.xml
+ONTOLOGY_INTRODUCTIONS =     \
+	mfo-introduction.xml \
+	mlo-introduction.xml \
+	nco-introduction.xml \
+	nie-introduction.xml \
+	nmm-introduction.xml \
+	nmo-introduction.xml \
+	xsd-introduction.xml
 
 # Generation of the ontology XML files.
-gen-doc.stamp: $(ONTOLOGY_EXPLANATIONS)
+gen-doc.stamp: $(ONTOLOGY_INTRODUCTIONS)
 	$(MKDIR_P) xml
-	$(top_srcdir)/docs/tools/gen-doc.sh $(top_builddir)/docs/tools/ttl2sgml $(top_builddir)/docs/tools/ttlresource2sgml $(top_srcdir)/src/ontologies $(top_srcdir)/docs/ontologies xml/
+	$(top_builddir)/docs/tools/ttl2sgml -d $(top_srcdir)/src/ontologies/nepomuk -o xml/
 	$(AM_V_GEN) touch $@
 
 version.xml: gen-doc.stamp
@@ -49,7 +49,7 @@ include $(top_srcdir)/gtk-doc.make
 #  by gtk-doc
 EXTRA_DIST +=                                          \
 	version.xml.in                                 \
-	$(ONTOLOGY_EXPLANATIONS)                       \
+	$(ONTOLOGY_INTRODUCTIONS)                      \
 	meson.build
 
 CLEANFILES +=                                          \

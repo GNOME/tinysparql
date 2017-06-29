@@ -59,6 +59,7 @@ miner_start_cb (gpointer user_data)
 static gboolean
 process_file_cb (TrackerMinerFS *fs,
                  GFile          *file,
+                 GTask          *task,
                  gpointer        user_data)
 {
 	gchar *path;
@@ -68,7 +69,7 @@ process_file_cb (TrackerMinerFS *fs,
 	g_free (path);
 
 	/* Notify that processing is complete. */
-	tracker_miner_fs_file_notify (fs, file, NULL);
+	tracker_miner_fs_notify_finish (fs, task, "", NULL);
 
 	/* Return FALSE here if you ignored the file. */
 	return TRUE;
@@ -79,10 +80,16 @@ add_directory_path (TrackerMinerFS *fs,
                     const gchar    *path,
                     gboolean        recurse)
 {
+	TrackerIndexingTree *tree;
+	TrackerDirectoryFlags flags = 0;
 	GFile *file;
 
+	if (recurse)
+		flags |= TRACKER_DIRECTORY_FLAG_RECURSE;
+
 	file = g_file_new_for_path (path);
-	tracker_miner_fs_directory_add (fs, file, recurse);
+	tree = tracker_miner_fs_get_indexing_tree (fs);
+	tracker_indexing_tree_add (tree, file, flags);
 	g_object_unref (file);
 }
 

@@ -1,0 +1,5 @@
+# These two queries should provide the exact same result(s)
+SELECT { ?animal a ex:Animal;
+                 ex:geneticInformation "AGCT" }
+SELECT { ?animal a ex:Animal;
+                 ex:dna "AGCT" }

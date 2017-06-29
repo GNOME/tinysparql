@@ -12,7 +12,7 @@ AC_PREREQ([2.64])
 # if backwards compatibility has been broken,
 # set TRACKER_BINARY_AGE and TRACKER_INTERFACE_AGE to 0.
 m4_define([tracker_major_version], [1])
-m4_define([tracker_minor_version], [13])
+m4_define([tracker_minor_version], [99])
 m4_define([tracker_micro_version], [0])
 m4_define([tracker_interface_age], [0])
 m4_define([tracker_binary_age],
@@ -20,7 +20,7 @@ m4_define([tracker_binary_age],
 m4_define([tracker_version],
           [tracker_major_version.tracker_minor_version.tracker_micro_version])
 # This is the X.Y used in -llibtracker-FOO-X.Y
-m4_define([tracker_api_version], [1.0])
+m4_define([tracker_api_version], [2.0])
 
 # libtool version related macros
 m4_define([tracker_lt_release], [tracker_major_version.tracker_minor_version])
@@ -235,7 +235,6 @@ NETWORK_MANAGER_REQUIRED=0.8
 GSTREAMER_REQUIRED=0.10.31
 GUPNP_DLNA_REQUIRED=0.9.4
 LIBPNG_REQUIRED=1.2
-LIBMEDIAART_REQUIRED=1.9.0
 JSON_GLIB_REQUIRED=1.0
 LIBSOUP_REQUIRED=2.40
 
@@ -600,9 +599,11 @@ LDFLAGS="-Wl,--enable-new-dtags $LDFLAGS"
 AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],
              [enable_new_dtags=yes; AC_MSG_RESULT(yes)], [enable_new_dtags=no; AC_MSG_RESULT(no)])
 LDFLAGS=$save_LDFLAGS
+DTAGS_LDFLAGS=
 if test "x$enable_new_dtags" = "xyes"; then
-    LDFLAGS="-Wl,--enable-new-dtags $LDFLAGS"
+    DTAGS_LDFLAGS="-Wl,--enable-new-dtags"
 fi
+AC_SUBST(DTAGS_LDFLAGS)
 
 ####################################################################
 # Check for minimal
@@ -873,6 +874,9 @@ AC_SUBST(GLIB_MKENUMS)
 GDBUS_CODEGEN=`$PKG_CONFIG --variable=gdbus_codegen gio-2.0`
 AC_SUBST(GDBUS_CODEGEN)
 
+GLIB_COMPILE_RESOURCES=`$PKG_CONFIG --variable glib_compile_resources gio-2.0`
+AC_SUBST(GLIB_COMPILE_RESOURCES)
+
 ####################################################################
 # Should we build GLib based unit tests
 ####################################################################
@@ -1096,53 +1100,6 @@ if test "x$enable_network_manager" = "xyes"; then
 fi
 
 AM_CONDITIONAL(HAVE_NETWORK_MANAGER, test "x$have_network_manager" = "xyes")
-
-##################################################################
-# Check for libtracker-miner, tracker-extract: libmediaart
-##################################################################
-
-AC_ARG_ENABLE(libmediaart,
-              AS_HELP_STRING([--enable-libmediaart],
-                             [enable libmediaart for caching published video/audio art [[default=auto]]]),
-              [enable_libmediaart=$enableval],
-              [enable_libmediaart=auto])
-
-if test "x$enable_libmediaart" != "xno" ; then
-   PKG_CHECK_MODULES(LIBMEDIAART,
-                     [libmediaart-2.0 >= $LIBMEDIAART_REQUIRED],
-                     [have_libmediaart=yes],
-                     [have_libmediaart=no])
-
-   LIBTRACKER_MINER_CFLAGS="$LIBTRACKER_MINER_CFLAGS $LIBMEDIAART_CFLAGS"
-   LIBTRACKER_MINER_LIBS="$LIBTRACKER_MINER_LIBS $LIBMEDIAART_LIBS"
-
-   LIBTRACKER_EXTRACT_CFLAGS="$LIBTRACKER_EXTRACT_CFLAGS $LIBMEDIAART_CFLAGS"
-   LIBTRACKER_EXTRACT_LIBS="$LIBTRACKER_EXTRACT_LIBS $LIBMEDIAART_LIBS"
-
-   TRACKER_EXTRACT_CFLAGS="$TRACKER_EXTRACT_CFLAGS $LIBMEDIAART_CFLAGS"
-   TRACKER_EXTRACT_LIBS="$TRACKER_EXTRACT_LIBS $LIBMEDIAART_LIBS"
-
-   TRACKER_MINER_FS_CFLAGS="$TRACKER_MINER_FS_CFLAGS $LIBMEDIAART_CFLAGS"
-   TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS $LIBMEDIAART_LIBS"
-
-   # Used for .pc file...
-   LIBTRACKER_MINER_PC_REQUIRES="libmediaart-2.0"
-   AC_SUBST(LIBTRACKER_MINER_PC_REQUIRES)
-
-#   if test "x$have_libmediaart" = "xyes"; then
-#      AC_DEFINE(HAVE_LIBMEDIAART, [], [Define if we have libmediaart])
-#   fi
-else
-   have_libmediaart="no  (disabled)"
-fi
-
-if test "x$enable_libmediaart" = "xyes"; then
-   if test "x$have_libmediaart" != "xyes"; then
-      AC_MSG_ERROR([Could not find libmediaart >= $LIBMEDIAART_REQUIRED.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_LIBMEDIAART, test "x$have_libmediaart" = "xyes")
 
 ##################################################################
 # Check for libtracker-extract: libexif
@@ -2720,7 +2677,6 @@ Feature Support:
 	Build with SQLite FTS support:          $have_tracker_fts (built-in FTS: $have_builtin_fts5)
 	Build with Stemming support:            $have_libstemmer
 
-	Cache media art                         $have_libmediaart (libmediaart)
 	Install artwork                         $have_artwork
 
 	Bash completion support:                $with_bash_completion_dir ($BASH_COMPLETION_DIR)

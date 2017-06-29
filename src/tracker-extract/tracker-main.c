@@ -38,10 +38,6 @@
 #include <sys/resource.h>
 #endif
 
-#ifdef HAVE_LIBMEDIAART
-#include <libmediaart/mediaart.h>
-#endif
-
 #include <libtracker-common/tracker-common.h>
 
 #include <libtracker-data/tracker-db-manager.h>
@@ -66,6 +62,9 @@
 	"\n" \
 	"  http://www.gnu.org/licenses/gpl.txt\n"
 
+#define DBUS_NAME_SUFFIX "Miner.Extract"
+#define DBUS_PATH "/org/freedesktop/Tracker1/Miner/Extract"
+
 static GMainLoop *main_loop;
 
 static gint verbosity = -1;
@@ -74,6 +73,7 @@ static gchar *mime_type;
 static gchar *force_module;
 static gchar *output_format_name;
 static gboolean version;
+static gchar *domain_ontology_name = NULL;
 
 static TrackerConfig *config;
 
@@ -98,6 +98,10 @@ static GOptionEntry entries[] = {
 	{ "output-format", 'o', 0, G_OPTION_ARG_STRING, &output_format_name,
 	  N_("Output results format: “sparql”, or “turtle”"),
 	  N_("FORMAT") },
+	{ "domain-ontology", 'd', 0,
+	  G_OPTION_ARG_STRING, &domain_ontology_name,
+	  N_("Runs for an specific domain ontology"),
+	  NULL },
 	{ "version", 'V', 0,
 	  G_OPTION_ARG_NONE, &version,
 	  N_("Displays version information"),
@@ -271,11 +275,10 @@ run_standalone (TrackerConfig *config)
 	}
 	output_format = enum_value->value;
 
-	tracker_locale_init ();
+	tracker_locale_sanity_check ();
 
 	/* This makes sure we don't steal all the system's resources */
-	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
-	                                    tracker_db_manager_get_first_index_done () == FALSE);
+	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config), TRUE);
 
 	file = g_file_new_for_commandline_arg (filename);
 	uri = g_file_get_uri (file);
@@ -285,7 +288,6 @@ run_standalone (TrackerConfig *config)
 	if (!object) {
 		g_object_unref (file);
 		g_free (uri);
-		tracker_locale_shutdown ();
 		return EXIT_FAILURE;
 	}
 
@@ -295,9 +297,16 @@ run_standalone (TrackerConfig *config)
 	g_object_unref (file);
 	g_free (uri);
 
-	tracker_locale_shutdown ();
-
 	return EXIT_SUCCESS;
+}
+
+static void
+on_domain_vanished (GDBusConnection *connection,
+                    const gchar     *name,
+                    gpointer         user_data)
+{
+	GMainLoop *loop = user_data;
+	g_main_loop_quit (loop);
 }
 
 int
@@ -310,6 +319,10 @@ main (int argc, char *argv[])
 	TrackerExtractController *controller;
 	gchar *log_filename = NULL;
 	GMainLoop *my_main_loop;
+	GDBusConnection *connection;
+	TrackerMinerProxy *proxy;
+	TrackerDomainOntology *domain_ontology;
+	gchar *dbus_name;
 
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -347,6 +360,36 @@ main (int argc, char *argv[])
 
 	setlocale (LC_ALL, "");
 
+	tracker_sparql_connection_set_domain (domain_ontology_name);
+
+	domain_ontology = tracker_domain_ontology_new (domain_ontology_name, NULL, &error);
+	if (error) {
+		g_critical ("Could not load domain ontology '%s': %s",
+		            domain_ontology_name, error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
+	if (error) {
+		g_critical ("Could not create DBus connection: %s\n",
+		            error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
+
+	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            dbus_name, error->message);
+		g_error_free (error);
+		g_free (dbus_name);
+		return EXIT_FAILURE;
+	}
+
+	g_free (dbus_name);
+
 	config = tracker_config_new ();
 
 	/* Extractor command line arguments */
@@ -371,8 +414,7 @@ main (int argc, char *argv[])
 	initialize_directories ();
 
 	/* This makes sure we don't steal all the system's resources */
-	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
-	                                    tracker_db_manager_get_first_index_done () == FALSE);
+	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config), TRUE);
 
 	extract = tracker_extract_new (TRUE, force_module);
 
@@ -393,18 +435,35 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	proxy = tracker_miner_proxy_new (TRACKER_MINER (decorator), connection, DBUS_PATH, NULL, &error);
+	if (error) {
+		g_critical ("Could not create miner DBus proxy: %s\n", error->message);
+		g_error_free (error);
+		g_object_unref (decorator);
+		g_object_unref (config);
+		tracker_log_shutdown ();
+		return EXIT_FAILURE;
+	}
+
 #ifdef THREAD_ENABLE_TRACE
 	g_debug ("Thread:%p (Main) --- Waiting for extract requests...",
 	         g_thread_self ());
 #endif /* THREAD_ENABLE_TRACE */
 
-	tracker_locale_init ();
+	tracker_locale_sanity_check ();
 
-	controller = tracker_extract_controller_new (decorator);
+	controller = tracker_extract_controller_new (decorator, connection);
 	tracker_miner_start (TRACKER_MINER (decorator));
 
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);
+
+	if (domain_ontology && domain_ontology_name) {
+		g_bus_watch_name_on_connection (connection, domain_ontology_name,
+		                                G_BUS_NAME_WATCHER_FLAGS_NONE,
+		                                NULL, on_domain_vanished,
+		                                main_loop, NULL);
+	}
 
 	initialize_signal_handler ();
 
@@ -417,11 +476,12 @@ main (int argc, char *argv[])
 	tracker_miner_stop (TRACKER_MINER (decorator));
 
 	/* Shutdown subsystems */
-	tracker_locale_shutdown ();
-
 	g_object_unref (extract);
 	g_object_unref (decorator);
 	g_object_unref (controller);
+	g_object_unref (proxy);
+	g_object_unref (connection);
+	g_object_unref (domain_ontology);
 
 	tracker_log_shutdown ();
 

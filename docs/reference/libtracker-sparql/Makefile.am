@@ -1,5 +1,13 @@
 AUTOMAKE_OPTIONS = 1.6
 
+# Generation of the base ontology XML files.
+ontology-doc.stamp:
+	$(MKDIR_P) xml
+	$(top_builddir)/docs/tools/ttl2sgml -d $(top_srcdir)/src/ontologies/ -o xml/
+	$(AM_V_GEN) touch $@
+
+version.xml: ontology-doc.stamp
+
 # The name of the module.
 DOC_MODULE = libtracker-sparql
 
@@ -43,7 +51,7 @@ MKDB_OPTIONS = --sgml-mode --output-format=xml
 MKHTML_OPTIONS=--path="$(abs_builddir)"
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE)
-content_files =	version.xml examples.sgml overview.sgml
+content_files =	version.xml examples.sgml overview.sgml ontologies.sgml
 
 expand_content_files =
 
@@ -62,3 +70,6 @@ include $(top_srcdir)/gtk-doc.make
 EXTRA_DIST += \
 	version.xml.in \
 	meson.build
+
+CLEANFILES += \
+	ontology-doc.stamp

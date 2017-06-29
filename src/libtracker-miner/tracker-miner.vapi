@@ -77,20 +77,12 @@ namespace Tracker {
 		protected Miner ();
 		public static GLib.Quark error_quark ();
 		public Tracker.Sparql.Connection get_connection ();
-		public unowned GLib.DBusConnection get_dbus_connection ();
-		public unowned string get_dbus_full_name ();
-		public unowned string get_dbus_full_path ();
-		public uint get_n_pause_reasons ();
 		public bool is_paused ();
 		public bool is_started ();
-		public int pause (string reason) throws GLib.Error;
-		public bool resume (int cookie) throws GLib.Error;
+		public void pause ();
+		public bool resume ();
 		public void start ();
 		public void stop ();
-		[NoAccessorMethod]
-		public void* introspection_handler { get; set construct; }
-		[NoAccessorMethod]
-		public string introspection_xml { owned get; set construct; }
 		[NoAccessorMethod]
 		public string name { owned get; construct; }
 		[NoAccessorMethod]
@@ -100,7 +92,6 @@ namespace Tracker {
 		[NoAccessorMethod]
 		public string status { owned get; set construct; }
 		[HasEmitter]
-		public virtual signal void ignore_next_update ([CCode (array_length = false, array_null_terminated = true)] string[] urls);
 		public virtual signal void paused ();
 		public virtual signal void resumed ();
 		public virtual signal void started ();
@@ -110,34 +101,18 @@ namespace Tracker {
 	public abstract class MinerFS : Tracker.Miner, GLib.Initable {
 		[CCode (has_construct_function = false)]
 		protected MinerFS ();
-		public void add_directory_without_parent (GLib.File file);
-		public void check_directory (GLib.File file, bool check_parents);
-		public void check_directory_with_priority (GLib.File file, int priority, bool check_parents);
-		public void check_file (GLib.File file, bool check_parents);
-		public void check_file_with_priority (GLib.File file, int priority, bool check_parents);
-		public void directory_add (GLib.File file, bool recurse);
-		public bool directory_remove (GLib.File file);
-		public bool directory_remove_full (GLib.File file);
+		public void check_file (GLib.File file, int priority, bool check_parents);
 		public static GLib.Quark error_quark ();
-		public void file_notify (GLib.File file, GLib.Error error);
-		public void force_mtime_checking (GLib.File directory);
-		public void force_recheck ();
+		public void notify_finish (GLib.File file, GLib.Task task, string sparql, GLib.Error error);
 		public unowned Tracker.DataProvider get_data_provider ();
 		public unowned Tracker.IndexingTree get_indexing_tree ();
-		public bool get_initial_crawling ();
-		public bool get_mtime_checking ();
-		public unowned string? get_parent_urn (GLib.File file);
 		public double get_throttle ();
 		public unowned string? get_urn (GLib.File file);
 		public bool has_items_to_process ();
 		public string query_urn (GLib.File file);
-		public void set_initial_crawling (bool do_initial_crawling);
-		public void set_mtime_checking (bool mtime_checking);
 		public void set_throttle (double throttle);
 		public void writeback_notify (GLib.File file, GLib.Error error);
 		public Tracker.DataProvider data_provider { get; construct; }
-		public bool initial_crawling { get; set; }
-		public bool mtime_checking { get; set construct; }
 		[NoAccessorMethod]
 		public uint processing_pool_ready_limit { get; set construct; }
 		[NoAccessorMethod]
@@ -148,7 +123,6 @@ namespace Tracker {
 		public virtual signal void finished (double elapsed, uint directories_found, uint directories_ignored, uint files_found, uint files_ignored);
 		public virtual signal void finished_root (GLib.File root);
 		[Deprecated (since = "0.12")]
-		public virtual signal bool ignore_next_update_file (GLib.File file, Tracker.Sparql.Builder builder, GLib.Cancellable? cancellable = null);
 		public virtual signal bool process_file (GLib.File file, Tracker.Sparql.Builder builder, GLib.Cancellable? cancellable = null);
 		public virtual signal bool process_file_attributes (GLib.File file, Tracker.Sparql.Builder builder, GLib.Cancellable? cancellable = null);
 		public signal bool writeback_file (GLib.File file, [CCode (array_length = false, array_null_terminated = true)] string[] rdf_types, GLib.GenericArray<string[]> results, GLib.Cancellable? cancellable = null);

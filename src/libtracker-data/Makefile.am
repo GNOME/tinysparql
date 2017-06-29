@@ -19,7 +19,17 @@ AM_CPPFLAGS =                                          \
 libtracker_datadir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_data_LTLIBRARIES = libtracker-data.la
 
+tracker-data-enum-types.h: tracker-data-enum-types.h.template
+	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template tracker-data-enum-types.h.template tracker-db-interface-sqlite.h) > $@
+
+tracker-data-enum-types.c: tracker-data-enum-types.c.template
+	$(AM_V_GEN) (cd $(srcdir) && $(GLIB_MKENUMS) --template tracker-data-enum-types.c.template tracker-db-interface-sqlite.h) > $@
+
 libtracker_data_la_SOURCES =                           \
+	$(top_builddir)/src/ontologies/tracker-gresources.c \
+	$(top_builddir)/src/ontologies/tracker-gresources.h \
+	tracker-data-enum-types.c                      \
+	tracker-data-enum-types.h                      \
 	tracker-vala-namespace.vala                    \
 	tracker-sparql-expression.vala                 \
 	tracker-sparql-pattern.vala                    \
@@ -89,6 +99,8 @@ gsettings_SCHEMAS = org.freedesktop.Tracker.DB.gschema.xml
 
 # Dist / Clean rules for all data
 BUILT_SOURCES = \
+	tracker-data-enum-types.c                     \
+	tracker-data-enum-types.h                     \
 	libtracker_data_la_vala.stamp
 
 CLEANFILES = \
@@ -97,6 +109,8 @@ CLEANFILES = \
 	$(man_MANS)
 
 EXTRA_DIST = \
+	tracker-data-enum-types.c.template \
+	tracker-data-enum-types.h.template \
 	libtracker-data.vapi \
 	$(gsettings_SCHEMAS:.xml=.xml.in) \
 	$(man_MANS) \

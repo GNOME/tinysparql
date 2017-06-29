@@ -31,52 +31,9 @@
 #include "sqlite3.h"
 #include "fts5.h"
 
-static gsize      module_initialized = 0;
-
 int sqlite3_fts5_init ();
 
 #endif
-
-static gboolean   initialized = FALSE;
-
-
-gboolean
-tracker_fts_init (void)
-{
-	if (initialized) {
-		return TRUE;
-	}
-
-#ifdef HAVE_BUILTIN_FTS
-	initialized = TRUE;
-
-	/* SQLite has all needed FTS5 features compiled in */
-	return TRUE;
-#else
-	int rc = SQLITE_OK;
-
-	if (g_once_init_enter (&module_initialized)) {
-		rc = sqlite3_auto_extension ((void (*) (void)) sqlite3_fts5_init);
-		g_once_init_leave (&module_initialized, (rc == SQLITE_OK));
-	}
-
-	initialized = module_initialized != 0;
-
-	return initialized;
-#endif
-}
-
-gboolean
-tracker_fts_shutdown (void)
-{
-	if (!initialized) {
-		return TRUE;
-	}
-
-	initialized = FALSE;
-
-	return TRUE;
-}
 
 static gchar **
 get_fts_properties (GHashTable  *tables)
@@ -99,16 +56,21 @@ get_fts_properties (GHashTable  *tables)
 }
 
 gboolean
-tracker_fts_init_db (sqlite3    *db,
-                     GHashTable *tables)
+tracker_fts_init_db (sqlite3            *db,
+                     TrackerDBInterface *interface,
+                     GHashTable         *tables)
 {
 	gchar **property_names;
 	gboolean retval;
+	gchar *err;
 
-	g_return_val_if_fail (initialized == TRUE, FALSE);
+	if (sqlite3_load_extension (db, NULL, "sqlite3_fts5_init", &err) != SQLITE_OK) {
+		g_warning ("Could not load fts5 module: %s", err);
+		return FALSE;
+	}
 
 	property_names = get_fts_properties (tables);
-	retval = tracker_tokenizer_initialize (db, (const gchar **) property_names);
+	retval = tracker_tokenizer_initialize (db, interface, (const gchar **) property_names);
 	g_strfreev (property_names);
 
 	return retval;
@@ -125,8 +87,6 @@ tracker_fts_create_table (sqlite3    *db,
 	gchar *index_table;
 	GList *columns;
 	gint rc;
-
-	g_return_val_if_fail (initialized == TRUE, FALSE);
 
 	if (g_hash_table_size (tables) == 0)
 		return TRUE;
@@ -203,8 +163,6 @@ tracker_fts_alter_table (sqlite3    *db,
 {
 	gchar *query, *tmp_name;
 	int rc;
-
-	g_return_val_if_fail (initialized == TRUE, FALSE);
 
 	tmp_name = g_strdup_printf ("%s_TMP", table_name);
 

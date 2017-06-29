@@ -48,16 +48,8 @@ private_sources = 				       \
 	tracker-task-pool.c                            \
 	tracker-sparql-buffer.h                        \
 	tracker-sparql-buffer.c                        \
-	tracker-thumbnailer.c                          \
-	tracker-thumbnailer.h                          \
 	tracker-utils.c                                \
 	tracker-utils.h
-
-if HAVE_LIBMEDIAART
-private_sources += 				       \
-	tracker-media-art.c                            \
-	tracker-media-art.h
-endif
 
 miner_sources = 				       \
 	$(libtracker_miner_monitor_sources)            \
@@ -78,6 +70,8 @@ miner_sources = 				       \
 	tracker-miner-object.h                         \
 	tracker-miner-online.c                         \
 	tracker-miner-online.h                         \
+	tracker-miner-proxy.c                          \
+	tracker-miner-proxy.h                          \
 	tracker-miner-fs.c                             \
 	tracker-miner-fs.h
 
@@ -98,9 +92,11 @@ libtracker_minerinclude_HEADERS =                      \
 	tracker-miner-enum-types.h                     \
 	tracker-miner-object.h                         \
 	tracker-miner-online.h                         \
+	tracker-miner-proxy.h                          \
 	tracker-miner-fs.h
 
 libtracker_miner_@TRACKER_API_VERSION@_la_LDFLAGS =    \
+	$(DTAGS_LDFLAGS)                               \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 if !ENABLE_GCOV 
 # Using enable_gcov instead of have_unit_test because when doing a release
@@ -162,7 +158,7 @@ INTROSPECTION_SCANNER_ARGS = \
 	--symbol-prefix=tracker \
 	--warn-all
 
-INTROSPECTION_COMPILER_ARGS = --includedir=$(top_srcdir)/src/libtracker-sparql-backend
+INTROSPECTION_COMPILER_ARGS = --includedir=$(top_builddir)/src/libtracker-sparql-backend
 
 if HAVE_INTROSPECTION
 INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)

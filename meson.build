@@ -1,11 +1,11 @@
-project('tracker', 'c', 'vala', 'cpp', version: '1.13.0')
+project('tracker', 'c', 'vala', 'cpp', version: '1.99.0')
 
 gnome = import('gnome')
 i18n = import('i18n')
 cc = meson.get_compiler('c')
 
 # This is the X.Y used in -llibtracker-FOO-X.Y
-tracker_api_version = '1.0'
+tracker_api_version = '2.0'
 
 glib_required = '2.40.0'
 
@@ -50,7 +50,6 @@ libgrss = dependency('libgrss', version: '> 0.7', required: false)
 libgsf = dependency('libgsf-1', version: '> 1.14.24', required: false)
 libgxps = dependency('libgxps', required: false)
 libiptcdata = dependency('libiptcdata', required: false)
-libmediaart = dependency('libmediaart', version: '> 1.9.0', required: false)
 libosinfo = dependency('libosinfo', version: '> 0.2.9', required: false)
 libpng = dependency('libpng', version: '> 0.89', required: false)
 libsoup = dependency('libsoup-2.4', version: '> 2.40', required: true)
@@ -423,7 +422,6 @@ conf.set10('HAVE_LIBICU', unicode_library_name == 'icu')
 conf.set('HAVE_LIBICU_CHARSET_DETECTION', charset_library_name == 'icu')
 conf.set('HAVE_LIBEXIF', libexif.found())
 conf.set('HAVE_LIBIPTCDATA', libiptcdata.found())
-conf.set('HAVE_LIBMEDIAART', libmediaart.found())
 conf.set('HAVE_LIBSTEMMER', have_libstemmer)
 conf.set('HAVE_LIBUNISTRING', unicode_library_name == 'unistring')
 conf.set('HAVE_NETWORK_MANAGER', network_manager.found())
@@ -454,7 +452,6 @@ conf.set('includedir', join_paths(get_option('prefix'), get_option('includedir')
 conf.set('libdir', join_paths(get_option('prefix'), get_option('libdir')))
 conf.set('libexecdir', join_paths(get_option('prefix'), get_option('libexecdir')))
 conf.set('prefix', get_option('prefix'))
-conf.set('LIBTRACKER_MINER_PC_REQUIRES', 'libmediaart-2.0')
 conf.set('TRACKER_API_VERSION', '1.0')
 conf.set('VERSION', meson.project_version())
 
@@ -547,7 +544,6 @@ summary = [
   '    Build with SQLite FTS support:          @0@ (built-in FTS: @1@)'.format(
      get_option('fts'), sqlite3_has_builtin_fts5),
   '    Build with Stemming support:            ' + have_libstemmer.to_string(),
-  '    Cache media art                         ' + libmediaart.found().to_string(),
   '    Bash completion support:                ' + bash_completion_dir,
   '\nData Miners / Writebacks:',
   '    FS (File System):                       ' + have_tracker_miner_fs.to_string(),

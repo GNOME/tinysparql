@@ -36,6 +36,7 @@ struct _TrackerOntologyPrivate {
 	gchar *uri;
 	time_t last_modified;
 	gboolean is_new;
+	TrackerOntologies *ontologies;
 };
 
 static void ontology_finalize     (GObject      *object);
@@ -161,4 +162,17 @@ tracker_ontology_set_is_new (TrackerOntology *ontology,
 	priv = GET_PRIV (ontology);
 
 	priv->is_new = value;
+}
+
+void
+tracker_ontology_set_ontologies (TrackerOntology   *ontology,
+                                 TrackerOntologies *ontologies)
+{
+	TrackerOntologyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
+	g_return_if_fail (ontologies != NULL);
+	priv = GET_PRIV (ontology);
+
+	priv->ontologies = ontologies;
 }

@@ -307,11 +307,12 @@ dir_move_files (const gchar *src_path, const gchar *dest_path)
 }
 
 static void
-dir_move_to_temp (const gchar *path)
+dir_move_to_temp (const gchar *path,
+                  const gchar *tmpname)
 {
 	gchar *temp_dir;
 
-	temp_dir = g_build_filename (path, "tmp", NULL);
+	temp_dir = g_build_filename (path, tmpname, NULL);
 	if (g_mkdir (temp_dir, 0777) < 0) {
 		g_critical ("Could not move %s to temp directory: %m",
 			    path);
@@ -327,11 +328,12 @@ dir_move_to_temp (const gchar *path)
 }
 
 static void
-dir_move_from_temp (const gchar *path)
+dir_move_from_temp (const gchar *path,
+                    const gchar *tmpname)
 {
 	gchar *temp_dir;
 
-	temp_dir = g_build_filename (path, "tmp", NULL);
+	temp_dir = g_build_filename (path, tmpname, NULL);
 
 	/* ensure that no obsolete files are around */
 	dir_remove_files (path);
@@ -343,45 +345,39 @@ dir_move_from_temp (const gchar *path)
 }
 
 static void
-move_to_temp (void)
+move_to_temp (GFile *cache_location,
+              GFile *data_location)
 {
 	gchar *data_dir, *cache_dir;
 
-	g_message ("Moving all database files to temporary location");
+	g_info ("Moving all database files to temporary location");
 
-	data_dir = g_build_filename (g_get_user_data_dir (),
-	                             "tracker",
-	                             "data",
-	                             NULL);
+	data_dir = g_file_get_path (data_location);
+	cache_dir = g_file_get_path (cache_location);
 
-	cache_dir = g_build_filename (g_get_user_cache_dir (),
-	                              "tracker",
-	                              NULL);
-
-	dir_move_to_temp (data_dir);
-	dir_move_to_temp (cache_dir);
+	dir_move_to_temp (data_dir, "tmp.data");
+	dir_move_to_temp (cache_dir, "tmp.cache");
 
 	g_free (cache_dir);
 	g_free (data_dir);
 }
 
 static void
-remove_temp (void)
+remove_temp (GFile *cache_location,
+             GFile *data_location)
 {
 	gchar *tmp_data_dir, *tmp_cache_dir;
+	GFile *child;
 
-	g_message ("Removing all database files from temporary location");
+	g_info ("Removing all database files from temporary location");
 
-	tmp_data_dir = g_build_filename (g_get_user_data_dir (),
-	                                 "tracker",
-	                                 "data",
-	                                 "tmp",
-	                                 NULL);
+	child = g_file_get_child (data_location, "tmp.data");
+	tmp_data_dir = g_file_get_path (child);
+	g_object_unref (child);
 
-	tmp_cache_dir = g_build_filename (g_get_user_cache_dir (),
-	                                  "tracker",
-	                                  "tmp",
-	                                  NULL);
+	child = g_file_get_child (cache_location, "tmp.cache");
+	tmp_cache_dir = g_file_get_path (child);
+	g_object_unref (child);
 
 	dir_remove_files (tmp_data_dir);
 	dir_remove_files (tmp_cache_dir);
@@ -394,30 +390,27 @@ remove_temp (void)
 }
 
 static void
-restore_from_temp (void)
+restore_from_temp (GFile *cache_location,
+                   GFile *data_location)
 {
 	gchar *data_dir, *cache_dir;
 
-	g_message ("Restoring all database files from temporary location");
+	g_info ("Restoring all database files from temporary location");
 
-	data_dir = g_build_filename (g_get_user_data_dir (),
-	                             "tracker",
-	                             "data",
-	                             NULL);
+	data_dir = g_file_get_path (data_location);
+	cache_dir = g_file_get_path (cache_location);
 
-	cache_dir = g_build_filename (g_get_user_cache_dir (),
-	                              "tracker",
-	                              NULL);
-
-	dir_move_from_temp (data_dir);
-	dir_move_from_temp (cache_dir);
+	dir_move_from_temp (data_dir, "tmp.data");
+	dir_move_from_temp (cache_dir, "tmp.cache");
 
 	g_free (cache_dir);
 	g_free (data_dir);
 }
 
 void
-tracker_data_backup_save (GFile                     *destination,
+tracker_data_backup_save (TrackerDataManager        *data_manager,
+                          GFile                     *destination,
+                          GFile                     *data_location,
                           TrackerDataBackupFinished  callback,
                           gpointer                   user_data,
                           GDestroyNotify             destroy)
@@ -439,16 +432,13 @@ tracker_data_backup_save (GFile                     *destination,
 
 	info = g_new0 (BackupSaveInfo, 1);
 	info->destination = g_object_ref (destination);
-	info->journal = g_file_new_for_path (tracker_db_journal_get_filename ());
 	info->callback = callback;
 	info->user_data = user_data;
 	info->destroy = destroy;
 
-	parent = g_file_get_parent (info->journal);
-	directory = g_file_get_path (parent);
-	g_object_unref (parent);
 	path = g_file_get_path (destination);
 
+	directory = g_file_get_path (data_location);
 	journal_dir = g_dir_open (directory, 0, NULL);
 	f_name = g_dir_read_name (journal_dir);
 	files = g_ptr_array_new ();
@@ -539,6 +529,8 @@ tracker_data_backup_save (GFile                     *destination,
 	g_strfreev (argv);
 #else
 	BackupSaveInfo *info;
+	TrackerDBManager *db_manager;
+	GFile *db_file;
 
 	info = g_new0 (BackupSaveInfo, 1);
 	info->destination = g_object_ref (destination);
@@ -546,36 +538,54 @@ tracker_data_backup_save (GFile                     *destination,
 	info->user_data = user_data;
 	info->destroy = destroy;
 
-	tracker_db_backup_save (destination,
-	                        on_backup_finished, 
+	db_manager = tracker_data_manager_get_db_manager (data_manager);
+	db_file = g_file_new_for_path (tracker_db_manager_get_file (db_manager));
+
+	tracker_db_backup_save (destination, db_file,
+	                        on_backup_finished,
 	                        info,
 	                        NULL);
+
+	g_object_unref (db_file);
 #endif /* DISABLE_JOURNAL */
 }
 
 void
-tracker_data_backup_restore (GFile                *journal,
-                             const gchar         **test_schemas,
+tracker_data_backup_restore (TrackerDataManager   *manager,
+                             GFile                *journal,
+                             GFile                *cache_location,
+                             GFile                *data_location,
+                             GFile                *ontology_location,
                              TrackerBusyCallback   busy_callback,
                              gpointer              busy_user_data,
                              GError              **error)
 {
 	BackupSaveInfo *info;
 	GError *internal_error = NULL;
+	TrackerDBManager *db_manager = NULL;
 
+	if (!cache_location || !data_location || !ontology_location) {
+		g_set_error (error,
+		             TRACKER_DATA_ONTOLOGY_ERROR,
+		             TRACKER_DATA_UNSUPPORTED_LOCATION,
+		             "All data storage and ontology locations must be provided");
+		return;
+	}
+
+	db_manager = tracker_data_manager_get_db_manager (manager);
 	info = g_new0 (BackupSaveInfo, 1);
 #ifndef DISABLE_JOURNAL
-	info->destination = g_file_new_for_path (tracker_db_journal_get_filename ());
+	info->destination = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
 #else
-	info->destination = g_file_new_for_path (tracker_db_manager_get_file (TRACKER_DB_METADATA));
+	info->destination = g_file_new_for_path (tracker_db_manager_get_file (db_manager));
 #endif /* DISABLE_JOURNAL */
 
 	info->journal = g_object_ref (journal);
 
 	if (g_file_query_exists (info->journal, NULL)) {
 		TrackerDBManagerFlags flags;
+		TrackerDBJournal *journal_writer;
 		guint select_cache_size, update_cache_size;
-		gboolean is_first;
 #ifndef DISABLE_JOURNAL
 		GError *n_error = NULL;
 		GFile *parent = g_file_get_parent (info->destination);
@@ -586,11 +596,11 @@ tracker_data_backup_restore (GFile                *journal,
 		gint exit_status;
 #endif /* DISABLE_JOURNAL */
 
-		flags = tracker_db_manager_get_flags (&select_cache_size, &update_cache_size);
+		flags = tracker_db_manager_get_flags (db_manager, &select_cache_size, &update_cache_size);
 
-		tracker_data_manager_shutdown ();
+		//tracker_data_manager_shutdown ();
 
-		move_to_temp ();
+		move_to_temp (cache_location, data_location);
 
 #ifndef DISABLE_JOURNAL
 		argv = g_new0 (char*, 6);
@@ -653,20 +663,15 @@ tracker_data_backup_restore (GFile                *journal,
 		             &info->error);
 #endif /* DISABLE_JOURNAL */
 
-		tracker_db_manager_init_locations ();
+		tracker_db_manager_ensure_locations (db_manager, cache_location, data_location);
 
 		/* Re-set the DB version file, so that its mtime changes. The mtime of this
 		 * file will change only when the whole DB is recreated (after a hard reset
 		 * or after a backup restoration). */
-		tracker_db_manager_create_version_file ();
-
-		/* Given we're radically changing the database, we
-		 * force a full mtime check against all known files in
-		 * the database for complete synchronisation. */
-		tracker_db_manager_set_need_mtime_check (TRUE);
+		tracker_db_manager_create_version_file (db_manager);
 
 #ifndef DISABLE_JOURNAL
-		tracker_db_journal_init (NULL, FALSE, &n_error);
+		journal_writer = tracker_db_journal_new (data_location, FALSE, &n_error);
 
 		if (n_error) {
 			if (!info->error) {
@@ -680,12 +685,12 @@ tracker_data_backup_restore (GFile                *journal,
 		}
 
 		if (info->error) {
-			restore_from_temp ();
+			restore_from_temp (cache_location, data_location);
 		} else {
-			remove_temp ();
+			remove_temp (cache_location, data_location);
 		}
 
-		tracker_db_journal_shutdown (&n_error);
+		tracker_db_journal_free (journal_writer, &n_error);
 
 		if (n_error) {
 			g_warning ("Ignored error while shuting down journal during backup: %s",
@@ -694,19 +699,18 @@ tracker_data_backup_restore (GFile                *journal,
 		}
 #endif /* DISABLE_JOURNAL */
 
-		tracker_data_manager_init (flags, test_schemas, &is_first, TRUE, TRUE,
-		                           select_cache_size, update_cache_size,
-		                           busy_callback, busy_user_data,
-		                           "Restoring backup", &internal_error);
+		manager = tracker_data_manager_new (flags, cache_location, data_location, ontology_location,
+		                                    TRUE, TRUE, select_cache_size, update_cache_size);
+		g_initable_init (G_INITABLE (manager), NULL, &internal_error);
 
 #ifdef DISABLE_JOURNAL
 		if (internal_error) {
 			restore_from_temp ();
+			g_object_unref (manager);
 
-			tracker_data_manager_init (flags, test_schemas, &is_first, TRUE, TRUE,
-			                           select_cache_size, update_cache_size,
-			                           busy_callback, busy_user_data,
-			                           "Restoring backup", &internal_error);
+			manager = tracker_data_manager_new (flags, cache_location, data_location, ontology_location,
+			                                    TRUE, TRUE, select_cache_size, update_cache_size);
+			g_initable_init (G_INITABLE (manager), NULL, &internal_error);
 		} else {
 			remove_temp ();
 		}

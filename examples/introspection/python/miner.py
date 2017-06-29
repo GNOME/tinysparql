@@ -36,10 +36,6 @@ class MyMiner (TrackerMiner.Miner):
     def progress (self):
         print "override progress"
 
-    def ignore_next_update (self):
-        print "override ignore next updated"
-
-
 if __name__ == "__main__":
     m = MyMiner ()
     m.start ()

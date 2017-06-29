@@ -33,13 +33,13 @@
 // Convenience, hidden in the documentation
 namespace Tracker {
 	public const string DBUS_SERVICE = "org.freedesktop.Tracker1";
-	public const string DBUS_INTERFACE_RESOURCES = DBUS_SERVICE + ".Resources";
+	public const string DBUS_INTERFACE_RESOURCES = "org.freedesktop.Tracker1.Resources";
 	public const string DBUS_OBJECT_RESOURCES = "/org/freedesktop/Tracker1/Resources";
-	public const string DBUS_INTERFACE_STATISTICS = DBUS_SERVICE + ".Statistics";
+	public const string DBUS_INTERFACE_STATISTICS = "org.freedesktop.Tracker1.Statistics";
 	public const string DBUS_OBJECT_STATISTICS = "/org/freedesktop/Tracker1/Statistics";
-	public const string DBUS_INTERFACE_STATUS = DBUS_SERVICE + ".Status";
+	public const string DBUS_INTERFACE_STATUS = "org.freedesktop.Tracker1.Status";
 	public const string DBUS_OBJECT_STATUS = "/org/freedesktop/Tracker1/Status";
-	public const string DBUS_INTERFACE_STEROIDS = DBUS_SERVICE + ".Steroids";
+	public const string DBUS_INTERFACE_STEROIDS = "org.freedesktop.Tracker1.Steroids";
 	public const string DBUS_OBJECT_STEROIDS = "/org/freedesktop/Tracker1/Steroids";
 }
 
@@ -72,6 +72,11 @@ public errordomain Tracker.Sparql.Error {
 	NO_SPACE,
 	INTERNAL,
 	UNSUPPORTED
+}
+
+public enum Tracker.Sparql.ConnectionFlags {
+	NONE     = 0,
+	READONLY = 1 << 0,
 }
 
 /**
@@ -219,6 +224,28 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Since: 1.12
 	 */
 	public extern static new Connection remote_new (string uri_base);
+
+	/**
+	 * tracker_sparql_connection_local_new:
+	 *
+	 * Returns: a new local #TrackerSparqlConnection using the specified
+	 * @cache/@journal locations, and the ontology specified in the @ontology
+	 * directory. Call g_object_unref() on the object when no longer used.
+	 *
+	 * Since: 1.12
+	 */
+	public extern static new Connection local_new (Tracker.Sparql.ConnectionFlags flags, File store, File? journal, File? ontology, Cancellable? cancellable = null) throws Sparql.Error, IOError;
+
+	/**
+	 * tracker_sparql_connection_local_new_async:
+	 *
+	 * Returns: a new local #TrackerSparqlConnection using the specified
+	 * @cache/@journal locations, and the ontology specified in the @ontology
+	 * directory. Call g_object_unref() on the object when no longer used.
+	 *
+	 * Since: 1.12
+	 */
+	public extern async static new Connection local_new_async (Tracker.Sparql.ConnectionFlags flags, File store, File? journal, File? ontology, Cancellable? cancellable = null) throws Sparql.Error, IOError;
 
 	/**
 	 * tracker_sparql_connection_query:
@@ -542,4 +569,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 		warning ("Interface 'statistics_async' not implemented");
 		return null;
 	}
+
+	public extern static void set_domain (string? domain);
+	public extern static string? get_domain ();
 }

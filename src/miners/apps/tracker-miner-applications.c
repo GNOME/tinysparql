@@ -38,12 +38,12 @@ static gboolean miner_applications_initable_init           (GInitable           
                                                             GError              **error);
 static gboolean miner_applications_process_file            (TrackerMinerFS       *fs,
                                                             GFile                *file,
-                                                            TrackerSparqlBuilder *sparql,
-                                                            GCancellable         *cancellable);
+                                                            GTask                *task);
 static gboolean miner_applications_process_file_attributes (TrackerMinerFS       *fs,
                                                             GFile                *file,
-                                                            TrackerSparqlBuilder *sparql,
-                                                            GCancellable         *cancellable);
+                                                            GTask                *task);
+static gchar *  miner_applications_remove_file             (TrackerMinerFS       *fs,
+                                                            GFile                *file);
 
 static GQuark miner_applications_error_quark = 0;
 
@@ -56,6 +56,7 @@ struct ProcessApplicationData {
 	GCancellable *cancellable;
 	GKeyFile *key_file;
 	gchar *type;
+	GTask *task;
 };
 
 static GInitableIface* miner_applications_initable_parent_iface;
@@ -71,6 +72,7 @@ tracker_miner_applications_class_init (TrackerMinerApplicationsClass *klass)
 
 	miner_fs_class->process_file = miner_applications_process_file;
 	miner_fs_class->process_file_attributes = miner_applications_process_file_attributes;
+	miner_fs_class->remove_file = miner_applications_remove_file;
 
 	miner_applications_error_quark = g_quark_from_static_string ("TrackerMinerApplications");
 }
@@ -492,6 +494,7 @@ process_desktop_file (ProcessApplicationData  *data,
 {
 	TrackerSparqlBuilder *sparql;
 	GKeyFile *key_file;
+	GFile *parent;
 	gchar *name = NULL;
 	gchar *path;
 	gchar *type;
@@ -806,7 +809,9 @@ process_desktop_file (ProcessApplicationData  *data,
 		tracker_sparql_builder_object_date (sparql, (time_t *) &time);
 	}
 
-	parent_urn = tracker_miner_fs_get_parent_urn (TRACKER_MINER_FS (data->miner), data->file);
+	parent = g_file_get_parent (data->file);
+	parent_urn = tracker_miner_fs_query_urn (TRACKER_MINER_FS (data->miner), parent);
+	g_object_unref (parent);
 
 	if (parent_urn) {
 		tracker_sparql_builder_predicate (sparql, "nfo:belongsToContainer");
@@ -830,6 +835,7 @@ process_application_data_free (ProcessApplicationData *data)
 	g_object_unref (data->file);
 	g_object_unref (data->sparql);
 	g_object_unref (data->cancellable);
+	g_object_unref (data->task);
 	g_free (data->type);
 
 	if (data->key_file) {
@@ -854,9 +860,8 @@ process_file_cb (GObject      *object,
 	file_info = g_file_query_info_finish (file, result, &error);
 
 	if (error) {
-		tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), file, error);
+		tracker_miner_fs_notify_finish (TRACKER_MINER_FS (data->miner), data->task, NULL, error);
 		process_application_data_free (data);
-		g_error_free (error);
 		return;
 	}
 
@@ -882,12 +887,10 @@ process_file_cb (GObject      *object,
 		}
 	}
 
-	tracker_miner_fs_file_notify (TRACKER_MINER_FS (data->miner), data->file, error);
+	tracker_miner_fs_notify_finish (TRACKER_MINER_FS (data->miner), data->task,
+					tracker_sparql_builder_get_result (data->sparql),
+					error);
 	process_application_data_free (data);
-
-	if (error) {
-		g_error_free (error);
-	}
 
 	if (file_info) {
 		g_object_unref (file_info);
@@ -897,17 +900,17 @@ process_file_cb (GObject      *object,
 static gboolean
 miner_applications_process_file (TrackerMinerFS       *fs,
                                  GFile                *file,
-                                 TrackerSparqlBuilder *sparql,
-                                 GCancellable         *cancellable)
+                                 GTask                *task)
 {
 	ProcessApplicationData *data;
 	const gchar *attrs;
 
 	data = g_slice_new0 (ProcessApplicationData);
 	data->miner = g_object_ref (fs);
-	data->sparql = g_object_ref (sparql);
+	data->sparql = tracker_sparql_builder_new_update ();
 	data->file = g_object_ref (file);
-	data->cancellable = g_object_ref (cancellable);
+	data->cancellable = g_object_ref (g_task_get_cancellable (task));
+	data->task = g_object_ref (task);
 
 	attrs = G_FILE_ATTRIBUTE_TIME_MODIFIED ","
 		G_FILE_ATTRIBUTE_STANDARD_TYPE;
@@ -916,7 +919,7 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 	                         attrs,
 	                         G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                         G_PRIORITY_DEFAULT,
-	                         cancellable,
+	                         data->cancellable,
 	                         process_file_cb,
 	                         data);
 
@@ -926,8 +929,7 @@ miner_applications_process_file (TrackerMinerFS       *fs,
 static gboolean
 miner_applications_process_file_attributes (TrackerMinerFS       *fs,
                                             GFile                *file,
-                                            TrackerSparqlBuilder *sparql,
-                                            GCancellable         *cancellable)
+                                            GTask                *task)
 {
 	gchar *uri;
 
@@ -939,13 +941,29 @@ miner_applications_process_file_attributes (TrackerMinerFS       *fs,
 	return FALSE;
 }
 
+static gchar *
+miner_applications_remove_file (TrackerMinerFS *fs,
+                                GFile          *file)
+{
+	gchar *uri, *sparql;
+
+	uri = g_file_get_uri (file);
+	sparql = g_strdup_printf ("DELETE {"
+	                          "  ?u a rdfs:Resource"
+	                          "} WHERE {"
+	                          "  ?u nie:url \"%s\""
+	                          "}", uri);
+	g_free (uri);
+
+	return sparql;
+}
+
 TrackerMiner *
 tracker_miner_applications_new (GError **error)
 {
 	return g_initable_new (TRACKER_TYPE_MINER_APPLICATIONS,
 	                       NULL,
 	                       error,
-	                       "name", "Applications",
 	                       "processing-pool-wait-limit", 10,
 	                       "processing-pool-ready-limit", 100,
 	                       NULL);

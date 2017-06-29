@@ -1,9 +1,9 @@
 include $(top_srcdir)/Makefile.decl
 
 EXTRA_DIST += \
-	data-1.ontology                                \
+	test-1.ontology                                \
+	test-2.ontology                                \
 	data-1.ttl                                     \
-	data-2.ontology                                \
 	data-2.ttl                                     \
 	filter-nested-1.out                            \
 	filter-nested-1.rq                             \
@@ -29,17 +29,14 @@ EXTRA_DIST += \
 	filter-placement-3a.rq                         \
 	filter-scope-1.out                             \
 	filter-scope-1.rq                              \
-	opt-filter-3.ontology                          \
 	opt-filter-3.out                               \
 	opt-filter-3.rq                                \
 	opt-filter-3.ttl                               \
 	two-nested-opt-alt.out                         \
 	two-nested-opt-alt.rq                          \
-	two-nested-opt.ontology                        \
 	two-nested-opt.out                             \
 	two-nested-opt.rq                              \
 	two-nested-opt.ttl                             \
-	var-scope-join-1.ontology                      \
 	var-scope-join-1.out                           \
 	var-scope-join-1.rq                            \
 	var-scope-join-1.ttl

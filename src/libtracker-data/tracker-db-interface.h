@@ -91,6 +91,12 @@ void                    tracker_db_interface_set_max_stmt_cache_size (TrackerDBI
                                                                       TrackerDBStatementCacheType cache_type,
                                                                       guint                       max_size);
 
+/* User data functions, mainly to attach the data manager */
+void                    tracker_db_interface_set_user_data           (TrackerDBInterface         *interface,
+                                                                      gpointer                    user_data,
+	                                                              GDestroyNotify              destroy_notify);
+gpointer                tracker_db_interface_get_user_data           (TrackerDBInterface         *interface);
+
 /* Functions to create queries/procedures */
 TrackerDBStatement *    tracker_db_interface_create_statement        (TrackerDBInterface          *interface,
                                                                       TrackerDBStatementCacheType  cache_type,
@@ -130,10 +136,6 @@ TrackerDBCursor *       tracker_db_statement_start_sparql_cursor     (TrackerDBS
                                                                       const gchar * const        *variable_names,
                                                                       gint                        n_variable_names,
                                                                       GError                    **error);
-void                    tracker_db_interface_set_busy_handler        (TrackerDBInterface         *db_interface,
-                                                                      TrackerBusyCallback         busy_callback,
-                                                                      const gchar                *busy_status,
-                                                                      gpointer                    busy_user_data);
 
 /* Functions to deal with a cursor */
 void                    tracker_db_cursor_rewind                     (TrackerDBCursor            *cursor);

@@ -1,0 +1,5 @@
+# Make queries on ex:dateOfBirth faster
+ex:Mammal a rdfs:Class;
+          rdfs:subclassOf ex:Animal;
+          rdfs:comment "A mammal";
+          tracker:domainIndex ex:dateOfBirth.

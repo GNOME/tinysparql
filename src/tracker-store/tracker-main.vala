@@ -22,6 +22,9 @@ class Tracker.Main {
 	[CCode (cname = "PACKAGE_VERSION")]
 	extern const string PACKAGE_VERSION;
 
+	[CCode (cname = "SHAREDIR")]
+	extern const string SHAREDIR;
+
 	const string LICENSE = "This program is free software and comes without any warranty.
 It is licensed under version 2 or later of the General Public
 License which can be viewed at:
@@ -36,11 +39,18 @@ License which can be viewed at:
 
 	static bool shutdown;
 
+	static Tracker.Data.Manager data_manager;
+
 	/* Private command line parameters */
 	static bool version;
 	static int verbosity;
 	static bool force_reindex;
 	static bool readonly_mode;
+	static string domain_ontology;
+	static File cache_location;
+	static File data_location;
+	static File ontology_location;
+	static string domain;
 
 	const OptionEntry entries[] = {
 		/* Daemon options */
@@ -50,6 +60,7 @@ License which can be viewed at:
 		/* Indexer options */
 		{ "force-reindex", 'r', 0, OptionArg.NONE, ref force_reindex, N_("Force a re-index of all content"), null },
 		{ "readonly-mode", 'n', 0, OptionArg.NONE, ref readonly_mode, N_("Only allow read based actions on the database"), null },
+		{ "domain-ontology", 'd', 0, OptionArg.STRING, ref domain_ontology, N_("Load a specified domain ontology"), null },
 		{ null }
 	};
 
@@ -60,6 +71,19 @@ License which can be viewed at:
 		message ("Store options:");
 		message ("  Readonly mode  ........................  %s", readonly_mode ? "yes" : "no");
 		message ("  GraphUpdated Delay ....................  %d", config.graphupdated_delay);
+
+		if (domain_ontology != null)
+			message ("  Domain ontology........................  %s", domain_ontology);
+
+		if (domain != null)
+			message ("  Domain.................................  %s", domain);
+
+		if (cache_location != null)
+			message ("  Cache location.........................  %s", cache_location.get_uri());
+		if (data_location != null)
+			message ("  Data location..........................  %s", data_location.get_uri());
+		if (ontology_location != null)
+			message ("  Ontology location......................  %s", ontology_location.get_uri());
 	}
 
 	static void do_shutdown () {
@@ -125,7 +149,7 @@ License which can be viewed at:
 		string[] predicates_to_signal = null;
 
 		try {
-			var cursor = Tracker.Data.query_sparql_cursor ("SELECT ?predicate WHERE { ?predicate tracker:writeback true }");
+			var cursor = Tracker.Data.query_sparql_cursor (data_manager, "SELECT ?predicate WHERE { ?predicate tracker:writeback true }");
 
 			while (cursor.next ()) {
 				predicates_to_signal += cursor.get_string (0);
@@ -145,6 +169,10 @@ License which can be viewed at:
 		         verbosity > 0 ? "enabling" : "disabling");
 
 		Tracker.DBusRequest.enable_client_lookup (verbosity > 0);
+	}
+
+	public static unowned Tracker.Data.Manager get_data_manager () {
+		return data_manager;
 	}
 
 	static int main (string[] args) {
@@ -195,6 +223,20 @@ License which can be viewed at:
 			message ("Using log file:'%s'", log_filename);
 		}
 
+		Tracker.DomainOntology domain_ontology_config;
+
+		try {
+			domain_ontology_config = new Tracker.DomainOntology (domain_ontology, null);
+		} catch (Error e) {
+			critical ("Could not load domain ontology definition '%s': %s", domain_ontology, e.message);
+			return -1;
+		}
+
+		cache_location = domain_ontology_config.get_cache ();
+		data_location = domain_ontology_config.get_journal ();
+		ontology_location = domain_ontology_config.get_ontology ();
+		domain = domain_ontology_config.get_domain ();
+
 		sanity_check_option_values (config);
 
 		if (!Tracker.DBus.init (config)) {
@@ -215,7 +257,6 @@ License which can be viewed at:
 		}
 
 		var notifier = Tracker.DBus.register_notifier ();
-		var busy_callback = notifier.get_callback ();
 
 		Tracker.Store.init ();
 
@@ -224,7 +265,7 @@ License which can be viewed at:
 			return 1;
 		}
 
-		if (!Tracker.DBus.register_names ()) {
+		if (!Tracker.DBus.register_names (domain)) {
 			return 1;
 		}
 
@@ -257,18 +298,16 @@ License which can be viewed at:
 			update_cache_size = UPDATE_CACHE_SIZE;
 		}
 
-		bool is_first_time_index;
-
 		try {
-			Tracker.Data.Manager.init (flags,
-			                           null,
-			                           out is_first_time_index,
-			                           true,
-			                           false,
-			                           select_cache_size,
-			                           update_cache_size,
-			                           busy_callback,
-			                           "Initializing");
+			data_manager = new Tracker.Data.Manager (flags,
+			                                         cache_location,
+			                                         data_location,
+			                                         ontology_location,
+			                                         true,
+			                                         false,
+			                                         select_cache_size,
+			                                         update_cache_size);
+			data_manager.init (null);
 		} catch (GLib.Error e) {
 			critical ("Cannot initialize database: %s", e.message);
 			return 1;
@@ -280,8 +319,8 @@ License which can be viewed at:
 		if (!shutdown) {
 			Tracker.DBus.register_prepare_class_signal ();
 
-			Tracker.Events.init ();
-			Tracker.Writeback.init (get_writeback_predicates);
+			Tracker.Events.init (data_manager);
+			Tracker.Writeback.init (data_manager, get_writeback_predicates);
 			Tracker.Store.resume ();
 
 			message ("Waiting for D-Bus requests...");
@@ -292,6 +331,9 @@ License which can be viewed at:
 		 */
 		if (!shutdown) {
 			main_loop = new MainLoop ();
+
+			if (domain != null)
+				Tracker.DBus.watch_domain (domain_ontology, main_loop);
 
 			initialize_signal_handler ();
 
@@ -313,8 +355,8 @@ License which can be viewed at:
 		Tracker.Writeback.shutdown ();
 		Tracker.Events.shutdown ();
 
+		data_manager = null;
 		Tracker.DBus.shutdown ();
-		Tracker.Data.Manager.shutdown ();
 		Tracker.Log.shutdown ();
 
 		config.disconnect (config_verbosity_id);

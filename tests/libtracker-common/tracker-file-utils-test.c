@@ -21,6 +21,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <locale.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -431,7 +432,8 @@ main (int argc, char **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
-	tracker_locale_init ();
+	setlocale (LC_ALL, "");
+
         ensure_file_exists (TEST_FILENAME);
         ensure_file_exists (TEST_HIDDEN_FILENAME);
 
@@ -469,8 +471,6 @@ main (int argc, char **argv)
 
         remove_file (TEST_FILENAME);
         remove_file (TEST_HIDDEN_FILENAME);
-
-	tracker_locale_shutdown ();
 
 	return result;
 }

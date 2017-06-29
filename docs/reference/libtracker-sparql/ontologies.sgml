@@ -1,0 +1,352 @@
+<?xml version='1.0' encoding="UTF-8"?>
+
+<part id="tracker-ontologies" xmlns:xi="http://www.w3.org/2003/XInclude">
+  <title>Defining ontologies</title>
+  <partintro>
+    <para>
+      An ontology defines the entities that a Tracker endpoint can store, as
+      well as their properties and the relationships between different entities.
+    </para>
+    <para>
+      Tracker internally uses the following ontologies as its base, all ontologies
+      defined by the user of the endpoint are recommended to be build around this
+      base:
+    </para>
+
+    <formalpara>
+      <title><systemitem>XML Schema (XSD).</systemitem></title>
+      <para>Defining basic types.</para>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Resource Description Framework (RDF).</systemitem></title>
+      <para>Defining classes, properties and inheritance</para>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Nepomuk Resource Language (NRL).</systemitem></title>
+      <para>Defining resource uniqueness and cardinality</para>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Dublin Core (DC).</systemitem></title>
+      <para>Defining common superproperties for documents</para>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Nepomuk Annotation Ontology (NAO).</systemitem></title>
+      <para>Implementing tagging and annotations</para>
+    </formalpara>
+
+    <para>
+      Ontologies are RDF files with the .ontology extension, Tracker parses all
+      ontology files from the given directory. The individual ontology files may
+      ontologies may not be self-consistent (i.e. use missing definitions), but
+      all the ontology files as a whole must be.
+    </para>
+
+    <para>
+      Tracker loads the ontology files in alphanumeric order, it is advisable
+      that those have a numbered prefix in order to load those at a consistent
+      order despite future additions.
+    </para>
+  </partintro>
+
+  <chapter id="creating-ontology">
+    <title>Creating an ontology</title>
+    <section id="defining-namespaces">
+      <title>Defining a namespace</title>
+      <para>
+	A namespace is the topmost layer of an individual ontology, it will
+	contain all classes and properties defined by it. In order to define
+	a namespace you can do:
+      </para>
+      <programlisting><xi:include href="examples/ontologies/defining-namespaces-1.txt" parse="text"/></programlisting>
+    </section>
+    <section id="defining-classes">
+      <title>Defining classes</title>
+      <para>
+	Classes are the base of an ontology, all stored resources must define
+	themselves as "being" at least one of these classes. They all derive
+	from the base rdfs:Resource type. To eg. define classes representing
+	animals and plants, you can do:
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-classes-1.txt" parse="text"/></programlisting>
+      <para>
+	By convention all classes use CamelCase names, although class names
+	are not restricted. The allowed charset is UTF-8.
+      </para>
+      <para>
+	Declaring subclasses is possible:
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-classes-2.txt" parse="text"/></programlisting>
+      <para>
+	With such classes defined, resources may be inserted to the endpoint,
+	eg. with the SPARQL:
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-classes-3.rq" parse="text"/></programlisting>
+      <para>
+	Note that multiple inheritance is possible, resources will just inherit
+	all properties from all classes and superclasses.
+      </para>
+    </section>
+    <section id="defining-properties">
+      <title>Defining properties</title>
+      <para>
+	Properties relate to a class, so all resources pertaining to that class
+	can define values for these.
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-properties-1.txt" parse="text"/></programlisting>
+      <para>
+	The class the property belongs to is defined by rdfs:domain, while the
+	data type contained is defined by rdfs:range. By convention all
+	properties use lowerCamelCase names, although property names are not
+	restricted. The allowed charset is UTF-8.
+      </para>
+      <para>
+	The following basic types are supported:
+      </para>
+      <formalpara>
+	<title><systemitem>xsd:boolean</systemitem></title>
+      </formalpara>
+      <formalpara>
+	<title><systemitem>xsd:string</systemitem></title>
+      </formalpara>
+      <formalpara>
+	<title><systemitem>xsd:integer</systemitem></title>
+	<para>Ranging from -2^63 to 2^63-1.</para>
+      </formalpara>
+      <formalpara>
+	<title><systemitem>xsd:double</systemitem></title>
+	<para>Able to store a 8 byte IEEE floating point number.</para>
+      </formalpara>
+      <formalpara>
+	<title><systemitem>xsd:date and xsd:dateTime</systemitem></title>
+	<para>
+	  Able to store dates and times since January 1, 1970 UTC, with
+	  millisecond resolution.
+	</para>
+      </formalpara>
+      <para>
+	Of course, properties can also point to resources of the same or
+	other classes, so stored resources can conform a graph:
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-properties-2.txt" parse="text"/></programlisting>
+      <para>
+	There is also inheritance of properties, an example would be a property
+	in a subclass concretizing a more generic property from a superclass.
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-properties-3.txt" parse="text"/></programlisting>
+      <para>
+	SPARQL queries are expected to provide the same result when queried
+	for a property or one of its superproperties.
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-properties-4.rq" parse="text"/></programlisting>
+    </section>
+    <section id="defining-cardinality">
+      <title>Defining cardinality of properties</title>
+      <para>
+	By default, properties are multivalued, there are no restrictions in
+	the number of values a property can store.
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-cardinality-1.rq" parse="text"/></programlisting>
+      <para>
+	Wherever this is not desirable, cardinality can be limited on properties
+	through nrl:maxCardinality.
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-cardinality-2.txt" parse="text"/></programlisting>
+      <para>
+	This will raise an error if the SPARQL updates in the endpoint end up
+	in the property inserted multiple times.
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-cardinality-3.rq" parse="text"/></programlisting>
+      <note>
+	Tracker does not implement support for other maximum cardinalities
+	than 1.
+      </note>
+      <!--
+	  XXX: explain how cardinality affects subproperties, superproperties
+	-->
+    </section>
+    <section id="defining-uniqueness">
+      <title>Defining uniqueness</title>
+      <para>
+	It is desirable for certain properties to keep their values unique
+	across all resources, this can be expressed by defining the properties
+	as being a nrl:InverseFunctionalProperty.
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-uniqueness-1.txt" parse="text"/></programlisting>
+      <para>
+	With that in place, no two resources can have the same value on the
+	property.
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-uniqueness-2.rq" parse="text"/></programlisting>
+      <!--
+	  XXX: explain how inverse functional proeprties affect sub/superproperties
+	-->
+    </section>
+    <section id="defining-indexes">
+      <title>Defining indexes</title>
+      <para>
+	It may be the case that SPARQL queries performed on the endpoint are
+	known to match, sort, or filter on certain properties more often than others.
+	In this case, the ontology may use tracker:domainIndex in the class definition:
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-indexes-1.txt" parse="text"/></programlisting>
+      <para>
+	Classes may define multiple domain indexes.
+      </para>
+      <note>
+	Be frugal with indexes, do not add these proactively. An index in the wrong
+	place might not affect query performance positively, but all indexes come at
+	a cost in disk size.
+      </note>
+    </section>
+    <section id="defining-fts-indexes">
+      <title>Defining full-text search properties</title>
+      <para>
+	Tracker provides nonstandard full-text search capabilities, in order to use
+	these, the string properties can use tracker:fulltextIndexed:
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-fts-indexes-1.txt" parse="text"/></programlisting>
+      <para>
+	Weighting can also be applied, so certain properties rank higher than others
+	in full-text search queries. With tracker:fulltextIndexed in place, sparql
+	queries may use full-text search capabilities:
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/defining-fts-indexes-2.rq" parse="text"/></programlisting>
+    </section>
+    <section id="predefined-elements">
+      <title>Predefined elements</title>
+      <para>
+	It may be desirable for the ontology to offer predefined elements of a
+	certain class, which can then be used by the endpoint.
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/predefined-elements-1.txt" parse="text"/></programlisting>
+      <para>
+	Usage does not differ in use from the elements of that same class that
+	could be inserted in the endpoint.
+      </para>
+      <programlisting><xi:include href="./examples/ontologies/predefined-elements-2.rq" parse="text"/></programlisting>
+    </section>
+  </chapter>
+
+  <chapter id="accompanying-metadata">
+    <title>Accompanying metadata</title>
+    <para>
+      Ontology files are optionally accompanied by description files, those have
+      the same basename, but the ".description" extension.
+    </para>
+    <programlisting><xi:include href="./examples/ontologies/example.description" parse="text"/></programlisting>
+  </chapter>
+
+  <chapter id="updating-ontology">
+    <title>Updating an ontology</title>
+
+    <para>
+      As software evolves, sometimes changes in the ontology are unavoidable.
+      Tracker can transparently handle certain ontology changes on existing
+      databases.
+    </para>
+
+    <formalpara>
+      <title><systemitem>Adding a class.</systemitem></title>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Removing a class.</systemitem></title>
+      <para>
+	All resources will be removed from this class, and all related
+	properties will disappear.
+      </para>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Adding a property.</systemitem></title>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Removing a property.</systemitem></title>
+      <para>
+	The property will disappear from all elements pertaining to the
+	class in domain of the property.
+      </para>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Changing rdfs:range of a property.</systemitem></title>
+      <para>
+	The following conversions are allowed:
+      </para>
+      <variablelist>
+	<varlistentry><listitem>xsd:integer to xsd:bool, xsd:double and xsd:string</listitem></varlistentry>
+	<varlistentry><listitem>xsd:double to xsd:bool, xsd:integer and xsd:string</listitem></varlistentry>
+	<varlistentry><listitem>xsd:string to xsd:bool, xsd:integer and xsd:double</listitem></varlistentry>
+      </variablelist>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Adding and removing tracker:domainIndex from a class.</systemitem></title>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Adding and removing tracker:fulltextIndexed from a property.</systemitem></title>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Changing the tracker:weight on a property.</systemitem></title>
+    </formalpara>
+    <formalpara>
+      <title><systemitem>Removing nrl:maxCardinality from a property.</systemitem></title>
+    </formalpara>
+    <!--
+	XXX: these need documenting too
+	add intermediate superproperties
+	add intermediate superclasses
+	remove intermediate superproperties
+	remove intermediate superclasses
+      -->
+
+    <para>
+      However, there are certain ontology changes that Tracker will find
+      incompatible. Either because they are incoherent or resulting into
+      situations where it can not deterministically satisfy the change
+      in the stored data. Tracker will error out and refuse to do any data
+      changes in these situations:
+    </para>
+    <variablelist>
+      <varlistentry><listitem>
+	Properties with rdfs:range being xsd:bool, xsd:date, xsd:dateTime,
+	or any other custom class are not convertible. Only conversions
+	covered in the list above are accepted.
+      </listitem></varlistentry>
+      <varlistentry><listitem>
+	You can not add rdfs:subClassOf in classes that are not being
+	newly added. You can not remove rdfs:subClassOf from classes.
+	The only allowed change to rdfs:subClassOf is to correct
+	subclasses when deleting a class, so they point a common
+	superclass.
+      </listitem></varlistentry>
+      <varlistentry><listitem>
+	You can not add rdfs:subPropertyOf to properties that are not
+	being newly added. You can not change an existing
+	rdfs:subPropertyOf unless it is made to point to a common
+	superproperty. You can however remove rdfs:subPropertyOf from
+	non-new properties.
+      </listitem></varlistentry>
+      <varlistentry><listitem>
+	Properties can not move across classes, thus any change in
+	rdfs:domain forbidden.
+      </listitem></varlistentry>
+      <varlistentry><listitem>
+	You can not add nrl:maxCardinality restrictions on properties that
+	are not being newly added.
+      </listitem></varlistentry>
+      <varlistentry><listitem>
+	You can not add nor remove nrl:InverseFunctionalProperty from a
+	property that is not being newly added.
+      </listitem></varlistentry>
+    </variablelist>
+    <para>
+      The recommendation to bypass these situations is the same for all,
+      use different property and class names and use SPARQL to manually
+      migrate the old data to the new format if necessary.
+    </para>
+    <para>
+      High level code is in a better position to solve the
+      possible incoherences (e.g. picking a single value if a property
+      changes from multiple values to single value). After the manual
+      data migration has been completed, the old classes and properties
+      can be dropped.
+    </para>
+  </chapter>
+</part>

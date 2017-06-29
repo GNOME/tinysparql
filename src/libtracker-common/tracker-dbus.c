@@ -497,3 +497,45 @@ tracker_g_dbus_request_begin (GDBusMethodInvocation *invocation,
 
 	return request;
 }
+
+gboolean
+tracker_dbus_request_name (GDBusConnection  *connection,
+                           const gchar      *name,
+                           GError          **error)
+{
+	GError *inner_error = NULL;
+	GVariant *reply;
+	gint rval;
+
+	reply = g_dbus_connection_call_sync (connection,
+	                                     "org.freedesktop.DBus",
+	                                     "/org/freedesktop/DBus",
+	                                     "org.freedesktop.DBus",
+	                                     "RequestName",
+	                                     g_variant_new ("(su)",
+	                                                    name,
+	                                                    0x4 /* DBUS_NAME_FLAG_DO_NOT_QUEUE */),
+	                                     G_VARIANT_TYPE ("(u)"),
+	                                     0, -1, NULL, &inner_error);
+	if (inner_error) {
+		g_propagate_prefixed_error (error, inner_error,
+		                            "Could not acquire name:'%s'. ",
+		                            name);
+		return FALSE;
+	}
+
+	g_variant_get (reply, "(u)", &rval);
+	g_variant_unref (reply);
+
+	if (rval != 1 /* DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER */) {
+		g_set_error (error,
+		             G_DBUS_ERROR,
+		             G_DBUS_ERROR_ADDRESS_IN_USE,
+		             "D-Bus service name:'%s' is already taken, "
+		             "perhaps the application is already running?",
+		             name);
+		return FALSE;
+	}
+
+	return TRUE;
+}

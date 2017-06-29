@@ -43,6 +43,8 @@ const TestInfo tests[] = {
 	{ NULL }
 };
 
+static gchar *datadir = NULL;
+
 static void
 test_sparql_query (gconstpointer test_data)
 {
@@ -53,27 +55,32 @@ test_sparql_query (gconstpointer test_data)
 	gchar *update, *update_filename;
 	gchar *query, *query_filename;
 	gchar *results, *results_filename;
-	gchar *prefix, *data_prefix, *test_prefix;
+	gchar *prefix, *test_prefix;
+	GFile *ontology, *data_location;
+	TrackerDataManager *manager;
+	TrackerData *data;
 	gint i;
-	const gchar *test_schemas[2] = { NULL, NULL };
 
 	error = NULL;
 	test_info = test_data;
 
 	/* initialization */
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-fts", NULL);
-	data_prefix = g_build_filename (prefix, "data", NULL);
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
+	ontology = g_file_new_for_path (prefix);
 	g_free (prefix);
 
-	test_schemas[0] = data_prefix;
-	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           test_schemas,
-	                           NULL, FALSE, FALSE,
-	                           100, 100, NULL, NULL, NULL, &error);
+	data_location = g_file_new_for_path (datadir);
 
+	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
+	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                                    data_location, data_location, ontology,
+	                                    FALSE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
 	g_assert_no_error (error);
+
+	data = tracker_data_manager_get_data (manager);
+	g_object_unref (ontology);
 
 	/* load data / perform updates */
 
@@ -81,7 +88,7 @@ test_sparql_query (gconstpointer test_data)
 	g_file_get_contents (update_filename, &update, NULL, &error);
 	g_assert_no_error (error);
 
-	tracker_data_update_sparql (update, &error);
+	tracker_data_update_sparql (data, update, &error);
 	g_assert_no_error (error);
 
 	g_free (update_filename);
@@ -98,7 +105,7 @@ test_sparql_query (gconstpointer test_data)
 		g_file_get_contents (results_filename, &results, NULL, &error);
 		g_assert_no_error (error);
 
-		cursor = tracker_data_query_sparql_cursor (query, &error);
+		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */
@@ -162,10 +169,9 @@ test_sparql_query (gconstpointer test_data)
 		g_string_free (test_results, TRUE);
 	}
 
-	g_free (data_prefix);
 	g_free (test_prefix);
-
-	tracker_data_manager_shutdown ();
+	g_object_unref (data_location);
+	g_object_unref (manager);
 }
 
 int
@@ -173,19 +179,15 @@ main (int argc, char **argv)
 {
 	gint result;
 	gint i;
-	gchar *current_dir;
-	gchar *path;
+	gchar *current_dir, *path;
 
 	g_test_init (&argc, &argv, NULL);
 
 	current_dir = g_get_current_dir ();
-
-	g_setenv ("XDG_DATA_HOME", current_dir, TRUE);
-	g_setenv ("XDG_CACHE_HOME", current_dir, TRUE);
-	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/src/ontologies/", TRUE);
-	g_setenv ("TRACKER_FTS_STOP_WORDS", "0", TRUE);
-
+	datadir = g_build_filename (current_dir, "tracker", NULL);
 	g_free (current_dir);
+
+	g_setenv ("TRACKER_LANGUAGE_STOP_WORDS_DIR", current_dir, TRUE);
 
 	/* add test cases */
 	for (i = 0; tests[i].test_name; i++) {
@@ -206,6 +208,7 @@ main (int argc, char **argv)
 	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-fts", "dconf", "user", NULL);
 	g_unlink (path);
 	g_free (path);
+	g_free (datadir);
 
 	return result;
 }

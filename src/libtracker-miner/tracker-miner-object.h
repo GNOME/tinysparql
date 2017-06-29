@@ -113,7 +113,6 @@ struct _TrackerMiner {
  * @paused: Called when the miner is told to pause.
  * @resumed: Called when the miner is told to resume activity.
  * @progress: progress.
- * @ignore_next_update: Called after ignore on next update event happens.
  * @padding: Reserved for future API improvements.
  *
  * Virtual methods left to implement.
@@ -130,10 +129,8 @@ typedef struct {
 
 	void (* progress)           (TrackerMiner *miner,
 	                             const gchar  *status,
-	                             gdouble       progress);
-
-	void (* ignore_next_update) (TrackerMiner *miner,
-	                             const GStrv   urls);
+	                             gdouble       progress,
+	                             gint          remaining_time);
 
 	/* <Private> */
 	gpointer padding[10];
@@ -175,24 +172,13 @@ GQuark                   tracker_miner_error_quark         (void);
 
 void                     tracker_miner_start               (TrackerMiner         *miner);
 void                     tracker_miner_stop                (TrackerMiner         *miner);
-void                     tracker_miner_ignore_next_update  (TrackerMiner         *miner,
-                                                            const GStrv           urls);
 gboolean                 tracker_miner_is_started          (TrackerMiner         *miner);
 gboolean                 tracker_miner_is_paused           (TrackerMiner         *miner);
 
-guint                    tracker_miner_get_n_pause_reasons (TrackerMiner         *miner);
-
-gint                     tracker_miner_pause               (TrackerMiner         *miner,
-                                                            const gchar          *reason,
-                                                            GError              **error);
-gboolean                 tracker_miner_resume              (TrackerMiner         *miner,
-                                                            gint                  cookie,
-                                                            GError              **error);
+void                     tracker_miner_pause               (TrackerMiner         *miner);
+gboolean                 tracker_miner_resume              (TrackerMiner         *miner);
 
 TrackerSparqlConnection *tracker_miner_get_connection      (TrackerMiner         *miner);
-GDBusConnection         *tracker_miner_get_dbus_connection (TrackerMiner         *miner);
-const gchar             *tracker_miner_get_dbus_full_name  (TrackerMiner         *miner);
-const gchar             *tracker_miner_get_dbus_full_path  (TrackerMiner         *miner);
 
 G_END_DECLS
 

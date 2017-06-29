@@ -227,7 +227,8 @@ mime_types_cb (GObject      *object,
 
 			url = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 			file = g_file_new_for_uri (url);
-			tracker_miner_fs_check_file (TRACKER_MINER_FS (mtd->miner_files), file, FALSE);
+			tracker_miner_fs_check_file (TRACKER_MINER_FS (mtd->miner_files),
+			                             file, G_PRIORITY_HIGH, FALSE);
 			g_object_unref (file);
 		}
 
@@ -411,7 +412,8 @@ handle_method_call_index_file (TrackerMinerFilesIndex *miner,
 			                                             file);
 		}
 	} else {
-		tracker_miner_fs_check_file (TRACKER_MINER_FS (priv->files_miner), file, do_checks);
+		tracker_miner_fs_check_file (TRACKER_MINER_FS (priv->files_miner),
+		                             file, G_PRIORITY_HIGH, do_checks);
 	}
 
 	tracker_dbus_request_end (request, NULL);
@@ -508,8 +510,6 @@ tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 	GObject *miner;
 	TrackerMinerFilesIndexPrivate *priv;
 	gchar *full_path, *full_name;
-	GVariant *reply;
-	guint32 rval;
 	GError *error = NULL;
 	TrackerIndexingTree *indexing_tree;
 	GDBusInterfaceVTable interface_vtable = {
@@ -566,35 +566,6 @@ tracker_miner_files_index_new (TrackerMinerFiles *miner_files)
 		            full_path,
 		            error ? error->message : "no error given.");
 		g_clear_error (&error);
-		g_object_unref (miner);
-		return NULL;
-	}
-
-	reply = g_dbus_connection_call_sync (priv->d_connection,
-	                                     "org.freedesktop.DBus",
-	                                     "/org/freedesktop/DBus",
-	                                     "org.freedesktop.DBus",
-	                                     "RequestName",
-	                                     g_variant_new ("(su)", full_name, 0x4 /* DBUS_NAME_FLAG_DO_NOT_QUEUE */),
-	                                     G_VARIANT_TYPE ("(u)"),
-	                                     0, -1, NULL, &error);
-
-	if (error) {
-		g_critical ("Could not acquire name:'%s', %s",
-		            full_name,
-		            error->message);
-		g_clear_error (&error);
-		g_object_unref (miner);
-		return NULL;
-	}
-
-	g_variant_get (reply, "(u)", &rval);
-	g_variant_unref (reply);
-
-	if (rval != 1 /* DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER */) {
-		g_critical ("D-Bus service name:'%s' is already taken, "
-		            "perhaps the daemon is already running?",
-		            full_name);
 		g_object_unref (miner);
 		return NULL;
 	}

@@ -75,13 +75,6 @@ number represents the number of cached statements to keep around.
 This environment variable is used mainly for testing purposes.
 
 .TP
-.B TRACKER_PRAGMAS_FILE
-Tracker has a fixed set of PRAGMA settings for creating its SQLite connection.
-With this environment variable pointing to a text file you can override these
-settings. The file is a \\n separated list of SQLite queries to execute on any
-newly created SQLite connection in tracker-store.
-
-.TP
 .B TRACKER_USE_LOG_FILES
 Don't just log to stdout and stderr, but to log files too which are
 kept in $HOME/.local/share/tracker/. This came into effect in 0.15.3

@@ -1,13 +1,11 @@
 include $(top_srcdir)/Makefile.decl
 
 EXTRA_DIST += \
-	data-1.ontology                                \
+	test-1.ontology                                \
+	test-2.ontology                                \
 	data-1.ttl                                     \
-	data-2.ontology                                \
 	data-2.ttl                                     \
-	data-3.ontology                                \
 	data-3.ttl                                     \
-	data-4.ontology                                \
 	data-4.ttl                                     \
 	functions-property-1.out                       \
 	functions-property-1.rq                        \

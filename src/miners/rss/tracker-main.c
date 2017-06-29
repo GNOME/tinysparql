@@ -29,9 +29,13 @@
 
 #include "tracker-miner-rss.h"
 
+#define DBUS_NAME_SUFFIX "Miner.RSS"
+#define DBUS_PATH "/org/freedesktop/Tracker1/Miner/RSS"
+
 static gint verbosity = -1;
 static gchar *add_feed;
 static gchar *title;
+static gchar *domain_ontology_name = NULL;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
@@ -48,8 +52,21 @@ static GOptionEntry entries[] = {
 	  G_OPTION_ARG_STRING, &title,
 	  N_("Title to use (must be used with --add-feed)"),
 	  NULL },
+	{ "domain-ontology", 'd', 0,
+	  G_OPTION_ARG_STRING, &domain_ontology_name,
+	  N_("Runs for an specific domain ontology"),
+	  NULL },
 	{ NULL }
 };
+
+static void
+on_domain_vanished (GDBusConnection *connection,
+                    const gchar     *name,
+                    gpointer         user_data)
+{
+	GMainLoop *loop = user_data;
+	g_main_loop_quit (loop);
+}
 
 int
 main (int argc, char **argv)
@@ -59,6 +76,10 @@ main (int argc, char **argv)
 	GOptionContext *context;
 	TrackerMinerRSS *miner;
 	GError *error = NULL;
+	GDBusConnection *connection;
+	TrackerMinerProxy *proxy;
+	TrackerDomainOntology *domain_ontology;
+	gchar *dbus_name;
 
 	setlocale (LC_ALL, "");
 
@@ -86,6 +107,8 @@ main (int argc, char **argv)
 	}
 
 	g_option_context_free (context);
+
+	tracker_sparql_connection_set_domain (domain_ontology_name);
 
 	/* Command line stuff doesn't use logging, so we're using g_print*() */
 	if (add_feed) {
@@ -149,6 +172,34 @@ main (int argc, char **argv)
 		g_free (log_filename);
 	}
 
+	domain_ontology = tracker_domain_ontology_new (domain_ontology_name, NULL, &error);
+	if (error) {
+		g_critical ("Could not load domain ontology '%s': %s",
+		            domain_ontology_name, error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
+	if (error) {
+		g_critical ("Could not create DBus connection: %s\n",
+		            error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
+
+	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            dbus_name, error->message);
+		g_error_free (error);
+		g_free (dbus_name);
+		return EXIT_FAILURE;
+	}
+
+	g_free (dbus_name);
+
 	miner = tracker_miner_rss_new (&error);
 	if (!miner) {
 		g_critical ("Could not create new RSS miner: '%s', exiting...\n",
@@ -157,13 +208,30 @@ main (int argc, char **argv)
 	}
 
 	tracker_miner_start (TRACKER_MINER (miner));
+	proxy = tracker_miner_proxy_new (TRACKER_MINER (miner), connection, DBUS_PATH, NULL, &error);
+	if (error) {
+		g_critical ("Could not create miner DBus proxy: %s\n", error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
 
 	loop = g_main_loop_new (NULL, FALSE);
+
+	if (domain_ontology && domain_ontology_name) {
+		g_bus_watch_name_on_connection (connection, domain_ontology_name,
+		                                G_BUS_NAME_WATCHER_FLAGS_NONE,
+		                                NULL, on_domain_vanished,
+		                                loop, NULL);
+	}
+
 	g_main_loop_run (loop);
 
 	tracker_log_shutdown ();
 	g_main_loop_unref (loop);
 	g_object_unref (miner);
+	g_object_unref (connection);
+	g_object_unref (proxy);
+	g_object_unref (domain_ontology);
 
 	return EXIT_SUCCESS;
 }

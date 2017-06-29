@@ -1,0 +1,11 @@
+ex:Animal a rdfs:Class;
+          rdfs:subclassOf ex:Eukaryote;
+          rdfs:comment "An animal".
+
+ex:Plant a rdfs:Class;
+          rdfs:subclassOf ex:Eukaryote;
+          rdfs:comment "A plant".
+
+ex:Mammal a rdfs:Class;
+          rdfs:subclassOf ex:Animal;
+          rdfs:comment "A mammal".

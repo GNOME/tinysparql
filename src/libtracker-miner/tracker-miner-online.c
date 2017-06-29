@@ -68,7 +68,7 @@ struct _TrackerMinerOnlinePrivate {
 	NMClient *client;
 #endif
 	TrackerNetworkType network_type;
-	gint pause_id;
+	gboolean paused;
 };
 
 enum {
@@ -329,19 +329,12 @@ _tracker_miner_online_set_network_type (TrackerMinerOnline *miner,
 		g_signal_emit (miner, signals[DISCONNECTED], 0);
 	}
 
-	if (cont && priv->pause_id)
-		tracker_miner_resume (TRACKER_MINER (miner),
-		                      priv->pause_id, &error);
-	else if (!cont && !priv->pause_id) {
-		const gchar *msg;
-
-		msg = (type == TRACKER_NETWORK_TYPE_NONE) ?
-			_("No network connection") :
-			_("Indexing not recommended on this network connection");
-
-		priv->pause_id =
-			tracker_miner_pause (TRACKER_MINER (miner),
-			                     msg, &error);
+	if (cont && priv->paused) {
+		tracker_miner_resume (TRACKER_MINER (miner));
+		priv->paused = FALSE;
+	} else if (!cont && !priv->paused) {
+		tracker_miner_pause (TRACKER_MINER (miner));
+		priv->paused = TRUE;
 	}
 
 	if (error) {

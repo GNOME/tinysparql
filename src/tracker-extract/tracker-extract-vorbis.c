@@ -28,10 +28,6 @@
 
 #include <vorbis/vorbisfile.h>
 
-#ifdef HAVE_LIBMEDIAART
-#include <libmediaart/mediaart.h>
-#endif
-
 #include <libtracker-common/tracker-common.h>
 
 #include <libtracker-extract/tracker-extract.h>
@@ -333,36 +329,6 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 	if ((time = ov_time_total (&vf, -1)) != OV_EINVAL) {
 		tracker_resource_set_int64 (metadata, "nfo:duration", (gint64) time);
 	}
-
-#ifdef HAVE_LIBMEDIAART
-	if ((vd.album_artist || vd.artist) || vd.album) {
-		MediaArtProcess *media_art_process;
-		GError *error = NULL;
-		gboolean success;
-
-		media_art_process = tracker_extract_info_get_media_art_process (info);
-
-		success = media_art_process_file (media_art_process,
-		                                  MEDIA_ART_ALBUM,
-		                                  MEDIA_ART_PROCESS_FLAGS_NONE,
-		                                  file,
-		                                  vd.album_artist ? vd.album_artist : vd.artist,
-		                                  vd.album,
-		                                  NULL,
-		                                  &error);
-
-		if (!success || error) {
-			gchar *uri;
-
-			uri = g_file_get_uri (file);
-			g_warning ("Could not process media art for '%s', %s",
-			           uri,
-			           error ? error->message : "No error given");
-			g_free (uri);
-			g_clear_error (&error);
-		}
-	}
-#endif
 
 	g_free (vd.artist);
 	g_free (vd.album);

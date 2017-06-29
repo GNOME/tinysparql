@@ -1,0 +1,5 @@
+INSERT DATA { <cat> a ex:Mammal .
+              <dog> a ex:Mammal .
+
+              <peter> a ex:Mammal ;
+                    ex:pets <cat>, <dog> }

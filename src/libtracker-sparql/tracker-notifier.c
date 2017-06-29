@@ -87,6 +87,7 @@
 #include "tracker-notifier.h"
 #include "tracker-sparql-enum-types.h"
 #include "tracker-generated-no-checks.h"
+#include <libtracker-common/tracker-common.h>
 
 typedef struct _TrackerNotifierPrivate TrackerNotifierPrivate;
 typedef struct _TrackerNotifierEventCache TrackerNotifierEventCache;
@@ -687,7 +688,9 @@ tracker_notifier_initable_init (GInitable     *initable,
                                 GError       **error)
 {
 	TrackerNotifier *notifier = TRACKER_NOTIFIER (initable);
+	TrackerDomainOntology *domain_ontology;
 	TrackerNotifierPrivate *priv;
+	gchar *dbus_name;
 
 	priv = tracker_notifier_get_instance_private (notifier);
 	priv->connection = tracker_sparql_connection_get (cancellable, error);
@@ -705,11 +708,18 @@ tracker_notifier_initable_init (GInitable     *initable,
 	if (!priv->dbus_connection)
 		return FALSE;
 
+	domain_ontology = tracker_domain_ontology_new (tracker_sparql_connection_get_domain (),
+	                                               cancellable, error);
+	if (!domain_ontology)
+		return FALSE;
+
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, NULL);
+
 	priv->has_arg0_filter =
 		priv->expanded_classes && g_strv_length (priv->expanded_classes) == 1;
 	priv->graph_updated_signal_id =
 		g_dbus_connection_signal_subscribe (priv->dbus_connection,
-		                                    TRACKER_DBUS_SERVICE,
+		                                    dbus_name,
 		                                    TRACKER_DBUS_INTERFACE_RESOURCES,
 		                                    "GraphUpdated",
 		                                    TRACKER_DBUS_OBJECT_RESOURCES,
@@ -717,6 +727,8 @@ tracker_notifier_initable_init (GInitable     *initable,
 		                                    G_DBUS_SIGNAL_FLAGS_NONE,
 		                                    graph_updated_cb,
 		                                    initable, NULL);
+	g_object_unref (domain_ontology);
+	g_free (dbus_name);
 
 	return TRUE;
 }

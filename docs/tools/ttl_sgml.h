@@ -27,11 +27,8 @@
 G_BEGIN_DECLS
 
 void ttl_sgml_print (OntologyDescription *description,
-                     Ontology *ontology,
-                     FILE *output,
-                     const gchar *explanation_file);
-
-
+                     Ontology            *ontology,
+                     GFile               *file);
 
 G_END_DECLS
 

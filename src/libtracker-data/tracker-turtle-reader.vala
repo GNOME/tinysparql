@@ -28,6 +28,7 @@ public class Tracker.TurtleReader : Object {
 	int size;
 
 	const int BUFFER_SIZE = 32;
+	const int MAX_ONTOLOGY_SIZE = 2 * 1024 * 1024;
 
 	struct TokenInfo {
 		public SparqlTokenType type;
@@ -63,10 +64,24 @@ public class Tracker.TurtleReader : Object {
 	uchar[] base_uuid;
 
 	MappedFile? mapped_file;
+	uchar[]? buffer;
 
-	public TurtleReader (string path) throws FileError {
-		mapped_file = new MappedFile (path, false);
-		scanner = new SparqlScanner (mapped_file.get_contents (), mapped_file.get_length ());
+	public TurtleReader (File file) throws Error, FileError {
+		if (file.is_native ()) {
+			mapped_file = new MappedFile (file.get_path(), false);
+			scanner = new SparqlScanner (mapped_file.get_contents (), mapped_file.get_length ());
+		} else {
+			size_t len;
+			var istream = file.read (null);
+			buffer = new uchar[MAX_ONTOLOGY_SIZE];
+			istream.read_all (buffer, out len, null);
+
+			// Not good if we read a portion of the ontology
+			if (len == MAX_ONTOLOGY_SIZE)
+				throw new IOError.FAILED ("Ontology file too large");
+
+			scanner = new SparqlScanner (buffer, len);
+		}
 
 		base_uuid = new uchar[16];
 		uuid_generate (base_uuid);
@@ -365,26 +380,26 @@ public class Tracker.TurtleReader : Object {
 		}
 	}
 
-	public static void load (string path) throws FileError, Sparql.Error, DateError, DBInterfaceError {
+	public static void load (File file, Data.Update data) throws Error, FileError, Sparql.Error, DateError, DBInterfaceError {
 		try {
-			Data.begin_transaction ();
+			data.begin_transaction ();
 
-			var reader = new TurtleReader (path);
+			var reader = new TurtleReader (file);
 			while (reader.next ()) {
 				if (reader.object_is_uri) {
-					Data.insert_statement_with_uri (reader.graph, reader.subject, reader.predicate, reader.object);
+					data.insert_statement_with_uri (reader.graph, reader.subject, reader.predicate, reader.object);
 				} else {
-					Data.insert_statement_with_string (reader.graph, reader.subject, reader.predicate, reader.object);
+					data.insert_statement_with_string (reader.graph, reader.subject, reader.predicate, reader.object);
 				}
-				Data.update_buffer_might_flush ();
+				data.update_buffer_might_flush ();
 			}
 
-			Data.commit_transaction ();
+			data.commit_transaction ();
 		} catch (Sparql.Error e) {
-			Data.rollback_transaction ();
+			data.rollback_transaction ();
 			throw e;
 		} catch (DBInterfaceError e) {
-			Data.rollback_transaction ();
+			data.rollback_transaction ();
 			throw e;
 		}
 	}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/freedesktop/tracker/ontology">
+    <file>10-xsd.ontology</file>
+    <file>11-rdf.ontology</file>
+    <file>12-nrl.ontology</file>
+    <file>20-dc.ontology</file>
+    <file>31-nao.ontology</file>
+  </gresource>
+</gresources>

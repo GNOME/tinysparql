@@ -40,7 +40,8 @@ public class Tracker.Backup : Object {
 			yield Tracker.Store.pause ();
 
 			Error backup_error = null;
-			Data.backup_save (destination, error => {
+			var data_manager = Tracker.Main.get_data_manager ();
+			Data.backup_save (data_manager, destination, null, error => {
 				backup_error = error;
 				save.callback ();
 			});
@@ -56,7 +57,7 @@ public class Tracker.Backup : Object {
 			throw e;
 		} finally {
 			if (resources != null) {
-				Tracker.Events.init ();
+				Tracker.Events.init (Tracker.Main.get_data_manager ());
 				resources.enable_signals ();
 			}
 
@@ -83,8 +84,10 @@ public class Tracker.Backup : Object {
 
 			var notifier = (Status) (Tracker.DBus.get_object (typeof (Status)));
 			var busy_callback = notifier.get_callback ();
+			var data_manager = Tracker.Main.get_data_manager ();
 
-			Data.backup_restore (journal, null, busy_callback);
+			// TODO: set cache_location, data_location and ontology_location here from store session
+			Data.backup_restore (data_manager, journal, null, null, null, busy_callback);
 
 			request.end ();
 		} catch (Error e) {
@@ -92,7 +95,7 @@ public class Tracker.Backup : Object {
 			throw e;
 		} finally {
 			if (resources != null) {
-				Tracker.Events.init ();
+				Tracker.Events.init (Tracker.Main.get_data_manager ());
 				resources.enable_signals ();
 			}
 

@@ -25,6 +25,12 @@ libtracker_data_vala = static_library('tracker-sparql-query',
     include_directories: [commoninc, configinc, srcinc],
 )
 
+tracker_data_enums = gnome.mkenums('tracker-data-enum-types',
+    sources: 'tracker-db-interface-sqlite.h',
+    c_template: 'tracker-data-enum-types.c.template',
+    h_template: 'tracker-data-enum-types.h.template',
+)
+
 tracker_data_dependencies = [
     tracker_sparql_intermediate_dep, gvdb_dep, sqlite, uuid,
 ]
@@ -52,6 +58,8 @@ libtracker_data = library('tracker-data',
     'tracker-ontologies.c',
     'tracker-property.c',
     tracker_common_enum_header, tracker_common_parser_sha1_header,
+    tracker_data_enums[0],
+    tracker_data_enums[1],
     c_args: tracker_c_args,
     install: true,
     install_dir: tracker_internal_libs_dir,

@@ -1,6 +1,5 @@
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
 @prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
-@prefix nie: <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
 @prefix nrl: <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -53,29 +52,6 @@ nao:deprecated a rdf:Property;
 	rdfs:range xsd:boolean;
 	rdfs:label "deprecated";
 	rdfs:comment "If this property is assigned, the subject class, property, or resource, is deprecated and should not be used in production systems any longer. It may be removed without further notice." .
-
-# These are added and approval by Nepomuk-upstream is pending
-
-nao:Property a rdfs:Class ;
-	rdfs:label "Custom property to extend a class dynamically" ;
-	rdfs:comment "Dont use this without asking first your ontology doctor" ;
-	rdfs:subClassOf rdfs:Resource .
-
-nao:propertyName a rdf:Property ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nao:Property ;
-	rdfs:range  xsd:string .
-
-nao:propertyValue a rdf:Property ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain nao:Property ;
-	rdfs:range  xsd:string .
-
-nao:hasProperty a rdf:Property ;
-	rdfs:domain nie:InformationElement ;
-	rdfs:range  nao:Property .
-
-nao:predefined-tag-favorite a nao:Tag .
 
 nao:lastModified a rdf:Property ;
 	rdfs:label "lastModified" ;

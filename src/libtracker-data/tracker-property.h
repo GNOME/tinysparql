@@ -159,6 +159,9 @@ TrackerProperty   **tracker_property_get_last_super_properties
                                                              (TrackerProperty      *property);
 void                tracker_property_reset_super_properties  (TrackerProperty      *property);
 
+void                tracker_property_set_ontologies          (TrackerProperty      *property,
+                                                              TrackerOntologies    *ontologies);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DATA_PROPERTY_H__ */

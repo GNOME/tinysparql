@@ -1,4 +1,4 @@
-noinst_PROGRAMS = ttl2sgml ttlresource2sgml
+noinst_PROGRAMS = ttl2sgml
 
 AM_CPPFLAGS =                                          \
 	$(BUILD_CFLAGS)                                \
@@ -20,18 +20,13 @@ TTL_LOADER_FILES =                                     \
 	ttl_model.c                                    \
 	ttl_model.h                                    \
 	ttl_sgml.c                                     \
-	ttl_sgml.h                                     \
-	qname.c                                        \
-	qname.h
+	ttl_sgml.h
 
 ttl2sgml_SOURCES =                                     \
 	$(TTL_LOADER_FILES)                            \
+	ttlresource2sgml.c                             \
+	ttlresource2sgml.h                             \
 	ttl2sgml.c
 
-ttlresource2sgml_SOURCES =                             \
-	$(TTL_LOADER_FILES)                            \
-	ttlresource2sgml.c
-
 EXTRA_DIST = \
-	gen-doc.sh \
 	meson.build

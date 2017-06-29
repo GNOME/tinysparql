@@ -68,8 +68,9 @@ typedef enum {
 	TRANSACTION_FORMAT_ONTOLOGY  = 1 << 1,
 } TransactionFormat;
 
-typedef struct {
+struct _TrackerDBJournalReader {
 	gchar *filename;
+	GFile *journal_location;
 	GDataInputStream *stream;
 	GInputStream *underlying_stream;
 	GFileInfo *underlying_stream_info;
@@ -90,11 +91,12 @@ typedef struct {
 	gint o_id;
 	gchar *object;
 	guint current_file;
-	gchar *rotate_to;
-} JournalReader;
+	guint total_chunks;
+};
 
-typedef struct {
+struct _TrackerDBJournal {
 	gchar *journal_filename;
+	GFile *journal_location;
 	int journal;
 	gsize cur_size;
 	guint cur_block_len;
@@ -102,7 +104,11 @@ typedef struct {
 	gchar *cur_block;
 	guint cur_entry_amount;
 	guint cur_pos;
-} JournalWriter;
+
+	TransactionFormat transaction_format;
+	gboolean in_transaction;
+	gint cur_journal_file;
+};
 
 static struct {
 	gsize chunk_size;
@@ -111,13 +117,8 @@ static struct {
 	gboolean rotate_progress_flag;
 } rotating_settings = {0};
 
-static JournalReader reader = {0};
-static JournalWriter writer = {0};
-static JournalWriter ontology_writer = {0};
-
-static TransactionFormat current_transaction_format;
-
-static gboolean tracker_db_journal_rotate (GError **error);
+static gboolean tracker_db_journal_rotate (TrackerDBJournal  *jwriter,
+                                           GError           **error);
 
 #ifndef HAVE_STRNLEN
 
@@ -131,7 +132,7 @@ strnlen (const char *str, size_t max)
 #endif /* HAVE_STRNLEN */
 
 static gboolean
-journal_eof (JournalReader *jreader)
+journal_eof (TrackerDBJournalReader *jreader)
 {
 	if (jreader->stream) {
 		GBufferedInputStream *bstream;
@@ -162,8 +163,8 @@ read_uint32 (const guint8 *data)
 }
 
 static guint32
-journal_read_uint32 (JournalReader  *jreader,
-                     GError        **error)
+journal_read_uint32 (TrackerDBJournalReader  *jreader,
+                     GError                 **error)
 {
 	guint32 result;
 
@@ -216,8 +217,8 @@ scan_for_nul (GBufferedInputStream *stream,
 }
 
 static gchar *
-journal_read_string (JournalReader  *jreader,
-                     GError        **error)
+journal_read_string (TrackerDBJournalReader  *jreader,
+                     GError                 **error)
 {
 	gchar *result;
 
@@ -281,7 +282,7 @@ journal_read_string (JournalReader  *jreader,
 }
 
 static gboolean
-journal_verify_header (JournalReader *jreader)
+journal_verify_header (TrackerDBJournalReader *jreader)
 {
 	gchar header[8];
 	gint i;
@@ -356,7 +357,8 @@ nearest_pow (gint num)
 }
 
 static void
-cur_block_maybe_expand (JournalWriter *jwriter, guint len)
+cur_block_maybe_expand (TrackerDBJournal *jwriter,
+                        guint             len)
 {
 	guint want_alloc = jwriter->cur_block_len + len;
 
@@ -369,7 +371,7 @@ cur_block_maybe_expand (JournalWriter *jwriter, guint len)
 }
 
 static void
-cur_block_kill (JournalWriter *jwriter)
+cur_block_kill (TrackerDBJournal *jwriter)
 {
 	jwriter->cur_block_len = 0;
 	jwriter->cur_pos = 0;
@@ -449,9 +451,9 @@ tracker_db_journal_error_quark (void)
 }
 
 static gboolean
-db_journal_init_file (JournalWriter  *jwriter,
-                      gboolean        truncate,
-                      GError        **error)
+db_journal_init_file (TrackerDBJournal  *jwriter,
+                      gboolean           truncate,
+                      GError           **error)
 {
 	struct stat st;
 	int flags;
@@ -521,11 +523,12 @@ db_journal_init_file (JournalWriter  *jwriter,
 }
 
 static gboolean
-db_journal_writer_init (JournalWriter  *jwriter,
-                        gboolean        truncate,
-                        gboolean        global_writer,
-                        const gchar    *filename,
-                        GError        **error)
+db_journal_writer_init (TrackerDBJournal  *jwriter,
+                        gboolean           truncate,
+                        gboolean           global_writer,
+                        const gchar       *filename,
+                        GFile             *journal_location,
+                        GError           **error)
 {
 	gchar *directory;
 	gint mode;
@@ -550,6 +553,7 @@ db_journal_writer_init (JournalWriter  *jwriter,
 	g_free (directory);
 
 	jwriter->journal_filename = g_strdup (filename);
+	g_set_object (&jwriter->journal_location, journal_location);
 
 	ret = db_journal_init_file (jwriter, truncate, &n_error);
 
@@ -562,73 +566,73 @@ db_journal_writer_init (JournalWriter  *jwriter,
 	return ret;
 }
 
-gboolean
-tracker_db_journal_init (const gchar  *filename,
-                         gboolean      truncate,
-                         GError      **error)
+TrackerDBJournal *
+tracker_db_journal_new (GFile        *data_location,
+                        gboolean      truncate,
+                        GError      **error)
 {
-	gboolean ret;
-	const gchar *filename_use;
-	gchar *filename_free = NULL;
-	GError *n_error = NULL;
-
-	g_return_val_if_fail (writer.journal == 0, FALSE);
-
-	if (filename == NULL) {
-		/* Used mostly for testing */
-		filename_use = g_build_filename (g_get_user_data_dir (),
-		                                 "tracker",
-		                                 "data",
-		                                 TRACKER_DB_JOURNAL_FILENAME,
-		                                 NULL);
-		filename_free = (gchar *) filename_use;
-	} else {
-		filename_use = filename;
-	}
-
-	ret = db_journal_writer_init (&writer, truncate, TRUE, filename_use, &n_error);
-
-	if (n_error) {
-		g_propagate_error (error, n_error);
-	}
-
-	g_free (filename_free);
-
-	return ret;
-}
-
-static gboolean
-db_journal_ontology_init (GError **error)
-{
+	TrackerDBJournal *writer;
 	gboolean ret;
 	gchar *filename;
 	GError *n_error = NULL;
+	GFile *child;
 
-	g_return_val_if_fail (ontology_writer.journal == 0, FALSE);
+	writer = g_new0 (TrackerDBJournal, 1);
+	writer->transaction_format = TRANSACTION_FORMAT_DATA;
 
-	filename = g_build_filename (g_get_user_data_dir (),
-	                             "tracker",
-	                             "data",
-	                             TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME,
-	                             NULL);
+	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
+	filename = g_file_get_path (child);
+	g_object_unref (child);
 
-	ret = db_journal_writer_init (&ontology_writer, FALSE, FALSE, filename, &n_error);
+	g_assert (filename != NULL);
 
-	if (n_error) {
-		g_propagate_error (error, n_error);
-	}
-
+	ret = db_journal_writer_init (writer, truncate, TRUE, filename, data_location, &n_error);
 	g_free (filename);
 
-	return ret;
+	if (!ret) {
+		g_propagate_error (error, n_error);
+		g_clear_pointer (&writer, g_free);
+	}
+
+	return writer;
+}
+
+TrackerDBJournal *
+tracker_db_journal_ontology_new (GFile     *data_location,
+                                 GError   **error)
+{
+	TrackerDBJournal *writer;
+	gboolean ret;
+	gchar *filename;
+	GError *n_error = NULL;
+	GFile *child;
+
+	writer = g_new0 (TrackerDBJournal, 1);
+	writer->transaction_format = TRANSACTION_FORMAT_ONTOLOGY;
+
+	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME);
+	filename = g_file_get_path (child);
+	g_object_unref (child);
+
+	g_assert (filename != NULL);
+
+	ret = db_journal_writer_init (writer, FALSE, FALSE, filename, data_location, &n_error);
+	g_free (filename);
+
+	if (!ret) {
+		g_propagate_error (error, n_error);
+		g_clear_pointer (&writer, g_free);
+	}
+
+	return writer;
 }
 
 static gboolean
-db_journal_writer_shutdown (JournalWriter  *jwriter,
-                            GError        **error)
+db_journal_writer_clear (TrackerDBJournal  *jwriter,
+                         GError           **error)
 {
-	g_free (jwriter->journal_filename);
-	jwriter->journal_filename = NULL;
+	g_clear_pointer (&jwriter->journal_filename, g_free);
+	g_clear_object (&jwriter->journal_location);
 
 	if (jwriter->journal == 0) {
 		return TRUE;
@@ -648,47 +652,40 @@ db_journal_writer_shutdown (JournalWriter  *jwriter,
 }
 
 gboolean
-tracker_db_journal_shutdown (GError **error)
+tracker_db_journal_free (TrackerDBJournal  *writer,
+                         GError           **error)
 {
 	GError *n_error = NULL;
-	gboolean ret;
 
-	ret = db_journal_writer_shutdown (&writer, &n_error);
+	db_journal_writer_clear (writer, &n_error);
+	g_free (writer);
 
 	if (n_error) {
 		g_propagate_error (error, n_error);
+		return FALSE;
 	}
 
-	return ret;
+	return TRUE;
 }
 
 gsize
-tracker_db_journal_get_size (void)
+tracker_db_journal_get_size (TrackerDBJournal *writer)
 {
-	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (writer->journal > 0, FALSE);
 
-	return writer.cur_size;
+	return writer->cur_size;
 }
 
-const gchar *
-tracker_db_journal_get_filename (void)
-{
-	/* Journal doesn't have to be open to get the filename, for example when
-	 * the file didn't exist and it was attempted opened in only read mode. */
-	return (const gchar*) writer.journal_filename;
-}
-
-static gboolean
-db_journal_writer_start_transaction (JournalWriter    *jwriter,
-                                     time_t            time,
-                                     TransactionFormat kind)
+gboolean
+tracker_db_journal_start_transaction (TrackerDBJournal *jwriter,
+                                      time_t            time)
 {
 	guint size;
 
 	g_return_val_if_fail (jwriter->journal > 0, FALSE);
-	g_return_val_if_fail (current_transaction_format == TRANSACTION_FORMAT_NONE, FALSE);
+	g_return_val_if_fail (jwriter->in_transaction == FALSE, FALSE);
 
-	current_transaction_format = kind;
+	jwriter->in_transaction = TRUE;
 
 	size = sizeof (guint32) * 3;
 	cur_block_maybe_expand (jwriter, size);
@@ -709,44 +706,18 @@ db_journal_writer_start_transaction (JournalWriter    *jwriter,
 
 	/* Add format */
 	cur_block_maybe_expand (jwriter, sizeof (gint32));
-	cur_setnum (jwriter->cur_block, &(jwriter->cur_pos), kind);
+	cur_setnum (jwriter->cur_block, &(jwriter->cur_pos), jwriter->transaction_format);
 	jwriter->cur_block_len += sizeof (gint32);
 
 	return TRUE;
 }
 
 gboolean
-tracker_db_journal_start_transaction (time_t time)
-{
-	return db_journal_writer_start_transaction (&writer, time,
-	                                            TRANSACTION_FORMAT_DATA);
-}
-
-gboolean
-tracker_db_journal_start_ontology_transaction (time_t   time,
-                                               GError **error)
-{
-	GError *n_error = NULL;
-
-	if (!db_journal_ontology_init (&n_error)) {
-
-		if (n_error) {
-			g_propagate_error (error, n_error);
-		}
-
-		return FALSE;
-	}
-
-	return db_journal_writer_start_transaction (&ontology_writer, time,
-	                                            TRANSACTION_FORMAT_ONTOLOGY);
-}
-
-static gboolean
-db_journal_writer_append_delete_statement (JournalWriter *jwriter,
-                                           gint           g_id,
-                                           gint           s_id,
-                                           gint           p_id,
-                                           const gchar   *object)
+tracker_db_journal_append_delete_statement (TrackerDBJournal *jwriter,
+                                            gint              g_id,
+                                            gint              s_id,
+                                            gint              p_id,
+                                            const gchar      *object)
 {
 	gint o_len;
 	DataFormat df;
@@ -757,6 +728,11 @@ db_journal_writer_append_delete_statement (JournalWriter *jwriter,
 	g_return_val_if_fail (s_id > 0, FALSE);
 	g_return_val_if_fail (p_id > 0, FALSE);
 	g_return_val_if_fail (object != NULL, FALSE);
+	g_return_val_if_fail (jwriter->in_transaction == TRUE, FALSE);
+
+	if (jwriter->transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
 
 	o_len = strlen (object);
 	if (g_id == 0) {
@@ -784,25 +760,11 @@ db_journal_writer_append_delete_statement (JournalWriter *jwriter,
 }
 
 gboolean
-tracker_db_journal_append_delete_statement (gint         g_id,
-                                            gint         s_id,
-                                            gint         p_id,
-                                            const gchar *object)
-{
-	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
-		return TRUE;
-	}
-
-	return db_journal_writer_append_delete_statement (&writer,
-	                                                  g_id, s_id, p_id, object);
-}
-
-static gboolean
-db_journal_writer_append_delete_statement_id  (JournalWriter *jwriter,
-                                               gint           g_id,
-                                               gint           s_id,
-                                               gint           p_id,
-                                               gint           o_id)
+tracker_db_journal_append_delete_statement_id  (TrackerDBJournal *jwriter,
+                                                gint              g_id,
+                                                gint              s_id,
+                                                gint              p_id,
+                                                gint              o_id)
 {
 	DataFormat df;
 	gint size;
@@ -812,6 +774,11 @@ db_journal_writer_append_delete_statement_id  (JournalWriter *jwriter,
 	g_return_val_if_fail (s_id > 0, FALSE);
 	g_return_val_if_fail (p_id > 0, FALSE);
 	g_return_val_if_fail (o_id > 0, FALSE);
+	g_return_val_if_fail (jwriter->in_transaction == TRUE, FALSE);
+
+	if (jwriter->transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
 
 	if (g_id == 0) {
 		df = DATA_FORMAT_OPERATION_DELETE | DATA_FORMAT_OBJECT_ID;
@@ -838,25 +805,11 @@ db_journal_writer_append_delete_statement_id  (JournalWriter *jwriter,
 }
 
 gboolean
-tracker_db_journal_append_delete_statement_id (gint g_id,
-                                               gint s_id,
-                                               gint p_id,
-                                               gint o_id)
-{
-	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
-		return TRUE;
-	}
-
-	return db_journal_writer_append_delete_statement_id (&writer,
-	                                                     g_id, s_id, p_id, o_id);
-}
-
-static gboolean
-db_journal_writer_append_insert_statement (JournalWriter *jwriter,
-                                           gint           g_id,
-                                           gint           s_id,
-                                           gint           p_id,
-                                           const gchar   *object)
+tracker_db_journal_append_insert_statement (TrackerDBJournal *jwriter,
+                                            gint              g_id,
+                                            gint              s_id,
+                                            gint              p_id,
+                                            const gchar      *object)
 {
 	gint o_len;
 	DataFormat df;
@@ -867,6 +820,11 @@ db_journal_writer_append_insert_statement (JournalWriter *jwriter,
 	g_return_val_if_fail (s_id > 0, FALSE);
 	g_return_val_if_fail (p_id > 0, FALSE);
 	g_return_val_if_fail (object != NULL, FALSE);
+	g_return_val_if_fail (jwriter->in_transaction == TRUE, FALSE);
+
+	if (jwriter->transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
 
 	o_len = strlen (object);
 	if (g_id == 0) {
@@ -894,25 +852,11 @@ db_journal_writer_append_insert_statement (JournalWriter *jwriter,
 }
 
 gboolean
-tracker_db_journal_append_insert_statement (gint         g_id,
-                                            gint         s_id,
-                                            gint         p_id,
-                                            const gchar *object)
-{
-	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
-		return TRUE;
-	}
-
-	return db_journal_writer_append_insert_statement (&writer,
-	                                                  g_id, s_id, p_id, object);
-}
-
-static gboolean
-db_journal_writer_append_insert_statement_id (JournalWriter *jwriter,
-                                              gint           g_id,
-                                              gint           s_id,
-                                              gint           p_id,
-                                              gint           o_id)
+tracker_db_journal_append_insert_statement_id (TrackerDBJournal *jwriter,
+                                               gint              g_id,
+                                               gint              s_id,
+                                               gint              p_id,
+                                               gint              o_id)
 {
 	DataFormat df;
 	gint size;
@@ -922,6 +866,11 @@ db_journal_writer_append_insert_statement_id (JournalWriter *jwriter,
 	g_return_val_if_fail (s_id > 0, FALSE);
 	g_return_val_if_fail (p_id > 0, FALSE);
 	g_return_val_if_fail (o_id > 0, FALSE);
+	g_return_val_if_fail (jwriter->in_transaction == TRUE, FALSE);
+
+	if (jwriter->transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
 
 	if (g_id == 0) {
 		df = DATA_FORMAT_OBJECT_ID;
@@ -948,25 +897,11 @@ db_journal_writer_append_insert_statement_id (JournalWriter *jwriter,
 }
 
 gboolean
-tracker_db_journal_append_insert_statement_id (gint g_id,
-                                               gint s_id,
-                                               gint p_id,
-                                               gint o_id)
-{
-	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
-		return TRUE;
-	}
-
-	return db_journal_writer_append_insert_statement_id (&writer,
-	                                                     g_id, s_id, p_id, o_id);
-}
-
-static gboolean
-db_journal_writer_append_update_statement (JournalWriter *jwriter,
-                                           gint           g_id,
-                                           gint           s_id,
-                                           gint           p_id,
-                                           const gchar   *object)
+tracker_db_journal_append_update_statement (TrackerDBJournal *jwriter,
+                                            gint              g_id,
+                                            gint              s_id,
+                                            gint              p_id,
+                                            const gchar      *object)
 {
 	gint o_len;
 	DataFormat df;
@@ -977,6 +912,11 @@ db_journal_writer_append_update_statement (JournalWriter *jwriter,
 	g_return_val_if_fail (s_id > 0, FALSE);
 	g_return_val_if_fail (p_id > 0, FALSE);
 	g_return_val_if_fail (object != NULL, FALSE);
+	g_return_val_if_fail (jwriter->in_transaction == TRUE, FALSE);
+
+	if (jwriter->transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
 
 	o_len = strlen (object);
 	if (g_id == 0) {
@@ -1004,25 +944,11 @@ db_journal_writer_append_update_statement (JournalWriter *jwriter,
 }
 
 gboolean
-tracker_db_journal_append_update_statement (gint         g_id,
-                                            gint         s_id,
-                                            gint         p_id,
-                                            const gchar *object)
-{
-	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
-		return TRUE;
-	}
-
-	return db_journal_writer_append_update_statement (&writer,
-	                                                  g_id, s_id, p_id, object);
-}
-
-static gboolean
-db_journal_writer_append_update_statement_id (JournalWriter *jwriter,
-                                              gint           g_id,
-                                              gint           s_id,
-                                              gint           p_id,
-                                              gint           o_id)
+tracker_db_journal_append_update_statement_id (TrackerDBJournal *jwriter,
+                                               gint              g_id,
+                                               gint              s_id,
+                                               gint              p_id,
+                                               gint              o_id)
 {
 	DataFormat df;
 	gint size;
@@ -1032,6 +958,11 @@ db_journal_writer_append_update_statement_id (JournalWriter *jwriter,
 	g_return_val_if_fail (s_id > 0, FALSE);
 	g_return_val_if_fail (p_id > 0, FALSE);
 	g_return_val_if_fail (o_id > 0, FALSE);
+	g_return_val_if_fail (jwriter->in_transaction == TRUE, FALSE);
+
+	if (jwriter->transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
+		return TRUE;
+	}
 
 	if (g_id == 0) {
 		df = DATA_FORMAT_OPERATION_UPDATE | DATA_FORMAT_OBJECT_ID;
@@ -1058,23 +989,9 @@ db_journal_writer_append_update_statement_id (JournalWriter *jwriter,
 }
 
 gboolean
-tracker_db_journal_append_update_statement_id (gint g_id,
-                                               gint s_id,
-                                               gint p_id,
-                                               gint o_id)
-{
-	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
-		return TRUE;
-	}
-
-	return db_journal_writer_append_update_statement_id (&writer,
-	                                                     g_id, s_id, p_id, o_id);
-}
-
-static gboolean
-db_journal_writer_append_resource (JournalWriter *jwriter,
-                                   gint           s_id,
-                                   const gchar   *uri)
+tracker_db_journal_append_resource (TrackerDBJournal *jwriter,
+                                    gint              s_id,
+                                    const gchar      *uri)
 {
 	gint o_len;
 	DataFormat df;
@@ -1099,57 +1016,29 @@ db_journal_writer_append_resource (JournalWriter *jwriter,
 }
 
 gboolean
-tracker_db_journal_append_resource (gint         s_id,
-                                    const gchar *uri)
+tracker_db_journal_rollback_transaction (TrackerDBJournal *writer)
 {
-	gboolean ret;
+	g_return_val_if_fail (writer->journal > 0, FALSE);
+	g_return_val_if_fail (writer->in_transaction == TRUE, FALSE);
 
-	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
-
-	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
-		ret = db_journal_writer_append_resource (&ontology_writer, s_id, uri);
-	} else {
-		ret = db_journal_writer_append_resource (&writer, s_id, uri);
-	}
-
-	return ret;
-}
-
-gboolean
-tracker_db_journal_rollback_transaction (GError **error)
-{
-	GError *n_error = NULL;
-
-	g_return_val_if_fail (writer.journal > 0, FALSE);
-	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
-
-	cur_block_kill (&writer);
-
-	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
-		cur_block_kill (&ontology_writer);
-		db_journal_writer_shutdown (&ontology_writer, &n_error);
-	}
-
-	if (n_error) {
-		g_propagate_error (error, n_error);
-	}
-
-	current_transaction_format = TRANSACTION_FORMAT_NONE;
+	cur_block_kill (writer);
+	writer->in_transaction = FALSE;
 
 	return TRUE;
 }
 
 gboolean
-tracker_db_journal_truncate (gsize new_size)
+tracker_db_journal_truncate (TrackerDBJournal *writer,
+                             gsize             new_size)
 {
-	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (writer->journal > 0, FALSE);
 
-	return (ftruncate (writer.journal, new_size) != -1);
+	return (ftruncate (writer->journal, new_size) != -1);
 }
 
 static gboolean
-db_journal_writer_commit_db_transaction (JournalWriter  *jwriter,
-                                         GError        **error)
+db_journal_writer_commit_db_transaction (TrackerDBJournal  *jwriter,
+                                         GError           **error)
 {
 	guint32 crc;
 	guint begin_pos;
@@ -1196,24 +1085,19 @@ db_journal_writer_commit_db_transaction (JournalWriter  *jwriter,
 }
 
 gboolean
-tracker_db_journal_commit_db_transaction (GError **error)
+tracker_db_journal_commit_db_transaction (TrackerDBJournal  *writer,
+                                          GError           **error)
 {
 	gboolean ret;
 	GError *n_error = NULL;
 
-	g_return_val_if_fail (current_transaction_format != TRANSACTION_FORMAT_NONE, FALSE);
+	g_return_val_if_fail (writer->in_transaction == TRUE, FALSE);
 
-	if (current_transaction_format == TRANSACTION_FORMAT_ONTOLOGY) {
-		ret = db_journal_writer_commit_db_transaction (&ontology_writer, &n_error);
-		/* Coalesces the two error reports: */
-		db_journal_writer_shutdown (&ontology_writer, n_error ? NULL : &n_error);
-	} else {
-		ret = db_journal_writer_commit_db_transaction (&writer, &n_error);
+	ret = db_journal_writer_commit_db_transaction (writer, &n_error);
 
-		if (ret) {
-			if (rotating_settings.do_rotating && (writer.cur_size > rotating_settings.chunk_size)) {
-				ret = tracker_db_journal_rotate (&n_error);
-			}
+	if (ret && writer->transaction_format == TRANSACTION_FORMAT_DATA) {
+		if (rotating_settings.do_rotating && (writer->cur_size > rotating_settings.chunk_size)) {
+			ret = tracker_db_journal_rotate (writer, &n_error);
 		}
 	}
 
@@ -1221,26 +1105,27 @@ tracker_db_journal_commit_db_transaction (GError **error)
 		g_propagate_error (error, n_error);
 	}
 
-	current_transaction_format = TRANSACTION_FORMAT_NONE;
+	writer->in_transaction = FALSE;
 
 	return ret;
 }
 
 gboolean
-tracker_db_journal_fsync (void)
+tracker_db_journal_fsync (TrackerDBJournal *writer)
 {
-	g_return_val_if_fail (writer.journal > 0, FALSE);
+	g_return_val_if_fail (writer->journal > 0, FALSE);
 
-	return fsync (writer.journal) == 0;
+	return fsync (writer->journal) == 0;
 }
 
 /*
  * Reader API
  */
 
+static gboolean db_journal_reader_clear (TrackerDBJournalReader *jreader);
 
 static gchar*
-reader_get_next_filepath (JournalReader *jreader)
+reader_get_next_filepath (TrackerDBJournalReader *jreader)
 {
 	gchar *filename_open = NULL;
 	gchar *test;
@@ -1292,9 +1177,9 @@ reader_get_next_filepath (JournalReader *jreader)
 }
 
 static gboolean
-db_journal_reader_init_file (JournalReader  *jreader,
-                             const gchar    *filename,
-                             GError        **error)
+db_journal_reader_init_file (TrackerDBJournalReader  *jreader,
+                             const gchar             *filename,
+                             GError                 **error)
 {
 	if (g_str_has_suffix (filename, ".gz")) {
 		GFile *file;
@@ -1347,35 +1232,25 @@ db_journal_reader_init_file (JournalReader  *jreader,
 }
 
 static gboolean
-db_journal_reader_init (JournalReader  *jreader,
-                        gboolean        global_reader,
-                        const gchar    *filename,
-                        GError        **error)
+db_journal_reader_init (TrackerDBJournalReader  *jreader,
+                        gboolean                 global_reader,
+                        const gchar             *filename,
+                        GFile                   *data_location,
+                        GError                 **error)
 {
-	gchar *filename_used;
 	gchar *filename_open;
 	GError *n_error = NULL;
 
 	g_return_val_if_fail (jreader->file == NULL, FALSE);
 
-	/* Used mostly for testing */
-	if (G_UNLIKELY (filename)) {
-		filename_used = g_strdup (filename);
-	} else {
-		filename_used = g_build_filename (g_get_user_data_dir (),
-		                                  "tracker",
-		                                  "data",
-		                                  TRACKER_DB_JOURNAL_FILENAME,
-		                                  NULL);
-	}
+	jreader->filename = g_strdup (filename);
+	g_set_object (&jreader->journal_location, data_location);
 
-	jreader->filename = filename_used;
-
-	reader.current_file = 0;
+	jreader->current_file = 0;
 	if (global_reader) {
 		filename_open = reader_get_next_filepath (jreader);
 	} else {
-		filename_open = g_strdup (filename_used);
+		filename_open = g_strdup (filename);
 	}
 
 	jreader->type = TRACKER_DB_JOURNAL_START;
@@ -1395,7 +1270,7 @@ db_journal_reader_init (JournalReader  *jreader,
 
 		g_free (filename_open);
 
-		tracker_db_journal_reader_shutdown ();
+		db_journal_reader_clear (jreader);
 		return FALSE;
 	}
 
@@ -1404,102 +1279,107 @@ db_journal_reader_init (JournalReader  *jreader,
 	return TRUE;
 }
 
-gboolean
-tracker_db_journal_reader_init (const gchar  *filename,
-                                GError      **error)
+TrackerDBJournalReader  *
+tracker_db_journal_reader_new (GFile   *data_location,
+                               GError **error)
 {
-	gboolean ret;
+	TrackerDBJournalReader *reader;
 	GError *n_error = NULL;
+	gchar *filename;
+	GFile *child;
 
-	ret = db_journal_reader_init (&reader, TRUE, filename, &n_error);
+	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
+	filename = g_file_get_path (child);
+	g_object_unref (child);
 
-	if (n_error) {
-		g_propagate_error (error, n_error);
+	reader = g_new0 (TrackerDBJournalReader, 1);
+
+	if (!db_journal_reader_init (reader, TRUE, filename, data_location, &n_error)) {
+		if (n_error)
+			g_propagate_error (error, n_error);
+		g_clear_pointer (&reader, g_free);
 	}
 
-	return ret;
+	g_free (filename);
+
+	return reader;
 }
 
-gboolean
-tracker_db_journal_reader_ontology_init (const gchar  *filename,
-                                         GError      **error)
+TrackerDBJournalReader *
+tracker_db_journal_reader_ontology_new (GFile   *data_location,
+                                        GError **error)
 {
-	gchar *filename_used;
-	gboolean result;
+	TrackerDBJournalReader *reader;
+	gchar *filename;
 	GError *n_error = NULL;
+	GFile *child;
 
-	/* Used mostly for testing */
-	if (G_UNLIKELY (filename)) {
-		filename_used = g_strdup (filename);
-	} else {
-		filename_used = g_build_filename (g_get_user_data_dir (),
-		                                  "tracker",
-		                                  "data",
-		                                  TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME,
-		                                  NULL);
-	}
+	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME);
+	filename = g_file_get_path (child);
+	g_object_unref (child);
 
-	result = tracker_db_journal_reader_init (filename_used, &n_error);
+	reader = g_new0 (TrackerDBJournalReader, 1);
 
-	g_free (filename_used);
-
-	if (n_error) {
+	if (!db_journal_reader_init (reader, TRUE, filename, data_location, &n_error)) {
 		g_propagate_error (error, n_error);
+		g_clear_pointer (&reader, g_free);
 	}
 
-	return result;
+	g_free (filename);
+
+	return reader;
 }
 
 gsize
-tracker_db_journal_reader_get_size_of_correct (void)
+tracker_db_journal_reader_get_size_of_correct (TrackerDBJournalReader *reader)
 {
-	g_return_val_if_fail (reader.file != NULL, FALSE);
+	g_return_val_if_fail (reader->file != NULL, FALSE);
 
-	return (gsize) (reader.last_success - reader.start);
+	return (gsize) (reader->last_success - reader->start);
 }
 
 static gboolean
-reader_next_file (GError **error)
+reader_next_file (TrackerDBJournalReader  *reader,
+                  GError                 **error)
 {
 	gchar *filename_open;
 
-	filename_open = reader_get_next_filepath (&reader);
+	filename_open = reader_get_next_filepath (reader);
 
-	if (reader.stream) {
-		g_object_unref (reader.stream);
-		reader.stream = NULL;
+	if (reader->stream) {
+		g_object_unref (reader->stream);
+		reader->stream = NULL;
 
-		g_object_unref (reader.underlying_stream);
-		reader.underlying_stream = NULL;
-		if (reader.underlying_stream_info) {
-			g_object_unref (reader.underlying_stream_info);
-			reader.underlying_stream_info = NULL;
+		g_object_unref (reader->underlying_stream);
+		reader->underlying_stream = NULL;
+		if (reader->underlying_stream_info) {
+			g_object_unref (reader->underlying_stream_info);
+			reader->underlying_stream_info = NULL;
 		}
 
 	} else {
-		g_mapped_file_unref (reader.file);
-		reader.file = NULL;
+		g_mapped_file_unref (reader->file);
+		reader->file = NULL;
 	}
 
-	if (!db_journal_reader_init_file (&reader, filename_open, error)) {
+	if (!db_journal_reader_init_file (reader, filename_open, error)) {
 		g_free (filename_open);
-		tracker_db_journal_reader_shutdown ();
 		return FALSE;
 	}
 
 	g_free (filename_open);
 
-	reader.type = TRACKER_DB_JOURNAL_END_TRANSACTION;
+	reader->type = TRACKER_DB_JOURNAL_END_TRANSACTION;
 
-	reader.entry_begin = NULL;
-	reader.entry_end = NULL;
-	reader.amount_of_triples = 0;
+	reader->entry_begin = NULL;
+	reader->entry_end = NULL;
+	reader->amount_of_triples = 0;
 
 	return TRUE;
 }
 
 static gboolean
-db_journal_reader_shutdown (JournalReader *jreader)
+db_journal_reader_clear (TrackerDBJournalReader *jreader)
 {
 	if (jreader->stream) {
 		g_object_unref (jreader->stream);
@@ -1536,22 +1416,25 @@ db_journal_reader_shutdown (JournalReader *jreader)
 	return TRUE;
 }
 
-gboolean
-tracker_db_journal_reader_shutdown (void)
+void
+tracker_db_journal_reader_free (TrackerDBJournalReader *reader)
 {
-	return db_journal_reader_shutdown (&reader);
+	db_journal_reader_clear (reader);
+	g_free (reader);
 }
 
 TrackerDBJournalEntryType
-tracker_db_journal_reader_get_type (void)
+tracker_db_journal_reader_get_entry_type (TrackerDBJournalReader *reader)
 {
-	g_return_val_if_fail (reader.file != NULL || reader.stream != NULL, FALSE);
+	g_return_val_if_fail (reader->file != NULL || reader->stream != NULL, FALSE);
 
-	return reader.type;
+	return reader->type;
 }
 
 static gboolean
-db_journal_reader_next (JournalReader *jreader, gboolean global_reader, GError **error)
+db_journal_reader_next (TrackerDBJournalReader  *jreader,
+                        gboolean                 global_reader,
+                        GError                 **error)
 {
 	GError *inner_error = NULL;
 	static gboolean debug_unchecked = TRUE;
@@ -1624,7 +1507,7 @@ db_journal_reader_next (JournalReader *jreader, gboolean global_reader, GError *
 			/* Return FALSE as there is no further entry but
 			 * do not set error as it's not an error case. */
 			if (global_reader && jreader->current_file != 0) {
-				if (reader_next_file (error)) {
+				if (reader_next_file (jreader, error)) {
 					/* read first entry in next file */
 					return db_journal_reader_next (jreader, global_reader, error);
 				} else {
@@ -1860,40 +1743,50 @@ db_journal_reader_next (JournalReader *jreader, gboolean global_reader, GError *
 }
 
 gboolean
-tracker_db_journal_reader_next (GError **error)
+tracker_db_journal_reader_next (TrackerDBJournalReader  *reader,
+                                GError                 **error)
 {
-	return db_journal_reader_next (&reader, TRUE, error);
+	return db_journal_reader_next (reader, TRUE, error);
 }
 
 gboolean
-tracker_db_journal_reader_verify_last (const gchar  *filename,
-                                       GError      **error)
+tracker_db_journal_reader_verify_last (GFile   *data_location,
+                                       GError **error)
 {
 	guint32 entry_size_check;
 	gboolean success = FALSE;
-	JournalReader jreader = { 0 };
+	TrackerDBJournalReader jreader = { 0 };
 	GError *n_error = NULL;
+	gchar *filename;
+	GFile *child;
 
-	if (db_journal_reader_init (&jreader, FALSE, filename, &n_error)) {
+	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
+	filename = g_file_get_path (child);
+	g_object_unref (child);
+
+	if (db_journal_reader_init (&jreader, FALSE, filename, data_location, &n_error)) {
 
 		if (jreader.end != jreader.current) {
 			entry_size_check = read_uint32 (jreader.end - 4);
 
 			if (jreader.end - entry_size_check < jreader.current) {
+				g_free (filename);
 				g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
 				             TRACKER_DB_JOURNAL_ERROR_DAMAGED_JOURNAL_ENTRY,
 				             "Damaged journal entry at end of journal");
-				db_journal_reader_shutdown (&jreader);
+				db_journal_reader_clear (&jreader);
 				return FALSE;
 			}
 
 			jreader.current = jreader.end - entry_size_check;
 			success = db_journal_reader_next (&jreader, FALSE, NULL);
-			db_journal_reader_shutdown (&jreader);
+			db_journal_reader_clear (&jreader);
 		} else {
 			success = TRUE;
 		}
 	}
+
+	g_free (filename);
 
 	if (n_error) {
 		g_propagate_error (error, n_error);
@@ -1903,85 +1796,88 @@ tracker_db_journal_reader_verify_last (const gchar  *filename,
 }
 
 gint64
-tracker_db_journal_reader_get_time (void)
+tracker_db_journal_reader_get_time (TrackerDBJournalReader *reader)
 {
-	return reader.time;
+	return reader->time;
 }
 
 gboolean
-tracker_db_journal_reader_get_resource (gint         *id,
-                                        const gchar **uri)
+tracker_db_journal_reader_get_resource (TrackerDBJournalReader  *reader,
+                                        gint                    *id,
+                                        const gchar            **uri)
 {
-	g_return_val_if_fail (reader.file != NULL || reader.stream != NULL, FALSE);
-	g_return_val_if_fail (reader.type == TRACKER_DB_JOURNAL_RESOURCE, FALSE);
+	g_return_val_if_fail (reader->file != NULL || reader->stream != NULL, FALSE);
+	g_return_val_if_fail (reader->type == TRACKER_DB_JOURNAL_RESOURCE, FALSE);
 
-	*id = reader.s_id;
-	*uri = reader.uri;
+	*id = reader->s_id;
+	*uri = reader->uri;
 
 	return TRUE;
 }
 
 gboolean
-tracker_db_journal_reader_get_statement (gint         *g_id,
-                                         gint         *s_id,
-                                         gint         *p_id,
-                                         const gchar **object)
+tracker_db_journal_reader_get_statement (TrackerDBJournalReader  *reader,
+                                         gint                    *g_id,
+                                         gint                    *s_id,
+                                         gint                    *p_id,
+                                         const gchar            **object)
 {
-	g_return_val_if_fail (reader.file != NULL || reader.stream != NULL, FALSE);
-	g_return_val_if_fail (reader.type == TRACKER_DB_JOURNAL_INSERT_STATEMENT ||
-	                      reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT ||
-	                      reader.type == TRACKER_DB_JOURNAL_UPDATE_STATEMENT,
+	g_return_val_if_fail (reader->file != NULL || reader->stream != NULL, FALSE);
+	g_return_val_if_fail (reader->type == TRACKER_DB_JOURNAL_INSERT_STATEMENT ||
+	                      reader->type == TRACKER_DB_JOURNAL_DELETE_STATEMENT ||
+	                      reader->type == TRACKER_DB_JOURNAL_UPDATE_STATEMENT,
 	                      FALSE);
 
 	if (g_id) {
-		*g_id = reader.g_id;
+		*g_id = reader->g_id;
 	}
-	*s_id = reader.s_id;
-	*p_id = reader.p_id;
-	*object = reader.object;
+	*s_id = reader->s_id;
+	*p_id = reader->p_id;
+	*object = reader->object;
 
 	return TRUE;
 }
 
 gboolean
-tracker_db_journal_reader_get_statement_id (gint *g_id,
-                                            gint *s_id,
-                                            gint *p_id,
-                                            gint *o_id)
+tracker_db_journal_reader_get_statement_id (TrackerDBJournalReader *reader,
+                                            gint                   *g_id,
+                                            gint                   *s_id,
+                                            gint                   *p_id,
+                                            gint                   *o_id)
 {
-	g_return_val_if_fail (reader.file != NULL || reader.stream != NULL, FALSE);
-	g_return_val_if_fail (reader.type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID ||
-	                      reader.type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID ||
-	                      reader.type == TRACKER_DB_JOURNAL_UPDATE_STATEMENT_ID,
+	g_return_val_if_fail (reader->file != NULL || reader->stream != NULL, FALSE);
+	g_return_val_if_fail (reader->type == TRACKER_DB_JOURNAL_INSERT_STATEMENT_ID ||
+	                      reader->type == TRACKER_DB_JOURNAL_DELETE_STATEMENT_ID ||
+	                      reader->type == TRACKER_DB_JOURNAL_UPDATE_STATEMENT_ID,
 	                      FALSE);
 
 	if (g_id) {
-		*g_id = reader.g_id;
+		*g_id = reader->g_id;
 	}
-	*s_id = reader.s_id;
-	*p_id = reader.p_id;
-	*o_id = reader.o_id;
+	*s_id = reader->s_id;
+	*p_id = reader->p_id;
+	*o_id = reader->o_id;
 
 	return TRUE;
 }
 
 gdouble
-tracker_db_journal_reader_get_progress (void)
+tracker_db_journal_reader_get_progress (TrackerDBJournalReader *reader)
 {
 	gdouble chunk = 0, total = 0, ret = 0;
 	guint current_file;
-	static guint total_chunks = 0;
+	guint total_chunks = reader->total_chunks;
 
-	current_file = reader.current_file == 0 ? total_chunks -1 : reader.current_file -1;
+	current_file = reader->current_file == 0 ? reader->total_chunks -1 : reader->current_file -1;
 
-	if (!rotating_settings.rotate_progress_flag) {
+	if (reader->total_chunks == 0) {
 		gchar *test;
 		GFile *dest_dir;
 		gboolean cont = TRUE;
 
 		total_chunks = 0;
 
-		test = g_path_get_basename (reader.filename);
+		test = g_path_get_basename (reader->filename);
 
 		if (rotating_settings.rotate_to) {
 			dest_dir = g_file_new_for_path (rotating_settings.rotate_to);
@@ -2000,7 +1896,7 @@ tracker_db_journal_reader_get_progress (void)
 			gchar *filename;
 			GFile *possible;
 
-			test = g_strdup_printf ("%s.%d", reader.filename, total_chunks + 1);
+			test = g_strdup_printf ("%s.%d", reader->filename, total_chunks + 1);
 			filename = g_path_get_basename (test);
 			g_free (test);
 			test = filename;
@@ -2017,32 +1913,32 @@ tracker_db_journal_reader_get_progress (void)
 		}
 
 		g_object_unref (dest_dir);
-		rotating_settings.rotate_progress_flag = TRUE;
+		reader->total_chunks = total_chunks;
 	}
 
 	if (total_chunks > 0) {
 		total = ((gdouble) ((gdouble) current_file) / ((gdouble) total_chunks));
 	}
 
-	if (reader.start != 0) {
+	if (reader->start != 0) {
 		/* When the last uncompressed part is being processed: */
-		gdouble percent = ((gdouble)(reader.end - reader.start));
-		ret = chunk = (((gdouble)(reader.current - reader.start)) / percent);
-	} else if (reader.underlying_stream) {
+		gdouble percent = ((gdouble)(reader->end - reader->start));
+		ret = chunk = (((gdouble)(reader->current - reader->start)) / percent);
+	} else if (reader->underlying_stream) {
 		goffset size;
 
 		/* When a compressed part is being processed: */
 
-		if (!reader.underlying_stream_info) {
-			reader.underlying_stream_info =
-				g_file_input_stream_query_info (G_FILE_INPUT_STREAM (reader.underlying_stream),
-			                                    G_FILE_ATTRIBUTE_STANDARD_SIZE,
-			                                    NULL, NULL);
+		if (!reader->underlying_stream_info) {
+			reader->underlying_stream_info =
+				g_file_input_stream_query_info (G_FILE_INPUT_STREAM (reader->underlying_stream),
+				                                G_FILE_ATTRIBUTE_STANDARD_SIZE,
+				                                NULL, NULL);
 		}
 
-		if (reader.underlying_stream_info) {
-			size = g_file_info_get_size (reader.underlying_stream_info);
-			ret = chunk = (gdouble) ((gdouble)g_seekable_tell (G_SEEKABLE (reader.underlying_stream))) / ((gdouble)size);
+		if (reader->underlying_stream_info) {
+			size = g_file_info_get_size (reader->underlying_stream_info);
+			ret = chunk = (gdouble) ((gdouble)g_seekable_tell (G_SEEKABLE (reader->underlying_stream))) / ((gdouble)size);
 		}
 	}
 
@@ -2076,7 +1972,8 @@ on_chunk_copied_delete (GObject      *source_object,
 }
 
 static gboolean
-tracker_db_journal_rotate (GError **error)
+tracker_db_journal_rotate (TrackerDBJournal  *writer,
+                           GError           **error)
 {
 	GFile *source, *destination;
 	GFile *dest_dir;
@@ -2085,7 +1982,6 @@ tracker_db_journal_rotate (GError **error)
 	GConverter *converter;
 	GInputStream *istream;
 	GOutputStream *ostream, *cstream;
-	static gint max = 0;
 	GError *n_error = NULL;
 	gboolean ret;
 
@@ -2093,12 +1989,12 @@ tracker_db_journal_rotate (GError **error)
 	g_critical ("Journal is disabled, yet a journal function got called");
 #endif
 
-	if (max == 0) {
+	if (writer->cur_journal_file == 0) {
 		gchar *directory;
 		GDir *journal_dir;
 		const gchar *f_name;
 
-		directory = g_path_get_dirname (writer.journal_filename);
+		directory = g_path_get_dirname (writer->journal_filename);
 		journal_dir = g_dir_open (directory, 0, NULL);
 
 		f_name = g_dir_read_name (journal_dir);
@@ -2116,7 +2012,7 @@ tracker_db_journal_rotate (GError **error)
 
 				ptr = f_name + strlen (TRACKER_DB_JOURNAL_FILENAME ".");
 				cur = atoi (ptr);
-				max = MAX (cur, max);
+				writer->cur_journal_file = MAX (cur, writer->cur_journal_file);
 			}
 
 			f_name = g_dir_read_name (journal_dir);
@@ -2126,9 +2022,9 @@ tracker_db_journal_rotate (GError **error)
 		g_free (directory);
 	}
 
-	tracker_db_journal_fsync ();
+	tracker_db_journal_fsync (writer);
 
-	if (close (writer.journal) != 0) {
+	if (close (writer->journal) != 0) {
 		g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
 		             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_CLOSE,
 		             "Could not close journal, %s",
@@ -2136,13 +2032,13 @@ tracker_db_journal_rotate (GError **error)
 		return FALSE;
 	}
 
-	fullpath = g_strdup_printf ("%s.%d", writer.journal_filename, ++max);
+	fullpath = g_strdup_printf ("%s.%d", writer->journal_filename, ++writer->cur_journal_file);
 
-	if (g_rename (writer.journal_filename, fullpath) < 0) {
+	if (g_rename (writer->journal_filename, fullpath) < 0) {
 		g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
 			     TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
 		             "Could not rotate journal file %s: %s",
-			     writer.journal_filename,
+			     writer->journal_filename,
 		             g_strerror (errno));
 		return FALSE;
 	}
@@ -2178,15 +2074,83 @@ tracker_db_journal_rotate (GError **error)
 
 	g_free (fullpath);
 
-	ret = db_journal_init_file (&writer, TRUE, &n_error);
+	ret = db_journal_init_file (writer, TRUE, &n_error);
 
 	if (n_error) {
 		g_propagate_error (error, n_error);
-		g_free (writer.journal_filename);
-		writer.journal_filename = NULL;
+		g_free (writer->journal_filename);
+		writer->journal_filename = NULL;
 	}
 
 	return ret;
+}
+
+void
+tracker_db_journal_remove (TrackerDBJournal *writer)
+{
+	gchar *path;
+	gchar *directory;
+	const gchar *dirs[3] = { NULL, NULL, NULL };
+	guint i;
+	GError *error = NULL;
+
+	/* We duplicate the path here because later we shutdown the
+	 * journal which frees this data. We want to survive that.
+	 */
+	path = g_strdup (writer->journal_filename);
+	if (!path) {
+		return;
+	}
+
+	g_info ("  Removing journal:'%s'", path);
+
+	directory = g_path_get_dirname (path);
+	tracker_db_journal_free (writer, &error);
+
+	if (error) {
+		/* TODO: propagate error */
+		g_info ("Ignored error while shutting down journal during remove: %s",
+		        error->message ? error->message : "No error given");
+		g_error_free (error);
+	}
+
+	dirs[0] = directory;
+	dirs[1] = rotating_settings.do_rotating ? rotating_settings.rotate_to : NULL;
+
+	for (i = 0; dirs[i] != NULL; i++) {
+		GDir *journal_dir;
+		const gchar *f;
+
+		journal_dir = g_dir_open (dirs[i], 0, NULL);
+		if (!journal_dir) {
+			continue;
+		}
+
+		/* Remove rotated chunks */
+		while ((f = g_dir_read_name (journal_dir)) != NULL) {
+			gchar *fullpath;
+
+			if (!g_str_has_prefix (f, TRACKER_DB_JOURNAL_FILENAME ".")) {
+				continue;
+			}
+
+			fullpath = g_build_filename (dirs[i], f, NULL);
+			if (g_unlink (fullpath) == -1) {
+				g_info ("Could not unlink rotated journal: %m");
+			}
+			g_free (fullpath);
+		}
+
+		g_dir_close (journal_dir);
+	}
+
+	g_free (directory);
+
+	/* Remove active journal */
+	if (g_unlink (path) == -1) {
+		g_info ("%s", g_strerror (errno));
+	}
+	g_free (path);
 }
 
 #else /* DISABLE_JOURNAL */

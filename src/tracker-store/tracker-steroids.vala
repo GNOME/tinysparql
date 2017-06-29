@@ -29,8 +29,9 @@ public class Tracker.Steroids : Object {
 		request.debug ("query: %s", query);
 		try {
 			string[] variable_names = null;
+			var data_manager = Tracker.Main.get_data_manager ();
 
-			yield Tracker.Store.sparql_query (query, Tracker.Store.Priority.HIGH, cursor => {
+			yield Tracker.Store.sparql_query (data_manager, query, Tracker.Store.Priority.HIGH, cursor => {
 				var data_output_stream = new DataOutputStream (new BufferedOutputStream.sized (output_stream, BUFFER_SIZE));
 				data_output_stream.set_byte_order (DataStreamByteOrder.HOST_ENDIAN);
 
@@ -111,15 +112,16 @@ public class Tracker.Steroids : Object {
 			data_input_stream = null;
 
 			request.debug ("query: %s", (string) query);
+			var data_manager = Tracker.Main.get_data_manager ();
 
 			if (!blank) {
-				yield Tracker.Store.sparql_update ((string) query, priority, sender);
+				yield Tracker.Store.sparql_update (data_manager, (string) query, priority, sender);
 
 				request.end ();
 
 				return null;
 			} else {
-				var variant = yield Tracker.Store.sparql_update_blank ((string) query, priority, sender);
+				var variant = yield Tracker.Store.sparql_update_blank (data_manager, (string) query, priority, sender);
 
 				request.end ();
 
@@ -186,10 +188,11 @@ public class Tracker.Steroids : Object {
 			data_input_stream = null;
 
 			var builder = new VariantBuilder ((VariantType) "as");
+			var data_manager = Tracker.Main.get_data_manager ();
 
 			// first try combined query for best possible performance
 			try {
-				yield Tracker.Store.sparql_update (combined_query.str, Tracker.Store.Priority.LOW, sender);
+				yield Tracker.Store.sparql_update (data_manager, combined_query.str, Tracker.Store.Priority.LOW, sender);
 
 				// combined query was successful
 				for (i = 0; i < query_count; i++) {
@@ -210,7 +213,7 @@ public class Tracker.Steroids : Object {
 				request.debug ("query: %s", query_array[i]);
 
 				try {
-					yield Tracker.Store.sparql_update (query_array[i], Tracker.Store.Priority.LOW, sender);
+					yield Tracker.Store.sparql_update (data_manager, query_array[i], Tracker.Store.Priority.LOW, sender);
 					builder.add ("s", "");
 					builder.add ("s", "");
 				} catch (Error e1) {

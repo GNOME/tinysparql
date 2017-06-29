@@ -33,13 +33,13 @@
 #include <libtracker-data/tracker-sparql-query.h>
 
 static gchar *tests_data_dir = NULL;
-static gchar *xdg_location = NULL;
 
 typedef struct _TestInfo TestInfo;
 
 struct _TestInfo {
 	const gchar *test_name;
 	const gchar *data;
+	gchar *data_location;
 };
 
 typedef struct _ChangeInfo ChangeInfo;
@@ -90,7 +90,7 @@ const TestInfo nmo_tests[] = {
 };
 
 static void
-query_helper (const gchar *query_filename, const gchar *results_filename)
+query_helper (TrackerDataManager *manager, const gchar *query_filename, const gchar *results_filename)
 {
 	GError *error = NULL;
 	gchar *queries = NULL, *query;
@@ -110,7 +110,7 @@ query_helper (const gchar *query_filename, const gchar *results_filename)
 	while (query) {
 		TrackerDBCursor *cursor;
 
-		cursor = tracker_data_query_sparql_cursor (query, &error);
+		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */
@@ -181,45 +181,33 @@ static void
 test_ontology_init (TestInfo      *test_info,
                     gconstpointer  context)
 {
+	TrackerDataManager *manager;
 	GError *error = NULL;
+	GFile *data_location;
+
+	data_location = g_file_new_for_path (test_info->data_location);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	/* first-time initialization */
-	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL,
-	                           NULL,
-	                           FALSE,
-	                           FALSE,
-	                           100,
-	                           100,
-	                           NULL,
-	                           NULL,
-	                           NULL,
-	                           &error);
-
+	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                                    data_location, data_location, data_location,
+	                                    FALSE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
 	g_assert_no_error (error);
 
-	tracker_data_manager_shutdown ();
+	g_object_unref (manager);
 
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	/* initialization from existing database */
-	tracker_data_manager_init (0,
-	                           NULL,
-	                           NULL,
-	                           FALSE,
-	                           FALSE,
-	                           100,
-	                           100,
-	                           NULL,
-	                           NULL,
-	                           NULL,
-	                           &error);
-
+	manager = tracker_data_manager_new (0, data_location, data_location, data_location,
+	                                    FALSE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
 	g_assert_no_error (error);
 
-	tracker_data_manager_shutdown ();
+	g_object_unref (manager);
+	g_object_unref (data_location);
 }
 
 static void
@@ -230,32 +218,40 @@ test_query (TestInfo      *test_info,
 	gchar *data_filename;
 	gchar *query_filename;
 	gchar *results_filename;
-	gchar *prefix, *data_prefix, *test_prefix;
+	gchar *prefix, *data_prefix, *test_prefix, *ontology_path;
+	GFile *file, *data_location, *ontology_location;
+	TrackerDataManager *manager;
+	TrackerData *data_update;
+
+	data_location = g_file_new_for_path (test_info->data_location);
 
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
 	data_prefix = g_build_filename (prefix, test_info->data, NULL);
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	g_free (prefix);
 
+	ontology_path = g_build_filename (TOP_SRCDIR, "src", "ontologies", "nepomuk", NULL);
+	ontology_location = g_file_new_for_path (ontology_path);
+	g_free (ontology_path);
+
 	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
 
 	/* initialization */
-	tracker_data_manager_init (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                           NULL,
-	                           NULL,
-	                           FALSE,
-	                           FALSE,
-	                           100,
-	                           100,
-	                           NULL,
-	                           NULL,
-	                           NULL,
-	                           NULL);
+	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FORCE_REINDEX,
+	                                    data_location, data_location, ontology_location,
+	                                    FALSE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
+	g_assert_no_error (error);
+
+	data_update = tracker_data_manager_get_data (manager);
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
-	tracker_turtle_reader_load (data_filename, &error);
+	file = g_file_new_for_path (data_filename);
+	data_update = tracker_data_manager_get_data (manager);
+	tracker_turtle_reader_load (file, data_update, &error);
 	g_assert_no_error (error);
+	g_object_unref (file);
 
 	query_filename = g_strconcat (test_prefix, ".rq", NULL);
 	results_filename = g_strconcat (test_prefix, ".out", NULL);
@@ -263,7 +259,7 @@ test_query (TestInfo      *test_info,
 	g_free (data_prefix);
 	g_free (test_prefix);
 
-	query_helper (query_filename, results_filename);
+	query_helper (manager, query_filename, results_filename);
 
 	/* cleanup */
 
@@ -271,59 +267,24 @@ test_query (TestInfo      *test_info,
 	g_free (query_filename);
 	g_free (results_filename);
 
-	tracker_data_manager_shutdown ();
+	g_object_unref (ontology_location);
+	g_object_unref (data_location);
+	g_object_unref (manager);
 }
 
 static inline void
-setup (TestInfo *info,
-       gint      i)
+setup (TestInfo      *info,
+       gconstpointer  context)
 {
-	/* Sadly, we can't use ONE location per test because GLib
-	 * caches XDG env vars, so g_get_*dir() will not change if we
-	 * update the environment, this sucks majorly.
-	 */
-	if (!xdg_location) {
-		gchar *basename;
+	const TestInfo *test = context;
+	gchar *basename;
 
-		/* NOTE: g_test_build_filename() doesn't work env vars G_TEST_* are not defined?? */
-		basename = g_strdup_printf ("%d", g_test_rand_int_range (0, G_MAXINT));
-		xdg_location = g_build_path (G_DIR_SEPARATOR_S, tests_data_dir, basename, NULL);
-		g_free (basename);
+	*info = *test;
 
-		g_assert_true (g_setenv ("XDG_DATA_HOME", xdg_location, TRUE));
-		g_assert_true (g_setenv ("XDG_CACHE_HOME", xdg_location, TRUE));
-		g_assert_true (g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TOP_SRCDIR "/src/ontologies/", TRUE));
-	}
-}
-
-static void
-setup_nie (TestInfo      *info,
-           gconstpointer  context)
-{
-	gint i = GPOINTER_TO_INT (context);
-
-	*info = nie_tests[i];
-	setup (info, i);
-}
-
-static void
-setup_nmo (TestInfo      *info,
-           gconstpointer  context)
-{
-	gint i = GPOINTER_TO_INT (context);
-
-	*info = nmo_tests[i];
-	setup (info, i);
-}
-
-static void
-setup_all_others (TestInfo      *info,
-                  gconstpointer  context)
-{
-	gint i = GPOINTER_TO_INT (context);
-
-	*info = all_other_tests[i];
-	setup (info, i);
+	/* NOTE: g_test_build_filename() doesn't work env vars G_TEST_* are not defined?? */
+	basename = g_strdup_printf ("%d", g_test_rand_int_range (0, G_MAXINT));
+	info->data_location = g_build_path (G_DIR_SEPARATOR_S, tests_data_dir, basename, NULL);
+	g_free (basename);
 }
 
 static void
@@ -333,14 +294,13 @@ teardown (TestInfo      *info,
 	gchar *cleanup_command;
 
 	/* clean up */
-	g_print ("Removing temporary data (%s)\n", xdg_location);
+	g_print ("Removing temporary data (%s)\n", info->data_location);
 
-	cleanup_command = g_strdup_printf ("rm -Rf %s/", xdg_location);
+	cleanup_command = g_strdup_printf ("rm -Rf %s/", info->data_location);
 	g_spawn_command_line_sync (cleanup_command, NULL, NULL, NULL, NULL);
 	g_free (cleanup_command);
 
-	g_free (xdg_location);
-	xdg_location = NULL;
+	g_free (info->data_location);
 }
 
 int
@@ -361,13 +321,13 @@ main (int argc, char **argv)
 	g_test_init (&argc, &argv, NULL);
 
 	/* add test cases */
-	g_test_add ("/libtracker-data/ontology-init", TestInfo, GINT_TO_POINTER(0), setup_all_others, test_ontology_init, teardown);
+	g_test_add ("/libtracker-data/ontology-init", TestInfo, &all_other_tests[0], setup, test_ontology_init, teardown);
 
 	for (i = 0; nie_tests[i].test_name; i++) {
 		gchar *testpath;
 
 		testpath = g_strconcat ("/libtracker-data/nie/", nie_tests[i].test_name, NULL);
-		g_test_add (testpath, TestInfo, GINT_TO_POINTER(i), setup_nie, test_query, teardown);
+		g_test_add (testpath, TestInfo, &nie_tests[i], setup, test_query, teardown);
 		g_free (testpath);
 	}
 
@@ -375,7 +335,7 @@ main (int argc, char **argv)
 		gchar *testpath;
 
 		testpath = g_strconcat ("/libtracker-data/nmo/", nmo_tests[i].test_name, NULL);
-		g_test_add (testpath, TestInfo, GINT_TO_POINTER(i), setup_nmo, test_query, teardown);
+		g_test_add (testpath, TestInfo, &nmo_tests[i], setup, test_query, teardown);
 		g_free (testpath);
 	}
 

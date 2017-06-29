@@ -693,6 +693,8 @@ main (gint argc, gchar **argv)
 
 	/* test D-Bus backend */
 	g_setenv ("TRACKER_SPARQL_BACKEND", "bus", TRUE);
+	g_setenv ("TRACKER_TEST_DOMAIN_ONTOLOGY_RULE", TEST_DOMAIN_ONTOLOGY_RULE, TRUE);
+	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TEST_ONTOLOGIES_DIR, TRUE);
 
 	connection = tracker_sparql_connection_get (NULL, NULL);
 

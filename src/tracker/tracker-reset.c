@@ -259,12 +259,24 @@ reset_run (void)
 
 	if (hard_reset || soft_reset) {
 		guint log_handler_id;
+		GFile *cache_location, *data_location;
+		gchar *dir;
+		TrackerDBManager *db_manager;
 #ifndef DISABLE_JOURNAL
 		gchar *rotate_to;
 		TrackerDBConfig *db_config;
 		gsize chunk_size;
 		gint chunk_size_mb;
+		TrackerDBJournal *journal_writer;
 #endif /* DISABLE_JOURNAL */
+
+		dir = g_build_filename (g_get_user_cache_dir (), "tracker", NULL);
+		cache_location = g_file_new_for_path (dir);
+		g_free (dir);
+
+		dir = g_build_filename (g_get_user_data_dir (), "tracker", "data", NULL);
+		data_location = g_file_new_for_path (dir);
+		g_free (dir);
 
 		/* Set log handler for library messages */
 		log_handler_id = g_log_set_handler (NULL,
@@ -291,31 +303,34 @@ reset_run (void)
 #endif /* DISABLE_JOURNAL */
 
 		/* Clean up (select_cache_size and update_cache_size don't matter here) */
-		if (!tracker_db_manager_init (TRACKER_DB_MANAGER_REMOVE_ALL,
-		                              NULL,
-		                              FALSE,
-		                              FALSE,
-		                              100,
-		                              100,
-		                              NULL,
-		                              NULL,
-		                              NULL,
-		                              &error)) {
+		db_manager = tracker_db_manager_new (TRACKER_DB_MANAGER_REMOVE_ALL,
+		                                     cache_location, data_location,
+		                                     NULL,
+		                                     FALSE,
+		                                     FALSE,
+		                                     100,
+		                                     100,
+		                                     NULL,
+		                                     NULL,
+		                                     NULL,
+		                                     NULL,
+		                                     &error);
 
+		if (!db_manager) {
 			g_message ("Error initializing database: %s", error->message);
 			g_free (error);
 
 			return EXIT_FAILURE;
 		}
+
+		tracker_db_manager_remove_all (db_manager);
 #ifndef DISABLE_JOURNAL
-		tracker_db_journal_init (NULL, FALSE, NULL);
+		journal_writer = tracker_db_journal_new (data_location, FALSE, NULL);
+		tracker_db_journal_remove (journal_writer);
 #endif /* DISABLE_JOURNAL */
 
-		tracker_db_manager_remove_all (hard_reset);
-		tracker_db_manager_shutdown ();
-#ifndef DISABLE_JOURNAL
-		tracker_db_journal_shutdown (NULL);
-#endif /* DISABLE_JOURNAL */
+		tracker_db_manager_remove_version_file (db_manager);
+		tracker_db_manager_free (db_manager);
 
 		/* Unset log handler */
 		g_log_remove_handler (NULL, log_handler_id);

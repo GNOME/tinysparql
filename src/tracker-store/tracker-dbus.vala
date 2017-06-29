@@ -35,6 +35,8 @@ public class Tracker.DBus {
 	static Tracker.Backup backup;
 	static uint backup_id;
 	static Tracker.Config config;
+	static uint domain_watch_id;
+	static MainLoop watch_main_loop;
 
 	static bool dbus_register_service (string name) {
 		message ("Registering D-Bus service...\n  Name:'%s'", name);
@@ -77,13 +79,33 @@ public class Tracker.DBus {
 		}
 	}
 
-	public static bool register_names () {
-		/* Register the service name for org.freedesktop.Tracker */
-		if (!dbus_register_service (SERVICE)) {
-			return false;
+	public static bool register_names (string? domain) {
+		string service_name;
+
+		if (domain != null) {
+			service_name = domain;
+		} else {
+			/* Register the service name for org.freedesktop.Tracker */
+			service_name = SERVICE;
 		}
 
-		return true;
+		return dbus_register_service (service_name);
+	}
+
+	public static void on_domain_name_disappeared (DBusConnection connection, string name) {
+		notifier.wait ();
+		yield;
+		watch_main_loop.quit ();
+	}
+
+	public static void watch_domain (string? domain, MainLoop main_loop) {
+		if (domain_watch_id == 0 && domain != null) {
+			watch_main_loop = main_loop;
+			domain_watch_id = GLib.Bus.watch_name_on_connection (connection,
+			                                                     domain,
+			                                                     GLib.BusNameWatcherFlags.NONE,
+			                                                     null, on_domain_name_disappeared);
+		}
 	}
 
 	public static bool init (Tracker.Config config_p) {
@@ -148,6 +170,11 @@ public class Tracker.DBus {
 			connection.unregister_object (notifier_id);
 			notifier = null;
 			notifier_id = 0;
+		}
+
+		if (domain_watch_id != 0) {
+			GLib.Bus.unwatch_name (domain_watch_id);
+			domain_watch_id = 0;
 		}
 
 		connection = null;
@@ -220,6 +247,7 @@ public class Tracker.DBus {
 				critical ("Could not create TrackerBackup object to register");
 				return false;
 			}
+
 
 			backup_id = register_object (connection, backup, Tracker.Backup.PATH);
 		}

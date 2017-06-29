@@ -17,6 +17,9 @@
  * Boston, MA  02110-1301, USA.
  */
 
+static string domain_name = null;
+static Tracker.DomainOntology domain_ontology = null;
+
 class Tracker.Sparql.Backend : Connection {
 	bool initialized;
 	Tracker.Sparql.Connection direct = null;
@@ -26,48 +29,16 @@ class Tracker.Sparql.Backend : Connection {
 		DIRECT,
 		BUS
 	}
-	GLib.BusType bus_type = BusType.SESSION;
 
 	public Backend () throws Sparql.Error, IOError, DBusError, SpawnError {
 		try {
-			// Important to make sure we check the right bus for the store
-			load_env ();
-
-			// Makes sure the sevice is available
-			debug ("Waiting for service to become available...");
-
-			// do not use proxy to work around race condition in GDBus
-			// NB#259760
-			var bus = GLib.Bus.get_sync (bus_type);
-			var msg = new DBusMessage.method_call (Tracker.DBUS_SERVICE, Tracker.DBUS_OBJECT_STATUS, Tracker.DBUS_INTERFACE_STATUS, "Wait");
-			bus.send_message_with_reply_sync (msg, 0, /* timeout */ int.MAX, null).to_gerror ();
-
-			debug ("Service is ready");
-
-			debug ("Constructing connection");
+			domain_ontology = new Tracker.DomainOntology (domain_name, null);
 			load_plugins ();
-			debug ("Backend is ready");
 		} catch (GLib.Error e) {
-			throw new Sparql.Error.INTERNAL (e.message);
+			throw new Sparql.Error.INTERNAL ("Failed to load SPARQL backend: " + e.message);
 		}
 
 		initialized = true;
-	}
-
-	private void load_env () {
-		string env_bus_type = Environment.get_variable ("TRACKER_BUS_TYPE");
-
-		if (env_bus_type != null) {
-			if (env_bus_type.ascii_casecmp ("system") == 0) {
-				bus_type = BusType.SYSTEM;
-				debug ("Using bus = 'SYSTEM'");
-			} else if (env_bus_type.ascii_casecmp ("session") == 0) {
-				bus_type = BusType.SESSION;
-				debug ("Using bus = 'SESSION'");
-			} else {
-				warning ("Environment variable TRACKER_BUS_TYPE set to unknown value '%s'", env_bus_type);
-			}
-		}
 	}
 
 	public override void dispose () {
@@ -92,7 +63,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public override Cursor query (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(): '%s'", Log.METHOD, sparql);
+		debug ("%s(): '%s'", GLib.Log.METHOD, sparql);
 		if (direct != null) {
 			return direct.query (sparql, cancellable);
 		} else {
@@ -101,7 +72,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public async override Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(): '%s'", Log.METHOD, sparql);
+		debug ("%s(): '%s'", GLib.Log.METHOD, sparql);
 		if (direct != null) {
 			return yield direct.query_async (sparql, cancellable);
 		} else {
@@ -110,7 +81,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public override void update (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		debug ("%s(priority:%d): '%s'", GLib.Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -118,7 +89,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public override GLib.Variant? update_blank (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		debug ("%s(priority:%d): '%s'", GLib.Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -126,7 +97,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public async override void update_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		debug ("%s(priority:%d): '%s'", GLib.Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -141,7 +112,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public async override GLib.Variant? update_blank_async (string sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, GLib.Error {
-		debug ("%s(priority:%d): '%s'", Log.METHOD, priority, sparql);
+		debug ("%s(priority:%d): '%s'", GLib.Log.METHOD, priority, sparql);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -150,7 +121,7 @@ class Tracker.Sparql.Backend : Connection {
 
 	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		var uri = file.get_uri ();
-		debug ("%s(): '%s'", Log.METHOD, uri);
+		debug ("%s(): '%s'", GLib.Log.METHOD, uri);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -159,7 +130,7 @@ class Tracker.Sparql.Backend : Connection {
 
 	public async override void load_async (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		var uri = file.get_uri ();
-		debug ("%s(): '%s'", Log.METHOD, uri);
+		debug ("%s(): '%s'", GLib.Log.METHOD, uri);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Update support not available for direct-only connection");
 		}
@@ -167,7 +138,7 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public override Cursor? statistics (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		debug ("%s()", Log.METHOD);
+		debug ("%s()", GLib.Log.METHOD);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Statistics support not available for direct-only connection");
 		}
@@ -175,11 +146,20 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	public async override Cursor? statistics_async (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
-		debug ("%s()", Log.METHOD);
+		debug ("%s()", GLib.Log.METHOD);
 		if (bus == null) {
 			throw new Sparql.Error.UNSUPPORTED ("Statistics support not available for direct-only connection");
 		}
 		return yield bus.statistics_async (cancellable);
+	}
+
+	private Connection create_readonly_direct () throws GLib.Error, Sparql.Error, IOError, DBusError {
+		var conn = new Tracker.Direct.Connection (Tracker.Sparql.ConnectionFlags.READONLY,
+		                                          domain_ontology.get_cache (),
+		                                          domain_ontology.get_journal (),
+		                                          domain_ontology.get_ontology ());
+		conn.init ();
+		return conn;
 	}
 
 	// Plugin loading functions
@@ -205,21 +185,22 @@ class Tracker.Sparql.Backend : Connection {
 
 		switch (backend) {
 		case Backend.AUTO:
+			bus = new Tracker.Bus.Connection (domain_ontology.get_domain ());
+
 			try {
-				direct = new Tracker.Direct.Connection ();
+				direct = create_readonly_direct ();
 			} catch (Error e) {
 				warning ("Falling back to bus backend, the direct backend failed to initialize: " + e.message);
 			}
 
-			bus = new Tracker.Bus.Connection ();
 			break;
 
 		case Backend.DIRECT:
-			direct = new Tracker.Direct.Connection ();
+			direct = create_readonly_direct ();
 			break;
 
 		case Backend.BUS:
-			bus = new Tracker.Bus.Connection ();
+			bus = new Tracker.Bus.Connection (domain_ontology.get_domain ());
 			break;
 
 		default:
@@ -228,7 +209,6 @@ class Tracker.Sparql.Backend : Connection {
 	}
 
 	static weak Connection? singleton;
-	static bool log_initialized;
 	static Mutex door;
 
 	static new Connection get (Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError, SpawnError {
@@ -239,8 +219,6 @@ class Tracker.Sparql.Backend : Connection {
 			var result = singleton;
 
 			if (result == null) {
-				log_init ();
-
 				result = new Tracker.Sparql.Backend ();
 
 				if (cancellable != null && cancellable.is_cancelled ()) {
@@ -338,60 +316,6 @@ class Tracker.Sparql.Backend : Connection {
 			return result;
 		}
 	}
-
-	private static void log_init () {
-		if (log_initialized) {
-			return;
-		}
-
-		log_initialized = true;
-
-		// Avoid debug messages
-		int verbosity = 0;
-		string env_verbosity = Environment.get_variable ("TRACKER_VERBOSITY");
-		if (env_verbosity != null)
-			verbosity = int.parse (env_verbosity);
-
-		LogLevelFlags remove_levels = 0;
-
-		// If we have debug enabled, we imply G_MESSAGES_DEBUG or we
-		// see nothing, this came in since GLib 2.32.
-		if (verbosity > 2)
-			Environment.set_variable ("G_MESSAGES_DEBUG", "all", true);
-
-		switch (verbosity) {
-		// Log level 3: EVERYTHING
-		case 3:
-			break;
-
-		// Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only
-		case 2:
-			remove_levels = LogLevelFlags.LEVEL_DEBUG;
-			break;
-
-		// Log level 1: CRITICAL/ERROR/WARNING/INFO only
-		case 1:
-			remove_levels = LogLevelFlags.LEVEL_DEBUG |
-			              LogLevelFlags.LEVEL_MESSAGE;
-			break;
-
-		// Log level 0: CRITICAL/ERROR/WARNING only (default)
-		default:
-		case 0:
-			remove_levels = LogLevelFlags.LEVEL_DEBUG |
-			              LogLevelFlags.LEVEL_MESSAGE |
-			              LogLevelFlags.LEVEL_INFO;
-			break;
-		}
-
-		if (remove_levels != 0) {
-			GLib.Log.set_handler ("Tracker", remove_levels, remove_log_handler);
-		}
-	}
-
-	private static void remove_log_handler (string? log_domain, LogLevelFlags log_level, string message) {
-		/* do nothing */
-	}
 }
 
 public async static Tracker.Sparql.Connection tracker_sparql_connection_get_async (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
@@ -412,4 +336,26 @@ public static Tracker.Sparql.Connection tracker_sparql_connection_get_direct (Ca
 
 public static Tracker.Sparql.Connection tracker_sparql_connection_remote_new (string url_base) {
 	return new Tracker.Remote.Connection (url_base);
+}
+
+public static Tracker.Sparql.Connection tracker_sparql_connection_local_new (Tracker.Sparql.ConnectionFlags flags, File store, File? journal, File? ontology, Cancellable? cancellable = null) throws GLib.Error, Tracker.Sparql.Error, IOError {
+	var conn = new Tracker.Direct.Connection (flags, store, journal, ontology);
+	conn.init (cancellable);
+	return conn;
+}
+
+public static async Tracker.Sparql.Connection tracker_sparql_connection_local_new_async (Tracker.Sparql.ConnectionFlags flags, File store, File? journal, File? ontology, Cancellable? cancellable = null) throws GLib.Error, Tracker.Sparql.Error, IOError {
+	var conn = new Tracker.Direct.Connection (flags, store, journal, ontology);
+	conn.init_async.begin (Priority.DEFAULT, cancellable);
+	yield;
+	return conn;
+}
+
+public static void tracker_sparql_connection_set_domain (string? domain) {
+	if (domain_name == null)
+		domain_name = domain;
+}
+
+public static string? tracker_sparql_connection_get_domain () {
+	return domain_name;
 }

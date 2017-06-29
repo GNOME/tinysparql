@@ -1,0 +1,2 @@
+SELECT { ?mammal a ex:Mammal;
+                 fts:match "timmy" }

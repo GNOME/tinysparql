@@ -54,18 +54,25 @@ typedef enum {
 	TRACKER_DB_JOURNAL_UPDATE_STATEMENT_ID,
 } TrackerDBJournalEntryType;
 
+typedef struct _TrackerDBJournal TrackerDBJournal;
+typedef struct _TrackerDBJournalReader TrackerDBJournalReader;
+
 GQuark       tracker_db_journal_error_quark                  (void);
 
 /*
  * Writer API
  */
-gboolean     tracker_db_journal_init                         (const gchar  *filename,
+TrackerDBJournal *
+             tracker_db_journal_new                          (GFile        *data_location,
                                                               gboolean      truncate,
                                                               GError      **error);
-gboolean     tracker_db_journal_shutdown                     (GError      **error);
+TrackerDBJournal *
+             tracker_db_journal_ontology_new                 (GFile        *data_location,
+                                                              GError      **error);
+gboolean     tracker_db_journal_free                         (TrackerDBJournal  *writer,
+                                                              GError           **error);
 
-const gchar* tracker_db_journal_get_filename                 (void);
-gsize        tracker_db_journal_get_size                     (void);
+gsize        tracker_db_journal_get_size                     (TrackerDBJournal  *writer);
 
 void         tracker_db_journal_set_rotating                 (gboolean     do_rotating,
                                                               gsize        chunk_size,
@@ -75,71 +82,87 @@ void         tracker_db_journal_get_rotating                 (gboolean    *do_ro
                                                               gsize       *chunk_size,
                                                               gchar      **rotate_to);
 
-gboolean     tracker_db_journal_start_transaction            (time_t       time);
-gboolean     tracker_db_journal_start_ontology_transaction   (time_t       time,
-                                                              GError     **error);
+gboolean     tracker_db_journal_start_transaction            (TrackerDBJournal   *writer,
+                                                              time_t              time);
 
-gboolean     tracker_db_journal_append_delete_statement      (gint         g_id,
-                                                              gint         s_id,
-                                                              gint         p_id,
-                                                              const gchar *object);
-gboolean     tracker_db_journal_append_delete_statement_id   (gint         g_id,
-                                                              gint         s_id,
-                                                              gint         p_id,
-                                                              gint         o_id);
-gboolean     tracker_db_journal_append_insert_statement      (gint         g_id,
-                                                              gint         s_id,
-                                                              gint         p_id,
-                                                              const gchar *object);
-gboolean     tracker_db_journal_append_insert_statement_id   (gint         g_id,
-                                                              gint         s_id,
-                                                              gint         p_id,
-                                                              gint         o_id);
-gboolean     tracker_db_journal_append_update_statement      (gint         g_id,
-                                                              gint         s_id,
-                                                              gint         p_id,
-                                                              const gchar *object);
-gboolean     tracker_db_journal_append_update_statement_id   (gint         g_id,
-                                                              gint         s_id,
-                                                              gint         p_id,
-                                                              gint         o_id);
-gboolean     tracker_db_journal_append_resource              (gint         s_id,
-                                                              const gchar *uri);
+gboolean     tracker_db_journal_append_delete_statement      (TrackerDBJournal   *writer,
+                                                              gint                g_id,
+                                                              gint                s_id,
+                                                              gint                p_id,
+                                                              const gchar        *object);
+gboolean     tracker_db_journal_append_delete_statement_id   (TrackerDBJournal   *writer,
+                                                              gint                g_id,
+                                                              gint                s_id,
+                                                              gint                p_id,
+                                                              gint                o_id);
+gboolean     tracker_db_journal_append_insert_statement      (TrackerDBJournal   *writer,
+                                                              gint                g_id,
+                                                              gint                s_id,
+                                                              gint                p_id,
+                                                              const gchar        *object);
+gboolean     tracker_db_journal_append_insert_statement_id   (TrackerDBJournal   *writer,
+                                                              gint                g_id,
+                                                              gint                s_id,
+                                                              gint                p_id,
+                                                              gint                o_id);
+gboolean     tracker_db_journal_append_update_statement      (TrackerDBJournal   *writer,
+                                                              gint                g_id,
+                                                              gint                s_id,
+                                                              gint                p_id,
+                                                              const gchar        *object);
+gboolean     tracker_db_journal_append_update_statement_id   (TrackerDBJournal   *writer,
+                                                              gint                g_id,
+                                                              gint                s_id,
+                                                              gint                p_id,
+                                                              gint                o_id);
+gboolean     tracker_db_journal_append_resource              (TrackerDBJournal   *writer,
+                                                              gint                s_id,
+                                                              const gchar        *uri);
 
-gboolean     tracker_db_journal_rollback_transaction         (GError **error);
-gboolean     tracker_db_journal_commit_db_transaction        (GError **error);
+gboolean     tracker_db_journal_rollback_transaction         (TrackerDBJournal   *writer);
+gboolean     tracker_db_journal_commit_db_transaction        (TrackerDBJournal   *writer,
+                                                              GError            **error);
 
-gboolean     tracker_db_journal_fsync                        (void);
-gboolean     tracker_db_journal_truncate                     (gsize new_size);
+gboolean     tracker_db_journal_fsync                        (TrackerDBJournal   *writer);
+gboolean     tracker_db_journal_truncate                     (TrackerDBJournal   *writer,
+                                                              gsize               new_size);
+
+void         tracker_db_journal_remove                       (TrackerDBJournal *writer);
 
 /*
  * Reader API
  */
-gboolean     tracker_db_journal_reader_init                  (const gchar   *filename,
+TrackerDBJournalReader *
+             tracker_db_journal_reader_new                   (GFile         *data_location,
                                                               GError       **error);
-gboolean     tracker_db_journal_reader_ontology_init         (const gchar  *filename,
+TrackerDBJournalReader *
+             tracker_db_journal_reader_ontology_new          (GFile         *data_location,
                                                               GError       **error);
-gboolean     tracker_db_journal_reader_shutdown              (void);
+void         tracker_db_journal_reader_free                  (TrackerDBJournalReader *reader);
 TrackerDBJournalEntryType
-             tracker_db_journal_reader_get_type              (void);
+             tracker_db_journal_reader_get_entry_type        (TrackerDBJournalReader  *reader);
 
-gboolean     tracker_db_journal_reader_next                  (GError      **error);
-gint64       tracker_db_journal_reader_get_time              (void);
-gboolean     tracker_db_journal_reader_get_resource          (gint         *id,
-                                                              const gchar **uri);
-gboolean     tracker_db_journal_reader_get_statement         (gint         *g_id,
-                                                              gint         *s_id,
-                                                              gint         *p_id,
-                                                              const gchar **object);
-gboolean     tracker_db_journal_reader_get_statement_id      (gint         *g_id,
-                                                              gint         *s_id,
-                                                              gint         *p_id,
-                                                              gint         *o_id);
-gsize        tracker_db_journal_reader_get_size_of_correct   (void);
-gdouble      tracker_db_journal_reader_get_progress          (void);
+gboolean     tracker_db_journal_reader_next                  (TrackerDBJournalReader  *reader,
+                                                              GError                 **error);
+gint64       tracker_db_journal_reader_get_time              (TrackerDBJournalReader  *reader);
+gboolean     tracker_db_journal_reader_get_resource          (TrackerDBJournalReader  *reader,
+                                                              gint                    *id,
+                                                              const gchar            **uri);
+gboolean     tracker_db_journal_reader_get_statement         (TrackerDBJournalReader  *reader,
+                                                              gint                    *g_id,
+                                                              gint                    *s_id,
+                                                              gint                    *p_id,
+                                                              const gchar            **object);
+gboolean     tracker_db_journal_reader_get_statement_id      (TrackerDBJournalReader  *reader,
+                                                              gint                    *g_id,
+                                                              gint                    *s_id,
+                                                              gint                    *p_id,
+                                                              gint                    *o_id);
+gsize        tracker_db_journal_reader_get_size_of_correct   (TrackerDBJournalReader  *reader);
+gdouble      tracker_db_journal_reader_get_progress          (TrackerDBJournalReader  *reader);
 
-gboolean     tracker_db_journal_reader_verify_last           (const gchar  *filename,
-                                                              GError      **error);
+gboolean     tracker_db_journal_reader_verify_last           (GFile                   *data_location,
+                                                              GError                 **error);
 
 G_END_DECLS
 

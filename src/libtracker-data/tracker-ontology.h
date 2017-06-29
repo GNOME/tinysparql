@@ -23,6 +23,7 @@
 #define __LIBTRACKER_DATA_ONTOLOGY_H__
 
 #include <glib-object.h>
+#include "tracker-class.h"
 
 G_BEGIN_DECLS
 
@@ -60,6 +61,8 @@ void              tracker_ontology_set_uri           (TrackerOntology *ontology,
                                                       const gchar      *value);
 void              tracker_ontology_set_is_new        (TrackerOntology *ontology,
                                                       gboolean         value);
+void              tracker_ontology_set_ontologies    (TrackerOntology   *ontology,
+                                                      TrackerOntologies *ontologies);
 
 G_END_DECLS
 

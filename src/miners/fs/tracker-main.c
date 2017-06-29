@@ -54,6 +54,9 @@
 
 #define SECONDS_PER_DAY 60 * 60 * 24
 
+#define DBUS_NAME_SUFFIX "Miner.Files"
+#define DBUS_PATH "/org/freedesktop/Tracker1/Miner/Files"
+
 static void miner_handle_next (void);
 
 static GMainLoop *main_loop;
@@ -67,6 +70,8 @@ static gboolean no_daemon;
 static gchar *eligible;
 static gboolean version;
 static guint miners_timeout_id = 0;
+static gboolean do_crawling = FALSE;
+static gchar *domain_ontology_name = NULL;
 
 static GOptionEntry entries[] = {
 	{ "verbosity", 'v', 0,
@@ -87,6 +92,10 @@ static GOptionEntry entries[] = {
 	  G_OPTION_ARG_FILENAME, &eligible,
 	  N_("Checks if FILE is eligible for being mined based on configuration"),
 	  N_("FILE") },
+	{ "domain-ontology", 'd', 0,
+	  G_OPTION_ARG_STRING, &domain_ontology_name,
+	  N_("Runs for an specific domain ontology"),
+	  NULL },
 	{ "version", 'V', 0,
 	  G_OPTION_ARG_NONE, &version,
 	  N_("Displays version information"),
@@ -220,7 +229,7 @@ should_crawl (TrackerConfig *config,
 	} else {
 		guint64 then, now;
 
-		then = tracker_db_manager_get_last_crawl_done ();
+		then = tracker_miner_files_get_last_crawl_done ();
 
 		if (then < 1) {
 			return TRUE;
@@ -327,9 +336,8 @@ miner_finished_cb (TrackerMinerFS *fs,
 	        total_directories_found,
 	        total_files_found);
 
-	if (TRACKER_IS_MINER_FILES (fs) &&
-	    tracker_miner_fs_get_initial_crawling (fs)) {
-		tracker_db_manager_set_last_crawl_done (TRUE);
+	if (TRACKER_IS_MINER_FILES (fs) && do_crawling) {
+		tracker_miner_files_set_last_crawl_done (TRUE);
 	}
 
 	miner_handle_next ();
@@ -661,9 +669,18 @@ miner_needs_check (TrackerMiner *miner,
 			/* Check whether there are more pause
 			 * reasons than the store being out.
 			 */
-			return tracker_miner_get_n_pause_reasons (miner) > 1;
+			return tracker_miner_is_paused (miner);
 		}
 	}
+}
+
+static void
+on_domain_vanished (GDBusConnection *connection,
+                    const gchar     *name,
+                    gpointer         user_data)
+{
+	GMainLoop *loop = user_data;
+	g_main_loop_quit (loop);
 }
 
 int
@@ -676,9 +693,12 @@ main (gint argc, gchar *argv[])
 	GError *error = NULL;
 	gchar *log_filename = NULL;
 	gboolean do_mtime_checking;
-	gboolean do_crawling;
 	gboolean force_mtime_checking = FALSE;
 	gboolean store_available;
+	TrackerMinerProxy *proxy;
+	GDBusConnection *connection;
+	TrackerDomainOntology *domain_ontology;
+	gchar *dbus_name;
 
 	main_loop = NULL;
 
@@ -716,6 +736,36 @@ main (gint argc, gchar *argv[])
 		return EXIT_SUCCESS;
 	}
 
+	tracker_sparql_connection_set_domain (domain_ontology_name);
+
+	domain_ontology = tracker_domain_ontology_new (domain_ontology_name, NULL, &error);
+	if (error) {
+		g_critical ("Could not load domain ontology '%s': %s",
+		            domain_ontology_name, error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &error);
+	if (error) {
+		g_critical ("Could not create DBus connection: %s\n",
+		            error->message);
+		g_error_free (error);
+		return EXIT_FAILURE;
+	}
+
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
+
+	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            dbus_name, error->message);
+		g_error_free (error);
+		g_free (dbus_name);
+		return EXIT_FAILURE;
+	}
+
+	g_free (dbus_name);
+
 	/* Initialize logging */
 	config = tracker_config_new ();
 
@@ -738,9 +788,16 @@ main (gint argc, gchar *argv[])
 
 	/* This makes sure we don't steal all the system's resources */
 	initialize_priority_and_scheduling (tracker_config_get_sched_idle (config),
-	                                    tracker_db_manager_get_first_index_done () == FALSE);
+	                                    tracker_miner_files_get_first_index_done () == FALSE);
 
 	main_loop = g_main_loop_new (NULL, FALSE);
+
+	if (domain_ontology && domain_ontology_name) {
+		g_bus_watch_name_on_connection (connection, domain_ontology_name,
+		                                G_BUS_NAME_WATCHER_FLAGS_NONE,
+		                                NULL, on_domain_vanished,
+		                                main_loop, NULL);
+	}
 
 	g_message ("Checking if we're running as a daemon:");
 	g_message ("  %s %s",
@@ -753,6 +810,16 @@ main (gint argc, gchar *argv[])
 		g_critical ("Couldn't create new Files miner: '%s'",
 		            error ? error->message : "unknown error");
 		g_object_unref (config);
+		tracker_log_shutdown ();
+		return EXIT_FAILURE;
+	}
+
+	proxy = tracker_miner_proxy_new (miner_files, connection, DBUS_PATH, NULL, &error);
+	if (error) {
+		g_critical ("Couldn't create miner proxy: %s", error->message);
+		g_error_free (error);
+		g_object_unref (config);
+		g_object_unref (miner_files);
 		tracker_log_shutdown ();
 		return EXIT_FAILURE;
 	}
@@ -797,7 +864,7 @@ main (gint argc, gchar *argv[])
 	if (force_mtime_checking) {
 		do_mtime_checking = TRUE;
 	} else {
-		do_mtime_checking = tracker_db_manager_get_need_mtime_check ();
+		do_mtime_checking = tracker_miner_files_get_need_mtime_check ();
 	}
 
 	g_message ("  %s %s",
@@ -808,18 +875,18 @@ main (gint argc, gchar *argv[])
 	 * event of a crash, this is changed back on shutdown if
 	 * everything appears to be fine.
 	 */
-	tracker_db_manager_set_need_mtime_check (TRUE);
+	tracker_miner_files_set_need_mtime_check (TRUE);
 
 	/* Configure files miner */
-	tracker_miner_fs_set_initial_crawling (TRACKER_MINER_FS (miner_files), do_crawling);
-	tracker_miner_fs_set_mtime_checking (TRACKER_MINER_FS (miner_files), do_mtime_checking);
+	tracker_miner_files_set_mtime_checking (TRACKER_MINER_FILES (miner_files), do_mtime_checking);
 	g_signal_connect (miner_files, "finished",
 			  G_CALLBACK (miner_finished_cb),
 			  NULL);
 
 	miners = g_slist_prepend (miners, miner_files);
 
-	miner_handle_first (config, do_mtime_checking);
+	if (do_crawling)
+		miner_handle_first (config, do_mtime_checking);
 
 	initialize_signal_handler ();
 
@@ -832,7 +899,7 @@ main (gint argc, gchar *argv[])
 
 	if (miners_timeout_id == 0 &&
 	    !miner_needs_check (miner_files, store_available)) {
-		tracker_db_manager_set_need_mtime_check (FALSE);
+		tracker_miner_files_set_need_mtime_check (FALSE);
 	}
 
 	g_main_loop_unref (main_loop);
@@ -841,6 +908,10 @@ main (gint argc, gchar *argv[])
 
 	g_slist_foreach (miners, (GFunc) finalize_miner, NULL);
 	g_slist_free (miners);
+
+	g_object_unref (proxy);
+	g_object_unref (connection);
+	g_object_unref (domain_ontology);
 
 	tracker_writeback_shutdown ();
 	tracker_log_shutdown ();

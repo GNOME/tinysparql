@@ -244,8 +244,6 @@ dbus_g_proxy_call (DBusGProxy *proxy,
 		TrackerMinerMock *miner = (TrackerMinerMock *)proxy;
 		tracker_miner_mock_resume (miner);
 
-	} else if (g_strcmp0 (function_name, "IgnoreNextUpdate") == 0) {
-		/* Well, ok... */
 	} else if (g_strcmp0 (function_name, "GetProgress") == 0) {
 		/* Whatever */
 	} else if (g_strcmp0 (function_name, "GetStatus") == 0) {

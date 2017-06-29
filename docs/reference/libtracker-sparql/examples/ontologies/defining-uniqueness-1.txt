@@ -1,0 +1,3 @@
+ex:geneticInformation a rdf:Property, nrl:InverseFunctionalProperty;
+                      rdfs:domain ex:Eukaryote;
+                      rdfs:range xsd:string;

@@ -99,6 +99,9 @@ main (gint argc, gchar **argv)
 
 	setlocale (LC_ALL, "");
 
+	g_setenv ("TRACKER_TEST_DOMAIN_ONTOLOGY_RULE", TEST_DOMAIN_ONTOLOGY_RULE, TRUE);
+	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TEST_ONTOLOGIES_DIR, TRUE);
+
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_add_func ("/libtracker-sparql/tracker/gb737023",

@@ -34,15 +34,18 @@
 #include "tracker-sparql-query.h"
 
 GPtrArray*
-tracker_data_query_rdf_type (gint id)
+tracker_data_query_rdf_type (TrackerDataManager *manager,
+                             gint                id)
 {
 	TrackerDBCursor *cursor = NULL;
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 	GPtrArray *ret = NULL;
 	GError *error = NULL;
+	TrackerOntologies *ontologies;
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_data_manager_get_db_interface (manager);
+	ontologies = tracker_data_manager_get_ontologies (manager);
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
@@ -67,7 +70,7 @@ tracker_data_query_rdf_type (gint id)
 			TrackerClass *cl;
 
 			class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
-			cl = tracker_ontologies_get_class_by_uri (class_uri);
+			cl = tracker_ontologies_get_class_by_uri (ontologies, class_uri);
 			if (!cl) {
 				g_critical ("Unknown class %s", class_uri);
 				continue;
@@ -91,7 +94,8 @@ tracker_data_query_rdf_type (gint id)
 }
 
 gint
-tracker_data_query_resource_id (const gchar *uri)
+tracker_data_query_resource_id (TrackerDataManager *manager,
+                                const gchar        *uri)
 {
 	TrackerDBCursor *cursor = NULL;
 	TrackerDBInterface *iface;
@@ -101,7 +105,7 @@ tracker_data_query_resource_id (const gchar *uri)
 
 	g_return_val_if_fail (uri != NULL, 0);
 
-	iface = tracker_db_manager_get_db_interface ();
+	iface = tracker_data_manager_get_db_interface (manager);
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT ID FROM Resource WHERE Uri = ?");
@@ -130,15 +134,16 @@ tracker_data_query_resource_id (const gchar *uri)
 
 
 TrackerDBCursor *
-tracker_data_query_sparql_cursor (const gchar  *query,
-                                  GError      **error)
+tracker_data_query_sparql_cursor (TrackerDataManager  *manager,
+                                  const gchar         *query,
+                                  GError             **error)
 {
 	TrackerSparqlQuery *sparql_query;
 	TrackerDBCursor *cursor;
 
 	g_return_val_if_fail (query != NULL, NULL);
 
-	sparql_query = tracker_sparql_query_new (query);
+	sparql_query = tracker_sparql_query_new (manager, query);
 
 	cursor = tracker_sparql_query_execute_cursor (sparql_query, error);
 

@@ -336,94 +336,10 @@ load_description (OntologyDescription *desc,
 	}
 }
 
-
 Ontology *
-ttl_loader_load_ontology (const gchar *ttl_file)
+ttl_loader_new_ontology (void)
 {
 	Ontology *ontology;
-
-	g_debug ("Loading ontology... %s\n", ttl_file);
-	ontology = g_new0 (Ontology, 1);
-	ontology->classes = g_hash_table_new_full (g_str_hash,
-	                                           g_str_equal,
-	                                           g_free,
-	                                           (GDestroyNotify)ttl_model_class_free);
-
-	ontology->properties = g_hash_table_new_full (g_str_hash,
-	                                              g_str_equal,
-	                                              g_free,
-	                                              (GDestroyNotify)ttl_model_property_free);
-	ontology->prefixes = g_hash_table_new_full (g_str_hash,
-						    g_str_equal,
-						    g_free, g_free);
-
-	if (ttl_file) {
-		TrackerTurtleReader *reader;
-		GError *error = NULL;
-
-		reader = tracker_turtle_reader_new (ttl_file, NULL);
-
-		while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
-			load_in_memory (ontology,
-			                tracker_turtle_reader_get_subject (reader),
-			                tracker_turtle_reader_get_predicate (reader),
-			                tracker_turtle_reader_get_object (reader));
-		}
-
-		g_object_unref (reader);
-
-		if (error) {
-			g_message ("Turtle parse error: %s", error->message);
-			g_error_free (error);
-		}
-	} else {
-		g_warning ("Unable to open '%s'", ttl_file);
-	}
-
-	return ontology;
-}
-
-static GList *
-get_ontology_files (GFile *dir)
-{
-	GFileEnumerator *enumerator;
-	GFileInfo *info;
-	GList *files;
-	const gchar *name;
-
-	enumerator = g_file_enumerate_children (dir,
-	                                        G_FILE_ATTRIBUTE_STANDARD_NAME,
-	                                        G_FILE_QUERY_INFO_NONE,
-	                                        NULL, NULL);
-
-	if (!enumerator) {
-		return NULL;
-	}
-
-	files = NULL;
-
-	while ((info = g_file_enumerator_next_file (enumerator, NULL, NULL)) != NULL) {
-		name = g_file_info_get_name (info);
-
-		if (g_str_has_suffix (name, ".ontology")) {
-			files = g_list_insert_sorted (files, g_strdup (name),
-			                              (GCompareFunc) g_strcmp0);
-		}
-
-		g_object_unref (info);
-	}
-
-	g_object_unref (enumerator);
-
-	return files;
-}
-
-Ontology *
-ttl_loader_load_ontology_dir (const gchar *ttl_dir)
-{
-	GFile *dir = g_file_new_for_path (ttl_dir);
-	Ontology *ontology;
-	GList *files, *f;
 
 	ontology = g_new0 (Ontology, 1);
 	ontology->classes = g_hash_table_new_full (g_str_hash,
@@ -438,49 +354,55 @@ ttl_loader_load_ontology_dir (const gchar *ttl_dir)
 	ontology->prefixes = g_hash_table_new_full (g_str_hash,
 						    g_str_equal,
 						    g_free, g_free);
+	return ontology;
+}
 
-	files = get_ontology_files (dir);
-	g_object_unref (dir);
+void
+ttl_loader_load_ontology (Ontology    *ontology,
+                          GFile       *ttl_file)
+{
+	TrackerTurtleReader *reader;
+	GError *error = NULL;
 
-	for (f = files; f; f = f->next) {
-		TrackerTurtleReader *reader;
-		GError *error = NULL;
-		gchar *ttl_file;
+	g_return_if_fail (G_IS_FILE (ttl_file));
 
-		ttl_file = g_build_filename (ttl_dir, f->data, NULL);
-		reader = tracker_turtle_reader_new (ttl_file, NULL);
-		g_free (ttl_file);
+	reader = tracker_turtle_reader_new (ttl_file, NULL);
 
-		while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
-			load_in_memory (ontology,
-			                tracker_turtle_reader_get_subject (reader),
-			                tracker_turtle_reader_get_predicate (reader),
-			                tracker_turtle_reader_get_object (reader));
-		}
-
-		g_object_unref (reader);
-
-		if (error) {
-			g_message ("Turtle parser error: %s", error->message);
-			g_error_free (error);
-			break;
-		}
+	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
+		load_in_memory (ontology,
+		                tracker_turtle_reader_get_subject (reader),
+		                tracker_turtle_reader_get_predicate (reader),
+		                tracker_turtle_reader_get_object (reader));
 	}
 
-	return ontology;
+	g_object_unref (reader);
+
+	if (error) {
+		g_message ("Turtle parse error: %s", error->message);
+		g_error_free (error);
+	}
+}
+
+void
+ttl_loader_load_prefix_from_description (Ontology            *ontology,
+                                         OntologyDescription *description)
+{
+	if (!g_hash_table_lookup (ontology->prefixes, description->baseUrl)) {
+		g_hash_table_insert (ontology->prefixes,
+		                     g_strdup (description->baseUrl),
+		                     g_strdup (description->localPrefix));
+	}
 }
 
 OntologyDescription *
-ttl_loader_load_description (const gchar *filename)
+ttl_loader_load_description (GFile *file)
 {
 	OntologyDescription *desc;
 	TrackerTurtleReader *reader;
 	GError *error = NULL;
 
 	desc = ttl_model_description_new ();
-
-
-	reader = tracker_turtle_reader_new (filename, NULL);
+	reader = tracker_turtle_reader_new (file, NULL);
 
 	while (error == NULL && tracker_turtle_reader_next (reader, &error)) {
 		load_description (desc,

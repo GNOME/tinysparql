@@ -26,146 +26,78 @@
 
 #include "tracker-locale.h"
 
-/* Current locales in use. They will be stored in heap and available throughout
- * the whole program execution, so will be reported as still reachable by Valgrind.
- */
-static gchar *current_locales[TRACKER_LOCALE_LAST];
-
 static const gchar *locale_names[TRACKER_LOCALE_LAST] = {
-	"TRACKER_LOCALE_LANGUAGE",
-	"TRACKER_LOCALE_TIME",
-	"TRACKER_LOCALE_COLLATE",
-	"TRACKER_LOCALE_NUMERIC",
-	"TRACKER_LOCALE_MONETARY"
+	"LANG",
+	"LC_TIME",
+	"LC_COLLATE",
+	"LC_NUMERIC",
+	"LC_MONETARY"
 };
-
-/* Already initialized? */
-static gboolean initialized;
 
 static GRecMutex locales_mutex;
 
-const gchar*
-tracker_locale_get_name (guint i)
+static const gchar *
+tracker_locale_get_unlocked (TrackerLocaleID id)
 {
-	g_return_val_if_fail (i < TRACKER_LOCALE_LAST, NULL);
-	return locale_names[i];
+	const gchar *env_locale = NULL;
+
+	switch (id) {
+	case TRACKER_LOCALE_LANGUAGE:
+		env_locale = g_getenv ("LANG");
+		break;
+	case TRACKER_LOCALE_TIME:
+		env_locale = setlocale (LC_TIME, NULL);
+		break;
+	case TRACKER_LOCALE_COLLATE:
+		env_locale = setlocale (LC_COLLATE, NULL);
+		break;
+	case TRACKER_LOCALE_NUMERIC:
+		env_locale = setlocale (LC_NUMERIC, NULL);
+		break;
+	case TRACKER_LOCALE_MONETARY:
+		env_locale = setlocale (LC_MONETARY, NULL);
+		break;
+	default:
+		g_assert_not_reached ();
+		break;
+	}
+
+	return env_locale;
 }
 
 void
-tracker_locale_set (TrackerLocaleID  id,
-                    const gchar     *value)
+tracker_locale_sanity_check (void)
 {
+	guint i;
+
 	g_rec_mutex_lock (&locales_mutex);
 
-	if (current_locales[id]) {
-		g_debug ("Locale '%s' was changed from '%s' to '%s'",
-		         locale_names[id],
-		         current_locales[id],
-		         value);
-		g_free (current_locales[id]);
-	} else {
-		g_debug ("Locale '%s' was set to '%s'",
-		         locale_names[id],
-		         value);
-	}
+	for (i = 0; i < TRACKER_LOCALE_LAST; i++) {
+		const gchar *env_locale = NULL;
 
-	/* Store the new one */
-	current_locales[id] = g_strdup (value);
+		env_locale = tracker_locale_get_unlocked (i);
 
-	/* And also set the new one in the corresponding envvar */
-	switch (id) {
-	case TRACKER_LOCALE_LANGUAGE:
-		g_setenv ("LANG", value, TRUE);
-		break;
-	case TRACKER_LOCALE_TIME:
-		setlocale (LC_TIME, value);
-		break;
-	case TRACKER_LOCALE_COLLATE:
-		setlocale (LC_COLLATE, value);
-		break;
-	case TRACKER_LOCALE_NUMERIC:
-		setlocale (LC_NUMERIC, value);
-		break;
-	case TRACKER_LOCALE_MONETARY:
-		setlocale (LC_MONETARY, value);
-		break;
-	case TRACKER_LOCALE_LAST:
-		/* Make compiler happy */
-		g_warn_if_reached ();
-		break;
+		if (!env_locale) {
+			g_warning ("Locale '%s' is not set, defaulting to C locale", locale_names[i]);
+		}
 	}
 
 	g_rec_mutex_unlock (&locales_mutex);
 }
 
-void
-tracker_locale_init (void)
-{
-	guint i;
-
-	for (i = 0; i < TRACKER_LOCALE_LAST; i++) {
-		if (!current_locales[i]) {
-			const gchar *env_locale = NULL;
-
-			switch (i) {
-			case TRACKER_LOCALE_LANGUAGE:
-				env_locale = g_getenv ("LANG");
-				break;
-			case TRACKER_LOCALE_TIME:
-				env_locale = setlocale (LC_TIME, NULL);
-				break;
-			case TRACKER_LOCALE_COLLATE:
-				env_locale = setlocale (LC_COLLATE, NULL);
-				break;
-			case TRACKER_LOCALE_NUMERIC:
-				env_locale = setlocale (LC_NUMERIC, NULL);
-				break;
-			case TRACKER_LOCALE_MONETARY:
-				env_locale = setlocale (LC_MONETARY, NULL);
-				break;
-			default:
-				g_assert_not_reached ();
-				break;
-			}
-
-			if (!env_locale) {
-				g_warning ("Locale '%d' is not set, defaulting to C locale", i);
-				tracker_locale_set (i, "C");
-			} else {
-				tracker_locale_set (i, env_locale);
-			}
-		}
-	}
-
-	/* So we're initialized */
-	initialized = TRUE;
-}
-
-void
-tracker_locale_shutdown (void)
-{
-	gint i;
-
-	for (i = 0; i < TRACKER_LOCALE_LAST; i++) {
-		g_free (current_locales[i]);
-		current_locales[i] = NULL;
-	}
-
-	initialized = FALSE;
-}
-
 gchar *
 tracker_locale_get (TrackerLocaleID id)
 {
+	const gchar *env_locale = NULL;
 	gchar *locale;
-
-	g_return_val_if_fail (initialized, NULL);
 
 	g_rec_mutex_lock (&locales_mutex);
 
+	env_locale = tracker_locale_get_unlocked (id);
+
 	/* Always return a duplicated string, as the locale may change at any
 	 * moment */
-	locale = g_strdup (current_locales[id]);
+	locale = g_strdup (env_locale);
 
 	g_rec_mutex_unlock (&locales_mutex);
 

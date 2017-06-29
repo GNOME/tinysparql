@@ -21,16 +21,19 @@
 #define __TTL_LOADER_H__
 
 #include <glib.h>
+#include <gio/gio.h>
 #include "ttl_model.h"
 
 G_BEGIN_DECLS
 
-void                  ttl_loader_init             (void);
-void                  ttl_loader_shutdown         (void);
+Ontology            * ttl_loader_new_ontology     (void);
 
-Ontology            * ttl_loader_load_ontology    (const gchar *filename);
-Ontology            * ttl_loader_load_ontology_dir(const gchar *dir);
-OntologyDescription * ttl_loader_load_description (const gchar *filename);
+void                  ttl_loader_load_ontology    (Ontology    *ontology,
+						   GFile       *filename);
+OntologyDescription * ttl_loader_load_description (GFile       *filename);
+
+void                  ttl_loader_load_prefix_from_description (Ontology            *ontology,
+                                                               OntologyDescription *description);
 
 void                  ttl_loader_free_ontology    (Ontology *ontology);
 void                  ttl_loader_free_description (OntologyDescription *desc);
