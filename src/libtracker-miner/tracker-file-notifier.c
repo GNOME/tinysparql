@@ -39,7 +39,8 @@ static gboolean force_check_updated = FALSE;
 enum {
 	PROP_0,
 	PROP_INDEXING_TREE,
-	PROP_DATA_PROVIDER
+	PROP_DATA_PROVIDER,
+	PROP_CONNECTION
 };
 
 enum {
@@ -130,6 +131,9 @@ tracker_file_notifier_set_property (GObject      *object,
 	case PROP_DATA_PROVIDER:
 		priv->data_provider = g_value_dup_object (value);
 		break;
+	case PROP_CONNECTION:
+		priv->connection = g_value_dup_object (value);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -152,6 +156,9 @@ tracker_file_notifier_get_property (GObject    *object,
 		break;
 	case PROP_DATA_PROVIDER:
 		g_value_set_object (value, priv->data_provider);
+		break;
+	case PROP_CONNECTION:
+		g_value_set_object (value, priv->connection);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1775,6 +1782,14 @@ tracker_file_notifier_class_init (TrackerFileNotifierClass *klass)
 	                                                      TRACKER_TYPE_DATA_PROVIDER,
 	                                                      G_PARAM_READWRITE |
 	                                                      G_PARAM_CONSTRUCT_ONLY));
+	g_object_class_install_property (object_class,
+	                                 PROP_CONNECTION,
+	                                 g_param_spec_object ("connection",
+	                                                      "Connection",
+	                                                      "Connection to use for queries",
+	                                                      TRACKER_SPARQL_TYPE_CONNECTION,
+	                                                      G_PARAM_READWRITE |
+	                                                      G_PARAM_CONSTRUCT_ONLY));
 
 	g_type_class_add_private (object_class,
 	                          sizeof (TrackerFileNotifierClass));
@@ -1798,20 +1813,11 @@ static void
 tracker_file_notifier_init (TrackerFileNotifier *notifier)
 {
 	TrackerFileNotifierPrivate *priv;
-	GError *error = NULL;
 
 	priv = notifier->priv =
 		G_TYPE_INSTANCE_GET_PRIVATE (notifier,
 		                             TRACKER_TYPE_FILE_NOTIFIER,
 		                             TrackerFileNotifierPrivate);
-
-	priv->connection = tracker_sparql_connection_get (NULL, &error);
-
-	if (error) {
-		g_warning ("Could not get SPARQL connection: %s\n",
-		           error->message);
-		g_error_free (error);
-	}
 
 	priv->timer = g_timer_new ();
 	priv->stopped = TRUE;
@@ -1837,14 +1843,16 @@ tracker_file_notifier_init (TrackerFileNotifier *notifier)
 }
 
 TrackerFileNotifier *
-tracker_file_notifier_new (TrackerIndexingTree  *indexing_tree,
-                           TrackerDataProvider  *data_provider)
+tracker_file_notifier_new (TrackerIndexingTree     *indexing_tree,
+                           TrackerDataProvider     *data_provider,
+                           TrackerSparqlConnection *connection)
 {
 	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (indexing_tree), NULL);
 
 	return g_object_new (TRACKER_TYPE_FILE_NOTIFIER,
 	                     "indexing-tree", indexing_tree,
 	                     "data-provider", data_provider,
+	                     "connection", connection,
 	                     NULL);
 }
 

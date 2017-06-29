@@ -43,6 +43,7 @@ typedef struct {
 	GFile *test_file;
 	gchar *test_path;
 
+	TrackerSparqlConnection *connection;
 	TrackerIndexingTree *indexing_tree;
 	GMainLoop *main_loop;
 
@@ -261,11 +262,19 @@ static void
 test_common_context_setup (TestCommonContext *fixture,
                            gconstpointer      data)
 {
+	GFile *data_loc, *ontology;
+	GError *error = NULL;
+
 	fixture->test_path = g_build_filename (g_get_tmp_dir (),
 	                                       "tracker-test-XXXXXX",
 	                                       NULL);
 	fixture->test_path = g_mkdtemp (fixture->test_path);
 	fixture->test_file = g_file_new_for_path (fixture->test_path);
+
+	data_loc = g_file_get_child (fixture->test_file, ".data");
+	ontology = g_file_new_for_path (TEST_ONTOLOGIES_DIR);
+	fixture->connection = tracker_sparql_connection_local_new (0, data_loc, data_loc, ontology, NULL, &error);
+	g_assert_no_error (error);
 
 	fixture->ops = NULL;
 
@@ -278,7 +287,8 @@ test_common_context_setup (TestCommonContext *fixture,
 	tracker_indexing_tree_set_filter_hidden (fixture->indexing_tree, TRUE);
 
 	fixture->main_loop = g_main_loop_new (NULL, FALSE);
-	fixture->notifier = tracker_file_notifier_new (fixture->indexing_tree, FALSE);
+	fixture->notifier = tracker_file_notifier_new (fixture->indexing_tree, FALSE,
+						       fixture->connection);
 
 	g_signal_connect (fixture->notifier, "file-created",
 	                  G_CALLBACK (file_notifier_file_created_cb), fixture);
@@ -317,6 +327,7 @@ test_common_context_teardown (TestCommonContext *fixture,
 		g_free (fixture->test_path);
 	}
 
+	g_clear_object (&fixture->connection);
 }
 
 static gboolean
