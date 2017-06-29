@@ -705,14 +705,14 @@ tracker_data_backup_restore (TrackerDataManager   *manager,
 
 #ifdef DISABLE_JOURNAL
 		if (internal_error) {
-			restore_from_temp ();
+			restore_from_temp (cache_location, data_location);
 			g_object_unref (manager);
 
 			manager = tracker_data_manager_new (flags, cache_location, data_location, ontology_location,
 			                                    TRUE, TRUE, select_cache_size, update_cache_size);
 			g_initable_init (G_INITABLE (manager), NULL, &internal_error);
 		} else {
-			remove_temp ();
+			remove_temp (cache_location, data_location);
 		}
 #endif /* DISABLE_JOURNAL */
 
