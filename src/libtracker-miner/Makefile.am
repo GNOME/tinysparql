@@ -158,7 +158,7 @@ INTROSPECTION_SCANNER_ARGS = \
 	--symbol-prefix=tracker \
 	--warn-all
 
-INTROSPECTION_COMPILER_ARGS = --includedir=$(top_srcdir)/src/libtracker-sparql-backend
+INTROSPECTION_COMPILER_ARGS = --includedir=$(top_builddir)/src/libtracker-sparql-backend
 
 if HAVE_INTROSPECTION
 INTROSPECTION_CFLAGS += $(AM_CPPFLAGS)

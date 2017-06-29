@@ -12,6 +12,8 @@ AM_CPPFLAGS =                                          \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
 	-I$(top_srcdir)/tests/common                   \
+	-DTEST_DOMAIN_ONTOLOGY_RULE=\""$(abs_top_srcdir)/src/tracker-store/default.rule"\" \
+	-DTEST_ONTOLOGIES_DIR=\""$(abs_top_srcdir)/src/ontologies/nepomuk"\" \
 	$(LIBTRACKER_SPARQL_CFLAGS)
 
 LDADD =                                                \

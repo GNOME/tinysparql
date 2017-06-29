@@ -315,6 +315,12 @@ tracker_domain_ontology_initable_init (GInitable     *initable,
 	} else {
 		path = g_build_filename (SHAREDIR, "tracker", "domain-ontologies",
 		                         DEFAULT_RULE, NULL);
+
+		if (!g_file_test (path, G_FILE_TEST_IS_REGULAR)) {
+			/* This is only for uninstalled tests */
+			g_free (path);
+			path = g_strdup (g_getenv ("TRACKER_TEST_DOMAIN_ONTOLOGY_RULE"));
+		}
 	}
 
 	key_file = g_key_file_new ();
@@ -368,6 +374,12 @@ tracker_domain_ontology_initable_init (GInitable     *initable,
 
 		ontology_path = g_build_filename (SHAREDIR, "tracker", "ontologies",
 		                                  priv->ontology_name, NULL);
+
+		if (!g_file_test (ontology_path, G_FILE_TEST_IS_DIR)) {
+			g_free (ontology_path);
+			ontology_path = g_strdup (g_getenv ("TRACKER_DB_ONTOLOGIES_DIR"));
+		}
+
 		priv->ontology_location = g_file_new_for_path (ontology_path);
 		g_free (ontology_path);
 	}

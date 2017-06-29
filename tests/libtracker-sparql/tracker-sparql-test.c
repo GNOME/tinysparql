@@ -341,7 +341,8 @@ test_tracker_sparql_nb237150 (void)
 	 */
 	g_test_trap_subprocess ("/libtracker-sparql/tracker-sparql/nb237150/subprocess",
 	                        G_USEC_PER_SEC * 2,
-	                        G_TEST_SUBPROCESS_INHERIT_STDOUT);
+	                        G_TEST_SUBPROCESS_INHERIT_STDOUT |
+	                        G_TEST_SUBPROCESS_INHERIT_STDERR);
 
 	g_test_trap_assert_passed ();
 
@@ -395,6 +396,9 @@ main (gint argc, gchar **argv)
 	int result;
 
 	setlocale (LC_ALL, "");
+
+	g_setenv ("TRACKER_TEST_DOMAIN_ONTOLOGY_RULE", TEST_DOMAIN_ONTOLOGY_RULE, TRUE);
+	g_setenv ("TRACKER_DB_ONTOLOGIES_DIR", TEST_ONTOLOGIES_DIR, TRUE);
 
 	g_test_init (&argc, &argv, NULL);
 
