@@ -1478,7 +1478,13 @@ open_database (TrackerDBInterface  *db_interface,
 
 	sqlite3_extended_result_codes (db_interface->db, 0);
 	sqlite3_busy_timeout (db_interface->db, 100000);
+
+#ifndef SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION
+#warning Using sqlite3_enable_load_extension instead of SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, this is unsafe
+	sqlite3_enable_load_extension (db_interface->db, 1);
+#else
 	sqlite3_db_config (db_interface->db, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 1, NULL);
+#endif
 }
 
 static gboolean
