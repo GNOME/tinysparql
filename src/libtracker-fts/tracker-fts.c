@@ -62,12 +62,14 @@ tracker_fts_init_db (sqlite3            *db,
 {
 	gchar **property_names;
 	gboolean retval;
+#ifndef HAVE_BUILTIN_FTS
 	gchar *err;
 
 	if (sqlite3_load_extension (db, NULL, "sqlite3_fts5_init", &err) != SQLITE_OK) {
 		g_warning ("Could not load fts5 module: %s", err);
 		return FALSE;
 	}
+#endif
 
 	property_names = get_fts_properties (tables);
 	retval = tracker_tokenizer_initialize (db, interface, (const gchar **) property_names);
