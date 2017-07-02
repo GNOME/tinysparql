@@ -42,6 +42,13 @@ G_BEGIN_DECLS
 #define TRACKER_IS_MINER_FS_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_MINER_FS))
 #define TRACKER_MINER_FS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFSClass))
 
+typedef enum {
+	TRACKER_MINER_FS_EVENT_CREATED,
+	TRACKER_MINER_FS_EVENT_UPDATED,
+	TRACKER_MINER_FS_EVENT_DELETED,
+	TRACKER_MINER_FS_EVENT_MOVED,
+} TrackerMinerFSEventType;
+
 typedef struct _TrackerMinerFS        TrackerMinerFS;
 typedef struct _TrackerMinerFSPrivate TrackerMinerFSPrivate;
 
@@ -105,8 +112,13 @@ typedef struct {
 	                                       GFile                *dest,
 	                                       gboolean              recursive);
 
+	gboolean (* filter_event)             (TrackerMinerFS          *fs,
+	                                       TrackerMinerFSEventType  type,
+	                                       GFile                   *file,
+	                                       GFile                   *source_file);
+
 	/* <Private> */
-	gpointer padding[8];
+	gpointer padding[20];
 } TrackerMinerFSClass;
 
 /**

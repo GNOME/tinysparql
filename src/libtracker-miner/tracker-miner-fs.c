@@ -2472,12 +2472,29 @@ check_item_queues (TrackerMinerFS *fs,
 	return TRUE;
 }
 
+static gboolean
+filter_event (TrackerMinerFS          *fs,
+              TrackerMinerFSEventType  type,
+              GFile                   *file,
+              GFile                   *source_file)
+{
+	TrackerMinerFSClass *klass = TRACKER_MINER_FS_GET_CLASS (fs);
+
+	if (!klass->filter_event)
+		return FALSE;
+
+	return klass->filter_event (fs, type, file, source_file);
+}
+
 static void
 file_notifier_file_created (TrackerFileNotifier  *notifier,
                             GFile                *file,
                             gpointer              user_data)
 {
 	TrackerMinerFS *fs = user_data;
+
+	if (filter_event (fs, TRACKER_MINER_FS_EVENT_CREATED, file, NULL))
+		return;
 
 	if (check_item_queues (fs, QUEUE_CREATED, file, NULL)) {
 		miner_fs_queue_file (fs, fs->priv->items_created, file, FALSE);
@@ -2491,6 +2508,9 @@ file_notifier_file_deleted (TrackerFileNotifier  *notifier,
                             gpointer              user_data)
 {
 	TrackerMinerFS *fs = user_data;
+
+	if (filter_event (fs, TRACKER_MINER_FS_EVENT_DELETED, file, NULL))
+		return;
 
 	if (tracker_file_notifier_get_file_type (notifier, file) == G_FILE_TYPE_DIRECTORY) {
 		/* Cancel all pending tasks on files inside the path given by file */
@@ -2515,6 +2535,10 @@ file_notifier_file_updated (TrackerFileNotifier  *notifier,
                             gpointer              user_data)
 {
 	TrackerMinerFS *fs = user_data;
+
+	if (!attributes_only &&
+	    filter_event (fs, TRACKER_MINER_FS_EVENT_UPDATED, file, NULL))
+		return;
 
 	/* Writeback tasks would receive an updated after move,
 	 * consequence of the data being written back in the
@@ -2546,6 +2570,9 @@ file_notifier_file_moved (TrackerFileNotifier *notifier,
                           gpointer             user_data)
 {
 	TrackerMinerFS *fs = user_data;
+
+	if (filter_event (fs, TRACKER_MINER_FS_EVENT_MOVED, dest, source))
+		return;
 
 	if (check_item_queues (fs, QUEUE_MOVED, source, dest)) {
 		gint priority;
