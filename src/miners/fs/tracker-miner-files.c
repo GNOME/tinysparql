@@ -108,6 +108,9 @@ struct TrackerMinerFilesPrivate {
 	GList *extraction_queue;
 
 	TrackerThumbnailer *thumbnailer;
+
+	GHashTable *writeback_tasks;
+	gboolean paused_for_writeback;
 };
 
 typedef struct {
@@ -124,6 +127,13 @@ enum {
 	PROP_0,
 	PROP_CONFIG
 };
+
+enum {
+	WRITEBACK,
+	N_SIGNALS
+};
+
+static guint signals[N_SIGNALS] = { 0 };
 
 static void        miner_files_set_property             (GObject              *object,
                                                          guint                 param_id,
@@ -229,6 +239,89 @@ G_DEFINE_TYPE_WITH_CODE (TrackerMinerFiles, tracker_miner_files, TRACKER_TYPE_MI
                                                 miner_files_initable_iface_init));
 
 static void
+sync_writeback_pause_state (TrackerMinerFiles *mf)
+{
+	guint n_writeback_tasks = g_hash_table_size (mf->private->writeback_tasks);
+
+	if (n_writeback_tasks > 0 && !mf->private->paused_for_writeback) {
+		tracker_miner_pause (TRACKER_MINER (mf));
+		mf->private->paused_for_writeback = TRUE;
+	} else if (n_writeback_tasks == 0 && mf->private->paused_for_writeback) {
+		mf->private->paused_for_writeback = FALSE;
+		tracker_miner_resume (TRACKER_MINER (mf));
+	}
+}
+
+static void
+writeback_remove_recursively (TrackerMinerFiles *mf,
+			      GFile             *file)
+{
+	GHashTableIter iter;
+	GFile *writeback_file;
+
+	if (g_hash_table_size (mf->private->writeback_tasks) == 0)
+		return;
+
+	/* Remove and cancel writeback tasks in this directory */
+	g_hash_table_iter_init (&iter, mf->private->writeback_tasks);
+	while (g_hash_table_iter_next (&iter, (gpointer*) &writeback_file, NULL)) {
+		if (g_file_equal (writeback_file, file) ||
+		    g_file_has_prefix (writeback_file, file)) {
+			g_hash_table_iter_remove (&iter);
+		}
+	}
+
+	sync_writeback_pause_state (mf);
+}
+
+static gboolean
+miner_files_filter_event (TrackerMinerFS          *fs,
+                          TrackerMinerFSEventType  type,
+                          GFile                   *file,
+                          GFile                   *source_file)
+{
+	TrackerMinerFiles *mf = TRACKER_MINER_FILES (fs);
+	GCancellable *cancellable;
+
+	switch (type) {
+	case TRACKER_MINER_FS_EVENT_CREATED:
+		break;
+	case TRACKER_MINER_FS_EVENT_UPDATED:
+		/* If the file is in the writeback task pool, this is the
+		 * file update applying it, so the event should be filtered
+		 * out.
+		 */
+		if (g_hash_table_lookup_extended (mf->private->writeback_tasks, file,
+		                                  NULL, (gpointer*) &cancellable)) {
+			if (!cancellable) {
+				/* The task was already notified, we can remove
+				 * it now, so later updates will be processed.
+				 */
+				g_hash_table_remove (mf->private->writeback_tasks, file);
+				sync_writeback_pause_state (mf);
+			}
+
+			/* There is a writeback task, pending or satisfied.
+			 * Either way, this update should be ignored.
+			 */
+			return TRUE;
+		}
+		break;
+	case TRACKER_MINER_FS_EVENT_DELETED:
+		writeback_remove_recursively (mf, file);
+		break;
+	case TRACKER_MINER_FS_EVENT_MOVED:
+		/* If the origin file is also being written back,
+		 * cancel it as this is an external operation.
+		 */
+		writeback_remove_recursively (mf, source_file);
+		break;
+	}
+
+	return FALSE;
+}
+
+static void
 tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -244,6 +337,34 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	miner_fs_class->remove_file = miner_files_remove_file;
 	miner_fs_class->remove_children = miner_files_remove_children;
 	miner_fs_class->move_file = miner_files_move_file;
+	miner_fs_class->filter_event = miner_files_filter_event;
+
+	/**
+	 * TrackerMinerFiles::writeback-file:
+	 * @miner: the #TrackerMinerFiles
+	 * @file: a #GFile
+	 * @rdf_types: the set of RDF types
+	 * @results: (element-type GStrv): a set of results prepared by the preparation query
+	 * @cancellable: a #GCancellable
+	 *
+	 * The ::writeback-file signal is emitted whenever a file must be written
+	 * back
+	 *
+	 * Returns: %TRUE on success, %FALSE otherwise
+	 **/
+	signals[WRITEBACK] =
+		g_signal_new ("writeback",
+		              G_OBJECT_CLASS_TYPE (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              0, NULL,
+		              NULL,
+		              NULL,
+		              G_TYPE_BOOLEAN,
+		              4,
+		              G_TYPE_FILE,
+		              G_TYPE_STRV,
+		              G_TYPE_PTR_ARRAY,
+		              G_TYPE_CANCELLABLE);
 
 	g_object_class_install_property (object_class,
 	                                 PROP_CONFIG,
@@ -256,6 +377,17 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 	g_type_class_add_private (klass, sizeof (TrackerMinerFilesPrivate));
 
 	miner_files_error_quark = g_quark_from_static_string ("TrackerMinerFiles");
+}
+
+static void
+cancel_and_unref (gpointer data)
+{
+	GCancellable *cancellable = data;
+
+	if (cancellable) {
+		g_cancellable_cancel (cancellable);
+		g_object_unref (cancellable);
+	}
 }
 
 static void
@@ -297,6 +429,10 @@ tracker_miner_files_init (TrackerMinerFiles *mf)
 
 	priv->mtime_check = TRUE;
 	priv->quark_mount_point_uuid = g_quark_from_static_string ("tracker-mount-point-uuid");
+
+	priv->writeback_tasks = g_hash_table_new_full (g_file_hash,
+	                                               (GEqualFunc) g_file_equal,
+	                                               NULL, cancel_and_unref);
 }
 
 static void
@@ -330,6 +466,8 @@ miner_files_initable_init (GInitable     *initable,
 	fs = TRACKER_MINER_FS (initable);
 	indexing_tree = tracker_miner_fs_get_indexing_tree (fs);
 	tracker_indexing_tree_set_filter_hidden (indexing_tree, TRUE);
+	g_signal_connect_swapped (indexing_tree, "directory-removed",
+				  G_CALLBACK (writeback_remove_recursively), mf);
 
 	miner_files_update_filters (mf);
 
@@ -682,6 +820,7 @@ miner_files_finalize (GObject *object)
 	}
 
 	g_list_free (priv->extraction_queue);
+	g_hash_table_destroy (priv->writeback_tasks);
 
 	G_OBJECT_CLASS (tracker_miner_files_parent_class)->finalize (object);
 }
@@ -3358,4 +3497,61 @@ tracker_miner_files_set_mtime_checking (TrackerMinerFiles *mf,
                                         gboolean           mtime_check)
 {
 	mf->private->mtime_check = mtime_check;
+}
+
+void
+tracker_miner_files_writeback_file (TrackerMinerFiles *mf,
+                                    GFile             *file,
+                                    GStrv              rdf_types,
+                                    GPtrArray         *results)
+{
+	GCancellable *cancellable;
+
+	if (!g_hash_table_contains (mf->private->writeback_tasks, file)) {
+		cancellable = g_cancellable_new ();
+		g_hash_table_insert (mf->private->writeback_tasks, file, cancellable);
+		sync_writeback_pause_state (mf);
+		g_signal_emit (mf, signals[WRITEBACK], 0, file, rdf_types,
+		               results, cancellable);
+	}
+}
+
+/**
+ * tracker_miner_files_writeback_notify:
+ * @fs: a #TrackerMinerFS
+ * @file: a #GFile
+ * @error: a #GError with the error that happened during processing, or %NULL.
+ *
+ * Notifies @fs that all writing back on @file has been finished, if any error
+ * happened during file data processing, it should be passed in @error, else
+ * that parameter will contain %NULL to reflect success.
+ **/
+void
+tracker_miner_files_writeback_notify (TrackerMinerFiles *mf,
+                                      GFile             *file,
+                                      const GError      *error)
+{
+	GCancellable *cancellable;
+
+	g_return_if_fail (TRACKER_IS_MINER_FILES (mf));
+	g_return_if_fail (G_IS_FILE (file));
+
+	cancellable = g_hash_table_lookup (mf->private->writeback_tasks, file);
+
+	if (!cancellable)
+		return;
+
+	if (error) {
+		gchar *uri = g_file_get_uri (file);
+		g_warning ("Writeback on %s got error: %s\n",
+		           uri, error->message);
+		g_free (uri);
+	}
+
+	/* Drop the cancellable, it will be detected on the next file
+	 * update in miner_files_filter_event().
+	 */
+	g_hash_table_steal (mf->private->writeback_tasks, file);
+	g_hash_table_insert (mf->private->writeback_tasks, file, NULL);
+	g_object_unref (cancellable);
 }

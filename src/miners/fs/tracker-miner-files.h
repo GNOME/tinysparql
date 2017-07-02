@@ -82,6 +82,14 @@ void     tracker_miner_files_set_need_mtime_check (gboolean needed);
 void     tracker_miner_files_set_mtime_checking   (TrackerMinerFiles *miner,
                                                    gboolean           mtime_checking);
 
+void     tracker_miner_files_writeback_file       (TrackerMinerFiles *mf,
+                                                   GFile             *file,
+                                                   GStrv              rdf_types,
+                                                   GPtrArray         *results);
+void     tracker_miner_files_writeback_notify     (TrackerMinerFiles *mf,
+                                                   GFile             *file,
+                                                   const GError      *error);
+
 G_END_DECLS
 
 #endif /* __TRACKER_MINER_FS_FILES_H__ */

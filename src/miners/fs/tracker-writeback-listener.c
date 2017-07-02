@@ -21,9 +21,9 @@
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-sparql/tracker-sparql.h>
-#include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-writeback-listener.h"
+#include "tracker-miner-files.h"
 
 #define TRACKER_SERVICE                 "org.freedesktop.Tracker1"
 #define TRACKER_RESOURCES_OBJECT        "/org/freedesktop/Tracker1/Resources"
@@ -332,10 +332,10 @@ sparql_query_cb (GObject      *object,
 		}
 
 		if (results != NULL && results->len > 0) {
-			tracker_miner_fs_writeback_file (TRACKER_MINER_FS (priv->files_miner),
-			                                 file,
-			                                 data->rdf_types,
-			                                 results);
+			tracker_miner_files_writeback_file (priv->files_miner,
+			                                    file,
+			                                    data->rdf_types,
+			                                    results);
 		} else {
 			g_message ("  No files qualify for updates");
 		}

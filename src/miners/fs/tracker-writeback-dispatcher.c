@@ -21,9 +21,9 @@
 
 #include <libtracker-common/tracker-dbus.h>
 #include <libtracker-sparql/tracker-sparql.h>
-#include <libtracker-miner/tracker-miner.h>
 
 #include "tracker-writeback-dispatcher.h"
+#include "tracker-miner-files.h"
 
 #define TRACKER_WRITEBACK_SERVICE   "org.freedesktop.Tracker1.Writeback"
 #define TRACKER_WRITEBACK_PATH      "/org/freedesktop/Tracker1/Writeback"
@@ -31,7 +31,7 @@
 
 typedef struct {
 	GFile *file;
-	TrackerMinerFS *fs;
+	TrackerMinerFiles *fs;
 	GPtrArray *results;
 	GStrv rdf_types;
 	TrackerWritebackDispatcher *self; /* weak */
@@ -196,7 +196,7 @@ writeback_dispatcher_initable_init (GInitable    *initable,
 	}
 
 	g_signal_connect_object (priv->files_miner,
-	                         "writeback-file",
+	                         "writeback",
 	                         G_CALLBACK (writeback_dispatcher_writeback_file),
 	                         initable,
 	                         G_CONNECT_AFTER);
@@ -262,10 +262,10 @@ retry_idle (gpointer user_data)
 {
 	WritebackFileData *data = user_data;
 
-	tracker_miner_fs_writeback_file (data->fs,
-	                                 data->file,
-	                                 data->rdf_types,
-	                                 data->results);
+	tracker_miner_files_writeback_file (data->fs,
+	                                    data->file,
+	                                    data->rdf_types,
+	                                    data->results);
 
 	writeback_file_data_free (data);
 
@@ -288,13 +288,13 @@ writeback_file_finished  (GObject      *source_object,
 		 * happens on unmount of the FS event, for example */
 
 		g_debug ("Retrying write-back after unmount (timeout in 5 seconds)");
-		tracker_miner_fs_writeback_notify (data->fs, data->file, NULL);
+		tracker_miner_files_writeback_notify (data->fs, data->file, NULL);
 
 		data->retry_timeout = g_timeout_add_seconds (5, retry_idle, data);
 		data->retries++;
 
 	} else {
-		tracker_miner_fs_writeback_notify (data->fs, data->file, error);
+		tracker_miner_files_writeback_notify (data->fs, data->file, error);
 		writeback_file_data_free (data);
 	}
 }
