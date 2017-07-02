@@ -28,10 +28,6 @@ if HAVE_TRACKER_WRITEBACK
 SUBDIRS += tracker-writeback
 endif
 
-if HAVE_TRACKER_NEEDLE
-SUBDIRS += tracker-needle
-endif
-
 EXTRA_DIST = \
 	meson.build \
 	create-miner-symlinks.sh \

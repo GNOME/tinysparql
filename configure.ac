@@ -405,16 +405,6 @@ PKG_CHECK_MODULES(TRACKER_MINER_RSS, [$TRACKER_MINER_RSS_REQUIRED],
                   [have_tracker_miner_rss=yes],
                   [have_tracker_miner_rss=no])
 
-# Check requirements for tracker-needle
-TRACKER_NEEDLE_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
-                         gio-unix-2.0 >= $GLIB_REQUIRED
-                         gmodule-2.0  >= $GLIB_REQUIRED
-                         gtk+-3.0     >= $GTK_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_NEEDLE, [$TRACKER_NEEDLE_REQUIRED],
-                  [have_tracker_needle=yes],
-                  [have_tracker_needle=no])
-
 # Check we have Vala valac command we need
 VALA_MIN_VERSION=0.18.0
 AM_PROG_VALAC([$VALA_MIN_VERSION])
@@ -507,7 +497,6 @@ if test "x$enable_minimal" = "xyes"; then
    enable_miner_fs=no
    enable_miner_apps=no
    enable_miner_rss=no
-   enable_tracker_needle=no
 fi
 
 ####################################################################
@@ -1230,34 +1219,6 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_TAGLIB, test "x$have_taglib" = "xyes")
-
-##################################################################
-# Check for tracker-needle
-##################################################################
-
-AC_ARG_ENABLE([tracker-needle],
-              AS_HELP_STRING([--enable-tracker-needle],
-                             [enable GTK+ UI to search for content [[default=auto]]]),
-              [enable_tracker_needle=$enableval],
-              [enable_tracker_needle=auto])
-
-if test "x$enable_tracker_needle" = "xyes" ; then
-   if test "x$have_tracker_needle" != "xyes"; then
-      AC_MSG_ERROR([Could not find tracker-needle dependencies ($TRACKER_NEEDLE_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_needle" = "xno"; then
-      have_tracker_needle="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_needle" = "xyes"; then
-   AC_DEFINE(HAVE_TRACKER_NEEDLE, [1], [Define to 1 if tracker-needle is compiled])
-else
-   AC_DEFINE(HAVE_TRACKER_NEEDLE, [0], [Define to 0 if tracker-needle is not compiled])
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_NEEDLE, test "$have_tracker_needle" = "yes")
 
 ##################################################################
 # Check for tracker-resdump
@@ -2224,14 +2185,6 @@ AC_CONFIG_FILES([
 	src/tracker-store/Makefile
 	src/tracker/Makefile
 	src/tracker-extract/Makefile
-	src/tracker-needle/Makefile
-	src/tracker-needle/icons/Makefile
-	src/tracker-needle/icons/16x16/Makefile
-	src/tracker-needle/icons/22x22/Makefile
-	src/tracker-needle/icons/24x24/Makefile
-	src/tracker-needle/icons/32x32/Makefile
-	src/tracker-needle/icons/48x48/Makefile
-	src/tracker-needle/icons/scalable/Makefile
 	src/tracker-writeback/Makefile
 	src/plugins/Makefile
 	tests/common/Makefile
@@ -2392,10 +2345,6 @@ Writeback Formats:
 fi
 
 echo "
-Applications:
-
-	Build tracker-needle:                   $have_tracker_needle
-
 Frameworks / Options:
 
 	Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)

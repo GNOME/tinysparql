@@ -41,7 +41,4 @@ subdir('tracker')
 # Public shared database
 subdir('tracker-store')
 
-# Example search application
-subdir('tracker-needle')
-
 meson.add_install_script('create-miner-symlinks.sh', dbus_services_dir, tracker_miner_services_dir)
