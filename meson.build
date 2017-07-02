@@ -22,9 +22,6 @@ avutil = dependency('libavutil', version: '>= 0.8.4', required: false)
 cairo = dependency('cairo', version: '> 1.0')
 camel = dependency('camel-1.2', version: '> 2.32.0', required: false)
 dbus = dependency('dbus-1', version: '> 1.3.1')
-eds = dependency('evolution-data-server-1.2', version: '> 2.32.0', required: false)
-evo_plugin = dependency('evolution-plugin-3.0', required: false)
-evo_shell = dependency('evolution-shell-3.0', version: '> 3.1', required: false)
 exempi = dependency('exempi-2.0', version: '> 2.1.0', required: false)
 flac = dependency('flac', version: '> 1.2.1', required: false)
 gio = dependency('gio-2.0', version: '>' + glib_required)
@@ -56,7 +53,6 @@ libsoup = dependency('libsoup-2.4', version: '> 2.40', required: true)
 libtiff = dependency('libtiff-4', required: false)
 libxml2 = dependency('libxml-2.0', version: '> 2.6')
 libvorbis = dependency('vorbisfile', version: '> 0.22')
-nautilus_extension = dependency('libnautilus-extension', required: false)
 network_manager = dependency('libnm-glib', version: '> 0.8', required: false)
 poppler = dependency('poppler-glib', version: '> 0.16.0', required: false)
 sqlite = dependency('sqlite3', version: '>' + sqlite_required)
@@ -190,63 +186,6 @@ if unicode_library_name == ''
   else
     error('Neither libicu or libunistring were found for Unicode support.')
   endif
-endif
-
-####################################################################
-# Check for tracker-miner-evolution
-####################################################################
-
-if camel.found() and eds.found() and evo_plugin.found() and evo_shell.found() and libemail_utils.found() and libemail_engine.found()
-  have_tracker_miner_evolution = true
-  tracker_miner_evolution_install_dir = evo_plugin.get_variable('plugindir')
-else
-  have_tracker_miner_evolution = false
-  tracker_miner_evolution_install_dir = ''
-endif
-
-####################################################################
-# Check for tracker-miner-thunderbird
-####################################################################
-
-thunderbird = find_program('thunderbird', required: false)
-if thunderbird.found()
-  thunderbird_version = run_command(thunderbird, '--version').stdout().strip().split()[1]
-
-  message('Found Mozilla Thunderbird email client version ' + thunderbird_version)
-
-  have_tracker_miner_thunderbird = true
-  tracker_miner_thunderbird_install_dir = join_paths(get_option('prefix'), 'lib', 'thunderbird-' + thunderbird_version, 'extensions')
-else
-  have_tracker_miner_thunderbird = false
-  tracker_miner_thunderbird_install_dir = ''
-endif
-
-####################################################################
-# Check for tracker-miner-firefox
-####################################################################
-
-firefox = find_program('firefox', required: false)
-if firefox.found()
-  firefox_version = run_command(firefox, '--version').stdout().strip().split()[2]
-
-  message('Found Mozilla Firefox web browser version ' + firefox_version)
-
-  have_tracker_miner_firefox = true
-  tracker_miner_firefox_install_dir = join_paths(get_option('prefix'), 'lib', 'firefox-' + firefox_version, 'extensions')
-else
-  have_tracker_miner_firefox = false
-  tracker_miner_firefox_install_dir = ''
-endif
-
-####################################################################
-# Check for nautilus extension
-####################################################################
-
-if nautilus_extension.found()
-  nautilus_extension = dependency('libnautilus-extension', required: true)
-  tracker_nautilus_extension_install_dir = nautilus_extension.get_pkgconfig_variable('extensiondir')
-else
-  tracker_nautilus_extension_install_dir = ''
 endif
 
 ####################################################################
@@ -474,7 +413,6 @@ tracker_c_args = [
 have_tracker_miner_fs = true
 have_tracker_miner_apps = true
 have_tracker_miner_rss = true
-have_tracker_miner_firefox = true
 have_tracker_extract = true
 have_tracker_writeback = true
 have_tracker_needle = true
@@ -549,15 +487,6 @@ summary = [
   '    FS (File System):                       ' + have_tracker_miner_fs.to_string(),
   '    Applications:                           ' + have_tracker_miner_apps.to_string(),
   '    RSS:                                    ' + have_tracker_miner_rss.to_string(),
-  '    Email:',
-  '        Evolution:                        @0@ (@1@)'.format(
-      have_tracker_miner_evolution, tracker_miner_evolution_install_dir),
-  '        Thunderbird:                      @0@ (@1@)'.format(
-      have_tracker_miner_thunderbird, tracker_miner_thunderbird_install_dir),
-  '   Bookmarks:',
-  '        FireFox:                          @0@ (@1@)'.format(
-      have_tracker_miner_firefox, tracker_miner_firefox_install_dir),
-  '',
   '   Extract (secondary extraction):     ' + have_tracker_extract.to_string(),
   '   Writeback (writing changes back):   ' + have_tracker_writeback.to_string(),
 ]
@@ -608,8 +537,6 @@ summary += [
     '    Build tracker-preferences:              ' + have_tracker_preferences.to_string(),
     '    Build tracker-needle:                   ' + have_tracker_needle.to_string(),
     '\nFrameworks / Options:',
-    '    Support Nautilus file manager           @0@ (@1@)'.format(
-        nautilus_extension.found().to_string(), tracker_nautilus_extension_install_dir),
     '    Support Guaranteed Metadata             ' + get_option('guarantee_metadata').to_string(),
 ]
 

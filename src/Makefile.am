@@ -18,7 +18,6 @@ SUBDIRS =                                              \
 	libtracker-control                             \
 	tracker                                        \
 	miners                                         \
-	plugins                                        \
 	tracker-store
 
 if HAVE_TRACKER_EXTRACT

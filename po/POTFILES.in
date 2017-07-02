@@ -25,11 +25,6 @@ src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in
 src/miners/rss/tracker-main.c
 src/miners/rss/tracker-miner-rss.c
 src/miners/rss/tracker-miner-rss.desktop.in.in
-src/plugins/evolution/org.freedesktop.Tracker1.Miner.EMails.service.in.in
-src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml
-src/plugins/evolution/tracker-evolution-plugin.c
-src/plugins/nautilus/tracker-tags-extension.c
-src/plugins/nautilus/tracker-tags-view.c
 src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in
 src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in
 src/tracker-extract/tracker-extract.c

@@ -397,107 +397,6 @@ TRACKER_MINER_APPS_REQUIRED="glib-2.0     >= $GLIB_REQUIRED
 
 PKG_CHECK_MODULES(TRACKER_MINER_APPS, [$TRACKER_MINER_APPS_REQUIRED])
 
-# Check requirements for tracker-miner-evolution
-evolution_plugin_name=""
-
-# First test for 3_3_5
-TRACKER_MINER_EVOLUTION_3_3_5_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                        evolution-shell-3.0       >= 3.1
-                                        evolution-plugin-3.0
-                                        libemail-utils
-                                        libemail-engine
-                                        evolution-data-server-1.2 >= $EDS_REQUIRED
-                                        camel-1.2                 >= $CAMEL_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_3_3_5_REQUIRED],
-                  [have_tracker_miner_evolution=yes],
-                  [have_tracker_miner_evolution=no])
-
-if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
-   evolution_plugin_name="evolution-plugin-3.0"
-
-   AC_DEFINE(EVOLUTION_SHELL_3_3_5, 1, [Use new evolution-shell API])
-   AC_DEFINE(EVOLUTION_SHELL_3_2, 1, [Use new evolution-shell API])
-   AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
-fi
-
-# Second test for 3_2
-TRACKER_MINER_EVOLUTION_3_2_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                      evolution-shell-3.0       >= 3.1
-                                      evolution-plugin-3.0
-                                      evolution-data-server-1.2 >= $EDS_REQUIRED
-                                      camel-1.2                 >= $CAMEL_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_3_2_REQUIRED],
-                  [have_tracker_miner_evolution=yes],
-                  [have_tracker_miner_evolution=no])
-
-if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
-   evolution_plugin_name="evolution-plugin-3.0"
-
-   AC_DEFINE(EVOLUTION_SHELL_3_2, 1, [Use new evolution-shell API])
-   AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
-fi
-
-# Third test for 2_91
-TRACKER_MINER_EVOLUTION_2_91_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                       evolution-shell-3.0
-                                       evolution-plugin-3.0
-                                       evolution-data-server-1.2 >= $EDS_REQUIRED
-                                       camel-1.2                 >= $CAMEL_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_2_91_REQUIRED],
-                  [have_tracker_miner_evolution=yes],
-                  [have_tracker_miner_evolution=no])
-
-if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
-   evolution_plugin_name="evolution-plugin-3.0"
-   AC_DEFINE(EVOLUTION_SHELL_2_91, 1, [Use new evolution-shell API])
-fi
-
-# Fourth test others (do we really want support for anything < 3.2)?
-TRACKER_MINER_EVOLUTION_LAST_REQUIRED="glib-2.0                  >= $GLIB_REQUIRED
-                                       evolution-shell           >= $EVO_SHELL_REQUIRED
-                                       evolution-plugin          >= $EVO_REQUIRED
-                                       evolution-data-server-1.2 >= $EDS_REQUIRED
-                                       camel-1.2                 >= $CAMEL_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_MINER_EVOLUTION, [$TRACKER_MINER_EVOLUTION_LAST_REQUIRED],
-                  [have_tracker_miner_evolution=yes],
-                  [have_tracker_miner_evolution=no])
-
-if test -z "$evolution_plugin_name" && test "x$have_tracker_miner_evolution" = "xyes"; then
-   evolution_plugin_name="evolution-plugin"
-fi
-
-# Check requirements for tracker-miner-thunderbird
-TRACKER_MINER_THUNDERBIRD_REQUIRED=5.0
-have_tracker_miner_thunderbird="no "
-
-AC_PATH_PROG(THUNDERBIRD, thunderbird, thunderbird)
-if test -n $THUNDERBIRD; then
-   thunderbird_version=`$THUNDERBIRD --version 2>/dev/null | awk '{print $NF}'`
-
-   AX_COMPARE_VERSION([$thunderbird_version], ge, [$TRACKER_MINER_THUNDERBIRD_REQUIRED],
-                      have_tracker_miner_thunderbird="yes",
-                      have_tracker_miner_thunderbird="no ")
-   AC_SUBST(THUNDERBIRD)
-fi
-
-# Check requirements for tracker-miner-firefox
-TRACKER_MINER_FIREFOX_REQUIRED=4.0
-have_tracker_miner_firefox="no "
-
-AC_PATH_PROG(FIREFOX, firefox, firefox)
-if test -n $FIREFOX; then
-   firefox_version=`$FIREFOX --version 2>/dev/null | awk '{print $NF}'`
-
-   AX_COMPARE_VERSION([$firefox_version], ge, [$TRACKER_MINER_FIREFOX_REQUIRED],
-                      have_tracker_miner_firefox="yes",
-                      have_tracker_miner_firefox="no ")
-   AC_SUBST(FIREFOX)
-fi
-
 # Check requirements for tracker-miner-rss
 TRACKER_MINER_RSS_REQUIRED="glib-2.0 >= $GLIB_REQUIRED
                             libgrss  >= $LIBGRSS_REQUIRED"
@@ -525,13 +424,6 @@ TRACKER_PREFERENCES_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
 PKG_CHECK_MODULES(TRACKER_PREFERENCES, [$TRACKER_PREFERENCES_REQUIRED],
                   [have_tracker_preferences=yes],
                   [have_tracker_preferences=no])
-
-# Check requirements for Nautilus extension
-TRACKER_NAUTILUS_EXTENSION_REQUIRED="libnautilus-extension"
-
-PKG_CHECK_MODULES(TRACKER_NAUTILUS_EXTENSION, [$TRACKER_NAUTILUS_EXTENSION_REQUIRED],
-                  [have_tracker_nautilus_extension=yes],
-                  [have_tracker_nautilus_extension=no])
 
 # Check we have Vala valac command we need
 VALA_MIN_VERSION=0.18.0
@@ -625,10 +517,6 @@ if test "x$enable_minimal" = "xyes"; then
    enable_miner_fs=no
    enable_miner_apps=no
    enable_miner_rss=no
-   enable_miner_evolution=no
-   enable_miner_thunderbird=no
-   enable_miner_firefox=no
-   enable_nautilus_extension=no
    enable_tracker_needle=no
    enable_tracker_preferences=no
 fi
@@ -1329,171 +1217,6 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_MINER_RSS, test "x$have_tracker_miner_rss" = "xyes")
-
-####################################################################
-# Check for tracker-miner-evolution
-####################################################################
-
-tracker_miner_evolution_install_dir="/dev/null"
-
-AC_ARG_ENABLE([miner_evolution],
-              AS_HELP_STRING([--enable-miner-evolution],
-                             [enable Evolution email data miner [[default=auto]]]),
-              [enable_miner_evolution=$enableval],
-              [enable_miner_evolution=auto])
-
-enable_tracker_miner_evolution=$enable_miner_evolution
-
-if test "x$enable_tracker_miner_evolution" = "xyes"; then
-   if test "x$have_tracker_miner_evolution" != "xyes"; then
-      AC_MSG_ERROR([Could not find Tracker Evolution plugin ($TRACKER_MINER_EVOLUTION_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_evolution" = "xno"; then
-      have_tracker_miner_evolution="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_miner_evolution" = "xyes"; then
-   AC_ARG_WITH([evolution_plugin_dir],
-               AS_HELP_STRING([--with-evolution-plugin-dir],
-                              [path to Evolution plugin directory])),
-               [tracker_miner_evolution_install_dir=$withval],
-               [tracker_miner_evolution_install_dir=`$PKG_CONFIG $evolution_plugin_name --variable=plugindir`],
-
-   if test -z $tracker_miner_evolution_install_dir; then
-      AC_MSG_ERROR([Could not find evolution plugin dir, consider using --with-evolution-plugin-dir.])
-   fi
-fi
-
-TRACKER_MINER_EVOLUTION_INSTALL_DIR=$tracker_miner_evolution_install_dir
-AC_SUBST(TRACKER_MINER_EVOLUTION_INSTALL_DIR)
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_EVOLUTION, test "x$have_tracker_miner_evolution" = "xyes")
-
-####################################################################
-# Check for tracker-miner-thunderbird
-####################################################################
-
-tracker_miner_thunderbird_install_dir="/dev/null"
-
-AC_ARG_ENABLE([miner_thunderbird],
-              AS_HELP_STRING([--enable-miner-thunderbird],
-                             [enable Thunderbird email data miner [[default=auto]]]),
-              [enable_miner_thunderbird=$enableval],
-              [enable_miner_thunderbird=auto])
-
-enable_tracker_miner_thunderbird=$enable_miner_thunderbird
-
-if test "x$enable_tracker_miner_thunderbird" = "xyes"; then
-   if test "x$have_tracker_miner_thunderbird" != "xyes"; then
-      AC_MSG_ERROR([Could not find Thunderbird ($TRACKER_MINER_THUNDERBIRD_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_thunderbird" = "xno"; then
-      have_tracker_miner_thunderbird="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_miner_thunderbird" = "xyes"; then
-   # This is a symlinked to $prefix/share/xul-ext
-   # This was ${prefix}/lib/thunderbird-${thunderbird_version}/extensions
-   AC_ARG_WITH([thunderbird_plugin_dir],
-               AS_HELP_STRING([--with-thunderbird-plugin-dir],
-                              [path to Thunderbird plugin directory]),
-               [tracker_miner_thunderbird_install_dir=$withval],
-               [tracker_miner_thunderbird_install_dir=${prefix}/lib/thunderbird-addons/extensions])
-
-   if test -z $tracker_miner_thunderbird_install_dir; then
-      AC_MSG_ERROR([Could not find thunderbird plugin dir, consider using --with-thunderbird-plugin-dir.])
-   fi
-fi
-
-TRACKER_MINER_THUNDERBIRD_INSTALL_DIR=$tracker_miner_thunderbird_install_dir
-AC_SUBST(TRACKER_MINER_THUNDERBIRD_INSTALL_DIR)
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_THUNDERBIRD, test "x$have_tracker_miner_thunderbird" = "xyes")
-
-####################################################################
-# Check for tracker-miner-firefox
-####################################################################
-
-tracker_miner_firefox_install_dir="/dev/null"
-
-AC_ARG_ENABLE([miner_firefox],
-              AS_HELP_STRING([--enable-miner-firefox],
-                             [enable Firefox email data miner [[default=auto]]]),
-              [enable_miner_firefox=$enableval],
-              [enable_miner_firefox=auto])
-
-enable_tracker_miner_firefox=$enable_miner_firefox
-
-if test "x$enable_tracker_miner_firefox" = "xyes"; then
-   if test "x$have_tracker_miner_firefox" != "xyes"; then
-      AC_MSG_ERROR([Could not find Firefox ($TRACKER_MINER_FIREFOX_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_miner_firefox" = "xno"; then
-      have_tracker_miner_firefox="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_miner_firefox" = "xyes"; then
-   # This is a symlinked to $prefix/share/xul-ext
-   # This was ${prefix}/lib/firefox-${firefox_version}/extensions
-   AC_ARG_WITH([firefox_plugin_dir],
-               AS_HELP_STRING([--with-firefox-plugin-dir],
-                              [path to Firefox plugin directory]),
-               [tracker_miner_firefox_install_dir=$withval],
-               [tracker_miner_firefox_install_dir=${prefix}/lib/firefox-addons/extensions])
-
-   if test -z $tracker_miner_firefox_install_dir; then
-      AC_MSG_ERROR([Could not find firefox plugin dir, consider using --with-firefox-plugin-dir.])
-   fi
-fi
-
-TRACKER_MINER_FIREFOX_INSTALL_DIR=$tracker_miner_firefox_install_dir
-AC_SUBST(TRACKER_MINER_FIREFOX_INSTALL_DIR)
-
-AM_CONDITIONAL(HAVE_TRACKER_MINER_FIREFOX, test "x$have_tracker_miner_firefox" = "xyes")
-
-####################################################################
-# Check for nautilus extension
-####################################################################
-
-AC_ARG_ENABLE([nautilus-extension],
-              AS_HELP_STRING([--enable-nautilus-extension],
-                             [enable tagging in nautilus with Tracker [[default=auto]]]),
-              [enable_nautilus_extension=$enableval],
-              [enable_nautilus_extension=auto])
-
-enable_tracker_nautilus_extension=$enable_nautilus_extension
-
-if test "x$enable_tracker_nautilus_extension" = "xyes"; then
-   if test "x$have_tracker_nautilus_extension" != "xyes"; then
-      AC_MSG_ERROR([Could not find Tracker Nautilus extension dependencies ($TRACKER_NAUTILUS_EXTENSION_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_nautilus_extension" = "xno"; then
-     have_tracker_nautilus_extension="no  (disabled)"
-   fi
-fi
-
-if test "x$have_tracker_nautilus_extension" = "xyes"; then
-   AC_ARG_WITH([nautilus-extensions-dir],
-               AS_HELP_STRING([--with-nautilus-extensions-dir],
-                              [path to Nautilus extensions directory]),
-               [tracker_nautilus_extension_install_dir=$withval],
-               [tracker_nautilus_extension_install_dir=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`])
-
-   TRACKER_NAUTILUS_EXTENSION_INSTALL_DIR="$tracker_nautilus_extension_install_dir"
-else
-   TRACKER_NAUTILUS_EXTENSION_INSTALL_DIR="/dev/null"
-fi
-
-AC_SUBST([TRACKER_NAUTILUS_EXTENSION_INSTALL_DIR])
-
-AM_CONDITIONAL(HAVE_TRACKER_NAUTILUS_EXTENSION, test "$have_tracker_nautilus_extension" = "yes")
 
 ####################################################################
 # Check for tracker-writeback: Taglib for audio writeback support
@@ -2551,24 +2274,6 @@ AC_CONFIG_FILES([
 	src/tracker-needle/icons/scalable/Makefile
 	src/tracker-writeback/Makefile
 	src/plugins/Makefile
-	src/plugins/evolution/Makefile
-	src/plugins/thunderbird/Makefile
-	src/plugins/thunderbird/install.rdf
-        src/plugins/thunderbird/chrome/Makefile
-        src/plugins/thunderbird/chrome/content/Makefile
-        src/plugins/thunderbird/chrome/locale/Makefile
-        src/plugins/thunderbird/chrome/skin/Makefile
-        src/plugins/thunderbird/defaults/Makefile
-        src/plugins/thunderbird/defaults/preferences/Makefile
-	src/plugins/firefox/Makefile
-	src/plugins/firefox/install.rdf
-        src/plugins/firefox/chrome/Makefile
-        src/plugins/firefox/chrome/content/Makefile
-        src/plugins/firefox/chrome/locale/Makefile
-        src/plugins/firefox/chrome/skin/Makefile
-        src/plugins/firefox/defaults/Makefile
-        src/plugins/firefox/defaults/preferences/Makefile
-	src/plugins/nautilus/Makefile
 	tests/common/Makefile
         tests/gvdb/Makefile
 	tests/libtracker-common/Makefile
@@ -2686,11 +2391,6 @@ Data Miners / Writebacks:
 	FS (File System):                       $have_tracker_miner_fs
 	Applications:                           $have_tracker_miner_apps
 	RSS:                                    $have_tracker_miner_rss
-	Email:
-          Evolution:                            $have_tracker_miner_evolution ($tracker_miner_evolution_install_dir)
-          Thunderbird:                          $have_tracker_miner_thunderbird ($tracker_miner_thunderbird_install_dir)
-        Bookmarks:
-          FireFox:                              $have_tracker_miner_firefox ($tracker_miner_firefox_install_dir)
 
         Extract (secondary extraction):         $have_tracker_extract
         Writeback (writing changes back):       $have_tracker_writeback"
@@ -2739,7 +2439,6 @@ Applications:
 
 Frameworks / Options:
 
-        Support GNOME's Nautilus                $have_tracker_nautilus_extension ($tracker_nautilus_extension_install_dir)
 	Support Guaranteed Metadata             $enable_guarantee_metadata (e.g. guess nie:title from files)
 
 "
