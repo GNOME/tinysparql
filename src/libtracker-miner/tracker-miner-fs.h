@@ -70,7 +70,6 @@ struct _TrackerMinerFS {
  * @finished: Called when all processing has been performed.
  * @process_file_attributes: Called when the metadata associated with
  * a file's attributes changes, for example, the mtime.
- * @writeback_file: Called when a file must be written back
  * @finished_root: Called when all resources on a particular root URI
  * have been processed.
  * @padding: Reserved for future API improvements.
@@ -93,10 +92,6 @@ typedef struct {
 	gboolean (* process_file_attributes)  (TrackerMinerFS       *fs,
 	                                       GFile                *file,
 					       GTask                *task);
-	gboolean (* writeback_file)           (TrackerMinerFS       *fs,
-	                                       GFile                *file,
-	                                       GStrv                 rdf_types,
-	                                       GPtrArray            *results);
 	void     (* finished_root)            (TrackerMinerFS       *fs,
 	                                       GFile                *root,
 	                                       gint                  directories_found,
@@ -152,15 +147,7 @@ void                  tracker_miner_fs_check_file            (TrackerMinerFS  *f
                                                               gint             priority,
                                                               gboolean         check_parents);
 
-void                  tracker_miner_fs_writeback_file        (TrackerMinerFS  *fs,
-                                                              GFile           *file,
-                                                              GStrv            rdf_types,
-                                                              GPtrArray       *results);
-
-/* Continuation for async functions when signalled with ::process-file */
-void                  tracker_miner_fs_writeback_notify      (TrackerMinerFS  *fs,
-                                                              GFile           *file,
-                                                              const GError    *error);
+/* Continuation for async vmethods */
 void                  tracker_miner_fs_notify_finish         (TrackerMinerFS  *fs,
 							      GTask           *task,
 							      const gchar     *sparql,

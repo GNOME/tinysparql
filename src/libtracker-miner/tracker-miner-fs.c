@@ -148,14 +148,6 @@ typedef struct {
 } ItemMovedData;
 
 typedef struct {
-	GFile     *file;
-	GPtrArray *results;
-	GStrv      rdf_types;
-	GCancellable *cancellable;
-	guint notified : 1;
-} ItemWritebackData;
-
-typedef struct {
 	GFile *file;
 	gchar *urn;
 	gint priority;
@@ -169,7 +161,6 @@ struct _TrackerMinerFSPrivate {
 	TrackerPriorityQueue *items_updated;
 	TrackerPriorityQueue *items_deleted;
 	TrackerPriorityQueue *items_moved;
-	TrackerPriorityQueue *items_writeback;
 
 	guint item_queues_handler_id;
 	GFile *item_queue_blocker;
@@ -198,9 +189,6 @@ struct _TrackerMinerFSPrivate {
 
 	/* Properties */
 	gdouble throttle;
-
-	/* Writeback tasks */
-	TrackerTaskPool *writeback_pool;
 
 	/* Status */
 	GTimer *timer;
@@ -243,14 +231,12 @@ typedef enum {
 	QUEUE_DELETED,
 	QUEUE_MOVED,
 	QUEUE_WAIT,
-	QUEUE_WRITEBACK
 } QueueState;
 
 enum {
 	PROCESS_FILE,
 	PROCESS_FILE_ATTRIBUTES,
 	FINISHED,
-	WRITEBACK_FILE,
 	FINISHED_ROOT,
 	REMOVE_FILE,
 	REMOVE_CHILDREN,
@@ -287,7 +273,6 @@ static void           miner_resumed                       (TrackerMiner         
 static ItemMovedData *item_moved_data_new                 (GFile                *file,
                                                            GFile                *source_file);
 static void           item_moved_data_free                (ItemMovedData        *data);
-static void           item_writeback_data_free            (ItemWritebackData    *data);
 
 static void           indexing_tree_directory_removed     (TrackerIndexingTree  *indexing_tree,
                                                            GFile                *directory,
@@ -325,8 +310,6 @@ static void           task_pool_cancel_foreach                (gpointer        d
                                                                gpointer        user_data);
 static void           task_pool_limit_reached_notify_cb       (GObject        *object,
                                                                GParamSpec     *pspec,
-                                                               gpointer        user_data);
-static void           writeback_pool_cancel_foreach           (gpointer        data,
                                                                gpointer        user_data);
 
 static GQuark quark_file_iri = 0;
@@ -504,36 +487,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_TYPE_UINT);
 
 	/**
-	 * TrackerMinerFS::writeback-file:
-	 * @miner_fs: the #TrackerMinerFS
-	 * @file: a #GFile
-	 * @rdf_types: the set of RDF types
-	 * @results: (element-type GStrv): a set of results prepared by the preparation query
-	 * @cancellable: a #GCancellable
-	 *
-	 * The ::writeback-file signal is emitted whenever a file must be written
-	 * back
-	 *
-	 * Returns: %TRUE on success, %FALSE otherwise
-	 *
-	 * Since: 0.10.20
-	 **/
-	signals[WRITEBACK_FILE] =
-		g_signal_new ("writeback-file",
-		              G_OBJECT_CLASS_TYPE (object_class),
-		              G_SIGNAL_RUN_LAST,
-		              G_STRUCT_OFFSET (TrackerMinerFSClass, writeback_file),
-		              NULL,
-		              NULL,
-		              NULL,
-		              G_TYPE_BOOLEAN,
-		              4,
-		              G_TYPE_FILE,
-		              G_TYPE_STRV,
-		              G_TYPE_PTR_ARRAY,
-		              G_TYPE_CANCELLABLE);
-
-	/**
 	 * TrackerMinerFS::finished-root:
 	 * @miner_fs: the #TrackerMinerFS
 	 * @file: a #GFile
@@ -635,7 +588,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	priv->items_updated = tracker_priority_queue_new ();
 	priv->items_deleted = tracker_priority_queue_new ();
 	priv->items_moved = tracker_priority_queue_new ();
-	priv->items_writeback = tracker_priority_queue_new ();
 
 #ifdef EVENT_QUEUE_ENABLE_TRACE
 	priv->queue_status_timeout_id = g_timeout_add_seconds (EVENT_QUEUE_STATUS_TIMEOUT_SECS,
@@ -646,10 +598,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	/* Create processing pools */
 	priv->task_pool = tracker_task_pool_new (DEFAULT_WAIT_POOL_LIMIT);
 	g_signal_connect (priv->task_pool, "notify::limit-reached",
-	                  G_CALLBACK (task_pool_limit_reached_notify_cb), object);
-
-	priv->writeback_pool = tracker_task_pool_new (DEFAULT_WAIT_POOL_LIMIT);
-	g_signal_connect (priv->writeback_pool, "notify::limit-reached",
 	                  G_CALLBACK (task_pool_limit_reached_notify_cb), object);
 
 	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
@@ -780,8 +728,6 @@ fs_finalize (GObject *object)
 	                           NULL);
 	g_object_unref (priv->task_pool);
 
-	g_object_unref (priv->writeback_pool);
-
 	if (priv->sparql_buffer) {
 		g_object_unref (priv->sparql_buffer);
 	}
@@ -805,11 +751,6 @@ fs_finalize (GObject *object)
 	                                (GFunc) g_object_unref,
 	                                NULL);
 	tracker_priority_queue_unref (priv->items_created);
-
-	tracker_priority_queue_foreach (priv->items_writeback,
-	                                (GFunc) item_writeback_data_free,
-	                                NULL);
-	tracker_priority_queue_unref (priv->items_writeback);
 
 	if (priv->indexing_tree) {
 		g_object_unref (priv->indexing_tree);
@@ -1049,8 +990,7 @@ notify_roots_finished (TrackerMinerFS *fs,
 		    (tracker_priority_queue_find (fs->priv->items_created, NULL, (GEqualFunc) g_file_has_prefix, root) ||
 		     tracker_priority_queue_find (fs->priv->items_updated, NULL, (GEqualFunc) g_file_has_prefix, root) ||
 		     tracker_priority_queue_find (fs->priv->items_deleted, NULL, (GEqualFunc) g_file_has_prefix, root) ||
-		     tracker_priority_queue_find (fs->priv->items_moved, NULL, (GEqualFunc) g_file_has_prefix, root) ||
-		     tracker_priority_queue_find (fs->priv->items_writeback, NULL, (GEqualFunc) g_file_has_prefix, root))) {
+		     tracker_priority_queue_find (fs->priv->items_moved, NULL, (GEqualFunc) g_file_has_prefix, root))) {
 			continue;
 		}
 
@@ -1153,34 +1093,6 @@ item_moved_data_free (ItemMovedData *data)
 	g_object_unref (data->file);
 	g_object_unref (data->source_file);
 	g_slice_free (ItemMovedData, data);
-}
-
-static ItemWritebackData *
-item_writeback_data_new (GFile     *file,
-                         GStrv      rdf_types,
-                         GPtrArray *results)
-{
-	ItemWritebackData *data;
-
-	data = g_slice_new (ItemWritebackData);
-
-	data->file = g_object_ref (file);
-	data->results = g_ptr_array_ref (results);
-	data->rdf_types = g_strdupv (rdf_types);
-	data->cancellable = g_cancellable_new ();
-	data->notified = FALSE;
-
-	return data;
-}
-
-static void
-item_writeback_data_free (ItemWritebackData *data)
-{
-	g_object_unref (data->file);
-	g_ptr_array_unref (data->results);
-	g_strfreev (data->rdf_types);
-	g_object_unref (data->cancellable);
-	g_slice_free (ItemWritebackData, data);
 }
 
 static gboolean
@@ -1622,7 +1534,6 @@ should_wait (TrackerMinerFS *fs,
 
 	/* Is the item already being processed? */
 	if (tracker_task_pool_find (fs->priv->task_pool, file) ||
-	    tracker_task_pool_find (fs->priv->writeback_pool, file) ||
 	    tracker_task_pool_find (TRACKER_TASK_POOL (fs->priv->sparql_buffer), file)) {
 		/* Yes, a previous event on same item currently
 		 * being processed */
@@ -1691,41 +1602,8 @@ item_queue_get_next_file (TrackerMinerFS  *fs,
                           gint            *priority_out)
 {
 	ItemMovedData *data;
-	ItemWritebackData *wdata;
 	GFile *queue_file;
 	gint priority;
-
-	/* Writeback items first */
-	wdata = tracker_priority_queue_pop (fs->priv->items_writeback,
-	                                    &priority);
-	if (wdata) {
-		gboolean processing;
-
-		*file = g_object_ref (wdata->file);
-		*source_file = NULL;
-		*priority_out = priority;
-
-		trace_eq_pop_head ("WRITEBACK", wdata->file);
-
-		g_signal_emit (fs, signals[WRITEBACK_FILE], 0,
-		               wdata->file,
-		               wdata->rdf_types,
-		               wdata->results,
-		               wdata->cancellable,
-		               &processing);
-
-		if (processing) {
-			TrackerTask *task;
-
-			task = tracker_task_new (wdata->file, wdata,
-			                         (GDestroyNotify) item_writeback_data_free);
-			tracker_task_pool_add (fs->priv->writeback_pool, task);
-
-			return QUEUE_WRITEBACK;
-		} else {
-			item_writeback_data_free (wdata);
-		}
-	}
 
 	/* Deleted items second */
 	queue_file = tracker_priority_queue_peek (fs->priv->items_deleted,
@@ -1858,7 +1736,6 @@ item_queue_get_progress (TrackerMinerFS *fs,
 	items_to_process += tracker_priority_queue_get_length (fs->priv->items_created);
 	items_to_process += tracker_priority_queue_get_length (fs->priv->items_updated);
 	items_to_process += tracker_priority_queue_get_length (fs->priv->items_moved);
-	items_to_process += tracker_priority_queue_get_length (fs->priv->items_writeback);
 
 	items_total += fs->priv->total_directories_found;
 	items_total += fs->priv->total_files_found;
@@ -2077,10 +1954,6 @@ item_queue_handlers_cb (gpointer user_data)
 		}
 
 		break;
-	case QUEUE_WRITEBACK:
-		/* Nothing to do here */
-		keep_processing = TRUE;
-		break;
 	default:
 		g_assert_not_reached ();
 	}
@@ -2137,14 +2010,11 @@ item_queue_handlers_set_up (TrackerMinerFS *fs)
 		return;
 	}
 
-	/* Already sent max number of tasks to tracker-extract/writeback? */
-	if (tracker_task_pool_limit_reached (fs->priv->task_pool) ||
-	    tracker_task_pool_limit_reached (fs->priv->writeback_pool)) {
-		trace_eq ("   cancelled: pool limit reached (tasks: %u (max %u) , writeback: %u (max %u))",
+	/* Already processing max number of sparql updates */
+	if (tracker_task_pool_limit_reached (fs->priv->task_pool)) {
+		trace_eq ("   cancelled: pool limit reached (tasks: %u (max %u)",
 		          tracker_task_pool_get_size (fs->priv->task_pool),
-		          tracker_task_pool_get_limit (fs->priv->task_pool),
-		          tracker_task_pool_get_size (fs->priv->writeback_pool),
-		          tracker_task_pool_get_limit (fs->priv->writeback_pool));
+		          tracker_task_pool_get_limit (fs->priv->task_pool));
 		return;
 	}
 
@@ -2202,59 +2072,6 @@ moved_files_equal (gconstpointer a,
 	return g_file_equal (data->file, file);
 }
 
-static gboolean
-writeback_files_equal (gconstpointer a,
-                       gconstpointer b)
-{
-	const ItemWritebackData *data = a;
-	GFile *file = G_FILE (b);
-
-	/* Compare with dest file */
-	return g_file_equal (data->file, file);
-}
-
-static gboolean
-remove_writeback_task (TrackerMinerFS *fs,
-                       GFile          *file)
-{
-	TrackerTask *task;
-	ItemWritebackData *data;
-
-	task = tracker_task_pool_find (fs->priv->writeback_pool, file);
-
-	if (!task) {
-		return FALSE;
-	}
-
-	data = tracker_task_get_data (task);
-
-	if (data->notified) {
-		tracker_task_pool_remove (fs->priv->writeback_pool, task);
-		tracker_task_unref (task);
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-static void
-cancel_writeback_task (TrackerMinerFS *fs,
-                       GFile          *file)
-{
-	TrackerTask *task;
-
-	task = tracker_task_pool_find (fs->priv->writeback_pool, file);
-
-	if (task) {
-		ItemWritebackData *data;
-
-		data = tracker_task_get_data (task);
-		g_cancellable_cancel (data->cancellable);
-		tracker_task_pool_remove (fs->priv->writeback_pool, task);
-		tracker_task_unref (task);
-	}
-}
-
 static gint
 miner_fs_get_queue_priority (TrackerMinerFS *fs,
                              GFile          *file)
@@ -2294,7 +2111,7 @@ miner_fs_queue_file (TrackerMinerFS       *fs,
 	tracker_priority_queue_add (item_queue, g_object_ref (file), priority);
 }
 
-/* Checks previous created/updated/deleted/moved/writeback queues for
+/* Checks previous created/updated/deleted/moved queues for
  * monitor events. Returns TRUE if the item should still
  * be added to the queue.
  */
@@ -2314,23 +2131,6 @@ check_item_queues (TrackerMinerFS *fs,
 		return TRUE;
 	}
 
-	if (queue == QUEUE_UPDATED) {
-		TrackerTask *task;
-
-		if (other_file) {
-			task = tracker_task_pool_find (fs->priv->writeback_pool, other_file);
-		} else {
-			task = tracker_task_pool_find (fs->priv->writeback_pool, file);
-		}
-
-		if (task) {
-			/* There is a writeback task for
-			 * this file, so avoid any updates
-			 */
-			return FALSE;
-		}
-	}
-
 	switch (queue) {
 	case QUEUE_CREATED:
 		/* Created items aren't likely to have
@@ -2348,21 +2148,7 @@ check_item_queues (TrackerMinerFS *fs,
 			return FALSE;
 		}
 		return TRUE;
-	case QUEUE_WRITEBACK:
-		/* No consecutive writebacks for the same file */
-		if (tracker_priority_queue_find (fs->priv->items_writeback, NULL,
-		                                 writeback_files_equal, file)) {
-			g_debug ("  Found previous unhandled WRITEBACK event");
-			return FALSE;
-		}
-
-		return TRUE;
 	case QUEUE_DELETED:
-		if (tracker_task_pool_find (fs->priv->writeback_pool, file)) {
-			/* Cancel writeback operations on a deleted file */
-			cancel_writeback_task (fs, file);
-		}
-
 		if (tracker_file_notifier_get_file_type (fs->priv->file_notifier,
 		                                         file) == G_FILE_TYPE_DIRECTORY) {
 			if (tracker_priority_queue_foreach_remove (fs->priv->items_updated,
@@ -2408,13 +2194,6 @@ check_item_queues (TrackerMinerFS *fs,
 
 		return TRUE;
 	case QUEUE_MOVED:
-		if (tracker_task_pool_find (fs->priv->writeback_pool, file)) {
-			/* If the origin file is also being written back,
-			 * cancel it as this is an external operation.
-			 */
-			cancel_writeback_task (fs, file);
-		}
-
 		/* Kill any events on other_file (The dest one), since it will be rewritten anyway */
 		if (tracker_priority_queue_foreach_remove (fs->priv->items_created,
 		                                           (GEqualFunc) g_file_equal,
@@ -2517,9 +2296,6 @@ file_notifier_file_deleted (TrackerFileNotifier  *notifier,
 		tracker_task_pool_foreach (fs->priv->task_pool,
 					   task_pool_cancel_foreach,
 					   file);
-		tracker_task_pool_foreach (fs->priv->writeback_pool,
-					   writeback_pool_cancel_foreach,
-					   file);
 	}
 
 	if (check_item_queues (fs, QUEUE_DELETED, file, NULL)) {
@@ -2539,17 +2315,6 @@ file_notifier_file_updated (TrackerFileNotifier  *notifier,
 	if (!attributes_only &&
 	    filter_event (fs, TRACKER_MINER_FS_EVENT_UPDATED, file, NULL))
 		return;
-
-	/* Writeback tasks would receive an updated after move,
-	 * consequence of the data being written back in the
-	 * copy, and its monitor events being propagated to
-	 * the destination file.
-	 */
-	if (!attributes_only &&
-	    remove_writeback_task (fs, file)) {
-		item_queue_handlers_set_up (fs);
-		return;
-	}
 
 	if (check_item_queues (fs, QUEUE_UPDATED, file, NULL)) {
 		if (attributes_only) {
@@ -2743,27 +2508,6 @@ task_pool_cancel_foreach (gpointer data,
 }
 
 static void
-writeback_pool_cancel_foreach (gpointer data,
-                               gpointer user_data)
-{
-	GFile *task_file, *file;
-	TrackerTask *task;
-
-	task = data;
-	file = user_data;
-	task_file = tracker_task_get_file (task);
-
-	if (!file ||
-	    g_file_equal (task_file, file) ||
-	    g_file_has_prefix (task_file, file)) {
-		ItemWritebackData *task_data;
-
-		task_data = tracker_task_get_data (task);
-		g_cancellable_cancel (task_data->cancellable);
-	}
-}
-
-static void
 indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
                                  GFile               *directory,
                                  gpointer             user_data)
@@ -2778,13 +2522,6 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 	                           directory);
 
 	g_debug ("  Cancelled processing pool tasks at %f\n", g_timer_elapsed (timer, NULL));
-
-	tracker_task_pool_foreach (priv->writeback_pool,
-	                           writeback_pool_cancel_foreach,
-	                           directory);
-
-	g_debug ("  Cancelled writeback pool tasks at %f\n",
-	         g_timer_elapsed (timer, NULL));
 
 	/* Remove anything contained in the removed directory
 	 * from all relevant processing queues.
@@ -2898,112 +2635,6 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
 	}
 
 	g_free (uri);
-}
-
-
-/**
- * tracker_miner_fs_writeback_file:
- * @fs: a #TrackerMinerFS
- * @file: #GFile for the file to check
- * @rdf_types: A #GStrv with rdf types
- * @results: (element-type GStrv): A array of results from the preparation query
- *
- * Tells the filesystem miner to writeback a file.
- *
- * Since: 0.10.20
- **/
-void
-tracker_miner_fs_writeback_file (TrackerMinerFS *fs,
-                                 GFile          *file,
-                                 GStrv           rdf_types,
-                                 GPtrArray      *results)
-{
-	gchar *uri;
-	ItemWritebackData *data;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (file));
-
-	uri = g_file_get_uri (file);
-
-	g_debug ("Performing write-back:'%s' (requested by application)", uri);
-
-	trace_eq_push_tail ("WRITEBACK", file, "Requested by application");
-
-	data = item_writeback_data_new (file, rdf_types, results);
-	tracker_priority_queue_add (fs->priv->items_writeback, data,
-	                            G_PRIORITY_DEFAULT);
-
-	item_queue_handlers_set_up (fs);
-
-	g_free (uri);
-}
-
-/**
- * tracker_miner_fs_writeback_notify:
- * @fs: a #TrackerMinerFS
- * @file: a #GFile
- * @error: a #GError with the error that happened during processing, or %NULL.
- *
- * Notifies @fs that all writing back on @file has been finished, if any error
- * happened during file data processing, it should be passed in @error, else
- * that parameter will contain %NULL to reflect success.
- *
- * Since: 0.10.20
- **/
-void
-tracker_miner_fs_writeback_notify (TrackerMinerFS *fs,
-                                   GFile          *file,
-                                   const GError   *error)
-{
-	TrackerTask *task;
-
-	g_return_if_fail (TRACKER_IS_MINER_FS (fs));
-	g_return_if_fail (G_IS_FILE (file));
-
-	fs->priv->total_files_notified++;
-
-	task = tracker_task_pool_find (fs->priv->writeback_pool, file);
-
-	if (!task) {
-		gchar *uri;
-
-		uri = g_file_get_uri (file);
-		g_critical ("%s has notified that file '%s' has been written back, "
-		            "but that file was not in the task pool. "
-		            "This is an implementation error, please ensure that "
-		            "tracker_miner_fs_writeback_notify() is called on the same "
-		            "GFile that is passed in ::writeback-file, and that this"
-		            "signal didn't return FALSE for it",
-		            G_OBJECT_TYPE_NAME (fs), uri);
-		g_free (uri);
-	} else if (error) {
-
-		if (!(error->domain == TRACKER_DBUS_ERROR &&
-		      error->code == TRACKER_DBUS_ERROR_UNSUPPORTED)) {
-			g_warning ("Writeback operation failed: %s", error->message);
-		}
-
-		/* We don't expect any further monitor
-		 * events on the original file.
-		 */
-		tracker_task_pool_remove (fs->priv->writeback_pool, task);
-		tracker_task_unref (task);
-
-		item_queue_handlers_set_up (fs);
-	} else {
-		ItemWritebackData *data;
-
-		data = tracker_task_get_data (task);
-		data->notified = TRUE;
-	}
-
-	/* Check monitor_item_updated_cb() for the remainder of this notify,
-	 * as the last event happening on the written back file would be an
-	 * UPDATED event caused by the changes on the cloned file, followed
-	 * by a MOVE onto the original file, so the delayed update happens
-	 * on the destination file.
-	 */
 }
 
 /**
@@ -3202,8 +2833,7 @@ tracker_miner_fs_has_items_to_process (TrackerMinerFS *fs)
 	    !tracker_priority_queue_is_empty (fs->priv->items_deleted) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_created) ||
 	    !tracker_priority_queue_is_empty (fs->priv->items_updated) ||
-	    !tracker_priority_queue_is_empty (fs->priv->items_moved) ||
-	    !tracker_priority_queue_is_empty (fs->priv->items_writeback)) {
+	    !tracker_priority_queue_is_empty (fs->priv->items_moved)) {
 		return TRUE;
 	}
 
@@ -3281,20 +2911,6 @@ trace_moved_foreach (gpointer moved_data,
 }
 
 static void
-trace_writeback_foreach (gpointer writeback_data,
-                         gpointer fs)
-{
-	ItemWritebackData *data = writeback_data;
-	gchar *uri;
-
-	uri = g_file_get_uri (G_FILE (data->file));
-	trace_eq ("(%s)     '%s'",
-	          G_OBJECT_TYPE_NAME (G_OBJECT (fs)),
-	          uri);
-	g_free (uri);
-}
-
-static void
 miner_fs_trace_queue (TrackerMinerFS       *fs,
                       const gchar          *queue_name,
                       TrackerPriorityQueue *queue,
@@ -3319,7 +2935,6 @@ miner_fs_queues_status_trace_timeout_cb (gpointer data)
 	miner_fs_trace_queue (fs, "UPDATED",   fs->priv->items_updated,   trace_files_foreach);
 	miner_fs_trace_queue (fs, "DELETED",   fs->priv->items_deleted,   trace_files_foreach);
 	miner_fs_trace_queue (fs, "MOVED",     fs->priv->items_moved,     trace_moved_foreach);
-	miner_fs_trace_queue (fs, "WRITEBACK", fs->priv->items_writeback, trace_writeback_foreach);
 
 	return TRUE;
 }
