@@ -4,6 +4,7 @@ test_c_args = [
   '-DTRACKER_COMPILATION',
   '-DTEST_DATA_DIR="@0@/data"'.format(meson.current_source_dir()),
   '-DTEST_MINERS_DIR="@0@/mock-miners"'.format(meson.current_source_dir()),
+  '-DTEST_ONTOLOGIES_DIR="@0@/src/ontologies/nepomuk"'.format(meson.current_source_dir()),
 ]
 
 crawler_test = executable('tracker-crawler-test',
