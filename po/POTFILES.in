@@ -39,9 +39,6 @@ src/tracker-needle/tracker-stats.vala
 src/tracker-needle/tracker-tags-view.vala
 src/tracker-needle/tracker-utils.vala
 src/tracker-needle/tracker-view.vala
-src/tracker-preferences/tracker-preferences.desktop.in.in
-[type: gettext/glade]src/tracker-preferences/tracker-preferences.ui
-src/tracker-preferences/tracker-preferences.vala
 src/tracker-store/tracker-main.vala
 src/tracker-store/tracker-store.desktop.in.in
 src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in

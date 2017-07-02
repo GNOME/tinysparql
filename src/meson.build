@@ -44,7 +44,4 @@ subdir('tracker-store')
 # Example search application
 subdir('tracker-needle')
 
-# Example configuration application
-subdir('tracker-preferences')
-
 meson.add_install_script('create-miner-symlinks.sh', dbus_services_dir, tracker_miner_services_dir)

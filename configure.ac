@@ -415,16 +415,6 @@ PKG_CHECK_MODULES(TRACKER_NEEDLE, [$TRACKER_NEEDLE_REQUIRED],
                   [have_tracker_needle=yes],
                   [have_tracker_needle=no])
 
-# Check requirements for tracker-preferences
-TRACKER_PREFERENCES_REQUIRED="glib-2.0       >= $GLIB_REQUIRED
-                              gio-unix-2.0   >= $GLIB_REQUIRED
-                              gmodule-2.0    >= $GLIB_REQUIRED
-                              gtk+-3.0       >= $GTK_REQUIRED"
-
-PKG_CHECK_MODULES(TRACKER_PREFERENCES, [$TRACKER_PREFERENCES_REQUIRED],
-                  [have_tracker_preferences=yes],
-                  [have_tracker_preferences=no])
-
 # Check we have Vala valac command we need
 VALA_MIN_VERSION=0.18.0
 AM_PROG_VALAC([$VALA_MIN_VERSION])
@@ -518,7 +508,6 @@ if test "x$enable_minimal" = "xyes"; then
    enable_miner_apps=no
    enable_miner_rss=no
    enable_tracker_needle=no
-   enable_tracker_preferences=no
 fi
 
 ####################################################################
@@ -1269,34 +1258,6 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_TRACKER_NEEDLE, test "$have_tracker_needle" = "yes")
-
-##################################################################
-# Check for tracker-preferences
-##################################################################
-
-AC_ARG_ENABLE([tracker-preferences],
-              AS_HELP_STRING([--enable-tracker-preferences],
-                             [enable GTK+ UI to configure Tracker [[default=auto]]]),
-              [enable_tracker_preferences=$enableval],
-              [enable_tracker_preferences=auto])
-
-# If we don't have miner-fs enabled, the preferences are pointless
-# So we override in this case.
-if test "x$enable_tracker_miner_fs" = "xyes" ; then
-   enable_tracker_miner_fs="no"
-fi
-
-if test "x$enable_tracker_preferences" = "xyes" ; then
-   if test "x$have_tracker_preferences" != "xyes"; then
-      AC_MSG_ERROR([Could not find tracker-preferences dependencies ($TRACKER_PREFERENCES_REQUIRED).])
-   fi
-else
-   if test "x$enable_tracker_preferences" = "xno"; then
-      have_tracker_preferences="no  (disabled)"
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_TRACKER_PREFERENCES, test "$have_tracker_preferences" = "yes")
 
 ##################################################################
 # Check for tracker-resdump
@@ -2263,7 +2224,6 @@ AC_CONFIG_FILES([
 	src/tracker-store/Makefile
 	src/tracker/Makefile
 	src/tracker-extract/Makefile
-	src/tracker-preferences/Makefile
 	src/tracker-needle/Makefile
 	src/tracker-needle/icons/Makefile
 	src/tracker-needle/icons/16x16/Makefile
@@ -2434,7 +2394,6 @@ fi
 echo "
 Applications:
 
-	Build tracker-preferences:              $have_tracker_preferences
 	Build tracker-needle:                   $have_tracker_needle
 
 Frameworks / Options:
