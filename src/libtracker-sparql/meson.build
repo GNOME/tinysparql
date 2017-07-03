@@ -12,7 +12,6 @@ tracker_sparql_intermediate_dependencies = [uuid]
 # First build the Vala parts ...
 
 libtracker_sparql_intermediate_vala = static_library('tracker-sparql-intermediate-vala',
-    enums_c, enums_h,
     'tracker-namespace.vala',
     'tracker-builder.vala',
     'tracker-connection.vala',
