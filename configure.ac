@@ -2186,7 +2186,6 @@ AC_CONFIG_FILES([
 	src/tracker/Makefile
 	src/tracker-extract/Makefile
 	src/tracker-writeback/Makefile
-	src/plugins/Makefile
 	tests/common/Makefile
         tests/gvdb/Makefile
 	tests/libtracker-common/Makefile
