@@ -2901,6 +2901,118 @@ schedule_copy (GPtrArray *schedule,
 }
 
 static void
+create_triggers_on_rowid (TrackerDBInterface  *iface,
+                          TrackerClass        *klass,
+                          TrackerProperty     *property,
+                          GError             **error)
+{
+	GError *internal_error = NULL;
+	gchar *table_name;
+
+	if (property) {
+		table_name = g_strdup_printf ("%s_%s",
+		                              tracker_class_get_name (klass),
+		                              tracker_property_get_name (property));
+	} else {
+		table_name = g_strdup (tracker_class_get_name (klass));
+	}
+
+	tracker_db_interface_execute_query (iface, &internal_error,
+	                                    "CREATE TRIGGER \"trigger_insert_%s\" "
+	                                    "AFTER INSERT ON \"%s\" "
+	                                    "FOR EACH ROW BEGIN "
+	                                    "UPDATE Resource SET Refcount = Refcount + 1 WHERE Resource.rowid = NEW.ID;"
+	                                    "END",
+	                                    table_name, table_name);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		g_free (table_name);
+		return;
+	}
+
+	tracker_db_interface_execute_query (iface, &internal_error,
+	                                    "CREATE TRIGGER \"trigger_delete_%s\" "
+	                                    "AFTER DELETE ON \"%s\" "
+	                                    "FOR EACH ROW BEGIN "
+	                                    "UPDATE Resource SET Refcount = Refcount - 1 WHERE Resource.rowid = OLD.ID;"
+	                                    "END",
+	                                    table_name, table_name);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		g_free (table_name);
+		return;
+	}
+
+	g_free (table_name);
+}
+
+static void
+create_table_triggers (TrackerDataManager  *manager,
+                       TrackerDBInterface  *iface,
+                       TrackerClass        *klass,
+                       GError             **error)
+{
+	const gchar *property_name;
+	TrackerProperty **properties, *property;
+	GError *internal_error = NULL;
+	guint i, n_props;
+
+	create_triggers_on_rowid (iface, klass, NULL, &internal_error);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return;
+	}
+
+	properties = tracker_ontologies_get_properties (manager->ontologies, &n_props);
+
+	for (i = 0; i < n_props; i++) {
+		gboolean multivalued;
+		gchar *table_name;
+
+		property = properties[i];
+
+		if (tracker_property_get_domain (property) != klass ||
+		    tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE)
+			continue;
+
+		property_name = tracker_property_get_name (property);
+		multivalued = tracker_property_get_multiple_values (property);
+
+		if (multivalued) {
+			create_triggers_on_rowid (iface, klass, property, &internal_error);
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				return;
+			}
+
+			table_name = g_strdup_printf ("%s_%s",
+			                              tracker_class_get_name (klass),
+			                              property_name);
+		} else {
+			table_name = g_strdup (tracker_class_get_name (klass));
+		}
+
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "CREATE TRIGGER \"trigger_update_%s_%s\" "
+		                                    "AFTER UPDATE OF \"%s\" ON \"%s\" "
+		                                    "FOR EACH ROW BEGIN "
+		                                    "UPDATE Resource SET Refcount = Refcount + 1 WHERE Resource.rowid = NEW.\"%s\";"
+		                                    "UPDATE Resource SET Refcount = Refcount - 1 WHERE Resource.rowid = OLD.\"%s\";"
+		                                    "END",
+		                                    tracker_class_get_name (klass),
+		                                    property_name,
+		                                    property_name, table_name,
+		                                    property_name, property_name);
+		g_free (table_name);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return;
+		}
+	}
+}
+
+static void
 create_decomposed_metadata_tables (TrackerDataManager  *manager,
                                    TrackerDBInterface  *iface,
                                    TrackerClass        *service,
@@ -2912,6 +3024,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 	GString          *create_sql = NULL;
 	GString          *in_col_sql = NULL;
 	GString          *sel_col_sql = NULL;
+	GString          *trigger_sql = NULL;
 	TrackerProperty **properties, *property, **domain_indexes;
 	GSList           *class_properties = NULL, *field_it;
 	gboolean          main_class;
@@ -3202,6 +3315,9 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		g_debug ("Creating: '%s'", create_sql->str);
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "%s", create_sql->str);
+
+		if (!internal_error)
+			create_table_triggers (manager, iface, service, &internal_error);
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
