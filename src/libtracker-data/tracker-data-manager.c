@@ -2933,7 +2933,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		return;
 	}
 
-	if (in_change) {
+	if (in_change && !tracker_class_get_is_new (service)) {
 		g_debug ("Rename: ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name);
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"",
@@ -3246,7 +3246,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		}
 	}
 
-	if (in_change && sel_col_sql && in_col_sql) {
+	if (!tracker_class_get_is_new (service) && in_change && sel_col_sql && in_col_sql) {
 		guint i;
 		gchar *query;
 
