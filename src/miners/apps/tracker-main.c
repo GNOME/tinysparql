@@ -237,18 +237,6 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
-
-	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
-		g_critical ("Could not request DBus name '%s': %s",
-		            dbus_name, error->message);
-		g_error_free (error);
-		g_free (dbus_name);
-		return EXIT_FAILURE;
-	}
-
-	g_free (dbus_name);
-
 	tracker_log_init (verbosity, &log_filename);
 	if (log_filename) {
 		g_message ("Using log file:'%s'", log_filename);
@@ -292,6 +280,19 @@ main (gint argc, gchar *argv[])
 	g_signal_connect (miner_applications, "finished",
 	                  G_CALLBACK (miner_finished_cb),
 	                  NULL);
+
+	/* Request DBus name */
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
+
+	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            dbus_name, error->message);
+		g_error_free (error);
+		g_free (dbus_name);
+		return EXIT_FAILURE;
+	}
+
+	g_free (dbus_name);
 
 	initialize_signal_handler ();
 

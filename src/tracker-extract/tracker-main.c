@@ -378,18 +378,6 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
-
-	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
-		g_critical ("Could not request DBus name '%s': %s",
-		            dbus_name, error->message);
-		g_error_free (error);
-		g_free (dbus_name);
-		return EXIT_FAILURE;
-	}
-
-	g_free (dbus_name);
-
 	config = tracker_config_new ();
 
 	/* Extractor command line arguments */
@@ -454,6 +442,19 @@ main (int argc, char *argv[])
 
 	controller = tracker_extract_controller_new (decorator, connection);
 	tracker_miner_start (TRACKER_MINER (decorator));
+
+	/* Request DBus name */
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
+
+	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            dbus_name, error->message);
+		g_error_free (error);
+		g_free (dbus_name);
+		return EXIT_FAILURE;
+	}
+
+	g_free (dbus_name);
 
 	/* Main loop */
 	main_loop = g_main_loop_new (NULL, FALSE);

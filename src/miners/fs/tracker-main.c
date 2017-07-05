@@ -754,18 +754,6 @@ main (gint argc, gchar *argv[])
 		return EXIT_FAILURE;
 	}
 
-	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
-
-	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
-		g_critical ("Could not request DBus name '%s': %s",
-		            dbus_name, error->message);
-		g_error_free (error);
-		g_free (dbus_name);
-		return EXIT_FAILURE;
-	}
-
-	g_free (dbus_name);
-
 	/* Initialize logging */
 	config = tracker_config_new ();
 
@@ -846,6 +834,19 @@ main (gint argc, gchar *argv[])
 		tracker_log_shutdown ();
 		return EXIT_FAILURE;
 	}
+
+	/* Request DBus name */
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
+
+	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            dbus_name, error->message);
+		g_error_free (error);
+		g_free (dbus_name);
+		return EXIT_FAILURE;
+	}
+
+	g_free (dbus_name);
 
 	/* Check if we should crawl and if we should force mtime
 	 * checking based on the config.

@@ -188,18 +188,6 @@ main (int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
-
-	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
-		g_critical ("Could not request DBus name '%s': %s",
-		            dbus_name, error->message);
-		g_error_free (error);
-		g_free (dbus_name);
-		return EXIT_FAILURE;
-	}
-
-	g_free (dbus_name);
-
 	miner = tracker_miner_rss_new (&error);
 	if (!miner) {
 		g_critical ("Could not create new RSS miner: '%s', exiting...\n",
@@ -214,6 +202,18 @@ main (int argc, char **argv)
 		g_error_free (error);
 		return EXIT_FAILURE;
 	}
+
+	dbus_name = tracker_domain_ontology_get_domain (domain_ontology, DBUS_NAME_SUFFIX);
+
+	if (!tracker_dbus_request_name (connection, dbus_name, &error)) {
+		g_critical ("Could not request DBus name '%s': %s",
+		            dbus_name, error->message);
+		g_error_free (error);
+		g_free (dbus_name);
+		return EXIT_FAILURE;
+	}
+
+	g_free (dbus_name);
 
 	loop = g_main_loop_new (NULL, FALSE);
 
