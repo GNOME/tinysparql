@@ -3590,6 +3590,16 @@ create_base_tables (TrackerDataManager  *manager,
 		return FALSE;
 	}
 
+	if (!query_table_exists (iface, "Graph", &internal_error) && !internal_error) {
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "CREATE TABLE Graph (ID INTEGER NOT NULL PRIMARY KEY)");
+	}
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return FALSE;
+	}
+
 	return TRUE;
 }
 
@@ -3620,6 +3630,7 @@ tracker_data_ontology_import_into_db (TrackerDataManager  *manager,
 
 		/* Also !is_new classes are processed, they might have new properties */
 		create_decomposed_metadata_tables (manager, iface, classes[i], in_update,
+		                                   base_tables_altered ||
 		                                   tracker_class_get_db_schema_changed (classes[i]),
 		                                   &internal_error);
 
@@ -3997,7 +4008,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 {
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (initable);
 	TrackerDBInterface *iface;
-	gboolean is_first_time_index, check_ontology;
+	gboolean is_first_time_index, check_ontology, has_graph_table;
 	TrackerDBCursor *cursor;
 	TrackerDBStatement *stmt;
 	GHashTable *ontos_table;
@@ -4270,6 +4281,16 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		tracker_data_manager_init_fts (iface, FALSE);
 	}
 
+	if (!read_only) {
+		has_graph_table = query_table_exists (iface, "Graph", &internal_error);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
+
+		check_ontology |= !has_graph_table;
+	}
+
 	if (check_ontology) {
 		GList *to_reload = NULL;
 		GList *ontos = NULL;
@@ -4365,6 +4386,23 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			if (found) {
 				GError *ontology_error = NULL;
 				gint val = GPOINTER_TO_INT (value);
+
+				if (!has_graph_table) {
+					/* No graph table and no resource triggers,
+					 * the table must be recreated.
+					 */
+					if (!transaction_started) {
+						tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);
+						if (internal_error) {
+							g_propagate_error (error, internal_error);
+							return FALSE;
+						}
+						transaction_started = TRUE;
+					}
+
+					to_reload = g_list_prepend (to_reload, ontology_file);
+					continue;
+				}
 
 				/* When the last-modified in our database isn't the same as the last
 				 * modified in the latest version of the file, deal with changes. */
