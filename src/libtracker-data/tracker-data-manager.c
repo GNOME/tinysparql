@@ -4047,11 +4047,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 		/* First time, no need to check ontology */
 		check_ontology = FALSE;
-
-#ifndef DISABLE_JOURNAL
-		tracker_db_journal_free (manager->ontology_writer, NULL);
-		manager->ontology_writer = NULL;
-#endif /* DISABLE_JOURNAL */
 	} else {
 		if (!read_only) {
 
@@ -4517,6 +4512,13 @@ skip_ontology_check:
 		rebuild_fts_tokens (manager, iface);
 #endif
 	}
+
+#ifndef DISABLE_JOURNAL
+	if (manager->ontology_writer) {
+		tracker_db_journal_free (manager->ontology_writer, NULL);
+		manager->ontology_writer = NULL;
+	}
+#endif /* DISABLE_JOURNAL */
 
 	if (!read_only) {
 		tracker_ontologies_sort (manager->ontologies);
