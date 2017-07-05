@@ -4744,12 +4744,92 @@ skip_ontology_check:
 	return TRUE;
 }
 
+static gboolean
+data_manager_check_perform_cleanup (TrackerDataManager *manager)
+{
+	TrackerDBStatement *stmt;
+	TrackerDBInterface *iface;
+	TrackerDBCursor *cursor;
+	guint count = 0;
+
+	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+	                                              NULL, "SELECT COUNT(*) FROM Graph");
+	if (stmt) {
+		cursor = tracker_db_statement_start_cursor (stmt, NULL);
+		g_object_unref (stmt);
+	}
+
+	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL))
+		count = tracker_db_cursor_get_int (cursor, 0);
+
+	g_clear_object (&cursor);
+
+	/* We need to be sure the data is coherent, so we'll refrain from
+	 * doing any clean ups till there are elements in the Graph table.
+	 *
+	 * A database that's been freshly updated to the refcounted
+	 * resources will have an empty Graph table, so we might
+	 * unintentionally delete graph URNs if we clean up in this state.
+	 */
+	if (count == 0)
+		return FALSE;
+
+	count = 0;
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, NULL,
+	                                              "SELECT COUNT(*) FROM Resource WHERE Refcount <= 0 "
+						      "AND Resource.ID NOT IN (SELECT ID FROM Graph)");
+	if (stmt) {
+		cursor = tracker_db_statement_start_cursor (stmt, NULL);
+		g_object_unref (stmt);
+	}
+
+	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL))
+		count = tracker_db_cursor_get_int (cursor, 0);
+
+	g_clear_object (&cursor);
+
+	return count > 0;
+}
+
 void
 tracker_data_manager_dispose (GObject *object)
 {
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (object);
+	TrackerDBStatement *stmt;
+	TrackerDBInterface *iface;
+	GError *error = NULL;
+	gboolean readonly = TRUE;
 
-	g_clear_pointer (&manager->db_manager, tracker_db_manager_free);
+	if (manager->db_manager) {
+		readonly = (tracker_db_manager_get_flags (manager->db_manager, NULL, NULL) & TRACKER_DB_MANAGER_READONLY) != 0;
+
+		if (!readonly && data_manager_check_perform_cleanup (manager)) {
+			/* Delete stale URIs in the Resource table */
+			g_debug ("Cleaning up stale resource URIs");
+
+			iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
+			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+			                                              &error,
+			                                              "DELETE FROM Resource WHERE Refcount <= 0 "
+			                                              "AND Resource.ID NOT IN (SELECT ID FROM Graph)");
+
+			if (stmt) {
+				tracker_db_statement_execute (stmt, &error);
+				g_object_unref (stmt);
+			}
+
+			if (error) {
+				g_warning ("Could not clean up stale resource URIs: %s\n",
+				           error->message);
+				g_clear_error (&error);
+			}
+
+			tracker_db_interface_execute_query (iface, NULL, "VACUUM");
+		}
+
+		g_clear_pointer (&manager->db_manager, tracker_db_manager_free);
+	}
 
 	G_OBJECT_CLASS (tracker_data_manager_parent_class)->finalize (object);
 }
