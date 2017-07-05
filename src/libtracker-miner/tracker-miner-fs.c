@@ -561,6 +561,15 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_TYPE_STRING,
 		              1, G_TYPE_FILE);
 
+	signals[MOVE_FILE] =
+		g_signal_new ("move-file",
+		              G_TYPE_FROM_CLASS (object_class),
+		              G_SIGNAL_RUN_LAST,
+		              G_STRUCT_OFFSET (TrackerMinerFSClass, move_file),
+		              NULL, NULL, NULL,
+		              G_TYPE_STRING,
+		              3, G_TYPE_FILE, G_TYPE_FILE, G_TYPE_BOOLEAN);
+
 	g_type_class_add_private (object_class, sizeof (TrackerMinerFSPrivate));
 
 	quark_file_iri = g_quark_from_static_string ("tracker-miner-file-iri");
