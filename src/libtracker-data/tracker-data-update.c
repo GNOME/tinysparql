@@ -917,8 +917,8 @@ tracker_data_resource_buffer_flush (TrackerData  *data,
 				g_string_append (sql, "\" (ID");
 
 				if (strcmp (table_name, "rdfs:Resource") == 0) {
-					g_string_append (sql, ", \"tracker:added\", \"tracker:modified\", Available");
-					g_string_append (values_sql, ", ?, ?, 1");
+					g_string_append (sql, ", \"tracker:added\", \"tracker:modified\"");
+					g_string_append (values_sql, ", ?, ?");
 				} else {
 				}
 			} else {

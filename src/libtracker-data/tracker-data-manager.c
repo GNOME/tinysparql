@@ -2953,12 +2953,8 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		create_sql = g_string_new ("");
 		g_string_append_printf (create_sql, "CREATE TABLE \"%s\" (ID INTEGER NOT NULL PRIMARY KEY", service_name);
 		if (main_class) {
-			tracker_db_interface_execute_query (iface, &internal_error, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri TEXT NOT NULL, UNIQUE (Uri))");
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
-				goto error_out;
-			}
-			g_string_append (create_sql, ", Available INTEGER NOT NULL");
+			/* FIXME: This column is unneeded */
+			g_string_append (create_sql, ", Available INTEGER DEFAULT 1");
 		}
 	}
 
@@ -3424,6 +3420,63 @@ tracker_data_ontology_import_finished (TrackerDataManager *manager)
 	}
 }
 
+static gboolean
+query_table_exists (TrackerDBInterface  *iface,
+                    const gchar         *table_name,
+                    GError             **error)
+{
+	TrackerDBCursor *cursor = NULL;
+	TrackerDBStatement *stmt;
+	gboolean exists = FALSE;
+
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
+	                                              "SELECT 1 FROM sqlite_master WHERE tbl_name=\"%s\" AND type=\"table\"",
+	                                              table_name);
+	if (stmt) {
+		cursor = tracker_db_statement_start_cursor (stmt, error);
+		g_object_unref (stmt);
+	}
+
+	if (cursor) {
+		if (tracker_db_cursor_iter_next (cursor, NULL, error)) {
+			exists = TRUE;
+		}
+		g_object_unref (cursor);
+	}
+
+	return exists;
+}
+
+static gboolean
+create_base_tables (TrackerDataManager  *manager,
+                    TrackerDBInterface  *iface,
+                    gboolean            *altered,
+                    GError             **error)
+{
+	GError *internal_error = NULL;
+
+	if (!query_table_exists (iface, "Resource", &internal_error) && !internal_error) {
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY,"
+		                                    " Uri TEXT NOT NULL, Refcount INTEGER DEFAULT 0, UNIQUE (Uri))");
+	} else if (!internal_error) {
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "ALTER TABLE Resource ADD COLUMN Refcount INTEGER DEFAULT 0");
+
+		if (!internal_error)
+			*altered = TRUE;
+		else
+			g_clear_error (&internal_error);
+	}
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 static void
 tracker_data_ontology_import_into_db (TrackerDataManager  *manager,
                                       gboolean             in_update,
@@ -3434,11 +3487,16 @@ tracker_data_ontology_import_into_db (TrackerDataManager  *manager,
 	TrackerClass **classes;
 	TrackerProperty **properties;
 	guint i, n_props, n_classes;
+	gboolean base_tables_altered = FALSE;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
 	classes = tracker_ontologies_get_classes (manager->ontologies, &n_classes);
 	properties = tracker_ontologies_get_properties (manager->ontologies, &n_props);
+
+	if (!create_base_tables (manager, iface, &base_tables_altered, error)) {
+		return;
+	}
 
 	/* create tables */
 	for (i = 0; i < n_classes; i++) {
