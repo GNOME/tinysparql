@@ -2949,3 +2949,9 @@ tracker_db_interface_get_user_data (TrackerDBInterface *db_interface)
 {
 	return db_interface->user_data;
 }
+
+gboolean
+tracker_db_interface_get_is_used (TrackerDBInterface *db_interface)
+{
+	return g_atomic_int_get (&db_interface->n_active_cursors) > 0;
+}

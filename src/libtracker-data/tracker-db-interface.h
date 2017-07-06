@@ -115,6 +115,8 @@ void                    tracker_db_interface_execute_query           (TrackerDBI
 gboolean                tracker_db_interface_start_transaction       (TrackerDBInterface         *interface);
 gboolean                tracker_db_interface_end_db_transaction      (TrackerDBInterface         *interface,
                                                                       GError                    **error);
+gboolean                tracker_db_interface_get_is_used             (TrackerDBInterface         *interface);
+
 void                    tracker_db_statement_bind_double             (TrackerDBStatement         *stmt,
                                                                       int                         index,
                                                                       double                      value);

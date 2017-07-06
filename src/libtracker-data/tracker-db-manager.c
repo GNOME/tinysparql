@@ -51,6 +51,9 @@
 /* ZLib buffer settings */
 #define ZLIB_BUF_SIZE                 8192
 
+#define MAX_INTERFACES_PER_CPU        16
+#define MAX_INTERFACES                (MAX_INTERFACES_PER_CPU * g_get_num_processors ())
+
 /* Required minimum space needed to create databases (5Mb) */
 #define TRACKER_DB_MIN_REQUIRED_SPACE 5242880
 
@@ -132,6 +135,8 @@ struct _TrackerDBManager {
 	guint u_cache_size;
 
 	GWeakRef iface_data;
+
+	GAsyncQueue *interfaces;
 };
 
 static gboolean            db_exec_no_reply                        (TrackerDBInterface   *iface,
@@ -141,8 +146,6 @@ static TrackerDBInterface *tracker_db_manager_create_db_interface   (TrackerDBMa
                                                                      gboolean             readonly,
                                                                      GError             **error);
 static void                db_remove_locale_file                    (TrackerDBManager    *db_manager);
-
-static GPrivate              interface_data_key = G_PRIVATE_INIT ((GDestroyNotify)g_object_unref);
 
 static gboolean
 db_exec_no_reply (TrackerDBInterface *iface,
@@ -606,6 +609,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	db_manager->flags = flags;
 	db_manager->s_cache_size = select_cache_size;
 	db_manager->u_cache_size = update_cache_size;
+	db_manager->interfaces = g_async_queue_new_full (g_object_unref);
 
 	g_set_object (&db_manager->cache_location, cache_location);
 	g_set_object (&db_manager->data_location, data_location);
@@ -900,7 +904,8 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 		}
 	}
 
-	g_private_replace (&interface_data_key, resources_iface);
+	tracker_data_manager_init_fts (resources_iface, FALSE);
+	g_async_queue_push (db_manager->interfaces, resources_iface);
 
 	return db_manager;
 }
@@ -908,6 +913,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 void
 tracker_db_manager_free (TrackerDBManager *db_manager)
 {
+	g_async_queue_unref (db_manager->interfaces);
 	g_free (db_manager->db.abs_filename);
 	g_clear_object (&db_manager->db.iface);
 	g_weak_ref_clear (&db_manager->iface_data);
@@ -1025,12 +1031,28 @@ tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 	GError *internal_error = NULL;
 	TrackerDBInterface *interface;
 
-	interface = g_private_get (&interface_data_key);
+	/* The interfaces never actually leave the async queue,
+	 * we use it as a thread synchronized LRU, which doesn't
+	 * mean the interface found has no other active cursors,
+	 * in which case we either optionally create a new
+	 * TrackerDBInterface, or resign to sharing the obtained
+	 * one with other threads (thus getting increased contention
+	 * in the interface lock).
+	 */
+	g_async_queue_lock (db_manager->interfaces);
+	interface = g_async_queue_try_pop_unlocked (db_manager->interfaces);
 
-	/* Ensure the interface is there */
+	if (interface && tracker_db_interface_get_is_used (interface) &&
+	    g_async_queue_length_unlocked (db_manager->interfaces) < MAX_INTERFACES) {
+		/* Put it back and go at creating a new one */
+		g_async_queue_push_front_unlocked (db_manager->interfaces, interface);
+		interface = NULL;
+	}
+
 	if (!interface) {
 		TrackerDBManagerFlags flags;
 
+		/* Create a new one to satisfy the request */
 		flags = tracker_db_manager_get_flags (db_manager, NULL, NULL);
 		interface = tracker_db_manager_create_db_interface (db_manager,
 		                                                    TRUE, &internal_error);
@@ -1038,13 +1060,15 @@ tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 		if (internal_error) {
 			g_critical ("Error opening database: %s", internal_error->message);
 			g_error_free (internal_error);
+			g_async_queue_unlock (db_manager->interfaces);
 			return NULL;
 		}
 
 		tracker_data_manager_init_fts (interface, FALSE);
-
-		g_private_set (&interface_data_key, interface);
 	}
+
+	g_async_queue_push_unlocked (db_manager->interfaces, interface);
+	g_async_queue_unlock (db_manager->interfaces);
 
 	return interface;
 }
