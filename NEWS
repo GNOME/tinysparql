@@ -1,3 +1,36 @@
+NEW in 1.99.0 - 2017-07-06
+==========================
+
+  WARNING: This is unstable development towards 2.0. There are API and
+           ABI incompatibilities that might affect you.
+
+  * Domain ontologies: it is now possible to create domain-specific SPARQL
+    endpoints with customizable ontologies and data locations. It is possible
+    to do so either in-process using the traditional Tracker daemons to
+    do the work (Note: miners rely on Nepomuk ontology).
+  * Deleted nautilus/firefox/evolution/thunderbird plugins. They were in
+    a pitiful state of maintainership, the latter 2 being known broken for
+    some time already.
+  * Deleted tracker-needle. It has been in strict maintenance state for years,
+    since then other UIs have integrated Tracker search and offer a more
+    compelling and modern experience.
+  * Deleted tracker-preferences. Tracker has been using GSettings for years,
+    so doesn't specifically require an UI for it, there's of course room
+    for desktop integrated configuration, gnome-control-center does this
+    for example.
+  * Made portions of libtracker-miner useful on the client side. Miners don't
+    mandate anymore an org.freedesktop.Tracker1.Miner DBus interface/name,
+    this is instead delegated on TrackerMinerProxy. TrackerMinerFS has been
+    made largely independent of the ontology in use, all high level operations
+    that do require SPARQL updates are now exposed in TrackerMinerFSClass.
+  * Removed deprecated and duplicate API on libtracker-miner
+  * Added documentation about creating and maintaining ontologies.
+  * Removed maemo leftovers.
+  * libtracker-sparql: Protect sqlite3_bind* with interface lock
+  * Improvements to meson build
+
+Translations: ca, sr
+
 NEW in 1.13.0 - 2017-05-23
 ==========================
 
