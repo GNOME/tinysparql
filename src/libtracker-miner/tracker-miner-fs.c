@@ -1110,6 +1110,15 @@ miner_resumed (TrackerMiner *miner)
 	}
 }
 
+static gboolean
+item_moved_data_has_prefix (gpointer data,
+			    gpointer user_data)
+{
+	ItemMovedData *moved_item = data;
+	GFile *prefix = user_data;
+
+	return g_file_has_prefix (moved_item->file, prefix);
+}
 
 static void
 miner_ignore_next_update (TrackerMiner *miner, const GStrv urls)
@@ -1165,7 +1174,7 @@ notify_roots_finished (TrackerMinerFS *fs,
 		    (tracker_priority_queue_find (fs->priv->items_created, NULL, (GEqualFunc) g_file_has_prefix, root) ||
 		     tracker_priority_queue_find (fs->priv->items_updated, NULL, (GEqualFunc) g_file_has_prefix, root) ||
 		     tracker_priority_queue_find (fs->priv->items_deleted, NULL, (GEqualFunc) g_file_has_prefix, root) ||
-		     tracker_priority_queue_find (fs->priv->items_moved, NULL, (GEqualFunc) g_file_has_prefix, root) ||
+		     tracker_priority_queue_find (fs->priv->items_moved, NULL, (GEqualFunc) item_moved_data_has_prefix, root) ||
 		     tracker_priority_queue_find (fs->priv->items_writeback, NULL, (GEqualFunc) g_file_has_prefix, root))) {
 			continue;
 		}
