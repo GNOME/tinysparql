@@ -2701,7 +2701,7 @@ miner_files_move_file (TrackerMinerFS *fs,
 
 	uri = g_file_get_uri (file);
 	source_uri = g_file_get_uri (source_file);
-	source_iri = tracker_miner_fs_query_urn (fs, file);
+	source_iri = tracker_miner_fs_query_urn (fs, source_file);
 
 	if (priv->thumbnailer) {
 		GFileInfo *file_info;
