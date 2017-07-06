@@ -238,6 +238,7 @@ namespace Tracker {
                 public unowned Ontologies get_ontologies ();
 		public unowned DBInterface get_db_interface ();
 		public unowned Data.Update get_data ();
+		public void shutdown ();
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]

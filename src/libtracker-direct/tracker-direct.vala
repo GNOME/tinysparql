@@ -210,6 +210,11 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 		update_queue = new AsyncQueue<Task> ();
 	}
 
+	public override void dispose () {
+		data_manager.shutdown ();
+		base.dispose ();
+        }
+
 	Sparql.Cursor query_unlocked (string sparql) throws Sparql.Error, DBusError {
 		try {
 			var query_object = new Sparql.Query (data_manager, sparql);

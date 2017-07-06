@@ -4531,6 +4531,16 @@ skip_ontology_check:
 }
 
 void
+tracker_data_manager_dispose (GObject *object)
+{
+	TrackerDataManager *manager = TRACKER_DATA_MANAGER (object);
+
+	g_clear_pointer (&manager->db_manager, tracker_db_manager_free);
+
+	G_OBJECT_CLASS (tracker_data_manager_parent_class)->finalize (object);
+}
+
+void
 tracker_data_manager_finalize (GObject *object)
 {
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (object);
@@ -4557,7 +4567,6 @@ tracker_data_manager_finalize (GObject *object)
 	}
 #endif /* DISABLE_JOURNAL */
 
-	g_clear_pointer (&manager->db_manager, tracker_db_manager_free);
 	g_clear_object (&manager->ontologies);
 	g_clear_object (&manager->data_update);
 
@@ -4594,6 +4603,7 @@ tracker_data_manager_class_init (TrackerDataManagerClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->get_property = tracker_data_manager_get_property;
+	object_class->dispose = tracker_data_manager_dispose;
 	object_class->finalize = tracker_data_manager_finalize;
 
 	g_object_class_install_property (object_class,
@@ -4641,4 +4651,10 @@ TrackerData *
 tracker_data_manager_get_data (TrackerDataManager *manager)
 {
 	return manager->data_update;
+}
+
+void
+tracker_data_manager_shutdown (TrackerDataManager *manager)
+{
+	g_object_run_dispose (G_OBJECT (manager));
 }
