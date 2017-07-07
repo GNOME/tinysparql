@@ -39,6 +39,8 @@
  */
 #define FILES_GROUP_SIZE             100
 
+#define MAX_SIMULTANEOUS_ITEMS       64
+
 typedef struct DirectoryChildData DirectoryChildData;
 typedef struct DirectoryProcessingData DirectoryProcessingData;
 typedef struct DirectoryRootInfo DirectoryRootInfo;
@@ -587,15 +589,13 @@ directory_root_info_free (DirectoryRootInfo *info)
 }
 
 static gboolean
-process_func (gpointer data)
+process_next (TrackerCrawler *crawler)
 {
-	TrackerCrawler          *crawler;
 	TrackerCrawlerPrivate   *priv;
 	DirectoryRootInfo       *info;
 	DirectoryProcessingData *dir_data = NULL;
 	gboolean                 stop_idle = FALSE;
 
-	crawler = TRACKER_CRAWLER (data);
 	priv = crawler->priv;
 
 	if (priv->is_paused) {
@@ -700,6 +700,22 @@ process_func (gpointer data)
 	}
 
 	return TRUE;
+}
+
+static gboolean
+process_func (gpointer data)
+{
+	TrackerCrawler *crawler = data;
+	gboolean retval = FALSE;
+	gint i;
+
+	for (i = 0; i < MAX_SIMULTANEOUS_ITEMS; i++) {
+		retval = process_next (crawler);
+		if (retval == FALSE)
+			break;
+	}
+
+	return retval;
 }
 
 static gboolean
