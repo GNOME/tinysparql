@@ -97,6 +97,8 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
  */
 #define TRACKER_TASK_PRIORITY G_PRIORITY_DEFAULT_IDLE + 10
 
+#define MAX_SIMULTANEOUS_ITEMS 64
+
 /**
  * SECTION:tracker-miner-fs
  * @short_description: Abstract base class for filesystem miners
@@ -1777,9 +1779,8 @@ item_queue_get_progress (TrackerMinerFS *fs,
 }
 
 static gboolean
-item_queue_handlers_cb (gpointer user_data)
+miner_handle_next_item (TrackerMinerFS *fs)
 {
-	TrackerMinerFS *fs = user_data;
 	GFile *file = NULL;
 	GFile *source_file = NULL;
 	GFile *parent;
@@ -1796,19 +1797,12 @@ item_queue_handlers_cb (gpointer user_data)
 
 	if (tracker_task_pool_limit_reached (TRACKER_TASK_POOL (fs->priv->sparql_buffer))) {
 		/* Task pool is full, give it a break */
-		fs->priv->item_queues_handler_id = 0;
 		return FALSE;
 	}
 
 	queue = item_queue_get_next_file (fs, &file, &source_file, &priority);
 
 	if (queue == QUEUE_WAIT) {
-		/* Items are still being processed, so wait until
-		 * the processing pool is cleared before starting with
-		 * the next directories batch.
-		 */
-		fs->priv->item_queues_handler_id = 0;
-
 		/* We should flush the processing pool buffer here, because
 		 * if there was a previous task on the same file we want to
 		 * process now, we want it to get finished before we can go
@@ -1819,6 +1813,10 @@ item_queue_handlers_cb (gpointer user_data)
 		/* Check if we've finished inserting for given prefixes ... */
 		notify_roots_finished (fs, TRUE);
 
+		/* Items are still being processed, so wait until
+		 * the processing pool is cleared before starting with
+		 * the next directories batch.
+		 */
 		return FALSE;
 	}
 
@@ -1984,12 +1982,27 @@ item_queue_handlers_cb (gpointer user_data)
 		g_object_unref (source_file);
 	}
 
-	if (!keep_processing) {
-		fs->priv->item_queues_handler_id = 0;
-		return FALSE;
-	} else {
-		return TRUE;
+	return keep_processing;
+}
+
+static gboolean
+item_queue_handlers_cb (gpointer user_data)
+{
+	TrackerMinerFS *fs = user_data;
+	gboolean retval = FALSE;
+	gint i;
+
+	for (i = 0; i < MAX_SIMULTANEOUS_ITEMS; i++) {
+		retval = miner_handle_next_item (fs);
+		if (retval == FALSE)
+			break;
 	}
+
+	if (retval == FALSE) {
+		fs->priv->item_queues_handler_id = 0;
+	}
+
+	return retval;
 }
 
 static guint
