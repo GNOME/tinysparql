@@ -51,7 +51,7 @@ typedef struct {
 	DirectoryRootInfo  *root_info;
 	DirectoryProcessingData *dir_info;
 	GFile *dir_file;
-	GSList *files;
+	GList *files;
 } DataProviderData;
 
 struct DirectoryChildData {
@@ -796,7 +796,7 @@ data_provider_data_add (DataProviderData *dpd)
 {
 	TrackerCrawler *crawler;
 	GFile *parent;
-	GSList *l;
+	GList *l;
 
 	crawler = dpd->crawler;
 	parent = dpd->dir_file;
@@ -827,7 +827,7 @@ data_provider_data_add (DataProviderData *dpd)
 		g_object_unref (info);
 	}
 
-	g_slist_free (dpd->files);
+	g_list_free (dpd->files);
 	dpd->files = NULL;
 }
 
@@ -838,7 +838,7 @@ data_provider_data_free (DataProviderData *dpd)
 	g_object_unref (dpd->crawler);
 
 	if (dpd->files) {
-		g_slist_free_full (dpd->files, g_object_unref);
+		g_list_free_full (dpd->files, g_object_unref);
 	}
 
 	if (dpd->enumerator) {
@@ -941,9 +941,10 @@ enumerate_next_cb (GObject      *object,
 		process_func_start (dpd->crawler);
 	} else {
 		/* More work to do, we keep reference given to us */
-		dpd->files = g_slist_prepend (dpd->files, info->data);
+		dpd->files = g_list_concat (dpd->files, info);
 		g_file_enumerator_next_files_async (G_FILE_ENUMERATOR (object),
-		                                    1, G_PRIORITY_LOW,
+		                                    MAX_SIMULTANEOUS_ITEMS,
+		                                    G_PRIORITY_LOW,
 		                                    dpd->crawler->priv->cancellable,
 		                                    enumerate_next_cb,
 		                                    dpd);
@@ -982,7 +983,8 @@ data_provider_begin_cb (GObject      *object,
 	}
 
 	g_file_enumerator_next_files_async (dpd->enumerator,
-	                                    1, G_PRIORITY_LOW,
+	                                    MAX_SIMULTANEOUS_ITEMS,
+	                                    G_PRIORITY_LOW,
 	                                    dpd->crawler->priv->cancellable,
 	                                    enumerate_next_cb,
 	                                    dpd);
