@@ -5,9 +5,6 @@ TrackerDataProviderIface
 tracker_data_provider_begin
 tracker_data_provider_begin_async
 tracker_data_provider_begin_finish
-tracker_data_provider_end
-tracker_data_provider_end_async
-tracker_data_provider_end_finish
 TrackerDataProvider
 <SUBSECTION Standard>
 TRACKER_DATA_PROVIDER
@@ -68,22 +65,6 @@ tracker_decorator_fs_get_type
 </SECTION>
 
 <SECTION>
-<FILE>tracker-enumerator</FILE>
-<TITLE>TrackerEnumerator</TITLE>
-TrackerEnumeratorIface
-tracker_enumerator_next
-tracker_enumerator_next_async
-tracker_enumerator_next_finish
-TrackerEnumerator
-<SUBSECTION Standard>
-TRACKER_ENUMERATOR
-TRACKER_ENUMERATOR_GET_IFACE
-TRACKER_IS_ENUMERATOR
-TRACKER_TYPE_ENUMERATOR
-tracker_enumerator_get_type
-</SECTION>
-
-<SECTION>
 <FILE>tracker-file-data-provider</FILE>
 <TITLE>TrackerFileDataProvider</TITLE>
 TrackerFileDataProviderClass
@@ -98,22 +79,6 @@ TRACKER_IS_FILE_DATA_PROVIDER_CLASS
 TRACKER_TYPE_FILE_DATA_PROVIDER
 TrackerFileDataProviderPrivate
 tracker_file_data_provider_get_type
-</SECTION>
-
-<SECTION>
-<FILE>tracker-file-enumerator</FILE>
-<TITLE>TrackerFileEnumerator</TITLE>
-TrackerFileEnumeratorClass
-tracker_file_enumerator_new
-TrackerFileEnumerator
-<SUBSECTION Standard>
-TRACKER_FILE_ENUMERATOR
-TRACKER_FILE_ENUMERATOR_CLASS
-TRACKER_FILE_ENUMERATOR_GET_CLASS
-TRACKER_IS_FILE_ENUMERATOR
-TRACKER_IS_FILE_ENUMERATOR_CLASS
-TRACKER_TYPE_FILE_ENUMERATOR
-tracker_file_enumerator_get_type
 </SECTION>
 
 <SECTION>

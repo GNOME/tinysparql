@@ -28,7 +28,6 @@
 
 #include <gio/gio.h>
 #include "tracker-indexing-tree.h"
-#include "tracker-enumerator.h"
 #include "tracker-miner-fs.h"
 
 G_BEGIN_DECLS

@@ -47,7 +47,7 @@ typedef struct DirectoryRootInfo DirectoryRootInfo;
 
 typedef struct {
 	TrackerCrawler *crawler;
-	TrackerEnumerator *enumerator;
+	GFileEnumerator *enumerator;
 	DirectoryRootInfo  *root_info;
 	DirectoryProcessingData *dir_info;
 	GFile *dir_file;
@@ -856,7 +856,7 @@ data_provider_end_cb (GObject      *object,
 	DataProviderData *dpd;
 	GError *error = NULL;
 
-	tracker_data_provider_end_finish (TRACKER_DATA_PROVIDER (object), result, &error);
+	g_file_enumerator_close_finish (G_FILE_ENUMERATOR (object), result, &error);
 	dpd = user_data;
 
 	if (error) {
@@ -894,11 +894,10 @@ data_provider_end (TrackerCrawler    *crawler,
 	info->dpd = NULL;
 
 	if (dpd->enumerator) {
-		tracker_data_provider_end_async (crawler->priv->data_provider,
-		                                 dpd->enumerator,
-		                                 G_PRIORITY_LOW, NULL,
-		                                 data_provider_end_cb,
-		                                 dpd);
+		g_file_enumerator_close_async (dpd->enumerator,
+		                               G_PRIORITY_LOW, NULL,
+		                               data_provider_end_cb,
+		                               dpd);
 	} else {
 		data_provider_data_free (dpd);
 	}
@@ -910,10 +909,10 @@ enumerate_next_cb (GObject      *object,
                    gpointer      user_data)
 {
 	DataProviderData *dpd;
-	GFileInfo *info;
+	GList *info;
 	GError *error = NULL;
 
-	info = tracker_enumerator_next_finish (TRACKER_ENUMERATOR (object), result, &error);
+	info = g_file_enumerator_next_files_finish (G_FILE_ENUMERATOR (object), result, &error);
 	dpd = user_data;
 
 	if (!info) {
@@ -942,12 +941,12 @@ enumerate_next_cb (GObject      *object,
 		process_func_start (dpd->crawler);
 	} else {
 		/* More work to do, we keep reference given to us */
-		dpd->files = g_slist_prepend (dpd->files, info);
-		tracker_enumerator_next_async (TRACKER_ENUMERATOR (object),
-		                               G_PRIORITY_LOW,
-		                               dpd->crawler->priv->cancellable,
-		                               enumerate_next_cb,
-		                               dpd);
+		dpd->files = g_slist_prepend (dpd->files, info->data);
+		g_file_enumerator_next_files_async (G_FILE_ENUMERATOR (object),
+		                                    1, G_PRIORITY_LOW,
+		                                    dpd->crawler->priv->cancellable,
+		                                    enumerate_next_cb,
+		                                    dpd);
 	}
 }
 
@@ -956,7 +955,7 @@ data_provider_begin_cb (GObject      *object,
                         GAsyncResult *result,
                         gpointer      user_data)
 {
-	TrackerEnumerator *enumerator;
+	GFileEnumerator *enumerator;
 	DirectoryRootInfo *info;
 	DataProviderData *dpd;
 	GError *error = NULL;
@@ -982,11 +981,11 @@ data_provider_begin_cb (GObject      *object,
 		return;
 	}
 
-	tracker_enumerator_next_async (dpd->enumerator,
-	                               G_PRIORITY_LOW,
-	                               dpd->crawler->priv->cancellable,
-	                               enumerate_next_cb,
-	                               dpd);
+	g_file_enumerator_next_files_async (dpd->enumerator,
+	                                    1, G_PRIORITY_LOW,
+	                                    dpd->crawler->priv->cancellable,
+	                                    enumerate_next_cb,
+	                                    dpd);
 }
 
 static void

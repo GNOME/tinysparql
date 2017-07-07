@@ -11,7 +11,6 @@ miner_enums = gnome.mkenums('tracker-miner-enum-types',
 private_sources = [
     'tracker-crawler.c',
     'tracker-file-data-provider.c',
-    'tracker-file-enumerator.c',
     'tracker-file-notifier.c',
     'tracker-file-system.c',
     'tracker-priority-queue.c',
@@ -20,7 +19,6 @@ private_sources = [
     'tracker-utils.c']
 
 miner_headers = [
-    'tracker-enumerator.h',
     'tracker-miner-online.h',
     'tracker-data-provider.h',
     'tracker-indexing-tree.h',
@@ -40,7 +38,6 @@ miner_sources = (
     ['tracker-data-provider.c',
     'tracker-decorator.c',
     'tracker-decorator-fs.c',
-    'tracker-enumerator.c',
     'tracker-indexing-tree.c',
     'tracker-miner-object.c',
     'tracker-miner-online.c',

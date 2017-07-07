@@ -28,7 +28,6 @@
 
 #include <gio/gio.h>
 
-#include "tracker-enumerator.h"
 #include "tracker-miner-enums.h"
 
 G_BEGIN_DECLS
@@ -72,7 +71,7 @@ struct _TrackerDataProviderIface {
 	/* Virtual Table */
 
 	/* Start the data_provider for a given location, attributes and flags */
-	TrackerEnumerator *   (* begin)              (TrackerDataProvider    *data_provider,
+	GFileEnumerator *     (* begin)              (TrackerDataProvider    *data_provider,
 	                                              GFile                  *url,
 	                                              const gchar            *attributes,
 	                                              TrackerDirectoryFlags   flags,
@@ -86,39 +85,16 @@ struct _TrackerDataProviderIface {
 	                                              GCancellable           *cancellable,
 	                                              GAsyncReadyCallback     callback,
 	                                              gpointer                user_data);
-	TrackerEnumerator *   (* begin_finish)       (TrackerDataProvider    *data_provider,
-	                                              GAsyncResult           *result,
-	                                              GError                **error);
-
-	/* Close the given location */
-	gboolean              (* end)                (TrackerDataProvider    *data_provider,
-	                                              TrackerEnumerator      *enumerator,
-	                                              GCancellable           *cancellable,
-	                                              GError                **error);
-	void                  (* end_async)          (TrackerDataProvider    *data_provider,
-	                                              TrackerEnumerator      *enumerator,
-	                                              gint                    io_priority,
-	                                              GCancellable           *cancellable,
-	                                              GAsyncReadyCallback     callback,
-	                                              gpointer                user_data);
-	gboolean              (* end_finish)         (TrackerDataProvider    *data_provider,
+	GFileEnumerator *    (* begin_finish)       (TrackerDataProvider    *data_provider,
 	                                              GAsyncResult           *result,
 	                                              GError                **error);
 
 	/*< private >*/
-	/* Padding for future expansion */
-	void (*_tracker_reserved1) (void);
-	void (*_tracker_reserved2) (void);
-	void (*_tracker_reserved3) (void);
-	void (*_tracker_reserved4) (void);
-	void (*_tracker_reserved5) (void);
-	void (*_tracker_reserved6) (void);
-	void (*_tracker_reserved7) (void);
-	void (*_tracker_reserved8) (void);
+	gpointer padding[10];
 };
 
 GType              tracker_data_provider_get_type        (void) G_GNUC_CONST;
-TrackerEnumerator *tracker_data_provider_begin           (TrackerDataProvider   *data_provider,
+GFileEnumerator   *tracker_data_provider_begin           (TrackerDataProvider   *data_provider,
                                                           GFile                 *url,
                                                           const gchar           *attributes,
                                                           TrackerDirectoryFlags  flags,
@@ -132,20 +108,7 @@ void               tracker_data_provider_begin_async     (TrackerDataProvider   
                                                           GCancellable          *cancellable,
                                                           GAsyncReadyCallback    callback,
                                                           gpointer               user_data);
-TrackerEnumerator *tracker_data_provider_begin_finish    (TrackerDataProvider   *data_provider,
-                                                          GAsyncResult          *result,
-                                                          GError               **error);
-gboolean           tracker_data_provider_end             (TrackerDataProvider   *data_provider,
-                                                          TrackerEnumerator     *enumerator,
-                                                          GCancellable          *cancellable,
-                                                          GError               **error);
-void               tracker_data_provider_end_async       (TrackerDataProvider   *data_provider,
-                                                          TrackerEnumerator     *enumerator,
-                                                          gint                   io_priority,
-                                                          GCancellable          *cancellable,
-                                                          GAsyncReadyCallback    callback,
-                                                          gpointer               user_data);
-gboolean           tracker_data_provider_end_finish      (TrackerDataProvider   *data_provider,
+GFileEnumerator   *tracker_data_provider_begin_finish    (TrackerDataProvider   *data_provider,
                                                           GAsyncResult          *result,
                                                           GError               **error);
 

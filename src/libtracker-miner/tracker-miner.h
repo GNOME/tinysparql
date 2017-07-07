@@ -25,7 +25,6 @@
 #include <libtracker-miner/tracker-data-provider.h>
 #include <libtracker-miner/tracker-decorator.h>
 #include <libtracker-miner/tracker-decorator-fs.h>
-#include <libtracker-miner/tracker-enumerator.h>
 #include <libtracker-miner/tracker-miner-object.h>
 #include <libtracker-miner/tracker-miner-online.h>
 #include <libtracker-miner/tracker-miner-fs.h>

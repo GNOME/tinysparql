@@ -30,7 +30,7 @@ test_enumerator_and_provider (void)
 {
 	GFileEnumerator *fe;
 	TrackerDataProvider *data_provider;
-	TrackerEnumerator *enumerator;
+	GFileEnumerator *enumerator;
 	GFileInfo *info;
 	GFile *url;
 	GSList *files, *l;
@@ -66,7 +66,7 @@ test_enumerator_and_provider (void)
 	g_assert_no_error (error);
 	g_assert_nonnull (enumerator);
 
-	while ((info = tracker_enumerator_next (enumerator, NULL, &error)) != NULL) {
+	while ((info = g_file_enumerator_next_file (enumerator, NULL, &error)) != NULL) {
 		g_assert_no_error (error);
 		count++;
 	}
