@@ -1002,6 +1002,7 @@ data_provider_begin (TrackerCrawler          *crawler,
 	 * failure, this is normally the case when we return to the
 	 * process_func() and finish a directory.
 	 */
+	dir_data->was_inspected = TRUE;
 	dpd = data_provider_data_new (crawler, info, dir_data);
 	info->dpd = dpd;
 
@@ -1031,6 +1032,7 @@ tracker_crawler_start (TrackerCrawler        *crawler,
                        gint                   max_depth)
 {
 	TrackerCrawlerPrivate *priv;
+	DirectoryProcessingData *dir_data;
 	DirectoryRootInfo *info;
 	gboolean enable_stat;
 
@@ -1089,7 +1091,11 @@ tracker_crawler_start (TrackerCrawler        *crawler,
 	}
 
 	g_queue_push_tail (priv->directories, info);
-	process_func_start (crawler);
+
+	dir_data = g_queue_peek_head (info->directory_processing_queue);
+
+	if (dir_data)
+		data_provider_begin (crawler, info, dir_data);
 
 	return TRUE;
 }
