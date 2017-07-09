@@ -63,6 +63,9 @@ void                tracker_db_manager_remove_all             (TrackerDBManager 
 void                tracker_db_manager_optimize               (TrackerDBManager      *db_manager);
 const gchar *       tracker_db_manager_get_file               (TrackerDBManager      *db_manager);
 TrackerDBInterface *tracker_db_manager_get_db_interface       (TrackerDBManager      *db_manager);
+TrackerDBInterface *tracker_db_manager_get_writable_db_interface (TrackerDBManager   *db_manager);
+TrackerDBInterface *tracker_db_manager_get_wal_db_interface   (TrackerDBManager      *db_manager);
+
 void                tracker_db_manager_ensure_locations       (TrackerDBManager      *db_manager,
 							       GFile                 *cache_location,
                                                                GFile                 *data_location);

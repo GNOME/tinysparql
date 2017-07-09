@@ -106,12 +106,15 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 	}
 
 	static void wal_hook (DBInterface iface, int n_pages) {
+		var manager = (Data.Manager) iface.get_user_data ();
+		var wal_iface = manager.get_wal_db_interface ();
+
 		if (n_pages >= 10000) {
 			// do immediate checkpointing (blocking updates)
 			// to prevent excessive wal file growth
-			wal_checkpoint (iface, true);
+			wal_checkpoint (wal_iface, true);
 		} else if (n_pages >= 1000) {
-			wal_checkpoint_on_thread (iface);
+			wal_checkpoint_on_thread (wal_iface);
 		}
 	}
 
@@ -129,7 +132,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 			                                 false, false, 100, 100);
 			data_manager.init ();
 
-			var iface = data_manager.get_db_interface ();
+			var iface = data_manager.get_writable_db_interface ();
 			iface.sqlite_wal_hook (wal_hook);
 		} catch (Error e) {
 			init_error = e;

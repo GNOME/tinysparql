@@ -96,6 +96,7 @@ typedef enum {
 
 typedef struct {
 	TrackerDBInterface *iface;
+	TrackerDBInterface *wal_iface;
 	const gchar        *file;
 	const gchar        *name;
 	gchar              *abs_filename;
@@ -107,7 +108,7 @@ typedef struct {
 } TrackerDBDefinition;
 
 static TrackerDBDefinition db_base = {
-	NULL,
+	NULL, NULL,
 	"meta.db",
 	"meta",
 	NULL,
@@ -934,7 +935,7 @@ tracker_db_manager_optimize (TrackerDBManager *db_manager)
 
 	g_info ("  Checking database is not in use");
 
-	iface = tracker_db_manager_get_db_interface (db_manager);
+	iface = tracker_db_manager_get_writable_db_interface (db_manager);
 
 	/* Check if any connections are open? */
 	if (G_OBJECT (iface)->ref_count > 1) {
@@ -1048,6 +1049,44 @@ tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 	}
 
 	return interface;
+}
+
+static TrackerDBInterface *
+init_writable_db_interface (TrackerDBManager *db_manager)
+{
+	TrackerDBInterface *iface;
+	GError *error = NULL;
+	gboolean readonly;
+
+	/* Honor anyway the DBManager readonly flag */
+	readonly = (db_manager->flags & TRACKER_DB_MANAGER_READONLY) != 0;
+	iface = tracker_db_manager_create_db_interface (db_manager, readonly, &error);
+	if (error) {
+		g_critical ("Error opening readwrite database: %s", error->message);
+		g_error_free (error);
+	}
+
+	return iface;
+}
+
+TrackerDBInterface *
+tracker_db_manager_get_writable_db_interface (TrackerDBManager *db_manager)
+{
+	if (db_manager->db.iface == NULL) {
+		db_manager->db.iface = init_writable_db_interface (db_manager);
+	}
+
+	return db_manager->db.iface;
+}
+
+TrackerDBInterface *
+tracker_db_manager_get_wal_db_interface (TrackerDBManager *db_manager)
+{
+	if (db_manager->db.wal_iface == NULL) {
+		db_manager->db.wal_iface = init_writable_db_interface (db_manager);
+	}
+
+	return db_manager->db.wal_iface;
 }
 
 /**

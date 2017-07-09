@@ -217,7 +217,7 @@ public class Tracker.Store {
 				query_task.in_thread (cursor);
 			} else {
 				var data = task.data_manager.get_data ();
-				var iface = task.data_manager.get_db_interface ();
+				var iface = task.data_manager.get_writable_db_interface ();
 				iface.sqlite_wal_hook (wal_hook);
 
 				if (task.type == TaskType.UPDATE) {
@@ -265,18 +265,20 @@ public class Tracker.Store {
 
 	static void wal_hook (DBInterface iface, int n_pages) {
 		// run in update thread
+		var manager = (Data.Manager) iface.get_user_data ();
+		var wal_iface = manager.get_wal_db_interface ();
 
 		debug ("WAL: %d pages", n_pages);
 
 		if (n_pages >= 10000) {
 			// do immediate checkpointing (blocking updates)
 			// to prevent excessive wal file growth
-			wal_checkpoint (iface, true);
+			wal_checkpoint (wal_iface, true);
 		} else if (n_pages >= 1000) {
 			if (AtomicInt.compare_and_exchange (ref checkpointing, 0, 1)) {
 				// initiate asynchronous checkpointing (not blocking updates)
 				try {
-					checkpoint_pool.push (iface);
+					checkpoint_pool.push (wal_iface);
 				} catch (Error e) {
 					warning (e.message);
 					AtomicInt.set (ref checkpointing, 0);
@@ -286,11 +288,8 @@ public class Tracker.Store {
 	}
 
 	static void checkpoint_dispatch_cb (DBInterface iface) {
-		// run in checkpoint thread, we must fetch the right
-		// interface for this thread.
-		var manager = (Data.Manager) iface.get_user_data ();
-
-		wal_checkpoint (manager.get_db_interface (), false);
+		// run in checkpoint thread
+		wal_checkpoint (iface, false);
 		AtomicInt.set (ref checkpointing, 0);
 	}
 

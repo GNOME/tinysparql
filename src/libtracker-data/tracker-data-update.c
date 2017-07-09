@@ -366,7 +366,7 @@ tracker_data_update_get_new_service_id (TrackerData *data)
 			return ++data->max_ontology_id;
 		}
 
-		iface = tracker_data_manager_get_db_interface (data->manager);
+		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 		                                              "SELECT MAX(ID) AS A FROM Resource WHERE ID <= %d", TRACKER_ONTOLOGIES_MAX_ID);
@@ -397,7 +397,7 @@ tracker_data_update_get_new_service_id (TrackerData *data)
 
 		data->max_service_id = TRACKER_ONTOLOGIES_MAX_ID;
 
-		iface = tracker_data_manager_get_db_interface (data->manager);
+		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 		                                              "SELECT MAX(ID) AS A FROM Resource");
@@ -433,7 +433,7 @@ tracker_data_update_get_next_modseq (TrackerData *data)
 	GError             *error = NULL;
 	gint                max_modseq = 0;
 
-	temp_iface = tracker_data_manager_get_db_interface (data->manager);
+	temp_iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	stmt = tracker_db_interface_create_statement (temp_iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT MAX(\"tracker:modified\") AS A FROM \"rdfs:Resource\"");
@@ -685,7 +685,7 @@ query_resource_id (TrackerData *data,
 	gint id;
 
 	id = GPOINTER_TO_INT (g_hash_table_lookup (data->update_buffer.resource_cache, uri));
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	if (id == 0) {
 		id = tracker_data_query_resource_id (data->manager, iface, uri);
@@ -715,7 +715,7 @@ ensure_resource_id (TrackerData *data,
 	}
 
 	if (id == 0) {
-		iface = tracker_data_manager_get_db_interface (data->manager);
+		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 		id = tracker_data_update_get_new_service_id (data);
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
@@ -807,7 +807,7 @@ tracker_data_resource_buffer_flush (TrackerData  *data,
 	gint                            i, param;
 	GError                         *actual_error = NULL;
 
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	g_hash_table_iter_init (&iter, data->resource_buffer->tables);
 	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
@@ -1195,7 +1195,7 @@ tracker_data_blank_buffer_flush (TrackerData  *data,
 	blank_uri = g_strdup_printf ("urn:uuid:%.8s-%.4s-%.4s-%.4s-%.12s",
 	                             sha1, sha1 + 8, sha1 + 12, sha1 + 16, sha1 + 20);
 
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	id = tracker_data_query_resource_id (data->manager, iface, blank_uri);
 
 	if (id == 0) {
@@ -1467,7 +1467,7 @@ get_property_values (TrackerData     *data,
 		table_name = tracker_property_get_table_name (property);
 		field_name = tracker_property_get_name (property);
 
-		iface = tracker_data_manager_get_db_interface (data->manager);
+		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 		                                              "SELECT \"%s\" FROM \"%s\" WHERE ID = ?",
@@ -1538,7 +1538,7 @@ get_old_property_values (TrackerData      *data,
 		if (tracker_property_get_fulltext_indexed (property)) {
 			TrackerDBInterface *iface;
 
-			iface = tracker_data_manager_get_db_interface (data->manager);
+			iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 			if (!data->resource_buffer->fts_updated && !data->resource_buffer->create) {
 				TrackerOntologies *ontologies;
@@ -2189,7 +2189,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 	GError             *error = NULL;
 	TrackerOntologies  *ontologies;
 
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 
 	if (!single_type) {
@@ -2491,7 +2491,7 @@ tracker_data_delete_statement (TrackerData  *data,
 
 	resource_buffer_switch (data, graph, subject, subject_id);
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	if (object && g_strcmp0 (predicate, TRACKER_PREFIX_RDF "type") == 0) {
 		class = tracker_ontologies_get_class_by_uri (ontologies, object);
@@ -2814,7 +2814,7 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 	g_return_if_fail (data->in_transaction);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
 	if (property == NULL) {
@@ -2940,7 +2940,7 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 	g_return_if_fail (data->in_transaction);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
 	if (property == NULL) {
@@ -3047,7 +3047,7 @@ tracker_data_update_statement_with_uri (TrackerData  *data,
 	g_return_if_fail (data->in_transaction);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
 	if (property == NULL) {
@@ -3262,7 +3262,7 @@ tracker_data_update_statement_with_string (TrackerData  *data,
 	g_return_if_fail (data->in_transaction);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
 	if (property == NULL) {
@@ -3477,7 +3477,7 @@ tracker_data_begin_transaction (TrackerData  *data,
 		data->blank_buffer.table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 	}
 
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_UPDATE);
 
@@ -3525,7 +3525,7 @@ tracker_data_commit_transaction (TrackerData  *data,
 
 	g_return_if_fail (data->in_transaction);
 
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	tracker_data_update_buffer_flush (data, &actual_error);
 	if (actual_error) {
@@ -3620,7 +3620,7 @@ tracker_data_rollback_transaction (TrackerData *data)
 	data->in_transaction = FALSE;
 	data->in_ontology_transaction = FALSE;
 
-	iface = tracker_data_manager_get_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	tracker_data_update_buffer_clear (data);
 
@@ -3778,7 +3778,7 @@ tracker_data_replay_journal (TrackerData          *data,
 
 			tracker_db_journal_reader_get_resource (reader, &id, &uri);
 
-			iface = tracker_data_manager_get_db_interface (data->manager);
+			iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &new_error,
 			                                              "INSERT INTO Resource (ID, Uri) VALUES (?, ?)");

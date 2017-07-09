@@ -237,6 +237,8 @@ namespace Tracker {
 		public Manager (DBManagerFlags flags, GLib.File cache_location, GLib.File data_location, GLib.File ontology_location, bool journal_check, bool restoring_backup, uint select_cache_size, uint update_cache_size);
                 public unowned Ontologies get_ontologies ();
 		public unowned DBInterface get_db_interface ();
+		public unowned DBInterface get_writable_db_interface ();
+		public unowned DBInterface get_wal_db_interface ();
 		public unowned Data.Update get_data ();
 		public void shutdown ();
 	}

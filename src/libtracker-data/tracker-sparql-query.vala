@@ -508,8 +508,7 @@ public class Tracker.Sparql.Query : Object {
 		return result;
 	}
 
-	DBStatement prepare_for_exec (string sql) throws DBInterfaceError, Sparql.Error, DateError {
-		var iface = manager.get_db_interface ();
+	DBStatement prepare_for_exec (DBInterface iface, string sql) throws DBInterfaceError, Sparql.Error, DateError {
 		if (iface == null) {
 			throw new DBInterfaceError.OPEN_ERROR ("Error opening database");
 		}
@@ -542,8 +541,8 @@ public class Tracker.Sparql.Query : Object {
 		return stmt;
 	}
 
-	DBCursor? exec_sql_cursor (string sql, PropertyType[]? types, string[]? variable_names) throws DBInterfaceError, Sparql.Error, DateError {
-		var stmt = prepare_for_exec (sql);
+	DBCursor? exec_sql_cursor (DBInterface iface, string sql, PropertyType[]? types, string[]? variable_names) throws DBInterfaceError, Sparql.Error, DateError {
+		var stmt = prepare_for_exec (iface, sql);
 
 		return stmt.start_sparql_cursor (types, variable_names);
 	}
@@ -563,8 +562,9 @@ public class Tracker.Sparql.Query : Object {
 	DBCursor? execute_select_cursor () throws DBInterfaceError, Sparql.Error, DateError {
 		SelectContext context;
 		string sql = get_select_query (out context);
+		var iface = manager.get_db_interface ();
 
-		return exec_sql_cursor (sql, context.types, context.variable_names);
+		return exec_sql_cursor (iface, sql, context.types, context.variable_names);
 	}
 
 	string get_ask_query () throws DBInterfaceError, Sparql.Error, DateError {
@@ -599,7 +599,8 @@ public class Tracker.Sparql.Query : Object {
 	}
 
 	DBCursor? execute_ask_cursor () throws DBInterfaceError, Sparql.Error, DateError {
-		return exec_sql_cursor (get_ask_query (), new PropertyType[] { PropertyType.BOOLEAN }, new string[] { "result" });
+		var iface = manager.get_db_interface ();
+		return exec_sql_cursor (iface, get_ask_query (), new PropertyType[] { PropertyType.BOOLEAN }, new string[] { "result" });
 	}
 
 	private void parse_from_or_into_param () throws Sparql.Error {
@@ -752,7 +753,8 @@ public class Tracker.Sparql.Query : Object {
 		sql.append (pattern_sql.str);
 		sql.append (")");
 
-		var cursor = exec_sql_cursor (sql.str, null, null);
+		var iface = manager.get_writable_db_interface ();
+		var cursor = exec_sql_cursor (iface, sql.str, null, null);
 
 		int n_solutions = 0;
 		while (cursor.next ()) {

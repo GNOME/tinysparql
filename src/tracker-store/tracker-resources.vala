@@ -174,7 +174,7 @@ public class Tracker.Resources : Object {
 		var request = DBusRequest.begin (sender, "Resources.Sync");
 		var data_manager = Tracker.Main.get_data_manager ();
 		var data = data_manager.get_data ();
-		var iface = data_manager.get_db_interface ();
+		var iface = data_manager.get_writable_db_interface ();
 
 		// wal checkpoint implies sync
 		Tracker.Store.wal_checkpoint (iface, true);

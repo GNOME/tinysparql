@@ -579,7 +579,7 @@ fix_indexed (TrackerDataManager  *manager,
 	const gchar *service_name;
 	const gchar *field_name;
 
-	iface = tracker_db_manager_get_db_interface (manager->db_manager);
+	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
 	class = tracker_property_get_domain (property);
 	field_name = tracker_property_get_name (property);
@@ -3435,7 +3435,7 @@ tracker_data_ontology_import_into_db (TrackerDataManager  *manager,
 	TrackerProperty **properties;
 	guint i, n_props, n_classes;
 
-	iface = tracker_db_manager_get_db_interface (manager->db_manager);
+	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
 	classes = tracker_ontologies_get_classes (manager->ontologies, &n_classes);
 	properties = tracker_ontologies_get_properties (manager->ontologies, &n_props);
@@ -3878,7 +3878,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 	tracker_data_manager_update_status (manager, "Initializing data manager");
 
-	iface = tracker_db_manager_get_db_interface (manager->db_manager);
+	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
 #ifndef DISABLE_JOURNAL
 	if (manager->journal_check && is_first_time_index) {
@@ -4647,6 +4647,18 @@ TrackerDBInterface *
 tracker_data_manager_get_db_interface (TrackerDataManager *manager)
 {
 	return tracker_db_manager_get_db_interface (manager->db_manager);
+}
+
+TrackerDBInterface *
+tracker_data_manager_get_writable_db_interface (TrackerDataManager *manager)
+{
+	return tracker_db_manager_get_writable_db_interface (manager->db_manager);
+}
+
+TrackerDBInterface *
+tracker_data_manager_get_wal_db_interface (TrackerDataManager *manager)
+{
+	return tracker_db_manager_get_wal_db_interface (manager->db_manager);
 }
 
 TrackerData *

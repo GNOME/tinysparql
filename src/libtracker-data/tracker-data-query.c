@@ -44,7 +44,7 @@ tracker_data_query_rdf_type (TrackerDataManager *manager,
 	GError *error = NULL;
 	TrackerOntologies *ontologies;
 
-	iface = tracker_data_manager_get_db_interface (manager);
+	iface = tracker_data_manager_get_writable_db_interface (manager);
 	ontologies = tracker_data_manager_get_ontologies (manager);
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
