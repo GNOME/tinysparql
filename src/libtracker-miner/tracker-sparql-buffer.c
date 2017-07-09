@@ -246,6 +246,7 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
                                        gpointer      user_data)
 {
 	TrackerSparqlBufferPrivate *priv;
+	TrackerSparqlBuffer *buffer;
 	GError *global_error = NULL;
 	GPtrArray *sparql_array_errors;
 	UpdateArrayData *update_data;
@@ -253,7 +254,8 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 
 	/* Get arrays of errors and queries */
 	update_data = user_data;
-	priv = TRACKER_SPARQL_BUFFER (update_data->buffer)->priv;
+	buffer = TRACKER_SPARQL_BUFFER (update_data->buffer);
+	priv = buffer->priv;
 	priv->n_updates--;
 
 	g_debug ("(Sparql buffer) Finished array-update with %u tasks",
@@ -337,6 +339,10 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 
 	if (global_error) {
 		g_error_free (global_error);
+	}
+
+	if (tracker_task_pool_limit_reached (TRACKER_TASK_POOL (buffer))) {
+		tracker_sparql_buffer_flush (buffer, "SPARQL buffer limit reached (after flush)");
 	}
 }
 
