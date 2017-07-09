@@ -36,14 +36,14 @@ namespace Tracker.Sparql {
 			try {
 				var sql = new StringBuilder ();
 				var ontologies = manager.get_ontologies ();
+				var iface = manager.get_db_interface ();
 
 				if (subject != null) {
 					// single subject
-					var subject_id = Tracker.Data.query_resource_id (manager, subject);
+					var subject_id = Tracker.Data.query_resource_id (manager, iface, subject);
 
 					DBCursor cursor = null;
 					if (subject_id > 0) {
-						var iface = manager.get_db_interface ();
 						var stmt = iface.create_statement (DBStatementCacheType.SELECT,
 						                                   "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") " +
 						                                   "FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
@@ -90,9 +90,8 @@ namespace Tracker.Sparql {
 					}
 				} else if (object != null) {
 					// single object
-					var object_id = Data.query_resource_id (manager, object);
+					var object_id = Data.query_resource_id (manager, iface, object);
 
-					var iface = manager.get_db_interface ();
 					var stmt = iface.create_statement (DBStatementCacheType.SELECT,
 					                                   "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") " +
 					                                   "FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");

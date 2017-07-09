@@ -681,12 +681,14 @@ static gint
 query_resource_id (TrackerData *data,
                    const gchar *uri)
 {
+	TrackerDBInterface *iface;
 	gint id;
 
 	id = GPOINTER_TO_INT (g_hash_table_lookup (data->update_buffer.resource_cache, uri));
+	iface = tracker_data_manager_get_db_interface (data->manager);
 
 	if (id == 0) {
-		id = tracker_data_query_resource_id (data->manager, uri);
+		id = tracker_data_query_resource_id (data->manager, iface, uri);
 
 		if (id) {
 			g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
@@ -1166,6 +1168,7 @@ tracker_data_blank_buffer_flush (TrackerData  *data,
 	const gchar *sha1;
 	GChecksum *checksum;
 	GError *actual_error = NULL;
+	TrackerDBInterface *iface;
 
 	subject = data->blank_buffer.subject;
 	data->blank_buffer.subject = NULL;
@@ -1192,7 +1195,8 @@ tracker_data_blank_buffer_flush (TrackerData  *data,
 	blank_uri = g_strdup_printf ("urn:uuid:%.8s-%.4s-%.4s-%.4s-%.12s",
 	                             sha1, sha1 + 8, sha1 + 12, sha1 + 16, sha1 + 20);
 
-	id = tracker_data_query_resource_id (data->manager, blank_uri);
+	iface = tracker_data_manager_get_db_interface (data->manager);
+	id = tracker_data_query_resource_id (data->manager, iface, blank_uri);
 
 	if (id == 0) {
 		/* uri not found
@@ -2471,6 +2475,7 @@ tracker_data_delete_statement (TrackerData  *data,
 	gint                subject_id = 0;
 	gboolean            change = FALSE;
 	TrackerOntologies  *ontologies;
+	TrackerDBInterface *iface;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -2486,6 +2491,7 @@ tracker_data_delete_statement (TrackerData  *data,
 
 	resource_buffer_switch (data, graph, subject, subject_id);
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	iface = tracker_data_manager_get_db_interface (data->manager);
 
 	if (object && g_strcmp0 (predicate, TRACKER_PREFIX_RDF "type") == 0) {
 		class = tracker_ontologies_get_class_by_uri (ontologies, object);
@@ -2498,7 +2504,7 @@ tracker_data_delete_statement (TrackerData  *data,
 				       data->journal_writer,
 				       (graph != NULL ? query_resource_id (data, graph) : 0),
 				       data->resource_buffer->id,
-				       tracker_data_query_resource_id (data->manager, predicate),
+				       tracker_data_query_resource_id (data->manager, iface, predicate),
 				       tracker_class_get_id (class));
 			}
 #endif /* DISABLE_JOURNAL */
@@ -2573,7 +2579,7 @@ tracker_data_delete_statement (TrackerData  *data,
 		if (!tried) {
 			graph_id = (graph != NULL ? query_resource_id (data, graph) : 0);
 			if (field == NULL) {
-				pred_id = tracker_data_query_resource_id (data->manager, predicate);
+				pred_id = tracker_data_query_resource_id (data->manager, iface, predicate);
 			} else {
 				pred_id = tracker_property_get_id (field);
 			}
@@ -2800,6 +2806,7 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 	gint             final_prop_id = 0, object_id = 0;
 	gboolean change = FALSE;
 	TrackerOntologies *ontologies;
+	TrackerDBInterface *iface;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -2807,6 +2814,7 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 	g_return_if_fail (data->in_transaction);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	iface = tracker_data_manager_get_db_interface (data->manager);
 
 	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
 	if (property == NULL) {
@@ -2861,7 +2869,7 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 
 		if (!data->in_journal_replay && !tracker_property_get_transient (property)) {
 			graph_id = (graph != NULL ? query_resource_id (data, graph) : 0);
-			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (data->manager, predicate);
+			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (data->manager, iface, predicate);
 			object_id = query_resource_id (data, object);
 		}
 
@@ -2876,7 +2884,7 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 
 		if (change) {
 			graph_id = (graph != NULL ? query_resource_id (data, graph) : 0);
-			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (data->manager, predicate);
+			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (data->manager, iface, predicate);
 			object_id = query_resource_id (data, object);
 
 			if (data->insert_callbacks) {
@@ -2921,6 +2929,7 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 	gboolean         change;
 	gint             graph_id = 0, pred_id = 0;
 	TrackerOntologies *ontologies;
+	TrackerDBInterface *iface;
 #ifndef DISABLE_JOURNAL
 	gboolean         tried = FALSE;
 #endif
@@ -2931,6 +2940,7 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 	g_return_if_fail (data->in_transaction);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	iface = tracker_data_manager_get_db_interface (data->manager);
 
 	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
 	if (property == NULL) {
@@ -2970,7 +2980,7 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 		guint n;
 
 		graph_id = (graph != NULL ? query_resource_id (data, graph) : 0);
-		pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (data->manager, predicate);
+		pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (data->manager, iface, predicate);
 #ifndef DISABLE_JOURNAL
 		tried = TRUE;
 #endif
@@ -2991,7 +3001,7 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 	if (!data->in_journal_replay && change && !tracker_property_get_transient (property)) {
 		if (!tried) {
 			graph_id = (graph != NULL ? query_resource_id (data, graph) : 0);
-			pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (data->manager, predicate);
+			pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (data->manager, iface, predicate);
 		}
 		if (!tracker_property_get_force_journal (property) &&
 		    g_strcmp0 (graph, TRACKER_OWN_GRAPH_URN) == 0) {
@@ -3030,12 +3040,14 @@ tracker_data_update_statement_with_uri (TrackerData  *data,
 	gint             final_prop_id = 0, object_id = 0;
 	gboolean         change = FALSE;
 	TrackerOntologies *ontologies;
+	TrackerDBInterface *iface;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
 	g_return_if_fail (data->in_transaction);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	iface = tracker_data_manager_get_db_interface (data->manager);
 
 	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
 	if (property == NULL) {
@@ -3092,7 +3104,7 @@ tracker_data_update_statement_with_uri (TrackerData  *data,
 
 		if (!data->in_journal_replay && !tracker_property_get_transient (property)) {
 			graph_id = (graph != NULL ? query_resource_id (data, graph) : 0);
-			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (data->manager, predicate);
+			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (data->manager, iface, predicate);
 			object_id = query_resource_id (data, object);
 		}
 
@@ -3175,7 +3187,7 @@ tracker_data_update_statement_with_uri (TrackerData  *data,
 
 		if (change) {
 			graph_id = (graph != NULL ? query_resource_id (data, graph) : 0);
-			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (data->manager, predicate);
+			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (data->manager, iface, predicate);
 			object_id = query_resource_id (data, object);
 
 			if (!multiple_values && data->delete_callbacks) {
@@ -3237,6 +3249,7 @@ tracker_data_update_statement_with_string (TrackerData  *data,
 	gint graph_id = 0, pred_id = 0;
 	gboolean multiple_values;
 	TrackerOntologies *ontologies;
+	TrackerDBInterface *iface;
 #ifndef DISABLE_JOURNAL
 	gboolean tried = FALSE;
 #endif
@@ -3249,6 +3262,7 @@ tracker_data_update_statement_with_string (TrackerData  *data,
 	g_return_if_fail (data->in_transaction);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	iface = tracker_data_manager_get_db_interface (data->manager);
 
 	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
 	if (property == NULL) {
@@ -3307,7 +3321,7 @@ tracker_data_update_statement_with_string (TrackerData  *data,
 
 	if (((!multiple_values && data->delete_callbacks) || data->insert_callbacks) && change) {
 		graph_id = (graph != NULL ? query_resource_id (data, graph) : 0);
-		pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (data->manager, predicate);
+		pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (data->manager, iface, predicate);
 #ifndef DISABLE_JOURNAL
 		tried = TRUE;
 #endif
@@ -3347,7 +3361,7 @@ tracker_data_update_statement_with_string (TrackerData  *data,
 	if (!data->in_journal_replay && change && !tracker_property_get_transient (property)) {
 		if (!tried) {
 			graph_id = (graph != NULL ? query_resource_id (data, graph) : 0);
-			pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (data->manager, predicate);
+			pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (data->manager, iface, predicate);
 		}
 		if (!tracker_property_get_force_journal (property) &&
 		    g_strcmp0 (graph, TRACKER_OWN_GRAPH_URN) == 0) {

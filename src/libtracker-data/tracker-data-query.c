@@ -95,17 +95,15 @@ tracker_data_query_rdf_type (TrackerDataManager *manager,
 
 gint
 tracker_data_query_resource_id (TrackerDataManager *manager,
+                                TrackerDBInterface *iface,
                                 const gchar        *uri)
 {
 	TrackerDBCursor *cursor = NULL;
-	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
 	gint id = 0;
 
 	g_return_val_if_fail (uri != NULL, 0);
-
-	iface = tracker_data_manager_get_db_interface (manager);
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT ID FROM Resource WHERE Uri = ?");

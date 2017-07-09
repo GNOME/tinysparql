@@ -222,7 +222,7 @@ namespace Tracker {
 
 	[CCode (cheader_filename = "libtracker-data/tracker-data-backup.h,libtracker-data/tracker-data-query.h")]
 	namespace Data {
-		public int query_resource_id (Data.Manager manager, string uri);
+		public int query_resource_id (Data.Manager manager, DBInterface iface, string uri);
 		public DBCursor query_sparql_cursor (Data.Manager manager, string query) throws Sparql.Error;
 
 		public void backup_save (Data.Manager manager, GLib.File destination, GLib.File data_location, owned BackupFinished callback);

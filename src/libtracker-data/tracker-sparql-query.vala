@@ -301,7 +301,8 @@ public class Tracker.Sparql.Query : Object {
 			uri = get_uuid_for_name (base_uuid, user_bnodeid);
 
 			if (blank_nodes != null) {
-				while (Data.query_resource_id (manager, uri) > 0) {
+				var iface = manager.get_db_interface ();
+				while (Data.query_resource_id (manager, iface, uri) > 0) {
 					// uri collision, generate new UUID
 					uchar[] new_base_uuid = new uchar[16];
 					uuid_generate (new_base_uuid);
