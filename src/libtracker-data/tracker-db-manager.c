@@ -876,8 +876,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	}
 
 	resources_iface = tracker_db_manager_create_db_interface (db_manager,
-	                                                          (flags & TRACKER_DB_MANAGER_READONLY) != 0,
-	                                                          &internal_error);
+	                                                          TRUE, &internal_error);
 
 	if (internal_error) {
 		if ((!restoring_backup) && (flags & TRACKER_DB_MANAGER_READONLY) == 0) {
@@ -885,7 +884,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 
 			perform_recreate (db_manager, first_time, &new_error);
 			if (!new_error) {
-				resources_iface = tracker_db_manager_create_db_interface (db_manager, FALSE,
+				resources_iface = tracker_db_manager_create_db_interface (db_manager, TRUE,
 				                                                          &internal_error);
 			} else {
 				/* Most serious error is the recreate one here */
@@ -1034,8 +1033,7 @@ tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 
 		flags = tracker_db_manager_get_flags (db_manager, NULL, NULL);
 		interface = tracker_db_manager_create_db_interface (db_manager,
-		                                                    (flags & TRACKER_DB_MANAGER_READONLY) != 0,
-		                                                    &internal_error);
+		                                                    TRUE, &internal_error);
 
 		if (internal_error) {
 			g_critical ("Error opening database: %s", internal_error->message);
