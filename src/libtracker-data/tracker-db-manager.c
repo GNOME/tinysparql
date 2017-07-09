@@ -603,6 +603,8 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	g_info ("Setting database locations");
 
 	db_manager->flags = flags;
+	db_manager->s_cache_size = select_cache_size;
+	db_manager->u_cache_size = update_cache_size;
 
 	g_set_object (&db_manager->cache_location, cache_location);
 	g_set_object (&db_manager->data_location, data_location);
@@ -898,17 +900,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 		}
 	}
 
-	tracker_db_interface_set_max_stmt_cache_size (resources_iface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
-	                                              select_cache_size);
-
-	tracker_db_interface_set_max_stmt_cache_size (resources_iface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              update_cache_size);
-
-	db_manager->s_cache_size = select_cache_size;
-	db_manager->u_cache_size = update_cache_size;
-
 	g_private_replace (&interface_data_key, resources_iface);
 
 	return db_manager;
@@ -1006,6 +997,16 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 		return NULL;
 	}
 
+	tracker_db_interface_set_max_stmt_cache_size (connection,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
+	                                              db_manager->s_cache_size);
+
+	if (!readonly) {
+		tracker_db_interface_set_max_stmt_cache_size (connection,
+		                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+		                                              db_manager->u_cache_size);
+	}
+
 	return connection;
 }
 
@@ -1042,14 +1043,6 @@ tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 		}
 
 		tracker_data_manager_init_fts (interface, FALSE);
-
-		tracker_db_interface_set_max_stmt_cache_size (interface,
-		                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
-		                                              db_manager->s_cache_size);
-
-		tracker_db_interface_set_max_stmt_cache_size (interface,
-		                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-		                                              db_manager->u_cache_size);
 
 		g_private_set (&interface_data_key, interface);
 	}
