@@ -964,25 +964,25 @@ data_provider_begin_cb (GObject      *object,
 	enumerator = tracker_data_provider_begin_finish (TRACKER_DATA_PROVIDER (object), result, &error);
 
 	info = user_data;
-	dpd = info->dpd;
-	dpd->enumerator = enumerator;
 
-	if (!dpd->enumerator) {
-		if (error) {
-			if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
-				gchar *uri = g_file_get_uri (dpd->dir_file);
-				g_warning ("Could not enumerate container / directory '%s', %s",
-				           uri, error ? error->message : "no error given");
-				g_free (uri);
-			}
-			g_clear_error (&error);
+	if (error) {
+		if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			gchar *uri;
+
+			dpd = info->dpd;
+			uri = g_file_get_uri (dpd->dir_file);
+			g_warning ("Could not enumerate container / directory '%s', %s",
+			           uri, error ? error->message : "no error given");
+			g_free (uri);
+			process_func_start (dpd->crawler);
 		}
-
-		process_func_start (dpd->crawler);
+		g_clear_error (&error);
 		return;
 	}
 
-	g_file_enumerator_next_files_async (dpd->enumerator,
+	dpd = info->dpd;
+	dpd->enumerator = enumerator;
+	g_file_enumerator_next_files_async (enumerator,
 	                                    MAX_SIMULTANEOUS_ITEMS,
 	                                    G_PRIORITY_LOW,
 	                                    dpd->crawler->priv->cancellable,
