@@ -203,6 +203,12 @@ test_backup_and_restore_helper (const gchar *db_location,
 
 	tracker_data_backup_restore (manager, backup_file, data_location, data_location, test_schemas, NULL, NULL, &error);
 	g_assert_no_error (error);
+	g_object_unref (manager);
+
+	manager = tracker_data_manager_new (0, data_location, data_location, test_schemas,
+	                                    FALSE, FALSE, 100, 100);
+	g_initable_init (G_INITABLE (manager), NULL, &error);
+	g_assert_no_error (error);
 	check_content_in_db (manager, 3, 1);
 
 	g_object_unref (test_schemas);
