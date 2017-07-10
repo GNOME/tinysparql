@@ -7,7 +7,8 @@ libtracker_sparql_intermediate_vala_la_VALAFLAGS =     \
 	--header $(vala_header:.h=-no-checks.h)        \
 	--vapi tracker-sparql.vapi                     \
 	--pkg gio-2.0 --pkg posix                      \
-	$(BUILD_VALAFLAGS)
+	$(BUILD_VALAFLAGS)                             \
+	libtracker-sparql-intermediate-c.vapi
 
 AM_CPPFLAGS =                                          \
 	$(BUILD_VALACFLAGS)                            \
@@ -64,8 +65,12 @@ vala_header = tracker-generated.h
 	            echo "#endif") > $@
 	$(AM_V_GEN)(cat $< >> $@)
 
-tracker-sparql-$(TRACKER_API_VERSION).vapi: tracker-sparql.vapi
-	$(AM_V_GEN)(sed -e 's/tracker-generated-no-checks.h/tracker-sparql.h/' $< > $@)
+VAPIFILES = \
+	libtracker-sparql-intermediate-c.vapi \
+	tracker-sparql.vapi
+
+tracker-sparql-$(TRACKER_API_VERSION).vapi: $(VAPIFILES)
+	$(AM_V_GEN)(sed -e 's/tracker-generated-no-checks.h/tracker-sparql.h/' $(VAPIFILES) > $@)
 
 libtracker_sparqlinclude_HEADERS =                     \
 	$(vala_header)                                 \
@@ -113,4 +118,5 @@ EXTRA_DIST =                                           \
 	tracker-sparql.deps                            \
 	$(vala_header:.h=-no-checks.h)                 \
 	tracker-sparql-add-include-guards.sh           \
+	libtracker-sparql-intermediate-c.vapi          \
 	meson.build
