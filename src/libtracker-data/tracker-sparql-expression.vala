@@ -179,16 +179,9 @@ class Tracker.Sparql.Expression : Object {
 		}
 
 		if (accept (SparqlTokenType.AS)) {
-			if (accept (SparqlTokenType.PN_PREFIX)) {
-				// deprecated but supported for backward compatibility
-				// (...) AS foo
-				variable = context.get_variable (get_last_string ());
-			} else {
-				// syntax from SPARQL 1.1 Draft
-				// (...) AS ?foo
-				expect (SparqlTokenType.VAR);
-				variable = context.get_variable (get_last_string ().substring (1));
-			}
+			// (...) AS ?foo
+			expect (SparqlTokenType.VAR);
+			variable = context.get_variable (get_last_string ().substring (1));
 			sql.append_printf (" AS %s", variable.sql_expression);
 			as_handled = true;
 
