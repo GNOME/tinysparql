@@ -1738,3 +1738,11 @@ tracker_monitor_get_ignored (TrackerMonitor *monitor)
 
 	return monitor->priv->monitors_ignored;
 }
+
+guint
+tracker_monitor_get_limit (TrackerMonitor *monitor)
+{
+	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), 0);
+
+	return monitor->priv->monitor_limit;
+}

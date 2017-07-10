@@ -77,6 +77,7 @@ gboolean        tracker_monitor_is_watched_by_string (TrackerMonitor *monitor,
                                                       const gchar    *path);
 guint           tracker_monitor_get_count            (TrackerMonitor *monitor);
 guint           tracker_monitor_get_ignored          (TrackerMonitor *monitor);
+guint           tracker_monitor_get_limit            (TrackerMonitor *monitor);
 
 G_END_DECLS
 
