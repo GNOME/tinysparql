@@ -86,6 +86,8 @@ TrackerData *        tracker_data_manager_get_data            (TrackerDataManage
 gboolean tracker_data_manager_init_fts               (TrackerDBInterface     *interface,
 						      gboolean                create);
 
+GHashTable *         tracker_data_manager_get_namespaces      (TrackerDataManager *manager);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DATA_MANAGER_H__ */

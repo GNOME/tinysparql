@@ -241,6 +241,7 @@ namespace Tracker {
 		public unowned DBInterface get_wal_db_interface ();
 		public unowned Data.Update get_data ();
 		public void shutdown ();
+		public GLib.HashTable<string,string> get_namespaces ();
 	}
 
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]

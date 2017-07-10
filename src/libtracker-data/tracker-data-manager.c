@@ -4672,3 +4672,22 @@ tracker_data_manager_shutdown (TrackerDataManager *manager)
 {
 	g_object_run_dispose (G_OBJECT (manager));
 }
+
+GHashTable *
+tracker_data_manager_get_namespaces (TrackerDataManager *manager)
+{
+	TrackerNamespace **namespaces;
+	guint i, n_namespaces;
+	GHashTable *ht;
+
+	ht = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+	namespaces = tracker_ontologies_get_namespaces (manager->ontologies,
+	                                                &n_namespaces);
+	for (i = 0; i < n_namespaces; i++) {
+		g_hash_table_insert (ht,
+		                     g_strdup (tracker_namespace_get_prefix (namespaces[i])),
+		                     g_strdup (tracker_namespace_get_uri (namespaces[i])));
+	}
+
+	return ht;
+}
