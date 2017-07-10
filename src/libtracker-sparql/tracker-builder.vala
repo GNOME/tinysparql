@@ -25,6 +25,11 @@
  * @stability: Stable
  * @include: tracker-sparql.h
  *
+ * <note>
+ * This object is deprecated since 2.0, use #TrackerResource to build
+ * SPARQL updates.
+ * </note>
+ *
  * <para>
  * #TrackerSparqlBuilder is an object what will gather a set of
  * subject/predicate/object triples, together with an optional WHERE clause,
@@ -198,7 +203,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Opens an insertion statement.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void insert_open (string? graph)
 		requires (state == State.UPDATE)
 	{
@@ -217,7 +224,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Opens a silent insertion statement.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void insert_silent_open (string? graph)
 		requires (state == State.UPDATE)
 	{
@@ -235,7 +244,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Closes an insertion statement opened with tracker_sparql_builder_insert_open().
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void insert_close ()
 		requires (state == State.INSERT || state == State.OBJECT)
 	{
@@ -259,7 +270,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * a query to delete them.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void delete_open (string? graph)
 		requires (state == State.UPDATE)
 	{
@@ -277,7 +290,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Closes a DELETE clause opened through tracker_sparql_builder_delete_open().
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void delete_close ()
 		requires (state == State.DELETE || state == State.OBJECT)
 	{
@@ -298,7 +313,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Opens a GRAPH clause within INSERT, DELETE, or WHERE.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void graph_open (string graph)
 		requires (state == State.INSERT || state == State.DELETE || state == State.OBJECT || state == State.WHERE || state == State.GRAPH)
 	{
@@ -313,7 +330,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Closes a GRAPH clause opened through tracker_sparql_builder_graph_open().
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void graph_close ()
 		requires (state == State.GRAPH || state == State.OBJECT)
 	{
@@ -334,7 +353,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * to which the update query applies.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void where_open ()
 	       requires (state == State.UPDATE)
 	{
@@ -349,7 +370,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Closes a WHERE clause opened through tracker_sparql_builder_where_open().
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void where_close ()
 		requires (state == State.WHERE || state == State.OBJECT)
 	{
@@ -369,7 +392,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends a subject as a SPARQL variable, such as "?urn".
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void subject_variable (string var_name) {
 		subject ("?%s".printf (var_name));
 	}
@@ -382,7 +407,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends an object as a SparQL variable, such as "?urn".
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void object_variable (string var_name) {
 		object ("?%s".printf (var_name));
 	}
@@ -396,7 +423,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * univocally identify a resource in tracker-store.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void subject_iri (string iri) {
 		subject ("<%s>".printf (iri));
 	}
@@ -409,7 +438,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends a subject.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void subject (string s)
 		requires (state == State.INSERT || state == State.OBJECT || state == State.EMBEDDED_INSERT || state == State.DELETE || state == State.WHERE || state == State.GRAPH)
 	{
@@ -429,7 +460,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends a predicate as an IRI.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void predicate_iri (string iri) {
 		predicate ("<%s>".printf (iri));
 	}
@@ -442,7 +475,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends a predicate for the previously appended subject.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void predicate (string s)
 		requires (state == State.SUBJECT || state == State.OBJECT || state == State.BLANK)
 	{
@@ -463,7 +498,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends an object as an IRI.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void object_iri (string iri) {
 		object ("<%s>".printf (iri));
 	}
@@ -476,7 +513,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends a free-form object for the previously appended subject and predicate.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void object (string s)
 		requires (state == State.PREDICATE || state == State.OBJECT)
 	{
@@ -500,7 +539,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * by double quotes.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void object_string (string literal)
 		requires (state == State.PREDICATE || state == State.OBJECT)
 	{
@@ -523,7 +564,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends a string not validated as UTF-8 as an object.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void object_unvalidated (string value) {
 		char* end;
 
@@ -548,7 +591,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends a #gboolean value as an object.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void object_boolean (bool literal) {
 		object (literal ? "true" : "false");
 	}
@@ -561,7 +606,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends a #gint64 value as an object.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void object_int64 (int64 literal) {
 		object (literal.to_string ());
 	}
@@ -575,7 +622,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * to a string in the date format used by tracker-store.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void object_date (ref time_t literal) {
 		var tm = Time.gm (literal);
 
@@ -590,7 +639,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends a #gdouble value as an object.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void object_double (double literal) {
 		object (literal.to_string ());
 	}
@@ -604,7 +655,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * separate insertion.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void object_blank_open ()
 		requires (state == State.PREDICATE || state == State.OBJECT)
 	{
@@ -623,7 +676,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Closes an anomymous blank node opened with tracker_sparql_builder_object_blank_open()
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void object_blank_close ()
 		requires (state == State.OBJECT && states[states.length - 3] == State.BLANK)
 	{
@@ -642,7 +697,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Prepends raw, unvalidated content to @self.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void prepend (string raw)
 	{
 		str.prepend ("%s\n".printf (raw));
@@ -658,7 +715,9 @@ public class Tracker.Sparql.Builder : Object {
 	 * Appends raw, unvalidated content to @self.
 	 *
 	 * Since: 0.10
+	 * Deprecated: 2.0
 	 */
+	[Version (deprecated = true, deprecated_since = "2.0", replacement = "Tracker.Resource")]
 	public void append (string raw)
 	{
 		if (state == State.OBJECT) {
