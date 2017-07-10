@@ -35,7 +35,8 @@ tracker_decorator_info_get_urn
 tracker_decorator_info_get_url
 tracker_decorator_info_get_mimetype
 tracker_decorator_info_get_task
-tracker_decorator_info_get_sparql
+tracker_decorator_info_complete
+tracker_decorator_info_complete_error
 <SUBSECTION Standard>
 TRACKER_DECORATOR
 TRACKER_DECORATOR_CLASS

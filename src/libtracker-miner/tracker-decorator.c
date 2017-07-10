@@ -534,10 +534,12 @@ decorator_task_done (GObject      *object,
 	TrackerDecoratorInfo *info = user_data;
 	TrackerDecoratorPrivate *priv;
 	GError *error = NULL;
+	gchar *sparql;
 
 	priv = decorator->priv;
+	sparql = g_task_propagate_pointer (G_TASK (result), &error);
 
-	if (!g_task_propagate_boolean (G_TASK (result), &error)) {
+	if (!sparql) {
 		/* Blacklist item */
 		decorator_blacklist_add (decorator, info->id);
 
@@ -547,12 +549,10 @@ decorator_task_done (GObject      *object,
 			g_error_free (error);
 		}
 	} else {
-		TrackerSparqlBuilder *sparql;
 		SparqlUpdate update;
 
 		/* Add resulting sparql to buffer and check whether flushing */
-		sparql = g_task_get_task_data (G_TASK (result));
-		update.sparql = g_strdup (tracker_sparql_builder_get_result (sparql));
+		update.sparql = sparql;
 		update.id = info->id;
 
 		if (!priv->sparql_buffer)
@@ -1655,29 +1655,37 @@ tracker_decorator_info_get_task (TrackerDecoratorInfo *info)
 }
 
 /**
- * tracker_decorator_info_get_sparql:
- * @info: a #TrackerDecoratorInfo.
+ * tracker_decorator_info_complete:
+ * @info: a #TrackerDecoratorInfo
+ * @sparql: SPARQL string
  *
- * A #TrackerSparqlBuilder allows the caller to extract the final
- * SPARQL used to insert the extracted metadata into the database for
- * the resource being processed.
+ * Completes the task associated to this #TrackerDecoratorInfo.
+ * Takes ownership of @sparql.
  *
- * This function calls g_task_get_task_data() on the return value of
- * tracker_decorator_info_get_task().
- *
- * Returns: (transfer none): a #TrackerSparqlBuilder on success or #NULL on error.
- *
- * Since: 0.18.
+ * Since: 2.0
  **/
-TrackerSparqlBuilder *
-tracker_decorator_info_get_sparql (TrackerDecoratorInfo *info)
+void
+tracker_decorator_info_complete (TrackerDecoratorInfo *info,
+                                 gchar                *sparql)
 {
-	g_return_val_if_fail (info != NULL, NULL);
+	g_task_return_pointer (info->task, sparql, g_free);
+}
 
-	if (!info->task)
-		return NULL;
-
-	return g_task_get_task_data (info->task);
+/**
+ * tracker_decorator_info_complete_error:
+ * @info: a #TrackerDecoratorInfo
+ * @error: An error occurred during SPARQL generation
+ *
+ * Completes the task associated to this #TrackerDecoratorInfo,
+ * returning the given @error happened during SPARQL generation.
+ *
+ * Since: 2.0
+ **/
+void
+tracker_decorator_info_complete_error (TrackerDecoratorInfo *info,
+                                       GError               *error)
+{
+	g_task_return_error (info->task, error);
 }
 
 void

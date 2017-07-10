@@ -140,15 +140,13 @@ tracker_extract_decorator_finalize (GObject *object)
 	G_OBJECT_CLASS (tracker_extract_decorator_parent_class)->finalize (object);
 }
 
-static void
-decorator_save_info (TrackerSparqlBuilder    *sparql,
-                     TrackerExtractDecorator *decorator,
+static TrackerResource *
+decorator_save_info (TrackerExtractDecorator *decorator,
                      TrackerDecoratorInfo    *decorator_info,
                      TrackerExtractInfo      *info)
 {
 	const gchar *urn;
 	TrackerResource *resource = NULL;
-	gchar *sparql_command;
 
 	g_set_object (&resource, tracker_extract_info_get_resource (info));
 
@@ -168,12 +166,7 @@ decorator_save_info (TrackerSparqlBuilder    *sparql,
 	tracker_resource_set_uri (resource, "nie:dataSource",
 	        tracker_decorator_get_data_source (TRACKER_DECORATOR (decorator)));
 
-	sparql_command = tracker_resource_print_sparql_update (
-	        resource, NULL, TRACKER_OWN_GRAPH_URN);
-	tracker_sparql_builder_append (sparql, sparql_command);
-
-	g_object_unref (resource);
-	g_free (sparql_command);
+	return resource;
 }
 
 static void
@@ -183,11 +176,11 @@ get_metadata_cb (TrackerExtract *extract,
 {
 	TrackerExtractDecoratorPrivate *priv;
 	TrackerExtractInfo *info;
+	TrackerResource *resource;
 	GError *error = NULL;
-	GTask *task;
+	gchar *sparql;
 
 	priv = TRACKER_EXTRACT_DECORATOR (data->decorator)->priv;
-	task = tracker_decorator_info_get_task (data->decorator_info);
 	info = tracker_extract_file_finish (extract, result, &error);
 
 	tracker_extract_persistence_remove_file (priv->persistence, data->file);
@@ -196,17 +189,19 @@ get_metadata_cb (TrackerExtract *extract,
 	if (error) {
 		if (error->domain == TRACKER_EXTRACT_ERROR) {
 			g_message ("Extraction failed: %s\n", error ? error->message : "no error given");
-			g_task_return_boolean (task, FALSE);
+			tracker_decorator_info_complete (data->decorator_info, NULL);
 			g_clear_error (&error);
 		} else {
-			g_task_return_error (task, error);
+			tracker_decorator_info_complete_error (data->decorator_info, error);
 		}
 	} else {
-		decorator_save_info (g_task_get_task_data (task),
-		                     TRACKER_EXTRACT_DECORATOR (data->decorator),
-		                     data->decorator_info, info);
-		g_task_return_boolean (task, TRUE);
+		resource = decorator_save_info (TRACKER_EXTRACT_DECORATOR (data->decorator),
+		                                data->decorator_info, info);
+		sparql = tracker_resource_print_sparql_update (resource, NULL,
+		                                               TRACKER_OWN_GRAPH_URN);
+		tracker_decorator_info_complete (data->decorator_info, sparql);
 		tracker_extract_info_unref (info);
+		g_object_unref (resource);
 	}
 
 	priv->n_extracting_files--;

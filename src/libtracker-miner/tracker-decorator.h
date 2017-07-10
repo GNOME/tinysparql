@@ -128,8 +128,10 @@ const gchar * tracker_decorator_info_get_urn      (TrackerDecoratorInfo *info);
 const gchar * tracker_decorator_info_get_url      (TrackerDecoratorInfo *info);
 const gchar * tracker_decorator_info_get_mimetype (TrackerDecoratorInfo *info);
 GTask       * tracker_decorator_info_get_task     (TrackerDecoratorInfo *info);
-TrackerSparqlBuilder *
-              tracker_decorator_info_get_sparql   (TrackerDecoratorInfo *info);
+void          tracker_decorator_info_complete     (TrackerDecoratorInfo *info,
+                                                   gchar                *sparql);
+void          tracker_decorator_info_complete_error (TrackerDecoratorInfo *info,
+                                                     GError               *error);
 
 G_END_DECLS
 
