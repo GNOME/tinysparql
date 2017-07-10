@@ -58,7 +58,7 @@ G_BEGIN_DECLS
  * mtime changes indicate there could be deleted content.
  *
  * Flags used when adding a new directory to be indexed in the
- * #TrackerIndexingTree, #TrackerDataProvider and #TrackerEnumerator.
+ * #TrackerIndexingTree and #TrackerDataProvider.
  */
 typedef enum {
 	TRACKER_DIRECTORY_FLAG_NONE            = 0,
