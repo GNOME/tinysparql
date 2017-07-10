@@ -326,14 +326,6 @@ public static Tracker.Sparql.Connection tracker_sparql_connection_get (Cancellab
 	return Tracker.Sparql.Backend.get_internal (cancellable);
 }
 
-public async static Tracker.Sparql.Connection tracker_sparql_connection_get_direct_async (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
-	return yield Tracker.Sparql.Backend.get_internal_async (cancellable);
-}
-
-public static Tracker.Sparql.Connection tracker_sparql_connection_get_direct (Cancellable? cancellable = null) throws Tracker.Sparql.Error, IOError, DBusError, SpawnError {
-	return Tracker.Sparql.Backend.get_internal (cancellable);
-}
-
 public static Tracker.Sparql.Connection tracker_sparql_connection_remote_new (string url_base) {
 	return new Tracker.Remote.Connection (url_base);
 }
