@@ -153,6 +153,13 @@ class Tracker.Sparql.Backend : Connection {
 		return yield bus.statistics_async (cancellable);
 	}
 
+	public override NamespaceManager? get_namespace_manager () {
+		if (direct != null)
+			return direct.get_namespace_manager ();
+		else
+			return NamespaceManager.get_default ();
+	}
+
 	private Connection create_readonly_direct () throws GLib.Error, Sparql.Error, IOError, DBusError {
 		var conn = new Tracker.Direct.Connection (Tracker.Sparql.ConnectionFlags.READONLY,
 		                                          domain_ontology.get_cache (),

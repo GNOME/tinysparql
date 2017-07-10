@@ -511,6 +511,23 @@ public abstract class Tracker.Sparql.Connection : Object {
 		return null;
 	}
 
+	/**
+	 * tracker_sparql_connection_get_namespace_manager:
+	 * @self: a #TrackerSparqlConnection
+	 *
+	 * Retrieves a #TrackerNamespaceManager that contains all
+	 * prefixes in the ontology of @self.
+	 *
+	 * Returns: (transfer none): a #TrackerNamespaceManager for this
+	 * connection. This object is owned by @self and must not be freed.
+	 *
+	 * Since: 2.0
+	 */
+	public virtual NamespaceManager? get_namespace_manager () {
+		warning ("Not implemented");
+		return null;
+	}
+
 	public extern static void set_domain (string? domain);
 	public extern static string? get_domain ();
 }

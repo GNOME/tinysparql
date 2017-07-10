@@ -38,6 +38,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 	public SourceFunc init_callback;
 
 	private AsyncQueue<Task> update_queue;
+	private NamespaceManager namespace_manager;
 
 	[CCode (cname = "SHAREDIR")]
 	extern const string SHAREDIR;
@@ -351,5 +352,19 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 
 		if (task.error != null)
 			throw new Sparql.Error.INTERNAL (task.error.message);
+	}
+
+	public override NamespaceManager? get_namespace_manager () {
+		if (namespace_manager == null && data_manager != null) {
+			var ht = data_manager.get_namespaces ();
+			namespace_manager = new NamespaceManager ();
+
+			foreach (var prefix in ht.get_keys ()) {
+				print ("%s %s\n", prefix, ht.lookup (prefix));
+				namespace_manager.add_prefix (prefix, ht.lookup (prefix));
+			}
+		}
+
+		return namespace_manager;
 	}
 }
