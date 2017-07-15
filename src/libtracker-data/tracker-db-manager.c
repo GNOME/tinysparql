@@ -1229,18 +1229,9 @@ db_manager_init_unlocked (TrackerDBManagerFlags   flags,
 		}
 	}
 
-	tracker_db_interface_set_max_stmt_cache_size (resources_iface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
-	                                              select_cache_size);
-
-	tracker_db_interface_set_max_stmt_cache_size (resources_iface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              update_cache_size);
-
 	s_cache_size = select_cache_size;
 	u_cache_size = update_cache_size;
-
-	g_private_replace (&interface_data_key, resources_iface);
+	g_clear_object (&resources_iface);
 
 	return TRUE;
 }
