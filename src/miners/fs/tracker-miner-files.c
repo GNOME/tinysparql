@@ -359,7 +359,7 @@ tracker_miner_files_class_init (TrackerMinerFilesClass *klass)
 		              0, NULL,
 		              NULL,
 		              NULL,
-		              G_TYPE_BOOLEAN,
+		              G_TYPE_NONE,
 		              4,
 		              G_TYPE_FILE,
 		              G_TYPE_STRV,
