@@ -904,8 +904,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 		}
 	}
 
-	tracker_data_manager_init_fts (resources_iface, FALSE);
-	g_async_queue_push (db_manager->interfaces, resources_iface);
+	g_clear_object (&resources_iface);
 
 	return db_manager;
 }
