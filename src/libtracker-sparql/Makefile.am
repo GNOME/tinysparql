@@ -102,7 +102,8 @@ vapi_DATA =                                            \
 	tracker-sparql-$(TRACKER_API_VERSION).deps
 
 BUILT_SOURCES =                                        \
-	libtracker_sparql_intermediate_vala_la_vala.stamp
+	libtracker_sparql_intermediate_vala_la_vala.stamp \
+	$(ENUM_SOURCES)
 
 MAINTAINERCLEANFILES =                                 \
 	tracker-sparql-$(TRACKER_API_VERSION).vapi     \
