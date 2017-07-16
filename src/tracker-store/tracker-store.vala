@@ -274,7 +274,7 @@ public class Tracker.Store {
 			// do immediate checkpointing (blocking updates)
 			// to prevent excessive wal file growth
 			wal_checkpoint (wal_iface, true);
-		} else if (n_pages >= 1000) {
+		} else if (n_pages >= 1000 && checkpoint_pool != null) {
 			if (AtomicInt.compare_and_exchange (ref checkpointing, 0, 1)) {
 				// initiate asynchronous checkpointing (not blocking updates)
 				try {
