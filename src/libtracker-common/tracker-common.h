@@ -37,7 +37,6 @@
 #include "tracker-log.h"
 #include "tracker-parser.h"
 #include "tracker-sched.h"
-#include "tracker-seccomp.h"
 #include "tracker-type-utils.h"
 #include "tracker-utils.h"
 #include "tracker-locale.h"

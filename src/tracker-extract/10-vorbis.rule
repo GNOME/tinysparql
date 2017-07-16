@@ -1,4 +1,0 @@
-[ExtractorRule]
-ModulePath=libextract-vorbis.so
-MimeTypes=audio/x-vorbis+ogg;application/ogg;
-FallbackRdfTypes=nmm:MusicPiece;nfo:Audio;

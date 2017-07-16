@@ -26,7 +26,6 @@ tracker_common_sources = [
   'tracker-locale.c',
   'tracker-parser-utils.c',
   'tracker-language.c',
-  'tracker-seccomp.c',
   enums[0], enums[1],
   tracker_common_parser_sha1_header,
 ]

@@ -1,8 +1,6 @@
 SUBDIRS = \
 	ipc \
 	common \
-	test-extraction-data \
-	test-writeback-data \
 	test-apps-data \
 	ttl \
 	unittest2 \

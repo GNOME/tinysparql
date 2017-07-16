@@ -1,4 +1,0 @@
-[ExtractorRule]
-ModulePath=libextract-gif.so
-MimeTypes=image/gif
-FallbackRdfTypes=nfo:Image;nmm:Photo;

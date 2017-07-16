@@ -1,3 +1,0 @@
-[ExtractorRule]
-MimeTypes=application/x-zip-compressed-fb2;application/x-fictionbook+xml;application/x-mobipocket-ebook;image/vnd.djvu+multipage;
-FallbackRdfTypes=nfo:EBook;nfo:PaginatedTextDocument;

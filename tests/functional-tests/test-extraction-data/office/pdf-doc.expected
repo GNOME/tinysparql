@@ -1,7 +1,0 @@
-[TestFile]
-Filename=pdf-doc.pdf
-Comment=PDF document from the office tools
-
-[Metadata]
-a=nfo:PaginatedTextDocument
-nfo_pageCount=22
