@@ -89,7 +89,7 @@ void      tracker_indexing_tree_add                  (TrackerIndexingTree   *tre
 void      tracker_indexing_tree_remove               (TrackerIndexingTree   *tree,
                                                       GFile                 *directory);
 gboolean  tracker_indexing_tree_notify_update        (TrackerIndexingTree   *tree,
-                                                      GFile                 *root,
+                                                      GFile                 *file,
                                                       gboolean               recursive);
 
 void      tracker_indexing_tree_add_filter           (TrackerIndexingTree  *tree,
