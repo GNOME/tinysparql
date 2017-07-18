@@ -31,6 +31,7 @@ G_BEGIN_DECLS
 #endif
 
 #define TRACKER_COLLATION_NAME "TRACKER"
+#define TRACKER_TITLE_COLLATION_NAME "TRACKER_TITLE"
 
 typedef void (*TrackerDBWalCallback) (TrackerDBInterface *iface,
                                       gint                n_pages);

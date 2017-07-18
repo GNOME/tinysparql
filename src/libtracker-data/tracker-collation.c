@@ -19,6 +19,7 @@
 
 #include "config.h"
 #include <glib.h>
+#include <glib/gi18n.h>
 #include <string.h>
 #include <locale.h>
 
@@ -239,3 +240,79 @@ tracker_collation_utf8 (gpointer      collator,
 }
 
 #endif
+
+static gboolean
+check_remove_prefix (const gchar  *str,
+                     gint          len,
+                     const gchar  *prefix,
+                     gint          prefix_len,
+                     const gchar **str_out,
+                     gint         *len_out)
+{
+	gboolean substituted = FALSE;
+	gchar *strstart;
+
+	if (len <= prefix_len)
+		return FALSE;
+
+	strstart = g_utf8_casefold (str, prefix_len);
+	if (strcmp (strstart, prefix) == 0) {
+		*str_out = str + prefix_len;
+		*len_out = len - prefix_len;
+		substituted = TRUE;
+	}
+
+	g_free (strstart);
+
+	return substituted;
+}
+
+/* Helper function valid for all implementations */
+gint
+tracker_collation_utf8_title (gpointer      collator,
+                              gint          len1,
+                              gconstpointer str1,
+                              gint          len2,
+                              gconstpointer str2)
+{
+	const gchar *title_beginnings_str;
+	static gchar **title_beginnings = NULL;
+	const gchar *res1 = NULL, *res2 = NULL;
+	gint i;
+
+	/* Translators: this is a space-separated list of common title
+	 * beginnings. Meant to be skipped for sorting purposes, case
+	 * doesn't matter. Given English media is quite common, it is
+	 * advised to leave the untranslated articles in addition to
+	 * the translated ones.
+	 */
+	title_beginnings_str = N_("the a an");
+
+	if (!title_beginnings)
+		title_beginnings = g_strsplit (_(title_beginnings_str), " ", -1);
+
+	for (i = 0; title_beginnings[i]; i++) {
+		gchar *prefix, *str;
+		gint prefix_len;
+
+		str = g_strdup_printf ("%s ", title_beginnings[i]);
+		prefix = g_utf8_casefold (str, -1);
+		prefix_len = strlen (prefix);
+
+		if (!res1)
+			check_remove_prefix (str1, len1, prefix, prefix_len,
+			                     &res1, &len1);
+		if (!res2)
+			check_remove_prefix (str2, len2, prefix, prefix_len,
+			                     &res2, &len2);
+		g_free (prefix);
+		g_free (str);
+	}
+
+	if (!res1)
+		res1 = str1;
+	if (!res2)
+		res2 = str2;
+
+	return tracker_collation_utf8 (collator, len1, res1, len2, res2);
+}

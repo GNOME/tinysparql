@@ -1848,6 +1848,16 @@ tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
 		g_critical ("Couldn't set collation function: %s",
 		            sqlite3_errmsg (db_interface->db));
 	}
+
+	if (sqlite3_create_collation_v2 (db_interface->db,
+	                                 TRACKER_TITLE_COLLATION_NAME,
+	                                 SQLITE_UTF8,
+	                                 tracker_collation_init (),
+	                                 tracker_collation_utf8_title,
+	                                 tracker_collation_shutdown) != SQLITE_OK) {
+		g_critical ("Couldn't set title collation function: %s",
+		            sqlite3_errmsg (db_interface->db));
+	}
 }
 
 static gint

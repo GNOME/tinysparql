@@ -522,6 +522,10 @@ class Tracker.Sparql.Expression : Object {
 			translate_expression_as_string (sql);
 			sql.append (")");
 			return PropertyType.STRING;
+		} else if (uri == TRACKER_NS + "title-order") {
+			translate_expression_as_string (sql);
+			sql.append_printf (" COLLATE %s", TITLE_COLLATION_NAME);
+			return PropertyType.STRING;
 		} else if (uri == FN_NS + "lower-case") {
 			// conversion to string
 			sql.append ("SparqlLowerCase (");

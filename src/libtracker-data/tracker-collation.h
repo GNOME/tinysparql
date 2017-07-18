@@ -34,6 +34,12 @@ gint     tracker_collation_utf8     (gpointer      collator,
                                      gint          len2,
                                      gconstpointer str2);
 
+gint     tracker_collation_utf8_title (gpointer      collator,
+                                       gint          len1,
+                                       gconstpointer str1,
+                                       gint          len2,
+                                       gconstpointer str2);
+
 #ifdef HAVE_LIBICU
 #define TRACKER_COLLATION_LAST_CHAR ((gunichar) 0x10fffd)
 #else
