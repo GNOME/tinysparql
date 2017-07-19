@@ -280,16 +280,16 @@ tracker_collation_utf8_title (gpointer      collator,
 	const gchar *res1 = NULL, *res2 = NULL;
 	gint i;
 
-	/* Translators: this is a space-separated list of common title
-	 * beginnings. Meant to be skipped for sorting purposes, case
-	 * doesn't matter. Given English media is quite common, it is
+	/* Translators: this is a '|' (U+007C) separated list of common
+	 * title beginnings. Meant to be skipped for sorting purposes,
+	 * case doesn't matter. Given English media is quite common, it is
 	 * advised to leave the untranslated articles in addition to
 	 * the translated ones.
 	 */
-	title_beginnings_str = N_("the a an");
+	title_beginnings_str = N_("the|a|an");
 
 	if (!title_beginnings)
-		title_beginnings = g_strsplit (_(title_beginnings_str), " ", -1);
+		title_beginnings = g_strsplit (_(title_beginnings_str), "|", -1);
 
 	for (i = 0; title_beginnings[i]; i++) {
 		gchar *prefix, *str;
