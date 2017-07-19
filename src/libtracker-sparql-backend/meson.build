@@ -14,13 +14,13 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
     # https://github.com/mesonbuild/meson/pull/2030
     link_with: libtracker_sparql_intermediate_vala,
 
-    dependencies: [tracker_common_dep, tracker_sparql_remote_dep, tracker_sparql_bus_dep, tracker_sparql_direct_dep],
+    dependencies: [tracker_common_dep, tracker_sparql_remote_dep, tracker_sparql_bus_dep, tracker_sparql_direct_dep, libtracker_sparql_c_vapi_dep],
 )
 
 tracker_sparql_dep = declare_dependency(
     link_with: [libtracker_sparql, libtracker_sparql_intermediate_vala],
     include_directories: srcinc,
-    dependencies: [tracker_common_dep],
+    dependencies: [tracker_common_dep, libtracker_sparql_c_vapi_dep],
     include_directories: srcinc,
 )
 

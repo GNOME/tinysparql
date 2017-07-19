@@ -11,6 +11,7 @@ tracker_sparql_intermediate_dependencies = [uuid]
 
 # First build the Vala parts ...
 libtracker_sparql_c_vapi = files('libtracker-sparql-intermediate-c.vapi')
+libtracker_sparql_c_vapi_dep = meson.get_compiler('vala').find_library('libtracker-sparql-intermediate-c', dirs: meson.current_source_dir())
 
 libtracker_sparql_intermediate_vala = static_library('tracker-sparql-intermediate-vala',
     'tracker-namespace.vala',
@@ -81,7 +82,7 @@ tracker_sparql_intermediate_dep = declare_dependency(
     link_with: [libtracker_sparql_intermediate_c, libtracker_sparql_intermediate_vala],
     sources: tracker_sparql_generated_header,
     include_directories: [srcinc, include_directories('.')],
-    dependencies: tracker_sparql_intermediate_dependencies
+    dependencies: [ tracker_sparql_intermediate_dependencies, libtracker_sparql_c_vapi_dep ],
 )
 
 configure_file(

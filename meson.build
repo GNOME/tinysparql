@@ -76,6 +76,7 @@ uuid = cc.find_library('uuid')
 # There are various gchar vs. unsigned char warnings that occur in extract
 # modules, it's not worth adding casts everywhere so we disable the warning.
 add_project_arguments('-Wno-pointer-sign', language: 'c')
+add_project_arguments('-DTRACKER_COMPILATION', language: 'c')
 
 enable_fts = get_option('fts')
 enable_extract = get_option('extract')
