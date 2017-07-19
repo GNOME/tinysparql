@@ -1,3 +1,39 @@
+NEW in 1.99.1 - 2017-07-19
+==========================
+
+  WARNING: This is unstable development towards 2.0. There are API and
+           ABI incompatibilities that might affect you.
+
+  * Notable speedups to tracker-miner-fs, main loop overhead was greatly
+    reduced by processing elements in batches. Indexing has been observed
+    to be up to 2x faster, and startup on an indexed and up-to-date
+    filesystem up to 3x.
+  * More notable speedups to tracker-miner-fs startup, this applies only
+    to filesystems where the number of indexed folders exceed the amount
+    of inotify handles. Inotify monitoring is temporarily disabled during
+    filesystem mtime checks, resulting in up to 4x faster startup. (In
+    addition to the previous point).
+  * Refurbished the allocation scheme for underlying DB interfaces. The
+    benefit is twofold, this makes TrackerSparqlConnections truly isolated
+    instances, and results in much reduced mutex contention on stress
+    situations.
+  * Dropped deprecated API to get direct/bus connections. Use
+    tracker_sparql_connection_get().
+  * Deprecated TrackerSparqlBuilder. Use TrackerResource.
+  * Added tracker_sparql_connection_get_namespace_manager() to fetch the
+    namespaces as per the ontology of the connection.
+  * Dropped support for non-standard SPARQL syntax "AS var", the right
+    syntax is "AS ?var", defined in SPARQL1.1 and accepted by Tracker
+    for a long time.
+  * Added tracker:title-order() sparql function, only meant to be used
+    in "ORDER BY" clauses. It drops the common articles at the beginning
+    of the given variable for sorting purposes.
+  * Fix shutdown issues on tracker-store introduced in 1.99.0. No more
+    spurious integrity checks on startup.
+  * Misc code and build fixes.
+
+Translations: fur, id, sk
+
 NEW in 1.99.0 - 2017-07-06
 ==========================
 
