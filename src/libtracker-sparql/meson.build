@@ -10,6 +10,7 @@ enums_h = gnome.mkenums('tracker-sparql-enum-types',
 tracker_sparql_intermediate_dependencies = [uuid]
 
 # First build the Vala parts ...
+libtracker_sparql_c_vapi = files('libtracker-sparql-intermediate-c.vapi')
 
 libtracker_sparql_intermediate_vala = static_library('tracker-sparql-intermediate-vala',
     'tracker-namespace.vala',
@@ -27,6 +28,7 @@ libtracker_sparql_intermediate_vala = static_library('tracker-sparql-intermediat
         # FIXME: Meson has code to add --target-glib automatically, but it
         # doesn't seem to work here.
         '--target-glib', glib_required,
+        libtracker_sparql_c_vapi
     ],
     # This doesn't depend on tracker_common_dep because of
     # https://github.com/mesonbuild/meson/issues/671
@@ -105,7 +107,11 @@ meson.add_install_script('../install-generated-header.sh',
 custom_target('tracker-sparql-' + tracker_api_version + '.vapi',
     #input: 'tracker-sparql-intermediate-vala.vapi',
     output: 'tracker-sparql-' + tracker_api_version + '.vapi',
-    command: ['sed', '-e', 's/tracker-generated-no-checks.h/tracker-sparql.h/', join_paths(meson.current_build_dir(), 'tracker-sparql-intermediate-c.vapi', 'tracker-sparql-intermediate-vala.vapi')],
+    command: [
+        'sed', '-e', 's#libtracker-sparql/.*[.]h#libtracker-sparql/tracker-sparql.h#',
+        libtracker_sparql_c_vapi,
+        join_paths(meson.current_build_dir(), 'tracker-sparql-intermediate-vala.vapi')
+    ],
     depends: libtracker_sparql_intermediate_vala,
     capture: true,
     install: true,

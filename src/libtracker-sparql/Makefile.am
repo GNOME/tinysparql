@@ -66,11 +66,11 @@ vala_header = tracker-generated.h
 	$(AM_V_GEN)(cat $< >> $@)
 
 VAPIFILES = \
-	libtracker-sparql-intermediate-c.vapi \
-	tracker-sparql.vapi
+	$(srcdir)/libtracker-sparql-intermediate-c.vapi \
+	$(srcdir)/tracker-sparql.vapi
 
 tracker-sparql-$(TRACKER_API_VERSION).vapi: $(VAPIFILES)
-	$(AM_V_GEN)(sed -e 's/tracker-generated-no-checks.h/tracker-sparql.h/' $(VAPIFILES) > $@)
+	$(AM_V_GEN)(sed -e 's#libtracker-sparql/.*\.h#libtracker-sparql/tracker-sparql.h#' $(VAPIFILES) > $@)
 
 libtracker_sparqlinclude_HEADERS =                     \
 	$(vala_header)                                 \
