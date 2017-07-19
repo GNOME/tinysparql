@@ -73,9 +73,6 @@ libtracker_sparql_intermediate_c = static_library('tracker-sparql-intermediate-c
     enums_c, enums_h,
     libtracker_sparql_c_sources,
     dependencies: [tracker_common_dep],
-    c_args: [
-        '-DTRACKER_COMPILATION',
-    ],
 )
 
 tracker_sparql_intermediate_dep = declare_dependency(

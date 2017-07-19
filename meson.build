@@ -407,8 +407,6 @@ tracker_c_args = [
 
   # Needed for statvfs64, and probably other stuff
   '-D_LARGEFILE64_SOURCE',
-
-  '-DTRACKER_COMPILATION'
 ]
 
 have_tracker_miner_fs = true

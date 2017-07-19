@@ -8,5 +8,4 @@ ttl_loader_files = [
 
 ttl2sgml = executable('ttl2sgml',
     ttl_loader_files, 'ttl2sgml.c', 'ttlresource2sgml.c',
-    dependencies: [tracker_data_dep, tracker_sparql_dep],
-    c_args: ['-DTRACKER_COMPILATION'])
+    dependencies: [tracker_data_dep, tracker_sparql_dep])

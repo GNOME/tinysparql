@@ -1,7 +1,6 @@
 test_c_args = [
   '-DLIBEXEC_PATH="@0@/@1@"'.format(get_option('prefix'), get_option('libexecdir')),
   '-DTEST',
-  '-DTRACKER_COMPILATION',
   '-DTEST_DATA_DIR="@0@/data"'.format(meson.current_source_dir()),
   '-DTEST_MINERS_DIR="@0@/mock-miners"'.format(meson.current_source_dir()),
   '-DTEST_ONTOLOGIES_DIR="@0@/src/ontologies/nepomuk"'.format(meson.current_source_dir()),

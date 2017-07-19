@@ -2,8 +2,6 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
     '../libtracker-common/libtracker-common.vapi',
     'tracker-backend.vala',
 
-    c_args: ['-DTRACKER_COMPILATION'],
-
     install: true,
     install_rpath: tracker_internal_libs_dir,
 
@@ -40,7 +38,6 @@ tracker_sparql_c_gir = gnome.generate_gir(libtracker_sparql,
     link_with: libtracker_sparql,
     extra_args: [
         '--c-include', 'libtracker-sparql/tracker-sparql.h',
-        '-D', 'TRACKER_COMPILATION',
     ])
 
 tracker_sparql_c_gir = tracker_sparql_c_gir[0]  # Ignore this .typelib
