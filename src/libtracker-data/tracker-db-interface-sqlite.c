@@ -1897,7 +1897,7 @@ tracker_db_interface_sqlite_wal_checkpoint (TrackerDBInterface  *interface,
 		g_set_error (error,
 		             TRACKER_DB_INTERFACE_ERROR,
 		             TRACKER_DB_QUERY_ERROR,
-		             sqlite3_errstr (return_val));
+		             "%s", sqlite3_errstr (return_val));
 		return FALSE;
 	}
 
