@@ -58,7 +58,7 @@ poppler = dependency('poppler-glib', version: '> 0.16.0', required: false)
 sqlite = dependency('sqlite3', version: '>' + sqlite_required)
 taglib = dependency('taglib_c', version: '> 1.6', required: false)
 totem_plparser = dependency('totem-plparser', required: false)
-upower = dependency('libupower-glib', version: '> 0.9.0', required: false)
+upower = dependency('upower-glib', version: '> 0.9.0', required: false)
 zlib = dependency('zlib')
 
 libgif = cc.find_library('libgif', required: false)
