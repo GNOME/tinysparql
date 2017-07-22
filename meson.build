@@ -322,7 +322,7 @@ install_bash_completion = false
 if get_option('bash_completion') == 'yes' or get_option('bash_completion') == 'auto'
   bash_completion_package = dependency('bash-completion', required: false)
   if bash_completion_package.found()
-    bash_completion_dir = bash_completion_package.get_variable('completionsdir')
+    bash_completion_dir = bash_completion_package.get_pkgconfig_variable('completionsdir')
   else
     bash_completion_dir = join_paths(get_option('prefix'), get_option('datadir'), 'bash-completion', 'completions')
   endif
