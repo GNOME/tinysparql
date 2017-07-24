@@ -12,14 +12,22 @@ sources = [
     'tracker-writeback.c',
 ]
 
+tracker_miner_fs_deps = [
+     tracker_common_dep,
+     tracker_miner_dep,
+     tracker_extract_dep
+]
+
 if battery_detection_library_name == 'upower'
   sources += 'tracker-power-upower.c'
+  tracker_miner_fs_deps += upower
 elif battery_detection_library_name == 'hal'
   sources += 'tracker-power-hal.c'
+  tracker_miner_fs_deps += hal
 endif
 
 executable('tracker-miner-fs', sources,
-    dependencies: [tracker_common_dep, tracker_miner_dep, tracker_extract_dep],
+    dependencies: tracker_miner_fs_deps,
     c_args: tracker_c_args,
     install: true,
     install_dir: get_option('libexecdir'),
