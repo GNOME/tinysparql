@@ -303,8 +303,10 @@ static void
 delete_unbound_messages (TrackerMinerRSS *miner)
 {
 	tracker_sparql_connection_update_async (tracker_miner_get_connection (TRACKER_MINER (miner)),
-	                                        "DELETE { ?msg a rdfs:Resource }"
-	                                        "WHERE  { ?msg a mfo:FeedMessage ."
+	                                        "DELETE { ?msg a rdfs:Resource."
+	                                        "         ?encl a rdfs:Resource. }"
+	                                        "WHERE  { ?msg a mfo:FeedMessage ;"
+	                                        "                mfo:enclosureList ?encl ."
 	                                        "              FILTER(!BOUND(nmo:communicationChannel(?msg)))"
 	                                        "}",
 	                                        G_PRIORITY_DEFAULT,
@@ -720,6 +722,37 @@ sparql_add_contact (TrackerSparqlBuilder *sparql,
 	}
 }
 
+static void
+sparql_add_enclosure (TrackerSparqlBuilder *sparql,
+                      const gchar          *subject,
+                      GrssFeedEnclosure    *enclosure)
+{
+	gchar *url;
+	gint length;
+	gchar * format;
+
+	url = grss_feed_enclosure_get_url (enclosure);
+	length = grss_feed_enclosure_get_length (enclosure);
+	format = grss_feed_enclosure_get_format (enclosure);
+
+	tracker_sparql_builder_subject (sparql, subject);
+	tracker_sparql_builder_predicate (sparql, "a");
+	tracker_sparql_builder_object (sparql, "mfo:Enclosure");
+	tracker_sparql_builder_object (sparql, "nfo:RemoteDataObject");
+
+	tracker_sparql_builder_predicate (sparql, "mfo:remoteLink");
+	tracker_sparql_builder_object_unvalidated (sparql, url);
+
+	tracker_sparql_builder_predicate (sparql, "nfo:fileSize");
+	tracker_sparql_builder_object_int64 (sparql, length);
+
+	if (format != NULL) {
+		tracker_sparql_builder_predicate (sparql, "nie:mimeType");
+		tracker_sparql_builder_object_unvalidated (sparql, format);
+	}
+
+}
+
 static gchar *
 feed_message_create_update_channel_query (const gchar  *item_urn,
                                           GrssFeedItem *item)
@@ -761,10 +794,14 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 	GrssFeedChannel *channel;
 	gboolean has_geolocation;
 	const GList *contributors;
+	const GList *enclosures;
 	const GList *list, *l;
 	GList *contrib_aliases = NULL;
+	GList *enclosure_aliases = NULL;
 	GHashTable *websites;
+	GHashTable *enclosure_urls;
 	gboolean is_iri = FALSE;
+	gint i = 0;
 
 	if (!item_urn) {
 		item_urn = "_:message";
@@ -784,6 +821,7 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 	author = grss_feed_item_get_author (item);
 	contributors = grss_feed_item_get_contributors (item);
 	channel = grss_feed_item_get_parent (item);
+	enclosures = grss_feed_item_get_enclosures (item);
 
 	for (l = contributors; l; l = l->next) {
 		const gchar *person_url;
@@ -840,9 +878,9 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 		                    (tmp_string && tmp_string[0] != '_'));
 	}
 
+	i = 0;
 	for (l = contributors; l; l = l->next) {
 		gchar *subject;
-		gint i = 0;
 
 		g_debug ("  Contributor:'%s'", grss_person_get_name (l->data));
 
@@ -856,7 +894,33 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 
 		sparql_add_contact (sparql, subject, l->data, tmp_string,
 		                    (tmp_string && tmp_string[0] != '_'));
-		g_free (subject);
+
+		/* subject is not freed right now as it will be freed at the end of the
+		 * method in a foreach loop over the contrib_aliases list */
+	}
+
+	enclosure_urls = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                        (GDestroyNotify) g_free,
+	                                        (GDestroyNotify) g_free);
+	i = 0;
+	for (l = enclosures; l; l = l->next) {
+		gchar *subject;
+		gchar *url;
+
+		url = grss_feed_enclosure_get_url (l->data);
+
+		if (!g_hash_table_contains (enclosure_urls, url)) {
+			g_debug ("  Enclosure:'%s'", url);
+			subject = g_strdup_printf ("_:enclosure%d", i++);
+			enclosure_aliases = g_list_prepend (enclosure_aliases, subject);
+			g_hash_table_insert (enclosure_urls, g_strdup (url), NULL);
+
+			sparql_add_enclosure (sparql, subject, l->data);
+
+		}
+
+		/* subject is not freed right now as it will be freed at the end of the
+		 * method in a foreach loop over the enclosure_aliases list */
 	}
 
 	if (is_iri) {
@@ -889,6 +953,11 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 
 	for (l = contrib_aliases; l; l = l->next) {
 		tracker_sparql_builder_predicate (sparql, "nco:contributor");
+		tracker_sparql_builder_object (sparql, l->data);
+	}
+
+	for (l = enclosure_aliases; l; l = l->next) {
+		tracker_sparql_builder_predicate (sparql, "mfo:enclosureList");
 		tracker_sparql_builder_object (sparql, l->data);
 	}
 
@@ -946,9 +1015,10 @@ feed_message_create_insert_builder (TrackerMinerRSS    *miner,
 
 	tracker_sparql_builder_insert_close (sparql);
 
-	g_list_foreach (contrib_aliases, (GFunc) g_free, NULL);
-	g_list_free (contrib_aliases);
+	g_list_free_full (contrib_aliases, g_free);
+	g_list_free_full (enclosure_aliases, g_free);
 	g_hash_table_destroy (websites);
+	g_hash_table_destroy (enclosure_urls);
 
 	return sparql;
 }
