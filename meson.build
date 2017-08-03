@@ -432,7 +432,7 @@ tracker_writeback_modules_dir = join_paths(get_option('prefix'), get_option('lib
 vapi_dir = join_paths(get_option('prefix'), get_option('datadir'), 'vala', 'vapi')
 
 g_ir_compiler = find_program('g-ir-compiler', gobject_introspection.get_pkgconfig_variable('g_ir_compiler'))
-g_ir_merge = find_program('g-ir-merge', join_paths(meson.source_root(), 'utils', 'g-ir-merge', 'g-ir-merge'))
+g_ir_merge = find_program('g-ir-merge', join_paths(meson.current_source_dir(), 'utils', 'g-ir-merge', 'g-ir-merge'))
 
 # You can use the gobject_introspection.get_pkgconfig_variable() to find these,
 # but then get_option('prefix') won't be honoured if it differs from the prefix
