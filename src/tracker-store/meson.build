@@ -42,7 +42,7 @@ install_data(
 dbus_service_file = custom_target('tracker-store-dbus-service-file',
     input: 'org.freedesktop.Tracker1.service.in',
     output: 'org.freedesktop.Tracker1.service',
-    command: ['intltool-merge', '--quiet', '--desktop-style', '--utf8', join_paths(meson.source_root(), 'po'), '@INPUT@', '@OUTPUT@'],
+    command: ['intltool-merge', '--quiet', '--desktop-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
     install: true,
     install_dir: dbus_services_dir)
 
@@ -54,7 +54,7 @@ desktop_file_untranslated = configure_file(
 desktop_file = custom_target('tracker-store-desktop-file',
     input: desktop_file_untranslated,
     output: 'tracker-store.desktop',
-    command: ['intltool-merge', '--quiet', '--desktop-style', '--utf8', join_paths(meson.source_root(), 'po'), '@INPUT@', '@OUTPUT@'],
+    command: ['intltool-merge', '--quiet', '--desktop-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
     install: true,
     install_dir: join_paths(get_option('sysconfdir'), 'xdg/autostart'))
 
@@ -70,14 +70,14 @@ endif
 custom_target('tracker-store-settings-schema',
     input: 'org.freedesktop.Tracker.Store.gschema.xml.in',
     output: 'org.freedesktop.Tracker.Store.gschema.xml',
-    command: ['intltool-merge', '--quiet', '--xml-style', '--utf8', join_paths(meson.source_root(), 'po'), '@INPUT@', '@OUTPUT@'],
+    command: ['intltool-merge', '--quiet', '--xml-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
     install: true,
     install_dir: join_paths(get_option('datadir'), 'glib-2.0', 'schemas'))
 
 custom_target('tracker-store-settings-schemalist',
     input: 'org.freedesktop.Tracker.gschema.xml.in',
     output: 'org.freedesktop.Tracker.gschema.xml',
-    command: ['intltool-merge', '--quiet', '--xml-style', '--utf8', join_paths(meson.source_root(), 'po'), '@INPUT@', '@OUTPUT@'],
+    command: ['intltool-merge', '--quiet', '--xml-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
     install: true,
     install_dir: join_paths(get_option('datadir'), 'glib-2.0', 'schemas'))
 

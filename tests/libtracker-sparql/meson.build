@@ -1,7 +1,7 @@
 test_c_args = [
   '-DTEST',
-  '-DTEST_DOMAIN_ONTOLOGY_RULE="@0@/src/tracker-store/default.rule"'.format(meson.current_source_dir()),
-  '-DTEST_ONTOLOGIES_DIR="@0@/src/ontologies/nepomuk"'.format(meson.current_source_dir()),
+  '-DTEST_DOMAIN_ONTOLOGY_RULE="@0@/src/tracker-store/default.rule"'.format(source_root),
+  '-DTEST_ONTOLOGIES_DIR="@0@/src/ontologies/nepomuk"'.format(source_root),
 ]
 
 resource_test = executable('tracker-resource-test',

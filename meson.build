@@ -420,6 +420,10 @@ have_tracker_preferences = true
 configinc = include_directories('./')
 srcinc = include_directories('src/')
 
+source_root = meson.current_source_dir()
+build_root = meson.current_build_dir()
+po_subdir = join_paths(source_root, 'po')
+
 tracker_internal_libs_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tracker-' + tracker_api_version)
 
 tracker_extract_modules_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tracker-@0@/extract-modules'.format(tracker_api_version))
@@ -471,7 +475,7 @@ endif
 summary = [
   '\nBuild Configuration:',
   '    Prefix:                                 ' + get_option('prefix'),
-  '    Source code location:                   ' + meson.source_root(),
+  '    Source code location:                   ' + meson.current_source_dir(),
   '    Compiler:                               ' + cc.get_id(),
   '\nFeature Support:',
   '    Battery/mains power detection:          ' + battery_detection_library_name,

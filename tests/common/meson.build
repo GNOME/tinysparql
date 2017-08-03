@@ -4,7 +4,7 @@ libtracker_testcommon = library('tracker-testcommon',
     'tracker-test-helpers.c',
     dependencies: tracker_testcommon_dependencies,
     c_args: [
-        '-DTEST_TEXT="@0@/tests/libtracker-common/non-utf8.txt"'.format(meson.source_root()),
+        '-DTEST_TEXT="@0@/../libtracker-common/non-utf8.txt"'.format(meson.current_source_dir()),
     ]
 )
 
