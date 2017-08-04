@@ -471,6 +471,7 @@ miner_get_property (GObject    *object,
 		break;
 	case PROP_CONNECTION:
 		g_value_set_object (value, miner->priv->connection);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
