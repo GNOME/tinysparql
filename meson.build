@@ -431,6 +431,7 @@ tracker_extract_modules_dir = join_paths(get_option('prefix'), get_option('libdi
 # the ontology is installed to the same location.
 tracker_extract_rules_dir = join_paths(get_option('prefix'), get_option('datadir'), 'tracker/extract-rules')
 tracker_miner_services_dir = join_paths(get_option('prefix'), get_option('datadir'), 'tracker/miners')
+tracker_ontologies_dir = join_paths(get_option('prefix'), get_option('datadir'), 'tracker/ontologies')
 tracker_writeback_modules_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tracker-@0@/writeback-modules'.format(tracker_api_version))
 
 vapi_dir = join_paths(get_option('prefix'), get_option('datadir'), 'vala', 'vapi')

@@ -81,3 +81,5 @@ custom_target('tracker-store-settings-schemalist',
     install: true,
     install_dir: join_paths(get_option('datadir'), 'glib-2.0', 'schemas'))
 
+install_data('default.rule',
+    install_dir: join_paths(get_option('datadir'), 'tracker', 'domain-ontologies'))

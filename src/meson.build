@@ -28,3 +28,6 @@ subdir('tracker')
 
 # Public shared database
 subdir('tracker-store')
+
+# Public ontologies
+subdir('ontologies')

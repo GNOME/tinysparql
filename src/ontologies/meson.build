@@ -1,0 +1,56 @@
+internal_config = [
+    '10-xsd.description',
+    '10-xsd.ontology',
+    '11-rdf.description',
+    '11-rdf.ontology',
+    '12-nrl.description',
+    '12-nrl.ontology',
+    '20-dc.description',
+    '20-dc.ontology',
+    '31-nao.description',
+    '31-nao.ontology',
+]
+
+nepomuk = [
+    'nepomuk/30-nie.description',
+    'nepomuk/30-nie.ontology',
+    'nepomuk/31-nao-custom.ontology',
+    'nepomuk/32-nco.description',
+    'nepomuk/32-nco.ontology',
+    'nepomuk/33-nfo.description',
+    'nepomuk/33-nfo.ontology',
+    'nepomuk/34-nmo.description',
+    'nepomuk/34-nmo.ontology',
+    'nepomuk/35-ncal.description',
+    'nepomuk/35-ncal.ontology',
+    'nepomuk/36-scal.description',
+    'nepomuk/36-scal.ontology',
+    'nepomuk/37-nid3.description',
+    'nepomuk/37-nid3.ontology',
+    'nepomuk/38-nmm.description',
+    'nepomuk/38-nmm.ontology',
+    'nepomuk/39-mto.description',
+    'nepomuk/39-mto.ontology',
+    'nepomuk/40-mlo.description',
+    'nepomuk/40-mlo.ontology',
+    'nepomuk/41-mfo.description',
+    'nepomuk/41-mfo.ontology',
+    'nepomuk/89-mtp.description',
+    'nepomuk/89-mtp.ontology',
+    'nepomuk/90-tracker.description',
+    'nepomuk/90-tracker.ontology',
+    'nepomuk/91-maemo.description',
+    'nepomuk/91-maemo.ontology',
+    'nepomuk/92-slo.description',
+    'nepomuk/92-slo.ontology',
+    'nepomuk/93-libosinfo.description',
+    'nepomuk/93-libosinfo.ontology',
+]
+
+gnome.compile_resources('tracker_gresources', 'builtin-ontology.gresource.xml')
+
+install_data(internal_config,
+    install_dir: tracker_ontologies_dir)
+
+install_data(nepomuk,
+    install_dir: join_paths(tracker_ontologies_dir, 'nepomuk'))
