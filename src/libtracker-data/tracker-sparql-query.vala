@@ -509,10 +509,6 @@ public class Tracker.Sparql.Query : Object {
 	}
 
 	DBStatement prepare_for_exec (DBInterface iface, string sql) throws DBInterfaceError, Sparql.Error, DateError {
-		if (iface == null) {
-			throw new DBInterfaceError.OPEN_ERROR ("Error opening database");
-		}
-
 		var stmt = iface.create_statement (no_cache ? DBStatementCacheType.NONE : DBStatementCacheType.SELECT, "%s", sql);
 
 		// set literals specified in query
