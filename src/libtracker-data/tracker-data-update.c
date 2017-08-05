@@ -745,6 +745,40 @@ ensure_resource_id (TrackerData *data,
 	return id;
 }
 
+static gint
+ensure_graph_id (TrackerData *data,
+                 const gchar *uri,
+		 gboolean    *create)
+{
+	TrackerDBInterface *iface;
+	TrackerDBStatement *stmt;
+	GError *error = NULL;
+	gboolean resource_create;
+	gint id;
+
+	id = GPOINTER_TO_INT (g_hash_table_lookup (data->update_buffer.resource_cache, uri));
+	if (id != 0)
+		return id;
+
+	id = ensure_resource_id (data, uri, create);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
+	                                              "INSERT OR IGNORE INTO Graph (ID) VALUES (?)");
+
+	if (stmt) {
+		tracker_db_statement_bind_int (stmt, 0, id);
+		tracker_db_statement_execute (stmt, &error);
+		g_object_unref (stmt);
+	}
+
+	if (error) {
+		g_critical ("Could not ensure graph existence: %s", error->message);
+		g_error_free (error);
+	}
+
+	return id;
+}
+
 static void
 statement_bind_gvalue (TrackerDBStatement *stmt,
                        gint               *idx,
@@ -917,8 +951,8 @@ tracker_data_resource_buffer_flush (TrackerData  *data,
 				g_string_append (sql, "\" (ID");
 
 				if (strcmp (table_name, "rdfs:Resource") == 0) {
-					g_string_append (sql, ", \"tracker:added\", \"tracker:modified\", Available");
-					g_string_append (values_sql, ", ?, ?, 1");
+					g_string_append (sql, ", \"tracker:added\", \"tracker:modified\"");
+					g_string_append (values_sql, ", ?, ?");
 				} else {
 				}
 			} else {
@@ -1264,7 +1298,7 @@ cache_create_service_decomposed (TrackerData  *data,
 
 	cache_insert_row (data, cl);
 
-	final_graph_id = (graph != NULL ? ensure_resource_id (data, graph, NULL) : graph_id);
+	final_graph_id = (graph != NULL ? ensure_graph_id (data, graph, NULL) : graph_id);
 
 	/* This is the original, no idea why tracker_class_get_id wasn't used here:
 	 * class_id = ensure_resource_id (tracker_class_get_uri (cl), NULL); */
@@ -1340,7 +1374,7 @@ cache_create_service_decomposed (TrackerData  *data,
 			                    tracker_property_get_name (*domain_indexes),
 			                    tracker_property_get_transient (*domain_indexes),
 			                    &gvalue_copy,
-			                    graph != NULL ? ensure_resource_id (data, graph, NULL) : graph_id,
+			                    graph != NULL ? ensure_graph_id (data, graph, NULL) : graph_id,
 			                    tracker_property_get_multiple_values (*domain_indexes),
 			                    tracker_property_get_fulltext_indexed (*domain_indexes),
 			                    tracker_property_get_data_type (*domain_indexes) == TRACKER_PROPERTY_TYPE_DATETIME);
@@ -1724,7 +1758,7 @@ process_domain_indexes (TrackerData     *data,
 			                    field_name,
 			                    tracker_property_get_transient (property),
 			                    &gvalue_copy,
-			                    graph != NULL ? ensure_resource_id (data, graph, NULL) : graph_id,
+			                    graph != NULL ? ensure_graph_id (data, graph, NULL) : graph_id,
 			                    FALSE,
 			                    tracker_property_get_fulltext_indexed (property),
 			                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
@@ -1836,7 +1870,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		cache_insert_value (data, table_name, field_name,
 		                    tracker_property_get_transient (property),
 		                    &gvalue,
-		                    graph != NULL ? ensure_resource_id (data, graph, NULL) : graph_id,
+		                    graph != NULL ? ensure_graph_id (data, graph, NULL) : graph_id,
 		                    multiple_values,
 		                    tracker_property_get_fulltext_indexed (property),
 		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
@@ -2051,7 +2085,7 @@ cache_update_metadata_decomposed (TrackerData      *data,
 	cache_insert_value (data, table_name, field_name,
 	                    tracker_property_get_transient (property),
 	                    &gvalue,
-	                    graph != NULL ? ensure_resource_id (data, graph, NULL) : graph_id,
+	                    graph != NULL ? ensure_graph_id (data, graph, NULL) : graph_id,
 	                    multiple_values,
 	                    tracker_property_get_fulltext_indexed (property),
 	                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
@@ -2369,7 +2403,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 		guint n;
 		gint final_graph_id;
 
-		final_graph_id = (graph != NULL ? ensure_resource_id (data, graph, NULL) : graph_id);
+		final_graph_id = (graph != NULL ? ensure_graph_id (data, graph, NULL) : graph_id);
 
 		for (n = 0; n < data->delete_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
@@ -2455,7 +2489,7 @@ resource_buffer_switch (TrackerData *data,
 
 			/* Ensure the graph gets an ID */
 			if (graph != NULL) {
-				ensure_resource_id (data, graph, NULL);
+				ensure_graph_id (data, graph, NULL);
 			}
 		}
 

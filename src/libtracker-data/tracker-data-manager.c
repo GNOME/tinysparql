@@ -2901,6 +2901,118 @@ schedule_copy (GPtrArray *schedule,
 }
 
 static void
+create_triggers_on_rowid (TrackerDBInterface  *iface,
+                          TrackerClass        *klass,
+                          TrackerProperty     *property,
+                          GError             **error)
+{
+	GError *internal_error = NULL;
+	gchar *table_name;
+
+	if (property) {
+		table_name = g_strdup_printf ("%s_%s",
+		                              tracker_class_get_name (klass),
+		                              tracker_property_get_name (property));
+	} else {
+		table_name = g_strdup (tracker_class_get_name (klass));
+	}
+
+	tracker_db_interface_execute_query (iface, &internal_error,
+	                                    "CREATE TRIGGER \"trigger_insert_%s\" "
+	                                    "AFTER INSERT ON \"%s\" "
+	                                    "FOR EACH ROW BEGIN "
+	                                    "UPDATE Resource SET Refcount = Refcount + 1 WHERE Resource.rowid = NEW.ID;"
+	                                    "END",
+	                                    table_name, table_name);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		g_free (table_name);
+		return;
+	}
+
+	tracker_db_interface_execute_query (iface, &internal_error,
+	                                    "CREATE TRIGGER \"trigger_delete_%s\" "
+	                                    "AFTER DELETE ON \"%s\" "
+	                                    "FOR EACH ROW BEGIN "
+	                                    "UPDATE Resource SET Refcount = Refcount - 1 WHERE Resource.rowid = OLD.ID;"
+	                                    "END",
+	                                    table_name, table_name);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		g_free (table_name);
+		return;
+	}
+
+	g_free (table_name);
+}
+
+static void
+create_table_triggers (TrackerDataManager  *manager,
+                       TrackerDBInterface  *iface,
+                       TrackerClass        *klass,
+                       GError             **error)
+{
+	const gchar *property_name;
+	TrackerProperty **properties, *property;
+	GError *internal_error = NULL;
+	guint i, n_props;
+
+	create_triggers_on_rowid (iface, klass, NULL, &internal_error);
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return;
+	}
+
+	properties = tracker_ontologies_get_properties (manager->ontologies, &n_props);
+
+	for (i = 0; i < n_props; i++) {
+		gboolean multivalued;
+		gchar *table_name;
+
+		property = properties[i];
+
+		if (tracker_property_get_domain (property) != klass ||
+		    tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE)
+			continue;
+
+		property_name = tracker_property_get_name (property);
+		multivalued = tracker_property_get_multiple_values (property);
+
+		if (multivalued) {
+			create_triggers_on_rowid (iface, klass, property, &internal_error);
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				return;
+			}
+
+			table_name = g_strdup_printf ("%s_%s",
+			                              tracker_class_get_name (klass),
+			                              property_name);
+		} else {
+			table_name = g_strdup (tracker_class_get_name (klass));
+		}
+
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "CREATE TRIGGER \"trigger_update_%s_%s\" "
+		                                    "AFTER UPDATE OF \"%s\" ON \"%s\" "
+		                                    "FOR EACH ROW BEGIN "
+		                                    "UPDATE Resource SET Refcount = Refcount + 1 WHERE Resource.rowid = NEW.\"%s\";"
+		                                    "UPDATE Resource SET Refcount = Refcount - 1 WHERE Resource.rowid = OLD.\"%s\";"
+		                                    "END",
+		                                    tracker_class_get_name (klass),
+		                                    property_name,
+		                                    property_name, table_name,
+		                                    property_name, property_name);
+		g_free (table_name);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return;
+		}
+	}
+}
+
+static void
 create_decomposed_metadata_tables (TrackerDataManager  *manager,
                                    TrackerDBInterface  *iface,
                                    TrackerClass        *service,
@@ -2912,6 +3024,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 	GString          *create_sql = NULL;
 	GString          *in_col_sql = NULL;
 	GString          *sel_col_sql = NULL;
+	GString          *trigger_sql = NULL;
 	TrackerProperty **properties, *property, **domain_indexes;
 	GSList           *class_properties = NULL, *field_it;
 	gboolean          main_class;
@@ -2933,7 +3046,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		return;
 	}
 
-	if (in_change) {
+	if (in_change && !tracker_class_get_is_new (service)) {
 		g_debug ("Rename: ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name);
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"",
@@ -2953,12 +3066,8 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		create_sql = g_string_new ("");
 		g_string_append_printf (create_sql, "CREATE TABLE \"%s\" (ID INTEGER NOT NULL PRIMARY KEY", service_name);
 		if (main_class) {
-			tracker_db_interface_execute_query (iface, &internal_error, "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY, Uri TEXT NOT NULL, UNIQUE (Uri))");
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
-				goto error_out;
-			}
-			g_string_append (create_sql, ", Available INTEGER NOT NULL");
+			/* FIXME: This column is unneeded */
+			g_string_append (create_sql, ", Available INTEGER DEFAULT 1");
 		}
 	}
 
@@ -3207,6 +3316,9 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "%s", create_sql->str);
 
+		if (!internal_error)
+			create_table_triggers (manager, iface, service, &internal_error);
+
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			goto error_out;
@@ -3250,7 +3362,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		}
 	}
 
-	if (in_change && sel_col_sql && in_col_sql) {
+	if (!tracker_class_get_is_new (service) && in_change && sel_col_sql && in_col_sql) {
 		guint i;
 		gchar *query;
 
@@ -3424,6 +3536,73 @@ tracker_data_ontology_import_finished (TrackerDataManager *manager)
 	}
 }
 
+static gboolean
+query_table_exists (TrackerDBInterface  *iface,
+                    const gchar         *table_name,
+                    GError             **error)
+{
+	TrackerDBCursor *cursor = NULL;
+	TrackerDBStatement *stmt;
+	gboolean exists = FALSE;
+
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
+	                                              "SELECT 1 FROM sqlite_master WHERE tbl_name=\"%s\" AND type=\"table\"",
+	                                              table_name);
+	if (stmt) {
+		cursor = tracker_db_statement_start_cursor (stmt, error);
+		g_object_unref (stmt);
+	}
+
+	if (cursor) {
+		if (tracker_db_cursor_iter_next (cursor, NULL, error)) {
+			exists = TRUE;
+		}
+		g_object_unref (cursor);
+	}
+
+	return exists;
+}
+
+static gboolean
+create_base_tables (TrackerDataManager  *manager,
+                    TrackerDBInterface  *iface,
+                    gboolean            *altered,
+                    GError             **error)
+{
+	GError *internal_error = NULL;
+
+	if (!query_table_exists (iface, "Resource", &internal_error) && !internal_error) {
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY,"
+		                                    " Uri TEXT NOT NULL, Refcount INTEGER DEFAULT 0, UNIQUE (Uri))");
+	} else if (!internal_error) {
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "ALTER TABLE Resource ADD COLUMN Refcount INTEGER DEFAULT 0");
+
+		if (!internal_error)
+			*altered = TRUE;
+		else
+			g_clear_error (&internal_error);
+	}
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return FALSE;
+	}
+
+	if (!query_table_exists (iface, "Graph", &internal_error) && !internal_error) {
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "CREATE TABLE Graph (ID INTEGER NOT NULL PRIMARY KEY)");
+	}
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 static void
 tracker_data_ontology_import_into_db (TrackerDataManager  *manager,
                                       gboolean             in_update,
@@ -3434,11 +3613,16 @@ tracker_data_ontology_import_into_db (TrackerDataManager  *manager,
 	TrackerClass **classes;
 	TrackerProperty **properties;
 	guint i, n_props, n_classes;
+	gboolean base_tables_altered = FALSE;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
 	classes = tracker_ontologies_get_classes (manager->ontologies, &n_classes);
 	properties = tracker_ontologies_get_properties (manager->ontologies, &n_props);
+
+	if (!create_base_tables (manager, iface, &base_tables_altered, error)) {
+		return;
+	}
 
 	/* create tables */
 	for (i = 0; i < n_classes; i++) {
@@ -3446,6 +3630,7 @@ tracker_data_ontology_import_into_db (TrackerDataManager  *manager,
 
 		/* Also !is_new classes are processed, they might have new properties */
 		create_decomposed_metadata_tables (manager, iface, classes[i], in_update,
+		                                   base_tables_altered ||
 		                                   tracker_class_get_db_schema_changed (classes[i]),
 		                                   &internal_error);
 
@@ -3823,7 +4008,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 {
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (initable);
 	TrackerDBInterface *iface;
-	gboolean is_first_time_index, check_ontology;
+	gboolean is_first_time_index, check_ontology, has_graph_table;
 	TrackerDBCursor *cursor;
 	TrackerDBStatement *stmt;
 	GHashTable *ontos_table;
@@ -4096,6 +4281,16 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		tracker_data_manager_init_fts (iface, FALSE);
 	}
 
+	if (!read_only) {
+		has_graph_table = query_table_exists (iface, "Graph", &internal_error);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
+
+		check_ontology |= !has_graph_table;
+	}
+
 	if (check_ontology) {
 		GList *to_reload = NULL;
 		GList *ontos = NULL;
@@ -4191,6 +4386,23 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			if (found) {
 				GError *ontology_error = NULL;
 				gint val = GPOINTER_TO_INT (value);
+
+				if (!has_graph_table) {
+					/* No graph table and no resource triggers,
+					 * the table must be recreated.
+					 */
+					if (!transaction_started) {
+						tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);
+						if (internal_error) {
+							g_propagate_error (error, internal_error);
+							return FALSE;
+						}
+						transaction_started = TRUE;
+					}
+
+					to_reload = g_list_prepend (to_reload, ontology_file);
+					continue;
+				}
 
 				/* When the last-modified in our database isn't the same as the last
 				 * modified in the latest version of the file, deal with changes. */
@@ -4532,12 +4744,92 @@ skip_ontology_check:
 	return TRUE;
 }
 
+static gboolean
+data_manager_check_perform_cleanup (TrackerDataManager *manager)
+{
+	TrackerDBStatement *stmt;
+	TrackerDBInterface *iface;
+	TrackerDBCursor *cursor;
+	guint count = 0;
+
+	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+	                                              NULL, "SELECT COUNT(*) FROM Graph");
+	if (stmt) {
+		cursor = tracker_db_statement_start_cursor (stmt, NULL);
+		g_object_unref (stmt);
+	}
+
+	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL))
+		count = tracker_db_cursor_get_int (cursor, 0);
+
+	g_clear_object (&cursor);
+
+	/* We need to be sure the data is coherent, so we'll refrain from
+	 * doing any clean ups till there are elements in the Graph table.
+	 *
+	 * A database that's been freshly updated to the refcounted
+	 * resources will have an empty Graph table, so we might
+	 * unintentionally delete graph URNs if we clean up in this state.
+	 */
+	if (count == 0)
+		return FALSE;
+
+	count = 0;
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, NULL,
+	                                              "SELECT COUNT(*) FROM Resource WHERE Refcount <= 0 "
+						      "AND Resource.ID NOT IN (SELECT ID FROM Graph)");
+	if (stmt) {
+		cursor = tracker_db_statement_start_cursor (stmt, NULL);
+		g_object_unref (stmt);
+	}
+
+	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL))
+		count = tracker_db_cursor_get_int (cursor, 0);
+
+	g_clear_object (&cursor);
+
+	return count > 0;
+}
+
 void
 tracker_data_manager_dispose (GObject *object)
 {
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (object);
+	TrackerDBStatement *stmt;
+	TrackerDBInterface *iface;
+	GError *error = NULL;
+	gboolean readonly = TRUE;
 
-	g_clear_pointer (&manager->db_manager, tracker_db_manager_free);
+	if (manager->db_manager) {
+		readonly = (tracker_db_manager_get_flags (manager->db_manager, NULL, NULL) & TRACKER_DB_MANAGER_READONLY) != 0;
+
+		if (!readonly && data_manager_check_perform_cleanup (manager)) {
+			/* Delete stale URIs in the Resource table */
+			g_debug ("Cleaning up stale resource URIs");
+
+			iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
+			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+			                                              &error,
+			                                              "DELETE FROM Resource WHERE Refcount <= 0 "
+			                                              "AND Resource.ID NOT IN (SELECT ID FROM Graph)");
+
+			if (stmt) {
+				tracker_db_statement_execute (stmt, &error);
+				g_object_unref (stmt);
+			}
+
+			if (error) {
+				g_warning ("Could not clean up stale resource URIs: %s\n",
+				           error->message);
+				g_clear_error (&error);
+			}
+
+			tracker_db_interface_execute_query (iface, NULL, "VACUUM");
+		}
+
+		g_clear_pointer (&manager->db_manager, tracker_db_manager_free);
+	}
 
 	G_OBJECT_CLASS (tracker_data_manager_parent_class)->finalize (object);
 }
