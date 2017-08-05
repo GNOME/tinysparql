@@ -205,6 +205,10 @@ class Tracker.Sparql.Pattern : Object {
 		return query.accept (type);
 	}
 
+	inline void optional (SparqlTokenType type) throws Sparql.Error {
+		query.optional (type);
+	}
+
 	Sparql.Error get_error (string msg) {
 		return query.get_error (msg);
 	}

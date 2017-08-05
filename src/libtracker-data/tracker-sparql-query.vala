@@ -347,6 +347,11 @@ public class Tracker.Sparql.Query : Object {
 		return false;
 	}
 
+	internal void optional (SparqlTokenType type) throws Sparql.Error {
+		if (current () == type)
+			next ();
+	}
+
 	internal Sparql.Error get_error (string msg) {
 		return new Sparql.Error.PARSE ("%d.%d: syntax error, %s".printf (tokens[index].begin.line, tokens[index].begin.column, msg));
 	}
