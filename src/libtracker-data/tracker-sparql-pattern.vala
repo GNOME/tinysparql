@@ -286,7 +286,7 @@ class Tracker.Sparql.Pattern : Object {
 			expect (SparqlTokenType.IRI_REF);
 		}
 
-		accept (SparqlTokenType.WHERE);
+		optional (SparqlTokenType.WHERE);
 
 		var pattern = translate_group_graph_pattern (pattern_sql);
 		foreach (var key in pattern.var_set.get_keys ()) {
@@ -904,8 +904,7 @@ class Tracker.Sparql.Pattern : Object {
 			var right_variable = context.get_variable (get_last_string ().substring (1));
 			var right_variable_state = context.var_set.lookup (right_variable);
 
-			// optional .
-			accept (SparqlTokenType.DOT);
+			optional (SparqlTokenType.DOT);
 
 			// check it is only one triple pattern
 			if (!accept (SparqlTokenType.CLOSE_BRACE)) {
@@ -1185,7 +1184,7 @@ class Tracker.Sparql.Pattern : Object {
 				break;
 			}
 
-			accept (SparqlTokenType.DOT);
+			optional (SparqlTokenType.DOT);
 
 			// optional TriplesBlock
 			parse_triples (sql, group_graph_pattern_start, ref in_triples_block, ref first_where, ref in_group_graph_pattern, found_simple_optional);

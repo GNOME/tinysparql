@@ -503,7 +503,7 @@ public class Tracker.Sparql.Query : Object {
 
 			// semicolon is used to separate multiple operations in the current SPARQL Update draft
 			// keep it optional for now to reatin backward compatibility
-			accept (SparqlTokenType.SEMICOLON);
+			optional (SparqlTokenType.SEMICOLON);
 		}
 
 		if (blank) {
@@ -579,7 +579,7 @@ public class Tracker.Sparql.Query : Object {
 
 		expect (SparqlTokenType.ASK);
 
-		accept (SparqlTokenType.WHERE);
+		optional (SparqlTokenType.WHERE);
 
 		context = pattern.translate_group_graph_pattern (pattern_sql);
 
@@ -904,7 +904,7 @@ public class Tracker.Sparql.Query : Object {
 
 				current_graph = old_graph;
 
-				accept (SparqlTokenType.DOT);
+				optional (SparqlTokenType.DOT);
 			} else {
 				current_subject = parse_construct_var_or_term (var_value_map, type, out is_null);
 
