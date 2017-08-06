@@ -389,14 +389,28 @@ get_fts5_api (sqlite3 *db) {
 	sqlite3_stmt *stmt;
 	fts5_api *api = NULL;
 
-	rc = sqlite3_prepare_v2(db, "SELECT fts5()",
-	                        -1, &stmt, 0);
+#if SQLITE_VERSION_NUMBER >= 3020000
+	/* Sqlite >= 3.20.0 mandates sqlite3_bind_pointer() to fetch fts5 */
+	if (sqlite3_libversion_number () >= 3020000) {
+		rc = sqlite3_prepare_v2(db, "SELECT fts5(?1)",
+		                        -1, &stmt, 0);
+		if (rc != SQLITE_OK)
+			return NULL;
 
-	if (rc != SQLITE_OK)
-		return NULL;
+		sqlite3_bind_pointer (stmt, 1, (void*) &api, "fts5_api_ptr", NULL);
+		sqlite3_step (stmt);
+	} else
+#endif
+	{
+		rc = sqlite3_prepare_v2(db, "SELECT fts5()",
+		                        -1, &stmt, 0);
 
-	if (sqlite3_step (stmt) == SQLITE_ROW)
-		memcpy (&api, sqlite3_column_blob (stmt, 0), sizeof (api));
+		if (rc != SQLITE_OK)
+			return NULL;
+
+		if (sqlite3_step (stmt) == SQLITE_ROW)
+			memcpy (&api, sqlite3_column_blob (stmt, 0), sizeof (api));
+	}
 
 	sqlite3_finalize (stmt);
 
