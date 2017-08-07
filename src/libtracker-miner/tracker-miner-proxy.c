@@ -19,6 +19,23 @@
  * Authors: Carlos Garnacho <carlosg@gnome.org>
  */
 
+/**
+ * SECTION:tracker-miner-proxy
+ * @short_description: Proxies a #TrackerMiner on DBus
+ * @include: libtracker-miner/tracker-miner.h
+ *
+ * #TrackerMinerProxy is a helper object to expose org.freedesktop.Tracker1.Miner
+ * DBus interfaces for the given #TrackerMiner object. This is used to implement
+ * miners as DBus services.
+ *
+ * This proxy allows the miner to be controlled through external means, such as
+ * #TrackerMinerManager in libtracker-control.
+ *
+ * #TrackerMinerProxy implements the #GInitable interface, and thus all objects of
+ * types inheriting from #TrackerMinerProxy must be initialized with g_initable_init()
+ * just after creation (or directly created with g_initable_new()).
+ **/
+
 #include "config.h"
 
 #include <glib/gi18n.h>

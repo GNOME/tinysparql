@@ -104,6 +104,7 @@ tracker_indexing_tree_get_root
 tracker_indexing_tree_get_master_root
 tracker_indexing_tree_file_is_root
 tracker_indexing_tree_list_roots
+tracker_indexing_tree_notify_update
 <SUBSECTION Standard>
 TRACKER_INDEXING_TREE
 TRACKER_INDEXING_TREE_CLASS
@@ -112,12 +113,6 @@ TRACKER_IS_INDEXING_TREE
 TRACKER_IS_INDEXING_TREE_CLASS
 TRACKER_TYPE_INDEXING_TREE
 tracker_indexing_tree_get_type
-</SECTION>
-
-<SECTION>
-<FILE>tracker-media-art</FILE>
-tracker_media_art_queue_remove
-tracker_media_art_queue_empty
 </SECTION>
 
 <SECTION>
@@ -147,6 +142,7 @@ TrackerNetworkType
 TrackerMinerFS
 TrackerMinerFSClass
 TrackerMinerFSError
+TrackerMinerFSEventType
 tracker_miner_fs_error_quark
 tracker_miner_fs_get_indexing_tree
 tracker_miner_fs_get_data_provider
@@ -184,13 +180,9 @@ tracker_miner_start
 tracker_miner_stop
 tracker_miner_is_started
 tracker_miner_is_paused
-tracker_miner_get_n_pause_reasons
 tracker_miner_pause
 tracker_miner_resume
 tracker_miner_get_connection
-tracker_miner_get_dbus_connection
-tracker_miner_get_dbus_full_name
-tracker_miner_get_dbus_full_path
 <SUBSECTION Standard>
 TRACKER_IS_MINER
 TRACKER_IS_MINER_CLASS
@@ -219,22 +211,18 @@ tracker_miner_online_get_type
 </SECTION>
 
 <SECTION>
-<FILE>tracker-thumbnailer</FILE>
-<TITLE>TrackerThumbnailer</TITLE>
-TrackerThumbnailer
-TrackerThumbnailerClass
-tracker_thumbnailer_new
-tracker_thumbnailer_send
-tracker_thumbnailer_move_add
-tracker_thumbnailer_remove_add
-tracker_thumbnailer_cleanup
+<FILE>tracker-miner-proxy</FILE>
+<TITLE>TrackerMinerProxy</TITLE>
+TrackerMinerProxy
+TrackerMinerProxyClass
+tracker_miner_proxy_new
 <SUBSECTION Standard>
-TRACKER_IS_THUMBNAILER
-TRACKER_IS_THUMBNAILER_CLASS
-TRACKER_THUMBNAILER
-TRACKER_THUMBNAILER_CLASS
-TRACKER_THUMBNAILER_GET_CLASS
-TRACKER_TYPE_THUMBNAILER
-tracker_thumbnailer_get_type
+TRACKER_IS_MINER_PROXY
+TRACKER_IS_MINER_PROXY_CLASS
+TRACKER_MINER_PROXY
+TRACKER_MINER_PROXY_CLASS
+TRACKER_MINER_PROXY_GET_CLASS
+TRACKER_TYPE_MINER_PROXY
+tracker_miner_proxy_get_type
 </SECTION>
 

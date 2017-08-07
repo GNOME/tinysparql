@@ -51,9 +51,8 @@
  *
  * #TrackerMiner is an abstract base class to help developing data miners
  * for tracker-store, being an abstract class it doesn't do much by itself,
- * but provides the basic signaling and operation control so the miners
- * implementing this class are properly recognized by Tracker, and can be
- * controlled properly by external means such as #TrackerMinerManager.
+ * but provides the basic signaling and control over the actual indexing
+ * task.
  *
  * #TrackerMiner implements the #GInitable interface, and thus, all objects of
  * types inheriting from #TrackerMiner must be initialized with g_initable_init()
@@ -259,6 +258,15 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	                                                   G_MAXINT,
 	                                                   -1,
 	                                                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+	/**
+	 * TrackerMiner:connection:
+	 *
+	 * The SPARQL connection to use. For compatibility reasons, if not set
+	 * at construct time, one shall be obtained through
+	 * tracker_sparql_connection_get().
+	 *
+	 * Since: 2.0
+	 **/
 	g_object_class_install_property (object_class,
 	                                 PROP_CONNECTION,
 	                                 g_param_spec_object ("connection",

@@ -4,3 +4,4 @@ tracker_indexing_tree_get_type
 tracker_miner_get_type
 tracker_miner_fs_get_type
 tracker_miner_online_get_type
+tracker_miner_proxy_get_type
