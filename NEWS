@@ -1,3 +1,11 @@
+NEW in 1.12.2 - 2017-08-07
+==========================
+
+  * Sqlite 3.20 introduced incompatible changes in the way FTS5 can be
+    extended, compile/runtime checks were added to adapt to the new
+    safer way if Sqlite >= 3.20.0 is found.
+  * Fix TrackerDBInterface being reused with no FTS set up.
+
 NEW in 1.12.1 - 2017-06-28
 ==========================
 
