@@ -1,3 +1,25 @@
+NEW in 1.99.2 - 2017-08-07
+==========================
+
+  WARNING: This is unstable development towards 2.0. There are API and
+           ABI incompatibilities that might affect you.
+
+  * Miners have been split from the Tracker package, they can be found
+    at https://git.gnome.org/browse/tracker-miners.
+  * Sqlite 3.20 introduced incompatible changes in the way FTS5 can be
+    extended, compile/runtime checks were added to adapt to the new
+    safer way if Sqlite >= 3.20.0 is found.
+  * Elements are no longer leaked in the base Resource table. A refcounted
+    approach ensures no longer needed elements are cleaned up from that
+    table. The database will no longer indefinitely grow, it will be
+    cleaned up and vacuumed periodically.
+  * Fixed several Coverity warnings (CIDS: 1452447, 1188417, 1188418,
+    1188428, 1452443, 1452445, 1452449)
+  * Misc code and build fixes.
+  * Documentation improvements
+
+Translations: de, hu
+
 NEW in 1.99.1 - 2017-07-19
 ==========================
 
