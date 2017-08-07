@@ -1,0 +1,16 @@
+@prefix dsc: <http://www.tracker-project.org/temp/dsc#> .
+
+<virtual-ontology-uri:30-nie.ontology> a dsc:Ontology ;
+	dsc:title "Example ontology" ;
+	dsc:description "A little bit of this and that." ;
+	dsc:upstream "http://www.example.org/ontologies";
+	dsc:author "John doe, &lt;john@example.org&gt;";
+	dsc:editor "Jane doe, &lt;jane@example.org&gt;";
+	dsc:gitlog "http://git.example.org/cgit/tracker/log/example.ontology";
+	dsc:contributor "someone else, &lt;some1@example.org&gt;";
+
+	dsc:localPrefix "ex" ;
+	dsc:baseUrl "http://www.example.org/ontologies/ex#";
+	dsc:relativePath "./10-ex.ontology" ;
+
+	dsc:copyright "All rights given away".
