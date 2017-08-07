@@ -158,6 +158,7 @@ public abstract class Tracker.Sparql.Connection : Object {
 
 	/**
 	 * tracker_sparql_connection_remote_new:
+	 * @uri_base: Base URI of the remote connection
 	 *
 	 * Returns: a new remote #TrackerSparqlConnection. Call g_object_unref() on the
 	 * object when no longer used.
@@ -168,23 +169,71 @@ public abstract class Tracker.Sparql.Connection : Object {
 
 	/**
 	 * tracker_sparql_connection_local_new:
+	 * @flags: Flags to define connection behavior
+	 * @store: Location for the database
+	 * @journal: Location for the operation journal, or %NULL
+	 * @ontology: Location of the ontology used for this connection, or %NULL
+	 * @cancellable: A #GCancellable
+	 * @error: The error which occurred or %NULL
 	 *
 	 * Returns: a new local #TrackerSparqlConnection using the specified
 	 * @cache/@journal locations, and the ontology specified in the @ontology
 	 * directory. Call g_object_unref() on the object when no longer used.
 	 *
-	 * Since: 1.12
+	 * This database connection is considered entirely private to the calling
+	 * process, if multiple processes use the same journal/cache locations,
+	 * the results are unpredictable.
+	 *
+	 * The @journal is used to rebuild the database in case of data corruption,
+	 * if %NULL is provided, the same location than @store will be assumed.
+	 *
+	 * The caller is entirely free to define an ontology or reuse Nepomuk for
+	 * its purposes. For the former see the "Defining ontologies" section in
+	 * this library docs. For the latter pass a %NULL @ontology.
+	 *
+	 * The @ontology argument may be a resource:/// URI, a directory location
+	 * must be provided, all children .ontology and .description files will
+	 * be read.
+	 *
+	 * The @store and @journal arguments expect directories, and those are
+	 * assumed to be entirely private to Tracker.
+	 *
+	 * Since: 2.0
 	 */
 	public extern static new Connection local_new (Tracker.Sparql.ConnectionFlags flags, File store, File? journal, File? ontology, Cancellable? cancellable = null) throws Sparql.Error, IOError;
 
 	/**
 	 * tracker_sparql_connection_local_new_async:
+	 * @flags: Flags to define connection behavior
+	 * @store: Location for the database
+	 * @journal: Location for the operation journal, or %NULL
+	 * @ontology: Location of the ontology used for this connection, or %NULL
+	 * @cancellable: A #GCancellable
+	 * @_callback_: user-defined #GAsyncReadyCallback to be called when
+	 *              asynchronous operation is finished.
+	 * @_user_data_: user-defined data to be passed to @_callback_
 	 *
 	 * Returns: a new local #TrackerSparqlConnection using the specified
 	 * @cache/@journal locations, and the ontology specified in the @ontology
 	 * directory. Call g_object_unref() on the object when no longer used.
 	 *
-	 * Since: 1.12
+	 * See tracker_sparql_connection_local_new() for more details.
+	 *
+	 * Since: 2.0
+	 */
+
+	/**
+	 * tracker_sparql_connection_local_new_finish:
+	 * @_res_: a #GAsyncResult with the result of the operation
+	 * @error: #GError for error reporting.
+	 *
+	 * Finishes the asynchronous local database creation/loading.
+	 *
+	 * Returns: The #TrackerSparqlConnection for the local endpoint.
+	 * On error, #NULL is returned and the @error is set accordingly.
+	 * Call g_object_unref() on the returned connection when no longer needed.
+	 *
+	 * Since: 2.0
 	 */
 	public extern async static new Connection local_new_async (Tracker.Sparql.ConnectionFlags flags, File store, File? journal, File? ontology, Cancellable? cancellable = null) throws Sparql.Error, IOError;
 
@@ -528,6 +577,34 @@ public abstract class Tracker.Sparql.Connection : Object {
 		return null;
 	}
 
+	/**
+	 * tracker_sparql_connection_set_domain:
+	 * @domain: The domain name for the default connection
+	 *
+	 * Sets the domain (usually a DBus name or application ID) that
+	 * will be used on on the connection obtained by
+	 * tracker_sparql_connection_get(). See the "Isolating tracker-store
+	 * clients" section in this library docs.
+	 *
+	 * This function must be called
+	 * before any of these such tracker_sparql_connection_get() calls
+	 * could happen.
+	 *
+	 * Since: 2.0
+	 */
 	public extern static void set_domain (string? domain);
+
+	/**
+	 * tracker_sparql_connection_get_domain:
+	 *
+	 * Gets the domain (usually a DBus name or application ID) that
+	 * will be used on on the connection obtained by
+	 * tracker_sparql_connection_get().
+	 * See tracker_sparql_connection_set_domain() for more information.
+	 *
+	 * Returns: (transfer full): The domain string, or %NULL if none is set
+	 *
+	 * Since: 2.0
+	 */
 	public extern static string? get_domain ();
 }

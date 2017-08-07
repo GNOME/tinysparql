@@ -132,6 +132,7 @@ tracker_sparql_builder_construct_update
 <TITLE>TrackerSparqlConnection</TITLE>
 TrackerSparqlError
 TrackerSparqlConnection
+TrackerSparqlConnectionFlags
 tracker_sparql_connection_get
 tracker_sparql_connection_get_async
 tracker_sparql_connection_get_finish

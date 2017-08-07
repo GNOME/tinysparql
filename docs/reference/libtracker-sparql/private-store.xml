@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding="UTF-8"?>
+
+<part id="tracker-private-store" xmlns:xi="http://www.w3.org/2003/XInclude">
+  <title>Isolating tracker-store clients</title>
+  <partintro>
+    <para>
+      Every user of tracker_sparql_connection_get() or tracker_sparql_connection_get_async()
+      relies on an external tracker-store instance to maintain the database, and possibly
+      on additional tracker miners to write the data consumed by the application.
+    </para>
+    <para>
+      Traditionally there has been only a single instance of tracker-store and miners,
+      shared by all consumers of Tracker data. With Tracker 2.0 it became possible to let
+      clients spawn their own sets of these services.
+    </para>
+  </partintro>
+
+  <chapter id="private-daemons">
+    <title>Defining a private domain ontology</title>
+    <para>
+      In order to make Tracker aware of this private setup, a domain ontology rule
+      must be dropped by the application on $(datadir)/tracker/domain-ontologies/,
+      the file name will be usually the DBus name or application ID of the client
+      prepended by ".rule", eg. org.example.App.rule
+    </para>
+    <para>
+      The following example would allow org.example.App to set up a private set
+      of services to index the filesystem.
+    </para>
+    <programlisting>
+[DomainOntology]
+# All locations accept
+# 1) Paths relative from a variable, the variables
+#    may be: HOME, XDG_CACHE_HOME, XDG_DATA_HOME, XDG_RUNTIME_DIR,
+#    XDG_DESKTOP_DIR, XDG_DOCUMENTS_DIR, XDG_DOWNLOAD_DIR,
+#    XDG_MUSIC_DIR, XDG_PICTURES_DIR, XDG_PUBLICSHARE_DIR,
+#    XDG_VIDEOS_DIR.
+#
+#    eg. $XDG_CACHE_HOME/...
+#
+# 2) URIs
+#
+#    eg. file:///var/...
+#
+
+# Location for the Tracker database (not optional)
+CacheLocation=$XDG_CACHE_HOME/example-app
+
+# Location for the data journal, used in data recovery
+# situations (optional)
+JournalLocation=$XDG_DATA_HOME/example-app/journal
+
+# Name of the ontology to use, must be one located in
+# $(sharedir)/tracker/ontologies
+OntologyName=nepomuk
+
+# DBus name for the owner (not optional). Tracker will use
+# the domain as the prefix of the DBus name for all the
+# services related to this domain ontology.
+#
+# eg. org.gnome.Photos
+Domain=org.example.App
+
+# Miners that the domain ontology will require. This is
+# purely a hint (mainly for libtracker-control), and not
+# any sort of white list. Anything else knowing about this
+# domain ontology may still perform updates, miners and
+# non-miners.
+Miners=Miner.Files;Miner.Extract;
+    </programlisting>
+    <para>
+      The client could then instruct Tracker libraries to use
+      this private set up through the following call:
+    </para>
+    <programlisting>
+tracker_sparql_connection_set_domain ("org.example.App");
+    </programlisting>
+  </chapter>
+  <chapter id="recommendations">
+    <title>Additional precautions and recommendations</title>
+    <para>
+      In order to work flawlessly with the created services, the
+      client must adopt some precautions that were optional in the
+      past, but now have become mandatory.
+    </para>
+    <formalpara>
+      <title>Use TrackerNotifier to receive notifications</title>
+      <para>
+	Listening directly to the GraphUpdated DBus signal will yield
+	the wrong results, since it relies on the DBus name adopted by
+	the default tracker-store service.
+      </para>
+    </formalpara>
+    <formalpara>
+      <title>Use TrackerMinerManager to ensure services are started</title>
+      <para>
+	The miner lifetime has been traditionally unclear, being those
+	usually deemed a system service that would usually be there.
+	When using private services that assumption can't hold true,
+	so the client is responsible for ensuring those services are
+	started.
+      </para>
+      <para>
+	Note that this is the recommended behavior anyway even if the
+	client were not to use private services.
+      </para>
+    </formalpara>
+  </chapter>
+</part>

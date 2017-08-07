@@ -48,6 +48,7 @@
   </part>
 
   <xi:include href="ontologies.sgml"/>
+  <xi:include href="private-store.xml"/>
   <xi:include href="examples.sgml"/>
   <xi:include href="migrating-1to2.xml"/>
 
