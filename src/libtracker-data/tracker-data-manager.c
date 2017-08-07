@@ -2918,7 +2918,7 @@ create_triggers_on_rowid (TrackerDBInterface  *iface,
 	}
 
 	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    "CREATE TRIGGER \"trigger_insert_%s\" "
+	                                    "CREATE TRIGGER IF NOT EXISTS \"trigger_insert_%s\" "
 	                                    "AFTER INSERT ON \"%s\" "
 	                                    "FOR EACH ROW BEGIN "
 	                                    "UPDATE Resource SET Refcount = Refcount + 1 WHERE Resource.rowid = NEW.ID;"
@@ -2931,7 +2931,7 @@ create_triggers_on_rowid (TrackerDBInterface  *iface,
 	}
 
 	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    "CREATE TRIGGER \"trigger_delete_%s\" "
+	                                    "CREATE TRIGGER IF NOT EXISTS \"trigger_delete_%s\" "
 	                                    "AFTER DELETE ON \"%s\" "
 	                                    "FOR EACH ROW BEGIN "
 	                                    "UPDATE Resource SET Refcount = Refcount - 1 WHERE Resource.rowid = OLD.ID;"
@@ -2993,7 +2993,7 @@ create_table_triggers (TrackerDataManager  *manager,
 		}
 
 		tracker_db_interface_execute_query (iface, &internal_error,
-		                                    "CREATE TRIGGER \"trigger_update_%s_%s\" "
+		                                    "CREATE TRIGGER IF NOT EXISTS \"trigger_update_%s_%s\" "
 		                                    "AFTER UPDATE OF \"%s\" ON \"%s\" "
 		                                    "FOR EACH ROW BEGIN "
 		                                    "UPDATE Resource SET Refcount = Refcount + 1 WHERE Resource.rowid = NEW.\"%s\";"
