@@ -4,6 +4,7 @@
 <TITLE>Utilities</TITLE>
 tracker_sparql_get_uuid_urn
 tracker_sparql_escape_string
+tracker_sparql_escape_uri
 tracker_sparql_escape_uri_printf
 tracker_sparql_escape_uri_vprintf
 </SECTION>
@@ -134,6 +135,10 @@ TrackerSparqlConnection
 tracker_sparql_connection_get
 tracker_sparql_connection_get_async
 tracker_sparql_connection_get_finish
+tracker_sparql_connection_local_new
+tracker_sparql_connection_local_new_async
+tracker_sparql_connection_local_new_finish
+tracker_sparql_connection_remote_new
 tracker_sparql_connection_query
 tracker_sparql_connection_query_async
 tracker_sparql_connection_query_finish
@@ -152,6 +157,8 @@ tracker_sparql_connection_statistics
 tracker_sparql_connection_statistics_async
 tracker_sparql_connection_statistics_finish
 tracker_sparql_connection_get_namespace_manager
+tracker_sparql_connection_set_domain
+tracker_sparql_connection_get_domain
 <SUBSECTION Standard>
 TrackerSparqlConnectionClass
 TRACKER_SPARQL_CONNECTION
