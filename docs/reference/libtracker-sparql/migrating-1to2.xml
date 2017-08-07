@@ -1,0 +1,57 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+               "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
+<!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
+]>
+<chapter id="tracker-migrating-1-to-2">
+  <title>Migrating from libtracker-sparql 1.x to 2.0</title>
+
+  <para>
+    Tracker 2.0 is a new major version, containing some possibly
+    incompatible changes. Most of the changes are not hard to adapt,
+    and even unlikely to be a problem if the ported application was
+    kept up-to-date in its usage of 1.x.
+  </para>
+
+  <section>
+    <title>Stricter SPARQL1.1</title>
+    <para>
+      Tracker supports a large subset of the SPARQL1.1 definition,
+      and offers a number of nonstandard features that are useful.
+      There is however one nonstandard feature that brings no
+      added value.
+    </para>
+    <programlisting>
+# These were equivalent in Tracker 1.x
+SELECT ?u AS ?foo WHERE { ?u ... }
+SELECT ?u AS foo WHERE { ?u ... }
+    </programlisting>
+    <para>
+      The latter form is not observed in the SPARQL1.1 spec, and
+      support for it has been dropped in Tracker 2.0. If you want
+      to make queries that work on both Tracker 2.0 and 1.x, use
+      the former form, which has also been supported for a long
+      time in 1.x.
+    </para>
+  </section>
+
+  <section>
+    <title>No getters for direct/bus SPARQL connections</title>
+    <para>
+      Those have been deprecated for a long time in 1.x and have
+      been removed for 2.0. Use tracker_sparql_connection_get(),
+      which will smartly use direct/bus connections underneath
+      depending on the type of query.
+    </para>
+  </section>
+
+  <section>
+    <title>TrackerSparqlBuilder is deprecated</title>
+    <para>
+      Users are encouraged to use TrackerResource, included in
+      the last 1.x releases, and now being the preferred method
+      to create SPARQL updates for your data.
+    </para>
+  </section>
+</chapter>

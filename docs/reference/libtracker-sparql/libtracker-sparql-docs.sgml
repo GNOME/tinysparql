@@ -49,6 +49,7 @@
 
   <xi:include href="ontologies.sgml"/>
   <xi:include href="examples.sgml"/>
+  <xi:include href="migrating-1to2.xml"/>
 
   <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
 </book>
