@@ -4749,7 +4749,7 @@ data_manager_check_perform_cleanup (TrackerDataManager *manager)
 {
 	TrackerDBStatement *stmt;
 	TrackerDBInterface *iface;
-	TrackerDBCursor *cursor;
+	TrackerDBCursor *cursor = NULL;
 	guint count = 0;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
