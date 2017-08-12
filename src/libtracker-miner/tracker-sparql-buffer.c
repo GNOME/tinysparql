@@ -293,10 +293,6 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 				            i, uri, error->message);
 				g_free (uri);
 
-				uri = g_file_get_uri (tracker_task_get_file (task));
-				g_debug ("    Affected file: %s", uri);
-				g_free (uri);
-
 				switch (task_data->type) {
 				case TASK_TYPE_SPARQL_STR:
 					sparql = task_data->data.str;
