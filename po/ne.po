@@ -1,0 +1,2349 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Gnome Nepali Translation Project\n"
+"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
+"product=tracker&keywords=I18N+L10N&component=General\n"
+"POT-Creation-Date: 2017-07-22 05:16+0000\n"
+"PO-Revision-Date: 2017-08-16 14:50+0545\n"
+"Language-Team: Nepali Translation Team <chautari@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.0.3\n"
+"Last-Translator: Pawan Chitrakar <chautari@gmail.com>\n"
+"Language: ne\n"
+
+#: ../examples/rss-reader/rss_viewer.ui.h:1
+msgid "All posts"
+msgstr "सबैमा पोष्ट"
+
+#: ../examples/rss-reader/rss_viewer.ui.h:2
+msgid "By usage"
+msgstr "उपयोग अनुरुप"
+
+#: ../src/libtracker-common/tracker-utils.c:90
+msgid "unknown time"
+msgstr "अज्ञात समय"
+
+#: ../src/libtracker-common/tracker-utils.c:104
+#: ../src/libtracker-common/tracker-utils.c:155
+msgid "less than one second"
+msgstr "१ सेकेण्ड भन्दा कम"
+
+#. Translators: this is %d days
+#: ../src/libtracker-common/tracker-utils.c:119
+#, c-format
+msgid " %dd"
+msgstr " %dd"
+
+#. Translators: this is %2.2d hours
+#: ../src/libtracker-common/tracker-utils.c:123
+#, c-format
+msgid " %2.2dh"
+msgstr " %2.2dh"
+
+#. Translators: this is %2.2d minutes
+#: ../src/libtracker-common/tracker-utils.c:127
+#, c-format
+msgid " %2.2dm"
+msgstr " %2.2dm"
+
+#. Translators: this is %2.2d seconds
+#: ../src/libtracker-common/tracker-utils.c:131
+#, c-format
+msgid " %2.2ds"
+msgstr " %2.2ds"
+
+#: ../src/libtracker-common/tracker-utils.c:135
+#, c-format
+msgid " %d day"
+msgid_plural " %d days"
+msgstr[0] " %d दिन"
+msgstr[1] " %d दिनहरू"
+
+#: ../src/libtracker-common/tracker-utils.c:139
+#, c-format
+msgid " %2.2d hour"
+msgid_plural " %2.2d hours"
+msgstr[0] " %2.2d घन्टा"
+msgstr[1] " %2.2d घन्टा"
+
+#: ../src/libtracker-common/tracker-utils.c:143
+#, c-format
+msgid " %2.2d minute"
+msgid_plural " %2.2d minutes"
+msgstr[0] " %2.2d मिनेट"
+msgstr[1] " %2.2d मिनेट"
+
+#: ../src/libtracker-common/tracker-utils.c:147
+#, c-format
+msgid " %2.2d second"
+msgid_plural " %2.2d seconds"
+msgstr[0] " %2.2d सेकेण्ड"
+msgstr[1] " %2.2d सेकेण्ड"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
+#, fuzzy
+msgid "Maximum length of a word to be indexed"
+msgstr " अधिकतम लम्बाइ"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
+msgid ""
+"Words with more characters than this length will be ignored by the indexer."
+msgstr ""
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
+msgid "Maximum number of words to index in a document"
+msgstr ""
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+msgid ""
+"Indexer will read only this maximum number of words from a single document."
+msgstr ""
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
+#, fuzzy
+msgid "Enable stemmer"
+msgstr "सक्षम"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+msgid ""
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
+msgstr ""
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
+#, fuzzy
+msgid "Enable unaccent"
+msgstr "सक्षम"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+msgid ""
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
+msgstr ""
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
+msgid "Ignore numbers"
+msgstr "सङ्ख्याहरू वेवास्ता गर्नुहोस्"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
+#, fuzzy
+msgid "If enabled, numbers will not be indexed."
+msgstr "सङ्ख्याहरू"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
+#, fuzzy
+msgid "Ignore stop words"
+msgstr "उपेक्षा गर्नुहोस्"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+msgid ""
+"If enabled, the words listed in the stop-words list are ignored. E.g. common "
+"words like “the”, “yes”, “no”, etc."
+msgstr ""
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
+#, fuzzy
+msgid "Maximum size of journal"
+msgstr "अधिकतम साइज:"
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr ""
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
+#, fuzzy
+msgid "Location of journal pieces"
+msgstr "टुक्राहरू:"
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr ""
+
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: ../src/libtracker-data/tracker-collation.c:289
+msgid "the|a|an"
+msgstr "the|a|an"
+
+#: ../src/libtracker-data/tracker-data-backup.c:495
+#: ../src/libtracker-data/tracker-data-backup.c:635
+#, fuzzy
+msgid "Error starting “tar” program"
+msgstr "हिज्जे जाँचक सुरु गर्दा त्रुटि: %s"
+
+#: ../src/libtracker-data/tracker-data-backup.c:496
+#: ../src/libtracker-data/tracker-data-backup.c:636
+#: ../src/miners/rss/tracker-main.c:129 ../src/tracker/tracker-config.c:61
+#: ../src/tracker/tracker-daemon.c:462 ../src/tracker/tracker-daemon.c:483
+#: ../src/tracker/tracker-daemon.c:708 ../src/tracker/tracker-daemon.c:740
+#: ../src/tracker/tracker-daemon.c:890 ../src/tracker/tracker-daemon.c:948
+#: ../src/tracker/tracker-daemon.c:983 ../src/tracker/tracker-daemon.c:1052
+#: ../src/tracker/tracker-daemon.c:1243 ../src/tracker/tracker-daemon.c:1309
+#: ../src/tracker/tracker-daemon.c:1668 ../src/tracker/tracker-dbus.c:45
+#: ../src/tracker/tracker-dbus.c:63 ../src/tracker/tracker-index.c:123
+#: ../src/tracker/tracker-index.c:155 ../src/tracker/tracker-index.c:196
+#: ../src/tracker/tracker-index.c:272 ../src/tracker/tracker-index.c:329
+#: ../src/tracker/tracker-info.c:264 ../src/tracker/tracker-process.c:80
+#: ../src/tracker/tracker-process.c:206 ../src/tracker/tracker-process.c:335
+#: ../src/tracker/tracker-process.c:356 ../src/tracker/tracker-search.c:1581
+#: ../src/tracker/tracker-sparql.c:173 ../src/tracker/tracker-sparql.c:1087
+#: ../src/tracker/tracker-status.c:176 ../src/tracker/tracker-status.c:422
+#: ../src/tracker/tracker-status.c:432 ../src/tracker/tracker-status.c:506
+#: ../src/tracker/tracker-status.c:551 ../src/tracker/tracker-status.c:580
+#: ../src/tracker/tracker-tag.c:977
+msgid "No error given"
+msgstr "कुनै त्रुटि दिएन"
+
+#: ../src/libtracker-data/tracker-data-backup.c:649
+#, c-format
+msgid "Unknown error, “tar” exited with status %d"
+msgstr ""
+
+#: ../src/libtracker-miner/tracker-data-provider.c:108
+#: ../src/libtracker-miner/tracker-data-provider.c:168
+#, fuzzy
+msgid "Operation not supported"
+msgstr "समर्थित छैन "
+
+#: ../src/libtracker-miner/tracker-miner-proxy.c:335
+msgid "Cookie not recognized to resume paused miner"
+msgstr ""
+
+#: ../src/libtracker-miner/tracker-miner-proxy.c:392
+msgid "Pause application and reason match an already existing pause request"
+msgstr ""
+
+#: ../src/libtracker-miner/tracker-miner-proxy.c:755
+msgid "Data store is not available"
+msgstr "डाटा भण्डार उपलब्ध छैन"
+
+#: ../src/miners/apps/org.freedesktop.Tracker1.Miner.Applications.service.in.in.h:1
+msgid "Applications"
+msgstr "अनुप्रयोग"
+
+#: ../src/miners/apps/org.freedesktop.Tracker1.Miner.Applications.service.in.in.h:2
+#, fuzzy
+msgid "Applications data miner"
+msgstr "अनुप्रयोग"
+
+#: ../src/miners/apps/tracker-main.c:60 ../src/miners/fs/tracker-main.c:79
+#: ../src/miners/rss/tracker-main.c:43 ../src/tracker-writeback/tracker-main.c:55
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
+msgstr ""
+
+#: ../src/miners/apps/tracker-main.c:65
+msgid "Runs until all applications are indexed and then exits"
+msgstr ""
+
+#: ../src/miners/apps/tracker-main.c:69 ../src/miners/fs/tracker-main.c:97
+#: ../src/miners/rss/tracker-main.c:57 ../src/tracker-extract/tracker-main.c:103
+msgid "Runs for an specific domain ontology"
+msgstr ""
+
+#. Daemon options
+#: ../src/miners/apps/tracker-main.c:73 ../src/miners/fs/tracker-main.c:101
+#: ../src/tracker-extract/tracker-main.c:107
+#: ../src/tracker-store/tracker-main.vala:57
+#: ../src/tracker-writeback/tracker-main.c:51
+#, fuzzy
+msgid "Displays version information"
+msgstr "संस्करण सूचना देखाउनुहोस् र निस्कनुहोस्"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/apps/tracker-main.c:205
+#, fuzzy
+msgid "— start the application data miner"
+msgstr "लन्चर एप्लिकेशन स्विचर शुरु गर्ने कि"
+
+#: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
+#, fuzzy
+msgid "Tracker Application Miner"
+msgstr "अनुप्रयोग"
+
+#: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:2
+msgid "Indexes information about applications installed"
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker1.Miner.Files.service.in.in.h:1
+msgid "File System"
+msgstr "फाइल प्रणाली"
+
+#: ../src/miners/fs/org.freedesktop.Tracker1.Miner.Files.service.in.in.h:2
+#, fuzzy
+msgid "File system data miner"
+msgstr "सञ्जाल फाइल प्रणाली"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:1
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:1
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
+#: ../src/tracker-writeback/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
+#, fuzzy
+msgid "Log verbosity"
+msgstr "गति"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:2
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
+#: ../src/tracker-writeback/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
+#, fuzzy
+msgid "Log verbosity."
+msgstr "गति"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:3
+#, fuzzy
+msgid "Initial sleep"
+msgstr "प्रारम्भिक मान"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:4
+#, fuzzy
+msgid "Initial sleep time, in seconds."
+msgstr "प्रारम्भिक डिमक्स-विसङ्केतन विलम्ब सेट गर्नुहोस् (सेकेण्ड)"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:5
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
+#, fuzzy
+msgid "Scheduler priority when idle"
+msgstr "निश्क्रिय"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
+msgid ""
+"The scheduler is the kernel component that decides which runnable application "
+"will be executed by the CPU next. Each application has an associated scheduling "
+"policy and priority."
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:7
+msgid "Throttle"
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:8
+#, fuzzy
+msgid "Indexing speed, the higher the slower."
+msgstr "इन्टिलाइजिङ गुण: उच्च उत्तम हुन्छ, तर ढिलो छ"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
+#, fuzzy
+msgid "Low disk space limit"
+msgstr "\"%s\" मा डिस्क स्पेस कम छ ।"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
+msgid ""
+"Disk space threshold in percent at which to pause indexing, or -1 to disable."
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
+#, fuzzy
+msgid "Crawling interval"
+msgstr "अन्तराल:"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:12
+msgid ""
+"Interval in days to check whether the filesystem is up to date in the database. "
+"0 forces crawling anytime, -1 forces it only after unclean shutdowns, and -2 "
+"disables it entirely."
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
+msgid "Removable devices’ data permanence threshold"
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
+msgid ""
+"Threshold in days after which files from removables devices will be removed "
+"from database if not mounted. 0 means never, maximum is 365."
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
+msgid "Enable monitors"
+msgstr "मोनिटरहरू सक्षम"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:16
+msgid "Set to false to completely disable any file monitoring"
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:17
+#, fuzzy
+msgid "Enable writeback"
+msgstr "सक्षम"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:18
+msgid "Set to false to completely disable any file writeback"
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:19
+#, fuzzy
+msgid "Index removable devices"
+msgstr "छुट्याउन मिल्ने यन्त्र"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
+msgid "Set to true to enable indexing mounted directories for removable devices."
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
+#, fuzzy
+msgid "Index optical discs"
+msgstr "भ्रम"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
+msgid ""
+"Set to true to enable indexing CDs, DVDs, and generally optical media (if "
+"removable devices are not indexed, optical discs won’t be either)"
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
+#, fuzzy
+msgid "Index when running on battery"
+msgstr "तपाईँको ब्याट्री न्यून भैरहेको छ"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
+msgid "Set to true to index while running on battery"
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:25
+msgid "Perform initial indexing when running on battery"
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:26
+msgid "Set to true to index while running on battery for the first time only"
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:27
+#, fuzzy
+msgid "Directories to index recursively"
+msgstr "दोहोरिएर पुनःसेट गर्नुहोस्"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
+msgid ""
+"List of directories to index recursively, Special values include: &amp;DESKTOP, "
+"&amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, "
+"&amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults and $HOME/.config/"
+"user-dirs.default"
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
+#, fuzzy
+msgid "Directories to index non-recursively"
+msgstr "सूची अनुक्रमणिका नेगेटिभ नभएको हुनुपर्दछ ।\n"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
+msgid ""
+"List of directories to index without inspecting subfolders, Special values "
+"include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
+"PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
+"dirs.defaults and $HOME/.config/user-dirs.default"
+msgstr ""
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
+#, fuzzy
+msgid "Ignored files"
+msgstr "उपेक्षा गरिएका फाइलहरू देखाउनुहोस्"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
+#, fuzzy
+msgid "List of file patterns to avoid"
+msgstr "प्रयोगकर्ता सुची नदेखाउनुस्"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:33
+#, fuzzy
+msgid "Ignored directories"
+msgstr "उपेक्षा गरिएको"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:34
+#, fuzzy
+msgid "List of directories to avoid"
+msgstr "प्रयोगकर्ता सुची नदेखाउनुस्"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:35
+#, fuzzy
+msgid "Ignored directories with content"
+msgstr "उपेक्षा गरिएको"
+
+#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:36
+msgid "Avoid any directory containing a file blacklisted here"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:84
+msgid "Initial sleep time in seconds, 0->1000 (default=15)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:89
+msgid "Runs until all configured locations are indexed and then exits"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:93
+msgid "Checks if FILE is eligible for being mined based on configuration"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:94 ../src/tracker-extract/tracker-main.c:89
+#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
+#: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
+#: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
+#: ../src/tracker/tracker-sparql.c:106 ../src/tracker/tracker-sql.c:44
+msgid "FILE"
+msgstr "फाईल"
+
+#: ../src/miners/fs/tracker-main.c:462
+#, c-format
+msgid "Data object “%s” currently exists"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:463
+#, c-format
+msgid "Data object “%s” currently does not exist"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:478
+msgid "Directory is eligible to be mined (based on rules)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:479
+msgid "Directory is NOT eligible to be mined (based on rules)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:499
+msgid "Directory is eligible to be mined (based on contents)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:500
+msgid "Directory is NOT eligible to be mined (based on contents)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:547
+msgid "Directory is eligible to be monitored (based on config)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:548
+msgid "Directory is NOT eligible to be monitored (based on config)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:552
+msgid "File is eligible to be monitored (based on config)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:553
+msgid "File is NOT eligible to be monitored (based on config)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:557
+msgid "File or Directory is eligible to be monitored (based on config)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:558
+msgid "File or Directory is NOT eligible to be monitored (based on config)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:573
+msgid "File is eligible to be mined (based on rules)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:574
+msgid "File is NOT eligible to be mined (based on rules)"
+msgstr ""
+
+#: ../src/miners/fs/tracker-main.c:583
+#, fuzzy
+msgid "Would be indexed"
+msgstr "अनुक्रमण गरिएको"
+
+#: ../src/miners/fs/tracker-main.c:584 ../src/miners/fs/tracker-main.c:586
+msgid "Yes"
+msgstr "ठिक छ"
+
+#: ../src/miners/fs/tracker-main.c:584 ../src/miners/fs/tracker-main.c:586
+msgid "No"
+msgstr "होइन"
+
+#: ../src/miners/fs/tracker-main.c:585
+#, fuzzy
+msgid "Would be monitored"
+msgstr "अनगमन गरिएको संसाधनहरू"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/fs/tracker-main.c:717
+#, fuzzy
+msgid "— start the tracker indexer"
+msgstr "यसमा सुरु गर्नुहोस्:"
+
+#: ../src/miners/fs/tracker-miner-fs.desktop.in.in.h:1
+#, fuzzy
+msgid "Tracker File System Miner"
+msgstr "सञ्जाल फाइल प्रणाली"
+
+#: ../src/miners/fs/tracker-miner-fs.desktop.in.in.h:2
+msgid "Crawls and processes files on the file system"
+msgstr ""
+
+#: ../src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in.h:1
+#, fuzzy
+msgid "RSS/ATOM Feeds"
+msgstr "एटम"
+
+#: ../src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in.h:2
+msgid "Fetch RSS/ATOM Feeds"
+msgstr ""
+
+#. Translators: this is a "feed" as in RSS
+#: ../src/miners/rss/tracker-main.c:49
+#, fuzzy
+msgid "Add feed"
+msgstr "फिड:"
+
+#: ../src/miners/rss/tracker-main.c:50
+msgid "URL"
+msgstr "युआरएल"
+
+#: ../src/miners/rss/tracker-main.c:53
+msgid "Title to use (must be used with --add-feed)"
+msgstr ""
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/miners/rss/tracker-main.c:94
+#, fuzzy
+msgid "— start the feeds indexer"
+msgstr "पोडकासट फिड खोजी गर्नुहोस्"
+
+#: ../src/miners/rss/tracker-main.c:128 ../src/tracker/tracker-index.c:195
+#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
+#: ../src/tracker/tracker-sparql.c:172 ../src/tracker/tracker-sparql.c:1086
+#: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
+#: ../src/tracker/tracker-tag.c:976
+#, fuzzy
+msgid "Could not establish a connection to Tracker"
+msgstr "जडान स्थापानाका लागि SSL प्रयोग गर्न पर्छ वा पर्दैन"
+
+#: ../src/miners/rss/tracker-main.c:156
+#, fuzzy
+msgid "Could not add feed"
+msgstr "अनुप्रयोग थप्न सकेन"
+
+#: ../src/miners/rss/tracker-miner-rss.desktop.in.in.h:1
+msgid "Tracker RSS/ATOM Feeds Miner"
+msgstr ""
+
+#: ../src/miners/rss/tracker-miner-rss.desktop.in.in.h:2
+msgid "Fetch RSS/ATOM feeds"
+msgstr ""
+
+#: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:1
+#, fuzzy
+msgid "Extractor"
+msgstr "एउटा अडियो सीडी निष्कर्षक"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:2
+#, fuzzy
+msgid "Metadata extractor"
+msgstr "मेटाडेटा"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:5
+#, fuzzy
+msgid "Max bytes to extract"
+msgstr "छोड्नुहोस्"
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:6
+msgid "Maximum number of UTF-8 bytes to extract."
+msgstr ""
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:7
+msgid "Max media art width"
+msgstr ""
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:8
+msgid ""
+"Maximum width in pixels for any media art extracted. Anything bigger is "
+"resized. Set to -1 to disable saving media art from files. Setting to 0 sets no "
+"limit on the media art width."
+msgstr ""
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:9
+msgid "Wait for FS miner to be done before extracting"
+msgstr ""
+
+#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:10
+msgid ""
+"When true, tracker-extract will wait for tracker-miner-fs to be done crawling "
+"before extracting meta-data. This option is useful on constrained environment "
+"where it is important to list files as fast as possible and can wait to get "
+"meta-data later."
+msgstr ""
+
+#: ../src/tracker-extract/tracker-extract.c:685
+#, fuzzy
+msgid "Metadata extraction failed"
+msgstr "उद्धरण"
+
+#: ../src/tracker-extract/tracker-extract.c:751
+msgid "No metadata or extractor modules found to handle this file"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:83
+#: ../src/tracker-store/tracker-main.vala:58
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = 0)"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:88
+#, fuzzy
+msgid "File to extract metadata for"
+msgstr "मेटाडेटा"
+
+#: ../src/tracker-extract/tracker-main.c:92
+msgid "MIME type for file (if not provided, this will be guessed)"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:93 ../src/tracker/tracker-index.c:57
+msgid "MIME"
+msgstr "माइम"
+
+#: ../src/tracker-extract/tracker-main.c:96
+msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:97
+msgid "MODULE"
+msgstr "मोड्युल"
+
+#: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
+msgid "Output results format: “sparql”, or “turtle”"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-main.c:100 ../src/tracker/tracker-extract.c:46
+msgid "FORMAT"
+msgstr "ढाँचा"
+
+#: ../src/tracker-extract/tracker-main.c:273
+#, fuzzy, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "फाइल ढाँचा अज्ञात वा असमर्थित छ"
+
+#. Translators: this message will appear immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: ../src/tracker-extract/tracker-main.c:333
+#, fuzzy
+msgid "— Extract file meta data"
+msgstr "बढाइएको मेटा फाइल"
+
+#: ../src/tracker-extract/tracker-main.c:342
+msgid "Filename and mime type must be provided together"
+msgstr ""
+
+#: ../src/tracker-extract/tracker-extract.desktop.in.in.h:1
+#, fuzzy
+msgid "Tracker Metadata Extractor"
+msgstr "मेटाडेटा"
+
+#: ../src/tracker-extract/tracker-extract.desktop.in.in.h:2
+msgid "Extracts metadata from local files"
+msgstr ""
+
+#. Indexer options
+#: ../src/tracker-store/tracker-main.vala:61
+msgid "Force a re-index of all content"
+msgstr ""
+
+#: ../src/tracker-store/tracker-main.vala:62
+msgid "Only allow read based actions on the database"
+msgstr ""
+
+#: ../src/tracker-store/tracker-main.vala:63
+#, fuzzy
+msgid "Load a specified domain ontology"
+msgstr "डोमेन ठेगाना निर्दिष्ट गरिएको थिएन"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-store/tracker-main.vala:194
+#, fuzzy
+msgid "— start the tracker daemon"
+msgstr "डेइमोनको रूपमा सिहर्स-डेइमोन नचलाउनुहोस्"
+
+#: ../src/tracker-store/tracker-store.desktop.in.in.h:1
+#, fuzzy
+msgid "Tracker Store"
+msgstr "भण्डार गर्नुहोस्"
+
+#: ../src/tracker-store/tracker-store.desktop.in.in.h:2
+msgid "Metadata database store and lookup manager"
+msgstr ""
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
+#, fuzzy
+msgid "GraphUpdated delay"
+msgstr "ढिलाई"
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when indexed "
+"data has changed inside the database."
+msgstr ""
+
+#: ../src/tracker/tracker-config.c:60
+#, c-format
+msgid "Could not get GSettings for miners, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
+msgid "Unavailable"
+msgstr "अनुपलब्ध"
+
+#. generic
+#: ../src/tracker/tracker-daemon.c:122
+#, fuzzy
+msgid "Initializing"
+msgstr "पुस्तकचिन्हो सुरु गर्दा त्रुति %s"
+
+#: ../src/tracker/tracker-daemon.c:123
+#, fuzzy
+msgid "Processing…"
+msgstr "प्रक्रिया गरिदै"
+
+#: ../src/tracker/tracker-daemon.c:124
+#, fuzzy
+msgid "Fetching…"
+msgstr "IMAP सर्भबाट सन्देश तान्दा त्रुटि: %s"
+
+#. miner/rss
+#: ../src/tracker/tracker-daemon.c:125
+#, fuzzy, c-format
+msgid "Crawling single directory “%s”"
+msgstr "Single Factor ANOVA (%s)"
+
+#: ../src/tracker/tracker-daemon.c:126
+#, fuzzy, c-format
+msgid "Crawling recursively directory “%s”"
+msgstr "अवैध कार्य डाइरेक्टरी : %s"
+
+#: ../src/tracker/tracker-daemon.c:127
+msgid "Paused"
+msgstr "पज गरिएको"
+
+#: ../src/tracker/tracker-daemon.c:128
+msgid "Idle"
+msgstr "निस्क्रिय"
+
+#: ../src/tracker/tracker-daemon.c:134
+msgid "Follow status changes as they happen"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:138
+msgid ""
+"Watch changes to the database in real time (e.g. resources or files being added)"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:139
+msgid "ONTOLOGY"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:142
+msgid "List common statuses for miners and the store"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:147
+msgid "Pause a miner (you must use this with --miner)"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:148 ../src/tracker/tracker-daemon.c:152
+#, fuzzy
+msgid "REASON"
+msgstr "कारण"
+
+#: ../src/tracker/tracker-daemon.c:151
+msgid ""
+"Pause a miner while the calling process is alive or until resumed (you must use "
+"this with --miner)"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:155
+msgid "Resume a miner (you must use this with --miner)"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:156
+msgid "COOKIE"
+msgstr "कुकी"
+
+#: ../src/tracker/tracker-daemon.c:159
+msgid ""
+"Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
+"Applications)"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:160
+msgid "MINER"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:163
+msgid "List all miners currently running"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:167
+#, fuzzy
+msgid "List all miners installed"
+msgstr "यो सूचीले सबै प्लगइन फाइल अवस्थाहरू समावेश गर्दछ।"
+
+#: ../src/tracker/tracker-daemon.c:171
+#, fuzzy
+msgid "List pause reasons"
+msgstr "पज गर्नुहोस्"
+
+#: ../src/tracker/tracker-daemon.c:176
+#, fuzzy
+msgid "List all Tracker processes"
+msgstr "यो सूचीले सबै प्लगइन फाइल अवस्थाहरू समावेश गर्दछ।"
+
+#: ../src/tracker/tracker-daemon.c:178
+msgid ""
+"Use SIGKILL to stop all matching processes, either “store”, “miners” or “all” "
+"may be used, no parameter equals “all”"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
+msgid "APPS"
+msgstr "अनुप्रयोग"
+
+#: ../src/tracker/tracker-daemon.c:181
+msgid ""
+"Use SIGTERM to stop all matching processes, either “store”, “miners” or “all” "
+"may be used, no parameter equals “all”"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:184
+msgid "Starts miners (which indirectly starts tracker-store too)"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
+msgid ""
+"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, “errors”) "
+"for all processes"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
+msgid "LEVEL"
+msgstr "तह"
+
+#: ../src/tracker/tracker-daemon.c:190
+msgid "Show logging values in terms of log verbosity for each process"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:264
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr ""
+
+#. Translators: %s is a time string
+#: ../src/tracker/tracker-daemon.c:326
+#, c-format
+msgid "%s remaining"
+msgstr "%s बाकि छ"
+
+#: ../src/tracker/tracker-daemon.c:329
+#, fuzzy
+msgid "unknown time left"
+msgstr "अनुमानित समय छोडियो: अज्ञात"
+
+#. Work out lengths for output spacing
+#: ../src/tracker/tracker-daemon.c:342 ../src/tracker/tracker-daemon.c:1319
+msgid "PAUSED"
+msgstr "पज गरिएको"
+
+#: ../src/tracker/tracker-daemon.c:359
+#, fuzzy
+msgid "Not running or is a disabled plugin"
+msgstr "प्लगइन"
+
+#: ../src/tracker/tracker-daemon.c:461
+msgid "Could not retrieve tracker-store status"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:482
+msgid "Could not retrieve tracker-store progress"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:200
+msgid "Unable to retrieve namespace prefixes"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:208
+msgid "No namespace prefixes were returned"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:699 ../src/tracker/tracker-daemon.c:726
+#, fuzzy
+msgid "Could not run SPARQL query"
+msgstr "आदेश '%s' चलाउन सकेन"
+
+#: ../src/tracker/tracker-daemon.c:707 ../src/tracker/tracker-daemon.c:739
+msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:889
+#, c-format
+msgid "Could not pause miner, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:896
+#, c-format
+msgid "Attempting to pause miner “%s” with reason “%s”"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
+#, fuzzy, c-format
+msgid "Could not pause miner: %s"
+msgstr "'%s' मेट्न सकेन: %s"
+
+#: ../src/tracker/tracker-daemon.c:916
+#, c-format
+msgid "Cookie is %d"
+msgstr "कुकी %d"
+
+#: ../src/tracker/tracker-daemon.c:923 ../src/tracker/tracker-daemon.c:1276
+#: ../src/tracker/tracker-daemon.c:1420
+msgid "Press Ctrl+C to stop"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:947
+#, c-format
+msgid "Could not resume miner, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:954
+#, c-format
+msgid "Attempting to resume miner %s with cookie %d"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:961
+#, fuzzy, c-format
+msgid "Could not resume miner: %s"
+msgstr "'%s' मा लेख्न सकेन: %s"
+
+#: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
+#: ../src/tracker/tracker-sparql.c:1396
+msgid "Done"
+msgstr "सम्पन्न भयो"
+
+#: ../src/tracker/tracker-daemon.c:982
+#, c-format
+msgid "Could not list miners, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:996
+#, c-format
+msgid "Found %d miner installed"
+msgid_plural "Found %d miners installed"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/tracker/tracker-daemon.c:1019
+#, c-format
+msgid "Found %d miner running"
+msgid_plural "Found %d miners running"
+msgstr[0] ""
+msgstr[1] ""
+
+#: ../src/tracker/tracker-daemon.c:1051
+#, c-format
+msgid "Could not get pause details, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1061
+#, fuzzy
+msgid "No miners are running"
+msgstr "सञ्चालन भइरहेछ..."
+
+#: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
+#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1646
+msgid "Miners"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1108
+#, fuzzy
+msgid "Application"
+msgstr "अनुप्रयोग:"
+
+#: ../src/tracker/tracker-daemon.c:1110
+msgid "Reason"
+msgstr "कारण"
+
+#: ../src/tracker/tracker-daemon.c:1119
+#, fuzzy
+msgid "No miners are paused"
+msgstr "पज गरिएको"
+
+#: ../src/tracker/tracker-daemon.c:1207
+msgid "Only one of “all”, “store” and “miners” options are allowed"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1242
+#, fuzzy
+msgid "Could not get SPARQL connection"
+msgstr "जडान सक्रिय छ, तर जडान समय प्राप्त गर्न सकिएन"
+
+#: ../src/tracker/tracker-daemon.c:1274
+msgid "Now listening for resource updates to the database"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1275
+msgid "All nie:plainTextContent properties are omitted"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1290
+#, fuzzy
+msgid "Common statuses include"
+msgstr "सम्मिलित गर्नुहोस्"
+
+#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:579
+#, c-format
+msgid "Could not get status, manager could not be created, %s"
+msgstr ""
+
+#. Display states
+#: ../src/tracker/tracker-daemon.c:1329
+msgid "Store"
+msgstr "भण्डार गर्नुहोस्"
+
+#: ../src/tracker/tracker-daemon.c:1363
+#, c-format
+msgid "Could not get display name for miner “%s”"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1461
+msgid "You can not use miner pause and resume switches together"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1467
+msgid "You must provide the miner for pause or resume commands"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1473
+msgid "You must provide a pause or resume command for the miner"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1509
+msgid "You can not use the --kill and --terminate arguments together"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1515
+msgid "You can not use the --get-logging and --set-logging arguments together"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
+msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1568
+#, fuzzy, c-format
+msgid "Found process ID %d for “%s”"
+msgstr "%s"
+
+#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
+msgid "Components"
+msgstr "अवयव"
+
+#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
+msgid "Only those with config listed"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1623
+#, c-format
+msgid "Setting log verbosity for all components to “%s”…"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1662
+#, fuzzy
+msgid "Starting miners…"
+msgstr "सुरु गर्दै"
+
+#: ../src/tracker/tracker-daemon.c:1667
+#, c-format
+msgid "Could not start miners, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1692
+#, fuzzy
+msgid "perhaps a disabled plugin?"
+msgstr "प्लगइन"
+
+#: ../src/tracker/tracker-daemon.c:1736
+msgid ""
+"If no arguments are given, the status of the store and data miners is shown"
+msgstr ""
+
+#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
+#: ../src/tracker/tracker-reset.c:449 ../src/tracker/tracker-search.c:1778
+#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:238
+#: ../src/tracker/tracker-status.c:706 ../src/tracker/tracker-tag.c:1079
+msgid "Unrecognized options"
+msgstr "पहिचान नभएको विकल्प"
+
+#: ../src/tracker/tracker-dbus.c:44
+#, fuzzy
+msgid "Could not get D-Bus connection"
+msgstr "छवि %dका लागि तहहरू प्राप्त गर्न सकेन"
+
+#: ../src/tracker/tracker-dbus.c:62
+msgid "Could not create D-Bus proxy to tracker-store"
+msgstr ""
+
+#: ../src/tracker/tracker-extract.c:77
+#, fuzzy
+msgid "Could not run tracker-extract: "
+msgstr "ट्रयाकहरू झिक्न सकेन"
+
+#: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
+#, fuzzy, c-format
+msgid "failed to exec “%s”: %s"
+msgstr ""
+"%s को %s मा पुन: नामकरण असफल:\n"
+"%s"
+
+#: ../src/tracker/tracker-index.c:56
+msgid ""
+"Tell miners to reindex files which match the mime type supplied (for new "
+"extractors), use -m MIME1 -m MIME2"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:59
+msgid "Tell miners to (re)index a given file"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:62
+msgid "Backup current index / database to the file provided"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:65
+msgid "Restore a database from a previous backup (see --backup)"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:68
+msgid "Import a dataset from the provided file (in Turtle format)"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:122
+#, c-format
+msgid "Could not reindex mimetypes, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:132
+#, fuzzy
+msgid "Could not reindex mimetypes"
+msgstr "सन्दर्भ सिर्जना गर्न सकेन"
+
+#: ../src/tracker/tracker-index.c:138
+msgid "Reindexing mime types was successful"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:154
+#, c-format
+msgid "Could not (re)index file, manager could not be created, %s"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:169
+#, fuzzy
+msgid "Could not (re)index file"
+msgstr "XML फाइल लेख्न सकेन"
+
+#: ../src/tracker/tracker-index.c:175
+msgid "(Re)indexing file was successful"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:206
+#, fuzzy
+msgid "Importing Turtle file"
+msgstr "आयात गर्दै..."
+
+#: ../src/tracker/tracker-index.c:215
+#, fuzzy
+msgid "Unable to import Turtle file"
+msgstr "फाइलबाट आयात गर्नुहोस्"
+
+#: ../src/tracker/tracker-index.c:251
+#, fuzzy
+msgid "Backing up database"
+msgstr "डाटाबेस"
+
+#: ../src/tracker/tracker-index.c:271 ../src/tracker/tracker-index.c:328
+#, fuzzy
+msgid "Could not backup database"
+msgstr "जगेडा"
+
+#: ../src/tracker/tracker-index.c:308
+#, fuzzy
+msgid "Restoring database from backup"
+msgstr "%s फोल्डरबाट पूर्वावस्थामा ल्याउँदै"
+
+#: ../src/tracker/tracker-index.c:437
+msgid ""
+"Only one action (--backup, --restore, --index-file or --import) can be used at "
+"a time"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:439
+msgid "Missing one or more files which are required"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:441
+msgid "Only one file can be used with --backup and --restore"
+msgstr ""
+
+#: ../src/tracker/tracker-index.c:443
+msgid ""
+"Actions (--backup, --restore, --index-file and --import) can not be used with --"
+"reindex-mime-type"
+msgstr ""
+
+#: ../src/tracker/tracker-info.c:49
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+msgstr ""
+
+#: ../src/tracker/tracker-info.c:53
+msgid "Show plain text content if available for resources"
+msgstr ""
+
+#. To translators:
+#. * IRI (International Resource Identifier) is a generalization
+#. * of the URI. While URI supports only ASCI encoding, IRI
+#. * fully supports international characters. In practice, UTF-8
+#. * is the most popular encoding used for IRI.
+#.
+#: ../src/tracker/tracker-info.c:63
+msgid ""
+"Instead of looking up a file name, treat the FILE arguments as actual IRIs (e."
+"g. <file:///path/to/some/file.txt>)"
+msgstr ""
+
+#: ../src/tracker/tracker-info.c:67
+msgid "Output results as RDF in Turtle format"
+msgstr ""
+
+#: ../src/tracker/tracker-info.c:285
+#, fuzzy
+msgid "Querying information for entity"
+msgstr "अस्तित्व"
+
+#: ../src/tracker/tracker-info.c:309
+#, fuzzy
+msgid "Unable to retrieve URN for URI"
+msgstr "URI खोल्न असक्षम"
+
+#: ../src/tracker/tracker-info.c:319 ../src/tracker/tracker-info.c:353
+#, fuzzy
+msgid "Unable to retrieve data for URI"
+msgstr "मौसमी तथ्याङ्क पुन प्राप्त गर्न सकिएन"
+
+#: ../src/tracker/tracker-info.c:362
+#, fuzzy
+msgid "No metadata available for that URI"
+msgstr "मेटाडेटा"
+
+#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
+#: ../src/tracker/tracker-sql.c:146
+msgid "Results"
+msgstr "नतिजा"
+
+#: ../src/tracker/tracker-main.c:48
+msgid "See “tracker help <command>” to read about a specific subcommand."
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:97
+msgid "Start, stop, pause and list processes responsible for indexing content"
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:98
+#, fuzzy
+msgid "Extract information from a file"
+msgstr "तपाईँको सीडीहरूबाट सङ्गीत झिक्नुहोस्"
+
+#: ../src/tracker/tracker-main.c:99
+msgid "Get help on how to use Tracker and any of these commands"
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:100
+msgid "Show information known about local files or items indexed"
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:101
+msgid "Backup, restore, import and (re)index by MIME type or file name"
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:102
+msgid "Reset or remove index and revert configurations to defaults"
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:103
+msgid "Search for content indexed or show content by type"
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:104
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:105
+msgid "Query the database at the lowest level using SQL"
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:106
+msgid "Show the indexing progress, content statistics and index state"
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:107
+msgid "Create, list or delete tags for indexed content"
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:108
+#, fuzzy
+msgid "Show the license and version in use"
+msgstr "इजाजतपत्र सूचना देखाउनुहोस् र निस्कनुहोस्"
+
+#: ../src/tracker/tracker-main.c:153
+#, c-format
+msgid "“%s” is not a tracker command. See “tracker --help”"
+msgstr ""
+
+#: ../src/tracker/tracker-main.c:176
+#, fuzzy
+msgid "Available tracker commands are:"
+msgstr ""
+"\n"
+"आदेशहरू:\n"
+
+#: ../src/tracker/tracker-process.c:79
+#, fuzzy
+msgid "Could not open /proc"
+msgstr "फाइल खोल्न सकेन"
+
+#: ../src/tracker/tracker-process.c:132
+msgid "Could not stat() file"
+msgstr "फाईल() सुरुआत गर्न सकेन"
+
+#: ../src/tracker/tracker-process.c:203
+#, fuzzy, c-format
+msgid "Could not open “%s”"
+msgstr "%s खोल्न सकिएन"
+
+#: ../src/tracker/tracker-process.c:332
+#, fuzzy, c-format
+msgid "Could not terminate process %d — “%s”"
+msgstr "प्रक्रियामा सङ्केत %s पठाउँदै: %d"
+
+#: ../src/tracker/tracker-process.c:338
+#, fuzzy, c-format
+msgid "Terminated process %d — “%s”"
+msgstr "त्रुटि %d सँग रोकिएको त्रुटिमोचक: %s\n"
+
+#: ../src/tracker/tracker-process.c:353
+#, c-format
+msgid "Could not kill process %d — “%s”"
+msgstr ""
+
+#: ../src/tracker/tracker-process.c:359
+#, fuzzy, c-format
+msgid "Killed process %d — “%s”"
+msgstr "प्रक्रियामा सङ्केत %s पठाउँदै: %d"
+
+#: ../src/tracker/tracker-reset.c:53
+msgid "Kill all Tracker processes and remove all databases"
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:56
+msgid "Same as --hard but the backup & journal are restored after restart"
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:59
+msgid "Remove all configuration files so they are re-generated on next start"
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:62
+msgid "Erase indexed information about a file, works recursively for directories"
+msgstr ""
+
+#. Now, delete the element recursively
+#: ../src/tracker/tracker-reset.c:167
+#, fuzzy
+msgid "Deleting…"
+msgstr "मेट्दैछ..."
+
+#: ../src/tracker/tracker-reset.c:188
+msgid ""
+"The indexed data for this file has been deleted and will be reindexed again."
+msgstr ""
+
+#. TRANSLATORS: --hard and --soft are commandline arguments
+#: ../src/tracker/tracker-reset.c:215
+msgid "You can not use the --hard and --soft arguments together"
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:223
+msgid "CAUTION: This process may irreversibly delete data."
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:224
+msgid ""
+"Although most content indexed by Tracker can be safely reindexed, it can’t be "
+"assured that this is the case for all data. Be aware that you may be incurring "
+"in a data loss situation, proceed at your own risk."
+msgstr ""
+
+#: ../src/tracker/tracker-reset.c:229
+msgid "Are you sure you want to proceed?"
+msgstr "के तपाई अगाडि बढ्न चाहनुहुन्छ ?"
+
+#. TRANSLATORS: This is to be displayed on command line output
+#: ../src/tracker/tracker-reset.c:231
+#, fuzzy
+msgid "[y|N]"
+msgstr "N"
+
+#. TRANSLATORS: this is our test for a [y|N] question in the command line.
+#. * A partial or full match will be considered an affirmative answer,
+#. * it is intentionally lowercase, so please keep it like this.
+#.
+#: ../src/tracker/tracker-reset.c:240
+msgid "yes"
+msgstr "ठिक छ"
+
+#: ../src/tracker/tracker-reset.c:366
+#, fuzzy
+msgid "Removing configuration files…"
+msgstr "हटाउँदैछ"
+
+#: ../src/tracker/tracker-reset.c:371
+#, fuzzy
+msgid "Resetting existing configuration…"
+msgstr "कन्फिगरेसन"
+
+#: ../src/tracker/tracker-search.c:80
+msgid "Search for files"
+msgstr "फाइलहरूको खोजी"
+
+#: ../src/tracker/tracker-search.c:84
+msgid "Search for folders"
+msgstr "फोल्डरहरुको खोजी"
+
+#: ../src/tracker/tracker-search.c:88
+#, fuzzy
+msgid "Search for music files"
+msgstr "फाइलका लागि खोजी गर्नुहोस्..."
+
+#: ../src/tracker/tracker-search.c:92
+msgid "Search for music albums (--all has no effect on this)"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:96
+msgid "Search for music artists (--all has no effect on this)"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:100
+#, fuzzy
+msgid "Search for image files"
+msgstr "फाइलका लागि खोजी गर्नुहोस्..."
+
+#: ../src/tracker/tracker-search.c:104
+#, fuzzy
+msgid "Search for video files"
+msgstr "फाइलहरूको खोजी"
+
+#: ../src/tracker/tracker-search.c:108
+#, fuzzy
+msgid "Search for document files"
+msgstr "त्यहाँ खोज्नका लागि कुनै सक्रिय कागजात छैन !"
+
+#: ../src/tracker/tracker-search.c:112
+#, fuzzy
+msgid "Search for emails"
+msgstr "यसका लागि खोजी गर्नुहोस्:"
+
+#: ../src/tracker/tracker-search.c:116
+#, fuzzy
+msgid "Search for contacts"
+msgstr "सम्पर्कहरू छैनन्"
+
+#: ../src/tracker/tracker-search.c:120
+msgid "Search for software (--all has no effect on this)"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:124
+msgid "Search for software categories (--all has no effect on this)"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:128
+msgid "Search for feeds (--all has no effect on this)"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:132
+msgid "Search for bookmarks (--all has no effect on this)"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:138 ../src/tracker/tracker-tag.c:73
+#, fuzzy
+msgid "Limit the number of results shown"
+msgstr "अत्याधिक खोजी परिणाम प्राप्त गर्दै..."
+
+#: ../src/tracker/tracker-search.c:142 ../src/tracker/tracker-tag.c:77
+#, fuzzy
+msgid "Offset the results"
+msgstr "अफसेट"
+
+#: ../src/tracker/tracker-search.c:146
+#, fuzzy
+msgid "Use OR for search terms instead of AND (the default)"
+msgstr "प्रयोग गरिने पूर्वनिर्धारित खोजी रणनीति"
+
+#: ../src/tracker/tracker-search.c:150
+msgid ""
+"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
+"feeds, --software, --software-categories)"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:154
+msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:158
+msgid ""
+"Disable showing snippets with results. This is only shown for some categories, "
+"e.g. Documents, Music…"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:162
+msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:166
+msgid "Disable color when printing snippets and results"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:173 ../src/tracker/tracker-status.c:64
+#, fuzzy
+msgid "search terms"
+msgstr "उपयोग शब्द"
+
+#: ../src/tracker/tracker-search.c:174 ../src/tracker/tracker-status.c:65
+msgid "EXPRESSION"
+msgstr "अभिव्यक्ति"
+
+#: ../src/tracker/tracker-search.c:192 ../src/tracker/tracker-tag.c:103
+msgid ""
+"NOTE: Limit was reached, there are more items in the database not listed here"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
+#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:811
+#: ../src/tracker/tracker-search.c:900 ../src/tracker/tracker-search.c:990
+#: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
+#: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
+#, fuzzy
+msgid "Could not get search results"
+msgstr "अत्याधिक खोजी परिणाम प्राप्त गर्दै..."
+
+#: ../src/tracker/tracker-search.c:295
+#, fuzzy
+msgid "No contacts were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-search.c:299
+msgid "Contacts"
+msgstr "सम्पर्क"
+
+#: ../src/tracker/tracker-search.c:356 ../src/tracker/tracker-search.c:369
+msgid "No name"
+msgstr "नाम छैन"
+
+#: ../src/tracker/tracker-search.c:357 ../src/tracker/tracker-search.c:370
+msgid "No E-mail address"
+msgstr "इमेल ठेगाना नभएको"
+
+#: ../src/tracker/tracker-search.c:404
+#, fuzzy
+msgid "No emails were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-search.c:408
+#, fuzzy
+msgid "Emails"
+msgstr "थप नपढिएका चिठीहरु उपलब्ध छन्"
+
+#: ../src/tracker/tracker-search.c:506
+#, fuzzy
+msgid "No files were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-search.c:510 ../src/tracker/tracker-tag.c:439
+msgid "Files"
+msgstr "फाइलहरू"
+
+#: ../src/tracker/tracker-search.c:820
+#, fuzzy
+msgid "No artists were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-search.c:824
+msgid "Artists"
+msgstr "कलाकार"
+
+#: ../src/tracker/tracker-search.c:909
+msgid "No music was found"
+msgstr "सङ्गित फेला परेन"
+
+#: ../src/tracker/tracker-search.c:913
+msgid "Albums"
+msgstr "एल्बमहरू"
+
+#: ../src/tracker/tracker-search.c:999
+#, fuzzy
+msgid "No bookmarks were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-search.c:1003
+msgid "Bookmarks"
+msgstr "पुस्तकचिनो"
+
+#: ../src/tracker/tracker-search.c:1081
+#, fuzzy
+msgid "No feeds were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-search.c:1085
+#, fuzzy
+msgid "Feeds"
+msgstr "पोडकासट फिड खोजी गर्नुहोस्"
+
+#: ../src/tracker/tracker-search.c:1165
+msgid "No software was found"
+msgstr "सफ्टवेयर फेला परेन"
+
+#: ../src/tracker/tracker-search.c:1169
+msgid "Software"
+msgstr "सफ्टवेर"
+
+#: ../src/tracker/tracker-search.c:1247
+#, fuzzy
+msgid "No software categories were found"
+msgstr "मिल्दो रेकर्डहरू फेला परेन।"
+
+#: ../src/tracker/tracker-search.c:1251
+#, fuzzy
+msgid "Software Categories"
+msgstr "वर्गहरू..."
+
+#: ../src/tracker/tracker-search.c:1451
+msgid "No results were found matching your query"
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:1553
+#, c-format
+msgid "Search term “%s” is a stop word."
+msgstr ""
+
+#: ../src/tracker/tracker-search.c:1564
+#, c-format
+msgid ""
+"Stop words are common words which may be ignored during the indexing process."
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:105
+msgid "Path to use to run a query or update from file"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:109
+#, fuzzy
+msgid "SPARQL query"
+msgstr "क्वेरी"
+
+#: ../src/tracker/tracker-sparql.c:110
+msgid "SPARQL"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:113
+msgid "This is used with --query and for database updates only."
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:117
+#, fuzzy
+msgid "Retrieve classes"
+msgstr "कल पुन: प्राप्‍त गर्नुहोस्"
+
+#: ../src/tracker/tracker-sparql.c:121
+#, fuzzy
+msgid "Retrieve class prefixes"
+msgstr "कल पुन: प्राप्‍त गर्नुहोस्"
+
+#: ../src/tracker/tracker-sparql.c:125
+msgid ""
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:126 ../src/tracker/tracker-sparql.c:130
+#: ../src/tracker/tracker-sparql.c:138 ../src/tracker/tracker-sparql.c:146
+#: ../src/tracker/tracker-sparql.c:150
+msgid "CLASS"
+msgstr "CLASS"
+
+#: ../src/tracker/tracker-sparql.c:129
+msgid "Retrieve classes which notify changes in the database (CLASS is optional)"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:133
+msgid ""
+"Retrieve indexes used in database to improve performance (PROPERTY is optional)"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:134
+msgid "PROPERTY"
+msgstr "गुण"
+
+#: ../src/tracker/tracker-sparql.c:137
+msgid ""
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:141
+msgid ""
+"Search for a class or property and display more information (e.g. Document)"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:142
+msgid "CLASS/PROPERTY"
+msgstr " वर्ग/गुण"
+
+#: ../src/tracker/tracker-sparql.c:145
+msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:149
+msgid "Returns the full namespace for a class."
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:153
+#, fuzzy
+msgid "Remote service to query to"
+msgstr "सेवा"
+
+#: ../src/tracker/tracker-sparql.c:154
+msgid "BASE_URL"
+msgstr "आधार URL"
+
+#: ../src/tracker/tracker-sparql.c:254
+#, fuzzy
+msgid "Could not get namespace prefixes"
+msgstr "प्रदर्शनपर्दाको जानकारी प्राप्त गर्न सकेन"
+
+#: ../src/tracker/tracker-sparql.c:263
+#, fuzzy
+msgid "No namespace prefixes were found"
+msgstr "अपेक्षित SVG नेमस्पेस फाइलमा फेला परेन"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#. To translators: This is to say there are no
+#. * tags found with a particular unique ID.
+#. To translators: This is to say there are no
+#. * files found associated with multiple tags, e.g.:
+#. *
+#. *   Files:
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * resources found associated with this tag, e.g.:
+#. *
+#. *   Tags (shown by name):
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * tags found for a particular file, e.g.:
+#. *
+#. *   /path/to/some/file:
+#. *     None
+#. *
+#.
+#: ../src/tracker/tracker-sparql.c:509 ../src/tracker/tracker-sparql.c:557
+#: ../src/tracker/tracker-status.c:251 ../src/tracker/tracker-tag.c:323
+#: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
+#: ../src/tracker/tracker-tag.c:955
+#, fuzzy
+msgid "None"
+msgstr "none"
+
+#: ../src/tracker/tracker-sparql.c:963
+msgid "Could not create tree: subclass query failed"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:1012
+msgid "Could not create tree: class properties query failed"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:1100
+#, fuzzy
+msgid "Could not list classes"
+msgstr "संगठन, दुईवटा वर्गहरू सङ्गठित"
+
+#: ../src/tracker/tracker-sparql.c:1108
+#, fuzzy
+msgid "No classes were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-sparql.c:1108 ../src/tracker/tracker-sparql.c:1299
+msgid "Classes"
+msgstr " वर्गहरू"
+
+#: ../src/tracker/tracker-sparql.c:1124
+#, fuzzy
+msgid "Could not list class prefixes"
+msgstr "प्रापक सूची पद वर्णन गर्न सकेन"
+
+#: ../src/tracker/tracker-sparql.c:1132
+#, fuzzy
+msgid "No class prefixes were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-sparql.c:1132
+msgid "Prefixes"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:1152
+msgid ""
+"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:1191
+#, fuzzy
+msgid "Could not list properties"
+msgstr "डाइरेक्टरी गुण बचत गर्न सकेन"
+
+#: ../src/tracker/tracker-sparql.c:1199
+#, fuzzy
+msgid "No properties were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-sparql.c:1199 ../src/tracker/tracker-sparql.c:1322
+msgid "Properties"
+msgstr "गुणहरू"
+
+#: ../src/tracker/tracker-sparql.c:1227
+#, fuzzy
+msgid "Could not find notify classes"
+msgstr "मद्दत डाइरेक्टरी फेला पार्न सकेन"
+
+#: ../src/tracker/tracker-sparql.c:1235
+#, fuzzy
+msgid "No notifies were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-sparql.c:1235
+msgid "Notifies"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:1261
+#, fuzzy
+msgid "Could not find indexed properties"
+msgstr "डाइरेक्टरी गुण बचत गर्न सकेन"
+
+#: ../src/tracker/tracker-sparql.c:1269
+#, fuzzy
+msgid "No indexes were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-sparql.c:1269
+msgid "Indexes"
+msgstr "अनुक्रमणिका"
+
+#: ../src/tracker/tracker-sparql.c:1291
+#, fuzzy
+msgid "Could not search classes"
+msgstr "संगठन, दुईवटा वर्गहरू सङ्गठित"
+
+#: ../src/tracker/tracker-sparql.c:1299
+msgid "No classes were found to match search term"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:1314
+#, fuzzy
+msgid "Could not search properties"
+msgstr "इन्टरनेटमा एउटा आवरणका लागि खोजी गर्न सकेन"
+
+#: ../src/tracker/tracker-sparql.c:1322
+msgid "No properties were found to match search term"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:1358 ../src/tracker/tracker-sql.c:65
+#, fuzzy
+msgid "Could not get UTF-8 path from path"
+msgstr "%s बाट कन्फिगरेसन फाइल मार्ग प्राप्त गर्न असफल भयो"
+
+#: ../src/tracker/tracker-sparql.c:1370 ../src/tracker/tracker-sql.c:76
+#, fuzzy
+msgid "Could not read file"
+msgstr "चलचित्र पढ्न सकिएन ।"
+
+#: ../src/tracker/tracker-sparql.c:1389
+#, fuzzy
+msgid "Could not run update"
+msgstr "आदेश '%s' चलाउन सकेन"
+
+#: ../src/tracker/tracker-sparql.c:1437 ../src/tracker/tracker-sql.c:139
+#: ../src/tracker/tracker-sql.c:172
+#, fuzzy
+msgid "Could not run query"
+msgstr "'%s': %s आदेश चलाउन सकेन"
+
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
+msgid "No results found matching your query"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:1506 ../src/tracker/tracker-sql.c:247
+msgid "File and query can not be used together"
+msgstr ""
+
+#: ../src/tracker/tracker-sparql.c:1508
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+
+#: ../src/tracker/tracker-sql.c:43
+msgid "Path to use to run a query from file"
+msgstr ""
+
+#: ../src/tracker/tracker-sql.c:47
+#, fuzzy
+msgid "SQL query"
+msgstr "क्वेरी"
+
+#: ../src/tracker/tracker-sql.c:48
+msgid "SQL"
+msgstr "SQL"
+
+#: ../src/tracker/tracker-sql.c:120
+#, fuzzy
+msgid "Failed to initialize data manager"
+msgstr "सुरु गर्न असफल भयो"
+
+#: ../src/tracker/tracker-sql.c:180
+#, fuzzy
+msgid "Empty result set"
+msgstr "खाली सेट"
+
+#: ../src/tracker/tracker-status.c:52
+msgid "Show statistics for current index / data set"
+msgstr ""
+
+#: ../src/tracker/tracker-status.c:56
+msgid ""
+"Show statistics about ALL RDF classes, not just common ones which is the "
+"default (implied by search terms)"
+msgstr ""
+
+#: ../src/tracker/tracker-status.c:60
+msgid ""
+"Collect debug information useful for problem reporting and investigation, "
+"results are output to terminal"
+msgstr ""
+
+#: ../src/tracker/tracker-status.c:187
+#, fuzzy
+msgid "Could not get Tracker statistics"
+msgstr "विश्लेषणात्मक तथ्याङ्क उपकरण संवाद सिर्जना गर्न सकेन"
+
+#: ../src/tracker/tracker-status.c:199
+msgid "No statistics available"
+msgstr "तथ्याङ्क उपलब्ध छैन"
+
+#. To translators: This is to say there are no
+#. * statistics found. We use a "Statistics:
+#. * None" with multiple print statements
+#: ../src/tracker/tracker-status.c:248
+msgid "Statistics:"
+msgstr "तथ्याङ्क:"
+
+#: ../src/tracker/tracker-status.c:289
+msgid "Version"
+msgstr "संस्करण"
+
+#: ../src/tracker/tracker-status.c:296
+msgid "Disk Information"
+msgstr "डिस्क सूचना"
+
+#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:657
+#, fuzzy
+msgid "Remaining space on database partition"
+msgstr "चयन गरिएको अनिर्धारित खाली स्थानमा नयाँ विभाजन सिर्जना गर्नुहोस्"
+
+#. 3. Size of dataset (tracker-stats), size of databases
+#: ../src/tracker/tracker-status.c:310
+msgid "Data Set"
+msgstr "डाटा सेट"
+
+#: ../src/tracker/tracker-status.c:342
+msgid "Configuration"
+msgstr "कन्फिगरेसन"
+
+#: ../src/tracker/tracker-status.c:370
+#, fuzzy
+msgid "No configuration was found"
+msgstr "XSLT प्लगइनका लागि वैध कन्फिगरेसन फाइल फेला पार्न सकेन, लोड भइराखेको छैन।"
+
+#: ../src/tracker/tracker-status.c:374
+#, fuzzy
+msgid "States"
+msgstr "यो सूचीले सबै प्लगइन फाइल अवस्थाहरू समावेश गर्दछ।"
+
+#: ../src/tracker/tracker-status.c:415
+#, fuzzy
+msgid "Data Statistics"
+msgstr "तथ्याङ्क:"
+
+#: ../src/tracker/tracker-status.c:421
+#, fuzzy
+msgid "No connection available"
+msgstr "उपलब्ध छैन"
+
+#: ../src/tracker/tracker-status.c:431
+#, fuzzy
+msgid "Could not get statistics"
+msgstr "%s भाग प्राप्त गर्न सकेन"
+
+#: ../src/tracker/tracker-status.c:437
+#, fuzzy
+msgid "No statistics were available"
+msgstr "तथ्याङ्क उपलब्ध छैन"
+
+#: ../src/tracker/tracker-status.c:450
+msgid "Database is currently empty"
+msgstr "डेटाबेस खाली छ"
+
+#: ../src/tracker/tracker-status.c:527 ../src/tracker/tracker-status.c:550
+msgid "Could not get basic status for Tracker"
+msgstr ""
+
+#: ../src/tracker/tracker-status.c:634
+#, c-format
+msgid "Currently indexed"
+msgstr "हालै अनुक्रमण गरिएको"
+
+#: ../src/tracker/tracker-status.c:669
+#, fuzzy
+msgid "Data is still being indexed"
+msgstr "छविचित्र डाटाका लागि प्रयोग गरिएको प्रतिनिधित्व"
+
+#: ../src/tracker/tracker-status.c:670
+#, c-format
+msgid "Estimated %s left"
+msgstr "अन्दजि समय %s बाकि"
+
+#: ../src/tracker/tracker-status.c:674
+msgid "All data miners are idle, indexing complete"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:53
+msgid "List all tags (using FILTER if specified; FILTER always uses logical OR)"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:54
+msgid "FILTER"
+msgstr "छनौट गर्नु"
+
+#: ../src/tracker/tracker-tag.c:57
+msgid "Show files associated with each tag (this is only used with --list)"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:61
+msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:62 ../src/tracker/tracker-tag.c:66
+msgid "TAG"
+msgstr "ट्याग"
+
+#: ../src/tracker/tracker-tag.c:65
+msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:69
+msgid "Description for a tag (this is only used with --add)"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:70
+msgid "STRING"
+msgstr "STRING"
+
+#: ../src/tracker/tracker-tag.c:81
+#, fuzzy
+msgid "Use AND for search terms instead of OR (the default)"
+msgstr "प्रयोग गरिने पूर्वनिर्धारित खोजी रणनीति"
+
+#: ../src/tracker/tracker-tag.c:86
+msgid "FILE…"
+msgstr "फाइल…"
+
+#: ../src/tracker/tracker-tag.c:87
+#, fuzzy
+msgid "FILE [FILE…]"
+msgstr ""
+"त्रुटि: भिडियो अनुक्रमणिका फाइल लेख्न असफल फाइल: '%s'\n"
+"%s"
+
+#: ../src/tracker/tracker-tag.c:249
+#, fuzzy
+msgid "Could not get file URNs"
+msgstr "फाइल सूचना प्राप्त गर्न सकेन"
+
+#: ../src/tracker/tracker-tag.c:314
+msgid "Could not get files related to tag"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:381
+msgid "Could not get all tags in the database"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:391
+#, fuzzy
+msgid "No files have been tagged"
+msgstr "अद्यावधिक स्थापना गरियो"
+
+#: ../src/tracker/tracker-tag.c:426
+msgid "Could not get files for matching tags"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:435
+msgid "No files were found matching ALL of those tags"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:514 ../src/tracker/tracker-tag.c:929
+#, fuzzy
+msgid "Could not get all tags"
+msgstr "फाइल सूचना प्राप्त गर्न सकेन"
+
+#: ../src/tracker/tracker-tag.c:523 ../src/tracker/tracker-tag.c:938
+#, fuzzy
+msgid "No tags were found"
+msgstr "कुनै घटनाहरू फेला परेन ।"
+
+#: ../src/tracker/tracker-tag.c:527
+#, fuzzy
+msgid "Tags (shown by name)"
+msgstr "ट्याग"
+
+#: ../src/tracker/tracker-tag.c:601
+#, fuzzy
+msgid "No files were modified"
+msgstr "(परिमार्जन गरिएको)"
+
+#: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
+msgid "Files do not exist or aren’t indexed"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:709
+#, fuzzy
+msgid "Could not add tag"
+msgstr "सिनारियो जोड संवाद सिर्जना गर्न सकेन।"
+
+#: ../src/tracker/tracker-tag.c:725
+#, fuzzy
+msgid "Tag was added successfully"
+msgstr "ट्याग"
+
+#: ../src/tracker/tracker-tag.c:754
+#, fuzzy
+msgid "Could not add tag to files"
+msgstr "सङ्ग्रहमा फाइलहरू थप्न सकेन"
+
+#: ../src/tracker/tracker-tag.c:764
+#, fuzzy
+msgid "Tagged"
+msgstr " संपूर्ण उचाई लाईन वा ट्यग-वर्ण भर्ने पृष्टभूमि रङ्ग"
+
+#: ../src/tracker/tracker-tag.c:765
+#, fuzzy
+msgid "Not tagged, file is not indexed"
+msgstr "अनुक्रमण गरिएको"
+
+#: ../src/tracker/tracker-tag.c:811
+#, fuzzy
+msgid "Could not get tag by label"
+msgstr "%s भाग प्राप्त गर्न सकेन"
+
+#: ../src/tracker/tracker-tag.c:822
+#, fuzzy
+msgid "No tags were found by that name"
+msgstr "मिल्दो रेकर्डहरू फेला परेन।"
+
+#: ../src/tracker/tracker-tag.c:839
+msgid "None of the files had this tag set"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:885
+#, fuzzy
+msgid "Could not remove tag"
+msgstr ""
+"%s हटाउन सकेन:\n"
+"%s"
+
+#: ../src/tracker/tracker-tag.c:892
+#, fuzzy
+msgid "Tag was removed successfully"
+msgstr "ट्याग"
+
+#: ../src/tracker/tracker-tag.c:896
+msgid "Untagged"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:897
+#, fuzzy
+msgid "File not indexed or already untagged"
+msgstr "फाइल पहिले नै अवस्थित छ। यसलाई अधिलेखन गर्नुहुन्छ ?"
+
+#: ../src/tracker/tracker-tag.c:1088
+msgid "The --list option is required for --show-files"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:1090
+msgid ""
+"The --and-operator option can only be used with --list and tag label arguments"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:1092
+msgid "Add and delete actions can not be used together"
+msgstr ""
+
+#: ../src/tracker/tracker-tag.c:1094
+msgid "The --description option can only be used with --add"
+msgstr ""
+
+#: ../src/tracker-writeback/tracker-main.c:62
+msgid "Disable shutting down after 30 seconds of inactivity"
+msgstr ""
+
+#. Translators: this message will appear immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: ../src/tracker-writeback/tracker-main.c:98
+#, fuzzy
+msgid "— start the tracker writeback service"
+msgstr "पिपिपि सेवा सुरु गर्न असफल भयो"
