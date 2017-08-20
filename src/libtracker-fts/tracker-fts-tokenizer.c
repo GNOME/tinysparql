@@ -342,7 +342,7 @@ tracker_rank_function (const Fts5ExtensionApi  *api,
                        sqlite3_value          **args)
 {
 	TrackerTokenizerFunctionData *data;
-	int i, rc, n_columns, n_tokens;
+	int i, rc = SQLITE_OK, n_columns, n_tokens;
 	GHashTable *weights;
 	gdouble rank = 0;
 
