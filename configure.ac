@@ -837,6 +837,13 @@ if test "x$have_tracker_fts" = "xyes"; then
    else
       have_builtin_fts5="no"
 
+      # Sqlite 3.20 broke compatibility of the fts5 module both ways, demand
+      # that it's builtin into sqlite from that version on.
+      PKG_CHECK_EXISTS([sqlite3 >= 3.20.0], sqlite_builtin_fts5_forced=yes, sqlite_builtin_fts5_forced=no)
+      if test "x$sqlite_builtin_fts5_forced" == "xyes"; then
+        AC_MSG_ERROR([sqlite3 >= 3.20.0 must be compiled with --enable-fts5])
+      fi
+
       # Make sure SQLite has extension loading enabled
       AX_SQLITE_AUTO_EXTENSION
       if test "x$ax_cv_sqlite_auto_extension" != "xyes"; then
