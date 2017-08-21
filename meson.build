@@ -115,6 +115,10 @@ if enable_fts
 
   sqlite3_has_builtin_fts5 = cc.compiles(sqlite3_builtin_fts5_test,
     name: 'sqlite3 has builtin FTS5 module')
+
+  if not sqlite3_has_builtin_fts5 and sqlite.version() >= '3.20.0'
+    error('sqlite3 >= 3.20.0 must be compiled with --enable-fts5')
+  endif
 endif
 
 ##################################################################
