@@ -1,3 +1,19 @@
+NEW in 1.99.3 - 2017-08-22
+==========================
+
+  WARNING: This is unstable development towards 2.0. There are API and
+           ABI incompatibilities that might affect you.
+
+  * Mandate that SQLite >= 3.20.0 must have --enable-fts5. SQLite devs
+    made forwards and backwards incompatible changes to the FTS5 module,
+    it is not sustainable anymore to ship a FTS5 module for all
+    combinations. The current FTS5 module in Tracker is preserved for
+    older SQLite versions.
+  * Fixed a Coverity warning (CID #1453480)
+  * Misc code and build fixes.
+
+Translations: fr, gl, ml, ne, pl, sr, sr@latin
+
 NEW in 1.99.2 - 2017-08-07
 ==========================
 
