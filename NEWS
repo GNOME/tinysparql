@@ -1,3 +1,14 @@
+NEW in 1.12.3 - 2017-08-22
+==========================
+
+  * Mandate that SQLite >= 3.20.0 must have --enable-fts5. SQLite devs
+    made forwards and backwards incompatible changes to the FTS5 module,
+    it is not sustainable anymore to ship a FTS5 module for all
+    combinations. The current FTS5 module in Tracker is preserved for
+    older SQLite versions.
+  * Fix typo in userguides miner DBus name, fixes spam on journald trying
+    to start it up.
+
 NEW in 1.12.2 - 2017-08-07
 ==========================
 
