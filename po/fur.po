@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2017-07-11 16:14+0000\n"
-"PO-Revision-Date: 2017-07-18 10:49+0200\n"
+"POT-Creation-Date: 2017-08-22 20:08+0000\n"
+"PO-Revision-Date: 2017-08-23 14:43+0200\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <f.t.public@gmail.com>\n"
 "Language: fur\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.0.2\n"
+"X-Generator: Poedit 2.0.3\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -170,6 +170,16 @@ msgstr "Posizion dai tocs di gjornâl"
 msgid "Where to store a journal chunk when it hits the max size."
 msgstr "Dulà salvâ un toc di gjornâl cuant che al rive ae dimension massime."
 
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: ../src/libtracker-data/tracker-collation.c:333
+msgid "the|a|an"
+msgstr "the|a|an|il|la|i|lis|l'"
+
 #: ../src/libtracker-data/tracker-data-backup.c:495
 #: ../src/libtracker-data/tracker-data-backup.c:635
 msgid "Error starting “tar” program"
@@ -177,24 +187,23 @@ msgstr "Erôr tal inviâ il program «tar»"
 
 #: ../src/libtracker-data/tracker-data-backup.c:496
 #: ../src/libtracker-data/tracker-data-backup.c:636
-#: ../src/miners/rss/tracker-main.c:129 ../src/tracker/tracker-config.c:61
-#: ../src/tracker/tracker-daemon.c:462 ../src/tracker/tracker-daemon.c:483
-#: ../src/tracker/tracker-daemon.c:708 ../src/tracker/tracker-daemon.c:740
-#: ../src/tracker/tracker-daemon.c:890 ../src/tracker/tracker-daemon.c:948
-#: ../src/tracker/tracker-daemon.c:983 ../src/tracker/tracker-daemon.c:1052
-#: ../src/tracker/tracker-daemon.c:1243 ../src/tracker/tracker-daemon.c:1309
-#: ../src/tracker/tracker-daemon.c:1668 ../src/tracker/tracker-dbus.c:45
-#: ../src/tracker/tracker-dbus.c:63 ../src/tracker/tracker-index.c:123
-#: ../src/tracker/tracker-index.c:155 ../src/tracker/tracker-index.c:196
-#: ../src/tracker/tracker-index.c:272 ../src/tracker/tracker-index.c:329
-#: ../src/tracker/tracker-info.c:264 ../src/tracker/tracker-process.c:80
-#: ../src/tracker/tracker-process.c:206 ../src/tracker/tracker-process.c:335
-#: ../src/tracker/tracker-process.c:356 ../src/tracker/tracker-search.c:1581
-#: ../src/tracker/tracker-sparql.c:173 ../src/tracker/tracker-sparql.c:1087
-#: ../src/tracker/tracker-status.c:176 ../src/tracker/tracker-status.c:422
-#: ../src/tracker/tracker-status.c:432 ../src/tracker/tracker-status.c:506
-#: ../src/tracker/tracker-status.c:551 ../src/tracker/tracker-status.c:580
-#: ../src/tracker/tracker-tag.c:977
+#: ../src/tracker/tracker-config.c:61 ../src/tracker/tracker-daemon.c:462
+#: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
+#: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
+#: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
+#: ../src/tracker/tracker-daemon.c:1052 ../src/tracker/tracker-daemon.c:1243
+#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1668
+#: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63
+#: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
+#: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
+#: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
+#: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
+#: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
+#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:173
+#: ../src/tracker/tracker-sparql.c:1087 ../src/tracker/tracker-status.c:176
+#: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
+#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:551
+#: ../src/tracker/tracker-status.c:580 ../src/tracker/tracker-tag.c:977
 msgid "No error given"
 msgstr "Nissun erôr furnît"
 
@@ -208,495 +217,24 @@ msgstr "Erôr no cognossût: «tar» al è jessut cul stât %d"
 msgid "Operation not supported"
 msgstr "Operazion no supuartade"
 
-#: ../src/libtracker-miner/tracker-miner-proxy.c:335
+#: ../src/libtracker-miner/tracker-miner-proxy.c:352
 msgid "Cookie not recognized to resume paused miner"
 msgstr "Cookie no ricognossût par continuâ l'estratôr di dâts"
 
-#: ../src/libtracker-miner/tracker-miner-proxy.c:392
+#: ../src/libtracker-miner/tracker-miner-proxy.c:409
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "La aplicazion in pause e la sô reson a corispuindin a une domande esistente"
 
-#: ../src/libtracker-miner/tracker-miner-proxy.c:755
+#: ../src/libtracker-miner/tracker-miner-proxy.c:772
 msgid "Data store is not available"
 msgstr "L'archivi dâts nol è disponibil"
 
-#: ../src/miners/apps/org.freedesktop.Tracker1.Miner.Applications.service.in.in.h:1
-msgid "Applications"
-msgstr "Aplicazions"
-
-#: ../src/miners/apps/org.freedesktop.Tracker1.Miner.Applications.service.in.in.h:2
-msgid "Applications data miner"
-msgstr "Estratôr di dâts des aplicazions"
-
-#: ../src/miners/apps/tracker-main.c:60 ../src/miners/fs/tracker-main.c:79
-#: ../src/miners/rss/tracker-main.c:43
-#: ../src/tracker-writeback/tracker-main.c:55
-msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
-msgstr ""
-"Regjistrazion: 0 = nome erôrs, 1 = minimâl, 2 = detaiade, 3 = debug "
-"(predefinît=0)"
-
-#: ../src/miners/apps/tracker-main.c:65
-msgid "Runs until all applications are indexed and then exits"
-msgstr ""
-"Reste in esecuzion fintremai che dutis lis aplicazions a son metudis in "
-"indiç, po dopo jes"
-
-#: ../src/miners/apps/tracker-main.c:69 ../src/miners/fs/tracker-main.c:97
-#: ../src/miners/rss/tracker-main.c:57
-#: ../src/tracker-extract/tracker-main.c:103
-msgid "Runs for an specific domain ontology"
-msgstr "Eseguìs par une specifiche ontologjie di domini"
-
 #. Daemon options
-#: ../src/miners/apps/tracker-main.c:73 ../src/miners/fs/tracker-main.c:101
-#: ../src/tracker-extract/tracker-main.c:107
 #: ../src/tracker-store/tracker-main.vala:57
-#: ../src/tracker-writeback/tracker-main.c:51
 msgid "Displays version information"
 msgstr "Mostre informazions su la version"
 
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: ../src/miners/apps/tracker-main.c:205
-msgid "— start the application data miner"
-msgstr "— invie l'estratôr dâts des aplicazions"
-
-#: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:1
-msgid "Tracker Application Miner"
-msgstr "Estratôr di dâts des aplicazions"
-
-#: ../src/miners/apps/tracker-miner-apps.desktop.in.in.h:2
-msgid "Indexes information about applications installed"
-msgstr "Met in indiç informazions su aplicazions instaladis"
-
-#: ../src/miners/fs/org.freedesktop.Tracker1.Miner.Files.service.in.in.h:1
-msgid "File System"
-msgstr "File System"
-
-#: ../src/miners/fs/org.freedesktop.Tracker1.Miner.Files.service.in.in.h:2
-msgid "File system data miner"
-msgstr "Estratôr di dâts dal file system"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:1
-#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:1
-#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
-#: ../src/tracker-writeback/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
-msgid "Log verbosity"
-msgstr "Detais regjistri"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:2
-#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
-#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
-#: ../src/tracker-writeback/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
-msgid "Log verbosity."
-msgstr "Detais dal regjistri."
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:3
-msgid "Initial sleep"
-msgstr "Pause iniziâl"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:4
-msgid "Initial sleep time, in seconds."
-msgstr "Pause iniziâl, in seconts."
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:5
-#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
-msgid "Scheduler priority when idle"
-msgstr "Prioritât dal planificadôr cuant che al sta inatîf"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
-#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
-msgid ""
-"The scheduler is the kernel component that decides which runnable "
-"application will be executed by the CPU next. Each application has an "
-"associated scheduling policy and priority."
-msgstr ""
-"Il planificadôr al è chel component dal kernel che al decît cuale aplicazion "
-"e vegnarà eseguide subite dopo sul processôr. Ogni aplicazion e à assegnât "
-"une politiche e une prioritât di planificazion."
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:7
-msgid "Throttle"
-msgstr "Regoladôr"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:8
-msgid "Indexing speed, the higher the slower."
-msgstr "Velocitât di metude in indiç: plui alt il valôr, plui al sarà lent."
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
-msgid "Low disk space limit"
-msgstr "Limit dal spazi su disc bas"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
-msgid ""
-"Disk space threshold in percent at which to pause indexing, or -1 to disable."
-msgstr ""
-"Liminâr in percentuâl dal spazi su disc dulà meti in pause la metude in "
-"indiç o -1 par disabilitâlu."
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
-msgid "Crawling interval"
-msgstr "Interval acuisizion dâts"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:12
-msgid ""
-"Interval in days to check whether the filesystem is up to date in the "
-"database. 0 forces crawling anytime, -1 forces it only after unclean "
-"shutdowns, and -2 disables it entirely."
-msgstr ""
-"Interval in dîs par controlâ se il file system al è inzornât te base di "
-"dâts. 0 al sfuarce la acuisizion in cualsisei moment, -1 nome dopo che il "
-"sisteme si è fermât in maniere no juste, -2 lu disabilite."
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
-msgid "Removable devices’ data permanence threshold"
-msgstr "Liminâr di permanence dai dâts tai dispositîfs estraibii"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
-msgid ""
-"Threshold in days after which files from removables devices will be removed "
-"from database if not mounted. 0 means never, maximum is 365."
-msgstr ""
-"Limit in dîs daspò i cuai i file di dispositîfs estraibii no plui montâts a "
-"vegnin gjavâts de base di dâts. 0 al indiche mai, il massim al è 365."
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
-msgid "Enable monitors"
-msgstr "Abilite il monitorâ"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:16
-msgid "Set to false to completely disable any file monitoring"
-msgstr "Met a FALS par disabilitâ il monitorizâ dai file"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:17
-msgid "Enable writeback"
-msgstr "Abilite la scriture rimandade"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:18
-msgid "Set to false to completely disable any file writeback"
-msgstr ""
-"Met a FALS par disabilitâ dal dut cualsisei scriture rimandade (writeback)"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:19
-msgid "Index removable devices"
-msgstr "Met in indiç dispositîfs estraibii"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
-msgid ""
-"Set to true to enable indexing mounted directories for removable devices."
-msgstr ""
-"Met a VÊR par meti in indiç lis cartelis di dispositîfs estraibii montâts."
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
-msgid "Index optical discs"
-msgstr "Met in indiç discs otics"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
-msgid ""
-"Set to true to enable indexing CDs, DVDs, and generally optical media (if "
-"removable devices are not indexed, optical discs won’t be either)"
-msgstr ""
-"Met a VÊR par abilitâ la metude in indiç di CD, DVD e plui in gjenar di "
-"dispositîfs otics (se i dispositîfs estraibii no vegnin metûts in indiç "
-"alore nancje chei otics lu saran)"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
-msgid "Index when running on battery"
-msgstr "Met in indiç cuant che si va a batarie"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
-msgid "Set to true to index while running on battery"
-msgstr "Met a VÊR par meti in indiç cuant che si funzione alimentâts a batarie"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:25
-msgid "Perform initial indexing when running on battery"
-msgstr "Eseguìs la metude in indiç iniziâl cuant che si va a batarie"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:26
-msgid "Set to true to index while running on battery for the first time only"
-msgstr ""
-"Met a VÊR par meti in indiç nome pe prime volte cuant che si è alimentâts a "
-"batarie"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:27
-msgid "Directories to index recursively"
-msgstr "Cartelis di meti in indiç in maniere ricorsive"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
-msgid ""
-"List of directories to index recursively, Special values include: &amp;"
-"DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
-"PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults "
-"and $HOME/.config/user-dirs.default"
-msgstr ""
-"Liste di cartelis di meti in indiç in maniere ricorsive, i valôrs speciâi a "
-"son: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, "
-"&amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Consultâ /etc/xdg/user-dirs."
-"defaults e $HOME/.config/user-dirs.default"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
-msgid "Directories to index non-recursively"
-msgstr "Cartelis di meti in indiç in maniere no ricorsive"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
-msgid ""
-"List of directories to index without inspecting subfolders, Special values "
-"include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
-"PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
-"dirs.defaults and $HOME/.config/user-dirs.default"
-msgstr ""
-"Liste di cartelis di meti in indiç cence ispezionâ lis sotcartelis, i valôrs "
-"speciâi a son: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
-"PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Consultâ /etc/xdg/"
-"user-dirs.defaults e $HOME/.config/user-dirs.default"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
-msgid "Ignored files"
-msgstr "File ignorâts"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
-msgid "List of file patterns to avoid"
-msgstr "Liste di modei di file di ignorâ"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:33
-msgid "Ignored directories"
-msgstr "Cartelis ignoradis"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:34
-msgid "List of directories to avoid"
-msgstr "Liste di cartelis di ignorâ"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:35
-msgid "Ignored directories with content"
-msgstr "Cartelis cun contignût di ignorâ"
-
-#: ../src/miners/fs/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:36
-msgid "Avoid any directory containing a file blacklisted here"
-msgstr "Ignore cualsisei cartele che e conten un file chi listât"
-
-#: ../src/miners/fs/tracker-main.c:84
-msgid "Initial sleep time in seconds, 0->1000 (default=15)"
-msgstr "Pause iniziâl in seconts, 0→100 (predefinît=15)"
-
-#: ../src/miners/fs/tracker-main.c:89
-msgid "Runs until all configured locations are indexed and then exits"
-msgstr ""
-"Reste in esecuzion fintremai che dutis lis posizions configuradis no sedin "
-"metudis in indiç, daspò jes"
-
-#: ../src/miners/fs/tracker-main.c:93
-msgid "Checks if FILE is eligible for being mined based on configuration"
-msgstr ""
-"Verifiche che al sedi pussibil estrai dâts da FILE in base ae configurazion"
-
-#: ../src/miners/fs/tracker-main.c:94 ../src/tracker-extract/tracker-main.c:89
-#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
-#: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
-#: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
-#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
-#: ../src/tracker/tracker-sparql.c:106 ../src/tracker/tracker-sql.c:44
-msgid "FILE"
-msgstr "FILE"
-
-#: ../src/miners/fs/tracker-main.c:462
-#, c-format
-msgid "Data object “%s” currently exists"
-msgstr "L'ogjet dâts «%s» al esist za"
-
-#: ../src/miners/fs/tracker-main.c:463
-#, c-format
-msgid "Data object “%s” currently does not exist"
-msgstr "L'ogjet dâts «%s» al moment nol esist"
-
-#: ../src/miners/fs/tracker-main.c:478
-msgid "Directory is eligible to be mined (based on rules)"
-msgstr "Al è pussibil analizâ la cartele (in base aes regulis)"
-
-#: ../src/miners/fs/tracker-main.c:479
-msgid "Directory is NOT eligible to be mined (based on rules)"
-msgstr "Nol è pussibil analizâ la cartele (in base aes regulis)"
-
-#: ../src/miners/fs/tracker-main.c:499
-msgid "Directory is eligible to be mined (based on contents)"
-msgstr "Al è pussibil monitorâ la cartele (in base al contignût)"
-
-#: ../src/miners/fs/tracker-main.c:500
-msgid "Directory is NOT eligible to be mined (based on contents)"
-msgstr "Nol è pussibil monitorâ la cartele (in base al contignût)"
-
-#: ../src/miners/fs/tracker-main.c:547
-msgid "Directory is eligible to be monitored (based on config)"
-msgstr "Al è pussibil monitorâ la cartele (in base ae configurazion)"
-
-#: ../src/miners/fs/tracker-main.c:548
-msgid "Directory is NOT eligible to be monitored (based on config)"
-msgstr "Nol è pussibil monitorâ la cartele (in base ae configurazion)"
-
-#: ../src/miners/fs/tracker-main.c:552
-msgid "File is eligible to be monitored (based on config)"
-msgstr "Al è pussibil monitorâ il file (in base ae configurazion)"
-
-#: ../src/miners/fs/tracker-main.c:553
-msgid "File is NOT eligible to be monitored (based on config)"
-msgstr "Nol è pussibil monitorâ il file (in base ae configurazion)"
-
-#: ../src/miners/fs/tracker-main.c:557
-msgid "File or Directory is eligible to be monitored (based on config)"
-msgstr "Al è pussibil monitorâ il file o la cartele (in base ae configurazion)"
-
-#: ../src/miners/fs/tracker-main.c:558
-msgid "File or Directory is NOT eligible to be monitored (based on config)"
-msgstr ""
-"Nol è pussibil monitorâ il file o la cartele (in base ae configurazion)"
-
-#: ../src/miners/fs/tracker-main.c:573
-msgid "File is eligible to be mined (based on rules)"
-msgstr "Al è pussibil analizâ il file (in base aes regulis)"
-
-#: ../src/miners/fs/tracker-main.c:574
-msgid "File is NOT eligible to be mined (based on rules)"
-msgstr "Nol è pussibil analizâ il file (in base aes regulis)"
-
-#: ../src/miners/fs/tracker-main.c:583
-msgid "Would be indexed"
-msgstr "Al vegnarà metût in indiç"
-
-#: ../src/miners/fs/tracker-main.c:584 ../src/miners/fs/tracker-main.c:586
-msgid "Yes"
-msgstr "Sì"
-
-#: ../src/miners/fs/tracker-main.c:584 ../src/miners/fs/tracker-main.c:586
-msgid "No"
-msgstr "No"
-
-#: ../src/miners/fs/tracker-main.c:585
-msgid "Would be monitored"
-msgstr "Al vegnarà monitorât"
-
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: ../src/miners/fs/tracker-main.c:717
-msgid "— start the tracker indexer"
-msgstr "— tache tracker chel che al met in indiç"
-
-#: ../src/miners/fs/tracker-miner-fs.desktop.in.in.h:1
-msgid "Tracker File System Miner"
-msgstr "Estratôr di dâts dal file system Tracker"
-
-#: ../src/miners/fs/tracker-miner-fs.desktop.in.in.h:2
-msgid "Crawls and processes files on the file system"
-msgstr "Cjape sù dâts e elabore file sul file system"
-
-#: ../src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in.h:1
-msgid "RSS/ATOM Feeds"
-msgstr "Feed RSS/ATOM"
-
-#: ../src/miners/rss/org.freedesktop.Tracker1.Miner.RSS.service.in.in.h:2
-msgid "Fetch RSS/ATOM Feeds"
-msgstr "Scjarie feed RSS/ATOM"
-
-#. Translators: this is a "feed" as in RSS
-#: ../src/miners/rss/tracker-main.c:49
-msgid "Add feed"
-msgstr "Zonte feed"
-
-#: ../src/miners/rss/tracker-main.c:50
-msgid "URL"
-msgstr "URL"
-
-#: ../src/miners/rss/tracker-main.c:53
-msgid "Title to use (must be used with --add-feed)"
-msgstr "Titul di doprâ (al scugne jessi doprât cun --add-feed)"
-
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: ../src/miners/rss/tracker-main.c:94
-msgid "— start the feeds indexer"
-msgstr "— tache chel che al met in indiç i feed"
-
-#: ../src/miners/rss/tracker-main.c:128 ../src/tracker/tracker-index.c:195
-#: ../src/tracker/tracker-info.c:263 ../src/tracker/tracker-search.c:1580
-#: ../src/tracker/tracker-sparql.c:172 ../src/tracker/tracker-sparql.c:1086
-#: ../src/tracker/tracker-status.c:175 ../src/tracker/tracker-status.c:505
-#: ../src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "Impussibil stabilî une conession cun Tracker"
-
-#: ../src/miners/rss/tracker-main.c:156
-msgid "Could not add feed"
-msgstr "Impussibil zontâ il feed"
-
-#: ../src/miners/rss/tracker-miner-rss.desktop.in.in.h:1
-msgid "Tracker RSS/ATOM Feeds Miner"
-msgstr "Estratôr di feed RSS/ATOM Tracker"
-
-#: ../src/miners/rss/tracker-miner-rss.desktop.in.in.h:2
-msgid "Fetch RSS/ATOM feeds"
-msgstr "Scjarie feed RSS/ATOM"
-
-#: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:1
-msgid "Extractor"
-msgstr "Estratôr"
-
-#: ../src/tracker-extract/org.freedesktop.Tracker1.Miner.Extract.service.in.in.h:2
-msgid "Metadata extractor"
-msgstr "Estratôr di meta-dâts"
-
-#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:5
-msgid "Max bytes to extract"
-msgstr "Numar massim di byte di estrai"
-
-#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:6
-msgid "Maximum number of UTF-8 bytes to extract."
-msgstr "Numar massim di byte UTF-8 di estrai."
-
-#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:7
-msgid "Max media art width"
-msgstr "Largjece massime des figuris"
-
-#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:8
-msgid ""
-"Maximum width in pixels for any media art extracted. Anything bigger is "
-"resized. Set to -1 to disable saving media art from files. Setting to 0 sets "
-"no limit on the media art width."
-msgstr ""
-"Massime largjece in pixel des figuris estratis, cualsisei file plui grant al "
-"ven ridimensionât. Met a -1 par disabilitâ il salvament des figuris, met a 0 "
-"par disabilitâ il limit su la largjece."
-
-#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:9
-msgid "Wait for FS miner to be done before extracting"
-msgstr "Spiete che l'analizadôr dal file system al finissi prime di estrai"
-
-#: ../src/tracker-extract/org.freedesktop.Tracker.Extract.gschema.xml.in.h:10
-msgid ""
-"When true, tracker-extract will wait for tracker-miner-fs to be done "
-"crawling before extracting meta-data. This option is useful on constrained "
-"environment where it is important to list files as fast as possible and can "
-"wait to get meta-data later."
-msgstr ""
-"Se VÊR, tracker-extract al spietarà che tracker-miner-fs al finissi prime di "
-"estrai i meta-dâts. Cheste opzion e je utile sui sistemis limitâts dulà che "
-"al è impuartant listâ i file in maniere veloce e al è pussibil spietâ il "
-"recupar dai meta-dâts."
-
-#: ../src/tracker-extract/tracker-extract.c:685
-msgid "Metadata extraction failed"
-msgstr "Estrazion dai meta-dâts falide"
-
-#: ../src/tracker-extract/tracker-extract.c:751
-msgid "No metadata or extractor modules found to handle this file"
-msgstr ""
-"Nol è stât cjatât nissun modul par meta-dâts o di estrazion par gjestî chest "
-"file"
-
-#: ../src/tracker-extract/tracker-main.c:83
 #: ../src/tracker-store/tracker-main.vala:58
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
@@ -704,60 +242,6 @@ msgid ""
 msgstr ""
 "Regjistrazion: 0 = nome erôrs, 1 = minimâl, 2 = detaiade, 3 = debug "
 "(predefinît = 0)"
-
-#: ../src/tracker-extract/tracker-main.c:88
-msgid "File to extract metadata for"
-msgstr "File di dulà tirâ fûr i metadâts"
-
-#: ../src/tracker-extract/tracker-main.c:92
-msgid "MIME type for file (if not provided, this will be guessed)"
-msgstr "Gjenar di MIME pal file (se no furnît al ven intuît)"
-
-#: ../src/tracker-extract/tracker-main.c:93 ../src/tracker/tracker-index.c:57
-msgid "MIME"
-msgstr "MIME"
-
-#: ../src/tracker-extract/tracker-main.c:96
-msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
-msgstr ""
-"Sfuarce l'ûs di un modul pe estrazion (par esempli «cjossul» par «cjossul."
-"so»)"
-
-#: ../src/tracker-extract/tracker-main.c:97
-msgid "MODULE"
-msgstr "MODUL"
-
-#: ../src/tracker-extract/tracker-main.c:99 ../src/tracker/tracker-extract.c:45
-msgid "Output results format: “sparql”, or “turtle”"
-msgstr "Formât dai risultâts di jessude: «sparql», o «turtle»"
-
-#: ../src/tracker-extract/tracker-main.c:100
-#: ../src/tracker/tracker-extract.c:46
-msgid "FORMAT"
-msgstr "FORMÂT"
-
-#: ../src/tracker-extract/tracker-main.c:273
-#, c-format
-msgid "Unsupported serialization format “%s”\n"
-msgstr "Formât «%s» di serializazion no supuartât\n"
-
-#. Translators: this message will appear immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:333
-msgid "— Extract file meta data"
-msgstr "— Al tire fûr i meta-dâts dai file"
-
-#: ../src/tracker-extract/tracker-main.c:342
-msgid "Filename and mime type must be provided together"
-msgstr "Il non file e il gjenar di mime a scugnin jessi furnîts adun"
-
-#: ../src/tracker-extract/tracker-extract.desktop.in.in.h:1
-msgid "Tracker Metadata Extractor"
-msgstr "Estratôr di meta-dâts Tracker"
-
-#: ../src/tracker-extract/tracker-extract.desktop.in.in.h:2
-msgid "Extracts metadata from local files"
-msgstr "Al tire fûr i meta-dâts dai file locâi"
 
 #. Indexer options
 #: ../src/tracker-store/tracker-main.vala:61
@@ -786,6 +270,14 @@ msgstr "Archivi di Tracker"
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:2
 msgid "Metadata database store and lookup manager"
 msgstr "Archivi de base di dâts dai meta-dâts e gjestôr des ricercjs"
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
+msgid "Log verbosity"
+msgstr "Detais regjistri"
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
+msgid "Log verbosity."
+msgstr "Detais dal regjistri."
 
 #: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
 msgid "GraphUpdated delay"
@@ -1216,6 +708,22 @@ msgstr "Impussibil otignî une conession D-Bus"
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Impussibil creâ un proxy D-Bus viers tracker-store"
 
+#: ../src/tracker/tracker-extract.c:45
+msgid "Output results format: “sparql”, or “turtle”"
+msgstr "Formât dai risultâts di jessude: «sparql», o «turtle»"
+
+#: ../src/tracker/tracker-extract.c:46
+msgid "FORMAT"
+msgstr "FORMÂT"
+
+#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
+#: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
+#: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
+#: ../src/tracker/tracker-sparql.c:106 ../src/tracker/tracker-sql.c:44
+msgid "FILE"
+msgstr "FILE"
+
 #: ../src/tracker/tracker-extract.c:77
 msgid "Could not run tracker-extract: "
 msgstr "Impussibil eseguî tracker-extract: "
@@ -1232,6 +740,10 @@ msgid ""
 msgstr ""
 "Dîs ai estratôrs di tornâ a meti in indiç i file che a corispuindin al "
 "gjenar mime furnît (pai gnûfs estratôrs), dopre -m MIME1 -m MIME2"
+
+#: ../src/tracker/tracker-index.c:57
+msgid "MIME"
+msgstr "MIME"
 
 #: ../src/tracker/tracker-index.c:59
 msgid "Tell miners to (re)index a given file"
@@ -1278,6 +790,13 @@ msgstr "Impussibil (tornâ a)meti in indiç il file"
 #: ../src/tracker/tracker-index.c:175
 msgid "(Re)indexing file was successful"
 msgstr "Il (tornâ a)meti in indiç al è lât a bon fin"
+
+#: ../src/tracker/tracker-index.c:195 ../src/tracker/tracker-info.c:263
+#: ../src/tracker/tracker-search.c:1580 ../src/tracker/tracker-sparql.c:172
+#: ../src/tracker/tracker-sparql.c:1086 ../src/tracker/tracker-status.c:175
+#: ../src/tracker/tracker-status.c:505 ../src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "Impussibil stabilî une conession cun Tracker"
 
 #: ../src/tracker/tracker-index.c:206
 msgid "Importing Turtle file"
@@ -2324,16 +1843,377 @@ msgstr "Lis azions \"zonte\" e \"elimine\" no puedin jessi dopradis adun"
 msgid "The --description option can only be used with --add"
 msgstr "La opzion --description e pues jessi doprade nome cun --add"
 
-#: ../src/tracker-writeback/tracker-main.c:62
-msgid "Disable shutting down after 30 seconds of inactivity"
-msgstr "Disabilite il distudâ dopo 30 seconts di no ativitât"
+#~ msgid "Applications"
+#~ msgstr "Aplicazions"
 
-#. Translators: this message will appear immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: ../src/tracker-writeback/tracker-main.c:98
-msgid "— start the tracker writeback service"
-msgstr "— tache il servizi di scriture rimandade di tracker"
+#~ msgid "Applications data miner"
+#~ msgstr "Estratôr di dâts des aplicazions"
+
+#~ msgid ""
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default=0)"
+#~ msgstr ""
+#~ "Regjistrazion: 0 = nome erôrs, 1 = minimâl, 2 = detaiade, 3 = debug "
+#~ "(predefinît=0)"
+
+#~ msgid "Runs until all applications are indexed and then exits"
+#~ msgstr ""
+#~ "Reste in esecuzion fintremai che dutis lis aplicazions a son metudis in "
+#~ "indiç, po dopo jes"
+
+#~ msgid "Runs for an specific domain ontology"
+#~ msgstr "Eseguìs par une specifiche ontologjie di domini"
+
+#~ msgid "— start the application data miner"
+#~ msgstr "— invie l'estratôr dâts des aplicazions"
+
+#~ msgid "Tracker Application Miner"
+#~ msgstr "Estratôr di dâts des aplicazions"
+
+#~ msgid "Indexes information about applications installed"
+#~ msgstr "Met in indiç informazions su aplicazions instaladis"
+
+#~ msgid "File System"
+#~ msgstr "File System"
+
+#~ msgid "File system data miner"
+#~ msgstr "Estratôr di dâts dal file system"
+
+#~ msgid "Initial sleep"
+#~ msgstr "Pause iniziâl"
+
+#~ msgid "Initial sleep time, in seconds."
+#~ msgstr "Pause iniziâl, in seconts."
+
+#~ msgid "Scheduler priority when idle"
+#~ msgstr "Prioritât dal planificadôr cuant che al sta inatîf"
+
+#~ msgid ""
+#~ "The scheduler is the kernel component that decides which runnable "
+#~ "application will be executed by the CPU next. Each application has an "
+#~ "associated scheduling policy and priority."
+#~ msgstr ""
+#~ "Il planificadôr al è chel component dal kernel che al decît cuale "
+#~ "aplicazion e vegnarà eseguide subite dopo sul processôr. Ogni aplicazion "
+#~ "e à assegnât une politiche e une prioritât di planificazion."
+
+#~ msgid "Throttle"
+#~ msgstr "Regoladôr"
+
+#~ msgid "Indexing speed, the higher the slower."
+#~ msgstr "Velocitât di metude in indiç: plui alt il valôr, plui al sarà lent."
+
+#~ msgid "Low disk space limit"
+#~ msgstr "Limit dal spazi su disc bas"
+
+#~ msgid ""
+#~ "Disk space threshold in percent at which to pause indexing, or -1 to "
+#~ "disable."
+#~ msgstr ""
+#~ "Liminâr in percentuâl dal spazi su disc dulà meti in pause la metude in "
+#~ "indiç o -1 par disabilitâlu."
+
+#~ msgid "Crawling interval"
+#~ msgstr "Interval acuisizion dâts"
+
+#~ msgid ""
+#~ "Interval in days to check whether the filesystem is up to date in the "
+#~ "database. 0 forces crawling anytime, -1 forces it only after unclean "
+#~ "shutdowns, and -2 disables it entirely."
+#~ msgstr ""
+#~ "Interval in dîs par controlâ se il file system al è inzornât te base di "
+#~ "dâts. 0 al sfuarce la acuisizion in cualsisei moment, -1 nome dopo che il "
+#~ "sisteme si è fermât in maniere no juste, -2 lu disabilite."
+
+#~ msgid "Removable devices’ data permanence threshold"
+#~ msgstr "Liminâr di permanence dai dâts tai dispositîfs estraibii"
+
+#~ msgid ""
+#~ "Threshold in days after which files from removables devices will be "
+#~ "removed from database if not mounted. 0 means never, maximum is 365."
+#~ msgstr ""
+#~ "Limit in dîs daspò i cuai i file di dispositîfs estraibii no plui montâts "
+#~ "a vegnin gjavâts de base di dâts. 0 al indiche mai, il massim al è 365."
+
+#~ msgid "Enable monitors"
+#~ msgstr "Abilite il monitorâ"
+
+#~ msgid "Set to false to completely disable any file monitoring"
+#~ msgstr "Met a FALS par disabilitâ il monitorizâ dai file"
+
+#~ msgid "Enable writeback"
+#~ msgstr "Abilite la scriture rimandade"
+
+#~ msgid "Set to false to completely disable any file writeback"
+#~ msgstr ""
+#~ "Met a FALS par disabilitâ dal dut cualsisei scriture rimandade (writeback)"
+
+#~ msgid "Index removable devices"
+#~ msgstr "Met in indiç dispositîfs estraibii"
+
+#~ msgid ""
+#~ "Set to true to enable indexing mounted directories for removable devices."
+#~ msgstr ""
+#~ "Met a VÊR par meti in indiç lis cartelis di dispositîfs estraibii montâts."
+
+#~ msgid "Index optical discs"
+#~ msgstr "Met in indiç discs otics"
+
+#~ msgid ""
+#~ "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
+#~ "removable devices are not indexed, optical discs won’t be either)"
+#~ msgstr ""
+#~ "Met a VÊR par abilitâ la metude in indiç di CD, DVD e plui in gjenar di "
+#~ "dispositîfs otics (se i dispositîfs estraibii no vegnin metûts in indiç "
+#~ "alore nancje chei otics lu saran)"
+
+#~ msgid "Index when running on battery"
+#~ msgstr "Met in indiç cuant che si va a batarie"
+
+#~ msgid "Set to true to index while running on battery"
+#~ msgstr ""
+#~ "Met a VÊR par meti in indiç cuant che si funzione alimentâts a batarie"
+
+#~ msgid "Perform initial indexing when running on battery"
+#~ msgstr "Eseguìs la metude in indiç iniziâl cuant che si va a batarie"
+
+#~ msgid ""
+#~ "Set to true to index while running on battery for the first time only"
+#~ msgstr ""
+#~ "Met a VÊR par meti in indiç nome pe prime volte cuant che si è alimentâts "
+#~ "a batarie"
+
+#~ msgid "Directories to index recursively"
+#~ msgstr "Cartelis di meti in indiç in maniere ricorsive"
+
+#~ msgid ""
+#~ "List of directories to index recursively, Special values include: &amp;"
+#~ "DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
+#~ "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs."
+#~ "defaults and $HOME/.config/user-dirs.default"
+#~ msgstr ""
+#~ "Liste di cartelis di meti in indiç in maniere ricorsive, i valôrs speciâi "
+#~ "a son: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
+#~ "PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Consultâ /etc/"
+#~ "xdg/user-dirs.defaults e $HOME/.config/user-dirs.default"
+
+#~ msgid "Directories to index non-recursively"
+#~ msgstr "Cartelis di meti in indiç in maniere no ricorsive"
+
+#~ msgid ""
+#~ "List of directories to index without inspecting subfolders, Special "
+#~ "values include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, "
+#~ "&amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/"
+#~ "xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
+#~ msgstr ""
+#~ "Liste di cartelis di meti in indiç cence ispezionâ lis sotcartelis, i "
+#~ "valôrs speciâi a son: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;"
+#~ "MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. "
+#~ "Consultâ /etc/xdg/user-dirs.defaults e $HOME/.config/user-dirs.default"
+
+#~ msgid "Ignored files"
+#~ msgstr "File ignorâts"
+
+#~ msgid "List of file patterns to avoid"
+#~ msgstr "Liste di modei di file di ignorâ"
+
+#~ msgid "Ignored directories"
+#~ msgstr "Cartelis ignoradis"
+
+#~ msgid "List of directories to avoid"
+#~ msgstr "Liste di cartelis di ignorâ"
+
+#~ msgid "Ignored directories with content"
+#~ msgstr "Cartelis cun contignût di ignorâ"
+
+#~ msgid "Avoid any directory containing a file blacklisted here"
+#~ msgstr "Ignore cualsisei cartele che e conten un file chi listât"
+
+#~ msgid "Initial sleep time in seconds, 0->1000 (default=15)"
+#~ msgstr "Pause iniziâl in seconts, 0→100 (predefinît=15)"
+
+#~ msgid "Runs until all configured locations are indexed and then exits"
+#~ msgstr ""
+#~ "Reste in esecuzion fintremai che dutis lis posizions configuradis no "
+#~ "sedin metudis in indiç, daspò jes"
+
+#~ msgid "Checks if FILE is eligible for being mined based on configuration"
+#~ msgstr ""
+#~ "Verifiche che al sedi pussibil estrai dâts da FILE in base ae "
+#~ "configurazion"
+
+#~ msgid "Data object “%s” currently exists"
+#~ msgstr "L'ogjet dâts «%s» al esist za"
+
+#~ msgid "Data object “%s” currently does not exist"
+#~ msgstr "L'ogjet dâts «%s» al moment nol esist"
+
+#~ msgid "Directory is eligible to be mined (based on rules)"
+#~ msgstr "Al è pussibil analizâ la cartele (in base aes regulis)"
+
+#~ msgid "Directory is NOT eligible to be mined (based on rules)"
+#~ msgstr "Nol è pussibil analizâ la cartele (in base aes regulis)"
+
+#~ msgid "Directory is eligible to be mined (based on contents)"
+#~ msgstr "Al è pussibil monitorâ la cartele (in base al contignût)"
+
+#~ msgid "Directory is NOT eligible to be mined (based on contents)"
+#~ msgstr "Nol è pussibil monitorâ la cartele (in base al contignût)"
+
+#~ msgid "Directory is eligible to be monitored (based on config)"
+#~ msgstr "Al è pussibil monitorâ la cartele (in base ae configurazion)"
+
+#~ msgid "Directory is NOT eligible to be monitored (based on config)"
+#~ msgstr "Nol è pussibil monitorâ la cartele (in base ae configurazion)"
+
+#~ msgid "File is eligible to be monitored (based on config)"
+#~ msgstr "Al è pussibil monitorâ il file (in base ae configurazion)"
+
+#~ msgid "File is NOT eligible to be monitored (based on config)"
+#~ msgstr "Nol è pussibil monitorâ il file (in base ae configurazion)"
+
+#~ msgid "File or Directory is eligible to be monitored (based on config)"
+#~ msgstr ""
+#~ "Al è pussibil monitorâ il file o la cartele (in base ae configurazion)"
+
+#~ msgid "File or Directory is NOT eligible to be monitored (based on config)"
+#~ msgstr ""
+#~ "Nol è pussibil monitorâ il file o la cartele (in base ae configurazion)"
+
+#~ msgid "File is eligible to be mined (based on rules)"
+#~ msgstr "Al è pussibil analizâ il file (in base aes regulis)"
+
+#~ msgid "File is NOT eligible to be mined (based on rules)"
+#~ msgstr "Nol è pussibil analizâ il file (in base aes regulis)"
+
+#~ msgid "Would be indexed"
+#~ msgstr "Al vegnarà metût in indiç"
+
+#~ msgid "Yes"
+#~ msgstr "Sì"
+
+#~ msgid "No"
+#~ msgstr "No"
+
+#~ msgid "Would be monitored"
+#~ msgstr "Al vegnarà monitorât"
+
+#~ msgid "— start the tracker indexer"
+#~ msgstr "— tache tracker chel che al met in indiç"
+
+#~ msgid "Tracker File System Miner"
+#~ msgstr "Estratôr di dâts dal file system Tracker"
+
+#~ msgid "Crawls and processes files on the file system"
+#~ msgstr "Cjape sù dâts e elabore file sul file system"
+
+#~ msgid "RSS/ATOM Feeds"
+#~ msgstr "Feed RSS/ATOM"
+
+#~ msgid "Fetch RSS/ATOM Feeds"
+#~ msgstr "Scjarie feed RSS/ATOM"
+
+#~ msgid "Add feed"
+#~ msgstr "Zonte feed"
+
+#~ msgid "URL"
+#~ msgstr "URL"
+
+#~ msgid "Title to use (must be used with --add-feed)"
+#~ msgstr "Titul di doprâ (al scugne jessi doprât cun --add-feed)"
+
+#~ msgid "— start the feeds indexer"
+#~ msgstr "— tache chel che al met in indiç i feed"
+
+#~ msgid "Could not add feed"
+#~ msgstr "Impussibil zontâ il feed"
+
+#~ msgid "Tracker RSS/ATOM Feeds Miner"
+#~ msgstr "Estratôr di feed RSS/ATOM Tracker"
+
+#~ msgid "Fetch RSS/ATOM feeds"
+#~ msgstr "Scjarie feed RSS/ATOM"
+
+#~ msgid "Extractor"
+#~ msgstr "Estratôr"
+
+#~ msgid "Metadata extractor"
+#~ msgstr "Estratôr di meta-dâts"
+
+#~ msgid "Max bytes to extract"
+#~ msgstr "Numar massim di byte di estrai"
+
+#~ msgid "Maximum number of UTF-8 bytes to extract."
+#~ msgstr "Numar massim di byte UTF-8 di estrai."
+
+#~ msgid "Max media art width"
+#~ msgstr "Largjece massime des figuris"
+
+#~ msgid ""
+#~ "Maximum width in pixels for any media art extracted. Anything bigger is "
+#~ "resized. Set to -1 to disable saving media art from files. Setting to 0 "
+#~ "sets no limit on the media art width."
+#~ msgstr ""
+#~ "Massime largjece in pixel des figuris estratis, cualsisei file plui grant "
+#~ "al ven ridimensionât. Met a -1 par disabilitâ il salvament des figuris, "
+#~ "met a 0 par disabilitâ il limit su la largjece."
+
+#~ msgid "Wait for FS miner to be done before extracting"
+#~ msgstr "Spiete che l'analizadôr dal file system al finissi prime di estrai"
+
+#~ msgid ""
+#~ "When true, tracker-extract will wait for tracker-miner-fs to be done "
+#~ "crawling before extracting meta-data. This option is useful on "
+#~ "constrained environment where it is important to list files as fast as "
+#~ "possible and can wait to get meta-data later."
+#~ msgstr ""
+#~ "Se VÊR, tracker-extract al spietarà che tracker-miner-fs al finissi prime "
+#~ "di estrai i meta-dâts. Cheste opzion e je utile sui sistemis limitâts "
+#~ "dulà che al è impuartant listâ i file in maniere veloce e al è pussibil "
+#~ "spietâ il recupar dai meta-dâts."
+
+#~ msgid "Metadata extraction failed"
+#~ msgstr "Estrazion dai meta-dâts falide"
+
+#~ msgid "No metadata or extractor modules found to handle this file"
+#~ msgstr ""
+#~ "Nol è stât cjatât nissun modul par meta-dâts o di estrazion par gjestî "
+#~ "chest file"
+
+#~ msgid "File to extract metadata for"
+#~ msgstr "File di dulà tirâ fûr i metadâts"
+
+#~ msgid "MIME type for file (if not provided, this will be guessed)"
+#~ msgstr "Gjenar di MIME pal file (se no furnît al ven intuît)"
+
+#~ msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
+#~ msgstr ""
+#~ "Sfuarce l'ûs di un modul pe estrazion (par esempli «cjossul» par «cjossul."
+#~ "so»)"
+
+#~ msgid "MODULE"
+#~ msgstr "MODUL"
+
+#~ msgid "Unsupported serialization format “%s”\n"
+#~ msgstr "Formât «%s» di serializazion no supuartât\n"
+
+#~ msgid "— Extract file meta data"
+#~ msgstr "— Al tire fûr i meta-dâts dai file"
+
+#~ msgid "Filename and mime type must be provided together"
+#~ msgstr "Il non file e il gjenar di mime a scugnin jessi furnîts adun"
+
+#~ msgid "Tracker Metadata Extractor"
+#~ msgstr "Estratôr di meta-dâts Tracker"
+
+#~ msgid "Extracts metadata from local files"
+#~ msgstr "Al tire fûr i meta-dâts dai file locâi"
+
+#~ msgid "Disable shutting down after 30 seconds of inactivity"
+#~ msgstr "Disabilite il distudâ dopo 30 seconts di no ativitât"
+
+#~ msgid "— start the tracker writeback service"
+#~ msgstr "— tache il servizi di scriture rimandade di tracker"
 
 #~ msgid "No network connection"
 #~ msgstr "Nissune conession di rêt"
