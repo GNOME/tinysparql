@@ -103,14 +103,17 @@ endif
 if enable_fts
   sqlite3_builtin_fts5_test = '''
     #include <sqlite3.h>
-    sqlite3 *db;
-    int rc;
-    rc = sqlite3_open(":memory:", &db);
-    if (rc!=SQLITE_OK) return -1;
-    rc = sqlite3_exec(db, "create table a(text)", 0, 0, 0);
-    if (rc!=SQLITE_OK) return -1;
-    rc = sqlite3_exec(db, "create virtual table t using fts5(content='a',text)", 0, 0, 0);
-    if (rc!=SQLITE_OK) return -1;
+
+    int main (int argc, char *argv[]) {
+      sqlite3 *db;
+      int rc;
+      rc = sqlite3_open(":memory:", &db);
+      if (rc!=SQLITE_OK) return -1;
+      rc = sqlite3_exec(db, "create table a(text)", 0, 0, 0);
+      if (rc!=SQLITE_OK) return -1;
+      rc = sqlite3_exec(db, "create virtual table t using fts5(content='a',text)", 0, 0, 0);
+      if (rc!=SQLITE_OK) return -1;
+    }
   '''
 
   sqlite3_has_builtin_fts5 = cc.compiles(sqlite3_builtin_fts5_test,
