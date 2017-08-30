@@ -13,7 +13,7 @@ msgstr ""
 "product=tracker&keywords=I18N+L10N&component=General\n"
 "POT-Creation-Date: 2017-02-23 12:37+0000\n"
 "PO-Revision-Date: 2017-06-18 12:14+0200\n"
-"Last-Translator: Gil Forcada <gilforcada@guifi.net>\n"
+"Last-Translator: Jordi Mas <jmas@softcatala.org>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
@@ -1630,7 +1630,7 @@ msgstr "ONTOLOGIA"
 
 #: ../src/tracker/tracker-daemon.c:142
 msgid "List common statuses for miners and the store"
-msgstr "Llista els estats comuns pels extractors de dades i d'emagatzematge"
+msgstr "Llista els estats comuns pels extractors de dades i d'emmagatzematge"
 
 #: ../src/tracker/tracker-daemon.c:147
 msgid "Pause a miner (you must use this with --miner)"
@@ -2180,7 +2180,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-main.c:98
 msgid "Extract information from a file"
-msgstr "Extrau informació des de un fitxer"
+msgstr "Extreu informació des d'un fitxer"
 
 #: ../src/tracker/tracker-main.c:99
 msgid "Get help on how to use Tracker and any of these commands"
