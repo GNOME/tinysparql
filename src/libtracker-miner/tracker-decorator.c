@@ -90,6 +90,8 @@ struct _TrackerDecoratorPrivate {
 	GTimer *timer;
 	GQueue next_elem_queue; /* Queue of incoming tasks */
 
+	GCancellable *cancellable;
+
 	gint batch_size;
 
 	guint processing : 1;
@@ -429,7 +431,7 @@ decorator_commit_info (TrackerDecorator *decorator)
 	                                              (gchar **) array->pdata,
 	                                              array->len,
 	                                              G_PRIORITY_DEFAULT,
-	                                              NULL,
+						      priv->cancellable,
 	                                              decorator_commit_cb,
 	                                              decorator);
 
@@ -816,13 +818,16 @@ decorator_query_remaining_items (TrackerDecorator *decorator)
 {
 	gchar *query, *clauses[] = { "COUNT(?urn)", NULL };
 	TrackerSparqlConnection *sparql_conn;
+	TrackerDecoratorPrivate *priv;
 
+	priv = decorator->priv;
 	query = create_query_string (decorator, clauses, FALSE);
 
 	if (query) {
 		sparql_conn = tracker_miner_get_connection (TRACKER_MINER (decorator));
 		tracker_sparql_connection_query_async (sparql_conn, query,
-		                                       NULL, decorator_query_remaining_items_cb,
+						       priv->cancellable,
+		                                       decorator_query_remaining_items_cb,
 		                                       decorator);
 		g_free (query);
 	} else {
@@ -931,7 +936,8 @@ decorator_cache_next_items (TrackerDecorator *decorator)
 		sparql_conn = tracker_miner_get_connection (TRACKER_MINER (decorator));
 		query = create_remaining_items_query (decorator);
 		tracker_sparql_connection_query_async (sparql_conn, query,
-						       NULL, decorator_cache_items_cb,
+						       priv->cancellable,
+						       decorator_cache_items_cb,
 						       decorator);
 		g_free (query);
 	}
@@ -1134,6 +1140,9 @@ tracker_decorator_finalize (GObject *object)
 	decorator = TRACKER_DECORATOR (object);
 	priv = decorator->priv;
 
+	g_cancellable_cancel (priv->cancellable);
+	g_clear_object (&priv->cancellable);
+
 	g_clear_object (&priv->notifier);
 
 	g_queue_foreach (&priv->item_cache,
@@ -1302,6 +1311,7 @@ tracker_decorator_init (TrackerDecorator *decorator)
 	priv->prepended_ids = g_array_new (FALSE, FALSE, sizeof (gint));
 	priv->batch_size = DEFAULT_BATCH_SIZE;
 	priv->timer = g_timer_new ();
+	priv->cancellable = g_cancellable_new ();
 
 	g_queue_init (&priv->next_elem_queue);
 	g_queue_init (&priv->item_cache);
