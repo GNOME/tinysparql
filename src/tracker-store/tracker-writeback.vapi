@@ -18,7 +18,7 @@
  */
 
 namespace Tracker {
-	[CCode (has_array_length = false, array_null_terminated = true, has_target = false, cheader_filename = "tracker-store/tracker-writeback.h")]
+	[CCode (array_null_terminated = true, has_target = false, cheader_filename = "tracker-store/tracker-writeback.h")]
 	public delegate string[] WritebackGetPredicatesFunc ();
 
 	[CCode (cheader_filename = "tracker-store/tracker-writeback.h")]

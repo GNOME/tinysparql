@@ -93,7 +93,7 @@ public class Tracker.DBus {
 	}
 
 	public static void on_domain_name_disappeared (DBusConnection connection, string name) {
-		notifier.wait ();
+		notifier.wait.begin ();
 		yield;
 		watch_main_loop.quit ();
 	}

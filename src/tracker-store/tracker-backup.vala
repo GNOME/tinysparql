@@ -41,7 +41,7 @@ public class Tracker.Backup : Object {
 
 			Error backup_error = null;
 			var data_manager = Tracker.Main.get_data_manager ();
-			Data.backup_save (data_manager, destination, null, error => {
+			Data.backup_save (data_manager, destination, destination, error => {
 				backup_error = error;
 				save.callback ();
 			});
