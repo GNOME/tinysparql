@@ -252,6 +252,7 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 		Sparql.Error sparql_error = null;
 		IOError io_error = null;
 		DBusError dbus_error = null;
+		GLib.Error error = null;
 		Sparql.Cursor result = null;
 		var context = MainContext.get_thread_default ();
 
@@ -264,6 +265,8 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 				sparql_error = e_spql;
 			} catch (DBusError e_dbus) {
 				dbus_error = e_dbus;
+			} catch (GLib.Error e) {
+				error = e;
 			}
 
 			context.invoke (() => {
