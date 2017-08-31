@@ -1081,9 +1081,3 @@ WARNING:
 
 "
 fi
-
-if test "$have_libseccomp" = "no"; then
-echo "
-WARNING: libseccomp was not found, build will not be prevented, but this is a security flaw.
-"
-fi
