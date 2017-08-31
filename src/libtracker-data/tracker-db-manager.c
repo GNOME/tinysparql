@@ -479,7 +479,6 @@ static void
 db_recreate_all (TrackerDBManager  *db_manager,
 		 GError           **error)
 {
-	guint i;
 	gchar *locale;
 	GError *internal_error = NULL;
 
@@ -539,7 +538,6 @@ perform_recreate (TrackerDBManager  *db_manager,
 		  GError           **error)
 {
 	GError *internal_error = NULL;
-	guint i;
 
 	if (first_time) {
 		*first_time = TRUE;
@@ -580,7 +578,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	TrackerDBManager *db_manager;
 	TrackerDBVersion version;
 	gboolean need_reindex;
-	guint i;
 	int in_use_file;
 	gboolean loaded = FALSE;
 	TrackerDBInterface *resources_iface;
@@ -1049,10 +1046,7 @@ tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 	}
 
 	if (!interface) {
-		TrackerDBManagerFlags flags;
-
 		/* Create a new one to satisfy the request */
-		flags = tracker_db_manager_get_flags (db_manager, NULL, NULL);
 		interface = tracker_db_manager_create_db_interface (db_manager,
 		                                                    TRUE, &internal_error);
 

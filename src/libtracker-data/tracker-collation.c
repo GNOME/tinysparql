@@ -245,7 +245,6 @@ static gboolean
 skip_non_alphanumeric (const gchar **str,
                        gint         *len)
 {
-	GUnicodeBreakType break_type;
 	const gchar *remaining = *str, *end = &remaining[*len];
 	gboolean found = FALSE, is_alnum;
 	gunichar unichar;
@@ -336,7 +335,7 @@ tracker_collation_utf8_title (gpointer      collator,
 		title_beginnings = g_strsplit (_(title_beginnings_str), "|", -1);
 
 	for (i = 0; title_beginnings[i]; i++) {
-		gchar *prefix, *str;
+		gchar *prefix;
 		gint prefix_len;
 
 		prefix = g_utf8_casefold (title_beginnings[i], -1);

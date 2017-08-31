@@ -639,8 +639,6 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
                                       GPtrArray           *seen_properties,
                                       GError             **error)
 {
-	TrackerOntologies *ontologies = manager->ontologies;
-
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
 			TrackerClass *class;
@@ -3024,7 +3022,6 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 	GString          *create_sql = NULL;
 	GString          *in_col_sql = NULL;
 	GString          *sel_col_sql = NULL;
-	GString          *trigger_sql = NULL;
 	TrackerProperty **properties, *property, **domain_indexes;
 	GSList           *class_properties = NULL, *field_it;
 	gboolean          main_class;
@@ -4008,7 +4005,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 {
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (initable);
 	TrackerDBInterface *iface;
-	gboolean is_first_time_index, check_ontology, has_graph_table;
+	gboolean is_first_time_index, check_ontology, has_graph_table = FALSE;
 	TrackerDBCursor *cursor;
 	TrackerDBStatement *stmt;
 	GHashTable *ontos_table;
@@ -4294,7 +4291,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	if (check_ontology) {
 		GList *to_reload = NULL;
 		GList *ontos = NULL;
-		guint p;
 		GPtrArray *seen_classes;
 		GPtrArray *seen_properties;
 		GError *n_error = NULL;

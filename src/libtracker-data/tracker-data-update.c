@@ -338,7 +338,6 @@ tracker_data_remove_delete_statement_callback (TrackerData             *data,
 {
 	TrackerStatementDelegate *delegate;
 	guint i;
-	gboolean found = FALSE;
 
 	if (!data->delete_callbacks) {
 		return;
@@ -753,7 +752,6 @@ ensure_graph_id (TrackerData *data,
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
-	gboolean resource_create;
 	gint id;
 
 	id = GPOINTER_TO_INT (g_hash_table_lookup (data->update_buffer.resource_cache, uri));

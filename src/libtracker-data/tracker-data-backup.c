@@ -422,7 +422,6 @@ tracker_data_backup_save (TrackerDataManager        *data_manager,
 	gchar *path, *directory;
 	GError *local_error = NULL;
 	GDir *journal_dir;
-	GFile *parent;
 	GPid pid;
 	GPtrArray *files;
 	const gchar *f_name;
