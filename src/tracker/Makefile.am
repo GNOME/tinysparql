@@ -4,7 +4,6 @@ AM_CPPFLAGS =                                          \
 	-DLOCALEDIR=\""$(localedir)"\"                 \
 	-DMANDIR=\""$(mandir)"\" \
 	-DSHAREDIR=\""$(datadir)"\" \
-	-DTRACKER_EXTRACTOR_RULES_DIR=\""$(TRACKER_EXTRACT_RULES_DIR)"\" \
 	-I$(top_srcdir)/src                            \
 	-I$(top_builddir)/src                          \
 	$(TRACKER_CFLAGS)

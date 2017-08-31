@@ -41,19 +41,12 @@
 	 collect_debug_info)
 
 static gboolean show_stat;
-static gboolean show_all;
 static gboolean collect_debug_info;
 static gchar **terms;
-
-static GHashTable *common_rdf_types;
 
 static GOptionEntry entries[] = {
 	{ "stat", 'a', 0, G_OPTION_ARG_NONE, &show_stat,
 	  N_("Show statistics for current index / data set"),
-	  NULL
-	},
-	{ "all", 'a', 0, G_OPTION_ARG_NONE, &show_all,
-	  N_("Show statistics about ALL RDF classes, not just common ones which is the default (implied by search terms)"),
 	  NULL
 	},
 	{ "collect-debug-info", 0, 0, G_OPTION_ARG_NONE, &collect_debug_info,
@@ -65,101 +58,6 @@ static GOptionEntry entries[] = {
 	  N_("EXPRESSION") },
 	{ NULL }
 };
-
-static gboolean
-get_common_rdf_types (void)
-{
-	const gchar *extractors_dir, *name;
-	GList *files = NULL, *l;
-	GError *error = NULL;
-	GDir *dir;
-
-	if (common_rdf_types) {
-		return TRUE;
-	}
-
-	extractors_dir = g_getenv ("TRACKER_EXTRACTOR_RULES_DIR");
-	if (G_LIKELY (extractors_dir == NULL)) {
-		extractors_dir = TRACKER_EXTRACTOR_RULES_DIR;
-	}
-
-	dir = g_dir_open (extractors_dir, 0, &error);
-
-	if (!dir) {
-		g_error ("Error opening extractor rules directory: %s", error->message);
-		g_error_free (error);
-		return FALSE;
-	}
-
-	common_rdf_types = g_hash_table_new_full (g_str_hash,
-	                                          g_str_equal,
-	                                          g_free,
-	                                          NULL);
-
-	while ((name = g_dir_read_name (dir)) != NULL) {
-		files = g_list_insert_sorted (files, (gpointer) name, (GCompareFunc) g_strcmp0);
-	}
-
-	for (l = files; l; l = l->next) {
-		GKeyFile *key_file;
-		const gchar *name;
-		gchar *path;
-
-		name = l->data;
-
-		if (!g_str_has_suffix (l->data, ".rule")) {
-			continue;
-		}
-
-		path = g_build_filename (extractors_dir, name, NULL);
-		key_file = g_key_file_new ();
-
-		g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, &error);
-
-		if (G_UNLIKELY (error)) {
-			g_clear_error (&error);
-		} else {
-			gchar **rdf_types;
-			gsize n_rdf_types;
-
-			rdf_types = g_key_file_get_string_list (key_file, "ExtractorRule", "FallbackRdfTypes", &n_rdf_types, &error);
-
-			if (G_UNLIKELY (error)) {
-				g_clear_error (&error);
-			} else if (rdf_types != NULL) {
-				gint i;
-
-				for (i = 0; i < n_rdf_types; i++) {
-					const gchar *rdf_type = rdf_types[i];
-
-					g_hash_table_insert (common_rdf_types, g_strdup (rdf_type), GINT_TO_POINTER(TRUE));
-				}
-			}
-
-			g_strfreev (rdf_types);
-		}
-
-		g_key_file_free (key_file);
-		g_free (path);
-	}
-
-	g_list_free (files);
-	g_dir_close (dir);
-
-	/* Make sure some additional RDF types are shown which are not
-	 * fall backs.
-	 */
-	g_hash_table_insert (common_rdf_types, g_strdup ("rdfs:Resource"), GINT_TO_POINTER(TRUE));
-	g_hash_table_insert (common_rdf_types, g_strdup ("rdfs:Class"), GINT_TO_POINTER(TRUE));
-	g_hash_table_insert (common_rdf_types, g_strdup ("nfo:FileDataObject"), GINT_TO_POINTER(TRUE));
-	g_hash_table_insert (common_rdf_types, g_strdup ("nfo:Folder"), GINT_TO_POINTER(TRUE));
-	g_hash_table_insert (common_rdf_types, g_strdup ("nfo:Executable"), GINT_TO_POINTER(TRUE));
-	g_hash_table_insert (common_rdf_types, g_strdup ("nco:Contact"), GINT_TO_POINTER(TRUE));
-	g_hash_table_insert (common_rdf_types, g_strdup ("nao:Tag"), GINT_TO_POINTER(TRUE));
-	g_hash_table_insert (common_rdf_types, g_strdup ("tracker:Volume"), GINT_TO_POINTER(TRUE));
-
-	return TRUE;
-}
 
 static int
 status_stat (void)
@@ -190,11 +88,6 @@ status_stat (void)
 		return EXIT_FAILURE;
 	}
 
-	/* We use search terms on ALL ontologies not just common ones */
-	if (terms && g_strv_length (terms) > 0) {
-		show_all = TRUE;
-	}
-
 	if (!cursor) {
 		g_print ("%s\n", _("No statistics available"));
 	} else {
@@ -202,20 +95,12 @@ status_stat (void)
 
 		output = g_string_new ("");
 
-		if (!show_all) {
-			get_common_rdf_types ();
-		}
-
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			const gchar *rdf_type;
 			const gchar *rdf_type_count;
 
 			rdf_type = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 			rdf_type_count = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-
-			if (!show_all && !g_hash_table_contains (common_rdf_types, rdf_type)) {
-				continue;
-			}
 
 			if (terms) {
 				gint i, n_terms;
@@ -253,10 +138,6 @@ status_stat (void)
 
 		g_print ("%s\n", output->str);
 		g_string_free (output, TRUE);
-
-		if (common_rdf_types) {
-			g_hash_table_unref (common_rdf_types);
-		}
 
 		g_object_unref (cursor);
 	}
