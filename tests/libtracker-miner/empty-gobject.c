@@ -92,8 +92,6 @@ static void empty_object_instance_init (EmptyObject * self) {
 
 
 static void empty_object_finalize (GObject* obj) {
-	EmptyObject * self;
-	self = EMPTY_OBJECT (obj);
 	G_OBJECT_CLASS (empty_object_parent_class)->finalize (obj);
 }
 

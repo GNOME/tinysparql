@@ -140,7 +140,7 @@ public class TestApp {
 		string dels_qry = build_title_query (class_name, deletes).str;
 		string ins_qry = build_title_query (class_name, deletes).str;
 
-		on_graph_updated_received_async (dels_qry, ins_qry);
+		on_graph_updated_received_async.begin (dels_qry, ins_qry);
 	}
 
 	private void insert_data () {
@@ -149,7 +149,7 @@ public class TestApp {
 		for (i = 0; i <= max_signals; i++) {
 			string upqry = "DELETE { <%d> a rdfs:Resource } INSERT { <%d> a nmm:MusicPiece ; nie:title '%s %d' }".printf(i, i, title_data, i);
 
-			resources_object.sparql_update_async (upqry);
+			resources_object.sparql_update_async.begin (upqry);
 
 			// Once the FD passing bug is fixed (running out of FDs), replace
 			// above with this:

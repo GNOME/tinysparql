@@ -135,7 +135,7 @@ public class TestApp {
 		t.start();
 		for (i = 0; i <= max_signals; i++) {
 			string upqry = "INSERT { <%d> a nmm:MusicPiece ; nie:title '%s %d' }".printf(i, title_data, i);
-			resources_object.sparql_update_async (upqry);
+			resources_object.sparql_update_async.begin (upqry);
 		}
 	}
 

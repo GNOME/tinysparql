@@ -122,7 +122,7 @@ public class TestApp : GLib.Object {
 	bool in_mainloop () {
 
 		do_sync_tests ();
-		do_async_tests ();
+		do_async_tests.begin ();
 
 		return false;
 	}

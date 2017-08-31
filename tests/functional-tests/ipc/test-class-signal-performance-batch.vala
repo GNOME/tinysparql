@@ -80,7 +80,7 @@ public class TestApp {
 		int i;
 		for (i = 0; i <= max_signals; i++) {
 			string upqry = "DELETE { <%d> a rdfs:Resource }".printf(i);
-			resources_object.sparql_update_async (upqry);
+			resources_object.sparql_update_async.begin (upqry);
 		}
 
 		t.start();
@@ -88,9 +88,9 @@ public class TestApp {
 			string upqry = "INSERT { <%d> a nmm:MusicPiece ; nie:title '%s %d' }".printf(i, title_data, i);
 
 			if (i == max_signals / 2) {
-				resources_object.sparql_update_async (upqry);
+				resources_object.sparql_update_async.begin (upqry);
 			} else {
-				resources_object.batch_sparql_update_async (upqry);
+				resources_object.batch_sparql_update_async.begin (upqry);
 			}
 		}
 	}

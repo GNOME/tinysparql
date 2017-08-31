@@ -125,7 +125,7 @@ int main (string[] args) {
 		c = Connection.get ();
 
 		if (args.length == 3) {
-			y = args[2].to_int();
+			y = int.parse (args[2]);
 		}
 
 		if (args.length == 1 || args[1] == "replace") {

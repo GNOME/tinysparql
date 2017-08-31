@@ -126,14 +126,14 @@ public class TestApp {
 
 		if (ready) {
 			print ("Test 2: query launches now\n");
-			jumper_async ();
+			jumper_async.begin ();
 		}
 
 		return !ready;
 	}
 
 	bool in_mainloop () {
-		do_async_query_tests ();
+		do_async_query_tests.begin ();
 
 		print ("Test 2: Wait for the status signal to indicate readyness\n");
 		users++;
