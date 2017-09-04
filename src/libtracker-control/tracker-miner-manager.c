@@ -1539,6 +1539,7 @@ miner_manager_index_file_thread (GTask *task,
  * tracker_miner_manager_index_file:
  * @manager: a #TrackerMinerManager
  * @file: a URL valid in GIO of a file to give to the miner for processing
+ * @cancellable: (allow-none): a #GCancellable, or %NULL
  * @error: (out callee-allocates) (transfer full) (allow-none): return location for errors
  *
  * Tells the filesystem miner to start indexing the @file.
@@ -1547,18 +1548,20 @@ miner_manager_index_file_thread (GTask *task,
  *
  * Returns: %TRUE on success, otherwise %FALSE.
  *
- * Since: 0.10
+ * Since: 2.0
  **/
 gboolean
 tracker_miner_manager_index_file (TrackerMinerManager  *manager,
                                   GFile                *file,
+                                  GCancellable         *cancellable,
                                   GError              **error)
 {
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
+	g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
 
 	return miner_manager_index_file_sync (manager, METHOD_INDEX_FILE,
-	                                      file, NULL, error);
+	                                      file, cancellable, error);
 }
 
 /**

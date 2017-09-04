@@ -133,6 +133,7 @@ gboolean             tracker_miner_manager_reindex_by_mimetype (TrackerMinerMana
                                                                 GError              **error);
 gboolean             tracker_miner_manager_index_file          (TrackerMinerManager  *manager,
                                                                 GFile                *file,
+                                                                GCancellable         *cancellable,
                                                                 GError              **error);
 void                 tracker_miner_manager_index_file_async    (TrackerMinerManager  *manager,
                                                                 GFile                *file,

@@ -162,7 +162,7 @@ index_or_reindex_file (void)
 		GFile *file;
 
 		file = g_file_new_for_commandline_arg (*p);
-		tracker_miner_manager_index_file (manager, file, &error);
+		tracker_miner_manager_index_file (manager, file, NULL, &error);
 
 		if (error) {
 			g_printerr ("%s: %s\n",
