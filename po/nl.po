@@ -1,427 +1,34 @@
 # Dutch translation for tracker
 # Copyright (C) 2013 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker package.
-# Roel Huybrechts <roelhuybrechts@skynet.be>, 2007.
-# Tino Meinen <a.t.meinen@chello.nl>, 2008.
-# Erwin Poeze <donnut@outlook.com>, 2013.
-# Reinout van Schouwen <reinouts@gnome.org>, 2013, 2014 (proeflezen)
 #
 # journal = dagboek
 # tag     = tag
 # stemmer = stamvormer
 # crawling = doorzoeken
 # extractor = uitpakprogramma
+# Roel Huybrechts <roelhuybrechts@skynet.be>, 2007.
+# Tino Meinen <a.t.meinen@chello.nl>, 2008.
+# Erwin Poeze <donnut@outlook.com>, 2013.
+# Reinout van Schouwen <reinouts@gnome.org>, 2013, 2014 (proeflezen).
+# Nathan Follens <nthn@unseen.is>, 2015-2016.
+# Justin van Steijn <justin50@live.nl>, 2016.
+# Hannie Dumoleyn <hannie@ubuntu-nl.org>, 2017.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-24 00:01+0100\n"
-"PO-Revision-Date: 2014-01-24 00:05+0100\n"
-"Last-Translator: Erwin Poeze <donnut@outlook.com>\n"
+"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?product=tracker"
+"&keywords=I18N+L10N&component=General\n"
+"POT-Creation-Date: 2017-08-31 17:34+0000\n"
+"PO-Revision-Date: 2017-09-08 17:40+0100\n"
+"Last-Translator: Hannie Dumoleyn <hannie@ubuntu-nl.org>\n"
 "Language-Team: Dutch <gnome-nl-list@gnome.org>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.5.4\n"
-
-#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
-msgid "Maximum size of journal"
-msgstr "Maximale grootte dagboek"
-
-#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr ""
-"Grootte van het dagboek bij rotatie in MB. Gebruik -1 om rotatie uit te "
-"schakelen"
-
-#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
-msgid "Location of journal pieces"
-msgstr "Locatie van dagboekdelen"
-
-#: ../data/gschemas/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr ""
-"Opslaglocatie van het dagboekdeel als de maximale grootte wordt bereikt."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:1
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:1
-#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
-#: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:1
-msgid "Log verbosity"
-msgstr "Breedsprakigheid loguitvoer"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:2
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:2
-#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
-#: ../data/gschemas/org.freedesktop.Tracker.Writeback.gschema.xml.in.h:2
-msgid "Log verbosity."
-msgstr "Breedsprakigheid loguitvoer."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:3
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:5
-msgid "Scheduler priority when idle"
-msgstr "Prioriteit planner gedurende inactiviteit"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:4
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:6
-msgid ""
-"The scheduler is the kernel component that decides which runnable "
-"application will be executed by the CPU next. Each application has an "
-"associated scheduling policy and priority."
-msgstr ""
-"De planner is de kerncomponent die beslist welke actieve toepassing als "
-"volgt wordt uitgevoerd door de CPU. Iedere toepassing heeft een gekoppeld "
-"planbeleid en -prioriteit."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:5
-msgid "Max bytes to extract"
-msgstr "Maximum aantal bytes om uit te pakken"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:6
-msgid "Maximum number of UTF-8 bytes to extract."
-msgstr "Maximum aantal UTF-8-bytes om uit te pakken."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:7
-msgid "Max media art width"
-msgstr "Maximumbreedte albumhoes"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Extract.gschema.xml.in.h:8
-msgid ""
-"Maximum width in pixels for any media art extracted. Anything bigger is "
-"resized. Set to -1 to disable saving media art from files. Setting to 0 sets "
-"no limit on the media art width."
-msgstr ""
-"Maximumbreedte in beeldpunten voor alle uitgepakte albumhoezen. Alles wat "
-"groter is, wordt hierop aangepast. Door -1 op te geven wordt het opslaan van "
-"albumhoezen uit bestanden uitgeschakeld. Instellen op 0 verwijderd de "
-"maximumbreedtebeperking. "
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
-msgid "Maximum length of a word to be indexed"
-msgstr "Maximum woordlengte om te indexeren"
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr ""
-"Woorden bestaande uit een meer tekens dan dit aantal, worden door de "
-"indexeerder genegeerd."
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
-msgid "Maximum number of words to index in a document"
-msgstr "Maximum aantal te indexeren woorden in een document"
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr ""
-"De indexeerder zal niet meer woorden uit een enkel document lezen dan dit "
-"maximum."
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
-msgid "Enable stemmer"
-msgstr "Stamvormer inschakelen"
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
-msgid ""
-"Simplify the words to their root to provide more results. E.g. 'shelves' and "
-"'shelf' to 'shel'"
-msgstr ""
-"Vereenvoudig de woorden tot hun kern om meer resultaten te krijgen, "
-"bijvoorbeeld ‘laden’ en ‘lade’ naar‘la’"
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
-msgid "Enable unaccent"
-msgstr "Accentverwijdering inschakelen"
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. 'Idéa' to "
-"'Idea' for improved matching."
-msgstr ""
-"Zet tekens met een accent om naar de accentloze variant voor meer "
-"overeenkomsten, bijvoorbeeld ‘naïef’ naar ‘naief’."
-
-# Genegeerde bestandspatronen/genegeerde bestanden
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
-msgid "Ignore numbers"
-msgstr "Getallen negeren"
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
-msgid "If enabled, numbers will not be indexed."
-msgstr "Indien ingeschakeld worden getallen niet geïndexeerd."
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
-msgid "Ignore stop words"
-msgstr "Stopwoorden negeren"
-
-#: ../data/gschemas/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like 'the', 'yes', 'no', etc."
-msgstr ""
-"Indien ingeschakeld worden woorden uit de lijst met stopwoorden genegeerd. "
-"Dit betreft algemene woorden als ‘de’, ‘ja’, ‘nee’, enz."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:3
-msgid "Initial sleep"
-msgstr "Initiële wachttijd"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:4
-msgid "Initial sleep time, in seconds."
-msgstr "Initiële wachttijd in seconden."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:7
-msgid "Throttle"
-msgstr "Smoren"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:8
-msgid "Indexing speed, the higher the slower."
-msgstr "Indexeersnelheid, hogere waarde betekent lagere snelheid."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:9
-msgid "Low disk space limit"
-msgstr "Drempelwaarde beperkte schijfruimte"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:10
-msgid ""
-"Disk space threshold in MB at which to pause indexing, or -1 to disable."
-msgstr ""
-"Drempelwaarde schijfruimte in MB waarbij het indexeren wordt gepauzeerd, of "
-"-1 om dit uit te schakelen."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:11
-msgid "Crawling interval"
-msgstr "Doorzoekinterval"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:12
-msgid ""
-"Interval in days to check whether the filesystem is up to date in the "
-"database. 0 forces crawling anytime, -1 forces it only after unclean "
-"shutdowns, and -2 disables it entirely."
-msgstr ""
-"Interval in dagen waarna gecontroleerd worden of het bestandssysteem in de "
-"database is bijgewerkt. ‘0’ forceert continu doorzoeken,  ‘-1’ alleen na een "
-"gemankeerde systeemuitschakeling en ‘-2’ schakelt het volledig uit. "
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:13
-msgid "Removable devices' data permanence threshold"
-msgstr "Drempelwaarde gegevensbestendigheid van verwijderbare apparaten"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:14
-msgid ""
-"Threshold in days after which files from removables devices will be removed "
-"from database if not mounted. 0 means never, maximum is 365."
-msgstr ""
-"Drempelwaarde in dagen waarna bestanden van verwijderbare apparaten die niet "
-"aangekoppeld zijn, uit de database verwijderd zullen worden. ‘0’ betekent "
-"nooit, 365 is het maximum."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:15
-msgid "Enable monitors"
-msgstr "Observatoren inschakelen"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:16
-msgid "Set to false to completely disable any file monitoring"
-msgstr "Stel in op ‘false’ om bestandsobservatie volledig uit te schakelen"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:17
-msgid "Enable writeback"
-msgstr "Write-back activeren"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:18
-msgid "Set to false to completely disable any file writeback"
-msgstr ""
-"Stel in op ‘false’ om write-back van bestanden volledig uit te schakelen"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:19
-msgid "Index removable devices"
-msgstr "Verwijderbare apparaten indexeren"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:20
-msgid ""
-"Set to true to enable indexing mounted directories for removable devices."
-msgstr ""
-"Stel in op ‘true’ om indexering van aangekoppelde mappen van verwijderbare "
-"apparaten in te schakelen."
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:21
-msgid "Index optical discs"
-msgstr "Optische schijven indexeren"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:22
-msgid ""
-"Set to true to enable indexing CDs, DVDs, and generally optical media (if "
-"removable devices are not indexed, optical discs won't be either)"
-msgstr ""
-"Stel in op ‘true’ om indexering van CD's, DVD's en optische media in het "
-"algemeen in te schakelen (als verwijderbare apparaten niet worden "
-"geïndexeerd, zal dit voor optische schijven ook niet gebeuren)"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:23
-msgid "Index when running on battery"
-msgstr "Bij accustroom indexeren"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:24
-msgid "Set to true to index while running on battery"
-msgstr "Stel in op ‘true’ om te indexeren tijdens gebruik van accustroom"
-
-# aanvankelijke/initiële/controleindex
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:25
-msgid "Perform initial indexing when running on battery"
-msgstr "Bij accustroom de initiële indexering toestaan"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:26
-msgid "Set to true to index while running on battery for the first time only"
-msgstr ""
-"Stel in op ‘true’ om de initiële indexering ook uit te voeren tijdens "
-"gebruik van accustroom"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:27
-msgid "Directories to index recursively"
-msgstr "Mappen om recursief te indexeren"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:28
-msgid ""
-"List of directories to index recursively, Special values include: &amp;"
-"DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
-"PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs.defaults "
-"and $HOME/.config/user-dirs.default"
-msgstr ""
-"Lijst van mappen die geïndexeerd moet worden zonder de submappen te "
-"beschouwen, speciale waarden zijn onder meer: &amp;DESKTOP, &amp;DOCUMENTS, "
-"&amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLICSHARE, &amp;TEMPLATES, "
-"&amp;VIDEOS. Zie /etc/xdg/user-dirs.defaults en $HOME/.config/user-dirs."
-"default"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:29
-msgid "Directories to index non-recursively"
-msgstr "Mappen om niet-recursief te indexeren"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:30
-msgid ""
-"List of directories to index without inspecting subfolders, Special values "
-"include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
-"PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
-"dirs.defaults and $HOME/.config/user-dirs.default"
-msgstr ""
-"Mappenlijst die geïndexeerd moeten worden zonder de submappen te beschouwen, "
-"waaronder: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
-"PICTURES, &amp;PUBLICSHARE, &amp;TEMPLATES, &amp;VIDEOS. Zie /etc/xdg/user-"
-"dirs.defaults en $HOME/.config/user-dirs.default"
-
-# Genegeerde bestandspatronen/genegeerde bestanden
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:31
-msgid "Ignored files"
-msgstr "Genegeerde bestanden"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:32
-msgid "List of file patterns to avoid"
-msgstr "Lijst met bestandspatronen die moeten worden genegeerd"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:33
-msgid "Ignored directories"
-msgstr "Genegeerde mappen"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:34
-msgid "List of directories to avoid"
-msgstr "Lijst met mappen die moeten worden genegeerd"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:35
-msgid "Ignored directories with content"
-msgstr "Genegeerde mappen met inhoud"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Miner.Files.gschema.xml.in.h:36
-msgid "Avoid any directory containing a file blacklisted here"
-msgstr "Vermijd iedere map die een bestand uit de zwarte lijst bevat"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
-msgid "GraphUpdated delay"
-msgstr "GraphUpdated-vertraging"
-
-#: ../data/gschemas/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-"Tijdsduur in milliseconden tussen GraphUpdated-signalen die worden "
-"uitgestuurd wanneer geïndexeerde gegevens gewijzigd zijn in de database."
-
-#: ../data/miners/tracker-miner-applications.desktop.in.in.h:1
-#: ../src/tracker-needle/tracker-view.vala:331
-msgid "Applications"
-msgstr "Toepassingen"
-
-#: ../data/miners/tracker-miner-applications.desktop.in.in.h:2
-msgid "Applications data miner"
-msgstr "Toepassingen dataminer"
-
-#: ../data/miners/tracker-miner-evolution.desktop.in.in.h:1
-#: ../src/tracker-utils/tracker-search.c:412
-msgid "Emails"
-msgstr "E-mails"
-
-#: ../data/miners/tracker-miner-evolution.desktop.in.in.h:2
-msgid "Evolution Email miner"
-msgstr "Dataminer Evolution-mail"
-
-#: ../data/miners/tracker-miner-extract.desktop.in.in.h:1
-msgid "Extractor"
-msgstr "Uitpakprogramma"
-
-#: ../data/miners/tracker-miner-extract.desktop.in.in.h:2
-msgid "Metadata extractor"
-msgstr "Metadata-uitpakprogramma"
-
-#: ../data/miners/tracker-miner-files.desktop.in.in.h:1
-msgid "File System"
-msgstr "Bestandssysteem"
-
-#: ../data/miners/tracker-miner-files.desktop.in.in.h:2
-msgid "File system data miner"
-msgstr "Dataminer bestandssysteem"
-
-#: ../data/miners/tracker-miner-rss.desktop.in.in.h:1
-msgid "RSS/ATOM Feeds"
-msgstr "RSS/ATOM-feeds"
-
-#: ../data/miners/tracker-miner-rss.desktop.in.in.h:2
-msgid "Fetch RSS/ATOM Feeds"
-msgstr "RSS/ATOM-feeds ophalen"
-
-#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:1
-msgid "Userguides"
-msgstr "Gebruikershandleidingen"
-
-#: ../data/miners/tracker-miner-userguides.desktop.in.in.h:2
-msgid "Userguide data miner"
-msgstr "Gebruikershandleiding dataminer"
-
-#: ../data/tracker-miner-fs.desktop.in.in.h:1
-msgid "Tracker File System Miner"
-msgstr "Dataminer Tracker-bestandssystemen"
-
-#: ../data/tracker-miner-fs.desktop.in.in.h:2
-msgid "Crawls and processes files on the file system"
-msgstr "Doorzoekt en verwerkt bestanden op het bestandssysteem"
-
-#: ../data/tracker-miner-rss.desktop.in.in.h:1
-msgid "Tracker RSS/ATOM Feeds Miner"
-msgstr "Tracker RSS/ATOM-feeds-miner"
-
-#: ../data/tracker-miner-rss.desktop.in.in.h:2
-msgid "Fetch RSS/ATOM feeds"
-msgstr "RSS/ATOM-feeds ophalen"
-
-#: ../data/tracker-store.desktop.in.in.h:1
-msgid "Tracker Store"
-msgstr "Tracker-opslag"
-
-#: ../data/tracker-store.desktop.in.in.h:2
-msgid "Metadata database store and lookup manager"
-msgstr "Databaseopslag en opzoekbeheerder van metagegevens"
+"X-Generator: Lokalize 2.0\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -492,811 +99,170 @@ msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d seconde"
 msgstr[1] " %2.2d seconden"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:957
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
+msgid "Maximum length of a word to be indexed"
+msgstr "Maximum woordlengte om te indexeren"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
+msgid ""
+"Words with more characters than this length will be ignored by the indexer."
+msgstr ""
+"Woorden bestaande uit een meer tekens dan dit aantal, worden door de "
+"indexeerder genegeerd."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
+msgid "Maximum number of words to index in a document"
+msgstr "Maximum aantal te indexeren woorden in een document"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+msgid ""
+"Indexer will read only this maximum number of words from a single document."
+msgstr ""
+"De indexeerder zal niet meer woorden uit een enkel document lezen dan dit "
+"maximum."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
+msgid "Enable stemmer"
+msgstr "Stamvormer inschakelen"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+#| msgid ""
+#| "Simplify the words to their root to provide more results. E.g. 'shelves' "
+#| "and 'shelf' to 'shel'"
+msgid ""
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
+msgstr ""
+"Vereenvoudig de woorden tot hun kern om meer resultaten te krijgen,"
+" bijvoorbeeld ‘laden’ en ‘lade’ naar‘la’"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
+msgid "Enable unaccent"
+msgstr "Accentverwijdering inschakelen"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+#| msgid ""
+#| "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' "
+#| "to 'Idea' for improved matching."
+msgid ""
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
+msgstr ""
+"Zet tekens met een accent om naar de accentloze variant voor meer"
+" overeenkomsten, bijvoorbeeld ‘naïef’ naar ‘naief’."
+
+# Genegeerde bestandspatronen/genegeerde bestanden
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
+msgid "Ignore numbers"
+msgstr "Getallen negeren"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
+msgid "If enabled, numbers will not be indexed."
+msgstr "Indien ingeschakeld worden getallen niet geïndexeerd."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
+msgid "Ignore stop words"
+msgstr "Stopwoorden negeren"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+#| msgid ""
+#| "If enabled, the words listed in the stop-words list are ignored. E.g. "
+#| "common words like 'the', 'yes', 'no', etc."
+msgid ""
+"If enabled, the words listed in the stop-words list are ignored. E.g. common "
+"words like “the”, “yes”, “no”, etc."
+msgstr ""
+"Indien ingeschakeld worden woorden uit de lijst met stopwoorden genegeerd."
+" Dit betreft algemene woorden zoals ‘de’, ‘ja’, ‘nee’, enz."
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
+msgid "Maximum size of journal"
+msgstr "Maximale grootte dagboek"
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr ""
+"Grootte van het dagboek bij rotatie in MB. Gebruik -1 om rotatie uit te "
+"schakelen"
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
+msgid "Location of journal pieces"
+msgstr "Locatie van dagboekdelen"
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr ""
+"Opslaglocatie van het dagboekdeel als de maximale grootte wordt bereikt."
+
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: ../src/libtracker-data/tracker-collation.c:333
+msgid "the|a|an"
+msgstr "the|a|an|de|het|een"
+
+#: ../src/libtracker-data/tracker-data-backup.c:495
+#: ../src/libtracker-data/tracker-data-backup.c:635
+#| msgid "Error starting 'tar' program"
+msgid "Error starting “tar” program"
+msgstr "Fout bij starten van ‘tar’-programma"
+
+#: ../src/libtracker-data/tracker-data-backup.c:496
+#: ../src/libtracker-data/tracker-data-backup.c:636
+#: ../src/tracker/tracker-config.c:61 ../src/tracker/tracker-daemon.c:462
+#: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
+#: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
+#: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
+#: ../src/tracker/tracker-daemon.c:1052 ../src/tracker/tracker-daemon.c:1243
+#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1668
+#: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63
+#: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
+#: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
+#: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
+#: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
+#: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
+#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:173
+#: ../src/tracker/tracker-sparql.c:1087 ../src/tracker/tracker-status.c:74
+#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:313
+#: ../src/tracker/tracker-status.c:387 ../src/tracker/tracker-status.c:432
+#: ../src/tracker/tracker-status.c:461 ../src/tracker/tracker-tag.c:977
+msgid "No error given"
+msgstr "Geen fout gemeld"
+
+#: ../src/libtracker-data/tracker-data-backup.c:649
+#, c-format
+#| msgid "Unknown error, 'tar' exited with status %d"
+msgid "Unknown error, “tar” exited with status %d"
+msgstr "Onbekende fout, ‘tar’ sloot af met status %d"
+
+#: ../src/libtracker-miner/tracker-data-provider.c:108
+#: ../src/libtracker-miner/tracker-data-provider.c:168
+msgid "Operation not supported"
+msgstr "Bewerking niet ondersteund"
+
+#: ../src/libtracker-miner/tracker-miner-proxy.c:352
+msgid "Cookie not recognized to resume paused miner"
+msgstr "Hervatten miner is mislukt doordat cookie niet herkend is"
+
+#: ../src/libtracker-miner/tracker-miner-proxy.c:409
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "De te pauzeren toepassing en de reden komen overeen met een reeds bestaand "
 "pauzeverzoek"
 
-#: ../src/libtracker-miner/tracker-miner-object.c:1054
-msgid "Cookie not recognized to resume paused miner"
-msgstr "Hervatten miner is mislukt doordat cookie niet herkend is"
-
-#: ../src/libtracker-miner/tracker-miner-object.c:1500
+#: ../src/libtracker-miner/tracker-miner-proxy.c:772
 msgid "Data store is not available"
 msgstr "Gegevensopslag is niet beschikbaar"
 
-#: ../src/miners/fs/tracker-main.c:101 ../src/miners/rss/tracker-main.c:39
-#: ../src/tracker-writeback/tracker-main.c:55
-msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
-msgstr ""
-"Logging, 0 = alleen foutmeldingen, 1 = minimaal, 2 = gedetailleerd en 3 = "
-"debug (standaard = 0)"
-
-#: ../src/miners/fs/tracker-main.c:106
-msgid "Initial sleep time in seconds, 0->1000 (default=15)"
-msgstr "Initiële wachttijd in seconden, 0->1000 (standaard = 15)"
-
-#: ../src/miners/fs/tracker-main.c:111
-msgid "Runs until all configured locations are indexed and then exits"
-msgstr ""
-"actief totdat alle geconfigureerde locaties geïndexeerd zijn, en stopt "
-"vervolgens"
-
-#: ../src/miners/fs/tracker-main.c:115
-msgid "Checks if FILE is eligible for being mined based on configuration"
-msgstr ""
-"controleert of inhoud van BESTAND verkozen is om op basis van configuratie "
-"gemined te worden"
-
-#: ../src/miners/fs/tracker-main.c:116
-#: ../src/tracker-control/tracker-control-general.c:107
-#: ../src/tracker-control/tracker-control-general.c:110
-#: ../src/tracker-control/tracker-control-miners.c:60
-#: ../src/tracker-extract/tracker-main.c:92
-#: ../src/tracker-utils/tracker-import.c:54
-#: ../src/tracker-utils/tracker-import.c:55
-#: ../src/tracker-utils/tracker-info.c:67
-#: ../src/tracker-utils/tracker-info.c:68
-#: ../src/tracker-utils/tracker-sparql.c:65
-msgid "FILE"
-msgstr "BESTAND"
-
-#: ../src/miners/fs/tracker-main.c:119
-msgid "Disable miners started as part of this process, options include: '"
-msgstr ""
-"schakelt miners uit die gestart zijn als onderdeel van dit proces, opties "
-"bevatten: '"
-
-#: ../src/miners/fs/tracker-main.c:126
-#: ../src/tracker-control/tracker-control-miners.c:75
-msgid "MINER"
-msgstr "MINER"
-
 #. Daemon options
-#: ../src/miners/fs/tracker-main.c:129
-#: ../src/tracker-extract/tracker-main.c:107
-#: ../src/tracker-store/tracker-main.vala:47
-#: ../src/tracker-writeback/tracker-main.c:51
+#: ../src/tracker-store/tracker-main.vala:57
 msgid "Displays version information"
 msgstr "Toont versie-informatie"
 
-#: ../src/miners/fs/tracker-main.c:628
-#, c-format
-msgid "Data object '%s' currently exists"
-msgstr "Gegevensobject ‘%s’ bestaat momenteel"
-
-#: ../src/miners/fs/tracker-main.c:629
-#, c-format
-msgid "Data object '%s' currently does not exist"
-msgstr "Gegevensobject ‘%s’ bestaat momenteel niet"
-
-#: ../src/miners/fs/tracker-main.c:644
-msgid "Directory is eligible to be mined (based on rules)"
-msgstr "map is verkozen om gemined te worden (gebaseerd op regels)"
-
-#: ../src/miners/fs/tracker-main.c:645
-msgid "Directory is NOT eligible to be mined (based on rules)"
-msgstr "map is NIET verkozen om gemined te worden (gebaseerd op regels)"
-
-#: ../src/miners/fs/tracker-main.c:665
-msgid "Directory is eligible to be mined (based on contents)"
-msgstr "map is verkozen om gemined te worden (gebaseerd op inhoud)"
-
-#: ../src/miners/fs/tracker-main.c:666
-msgid "Directory is NOT eligible to be mined (based on contents)"
-msgstr "map is NIET verkozen om gemined te worden (gebaseerd op inhoud)"
-
-#: ../src/miners/fs/tracker-main.c:713
-msgid "Directory is eligible to be monitored (based on config)"
-msgstr "map is verkozen om geobserveerd te worden (gebaseerd op configuratie)"
-
-#: ../src/miners/fs/tracker-main.c:714
-msgid "Directory is NOT eligible to be monitored (based on config)"
-msgstr ""
-"map is NIET verkozen om geobserveerd te worden (gebaseerd op configuratie)"
-
-#: ../src/miners/fs/tracker-main.c:718
-msgid "File is eligible to be monitored (based on config)"
-msgstr ""
-"inhoud van bestand is verkozen om geobserveerd te worden (gebaseerd op "
-"configuratie)"
-
-#: ../src/miners/fs/tracker-main.c:719
-msgid "File is NOT eligible to be monitored (based on config)"
-msgstr ""
-"inhoud van bestand is NIET verkozen om geobserveerd te worden (gebaseerd op "
-"configuratie)"
-
-#: ../src/miners/fs/tracker-main.c:723
-msgid "File or Directory is eligible to be monitored (based on config)"
-msgstr ""
-"inhoud van bestand of map is verkozen om geobserveerd te worden (gebaseerd "
-"op configuratie)"
-
-#: ../src/miners/fs/tracker-main.c:724
-msgid "File or Directory is NOT eligible to be monitored (based on config)"
-msgstr ""
-"inhoud van bestand of map is NIET verkozen om geobserveerd te worden "
-"(gebaseerd op configuratie)"
-
-#: ../src/miners/fs/tracker-main.c:739
-msgid "File is eligible to be mined (based on rules)"
-msgstr ""
-"inhoud van bestand is verkozen om gemined te worden (gebaseerd op regels)"
-
-#: ../src/miners/fs/tracker-main.c:740
-msgid "File is NOT eligible to be mined (based on rules)"
-msgstr ""
-"inhoud van bestand is NIET verkozen om gemined te worden (gebaseerd op "
-"regels)"
-
-#: ../src/miners/fs/tracker-main.c:749
-msgid "Would be indexed"
-msgstr "Zou worden geïndexeerd"
-
-#: ../src/miners/fs/tracker-main.c:750 ../src/miners/fs/tracker-main.c:752
-msgid "Yes"
-msgstr "Ja"
-
-#: ../src/miners/fs/tracker-main.c:750 ../src/miners/fs/tracker-main.c:752
-msgid "No"
-msgstr "Nee"
-
-#: ../src/miners/fs/tracker-main.c:751
-msgid "Would be monitored"
-msgstr "Zou worden geobserveerd"
-
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: ../src/miners/fs/tracker-main.c:874
-msgid "- start the tracker indexer"
-msgstr "- de indexeerder van Tracker starten"
-
-#: ../src/miners/fs/tracker-miner-files.c:1354
-msgid "Low battery"
-msgstr "Accu bijna leeg"
-
-#: ../src/miners/fs/tracker-miner-files.c:1481
-msgid "Low disk space"
-msgstr "Weinig vrije schijfruimte"
-
-#: ../src/miners/rss/tracker-main.c:44
-msgid "Add feed (must be used with --title)"
-msgstr "feed toevoegen (moet worden gebruikt met --title)"
-
-#: ../src/miners/rss/tracker-main.c:45
-msgid "URL"
-msgstr "URL"
-
-#: ../src/miners/rss/tracker-main.c:48
-msgid "Title to use (must be used with --add-feed)"
-msgstr "te gebruiken titel (moet worden gebruikt met --add-feed)"
-
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: ../src/miners/rss/tracker-main.c:73
-msgid "- start the feeds indexer"
-msgstr "- Indexeerder van feed starten"
-
-#: ../src/miners/rss/tracker-main.c:78
-msgid "Adding a feed requires --add-feed and --title"
-msgstr "feed toevoegen vereist --add-feed en --title"
-
-#: ../src/miners/rss/tracker-main.c:113
-#: ../src/tracker-utils/tracker-import.c:109
-#: ../src/tracker-utils/tracker-info.c:383
-#: ../src/tracker-utils/tracker-search.c:1662
-#: ../src/tracker-utils/tracker-sparql.c:487
-#: ../src/tracker-utils/tracker-stats.c:86
-#: ../src/tracker-utils/tracker-tag.c:915
-msgid "Could not establish a connection to Tracker"
-msgstr "Verbinding met Tracker maken is mislukt"
-
-#: ../src/miners/rss/tracker-main.c:114
-#: ../src/plugins/nautilus/tracker-tags-view.c:241
-#: ../src/tracker-control/tracker-control-general.c:141
-#: ../src/tracker-control/tracker-control-general.c:724
-#: ../src/tracker-control/tracker-control-general.c:733
-#: ../src/tracker-control/tracker-control-general.c:900
-#: ../src/tracker-control/tracker-control-general.c:946
-#: ../src/tracker-control/tracker-control-general.c:967
-#: ../src/tracker-needle/tracker-tags-view.vala:159
-#: ../src/tracker-utils/tracker-import.c:110
-#: ../src/tracker-utils/tracker-info.c:384
-#: ../src/tracker-utils/tracker-search.c:1663
-#: ../src/tracker-utils/tracker-sparql.c:488
-#: ../src/tracker-utils/tracker-stats.c:87
-#: ../src/tracker-utils/tracker-tag.c:916
-msgid "No error given"
-msgstr "Geen fout gemeld"
-
-#: ../src/miners/rss/tracker-main.c:139
-msgid "Could not add feed"
-msgstr "Toevoegen feed is mislukt"
-
-#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:1
-msgid "Tracker"
-msgstr "Tracker"
-
-#: ../src/plugins/evolution/org-freedesktop-Tracker-evolution-plugin.eplug.xml.h:2
-msgid "Push data to Tracker to make it queryable."
-msgstr "Voeg gegevens aan Tracker toe om deze doorzoekbaar te maken."
-
-#: ../src/plugins/evolution/tracker-evolution-plugin.c:2578
-#: ../src/tracker-control/tracker-control-status.c:52
-msgid "Processing…"
-msgstr "actief…"
-
-# trefwoorden
-#. Create dialog and embed vbox.
-#: ../src/plugins/nautilus/tracker-tags-extension.c:71
-#: ../src/tracker-needle/tracker-view.vala:539
-msgid "Tags"
-msgstr "Tags"
-
-#: ../src/plugins/nautilus/tracker-tags-view.c:1020
-#: ../src/tracker-needle/tracker-tags-view.vala:374
-#, c-format
-msgid "_Set the tags you want to associate with the %d selected item:"
-msgid_plural "_Set the tags you want to associate with the %d selected items:"
-msgstr[0] "_Stel de tags in die u wilt koppelen met het geselecteerde item:"
-msgstr[1] "_Stel de tags in die u wilt koppelen met de %d geselecteerde items:"
-
-#: ../src/tracker-control/tracker-control.c:53
-#: ../src/tracker-needle/tracker-needle.vala:691
-#: ../src/tracker-preferences/tracker-preferences.vala:927
-#: ../src/tracker-utils/tracker-import.c:50
-#: ../src/tracker-utils/tracker-info.c:51
-#: ../src/tracker-utils/tracker-search.c:112
-#: ../src/tracker-utils/tracker-sparql.c:100
-#: ../src/tracker-utils/tracker-stats.c:47
-#: ../src/tracker-utils/tracker-tag.c:87
-msgid "Print version"
-msgstr "versie tonen"
-
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-control/tracker-control.c:71
-msgid " - Manage Tracker processes and data"
-msgstr " - Tracker-processen en -gegevens beheren"
-
-#: ../src/tracker-control/tracker-control.c:95
-msgid "General and Status options cannot be used together"
-msgstr "Opties algemeen en status kunnen niet samen worden gebruikt"
-
-#: ../src/tracker-control/tracker-control.c:101
-msgid "General and Miners options cannot be used together"
-msgstr "Opties algemeen en miner kunnen niet samen worden gebruikt"
-
-#: ../src/tracker-control/tracker-control.c:112
-msgid "Status and Miners options cannot be used together"
-msgstr "Opties status en miner kunnen niet samen worden gebruikt"
-
-#: ../src/tracker-control/tracker-control.c:129
-msgid "Unrecognized options"
-msgstr "opties zijn onbekend"
-
-#: ../src/tracker-control/tracker-control-general.c:86
-msgid "List all Tracker processes"
-msgstr "alle Tracker-processen tonen"
-
-#: ../src/tracker-control/tracker-control-general.c:88
-msgid ""
-"Use SIGKILL to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
-msgstr ""
-"‘SIGKILL’ gebruiken om alle processen af te breken; gebruik ‘store’, "
-"‘miners’ of ‘all’; geen parameter is gelijk aan ‘all’."
-
-#: ../src/tracker-control/tracker-control-general.c:89
-#: ../src/tracker-control/tracker-control-general.c:92
-msgid "APPS"
-msgstr "TOEPASSINGEN"
-
-#: ../src/tracker-control/tracker-control-general.c:91
-msgid ""
-"Use SIGTERM to stop all matching processes, either \"store\", \"miners\" or "
-"\"all\" may be used, no parameter equals \"all\""
-msgstr ""
-"‘SIGTERM’ gebruiken om alle overeenkomende processen af te breken; gebruik "
-"‘store’, ‘miners’ of ‘all’; geen parameter is gelijk aan ‘all’."
-
-#: ../src/tracker-control/tracker-control-general.c:94
-msgid "Kill all Tracker processes and remove all databases"
-msgstr "alle Tracker-processen beëindigen en alle databases verwijderen"
-
-#: ../src/tracker-control/tracker-control-general.c:97
-msgid ""
-"Same as --hard-reset but the backup & journal are restored after restart"
-msgstr ""
-"gelijk aan --hard-reset, maar de reservekopie en het dagboek worden hersteld "
-"na herstart"
-
-#: ../src/tracker-control/tracker-control-general.c:100
-msgid "Remove all configuration files so they are re-generated on next start"
-msgstr ""
-"alle configuratiebestanden verwijderen zodat deze tijdens de volgende start "
-"opnieuw aangemaakt worden"
-
-#: ../src/tracker-control/tracker-control-general.c:103
-msgid "Starts miners (which indirectly starts tracker-store too)"
-msgstr "miners opstarten (wat indirect ook de Tracker-opslag start)"
-
-#: ../src/tracker-control/tracker-control-general.c:106
-msgid "Backup databases to the file provided"
-msgstr "reservekopie van database naar opgegeven bestand schrijven"
-
-#: ../src/tracker-control/tracker-control-general.c:109
-msgid "Restore databases from the file provided"
-msgstr "databases herstellen vanuit het opgegeven bestand"
-
-#: ../src/tracker-control/tracker-control-general.c:112
-msgid ""
-"Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
-"'errors') for all processes"
-msgstr ""
-"breedsprakigheid van de logberichten voor alle processen instellen op NIVEAU "
-"('debug', 'detailed', 'minimal', 'errors') "
-
-#: ../src/tracker-control/tracker-control-general.c:113
-msgid "LEVEL"
-msgstr "NIVEAU"
-
-#: ../src/tracker-control/tracker-control-general.c:115
-msgid "Show logging values in terms of log verbosity for each process"
-msgstr "de breedsprakigheid van logwaarden voor ieder proces tonen"
-
-#: ../src/tracker-control/tracker-control-general.c:118
-msgid ""
-"Collect debug information useful for problem reporting and investigation, "
-"results are output to terminal"
-msgstr ""
-"Foutopsporingsinformatie die bruikbaar is voor probleemrapportage en "
-"-onderzoek verzamelen; resultaten worden in de terminal getoond"
-
-#: ../src/tracker-control/tracker-control-general.c:140
-msgid "Could not open /proc"
-msgstr "Openen /proc is mislukt"
-
-#: ../src/tracker-control/tracker-control-general.c:335
-#, c-format
-msgid "Could not get GSettings for miners, manager could not be created, %s"
-msgstr ""
-"Het verkrijgen van GSettings voor miners is mislukt, de beheerder kan niet "
-"aangemaakt worden, %s"
-
-#: ../src/tracker-control/tracker-control-general.c:788
-msgid "You can not use the --kill and --terminate arguments together"
-msgstr ""
-"gelijktijdig gebruik van de argumenten --kill en --terminate is niet "
-"toegestaan"
-
-#: ../src/tracker-control/tracker-control-general.c:794
-msgid ""
-"You can not use the --terminate with --hard-reset or --soft-reset, --kill is "
-"implied"
-msgstr ""
-"gebruik van --terminate met --hard-reset of --soft-reset is niet toegestaan; "
-"--kill wordt verondersteld"
-
-#: ../src/tracker-control/tracker-control-general.c:800
-msgid "You can not use the --hard-reset and --soft-reset arguments together"
-msgstr ""
-"gelijktijdig gebruik van de argumenten --hard-reset en --soft-reset is niet "
-"toegestaan"
-
-#: ../src/tracker-control/tracker-control-general.c:806
-msgid "You can not use the --get-logging and --set-logging arguments together"
-msgstr ""
-"gelijktijdig gebruik van de argumenten --get-logging en --set-logging is "
-"niet toegestaan"
-
-#: ../src/tracker-control/tracker-control-general.c:821
-msgid "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
-msgstr ""
-"Breedsprakigheid van loggen is ongeldig, probeer ‘debug’, ‘detailed’, "
-"‘minimal’ of ‘errors’"
-
-#: ../src/tracker-control/tracker-control-general.c:897
-#, c-format
-msgid "Could not open '%s'"
-msgstr "Openen ‘%s’ is mislukt"
-
-#: ../src/tracker-control/tracker-control-general.c:928
-#, c-format
-msgid "Found process ID %d for '%s'"
-msgstr "Proces-ID %d voor ‘%s’ is gevonden"
-
-#: ../src/tracker-control/tracker-control-general.c:943
-#, c-format
-msgid "Could not terminate process %d"
-msgstr "Proces %d afbreken is mislukt"
-
-#: ../src/tracker-control/tracker-control-general.c:949
-#, c-format
-msgid "Terminated process %d"
-msgstr "Proces %d is afgebroken"
-
-#: ../src/tracker-control/tracker-control-general.c:964
-#, c-format
-msgid "Could not kill process %d"
-msgstr "Het beëindigen van proces %d is mislukt"
-
-#: ../src/tracker-control/tracker-control-general.c:970
-#, c-format
-msgid "Killed process %d"
-msgstr "Proces %d is beëindigd"
-
-#: ../src/tracker-control/tracker-control-general.c:1098
-msgid "Removing configuration files…"
-msgstr "Configuratiebestanden verwijderen…"
-
-#: ../src/tracker-control/tracker-control-general.c:1106
-msgid "Resetting existing configuration…"
-msgstr "Bestaande configuratie opnieuw initialiseren…"
-
-#: ../src/tracker-control/tracker-control-general.c:1156
-#: ../src/tracker-control/tracker-control-general.c:1198
-msgid "Components"
-msgstr "Componenten"
-
-#: ../src/tracker-control/tracker-control-general.c:1162
-#: ../src/tracker-control/tracker-control-general.c:1204
-#: ../src/tracker-control/tracker-control-miners.c:391
-#: ../src/tracker-control/tracker-control-status.c:567
-msgid "Miners"
-msgstr "Miners"
-
-#: ../src/tracker-control/tracker-control-general.c:1163
-#: ../src/tracker-control/tracker-control-general.c:1205
-msgid "Only those with config listed"
-msgstr "alleen die met getoonde configuratie"
-
-#: ../src/tracker-control/tracker-control-general.c:1181
-#, c-format
-msgid "Setting log verbosity for all components to '%s'…"
-msgstr "Breedsprakigheid van loggen van alle componenten instellen op ‘%s’…"
-
-#: ../src/tracker-control/tracker-control-general.c:1221
-msgid "Waiting one second before starting miners…"
-msgstr "Korte wachttijd alvorens de miners worden gestart…"
-
-#: ../src/tracker-control/tracker-control-general.c:1227
-msgid "Starting miners…"
-msgstr "Miners starten…"
-
-#: ../src/tracker-control/tracker-control-general.c:1233
-#, c-format
-msgid "Could not start miners, manager could not be created, %s"
-msgstr ""
-"Starten van miners is mislukt omdat de beheerder niet aangemaakt kan worden, "
-"%s"
-
-#: ../src/tracker-control/tracker-control-general.c:1258
-msgid "perhaps a disabled plugin?"
-msgstr "Mogelijk een uitgeschakelde plug-in?"
-
-#: ../src/tracker-control/tracker-control-general.c:1280
-msgid "Backing up database"
-msgstr "Reservekopie van database maken"
-
-#: ../src/tracker-control/tracker-control-general.c:1352
-msgid "Restoring database from backup"
-msgstr "Database vanuit reservekopie herstellen"
-
-#: ../src/tracker-control/tracker-control-general.c:1425
-msgid "General options"
-msgstr "Algemene opties"
-
-#: ../src/tracker-control/tracker-control-general.c:1426
-msgid "Show general options"
-msgstr "algemene opties tonen"
-
-#: ../src/tracker-control/tracker-control-miners.c:56
-msgid ""
-"Tell miners to reindex files which match the mime type supplied (for new "
-"extractors), use -m MIME1 -m MIME2"
-msgstr ""
-"miners de bestanden die met het opgegeven mimetype overeenkomen opnieuw "
-"laten indexeren (voor nieuwe uitpakprogramma's), gebruik -m MIME1 -m MIME2"
-
-#: ../src/tracker-control/tracker-control-miners.c:57
-#: ../src/tracker-extract/tracker-main.c:96
-msgid "MIME"
-msgstr "MIME"
-
-#: ../src/tracker-control/tracker-control-miners.c:59
-msgid "Tell miners to (re)index a given file"
-msgstr "miners opdracht geven een opgegeven bestand te (her)indexeren"
-
-#: ../src/tracker-control/tracker-control-miners.c:62
-msgid "Pause a miner (you must use this with --miner)"
-msgstr "miner pauzeren (gebruik dit samen met --miner)"
-
-#: ../src/tracker-control/tracker-control-miners.c:63
-#: ../src/tracker-control/tracker-control-miners.c:67
-msgid "REASON"
-msgstr "REDEN"
-
-#: ../src/tracker-control/tracker-control-miners.c:66
-msgid ""
-"Pause a miner while the calling process is alive or until resumed (you must "
-"use this with --miner)"
-msgstr ""
-"miner pauzeren zolang het aanroepende proces actief is of totdat het wordt "
-"hervat (gebruik dit samen met --miner)"
-
-#: ../src/tracker-control/tracker-control-miners.c:70
-msgid "Resume a miner (you must use this with --miner)"
-msgstr "een miner hervatten (gebruik dit samen met --miner)"
-
-#: ../src/tracker-control/tracker-control-miners.c:71
-msgid "COOKIE"
-msgstr "COOKIE"
-
-#: ../src/tracker-control/tracker-control-miners.c:74
-msgid ""
-"Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
-"Applications)"
-msgstr ""
-"te gebruiken miner met --resume of --pause (gebruik van achtervoegsels is "
-"toegestaan, b.v. Bestanden of Toepassingen)"
-
-#: ../src/tracker-control/tracker-control-miners.c:78
-msgid "List all miners currently running"
-msgstr "alle actieve miners tonen"
-
-#: ../src/tracker-control/tracker-control-miners.c:82
-msgid "List all miners installed"
-msgstr "alle geïnstalleerde miners tonen"
-
-#: ../src/tracker-control/tracker-control-miners.c:86
-msgid "List pause reasons"
-msgstr "redenen van pauzeren tonen"
-
-#: ../src/tracker-control/tracker-control-miners.c:111
-#, c-format
-msgid "Could not pause miner, manager could not be created, %s"
-msgstr ""
-"Pauzeren van miner is mislukt, beheerder kan niet aangemaakt worden, %s"
-
-#: ../src/tracker-control/tracker-control-miners.c:118
-#, c-format
-msgid "Attempting to pause miner '%s' with reason '%s'"
-msgstr "Poging om miner ‘%s’ te pauzeren met reden ‘%s’"
-
-#: ../src/tracker-control/tracker-control-miners.c:126
-#: ../src/tracker-control/tracker-control-miners.c:132
-#, c-format
-msgid "Could not pause miner: %s"
-msgstr "Pauzeren miner ‘%s’ is mislukt"
-
-#: ../src/tracker-control/tracker-control-miners.c:138
-#, c-format
-msgid "Cookie is %d"
-msgstr "Cookie is %d"
-
-#: ../src/tracker-control/tracker-control-miners.c:145
-msgid "Press Ctrl+C to end pause"
-msgstr "Toets Ctrl+C om pauze te beëindigen"
-
-#: ../src/tracker-control/tracker-control-miners.c:169
-#, c-format
-msgid "Could not resume miner, manager could not be created, %s"
-msgstr ""
-"Hervatten van miner is mislukt, beheerder kan niet aangemaakt worden, %s"
-
-#: ../src/tracker-control/tracker-control-miners.c:176
-#, c-format
-msgid "Attempting to resume miner %s with cookie %d"
-msgstr "Poging om miner ‘%s’ te hervatten met cookie ‘%d’"
-
-#: ../src/tracker-control/tracker-control-miners.c:183
-#, c-format
-msgid "Could not resume miner: %s"
-msgstr "Hervatten miner ‘%s’ is mislukt"
-
-#: ../src/tracker-control/tracker-control-miners.c:187
-#: ../src/tracker-utils/tracker-import.c:136
-#: ../src/tracker-utils/tracker-sparql.c:767
-msgid "Done"
-msgstr "Klaar"
-
-#: ../src/tracker-control/tracker-control-miners.c:203
-#, c-format
-msgid "Could not reindex mimetypes, manager could not be created, %s"
-msgstr ""
-"Herindexeren van mimetypes is mislukt, beheerder kan niet aangemaakt worden, "
-"%s"
-
-#: ../src/tracker-control/tracker-control-miners.c:213
-msgid "Could not reindex mimetypes"
-msgstr "Herindexeren mimetypen is mislukt"
-
-#: ../src/tracker-control/tracker-control-miners.c:219
-msgid "Reindexing mime types was successful"
-msgstr "Herindexeren van mimetypes is gelukt"
-
-#: ../src/tracker-control/tracker-control-miners.c:235
-#, c-format
-msgid "Could not (re)index file, manager could not be created, %s"
-msgstr ""
-"(Her)indexeren van bestand is mislukt, beheerder kan niet aangemaakt worden, "
-"%s"
-
-#: ../src/tracker-control/tracker-control-miners.c:248
-msgid "Could not (re)index file"
-msgstr "(Her)indexeren bestand is mislukt"
-
-#: ../src/tracker-control/tracker-control-miners.c:254
-msgid "(Re)indexing file was successful"
-msgstr "Herindexeren van bestand is gelukt"
-
-#: ../src/tracker-control/tracker-control-miners.c:272
-#, c-format
-msgid "Could not list miners, manager could not be created, %s"
-msgstr "Miners tonen is mislukt, beheerder kan niet aangemaakt worden, %s"
-
-#: ../src/tracker-control/tracker-control-miners.c:286
-#, c-format
-msgid "Found %d miner installed"
-msgid_plural "Found %d miners installed"
-msgstr[0] "%d geïnstalleerde miner gevonden"
-msgstr[1] "%d geïnstalleerde miners gevonden"
-
-#: ../src/tracker-control/tracker-control-miners.c:309
-#, c-format
-msgid "Found %d miner running"
-msgid_plural "Found %d miners running"
-msgstr[0] "%d miner is actief"
-msgstr[1] "%d miners zijn actief"
-
-#: ../src/tracker-control/tracker-control-miners.c:341
-#, c-format
-msgid "Could not get pause details, manager could not be created, %s"
-msgstr ""
-"Verkrijgen van pauzegegevens is mislukt, beheerder kan niet aangemaakt "
-"worden, %s"
-
-#: ../src/tracker-control/tracker-control-miners.c:351
-msgid "No miners are running"
-msgstr "Er zijn geen miner actief"
-
-#: ../src/tracker-control/tracker-control-miners.c:398
-#: ../src/tracker-needle/tracker-stats.vala:112
-msgid "Application"
-msgid_plural "Applications"
-msgstr[0] "Toepassing"
-msgstr[1] "Toepassingen"
-
-#: ../src/tracker-control/tracker-control-miners.c:400
-msgid "Reason"
-msgstr "Reden"
-
-#: ../src/tracker-control/tracker-control-miners.c:409
-msgid "No miners are paused"
-msgstr "Er zijn geen miner gepauzeerd"
-
-#: ../src/tracker-control/tracker-control-miners.c:433
-msgid "You can not use miner pause and resume switches together"
-msgstr "Gelijktijdig gebruik van pauzeer- en hervatopdrachten is ongeldig"
-
-#: ../src/tracker-control/tracker-control-miners.c:439
-msgid "You must provide the miner for pause or resume commands"
-msgstr "Voor pauzeer- of hervatopdrachten moet een miner worden opgegeven"
-
-#: ../src/tracker-control/tracker-control-miners.c:445
-msgid "You must provide a pause or resume command for the miner"
-msgstr "De miner vereist een pauzeer- of hervatopdracht"
-
-#: ../src/tracker-control/tracker-control-miners.c:493
-msgid "Miner options"
-msgstr "Miner-opties"
-
-#: ../src/tracker-control/tracker-control-miners.c:494
-msgid "Show miner options"
-msgstr "mineropties tonen"
-
-#: ../src/tracker-control/tracker-control-status.c:50
-#: ../src/tracker-control/tracker-control-status.c:306
-msgid "Unavailable"
-msgstr "Niet beschikbaar"
-
-#. generic
-#: ../src/tracker-control/tracker-control-status.c:51
-msgid "Initializing"
-msgstr "Initialiseren"
-
-#: ../src/tracker-control/tracker-control-status.c:53
-msgid "Fetching…"
-msgstr "Ophalen…"
-
-#. miner/rss
-#: ../src/tracker-control/tracker-control-status.c:54
-#, c-format
-msgid "Crawling single directory '%s'"
-msgstr "Alleen map ‘%s’ doorzoeken"
-
-#: ../src/tracker-control/tracker-control-status.c:55
-#, c-format
-msgid "Crawling recursively directory '%s'"
-msgstr "Map ‘%s’ recursief doorzoeken"
-
-#: ../src/tracker-control/tracker-control-status.c:56
-msgid "Paused"
-msgstr "gepauzeerd"
-
-# in rust/niet bezig
-#: ../src/tracker-control/tracker-control-status.c:57
-msgid "Idle"
-msgstr "Inactief"
-
-#: ../src/tracker-control/tracker-control-status.c:62
-msgid "Show current status"
-msgstr "Huidige status tonen"
-
-#: ../src/tracker-control/tracker-control-status.c:66
-msgid "Follow status changes as they happen"
-msgstr "Statusveranderingen volgen als ze optreden"
-
-#: ../src/tracker-control/tracker-control-status.c:70
-msgid "List common statuses for miners and the store"
-msgstr "Algemene statussen voor miners en de opslag tonen"
-
-#: ../src/tracker-control/tracker-control-status.c:141
-#, c-format
-msgid "Could not get status from miner: %s"
-msgstr "Vaststellen status van miner ‘%s’ is mislukt"
-
-#. Translators: %s is a time string
-#: ../src/tracker-control/tracker-control-status.c:203
-#, c-format
-msgid "%s remaining"
-msgstr "%s resterend"
-
-#: ../src/tracker-control/tracker-control-status.c:206
-msgid "unknown time left"
-msgstr "resterende tijd is onbekend"
-
-#. Work out lengths for output spacing
-#: ../src/tracker-control/tracker-control-status.c:219
-#: ../src/tracker-control/tracker-control-status.c:551
-msgid "PAUSED"
-msgstr "GEPAUZEERD"
-
-#: ../src/tracker-control/tracker-control-status.c:236
-msgid "Not running or is a disabled plugin"
-msgstr "Niet-actief of betreft een uitgeschakelde plug-in"
-
-#: ../src/tracker-control/tracker-control-status.c:522
-msgid "Common statuses include"
-msgstr "Algemene statussen omvatten"
-
-#: ../src/tracker-control/tracker-control-status.c:540
-#, c-format
-msgid "Could not get status, manager could not be created, %s"
-msgstr ""
-"Opvragen van status is mislukt, beheerder kan niet aangemaakt worden, %s"
-
-#. Display states
-#: ../src/tracker-control/tracker-control-status.c:561
-msgid "Store"
-msgstr "Opslag"
-
-#: ../src/tracker-control/tracker-control-status.c:682
-msgid "Status options"
-msgstr "Statusopties"
-
-#: ../src/tracker-control/tracker-control-status.c:683
-msgid "Show status options"
-msgstr "Statusopties tonen"
-
-#: ../src/tracker-extract/tracker-main.c:86
-#: ../src/tracker-store/tracker-main.vala:48
+#: ../src/tracker-store/tracker-main.vala:58
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -1304,808 +270,969 @@ msgstr ""
 "Logging, 0 = alleen foutmeldingen, 1 = minimaal, 2 = gedetailleerd en 3 = "
 "debug (standaard = 0)"
 
-#: ../src/tracker-extract/tracker-main.c:91
-msgid "File to extract metadata for"
-msgstr "Bestand om metadata uit te extraheren"
-
-#: ../src/tracker-extract/tracker-main.c:95
-msgid "MIME type for file (if not provided, this will be guessed)"
-msgstr "MIME-type voor bestand (indien niet opgegeven, wordt dit geraden)"
-
-#: ../src/tracker-extract/tracker-main.c:99
-msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
-msgstr ""
-"Interne uitpakprogramma's voorrang geven boven die van derde partijen, zoals "
-"libstreamanalyzer"
-
-#: ../src/tracker-extract/tracker-main.c:103
-msgid "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
-msgstr ""
-"Afdwingen dat een module als uitpakprogramma wordt gebruikt (b.v. \"foo\" "
-"voor \"foo.so\")"
-
-#: ../src/tracker-extract/tracker-main.c:104
-msgid "MODULE"
-msgstr "MODULE"
-
-#. Translators: this message will appear immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-extract/tracker-main.c:324
-msgid "- Extract file meta data"
-msgstr "- Metadata van bestand extraheren"
-
-#: ../src/tracker-extract/tracker-main.c:333
-msgid "Filename and mime type must be provided together"
-msgstr "Bestandsnaam en mime-type dienen tegelijkertijd te worden opgegeven"
-
-#: ../src/tracker-extract/tracker-main.c:347
-msgid ""
-"Options --force-internal-extractors and --force-module can't be used together"
-msgstr ""
-"opties --force-internal-extractors en --force-module kunnen niet "
-"gelijktijdig worden gebruikt"
-
-#: ../src/tracker-needle/tracker-needle.desktop.in.in.h:1
-#: ../src/tracker-needle/tracker-needle.ui.h:1
-msgid "Desktop Search"
-msgstr "Bureaubladzoeken"
-
-#: ../src/tracker-needle/tracker-needle.desktop.in.in.h:2
-msgid ""
-"Find what you're looking for on this computer by name or content using "
-"Tracker"
-msgstr "Doorzoek deze computer op naam of inhoud met behulp van Tracker"
-
-#: ../src/tracker-needle/tracker-needle.ui.h:2
-msgid ""
-"Display results by category, for example, Music, Videos, Applications, etc. "
-"This includes searching the contents of files where applicable."
-msgstr ""
-"Resultaten per categorie tonen, bijvoorbeeld Muziek, Video's, Toepassingen, "
-"enz. Dit omvat ook het zoeken in bestanden, indien van toepassing."
-
-#: ../src/tracker-needle/tracker-needle.ui.h:3
-msgid "Display results by files found in a list"
-msgstr "Resultaten tonen gesorteerd op in een lijst gevonden bestanden"
-
-#: ../src/tracker-needle/tracker-needle.ui.h:4
-msgid "Display found images"
-msgstr "Gevonden afbeeldingen tonen"
-
-#: ../src/tracker-needle/tracker-needle.ui.h:5
-msgid "Find search criteria inside files"
-msgstr "In inhoud van bestanden zoeken"
-
-#: ../src/tracker-needle/tracker-needle.ui.h:6
-msgid "Find search criteria in file titles"
-msgstr "In bestandsnamen zoeken"
-
-#: ../src/tracker-needle/tracker-needle.ui.h:7
-msgid "_Search:"
-msgstr "_Zoeken:"
-
-#: ../src/tracker-needle/tracker-needle.ui.h:8
-msgid "Show tagging panel which allows editing tags of selected results"
-msgstr ""
-"Tagpaneel tonen waarmee tags of geselecteerde resultaten bewerkt kunnen "
-"worden"
-
-#: ../src/tracker-needle/tracker-needle.ui.h:9
-msgid "Show statistics about the data stored"
-msgstr "Statistieken over opgeslagen gegevens tonen"
-
-#: ../src/tracker-needle/tracker-needle.ui.h:11
-#, no-c-format
-msgid "_Set the tags you want to associate with the %d selected items:"
-msgstr ""
-"De tags _instellen die gekoppeld moeten worden met de %d geselecteerde items:"
-
-#: ../src/tracker-needle/tracker-needle.ui.h:12
-msgid "Add tag"
-msgstr "Tag toevoegen"
-
-#: ../src/tracker-needle/tracker-needle.ui.h:13
-msgid "Remove selected tag"
-msgstr "Geselecteerde tag verwijderen"
-
-#: ../src/tracker-needle/tracker-needle.vala:69
-msgid "Search criteria was too generic"
-msgstr "Zoekcriterium is te algemeen"
-
-#: ../src/tracker-needle/tracker-needle.vala:70
-msgid "Only the first 500 items will be displayed"
-msgstr "Alleen de eerste 500 items zullen worden getoond"
-
-#: ../src/tracker-needle/tracker-needle.vala:698
-#: ../src/tracker-needle/tracker-needle.vala:699
-msgid "[SEARCH-CRITERIA]"
-msgstr "[ZOEKCRITERIA]"
-
-#: ../src/tracker-needle/tracker-needle.vala:704
-msgid "Desktop Search user interface using Tracker"
-msgstr "Gebruikersinterface bureaubladzoeken met Tracker"
-
-#. Label for dialog
-#: ../src/tracker-needle/tracker-stats.vala:71
-msgid ""
-"The statistics represented here do not reflect their availability, rather "
-"the total data stored:"
-msgstr ""
-"De hier gepresenteerde statistieken zijn geen afspiegeling van de "
-"beschikbaarheid van gegevens, maar van het opgeslagen totaal:"
-
-# trefwoorden
-#: ../src/tracker-needle/tracker-stats.vala:91
-msgid "Tag"
-msgid_plural "Tags"
-msgstr[0] "Tag"
-msgstr[1] "Tags"
-
-#: ../src/tracker-needle/tracker-stats.vala:94
-msgid "Contact"
-msgid_plural "Contacts"
-msgstr[0] "Contactpersoon"
-msgstr[1] "Contactpersonen"
-
-#: ../src/tracker-needle/tracker-stats.vala:97
-msgid "Audio"
-msgid_plural "Audios"
-msgstr[0] "Geluidbestand"
-msgstr[1] "Geluidbestanden"
-
-#: ../src/tracker-needle/tracker-stats.vala:100
-msgid "Document"
-msgid_plural "Documents"
-msgstr[0] "Document"
-msgstr[1] "Documenten"
-
-#: ../src/tracker-needle/tracker-stats.vala:103
-#: ../src/tracker-needle/tracker-view.vala:185
-#: ../src/tracker-preferences/tracker-preferences.vala:152
-msgid "File"
-msgid_plural "Files"
-msgstr[0] "Bestand"
-msgstr[1] "Bestanden"
-
-#: ../src/tracker-needle/tracker-stats.vala:106
-msgid "Folder"
-msgid_plural "Folders"
-msgstr[0] "Map"
-msgstr[1] "Mappen"
-
-#: ../src/tracker-needle/tracker-stats.vala:109
-msgid "Image"
-msgid_plural "Images"
-msgstr[0] "Afbeelding"
-msgstr[1] "Afbeeldingen"
-
-#. case "nmm:Video":
-#: ../src/tracker-needle/tracker-stats.vala:116
-msgid "Video"
-msgid_plural "Videos"
-msgstr[0] "Video"
-msgstr[1] "Video's"
-
-#: ../src/tracker-needle/tracker-stats.vala:119
-msgid "Album"
-msgid_plural "Albums"
-msgstr[0] "Album"
-msgstr[1] "Albums"
-
-#: ../src/tracker-needle/tracker-stats.vala:122
-msgid "Music Track"
-msgid_plural "Music Tracks"
-msgstr[0] "Muzieknummer"
-msgstr[1] "Muzieknummers"
-
-#: ../src/tracker-needle/tracker-stats.vala:125
-msgid "Photo"
-msgid_plural "Photos"
-msgstr[0] "Foto"
-msgstr[1] "Foto's"
-
-#: ../src/tracker-needle/tracker-stats.vala:128
-msgid "Playlist"
-msgid_plural "Playlists"
-msgstr[0] "Afspeellijst"
-msgstr[1] "Afspeellijsten"
-
-#: ../src/tracker-needle/tracker-stats.vala:131
-msgid "Email"
-msgid_plural "Emails"
-msgstr[0] "E-mail"
-msgstr[1] "E-mails"
-
-#: ../src/tracker-needle/tracker-stats.vala:134
-msgid "Bookmark"
-msgid_plural "Bookmarks"
-msgstr[0] "Bladwijzer"
-msgstr[1] "Bladwijzers"
-
-#: ../src/tracker-needle/tracker-tags-view.vala:324
-msgid "Name"
-msgstr "Naam"
-
-#: ../src/tracker-needle/tracker-tags-view.vala:380
-msgid "No items currently selected"
-msgstr "Geen item geselecteerd"
-
-#: ../src/tracker-needle/tracker-tags-view.vala:466
-#: ../src/tracker-needle/tracker-tags-view.vala:607
-msgid "Could not update tags"
-msgstr "Bijwerken tags is mislukt"
-
-#: ../src/tracker-needle/tracker-tags-view.vala:526
-#: ../src/tracker-utils/tracker-tag.c:773
-msgid "Could not remove tag"
-msgstr "Verwijderen tag is mislukt"
-
-#: ../src/tracker-needle/tracker-tags-view.vala:701
-msgid "Could not retrieve tags for the current selection"
-msgstr "Ophalen van tags voor de huidige selectie is mislukt"
-
-#: ../src/tracker-needle/tracker-tags-view.vala:740
-#: ../src/tracker-utils/tracker-tag.c:597
-msgid "Could not add tag"
-msgstr "Toevoegen tags is mislukt"
-
-#: ../src/tracker-needle/tracker-tags-view.vala:797
-msgid "Could not update tags for file"
-msgstr "Bijwerken tags voor bestand is mislukt"
-
-#. stdout.printf ("timeval now:%ld, then:%ld, diff secs:%ld, diff days:%ld, abs: %ld, seconds per day:%d\n", tv_now.tv_sec, tv_then.tv_sec, diff_sec, diff_days, diff_days_abs, secs_per_day);
-#. if it's more than a week, use the default date format
-#. Translators: This is a strftime(3) date format string, read its man page to fit your locale better
-#: ../src/tracker-needle/tracker-utils.vala:108
-#, no-c-format
-msgid "%x"
-msgstr "%e %B %Y"
-
-#: ../src/tracker-needle/tracker-utils.vala:112
-msgid "Today"
-msgstr "Vandaag"
-
-#: ../src/tracker-needle/tracker-utils.vala:121
-msgid "Tomorrow"
-msgstr "Morgen"
-
-#: ../src/tracker-needle/tracker-utils.vala:123
-msgid "Yesterday"
-msgstr "Gisteren"
-
-#. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:127
-#, c-format
-msgid "%ld day from now"
-msgid_plural "%ld days from now"
-msgstr[0] "%ld dag vanaf nu"
-msgstr[1] "%ld dagen vanaf nu"
-
-#. Translators: %d is replaced with a number of days. It's always greater than 1
-#: ../src/tracker-needle/tracker-utils.vala:130
-#, c-format
-msgid "%ld day ago"
-msgid_plural "%ld days ago"
-msgstr[0] "%ld dag geleden"
-msgstr[1] "%ld dagen geleden"
-
-#: ../src/tracker-needle/tracker-utils.vala:142
-#: ../src/tracker-needle/tracker-utils.vala:171
-msgid "Less than one second"
-msgstr "minder dan een seconde"
-
-#: ../src/tracker-needle/tracker-view.vala:111
-msgid "No Search Results"
-msgstr "Geen zoekresultaten"
-
-#: ../src/tracker-needle/tracker-view.vala:112
-msgid ""
-"Select the view on the toolbar for the content you want, e.g. everything, "
-"files or just images"
-msgstr ""
-"Selecteer in de werkbalk de inhoud om te tonen, bijvoorbeeld alles, "
-"bestanden of alleen afbeeldingen"
-
-#: ../src/tracker-needle/tracker-view.vala:113
-msgid "Start to search using the entry box above"
-msgstr "Zoekopdracht starten via het bovenstaande invoerveld"
-
-#: ../src/tracker-needle/tracker-view.vala:197
-msgid "Last Changed"
-msgstr "Laatst gewijzigd"
-
-#: ../src/tracker-needle/tracker-view.vala:206
-msgid "Size"
-msgstr "Grootte"
-
-#: ../src/tracker-needle/tracker-view.vala:334
-msgid "Music"
-msgstr "Muziek"
-
-#: ../src/tracker-needle/tracker-view.vala:337
-msgid "Images"
-msgstr "Afbeeldingen"
-
-#: ../src/tracker-needle/tracker-view.vala:340
-msgid "Videos"
-msgstr "Video's"
-
-#: ../src/tracker-needle/tracker-view.vala:343
-msgid "Documents"
-msgstr "Documenten"
-
-#: ../src/tracker-needle/tracker-view.vala:346
-msgid "Mail"
-msgstr "E-mail"
-
-#: ../src/tracker-needle/tracker-view.vala:349
-msgid "Folders"
-msgstr "Mappen"
-
-#: ../src/tracker-needle/tracker-view.vala:352
-#: ../src/tracker-utils/tracker-search.c:1014
-msgid "Bookmarks"
-msgstr "Bladwijzers"
-
-#: ../src/tracker-needle/tracker-view.vala:356
-msgid "Items"
-msgstr "Items"
-
-#: ../src/tracker-needle/tracker-view.vala:369
-msgid "Loading…"
-msgstr "Bezig met laden…"
-
-#: ../src/tracker-needle/tracker-view.vala:435
-#, c-format
-msgid "%d Page"
-msgid_plural "%d Pages"
-msgstr[0] "%d pagina"
-msgstr[1] "%d pagina's"
-
-#: ../src/tracker-needle/tracker-view.vala:452
-msgid "_Show Parent Directory"
-msgstr "Bovenliggende map _tonen"
-
-#: ../src/tracker-needle/tracker-view.vala:459
-msgid "_Tags…"
-msgstr "_Tags…"
-
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
-msgid "Search and Indexing"
-msgstr "Zoeken en indexeren"
-
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
-msgid "Configure file indexing with Tracker"
-msgstr "Bestandsindexering met Tracker instellen"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:1
-msgid "Indexing Preferences"
-msgstr "Indexeringsvoorkeuren"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:2
-msgid "_Monitor file and directory changes"
-msgstr "Bestands- en mapwijzigingen _observeren"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:3
-msgid "Enable when running on _battery"
-msgstr "Bij _accustroom uitvoeren inschakelen"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:4
-msgid "Enable for _initial data population"
-msgstr "Inschakelen voor _initieel laden van gegevens"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:5
-msgid "Include _removable media"
-msgstr "Ver_wijderbare media opnemen"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:6
-msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
-msgstr "Dit omvat ALLE verwijderbare media, geheugenkaarten, cd's, dvd's, enz."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:7
-msgid "Include optical di_scs"
-msgstr "Optische _schijven opnemen"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:8
-msgid "Semantics"
-msgstr "Semantiek"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:9
-msgid ""
-"The  scheduler  is  the kernel component that decides which runnable "
-"application will be executed by the CPU next.  Each application has an "
-"associated scheduling  policy and priority.\n"
-"\n"
-"This option allows you to make Tracker take a back seat and not eat up too "
-"much CPU time if you have other applications more deserving of it."
-msgstr ""
-"De planner is de kerncomponent die beslist over de uitvoeringsvolgorde van "
-"toepassingen door de CPU. Iedere toepassing heeft een planningsbeleid en -"
-"prioriteit.\n"
-"\n"
-"Met deze optie wordt de processortijd van de Tracker verlaagd, zodat andere "
-"toepassingen sneller uitgevoerd zullen worden."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:12
-msgid "Index content in the background:"
-msgstr "Bestanden op de achtergrond indexeren:"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:13
-msgid "O_nly when computer is not being used"
-msgstr "Alleen als de computer _niet wordt gebruikt"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:14
-msgid ""
-"Indexing content will be <b>much slower</b> but other applications will have "
-"priority."
-msgstr ""
-"Indexering van inhoud zal <b>veel langzamer</b> zijn; andere toepassingen "
-"krijgen prioriteit."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:15
-msgid ""
-"_While other applications are running, except for initial data population"
-msgstr ""
-"_Tijdens het uitvoeren van andere toepassingen, behalve bij het initieel "
-"laden van gegevens"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:16
-msgid ""
-"Indexing content will be <b>much slower</b> but other applications will have "
-"priority. This will only be the case on the <b>first index</b> of your "
-"content after you start your computer from a new install"
-msgstr ""
-"Indexering van inhoud zal <b>veel langzamer</b> zijn; andere toepassingen "
-"krijgen prioriteit. Dit zal alleen gelden bij <b>eerste indexering</b> van "
-"de inhoud, als de computer na een nieuwe installatie wordt opgestart."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:17
-msgid "While _other applications are running"
-msgstr "Tijdens het uitvoeren van _andere toepassingen"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:18
-msgid ""
-"Indexing content will be as <b>fast</b> as possible but other applications "
-"may suffer and be slower as a result."
-msgstr ""
-"Indexeren van inhoud zal zo <b>snel</b> mogelijk worden uitgevoerd; andere "
-"toepassingen zullen hierdoor trager zijn."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:19
-msgid "Stop indexing when _disk space is below:"
-msgstr "Stoppen met indexeren als de _schijfruimte minder is dan:"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:20
-msgid "Limitations"
-msgstr "Begrenzingen"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:21
-msgid "Days before deleting removable devices / files since last mounted:"
-msgstr ""
-"Dagen tot het wissen van verwijderbare apparaten/bestanden sinds de laatste "
-"aankoppeling:"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:22
-msgid "Garbage Collection"
-msgstr "Afvalverzameling"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:23
-msgid "Indexing"
-msgstr "Bezig met indexeren"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:24
-msgid ""
-"Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</"
-"b> directory, can be easily toggled below. This will add or remove their "
-"real paths from the list underneath.\n"
-"\n"
-"If a directory is toggled to <b>Recurse</b>, it means that all sub-"
-"directories underneath it will also be indexed. Otherwise, only files "
-"immediately in that directory will be indexed."
-msgstr ""
-"Speciale locaties zoals de <b>Persoonlijke map</b> of de mappen "
-"<b>Bureaublad</b> en <b>Documenten</b> kunnen hieronder eenvoudig worden in- "
-"en uitgeschakeld. Dat zal hun volledige pad aan de onderstaande lijst "
-"toevoegen of eruit verwijderen. \n"
-"\n"
-"Als een map op <b>Recursief</b> is ingesteld, betekent dit dat alle "
-"onderliggende mappen ook worden geïndexeerd. Anders zullen alleen bestanden "
-"in die map geïndexeerd worden."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:27
-msgid "Index Home Directory"
-msgstr "Persoonlijke map indexeren"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:28
-msgid "Index Desktop Directory"
-msgstr "Bureaubladmap indexeren"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:29
-msgid "Index Documents Directory"
-msgstr "Documentenmap indexeren"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:30
-msgid "Index Music Directory"
-msgstr "Muziekmap indexeren"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:31
-msgid "Index Pictures Directory"
-msgstr "Afbeeldingenmap indexeren"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:32
-msgid "Index Videos Directory"
-msgstr "Videomap indexeren"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:33
-msgid "Index Download Directory"
-msgstr "Downloadmap indexeren"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:34
-msgid ""
-"One or more special locations have the same path.\n"
-"Those which are the same are disabled!"
-msgstr ""
-"Een of meerdere speciale locaties hebben hetzelfde pad.\n"
-"De dubbel voorkomende padden worden uitgeschakeld!"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:36
-msgid "Add directory to be indexed"
-msgstr "Map toevoegen die moet worden geïndexeerd"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:37
-msgid "Remove directory from being indexed"
-msgstr "Voorkom dat map wordt geïndexeerd"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:38
-msgid "Where is your content?"
-msgstr "Waar bevindt zich de inhoud?"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:39
-msgid "Locations"
-msgstr "Locaties"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:40
-msgid "Glob patterns to ignore:"
-msgstr "Patronen met jokertekens om uit te sluiten:"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:41
-msgid "Opens text entry for glob patterns"
-msgstr "Opent tekstinvoer voor jokertekenpatronen"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:42
-msgid "Opens the filechooser dialogue"
-msgstr "Opent het bestandskeuzevenster"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:43
-msgid "With specific files:"
-msgstr "Met specifieke bestanden:"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:44
-msgid "Directories"
-msgstr "Mappen"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:45
-msgid ""
-"Globbing patterns can be used here, for example: \"*bar*\".\n"
-"Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
-msgstr ""
-"Jokertekenpatronen kunnen hier worden gebruikt, bijvoorbeeld:  \"*bar*\".\n"
-"Dit wordt meestal gebruikt om mappen uit te sluiten, zoals *~, *.o, *.la, enz"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:47
-#: ../src/tracker-utils/tracker-search.c:523
-msgid "Files"
-msgstr "Bestanden"
-
-# Genegeerde bestandspatronen/genegeerde bestanden
-#: ../src/tracker-preferences/tracker-preferences.ui.h:48
-msgid "Ignored Content"
-msgstr "Genegeerde inhoud"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:49
-msgid ""
-"When resetting your indexed data, the databases are removed and your files "
-"will no longer be indexed. Upon next start, Tracker will then start indexing "
-"data as if it was being run for the first time.\n"
-"\n"
-"<b>Warning: All data indexed will be removed! It can not be retrieved!</b>\n"
-"\n"
-"Clicking this button will close the preferences too."
-msgstr ""
-"Als gegevens worden hersteld, dan worden de databases verwijderd en zijn de "
-"bestanden niet langer geïndexeerd. De volgende keer dat de computer wordt "
-"opgestart, zal Tracker met indexeren beginnen alsof het de eerste keer "
-"betreft.\n"
-"\n"
-"<b>Waarschuwing: alle geïndexeerde gegevens worden gewist! Dit kan niet "
-"ongedaan worden gemaakt !</b>\n"
-"\n"
-"Op deze knop klikken zal de voorkeuren ook sluiten."
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:54
-msgid "Yes, remove all of my indexed data"
-msgstr "Ja, wis alle geïndexeerde gegevens"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:55
-msgid "Reset Indexed Data"
-msgstr "Geïndexeerde gegevens herstellen"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:56
-msgid "_Delay"
-msgstr "_Vertraging"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:57
-msgid "seconds"
-msgstr "seconden"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:58
-msgid "Start up"
-msgstr "Opstarten"
-
-#: ../src/tracker-preferences/tracker-preferences.ui.h:59
-msgid "System"
-msgstr "Systeem"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:149
-#: ../src/tracker-preferences/tracker-preferences.vala:150
-#: ../src/tracker-preferences/tracker-preferences.vala:151
-msgid "Directory"
-msgstr "Map"
-
-#. To translators: This is a feature that is
-#. * disabled for disk space checking.
-#.
-#. To translators: This is a feature that is
-#. * disabled for removing a device from a
-#. * database cache.
-#.
-#: ../src/tracker-preferences/tracker-preferences.vala:332
-#: ../src/tracker-preferences/tracker-preferences.vala:345
-msgid "Disabled"
-msgstr "Uitgeschakeld"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:515
-msgid "Enter value"
-msgstr "Voer waarde in"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:544
-msgid "Select directory"
-msgstr "Map selecteren"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:565
-msgid "That directory is already selected as a location to index"
-msgstr "Die map is al kandidaat om geïndexeerd te worden"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:827
-msgid "Recurse"
-msgstr "Recursief"
-
-#: ../src/tracker-preferences/tracker-preferences.vala:933
-msgid "Desktop Search preferences"
-msgstr "Voorkeuren bureaubladzoeken"
-
 #. Indexer options
-#: ../src/tracker-store/tracker-main.vala:51
+#: ../src/tracker-store/tracker-main.vala:61
 msgid "Force a re-index of all content"
 msgstr "Dwing een herindexering van alle data af"
 
-#: ../src/tracker-store/tracker-main.vala:52
+#: ../src/tracker-store/tracker-main.vala:62
 msgid "Only allow read based actions on the database"
 msgstr "Alleen leesopdrachten op de database toestaan"
+
+#: ../src/tracker-store/tracker-main.vala:63
+msgid "Load a specified domain ontology"
+msgstr "Een gespecificeerde domeinontologie laden"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.vala:173
-msgid "- start the tracker daemon"
-msgstr "- Tracker-daemon starten"
+#: ../src/tracker-store/tracker-main.vala:194
+#| msgid "- start the tracker daemon"
+msgid "— start the tracker daemon"
+msgstr "— Tracker-daemon starten"
 
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-import.c:75
-msgid "- Import data using Turtle files"
-msgstr "- Gegevens importeren met Turtle-bestanden"
+#: ../src/tracker-store/tracker-store.desktop.in.in.h:1
+msgid "Tracker Store"
+msgstr "Tracker-opslag"
 
-#: ../src/tracker-utils/tracker-import.c:93
-#: ../src/tracker-utils/tracker-info.c:367
-msgid "One or more files have not been specified"
-msgstr "Een of meer bestanden zijn niet opgegeven"
+#: ../src/tracker-store/tracker-store.desktop.in.in.h:2
+msgid "Metadata database store and lookup manager"
+msgstr "Databaseopslag en opzoekbeheerder van metagegevens"
 
-#: ../src/tracker-utils/tracker-import.c:120
-msgid "Importing Turtle file"
-msgstr "Turtle-bestand importeren"
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
+msgid "Log verbosity"
+msgstr "Breedsprakigheid loguitvoer"
 
-#: ../src/tracker-utils/tracker-import.c:129
-msgid "Unable to import Turtle file"
-msgstr "Importeren Turtle-bestand is mislukt"
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
+msgid "Log verbosity."
+msgstr "Breedsprakigheid loguitvoer."
 
-#: ../src/tracker-utils/tracker-info.c:55
-msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
+msgid "GraphUpdated delay"
+msgstr "GraphUpdated-vertraging"
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
 msgstr ""
-"volledige naamruimte tonen (dus niet ‘nie:title’ gebruiken, maar volledige "
-"URLs)"
+"Tijdsduur in milliseconden tussen GraphUpdated-signalen die worden "
+"uitgestuurd wanneer geïndexeerde gegevens gewijzigd zijn in de database."
 
-#: ../src/tracker-utils/tracker-info.c:59
-msgid "Show plain text content if available for resources"
-msgstr "platte tekstinhoud tonen, indien beschikbaar voor de bronnen"
+#: ../src/tracker/tracker-config.c:60
+#, c-format
+msgid "Could not get GSettings for miners, manager could not be created, %s"
+msgstr ""
+"Het verkrijgen van GSettings voor miners is mislukt, de beheerder kan niet "
+"aangemaakt worden, %s"
 
-#: ../src/tracker-utils/tracker-info.c:63
-msgid "Output results as RDF in Turtle format"
-msgstr "resultaten uitvoeren als RDF in Turtle-opmaak"
+#: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
+msgid "Unavailable"
+msgstr "Niet beschikbaar"
 
-#: ../src/tracker-utils/tracker-info.c:141
-#: ../src/tracker-utils/tracker-sparql.c:134
+#. generic
+#: ../src/tracker/tracker-daemon.c:122
+msgid "Initializing"
+msgstr "Initialiseren"
+
+#: ../src/tracker/tracker-daemon.c:123
+msgid "Processing…"
+msgstr "actief…"
+
+#: ../src/tracker/tracker-daemon.c:124
+msgid "Fetching…"
+msgstr "Ophalen…"
+
+#. miner/rss
+#: ../src/tracker/tracker-daemon.c:125
+#, c-format
+#| msgid "Crawling single directory '%s'"
+msgid "Crawling single directory “%s”"
+msgstr "Alleen map ‘%s’ doorzoeken"
+
+#: ../src/tracker/tracker-daemon.c:126
+#, c-format
+#| msgid "Crawling recursively directory '%s'"
+msgid "Crawling recursively directory “%s”"
+msgstr "Map ‘%s’ recursief doorzoeken"
+
+#: ../src/tracker/tracker-daemon.c:127
+msgid "Paused"
+msgstr "gepauzeerd"
+
+# in rust/niet bezig
+#: ../src/tracker/tracker-daemon.c:128
+msgid "Idle"
+msgstr "Inactief"
+
+#: ../src/tracker/tracker-daemon.c:134
+msgid "Follow status changes as they happen"
+msgstr "Statusveranderingen volgen als ze optreden"
+
+#: ../src/tracker/tracker-daemon.c:138
+msgid ""
+"Watch changes to the database in real time (e.g. resources or files being "
+"added)"
+msgstr ""
+"Wijzigingen in de database rechtstreeks bekijken (bijv. bronnen of bestanden "
+"die worden toegevoegd)"
+
+#: ../src/tracker/tracker-daemon.c:139
+msgid "ONTOLOGY"
+msgstr "ONTOLOGIE"
+
+#: ../src/tracker/tracker-daemon.c:142
+msgid "List common statuses for miners and the store"
+msgstr "Algemene statussen voor miners en de opslag tonen"
+
+#: ../src/tracker/tracker-daemon.c:147
+msgid "Pause a miner (you must use this with --miner)"
+msgstr "miner pauzeren (gebruik dit samen met --miner)"
+
+#: ../src/tracker/tracker-daemon.c:148 ../src/tracker/tracker-daemon.c:152
+msgid "REASON"
+msgstr "REDEN"
+
+#: ../src/tracker/tracker-daemon.c:151
+msgid ""
+"Pause a miner while the calling process is alive or until resumed (you must "
+"use this with --miner)"
+msgstr ""
+"miner pauzeren zolang het aanroepende proces actief is of totdat het wordt "
+"hervat (gebruik dit samen met --miner)"
+
+#: ../src/tracker/tracker-daemon.c:155
+msgid "Resume a miner (you must use this with --miner)"
+msgstr "een miner hervatten (gebruik dit samen met --miner)"
+
+#: ../src/tracker/tracker-daemon.c:156
+msgid "COOKIE"
+msgstr "COOKIE"
+
+#: ../src/tracker/tracker-daemon.c:159
+msgid ""
+"Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
+"Applications)"
+msgstr ""
+"te gebruiken miner met --resume of --pause (gebruik van achtervoegsels is "
+"toegestaan, b.v. Bestanden of Toepassingen)"
+
+#: ../src/tracker/tracker-daemon.c:160
+msgid "MINER"
+msgstr "MINER"
+
+#: ../src/tracker/tracker-daemon.c:163
+msgid "List all miners currently running"
+msgstr "alle actieve miners tonen"
+
+#: ../src/tracker/tracker-daemon.c:167
+msgid "List all miners installed"
+msgstr "alle geïnstalleerde miners tonen"
+
+#: ../src/tracker/tracker-daemon.c:171
+msgid "List pause reasons"
+msgstr "redenen van pauzeren tonen"
+
+#: ../src/tracker/tracker-daemon.c:176
+msgid "List all Tracker processes"
+msgstr "alle Tracker-processen tonen"
+
+#: ../src/tracker/tracker-daemon.c:178
+#| msgid ""
+#| "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" "
+#| "or \"all\" may be used, no parameter equals \"all\""
+msgid ""
+"Use SIGKILL to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
+msgstr ""
+"‘SIGKILL’ gebruiken om alle processen af te breken; gebruik ‘store’, ‘miners’"
+" of ‘all’. Geen parameter is gelijk aan ‘all’"
+
+#: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
+msgid "APPS"
+msgstr "TOEPASSINGEN"
+
+#: ../src/tracker/tracker-daemon.c:181
+#| msgid ""
+#| "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" "
+#| "or \"all\" may be used, no parameter equals \"all\""
+msgid ""
+"Use SIGTERM to stop all matching processes, either “store”, “miners” or "
+"“all” may be used, no parameter equals “all”"
+msgstr ""
+"‘SIGTERM’ gebruiken om alle overeenkomende processen af te breken; gebruik"
+" ‘store’, ‘miners’ of ‘all’; geen parameter is gelijk aan ‘all’"
+
+#: ../src/tracker/tracker-daemon.c:184
+msgid "Starts miners (which indirectly starts tracker-store too)"
+msgstr "miners opstarten (wat indirect ook de Tracker-opslag start)"
+
+#: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
+#| msgid ""
+#| "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
+#| "'errors') for all processes"
+msgid ""
+"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
+"“errors”) for all processes"
+msgstr ""
+"Breedsprakigheid van de logberichten voor alle processen instellen op NIVEAU"
+" ('debug', 'detailed', 'minimal', 'errors') "
+
+#: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
+msgid "LEVEL"
+msgstr "NIVEAU"
+
+#: ../src/tracker/tracker-daemon.c:190
+msgid "Show logging values in terms of log verbosity for each process"
+msgstr "de breedsprakigheid van logwaarden voor ieder proces tonen"
+
+#: ../src/tracker/tracker-daemon.c:264
+#, c-format
+msgid "Could not get status from miner: %s"
+msgstr "Vaststellen status van miner ‘%s’ is mislukt"
+
+#. Translators: %s is a time string
+#: ../src/tracker/tracker-daemon.c:326
+#, c-format
+msgid "%s remaining"
+msgstr "%s resterend"
+
+#: ../src/tracker/tracker-daemon.c:329
+msgid "unknown time left"
+msgstr "resterende tijd is onbekend"
+
+#. Work out lengths for output spacing
+#: ../src/tracker/tracker-daemon.c:342 ../src/tracker/tracker-daemon.c:1319
+msgid "PAUSED"
+msgstr "GEPAUZEERD"
+
+#: ../src/tracker/tracker-daemon.c:359
+msgid "Not running or is a disabled plugin"
+msgstr "Niet-actief of betreft een uitgeschakelde plug-in"
+
+#: ../src/tracker/tracker-daemon.c:461
+msgid "Could not retrieve tracker-store status"
+msgstr "Kon de status van tracker-store niet ophalen"
+
+#: ../src/tracker/tracker-daemon.c:482
+msgid "Could not retrieve tracker-store progress"
+msgstr "Kon de voortgang van tracker-store niet ophalen"
+
+#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:200
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Ophalen voorvoegsels naamruimte is mislukt"
 
-#: ../src/tracker-utils/tracker-info.c:149
-#: ../src/tracker-utils/tracker-sparql.c:142
+#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:208
 msgid "No namespace prefixes were returned"
 msgstr "Geen naamruimtevoorvoegsel teruggegeven"
 
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-info.c:349
-msgid "- Get all information about one or more files"
-msgstr "- Alle informatie over een of meer bestanden verkrijgen"
+#: ../src/tracker/tracker-daemon.c:699 ../src/tracker/tracker-daemon.c:726
+msgid "Could not run SPARQL query"
+msgstr "Uitvoeren SPARQL-zoekopdracht is mislukt"
 
-#: ../src/tracker-utils/tracker-info.c:405
+#: ../src/tracker/tracker-daemon.c:707 ../src/tracker/tracker-daemon.c:739
+msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
+msgstr "Kon tracker_sparql_cursor_next() op SPARQL-zoekopdracht niet aanroepen"
+
+#: ../src/tracker/tracker-daemon.c:889
+#, c-format
+msgid "Could not pause miner, manager could not be created, %s"
+msgstr ""
+"Pauzeren van miner is mislukt, beheerder kan niet aangemaakt worden, %s"
+
+#: ../src/tracker/tracker-daemon.c:896
+#, c-format
+#| msgid "Attempting to pause miner '%s' with reason '%s'"
+msgid "Attempting to pause miner “%s” with reason “%s”"
+msgstr "Poging om miner ‘%s’ te pauzeren met reden ‘%s’"
+
+#: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
+#, c-format
+msgid "Could not pause miner: %s"
+msgstr "Pauzeren miner ‘%s’ is mislukt"
+
+#: ../src/tracker/tracker-daemon.c:916
+#, c-format
+msgid "Cookie is %d"
+msgstr "Cookie is %d"
+
+#: ../src/tracker/tracker-daemon.c:923 ../src/tracker/tracker-daemon.c:1276
+#: ../src/tracker/tracker-daemon.c:1420
+msgid "Press Ctrl+C to stop"
+msgstr "Druk op Ctrl+C om te stoppen"
+
+#: ../src/tracker/tracker-daemon.c:947
+#, c-format
+msgid "Could not resume miner, manager could not be created, %s"
+msgstr ""
+"Hervatten van miner is mislukt, beheerder kan niet aangemaakt worden, %s"
+
+#: ../src/tracker/tracker-daemon.c:954
+#, c-format
+msgid "Attempting to resume miner %s with cookie %d"
+msgstr "Poging om miner ‘%s’ te hervatten met cookie ‘%d’"
+
+#: ../src/tracker/tracker-daemon.c:961
+#, c-format
+msgid "Could not resume miner: %s"
+msgstr "Hervatten miner ‘%s’ is mislukt"
+
+#: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
+#: ../src/tracker/tracker-sparql.c:1396
+msgid "Done"
+msgstr "Klaar"
+
+#: ../src/tracker/tracker-daemon.c:982
+#, c-format
+msgid "Could not list miners, manager could not be created, %s"
+msgstr "Miners tonen is mislukt, beheerder kan niet aangemaakt worden, %s"
+
+#: ../src/tracker/tracker-daemon.c:996
+#, c-format
+msgid "Found %d miner installed"
+msgid_plural "Found %d miners installed"
+msgstr[0] "%d geïnstalleerde miner gevonden"
+msgstr[1] "%d geïnstalleerde miners gevonden"
+
+#: ../src/tracker/tracker-daemon.c:1019
+#, c-format
+msgid "Found %d miner running"
+msgid_plural "Found %d miners running"
+msgstr[0] "%d miner is actief"
+msgstr[1] "%d miners zijn actief"
+
+#: ../src/tracker/tracker-daemon.c:1051
+#, c-format
+msgid "Could not get pause details, manager could not be created, %s"
+msgstr ""
+"Verkrijgen van pauzegegevens is mislukt, beheerder kan niet aangemaakt "
+"worden, %s"
+
+#: ../src/tracker/tracker-daemon.c:1061
+msgid "No miners are running"
+msgstr "Er zijn geen miner actief"
+
+#: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
+#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1646
+msgid "Miners"
+msgstr "Miners"
+
+#: ../src/tracker/tracker-daemon.c:1108
+#| msgid "Application"
+#| msgid_plural "Applications"
+msgid "Application"
+msgstr "Toepassing"
+
+#: ../src/tracker/tracker-daemon.c:1110
+msgid "Reason"
+msgstr "Reden"
+
+#: ../src/tracker/tracker-daemon.c:1119
+msgid "No miners are paused"
+msgstr "Er zijn geen miner gepauzeerd"
+
+#: ../src/tracker/tracker-daemon.c:1207
+#| msgid "Only one of 'all', 'store' and 'miners' options are allowed"
+msgid "Only one of “all”, “store” and “miners” options are allowed"
+msgstr "Slechts één van de opties 'all', 'store' en 'miners' is toegestaan"
+
+#: ../src/tracker/tracker-daemon.c:1242
+msgid "Could not get SPARQL connection"
+msgstr "Verbinding met SPARQL is mislukt"
+
+#: ../src/tracker/tracker-daemon.c:1274
+msgid "Now listening for resource updates to the database"
+msgstr "Luistert nu naar bron-updates voor de database"
+
+#: ../src/tracker/tracker-daemon.c:1275
+msgid "All nie:plainTextContent properties are omitted"
+msgstr "Alle nie:plainTextContent-eigenschappen worden weggelaten"
+
+#: ../src/tracker/tracker-daemon.c:1290
+msgid "Common statuses include"
+msgstr "Algemene statussen omvatten"
+
+#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:460
+#, c-format
+msgid "Could not get status, manager could not be created, %s"
+msgstr ""
+"Opvragen van status is mislukt, beheerder kan niet aangemaakt worden, %s"
+
+#. Display states
+#: ../src/tracker/tracker-daemon.c:1329
+msgid "Store"
+msgstr "Opslag"
+
+#: ../src/tracker/tracker-daemon.c:1363
+#, c-format
+#| msgid "Could not get display name for miner '%s'"
+msgid "Could not get display name for miner “%s”"
+msgstr "Vaststellen weergave-naam van miner ‘%s’ is mislukt"
+
+#: ../src/tracker/tracker-daemon.c:1461
+msgid "You can not use miner pause and resume switches together"
+msgstr "Gelijktijdig gebruik van pauzeer- en hervatopdrachten is ongeldig"
+
+#: ../src/tracker/tracker-daemon.c:1467
+msgid "You must provide the miner for pause or resume commands"
+msgstr "Voor pauzeer- of hervatopdrachten moet een miner worden opgegeven"
+
+#: ../src/tracker/tracker-daemon.c:1473
+msgid "You must provide a pause or resume command for the miner"
+msgstr "De miner vereist een pauzeer- of hervatopdracht"
+
+#: ../src/tracker/tracker-daemon.c:1509
+msgid "You can not use the --kill and --terminate arguments together"
+msgstr ""
+"gelijktijdig gebruik van de argumenten --kill en --terminate is niet "
+"toegestaan"
+
+#: ../src/tracker/tracker-daemon.c:1515
+msgid "You can not use the --get-logging and --set-logging arguments together"
+msgstr ""
+"gelijktijdig gebruik van de argumenten --get-logging en --set-logging is "
+"niet toegestaan"
+
+#: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
+#| msgid ""
+#| "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
+msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
+msgstr ""
+"Breedsprakigheid van loggen is ongeldig, probeer ‘debug’, ‘detailed’,"
+" ‘minimal’ of ‘errors’"
+
+#: ../src/tracker/tracker-daemon.c:1568
+#, c-format
+#| msgid "Found process ID %d for '%s'"
+msgid "Found process ID %d for “%s”"
+msgstr "Proces-ID %d voor ‘%s’ is gevonden"
+
+#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
+msgid "Components"
+msgstr "Componenten"
+
+#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
+msgid "Only those with config listed"
+msgstr "alleen die met getoonde configuratie"
+
+#: ../src/tracker/tracker-daemon.c:1623
+#, c-format
+#| msgid "Setting log verbosity for all components to '%s'…"
+msgid "Setting log verbosity for all components to “%s”…"
+msgstr "Breedsprakigheid van loggen van alle componenten instellen op ‘%s’…"
+
+#: ../src/tracker/tracker-daemon.c:1662
+msgid "Starting miners…"
+msgstr "Miners starten…"
+
+#: ../src/tracker/tracker-daemon.c:1667
+#, c-format
+msgid "Could not start miners, manager could not be created, %s"
+msgstr ""
+"Starten van miners is mislukt omdat de beheerder niet aangemaakt kan worden, "
+"%s"
+
+#: ../src/tracker/tracker-daemon.c:1692
+msgid "perhaps a disabled plugin?"
+msgstr "Mogelijk een uitgeschakelde plug-in?"
+
+#: ../src/tracker/tracker-daemon.c:1736
+msgid ""
+"If no arguments are given, the status of the store and data miners is shown"
+msgstr ""
+"Indien geen argumenten zijn ingegeven, wordt de status van de store en "
+"dataminers weergegeven"
+
+#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
+#: ../src/tracker/tracker-reset.c:449 ../src/tracker/tracker-search.c:1778
+#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:238
+#: ../src/tracker/tracker-status.c:587 ../src/tracker/tracker-tag.c:1079
+msgid "Unrecognized options"
+msgstr "opties zijn onbekend"
+
+#: ../src/tracker/tracker-dbus.c:44
+msgid "Could not get D-Bus connection"
+msgstr "Verbinding met D-Bus is mislukt"
+
+#: ../src/tracker/tracker-dbus.c:62
+msgid "Could not create D-Bus proxy to tracker-store"
+msgstr "Kon geen D-Bus-proxy naar tracker-store aanmaken"
+
+#: ../src/tracker/tracker-extract.c:45
+msgid "Output results format: “sparql”, or “turtle”"
+msgstr "Opmaak resultaten: ‘sparql’ of ‘turtle’"
+
+#: ../src/tracker/tracker-extract.c:46
+msgid "FORMAT"
+msgstr "Formaat"
+
+#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
+#: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
+#: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
+#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
+#: ../src/tracker/tracker-sparql.c:106 ../src/tracker/tracker-sql.c:44
+msgid "FILE"
+msgstr "BESTAND"
+
+#: ../src/tracker/tracker-extract.c:77
+#| msgid "Could not retrieve tracker-store status"
+msgid "Could not run tracker-extract: "
+msgstr "Uitvoeren van tracker-extract is mislukt:"
+
+#: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
+#, c-format
+#| msgid "failed to exec '%s': %s"
+msgid "failed to exec “%s”: %s"
+msgstr "kon ‘%s’ niet uitvoeren: %s"
+
+#: ../src/tracker/tracker-index.c:56
+msgid ""
+"Tell miners to reindex files which match the mime type supplied (for new "
+"extractors), use -m MIME1 -m MIME2"
+msgstr ""
+"miners de bestanden die met het opgegeven mimetype overeenkomen opnieuw "
+"laten indexeren (voor nieuwe uitpakprogramma's), gebruik -m MIME1 -m MIME2"
+
+#: ../src/tracker/tracker-index.c:57
+msgid "MIME"
+msgstr "MIME"
+
+#: ../src/tracker/tracker-index.c:59
+msgid "Tell miners to (re)index a given file"
+msgstr "miners opdracht geven een opgegeven bestand te (her)indexeren"
+
+#: ../src/tracker/tracker-index.c:62
+msgid "Backup current index / database to the file provided"
+msgstr "reservekopie van index/database naar opgegeven bestand schrijven"
+
+#: ../src/tracker/tracker-index.c:65
+msgid "Restore a database from a previous backup (see --backup)"
+msgstr "Database vanuit reservekopie herstellen (zie --backup)"
+
+#: ../src/tracker/tracker-index.c:68
+msgid "Import a dataset from the provided file (in Turtle format)"
+msgstr "Een dataset vanuit geleverd bestand importeren (in Turtle-formaat)"
+
+#: ../src/tracker/tracker-index.c:122
+#, c-format
+msgid "Could not reindex mimetypes, manager could not be created, %s"
+msgstr ""
+"Herindexeren van mimetypes is mislukt, beheerder kan niet aangemaakt worden, "
+"%s"
+
+#: ../src/tracker/tracker-index.c:132
+msgid "Could not reindex mimetypes"
+msgstr "Herindexeren mimetypen is mislukt"
+
+#: ../src/tracker/tracker-index.c:138
+msgid "Reindexing mime types was successful"
+msgstr "Herindexeren van mimetypes is gelukt"
+
+#: ../src/tracker/tracker-index.c:154
+#, c-format
+msgid "Could not (re)index file, manager could not be created, %s"
+msgstr ""
+"(Her)indexeren van bestand is mislukt, beheerder kan niet aangemaakt worden, "
+"%s"
+
+#: ../src/tracker/tracker-index.c:169
+msgid "Could not (re)index file"
+msgstr "(Her)indexeren bestand is mislukt"
+
+#: ../src/tracker/tracker-index.c:175
+msgid "(Re)indexing file was successful"
+msgstr "Herindexeren van bestand is gelukt"
+
+#: ../src/tracker/tracker-index.c:195 ../src/tracker/tracker-info.c:263
+#: ../src/tracker/tracker-search.c:1580 ../src/tracker/tracker-sparql.c:172
+#: ../src/tracker/tracker-sparql.c:1086 ../src/tracker/tracker-status.c:73
+#: ../src/tracker/tracker-status.c:386 ../src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "Verbinding met Tracker maken is mislukt"
+
+#: ../src/tracker/tracker-index.c:206
+msgid "Importing Turtle file"
+msgstr "Turtle-bestand importeren"
+
+#: ../src/tracker/tracker-index.c:215
+msgid "Unable to import Turtle file"
+msgstr "Importeren Turtle-bestand is mislukt"
+
+#: ../src/tracker/tracker-index.c:251
+msgid "Backing up database"
+msgstr "Reservekopie van database maken"
+
+#: ../src/tracker/tracker-index.c:271 ../src/tracker/tracker-index.c:328
+msgid "Could not backup database"
+msgstr "Reservekopie van database maken mislukt"
+
+#: ../src/tracker/tracker-index.c:308
+msgid "Restoring database from backup"
+msgstr "Database vanuit reservekopie herstellen"
+
+#: ../src/tracker/tracker-index.c:437
+msgid ""
+"Only one action (--backup, --restore, --index-file or --import) can be used "
+"at a time"
+msgstr ""
+"Slechts één actie (--backup, --restore, --index-file of --import) kan "
+"tegelijkertijd worden gebruikt"
+
+#: ../src/tracker/tracker-index.c:439
+msgid "Missing one or more files which are required"
+msgstr "Een of meer vereiste bestanden ontbreken"
+
+#: ../src/tracker/tracker-index.c:441
+msgid "Only one file can be used with --backup and --restore"
+msgstr "Slechts één bestand kan worden gebruikt met --backup en --restore"
+
+#: ../src/tracker/tracker-index.c:443
+msgid ""
+"Actions (--backup, --restore, --index-file and --import) can not be used "
+"with --reindex-mime-type"
+msgstr ""
+"Acties (--backup, --restore, --index-file en --import) kunnen niet worden "
+"gebruikt met --reindex-mime-type"
+
+#: ../src/tracker/tracker-info.c:49
+#| msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+msgstr ""
+"Volledige naamruimte tonen (dus niet ‘nie:title’ gebruiken, maar volledige"
+" URL's)"
+
+#: ../src/tracker/tracker-info.c:53
+msgid "Show plain text content if available for resources"
+msgstr "platte tekstinhoud tonen, indien beschikbaar voor de bronnen"
+
+#. To translators:
+#. * IRI (International Resource Identifier) is a generalization
+#. * of the URI. While URI supports only ASCI encoding, IRI
+#. * fully supports international characters. In practice, UTF-8
+#. * is the most popular encoding used for IRI.
+#.
+#: ../src/tracker/tracker-info.c:63
+msgid ""
+"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
+"(e.g. <file:///path/to/some/file.txt>)"
+msgstr ""
+"In plaats van het opzoeken van een bestandsnaam, de BESTAND-argumenten als "
+"echte IRI's behandelen (bijv. <file:///path/to/some/file.txt>)"
+
+#: ../src/tracker/tracker-info.c:67
+msgid "Output results as RDF in Turtle format"
+msgstr "resultaten uitvoeren als RDF in Turtle-opmaak"
+
+#: ../src/tracker/tracker-info.c:285
 msgid "Querying information for entity"
 msgstr "Doorzoeken van informatie op entiteit"
 
-#: ../src/tracker-utils/tracker-info.c:426
+#: ../src/tracker/tracker-info.c:309
 msgid "Unable to retrieve URN for URI"
 msgstr "Ophalen URN voor URI is mislukt"
 
-#: ../src/tracker-utils/tracker-info.c:436
-#: ../src/tracker-utils/tracker-info.c:471
+#: ../src/tracker/tracker-info.c:319 ../src/tracker/tracker-info.c:353
 msgid "Unable to retrieve data for URI"
 msgstr "Ophalen gegevens voor URI is mislukt"
 
-#: ../src/tracker-utils/tracker-info.c:480
+#: ../src/tracker/tracker-info.c:362
 msgid "No metadata available for that URI"
 msgstr "Geen metadata beschikbaar voor die URI"
 
-#: ../src/tracker-utils/tracker-info.c:485
-#: ../src/tracker-utils/tracker-search.c:1464
-#: ../src/tracker-utils/tracker-sparql.c:820
-#: ../src/tracker-utils/tracker-sparql.c:823
-#: ../utils/tracker-sql/tracker-sql.c:166
+#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
+#: ../src/tracker/tracker-sql.c:146
 msgid "Results"
 msgstr "Resultaten"
 
-#: ../src/tracker-utils/tracker-search.c:80
-#: ../src/tracker-utils/tracker-tag.c:55
+#: ../src/tracker/tracker-main.c:48
+#| msgid "See 'tracker help <command>' to read about a specific subcommand."
+msgid "See “tracker help <command>” to read about a specific subcommand."
+msgstr ""
+"Zie 'tracker help <opdracht>' om te lezen over een specifieke subopdracht."
+
+#: ../src/tracker/tracker-main.c:97
+msgid "Start, stop, pause and list processes responsible for indexing content"
+msgstr ""
+"Lijstprocessen verantwoordelijk voor het indexeren van inhoud starten, "
+"stoppen en pauzeren"
+
+#: ../src/tracker/tracker-main.c:98
+#| msgid "Extracts metadata from local files"
+msgid "Extract information from a file"
+msgstr "Informatie uit een bestand halen"
+
+#: ../src/tracker/tracker-main.c:99
+msgid "Get help on how to use Tracker and any of these commands"
+msgstr "Hulp verkrijgen bij het gebruik van Tracker en deze opdrachten"
+
+#: ../src/tracker/tracker-main.c:100
+msgid "Show information known about local files or items indexed"
+msgstr ""
+"Informatie tonen die bekend is over lokale bestanden of geïndexeerde items"
+
+#: ../src/tracker/tracker-main.c:101
+msgid "Backup, restore, import and (re)index by MIME type or file name"
+msgstr ""
+"Reservekopie maken, herstellen, importeren en (her)indexeren op basis van "
+"MIME-soort of bestandsnaam"
+
+#: ../src/tracker/tracker-main.c:102
+msgid "Reset or remove index and revert configurations to defaults"
+msgstr ""
+"Index resetten of verwijderen en configuraties naar standaardwaarden "
+"herstellen"
+
+#: ../src/tracker/tracker-main.c:103
+msgid "Search for content indexed or show content by type"
+msgstr "Naar geïndexeerde inhoud zoeken of inhoud op basis van soort tonen"
+
+#: ../src/tracker/tracker-main.c:104
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"De index opvragen en bijwerken met SPARQL, of de ontologie zoeken, of er een "
+"lijst of boom van maken"
+
+#: ../src/tracker/tracker-main.c:105
+msgid "Query the database at the lowest level using SQL"
+msgstr "De database op het laagste niveau opvragen met SQL"
+
+#: ../src/tracker/tracker-main.c:106
+msgid "Show the indexing progress, content statistics and index state"
+msgstr "Het indexeringsproces, inhoudsstatistieken en index-status tonen"
+
+#: ../src/tracker/tracker-main.c:107
+msgid "Create, list or delete tags for indexed content"
+msgstr "Labels voor geïndexeerde inhoud aanmaken, tonen of verwijderen"
+
+#: ../src/tracker/tracker-main.c:108
+msgid "Show the license and version in use"
+msgstr "De gebruikte licentie en versie tonen"
+
+#: ../src/tracker/tracker-main.c:153
+#, c-format
+#| msgid "'%s' is not a tracker command. See 'tracker --help'"
+msgid "“%s” is not a tracker command. See “tracker --help”"
+msgstr "‘%s’ is geen tracker-opdracht. Zie 'tracker --help'"
+
+#: ../src/tracker/tracker-main.c:176
+msgid "Available tracker commands are:"
+msgstr "Beschikbare tracker-commando's zijn:"
+
+#: ../src/tracker/tracker-process.c:79
+msgid "Could not open /proc"
+msgstr "Openen /proc is mislukt"
+
+#: ../src/tracker/tracker-process.c:132
+msgid "Could not stat() file"
+msgstr "stat()-bewerking op bestand is mislukt"
+
+#: ../src/tracker/tracker-process.c:203
+#, c-format
+#| msgid "Could not open '%s'"
+msgid "Could not open “%s”"
+msgstr "Openen ‘%s’ is mislukt"
+
+#: ../src/tracker/tracker-process.c:332
+#, c-format
+#| msgid "Could not terminate process %d - '%s'"
+msgid "Could not terminate process %d — “%s”"
+msgstr "Proces %d afbreken is mislukt — ‘%s’"
+
+#: ../src/tracker/tracker-process.c:338
+#, c-format
+#| msgid "Terminated process %d - '%s'"
+msgid "Terminated process %d — “%s”"
+msgstr "Proces %d is afgebroken — ‘%s’"
+
+#: ../src/tracker/tracker-process.c:353
+#, c-format
+#| msgid "Could not kill process %d - '%s'"
+msgid "Could not kill process %d — “%s”"
+msgstr "Het beëindigen van proces %d is mislukt — ‘%s’"
+
+#: ../src/tracker/tracker-process.c:359
+#, c-format
+#| msgid "Killed process %d - '%s'"
+msgid "Killed process %d — “%s”"
+msgstr "Proces %d is beëindigd — ‘%s’"
+
+#: ../src/tracker/tracker-reset.c:53
+msgid "Kill all Tracker processes and remove all databases"
+msgstr "alle Tracker-processen beëindigen en alle databases verwijderen"
+
+#: ../src/tracker/tracker-reset.c:56
+msgid "Same as --hard but the backup & journal are restored after restart"
+msgstr ""
+"Gelijk aan --hard, maar de reservekopie en het dagboek worden hersteld na "
+"herstart"
+
+#: ../src/tracker/tracker-reset.c:59
+msgid "Remove all configuration files so they are re-generated on next start"
+msgstr ""
+"alle configuratiebestanden verwijderen zodat deze tijdens de volgende start "
+"opnieuw aangemaakt worden"
+
+#: ../src/tracker/tracker-reset.c:62
+#| msgid "Retrieve meta-data information about files in a directory"
+msgid ""
+"Erase indexed information about a file, works recursively for directories"
+msgstr ""
+"Geïndexeerde informatie over een bestand wissen; dit werkt recursief voor"
+" mappen"
+
+#. Now, delete the element recursively
+#: ../src/tracker/tracker-reset.c:167
+#| msgid "Fetching…"
+msgid "Deleting…"
+msgstr "Wordt verwijderd…"
+
+#: ../src/tracker/tracker-reset.c:188
+msgid ""
+"The indexed data for this file has been deleted and will be reindexed again."
+msgstr ""
+"De geïndexeerde gegevens voor dit bestand zijn gewist en zullen opnieuw"
+" worden geïndexeerd."
+
+#. TRANSLATORS: --hard and --soft are commandline arguments
+#: ../src/tracker/tracker-reset.c:215
+msgid "You can not use the --hard and --soft arguments together"
+msgstr ""
+"Gelijktijdig gebruik van de argumenten --hard en --soft is niet toegestaan"
+
+#: ../src/tracker/tracker-reset.c:223
+msgid "CAUTION: This process may irreversibly delete data."
+msgstr "WAARSCHUWING: dit proces kan gegevens definitief verwijderen."
+
+#: ../src/tracker/tracker-reset.c:224
+msgid ""
+"Although most content indexed by Tracker can be safely reindexed, it can’t "
+"be assured that this is the case for all data. Be aware that you may be "
+"incurring in a data loss situation, proceed at your own risk."
+msgstr ""
+"Hoewel de meeste door Tracker geïndexeerde inhoud veilig opnieuw kan worden"
+" geïndexeerd, is het niet zeker dat dit het geval is voor alle data.  Houd er"
+" rekening mee dat er gegevens verloren kunnen gaan; ga door op eigen risico."
+
+#: ../src/tracker/tracker-reset.c:229
+#| msgid "Are you sure you want to open %d document?"
+#| msgid_plural "Are you sure you want to open %d documents?"
+msgid "Are you sure you want to proceed?"
+msgstr "Weet u zeker dat u door wilt gaan?"
+
+#. TRANSLATORS: This is to be displayed on command line output
+#: ../src/tracker/tracker-reset.c:231
+msgid "[y|N]"
+msgstr "[j|N]"
+
+#. TRANSLATORS: this is our test for a [y|N] question in the command line.
+#. * A partial or full match will be considered an affirmative answer,
+#. * it is intentionally lowercase, so please keep it like this.
+#.
+#: ../src/tracker/tracker-reset.c:240
+#| msgid "Yes"
+msgid "yes"
+msgstr "ja"
+
+#: ../src/tracker/tracker-reset.c:366
+msgid "Removing configuration files…"
+msgstr "Configuratiebestanden verwijderen…"
+
+#: ../src/tracker/tracker-reset.c:371
+msgid "Resetting existing configuration…"
+msgstr "Bestaande configuratie opnieuw initialiseren…"
+
+#: ../src/tracker/tracker-search.c:80
+msgid "Search for files"
+msgstr "bestanden zoeken"
+
+#: ../src/tracker/tracker-search.c:84
+msgid "Search for folders"
+msgstr "mappen zoeken"
+
+#: ../src/tracker/tracker-search.c:88
+msgid "Search for music files"
+msgstr "muziekbestanden zoeken"
+
+#: ../src/tracker/tracker-search.c:92
+msgid "Search for music albums (--all has no effect on this)"
+msgstr "muziekalbums zoeken (--all heeft hier geen invloed op)"
+
+#: ../src/tracker/tracker-search.c:96
+msgid "Search for music artists (--all has no effect on this)"
+msgstr "muzikanten zoeken (--all heeft hier geen invloed op)"
+
+#: ../src/tracker/tracker-search.c:100
+msgid "Search for image files"
+msgstr "afbeeldingsbestanden zoeken"
+
+#: ../src/tracker/tracker-search.c:104
+msgid "Search for video files"
+msgstr "videobestanden zoeken"
+
+# bekijken/inzien/bezien/weergeven
+#: ../src/tracker/tracker-search.c:108
+msgid "Search for document files"
+msgstr "documentbestanden zoeken"
+
+#: ../src/tracker/tracker-search.c:112
+msgid "Search for emails"
+msgstr "e-mails zoeken"
+
+#: ../src/tracker/tracker-search.c:116
+msgid "Search for contacts"
+msgstr "contactpersonen zoeken"
+
+#: ../src/tracker/tracker-search.c:120
+msgid "Search for software (--all has no effect on this)"
+msgstr "programmatuur zoeken (--all heeft hier geen invloed op)"
+
+#: ../src/tracker/tracker-search.c:124
+msgid "Search for software categories (--all has no effect on this)"
+msgstr "programmatuurcategorieën zoeken (--all heeft hier geen invloed op)"
+
+#: ../src/tracker/tracker-search.c:128
+msgid "Search for feeds (--all has no effect on this)"
+msgstr "feeds zoeken (--all heeft hier geen invloed op)"
+
+#: ../src/tracker/tracker-search.c:132
+msgid "Search for bookmarks (--all has no effect on this)"
+msgstr "bladwijzers zoeken (--all heeft hier geen invloed op)"
+
+#: ../src/tracker/tracker-search.c:138 ../src/tracker/tracker-tag.c:73
 msgid "Limit the number of results shown"
 msgstr "aantal getoonde resultaten begrenzen"
 
-#: ../src/tracker-utils/tracker-search.c:84
-#: ../src/tracker-utils/tracker-tag.c:59
+#: ../src/tracker/tracker-search.c:142 ../src/tracker/tracker-tag.c:77
 msgid "Offset the results"
 msgstr "resultatenuitvoer verschuiven"
 
-#: ../src/tracker-utils/tracker-search.c:88
-#: ../src/tracker-utils/tracker-tag.c:63
+#: ../src/tracker/tracker-search.c:146
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr ""
 "logische OR voor zoektermen gebruiken in plaats van de AND (de "
 "standaardwaarde)"
 
-#: ../src/tracker-utils/tracker-search.c:92
+#: ../src/tracker/tracker-search.c:150
+#| msgid ""
+#| "Show URNs for results (doesn't apply to --music-albums, --music-artists, "
+#| "--feeds, --software, --software-categories)"
 msgid ""
-"Show URNs for results (doesn't apply to --music-albums, --music-artists, --"
+"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
 msgstr ""
-"URN-en voor resultaten tonen (geldt niet voor --music-albums, --music-"
-"artists, --feeds, --software, --software-categories)"
+"URN-en voor resultaten tonen (geldt niet voor --music-albums,"
+" --music-artists, --feeds, --software, --software-categories)"
 
-#: ../src/tracker-utils/tracker-search.c:96
+#: ../src/tracker/tracker-search.c:154
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
 "alle niet-bestaande overeenkomsten ook teruggeven (dus inclusief niet-"
 "aangekoppelde volumen)"
 
-#: ../src/tracker-utils/tracker-search.c:100
+#: ../src/tracker/tracker-search.c:158
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music…"
@@ -2113,218 +1240,129 @@ msgstr ""
 "resultaatfragmenten niet tonen. Dit wordt alleen getoond voor bepaalde "
 "categorieën, b.v. Documenten, Muziek…"
 
-#: ../src/tracker-utils/tracker-search.c:104
+#: ../src/tracker/tracker-search.c:162
 msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
 msgstr ""
 "volledige-tekstzoeken (FTS) uitschakelen. Verondersteld --disable-snippets"
 
-#: ../src/tracker-utils/tracker-search.c:108
+#: ../src/tracker/tracker-search.c:166
 msgid "Disable color when printing snippets and results"
 msgstr "kleur uitschakelen bij afdrukken van fragmenten en resultaten"
 
-#: ../src/tracker-utils/tracker-search.c:120
-msgid "Search for files"
-msgstr "bestanden zoeken"
-
-#: ../src/tracker-utils/tracker-search.c:124
-msgid "Search for folders"
-msgstr "mappen zoeken"
-
-#: ../src/tracker-utils/tracker-search.c:128
-msgid "Search for music files"
-msgstr "muziekbestanden zoeken"
-
-#: ../src/tracker-utils/tracker-search.c:132
-msgid "Search for music albums (--all has no effect on this)"
-msgstr "muziekalbums zoeken (--all heeft hier geen invloed op)"
-
-#: ../src/tracker-utils/tracker-search.c:136
-msgid "Search for music artists (--all has no effect on this)"
-msgstr "muzikanten zoeken (--all heeft hier geen invloed op)"
-
-#: ../src/tracker-utils/tracker-search.c:140
-msgid "Search for image files"
-msgstr "afbeeldingsbestanden zoeken"
-
-#: ../src/tracker-utils/tracker-search.c:144
-msgid "Search for video files"
-msgstr "videobestanden zoeken"
-
-# bekijken/inzien/bezien/weergeven
-#: ../src/tracker-utils/tracker-search.c:148
-msgid "Search for document files"
-msgstr "documentbestanden zoeken"
-
-#: ../src/tracker-utils/tracker-search.c:152
-msgid "Search for emails"
-msgstr "e-mails zoeken"
-
-#: ../src/tracker-utils/tracker-search.c:156
-msgid "Search for contacts"
-msgstr "contactpersonen zoeken"
-
-#: ../src/tracker-utils/tracker-search.c:160
-msgid "Search for software (--all has no effect on this)"
-msgstr "programmatuur zoeken (--all heeft hier geen invloed op)"
-
-#: ../src/tracker-utils/tracker-search.c:164
-msgid "Search for software categories (--all has no effect on this)"
-msgstr "programmatuurcategorieën zoeken (--all heeft hier geen invloed op)"
-
-#: ../src/tracker-utils/tracker-search.c:168
-msgid "Search for feeds (--all has no effect on this)"
-msgstr "feeds zoeken (--all heeft hier geen invloed op)"
-
-#: ../src/tracker-utils/tracker-search.c:172
-msgid "Search for bookmarks (--all has no effect on this)"
-msgstr "bladwijzers zoeken (--all heeft hier geen invloed op)"
-
-#: ../src/tracker-utils/tracker-search.c:177
+#: ../src/tracker/tracker-search.c:173 ../src/tracker/tracker-status.c:57
 msgid "search terms"
 msgstr "zoektermen"
 
-#: ../src/tracker-utils/tracker-search.c:178
+#: ../src/tracker/tracker-search.c:174 ../src/tracker/tracker-status.c:58
 msgid "EXPRESSION"
 msgstr "EXPRESSIE"
 
-#: ../src/tracker-utils/tracker-search.c:196
-#: ../src/tracker-utils/tracker-tag.c:109
+#: ../src/tracker/tracker-search.c:192 ../src/tracker/tracker-tag.c:103
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
 "ATTENTIE: Grens is bereikt, er zijn meer items in de database dan die hier "
 "getoonde"
 
-#: ../src/tracker-utils/tracker-search.c:290
-#: ../src/tracker-utils/tracker-search.c:399
-#: ../src/tracker-utils/tracker-search.c:510
-#: ../src/tracker-utils/tracker-search.c:822
-#: ../src/tracker-utils/tracker-search.c:911
-#: ../src/tracker-utils/tracker-search.c:1001
-#: ../src/tracker-utils/tracker-search.c:1083
-#: ../src/tracker-utils/tracker-search.c:1167
-#: ../src/tracker-utils/tracker-search.c:1249
-#: ../src/tracker-utils/tracker-search.c:1451
+#: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
+#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:811
+#: ../src/tracker/tracker-search.c:900 ../src/tracker/tracker-search.c:990
+#: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
+#: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
 msgid "Could not get search results"
 msgstr "Zoekopdracht leverde geen resultaten"
 
-#: ../src/tracker-utils/tracker-search.c:299
+#: ../src/tracker/tracker-search.c:295
 msgid "No contacts were found"
 msgstr "Geen contactpersonen gevonden"
 
-#: ../src/tracker-utils/tracker-search.c:303
+#: ../src/tracker/tracker-search.c:299
 msgid "Contacts"
 msgstr "Contactpersonen"
 
-#: ../src/tracker-utils/tracker-search.c:360
-#: ../src/tracker-utils/tracker-search.c:373
+#: ../src/tracker/tracker-search.c:356 ../src/tracker/tracker-search.c:369
 msgid "No name"
 msgstr "Geen naam"
 
-#: ../src/tracker-utils/tracker-search.c:361
-#: ../src/tracker-utils/tracker-search.c:374
+#: ../src/tracker/tracker-search.c:357 ../src/tracker/tracker-search.c:370
 msgid "No E-mail address"
 msgstr "Geen e-mailadres"
 
-#: ../src/tracker-utils/tracker-search.c:408
+#: ../src/tracker/tracker-search.c:404
 msgid "No emails were found"
 msgstr "Geen e-mails gevonden"
 
-#: ../src/tracker-utils/tracker-search.c:519
+#: ../src/tracker/tracker-search.c:408
+msgid "Emails"
+msgstr "E-mails"
+
+#: ../src/tracker/tracker-search.c:506
 msgid "No files were found"
 msgstr "Geen bestanden gevonden"
 
-#: ../src/tracker-utils/tracker-search.c:831
+#: ../src/tracker/tracker-search.c:510 ../src/tracker/tracker-tag.c:439
+msgid "Files"
+msgstr "Bestanden"
+
+#: ../src/tracker/tracker-search.c:820
 msgid "No artists were found"
 msgstr "Geen artiesten gevonden"
 
-#: ../src/tracker-utils/tracker-search.c:835
+#: ../src/tracker/tracker-search.c:824
 msgid "Artists"
 msgstr "Artiesten"
 
-#: ../src/tracker-utils/tracker-search.c:920
+#: ../src/tracker/tracker-search.c:909
 msgid "No music was found"
 msgstr "Geen muziek gevonden"
 
-#: ../src/tracker-utils/tracker-search.c:924
+#: ../src/tracker/tracker-search.c:913
 msgid "Albums"
 msgstr "Muziekalbums"
 
-#: ../src/tracker-utils/tracker-search.c:1010
+#: ../src/tracker/tracker-search.c:999
 msgid "No bookmarks were found"
 msgstr "Geen bladwijzers gevonden"
 
-#: ../src/tracker-utils/tracker-search.c:1092
+#: ../src/tracker/tracker-search.c:1003
+msgid "Bookmarks"
+msgstr "Bladwijzers"
+
+#: ../src/tracker/tracker-search.c:1081
 msgid "No feeds were found"
 msgstr "Geen feeds gevonden"
 
-#: ../src/tracker-utils/tracker-search.c:1096
+#: ../src/tracker/tracker-search.c:1085
 msgid "Feeds"
 msgstr "Feeds"
 
-#: ../src/tracker-utils/tracker-search.c:1176
+#: ../src/tracker/tracker-search.c:1165
 msgid "No software was found"
 msgstr "Geen programmatuur gevonden"
 
-#: ../src/tracker-utils/tracker-search.c:1180
+#: ../src/tracker/tracker-search.c:1169
 msgid "Software"
 msgstr "Programmatuur"
 
-#: ../src/tracker-utils/tracker-search.c:1258
+#: ../src/tracker/tracker-search.c:1247
 msgid "No software categories were found"
 msgstr "Geen programmatuurcategorieën gevonden"
 
-#: ../src/tracker-utils/tracker-search.c:1262
+#: ../src/tracker/tracker-search.c:1251
 msgid "Software Categories"
 msgstr "Programmatuurcategorieën"
 
-#: ../src/tracker-utils/tracker-search.c:1460
+#: ../src/tracker/tracker-search.c:1451
 msgid "No results were found matching your query"
 msgstr "Geen resultaten gevonden die voldoen aan de zoekopdracht"
 
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#.
-#: ../src/tracker-utils/tracker-search.c:1541
-msgid "- Search for terms in all data"
-msgstr "- Termen zoeken in alle gegevens"
-
-#. Translators: this message will appear after the usage string
-#. * and before the list of options.
-#.
-#: ../src/tracker-utils/tracker-search.c:1546
-msgid ""
-"Applies an AND operator to all terms separated by a space (see --or-operator)"
-msgstr ""
-"Past een logische AND-operator toe op alle termen gescheiden door een spatie "
-"(zie --or-operator)"
-
-#: ../src/tracker-utils/tracker-search.c:1550
-msgid ""
-"This means if you search for 'foo' and 'bar', they must BOTH exist (unless "
-"you use --or-operator)"
-msgstr ""
-"Dit betekent dat bij het zoeken naar 'foo' en 'bar' BEIDE TERMEN moeten "
-"bestaan (tenzij de --or-operator wordt gebruikt)"
-
-#: ../src/tracker-utils/tracker-search.c:1557
-msgid "Search options"
-msgstr "Zoekopties"
-
-#: ../src/tracker-utils/tracker-search.c:1558
-msgid "Show search options"
-msgstr "Zoekopties tonen"
-
-#: ../src/tracker-utils/tracker-search.c:1590
-msgid "Search terms are missing"
-msgstr "Zoektermen ontbreken"
-
-#: ../src/tracker-utils/tracker-search.c:1633
+#: ../src/tracker/tracker-search.c:1553
 #, c-format
-msgid "Search term '%s' is a stop word."
-msgstr "Zoekterm ‘%s’ is een stopwoord"
+#| msgid "Search term '%s' is a stop word."
+msgid "Search term “%s” is a stop word."
+msgstr "Zoekterm ‘%s’ is een stopwoord."
 
-#: ../src/tracker-utils/tracker-search.c:1644
+#: ../src/tracker/tracker-search.c:1564
 #, c-format
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
@@ -2332,34 +1370,34 @@ msgstr ""
 "Stopwoorden zijn algemene woorden die genegeerd mogen worden tijdens het "
 "indexeringsproces."
 
-#: ../src/tracker-utils/tracker-sparql.c:64
+#: ../src/tracker/tracker-sparql.c:105
 msgid "Path to use to run a query or update from file"
 msgstr ""
-"pad gebruiken bij het uitvoeren van een zoekopdracht of het bijwerken vanuit "
-"een bestand"
+"Te gebruiken pad bij het uitvoeren van een zoekopdracht of het bijwerken "
+"vanuit een bestand"
 
-#: ../src/tracker-utils/tracker-sparql.c:68
+#: ../src/tracker/tracker-sparql.c:109
 msgid "SPARQL query"
 msgstr "SPARQL-zoekopdracht"
 
-#: ../src/tracker-utils/tracker-sparql.c:69
+#: ../src/tracker/tracker-sparql.c:110
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker-utils/tracker-sparql.c:72
+#: ../src/tracker/tracker-sparql.c:113
 msgid "This is used with --query and for database updates only."
 msgstr ""
 "voor bijwerken van (alleen) databases en wordt samen met --query gebruikt"
 
-#: ../src/tracker-utils/tracker-sparql.c:76
+#: ../src/tracker/tracker-sparql.c:117
 msgid "Retrieve classes"
 msgstr "klassen ophalen"
 
-#: ../src/tracker-utils/tracker-sparql.c:80
+#: ../src/tracker/tracker-sparql.c:121
 msgid "Retrieve class prefixes"
 msgstr "klassenvoorvoegsels ophalen"
 
-#: ../src/tracker-utils/tracker-sparql.c:84
+#: ../src/tracker/tracker-sparql.c:125
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -2367,43 +1405,68 @@ msgstr ""
 "eigenschappen voor een klasse ophalen, eventueel met voorvoegsels (b.v. rdfs:"
 "Resource)"
 
-#: ../src/tracker-utils/tracker-sparql.c:85
-#: ../src/tracker-utils/tracker-sparql.c:89
+#: ../src/tracker/tracker-sparql.c:126 ../src/tracker/tracker-sparql.c:130
+#: ../src/tracker/tracker-sparql.c:138 ../src/tracker/tracker-sparql.c:146
+#: ../src/tracker/tracker-sparql.c:150
 msgid "CLASS"
 msgstr "KLASSE"
 
-#: ../src/tracker-utils/tracker-sparql.c:88
+#: ../src/tracker/tracker-sparql.c:129
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "klassen ophalen die veranderingen in de database melden (KLASSE is optioneel)"
 
-#: ../src/tracker-utils/tracker-sparql.c:92
+#: ../src/tracker/tracker-sparql.c:133
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional) "
+"optional)"
 msgstr ""
-"indexen ophalen die in de database gebruikt worden voor prestatieverbetering "
+"Indexen ophalen die in de database gebruikt worden voor prestatieverbetering "
 "(EIGENSCHAP is optioneel)"
 
-#: ../src/tracker-utils/tracker-sparql.c:93
+#: ../src/tracker/tracker-sparql.c:134
 msgid "PROPERTY"
 msgstr "EIGENSCHAP"
 
-#: ../src/tracker-utils/tracker-sparql.c:96
+#: ../src/tracker/tracker-sparql.c:137
+msgid ""
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
+msgstr ""
+"Subklasses, superklasses beschrijven (kan worden gebruikt met -s om delen "
+"van de boom te markeren en met -p om eigenschappen te tonen)"
+
+#: ../src/tracker/tracker-sparql.c:141
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr "klasse of eigenschap zoeken en meer informatie tonen (b.v. Documenten)"
 
-#: ../src/tracker-utils/tracker-sparql.c:97
+#: ../src/tracker/tracker-sparql.c:142
 msgid "CLASS/PROPERTY"
 msgstr "KLASSE/EIGENSCHAP"
 
-#: ../src/tracker-utils/tracker-sparql.c:188
+#: ../src/tracker/tracker-sparql.c:145
+msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+msgstr "Geeft de afkorting voor een klasse (bijv. nfo:FileDataObject)."
+
+#: ../src/tracker/tracker-sparql.c:149
+msgid "Returns the full namespace for a class."
+msgstr "Geeft de volledige naamruimte voor een klasse."
+
+#: ../src/tracker/tracker-sparql.c:153
+msgid "Remote service to query to"
+msgstr "Externe dienst voor vragen"
+
+#: ../src/tracker/tracker-sparql.c:154
+msgid "BASE_URL"
+msgstr "BASIS_URL"
+
+#: ../src/tracker/tracker-sparql.c:254
 msgid "Could not get namespace prefixes"
 msgstr "Verkrijgen voorvoegsels naamruimte is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:197
+#: ../src/tracker/tracker-sparql.c:263
 msgid "No namespace prefixes were found"
 msgstr "Er zijn geen voorvoegsels van naamruimten gevonden."
 
@@ -2412,12 +1475,16 @@ msgstr "Er zijn geen voorvoegsels van naamruimten gevonden."
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
 #. To translators: This is to say there are no
-#. * statistics found. We use a "Statistics:
-#. * None" with multiple print statements
-#. To translators: This is to say there are no
 #. * tags found with a particular unique ID.
 #. To translators: This is to say there are no
-#. * files found associated with this tag, e.g.:
+#. * files found associated with multiple tags, e.g.:
+#. *
+#. *   Files:
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * resources found associated with this tag, e.g.:
 #. *
 #. *   Tags (shown by name):
 #. *     None
@@ -2430,322 +1497,1548 @@ msgstr "Er zijn geen voorvoegsels van naamruimten gevonden."
 #. *     None
 #. *
 #.
-#: ../src/tracker-utils/tracker-sparql.c:375
-#: ../src/tracker-utils/tracker-sparql.c:423
-#: ../src/tracker-utils/tracker-stats.c:120
-#: ../src/tracker-utils/tracker-tag.c:328
-#: ../src/tracker-utils/tracker-tag.c:464
-#: ../src/tracker-utils/tracker-tag.c:843
+#: ../src/tracker/tracker-sparql.c:509 ../src/tracker/tracker-sparql.c:557
+#: ../src/tracker/tracker-status.c:136 ../src/tracker/tracker-tag.c:323
+#: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
+#: ../src/tracker/tracker-tag.c:955
 msgid "None"
 msgstr "geen"
 
-#: ../src/tracker-utils/tracker-sparql.c:447
-msgid "- Query or update using SPARQL"
-msgstr "- Zoeken en bijwerken met SPARQL"
+#: ../src/tracker/tracker-sparql.c:963
+msgid "Could not create tree: subclass query failed"
+msgstr "Kon geen boom maken: aanvragen van subklasse is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:461
-#: ../utils/tracker-sql/tracker-sql.c:72
-msgid "An argument must be supplied"
-msgstr "Er moet een argument opgegeven worden"
+#: ../src/tracker/tracker-sparql.c:1012
+msgid "Could not create tree: class properties query failed"
+msgstr "Kon geen boom maken: aanvragen van klasse-eigenschappen is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:463
-#: ../utils/tracker-sql/tracker-sql.c:74
-msgid "File and query can not be used together"
-msgstr "Bestand en zoekopdracht kunnen niet gelijktijdig worden gebruikt"
-
-#: ../src/tracker-utils/tracker-sparql.c:501
+#: ../src/tracker/tracker-sparql.c:1100
 msgid "Could not list classes"
 msgstr "Klassen tonen is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:509
+#: ../src/tracker/tracker-sparql.c:1108
 msgid "No classes were found"
 msgstr "Geen klassen gevonden"
 
-#: ../src/tracker-utils/tracker-sparql.c:509
-#: ../src/tracker-utils/tracker-sparql.c:696
+#: ../src/tracker/tracker-sparql.c:1108 ../src/tracker/tracker-sparql.c:1299
 msgid "Classes"
 msgstr "Klassen"
 
-#: ../src/tracker-utils/tracker-sparql.c:525
+#: ../src/tracker/tracker-sparql.c:1124
 msgid "Could not list class prefixes"
 msgstr "Klassenvoorvoegsels tonen is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:533
+#: ../src/tracker/tracker-sparql.c:1132
 msgid "No class prefixes were found"
 msgstr "Er zijn geen klassenvoorvoegsels gevonden"
 
-#: ../src/tracker-utils/tracker-sparql.c:533
+#: ../src/tracker/tracker-sparql.c:1132
 msgid "Prefixes"
 msgstr "Voorvoegsels"
 
-#: ../src/tracker-utils/tracker-sparql.c:553
+#: ../src/tracker/tracker-sparql.c:1152
+#| msgid ""
+#| "Could not find property for class prefix, e.g. :Resource in 'rdfs:"
+#| "Resource'"
 msgid ""
-"Could not find property for class prefix, e.g. :Resource in 'rdfs:Resource'"
+"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
-"Eigenschap voor klassenvoorvoegsel is niet gevonden, b.v. :Resource in 'rdfs:"
-"Resource'"
+"Eigenschap voor klassenvoorvoegsel is niet gevonden, b.v. :Resource in"
+" 'rdfs:Resource'"
 
-#: ../src/tracker-utils/tracker-sparql.c:592
+#: ../src/tracker/tracker-sparql.c:1191
 msgid "Could not list properties"
 msgstr "Eigenschappen tonen is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:600
+#: ../src/tracker/tracker-sparql.c:1199
 msgid "No properties were found"
 msgstr "Er zijn geen eigenschappen gevonden"
 
-#: ../src/tracker-utils/tracker-sparql.c:600
-#: ../src/tracker-utils/tracker-sparql.c:719
+#: ../src/tracker/tracker-sparql.c:1199 ../src/tracker/tracker-sparql.c:1322
 msgid "Properties"
 msgstr "Eigenschappen"
 
-#: ../src/tracker-utils/tracker-sparql.c:628
+#: ../src/tracker/tracker-sparql.c:1227
 msgid "Could not find notify classes"
 msgstr "Meldingsklassen zijn niet gevonden"
 
-#: ../src/tracker-utils/tracker-sparql.c:636
+#: ../src/tracker/tracker-sparql.c:1235
 msgid "No notifies were found"
 msgstr "Geen meldingen gevonden"
 
-#: ../src/tracker-utils/tracker-sparql.c:636
+#: ../src/tracker/tracker-sparql.c:1235
 msgid "Notifies"
 msgstr "Meldingen"
 
-#: ../src/tracker-utils/tracker-sparql.c:662
+#: ../src/tracker/tracker-sparql.c:1261
 msgid "Could not find indexed properties"
 msgstr "Geïndexeerde eigenschappen zijn niet gevonden"
 
-#: ../src/tracker-utils/tracker-sparql.c:670
+#: ../src/tracker/tracker-sparql.c:1269
 msgid "No indexes were found"
 msgstr "Geen indexen gevonden"
 
-#: ../src/tracker-utils/tracker-sparql.c:670
+#: ../src/tracker/tracker-sparql.c:1269
 msgid "Indexes"
 msgstr "Indexen"
 
-#: ../src/tracker-utils/tracker-sparql.c:688
+#: ../src/tracker/tracker-sparql.c:1291
 msgid "Could not search classes"
 msgstr "Doorzoeken klassen is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:696
+#: ../src/tracker/tracker-sparql.c:1299
 msgid "No classes were found to match search term"
 msgstr "Geen klassen gevonden die aan de zoekterm voldoen"
 
-#: ../src/tracker-utils/tracker-sparql.c:711
+#: ../src/tracker/tracker-sparql.c:1314
 msgid "Could not search properties"
 msgstr "Doorzoeken eigenschappen is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:719
+#: ../src/tracker/tracker-sparql.c:1322
 msgid "No properties were found to match search term"
 msgstr "Geen eigenschappen gevonden die aan de zoekterm voldoen"
 
-#: ../src/tracker-utils/tracker-sparql.c:729
-#: ../utils/tracker-sql/tracker-sql.c:101
+#: ../src/tracker/tracker-sparql.c:1358 ../src/tracker/tracker-sql.c:65
 msgid "Could not get UTF-8 path from path"
 msgstr "Verkrijgen UTF-8-pad uit pad is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:741
-#: ../utils/tracker-sql/tracker-sql.c:112
+#: ../src/tracker/tracker-sparql.c:1370 ../src/tracker/tracker-sql.c:76
 msgid "Could not read file"
 msgstr "Lezen bestand is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:760
+#: ../src/tracker/tracker-sparql.c:1389
 msgid "Could not run update"
 msgstr "Bijwerken is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:808
-#: ../utils/tracker-sql/tracker-sql.c:159
-#: ../utils/tracker-sql/tracker-sql.c:192
+#: ../src/tracker/tracker-sparql.c:1437 ../src/tracker/tracker-sql.c:139
+#: ../src/tracker/tracker-sql.c:172
 msgid "Could not run query"
 msgstr "Uitvoeren zoekopdracht is mislukt"
 
-#: ../src/tracker-utils/tracker-sparql.c:820
-#: ../src/tracker-utils/tracker-sparql.c:823
+#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
 msgstr "Geen resultaten gevonden die voldoen aan uw zoekopdracht"
 
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/tracker-utils/tracker-stats.c:69
-msgid " - Show statistics for all Nepomuk defined ontology classes"
-msgstr ""
-" - Statistieken tonen voor alle, door Nepomuk gedefinieerde, ontologieklassen"
+#: ../src/tracker/tracker-sparql.c:1506 ../src/tracker/tracker-sql.c:247
+msgid "File and query can not be used together"
+msgstr "Bestand en zoekopdracht kunnen niet gelijktijdig worden gebruikt"
 
-#: ../src/tracker-utils/tracker-stats.c:96
+#: ../src/tracker/tracker-sparql.c:1508
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"Het argument --list-properties kan alleen leeg zijn als dit wordt gebruikt "
+"met het argument --tree"
+
+#: ../src/tracker/tracker-sql.c:43
+msgid "Path to use to run a query from file"
+msgstr ""
+"Te gebruiken pad bij het uitvoeren van een zoekopdracht vanuit een bestand"
+
+#: ../src/tracker/tracker-sql.c:47
+msgid "SQL query"
+msgstr "SQL-zoekopdracht"
+
+#: ../src/tracker/tracker-sql.c:48
+msgid "SQL"
+msgstr "SQL"
+
+#: ../src/tracker/tracker-sql.c:120
+msgid "Failed to initialize data manager"
+msgstr "Initialiseren van de gegevensbeheerder is mislukt"
+
+#: ../src/tracker/tracker-sql.c:180
+msgid "Empty result set"
+msgstr "Resultatenverzameling is leeg"
+
+#: ../src/tracker/tracker-status.c:49
+msgid "Show statistics for current index / data set"
+msgstr "Statistieken over huidige index / gegevensset tonen"
+
+#: ../src/tracker/tracker-status.c:53
+msgid ""
+"Collect debug information useful for problem reporting and investigation, "
+"results are output to terminal"
+msgstr ""
+"Foutopsporingsinformatie die bruikbaar is voor probleemrapportage en -"
+"onderzoek verzamelen; resultaten worden in de terminal getoond"
+
+#: ../src/tracker/tracker-status.c:85
 msgid "Could not get Tracker statistics"
 msgstr "Ophalen Tracker-statistieken is mislukt"
 
-#: ../src/tracker-utils/tracker-stats.c:103
+#: ../src/tracker/tracker-status.c:92
 msgid "No statistics available"
 msgstr "Er zijn geen statistieken beschikbaar"
 
-#: ../src/tracker-utils/tracker-stats.c:107
+#. To translators: This is to say there are no
+#. * statistics found. We use a "Statistics:
+#. * None" with multiple print statements
+#: ../src/tracker/tracker-status.c:133
 msgid "Statistics:"
 msgstr "Statistieken:"
 
-#: ../src/tracker-utils/tracker-tag.c:67
+#: ../src/tracker/tracker-status.c:170
+msgid "Version"
+msgstr "Versie"
+
+#: ../src/tracker/tracker-status.c:177
+msgid "Disk Information"
+msgstr "Schijfinformatie"
+
+#: ../src/tracker/tracker-status.c:184 ../src/tracker/tracker-status.c:538
+msgid "Remaining space on database partition"
+msgstr "Resterende ruimte op database-partitie"
+
+#. 3. Size of dataset (tracker-stats), size of databases
+#: ../src/tracker/tracker-status.c:191
+msgid "Data Set"
+msgstr "Gegevensset"
+
+# conversaties/discussies/gesprekken
+#: ../src/tracker/tracker-status.c:223
+msgid "Configuration"
+msgstr "Configuratie"
+
+#: ../src/tracker/tracker-status.c:251
+msgid "No configuration was found"
+msgstr "Geen configuratie gevonden"
+
+#: ../src/tracker/tracker-status.c:255
+msgid "States"
+msgstr "Statussen"
+
+#: ../src/tracker/tracker-status.c:296
+msgid "Data Statistics"
+msgstr "Gegevensstatistieken:"
+
+#: ../src/tracker/tracker-status.c:302
+msgid "No connection available"
+msgstr "Geen verbinding beschikbaar"
+
+#: ../src/tracker/tracker-status.c:312
+msgid "Could not get statistics"
+msgstr "Ophalen van statistieken is mislukt"
+
+#: ../src/tracker/tracker-status.c:318
+msgid "No statistics were available"
+msgstr "Er waren geen statistieken beschikbaar"
+
+#: ../src/tracker/tracker-status.c:331
+msgid "Database is currently empty"
+msgstr "Database is momenteel leeg"
+
+#: ../src/tracker/tracker-status.c:408 ../src/tracker/tracker-status.c:431
+msgid "Could not get basic status for Tracker"
+msgstr "Kon geen basis-status van Tracker vaststellen"
+
+#: ../src/tracker/tracker-status.c:515
+#, c-format
+msgid "Currently indexed"
+msgstr "Momenteel geïndexeerd"
+
+#: ../src/tracker/tracker-status.c:550
+msgid "Data is still being indexed"
+msgstr "Gegevens worden nog steeds geïndexeerd"
+
+#: ../src/tracker/tracker-status.c:551
+#, c-format
+msgid "Estimated %s left"
+msgstr "Geschat %s resterend"
+
+#: ../src/tracker/tracker-status.c:555
+msgid "All data miners are idle, indexing complete"
+msgstr "Alle dataminers staan op standby, indexeren voltooid"
+
+#: ../src/tracker/tracker-tag.c:53
 msgid ""
 "List all tags (using FILTER if specified; FILTER always uses logical OR)"
 msgstr ""
 "alle tags tonen (gebruik FILTER indien opgegeven; FILTER gebruikt altijd "
 "logische OR)"
 
-#: ../src/tracker-utils/tracker-tag.c:68
+#: ../src/tracker/tracker-tag.c:54
 msgid "FILTER"
 msgstr "FILTER"
 
-#: ../src/tracker-utils/tracker-tag.c:71
+#: ../src/tracker/tracker-tag.c:57
 msgid "Show files associated with each tag (this is only used with --list)"
 msgstr ""
 "bestanden gekoppeld met ieder tag tonen (dit wordt alleen met --list "
 "gebruikt)"
 
-#: ../src/tracker-utils/tracker-tag.c:75
+#: ../src/tracker/tracker-tag.c:61
 msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
 msgstr ""
 "tag toevoegen (als BESTAND-en weggelaten zijn, wordt TAG niet met bestanden "
 "gekoppeld)"
 
-#: ../src/tracker-utils/tracker-tag.c:76 ../src/tracker-utils/tracker-tag.c:80
+#: ../src/tracker/tracker-tag.c:62 ../src/tracker/tracker-tag.c:66
 msgid "TAG"
 msgstr "TAG"
 
-#: ../src/tracker-utils/tracker-tag.c:79
+#: ../src/tracker/tracker-tag.c:65
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
 msgstr ""
 "tag verwijderen (als BESTAND-en weggelaten zijn, wordt TAG van alle "
 "bestanden verwijderd)"
 
-#: ../src/tracker-utils/tracker-tag.c:83
+#: ../src/tracker/tracker-tag.c:69
 msgid "Description for a tag (this is only used with --add)"
 msgstr "tagbeschrijving (wordt alleen met --add gebruikt)"
 
-#: ../src/tracker-utils/tracker-tag.c:84
+#: ../src/tracker/tracker-tag.c:70
 msgid "STRING"
 msgstr "TEKST"
 
-#: ../src/tracker-utils/tracker-tag.c:92
+#: ../src/tracker/tracker-tag.c:81
+msgid "Use AND for search terms instead of OR (the default)"
+msgstr "AND voor zoektermen gebruiken in plaats van de OR (de standaardwaarde)"
+
+#: ../src/tracker/tracker-tag.c:86
 msgid "FILE…"
 msgstr "BESTAND…"
 
-#: ../src/tracker-utils/tracker-tag.c:93
+#: ../src/tracker/tracker-tag.c:87
 msgid "FILE [FILE…]"
 msgstr "BESTAND [BESTAND…]"
 
-#: ../src/tracker-utils/tracker-tag.c:254
+#: ../src/tracker/tracker-tag.c:249
 msgid "Could not get file URNs"
 msgstr "Ophalen van bestand-URN's is mislukt"
 
-#: ../src/tracker-utils/tracker-tag.c:319
+#: ../src/tracker/tracker-tag.c:314
 msgid "Could not get files related to tag"
 msgstr "Ophalen van bestanden gekoppeld met tag is mislukt"
 
-#: ../src/tracker-utils/tracker-tag.c:401
-#: ../src/tracker-utils/tracker-tag.c:817
+#: ../src/tracker/tracker-tag.c:381
+msgid "Could not get all tags in the database"
+msgstr "Ophalen van alle tags in de database is mislukt"
+
+#: ../src/tracker/tracker-tag.c:391
+msgid "No files have been tagged"
+msgstr "Geen bestanden zijn getagd"
+
+#: ../src/tracker/tracker-tag.c:426
+msgid "Could not get files for matching tags"
+msgstr "Ophalen van bestanden voor overeenkomende tags is mislukt"
+
+#: ../src/tracker/tracker-tag.c:435
+msgid "No files were found matching ALL of those tags"
+msgstr "Geen bestanden gevonden die voldoen aan AL die tags"
+
+#: ../src/tracker/tracker-tag.c:514 ../src/tracker/tracker-tag.c:929
 msgid "Could not get all tags"
 msgstr "Ophalen van alle tags is mislukt"
 
-#: ../src/tracker-utils/tracker-tag.c:410
-#: ../src/tracker-utils/tracker-tag.c:826
+#: ../src/tracker/tracker-tag.c:523 ../src/tracker/tracker-tag.c:938
 msgid "No tags were found"
 msgstr "Geen tags gevonden"
 
-#: ../src/tracker-utils/tracker-tag.c:414
+#: ../src/tracker/tracker-tag.c:527
 msgid "Tags (shown by name)"
 msgstr "Tags (alfabetisch op naam)"
 
-#: ../src/tracker-utils/tracker-tag.c:488
+#: ../src/tracker/tracker-tag.c:601
 msgid "No files were modified"
 msgstr "Geen bestanden gewijzigd"
 
-#: ../src/tracker-utils/tracker-tag.c:613
+#: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
+#| msgid "Files do not exist or aren't indexed"
+msgid "Files do not exist or aren’t indexed"
+msgstr "Bestanden bestaan niet of zijn niet geïndexeerd"
+
+#: ../src/tracker/tracker-tag.c:709
+msgid "Could not add tag"
+msgstr "Toevoegen tags is mislukt"
+
+#: ../src/tracker/tracker-tag.c:725
 msgid "Tag was added successfully"
 msgstr "Tag is toegevoegd"
 
-#: ../src/tracker-utils/tracker-tag.c:642
+#: ../src/tracker/tracker-tag.c:754
 msgid "Could not add tag to files"
 msgstr "Toevoegen van tag aan bestanden is mislukt"
 
-#: ../src/tracker-utils/tracker-tag.c:652
+#: ../src/tracker/tracker-tag.c:764
 msgid "Tagged"
 msgstr "Met tag"
 
-#: ../src/tracker-utils/tracker-tag.c:653
+#: ../src/tracker/tracker-tag.c:765
 msgid "Not tagged, file is not indexed"
 msgstr "Niet getagd, bestand is niet geïndexeerd"
 
-#: ../src/tracker-utils/tracker-tag.c:699
+#: ../src/tracker/tracker-tag.c:811
 msgid "Could not get tag by label"
 msgstr "Verkrijgen van tag per label is mislukt"
 
-#: ../src/tracker-utils/tracker-tag.c:710
+#: ../src/tracker/tracker-tag.c:822
 msgid "No tags were found by that name"
 msgstr "Geen tags met die naam gevonden"
 
-#: ../src/tracker-utils/tracker-tag.c:727
+#: ../src/tracker/tracker-tag.c:839
 msgid "None of the files had this tag set"
 msgstr "Geen van de bestanden had deze tag gekoppeld"
 
-#: ../src/tracker-utils/tracker-tag.c:780
+#: ../src/tracker/tracker-tag.c:885
+msgid "Could not remove tag"
+msgstr "Verwijderen tag is mislukt"
+
+#: ../src/tracker/tracker-tag.c:892
 msgid "Tag was removed successfully"
 msgstr "Tag is verwijderd"
 
-#: ../src/tracker-utils/tracker-tag.c:784
+#: ../src/tracker/tracker-tag.c:896
 msgid "Untagged"
 msgstr "Zonder tag"
 
-#: ../src/tracker-utils/tracker-tag.c:785
+#: ../src/tracker/tracker-tag.c:897
 msgid "File not indexed or already untagged"
 msgstr "Bestand niet geïndexeerd of tag is al verwijderd"
 
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#.
-#: ../src/tracker-utils/tracker-tag.c:871
-msgid "Add, remove or list tags"
-msgstr "- Tags toevoegen, verwijderen of tonen"
-
-#: ../src/tracker-utils/tracker-tag.c:887
+#: ../src/tracker/tracker-tag.c:1088
 msgid "The --list option is required for --show-files"
 msgstr "--list-optie is vereist voor --show-files"
 
-#: ../src/tracker-utils/tracker-tag.c:889
+#: ../src/tracker/tracker-tag.c:1090
+msgid ""
+"The --and-operator option can only be used with --list and tag label "
+"arguments"
+msgstr ""
+"De optie --en-operator kan alleen worden gebruikt met --list en label-"
+"argumenten"
+
+#: ../src/tracker/tracker-tag.c:1092
 msgid "Add and delete actions can not be used together"
 msgstr "toevoeg- en verwijderacties kunnen niet samen gebruikt worden"
 
-#: ../src/tracker-utils/tracker-tag.c:891
-msgid "No arguments were provided"
-msgstr "Geen argumenten opgegeven"
-
-#: ../src/tracker-utils/tracker-tag.c:893
+#: ../src/tracker/tracker-tag.c:1094
 msgid "The --description option can only be used with --add"
 msgstr "--description is alleen geldig samen met --add"
 
-#: ../src/tracker-writeback/tracker-main.c:62
-msgid "Disable shutting down after 30 seconds of inactivity"
-msgstr "Uitschakelen na 30 seconden van inactiviteit is uitgeschakeld"
+#~ msgid "No network connection"
+#~ msgstr "Geen netwerkverbinding"
 
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: ../src/tracker-writeback/tracker-main.c:98
-msgid "- start the tracker writeback service"
-msgstr "- Write-backdienst van de tracker starten"
+#~ msgid "Indexing not recommended on this network connection"
+#~ msgstr "Indexeren wordt niet aanbevolen op deze netwerkverbinding"
 
-#: ../utils/gtk-sparql/gtk-sparql.ui.h:1
-msgid "Saved queries"
-msgstr "Opgeslagen zoekopdrachten"
+#~ msgid "Applications"
+#~ msgstr "Toepassingen"
 
-#: ../utils/tracker-sql/tracker-sql.c:66
-msgid "- Query or update using SQL"
-msgstr "- Zoeken en bijwerken met SQL"
+#~ msgid "Applications data miner"
+#~ msgstr "Toepassingen dataminer"
 
-#: ../utils/tracker-sql/tracker-sql.c:140
-msgid "Failed to initialize data manager"
-msgstr "Initialiseren van de gegevensbeheerder is mislukt"
+#~ msgid ""
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default=0)"
+#~ msgstr ""
+#~ "Logging, 0 = alleen foutmeldingen, 1 = minimaal, 2 = gedetailleerd en 3 = "
+#~ "debug (standaard = 0)"
 
-#: ../utils/tracker-sql/tracker-sql.c:200
-msgid "Empty result set"
-msgstr "Resultatenverzameling is leeg"
+#~ msgid "Runs until all applications are indexed and then exits"
+#~ msgstr ""
+#~ "Actief totdat alle toepassingen geïndexeerd zijn, en stopt vervolgens"
+
+#~ msgid "- start the application data miner"
+#~ msgstr "- start de toepassingendataminer"
+
+#~ msgid "Tracker Application Miner"
+#~ msgstr "Tracker toepassingenminer"
+
+#~ msgid "Indexes information about applications installed"
+#~ msgstr "Indexeert informatie over de geïnstalleerde toepassingen"
+
+#~ msgid "File System"
+#~ msgstr "Bestandssysteem"
+
+#~ msgid "File system data miner"
+#~ msgstr "Dataminer bestandssysteem"
+
+#~ msgid "Initial sleep"
+#~ msgstr "Initiële wachttijd"
+
+#~ msgid "Initial sleep time, in seconds."
+#~ msgstr "Initiële wachttijd in seconden."
+
+#~ msgid "Scheduler priority when idle"
+#~ msgstr "Prioriteit planner gedurende inactiviteit"
+
+#~ msgid ""
+#~ "The scheduler is the kernel component that decides which runnable "
+#~ "application will be executed by the CPU next. Each application has an "
+#~ "associated scheduling policy and priority."
+#~ msgstr ""
+#~ "De planner is de kerncomponent die beslist welke actieve toepassing als "
+#~ "volgt wordt uitgevoerd door de CPU. Iedere toepassing heeft een gekoppeld "
+#~ "planbeleid en -prioriteit."
+
+#~ msgid "Throttle"
+#~ msgstr "Smoren"
+
+#~ msgid "Indexing speed, the higher the slower."
+#~ msgstr "Indexeersnelheid, hogere waarde betekent lagere snelheid."
+
+#~ msgid "Low disk space limit"
+#~ msgstr "Drempelwaarde beperkte schijfruimte"
+
+#~ msgid ""
+#~ "Disk space threshold in percent at which to pause indexing, or -1 to "
+#~ "disable."
+#~ msgstr ""
+#~ "Drempelwaarde schijfruimte in procent waarbij het indexeren wordt "
+#~ "gepauzeerd, of -1 om dit uit te schakelen."
+
+#~ msgid "Crawling interval"
+#~ msgstr "Doorzoekinterval"
+
+#~ msgid ""
+#~ "Interval in days to check whether the filesystem is up to date in the "
+#~ "database. 0 forces crawling anytime, -1 forces it only after unclean "
+#~ "shutdowns, and -2 disables it entirely."
+#~ msgstr ""
+#~ "Interval in dagen waarna gecontroleerd worden of het bestandssysteem in "
+#~ "de database is bijgewerkt. ‘0’ forceert continu doorzoeken,  ‘-1’ alleen "
+#~ "na een gemankeerde systeemuitschakeling en ‘-2’ schakelt het volledig "
+#~ "uit. "
+
+#~ msgid "Removable devices' data permanence threshold"
+#~ msgstr "Drempelwaarde gegevensbestendigheid van verwijderbare apparaten"
+
+#~ msgid ""
+#~ "Threshold in days after which files from removables devices will be "
+#~ "removed from database if not mounted. 0 means never, maximum is 365."
+#~ msgstr ""
+#~ "Drempelwaarde in dagen waarna bestanden van verwijderbare apparaten die "
+#~ "niet aangekoppeld zijn, uit de database verwijderd zullen worden. ‘0’ "
+#~ "betekent nooit, 365 is het maximum."
+
+#~ msgid "Enable monitors"
+#~ msgstr "Observatoren inschakelen"
+
+#~ msgid "Set to false to completely disable any file monitoring"
+#~ msgstr "Stel in op ‘false’ om bestandsobservatie volledig uit te schakelen"
+
+#~ msgid "Enable writeback"
+#~ msgstr "Write-back activeren"
+
+#~ msgid "Set to false to completely disable any file writeback"
+#~ msgstr ""
+#~ "Stel in op ‘false’ om write-back van bestanden volledig uit te schakelen"
+
+#~ msgid "Index removable devices"
+#~ msgstr "Verwijderbare apparaten indexeren"
+
+#~ msgid ""
+#~ "Set to true to enable indexing mounted directories for removable devices."
+#~ msgstr ""
+#~ "Stel in op ‘true’ om indexering van aangekoppelde mappen van "
+#~ "verwijderbare apparaten in te schakelen."
+
+#~ msgid "Index optical discs"
+#~ msgstr "Optische schijven indexeren"
+
+#~ msgid ""
+#~ "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
+#~ "removable devices are not indexed, optical discs won't be either)"
+#~ msgstr ""
+#~ "Stel in op ‘true’ om indexering van CD's, DVD's en optische media in het "
+#~ "algemeen in te schakelen (als verwijderbare apparaten niet worden "
+#~ "geïndexeerd, zal dit voor optische schijven ook niet gebeuren)"
+
+#~ msgid "Index when running on battery"
+#~ msgstr "Bij accustroom indexeren"
+
+#~ msgid "Set to true to index while running on battery"
+#~ msgstr "Stel in op ‘true’ om te indexeren tijdens gebruik van accustroom"
+
+# aanvankelijke/initiële/controleindex
+#~ msgid "Perform initial indexing when running on battery"
+#~ msgstr "Bij accustroom de initiële indexering toestaan"
+
+#~ msgid ""
+#~ "Set to true to index while running on battery for the first time only"
+#~ msgstr ""
+#~ "Stel in op ‘true’ om de initiële indexering ook uit te voeren tijdens "
+#~ "gebruik van accustroom"
+
+#~ msgid "Directories to index recursively"
+#~ msgstr "Mappen om recursief te indexeren"
+
+#~ msgid ""
+#~ "List of directories to index recursively, Special values include: &amp;"
+#~ "DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
+#~ "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs."
+#~ "defaults and $HOME/.config/user-dirs.default"
+#~ msgstr ""
+#~ "Lijst van mappen die geïndexeerd moet worden zonder de submappen te "
+#~ "beschouwen, speciale waarden zijn onder meer: &amp;DESKTOP, &amp;"
+#~ "DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;PUBLICSHARE, "
+#~ "&amp;TEMPLATES, &amp;VIDEOS. Zie /etc/xdg/user-dirs.defaults en $HOME/."
+#~ "config/user-dirs.default"
+
+#~ msgid "Directories to index non-recursively"
+#~ msgstr "Mappen om niet-recursief te indexeren"
+
+#~ msgid ""
+#~ "List of directories to index without inspecting subfolders, Special "
+#~ "values include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, "
+#~ "&amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/"
+#~ "xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
+#~ msgstr ""
+#~ "Mappenlijst die geïndexeerd moeten worden zonder de submappen te "
+#~ "beschouwen, waaronder: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;"
+#~ "MUSIC, &amp;PICTURES, &amp;PUBLICSHARE, &amp;TEMPLATES, &amp;VIDEOS. Zie /"
+#~ "etc/xdg/user-dirs.defaults en $HOME/.config/user-dirs.default"
+
+# Genegeerde bestandspatronen/genegeerde bestanden
+#~ msgid "Ignored files"
+#~ msgstr "Genegeerde bestanden"
+
+#~ msgid "List of file patterns to avoid"
+#~ msgstr "Lijst met bestandspatronen die moeten worden genegeerd"
+
+#~ msgid "Ignored directories"
+#~ msgstr "Genegeerde mappen"
+
+#~ msgid "List of directories to avoid"
+#~ msgstr "Lijst met mappen die moeten worden genegeerd"
+
+#~ msgid "Ignored directories with content"
+#~ msgstr "Genegeerde mappen met inhoud"
+
+#~ msgid "Avoid any directory containing a file blacklisted here"
+#~ msgstr "Vermijd iedere map die een bestand uit de zwarte lijst bevat"
+
+#~ msgid "Initial sleep time in seconds, 0->1000 (default=15)"
+#~ msgstr "Initiële wachttijd in seconden, 0->1000 (standaard = 15)"
+
+#~ msgid "Runs until all configured locations are indexed and then exits"
+#~ msgstr ""
+#~ "actief totdat alle geconfigureerde locaties geïndexeerd zijn, en stopt "
+#~ "vervolgens"
+
+#~ msgid "Checks if FILE is eligible for being mined based on configuration"
+#~ msgstr ""
+#~ "controleert of inhoud van BESTAND verkozen is om op basis van "
+#~ "configuratie gemined te worden"
+
+#~ msgid "Data object '%s' currently exists"
+#~ msgstr "Gegevensobject ‘%s’ bestaat momenteel"
+
+#~ msgid "Data object '%s' currently does not exist"
+#~ msgstr "Gegevensobject ‘%s’ bestaat momenteel niet"
+
+#~ msgid "Directory is eligible to be mined (based on rules)"
+#~ msgstr "map is verkozen om gemined te worden (gebaseerd op regels)"
+
+#~ msgid "Directory is NOT eligible to be mined (based on rules)"
+#~ msgstr "map is NIET verkozen om gemined te worden (gebaseerd op regels)"
+
+#~ msgid "Directory is eligible to be mined (based on contents)"
+#~ msgstr "map is verkozen om gemined te worden (gebaseerd op inhoud)"
+
+#~ msgid "Directory is NOT eligible to be mined (based on contents)"
+#~ msgstr "map is NIET verkozen om gemined te worden (gebaseerd op inhoud)"
+
+#~ msgid "Directory is eligible to be monitored (based on config)"
+#~ msgstr ""
+#~ "map is verkozen om geobserveerd te worden (gebaseerd op configuratie)"
+
+#~ msgid "Directory is NOT eligible to be monitored (based on config)"
+#~ msgstr ""
+#~ "map is NIET verkozen om geobserveerd te worden (gebaseerd op configuratie)"
+
+#~ msgid "File is eligible to be monitored (based on config)"
+#~ msgstr ""
+#~ "inhoud van bestand is verkozen om geobserveerd te worden (gebaseerd op "
+#~ "configuratie)"
+
+#~ msgid "File is NOT eligible to be monitored (based on config)"
+#~ msgstr ""
+#~ "inhoud van bestand is NIET verkozen om geobserveerd te worden (gebaseerd "
+#~ "op configuratie)"
+
+#~ msgid "File or Directory is eligible to be monitored (based on config)"
+#~ msgstr ""
+#~ "inhoud van bestand of map is verkozen om geobserveerd te worden "
+#~ "(gebaseerd op configuratie)"
+
+#~ msgid "File or Directory is NOT eligible to be monitored (based on config)"
+#~ msgstr ""
+#~ "inhoud van bestand of map is NIET verkozen om geobserveerd te worden "
+#~ "(gebaseerd op configuratie)"
+
+#~ msgid "File is eligible to be mined (based on rules)"
+#~ msgstr ""
+#~ "inhoud van bestand is verkozen om gemined te worden (gebaseerd op regels)"
+
+#~ msgid "File is NOT eligible to be mined (based on rules)"
+#~ msgstr ""
+#~ "inhoud van bestand is NIET verkozen om gemined te worden (gebaseerd op "
+#~ "regels)"
+
+#~ msgid "Would be indexed"
+#~ msgstr "Zou worden geïndexeerd"
+
+#~ msgid "No"
+#~ msgstr "Nee"
+
+#~ msgid "Would be monitored"
+#~ msgstr "Zou worden geobserveerd"
+
+#~ msgid "- start the tracker indexer"
+#~ msgstr "- de indexeerder van Tracker starten"
+
+#~ msgid "Low battery"
+#~ msgstr "Accu bijna leeg"
+
+#~ msgid "Low disk space"
+#~ msgstr "Weinig vrije schijfruimte"
+
+#~ msgid "Tracker File System Miner"
+#~ msgstr "Tracker-bestandssysteem-dataminer "
+
+#~ msgid "Crawls and processes files on the file system"
+#~ msgstr "Doorzoekt en verwerkt bestanden op het bestandssysteem"
+
+#~ msgid "RSS/ATOM Feeds"
+#~ msgstr "RSS/ATOM-feeds"
+
+#~ msgid "Fetch RSS/ATOM Feeds"
+#~ msgstr "RSS/ATOM-feeds ophalen"
+
+#~ msgid "Add feed"
+#~ msgstr "Feed toevoegen"
+
+#~ msgid "URL"
+#~ msgstr "URL"
+
+#~ msgid "Title to use (must be used with --add-feed)"
+#~ msgstr "te gebruiken titel (moet worden gebruikt met --add-feed)"
+
+#~ msgid "- start the feeds indexer"
+#~ msgstr "- Indexeerder van feed starten"
+
+#~ msgid "Could not add feed"
+#~ msgstr "Toevoegen feed is mislukt"
+
+#~ msgid "Tracker RSS/ATOM Feeds Miner"
+#~ msgstr "Tracker RSS/ATOM-feeds-miner"
+
+#~ msgid "Fetch RSS/ATOM feeds"
+#~ msgstr "RSS/ATOM-feeds ophalen"
+
+#~ msgid "Userguides"
+#~ msgstr "Gebruikershandleidingen"
+
+#~ msgid "Userguide data miner"
+#~ msgstr "Gebruikershandleiding dataminer"
+
+#~ msgid "- start the user guides data miner"
+#~ msgstr "- start de gebruikershandleidingendataminer"
+
+#~ msgid "Tracker User Guides Miner"
+#~ msgstr "Dataminer Tracker-gebruikershandleidingen"
+
+#~ msgid "Crawls and processes user guides in shared areas"
+#~ msgstr "Doorzoekt en verwerkt gebruikershandleidingen in gedeelde gebieden"
+
+#~ msgid "Evolution Email miner"
+#~ msgstr "Dataminer Evolution-mail"
+
+#~ msgid "Tracker"
+#~ msgstr "Tracker"
+
+#~ msgid "Push data to Tracker to make it queryable."
+#~ msgstr "Voeg gegevens aan Tracker toe om deze doorzoekbaar te maken."
+
+# trefwoorden
+#~ msgid "Tags"
+#~ msgstr "Tags"
+
+#~ msgid "_Set the tags you want to associate with the %d selected item:"
+#~ msgid_plural ""
+#~ "_Set the tags you want to associate with the %d selected items:"
+#~ msgstr[0] "_Stel de tags in die u wilt koppelen met het geselecteerde item:"
+#~ msgstr[1] ""
+#~ "_Stel de tags in die u wilt koppelen met de %d geselecteerde items:"
+
+#~ msgid "Extractor"
+#~ msgstr "Uitpakprogramma"
+
+#~ msgid "Metadata extractor"
+#~ msgstr "Metadata-uitpakprogramma"
+
+#~ msgid "Max bytes to extract"
+#~ msgstr "Maximum aantal bytes om uit te pakken"
+
+#~ msgid "Maximum number of UTF-8 bytes to extract."
+#~ msgstr "Maximum aantal UTF-8-bytes om uit te pakken."
+
+#~ msgid "Max media art width"
+#~ msgstr "Maximumbreedte albumhoes"
+
+#~ msgid ""
+#~ "Maximum width in pixels for any media art extracted. Anything bigger is "
+#~ "resized. Set to -1 to disable saving media art from files. Setting to 0 "
+#~ "sets no limit on the media art width."
+#~ msgstr ""
+#~ "Maximumbreedte in beeldpunten voor alle uitgepakte albumhoezen. Alles wat "
+#~ "groter is, wordt hierop aangepast. Door -1 op te geven wordt het opslaan "
+#~ "van albumhoezen uit bestanden uitgeschakeld. Instellen op 0 verwijderd de "
+#~ "maximumbreedtebeperking. "
+
+#~ msgid "Wait for FS miner to be done before extracting"
+#~ msgstr "Wachten totdat FS-dataminer klaar is alvorens uit te pakken"
+
+#~ msgid ""
+#~ "When true, tracker-extract will wait for tracker-miner-fs to be done "
+#~ "crawling before extracting meta-data. This option is useful on "
+#~ "constrained environment where it is important to list files as fast as "
+#~ "possible and can wait to get meta-data later."
+#~ msgstr ""
+#~ "Indien ingeschakeld, zal tracker-extract wachten totdat tracker-miner-fs "
+#~ "klaar is met doorzoeken voordat meta-data uitgepakt gaat worden. Deze "
+#~ "optie is nuttig in een beperkte omgeving waar het belangrijk is om de "
+#~ "bestandenlijst zo snel mogelijk weer te geven en waar wat langer gewacht "
+#~ "kan worden op de meta-data."
+
+#~ msgid "Metadata extraction failed"
+#~ msgstr "Uitpakken van metadata is mislukt"
+
+#~ msgid "No metadata or extractor modules found to handle this file"
+#~ msgstr ""
+#~ "Geen metadata of uitpak-modules gevonden die kunnen omgaan met dit bestand"
+
+#~ msgid "File to extract metadata for"
+#~ msgstr "Bestand om metadata uit te extraheren"
+
+#~ msgid "MIME type for file (if not provided, this will be guessed)"
+#~ msgstr "MIME-type voor bestand (indien niet opgegeven, wordt dit geraden)"
+
+#~ msgid ""
+#~ "Force a module to be used for extraction (e.g. \"foo\" for \"foo.so\")"
+#~ msgstr ""
+#~ "Afdwingen dat een module als uitpakprogramma wordt gebruikt (b.v. \"foo\" "
+#~ "voor \"foo.so\")"
+
+#~ msgid "MODULE"
+#~ msgstr "MODULE"
+
+#~ msgid "- Extract file meta data"
+#~ msgstr "- Metadata van bestand extraheren"
+
+#~ msgid "Filename and mime type must be provided together"
+#~ msgstr "Bestandsnaam en mime-type dienen tegelijkertijd te worden opgegeven"
+
+#~ msgid "Tracker Metadata Extractor"
+#~ msgstr "Tracker Metadata-uitpakprogramma"
+
+#~ msgid "Default View"
+#~ msgstr "Standaardweergave"
+
+#~ msgid ""
+#~ "When 0, default view of tracker-needle will be Icons view. When 1, "
+#~ "default view of tracker-needle will be Categories view. When 2, default "
+#~ "view of tracker-needle will be Files view."
+#~ msgstr ""
+#~ "Indien 0, zal de standaardweergave van tracker-needle de iconen-weergave "
+#~ "zijn. Indien 1, zal de standaardweergave van tracker-needle de categorie-"
+#~ "weergave zijn, Indien 2, zal de standaardweergave van tracker-needle de "
+#~ "bestanden-weergave zijn."
+
+#~ msgid "Desktop Search"
+#~ msgstr "Bureaubladzoeken"
+
+#~ msgid ""
+#~ "Find what you're looking for on this computer by name or content using "
+#~ "Tracker"
+#~ msgstr "Doorzoek deze computer op naam of inhoud met behulp van Tracker"
+
+#~ msgid ""
+#~ "Display results by category, for example, Music, Videos, Applications, "
+#~ "etc. This includes searching the contents of files where applicable."
+#~ msgstr ""
+#~ "Resultaten per categorie tonen, bijvoorbeeld Muziek, Video's, "
+#~ "Toepassingen, enz. Dit omvat ook het zoeken in bestanden, indien van "
+#~ "toepassing."
+
+#~ msgid "Display results by files found in a list"
+#~ msgstr "Resultaten tonen gesorteerd op in een lijst gevonden bestanden"
+
+#~ msgid "Display found images"
+#~ msgstr "Gevonden afbeeldingen tonen"
+
+#~ msgid "Find search criteria inside files"
+#~ msgstr "In inhoud van bestanden zoeken"
+
+#~ msgid "Find search criteria in file titles"
+#~ msgstr "In bestandsnamen zoeken"
+
+#~ msgid "Find search criteria in file tags only (separated by comma)"
+#~ msgstr "In bestandsnamen zoeken (komma-gescheiden)"
+
+#~ msgid "_Search:"
+#~ msgstr "_Zoeken:"
+
+#~ msgid "Show tagging panel which allows editing tags of selected results"
+#~ msgstr ""
+#~ "Tagpaneel tonen waarmee tags of geselecteerde resultaten bewerkt kunnen "
+#~ "worden"
+
+#~ msgid "Show statistics about the data stored"
+#~ msgstr "Statistieken over opgeslagen gegevens tonen"
+
+#~ msgid "_Set the tags you want to associate with the %d selected items:"
+#~ msgstr ""
+#~ "De tags _instellen die gekoppeld moeten worden met de %d geselecteerde "
+#~ "items:"
+
+#~ msgid "Add tag"
+#~ msgstr "Tag toevoegen"
+
+#~ msgid "Remove selected tag"
+#~ msgstr "Geselecteerde tag verwijderen"
+
+#~ msgid "Search criteria was too generic"
+#~ msgstr "Zoekcriterium is te algemeen"
+
+#~ msgid "Only the first 500 items will be displayed"
+#~ msgstr "Alleen de eerste 500 items zullen worden getoond"
+
+#~ msgid "Print version"
+#~ msgstr "versie tonen"
+
+#~ msgid "[SEARCH-CRITERIA]"
+#~ msgstr "[ZOEKCRITERIA]"
+
+#~ msgid "Desktop Search user interface using Tracker"
+#~ msgstr "Gebruikersinterface bureaubladzoeken met Tracker"
+
+#~ msgid ""
+#~ "The statistics represented here do not reflect their availability, rather "
+#~ "the total data stored:"
+#~ msgstr ""
+#~ "De hier gepresenteerde statistieken zijn geen afspiegeling van de "
+#~ "beschikbaarheid van gegevens, maar van het opgeslagen totaal:"
+
+# trefwoorden
+#~ msgid "Tag"
+#~ msgid_plural "Tags"
+#~ msgstr[0] "Tag"
+#~ msgstr[1] "Tags"
+
+#~ msgid "Contact"
+#~ msgid_plural "Contacts"
+#~ msgstr[0] "Contactpersoon"
+#~ msgstr[1] "Contactpersonen"
+
+#~ msgid "Audio"
+#~ msgid_plural "Audios"
+#~ msgstr[0] "Geluidbestand"
+#~ msgstr[1] "Geluidbestanden"
+
+#~ msgid "Document"
+#~ msgid_plural "Documents"
+#~ msgstr[0] "Document"
+#~ msgstr[1] "Documenten"
+
+#~ msgid "File"
+#~ msgid_plural "Files"
+#~ msgstr[0] "Bestand"
+#~ msgstr[1] "Bestanden"
+
+#~ msgid "Folder"
+#~ msgid_plural "Folders"
+#~ msgstr[0] "Map"
+#~ msgstr[1] "Mappen"
+
+#~ msgid "Image"
+#~ msgid_plural "Images"
+#~ msgstr[0] "Afbeelding"
+#~ msgstr[1] "Afbeeldingen"
+
+#~ msgid "Video"
+#~ msgid_plural "Videos"
+#~ msgstr[0] "Video"
+#~ msgstr[1] "Video's"
+
+#~ msgid "Album"
+#~ msgid_plural "Albums"
+#~ msgstr[0] "Album"
+#~ msgstr[1] "Albums"
+
+#~ msgid "Music Track"
+#~ msgid_plural "Music Tracks"
+#~ msgstr[0] "Muzieknummer"
+#~ msgstr[1] "Muzieknummers"
+
+#~ msgid "Photo"
+#~ msgid_plural "Photos"
+#~ msgstr[0] "Foto"
+#~ msgstr[1] "Foto's"
+
+#~ msgid "Playlist"
+#~ msgid_plural "Playlists"
+#~ msgstr[0] "Afspeellijst"
+#~ msgstr[1] "Afspeellijsten"
+
+#~ msgid "Email"
+#~ msgid_plural "Emails"
+#~ msgstr[0] "E-mail"
+#~ msgstr[1] "E-mails"
+
+#~ msgid "Bookmark"
+#~ msgid_plural "Bookmarks"
+#~ msgstr[0] "Bladwijzer"
+#~ msgstr[1] "Bladwijzers"
+
+#~ msgid "Name"
+#~ msgstr "Naam"
+
+#~ msgid "No items currently selected"
+#~ msgstr "Geen item geselecteerd"
+
+#~ msgid "Could not update tags"
+#~ msgstr "Bijwerken tags is mislukt"
+
+#~ msgid "Could not retrieve tags for the current selection"
+#~ msgstr "Ophalen van tags voor de huidige selectie is mislukt"
+
+#~ msgid "Could not update tags for file"
+#~ msgstr "Bijwerken tags voor bestand is mislukt"
+
+#~ msgid "%x"
+#~ msgstr "%e %B %Y"
+
+#~ msgid "Today"
+#~ msgstr "Vandaag"
+
+#~ msgid "Tomorrow"
+#~ msgstr "Morgen"
+
+#~ msgid "Yesterday"
+#~ msgstr "Gisteren"
+
+#~ msgid "%ld day from now"
+#~ msgid_plural "%ld days from now"
+#~ msgstr[0] "%ld dag vanaf nu"
+#~ msgstr[1] "%ld dagen vanaf nu"
+
+#~ msgid "%ld day ago"
+#~ msgid_plural "%ld days ago"
+#~ msgstr[0] "%ld dag geleden"
+#~ msgstr[1] "%ld dagen geleden"
+
+#~ msgid "Less than one second"
+#~ msgstr "minder dan een seconde"
+
+#~ msgid "No Search Results"
+#~ msgstr "Geen zoekresultaten"
+
+#~ msgid ""
+#~ "Select the view on the toolbar for the content you want, e.g. everything, "
+#~ "files or just images"
+#~ msgstr ""
+#~ "Selecteer in de werkbalk de inhoud om te tonen, bijvoorbeeld alles, "
+#~ "bestanden of alleen afbeeldingen"
+
+#~ msgid "Start to search using the entry box above"
+#~ msgstr "Zoekopdracht starten via het bovenstaande invoerveld"
+
+#~ msgid "Last Changed"
+#~ msgstr "Laatst gewijzigd"
+
+#~ msgid "Size"
+#~ msgstr "Grootte"
+
+#~ msgid "Music"
+#~ msgstr "Muziek"
+
+#~ msgid "Images"
+#~ msgstr "Afbeeldingen"
+
+#~ msgid "Videos"
+#~ msgstr "Video's"
+
+#~ msgid "Documents"
+#~ msgstr "Documenten"
+
+#~ msgid "Mail"
+#~ msgstr "E-mail"
+
+#~ msgid "Folders"
+#~ msgstr "Mappen"
+
+#~ msgid "Items"
+#~ msgstr "Items"
+
+#~ msgid "Loading…"
+#~ msgstr "Bezig met laden…"
+
+#~ msgid "%d Page"
+#~ msgid_plural "%d Pages"
+#~ msgstr[0] "%d pagina"
+#~ msgstr[1] "%d pagina's"
+
+#~ msgid "_Show Parent Directory"
+#~ msgstr "Bovenliggende map _tonen"
+
+#~ msgid "_Tags…"
+#~ msgstr "_Tags…"
+
+#~ msgid "Search and Indexing"
+#~ msgstr "Zoeken en indexeren"
+
+#~ msgid "Configure file indexing with Tracker"
+#~ msgstr "Bestandsindexering met Tracker instellen"
+
+#~ msgid "Indexing Preferences"
+#~ msgstr "Indexeringsvoorkeuren"
+
+#~ msgid "_Monitor file and directory changes"
+#~ msgstr "Bestands- en mapwijzigingen _observeren"
+
+#~ msgid "Enable when running on _battery"
+#~ msgstr "Bij _accustroom uitvoeren inschakelen"
+
+#~ msgid "Enable for _initial data population"
+#~ msgstr "Inschakelen voor _initieel laden van gegevens"
+
+#~ msgid "Include _removable media"
+#~ msgstr "Ver_wijderbare media opnemen"
+
+#~ msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
+#~ msgstr ""
+#~ "Dit omvat ALLE verwijderbare media, geheugenkaarten, cd's, dvd's, enz."
+
+#~ msgid "Include optical di_scs"
+#~ msgstr "Optische _schijven opnemen"
+
+#~ msgid "Semantics"
+#~ msgstr "Semantiek"
+
+#~ msgid ""
+#~ "The  scheduler  is  the kernel component that decides which runnable "
+#~ "application will be executed by the CPU next.  Each application has an "
+#~ "associated scheduling  policy and priority.\n"
+#~ "\n"
+#~ "This option allows you to make Tracker take a back seat and not eat up "
+#~ "too much CPU time if you have other applications more deserving of it."
+#~ msgstr ""
+#~ "De planner is de kerncomponent die beslist over de uitvoeringsvolgorde "
+#~ "van toepassingen door de CPU. Iedere toepassing heeft een planningsbeleid "
+#~ "en -prioriteit.\n"
+#~ "\n"
+#~ "Met deze optie wordt de processortijd van de Tracker verlaagd, zodat "
+#~ "andere toepassingen sneller uitgevoerd zullen worden."
+
+#~ msgid "Index content in the background:"
+#~ msgstr "Bestanden op de achtergrond indexeren:"
+
+#~ msgid "O_nly when computer is not being used"
+#~ msgstr "Alleen als de computer _niet wordt gebruikt"
+
+#~ msgid ""
+#~ "Indexing content will be <b>much slower</b> but other applications will "
+#~ "have priority."
+#~ msgstr ""
+#~ "Indexering van inhoud zal <b>veel langzamer</b> zijn; andere toepassingen "
+#~ "krijgen prioriteit."
+
+#~ msgid ""
+#~ "_While other applications are running, except for initial data population"
+#~ msgstr ""
+#~ "_Tijdens het uitvoeren van andere toepassingen, behalve bij het initieel "
+#~ "laden van gegevens"
+
+#~ msgid ""
+#~ "Indexing content will be <b>much slower</b> but other applications will "
+#~ "have priority. This will only be the case on the <b>first index</b> of "
+#~ "your content after you start your computer from a new install"
+#~ msgstr ""
+#~ "Indexering van inhoud zal <b>veel langzamer</b> zijn; andere toepassingen "
+#~ "krijgen prioriteit. Dit zal alleen gelden bij <b>eerste indexering</b> "
+#~ "van de inhoud, als de computer na een nieuwe installatie wordt opgestart."
+
+#~ msgid "While _other applications are running"
+#~ msgstr "Tijdens het uitvoeren van _andere toepassingen"
+
+#~ msgid ""
+#~ "Indexing content will be as <b>fast</b> as possible but other "
+#~ "applications may suffer and be slower as a result."
+#~ msgstr ""
+#~ "Indexeren van inhoud zal zo <b>snel</b> mogelijk worden uitgevoerd; "
+#~ "andere toepassingen zullen hierdoor trager zijn."
+
+#~ msgid "Stop indexing when _disk space is below:"
+#~ msgstr "Stoppen met indexeren als de _schijfruimte minder is dan:"
+
+#~ msgid "Limitations"
+#~ msgstr "Begrenzingen"
+
+#~ msgid ""
+#~ "Indexed content from removable devices that have not been inserted for a "
+#~ "while, are cleaned up to avoid build up of unused resources."
+#~ msgstr ""
+#~ "Geïndexeerde inhoud van verwijderbare apparaten die al een tijdje niet "
+#~ "zijn aangesloten, worden opgeschoond om het opbouwen van ongebruikte "
+#~ "bronnen te voorkomen. "
+
+#~ msgid "Days before deleting removable devices:"
+#~ msgstr "Dagen tot het wissen van verwijderbare apparaten:"
+
+#~ msgid "Garbage Collection"
+#~ msgstr "Afvalverzameling"
+
+#~ msgid "Indexing"
+#~ msgstr "Bezig met indexeren"
+
+#~ msgid ""
+#~ "Special locations such as your <b>Home</b>, <b>Desktop</b> or "
+#~ "<b>Documents</b> directory, can be easily toggled below. This will add or "
+#~ "remove their real paths from the list underneath.\n"
+#~ "\n"
+#~ "If a directory is toggled to <b>Recurse</b>, it means that all sub-"
+#~ "directories underneath it will also be indexed. Otherwise, only files "
+#~ "immediately in that directory will be indexed."
+#~ msgstr ""
+#~ "Speciale locaties zoals de <b>Persoonlijke map</b> of de mappen "
+#~ "<b>Bureaublad</b> en <b>Documenten</b> kunnen hieronder eenvoudig worden "
+#~ "in- en uitgeschakeld. Dat zal hun volledige pad aan de onderstaande lijst "
+#~ "toevoegen of eruit verwijderen. \n"
+#~ "\n"
+#~ "Als een map op <b>Recursief</b> is ingesteld, betekent dit dat alle "
+#~ "onderliggende mappen ook worden geïndexeerd. Anders zullen alleen "
+#~ "bestanden in die map geïndexeerd worden."
+
+#~ msgid "Index Home Directory"
+#~ msgstr "Persoonlijke map indexeren"
+
+#~ msgid "Index Desktop Directory"
+#~ msgstr "Bureaubladmap indexeren"
+
+#~ msgid "Index Documents Directory"
+#~ msgstr "Documentenmap indexeren"
+
+#~ msgid "Index Music Directory"
+#~ msgstr "Muziekmap indexeren"
+
+#~ msgid "Index Pictures Directory"
+#~ msgstr "Afbeeldingenmap indexeren"
+
+#~ msgid "Index Videos Directory"
+#~ msgstr "Videomap indexeren"
+
+#~ msgid "Index Download Directory"
+#~ msgstr "Downloadmap indexeren"
+
+#~ msgid ""
+#~ "One or more special locations have the same path.\n"
+#~ "Those which are the same are disabled!"
+#~ msgstr ""
+#~ "Een of meerdere speciale locaties hebben hetzelfde pad.\n"
+#~ "De dubbel voorkomende padden worden uitgeschakeld!"
+
+#~ msgid "Add directory to be indexed"
+#~ msgstr "Map toevoegen die moet worden geïndexeerd"
+
+#~ msgid "Remove directory from being indexed"
+#~ msgstr "Voorkom dat map wordt geïndexeerd"
+
+#~ msgid "Where is your content?"
+#~ msgstr "Waar bevindt zich de inhoud?"
+
+#~ msgid "Locations"
+#~ msgstr "Locaties"
+
+#~ msgid "Glob patterns to ignore:"
+#~ msgstr "Patronen met jokertekens om uit te sluiten:"
+
+#~ msgid "Opens text entry for glob patterns"
+#~ msgstr "Opent tekstinvoer voor jokertekenpatronen"
+
+#~ msgid "Opens the filechooser dialogue"
+#~ msgstr "Opent het bestandskeuzevenster"
+
+#~ msgid "With specific files:"
+#~ msgstr "Met specifieke bestanden:"
+
+#~ msgid "Directories"
+#~ msgstr "Mappen"
+
+#~ msgid ""
+#~ "Globbing patterns can be used here, for example: \"*bar*\".\n"
+#~ "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
+#~ msgstr ""
+#~ "Jokertekenpatronen kunnen hier worden gebruikt, bijvoorbeeld:  \"*bar*"
+#~ "\".\n"
+#~ "Dit wordt meestal gebruikt om mappen uit te sluiten, zoals *~, *.o, *.la, "
+#~ "enz"
+
+# Genegeerde bestandspatronen/genegeerde bestanden
+#~ msgid "Ignored Content"
+#~ msgstr "Genegeerde inhoud"
+
+#~ msgid "Index content of _files found"
+#~ msgstr "Inhoud van gevonden _bestanden indexeren"
+
+# Genegeerde bestandspatronen/genegeerde bestanden
+#~ msgid "Index _numbers"
+#~ msgstr "_Nummers indexeren"
+
+#~ msgid "What is indexed?"
+#~ msgstr "Wat wordt geïndexeerd?"
+
+#~ msgid "Control"
+#~ msgstr "Controle"
+
+#~ msgid ""
+#~ "When resetting your indexed data, the databases are removed and your "
+#~ "files will no longer be indexed. Upon next start, Tracker will then start "
+#~ "indexing data as if it was being run for the first time.\n"
+#~ "\n"
+#~ "<b>Warning: All indexes and caches for your data will be removed! They "
+#~ "can not be retrieved! Your REAL data and files will not be touched.</b>\n"
+#~ "\n"
+#~ "Clicking this button will close the preferences too."
+#~ msgstr ""
+#~ "Als gegevens worden hersteld, dan worden de databases verwijderd en zijn "
+#~ "de bestanden niet langer geïndexeerd. De volgende keer dat de computer "
+#~ "wordt opgestart, zal Tracker met indexeren beginnen alsof het de eerste "
+#~ "keer betreft.\n"
+#~ "\n"
+#~ "<b>Waarschuwing: alle geïndexeerde gegevens worden gewist! Dit kan niet "
+#~ "ongedaan worden gemaakt! Uw eigenlijke data en bestanden zullen niet "
+#~ "worden aangeraakt.</b>\n"
+#~ "\n"
+#~ "Op deze knop drukken zal de voorkeuren ook sluiten."
+
+#~ msgid "Yes, remove all indexes"
+#~ msgstr "Ja, wis alle indexeringen"
+
+#~ msgid ""
+#~ "An 'index' is an ordered referenced to a piece of data. We use indexes to "
+#~ "be able to quickly find your information and content."
+#~ msgstr ""
+#~ "Een ‘index’ is een geordende referentie naar een stuk gegevens. We "
+#~ "gebruiken indexen om snel uw informatie en inhoud te kunnen vinden."
+
+#~ msgid "Reset Indexed Data"
+#~ msgstr "Geïndexeerde gegevens herstellen"
+
+#~ msgid "_Delay"
+#~ msgstr "_Vertraging"
+
+#~ msgid "seconds"
+#~ msgstr "seconden"
+
+#~ msgid "Start up"
+#~ msgstr "Opstarten"
+
+#~ msgid "System"
+#~ msgstr "Systeem"
+
+#~ msgid "Directory"
+#~ msgstr "Map"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences here require a reindex to "
+#~ "ensure all your data is correctly indexed as you have requested."
+#~ msgstr ""
+#~ "De wijzigingen die u hier heeft gemaakt aan uw voorkeuren, vereisen een "
+#~ "her-indexering om er zeker van te zijn dat uw data juist is geïndexeerd "
+#~ "zoals u heeft gevraagd."
+
+#~ msgid "This will close this dialog!"
+#~ msgstr "Dit zal dit venster sluiten!"
+
+#~ msgid "Would you like to reindex now?"
+#~ msgstr "Wilt u nu her-indexeren?"
+
+#~ msgid "Reindex"
+#~ msgstr "Herindexeren"
+
+#~ msgid "Do nothing"
+#~ msgstr "Doe niets"
+
+#~ msgid ""
+#~ "The changes you have made to your preferences require restarting tracker "
+#~ "processes."
+#~ msgstr ""
+#~ "De wijzigingen die u heeft gemaakt aan uw voorkeuren vereisen een "
+#~ "herstart van het tracker-proces."
+
+#~ msgid "Would you like to restart now?"
+#~ msgstr "Wilt u nu herstarten?"
+
+#~ msgid "Restart Tracker"
+#~ msgstr "Herstart Tracker"
+
+#~ msgid "Disabled"
+#~ msgstr "Uitgeschakeld"
+
+#~ msgid "Enter value"
+#~ msgstr "Voer waarde in"
+
+#~ msgid "_Cancel"
+#~ msgstr "_Annuleren"
+
+#~ msgid "_OK"
+#~ msgstr "_Oké"
+
+#~ msgid "Select directory"
+#~ msgstr "Map selecteren"
+
+#~ msgid "That directory is already selected as a location to index"
+#~ msgstr "Die map is al kandidaat om geïndexeerd te worden"
+
+#~ msgid "Recurse"
+#~ msgstr "Recursief"
+
+#~ msgid "Desktop Search preferences"
+#~ msgstr "Voorkeuren bureaubladzoeken"
+
+#~ msgid ""
+#~ "Show statistics about ALL RDF classes, not just common ones which is the "
+#~ "default (implied by search terms)"
+#~ msgstr ""
+#~ "Statistieken tonen over álle RDF-klasses, niet alleen de gebruikelijke "
+#~ "die standaard gebruikt worden (geïmpliceerd door zoektermen)"
+
+#~ msgid "Disable shutting down after 30 seconds of inactivity"
+#~ msgstr "Uitschakelen na 30 seconden van inactiviteit is uitgeschakeld"
+
+#~ msgid "- start the tracker writeback service"
+#~ msgstr "- Write-backdienst van de tracker starten"
+
+#~ msgid "Saved queries"
+#~ msgstr "Opgeslagen zoekopdrachten"
+
+#~ msgid "Add feed (must be used with --title)"
+#~ msgstr "feed toevoegen (moet worden gebruikt met --title)"
+
+#~ msgid "Adding a feed requires --add-feed and --title"
+#~ msgstr "feed toevoegen vereist --add-feed en --title"
+
+#~ msgid "The 'tracker-control' command is no longer available"
+#~ msgstr "Het 'tracker-control'-commando is niet meer beschikbaar"
+
+#~ msgid "Disable miners started as part of this process, options include: '"
+#~ msgstr ""
+#~ "schakelt miners uit die gestart zijn als onderdeel van dit proces, opties "
+#~ "bevatten: '"
+
+#~ msgid " - Manage Tracker processes and data"
+#~ msgstr " - Tracker-processen en -gegevens beheren"
+
+#~ msgid "General and Status options cannot be used together"
+#~ msgstr "Opties algemeen en status kunnen niet samen worden gebruikt"
+
+#~ msgid "General and Miners options cannot be used together"
+#~ msgstr "Opties algemeen en miner kunnen niet samen worden gebruikt"
+
+#~ msgid "Status and Miners options cannot be used together"
+#~ msgstr "Opties status en miner kunnen niet samen worden gebruikt"
+
+#~ msgid "Restore databases from the file provided"
+#~ msgstr "databases herstellen vanuit het opgegeven bestand"
+
+#~ msgid ""
+#~ "You can not use the --terminate with --hard-reset or --soft-reset, --kill "
+#~ "is implied"
+#~ msgstr ""
+#~ "gebruik van --terminate met --hard-reset of --soft-reset is niet "
+#~ "toegestaan; --kill wordt verondersteld"
+
+#~ msgid "Waiting one second before starting miners…"
+#~ msgstr "Korte wachttijd alvorens de miners worden gestart…"
+
+#~ msgid "General options"
+#~ msgstr "Algemene opties"
+
+#~ msgid "Show general options"
+#~ msgstr "algemene opties tonen"
+
+#~ msgid "Miner options"
+#~ msgstr "Miner-opties"
+
+#~ msgid "Show miner options"
+#~ msgstr "mineropties tonen"
+
+#~ msgid "Show current status"
+#~ msgstr "Huidige status tonen"
+
+#~ msgid "Status options"
+#~ msgstr "Statusopties"
+
+#~ msgid "Show status options"
+#~ msgstr "Statusopties tonen"
+
+#~ msgid "Force internal extractors over 3rd parties like libstreamanalyzer"
+#~ msgstr ""
+#~ "Interne uitpakprogramma's voorrang geven boven die van derde partijen, "
+#~ "zoals libstreamanalyzer"
+
+#~ msgid ""
+#~ "Options --force-internal-extractors and --force-module can't be used "
+#~ "together"
+#~ msgstr ""
+#~ "opties --force-internal-extractors en --force-module kunnen niet "
+#~ "gelijktijdig worden gebruikt"
+
+#~ msgid "- Import data using Turtle files"
+#~ msgstr "- Gegevens importeren met Turtle-bestanden"
+
+#~ msgid "- Get all information about one or more files"
+#~ msgstr "- Alle informatie over een of meer bestanden verkrijgen"
+
+#~ msgid "- Search for terms in all data"
+#~ msgstr "- Termen zoeken in alle gegevens"
+
+#~ msgid ""
+#~ "Applies an AND operator to all terms separated by a space (see --or-"
+#~ "operator)"
+#~ msgstr ""
+#~ "Past een logische AND-operator toe op alle termen gescheiden door een "
+#~ "spatie (zie --or-operator)"
+
+#~ msgid ""
+#~ "This means if you search for 'foo' and 'bar', they must BOTH exist "
+#~ "(unless you use --or-operator)"
+#~ msgstr ""
+#~ "Dit betekent dat bij het zoeken naar 'foo' en 'bar' BEIDE TERMEN moeten "
+#~ "bestaan (tenzij de --or-operator wordt gebruikt)"
+
+#~ msgid "Search options"
+#~ msgstr "Zoekopties"
+
+#~ msgid "Show search options"
+#~ msgstr "Zoekopties tonen"
+
+#~ msgid "Search terms are missing"
+#~ msgstr "Zoektermen ontbreken"
+
+#~ msgid "- Query or update using SPARQL"
+#~ msgstr "- Zoeken en bijwerken met SPARQL"
+
+#~ msgid "An argument must be supplied"
+#~ msgstr "Er moet een argument opgegeven worden"
+
+#~ msgid " - Show statistics for all Nepomuk defined ontology classes"
+#~ msgstr ""
+#~ " - Statistieken tonen voor alle, door Nepomuk gedefinieerde, "
+#~ "ontologieklassen"
+
+#~ msgid "Add, remove or list tags"
+#~ msgstr "- Tags toevoegen, verwijderen of tonen"
+
+#~ msgid "No arguments were provided"
+#~ msgstr "Geen argumenten opgegeven"
+
+#~ msgid "- Query or update using SQL"
+#~ msgstr "- Zoeken en bijwerken met SQL"
 
 #~ msgid "Extractor error, performing failsafe embedded metadata extraction"
 #~ msgstr ""
@@ -3140,10 +3433,6 @@ msgstr "Resultatenverzameling is leeg"
 #~ msgid "Applications:"
 #~ msgstr "Toepassingen:"
 
-# conversaties/discussies/gesprekken
-#~ msgid "Conversations:"
-#~ msgstr "Gesprekken:"
-
 #~ msgid "Emails:"
 #~ msgstr "E-mails:"
 
@@ -3156,9 +3445,6 @@ msgstr "Resultatenverzameling is leeg"
 
 #~ msgid "Modules to be used when processing data"
 #~ msgstr "Te gebruiken modules bij het verwerken van data"
-
-#~ msgid "_Reindex"
-#~ msgstr "_Herindexeren"
 
 #~ msgid "Tracker daemon must be restarted"
 #~ msgstr "De Tracker-voorziening dient herstart te worden"
@@ -3267,11 +3553,6 @@ msgstr "Resultatenverzameling is leeg"
 
 #~ msgid "Could not open help document."
 #~ msgstr "Kon het hulpdocument niet openen."
-
-#~ msgid "Are you sure you want to open %d document?"
-#~ msgid_plural "Are you sure you want to open %d documents?"
-#~ msgstr[0] "Weet u zeker dat u %d document wilt openen?"
-#~ msgstr[1] "Weet u zeker dat u %d documenten wilt openen?"
 
 #~ msgid "This will open %d separate window."
 #~ msgid_plural "This will open %d separate windows."
@@ -3499,9 +3780,6 @@ msgstr "Resultatenverzameling is leeg"
 #~ msgid "Filename"
 #~ msgstr "Bestandsnaam"
 
-#~ msgid "Retrieve meta-data information about files in a directory"
-#~ msgstr "Metadata-informatie over bestanden in een map ophalen"
-
 #~ msgid "To use multiple meta-data types simply list them, for example:"
 #~ msgstr ""
 #~ "Om meerdere metadata-typen te gebruiken, noemt u ze eenvoudigweg op. "
@@ -3579,14 +3857,6 @@ msgstr "Resultatenverzameling is leeg"
 #~ msgstr "HTML viewer eigenschappen"
 
 #, fuzzy
-#~ msgid "Could not get Tracker services"
-#~ msgstr "Kan geen informatie verkrijgen voor ‘%s’: %s"
-
-#, fuzzy
-#~ msgid "No services available"
-#~ msgstr "Geen beschikbare partities"
-
-#, fuzzy
 #~ msgid "Properties available in Tracker"
 #~ msgstr "Tracker zal verzoeken toestaan over %s"
 
@@ -3622,10 +3892,6 @@ msgstr "Resultatenverzameling is leeg"
 #, fuzzy
 #~ msgid "Is indexing enabled"
 #~ msgstr "De printer ‘%s’ is ingeschakeld"
-
-#, fuzzy
-#~ msgid "Could not get Tracker status"
-#~ msgstr "Kan geen informatie verkrijgen voor ‘%s’: %s"
 
 #, fuzzy
 #~ msgid "Tracker status is '%s'"
