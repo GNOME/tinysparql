@@ -389,7 +389,7 @@ public class Tracker.Sparql.Query : Object {
 		return ((string) (tokens[last_index].begin.pos + strip)).substring (0, (int) (tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
 	}
 
-	void parse_prologue () throws Sparql.Error {
+	private void parse_prologue () throws Sparql.Error {
 		if (accept (SparqlTokenType.BASE)) {
 			expect (SparqlTokenType.IRI_REF);
 		}
@@ -405,7 +405,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void prepare_execute () throws DBInterfaceError, Sparql.Error, DateError {
+	private void prepare_execute () throws DBInterfaceError, Sparql.Error, DateError {
 		assert (!update_extensions);
 
 		scanner = new SparqlScanner ((char*) query_string, (long) query_string.length);
@@ -513,7 +513,7 @@ public class Tracker.Sparql.Query : Object {
 		return result;
 	}
 
-	DBStatement prepare_for_exec (DBInterface iface, string sql) throws DBInterfaceError, Sparql.Error, DateError {
+	private DBStatement prepare_for_exec (DBInterface iface, string sql) throws DBInterfaceError, Sparql.Error, DateError {
 		var stmt = iface.create_statement (no_cache ? DBStatementCacheType.NONE : DBStatementCacheType.SELECT, "%s", sql);
 
 		// set literals specified in query
@@ -542,13 +542,13 @@ public class Tracker.Sparql.Query : Object {
 		return stmt;
 	}
 
-	DBCursor? exec_sql_cursor (DBInterface iface, string sql, PropertyType[]? types, string[]? variable_names) throws DBInterfaceError, Sparql.Error, DateError {
+	private DBCursor? exec_sql_cursor (DBInterface iface, string sql, PropertyType[]? types, string[]? variable_names) throws DBInterfaceError, Sparql.Error, DateError {
 		var stmt = prepare_for_exec (iface, sql);
 
 		return stmt.start_sparql_cursor (types, variable_names);
 	}
 
-	string get_select_query (out SelectContext context) throws DBInterfaceError, Sparql.Error, DateError {
+	private string get_select_query (out SelectContext context) throws DBInterfaceError, Sparql.Error, DateError {
 		// SELECT query
 
 		// build SQL
@@ -560,7 +560,7 @@ public class Tracker.Sparql.Query : Object {
 		return sql.str;
 	}
 
-	DBCursor? execute_select_cursor () throws DBInterfaceError, Sparql.Error, DateError {
+	private DBCursor? execute_select_cursor () throws DBInterfaceError, Sparql.Error, DateError {
 		SelectContext context;
 		string sql = get_select_query (out context);
 		var iface = manager.get_db_interface ();
@@ -568,7 +568,7 @@ public class Tracker.Sparql.Query : Object {
 		return exec_sql_cursor (iface, sql, context.types, context.variable_names);
 	}
 
-	string get_ask_query () throws DBInterfaceError, Sparql.Error, DateError {
+	private string get_ask_query () throws DBInterfaceError, Sparql.Error, DateError {
 		// ASK query
 
 		var pattern_sql = new StringBuilder ();
@@ -599,7 +599,7 @@ public class Tracker.Sparql.Query : Object {
 		return sql.str;
 	}
 
-	DBCursor? execute_ask_cursor () throws DBInterfaceError, Sparql.Error, DateError {
+	private DBCursor? execute_ask_cursor () throws DBInterfaceError, Sparql.Error, DateError {
 		var iface = manager.get_db_interface ();
 		return exec_sql_cursor (iface, get_ask_query (), new PropertyType[] { PropertyType.BOOLEAN }, new string[] { "result" });
 	}
@@ -617,7 +617,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void execute_insert_delete (VariantBuilder? update_blank_nodes) throws GLib.Error {
+	private void execute_insert_delete (VariantBuilder? update_blank_nodes) throws GLib.Error {
 		bool blank = true;
 
 		// DELETE and/or INSERT
@@ -828,7 +828,7 @@ public class Tracker.Sparql.Query : Object {
 		return ns + local_name;
 	}
 
-	int quad_data_unbound_var_count () throws Sparql.Error {
+	private int quad_data_unbound_var_count () throws Sparql.Error {
 		SourceLocation current_pos = get_location ();
 		int n_braces = 1;
 		int n_unbound = 0;
@@ -853,7 +853,7 @@ public class Tracker.Sparql.Query : Object {
 		return n_unbound;
 	}
 
-	void skip_braces () throws Sparql.Error {
+	private void skip_braces () throws Sparql.Error {
 		expect (SparqlTokenType.OPEN_BRACE);
 		int n_braces = 1;
 		while (n_braces > 0) {
@@ -870,7 +870,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_triples_block (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
+	private void parse_construct_triples_block (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
 		expect (SparqlTokenType.OPEN_BRACE);
 
 		while (current () != SparqlTokenType.CLOSE_BRACE) {
@@ -925,7 +925,7 @@ public class Tracker.Sparql.Query : Object {
 
 	bool anon_blank_node_open = false;
 
-	string? parse_construct_var_or_term (Solution var_value_map, UpdateType type, out bool is_null) throws Sparql.Error, DateError {
+	private string? parse_construct_var_or_term (Solution var_value_map, UpdateType type, out bool is_null) throws Sparql.Error, DateError {
 		string result = "";
 		is_null = false;
 		if (current () == SparqlTokenType.VAR) {
@@ -1012,7 +1012,7 @@ public class Tracker.Sparql.Query : Object {
 		return result;
 	}
 
-	void parse_construct_property_list_not_empty (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
+	private void parse_construct_property_list_not_empty (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
 		while (true) {
 			var old_predicate = current_predicate;
 
@@ -1049,7 +1049,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_object_list (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
+	private void parse_construct_object_list (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
 		while (true) {
 			parse_construct_object (var_value_map, type);
 			if (accept (SparqlTokenType.COMMA)) {
@@ -1059,7 +1059,7 @@ public class Tracker.Sparql.Query : Object {
 		}
 	}
 
-	void parse_construct_object (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
+	private void parse_construct_object (Solution var_value_map, UpdateType type) throws Sparql.Error, DateError {
 		bool is_null = false;
 		string object = parse_construct_var_or_term (var_value_map, type, out is_null);
 		var data = manager.get_data ();

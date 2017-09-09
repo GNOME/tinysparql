@@ -90,7 +90,7 @@ public class Tracker.TurtleReader : Object {
 		prefix_map = new HashTable<string,string>.full (str_hash, str_equal, g_free, g_free);
 	}
 
-	string generate_bnodeid (string? user_bnodeid) {
+	private string generate_bnodeid (string? user_bnodeid) {
 		// user_bnodeid is NULL for anonymous nodes
 		if (user_bnodeid == null) {
 			return ":%d".printf (++bnodeid);
@@ -109,7 +109,7 @@ public class Tracker.TurtleReader : Object {
 		}
 	}
 
-	inline bool next_token () throws Sparql.Error {
+	private inline bool next_token () throws Sparql.Error {
 		index = (index + 1) % BUFFER_SIZE;
 		size--;
 		if (size <= 0) {
@@ -123,11 +123,11 @@ public class Tracker.TurtleReader : Object {
 		return (tokens[index].type != SparqlTokenType.EOF);
 	}
 
-	inline SparqlTokenType current () {
+	private inline SparqlTokenType current () {
 		return tokens[index].type;
 	}
 
-	inline bool accept (SparqlTokenType type) throws Sparql.Error {
+	private inline bool accept (SparqlTokenType type) throws Sparql.Error {
 		if (current () == type) {
 			next_token ();
 			return true;
@@ -135,11 +135,11 @@ public class Tracker.TurtleReader : Object {
 		return false;
 	}
 
-	Sparql.Error get_error (string msg) {
+	private Sparql.Error get_error (string msg) {
 		return new Sparql.Error.PARSE ("%d.%d: syntax error, %s".printf (tokens[index].begin.line, tokens[index].begin.column, msg));
 	}
 
-	bool expect (SparqlTokenType type) throws Sparql.Error {
+	private bool expect (SparqlTokenType type) throws Sparql.Error {
 		if (accept (type)) {
 			return true;
 		}
@@ -147,12 +147,12 @@ public class Tracker.TurtleReader : Object {
 		throw get_error ("expected %s".printf (type.to_string ()));
 	}
 
-	string get_last_string (int strip = 0) {
+	private string get_last_string (int strip = 0) {
 		int last_index = (index + BUFFER_SIZE - 1) % BUFFER_SIZE;
 		return ((string) (tokens[last_index].begin.pos + strip)).substring (0, (int) (tokens[last_index].end.pos - tokens[last_index].begin.pos - 2 * strip));
 	}
 
-	string resolve_prefixed_name (string prefix, string local_name) throws Sparql.Error {
+	private string resolve_prefixed_name (string prefix, string local_name) throws Sparql.Error {
 		string ns = prefix_map.lookup (prefix);
 		if (ns == null) {
 			throw get_error ("use of undefined prefix `%s'".printf (prefix));

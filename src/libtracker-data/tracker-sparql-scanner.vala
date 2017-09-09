@@ -40,7 +40,7 @@ public class Tracker.SparqlScanner : Object {
 		column = location.column;
 	}
 
-	SparqlTokenType get_identifier_or_keyword (char* begin, int len) {
+	private SparqlTokenType get_identifier_or_keyword (char* begin, int len) {
 		switch (len) {
 		case 1:
 			switch (begin[0]) {
@@ -539,7 +539,7 @@ public class Tracker.SparqlScanner : Object {
 		return SparqlTokenType.PN_PREFIX;
 	}
 
-	SparqlTokenType read_number () {
+	private SparqlTokenType read_number () {
 		var type = SparqlTokenType.INTEGER;
 
 		// integer part
@@ -615,15 +615,15 @@ public class Tracker.SparqlScanner : Object {
 		return type;
 	}
 
-	bool is_pn_char (char c) {
+	private bool is_pn_char (char c) {
 		return (c.isalnum () || c == '_' || c == '-');
 	}
 
-	bool is_pn_local_char (char c) {
+	private bool is_pn_local_char (char c) {
 		return (c.isalnum () || c == '_' || c == '-' || c == '.');
 	}
 
-	bool is_varname_char (char c) {
+	private bool is_varname_char (char c) {
 		return (c.isalnum () || c == '_');
 	}
 
@@ -959,7 +959,7 @@ public class Tracker.SparqlScanner : Object {
 		return type;
 	}
 
-	bool matches (char* begin, string keyword) {
+	private bool matches (char* begin, string keyword) {
 		char* keyword_array = (char*) keyword;
 		for (int i = 0; keyword_array[i] != 0; i++) {
 			if (begin[i].toupper () != keyword_array[i]) {
@@ -969,7 +969,7 @@ public class Tracker.SparqlScanner : Object {
 		return true;
 	}
 
-	bool whitespace () {
+	private bool whitespace () {
 		bool found = false;
 		while (current < end && current[0].isspace ()) {
 			if (current[0] == '\n') {
@@ -983,7 +983,7 @@ public class Tracker.SparqlScanner : Object {
 		return found;
 	}
 
-	bool comment () {
+	private bool comment () {
 		if (current >= end || current[0] != '#') {
 			return false;
 		}
@@ -997,7 +997,7 @@ public class Tracker.SparqlScanner : Object {
 		return true;
 	}
 
-	void space () {
+	private void space () {
 		while (whitespace () || comment ()) {
 		}
 	}

@@ -193,39 +193,39 @@ class Tracker.Sparql.Pattern : Object {
 		set { query.context = value; }
 	}
 
-	inline bool next () throws Sparql.Error {
+	private inline bool next () throws Sparql.Error {
 		return query.next ();
 	}
 
-	inline SparqlTokenType current () {
+	private inline SparqlTokenType current () {
 		return query.current ();
 	}
 
-	inline bool accept (SparqlTokenType type) throws Sparql.Error {
+	private inline bool accept (SparqlTokenType type) throws Sparql.Error {
 		return query.accept (type);
 	}
 
-	inline void optional (SparqlTokenType type) throws Sparql.Error {
+	private inline void optional (SparqlTokenType type) throws Sparql.Error {
 		query.optional (type);
 	}
 
-	Sparql.Error get_error (string msg) {
+	private Sparql.Error get_error (string msg) {
 		return query.get_error (msg);
 	}
 
-	bool expect (SparqlTokenType type) throws Sparql.Error {
+	private bool expect (SparqlTokenType type) throws Sparql.Error {
 		return query.expect (type);
 	}
 
-	SourceLocation get_location () {
+	private SourceLocation get_location () {
 		return query.get_location ();
 	}
 
-	void set_location (SourceLocation location) {
+	private void set_location (SourceLocation location) {
 		query.set_location (location);
 	}
 
-	string get_last_string (int strip = 0) {
+	private string get_last_string (int strip = 0) {
 		return query.get_last_string (strip);
 	}
 
@@ -589,7 +589,7 @@ class Tracker.Sparql.Pattern : Object {
 		return result;
 	}
 
-	void parse_object_list (StringBuilder sql, bool in_simple_optional = false) throws Sparql.Error {
+	private void parse_object_list (StringBuilder sql, bool in_simple_optional = false) throws Sparql.Error {
 		while (true) {
 			parse_object (sql, in_simple_optional);
 			if (accept (SparqlTokenType.COMMA)) {
@@ -599,7 +599,7 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	void parse_property_list_not_empty (StringBuilder sql, bool in_simple_optional = false) throws Sparql.Error {
+	private void parse_property_list_not_empty (StringBuilder sql, bool in_simple_optional = false) throws Sparql.Error {
 		while (true) {
 			var old_predicate = current_predicate;
 			var old_predicate_is_var = current_predicate_is_var;
@@ -643,12 +643,12 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	void translate_filter (StringBuilder sql) throws Sparql.Error {
+	private void translate_filter (StringBuilder sql) throws Sparql.Error {
 		expect (SparqlTokenType.FILTER);
 		expression.translate_constraint (sql);
 	}
 
-	void skip_filter () throws Sparql.Error {
+	private void skip_filter () throws Sparql.Error {
 		expect (SparqlTokenType.FILTER);
 
 		switch (current ()) {
@@ -685,13 +685,13 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	void start_triples_block (StringBuilder sql) throws Sparql.Error {
+	private void start_triples_block (StringBuilder sql) throws Sparql.Error {
 		context = triple_context = new TripleContext (query, context);
 
 		sql.append ("SELECT ");
 	}
 
-	void end_triples_block (StringBuilder sql, ref bool first_where, bool in_group_graph_pattern) throws Sparql.Error {
+	private void end_triples_block (StringBuilder sql, ref bool first_where, bool in_group_graph_pattern) throws Sparql.Error {
 		// remove last comma and space
 		sql.truncate (sql.len - 2);
 
@@ -808,7 +808,7 @@ class Tracker.Sparql.Pattern : Object {
 		context = context.parent_context;
 	}
 
-	void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws Sparql.Error {
+	private void parse_triples (StringBuilder sql, long group_graph_pattern_start, ref bool in_triples_block, ref bool first_where, ref bool in_group_graph_pattern, bool found_simple_optional) throws Sparql.Error {
 		while (true) {
 			if (current () != SparqlTokenType.VAR &&
 			    current () != SparqlTokenType.IRI_REF &&
@@ -844,7 +844,7 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	bool is_subclass (Class class1, Class class2) {
+	private bool is_subclass (Class class1, Class class2) {
 		if (class1 == class2) {
 			return true;
 		}
@@ -856,7 +856,7 @@ class Tracker.Sparql.Pattern : Object {
 		return false;
 	}
 
-	bool is_simple_optional () {
+	private bool is_simple_optional () {
 		var optional_start = get_location ();
 		try {
 			// check that we have { ?v foo:bar ?o }
@@ -1227,7 +1227,7 @@ class Tracker.Sparql.Pattern : Object {
 		return result;
 	}
 
-	void translate_group_or_union_graph_pattern (StringBuilder sql) throws Sparql.Error {
+	private void translate_group_or_union_graph_pattern (StringBuilder sql) throws Sparql.Error {
 		Variable[] all_vars = { };
 		HashTable<Variable,int> all_var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, g_object_unref, null);
 
@@ -1283,7 +1283,7 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	VariableBindingList? get_variable_binding_list (Variable variable) {
+	private VariableBindingList? get_variable_binding_list (Variable variable) {
 		VariableBindingList binding_list = null;
 		if (triple_context != null) {
 			binding_list = triple_context.var_bindings.lookup (variable);
@@ -1347,7 +1347,7 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	void parse_object (StringBuilder sql, bool in_simple_optional = false) throws Sparql.Error {
+	private void parse_object (StringBuilder sql, bool in_simple_optional = false) throws Sparql.Error {
 		long begin_sql_len = sql.len;
 
 		bool object_is_var;
@@ -1639,7 +1639,7 @@ class Tracker.Sparql.Pattern : Object {
 		}
 	}
 
-	DataTable get_table (string subject, string db_table, bool share_table, out bool newtable) {
+	private DataTable get_table (string subject, string db_table, bool share_table, out bool newtable) {
 		string tablestring = "%s.%s".printf (subject, db_table);
 		DataTable table = null;
 		newtable = false;
