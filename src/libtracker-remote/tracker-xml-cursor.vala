@@ -104,7 +104,7 @@ public class Tracker.Remote.XmlCursor : Tracker.Sparql.Cursor {
 
 	public override Sparql.ValueType get_value_type (int column) requires (_cur_row != null) {
 		var variable = _vars[column];
-		var node = _cur_row_map.get (variable);
+		Xml.Node* node = (Xml.Node*) _cur_row_map.get (variable);
 		if (node == null)
 			return Sparql.ValueType.UNBOUND;
 
@@ -147,7 +147,7 @@ public class Tracker.Remote.XmlCursor : Tracker.Sparql.Cursor {
 		length = 0;
 
 		var variable = _vars[column];
-		var node = _cur_row_map.get (variable);
+		Xml.Node* node = (Xml.Node*) _cur_row_map.get (variable);
 		if (node == null)
 			return null;
 
