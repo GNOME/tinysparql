@@ -176,18 +176,18 @@ namespace Tracker.Sparql {
 	}
 
 	class Solution {
-		public HashTable<string,int> hash;
+		public HashTable<string,int?> hash;
 		public GenericArray<string> values;
 		public int solution_index;
 
 		public Solution () {
-			this.hash = new HashTable<string,int> (str_hash, str_equal);
+			this.hash = new HashTable<string,int?> (str_hash, str_equal);
 			this.values = new GenericArray<string> ();
 		}
 
 		public string? lookup (string variable_name) {
-			int variable_index;
-			if (!hash.lookup_extended (variable_name, null, out variable_index)) {
+			int? variable_index = hash.get (variable_name);
+			if (variable_index == null) {
 				return null;
 			}
 			return values[solution_index * hash.size () + variable_index];
