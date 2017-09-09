@@ -224,7 +224,7 @@ file_notifier_finished_cb (TrackerFileNotifier *notifier,
 
 	if (fixture->expect_finished) {
 		g_main_loop_quit (fixture->main_loop);
-	};
+	}
 }
 
 static void
