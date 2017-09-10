@@ -1558,7 +1558,7 @@ tracker_miner_manager_index_file (TrackerMinerManager  *manager,
 {
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
-	g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
+	g_return_val_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable), FALSE);
 
 	return miner_manager_index_file_sync (manager, METHOD_INDEX_FILE,
 	                                      file, cancellable, error);
