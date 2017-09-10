@@ -430,8 +430,7 @@ get_desktop_key_file (GFile   *file,
 	key_file = g_key_file_new ();
 	*type = NULL;
 
-	if (!g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, NULL)) {
-		g_set_error (error, miner_applications_error_quark, 0, "Couldn't load desktop file:'%s'", path);
+	if (!g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, error)) {
 		g_key_file_free (key_file);
 		g_free (path);
 		return NULL;
@@ -943,6 +942,7 @@ process_file_cb (GObject      *object,
 	ProcessApplicationData *data;
 	GFileInfo *file_info;
 	GError *error = NULL;
+	GFileType file_type;
 	GFile *file;
 
 	data = user_data;
@@ -956,21 +956,27 @@ process_file_cb (GObject      *object,
 		return;
 	}
 
-	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
+	file_type = g_file_info_get_file_type (file_info);
+
+	if (file_type == G_FILE_TYPE_DIRECTORY) {
 		process_directory (data, file_info, &error);
-	} else {
+	} else if (file_type == G_FILE_TYPE_REGULAR ||
+	           file_type == G_FILE_TYPE_SYMBOLIC_LINK) {
 		data->key_file = get_desktop_key_file (file, &data->type, &error);
 		if (!data->key_file) {
-			gchar *uri;
+			/* Ignore broken symlinks */
+			if (!g_error_matches (error, G_FILE_ERROR, G_FILE_ERROR_NOENT)) {
+				gchar *uri;
 
-			uri = g_file_get_uri (file);
-			g_warning ("Couldn't properly parse desktop file '%s': '%s'",
-			           uri,
-			           error ? error->message : "unknown error");
-			g_free (uri);
-			g_clear_error (&error);
+				uri = g_file_get_uri (file);
+				g_warning ("Couldn't properly parse desktop file '%s': '%s'",
+				           uri,
+				           error ? error->message : "unknown error");
+				g_free (uri);
+				g_clear_error (&error);
 
-			error = g_error_new_literal (miner_applications_error_quark, 0, "File is not a key file");
+				error = g_error_new_literal (miner_applications_error_quark, 0, "File is not a key file");
+			}
 		} else if (g_key_file_get_boolean (data->key_file, GROUP_DESKTOP_ENTRY, "Hidden", NULL)) {
 			error = g_error_new_literal (miner_applications_error_quark, 0, "Desktop file is 'hidden', not gathering metadata for it");
 		} else {
