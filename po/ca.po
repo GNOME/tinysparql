@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the tracker package.
 # Gil Forcada <gilforcada@guifi.net>, 2007, 2008, 2010, 2013, 2014.
 # Jordi Mas i Hernàndez <jmas@softcatala.org>, 2015
+# Jordi Serratosa <jordis@softcatala.cat>, 2017.
 #
 # data miner -> extractor de dades
 #
@@ -11,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Tracker\n"
 "Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2017-09-01 12:01+0000\n"
+"POT-Creation-Date: 2017-09-06 07:40+0000\n"
 "PO-Revision-Date: 2017-09-01 17:24+0200\n"
 "Last-Translator: Jordi Mas <jmas@softcatala.org>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
@@ -300,7 +301,7 @@ msgstr ""
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
-"No s'ha pogut obtenir les GSettings de l'extractor de dades, no s'ha pogut "
+"No s'han pogut obtenir les GSettings de l'extractor de dades, no s'ha pogut "
 "crear el gestor, %s"
 
 #: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
@@ -420,7 +421,7 @@ msgid ""
 "“all” may be used, no parameter equals “all”"
 msgstr ""
 "Utilitza el senyal SIGKILL per aturar tots els processos coincidents. Pot "
-"ser tan «store» (emmagatzemament), «miners» (extractors de dades) o "
+"ser tan «store» (emmagatzematge), «miners» (extractors de dades) o "
 "«all» (tots), cap paràmetre equival a «all» (tots)."
 
 #: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
@@ -563,7 +564,7 @@ msgstr "Fet"
 #, c-format
 msgid "Could not list miners, manager could not be created, %s"
 msgstr ""
-"No s'ha pogut llistar els extractors de dades, no s'ha pogut crear el "
+"No s'han pogut llistar els extractors de dades, no s'ha pogut crear el "
 "gestor, %s"
 
 #: ../src/tracker/tracker-daemon.c:996
@@ -584,7 +585,7 @@ msgstr[1] "S'ha trobat %d extractors de dades executant-se"
 #, c-format
 msgid "Could not get pause details, manager could not be created, %s"
 msgstr ""
-"No s'ha pogut obtenir els detalls de la pausa, no s'ha pogut crear el "
+"No s'han pogut obtenir els detalls de la pausa, no s'ha pogut crear el "
 "gestor, %s"
 
 #: ../src/tracker/tracker-daemon.c:1061
@@ -759,7 +760,7 @@ msgstr "No s'ha pogut executar la «tracker-store»:"
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
 msgid "failed to exec “%s”: %s"
-msgstr "Ha fallat a l'executar «%s»: %s"
+msgstr "no s'ha pogut executar «%s»: %s"
 
 #: ../src/tracker/tracker-index.c:56
 msgid ""
@@ -855,7 +856,7 @@ msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
 msgstr ""
-"Només una acció es pot utilitzar alhora(--backup, --restore, --index-arxiu o "
+"Només es pot utilitzar una acció alhora (--backup, --restore, --index-file o "
 "--import)"
 
 #: ../src/tracker/tracker-index.c:439
@@ -912,7 +913,7 @@ msgstr "No s'ha pogut recuperar l'URN per l'URI"
 
 #: ../src/tracker/tracker-info.c:319 ../src/tracker/tracker-info.c:353
 msgid "Unable to retrieve data for URI"
-msgstr "No s'ha pogut recuperar les dades per l'URI"
+msgstr "No s'han pogut recuperar les dades per l'URI"
 
 #: ../src/tracker/tracker-info.c:362
 msgid "No metadata available for that URI"
@@ -1234,7 +1235,7 @@ msgstr ""
 #: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
 #: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
 msgid "Could not get search results"
-msgstr "No s'ha pogut obtenir els resultats de cerca"
+msgstr "No s'han pogut obtenir els resultats de cerca"
 
 #: ../src/tracker/tracker-search.c:295
 msgid "No contacts were found"
@@ -1250,7 +1251,7 @@ msgstr "Cap nom"
 
 #: ../src/tracker/tracker-search.c:357 ../src/tracker/tracker-search.c:370
 msgid "No E-mail address"
-msgstr "Cap adreça de correu electrònic"
+msgstr "Cap adreça electrònica"
 
 #: ../src/tracker/tracker-search.c:404
 msgid "No emails were found"
@@ -1481,7 +1482,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-sparql.c:1100
 msgid "Could not list classes"
-msgstr "No s'ha pogut llistar les classes"
+msgstr "No s'han pogut llistar les classes"
 
 #: ../src/tracker/tracker-sparql.c:1108
 msgid "No classes were found"
@@ -1493,7 +1494,7 @@ msgstr "Classes"
 
 #: ../src/tracker/tracker-sparql.c:1124
 msgid "Could not list class prefixes"
-msgstr "No s'ha pogut llistar els prefixos de classe"
+msgstr "No s'han pogut llistar els prefixos de classe"
 
 #: ../src/tracker/tracker-sparql.c:1132
 msgid "No class prefixes were found"
@@ -1512,7 +1513,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-sparql.c:1191
 msgid "Could not list properties"
-msgstr "No s'ha pogut llistar les propietats"
+msgstr "No s'han pogut llistar les propietats"
 
 #: ../src/tracker/tracker-sparql.c:1199
 msgid "No properties were found"
@@ -1548,7 +1549,7 @@ msgstr "Índexs"
 
 #: ../src/tracker/tracker-sparql.c:1291
 msgid "Could not search classes"
-msgstr "No s'ha pogut cercar les classes"
+msgstr "No s'han pogut cercar les classes"
 
 #: ../src/tracker/tracker-sparql.c:1299
 msgid "No classes were found to match search term"
@@ -1556,7 +1557,7 @@ msgstr "No s'ha trobat cap classe que coincideixi amb el terme de cerca"
 
 #: ../src/tracker/tracker-sparql.c:1314
 msgid "Could not search properties"
-msgstr "No s'ha pogut cercar les propietats"
+msgstr "No s'han pogut cercar les propietats"
 
 #: ../src/tracker/tracker-sparql.c:1322
 msgid "No properties were found to match search term"
@@ -1742,7 +1743,7 @@ msgstr "ETIQUETA"
 #: ../src/tracker/tracker-tag.c:65
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
 msgstr ""
-"Suprimeix una etiqueta (si s'omet «FITXER's» es suprimirà l'«ETIQUETA» de "
+"Suprimeix una etiqueta (si s'omet «FITXER's» se suprimirà l'«ETIQUETA» de "
 "tots els fitxers)"
 
 #: ../src/tracker/tracker-tag.c:69
@@ -1768,7 +1769,7 @@ msgstr "FITXER [FITXER…]"
 
 #: ../src/tracker/tracker-tag.c:249
 msgid "Could not get file URNs"
-msgstr "No s'ha pogut obtenir les URN del fitxer"
+msgstr "No s'han pogut obtenir les URN del fitxer"
 
 #: ../src/tracker/tracker-tag.c:314
 msgid "Could not get files related to tag"
