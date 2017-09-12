@@ -1,3 +1,38 @@
+NEW in 2.0.0 - 2017-09-12
+=========================
+
+  * Tracker shall from now on use semantic versioning
+  * Drop --all from "tracker status" subcommand, it is the default
+    behavior now.
+  * TrackerDecorator internal operations are now cancelled on shutdown
+  * Add cancellable argument to sync libtracker-control call
+  * Build fixes and minor cleanups
+
+  Translations: ca, da, eu, fi, fur, it, ko, lt, lv, nl, pt_BR, sk, sv, zh_TW
+
+  Overview of changes since 1.12:
+
+  * Tracker core (store, libraries) and miners have been split, this source
+    tree contains the former.
+  * Added support for domain ontologies, these can be used to set up private
+    databases managed and populated by a standalone set of daemons. It was
+    devised for sandboxing environments like Flatpak, but can be used
+    independently.
+  * Added API to manage application-private databases with (optional) custom
+    ontologies. The application is in charge of content population as well as
+    queries.
+    No daemons are required for this usecase, so this becomes a SPARQL
+    endpoint equivalent to SQLite.
+  * libtracker-miner objects can now be used on the application side in
+    combination with application-private endpoints. An additional object
+    has been added to make TrackerMiner implementations exported through
+    DBus.
+  * The filesystem TrackerMiner base implementation has received some
+    notable speedups.
+  * Running multiple concurrent SELECT queries is now lock-free on most
+    situations.
+  * Meson build instructions have been added.
+
 NEW in 1.99.3 - 2017-08-22
 ==========================
 
