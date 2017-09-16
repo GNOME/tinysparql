@@ -481,7 +481,7 @@ tracker_extract_get_metadata (TrackerExtractInfo *info)
 			TrackerResource *white_balance;
 
 			white_balance = tracker_resource_new (xd->white_balance);
-			tracker_resource_set_relation (metadata, "nmm:meteringMode", white_balance);
+			tracker_resource_set_relation (metadata, "nmm:whiteBalance", white_balance);
 			g_object_unref (white_balance);
 		}
 
