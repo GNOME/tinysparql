@@ -81,7 +81,7 @@ tracker_miner_gir = gnome.generate_gir(libtracker_miner,
     namespace: 'TrackerMiner',
     identifier_prefix: 'Tracker',
     symbol_prefix: 'tracker',
-    # FIXME: also depends on Tracker-1.0.gir (output of libtracker-sparql)
+    # FIXME: also depends on Tracker-2.0.gir (output of libtracker-sparql)
     # but we can't currently access that from the Vala target
     includes : ['GLib-2.0', 'GObject-2.0', 'Gio-2.0' ],
     install: true,
@@ -91,14 +91,14 @@ tracker_miner_gir = gnome.generate_gir(libtracker_miner,
 
 configure_file(
     input: 'tracker-miner.pc.in',
-    output: 'tracker-miner-1.0.pc',
+    output: 'tracker-miner-@0@.pc'.format(tracker_api_version),
     configuration: conf,
     install: true,
     install_dir: join_paths(get_option('prefix'), get_option('libdir'), 'pkgconfig'))
 
-install_headers(miner_headers, subdir: 'tracker-1.0/libtracker-miner')
+install_headers(miner_headers, subdir: 'tracker-@0@/libtracker-miner'.format(tracker_api_version))
 
 # Work around https://github.com/mesonbuild/meson/issues/705
 meson.add_install_script('../install-generated-header.sh',
     join_paths(meson.current_build_dir(), 'tracker-miner-enum-types.h'),
-    join_paths(get_option('prefix'), get_option('includedir'), 'tracker-1.0', 'libtracker-miner'))
+    join_paths(get_option('prefix'), get_option('includedir'), 'tracker-@0@'.format(tracker_api_version), 'libtracker-miner'))

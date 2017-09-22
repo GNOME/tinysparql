@@ -32,10 +32,10 @@ tracker_control_gir = gnome.generate_gir(libtracker_control,
 
 configure_file(
     input: 'tracker-control.pc.in',
-    output: 'tracker-control-1.0.pc',
+    output: 'tracker-control-@0@.pc'.format(tracker_api_version),
     configuration: conf,
     install: true,
     install_dir: join_paths(get_option('prefix'), get_option('libdir'), 'pkgconfig'))
 
 install_headers (headers,
-    subdir: 'tracker-1.0/libtracker-control')
+    subdir: 'tracker-@0@/libtracker-control'.format(tracker_api_version))

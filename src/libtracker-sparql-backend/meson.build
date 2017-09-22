@@ -47,13 +47,13 @@ tracker_sparql_gir = custom_target('tracker-sparql-gir',
     command: [g_ir_merge, '--namespace', 'Tracker', '--nsversion', tracker_api_version, '@INPUT@', tracker_sparql_vala_gir],
     input: [tracker_sparql_c_gir],
     capture: true,
-    output: 'Tracker-1.0.gir',
+    output: 'Tracker-@0@.gir'.format(tracker_api_version),
     install: true,
     install_dir: gir_dir)
 
 tracker_sparql_typelib = custom_target('tracker-sparql-typelib',
     command: [g_ir_compiler, '--output', '@OUTPUT@', '@INPUT@'],
     input: tracker_sparql_gir,
-    output: 'Tracker-1.0.typelib',
+    output: 'Tracker-@0@.typelib'.format(tracker_api_version),
     install: true,
     install_dir: typelib_dir)
