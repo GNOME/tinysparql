@@ -550,8 +550,16 @@ mount_add (TrackerStorage *storage,
 
 	/* Get root path of the mount */
 	root = g_mount_get_root (mount);
-	mount_path = g_file_get_path (root);
+	if (!g_file_is_native (root)) {
+		gchar *uri = g_file_get_uri (root);
 
+		g_debug ("Ignoring mount '%s', URI '%s' is not native",
+		         mount_name, uri);
+		g_free (uri);
+		return;
+	}
+
+	mount_path = g_file_get_path (root);
 	g_debug ("Found '%s' mounted on path '%s'",
 	         mount_name,
 	         mount_path);
