@@ -868,6 +868,7 @@ sparql_files_query_cb (GObject      *object,
 	TrackerFileNotifierPrivate *priv;
 	TrackerFileNotifier *notifier;
 	TrackerSparqlCursor *cursor;
+	gboolean directory_modified;
 	GError *error = NULL;
 	GFile *directory;
 	guint flags;
@@ -890,13 +891,15 @@ sparql_files_query_cb (GObject      *object,
 		g_object_unref (cursor);
 	}
 
-	file_notifier_traverse_tree (notifier, data->max_depth);
 	directory = priv->current_index_root->current_dir;
 	flags = priv->current_index_root->flags;
+	directory_modified = file_notifier_is_directory_modified (notifier, directory);
+
+	file_notifier_traverse_tree (notifier, data->max_depth);
 
 	if ((flags & TRACKER_DIRECTORY_FLAG_CHECK_DELETED) != 0 ||
 	    priv->current_index_root->current_dir_content_filtered ||
-	    file_notifier_is_directory_modified (notifier, directory)) {
+	    directory_modified) {
 		/* The directory has updated its mtime, this means something
 		 * was either added or removed in the mean time. Crawling
 		 * will always find all newly added files. But still, we
