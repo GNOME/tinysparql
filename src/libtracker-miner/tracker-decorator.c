@@ -792,14 +792,15 @@ decorator_query_remaining_items_cb (GObject      *object,
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
 							 result, &error);
-	priv = decorator->priv;
-        priv->querying = FALSE;
 
 	if (error || !tracker_sparql_cursor_next (cursor, NULL, &error)) {
 		decorator_notify_task_error (decorator, error);
 		g_error_free (error);
 		return;
 	}
+
+	priv = decorator->priv;
+	priv->querying = FALSE;
 
 	priv->n_remaining_items = g_queue_get_length (&priv->item_cache) +
 		tracker_sparql_cursor_get_integer (cursor, 0);
