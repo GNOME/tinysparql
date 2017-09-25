@@ -2821,12 +2821,11 @@ miner_fs_cache_file_urn (TrackerMinerFS *fs,
 static void
 miner_fs_queue_file (TrackerMinerFS       *fs,
                      TrackerPriorityQueue *item_queue,
-                     GFile                *file,
-                     gboolean              query_urn)
+                     GFile                *file)
 {
 	gint priority;
 
-	miner_fs_cache_file_urn (fs, file, query_urn);
+	miner_fs_cache_file_urn (fs, file, TRUE);
 	priority = miner_fs_get_queue_priority (fs, file);
 	tracker_priority_queue_add (item_queue, g_object_ref (file), priority);
 }
@@ -2982,7 +2981,7 @@ check_item_queues (TrackerMinerFS *fs,
 			 */
 			g_debug ("  Found matching unhandled CREATED event "
 			         "for source file, merging both events together");
-			miner_fs_queue_file (fs, fs->priv->items_created, other_file, FALSE);
+			miner_fs_queue_file (fs, fs->priv->items_created, other_file);
 
 			return FALSE;
 		}
@@ -3017,7 +3016,7 @@ file_notifier_file_created (TrackerFileNotifier  *notifier,
 	TrackerMinerFS *fs = user_data;
 
 	if (check_item_queues (fs, QUEUE_CREATED, file, NULL)) {
-		miner_fs_queue_file (fs, fs->priv->items_created, file, FALSE);
+		miner_fs_queue_file (fs, fs->priv->items_created, file);
 		item_queue_handlers_set_up (fs);
 	}
 }
@@ -3040,7 +3039,7 @@ file_notifier_file_deleted (TrackerFileNotifier  *notifier,
 	}
 
 	if (check_item_queues (fs, QUEUE_DELETED, file, NULL)) {
-		miner_fs_queue_file (fs, fs->priv->items_deleted, file, FALSE);
+		miner_fs_queue_file (fs, fs->priv->items_deleted, file);
 		item_queue_handlers_set_up (fs);
 	}
 }
@@ -3071,7 +3070,7 @@ file_notifier_file_updated (TrackerFileNotifier  *notifier,
 			                    GINT_TO_POINTER (TRUE));
 		}
 
-		miner_fs_queue_file (fs, fs->priv->items_updated, file, TRUE);
+		miner_fs_queue_file (fs, fs->priv->items_updated, file);
 		item_queue_handlers_set_up (fs);
 	}
 }
@@ -3417,7 +3416,7 @@ tracker_miner_fs_directory_remove_full (TrackerMinerFS *fs,
 			 * to preserve remove_full() semantics.
 			 */
 			trace_eq_push_tail ("DELETED", file, "on remove full");
-			miner_fs_queue_file (fs, fs->priv->items_deleted, file, FALSE);
+			miner_fs_queue_file (fs, fs->priv->items_deleted, file);
 			item_queue_handlers_set_up (fs);
 		}
 
@@ -3461,7 +3460,7 @@ check_file_parents (TrackerMinerFS *fs,
 
 	for (p = parents; p; p = p->next) {
 		trace_eq_push_tail ("UPDATED", p->data, "checking file parents");
-		miner_fs_queue_file (fs, fs->priv->items_updated, p->data, TRUE);
+		miner_fs_queue_file (fs, fs->priv->items_updated, p->data);
 		g_object_unref (p->data);
 	}
 
