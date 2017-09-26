@@ -779,38 +779,24 @@ out:
 }
 
 static gchar *
-sparql_contents_compose_query (GFile **directories,
-                               guint   n_dirs)
+sparql_contents_compose_query (GFile *directory)
 {
-	GString *str;
-	gchar *uri;
-	gint i;
-	gboolean first = TRUE;
+	gchar *sparql, *uri;
 
-	str = g_string_new ("SELECT nie:url(?u) ?u nfo:fileLastModified(?u) "
-	                    "       IF (nie:mimeType(?u) = \"inode/directory\", true, false) {"
-			    " ?u nfo:belongsToContainer ?f . ?f nie:url ?url ."
-			    " FILTER (?url IN (");
-	for (i = 0; i < n_dirs; i++) {
-		if (!first) {
-			g_string_append_c (str, ',');
-		}
+	uri = g_file_get_uri (directory);
+	sparql = g_strdup_printf ("SELECT nie:url(?u) ?u nfo:fileLastModified(?u) "
+	                          "       IF (nie:mimeType(?u) = \"inode/directory\", true, false) {"
+	                          " ?u nfo:belongsToContainer ?f . ?f nie:url ?url ."
+	                          " FILTER (?url = \"%s\")"
+	                          "}", uri);
+	g_free (uri);
 
-		first = FALSE;
-		uri = g_file_get_uri (directories[i]);
-		g_string_append_printf (str, "\"%s\"", uri);
-		g_free (uri);
-	}
-
-	g_string_append (str, "))}");
-
-	return g_string_free (str, FALSE);
+	return sparql;
 }
 
 static void
-sparql_contents_query_start (TrackerFileNotifier  *notifier,
-                             GFile               **directories,
-                             guint                 n_dirs)
+sparql_contents_query_start (TrackerFileNotifier *notifier,
+                             GFile               *directory)
 {
 	TrackerFileNotifierPrivate *priv;
 	gchar *sparql;
@@ -821,7 +807,7 @@ sparql_contents_query_start (TrackerFileNotifier  *notifier,
 		return;
 	}
 
-	sparql = sparql_contents_compose_query (directories, n_dirs);
+	sparql = sparql_contents_compose_query (directory);
 	tracker_sparql_connection_query_async (priv->connection,
 	                                       sparql,
 	                                       priv->cancellable,
@@ -876,7 +862,7 @@ sparql_files_query_cb (GObject      *object,
 		 * must check the contents in the store to handle contents
 		 * having been deleted in the directory.
 		 */
-		sparql_contents_query_start (notifier, &directory, 1);
+		sparql_contents_query_start (notifier, directory);
 	} else {
 		finish_current_directory (notifier, FALSE);
 	}
