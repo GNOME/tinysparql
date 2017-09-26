@@ -34,8 +34,6 @@ static GQuark quark_property_store_mtime = 0;
 static GQuark quark_property_filesystem_mtime = 0;
 static gboolean force_check_updated = FALSE;
 
-#define MAX_DEPTH 1
-
 enum {
 	PROP_0,
 	PROP_INDEXING_TREE,
@@ -99,16 +97,10 @@ typedef struct {
 	GFile *cur_parent;
 } DirectoryCrawledData;
 
-typedef struct {
-	TrackerFileNotifier *notifier;
-	gint max_depth;
-} SparqlStartData;
-
 static gboolean crawl_directories_start (TrackerFileNotifier *notifier);
 static void     sparql_files_query_start (TrackerFileNotifier  *notifier,
                                           GFile               **files,
-                                          guint                 n_files,
-                                          gint                  max_depth);
+                                          guint                 n_files);
 
 G_DEFINE_TYPE (TrackerFileNotifier, tracker_file_notifier, G_TYPE_OBJECT)
 
@@ -361,7 +353,7 @@ notifier_check_next_root (TrackerFileNotifier *notifier)
 }
 
 static void
-file_notifier_traverse_tree (TrackerFileNotifier *notifier, gint max_depth)
+file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 {
 	TrackerFileNotifierPrivate *priv;
 	GFile *config_root, *directory;
@@ -374,19 +366,14 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier, gint max_depth)
 	config_root = tracker_indexing_tree_get_root (priv->indexing_tree,
 						      directory, &flags);
 
-	/* The max_depth parameter is usually '1', which would cause only the
-	 * directory itself to be processed. We want the directory and its contents
-	 * to be processed so we need to go to (max_depth + 1) here.
-	 */
-
+	/* We want the directory and its direct contents, hence depth=2 */
 	if (config_root != directory ||
 	    flags & TRACKER_DIRECTORY_FLAG_CHECK_MTIME) {
 		tracker_file_system_traverse (priv->file_system,
 		                              directory,
 		                              G_LEVEL_ORDER,
 		                              file_notifier_traverse_tree_foreach,
-		                              max_depth + 1,
-		                              notifier);
+		                              2, notifier);
 	}
 }
 
@@ -436,10 +423,8 @@ file_notifier_add_node_foreach (GNode    *node,
 	if (file_info) {
 		GFileType file_type;
 		guint64 time, *time_ptr;
-		gint depth;
 
 		file_type = g_file_info_get_file_type (file_info);
-		depth = g_node_depth (node);
 
 		/* Intern file in filesystem */
 		canonical = tracker_file_system_get_file (priv->file_system,
@@ -457,18 +442,15 @@ file_notifier_add_node_foreach (GNode    *node,
 		                                  time_ptr);
 		g_object_unref (file_info);
 
-		if (file_type == G_FILE_TYPE_DIRECTORY && depth == MAX_DEPTH + 1) {
-			/* If the max crawling depth is reached,
-			 * queue dirs for later processing
-			 */
+		if (file_type == G_FILE_TYPE_DIRECTORY && !G_NODE_IS_ROOT (node)) {
+			/* Queue child dirs for later processing */
 			g_assert (node->children == NULL);
 			g_queue_push_tail (priv->current_index_root->pending_dirs,
 			                   g_object_ref (canonical));
 		}
 
 		if (file == priv->current_index_root->root ||
-		    (depth != 0 &&
-		     !tracker_indexing_tree_file_is_root (priv->indexing_tree, file))) {
+		    !tracker_indexing_tree_file_is_root (priv->indexing_tree, file)) {
 			g_ptr_array_add (priv->current_index_root->query_files,
 			                 g_object_ref (canonical));
 		}
@@ -637,7 +619,6 @@ static gboolean
 crawl_directory_in_current_root (TrackerFileNotifier *notifier)
 {
 	TrackerFileNotifierPrivate *priv = notifier->priv;
-	gint depth;
 	GFile *directory;
 
 	if (!priv->current_index_root)
@@ -654,18 +635,10 @@ crawl_directory_in_current_root (TrackerFileNotifier *notifier)
 		g_object_unref (priv->cancellable);
 	priv->cancellable = g_cancellable_new ();
 
-	if ((priv->current_index_root->flags & TRACKER_DIRECTORY_FLAG_RECURSE) == 0) {
-		/* Don't recurse */
-		depth = 1;
-	} else {
-		/* Recurse */
-		depth = MAX_DEPTH;
-	}
-
 	if (!tracker_crawler_start (priv->crawler,
 	                            directory,
 	                            priv->current_index_root->flags)) {
-		sparql_files_query_start (notifier, &directory, 1, depth);
+		sparql_files_query_start (notifier, &directory, 1);
 	}
 
 	return TRUE;
@@ -863,17 +836,13 @@ sparql_files_query_cb (GObject      *object,
 		       GAsyncResult *result,
 		       gpointer      user_data)
 {
-	SparqlStartData *data = user_data;
-	TrackerFileNotifierPrivate *priv;
-	TrackerFileNotifier *notifier;
+	TrackerFileNotifier *notifier = user_data;
+	TrackerFileNotifierPrivate *priv = notifier->priv;
 	TrackerSparqlCursor *cursor;
 	gboolean directory_modified;
 	GError *error = NULL;
 	GFile *directory;
 	guint flags;
-
-	notifier = data->notifier;
-	priv = notifier->priv;
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
 	                                                 result, &error);
@@ -882,7 +851,9 @@ sparql_files_query_cb (GObject      *object,
 			g_warning ("Could not query indexed files: %s\n", error->message);
 			finish_current_directory (notifier, TRUE);
 		}
-		goto out;
+
+		g_clear_error (&error);
+		return;
 	}
 
 	if (cursor) {
@@ -894,7 +865,7 @@ sparql_files_query_cb (GObject      *object,
 	flags = priv->current_index_root->flags;
 	directory_modified = file_notifier_is_directory_modified (notifier, directory);
 
-	file_notifier_traverse_tree (notifier, data->max_depth);
+	file_notifier_traverse_tree (notifier);
 
 	if ((flags & TRACKER_DIRECTORY_FLAG_CHECK_DELETED) != 0 ||
 	    priv->current_index_root->current_dir_content_filtered ||
@@ -909,12 +880,6 @@ sparql_files_query_cb (GObject      *object,
 	} else {
 		finish_current_directory (notifier, FALSE);
 	}
-
-out:
-	if (error) {
-	        g_error_free (error);
-	}
-	g_free (data);
 }
 
 static gchar *
@@ -945,15 +910,10 @@ sparql_files_compose_query (GFile **files,
 static void
 sparql_files_query_start (TrackerFileNotifier  *notifier,
                           GFile               **files,
-                          guint                 n_files,
-                          gint                  max_depth)
+                          guint                 n_files)
 {
 	TrackerFileNotifierPrivate *priv;
 	gchar *sparql;
-	SparqlStartData *data = g_new (SparqlStartData, 1);
-
-	data->notifier = notifier;
-	data->max_depth = max_depth;
 
 	priv = notifier->priv;
 
@@ -966,7 +926,7 @@ sparql_files_query_start (TrackerFileNotifier  *notifier,
 	                                       sparql,
 	                                       priv->cancellable,
 	                                       sparql_files_query_cb,
-	                                       data);
+	                                       notifier);
 	g_free (sparql);
 }
 
@@ -1037,7 +997,6 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	TrackerFileNotifier *notifier = user_data;
 	TrackerFileNotifierPrivate *priv = notifier->priv;
 	GFile *directory;
-	gint max_depth = 1;
 
 	g_assert (priv->current_index_root != NULL);
 
@@ -1053,12 +1012,12 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	     tracker_file_system_get_property (priv->file_system,
 	                                       directory, quark_property_iri))) {
 		sparql_files_query_start (notifier,
-                                  (GFile**) priv->current_index_root->query_files->pdata,
-		                          priv->current_index_root->query_files->len, max_depth);
+		                          (GFile**) priv->current_index_root->query_files->pdata,
+		                          priv->current_index_root->query_files->len);
 		g_ptr_array_set_size (priv->current_index_root->query_files, 0);
 	} else {
 		g_ptr_array_set_size (priv->current_index_root->query_files, 0);
-		file_notifier_traverse_tree (notifier, max_depth);
+		file_notifier_traverse_tree (notifier);
 		finish_current_directory (notifier, FALSE);
 	}
 }
