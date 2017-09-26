@@ -69,7 +69,6 @@ struct DirectoryProcessingData {
 struct DirectoryRootInfo {
 	GFile *directory;
 	GNode *tree;
-	gint max_depth;
 
 	GQueue *directory_processing_queue;
 
@@ -107,8 +106,6 @@ struct TrackerCrawlerPrivate {
 	gboolean        is_finished;
 	gboolean        is_paused;
 	gboolean        was_started;
-
-	gint            max_depth;
 };
 
 enum {
@@ -248,7 +245,6 @@ tracker_crawler_init (TrackerCrawler *object)
 
 	priv = object->priv;
 
-	priv->max_depth = -1;
 	priv->directories = g_queue_new ();
 }
 
@@ -474,7 +470,6 @@ directory_processing_data_add_child (DirectoryProcessingData *data,
 
 static DirectoryRootInfo *
 directory_root_info_new (GFile                 *file,
-                         gint                   max_depth,
                          gchar                 *file_attributes,
                          TrackerDirectoryFlags  flags)
 {
@@ -485,7 +480,6 @@ directory_root_info_new (GFile                 *file,
 	info = g_slice_new0 (DirectoryRootInfo);
 
 	info->directory = g_object_ref (file);
-	info->max_depth = max_depth;
 	info->directory_processing_queue = g_queue_new ();
 
 	info->tree = g_node_new (g_object_ref (file));
@@ -612,11 +606,6 @@ process_next (TrackerCrawler *crawler)
 	}
 
 	if (dir_data) {
-		gint depth = g_node_depth (dir_data->node) - 1;
-		gboolean iterate;
-
-		iterate = (info->max_depth >= 0) ? depth < info->max_depth : TRUE;
-
 		/* One directory inside the tree hierarchy is being inspected */
 		if (!dir_data->was_inspected) {
 			dir_data->was_inspected = TRUE;
@@ -624,7 +613,7 @@ process_next (TrackerCrawler *crawler)
 			/* Crawler may have been already stopped while we were waiting for the
 			 *  check_directory return value, and thus we should check if it's
 			 *  running before going on with the iteration */
-			if (priv->is_running && iterate) {
+			if (priv->is_running && G_NODE_IS_ROOT (dir_data->node)) {
 				/* Directory contents haven't been inspected yet,
 				 * stop this idle function while it's being iterated
 				 */
@@ -656,7 +645,7 @@ process_next (TrackerCrawler *crawler)
 								  g_object_ref (child_data->child));
 			}
 
-			if (iterate && priv->is_running &&
+			if (G_NODE_IS_ROOT (dir_data->node) && priv->is_running &&
 			    child_node && child_data->is_dir) {
 				DirectoryProcessingData *child_dir_data;
 
@@ -1029,8 +1018,7 @@ data_provider_begin (TrackerCrawler          *crawler,
 gboolean
 tracker_crawler_start (TrackerCrawler        *crawler,
                        GFile                 *file,
-                       TrackerDirectoryFlags  flags,
-                       gint                   max_depth)
+                       TrackerDirectoryFlags  flags)
 {
 	TrackerCrawlerPrivate *priv;
 	DirectoryProcessingData *dir_data;
@@ -1075,9 +1063,8 @@ tracker_crawler_start (TrackerCrawler        *crawler,
 	/* Set as running now */
 	priv->is_running = TRUE;
 	priv->is_finished = FALSE;
-	priv->max_depth = max_depth;
 
-	info = directory_root_info_new (file, max_depth, priv->file_attributes, flags);
+	info = directory_root_info_new (file, priv->file_attributes, flags);
 
 	if (!check_directory (crawler, info, file)) {
 		directory_root_info_free (info);
@@ -1229,22 +1216,6 @@ tracker_crawler_get_file_attributes (TrackerCrawler *crawler)
 	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), NULL);
 
 	return crawler->priv->file_attributes;
-}
-
-/**
- * tracker_crawler_get_max_depth:
- * @crawler: a #TrackerCrawler
- *
- * Returns the max depth that @crawler got passed on tracker_crawler_start
- *
- * Returns: the max depth
- **/
-
-gint
-tracker_crawler_get_max_depth (TrackerCrawler *crawler)
-{
-	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), 0);
-	return crawler->priv->max_depth;
 }
 
 /**
