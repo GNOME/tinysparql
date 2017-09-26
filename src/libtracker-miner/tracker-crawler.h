@@ -75,8 +75,7 @@ GType           tracker_crawler_get_type     (void);
 TrackerCrawler *tracker_crawler_new          (TrackerDataProvider *data_provider);
 gboolean        tracker_crawler_start        (TrackerCrawler *crawler,
                                               GFile          *file,
-                                              TrackerDirectoryFlags flags,
-					      gint            max_depth);
+                                              TrackerDirectoryFlags flags);
 void            tracker_crawler_stop         (TrackerCrawler *crawler);
 void            tracker_crawler_pause        (TrackerCrawler *crawler);
 void            tracker_crawler_resume       (TrackerCrawler *crawler);
@@ -89,7 +88,6 @@ const gchar *   tracker_crawler_get_file_attributes (TrackerCrawler *crawler);
 
 GFileInfo *     tracker_crawler_get_file_info       (TrackerCrawler *crawler,
 						     GFile          *file);
-gint            tracker_crawler_get_max_depth       (TrackerCrawler *crawler);
 
 G_END_DECLS
 

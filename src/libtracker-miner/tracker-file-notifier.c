@@ -664,8 +664,7 @@ crawl_directory_in_current_root (TrackerFileNotifier *notifier)
 
 	if (!tracker_crawler_start (priv->crawler,
 	                            directory,
-	                            priv->current_index_root->flags,
-	                            depth)) {
+	                            priv->current_index_root->flags)) {
 		sparql_files_query_start (notifier, &directory, 1, depth);
 	}
 
@@ -1038,7 +1037,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	TrackerFileNotifier *notifier = user_data;
 	TrackerFileNotifierPrivate *priv = notifier->priv;
 	GFile *directory;
-	gint max_depth = -1;
+	gint max_depth = 1;
 
 	g_assert (priv->current_index_root != NULL);
 
@@ -1046,8 +1045,6 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		finish_current_directory (notifier, TRUE);
 		return;
 	}
-
-	max_depth = tracker_crawler_get_max_depth (crawler);
 
 	directory = priv->current_index_root->current_dir;
 
