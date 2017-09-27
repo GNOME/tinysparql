@@ -28,7 +28,7 @@ icu_uc = dependency('icu-uc', version: '> 4.8.1.1', required: false)
 json_glib = dependency('json-glib-1.0', version: '>= 1.0', required: true)
 libsoup = dependency('libsoup-2.4', version: '> 2.40', required: true)
 libxml2 = dependency('libxml-2.0', version: '> 2.6')
-network_manager = dependency('libnm')
+network_manager = dependency('libnm', required: false)
 sqlite = dependency('sqlite3', version: '>' + sqlite_required)
 
 libmath = cc.find_library('m')
