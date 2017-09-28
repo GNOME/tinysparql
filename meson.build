@@ -258,7 +258,7 @@ conf.set('includedir', join_paths(get_option('prefix'), get_option('includedir')
 conf.set('libdir', join_paths(get_option('prefix'), get_option('libdir')))
 conf.set('libexecdir', join_paths(get_option('prefix'), get_option('libexecdir')))
 conf.set('prefix', get_option('prefix'))
-conf.set('TRACKER_API_VERSION', '1.0')
+conf.set('TRACKER_API_VERSION', tracker_api_version)
 conf.set('VERSION', meson.project_version())
 
 configure_file(input: 'config.h.meson.in',
