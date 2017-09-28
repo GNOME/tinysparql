@@ -74,5 +74,5 @@ tracker_data_dep = declare_dependency(
     link_with: [libtracker_data, libtracker_data_vala],
     dependencies: tracker_data_dependencies,
     include_directories: include_directories('.'),
-    source: enums[1],
+    sources: enums[1],
 )
