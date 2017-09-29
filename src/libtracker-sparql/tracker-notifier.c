@@ -877,8 +877,8 @@ tracker_notifier_init (TrackerNotifier *notifier)
 
 /**
  * tracker_notifier_new:
- * @classes: (array zero-terminated=1): Array of RDF classes to receive
- *           notifications from, or %NULL for all.
+ * @classes: (array zero-terminated=1) (allow-none): Array of RDF classes to
+ *           receive notifications from, or %NULL for all.
  * @flags: flags affecting the notifier behavior
  * @cancellable: Cancellable for the operation
  * @error: location for the possible resulting error.
