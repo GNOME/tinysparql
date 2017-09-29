@@ -1,3 +1,9 @@
+NEW in 1.10.6 - 2017-09-29
+==========================
+
+  * Backport fixes to prevent nie:url UNIQUE constraint issues.
+  * Other warning and code correctness fixes.
+
 NEW in 1.10.5 - 2017-02-23
 ==========================
 
