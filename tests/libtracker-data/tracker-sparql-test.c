@@ -395,7 +395,7 @@ main (int argc, char **argv)
 	setlocale (LC_COLLATE, "en_US.utf8");
 
 	current_dir = g_get_current_dir ();
-	tests_data_dir = g_build_path (G_DIR_SEPARATOR_S, current_dir, "test-data", NULL);
+	tests_data_dir = g_build_path (G_DIR_SEPARATOR_S, current_dir, "sparql-test-data", NULL);
 	g_free (current_dir);
 
 	g_test_init (&argc, &argv, NULL);
