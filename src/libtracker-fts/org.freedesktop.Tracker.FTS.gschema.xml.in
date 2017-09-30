@@ -18,7 +18,7 @@ Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 Boston, MA  02110-1301, USA.
 -->
 <schemalist>
-  <schema id="org.freedesktop.Tracker.FTS" path="/org/freedesktop/tracker/fts/">
+  <schema id="org.freedesktop.Tracker.FTS" path="/org/freedesktop/tracker/fts/" gettext-domain="tracker">
 
     <key name="max-word-length" type="i">
       <default>30</default>
