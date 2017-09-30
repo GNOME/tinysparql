@@ -226,7 +226,7 @@ test_tracker_sparql_query_iterate_empty_subprocess ()
 
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
-	tracker_sparql_cursor_next (cursor, NULL, NULL);
+	g_assert (tracker_sparql_cursor_next (cursor, NULL, NULL));
 
 	/* Testing we fail with this error:
 	 *
@@ -273,7 +273,7 @@ test_tracker_sparql_query_iterate_sigpipe ()
 	g_assert (cursor);
 	g_assert_no_error (error);
 
-	tracker_sparql_cursor_next (cursor, NULL, NULL);
+	g_assert (tracker_sparql_cursor_next (cursor, NULL, NULL));
 
 	g_object_unref (cursor);
 }

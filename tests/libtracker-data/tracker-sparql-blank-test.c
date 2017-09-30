@@ -172,7 +172,7 @@ main (int argc, char **argv)
 	/* run tests */
 	result = g_test_run ();
 
-	g_remove (tests_data_dir);
+	g_assert_cmpint (g_remove (tests_data_dir), ==, 0);
 	g_free (tests_data_dir);
 
 	return result;

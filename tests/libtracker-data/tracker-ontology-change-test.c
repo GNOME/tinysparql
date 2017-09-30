@@ -229,7 +229,7 @@ test_ontology_change (void)
 		g_file_copy (file1, file2, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
 
 		g_assert_no_error (error);
-		g_chmod (ontology_file, 0666);
+		g_assert_cmpint (g_chmod (ontology_file, 0666), ==, 0);
 
 		manager = tracker_data_manager_new (0, data_location, data_location, test_schemas,
 		                                    FALSE, FALSE, 100, 100);

@@ -149,7 +149,7 @@ test_backup_and_restore_helper (const gchar *db_location,
 	check_content_in_db (manager, 3, 1);
 
 	backup_location = g_build_filename (db_location, "backup", NULL);
-	g_mkdir (backup_location, 0777);
+	g_assert_cmpint (g_mkdir (backup_location, 0777), ==, 0);
 	backup_filename = g_build_filename (backup_location, "tracker.dump", NULL);
 	backup_file = g_file_new_for_path (backup_filename);
 	g_free (backup_filename);
