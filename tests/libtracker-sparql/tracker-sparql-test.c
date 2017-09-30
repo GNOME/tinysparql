@@ -42,58 +42,20 @@ static GMainLoop *main_loop;
 
 #if HAVE_TRACKER_FTS
 
-static GCancellable *cancellables[6] = { NULL, NULL, NULL, NULL };
+#define N_QUERIES 3
+
+static GCancellable *cancellables[N_QUERIES] = { NULL, };
 
 /* OK:   query 0 with either query 4 or 5.
  * FAIL: query 4 and 5 together (requires data to exist)
  */
-static const gchar *queries[6] = {
+static const gchar *queries[N_QUERIES] = {
 	/* #1 */
 	"SELECT ?p WHERE { ?p tracker:indexed true }",
 	/* #2 */
 	"SELECT ?prefix ?ns WHERE { ?ns a tracker:Namespace ; tracker:prefix ?prefix }",
 	/* #3 */
 	"SELECT ?p WHERE { ?p tracker:fulltextIndexed true }",
-	/* #4 */
-	"SELECT"
-	"  ?u nie:url(?u)"
-	"  tracker:coalesce(nie:title(?u), nfo:fileName(?u), \"Unknown\")"
-	"  nfo:fileLastModified(?u)"
-	"  nfo:fileSize(?u)"
-	"  nie:url(?c) "
-	"WHERE { "
-	"  ?u fts:match \"love\" . "
-	"  ?u nfo:belongsToContainer ?c ; "
-	"     tracker:available true . "
-	"} "
-	"ORDER BY DESC(fts:rank(?u)) "
-	"OFFSET 0 LIMIT 100",
-	/* #5 */
-	"SELECT"
-	"  ?song"
-	"  nie:url(?song)"
-	"  tracker:coalesce(nie:title(?song), nfo:fileName(?song), \"Unknown\")"
-	"  fn:string-join((?performer, ?album), \" - \")"
-	"  nfo:duration(?song)"
-	"  ?tooltip "
-	"WHERE {"
-	"  ?match fts:match \"love\""
-	"  {"
-	"    ?song nmm:musicAlbum ?match"
-	"  } UNION {"
-	"    ?song nmm:performer ?match"
-	"  } UNION {"
-	"    ?song a nfo:Audio ."
-	"    ?match a nfo:Audio"
-	"    FILTER (?song = ?match)"
-	"  }"
-	"  ?song nmm:performer [ nmm:artistName ?performer ] ;"
-	"        nmm:musicAlbum [ nie:title ?album ] ;"
-	"        nfo:belongsToContainer [ nie:url ?tooltip ]"
-	"} "
-	"ORDER BY DESC(fts:rank(?song)) DESC(nie:title(?song)) "
-	"OFFSET 0 LIMIT 100",
-	NULL
 };
 
 #endif /* HAVE_TRACKER_FTS */
@@ -197,6 +159,7 @@ test_tracker_sparql_cursor_next_async_query (gint query)
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
+	g_assert (query < G_N_ELEMENTS (queries));
 	g_print ("ASYNC query %d starting:\n", query);
 
 	cancellables[query] = g_cancellable_new ();
