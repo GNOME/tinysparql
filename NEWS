@@ -1,3 +1,16 @@
+NEW in 2.0.1 - 2017-10-04
+=========================
+
+  * libtracker-fts: Fix FTS queries that included stop words
+  * libtracker-sparql: Fix introspection annotations for TrackerNotifier
+  * libtracker-miner: Fix cancellation of TrackerDecorator
+  * libtracker-miner: Several fixes to causes of nie:url UNIQUE constraint
+    errors, and better resilience against prior stale data.
+  * Meson fixes
+  * Compiler warning fixes
+
+Translations: sl, tr
+
 NEW in 2.0.0 - 2017-09-12
 =========================
 
