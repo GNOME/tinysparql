@@ -1607,6 +1607,7 @@ daemon_run (void)
 		g_print ("\n");
 
 		tracker_gsettings_free (all);
+		return EXIT_SUCCESS;
 	}
 
 	if (set_log_verbosity) {
@@ -1649,6 +1650,7 @@ daemon_run (void)
 		g_print ("\n");
 
 		tracker_gsettings_free (all);
+		return EXIT_SUCCESS;
 	}
 
 	if (verbosity_type_enum_class_pointer) {
