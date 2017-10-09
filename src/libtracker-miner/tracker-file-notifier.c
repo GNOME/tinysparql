@@ -356,25 +356,19 @@ static void
 file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 {
 	TrackerFileNotifierPrivate *priv;
-	GFile *config_root, *directory;
-	TrackerDirectoryFlags flags;
+	GFile *directory;
 
 	priv = notifier->priv;
 	g_assert (priv->current_index_root != NULL);
 
 	directory = priv->current_index_root->current_dir;
-	config_root = tracker_indexing_tree_get_root (priv->indexing_tree,
-						      directory, &flags);
 
 	/* We want the directory and its direct contents, hence depth=2 */
-	if (config_root != directory ||
-	    flags & TRACKER_DIRECTORY_FLAG_CHECK_MTIME) {
-		tracker_file_system_traverse (priv->file_system,
-		                              directory,
-		                              G_LEVEL_ORDER,
-		                              file_notifier_traverse_tree_foreach,
-		                              2, notifier);
-	}
+	tracker_file_system_traverse (priv->file_system,
+				      directory,
+				      G_LEVEL_ORDER,
+				      file_notifier_traverse_tree_foreach,
+				      2, notifier);
 }
 
 static gboolean
@@ -431,15 +425,18 @@ file_notifier_add_node_foreach (GNode    *node,
 							  file, file_type,
 							  data->cur_parent);
 
-		time = g_file_info_get_attribute_uint64 (file_info,
-		                                         G_FILE_ATTRIBUTE_TIME_MODIFIED);
+		if (priv->current_index_root->flags & TRACKER_DIRECTORY_FLAG_CHECK_MTIME) {
+			time = g_file_info_get_attribute_uint64 (file_info,
+								 G_FILE_ATTRIBUTE_TIME_MODIFIED);
 
-		time_ptr = g_new (guint64, 1);
-		*time_ptr = time;
+			time_ptr = g_new (guint64, 1);
+			*time_ptr = time;
 
-		tracker_file_system_set_property (priv->file_system, canonical,
-		                                  quark_property_filesystem_mtime,
-		                                  time_ptr);
+			tracker_file_system_set_property (priv->file_system, canonical,
+							  quark_property_filesystem_mtime,
+							  time_ptr);
+		}
+
 		g_object_unref (file_info);
 
 		if (file_type == G_FILE_TYPE_DIRECTORY && !G_NODE_IS_ROOT (node)) {
@@ -983,6 +980,7 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	TrackerFileNotifier *notifier = user_data;
 	TrackerFileNotifierPrivate *priv = notifier->priv;
 	GFile *directory;
+	gboolean check_mtime;
 
 	g_assert (priv->current_index_root != NULL);
 
@@ -992,8 +990,9 @@ crawler_finished_cb (TrackerCrawler *crawler,
 	}
 
 	directory = priv->current_index_root->current_dir;
+	check_mtime = (priv->current_index_root->flags & TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
 
-	if (priv->current_index_root->query_files->len > 0 &&
+	if (priv->current_index_root->query_files->len > 0 && check_mtime &&
 	    (directory == priv->current_index_root->root ||
 	     tracker_file_system_get_property (priv->file_system,
 	                                       directory, quark_property_iri))) {
@@ -1003,7 +1002,8 @@ crawler_finished_cb (TrackerCrawler *crawler,
 		g_ptr_array_set_size (priv->current_index_root->query_files, 0);
 	} else {
 		g_ptr_array_set_size (priv->current_index_root->query_files, 0);
-		file_notifier_traverse_tree (notifier);
+		if (check_mtime)
+			file_notifier_traverse_tree (notifier);
 		finish_current_directory (notifier, FALSE);
 	}
 }
