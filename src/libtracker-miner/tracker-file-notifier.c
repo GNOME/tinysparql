@@ -682,9 +682,7 @@ finish_current_directory (TrackerFileNotifier *notifier,
 		        priv->current_index_root->files_ignored);
 
 		if (!interrupted) {
-			root_data_free (priv->current_index_root);
-			priv->current_index_root = NULL;
-
+			g_clear_pointer (&priv->current_index_root, root_data_free);
 			notifier_check_next_root (notifier);
 		}
 	}
@@ -730,11 +728,7 @@ file_notifier_current_root_check_remove_directory (TrackerFileNotifier *notifier
 		tracker_crawler_stop (priv->crawler);
 
 		if (!crawl_directory_in_current_root (notifier)) {
-			if (priv->current_index_root) {
-				root_data_free (priv->current_index_root);
-				priv->current_index_root = NULL;
-			}
-
+			g_clear_pointer (&priv->current_index_root, root_data_free);
 			notifier_check_next_root (notifier);
 		}
 	}
@@ -961,8 +955,7 @@ crawl_directories_start (TrackerFileNotifier *notifier)
 			               directory, 0, 0, 0, 0);
 		}
 
-		root_data_free (priv->current_index_root);
-		priv->current_index_root = NULL;
+		g_clear_pointer (&priv->current_index_root, root_data_free);
 	}
 
 	g_signal_emit (notifier, signals[FINISHED], 0);
@@ -1494,11 +1487,7 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 		/* If the crawler was already stopped (eg. we're at the querying
 		 * phase), the current index root won't be cleared.
 		 */
-		if (priv->current_index_root) {
-			root_data_free (priv->current_index_root);
-			priv->current_index_root = NULL;
-		}
-
+		g_clear_pointer (&priv->current_index_root, root_data_free);
 		notifier_check_next_root (notifier);
 	}
 
@@ -1571,8 +1560,7 @@ tracker_file_notifier_finalize (GObject *object)
 	g_object_unref (priv->file_system);
 	g_clear_object (&priv->connection);
 
-	if (priv->current_index_root)
-		root_data_free (priv->current_index_root);
+	g_clear_pointer (&priv->current_index_root, root_data_free);
 
 	g_list_foreach (priv->pending_index_roots, (GFunc) root_data_free, NULL);
 	g_list_free (priv->pending_index_roots);
@@ -1892,11 +1880,7 @@ tracker_file_notifier_stop (TrackerFileNotifier *notifier)
 	if (!priv->stopped) {
 		tracker_crawler_stop (priv->crawler);
 
-		if (priv->current_index_root) {
-			root_data_free (priv->current_index_root);
-			priv->current_index_root = NULL;
-		}
-
+		g_clear_pointer (&priv->current_index_root, root_data_free);
 		g_cancellable_cancel (priv->cancellable);
 		priv->stopped = TRUE;
 	}
