@@ -282,23 +282,21 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 	priv = notifier->priv;
 	current_root = priv->current_index_root->current_dir;
 
+	store_mtime = tracker_file_system_steal_property (priv->file_system, file,
+	                                                  quark_property_store_mtime);
+	disk_mtime = tracker_file_system_steal_property (priv->file_system, file,
+	                                                 quark_property_filesystem_mtime);
+
 	/* If we're crawling over a subdirectory of a root index, it's been
 	 * already notified in the crawling op that made it processed, so avoid
 	 * it here again.
 	 */
 	if (current_root == file &&
 	    current_root != priv->current_index_root->root) {
-		tracker_file_system_unset_property (priv->file_system, file,
-		                                    quark_property_filesystem_mtime);
-		tracker_file_system_unset_property (priv->file_system, file,
-		                                    quark_property_store_mtime);
+		g_free (store_mtime);
+		g_free (disk_mtime);
 		return FALSE;
 	}
-
-	store_mtime = tracker_file_system_steal_property (priv->file_system, file,
-	                                                  quark_property_store_mtime);
-	disk_mtime = tracker_file_system_steal_property (priv->file_system, file,
-	                                                 quark_property_filesystem_mtime);
 
 	if (store_mtime && !disk_mtime) {
 		/* In store but not in disk, delete */
