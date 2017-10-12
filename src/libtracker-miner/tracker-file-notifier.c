@@ -1031,6 +1031,39 @@ notifier_queue_file (TrackerFileNotifier   *notifier,
 	}
 }
 
+/* This function ensures to issue ::file-created for all
+ * parent folders that are not yet indexed. Shouldn't happen
+ * often, it is however possible if MONITOR | !CHECK_MTIME is
+ * given, and file updates happen on a not previously indexed
+ * directory.
+ */
+static void
+tracker_file_notifier_ensure_parents (TrackerFileNotifier *notifier,
+                                      GFile               *file)
+{
+	TrackerFileNotifierPrivate *priv = notifier->priv;
+	GFile *parent, *canonical;
+
+	parent = g_file_get_parent (file);
+
+	while (parent) {
+		if (tracker_indexing_tree_file_is_root (priv->indexing_tree, parent) ||
+		    tracker_file_notifier_get_file_iri (notifier, parent, TRUE)) {
+			g_object_unref (parent);
+			break;
+		}
+
+		canonical = tracker_file_system_get_file (priv->file_system,
+		                                          parent,
+		                                          G_FILE_TYPE_DIRECTORY,
+		                                          NULL);
+		g_object_unref (parent);
+
+		g_signal_emit (notifier, signals[FILE_CREATED], 0, canonical);
+		parent = g_file_get_parent (canonical);
+	}
+}
+
 /* Monitor signal handlers */
 static void
 monitor_item_created_cb (TrackerMonitor *monitor,
@@ -1050,6 +1083,8 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 		/* File should not be indexed */
 		return ;
 	}
+
+	tracker_file_notifier_ensure_parents (notifier, file);
 
 	if (!is_directory) {
 		gboolean indexable;
@@ -1127,6 +1162,8 @@ monitor_item_updated_cb (TrackerMonitor *monitor,
 		/* File should not be indexed */
 		return;
 	}
+
+	tracker_file_notifier_ensure_parents (notifier, file);
 
 	/* Fetch the interned copy */
 	canonical = tracker_file_system_get_file (priv->file_system,

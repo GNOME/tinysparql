@@ -82,11 +82,6 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
 #define trace_eq_pop_head_2(...)
 #endif /* EVENT_QUEUE_ENABLE_TRACE */
 
-/* Number of times a GFile can be re-queued before it's dropped for
- * whatever reason to avoid infinite loops.
-*/
-#define REENTRY_MAX 2
-
 /* Default processing pool limits to be set */
 #define DEFAULT_WAIT_POOL_LIMIT 1
 #define DEFAULT_READY_POOL_LIMIT 1
@@ -187,7 +182,6 @@ struct _TrackerMinerFSPrivate {
 	GQuark quark_recursive_removal;
 	GQuark quark_attribute_updated;
 	GQuark quark_directory_found_crawling;
-	GQuark quark_reentry_counter;
 
 	/* Properties */
 	gdouble throttle;
@@ -615,7 +609,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	priv->quark_recursive_removal = g_quark_from_static_string ("tracker-recursive-removal");
 	priv->quark_directory_found_crawling = g_quark_from_static_string ("tracker-directory-found-crawling");
 	priv->quark_attribute_updated = g_quark_from_static_string ("tracker-attribute-updated");
-	priv->quark_reentry_counter = g_quark_from_static_string ("tracker-reentry-counter");
 
 	priv->roots_to_notify = g_hash_table_new_full (g_file_hash,
 	                                               (GEqualFunc) g_file_equal,
@@ -1577,44 +1570,6 @@ should_wait (TrackerMinerFS *fs,
 	return FALSE;
 }
 
-static gboolean
-item_enqueue_again (TrackerMinerFS       *fs,
-                    TrackerPriorityQueue *item_queue,
-                    GFile                *queue_file,
-                    gint                  priority)
-{
-	gint reentry_counter;
-	gchar *uri;
-	gboolean should_wait;
-
-	reentry_counter = GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (queue_file),
-	                                                       fs->priv->quark_reentry_counter));
-
-	if (reentry_counter <= REENTRY_MAX) {
-		g_object_set_qdata (G_OBJECT (queue_file),
-		                    fs->priv->quark_reentry_counter,
-		                    GINT_TO_POINTER (reentry_counter + 1));
-		tracker_priority_queue_add (item_queue, g_object_ref (queue_file), priority);
-
-		should_wait = TRUE;
-	} else {
-		uri = g_file_get_uri (queue_file);
-		g_warning ("File '%s' has been reenqueued more than %d times. It will not be indexed.", uri, REENTRY_MAX);
-		g_free (uri);
-
-		/* We must be careful not to return QUEUE_WAIT when there's actually
-		 * nothing left to wait for, or the crawling might never complete.
-		 */
-		if (tracker_miner_fs_has_items_to_process (fs)) {
-			should_wait = TRUE;
-		} else {
-			should_wait = FALSE;
-		}
-	}
-
-	return should_wait;
-}
-
 static QueueState
 item_queue_get_next_file (TrackerMinerFS  *fs,
                           GFile          **file,
@@ -1941,27 +1896,26 @@ miner_handle_next_item (TrackerMinerFS *fs)
 		    lookup_file_urn (fs, parent, TRUE)) {
 			keep_processing = item_add_or_update (fs, file, priority);
 		} else {
-			TrackerPriorityQueue *item_queue;
 			gchar *uri;
 
+			/* We got an event on a file that has not its parent indexed
+			 * even though it should. Given item_queue_get_next_file()
+			 * above should return FALSE whenever the parent file is
+			 * being processed, this means the parent is neither
+			 * being processed nor indexed, no good.
+			 *
+			 * Bail out in these cases by removing all queued files
+			 * inside the missing file. Whatever it was, it shall
+			 * hopefully be fixed on next index.
+			 */
 			uri = g_file_get_uri (parent);
-			g_message ("Parent '%s' not indexed yet", uri);
+			g_warning ("Parent '%s' not indexed yet", uri);
 			g_free (uri);
 
-			if (queue == QUEUE_CREATED) {
-				item_queue = fs->priv->items_created;
-			} else {
-				item_queue = fs->priv->items_updated;
-			}
-
-			/* Parent isn't indexed yet, reinsert the task into the queue,
-			 * but forcily prepended by its parent so its indexing is
-			 * ensured, tasks are inserted at a higher priority so they
-			 * are processed promptly anyway.
-			 */
-			item_enqueue_again (fs, item_queue, parent, priority - 1);
-			item_enqueue_again (fs, item_queue, file, priority);
-
+			tracker_priority_queue_foreach_remove (fs->priv->items,
+							       (GEqualFunc) queue_event_is_equal_or_descendant,
+							       parent,
+							       (GDestroyNotify) queue_event_free);
 			keep_processing = TRUE;
 		}
 
