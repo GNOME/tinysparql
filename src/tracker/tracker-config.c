@@ -206,7 +206,7 @@ tracker_gsettings_free (GSList *all)
 
 		g_free (c->name);
 		g_object_unref (c->settings);
-		g_object_unref (c->schema);
+		g_clear_pointer (&c->schema, g_settings_schema_unref);
 		g_slice_free (ComponentGSettings, c);
 	}
 }
