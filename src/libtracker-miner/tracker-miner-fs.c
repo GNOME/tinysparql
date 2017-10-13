@@ -175,10 +175,8 @@ struct _TrackerMinerFSPrivate {
 	guint sparql_buffer_limit;
 
 	/* File properties */
-	GQuark quark_ignore_file;
 	GQuark quark_recursive_removal;
 	GQuark quark_attribute_updated;
-	GQuark quark_directory_found_crawling;
 
 	/* Properties */
 	gdouble throttle;
@@ -608,9 +606,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	g_signal_connect (priv->task_pool, "notify::limit-reached",
 	                  G_CALLBACK (task_pool_limit_reached_notify_cb), object);
 
-	priv->quark_ignore_file = g_quark_from_static_string ("tracker-ignore-file");
 	priv->quark_recursive_removal = g_quark_from_static_string ("tracker-recursive-removal");
-	priv->quark_directory_found_crawling = g_quark_from_static_string ("tracker-directory-found-crawling");
 	priv->quark_attribute_updated = g_quark_from_static_string ("tracker-attribute-updated");
 
 	priv->roots_to_notify = g_hash_table_new_full (g_file_hash,
