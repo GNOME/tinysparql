@@ -103,8 +103,8 @@ typedef struct {
 	gchar *  (* remove_children)          (TrackerMinerFS       *fs,
 	                                       GFile                *file);
 	gchar *  (* move_file)                (TrackerMinerFS       *fs,
-					       GFile                *source,
-	                                       GFile                *dest,
+					       GFile                *dest,
+	                                       GFile                *source,
 	                                       gboolean              recursive);
 
 	gboolean (* filter_event)             (TrackerMinerFS          *fs,
