@@ -20,6 +20,7 @@ test_programs = \
 	tracker-file-notifier-test		       \
 	tracker-file-system-test		       \
 	tracker-thumbnailer-test                       \
+	tracker-miner-fs-test			       \
 	tracker-monitor-test			       \
 	tracker-priority-queue-test		       \
 	tracker-task-pool-test			       \
@@ -81,6 +82,9 @@ if !ENABLE_GCOV
 tracker_monitor_test_SOURCES +=			       \
 	$(libtracker_miner_monitor_sources)
 endif
+
+tracker_miner_fs_test_SOURCES =                        \
+	tracker-miner-fs-test.c
 
 tracker_priority_queue_test_SOURCES = 		       \
 	tracker-priority-queue-test.c
