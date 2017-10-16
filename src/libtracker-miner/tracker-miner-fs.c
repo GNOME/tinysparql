@@ -2395,8 +2395,6 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 					       (GDestroyNotify) queue_event_free);
 
 	g_debug ("  Removed files at %f\n", g_timer_elapsed (timer, NULL));
-
-	g_message ("Finished remove directory operation in %f\n", g_timer_elapsed (timer, NULL));
 	g_timer_destroy (timer);
 }
 

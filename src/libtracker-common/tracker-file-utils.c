@@ -345,10 +345,10 @@ tracker_file_system_has_enough_space (const gchar *path,
 			            str2,
 			            str1);
 		} else {
-			g_message ("Checking for adequate disk space to create databases, "
-			           "%s remaining, %s required as a minimum",
-			           str2,
-			           str1);
+			g_debug ("Checking for adequate disk space to create databases, "
+			         "%s remaining, %s required as a minimum",
+			         str2,
+			         str1);
 		}
 
 		g_free (str2);
