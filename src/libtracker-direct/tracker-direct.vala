@@ -337,6 +337,39 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 		return task.blank_nodes;
 	}
 
+	public async override GenericArray<Sparql.Error?>? update_array_async (string[] sparql, int priority = GLib.Priority.DEFAULT, Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, DBusError {
+		var combined_query = new StringBuilder ();
+		var n_updates = sparql.length;
+		int i;
+
+		for (i = 0; i < n_updates; i++)
+			combined_query.append (sparql[i]);
+
+		var task = new UpdateTask (combined_query.str, priority, cancellable);
+		task.callback = update_array_async.callback;
+		update_queue.push (task);
+		yield;
+
+		var errors = new GenericArray<Sparql.Error?> (n_updates);
+
+		if (task.error == null) {
+			for (i = 0; i < n_updates; i++)
+				errors.add (null);
+		} else {
+			// combined query was not successful, try queries one by one
+			for (i = 0; i < n_updates; i++) {
+				try {
+					yield update_async (sparql[i], priority, cancellable);
+					errors.add (null);
+				} catch (Sparql.Error e) {
+					errors.add (e);
+				}
+			}
+		}
+
+		return errors;
+	}
+
 	public override void load (File file, Cancellable? cancellable = null) throws Sparql.Error, IOError, DBusError {
 		mutex.lock ();
 		try {
