@@ -284,7 +284,7 @@ tracker_monitor_init (TrackerMonitor *object)
 		if (strcmp (name, "GInotifyDirectoryMonitor") == 0 ||
 		    strcmp (name, "GInotifyFileMonitor") == 0) {
 			/* Using inotify */
-			g_message ("Monitor backend is Inotify");
+			g_debug ("Monitor backend is Inotify");
 
 			/* Setting limit based on kernel
 			 * settings in /proc...
@@ -307,13 +307,13 @@ tracker_monitor_init (TrackerMonitor *object)
 		else if (strcmp (name, "GKqueueDirectoryMonitor") == 0 ||
 		         strcmp (name, "GKqueueFileMonitor") == 0) {
 			/* Using kqueue(2) */
-			g_message ("Monitor backend is kqueue");
+			g_debug ("Monitor backend is kqueue");
 
 			priv->monitor_limit = get_kqueue_limit ();
 		}
 		else if (strcmp (name, "GFamDirectoryMonitor") == 0) {
 			/* Using Fam */
-			g_message ("Monitor backend is Fam");
+			g_debug ("Monitor backend is Fam");
 
 			/* Setting limit to an arbitary limit
 			 * based on testing
@@ -323,14 +323,14 @@ tracker_monitor_init (TrackerMonitor *object)
 		}
 		else if (strcmp (name, "GFenDirectoryMonitor") == 0) {
 			/* Using Fen, what is this? */
-			g_message ("Monitor backend is Fen");
+			g_debug ("Monitor backend is Fen");
 
 			/* Guessing limit... */
 			priv->monitor_limit = 8192;
 		}
 		else if (strcmp (name, "GWin32DirectoryMonitor") == 0) {
 			/* Using Windows */
-			g_message ("Monitor backend is Windows");
+			g_debug ("Monitor backend is Windows");
 
 			/* Guessing limit... */
 			priv->monitor_limit = 8192;
@@ -350,7 +350,7 @@ tracker_monitor_init (TrackerMonitor *object)
 	}
 
 	g_object_unref (file);
-	g_message ("Monitor limit is %d", priv->monitor_limit);
+	g_debug ("Monitor limit is %d", priv->monitor_limit);
 }
 
 static void
