@@ -310,7 +310,6 @@ static void           miner_fs_queue_event                (TrackerMinerFS *fs,
 							   QueueEvent     *event,
 							   guint           priority);
 
-static GQuark quark_file_iri = 0;
 static GQuark quark_last_queue_event = 0;
 static GInitableIface* miner_fs_initable_parent_iface;
 static guint signals[LAST_SIGNAL] = { 0, };
@@ -571,7 +570,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 
 	g_type_class_add_private (object_class, sizeof (TrackerMinerFSPrivate));
 
-	quark_file_iri = g_quark_from_static_string ("tracker-miner-file-iri");
 	quark_last_queue_event = g_quark_from_static_string ("tracker-last-queue-event");
 }
 
@@ -1391,24 +1389,6 @@ on_signal_gtask_complete (GObject      *source,
 	g_free (uri);
 }
 
-static const gchar *
-lookup_file_urn (TrackerMinerFS *fs,
-                 GFile          *file,
-                 gboolean        force)
-{
-	const gchar *urn;
-
-	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
-	g_return_val_if_fail (G_IS_FILE (file), NULL);
-
-	urn = g_object_get_qdata (G_OBJECT (file), quark_file_iri);
-
-	if (!urn)
-		urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
-		                                          file, force);
-	return urn;
-}
-
 static gboolean
 item_add_or_update (TrackerMinerFS *fs,
                     GFile          *file,
@@ -1429,11 +1409,8 @@ item_add_or_update (TrackerMinerFS *fs,
 	cancellable = g_cancellable_new ();
 	g_object_ref (file);
 
-	/* Always query. No matter we are notified the file was just
-	 * created, its meta data might already be in the store
-	 * (possibly inserted by other application) - in such a case
-	 * we have to UPDATE, not INSERT. */
-	urn = lookup_file_urn (fs, file, FALSE);
+	urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
+	                                          file, FALSE);
 
 	/* Create task and add it to the pool as a WAIT task (we need to extract
 	 * the file metadata and such) */
@@ -1548,7 +1525,8 @@ item_move (TrackerMinerFS *fs,
 	                               NULL, NULL);
 
 	/* Get 'source' ID */
-	source_iri = lookup_file_urn (fs, source_file, TRUE);
+	source_iri = tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
+	                                                 source_file, TRUE);
 	source_exists = (source_iri != NULL);
 
 	if (!file_info) {
@@ -1902,7 +1880,7 @@ miner_handle_next_item (TrackerMinerFS *fs)
 		if (!parent ||
 		    tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file) ||
 		    !tracker_indexing_tree_get_root (fs->priv->indexing_tree, file, NULL) ||
-		    lookup_file_urn (fs, parent, TRUE)) {
+		    tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent, TRUE)) {
 			keep_processing = item_add_or_update (fs, file, priority);
 		} else {
 			gchar *uri;
@@ -2069,19 +2047,6 @@ miner_fs_get_queue_priority (TrackerMinerFS *fs,
 }
 
 static void
-miner_fs_cache_file_urn (TrackerMinerFS *fs,
-                         GFile          *file,
-                         gboolean        query_urn)
-{
-	const gchar *urn;
-
-	/* Store urn as qdata */
-	urn = tracker_file_notifier_get_file_iri (fs->priv->file_notifier, file, query_urn);
-	g_object_set_qdata_full (G_OBJECT (file), quark_file_iri,
-	                         g_strdup (urn), (GDestroyNotify) g_free);
-}
-
-static void
 miner_fs_queue_event (TrackerMinerFS *fs,
 		      QueueEvent     *event,
 		      guint           priority)
@@ -2128,7 +2093,9 @@ miner_fs_queue_event (TrackerMinerFS *fs,
 							       (GDestroyNotify) queue_event_free);
 		}
 
-		miner_fs_cache_file_urn (fs, event->file, TRUE);
+		/* Ensure IRI is cached */
+		tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
+						    event->file, TRUE);
 
 		link = tracker_priority_queue_add (fs->priv->items, event, priority);
 		queue_event_save_node (event, link);
@@ -2485,7 +2452,8 @@ tracker_miner_fs_check_file (TrackerMinerFS *fs,
 		}
 
 		trace_eq_push_tail ("UPDATED", file, "Requested by application");
-		miner_fs_cache_file_urn (fs, file, TRUE);
+		tracker_file_notifier_get_file_iri (fs->priv->file_notifier,
+		                                    file, TRUE);
 
 		event = queue_event_new (TRACKER_MINER_FS_EVENT_UPDATED, file);
 		miner_fs_queue_event (fs, event, priority);
@@ -2664,7 +2632,7 @@ tracker_miner_fs_query_urn (TrackerMinerFS *fs,
 	g_return_val_if_fail (TRACKER_IS_MINER_FS (fs), NULL);
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
-	return g_strdup (lookup_file_urn (fs, file, TRUE));
+	return g_strdup (tracker_file_notifier_get_file_iri (fs->priv->file_notifier, file, TRUE));
 }
 
 /**
