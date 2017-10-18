@@ -6,6 +6,9 @@ subdir('libtracker-common')
 # public libtracker-sparql library.
 subdir('libtracker-sparql')
 
+# Public ontologies
+subdir('ontologies')
+
 # Internal database library
 subdir('gvdb')
 subdir('libtracker-fts')
@@ -28,6 +31,3 @@ subdir('tracker')
 
 # Public shared database
 subdir('tracker-store')
-
-# Public ontologies
-subdir('ontologies')
