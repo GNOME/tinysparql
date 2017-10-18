@@ -72,14 +72,28 @@ custom_target('tracker-store-settings-schema',
     output: 'org.freedesktop.Tracker.Store.gschema.xml',
     command: ['intltool-merge', '--quiet', '--xml-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
     install: true,
-    install_dir: join_paths(get_option('datadir'), 'glib-2.0', 'schemas'))
+    install_dir: gsettings_schema_dir)
 
 custom_target('tracker-store-settings-schemalist',
     input: 'org.freedesktop.Tracker.gschema.xml.in',
     output: 'org.freedesktop.Tracker.gschema.xml',
     command: ['intltool-merge', '--quiet', '--xml-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
     install: true,
-    install_dir: join_paths(get_option('datadir'), 'glib-2.0', 'schemas'))
+    install_dir: gsettings_schema_dir)
+
+custom_target('tracker-store-settings-enums',
+    input: '../libtracker-common/tracker-enums.h',
+    output: 'org.freedesktop.Tracker.enums.xml',
+    command: [glib_mkenums,
+              '--comments', '<!-- @comment@ -->',
+              '--fhead', '<schemalist>',
+              '--vhead', '<@type@ id="org.freedesktop.Tracker.@EnumName@">',
+              '--vprod', '    <value nick="@valuenick@" value="@valuenum@"/>',
+              '--vtail', '  </@type@>',
+              '--ftail', '</schemalist>', '@INPUT@'],
+    capture: true,
+    install: true,
+    install_dir: gsettings_schema_dir)
 
 install_data('default.rule',
     install_dir: join_paths(get_option('datadir'), 'tracker', 'domain-ontologies'))

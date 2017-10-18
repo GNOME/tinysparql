@@ -19,3 +19,10 @@ tracker_fts_dep = declare_dependency(
     link_with: libtracker_fts,
     dependencies: libtracker_fts_dependencies
 )
+
+custom_target('libtracker-fts-settings-schema',
+    input: 'org.freedesktop.Tracker.FTS.gschema.xml.in',
+    output: 'org.freedesktop.Tracker.FTS.gschema.xml',
+    command: ['intltool-merge', '--quiet', '--xml-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
+    install: true,
+    install_dir: gsettings_schema_dir)

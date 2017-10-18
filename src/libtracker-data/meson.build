@@ -76,3 +76,10 @@ tracker_data_dep = declare_dependency(
     include_directories: include_directories('.'),
     sources: enums[1],
 )
+
+custom_target('libtracker-data-settings-schema',
+    input: 'org.freedesktop.Tracker.DB.gschema.xml.in',
+    output: 'org.freedesktop.Tracker.DB.gschema.xml',
+    command: ['intltool-merge', '--quiet', '--xml-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
+    install: true,
+    install_dir: gsettings_schema_dir)
