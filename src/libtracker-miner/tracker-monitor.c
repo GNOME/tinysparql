@@ -52,17 +52,6 @@
 /* The life time of an item in the cache */
 #define CACHE_LIFETIME_SECONDS 1
 
-/* When we receive IO monitor events, we pause sending information to
- * the indexer for a few seconds before continuing. We have to receive
- * NO events for at least a few seconds before unpausing.
- */
-#define PAUSE_ON_IO_SECONDS    5
-
-/* If this is defined, we pause the indexer when we get events. If it
- * is not, we don't do any pausing.
- */
-#undef  PAUSE_ON_IO
-
 struct TrackerMonitorPrivate {
 	GHashTable    *monitors;
 
@@ -78,11 +67,6 @@ struct TrackerMonitorPrivate {
 	 * have to just use the _CHANGED event instead.
 	 */
 	gboolean       use_changed_event;
-
-#ifdef PAUSE_ON_IO
-	/* Timeout id for pausing when we get IO */
-	guint          unpause_timeout_id;
-#endif /* PAUSE_ON_IO */
 
 	GHashTable    *pre_update;
 	GHashTable    *pre_delete;
@@ -360,12 +344,6 @@ tracker_monitor_finalize (GObject *object)
 
 	priv = TRACKER_MONITOR_GET_PRIVATE (object);
 
-#ifdef PAUSE_ON_IO
-	if (priv->unpause_timeout_id) {
-		g_source_remove (priv->unpause_timeout_id);
-	}
-#endif /* PAUSE_ON_IO */
-
 	if (priv->event_pairs_timeout_id) {
 		g_source_remove (priv->event_pairs_timeout_id);
 	}
@@ -462,27 +440,6 @@ get_inotify_limit (void)
 
 	return limit;
 }
-
-#ifdef PAUSE_ON_IO
-
-static gboolean
-unpause_cb (gpointer data)
-{
-	TrackerMonitor *monitor;
-
-	monitor = data;
-
-	g_message ("Resuming indexing now we have stopped "
-	           "receiving monitor events for %d seconds",
-	           PAUSE_ON_IO_SECONDS);
-
-	monitor->priv->unpause_timeout_id = 0;
-	tracker_status_set_is_paused_for_io (FALSE);
-
-	return FALSE;
-}
-
-#endif /* PAUSE_ON_IO */
 
 static gboolean
 check_is_directory (TrackerMonitor *monitor,
@@ -1297,22 +1254,6 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		         file_uri,
 		         other_file_uri);
 	}
-
-#ifdef PAUSE_ON_IO
-	if (monitor->priv->unpause_timeout_id != 0) {
-		g_source_remove (monitor->priv->unpause_timeout_id);
-	} else {
-		g_message ("Pausing indexing because we are "
-		           "receiving monitor events");
-
-		tracker_status_set_is_paused_for_io (TRUE);
-	}
-
-	monitor->priv->unpause_timeout_id =
-		g_timeout_add_seconds (PAUSE_ON_IO_SECONDS,
-		                       unpause_cb,
-		                       monitor);
-#endif /* PAUSE_ON_IO */
 
 	if (!is_directory) {
 		/* FILE Events */
