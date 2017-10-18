@@ -1312,11 +1312,11 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			tracker_monitor_remove_recursively (priv->monitor, file);
 
 			/* If should recurse, crawl other_file, as content is "new" */
-			file = tracker_file_system_get_file (priv->file_system,
-			                                     other_file,
-			                                     G_FILE_TYPE_DIRECTORY,
-			                                     NULL);
-			notifier_queue_file (notifier, file, flags);
+			other_file = tracker_file_system_get_file (priv->file_system,
+			                                           other_file,
+			                                           G_FILE_TYPE_DIRECTORY,
+			                                           NULL);
+			notifier_queue_file (notifier, other_file, flags);
 			crawl_directories_start (notifier);
 		}
 		/* else, file, do nothing */
@@ -1343,6 +1343,17 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		                                                                file_type);
 		g_object_unref (check_file);
 
+		file = tracker_file_system_get_file (priv->file_system,
+		                                     file, file_type,
+		                                     NULL);
+		other_file = tracker_file_system_get_file (priv->file_system,
+		                                           other_file, file_type,
+		                                           NULL);
+
+		/* Ref those so they are safe to use after signal emission */
+		g_object_ref (file);
+		g_object_ref (other_file);
+
 		if (!source_stored) {
 			/* Destination location should be indexed as if new */
 			/* Remove monitors if any */
@@ -1363,10 +1374,6 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 					g_signal_emit (notifier, signals[FILE_CREATED], 0, other_file);
 				} else if (is_directory) {
 					/* Crawl dest directory */
-					other_file = tracker_file_system_get_file (priv->file_system,
-					                                           other_file,
-					                                           G_FILE_TYPE_DIRECTORY,
-					                                           NULL);
 					notifier_queue_file (notifier, other_file, flags);
 					crawl_directories_start (notifier);
 				}
@@ -1403,17 +1410,24 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 					 */
 				} else if (!source_is_recursive && dest_is_recursive) {
 					/* crawl the folder */
-					file = tracker_file_system_get_file (priv->file_system,
-					                                     other_file,
-					                                     G_FILE_TYPE_DIRECTORY,
-					                                     NULL);
-					notifier_queue_file (notifier, file, flags);
+					notifier_queue_file (notifier, other_file, flags);
 					crawl_directories_start (notifier);
 				}
 			}
 
 			g_signal_emit (notifier, signals[FILE_MOVED], 0, file, other_file);
 		}
+
+		tracker_file_system_forget_files (priv->file_system, file,
+		                                  G_FILE_TYPE_REGULAR);
+
+		if (!is_directory) {
+			tracker_file_system_forget_files (priv->file_system, other_file,
+			                                  G_FILE_TYPE_REGULAR);
+		}
+
+		g_object_unref (other_file);
+		g_object_unref (file);
 	}
 }
 
