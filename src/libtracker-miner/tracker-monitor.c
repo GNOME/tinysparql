@@ -299,12 +299,9 @@ tracker_monitor_init (TrackerMonitor *object)
 		}
 		else {
 			/* Unknown */
-			g_warning ("Monitor backend:'%s' is unknown, we have no limits "
-			           "in place because we don't know what we are dealing with!",
+			g_warning ("Monitor backend:'%s' is unhandled. Monitoring will be disabled",
 			           name);
-
-			/* Guessing limit... */
-			priv->monitor_limit = 100;
+			priv->enabled = FALSE;
 		}
 
 		g_file_monitor_cancel (monitor);
@@ -312,7 +309,9 @@ tracker_monitor_init (TrackerMonitor *object)
 	}
 
 	g_object_unref (file);
-	g_debug ("Monitor limit is %d", priv->monitor_limit);
+
+	if (priv->enabled)
+		g_debug ("Monitor limit is %d", priv->monitor_limit);
 }
 
 static void
