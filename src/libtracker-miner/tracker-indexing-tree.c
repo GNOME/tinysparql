@@ -917,23 +917,31 @@ tracker_indexing_tree_parent_is_indexable (TrackerIndexingTree *tree,
                                            GFile               *parent,
                                            GList               *children)
 {
+	TrackerIndexingTreePrivate *priv;
+	gboolean has_match = FALSE;
+
+	g_return_val_if_fail (TRACKER_IS_INDEXING_TREE (tree), FALSE);
+	g_return_val_if_fail (G_IS_FILE (parent), FALSE);
+
+	priv = tree->priv;
+
 	if (!tracker_indexing_tree_file_is_indexable (tree,
 	                                              parent,
 	                                              G_FILE_TYPE_DIRECTORY)) {
 		return FALSE;
 	}
 
-	while (children) {
-		if (indexing_tree_file_is_filtered (tree,
-		                                    TRACKER_FILTER_PARENT_DIRECTORY,
-		                                    children->data)) {
-			return FALSE;
-		}
-
+	while (children && !has_match) {
+		has_match = tracker_indexing_tree_file_matches_filter (tree,
+		                                                       TRACKER_FILTER_PARENT_DIRECTORY,
+		                                                       children->data);
 		children = children->next;
 	}
 
-	return TRUE;
+	if (priv->policies[TRACKER_FILTER_PARENT_DIRECTORY] == TRACKER_FILTER_POLICY_ACCEPT)
+		return !has_match;
+	else
+		return has_match;
 }
 
 /**
