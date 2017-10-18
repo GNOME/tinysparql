@@ -290,13 +290,6 @@ tracker_monitor_init (TrackerMonitor *object)
 			priv->monitor_limit = 400;
 			priv->use_changed_event = TRUE;
 		}
-		else if (strcmp (name, "GFenDirectoryMonitor") == 0) {
-			/* Using Fen, what is this? */
-			g_debug ("Monitor backend is Fen");
-
-			/* Guessing limit... */
-			priv->monitor_limit = 8192;
-		}
 		else if (strcmp (name, "GWin32DirectoryMonitor") == 0) {
 			/* Using Windows */
 			g_debug ("Monitor backend is Windows");
