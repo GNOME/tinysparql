@@ -669,7 +669,8 @@ test_file_notifier_monitor_updates_non_recursive (TestCommonContext *fixture,
 	};
 	FilesystemOperation expected_results2[] = {
 		{ OPERATION_UPDATE, "non-recursive/bbb", NULL },
-		{ OPERATION_CREATE, "non-recursive/ccc", NULL }
+		{ OPERATION_CREATE, "non-recursive/ccc", NULL },
+		{ OPERATION_UPDATE, "non-recursive/ccc", NULL }
 	};
 	FilesystemOperation expected_results3[] = {
 		{ OPERATION_DELETE, "non-recursive/folder", NULL },

@@ -1495,8 +1495,7 @@ test_monitor_directory_event_moved_to_monitored_after_file_create (TrackerMonito
 
 	/* Get events in the file in source dir */
 	file_events = GPOINTER_TO_UINT (g_hash_table_lookup (fixture->events, file_in_source_dir));
-	/* Fail if we got ANY signal != CREATED (we created the file while monitoring) */
-	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	/* Fail if we got ANY signal != CREATED/UPDATED (we created the file while monitoring) */
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_FROM), ==, 0);
