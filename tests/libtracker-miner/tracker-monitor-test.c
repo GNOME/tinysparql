@@ -427,8 +427,8 @@ test_monitor_file_event_created (TrackerMonitorTestFixture *fixture,
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_MOVED_TO), ==, 0);
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_DELETED), ==, 0);
 
-	/* A single CREATED event should now never trigger an UPDATED event */
-	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), ==, 0);
+	/* We may get an UPDATE due to the way the file is created */
+	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_UPDATED), >, 0);
 	g_assert_cmpuint ((file_events & MONITOR_SIGNAL_ITEM_ATTRIBUTE_UPDATED), ==, 0);
 
 	/* Cleanup environment */
