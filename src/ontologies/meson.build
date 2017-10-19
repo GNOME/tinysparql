@@ -14,7 +14,6 @@ internal_config = [
 nepomuk = [
     'nepomuk/30-nie.description',
     'nepomuk/30-nie.ontology',
-    'nepomuk/31-nao-custom.ontology',
     'nepomuk/32-nco.description',
     'nepomuk/32-nco.ontology',
     'nepomuk/33-nfo.description',
