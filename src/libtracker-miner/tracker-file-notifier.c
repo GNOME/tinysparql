@@ -1104,9 +1104,17 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 				/* New file triggered a directory content
 				 * filter, remove parent directory altogether
 				 */
-				g_signal_emit (notifier, signals[FILE_DELETED], 0, parent);
-				file_notifier_current_root_check_remove_directory (notifier, parent);
+				canonical = tracker_file_system_get_file (priv->file_system,
+				                                          parent, G_FILE_TYPE_DIRECTORY,
+				                                          NULL);
 				g_object_unref (parent);
+
+				g_object_ref (canonical);
+				g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
+				file_notifier_current_root_check_remove_directory (notifier, canonical);
+				tracker_file_system_forget_files (priv->file_system, canonical,
+				                                  G_FILE_TYPE_UNKNOWN);
+				g_object_unref (canonical);
 				return;
 			}
 
