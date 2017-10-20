@@ -38,11 +38,6 @@ enum {
 	PROP_CONNECTION
 };
 
-enum {
-	TASK_TYPE_SPARQL_STR,
-	TASK_TYPE_SPARQL,
-};
-
 struct _TrackerSparqlBufferPrivate
 {
 	TrackerSparqlConnection *connection;
@@ -53,13 +48,7 @@ struct _TrackerSparqlBufferPrivate
 
 struct _SparqlTaskData
 {
-	guint type;
-
-	union {
-		gchar *str;
-		TrackerSparqlBuilder *builder;
-	} data;
-
+	gchar *str;
 	GTask *async_task;
 };
 
@@ -269,7 +258,6 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 		} else {
 			error = g_ptr_array_index (sparql_array_errors, i);
 			if (error) {
-				const gchar *sparql = NULL;
 				GFile *file;
 				gchar *uri;
 
@@ -279,20 +267,7 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 				            i, uri, error->message);
 				g_free (uri);
 
-				switch (task_data->type) {
-				case TASK_TYPE_SPARQL_STR:
-					sparql = task_data->data.str;
-					break;
-				case TASK_TYPE_SPARQL:
-					sparql = tracker_sparql_builder_get_result (task_data->data.builder);
-					break;
-				default:
-					break;
-				}
-
-				if (sparql) {
-					g_debug ("    Sparql: %s", sparql);
-				}
+				g_debug ("    Sparql: %s", task_data->str);
 			}
 		}
 
@@ -361,15 +336,7 @@ tracker_sparql_buffer_flush (TrackerSparqlBuffer *buffer,
 
 		task = g_ptr_array_index (priv->tasks, i);
 		task_data = tracker_task_get_data (task);
-
-		if (task_data->type == TASK_TYPE_SPARQL_STR) {
-			g_array_append_val (sparql_array, task_data->data.str);
-		} else if (task_data->type == TASK_TYPE_SPARQL) {
-			const gchar *str;
-
-			str = tracker_sparql_builder_get_result (task_data->data.builder);
-			g_array_append_val (sparql_array, str);
-		}
+		g_array_append_val (sparql_array, task_data->str);
 	}
 
 	update_data = g_slice_new0 (UpdateArrayData);
@@ -430,7 +397,6 @@ sparql_buffer_push_high_priority (TrackerSparqlBuffer *buffer,
 {
 	TrackerSparqlBufferPrivate *priv;
 	UpdateData *update_data;
-	const gchar *sparql = NULL;
 
 	priv = buffer->priv;
 
@@ -439,15 +405,9 @@ sparql_buffer_push_high_priority (TrackerSparqlBuffer *buffer,
 	update_data->buffer = buffer;
 	update_data->task = task;
 
-	if (data->type == TASK_TYPE_SPARQL_STR) {
-		sparql = data->data.str;
-	} else if (data->type == TASK_TYPE_SPARQL) {
-		sparql = tracker_sparql_builder_get_result (data->data.builder);
-	}
-
 	tracker_task_pool_add (TRACKER_TASK_POOL (buffer), task);
 	tracker_sparql_connection_update_async (priv->connection,
-	                                        sparql,
+	                                        data->str,
 	                                        G_PRIORITY_HIGH,
 	                                        NULL,
 	                                        tracker_sparql_buffer_update_cb,
@@ -518,23 +478,13 @@ tracker_sparql_buffer_push (TrackerSparqlBuffer *buffer,
 }
 
 static SparqlTaskData *
-sparql_task_data_new (guint    type,
-                      gpointer data,
-                      guint    flags)
+sparql_task_data_new (gchar *data,
+                      guint  flags)
 {
 	SparqlTaskData *task_data;
 
 	task_data = g_slice_new0 (SparqlTaskData);
-	task_data->type = type;
-
-	switch (type) {
-	case TASK_TYPE_SPARQL_STR:
-		task_data->data.str = data;
-		break;
-	case TASK_TYPE_SPARQL:
-		task_data->data.builder = g_object_ref (data);
-		break;
-	}
+	task_data->str = data;
 
 	return task_data;
 }
@@ -542,14 +492,7 @@ sparql_task_data_new (guint    type,
 static void
 sparql_task_data_free (SparqlTaskData *data)
 {
-	switch (data->type) {
-	case TASK_TYPE_SPARQL_STR:
-		g_free (data->data.str);
-		break;
-	case TASK_TYPE_SPARQL:
-		g_object_unref (data->data.builder);
-		break;
-	}
+	g_free (data->str);
 
 	if (data->async_task) {
 		g_object_unref (data->async_task);
@@ -564,7 +507,7 @@ tracker_sparql_task_new_take_sparql_str (GFile *file,
 {
 	SparqlTaskData *data;
 
-	data = sparql_task_data_new (TASK_TYPE_SPARQL_STR, sparql_str, 0);
+	data = sparql_task_data_new (sparql_str, 0);
 	return tracker_task_new (file, data,
 	                         (GDestroyNotify) sparql_task_data_free);
 }
@@ -575,19 +518,7 @@ tracker_sparql_task_new_with_sparql_str (GFile       *file,
 {
 	SparqlTaskData *data;
 
-	data = sparql_task_data_new (TASK_TYPE_SPARQL_STR,
-	                             g_strdup (sparql_str), 0);
-	return tracker_task_new (file, data,
-	                         (GDestroyNotify) sparql_task_data_free);
-}
-
-TrackerTask *
-tracker_sparql_task_new_with_sparql (GFile                *file,
-                                     TrackerSparqlBuilder *builder)
-{
-	SparqlTaskData *data;
-
-	data = sparql_task_data_new (TASK_TYPE_SPARQL, builder, 0);
+	data = sparql_task_data_new (g_strdup (sparql_str), 0);
 	return tracker_task_new (file, data,
 	                         (GDestroyNotify) sparql_task_data_free);
 }
