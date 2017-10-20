@@ -32,7 +32,6 @@ typedef struct _TrackerSparqlBufferPrivate TrackerSparqlBufferPrivate;
 typedef struct _SparqlTaskData SparqlTaskData;
 typedef struct _UpdateArrayData UpdateArrayData;
 typedef struct _UpdateData UpdateData;
-typedef struct _BulkOperationMerge BulkOperationMerge;
 
 enum {
 	PROP_0,
@@ -42,7 +41,6 @@ enum {
 enum {
 	TASK_TYPE_SPARQL_STR,
 	TASK_TYPE_SPARQL,
-	TASK_TYPE_BULK
 };
 
 struct _TrackerSparqlBufferPrivate
@@ -60,11 +58,6 @@ struct _SparqlTaskData
 	union {
 		gchar *str;
 		TrackerSparqlBuilder *builder;
-
-		struct {
-			gchar *str;
-			guint flags;
-		} bulk;
 	} data;
 
 	GTask *async_task;
@@ -80,13 +73,6 @@ struct _UpdateArrayData {
 	GPtrArray *tasks;
 	GArray *sparql_array;
 };
-
-struct _BulkOperationMerge {
-	const gchar *bulk_operation;
-	GList *tasks;
-};
-
-
 
 G_DEFINE_TYPE (TrackerSparqlBuffer, tracker_sparql_buffer, TRACKER_TYPE_TASK_POOL)
 
@@ -300,9 +286,6 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 				case TASK_TYPE_SPARQL:
 					sparql = tracker_sparql_builder_get_result (task_data->data.builder);
 					break;
-				case TASK_TYPE_BULK:
-					sparql = task_data->data.bulk.str;
-					break;
 				default:
 					break;
 				}
@@ -342,134 +325,12 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 	}
 }
 
-static gchar *
-bulk_operation_merge_finish (BulkOperationMerge *merge)
-{
-	if (merge->bulk_operation && merge->tasks) {
-		GString *equals_string = NULL, *children_string = NULL, *sparql;
-		gint n_equals = 0;
-		gboolean include_logical_resources = FALSE;
-		GList *l;
-
-		for (l = merge->tasks; l; l = l->next) {
-			SparqlTaskData *task_data;
-			TrackerTask *task = l->data;
-			gchar *uri;
-
-			task_data = tracker_task_get_data (task);
-			uri = g_file_get_uri (tracker_task_get_file (task));
-
-			if (task_data->data.bulk.flags & TRACKER_BULK_MATCH_EQUALS) {
-				if (!equals_string) {
-					equals_string = g_string_new ("");
-				} else {
-					g_string_append_c (equals_string, ',');
-				}
-
-				g_string_append_printf (equals_string, "\"%s\"", uri);
-				n_equals++;
-			}
-
-			if (task_data->data.bulk.flags & TRACKER_BULK_MATCH_CHILDREN) {
-				gchar *dir_uri;
-
-				if (!children_string) {
-					children_string = g_string_new (NULL);
-				} else {
-					g_string_append (children_string, "||");
-				}
-
-				if (uri[strlen (uri) - 1] == '/')
-					dir_uri = g_strdup (uri);
-				else
-					dir_uri = g_strdup_printf ("%s/", uri);
-
-				g_string_append_printf (children_string,
-				                        "STRSTARTS (?u, \"%s\")",
-				                        dir_uri);
-				g_free (dir_uri);
-			}
-
-			if (task_data->data.bulk.flags & TRACKER_BULK_MATCH_LOGICAL_RESOURCES) {
-				include_logical_resources = TRUE;
-			}
-
-			g_free (uri);
-		}
-
-		sparql = g_string_new ("");
-
-		if (equals_string) {
-			g_string_append (sparql, merge->bulk_operation);
-			g_string_append_printf (sparql, " WHERE { ");
-
-			if (n_equals == 1) {
-				g_string_append_printf (sparql,
-				                        "  ?f nie:url %s .",
-				                        equals_string->str);
-			} else {
-				g_string_append_printf (sparql,
-				                        "  ?f nie:url ?u ."
-				                        "  FILTER (?u IN (%s))",
-				                        equals_string->str);
-			}
-			g_string_free (equals_string, TRUE);
-
-			if (include_logical_resources) {
-				g_string_append (sparql, "  ?ie nie:isStoredAs ?f .");
-			}
-			g_string_append_printf (sparql, " } ");
-		}
-
-		if (children_string) {
-			g_string_append (sparql, merge->bulk_operation);
-			g_string_append_printf (sparql,
-			                        " WHERE { "
-			                        "  ?f nie:url ?u ."
-			                        "  FILTER (%s)",
-			                        children_string->str);
-			g_string_free (children_string, TRUE);
-
-			if (include_logical_resources) {
-				g_string_append (sparql, "  ?ie nie:isStoredAs ?f .");
-			}
-			g_string_append_printf (sparql, "} ");
-		}
-
-		return g_string_free (sparql, FALSE);
-	}
-
-	return NULL;
-}
-
-static BulkOperationMerge *
-bulk_operation_merge_new (const gchar *bulk_operation)
-{
-	BulkOperationMerge *operation;
-
-	operation = g_slice_new0 (BulkOperationMerge);
-	operation->bulk_operation = bulk_operation;
-
-	return operation;
-}
-
-static void
-bulk_operation_merge_free (BulkOperationMerge *operation)
-{
-	g_list_foreach (operation->tasks,
-	                (GFunc) tracker_task_unref,
-	                NULL);
-	g_list_free (operation->tasks);
-	g_slice_free (BulkOperationMerge, operation);
-}
-
 gboolean
 tracker_sparql_buffer_flush (TrackerSparqlBuffer *buffer,
                              const gchar         *reason)
 {
 	TrackerSparqlBufferPrivate *priv;
 	GArray *sparql_array;
-	GPtrArray *bulk_sparql;
 	UpdateArrayData *update_data;
 	gint i;
 
@@ -493,7 +354,6 @@ tracker_sparql_buffer_flush (TrackerSparqlBuffer *buffer,
 
 	/* Loop buffer and construct array of strings */
 	sparql_array = g_array_new (FALSE, TRUE, sizeof (gchar *));
-	bulk_sparql = g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
 
 	for (i = 0; i < priv->tasks->len; i++) {
 		SparqlTaskData *task_data;
@@ -509,19 +369,6 @@ tracker_sparql_buffer_flush (TrackerSparqlBuffer *buffer,
 
 			str = tracker_sparql_builder_get_result (task_data->data.builder);
 			g_array_append_val (sparql_array, str);
-		} else if (task_data->type == TASK_TYPE_BULK) {
-			BulkOperationMerge *bulk = NULL;
-			gchar *str;
-
-			bulk = bulk_operation_merge_new (task_data->data.bulk.str);
-			bulk->tasks = g_list_prepend (bulk->tasks,
-			                              tracker_task_ref (task));
-
-			str = bulk_operation_merge_finish (bulk);
-			g_ptr_array_add (bulk_sparql, str);
-			g_array_append_val (sparql_array, str);
-
-			bulk_operation_merge_free (bulk);
 		}
 	}
 
@@ -546,10 +393,6 @@ tracker_sparql_buffer_flush (TrackerSparqlBuffer *buffer,
 	                                              NULL,
 	                                              tracker_sparql_buffer_update_array_cb,
 	                                              update_data);
-
-	/* These strings we generated here can be freed now */
-	g_ptr_array_free (bulk_sparql, TRUE);
-
 	return TRUE;
 }
 
@@ -667,8 +510,7 @@ tracker_sparql_buffer_push (TrackerSparqlBuffer *buffer,
 		                      (GDestroyNotify) tracker_task_unref);
 	}
 
-	if (priority <= G_PRIORITY_HIGH &&
-	    data->type != TASK_TYPE_BULK) {
+	if (priority <= G_PRIORITY_HIGH) {
 		sparql_buffer_push_high_priority (buffer, task, data);
 	} else {
 		sparql_buffer_push_to_pool (buffer, task);
@@ -692,10 +534,6 @@ sparql_task_data_new (guint    type,
 	case TASK_TYPE_SPARQL:
 		task_data->data.builder = g_object_ref (data);
 		break;
-	case TASK_TYPE_BULK:
-		task_data->data.bulk.str = data;
-		task_data->data.bulk.flags = flags;
-		break;
 	}
 
 	return task_data;
@@ -710,9 +548,6 @@ sparql_task_data_free (SparqlTaskData *data)
 		break;
 	case TASK_TYPE_SPARQL:
 		g_object_unref (data->data.builder);
-		break;
-	case TASK_TYPE_BULK:
-		/* nothing to free, the string is interned */
 		break;
 	}
 
@@ -753,20 +588,6 @@ tracker_sparql_task_new_with_sparql (GFile                *file,
 	SparqlTaskData *data;
 
 	data = sparql_task_data_new (TASK_TYPE_SPARQL, builder, 0);
-	return tracker_task_new (file, data,
-	                         (GDestroyNotify) sparql_task_data_free);
-}
-
-TrackerTask *
-tracker_sparql_task_new_bulk (GFile                *file,
-                              const gchar          *sparql_str,
-                              TrackerBulkTaskFlags  flags)
-{
-	SparqlTaskData *data;
-
-	data = sparql_task_data_new (TASK_TYPE_BULK,
-	                             (gchar *) g_intern_string (sparql_str),
-	                             flags);
 	return tracker_task_new (file, data,
 	                         (GDestroyNotify) sparql_task_data_free);
 }

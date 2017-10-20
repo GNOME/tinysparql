@@ -42,12 +42,6 @@ G_BEGIN_DECLS
 typedef struct _TrackerSparqlBuffer TrackerSparqlBuffer;
 typedef struct _TrackerSparqlBufferClass TrackerSparqlBufferClass;
 
-typedef enum {
-	TRACKER_BULK_MATCH_EQUALS   = 1 << 0,
-	TRACKER_BULK_MATCH_CHILDREN = 1 << 1,
-	TRACKER_BULK_MATCH_LOGICAL_RESOURCES = 1 << 2
-} TrackerBulkTaskFlags;
-
 struct _TrackerSparqlBuffer
 {
 	TrackerTaskPool parent_instance;
@@ -83,9 +77,6 @@ TrackerTask *        tracker_sparql_task_new_with_sparql_str (GFile             
                                                               const gchar          *sparql_str);
 TrackerTask *        tracker_sparql_task_new_with_sparql     (GFile                *file,
                                                               TrackerSparqlBuilder *builder);
-TrackerTask *        tracker_sparql_task_new_bulk            (GFile                *file,
-                                                              const gchar          *sparql_str,
-                                                              TrackerBulkTaskFlags  flags);
 
 G_END_DECLS
 
