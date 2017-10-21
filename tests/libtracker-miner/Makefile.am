@@ -10,8 +10,6 @@ include $(top_srcdir)/Makefile.decl
 #
 include $(top_srcdir)/src/libtracker-miner/Makefile-shared-sources.decl
 
-noinst_LTLIBRARIES += libtracker-miner-tests.la
-
 noinst_PROGRAMS += $(test_programs)
 
 test_programs = \
@@ -44,25 +42,6 @@ LDADD = \
 	$(top_builddir)/src/libtracker-common/libtracker-common.la \
 	$(BUILD_LIBS) \
 	$(LIBTRACKER_MINER_LIBS)
-
-libtracker_miner_tests_la_VALAFLAGS =                  \
-	--header tracker-miner-mock.h                  \
-	--pkg glib-2.0                                 \
-	--pkg gio-2.0                                  \
-	--pkg gio-unix-2.0                             \
-	--pkg posix				       \
-	$(top_srcdir)/src/libtracker-sparql/tracker-sparql-$(TRACKER_API_VERSION).vapi \
-	$(BUILD_VALAFLAGS)
-
-libtracker_miner_tests_la_SOURCES =                    \
-	tracker-miner-mock.vala			       \
-	tracker-connection-mock.vala
-
-libtracker_miner_tests_la_LIBADD = 		       \
-	$(top_builddir)/src/libtracker-data/libtracker-data.la \
-	$(top_builddir)/src/libtracker-common/libtracker-common.la \
-	$(top_builddir)/src/libtracker-sparql-backend/libtracker-sparql-@TRACKER_API_VERSION@.la \
-	$(BUILD_LIBS)
 
 tracker_crawler_test_SOURCES = \
 	$(libtracker_miner_crawler_sources) \
@@ -97,14 +76,11 @@ tracker_file_notifier_test_SOURCES =                   \
 	tracker-file-notifier-test.c
 
 noinst_HEADERS =                                       \
-	$(libtracker_miner_monitor_headers)            \
-	tracker-miner-mock.h                           \
-	miners-mock.h
+	$(libtracker_miner_monitor_headers)
 
 BUILT_SOURCES += \
 	$(libtracker_miner_file_system_sources) \
-	$(libtracker_miner_file_system_headers) \
-	libtracker_miner_tests_la_vala.stamp
+	$(libtracker_miner_file_system_headers)
 
 EXTRA_DIST += \
 	data/empty-dir/.hidden \
