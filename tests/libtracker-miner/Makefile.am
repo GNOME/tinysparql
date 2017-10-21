@@ -19,7 +19,6 @@ test_programs = \
 	tracker-file-enumerator-test		       \
 	tracker-file-notifier-test		       \
 	tracker-file-system-test		       \
-	tracker-thumbnailer-test                       \
 	tracker-miner-fs-test			       \
 	tracker-monitor-test			       \
 	tracker-priority-queue-test		       \
@@ -70,11 +69,6 @@ tracker_crawler_test_SOURCES = \
 	$(libtracker_miner_crawler_headers) \
 	tracker-crawler-test.c
 
-tracker_thumbnailer_test_SOURCES = \
-	tracker-thumbnailer-test.c \
-	thumbnailer-mock.c \
-	empty-gobject.c
-
 tracker_monitor_test_SOURCES =                         \
 	tracker-monitor-test.c
 if !ENABLE_GCOV
@@ -105,9 +99,7 @@ tracker_file_notifier_test_SOURCES =                   \
 noinst_HEADERS =                                       \
 	$(libtracker_miner_monitor_headers)            \
 	tracker-miner-mock.h                           \
-	thumbnailer-mock.h                             \
-	miners-mock.h                                  \
-	empty-gobject.h
+	miners-mock.h
 
 BUILT_SOURCES += \
 	$(libtracker_miner_file_system_sources) \

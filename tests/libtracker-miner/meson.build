@@ -64,12 +64,3 @@ task_pool_test = executable('tracker-task-pool-test',
   c_args: test_c_args
 )
 test('miner-task-pool', task_pool_test)
-
-thumbnailer_test = executable('tracker-thumbnailer-test',
-  'empty-gobject.c',
-  'thumbnailer-mock.c',
-  'tracker-thumbnailer-test.c',
-  dependencies: [tracker_common_dep, tracker_miner_dep, tracker_sparql_dep],
-  c_args: test_c_args
-)
-test('miner-thumbnailer', thumbnailer_test)
