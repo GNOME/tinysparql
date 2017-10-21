@@ -396,7 +396,6 @@ public class Tracker.Direct.Connection : Tracker.Sparql.Connection, AsyncInitabl
 			namespace_manager = new NamespaceManager ();
 
 			foreach (var prefix in ht.get_keys ()) {
-				print ("%s %s\n", prefix, ht.lookup (prefix));
 				namespace_manager.add_prefix (prefix, ht.lookup (prefix));
 			}
 		}
