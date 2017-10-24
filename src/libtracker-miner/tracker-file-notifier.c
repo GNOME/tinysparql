@@ -483,6 +483,7 @@ static GFile *
 _insert_store_info (TrackerFileNotifier *notifier,
                     GFile               *file,
                     GFileType            file_type,
+                    GFile               *parent,
                     const gchar         *iri,
                     guint64              _time)
 {
@@ -492,7 +493,7 @@ _insert_store_info (TrackerFileNotifier *notifier,
 	priv = notifier->priv;
 	canonical = tracker_file_system_get_file (priv->file_system,
 	                                          file, file_type,
-	                                          NULL);
+	                                          parent);
 	tracker_file_system_set_property (priv->file_system, canonical,
 	                                  quark_property_iri,
 	                                  g_strdup (iri));
@@ -508,6 +509,7 @@ sparql_files_query_populate (TrackerFileNotifier *notifier,
 			     gboolean             check_root)
 {
 	TrackerFileNotifierPrivate *priv;
+	GFile *parent = NULL;
 
 	priv = notifier->priv;
 
@@ -534,6 +536,10 @@ sparql_files_query_populate (TrackerFileNotifier *notifier,
 			}
 		}
 
+		/* All files belong to the same directory */
+		if (!parent)
+			parent = tracker_file_system_peek_parent (priv->file_system, file);
+
 		iri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 		time_str = tracker_sparql_cursor_get_string (cursor, 2, NULL);
 		_time = tracker_string_to_date (time_str, NULL, &error);
@@ -547,7 +553,7 @@ sparql_files_query_populate (TrackerFileNotifier *notifier,
 
 		_insert_store_info (notifier, file,
 		                    G_FILE_TYPE_UNKNOWN,
-		                    iri, _time);
+		                    parent, iri, _time);
 		g_object_unref (file);
 	}
 }
@@ -557,7 +563,7 @@ sparql_contents_check_deleted (TrackerFileNotifier *notifier,
                                TrackerSparqlCursor *cursor)
 {
 	TrackerFileNotifierPrivate *priv;
-	GFile *file, *canonical;
+	GFile *file, *canonical, *parent = NULL;
 	const gchar *iri;
 
 	priv = notifier->priv;
@@ -584,6 +590,10 @@ sparql_contents_check_deleted (TrackerFileNotifier *notifier,
 		file_type = is_folder ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_UNKNOWN;
 		canonical = tracker_file_system_peek_file (priv->file_system, file);
 
+		/* All files belong to the same directory */
+		if (!parent)
+			parent = tracker_file_system_peek_parent (priv->file_system, file);
+
 		if (!canonical) {
 			/* The file exists on the store, but not on the
 			 * crawled content, insert temporarily to handle
@@ -591,7 +601,7 @@ sparql_contents_check_deleted (TrackerFileNotifier *notifier,
 			 */
 			canonical = _insert_store_info (notifier, file,
 							file_type,
-			                                iri, 0);
+			                                parent, iri, 0);
 			g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
 		} else if (priv->current_index_root->current_dir_content_filtered ||
 		           !tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
