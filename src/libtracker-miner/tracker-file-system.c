@@ -124,43 +124,39 @@ file_node_data_free (FileNodeData *data,
 	g_slice_free (FileNodeData, data);
 }
 
-static FileNodeData *
+static GNode *
 file_node_data_new (TrackerFileSystem *file_system,
                     GFile             *file,
                     GFileType          file_type,
-                    GNode             *node)
+                    gchar             *uri_prefix)
 {
 	FileNodeData *data;
-	NodeLookupData lookup_data;
-	GArray *node_data;
+	NodeLookupData *lookup_data;
 
 	data = g_slice_new0 (FileNodeData);
 	data->file = g_object_ref (file);
 	data->file_type = file_type;
+	data->uri_prefix = uri_prefix;
 	data->properties = g_array_new (FALSE, TRUE, sizeof (FileNodeProperty));
 
-	/* We use weak refs to keep track of files */
-	g_object_weak_ref (G_OBJECT (data->file), file_weak_ref_notify, node);
+	lookup_data = g_object_get_qdata (G_OBJECT (data->file),
+	                                  quark_file_node);
 
-	node_data = g_object_get_qdata (G_OBJECT (data->file),
-	                                quark_file_node);
-
-	if (!node_data) {
-		node_data = g_array_new (FALSE, FALSE, sizeof (NodeLookupData));
+	if (!lookup_data) {
+		lookup_data = g_new0 (NodeLookupData, 1);
 		g_object_set_qdata_full (G_OBJECT (data->file),
 		                         quark_file_node,
-		                         node_data,
-		                         (GDestroyNotify) g_array_unref);
+		                         lookup_data, g_free);
 	}
 
-	lookup_data.file_system = file_system;
-	lookup_data.node = node;
-	g_array_append_val (node_data, lookup_data);
+	lookup_data->file_system = file_system;
+	lookup_data->node = g_node_new (data);
 
-	g_assert (node->data == NULL);
-	node->data = data;
+	/* We use weak refs to keep track of files */
+	g_object_weak_ref (G_OBJECT (data->file),
+	                   file_weak_ref_notify, lookup_data->node);
 
-	return data;
+	return lookup_data->node;
 }
 
 static FileNodeData *
@@ -522,31 +518,31 @@ file_system_get_node (TrackerFileSystem *file_system,
                       GFile             *file)
 {
 	TrackerFileSystemPrivate *priv;
-	GArray *node_data;
-	GNode *node = NULL;
+	NodeLookupData *lookup_data;
 
-	node_data = g_object_get_qdata (G_OBJECT (file), quark_file_node);
+	lookup_data = g_object_get_qdata (G_OBJECT (file), quark_file_node);
 
-	if (node_data) {
-		NodeLookupData *cur;
-		guint i;
+	if (lookup_data && lookup_data->file_system == file_system)
+		return lookup_data->node;
 
-		for (i = 0; i < node_data->len; i++) {
-			cur = &g_array_index (node_data, NodeLookupData, i);
+	priv = file_system->priv;
+	return file_tree_lookup (priv->file_tree, file, NULL, NULL);
+}
 
-			if (cur->file_system == file_system) {
-				node = cur->node;
-			}
-		}
-	}
+static gboolean
+tracker_file_system_is_file_interned (TrackerFileSystem *file_system,
+                                      GFile             *file,
+                                      gboolean           check_fs)
+{
+	NodeLookupData *lookup_data;
 
-	if (!node) {
-		priv = file_system->priv;
-		node = file_tree_lookup (priv->file_tree, file,
-		                         NULL, NULL);
-	}
+	lookup_data = g_object_get_qdata (G_OBJECT (file), quark_file_node);
+	if (!lookup_data)
+		return FALSE;
+	if (check_fs && lookup_data->file_system != file_system)
+		return FALSE;
 
-	return node;
+	return TRUE;
 }
 
 GFile *
@@ -557,7 +553,7 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 {
 	TrackerFileSystemPrivate *priv;
 	FileNodeData *data;
-	GNode *node, *parent_node;
+	GNode *node, *parent_node, *lookup_node = NULL;
 	gchar *uri_prefix = NULL;
 
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
@@ -565,16 +561,28 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 
 	priv = file_system->priv;
 	node = NULL;
-	parent_node = NULL;
+
+	/* If file is interned somewhere else, get a separate copy of the
+	 * file for this filesystem.
+	 */
+	if (tracker_file_system_is_file_interned (file_system, file, FALSE)) {
+		gchar *uri = g_file_get_uri (file);
+		file = g_file_new_for_uri (uri);
+		g_free (uri);
+	}
 
 	if (parent) {
 		parent_node = file_system_get_node (file_system, parent);
-		node = file_tree_lookup (parent_node, file,
-		                         NULL, &uri_prefix);
-	} else {
-		node = file_tree_lookup (priv->file_tree, file,
-		                         &parent_node, &uri_prefix);
+
+		if (parent_node)
+			lookup_node = parent_node;
 	}
+
+	if (!lookup_node) {
+		lookup_node = priv->file_tree;
+	}
+
+	node = file_tree_lookup (lookup_node, file, &parent_node, &uri_prefix);
 
 	if (!node) {
 		if (!parent_node) {
@@ -588,14 +596,12 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 			return NULL;
 		}
 
-		node = g_node_new (NULL);
-
 		/* Parent was found, add file as child */
-		data = file_node_data_new (file_system, file,
-		                           file_type, node);
-		data->uri_prefix = uri_prefix;
+		node = file_node_data_new (file_system, file,
+		                           file_type, uri_prefix);
 
 		g_node_append (parent_node, node);
+		data = node->data;
 	} else {
 		data = node->data;
 		g_free (uri_prefix);
