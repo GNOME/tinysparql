@@ -245,22 +245,17 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	                                                     parent, children);
 	if (process) {
 		TrackerDirectoryFlags parent_flags;
-		GFile *canonical;
 		gboolean add_monitor;
 
-		canonical = tracker_file_system_get_file (priv->file_system,
-		                                          parent,
-		                                          G_FILE_TYPE_DIRECTORY,
-		                                          NULL);
 		tracker_indexing_tree_get_root (priv->indexing_tree,
-		                                canonical, &parent_flags);
+		                                parent, &parent_flags);
 
 		add_monitor = (parent_flags & TRACKER_DIRECTORY_FLAG_MONITOR) != 0;
 
 		if (add_monitor) {
-			tracker_monitor_add (priv->monitor, canonical);
+			tracker_monitor_add (priv->monitor, parent);
 		} else {
-			tracker_monitor_remove (priv->monitor, canonical);
+			tracker_monitor_remove (priv->monitor, parent);
 		}
 	} else {
 		priv->current_index_root->current_dir_content_filtered = TRUE;
