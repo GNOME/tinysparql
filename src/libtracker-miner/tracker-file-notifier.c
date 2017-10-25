@@ -1019,7 +1019,7 @@ notifier_queue_file (TrackerFileNotifier   *notifier,
                      TrackerDirectoryFlags  flags)
 {
 	TrackerFileNotifierPrivate *priv = notifier->priv;
-	RootData *data = root_data_new (notifier, file, flags);
+	RootData *data;
 
 	if (priv->current_index_root &&
 	    priv->current_index_root->root == file)
@@ -1028,6 +1028,8 @@ notifier_queue_file (TrackerFileNotifier   *notifier,
 	if (g_list_find_custom (priv->pending_index_roots, file,
 	                        (GCompareFunc) find_directory_root))
 		return;
+
+	data = root_data_new (notifier, file, flags);
 
 	if (flags & TRACKER_DIRECTORY_FLAG_PRIORITY) {
 		priv->pending_index_roots = g_list_prepend (priv->pending_index_roots, data);
