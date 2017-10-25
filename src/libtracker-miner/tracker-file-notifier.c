@@ -1014,7 +1014,7 @@ find_directory_root (RootData *data,
 }
 
 static void
-notifier_queue_file (TrackerFileNotifier   *notifier,
+notifier_queue_root (TrackerFileNotifier   *notifier,
                      GFile                 *file,
                      TrackerDirectoryFlags  flags)
 {
@@ -1036,6 +1036,8 @@ notifier_queue_file (TrackerFileNotifier   *notifier,
 	} else {
 		priv->pending_index_roots = g_list_append (priv->pending_index_roots, data);
 	}
+
+	crawl_directories_start (notifier);
 }
 
 /* This function ensures to issue ::file-created for all
@@ -1141,8 +1143,7 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 			                                          file,
 			                                          file_type,
 			                                          NULL);
-			notifier_queue_file (notifier, canonical, flags);
-			crawl_directories_start (notifier);
+			notifier_queue_root (notifier, canonical, flags);
 			return;
 		}
 	}
@@ -1278,8 +1279,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 			                                     NULL);
 			tracker_indexing_tree_get_root (priv->indexing_tree,
 							file, &flags);
-			notifier_queue_file (notifier, file, flags);
-			crawl_directories_start (notifier);
+			notifier_queue_root (notifier, file, flags);
 			return;
 		}
 	}
@@ -1331,8 +1331,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			                                           other_file,
 			                                           G_FILE_TYPE_DIRECTORY,
 			                                           NULL);
-			notifier_queue_file (notifier, other_file, flags);
-			crawl_directories_start (notifier);
+			notifier_queue_root (notifier, other_file, flags);
 		}
 		/* else, file, do nothing */
 	} else {
@@ -1389,8 +1388,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 					g_signal_emit (notifier, signals[FILE_CREATED], 0, other_file);
 				} else if (is_directory) {
 					/* Crawl dest directory */
-					notifier_queue_file (notifier, other_file, flags);
-					crawl_directories_start (notifier);
+					notifier_queue_root (notifier, other_file, flags);
 				}
 			}
 			/* Else, do nothing else */
@@ -1425,8 +1423,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 					 */
 				} else if (!source_is_recursive && dest_is_recursive) {
 					/* crawl the folder */
-					notifier_queue_file (notifier, other_file, flags);
-					crawl_directories_start (notifier);
+					notifier_queue_root (notifier, other_file, flags);
 				}
 			}
 
@@ -1460,8 +1457,7 @@ indexing_tree_directory_added (TrackerIndexingTree *indexing_tree,
 
 	directory = tracker_file_system_get_file (priv->file_system, directory,
 	                                          G_FILE_TYPE_DIRECTORY, NULL);
-	notifier_queue_file (notifier, directory, flags);
-	crawl_directories_start (notifier);
+	notifier_queue_root (notifier, directory, flags);
 }
 
 static void
@@ -1478,8 +1474,7 @@ indexing_tree_directory_updated (TrackerIndexingTree *indexing_tree,
 
 	directory = tracker_file_system_get_file (priv->file_system, directory,
 	                                          G_FILE_TYPE_DIRECTORY, NULL);
-	notifier_queue_file (notifier, directory, flags);
-	crawl_directories_start (notifier);
+	notifier_queue_root (notifier, directory, flags);
 }
 
 static void
@@ -1517,8 +1512,7 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 			                                &parent_flags);
 
 			if (parent_flags & TRACKER_DIRECTORY_FLAG_RECURSE) {
-				notifier_queue_file (notifier, directory, parent_flags);
-				crawl_directories_start (notifier);
+				notifier_queue_root (notifier, directory, parent_flags);
 			} else if (tracker_indexing_tree_file_is_root (indexing_tree,
 			                                               parent)) {
 				g_signal_emit (notifier, signals[FILE_CREATED],
@@ -1593,8 +1587,7 @@ indexing_tree_child_updated (TrackerIndexingTree *indexing_tree,
 	    (flags & TRACKER_DIRECTORY_FLAG_RECURSE)) {
 		flags |= TRACKER_DIRECTORY_FLAG_CHECK_DELETED;
 
-		notifier_queue_file (notifier, canonical, flags);
-		crawl_directories_start (notifier);
+		notifier_queue_root (notifier, canonical, flags);
 	} else if (tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
 	                                                    canonical, child_type)) {
 		g_signal_emit (notifier, signals[FILE_UPDATED], 0, canonical, FALSE);
