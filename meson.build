@@ -129,40 +129,6 @@ if unicode_library_name == ''
   endif
 endif
 
-##########################################################################
-# Check for tracker-extract: icu or enca for detecting Cyrillic in MP3s
-#
-# By default, AUTO with this order of preference:
-#  1)  icu
-#  2)  enca
-##########################################################################
-
-charset_library_name = 'none'
-
-if have_libicu
-  if get_option('charset_detection') == 'auto' or get_option('charset_detection') == 'icu'
-    charset_library = declare_dependency(
-       dependencies: [icu_uc, icu_i18n]
-    )
-    charset_library_name = 'icu'
-  endif
-else
-  if get_option('charset_detection') == 'icu'
-    error('libicu requested for character set detection, but it was not found')
-  endif
-endif
-
-if charset_library_name == 'none' and get_option('charset_library') != 'none'
-  enca = dependency('enca', version: '>= 1.9', required: false)
-
-  if enca.found()
-    charset_library = enca
-    charset_library_name = 'enca'
-  elif get_option('enca') == 'yes'
-    error('enca support explicitly requested, but enca couldn\'t be found')
-  endif
-endif
-
 ####################################################################
 # D-Bus service files
 ####################################################################
@@ -227,9 +193,7 @@ conf.set('DISABLE_JOURNAL', get_option('journal') == false)
 conf.set10('HAVE_TRACKER_FTS', enable_fts)
 
 conf.set('HAVE_BUILTIN_FTS', sqlite3_has_builtin_fts5)
-conf.set('HAVE_ENCA', charset_library_name == 'enca')
 conf.set10('HAVE_LIBICU', unicode_library_name == 'icu')
-conf.set('HAVE_LIBICU_CHARSET_DETECTION', charset_library_name == 'icu')
 conf.set('HAVE_LIBSTEMMER', have_libstemmer)
 conf.set('HAVE_LIBUNISTRING', unicode_library_name == 'unistring')
 conf.set('HAVE_NETWORK_MANAGER', network_manager.found())
@@ -343,8 +307,6 @@ summary = [
      get_option('fts'), sqlite3_has_builtin_fts5),
   '    Build with Stemming support:            ' + have_libstemmer.to_string(),
   '    Bash completion support:                ' + bash_completion_dir,
-  '\nFrameworks / Options:',
-  '    Support Guaranteed Metadata             ' + get_option('guarantee_metadata').to_string(),
 ]
 
 message('\n'.join(summary))

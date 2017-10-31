@@ -36,9 +36,6 @@
 /* Defined if Sqlite has FTS5 compiled in */
 #mesondefine HAVE_BUILTIN_FTS
 
-/* Enca language detection aid */
-#mesondefine HAVE_ENCA
-
 /* Define if we have exempi */
 #mesondefine HAVE_EXEMPI
 
@@ -62,9 +59,6 @@
 
 /* libicu Unicode support library */
 #mesondefine HAVE_LIBICU
-
-/* ICU language detection aid */
-#mesondefine HAVE_LIBICU_CHARSET_DETECTION
 
 /* Define if we have libiptcdata */
 #mesondefine HAVE_LIBIPTCDATA
