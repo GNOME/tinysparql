@@ -41,9 +41,9 @@ option('stemmer', type: 'combo', choices: ['auto', 'no', 'yes'], value: 'no',
 option('unicode_support', type: 'combo', choices: ['icu', 'unistring', 'auto'], value: 'auto',
        description: 'Unicode support library to use')
 
-option('bash_completion', type: 'string', default: 'yes',
+option('bash_completion', type: 'string', value: 'yes',
        description: 'Directory to install Bash completion files (or "yes" for default directory, "no" to disable installation')
-option('dbus_services', type: 'string', default: '',
+option('dbus_services', type: 'string', value: '',
        description: 'Directory to install D-Bus .service files (leave blank to use the value from dbus-1.pc)')
-option('systemd_user_services', type: 'string', default: 'yes',
+option('systemd_user_services', type: 'string', value: 'yes',
        description: 'Directory to install systemd user .service files (or "yes" for default directory, "no" to disable installation)')
