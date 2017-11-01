@@ -62,19 +62,14 @@ class OntologyChangeTestTemplate (ut.TestCase):
     """
         
     def get_ontology_dir (self, param):
-        local = os.path.join (os.getcwd (), "test-ontologies", param)
-        if (os.path.exists (local)):
-            # Use local directory if available
-            return local
-        else:
-            return os.path.join (cfg.DATADIR, "tracker-tests",
-                                    "test-ontologies", param)
+        return os.path.join(cfg.TEST_ONTOLOGIES_DIR, param)
 
     def setUp (self):
         self.system = TrackerSystemAbstraction ()
 
     def tearDown (self):
-        self.system.tracker_store_testing_stop ()
+        if self.system.store is not None:
+            self.system.tracker_store_testing_stop ()
 
     def template_test_ontology_change (self):
 

@@ -41,11 +41,11 @@ class TestSqliteBatchMisused (CommonTrackerStoreTest):
     def setUp (self):
         self.main_loop = GObject.MainLoop ()
         self.batch_counter = 0
-        
+
     def test_queries_while_batch_insert (self):
-        self.assertTrue (os.path.exists ('ttl'))
-        
-        for root, dirs, files in os.walk('ttl'):
+        self.assertTrue (os.path.exists (cfg.generated_ttl_dir()))
+
+        for root, dirs, files in os.walk(cfg.generated_ttl_dir()):
             for ttl_file in filter (lambda f: f.endswith (".ttl"), files):
                 full_path = os.path.abspath(os.path.join (root, ttl_file))
                 print full_path
@@ -58,10 +58,10 @@ class TestSqliteBatchMisused (CommonTrackerStoreTest):
                     current_batch += line
                     if len(line) > 1 and line[:-1].endswith ('.'):
                         counter += 1
-                
-                    if counter == BATCH_SIZE:
+
+                    if counter >= BATCH_SIZE:
                         query = "INSERT {" + current_batch + "}"
-                        self.tracker.batch_update(
+                        token = self.tracker.batch_update(
                             query,
                             timeout=20000,
                             result_handler=self.batch_success_cb,
@@ -70,8 +70,7 @@ class TestSqliteBatchMisused (CommonTrackerStoreTest):
                         counter = 0
                         current_batch = ""
                         self.batch_counter += 1
-                        
-        
+
         GObject.timeout_add_seconds (2, self.run_a_query)
         # Safeguard of 60 seconds. The last reply should quit the loop
         GObject.timeout_add_seconds (60, self.timeout_cb)
@@ -84,22 +83,24 @@ class TestSqliteBatchMisused (CommonTrackerStoreTest):
             reply_handler=self.reply_cb,
             error_handler=self.error_handler)
         return True
-        
+
     def reply_cb (self, obj, results, data):
         print "Query replied correctly"
 
     def error_handler (self, error_msg):
         print "Query failed", error_msg
+        raise error_msg
 
-    def batch_success_cb (self):
+    def batch_success_cb (self, obj, result, user_data):
         self.batch_counter -= 1
         if (self.batch_counter == 0):
             print "Last batch was success"
             self.timeout_cb ()
         print "Success processing a batch"
 
-    def batch_failed_cb (self, error):
-        print "Failed processing a batch"
+    def batch_failed_cb (self, obj, error, user_data):
+        print "Failed processing a batch: %s" % error
+        raise error
 
     def timeout_cb (self):
         print "Forced timeout after 60 sec."

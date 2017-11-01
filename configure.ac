@@ -443,6 +443,9 @@ fi
 
 AM_CONDITIONAL(DIST_FUNCTIONAL_TESTS, test "x$enable_functional_tests" != "xno")
 
+AC_SUBST(FUNCTIONAL_TESTS_ONTOLOGIES_DIR, "${datadir}/tracker-tests/test-ontologies")
+AC_SUBST(FUNCTIONAL_TESTS_TRACKER_STORE_PATH, "${libexecdir}/tracker-store")
+
 ####################################################################
 # Check for gtk-doc and docbook-tools
 ####################################################################
@@ -936,9 +939,9 @@ AC_CONFIG_FILES([
 	tests/libtracker-fts/prefix/Makefile
 	tests/libtracker-sparql/Makefile
 	tests/functional-tests/Makefile
+	tests/functional-tests/configuration.json
 	tests/functional-tests/ipc/Makefile
 	tests/functional-tests/common/Makefile
-	tests/functional-tests/common/utils/configuration.py
 	tests/functional-tests/common/utils/Makefile
 	tests/functional-tests/unittest2/Makefile
 	tests/functional-tests/test-ontologies/Makefile

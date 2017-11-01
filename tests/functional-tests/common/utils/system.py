@@ -19,9 +19,7 @@ import helpers
 TEST_ENV_DIRS =  { "XDG_DATA_HOME" : os.path.join (cfg.TEST_TMP_DIR, "data"),
                    "XDG_CACHE_HOME": os.path.join (cfg.TEST_TMP_DIR, "cache")}
 
-TEST_ENV_VARS = {  "LC_COLLATE": "en_GB.utf8",
-                   "DCONF_PROFILE": os.path.join (cfg.DATADIR, "tracker-tests",
-                                                  "trackertest") }
+TEST_ENV_VARS = {  "LC_COLLATE": "en_GB.utf8" }
 
 EXTRA_DIRS = [os.path.join (cfg.TEST_TMP_DIR, "data", "tracker"),
               os.path.join (cfg.TEST_TMP_DIR, "cache", "tracker")]
@@ -35,6 +33,7 @@ class UnableToBootException (Exception):
 class TrackerSystemAbstraction (object):
     def __init__(self, settings=None, ontodir=None):
         self.set_up_environment (settings=settings, ontodir=ontodir)
+        self.store = None
 
     def set_up_environment (self, settings=None, ontodir=None):
         """

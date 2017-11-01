@@ -223,12 +223,28 @@ conf.set('TRACKER_BINARY_AGE', 100 * tracker_minor_version + tracker_micro_versi
 
 # Config that goes in some other generated files (.desktop, .pc, etc)
 conf.set('exec_prefix', get_option('prefix'))
+conf.set('bindir', join_paths(get_option('prefix'), get_option('bindir')))
+conf.set('datadir', join_paths(get_option('prefix'), get_option('datadir')))
+conf.set('datarootdir', join_paths(get_option('prefix'), get_option('datadir')))
 conf.set('includedir', join_paths(get_option('prefix'), get_option('includedir')))
 conf.set('libdir', join_paths(get_option('prefix'), get_option('libdir')))
 conf.set('libexecdir', join_paths(get_option('prefix'), get_option('libexecdir')))
 conf.set('prefix', get_option('prefix'))
 conf.set('TRACKER_API_VERSION', tracker_api_version)
 conf.set('VERSION', meson.project_version())
+
+# Configure functional tests to run completely from source tree.
+conf.set('FUNCTIONAL_TESTS_ONTOLOGIES_DIR', join_paths(meson.current_source_dir(), 'tests', 'functional-tests', 'test-ontologies'))
+conf.set('FUNCTIONAL_TESTS_TRACKER_STORE_PATH', join_paths(meson.current_build_dir(), 'src', 'tracker-store', 'tracker-store'))
+
+# This is set in an awkward way for compatibility with Autoconf. Switch it
+# to a normal boolean once we get rid of the Autotools build system. It's
+# only used in tests/functional-tests/common/utils/configuration.py.in.
+if get_option('journal')
+    conf.set('DISABLE_JOURNAL_TRUE', 'true')
+else
+    conf.set('DISABLE_JOURNAL_TRUE', '')
+endif
 
 configure_file(input: 'config.h.meson.in',
                output: 'config.h',

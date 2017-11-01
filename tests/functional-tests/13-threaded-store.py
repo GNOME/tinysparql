@@ -52,7 +52,7 @@ class TestThreadedStore (CommonTrackerStoreTest):
 
     def __populate_database (self):
 
-        self.assertTrue (os.path.exists ('ttl'))
+        self.assertTrue (os.path.exists (cfg.generated_ttl_dir()))
         for ttl_file in ["010-nco_EmailAddress.ttl",
                          "011-nco_PostalAddress.ttl",
                          "012-nco_PhoneNumber.ttl",
@@ -61,7 +61,7 @@ class TestThreadedStore (CommonTrackerStoreTest):
                          "018-nco_PersonContact.ttl",
                          "012-nco_PhoneNumber.ttl",
                          "016-nco_ContactIM.ttl"]:
-            full_path = os.path.abspath(os.path.join ("ttl", ttl_file))
+            full_path = os.path.abspath(os.path.join (cfg.generated_ttl_dir(), ttl_file))
             print full_path
             self.tracker.get_tracker_iface().Load(
                 '(s)', "file://" + full_path, timeout=30000)

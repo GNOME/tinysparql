@@ -36,20 +36,24 @@ class TestSqliteMisused (CommonTrackerStoreTest):
     def setUp (self):
         self.main_loop = GObject.MainLoop ()
         self.files_counter = 0
-        
+
     def test_queries_while_import (self):
-        self.assertTrue (os.path.exists ('ttl'))
-        for root, dirs, files in os.walk('ttl'):
+        assert os.path.isdir(cfg.generated_ttl_dir())
+
+        for root, dirs, files in os.walk(cfg.generated_ttl_dir()):
             for ttl_file in filter (lambda f: f.endswith (".ttl"), files):
                 full_path = os.path.abspath(os.path.join (root, ttl_file))
                 self.files_counter += 1
-                self.tracker.query(
+
+                self.tracker.load(
                     "file://" + full_path, timeout=30000,
                     result_handler=self.loaded_success_cb,
-                    error_handler=self.loaded_failed_cb)
+                    error_handler=self.loaded_failed_cb,
+                    user_data = full_path)
 
         GObject.timeout_add_seconds (2, self.run_a_query)
         # Safeguard of 60 seconds. The last reply should quit the loop
+        # It doesn't matter if we didn't import all of the files yet.
         GObject.timeout_add_seconds (60, self.timeout_cb)
         self.main_loop.run ()
 
@@ -64,19 +68,18 @@ class TestSqliteMisused (CommonTrackerStoreTest):
     def reply_cb (self, obj, results, data):
         print "Query replied correctly"
 
-    def error_handler (self, error_msg):
-        print "ERROR in DBus call", error_msg
+    def error_handler (self, obj, error, data):
+        print "ERROR in DBus call: %s" % error
 
-    def loaded_success_cb (self, obj, results, data):
+    def loaded_success_cb (self, obj, results, user_data):
         self.files_counter -= 1
         if (self.files_counter == 0):
             print "Last file loaded"
             self.timeout_cb ()
-        print "Success loading a file"
+        print "Success loading %s" % user_data
 
-    def loaded_failed_cb (self, error):
-        print "Failed loading a file"
-        self.assertTrue (False)
+    def loaded_failed_cb (self, obj, error, user_data):
+        raise RuntimeError("Failed loading %s: %s" % (user_data, error))
 
     def timeout_cb (self):
         print "Forced timeout after 60 sec."
