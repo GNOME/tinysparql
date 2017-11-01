@@ -73,7 +73,7 @@ class TestThreadedStore (CommonTrackerStoreTest):
         print "Loading: %.3f sec." % (end-start)
 
         COMPLEX_QUERY = """
-        SELECT ?url nie:url(?photo) nco:imContactStatusMessage (?url)
+        SELECT ?url nie:url(?photo) nco:imStatusMessage (?url)
                 tracker:coalesce(nco:nameFamily (?url), nco:nameFamily (?url), nco:nameGiven (?org), ?email, ?phone, nco:blogUrl (?url))
         WHERE {
           { ?url a nco:PersonContact.
