@@ -1,6 +1,8 @@
 #! /usr/bin/python2
 # -*- coding: utf-8 -*-
 
+import argparse
+import os
 import string
 import time
 import sys
@@ -32,24 +34,32 @@ def recent_enough_python ():
 
 ####################################################################################
 
-# we need a count
-if len(sys.argv) != 2:
-  print "Usage: %s config-file" % sys.argv[0]
-  sys.exit(1)
+def argument_parser():
+  parser = argparse.ArgumentParser(description="Nepomuk test data generator")
+  parser.add_argument('config_file', nargs=1)
+  parser.add_argument('output_dir', nargs='?')
+  return parser
+
+
+args = argument_parser().parse_args()
 
 config = ConfigParser.RawConfigParser()
 try:
-  loaded_files = config.read(sys.argv[1])
+  loaded_files = config.read(args.config_file)
   # config.read 
   #   in 2.3 return None
   #   in 2.6+ returns a list of loaded files
   if recent_enough_python ():
     if (len (loaded_files) != 1):
-      print "Cannot open %s" % (sys.argv[1])
+      print "Cannot open %s" % (args.config_file)
       sys.exit (-1)
 except Exception, e:
-  print "Failed to read configuration file %s (%s)" % (sys.argv[1], e)
+  print "Failed to read configuration file %s (%s)" % (args.config_file, e)
   sys.exit (-1)
+
+if args.output_dir:
+  if not os.path.exists(args.output_dir):
+    os.makedirs(args.output_dir)
 
 
 def get_counter (section, option):
@@ -283,4 +293,4 @@ for index in xrange(1,count_others+1):
 print "Done"
 
 # dump all files
-tools.saveResult()
+tools.saveResult(output_dir=args.output_dir)

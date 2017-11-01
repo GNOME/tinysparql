@@ -3,6 +3,7 @@
 import string
 import random
 import datetime
+import os
 
 import ontology_prefixes
 
@@ -13,7 +14,7 @@ now = datetime.datetime.today().strftime('%Y-%m-%dT%H:%M:%SZ')
 
 ####################################################################################
 def addType(name, order):
-  output   = 'ttl/%03d-' % order + name.replace( '#', '_') + '.ttl'
+  output   = '%03d-' % order + name.replace( '#', '_') + '.ttl'
 
   output_filenames[name] = output
   result[name] = []
@@ -29,10 +30,12 @@ def getLastUri(type):
 def getRandomUri(type):
   return random.choice(last_uris[type])
 
-def saveResult ():
+def saveResult (output_dir=None):
+  output_dir = output_dir or 'ttl'
   for ontology, content in result.items():
     print 'Saving', output_filenames[ontology], '...'
-    output = open( output_filenames[ontology], 'w')
+    path = os.path.join(output_dir, output_filenames[ontology])
+    output = open(path, 'w')
     output.write( ontology_prefixes.ontology_prefixes )
     for it in content:
       output.write( it )
