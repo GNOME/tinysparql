@@ -878,6 +878,76 @@ test_content_filter_default_deny (TrackerMinerFSTestFixture *fixture,
 }
 
 static void
+test_content_filter_on_parent_root (TrackerMinerFSTestFixture *fixture,
+				    gconstpointer              data)
+{
+	TrackerIndexingTree *indexing_tree;
+	GError *error = NULL;
+
+	CREATE_FOLDER (fixture, "non-recursive");
+	CREATE_FOLDER (fixture, "non-recursive/recursive");
+	CREATE_FOLDER (fixture, "non-recursive/recursive/a");
+	CREATE_UPDATE_FILE (fixture, "non-recursive/.ignore");
+	CREATE_UPDATE_FILE (fixture, "non-recursive/recursive/c");
+	CREATE_UPDATE_FILE (fixture, "non-recursive/recursive/a/d");
+
+	indexing_tree = tracker_miner_fs_get_indexing_tree (fixture->miner);
+	tracker_indexing_tree_set_filter_hidden (indexing_tree, TRUE);
+	tracker_indexing_tree_add_filter (indexing_tree,
+	                                  TRACKER_FILTER_PARENT_DIRECTORY, ".ignore");
+
+	fixture_add_indexed_folder (fixture, "non-recursive",
+	                            TRACKER_DIRECTORY_FLAG_PRESERVE |
+	                            TRACKER_DIRECTORY_FLAG_CHECK_DELETED |
+	                            TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
+	fixture_add_indexed_folder (fixture, "non-recursive/recursive",
+	                            TRACKER_DIRECTORY_FLAG_PRESERVE |
+	                            TRACKER_DIRECTORY_FLAG_CHECK_DELETED |
+	                            TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
+	                            TRACKER_DIRECTORY_FLAG_RECURSE);
+
+	tracker_miner_start (TRACKER_MINER (fixture->miner));
+
+	fixture_iterate (fixture);
+
+	g_assert_cmpstr (fixture_get_content (fixture), ==,
+	                 "non-recursive,"
+	                 "non-recursive/recursive,"
+			 "non-recursive/recursive/a,"
+			 "non-recursive/recursive/a/d,"
+			 "non-recursive/recursive/c");
+
+	/* Check it is ok after the content is already indexed. All
+	 * files should stay and no events should be generated as
+	 * there's no changes.
+	 */
+	fixture_remove_indexed_folder (fixture, "non-recursive");
+	fixture_remove_indexed_folder (fixture, "non-recursive/recursive");
+
+	fixture_add_indexed_folder (fixture, "non-recursive",
+	                            TRACKER_DIRECTORY_FLAG_PRESERVE |
+	                            TRACKER_DIRECTORY_FLAG_CHECK_DELETED |
+	                            TRACKER_DIRECTORY_FLAG_CHECK_MTIME);
+	fixture_add_indexed_folder (fixture, "non-recursive/recursive",
+	                            TRACKER_DIRECTORY_FLAG_PRESERVE |
+	                            TRACKER_DIRECTORY_FLAG_CHECK_DELETED |
+	                            TRACKER_DIRECTORY_FLAG_CHECK_MTIME |
+	                            TRACKER_DIRECTORY_FLAG_RECURSE);
+
+	test_miner_reset_counters ((TestMiner *) fixture->miner);
+	fixture_iterate (fixture);
+
+	g_assert_cmpstr (fixture_get_content (fixture), ==,
+	                 "non-recursive,"
+	                 "non-recursive/recursive,"
+			 "non-recursive/recursive/a,"
+			 "non-recursive/recursive/a/d,"
+			 "non-recursive/recursive/c");
+
+	g_assert_cmpint (((TestMiner *) fixture->miner)->n_events, ==, 0);
+}
+
+static void
 test_non_monitored_create (TrackerMinerFSTestFixture *fixture,
                            gconstpointer              data)
 {
@@ -1907,6 +1977,8 @@ main (gint    argc,
 	          test_content_filter_default_accept);
 	ADD_TEST ("/indexing-tree/content-filter-default-deny",
 	          test_content_filter_default_deny);
+	ADD_TEST ("/indexing-tree/content-filter-on-parent-root",
+		  test_content_filter_on_parent_root);
 
 	/* Tests for non-monitored FS changes (eg. between reindexes) */
 	ADD_TEST ("/non-monitored/create",
