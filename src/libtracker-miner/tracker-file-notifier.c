@@ -238,11 +238,19 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
                                      gpointer        user_data)
 {
 	TrackerFileNotifierPrivate *priv;
-	gboolean process;
+	gboolean process = TRUE;
 
 	priv = TRACKER_FILE_NOTIFIER (user_data)->priv;
-	process = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
-	                                                     parent, children);
+
+	/* Do not let content filter apply to configured roots themselves. This
+	 * is a measure to trim undesired portions of the filesystem, and if
+	 * the folder is configured to be indexed, it's clearly not undesired.
+	 */
+	if (!tracker_indexing_tree_file_is_root (priv->indexing_tree, parent)) {
+		process = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
+								     parent, children);
+	}
+
 	if (process) {
 		TrackerDirectoryFlags parent_flags;
 		gboolean add_monitor;
