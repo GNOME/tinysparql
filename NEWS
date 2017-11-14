@@ -1,3 +1,18 @@
+NEW in 2.0.2 - 2017-11-14
+=========================
+
+  * tests: Cleanups and Coverity fixes. A testsuite for libtracker-miner's
+    TrackerMinerFS object was added.
+  * meson: Many small improvements.
+  * libtracker-common: Preparation work to be able to build
+    tracker/tracker-miners as a bundle.
+  * libtracker-direct: Implement update_array_async()
+  * libtracker-miner: Multiple cleanups and code simplifications.
+  * libtracker-miner: Properly honor lack of CHECK_MTIME flag, resulting
+    on faster startup times if it's not set.
+
+Translations: ca@valencia
+
 NEW in 2.0.1 - 2017-10-04
 =========================
 
