@@ -210,7 +210,6 @@ PYTHON_REQUIRED=2.6
 DBUS_REQUIRED=1.3.1
 GLIB_REQUIRED=2.44.0
 LIBXML2_REQUIRED=2.6
-HAL_REQUIRED=0.5
 UPOWER_REQUIRED=0.9.0
 LIBICU_REQUIRED=4.8.1.1
 JSON_GLIB_REQUIRED=1.0
@@ -735,43 +734,6 @@ fi
 AM_CONDITIONAL(HAVE_UPOWER, test "x$have_upower" = "xyes")
 
 ##################################################################
-# Check for libtracker-common: hal for battery/power support (old)
-##################################################################
-
-AC_ARG_ENABLE(hal,
-              AS_HELP_STRING([--disable-hal],
-                             [disable HAL support for AC power detection [[default=auto]]]),
-              [enable_hal=$enableval],
-              [enable_hal=auto])
-
-if test "x$have_upower" != "xyes" && test "x$enable_hal" != "xno"; then
-   PKG_CHECK_MODULES(HAL,
-                     [dbus-1      >= $DBUS_REQUIRED
-                      hal         >= $HAL_REQUIRED],
-                     [have_hal=yes] ,
-                     [have_hal=no])
-
-   TRACKER_MINER_FS_CFLAGS="$TRACKER_MINER_FS_CFLAGS $HAL_CFLAGS"
-   TRACKER_MINER_FS_LIBS="$TRACKER_MINER_FS_LIBS $HAL_LIBS"
-
-   if test "x$have_hal" = "xyes"; then
-      AC_DEFINE(HAVE_HAL, [], [Define if we have HAL])
-   fi
-else
-   have_hal="no  (disabled)"
-fi
-
-if test "x$enable_hal" = "xyes"; then
-   if test "x$have_upower" = "xyes"; then
-      AC_MSG_ERROR([Only one of UPower and HAL can be used.])
-   elif test "x$have_hal" != "xyes"; then
-      AC_MSG_ERROR([Could not find hal >= $HAL_REQUIRED.])
-   fi
-fi
-
-AM_CONDITIONAL(HAVE_HAL, test "x$have_hal" = "xyes")
-
-##################################################################
 # Check for libtracker-data and libtracker-fts: Unicode support
 #
 # By default, AUTO with this order of preference:
@@ -1030,7 +992,6 @@ Build Configuration:
 
 Feature Support:
 
-	Support for HAL:                        $have_hal
 	Support for UPower:                     $have_upower
 	Support for network status detection:   $have_network_manager
 	Unicode support library:                $with_unicode_support

@@ -45,9 +45,6 @@
 /* Define if we have GStreamer */
 #mesondefine HAVE_GSTREAMER
 
-/* Define if we have HAL */
-#mesondefine HAVE_HAL
-
 /* Define if we have libcue */
 #mesondefine HAVE_LIBCUE
 
