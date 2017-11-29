@@ -777,7 +777,6 @@ class TrackerStorePhoneNumberTest (CommonTrackerStoreTest):
         and running query to get the contact from the number.
 	"""
 
-        @ut.skipIf (not cfg.haveMaemo, "This test uses maemo:specific properties")
  	def test_phone_01 (self):
 		"""
                 1. Setting the maemo:localPhoneNumber property to last 7 digits of phone number.
@@ -833,7 +832,6 @@ class TrackerStorePhoneNumberTest (CommonTrackerStoreTest):
                 self.assertEquals (result[0][0], "test://test_phone_1/message")
 
 
-        @ut.skipIf (not cfg.haveMaemo, "This test uses maemo:specific properties")
 	def test_phone_02 (self):
 		"""
                 Inserting a local phone number which have spaces
