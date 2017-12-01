@@ -42,8 +42,6 @@ struct TrackerMonitorPrivate {
 
 	gboolean       enabled;
 
-	GType          monitor_backend;
-
 	guint          monitor_limit;
 	gboolean       monitor_limit_warned;
 	guint          monitors_ignored;
@@ -197,7 +195,6 @@ tracker_monitor_init (TrackerMonitor *object)
 	TrackerMonitorPrivate *priv;
 	GFile                 *file;
 	GFileMonitor          *monitor;
-	const gchar           *name;
 	GError                *error = NULL;
 
 	object->priv = TRACKER_MONITOR_GET_PRIVATE (object);
@@ -236,13 +233,16 @@ tracker_monitor_init (TrackerMonitor *object)
 		/* Guessing limit... */
 		priv->monitor_limit = 100;
 	} else {
-		priv->monitor_backend = G_OBJECT_TYPE (monitor);
+		GType monitor_backend;
+		const gchar *name;
+
+		monitor_backend = G_OBJECT_TYPE (monitor);
 
 		/* We use the name because the type itself is actually
 		 * private and not available publically. Note this is
 		 * subject to change, but unlikely of course.
 		 */
-		name = g_type_name (priv->monitor_backend);
+		name = g_type_name (monitor_backend);
 
 		/* Set limits based on backend... */
 		if (strcmp (name, "GInotifyDirectoryMonitor") == 0 ||
