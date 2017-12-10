@@ -7,6 +7,8 @@ option('functional_tests', type: 'boolean', value: true,
 option('journal', type: 'boolean', value: true,
        description: 'Enable database journal backup mechanism')
 
+option('network_manager', type: 'combo', choices: ['auto', 'no', 'yes'], value: 'auto',
+       description: 'Enable connection detection through NetworkManager')
 option('stemmer', type: 'combo', choices: ['auto', 'no', 'yes'], value: 'auto',
        description: 'Enable stemming words while indexing')
 option('unicode_support', type: 'combo', choices: ['icu', 'unistring', 'auto'], value: 'auto',

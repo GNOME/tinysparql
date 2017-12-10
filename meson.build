@@ -28,7 +28,6 @@ icu_uc = dependency('icu-uc', version: '> 4.8.1.1', required: false)
 json_glib = dependency('json-glib-1.0', version: '>= 1.0', required: true)
 libsoup = dependency('libsoup-2.4', version: '> 2.40', required: true)
 libxml2 = dependency('libxml-2.0', version: '> 2.6')
-network_manager = dependency('libnm', required: false)
 sqlite = dependency('sqlite3', version: '>' + sqlite_required)
 
 libmath = cc.find_library('m', required: false)
@@ -47,6 +46,12 @@ add_project_arguments('-Wno-pointer-sign', language: 'c')
 add_project_arguments('-DTRACKER_COMPILATION', language: 'c')
 
 enable_fts = get_option('fts')
+
+have_network_manager = false
+if get_option('network_manager') != 'no'
+    network_manager = dependency('libnm', required: get_option('network_manager') == 'yes')
+    have_network_manager = network_manager.found()
+endif
 
 ##################################################################
 # Check for libtracker-common, make sure libstemmer exists
@@ -196,7 +201,7 @@ conf.set('HAVE_BUILTIN_FTS', sqlite3_has_builtin_fts5)
 conf.set('HAVE_LIBICU', unicode_library_name == 'icu')
 conf.set('HAVE_LIBSTEMMER', have_libstemmer)
 conf.set('HAVE_LIBUNISTRING', unicode_library_name == 'unistring')
-conf.set('HAVE_NETWORK_MANAGER', network_manager.found())
+conf.set('HAVE_NETWORK_MANAGER', have_network_manager)
 
 conf.set('HAVE_GETLINE', cc.has_function('getline', prefix : '#include <stdio.h>'))
 conf.set('HAVE_POSIX_FADVISE', cc.has_function('posix_fadvise', prefix : '#include <fcntl.h>'))
@@ -300,7 +305,7 @@ summary = [
   '    Source code location:                   ' + meson.current_source_dir(),
   '    Compiler:                               ' + cc.get_id(),
   '\nFeature Support:',
-  '    Support for network status detection:   ' + network_manager.found().to_string(),
+  '    Support for network status detection:   ' + have_network_manager.to_string(),
   '    Unicode support library:                ' + unicode_library_name,
   '    Build with Journal support:             ' + get_option('journal').to_string(),
   '    Build with SQLite FTS support:          @0@ (built-in FTS: @1@)'.format(

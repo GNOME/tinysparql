@@ -52,7 +52,7 @@ libtracker_miner_private = static_library(
 )
 
 tracker_miner_dependencies = []
-if network_manager.found()
+if have_network_manager
     tracker_miner_dependencies += network_manager
 endif
 
