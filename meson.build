@@ -31,7 +31,7 @@ libxml2 = dependency('libxml-2.0', version: '> 2.6')
 network_manager = dependency('libnm', required: false)
 sqlite = dependency('sqlite3', version: '>' + sqlite_required)
 
-libmath = cc.find_library('m')
+libmath = cc.find_library('m', required: false)
 
 # FIXME: here we work around a quirk todo with Meson and Vala: the 'uuid'
 # pkg-config component corresponds to 'libuuid.vapi', but Meson assumes that
