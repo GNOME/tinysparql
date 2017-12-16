@@ -54,8 +54,8 @@ enable_fts = get_option('fts')
 
 have_libstemmer = false
 if get_option('stemmer') != 'no'
-    stemmer = cc.find_library('stemmer')
-    if stemmer.found()
+    libstemmer = cc.find_library('stemmer', required: false)
+    if libstemmer.found()
         have_libstemmer = true
     elif get_option('stemmer') == 'yes'
         error('stemmer support explicitly requested, but stemmer library couldn\'t be found')
