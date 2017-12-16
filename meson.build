@@ -117,7 +117,7 @@ elif get_option('unicode_support') == 'icu'
 endif
 
 if unicode_library_name == ''
-  libunistring = cc.find_library('libunistring', required: false)
+  libunistring = cc.find_library('unistring', required: false)
 
   if libunistring.found()
     unicode_library = libunistring
@@ -193,7 +193,7 @@ conf.set('DISABLE_JOURNAL', get_option('journal') == false)
 conf.set10('HAVE_TRACKER_FTS', enable_fts)
 
 conf.set('HAVE_BUILTIN_FTS', sqlite3_has_builtin_fts5)
-conf.set10('HAVE_LIBICU', unicode_library_name == 'icu')
+conf.set('HAVE_LIBICU', unicode_library_name == 'icu')
 conf.set('HAVE_LIBSTEMMER', have_libstemmer)
 conf.set('HAVE_LIBUNISTRING', unicode_library_name == 'unistring')
 conf.set('HAVE_NETWORK_MANAGER', network_manager.found())
