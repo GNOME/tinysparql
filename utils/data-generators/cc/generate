@@ -35,7 +35,7 @@ def recent_enough_python ():
 # we need a count
 if len(sys.argv) != 2:
   print "Usage: %s config-file" % sys.argv[0]
-  sys.exit()
+  sys.exit(1)
 
 config = ConfigParser.RawConfigParser()
 try:
