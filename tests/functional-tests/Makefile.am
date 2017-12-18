@@ -1,7 +1,6 @@
 SUBDIRS = \
 	ipc \
 	common \
-	test-apps-data \
 	ttl \
 	unittest2 \
 	test-ontologies
@@ -33,19 +32,7 @@ standard_tests += \
 	15-statistics.py \
 	16-collation.py \
 	17-ontology-changes.py  \
-	200-backup-restore.py \
-	300-miner-basic-ops.py \
-	301-miner-resource-removal.py
-if HAVE_TRACKER_FTS
-standard_tests += 310-fts-indexing.py
-endif
-standard_tests += \
-	400-extractor-metadata.py \
-	410-extractor-decorator.py \
-	500-writeback.py \
-	501-writeback-details.py \
-	600-applications-camera.py \
-	601-applications-sync.py
+	200-backup-restore.py
 
 slow_tests = \
 	10-sqlite-misused.py \

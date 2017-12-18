@@ -21,15 +21,6 @@ functional_tests = [
   '16-collation',
   '17-ontology-changes',
   '200-backup-restore',
-  '300-miner-basic-ops',
-  '301-miner-resource-removal',
-  '310-fts-indexing',
-  '400-extractor-metadata',
-  '410-extractor-decorator',
-  '500-writeback',
-  '501-writeback-details',
-  '600-applications-camera',
-  '601-applications-sync',
 ]
 
 foreach t: functional_tests
