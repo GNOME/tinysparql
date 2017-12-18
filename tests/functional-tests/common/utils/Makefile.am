@@ -7,9 +7,6 @@ utils_SCRIPTS =                                        \
 	expectedFailure.py                             \
 	helpers.py                                     \
 	storetest.py                                   \
-	minertest.py                                   \
-	applicationstest.py			       \
-	writebacktest.py			       \
 	options.py				       \
 	system.py
 
