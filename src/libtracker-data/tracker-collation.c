@@ -38,7 +38,7 @@
 /* libunistring versions prior to 9.1.2 need this hack */
 #define _UNUSED_PARAMETER_
 #include <unistr.h>
-#elif HAVE_LIBICU
+#elif defined(HAVE_LIBICU)
 #include <unicode/ucol.h>
 #include <unicode/utypes.h>
 #endif
@@ -97,7 +97,7 @@ tracker_collation_utf8 (gpointer      collator,
 	return result;
 }
 
-#elif HAVE_LIBICU /* ---- ICU based collation (UTF-16) ----*/
+#elif defined(HAVE_LIBICU) /* ---- ICU based collation (UTF-16) ----*/
 
 gpointer
 tracker_collation_init (void)

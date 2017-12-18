@@ -42,7 +42,7 @@
 #define _UNUSED_PARAMETER_
 #include <unistr.h>
 #include <unicase.h>
-#elif HAVE_LIBICU
+#elif defined(HAVE_LIBICU)
 #include <unicode/utypes.h>
 #include <unicode/uregex.h>
 #include <unicode/ustring.h>
@@ -893,7 +893,7 @@ function_sparql_unaccent (sqlite3_context *context,
 	sqlite3_result_text (context, zOutput, written, free);
 }
 
-#elif HAVE_LIBICU
+#elif defined(HAVE_LIBICU)
 
 static void
 function_sparql_lower_case (sqlite3_context *context,
