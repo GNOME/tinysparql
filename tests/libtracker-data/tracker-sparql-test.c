@@ -162,7 +162,7 @@ const TestInfo tests[] = {
 static int
 strstr_i (const char *a, const char *b)
 {
-	return strstr (a, b) != NULL ? 1 : 0;
+	return strstr (b, a) == NULL ? 1 : 0;
 }
 
 static void
@@ -215,6 +215,8 @@ check_result (TrackerDBCursor *cursor,
 	} else if (test_info->expect_query_error) {
 		g_string_append (test_results, error->message);
 		g_clear_error (&error);
+
+		g_strchomp(results);
 	}
 
 	if (comparer (results, test_results->str)) {
