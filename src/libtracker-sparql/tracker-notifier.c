@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Red Hat Inc.
+ * Copyright (C) 2016-2018 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -295,7 +295,7 @@ handle_deletes (TrackerNotifier           *notifier,
                 TrackerNotifierEventCache *cache,
                 GVariantIter              *iter)
 {
-	gint graph, subject, predicate, object;
+	gint32 graph, subject, predicate, object;
 	TrackerNotifierPrivate *priv;
 
 	priv = tracker_notifier_get_instance_private (notifier);
@@ -333,7 +333,7 @@ handle_updates (TrackerNotifier           *notifier,
                 TrackerNotifierEventCache *cache,
                 GVariantIter              *iter)
 {
-	gint graph, subject, predicate, object;
+	gint32 graph, subject, predicate, object;
 	TrackerNotifierPrivate *priv;
 
 	priv = tracker_notifier_get_instance_private (notifier);
