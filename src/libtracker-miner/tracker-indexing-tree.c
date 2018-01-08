@@ -536,6 +536,25 @@ tracker_indexing_tree_add (TrackerIndexingTree   *tree,
 	parent = find_directory_node (priv->config_tree, directory,
 	                              (GEqualFunc) g_file_has_prefix);
 
+	if (parent == NULL) {
+		gchar *directory_scheme = NULL;
+		gchar *root_scheme = NULL;
+		gchar *root_uri = NULL;
+
+		directory_scheme = g_file_get_uri_scheme (directory);
+		root_scheme = g_file_get_uri_scheme (priv->root);
+		g_assert_cmpstr (directory_scheme, !=, root_scheme);
+
+		root_uri = g_file_get_uri (priv->root);
+		g_assert_cmpstr (root_uri, ==, "file:///");
+
+		parent = priv->config_tree;
+
+		g_free (directory_scheme);
+		g_free (root_scheme);
+		g_free (root_uri);
+	}
+
 	/* Create node, move children of parent that
 	 * could be children of this new node now.
 	 */
