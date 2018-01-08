@@ -36,6 +36,7 @@
  *     -- Directory AB
  *         --- Directory ABA
  *         --- Directory ABB
+ *  - Non-native directory X
  */
 typedef enum {
 	TEST_DIRECTORY_A = 0,
@@ -47,6 +48,7 @@ typedef enum {
 	TEST_DIRECTORY_AB,
 	TEST_DIRECTORY_ABA,
 	TEST_DIRECTORY_ABB,
+	TEST_DIRECTORY_NON_NATIVE_X,
 	TEST_DIRECTORY_LAST
 } TestDirectory;
 
@@ -89,12 +91,13 @@ test_common_context_setup (TestCommonContext *fixture,
 		"/A/A/B",
 		"/A/B/",
 		"/A/B/A",
-		"/A/B/B"
+		"/A/B/B",
+		"foo://x"
 	};
 
 	/* Initialize aux directories */
 	for (i = 0; i < TEST_DIRECTORY_LAST; i++)
-		fixture->test_dir[i] = g_file_new_for_path (test_directories_subpaths[i]);
+		fixture->test_dir[i] = g_file_new_for_commandline_arg (test_directories_subpaths[i]);
 
 	fixture->tree = tracker_indexing_tree_new ();
 }
@@ -943,6 +946,17 @@ test_indexing_tree_030 (TestCommonContext *fixture,
 	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_ABA);
 }
 
+static void
+test_indexing_tree_non_native (TestCommonContext *fixture,
+                               gconstpointer      data)
+{
+	tracker_indexing_tree_add (fixture->tree,
+	                           fixture->test_dir[TEST_DIRECTORY_NON_NATIVE_X],
+	                           TRACKER_DIRECTORY_FLAG_NONE);
+
+	ASSERT_INDEXABLE (fixture, TEST_DIRECTORY_NON_NATIVE_X);
+}
+
 gint
 main (gint    argc,
       gchar **argv)
@@ -981,6 +995,8 @@ main (gint    argc,
 	test_add ("/libtracker-miner/indexing-tree/028", test_indexing_tree_028);
 	test_add ("/libtracker-miner/indexing-tree/029", test_indexing_tree_029);
 	test_add ("/libtracker-miner/indexing-tree/030", test_indexing_tree_030);
+
+	test_add ("/libtracker-miner/indexing-tree/non-native", test_indexing_tree_non_native);
 
 	return g_test_run ();
 }
