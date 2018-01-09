@@ -182,7 +182,7 @@ file_data_provider_begin_thread (GTask        *task,
 
 static void
 file_data_provider_begin_async (TrackerDataProvider   *data_provider,
-                                GFile                 *dir,
+                                GFile                 *url,
                                 const gchar           *attributes,
                                 TrackerDirectoryFlags  flags,
                                 int                    io_priority,
@@ -193,7 +193,7 @@ file_data_provider_begin_async (TrackerDataProvider   *data_provider,
 	GTask *task;
 
 	task = g_task_new (data_provider, cancellable, callback, user_data);
-	g_task_set_task_data (task, begin_data_new (dir, attributes, flags), (GDestroyNotify) begin_data_free);
+	g_task_set_task_data (task, begin_data_new (url, attributes, flags), (GDestroyNotify) begin_data_free);
 	g_task_set_priority (task, io_priority);
 	g_task_run_in_thread (task, file_data_provider_begin_thread);
 	g_object_unref (task);
