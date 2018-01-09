@@ -261,21 +261,50 @@ file_tree_lookup (GNode     *tree,
 
 		g_free (parent_uri);
 	} else {
-		/* First check the root node */
-		if (!file_node_data_equal_or_child (tree, uri, &ptr)) {
+		FileNodeData *root_data;
+		gchar *file_scheme = NULL;
+		gchar *root_scheme = NULL;
+		gchar *root_uri = NULL;
+
+		file_scheme = g_file_get_uri_scheme (file);
+
+		root_data = tree->data;
+		root_scheme = g_file_get_uri_scheme (root_data->file);
+		root_uri = g_file_get_uri (root_data->file);
+
+		if (g_strcmp0 (file_scheme, root_scheme) == 0) {
+			/* First check the root node */
+			if (!file_node_data_equal_or_child (tree, uri, &ptr)) {
+				g_free (file_scheme);
+				g_free (root_scheme);
+				g_free (root_uri);
+				g_free (uri);
+				return NULL;
+			}
+
+			/* Second check there is no basename and if there isn't,
+			 * then this node MUST be the closest registered node
+			 * we can use for the uri. The difference here is that
+			 * we return tree not NULL.
+			 */
+			else if (ptr[0] == '\0') {
+				g_free (file_scheme);
+				g_free (root_scheme);
+				g_free (root_uri);
+				g_free (uri);
+				return tree;
+	                }
+		} else if (g_strcmp0 (root_uri, "file:///") != 0) {
+			g_free (file_scheme);
+			g_free (root_scheme);
+			g_free (root_uri);
 			g_free (uri);
 			return NULL;
 		}
 
-		/* Second check there is no basename and if there isn't,
-		 * then this node MUST be the closest registered node
-		 * we can use for the uri. The difference here is that
-		 * we return tree not NULL.
-		 */
-		else if (ptr[0] == '\0') {
-			g_free (uri);
-			return tree;
-                }
+		g_free (file_scheme);
+		g_free (root_scheme);
+		g_free (root_uri);
 	}
 
 	parent = tree;
