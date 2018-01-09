@@ -29,12 +29,6 @@ struct _TrackerFileDataProvider {
 	GObject parent_instance;
 };
 
-typedef struct {
-	GFile *url;
-	gchar *attributes;
-	TrackerDirectoryFlags flags;
-} BeginData;
-
 /**
  * SECTION:tracker-file-data-provider
  * @short_description: File based data provider for file:// descendant URIs
@@ -70,34 +64,6 @@ tracker_file_data_provider_class_init (TrackerFileDataProviderClass *klass)
 static void
 tracker_file_data_provider_init (TrackerFileDataProvider *fe)
 {
-}
-
-static BeginData *
-begin_data_new (GFile                 *url,
-                const gchar           *attributes,
-                TrackerDirectoryFlags  flags)
-{
-	BeginData *data;
-
-	data = g_slice_new0 (BeginData);
-	data->url = g_object_ref (url);
-	/* FIXME: inefficient */
-	data->attributes = g_strdup (attributes);
-	data->flags = flags;
-
-	return data;
-}
-
-static void
-begin_data_free (BeginData *data)
-{
-	if (!data) {
-		return;
-	}
-
-	g_object_unref (data->url);
-	g_free (data->attributes);
-	g_slice_free (BeginData, data);
 }
 
 static GFileEnumerator *
@@ -152,32 +118,32 @@ file_data_provider_begin (TrackerDataProvider    *data_provider,
 }
 
 static void
-file_data_provider_begin_thread (GTask        *task,
-                                 gpointer      source_object,
-                                 gpointer      task_data,
-                                 GCancellable *cancellable)
+enumerate_children_cb (GObject       *source_object,
+                       GAsyncResult  *res,
+                       gpointer       user_data)
 {
-	TrackerDataProvider *data_provider = source_object;
+	GFile *url = G_FILE (source_object);
 	GFileEnumerator *enumerator = NULL;
-	BeginData *data = task_data;
+	GTask *task = G_TASK (user_data);
 	GError *error = NULL;
 
-	if (g_cancellable_set_error_if_cancelled (cancellable, &error)) {
-		enumerator = NULL;
-	} else {
-		enumerator = file_data_provider_begin (data_provider,
-		                                       data->url,
-		                                       data->attributes,
-		                                       data->flags,
-		                                       cancellable,
-		                                       &error);
-	}
-
+	enumerator = g_file_enumerate_children_finish (url, res, &error);
 	if (error) {
+		if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			gchar *uri;
+
+			uri = g_file_get_uri (url);
+			g_warning ("Could not open directory '%s': %s",
+			           uri, error->message);
+			g_free (uri);
+		}
+
 		g_task_return_error (task, error);
 	} else {
 		g_task_return_pointer (task, enumerator, (GDestroyNotify) g_object_unref);
 	}
+
+	g_object_unref (task);
 }
 
 static void
@@ -190,12 +156,31 @@ file_data_provider_begin_async (TrackerDataProvider   *data_provider,
                                 GAsyncReadyCallback    callback,
                                 gpointer               user_data)
 {
+	GFileQueryInfoFlags file_flags;
 	GTask *task;
 
 	task = g_task_new (data_provider, cancellable, callback, user_data);
-	g_task_set_task_data (task, begin_data_new (url, attributes, flags), (GDestroyNotify) begin_data_free);
-	g_task_set_priority (task, io_priority);
-	g_task_run_in_thread (task, file_data_provider_begin_thread);
+
+	/* We ignore the TRACKER_DIRECTORY_FLAG_NO_STAT here, it makes
+	 * no sense to be at this point with that flag. So we warn
+	 * about it...
+	 */
+	if ((flags & TRACKER_DIRECTORY_FLAG_NO_STAT) != 0) {
+		g_warning ("Did not expect to have TRACKER_DIRECTORY_FLAG_NO_STAT "
+		           "flag in %s(), continuing anyway...",
+		           __FUNCTION__);
+	}
+
+	file_flags = G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
+
+	g_file_enumerate_children_async (url,
+	                                 attributes,
+	                                 file_flags,
+	                                 io_priority,
+	                                 cancellable,
+	                                 enumerate_children_cb,
+	                                 g_object_ref (task));
+
 	g_object_unref (task);
 }
 
