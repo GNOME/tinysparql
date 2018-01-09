@@ -231,6 +231,25 @@ test_file_system_properties (TestCommonContext *fixture,
 	g_assert (ret_value == NULL);
 }
 
+static void
+test_file_system_non_native (TestCommonContext *fixture,
+                             gconstpointer      data)
+{
+	GFile *file, *parent, *child, *other;
+
+	file = g_file_new_for_uri ("foo:///aaa/");
+	parent = tracker_file_system_get_file (fixture->file_system, file,
+	                                       G_FILE_TYPE_DIRECTORY, NULL);
+	g_object_unref (file);
+	g_assert (parent != NULL);
+
+	file = g_file_new_for_uri ("foo:///aaa/bbb");
+	child = tracker_file_system_get_file (fixture->file_system, file,
+	                                      G_FILE_TYPE_DIRECTORY, parent);
+	g_object_unref (file);
+	g_assert (child != NULL);
+}
+
 gint
 main (gint    argc,
       gchar **argv)
@@ -249,6 +268,8 @@ main (gint    argc,
 		  test_file_system_reparenting);
 	test_add ("/libtracker-miner/file-system/file-properties",
 	          test_file_system_properties);
+	test_add ("/libtracker-miner/file-system/non-native",
+	          test_file_system_non_native);
 
 	return g_test_run ();
 }
