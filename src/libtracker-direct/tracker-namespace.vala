@@ -23,7 +23,7 @@
  */
 
 [CCode (cprefix = "TrackerDirect", gir_namespace = "TrackerDirect",
-        gir_version = "1.0", lower_case_cprefix = "tracker_direct_")]
+        gir_version = "2.0", lower_case_cprefix = "tracker_direct_")]
 namespace Tracker
 {
 }

@@ -23,7 +23,7 @@
  */
 
 [CCode (cprefix = "TrackerBus", gir_namespace = "TrackerBus",
-        gir_version = "1.0", lower_case_cprefix = "tracker_bus_")]
+        gir_version = "2.0", lower_case_cprefix = "tracker_bus_")]
 namespace Tracker
 {
 }
