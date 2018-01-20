@@ -173,8 +173,8 @@ if test "x$have_statvfs" = "xyes" ; then
 fi
 
 # Check for defines we expect
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
-#include "stdio.h"
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include "stdio.h"]], [[
 printf ("%s", __FUNCTION__);
    ]])],
    [have_function=yes],
