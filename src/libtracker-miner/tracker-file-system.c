@@ -243,6 +243,7 @@ file_tree_lookup (GNode     *tree,
 
 	if (!G_NODE_IS_ROOT (tree)) {
 		FileNodeData *parent_data;
+		gchar *parent_scheme;
 		gchar *parent_uri;
 
 		parent_data = tree->data;
@@ -256,9 +257,13 @@ file_tree_lookup (GNode     *tree,
 
 		ptr += strlen (parent_uri);
 
-		g_assert (ptr[0] == '/');
-		ptr++;
+		parent_scheme = g_file_get_uri_scheme (parent_data->file);
+		if (g_strcmp0 (parent_scheme, "file") == 0) {
+			g_assert (ptr[0] == '/');
+			ptr++;
+		}
 
+		g_free (parent_scheme);
 		g_free (parent_uri);
 	} else {
 		FileNodeData *root_data;
