@@ -170,15 +170,10 @@ tracker_indexing_tree_set_property (GObject      *object,
                                     const GValue *value,
                                     GParamSpec   *pspec)
 {
-	TrackerIndexingTree *tree;
-	TrackerIndexingTreePrivate *priv;
-
-	tree = TRACKER_INDEXING_TREE (object);
-	priv = tree->priv;
+	TrackerIndexingTree *tree = TRACKER_INDEXING_TREE (object);
 
 	switch (prop_id) {
 	case PROP_ROOT:
-		priv->root = g_value_dup_object (value);
 		break;
 	case PROP_FILTER_HIDDEN:
 		tracker_indexing_tree_set_filter_hidden (tree,
@@ -203,9 +198,7 @@ tracker_indexing_tree_constructed (GObject *object)
 	priv = tree->priv;
 
 	/* Add a shallow root node */
-	if (priv->root == NULL) {
-		priv->root = g_file_new_for_uri ("file:///");
-	}
+	priv->root = g_file_new_for_uri ("file:///");
 
 	data = node_data_new (priv->root, 0);
 	data->shallow = TRUE;
@@ -256,7 +249,9 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 	                                                      "Root URL",
 	                                                      "The root GFile for the indexing tree",
 	                                                      G_TYPE_FILE,
-	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+	                                                      G_PARAM_READWRITE |
+	                                                      G_PARAM_CONSTRUCT_ONLY |
+	                                                      G_PARAM_DEPRECATED));
 
 	g_object_class_install_property (object_class,
 	                                 PROP_FILTER_HIDDEN,
@@ -402,13 +397,12 @@ tracker_indexing_tree_new (void)
  * Returns: a newly allocated #TrackerIndexingTree
  *
  * Since: 1.2.2
+ * Deprecated: 2.0.3: It's no longer possible to specify a different root
  **/
 TrackerIndexingTree *
 tracker_indexing_tree_new_with_root (GFile *root)
 {
-	return g_object_new (TRACKER_TYPE_INDEXING_TREE,
-	                     "root", root,
-	                     NULL);
+	return tracker_indexing_tree_new ();
 }
 
 #ifdef PRINT_INDEXING_TREE
@@ -1143,6 +1137,8 @@ tracker_indexing_tree_get_root (TrackerIndexingTree   *tree,
  * It can be referenced using g_object_ref().
  *
  * Since: 1.2.
+ * Deprecated: 2.0.3: @tree can encapsulate multiple roots - one per
+ * each URI scheme
  **/
 GFile *
 tracker_indexing_tree_get_master_root (TrackerIndexingTree *tree)

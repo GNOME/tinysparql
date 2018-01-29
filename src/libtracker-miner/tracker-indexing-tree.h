@@ -81,6 +81,7 @@ GType                 tracker_indexing_tree_get_type (void) G_GNUC_CONST;
 
 TrackerIndexingTree * tracker_indexing_tree_new      (void);
 
+G_DEPRECATED
 TrackerIndexingTree * tracker_indexing_tree_new_with_root (GFile            *root);
 
 void      tracker_indexing_tree_add                  (TrackerIndexingTree   *tree,
@@ -121,6 +122,8 @@ void                tracker_indexing_tree_set_default_policy (TrackerIndexingTre
 GFile *   tracker_indexing_tree_get_root             (TrackerIndexingTree   *tree,
                                                       GFile                 *file,
                                                       TrackerDirectoryFlags *directory_flags);
+
+G_DEPRECATED
 GFile *   tracker_indexing_tree_get_master_root      (TrackerIndexingTree   *tree);
 
 gboolean  tracker_indexing_tree_file_is_root         (TrackerIndexingTree   *tree,
