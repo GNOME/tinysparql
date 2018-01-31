@@ -878,6 +878,8 @@ fs_finalize (GObject *object)
 					NULL);
 	tracker_priority_queue_unref (priv->items);
 
+	g_object_unref (priv->root);
+
 	if (priv->indexing_tree) {
 		g_object_unref (priv->indexing_tree);
 	}
