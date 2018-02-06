@@ -1,3 +1,15 @@
+NEW in 2.0.3 - 2018-02-07
+=========================
+
+  * build: Improvements in meson support.
+  * build: Remove stale dependencies after Tracker miners split
+  * tests: Many fixes to functional tests
+  * tests: Remove old checks for maemo-specific features
+  * libtracker-miner: Small code improvements.
+  * libtracker-sparql: use gint32 to unpack 'i' GVariant format
+
+Translations: is, nb
+
 NEW in 2.0.2 - 2017-11-14
 =========================
 
