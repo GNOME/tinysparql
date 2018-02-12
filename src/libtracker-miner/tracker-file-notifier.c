@@ -1152,7 +1152,13 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 			                                          file_type,
 			                                          NULL);
 			notifier_queue_root (notifier, canonical, flags);
-			return;
+
+			/* Fall though, even though the folder can be notified
+			 * indirectly through notifier_queue_root(), we want
+			 * ::file-created to be emitted ASAP so it is ensured
+			 * to be processed before any possible monitor events
+			 * we might get afterwards.
+			 */
 		}
 	}
 
