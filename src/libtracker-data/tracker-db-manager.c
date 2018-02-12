@@ -65,6 +65,8 @@
 #define TRACKER_DB_VERSION_FILE       "db-version.txt"
 #define TRACKER_DB_LOCALE_FILE        "db-locale.txt"
 
+#define TRACKER_VACUUM_CHECK_SIZE     ((goffset) 4 * 1024 * 1024 * 1024) /* 4GB */
+
 #define IN_USE_FILENAME               ".meta.isrunning"
 
 #define PARSER_SHA1_FILENAME          "parser-sha1.txt"
@@ -1162,4 +1164,16 @@ tracker_db_manager_tokenizer_update (TrackerDBManager *db_manager)
 	}
 
 	g_free (filename);
+}
+
+void
+tracker_db_manager_check_perform_vacuum (TrackerDBManager *db_manager)
+{
+	TrackerDBInterface *iface;
+
+	if (tracker_file_get_size (db_manager->db.abs_filename) < TRACKER_VACUUM_CHECK_SIZE)
+		return;
+
+	iface = tracker_db_manager_get_writable_db_interface (db_manager);
+	tracker_db_interface_execute_query (iface, NULL, "VACUUM");
 }

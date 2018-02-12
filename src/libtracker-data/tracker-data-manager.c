@@ -4821,7 +4821,7 @@ tracker_data_manager_dispose (GObject *object)
 				g_clear_error (&error);
 			}
 
-			tracker_db_interface_execute_query (iface, NULL, "VACUUM");
+			tracker_db_manager_check_perform_vacuum (manager->db_manager);
 		}
 
 		g_clear_pointer (&manager->db_manager, tracker_db_manager_free);

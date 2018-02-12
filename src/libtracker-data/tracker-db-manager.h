@@ -96,6 +96,8 @@ void                tracker_db_manager_set_current_locale     (TrackerDBManager 
 gboolean            tracker_db_manager_get_tokenizer_changed  (TrackerDBManager      *db_manager);
 void                tracker_db_manager_tokenizer_update       (TrackerDBManager      *db_manager);
 
+void                tracker_db_manager_check_perform_vacuum   (TrackerDBManager      *db_manager);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DB_MANAGER_H__ */
