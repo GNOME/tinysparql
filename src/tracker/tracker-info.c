@@ -282,7 +282,7 @@ info_run (void)
 		gchar *urn = NULL;
 
 		if (!turtle && !resource_is_iri) {
-			g_print ("%s:'%s'\n", _("Querying information for entity"), *p);
+			g_print ("%s: '%s'\n", _("Querying information for entity"), *p);
 		}
 
 		/* support both, URIs and local file paths */
