@@ -1,6 +1,7 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
-examples/rss-reader/rss_viewer.ui
+[encoding: UTF-8]
+[type: gettext/glade]examples/rss-reader/rss_viewer.ui
 src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
 src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in
