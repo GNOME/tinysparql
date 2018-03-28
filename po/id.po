@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
 "product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2018-03-26 15:01+0000\n"
-"PO-Revision-Date: 2018-03-28 22:48+0700\n"
+"POT-Creation-Date: 2018-03-28 15:49+0000\n"
+"PO-Revision-Date: 2018-03-28 22:53+0700\n"
 "Last-Translator: Andika Triwidada <andika@gmail.com>\n"
 "Language-Team: GNOME Indonesian Translation Team <gnome@i15n.org>\n"
 "Language: id\n"
@@ -84,6 +84,86 @@ msgstr[0] " %2.2d menit"
 msgid " %2.2d second"
 msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d detik"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
+msgid "Maximum length of a word to be indexed"
+msgstr "Panjang kata maksimum yang diindeks"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
+msgid ""
+"Words with more characters than this length will be ignored by the indexer."
+msgstr "Kata dengan cacah huruf lebih dari ini akan diabaikan oleh pengindeks."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
+msgid "Maximum number of words to index in a document"
+msgstr "Cacah kata maksimum yang diindeks dalam suatu dokumen"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+msgid ""
+"Indexer will read only this maximum number of words from a single document."
+msgstr ""
+"Pengindeks hanya akan membaca sejumlah maksimum kata ini dari suatu dokumen "
+"tunggal."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
+msgid "Enable stemmer"
+msgstr "Aktifkan stemmer"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+msgid ""
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
+msgstr ""
+"Sederhanakan kata ke akarnya untuk menyediakan lebih banyak hasil. Mis. "
+"\"shelves\" dan \"shelf\" menjadi \"shel\""
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
+msgid "Enable unaccent"
+msgstr "Aktifkan hapus-aksen"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+msgid ""
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
+msgstr ""
+"Terjemahkan karakter beraksen ke tanpa aksen ekuivalennya, mis. \"Idéa\" to "
+"\"Idea\" untuk pencocokan yang lebih baik."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
+msgid "Ignore numbers"
+msgstr "Abaikan bilangan"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
+msgid "If enabled, numbers will not be indexed."
+msgstr "Bila diaktifkan, bilangan tak akan diindeks."
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
+msgid "Ignore stop words"
+msgstr "Abaikan kata henti"
+
+#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+msgid ""
+"If enabled, the words listed in the stop-words list are ignored. E.g. common "
+"words like “the”, “yes”, “no”, etc."
+msgstr ""
+"Bila diaktifkan, kata yang didaftar dalam daftar kata henti akan diabaikan. "
+"Mis. kata umum seperti \"the\", \"yes\", \"no\", dsb."
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
+msgid "Maximum size of journal"
+msgstr "Ukuran maksimum jurnal"
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr "Ukuran jurnal saat rotasi, dalam MB. Pakai -1 untuk mencegah rotasi."
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
+msgid "Location of journal pieces"
+msgstr "Lokasi pecahan jurnal"
+
+#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr "Dimana menyimpan penggalan jurnal ketika mencapai ukuran maks."
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -186,6 +266,26 @@ msgstr "Penyimpanan Tracker"
 #: ../src/tracker-store/tracker-store.desktop.in.in.h:2
 msgid "Metadata database store and lookup manager"
 msgstr "Manajer lookup dan penyimpanan basis data metadata"
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
+msgid "Log verbosity"
+msgstr "Tingkat rincian log"
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
+msgid "Log verbosity."
+msgstr "Tingkat rincian log."
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
+msgid "GraphUpdated delay"
+msgstr "Tundaan GraphUpdated"
+
+#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
+msgstr ""
+"Periode dalam milidetik antara sinyal GraphUpdated dipancarkan ketika data "
+"terindeks telah berubah di dalam basis data."
 
 #: ../src/tracker/tracker-config.c:60
 #, c-format
