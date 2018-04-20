@@ -584,11 +584,10 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * Sets the domain (usually a DBus name or application ID) that
 	 * will be used on on the connection obtained by
 	 * tracker_sparql_connection_get(). See the "Isolating tracker-store
-	 * clients" section in this library docs.
+	 * clients" section in the docs for this library.
 	 *
-	 * This function must be called
-	 * before any of these such tracker_sparql_connection_get() calls
-	 * could happen.
+	 * This function must be called before any tracker_sparql_connection_get()
+	 * calls happen.
 	 *
 	 * Since: 2.0
 	 */
