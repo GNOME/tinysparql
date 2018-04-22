@@ -50,7 +50,9 @@ tracker_sparql_generated_header = custom_target('tracker-sparql-generated-header
     #
     output: 'tracker-generated.h',
     command: [join_paths(meson.current_source_dir(), 'tracker-sparql-add-include-guards.sh'), join_paths(meson.current_build_dir(), 'tracker-generated-no-checks.h'), '@OUTPUT@'],
-    depends: libtracker_sparql_intermediate_vala)
+    depends: libtracker_sparql_intermediate_vala,
+    install: true,
+    install_dir: join_paths(get_option('prefix'), get_option('includedir'), 'tracker-@0@'.format(tracker_api_version), 'libtracker-sparql'))
 
 # Now build the C parts ...
 
@@ -94,12 +96,6 @@ install_headers(
     'tracker-ontologies.h',
     'tracker-sparql.h',
     subdir: 'tracker-@0@/libtracker-sparql'.format(tracker_api_version))
-
-# FIXME: we need a custom script to install generated Vala headers; see
-# <https://github.com/mesonbuild/meson/issues/705>.
-meson.add_install_script('../install-generated-header.sh',
-    join_paths(meson.current_build_dir(), 'tracker-generated.h'),
-    join_paths(get_option('prefix'), get_option('includedir'), 'tracker-@0@'.format(tracker_api_version), 'libtracker-sparql'))
 
 # FIXME: we can't depend properly on the generated .vapi to do this.
 custom_target('tracker-sparql-' + tracker_api_version + '.vapi',
