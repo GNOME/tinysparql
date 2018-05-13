@@ -488,7 +488,7 @@ get_all_tags (TrackerSparqlConnection *connection,
 	 * logical OR for FILTER, well, tags can't have
 	 * multiple labels is the simple answer.
 	 */
-	query = g_strdup_printf ("SELECT ?tag ?label nao:description(?tag) COUNT(?urns) AS urns "
+	query = g_strdup_printf ("SELECT ?tag ?label nao:description(?tag) COUNT(?urns) "
 	                         "WHERE {"
 	                         "  ?tag a nao:Tag ;"
 	                         "  nao:prefLabel ?label ."
