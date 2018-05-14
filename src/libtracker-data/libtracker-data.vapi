@@ -63,7 +63,7 @@ namespace Tracker {
 	[CCode (cheader_filename = "libtracker-data/tracker-db-interface.h")]
 	public interface DBInterface : GLib.Object {
 		[PrintfFormat]
-		public abstract DBStatement create_statement (DBStatementCacheType cache_type, ...) throws DBInterfaceError;
+		public DBStatement create_statement (DBStatementCacheType cache_type, ...) throws DBInterfaceError;
 		[PrintfFormat]
 		public void execute_query (...) throws DBInterfaceError;
 		[CCode (cheader_filename = "libtracker-data/tracker-db-interface-sqlite.h")]
