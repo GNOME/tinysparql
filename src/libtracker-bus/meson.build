@@ -4,7 +4,7 @@ libtracker_bus = static_library('tracker-bus',
     'tracker-array-cursor.vala',
     'tracker-bus-fd-cursor.vala',
     '../libtracker-common/libtracker-common.vapi',
-    tracker_common_enum_header, tracker_common_parser_sha1_header,
+    tracker_common_enum_header,
     c_args: tracker_c_args,
     vala_args: [
         '--debug',

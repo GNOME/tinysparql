@@ -34,7 +34,7 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-common.h>
-#include <libtracker-common/tracker-parser-sha1.h>
+#include <libtracker-common/tracker-parser.h>
 
 #if HAVE_TRACKER_FTS
 #include <libtracker-fts/tracker-fts.h>
@@ -69,7 +69,10 @@
 
 #define IN_USE_FILENAME               ".meta.isrunning"
 
-#define PARSER_SHA1_FILENAME          "parser-sha1.txt"
+#define PARSER_VERSION_FILENAME       "parser-version.txt"
+
+#define TOSTR(x) #x
+#define TRACKER_PARSER_VERSION_STRING TOSTR(TRACKER_PARSER_VERSION)
 
 typedef enum {
 	TRACKER_DB_VERSION_UNKNOWN, /* Unknown */
@@ -1121,10 +1124,10 @@ tracker_db_manager_has_enough_space (TrackerDBManager *db_manager)
 }
 
 inline static gchar *
-get_parser_sha1_filename (TrackerDBManager *db_manager)
+get_parser_version_filename (TrackerDBManager *db_manager)
 {
 	return g_build_filename (db_manager->data_dir,
-	                         PARSER_SHA1_FILENAME,
+	                         PARSER_VERSION_FILENAME,
 	                         NULL);
 }
 
@@ -1132,14 +1135,14 @@ get_parser_sha1_filename (TrackerDBManager *db_manager)
 gboolean
 tracker_db_manager_get_tokenizer_changed (TrackerDBManager *db_manager)
 {
-	gchar *filename, *sha1;
+	gchar *filename, *version;
 	gboolean changed = TRUE;
 
-	filename = get_parser_sha1_filename (db_manager);
+	filename = get_parser_version_filename (db_manager);
 
-	if (g_file_get_contents (filename, &sha1, NULL, NULL)) {
-		changed = strcmp (sha1, TRACKER_PARSER_SHA1) != 0;
-		g_free (sha1);
+	if (g_file_get_contents (filename, &version, NULL, NULL)) {
+		changed = strcmp (version, TRACKER_PARSER_VERSION_STRING) != 0;
+		g_free (version);
 	}
 
 	g_free (filename);
@@ -1153,9 +1156,9 @@ tracker_db_manager_tokenizer_update (TrackerDBManager *db_manager)
 	GError *error = NULL;
 	gchar *filename;
 
-	filename = get_parser_sha1_filename (db_manager);
+	filename = get_parser_version_filename (db_manager);
 
-	if (!g_file_set_contents (filename, TRACKER_PARSER_SHA1, -1, &error)) {
+	if (!g_file_set_contents (filename, TRACKER_PARSER_VERSION_STRING, -1, &error)) {
 		g_warning ("The file '%s' could not be rewritten by Tracker and "
 		           "should be deleted manually. Not doing so will result "
 		           "in Tracker rebuilding its FTS tokens on every startup. "

@@ -19,5 +19,4 @@ SUBDIRS =                                              \
 	tracker-store
 
 EXTRA_DIST = \
-	meson.build \
-	install-generated-header.sh
+	meson.build

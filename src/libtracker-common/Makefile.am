@@ -13,9 +13,6 @@ TRACKER_PARSER_FILES =                \
 	tracker-parser-libicu.c       \
 	tracker-parser-libunistring.c
 
-tracker-parser-sha1.h: $(TRACKER_PARSER_FILES)
-	$(AM_V_GEN) echo $(ECHO_N) "#define TRACKER_PARSER_SHA1 \""`git log -n1 --format=format:%H -- $^`"\"$(ECHO_C)" > $@
-
 libtracker_commondir = $(libdir)/tracker-$(TRACKER_API_VERSION)
 libtracker_common_LTLIBRARIES = libtracker-common.la
 
@@ -73,7 +70,6 @@ tracker-enum-types.c: tracker-enum-types.c.template tracker-enums.h
 
 
 BUILT_SOURCES =	                                       \
-	tracker-parser-sha1.h                          \
 	tracker-enum-types.c                           \
 	tracker-enum-types.h
 
@@ -82,9 +78,7 @@ CLEANFILES =                                           \
 	tracker-enum-types.h
 
 EXTRA_DIST =                                           \
-	tracker-parser-sha1.h                          \
 	libtracker-common.vapi                         \
 	tracker-enum-types.c.template                  \
 	tracker-enum-types.h.template                  \
-	generate-tracker-parser-sha1-header.sh         \
 	meson.build

@@ -25,6 +25,13 @@
 
 #include <libtracker-common/tracker-language.h>
 
+/* This version MUST be bumped on any change to any tracker-parser-*
+ * file. Given the parser output gets both stored in disk and performed
+ * at runtime, the former must be rebuilt for those to match perfectly
+ * to avoid returning meaningless results on FTS searches.
+ */
+#define TRACKER_PARSER_VERSION 1
+
 G_BEGIN_DECLS
 
 typedef struct TrackerParser TrackerParser;
