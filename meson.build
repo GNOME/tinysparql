@@ -14,7 +14,9 @@ glib_required = '2.40.0'
 # 3.6.17 for shared cache mode with virtual tables
 # 3.7.0 for WAL
 # 3.7.9 for FTS4 content= support
-sqlite_required = '3.7.9'
+# 3.7.15 for sqlite3_errstr() support
+# 3.8.3 for SQLITE_DETERMINISTIC
+sqlite_required = '3.8.3'
 
 dbus = dependency('dbus-1', version: '> 1.3.1')
 gio = dependency('gio-2.0', version: '>' + glib_required)
