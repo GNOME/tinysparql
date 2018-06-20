@@ -65,6 +65,7 @@ typedef struct {
 	guint files_found;
 	guint files_ignored;
 	guint current_dir_content_filtered : 1;
+	guint ignore_root                  : 1;
 } RootData;
 
 typedef struct {
@@ -161,7 +162,8 @@ tracker_file_notifier_get_property (GObject    *object,
 static RootData *
 root_data_new (TrackerFileNotifier *notifier,
                GFile               *file,
-               guint                flags)
+               guint                flags,
+               gboolean             ignore_root)
 {
 	RootData *data;
 
@@ -170,6 +172,7 @@ root_data_new (TrackerFileNotifier *notifier,
 	data->pending_dirs = g_queue_new ();
 	data->query_files = g_ptr_array_new_with_free_func (g_object_unref);
 	data->flags = flags;
+	data->ignore_root = ignore_root;
 
 	g_queue_push_tail (data->pending_dirs, g_object_ref (file));
 
@@ -295,7 +298,8 @@ file_notifier_traverse_tree_foreach (GFile    *file,
 	 * it here again.
 	 */
 	if (current_root == file &&
-	    current_root != priv->current_index_root->root) {
+	    (current_root != priv->current_index_root->root ||
+	     priv->current_index_root->ignore_root)) {
 		g_free (store_mtime);
 		g_free (disk_mtime);
 		return FALSE;
@@ -1024,7 +1028,8 @@ find_directory_root (RootData *data,
 static void
 notifier_queue_root (TrackerFileNotifier   *notifier,
                      GFile                 *file,
-                     TrackerDirectoryFlags  flags)
+                     TrackerDirectoryFlags  flags,
+                     gboolean               ignore_root)
 {
 	TrackerFileNotifierPrivate *priv = notifier->priv;
 	RootData *data;
@@ -1037,7 +1042,7 @@ notifier_queue_root (TrackerFileNotifier   *notifier,
 	                        (GCompareFunc) find_directory_root))
 		return;
 
-	data = root_data_new (notifier, file, flags);
+	data = root_data_new (notifier, file, flags, ignore_root);
 
 	if (flags & TRACKER_DIRECTORY_FLAG_PRIORITY) {
 		priv->pending_index_roots = g_list_prepend (priv->pending_index_roots, data);
@@ -1151,13 +1156,11 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 			                                          file,
 			                                          file_type,
 			                                          NULL);
-			notifier_queue_root (notifier, canonical, flags);
+			notifier_queue_root (notifier, canonical, flags, TRUE);
 
-			/* Fall though, even though the folder can be notified
-			 * indirectly through notifier_queue_root(), we want
-			 * ::file-created to be emitted ASAP so it is ensured
-			 * to be processed before any possible monitor events
-			 * we might get afterwards.
+			/* Fall though, we want ::file-created to be emitted
+			 * ASAP so it is ensured to be processed before any
+			 * possible monitor events we might get afterwards.
 			 */
 		}
 	}
@@ -1293,7 +1296,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 			                                     NULL);
 			tracker_indexing_tree_get_root (priv->indexing_tree,
 							file, &flags);
-			notifier_queue_root (notifier, file, flags);
+			notifier_queue_root (notifier, file, flags, FALSE);
 			return;
 		}
 	}
@@ -1345,7 +1348,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			                                           other_file,
 			                                           G_FILE_TYPE_DIRECTORY,
 			                                           NULL);
-			notifier_queue_root (notifier, other_file, flags);
+			notifier_queue_root (notifier, other_file, flags, FALSE);
 		}
 		/* else, file, do nothing */
 	} else {
@@ -1402,7 +1405,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 					g_signal_emit (notifier, signals[FILE_CREATED], 0, other_file);
 				} else if (is_directory) {
 					/* Crawl dest directory */
-					notifier_queue_root (notifier, other_file, flags);
+					notifier_queue_root (notifier, other_file, flags, FALSE);
 				}
 			}
 			/* Else, do nothing else */
@@ -1437,7 +1440,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 					 */
 				} else if (!source_is_recursive && dest_is_recursive) {
 					/* crawl the folder */
-					notifier_queue_root (notifier, other_file, flags);
+					notifier_queue_root (notifier, other_file, flags, TRUE);
 				}
 			}
 
@@ -1471,7 +1474,7 @@ indexing_tree_directory_added (TrackerIndexingTree *indexing_tree,
 
 	directory = tracker_file_system_get_file (priv->file_system, directory,
 	                                          G_FILE_TYPE_DIRECTORY, NULL);
-	notifier_queue_root (notifier, directory, flags);
+	notifier_queue_root (notifier, directory, flags, FALSE);
 }
 
 static void
@@ -1488,7 +1491,7 @@ indexing_tree_directory_updated (TrackerIndexingTree *indexing_tree,
 
 	directory = tracker_file_system_get_file (priv->file_system, directory,
 	                                          G_FILE_TYPE_DIRECTORY, NULL);
-	notifier_queue_root (notifier, directory, flags);
+	notifier_queue_root (notifier, directory, flags, FALSE);
 }
 
 static void
@@ -1526,7 +1529,7 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 			                                &parent_flags);
 
 			if (parent_flags & TRACKER_DIRECTORY_FLAG_RECURSE) {
-				notifier_queue_root (notifier, directory, parent_flags);
+				notifier_queue_root (notifier, directory, parent_flags, FALSE);
 			} else if (tracker_indexing_tree_file_is_root (indexing_tree,
 			                                               parent)) {
 				g_signal_emit (notifier, signals[FILE_CREATED],
@@ -1601,7 +1604,7 @@ indexing_tree_child_updated (TrackerIndexingTree *indexing_tree,
 	    (flags & TRACKER_DIRECTORY_FLAG_RECURSE)) {
 		flags |= TRACKER_DIRECTORY_FLAG_CHECK_DELETED;
 
-		notifier_queue_root (notifier, canonical, flags);
+		notifier_queue_root (notifier, canonical, flags, FALSE);
 	} else if (tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
 	                                                    canonical, child_type)) {
 		g_signal_emit (notifier, signals[FILE_UPDATED], 0, canonical, FALSE);
