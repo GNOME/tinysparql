@@ -1322,6 +1322,28 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	g_object_unref (canonical);
 }
 
+static gboolean
+extension_changed (GFile *file1,
+                   GFile *file2)
+{
+	gchar *basename1, *basename2;
+	const gchar *ext1, *ext2;
+	gboolean changed;
+
+	basename1 = g_file_get_basename (file1);
+	basename2 = g_file_get_basename (file2);
+
+	ext1 = strrchr (basename1, '.');
+	ext2 = strrchr (basename2, '.');
+
+	changed = g_strcmp0 (ext1, ext2) != 0;
+
+	g_free (basename1);
+	g_free (basename2);
+
+	return changed;
+}
+
 static void
 monitor_item_moved_cb (TrackerMonitor *monitor,
                        GFile          *file,
@@ -1445,6 +1467,9 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 			}
 
 			g_signal_emit (notifier, signals[FILE_MOVED], 0, file, other_file);
+
+			if (extension_changed (file, other_file))
+				g_signal_emit (notifier, signals[FILE_UPDATED], 0, other_file, FALSE);
 		}
 
 		tracker_file_system_forget_files (priv->file_system, file,
