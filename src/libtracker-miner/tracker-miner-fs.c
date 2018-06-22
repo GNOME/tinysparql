@@ -140,7 +140,8 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
 #define TRACKER_MINER_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFSPrivate))
 
 typedef struct {
-	TrackerMinerFSEventType type;
+	guint16 type;
+	guint attributes_update : 1;
 	GFile *file;
 	GFile *dest_file;
 } QueueEvent;
@@ -176,7 +177,6 @@ struct _TrackerMinerFSPrivate {
 
 	/* File properties */
 	GQuark quark_recursive_removal;
-	GQuark quark_attribute_updated;
 
 	/* Properties */
 	gdouble throttle;
@@ -605,7 +605,6 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 	                  G_CALLBACK (task_pool_limit_reached_notify_cb), object);
 
 	priv->quark_recursive_removal = g_quark_from_static_string ("tracker-recursive-removal");
-	priv->quark_attribute_updated = g_quark_from_static_string ("tracker-attribute-updated");
 
 	priv->roots_to_notify = g_hash_table_new_full (g_file_hash,
 	                                               (GEqualFunc) g_file_equal,
@@ -795,7 +794,10 @@ queue_event_coalesce (const QueueEvent  *first,
 	} else if (first->type == TRACKER_MINER_FS_EVENT_UPDATED) {
 		if (second->type == TRACKER_MINER_FS_EVENT_UPDATED &&
 		    first->file == second->file) {
-			return QUEUE_ACTION_DELETE_SECOND;
+			if (first->attributes_update && !second->attributes_update)
+				return QUEUE_ACTION_DELETE_FIRST;
+			else
+				return QUEUE_ACTION_DELETE_SECOND;
 		} else if (second->type == TRACKER_MINER_FS_EVENT_DELETED &&
 			   first->file == second->file) {
 			return QUEUE_ACTION_DELETE_FIRST;
@@ -1325,16 +1327,11 @@ on_signal_gtask_complete (GObject      *source,
 		fs->priv->total_files_notified++;
 
 		if (ctxt->urn) {
-			gboolean attribute_update_only;
-
 			/* The SPARQL builder will already contain the necessary
 			 * DELETE statements for the properties being updated */
-			attribute_update_only = GPOINTER_TO_INT (g_object_steal_qdata (G_OBJECT (file), fs->priv->quark_attribute_updated));
-			g_debug ("Updating item '%s' with urn '%s'%s",
+			g_debug ("Updating item '%s' with urn '%s'",
 			         uri,
-			         ctxt->urn,
-			         attribute_update_only ? " (attributes only)" : "");
-
+			         ctxt->urn);
 		} else {
 			g_debug ("Creating new item '%s'", uri);
 		}
@@ -1394,13 +1391,13 @@ on_signal_gtask_complete (GObject      *source,
 static gboolean
 item_add_or_update (TrackerMinerFS *fs,
                     GFile          *file,
-                    gint            priority)
+                    gint            priority,
+                    gboolean        attributes_update)
 {
 	TrackerMinerFSPrivate *priv;
 	UpdateProcessingTaskContext *ctxt;
 	GCancellable *cancellable;
 	gboolean processing;
-	gboolean attribute_update_only;
 	TrackerTask *task;
 	const gchar *urn;
 	gchar *uri;
@@ -1429,11 +1426,9 @@ item_add_or_update (TrackerMinerFS *fs,
 	/* Call ::process-file to see if we handle this resource or not */
 	uri = g_file_get_uri (file);
 
-	attribute_update_only = GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (file), priv->quark_attribute_updated));
-
 	gtask = g_task_new (fs, ctxt->cancellable, on_signal_gtask_complete, file);
 
-	if (!attribute_update_only) {
+	if (!attributes_update) {
 		g_debug ("Processing file '%s'...", uri);
 		g_signal_emit (fs, signals[PROCESS_FILE], 0,
 		               file, gtask,
@@ -1450,8 +1445,7 @@ item_add_or_update (TrackerMinerFS *fs,
 
 		error = g_error_new (tracker_miner_fs_error_quark (),
 				     TRACKER_MINER_FS_ERROR_INIT,
-				     "TrackerMinerFS::%s returned FALSE",
-				     attribute_update_only ? "process-file-attributes" : "process-file");
+				     "TrackerMinerFS::process-file returned FALSE");
 		g_task_return_error (gtask, error);
 	} else {
 		fs->priv->total_files_processed++;
@@ -1556,7 +1550,7 @@ item_move (TrackerMinerFS *fs,
 		g_debug ("Source file '%s' not yet in store, indexing '%s' "
 		         "from scratch", source_uri, uri);
 
-		retval = item_add_or_update (fs, file, G_PRIORITY_DEFAULT);
+		retval = item_add_or_update (fs, file, G_PRIORITY_DEFAULT, FALSE);
 
 		g_free (source_uri);
 		g_free (uri);
@@ -1644,8 +1638,9 @@ static gboolean
 item_queue_get_next_file (TrackerMinerFS           *fs,
                           GFile                   **file,
                           GFile                   **source_file,
-			  TrackerMinerFSEventType  *type,
-                          gint                     *priority_out)
+                          TrackerMinerFSEventType  *type,
+                          gint                     *priority_out,
+                          gboolean                 *attributes_update)
 {
 	QueueEvent *event;
 	gint priority;
@@ -1684,6 +1679,7 @@ item_queue_get_next_file (TrackerMinerFS           *fs,
 
 		*type = event->type;
 		*priority_out = priority;
+		*attributes_update = event->attributes_update;
 
 		queue_event_free (event);
 		tracker_priority_queue_pop (fs->priv->items, NULL);
@@ -1732,6 +1728,7 @@ miner_handle_next_item (TrackerMinerFS *fs)
 	GTimeVal time_now;
 	static GTimeVal time_last = { 0 };
 	gboolean keep_processing = TRUE;
+	gboolean attributes_update = FALSE;
 	TrackerMinerFSEventType type;
 	gint priority = 0;
 
@@ -1745,7 +1742,7 @@ miner_handle_next_item (TrackerMinerFS *fs)
 		return FALSE;
 	}
 
-	if (!item_queue_get_next_file (fs, &file, &source_file, &type, &priority)) {
+	if (!item_queue_get_next_file (fs, &file, &source_file, &type, &priority, &attributes_update)) {
 		/* We should flush the processing pool buffer here, because
 		 * if there was a previous task on the same file we want to
 		 * process now, we want it to get finished before we can go
@@ -1883,7 +1880,7 @@ miner_handle_next_item (TrackerMinerFS *fs)
 		    tracker_indexing_tree_file_is_root (fs->priv->indexing_tree, file) ||
 		    !tracker_indexing_tree_get_root (fs->priv->indexing_tree, file, NULL) ||
 		    tracker_file_notifier_get_file_iri (fs->priv->file_notifier, parent, TRUE)) {
-			keep_processing = item_add_or_update (fs, file, priority);
+			keep_processing = item_add_or_update (fs, file, priority, attributes_update);
 		} else {
 			gchar *uri;
 
@@ -2169,13 +2166,8 @@ file_notifier_file_updated (TrackerFileNotifier  *notifier,
 	    filter_event (fs, TRACKER_MINER_FS_EVENT_UPDATED, file, NULL))
 		return;
 
-	if (attributes_only) {
-		g_object_set_qdata (G_OBJECT (file),
-				    fs->priv->quark_attribute_updated,
-				    GINT_TO_POINTER (TRUE));
-	}
-
 	event = queue_event_new (TRACKER_MINER_FS_EVENT_UPDATED, file);
+	event->attributes_update = attributes_only;
 	miner_fs_queue_event (fs, event, miner_fs_get_queue_priority (fs, file));
 }
 
