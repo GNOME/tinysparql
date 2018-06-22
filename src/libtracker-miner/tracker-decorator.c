@@ -499,9 +499,6 @@ decorator_finish (TrackerDecorator *decorator)
 {
 	TrackerDecoratorPrivate *priv = decorator->priv;
 
-	if (!priv->processing)
-		return;
-
 	priv->processing = FALSE;
 	priv->n_remaining_items = priv->n_processed_items = 0;
 	g_signal_emit (decorator, signals[FINISHED], 0);
