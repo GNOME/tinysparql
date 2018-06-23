@@ -6,6 +6,9 @@ test_c_args = [
   '-DTEST_ONTOLOGIES_DIR="@0@/src/ontologies/nepomuk"'.format(meson.source_root()),
 ]
 
+environment = environment()
+environment.set('TRACKER_LANGUAGE_STOP_WORDS_DIR', '@0@/src/libtracker-common/stop-words'.format(meson.source_root()))
+
 crawler_test = executable('tracker-crawler-test',
   'tracker-crawler-test.c',
   shared_libtracker_miner_crawler_sources,
@@ -19,7 +22,8 @@ file_notifier_test = executable('tracker-file-notifier-test',
   dependencies: [tracker_common_dep, tracker_miner_dep, tracker_sparql_dep],
   c_args: test_c_args
 )
-test('miner-file-notifier', file_notifier_test)
+test('miner-file-notifier', file_notifier_test,
+     env: environment)
 
 file_system_test = executable('tracker-file-system-test',
   'tracker-file-system-test.c',
