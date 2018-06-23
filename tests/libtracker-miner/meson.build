@@ -3,7 +3,7 @@ test_c_args = [
   '-DTEST',
   '-DTEST_DATA_DIR="@0@/data"'.format(meson.current_source_dir()),
   '-DTEST_MINERS_DIR="@0@/mock-miners"'.format(meson.current_source_dir()),
-  '-DTEST_ONTOLOGIES_DIR="@0@/src/ontologies/nepomuk"'.format(meson.current_source_dir()),
+  '-DTEST_ONTOLOGIES_DIR="@0@/src/ontologies/nepomuk"'.format(meson.source_root()),
 ]
 
 crawler_test = executable('tracker-crawler-test',
