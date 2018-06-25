@@ -1,3 +1,18 @@
+NEW in 2.0.4 - 2018-06-25
+=========================
+
+  * libtracker-miner: Fix event emission order of the root folder when
+    a recursive directory is found through monitor events.
+  * libtracker-data: Perform VACUUM only past a database file size limit
+  * libtracker-miner: Improvements to attribute-only update handling
+  * build: Improvements in meson support
+  * build: Fix build with --disable-fts
+  * build: Drop automatic versioning of parser files, only showstopper
+    for meson adoption
+  * build: Fixes when building tracker-miners as subproject
+  * build: Vala compiler warning fixes
+  * build: Update sqlite dep to reflect practical reality
+
 NEW in 2.0.3 - 2018-02-07
 =========================
 
