@@ -89,12 +89,29 @@ if enable_fts
     }
   '''
 
-  sqlite3_has_builtin_fts5 = cc.compiles(sqlite3_builtin_fts5_test,
-    name: 'sqlite3 has builtin FTS5 module')
+  result = cc.run(sqlite3_builtin_fts5_test,
+    name: 'sqlite3 has builtin FTS5 module',
+    dependencies: sqlite)
 
-  if not sqlite3_has_builtin_fts5 and sqlite.version() >= '3.20.0'
-    error('sqlite3 >= 3.20.0 must be compiled with --enable-fts5')
+  if not result.compiled()
+    error('Failed to compile SQLite FTS test.')
   endif
+
+  if result.returncode() == 0
+    message('Using sqlite3 builtin FTS module')
+    sqlite3_has_builtin_fts5 = true
+  else
+    message('FTS support was enabled but SQLite doesn\'t have the FTS module built in')
+    if sqlite.version().version_compare('>= 3.20.0')
+      error('sqlite3 >= 3.20.0 must be compiled with --enable-fts5 in order to get FTS support.')
+    else
+      message('sqlite3 is older than version 3.20.0, using FTS module that is bundled with Tracker')
+      sqlite3_has_builtin_fts5 = false
+    endif
+  endif
+
+else
+  sqlite3_has_builtin_fts5 = false
 endif
 
 ##################################################################
