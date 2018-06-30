@@ -16,7 +16,9 @@ libtracker_fts = static_library('tracker-fts',
 )
 
 tracker_fts_dep = declare_dependency(
-    link_with: libtracker_fts,
+    # We need link_whole instead of link_with here so that sqlite3_fts5_init()
+    # doesn't get discarded.
+    link_whole: libtracker_fts,
     dependencies: libtracker_fts_dependencies
 )
 
