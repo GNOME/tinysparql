@@ -6,7 +6,7 @@ endif
 
 libtracker_fts_dependencies = [sqlite]
 
-libtracker_fts = static_library('libtracker-fts',
+libtracker_fts = static_library('tracker-fts',
     'tracker-fts.c',
     'tracker-fts-config.c',
     'tracker-fts-tokenizer.c',
