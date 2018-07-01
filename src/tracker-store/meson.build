@@ -18,7 +18,7 @@ tracker_store_sources = [
     '../libtracker-data/libtracker-data.vapi',
 ]
 
-executable('tracker-store',
+tracker_store = executable('tracker-store',
     tracker_store_sources,
     c_args: tracker_c_args + [
         '-include', 'config.h'
