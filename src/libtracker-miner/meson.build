@@ -62,6 +62,7 @@ libtracker_miner = library(
     'tracker-miner-' + tracker_api_version,
     miner_enums[0], miner_enums[1], miner_sources,
     c_args: tracker_c_args,
+    soversion: soversion,
     install: true,
     install_rpath: tracker_internal_libs_dir,
     # This doesn't depend on tracker_common_dep because of

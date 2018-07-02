@@ -7,6 +7,11 @@ cc = meson.get_compiler('c')
 # This is the X.Y used in -llibtracker-FOO-X.Y
 tracker_api_version = '2.0'
 
+# This the .Z used in libtracker-sparql-2.0.so.Z
+# This version number is redundant, but it's needed for programs that build
+# with libtool to be able to link against our libraries.
+soversion = 0
+
 glib_required = '2.40.0'
 
 # 3.6.11 for sqlite_backup API

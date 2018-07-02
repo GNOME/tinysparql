@@ -2,6 +2,8 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
     '../libtracker-common/libtracker-common.vapi',
     'tracker-backend.vala',
 
+    soversion: soversion,
+
     install: true,
     install_rpath: tracker_internal_libs_dir,
 
