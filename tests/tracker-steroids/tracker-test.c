@@ -32,10 +32,14 @@ typedef struct {
 	const gchar *query;
 } AsyncData;
 
+typedef struct {
+} DataFixture;
+
 static TrackerSparqlConnection *connection;
 
 static void
-delete_test_data ()
+delete_test_data (DataFixture   *fixture,
+		  gconstpointer *user_data)
 {
 	GError *error = NULL;
 	const char *delete_query = "DELETE { "
@@ -50,14 +54,15 @@ delete_test_data ()
 }
 
 static void
-insert_test_data ()
+insert_test_data (DataFixture   *fixture,
+		  gconstpointer *user_data)
 {
 	GError *error = NULL;
 	char *longName = g_malloc (LONG_NAME_SIZE);
 	char *filled_query;
 
 	/* Ensure data is deleted */
-	delete_test_data ();
+	delete_test_data (fixture, user_data);
 
 	memset (longName, 'a', LONG_NAME_SIZE);
 
@@ -698,30 +703,46 @@ main (gint argc, gchar **argv)
 
 	connection = tracker_sparql_connection_get (NULL, NULL);
 
-	insert_test_data ();
-
-	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate", test_tracker_sparql_query_iterate);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_largerow", test_tracker_sparql_query_iterate_largerow);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_error", test_tracker_sparql_query_iterate_error);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_empty", test_tracker_sparql_query_iterate_empty);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_empty/subprocess", test_tracker_sparql_query_iterate_empty_subprocess);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_sigpipe", test_tracker_sparql_query_iterate_sigpipe);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_update_fast_small", test_tracker_sparql_update_fast_small);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_update_fast_large", test_tracker_sparql_update_fast_large);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_update_fast_error", test_tracker_sparql_update_fast_error);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_update_blank_fast_small", test_tracker_sparql_update_blank_fast_small);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_update_blank_fast_large", test_tracker_sparql_update_blank_fast_large);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_update_blank_fast_error", test_tracker_sparql_update_blank_fast_error);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_update_blank_fast_no_blanks", test_tracker_sparql_update_blank_fast_no_blanks);
-	g_test_add_func ("/steroids/tracker/tracker_batch_sparql_update_fast", test_tracker_batch_sparql_update_fast);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_async", test_tracker_sparql_query_iterate_async);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_query_iterate_async_cancel", test_tracker_sparql_query_iterate_async_cancel);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_update_async", test_tracker_sparql_update_async);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_update_async_cancel", test_tracker_sparql_update_async_cancel);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_update_blank_async", test_tracker_sparql_update_blank_async);
-	g_test_add_func ("/steroids/tracker/tracker_sparql_update_array_async", test_tracker_sparql_update_array_async);
-
-	delete_test_data ();
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_query_iterate, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_largerow", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_query_iterate_largerow, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_error", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_query_iterate_error, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_empty", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_query_iterate_empty, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_empty/subprocess", DataFixture, NULL,
+			insert_test_data, test_tracker_sparql_query_iterate_empty_subprocess, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_sigpipe", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_query_iterate_sigpipe, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_fast_small", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_fast_small, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_fast_large", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_fast_large, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_fast_error", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_fast_error, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_small", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_blank_fast_small, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_large", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_blank_fast_large, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_error", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_blank_fast_error, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_no_blanks", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_blank_fast_no_blanks, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_batch_sparql_update_fast", DataFixture, NULL, insert_test_data,
+			test_tracker_batch_sparql_update_fast, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_async", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_query_iterate_async, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_async_cancel", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_query_iterate_async_cancel, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_async", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_async, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_async_cancel", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_async_cancel, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_async", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_blank_async, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_array_async", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_array_async, delete_test_data);
 
 	return g_test_run ();
 }
