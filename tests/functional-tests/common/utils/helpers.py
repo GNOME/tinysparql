@@ -74,7 +74,7 @@ class Helper:
         def new_hook(etype, evalue, etb):
             old_hook(etype, evalue, etb)
             GLib.MainLoop.quit(loop)
-            sys.exit()
+            sys.exit(1)
         sys.excepthook = new_hook
 
     def _start_process (self):
