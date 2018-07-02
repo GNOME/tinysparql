@@ -87,7 +87,7 @@ class Helper:
 
         if not options.is_verbose ():
             FNULL = open ('/dev/null', 'w')
-            kws = { 'stdout': FNULL, 'stderr': FNULL }
+            kws = { 'stdout': FNULL, 'stderr': subprocess.PIPE }
 
         command = [path] + flags
         log ("Starting %s" % ' '.join(command))
@@ -120,7 +120,8 @@ class Helper:
             return True    # continue
         else:
             self.process_watch_timeout = 0
-            raise Exception("%s exited with status: %i" % (self.PROCESS_NAME, status))
+            error = self.process.stderr.read()
+            raise RuntimeError("%s exited with status: %i\n%s" % (self.PROCESS_NAME, status, error))
 
     def _timeout_on_idle_cb (self):
         log ("[%s] Timeout waiting... asumming idle." % self.PROCESS_NAME)
