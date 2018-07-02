@@ -297,7 +297,7 @@ tracker_domain_ontology_initable_init (GInitable     *initable,
 	TrackerDomainOntologyPrivate *priv;
 	GError *inner_error = NULL;
 	GKeyFile *key_file = NULL;
-	gchar *path;
+	gchar *path, *path_for_tests;
 
 	domain_ontology = TRACKER_DOMAIN_ONTOLOGY (initable);
 	priv = tracker_domain_ontology_get_instance_private (domain_ontology);
@@ -318,8 +318,14 @@ tracker_domain_ontology_initable_init (GInitable     *initable,
 
 		if (!g_file_test (path, G_FILE_TEST_IS_REGULAR)) {
 			/* This is only for uninstalled tests */
+			path_for_tests = g_strdup (g_getenv ("TRACKER_TEST_DOMAIN_ONTOLOGY_RULE"));
+
+			if (path_for_tests == NULL) {
+				g_error ("Unable to find default domain ontology rule %s", path);
+			}
+
 			g_free (path);
-			path = g_strdup (g_getenv ("TRACKER_TEST_DOMAIN_ONTOLOGY_RULE"));
+			path = path_for_tests;
 		}
 	}
 
