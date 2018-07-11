@@ -39,7 +39,7 @@ static TrackerSparqlConnection *connection;
 
 static void
 delete_test_data (DataFixture   *fixture,
-		  gconstpointer *user_data)
+                  gconstpointer  user_data)
 {
 	GError *error = NULL;
 	const char *delete_query = "DELETE { "
@@ -55,7 +55,7 @@ delete_test_data (DataFixture   *fixture,
 
 static void
 insert_test_data (DataFixture   *fixture,
-		  gconstpointer *user_data)
+                  gconstpointer  user_data)
 {
 	GError *error = NULL;
 	char *longName = g_malloc (LONG_NAME_SIZE);
@@ -187,19 +187,23 @@ query_and_compare_results (const char *query)
 }
 
 static void
-test_tracker_sparql_query_iterate () {
+test_tracker_sparql_query_iterate (DataFixture  *fixture,
+                                   gconstpointer user_data)
+{
 	query_and_compare_results ("SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}");
 }
 
 static void
-test_tracker_sparql_query_iterate_largerow ()
+test_tracker_sparql_query_iterate_largerow (DataFixture  *fixture,
+                                            gconstpointer user_data)
 {
 	query_and_compare_results ("SELECT nao:identifier(?r) WHERE {?r a nmm:Photo}");
 }
 
 /* Runs an invalid query */
 static void
-test_tracker_sparql_query_iterate_error ()
+test_tracker_sparql_query_iterate_error (DataFixture  *fixture,
+                                         gconstpointer user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -223,7 +227,8 @@ test_tracker_sparql_query_iterate_error ()
 
 /* Runs a query returning an empty set */
 static void
-test_tracker_sparql_query_iterate_empty_subprocess ()
+test_tracker_sparql_query_iterate_empty_subprocess (DataFixture  *fixture,
+                                                    gconstpointer user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -243,7 +248,8 @@ test_tracker_sparql_query_iterate_empty_subprocess ()
 }
 
 static void
-test_tracker_sparql_query_iterate_empty ()
+test_tracker_sparql_query_iterate_empty (DataFixture  *fixture,
+                                         gconstpointer user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -267,7 +273,8 @@ test_tracker_sparql_query_iterate_empty ()
 
 /* Closes the cursor before all results are read */
 static void
-test_tracker_sparql_query_iterate_sigpipe ()
+test_tracker_sparql_query_iterate_sigpipe (DataFixture  *fixture,
+                                           gconstpointer user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -284,7 +291,8 @@ test_tracker_sparql_query_iterate_sigpipe ()
 }
 
 static void
-test_tracker_sparql_update_fast_small ()
+test_tracker_sparql_update_fast_small (DataFixture  *fixture,
+                                       gconstpointer user_data)
 {
 	GError *error = NULL;
 	const gchar *query = "INSERT { _:x a nmo:Message }";
@@ -295,7 +303,8 @@ test_tracker_sparql_update_fast_small ()
 }
 
 static void
-test_tracker_sparql_update_fast_large ()
+test_tracker_sparql_update_fast_large (DataFixture  *fixture,
+                                       gconstpointer user_data)
 {
 	GError *error = NULL;
 	gchar *lots;
@@ -345,7 +354,8 @@ async_update_array_callback (GObject      *source_object,
 
 
 static void
-test_tracker_sparql_update_array_async (void)
+test_tracker_sparql_update_array_async (DataFixture   *fixture,
+                                        gconstpointer  user_data)
 {
 	const gchar *queries[6] = { "INSERT { _:a a nmo:Message }",
 	                            "INSERT { _:b a nmo:Message }",
@@ -379,7 +389,8 @@ test_tracker_sparql_update_array_async (void)
 }
 
 static void
-test_tracker_sparql_update_fast_error ()
+test_tracker_sparql_update_fast_error (DataFixture  *fixture,
+                                       gconstpointer user_data)
 {
 	GError *error = NULL;
 	const gchar *query = "blork blork blork";
@@ -391,7 +402,8 @@ test_tracker_sparql_update_fast_error ()
 }
 
 static void
-test_tracker_sparql_update_blank_fast_small ()
+test_tracker_sparql_update_blank_fast_small (DataFixture  *fixture,
+                                             gconstpointer user_data)
 {
 	GError *error = NULL;
 	const gchar *query = "INSERT { _:x a nmo:Message }";
@@ -406,7 +418,8 @@ test_tracker_sparql_update_blank_fast_small ()
 }
 
 static void
-test_tracker_sparql_update_blank_fast_large ()
+test_tracker_sparql_update_blank_fast_large (DataFixture  *fixture,
+                                             gconstpointer user_data)
 {
 	GError *error = NULL;
 	gchar *lots;
@@ -431,7 +444,8 @@ test_tracker_sparql_update_blank_fast_large ()
 }
 
 static void
-test_tracker_sparql_update_blank_fast_error (void)
+test_tracker_sparql_update_blank_fast_error (DataFixture  *fixture,
+                                             gconstpointer user_data)
 {
 	GError *error = NULL;
 	const gchar *query = "blork blork blork";
@@ -446,7 +460,8 @@ test_tracker_sparql_update_blank_fast_error (void)
 }
 
 static void
-test_tracker_sparql_update_blank_fast_no_blanks (void)
+test_tracker_sparql_update_blank_fast_no_blanks (DataFixture  *fixture,
+                                                 gconstpointer user_data)
 {
 	GError *error = NULL;
 	const gchar *query = "INSERT { <urn:not_blank> a nmo:Message }";
@@ -461,7 +476,8 @@ test_tracker_sparql_update_blank_fast_no_blanks (void)
 }
 
 static void
-test_tracker_batch_sparql_update_fast (void)
+test_tracker_batch_sparql_update_fast (DataFixture  *fixture,
+                                       gconstpointer user_data)
 {
 	/* GError *error = NULL; */
 	/* const gchar *query = "INSERT { _:x a nmo:Message }"; */
@@ -509,7 +525,8 @@ async_query_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_query_iterate_async (void)
+test_tracker_sparql_query_iterate_async (DataFixture  *fixture,
+                                         gconstpointer user_data)
 {
 	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
 	GMainLoop *main_loop;
@@ -550,7 +567,8 @@ cancel_query_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_query_iterate_async_cancel (void)
+test_tracker_sparql_query_iterate_async_cancel (DataFixture  *fixture,
+                                                gconstpointer user_data)
 {
 	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
 	GMainLoop *main_loop;
@@ -587,7 +605,8 @@ async_update_callback (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_async (void)
+test_tracker_sparql_update_async (DataFixture  *fixture,
+                                  gconstpointer user_data)
 {
 	const gchar *query = "INSERT { _:x a nmo:Message }";
 	GMainLoop *main_loop;
@@ -628,7 +647,8 @@ cancel_update_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_async_cancel (void)
+test_tracker_sparql_update_async_cancel (DataFixture  *fixture,
+                                         gconstpointer user_data)
 {
 	GCancellable *cancellable = g_cancellable_new ();
 	const gchar *query = "INSERT { _:x a nmo:Message }";
@@ -667,7 +687,8 @@ async_update_blank_callback (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_blank_async (void)
+test_tracker_sparql_update_blank_async (DataFixture *fixture,
+                                        gconstpointer user_data)
 {
 	const gchar *query = "INSERT { _:x a nmo:Message }";
 	GMainLoop *main_loop;
