@@ -115,7 +115,7 @@ test_miner_remove_children (TrackerMinerFS *miner,
 	                          "} WHERE {"
 	                          "  ?u nie:url ?url ."
 	                          "  FILTER (STRSTARTS (?url, '%s/'))"
-	                          "}", uri, uri);
+	                          "}", uri);
 	g_free (uri);
 
 	return sparql;
@@ -366,7 +366,7 @@ fixture_get_content (TrackerMinerFSTestFixture *fixture)
 	                         "     nie:url ?url ."
 	                         "  BIND (SUBSTR (?url, %d) AS ?path)"
 	                         "} ORDER BY ?path",
-	                         strlen (root_uri) + 2);
+	                         (int)strlen (root_uri) + 2);
 	g_free (root_uri);
 
 
@@ -882,7 +882,6 @@ test_content_filter_on_parent_root (TrackerMinerFSTestFixture *fixture,
 				    gconstpointer              data)
 {
 	TrackerIndexingTree *indexing_tree;
-	GError *error = NULL;
 
 	CREATE_FOLDER (fixture, "non-recursive");
 	CREATE_FOLDER (fixture, "non-recursive/recursive");
