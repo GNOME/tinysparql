@@ -1,16 +1,16 @@
 # Polish translation for tracker.
-# Copyright © 2007-2017 the tracker authors.
+# Copyright © 2007-2018 the tracker authors.
 # This file is distributed under the same license as the tracker package.
 # Tomasz Dominikowski <dominikowski@gmail.com>, 2007-2008.
-# Piotr Drąg <piotrdrag@gmail.com>, 2009-2017.
-# Aviary.pl <community-poland@mozilla.org>, 2007-2017.
+# Piotr Drąg <piotrdrag@gmail.com>, 2009-2018.
+# Aviary.pl <community-poland@mozilla.org>, 2007-2018.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-11 00:29+0200\n"
-"PO-Revision-Date: 2017-08-11 00:30+0200\n"
+"POT-Creation-Date: 2018-07-15 23:13+0200\n"
+"PO-Revision-Date: 2018-07-15 23:15+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
 "Language: pl\n"
@@ -184,23 +184,23 @@ msgstr ""
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: ../src/libtracker-data/tracker-collation.c:333
+#: ../src/libtracker-data/tracker-collation.c:332
 msgid "the|a|an"
 msgstr "the|a|an"
 
-#: ../src/libtracker-data/tracker-data-backup.c:495
-#: ../src/libtracker-data/tracker-data-backup.c:635
+#: ../src/libtracker-data/tracker-data-backup.c:494
+#: ../src/libtracker-data/tracker-data-backup.c:634
 msgid "Error starting “tar” program"
 msgstr "Błąd podczas uruchamiania programu „tar”"
 
-#: ../src/libtracker-data/tracker-data-backup.c:496
-#: ../src/libtracker-data/tracker-data-backup.c:636
+#: ../src/libtracker-data/tracker-data-backup.c:495
+#: ../src/libtracker-data/tracker-data-backup.c:635
 #: ../src/tracker/tracker-config.c:61 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
 #: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
 #: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
 #: ../src/tracker/tracker-daemon.c:1052 ../src/tracker/tracker-daemon.c:1243
-#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1668
+#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1670
 #: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
@@ -208,14 +208,14 @@ msgstr "Błąd podczas uruchamiania programu „tar”"
 #: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
 #: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
 #: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:173
-#: ../src/tracker/tracker-sparql.c:1087 ../src/tracker/tracker-status.c:176
-#: ../src/tracker/tracker-status.c:422 ../src/tracker/tracker-status.c:432
-#: ../src/tracker/tracker-status.c:506 ../src/tracker/tracker-status.c:551
-#: ../src/tracker/tracker-status.c:580 ../src/tracker/tracker-tag.c:977
+#: ../src/tracker/tracker-sparql.c:1087 ../src/tracker/tracker-status.c:74
+#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:313
+#: ../src/tracker/tracker-status.c:387 ../src/tracker/tracker-status.c:432
+#: ../src/tracker/tracker-status.c:461 ../src/tracker/tracker-tag.c:977
 msgid "No error given"
 msgstr "Nie podano błędu"
 
-#: ../src/libtracker-data/tracker-data-backup.c:649
+#: ../src/libtracker-data/tracker-data-backup.c:648
 #, c-format
 msgid "Unknown error, “tar” exited with status %d"
 msgstr "Nieznany błąd, program „tar” zakończył działanie ze stanem %d"
@@ -585,7 +585,7 @@ msgid "No miners are running"
 msgstr "Brak uruchomionych przeszukiwań"
 
 #: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
-#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1646
+#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1647
 msgid "Miners"
 msgstr "Przeszukiwania"
 
@@ -621,7 +621,7 @@ msgstr "Wszystkie właściwości nie:plainTextContent są pomijane"
 msgid "Common statuses include"
 msgstr "Wspólne stany obejmują"
 
-#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:579
+#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:460
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
 msgstr "Nie można uzyskać stanu, nie można utworzyć menedżera, %s"
@@ -669,44 +669,44 @@ msgstr ""
 msgid "Found process ID %d for “%s”"
 msgstr "Odnaleziono identyfikator procesu %d dla „%s”"
 
-#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
+#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1641
 msgid "Components"
 msgstr "Składniki"
 
-#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
+#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1648
 msgid "Only those with config listed"
 msgstr "Tylko z wyświetloną konfiguracją"
 
-#: ../src/tracker/tracker-daemon.c:1623
+#: ../src/tracker/tracker-daemon.c:1624
 #, c-format
 msgid "Setting log verbosity for all components to “%s”…"
 msgstr "Ustawianie szczegółowości dziennika dla wszystkich składników na „%s”…"
 
-#: ../src/tracker/tracker-daemon.c:1662
+#: ../src/tracker/tracker-daemon.c:1664
 msgid "Starting miners…"
 msgstr "Uruchamianie przeszukiwań…"
 
-#: ../src/tracker/tracker-daemon.c:1667
+#: ../src/tracker/tracker-daemon.c:1669
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "Nie można uruchomić przeszukiwań, nie można utworzyć menedżera, %s"
 
-#: ../src/tracker/tracker-daemon.c:1692
+#: ../src/tracker/tracker-daemon.c:1694
 msgid "perhaps a disabled plugin?"
 msgstr "być może wyłączona wtyczka?"
 
-#: ../src/tracker/tracker-daemon.c:1736
+#: ../src/tracker/tracker-daemon.c:1738
 msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr ""
 "Jeśli nie podano żadnych parametrów, to wyświetlony zostanie stan "
 "przechowalni i przeszukiwań danych"
 
-#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-daemon.c:1743 ../src/tracker/tracker-extract.c:147
 #: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
 #: ../src/tracker/tracker-reset.c:449 ../src/tracker/tracker-search.c:1778
 #: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:238
-#: ../src/tracker/tracker-status.c:706 ../src/tracker/tracker-tag.c:1079
+#: ../src/tracker/tracker-status.c:587 ../src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Nierozpoznane opcje"
 
@@ -719,8 +719,8 @@ msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Nie można utworzyć pośrednika D-Bus do usługi tracker-store"
 
 #: ../src/tracker/tracker-extract.c:45
-msgid "Output results format: “sparql”, or “turtle”"
-msgstr "Format wyników wyjścia: „sparql” lub „turtle”"
+msgid "Output results format: “sparql”, “turtle” or “json-ld”"
+msgstr "Format wyników wyjścia: „sparql”, „turtle” lub „json-ld”"
 
 #: ../src/tracker/tracker-extract.c:46
 msgid "FORMAT"
@@ -803,8 +803,8 @@ msgstr "Ponowne zindeksowanie pliku się powiodło"
 
 #: ../src/tracker/tracker-index.c:195 ../src/tracker/tracker-info.c:263
 #: ../src/tracker/tracker-search.c:1580 ../src/tracker/tracker-sparql.c:172
-#: ../src/tracker/tracker-sparql.c:1086 ../src/tracker/tracker-status.c:175
-#: ../src/tracker/tracker-status.c:505 ../src/tracker/tracker-tag.c:976
+#: ../src/tracker/tracker-sparql.c:1086 ../src/tracker/tracker-status.c:73
+#: ../src/tracker/tracker-status.c:386 ../src/tracker/tracker-tag.c:976
 msgid "Could not establish a connection to Tracker"
 msgstr "Nie można nawiązać połączenia z programem Tracker"
 
@@ -1188,11 +1188,11 @@ msgstr ""
 msgid "Disable color when printing snippets and results"
 msgstr "Wyłącza kolory podczas wyświetlania wstawek i wyników"
 
-#: ../src/tracker/tracker-search.c:173 ../src/tracker/tracker-status.c:64
+#: ../src/tracker/tracker-search.c:173 ../src/tracker/tracker-status.c:57
 msgid "search terms"
 msgstr "terminy wyszukiwania"
 
-#: ../src/tracker/tracker-search.c:174 ../src/tracker/tracker-status.c:65
+#: ../src/tracker/tracker-search.c:174 ../src/tracker/tracker-status.c:58
 msgid "EXPRESSION"
 msgstr "WYRAŻENIE"
 
@@ -1436,7 +1436,7 @@ msgstr "Nie odnaleziono przedrostków przestrzeni nazw"
 #. *
 #.
 #: ../src/tracker/tracker-sparql.c:509 ../src/tracker/tracker-sparql.c:557
-#: ../src/tracker/tracker-status.c:251 ../src/tracker/tracker-tag.c:323
+#: ../src/tracker/tracker-status.c:136 ../src/tracker/tracker-tag.c:323
 #: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
 #: ../src/tracker/tracker-tag.c:955
 msgid "None"
@@ -1587,19 +1587,11 @@ msgstr "Zainicjowanie menedżera danych się nie powiodło"
 msgid "Empty result set"
 msgstr "Pusty zestaw wyników"
 
-#: ../src/tracker/tracker-status.c:52
+#: ../src/tracker/tracker-status.c:49
 msgid "Show statistics for current index / data set"
 msgstr "Wyświetla statystyki dla bieżącego zestawu indeks/dane"
 
-#: ../src/tracker/tracker-status.c:56
-msgid ""
-"Show statistics about ALL RDF classes, not just common ones which is the "
-"default (implied by search terms)"
-msgstr ""
-"Wyświetla statystyki o WSZYSTKICH klasach RDF, nie tylko często używanych, "
-"co jest zachowaniem domyślnym (wskazane przez terminy wyszukiwania)"
-
-#: ../src/tracker/tracker-status.c:60
+#: ../src/tracker/tracker-status.c:53
 msgid ""
 "Collect debug information useful for problem reporting and investigation, "
 "results are output to terminal"
@@ -1607,89 +1599,89 @@ msgstr ""
 "Zbiera informacje debugowana przydatne do zgłaszania i badana błędów, wyniki "
 "są wyświetlane w terminalu"
 
-#: ../src/tracker/tracker-status.c:187
+#: ../src/tracker/tracker-status.c:85
 msgid "Could not get Tracker statistics"
 msgstr "Nie można uzyskać statystyk programu Tracker"
 
-#: ../src/tracker/tracker-status.c:199
+#: ../src/tracker/tracker-status.c:92
 msgid "No statistics available"
 msgstr "Brak dostępnych statystyk"
 
 #. To translators: This is to say there are no
 #. * statistics found. We use a "Statistics:
 #. * None" with multiple print statements
-#: ../src/tracker/tracker-status.c:248
+#: ../src/tracker/tracker-status.c:133
 msgid "Statistics:"
 msgstr "Statystyki:"
 
-#: ../src/tracker/tracker-status.c:289
+#: ../src/tracker/tracker-status.c:170
 msgid "Version"
 msgstr "Wersja"
 
-#: ../src/tracker/tracker-status.c:296
+#: ../src/tracker/tracker-status.c:177
 msgid "Disk Information"
 msgstr "Informacje o dysku"
 
-#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:657
+#: ../src/tracker/tracker-status.c:184 ../src/tracker/tracker-status.c:538
 msgid "Remaining space on database partition"
 msgstr "Pozostałe miejsce na partycji z bazą danych"
 
 #. 3. Size of dataset (tracker-stats), size of databases
-#: ../src/tracker/tracker-status.c:310
+#: ../src/tracker/tracker-status.c:191
 msgid "Data Set"
 msgstr "Zestaw danych"
 
-#: ../src/tracker/tracker-status.c:342
+#: ../src/tracker/tracker-status.c:223
 msgid "Configuration"
 msgstr "Konfiguracja"
 
-#: ../src/tracker/tracker-status.c:370
+#: ../src/tracker/tracker-status.c:251
 msgid "No configuration was found"
 msgstr "Nie odnaleziono konfiguracji"
 
-#: ../src/tracker/tracker-status.c:374
+#: ../src/tracker/tracker-status.c:255
 msgid "States"
 msgstr "Stany"
 
-#: ../src/tracker/tracker-status.c:415
+#: ../src/tracker/tracker-status.c:296
 msgid "Data Statistics"
 msgstr "Statystyki danych"
 
-#: ../src/tracker/tracker-status.c:421
+#: ../src/tracker/tracker-status.c:302
 msgid "No connection available"
 msgstr "Brak dostępnego połączenia"
 
-#: ../src/tracker/tracker-status.c:431
+#: ../src/tracker/tracker-status.c:312
 msgid "Could not get statistics"
 msgstr "Nie można uzyskać statystyk"
 
-#: ../src/tracker/tracker-status.c:437
+#: ../src/tracker/tracker-status.c:318
 msgid "No statistics were available"
 msgstr "Brak dostępnych statystyk"
 
-#: ../src/tracker/tracker-status.c:450
+#: ../src/tracker/tracker-status.c:331
 msgid "Database is currently empty"
 msgstr "Baza danych jest obecnie pusta"
 
-#: ../src/tracker/tracker-status.c:527 ../src/tracker/tracker-status.c:550
+#: ../src/tracker/tracker-status.c:408 ../src/tracker/tracker-status.c:431
 msgid "Could not get basic status for Tracker"
 msgstr "Nie można uzyskać podstawowego stanu programu Tracker"
 
-#: ../src/tracker/tracker-status.c:634
+#: ../src/tracker/tracker-status.c:515
 #, c-format
 msgid "Currently indexed"
 msgstr "Obecnie indeksowane"
 
-#: ../src/tracker/tracker-status.c:669
+#: ../src/tracker/tracker-status.c:550
 msgid "Data is still being indexed"
 msgstr "Dane są nadal indeksowane"
 
-#: ../src/tracker/tracker-status.c:670
+#: ../src/tracker/tracker-status.c:551
 #, c-format
 msgid "Estimated %s left"
 msgstr "Szacunkowo pozostało: %s"
 
-#: ../src/tracker/tracker-status.c:674
+#: ../src/tracker/tracker-status.c:555
 msgid "All data miners are idle, indexing complete"
 msgstr ""
 "Wszystkie przeszukiwania danych są bezczynne, indeksowanie jest ukończone"
