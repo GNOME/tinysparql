@@ -1500,7 +1500,7 @@ item_remove (TrackerMinerFS *fs,
 
 static gboolean
 item_move (TrackerMinerFS *fs,
-           GFile          *file,
+           GFile          *dest_file,
            GFile          *source_file)
 {
 	gchar     *uri, *source_uri, *sparql;
@@ -1511,11 +1511,11 @@ item_move (TrackerMinerFS *fs,
 	TrackerDirectoryFlags source_flags, flags;
 	gboolean recursive;
 
-	uri = g_file_get_uri (file);
+	uri = g_file_get_uri (dest_file);
 	source_uri = g_file_get_uri (source_file);
 
 	/* FIXME: Should check the _NO_STAT on TrackerDirectoryFlags first! */
-	file_info = g_file_query_info (file,
+	file_info = g_file_query_info (dest_file,
 	                               G_FILE_ATTRIBUTE_STANDARD_TYPE,
 	                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                               NULL, NULL);
@@ -1550,7 +1550,7 @@ item_move (TrackerMinerFS *fs,
 		g_debug ("Source file '%s' not yet in store, indexing '%s' "
 		         "from scratch", source_uri, uri);
 
-		retval = item_add_or_update (fs, file, G_PRIORITY_DEFAULT, FALSE);
+		retval = item_add_or_update (fs, dest_file, G_PRIORITY_DEFAULT, FALSE);
 
 		g_free (source_uri);
 		g_free (uri);
@@ -1564,13 +1564,13 @@ item_move (TrackerMinerFS *fs,
 	         uri);
 
 	tracker_indexing_tree_get_root (fs->priv->indexing_tree, source_file, &source_flags);
-	tracker_indexing_tree_get_root (fs->priv->indexing_tree, file, &flags);
+	tracker_indexing_tree_get_root (fs->priv->indexing_tree, dest_file, &flags);
 	recursive = ((source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
 	             (flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
 	             g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY);
 
 	/* Delete destination item from store if any */
-	item_remove (fs, file, FALSE);
+	item_remove (fs, dest_file, FALSE);
 
 	/* If the original location is recursive, but the destination location
 	 * is not, remove all children.
@@ -1579,11 +1579,11 @@ item_move (TrackerMinerFS *fs,
 	    (source_flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0)
 		item_remove (fs, source_file, TRUE);
 
-	g_signal_emit (fs, signals[MOVE_FILE], 0, file, source_file, recursive, &sparql);
+	g_signal_emit (fs, signals[MOVE_FILE], 0, dest_file, source_file, recursive, &sparql);
 
 	if (sparql) {
 		/* Add new task to processing pool */
-		task = tracker_sparql_task_new_take_sparql_str (file, sparql);
+		task = tracker_sparql_task_new_take_sparql_str (dest_file, sparql);
 		tracker_sparql_buffer_push (fs->priv->sparql_buffer,
 		                            task,
 		                            G_PRIORITY_DEFAULT,
