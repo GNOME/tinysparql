@@ -218,10 +218,21 @@ tracker_task_pool_add (TrackerTaskPool *pool,
                        TrackerTask     *task)
 {
 	TrackerTaskPoolPrivate *priv;
+	GFile *file;
 
 	g_return_if_fail (TRACKER_IS_TASK_POOL (pool));
 
 	priv = pool->priv;
+
+	file = tracker_task_get_file (task);
+
+	if (g_hash_table_contains (priv->tasks, file)) {
+		/* This is bad! We use the task's associated GFile as the key for the
+		 * hash table, so if there's already a value we are about to overwrite
+		 * it. This suggests there's a bug in the tracker-miner-fs.c code.
+		 */
+		g_warning ("Multiple update tasks for file %s", g_file_get_uri (file));
+	};
 
 	g_hash_table_insert (priv->tasks,
 	                     tracker_task_get_file (task),
