@@ -32,8 +32,7 @@ standard_tests += \
 	14-signals.py \
 	15-statistics.py \
 	16-collation.py \
-	17-ontology-changes.py  \
-	200-backup-restore.py
+	17-ontology-changes.py
 
 slow_tests = \
 	10-sqlite-misused.py \
@@ -52,13 +51,21 @@ TEST_RUNNER = $(top_srcdir)/tests/functional-tests/test-runner.sh
 
 functional-test: ${standard_tests}
 	for test in ${standard_tests} ; do \
+		export TRACKER_DB_ONTOLOGIES_DIR=$(top_srcdir)/src/ontologies/nepomuk; \
+		export TRACKER_FUNCTIONAL_TEST_BUILD_DIR=$(top_builddir) ; \
 		export TRACKER_FUNCTIONAL_TEST_CONFIG=$(top_builddir)/tests/functional-tests/configuration.json ; \
+		export TRACKER_LANGUAGE_STOP_WORDS_DIR=$(top_srcdir)/src/libtracker-common/stop-words ; \
+		export TRACKER_TEST_DOMAIN_ONTOLOGY_RULE=$(top_srcdir)/src/tracker-store/default.rule ; \
 		$(TEST_RUNNER) python $(top_srcdir)/tests/functional-tests/$$test; \
 	done
 
 functional-test-slow: ${slow_tests}
 	@for test in ${slow_tests} ; do \
-		export TRACKER_FUNCTIONAL_TEST_CONFIG=$(top_builddir)/tests/functional-tests/configuration.json \
+		export TRACKER_DB_ONTOLOGIES_DIR=$(top_srcdir)/src/ontologies/nepomuk; \
+		export TRACKER_FUNCTIONAL_TEST_BUILD_DIR=$(top_builddir) ; \
+		export TRACKER_FUNCTIONAL_TEST_CONFIG=$(top_builddir)/tests/functional-tests/configuration.json ; \
+		export TRACKER_LANGUAGE_STOP_WORDS_DIR=$(top_srcdir)/src/libtracker-common/stop-words ; \
+		export TRACKER_TEST_DOMAIN_ONTOLOGY_RULE=$(top_srcdir)/src/tracker-store/default.rule ; \
 		$(TEST_RUNNER) python $(top_srcdir)/tests/functional-tests/$$test; \
 	done
 

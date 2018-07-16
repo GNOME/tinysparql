@@ -21,15 +21,16 @@ functional_tests = [
   '15-statistics',
   '16-collation',
   '17-ontology-changes',
-  '200-backup-restore',
 ]
 
 subdir('ttl')
 functional_tests_with_test_data = [
-  '10-sqlite-misused',
-  '11-sqlite-batch-misused',
   '13-threaded-store',
 ]
+
+# These tests are disabled by default as they are really slow.
+# '10-sqlite-misused',
+# '11-sqlite-batch-misused',
 
 config_json_full_path = join_paths(meson.current_build_dir(), 'configuration.json')
 dconf_profile_full_path = join_paths(meson.current_source_dir(), 'trackertest')
@@ -41,6 +42,7 @@ test_env = environment()
 test_env.set('DCONF_PROFILE', dconf_profile_full_path)
 
 test_env.set('TRACKER_DB_ONTOLOGIES_DIR', tracker_nepomuk_ontologies)
+test_env.set('TRACKER_FUNCTIONAL_TEST_BUILD_DIR', build_root)
 test_env.set('TRACKER_FUNCTIONAL_TEST_CONFIG', config_json_full_path)
 test_env.set('TRACKER_LANGUAGE_STOP_WORDS_DIR', tracker_stop_words_dir)
 test_env.set('TRACKER_TEST_DOMAIN_ONTOLOGY_RULE', tracker_test_domain_ontology)
@@ -50,8 +52,7 @@ foreach t: functional_tests + functional_tests_with_test_data
     args: './' + t + '.py',
     env: test_env,
     workdir: meson.current_source_dir(),
-    # FIXME: these tests are all too slow
-    timeout: 180)
+    timeout: 60)
 endforeach
 
 subdir('ipc')

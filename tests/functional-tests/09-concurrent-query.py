@@ -94,9 +94,9 @@ class TestConcurrentQuery (CommonTrackerStoreTest):
     def update_cb (self, obj, results, data):
         self.assertTrue (True)
 
-    def error_handler (self):
-        print "ERROR in DBus call"
-        self.assertTrue (False)
+    def error_handler (self, obj, e, user_data):
+        print "ERROR in DBus call: %s" % e
+        raise(e)
 
     def timeout_cb (self):
         self.mock_data_delete ()

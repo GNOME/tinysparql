@@ -1,3 +1,8 @@
+functional_ipc_test_c_args = [
+  '-DTEST_DOMAIN_ONTOLOGY_RULE="@0@/src/tracker-store/default.rule"'.format(source_root),
+  '-DTEST_ONTOLOGIES_DIR="@0@/src/ontologies/nepomuk"'.format(source_root),
+]
+
 insert_or_replace_test = executable('test-insert-or-replace',
   'test-insert-or-replace.vala',
   dependencies: [tracker_common_dep, tracker_sparql_dep])
@@ -7,8 +12,6 @@ test('functional-ipc-insert-or-replace', insert_or_replace_test,
 busy_handling_test = executable('test-busy-handling',
   'test-busy-handling.vala',
   dependencies: [tracker_common_dep, tracker_sparql_dep])
-test('functional-ipc-busy-handling', busy_handling_test,
-  env: test_env)
 
 direct_query_test = executable('test-direct-query',
   'test-direct-query.vala',
@@ -41,23 +44,27 @@ test('functional-ipc-bus-update', bus_update_test,
 class_signal_test = executable('test-class-signal',
   'test-class-signal.vala',
   dependencies: [tracker_common_dep, tracker_sparql_dep])
-test('functional-ipc-class-signal', class_signal_test,
-  env: test_env)
 
 class_signal_performance_test = executable('test-class-signal-performance',
   'test-class-signal-performance.vala',
   dependencies: [tracker_common_dep, tracker_sparql_dep])
-test('functional-ipc-class-signal-performance', class_signal_performance_test,
-  env: test_env)
 
 class_signal_performance_batch_test = executable('test-class-signal-performance-batch',
   'test-class-signal-performance-batch.vala',
   dependencies: [tracker_common_dep, tracker_sparql_dep])
-test('functional-ipc-class-signal-performance-batch', class_signal_performance_batch_test,
-  env: test_env)
 
 update_array_performance_test = executable('test-update-array-performance',
   'test-update-array-performance.c',
   dependencies: [tracker_common_dep, tracker_sparql_dep])
 test('functional-ipc-update-array-performance', update_array_performance_test,
+  env: test_env)
+
+bus_query_cancellation_test = executable('test-bus-query-cancellation',
+  'test-bus-query-cancellation.c',
+  c_args: functional_ipc_test_c_args,
+  dependencies: [tracker_common_dep, tracker_sparql_dep])
+
+test('functional-ipc-bus-query-cancellation',
+  test_runner,
+  args: bus_query_cancellation_test,
   env: test_env)
