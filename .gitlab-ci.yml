@@ -10,7 +10,7 @@ test-autotools-fedora-latest:
     - su tracker -c 'make -j'
     - LANG=en_US.UTF8 VERBOSE=1 su tracker -c 'dbus-launch make check'
 
-test-meson-fedora28:
+test-meson-fedora-latest:
   stage: test
   image: registry.gitlab.gnome.org/sthursfield/tracker-oci-images/amd64/fedora:latest
 
