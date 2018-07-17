@@ -34,18 +34,15 @@ functional_tests_with_test_data = [
 
 config_json_full_path = join_paths(meson.current_build_dir(), 'configuration.json')
 dconf_profile_full_path = join_paths(meson.current_source_dir(), 'trackertest')
-tracker_nepomuk_ontologies = join_paths(meson.current_source_dir(), '..', '..', 'src', 'ontologies', 'nepomuk')
-tracker_stop_words_dir = join_paths(meson.current_source_dir(), '..', '..', 'src', 'libtracker-common', 'stop-words')
-tracker_test_domain_ontology = join_paths(meson.current_source_dir(), '..', '..', 'src', 'tracker-store', 'default.rule')
 
 test_env = environment()
 test_env.set('DCONF_PROFILE', dconf_profile_full_path)
 
-test_env.set('TRACKER_DB_ONTOLOGIES_DIR', tracker_nepomuk_ontologies)
+test_env.set('TRACKER_DB_ONTOLOGIES_DIR', tracker_uninstalled_nepomuk_ontologies_dir)
 test_env.set('TRACKER_FUNCTIONAL_TEST_BUILD_DIR', build_root)
 test_env.set('TRACKER_FUNCTIONAL_TEST_CONFIG', config_json_full_path)
-test_env.set('TRACKER_LANGUAGE_STOP_WORDS_DIR', tracker_stop_words_dir)
-test_env.set('TRACKER_TEST_DOMAIN_ONTOLOGY_RULE', tracker_test_domain_ontology)
+test_env.set('TRACKER_LANGUAGE_STOP_WORDS_DIR', tracker_uninstalled_stop_words_dir)
+test_env.set('TRACKER_TEST_DOMAIN_ONTOLOGY_RULE', tracker_uninstalled_domain_rule)
 
 foreach t: functional_tests + functional_tests_with_test_data
   test('functional-' + t, test_runner,

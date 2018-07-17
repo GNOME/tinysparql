@@ -1,6 +1,6 @@
 functional_ipc_test_c_args = [
-  '-DTEST_DOMAIN_ONTOLOGY_RULE="@0@/src/tracker-store/default.rule"'.format(source_root),
-  '-DTEST_ONTOLOGIES_DIR="@0@/src/ontologies/nepomuk"'.format(source_root),
+  '-DTEST_DOMAIN_ONTOLOGY_RULE="@0@"'.format(tracker_uninstalled_domain_rule),
+  '-DTEST_ONTOLOGIES_DIR="@0@"'.format(tracker_uninstalled_nepomuk_ontologies_dir),
 ]
 
 insert_or_replace_test = executable('test-insert-or-replace',
