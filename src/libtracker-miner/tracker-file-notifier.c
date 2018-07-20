@@ -1069,8 +1069,7 @@ tracker_file_notifier_ensure_parents (TrackerFileNotifier *notifier,
 	parent = g_file_get_parent (file);
 
 	while (parent) {
-		if (tracker_indexing_tree_file_is_root (priv->indexing_tree, parent) ||
-		    tracker_file_notifier_get_file_iri (notifier, parent, TRUE)) {
+		if (tracker_file_notifier_get_file_iri (notifier, parent, TRUE)) {
 			g_object_unref (parent);
 			break;
 		}
@@ -1082,6 +1081,11 @@ tracker_file_notifier_ensure_parents (TrackerFileNotifier *notifier,
 		g_object_unref (parent);
 
 		g_signal_emit (notifier, signals[FILE_CREATED], 0, canonical);
+
+		if (tracker_indexing_tree_file_is_root (priv->indexing_tree, canonical)) {
+			break;
+		}
+
 		parent = g_file_get_parent (canonical);
 	}
 }
