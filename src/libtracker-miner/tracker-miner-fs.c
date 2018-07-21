@@ -775,7 +775,8 @@ queue_event_coalesce (const QueueEvent  *first,
 	*replacement = NULL;
 
 	if (first->type == TRACKER_MINER_FS_EVENT_CREATED) {
-		if (second->type == TRACKER_MINER_FS_EVENT_UPDATED &&
+		if ((second->type == TRACKER_MINER_FS_EVENT_UPDATED ||
+		     second->type == TRACKER_MINER_FS_EVENT_CREATED) &&
 		    first->file == second->file) {
 			return QUEUE_ACTION_DELETE_SECOND;
 		} else if (second->type == TRACKER_MINER_FS_EVENT_MOVED &&
