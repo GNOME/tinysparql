@@ -22,8 +22,6 @@
 public class Tracker.Resources : Object {
 	public const string PATH = "/org/freedesktop/Tracker1/Resources";
 
-	const int GRAPH_UPDATED_IMMEDIATE_EMIT_AT = 50000;
-
 	/* I *know* that this is some arbitrary number that doesn't seem to
 	 * resemble anything. In fact it's what I experimentally measured to
 	 * be a good value on a default Debian testing which has
@@ -50,25 +48,22 @@ public class Tracker.Resources : Object {
 	const int DBUS_ARBITRARY_MAX_MSG_SIZE = 10000000;
 
 	DBusConnection connection;
-	uint signal_timeout;
-	bool regular_commit_pending;
-	Tracker.Config config;
 
 	public signal void writeback ([DBus (signature = "a{iai}")] Variant subjects);
 	public signal void graph_updated (string classname, [DBus (signature = "a(iiii)")] Variant deletes, [DBus (signature = "a(iiii)")] Variant inserts);
 
-	public Resources (DBusConnection connection, Tracker.Config config_p) {
+	public Resources (DBusConnection connection) {
 		this.connection = connection;
-		this.config = config_p;
+		Tracker.Store.set_signal_callback (on_emit_signals);
 	}
 
 	public async void load (BusName sender, string uri) throws Error {
 		var request = DBusRequest.begin (sender, "Resources.Load (uri: '%s')", uri);
 		try {
 			var file = File.new_for_uri (uri);
-			var data_manager = Tracker.Main.get_data_manager ();
+			var sparql_conn = Tracker.Main.get_sparql_connection ();
 
-			yield Tracker.Store.queue_turtle_import (data_manager, file, sender);
+			yield Tracker.Store.queue_turtle_import (sparql_conn, file, sender);
 
 			request.end ();
 		} catch (DBInterfaceError.NO_SPACE ie) {
@@ -89,9 +84,9 @@ public class Tracker.Resources : Object {
 		request.debug ("query: %s", query);
 		try {
 			var builder = new VariantBuilder ((VariantType) "aas");
-			var data_manager = Tracker.Main.get_data_manager ();
+			var sparql_conn = Tracker.Main.get_sparql_connection ();
 
-			yield Tracker.Store.sparql_query (data_manager, query, Tracker.Store.Priority.HIGH, cursor => {
+			yield Tracker.Store.sparql_query (sparql_conn, query, Priority.HIGH, cursor => {
 				while (cursor.next ()) {
 					builder.open ((VariantType) "as");
 
@@ -131,8 +126,8 @@ public class Tracker.Resources : Object {
 		var request = DBusRequest.begin (sender, "Resources.SparqlUpdate");
 		request.debug ("query: %s", update);
 		try {
-			var data_manager = Tracker.Main.get_data_manager ();
-			yield Tracker.Store.sparql_update (data_manager, update, Tracker.Store.Priority.HIGH, sender);
+			var sparql_conn = Tracker.Main.get_sparql_connection ();
+			yield Tracker.Store.sparql_update (sparql_conn, update, Priority.HIGH, sender);
 
 			request.end ();
 		} catch (DBInterfaceError.NO_SPACE ie) {
@@ -152,8 +147,8 @@ public class Tracker.Resources : Object {
 		var request = DBusRequest.begin (sender, "Resources.SparqlUpdateBlank");
 		request.debug ("query: %s", update);
 		try {
-			var data_manager = Tracker.Main.get_data_manager ();
-			var variant = yield Tracker.Store.sparql_update_blank (data_manager, update, Tracker.Store.Priority.HIGH, sender);
+			var sparql_conn = Tracker.Main.get_sparql_connection ();
+			var variant = yield Tracker.Store.sparql_update_blank (sparql_conn, update, Priority.HIGH, sender);
 
 			request.end ();
 
@@ -174,10 +169,10 @@ public class Tracker.Resources : Object {
 		var request = DBusRequest.begin (sender, "Resources.Sync");
 		var data_manager = Tracker.Main.get_data_manager ();
 		var data = data_manager.get_data ();
-		var iface = data_manager.get_writable_db_interface ();
 
-		// wal checkpoint implies sync
-		Tracker.Store.wal_checkpoint (iface, true);
+		var sparql_conn = Tracker.Main.get_sparql_connection ();
+		sparql_conn.sync ();
+
 		// sync journal if available
 		data.sync ();
 
@@ -188,8 +183,8 @@ public class Tracker.Resources : Object {
 		var request = DBusRequest.begin (sender, "Resources.BatchSparqlUpdate");
 		request.debug ("query: %s", update);
 		try {
-			var data_manager = Tracker.Main.get_data_manager ();
-			yield Tracker.Store.sparql_update (data_manager, update, Tracker.Store.Priority.LOW, sender);
+			var sparql_conn = Tracker.Main.get_sparql_connection ();
+			yield Tracker.Store.sparql_update (sparql_conn, update, Priority.LOW, sender);
 
 			request.end ();
 		} catch (DBInterfaceError.NO_SPACE ie) {
@@ -208,168 +203,63 @@ public class Tracker.Resources : Object {
 		/* no longer needed, just return */
 	}
 
-	bool emit_graph_updated (Class cl) {
-		if (cl.has_insert_events () || cl.has_delete_events ()) {
-			var builder = new VariantBuilder ((VariantType) "a(iiii)");
-			cl.foreach_delete_event ((graph_id, subject_id, pred_id, object_id) => {
-				builder.add ("(iiii)", graph_id, subject_id, pred_id, object_id);
-			});
-			var deletes = builder.end ();
+	void emit_graph_updated (Class cl, Events.Batch events) {
+		var builder = new VariantBuilder ((VariantType) "a(iiii)");
+		events.foreach_delete_event ((graph_id, subject_id, pred_id, object_id) => {
+			builder.add ("(iiii)", graph_id, subject_id, pred_id, object_id);
+		});
+		var deletes = builder.end ();
 
-			builder = new VariantBuilder ((VariantType) "a(iiii)");
-			cl.foreach_insert_event ((graph_id, subject_id, pred_id, object_id) => {
-				builder.add ("(iiii)", graph_id, subject_id, pred_id, object_id);
-			});
-			var inserts = builder.end ();
+		builder = new VariantBuilder ((VariantType) "a(iiii)");
+		events.foreach_insert_event ((graph_id, subject_id, pred_id, object_id) => {
+			builder.add ("(iiii)", graph_id, subject_id, pred_id, object_id);
+		});
+		var inserts = builder.end ();
 
-			graph_updated (cl.uri, deletes, inserts);
-
-			cl.reset_ready_events ();
-
-			return true;
-		}
-		return false;
+		graph_updated (cl.uri, deletes, inserts);
 	}
 
-	bool on_emit_signals () {
-		foreach (var cl in Tracker.Events.get_classes ()) {
-			emit_graph_updated (cl);
+	void emit_writeback (HashTable<int, Array<int>> events) {
+		var builder = new VariantBuilder ((VariantType) "a{iai}");
+		var wb_iter = HashTableIter<int, GLib.Array<int>> (events);
+
+		int subject_id;
+		unowned Array<int> types;
+		while (wb_iter.next (out subject_id, out types)) {
+			builder.open ((VariantType) "{iai}");
+
+			builder.add ("i", subject_id);
+
+			builder.open ((VariantType) "ai");
+			for (int i = 0; i < types.length; i++) {
+				builder.add ("i", types.index (i));
+			}
+			builder.close ();
+
+			builder.close ();
 		}
 
-		/* Reset counter */
-		Tracker.Events.get_total (true);
+		writeback (builder.end ());
+	}
 
-		/* Writeback feature */
-		var writebacks = Tracker.Writeback.get_ready ();
+	void on_emit_signals (HashTable<Tracker.Class, Tracker.Events.Batch>? events, HashTable<int, GLib.Array<int>>? writebacks) {
+		if (events != null) {
+			var iter = HashTableIter<Tracker.Class, Tracker.Events.Batch> (events);
+			unowned Events.Batch class_events;
+			unowned Class cl;
+
+			while (iter.next (out cl, out class_events)) {
+				emit_graph_updated (cl, class_events);
+			}
+		}
 
 		if (writebacks != null) {
-			var builder = new VariantBuilder ((VariantType) "a{iai}");
-
-			var wb_iter = HashTableIter<int, GLib.Array<int>> (writebacks);
-
-			int subject_id;
-			unowned Array<int> types;
-			while (wb_iter.next (out subject_id, out types)) {
-				builder.open ((VariantType) "{iai}");
-
-				builder.add ("i", subject_id);
-
-				builder.open ((VariantType) "ai");
-				for (int i = 0; i < types.length; i++) {
-					builder.add ("i", types.index (i));
-				}
-				builder.close ();
-
-				builder.close ();
-			}
-
-			writeback (builder.end ());
-		}
-
-		Tracker.Writeback.reset_ready ();
-
-		regular_commit_pending = false;
-		signal_timeout = 0;
-		return false;
-	}
-
-	void on_statements_committed (Tracker.Data.Update.CommitType commit_type) {
-		/* Class signal feature */
-
-		foreach (var cl in Tracker.Events.get_classes ()) {
-			cl.transact_events ();
-		}
-
-		if (!regular_commit_pending) {
-			// never cancel timeout for non-batch commits as we want
-			// to ensure that the signal corresponding to a certain
-			// update arrives within a fixed time limit
-
-			// cancel it in all other cases
-			// in the BATCH_LAST case, the timeout will be reenabled
-			// further down but it's important to cancel it first
-			// to reset the timeout to 1 s starting now
-			if (signal_timeout != 0) {
-				Source.remove (signal_timeout);
-				signal_timeout = 0;
-			}
-		}
-
-		if (commit_type == Tracker.Data.Update.CommitType.REGULAR) {
-			regular_commit_pending = true;
-		}
-
-		if (regular_commit_pending || commit_type == Tracker.Data.Update.CommitType.BATCH_LAST) {
-			// timer wanted for non-batch commits and the last in a series of batch commits
-			if (signal_timeout == 0) {
-				signal_timeout = Timeout.add (config.graphupdated_delay, on_emit_signals);
-			}
-		}
-
-		/* Writeback feature */
-		Tracker.Writeback.transact ();
-	}
-
-	void on_statements_rolled_back (Tracker.Data.Update.CommitType commit_type) {
-		Tracker.Events.reset_pending ();
-		Tracker.Writeback.reset_pending ();
-	}
-
-	void check_graph_updated_signal () {
-		/* Check for whether we need an immediate emit */
-		if (Tracker.Events.get_total (false) > GRAPH_UPDATED_IMMEDIATE_EMIT_AT) {
-			// possibly active timeout no longer necessary as signals
-			// for committed transactions will be emitted by the following on_emit_signals call
-			// do this before actually calling on_emit_signals as on_emit_signals sets signal_timeout to 0
-			if (signal_timeout != 0) {
-				Source.remove (signal_timeout);
-				signal_timeout = 0;
-			}
-
-			// immediately emit signals for already committed transaction
-			on_emit_signals ();
-		}
-	}
-
-	void on_statement_inserted (int graph_id, string? graph, int subject_id, string subject, int pred_id, int object_id, string? object, PtrArray rdf_types) {
-		Tracker.Events.add_insert (graph_id, subject_id, subject, pred_id, object_id, object, rdf_types);
-		Tracker.Writeback.check (graph_id, graph, subject_id, subject, pred_id, object_id, object, rdf_types);
-		check_graph_updated_signal ();
-	}
-
-	void on_statement_deleted (int graph_id, string? graph, int subject_id, string subject, int pred_id, int object_id, string? object, PtrArray rdf_types) {
-		Tracker.Events.add_delete (graph_id, subject_id, subject, pred_id, object_id, object, rdf_types);
-		Tracker.Writeback.check (graph_id, graph, subject_id, subject, pred_id, object_id, object, rdf_types);
-		check_graph_updated_signal ();
-	}
-
-	[DBus (visible = false)]
-	public void enable_signals () {
-		var data_manager = Tracker.Main.get_data_manager ();
-		var data = data_manager.get_data ();
-		data.add_insert_statement_callback (on_statement_inserted);
-		data.add_delete_statement_callback (on_statement_deleted);
-		data.add_commit_statement_callback (on_statements_committed);
-		data.add_rollback_statement_callback (on_statements_rolled_back);
-	}
-
-	[DBus (visible = false)]
-	public void disable_signals () {
-		var data_manager = Tracker.Main.get_data_manager ();
-		var data = data_manager.get_data ();
-		data.remove_insert_statement_callback (on_statement_inserted);
-		data.remove_delete_statement_callback (on_statement_deleted);
-		data.remove_commit_statement_callback (on_statements_committed);
-		data.remove_rollback_statement_callback (on_statements_rolled_back);
-
-		if (signal_timeout != 0) {
-			Source.remove (signal_timeout);
-			signal_timeout = 0;
+			emit_writeback (writebacks);
 		}
 	}
 
 	~Resources () {
-		this.disable_signals ();
+		Tracker.Store.set_signal_callback (null);
 	}
 
 	[DBus (visible = false)]

@@ -23,277 +23,49 @@ public class Tracker.Store {
 	const int MAX_CONCURRENT_QUERIES = 2;
 
 	const int MAX_TASK_TIME = 30;
+	const int GRAPH_UPDATED_IMMEDIATE_EMIT_AT = 50000;
 
-	static Queue<Task> query_queues[3 /* TRACKER_STORE_N_PRIORITIES */];
-	static Queue<Task> update_queues[3 /* TRACKER_STORE_N_PRIORITIES */];
-	static int n_queries_running;
-	static bool update_running;
-	static ThreadPool<Task> update_pool;
-	static ThreadPool<Task> query_pool;
-	static ThreadPool<DBInterface> checkpoint_pool;
-	static GenericArray<Task> running_tasks;
 	static int max_task_time;
 	static bool active;
-	static SourceFunc active_callback;
 
-	public enum Priority {
-		HIGH,
-		LOW,
-		TURTLE,
-		N_PRIORITIES
-	}
+	static Tracker.Config config;
+	static uint signal_timeout;
+	static int n_updates;
 
-	enum TaskType {
-		QUERY,
-		UPDATE,
-		UPDATE_BLANK,
-		TURTLE,
-	}
+	static HashTable<string, Cancellable> client_cancellables;
 
-	public delegate void SparqlQueryInThread (DBCursor cursor) throws Error;
+	public delegate void SignalEmissionFunc (HashTable<Tracker.Class, Tracker.Events.Batch>? graph_updated, HashTable<int, GLib.Array<int>>? writeback);
+	static unowned SignalEmissionFunc signal_callback;
 
-	abstract class Task {
-		public TaskType type;
-		public string client_id;
+	public delegate void SparqlQueryInThread (Sparql.Cursor cursor) throws Error;
+
+	class CursorTask {
+		public Sparql.Cursor cursor;
+		public unowned SourceFunc callback;
+		public unowned SparqlQueryInThread thread_func;
 		public Error error;
-		public SourceFunc callback;
-		public Tracker.Data.Manager data_manager;
-	}
 
-	class QueryTask : Task {
-		public string query;
-		public Cancellable cancellable;
-		public uint watchdog_id;
-		public unowned SparqlQueryInThread in_thread;
-
-		~QueryTask () {
-			if (watchdog_id > 0) {
-				Source.remove (watchdog_id);
-			}
+		public CursorTask (Sparql.Cursor cursor) {
+			this.cursor = cursor;
 		}
 	}
 
-	class UpdateTask : Task {
-		public string query;
-		public Variant blank_nodes;
-		public Priority priority;
-	}
+	static ThreadPool<CursorTask> cursor_pool;
 
-	class TurtleTask : Task {
-		public string path;
-	}
-
-	static void sched () {
-		Task task = null;
-
-		if (!active) {
-			return;
-		}
-
-		while (n_queries_running < MAX_CONCURRENT_QUERIES) {
-			for (int i = 0; i < Priority.N_PRIORITIES; i++) {
-				task = query_queues[i].pop_head ();
-				if (task != null) {
-					break;
-				}
-			}
-			if (task == null) {
-				/* no pending query */
-				break;
-			}
-			running_tasks.add (task);
-
-			if (max_task_time != 0) {
-				var query_task = (QueryTask) task;
-				query_task.watchdog_id = Timeout.add_seconds (max_task_time, () => {
-					query_task.cancellable.cancel ();
-					query_task.watchdog_id = 0;
-					return false;
-				});
-			}
-
-			n_queries_running++;
-			try {
-				query_pool.add (task);
-			} catch (Error e) {
-				// ignore harmless thread creation error
-			}
-		}
-
-		if (!update_running) {
-			for (int i = 0; i < Priority.N_PRIORITIES; i++) {
-				task = update_queues[i].pop_head ();
-				if (task != null) {
-					break;
-				}
-			}
-			if (task != null) {
-				update_running = true;
-				try {
-					update_pool.add (task);
-				} catch (Error e) {
-					// ignore harmless thread creation error
-				}
-			}
-		}
-	}
-
-	static Tracker.Data.Update.CommitType commit_type (Task task) {
-		switch (task.type) {
-			case TaskType.UPDATE:
-			case TaskType.UPDATE_BLANK:
-				if (((UpdateTask) task).priority == Priority.HIGH) {
-					return Tracker.Data.Update.CommitType.REGULAR;
-				} else if (update_queues[Priority.LOW].get_length () > 0) {
-					return Tracker.Data.Update.CommitType.BATCH;
-				} else {
-					return Tracker.Data.Update.CommitType.BATCH_LAST;
-				}
-			case TaskType.TURTLE:
-				if (update_queues[Priority.TURTLE].get_length () > 0) {
-					return Tracker.Data.Update.CommitType.BATCH;
-				} else {
-					return Tracker.Data.Update.CommitType.BATCH_LAST;
-				}
-			default:
-				warn_if_reached ();
-				return Tracker.Data.Update.CommitType.REGULAR;
-		}
-	}
-
-	static bool task_finish_cb (Task task) {
-		var data = task.data_manager.get_data ();
-
-		if (task.type == TaskType.QUERY) {
-			var query_task = (QueryTask) task;
-
-			if (task.error == null &&
-			    query_task.cancellable != null &&
-			    query_task.cancellable.is_cancelled ()) {
-				task.error = new IOError.CANCELLED ("Operation was cancelled");
-			}
-
-			task.callback ();
-			task.error = null;
-
-			running_tasks.remove (task);
-			n_queries_running--;
-		} else if (task.type == TaskType.UPDATE || task.type == TaskType.UPDATE_BLANK) {
-			if (task.error == null) {
-				data.notify_transaction (commit_type (task));
-			}
-
-			task.callback ();
-			task.error = null;
-
-			update_running = false;
-		} else if (task.type == TaskType.TURTLE) {
-			if (task.error == null) {
-				data.notify_transaction (commit_type (task));
-			}
-
-			task.callback ();
-			task.error = null;
-
-			update_running = false;
-		}
-
-		if (n_queries_running == 0 && !update_running && active_callback != null) {
-			active_callback ();
-		}
-
-		sched ();
-
-		return false;
-	}
-
-	static void pool_dispatch_cb (owned Task task) {
+	private static void cursor_dispatch_cb (owned CursorTask task) {
 		try {
-			if (task.type == TaskType.QUERY) {
-				var query_task = (QueryTask) task;
-
-				var cursor = Tracker.Data.query_sparql_cursor (task.data_manager, query_task.query);
-
-				query_task.in_thread (cursor);
-			} else {
-				var data = task.data_manager.get_data ();
-				var iface = task.data_manager.get_writable_db_interface ();
-				iface.sqlite_wal_hook (wal_hook);
-
-				if (task.type == TaskType.UPDATE) {
-					var update_task = (UpdateTask) task;
-
-					data.update_sparql (update_task.query);
-				} else if (task.type == TaskType.UPDATE_BLANK) {
-					var update_task = (UpdateTask) task;
-
-					update_task.blank_nodes = data.update_sparql_blank (update_task.query);
-				} else if (task.type == TaskType.TURTLE) {
-					var turtle_task = (TurtleTask) task;
-
-					var file = File.new_for_path (turtle_task.path);
-
-					Tracker.Events.freeze ();
-					try {
-						data.load_turtle_file (file);
-					} finally {
-						Tracker.Events.reset_pending ();
-					}
-				}
-			}
+			task.thread_func (task.cursor);
 		} catch (Error e) {
 			task.error = e;
 		}
 
 		Idle.add (() => {
-			task_finish_cb (task);
+			task.callback ();
 			return false;
 		});
 	}
 
-	public static void wal_checkpoint (DBInterface iface, bool blocking) {
-		try {
-			debug ("Checkpointing database...");
-			iface.sqlite_wal_checkpoint (blocking);
-			debug ("Checkpointing complete...");
-		} catch (Error e) {
-			warning (e.message);
-		}
-	}
-
-	static int checkpointing;
-
-	static void wal_hook (DBInterface iface, int n_pages) {
-		// run in update thread
-		var manager = (Data.Manager) iface.get_user_data ();
-		var wal_iface = manager.get_wal_db_interface ();
-
-		debug ("WAL: %d pages", n_pages);
-
-		if (n_pages >= 10000) {
-			// do immediate checkpointing (blocking updates)
-			// to prevent excessive wal file growth
-			wal_checkpoint (wal_iface, true);
-		} else if (n_pages >= 1000 && checkpoint_pool != null) {
-			if (AtomicInt.compare_and_exchange (ref checkpointing, 0, 1)) {
-				// initiate asynchronous checkpointing (not blocking updates)
-				try {
-					checkpoint_pool.push (wal_iface);
-				} catch (Error e) {
-					warning (e.message);
-					AtomicInt.set (ref checkpointing, 0);
-				}
-			}
-		}
-	}
-
-	static void checkpoint_dispatch_cb (DBInterface iface) {
-		// run in checkpoint thread
-		wal_checkpoint (iface, false);
-		AtomicInt.set (ref checkpointing, 0);
-	}
-
-	public static void init () {
+	public static void init (Tracker.Config config_p) {
 		string max_task_time_env = Environment.get_variable ("TRACKER_STORE_MAX_TASK_TIME");
 		if (max_task_time_env != null) {
 			max_task_time = int.parse (max_task_time_env);
@@ -301,19 +73,12 @@ public class Tracker.Store {
 			max_task_time = MAX_TASK_TIME;
 		}
 
-		running_tasks = new GenericArray<Task> ();
-
-		for (int i = 0; i < Priority.N_PRIORITIES; i++) {
-			query_queues[i] = new Queue<Task> ();
-			update_queues[i] = new Queue<Task> ();
-		}
+		client_cancellables = new HashTable <string, Cancellable> (str_hash, str_equal);
 
 		try {
-			update_pool = new ThreadPool<Task>.with_owned_data (pool_dispatch_cb, 1, true);
-			query_pool = new ThreadPool<Task>.with_owned_data (pool_dispatch_cb, MAX_CONCURRENT_QUERIES, true);
-			checkpoint_pool = new ThreadPool<DBInterface> (checkpoint_dispatch_cb, 1, true);
+			cursor_pool = new ThreadPool<CursorTask>.with_owned_data (cursor_dispatch_cb, 16, false);
 		} catch (Error e) {
-			warning (e.message);
+			// Ignore harmless error
 		}
 
 		/* as the following settings are global for unknown reasons,
@@ -321,184 +86,187 @@ public class Tracker.Store {
 		   are rather random */
 		ThreadPool.set_max_idle_time (15 * 1000);
 		ThreadPool.set_max_unused_threads (2);
+
+		config = config_p;
 	}
 
 	public static void shutdown () {
-		query_pool = null;
-		update_pool = null;
-		checkpoint_pool = null;
-
-		for (int i = 0; i < Priority.N_PRIORITIES; i++) {
-			query_queues[i] = null;
-			update_queues[i] = null;
+		if (signal_timeout != 0) {
+			Source.remove (signal_timeout);
+			signal_timeout = 0;
 		}
 	}
 
-	public static async void sparql_query (Tracker.Data.Manager manager, string sparql, Priority priority, SparqlQueryInThread in_thread, string client_id) throws Error {
-		var task = new QueryTask ();
-		task.type = TaskType.QUERY;
-		task.query = sparql;
-		task.cancellable = new Cancellable ();
-		task.in_thread = in_thread;
+	private static Cancellable create_cancellable (string client_id) {
+		var client_cancellable = client_cancellables.lookup (client_id);
+
+		if (client_cancellable == null) {
+			client_cancellable = new Cancellable ();
+			client_cancellables.insert (client_id, client_cancellable);
+		}
+
+		var task_cancellable = new Cancellable ();
+		client_cancellable.connect (() => {
+			task_cancellable.cancel ();
+		});
+
+		return task_cancellable;
+	}
+
+	private static void do_emit_signals () {
+		signal_callback (Tracker.Events.get_pending (), Tracker.Writeback.get_ready ());
+	}
+
+	private static void ensure_signal_timeout () {
+		if (signal_timeout == 0) {
+			signal_timeout = Timeout.add (config.graphupdated_delay, () => {
+				do_emit_signals ();
+				if (n_updates == 0) {
+					signal_timeout = 0;
+					return false;
+				} else {
+					return true;
+				}
+			});
+		}
+	}
+
+	public static async void sparql_query (Tracker.Direct.Connection conn, string sparql, int priority, SparqlQueryInThread in_thread, string client_id) throws Error {
+		var cancellable = create_cancellable (client_id);
+		uint timeout_id = 0;
+
+		if (max_task_time != 0) {
+			timeout_id = Timeout.add_seconds (max_task_time, () => {
+				cancellable.cancel ();
+				timeout_id = 0;
+				return false;
+			});
+		}
+
+		var cursor = yield conn.query_async (sparql, cancellable);
+
+		if (timeout_id != 0)
+			GLib.Source.remove (timeout_id);
+
+		var task = new CursorTask (cursor);
+		task.thread_func = in_thread;
 		task.callback = sparql_query.callback;
-		task.client_id = client_id;
-		task.data_manager = manager;
 
-		query_queues[priority].push_tail (task);
-
-		sched ();
+		try {
+			cursor_pool.add (task);
+		} catch (Error e) {
+			// Ignore harmless error
+		}
 
 		yield;
 
-		if (task.error != null) {
+		if (task.error != null)
 			throw task.error;
-		}
 	}
 
-	public static async void sparql_update (Tracker.Data.Manager manager, string sparql, Priority priority, string client_id) throws Error {
-		var task = new UpdateTask ();
-		task.type = TaskType.UPDATE;
-		task.query = sparql;
-		task.priority = priority;
-		task.callback = sparql_update.callback;
-		task.client_id = client_id;
-		task.data_manager = manager;
-
-		update_queues[priority].push_tail (task);
-
-		sched ();
-
-		yield;
-
-		if (task.error != null) {
-			throw task.error;
-		}
+	public static async void sparql_update (Tracker.Direct.Connection conn, string sparql, int priority, string client_id) throws Error {
+		if (!active)
+			throw new Sparql.Error.UNSUPPORTED ("Store is not active");
+		n_updates++;
+		ensure_signal_timeout ();
+		var cancellable = create_cancellable (client_id);
+		yield conn.update_async (sparql, priority, cancellable);
+		n_updates--;
 	}
 
-	public static async Variant sparql_update_blank (Tracker.Data.Manager manager, string sparql, Priority priority, string client_id) throws Error {
-		var task = new UpdateTask ();
-		task.type = TaskType.UPDATE_BLANK;
-		task.query = sparql;
-		task.priority = priority;
-		task.callback = sparql_update_blank.callback;
-		task.client_id = client_id;
-		task.data_manager = manager;
+	public static async Variant sparql_update_blank (Tracker.Direct.Connection conn, string sparql, int priority, string client_id) throws Error {
+		if (!active)
+			throw new Sparql.Error.UNSUPPORTED ("Store is not active");
+		n_updates++;
+		ensure_signal_timeout ();
+		var cancellable = create_cancellable (client_id);
+		var nodes = yield conn.update_blank_async (sparql, priority, cancellable);
+		n_updates--;
 
-		update_queues[priority].push_tail (task);
-
-		sched ();
-
-		yield;
-
-		if (task.error != null) {
-			throw task.error;
-		}
-
-		return task.blank_nodes;
+		return nodes;
 	}
 
-	public static async void queue_turtle_import (Tracker.Data.Manager manager, File file, string client_id) throws Error {
-		var task = new TurtleTask ();
-		task.type = TaskType.TURTLE;
-		task.path = file.get_path ();
-		task.callback = queue_turtle_import.callback;
-		task.client_id = client_id;
-		task.data_manager = manager;
-
-		update_queues[Priority.TURTLE].push_tail (task);
-
-		sched ();
-
-		yield;
-
-		if (task.error != null) {
-			throw task.error;
-		}
-	}
-
-	public uint get_queue_size () {
-		uint result = 0;
-
-		for (int i = 0; i < Priority.N_PRIORITIES; i++) {
-			result += query_queues[i].get_length ();
-			result += update_queues[i].get_length ();
-		}
-		return result;
+	public static async void queue_turtle_import (Tracker.Direct.Connection conn, File file, string client_id) throws Error {
+		if (!active)
+			throw new Sparql.Error.UNSUPPORTED ("Store is not active");
+		n_updates++;
+		ensure_signal_timeout ();
+		var cancellable = create_cancellable (client_id);
+		yield conn.load_async (file, cancellable);
+		n_updates--;
 	}
 
 	public static void unreg_batches (string client_id) {
-		unowned List<Task> list, cur;
-		unowned Queue<Task> queue;
+		Cancellable cancellable = client_cancellables.lookup (client_id);
 
-		for (int i = 0; i < running_tasks.length; i++) {
-			unowned QueryTask task = running_tasks[i] as QueryTask;
-			if (task != null && task.client_id == client_id && task.cancellable != null) {
-				task.cancellable.cancel ();
-			}
+		if (cancellable != null) {
+			cancellable.cancel ();
+			client_cancellables.remove (client_id);
 		}
-
-		for (int i = 0; i < Priority.N_PRIORITIES; i++) {
-			queue = query_queues[i];
-			list = queue.head;
-			while (list != null) {
-				cur = list;
-				list = list.next;
-				unowned Task task = cur.data;
-
-				if (task != null && task.client_id == client_id) {
-					queue.delete_link (cur);
-
-					task.error = new DBusError.FAILED ("Client disappeared");
-					task.callback ();
-				}
-			}
-
-			queue = update_queues[i];
-			list = queue.head;
-			while (list != null) {
-				cur = list;
-				list = list.next;
-				unowned Task task = cur.data;
-
-				if (task != null && task.client_id == client_id) {
-					queue.delete_link (cur);
-
-					task.error = new DBusError.FAILED ("Client disappeared");
-					task.callback ();
-				}
-			}
-		}
-
-		sched ();
 	}
 
 	public static async void pause () {
 		Tracker.Store.active = false;
 
-		if (n_queries_running > 0 || update_running) {
-			active_callback = pause.callback;
-			yield;
-			active_callback = null;
-		}
-
-		if (AtomicInt.get (ref checkpointing) != 0) {
-			// this will wait for checkpointing to finish
-			checkpoint_pool = null;
-			try {
-				checkpoint_pool = new ThreadPool<DBInterface> (checkpoint_dispatch_cb, 1, true);
-			} catch (Error e) {
-				warning (e.message);
-			}
-		}
-
-		if (active) {
-			sched ();
-		}
+		var sparql_conn = Tracker.Main.get_sparql_connection ();
+		sparql_conn.sync ();
 	}
 
 	public static void resume () {
 		Tracker.Store.active = true;
+	}
 
-		sched ();
+	private static void on_statements_committed () {
+		Tracker.Events.transact ();
+		Tracker.Writeback.transact ();
+		check_graph_updated_signal ();
+	}
+
+	private static void on_statements_rolled_back () {
+		Tracker.Events.reset_pending ();
+		Tracker.Writeback.reset_pending ();
+	}
+
+	private static void check_graph_updated_signal () {
+		/* Check for whether we need an immediate emit */
+		if (Tracker.Events.get_total () > GRAPH_UPDATED_IMMEDIATE_EMIT_AT) {
+			// immediately emit signals for already committed transaction
+			Idle.add (() => {
+				do_emit_signals ();
+				return false;
+			});
+		}
+	}
+
+	private static void on_statement_inserted (int graph_id, string? graph, int subject_id, string subject, int pred_id, int object_id, string? object, PtrArray rdf_types) {
+		Tracker.Events.add_insert (graph_id, subject_id, subject, pred_id, object_id, object, rdf_types);
+		Tracker.Writeback.check (graph_id, graph, subject_id, subject, pred_id, object_id, object, rdf_types);
+	}
+
+	private static void on_statement_deleted (int graph_id, string? graph, int subject_id, string subject, int pred_id, int object_id, string? object, PtrArray rdf_types) {
+		Tracker.Events.add_delete (graph_id, subject_id, subject, pred_id, object_id, object, rdf_types);
+		Tracker.Writeback.check (graph_id, graph, subject_id, subject, pred_id, object_id, object, rdf_types);
+	}
+
+	public static void enable_signals () {
+		var data_manager = Tracker.Main.get_data_manager ();
+		var data = data_manager.get_data ();
+		data.add_insert_statement_callback (on_statement_inserted);
+		data.add_delete_statement_callback (on_statement_deleted);
+		data.add_commit_statement_callback (on_statements_committed);
+		data.add_rollback_statement_callback (on_statements_rolled_back);
+	}
+
+	public static void disable_signals () {
+		var data_manager = Tracker.Main.get_data_manager ();
+		var data = data_manager.get_data ();
+		data.remove_insert_statement_callback (on_statement_inserted);
+		data.remove_delete_statement_callback (on_statement_deleted);
+		data.remove_commit_statement_callback (on_statements_committed);
+		data.remove_rollback_statement_callback (on_statements_rolled_back);
+	}
+
+	public static void set_signal_callback (SignalEmissionFunc? func) {
+		signal_callback = func;
 	}
 }

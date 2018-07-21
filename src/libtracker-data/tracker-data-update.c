@@ -3624,21 +3624,16 @@ tracker_data_commit_transaction (TrackerData  *data,
 	g_hash_table_remove_all (data->update_buffer.resources_by_id);
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
 
-	data->in_journal_replay = FALSE;
-}
-
-void
-tracker_data_notify_transaction (TrackerData           *data,
-                                 TrackerDataCommitType  commit_type)
-{
-	if (data->commit_callbacks) {
+	if (!data->in_journal_replay && data->commit_callbacks) {
 		guint n;
 		for (n = 0; n < data->commit_callbacks->len; n++) {
 			TrackerCommitDelegate *delegate;
 			delegate = g_ptr_array_index (data->commit_callbacks, n);
-			delegate->callback (commit_type, delegate->user_data);
+			delegate->callback (delegate->user_data);
 		}
 	}
+
+	data->in_journal_replay = FALSE;
 }
 
 void
@@ -3679,7 +3674,7 @@ tracker_data_rollback_transaction (TrackerData *data)
 			for (n = 0; n < data->rollback_callbacks->len; n++) {
 				TrackerCommitDelegate *delegate;
 				delegate = g_ptr_array_index (data->rollback_callbacks, n);
-				delegate->callback (TRUE, delegate->user_data);
+				delegate->callback (delegate->user_data);
 			}
 		}
 	}

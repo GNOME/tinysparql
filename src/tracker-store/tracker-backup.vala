@@ -25,7 +25,7 @@ public class Tracker.Backup : Object {
 	public async void save (BusName sender, string destination_uri) throws Error {
 		var resources = (Resources) Tracker.DBus.get_object (typeof (Resources));
 		if (resources != null) {
-			resources.disable_signals ();
+			Tracker.Store.disable_signals ();
 			Tracker.Events.shutdown ();
 		}
 
@@ -57,8 +57,8 @@ public class Tracker.Backup : Object {
 			throw e;
 		} finally {
 			if (resources != null) {
-				Tracker.Events.init (Tracker.Main.get_data_manager ());
-				resources.enable_signals ();
+				Tracker.Events.init ();
+				Tracker.Store.enable_signals ();
 			}
 
 			Tracker.Store.resume ();
@@ -68,7 +68,7 @@ public class Tracker.Backup : Object {
 	public async void restore (BusName sender, string journal_uri) throws Error {
 		var resources = (Resources) Tracker.DBus.get_object (typeof (Resources));
 		if (resources != null) {
-			resources.disable_signals ();
+			Tracker.Store.disable_signals ();
 			Tracker.Events.shutdown ();
 		}
 
@@ -95,8 +95,8 @@ public class Tracker.Backup : Object {
 			throw e;
 		} finally {
 			if (resources != null) {
-				Tracker.Events.init (Tracker.Main.get_data_manager ());
-				resources.enable_signals ();
+				Tracker.Events.init ();
+				Tracker.Store.enable_signals ();
 			}
 
 			Tracker.Store.resume ();
