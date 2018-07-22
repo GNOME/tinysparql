@@ -1,3 +1,23 @@
+NEW in 2.1.0 - 2018-07.22
+=========================
+
+  * Brown paper bag release
+  * All features from unreleased 2.0.5 apply
+  * One feature was missed: TrackerResource is now able to output
+    JSON-LD. This is a new API call, so a minor bump should happen
+    as per Semantic Versioning.
+
+  From 2.0.5 NEWS:
+  * build: Make tarballs able to build with meson. Future releases will
+    eventually phase out Autotools
+  * build: Various meson build fixes
+  * tests: Many fixes to functional tests
+  * libtracker-miner: Fixed race conditions that may result in spurious
+    "parent not indexed yet" warnings.
+  * libtracker-direct: Majorly rewritten
+  * tracker-store: Streamlined to use a libtracker-direct connection
+    instead of reimplementing most of it.
+
 NEW in 2.0.5 - 2018-07.22
 =========================
 
