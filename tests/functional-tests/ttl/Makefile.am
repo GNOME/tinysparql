@@ -57,3 +57,4 @@ DISTCLEANFILES =                                       \
 	$(ttl_DATA)                                    \
 	source-data.pkl
 
+EXTRA_DIST = meson.build

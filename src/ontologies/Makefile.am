@@ -37,4 +37,5 @@ BUILT_SOURCES = tracker-gresources.c tracker-gresources.h
 EXTRA_DIST = \
 	$(internal_config) \
 	builtin-ontology.gresource.xml \
+	meson.build \
 	$(nepomuk_DATA)

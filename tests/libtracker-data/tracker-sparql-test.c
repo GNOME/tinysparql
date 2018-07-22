@@ -27,11 +27,7 @@
 
 #include <libtracker-common/tracker-common.h>
 
-#include <libtracker-data/tracker-data-manager.h>
-#include <libtracker-data/tracker-data-query.h>
-#include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-data.h>
-#include <libtracker-data/tracker-sparql-query.h>
 
 static gchar *tests_data_dir = NULL;
 

@@ -18,4 +18,4 @@ libtracker_direct_la_LIBADD =                          \
 noinst_HEADERS =                                       \
 	tracker-direct.h
 
-EXTRA_DIST = meson.build
+EXTRA_DIST = meson.build tracker-direct.vapi

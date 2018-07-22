@@ -3,6 +3,7 @@ noinst_PROGRAMS = \
 	test-busy-handling \
 	test-direct-query \
 	test-bus-query \
+	test-bus-query-cancellation \
 	test-default-update \
 	test-bus-update \
 	test-class-signal \
@@ -20,6 +21,8 @@ AM_CPPFLAGS =\
 	$(BUILD_VALACFLAGS) \
 	-I$(top_srcdir)/src \
 	-I$(top_builddir)/src \
+	-DTEST_DOMAIN_ONTOLOGY_RULE=\""$(abs_top_srcdir)/src/tracker-store/default.rule"\" \
+	-DTEST_ONTOLOGIES_DIR=\""$(abs_top_srcdir)/src/ontologies/nepomuk"\" \
 	$(LIBTRACKER_SPARQL_CFLAGS)
 
 LDADD =\
@@ -48,6 +51,9 @@ test_default_update_SOURCES = \
 test_bus_query_SOURCES = \
 	test-shared-query.vala \
 	test-bus-query.vala
+
+test_bus_query_cancellation_SOURCES = \
+	test-bus-query-cancellation.c
 
 test_update_array_performance_SOURCES = \
 	test-update-array-performance.c
