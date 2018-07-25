@@ -298,9 +298,11 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	if (!g_initable_init (G_INITABLE (priv->data_manager), cancellable, error))
 		return FALSE;
 
-	/* Set up WAL hook on our connection */
-	iface = tracker_data_manager_get_writable_db_interface (priv->data_manager);
-	tracker_db_interface_sqlite_wal_hook (iface, wal_hook);
+	if ((priv->flags & TRACKER_SPARQL_CONNECTION_FLAGS_READONLY) == 0) {
+		/* Set up WAL hook on our connection */
+		iface = tracker_data_manager_get_writable_db_interface (priv->data_manager);
+		tracker_db_interface_sqlite_wal_hook (iface, wal_hook);
+	}
 
 	/* Initialize namespace manager */
 	priv->namespace_manager = tracker_namespace_manager_new ();
