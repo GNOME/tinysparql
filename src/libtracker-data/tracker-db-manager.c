@@ -654,7 +654,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	 * reindex) if reindexing is already needed.
 	 */
 	if (!need_reindex &&
-	    (flags & TRACKER_DB_MANAGER_READONLY) == 0 &&
 	    !g_file_test (db_manager->db.abs_filename, G_FILE_TEST_EXISTS)) {
 		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 			g_info ("Could not find database file:'%s', reindex will be forced", db_manager->db.abs_filename);
