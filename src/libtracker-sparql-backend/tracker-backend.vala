@@ -196,7 +196,7 @@ class Tracker.Sparql.Backend : Connection {
 
 			try {
 				direct = create_readonly_direct ();
-			} catch (Error e) {
+			} catch (GLib.Error e) {
 				warning ("Falling back to bus backend, the direct backend failed to initialize: " + e.message);
 			}
 
