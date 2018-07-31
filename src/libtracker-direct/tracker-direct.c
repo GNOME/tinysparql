@@ -317,6 +317,8 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 		                                      prefix, ns);
 	}
 
+	g_hash_table_unref (namespaces);
+
 	return TRUE;
 }
 
