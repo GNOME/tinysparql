@@ -160,6 +160,7 @@ update_thread_func (gpointer data,
 	else
 		g_task_return_boolean (task, TRUE);
 
+	g_object_unref (task);
 	g_mutex_unlock (&priv->mutex);
 }
 
