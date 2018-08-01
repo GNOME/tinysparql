@@ -23,6 +23,10 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
+#define MAX_TRIES 900
+
+static int counter = 0;
+
 static void
 query_cb (GObject *source_object, GAsyncResult *res, gpointer user_data)
 {
@@ -36,12 +40,17 @@ query_cb (GObject *source_object, GAsyncResult *res, gpointer user_data)
 		g_error_free (error);
 	}
 
+	counter++;
+	if (counter > MAX_TRIES) {
+		g_main_loop_quit (user_data);
+		return;
+	}
+
 	cancellable = g_cancellable_new ();
 	tracker_sparql_connection_query_async (conn,
 	                                       "SELECT ?urn WHERE {?urn a rdfs:Resource}",
 	                                       cancellable,
-	                                       query_cb,
-	                                       NULL);
+	                                       query_cb, user_data);
 	g_cancellable_cancel (cancellable);
 
 	g_object_unref (cancellable);
@@ -83,8 +92,7 @@ test_tracker_sparql_gb737023 (void)
 	tracker_sparql_connection_query_async (conn,
 	                                       "SELECT ?urn WHERE {?urn a rdfs:Resource}",
 	                                       cancellable,
-	                                       query_cb,
-	                                       NULL);
+	                                       query_cb, loop);
 	g_cancellable_cancel (cancellable);
 	g_main_loop_run (loop);
 
