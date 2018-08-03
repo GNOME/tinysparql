@@ -1359,7 +1359,7 @@ variable_name_for_property (const char *property) {
 }
 
 static void
-generate_sparql_delete_pattern (TrackerResource     *resource,
+generate_sparql_delete_queries (TrackerResource     *resource,
                                 GHashTable          *overwrite_flags,
                                 GenerateSparqlData  *data)
 {
@@ -1367,37 +1367,32 @@ generate_sparql_delete_pattern (TrackerResource     *resource,
 	GHashTableIter iter;
 	const char *property;
 	const GValue *value;
-	gboolean had_property;
 
-	if (data->graph_id) {
-		g_string_append_printf (data->string, "GRAPH <%s> {\n", data->graph_id);
-	}
-
-	g_string_append (data->string, "  ");
-	generate_turtle_uri_value (priv->identifier, data->string, data->namespaces, NULL);
-	g_string_append (data->string, "\n    ");
-
-	had_property = FALSE;
 	g_hash_table_iter_init (&iter, priv->properties);
 	while (g_hash_table_iter_next (&iter, (gpointer *)&property, (gpointer *)&value)) {
 		/* Whether to generate the DELETE is based on whether set_value was ever
 		* called for this property. That's tracked in the overwrite_flags hash table.
 		*/
 		if (g_hash_table_lookup (overwrite_flags, property)) {
-			if (had_property) {
-				g_string_append (data->string, " ;\n    ");
+			char *variable_name = variable_name_for_property (property);
+
+			g_string_append (data->string, "DELETE WHERE {\n");
+
+			if (data->graph_id) {
+				g_string_append_printf (data->string, "GRAPH <%s> {\n", data->graph_id);
 			}
 
-			char *variable_name = variable_name_for_property (property);
-			g_string_append_printf (data->string, "  %s ?%s", property, variable_name);
+			g_string_append (data->string, "  ");
+			generate_turtle_uri_value (priv->identifier, data->string, data->namespaces, NULL);
+			g_string_append_printf (data->string, " %s ?%s }", property, variable_name);
 			g_free (variable_name);
 
-			had_property = TRUE;
-		}
-	}
+			if (data->graph_id) {
+				g_string_append (data->string, " }");
+			}
 
-	if (data->graph_id) {
-		g_string_append (data->string, " }");
+			g_string_append (data->string, "\n");
+		}
 	}
 }
 
@@ -1407,14 +1402,8 @@ generate_sparql_deletes (TrackerResource    *resource,
 {
 	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
 
-	if (! is_blank_node (priv->identifier)) {
-		if (g_hash_table_size (priv->overwrite) > 0) {
-			g_string_append (data->string, "DELETE {\n");
-			generate_sparql_delete_pattern (resource, priv->overwrite, data);
-			g_string_append (data->string, "\n}\nWHERE {\n");
-			generate_sparql_delete_pattern (resource, priv->overwrite, data);
-			g_string_append (data->string, "\n}\n");
-		}
+	if (! is_blank_node (priv->identifier) && g_hash_table_size (priv->overwrite) > 0) {
+		generate_sparql_delete_queries (resource, priv->overwrite, data);
 	}
 
 	/* Now emit any sub-resources. */
