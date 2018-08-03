@@ -5,15 +5,14 @@
 # Matic Žgur <mr.zgur@gmail.com>, 2007.
 # Andrej Žnidaršič <andrej.znidarsic@gmail.com>, 2009–2010.
 # Martin Srebotnjak <miles@filmsi.net>, 2011.
-# Matej Urbančič <mateju@svn.gnome.org>, 2008–2017.
+# Matej Urbančič <mateju@svn.gnome.org>, 2008–2018.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2017-09-27 10:51+0200\n"
-"PO-Revision-Date: 2017-09-27 10:51+0200\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
+"POT-Creation-Date: 2018-07-27 18:54+0000\n"
+"PO-Revision-Date: 2018-07-30 21:53+0200\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -23,7 +22,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
 "%100==4 ? 3 : 0);\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 2.0.1\n"
+"X-Generator: Poedit 2.0.6\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -205,7 +204,7 @@ msgstr "Napaka pri zagonu programa »tar«"
 #: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
 #: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
 #: ../src/tracker/tracker-daemon.c:1052 ../src/tracker/tracker-daemon.c:1243
-#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1668
+#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1670
 #: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
@@ -245,11 +244,11 @@ msgid "Data store is not available"
 msgstr "Shramba podatkov ni na voljo"
 
 #. Daemon options
-#: ../src/tracker-store/tracker-main.vala:57
+#: ../src/tracker-store/tracker-main.vala:58
 msgid "Displays version information"
 msgstr "Pokaže podrobnosti različice"
 
-#: ../src/tracker-store/tracker-main.vala:58
+#: ../src/tracker-store/tracker-main.vala:59
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -258,22 +257,22 @@ msgstr ""
 "razhroščevanje (privzeto = 0)"
 
 #. Indexer options
-#: ../src/tracker-store/tracker-main.vala:61
+#: ../src/tracker-store/tracker-main.vala:62
 msgid "Force a re-index of all content"
 msgstr "Vsili pripravo kazala iz vse vsebine"
 
-#: ../src/tracker-store/tracker-main.vala:62
+#: ../src/tracker-store/tracker-main.vala:63
 msgid "Only allow read based actions on the database"
 msgstr "Na podatkovni zbirki dovoli le dejanja osnovana na branju"
 
-#: ../src/tracker-store/tracker-main.vala:63
+#: ../src/tracker-store/tracker-main.vala:64
 msgid "Load a specified domain ontology"
 msgstr "Naloži zgodovino določene domene"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.vala:194
+#: ../src/tracker-store/tracker-main.vala:199
 msgid "— start the tracker daemon"
 msgstr "– zažene ozadnji program tracker"
 
@@ -597,7 +596,7 @@ msgid "No miners are running"
 msgstr "Ni zagnanih programov za podatkovno rudarjenje"
 
 #: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
-#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1646
+#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1647
 msgid "Miners"
 msgstr "Podatkovno rudarjenje"
 
@@ -684,41 +683,41 @@ msgstr ""
 msgid "Found process ID %d for “%s”"
 msgstr "Najden je ID opravila %d za »%s«"
 
-#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
+#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1641
 msgid "Components"
 msgstr "Komponente"
 
-#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
+#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1648
 msgid "Only those with config listed"
 msgstr "Samo tisti z izpisano prilagoditvijo"
 
-#: ../src/tracker/tracker-daemon.c:1623
+#: ../src/tracker/tracker-daemon.c:1624
 #, c-format
 msgid "Setting log verbosity for all components to “%s”…"
 msgstr "Določanje obsežnosti beleženja za vse komponente na »%s« …"
 
-#: ../src/tracker/tracker-daemon.c:1662
+#: ../src/tracker/tracker-daemon.c:1664
 msgid "Starting miners…"
 msgstr "Začenjanje podatkovnega rudarjenja ..."
 
-#: ../src/tracker/tracker-daemon.c:1667
+#: ../src/tracker/tracker-daemon.c:1669
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr ""
 "Podatkovnega rudarjenja ni mogoče začeti, upravljalnika ni bilo mogoče "
 "ustvariti, %s"
 
-#: ../src/tracker/tracker-daemon.c:1692
+#: ../src/tracker/tracker-daemon.c:1694
 msgid "perhaps a disabled plugin?"
 msgstr "morda onemogočen vstavek?"
 
-#: ../src/tracker/tracker-daemon.c:1736
+#: ../src/tracker/tracker-daemon.c:1738
 msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr ""
 "Če ni podanega argumenta, se prikaže stanje shrambe in rudarjev podatkov"
 
-#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-daemon.c:1743 ../src/tracker/tracker-extract.c:147
 #: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
 #: ../src/tracker/tracker-reset.c:449 ../src/tracker/tracker-search.c:1778
 #: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:238
@@ -735,8 +734,8 @@ msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Ni mogoče ustvariti posredniškega vodila D-Bus za tracker-store"
 
 #: ../src/tracker/tracker-extract.c:45
-msgid "Output results format: “sparql”, or “turtle”"
-msgstr "Zapis odvoda zadetkov: »sparql» ali »turtle«"
+msgid "Output results format: “sparql”, “turtle” or “json-ld”"
+msgstr "Zapis odvoda zadetkov: »sparql«, »turtle« ali »json-ld«"
 
 #: ../src/tracker/tracker-extract.c:46
 msgid "FORMAT"
