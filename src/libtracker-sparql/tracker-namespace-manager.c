@@ -211,7 +211,7 @@ tracker_namespace_manager_lookup_prefix (TrackerNamespaceManager *self,
  * tracker_namespace_manager_add_prefix:
  * @self: a #TrackerNamespaceManager
  * @prefix: a short, unique prefix to identify @namespace
- * @namespace: the URL of the given namespace
+ * @ns: the URL of the given namespace
  *
  * Adds @prefix as the recognised abbreviaton of @namespace.
  *
@@ -223,14 +223,14 @@ tracker_namespace_manager_lookup_prefix (TrackerNamespaceManager *self,
 void
 tracker_namespace_manager_add_prefix (TrackerNamespaceManager *self,
                                       const char              *prefix,
-                                      const char              *namespace)
+                                      const char              *ns)
 {
 	TrackerNamespaceManagerPrivate *priv;
 	const char *str;
 
 	g_return_if_fail (TRACKER_IS_NAMESPACE_MANAGER (self));
 	g_return_if_fail (prefix != NULL);
-	g_return_if_fail (namespace != NULL);
+	g_return_if_fail (ns != NULL);
 
 	priv = GET_PRIVATE (TRACKER_NAMESPACE_MANAGER (self));
 
@@ -245,14 +245,14 @@ tracker_namespace_manager_add_prefix (TrackerNamespaceManager *self,
 		return;
 	}
 
-	str = g_hash_table_lookup (priv->namespace_to_prefix, namespace);
+	str = g_hash_table_lookup (priv->namespace_to_prefix, ns);
 	if (str) {
-		g_error ("Namespace %s already has prefix %s", namespace, str);
+		g_error ("Namespace %s already has prefix %s", ns, str);
 		return;
 	}
 
-	g_hash_table_insert (priv->prefix_to_namespace, g_strdup (prefix), g_strdup (namespace));
-	g_hash_table_insert (priv->namespace_to_prefix, g_strdup (namespace), g_strdup (prefix));
+	g_hash_table_insert (priv->prefix_to_namespace, g_strdup (prefix), g_strdup (ns));
+	g_hash_table_insert (priv->namespace_to_prefix, g_strdup (ns), g_strdup (prefix));
 }
 
 /**
