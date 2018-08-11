@@ -40,10 +40,10 @@ install_data(
     'tracker-status.xml',
     install_dir: join_paths(get_option('prefix'), get_option('datadir'), 'tracker'))
 
-dbus_service_file = custom_target('tracker-store-dbus-service-file',
+dbus_service_file = configure_file(
     input: 'org.freedesktop.Tracker1.service.in',
     output: 'org.freedesktop.Tracker1.service',
-    command: ['intltool-merge', '--quiet', '--desktop-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
+    configuration: conf,
     install: true,
     install_dir: dbus_services_dir)
 
