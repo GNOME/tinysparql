@@ -8,10 +8,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: el\n"
-"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2017-08-31 17:34+0000\n"
-"PO-Revision-Date: 2018-02-14 18:24+0200\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
+"POT-Creation-Date: 2018-07-15 21:13+0000\n"
+"PO-Revision-Date: 2018-08-14 01:38+0300\n"
 "Last-Translator: Efstathios Iosifidis <iosifidis@opensuse.org>\n"
 "Language-Team: Ελληνικά <>\n"
 "Language: el\n"
@@ -19,12 +18,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Poedit 2.0.9\n"
 "X-Project-Style: gnome\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
-msgstr "Όλες οι καταχωρίσεις"
+msgstr "Όλες οι καταχωρήσεις"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:2
 msgid "By usage"
@@ -120,9 +119,6 @@ msgid "Enable stemmer"
 msgstr "Ενεργοποίηση stemmer"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
-#| msgid ""
-#| "Simplify the words to their root to provide more results. E.g. 'shelves' "
-#| "and 'shelf' to 'shel'"
 msgid ""
 "Simplify the words to their root to provide more results. E.g. “shelves” and "
 "“shelf” to “shel”"
@@ -135,9 +131,6 @@ msgid "Enable unaccent"
 msgstr "Ενεργοποίηση άτονων"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
-#| msgid ""
-#| "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' "
-#| "to 'Idea' for improved matching."
 msgid ""
 "Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
 "“Idea” for improved matching."
@@ -158,9 +151,6 @@ msgid "Ignore stop words"
 msgstr "Παράβλεψη φιλτραρισμένων λέξεων"
 
 #: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
-#| msgid ""
-#| "If enabled, the words listed in the stop-words list are ignored. E.g. "
-#| "common words like 'the', 'yes', 'no', etc."
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
 "words like “the”, “yes”, “no”, etc."
@@ -193,24 +183,23 @@ msgstr ""
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: ../src/libtracker-data/tracker-collation.c:333
+#: ../src/libtracker-data/tracker-collation.c:332
 msgid "the|a|an"
 msgstr "το|ένα|μία"
 
-#: ../src/libtracker-data/tracker-data-backup.c:495
-#: ../src/libtracker-data/tracker-data-backup.c:635
-#| msgid "Error starting 'tar' program"
+#: ../src/libtracker-data/tracker-data-backup.c:494
+#: ../src/libtracker-data/tracker-data-backup.c:634
 msgid "Error starting “tar” program"
 msgstr "Σφάλμα εκκίνησης του προγράμματος «tar»"
 
-#: ../src/libtracker-data/tracker-data-backup.c:496
-#: ../src/libtracker-data/tracker-data-backup.c:636
+#: ../src/libtracker-data/tracker-data-backup.c:495
+#: ../src/libtracker-data/tracker-data-backup.c:635
 #: ../src/tracker/tracker-config.c:61 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
 #: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
 #: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
 #: ../src/tracker/tracker-daemon.c:1052 ../src/tracker/tracker-daemon.c:1243
-#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1668
+#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1670
 #: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
@@ -225,9 +214,8 @@ msgstr "Σφάλμα εκκίνησης του προγράμματος «tar»"
 msgid "No error given"
 msgstr "Δεν προέκυψε σφάλμα"
 
-#: ../src/libtracker-data/tracker-data-backup.c:649
+#: ../src/libtracker-data/tracker-data-backup.c:648
 #, c-format
-#| msgid "Unknown error, 'tar' exited with status %d"
 msgid "Unknown error, “tar” exited with status %d"
 msgstr "Άγνωστο σφάλμα, το «tar» εξήλθε με κατάσταση %d"
 
@@ -281,7 +269,6 @@ msgstr "Φόρτωση μια συγκεκριμένης οντολογίας τ
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: ../src/tracker-store/tracker-main.vala:194
-#| msgid "- start the tracker daemon"
 msgid "— start the tracker daemon"
 msgstr "— Εκκίνηση της υπηρεσίας tracker"
 
@@ -342,13 +329,11 @@ msgstr "Ανάκτηση…"
 #. miner/rss
 #: ../src/tracker/tracker-daemon.c:125
 #, c-format
-#| msgid "Crawling single directory '%s'"
 msgid "Crawling single directory “%s”"
 msgstr "Σάρωση μοναδικού καταλόγου «%s»"
 
 #: ../src/tracker/tracker-daemon.c:126
 #, c-format
-#| msgid "Crawling recursively directory '%s'"
 msgid "Crawling recursively directory “%s”"
 msgstr "Αναδρομική σάρωση του καταλόγου «%s»"
 
@@ -434,9 +419,6 @@ msgid "List all Tracker processes"
 msgstr "Προβολή όλων των διεργασιών του Tracker"
 
 #: ../src/tracker/tracker-daemon.c:178
-#| msgid ""
-#| "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" "
-#| "or \"all\" may be used, no parameter equals \"all\""
 msgid ""
 "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
 "“all” may be used, no parameter equals “all”"
@@ -450,9 +432,6 @@ msgid "APPS"
 msgstr "ΕΦΑΡΜΟΓΕΣ"
 
 #: ../src/tracker/tracker-daemon.c:181
-#| msgid ""
-#| "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" "
-#| "or \"all\" may be used, no parameter equals \"all\""
 msgid ""
 "Use SIGTERM to stop all matching processes, either “store”, “miners” or "
 "“all” may be used, no parameter equals “all”"
@@ -466,9 +445,6 @@ msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "Εκκινεί εξορύκτες (που έμμεσα εκκινεί και την αποθήκη του tracker)"
 
 #: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
-#| msgid ""
-#| "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
-#| "'errors') for all processes"
 msgid ""
 "Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
 "“errors”) for all processes"
@@ -542,7 +518,6 @@ msgstr "Αδυναμία παύσης εξορύκτη, αδυναμία δημ�
 
 #: ../src/tracker/tracker-daemon.c:896
 #, c-format
-#| msgid "Attempting to pause miner '%s' with reason '%s'"
 msgid "Attempting to pause miner “%s” with reason “%s”"
 msgstr "Προσπάθεια παύσης της εξόρυξης «%s» για τον λόγο «%s»"
 
@@ -611,13 +586,11 @@ msgid "No miners are running"
 msgstr "Δεν εκτελείται κανένας εξορύκτης"
 
 #: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
-#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1646
+#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1647
 msgid "Miners"
 msgstr "Εξορύκτες"
 
 #: ../src/tracker/tracker-daemon.c:1108
-#| msgid "Application"
-#| msgid_plural "Applications"
 msgid "Application"
 msgstr "Εφαρμογή"
 
@@ -630,7 +603,6 @@ msgid "No miners are paused"
 msgstr "Δεν υπάρχουν εξορύκτες σε παύση"
 
 #: ../src/tracker/tracker-daemon.c:1207
-#| msgid "Only one of 'all', 'store' and 'miners' options are allowed"
 msgid "Only one of “all”, “store” and “miners” options are allowed"
 msgstr "Επιτρέπεται μόνο μία από τις επιλογές «all», «store» και «miners»"
 
@@ -662,7 +634,6 @@ msgstr "Αποθήκη"
 
 #: ../src/tracker/tracker-daemon.c:1363
 #, c-format
-#| msgid "Could not get display name for miner '%s'"
 msgid "Could not get display name for miner “%s”"
 msgstr "Αδύνατη η λήψη ονόματος εμφάνισης για τον εξορύκτη του «%s»"
 
@@ -688,8 +659,6 @@ msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "Αδυναμία χρήσης των ορισμάτων --get-logging και --set-logging μαζί"
 
 #: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
-#| msgid ""
-#| "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 msgstr ""
 "Μη έγκυρη περιγραφή ιστορικού, δοκιμάστε «debug», «detailed», «minimal» ή "
@@ -697,7 +666,6 @@ msgstr ""
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
-#| msgid "Found process ID %d for '%s'"
 msgid "Found process ID %d for “%s”"
 msgstr "Βρέθηκε η ταυτότητα της διεργασίας %d για το «%s»"
 
@@ -710,41 +678,40 @@ msgstr "Βρέθηκε η ταυτότητα της διεργασίας %d γι
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
-#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
+#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1641
 msgid "Components"
 msgstr "Συστατικά στοιχεία"
 
-#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
+#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1648
 msgid "Only those with config listed"
 msgstr "Μόνο αυτά που έχουν λίστα config"
 
-#: ../src/tracker/tracker-daemon.c:1623
+#: ../src/tracker/tracker-daemon.c:1624
 #, c-format
-#| msgid "Setting log verbosity for all components to '%s'…"
 msgid "Setting log verbosity for all components to “%s”…"
 msgstr "Ρύθμιση περιγραφής ιστορικού για όλα τα συστατικά στοιχεία στο «%s»…"
 
-#: ../src/tracker/tracker-daemon.c:1662
+#: ../src/tracker/tracker-daemon.c:1664
 msgid "Starting miners…"
 msgstr "Εκκίνηση των εξορυκτών…"
 
-#: ../src/tracker/tracker-daemon.c:1667
+#: ../src/tracker/tracker-daemon.c:1669
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "Αδυναμία εκκίνησης των εξορυκτών, αδυναμία δημιουργίας διαχειριστή, %s"
 
-#: ../src/tracker/tracker-daemon.c:1692
+#: ../src/tracker/tracker-daemon.c:1694
 msgid "perhaps a disabled plugin?"
 msgstr "ίσως ένα απενεργοποιημένο πρόσθετο;"
 
-#: ../src/tracker/tracker-daemon.c:1736
+#: ../src/tracker/tracker-daemon.c:1738
 msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr ""
 "Αν δεν δίνεται κανένα όρισμα, εμφανίζεται η κατάσταση αποθήκευσης και "
 "εξόρυξης δεδομένων"
 
-#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-daemon.c:1743 ../src/tracker/tracker-extract.c:147
 #: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
 #: ../src/tracker/tracker-reset.c:449 ../src/tracker/tracker-search.c:1778
 #: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:238
@@ -761,9 +728,8 @@ msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Αδύνατη η δημιουργία διαμεσολαβητή D-Bus στην αποθήκη του tracker"
 
 #: ../src/tracker/tracker-extract.c:45
-#| msgid "Output results format: 'sparql', or 'turtle'"
-msgid "Output results format: “sparql”, or “turtle”"
-msgstr "Αποτελέσματα εξόδου: «sparql», ή «turtle»"
+msgid "Output results format: “sparql”, “turtle” or “json-ld”"
+msgstr "Αποτελέσματα εξόδου: «sparql», «turtle» ή «json-ld»"
 
 #: ../src/tracker/tracker-extract.c:46
 msgid "FORMAT"
@@ -783,7 +749,6 @@ msgstr "Αδυναμία εκτέλεσης του tracker-extract: "
 
 #: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
 #, c-format
-#| msgid "failed to exec '%s': %s"
 msgid "failed to exec “%s”: %s"
 msgstr "αποτυχία εκτέλεσης του «%s»: %s"
 
@@ -902,7 +867,6 @@ msgstr ""
 "χρησιμοποιηθούν με το --reindex-mime-type"
 
 #: ../src/tracker/tracker-info.c:49
-#| msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
 msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr ""
 "Εμφάνιση πλήρων χώρων ονόματος (δηλ. να μην γίνει χρήση του nie:title, να "
@@ -953,7 +917,6 @@ msgid "Results"
 msgstr "Αποτελέσματα"
 
 #: ../src/tracker/tracker-main.c:48
-#| msgid "See 'tracker help <command>' to read about a specific subcommand."
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
 "Δείτε την «<command> βοήθεια του Tracker» για να διαβάσετε σχετικά με μια "
@@ -1024,7 +987,6 @@ msgstr "Να εμφανίζεται η άδεια και η έκδοση που 
 
 #: ../src/tracker/tracker-main.c:153
 #, c-format
-#| msgid "'%s' is not a tracker command. See 'tracker --help'"
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "Το «%s» δεν είναι μια εντολή του Tracker. Δείτε 'tracker --help'"
 
@@ -1042,31 +1004,26 @@ msgstr "Αδύνατο το stat() του αρχείου"
 
 #: ../src/tracker/tracker-process.c:203
 #, c-format
-#| msgid "Could not open '%s'"
 msgid "Could not open “%s”"
 msgstr "Αδυναμία ανοίγματος «%s»"
 
 #: ../src/tracker/tracker-process.c:332
 #, c-format
-#| msgid "Could not terminate process %d - '%s'"
 msgid "Could not terminate process %d — “%s”"
 msgstr "Αδυναμία τερματισμού της διεργασίας %d — «%s»"
 
 #: ../src/tracker/tracker-process.c:338
 #, c-format
-#| msgid "Terminated process %d - '%s'"
 msgid "Terminated process %d — “%s”"
 msgstr "Τερματισμένη διεργασία %d — «%s»"
 
 #: ../src/tracker/tracker-process.c:353
 #, c-format
-#| msgid "Could not kill process %d - '%s'"
 msgid "Could not kill process %d — “%s”"
 msgstr "Αδυναμία βίαιου τερματισμού της διεργασίας %d — «%s»"
 
 #: ../src/tracker/tracker-process.c:359
 #, c-format
-#| msgid "Killed process %d - '%s'"
 msgid "Killed process %d — “%s”"
 msgstr "Τερματισμένη διεργασία %d — «%s»"
 
@@ -1117,10 +1074,6 @@ msgid "CAUTION: This process may irreversibly delete data."
 msgstr "ΠΡΟΣΟΧΗ: Αυτή η διαδικασία μπορεί ανεπανόρθωτα να διαγράψει δεδομένα."
 
 #: ../src/tracker/tracker-reset.c:224
-#| msgid ""
-#| "Although most content indexed by Tracker can be safely reindexed, it "
-#| "can't be assured that this is the case for all data. Be aware that you "
-#| "may be incurring in a data loss situation, proceed at your own risk."
 msgid ""
 "Although most content indexed by Tracker can be safely reindexed, it can’t "
 "be assured that this is the case for all data. Be aware that you may be "
@@ -1225,9 +1178,6 @@ msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Χρήση του OR για αναζήτηση όρων αντί για AND (η προεπιλογή)"
 
 #: ../src/tracker/tracker-search.c:150
-#| msgid ""
-#| "Show URNs for results (doesn't apply to --music-albums, --music-artists, "
-#| "--feeds, --software, --software-categories)"
 msgid ""
 "Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
@@ -1453,7 +1403,6 @@ msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιρι�
 
 #: ../src/tracker/tracker-search.c:1553
 #, c-format
-#| msgid "Search term '%s' is a stop word."
 msgid "Search term “%s” is a stop word."
 msgstr "Ο όρος αναζήτησης «%s» είναι φιλτραρισμένη λέξη."
 
@@ -1639,9 +1588,6 @@ msgid "Prefixes"
 msgstr "Προθέματα"
 
 #: ../src/tracker/tracker-sparql.c:1152
-#| msgid ""
-#| "Could not find property for class prefix, e.g. :Resource in 'rdfs:"
-#| "Resource'"
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
@@ -1944,7 +1890,6 @@ msgid "No files were modified"
 msgstr "Δεν έχουν τροποποιηθεί αρχεία"
 
 #: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
-#| msgid "Files do not exist or aren't indexed"
 msgid "Files do not exist or aren’t indexed"
 msgstr "Αρχεία που δεν υπάρχουν ή δεν έχουν ευρετηριοποιηθεί"
 
