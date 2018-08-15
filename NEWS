@@ -1,3 +1,13 @@
+NEW in 2.1.2 - 2018-08-15
+=========================
+
+  * libtracker-sparql: Delete TrackerResource elements one by one
+  * libtracker-sparql: Fix compilation with C++
+  * build: Fixes for FreeBSD
+  * build: Fixes on meson
+
+Translations: cs, el, fr, fur, hu, sl, tr, zh_TW
+
 NEW in 2.1.1 - 2018-08-01
 =========================
 
