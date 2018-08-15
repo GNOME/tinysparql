@@ -1001,6 +1001,10 @@ test_monitor_directory_event_moved_to_monitored_after_file_create (TrackerMonito
 	/* Add some file to the new dir, WHILE ALREADY MONITORING */
 	set_file_contents (source_path, "lalala.txt", "whatever", &file_in_source_dir);
 
+	/* Ignore the events thus far */
+	events_wait (fixture);
+	g_hash_table_remove_all (fixture->events);
+
 	/* Get final path of the file */
 	file_in_dest_dir_path = g_build_path (G_DIR_SEPARATOR_S,
 	                                      fixture->monitored_directory,
