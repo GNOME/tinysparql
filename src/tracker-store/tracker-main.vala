@@ -240,7 +240,7 @@ License which can be viewed at:
 		cache_location = domain_ontology_config.get_cache ();
 		data_location = domain_ontology_config.get_journal ();
 		ontology_location = domain_ontology_config.get_ontology ();
-		domain = domain_ontology_config.get_domain ();
+		domain = domain_ontology_config.get_domain ("Tracker1");
 
 		sanity_check_option_values (config);
 
@@ -319,8 +319,8 @@ License which can be viewed at:
 		if (!shutdown) {
 			main_loop = new MainLoop ();
 
-			if (domain != null)
-				Tracker.DBus.watch_domain (domain_ontology, main_loop);
+			if (domain_ontology != null)
+				Tracker.DBus.watch_domain (domain_ontology_config.get_domain(), main_loop);
 
 			initialize_signal_handler ();
 
