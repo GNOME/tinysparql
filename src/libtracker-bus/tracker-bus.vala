@@ -21,9 +21,13 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	DBusConnection bus;
 	string dbus_name;
 
-	public Connection (string dbus_name) throws Sparql.Error, IOError, DBusError, GLib.Error {
+	public Connection (string dbus_name, DBusConnection? dbus_connection) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		this.dbus_name = dbus_name;
-		bus = GLib.Bus.get_sync (Tracker.IPC.bus ());
+
+		if (dbus_connection == null)
+			bus = GLib.Bus.get_sync (Tracker.IPC.bus ());
+		else
+			bus = dbus_connection;
 
 		debug ("Waiting for service to become available...");
 
