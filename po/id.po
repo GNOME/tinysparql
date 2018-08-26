@@ -6,11 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2018-03-28 15:49+0000\n"
-"PO-Revision-Date: 2018-03-28 22:53+0700\n"
-"Last-Translator: Andika Triwidada <andika@gmail.com>\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
+"POT-Creation-Date: 2018-07-15 21:13+0000\n"
+"PO-Revision-Date: 2018-07-16 11:57+0700\n"
+"Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: GNOME Indonesian Translation Team <gnome@i15n.org>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
@@ -700,8 +699,8 @@ msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Tak bisa membuat proksi D-Bus ke tracker-store"
 
 #: ../src/tracker/tracker-extract.c:45
-msgid "Output results format: “sparql”, or “turtle”"
-msgstr "Format hasil keluaran: \"sparql\", atau \"turtle\""
+msgid "Output results format: “sparql”, “turtle” or “json-ld”"
+msgstr "Format hasil keluaran: \"sparql\", \"turtle\" atau “json-ld”"
 
 #: ../src/tracker/tracker-extract.c:46
 msgid "FORMAT"
