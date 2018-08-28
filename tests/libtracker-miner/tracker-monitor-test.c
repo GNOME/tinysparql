@@ -1123,6 +1123,10 @@ test_monitor_directory_event_moved_to_monitored_after_file_update (TrackerMonito
 	/* Set to monitor the new dir also */
 	g_assert_cmpint (tracker_monitor_add (fixture->monitor, source_dir), ==, TRUE);
 
+	/* Ignore the events thus far */
+	events_wait (fixture);
+	g_hash_table_remove_all (fixture->events);
+
 	/* Get final path of the file */
 	file_in_dest_dir_path = g_build_path (G_DIR_SEPARATOR_S,
 	                                      fixture->monitored_directory,
