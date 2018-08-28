@@ -10,7 +10,7 @@
 
 nie: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nie" ;
-	nao:lastModified "2014-06-03T13:06:00Z" .
+	nao:lastModified "2018-08-25T11:00:00Z" .
 
 nie:DataObject a rdfs:Class ;
 	rdfs:label "Data Object" ;
@@ -103,7 +103,6 @@ nie:plainTextContent a rdf:Property ;
 nie:legal a rdf:Property ;
 	rdfs:comment "A common superproperty for all properties that point at legal information about an Information Element";
 	rdfs:subPropertyOf dc:rights ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string .
 
@@ -156,7 +155,6 @@ nie:links a rdf:Property ;
 # Bug in nepomuk specification. Taking domain from superproperty
 nie:copyright a rdf:Property ;
 	rdfs:subPropertyOf dc:rights , nie:legal ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string ;
 	tracker:writeback true .
@@ -207,7 +205,6 @@ nie:lastRefreshed a rdf:Property ;
 nie:license a rdf:Property ;
 	rdfs:comment "Terms and intellectual property rights licensing conditions.";
 	rdfs:subPropertyOf dc:rights , nie:legal ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
 	rdfs:range xsd:string .
 
