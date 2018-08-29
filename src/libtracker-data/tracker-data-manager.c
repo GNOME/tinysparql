@@ -3998,6 +3998,32 @@ tracker_data_manager_new (TrackerDBManagerFlags   flags,
 	return manager;
 }
 
+static void
+update_ontology_last_modified (TrackerDataManager  *manager,
+                               TrackerDBInterface  *iface,
+                               TrackerOntology     *ontology,
+                               GError             **error)
+{
+	TrackerDBStatement *stmt;
+	const gchar *ontology_uri;
+	time_t last_mod;
+
+	ontology_uri = tracker_ontology_get_uri (ontology);
+	last_mod = tracker_ontology_get_last_modified (ontology);
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
+	                                              "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "
+	                                              "WHERE \"rdfs:Resource\".ID = "
+	                                              "(SELECT Resource.ID FROM Resource INNER JOIN \"rdfs:Resource\" "
+	                                              "ON \"rdfs:Resource\".ID = Resource.ID WHERE "
+	                                              "Resource.Uri = ?)");
+	if (stmt) {
+		tracker_db_statement_bind_int (stmt, 0, last_mod);
+		tracker_db_statement_bind_text (stmt, 1, ontology_uri);
+		tracker_db_statement_execute (stmt, error);
+		g_object_unref (stmt);
+	}
+}
+
 static gboolean
 tracker_data_manager_initable_init (GInitable     *initable,
                                     GCancellable  *cancellable,
@@ -4545,20 +4571,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				g_hash_table_unref (multivalued);
 #endif
 
-				/* Update the nao:lastModified in the database */
-				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &n_error,
-				        "UPDATE \"rdfs:Resource\" SET \"nao:lastModified\"= ? "
-				        "WHERE \"rdfs:Resource\".ID = "
-				        "(SELECT Resource.ID FROM Resource INNER JOIN \"rdfs:Resource\" "
-				        "ON \"rdfs:Resource\".ID = Resource.ID WHERE "
-				        "Resource.Uri = ?)");
-
-				if (stmt) {
-					tracker_db_statement_bind_int (stmt, 0, last_mod);
-					tracker_db_statement_bind_text (stmt, 1, ontology_uri);
-					tracker_db_statement_execute (stmt, &n_error);
-					g_object_unref (stmt);
-				}
+				update_ontology_last_modified (manager, iface, ontology, &n_error);
 
 				if (n_error) {
 					g_critical ("%s", n_error->message);
@@ -4655,6 +4668,22 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 		g_hash_table_unref (ontos_table);
 		g_list_free_full (ontos, g_object_unref);
+	} else if (is_first_time_index && !read_only) {
+		TrackerOntology **ontologies;
+		guint n_ontologies, i;
+
+		ontologies = tracker_ontologies_get_ontologies (manager->ontologies, &n_ontologies);
+
+		for (i = 0; i < n_ontologies; i++) {
+			GError *n_error = NULL;
+
+			update_ontology_last_modified (manager, iface, ontologies[i], &n_error);
+
+			if (n_error) {
+				g_critical ("%s", n_error->message);
+				g_clear_error (&n_error);
+			}
+		}
 	}
 
 skip_ontology_check:
