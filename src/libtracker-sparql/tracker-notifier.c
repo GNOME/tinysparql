@@ -704,9 +704,7 @@ tracker_notifier_initable_init (GInitable     *initable,
 	tracker_notifier_cache_id (notifier, "nie:dataSource");
 	tracker_notifier_cache_id (notifier, "tracker:extractor-data-source");
 
-	priv->dbus_connection = tracker_sparql_connection_get_dbus_connection ();
-	if (!priv->dbus_connection)
-		priv->dbus_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, cancellable, error);
+	priv->dbus_connection = g_bus_get_sync (G_BUS_TYPE_SESSION, cancellable, error);
 	if (!priv->dbus_connection)
 		return FALSE;
 
