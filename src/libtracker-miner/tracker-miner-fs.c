@@ -1483,7 +1483,7 @@ item_remove (TrackerMinerFS *fs,
 
 	if (sparql && sparql[0] != '\0') {
 		g_string_append (task_sparql, sparql);
-		g_string_append_c (task_sparql, '\n');
+		g_string_append (task_sparql, ";\n");
 	}
 
 	g_free (sparql);
@@ -1579,7 +1579,7 @@ item_move (TrackerMinerFS *fs,
 	if (sparql && sparql[0] != '\0') {
 		/* This is treated as a task on dest_file */
 		g_string_append (dest_task_sparql, sparql);
-		g_string_append_c (dest_task_sparql, '\n');
+		g_string_append (dest_task_sparql, ";\n");
 	}
 
 	g_free (sparql);
