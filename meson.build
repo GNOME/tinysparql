@@ -1,4 +1,4 @@
-project('tracker', 'c', 'vala', version: '2.1.2')
+project('tracker', 'c', 'vala', version: '2.1.3')
 
 gnome = import('gnome')
 i18n = import('i18n')
