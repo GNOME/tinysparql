@@ -824,7 +824,7 @@ tracker_miner_proxy_initable_init (GInitable     *initable,
 		return FALSE;
 	}
 
-	store_name = tracker_domain_ontology_get_domain (domain_ontology, NULL);
+	store_name = tracker_domain_ontology_get_domain (domain_ontology, "Tracker1");
 
 	priv->watch_name_id =
 		g_bus_watch_name_on_connection (priv->d_connection,
