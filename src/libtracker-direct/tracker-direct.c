@@ -598,7 +598,7 @@ update_array_async_thread_func (GTask        *task,
 	g_ptr_array_set_size (errors, g_strv_length (updates));
 
 	/* Fast path, perform everything as a single update */
-	concatenated = g_strjoinv (" ", updates);
+	concatenated = g_strjoinv ("; ", updates);
 	tracker_sparql_connection_update (source_object, concatenated,
 	                                  g_task_get_priority (task),
 	                                  cancellable, &error);
