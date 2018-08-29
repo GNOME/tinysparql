@@ -611,12 +611,12 @@ update_array_async_thread_func (GTask        *task,
 
 	/* Slow path, perform updates one by one */
 	for (i = 0; updates[i]; i++) {
-		GError *err = NULL;
+		GError **err = NULL;
 
-		err = g_ptr_array_index (errors, i);
+		err = (GError **) &g_ptr_array_index (errors, i);
 		tracker_sparql_connection_update (source_object, updates[i],
 		                                  g_task_get_priority (task),
-		                                  cancellable, &err);
+		                                  cancellable, err);
 	}
 
 	g_task_return_pointer (task, errors,
