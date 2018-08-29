@@ -1391,7 +1391,7 @@ generate_sparql_delete_queries (TrackerResource     *resource,
 				g_string_append (data->string, " }");
 			}
 
-			g_string_append (data->string, "\n");
+			g_string_append (data->string, ";\n");
 		}
 	}
 }
@@ -1525,7 +1525,7 @@ tracker_resource_print_sparql_update (TrackerResource         *resource,
 	if (graph_id) {
 		g_string_append (context.string, "}\n");
 	}
-	g_string_append (context.string, "}\n");
+	g_string_append (context.string, "};\n");
 
 	g_list_free (context.done_list);
 	context.done_list = NULL;
