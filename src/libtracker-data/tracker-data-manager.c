@@ -2227,7 +2227,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &internal_error,
 	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"tracker:Ontology\".ID), "
-	                                              "\"nao:lastModified\" "
+	                                              "       (SELECT \"nao:lastModified\" FROM \"rdfs:Resource\" WHERE ID = \"tracker:Ontology\".ID) "
 	                                              "FROM \"tracker:Ontology\"");
 
 	if (stmt) {
