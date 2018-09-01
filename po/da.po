@@ -1,9 +1,9 @@
 # Danish translation for tracker.
-# Copyright (C) 2011, 2014-2017 Free Software Foundation.
+# Copyright (C) 2011, 2014-2018 Free Software Foundation.
 # This file is distributed under the same license as the tracker package.
 # Mads Lundby <lundbymads@gmail.com>, 2009.
 # Joe Hansen <joedalton2@yahoo.dk>, 2011.
-# Ask Hjorth Larsen <asklarsen@gmail.com>, 2014-2017.
+# Ask Hjorth Larsen <asklarsen@gmail.com>, 2014-2018.
 # scootergrisen, 2015.
 # crawls -> gennemløber (gennemsøger, gennemtrævler, gennemgår)
 # indexer -> indekseringen
@@ -11,10 +11,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2017-08-31 17:34+0000\n"
-"PO-Revision-Date: 2017-09-03 20:23+0200\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
+"POT-Creation-Date: 2018-07-15 21:13+0000\n"
+"PO-Revision-Date: 2018-08-30 21:06+0200\n"
 "Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -182,23 +181,23 @@ msgstr ""
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: ../src/libtracker-data/tracker-collation.c:333
+#: ../src/libtracker-data/tracker-collation.c:332
 msgid "the|a|an"
 msgstr "the|a|an|den|det|en|et|de"
 
-#: ../src/libtracker-data/tracker-data-backup.c:495
-#: ../src/libtracker-data/tracker-data-backup.c:635
+#: ../src/libtracker-data/tracker-data-backup.c:494
+#: ../src/libtracker-data/tracker-data-backup.c:634
 msgid "Error starting “tar” program"
 msgstr "Fejl ved start af “tar”-programmet"
 
-#: ../src/libtracker-data/tracker-data-backup.c:496
-#: ../src/libtracker-data/tracker-data-backup.c:636
+#: ../src/libtracker-data/tracker-data-backup.c:495
+#: ../src/libtracker-data/tracker-data-backup.c:635
 #: ../src/tracker/tracker-config.c:61 ../src/tracker/tracker-daemon.c:462
 #: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
 #: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
 #: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
 #: ../src/tracker/tracker-daemon.c:1052 ../src/tracker/tracker-daemon.c:1243
-#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1668
+#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1670
 #: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63
 #: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
 #: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
@@ -213,7 +212,7 @@ msgstr "Fejl ved start af “tar”-programmet"
 msgid "No error given"
 msgstr "Ingen fejlbesked givet"
 
-#: ../src/libtracker-data/tracker-data-backup.c:649
+#: ../src/libtracker-data/tracker-data-backup.c:648
 #, c-format
 msgid "Unknown error, “tar” exited with status %d"
 msgstr "Ukendt fejl; “tar” afsluttede med status %d"
@@ -583,7 +582,7 @@ msgid "No miners are running"
 msgstr "Ingen indekseringer kører"
 
 #: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
-#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1646
+#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1647
 msgid "Miners"
 msgstr "Indekseringer"
 
@@ -667,41 +666,41 @@ msgstr ""
 msgid "Found process ID %d for “%s”"
 msgstr "Fandt proces-id %d for “%s”"
 
-#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1640
+#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1641
 msgid "Components"
 msgstr "Komponenter"
 
-#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1647
+#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1648
 msgid "Only those with config listed"
 msgstr "Kun de med konfiguration opført"
 
-#: ../src/tracker/tracker-daemon.c:1623
+#: ../src/tracker/tracker-daemon.c:1624
 #, c-format
 msgid "Setting log verbosity for all components to “%s”…"
 msgstr "Sætter detaljegrad for log, for alle komponenter, til “%s” …"
 
-#: ../src/tracker/tracker-daemon.c:1662
+#: ../src/tracker/tracker-daemon.c:1664
 msgid "Starting miners…"
 msgstr "Starter indekseringer …"
 
-#: ../src/tracker/tracker-daemon.c:1667
+#: ../src/tracker/tracker-daemon.c:1669
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr ""
 "Kunne ikke starte indekseringer, håndteringen kunne ikke blive oprettet, %s"
 
-#: ../src/tracker/tracker-daemon.c:1692
+#: ../src/tracker/tracker-daemon.c:1694
 msgid "perhaps a disabled plugin?"
 msgstr "måske et deaktiveret udvidelsesmodul?"
 
-#: ../src/tracker/tracker-daemon.c:1736
+#: ../src/tracker/tracker-daemon.c:1738
 msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr ""
 "Hvis der ikke gives nogen argumenter, vises status for lageret og "
 "datamineprocesserne"
 
-#: ../src/tracker/tracker-daemon.c:1741 ../src/tracker/tracker-extract.c:147
+#: ../src/tracker/tracker-daemon.c:1743 ../src/tracker/tracker-extract.c:147
 #: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
 #: ../src/tracker/tracker-reset.c:449 ../src/tracker/tracker-search.c:1778
 #: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:238
@@ -718,8 +717,8 @@ msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Kunne ikke oprette D-Bus-proxy til tracker-store"
 
 #: ../src/tracker/tracker-extract.c:45
-msgid "Output results format: “sparql”, or “turtle”"
-msgstr "Format af output: “sparql” eller “turtle”"
+msgid "Output results format: “sparql”, “turtle” or “json-ld”"
+msgstr "Format af output: “sparql”, “turtle” eller “json-ld”"
 
 #: ../src/tracker/tracker-extract.c:46
 msgid "FORMAT"
