@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
-"product=tracker&keywords=I18N+L10N&component=General\n"
-"POT-Creation-Date: 2018-03-13 21:36+0000\n"
-"PO-Revision-Date: 2018-03-20 20:54+0100\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
+"POT-Creation-Date: 2018-07-15 21:13+0000\n"
+"PO-Revision-Date: 2018-09-02 17:41+0200\n"
+"Last-Translator: \n"
 "Language-Team: Croatian <hr@li.org>\n"
 "Language: hr\n"
 "MIME-Version: 1.0\n"
@@ -17,8 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"Last-Translator: \n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.1.1\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -706,8 +705,8 @@ msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Nemoguće stvaranje D-Bus proxya za spremište rudara"
 
 #: ../src/tracker/tracker-extract.c:45
-msgid "Output results format: “sparql”, or “turtle”"
-msgstr "Format izlaznih rezultata: “sparql” ili “turtle”"
+msgid "Output results format: “sparql”, “turtle” or “json-ld”"
+msgstr "Format izlaznih rezultata: “sparql” “turtle” ili“json-ld”"
 
 #: ../src/tracker/tracker-extract.c:46
 msgid "FORMAT"
