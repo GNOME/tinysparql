@@ -1,7 +1,3 @@
-shared_libtracker_miner_monitor_sources = files('tracker-monitor.c')
-shared_libtracker_miner_file_system_sources = files('tracker-file-system.c')
-shared_libtracker_miner_crawler_sources = files('tracker-crawler.c')
-
 miner_enums = gnome.mkenums('tracker-miner-enum-types',
     sources: 'tracker-miner-enums.h',
     c_template: 'tracker-miner-enum-types.c.template',
@@ -15,6 +11,7 @@ private_sources = [
     'tracker-file-data-provider.c',
     'tracker-file-notifier.c',
     'tracker-file-system.c',
+    'tracker-monitor.c',
     'tracker-priority-queue.c',
     'tracker-task-pool.c',
     'tracker-sparql-buffer.c',
@@ -34,9 +31,6 @@ miner_headers = [
 ]
 
 miner_sources = (
-    shared_libtracker_miner_monitor_sources +
-    shared_libtracker_miner_file_system_sources +
-    shared_libtracker_miner_crawler_sources +
     ['tracker-data-provider.c',
     'tracker-decorator.c',
     'tracker-decorator-fs.c',

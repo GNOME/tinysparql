@@ -34,7 +34,8 @@ foreach base_name: libtracker_miner_tests
 
     binary = executable(binary_name, source,
       dependencies: libtracker_miner_test_deps,
-      c_args: libtracker_miner_test_c_args)
+      c_args: libtracker_miner_test_c_args,
+      link_with: [libtracker_miner_private])
 
     test(test_name, binary,
       env: libtracker_miner_test_environment)
@@ -47,7 +48,8 @@ foreach base_name: libtracker_miner_slow_tests
 
     binary = executable(binary_name, source,
       dependencies: libtracker_miner_test_deps,
-      c_args: libtracker_miner_test_c_args)
+      c_args: libtracker_miner_test_c_args,
+      link_with: [libtracker_miner_private])
 
     test(test_name, binary,
       env: libtracker_miner_test_environment,
