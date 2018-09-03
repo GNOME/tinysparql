@@ -2934,7 +2934,7 @@ create_insert_delete_triggers (TrackerDBInterface  *iface,
 
 	g_string_append (trigger_query, "END; ");
 	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    trigger_query->str);
+	                                    "%s", trigger_query->str);
 	g_string_free (trigger_query, TRUE);
 
 	if (internal_error) {
@@ -2967,7 +2967,7 @@ create_insert_delete_triggers (TrackerDBInterface  *iface,
 
 	g_string_append (trigger_query, "END; ");
 	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    trigger_query->str);
+	                                    "%s", trigger_query->str);
 	g_string_free (trigger_query, TRUE);
 
 	if (internal_error) {
