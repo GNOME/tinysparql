@@ -47,9 +47,12 @@ libmath = cc.find_library('m', required: false)
 # to the Vala commandline, but still works as expected for C code.
 uuid = cc.find_library('uuid')
 
+add_project_arguments('-Wformat', '-Wformat-security', language: 'c')
+
 # There are various gchar vs. unsigned char warnings that occur in extract
 # modules, it's not worth adding casts everywhere so we disable the warning.
 add_project_arguments('-Wno-pointer-sign', language: 'c')
+
 add_project_arguments('-DTRACKER_COMPILATION', language: 'c')
 
 enable_fts = get_option('fts')
