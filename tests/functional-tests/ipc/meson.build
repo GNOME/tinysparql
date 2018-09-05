@@ -23,6 +23,7 @@ test('functional-ipc-direct-query', direct_query_test,
 bus_query_test = executable('test-bus-query',
   'test-bus-query.vala',
   'test-shared-query.vala',
+  link_with: [libtracker_bus],
   dependencies: [tracker_common_dep, tracker_sparql_dep, tracker_sparql_bus_dep])
 test('functional-ipc-bus-query', bus_query_test,
   env: test_env)
@@ -37,6 +38,7 @@ test('functional-ipc-default-update', default_update_test,
 bus_update_test = executable('test-bus-update',
   'test-bus-update.vala',
   'test-shared-update.vala',
+  link_with: [libtracker_bus],
   dependencies: [tracker_common_dep, tracker_sparql_dep, tracker_sparql_bus_dep])
 test('functional-ipc-bus-update', bus_update_test,
   env: test_env)

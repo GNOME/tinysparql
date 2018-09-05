@@ -2,6 +2,9 @@ sources = ['tracker-miner-manager.c']
 
 headers = ['tracker-control.h', 'tracker-miner-manager.h']
 
+mapfile = 'tracker-control-2.map'
+vflag = '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(), mapfile)
+
 libtracker_control = library('tracker-control-' + tracker_api_version,
     sources,
     tracker_common_enum_header,
@@ -13,6 +16,7 @@ libtracker_control = library('tracker-control-' + tracker_api_version,
     # https://github.com/mesonbuild/meson/issues/671
     dependencies: [gio, tracker_sparql_dep, tracker_miner_dep],
     include_directories: [commoninc, configinc, srcinc],
+    link_args: vflag,
     link_with: libtracker_common,
 )
 
@@ -30,6 +34,13 @@ tracker_control_gir = gnome.generate_gir(libtracker_control,
     includes : ['GLib-2.0', 'GObject-2.0', 'Gio-2.0' ],
     install: true,
     extra_args: '--c-include=libtracker-control/tracker-control.h')
+
+gnome.generate_vapi(
+      'tracker-control-' + tracker_api_version,
+      sources : tracker_control_gir[0],
+      packages : 'gio-2.0',
+      install : true,
+    )
 
 configure_file(
     input: 'tracker-control.pc.in',
