@@ -12,6 +12,9 @@ tracker_api_version = '2.0'
 # with libtool to be able to link against our libraries.
 soversion = 0
 
+libdir = join_paths(get_option('prefix'), get_option('libdir'))
+datadir = join_paths(get_option('prefix'), get_option('datadir'))
+
 glib_required = '2.40.0'
 
 # 3.6.11 for sqlite_backup API
@@ -163,7 +166,8 @@ endif
 ####################################################################
 
 if get_option('dbus_services') == ''
-  dbus_services_dir = dbus.get_pkgconfig_variable('session_bus_services_dir')
+  dbus_services_dir = dbus.get_pkgconfig_variable('session_bus_services_dir',
+                                                  define_variable: [ 'datadir', datadir ])
 else
   dbus_services_dir = get_option('dbus_services')
 endif
@@ -176,11 +180,14 @@ install_systemd_user_services = false
 if get_option('systemd_user_services') == 'yes' or get_option('systemd_user_services') == 'auto'
   systemd = dependency('systemd', required: false)
   if systemd.found()
-    systemd_user_services_dir = systemd.get_pkgconfig_variable('systemduserunitdir')
+    # FIXME: this would ideally use the systemduserunitdir pkgconfig variable, but
+    # it does not depend on variables we can override to install within prefix.
+    install_systemd_user_services = true
+    systemd_user_services_dir = join_paths(libdir, 'systemd', 'user')
   else
-    systemd_user_services_dir = join_paths(get_option('libdir'), 'systemd', 'user')
+    install_systemd_user_services = false
+    systemd_user_services_dir = '(not found)'
   endif
-  install_systemd_user_services = true
 elif get_option('systemd_user_services') == 'no' or get_option('systemd_user_services') == ''
   install_systemd_user_services = false
   systemd_user_services_dir = '(disabled)'
@@ -197,9 +204,10 @@ install_bash_completion = false
 if get_option('bash_completion') == 'yes' or get_option('bash_completion') == 'auto'
   bash_completion_package = dependency('bash-completion', required: false)
   if bash_completion_package.found()
-    bash_completion_dir = bash_completion_package.get_pkgconfig_variable('completionsdir')
+    bash_completion_dir = bash_completion_package.get_pkgconfig_variable('completionsdir',
+                                                                         define_variable:  [ 'prefix', get_option('prefix') ])
   else
-    bash_completion_dir = join_paths(get_option('prefix'), get_option('datadir'), 'bash-completion', 'completions')
+    bash_completion_dir = join_paths(datadir, 'bash-completion', 'completions')
   endif
   install_bash_completion = true
 elif get_option('bash_completion') == 'no' or get_option('bash_completion') == ''
@@ -248,10 +256,10 @@ conf.set('TRACKER_BINARY_AGE', 100 * tracker_minor_version + tracker_micro_versi
 # Config that goes in some other generated files (.desktop, .pc, etc)
 conf.set('exec_prefix', get_option('prefix'))
 conf.set('bindir', join_paths(get_option('prefix'), get_option('bindir')))
-conf.set('datadir', join_paths(get_option('prefix'), get_option('datadir')))
+conf.set('datadir', datadir)
 conf.set('datarootdir', join_paths(get_option('prefix'), get_option('datadir')))
 conf.set('includedir', join_paths(get_option('prefix'), get_option('includedir')))
-conf.set('libdir', join_paths(get_option('prefix'), get_option('libdir')))
+conf.set('libdir', libdir)
 conf.set('libexecdir', join_paths(get_option('prefix'), get_option('libexecdir')))
 conf.set('prefix', get_option('prefix'))
 conf.set('TRACKER_API_VERSION', tracker_api_version)
@@ -305,11 +313,10 @@ glib_mkenums = find_program('glib-mkenums')
 g_ir_compiler = find_program('g-ir-compiler', gobject_introspection.get_pkgconfig_variable('g_ir_compiler'))
 g_ir_merge = find_program('g-ir-merge', join_paths(meson.current_source_dir(), 'utils', 'g-ir-merge', 'g-ir-merge'))
 
-# You can use the gobject_introspection.get_pkgconfig_variable() to find these,
-# but then get_option('prefix') won't be honoured if it differs from the prefix
-# gobject-introspection is installed to.
-gir_dir = join_paths(get_option('prefix'), get_option('datadir'), 'gir-1.0')
-typelib_dir = join_paths(get_option('libdir'), 'girepository-1.0')
+gir_dir = gobject_introspection.get_pkgconfig_variable('girdir',
+                                                       define_variable:  [ 'datadir', datadir ])
+typelib_dir = gobject_introspection.get_pkgconfig_variable('typelibdir',
+                                                           define_variable:  [ 'libdir', libdir ])
 
 subdir('src')
 
