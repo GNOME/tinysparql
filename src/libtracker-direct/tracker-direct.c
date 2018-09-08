@@ -182,6 +182,8 @@ query_thread_pool_func (gpointer data,
 		g_task_return_pointer (task, cursor, g_object_unref);
 	else
 		g_task_return_error (task, error);
+
+	g_object_unref (task);
 }
 
 static void
@@ -401,6 +403,7 @@ tracker_direct_connection_finalize (GObject *object)
 	g_clear_object (&priv->journal);
 	g_clear_object (&priv->ontology);
 	g_clear_object (&priv->data_manager);
+	g_clear_object (&priv->namespace_manager);
 
 	G_OBJECT_CLASS (tracker_direct_connection_parent_class)->finalize (object);
 }
@@ -484,6 +487,7 @@ tracker_direct_connection_query (TrackerSparqlConnection  *self,
 	g_mutex_lock (&priv->mutex);
 	query = tracker_sparql_query_new (priv->data_manager, sparql);
 	cursor = TRACKER_SPARQL_CURSOR (tracker_sparql_query_execute_cursor (query, error));
+	g_object_unref (query);
 	if (cursor)
 		tracker_sparql_cursor_set_connection (cursor, self);
 	g_mutex_unlock (&priv->mutex);
