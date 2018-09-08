@@ -529,22 +529,6 @@ file_system_get_node (TrackerFileSystem *file_system,
 	return file_tree_lookup (priv->file_tree, file, NULL, NULL);
 }
 
-static gboolean
-tracker_file_system_is_file_interned (TrackerFileSystem *file_system,
-                                      GFile             *file,
-                                      gboolean           check_fs)
-{
-	NodeLookupData *lookup_data;
-
-	lookup_data = g_object_get_qdata (G_OBJECT (file), quark_file_node);
-	if (!lookup_data)
-		return FALSE;
-	if (check_fs && lookup_data->file_system != file_system)
-		return FALSE;
-
-	return TRUE;
-}
-
 GFile *
 tracker_file_system_get_file (TrackerFileSystem *file_system,
                               GFile             *file,
@@ -552,23 +536,30 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
                               GFile             *parent)
 {
 	TrackerFileSystemPrivate *priv;
+	NodeLookupData *lookup_data;
 	FileNodeData *data;
 	GNode *node, *parent_node, *lookup_node = NULL;
 	gchar *uri_prefix = NULL;
+	GFile *copy = NULL;
 
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
 
 	priv = file_system->priv;
 	node = NULL;
+	lookup_data = g_object_get_qdata (G_OBJECT (file), quark_file_node);
 
 	/* If file is interned somewhere else, get a separate copy of the
 	 * file for this filesystem.
 	 */
-	if (tracker_file_system_is_file_interned (file_system, file, FALSE)) {
+	if (lookup_data && lookup_data->file_system != file_system) {
 		gchar *uri = g_file_get_uri (file);
-		file = g_file_new_for_uri (uri);
+		copy = g_file_new_for_uri (uri);
 		g_free (uri);
+		file = copy;
+	} else if (lookup_data) {
+		/* Short circuit path, file is already interned */
+		return file;
 	}
 
 	if (parent) {
@@ -593,6 +584,8 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 			g_warning ("NOTE: URI theme may be outside scheme expected, for example, expecting 'file://' when given 'http://' prefix.");
 			g_free (uri);
 
+			g_clear_object (&copy);
+
 			return NULL;
 		}
 
@@ -611,6 +604,8 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 			data->file_type = file_type;
 		}
 	}
+
+	g_clear_object (&copy);
 
 	return data->file;
 }
