@@ -464,10 +464,6 @@ reparent_child_nodes_to_parent (GNode *node)
 	FileNodeData *node_data;
 	GNode *child, *parent;
 
-	if (!node->parent) {
-		return;
-	}
-
 	parent = node->parent;
 	node_data = node->data;
 	child = g_node_first_child (node);
@@ -489,8 +485,12 @@ reparent_child_nodes_to_parent (GNode *node)
 		data->uri_prefix = uri_prefix;
 
 		g_node_unlink (cur);
-		g_node_prepend (parent, cur);
+
+		if (parent)
+			g_node_prepend (parent, cur);
 	}
+
+	g_assert (!g_node_first_child (node));
 }
 
 static void
