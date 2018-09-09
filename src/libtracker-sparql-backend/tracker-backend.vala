@@ -19,6 +19,7 @@
 
 static string domain_name = null;
 static Tracker.DomainOntology domain_ontology = null;
+static DBusConnection global_dbus_connection = null;
 
 class Tracker.Sparql.Backend : Connection {
 	bool initialized;
@@ -192,7 +193,7 @@ class Tracker.Sparql.Backend : Connection {
 
 		switch (backend) {
 		case Backend.AUTO:
-			bus = new Tracker.Bus.Connection (domain_ontology.get_domain ("Tracker1"));
+			bus = new Tracker.Bus.Connection (domain_ontology.get_domain ("Tracker1"), global_dbus_connection);
 
 			try {
 				direct = create_readonly_direct ();
@@ -207,7 +208,7 @@ class Tracker.Sparql.Backend : Connection {
 			break;
 
 		case Backend.BUS:
-			bus = new Tracker.Bus.Connection (domain_ontology.get_domain ("Tracker1"));
+			bus = new Tracker.Bus.Connection (domain_ontology.get_domain ("Tracker1"), global_dbus_connection);
 			break;
 
 		default:
@@ -357,4 +358,12 @@ public static void tracker_sparql_connection_set_domain (string? domain) {
 
 public static string? tracker_sparql_connection_get_domain () {
 	return domain_name;
+}
+
+public static void tracker_sparql_connection_set_dbus_connection (DBusConnection dbus_connection) {
+	global_dbus_connection = dbus_connection;
+}
+
+public static DBusConnection? tracker_sparql_connection_get_dbus_connection () {
+	return global_dbus_connection;
 }
