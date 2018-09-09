@@ -758,7 +758,7 @@ create_query_string (TrackerDecorator  *decorator,
 		prev = cur;
 	}
 
-	g_string_append_printf (query, "))}}} LIMIT %d", QUERY_BATCH_SIZE);
+	g_string_append_printf (query, "))}} GROUP BY ?urn } LIMIT %d", QUERY_BATCH_SIZE);
 
 	return g_string_free (query, FALSE);
 }
