@@ -2100,10 +2100,7 @@ tracker_file_notifier_invalidate_file_iri (TrackerFileNotifier *notifier,
 	g_return_if_fail (G_IS_FILE (file));
 
 	priv = notifier->priv;
-	canonical = tracker_file_system_get_file (priv->file_system,
-	                                          file,
-	                                          G_FILE_TYPE_REGULAR,
-	                                          NULL);
+	canonical = tracker_file_system_peek_file (priv->file_system, file);
 	if (!canonical) {
 		return;
 	}
