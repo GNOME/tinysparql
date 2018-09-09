@@ -276,8 +276,12 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 			g_task_return_error (task_data->async_task,
 			                     g_error_copy (error));
 		} else {
-			g_task_return_pointer (task_data->async_task, task, NULL);
+			g_task_return_pointer (task_data->async_task,
+			                       tracker_task_ref (task),
+			                       (GDestroyNotify) tracker_task_unref);
 		}
+
+		g_clear_object (&task_data->async_task);
 
 		/* No need to deallocate the task here, it will be done when
 		 * unref-ing the UpdateArrayData below */
@@ -382,8 +386,11 @@ tracker_sparql_buffer_update_cb (GObject      *object,
 		g_task_return_error (task_data->async_task, error);
 	} else {
 		g_task_return_pointer (task_data->async_task,
-		                       update_data->task, NULL);
+		                       tracker_task_ref (update_data->task),
+		                       (GDestroyNotify) tracker_task_unref);
 	}
+
+	g_clear_object (&task_data->async_task);
 
 	tracker_task_pool_remove (TRACKER_TASK_POOL (update_data->buffer),
 	                          update_data->task);
