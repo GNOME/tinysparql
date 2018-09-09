@@ -136,6 +136,7 @@ tracker_domain_ontology_finalize (GObject *object)
 	g_clear_object (&priv->cache_location);
 	g_clear_object (&priv->journal_location);
 	g_clear_object (&priv->ontology_location);
+	g_free (priv->ontology_name);
 	g_free (priv->name);
 	g_free (priv->domain);
 	g_strfreev (priv->miners);
