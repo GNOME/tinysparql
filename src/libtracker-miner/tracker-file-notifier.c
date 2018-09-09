@@ -444,7 +444,9 @@ file_notifier_add_node_foreach (GNode    *node,
 
 		g_object_unref (file_info);
 
-		if (file_type == G_FILE_TYPE_DIRECTORY && !G_NODE_IS_ROOT (node)) {
+		if (file_type == G_FILE_TYPE_DIRECTORY &&
+		    (priv->current_index_root->flags & TRACKER_DIRECTORY_FLAG_RECURSE) != 0 &&
+		    !G_NODE_IS_ROOT (node)) {
 			/* Queue child dirs for later processing */
 			g_assert (node->children == NULL);
 			g_queue_push_tail (priv->current_index_root->pending_dirs,
