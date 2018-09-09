@@ -1001,14 +1001,17 @@ is_builtin_class (const gchar             *uri_or_curie,
                   TrackerNamespaceManager *namespaces)
 {
 	gchar *prefix = NULL;
+	gboolean has_prefix;
 
 	prefix = g_uri_parse_scheme (uri_or_curie);
 
-	if (prefix &&
-	    tracker_namespace_manager_has_prefix (namespaces, prefix))
+	if (!prefix)
 		return TRUE;
 
-	return FALSE;
+	has_prefix = tracker_namespace_manager_has_prefix (namespaces, prefix);
+	g_free (prefix);
+
+	return has_prefix;
 }
 
 static void
