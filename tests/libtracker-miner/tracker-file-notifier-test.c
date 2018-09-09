@@ -306,8 +306,6 @@ static void
 test_common_context_teardown (TestCommonContext *fixture,
                               gconstpointer      data)
 {
-	DELETE_FOLDER (fixture, NULL);
-
 	g_list_foreach (fixture->ops, (GFunc) filesystem_operation_free, NULL);
 	g_list_free (fixture->ops);
 
@@ -328,6 +326,8 @@ test_common_context_teardown (TestCommonContext *fixture,
 	}
 
 	g_clear_object (&fixture->connection);
+
+	DELETE_FOLDER (fixture, NULL);
 }
 
 static gboolean
