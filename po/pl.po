@@ -8,9 +8,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-15 23:13+0200\n"
-"PO-Revision-Date: 2018-07-15 23:15+0200\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
+"POT-Creation-Date: 2018-09-10 21:03+0000\n"
+"PO-Revision-Date: 2018-09-17 18:22+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
 "Language: pl\n"
@@ -19,14 +19,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-
-#: ../examples/rss-reader/rss_viewer.ui.h:1
-msgid "All posts"
-msgstr "Wszystkie wpisy"
-
-#: ../examples/rss-reader/rss_viewer.ui.h:2
-msgid "By usage"
-msgstr "Według użycia"
 
 #: ../src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -241,11 +233,11 @@ msgid "Data store is not available"
 msgstr "Przechowywanie danych jest niedostępne"
 
 #. Daemon options
-#: ../src/tracker-store/tracker-main.vala:57
+#: ../src/tracker-store/tracker-main.vala:58
 msgid "Displays version information"
 msgstr "Wyświetla informacje o wersji"
 
-#: ../src/tracker-store/tracker-main.vala:58
+#: ../src/tracker-store/tracker-main.vala:59
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -254,22 +246,22 @@ msgstr ""
 "i 3 = debugowania (domyślnie = 0)"
 
 #. Indexer options
-#: ../src/tracker-store/tracker-main.vala:61
+#: ../src/tracker-store/tracker-main.vala:62
 msgid "Force a re-index of all content"
 msgstr "Wymusza ponowne zindeksowanie całej treści"
 
-#: ../src/tracker-store/tracker-main.vala:62
+#: ../src/tracker-store/tracker-main.vala:63
 msgid "Only allow read based actions on the database"
 msgstr "Zezwala tylko na odczytywanie na podstawie czynności w bazie danych"
 
-#: ../src/tracker-store/tracker-main.vala:63
+#: ../src/tracker-store/tracker-main.vala:64
 msgid "Load a specified domain ontology"
 msgstr "Wczytuje podaną ontologię domeny"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.vala:194
+#: ../src/tracker-store/tracker-main.vala:199
 msgid "— start the tracker daemon"
 msgstr "— uruchamia usługę programu Tracker"
 
@@ -663,6 +655,14 @@ msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or 
 msgstr ""
 "Nieprawidłowa szczegółowość dziennika, proszę spróbować „debug”, „detailed”, "
 "„minimal” lub „errors”"
+
+#: ../src/tracker/tracker-daemon.c:1558 ../src/tracker/tracker-process.c:305
+#, c-format
+msgid "Found %d PID…"
+msgid_plural "Found %d PIDs…"
+msgstr[0] "Odnaleziono %d PID…"
+msgstr[1] "Odnaleziono %d PID-y…"
+msgstr[2] "Odnaleziono %d PID-ów…"
 
 #: ../src/tracker/tracker-daemon.c:1568
 #, c-format
@@ -1671,6 +1671,22 @@ msgstr "Nie można uzyskać podstawowego stanu programu Tracker"
 #, c-format
 msgid "Currently indexed"
 msgstr "Obecnie indeksowane"
+
+#: ../src/tracker/tracker-status.c:518 ../src/tracker/tracker-tag.c:559
+#, c-format
+msgid "%d file"
+msgid_plural "%d files"
+msgstr[0] "%d plik"
+msgstr[1] "%d pliki"
+msgstr[2] "%d plików"
+
+#: ../src/tracker/tracker-status.c:524
+#, c-format
+msgid "%d folders"
+msgid_plural "%d folders"
+msgstr[0] "%d katalog"
+msgstr[1] "%d katalogi"
+msgstr[2] "%d katalogów"
 
 #: ../src/tracker/tracker-status.c:550
 msgid "Data is still being indexed"
