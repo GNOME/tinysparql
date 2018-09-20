@@ -51,7 +51,7 @@ namespace Tracker {
 		public void add_string (string predicate, string object);
 		public void add_uri (string predicate, string object);
 
-		public GLib.List<GLib.Value> get_values (string predicate);
+		public GLib.List<GLib.Value?> get_values (string predicate);
 
 		public bool get_first_boolean (string predicate);
 		public double get_first_double (string predicate);
