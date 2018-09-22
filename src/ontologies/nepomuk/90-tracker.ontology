@@ -8,7 +8,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 tracker: a tracker:Ontology ;
-	nao:lastModified "2014-01-03T02:14:35Z" .
+	nao:lastModified "2018-09-30T13:00:00Z" .
 
 tracker:isDefaultTag a rdf:Property ;
 	rdfs:domain nao:Tag ;
@@ -58,3 +58,5 @@ fts: a tracker:Namespace ;
 
 tracker:extractor-data-source a nie:DataSource ;
 	rdfs:label "Tracker extractor data source" .
+
+nao:predefined-tag-favorite a nao:Tag .
