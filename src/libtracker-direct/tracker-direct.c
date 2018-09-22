@@ -399,6 +399,8 @@ tracker_direct_connection_finalize (GObject *object)
 			tracker_db_interface_sqlite_wal_checkpoint (wal_iface, TRUE, NULL);
 	}
 
+	tracker_data_manager_shutdown (priv->data_manager);
+
 	g_clear_object (&priv->store);
 	g_clear_object (&priv->journal);
 	g_clear_object (&priv->ontology);

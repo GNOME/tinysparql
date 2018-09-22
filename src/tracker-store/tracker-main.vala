@@ -342,8 +342,8 @@ License which can be viewed at:
 		Tracker.Writeback.shutdown ();
 		Tracker.Events.shutdown ();
 
-		data_manager.shutdown ();
 		data_manager = null;
+		connection = null;
 		Tracker.DBus.shutdown ();
 		Tracker.Log.shutdown ();
 
