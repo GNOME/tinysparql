@@ -155,28 +155,19 @@ const TestInfo tests[] = {
 	{ NULL }
 };
 
-static int
-strstr_i (const char *a, const char *b)
-{
-	return strstr (b, a) == NULL ? 1 : 0;
-}
-
 static void
 check_result (TrackerDBCursor *cursor,
               const TestInfo *test_info,
               const gchar *results_filename,
               GError *error)
 {
-	int (*comparer) (const char *a, const char *b);
 	GString *test_results;
 	gchar *results;
 	GError *nerror = NULL;
 
 	if (test_info->expect_query_error) {
-		comparer = strstr_i;
 		g_assert (error != NULL);
 	} else {
-		comparer = strcmp;
 		g_assert_no_error (error);
 	}
 
@@ -209,13 +200,15 @@ check_result (TrackerDBCursor *cursor,
 			g_string_append (test_results, "\n");
 		}
 	} else if (test_info->expect_query_error) {
-		g_string_append (test_results, error->message);
-		g_clear_error (&error);
-
-		g_strchomp(results);
+		g_assert (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
+		g_string_free (test_results, TRUE);
+		g_free (results);
+		return;
 	}
 
-	if (comparer (results, test_results->str)) {
+	g_assert_no_error (error);
+
+	if (strcmp (results, test_results->str) != 0) {
 		/* print result difference */
 		gchar *quoted_results;
 		gchar *command_line;
