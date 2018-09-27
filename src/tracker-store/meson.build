@@ -47,15 +47,11 @@ dbus_service_file = configure_file(
     install: true,
     install_dir: dbus_services_dir)
 
-desktop_file_untranslated = configure_file(
-    input: 'tracker-store.desktop.in.in',
-    output: 'tracker-store.desktop.in',
-    configuration: conf)
-
-desktop_file = custom_target('tracker-store-desktop-file',
-    input: desktop_file_untranslated,
+i18n.merge_file('tracker-store-desktop-file',
+    type: 'desktop',
+    input: 'tracker-store.desktop.in',
     output: 'tracker-store.desktop',
-    command: ['intltool-merge', '--quiet', '--desktop-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
+    po_dir: po_subdir,
     install: true,
     install_dir: join_paths(get_option('sysconfdir'), 'xdg/autostart'))
 
@@ -68,18 +64,10 @@ if install_systemd_user_services
       install_dir: systemd_user_services_dir)
 endif
 
-custom_target('tracker-store-settings-schema',
-    input: 'org.freedesktop.Tracker.Store.gschema.xml.in',
-    output: 'org.freedesktop.Tracker.Store.gschema.xml',
-    command: ['intltool-merge', '--quiet', '--xml-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
-    install: true,
+install_data('org.freedesktop.Tracker.Store.gschema.xml',
     install_dir: gsettings_schema_dir)
 
-custom_target('tracker-store-settings-schemalist',
-    input: 'org.freedesktop.Tracker.gschema.xml.in',
-    output: 'org.freedesktop.Tracker.gschema.xml',
-    command: ['intltool-merge', '--quiet', '--xml-style', '--utf8', po_subdir, '@INPUT@', '@OUTPUT@'],
-    install: true,
+install_data('org.freedesktop.Tracker.gschema.xml',
     install_dir: gsettings_schema_dir)
 
 custom_target('tracker-store-settings-enums',
