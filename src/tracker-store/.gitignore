@@ -9,6 +9,5 @@ tracker-steroids.c
 tracker-store.c
 tracker-store.h
 *.service
-*.xml
 *.valid
 *.cfg.5

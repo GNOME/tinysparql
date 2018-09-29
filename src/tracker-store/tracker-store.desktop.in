@@ -1,6 +1,6 @@
 [Desktop Entry]
-_Name=Tracker Store
-_Comment=Metadata database store and lookup manager
+Name=Tracker Store
+Comment=Metadata database store and lookup manager
 Exec=gdbus call -e -d org.freedesktop.DBus -o /org/freedesktop/DBus -m org.freedesktop.DBus.StartServiceByName org.freedesktop.Tracker1 0
 Terminal=false
 Type=Application
@@ -11,7 +11,3 @@ X-KDE-StartupNotify=false
 X-KDE-UniqueApplet=true
 NoDisplay=true
 OnlyShowIn=GNOME;KDE;XFCE;X-IVI;Unity;
-X-GNOME-Bugzilla-Bugzilla=GNOME
-X-GNOME-Bugzilla-Product=tracker
-X-GNOME-Bugzilla-Component=Store
-X-GNOME-Bugzilla-Version=@VERSION@
