@@ -40,8 +40,6 @@
  * as pausing or resuming data processing.
  **/
 
-#define TRACKER_MINER_MANAGER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_MANAGER, TrackerMinerManagerPrivate))
-
 #define DESKTOP_ENTRY_GROUP "D-BUS Service"
 #define DBUS_NAME_SUFFIX_KEY "NameSuffix"
 #define DBUS_PATH_KEY "Path"
@@ -93,6 +91,7 @@ static void miner_manager_finalize            (GObject             *object);
 static void initialize_miners_data            (TrackerMinerManager *manager);
 
 G_DEFINE_TYPE_WITH_CODE (TrackerMinerManager, tracker_miner_manager, G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (TrackerMinerManager)
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 miner_manager_initable_iface_init));
 
@@ -240,8 +239,6 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 		              NULL,
 		              G_TYPE_NONE, 1,
 		              G_TYPE_STRING);
-
-	g_type_class_add_private (object_class, sizeof (TrackerMinerManagerPrivate));
 }
 
 static void
@@ -254,7 +251,7 @@ miner_manager_set_property (GObject      *object,
 	TrackerMinerManagerPrivate *priv;
 
 	manager = TRACKER_MINER_MANAGER (object);
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	switch (prop_id) {
 	case PROP_AUTO_START:
@@ -279,7 +276,7 @@ miner_manager_get_property (GObject    *object,
 	TrackerMinerManagerPrivate *priv;
 
 	manager = TRACKER_MINER_MANAGER (object);
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	switch (prop_id) {
 	case PROP_AUTO_START:
@@ -303,7 +300,7 @@ find_miner_proxy (TrackerMinerManager *manager,
 	GHashTableIter iter;
 	gpointer key, value;
 
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 	g_hash_table_iter_init (&iter, priv->miner_proxies);
 
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
@@ -406,7 +403,7 @@ tracker_miner_manager_init (TrackerMinerManager *manager)
 {
 	TrackerMinerManagerPrivate *priv;
 
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	priv->miner_proxies = g_hash_table_new_full (NULL, NULL,
 	                                             (GDestroyNotify) g_object_unref,
@@ -424,7 +421,7 @@ miner_manager_initable_init (GInitable     *initable,
 	GList *m;
 
 	manager = TRACKER_MINER_MANAGER (initable);
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	priv->connection = g_bus_get_sync (TRACKER_IPC_BUS, NULL, &inner_error);
 	if (!priv->connection) {
@@ -567,7 +564,7 @@ miner_manager_finalize (GObject *object)
 {
 	TrackerMinerManagerPrivate *priv;
 
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (object);
+	priv = tracker_miner_manager_get_instance_private (TRACKER_MINER_MANAGER (object));
 
 	if (priv->connection) {
 		g_object_unref (priv->connection);
@@ -671,7 +668,7 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), NULL);
 
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	if (!priv->connection) {
 		return NULL;
@@ -729,7 +726,7 @@ check_file (GFile    *file,
 
 	manager = user_data;
 	path = g_file_get_path (file);
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	key_file = g_key_file_new ();
 	g_key_file_load_from_file (key_file, path, G_KEY_FILE_NONE, &error);
@@ -851,7 +848,7 @@ tracker_miner_manager_get_available (TrackerMinerManager *manager)
 	GSList *list = NULL;
 	GList *m;
 
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	for (m = priv->miners; m; m = m->next) {
 		MinerData *data = m->data;
@@ -1086,7 +1083,7 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
 	g_return_val_if_fail (miner != NULL, FALSE);
 
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	v = g_dbus_connection_call_sync (priv->connection,
 	                                 "org.freedesktop.DBus",
@@ -1335,7 +1332,7 @@ tracker_miner_manager_get_display_name (TrackerMinerManager *manager,
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), NULL);
 	g_return_val_if_fail (miner != NULL, NULL);
 
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	for (m = priv->miners; m; m = m->next) {
 		MinerData *data = m->data;
@@ -1369,7 +1366,7 @@ tracker_miner_manager_get_description (TrackerMinerManager *manager,
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), NULL);
 	g_return_val_if_fail (miner != NULL, NULL);
 
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	for (m = priv->miners; m; m = m->next) {
 		MinerData *data = m->data;
@@ -1439,7 +1436,7 @@ tracker_miner_manager_reindex_by_mimetype (TrackerMinerManager  *manager,
 		return FALSE;
 	}
 
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	v = g_dbus_connection_call_sync (priv->connection,
 	                                 "org.freedesktop.Tracker1.Miner.Files",
@@ -1492,7 +1489,7 @@ miner_manager_index_file_sync (TrackerMinerManager *manager,
 		return FALSE;
 	}
 
-	priv = TRACKER_MINER_MANAGER_GET_PRIVATE (manager);
+	priv = tracker_miner_manager_get_instance_private (manager);
 
 	uri = g_file_get_uri (file);
 
