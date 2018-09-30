@@ -165,7 +165,7 @@ public class Tracker.Resources : Object {
 		}
 	}
 
-	public void sync (BusName sender) {
+	public void sync (BusName sender) throws Error {
 		var request = DBusRequest.begin (sender, "Resources.Sync");
 		var data_manager = Tracker.Main.get_data_manager ();
 		var data = data_manager.get_data ();
@@ -199,7 +199,7 @@ public class Tracker.Resources : Object {
 		}
 	}
 
-	public void batch_commit () {
+	public void batch_commit () throws Error {
 		/* no longer needed, just return */
 	}
 

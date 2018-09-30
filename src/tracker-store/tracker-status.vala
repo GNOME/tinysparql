@@ -101,11 +101,11 @@ public class Tracker.Status : Object {
 		return callback;
 	}
 
-	public double get_progress  () {
+	public double get_progress () throws Error {
 		return this._progress;
 	}
 
-	public string get_status  () {
+	public string get_status () throws Error {
 		return this.status;
 	}
 
