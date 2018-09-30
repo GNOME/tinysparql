@@ -63,14 +63,14 @@ struct _UpdateArrayData {
 	GArray *sparql_array;
 };
 
-G_DEFINE_TYPE (TrackerSparqlBuffer, tracker_sparql_buffer, TRACKER_TYPE_TASK_POOL)
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerSparqlBuffer, tracker_sparql_buffer, TRACKER_TYPE_TASK_POOL)
 
 static void
 tracker_sparql_buffer_finalize (GObject *object)
 {
 	TrackerSparqlBufferPrivate *priv;
 
-	priv = TRACKER_SPARQL_BUFFER (object)->priv;
+	priv = tracker_sparql_buffer_get_instance_private (TRACKER_SPARQL_BUFFER (object));
 
 	if (priv->flush_timeout_id != 0) {
 		g_source_remove (priv->flush_timeout_id);
@@ -87,7 +87,7 @@ tracker_sparql_buffer_set_property (GObject      *object,
 {
 	TrackerSparqlBufferPrivate *priv;
 
-	priv = TRACKER_SPARQL_BUFFER (object)->priv;
+	priv = tracker_sparql_buffer_get_instance_private (TRACKER_SPARQL_BUFFER (object));
 
 	switch (param_id) {
 	case PROP_CONNECTION:
@@ -107,7 +107,7 @@ tracker_sparql_buffer_get_property (GObject    *object,
 {
 	TrackerSparqlBufferPrivate *priv;
 
-	priv = TRACKER_SPARQL_BUFFER (object)->priv;
+	priv = tracker_sparql_buffer_get_instance_private (TRACKER_SPARQL_BUFFER (object));
 
 	switch (param_id) {
 	case PROP_CONNECTION:
@@ -137,17 +137,15 @@ tracker_sparql_buffer_class_init (TrackerSparqlBufferClass *klass)
 	                                                      TRACKER_SPARQL_TYPE_CONNECTION,
 	                                                      G_PARAM_READWRITE |
 	                                                      G_PARAM_CONSTRUCT_ONLY));
-
-	g_type_class_add_private (object_class,
-	                          sizeof (TrackerSparqlBufferPrivate));
 }
 
 static gboolean
 flush_timeout_cb (gpointer user_data)
 {
 	TrackerSparqlBuffer *buffer = user_data;
-	TrackerSparqlBufferPrivate *priv = buffer->priv;
+	TrackerSparqlBufferPrivate *priv;
 
+	priv = tracker_sparql_buffer_get_instance_private (buffer);
 	tracker_sparql_buffer_flush (buffer, "Buffer time reached");
 	priv->flush_timeout_id = 0;
 
@@ -159,7 +157,7 @@ reset_flush_timeout (TrackerSparqlBuffer *buffer)
 {
 	TrackerSparqlBufferPrivate *priv;
 
-	priv = buffer->priv;
+	priv = tracker_sparql_buffer_get_instance_private (buffer);
 
 	if (priv->flush_timeout_id != 0) {
 		g_source_remove (priv->flush_timeout_id);
@@ -173,9 +171,6 @@ reset_flush_timeout (TrackerSparqlBuffer *buffer)
 static void
 tracker_sparql_buffer_init (TrackerSparqlBuffer *buffer)
 {
-	buffer->priv = G_TYPE_INSTANCE_GET_PRIVATE (buffer,
-	                                            TRACKER_TYPE_SPARQL_BUFFER,
-	                                            TrackerSparqlBufferPrivate);
 }
 
 TrackerSparqlBuffer *
@@ -230,7 +225,7 @@ tracker_sparql_buffer_update_array_cb (GObject      *object,
 	/* Get arrays of errors and queries */
 	update_data = user_data;
 	buffer = TRACKER_SPARQL_BUFFER (update_data->buffer);
-	priv = buffer->priv;
+	priv = tracker_sparql_buffer_get_instance_private (buffer);
 	priv->n_updates--;
 
 	g_debug ("(Sparql buffer) Finished array-update with %u tasks",
@@ -313,7 +308,7 @@ tracker_sparql_buffer_flush (TrackerSparqlBuffer *buffer,
 	UpdateArrayData *update_data;
 	gint i;
 
-	priv = buffer->priv;
+	priv = tracker_sparql_buffer_get_instance_private (buffer);
 
 	if (priv->n_updates > 0) {
 		return FALSE;
@@ -405,7 +400,7 @@ sparql_buffer_push_high_priority (TrackerSparqlBuffer *buffer,
 	TrackerSparqlBufferPrivate *priv;
 	UpdateData *update_data;
 
-	priv = buffer->priv;
+	priv = tracker_sparql_buffer_get_instance_private (buffer);
 
 	/* Task pool addition adds a reference (below) */
 	update_data = g_slice_new0 (UpdateData);
@@ -427,7 +422,7 @@ sparql_buffer_push_to_pool (TrackerSparqlBuffer *buffer,
 {
 	TrackerSparqlBufferPrivate *priv;
 
-	priv = buffer->priv;
+	priv = tracker_sparql_buffer_get_instance_private (buffer);
 
 	if (tracker_task_pool_get_size (TRACKER_TASK_POOL (buffer)) == 0) {
 		reset_flush_timeout (buffer);

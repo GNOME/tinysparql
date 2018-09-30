@@ -25,8 +25,6 @@
 #include "tracker-miner-enum-types.h"
 #include "tracker-utils.h"
 
-#define TRACKER_CRAWLER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CRAWLER, TrackerCrawlerPrivate))
-
 #define FILE_ATTRIBUTES	  \
 	G_FILE_ATTRIBUTE_STANDARD_NAME "," \
 	G_FILE_ATTRIBUTE_STANDARD_TYPE
@@ -41,6 +39,7 @@
 
 #define MAX_SIMULTANEOUS_ITEMS       64
 
+typedef struct TrackerCrawlerPrivate  TrackerCrawlerPrivate;
 typedef struct DirectoryChildData DirectoryChildData;
 typedef struct DirectoryProcessingData DirectoryProcessingData;
 typedef struct DirectoryRootInfo DirectoryRootInfo;
@@ -149,7 +148,7 @@ static void     directory_root_info_free (DirectoryRootInfo *info);
 static guint signals[LAST_SIGNAL] = { 0, };
 static GQuark file_info_quark = 0;
 
-G_DEFINE_TYPE (TrackerCrawler, tracker_crawler, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerCrawler, tracker_crawler, G_TYPE_OBJECT)
 
 static void
 tracker_crawler_class_init (TrackerCrawlerClass *klass)
@@ -231,8 +230,6 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 	                                                      G_PARAM_READWRITE |
 	                                                      G_PARAM_CONSTRUCT_ONLY));
 
-	g_type_class_add_private (object_class, sizeof (TrackerCrawlerPrivate));
-
 	file_info_quark = g_quark_from_static_string ("tracker-crawler-file-info");
 }
 
@@ -241,10 +238,7 @@ tracker_crawler_init (TrackerCrawler *object)
 {
 	TrackerCrawlerPrivate *priv;
 
-	object->priv = TRACKER_CRAWLER_GET_PRIVATE (object);
-
-	priv = object->priv;
-
+	priv = tracker_crawler_get_instance_private (TRACKER_CRAWLER (object));
 	priv->directories = g_queue_new ();
 }
 
@@ -256,7 +250,7 @@ crawler_set_property (GObject      *object,
 {
 	TrackerCrawlerPrivate *priv;
 
-	priv = TRACKER_CRAWLER (object)->priv;
+	priv = tracker_crawler_get_instance_private (TRACKER_CRAWLER (object));
 
 	switch (prop_id) {
 	case PROP_DATA_PROVIDER:
@@ -276,7 +270,7 @@ crawler_get_property (GObject    *object,
 {
 	TrackerCrawlerPrivate *priv;
 
-	priv = TRACKER_CRAWLER (object)->priv;
+	priv = tracker_crawler_get_instance_private (TRACKER_CRAWLER (object));
 
 	switch (prop_id) {
 	case PROP_DATA_PROVIDER:
@@ -293,7 +287,7 @@ crawler_finalize (GObject *object)
 {
 	TrackerCrawlerPrivate *priv;
 
-	priv = TRACKER_CRAWLER_GET_PRIVATE (object);
+	priv = tracker_crawler_get_instance_private (TRACKER_CRAWLER (object));
 
 	if (priv->timer) {
 		g_timer_destroy (priv->timer);
@@ -371,7 +365,7 @@ check_file (TrackerCrawler    *crawler,
 	gboolean use = FALSE;
 	TrackerCrawlerPrivate *priv;
 
-	priv = TRACKER_CRAWLER_GET_PRIVATE (crawler);
+	priv = tracker_crawler_get_instance_private (crawler);
 
 	g_signal_emit (crawler, signals[CHECK_FILE], 0, file, &use);
 
@@ -398,7 +392,7 @@ check_directory (TrackerCrawler    *crawler,
 	gboolean use = FALSE;
 	TrackerCrawlerPrivate *priv;
 
-	priv = TRACKER_CRAWLER_GET_PRIVATE (crawler);
+	priv = tracker_crawler_get_instance_private (crawler);
 
 	g_signal_emit (crawler, signals[CHECK_DIRECTORY], 0, file, &use);
 
@@ -590,7 +584,7 @@ process_next (TrackerCrawler *crawler)
 	DirectoryProcessingData *dir_data = NULL;
 	gboolean                 stop_idle = FALSE;
 
-	priv = crawler->priv;
+	priv = tracker_crawler_get_instance_private (crawler);
 
 	if (priv->is_paused) {
 		/* Stop the idle func for now until we are unpaused */
@@ -710,16 +704,20 @@ process_func (gpointer data)
 static gboolean
 process_func_start (TrackerCrawler *crawler)
 {
-	if (crawler->priv->is_paused) {
+	TrackerCrawlerPrivate *priv;
+
+	priv = tracker_crawler_get_instance_private (crawler);
+
+	if (priv->is_paused) {
 		return FALSE;
 	}
 
-	if (crawler->priv->is_finished) {
+	if (priv->is_finished) {
 		return FALSE;
 	}
 
-	if (crawler->priv->idle_id == 0) {
-		crawler->priv->idle_id = g_idle_add (process_func, crawler);
+	if (priv->idle_id == 0) {
+		priv->idle_id = g_idle_add (process_func, crawler);
 	}
 
 	return TRUE;
@@ -728,9 +726,13 @@ process_func_start (TrackerCrawler *crawler)
 static void
 process_func_stop (TrackerCrawler *crawler)
 {
-	if (crawler->priv->idle_id != 0) {
-		g_source_remove (crawler->priv->idle_id);
-		crawler->priv->idle_id = 0;
+	TrackerCrawlerPrivate *priv;
+
+	priv = tracker_crawler_get_instance_private (crawler);
+
+	if (priv->idle_id != 0) {
+		g_source_remove (priv->idle_id);
+		priv->idle_id = 0;
 	}
 }
 
@@ -783,12 +785,14 @@ data_provider_data_process (DataProviderData *dpd)
 static void
 data_provider_data_add (DataProviderData *dpd)
 {
+	TrackerCrawlerPrivate *priv;
 	TrackerCrawler *crawler;
 	GFile *parent;
 	GList *l;
 
 	crawler = dpd->crawler;
 	parent = dpd->dir_file;
+	priv = tracker_crawler_get_instance_private (crawler);
 
 	for (l = dpd->files; l; l = l->next) {
 		GFileInfo *info;
@@ -802,7 +806,7 @@ data_provider_data_add (DataProviderData *dpd)
 		child = g_file_get_child (parent, child_name);
 		is_dir = g_file_info_get_file_type (info) == G_FILE_TYPE_DIRECTORY;
 
-		if (crawler->priv->file_attributes) {
+		if (priv->file_attributes) {
 			/* Store the file info for future retrieval */
 			g_object_set_qdata_full (G_OBJECT (child),
 			                         file_info_quark,
@@ -929,12 +933,16 @@ enumerate_next_cb (GObject      *object,
 
 		process_func_start (dpd->crawler);
 	} else {
+		TrackerCrawlerPrivate *priv;
+
+		priv = tracker_crawler_get_instance_private (dpd->crawler);
+
 		/* More work to do, we keep reference given to us */
 		dpd->files = g_list_concat (dpd->files, info);
 		g_file_enumerator_next_files_async (G_FILE_ENUMERATOR (object),
 		                                    MAX_SIMULTANEOUS_ITEMS,
 		                                    G_PRIORITY_LOW,
-		                                    dpd->crawler->priv->cancellable,
+		                                    priv->cancellable,
 		                                    enumerate_next_cb,
 		                                    dpd);
 	}
@@ -945,6 +953,7 @@ data_provider_begin_cb (GObject      *object,
                         GAsyncResult *result,
                         gpointer      user_data)
 {
+	TrackerCrawlerPrivate *priv;
 	GFileEnumerator *enumerator;
 	DirectoryRootInfo *info;
 	DataProviderData *dpd;
@@ -971,10 +980,11 @@ data_provider_begin_cb (GObject      *object,
 
 	dpd = info->dpd;
 	dpd->enumerator = enumerator;
+	priv = tracker_crawler_get_instance_private (dpd->crawler);
 	g_file_enumerator_next_files_async (enumerator,
 	                                    MAX_SIMULTANEOUS_ITEMS,
 	                                    G_PRIORITY_LOW,
-	                                    dpd->crawler->priv->cancellable,
+	                                    priv->cancellable,
 	                                    enumerate_next_cb,
 	                                    dpd);
 }
@@ -984,8 +994,11 @@ data_provider_begin (TrackerCrawler          *crawler,
                      DirectoryRootInfo       *info,
                      DirectoryProcessingData *dir_data)
 {
+	TrackerCrawlerPrivate *priv;
 	DataProviderData *dpd;
 	gchar *attrs;
+
+	priv = tracker_crawler_get_instance_private (crawler);
 
 	/* DataProviderData is freed in data_provider_end() call. This
 	 * call must _ALWAYS_ be reached even on cancellation or
@@ -996,20 +1009,20 @@ data_provider_begin (TrackerCrawler          *crawler,
 	dpd = data_provider_data_new (crawler, info, dir_data);
 	info->dpd = dpd;
 
-	if (crawler->priv->file_attributes) {
+	if (priv->file_attributes) {
 		attrs = g_strconcat (FILE_ATTRIBUTES ",",
-		                     crawler->priv->file_attributes,
+		                     priv->file_attributes,
 		                     NULL);
 	} else {
 		attrs = g_strdup (FILE_ATTRIBUTES);
 	}
 
-	tracker_data_provider_begin_async (crawler->priv->data_provider,
+	tracker_data_provider_begin_async (priv->data_provider,
 	                                   dpd->dir_file,
 	                                   attrs,
 	                                   info->flags,
 	                                   G_PRIORITY_LOW,
-	                                   crawler->priv->cancellable,
+	                                   priv->cancellable,
 	                                   data_provider_begin_cb,
 	                                   info);
 	g_free (attrs);
@@ -1028,7 +1041,7 @@ tracker_crawler_start (TrackerCrawler        *crawler,
 	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), FALSE);
 	g_return_val_if_fail (G_IS_FILE (file), FALSE);
 
-	priv = crawler->priv;
+	priv = tracker_crawler_get_instance_private (crawler);
 
 	enable_stat = (flags & TRACKER_DIRECTORY_FLAG_NO_STAT) == 0;
 
@@ -1095,7 +1108,7 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
-	priv = crawler->priv;
+	priv = tracker_crawler_get_instance_private (crawler);
 
 	/* If already not running, just ignore */
 	if (!priv->is_running) {
@@ -1127,51 +1140,62 @@ tracker_crawler_stop (TrackerCrawler *crawler)
 void
 tracker_crawler_pause (TrackerCrawler *crawler)
 {
+	TrackerCrawlerPrivate *priv;
+
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
-	crawler->priv->is_paused = TRUE;
+	priv = tracker_crawler_get_instance_private (crawler);
+	priv->is_paused = TRUE;
 
-	if (crawler->priv->is_running) {
-		g_timer_stop (crawler->priv->timer);
+	if (priv->is_running) {
+		g_timer_stop (priv->timer);
 		process_func_stop (crawler);
 	}
 
 	g_message ("Crawler is paused, %s",
-	           crawler->priv->is_running ? "currently running" : "not running");
+	           priv->is_running ? "currently running" : "not running");
 }
 
 void
 tracker_crawler_resume (TrackerCrawler *crawler)
 {
+	TrackerCrawlerPrivate *priv;
+
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
-	crawler->priv->is_paused = FALSE;
+	priv = tracker_crawler_get_instance_private (crawler);
 
-	if (crawler->priv->is_running) {
-		g_timer_continue (crawler->priv->timer);
+	priv->is_paused = FALSE;
+
+	if (priv->is_running) {
+		g_timer_continue (priv->timer);
 		process_func_start (crawler);
 	}
 
 	g_message ("Crawler is resuming, %s",
-	           crawler->priv->is_running ? "currently running" : "not running");
+	           priv->is_running ? "currently running" : "not running");
 }
 
 void
 tracker_crawler_set_throttle (TrackerCrawler *crawler,
                               gdouble         throttle)
 {
+	TrackerCrawlerPrivate *priv;
+
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
+	priv = tracker_crawler_get_instance_private (crawler);
+
 	throttle = CLAMP (throttle, 0, 1);
-	crawler->priv->throttle = throttle;
+	priv->throttle = throttle;
 
 	/* Update timeouts */
-	if (crawler->priv->idle_id != 0) {
+	if (priv->idle_id != 0) {
 		guint interval, idle_id;
 
-		interval = TRACKER_CRAWLER_MAX_TIMEOUT_INTERVAL * crawler->priv->throttle;
+		interval = TRACKER_CRAWLER_MAX_TIMEOUT_INTERVAL * priv->throttle;
 
-		g_source_remove (crawler->priv->idle_id);
+		g_source_remove (priv->idle_id);
 
 		if (interval == 0) {
 			idle_id = g_idle_add (process_func, crawler);
@@ -1179,7 +1203,7 @@ tracker_crawler_set_throttle (TrackerCrawler *crawler,
 			idle_id = g_timeout_add (interval, process_func, crawler);
 		}
 
-		crawler->priv->idle_id = idle_id;
+		priv->idle_id = idle_id;
 	}
 }
 
@@ -1196,10 +1220,14 @@ void
 tracker_crawler_set_file_attributes (TrackerCrawler *crawler,
 				     const gchar    *file_attributes)
 {
+	TrackerCrawlerPrivate *priv;
+
 	g_return_if_fail (TRACKER_IS_CRAWLER (crawler));
 
-	g_free (crawler->priv->file_attributes);
-	crawler->priv->file_attributes = g_strdup (file_attributes);
+	priv = tracker_crawler_get_instance_private (crawler);
+
+	g_free (priv->file_attributes);
+	priv->file_attributes = g_strdup (file_attributes);
 }
 
 /**
@@ -1213,9 +1241,13 @@ tracker_crawler_set_file_attributes (TrackerCrawler *crawler,
 const gchar *
 tracker_crawler_get_file_attributes (TrackerCrawler *crawler)
 {
+	TrackerCrawlerPrivate *priv;
+
 	g_return_val_if_fail (TRACKER_IS_CRAWLER (crawler), NULL);
 
-	return crawler->priv->file_attributes;
+	priv = tracker_crawler_get_instance_private (crawler);
+
+	return priv->file_attributes;
 }
 
 /**

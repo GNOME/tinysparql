@@ -26,8 +26,6 @@
 #include "tracker-decorator-private.h"
 #include "tracker-decorator-fs.h"
 
-#define TRACKER_DECORATOR_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DECORATOR_FS, TrackerDecoratorFSPrivate))
-
 /**
  * SECTION:tracker-decorator-fs
  * @short_description: Filesystem implementation for TrackerDecorator
@@ -51,6 +49,7 @@ static void tracker_decorator_fs_initable_iface_init (GInitableIface *iface);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (TrackerDecoratorFS, tracker_decorator_fs,
                                   TRACKER_TYPE_DECORATOR,
+                                  G_ADD_PRIVATE (TrackerDecoratorFS)
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, tracker_decorator_fs_initable_iface_init))
 
 static void
@@ -72,8 +71,6 @@ tracker_decorator_fs_class_init (TrackerDecoratorFSClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_decorator_fs_finalize;
-
-	g_type_class_add_private (object_class, sizeof (TrackerDecoratorFSPrivate));
 }
 
 static void
@@ -276,7 +273,7 @@ tracker_decorator_fs_initable_iface_init (GInitableIface *iface)
 static void
 tracker_decorator_fs_init (TrackerDecoratorFS *decorator)
 {
-	decorator->priv = TRACKER_DECORATOR_FS_GET_PRIVATE (decorator);
+	decorator->priv = tracker_decorator_fs_get_instance_private (decorator);
 }
 
 /**

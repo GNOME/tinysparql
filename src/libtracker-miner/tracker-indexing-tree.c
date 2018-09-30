@@ -30,8 +30,6 @@
  * by the #TrackerMinerFS.
  **/
 
-G_DEFINE_TYPE (TrackerIndexingTree, tracker_indexing_tree, G_TYPE_OBJECT)
-
 typedef struct _TrackerIndexingTreePrivate TrackerIndexingTreePrivate;
 typedef struct _NodeData NodeData;
 typedef struct _PatternData PatternData;
@@ -68,6 +66,8 @@ struct _TrackerIndexingTreePrivate
 	GFile *root;
 	guint filter_hidden : 1;
 };
+
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerIndexingTree, tracker_indexing_tree, G_TYPE_OBJECT)
 
 enum {
 	PROP_0,
@@ -356,9 +356,6 @@ tracker_indexing_tree_class_init (TrackerIndexingTreeClass *klass)
 		              NULL, NULL,
 		              NULL,
 		              G_TYPE_NONE, 2, G_TYPE_FILE, G_TYPE_FILE);
-
-	g_type_class_add_private (object_class,
-	                          sizeof (TrackerIndexingTreePrivate));
 }
 
 static void
@@ -367,9 +364,7 @@ tracker_indexing_tree_init (TrackerIndexingTree *tree)
 	TrackerIndexingTreePrivate *priv;
 	gint i;
 
-	priv = tree->priv = G_TYPE_INSTANCE_GET_PRIVATE (tree,
-	                                                 TRACKER_TYPE_INDEXING_TREE,
-	                                                 TrackerIndexingTreePrivate);
+	priv = tree->priv = tracker_indexing_tree_get_instance_private (tree);
 
 	for (i = TRACKER_FILTER_FILE; i <= TRACKER_FILTER_PARENT_DIRECTORY; i++) {
 		priv->policies[i] = TRACKER_FILTER_POLICY_ACCEPT;

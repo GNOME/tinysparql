@@ -42,7 +42,6 @@ typedef struct _TrackerTask TrackerTask;
 struct _TrackerTaskPool
 {
 	GObject parent_instance;
-	gpointer priv;
 };
 
 struct _TrackerTaskPoolClass

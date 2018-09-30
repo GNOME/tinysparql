@@ -45,7 +45,6 @@ typedef struct _TrackerSparqlBufferClass TrackerSparqlBufferClass;
 struct _TrackerSparqlBuffer
 {
 	TrackerTaskPool parent_instance;
-	gpointer priv;
 };
 
 struct _TrackerSparqlBufferClass

@@ -42,7 +42,6 @@ typedef struct _TrackerFileSystemClass TrackerFileSystemClass;
 
 struct _TrackerFileSystem {
 	GObject parent_instance;
-	gpointer priv;
 };
 
 struct _TrackerFileSystemClass {

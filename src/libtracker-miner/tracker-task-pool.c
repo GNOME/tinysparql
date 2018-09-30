@@ -29,8 +29,6 @@ enum {
 	PROP_LIMIT_REACHED
 };
 
-G_DEFINE_TYPE (TrackerTaskPool, tracker_task_pool, G_TYPE_OBJECT)
-
 typedef struct _TrackerTaskPoolPrivate TrackerTaskPoolPrivate;
 
 struct _TrackerTaskPoolPrivate
@@ -47,12 +45,14 @@ struct _TrackerTask
 	gint ref_count;
 };
 
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerTaskPool, tracker_task_pool, G_TYPE_OBJECT)
+
 static void
 tracker_task_pool_finalize (GObject *object)
 {
 	TrackerTaskPoolPrivate *priv;
 
-	priv = TRACKER_TASK_POOL (object)->priv;
+	priv = tracker_task_pool_get_instance_private (TRACKER_TASK_POOL (object));
 	g_hash_table_unref (priv->tasks);
 
 	G_OBJECT_CLASS (tracker_task_pool_parent_class)->finalize (object);
@@ -122,8 +122,6 @@ tracker_task_pool_class_init (TrackerTaskPoolClass *klass)
 	                                                       "Task limit reached",
 	                                                       FALSE,
 	                                                       G_PARAM_READABLE));
-
-	g_type_class_add_private (klass, sizeof (TrackerTaskPoolPrivate));
 }
 
 static gboolean
@@ -142,9 +140,7 @@ tracker_task_pool_init (TrackerTaskPool *pool)
 {
 	TrackerTaskPoolPrivate *priv;
 
-	priv = pool->priv = G_TYPE_INSTANCE_GET_PRIVATE (pool,
-	                                                 TRACKER_TYPE_TASK_POOL,
-	                                                 TrackerTaskPoolPrivate);
+	priv = tracker_task_pool_get_instance_private (pool);
 	priv->tasks = g_hash_table_new_full (g_file_hash,
 	                                     (GEqualFunc) file_equal,
 	                                     NULL,
@@ -171,7 +167,7 @@ tracker_task_pool_set_limit (TrackerTaskPool *pool,
 
 	old_limit_reached = tracker_task_pool_limit_reached (pool);
 
-	priv = pool->priv;
+	priv = tracker_task_pool_get_instance_private (pool);
 	priv->limit = limit;
 
 	if (old_limit_reached !=
@@ -187,7 +183,7 @@ tracker_task_pool_get_limit (TrackerTaskPool *pool)
 
 	g_return_val_if_fail (TRACKER_IS_TASK_POOL (pool), 0);
 
-	priv = pool->priv;
+	priv = tracker_task_pool_get_instance_private (pool);
 	return priv->limit;
 }
 
@@ -198,7 +194,7 @@ tracker_task_pool_get_size (TrackerTaskPool *pool)
 
 	g_return_val_if_fail (TRACKER_IS_TASK_POOL (pool), 0);
 
-	priv = pool->priv;
+	priv = tracker_task_pool_get_instance_private (pool);
 	return g_hash_table_size (priv->tasks);
 }
 
@@ -209,7 +205,7 @@ tracker_task_pool_limit_reached (TrackerTaskPool *pool)
 
 	g_return_val_if_fail (TRACKER_IS_TASK_POOL (pool), FALSE);
 
-	priv = pool->priv;
+	priv = tracker_task_pool_get_instance_private (pool);
 	return (g_hash_table_size (priv->tasks) >= priv->limit);
 }
 
@@ -222,7 +218,7 @@ tracker_task_pool_add (TrackerTaskPool *pool,
 
 	g_return_if_fail (TRACKER_IS_TASK_POOL (pool));
 
-	priv = pool->priv;
+	priv = tracker_task_pool_get_instance_private (pool);
 
 	file = tracker_task_get_file (task);
 
@@ -251,7 +247,7 @@ tracker_task_pool_remove (TrackerTaskPool *pool,
 
 	g_return_val_if_fail (TRACKER_IS_TASK_POOL (pool), FALSE);
 
-	priv = pool->priv;
+	priv = tracker_task_pool_get_instance_private (pool);
 
 	if (g_hash_table_remove (priv->tasks,
 	                         tracker_task_get_file (task))) {
@@ -278,7 +274,7 @@ tracker_task_pool_foreach (TrackerTaskPool *pool,
 	g_return_if_fail (TRACKER_IS_TASK_POOL (pool));
 	g_return_if_fail (func != NULL);
 
-	priv = pool->priv;
+	priv = tracker_task_pool_get_instance_private (pool);
 	g_hash_table_iter_init (&iter, priv->tasks);
 
 	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &task)) {
@@ -295,7 +291,7 @@ tracker_task_pool_find (TrackerTaskPool *pool,
 	g_return_val_if_fail (TRACKER_IS_TASK_POOL (pool), NULL);
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 
-	priv = pool->priv;
+	priv = tracker_task_pool_get_instance_private (pool);
 	return g_hash_table_lookup (priv->tasks, file);
 }
 

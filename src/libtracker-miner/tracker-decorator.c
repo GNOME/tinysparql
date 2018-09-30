@@ -28,8 +28,6 @@
 #define QUERY_BATCH_SIZE 100
 #define DEFAULT_BATCH_SIZE 200
 
-#define TRACKER_DECORATOR_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_DECORATOR, TrackerDecoratorPrivate))
-
 /**
  * SECTION:tracker-decorator
  * @short_description: A miner tasked with listening for DB resource changes and extracting metadata
@@ -139,6 +137,7 @@ static void notifier_events_cb (TrackerDecorator *decorator,
 G_DEFINE_QUARK (TrackerDecoratorError, tracker_decorator_error)
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (TrackerDecorator, tracker_decorator, TRACKER_TYPE_MINER,
+                                  G_ADD_PRIVATE (TrackerDecorator)
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, tracker_decorator_initable_iface_init))
 
 static TrackerDecoratorInfo *
@@ -1287,8 +1286,6 @@ tracker_decorator_class_init (TrackerDecoratorClass *klass)
 		              G_STRUCT_OFFSET (TrackerDecoratorClass, finished),
 		              NULL, NULL, NULL,
 		              G_TYPE_NONE, 0);
-
-	g_type_class_add_private (object_class, sizeof (TrackerDecoratorPrivate));
 }
 
 static void
@@ -1302,7 +1299,7 @@ tracker_decorator_init (TrackerDecorator *decorator)
 {
 	TrackerDecoratorPrivate *priv;
 
-	decorator->priv = priv = TRACKER_DECORATOR_GET_PRIVATE (decorator);
+	decorator->priv = priv = tracker_decorator_get_instance_private (decorator);
 	priv->classes = g_array_new (FALSE, FALSE, sizeof (ClassInfo));
 	g_array_set_clear_func (priv->classes, (GDestroyNotify) class_info_clear);
 	priv->blacklist_items = g_sequence_new (NULL);

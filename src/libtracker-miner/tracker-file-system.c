@@ -65,7 +65,7 @@ static GQuark quark_file_node = 0;
 static void file_weak_ref_notify (gpointer    user_data,
                                   GObject    *prev_location);
 
-G_DEFINE_TYPE (TrackerFileSystem, tracker_file_system, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerFileSystem, tracker_file_system, G_TYPE_OBJECT)
 
 /*
  * TrackerFileSystem is a filesystem abstraction, it mainly serves 2 purposes:
@@ -343,7 +343,7 @@ file_system_finalize (GObject *object)
 {
 	TrackerFileSystemPrivate *priv;
 
-	priv = TRACKER_FILE_SYSTEM (object)->priv;
+	priv = tracker_file_system_get_instance_private (TRACKER_FILE_SYSTEM (object));
 
 	g_node_traverse (priv->file_tree,
 	                 G_POST_ORDER,
@@ -367,7 +367,7 @@ file_system_constructed (GObject *object)
 
 	G_OBJECT_CLASS (tracker_file_system_parent_class)->constructed (object);
 
-	priv = TRACKER_FILE_SYSTEM (object)->priv;
+	priv = tracker_file_system_get_instance_private (TRACKER_FILE_SYSTEM (object));
 
 	if (priv->root == NULL) {
 		priv->root = g_file_new_for_uri ("file:///");
@@ -385,7 +385,7 @@ file_system_get_property (GObject    *object,
 {
 	TrackerFileSystemPrivate *priv;
 
-	priv = TRACKER_FILE_SYSTEM (object)->priv;
+	priv = tracker_file_system_get_instance_private (TRACKER_FILE_SYSTEM (object));
 
 	switch (prop_id) {
 	case PROP_ROOT:
@@ -405,7 +405,7 @@ file_system_set_property (GObject      *object,
 {
 	TrackerFileSystemPrivate *priv;
 
-	priv = TRACKER_FILE_SYSTEM (object)->priv;
+	priv = tracker_file_system_get_instance_private (TRACKER_FILE_SYSTEM (object));
 
 	switch (prop_id) {
 	case PROP_ROOT:
@@ -435,19 +435,12 @@ tracker_file_system_class_init (TrackerFileSystemClass *klass)
 	                                                      G_TYPE_FILE,
 	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 
-	g_type_class_add_private (object_class,
-	                          sizeof (TrackerFileSystemPrivate));
-
 	quark_file_node =
 		g_quark_from_static_string ("tracker-quark-file-node");
 }
 static void
 tracker_file_system_init (TrackerFileSystem *file_system)
 {
-	file_system->priv =
-		G_TYPE_INSTANCE_GET_PRIVATE (file_system,
-		                             TRACKER_TYPE_FILE_SYSTEM,
-		                             TrackerFileSystemPrivate);
 }
 
 TrackerFileSystem *
@@ -525,7 +518,7 @@ file_system_get_node (TrackerFileSystem *file_system,
 	if (lookup_data && lookup_data->file_system == file_system)
 		return lookup_data->node;
 
-	priv = file_system->priv;
+	priv = tracker_file_system_get_instance_private (file_system);
 	return file_tree_lookup (priv->file_tree, file, NULL, NULL);
 }
 
@@ -545,7 +538,7 @@ tracker_file_system_get_file (TrackerFileSystem *file_system,
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
 
-	priv = file_system->priv;
+	priv = tracker_file_system_get_instance_private (file_system);
 	node = NULL;
 	lookup_data = g_object_get_qdata (G_OBJECT (file), quark_file_node);
 
@@ -714,7 +707,7 @@ tracker_file_system_traverse (TrackerFileSystem             *file_system,
 	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
 	g_return_if_fail (func != NULL);
 
-	priv = file_system->priv;
+	priv = tracker_file_system_get_instance_private (file_system);
 
 	if (root) {
 		node = file_system_get_node (file_system, root);

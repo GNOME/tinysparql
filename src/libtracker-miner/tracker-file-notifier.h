@@ -45,7 +45,6 @@ typedef enum _TrackerFileNotifierType TrackerFileNotifierType;
 
 struct _TrackerFileNotifier {
 	GObject parent_instance;
-	gpointer priv;
 };
 
 struct _TrackerFileNotifierClass {

@@ -59,8 +59,6 @@
  * just after creation (or directly created with g_initable_new()).
  **/
 
-#define TRACKER_MINER_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER, TrackerMinerPrivate))
-
 struct _TrackerMinerPrivate {
 	TrackerSparqlConnection *connection;
 	gboolean started;
@@ -118,6 +116,7 @@ static gboolean   miner_initable_init          (GInitable              *initable
 G_DEFINE_QUARK (TrackerMinerError, tracker_miner_error)
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (TrackerMiner, tracker_miner, G_TYPE_OBJECT,
+                                  G_ADD_PRIVATE (TrackerMiner)
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                          miner_initable_iface_init));
 
@@ -275,8 +274,6 @@ tracker_miner_class_init (TrackerMinerClass *klass)
 	                                                      TRACKER_SPARQL_TYPE_CONNECTION,
 	                                                      G_PARAM_READWRITE |
 	                                                      G_PARAM_CONSTRUCT_ONLY));
-
-	g_type_class_add_private (object_class, sizeof (TrackerMinerPrivate));
 }
 
 static void
@@ -309,7 +306,7 @@ miner_initable_init (GInitable     *initable,
 static void
 tracker_miner_init (TrackerMiner *miner)
 {
-	miner->priv = TRACKER_MINER_GET_PRIVATE (miner);
+	miner->priv = tracker_miner_get_instance_private (miner);
 }
 
 static gboolean

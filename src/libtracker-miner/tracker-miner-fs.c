@@ -137,8 +137,6 @@ static gboolean miner_fs_queues_status_trace_timeout_cb (gpointer data);
  * ]|
  **/
 
-#define TRACKER_MINER_FS_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), TRACKER_TYPE_MINER_FS, TrackerMinerFSPrivate))
-
 typedef struct {
 	guint16 type;
 	guint attributes_update : 1;
@@ -327,6 +325,7 @@ static guint signals[LAST_SIGNAL] = { 0, };
 G_DEFINE_QUARK (TrackerMinerFSError, tracker_miner_fs_error)
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (TrackerMinerFS, tracker_miner_fs, TRACKER_TYPE_MINER,
+                                  G_ADD_PRIVATE (TrackerMinerFS)
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                          miner_fs_initable_iface_init));
 
@@ -568,8 +567,6 @@ tracker_miner_fs_class_init (TrackerMinerFSClass *klass)
 		              G_TYPE_STRING,
 		              3, G_TYPE_FILE, G_TYPE_FILE, G_TYPE_BOOLEAN);
 
-	g_type_class_add_private (object_class, sizeof (TrackerMinerFSPrivate));
-
 	quark_last_queue_event = g_quark_from_static_string ("tracker-last-queue-event");
 }
 
@@ -578,7 +575,7 @@ tracker_miner_fs_init (TrackerMinerFS *object)
 {
 	TrackerMinerFSPrivate *priv;
 
-	object->priv = TRACKER_MINER_FS_GET_PRIVATE (object);
+	object->priv = tracker_miner_fs_get_instance_private (object);
 
 	priv = object->priv;
 
@@ -624,7 +621,7 @@ miner_fs_initable_init (GInitable     *initable,
 		return FALSE;
 	}
 
-	priv = TRACKER_MINER_FS_GET_PRIVATE (initable);
+	priv = TRACKER_MINER_FS (initable)->priv;
 
 	g_object_get (initable, "processing-pool-ready-limit", &limit, NULL);
 	priv->sparql_buffer = tracker_sparql_buffer_new (tracker_miner_get_connection (TRACKER_MINER (initable)),
@@ -848,7 +845,7 @@ fs_finalize (GObject *object)
 {
 	TrackerMinerFSPrivate *priv;
 
-	priv = TRACKER_MINER_FS_GET_PRIVATE (object);
+	priv = TRACKER_MINER_FS (object)->priv;
 
 	g_timer_destroy (priv->timer);
 	g_timer_destroy (priv->extraction_timer);
@@ -923,7 +920,7 @@ fs_constructed (GObject *object)
 	 */
 	G_OBJECT_CLASS (tracker_miner_fs_parent_class)->constructed (object);
 
-	priv = TRACKER_MINER_FS_GET_PRIVATE (object);
+	priv = TRACKER_MINER_FS (object)->priv;
 
 	/* Create root if one didn't exist */
 	if (priv->root == NULL) {
