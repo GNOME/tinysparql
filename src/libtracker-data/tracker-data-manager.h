@@ -80,7 +80,6 @@ TrackerOntologies *  tracker_data_manager_get_ontologies      (TrackerDataManage
 TrackerDBManager *   tracker_data_manager_get_db_manager      (TrackerDataManager *manager);
 TrackerDBInterface * tracker_data_manager_get_db_interface    (TrackerDataManager *manager);
 TrackerDBInterface * tracker_data_manager_get_writable_db_interface (TrackerDataManager *manager);
-TrackerDBInterface * tracker_data_manager_get_wal_db_interface (TrackerDataManager *manager);
 TrackerData *        tracker_data_manager_get_data            (TrackerDataManager *manager);
 
 gboolean tracker_data_manager_init_fts               (TrackerDBInterface     *interface,

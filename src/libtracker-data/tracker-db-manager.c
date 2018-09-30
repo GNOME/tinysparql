@@ -154,6 +154,8 @@ static TrackerDBInterface *tracker_db_manager_create_db_interface   (TrackerDBMa
                                                                      GError             **error);
 static void                db_remove_locale_file                    (TrackerDBManager    *db_manager);
 
+static TrackerDBInterface * init_writable_db_interface              (TrackerDBManager *db_manager);
+
 static gboolean
 db_exec_no_reply (TrackerDBInterface *iface,
                   const gchar        *query,
@@ -1118,9 +1120,11 @@ static gpointer
 wal_checkpoint_thread (gpointer data)
 {
 	TrackerDBManager *db_manager = data;
-	TrackerDBInterface *wal_iface = tracker_db_manager_get_wal_db_interface (db_manager);
 
-	wal_checkpoint (wal_iface, FALSE);
+	if (!db_manager->db.wal_iface)
+		db_manager->db.wal_iface = init_writable_db_interface (db_manager);
+
+	wal_checkpoint (db_manager->db.wal_iface, FALSE);
 
 	return NULL;
 }
@@ -1180,17 +1184,6 @@ tracker_db_manager_get_writable_db_interface (TrackerDBManager *db_manager)
 	}
 
 	return db_manager->db.iface;
-}
-
-TrackerDBInterface *
-tracker_db_manager_get_wal_db_interface (TrackerDBManager *db_manager)
-{
-	if (db_manager->db.wal_iface == NULL &&
-	    (db_manager->flags & TRACKER_DB_MANAGER_READONLY) == 0) {
-		db_manager->db.wal_iface = init_writable_db_interface (db_manager);
-	}
-
-	return db_manager->db.wal_iface;
 }
 
 /**

@@ -5044,12 +5044,6 @@ tracker_data_manager_get_writable_db_interface (TrackerDataManager *manager)
 	return tracker_db_manager_get_writable_db_interface (manager->db_manager);
 }
 
-TrackerDBInterface *
-tracker_data_manager_get_wal_db_interface (TrackerDataManager *manager)
-{
-	return tracker_db_manager_get_wal_db_interface (manager->db_manager);
-}
-
 TrackerData *
 tracker_data_manager_get_data (TrackerDataManager *manager)
 {

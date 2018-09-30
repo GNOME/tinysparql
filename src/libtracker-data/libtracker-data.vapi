@@ -229,7 +229,6 @@ namespace Tracker {
                 public unowned Ontologies get_ontologies ();
 		public unowned DBInterface get_db_interface ();
 		public unowned DBInterface get_writable_db_interface ();
-		public unowned DBInterface get_wal_db_interface ();
 		public unowned Data.Update get_data ();
 		public void shutdown ();
 		public GLib.HashTable<string,string> get_namespaces ();
