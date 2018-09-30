@@ -186,57 +186,6 @@ query_thread_pool_func (gpointer data,
 	g_object_unref (task);
 }
 
-static void
-wal_checkpoint (TrackerDBInterface *iface,
-                gboolean            blocking)
-{
-	GError *error = NULL;
-
-	g_debug ("Checkpointing database...");
-
-	tracker_db_interface_sqlite_wal_checkpoint (iface, blocking,
-	                                            blocking ? &error : NULL);
-
-	if (error) {
-		g_warning ("Error in WAL checkpoint: %s", error->message);
-		g_error_free (error);
-	}
-
-	g_debug ("Checkpointing complete");
-}
-
-static gpointer
-wal_checkpoint_thread (gpointer data)
-{
-	TrackerDBInterface *wal_iface = data;
-
-	wal_checkpoint (wal_iface, FALSE);
-	g_object_unref (wal_iface);
-	return NULL;
-}
-
-static void
-wal_hook (TrackerDBInterface *iface,
-          gint                n_pages)
-{
-	TrackerDataManager *data_manager = tracker_db_interface_get_user_data (iface);
-	TrackerDBInterface *wal_iface = tracker_data_manager_get_wal_db_interface (data_manager);
-
-	if (!wal_iface)
-		return;
-
-	if (n_pages >= 10000) {
-		/* Do immediate checkpointing (blocking updates) to
-		 * prevent excessive WAL file growth.
-		 */
-		wal_checkpoint (wal_iface, TRUE);
-	} else {
-		/* Defer non-blocking checkpoint to thread */
-		g_thread_try_new ("wal-checkpoint", wal_checkpoint_thread,
-		                  g_object_ref (wal_iface), NULL);
-	}
-}
-
 static gint
 task_compare_func (GTask    *a,
                    GTask    *b,
@@ -280,7 +229,6 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
 	TrackerDBManagerFlags db_flags = TRACKER_DB_MANAGER_ENABLE_MUTEXES;
-	TrackerDBInterface *iface;
 	GHashTable *namespaces;
 	GHashTableIter iter;
 	gchar *prefix, *ns;
@@ -303,12 +251,6 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	if (!g_initable_init (G_INITABLE (priv->data_manager), cancellable, error)) {
 		g_clear_object (&priv->data_manager);
 		return FALSE;
-	}
-
-	if ((priv->flags & TRACKER_SPARQL_CONNECTION_FLAGS_READONLY) == 0) {
-		/* Set up WAL hook on our connection */
-		iface = tracker_data_manager_get_writable_db_interface (priv->data_manager);
-		tracker_db_interface_sqlite_wal_hook (iface, wal_hook);
 	}
 
 	/* Initialize namespace manager */
@@ -394,19 +336,11 @@ tracker_direct_connection_finalize (GObject *object)
 	if (priv->select_pool)
 		g_thread_pool_free (priv->select_pool, TRUE, FALSE);
 
-	if (priv->data_manager) {
-		TrackerDBInterface *wal_iface;
-		wal_iface = tracker_data_manager_get_wal_db_interface (priv->data_manager);
-		if (wal_iface)
-			tracker_db_interface_sqlite_wal_checkpoint (wal_iface, TRUE, NULL);
-	}
-
 	tracker_data_manager_shutdown (priv->data_manager);
 
 	g_clear_object (&priv->store);
 	g_clear_object (&priv->journal);
 	g_clear_object (&priv->ontology);
-	g_clear_object (&priv->data_manager);
 	g_clear_object (&priv->namespace_manager);
 
 	G_OBJECT_CLASS (tracker_direct_connection_parent_class)->finalize (object);
@@ -881,7 +815,6 @@ void
 tracker_direct_connection_sync (TrackerDirectConnection *conn)
 {
 	TrackerDirectConnectionPrivate *priv;
-	TrackerDBInterface *wal_iface;
 
 	priv = tracker_direct_connection_get_instance_private (conn);
 
@@ -896,8 +829,4 @@ tracker_direct_connection_sync (TrackerDirectConnection *conn)
 		g_thread_pool_free (priv->select_pool, TRUE, FALSE);
 
 	set_up_thread_pools (conn, NULL);
-
-	wal_iface = tracker_data_manager_get_wal_db_interface (priv->data_manager);
-	if (wal_iface)
-		tracker_db_interface_sqlite_wal_checkpoint (wal_iface, TRUE, NULL);
 }

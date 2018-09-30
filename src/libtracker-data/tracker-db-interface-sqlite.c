@@ -95,6 +95,7 @@ struct TrackerDBInterface {
 
 	/* Wal */
 	TrackerDBWalCallback wal_hook;
+	gpointer wal_hook_data;
 
 	/* User data */
 	gpointer user_data;
@@ -1868,15 +1869,17 @@ wal_hook (gpointer     user_data,
 {
 	TrackerDBInterface *iface = user_data;
 
-	iface->wal_hook (iface, n_pages);
+	iface->wal_hook (iface, n_pages, iface->wal_hook_data);
 	return SQLITE_OK;
 }
 
 void
 tracker_db_interface_sqlite_wal_hook (TrackerDBInterface   *interface,
-                                      TrackerDBWalCallback  callback)
+                                      TrackerDBWalCallback  callback,
+                                      gpointer              user_data)
 {
 	interface->wal_hook = callback;
+	interface->wal_hook_data = user_data;
 	sqlite3_wal_hook (interface->db, wal_hook, interface);
 }
 
