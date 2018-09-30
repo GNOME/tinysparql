@@ -109,8 +109,8 @@ License which can be viewed at:
 		}
 
 		switch (signo) {
-		case Posix.SIGTERM:
-		case Posix.SIGINT:
+		case Posix.Signal.TERM:
+		case Posix.Signal.INT:
 			in_loop = true;
 			do_shutdown ();
 
@@ -131,8 +131,8 @@ License which can be viewed at:
 	}
 
 	static void initialize_signal_handler () {
-		Unix.signal_add (Posix.SIGTERM, () => signal_handler (Posix.SIGTERM));
-		Unix.signal_add (Posix.SIGINT, () => signal_handler (Posix.SIGINT));
+		Unix.signal_add (Posix.Signal.TERM, () => signal_handler (Posix.Signal.TERM));
+		Unix.signal_add (Posix.Signal.INT, () => signal_handler (Posix.Signal.INT));
 	}
 
 	static void initialize_priority () {
