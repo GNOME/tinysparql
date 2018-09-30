@@ -65,7 +65,6 @@ typedef struct _TrackerPropertyPrivate TrackerPropertyPrivate;
 
 struct _TrackerProperty {
 	GObject parent;
-	TrackerPropertyPrivate *priv;
 };
 
 struct _TrackerPropertyClass {

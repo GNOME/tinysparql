@@ -28,8 +28,6 @@
 
 #include "tracker-ontology.h"
 
-#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_ONTOLOGY, TrackerOntologyPrivate))
-
 typedef struct _TrackerOntologyPrivate TrackerOntologyPrivate;
 
 struct _TrackerOntologyPrivate {
@@ -41,16 +39,14 @@ struct _TrackerOntologyPrivate {
 
 static void ontology_finalize     (GObject      *object);
 
-G_DEFINE_TYPE (TrackerOntology, tracker_ontology, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerOntology, tracker_ontology, G_TYPE_OBJECT);
 
 static void
 tracker_ontology_class_init (TrackerOntologyClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize     = ontology_finalize;
-
-	g_type_class_add_private (object_class, sizeof (TrackerOntologyPrivate));
+	object_class->finalize = ontology_finalize;
 }
 
 static void
@@ -63,7 +59,7 @@ ontology_finalize (GObject *object)
 {
 	TrackerOntologyPrivate *priv;
 
-	priv = GET_PRIV (object);
+	priv = tracker_ontology_get_instance_private (TRACKER_ONTOLOGY (object));
 
 	g_free (priv->uri);
 
@@ -87,7 +83,7 @@ tracker_ontology_get_last_modified (TrackerOntology *ontology)
 
 	g_return_val_if_fail (TRACKER_IS_ONTOLOGY (ontology), 0);
 
-	priv = GET_PRIV (ontology);
+	priv = tracker_ontology_get_instance_private (ontology);
 
 	return priv->last_modified;
 }
@@ -99,7 +95,7 @@ tracker_ontology_get_is_new (TrackerOntology *ontology)
 
 	g_return_val_if_fail (TRACKER_IS_ONTOLOGY (ontology), FALSE);
 
-	priv = GET_PRIV (ontology);
+	priv = tracker_ontology_get_instance_private (ontology);
 
 	return priv->is_new;
 }
@@ -113,7 +109,7 @@ tracker_ontology_set_last_modified (TrackerOntology *ontology,
 
 	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
 
-	priv = GET_PRIV (ontology);
+	priv = tracker_ontology_get_instance_private (ontology);
 
 	priv->last_modified = value;
 }
@@ -126,7 +122,7 @@ tracker_ontology_get_uri (TrackerOntology *ontology)
 
 	g_return_val_if_fail (TRACKER_IS_ONTOLOGY (ontology), NULL);
 
-	priv = GET_PRIV (ontology);
+	priv = tracker_ontology_get_instance_private (ontology);
 
 	return priv->uri;
 }
@@ -140,7 +136,7 @@ tracker_ontology_set_uri (TrackerOntology *ontology,
 
 	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
 
-	priv = GET_PRIV (ontology);
+	priv = tracker_ontology_get_instance_private (ontology);
 
 	g_free (priv->uri);
 
@@ -159,7 +155,7 @@ tracker_ontology_set_is_new (TrackerOntology *ontology,
 
 	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
 
-	priv = GET_PRIV (ontology);
+	priv = tracker_ontology_get_instance_private (ontology);
 
 	priv->is_new = value;
 }
@@ -172,7 +168,7 @@ tracker_ontology_set_ontologies (TrackerOntology   *ontology,
 
 	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
 	g_return_if_fail (ontologies != NULL);
-	priv = GET_PRIV (ontology);
+	priv = tracker_ontology_get_instance_private (ontology);
 
 	priv->ontologies = ontologies;
 }

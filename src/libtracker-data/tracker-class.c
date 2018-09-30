@@ -29,8 +29,7 @@
 #include "tracker-namespace.h"
 #include "tracker-ontologies.h"
 
-#define GET_PRIV(obj) (((TrackerClass*) obj)->priv)
-#define TRACKER_CLASS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_CLASS, TrackerClassPrivate))
+typedef struct _TrackerClassPrivate TrackerClassPrivate;
 
 struct _TrackerClassPrivate {
 	gchar *uri;
@@ -53,16 +52,14 @@ struct _TrackerClassPrivate {
 
 static void class_finalize     (GObject      *object);
 
-G_DEFINE_TYPE (TrackerClass, tracker_class, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerClass, tracker_class, G_TYPE_OBJECT);
 
 static void
 tracker_class_class_init (TrackerClassClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize     = class_finalize;
-
-	g_type_class_add_private (object_class, sizeof (TrackerClassPrivate));
+	object_class->finalize = class_finalize;
 }
 
 static void
@@ -70,16 +67,13 @@ tracker_class_init (TrackerClass *service)
 {
 	TrackerClassPrivate *priv;
 
-	priv = TRACKER_CLASS_GET_PRIVATE (service);
+	priv = tracker_class_get_instance_private (service);
 
 	priv->id = 0;
 	priv->super_classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
 	priv->last_domain_indexes = NULL;
 	priv->last_super_classes = NULL;
-
-	/* Make GET_PRIV working */
-	service->priv = priv;
 }
 
 static void
@@ -87,7 +81,7 @@ class_finalize (GObject *object)
 {
 	TrackerClassPrivate *priv;
 
-	priv = GET_PRIV (object);
+	priv = tracker_class_get_instance_private (TRACKER_CLASS (object));
 
 	g_free (priv->uri);
 	g_free (priv->name);
@@ -115,7 +109,7 @@ tracker_class_new (gboolean use_gvdb)
 	service = g_object_new (TRACKER_TYPE_CLASS, NULL);
 
 	if (use_gvdb) {
-		priv = GET_PRIV (service);
+		priv = tracker_class_get_instance_private (service);
 		priv->use_gvdb = use_gvdb;
 	}
 
@@ -129,7 +123,7 @@ tracker_class_get_uri (TrackerClass *service)
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	return priv->uri;
 }
@@ -141,7 +135,7 @@ tracker_class_get_name (TrackerClass *service)
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	return priv->name;
 }
@@ -153,7 +147,7 @@ tracker_class_get_count (TrackerClass *service)
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), 0);
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	return priv->count;
 }
@@ -165,7 +159,7 @@ tracker_class_get_id (TrackerClass *service)
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), 0);
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	return priv->id;
 }
@@ -177,7 +171,7 @@ tracker_class_get_super_classes (TrackerClass *service)
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	if (priv->use_gvdb) {
 		TrackerClass *super_class;
@@ -211,7 +205,7 @@ tracker_class_get_domain_indexes (TrackerClass *service)
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	return (TrackerProperty **) priv->domain_indexes->data;
 }
@@ -224,7 +218,7 @@ tracker_class_get_last_domain_indexes (TrackerClass *service)
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	return (TrackerProperty **) (priv->last_domain_indexes ? priv->last_domain_indexes->data : NULL);
 }
@@ -236,7 +230,7 @@ tracker_class_get_last_super_classes (TrackerClass *service)
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	return (TrackerClass **) (priv->last_super_classes ? priv->last_super_classes->data : NULL);
 }
@@ -248,7 +242,7 @@ tracker_class_get_is_new (TrackerClass *service)
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	return priv->is_new;
 }
@@ -260,7 +254,7 @@ tracker_class_get_notify (TrackerClass *service)
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	return priv->notify;
 }
@@ -272,7 +266,7 @@ tracker_class_get_db_schema_changed (TrackerClass *service)
 
 	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	return priv->db_schema_changed;
 }
@@ -285,7 +279,7 @@ tracker_class_set_uri (TrackerClass *service,
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	g_free (priv->uri);
 	g_free (priv->name);
@@ -326,7 +320,7 @@ tracker_class_set_count (TrackerClass *service,
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	priv->count = value;
 }
@@ -340,7 +334,7 @@ tracker_class_set_id (TrackerClass *service,
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	priv->id = value;
 }
@@ -354,7 +348,7 @@ tracker_class_add_super_class (TrackerClass *service,
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 	g_return_if_fail (TRACKER_IS_CLASS (value));
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	g_array_append_val (priv->super_classes, value);
 }
@@ -366,7 +360,7 @@ tracker_class_reset_super_classes (TrackerClass *service)
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	if (priv->last_super_classes) {
 		g_array_free (priv->last_super_classes, TRUE);
@@ -385,7 +379,7 @@ tracker_class_add_domain_index (TrackerClass *service,
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 	g_return_if_fail (TRACKER_IS_PROPERTY (value));
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	g_array_append_val (priv->domain_indexes, value);
 }
@@ -401,7 +395,7 @@ tracker_class_del_domain_index (TrackerClass    *service,
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 	g_return_if_fail (TRACKER_IS_PROPERTY (value));
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	properties = (TrackerProperty **) priv->domain_indexes->data;
 	while (*properties) {
@@ -425,7 +419,7 @@ tracker_class_reset_domain_indexes (TrackerClass *service)
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 	priv->last_domain_indexes = priv->domain_indexes;
 	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
 }
@@ -438,7 +432,7 @@ tracker_class_set_is_new (TrackerClass *service,
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	priv->is_new = value;
 }
@@ -452,7 +446,7 @@ tracker_class_set_notify (TrackerClass *service,
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	priv->notify = value;
 }
@@ -465,7 +459,7 @@ tracker_class_set_db_schema_changed (TrackerClass *service,
 
 	g_return_if_fail (TRACKER_IS_CLASS (service));
 
-	priv = GET_PRIV (service);
+	priv = tracker_class_get_instance_private (service);
 
 	priv->db_schema_changed = value;
 }
@@ -478,7 +472,7 @@ tracker_class_set_ontologies (TrackerClass      *class,
 
 	g_return_if_fail (TRACKER_IS_CLASS (class));
 	g_return_if_fail (ontologies != NULL);
-	priv = GET_PRIV (class);
 
+	priv = tracker_class_get_instance_private (class);
 	priv->ontologies = ontologies;
 }

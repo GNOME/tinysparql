@@ -27,8 +27,7 @@
 #include "tracker-namespace.h"
 #include "tracker-ontologies.h"
 
-#define GET_PRIV(obj) (((TrackerNamespace*)obj)->priv)
-#define TRACKER_NAMESPACE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_NAMESPACE, TrackerNamespacePrivate))
+typedef struct _TrackerNamespacePrivate TrackerNamespacePrivate;
 
 struct _TrackerNamespacePrivate {
 	gchar *uri;
@@ -42,22 +41,19 @@ struct _TrackerNamespacePrivate {
 
 static void namespace_finalize     (GObject      *object);
 
-G_DEFINE_TYPE (TrackerNamespace, tracker_namespace, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerNamespace, tracker_namespace, G_TYPE_OBJECT);
 
 static void
 tracker_namespace_class_init (TrackerNamespaceClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize     = namespace_finalize;
-
-	g_type_class_add_private (object_class, sizeof (TrackerNamespacePrivate));
+	object_class->finalize = namespace_finalize;
 }
 
 static void
 tracker_namespace_init (TrackerNamespace *service)
 {
-	service->priv = TRACKER_NAMESPACE_GET_PRIVATE (service);
 }
 
 static void
@@ -65,7 +61,7 @@ namespace_finalize (GObject *object)
 {
 	TrackerNamespacePrivate *priv;
 
-	priv = GET_PRIV (object);
+	priv = tracker_namespace_get_instance_private (TRACKER_NAMESPACE (object));
 
 	g_free (priv->uri);
 	g_free (priv->prefix);
@@ -82,7 +78,7 @@ tracker_namespace_new (gboolean use_gvdb)
 	namespace = g_object_new (TRACKER_TYPE_NAMESPACE, NULL);
 
 	if (use_gvdb) {
-		priv = GET_PRIV (namespace);
+		priv = tracker_namespace_get_instance_private (namespace);
 		priv->use_gvdb = use_gvdb;
 	}
 
@@ -96,7 +92,7 @@ tracker_namespace_get_uri (TrackerNamespace *namespace)
 
 	g_return_val_if_fail (TRACKER_IS_NAMESPACE (namespace), NULL);
 
-	priv = GET_PRIV (namespace);
+	priv = tracker_namespace_get_instance_private (namespace);
 
 	return priv->uri;
 }
@@ -108,7 +104,7 @@ tracker_namespace_get_prefix (TrackerNamespace *namespace)
 
 	g_return_val_if_fail (TRACKER_IS_NAMESPACE (namespace), NULL);
 
-	priv = GET_PRIV (namespace);
+	priv = tracker_namespace_get_instance_private (namespace);
 
 	if (!priv->prefix && priv->use_gvdb) {
 		priv->prefix = g_strdup (tracker_ontologies_get_namespace_string_gvdb (priv->ontologies, priv->uri, "prefix"));
@@ -124,7 +120,7 @@ tracker_namespace_get_is_new (TrackerNamespace *namespace)
 
 	g_return_val_if_fail (TRACKER_IS_NAMESPACE (namespace), FALSE);
 
-	priv = GET_PRIV (namespace);
+	priv = tracker_namespace_get_instance_private (namespace);
 
 	return priv->is_new;
 }
@@ -137,7 +133,7 @@ tracker_namespace_set_uri (TrackerNamespace *namespace,
 
 	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
 
-	priv = GET_PRIV (namespace);
+	priv = tracker_namespace_get_instance_private (namespace);
 
 	g_free (priv->uri);
 
@@ -156,7 +152,7 @@ tracker_namespace_set_prefix (TrackerNamespace *namespace,
 
 	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
 
-	priv = GET_PRIV (namespace);
+	priv = tracker_namespace_get_instance_private (namespace);
 
 	g_free (priv->prefix);
 
@@ -175,7 +171,7 @@ tracker_namespace_set_is_new (TrackerNamespace *namespace,
 
 	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
 
-	priv = GET_PRIV (namespace);
+	priv = tracker_namespace_get_instance_private (namespace);
 
 	priv->is_new = value;
 }
@@ -188,7 +184,7 @@ tracker_namespace_set_ontologies (TrackerNamespace  *namespace,
 
 	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
 	g_return_if_fail (ontologies != NULL);
-	priv = GET_PRIV (namespace);
 
+	priv = tracker_namespace_get_instance_private (namespace);
 	priv->ontologies = ontologies;
 }

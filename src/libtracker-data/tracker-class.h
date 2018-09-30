@@ -40,11 +40,9 @@ typedef struct _TrackerOntologies TrackerOntologies;
 typedef struct _TrackerProperty TrackerProperty;
 typedef struct _TrackerClass TrackerClass;
 typedef struct _TrackerClassClass TrackerClassClass;
-typedef struct _TrackerClassPrivate TrackerClassPrivate;
 
 struct _TrackerClass {
 	GObject parent;
-	TrackerClassPrivate *priv;
 };
 
 struct _TrackerClassClass {
