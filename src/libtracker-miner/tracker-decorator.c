@@ -374,7 +374,7 @@ decorator_commit_cb (GObject      *object,
 		g_ptr_array_unref (errors);
 	}
 
-	g_clear_pointer (&priv->commit_buffer, (GDestroyNotify) g_array_unref);
+	g_clear_pointer (&priv->commit_buffer, g_array_unref);
 
 	if (!decorator_check_commit (decorator))
 		decorator_cache_next_items (decorator);
@@ -1154,8 +1154,8 @@ tracker_decorator_finalize (GObject *object)
 	g_hash_table_destroy (priv->tasks);
 	g_array_unref (priv->classes);
 	g_array_unref (priv->prepended_ids);
-	g_clear_pointer (&priv->sparql_buffer, (GDestroyNotify) g_array_unref);
-	g_clear_pointer (&priv->commit_buffer, (GDestroyNotify) g_array_unref);
+	g_clear_pointer (&priv->sparql_buffer, g_array_unref);
+	g_clear_pointer (&priv->commit_buffer, g_array_unref);
 	g_sequence_free (priv->blacklist_items);
 	g_free (priv->data_source);
 	g_timer_destroy (priv->timer);
