@@ -31,12 +31,10 @@
 #include "tracker-log.h"
 #include "tracker-language.h"
 
-#define GET_PRIV(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TRACKER_TYPE_LANGUAGE, TrackerLanguagePriv))
-
-typedef struct _TrackerLanguagePriv TrackerLanguagePriv;
+typedef struct _TrackerLanguagePrivate TrackerLanguagePrivate;
 typedef struct _Languages           Languages;
 
-struct _TrackerLanguagePriv {
+struct _TrackerLanguagePrivate {
 	GHashTable    *stop_words;
 	gboolean       enable_stemmer;
 	gchar         *language_code;
@@ -86,7 +84,7 @@ static void         language_set_property      (GObject       *object,
                                                 const GValue  *value,
                                                 GParamSpec    *pspec);
 
-G_DEFINE_TYPE (TrackerLanguage, tracker_language, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerLanguage, tracker_language, G_TYPE_OBJECT);
 
 static void
 tracker_language_class_init (TrackerLanguageClass *klass)
@@ -120,20 +118,17 @@ tracker_language_class_init (TrackerLanguageClass *klass)
 	                                                      "Language code",
 	                                                      "en",
 	                                                      G_PARAM_WRITABLE | G_PARAM_CONSTRUCT));
-
-	g_type_class_add_private (object_class, sizeof (TrackerLanguagePriv));
 }
 
 static void
 tracker_language_init (TrackerLanguage *language)
 {
-	TrackerLanguagePriv *priv;
-
+	TrackerLanguagePrivate *priv;
 #ifdef HAVE_LIBSTEMMER
 	const gchar *stem_language;
 #endif /* HAVE_LIBSTEMMER */
 
-	priv = GET_PRIV (language);
+	priv = tracker_language_get_instance_private (language);
 
 	priv->stop_words = g_hash_table_new_full (g_str_hash,
 	                                          g_str_equal,
@@ -150,9 +145,9 @@ tracker_language_init (TrackerLanguage *language)
 static void
 language_finalize (GObject *object)
 {
-	TrackerLanguagePriv *priv;
+	TrackerLanguagePrivate *priv;
 
-	priv = GET_PRIV (object);
+	priv = tracker_language_get_instance_private (TRACKER_LANGUAGE (object));
 
 #ifdef HAVE_LIBSTEMMER
 	if (priv->stemmer) {
@@ -178,9 +173,9 @@ language_get_property (GObject    *object,
                        GValue     *value,
                        GParamSpec *pspec)
 {
-	TrackerLanguagePriv *priv;
+	TrackerLanguagePrivate *priv;
 
-	priv = GET_PRIV (object);
+	priv = tracker_language_get_instance_private (TRACKER_LANGUAGE (object));
 
 	switch (param_id) {
 	case PROP_ENABLE_STEMMER:
@@ -252,13 +247,13 @@ static void
 language_add_stopwords (TrackerLanguage *language,
                         const gchar     *filename)
 {
-	TrackerLanguagePriv  *priv;
+	TrackerLanguagePrivate *priv;
 	GMappedFile          *mapped_file;
 	GError               *error = NULL;
 	gchar                *content;
 	gchar               **words, **p;
 
-	priv = GET_PRIV (language);
+	priv = tracker_language_get_instance_private (language);
 
 	mapped_file = g_mapped_file_new (filename, FALSE, &error);
 	if (error) {
@@ -288,7 +283,7 @@ language_set_stopword_list (TrackerLanguage *language,
                             const gchar     *language_code)
 {
 #ifdef HAVE_LIBSTEMMER
-	TrackerLanguagePriv *priv;
+	TrackerLanguagePrivate *priv;
 	gchar *stem_language_lower;
 	const gchar *stem_language;
 #endif /* HAVE_LIBSTEMMER */
@@ -311,7 +306,7 @@ language_set_stopword_list (TrackerLanguage *language,
 	}
 
 #ifdef HAVE_LIBSTEMMER
-	priv = GET_PRIV (language);
+	priv = tracker_language_get_instance_private (language);
 
 	/* g_message ("Setting up stemmer for language code:'%s'", language_code); */
 
@@ -367,11 +362,11 @@ tracker_language_new (const gchar *language_code)
 gboolean
 tracker_language_get_enable_stemmer (TrackerLanguage *language)
 {
-	TrackerLanguagePriv *priv;
+	TrackerLanguagePrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), TRUE);
 
-	priv = GET_PRIV (language);
+	priv = tracker_language_get_instance_private (language);
 
 	return priv->enable_stemmer;
 }
@@ -389,11 +384,11 @@ tracker_language_get_enable_stemmer (TrackerLanguage *language)
 GHashTable *
 tracker_language_get_stop_words (TrackerLanguage *language)
 {
-	TrackerLanguagePriv *priv;
+	TrackerLanguagePrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
 
-	priv = GET_PRIV (language);
+	priv = tracker_language_get_instance_private (language);
 
 	return priv->stop_words;
 }
@@ -412,12 +407,12 @@ gboolean
 tracker_language_is_stop_word (TrackerLanguage *language,
                                const gchar     *word)
 {
-	TrackerLanguagePriv *priv;
+	TrackerLanguagePrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), FALSE);
 	g_return_val_if_fail (word, FALSE);
 
-	priv = GET_PRIV (language);
+	priv = tracker_language_get_instance_private (language);
 
 	return g_hash_table_lookup (priv->stop_words, word) != NULL;
 }
@@ -433,11 +428,11 @@ tracker_language_is_stop_word (TrackerLanguage *language,
 const gchar *
 tracker_language_get_language_code (TrackerLanguage *language)
 {
-	TrackerLanguagePriv *priv;
+	TrackerLanguagePrivate *priv;
 
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
 
-	priv = GET_PRIV (language);
+	priv = tracker_language_get_instance_private (language);
 
 	return priv->language_code;
 }
@@ -453,11 +448,11 @@ void
 tracker_language_set_enable_stemmer (TrackerLanguage *language,
                                      gboolean         value)
 {
-	TrackerLanguagePriv *priv;
+	TrackerLanguagePrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_LANGUAGE (language));
 
-	priv = GET_PRIV (language);
+	priv = tracker_language_get_instance_private (language);
 
 	priv->enable_stemmer = value;
 
@@ -476,11 +471,11 @@ void
 tracker_language_set_language_code (TrackerLanguage *language,
                                     const gchar     *language_code)
 {
-	TrackerLanguagePriv *priv;
+	TrackerLanguagePrivate *priv;
 
 	g_return_if_fail (TRACKER_IS_LANGUAGE (language));
 
-	priv = GET_PRIV (language);
+	priv = tracker_language_get_instance_private (language);
 
 	g_free (priv->language_code);
 
@@ -513,7 +508,7 @@ tracker_language_stem_word (TrackerLanguage *language,
                             gint             word_length)
 {
 #ifdef HAVE_LIBSTEMMER
-	TrackerLanguagePriv *priv;
+	TrackerLanguagePrivate *priv;
 	const gchar *stem_word;
 #endif /* HAVE_LIBSTEMMER */
 
@@ -524,7 +519,7 @@ tracker_language_stem_word (TrackerLanguage *language,
 	}
 
 #ifdef HAVE_LIBSTEMMER
-	priv = GET_PRIV (language);
+	priv = tracker_language_get_instance_private (language);
 
 	if (!priv->enable_stemmer) {
 		return g_strndup (word, word_length);
