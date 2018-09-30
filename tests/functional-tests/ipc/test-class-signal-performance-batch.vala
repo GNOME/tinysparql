@@ -35,9 +35,9 @@ private interface Resources : DBusProxy {
 	[DBus (name = "GraphUpdated")]
 	public signal void graph_updated (string class_name, Event[] deletes, Event[] inserts);
 	[DBus (name = "BatchSparqlUpdate")]
-	public abstract async void batch_sparql_update_async (string query) throws Sparql.Error, DBusError;
+	public abstract async void batch_sparql_update_async (string query) throws GLib.Error, Sparql.Error, DBusError;
 	[DBus (name = "SparqlUpdate")]
-	public abstract async void sparql_update_async (string query) throws Sparql.Error, DBusError;
+	public abstract async void sparql_update_async (string query) throws GLib.Error, Sparql.Error, DBusError;
 }
 
 public class TestApp {

@@ -29,14 +29,14 @@
 [DBus (name = "org.freedesktop.Tracker1.Resources")]
 private interface Resources : DBusProxy {
 	[DBus (name = "SparqlQuery", timeout = 99999999999)]
-	public abstract async string[,] sparql_query (string query) throws DBusError;
+	public abstract async string[,] sparql_query (string query) throws GLib.Error, DBusError;
 }
 
 [DBus (name = "org.freedesktop.Tracker1.Status")]
 private interface Status: DBusProxy {
 	public signal void progress (string status, double progress);
-	public abstract double get_progress () throws DBusError;
-	public abstract string get_status () throws DBusError;
+	public abstract double get_progress () throws GLib.Error, DBusError;
+	public abstract string get_status () throws GLib.Error, DBusError;
 }
 
 public class TestApp {
