@@ -193,7 +193,9 @@ wal_checkpoint (TrackerDBInterface *iface,
 	GError *error = NULL;
 
 	g_debug ("Checkpointing database...");
-	tracker_db_interface_sqlite_wal_checkpoint (iface, blocking, &error);
+
+	tracker_db_interface_sqlite_wal_checkpoint (iface, blocking,
+	                                            blocking ? &error : NULL);
 
 	if (error) {
 		g_warning ("Error in WAL checkpoint: %s", error->message);
