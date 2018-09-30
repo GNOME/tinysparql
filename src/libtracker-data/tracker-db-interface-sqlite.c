@@ -47,6 +47,7 @@
 #include <unicode/uregex.h>
 #include <unicode/ustring.h>
 #include <unicode/ucol.h>
+#include <unicode/unorm2.h>
 #endif
 
 #include "tracker-collation.h"
@@ -1025,7 +1026,7 @@ function_sparql_case_fold (sqlite3_context *context,
 static gunichar2 *
 normalize_string (const gunichar2    *string,
                   gsize               string_len, /* In gunichar2s */
-                  UNormalizationMode  mode,
+                  const UNormalizer2 *normalizer,
                   gsize              *len_out,    /* In gunichar2s */
                   UErrorCode         *status)
 {
@@ -1035,14 +1036,14 @@ normalize_string (const gunichar2    *string,
 	nOutput = (string_len * 2) + 1;
 	zOutput = g_new0 (gunichar2, nOutput);
 
-	nOutput = unorm_normalize (string, string_len, mode, 0, zOutput, nOutput, status);
+	nOutput = unorm2_normalize (normalizer, string, string_len, zOutput, nOutput, status);
 
 	if (*status == U_BUFFER_OVERFLOW_ERROR) {
 		/* Try again after allocating enough space for the normalization */
 		*status = U_ZERO_ERROR;
 		zOutput = g_renew (gunichar2, zOutput, nOutput);
 		memset (zOutput, 0, nOutput * sizeof (gunichar2));
-		nOutput = unorm_normalize (string, string_len, mode, 0, zOutput, nOutput, status);
+		nOutput = unorm2_normalize (normalizer, string, string_len, zOutput, nOutput, status);
 	}
 
 	if (!U_SUCCESS (*status)) {
@@ -1063,10 +1064,10 @@ function_sparql_normalize (sqlite3_context *context,
 {
 	const gchar *nfstr;
 	const uint16_t *zInput;
-	uint16_t *zOutput;
+	uint16_t *zOutput = NULL;
 	int nInput;
 	gsize nOutput;
-	UNormalizationMode nf;
+	const UNormalizer2 *normalizer;
 	UErrorCode status = U_ZERO_ERROR;
 
 	if (argc != 2) {
@@ -1082,20 +1083,22 @@ function_sparql_normalize (sqlite3_context *context,
 
 	nfstr = (gchar *)sqlite3_value_text (argv[1]);
 	if (g_ascii_strcasecmp (nfstr, "nfc") == 0)
-		nf = UNORM_NFC;
+		normalizer = unorm2_getNFCInstance (&status);
 	else if (g_ascii_strcasecmp (nfstr, "nfd") == 0)
-		nf = UNORM_NFD;
+		normalizer = unorm2_getNFDInstance (&status);
 	else if (g_ascii_strcasecmp (nfstr, "nfkc") == 0)
-		nf = UNORM_NFKC;
+		normalizer = unorm2_getNFKCInstance (&status);
 	else if (g_ascii_strcasecmp (nfstr, "nfkd") == 0)
-		nf = UNORM_NFKD;
+		normalizer = unorm2_getNFKDInstance (&status);
 	else {
 		sqlite3_result_error (context, "Invalid normalization specified", -1);
 		return;
 	}
 
-	nInput = sqlite3_value_bytes16 (argv[0]);
-	zOutput = normalize_string (zInput, nInput / 2, nf, &nOutput, &status);
+	if (U_SUCCESS (status)) {
+		nInput = sqlite3_value_bytes16 (argv[0]);
+		zOutput = normalize_string (zInput, nInput / 2, normalizer, &nOutput, &status);
+	}
 
 	if (!U_SUCCESS (status)) {
 		char zBuf[128];
@@ -1115,9 +1118,10 @@ function_sparql_unaccent (sqlite3_context *context,
                           sqlite3_value   *argv[])
 {
 	const uint16_t *zInput;
-	uint16_t *zOutput;
+	uint16_t *zOutput = NULL;
 	int nInput;
 	gsize nOutput;
+	const UNormalizer2 *normalizer;
 	UErrorCode status = U_ZERO_ERROR;
 
 	g_assert (argc == 1);
@@ -1128,8 +1132,12 @@ function_sparql_unaccent (sqlite3_context *context,
 		return;
 	}
 
-	nInput = sqlite3_value_bytes16 (argv[0]);
-	zOutput = normalize_string (zInput, nInput / 2, UNORM_NFKD, &nOutput, &status);
+	normalizer = unorm2_getNFKDInstance (&status);
+
+	if (U_SUCCESS (status)) {
+		nInput = sqlite3_value_bytes16 (argv[0]);
+		zOutput = normalize_string (zInput, nInput / 2, normalizer, &nOutput, &status);
+	}
 
 	if (!U_SUCCESS (status)) {
 		char zBuf[128];

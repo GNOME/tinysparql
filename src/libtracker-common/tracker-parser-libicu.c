@@ -272,6 +272,7 @@ process_word_uchar (TrackerParser         *parser,
 
 	if (type != TRACKER_PARSER_WORD_TYPE_ASCII) {
 		UChar casefolded_buffer [WORD_BUFFER_LENGTH];
+		const UNormalizer2 *normalizer;
 
 		/* Casefold... */
 		new_word_length = u_strFoldCase (casefolded_buffer,
@@ -294,13 +295,17 @@ process_word_uchar (TrackerParser         *parser,
 		                            new_word_length * sizeof (UChar));
 
 		/* NFKD normalization... */
-		new_word_length = unorm_normalize (casefolded_buffer,
-		                                   new_word_length,
-		                                   UNORM_NFKD,
-		                                   0,
-		                                   normalized_buffer,
-		                                   WORD_BUFFER_LENGTH,
-		                                   &error);
+		normalizer = unorm2_getNFKDInstance (&error);
+
+		if (U_SUCCESS (error)) {
+			new_word_length = unorm2_normalize (normalizer,
+			                                    casefolded_buffer,
+			                                    new_word_length,
+			                                    normalized_buffer,
+			                                    WORD_BUFFER_LENGTH,
+			                                    &error);
+		}
+
 		if (U_FAILURE (error)) {
 			g_warning ("Error normalizing: '%s'",
 			           u_errorName (error));
