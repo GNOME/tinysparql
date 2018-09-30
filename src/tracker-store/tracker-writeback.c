@@ -230,8 +230,7 @@ tracker_writeback_shutdown (void)
 
 	/* Perhaps hurry an emit of the ready events here? We're shutting down,
 	 * so I guess we're not required to do that here ... ? */
-	g_clear_pointer (&private->ready_events,
-	                 (GDestroyNotify) g_hash_table_unref);
+	g_clear_pointer (&private->ready_events, g_hash_table_unref);
 
 	free_private (private);
 	private = NULL;
