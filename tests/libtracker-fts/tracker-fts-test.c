@@ -43,12 +43,10 @@ const TestInfo tests[] = {
 	{ NULL }
 };
 
-static gchar *datadir = NULL;
-
 static void
 test_sparql_query (gconstpointer test_data)
 {
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 	const TestInfo *test_info;
 	GError *error;
 	GString *test_results;
@@ -57,8 +55,9 @@ test_sparql_query (gconstpointer test_data)
 	gchar *results, *results_filename;
 	gchar *prefix, *test_prefix;
 	GFile *ontology, *data_location;
-	TrackerDataManager *manager;
-	TrackerData *data;
+	TrackerSparqlConnection *conn;
+	gchar *rm_command, *path;
+	const gchar *datadir;
 	gint i;
 
 	error = NULL;
@@ -70,17 +69,18 @@ test_sparql_query (gconstpointer test_data)
 	ontology = g_file_new_for_path (prefix);
 	g_free (prefix);
 
+	path = g_build_filename (g_get_tmp_dir (), "tracker-fts-test-XXXXXX", NULL);
+	datadir = g_mkdtemp_full (path, 0700);
+
 	data_location = g_file_new_for_path (datadir);
 
-	tracker_db_journal_set_rotating (FALSE, G_MAXSIZE, NULL);
-	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FORCE_REINDEX,
-	                                    data_location, data_location, ontology,
-	                                    FALSE, FALSE, 100, 100);
-	g_initable_init (G_INITABLE (manager), NULL, &error);
+	conn = tracker_sparql_connection_local_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                            data_location, data_location, ontology,
+	                                            NULL, &error);
 	g_assert_no_error (error);
 
-	data = tracker_data_manager_get_data (manager);
 	g_object_unref (ontology);
+	g_object_unref (data_location);
 
 	/* load data / perform updates */
 
@@ -88,7 +88,7 @@ test_sparql_query (gconstpointer test_data)
 	g_file_get_contents (update_filename, &update, NULL, &error);
 	g_assert_no_error (error);
 
-	tracker_data_update_sparql (data, update, &error);
+	tracker_sparql_connection_update (conn, update, G_PRIORITY_DEFAULT, NULL, &error);
 	g_assert_no_error (error);
 
 	g_free (update_filename);
@@ -105,7 +105,7 @@ test_sparql_query (gconstpointer test_data)
 		g_file_get_contents (results_filename, &results, NULL, &error);
 		g_assert_no_error (error);
 
-		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
+		cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */
@@ -115,15 +115,15 @@ test_sparql_query (gconstpointer test_data)
 		if (cursor) {
 			gint col;
 
-			while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
-				for (col = 0; col < tracker_db_cursor_get_n_columns (cursor); col++) {
+			while (tracker_sparql_cursor_next (cursor, NULL, &error)) {
+				for (col = 0; col < tracker_sparql_cursor_get_n_columns (cursor); col++) {
 					const gchar *str;
 
 					if (col > 0) {
 						g_string_append (test_results, "\t");
 					}
 
-					str = tracker_db_cursor_get_string (cursor, col, NULL);
+					str = tracker_sparql_cursor_get_string (cursor, col, NULL);
 					if (str != NULL) {
 						/* bound variable */
 						g_string_append_printf (test_results, "\"%s\"", str);
@@ -170,8 +170,13 @@ test_sparql_query (gconstpointer test_data)
 	}
 
 	g_free (test_prefix);
-	g_object_unref (data_location);
-	g_object_unref (manager);
+	g_object_unref (conn);
+
+	/* clean up */
+	rm_command = g_strdup_printf ("rm -R %s", datadir);
+	g_spawn_command_line_sync (rm_command, NULL, NULL, NULL, NULL);
+	g_free (rm_command);
+	g_free (path);
 }
 
 int
@@ -184,10 +189,8 @@ main (int argc, char **argv)
 	g_test_init (&argc, &argv, NULL);
 
 	current_dir = g_get_current_dir ();
-	datadir = g_build_filename (current_dir, "tracker", NULL);
-	g_free (current_dir);
-
 	g_setenv ("TRACKER_LANGUAGE_STOP_WORDS_DIR", current_dir, TRUE);
+	g_free (current_dir);
 
 	/* add test cases */
 	for (i = 0; tests[i].test_name; i++) {
@@ -201,14 +204,9 @@ main (int argc, char **argv)
 	/* run tests */
 	result = g_test_run ();
 
-	/* clean up */
-	g_print ("Removing temporary data\n");
-	g_spawn_command_line_sync ("rm -R tracker/", NULL, NULL, NULL, NULL);
-
 	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-fts", "dconf", "user", NULL);
 	g_unlink (path);
 	g_free (path);
-	g_free (datadir);
 
 	return result;
 }
