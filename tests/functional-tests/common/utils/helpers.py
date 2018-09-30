@@ -198,6 +198,10 @@ class Helper:
             log ("kill(): ignoring, because process was started manually.")
             return
 
+        if self.process_watch_timeout != 0:
+            GLib.source_remove(self.process_watch_timeout)
+            self.process_watch_timeout = 0
+
         self.process.kill ()
 
         # Name owner changed callback should take us out from this loop
