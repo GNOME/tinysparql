@@ -245,6 +245,18 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	if (priv->flags & TRACKER_SPARQL_CONNECTION_FLAGS_READONLY)
 		db_flags |= TRACKER_DB_MANAGER_READONLY;
 
+	if (!priv->journal)
+		priv->journal = g_object_ref (priv->store);
+
+	if (!priv->ontology) {
+		gchar *filename;
+
+		filename = g_build_filename (SHAREDIR, "tracker", "ontologies",
+		                             "nepomuk", NULL);
+		priv->ontology = g_file_new_for_path (filename);
+		g_free (filename);
+	}
+
 	priv->data_manager = tracker_data_manager_new (db_flags | default_flags, priv->store,
 	                                               priv->journal, priv->ontology,
 	                                               FALSE, FALSE, 100, 100);
@@ -784,8 +796,8 @@ tracker_direct_connection_new (TrackerSparqlConnectionFlags   flags,
                                GError                       **error)
 {
 	g_return_val_if_fail (G_IS_FILE (store), NULL);
-	g_return_val_if_fail (G_IS_FILE (journal), NULL);
-	g_return_val_if_fail (G_IS_FILE (ontology), NULL);
+	g_return_val_if_fail (!journal || G_IS_FILE (journal), NULL);
+	g_return_val_if_fail (!ontology || G_IS_FILE (ontology), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
 
 	return g_object_new (TRACKER_TYPE_DIRECT_CONNECTION,
