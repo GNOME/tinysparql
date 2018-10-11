@@ -26,8 +26,7 @@ tracker_store = executable('tracker-store',
     ],
     vala_args: [ '--pkg', 'posix' ],
     dependencies: [
-        tracker_common_dep, tracker_data_dep, tracker_sparql_direct_dep,
-        gio_unix
+        tracker_common_dep, tracker_sparql_dep, tracker_data_dep, tracker_sparql_direct_dep, gio_unix
     ],
     install: true,
     install_dir: join_paths(get_option('prefix'), get_option('libexecdir')),
