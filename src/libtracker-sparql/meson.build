@@ -98,7 +98,7 @@ install_headers(
     subdir: 'tracker-@0@/libtracker-sparql'.format(tracker_api_version))
 
 # FIXME: we can't depend properly on the generated .vapi to do this.
-tracker_sparql_vapi = custom_target('tracker-sparql-' + tracker_api_version + '.vapi',
+custom_target('tracker-sparql-' + tracker_api_version + '.vapi',
     #input: 'tracker-sparql-intermediate-vala.vapi',
     output: 'tracker-sparql-' + tracker_api_version + '.vapi',
     command: [

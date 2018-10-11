@@ -9,8 +9,7 @@ libtracker_data_vala = static_library('tracker-sparql-query',
     'tracker-sparql-scanner.vala',
     'tracker-turtle-reader.vala',
     '../libtracker-common/libtracker-common.vapi',
-    'libtracker-data.vapi',
-    tracker_sparql_vapi,
+    '../libtracker-data/libtracker-data.vapi',
     tracker_common_enum_header,
     c_args: tracker_c_args,
     vala_args: [
@@ -22,7 +21,7 @@ libtracker_data_vala = static_library('tracker-sparql-query',
     ],
     # This doesn't depend on tracker_common_dep because of
     # https://github.com/mesonbuild/meson/issues/671
-    dependencies: [glib, gio],
+    dependencies: [glib, gio, tracker_sparql_intermediate_dep],
     include_directories: [commoninc, configinc, srcinc],
 )
 
@@ -33,7 +32,7 @@ tracker_data_enums = gnome.mkenums('tracker-data-enum-types',
 )
 
 tracker_data_dependencies = [
-    tracker_common_dep, gvdb_dep, sqlite, uuid,
+    tracker_sparql_intermediate_dep, gvdb_dep, sqlite, uuid,
 ]
 
 if get_option('fts')
@@ -69,10 +68,6 @@ libtracker_data = library('tracker-data',
     # This doesn't depend on tracker_common_dep because of
     # https://github.com/mesonbuild/meson/issues/671
     link_with: [libtracker_data_vala],
-    # We do *not* want --no-undefined here, this library uses
-    # symbols from libtracker-sparql, but does not mean it should
-    # be linked to it.
-    override_options: ['b_lundef=false'],
     dependencies: tracker_data_dependencies + [unicode_library],
     include_directories: [commoninc, configinc, srcinc],
 )
