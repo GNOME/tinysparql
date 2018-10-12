@@ -21,6 +21,8 @@ libtracker_control = library('tracker-control-' + tracker_api_version,
     soversion: soversion,
 )
 
+controlinc = include_directories('.')
+
 tracker_control_dep = declare_dependency(
     link_with: libtracker_control,
     dependencies: tracker_miner_dep

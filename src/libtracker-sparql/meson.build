@@ -77,6 +77,8 @@ libtracker_sparql_intermediate_c = static_library('tracker-sparql-intermediate-c
     dependencies: [tracker_common_dep, json_glib],
 )
 
+sparqlinc = [include_directories('.'), meson.current_build_dir()]
+
 tracker_sparql_intermediate_dep = declare_dependency(
     link_with: [libtracker_sparql_intermediate_c, libtracker_sparql_intermediate_vala],
     sources: tracker_sparql_generated_header,

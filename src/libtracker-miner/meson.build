@@ -70,6 +70,8 @@ libtracker_miner = library(
     link_with: [libtracker_miner_private],
 )
 
+minerinc = include_directories('.')
+
 tracker_miner_dep = declare_dependency(
     sources: miner_enums[1],
     link_with: libtracker_miner,
