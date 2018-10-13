@@ -54,5 +54,6 @@
     <xi:include href="xml/tracker-ontology.xml" />
     <xi:include href="xml/maemo-ontology.xml" />
     <xi:include href="xml/osinfo-ontology.xml" />
+    <xi:include href="xml/nid3-ontology.xml" />
   </part>
 </book>
