@@ -18,7 +18,6 @@ libtracker_control = library('tracker-control-' + tracker_api_version,
     include_directories: [commoninc, configinc, srcinc],
     link_args: vflag,
     link_with: libtracker_common,
-    soversion: soversion,
 )
 
 controlinc = include_directories('.')
