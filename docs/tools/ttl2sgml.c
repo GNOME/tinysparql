@@ -28,6 +28,7 @@
 
 static gchar *ontology_dir = NULL;
 static gchar *output_dir = NULL;
+static gchar *description_dir = NULL;
 
 static GOptionEntry   entries[] = {
 	{ "ontology-dir", 'd', 0, G_OPTION_ARG_FILENAME, &ontology_dir,
@@ -36,6 +37,10 @@ static GOptionEntry   entries[] = {
 	},
 	{ "output-dir", 'o', 0, G_OPTION_ARG_FILENAME, &output_dir,
 	  "File to write the output (default stdout)",
+	  NULL
+	},
+	{ "description-dir", 'e', 0, G_OPTION_ARG_FILENAME, &description_dir,
+	  "Directory to find ontology descriptions",
 	  NULL
 	},
 	{ NULL }
@@ -161,7 +166,7 @@ main (gint argc, gchar **argv)
 		ttl_loader_load_ontology (file_ontology, ttl_file);
 		ttl_loader_load_prefix_from_description (ontology, description);
 
-		ttl_sgml_print (description, file_ontology, ttl_output_file);
+		ttl_sgml_print (description, file_ontology, ttl_output_file, description_dir);
 
 		ttl_loader_free_ontology (file_ontology);
 		ttl_loader_free_description (description);

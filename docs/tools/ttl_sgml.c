@@ -146,10 +146,11 @@ print_ontology_class (Ontology      *ontology,
 void
 ttl_sgml_print (OntologyDescription *description,
                 Ontology            *ontology,
-                GFile               *file)
+                GFile               *file,
+                const gchar         *description_dir)
 {
 	GHashTableIter iter;
-	gchar *upper_name, *path;
+	gchar *upper_name, *path, *introduction, *basename;
 	OntologyClass *def;
 	FILE *f;
 
@@ -160,8 +161,14 @@ ttl_sgml_print (OntologyDescription *description,
         upper_name = g_ascii_strup (description->localPrefix, -1);
 	print_sgml_header (f, description);
 
-	g_fprintf (f, "<xi:include href='../%s-introduction.xml'><xi:fallback/></xi:include>",
-		   description->localPrefix);
+	basename = g_strdup_printf ("%s-introduction.xml", description->localPrefix);
+	introduction = g_build_filename (description_dir, basename, NULL);
+	g_free (basename);
+
+	if (g_file_test (introduction, G_FILE_TEST_EXISTS)) {
+		g_fprintf (f, "<xi:include href='%s'><xi:fallback/></xi:include>",
+		           introduction);
+	}
 
         g_fprintf (f, "<section id='%s-classes'>\n", description->localPrefix);
 	g_fprintf (f, "<title>%s Ontology Classes</title>\n", upper_name);
@@ -175,5 +182,6 @@ ttl_sgml_print (OntologyDescription *description,
 	print_sgml_footer (f);
 
 	g_free (upper_name);
+	g_free (introduction);
 	fclose (f);
 }
