@@ -9,10 +9,8 @@ generated = custom_target('base-ontology-doc-generated',
               '-o', join_paths(meson.current_build_dir(), 'xml/'),
               '-e', meson.current_source_dir()],
     depends: ttl2sgml,
-    # FIXME: this shouldn't be necessary, but currently the 'dependencies'
-    # parameter to gnome.gtkdoc() doesn't actually trigger building of custom
-    # targets.
-    build_always: true
+    depend_files: base_ontology,
+    build_by_default: true,
 )
 
 example_files = [

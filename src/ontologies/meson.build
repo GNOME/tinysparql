@@ -1,4 +1,4 @@
-internal_config = [
+base_ontology = files(
     '10-xsd.description',
     '10-xsd.ontology',
     '11-rdf.description',
@@ -9,9 +9,9 @@ internal_config = [
     '20-dc.ontology',
     '31-nao.description',
     '31-nao.ontology',
-]
+)
 
-nepomuk = [
+nepomuk = files(
     'nepomuk/30-nie.description',
     'nepomuk/30-nie.ontology',
     'nepomuk/32-nco.description',
@@ -44,7 +44,7 @@ nepomuk = [
     'nepomuk/92-slo.ontology',
     'nepomuk/93-libosinfo.description',
     'nepomuk/93-libosinfo.ontology',
-]
+)
 
 tracker_gresources = gnome.compile_resources('tracker_gresources', 'builtin-ontology.gresource.xml')
 
