@@ -7,10 +7,15 @@ cc = meson.get_compiler('c')
 # This is the X.Y used in -llibtracker-FOO-X.Y
 tracker_api_version = '2.0'
 
+tracker_version = meson.project_version().split('-')[0]
+tracker_major_version = tracker_version.split('.')[0].to_int()
+tracker_minor_version = tracker_version.split('.')[1].to_int()
+tracker_micro_version = tracker_version.split('.')[2].to_int()
+tracker_interface_age = 0
+tracker_binary_age = 100 * tracker_minor_version + tracker_micro_version - tracker_interface_age
+
 # This the .Z used in libtracker-sparql-2.0.so.Z
-# This version number is redundant, but it's needed for programs that build
-# with libtool to be able to link against our libraries.
-soversion = 0
+soversion = '0.@0@.@1@'.format(tracker_binary_age - tracker_interface_age, tracker_interface_age)
 
 libdir = join_paths(get_option('prefix'), get_option('libdir'))
 datadir = join_paths(get_option('prefix'), get_option('datadir'))
@@ -217,10 +222,6 @@ else
   install_bash_completion = true
   bash_completion_dir = get_option('bash_completion')
 endif
-
-tracker_major_version = meson.project_version().split('.')[0].to_int()
-tracker_minor_version = meson.project_version().split('.')[1].to_int()
-tracker_micro_version = meson.project_version().split('.')[2].to_int()
 
 conf = configuration_data()
 
