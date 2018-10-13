@@ -139,13 +139,11 @@ print_predefined_instances (FILE          *f,
 
 	for (l = klass->instances; l; l = l->next) {
 		shortname = ttl_model_name_to_shortname (ontology, l->data, NULL);
-		id = ttl_model_name_to_shortname (ontology, l->data, "-");
 
 		g_fprintf (f, "<listitem><para>");
-		g_fprintf (f, "<link linkend=\"%s\">%s</link>", id, shortname);
+		g_fprintf (f, "<literal>%s</literal>", shortname);
 		g_fprintf (f, "</para></listitem>\n");
 		g_free (shortname);
-		g_free (id);
 	}
 
 	g_fprintf (f, "</itemizedlist></para></refsect1>\n");
