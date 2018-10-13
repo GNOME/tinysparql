@@ -113,9 +113,8 @@ custom_target('tracker-sparql-' + tracker_api_version + '.vapi',
     install: true,
     install_dir: vapi_dir)
 
-configure_file(
-    input: 'tracker-sparql.deps',
-    output: 'tracker-sparql-' + tracker_api_version + '.deps',
-    configuration: configuration_data(), # No changes here, just a rename
-    install: true,
-    install_dir: vapi_dir)
+install_data(
+    'tracker-sparql.deps',
+    rename: ['tracker-sparql-' + tracker_api_version + '.deps'],
+    install_dir: vapi_dir,
+)
