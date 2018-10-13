@@ -8,4 +8,5 @@ gnome.gtkdoc('libtracker-miner',
     content_files: ['overview.sgml', 'migrating-1to2.xml'],
     dependencies: tracker_miner_dep,
     gobject_typesfile: 'libtracker-miner.types',
+    fixxref_args: fixxref_args,
     install: true)

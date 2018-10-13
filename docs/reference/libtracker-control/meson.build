@@ -8,4 +8,5 @@ gnome.gtkdoc('libtracker-control',
     content_files: ['migrating-1to2.xml'],
     dependencies: tracker_control_dep,
     gobject_typesfile: 'libtracker-control.types',
+    fixxref_args: fixxref_args,
     install: true)
