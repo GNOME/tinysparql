@@ -24,9 +24,9 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
 )
 
 tracker_sparql_dep = declare_dependency(
-    link_with: [libtracker_sparql, libtracker_sparql_intermediate_vala],
+    link_with: libtracker_sparql,
     include_directories: srcinc,
-    dependencies: [tracker_common_dep, libtracker_sparql_c_vapi_dep],
+    dependencies: [tracker_common_dep, tracker_sparql_intermediate_dep],
 )
 
 # The introspection generation for libtracker-sparql is awkward because we have
