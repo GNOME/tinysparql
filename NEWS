@@ -1,3 +1,11 @@
+NEW in 2.1.6 - 2018-10-05
+=========================
+
+  * Backported multiple meson build fixes.
+  * Fixed meson build from released tarball
+
+Translations: sk, sr
+
 NEW in 2.1.5 - 2018-09-26
 =========================
 
