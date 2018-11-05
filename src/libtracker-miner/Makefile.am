@@ -139,6 +139,7 @@ CLEANFILES += $(BUILT_SOURCES)
 EXTRA_DIST =                                           \
 	tracker-miner-enum-types.c.template            \
 	tracker-miner-enum-types.h.template            \
+	tracker-miner-2.map                            \
 	tracker-miner.vapi                             \
 	tracker-miner.deps
 

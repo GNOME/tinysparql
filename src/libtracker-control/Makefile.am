@@ -63,6 +63,7 @@ BUILT_SOURCES =                                        \
 CLEANFILES += $(BUILT_SOURCES)
 
 EXTRA_DIST =                                           \
+	tracker-control-2.map                          \
 	tracker-control.vapi                           \
 	tracker-control.deps                           \
 	meson.build
