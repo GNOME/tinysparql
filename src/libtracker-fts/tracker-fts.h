@@ -36,6 +36,8 @@ gboolean    tracker_fts_create_table     (sqlite3    *db,
                                           gchar      *table_name,
                                           GHashTable *tables,
                                           GHashTable *grouped_columns);
+gboolean    tracker_fts_delete_table     (sqlite3    *db,
+                                          gchar      *table_name);
 gboolean    tracker_fts_alter_table      (sqlite3    *db,
                                           gchar      *table_name,
                                           GHashTable *tables,
