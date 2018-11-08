@@ -59,6 +59,8 @@ gboolean            tracker_db_interface_sqlite_wal_checkpoint         (TrackerD
 
 
 #if HAVE_TRACKER_FTS
+void                tracker_db_interface_sqlite_fts_delete_table       (TrackerDBInterface       *interface);
+
 void                tracker_db_interface_sqlite_fts_alter_table        (TrackerDBInterface       *interface,
                                                                         GHashTable               *properties,
                                                                         GHashTable               *multivalued);

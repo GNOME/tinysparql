@@ -1648,6 +1648,14 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 #if HAVE_TRACKER_FTS
 
 void
+tracker_db_interface_sqlite_fts_delete_table (TrackerDBInterface  *db_interface)
+{
+	if (!tracker_fts_delete_table (db_interface->db, "fts5")) {
+		g_critical ("Failed to delete FTS table");
+	}
+}
+
+void
 tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
 					     GHashTable          *properties,
 					     GHashTable          *multivalued)
