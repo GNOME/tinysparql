@@ -1055,7 +1055,9 @@ tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 		                                                    TRUE, &internal_error);
 
 		if (interface) {
+#if HAVE_TRACKER_FTS
 			tracker_data_manager_init_fts (interface, FALSE);
+#endif
 		} else {
 			if (g_async_queue_length_unlocked (db_manager->interfaces) == 0) {
 				g_critical ("Error opening database: %s", internal_error->message);
