@@ -1589,6 +1589,7 @@ close_database (TrackerDBInterface *db_interface)
 	}
 }
 
+#if HAVE_TRACKER_FTS
 static gchar **
 _fts_create_properties (GHashTable *properties)
 {
@@ -1616,6 +1617,7 @@ _fts_create_properties (GHashTable *properties)
 
 	return (gchar **) g_ptr_array_free (cols, FALSE);
 }
+#endif
 
 void
 tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
