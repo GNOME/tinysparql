@@ -768,10 +768,11 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		                       G_FILE_MONITOR_EVENT_MOVED,
 		                       is_directory, file, other_file);
 		break;
-	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
-	case G_FILE_MONITOR_EVENT_UNMOUNTED:
 	case G_FILE_MONITOR_EVENT_MOVED:
 		g_warn_if_reached ();
+		break;
+	case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
+	case G_FILE_MONITOR_EVENT_UNMOUNTED:
 		break;
 	}
 
