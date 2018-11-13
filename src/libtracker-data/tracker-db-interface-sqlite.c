@@ -55,6 +55,7 @@
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-manager.h"
 #include "tracker-data-enum-types.h"
+#include "tracker-uuid.h"
 
 typedef struct {
 	TrackerDBStatement *head;
@@ -509,11 +510,11 @@ function_sparql_regex (sqlite3_context *context,
                        sqlite3_value   *argv[])
 {
 	gboolean ret;
-	const gchar *text, *pattern, *flags;
+	const gchar *text, *pattern, *flags = "";
 	GRegexCompileFlags regex_flags;
 	GRegex *regex;
 
-	if (argc != 3) {
+	if (argc != 2 && argc != 3) {
 		sqlite3_result_error (context, "Invalid argument count", -1);
 		return;
 	}
@@ -521,7 +522,9 @@ function_sparql_regex (sqlite3_context *context,
 	regex = sqlite3_get_auxdata (context, 1);
 
 	text = (gchar *)sqlite3_value_text (argv[0]);
-	flags = (gchar *)sqlite3_value_text (argv[2]);
+
+	if (argc == 3)
+		flags = (gchar *)sqlite3_value_text (argv[2]);
 
 	if (regex == NULL) {
 		gchar *err_str;
@@ -1323,6 +1326,10 @@ function_sparql_checksum (sqlite3_context *context,
 		checksum = G_CHECKSUM_SHA1;
 	else if (g_ascii_strcasecmp (checksumstr, "sha256") == 0)
 		checksum = G_CHECKSUM_SHA256;
+#if GLIB_CHECK_VERSION (2, 51, 0)
+	else if (g_ascii_strcasecmp (checksumstr, "sha384") == 0)
+		checksum = G_CHECKSUM_SHA384;
+#endif
 	else if (g_ascii_strcasecmp (checksumstr, "sha512") == 0)
 		checksum = G_CHECKSUM_SHA512;
 	else {
@@ -1358,6 +1365,50 @@ stmt_step (sqlite3_stmt *stmt)
 	}
 
 	return result;
+}
+
+static void
+function_sparql_uuid (sqlite3_context *context,
+                      int              argc,
+                      sqlite3_value   *argv[])
+{
+	gchar *uuid = NULL;
+	sqlite3_stmt *stmt;
+	sqlite3 *db;
+	gint result;
+
+	if (argc > 1) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	db = sqlite3_context_db_handle (context);
+
+	result = sqlite3_prepare_v2 (db, "SELECT ID FROM Resource WHERE Uri=?",
+				     -1, &stmt, NULL);
+	if (result != SQLITE_OK) {
+		sqlite3_result_error (context, sqlite3_errstr (result), -1);
+		return;
+	}
+
+	do {
+		g_clear_pointer (&uuid, g_free);
+		uuid = tracker_generate_uuid ();
+
+		sqlite3_reset (stmt);
+		sqlite3_bind_text (stmt, 1, uuid, -1, SQLITE_TRANSIENT);
+		result = stmt_step (stmt);
+	} while (result == SQLITE_ROW);
+
+	sqlite3_finalize (stmt);
+
+	if (result != SQLITE_DONE) {
+		sqlite3_result_error (context, sqlite3_errstr (result), -1);
+		g_free (uuid);
+		return;
+	}
+
+	sqlite3_result_text (context, uuid, -1, g_free);
 }
 
 static int
@@ -1396,7 +1447,7 @@ initialize_functions (TrackerDBInterface *db_interface)
 		{ "SparqlEncodeForUri", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_encode_for_uri },
 		/* Strings */
-		{ "SparqlRegex", 3, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		{ "SparqlRegex", -1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_regex },
 		{ "SparqlStringJoin", -1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_string_join },
@@ -1424,6 +1475,8 @@ initialize_functions (TrackerDBInterface *db_interface)
 		{ "SparqlFloor", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_floor },
 		{ "SparqlRand", 0, SQLITE_ANY, function_sparql_rand },
+		/* UUID */
+		{ "SparqlUUID", 0, SQLITE_ANY, function_sparql_uuid },
 	};
 
 	for (i = 0; i < G_N_ELEMENTS (functions); i++) {
@@ -2664,6 +2717,49 @@ tracker_db_statement_bind_text (TrackerDBStatement *stmt,
 
 	tracker_db_interface_lock (stmt->db_interface);
 	sqlite3_bind_text (stmt->stmt, index + 1, value, -1, SQLITE_TRANSIENT);
+	tracker_db_interface_unlock (stmt->db_interface);
+}
+
+void
+tracker_db_statement_bind_value (TrackerDBStatement *stmt,
+				 int                 index,
+				 const GValue       *value)
+{
+	GType type;
+
+	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
+
+	g_assert (!stmt->stmt_is_used);
+
+	tracker_db_interface_lock (stmt->db_interface);
+
+	type = G_VALUE_TYPE (value);
+
+	if (type == G_TYPE_INT) {
+		sqlite3_bind_int64 (stmt->stmt, index + 1, g_value_get_int (value));
+	} else if (type == G_TYPE_INT64) {
+		sqlite3_bind_int64 (stmt->stmt, index + 1, g_value_get_int64 (value));
+	} else if (type == G_TYPE_DOUBLE) {
+		sqlite3_bind_double (stmt->stmt, index + 1, g_value_get_double (value));
+	} else if (type == G_TYPE_FLOAT) {
+		sqlite3_bind_double (stmt->stmt, index + 1, g_value_get_float (value));
+	} else if (type == G_TYPE_STRING) {
+		sqlite3_bind_text (stmt->stmt, index + 1,
+				   g_value_get_string (value), -1, SQLITE_TRANSIENT);
+	} else {
+		GValue dest = G_VALUE_INIT;
+
+		g_value_init (&dest, G_TYPE_STRING);
+
+		if (g_value_transform (value, &dest)) {
+			sqlite3_bind_text (stmt->stmt, index + 1,
+					   g_value_get_string (&dest), -1, SQLITE_TRANSIENT);
+			g_value_unset (&dest);
+		} else {
+			g_assert_not_reached ();
+		}
+	}
+
 	tracker_db_interface_unlock (stmt->db_interface);
 }
 

@@ -21,7 +21,9 @@
 #include "config.h"
 
 #include "tracker-direct.h"
+#include "tracker-direct-statement.h"
 #include <libtracker-data/tracker-data.h>
+#include <libtracker-data/tracker-sparql.h>
 
 static TrackerDBManagerFlags default_flags = 0;
 
@@ -429,16 +431,17 @@ tracker_direct_connection_query (TrackerSparqlConnection  *self,
 {
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
-	TrackerSparqlQuery *query;
+	TrackerSparql *query;
 	TrackerSparqlCursor *cursor;
 
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
 	g_mutex_lock (&priv->mutex);
-	query = tracker_sparql_query_new (priv->data_manager, sparql);
-	cursor = TRACKER_SPARQL_CURSOR (tracker_sparql_query_execute_cursor (query, error));
+	query = tracker_sparql_new (priv->data_manager, sparql);
+	cursor = tracker_sparql_execute_cursor (query, NULL, error);
 	g_object_unref (query);
+
 	if (cursor)
 		tracker_sparql_cursor_set_connection (cursor, self);
 	g_mutex_unlock (&priv->mutex);
@@ -476,6 +479,15 @@ tracker_direct_connection_query_finish (TrackerSparqlConnection  *self,
                                         GError                  **error)
 {
 	return g_task_propagate_pointer (G_TASK (res), error);
+}
+
+static TrackerSparqlStatement *
+tracker_direct_connection_query_statement (TrackerSparqlConnection  *self,
+                                           const gchar              *query,
+                                           GCancellable             *cancellable,
+                                           GError                  **error)
+{
+	return TRACKER_SPARQL_STATEMENT (tracker_direct_statement_new (self, query, error));
 }
 
 static void
@@ -743,6 +755,7 @@ tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 	sparql_connection_class->query = tracker_direct_connection_query;
 	sparql_connection_class->query_async = tracker_direct_connection_query_async;
 	sparql_connection_class->query_finish = tracker_direct_connection_query_finish;
+	sparql_connection_class->query_statement = tracker_direct_connection_query_statement;
 	sparql_connection_class->update = tracker_direct_connection_update;
 	sparql_connection_class->update_async = tracker_direct_connection_update_async;
 	sparql_connection_class->update_finish = tracker_direct_connection_update_finish;
