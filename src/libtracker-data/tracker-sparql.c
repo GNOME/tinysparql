@@ -1305,7 +1305,7 @@ convert_expression_to_string (TrackerSparql       *sparql,
 		break;
 	case TRACKER_PROPERTY_TYPE_DATE:
 		/* ISO 8601 format */
-		_prepend_string (sparql, "strftime (\"%%Y-%%m-%%d\", ");
+		_prepend_string (sparql, "strftime (\"%Y-%m-%d\", ");
 		_append_string (sparql, ", \"unixepoch\") ");
 		break;
 	case TRACKER_PROPERTY_TYPE_DATETIME:
@@ -5054,17 +5054,17 @@ handle_xpath_function (TrackerSparql  *sparql,
 		sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_STRING;
 	} else if (g_str_equal (function, FN_NS "year-from-dateTime")) {
 		_step (sparql);
-		if (!helper_translate_date (sparql, "%%Y", error))
+		if (!helper_translate_date (sparql, "%Y", error))
 			return FALSE;
 		sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_INTEGER;
 	} else if (g_str_equal (function, FN_NS "month-from-dateTime")) {
 		_step (sparql);
-		if (!helper_translate_date (sparql, "%%m", error))
+		if (!helper_translate_date (sparql, "%m", error))
 			return FALSE;
 		sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_INTEGER;
 	} else if (g_str_equal (function, FN_NS "day-from-dateTime")) {
 		_step (sparql);
-		if (!helper_translate_date (sparql, "%%d", error))
+		if (!helper_translate_date (sparql, "%d", error))
 			return FALSE;
 		sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_INTEGER;
 	} else if (g_str_equal (function, FN_NS "hours-from-dateTime")) {
@@ -5456,15 +5456,15 @@ translate_BuiltInCall (TrackerSparql  *sparql,
 		_append_string (sparql, ") ");
 		sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_STRING;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_YEAR)) {
-		if (!helper_translate_date (sparql, "%%Y", error))
+		if (!helper_translate_date (sparql, "%Y", error))
 			return FALSE;
 		sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_INTEGER;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_MONTH)) {
-		if (!helper_translate_date (sparql, "%%m", error))
+		if (!helper_translate_date (sparql, "%m", error))
 			return FALSE;
 		sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_INTEGER;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_DAY)) {
-		if (!helper_translate_date (sparql, "%%d", error))
+		if (!helper_translate_date (sparql, "%d", error))
 			return FALSE;
 		sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_INTEGER;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_HOURS)) {
@@ -5653,7 +5653,7 @@ translate_BuiltInCall (TrackerSparql  *sparql,
 		sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_DOUBLE;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_NOW)) {
 		_expect (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_NIL);
-		_append_string (sparql, "strftime('%%s', 'now') ");
+		_append_string (sparql, "strftime('%s', 'now') ");
 		sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_DATETIME;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_UUID)) {
 		_expect (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_NIL);
@@ -6446,7 +6446,7 @@ prepare_query (TrackerDBInterface    *iface,
 	                                              cached ?
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT :
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              error, query);
+	                                              error, "%s", query);
 	g_free (query);
 
 	if (!stmt || !literals)
