@@ -1,3 +1,23 @@
+NEW in 2.2.0-alpha1 - 2018-11-13
+================================
+
+  * New SPARQL parser, able to support more 1.1 features and generating
+    friendlier SQL at places. There is initial support for property
+    paths (/ and ^), and other missing 1.1 syntax (MINUS, SHA384, ...).
+    More improvements are expected to happen in the future thanks to this.
+  * Support for prepared statements. TrackerSparqlStatement can be built
+    with SELECT queries containing (custom) ~var syntax, and updating
+    their values before obtaining a cursor.
+  * Added global libtracker-sparql call to change the used DBus connection
+    at runtime.
+  * Made tracker-store to automatically shutdown when unneeded.
+  * Fixed ontology updates to work with behavioral changes in
+    sqlite >=3.25.
+  * Support for building through autotools has been removed.
+  * Other many build and code cleanups and fixes
+
+Translations: pl, sl, sr
+
 NEW in 2.1.4 - 2018-09-04
 =========================
 
