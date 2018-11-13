@@ -1401,7 +1401,7 @@ get_all_by_search (TrackerSparqlConnection *connection,
 	show_all_str = show_all ? "" : "?s tracker:available true . ";
 
 	if (details) {
-		query = g_strdup_printf ("SELECT tracker:coalesce (nie:url (?s), ?s) nie:mimeType (?s) ?type fts:snippet(?document, \"%s\", \"%s\") "
+		query = g_strdup_printf ("SELECT tracker:coalesce (nie:url (?s), ?s) nie:mimeType (?s) ?type fts:snippet(?s, \"%s\", \"%s\") "
 		                         "WHERE {"
 		                         "  ?s fts:match \"%s\" ;"
 		                         "  rdf:type ?type ."
@@ -1417,7 +1417,7 @@ get_all_by_search (TrackerSparqlConnection *connection,
 		                         search_offset,
 		                         search_limit);
 	} else {
-		query = g_strdup_printf ("SELECT tracker:coalesce (nie:url (?s), ?s) fts:snippet(?document, \"%s\", \"%s\") "
+		query = g_strdup_printf ("SELECT tracker:coalesce (nie:url (?s), ?s) fts:snippet(?s, \"%s\", \"%s\") "
 		                         "WHERE {"
 		                         "  ?s fts:match \"%s\" ."
 		                         "  %s"
