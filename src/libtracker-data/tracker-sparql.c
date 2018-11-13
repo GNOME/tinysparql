@@ -2912,10 +2912,10 @@ translate_InsertClause (TrackerSparql  *sparql,
 	 */
 	if (sparql->blank_nodes) {
 		g_variant_builder_open (sparql->blank_nodes, G_VARIANT_TYPE ("a{ss}"));
-		sparql->current_state.blank_node_map =
-			g_hash_table_new_full (g_str_hash, g_str_equal,
-					       g_free, g_free);
 	}
+
+	sparql->current_state.blank_node_map =
+		g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
 	old_graph = sparql->current_state.graph;
 
@@ -6169,7 +6169,8 @@ translate_BlankNode (TrackerSparql  *sparql,
 				        bnode_id = tracker_data_query_unused_uuid (sparql->data_manager, iface);
 				        g_hash_table_insert (sparql->current_state.blank_node_map,
 				                             g_strdup (str), bnode_id);
-					g_variant_builder_add (sparql->blank_nodes, "{ss}", str, bnode_id);
+					if (sparql->blank_nodes)
+						g_variant_builder_add (sparql->blank_nodes, "{ss}", str, bnode_id);
 			        }
 
 			        tracker_token_literal_init (sparql->current_state.token, bnode_id);
