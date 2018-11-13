@@ -1655,7 +1655,7 @@ string_to_gvalue (const gchar         *value,
 		/* use G_TYPE_INT64 to be compatible with value stored in DB
 		   (important for value_equal function) */
 		g_value_init (gvalue, G_TYPE_INT64);
-		g_value_set_int64 (gvalue, strcmp (value, "true") == 0);
+		g_value_set_int64 (gvalue, g_strncase (value, "true", 4) == 0);
 		break;
 	case TRACKER_PROPERTY_TYPE_DOUBLE:
 		g_value_init (gvalue, G_TYPE_DOUBLE);
