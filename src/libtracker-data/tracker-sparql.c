@@ -2609,8 +2609,22 @@ translate_InsertData (TrackerSparql  *sparql,
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_INSERT);
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_DATA);
 
+	if (sparql->blank_nodes) {
+		g_variant_builder_open (sparql->blank_nodes, G_VARIANT_TYPE ("a{ss}"));
+	}
+
+	sparql->current_state.blank_node_map =
+		g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
 	sparql->current_state.type = TRACKER_SPARQL_TYPE_INSERT;
 	_call_rule (sparql, NAMED_RULE_QuadData, error);
+
+	if (sparql->blank_nodes) {
+		g_variant_builder_close (sparql->blank_nodes);
+	}
+
+	g_clear_pointer (&sparql->current_state.blank_node_map,
+	                 g_hash_table_unref);
 
 	return TRUE;
 }
