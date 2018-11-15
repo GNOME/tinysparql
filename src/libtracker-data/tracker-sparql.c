@@ -2408,7 +2408,8 @@ translate_OrderCondition (TrackerSparql  *sparql,
 		_append_variable_sql (sparql, variable);
 
 		binding = tracker_variable_get_sample_binding (variable);
-		sparql->current_state.expression_type = TRACKER_BINDING (binding)->data_type;
+		if (binding)
+			sparql->current_state.expression_type = TRACKER_BINDING (binding)->data_type;
 	} else {
 		g_assert_not_reached ();
 	}
