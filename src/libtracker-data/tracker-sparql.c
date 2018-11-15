@@ -1894,13 +1894,15 @@ translate_SelectClause (TrackerSparql  *sparql,
 				_append_string_printf (sparql, "%s ",
 				                       tracker_variable_get_sql_expression (var));
 
+				if (sparql->current_state.select_context == sparql->context)
+					convert_expression_to_string (sparql, binding->data_type);
+
 				select_context->type = binding->data_type;
 
 				if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_AS)) {
 					if (!handle_as (sparql, binding->data_type, error))
 						return FALSE;
 				} else if (sparql->current_state.select_context == sparql->context) {
-					convert_expression_to_string (sparql, binding->data_type);
 					tracker_sparql_add_select_var (sparql, var->name, binding->data_type);
 				}
 
