@@ -62,7 +62,12 @@ add_project_arguments('-Wformat', '-Wformat-security', language: 'c')
 # modules, it's not worth adding casts everywhere so we disable the warning.
 add_project_arguments('-Wno-pointer-sign', language: 'c')
 
-add_project_arguments('-DTRACKER_COMPILATION', language: 'c')
+add_project_arguments('-DTRACKER_COMPILATION',
+                      '-DG_LOG_DOMAIN="Tracker"',
+                      language: 'c')
+add_project_arguments(['-D', 'TRACKER_COMPILATION'],
+                      ['-D', 'G_LOG_DOMAIN="Tracker"'],
+                      language: 'vala')
 
 enable_fts = get_option('fts')
 
