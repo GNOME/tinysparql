@@ -63,8 +63,13 @@ class Tracker.Bus.FDCursor : Tracker.Sparql.Cursor {
 	}
 
 	public override unowned string? get_string (int column, out long length = null)
-	requires (column < n_columns && data != null) {
+	requires (data != null) {
 		unowned string str = null;
+
+		if (column >= n_columns) {
+			length = 0;
+			return null;
+		}
 
 		// return null instead of empty string for unbound values
 		if (types[column] == Sparql.ValueType.UNBOUND) {
