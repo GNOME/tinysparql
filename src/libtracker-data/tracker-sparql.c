@@ -1078,6 +1078,9 @@ _add_quad (TrackerSparql  *sparql,
 		tracker_binding_set_db_column_name (binding, "predicate");
 		_add_binding (sparql, binding);
 		g_object_unref (binding);
+
+		if (!tracker_token_is_empty (graph))
+			pred_var->return_graph = TRUE;
 	} else {
 		/* The parser disallows parameter predicates */
 		g_assert_not_reached ();
