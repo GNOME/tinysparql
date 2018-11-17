@@ -1916,10 +1916,8 @@ translate_SelectClause (TrackerSparql  *sparql,
 				old = tracker_sparql_swap_builder (sparql, str);
 				_call_rule (sparql, NAMED_RULE_Expression, error);
 
-				if (sparql->current_state.select_context == sparql->context) {
+				if (sparql->current_state.select_context == sparql->context)
 					convert_expression_to_string (sparql, sparql->current_state.expression_type);
-					sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_STRING;
-				}
 
 				select_context->type = sparql->current_state.expression_type;
 
