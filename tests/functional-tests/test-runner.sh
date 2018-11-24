@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Test runner script for Tracker's functional tests
 
