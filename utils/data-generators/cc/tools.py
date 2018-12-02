@@ -33,7 +33,7 @@ def getRandomUri(type):
 def saveResult (output_dir=None):
   output_dir = output_dir or 'ttl'
   for ontology, content in result.items():
-    print 'Saving', output_filenames[ontology], '...'
+    print('Saving', output_filenames[ontology], '...')
     path = os.path.join(output_dir, output_filenames[ontology])
     output = open(path, 'w')
     output.write( ontology_prefixes.ontology_prefixes )
