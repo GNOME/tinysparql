@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2018-10-14 15:08+0000\n"
-"PO-Revision-Date: 2018-10-25 20:20+0200\n"
+"POT-Creation-Date: 2018-11-24 10:23+0000\n"
+"PO-Revision-Date: 2018-12-01 21:50+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -221,19 +221,15 @@ msgstr ""
 msgid "Operation not supported"
 msgstr "Opravilo ni podprto"
 
-#: src/libtracker-miner/tracker-miner-proxy.c:352
+#: src/libtracker-miner/tracker-miner-proxy.c:346
 msgid "Cookie not recognized to resume paused miner"
 msgstr ""
 "Piškotek za nadaljevanje podatkovnega rudarjenja v premoru ni prepoznan"
 
-#: src/libtracker-miner/tracker-miner-proxy.c:409
+#: src/libtracker-miner/tracker-miner-proxy.c:403
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Premor programa in skladanje razloga za že obstoječo zahtevo po premoru"
-
-#: src/libtracker-miner/tracker-miner-proxy.c:772
-msgid "Data store is not available"
-msgstr "Shramba podatkov ni na voljo"
 
 #: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:24
 msgid "Log verbosity"
@@ -256,11 +252,11 @@ msgstr ""
 "podatkovne zbirke."
 
 #. Daemon options
-#: src/tracker-store/tracker-main.vala:58
+#: src/tracker-store/tracker-main.vala:60
 msgid "Displays version information"
 msgstr "Pokaže podrobnosti različice"
 
-#: src/tracker-store/tracker-main.vala:59
+#: src/tracker-store/tracker-main.vala:61
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -268,23 +264,27 @@ msgstr ""
 "Beleženje, 0 = samo napake, 1 = najmanjše, 2 = podrobno in 3 = "
 "razhroščevanje (privzeto = 0)"
 
-#. Indexer options
 #: src/tracker-store/tracker-main.vala:62
+msgid "Disable automatic shutdown"
+msgstr "Onemogoči samodejen izklop"
+
+#. Indexer options
+#: src/tracker-store/tracker-main.vala:65
 msgid "Force a re-index of all content"
 msgstr "Vsili pripravo kazala iz vse vsebine"
 
-#: src/tracker-store/tracker-main.vala:63
+#: src/tracker-store/tracker-main.vala:66
 msgid "Only allow read based actions on the database"
 msgstr "Na podatkovni zbirki dovoli le dejanja osnovana na branju"
 
-#: src/tracker-store/tracker-main.vala:64
+#: src/tracker-store/tracker-main.vala:67
 msgid "Load a specified domain ontology"
 msgstr "Naloži zgodovino določene domene"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: src/tracker-store/tracker-main.vala:199
+#: src/tracker-store/tracker-main.vala:229
 msgid "— start the tracker daemon"
 msgstr "– zažene ozadnji program tracker"
 
@@ -720,7 +720,7 @@ msgstr ""
 
 #: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
 #: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:449 src/tracker/tracker-search.c:1778
+#: src/tracker/tracker-reset.c:384 src/tracker/tracker-search.c:1778
 #: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
 #: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
@@ -1050,25 +1050,25 @@ msgid ""
 msgstr "Brisanje podrobnosti datoteke poteka po strukturi podrejenih map"
 
 #. Now, delete the element recursively
-#: src/tracker/tracker-reset.c:167
+#: src/tracker/tracker-reset.c:127
 msgid "Deleting…"
 msgstr "Poteka brisanje ..."
 
-#: src/tracker/tracker-reset.c:188
+#: src/tracker/tracker-reset.c:148
 msgid ""
 "The indexed data for this file has been deleted and will be reindexed again."
 msgstr "Podatki kazala za to datoteko so izbrisani in bodo ponovno prebrani."
 
 #. TRANSLATORS: --hard and --soft are commandline arguments
-#: src/tracker/tracker-reset.c:215
+#: src/tracker/tracker-reset.c:175
 msgid "You can not use the --hard and --soft arguments together"
 msgstr "Argumentov --hard in —soft ni mogoče uporabiti skupaj"
 
-#: src/tracker/tracker-reset.c:223
+#: src/tracker/tracker-reset.c:183
 msgid "CAUTION: This process may irreversibly delete data."
 msgstr "OPOZORILO: S tem opravilom se lahko neobnovljivo izbrišejo podatki."
 
-#: src/tracker/tracker-reset.c:224
+#: src/tracker/tracker-reset.c:184
 msgid ""
 "Although most content indexed by Tracker can be safely reindexed, it can’t "
 "be assured that this is the case for all data. Be aware that you may be "
@@ -1077,12 +1077,12 @@ msgstr ""
 "Čeprav je kazala, ustvarjena s programom Tracker, mogoče ponovno ustvariti, "
 "to ne velja nujno za vse vrste podatkov. Nadaljujete na lastno odgovornost."
 
-#: src/tracker/tracker-reset.c:229
+#: src/tracker/tracker-reset.c:189
 msgid "Are you sure you want to proceed?"
 msgstr "Ali ste prepričani, da želite nadaljevati?"
 
 #. TRANSLATORS: This is to be displayed on command line output
-#: src/tracker/tracker-reset.c:231
+#: src/tracker/tracker-reset.c:191
 msgid "[y|N]"
 msgstr "[y|N]"
 
@@ -1090,15 +1090,11 @@ msgstr "[y|N]"
 #. * A partial or full match will be considered an affirmative answer,
 #. * it is intentionally lowercase, so please keep it like this.
 #.
-#: src/tracker/tracker-reset.c:240
+#: src/tracker/tracker-reset.c:200
 msgid "yes"
 msgstr "da"
 
-#: src/tracker/tracker-reset.c:366
-msgid "Removing configuration files…"
-msgstr "Odstranjevanje namestitvenih datotek ..."
-
-#: src/tracker/tracker-reset.c:371
+#: src/tracker/tracker-reset.c:306
 msgid "Resetting existing configuration…"
 msgstr "Poteka čiščenje obstoječih nastavitev ..."
 
@@ -1876,6 +1872,12 @@ msgstr "Dejanj dodajanja in brisanja ni mogoče uporabljati skupaj"
 #: src/tracker/tracker-tag.c:1094
 msgid "The --description option can only be used with --add"
 msgstr "Možnost --description je mogoče uporabiti le skupaj z --add"
+
+#~ msgid "Data store is not available"
+#~ msgstr "Shramba podatkov ni na voljo"
+
+#~ msgid "Removing configuration files…"
+#~ msgstr "Odstranjevanje namestitvenih datotek ..."
 
 #~ msgid "All posts"
 #~ msgstr "Vse objave"
