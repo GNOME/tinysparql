@@ -181,7 +181,8 @@ test_ontology_change (void)
 	test_schemas = g_file_new_for_path (ontology_dir);
 	g_free (ontology_dir);
 
-	data_dir = g_build_filename (g_get_current_dir (), "test-cache", NULL);
+	data_dir = g_build_filename (g_get_tmp_dir (), "tracker-ontology-change-test-XXXXXX", NULL);
+	data_dir = g_mkdtemp_full (data_dir, 0700);
 	data_location = g_file_new_for_path (data_dir);
 	g_free (data_dir);
 
@@ -287,20 +288,8 @@ main (int argc, char **argv)
 	gint result;
 
 	g_test_init (&argc, &argv, NULL);
-
-	/* add test cases */
-
 	g_test_add_func ("/libtracker-data/ontology-change", test_ontology_change);
-
-
-	/* run tests */
-
 	result = g_test_run ();
-
-	/* clean up */
-	g_print ("Removing temporary data\n");
-	g_spawn_command_line_sync ("rm -R tracker/", NULL, NULL, NULL, NULL);
-	g_spawn_command_line_sync ("rm -R test-cache/", NULL, NULL, NULL, NULL);
 
 	return result;
 }
