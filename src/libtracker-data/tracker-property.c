@@ -1044,6 +1044,7 @@ tracker_property_set_multiple_values (TrackerProperty *property,
 	priv = tracker_property_get_instance_private (property);
 
 	priv->multiple_values = value;
+	g_clear_pointer (&priv->table_name, g_free);
 }
 
 void
