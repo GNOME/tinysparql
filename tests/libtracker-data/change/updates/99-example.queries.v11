@@ -1,0 +1,1 @@
+insert data { <fts4> a example:A ; example:fts1 'resource fts4' }
