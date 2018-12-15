@@ -67,29 +67,6 @@ const ChangeInfo changes[] = {
 };
 
 static void
-delete_db (gboolean del_journal)
-{
-	gchar *meta_db, *db_location;
-
-	db_location = g_build_path (G_DIR_SEPARATOR_S, g_get_current_dir (), "tracker", NULL);
-	meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "meta.db", NULL);
-	g_unlink (meta_db);
-	g_free (meta_db);
-
-	if (del_journal) {
-		meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", "tracker-store.journal", NULL);
-		g_unlink (meta_db);
-		g_free (meta_db);
-	}
-
-	meta_db = g_build_path (G_DIR_SEPARATOR_S, db_location, "data", ".meta.isrunning", NULL);
-	g_unlink (meta_db);
-	g_free (meta_db);
-
-	g_free (db_location);
-}
-
-static void
 query_helper (TrackerDataManager *manager, const gchar *query_filename, const gchar *results_filename)
 {
 	GError *error = NULL;
@@ -189,8 +166,6 @@ test_ontology_change (void)
 	GFile *data_location, *test_schemas;
 	TrackerDataManager *manager;
 
-	delete_db (TRUE);
-
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
 	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "libtracker-data", NULL);
 	ontologies = g_build_filename (prefix, "ontologies", NULL);
@@ -272,8 +247,6 @@ test_ontology_change (void)
 
 		g_object_unref (manager);
 	}
-
-	delete_db (FALSE);
 
 	manager = tracker_data_manager_new (0, data_location, data_location, test_schemas,
 	                                    TRUE, FALSE, 100, 100);
