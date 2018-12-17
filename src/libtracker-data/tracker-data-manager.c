@@ -3701,8 +3701,8 @@ tracker_data_ontology_import_into_db (TrackerDataManager  *manager,
 	}
 
 #if HAVE_TRACKER_FTS
-	if (in_update) {
-		update_fts = tracker_data_manager_fts_changed (manager);
+	if (base_tables_altered || in_update) {
+		update_fts = base_tables_altered | tracker_data_manager_fts_changed (manager);
 
 		if (update_fts)
 			tracker_db_interface_sqlite_fts_delete_table (iface);
