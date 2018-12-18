@@ -42,9 +42,10 @@ class_get_parent_hierarchy (Ontology       *ontology,
 	*list = g_list_prepend (*list, (gpointer) class_name);
 
 	klass = g_hash_table_lookup (ontology->classes, class_name);
+
 	if (!klass) {
 		klass = ttl_model_class_new (class_name);
-		g_hash_table_insert (ontology->classes, klass->classname, klass);
+		g_hash_table_insert (ontology->classes, g_strdup (klass->classname), klass);
 		return;
 	}
 
@@ -194,6 +195,7 @@ print_fts_properties (FILE          *f,
 	g_fprintf (f, "</itemizedlist></para></refsect1>\n");
 	g_free (shortname);
 	g_free (id);
+	g_list_free (fts_props);
 }
 
 typedef struct {
@@ -310,6 +312,7 @@ hierarchy_context_new (OntologyClass *klass,
 static void
 hierarchy_context_free (HierarchyContext *context)
 {
+	g_list_free (context->hierarchy);
 	g_ptr_array_unref (context->strings);
 	g_hash_table_unref (context->placed);
 	g_hash_table_unref (context->resolved_parents);
@@ -505,7 +508,7 @@ class_get_parent_hierarchy_strings (OntologyClass *klass,
 {
 	HierarchyContext *context;
 	GList *c;
-	GPtrArray *strings;
+	GPtrArray *strings = NULL;
 
 	context = hierarchy_context_new (klass, ontology);
 
@@ -619,7 +622,7 @@ print_properties (FILE          *f,
 
 				if (!superprop) {
 					superprop = ttl_model_property_new (l->data);
-					g_hash_table_insert (ontology->properties, superprop->propertyname, superprop);
+					g_hash_table_insert (ontology->properties, g_strdup (superprop->propertyname), superprop);
 				}
 
 				if (!superprop->domain)
@@ -692,6 +695,7 @@ generate_ontology_class_docs (Ontology *ontology,
 		child = g_file_get_child (output_dir, class_filename);
 
 		output_file = g_file_get_path (child);
+		g_object_unref (child);
 
 		f = fopen (output_file, "w");
 

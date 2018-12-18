@@ -45,14 +45,14 @@ ttl_model_class_free (OntologyClass *def)
 {
 	g_free (def->classname);
 
-	g_list_foreach (def->superclasses, (GFunc) g_free, NULL);
-	g_list_foreach (def->subclasses, (GFunc) g_free, NULL);
-	g_list_foreach (def->in_domain_of, (GFunc) g_free, NULL);
-	g_list_foreach (def->in_range_of, (GFunc) g_free, NULL);
+	g_list_free_full (def->superclasses, (GDestroyNotify) g_free);
+	g_list_free_full (def->subclasses, (GDestroyNotify) g_free);
+	g_list_free_full (def->in_domain_of, (GDestroyNotify) g_free);
+	g_list_free_full (def->in_range_of, (GDestroyNotify) g_free);
 
 	g_free (def->description);
 
-	g_list_foreach (def->instances, (GFunc) g_free, NULL);
+	g_list_free_full (def->instances, (GDestroyNotify) g_free);
 
 	g_free (def);
 }
@@ -84,11 +84,11 @@ ttl_model_property_free (OntologyProperty *def)
 {
 	g_free (def->propertyname);
 
-	g_list_foreach (def->type, (GFunc) g_free, NULL);
-	g_list_foreach (def->domain, (GFunc) g_free, NULL);
-	g_list_foreach (def->range, (GFunc) g_free, NULL);
-	g_list_foreach (def->superproperties, (GFunc) g_free, NULL);
-	g_list_foreach (def->subproperties, (GFunc) g_free, NULL);
+	g_list_free_full (def->type, (GDestroyNotify) g_free);
+	g_list_free_full (def->domain, (GDestroyNotify) g_free);
+	g_list_free_full (def->range, (GDestroyNotify) g_free);
+	g_list_free_full (def->superproperties, (GDestroyNotify) g_free);
+	g_list_free_full (def->subproperties, (GDestroyNotify) g_free);
 
 	g_free (def->max_cardinality);
 	g_free (def->description);
@@ -119,10 +119,11 @@ void
 ttl_model_description_free (OntologyDescription *desc)
 {
 	g_free (desc->title);
+	g_free (desc->description);
 
-	g_list_foreach (desc->authors, (GFunc)g_free, NULL);
-	g_list_foreach (desc->editors, (GFunc)g_free, NULL);
-	g_list_foreach (desc->contributors, (GFunc)g_free, NULL);
+	g_list_free_full (desc->authors, (GDestroyNotify) g_free);
+	g_list_free_full (desc->editors, (GDestroyNotify) g_free);
+	g_list_free_full (desc->contributors, (GDestroyNotify) g_free);
 
 	g_free (desc->gitlog);
 	g_free (desc->upstream);
