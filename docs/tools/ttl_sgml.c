@@ -157,6 +157,7 @@ ttl_sgml_print (OntologyDescription *description,
 	path = g_file_get_path (file);
 	f = fopen (path, "w");
 	g_assert (f != NULL);
+	g_free (path);
 
         upper_name = g_ascii_strup (description->localPrefix, -1);
 	print_sgml_header (f, description);

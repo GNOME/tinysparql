@@ -107,7 +107,7 @@ main (gint argc, gchar **argv)
 	Ontology *ontology = NULL;
 	OntologyDescription *description = NULL;
 	GList *description_files, *l;
-	GFile *ontology_file, *output_file;
+	g_autoptr(GFile) ontology_file = NULL, output_file = NULL;
 	gchar *path;
 
 	/* Translators: this messagge will apper immediately after the  */
@@ -150,7 +150,7 @@ main (gint argc, gchar **argv)
 
 	for (l = description_files; l; l = l->next) {
 		Ontology *file_ontology = NULL;
-		GFile *ttl_file, *ttl_output_file;
+		g_autoptr(GFile) ttl_file = NULL, ttl_output_file = NULL;
 		gchar *filename;
 
 		description = ttl_loader_load_description (l->data);
@@ -171,9 +171,11 @@ main (gint argc, gchar **argv)
 		ttl_loader_free_ontology (file_ontology);
 		ttl_loader_free_description (description);
 	}
+	g_list_free_full (description_files, (GDestroyNotify) g_object_unref);
 
 	generate_ontology_class_docs (ontology, output_file);
 
+	ttl_loader_free_ontology (ontology);
 	g_option_context_free (context);
 
 	return 0;
