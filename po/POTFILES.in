@@ -1,17 +1,17 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
+data/org.freedesktop.Tracker.DB.gschema.xml
+data/org.freedesktop.Tracker.FTS.gschema.xml
+data/org.freedesktop.Tracker.Store.gschema.xml
 src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
-src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml
 src/libtracker-data/tracker-collation.c
 src/libtracker-data/tracker-data-backup.c
-src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml
 src/libtracker-miner/tracker-data-provider.c
 src/libtracker-miner/tracker-miner-fs.c
 src/libtracker-miner/tracker-miner-object.c
 src/libtracker-miner/tracker-miner-online.c
 src/libtracker-miner/tracker-miner-proxy.c
-src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml
 src/tracker-store/tracker-main.vala
 src/tracker-store/tracker-store.desktop.in
 src/tracker/tracker-config.c
