@@ -735,7 +735,8 @@ _init_token (TrackerToken      *token,
 			const gchar *value;
 
 			value = g_hash_table_lookup (sparql->solution_var_map, str);
-			tracker_token_literal_init (token, value);
+			if (value)
+				tracker_token_literal_init (token, value);
 		}
 	} else if (tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL, TERMINAL_TYPE_PARAMETERIZED_VAR)) {
 		tracker_token_parameter_init (token, str);
@@ -4385,10 +4386,8 @@ translate_GraphNode (TrackerSparql  *sparql,
 	 */
 	if (_check_in_rule (sparql, NAMED_RULE_VarOrTerm)) {
 		_call_rule (sparql, NAMED_RULE_VarOrTerm, error);
-		g_assert (!tracker_token_is_empty (&sparql->current_state.object));
 	} else if (_check_in_rule (sparql, NAMED_RULE_TriplesNode)) {
 		_call_rule (sparql, NAMED_RULE_TriplesNode, error);
-		g_assert (!tracker_token_is_empty (&sparql->current_state.object));
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_NULL)) {
 		if (sparql->current_state.type != TRACKER_SPARQL_TYPE_UPDATE)
 			_raise (PARSE, "«NULL» literal is not allowed in this mode", "NULL");
@@ -4396,6 +4395,21 @@ translate_GraphNode (TrackerSparql  *sparql,
 	} else {
 		g_assert_not_reached ();
 	}
+
+	/* Quoting sparql11-update:
+	 * If any solution produces a triple containing an unbound variable
+	 * or an illegal RDF construct, such as a literal in a subject or
+	 * predicate position, then that triple is not included when processing
+	 * the operation: INSERT will not instantiate new data in the output
+	 * graph, and DELETE will not remove anything.
+	 *
+	 * Updates are a Tracker extension and object may be explicitly NULL.
+	 */
+	if (tracker_token_is_empty (&sparql->current_state.subject) ||
+	    tracker_token_is_empty (&sparql->current_state.predicate) ||
+	    (tracker_token_is_empty (&sparql->current_state.object) &&
+	     sparql->current_state.type != TRACKER_SPARQL_TYPE_UPDATE))
+		return TRUE;
 
 	switch (sparql->current_state.type) {
 	case TRACKER_SPARQL_TYPE_SELECT:
