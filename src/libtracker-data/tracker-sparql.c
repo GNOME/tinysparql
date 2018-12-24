@@ -570,6 +570,18 @@ _prepend_path_element (TrackerSparql      *sparql,
 		                       path_elem->data.composite.child1->name,
 		                       path_elem->data.composite.child2->name);
 		break;
+	case TRACKER_PATH_OPERATOR_ALTERNATIVE:
+		_append_string_printf (sparql,
+		                       "\"%s\" (ID, value, graph) AS "
+		                       "(SELECT ID, value, graph "
+		                       "FROM \"%s\" "
+		                       "UNION ALL "
+		                       "SELECT ID, value, graph "
+		                       "FROM \"%s\") ",
+		                       path_elem->name,
+		                       path_elem->data.composite.child1->name,
+		                       path_elem->data.composite.child2->name);
+		break;
 	case TRACKER_PATH_OPERATOR_ZEROORMORE:
 		_append_string_printf (sparql,
 		                       "\"%s\" (ID, value, graph) AS "
@@ -609,9 +621,6 @@ _prepend_path_element (TrackerSparql      *sparql,
 				       path_elem->name,
 				       path_elem->data.composite.child1->name,
 				       path_elem->data.composite.child1->name);
-		break;
-	default:
-		g_assert_not_reached ();
 		break;
 	}
 
@@ -4199,13 +4208,46 @@ static gboolean
 translate_PathAlternative (TrackerSparql  *sparql,
                            GError        **error)
 {
+	GPtrArray *path_elems;
+
+	path_elems = g_ptr_array_new ();
+
 	/* PathAlternative ::= PathSequence ( '|' PathSequence )*
 	 */
 	_call_rule (sparql, NAMED_RULE_PathSequence, error);
+	g_ptr_array_add (path_elems, sparql->current_state.path);
 
-	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_PATH_ALTERNATIVE)) {
-		_unimplemented ("Alternative property path");
+	while (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_PATH_ALTERNATIVE)) {
+		_call_rule (sparql, NAMED_RULE_PathSequence, error);
+		g_ptr_array_add (path_elems, sparql->current_state.path);
 	}
+
+	if (path_elems->len > 1) {
+		TrackerPathElement *path_elem;
+		gint i;
+
+		path_elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_ALTERNATIVE,
+		                                               g_ptr_array_index (path_elems, 0),
+		                                               g_ptr_array_index (path_elems, 1));
+		tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+		                                         path_elem);
+		_prepend_path_element (sparql, path_elem);
+
+		for (i = 2; i < path_elems->len; i++) {
+			TrackerPathElement *child;
+
+			child = g_ptr_array_index (path_elems, i);
+			path_elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_ALTERNATIVE,
+			                                               child, path_elem);
+			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+			                                         path_elem);
+			_prepend_path_element (sparql, path_elem);
+		}
+
+		sparql->current_state.path = path_elem;
+	}
+
+	g_ptr_array_unref (path_elems);
 
 	return TRUE;
 }
