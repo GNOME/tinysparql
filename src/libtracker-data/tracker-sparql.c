@@ -570,6 +570,46 @@ _prepend_path_element (TrackerSparql      *sparql,
 		                       path_elem->data.composite.child1->name,
 		                       path_elem->data.composite.child2->name);
 		break;
+	case TRACKER_PATH_OPERATOR_ZEROORMORE:
+		_append_string_printf (sparql,
+		                       "\"%s\" (ID, value, graph) AS "
+		                       "(SELECT ID, ID, graph "
+		                       "FROM \"%s\" "
+		                       "UNION "
+		                       "SELECT a.ID, b.value, b.graph "
+		                       "FROM \"%s\" AS a, \"%s\" AS b "
+		                       "WHERE b.ID = a.value) ",
+		                       path_elem->name,
+		                       path_elem->data.composite.child1->name,
+		                       path_elem->data.composite.child1->name,
+		                       path_elem->name);
+		break;
+	case TRACKER_PATH_OPERATOR_ONEORMORE:
+		_append_string_printf (sparql,
+		                       "\"%s\" (ID, value, graph) AS "
+		                       "(SELECT ID, value, graph "
+				       "FROM \"%s\" "
+				       "UNION "
+				       "SELECT a.ID, b.value, b.graph "
+				       "FROM \"%s\" AS a, \"%s\" AS b "
+				       "WHERE b.ID = a.value) ",
+				       path_elem->name,
+				       path_elem->data.composite.child1->name,
+		                       path_elem->data.composite.child1->name,
+				       path_elem->name);
+		break;
+	case TRACKER_PATH_OPERATOR_ZEROORONE:
+		_append_string_printf (sparql,
+		                       "\"%s\" (ID, value, graph) AS "
+		                       "(SELECT ID, ID, graph "
+				       "FROM \"%s\" "
+				       "UNION ALL "
+				       "SELECT ID, value, graph "
+				       "FROM \"%s\") ",
+				       path_elem->name,
+				       path_elem->data.composite.child1->name,
+				       path_elem->data.composite.child1->name);
+		break;
 	default:
 		g_assert_not_reached ();
 		break;
@@ -4270,9 +4310,27 @@ static gboolean
 translate_PathMod (TrackerSparql  *sparql,
                    GError        **error)
 {
+	TrackerPathElement *path_elem;
+	TrackerPathOperator op;
+
 	/* PathMod ::= '?' | '*' | '+'
 	 */
-	_unimplemented ("Path modifiers");
+	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_PATH_STAR)) {
+		op = TRACKER_PATH_OPERATOR_ZEROORMORE;
+	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_PATH_PLUS)) {
+		op = TRACKER_PATH_OPERATOR_ONEORMORE;
+	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_PATH_OPTIONAL)) {
+		op = TRACKER_PATH_OPERATOR_ZEROORONE;
+	} else {
+		return TRUE;
+	}
+
+	path_elem = tracker_path_element_operator_new (op, sparql->current_state.path, NULL);
+	tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+						 path_elem);
+	_prepend_path_element (sparql, path_elem);
+	sparql->current_state.path = path_elem;
+	return TRUE;
 }
 
 static gboolean
