@@ -27,6 +27,7 @@ enum {
 	TOKEN_TYPE_LITERAL,
 	TOKEN_TYPE_VARIABLE,
 	TOKEN_TYPE_PARAMETER,
+	TOKEN_TYPE_PATH,
 };
 
 /* Helper structs */
@@ -198,6 +199,14 @@ tracker_token_parameter_init (TrackerToken *token,
 }
 
 void
+tracker_token_path_init (TrackerToken       *token,
+                         TrackerPathElement *path)
+{
+	token->type = TOKEN_TYPE_PATH;
+	token->content.path = path;
+}
+
+void
 tracker_token_unset (TrackerToken *token)
 {
 	if (token->type == TOKEN_TYPE_LITERAL)
@@ -237,6 +246,14 @@ tracker_token_get_parameter (TrackerToken *token)
 	return NULL;
 }
 
+TrackerPathElement *
+tracker_token_get_path (TrackerToken *token)
+{
+	if (token->type == TOKEN_TYPE_PATH)
+		return token->content.path;
+	return NULL;
+}
+
 const gchar *
 tracker_token_get_idstring (TrackerToken *token)
 {
@@ -244,6 +261,8 @@ tracker_token_get_idstring (TrackerToken *token)
 		return token->content.literal;
 	else if (token->type == TOKEN_TYPE_VARIABLE)
 		return token->content.var->sql_expression;
+	else if (token->type == TOKEN_TYPE_PATH)
+		return token->content.path->name;
 	else
 		return NULL;
 }
@@ -530,6 +549,86 @@ tracker_variable_binding_get_class (TrackerVariableBinding *binding)
 	return binding->type;
 }
 
+/* Path element */
+static void
+tracker_path_element_free (TrackerPathElement *elem)
+{
+	g_free (elem->name);
+	g_free (elem);
+}
+
+TrackerPathElement *
+tracker_path_element_property_new (TrackerProperty *prop)
+{
+	TrackerPathElement *elem;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (prop), NULL);
+
+	elem = g_new0 (TrackerPathElement, 1);
+	elem->op = TRACKER_PATH_OPERATOR_NONE;
+	elem->type = tracker_property_get_data_type (prop);
+	elem->data.property = prop;
+
+	return elem;
+}
+
+TrackerPathElement *
+tracker_path_element_operator_new (TrackerPathOperator  op,
+                                   TrackerPathElement  *child1,
+                                   TrackerPathElement  *child2)
+{
+	TrackerPathElement *elem;
+
+	g_return_val_if_fail (op != TRACKER_PATH_OPERATOR_NONE, NULL);
+	g_return_val_if_fail (child1 != NULL, NULL);
+	g_return_val_if_fail (child2 == NULL ||
+	                      op == TRACKER_PATH_OPERATOR_SEQUENCE ||
+	                      op == TRACKER_PATH_OPERATOR_ALTERNATIVE, NULL);
+
+	elem = g_new0 (TrackerPathElement, 1);
+	elem->op = op;
+	elem->data.composite.child1 = child1;
+	elem->data.composite.child2 = child2;
+	elem->type = child2 ? child2->type : child1->type;
+
+	return elem;
+}
+
+static void
+tracker_path_element_set_unique_name (TrackerPathElement *elem,
+                                      gint                id)
+{
+	const gchar *name = NULL;
+
+	switch (elem->op) {
+	case TRACKER_PATH_OPERATOR_NONE:
+		name = tracker_property_get_name (elem->data.property);
+		break;
+	case TRACKER_PATH_OPERATOR_INVERSE:
+		name = "inv";
+		break;
+	case TRACKER_PATH_OPERATOR_SEQUENCE:
+		name = "seq";
+		break;
+	case TRACKER_PATH_OPERATOR_ALTERNATIVE:
+		name = "alt";
+		break;
+	case TRACKER_PATH_OPERATOR_ZEROORONE:
+		name = "zeroorone";
+		break;
+	case TRACKER_PATH_OPERATOR_ZEROORMORE:
+		name = "zeroormore";
+		break;
+	case TRACKER_PATH_OPERATOR_ONEORMORE:
+		name = "oneormore";
+		break;
+	default:
+		g_assert_not_reached ();
+	}
+
+	elem->name = g_strdup_printf ("p%d_%s", id, name);
+}
+
 /* Context */
 G_DEFINE_TYPE (TrackerContext, tracker_context, G_TYPE_INITIALLY_UNOWNED)
 
@@ -627,6 +726,7 @@ tracker_select_context_finalize (GObject *object)
 	g_clear_pointer (&context->predicate_variables, g_hash_table_unref);
 	g_clear_pointer (&context->generated_variables, g_ptr_array_unref);
 	g_clear_pointer (&context->literal_bindings, g_ptr_array_unref);
+	g_clear_pointer (&context->path_elements, g_ptr_array_unref);
 
 	G_OBJECT_CLASS (tracker_select_context_parent_class)->finalize (object);
 }
@@ -757,6 +857,42 @@ tracker_select_context_get_literal_binding_index (TrackerSelectContext  *context
 
 	g_assert_not_reached ();
 	return -1;
+}
+
+void
+tracker_select_context_add_path_element (TrackerSelectContext *context,
+                                         TrackerPathElement   *path_elem)
+{
+	if (!context->path_elements) {
+		context->path_elements =
+			g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_path_element_free);
+	}
+
+	g_ptr_array_add (context->path_elements, path_elem);
+	tracker_path_element_set_unique_name (path_elem,
+	                                      context->path_elements->len);
+}
+
+TrackerPathElement *
+tracker_select_context_lookup_path_element_for_property (TrackerSelectContext *context,
+                                                         TrackerProperty      *property)
+{
+	guint i;
+
+	if (!context->path_elements)
+		return NULL;
+
+	for (i = 0; i < context->path_elements->len; i++) {
+		TrackerPathElement *path_elem;
+
+		path_elem = g_ptr_array_index (context->path_elements, i);
+
+		if (path_elem->op == TRACKER_PATH_OPERATOR_NONE &&
+		    path_elem->data.property == property)
+			return path_elem;
+	}
+
+	return NULL;
 }
 
 /* Triple context */
