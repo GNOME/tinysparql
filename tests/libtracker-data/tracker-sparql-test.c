@@ -361,6 +361,8 @@ test_sparql_query (TestInfo      *test_info,
 	g_free (results_filename);
 	g_object_unref (test_schemas);
 	g_object_unref (data_location);
+
+	tracker_data_manager_shutdown (manager);
 	g_object_unref (manager);
 }
 
