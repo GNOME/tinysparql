@@ -1,0 +1,1 @@
+select foaf:name(?u) foaf:name(?a) { ?u foaf:knows+ ?a . FILTER (?u != ?a && foaf:name(?u) = 'Alice') } order by foaf:name(?u) foaf:name(?a)
