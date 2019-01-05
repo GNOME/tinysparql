@@ -521,7 +521,7 @@ get_no_args (void)
 	         files);
 	g_print (", ");
 	g_print (g_dngettext (NULL,
-	                      "%d folders",
+	                      "%d folder",
 	                      "%d folders",
 	                      folders),
 	         folders);
