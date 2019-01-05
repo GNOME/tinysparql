@@ -19,7 +19,7 @@
 # 02110-1301, USA.
 #
 
-import unittest2 as ut
+import unittest as ut
 
 import os
 import time

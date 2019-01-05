@@ -26,27 +26,8 @@ Write values in tracker and check the actual values are written
 on the files. Note that these tests are highly platform dependant.
 """
 import sys
-import unittest2 as ut
-from unittest2.compatibility import wraps
+from functools import wraps
 import configuration as cfg
-
-def expectedFailureBug(bugnumber):
-    """
-    Decorator to mark bugs with ExpectedFailure. In case that a expected failure PASS
-    it will raise an exception pointing to the Bug number.
-
-    Keep your bugs and tests in sync!
-    """
-    def decorator (func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            try:
-                func(*args, **kwargs)
-            except Exception:
-                raise ut.case._ExpectedFailure(sys.exc_info())
-            raise Exception ("Unexpected success. This should fail because of bug " +str(bugnumber))
-        return wrapper
-    return decorator
 
 def expectedFailureJournal():
     """
