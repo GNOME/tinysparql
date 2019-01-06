@@ -71,13 +71,12 @@ typedef struct _TrackerVariable TrackerVariable;
 typedef struct _TrackerToken TrackerToken;
 typedef struct _TrackerSolution TrackerSolution;
 typedef struct _TrackerPathElement TrackerPathElement;
-typedef struct _TrackerPredicateVariable TrackerPredicateVariable;
 
 struct _TrackerDataTable {
 	gchar *subject; /* Subject this table is pulled from */
 	gchar *sql_db_tablename; /* as in db schema */
 	gchar *sql_query_tablename; /* temp. name, generated */
-	TrackerPredicateVariable *predicate_variable;
+	gboolean predicate_variable;
 };
 
 struct _TrackerBinding {
@@ -140,14 +139,6 @@ struct _TrackerToken {
 	} content;
 };
 
-struct _TrackerPredicateVariable {
-	gchar *subject;
-	gchar *object;
-	TrackerClass *domain;
-
-	guint return_graph : 1;
-};
-
 struct _TrackerSolution {
 	GPtrArray *columns;
 	GPtrArray *values;
@@ -197,9 +188,6 @@ struct _TrackerContextClass {
 struct _TrackerSelectContext {
 	TrackerContext parent_instance;
 
-	/* Variables used as predicates */
-	GHashTable *predicate_variables; /* TrackerVariable -> TrackerPredicateVariable */
-
 	/* All variables declared from this context. All these TrackerVariables
 	 * are shared with children contexts. Only the root context has contents
 	 * here.
@@ -246,8 +234,8 @@ struct _TrackerTripleContextClass {
 };
 
 /* Data table */
-void tracker_data_table_set_predicate_variable (TrackerDataTable         *table,
-						TrackerPredicateVariable *variable);
+void tracker_data_table_set_predicate_variable (TrackerDataTable *table,
+                                                gboolean          is_variable);
 
 /* Binding */
 GType              tracker_binding_get_type (void) G_GNUC_CONST;
@@ -316,16 +304,6 @@ const gchar      * tracker_token_get_idstring (TrackerToken *token);
 const gchar      * tracker_token_get_parameter (TrackerToken *token);
 TrackerPathElement * tracker_token_get_path   (TrackerToken *token);
 
-/* Predicate variable */
-TrackerPredicateVariable *tracker_predicate_variable_new (void);
-
-void tracker_predicate_variable_set_domain (TrackerPredicateVariable *pred_var,
-                                            TrackerClass             *domain);
-void tracker_predicate_variable_set_triple_details (TrackerPredicateVariable *pred_var,
-                                                    const gchar              *subject,
-                                                    const gchar              *object,
-                                                    gboolean                  return_graph);
-
 /* Solution */
 TrackerSolution * tracker_solution_new       (guint            n_cols);
 void              tracker_solution_free      (TrackerSolution *solution);
@@ -366,11 +344,6 @@ TrackerVariable * tracker_select_context_ensure_variable (TrackerSelectContext *
 							  const gchar          *name);
 TrackerVariable * tracker_select_context_add_generated_variable (TrackerSelectContext *context);
 
-TrackerPredicateVariable * tracker_select_context_lookup_predicate_variable (TrackerSelectContext *context,
-									     TrackerVariable      *variable);
-void tracker_select_context_add_predicate_variable (TrackerSelectContext     *context,
-						    TrackerVariable          *variable,
-						    TrackerPredicateVariable *pred_var);
 void tracker_select_context_add_literal_binding (TrackerSelectContext  *context,
                                                  TrackerLiteralBinding *binding);
 guint tracker_select_context_get_literal_binding_index (TrackerSelectContext  *context,
