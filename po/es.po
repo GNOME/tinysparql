@@ -3,14 +3,14 @@
 # Copyright (C) 2007 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009, 2010, 2011.
-# Daniel Mustieles <daniel.mustieles@gmail.com>, 2010-2016, 2017, 2018.
+# Daniel Mustieles <daniel.mustieles@gmail.com>, 2010-2016, 2017, 2018, 2019.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2018-11-13 11:25+0000\n"
-"PO-Revision-Date: 2018-12-04 16:09+0100\n"
+"POT-Creation-Date: 2019-01-05 17:28+0000\n"
+"PO-Revision-Date: 2019-01-08 16:02+0100\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: es <gnome-es-list@gnome.org>\n"
 "Language: es\n"
@@ -19,6 +19,109 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Gtranslator 2.91.7\n"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:24
+msgid "Maximum size of journal"
+msgstr "Tamaño máximo del diario"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:25
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr ""
+"Tamaño del diario en la rotación, en MB. Use «-1» para desactivar la "
+"rotación."
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:29
+msgid "Location of journal pieces"
+msgstr "Ubicación de los trozos del diario"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:30
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr ""
+"Indica si se debe guardar un fragmento del diario cuando alcanza el tamaño "
+"máximo."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
+msgid "Maximum length of a word to be indexed"
+msgstr "Longitud máxima de una palabra que indexar"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
+msgid ""
+"Words with more characters than this length will be ignored by the indexer."
+msgstr "El indexador ignorará las palabras con más caracteres de estos."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
+msgid "Maximum number of words to index in a document"
+msgstr "Máximo número de números en un documento que indexar"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
+msgid ""
+"Indexer will read only this maximum number of words from a single document."
+msgstr ""
+"El indexador leerá sólo este número máximo de palabras de un único documento."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
+msgid "Enable stemmer"
+msgstr "Activar stemmer"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
+msgid ""
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
+msgstr ""
+"Simplificar las palabras a su raíz para proporcionar más resultados. Ej. "
+"«estanterías» y «estante» a «estant»."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
+msgid "Enable unaccent"
+msgstr "Activar unaccent"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
+msgid ""
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
+msgstr ""
+"Traducir caracteres acentuados a su equivalente sin acentuar. Ej. «Idéa» a "
+"«Idea» para mejorar la coincidencia."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
+msgid "Ignore numbers"
+msgstr "Ignorar números"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
+msgid "If enabled, numbers will not be indexed."
+msgstr "Si está activada, no se indexarán los números."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
+msgid "Ignore stop words"
+msgstr "Ignorar palabras de parada"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
+msgid ""
+"If enabled, the words listed in the stop-words list are ignored. E.g. common "
+"words like “the”, “yes”, “no”, etc."
+msgstr ""
+"Si está activada, se ignorarán las palabras listadas en la lista de palabras "
+"de parada. Ej. palabras comunes como «sí», «no», etc."
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:24
+msgid "Log verbosity"
+msgstr "Registro detallado"
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:25
+msgid "Log verbosity."
+msgstr "Registro detallado."
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:29
+msgid "GraphUpdated delay"
+msgstr "Retardo de GraphUpdated"
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:30
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
+msgstr ""
+"Tiempo en milisegundos entre señales emitidas por GraphUpdated cuando los "
+"datos indexados han cambiado en la base de datos."
 
 #: src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -81,26 +184,6 @@ msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d segundo"
 msgstr[1] " %2.2d segundos"
 
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:24
-msgid "Maximum size of journal"
-msgstr "Tamaño máximo del diario"
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:25
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr ""
-"Tamaño del diario en la rotación, en MB. Use «-1» para desactivar la "
-"rotación."
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:29
-msgid "Location of journal pieces"
-msgstr "Ubicación de los trozos del diario"
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:30
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr ""
-"Indica si se debe guardar un fragmento del diario cuando alcanza el tamaño "
-"máximo."
-
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
 #. * case doesn't matter. Given English media is quite common, it is
@@ -143,69 +226,6 @@ msgstr "No se proporcionó ningún error"
 msgid "Unknown error, “tar” exited with status %d"
 msgstr "Error desconocido, «tar» ha terminado con el estado %d"
 
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:26
-msgid "Maximum length of a word to be indexed"
-msgstr "Longitud máxima de una palabra que indexar"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:27
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr "El indexador ignorará las palabras con más caracteres de estos."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:32
-msgid "Maximum number of words to index in a document"
-msgstr "Máximo número de números en un documento que indexar"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:33
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr ""
-"El indexador leerá sólo este número máximo de palabras de un único documento."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:37
-msgid "Enable stemmer"
-msgstr "Activar stemmer"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:38
-msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
-msgstr ""
-"Simplificar las palabras a su raíz para proporcionar más resultados. Ej. "
-"«estanterías» y «estante» a «estant»."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:43
-msgid "Enable unaccent"
-msgstr "Activar unaccent"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:44
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
-msgstr ""
-"Traducir caracteres acentuados a su equivalente sin acentuar. Ej. «Idéa» a "
-"«Idea» para mejorar la coincidencia."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:49
-msgid "Ignore numbers"
-msgstr "Ignorar números"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:50
-msgid "If enabled, numbers will not be indexed."
-msgstr "Si está activada, no se indexarán los números."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:55
-msgid "Ignore stop words"
-msgstr "Ignorar palabras de parada"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:56
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
-msgstr ""
-"Si está activada, se ignorarán las palabras listadas en la lista de palabras "
-"de parada. Ej. palabras comunes como «sí», «no», etc."
-
 #: src/libtracker-miner/tracker-data-provider.c:108
 #: src/libtracker-miner/tracker-data-provider.c:168
 msgid "Operation not supported"
@@ -220,26 +240,6 @@ msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "La aplicación de pausa y la razón ya coinciden con una solicitud de pausa "
 "existente"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:24
-msgid "Log verbosity"
-msgstr "Registro detallado"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:25
-msgid "Log verbosity."
-msgstr "Registro detallado."
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:29
-msgid "GraphUpdated delay"
-msgstr "Retardo de GraphUpdated"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:30
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-"Tiempo en milisegundos entre señales emitidas por GraphUpdated cuando los "
-"datos indexados han cambiado en la base de datos."
 
 #. Daemon options
 #: src/tracker-store/tracker-main.vala:60
@@ -1663,8 +1663,9 @@ msgstr[1] "%d archivos"
 
 #: src/tracker/tracker-status.c:524
 #, c-format
-#| msgid "folders"
-msgid "%d folders"
+#| msgid "%d folders"
+#| msgid_plural "%d folders"
+msgid "%d folder"
 msgid_plural "%d folders"
 msgstr[0] "%d carpeta"
 msgstr[1] "%d carpetas"
