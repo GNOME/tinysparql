@@ -1,0 +1,1 @@
+select foaf:name(?u) foaf:name(?a) { ?u foaf:knows* ?a . FILTER (foaf:name(?u) = 'Alice') }

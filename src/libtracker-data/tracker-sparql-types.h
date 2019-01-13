@@ -70,6 +70,7 @@ typedef struct _TrackerDataTable TrackerDataTable;
 typedef struct _TrackerVariable TrackerVariable;
 typedef struct _TrackerToken TrackerToken;
 typedef struct _TrackerSolution TrackerSolution;
+typedef struct _TrackerPathElement TrackerPathElement;
 typedef struct _TrackerPredicateVariable TrackerPredicateVariable;
 
 struct _TrackerDataTable {
@@ -135,6 +136,7 @@ struct _TrackerToken {
 		gchar *literal;
 		gchar *parameter;
 		TrackerVariable *var;
+		TrackerPathElement *path;
 	} content;
 };
 
@@ -151,6 +153,30 @@ struct _TrackerSolution {
 	GPtrArray *values;
 	int solution_index;
 	int n_cols;
+};
+
+typedef enum {
+	TRACKER_PATH_OPERATOR_NONE,
+	TRACKER_PATH_OPERATOR_INVERSE,     /* ^ */
+	TRACKER_PATH_OPERATOR_SEQUENCE,    /* / */
+	TRACKER_PATH_OPERATOR_ALTERNATIVE, /* | */
+	TRACKER_PATH_OPERATOR_ZEROORONE,   /* ? */
+	TRACKER_PATH_OPERATOR_ONEORMORE,   /* + */
+	TRACKER_PATH_OPERATOR_ZEROORMORE,  /* * */
+} TrackerPathOperator;
+
+struct _TrackerPathElement {
+	TrackerPathOperator op;
+	TrackerPropertyType type;
+	gchar *name;
+
+	union {
+		TrackerProperty *property;
+		struct {
+			TrackerPathElement *child1;
+			TrackerPathElement *child2;
+		} composite;
+	} data;
 };
 
 struct _TrackerContext {
@@ -190,6 +216,9 @@ struct _TrackerSelectContext {
 
 	/* Type to propagate upwards */
 	TrackerPropertyType type;
+
+	/* Property path elements */
+	GPtrArray *path_elements;
 };
 
 struct _TrackerSelectContextClass {
@@ -275,7 +304,9 @@ void tracker_token_literal_init  (TrackerToken    *token,
 void tracker_token_variable_init (TrackerToken    *token,
                                   TrackerVariable *variable);
 void tracker_token_parameter_init (TrackerToken   *token,
-				   const gchar    *pameter);
+				   const gchar    *parameter);
+void tracker_token_path_init      (TrackerToken       *token,
+                                   TrackerPathElement *path_elem);
 void tracker_token_unset (TrackerToken *token);
 
 gboolean           tracker_token_is_empty     (TrackerToken *token);
@@ -283,6 +314,7 @@ const gchar      * tracker_token_get_literal  (TrackerToken *token);
 TrackerVariable  * tracker_token_get_variable (TrackerToken *token);
 const gchar      * tracker_token_get_idstring (TrackerToken *token);
 const gchar      * tracker_token_get_parameter (TrackerToken *token);
+TrackerPathElement * tracker_token_get_path   (TrackerToken *token);
 
 /* Predicate variable */
 TrackerPredicateVariable *tracker_predicate_variable_new (void);
@@ -306,6 +338,11 @@ void              tracker_solution_add_value       (TrackerSolution *solution,
                                                     const gchar     *str);
 GHashTable      * tracker_solution_get_bindings    (TrackerSolution *solution);
 
+/* Property path element */
+TrackerPathElement * tracker_path_element_property_new (TrackerProperty *prop);
+TrackerPathElement * tracker_path_element_operator_new (TrackerPathOperator  op,
+                                                        TrackerPathElement  *child1,
+                                                        TrackerPathElement  *child2);
 
 /* Context */
 GType            tracker_context_get_type   (void) G_GNUC_CONST;
@@ -338,6 +375,11 @@ void tracker_select_context_add_literal_binding (TrackerSelectContext  *context,
                                                  TrackerLiteralBinding *binding);
 guint tracker_select_context_get_literal_binding_index (TrackerSelectContext  *context,
                                                         TrackerLiteralBinding *binding);
+void tracker_select_context_add_path_element (TrackerSelectContext *context,
+                                              TrackerPathElement   *path_elem);
+TrackerPathElement *
+     tracker_select_context_lookup_path_element_for_property (TrackerSelectContext *context,
+                                                              TrackerProperty      *property);
 
 /* Triple context */
 GType            tracker_triple_context_get_type (void) G_GNUC_CONST;
