@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2018-07-15 21:13+0000\n"
-"PO-Revision-Date: 2018-07-26 22:37+0200\n"
+"POT-Creation-Date: 2018-10-27 20:24+0000\n"
+"PO-Revision-Date: 2018-11-12 19:03+0100\n"
 "Last-Translator: Charles Monzat <charles.monzat@numericable.fr>\n"
 "Language-Team: français <gnomefr@traduc.org>\n"
 "Language: fr\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Gtranslator 3.30.0\n"
 
 #: ../examples/rss-reader/rss_viewer.ui.h:1
 msgid "All posts"
@@ -242,11 +242,11 @@ msgid "Data store is not available"
 msgstr "Le dépôt de données n’est pas disponible"
 
 #. Daemon options
-#: ../src/tracker-store/tracker-main.vala:57
+#: ../src/tracker-store/tracker-main.vala:58
 msgid "Displays version information"
 msgstr "Affiche les informations de version"
 
-#: ../src/tracker-store/tracker-main.vala:58
+#: ../src/tracker-store/tracker-main.vala:59
 msgid ""
 "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
 "0)"
@@ -255,22 +255,22 @@ msgstr ""
 "débogage (valeur par défaut = 0)"
 
 #. Indexer options
-#: ../src/tracker-store/tracker-main.vala:61
+#: ../src/tracker-store/tracker-main.vala:62
 msgid "Force a re-index of all content"
 msgstr "Force une ré-indexation de tout le contenu"
 
-#: ../src/tracker-store/tracker-main.vala:62
+#: ../src/tracker-store/tracker-main.vala:63
 msgid "Only allow read based actions on the database"
 msgstr "N’autorise que les actions de lecture dans la base de données"
 
-#: ../src/tracker-store/tracker-main.vala:63
+#: ../src/tracker-store/tracker-main.vala:64
 msgid "Load a specified domain ontology"
 msgstr "Charger une ontologie de domaine indiquée"
 
 #. Translators: this messagge will apper immediately after the
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
-#: ../src/tracker-store/tracker-main.vala:194
+#: ../src/tracker-store/tracker-main.vala:199
 msgid "— start the tracker daemon"
 msgstr "— démarre le service tracker"
 
@@ -735,7 +735,6 @@ msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Impossible de créer le serveur mandataire D-Bus de tracker-store"
 
 #: ../src/tracker/tracker-extract.c:45
-#| msgid "Output results format: “sparql”, or “turtle”"
 msgid "Output results format: “sparql”, “turtle” or “json-ld”"
 msgstr "Résultats du format de sortie : « sparql », « turtle » ou « json-ld »"
 
@@ -1000,7 +999,7 @@ msgstr "« %s » n’est pas une commande tracker. Consultez « tracker --hel
 
 #: ../src/tracker/tracker-main.c:176
 msgid "Available tracker commands are:"
-msgstr "Les commandes tracker disponibles sont  :"
+msgstr "Les commandes tracker disponibles sont :"
 
 #: ../src/tracker/tracker-process.c:79
 msgid "Could not open /proc"
@@ -1094,7 +1093,7 @@ msgstr ""
 
 #: ../src/tracker/tracker-reset.c:229
 msgid "Are you sure you want to proceed?"
-msgstr "Êtes-vous sûr de vouloir continuer ?"
+msgstr "Voulez-vous vraiment continuer ?"
 
 #. TRANSLATORS: This is to be displayed on command line output
 #: ../src/tracker/tracker-reset.c:231
