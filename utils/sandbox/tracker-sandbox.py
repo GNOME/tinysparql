@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2012-2013 Martyn Russell <martyn@lanedo.com>
 # Copyright (C) 2012      Sam Thursfield <sam.thursfield@codethink.co.uk>
@@ -57,10 +57,7 @@ import gi
 
 from multiprocessing import Process
 
-if sys.version_info[0] <= 3:
-    import configparser
-else:
-    import ConfigParser as configparser
+import configparser
 
 from gi.repository import Tracker, GLib, GObject
 
