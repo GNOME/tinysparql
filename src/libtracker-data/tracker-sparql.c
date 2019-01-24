@@ -270,8 +270,10 @@ tracker_sparql_expand_prefix (TrackerSparql *sparql,
 			g_hash_table_insert (sparql->prefix_map, g_strdup (ns), expanded_ns);
 		}
 
-		if (!expanded_ns)
+		if (!expanded_ns) {
+			g_free (ns);
 			return NULL;
+		}
 	}
 
 	g_free (ns);
