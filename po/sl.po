@@ -5,14 +5,14 @@
 # Matic Žgur <mr.zgur@gmail.com>, 2007.
 # Andrej Žnidaršič <andrej.znidarsic@gmail.com>, 2009–2010.
 # Martin Srebotnjak <miles@filmsi.net>, 2011.
-# Matej Urbančič <mateju@svn.gnome.org>, 2008–2018.
+# Matej Urbančič <mateju@svn.gnome.org>, 2008–2019.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2018-11-24 10:23+0000\n"
-"PO-Revision-Date: 2018-12-01 21:50+0100\n"
+"POT-Creation-Date: 2019-01-20 21:26+0000\n"
+"PO-Revision-Date: 2019-01-25 18:13+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -23,6 +23,107 @@ msgstr ""
 "%100==4 ? 3 : 0);\n"
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Generator: Poedit 2.1.1\n"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:24
+msgid "Maximum size of journal"
+msgstr "Največja velikost dnevnika"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:25
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr "Velikost dnevnika pri vrtenju v MB. Vrednost -1 možnost onemogoči."
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:29
+msgid "Location of journal pieces"
+msgstr "Mesto delčkov dnevnika"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:30
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr "Kam naj bo shranjen delček dnevnika, ko doseže največjo velikost."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
+msgid "Maximum length of a word to be indexed"
+msgstr "Največja dolžina besede za pripravo kazala"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
+msgid ""
+"Words with more characters than this length will be ignored by the indexer."
+msgstr "Besede z več znaki kot je ta dolžina bo pripravljalnik kazala prezrl."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
+msgid "Maximum number of words to index in a document"
+msgstr "Največje število besed za pripravo kazala v dokumentu"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
+msgid ""
+"Indexer will read only this maximum number of words from a single document."
+msgstr ""
+"Pripravljalnik kazala bo prebral le to največje število besed v posameznem "
+"dokumentu."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
+msgid "Enable stemmer"
+msgstr "Omogoči tvorbo korenov besed"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
+msgid ""
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
+msgstr ""
+"Poenostavi besede na njihov koren za zagotavljanje več rezultatov. Na primer "
+"»polica« in »police« na »polic«."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
+msgid "Enable unaccent"
+msgstr "Omogoči odstranjevanje naglasov"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
+msgid ""
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
+msgstr ""
+"Prevede znake z naglasom v znake brez naglasa. Na primer »védenje« v "
+"»vedenje« za izboljšano ujemanje."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
+msgid "Ignore numbers"
+msgstr "Prezri števila"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
+msgid "If enabled, numbers will not be indexed."
+msgstr ""
+"Izbrana možnost določi, da števila ne bodo uporabljena za pripravo kazala."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
+msgid "Ignore stop words"
+msgstr "Prezri zaustavitvene besede"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
+msgid ""
+"If enabled, the words listed in the stop-words list are ignored. E.g. common "
+"words like “the”, “yes”, “no”, etc."
+msgstr ""
+"Izbrana možnost določi, da so besede zaustavitve prezrte. To so pogoste "
+"besede kot so »da«, »ne«, »no«, itd. "
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:24
+msgid "Log verbosity"
+msgstr "Podroben izpis dnevnikov"
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:25
+msgid "Log verbosity."
+msgstr "Podroben izpis dnevnikov."
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:29
+msgid "GraphUpdated delay"
+msgstr "Zamik posodobitve diagrama"
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:30
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
+msgstr ""
+"Obdobje v milisekundah med posodabljanjem diagramov za indeksiranje znotraj "
+"podatkovne zbirke."
 
 #: src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -93,22 +194,6 @@ msgstr[1] " %2.2d sekunda"
 msgstr[2] " %2.2d sekundi"
 msgstr[3] " %2.2d sekunde"
 
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:24
-msgid "Maximum size of journal"
-msgstr "Največja velikost dnevnika"
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:25
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr "Velikost dnevnika pri vrtenju v MB. Vrednost -1 možnost onemogoči."
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:29
-msgid "Location of journal pieces"
-msgstr "Mesto delčkov dnevnika"
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:30
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr "Kam naj bo shranjen delček dnevnika, ko doseže največjo velikost."
-
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
 #. * case doesn't matter. Given English media is quite common, it is
@@ -151,71 +236,6 @@ msgstr "Ni dane napake"
 msgid "Unknown error, “tar” exited with status %d"
 msgstr "Neznana napaka, program »tar« je končan s stanjem %d"
 
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:26
-msgid "Maximum length of a word to be indexed"
-msgstr "Največja dolžina besede za pripravo kazala"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:27
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr "Besede z več znaki kot je ta dolžina bo pripravljalnik kazala prezrl."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:32
-msgid "Maximum number of words to index in a document"
-msgstr "Največje število besed za pripravo kazala v dokumentu"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:33
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr ""
-"Pripravljalnik kazala bo prebral le to največje število besed v posameznem "
-"dokumentu."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:37
-msgid "Enable stemmer"
-msgstr "Omogoči tvorbo korenov besed"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:38
-msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
-msgstr ""
-"Poenostavi besede na njihov koren za zagotavljanje več rezultatov. Na primer "
-"»polica« in »police« na »polic«."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:43
-msgid "Enable unaccent"
-msgstr "Omogoči odstranjevanje naglasov"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:44
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
-msgstr ""
-"Prevede znake z naglasom v znake brez naglasa. Na primer »védenje« v "
-"»vedenje« za izboljšano ujemanje."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:49
-msgid "Ignore numbers"
-msgstr "Prezri števila"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:50
-msgid "If enabled, numbers will not be indexed."
-msgstr ""
-"Izbrana možnost določi, da števila ne bodo uporabljena za pripravo kazala."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:55
-msgid "Ignore stop words"
-msgstr "Prezri zaustavitvene besede"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:56
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
-msgstr ""
-"Izbrana možnost določi, da so besede zaustavitve prezrte. To so pogoste "
-"besede kot so »da«, »ne«, »no«, itd. "
-
 #: src/libtracker-miner/tracker-data-provider.c:108
 #: src/libtracker-miner/tracker-data-provider.c:168
 msgid "Operation not supported"
@@ -230,26 +250,6 @@ msgstr ""
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "Premor programa in skladanje razloga za že obstoječo zahtevo po premoru"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:24
-msgid "Log verbosity"
-msgstr "Podroben izpis dnevnikov"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:25
-msgid "Log verbosity."
-msgstr "Podroben izpis dnevnikov."
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:29
-msgid "GraphUpdated delay"
-msgstr "Zamik posodobitve diagrama"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:30
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-"Obdobje v milisekundah med posodabljanjem diagramov za indeksiranje znotraj "
-"podatkovne zbirke."
 
 #. Daemon options
 #: src/tracker-store/tracker-main.vala:60
@@ -1689,7 +1689,7 @@ msgstr[3] "%d datoteke"
 
 #: src/tracker/tracker-status.c:524
 #, c-format
-msgid "%d folders"
+msgid "%d folder"
 msgid_plural "%d folders"
 msgstr[0] "%d map"
 msgstr[1] "%d mapa"
