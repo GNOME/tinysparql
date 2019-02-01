@@ -465,6 +465,8 @@ _append_literal_sql (TrackerSparql         *sparql,
 	if (!sparql->cacheable) {
 		gchar *escaped, *full_str;
 
+		_append_string (sparql, "\"");
+
 		switch (TRACKER_BINDING (binding)->data_type) {
 		case TRACKER_PROPERTY_TYPE_DATE:
 			full_str = g_strdup_printf ("%sT00:00:00Z", binding->literal);
@@ -494,6 +496,8 @@ _append_literal_sql (TrackerSparql         *sparql,
 			_append_string (sparql, binding->literal);
 			break;
 		}
+
+		_append_string (sparql, "\"");
 	} else {
 		_append_string_printf (sparql, "?%d ", idx + 1);
 	}
