@@ -7,108 +7,59 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2018-07-15 21:13+0000\n"
-"PO-Revision-Date: 2018-07-16 11:57+0700\n"
+"POT-Creation-Date: 2019-01-05 17:28+0000\n"
+"PO-Revision-Date: 2019-02-02 23:03+0700\n"
 "Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: GNOME Indonesian Translation Team <gnome@i15n.org>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Plural-Forms: nplurals=2; plural= n!=1;\n"
 "X-DamnedLies-Scope: partial\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.2.1\n"
 
-#: ../examples/rss-reader/rss_viewer.ui.h:1
-msgid "All posts"
-msgstr "Semua kiriman"
+#: data/org.freedesktop.Tracker.DB.gschema.xml:24
+msgid "Maximum size of journal"
+msgstr "Ukuran maksimum jurnal"
 
-#: ../examples/rss-reader/rss_viewer.ui.h:2
-msgid "By usage"
-msgstr "Berdasar pemakaian"
+#: data/org.freedesktop.Tracker.DB.gschema.xml:25
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr "Ukuran jurnal saat rotasi, dalam MB. Pakai -1 untuk mencegah rotasi."
 
-#: ../src/libtracker-common/tracker-utils.c:90
-msgid "unknown time"
-msgstr "waktu tidak diketahui"
+#: data/org.freedesktop.Tracker.DB.gschema.xml:29
+msgid "Location of journal pieces"
+msgstr "Lokasi pecahan jurnal"
 
-#: ../src/libtracker-common/tracker-utils.c:104
-#: ../src/libtracker-common/tracker-utils.c:155
-msgid "less than one second"
-msgstr "kurang dari satu detik"
+#: data/org.freedesktop.Tracker.DB.gschema.xml:30
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr "Dimana menyimpan penggalan jurnal ketika mencapai ukuran maks."
 
-#. Translators: this is %d days
-#: ../src/libtracker-common/tracker-utils.c:119
-#, c-format
-msgid " %dd"
-msgstr " %dh"
-
-#. Translators: this is %2.2d hours
-#: ../src/libtracker-common/tracker-utils.c:123
-#, c-format
-msgid " %2.2dh"
-msgstr " %2.2dj"
-
-#. Translators: this is %2.2d minutes
-#: ../src/libtracker-common/tracker-utils.c:127
-#, c-format
-msgid " %2.2dm"
-msgstr " %2.2dm"
-
-#. Translators: this is %2.2d seconds
-#: ../src/libtracker-common/tracker-utils.c:131
-#, c-format
-msgid " %2.2ds"
-msgstr " %2.2dd"
-
-#: ../src/libtracker-common/tracker-utils.c:135
-#, c-format
-msgid " %d day"
-msgid_plural " %d days"
-msgstr[0] " %d hari"
-
-#: ../src/libtracker-common/tracker-utils.c:139
-#, c-format
-msgid " %2.2d hour"
-msgid_plural " %2.2d hours"
-msgstr[0] " %2.2d jam"
-
-#: ../src/libtracker-common/tracker-utils.c:143
-#, c-format
-msgid " %2.2d minute"
-msgid_plural " %2.2d minutes"
-msgstr[0] " %2.2d menit"
-
-#: ../src/libtracker-common/tracker-utils.c:147
-#, c-format
-msgid " %2.2d second"
-msgid_plural " %2.2d seconds"
-msgstr[0] " %2.2d detik"
-
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:1
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
 msgid "Maximum length of a word to be indexed"
 msgstr "Panjang kata maksimum yang diindeks"
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:2
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
 msgid ""
 "Words with more characters than this length will be ignored by the indexer."
 msgstr "Kata dengan cacah huruf lebih dari ini akan diabaikan oleh pengindeks."
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:3
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
 msgid "Maximum number of words to index in a document"
 msgstr "Cacah kata maksimum yang diindeks dalam suatu dokumen"
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:4
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
 msgid ""
 "Indexer will read only this maximum number of words from a single document."
 msgstr ""
 "Pengindeks hanya akan membaca sejumlah maksimum kata ini dari suatu dokumen "
 "tunggal."
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:5
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
 msgid "Enable stemmer"
 msgstr "Aktifkan stemmer"
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:6
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
 msgid ""
 "Simplify the words to their root to provide more results. E.g. “shelves” and "
 "“shelf” to “shel”"
@@ -116,11 +67,11 @@ msgstr ""
 "Sederhanakan kata ke akarnya untuk menyediakan lebih banyak hasil. Mis. "
 "\"shelves\" dan \"shelf\" menjadi \"shel\""
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:7
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
 msgid "Enable unaccent"
 msgstr "Aktifkan hapus-aksen"
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:8
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
 msgid ""
 "Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
 "“Idea” for improved matching."
@@ -128,19 +79,19 @@ msgstr ""
 "Terjemahkan karakter beraksen ke tanpa aksen ekuivalennya, mis. \"Idéa\" to "
 "\"Idea\" untuk pencocokan yang lebih baik."
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:9
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
 msgid "Ignore numbers"
 msgstr "Abaikan bilangan"
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:10
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
 msgid "If enabled, numbers will not be indexed."
 msgstr "Bila diaktifkan, bilangan tak akan diindeks."
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:11
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
 msgid "Ignore stop words"
 msgstr "Abaikan kata henti"
 
-#: ../src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml.in.h:12
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
 "words like “the”, “yes”, “no”, etc."
@@ -148,137 +99,19 @@ msgstr ""
 "Bila diaktifkan, kata yang didaftar dalam daftar kata henti akan diabaikan. "
 "Mis. kata umum seperti \"the\", \"yes\", \"no\", dsb."
 
-#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:1
-msgid "Maximum size of journal"
-msgstr "Ukuran maksimum jurnal"
-
-#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:2
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr "Ukuran jurnal saat rotasi, dalam MB. Pakai -1 untuk mencegah rotasi."
-
-#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:3
-msgid "Location of journal pieces"
-msgstr "Lokasi pecahan jurnal"
-
-#: ../src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml.in.h:4
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr "Dimana menyimpan penggalan jurnal ketika mencapai ukuran maks."
-
-#. Translators: this is a '|' (U+007C) separated list of common
-#. * title beginnings. Meant to be skipped for sorting purposes,
-#. * case doesn't matter. Given English media is quite common, it is
-#. * advised to leave the untranslated articles in addition to
-#. * the translated ones.
-#.
-#: ../src/libtracker-data/tracker-collation.c:332
-msgid "the|a|an"
-msgstr "the|a|an"
-
-#: ../src/libtracker-data/tracker-data-backup.c:494
-#: ../src/libtracker-data/tracker-data-backup.c:634
-msgid "Error starting “tar” program"
-msgstr "Galat saat memulai program \"tar\""
-
-#: ../src/libtracker-data/tracker-data-backup.c:495
-#: ../src/libtracker-data/tracker-data-backup.c:635
-#: ../src/tracker/tracker-config.c:61 ../src/tracker/tracker-daemon.c:462
-#: ../src/tracker/tracker-daemon.c:483 ../src/tracker/tracker-daemon.c:708
-#: ../src/tracker/tracker-daemon.c:740 ../src/tracker/tracker-daemon.c:890
-#: ../src/tracker/tracker-daemon.c:948 ../src/tracker/tracker-daemon.c:983
-#: ../src/tracker/tracker-daemon.c:1052 ../src/tracker/tracker-daemon.c:1243
-#: ../src/tracker/tracker-daemon.c:1309 ../src/tracker/tracker-daemon.c:1670
-#: ../src/tracker/tracker-dbus.c:45 ../src/tracker/tracker-dbus.c:63
-#: ../src/tracker/tracker-index.c:123 ../src/tracker/tracker-index.c:155
-#: ../src/tracker/tracker-index.c:196 ../src/tracker/tracker-index.c:272
-#: ../src/tracker/tracker-index.c:329 ../src/tracker/tracker-info.c:264
-#: ../src/tracker/tracker-process.c:80 ../src/tracker/tracker-process.c:206
-#: ../src/tracker/tracker-process.c:335 ../src/tracker/tracker-process.c:356
-#: ../src/tracker/tracker-search.c:1581 ../src/tracker/tracker-sparql.c:173
-#: ../src/tracker/tracker-sparql.c:1087 ../src/tracker/tracker-status.c:74
-#: ../src/tracker/tracker-status.c:303 ../src/tracker/tracker-status.c:313
-#: ../src/tracker/tracker-status.c:387 ../src/tracker/tracker-status.c:432
-#: ../src/tracker/tracker-status.c:461 ../src/tracker/tracker-tag.c:977
-msgid "No error given"
-msgstr "Tak ada galat yang diberikan"
-
-#: ../src/libtracker-data/tracker-data-backup.c:648
-#, c-format
-msgid "Unknown error, “tar” exited with status %d"
-msgstr "Galat tak dikenal, “tar“ keluar dengan status %d"
-
-#: ../src/libtracker-miner/tracker-data-provider.c:108
-#: ../src/libtracker-miner/tracker-data-provider.c:168
-msgid "Operation not supported"
-msgstr "Operasi tak didukung"
-
-#: ../src/libtracker-miner/tracker-miner-proxy.c:352
-msgid "Cookie not recognized to resume paused miner"
-msgstr "Cookie tak dikenali untuk melanjutkan penambang yang mengambil jeda"
-
-#: ../src/libtracker-miner/tracker-miner-proxy.c:409
-msgid "Pause application and reason match an already existing pause request"
-msgstr ""
-"Istirahatkan aplikasi dan alasan cocok dengan permintaan istirahat yang "
-"telah ada"
-
-#: ../src/libtracker-miner/tracker-miner-proxy.c:772
-msgid "Data store is not available"
-msgstr "Penyimpanan data tidak tersedia"
-
-#. Daemon options
-#: ../src/tracker-store/tracker-main.vala:57
-msgid "Displays version information"
-msgstr "Tampilkan informasi versi"
-
-#: ../src/tracker-store/tracker-main.vala:58
-msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
-"0)"
-msgstr ""
-"Log, 0 = hanya galat, 1 = minimal, 2 = terrinci, dan 3 = pengawakutuan "
-"(bawaan=0)"
-
-#. Indexer options
-#: ../src/tracker-store/tracker-main.vala:61
-msgid "Force a re-index of all content"
-msgstr "Paksa indeks ulang semua isi"
-
-#: ../src/tracker-store/tracker-main.vala:62
-msgid "Only allow read based actions on the database"
-msgstr "Hanya ijinkan baca berdasarkan aksi pada basis data"
-
-#: ../src/tracker-store/tracker-main.vala:63
-msgid "Load a specified domain ontology"
-msgstr "Muat ontologi domain yang spesifik"
-
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: ../src/tracker-store/tracker-main.vala:194
-msgid "— start the tracker daemon"
-msgstr "— mulai daemon tracker"
-
-#: ../src/tracker-store/tracker-store.desktop.in.in.h:1
-msgid "Tracker Store"
-msgstr "Penyimpanan Tracker"
-
-#: ../src/tracker-store/tracker-store.desktop.in.in.h:2
-msgid "Metadata database store and lookup manager"
-msgstr "Manajer lookup dan penyimpanan basis data metadata"
-
-#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:1
+#: data/org.freedesktop.Tracker.Store.gschema.xml:24
 msgid "Log verbosity"
 msgstr "Tingkat rincian log"
 
-#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:2
+#: data/org.freedesktop.Tracker.Store.gschema.xml:25
 msgid "Log verbosity."
 msgstr "Tingkat rincian log."
 
-#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:3
+#: data/org.freedesktop.Tracker.Store.gschema.xml:29
 msgid "GraphUpdated delay"
 msgstr "Tundaan GraphUpdated"
 
-#: ../src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml.in.h:4
+#: data/org.freedesktop.Tracker.Store.gschema.xml:30
 msgid ""
 "Period in milliseconds between GraphUpdated signals being emitted when "
 "indexed data has changed inside the database."
@@ -286,53 +119,216 @@ msgstr ""
 "Periode dalam milidetik antara sinyal GraphUpdated dipancarkan ketika data "
 "terindeks telah berubah di dalam basis data."
 
-#: ../src/tracker/tracker-config.c:60
+#: src/libtracker-common/tracker-utils.c:90
+msgid "unknown time"
+msgstr "waktu tidak diketahui"
+
+#: src/libtracker-common/tracker-utils.c:104
+#: src/libtracker-common/tracker-utils.c:155
+msgid "less than one second"
+msgstr "kurang dari satu detik"
+
+#. Translators: this is %d days
+#: src/libtracker-common/tracker-utils.c:119
+#, c-format
+msgid " %dd"
+msgstr " %dh"
+
+#. Translators: this is %2.2d hours
+#: src/libtracker-common/tracker-utils.c:123
+#, c-format
+msgid " %2.2dh"
+msgstr " %2.2dj"
+
+#. Translators: this is %2.2d minutes
+#: src/libtracker-common/tracker-utils.c:127
+#, c-format
+msgid " %2.2dm"
+msgstr " %2.2dm"
+
+#. Translators: this is %2.2d seconds
+#: src/libtracker-common/tracker-utils.c:131
+#, c-format
+msgid " %2.2ds"
+msgstr " %2.2dd"
+
+#: src/libtracker-common/tracker-utils.c:135
+#, c-format
+msgid " %d day"
+msgid_plural " %d days"
+msgstr[0] " %d hari"
+msgstr[1] " %d hari"
+
+#: src/libtracker-common/tracker-utils.c:139
+#, c-format
+msgid " %2.2d hour"
+msgid_plural " %2.2d hours"
+msgstr[0] " %2.2d jam"
+msgstr[1] " %2.2d jam"
+
+#: src/libtracker-common/tracker-utils.c:143
+#, c-format
+msgid " %2.2d minute"
+msgid_plural " %2.2d minutes"
+msgstr[0] " %2.2d menit"
+msgstr[1] " %2.2d menit"
+
+#: src/libtracker-common/tracker-utils.c:147
+#, c-format
+msgid " %2.2d second"
+msgid_plural " %2.2d seconds"
+msgstr[0] " %2.2d detik"
+msgstr[1] " %2.2d detik"
+
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtracker-data/tracker-collation.c:332
+msgid "the|a|an"
+msgstr "the|a|an"
+
+#: src/libtracker-data/tracker-data-backup.c:494
+#: src/libtracker-data/tracker-data-backup.c:634
+msgid "Error starting “tar” program"
+msgstr "Galat saat memulai program \"tar\""
+
+#: src/libtracker-data/tracker-data-backup.c:495
+#: src/libtracker-data/tracker-data-backup.c:635
+#: src/tracker/tracker-config.c:61 src/tracker/tracker-daemon.c:462
+#: src/tracker/tracker-daemon.c:483 src/tracker/tracker-daemon.c:708
+#: src/tracker/tracker-daemon.c:740 src/tracker/tracker-daemon.c:890
+#: src/tracker/tracker-daemon.c:948 src/tracker/tracker-daemon.c:983
+#: src/tracker/tracker-daemon.c:1052 src/tracker/tracker-daemon.c:1243
+#: src/tracker/tracker-daemon.c:1309 src/tracker/tracker-daemon.c:1670
+#: src/tracker/tracker-dbus.c:45 src/tracker/tracker-dbus.c:63
+#: src/tracker/tracker-index.c:123 src/tracker/tracker-index.c:155
+#: src/tracker/tracker-index.c:196 src/tracker/tracker-index.c:272
+#: src/tracker/tracker-index.c:329 src/tracker/tracker-info.c:264
+#: src/tracker/tracker-process.c:80 src/tracker/tracker-process.c:206
+#: src/tracker/tracker-process.c:335 src/tracker/tracker-process.c:356
+#: src/tracker/tracker-search.c:1581 src/tracker/tracker-sparql.c:173
+#: src/tracker/tracker-sparql.c:1087 src/tracker/tracker-status.c:74
+#: src/tracker/tracker-status.c:303 src/tracker/tracker-status.c:313
+#: src/tracker/tracker-status.c:387 src/tracker/tracker-status.c:432
+#: src/tracker/tracker-status.c:461 src/tracker/tracker-tag.c:977
+msgid "No error given"
+msgstr "Tak ada galat yang diberikan"
+
+#: src/libtracker-data/tracker-data-backup.c:648
+#, c-format
+msgid "Unknown error, “tar” exited with status %d"
+msgstr "Galat tak dikenal, “tar“ keluar dengan status %d"
+
+#: src/libtracker-miner/tracker-data-provider.c:108
+#: src/libtracker-miner/tracker-data-provider.c:168
+msgid "Operation not supported"
+msgstr "Operasi tak didukung"
+
+#: src/libtracker-miner/tracker-miner-proxy.c:346
+msgid "Cookie not recognized to resume paused miner"
+msgstr "Cookie tak dikenali untuk melanjutkan penambang yang mengambil jeda"
+
+#: src/libtracker-miner/tracker-miner-proxy.c:403
+msgid "Pause application and reason match an already existing pause request"
+msgstr ""
+"Istirahatkan aplikasi dan alasan cocok dengan permintaan istirahat yang "
+"telah ada"
+
+#. Daemon options
+#: src/tracker-store/tracker-main.vala:60
+msgid "Displays version information"
+msgstr "Tampilkan informasi versi"
+
+#: src/tracker-store/tracker-main.vala:61
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
+"0)"
+msgstr ""
+"Log, 0 = hanya galat, 1 = minimal, 2 = terrinci, dan 3 = pengawakutuan "
+"(bawaan=0)"
+
+#: src/tracker-store/tracker-main.vala:62
+msgid "Disable automatic shutdown"
+msgstr "Nonaktifkan mati otomatis"
+
+#. Indexer options
+#: src/tracker-store/tracker-main.vala:65
+msgid "Force a re-index of all content"
+msgstr "Paksa indeks ulang semua isi"
+
+#: src/tracker-store/tracker-main.vala:66
+msgid "Only allow read based actions on the database"
+msgstr "Hanya ijinkan baca berdasarkan aksi pada basis data"
+
+#: src/tracker-store/tracker-main.vala:67
+msgid "Load a specified domain ontology"
+msgstr "Muat ontologi domain yang spesifik"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: src/tracker-store/tracker-main.vala:229
+msgid "— start the tracker daemon"
+msgstr "— mulai daemon tracker"
+
+#: src/tracker-store/tracker-store.desktop.in:3
+msgid "Tracker Store"
+msgstr "Penyimpanan Tracker"
+
+#: src/tracker-store/tracker-store.desktop.in:4
+msgid "Metadata database store and lookup manager"
+msgstr "Manajer lookup dan penyimpanan basis data metadata"
+
+#: src/tracker/tracker-config.c:60
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
 msgstr ""
 "Tak bisa mendapat GSettings bagi penambang, manajer tak dapat dibuat, %s"
 
-#: ../src/tracker/tracker-daemon.c:121 ../src/tracker/tracker-daemon.c:429
+#: src/tracker/tracker-daemon.c:121 src/tracker/tracker-daemon.c:429
 msgid "Unavailable"
 msgstr "Tak tersedia"
 
 #. generic
-#: ../src/tracker/tracker-daemon.c:122
+#: src/tracker/tracker-daemon.c:122
 msgid "Initializing"
 msgstr "Menginisiasi"
 
-#: ../src/tracker/tracker-daemon.c:123
+#: src/tracker/tracker-daemon.c:123
 msgid "Processing…"
 msgstr "Memroses…"
 
-#: ../src/tracker/tracker-daemon.c:124
+#: src/tracker/tracker-daemon.c:124
 msgid "Fetching…"
 msgstr "Mengambil…"
 
 #. miner/rss
-#: ../src/tracker/tracker-daemon.c:125
+#: src/tracker/tracker-daemon.c:125
 #, c-format
 msgid "Crawling single directory “%s”"
 msgstr "Menjelajah direktori tunggal “%s”"
 
-#: ../src/tracker/tracker-daemon.c:126
+#: src/tracker/tracker-daemon.c:126
 #, c-format
 msgid "Crawling recursively directory “%s”"
 msgstr "Menelusuri secara rekursif direktori “%s”"
 
-#: ../src/tracker/tracker-daemon.c:127
+#: src/tracker/tracker-daemon.c:127
 msgid "Paused"
 msgstr "Diistirahatkan"
 
-#: ../src/tracker/tracker-daemon.c:128
+#: src/tracker/tracker-daemon.c:128
 msgid "Idle"
 msgstr "Menganggur"
 
-#: ../src/tracker/tracker-daemon.c:134
+#: src/tracker/tracker-daemon.c:134
 msgid "Follow status changes as they happen"
 msgstr "Ikuti perubahan status saat mereka terjadi"
 
-#: ../src/tracker/tracker-daemon.c:138
+#: src/tracker/tracker-daemon.c:138
 msgid ""
 "Watch changes to the database in real time (e.g. resources or files being "
 "added)"
@@ -340,23 +336,23 @@ msgstr ""
 "Amati perubahan ke basis data secara real time (mis. sumber daya atau berkas "
 "sedang ditambahkan)"
 
-#: ../src/tracker/tracker-daemon.c:139
+#: src/tracker/tracker-daemon.c:139
 msgid "ONTOLOGY"
 msgstr "ONTOLOGI"
 
-#: ../src/tracker/tracker-daemon.c:142
+#: src/tracker/tracker-daemon.c:142
 msgid "List common statuses for miners and the store"
 msgstr "Tampilkan daftar status umum bagi penambang dan penyimpanan"
 
-#: ../src/tracker/tracker-daemon.c:147
+#: src/tracker/tracker-daemon.c:147
 msgid "Pause a miner (you must use this with --miner)"
 msgstr "Istirahatkan penambang (Anda mesti memakai ini dengan --miner)"
 
-#: ../src/tracker/tracker-daemon.c:148 ../src/tracker/tracker-daemon.c:152
+#: src/tracker/tracker-daemon.c:148 src/tracker/tracker-daemon.c:152
 msgid "REASON"
 msgstr "ALASAN"
 
-#: ../src/tracker/tracker-daemon.c:151
+#: src/tracker/tracker-daemon.c:151
 msgid ""
 "Pause a miner while the calling process is alive or until resumed (you must "
 "use this with --miner)"
@@ -364,15 +360,15 @@ msgstr ""
 "Istirahatkan penambang ketika proses pemanggil masih hidup atau sampai "
 "dilanjutkan (Anda mesti memakai ini dengan --miner)"
 
-#: ../src/tracker/tracker-daemon.c:155
+#: src/tracker/tracker-daemon.c:155
 msgid "Resume a miner (you must use this with --miner)"
 msgstr "Lanjutkan penambang (Anda mesti memakai ini dengan --miner)"
 
-#: ../src/tracker/tracker-daemon.c:156
+#: src/tracker/tracker-daemon.c:156
 msgid "COOKIE"
 msgstr "COOKIE"
 
-#: ../src/tracker/tracker-daemon.c:159
+#: src/tracker/tracker-daemon.c:159
 msgid ""
 "Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
 "Applications)"
@@ -380,27 +376,27 @@ msgstr ""
 "Penambang yang dipakai dengan --resume atau --pause (Anda dapat memakai "
 "sufiks, mis. Berkas atau Aplikasi)"
 
-#: ../src/tracker/tracker-daemon.c:160
+#: src/tracker/tracker-daemon.c:160
 msgid "MINER"
 msgstr "PENAMBANG"
 
-#: ../src/tracker/tracker-daemon.c:163
+#: src/tracker/tracker-daemon.c:163
 msgid "List all miners currently running"
 msgstr "Tampilkan daftar semua penambang yang sedang berjalan"
 
-#: ../src/tracker/tracker-daemon.c:167
+#: src/tracker/tracker-daemon.c:167
 msgid "List all miners installed"
 msgstr "Tampilkan daftar semua penambang yang terpasang"
 
-#: ../src/tracker/tracker-daemon.c:171
+#: src/tracker/tracker-daemon.c:171
 msgid "List pause reasons"
 msgstr "Tampilkan daftar alasan jeda"
 
-#: ../src/tracker/tracker-daemon.c:176
+#: src/tracker/tracker-daemon.c:176
 msgid "List all Tracker processes"
 msgstr "Daftar semua proses Pelacak"
 
-#: ../src/tracker/tracker-daemon.c:178
+#: src/tracker/tracker-daemon.c:178
 msgid ""
 "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
 "“all” may be used, no parameter equals “all”"
@@ -409,11 +405,11 @@ msgstr ""
 "\"miners\", atau \"all\" boleh dipakai, tidak ada parameter yang sama dengan "
 "\"all\""
 
-#: ../src/tracker/tracker-daemon.c:179 ../src/tracker/tracker-daemon.c:182
+#: src/tracker/tracker-daemon.c:179 src/tracker/tracker-daemon.c:182
 msgid "APPS"
 msgstr "APP"
 
-#: ../src/tracker/tracker-daemon.c:181
+#: src/tracker/tracker-daemon.c:181
 msgid ""
 "Use SIGTERM to stop all matching processes, either “store”, “miners” or "
 "“all” may be used, no parameter equals “all”"
@@ -422,13 +418,13 @@ msgstr ""
 "\"miners\", atau \"all\" boleh dipakai, tidak ada parameter yang sama dengan "
 "\"all\""
 
-#: ../src/tracker/tracker-daemon.c:184
+#: src/tracker/tracker-daemon.c:184
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr ""
 "Mulai jalankan penambang (yang secara tak langsung memulai tracker-store "
 "juga)"
 
-#: ../src/tracker/tracker-daemon.c:187 ../src/tracker/tracker-extract.c:42
+#: src/tracker/tracker-daemon.c:187 src/tracker/tracker-extract.c:42
 msgid ""
 "Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
 "“errors”) for all processes"
@@ -436,294 +432,303 @@ msgstr ""
 "Atur tingkat rincian log ke LEVEL (“debug”, “detailed”, “minimal”, “errors”) "
 "bagi semua proses"
 
-#: ../src/tracker/tracker-daemon.c:188 ../src/tracker/tracker-extract.c:43
+#: src/tracker/tracker-daemon.c:188 src/tracker/tracker-extract.c:43
 msgid "LEVEL"
 msgstr "LEVEL"
 
-#: ../src/tracker/tracker-daemon.c:190
+#: src/tracker/tracker-daemon.c:190
 msgid "Show logging values in terms of log verbosity for each process"
 msgstr "Tampilkan nilai log mengacu ke tingkat rincian log bagi setiap proses"
 
-#: ../src/tracker/tracker-daemon.c:264
+#: src/tracker/tracker-daemon.c:264
 #, c-format
 msgid "Could not get status from miner: %s"
 msgstr "Tak bisa mendapat status dari penambang: %s"
 
 #. Translators: %s is a time string
-#: ../src/tracker/tracker-daemon.c:326
+#: src/tracker/tracker-daemon.c:326
 #, c-format
 msgid "%s remaining"
 msgstr "%s tersisa"
 
-#: ../src/tracker/tracker-daemon.c:329
+#: src/tracker/tracker-daemon.c:329
 msgid "unknown time left"
 msgstr "sisa waktu tak diketahui"
 
 #. Work out lengths for output spacing
-#: ../src/tracker/tracker-daemon.c:342 ../src/tracker/tracker-daemon.c:1319
+#: src/tracker/tracker-daemon.c:342 src/tracker/tracker-daemon.c:1319
 msgid "PAUSED"
 msgstr "DIISTIRAHATKAN"
 
-#: ../src/tracker/tracker-daemon.c:359
+#: src/tracker/tracker-daemon.c:359
 msgid "Not running or is a disabled plugin"
 msgstr "Plugin yang tak berjalan atau dimatikan"
 
-#: ../src/tracker/tracker-daemon.c:461
+#: src/tracker/tracker-daemon.c:461
 msgid "Could not retrieve tracker-store status"
 msgstr "Tak bisa mendapat status tracker-store"
 
-#: ../src/tracker/tracker-daemon.c:482
+#: src/tracker/tracker-daemon.c:482
 msgid "Could not retrieve tracker-store progress"
 msgstr "Tak bisa mengambil kemajuan tracker-store"
 
-#: ../src/tracker/tracker-daemon.c:612 ../src/tracker/tracker-sparql.c:200
+#: src/tracker/tracker-daemon.c:612 src/tracker/tracker-sparql.c:200
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Tak bisa mengambil prefiks namespace"
 
-#: ../src/tracker/tracker-daemon.c:620 ../src/tracker/tracker-sparql.c:208
+#: src/tracker/tracker-daemon.c:620 src/tracker/tracker-sparql.c:208
 msgid "No namespace prefixes were returned"
 msgstr "Tak ada prefiks namespace yang dikembalikan"
 
-#: ../src/tracker/tracker-daemon.c:699 ../src/tracker/tracker-daemon.c:726
+#: src/tracker/tracker-daemon.c:699 src/tracker/tracker-daemon.c:726
 msgid "Could not run SPARQL query"
 msgstr "Tak bisa menjalankan kueri SPARQL"
 
-#: ../src/tracker/tracker-daemon.c:707 ../src/tracker/tracker-daemon.c:739
+#: src/tracker/tracker-daemon.c:707 src/tracker/tracker-daemon.c:739
 msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
 msgstr "Tak bisa memanggil tracker_sparql_cursor_next() pada kueri SPARQL"
 
-#: ../src/tracker/tracker-daemon.c:889
+#: src/tracker/tracker-daemon.c:889
 #, c-format
 msgid "Could not pause miner, manager could not be created, %s"
 msgstr "Tak bisa mengistirahatkan penambang, pengelola tak dapat dibuat, %s"
 
-#: ../src/tracker/tracker-daemon.c:896
+#: src/tracker/tracker-daemon.c:896
 #, c-format
 msgid "Attempting to pause miner “%s” with reason “%s”"
 msgstr "Mencoba mengistirahatkan penambang “%s” dengan alasan “%s”"
 
-#: ../src/tracker/tracker-daemon.c:904 ../src/tracker/tracker-daemon.c:910
+#: src/tracker/tracker-daemon.c:904 src/tracker/tracker-daemon.c:910
 #, c-format
 msgid "Could not pause miner: %s"
 msgstr "Tak bisa mengistirahatkan penambang: %s"
 
-#: ../src/tracker/tracker-daemon.c:916
+#: src/tracker/tracker-daemon.c:916
 #, c-format
 msgid "Cookie is %d"
 msgstr "Cookienya %d"
 
-#: ../src/tracker/tracker-daemon.c:923 ../src/tracker/tracker-daemon.c:1276
-#: ../src/tracker/tracker-daemon.c:1420
+#: src/tracker/tracker-daemon.c:923 src/tracker/tracker-daemon.c:1276
+#: src/tracker/tracker-daemon.c:1420
 msgid "Press Ctrl+C to stop"
 msgstr "Tekan Ctrl+C untuk berhenti"
 
-#: ../src/tracker/tracker-daemon.c:947
+#: src/tracker/tracker-daemon.c:947
 #, c-format
 msgid "Could not resume miner, manager could not be created, %s"
 msgstr "Tak dapat melanjutkan penambang, manajer tak bisa dibuat, %s"
 
-#: ../src/tracker/tracker-daemon.c:954
+#: src/tracker/tracker-daemon.c:954
 #, c-format
 msgid "Attempting to resume miner %s with cookie %d"
 msgstr "Mencoba melanjutkan penambang %s dengan cookie %d"
 
-#: ../src/tracker/tracker-daemon.c:961
+#: src/tracker/tracker-daemon.c:961
 #, c-format
 msgid "Could not resume miner: %s"
 msgstr "Tak dapat melanjutkan penambang: %s"
 
-#: ../src/tracker/tracker-daemon.c:965 ../src/tracker/tracker-index.c:222
-#: ../src/tracker/tracker-sparql.c:1396
+#: src/tracker/tracker-daemon.c:965 src/tracker/tracker-index.c:222
+#: src/tracker/tracker-sparql.c:1396
 msgid "Done"
 msgstr "Selesai"
 
-#: ../src/tracker/tracker-daemon.c:982
+#: src/tracker/tracker-daemon.c:982
 #, c-format
 msgid "Could not list miners, manager could not be created, %s"
 msgstr "Tak bisa mendaftar penambang, manajer tak dapat dibuat, %s"
 
-#: ../src/tracker/tracker-daemon.c:996
+#: src/tracker/tracker-daemon.c:996
 #, c-format
 msgid "Found %d miner installed"
 msgid_plural "Found %d miners installed"
 msgstr[0] "Ditemukan %d penambang terpasang"
+msgstr[1] "Ditemukan %d penambang terpasang"
 
-#: ../src/tracker/tracker-daemon.c:1019
+#: src/tracker/tracker-daemon.c:1019
 #, c-format
 msgid "Found %d miner running"
 msgid_plural "Found %d miners running"
 msgstr[0] "Ditemukan %d penambang berjalan"
+msgstr[1] "Ditemukan %d penambang berjalan"
 
-#: ../src/tracker/tracker-daemon.c:1051
+#: src/tracker/tracker-daemon.c:1051
 #, c-format
 msgid "Could not get pause details, manager could not be created, %s"
 msgstr "Tak bisa mendapat rincian jeda, manager tak bisa dibuat, %s"
 
-#: ../src/tracker/tracker-daemon.c:1061
+#: src/tracker/tracker-daemon.c:1061
 msgid "No miners are running"
 msgstr "Tak ada penambang yang berjalan"
 
-#: ../src/tracker/tracker-daemon.c:1101 ../src/tracker/tracker-daemon.c:1355
-#: ../src/tracker/tracker-daemon.c:1604 ../src/tracker/tracker-daemon.c:1647
+#: src/tracker/tracker-daemon.c:1101 src/tracker/tracker-daemon.c:1355
+#: src/tracker/tracker-daemon.c:1604 src/tracker/tracker-daemon.c:1647
 msgid "Miners"
 msgstr "Penambang"
 
-#: ../src/tracker/tracker-daemon.c:1108
+#: src/tracker/tracker-daemon.c:1108
 msgid "Application"
 msgstr "Aplikasi"
 
-#: ../src/tracker/tracker-daemon.c:1110
+#: src/tracker/tracker-daemon.c:1110
 msgid "Reason"
 msgstr "Alasan"
 
-#: ../src/tracker/tracker-daemon.c:1119
+#: src/tracker/tracker-daemon.c:1119
 msgid "No miners are paused"
 msgstr "Tak ada penambang yang diistirahatkan"
 
-#: ../src/tracker/tracker-daemon.c:1207
+#: src/tracker/tracker-daemon.c:1207
 msgid "Only one of “all”, “store” and “miners” options are allowed"
 msgstr "Hanya satu dari opsi “all“, “store“, dan “miners“ diijinkan"
 
-#: ../src/tracker/tracker-daemon.c:1242
+#: src/tracker/tracker-daemon.c:1242
 msgid "Could not get SPARQL connection"
 msgstr "Tak bisa memperoleh koneksi SPARQL"
 
-#: ../src/tracker/tracker-daemon.c:1274
+#: src/tracker/tracker-daemon.c:1274
 msgid "Now listening for resource updates to the database"
 msgstr "Kini mendengarkan pemutakhiran sumber daya ke basis data"
 
-#: ../src/tracker/tracker-daemon.c:1275
+#: src/tracker/tracker-daemon.c:1275
 msgid "All nie:plainTextContent properties are omitted"
 msgstr "Semua properti nie:plainTextContent dihilangkan"
 
-#: ../src/tracker/tracker-daemon.c:1290
+#: src/tracker/tracker-daemon.c:1290
 msgid "Common statuses include"
 msgstr "Status umum termasuk"
 
-#: ../src/tracker/tracker-daemon.c:1308 ../src/tracker/tracker-status.c:460
+#: src/tracker/tracker-daemon.c:1308 src/tracker/tracker-status.c:460
 #, c-format
 msgid "Could not get status, manager could not be created, %s"
 msgstr "Tak bisa mendapat status, manajer tak dapat dibuat, %s"
 
 #. Display states
-#: ../src/tracker/tracker-daemon.c:1329
+#: src/tracker/tracker-daemon.c:1329
 msgid "Store"
 msgstr "Menyimpan"
 
-#: ../src/tracker/tracker-daemon.c:1363
+#: src/tracker/tracker-daemon.c:1363
 #, c-format
 msgid "Could not get display name for miner “%s”"
 msgstr "Tak bisa mendapat nama tampilan bagi penambang “%s“"
 
-#: ../src/tracker/tracker-daemon.c:1461
+#: src/tracker/tracker-daemon.c:1461
 msgid "You can not use miner pause and resume switches together"
 msgstr ""
 "Anda tak bisa memakai switch istirahat dan melanjutkan penambang bersamaan"
 
-#: ../src/tracker/tracker-daemon.c:1467
+#: src/tracker/tracker-daemon.c:1467
 msgid "You must provide the miner for pause or resume commands"
 msgstr ""
 "Anda mesti menyediakan penambang bagi perintah istirahat atau melanjutkan"
 
-#: ../src/tracker/tracker-daemon.c:1473
+#: src/tracker/tracker-daemon.c:1473
 msgid "You must provide a pause or resume command for the miner"
 msgstr ""
 "Anda mesti menyediakan perintah istirahat atau melanjutkan bagi penambang"
 
-#: ../src/tracker/tracker-daemon.c:1509
+#: src/tracker/tracker-daemon.c:1509
 msgid "You can not use the --kill and --terminate arguments together"
 msgstr "Anda tak bisa memakai argumen —kill dan —terminate bersamaan"
 
-#: ../src/tracker/tracker-daemon.c:1515
+#: src/tracker/tracker-daemon.c:1515
 msgid "You can not use the --get-logging and --set-logging arguments together"
 msgstr "Anda tak bisa memakai argumen —get-logging dan —set-logging bersamaan"
 
-#: ../src/tracker/tracker-daemon.c:1530 ../src/tracker/tracker-extract.c:105
+#: src/tracker/tracker-daemon.c:1530 src/tracker/tracker-extract.c:105
 msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 msgstr ""
 "Tingkat rincian log tak valid, coba “debug“, “detailed“, “minimal“, atau "
 "“errors“"
 
-#: ../src/tracker/tracker-daemon.c:1568
+#: src/tracker/tracker-daemon.c:1558 src/tracker/tracker-process.c:305
+#, c-format
+msgid "Found %d PID…"
+msgid_plural "Found %d PIDs…"
+msgstr[0] "Ditemukan %d PID…"
+msgstr[1] "Ditemukan %d PID…"
+
+#: src/tracker/tracker-daemon.c:1568
 #, c-format
 msgid "Found process ID %d for “%s”"
 msgstr "Menemukan ID proses %d bagi “%s“"
 
-#: ../src/tracker/tracker-daemon.c:1598 ../src/tracker/tracker-daemon.c:1641
+#: src/tracker/tracker-daemon.c:1598 src/tracker/tracker-daemon.c:1641
 msgid "Components"
 msgstr "Komponen"
 
-#: ../src/tracker/tracker-daemon.c:1605 ../src/tracker/tracker-daemon.c:1648
+#: src/tracker/tracker-daemon.c:1605 src/tracker/tracker-daemon.c:1648
 msgid "Only those with config listed"
 msgstr "Hanya yang konfignya ada pada daftar"
 
-#: ../src/tracker/tracker-daemon.c:1624
+#: src/tracker/tracker-daemon.c:1624
 #, c-format
 msgid "Setting log verbosity for all components to “%s”…"
 msgstr "Mengatur tingkat rincian log bagi semua komponen ke “%s”…"
 
-#: ../src/tracker/tracker-daemon.c:1664
+#: src/tracker/tracker-daemon.c:1664
 msgid "Starting miners…"
 msgstr "Memulai penambang…"
 
-#: ../src/tracker/tracker-daemon.c:1669
+#: src/tracker/tracker-daemon.c:1669
 #, c-format
 msgid "Could not start miners, manager could not be created, %s"
 msgstr "Tak bisa memulai penambang, manajer tak dapat dibuat, %s"
 
-#: ../src/tracker/tracker-daemon.c:1694
+#: src/tracker/tracker-daemon.c:1694
 msgid "perhaps a disabled plugin?"
 msgstr "mungkin plugin yang dimatikan?"
 
-#: ../src/tracker/tracker-daemon.c:1738
+#: src/tracker/tracker-daemon.c:1738
 msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr ""
 "Bila tak ada argumen yang diberikan, status dari penyimpanan dan penambang "
 "data ditampilkan"
 
-#: ../src/tracker/tracker-daemon.c:1743 ../src/tracker/tracker-extract.c:147
-#: ../src/tracker/tracker-index.c:412 ../src/tracker/tracker-info.c:422
-#: ../src/tracker/tracker-reset.c:449 ../src/tracker/tracker-search.c:1778
-#: ../src/tracker/tracker-sparql.c:1497 ../src/tracker/tracker-sql.c:238
-#: ../src/tracker/tracker-status.c:587 ../src/tracker/tracker-tag.c:1079
+#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
+#: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
+#: src/tracker/tracker-reset.c:384 src/tracker/tracker-search.c:1778
+#: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
+#: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Opsi tak dikenal"
 
-#: ../src/tracker/tracker-dbus.c:44
+#: src/tracker/tracker-dbus.c:44
 msgid "Could not get D-Bus connection"
 msgstr "Tak bisa memperoleh koneksi D-Bus"
 
-#: ../src/tracker/tracker-dbus.c:62
+#: src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Tak bisa membuat proksi D-Bus ke tracker-store"
 
-#: ../src/tracker/tracker-extract.c:45
+#: src/tracker/tracker-extract.c:45
 msgid "Output results format: “sparql”, “turtle” or “json-ld”"
 msgstr "Format hasil keluaran: \"sparql\", \"turtle\" atau “json-ld”"
 
-#: ../src/tracker/tracker-extract.c:46
+#: src/tracker/tracker-extract.c:46
 msgid "FORMAT"
 msgstr "FORMAT"
 
-#: ../src/tracker/tracker-extract.c:48 ../src/tracker/tracker-extract.c:49
-#: ../src/tracker/tracker-index.c:60 ../src/tracker/tracker-index.c:71
-#: ../src/tracker/tracker-index.c:72 ../src/tracker/tracker-info.c:71
-#: ../src/tracker/tracker-info.c:72 ../src/tracker/tracker-reset.c:63
-#: ../src/tracker/tracker-sparql.c:106 ../src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-extract.c:48 src/tracker/tracker-extract.c:49
+#: src/tracker/tracker-index.c:60 src/tracker/tracker-index.c:71
+#: src/tracker/tracker-index.c:72 src/tracker/tracker-info.c:71
+#: src/tracker/tracker-info.c:72 src/tracker/tracker-reset.c:63
+#: src/tracker/tracker-sparql.c:106 src/tracker/tracker-sql.c:44
 msgid "FILE"
 msgstr "BERKAS"
 
-#: ../src/tracker/tracker-extract.c:77
+#: src/tracker/tracker-extract.c:77
 msgid "Could not run tracker-extract: "
 msgstr "Tak bisa menjalankan tracker-extract: "
 
-#: ../src/tracker/tracker-help.c:59 ../src/tracker/tracker-help.c:71
+#: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "gagal mengeksekusi “%s”: %s"
 
-#: ../src/tracker/tracker-index.c:56
+#: src/tracker/tracker-index.c:56
 msgid ""
 "Tell miners to reindex files which match the mime type supplied (for new "
 "extractors), use -m MIME1 -m MIME2"
@@ -731,81 +736,81 @@ msgstr ""
 "Memberitahu penambang untuk mengindeks ulang berkas yang cocok dengan tipe "
 "mime yang diberikan (bagi pengekstrak bar), pakai -m MIME1 -m MIME2"
 
-#: ../src/tracker/tracker-index.c:57
+#: src/tracker/tracker-index.c:57
 msgid "MIME"
 msgstr "MIME"
 
-#: ../src/tracker/tracker-index.c:59
+#: src/tracker/tracker-index.c:59
 msgid "Tell miners to (re)index a given file"
 msgstr "Beritahu penambang untuk mengindeks (ulang) berkas yang diberikan"
 
-#: ../src/tracker/tracker-index.c:62
+#: src/tracker/tracker-index.c:62
 msgid "Backup current index / database to the file provided"
 msgstr "Buat cadangan indeks / basis data saat ini ke berkas yang diberikan"
 
-#: ../src/tracker/tracker-index.c:65
+#: src/tracker/tracker-index.c:65
 msgid "Restore a database from a previous backup (see --backup)"
 msgstr "Mengembalikan basis data dari cadangan sebelumnya (lihat --backup)"
 
-#: ../src/tracker/tracker-index.c:68
+#: src/tracker/tracker-index.c:68
 msgid "Import a dataset from the provided file (in Turtle format)"
 msgstr ""
 "Mengimpor suatu dataset dari berkas yang diberikan (dalam format Turtle)"
 
-#: ../src/tracker/tracker-index.c:122
+#: src/tracker/tracker-index.c:122
 #, c-format
 msgid "Could not reindex mimetypes, manager could not be created, %s"
 msgstr "Tak bisa mengindeks ulang tipe mime, manajer tak bisa dibuat, %s"
 
-#: ../src/tracker/tracker-index.c:132
+#: src/tracker/tracker-index.c:132
 msgid "Could not reindex mimetypes"
 msgstr "Tak bisa mengindeks ulang tipe mime"
 
-#: ../src/tracker/tracker-index.c:138
+#: src/tracker/tracker-index.c:138
 msgid "Reindexing mime types was successful"
 msgstr "Pengindeksan ulang tipe mime sukses"
 
-#: ../src/tracker/tracker-index.c:154
+#: src/tracker/tracker-index.c:154
 #, c-format
 msgid "Could not (re)index file, manager could not be created, %s"
 msgstr "Tak bisa mengindeks (ulang) berkas, manajer tak bisa dibuat, %s"
 
-#: ../src/tracker/tracker-index.c:169
+#: src/tracker/tracker-index.c:169
 msgid "Could not (re)index file"
 msgstr "Tak bisa mengindeks (ulang) berkas"
 
-#: ../src/tracker/tracker-index.c:175
+#: src/tracker/tracker-index.c:175
 msgid "(Re)indexing file was successful"
 msgstr "Pengindeksan (ulang) berkas sukses"
 
-#: ../src/tracker/tracker-index.c:195 ../src/tracker/tracker-info.c:263
-#: ../src/tracker/tracker-search.c:1580 ../src/tracker/tracker-sparql.c:172
-#: ../src/tracker/tracker-sparql.c:1086 ../src/tracker/tracker-status.c:73
-#: ../src/tracker/tracker-status.c:386 ../src/tracker/tracker-tag.c:976
+#: src/tracker/tracker-index.c:195 src/tracker/tracker-info.c:263
+#: src/tracker/tracker-search.c:1580 src/tracker/tracker-sparql.c:172
+#: src/tracker/tracker-sparql.c:1086 src/tracker/tracker-status.c:73
+#: src/tracker/tracker-status.c:386 src/tracker/tracker-tag.c:976
 msgid "Could not establish a connection to Tracker"
 msgstr "Tak bisa membentuk koneksi ke Pelacak"
 
-#: ../src/tracker/tracker-index.c:206
+#: src/tracker/tracker-index.c:206
 msgid "Importing Turtle file"
 msgstr "Mengimpor berkas Turtle"
 
-#: ../src/tracker/tracker-index.c:215
+#: src/tracker/tracker-index.c:215
 msgid "Unable to import Turtle file"
 msgstr "Tak bisa mengimpor berkas Turtle"
 
-#: ../src/tracker/tracker-index.c:251
+#: src/tracker/tracker-index.c:251
 msgid "Backing up database"
 msgstr "Membuat cadangan basis data"
 
-#: ../src/tracker/tracker-index.c:271 ../src/tracker/tracker-index.c:328
+#: src/tracker/tracker-index.c:271 src/tracker/tracker-index.c:328
 msgid "Could not backup database"
 msgstr "Tak bisa membuat cadangan basis data"
 
-#: ../src/tracker/tracker-index.c:308
+#: src/tracker/tracker-index.c:308
 msgid "Restoring database from backup"
 msgstr "Mengembalikan basis data dari cadangan"
 
-#: ../src/tracker/tracker-index.c:437
+#: src/tracker/tracker-index.c:437
 msgid ""
 "Only one action (--backup, --restore, --index-file or --import) can be used "
 "at a time"
@@ -813,15 +818,15 @@ msgstr ""
 "Hanya satu aksi (--backup, --restore, --index-file, atau --import) dapat "
 "dipakai pada suatu saat"
 
-#: ../src/tracker/tracker-index.c:439
+#: src/tracker/tracker-index.c:439
 msgid "Missing one or more files which are required"
 msgstr "Kurang satu atau lebih berkas yang diperlukan"
 
-#: ../src/tracker/tracker-index.c:441
+#: src/tracker/tracker-index.c:441
 msgid "Only one file can be used with --backup and --restore"
 msgstr "Hanya satu berkas dapat dipakai dengan --backup dan --restore"
 
-#: ../src/tracker/tracker-index.c:443
+#: src/tracker/tracker-index.c:443
 msgid ""
 "Actions (--backup, --restore, --index-file and --import) can not be used "
 "with --reindex-mime-type"
@@ -829,13 +834,13 @@ msgstr ""
 "Aksi (--backup, --restore, --index-file, dan --import) tak dapat dipakai "
 "dengan --reindex-mime-type"
 
-#: ../src/tracker/tracker-info.c:49
+#: src/tracker/tracker-info.c:49
 msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr ""
 "Tunjukkan namespace lengkap (yaitu jangan memakai nie:title, gunakan URL "
 "lengkap)"
 
-#: ../src/tracker/tracker-info.c:53
+#: src/tracker/tracker-info.c:53
 msgid "Show plain text content if available for resources"
 msgstr "Tunjukkan isi teks polos bila tersedia bagi sumber daya"
 
@@ -845,7 +850,7 @@ msgstr "Tunjukkan isi teks polos bila tersedia bagi sumber daya"
 #. * fully supports international characters. In practice, UTF-8
 #. * is the most popular encoding used for IRI.
 #.
-#: ../src/tracker/tracker-info.c:63
+#: src/tracker/tracker-info.c:63
 msgid ""
 "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
 "(e.g. <file:///path/to/some/file.txt>)"
@@ -853,154 +858,154 @@ msgstr ""
 "Alih-alih mencari suatu nama berkas, perlakukan argumen BERKAS sebagai IRI "
 "sebenarnya (mis. <file:///path/ke/suatu/berkas.txt>)"
 
-#: ../src/tracker/tracker-info.c:67
+#: src/tracker/tracker-info.c:67
 msgid "Output results as RDF in Turtle format"
 msgstr "Keluarkan hasil sebagai RDF dalam format Turtle"
 
-#: ../src/tracker/tracker-info.c:285
+#: src/tracker/tracker-info.c:285
 msgid "Querying information for entity"
 msgstr "Mengkueri informasi tentang entitas"
 
-#: ../src/tracker/tracker-info.c:309
+#: src/tracker/tracker-info.c:309
 msgid "Unable to retrieve URN for URI"
 msgstr "Tak bisa mengambil URN bagi URI"
 
-#: ../src/tracker/tracker-info.c:319 ../src/tracker/tracker-info.c:353
+#: src/tracker/tracker-info.c:319 src/tracker/tracker-info.c:353
 msgid "Unable to retrieve data for URI"
 msgstr "Tak bisa mengambil data bagi URI"
 
-#: ../src/tracker/tracker-info.c:362
+#: src/tracker/tracker-info.c:362
 msgid "No metadata available for that URI"
 msgstr "Tak tersedia metadata bagi URI itu"
 
-#: ../src/tracker/tracker-info.c:367 ../src/tracker/tracker-search.c:1455
-#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
-#: ../src/tracker/tracker-sql.c:146
+#: src/tracker/tracker-info.c:367 src/tracker/tracker-search.c:1455
+#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
+#: src/tracker/tracker-sql.c:146
 msgid "Results"
 msgstr "Hasil"
 
-#: ../src/tracker/tracker-main.c:48
+#: src/tracker/tracker-main.c:48
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
 "Lihat \"tracker help <perintah>\" untuk membaca tentang suatu sub perintah "
 "tertentu."
 
-#: ../src/tracker/tracker-main.c:97
+#: src/tracker/tracker-main.c:97
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Memulai, menghentikan, mengistirahatkan, dan menampilkan daftar proses yang "
 "bertanggungjawab untuk pengindeksan isi"
 
-#: ../src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:98
 msgid "Extract information from a file"
 msgstr "Mengekstrak informasi dari suatu berkas"
 
-#: ../src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:99
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr ""
 "Dapatkan bantuan tentang bagaimana memakai Tracker dan sebarang perintah ini"
 
-#: ../src/tracker/tracker-main.c:100
+#: src/tracker/tracker-main.c:100
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Tampilkan informasi yang diketahui tengan berkas lokal atau butir yang "
 "diindeks"
 
-#: ../src/tracker/tracker-main.c:101
+#: src/tracker/tracker-main.c:101
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Buat cadangan, pulihkan, impor, dan indeks (ulang) menurut tipe MIME atau "
 "nama berkas"
 
-#: ../src/tracker/tracker-main.c:102
+#: src/tracker/tracker-main.c:102
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr "Reset atau hapus indeks dan pulihkan konfigurasi ke baku"
 
-#: ../src/tracker/tracker-main.c:103
+#: src/tracker/tracker-main.c:103
 msgid "Search for content indexed or show content by type"
 msgstr "Cari isi yang diindeks atau tampilkan isi menurut tipe"
 
-#: ../src/tracker/tracker-main.c:104
+#: src/tracker/tracker-main.c:104
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Kueri dan mutakhirkan indeks memakai SPARQL atau cari, daftar, dan pohon "
 "ontologi"
 
-#: ../src/tracker/tracker-main.c:105
+#: src/tracker/tracker-main.c:105
 msgid "Query the database at the lowest level using SQL"
 msgstr "Kueri basis data pada aras terrendah memakai SQL"
 
-#: ../src/tracker/tracker-main.c:106
+#: src/tracker/tracker-main.c:106
 msgid "Show the indexing progress, content statistics and index state"
 msgstr "Tampilkan kemajuan pengindeksan, statistik isi, dan keadaan indeks"
 
-#: ../src/tracker/tracker-main.c:107
+#: src/tracker/tracker-main.c:107
 msgid "Create, list or delete tags for indexed content"
 msgstr "Buat, daftar, atau hapus tag bagi isi yang terindeks"
 
-#: ../src/tracker/tracker-main.c:108
+#: src/tracker/tracker-main.c:108
 msgid "Show the license and version in use"
 msgstr "Tampilkan lisensi dan versi yang dipakai"
 
-#: ../src/tracker/tracker-main.c:153
+#: src/tracker/tracker-main.c:153
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "\"%s\" bukan suatu perintah tracker. Lihat \"tracker --help\""
 
-#: ../src/tracker/tracker-main.c:176
+#: src/tracker/tracker-main.c:176
 msgid "Available tracker commands are:"
 msgstr "Perintah tracker yang tersedia:"
 
-#: ../src/tracker/tracker-process.c:79
+#: src/tracker/tracker-process.c:79
 msgid "Could not open /proc"
 msgstr "Tak dapat membuka /proc"
 
-#: ../src/tracker/tracker-process.c:132
+#: src/tracker/tracker-process.c:132
 msgid "Could not stat() file"
 msgstr "Tak bisa stat() berkas"
 
-#: ../src/tracker/tracker-process.c:203
+#: src/tracker/tracker-process.c:203
 #, c-format
 msgid "Could not open “%s”"
 msgstr "Tak dapat membuka \"%s\""
 
-#: ../src/tracker/tracker-process.c:332
+#: src/tracker/tracker-process.c:332
 #, c-format
 msgid "Could not terminate process %d — “%s”"
 msgstr "Tak bisa mengakhiri proses %d - \"%s\""
 
-#: ../src/tracker/tracker-process.c:338
+#: src/tracker/tracker-process.c:338
 #, c-format
 msgid "Terminated process %d — “%s”"
 msgstr "Proses %d diakhiri - \"%s\""
 
-#: ../src/tracker/tracker-process.c:353
+#: src/tracker/tracker-process.c:353
 #, c-format
 msgid "Could not kill process %d — “%s”"
 msgstr "Tak dapat mematian proses %d - \"%s\""
 
-#: ../src/tracker/tracker-process.c:359
+#: src/tracker/tracker-process.c:359
 #, c-format
 msgid "Killed process %d — “%s”"
 msgstr "Proses %d dimatikan - \"%s\""
 
-#: ../src/tracker/tracker-reset.c:53
+#: src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
 msgstr "Matikan semua proses Pelacak dan hapus semua basis data"
 
-#: ../src/tracker/tracker-reset.c:56
+#: src/tracker/tracker-reset.c:56
 msgid "Same as --hard but the backup & journal are restored after restart"
 msgstr ""
 "Sama dengan --hard tapi backup & jurnal dikembalikan setelah start ulang"
 
-#: ../src/tracker/tracker-reset.c:59
+#: src/tracker/tracker-reset.c:59
 msgid "Remove all configuration files so they are re-generated on next start"
 msgstr ""
 "Hapus semua berkas konfigurasi sehingga mereka dibuat ulang saat start "
 "berikutnya"
 
-#: ../src/tracker/tracker-reset.c:62
+#: src/tracker/tracker-reset.c:62
 msgid ""
 "Erase indexed information about a file, works recursively for directories"
 msgstr ""
@@ -1008,11 +1013,11 @@ msgstr ""
 "direktori"
 
 #. Now, delete the element recursively
-#: ../src/tracker/tracker-reset.c:167
+#: src/tracker/tracker-reset.c:127
 msgid "Deleting…"
 msgstr "Menghapus…"
 
-#: ../src/tracker/tracker-reset.c:188
+#: src/tracker/tracker-reset.c:148
 msgid ""
 "The indexed data for this file has been deleted and will be reindexed again."
 msgstr ""
@@ -1020,15 +1025,15 @@ msgstr ""
 "lagi."
 
 #. TRANSLATORS: --hard and --soft are commandline arguments
-#: ../src/tracker/tracker-reset.c:215
+#: src/tracker/tracker-reset.c:175
 msgid "You can not use the --hard and --soft arguments together"
 msgstr "Anda tak bisa memakai argumen —hard dan —soft bersamaan"
 
-#: ../src/tracker/tracker-reset.c:223
+#: src/tracker/tracker-reset.c:183
 msgid "CAUTION: This process may irreversibly delete data."
 msgstr "HATI-HATI: Proses ini mungkin menghapus data tanpa bisa dikembalikan."
 
-#: ../src/tracker/tracker-reset.c:224
+#: src/tracker/tracker-reset.c:184
 msgid ""
 "Although most content indexed by Tracker can be safely reindexed, it can’t "
 "be assured that this is the case for all data. Be aware that you may be "
@@ -1039,12 +1044,12 @@ msgstr ""
 "Sadarilah bahwa Anda mungkin mengalami situasi kehilangan data, lanjutkan "
 "dengan risiko yang Anda tanggung sendiri."
 
-#: ../src/tracker/tracker-reset.c:229
+#: src/tracker/tracker-reset.c:189
 msgid "Are you sure you want to proceed?"
 msgstr "Apakah Anda yakin hendak melanjutkan?"
 
 #. TRANSLATORS: This is to be displayed on command line output
-#: ../src/tracker/tracker-reset.c:231
+#: src/tracker/tracker-reset.c:191
 msgid "[y|N]"
 msgstr "[y|T]"
 
@@ -1052,87 +1057,83 @@ msgstr "[y|T]"
 #. * A partial or full match will be considered an affirmative answer,
 #. * it is intentionally lowercase, so please keep it like this.
 #.
-#: ../src/tracker/tracker-reset.c:240
+#: src/tracker/tracker-reset.c:200
 msgid "yes"
 msgstr "ya"
 
-#: ../src/tracker/tracker-reset.c:366
-msgid "Removing configuration files…"
-msgstr "Menghapus berkas konfigurasi…"
-
-#: ../src/tracker/tracker-reset.c:371
+#: src/tracker/tracker-reset.c:306
 msgid "Resetting existing configuration…"
 msgstr "Mereset konfigurasi yang ada…"
 
-#: ../src/tracker/tracker-search.c:80
+#: src/tracker/tracker-search.c:80
 msgid "Search for files"
 msgstr "Cari berkas"
 
-#: ../src/tracker/tracker-search.c:84
+#: src/tracker/tracker-search.c:84
 msgid "Search for folders"
 msgstr "Cari folder"
 
-#: ../src/tracker/tracker-search.c:88
+#: src/tracker/tracker-search.c:88
 msgid "Search for music files"
 msgstr "Cari berkas musik"
 
-#: ../src/tracker/tracker-search.c:92
+#: src/tracker/tracker-search.c:92
 msgid "Search for music albums (--all has no effect on this)"
 msgstr "Cari album musik (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker/tracker-search.c:96
+#: src/tracker/tracker-search.c:96
 msgid "Search for music artists (--all has no effect on this)"
 msgstr "Cari artis musik (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker/tracker-search.c:100
+#: src/tracker/tracker-search.c:100
 msgid "Search for image files"
 msgstr "Cari berkas gambar"
 
-#: ../src/tracker/tracker-search.c:104
+#: src/tracker/tracker-search.c:104
 msgid "Search for video files"
 msgstr "Cari berkas video"
 
-#: ../src/tracker/tracker-search.c:108
+#: src/tracker/tracker-search.c:108
 msgid "Search for document files"
 msgstr "Cari berkas dokumen"
 
-#: ../src/tracker/tracker-search.c:112
+#: src/tracker/tracker-search.c:112
 msgid "Search for emails"
 msgstr "Cari surel"
 
-#: ../src/tracker/tracker-search.c:116
+#: src/tracker/tracker-search.c:116
 msgid "Search for contacts"
 msgstr "Cari kontak"
 
-#: ../src/tracker/tracker-search.c:120
+#: src/tracker/tracker-search.c:120
 msgid "Search for software (--all has no effect on this)"
 msgstr "Cari perangkat lunak (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker/tracker-search.c:124
+#: src/tracker/tracker-search.c:124
 msgid "Search for software categories (--all has no effect on this)"
 msgstr "Cari kategori perangkat lunak (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker/tracker-search.c:128
+#: src/tracker/tracker-search.c:128
 msgid "Search for feeds (--all has no effect on this)"
 msgstr "Cari asupan (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker/tracker-search.c:132
+#: src/tracker/tracker-search.c:132
 msgid "Search for bookmarks (--all has no effect on this)"
 msgstr "Cari penanda taut (--all tak punya pengaruh pada hal ini)"
 
-#: ../src/tracker/tracker-search.c:138 ../src/tracker/tracker-tag.c:73
+#: src/tracker/tracker-search.c:138 src/tracker/tracker-tag.c:73
 msgid "Limit the number of results shown"
 msgstr "Batasi cacah hasil yang ditampilkan"
 
-#: ../src/tracker/tracker-search.c:142 ../src/tracker/tracker-tag.c:77
+#: src/tracker/tracker-search.c:142 src/tracker/tracker-tag.c:77
 msgid "Offset the results"
 msgstr "Ofsetkan hasilnya"
 
-#: ../src/tracker/tracker-search.c:146
+#: src/tracker/tracker-search.c:146
 msgid "Use OR for search terms instead of AND (the default)"
 msgstr "Pakai OR untuk istilah pencarian sebagai pengganti AND (baku)"
 
-#: ../src/tracker/tracker-search.c:150
+#: src/tracker/tracker-search.c:150
 msgid ""
 "Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
@@ -1140,13 +1141,13 @@ msgstr ""
 "Tunjukkan URN untuk hasil (tak berlaku pada --music-albums, --music-artists, "
 "--feeds, --software, --software-categories)"
 
-#: ../src/tracker/tracker-search.c:154
+#: src/tracker/tracker-search.c:154
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
 "Mengembalikan semua kecocokan yang tidak hadir juga (mis. volume tak dikait "
 "yang termasuk)"
 
-#: ../src/tracker/tracker-search.c:158
+#: src/tracker/tracker-search.c:158
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music…"
@@ -1154,178 +1155,177 @@ msgstr ""
 "Jangan tampilkan snippet dengan hasil. Ini hanya ditampilkan bagi beberapa "
 "kategori, mis. Dokumen, Musik…"
 
-#: ../src/tracker/tracker-search.c:162
+#: src/tracker/tracker-search.c:162
 msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
 msgstr "Matikan Pencarian Teks Lengkap. Mengimplikasi --disable-snippets"
 
-#: ../src/tracker/tracker-search.c:166
+#: src/tracker/tracker-search.c:166
 msgid "Disable color when printing snippets and results"
 msgstr "Matikan warna ketika mencetak snippet dan hasil"
 
-#: ../src/tracker/tracker-search.c:173 ../src/tracker/tracker-status.c:57
+#: src/tracker/tracker-search.c:173 src/tracker/tracker-status.c:57
 msgid "search terms"
 msgstr "istilah yang dicari"
 
-#: ../src/tracker/tracker-search.c:174 ../src/tracker/tracker-status.c:58
+#: src/tracker/tracker-search.c:174 src/tracker/tracker-status.c:58
 msgid "EXPRESSION"
 msgstr "EKSPRESI"
 
-#: ../src/tracker/tracker-search.c:192 ../src/tracker/tracker-tag.c:103
+#: src/tracker/tracker-search.c:192 src/tracker/tracker-tag.c:103
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
 "CATATAN: Batas tercapai, ada lebih banyak butir dalam basis data yang tak "
 "didaftar di sini"
 
-#: ../src/tracker/tracker-search.c:286 ../src/tracker/tracker-search.c:395
-#: ../src/tracker/tracker-search.c:497 ../src/tracker/tracker-search.c:811
-#: ../src/tracker/tracker-search.c:900 ../src/tracker/tracker-search.c:990
-#: ../src/tracker/tracker-search.c:1072 ../src/tracker/tracker-search.c:1156
-#: ../src/tracker/tracker-search.c:1238 ../src/tracker/tracker-search.c:1442
+#: src/tracker/tracker-search.c:286 src/tracker/tracker-search.c:395
+#: src/tracker/tracker-search.c:497 src/tracker/tracker-search.c:811
+#: src/tracker/tracker-search.c:900 src/tracker/tracker-search.c:990
+#: src/tracker/tracker-search.c:1072 src/tracker/tracker-search.c:1156
+#: src/tracker/tracker-search.c:1238 src/tracker/tracker-search.c:1442
 msgid "Could not get search results"
 msgstr "Tak bisa mendapat hasil pencarian"
 
-#: ../src/tracker/tracker-search.c:295
+#: src/tracker/tracker-search.c:295
 msgid "No contacts were found"
 msgstr "Tak ditemukan kontak"
 
-#: ../src/tracker/tracker-search.c:299
+#: src/tracker/tracker-search.c:299
 msgid "Contacts"
 msgstr "Kontak"
 
-#: ../src/tracker/tracker-search.c:356 ../src/tracker/tracker-search.c:369
+#: src/tracker/tracker-search.c:356 src/tracker/tracker-search.c:369
 msgid "No name"
 msgstr "Tak ada nama"
 
-#: ../src/tracker/tracker-search.c:357 ../src/tracker/tracker-search.c:370
+#: src/tracker/tracker-search.c:357 src/tracker/tracker-search.c:370
 msgid "No E-mail address"
 msgstr "Tak ada alamat surel"
 
-#: ../src/tracker/tracker-search.c:404
+#: src/tracker/tracker-search.c:404
 msgid "No emails were found"
 msgstr "Tak ditemukan surel"
 
-#: ../src/tracker/tracker-search.c:408
+#: src/tracker/tracker-search.c:408
 msgid "Emails"
 msgstr "Surel"
 
-#: ../src/tracker/tracker-search.c:506
+#: src/tracker/tracker-search.c:506
 msgid "No files were found"
 msgstr "Tak ditemukan berkas"
 
-#: ../src/tracker/tracker-search.c:510 ../src/tracker/tracker-tag.c:439
+#: src/tracker/tracker-search.c:510 src/tracker/tracker-tag.c:439
 msgid "Files"
 msgstr "Berkas"
 
-#: ../src/tracker/tracker-search.c:820
+#: src/tracker/tracker-search.c:820
 msgid "No artists were found"
 msgstr "Tak ditemukan artis"
 
-#: ../src/tracker/tracker-search.c:824
+#: src/tracker/tracker-search.c:824
 msgid "Artists"
 msgstr "Artis"
 
-#: ../src/tracker/tracker-search.c:909
+#: src/tracker/tracker-search.c:909
 msgid "No music was found"
 msgstr "Tak ditemukan musik"
 
-#: ../src/tracker/tracker-search.c:913
+#: src/tracker/tracker-search.c:913
 msgid "Albums"
 msgstr "Album"
 
-#: ../src/tracker/tracker-search.c:999
+#: src/tracker/tracker-search.c:999
 msgid "No bookmarks were found"
 msgstr "Tak ditemukan penanda taut"
 
-#: ../src/tracker/tracker-search.c:1003
+#: src/tracker/tracker-search.c:1003
 msgid "Bookmarks"
 msgstr "Penanda Taut"
 
-#: ../src/tracker/tracker-search.c:1081
+#: src/tracker/tracker-search.c:1081
 msgid "No feeds were found"
 msgstr "Tak ditemukan asupan"
 
-#: ../src/tracker/tracker-search.c:1085
+#: src/tracker/tracker-search.c:1085
 msgid "Feeds"
 msgstr "Asupan"
 
-#: ../src/tracker/tracker-search.c:1165
+#: src/tracker/tracker-search.c:1165
 msgid "No software was found"
 msgstr "Tak ditemukan perangkat lunak"
 
-#: ../src/tracker/tracker-search.c:1169
+#: src/tracker/tracker-search.c:1169
 msgid "Software"
 msgstr "Perangkat Lunak"
 
-#: ../src/tracker/tracker-search.c:1247
+#: src/tracker/tracker-search.c:1247
 msgid "No software categories were found"
 msgstr "Tak ditemukan kategori perangkat lunak"
 
-#: ../src/tracker/tracker-search.c:1251
+#: src/tracker/tracker-search.c:1251
 msgid "Software Categories"
 msgstr "Kategori Perangkat Lunak"
 
-#: ../src/tracker/tracker-search.c:1451
+#: src/tracker/tracker-search.c:1451
 msgid "No results were found matching your query"
 msgstr "Tak ditemukan hasil yang cocok dengan kueri Anda"
 
-#: ../src/tracker/tracker-search.c:1553
+#: src/tracker/tracker-search.c:1553
 #, c-format
 msgid "Search term “%s” is a stop word."
 msgstr "Istilah pencarian “%s” adalah kata henti."
 
-#: ../src/tracker/tracker-search.c:1564
-#, c-format
+#: src/tracker/tracker-search.c:1564
 msgid ""
 "Stop words are common words which may be ignored during the indexing process."
 msgstr ""
 "Kata henti adalah kata-kata umum yang boleh diabaikan selama proses "
 "pengindeksan."
 
-#: ../src/tracker/tracker-sparql.c:105
+#: src/tracker/tracker-sparql.c:105
 msgid "Path to use to run a query or update from file"
 msgstr "Path untuk menjalankan kueri atau pembaruan dari berkas"
 
-#: ../src/tracker/tracker-sparql.c:109
+#: src/tracker/tracker-sparql.c:109
 msgid "SPARQL query"
 msgstr "Kueri SPARQL"
 
-#: ../src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sparql.c:110
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: ../src/tracker/tracker-sparql.c:113
+#: src/tracker/tracker-sparql.c:113
 msgid "This is used with --query and for database updates only."
 msgstr "Ini dipakai dengan --kueri dan bagi pembaruan basis data saja."
 
-#: ../src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-sparql.c:117
 msgid "Retrieve classes"
 msgstr "Ambil kelas"
 
-#: ../src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-sparql.c:121
 msgid "Retrieve class prefixes"
 msgstr "Ambil prefiks kelas"
 
-#: ../src/tracker/tracker-sparql.c:125
+#: src/tracker/tracker-sparql.c:125
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr ""
 "Ambil properti bagi kelas, prefiks juga dapat dipakai (mis. rdfs:Resource)"
 
-#: ../src/tracker/tracker-sparql.c:126 ../src/tracker/tracker-sparql.c:130
-#: ../src/tracker/tracker-sparql.c:138 ../src/tracker/tracker-sparql.c:146
-#: ../src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:126 src/tracker/tracker-sparql.c:130
+#: src/tracker/tracker-sparql.c:138 src/tracker/tracker-sparql.c:146
+#: src/tracker/tracker-sparql.c:150
 msgid "CLASS"
 msgstr "KELAS"
 
-#: ../src/tracker/tracker-sparql.c:129
+#: src/tracker/tracker-sparql.c:129
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Ambil kelas yang memberitahu perubahan dalam basis data (CLASS opsional)"
 
-#: ../src/tracker/tracker-sparql.c:133
+#: src/tracker/tracker-sparql.c:133
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -1333,11 +1333,11 @@ msgstr ""
 "Ambil indeks yang dipakai dalam basis data untuk memperbaiki kinerja "
 "(PROPERTY opsional)"
 
-#: ../src/tracker/tracker-sparql.c:134
+#: src/tracker/tracker-sparql.c:134
 msgid "PROPERTY"
 msgstr "PROPERTI"
 
-#: ../src/tracker/tracker-sparql.c:137
+#: src/tracker/tracker-sparql.c:137
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -1345,37 +1345,37 @@ msgstr ""
 "Menguraikan subkelas, superkelas (dapat dipakai dengan -s untuk menyorot "
 "bagian dari pohon dan -p untuk menampilkan properti)"
 
-#: ../src/tracker/tracker-sparql.c:141
+#: src/tracker/tracker-sparql.c:141
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Cari kelas atau properti dan tampilkan lebih banyak informasi (mis. Dokumen)"
 
-#: ../src/tracker/tracker-sparql.c:142
+#: src/tracker/tracker-sparql.c:142
 msgid "CLASS/PROPERTY"
 msgstr "KELAS/PROPERTI"
 
-#: ../src/tracker/tracker-sparql.c:145
+#: src/tracker/tracker-sparql.c:145
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Mengembalikan singkatan bagis suatu kelas (mis. nfo:FileDataObject)."
 
-#: ../src/tracker/tracker-sparql.c:149
+#: src/tracker/tracker-sparql.c:149
 msgid "Returns the full namespace for a class."
 msgstr "Mengembalikan namespace lengkap bagi suatu kelas."
 
-#: ../src/tracker/tracker-sparql.c:153
+#: src/tracker/tracker-sparql.c:153
 msgid "Remote service to query to"
 msgstr "Layanan jauh untuk kueri ke"
 
-#: ../src/tracker/tracker-sparql.c:154
+#: src/tracker/tracker-sparql.c:154
 msgid "BASE_URL"
 msgstr "BASE_URL"
 
-#: ../src/tracker/tracker-sparql.c:254
+#: src/tracker/tracker-sparql.c:254
 msgid "Could not get namespace prefixes"
 msgstr "Tak bisa mendapat prefiks namespace"
 
-#: ../src/tracker/tracker-sparql.c:263
+#: src/tracker/tracker-sparql.c:263
 msgid "No namespace prefixes were found"
 msgstr "Tak ditemukan prefiks namespace"
 
@@ -1406,130 +1406,130 @@ msgstr "Tak ditemukan prefiks namespace"
 #. *     None
 #. *
 #.
-#: ../src/tracker/tracker-sparql.c:509 ../src/tracker/tracker-sparql.c:557
-#: ../src/tracker/tracker-status.c:136 ../src/tracker/tracker-tag.c:323
-#: ../src/tracker/tracker-tag.c:455 ../src/tracker/tracker-tag.c:577
-#: ../src/tracker/tracker-tag.c:955
+#: src/tracker/tracker-sparql.c:509 src/tracker/tracker-sparql.c:557
+#: src/tracker/tracker-status.c:136 src/tracker/tracker-tag.c:323
+#: src/tracker/tracker-tag.c:455 src/tracker/tracker-tag.c:577
+#: src/tracker/tracker-tag.c:955
 msgid "None"
 msgstr "Nihil"
 
-#: ../src/tracker/tracker-sparql.c:963
+#: src/tracker/tracker-sparql.c:963
 msgid "Could not create tree: subclass query failed"
 msgstr "Tak bisa membuat pohon: kueri subkelas gagal"
 
-#: ../src/tracker/tracker-sparql.c:1012
+#: src/tracker/tracker-sparql.c:1012
 msgid "Could not create tree: class properties query failed"
 msgstr "Tak bisa membuat pohon: kueri properti subkelas gagal"
 
-#: ../src/tracker/tracker-sparql.c:1100
+#: src/tracker/tracker-sparql.c:1100
 msgid "Could not list classes"
 msgstr "Tak bisa menyusun daftar kelas"
 
-#: ../src/tracker/tracker-sparql.c:1108
+#: src/tracker/tracker-sparql.c:1108
 msgid "No classes were found"
 msgstr "Tak ditemukan kelas"
 
-#: ../src/tracker/tracker-sparql.c:1108 ../src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1108 src/tracker/tracker-sparql.c:1299
 msgid "Classes"
 msgstr "Kelas"
 
-#: ../src/tracker/tracker-sparql.c:1124
+#: src/tracker/tracker-sparql.c:1124
 msgid "Could not list class prefixes"
 msgstr "Tak bisa menampilkan daftar prefiks kelas"
 
-#: ../src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1132
 msgid "No class prefixes were found"
 msgstr "Tak ada prefiks kelas yang ditemukan"
 
-#: ../src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1132
 msgid "Prefixes"
 msgstr "Prefiks"
 
-#: ../src/tracker/tracker-sparql.c:1152
+#: src/tracker/tracker-sparql.c:1152
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Tak bisa temukan properti bagi prefiks kelas, mis. :Resource dalam “rdfs:"
 "Resource”"
 
-#: ../src/tracker/tracker-sparql.c:1191
+#: src/tracker/tracker-sparql.c:1191
 msgid "Could not list properties"
 msgstr "Tak bisa meyusun daftar properti"
 
-#: ../src/tracker/tracker-sparql.c:1199
+#: src/tracker/tracker-sparql.c:1199
 msgid "No properties were found"
 msgstr "Tak ditemukan properti"
 
-#: ../src/tracker/tracker-sparql.c:1199 ../src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1199 src/tracker/tracker-sparql.c:1322
 msgid "Properties"
 msgstr "Properti"
 
-#: ../src/tracker/tracker-sparql.c:1227
+#: src/tracker/tracker-sparql.c:1227
 msgid "Could not find notify classes"
 msgstr "Tak bisa temukan kelas pemberitahuan"
 
-#: ../src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1235
 msgid "No notifies were found"
 msgstr "Tak ditemukan pemberitahuan"
 
-#: ../src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1235
 msgid "Notifies"
 msgstr "Memberitahu"
 
-#: ../src/tracker/tracker-sparql.c:1261
+#: src/tracker/tracker-sparql.c:1261
 msgid "Could not find indexed properties"
 msgstr "Tak bisa temukan properti terindeks"
 
-#: ../src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1269
 msgid "No indexes were found"
 msgstr "Tak ditemukan indeks"
 
-#: ../src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1269
 msgid "Indexes"
 msgstr "Indeks"
 
-#: ../src/tracker/tracker-sparql.c:1291
+#: src/tracker/tracker-sparql.c:1291
 msgid "Could not search classes"
 msgstr "Tak bisa mencari kelas"
 
-#: ../src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1299
 msgid "No classes were found to match search term"
 msgstr "Tak ada kelas yang ditemukan agar cocok dengan istilah pencarian"
 
-#: ../src/tracker/tracker-sparql.c:1314
+#: src/tracker/tracker-sparql.c:1314
 msgid "Could not search properties"
 msgstr "Tak bisa mencari properti"
 
-#: ../src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1322
 msgid "No properties were found to match search term"
 msgstr "Tak ada properti yang ditemukan agar cocok dengan istilah pencarian"
 
-#: ../src/tracker/tracker-sparql.c:1358 ../src/tracker/tracker-sql.c:65
+#: src/tracker/tracker-sparql.c:1358 src/tracker/tracker-sql.c:65
 msgid "Could not get UTF-8 path from path"
 msgstr "Tak bisa mendapat path UTF-8 dari path"
 
-#: ../src/tracker/tracker-sparql.c:1370 ../src/tracker/tracker-sql.c:76
+#: src/tracker/tracker-sparql.c:1370 src/tracker/tracker-sql.c:76
 msgid "Could not read file"
 msgstr "Tak bisa membaca berkas"
 
-#: ../src/tracker/tracker-sparql.c:1389
+#: src/tracker/tracker-sparql.c:1389
 msgid "Could not run update"
 msgstr "Tak bisa menjalankan pemutakhiran"
 
-#: ../src/tracker/tracker-sparql.c:1437 ../src/tracker/tracker-sql.c:139
-#: ../src/tracker/tracker-sql.c:172
+#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
+#: src/tracker/tracker-sql.c:172
 msgid "Could not run query"
 msgstr "Tak bisa menjalankan kueri"
 
-#: ../src/tracker/tracker-sparql.c:1449 ../src/tracker/tracker-sparql.c:1452
+#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
 msgstr "Tak ada hasil yang cocok dengan kueri Anda"
 
-#: ../src/tracker/tracker-sparql.c:1506 ../src/tracker/tracker-sql.c:247
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sql.c:247
 msgid "File and query can not be used together"
 msgstr "Berkas dan kueri tak dapat dipakai bersama"
 
-#: ../src/tracker/tracker-sparql.c:1508
+#: src/tracker/tracker-sparql.c:1508
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -1537,31 +1537,31 @@ msgstr ""
 "Argumen —list-properties hanya bisa kosong ketika dipakai dengan argumen —"
 "tree"
 
-#: ../src/tracker/tracker-sql.c:43
+#: src/tracker/tracker-sql.c:43
 msgid "Path to use to run a query from file"
 msgstr "Path untuk menjalankan kueri dari berkas"
 
-#: ../src/tracker/tracker-sql.c:47
+#: src/tracker/tracker-sql.c:47
 msgid "SQL query"
 msgstr "kueri SQL"
 
-#: ../src/tracker/tracker-sql.c:48
+#: src/tracker/tracker-sql.c:48
 msgid "SQL"
 msgstr "SQL"
 
-#: ../src/tracker/tracker-sql.c:120
+#: src/tracker/tracker-sql.c:120
 msgid "Failed to initialize data manager"
 msgstr "Gagal menginisialisasi manajer data"
 
-#: ../src/tracker/tracker-sql.c:180
+#: src/tracker/tracker-sql.c:180
 msgid "Empty result set"
 msgstr "Set hasil kosong"
 
-#: ../src/tracker/tracker-status.c:49
+#: src/tracker/tracker-status.c:49
 msgid "Show statistics for current index / data set"
 msgstr "Tunjukkan statistik bagi set data / indeks saat ini"
 
-#: ../src/tracker/tracker-status.c:53
+#: src/tracker/tracker-status.c:53
 msgid ""
 "Collect debug information useful for problem reporting and investigation, "
 "results are output to terminal"
@@ -1569,250 +1569,275 @@ msgstr ""
 "Mengumpulkan informasi awakutu yang berguna untuk pelaporan dan investigasi "
 "masalah, hasil dikeluarkan ke terminal"
 
-#: ../src/tracker/tracker-status.c:85
+#: src/tracker/tracker-status.c:85
 msgid "Could not get Tracker statistics"
 msgstr "Tak bisa mendapat statistik Pelacak"
 
-#: ../src/tracker/tracker-status.c:92
+#: src/tracker/tracker-status.c:92
 msgid "No statistics available"
 msgstr "Statistik tidak tersedia"
 
 #. To translators: This is to say there are no
 #. * statistics found. We use a "Statistics:
 #. * None" with multiple print statements
-#: ../src/tracker/tracker-status.c:133
+#: src/tracker/tracker-status.c:133
 msgid "Statistics:"
 msgstr "Statistik:"
 
-#: ../src/tracker/tracker-status.c:170
+#: src/tracker/tracker-status.c:170
 msgid "Version"
 msgstr "Versi"
 
-#: ../src/tracker/tracker-status.c:177
+#: src/tracker/tracker-status.c:177
 msgid "Disk Information"
 msgstr "Informasi Disk"
 
-#: ../src/tracker/tracker-status.c:184 ../src/tracker/tracker-status.c:538
+#: src/tracker/tracker-status.c:184 src/tracker/tracker-status.c:538
 msgid "Remaining space on database partition"
 msgstr "Ruang tersisa pada partisi basis data"
 
 #. 3. Size of dataset (tracker-stats), size of databases
-#: ../src/tracker/tracker-status.c:191
+#: src/tracker/tracker-status.c:191
 msgid "Data Set"
 msgstr "Set Data"
 
-#: ../src/tracker/tracker-status.c:223
+#: src/tracker/tracker-status.c:223
 msgid "Configuration"
 msgstr "Konfigurasi"
 
-#: ../src/tracker/tracker-status.c:251
+#: src/tracker/tracker-status.c:251
 msgid "No configuration was found"
 msgstr "Tak ditemukan konfigurasi"
 
-#: ../src/tracker/tracker-status.c:255
+#: src/tracker/tracker-status.c:255
 msgid "States"
 msgstr "Keadaan"
 
-#: ../src/tracker/tracker-status.c:296
+#: src/tracker/tracker-status.c:296
 msgid "Data Statistics"
 msgstr "Statistik Data"
 
-#: ../src/tracker/tracker-status.c:302
+#: src/tracker/tracker-status.c:302
 msgid "No connection available"
 msgstr "Koneksi tidak tersedia"
 
-#: ../src/tracker/tracker-status.c:312
+#: src/tracker/tracker-status.c:312
 msgid "Could not get statistics"
 msgstr "Tak bisa mendapat statistik"
 
-#: ../src/tracker/tracker-status.c:318
+#: src/tracker/tracker-status.c:318
 msgid "No statistics were available"
 msgstr "Statistik tidak tersedia"
 
-#: ../src/tracker/tracker-status.c:331
+#: src/tracker/tracker-status.c:331
 msgid "Database is currently empty"
 msgstr "Basis data saat ini kosong"
 
-#: ../src/tracker/tracker-status.c:408 ../src/tracker/tracker-status.c:431
+#: src/tracker/tracker-status.c:408 src/tracker/tracker-status.c:431
 msgid "Could not get basic status for Tracker"
 msgstr "Tak bisa mendapat status dasar bagi Tracker"
 
-#: ../src/tracker/tracker-status.c:515
-#, c-format
+#: src/tracker/tracker-status.c:515
 msgid "Currently indexed"
 msgstr "Saat ini terindeks"
 
-#: ../src/tracker/tracker-status.c:550
+#: src/tracker/tracker-status.c:518 src/tracker/tracker-tag.c:559
+#, c-format
+msgid "%d file"
+msgid_plural "%d files"
+msgstr[0] "%d berkas"
+msgstr[1] "%d berkas"
+
+#: src/tracker/tracker-status.c:524
+#, c-format
+msgid "%d folder"
+msgid_plural "%d folders"
+msgstr[0] "%d folder"
+msgstr[1] "%d folder"
+
+#: src/tracker/tracker-status.c:550
 msgid "Data is still being indexed"
 msgstr "Data sedang diindeks"
 
-#: ../src/tracker/tracker-status.c:551
+#: src/tracker/tracker-status.c:551
 #, c-format
 msgid "Estimated %s left"
 msgstr "Diperkirakan tersisa %s"
 
-#: ../src/tracker/tracker-status.c:555
+#: src/tracker/tracker-status.c:555
 msgid "All data miners are idle, indexing complete"
 msgstr "Semua penambang data menganggur, pengindeksan selesai"
 
-#: ../src/tracker/tracker-tag.c:53
+#: src/tracker/tracker-tag.c:53
 msgid ""
 "List all tags (using FILTER if specified; FILTER always uses logical OR)"
 msgstr ""
 "Daftar semua tag (pakai FILTER bila dinyatakan; FILTER selalu memakai OR "
 "lojik)"
 
-#: ../src/tracker/tracker-tag.c:54
+#: src/tracker/tracker-tag.c:54
 msgid "FILTER"
 msgstr "FILTER"
 
-#: ../src/tracker/tracker-tag.c:57
+#: src/tracker/tracker-tag.c:57
 msgid "Show files associated with each tag (this is only used with --list)"
 msgstr ""
 "Tunjukkan berkas yang dihubungkan dengan setiap tag (ini hanya dipakai "
 "dengan --list)"
 
-#: ../src/tracker/tracker-tag.c:61
+#: src/tracker/tracker-tag.c:61
 msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
 msgstr ""
 "Tambahkan tag (bile FILE diabaikan, TAG tak dihubungkan dengan sebarang "
 "berkas)"
 
-#: ../src/tracker/tracker-tag.c:62 ../src/tracker/tracker-tag.c:66
+#: src/tracker/tracker-tag.c:62 src/tracker/tracker-tag.c:66
 msgid "TAG"
 msgstr "TAG"
 
-#: ../src/tracker/tracker-tag.c:65
+#: src/tracker/tracker-tag.c:65
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
 msgstr "Hapus tag (bila FILE diabaikan, TAG dihapus bagi semua berkas)"
 
-#: ../src/tracker/tracker-tag.c:69
+#: src/tracker/tracker-tag.c:69
 msgid "Description for a tag (this is only used with --add)"
 msgstr "Deskripsi bagi suatu tag (ini hanya dipakai dengan --add)"
 
-#: ../src/tracker/tracker-tag.c:70
+#: src/tracker/tracker-tag.c:70
 msgid "STRING"
 msgstr "STRING"
 
-#: ../src/tracker/tracker-tag.c:81
+#: src/tracker/tracker-tag.c:81
 msgid "Use AND for search terms instead of OR (the default)"
 msgstr "Pakai AND untuk istilah pencarian sebagai pengganti OR (baku)"
 
-#: ../src/tracker/tracker-tag.c:86
+#: src/tracker/tracker-tag.c:86
 msgid "FILE…"
 msgstr "BERKAS…"
 
-#: ../src/tracker/tracker-tag.c:87
+#: src/tracker/tracker-tag.c:87
 msgid "FILE [FILE…]"
 msgstr "BERKAS [BERKAS...]"
 
-#: ../src/tracker/tracker-tag.c:249
+#: src/tracker/tracker-tag.c:249
 msgid "Could not get file URNs"
 msgstr "Tak bisa mendapat URN berkas"
 
-#: ../src/tracker/tracker-tag.c:314
+#: src/tracker/tracker-tag.c:314
 msgid "Could not get files related to tag"
 msgstr "Tak bisa mendapat berkas yang terkait dengan tag"
 
-#: ../src/tracker/tracker-tag.c:381
+#: src/tracker/tracker-tag.c:381
 msgid "Could not get all tags in the database"
 msgstr "Tak bisa mendapat semua tag dalam basis data"
 
-#: ../src/tracker/tracker-tag.c:391
+#: src/tracker/tracker-tag.c:391
 msgid "No files have been tagged"
 msgstr "Belum ada berkas yang di-tag"
 
-#: ../src/tracker/tracker-tag.c:426
+#: src/tracker/tracker-tag.c:426
 msgid "Could not get files for matching tags"
 msgstr "Tak bisa mendapat berkas untuk mencocokkan tag"
 
-#: ../src/tracker/tracker-tag.c:435
+#: src/tracker/tracker-tag.c:435
 msgid "No files were found matching ALL of those tags"
 msgstr "Tak ditemukan berkas yang cocok dengan SEMUA tag itu"
 
-#: ../src/tracker/tracker-tag.c:514 ../src/tracker/tracker-tag.c:929
+#: src/tracker/tracker-tag.c:514 src/tracker/tracker-tag.c:929
 msgid "Could not get all tags"
 msgstr "Tak bisa mendapat semua tag"
 
-#: ../src/tracker/tracker-tag.c:523 ../src/tracker/tracker-tag.c:938
+#: src/tracker/tracker-tag.c:523 src/tracker/tracker-tag.c:938
 msgid "No tags were found"
 msgstr "Tak ditemukan tag"
 
-#: ../src/tracker/tracker-tag.c:527
+#: src/tracker/tracker-tag.c:527
 msgid "Tags (shown by name)"
 msgstr "Tag (ditampilkan berdasar nama)"
 
-#: ../src/tracker/tracker-tag.c:601
+#: src/tracker/tracker-tag.c:601
 msgid "No files were modified"
 msgstr "Tidak ada berkas yang diubah"
 
-#: ../src/tracker/tracker-tag.c:651 ../src/tracker/tracker-tag.c:659
+#: src/tracker/tracker-tag.c:651 src/tracker/tracker-tag.c:659
 msgid "Files do not exist or aren’t indexed"
 msgstr "Berkas tidak ada atau belum diindeks"
 
-#: ../src/tracker/tracker-tag.c:709
+#: src/tracker/tracker-tag.c:709
 msgid "Could not add tag"
 msgstr "Tidak dapat menambah tag"
 
-#: ../src/tracker/tracker-tag.c:725
+#: src/tracker/tracker-tag.c:725
 msgid "Tag was added successfully"
 msgstr "Tag berhasil ditambahkan"
 
-#: ../src/tracker/tracker-tag.c:754
+#: src/tracker/tracker-tag.c:754
 msgid "Could not add tag to files"
 msgstr "Tidak dapat menambahkan tag ke berkas"
 
-#: ../src/tracker/tracker-tag.c:764
+#: src/tracker/tracker-tag.c:764
 msgid "Tagged"
 msgstr "Di-tag"
 
-#: ../src/tracker/tracker-tag.c:765
+#: src/tracker/tracker-tag.c:765
 msgid "Not tagged, file is not indexed"
 msgstr "Tak di-tag, berkas tak diindeks"
 
-#: ../src/tracker/tracker-tag.c:811
+#: src/tracker/tracker-tag.c:811
 msgid "Could not get tag by label"
 msgstr "Tak bisa mendapat tag berdasarkan label"
 
-#: ../src/tracker/tracker-tag.c:822
+#: src/tracker/tracker-tag.c:822
 msgid "No tags were found by that name"
 msgstr "Tak ditemukan tag bernama demikian"
 
-#: ../src/tracker/tracker-tag.c:839
+#: src/tracker/tracker-tag.c:839
 msgid "None of the files had this tag set"
 msgstr "Tak satupun berkas ini yang tagnya ditata"
 
-#: ../src/tracker/tracker-tag.c:885
+#: src/tracker/tracker-tag.c:885
 msgid "Could not remove tag"
 msgstr "Tidak dapat menghapus tag"
 
-#: ../src/tracker/tracker-tag.c:892
+#: src/tracker/tracker-tag.c:892
 msgid "Tag was removed successfully"
 msgstr "Tag berhasil dihapus"
 
-#: ../src/tracker/tracker-tag.c:896
+#: src/tracker/tracker-tag.c:896
 msgid "Untagged"
 msgstr "Tak di-tag"
 
-#: ../src/tracker/tracker-tag.c:897
+#: src/tracker/tracker-tag.c:897
 msgid "File not indexed or already untagged"
 msgstr "Berkas tak diindeks atau telah dihapus tagnya"
 
-#: ../src/tracker/tracker-tag.c:1088
+#: src/tracker/tracker-tag.c:1088
 msgid "The --list option is required for --show-files"
 msgstr "Opsi —list diperlukan bagi —show-files"
 
-#: ../src/tracker/tracker-tag.c:1090
+#: src/tracker/tracker-tag.c:1090
 msgid ""
 "The --and-operator option can only be used with --list and tag label "
 "arguments"
 msgstr ""
 "Opsi —and-operator hanya dapat dipakai dengan argumen label tag dan —list"
 
-#: ../src/tracker/tracker-tag.c:1092
+#: src/tracker/tracker-tag.c:1092
 msgid "Add and delete actions can not be used together"
 msgstr "Aksi tambah dan hapus tak dapat dipakai bersama"
 
-#: ../src/tracker/tracker-tag.c:1094
+#: src/tracker/tracker-tag.c:1094
 msgid "The --description option can only be used with --add"
 msgstr "Opsi —description hanya dapat dipakai dengan —add"
+
+#~ msgid "All posts"
+#~ msgstr "Semua kiriman"
+
+#~ msgid "By usage"
+#~ msgstr "Berdasar pemakaian"
+
+#~ msgid "Data store is not available"
+#~ msgstr "Penyimpanan data tidak tersedia"
+
+#~ msgid "Removing configuration files…"
+#~ msgstr "Menghapus berkas konfigurasi…"
