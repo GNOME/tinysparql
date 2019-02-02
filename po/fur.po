@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2018-11-13 11:25+0000\n"
-"PO-Revision-Date: 2018-12-26 16:39+0100\n"
+"POT-Creation-Date: 2019-01-19 20:26+0000\n"
+"PO-Revision-Date: 2019-02-02 11:25+0100\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <f.t.public@gmail.com>\n"
 "Language: fur\n"
@@ -17,6 +17,108 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 2.2\n"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:24
+msgid "Maximum size of journal"
+msgstr "Dimension massime dal gjornâl"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:25
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr ""
+"Dimension dal gjornâl ae rotazion in MB. Doprâ -1 par disabilitâ la rotazion."
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:29
+msgid "Location of journal pieces"
+msgstr "Posizion dai tocs di gjornâl"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:30
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr "Dulà salvâ un toc di gjornâl cuant che al rive ae dimension massime."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
+msgid "Maximum length of a word to be indexed"
+msgstr "Massime lungjece di une peraule di meti in indiç"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
+msgid ""
+"Words with more characters than this length will be ignored by the indexer."
+msgstr ""
+"Peraulis cun plui caratars di cheste lungjece no vegnaran metudis in indiç."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
+msgid "Maximum number of words to index in a document"
+msgstr "Massim numar di peraulis di meti in indiç intun document"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
+msgid ""
+"Indexer will read only this maximum number of words from a single document."
+msgstr ""
+"L'indicizadôr al learà nome chest numar massim di peraulis di un singul "
+"document."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
+msgid "Enable stemmer"
+msgstr "Abilite stemmer"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
+msgid ""
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
+msgstr ""
+"Semplifiche la peraule te lôr lidrîs par vê plui risultâts. Par esempli: "
+"«cjacare», «cjacari», «cjacarai» in «cjacar»"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
+msgid "Enable unaccent"
+msgstr "Abilite letaris cence acent"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
+msgid ""
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
+msgstr ""
+"Volte i caratars cun acent intai ecuivalents cence acent. Par esempli: "
+"«bruntulâ» in «bruntula»."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
+msgid "Ignore numbers"
+msgstr "Ignore i numars"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
+msgid "If enabled, numbers will not be indexed."
+msgstr "Se abilitât, i numars no vegnaran metûts in indiç."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
+msgid "Ignore stop words"
+msgstr "Ignore lis peraulis di ferme"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
+msgid ""
+"If enabled, the words listed in the stop-words list are ignored. E.g. common "
+"words like “the”, “yes”, “no”, etc."
+msgstr ""
+"Se abilitât, lis peraulis listadis te liste des peraulis di ferme a vegnaran "
+"ignoradis. Par esempli peraulis come «sì», «no», «il» e vie indenant."
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:24
+msgid "Log verbosity"
+msgstr "Detais regjistri"
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:25
+msgid "Log verbosity."
+msgstr "Detais dal regjistri."
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:29
+msgid "GraphUpdated delay"
+msgstr "Ritart GraphUpdated"
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:30
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
+msgstr ""
+"Periodi in miliseconts tra la emission di segnâi GraphUpdated cuant che i "
+"dâts metûts in indiç a son stâts modificâts te base di dâts."
 
 #: src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -79,23 +181,6 @@ msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d secont"
 msgstr[1] " %2.2d seconts"
 
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:24
-msgid "Maximum size of journal"
-msgstr "Dimension massime dal gjornâl"
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:25
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr ""
-"Dimension dal gjornâl ae rotazion in MB. Doprâ -1 par disabilitâ la rotazion."
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:29
-msgid "Location of journal pieces"
-msgstr "Posizion dai tocs di gjornâl"
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:30
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr "Dulà salvâ un toc di gjornâl cuant che al rive ae dimension massime."
-
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
 #. * case doesn't matter. Given English media is quite common, it is
@@ -138,71 +223,6 @@ msgstr "Nissun erôr furnît"
 msgid "Unknown error, “tar” exited with status %d"
 msgstr "Erôr no cognossût: «tar» al è jessut cul stât %d"
 
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:26
-msgid "Maximum length of a word to be indexed"
-msgstr "Massime lungjece di une peraule di meti in indiç"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:27
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr ""
-"Peraulis cun plui caratars di cheste lungjece no vegnaran metudis in indiç."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:32
-msgid "Maximum number of words to index in a document"
-msgstr "Massim numar di peraulis di meti in indiç intun document"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:33
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr ""
-"L'indicizadôr al learà nome chest numar massim di peraulis di un singul "
-"document."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:37
-msgid "Enable stemmer"
-msgstr "Abilite stemmer"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:38
-msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
-msgstr ""
-"Semplifiche la peraule te lôr lidrîs par vê plui risultâts. Par esempli: "
-"«cjacare», «cjacari», «cjacarai» in «cjacar»"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:43
-msgid "Enable unaccent"
-msgstr "Abilite letaris cence acent"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:44
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
-msgstr ""
-"Volte i caratars cun acent intai ecuivalents cence acent. Par esempli: "
-"«bruntulâ» in «bruntula»."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:49
-msgid "Ignore numbers"
-msgstr "Ignore i numars"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:50
-msgid "If enabled, numbers will not be indexed."
-msgstr "Se abilitât, i numars no vegnaran metûts in indiç."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:55
-msgid "Ignore stop words"
-msgstr "Ignore lis peraulis di ferme"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:56
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
-msgstr ""
-"Se abilitât, lis peraulis listadis te liste des peraulis di ferme a vegnaran "
-"ignoradis. Par esempli peraulis come «sì», «no», «il» e vie indenant."
-
 #: src/libtracker-miner/tracker-data-provider.c:108
 #: src/libtracker-miner/tracker-data-provider.c:168
 msgid "Operation not supported"
@@ -216,26 +236,6 @@ msgstr "Cookie no ricognossût par continuâ l'estratôr di dâts"
 msgid "Pause application and reason match an already existing pause request"
 msgstr ""
 "La aplicazion in pause e la sô reson a corispuindin a une domande esistente"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:24
-msgid "Log verbosity"
-msgstr "Detais regjistri"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:25
-msgid "Log verbosity."
-msgstr "Detais dal regjistri."
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:29
-msgid "GraphUpdated delay"
-msgstr "Ritart GraphUpdated"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:30
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-"Periodi in miliseconts tra la emission di segnâi GraphUpdated cuant che i "
-"dâts metûts in indiç a son stâts modificâts te base di dâts."
 
 #. Daemon options
 #: src/tracker-store/tracker-main.vala:60
@@ -1652,7 +1652,6 @@ msgstr "Za metût in indiç"
 
 #: src/tracker/tracker-status.c:518 src/tracker/tracker-tag.c:559
 #, c-format
-#| msgid "Ignored files"
 msgid "%d file"
 msgid_plural "%d files"
 msgstr[0] "%d file"
@@ -1660,7 +1659,7 @@ msgstr[1] "%d file"
 
 #: src/tracker/tracker-status.c:524
 #, c-format
-msgid "%d folders"
+msgid "%d folder"
 msgid_plural "%d folders"
 msgstr[0] "%d cartele"
 msgstr[1] "%d cartelis"
