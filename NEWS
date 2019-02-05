@@ -1,3 +1,15 @@
+NEW in 2.2.0-alpha2 - 2019-02-06
+================================
+
+  * More property paths supported, new operators supported are *, +, ? and |,
+    only the ! operator is not supported yet.
+  * Multiple fixes to the new sparql parser.
+  * Improve error handling in DBus backend
+  * Many improvements and additions to the test suite
+  * Fixed potential crash in TrackerMonitor.
+
+Translations: el, es, fur, fr, gl, id, pl, ro, sl, sv, tr
+
 NEW in 2.2.0-alpha1 - 2018-11-13
 ================================
 
