@@ -56,45 +56,10 @@ tracker_data_table_free (TrackerDataTable *table)
 }
 
 void
-tracker_data_table_set_predicate_variable (TrackerDataTable         *table,
-                                           TrackerPredicateVariable *variable)
+tracker_data_table_set_predicate_variable (TrackerDataTable *table,
+                                           gboolean          is_variable)
 {
-	table->predicate_variable = variable;
-}
-
-TrackerPredicateVariable *
-tracker_predicate_variable_new (void)
-{
-	return g_new0 (TrackerPredicateVariable, 1);
-}
-
-static void
-tracker_predicate_variable_free (TrackerPredicateVariable *pred_var)
-{
-	g_clear_object (&pred_var->domain);
-	g_free (pred_var->subject);
-	g_free (pred_var->object);
-	g_free (pred_var);
-}
-
-void
-tracker_predicate_variable_set_domain (TrackerPredicateVariable *pred_var,
-                                       TrackerClass             *domain)
-{
-	g_set_object (&pred_var->domain, domain);
-}
-
-void
-tracker_predicate_variable_set_triple_details (TrackerPredicateVariable *pred_var,
-                                               const gchar              *subject,
-                                               const gchar              *object,
-                                               gboolean                  return_graph)
-{
-	g_free (pred_var->subject);
-	pred_var->subject = g_strdup (subject);
-	g_free (pred_var->object);
-	pred_var->object = g_strdup (object);
-	pred_var->return_graph = !!return_graph;
+	table->predicate_variable = is_variable;
 }
 
 static TrackerVariable *
@@ -723,7 +688,6 @@ tracker_select_context_finalize (GObject *object)
 	TrackerSelectContext *context = TRACKER_SELECT_CONTEXT (object);
 
 	g_clear_pointer (&context->variables, g_hash_table_unref);
-	g_clear_pointer (&context->predicate_variables, g_hash_table_unref);
 	g_clear_pointer (&context->generated_variables, g_ptr_array_unref);
 	g_clear_pointer (&context->literal_bindings, g_ptr_array_unref);
 	g_clear_pointer (&context->path_elements, g_ptr_array_unref);
@@ -805,30 +769,6 @@ tracker_select_context_add_generated_variable (TrackerSelectContext *context)
 	g_ptr_array_add (context->generated_variables, variable);
 
 	return variable;
-}
-
-TrackerPredicateVariable *
-tracker_select_context_lookup_predicate_variable (TrackerSelectContext *context,
-                                                  TrackerVariable      *variable)
-{
-	if (!context->predicate_variables)
-		return NULL;
-	return g_hash_table_lookup (context->predicate_variables, variable);
-}
-
-void
-tracker_select_context_add_predicate_variable (TrackerSelectContext     *context,
-                                               TrackerVariable          *variable,
-                                               TrackerPredicateVariable *pred_var)
-{
-	if (!context->predicate_variables) {
-		context->predicate_variables =
-			g_hash_table_new_full (tracker_variable_hash,
-			                       tracker_variable_equal, NULL,
-			                       (GDestroyNotify) tracker_predicate_variable_free);
-	}
-
-	g_hash_table_insert (context->predicate_variables, variable, pred_var);
 }
 
 void

@@ -465,6 +465,8 @@ _append_literal_sql (TrackerSparql         *sparql,
 	if (!sparql->cacheable) {
 		gchar *escaped, *full_str;
 
+		_append_string (sparql, "\"");
+
 		switch (TRACKER_BINDING (binding)->data_type) {
 		case TRACKER_PROPERTY_TYPE_DATE:
 			full_str = g_strdup_printf ("%sT00:00:00Z", binding->literal);
@@ -494,6 +496,8 @@ _append_literal_sql (TrackerSparql         *sparql,
 			_append_string (sparql, binding->literal);
 			break;
 		}
+
+		_append_string (sparql, "\"");
 	} else {
 		_append_string_printf (sparql, "?%d ", idx + 1);
 	}
@@ -1015,7 +1019,6 @@ _add_quad (TrackerSparql  *sparql,
 	   TrackerToken   *object,
 	   GError        **error)
 {
-	TrackerSelectContext *select_context;
 	TrackerTripleContext *triple_context;
 	TrackerOntologies *ontologies;
 	TrackerDataTable *table = NULL;
@@ -1025,7 +1028,6 @@ _add_quad (TrackerSparql  *sparql,
 	TrackerClass *subject_type = NULL;
 	gboolean new_table = FALSE, is_fts = FALSE, is_rdf_type = FALSE;
 
-	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state.select_context);
 	triple_context = TRACKER_TRIPLE_CONTEXT (sparql->current_state.context);
 	ontologies = tracker_data_manager_get_ontologies (sparql->data_manager);
 
@@ -1063,35 +1065,6 @@ _add_quad (TrackerSparql  *sparql,
 				GPtrArray *binding_list;
 
 				variable = tracker_token_get_variable (subject);
-
-				if (!tracker_token_get_variable (object) &&
-				    g_strcmp0 (tracker_token_get_literal (predicate), RDFS_NS "domain") == 0) {
-					TrackerPredicateVariable *pred_var;
-					TrackerClass *domain;
-
-					/* rdfs:domain */
-					domain = tracker_ontologies_get_class_by_uri (ontologies,
-					                                              tracker_token_get_literal (object));
-					if (!domain) {
-						g_set_error (error, TRACKER_SPARQL_ERROR,
-							     TRACKER_SPARQL_ERROR_UNKNOWN_CLASS,
-							     "Unknown class '%s'",
-						             tracker_token_get_literal (object));
-						return FALSE;
-					}
-
-					pred_var = tracker_select_context_lookup_predicate_variable (select_context,
-												     variable);
-					if (!pred_var) {
-						pred_var = tracker_predicate_variable_new ();
-						tracker_select_context_add_predicate_variable (select_context,
-											       variable,
-											       pred_var);
-					}
-
-					tracker_predicate_variable_set_domain (pred_var, domain);
-				}
-
 				binding_list = tracker_triple_context_lookup_variable_binding_list (triple_context,
 												    variable);
 				/* Domain specific index might be a possibility, let's check */
@@ -1149,29 +1122,12 @@ _add_quad (TrackerSparql  *sparql,
 			new_table = TRUE;
 		}
 	} else if (tracker_token_get_variable (predicate)) {
-		TrackerPredicateVariable *pred_var;
-
 		/* Variable in predicate */
 		variable = tracker_token_get_variable (predicate);
 		table = tracker_triple_context_add_table (triple_context,
 		                                          variable->name, variable->name);
+		tracker_data_table_set_predicate_variable (table, TRUE);
 		new_table = TRUE;
-
-		pred_var = tracker_select_context_lookup_predicate_variable (select_context,
-									     variable);
-		if (!pred_var) {
-			pred_var = tracker_predicate_variable_new ();
-			tracker_predicate_variable_set_triple_details (pred_var,
-			                                               tracker_token_get_literal (subject),
-			                                               tracker_token_get_literal (object),
-								       !tracker_token_is_empty (graph));
-
-			tracker_select_context_add_predicate_variable (select_context,
-								       variable,
-								       pred_var);
-		}
-
-		tracker_data_table_set_predicate_variable (table, pred_var);
 
 		/* Add to binding list */
 		binding = tracker_variable_binding_new (variable, NULL, table);
@@ -1179,9 +1135,6 @@ _add_quad (TrackerSparql  *sparql,
 		tracker_binding_set_db_column_name (binding, "predicate");
 		_add_binding (sparql, binding);
 		g_object_unref (binding);
-
-		if (!tracker_token_is_empty (graph))
-			pred_var->return_graph = TRUE;
 	} else if (tracker_token_get_path (predicate)) {
 		table = tracker_triple_context_add_table (triple_context,
 		                                          "value",
@@ -1445,232 +1398,6 @@ convert_expression_to_string (TrackerSparql       *sparql,
 	}
 }
 
-static TrackerClass **
-lookup_resource_types (TrackerSparql  *sparql,
-		       const gchar    *resource,
-		       gint           *n_types,
-		       GError        **error)
-{
-	TrackerOntologies *ontologies;
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	TrackerDBCursor *cursor = NULL;
-	GError *inner_error = NULL;
-	GPtrArray *types;
-	gint resource_id;
-
-	if (n_types)
-		*n_types = 0;
-
-	ontologies = tracker_data_manager_get_ontologies (sparql->data_manager);
-	iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
-	resource_id = tracker_data_query_resource_id (sparql->data_manager,
-						      iface, resource);
-
-	/* This is not an error condition, query might refer to an unknown resource */
-	if (resource_id <= 0)
-		return NULL;
-
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
-						      "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
-						      "FROM \"rdfs:Resource_rdf:type\" WHERE ID = ?");
-	if (!stmt) {
-		g_propagate_error (error, inner_error);
-		return NULL;
-	}
-
-	tracker_db_statement_bind_int (stmt, 0, resource_id);
-	cursor = tracker_db_statement_start_cursor (stmt, error);
-	g_object_unref (stmt);
-
-	if (!cursor) {
-		g_propagate_error (error, inner_error);
-		return NULL;
-	}
-
-	types = g_ptr_array_new ();
-
-	while (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
-		TrackerClass *type;
-
-		type = tracker_ontologies_get_class_by_uri (ontologies,
-							    tracker_db_cursor_get_string (cursor, 0, NULL));
-		g_ptr_array_add (types, type);
-	}
-
-	g_object_unref (cursor);
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		g_ptr_array_unref (types);
-		return NULL;
-	}
-
-	if (n_types)
-		*n_types = types->len;
-
-	return (TrackerClass **) g_ptr_array_free (types, FALSE);
-}
-
-static gboolean
-append_predicate_variable_query (TrackerSparql             *sparql,
-				 TrackerPredicateVariable  *pred_var,
-				 GError                   **error)
-{
-	TrackerOntologies *ontologies;
-	TrackerProperty **properties;
-	TrackerStringBuilder *str, *old;
-	TrackerClass **types;
-	TrackerBinding *binding = NULL;
-	gint n_properties, n_types, i, j;
-	GError *inner_error = NULL;
-	gboolean first = TRUE;
-
-	ontologies = tracker_data_manager_get_ontologies (sparql->data_manager);
-	properties = tracker_ontologies_get_properties (ontologies, &n_properties);
-
-	if (pred_var->subject) {
-		/* <s> ?p ?o */
-		types = lookup_resource_types (sparql, pred_var->subject, &n_types, &inner_error);
-		if (inner_error) {
-			g_propagate_error (error, inner_error);
-			return FALSE;
-		}
-
-		for (i = 0; i < n_types; i++) {
-			for (j = 0; j < n_properties; j++) {
-				if (types[i] != tracker_property_get_domain (properties[j]))
-					continue;
-
-				if (!first)
-					_append_string (sparql, "UNION ALL ");
-
-				first = FALSE;
-				_append_string_printf (sparql,
-						       "SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ",
-						       tracker_property_get_uri (properties[j]));
-
-				str = _append_placeholder (sparql);
-				old = tracker_sparql_swap_builder (sparql, str);
-				_append_string_printf (sparql, "\"%s\" ", tracker_property_get_name (properties[j]));
-				convert_expression_to_string (sparql, tracker_property_get_data_type (properties[j]));
-				tracker_sparql_swap_builder (sparql, old);
-
-				_append_string (sparql, " AS \"object\" ");
-
-				if (pred_var->return_graph) {
-					_append_string_printf (sparql, ", \"%s:graph\" AS \"graph\" ",
-							       tracker_property_get_name (properties[j]));
-				}
-
-				_append_string_printf (sparql, "FROM \"%s\" WHERE ID = ",
-						       tracker_property_get_table_name (properties[j]));
-
-				if (!binding) {
-					binding = tracker_literal_binding_new (pred_var->subject, NULL);
-					tracker_binding_set_data_type (binding, TRACKER_PROPERTY_TYPE_RESOURCE);
-					tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->context),
-										    TRACKER_LITERAL_BINDING (binding));
-				}
-
-				_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (binding));
-			}
-		}
-
-		if (first) {
-			/* No match */
-			_append_string (sparql,
-					"SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\", NULL AS \"graph\"");
-		}
-
-		g_free (types);
-	} else if (pred_var->object) {
-		/* ?s ?p <o> */
-		types = lookup_resource_types (sparql, pred_var->object, &n_types, &inner_error);
-		if (inner_error) {
-			g_propagate_error (error, inner_error);
-			return FALSE;
-		}
-
-		for (i = 0; i < n_types; i++) {
-			for (j = 0; j < n_properties; j++) {
-				if (types[i] != tracker_property_get_range (properties[j]))
-					continue;
-
-				if (!first)
-					_append_string (sparql, "UNION ALL ");
-
-				first = FALSE;
-				_append_string_printf (sparql,
-						       "SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ",
-						       tracker_property_get_uri (properties[j]));
-
-				str = _append_placeholder (sparql);
-				old = tracker_sparql_swap_builder (sparql, str);
-				_append_string_printf (sparql, "\"%s\" ", tracker_property_get_name (properties[j]));
-				convert_expression_to_string (sparql, tracker_property_get_data_type (properties[j]));
-				tracker_sparql_swap_builder (sparql, old);
-
-				_append_string (sparql, " AS \"object\" ");
-
-				if (pred_var->return_graph) {
-					_append_string_printf (sparql,
-							       ", \"%s:graph\" AS \"graph\" ",
-							       tracker_property_get_name (properties[j]));
-				}
-
-				_append_string_printf (sparql, " FROM \"%s\" ",
-						       tracker_property_get_table_name (properties[j]));
-			}
-		}
-
-		if (first) {
-			/* No match */
-			_append_string (sparql,
-					"SELECT NULL AS ID, NULL AS \"predicate\", NULL AS \"object\", NULL AS \"graph\" ");
-		}
-
-		g_free (types);
-	} else if (pred_var->domain) {
-		/* Any subject, predicates limited to a specific domain */
-
-		for (j = 0; j < n_properties; j++) {
-			if (pred_var->domain != tracker_property_get_domain (properties[j]))
-				continue;
-
-			if (!first)
-				_append_string (sparql, "UNION ALL ");
-
-			first = FALSE;
-			_append_string_printf (sparql,
-					       "SELECT ID, (SELECT ID FROM Resource WHERE Uri = '%s') AS \"predicate\", ",
-					       tracker_property_get_uri (properties[j]));
-
-			str = _append_placeholder (sparql);
-			old = tracker_sparql_swap_builder (sparql, str);
-			_append_string_printf (sparql, "\"%s\" ", tracker_property_get_name (properties[j]));
-			convert_expression_to_string (sparql, tracker_property_get_data_type (properties[j]));
-			tracker_sparql_swap_builder (sparql, old);
-
-			_append_string (sparql, " AS \"object\" ");
-
-			if (pred_var->return_graph) {
-				_append_string_printf (sparql,
-						       ", \"%s:graph\" AS \"graph\" ",
-						       tracker_property_get_name (properties[j]));
-			}
-
-			_append_string_printf (sparql, "FROM \"%s\" ",
-					       tracker_property_get_table_name (properties[j]));
-		}
-	} else {
-		/* ?s ?p ?o */
-		_unimplemented ("Unrestricted predicate variables are not supported");
-	}
-
-	return TRUE;
-}
-
 static TrackerContext *
 _begin_triples_block (TrackerSparql *sparql)
 {
@@ -1741,14 +1468,9 @@ _end_triples_block (TrackerSparql  *sparql,
 			_append_string (sparql, ", ");
 
 		if (table->predicate_variable) {
-			_append_string (sparql, "(");
-
-			if (!append_predicate_variable_query (sparql,
-							      table->predicate_variable,
-							      error))
-				return FALSE;
-
-			_append_string (sparql, ") ");
+			_append_string (sparql,
+			                "(SELECT subject AS ID, predicate, "
+			                "object, graph FROM tracker_triples) ");
 		} else {
 			_append_string_printf (sparql, "\"%s\" ", table->sql_db_tablename);
 		}
