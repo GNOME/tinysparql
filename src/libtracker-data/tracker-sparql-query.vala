@@ -125,12 +125,12 @@ namespace Tracker.Sparql {
 		public Context (Query query, Context? parent_context = null) {
 			this.query = query;
 			this.parent_context = parent_context;
-			this.var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, g_object_unref, null);
+			this.var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, GLib.Object.unref, null);
 
 			if (parent_context == null) {
-				select_var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, g_object_unref, null);
-				var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, g_object_unref);
-				predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (Variable.hash, Variable.equal, g_object_unref, g_object_unref);
+				select_var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, GLib.Object.unref, null);
+				var_map = new HashTable<string,Variable>.full (str_hash, str_equal, g_free, GLib.Object.unref);
+				predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (Variable.hash, Variable.equal, GLib.Object.unref, GLib.Object.unref);
 			} else {
 				select_var_set = parent_context.select_var_set;
 				var_map = parent_context.var_map;
@@ -141,11 +141,11 @@ namespace Tracker.Sparql {
 		public Context.subquery (Query query, Context parent_context) {
 			this.query = query;
 			this.parent_context = parent_context;
-			this.var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, g_object_unref, null);
+			this.var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, GLib.Object.unref, null);
 
-			select_var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, g_object_unref, null);
+			select_var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, GLib.Object.unref, null);
 			var_map = parent_context.var_map;
-			predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (Variable.hash, Variable.equal, g_object_unref, g_object_unref);
+			predicate_variable_map = new HashTable<Variable,PredicateVariable>.full (Variable.hash, Variable.equal, GLib.Object.unref, GLib.Object.unref);
 			scalar_subquery = true;
 		}
 

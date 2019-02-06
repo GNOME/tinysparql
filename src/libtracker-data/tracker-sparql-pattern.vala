@@ -243,10 +243,10 @@ class Tracker.Sparql.Pattern : Object {
 			base (query, parent_context);
 
 			tables = new List<DataTable> ();
-			table_map = new HashTable<string,DataTable>.full (str_hash, str_equal, g_free, g_object_unref);
+			table_map = new HashTable<string,DataTable>.full (str_hash, str_equal, g_free, GLib.Object.unref);
 
 			variables = new List<Variable> ();
-			var_bindings = new HashTable<Variable,VariableBindingList>.full (Variable.hash, Variable.equal, g_object_unref, g_object_unref);
+			var_bindings = new HashTable<Variable,VariableBindingList>.full (Variable.hash, Variable.equal, GLib.Object.unref, GLib.Object.unref);
 
 			bindings = new List<LiteralBinding> ();
 		}
@@ -948,7 +948,7 @@ class Tracker.Sparql.Pattern : Object {
 
 			// only export selected variables
 			context.var_set = context.select_var_set;
-			context.select_var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, g_object_unref, null);
+			context.select_var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, GLib.Object.unref, null);
 
 			expect (SparqlTokenType.CLOSE_BRACE);
 
@@ -1229,7 +1229,7 @@ class Tracker.Sparql.Pattern : Object {
 
 	private void translate_group_or_union_graph_pattern (StringBuilder sql) throws Sparql.Error {
 		Variable[] all_vars = { };
-		HashTable<Variable,int> all_var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, g_object_unref, null);
+		HashTable<Variable,int> all_var_set = new HashTable<Variable,int>.full (Variable.hash, Variable.equal, GLib.Object.unref, null);
 
 		Context[] contexts = { };
 		long[] offsets = { };
