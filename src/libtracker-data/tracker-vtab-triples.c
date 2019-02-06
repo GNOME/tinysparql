@@ -22,6 +22,15 @@
 
 #include "tracker-vtab-triples.h"
 
+/* Define some constraints for older SQLite, we will never get
+ * those in older versions, and simplifies checks in code.
+ */
+#if SQLITE_VERSION_NUMBER<=3021000
+#define SQLITE_INDEX_CONSTRAINT_NE        68
+#define SQLITE_INDEX_CONSTRAINT_ISNOTNULL 70
+#define SQLITE_INDEX_CONSTRAINT_ISNULL    71
+#endif
+
 enum {
 	COL_ROWID,
 	COL_GRAPH,
