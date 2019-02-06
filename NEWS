@@ -1,3 +1,12 @@
+NEW in 2.1.7 - 2019-02-06
+=========================
+
+  * Fix build order with libtracker-sparql generated headers
+  * Fix ontology update with SQLite 3.25
+  * Fix build with Vala 0.43
+
+Translations: eu, fr
+
 NEW in 2.1.6 - 2018-10-05
 =========================
 
