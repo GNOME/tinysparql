@@ -1,16 +1,16 @@
 # Swedish translation for tracker.
-# Copyright © 2006-2018 Free Software Foundation
+# Copyright © 2006-2019 Free Software Foundation
 # This file is distributed under the same license as the tracker package.
 # Daniel Nylander <po@danielnylander.se>, 2007, 2008, 2009, 2010, 2011.
 # Josef Andersson <josef.andersson@fripost.org>, 2015.
-# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018.
+# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2018-11-13 11:25+0000\n"
-"PO-Revision-Date: 2018-12-30 15:30+0100\n"
+"POT-Creation-Date: 2019-01-19 20:26+0000\n"
+"PO-Revision-Date: 2019-02-07 22:15+0100\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -18,8 +18,109 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2\n"
+"X-Generator: Poedit 2.2.1\n"
 "X-Project-Style: gnome\n"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:24
+msgid "Maximum size of journal"
+msgstr "Maximal storlek för journal"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:25
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr ""
+"Storlek på journalen i MB vid rotation. Använd -1 för att inaktivera "
+"rotation."
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:29
+msgid "Location of journal pieces"
+msgstr "Platsen för journaldelar"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:30
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr "Var en journaldel ska lagras när den når maxstorlek."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
+msgid "Maximum length of a word to be indexed"
+msgstr "Maximal längd på ord att indexera"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
+msgid ""
+"Words with more characters than this length will be ignored by the indexer."
+msgstr "Ord med flera tecken än detta kommer att ignoreras av indexeraren."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
+msgid "Maximum number of words to index in a document"
+msgstr "Maximalt antal ord att indexera i ett dokument"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
+msgid ""
+"Indexer will read only this maximum number of words from a single document."
+msgstr ""
+"Indexeraren kommer som mest att läsa detta antal ord från ett dokument."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
+msgid "Enable stemmer"
+msgstr "Aktivera bildande av ordstam"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
+msgid ""
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
+msgstr ""
+"Förenkla orden till deras ordstam för att få fler resultat. T.ex. ”hyllor” "
+"och ”hylla” till ”hyll”"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
+msgid "Enable unaccent"
+msgstr "Aktivera icke-accent"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
+msgid ""
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
+msgstr ""
+"Översätt tecken med accent till motsvarande utan accent. T.ex. ”Idé” till "
+"”Ide” för bättre matchning."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
+msgid "Ignore numbers"
+msgstr "Ignorera siffror"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
+msgid "If enabled, numbers will not be indexed."
+msgstr "Om aktiverat kommer inte siffror att indexeras."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
+msgid "Ignore stop words"
+msgstr "Ignorera stoppord"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
+msgid ""
+"If enabled, the words listed in the stop-words list are ignored. E.g. common "
+"words like “the”, “yes”, “no”, etc."
+msgstr ""
+"Om aktiverad kommer orden som listas i stoppordlistan att ignoreras. T.ex. "
+"vanliga ord som ”ja”, ”nej”, ”och” etc."
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:24
+msgid "Log verbosity"
+msgstr "Loggutförlighet"
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:25
+msgid "Log verbosity."
+msgstr "Loggutförlighet."
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:29
+msgid "GraphUpdated delay"
+msgstr "GraphUpdated-fördröjning"
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:30
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
+msgstr ""
+"Period i millisekunder mellan att GraphUpdated-signaler sänds när indexerat "
+"data har ändrats i databasen."
 
 #: src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -82,24 +183,6 @@ msgid_plural " %2.2d seconds"
 msgstr[0] " %2.2d sekund"
 msgstr[1] " %2.2d sekunder"
 
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:24
-msgid "Maximum size of journal"
-msgstr "Maximal storlek för journal"
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:25
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr ""
-"Storlek på journalen i MB vid rotation. Använd -1 för att inaktivera "
-"rotation."
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:29
-msgid "Location of journal pieces"
-msgstr "Platsen för journaldelar"
-
-#: src/libtracker-data/org.freedesktop.Tracker.DB.gschema.xml:30
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr "Var en journaldel ska lagras när den når maxstorlek."
-
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
 #. * case doesn't matter. Given English media is quite common, it is
@@ -142,69 +225,6 @@ msgstr "Inget fel gavs"
 msgid "Unknown error, “tar” exited with status %d"
 msgstr "Okänt fel, ”tar” avslutades med status %d"
 
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:26
-msgid "Maximum length of a word to be indexed"
-msgstr "Maximal längd på ord att indexera"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:27
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr "Ord med flera tecken än detta kommer att ignoreras av indexeraren."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:32
-msgid "Maximum number of words to index in a document"
-msgstr "Maximalt antal ord att indexera i ett dokument"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:33
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr ""
-"Indexeraren kommer som mest att läsa detta antal ord från ett dokument."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:37
-msgid "Enable stemmer"
-msgstr "Aktivera bildande av ordstam"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:38
-msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
-msgstr ""
-"Förenkla orden till deras ordstam för att få fler resultat. T.ex. ”hyllor” "
-"och ”hylla” till ”hyll”"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:43
-msgid "Enable unaccent"
-msgstr "Aktivera icke-accent"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:44
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
-msgstr ""
-"Översätt tecken med accent till motsvarande utan accent. T.ex. ”Idé” till "
-"”Ide” för bättre matchning."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:49
-msgid "Ignore numbers"
-msgstr "Ignorera siffror"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:50
-msgid "If enabled, numbers will not be indexed."
-msgstr "Om aktiverat kommer inte siffror att indexeras."
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:55
-msgid "Ignore stop words"
-msgstr "Ignorera stoppord"
-
-#: src/libtracker-fts/org.freedesktop.Tracker.FTS.gschema.xml:56
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
-msgstr ""
-"Om aktiverad kommer orden som listas i stoppordlistan att ignoreras. T.ex. "
-"vanliga ord som ”ja”, ”nej”, ”och” etc."
-
 #: src/libtracker-miner/tracker-data-provider.c:108
 #: src/libtracker-miner/tracker-data-provider.c:168
 msgid "Operation not supported"
@@ -218,26 +238,6 @@ msgstr "Kakan känns inte igen för att återuppta pausad insamlare"
 #: src/libtracker-miner/tracker-miner-proxy.c:403
 msgid "Pause application and reason match an already existing pause request"
 msgstr "Pausa programmet och anledningsmatcha en redan befintlig pausbegäran"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:24
-msgid "Log verbosity"
-msgstr "Loggutförlighet"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:25
-msgid "Log verbosity."
-msgstr "Loggutförlighet."
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:29
-msgid "GraphUpdated delay"
-msgstr "GraphUpdated-fördröjning"
-
-#: src/tracker-store/org.freedesktop.Tracker.Store.gschema.xml:30
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-"Period i millisekunder mellan att GraphUpdated-signaler sänds när indexerat "
-"data har ändrats i databasen."
 
 #. Daemon options
 #: src/tracker-store/tracker-main.vala:60
@@ -1632,7 +1632,7 @@ msgstr[1] "%d filer"
 
 #: src/tracker/tracker-status.c:524
 #, c-format
-msgid "%d folders"
+msgid "%d folder"
 msgid_plural "%d folders"
 msgstr[0] "%d mapp"
 msgstr[1] "%d mappar"
