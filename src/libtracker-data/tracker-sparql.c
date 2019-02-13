@@ -4340,8 +4340,6 @@ translate_PathElt (TrackerSparql  *sparql,
 	/* PathElt ::= PathPrimary PathMod?
 	 */
 	_call_rule (sparql, NAMED_RULE_PathPrimary, error);
-	_init_token (&sparql->current_state.predicate,
-	             sparql->current_state.prev_node, sparql);
 
 	if (_check_in_rule (sparql, NAMED_RULE_PathMod)) {
 		_call_rule (sparql, NAMED_RULE_PathMod, error);
