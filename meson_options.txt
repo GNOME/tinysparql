@@ -7,10 +7,10 @@ option('functional_tests', type: 'boolean', value: true,
 option('journal', type: 'boolean', value: true,
        description: 'Enable database journal backup mechanism')
 
-option('network_manager', type: 'combo', choices: ['auto', 'no', 'yes'], value: 'auto',
-       description: 'Enable connection detection through NetworkManager')
-option('stemmer', type: 'combo', choices: ['auto', 'no', 'yes'], value: 'auto',
-       description: 'Enable stemming words while indexing')
+option('network_manager', type: 'feature', value: 'auto',
+       description: 'Connection detection through NetworkManager')
+option('stemmer', type: 'feature', value: 'auto',
+       description: 'Stemming words while indexing')
 option('unicode_support', type: 'combo', choices: ['icu', 'unistring', 'auto'], value: 'auto',
        description: 'Unicode support library to use')
 

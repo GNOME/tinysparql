@@ -1,4 +1,6 @@
-project('tracker', 'c', 'vala', version: '2.2.0-alpha2')
+project('tracker', 'c', 'vala',
+        version: '2.2.0-alpha2',
+        meson_version: '>=0.47')
 
 gnome = import('gnome')
 i18n = import('i18n')
@@ -66,25 +68,15 @@ add_project_arguments('-DTRACKER_COMPILATION', language: 'c')
 
 enable_fts = get_option('fts')
 
-have_network_manager = false
-if get_option('network_manager') != 'no'
-    network_manager = dependency('libnm', required: get_option('network_manager') == 'yes')
-    have_network_manager = network_manager.found()
-endif
+network_manager = dependency('libnm', required: get_option('network_manager'))
+have_network_manager = network_manager.found()
 
 ##################################################################
 # Check for libtracker-common, make sure libstemmer exists
 ##################################################################
 
-have_libstemmer = false
-if get_option('stemmer') != 'no'
-    libstemmer = cc.find_library('stemmer', required: false)
-    if libstemmer.found()
-        have_libstemmer = true
-    elif get_option('stemmer') == 'yes'
-        error('stemmer support explicitly requested, but stemmer library couldn\'t be found')
-    endif
-endif
+libstemmer = cc.find_library('stemmer', required: get_option('stemmer'))
+have_libstemmer = libstemmer.found()
 
 ##################################################################
 # Check for tracker-fts, allow disabling FTS support

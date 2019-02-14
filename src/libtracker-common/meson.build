@@ -31,11 +31,7 @@ else
 endif
 
 # FIXME: need to link against -lkvm on OpenBSD, see configure.ac
-tracker_common_dependencies = [glib, gio, gio_unix, libmath]
-
-if have_libstemmer
-  tracker_common_dependencies += [libstemmer]
-endif
+tracker_common_dependencies = [glib, gio, gio_unix, libmath, libstemmer]
 
 libtracker_common = library('tracker-common',
   tracker_common_sources,
