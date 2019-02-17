@@ -21,7 +21,7 @@
 #include "config.h"
 #include "tracker-uuid.h"
 
-#if GLIB_CHECK_VERSION (2, 52, 0)
+#if ! GLIB_CHECK_VERSION (2, 52, 0)
 #include <uuid/uuid.h>
 #endif
 
