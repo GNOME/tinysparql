@@ -542,7 +542,7 @@ class Tracker.Sparql.Pattern : Object {
 		} else if (accept (SparqlTokenType.BLANK_NODE)) {
 			// _:foo
 			expect (SparqlTokenType.COLON);
-			result = query.generate_bnodeid (get_last_string ().substring (1));
+			result = query.generate_bnodeid (get_last_string ().substring (1), null);
 		} else if (current () == SparqlTokenType.STRING_LITERAL1) {
 			result = expression.parse_string_literal ();
 		} else if (current () == SparqlTokenType.STRING_LITERAL2) {
@@ -569,7 +569,7 @@ class Tracker.Sparql.Pattern : Object {
 		} else if (current () == SparqlTokenType.OPEN_BRACKET) {
 			next ();
 
-			result = query.generate_bnodeid (null);
+			result = query.generate_bnodeid (null, null);
 
 			string old_subject = current_subject;
 			bool old_subject_is_var = current_subject_is_var;
