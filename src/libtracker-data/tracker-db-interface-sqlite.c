@@ -1703,6 +1703,7 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 			                        fts_columns[i]);
 		}
 
+		g_free (db_interface->fts_properties);
 		db_interface->fts_properties = g_string_free (fts_properties,
 		                                              FALSE);
 		g_strfreev (fts_columns);
@@ -2267,6 +2268,7 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 		                                                 error);
 		if (!sqlite_stmt) {
 			tracker_db_interface_unlock (db_interface);
+			g_free (full_query);
 			return NULL;
 		}
 

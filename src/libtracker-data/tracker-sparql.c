@@ -270,8 +270,10 @@ tracker_sparql_expand_prefix (TrackerSparql *sparql,
 			g_hash_table_insert (sparql->prefix_map, g_strdup (ns), expanded_ns);
 		}
 
-		if (!expanded_ns)
+		if (!expanded_ns) {
+			g_free (ns);
 			return NULL;
+		}
 	}
 
 	g_free (ns);
@@ -4060,8 +4062,6 @@ translate_PathElt (TrackerSparql  *sparql,
 	/* PathElt ::= PathPrimary PathMod?
 	 */
 	_call_rule (sparql, NAMED_RULE_PathPrimary, error);
-	_init_token (&sparql->current_state.predicate,
-	             sparql->current_state.prev_node, sparql);
 
 	if (_check_in_rule (sparql, NAMED_RULE_PathMod)) {
 		_call_rule (sparql, NAMED_RULE_PathMod, error);
