@@ -1,3 +1,51 @@
+NEW in 2.2.0 - 2019-02-20
+=========================
+
+  * Multiple memory leak and corruption fixes
+  * Bumped glib minimum version to 2.46, it already was in practical terms
+  * Test suite improvements
+  * Restore log domain
+
+Translations: ca, cs, da, kk, lt, pt_BR, sv, zh_TW
+
+  Highlighted changes since 2.1.x:
+  --------------------------------
+
+  * New SPARQL parser, able to generate SQL that is generally more readable
+    and at places performs better. Multiple buglets fixed in the process
+  * Much improved support of SPARQL1.1 features and syntax that was missing:
+    - Property paths: Allowing to match connectivity between two resources
+      by an arbitrary length path. There is a number of supported operators
+      (alternative, sequence, oneOrMany, ...) that can be combined, e.g:
+
+      SELECT ?s ?p { ?s ^(nfo:belongsToContainer*)/(nie:url|nie:title) ?p }
+
+      Only the negated path operator (!) is not supported at the moment.
+
+    - Support for fully unrestricted queries, eg:
+
+      SELECT ?s ?p ?o { ?s ?p ?o } ORDER BY ?o ?p ?s
+
+      Queries with unrestricted predicate (?p in the example above) were
+      just supported in a very restricted set of situations. All those
+      limitations are gone.
+    - MINUS allows subtracting the solutions that match the given triples
+      template, eg:
+
+      SELECT ?s { ?s a nfo:Media } MINUS { ?s a nfo:MusicPiece }
+
+  * Support for prepared statements. TrackerSparqlStatement can be built
+    with SELECT queries containing (custom) ~var syntax, and updating
+    their values before obtaining a cursor.
+  * Many tests were added, and Tracker is generally much better tested thanks
+    to CI.
+  * tracker-store now automatically shuts down on inactivity.
+
+  NOTE TO PACKAGERS: This release might trigger ABI checks, as
+    TrackerSparqlConnectionClass struct size grew. This object can only
+    be subclassed within Tracker and instantiated through Tracker API, so
+    the change is inconsequential.
+
 NEW in 2.2.0-alpha2 - 2019-02-06
 ================================
 
