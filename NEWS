@@ -1,3 +1,9 @@
+NEW in 2.1.8 - 2019-02-20
+=========================
+
+  * Do not rely on hash table iteration order being stable
+  * Update FTS if base tables were updated
+
 NEW in 2.1.7 - 2019-02-06
 =========================
 
