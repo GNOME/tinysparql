@@ -30,8 +30,12 @@ else
   tracker_common_sources += 'tracker-parser-libunistring.c'
 endif
 
-# FIXME: need to link against -lkvm on OpenBSD, see configure.ac
 tracker_common_dependencies = [glib, gio, gio_unix, libmath, libstemmer]
+
+if build_machine.system() == 'openbsd'
+  libkvm = meson.get_compiler('c').find_library('kvm')
+  tracker_common_dependencies += libkvm
+endif
 
 libtracker_common = library('tracker-common',
   tracker_common_sources,
