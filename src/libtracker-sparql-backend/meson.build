@@ -45,7 +45,9 @@ tracker_sparql_c_gir = gnome.generate_gir(libtracker_sparql,
     includes : ['GLib-2.0', 'GObject-2.0', 'Gio-2.0' ],
     link_with: libtracker_sparql,
     extra_args: [
-        '--c-include', 'libtracker-sparql/tracker-sparql.h',
+        '--c-include',
+        'libtracker-sparql/tracker-sparql.h',
+        '-DTRACKER_COMPILATION',
     ])
 
 tracker_sparql_c_gir = tracker_sparql_c_gir[0]  # Ignore this .typelib

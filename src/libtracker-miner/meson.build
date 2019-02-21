@@ -91,6 +91,7 @@ tracker_miner_gir = gnome.generate_gir(libtracker_miner,
     install: true,
     extra_args: tracker_c_args + [
         '--c-include=libtracker-miner/tracker-miner.h',
+        '-DTRACKER_COMPILATION',
     ])
 
 gnome.generate_vapi(
