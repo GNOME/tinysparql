@@ -1,0 +1,3 @@
+SELECT "\u03B1\\udddd🐩" ?t {
+  ?u ns\u003Ap ?t
+}
