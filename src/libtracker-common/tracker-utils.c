@@ -303,20 +303,18 @@ tracker_unescape_unichars (const gchar  *str,
 			g_string_append_c (copy, str[i]);
 			g_string_append_c (copy, str[i + 1]);
 			i += 2;
-		} if (len - i >= 6 &&
+		} else if (len - i >= 6 &&
 		    strncmp (&str[i], "\\u", 2) == 0 &&
 		    range_is_xdigit (&str[i], 2, 6)) {
 			ch = xdigit_to_unichar (&str[i], 2, 6);
 			g_string_append_unichar (copy, ch);
 			i += 6;
-			continue;
 		} else if (len - i >= 10 &&
 		           strncmp (&str[i], "\\U", 2) == 0 &&
 		           range_is_xdigit (&str[i], 2, 10)) {
 			ch = xdigit_to_unichar (&str[i], 2, 10);
 			g_string_append_unichar (copy, ch);
 			i += 10;
-			continue;
 		} else {
 			g_string_append_c (copy, str[i]);
 			i++;
