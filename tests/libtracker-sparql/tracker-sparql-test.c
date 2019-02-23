@@ -38,8 +38,6 @@ ESCAPE_TEST_DATA test_data []  = {
 
 static GMainLoop *main_loop;
 
-#if HAVE_TRACKER_FTS
-
 #define N_QUERIES 3
 
 static GCancellable *cancellables[N_QUERIES] = { NULL, };
@@ -55,8 +53,6 @@ static const gchar *queries[N_QUERIES] = {
 	/* #3 */
 	"SELECT ?p WHERE { ?p tracker:fulltextIndexed true }",
 };
-
-#endif /* HAVE_TRACKER_FTS */
 
 static void
 test_tracker_sparql_escape_string (void)
@@ -80,8 +76,6 @@ test_tracker_sparql_escape_uri_vprintf (void)
 	g_assert_cmpstr (result, ==, "test:uri:contact-14");
 	g_free (result);
 }
-
-#if HAVE_TRACKER_FTS
 
 static void test_tracker_sparql_cursor_next_async_query (TrackerSparqlConnection *connection,
                                                          gint                     query);
@@ -202,8 +196,6 @@ test_tracker_sparql_cursor_next_async (void)
 	test_tracker_sparql_cursor_next_async_query (connection, 0);
 	g_main_loop_run (main_loop);
 }
-
-#endif /* HAVE_TRACKER_FTS */
 
 static void
 test_tracker_sparql_connection_locking_sync (void)
@@ -390,11 +382,8 @@ main (gint argc, gchar **argv)
 	                 test_tracker_sparql_connection_locking_sync);
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_locking_async",
 	                 test_tracker_sparql_connection_locking_async);
-
-#if HAVE_TRACKER_FTS
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_cursor_next_async",
 	                 test_tracker_sparql_cursor_next_async);
-#endif
 
 	result = g_test_run ();
 
