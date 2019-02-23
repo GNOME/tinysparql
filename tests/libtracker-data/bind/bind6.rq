@@ -1,0 +1,1 @@
+SELECT ?a ?b { BIND (42 AS ?a) . BIND ('foo' AS ?b) }

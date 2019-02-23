@@ -150,6 +150,9 @@ const TestInfo tests[] = {
 	{ "bind/bind2", "bind/data", FALSE },
 	{ "bind/bind3", "bind/data", FALSE },
 	{ "bind/bind4", "bind/data", FALSE },
+	{ "bind/bind5", "bind/data", FALSE },
+	{ "bind/bind6", "bind/data", FALSE },
+	{ "bind/bind7", "bind/data", FALSE },
 	/* Property paths */
 	{ "property-paths/inverse-path-1", "property-paths/data", FALSE },
 	{ "property-paths/inverse-path-2", "property-paths/data", FALSE },

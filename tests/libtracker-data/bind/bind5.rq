@@ -1,0 +1,1 @@
+SELECT ?a { BIND (42 AS ?a) }
