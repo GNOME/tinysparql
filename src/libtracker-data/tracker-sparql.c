@@ -3203,16 +3203,25 @@ translate_Bind (TrackerSparql  *sparql,
 	TrackerVariable *variable;
 	TrackerBinding *binding;
 	TrackerPropertyType type;
+	gboolean is_empty;
 
 	/* Bind ::= 'BIND' '(' Expression 'AS' Var ')'
 	 */
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_BIND);
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_PARENS);
 
-	str = _prepend_placeholder (sparql);
-	old = tracker_sparql_swap_builder (sparql, str);
+	is_empty = tracker_string_builder_is_empty (sparql->current_state.sql);
 
-	_append_string (sparql, "SELECT *, ");
+	if (!is_empty) {
+		str = _prepend_placeholder (sparql);
+		old = tracker_sparql_swap_builder (sparql, str);
+	}
+
+	_append_string (sparql, "SELECT ");
+
+	if (!is_empty)
+		_append_string (sparql, "*, ");
+
 	_call_rule (sparql, NAMED_RULE_Expression, error);
 	type = sparql->current_state.expression_type;
 
@@ -3224,15 +3233,18 @@ translate_Bind (TrackerSparql  *sparql,
 	if (tracker_variable_has_bindings (variable))
 		_raise (PARSE, "Expected undefined variable", "BIND");
 
-	_append_string_printf (sparql, "AS %s FROM (",
+	_append_string_printf (sparql, "AS %s ",
 			       tracker_variable_get_sql_expression (variable));
 
 	binding = tracker_variable_binding_new (variable, NULL, NULL);
 	tracker_binding_set_data_type (binding, type);
 	tracker_variable_set_sample_binding (variable, TRACKER_VARIABLE_BINDING (binding));
 
-	tracker_sparql_swap_builder (sparql, old);
-	_append_string (sparql, ") ");
+	if (!is_empty) {
+		_append_string (sparql, "FROM (");
+		tracker_sparql_swap_builder (sparql, old);
+		_append_string (sparql, ") ");
+	}
 
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_PARENS);
 
