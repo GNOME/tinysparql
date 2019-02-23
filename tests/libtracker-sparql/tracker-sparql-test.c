@@ -187,6 +187,8 @@ test_tracker_sparql_cursor_next_async (void)
 	TrackerSparqlConnection *connection;
 	GError *error = NULL;
 
+	main_loop = g_main_loop_new (NULL, TRUE);
+
 	/* So, the idea here:
 	 * 1. Test async cursor_next() call.
 	 * 2. Make sure we can cancel a cursor_next() call and start a new query (was failing)
@@ -198,6 +200,7 @@ test_tracker_sparql_cursor_next_async (void)
 	g_assert (connection != NULL);
 
 	test_tracker_sparql_cursor_next_async_query (connection, 0);
+	g_main_loop_run (main_loop);
 }
 
 #endif /* HAVE_TRACKER_FTS */
@@ -288,6 +291,8 @@ test_tracker_sparql_nb237150_cb (GObject      *source_object,
 static void
 test_tracker_sparql_nb237150_subprocess (void)
 {
+	main_loop = g_main_loop_new (NULL, TRUE);
+
 	g_print ("\n");
 	g_print ("Calling #1 - tracker_sparql_connection_get_async()\n");
 	tracker_sparql_connection_get_async (NULL, test_tracker_sparql_nb237150_cb, GINT_TO_POINTER(1));
@@ -296,6 +301,7 @@ test_tracker_sparql_nb237150_subprocess (void)
 	tracker_sparql_connection_get_async (NULL, test_tracker_sparql_nb237150_cb, GINT_TO_POINTER(2));
 
 	g_print ("Calling both finished\n");
+	g_main_loop_run (main_loop);
 }
 
 static void
@@ -367,11 +373,6 @@ main (gint argc, gchar **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
-#if HAVE_TRACKER_FTS
-	main_loop = g_main_loop_new (NULL, FALSE);
-	g_assert (main_loop != NULL);
-#endif
-
 	/* NOTE: this first test must come BEFORE any others because
 	 * connections are cached by libtracker-sparql.
 	 */
@@ -396,10 +397,6 @@ main (gint argc, gchar **argv)
 #endif
 
 	result = g_test_run ();
-
-#if HAVE_TRACKER_FTS
-	g_main_loop_run (main_loop);
-#endif
 
 	return result;
 }
