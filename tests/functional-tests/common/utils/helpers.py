@@ -19,7 +19,6 @@
 #
 from gi.repository import Gio
 from gi.repository import GLib
-from gi.repository import GObject
 import os
 import sys
 import subprocess
@@ -59,7 +58,7 @@ class Helper:
         self.process = None
         self.available = False
 
-        self.loop = GObject.MainLoop ()
+        self.loop = GLib.MainLoop ()
         self.install_glib_excepthook(self.loop)
 
         self.bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)

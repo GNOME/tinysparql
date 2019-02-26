@@ -28,7 +28,6 @@ from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreT
 from common.utils import configuration as cfg
 
 from gi.repository import Gio
-from gi.repository import GObject
 from gi.repository import GLib
 import time
 
@@ -49,7 +48,7 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
     def setUp (self):
         self.clean_up_list = []
 
-        self.loop = GObject.MainLoop()
+        self.loop = GLib.MainLoop()
         self.timeout_id = 0
 
         self.bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)

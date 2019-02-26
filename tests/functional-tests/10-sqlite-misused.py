@@ -22,7 +22,7 @@ Test the query while importing at the same time. This was raising
 some SQLITE_MISUSED errors before.
 """
 import os
-from gi.repository import GObject
+from gi.repository import GLib
 
 from common.utils import configuration as cfg
 import unittest as ut
@@ -33,7 +33,7 @@ class TestSqliteMisused (CommonTrackerStoreTest):
     Send queries while importing files (in .ttl directory)
     """
     def setUp (self):
-        self.main_loop = GObject.MainLoop ()
+        self.main_loop = GLib.MainLoop ()
         self.files_counter = 0
 
     def test_queries_while_import (self):
@@ -50,10 +50,10 @@ class TestSqliteMisused (CommonTrackerStoreTest):
                     error_handler=self.loaded_failed_cb,
                     user_data = full_path)
 
-        GObject.timeout_add_seconds (2, self.run_a_query)
+        GLib.timeout_add_seconds (2, self.run_a_query)
         # Safeguard of 60 seconds. The last reply should quit the loop
         # It doesn't matter if we didn't import all of the files yet.
-        GObject.timeout_add_seconds (60, self.timeout_cb)
+        GLib.timeout_add_seconds (60, self.timeout_cb)
         self.main_loop.run ()
 
     def run_a_query (self):

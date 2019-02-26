@@ -20,7 +20,7 @@
 """
 Send concurrent inserts and queries to the daemon to check the concurrency.
 """
-from gi.repository import GObject
+from gi.repository import GLib
 
 import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
@@ -34,7 +34,7 @@ class TestConcurrentQuery (CommonTrackerStoreTest):
     holding those queries
     """
     def setUp (self):
-        self.main_loop = GObject.MainLoop ()
+        self.main_loop = GLib.MainLoop ()
         
         self.mock_data_insert ()
         self.finish_counter = 0
@@ -74,7 +74,7 @@ class TestConcurrentQuery (CommonTrackerStoreTest):
                 error_handler=self.error_handler)
 
         # Safeguard of 60 seconds. The last reply should quit the loop
-        GObject.timeout_add_seconds (60, self.timeout_cb)
+        GLib.timeout_add_seconds (60, self.timeout_cb)
         self.main_loop.run ()
         
     def reply_cb (self, obj, results, data):
