@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -20,13 +20,7 @@
 """
 Test tracker:coalesce function in Sparql. Only uses the Store
 """
-import unittest
-import random
-
-
-from common.utils import configuration as cfg
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 class TestCoalesce (CommonTrackerStoreTest):

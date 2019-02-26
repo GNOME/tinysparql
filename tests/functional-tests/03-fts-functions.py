@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -22,12 +22,7 @@
 These tests use only the store. They insert instances with known text
 and run sparql with fts functions to check the results.
 """
-import unittest
-import random
-
-from common.utils import configuration as cfg
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 class TestFTSFunctions (CommonTrackerStoreTest):
@@ -68,10 +63,10 @@ class TestFTSFunctions (CommonTrackerStoreTest):
         """
         results = self.tracker.query (query)
 
-        self.assertEquals (len(results), 3)
-        self.assertEquals (results[0][0], "contact://test/fts-function/rank/1")
-        self.assertEquals (results[1][0], "contact://test/fts-function/rank/2")
-        self.assertEquals (results[2][0], "contact://test/fts-function/rank/3")
+        self.assertEqual (len(results), 3)
+        self.assertEqual (results[0][0], "contact://test/fts-function/rank/1")
+        self.assertEqual (results[1][0], "contact://test/fts-function/rank/2")
+        self.assertEqual (results[2][0], "contact://test/fts-function/rank/3")
 
         delete_sparql = """
         DELETE {
@@ -116,10 +111,10 @@ class TestFTSFunctions (CommonTrackerStoreTest):
         """
         results = self.tracker.query (query)
 
-        self.assertEquals (len(results), 3)
-        self.assertEquals (results[0][0], 'nco:fullname,0,nco:nickname,0')
-        self.assertEquals (results[1][0], 'nco:fullname,0')
-        self.assertEquals (results[2][0], 'nco:fullname,0,nco:nickname,0,nco:nickname,10')
+        self.assertEqual (len(results), 3)
+        self.assertEqual (results[0][0], 'nco:fullname,0,nco:nickname,0')
+        self.assertEqual (results[1][0], 'nco:fullname,0')
+        self.assertEqual (results[2][0], 'nco:fullname,0,nco:nickname,0,nco:nickname,10')
 
         delete_sparql = """
         DELETE {

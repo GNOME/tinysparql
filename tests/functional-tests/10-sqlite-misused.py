@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -26,7 +26,6 @@ from gi.repository import GObject
 
 from common.utils import configuration as cfg
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 class TestSqliteMisused (CommonTrackerStoreTest):
@@ -41,7 +40,7 @@ class TestSqliteMisused (CommonTrackerStoreTest):
         assert os.path.isdir(cfg.generated_ttl_dir())
 
         for root, dirs, files in os.walk(cfg.generated_ttl_dir()):
-            for ttl_file in filter (lambda f: f.endswith (".ttl"), files):
+            for ttl_file in [f for f in files if f.endswith (".ttl")]:
                 full_path = os.path.abspath(os.path.join (root, ttl_file))
                 self.files_counter += 1
 
@@ -66,23 +65,23 @@ class TestSqliteMisused (CommonTrackerStoreTest):
         return True
 
     def reply_cb (self, obj, results, data):
-        print "Query replied correctly"
+        print("Query replied correctly")
 
     def error_handler (self, obj, error, data):
-        print "ERROR in DBus call: %s" % error
+        print("ERROR in DBus call: %s" % error)
 
     def loaded_success_cb (self, obj, results, user_data):
         self.files_counter -= 1
         if (self.files_counter == 0):
-            print "Last file loaded"
+            print("Last file loaded")
             self.timeout_cb ()
-        print "Success loading %s" % user_data
+        print("Success loading %s" % user_data)
 
     def loaded_failed_cb (self, obj, error, user_data):
         raise RuntimeError("Failed loading %s: %s" % (user_data, error))
 
     def timeout_cb (self):
-        print "Forced timeout after 60 sec."
+        print("Forced timeout after 60 sec.")
         self.main_loop.quit ()
         return False
 

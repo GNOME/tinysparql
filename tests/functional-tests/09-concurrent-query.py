@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -20,17 +20,9 @@
 """
 Send concurrent inserts and queries to the daemon to check the concurrency.
 """
-import sys,os
-import unittest
-import time
-import random
-import commands
-import signal
 from gi.repository import GObject
 
-from common.utils import configuration as cfg
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 AMOUNT_OF_TEST_INSTANCES = 100
@@ -87,7 +79,7 @@ class TestConcurrentQuery (CommonTrackerStoreTest):
         
     def reply_cb (self, obj, results, data):
         self.finish_counter += 1
-        self.assertEquals (len (results), AMOUNT_OF_TEST_INSTANCES)
+        self.assertEqual (len (results), AMOUNT_OF_TEST_INSTANCES)
         if (self.finish_counter >= AMOUNT_OF_QUERIES):
             self.timeout_cb ()
 
@@ -95,7 +87,7 @@ class TestConcurrentQuery (CommonTrackerStoreTest):
         self.assertTrue (True)
 
     def error_handler (self, obj, e, user_data):
-        print "ERROR in DBus call: %s" % e
+        print("ERROR in DBus call: %s" % e)
         raise(e)
 
     def timeout_cb (self):

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -21,19 +21,9 @@
 """
 Peculiar Sparql behavour reported in bugs
 """
-
 from gi.repository import GLib
 
-import sys,os
-import unittest
-import time
-import random
-import string
-import datetime
-
-from common.utils import configuration as cfg
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 
@@ -120,26 +110,26 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
                 """
 
                 results1 = self.tracker.query (query1)
-                print "1", results1
-                self.assertEquals (len (results1), 1)
-                self.assertEquals (len (results1[0]), 2)
-                self.assertEquals (results1[0][0], "contact:test")
-                self.assertEquals (results1[0][1], "98653")
+                print("1", results1)
+                self.assertEqual (len (results1), 1)
+                self.assertEqual (len (results1[0]), 2)
+                self.assertEqual (results1[0][0], "contact:test")
+                self.assertEqual (results1[0][1], "98653")
 
                 results2 = self.tracker.query (query2)
-                print "2", results2
-                self.assertEquals (len (results2), 1)
-                self.assertEquals (len (results2[0]), 2)
-                self.assertEquals (results2[0][0], "contact:test")
-                self.assertEquals (results2[0][1], "98653")
+                print("2", results2)
+                self.assertEqual (len (results2), 1)
+                self.assertEqual (len (results2[0]), 2)
+                self.assertEqual (results2[0][0], "contact:test")
+                self.assertEqual (results2[0][1], "98653")
                 
 
                 results3 = self.tracker.query (query3)
-                print "3", results3
-                self.assertEquals (len (results3), 1)
-                self.assertEquals (len (results3[0]), 2)
-                self.assertEquals (results3[0][0], "contact:test")
-                self.assertEquals (results3[0][1], "98653")
+                print("3", results3)
+                self.assertEqual (len (results3), 1)
+                self.assertEqual (len (results3[0]), 2)
+                self.assertEqual (results3[0][0], "contact:test")
+                self.assertEqual (results3[0][1], "98653")
 
                 """ Clean the DB """
                 delete = """
@@ -166,9 +156,9 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
                       nco:fullname 'Testing bug 217636' .
                       }
                       """)
-                self.assertEquals (len (results), 1)
-                self.assertEquals (len (results[0]), 1)
-                self.assertEquals (results[0][0], "contact:test-nb217636")
+                self.assertEqual (len (results), 1)
+                self.assertEqual (len (results[0]), 1)
+                self.assertEqual (results[0][0], "contact:test-nb217636")
 
                 problematic_delete = """
                 DELETE { <contact:test-nb217636> ?p ?v }
@@ -182,7 +172,7 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
                       nco:fullname 'Testing bug 217636' .
                       }
                       """)
-                self.assertEquals (len (results_after), 0)
+                self.assertEqual (len (results_after), 0)
 
                 # Safe deletion
                 delete = """
@@ -204,7 +194,7 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
                                    wrong_insert)
 
                 new_data = self.tracker.query (query)
-                self.assertEquals (len (original_data), len (new_data))
+                self.assertEqual (len (original_data), len (new_data))
                 # We could be more picky, but checking there are the same number of results
                 # is enough to verify the problem described in the bug.
 
@@ -237,9 +227,9 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
                            }"""
                 result = self.tracker.query (query)
                 # Only one row of results, and the 3 colums have the same value
-                self.assertEquals (len (result), 1)
-                self.assertEquals (result[0][0], result[0][1])
-                self.assertEquals (result[0][1], result[0][2])
+                self.assertEqual (len (result), 1)
+                self.assertEqual (result[0][0], result[0][1])
+                self.assertEqual (result[0][1], result[0][2])
 
                 problematic = """INSERT OR REPLACE {
                                    <test:resource:nb281201> nie:contentLastModified '2012-10-28T12:12:12'
@@ -249,9 +239,9 @@ class TrackerStoreSparqlBugsTests (CommonTrackerStoreTest):
 
                 result = self.tracker.query (query)
                 # Only one row of results, and the 3 colums have the same value
-                self.assertEquals (len (result), 1)
-                self.assertEquals (result[0][0], result[0][1])
-                self.assertEquals (result[0][1], result[0][2])
+                self.assertEqual (len (result), 1)
+                self.assertEqual (result[0][0], result[0][1])
+                self.assertEqual (result[0][1], result[0][2])
                 
 
 

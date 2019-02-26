@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <jean-luc.lamadon@nokia.com>
 #
@@ -26,8 +26,8 @@ import subprocess
 import time
 import re
 
-import configuration as cfg
-import options
+from common.utils import configuration as cfg
+from common.utils import options as options
 
 class NoMetadataException (Exception):
     pass

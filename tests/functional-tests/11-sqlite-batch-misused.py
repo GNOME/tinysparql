@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -26,7 +26,6 @@ from gi.repository import GObject
 
 from common.utils import configuration as cfg
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 # Number of instances per batch
@@ -46,9 +45,9 @@ class TestSqliteBatchMisused (CommonTrackerStoreTest):
         self.assertTrue (os.path.exists (cfg.generated_ttl_dir()))
 
         for root, dirs, files in os.walk(cfg.generated_ttl_dir()):
-            for ttl_file in filter (lambda f: f.endswith (".ttl"), files):
+            for ttl_file in [f for f in files if f.endswith (".ttl")]:
                 full_path = os.path.abspath(os.path.join (root, ttl_file))
-                print full_path
+                print(full_path)
 
                 counter = 0
                 current_batch = ""
@@ -85,25 +84,25 @@ class TestSqliteBatchMisused (CommonTrackerStoreTest):
         return True
 
     def reply_cb (self, obj, results, data):
-        print "Query replied correctly"
+        print("Query replied correctly")
 
     def error_handler (self, error_msg):
-        print "Query failed", error_msg
+        print("Query failed", error_msg)
         raise error_msg
 
     def batch_success_cb (self, obj, result, user_data):
         self.batch_counter -= 1
         if (self.batch_counter == 0):
-            print "Last batch was success"
+            print("Last batch was success")
             self.timeout_cb ()
-        print "Success processing a batch"
+        print("Success processing a batch")
 
     def batch_failed_cb (self, obj, error, user_data):
-        print "Failed processing a batch: %s" % error
+        print("Failed processing a batch: %s" % error)
         raise error
 
     def timeout_cb (self):
-        print "Forced timeout after 60 sec."
+        print("Forced timeout after 60 sec.")
         self.main_loop.quit ()
         return False
 

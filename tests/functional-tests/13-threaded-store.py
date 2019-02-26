@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -28,7 +28,6 @@ import time
 
 from common.utils import configuration as cfg
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 MAX_TEST_TIME = 60 # seconds to finish the tests (to avoid infinite waitings)
@@ -61,7 +60,7 @@ class TestThreadedStore (CommonTrackerStoreTest):
                          "012-nco_PhoneNumber.ttl",
                          "016-nco_ContactIM.ttl"]:
             full_path = os.path.abspath(os.path.join (cfg.generated_ttl_dir(), ttl_file))
-            print full_path
+            print(full_path)
             self.tracker.get_tracker_iface().Load(
                 '(s)', "file://" + full_path, timeout=30000)
 
@@ -70,7 +69,7 @@ class TestThreadedStore (CommonTrackerStoreTest):
         start = time.time ()
         self.__populate_database ()
         end = time.time ()
-        print "Loading: %.3f sec." % (end-start)
+        print("Loading: %.3f sec." % (end-start))
 
         COMPLEX_QUERY = """
         SELECT ?url nie:url(?photo) nco:imStatusMessage (?url)
@@ -95,7 +94,7 @@ class TestThreadedStore (CommonTrackerStoreTest):
          } ORDER BY ?relevance LIMIT 100"""
 
         # Standard timeout
-        print "Send complex query"
+        print("Send complex query")
         self.complex_start = time.time ()
         self.tracker.query(
             COMPLEX_QUERY, timeout=COMPLEX_QUERY_TIMEOUT,
@@ -107,7 +106,7 @@ class TestThreadedStore (CommonTrackerStoreTest):
         self.main_loop.run ()
 
     def __simple_query (self):
-        print "Send simple query (%d)" % (self.simple_queries_counter)
+        print("Send simple query (%d)" % (self.simple_queries_counter))
         SIMPLE_QUERY = "SELECT ?name WHERE { ?u a nco:PersonContact; nco:fullname ?name. }"
         self.tracker.query(
             SIMPLE_QUERY,
@@ -116,29 +115,29 @@ class TestThreadedStore (CommonTrackerStoreTest):
             error_handler=self.error_handler)
         self.simple_queries_counter -= 1
         if (self.simple_queries_counter == 0):
-            print "Stop sending queries (wait)"
+            print("Stop sending queries (wait)")
             return False
         return True
 
     def reply_simple (self, obj, results, data):
-        print "Simple query answered"
-        self.assertNotEquals (len (results), 0)
+        print("Simple query answered")
+        self.assertNotEqual (len (results), 0)
         self.simple_queries_answers += 1
         if (self.simple_queries_answers == AMOUNT_SIMPLE_QUERIES):
-            print "All simple queries answered"
+            print("All simple queries answered")
             self.main_loop.quit ()
 
     def reply_complex (self, obj, results, data):
-        print "Complex query: %.3f" % (time.time () - self.complex_start)
+        print("Complex query: %.3f" % (time.time () - self.complex_start))
 
     def error_handler (self, error_msg):
-        print "ERROR in dbus call", error_msg
+        print("ERROR in dbus call", error_msg)
 
     def error_handler_complex (self, error_msg):
-        print "Complex query timedout in DBus (", error_msg, ")"
+        print("Complex query timedout in DBus (", error_msg, ")")
 
     def __timeout_on_idle (self):
-        print "Timeout... asumming idle"
+        print("Timeout... asumming idle")
         self.main_loop.quit ()
         return False
         
