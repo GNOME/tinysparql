@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2019-01-19 20:26+0000\n"
-"PO-Revision-Date: 2019-02-02 11:25+0100\n"
+"POT-Creation-Date: 2019-02-21 07:50+0000\n"
+"PO-Revision-Date: 2019-02-28 19:19+0100\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <f.t.public@gmail.com>\n"
 "Language: fur\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2\n"
+"X-Generator: Poedit 2.2.1\n"
 
 #: data/org.freedesktop.Tracker.DB.gschema.xml:24
 msgid "Maximum size of journal"
@@ -1803,7 +1803,7 @@ msgstr "No je stade cjatade nissune etichete cun chel non"
 
 #: src/tracker/tracker-tag.c:839
 msgid "None of the files had this tag set"
-msgstr "Nissun dai file al veve impuestât cheste etichete"
+msgstr "Nissun dai file al veve cheste etichete configurade"
 
 #: src/tracker/tracker-tag.c:885
 msgid "Could not remove tag"
