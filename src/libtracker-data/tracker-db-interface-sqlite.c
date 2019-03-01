@@ -1963,11 +1963,9 @@ tracker_db_interface_sqlite_wal_checkpoint (TrackerDBInterface  *interface,
 {
 	int return_val;
 
-	tracker_db_interface_lock (interface);
 	return_val = sqlite3_wal_checkpoint_v2 (interface->db, NULL,
 	                                        blocking ? SQLITE_CHECKPOINT_FULL : SQLITE_CHECKPOINT_PASSIVE,
 	                                        NULL, NULL);
-	tracker_db_interface_unlock (interface);
 
 	if (return_val != SQLITE_OK) {
 		g_set_error (error,
