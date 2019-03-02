@@ -1113,20 +1113,16 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 	TrackerFileNotifierPrivate *priv;
 	GFileType file_type;
 	GFile *canonical;
+	gboolean indexable;
 
 	priv = tracker_file_notifier_get_instance_private (notifier);
 	file_type = (is_directory) ? G_FILE_TYPE_DIRECTORY : G_FILE_TYPE_REGULAR;
 
-	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
-	                                              file, file_type)) {
-		/* File should not be indexed */
-		return ;
-	}
-
-	tracker_file_notifier_ensure_parents (notifier, file);
+	indexable = tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+	                                                     file, file_type);
 
 	if (!is_directory) {
-		gboolean indexable;
+		gboolean parent_indexable;
 		GList *children;
 		GFile *parent;
 
@@ -1134,12 +1130,12 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 
 		if (parent) {
 			children = g_list_prepend (NULL, file);
-			indexable = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
-			                                                       parent,
-			                                                       children);
+			parent_indexable = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
+			                                                              parent,
+			                                                              children);
 			g_list_free (children);
 
-			if (!indexable) {
+			if (!parent_indexable) {
 				/* New file triggered a directory content
 				 * filter, remove parent directory altogether
 				 */
@@ -1153,14 +1149,23 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 				file_notifier_current_root_check_remove_directory (notifier, canonical);
 				tracker_file_system_forget_files (priv->file_system, canonical,
 				                                  G_FILE_TYPE_UNKNOWN);
+
+				tracker_monitor_remove_recursively (priv->monitor, canonical);
+
 				g_object_unref (canonical);
 				return;
 			}
 
 			g_object_unref (parent);
 		}
+
+		if (!indexable)
+			return;
 	} else {
 		TrackerDirectoryFlags flags;
+
+		if (!indexable)
+			return;
 
 		/* If config for the directory is recursive,
 		 * Crawl new entire directory and add monitors
@@ -1181,6 +1186,8 @@ monitor_item_created_cb (TrackerMonitor *monitor,
 			 */
 		}
 	}
+
+	tracker_file_notifier_ensure_parents (notifier, file);
 
 	/* Fetch the interned copy */
 	canonical = tracker_file_system_get_file (priv->file_system,
