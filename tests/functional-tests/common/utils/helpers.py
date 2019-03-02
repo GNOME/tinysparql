@@ -28,14 +28,17 @@ import re
 from common.utils import configuration as cfg
 from common.utils import options as options
 
+
 class NoMetadataException (Exception):
     pass
 
 REASONABLE_TIMEOUT = 30
 
-def log (message):
-    if options.is_verbose ():
-        print (message)
+
+def log(message):
+    if options.is_verbose():
+        print(message)
+
 
 class Helper:
     """
@@ -54,11 +57,11 @@ class Helper:
     BUS_NAME = None
     PROCESS_NAME = None
 
-    def __init__ (self):
+    def __init__(self):
         self.process = None
         self.available = False
 
-        self.loop = GLib.MainLoop ()
+        self.loop = GLib.MainLoop()
         self.install_glib_excepthook(self.loop)
 
         self.bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
@@ -68,51 +71,52 @@ class Helper:
         Handler to abort test if an exception occurs inside the GLib main loop.
         """
         old_hook = sys.excepthook
+
         def new_hook(etype, evalue, etb):
             old_hook(etype, evalue, etb)
             GLib.MainLoop.quit(loop)
             sys.exit(1)
         sys.excepthook = new_hook
 
-    def _start_process (self, env=None):
+    def _start_process(self, env=None):
         path = self.PROCESS_PATH
-        flags = getattr (self,
-                         "FLAGS",
-                         [])
+        flags = getattr(self,
+                        "FLAGS",
+                        [])
 
         kws = {}
 
-        if not options.is_verbose ():
-            FNULL = open ('/dev/null', 'w')
-            kws.update({ 'stdout': FNULL, 'stderr': subprocess.PIPE })
+        if not options.is_verbose():
+            FNULL = open('/dev/null', 'w')
+            kws.update({'stdout': FNULL, 'stderr': subprocess.PIPE})
 
         if env:
             kws['env'] = env
 
         command = [path] + flags
-        log ("Starting %s" % ' '.join(command))
+        log("Starting %s" % ' '.join(command))
         try:
-            return subprocess.Popen ([path] + flags, **kws)
+            return subprocess.Popen([path] + flags, **kws)
         except OSError as e:
             raise RuntimeError("Error starting %s: %s" % (path, e))
 
     def _bus_name_appeared(self, name, owner, data):
-        log ("[%s] appeared in the bus as %s" % (self.PROCESS_NAME, owner))
+        log("[%s] appeared in the bus as %s" % (self.PROCESS_NAME, owner))
         self.available = True
         self.loop.quit()
 
     def _bus_name_vanished(self, name, data):
-        log ("[%s] disappeared from the bus" % self.PROCESS_NAME)
+        log("[%s] disappeared from the bus" % self.PROCESS_NAME)
         self.available = False
         self.loop.quit()
 
-    def _process_watch_cb (self):
+    def _process_watch_cb(self):
         if self.process_watch_timeout == 0:
             # The GLib seems to call the timeout after we've removed it
             # sometimes, which causes errors unless we detect it.
             return False
 
-        status = self.process.poll ()
+        status = self.process.poll()
 
         if status is None:
             return True    # continue
@@ -124,15 +128,16 @@ class Helper:
                 error = ""
             else:
                 error = self.process.stderr.read()
-            raise RuntimeError("%s exited with status: %i\n%s" % (self.PROCESS_NAME, status, error))
+            raise RuntimeError("%s exited with status: %i\n%s" %
+                               (self.PROCESS_NAME, status, error))
 
-    def _timeout_on_idle_cb (self):
-        log ("[%s] Timeout waiting... asumming idle." % self.PROCESS_NAME)
-        self.loop.quit ()
+    def _timeout_on_idle_cb(self):
+        log("[%s] Timeout waiting... asumming idle." % self.PROCESS_NAME)
+        self.loop.quit()
         self.timeout_id = None
         return False
 
-    def start (self, env=None):
+    def start(self, env=None):
         """
         Start an instance of process and wait for it to appear on the bus.
         """
@@ -146,25 +151,27 @@ class Helper:
         self.loop.run()
 
         if options.is_manual_start():
-            print ("Start %s manually" % self.PROCESS_NAME)
+            print("Start %s manually" % self.PROCESS_NAME)
         else:
             if self.available:
                 # It's running, but we didn't start it...
-                raise Exception ("Unable to start test instance of %s: "
-                                 "already running " % self.PROCESS_NAME)
+                raise Exception("Unable to start test instance of %s: "
+                                "already running " % self.PROCESS_NAME)
 
-            self.process = self._start_process (env=env)
-            log ('[%s] Started process %i' % (self.PROCESS_NAME, self.process.pid))
-            self.process_watch_timeout = GLib.timeout_add (200, self._process_watch_cb)
+            self.process = self._start_process(env=env)
+            log('[%s] Started process %i' %
+                (self.PROCESS_NAME, self.process.pid))
+            self.process_watch_timeout = GLib.timeout_add(
+                200, self._process_watch_cb)
 
         self.abort_if_process_exits_with_status_0 = True
 
         # Run the loop until the bus name appears, or the process dies.
-        self.loop.run ()
+        self.loop.run()
 
         self.abort_if_process_exits_with_status_0 = False
 
-    def stop (self):
+    def stop(self):
         if self.process is None:
             # Seems that it didn't even start...
             return
@@ -180,36 +187,37 @@ class Helper:
                 time.sleep(0.1)
 
                 if time.time() > (start + REASONABLE_TIMEOUT):
-                    log ("[%s] Failed to terminate, sending kill!" % self.PROCESS_NAME)
+                    log("[%s] Failed to terminate, sending kill!" %
+                        self.PROCESS_NAME)
                     self.process.kill()
                     self.process.wait()
 
-        log ("[%s] stopped." % self.PROCESS_NAME)
+        log("[%s] stopped." % self.PROCESS_NAME)
 
         # Run the loop until the bus name appears, or the process dies.
-        self.loop.run ()
+        self.loop.run()
         Gio.bus_unwatch_name(self._bus_name_watch_id)
 
         self.process = None
 
-    def kill (self):
+    def kill(self):
         if options.is_manual_start():
-            log ("kill(): ignoring, because process was started manually.")
+            log("kill(): ignoring, because process was started manually.")
             return
 
         if self.process_watch_timeout != 0:
             GLib.source_remove(self.process_watch_timeout)
             self.process_watch_timeout = 0
 
-        self.process.kill ()
+        self.process.kill()
 
         # Name owner changed callback should take us out from this loop
-        self.loop.run ()
+        self.loop.run()
         Gio.bus_unwatch_name(self._bus_name_watch_id)
 
         self.process = None
 
-        log ("[%s] killed." % self.PROCESS_NAME)
+        log("[%s] killed." % self.PROCESS_NAME)
 
 
 class StoreHelper (Helper):
@@ -224,8 +232,8 @@ class StoreHelper (Helper):
     PROCESS_PATH = cfg.TRACKER_STORE_PATH
     BUS_NAME = cfg.TRACKER_BUSNAME
 
-    def start (self, env=None):
-        Helper.start (self, env=env)
+    def start(self, env=None):
+        Helper.start(self, env=env)
 
         self.resources = Gio.DBusProxy.new_sync(
             self.bus, Gio.DBusProxyFlags.DO_NOT_AUTO_START, None,
@@ -243,50 +251,50 @@ class StoreHelper (Helper):
             self.bus, Gio.DBusProxyFlags.DO_NOT_AUTO_START, None,
             cfg.TRACKER_BUSNAME, cfg.TRACKER_STATUS_OBJ_PATH, cfg.STATUS_IFACE)
 
-        log ("[%s] booting..." % self.PROCESS_NAME)
-        self.status_iface.Wait ()
-        log ("[%s] ready." % self.PROCESS_NAME)
+        log("[%s] booting..." % self.PROCESS_NAME)
+        self.status_iface.Wait()
+        log("[%s] ready." % self.PROCESS_NAME)
 
-    def stop (self):
-        Helper.stop (self)
+    def stop(self):
+        Helper.stop(self)
 
-    def query (self, query, timeout=5000, **kwargs):
-        return self.resources.SparqlQuery ('(s)', query, timeout=timeout, **kwargs)
+    def query(self, query, timeout=5000, **kwargs):
+        return self.resources.SparqlQuery('(s)', query, timeout=timeout, **kwargs)
 
-    def update (self, update_sparql, timeout=5000, **kwargs):
-        return self.resources.SparqlUpdate ('(s)', update_sparql, timeout=timeout, **kwargs)
+    def update(self, update_sparql, timeout=5000, **kwargs):
+        return self.resources.SparqlUpdate('(s)', update_sparql, timeout=timeout, **kwargs)
 
-    def load (self, ttl_uri, timeout=5000, **kwargs):
-        return self.resources.Load ('(s)', ttl_uri, timeout=timeout, **kwargs)
+    def load(self, ttl_uri, timeout=5000, **kwargs):
+        return self.resources.Load('(s)', ttl_uri, timeout=timeout, **kwargs)
 
-    def batch_update (self, update_sparql, **kwargs):
-        return self.resources.BatchSparqlUpdate ('(s)', update_sparql, **kwargs)
+    def batch_update(self, update_sparql, **kwargs):
+        return self.resources.BatchSparqlUpdate('(s)', update_sparql, **kwargs)
 
-    def batch_commit (self, **kwargs):
-        return self.resources.BatchCommit (**kwargs)
+    def batch_commit(self, **kwargs):
+        return self.resources.BatchCommit(**kwargs)
 
-    def backup (self, backup_file, **kwargs):
-        return self.backup_iface.Save ('(s)', backup_file, **kwargs)
+    def backup(self, backup_file, **kwargs):
+        return self.backup_iface.Save('(s)', backup_file, **kwargs)
 
-    def restore (self, backup_file, **kwargs):
-        return self.backup_iface.Restore ('(s)', backup_file, **kwargs)
+    def restore(self, backup_file, **kwargs):
+        return self.backup_iface.Restore('(s)', backup_file, **kwargs)
 
-    def get_stats (self, **kwargs):
+    def get_stats(self, **kwargs):
         return self.stats_iface.Get(**kwargs)
 
-    def get_tracker_iface (self):
+    def get_tracker_iface(self):
         return self.resources
 
-    def count_instances (self, ontology_class):
+    def count_instances(self, ontology_class):
         QUERY = """
         SELECT COUNT(?u) WHERE {
             ?u a %s .
         }
         """
-        result = self.resources.SparqlQuery ('(s)', QUERY % (ontology_class))
+        result = self.resources.SparqlQuery('(s)', QUERY % (ontology_class))
 
-        if (len (result) == 1):
-            return int (result [0][0])
+        if (len(result) == 1):
+            return int(result[0][0])
         else:
             return -1
 
@@ -297,11 +305,11 @@ class StoreHelper (Helper):
         result = self.query(
             'SELECT tracker:id(%s) WHERE { }' % uri)
         if len(result) == 1:
-            return int (result [0][0])
+            return int(result[0][0])
         elif len(result) == 0:
-            raise Exception ("No entry for resource %s" % uri)
+            raise Exception("No entry for resource %s" % uri)
         else:
-            raise Exception ("Multiple entries for resource %s" % uri)
+            raise Exception("Multiple entries for resource %s" % uri)
 
     # FIXME: rename to get_resource_id_by_nepomuk_url !!
     def get_resource_id(self, url):
@@ -311,19 +319,19 @@ class StoreHelper (Helper):
         result = self.query(
             'SELECT tracker:id(?r) WHERE { ?r nie:url "%s" }' % url)
         if len(result) == 1:
-            return int (result [0][0])
+            return int(result[0][0])
         elif len(result) == 0:
-            raise Exception ("No entry for resource %s" % url)
+            raise Exception("No entry for resource %s" % url)
         else:
-            raise Exception ("Multiple entries for resource %s" % url)
+            raise Exception("Multiple entries for resource %s" % url)
 
-    def ask (self, ask_query):
-        assert ask_query.strip ().startswith ("ASK")
-        result = self.query (ask_query)
-        assert len (result) == 1
+    def ask(self, ask_query):
+        assert ask_query.strip().startswith("ASK")
+        result = self.query(ask_query)
+        assert len(result) == 1
         if result[0][0] == "true":
             return True
         elif result[0][0] == "false":
             return False
         else:
-            raise Exception ("Something fishy is going on")
+            raise Exception("Something fishy is going on")

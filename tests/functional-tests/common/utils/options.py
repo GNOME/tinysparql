@@ -1,5 +1,6 @@
 import os
 
+
 def get_environment_boolean(variable):
     '''Parse a yes/no boolean passed through the environment.'''
 
@@ -12,11 +13,13 @@ def get_environment_boolean(variable):
         raise RuntimeError('Unexpected value for %s: %s' %
                            (variable, value))
 
+
 def is_verbose():
     """
     True to log process status information to stdout
     """
     return get_environment_boolean('TRACKER_TESTS_VERBOSE')
+
 
 def is_manual_start():
     """

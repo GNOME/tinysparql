@@ -23,13 +23,14 @@ Replicate the behaviour of the miner inserting information in the store.
 import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
+
 class TestMinerInsertBehaviour (CommonTrackerStoreTest):
     """
     Mimic the behaviour of the miner, removing the previous information of the resource
     and inserting a new one.
     """
 
-    def test_miner_unique_insertion (self):
+    def test_miner_unique_insertion(self):
         """
         We actually can't test tracker-miner-fs, so we mimick its behavior in this test
         1. Insert one resource
@@ -57,22 +58,22 @@ class TestMinerInsertBehaviour (CommonTrackerStoreTest):
         """
 
         ''' First insertion '''
-        self.tracker.update (insert_sparql)
+        self.tracker.update(insert_sparql)
 
-        results = self.tracker.query (select_sparql)
-        self.assertEqual (len(results), 1)
+        results = self.tracker.query(select_sparql)
+        self.assertEqual(len(results), 1)
 
         ''' Second insertion / update '''
-        self.tracker.update (insert_sparql)
+        self.tracker.update(insert_sparql)
 
-        results = self.tracker.query (select_sparql)
-        self.assertEqual (len(results), 1)
+        results = self.tracker.query(select_sparql)
+        self.assertEqual(len(results), 1)
 
         ''' Clean up '''
-        self.tracker.update (delete_sparql)
+        self.tracker.update(delete_sparql)
 
-        results = self.tracker.query (select_sparql)
-        self.assertEqual (len(results), 0)
+        results = self.tracker.query(select_sparql)
+        self.assertEqual(len(results), 0)
 
 
 if __name__ == '__main__':
