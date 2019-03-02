@@ -60,7 +60,9 @@ DCONF_MINER_SCHEMA = "org.freedesktop.Tracker.Miner.Files"
 
 # Autoconf substitutes paths in the configuration.json file without
 # expanding variables, so we need to manually insert these.
-def expandvars (variable):
+
+
+def expandvars(variable):
     # Note: the order matters!
     result = variable
     for var, value in [("${datarootdir}", RAW_DATAROOT_DIR),
@@ -68,7 +70,7 @@ def expandvars (variable):
                        ("${prefix}", PREFIX),
                        ("@top_srcdir@", TOP_SRCDIR),
                        ("@top_builddir@", TOP_BUILDDIR)]:
-        result = result.replace (var, value)
+        result = result.replace(var, value)
 
     return result
 
@@ -77,14 +79,17 @@ PREFIX = config['PREFIX']
 RAW_EXEC_PREFIX = config['RAW_EXEC_PREFIX']
 RAW_DATAROOT_DIR = config['RAW_DATAROOT_DIR']
 
-TOP_SRCDIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+TOP_SRCDIR = os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 TOP_BUILDDIR = os.environ['TRACKER_FUNCTIONAL_TEST_BUILD_DIR']
 
-TEST_ONTOLOGIES_DIR = os.path.normpath(expandvars(config['TEST_ONTOLOGIES_DIR']))
+TEST_ONTOLOGIES_DIR = os.path.normpath(
+    expandvars(config['TEST_ONTOLOGIES_DIR']))
 
 TRACKER_STORE_PATH = os.path.normpath(expandvars(config['TRACKER_STORE_PATH']))
 
 disableJournal = (len(config['disableJournal']) == 0)
+
 
 def generated_ttl_dir():
     if TOP_BUILDDIR:

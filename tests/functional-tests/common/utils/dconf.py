@@ -5,6 +5,7 @@ import os
 
 from common.utils.helpers import log
 
+
 class DConfClient(object):
     """
     Allow changing Tracker configuration in DConf.
@@ -20,7 +21,7 @@ class DConfClient(object):
     break.
     """
 
-    def __init__ (self, schema):
+    def __init__(self, schema):
         self._settings = Gio.Settings.new(schema)
 
         backend = self._settings.get_property('backend')
@@ -69,10 +70,10 @@ class DConfClient(object):
         # XDG_CONFIG_HOME is useless, so we use HOME. This code should not be
         # needed unless for some reason the test is not being run via the
         # 'test-runner.sh' script.
-        dconf_db = os.path.join (os.environ ["HOME"],
-                                 ".config",
-                                 "dconf",
-                                 "trackertest")
-        if os.path.exists (dconf_db):
-            log ("[Conf] Removing dconf database: " + dconf_db)
-            os.remove (dconf_db)
+        dconf_db = os.path.join(os.environ["HOME"],
+                                ".config",
+                                "dconf",
+                                "trackertest")
+        if os.path.exists(dconf_db):
+            log("[Conf] Removing dconf database: " + dconf_db)
+            os.remove(dconf_db)

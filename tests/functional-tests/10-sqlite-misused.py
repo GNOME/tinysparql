@@ -28,35 +28,37 @@ from common.utils import configuration as cfg
 import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
+
 class TestSqliteMisused (CommonTrackerStoreTest):
     """
     Send queries while importing files (in .ttl directory)
     """
-    def setUp (self):
-        self.main_loop = GLib.MainLoop ()
+
+    def setUp(self):
+        self.main_loop = GLib.MainLoop()
         self.files_counter = 0
 
-    def test_queries_while_import (self):
+    def test_queries_while_import(self):
         assert os.path.isdir(cfg.generated_ttl_dir())
 
         for root, dirs, files in os.walk(cfg.generated_ttl_dir()):
-            for ttl_file in [f for f in files if f.endswith (".ttl")]:
-                full_path = os.path.abspath(os.path.join (root, ttl_file))
+            for ttl_file in [f for f in files if f.endswith(".ttl")]:
+                full_path = os.path.abspath(os.path.join(root, ttl_file))
                 self.files_counter += 1
 
                 self.tracker.load(
                     "file://" + full_path, timeout=30000,
                     result_handler=self.loaded_success_cb,
                     error_handler=self.loaded_failed_cb,
-                    user_data = full_path)
+                    user_data=full_path)
 
-        GLib.timeout_add_seconds (2, self.run_a_query)
+        GLib.timeout_add_seconds(2, self.run_a_query)
         # Safeguard of 60 seconds. The last reply should quit the loop
         # It doesn't matter if we didn't import all of the files yet.
-        GLib.timeout_add_seconds (60, self.timeout_cb)
-        self.main_loop.run ()
+        GLib.timeout_add_seconds(60, self.timeout_cb)
+        self.main_loop.run()
 
-    def run_a_query (self):
+    def run_a_query(self):
         QUERY = "SELECT ?u ?title WHERE { ?u a nie:InformationElement; nie:title ?title. }"
         self.tracker.query(
             QUERY, timeout=20000,
@@ -64,26 +66,26 @@ class TestSqliteMisused (CommonTrackerStoreTest):
             error_handler=self.error_handler)
         return True
 
-    def reply_cb (self, obj, results, data):
+    def reply_cb(self, obj, results, data):
         print("Query replied correctly")
 
-    def error_handler (self, obj, error, data):
+    def error_handler(self, obj, error, data):
         print("ERROR in DBus call: %s" % error)
 
-    def loaded_success_cb (self, obj, results, user_data):
+    def loaded_success_cb(self, obj, results, user_data):
         self.files_counter -= 1
         if (self.files_counter == 0):
             print("Last file loaded")
-            self.timeout_cb ()
+            self.timeout_cb()
         print("Success loading %s" % user_data)
 
-    def loaded_failed_cb (self, obj, error, user_data):
+    def loaded_failed_cb(self, obj, error, user_data):
         raise RuntimeError("Failed loading %s: %s" % (user_data, error))
 
-    def timeout_cb (self):
+    def timeout_cb(self):
         print("Forced timeout after 60 sec.")
-        self.main_loop.quit ()
+        self.main_loop.quit()
         return False
 
 if __name__ == "__main__":
-    ut.main ()
+    ut.main()

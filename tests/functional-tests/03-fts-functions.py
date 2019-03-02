@@ -25,12 +25,13 @@ and run sparql with fts functions to check the results.
 import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
+
 class TestFTSFunctions (CommonTrackerStoreTest):
     """
     Insert data with text and check the fts:xxxx functions are returning the expected results
     """
     @ut.skip("Test currently fails.")
-    def test_fts_rank (self):
+    def test_fts_rank(self):
         """
         1. Insert a Contact1 with 'abcdefxyz' as fullname and nickname
         2. Insert a Contact2 with 'abcdefxyz' as fullname
@@ -53,7 +54,7 @@ class TestFTSFunctions (CommonTrackerStoreTest):
                        nco:nickname 'abcdefxyz abcdefxyz' .
         }
         """
-        self.tracker.update (insert_sparql)
+        self.tracker.update(insert_sparql)
 
         query = """
         SELECT ?contact WHERE {
@@ -61,12 +62,12 @@ class TestFTSFunctions (CommonTrackerStoreTest):
                 fts:match 'abcdefxyz' .
         } ORDER BY DESC (fts:rank(?contact))
         """
-        results = self.tracker.query (query)
+        results = self.tracker.query(query)
 
-        self.assertEqual (len(results), 3)
-        self.assertEqual (results[0][0], "contact://test/fts-function/rank/1")
-        self.assertEqual (results[1][0], "contact://test/fts-function/rank/2")
-        self.assertEqual (results[2][0], "contact://test/fts-function/rank/3")
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0][0], "contact://test/fts-function/rank/1")
+        self.assertEqual(results[1][0], "contact://test/fts-function/rank/2")
+        self.assertEqual(results[2][0], "contact://test/fts-function/rank/3")
 
         delete_sparql = """
         DELETE {
@@ -75,10 +76,9 @@ class TestFTSFunctions (CommonTrackerStoreTest):
         <contact://test/fts-function/rank/3> a rdfs:Resource .
         }
         """
-        self.tracker.update (delete_sparql)
+        self.tracker.update(delete_sparql)
 
-
-    def test_fts_offsets (self):
+    def test_fts_offsets(self):
         """
         1. Insert a Contact1 with 'abcdefxyz' as fullname and nickname
         2. Insert a Contact2 with 'abcdefxyz' as fullname
@@ -101,7 +101,7 @@ class TestFTSFunctions (CommonTrackerStoreTest):
                        nco:nickname 'abcdefxyz abcdefxyz' .
         }
         """
-        self.tracker.update (insert_sparql)
+        self.tracker.update(insert_sparql)
 
         query = """
         SELECT fts:offsets (?contact) WHERE {
@@ -109,12 +109,13 @@ class TestFTSFunctions (CommonTrackerStoreTest):
                 fts:match 'abcdefxyz' .
         }
         """
-        results = self.tracker.query (query)
+        results = self.tracker.query(query)
 
-        self.assertEqual (len(results), 3)
-        self.assertEqual (results[0][0], 'nco:fullname,0,nco:nickname,0')
-        self.assertEqual (results[1][0], 'nco:fullname,0')
-        self.assertEqual (results[2][0], 'nco:fullname,0,nco:nickname,0,nco:nickname,10')
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0][0], 'nco:fullname,0,nco:nickname,0')
+        self.assertEqual(results[1][0], 'nco:fullname,0')
+        self.assertEqual(
+            results[2][0], 'nco:fullname,0,nco:nickname,0,nco:nickname,10')
 
         delete_sparql = """
         DELETE {
@@ -123,7 +124,7 @@ class TestFTSFunctions (CommonTrackerStoreTest):
         <contact://test/fts-function/offset/3> a rdfs:Resource .
         }
         """
-        self.tracker.update (delete_sparql)
+        self.tracker.update(delete_sparql)
 
 
 if __name__ == '__main__':
