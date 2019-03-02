@@ -670,17 +670,6 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 	if (!other_file) {
 		is_directory = check_is_directory (monitor, file);
 
-		/* Avoid non-indexable-files */
-		if (priv->tree &&
-		    !tracker_indexing_tree_file_is_indexable (priv->tree,
-		                                              file,
-		                                              (is_directory ?
-		                                               G_FILE_TYPE_DIRECTORY :
-		                                               G_FILE_TYPE_REGULAR))) {
-			g_free (file_uri);
-			return;
-		}
-
 		other_file_uri = NULL;
 		g_debug ("Received monitor event:%d (%s) for %s:'%s'",
 		         event_type,
@@ -693,24 +682,6 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 			is_directory = check_is_directory (monitor, other_file);
 		} else if (event_type == G_FILE_MONITOR_EVENT_MOVED_IN) {
 			is_directory = check_is_directory (monitor, file);
-		}
-
-		/* Avoid doing anything of both
-		 * file/other_file are non-indexable
-		 */
-		if (priv->tree &&
-		    !tracker_indexing_tree_file_is_indexable (priv->tree,
-		                                              file,
-		                                              (is_directory ?
-		                                               G_FILE_TYPE_DIRECTORY :
-		                                               G_FILE_TYPE_REGULAR)) &&
-		    !tracker_indexing_tree_file_is_indexable (priv->tree,
-		                                              other_file,
-		                                              (is_directory ?
-		                                               G_FILE_TYPE_DIRECTORY :
-		                                               G_FILE_TYPE_REGULAR))) {
-			g_free (file_uri);
-			return;
 		}
 
 		other_file_uri = g_file_get_uri (other_file);
