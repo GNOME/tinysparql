@@ -3,7 +3,7 @@ from gi.repository import Gio
 
 import os
 
-from helpers import log
+from common.utils.helpers import log
 
 class DConfClient(object):
     """

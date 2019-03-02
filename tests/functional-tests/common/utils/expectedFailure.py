@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 ## Code taken and modified from unittest2 framework (case.py)
 
@@ -27,7 +27,7 @@ on the files. Note that these tests are highly platform dependant.
 """
 import sys
 from functools import wraps
-import configuration as cfg
+import common.utils.configuration as cfg
 
 def expectedFailureJournal():
     """

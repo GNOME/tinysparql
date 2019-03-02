@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -22,10 +22,7 @@ Make sure that when COMMIT returns, the data is in the DB
 """
 import time
 
-from common.utils import configuration as cfg
-from common.utils.helpers import StoreHelper as StoreHelper
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 TEST_INSTANCE_PATTERN = "test://12-transactions-%d"
@@ -45,7 +42,7 @@ class TrackerTransactionsTest (CommonTrackerStoreTest):
         self.instance_counter = 0
 
     def tearDown (self):
-        print "Tear down (will take some time to remove all resources)"
+        print("Tear down (will take some time to remove all resources)")
         delete_sparql = "DELETE { ?u a rdfs:Resource } WHERE { ?u a nmo:Email} \n"
         self.tracker.update (delete_sparql,
                              timeout=60000)
@@ -78,12 +75,12 @@ class TrackerTransactionsTest (CommonTrackerStoreTest):
             try:
                 results = self.tracker.count_instances ("nmo:Email")
             except:
-                print "Timeout, probably replaying journal or something (wait 20 sec.)"
+                print("Timeout, probably replaying journal or something (wait 20 sec.)")
                 time.sleep (20)
                 results = self.tracker.count_instances ()
 
             # Every iteration we are adding new instances in the store!
-            self.assertEquals (results, NUMBER_OF_INSTANCES * (i+1))
+            self.assertEqual (results, NUMBER_OF_INSTANCES * (i+1))
 
 if __name__ == "__main__":
     ut.main ()

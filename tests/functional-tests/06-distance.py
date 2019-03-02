@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -20,12 +20,7 @@
 """
 Test the distance-calculation functions in Sparql. Only requires the Store
 """
-import unittest
-import random
-
-from common.utils import configuration as cfg
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 POINT_COORDS = [

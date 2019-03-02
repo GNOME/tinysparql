@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -28,7 +28,6 @@ from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreT
 from common.utils import configuration as cfg
 
 from gi.repository import Gio
-from gi.repository import GObject
 from gi.repository import GLib
 import time
 
@@ -49,7 +48,7 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
     def setUp (self):
         self.clean_up_list = []
 
-        self.loop = GObject.MainLoop()
+        self.loop = GLib.MainLoop()
         self.timeout_id = 0
 
         self.bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
@@ -92,7 +91,7 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
     def __pretty_print_array (self, array):
         for g, s, o, p in array:
             uri, prop, value = self.tracker.query ("SELECT tracker:uri (%s), tracker:uri (%s), tracker:uri (%s) WHERE {}" % (s, o, p))
-            print " - (", "-".join ([g, uri, prop, value]), ")"
+            print(" - (", "-".join ([g, uri, prop, value]), ")")
                                     
     def __signal_received_cb (self, connection, sender_name, object_path, interface_name, signal_name, parameters):
         """
@@ -129,8 +128,8 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         self.__wait_for_signal ()
 
         # validate results
-        self.assertEquals (len (self.results_deletes), 0)
-        self.assertEquals (len (self.results_inserts), 6)
+        self.assertEqual (len (self.results_deletes), 0)
+        self.assertEqual (len (self.results_inserts), 6)
         
     def test_02_remove_contact (self):
         CONTACT = """
@@ -151,8 +150,8 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         self.__wait_for_signal ()
 
         # Validate results:
-        self.assertEquals (len (self.results_deletes), 1)
-        self.assertEquals (len (self.results_inserts), 0)
+        self.assertEqual (len (self.results_deletes), 1)
+        self.assertEqual (len (self.results_inserts), 0)
 
 
     def test_03_update_contact (self):
@@ -166,8 +165,8 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
         self.tracker.update ("INSERT { <test://signals-contact-update> nco:fullname 'wohoo'}")
         self.__wait_for_signal ()
 
-        self.assertEquals (len (self.results_deletes), 0)
-        self.assertEquals (len (self.results_inserts), 1)
+        self.assertEqual (len (self.results_deletes), 0)
+        self.assertEqual (len (self.results_inserts), 1)
 
 
     def test_04_fullupdate_contact (self):
@@ -186,8 +185,8 @@ class TrackerStoreSignalsTests (CommonTrackerStoreTest):
                """)
         self.__wait_for_signal ()
 
-        self.assertEquals (len (self.results_deletes), 1)
-        self.assertEquals (len (self.results_inserts), 1)
+        self.assertEqual (len (self.results_deletes), 1)
+        self.assertEqual (len (self.results_inserts), 1)
         
 
 if __name__ == "__main__":

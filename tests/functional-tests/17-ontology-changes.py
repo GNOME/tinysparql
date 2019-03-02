@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -82,7 +82,7 @@ class TrackerSystemAbstraction (object):
             "XDG_CACHE_HOME": self.xdg_cache_home()
         }
 
-        for var, directory in self._dirs.items():
+        for var, directory in list(self._dirs.items()):
             os.makedirs (directory)
             os.makedirs (os.path.join(directory, 'tracker'))
             os.environ [var] = directory
@@ -91,7 +91,7 @@ class TrackerSystemAbstraction (object):
             helpers.log ("export %s=%s" % ("TRACKER_DB_ONTOLOGIES_DIR", ontodir))
             os.environ ["TRACKER_DB_ONTOLOGIES_DIR"] = ontodir
 
-        for var, value in TEST_ENV_VARS.iteritems ():
+        for var, value in TEST_ENV_VARS.items ():
             helpers.log ("export %s=%s" %(var, value))
             os.environ [var] = value
 
@@ -100,10 +100,10 @@ class TrackerSystemAbstraction (object):
             self._apply_settings(settings)
 
     def _apply_settings(self, settings):
-        for schema_name, contents in settings.iteritems():
+        for schema_name, contents in settings.items():
             dconf = DConfClient(schema_name)
             dconf.reset()
-            for key, value in contents.iteritems():
+            for key, value in contents.items():
                 dconf.write(key, value)
 
     def tracker_store_testing_start (self, confdir=None, ontodir=None):
@@ -133,7 +133,7 @@ class TrackerSystemAbstraction (object):
         if self.store:
             self.store.stop ()
 
-        for path in self._dirs.values():
+        for path in list(self._dirs.values()):
             shutil.rmtree(path)
         os.rmdir(self._basedir)
 
@@ -180,7 +180,7 @@ class OntologyChangeTestTemplate (ut.TestCase):
         try:
             # Boot the second set of ontologies
             self.system.tracker_store_restart_with_new_ontologies (modified_ontologies)
-        except UnableToBootException, e:
+        except UnableToBootException as e:
             self.fail (str(self.__class__) + " " + str(e))
 
         self.validate_status ()
@@ -245,7 +245,7 @@ class OntologyChangeTestTemplate (ut.TestCase):
                         nao_date = modtime_match.group (1)
                         return time.strptime(nao_date, "%Y-%m-%dT%H:%M:%SZ")  
                     else:
-                        print "something funky in", line
+                        print("something funky in", line)
                     break
 
         first_date = get_ontology_date (os.path.join (first_dir, "91-test.ontology"))
@@ -276,11 +276,11 @@ class PropertyRangeStringToDate (OntologyChangeTestTemplate):
     def validate_status (self):
         # Query the ontology itself
         result = self.tracker.query ("SELECT ?o WHERE { test:a_string rdfs:range ?o }")
-        self.assertEquals (result[0][0], XSD_DATETIME)
+        self.assertEqual (result[0][0], XSD_DATETIME)
 
         # Check the value is there
         result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_string ?o . }" % (self.instance))
-        self.assertEquals (result[0][0], "2010-10-12T13:30:00Z")
+        self.assertEqual (result[0][0], "2010-10-12T13:30:00Z")
 
 
 class PropertyRangeDateToString (OntologyChangeTestTemplate):
@@ -305,11 +305,11 @@ class PropertyRangeDateToString (OntologyChangeTestTemplate):
     def validate_status (self):
         # Query the ontology itself
         result = self.tracker.query ("SELECT ?o WHERE { test:a_string rdfs:range ?o }")
-        self.assertEquals (result[0][0], XSD_STRING)
+        self.assertEqual (result[0][0], XSD_STRING)
 
         # Check the value is there
         result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_string ?o . }" % (self.instance))
-        self.assertEquals (result[0][0], "2010-10-12T13:30:00Z")
+        self.assertEqual (result[0][0], "2010-10-12T13:30:00Z")
 
 class PropertyRangeIntToString (OntologyChangeTestTemplate):
     """
@@ -329,11 +329,11 @@ class PropertyRangeIntToString (OntologyChangeTestTemplate):
 
     def validate_status (self):
         result = self.tracker.query ("SELECT ?o WHERE { test:a_int rdfs:range ?o. }")
-        self.assertEquals (str(result[0][0]), XSD_STRING)
+        self.assertEqual (str(result[0][0]), XSD_STRING)
 
         # Check the value is there
         result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_int ?o .}" % (self.instance))
-        self.assertEquals (result[0][0], "12")
+        self.assertEqual (result[0][0], "12")
 
 class PropertyRangeStringToInt (OntologyChangeTestTemplate):
     """
@@ -354,11 +354,11 @@ class PropertyRangeStringToInt (OntologyChangeTestTemplate):
 
     def validate_status (self):
         result = self.tracker.query ("SELECT ?o WHERE { test:a_int rdfs:range ?o. }")
-        self.assertEquals (str(result[0][0]), XSD_INTEGER)
+        self.assertEqual (str(result[0][0]), XSD_INTEGER)
 
         # Check the value is there
         result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_int ?o .}" % (self.instance))
-        self.assertEquals (result[0][0], "12")
+        self.assertEqual (result[0][0], "12")
         
 class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
     """
@@ -381,16 +381,16 @@ class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
         self.tracker.update ("INSERT { <%s> a test:A; test:a_n_cardinality 'some text'. }" % (self.instance))
 
         result = self.tracker.query ("SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
-        self.assertEquals (int (result[0][0]), 1)
+        self.assertEqual (int (result[0][0]), 1)
 
                 
     def validate_status (self):
         result = self.tracker.query ("SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
-        self.assertEquals (len (result), 0, "Cardinality should be 0")
+        self.assertEqual (len (result), 0, "Cardinality should be 0")
         
         # Check the value is there
         result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_n_cardinality ?o .}" % (self.instance))
-        self.assertEquals (str(result[0][0]), "some text")
+        self.assertEqual (str(result[0][0]), "some text")
 
 class PropertyMaxCardinalityNto1 (OntologyChangeTestTemplate):
     """
@@ -412,16 +412,16 @@ class PropertyMaxCardinalityNto1 (OntologyChangeTestTemplate):
         self.tracker.update ("INSERT { <%s> a test:A; test:a_n_cardinality 'some text'. }" % (self.instance))
 
         result = self.tracker.query ("SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
-        self.assertEquals (len (result), 0, "Cardinality should be 0")
+        self.assertEqual (len (result), 0, "Cardinality should be 0")
 
                 
     def validate_status (self):
         result = self.tracker.query ("SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
-        self.assertEquals (int (result[0][0]), 1, "Cardinality should be 1")
+        self.assertEqual (int (result[0][0]), 1, "Cardinality should be 1")
         
         # Check the value is there
         result = self.tracker.query ("SELECT ?o WHERE { <%s> test:a_n_cardinality ?o .}" % (self.instance))
-        self.assertEquals (str(result[0][0]), "some text")
+        self.assertEqual (str(result[0][0]), "some text")
 
 class ClassNotifySet (OntologyChangeTestTemplate):
     """
@@ -441,10 +441,10 @@ class ClassNotifySet (OntologyChangeTestTemplate):
 
     def validate_status (self):
         result = self.tracker.query ("SELECT ?notify WHERE { test:A tracker:notify ?notify}")
-        self.assertEquals (str(result[0][0]), "true")
+        self.assertEqual (str(result[0][0]), "true")
         
         result = self.tracker.query ("SELECT ?u WHERE { ?u a test:A. }")
-        self.assertEquals (str(result[0][0]), self.instance)
+        self.assertEqual (str(result[0][0]), self.instance)
 
 class ClassNotifyUnset (OntologyChangeTestTemplate):
     """
@@ -466,12 +466,12 @@ class ClassNotifyUnset (OntologyChangeTestTemplate):
         result = self.tracker.query ("SELECT ?notify WHERE { test:A tracker:notify ?notify}")
         if (len (result) == 1):
             # Usually is (none) but it was "true" before so now has value.
-            self.assertEquals (result[0][0], "false")
+            self.assertEqual (result[0][0], "false")
         else:
-            self.assertEquals (len (result), 0)
+            self.assertEqual (len (result), 0)
         
         result = self.tracker.query ("SELECT ?u WHERE { ?u a test:A. }")
-        self.assertEquals (str(result[0][0]), self.instance)
+        self.assertEqual (str(result[0][0]), self.instance)
 
 
 class PropertyIndexedSet (OntologyChangeTestTemplate):
@@ -500,19 +500,19 @@ class PropertyIndexedSet (OntologyChangeTestTemplate):
     def validate_status (self):
         # Check ontology and instance for the single valued property
         result = self.tracker.query ("SELECT ?indexed WHERE { test:a_string tracker:indexed ?indexed}")
-        self.assertEquals (str(result[0][0]), "true")
+        self.assertEqual (str(result[0][0]), "true")
 
         result = self.tracker.query ("SELECT ?content WHERE { <%s> a test:A; test:a_string ?content. }"
                                     % (self.instance_single_valued))
-        self.assertEquals (str(result[0][0]), "anything 1")
+        self.assertEqual (str(result[0][0]), "anything 1")
 
         # Check ontology and instance for the multiple valued property
         result = self.tracker.query ("SELECT ?indexed WHERE { test:a_n_cardinality tracker:indexed ?indexed}")
-        self.assertEquals (str(result[0][0]), "true")
+        self.assertEqual (str(result[0][0]), "true")
 
         result = self.tracker.query ("SELECT ?content WHERE { <%s> a test:A; test:a_n_cardinality ?content. }"
                                     % (self.instance_n_valued))
-        self.assertEquals (str(result[0][0]), "anything n")
+        self.assertEqual (str(result[0][0]), "anything n")
 
 class PropertyIndexedUnset (OntologyChangeTestTemplate):
     """
@@ -544,19 +544,19 @@ class PropertyIndexedUnset (OntologyChangeTestTemplate):
         
         # Check ontology and instance for the single valued property
         result = self.tracker.query ("SELECT ?indexed WHERE { test:a_string tracker:indexed ?indexed}")
-        self.assertEquals (str(result[0][0]), "false")
+        self.assertEqual (str(result[0][0]), "false")
 
         result = self.tracker.query ("SELECT ?content WHERE { <%s> a test:A; test:a_string ?content. }"
                                     % (self.instance_single_valued))
-        self.assertEquals (str(result[0][0]), "anything 1")
+        self.assertEqual (str(result[0][0]), "anything 1")
 
         # Check ontology and instance for the multiple valued property
         result = self.tracker.query ("SELECT ?indexed WHERE { test:a_n_cardinality tracker:indexed ?indexed}")
-        self.assertEquals (str(result[0][0]), "false")
+        self.assertEqual (str(result[0][0]), "false")
 
         result = self.tracker.query ("SELECT ?content WHERE { <%s> a test:A; test:a_n_cardinality ?content. }"
                                     % (self.instance_n_valued))
-        self.assertEquals (str(result[0][0]), "anything n")
+        self.assertEqual (str(result[0][0]), "anything n")
 
 class OntologyAddClassTest (OntologyChangeTestTemplate):
     """
@@ -611,7 +611,7 @@ class OntologyRemoveClassTest (OntologyChangeTestTemplate):
 
         # D is a subclass of A, removing D should keep the A instances
         result = self.tracker.query ("SELECT ?i WHERE { ?i a test:A. }")
-        self.assertEquals (result[0][0], self.instance_e)
+        self.assertEqual (result[0][0], self.instance_e)
 
 class OntologyAddPropertyTest (OntologyChangeTestTemplate):
     """
@@ -808,20 +808,20 @@ class SuperclassRemovalTest (OntologyChangeTestTemplate):
         """ % (self.instance_b))
 
         result = self.tracker.count_instances ("test:B")
-        self.assertEquals (result, 1)
+        self.assertEqual (result, 1)
 
         result = self.tracker.count_instances ("test:A")
-        self.assertEquals (result, 2)
+        self.assertEqual (result, 2)
 
     def validate_status (self):
         is_subclass = self.tracker.ask ("ASK {test:B rdfs:subClassOf test:A}")
         self.assertFalse (is_subclass)
 
         result = self.tracker.count_instances ("test:B")
-        self.assertEquals (result, 1)
+        self.assertEqual (result, 1)
 
         result = self.tracker.count_instances ("test:A")
-        self.assertEquals (result, 1)
+        self.assertEqual (result, 1)
 
 class SuperclassAdditionTest (OntologyChangeTestTemplate):
     """
@@ -851,20 +851,20 @@ class SuperclassAdditionTest (OntologyChangeTestTemplate):
         """ % (self.instance_b))
 
         result = self.tracker.count_instances ("test:B")
-        self.assertEquals (result, 1)
+        self.assertEqual (result, 1)
 
         result = self.tracker.count_instances ("test:A")
-        self.assertEquals (result, 1)
+        self.assertEqual (result, 1)
         
     def validate_status (self):
         is_subclass = self.tracker.ask ("ASK {test:B rdfs:subClassOf test:A}")
         self.assertTrue (is_subclass)
 
         result = self.tracker.count_instances ("test:B")
-        self.assertEquals (result, 1)
+        self.assertEqual (result, 1)
 
         result = self.tracker.count_instances ("test:A")
-        self.assertEquals (result, 2)
+        self.assertEqual (result, 2)
         
 
 class PropertyPromotionTest (OntologyChangeTestTemplate):
@@ -900,8 +900,8 @@ class PropertyPromotionTest (OntologyChangeTestTemplate):
         # No data loss
         result = self.tracker.query ("SELECT ?v ?w WHERE { <%s> test:b_property ?v ; test:b_property_n ?w }"
                                     % (self.instance_b))
-        self.assertEquals (result [0][0], "content-b-test")
-        self.assertEquals (result [0][1], "b-test-n")
+        self.assertEqual (result [0][0], "content-b-test")
+        self.assertEqual (result [0][1], "b-test-n")
 
 class PropertyRelegationTest (OntologyChangeTestTemplate):
     """
@@ -935,8 +935,8 @@ class PropertyRelegationTest (OntologyChangeTestTemplate):
         # No data loss
         result = self.tracker.query ("SELECT ?v ?w WHERE { <%s> test:b_property ?v; test:b_property_n ?w }"
                                     % (self.instance_b))
-        self.assertEquals (result [0][0], "content-b-test")
-        self.assertEquals (result [0][1], "b-test-n")
+        self.assertEqual (result [0][0], "content-b-test")
+        self.assertEqual (result [0][1], "b-test-n")
 
 
 

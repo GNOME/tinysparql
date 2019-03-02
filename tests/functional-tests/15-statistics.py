@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -24,9 +24,7 @@ are updated when different operations are executed on the store
 """
 import time
 
-from common.utils import configuration as cfg
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 RDFS_RESOURCE = "rdfs:Resource"
@@ -65,11 +63,11 @@ class TrackerStoreStatisticsTests (CommonTrackerStoreTest):
 
         increased_classes = [NIE_IE, RDFS_RESOURCE]
 
-        for k, v in new_stats.iteritems ():
+        for k, v in new_stats.items ():
             if k in increased_classes:
-                self.assertEquals (old_stats[k]+1, new_stats[k])
+                self.assertEqual (old_stats[k]+1, new_stats[k])
             else:
-                self.assertEquals (old_stats [k], new_stats [k],
+                self.assertEqual (old_stats [k], new_stats [k],
                                    "Class %s should have the same instances" % k)
 
 
@@ -86,17 +84,17 @@ class TrackerStoreStatisticsTests (CommonTrackerStoreTest):
         for c in new_classes:
             self.assertIn (c, new_stats)
         
-        for k, v in new_stats.iteritems ():
+        for k, v in new_stats.items ():
             if k in increased_classes:
-                self.assertEquals (old_stats [k]+1, new_stats[k])
+                self.assertEqual (old_stats [k]+1, new_stats[k])
             elif k in new_classes:
                 # This classes could exists previous or not!
-                if old_stats.has_key (k):
-                    self.assertEquals (old_stats [k]+1, new_stats [k])
+                if k in old_stats:
+                    self.assertEqual (old_stats [k]+1, new_stats [k])
                 else:
-                    self.assertEquals (new_stats [k], 1)
+                    self.assertEqual (new_stats [k], 1)
             else:
-                self.assertEquals (old_stats [k], new_stats[k])
+                self.assertEqual (old_stats [k], new_stats[k])
 
     def test_stats_03_delete_deep_class (self):
         self.clean_up_instances.append ("test://stats-03")
@@ -114,13 +112,13 @@ class TrackerStoreStatisticsTests (CommonTrackerStoreTest):
             if (old_stats[c] == 1):
                 self.assertNotIn (c, new_stats)
             else:
-                self.assertEquals (old_stats[c]-1, new_stats[c])
+                self.assertEqual (old_stats[c]-1, new_stats[c])
 
-        for k, v in new_stats.iteritems ():
+        for k, v in new_stats.items ():
             if k in decreased_classes:
-                self.assertEquals (old_stats [k]-1, new_stats[k])
+                self.assertEqual (old_stats [k]-1, new_stats[k])
             else:
-                self.assertEquals (old_stats [k], new_stats [k])
+                self.assertEqual (old_stats [k], new_stats [k])
 
 if __name__ == "__main__":
     ut.main ()

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
@@ -26,9 +26,7 @@ import time
 import random
 import locale
 
-from common.utils import configuration as cfg
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 class TrackerStoreCollationTests (CommonTrackerStoreTest):
@@ -78,11 +76,11 @@ class TrackerStoreCollationTests (CommonTrackerStoreTest):
         for i in input_list:
             self.__insert_text (i)
 
-        results = [r[0].decode('utf-8') for r in self.get_text_sorted_by_collation ()]
-        self.assertEquals (len (results), len (expected_list))
+        results = [r[0] for r in self.get_text_sorted_by_collation ()]
+        self.assertEqual (len (results), len (expected_list))
 
         for r in range (0, len (results)):
-            self.assertEquals (results[r], expected_list [r],
+            self.assertEqual (results[r], expected_list [r],
                                """Error:
                                   Expected : *** %s
                                   Result   : *** %s
@@ -114,7 +112,7 @@ class TrackerStoreCollationTests (CommonTrackerStoreTest):
         http://www.unicode.org/reports/tr10/#Main_Algorithm
         """
         input_dt = ["Cab", "cab", "dab", "cáb"]
-        expected = ["cab", "Cab", u"cáb", "dab"]
+        expected = ["cab", "Cab", "cáb", "dab"]
         self.__collation_test (input_dt, expected)
 
     def test_collation_04 (self):
@@ -122,15 +120,15 @@ class TrackerStoreCollationTests (CommonTrackerStoreTest):
         Spanish test in english locale
         """
         input_dt = ["ä", "ö", "a", "e", "i", "o", "u"]
-        expected = ["a", u"ä", "e", "i", "o", u"ö", "u"]
+        expected = ["a", "ä", "e", "i", "o", "ö", "u"]
         self.__collation_test (input_dt, expected)
 
 if __name__ == "__main__":
-    print """
+    print("""
     TODO:
       * Check what happens in non-english encoding
       * Dynamic change of collation (not implemented yet in tracker)
-    """
+    """)
     ut.main ()
 
     

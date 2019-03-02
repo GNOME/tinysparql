@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (C) 2010, Nokia <ivan.frade@nokia.com>
 #
@@ -20,12 +20,7 @@
 """
 Tests graphs in Sparql. Only requires the store.
 """
-import unittest
-import random
-
-from common.utils import configuration as cfg
 import unittest as ut
-#import unittest as ut
 from common.utils.storetest import CommonTrackerStoreTest as CommonTrackerStoreTest
 
 class TestGraphs (CommonTrackerStoreTest):
@@ -73,9 +68,9 @@ class TestGraphs (CommonTrackerStoreTest):
         """
         results = self.tracker.query (query)
 
-        self.assertEquals (len(results), 1)
-        self.assertEquals (results[0][0], "contact://test/graph/1")
-        self.assertEquals (results[0][1], "tel:+1234567891")
+        self.assertEqual (len(results), 1)
+        self.assertEqual (results[0][0], "contact://test/graph/1")
+        self.assertEqual (results[0][1], "tel:+1234567891")
 
         delete_sparql = """
         DELETE {
@@ -120,9 +115,9 @@ class TestGraphs (CommonTrackerStoreTest):
         }
         """
         results = self.tracker.query (query)
-        self.assertEquals (len(results), 1)
-        self.assertEquals (results[0][0], "contact://test/graph/1")
-        self.assertEquals (results[0][1], "graph://test/graph/0")
+        self.assertEqual (len(results), 1)
+        self.assertEqual (results[0][0], "contact://test/graph/1")
+        self.assertEqual (results[0][1], "graph://test/graph/0")
 
         delete_sparql = """
         DELETE {
