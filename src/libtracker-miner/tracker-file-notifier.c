@@ -1288,12 +1288,6 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 		tracker_monitor_remove_recursively (priv->monitor, file);
 	}
 
-	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
-	                                              file, file_type)) {
-		/* File was not indexed */
-		return ;
-	}
-
 	if (!is_directory) {
 		TrackerDirectoryFlags flags;
 		gboolean indexable;
@@ -1305,7 +1299,6 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 
 		indexable = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
 		                                                       parent, children);
-		g_object_unref (parent);
 		g_list_free (children);
 
 		/* note: This supposedly works, but in practice
@@ -1317,15 +1310,23 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 			/* New file was triggering a directory content
 			 * filter, reindex parent directory altogether
 			 */
-			file = tracker_file_system_get_file (priv->file_system,
-			                                     file,
-			                                     G_FILE_TYPE_DIRECTORY,
-			                                     NULL);
+			canonical = tracker_file_system_get_file (priv->file_system,
+			                                          parent,
+			                                          G_FILE_TYPE_DIRECTORY,
+			                                          NULL);
 			tracker_indexing_tree_get_root (priv->indexing_tree,
-							file, &flags);
-			notifier_queue_root (notifier, file, flags, FALSE);
+							canonical, &flags);
+			notifier_queue_root (notifier, canonical, flags, FALSE);
 			return;
 		}
+
+		g_object_unref (parent);
+	}
+
+	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
+	                                              file, file_type)) {
+		/* File was not indexed */
+		return ;
 	}
 
 	/* Fetch the interned copy */
