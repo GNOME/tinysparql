@@ -314,7 +314,6 @@ tracker_monitor_finalize (GObject *object)
 
 	g_hash_table_unref (priv->cached_events);
 	g_hash_table_unref (priv->monitors);
-	g_clear_object (&priv->tree);
 
 	G_OBJECT_CLASS (tracker_monitor_parent_class)->finalize (object);
 }
@@ -811,39 +810,6 @@ tracker_monitor_get_enabled (TrackerMonitor *monitor)
 	priv = tracker_monitor_get_instance_private (monitor);
 
 	return priv->enabled;
-}
-
-TrackerIndexingTree *
-tracker_monitor_get_indexing_tree (TrackerMonitor *monitor)
-{
-	TrackerMonitorPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), NULL);
-
-	priv = tracker_monitor_get_instance_private (monitor);
-
-	return priv->tree;
-}
-
-void
-tracker_monitor_set_indexing_tree (TrackerMonitor      *monitor,
-                                   TrackerIndexingTree *tree)
-{
-	TrackerMonitorPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_MONITOR (monitor));
-	g_return_if_fail (!tree || TRACKER_IS_INDEXING_TREE (tree));
-
-	priv = tracker_monitor_get_instance_private (monitor);
-
-	if (priv->tree) {
-		g_object_unref (priv->tree);
-		priv->tree = NULL;
-	}
-
-	if (tree) {
-		priv->tree = g_object_ref (tree);
-	}
 }
 
 void

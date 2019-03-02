@@ -118,8 +118,6 @@ tracker_file_notifier_set_property (GObject      *object,
 	switch (prop_id) {
 	case PROP_INDEXING_TREE:
 		priv->indexing_tree = g_value_dup_object (value);
-		tracker_monitor_set_indexing_tree (priv->monitor,
-		                                   priv->indexing_tree);
 		break;
 	case PROP_DATA_PROVIDER:
 		priv->data_provider = g_value_dup_object (value);
