@@ -637,6 +637,11 @@ cache_event (TrackerMonitor    *monitor,
 	TrackerMonitorPrivate *priv;
 
 	priv = tracker_monitor_get_instance_private (monitor);
+
+	if (g_hash_table_lookup_extended (priv->cached_events, file,
+	                                  NULL, NULL))
+		return;
+
 	g_hash_table_insert (priv->cached_events,
 	                     g_object_ref (file),
 	                     GUINT_TO_POINTER (event_type));
