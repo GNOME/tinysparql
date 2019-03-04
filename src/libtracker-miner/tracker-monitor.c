@@ -694,7 +694,7 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 	switch (event_type) {
 	case G_FILE_MONITOR_EVENT_CREATED:
 	case G_FILE_MONITOR_EVENT_CHANGED:
-		if (priv->use_changed_event) {
+		if (!priv->use_changed_event) {
 			cache_event (monitor, file, event_type);
 		} else {
 			emit_signal_for_event (monitor, event_type,
