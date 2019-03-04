@@ -637,6 +637,11 @@ cache_event (TrackerMonitor    *monitor,
 	TrackerMonitorPrivate *priv;
 
 	priv = tracker_monitor_get_instance_private (monitor);
+
+	if (g_hash_table_lookup_extended (priv->cached_events, file,
+	                                  NULL, NULL))
+		return;
+
 	g_hash_table_insert (priv->cached_events,
 	                     g_object_ref (file),
 	                     GUINT_TO_POINTER (event_type));
@@ -654,6 +659,7 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 	gchar *other_file_uri;
 	gboolean is_directory = FALSE;
 	TrackerMonitorPrivate *priv;
+	gpointer value;
 
 	monitor = user_data;
 	priv = tracker_monitor_get_instance_private (monitor);
@@ -694,7 +700,7 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 	switch (event_type) {
 	case G_FILE_MONITOR_EVENT_CREATED:
 	case G_FILE_MONITOR_EVENT_CHANGED:
-		if (priv->use_changed_event) {
+		if (!priv->use_changed_event) {
 			cache_event (monitor, file, event_type);
 		} else {
 			emit_signal_for_event (monitor, event_type,
@@ -702,6 +708,18 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		}
 		break;
 	case G_FILE_MONITOR_EVENT_DELETED:
+		if (g_hash_table_lookup_extended (priv->cached_events,
+		                                  file, NULL, &value) &&
+		    GPOINTER_TO_UINT (value) == G_FILE_MONITOR_EVENT_CREATED) {
+			/* Consume both the cached CREATED event and this one */
+			g_hash_table_remove (priv->cached_events, file);
+			break;
+		}
+
+		/* In any case, cached events are stale */
+		g_hash_table_remove (priv->cached_events, file);
+
+		/* Fall through */
 	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
 		emit_signal_for_event (monitor, event_type,
 		                       is_directory, file, NULL);
