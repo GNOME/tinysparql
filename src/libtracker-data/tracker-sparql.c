@@ -2631,6 +2631,8 @@ get_solution_for_pattern (TrackerSparql      *sparql,
 				g_ascii_dtostr (buf, sizeof (buf),
 				                g_value_get_double (&value));
 				tracker_solution_add_value (solution, buf);
+			} else if (G_VALUE_TYPE (&value) == G_TYPE_INVALID) {
+				tracker_solution_add_value (solution, NULL);
 			} else {
 				g_assert_not_reached ();
 			}
