@@ -1,3 +1,18 @@
+NEW in 2.2.1 - 2019-03-06
+=========================
+
+  * Fix unichar unescaping
+  * Correctly Handle BIND in first place of a triples block
+  * Fix possible deadlock on WAL checkpoint
+  * Fix some double values not being deleted
+  * Fixed CHANGES_DONE_HINT handling in TrackerMonitor
+  * Ported data generator utilities to python3
+  * Ported functional tests to python3, reformatted to PEP-8
+  * Correctly apply ignored-directories-with-content filter on monitor updates
+  * Build and test fixes
+
+Translations: de, eo, fur, fr, it, ko, lv, nl, ru, sr
+
 NEW in 2.2.0 - 2019-02-20
 =========================
 
