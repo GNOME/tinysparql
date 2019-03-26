@@ -20,45 +20,33 @@
     </para>
 
     <para>
-<programlisting>
+<programlisting language="C">
 #include &lt;tracker-sparql.h&gt;
 
 int main (int argc, char **argv)
 {
-  <type><link linkend="TrackerSparqlBuilder-struct">TrackerSparqlBuilder</link></type> *builder;
-  const gchar *iri = "urn:example:0001";
-  const gchar *query_str;
-  time_t now;
+  <type><link linkend="TrackerResource-struct">TrackerResource</link></type> *resource;
+  GDateTime *datetime;
+  gchar *last_modified;
+  gchar *query_str;
 
-  /* Create builder */
-  builder = <function><link linkend="tracker-sparql-builder-new-update">tracker_sparql_builder_new_update</link></function> ();
+  datetime = g_date_time_new_now_utc ();
+  last_modified = g_date_time_format (datetime, "%FT%TZ");
 
-  /* Insert new data */
-  <function><link linkend="tracker-sparql-builder-insert-open">tracker_sparql_builder_insert_open</link></function> (builder, NULL);
-
-  <function><link linkend="tracker-sparql-builder-subject-iri">tracker_sparql_builder_subject_iri</link></function> (builder, iri);
-
-  <function><link linkend="tracker-sparql-builder-predicate">tracker_sparql_builder_predicate</link></function> (builder, "a");
-  <function><link linkend="tracker-sparql-builder-object">tracker_sparql_builder_object</link></function> (builder, "nie:DataObject");
-  <function><link linkend="tracker-sparql-builder-object">tracker_sparql_builder_object</link></function> (builder, "nfo:FileDataObject");
-
-  now = time (NULL);
-  <function><link linkend="tracker-sparql-builder-predicate">tracker_sparql_builder_predicate</link></function> (builder, "nfo:fileLastModified");
-  <function><link linkend="tracker-sparql-builder-object-date">tracker_sparql_builder_object_date</link></function> (builder, &amp;now);
-
-  <function><link linkend="tracker-sparql-builder-insert-close">tracker_sparql_builder_insert_close</link></function> (builder);
-
-  /* Get query as string. Do NOT g_free() the resulting string! */
-  query_str = <function><link linkend="tracker-sparql-builder-get-result">tracker_sparql_builder_get_result</link></function> (builder);
+  resource = <function><link linkend="tracker-resource-new">tracker_resource_new</link></function> ("urn:example:0001");
+  <function><link linkend="tracker-resource-add-uri">tracker_resource_add_uri</link></function> (resource, "rdf:type", "nie:DataObject");
+  <function><link linkend="tracker-resource-add-uri">tracker_resource_add_uri</link></function> (resource, "rdf:type", "nfo:FileDataObject");
+  <function><link linkend="tracker-resource-set-string">tracker_resource_set_string</link></function> (resource, "nfo:fileLastModified", last_modified);
 
   /* Print it */
-  g_print ("Generated SPARQL query: '%s'\n", query_str);
+  query_str = <function><link linkend="tracker-resource-print-sparql-update">tracker_resource_print_sparql_update</link></function> (resource, NULL, NULL);
+  g_print ("Generated SPARQL query: \n");
+  g_print ("%s\n", query_str);
 
-  /* Once builder no longer needed, unref it. Note that after
-   * this operation, you must not use the returned query result
-   * any more
-   */
-  g_object_unref (builder);
+  g_clear_pointer (&amp;query_str, g_free);
+  g_clear_pointer (&amp;last_modified, g_free);
+  g_clear_pointer (&amp;datetime, g_date_time_unref);
+  g_clear_pointer (&amp;resource, g_object_unref);
 
   return 0;
 }
