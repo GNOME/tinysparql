@@ -1958,7 +1958,7 @@ terminal_DOUBLE_POSITIVE (const gchar  *str,
 			  const gchar **str_out)
 {
 	ACCEPT_CHAR ((ch == '+'));
-	return terminal_DOUBLE_POSITIVE (str, end, str_out);
+	return terminal_DOUBLE (str, end, str_out);
 }
 
 /* INTEGER_NEGATIVE ::= '-' INTEGER
