@@ -44,7 +44,7 @@
  * a connection is valid to retrieve data or not. The miner data extraction
  * still must be dictated through the #TrackerMiner vmethods.
  *
- * Since: 0.18.
+ * Since: 0.18
  **/
 
 typedef struct _TrackerMinerOnlinePrivate TrackerMinerOnlinePrivate;
@@ -158,7 +158,7 @@ tracker_miner_online_class_init (TrackerMinerOnlineClass *klass)
 	 * Return values of #TRUE from this signal indicate whether a
 	 * #TrackerMiner should resume indexing or not upon ::connected.
 	 *
-	 * Since: 0.18.0
+	 * Since: 0.18
 	 **/
 	signals[CONNECTED] =
 		g_signal_new ("connected",
@@ -176,7 +176,7 @@ tracker_miner_online_class_init (TrackerMinerOnlineClass *klass)
 	 * the ::disconnected signal is emitted when a specific @type of
 	 * network becomes disconnected.
 	 *
-	 * Since: 0.18.0
+	 * Since: 0.18
 	 **/
 	signals[DISCONNECTED] =
 		g_signal_new ("disconnected",
@@ -392,7 +392,7 @@ miner_online_initable_iface_init (GInitableIface *iface)
  *
  * Returns: a #TrackerNetworkType on success or #TRACKER_NETWORK_TYPE_NONE on error.
  *
- * Since: 0.18.
+ * Since: 0.18
  **/
 TrackerNetworkType
 tracker_miner_online_get_network_type (TrackerMinerOnline *miner)

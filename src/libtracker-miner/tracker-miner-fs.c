@@ -320,7 +320,7 @@ static guint signals[LAST_SIGNAL] = { 0, };
  *
  * Returns: the #GQuark used for the domain of a #GError.
  *
- * Since: 1.2.
+ * Since: 1.2
  **/
 G_DEFINE_QUARK (TrackerMinerFSError, tracker_miner_fs_error)
 
@@ -2442,7 +2442,7 @@ check_file_parents (TrackerMinerFS *fs,
  * Tells the filesystem miner to check and index a file at
  * a given priority, this file must be part of the usual
  * crawling directories of #TrackerMinerFS. See
- * tracker_miner_fs_directory_add().
+ * tracker_indexing_tree_add().
  *
  * Since: 0.10
  **/

@@ -49,7 +49,7 @@ G_BEGIN_DECLS
  * used and this flag makes sure the directory is given a priority
  * over other directories queued.
  * @TRACKER_DIRECTORY_FLAG_NO_STAT: For cases where the content being
- * crawled by the #TrackerEnumerator is not local (e.g. it's on a
+ * crawled by the enumerator is not local (e.g. it's on a
  * server somewhere), use the #TRACKER_DIRECTORY_FLAG_NO_STAT flag.
  * The default is to use stat() and assume we're mining a local or
  * mounted file system.

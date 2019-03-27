@@ -118,7 +118,7 @@ tracker_data_provider_begin (TrackerDataProvider    *data_provider,
  * @url: a #GFile to enumerate
  * @attributes: an attribute query string
  * @flags: a set of #TrackerDirectoryFlags
- * @io_priority: the [I/O priority][io-priority] of the request
+ * @io_priority: the I/O priority of the request (example: %G_PRIORITY_DEFAULT)
  * @cancellable: (allow-none): optional #GCancellable object, %NULL to
  * ignore
  * @callback: (scope async): a #GAsyncReadyCallback to call when the

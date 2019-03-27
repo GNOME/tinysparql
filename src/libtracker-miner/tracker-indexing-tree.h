@@ -57,6 +57,7 @@ struct _TrackerIndexingTree {
  * @directory_added: Called when a directory is added.
  * @directory_removed: Called when a directory is removed.
  * @directory_updated: Called when a directory is updated.
+ * @child_updated: Called when a file inside a directory is updated.
  * @padding: Reserved for future API improvements.
  *
  * Class for the #TrackerIndexingTree.
