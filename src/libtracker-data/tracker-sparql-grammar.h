@@ -569,7 +569,7 @@ static const TrackerGrammarRule rule_BooleanLiteral[] = { OR(helper_BooleanLiter
  * TRACKER EXTENSION:
  * The terminal PARAMETERIZED_VAR is additionally accepted
  */
-static const TrackerGrammarRule helper_NumericLiteralNegative_or[] = { T(DECIMAL_NEGATIVE), T(DOUBLE_NEGATIVE), T(INTEGER_NEGATIVE), T(PARAMETERIZED_VAR), NIL };
+static const TrackerGrammarRule helper_NumericLiteralNegative_or[] = { T(DOUBLE_NEGATIVE), T(DECIMAL_NEGATIVE), T(INTEGER_NEGATIVE), T(PARAMETERIZED_VAR), NIL };
 static const TrackerGrammarRule rule_NumericLiteralNegative[] = { OR(helper_NumericLiteralNegative_or), NIL };
 
 /* NumericLiteralPositive ::= INTEGER_POSITIVE | DECIMAL_POSITIVE | DOUBLE_POSITIVE
@@ -577,7 +577,7 @@ static const TrackerGrammarRule rule_NumericLiteralNegative[] = { OR(helper_Nume
  * TRACKER EXTENSION:
  * The terminal PARAMETERIZED_VAR is additionally accepted
  */
-static const TrackerGrammarRule helper_NumericLiteralPositive_or[] = { T(DECIMAL_POSITIVE), T(DOUBLE_POSITIVE), T(INTEGER_POSITIVE), T(PARAMETERIZED_VAR), NIL };
+static const TrackerGrammarRule helper_NumericLiteralPositive_or[] = { T(DOUBLE_POSITIVE), T(DECIMAL_POSITIVE), T(INTEGER_POSITIVE), T(PARAMETERIZED_VAR), NIL };
 static const TrackerGrammarRule rule_NumericLiteralPositive[] = { OR(helper_NumericLiteralPositive_or), NIL };
 
 /* NumericLiteralUnsigned ::= INTEGER | DECIMAL | DOUBLE
@@ -585,7 +585,7 @@ static const TrackerGrammarRule rule_NumericLiteralPositive[] = { OR(helper_Nume
  * TRACKER EXTENSION:
  * The terminal PARAMETERIZED_VAR is additionally accepted
  */
-static const TrackerGrammarRule helper_NumericLiteralUnsigned_or[] = { T(DECIMAL), T(DOUBLE), T(INTEGER), T(PARAMETERIZED_VAR), NIL };
+static const TrackerGrammarRule helper_NumericLiteralUnsigned_or[] = { T(DOUBLE), T(DECIMAL), T(INTEGER), T(PARAMETERIZED_VAR), NIL };
 static const TrackerGrammarRule rule_NumericLiteralUnsigned[] = { OR(helper_NumericLiteralUnsigned_or), NIL };
 
 /* NumericLiteral ::= NumericLiteralUnsigned | NumericLiteralPositive | NumericLiteralNegative
@@ -1958,7 +1958,7 @@ terminal_DOUBLE_POSITIVE (const gchar  *str,
 			  const gchar **str_out)
 {
 	ACCEPT_CHAR ((ch == '+'));
-	return terminal_DOUBLE_POSITIVE (str, end, str_out);
+	return terminal_DOUBLE (str, end, str_out);
 }
 
 /* INTEGER_NEGATIVE ::= '-' INTEGER
