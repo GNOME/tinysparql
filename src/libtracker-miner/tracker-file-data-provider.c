@@ -212,7 +212,7 @@ tracker_file_data_provider_file_iface_init (TrackerDataProviderIface *iface)
  * Returns: (transfer full): a #TrackerDataProvider which must be
  * unreferenced with g_object_unref().
  *
- * Since: 1.2:
+ * Since: 1.2
  **/
 TrackerDataProvider *
 tracker_file_data_provider_new (void)

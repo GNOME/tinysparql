@@ -38,7 +38,7 @@ G_BEGIN_DECLS
  * The name of the D-Bus interface to use for all data miners that
  * inter-operate with Tracker.
  *
- * Since: 0.8.
+ * Since: 0.8
  **/
 #define TRACKER_MINER_DBUS_INTERFACE   "org.freedesktop.Tracker1.Miner"
 
@@ -50,7 +50,7 @@ G_BEGIN_DECLS
  * example and would show up on D-Bus under
  * &quot;org.freedesktop.Tracker1.Miner.Files&quot;.
  *
- * Since: 0.8.
+ * Since: 0.8
  **/
 #define TRACKER_MINER_DBUS_NAME_PREFIX "org.freedesktop.Tracker1.Miner."
 
@@ -62,7 +62,7 @@ G_BEGIN_DECLS
  * example and would show up on D-Bus under
  * &quot;/org/freedesktop/Tracker1/Miner/Files&quot;.
  *
- * Since: 0.8.
+ * Since: 0.8
  **/
 #define TRACKER_MINER_DBUS_PATH_PREFIX "/org/freedesktop/Tracker1/Miner/"
 
@@ -78,7 +78,7 @@ G_BEGIN_DECLS
  *
  * Used as the domain for any #GErrors reported by @TrackerMiner objects.
  *
- * Since: 0.8.
+ * Since: 0.8
  **/
 #define TRACKER_MINER_ERROR_DOMAIN "TrackerMiner"
 
@@ -88,7 +88,7 @@ G_BEGIN_DECLS
  * Returns the @GQuark used for #GErrors and for @TrackerMiner
  * implementations. This calls tracker_miner_error_quark().
  *
- * Since: 0.8.
+ * Since: 0.8
  **/
 #define TRACKER_MINER_ERROR        tracker_miner_error_quark()
 

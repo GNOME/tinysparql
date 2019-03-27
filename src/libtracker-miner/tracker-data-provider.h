@@ -55,13 +55,6 @@ typedef struct _TrackerDataProviderIface TrackerDataProviderIface;
  * using @begin_finish.
  * @begin_finish: Called when the data_provider is completing the
  * asynchronous operation provided by @begin_async.
- * @end: Called when the data_provider is synchronously
- * closing and cleaning up the iteration of a given location.
- * @end_async: Called when the data_provider is asynchronously
- * closing and cleaning up the iteration of a given location.
- * Completed using @end_finish.
- * @end_finish: Called when the data_provider is completing the
- * asynchronous operation provided by @end_async.
  *
  * Virtual methods left to implement.
  **/

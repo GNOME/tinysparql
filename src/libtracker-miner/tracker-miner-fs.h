@@ -72,6 +72,10 @@ struct _TrackerMinerFS {
  * a file's attributes changes, for example, the mtime.
  * @finished_root: Called when all resources on a particular root URI
  * have been processed.
+ * @remove_file: Called when a file is removed.
+ * @remove_children: Called when children have been removed.
+ * @move_file: Called when a file has moved.
+ * @filter_event: Called to filter the event happening to a file.
  * @padding: Reserved for future API improvements.
  *
  * Prototype for the abstract class, @process_file must be implemented
@@ -125,7 +129,7 @@ typedef struct {
  * Possible errors returned when calling creating new objects based on
  * the #TrackerMinerFS type and other APIs available with this class.
  *
- * Since: 1.2.
+ * Since: 1.2
  **/
 typedef enum {
 	TRACKER_MINER_FS_ERROR_INIT,

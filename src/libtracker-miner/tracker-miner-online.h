@@ -58,7 +58,7 @@ struct _TrackerMinerOnline {
  *
  * Virtual methods that can be overridden.
  *
- * Since: 0.18.
+ * Since: 0.18
  **/
 struct _TrackerMinerOnlineClass {
 	TrackerMinerClass parent_class;
