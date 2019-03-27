@@ -98,6 +98,10 @@
     <title>Index of new symbols in 1.2.2</title>
     <xi:include href="xml/api-index-1.2.2.xml"><xi:fallback /></xi:include>
   </index>
+  <index id="api-index-1-8" role="1.8">
+    <title>Index of new symbols in 1.8</title>
+    <xi:include href="xml/api-index-1.8.xml"><xi:fallback /></xi:include>
+  </index>
   <index id="api-index-1-10" role="1.10">
     <title>Index of new symbols in 1.10</title>
     <xi:include href="xml/api-index-1.10.xml"><xi:fallback /></xi:include>
