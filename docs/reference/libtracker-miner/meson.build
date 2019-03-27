@@ -4,9 +4,9 @@ version_xml = configure_file(input: 'version.xml.in',
 
 gnome.gtkdoc('libtracker-miner',
     src_dir: minerinc,
-    main_sgml: 'libtracker-miner-docs.sgml',
-    content_files: ['overview.sgml', 'migrating-1to2.xml'],
+    main_xml: 'libtracker-miner-docs.xml',
+    content_files: ['overview.xml', 'migrating-1to2.xml'],
     dependencies: tracker_miner_dep,
-    gobject_typesfile: 'libtracker-miner.types',
+    scan_args: ['--rebuild-sections'],
     fixxref_args: fixxref_args,
     install: true)
