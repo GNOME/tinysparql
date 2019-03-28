@@ -136,11 +136,11 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 * which it won't support (i.e. an update for a read-only backend), you will
 	 * see critical warnings.
 	 *
-	 * When calling either tracker_sparql_connection_get(),
-	 * tracker_sparql_connection_get_direct() or the asynchronous variants of
-	 * these functions, a mutex is used to protect the loading of backends
-	 * against potential race conditions. For synchronous calls, this function
-	 * will always block if a previous connection get method has been called.
+	 * When calling either tracker_sparql_connection_get(),  or the asynchronous
+	 * variants of these functions, a mutex is used to protect the loading of
+	 * backends against potential race conditions. For synchronous calls, this
+	 * function will always block if a previous connection get method has been
+	 * called.
 	 *
 	 * All backends will call the D-Bus tracker-store API Wait() to make sure
 	 * the store and databases are in the right state before any user based

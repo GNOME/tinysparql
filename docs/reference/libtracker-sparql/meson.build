@@ -28,9 +28,8 @@ example_files = [
 
 gnome.gtkdoc('libtracker-sparql',
     src_dir: sparqlinc,
-    main_sgml: 'libtracker-sparql-docs.sgml',
-    content_files: ['overview.sgml', 'examples.sgml', 'ontologies.sgml', 'private-store.xml', 'migrating-1to2.xml', example_files],
+    main_xml: 'libtracker-sparql-docs.xml',
+    content_files: ['overview.xml', 'examples.xml', 'ontologies.xml', 'private-store.xml', 'migrating-1to2.xml', example_files],
     dependencies: tracker_sparql_dep,
-    gobject_typesfile: 'libtracker-sparql.types',
     fixxref_args: fixxref_args,
     install: true)
