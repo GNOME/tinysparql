@@ -950,7 +950,7 @@ tracker_notifier_event_get_id (TrackerNotifierEvent *event)
  *
  * Returns the RDF type that this notification event relates to, in their
  * expanded forms (for example,
- * http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Audio).
+ * <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Audio>).
  *
  * A resource may have multiple RDF types. In the case of changes to a
  * resource with multiple types, one event will be notified for each
