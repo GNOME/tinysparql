@@ -79,20 +79,10 @@ int main (int argc, char **argv)
     <title>Querying the Store</title>
 
     <para>
-      In order to perform read-only queries to the store, a new
-      <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
-      object must be acquired. In this case, as there is no intention of updating any
-      value in the store, both the general connection (with
-      <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>)
-      or a specific direct-access connection (with
-      <function><link linkend="tracker-sparql-connection-get-direct">tracker_sparql_connection_get_direct</link></function>)
-      may be acquired. Note that in the latter case, every non read-only operation will result
-      in an error being thrown by the TrackerSparqlConnection.
-    </para>
-
-    <para>
-      Once a proper connection object has been acquired, the read-only query can be launched either
-      synchronously (<function><link linkend="tracker-sparql-connection-query">tracker_sparql_connection_query</link></function>)
+      First, a <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
+      object must be acquired with
+      <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>.
+      Then, a query can be launched either synchronously (<function><link linkend="tracker-sparql-connection-query">tracker_sparql_connection_query</link></function>)
       or asynchronously (<function><link linkend="tracker-sparql-connection-query-async">tracker_sparql_connection_query_async</link></function>).
       If launched asynchronously, the results of the query can be obtained with
       <function><link linkend="tracker-sparql-connection-query-finish">tracker_sparql_connection_query_finish</link></function>.
@@ -127,13 +117,9 @@ int main (int argc, const char **argv)
   <type><link linkend="TrackerSparqlCursor-struct">TrackerSparqlCursor</link></type> *cursor;
   const gchar *query = "SELECT nie:url(?u) WHERE { ?u a nfo:FileDataObject }";
 
-  /* As we know only read-only queries will be done, it's enough
-   * to use a connection with only direct-access setup. The NULL
-   * represents a possible GCancellable.
-   */
-  connection = <function><link linkend="tracker-sparql-connection-get-direct">tracker_sparql_connection_get_direct</link></function> (NULL, &amp;error);
+  connection = <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function> (NULL, &amp;error);
   if (!connection) {
-    g_printerr ("Couldn't obtain a direct connection to the Tracker store: %s",
+    g_printerr ("Couldn't obtain a connection to the Tracker store: %s",
                 error ? error-&gt;message : "unknown error");
     g_clear_error (&amp;error);
 
@@ -189,11 +175,6 @@ int main (int argc, const char **argv)
       <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
       object must be acquired with
       <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>.
-      Note that you MUST NOT use a specific direct-access connection obtained with
-      <function><link linkend="tracker-sparql-connection-get-direct">tracker_sparql_connection_get_direct</link></function>, as the direct-access method only supports read-only queries.
-    </para>
-
-    <para>
       Once a proper connection object has been acquired, the update can be launched either
       synchronously (<function><link linkend="tracker-sparql-connection-update">tracker_sparql_connection_update</link></function>)
       or asynchronously (<function><link linkend="tracker-sparql-connection-update-async">tracker_sparql_connection_update_async</link></function>).
@@ -228,10 +209,6 @@ int main (int argc, const char **argv)
     "FILTER (!bound(?tag)) "
     "}";
 
-  /* Do NOT get a direct connection if you're going to do some write
-   * operation in the Store. The NULL represents a possible
-   * GCancellable.
-   */
   connection = <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function> (NULL, &amp;error);
   if (!connection) {
     g_printerr ("Couldn't obtain a connection to the Tracker store: %s",
@@ -321,10 +298,6 @@ int main (int argc, const char **argv)
   const gchar *query =
     "INSERT { _:foo a nie:InformationElement } WHERE { ?x a rdfs:Class }";
 
-  /* Do NOT get a direct connection if you're going to do some write
-   * operation in the Store. The NULL represents a possible
-   * GCancellable.
-   */
   connection = <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function> (NULL, &amp;error);
   if (!connection) {
     g_printerr ("Couldn't obtain a connection to the Tracker store: %s",
