@@ -7,6 +7,9 @@ tracker_sparql_escape_string
 tracker_sparql_escape_uri
 tracker_sparql_escape_uri_printf
 tracker_sparql_escape_uri_vprintf
+<SUBSECTION Standard>
+TRACKER_TYPE_URI
+tracker_uri_get_type
 </SECTION>
 
 <SECTION>
@@ -45,6 +48,27 @@ tracker_resource_get_values
 tracker_resource_identifier_compare_func
 tracker_resource_print_sparql_update
 tracker_resource_print_turtle
+tracker_resource_print_jsonld
+TRACKER_DATASOURCE_URN_NON_REMOVABLE_MEDIA
+TRACKER_OWN_GRAPH_URN
+TRACKER_PREFIX_DATASOURCE_URN
+TRACKER_PREFIX_DC
+TRACKER_PREFIX_MFO
+TRACKER_PREFIX_MLO
+TRACKER_PREFIX_NAO
+TRACKER_PREFIX_NCO
+TRACKER_PREFIX_NFO
+TRACKER_PREFIX_NID3
+TRACKER_PREFIX_NIE
+TRACKER_PREFIX_NMM
+TRACKER_PREFIX_NMO
+TRACKER_PREFIX_NRL
+TRACKER_PREFIX_OSINFO
+TRACKER_PREFIX_RDF
+TRACKER_PREFIX_RDFS
+TRACKER_PREFIX_SLO
+TRACKER_PREFIX_TRACKER
+TRACKER_PREFIX_XSD
 <SUBSECTION Standard>
 TrackerResourceClass
 TRACKER_RESOURCE
@@ -59,6 +83,7 @@ TRACKER_RESOURCE_GET_CLASS
 <SECTION>
 <FILE>tracker-namespace-manager</FILE>
 <TITLE>TrackerNamespaceManager</TITLE>
+TrackerNamespaceManager
 tracker_namespace_manager_add_prefix
 tracker_namespace_manager_expand_uri
 tracker_namespace_manager_get_default
@@ -66,7 +91,9 @@ tracker_namespace_manager_has_prefix
 tracker_namespace_manager_lookup_prefix
 tracker_namespace_manager_new
 tracker_namespace_manager_print_turtle
+tracker_namespace_manager_foreach
 <SUBSECTION Standard>
+TrackerNamespaceManagerClass
 TRACKER_TYPE_NAMESPACE_MANAGER
 </SECTION>
 
@@ -161,6 +188,8 @@ tracker_sparql_connection_statistics_finish
 tracker_sparql_connection_get_namespace_manager
 tracker_sparql_connection_set_domain
 tracker_sparql_connection_get_domain
+tracker_sparql_connection_get_dbus_connection
+tracker_sparql_connection_set_dbus_connection
 <SUBSECTION Standard>
 TrackerSparqlConnectionClass
 TRACKER_SPARQL_CONNECTION
@@ -171,6 +200,8 @@ TRACKER_SPARQL_IS_CONNECTION_CLASS
 TRACKER_SPARQL_TYPE_CONNECTION
 TRACKER_SPARQL_TYPE_VALUE_TYPE
 tracker_sparql_connection_get_type
+TRACKER_SPARQL_TYPE_CONNECTION_FLAGS
+tracker_sparql_connection_flags_get_type
 <SUBSECTION Private>
 TRACKER_DBUS_INTERFACE_RESOURCES
 TRACKER_DBUS_INTERFACE_STATISTICS
@@ -197,6 +228,10 @@ tracker_sparql_statement_bind_int
 tracker_sparql_statement_bind_double
 tracker_sparql_statement_bind_string
 tracker_sparql_statement_bind_boolean
+tracker_sparql_statement_get_connection
+tracker_sparql_statement_set_connection
+tracker_sparql_statement_get_sparql
+tracker_sparql_statement_set_sparql
 <SUBSECTION Standard>
 TrackerSparqlStatementClass
 TRACKER_SPARQL_STATEMENT
@@ -269,6 +304,10 @@ TRACKER_NOTIFIER_CLASS
 TRACKER_NOTIFIER_GET_CLASS
 TRACKER_TYPE_NOTIFIER
 tracker_notifier_get_type
+TRACKER_TYPE_NOTIFIER_EVENT_TYPE
+tracker_notifier_event_type_get_type
+TRACKER_TYPE_NOTIFIER_FLAGS
+tracker_notifier_flags_get_type
 </SECTION>
 
 <SECTION>
@@ -282,8 +321,5 @@ tracker_interface_age
 tracker_check_version
 
 <SUBSECTION>
-TRACKER_MAJOR_VERSION
-TRACKER_MINOR_VERSION
-TRACKER_MICRO_VERSION
 TRACKER_CHECK_VERSION
 </SECTION>
