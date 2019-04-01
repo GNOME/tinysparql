@@ -1595,6 +1595,10 @@ generate_jsonld_value (const GValue       *value,
 		node = json_node_new (JSON_NODE_VALUE);
 		json_node_set_string (node, uri);
 		json_builder_add_value (data->builder, node);
+	} else if (G_VALUE_HOLDS (value, G_TYPE_UINT)) {
+		node = json_node_new (JSON_NODE_VALUE);
+		json_node_set_int (node, g_value_get_uint(value));
+		json_builder_add_value (data->builder, node);
 	} else {
 		node = json_node_new (JSON_NODE_VALUE);
 		json_node_set_value (node, value);
