@@ -47,26 +47,22 @@ static gboolean turtle;
 static GOptionEntry entries[] = {
 	{ "full-namespaces", 'f', 0, G_OPTION_ARG_NONE, &full_namespaces,
 	  N_("Show full namespaces (i.e. don’t use nie:title, use full URLs)"),
-	  NULL,
-	},
+	  NULL,},
 	{ "plain-text-content", 'c', 0, G_OPTION_ARG_NONE, &plain_text_content,
 	  N_("Show plain text content if available for resources"),
-	  NULL,
-	},
+	  NULL,},
 	{ "resource-is-iri", 'i', 0, G_OPTION_ARG_NONE, &resource_is_iri,
-	  /* To translators:
-	   * IRI (International Resource Identifier) is a generalization
-	   * of the URI. While URI supports only ASCI encoding, IRI
-	   * fully supports international characters. In practice, UTF-8
-	   * is the most popular encoding used for IRI.
-	   */
+		/* To translators:
+		* IRI (International Resource Identifier) is a generalization
+		* of the URI. While URI supports only ASCI encoding, IRI
+		* fully supports international characters. In practice, UTF-8
+		* is the most popular encoding used for IRI.
+		*/
 	  N_("Instead of looking up a file name, treat the FILE arguments as actual IRIs (e.g. <file:///path/to/some/file.txt>)"),
-	  NULL,
-	},
+	  NULL,},
 	{ "turtle", 't', 0, G_OPTION_ARG_NONE, &turtle,
 	  N_("Output results as RDF in Turtle format"),
-	  NULL,
-	},
+	  NULL,},
 	{ G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &filenames,
 	  N_("FILE"),
 	  N_("FILE")},

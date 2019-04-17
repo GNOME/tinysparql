@@ -41,12 +41,10 @@ static gchar *query;
 static GOptionEntry entries[] = {
 	{ "file", 'f', 0, G_OPTION_ARG_FILENAME, &file,
 	  N_("Path to use to run a query from file"),
-	  N_("FILE"),
-	},
+	  N_("FILE"),},
 	{ "query", 'q', 0, G_OPTION_ARG_STRING, &query,
 	  N_("SQL query"),
-	  N_("SQL"),
-	},
+	  N_("SQL"),},
 	{ NULL }
 };
 

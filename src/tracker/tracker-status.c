@@ -47,8 +47,7 @@ static gchar **terms;
 static GOptionEntry entries[] = {
 	{ "stat", 'a', 0, G_OPTION_ARG_NONE, &show_stat,
 	  N_("Show statistics for current index / data set"),
-	  NULL
-	},
+	  NULL},
 	{ "collect-debug-info", 0, 0, G_OPTION_ARG_NONE, &collect_debug_info,
 	  N_("Collect debug information useful for problem reporting and investigation, results are output to terminal"),
 	  NULL },

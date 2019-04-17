@@ -51,36 +51,28 @@ static gboolean show_resources;
 static GOptionEntry entries[] = {
 	{ "list", 't', 0, G_OPTION_ARG_NONE, &list,
 	  N_("List all tags (using FILTER if specified; FILTER always uses logical OR)"),
-	  N_("FILTER"),
-	},
+	  N_("FILTER"),},
 	{ "show-files", 's', 0, G_OPTION_ARG_NONE, &show_resources,
 	  N_("Show files associated with each tag (this is only used with --list)"),
-	  NULL
-	},
+	  NULL},
 	{ "add", 'a', 0, G_OPTION_ARG_STRING, &add_tag,
 	  N_("Add a tag (if FILEs are omitted, TAG is not associated with any files)"),
-	  N_("TAG")
-	},
+	  N_("TAG")},
 	{ "delete", 'd', 0, G_OPTION_ARG_STRING, &remove_tag,
 	  N_("Delete a tag (if FILEs are omitted, TAG is removed for all files)"),
-	  N_("TAG")
-	},
+	  N_("TAG")},
 	{ "description", 'e', 0, G_OPTION_ARG_STRING, &description,
 	  N_("Description for a tag (this is only used with --add)"),
-	  N_("STRING")
-	},
+	  N_("STRING")},
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
 	  N_("Limit the number of results shown"),
-	  "512"
-	},
+	  "512"},
 	{ "offset", 'o', 0, G_OPTION_ARG_INT, &offset,
 	  N_("Offset the results"),
-	  "0"
-	},
+	  "0"},
 	{ "and-operator", 'n', 0, G_OPTION_ARG_NONE, &and_operator,
 	  N_("Use AND for search terms instead of OR (the default)"),
-	  NULL
-	},
+	  NULL},
 	{ G_OPTION_REMAINING, 0, 0,
 	  G_OPTION_ARG_FILENAME_ARRAY, &resources,
 	  N_("FILE…"),

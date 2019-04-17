@@ -132,45 +132,35 @@ static GOptionEntry entries[] = {
 	/* Status */
 	{ "follow", 'f', 0, G_OPTION_ARG_NONE, &follow,
 	  N_("Follow status changes as they happen"),
-	  NULL
-	},
+	  NULL },
 	{ "watch", 'w', G_OPTION_FLAG_OPTIONAL_ARG, G_OPTION_ARG_CALLBACK, parse_watch,
 	  N_("Watch changes to the database in real time (e.g. resources or files being added)"),
-	  N_("ONTOLOGY")
-	},
+	  N_("ONTOLOGY") },
 	{ "list-common-statuses", 0, 0, G_OPTION_ARG_NONE, &list_common_statuses,
 	  N_("List common statuses for miners and the store"),
-	  NULL
-	},
+	  NULL },
 	/* Miners */
-	{ "pause", 0 , 0, G_OPTION_ARG_STRING, &pause_reason,
+	{ "pause", 0, 0, G_OPTION_ARG_STRING, &pause_reason,
 	  N_("Pause a miner (you must use this with --miner)"),
-	  N_("REASON")
-	},
-	{ "pause-for-process", 0 , 0, G_OPTION_ARG_STRING, &pause_for_process_reason,
+	  N_("REASON") },
+	{ "pause-for-process", 0, 0, G_OPTION_ARG_STRING, &pause_for_process_reason,
 	  N_("Pause a miner while the calling process is alive or until resumed (you must use this with --miner)"),
-	  N_("REASON")
-	},
-	{ "resume", 0 , 0, G_OPTION_ARG_INT, &resume_cookie,
+	  N_("REASON") },
+	{ "resume", 0, 0, G_OPTION_ARG_INT, &resume_cookie,
 	  N_("Resume a miner (you must use this with --miner)"),
-	  N_("COOKIE")
-	},
-	{ "miner", 0 , 0, G_OPTION_ARG_STRING, &miner_name,
+	  N_("COOKIE") },
+	{ "miner", 0, 0, G_OPTION_ARG_STRING, &miner_name,
 	  N_("Miner to use with --resume or --pause (you can use suffixes, e.g. Files or Applications)"),
-	  N_("MINER")
-	},
+	  N_("MINER") },
 	{ "list-miners-running", 0, 0, G_OPTION_ARG_NONE, &list_miners_running,
 	  N_("List all miners currently running"),
-	  NULL
-	},
+	  NULL },
 	{ "list-miners-available", 0, 0, G_OPTION_ARG_NONE, &list_miners_available,
 	  N_("List all miners installed"),
-	  NULL
-	},
+	  NULL },
 	{ "pause-details", 0, 0, G_OPTION_ARG_NONE, &pause_details,
 	  N_("List pause reasons"),
-	  NULL
-	},
+	  NULL },
 	/* Processes */
 	{ "list-processes", 'p', 0, G_OPTION_ARG_NONE, &list_processes,
 	  N_("List all Tracker processes") },

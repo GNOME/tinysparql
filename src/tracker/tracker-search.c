@@ -78,101 +78,78 @@ static GOptionEntry entries[] = {
 	/* Search types */
 	{ "files", 'f', 0, G_OPTION_ARG_NONE, &files,
 	  N_("Search for files"),
-	  NULL
-	},
+	  NULL},
 	{ "folders", 's', 0, G_OPTION_ARG_NONE, &folders,
 	  N_("Search for folders"),
-	  NULL
-	},
+	  NULL},
 	{ "music", 'm', 0, G_OPTION_ARG_NONE, &music_files,
 	  N_("Search for music files"),
-	  NULL
-	},
+	  NULL},
 	{ "music-albums", 0, 0, G_OPTION_ARG_NONE, &music_albums,
 	  N_("Search for music albums (--all has no effect on this)"),
-	  NULL
-	},
+	  NULL},
 	{ "music-artists", 0, 0, G_OPTION_ARG_NONE, &music_artists,
 	  N_("Search for music artists (--all has no effect on this)"),
-	  NULL
-	},
+	  NULL},
 	{ "images", 'i', 0, G_OPTION_ARG_NONE, &image_files,
 	  N_("Search for image files"),
-	  NULL
-	},
+	  NULL},
 	{ "videos", 'v', 0, G_OPTION_ARG_NONE, &video_files,
 	  N_("Search for video files"),
-	  NULL
-	},
+	  NULL},
 	{ "documents", 't', 0, G_OPTION_ARG_NONE, &document_files,
 	  N_("Search for document files"),
-	  NULL
-	},
+	  NULL},
 	{ "emails", 'e', 0, G_OPTION_ARG_NONE, &emails,
 	  N_("Search for emails"),
-	  NULL
-	},
+	  NULL},
 	{ "contacts", 'c', 0, G_OPTION_ARG_NONE, &contacts,
 	  N_("Search for contacts"),
-	  NULL
-	},
+	  NULL},
 	{ "software", 0, 0, G_OPTION_ARG_NONE, &software,
 	  N_("Search for software (--all has no effect on this)"),
-	  NULL
-	},
+	  NULL},
 	{ "software-categories", 0, 0, G_OPTION_ARG_NONE, &software_categories,
 	  N_("Search for software categories (--all has no effect on this)"),
-	  NULL
-	},
+	  NULL},
 	{ "feeds", 0, 0, G_OPTION_ARG_NONE, &feeds,
 	  N_("Search for feeds (--all has no effect on this)"),
-	  NULL
-	},
+	  NULL},
 	{ "bookmarks", 'b', 0, G_OPTION_ARG_NONE, &bookmarks,
 	  N_("Search for bookmarks (--all has no effect on this)"),
-	  NULL
-	},
+	  NULL},
 
 	/* Semantic options */
 	{ "limit", 'l', 0, G_OPTION_ARG_INT, &limit,
 	  N_("Limit the number of results shown"),
-	  "512"
-	},
+	  "512"},
 	{ "offset", 'o', 0, G_OPTION_ARG_INT, &offset,
 	  N_("Offset the results"),
-	  "0"
-	},
+	  "0"},
 	{ "or-operator", 'r', 0, G_OPTION_ARG_NONE, &or_operator,
 	  N_("Use OR for search terms instead of AND (the default)"),
-	  NULL
-	},
+	  NULL},
 	{ "detailed", 'd', 0, G_OPTION_ARG_NONE, &detailed,
 	  N_("Show URNs for results (doesn’t apply to --music-albums, --music-artists, --feeds, --software, --software-categories)"),
-	  NULL
-	},
+	  NULL},
 	{ "all", 'a', 0, G_OPTION_ARG_NONE, &all,
 	  N_("Return all non-existing matches too (i.e. include unmounted volumes)"),
-	  NULL
-	},
+	  NULL},
 	{ "disable-snippets", 0, 0, G_OPTION_ARG_NONE, &disable_snippets,
 	  N_("Disable showing snippets with results. This is only shown for some categories, e.g. Documents, Music…"),
-	  NULL,
-	},
+	  NULL,},
 	{ "disable-fts", 0, 0, G_OPTION_ARG_NONE, &disable_fts,
 	  N_("Disable Full Text Search (FTS). Implies --disable-snippets"),
-	  NULL,
-	},
+	  NULL,},
 	{ "disable-color", 0, 0, G_OPTION_ARG_NONE, &disable_color,
 	  N_("Disable color when printing snippets and results"),
-	  NULL,
-	},
+	  NULL,},
 
 	/* Main arguments, the search terms */
 	{ G_OPTION_REMAINING, 0, 0,
 	  G_OPTION_ARG_STRING_ARRAY, &terms,
 	  N_("search terms"),
-	  N_("EXPRESSION")
-	},
+	  N_("EXPRESSION")},
 	{ NULL }
 };
 
