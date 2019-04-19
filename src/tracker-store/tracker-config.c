@@ -36,7 +36,7 @@
 #define CONFIG_SCHEMA "org.freedesktop.Tracker.Store"
 #define CONFIG_PATH   "/org/freedesktop/tracker/store/"
 
-#define GRAPHUPDATED_DELAY_DEFAULT	1000
+#define GRAPHUPDATED_DELAY_DEFAULT      1000
 
 static void config_set_property         (GObject       *object,
                                          guint          param_id,
@@ -94,9 +94,9 @@ tracker_config_init (TrackerConfig *object)
 }
 
 static void
-config_set_property (GObject      *object,
-                     guint         param_id,
-                     const GValue *value,
+config_set_property (GObject              *object,
+                     guint                 param_id,
+                     const GValue         *value,
                      GParamSpec           *pspec)
 {
 	switch (param_id) {
@@ -126,7 +126,7 @@ config_get_property (GObject    *object,
 		g_value_set_int (value, tracker_config_get_graphupdated_delay (TRACKER_CONFIG (object)));
 		break;
 
-		/* General */
+	/* General */
 	case PROP_VERBOSITY:
 		g_value_set_enum (value, tracker_config_get_verbosity (TRACKER_CONFIG (object)));
 		break;

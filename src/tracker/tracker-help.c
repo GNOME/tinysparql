@@ -40,7 +40,7 @@ setup_man_path (void)
 	g_string_append_c (new_path, ':');
 
 	if (old_path) {
-		g_string_append (new_path, old_path); 
+		g_string_append (new_path, old_path);
 	}
 
 	g_setenv ("MANPATH", new_path->str, TRUE);

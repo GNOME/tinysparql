@@ -66,7 +66,7 @@ tracker_data_query_rdf_type (TrackerDataManager *manager,
 
 		ret = g_ptr_array_sized_new (20);
 		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
-			const gchar *class_uri;
+			const gchar  *class_uri;
 			TrackerClass *cl;
 
 			class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
@@ -137,7 +137,7 @@ tracker_data_query_unused_uuid (TrackerDataManager *manager,
 	TrackerDBCursor *cursor = NULL;
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
-	gchar *uuid = NULL;
+	gchar  *uuid = NULL;
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
 	                                              "SELECT SparqlUUID()");

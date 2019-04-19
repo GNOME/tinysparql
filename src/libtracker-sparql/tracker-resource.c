@@ -126,17 +126,17 @@ tracker_resource_init (TrackerResource *resource)
 
 	/* Values of properties */
 	priv->properties = g_hash_table_new_full (
-	        g_str_hash,
-	        g_str_equal,
-	        g_free,
-	        (GDestroyNotify) free_value);
+		g_str_hash,
+		g_str_equal,
+		g_free,
+		(GDestroyNotify) free_value);
 
 	/* TRUE for any property where we should delete any existing values. */
 	priv->overwrite = g_hash_table_new_full (
-	        g_str_hash,
-	        g_str_equal,
-	        g_free,
-	        NULL);
+		g_str_hash,
+		g_str_equal,
+		g_free,
+		NULL);
 }
 
 static void
@@ -146,7 +146,7 @@ constructed (GObject *object)
 
 	priv = GET_PRIVATE (TRACKER_RESOURCE (object));
 
-	if (! priv->identifier) {
+	if (!priv->identifier) {
 		priv->identifier = generate_blank_node_identifier ();
 	}
 
@@ -536,7 +536,7 @@ tracker_resource_add_gvalue (TrackerResource *self,
 			array_holder = existing_value;                                  \
 		} else {                                                                \
 			array = g_ptr_array_new_with_free_func (                        \
-			        (GDestroyNotify)free_value);                            \
+				(GDestroyNotify)free_value);                            \
 			array_holder = g_slice_new0 (GValue);                           \
 			g_value_init (array_holder, G_TYPE_PTR_ARRAY);                  \
 			g_value_take_boxed (array_holder, array);                       \
@@ -1141,7 +1141,7 @@ generate_turtle_value (const GValue            *value,
 			g_string_append (string, g_value_get_string (&str_value));
 		} else {
 			g_warning ("Cannot serialize value of type %s to Turtle/SPARQL",
-			            G_VALUE_TYPE_NAME (value));
+			           G_VALUE_TYPE_NAME (value));
 		}
 		g_value_unset (&str_value);
 	}
@@ -1195,7 +1195,7 @@ generate_turtle (TrackerResource    *resource,
 	g_hash_table_foreach (priv->properties, generate_turtle_resources_foreach, data);
 
 	generate_turtle_uri_value (tracker_resource_get_identifier(resource),
-	        data->string, data->all_namespaces, data->our_namespaces);
+	                           data->string, data->all_namespaces, data->our_namespaces);
 	g_string_append (data->string, " ");
 
 	g_hash_table_iter_init (&iter, priv->properties);
@@ -1340,11 +1340,11 @@ generate_sparql_relation_inserts_foreach (gpointer key,
 
 			/* We don't need to produce inserts for builtin classes */
 			if (is_builtin_class (tracker_resource_get_identifier (relation),
-					      data->namespaces))
+			                      data->namespaces))
 				continue;
 
 			if (g_list_find_custom (data->done_list, relation,
-						(GCompareFunc) tracker_resource_compare) != NULL)
+			                        (GCompareFunc) tracker_resource_compare) != NULL)
 				continue;
 
 			data->done_list = g_list_prepend (data->done_list, relation);
@@ -1373,8 +1373,8 @@ generate_sparql_delete_queries (TrackerResource     *resource,
 	g_hash_table_iter_init (&iter, priv->properties);
 	while (g_hash_table_iter_next (&iter, (gpointer *)&property, (gpointer *)&value)) {
 		/* Whether to generate the DELETE is based on whether set_value was ever
-		* called for this property. That's tracked in the overwrite_flags hash table.
-		*/
+		 * called for this property. That's tracked in the overwrite_flags hash table.
+		 */
 		if (g_hash_table_lookup (overwrite_flags, property)) {
 			char *variable_name = variable_name_for_property (property);
 
@@ -1404,7 +1404,7 @@ generate_sparql_deletes (TrackerResource    *resource,
 {
 	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
 
-	if (! is_blank_node (priv->identifier) && g_hash_table_size (priv->overwrite) > 0) {
+	if (!is_blank_node (priv->identifier) && g_hash_table_size (priv->overwrite) > 0) {
 		generate_sparql_delete_queries (resource, priv->overwrite, data);
 	}
 

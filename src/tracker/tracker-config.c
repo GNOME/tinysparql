@@ -46,7 +46,7 @@ tracker_gsettings_get_all (gint *longest_name_length)
 	GSList *valid_schemas = NULL;
 	gchar **schemas;
 	gint i, len = 0;
-	SchemaWithPath components[] = {
+	SchemaWithPath  components[] = {
 		{ "Store", "store" },
 		{ "Extract", "extract" },
 		{ "Writeback", "writeback" },
@@ -176,7 +176,7 @@ gboolean
 tracker_gsettings_set_all (GSList           *all,
                            TrackerVerbosity  verbosity)
 {
-	GSList *l;
+	GSList  *l;
 	gboolean success = TRUE;
 
 	for (l = all; l && success; l = l->next) {

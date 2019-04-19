@@ -109,11 +109,11 @@ typedef struct {
 	const gchar        *file;
 	const gchar        *name;
 	gchar              *abs_filename;
-	gint                cache_size;
-	gint                page_size;
-	gboolean            attached;
-	gboolean            is_index;
-	guint64             mtime;
+	gint cache_size;
+	gint page_size;
+	gboolean attached;
+	gboolean is_index;
+	guint64 mtime;
 } TrackerDBDefinition;
 
 static TrackerDBDefinition db_base = {
@@ -137,8 +137,8 @@ struct _TrackerDBManager {
 	GFile *cache_location;
 	GFile *data_location;
 	TrackerDBManagerFlags flags;
-	guint s_cache_size;
-	guint u_cache_size;
+	guint  s_cache_size;
+	guint  u_cache_size;
 
 	gpointer vtab_data;
 
@@ -163,7 +163,7 @@ db_exec_no_reply (TrackerDBInterface *iface,
                   const gchar        *query,
                   ...)
 {
-	va_list                     args;
+	va_list args;
 
 	va_start (args, query);
 	tracker_db_interface_execute_vquery (iface, NULL, query, args);
@@ -393,7 +393,7 @@ db_get_locale (TrackerDBManager *db_manager)
 
 static void
 db_set_locale (TrackerDBManager *db_manager,
-	       const gchar      *locale)
+               const gchar      *locale)
 {
 	GError *error = NULL;
 	gchar  *filename;
@@ -471,7 +471,7 @@ static void
 db_manager_analyze (TrackerDBManager   *db_manager,
                     TrackerDBInterface *iface)
 {
-	guint64             current_mtime;
+	guint64 current_mtime;
 
 	current_mtime = tracker_file_get_mtime (db_manager->db.abs_filename);
 
@@ -488,9 +488,9 @@ db_manager_analyze (TrackerDBManager   *db_manager,
 
 static void
 db_recreate_all (TrackerDBManager  *db_manager,
-		 GError           **error)
+                 GError           **error)
 {
-	gchar *locale;
+	gchar  *locale;
 	GError *internal_error = NULL;
 
 	/* We call an internal version of this function here
@@ -546,8 +546,8 @@ tracker_db_manager_ensure_locations (TrackerDBManager *db_manager,
 
 static void
 perform_recreate (TrackerDBManager  *db_manager,
-		  gboolean          *first_time,
-		  GError           **error)
+                  gboolean          *first_time,
+                  GError           **error)
 {
 	GError *internal_error = NULL;
 
@@ -575,21 +575,21 @@ perform_recreate (TrackerDBManager  *db_manager,
 
 TrackerDBManager *
 tracker_db_manager_new (TrackerDBManagerFlags   flags,
-			GFile                  *cache_location,
-			GFile                  *data_location,
-			gboolean               *first_time,
-			gboolean                restoring_backup,
-			gboolean                shared_cache,
-			guint                   select_cache_size,
-			guint                   update_cache_size,
-			TrackerBusyCallback     busy_callback,
-			gpointer                busy_user_data,
-			const gchar            *busy_operation,
+                        GFile                  *cache_location,
+                        GFile                  *data_location,
+                        gboolean               *first_time,
+                        gboolean                restoring_backup,
+                        gboolean                shared_cache,
+                        guint                   select_cache_size,
+                        guint                   update_cache_size,
+                        TrackerBusyCallback     busy_callback,
+                        gpointer                busy_user_data,
+                        const gchar            *busy_operation,
                         GObject                *iface_data,
-			GError                **error)
+                        GError                **error)
 {
 	TrackerDBManager *db_manager;
-	TrackerDBVersion version;
+	TrackerDBVersion  version;
 	gboolean need_reindex;
 	int in_use_file;
 	gboolean loaded = FALSE;
@@ -627,8 +627,8 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 
 	tracker_db_manager_ensure_locations (db_manager, cache_location, data_location);
 	db_manager->in_use_filename = g_build_filename (db_manager->user_data_dir,
-							IN_USE_FILENAME,
-							NULL);
+	                                                IN_USE_FILENAME,
+	                                                NULL);
 
 	/* Don't do need_reindex checks for readonly (direct-access) */
 	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
@@ -879,12 +879,12 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 		/* do not create in-use file for read-only mode (direct access) */
 		in_use_file = g_open (db_manager->in_use_filename,
-			              O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
-			              S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+		                      O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
+		                      S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 
 		if (in_use_file >= 0) {
-		        fsync (in_use_file);
-		        close (in_use_file);
+			fsync (in_use_file);
+			close (in_use_file);
 		}
 	}
 
@@ -1114,8 +1114,8 @@ wal_checkpoint (TrackerDBInterface *iface,
 
 	if (error) {
 		g_warning ("Error in %s WAL checkpoint: %s",
-			   blocking ? "blocking" : "deferred",
-			   error->message);
+		           blocking ? "blocking" : "deferred",
+		           error->message);
 		g_error_free (error);
 	}
 
@@ -1154,7 +1154,7 @@ wal_hook (TrackerDBInterface *iface,
 	} else {
 		/* Defer non-blocking checkpoint to thread */
 		db_manager->wal_thread = g_thread_try_new ("wal-checkpoint", wal_checkpoint_thread,
-							   db_manager, NULL);
+		                                           db_manager, NULL);
 	}
 }
 
@@ -1162,7 +1162,7 @@ static TrackerDBInterface *
 init_writable_db_interface (TrackerDBManager *db_manager)
 {
 	TrackerDBInterface *iface;
-	GError *error = NULL;
+	GError  *error = NULL;
 	gboolean readonly;
 
 	/* Honor anyway the DBManager readonly flag */
@@ -1237,7 +1237,7 @@ void
 tracker_db_manager_tokenizer_update (TrackerDBManager *db_manager)
 {
 	GError *error = NULL;
-	gchar *filename;
+	gchar  *filename;
 
 	filename = get_parser_version_filename (db_manager);
 

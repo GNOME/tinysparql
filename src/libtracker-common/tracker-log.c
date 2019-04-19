@@ -36,18 +36,18 @@
 
 static gboolean  initialized;
 static FILE     *fd;
-static gint      verbosity;
-static guint     log_handler_id;
-static gboolean  use_log_files;
-static GMutex    mutex;
+static gint  verbosity;
+static guint log_handler_id;
+static gboolean use_log_files;
+static GMutex mutex;
 
 static inline void
 log_output (const gchar    *domain,
             GLogLevelFlags  log_level,
             const gchar    *message)
 {
-	time_t        now;
-	gchar         time_str[64];
+	time_t now;
+	gchar  time_str[64];
 	gchar        *output;
 	struct tm    *local_time;
 	const gchar  *log_level_str;
@@ -237,22 +237,22 @@ tracker_log_init (gint    this_verbosity,
 	g_mutex_init (&mutex);
 
 	switch (this_verbosity) {
-		/* Log level 3: EVERYTHING */
+	/* Log level 3: EVERYTHING */
 	case 3:
 		break;
 
-		/* Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only */
+	/* Log level 2: CRITICAL/ERROR/WARNING/INFO/MESSAGE only */
 	case 2:
 		hide_levels = G_LOG_LEVEL_DEBUG;
 		break;
 
-		/* Log level 1: CRITICAL/ERROR/WARNING/INFO only */
+	/* Log level 1: CRITICAL/ERROR/WARNING/INFO only */
 	case 1:
 		hide_levels = G_LOG_LEVEL_DEBUG |
 		              G_LOG_LEVEL_MESSAGE;
 		break;
 
-		/* Log level 0: CRITICAL/ERROR/WARNING only (default) */
+	/* Log level 0: CRITICAL/ERROR/WARNING only (default) */
 	default:
 	case 0:
 		hide_levels = G_LOG_LEVEL_DEBUG |
@@ -264,9 +264,9 @@ tracker_log_init (gint    this_verbosity,
 	if (hide_levels) {
 		/* Hide log levels according to configuration */
 		log_handler_id = g_log_set_handler (G_LOG_DOMAIN,
-			                            hide_levels,
-			                            hide_log_handler,
-			                            NULL);
+		                                    hide_levels,
+		                                    hide_log_handler,
+		                                    NULL);
 	}
 
 	/* Set log handler function for the rest */

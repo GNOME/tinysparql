@@ -38,7 +38,7 @@
 #define INFO_OPTIONS_ENABLED() \
 	(filenames && g_strv_length (filenames) > 0);
 
-static gchar **filenames;
+static gchar  **filenames;
 static gboolean full_namespaces;
 static gboolean plain_text_content;
 static gboolean resource_is_iri;
@@ -273,9 +273,9 @@ info_run (void)
 	for (p = filenames; *p; p++) {
 		TrackerSparqlCursor *cursor = NULL;
 		GError *error = NULL;
-		gchar *uri = NULL;
-		gchar *query;
-		gchar *urn = NULL;
+		gchar  *uri = NULL;
+		gchar  *query;
+		gchar  *urn = NULL;
 
 		if (!turtle && !resource_is_iri) {
 			g_print ("%s: '%s'\n", _("Querying information for entity"), *p);

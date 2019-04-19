@@ -62,7 +62,7 @@ typedef struct {
 
 typedef struct {
 	struct sqlite3_vtab_cursor parent;
-	TrackerTriplesVTab *vtab;
+	TrackerTriplesVTab  *vtab;
 	struct sqlite3_stmt *stmt;
 
 	struct {
@@ -73,7 +73,7 @@ typedef struct {
 		guint idxFlags;
 	} match;
 
-	GList *properties;
+	GList  *properties;
 
 	guint64 rowid;
 	guint finished : 1;
@@ -223,7 +223,7 @@ triples_destroy (sqlite3_vtab *vtab)
 
 static int
 triples_open (sqlite3_vtab         *vtab_sqlite,
-	      sqlite3_vtab_cursor **cursor_ret)
+              sqlite3_vtab_cursor **cursor_ret)
 {
 	TrackerTriplesVTab *vtab = (TrackerTriplesVTab *) vtab_sqlite;
 	TrackerTriplesCursor *cursor;
@@ -254,7 +254,7 @@ collect_properties (TrackerTriplesCursor *cursor)
 	guint n_properties, i;
 
 	properties = tracker_ontologies_get_properties (cursor->vtab->module->ontologies,
-							&n_properties);
+	                                                &n_properties);
 	for (i = 0; i < n_properties; i++) {
 		if (cursor->match.predicate) {
 			gboolean negated = !!(cursor->match.idxFlags & IDX_MATCH_PREDICATE_NEG);
@@ -273,7 +273,7 @@ collect_properties (TrackerTriplesCursor *cursor)
 
 static gchar *
 convert_to_string (const gchar         *table_name,
-		   TrackerPropertyType  type)
+                   TrackerPropertyType  type)
 {
 	switch (type) {
 	case TRACKER_PROPERTY_TYPE_STRING:
@@ -303,9 +303,9 @@ convert_to_string (const gchar         *table_name,
 
 static void
 add_arg_check (GString       *str,
-	       sqlite3_value *value,
-	       gboolean       negated,
-	       const gchar   *var_name)
+               sqlite3_value *value,
+               gboolean       negated,
+               const gchar   *var_name)
 {
 	if (sqlite3_value_type (value) == SQLITE_NULL) {
 		if (negated)
@@ -322,8 +322,8 @@ add_arg_check (GString       *str,
 
 static void
 bind_arg (sqlite3_stmt  *stmt,
-	  sqlite3_value *value,
-	  const gchar   *var_name)
+          sqlite3_value *value,
+          const gchar   *var_name)
 {
 	gint idx;
 
@@ -351,7 +351,7 @@ init_stmt (TrackerTriplesCursor *cursor)
 		cursor->properties = g_list_remove (cursor->properties, property);
 
 		string_expr = convert_to_string (tracker_property_get_name (property),
-						 tracker_property_get_data_type (property));
+		                                 tracker_property_get_data_type (property));
 
 		sql = g_string_new (NULL);
 		g_string_append_printf (sql,
@@ -382,7 +382,7 @@ init_stmt (TrackerTriplesCursor *cursor)
 		}
 
 		rc = sqlite3_prepare_v2 (cursor->vtab->module->db,
-					 sql->str, -1, &cursor->stmt, 0);
+		                         sql->str, -1, &cursor->stmt, 0);
 		g_string_free (sql, TRUE);
 		g_free (string_expr);
 

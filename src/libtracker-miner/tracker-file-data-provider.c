@@ -124,7 +124,7 @@ enumerate_children_cb (GObject       *source_object,
 {
 	GFile *url = G_FILE (source_object);
 	GFileEnumerator *enumerator = NULL;
-	GTask *task = G_TASK (user_data);
+	GTask  *task = G_TASK (user_data);
 	GError *error = NULL;
 
 	enumerator = g_file_enumerate_children_finish (url, res, &error);

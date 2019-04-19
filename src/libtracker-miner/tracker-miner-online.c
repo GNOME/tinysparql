@@ -54,7 +54,7 @@ struct _TrackerMinerOnlinePrivate {
 	NMClient *client;
 #endif
 	TrackerNetworkType network_type;
-	gboolean paused;
+	gboolean  paused;
 };
 
 enum {
@@ -297,7 +297,7 @@ _tracker_miner_online_set_network_type (TrackerMinerOnline *miner,
 {
 	TrackerMinerOnlinePrivate *priv;
 	gboolean cont = FALSE;
-	GError *error = NULL;
+	GError  *error = NULL;
 
 	priv = tracker_miner_online_get_instance_private (miner);
 
@@ -349,7 +349,7 @@ miner_online_initable_init (GInitable     *initable,
 {
 #ifdef HAVE_NETWORK_MANAGER
 	TrackerMinerOnlinePrivate *priv;
-	TrackerNetworkType network_type;
+	TrackerNetworkType  network_type;
 	TrackerMinerOnline *miner;
 
 	miner = TRACKER_MINER_ONLINE (initable);

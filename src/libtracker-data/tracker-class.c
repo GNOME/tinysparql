@@ -42,10 +42,10 @@ struct _TrackerClassPrivate {
 
 	gboolean use_gvdb;
 
-	GArray *super_classes;
-	GArray *domain_indexes;
-	GArray *last_domain_indexes;
-	GArray *last_super_classes;
+	GArray  *super_classes;
+	GArray  *domain_indexes;
+	GArray  *last_domain_indexes;
+	GArray  *last_super_classes;
 
 	TrackerOntologies *ontologies;
 };
@@ -371,7 +371,7 @@ tracker_class_reset_super_classes (TrackerClass *service)
 }
 
 void
-tracker_class_add_domain_index (TrackerClass *service,
+tracker_class_add_domain_index (TrackerClass    *service,
                                 TrackerProperty *value)
 {
 	TrackerClassPrivate *priv;

@@ -97,13 +97,13 @@ tracker_db_config_init (TrackerDBConfig *object)
 }
 
 static void
-config_set_property (GObject      *object,
-                     guint         param_id,
-                     const GValue *value,
+config_set_property (GObject              *object,
+                     guint                 param_id,
+                     const GValue         *value,
                      GParamSpec           *pspec)
 {
 	switch (param_id) {
-		/* Journal */
+	/* Journal */
 	case PROP_JOURNAL_CHUNK_SIZE:
 		tracker_db_config_set_journal_chunk_size (TRACKER_DB_CONFIG (object),
 		                                          g_value_get_int(value));

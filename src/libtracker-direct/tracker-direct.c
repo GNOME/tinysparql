@@ -84,7 +84,7 @@ G_DEFINE_TYPE_WITH_CODE (TrackerDirectConnection, tracker_direct_connection,
                                                 tracker_direct_connection_async_initable_iface_init))
 
 static TaskData *
-task_data_query_new (TaskType     type,
+task_data_query_new (TaskType type,
                      const gchar *sparql)
 {
 	TaskData *data;
@@ -129,7 +129,7 @@ update_thread_func (gpointer data,
 	GTask *task = data;
 	TaskData *task_data = g_task_get_task_data (task);
 	TrackerData *tracker_data;
-	GError *error = NULL;
+	GError  *error = NULL;
 	gpointer retval = NULL;
 	GDestroyNotify destroy_notify = NULL;
 
@@ -198,7 +198,7 @@ task_compare_func (GTask    *a,
 
 static gboolean
 set_up_thread_pools (TrackerDirectConnection  *conn,
-		     GError                  **error)
+                     GError                  **error)
 {
 	TrackerDirectConnectionPrivate *priv;
 
@@ -459,7 +459,7 @@ tracker_direct_connection_query_async (TrackerSparqlConnection *self,
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
 	GError *error = NULL;
-	GTask *task;
+	GTask  *task;
 
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
@@ -556,7 +556,7 @@ update_array_async_thread_func (GTask        *task,
                                 GCancellable *cancellable)
 {
 	gchar **updates = task_data;
-	gchar *concatenated;
+	gchar  *concatenated;
 	GPtrArray *errors;
 	GError *error = NULL;
 	gint i;
@@ -600,7 +600,7 @@ tracker_direct_connection_update_array_async (TrackerSparqlConnection  *self,
                                               GAsyncReadyCallback       callback,
                                               gpointer                  user_data)
 {
-	GTask *task;
+	GTask  *task;
 	gchar **copy;
 	gint i = 0;
 
@@ -805,8 +805,8 @@ tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 
 TrackerDirectConnection *
 tracker_direct_connection_new (TrackerSparqlConnectionFlags   flags,
-			       GFile                         *store,
-			       GFile                         *journal,
+                               GFile                         *store,
+                               GFile                         *journal,
                                GFile                         *ontology,
                                GError                       **error)
 {

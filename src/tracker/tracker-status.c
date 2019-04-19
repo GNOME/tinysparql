@@ -36,13 +36,13 @@
 #include "tracker-status.h"
 #include "tracker-config.h"
 
-#define STATUS_OPTIONS_ENABLED()	  \
+#define STATUS_OPTIONS_ENABLED()          \
 	(show_stat || \
 	 collect_debug_info)
 
 static gboolean show_stat;
 static gboolean collect_debug_info;
-static gchar **terms;
+static gchar  **terms;
 
 static GOptionEntry entries[] = {
 	{ "stat", 'a', 0, G_OPTION_ARG_NONE, &show_stat,
@@ -158,7 +158,7 @@ collect_debug (void)
 	 * 5. Statistics about data (tracker-stats)
 	 */
 
-	GDir *d;
+	GDir  *d;
 	gchar *data_dir;
 	gchar *str;
 
@@ -191,7 +191,7 @@ collect_debug (void)
 
 	for (d = g_dir_open (data_dir, 0, NULL); d != NULL;) {
 		const gchar *f;
-		gchar *path;
+		gchar  *path;
 		goffset size;
 
 		f = g_dir_read_name (d);
@@ -447,9 +447,9 @@ static gboolean
 are_miners_finished (gint *max_remaining_time)
 {
 	TrackerMinerManager *manager;
-	GError *error = NULL;
-	GSList *miners_running;
-	GSList *l;
+	GError  *error = NULL;
+	GSList  *miners_running;
+	GSList  *l;
 	gboolean finished = TRUE;
 	gint _max_remaining_time = 0;
 
@@ -466,7 +466,7 @@ are_miners_finished (gint *max_remaining_time)
 	miners_running = tracker_miner_manager_get_running (manager);
 
 	for (l = miners_running; l; l = l->next) {
-		gchar *status;
+		gchar  *status;
 		gdouble progress;
 		gint remaining_time;
 
@@ -499,8 +499,8 @@ are_miners_finished (gint *max_remaining_time)
 static int
 get_no_args (void)
 {
-	gchar *str;
-	gchar *data_dir;
+	gchar  *str;
+	gchar  *data_dir;
 	guint64 remaining_bytes;
 	gdouble remaining;
 	gint remaining_time;

@@ -31,8 +31,8 @@ typedef struct _TrackerStringElement TrackerStringElement;
 struct _TrackerStringChunk
 {
 	gchar *string;
-	gsize allocated_size;
-	gsize len;
+	gsize  allocated_size;
+	gsize  len;
 };
 
 enum {
@@ -95,7 +95,7 @@ TrackerStringBuilder *
 tracker_string_builder_append_placeholder (TrackerStringBuilder *builder)
 {
 	TrackerStringBuilder *child;
-	TrackerStringElement elem;
+	TrackerStringElement  elem;
 
 	child = tracker_string_builder_new ();
 
@@ -110,7 +110,7 @@ TrackerStringBuilder *
 tracker_string_builder_prepend_placeholder (TrackerStringBuilder *builder)
 {
 	TrackerStringBuilder *child;
-	TrackerStringElement elem;
+	TrackerStringElement  elem;
 
 	child = tracker_string_builder_new ();
 
@@ -125,7 +125,7 @@ static TrackerStringChunk *
 ensure_last_chunk (TrackerStringBuilder *builder)
 {
 	TrackerStringElement elem;
-	TrackerStringChunk *chunk;
+	TrackerStringChunk  *chunk;
 
 	if (builder->elems->len > 0) {
 		TrackerStringElement *last;
@@ -149,7 +149,7 @@ static TrackerStringChunk *
 ensure_first_chunk (TrackerStringBuilder *builder)
 {
 	TrackerStringElement elem;
-	TrackerStringChunk *chunk;
+	TrackerStringChunk  *chunk;
 
 	/* Always create a new element instead of trying to prepend on
 	 * the first string chunk. Between memory relocations and memory

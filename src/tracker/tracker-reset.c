@@ -96,7 +96,7 @@ delete_info_recursively (GFile *file)
 	TrackerSparqlConnection *connection;
 	TrackerMinerManager *miner_manager;
 	TrackerSparqlCursor *cursor;
-	gchar *query, *uri;
+	gchar  *query, *uri;
 	GError *error = NULL;
 
 	connection = tracker_sparql_connection_get (NULL, &error);
@@ -218,7 +218,7 @@ reset_run (void)
 	}
 
 	if (hard_reset || soft_reset) {
-		guint log_handler_id;
+		guint  log_handler_id;
 		GFile *cache_location, *data_location;
 		gchar *dir;
 		TrackerDBManager *db_manager;
@@ -226,7 +226,7 @@ reset_run (void)
 		gchar *rotate_to;
 		TrackerDBConfig *db_config;
 		gsize chunk_size;
-		gint chunk_size_mb;
+		gint  chunk_size_mb;
 		TrackerDBJournal *journal_writer;
 #endif /* DISABLE_JOURNAL */
 

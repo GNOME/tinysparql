@@ -46,25 +46,25 @@ typedef enum {
 
 struct TrackerParser {
 	const gchar           *txt;
-	gint                   txt_size;
+	gint txt_size;
 
 	TrackerLanguage       *language;
-	guint                  max_word_length;
-	gboolean               enable_stemmer;
-	gboolean               enable_unaccent;
-	gboolean               ignore_stop_words;
-	gboolean               ignore_reserved_words;
-	gboolean               ignore_numbers;
-	gboolean               enable_forced_wordbreaks;
+	guint max_word_length;
+	gboolean enable_stemmer;
+	gboolean enable_unaccent;
+	gboolean ignore_stop_words;
+	gboolean ignore_reserved_words;
+	gboolean ignore_numbers;
+	gboolean enable_forced_wordbreaks;
 
 	/* Private members */
 	gchar                 *word;
-	gint                   word_length;
-	guint                  word_position;
+	gint  word_length;
+	guint word_position;
 
 	/* Text as UChars */
 	UChar                 *utxt;
-	gint                   utxt_size;
+	gint  utxt_size;
 	/* Original offset of each UChar in the input txt string */
 	gint32                *offsets;
 
@@ -72,7 +72,7 @@ struct TrackerParser {
 	UBreakIterator        *bi;
 
 	/* Cursor, as index of the utxt array of bytes */
-	gsize                  cursor;
+	gsize cursor;
 };
 
 
@@ -85,7 +85,7 @@ get_word_info (const UChar           *word,
 {
 	UCharIterator iter;
 	UChar32 unichar;
-	guint8 unichar_gc;
+	guint8  unichar_gc;
 
 	/* Get first character of the word as UCS4 */
 	uiter_setString (&iter, word, word_length);
@@ -149,9 +149,9 @@ tracker_parser_unaccent_nfkd_string (gpointer  str,
                                      gsize    *str_length)
 {
 	UChar *word;
-	gsize word_length;
-	gsize i;
-	gsize j;
+	gsize  word_length;
+	gsize  i;
+	gsize  j;
 
 	g_return_val_if_fail (str != NULL, FALSE);
 	g_return_val_if_fail (str_length != NULL, FALSE);
@@ -163,7 +163,7 @@ tracker_parser_unaccent_nfkd_string (gpointer  str,
 	j = 0;
 	while (i < word_length) {
 		UChar32 unichar;
-		gint utf16_len; /* given in UChars */
+		gint  utf16_len; /* given in UChars */
 		gsize aux_i;
 
 		/* Get next character of the word as UCS4 */
@@ -212,7 +212,7 @@ convert_UChar_to_utf8 (const UChar *word,
                        gsize       *utf8_len)
 {
 	gchar *utf8_str;
-	UErrorCode icu_error = U_ZERO_ERROR;
+	UErrorCode  icu_error = U_ZERO_ERROR;
 	UConverter *converter;
 	gsize new_utf8_len;
 
@@ -260,9 +260,9 @@ process_word_uchar (TrackerParser         *parser,
                     gboolean              *stop_word)
 {
 	UErrorCode error = U_ZERO_ERROR;
-	UChar normalized_buffer[WORD_BUFFER_LENGTH];
+	UChar  normalized_buffer[WORD_BUFFER_LENGTH];
 	gchar *utf8_str = NULL;
-	gsize new_word_length;
+	gsize  new_word_length;
 
 	/* Log original word */
 	tracker_parser_message_hex ("ORIGINAL word",
@@ -436,10 +436,10 @@ parser_next (TrackerParser *parser,
              gint          *byte_offset_end,
              gboolean      *stop_word)
 {
-	gsize word_length_uchar = 0;
-	gsize word_length_utf8 = 0;
+	gsize  word_length_uchar = 0;
+	gsize  word_length_utf8 = 0;
 	gchar *processed_word = NULL;
-	gsize current_word_offset_utf8;
+	gsize  current_word_offset_utf8;
 
 	*byte_offset_start = 0;
 	*byte_offset_end = 0;
@@ -616,7 +616,7 @@ tracker_parser_reset (TrackerParser *parser,
                       gboolean       ignore_reserved_words,
                       gboolean       ignore_numbers)
 {
-	UErrorCode error = U_ZERO_ERROR;
+	UErrorCode  error = U_ZERO_ERROR;
 	UConverter *converter;
 	UChar *last_uchar;
 	const gchar *last_utf8;

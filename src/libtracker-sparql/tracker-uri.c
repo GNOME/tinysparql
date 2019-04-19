@@ -182,7 +182,7 @@ tracker_sparql_escape_uri_vprintf (const gchar *format,
 	gchar *output1 = NULL;
 	gchar *output2 = NULL;
 	const char *p;
-	gchar *op1, *op2;
+	gchar  *op1, *op2;
 	va_list args2;
 
 	format1 = g_string_new (NULL);
@@ -279,7 +279,7 @@ cleanup:
 gchar *
 tracker_sparql_escape_uri_printf (const gchar *format, ...)
 {
-	gchar *result;
+	gchar  *result;
 	va_list args;
 
 	va_start (args, format);

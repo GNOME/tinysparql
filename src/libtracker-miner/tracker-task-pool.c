@@ -331,7 +331,7 @@ tracker_task_unref (TrackerTask *task)
 
 		if (task->data &&
 		    task->destroy_notify) {
-			(task->destroy_notify) (task->data);
+			(task->destroy_notify)(task->data);
 		}
 
 		g_slice_free (TrackerTask, task);

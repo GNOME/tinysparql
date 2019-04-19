@@ -76,7 +76,7 @@ struct _TrackerDataUpdateBufferResource {
 	/* string -> TrackerDataUpdateBufferTable */
 	GHashTable *tables;
 	/* TrackerClass */
-	GPtrArray *types;
+	GPtrArray  *types;
 
 #if HAVE_TRACKER_FTS
 	gboolean fts_updated;
@@ -101,14 +101,14 @@ struct _TrackerDataUpdateBufferTable {
 	gboolean multiple_values;
 	TrackerClass *class;
 	/* TrackerDataUpdateBufferProperty */
-	GArray *properties;
+	GArray  *properties;
 };
 
 /* buffer for anonymous blank nodes
  * that are not yet in the database */
 struct _TrackerDataBlankBuffer {
 	GHashTable *table;
-	gchar *subject;
+	gchar  *subject;
 	/* string */
 	GArray *predicates;
 	/* string */
@@ -136,7 +136,7 @@ typedef struct {
 } QueuedStatement;
 
 struct _TrackerData {
-	GObject parent_instance;
+	GObject  parent_instance;
 
 	TrackerDataManager *manager;
 
@@ -147,7 +147,7 @@ struct _TrackerData {
 
 	/* current resource */
 	TrackerDataUpdateBufferResource *resource_buffer;
-	TrackerDataBlankBuffer blank_buffer;
+	TrackerDataBlankBuffer  blank_buffer;
 	time_t resource_time;
 	gint transaction_modseq;
 	gboolean has_persistent;
@@ -188,8 +188,8 @@ static void         cache_insert_value         (TrackerData      *data,
 static GArray      *get_old_property_values    (TrackerData      *data,
                                                 TrackerProperty  *property,
                                                 GError          **error);
-static gchar*       gvalue_to_string           (TrackerPropertyType  type,
-                                                GValue           *gvalue);
+static gchar*       gvalue_to_string           (TrackerPropertyType type,
+                                                GValue             *gvalue);
 static gboolean     delete_metadata_decomposed (TrackerData      *data,
                                                 TrackerProperty  *property,
                                                 const gchar      *value,
@@ -431,7 +431,7 @@ tracker_data_update_get_next_modseq (TrackerData *data)
 	TrackerDBInterface *temp_iface;
 	TrackerDBStatement *stmt;
 	GError             *error = NULL;
-	gint                max_modseq = 0;
+	gint max_modseq = 0;
 
 	temp_iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
@@ -557,7 +557,7 @@ static void
 cache_table_free (TrackerDataUpdateBufferTable *table)
 {
 	TrackerDataUpdateBufferProperty *property;
-	gint                            i;
+	gint i;
 
 	for (i = 0; i < table->properties->len; i++) {
 		property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
@@ -748,7 +748,7 @@ ensure_resource_id (TrackerData *data,
 static gint
 ensure_graph_id (TrackerData *data,
                  const gchar *uri,
-		 gboolean    *create)
+                 gboolean    *create)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
@@ -831,13 +831,13 @@ static void
 tracker_data_resource_buffer_flush (TrackerData  *data,
                                     GError      **error)
 {
-	TrackerDBInterface             *iface;
-	TrackerDBStatement             *stmt;
+	TrackerDBInterface              *iface;
+	TrackerDBStatement              *stmt;
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty *property;
-	GHashTableIter                  iter;
+	GHashTableIter iter;
 	const gchar                    *table_name;
-	gint                            i, param;
+	gint i, param;
 	GError                         *actual_error = NULL;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
@@ -1012,7 +1012,7 @@ tracker_data_resource_buffer_flush (TrackerData  *data,
 				tracker_db_statement_bind_int (stmt, 0, data->resource_buffer->id);
 
 				if (strcmp (table_name, "rdfs:Resource") == 0) {
-					g_warn_if_fail	(data->resource_time != 0);
+					g_warn_if_fail  (data->resource_time != 0);
 					tracker_db_statement_bind_int (stmt, 1, (gint64) data->resource_time);
 					tracker_db_statement_bind_int (stmt, 2, get_transaction_modseq (data));
 					param = 3;
@@ -1174,7 +1174,7 @@ tracker_data_update_buffer_clear (TrackerData *data)
 		/* revert class count changes */
 
 		GHashTableIter iter;
-		TrackerClass *class;
+		TrackerClass  *class;
 		gpointer count_ptr;
 
 		g_hash_table_iter_init (&iter, data->update_buffer.class_counts);
@@ -1273,8 +1273,8 @@ cache_create_service_decomposed (TrackerData  *data,
 {
 	TrackerClass       **super_classes;
 	TrackerProperty    **domain_indexes;
-	GValue              gvalue = { 0 };
-	gint                i, final_graph_id, class_id;
+	GValue gvalue = { 0 };
+	gint i, final_graph_id, class_id;
 	TrackerOntologies  *ontologies;
 
 	/* also create instance of all super classes */
@@ -1354,7 +1354,7 @@ cache_create_service_decomposed (TrackerData  *data,
 		if (old_values &&
 		    old_values->len > 0) {
 			GValue *v;
-			GValue gvalue_copy = { 0 };
+			GValue  gvalue_copy = { 0 };
 
 			/* Don't expect several values for property which is a domain index */
 			g_assert_cmpint (old_values->len, ==, 1);
@@ -1480,8 +1480,8 @@ static GArray *
 get_property_values (TrackerData     *data,
                      TrackerProperty *property)
 {
-	gboolean            multiple_values;
-	GArray *old_values;
+	gboolean multiple_values;
+	GArray  *old_values;
 
 	multiple_values = tracker_property_get_multiple_values (property);
 
@@ -1777,14 +1777,14 @@ cache_insert_metadata_decomposed (TrackerData      *data,
                                   gint              graph_id,
                                   GError          **error)
 {
-	gboolean            multiple_values;
+	gboolean multiple_values;
 	const gchar        *table_name;
 	const gchar        *field_name;
 	TrackerProperty   **super_properties;
-	GValue              gvalue = { 0 };
+	GValue gvalue = { 0 };
 	GArray             *old_values;
 	GError             *new_error = NULL;
-	gboolean            change = FALSE;
+	gboolean change = FALSE;
 
 	/* read existing property values */
 	old_values = get_old_property_values (data, property, &new_error);
@@ -1832,11 +1832,11 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		g_value_unset (&gvalue);
 	} else if (!multiple_values && old_values->len > 1) {
 		/* trying to add second value to single valued property */
-		GValue old_value = { 0 };
-		GValue new_value = { 0 };
+		GValue  old_value = { 0 };
+		GValue  new_value = { 0 };
 		GValue *v;
-		gchar *old_value_str = NULL;
-		gchar *new_value_str = NULL;
+		gchar  *old_value_str = NULL;
+		gchar  *new_value_str = NULL;
 
 		g_value_init (&old_value, G_TYPE_STRING);
 		g_value_init (&new_value, G_TYPE_STRING);
@@ -1931,7 +1931,7 @@ delete_first_object (TrackerData      *data,
 	} else {
 		GValue *v;
 		GError *new_error = NULL;
-		gchar *object_str = NULL;
+		gchar  *object_str = NULL;
 
 		object_id = 0;
 		v = &g_array_index (old_values, GValue, 0);
@@ -1948,7 +1948,7 @@ delete_first_object (TrackerData      *data,
 #ifndef DISABLE_JOURNAL
 		if (!data->in_journal_replay && change && !tracker_property_get_transient (field)) {
 			if (!tracker_property_get_force_journal (field) &&
-				g_strcmp0 (graph, TRACKER_OWN_GRAPH_URN) == 0) {
+			    g_strcmp0 (graph, TRACKER_OWN_GRAPH_URN) == 0) {
 				/* do not journal this statement extracted from filesystem */
 				TrackerProperty *damaged;
 				TrackerOntologies *ontologies;
@@ -2003,13 +2003,13 @@ cache_update_metadata_decomposed (TrackerData      *data,
                                   gint              graph_id,
                                   GError          **error)
 {
-	gboolean            multiple_values;
+	gboolean multiple_values;
 	const gchar        *table_name;
 	const gchar        *field_name;
 	TrackerProperty   **super_properties;
-	GValue              gvalue = { 0 };
+	GValue gvalue = { 0 };
 	GError             *new_error = NULL;
-	gboolean            change = FALSE;
+	gboolean change = FALSE;
 
 	multiple_values = tracker_property_get_multiple_values (property);
 
@@ -2105,14 +2105,14 @@ delete_metadata_decomposed (TrackerData      *data,
                             gint              value_id,
                             GError          **error)
 {
-	gboolean            multiple_values;
+	gboolean multiple_values;
 	const gchar        *table_name;
 	const gchar        *field_name;
 	TrackerProperty   **super_properties;
 	GValue gvalue = { 0 };
 	GArray             *old_values;
 	GError             *new_error = NULL;
-	gboolean            change = FALSE;
+	gboolean change = FALSE;
 
 	multiple_values = tracker_property_get_multiple_values (property);
 	table_name = tracker_property_get_table_name (property);
@@ -2218,9 +2218,9 @@ cache_delete_resource_type_full (TrackerData  *data,
 	TrackerDBStatement *stmt;
 	TrackerDBCursor    *cursor = NULL;
 	TrackerProperty   **properties, *prop;
-	gboolean            found, direct_delete;
-	gint                i;
-	guint               p, n_props;
+	gboolean found, direct_delete;
+	gint  i;
+	guint p, n_props;
 	GError             *error = NULL;
 	TrackerOntologies  *ontologies;
 
@@ -2266,9 +2266,9 @@ cache_delete_resource_type_full (TrackerData  *data,
 		/* retrieve all subclasses we need to remove from the subject
 		 * before we can remove the class specified as object of the statement */
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-			                                      "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdfs:Class_rdfs:subClassOf\".ID) "
-			                                      "FROM \"rdfs:Resource_rdf:type\" INNER JOIN \"rdfs:Class_rdfs:subClassOf\" ON (\"rdf:type\" = \"rdfs:Class_rdfs:subClassOf\".ID) "
-			                                      "WHERE \"rdfs:Resource_rdf:type\".ID = ? AND \"rdfs:subClassOf\" = (SELECT ID FROM Resource WHERE Uri = ?)");
+		                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdfs:Class_rdfs:subClassOf\".ID) "
+		                                              "FROM \"rdfs:Resource_rdf:type\" INNER JOIN \"rdfs:Class_rdfs:subClassOf\" ON (\"rdf:type\" = \"rdfs:Class_rdfs:subClassOf\".ID) "
+		                                              "WHERE \"rdfs:Resource_rdf:type\".ID = ? AND \"rdfs:subClassOf\" = (SELECT ID FROM Resource WHERE Uri = ?)");
 
 		if (stmt) {
 			tracker_db_statement_bind_int (stmt, 0, data->resource_buffer->id);
@@ -2283,7 +2283,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 
 				class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 				cache_delete_resource_type_full (data, tracker_ontologies_get_class_by_uri (ontologies, class_uri),
-					                         graph, graph_id, FALSE);
+				                                 graph, graph_id, FALSE);
 			}
 
 			g_object_unref (cursor);
@@ -2304,11 +2304,11 @@ cache_delete_resource_type_full (TrackerData  *data,
 	properties = tracker_ontologies_get_properties (ontologies, &n_props);
 
 	for (p = 0; p < n_props; p++) {
-		gboolean            multiple_values;
+		gboolean multiple_values;
 		const gchar        *table_name;
 		const gchar        *field_name;
 		GArray *old_values;
-		gint                y;
+		gint y;
 
 		prop = properties[p];
 
@@ -2330,7 +2330,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 
 		old_values = get_old_property_values (data, prop, NULL);
 
-		for (y = old_values->len - 1; y >= 0 ; y--) {
+		for (y = old_values->len - 1; y >= 0; y--) {
 			GValue *old_gvalue;
 			GValue  gvalue = { 0 };
 
@@ -2379,7 +2379,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 			/* this is not necessary when deleting the whole resource
 			   as all property values are deleted implicitly */
 			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
-						                      "DELETE FROM \"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?");
+			                                              "DELETE FROM \"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?");
 
 			if (stmt) {
 				tracker_db_statement_bind_int (stmt, 0, data->resource_buffer->id);
@@ -2402,7 +2402,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 
 	if (!data->in_journal_replay && data->delete_callbacks) {
 		guint n;
-		gint final_graph_id;
+		gint  final_graph_id;
 
 		final_graph_id = (graph != NULL ? ensure_graph_id (data, graph, NULL) : graph_id);
 
@@ -2507,8 +2507,8 @@ tracker_data_delete_statement (TrackerData  *data,
                                GError      **error)
 {
 	TrackerClass       *class;
-	gint                subject_id = 0;
-	gboolean            change = FALSE;
+	gint subject_id = 0;
+	gboolean change = FALSE;
 	TrackerOntologies  *ontologies;
 	TrackerDBInterface *iface;
 
@@ -2536,11 +2536,11 @@ tracker_data_delete_statement (TrackerData  *data,
 #ifndef DISABLE_JOURNAL
 			if (!data->in_journal_replay) {
 				tracker_db_journal_append_delete_statement_id (
-				       data->journal_writer,
-				       (graph != NULL ? query_resource_id (data, graph) : 0),
-				       data->resource_buffer->id,
-				       tracker_data_query_resource_id (data->manager, iface, predicate),
-				       tracker_class_get_id (class));
+					data->journal_writer,
+					(graph != NULL ? query_resource_id (data, graph) : 0),
+					data->resource_buffer->id,
+					tracker_data_query_resource_id (data->manager, iface, predicate),
+					tracker_class_get_id (class));
 			}
 #endif /* DISABLE_JOURNAL */
 
@@ -2645,7 +2645,7 @@ delete_all_objects (TrackerData  *data,
 {
 	gint subject_id = 0;
 	gboolean change = FALSE;
-	GError *new_error = NULL;
+	GError  *new_error = NULL;
 	TrackerProperty *field;
 	TrackerOntologies *ontologies;
 
@@ -2704,7 +2704,7 @@ tracker_data_insert_statement_common (TrackerData  *data,
 	if (g_str_has_prefix (subject, ":")) {
 		/* blank node definition
 		   pile up statements until the end of the blank node */
-		gchar *value;
+		gchar  *value;
 		GError *actual_error = NULL;
 
 		if (data->blank_buffer.subject != NULL) {
@@ -2837,10 +2837,10 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 	GError          *actual_error = NULL;
 	TrackerClass    *class;
 	TrackerProperty *property;
-	gint             prop_id = 0, graph_id = 0;
-	gint             final_prop_id = 0, object_id = 0;
+	gint prop_id = 0, graph_id = 0;
+	gint final_prop_id = 0, object_id = 0;
 	gboolean change = FALSE;
-	TrackerOntologies *ontologies;
+	TrackerOntologies  *ontologies;
 	TrackerDBInterface *iface;
 
 	g_return_if_fail (subject != NULL);
@@ -2961,12 +2961,12 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 {
 	GError          *actual_error = NULL;
 	TrackerProperty *property;
-	gboolean         change;
-	gint             graph_id = 0, pred_id = 0;
-	TrackerOntologies *ontologies;
+	gboolean change;
+	gint graph_id = 0, pred_id = 0;
+	TrackerOntologies  *ontologies;
 	TrackerDBInterface *iface;
 #ifndef DISABLE_JOURNAL
-	gboolean         tried = FALSE;
+	gboolean tried = FALSE;
 #endif
 
 	g_return_if_fail (subject != NULL);
@@ -3046,15 +3046,15 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 			damaged = tracker_ontologies_get_property_by_uri (ontologies, TRACKER_PREFIX_TRACKER "damaged");
 			tracker_db_journal_append_insert_statement (data->journal_writer,
 			                                            graph_id,
-				                                    data->resource_buffer->id,
-				                                    tracker_property_get_id (damaged),
-				                                    "true");
+			                                            data->resource_buffer->id,
+			                                            tracker_property_get_id (damaged),
+			                                            "true");
 		} else {
 			tracker_db_journal_append_insert_statement (data->journal_writer,
 			                                            graph_id,
-				                                    data->resource_buffer->id,
-				                                    pred_id,
-				                                    object);
+			                                            data->resource_buffer->id,
+			                                            pred_id,
+			                                            object);
 		}
 	}
 #endif /* DISABLE_JOURNAL */
@@ -3071,10 +3071,10 @@ tracker_data_update_statement_with_uri (TrackerData  *data,
 	GError          *actual_error = NULL;
 	TrackerClass    *class;
 	TrackerProperty *property;
-	gint             prop_id = 0, graph_id = 0;
-	gint             final_prop_id = 0, object_id = 0;
-	gboolean         change = FALSE;
-	TrackerOntologies *ontologies;
+	gint prop_id = 0, graph_id = 0;
+	gint final_prop_id = 0, object_id = 0;
+	gboolean change = FALSE;
+	TrackerOntologies  *ontologies;
 	TrackerDBInterface *iface;
 
 	g_return_if_fail (subject != NULL);
@@ -3146,9 +3146,9 @@ tracker_data_update_statement_with_uri (TrackerData  *data,
 		change = TRUE;
 	} else {
 		gint old_object_id = 0;
-		GArray *old_values;
+		GArray  *old_values;
 		gboolean multiple_values;
-		GError *new_error = NULL;
+		GError  *new_error = NULL;
 		gboolean domain_unchecked = TRUE;
 
 		multiple_values = tracker_property_get_multiple_values (property);
@@ -3283,7 +3283,7 @@ tracker_data_update_statement_with_string (TrackerData  *data,
 	gboolean change;
 	gint graph_id = 0, pred_id = 0;
 	gboolean multiple_values;
-	TrackerOntologies *ontologies;
+	TrackerOntologies  *ontologies;
 	TrackerDBInterface *iface;
 #ifndef DISABLE_JOURNAL
 	gboolean tried = FALSE;
@@ -3491,7 +3491,7 @@ tracker_data_begin_transaction (TrackerData  *data,
 
 	if (!tracker_db_manager_has_enough_space (db_manager)) {
 		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_NO_SPACE,
-			"There is not enough space on the file system for update operations");
+		             "There is not enough space on the file system for update operations");
 		return;
 	}
 
@@ -3523,8 +3523,8 @@ tracker_data_begin_transaction (TrackerData  *data,
 		g_assert (data->journal_writer == NULL);
 		/* Pick the right journal writer for this transaction */
 		data->journal_writer = data->in_ontology_transaction ?
-			tracker_data_manager_get_ontology_writer (data->manager) :
-			tracker_data_manager_get_journal_writer (data->manager);
+		                       tracker_data_manager_get_ontology_writer (data->manager) :
+		                       tracker_data_manager_get_journal_writer (data->manager);
 
 		tracker_db_journal_start_transaction (data->journal_writer, data->resource_time);
 	}
@@ -3776,7 +3776,7 @@ tracker_data_replay_journal (TrackerData          *data,
 	gint last_operation_type = 0;
 	const gchar *uri;
 	GError *n_error = NULL;
-	GFile *data_location;
+	GFile  *data_location;
 	TrackerDBJournalReader *reader;
 	TrackerOntologies *ontologies;
 
@@ -4045,7 +4045,7 @@ tracker_data_replay_journal (TrackerData          *data,
 
 	if (journal_error) {
 		GError *n_error = NULL;
-		gsize size;
+		gsize  size;
 		GFile *cache_location, *data_location;
 		TrackerDBJournal *writer;
 

@@ -60,7 +60,7 @@ struct _TrackerOntologiesPrivate {
 	GHashTable *property_uris;
 
 	/* FieldType enum class */
-	gpointer    property_type_enum_class;
+	gpointer property_type_enum_class;
 
 	/* Hash (int id, const gchar *uri) */
 	GHashTable *id_uri_pairs;
@@ -222,8 +222,8 @@ tracker_ontologies_get_class_by_uri (TrackerOntologies *ontologies,
 			tracker_class_set_uri (class, class_uri);
 
 			g_hash_table_insert (priv->class_uris,
-				             g_strdup (class_uri),
-				             class);
+			                     g_strdup (class_uri),
+			                     class);
 		}
 	}
 
@@ -384,8 +384,8 @@ tracker_ontologies_get_property_by_uri (TrackerOntologies *ontologies,
 			tracker_property_set_uri (property, uri);
 
 			g_hash_table_insert (priv->property_uris,
-				             g_strdup (uri),
-				             property);
+			                     g_strdup (uri),
+			                     property);
 		}
 	}
 
@@ -448,8 +448,8 @@ tracker_ontologies_get_namespace_by_uri (TrackerOntologies *ontologies,
 			tracker_namespace_set_uri (namespace, uri);
 
 			g_hash_table_insert (priv->namespace_uris,
-					     g_strdup (uri),
-					     namespace);
+			                     g_strdup (uri),
+			                     namespace);
 		}
 	}
 
@@ -486,8 +486,8 @@ gvdb_hash_table_insert_variant (GHashTable  *table,
 }
 
 static GvdbItem *
-gvdb_hash_table_insert_item (GHashTable *table,
-                             GvdbItem   *root,
+gvdb_hash_table_insert_item (GHashTable  *table,
+                             GvdbItem    *root,
                              const gchar *uri)
 {
 	GvdbItem *item;
@@ -539,8 +539,8 @@ tracker_ontologies_write_gvdb (TrackerOntologies  *ontologies,
 	table = gvdb_hash_table_new (root_table, "classes");
 	root = gvdb_hash_table_insert (table, "");
 	for (i = 0; i < priv->classes->len; i++) {
-		TrackerClass *class;
-		TrackerClass **super_classes;
+		TrackerClass   *class;
+		TrackerClass  **super_classes;
 		GVariantBuilder builder;
 
 		class = priv->classes->pdata[i];
@@ -568,8 +568,8 @@ tracker_ontologies_write_gvdb (TrackerOntologies  *ontologies,
 	root = gvdb_hash_table_insert (table, "");
 	for (i = 0; i < priv->properties->len; i++) {
 		TrackerProperty *property;
-		TrackerClass **domain_indexes;
-		GVariantBuilder builder;
+		TrackerClass   **domain_indexes;
+		GVariantBuilder  builder;
 
 		property = priv->properties->pdata[i];
 		uri = tracker_property_get_uri (property);

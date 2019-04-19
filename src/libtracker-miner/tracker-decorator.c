@@ -41,7 +41,7 @@
  * #TrackerDecorator queues files for extended metadata extraction
  * (i.e. for tracker-extract to fetch metadata specific to the file
  * type) for example 'nmm:whiteBalance' for a picture.
-**/
+ **/
 
 typedef struct _TrackerDecoratorPrivate TrackerDecoratorPrivate;
 typedef struct _SparqlUpdate SparqlUpdate;
@@ -68,15 +68,15 @@ struct _SparqlUpdate {
 
 struct _TrackerDecoratorPrivate {
 	TrackerNotifier *notifier;
-	gchar *data_source;
+	gchar  *data_source;
 
 	GArray *classes; /* Array of ClassInfo */
 	gchar **class_names;
 
-	gssize n_remaining_items;
-	gssize n_processed_items;
+	gssize  n_remaining_items;
+	gssize  n_processed_items;
 
-	GQueue item_cache; /* Queue of TrackerDecoratorInfo */
+	GQueue  item_cache; /* Queue of TrackerDecoratorInfo */
 
 	/* Arrays of tracker IDs */
 	GArray *prepended_ids;
@@ -86,11 +86,11 @@ struct _TrackerDecoratorPrivate {
 	GArray *sparql_buffer; /* Array of SparqlUpdate */
 	GArray *commit_buffer; /* Array of SparqlUpdate */
 	GTimer *timer;
-	GQueue next_elem_queue; /* Queue of incoming tasks */
+	GQueue  next_elem_queue; /* Queue of incoming tasks */
 
 	GCancellable *cancellable;
 
-	gint batch_size;
+	gint  batch_size;
 
 	guint processing : 1;
 	guint querying   : 1;
@@ -121,8 +121,8 @@ static void decorator_cache_next_items (TrackerDecorator *decorator);
 static gboolean decorator_check_commit (TrackerDecorator *decorator);
 
 static void notifier_events_cb (TrackerDecorator *decorator,
-				GPtrArray        *events,
-				TrackerNotifier  *notifier);
+                                GPtrArray        *events,
+                                TrackerNotifier  *notifier);
 
 /**
  * tracker_decorator_error_quark:
@@ -430,7 +430,7 @@ decorator_commit_info (TrackerDecorator *decorator)
 	                                              (gchar **) array->pdata,
 	                                              array->len,
 	                                              G_PRIORITY_DEFAULT,
-						      priv->cancellable,
+	                                              priv->cancellable,
 	                                              decorator_commit_cb,
 	                                              decorator);
 
@@ -516,7 +516,7 @@ decorator_rebuild_cache (TrackerDecorator *decorator)
 	                 (GFunc) tracker_decorator_info_unref, NULL);
 	g_queue_clear (&priv->item_cache);
 
-        decorator_cache_next_items (decorator);
+	decorator_cache_next_items (decorator);
 }
 
 /* This function is called after the caller has completed the
@@ -532,7 +532,7 @@ decorator_task_done (GObject      *object,
 	TrackerDecoratorInfo *info = user_data;
 	TrackerDecoratorPrivate *priv;
 	GError *error = NULL;
-	gchar *sparql;
+	gchar  *sparql;
 
 	priv = decorator->priv;
 	sparql = g_task_propagate_pointer (G_TASK (result), &error);
@@ -646,7 +646,7 @@ query_add_processing_filter (TrackerDecorator *decorator,
 
 	if ((!priv->sparql_buffer || priv->sparql_buffer->len == 0) &&
 	    (!priv->commit_buffer || priv->commit_buffer->len == 0))
-	    return;
+		return;
 
 	g_string_append (query, "&& tracker:id(?urn) NOT IN (");
 
@@ -682,7 +682,7 @@ query_add_id_filter (GString  *query,
 
 static void
 query_append_current_tasks_filter (TrackerDecorator *decorator,
-				   GString          *query)
+                                   GString          *query)
 {
 	TrackerDecoratorPrivate *priv = decorator->priv;
 	GHashTableIter iter;
@@ -787,7 +787,7 @@ decorator_query_remaining_items_cb (GObject      *object,
 	GError *error = NULL;
 
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
-							 result, &error);
+	                                                 result, &error);
 
 	if (error || !tracker_sparql_cursor_next (cursor, NULL, &error)) {
 		decorator_notify_task_error (decorator, error);
@@ -799,7 +799,7 @@ decorator_query_remaining_items_cb (GObject      *object,
 	priv->querying = FALSE;
 
 	priv->n_remaining_items = g_queue_get_length (&priv->item_cache) +
-		tracker_sparql_cursor_get_integer (cursor, 0);
+	                          tracker_sparql_cursor_get_integer (cursor, 0);
 	g_object_unref (cursor);
 
 	g_debug ("Found %" G_GSIZE_FORMAT " items to extract", priv->n_remaining_items);
@@ -823,7 +823,7 @@ decorator_query_remaining_items (TrackerDecorator *decorator)
 	if (query) {
 		sparql_conn = tracker_miner_get_connection (TRACKER_MINER (decorator));
 		tracker_sparql_connection_query_async (sparql_conn, query,
-						       priv->cancellable,
+		                                       priv->cancellable,
 		                                       decorator_query_remaining_items_cb,
 		                                       decorator);
 		g_free (query);
@@ -883,14 +883,14 @@ decorator_cache_items_cb (GObject      *object,
 	TrackerDecorator *decorator = user_data;
 	TrackerDecoratorPrivate *priv;
 	TrackerSparqlConnection *conn;
-	TrackerSparqlCursor *cursor;
+	TrackerSparqlCursor  *cursor;
 	TrackerDecoratorInfo *info;
 	GError *error = NULL;
 
 	conn = TRACKER_SPARQL_CONNECTION (object);
 	cursor = tracker_sparql_connection_query_finish (conn, result, &error);
 	priv = decorator->priv;
-        priv->querying = FALSE;
+	priv->querying = FALSE;
 
 	if (error) {
 		decorator_notify_task_error (decorator, error);
@@ -922,7 +922,7 @@ decorator_cache_next_items (TrackerDecorator *decorator)
 	    !g_queue_is_empty (&priv->item_cache))
 		return;
 
-        priv->querying = TRUE;
+	priv->querying = TRUE;
 
 	if (priv->n_remaining_items == 0) {
 		decorator_query_remaining_items (decorator);
@@ -933,9 +933,9 @@ decorator_cache_next_items (TrackerDecorator *decorator)
 		sparql_conn = tracker_miner_get_connection (TRACKER_MINER (decorator));
 		query = create_remaining_items_query (decorator);
 		tracker_sparql_connection_query_async (sparql_conn, query,
-						       priv->cancellable,
-						       decorator_cache_items_cb,
-						       decorator);
+		                                       priv->cancellable,
+		                                       decorator_cache_items_cb,
+		                                       decorator);
 		g_free (query);
 	}
 }
@@ -951,18 +951,18 @@ update_notifier (TrackerDecorator *decorator)
 		GError *error = NULL;
 
 		priv->notifier = tracker_notifier_new ((const gchar * const *) priv->class_names,
-						       TRACKER_NOTIFIER_FLAG_NOTIFY_UNEXTRACTED,
-						       NULL, &error);
+		                                       TRACKER_NOTIFIER_FLAG_NOTIFY_UNEXTRACTED,
+		                                       NULL, &error);
 
 		if (error) {
 			g_warning ("Could not create notifier: %s\n",
-				   error->message);
+			           error->message);
 			g_error_free (error);
 		}
 
 		g_signal_connect_swapped (priv->notifier, "events",
-					  G_CALLBACK (notifier_events_cb),
-					  decorator);
+		                          G_CALLBACK (notifier_events_cb),
+		                          decorator);
 	}
 }
 
@@ -1057,8 +1057,8 @@ tracker_decorator_set_property (GObject      *object,
 
 static void
 notifier_events_cb (TrackerDecorator *decorator,
-		    GPtrArray       *events,
-		    TrackerNotifier *notifier)
+                    GPtrArray        *events,
+                    TrackerNotifier  *notifier)
 {
 	gboolean check_added = FALSE;
 	gint64 id;
@@ -1630,8 +1630,8 @@ tracker_decorator_info_get_url (TrackerDecoratorInfo *info)
 const gchar *
 tracker_decorator_info_get_mimetype (TrackerDecoratorInfo *info)
 {
-       g_return_val_if_fail (info != NULL, NULL);
-       return info->mimetype;
+	g_return_val_if_fail (info != NULL, NULL);
+	return info->mimetype;
 }
 
 

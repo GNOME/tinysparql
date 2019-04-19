@@ -38,9 +38,9 @@ typedef struct _FindNodeData FindNodeData;
 struct _NodeData
 {
 	GFile *file;
-	guint flags;
-	guint shallow : 1;
-	guint removing : 1;
+	guint  flags;
+	guint  shallow : 1;
+	guint  removing : 1;
 };
 
 struct _PatternData
@@ -64,7 +64,7 @@ struct _TrackerIndexingTreePrivate
 	TrackerFilterPolicy policies[TRACKER_FILTER_PARENT_DIRECTORY + 1];
 
 	GFile *root;
-	guint filter_hidden : 1;
+	guint  filter_hidden : 1;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (TrackerIndexingTree, tracker_indexing_tree, G_TYPE_OBJECT)
@@ -860,14 +860,14 @@ tracker_indexing_tree_file_is_indexable (TrackerIndexingTree *tree,
 		file_type = g_file_query_file_type (file, file_flags, NULL);
 
 		filter = (file_type == G_FILE_TYPE_DIRECTORY) ?
-			TRACKER_FILTER_DIRECTORY : TRACKER_FILTER_FILE;
+		         TRACKER_FILTER_DIRECTORY : TRACKER_FILTER_FILE;
 
 		if (indexing_tree_file_is_filtered (tree, filter, file)) {
 			return FALSE;
 		}
 	} else if (file_type != G_FILE_TYPE_UNKNOWN) {
 		filter = (file_type == G_FILE_TYPE_DIRECTORY) ?
-			TRACKER_FILTER_DIRECTORY : TRACKER_FILTER_FILE;
+		         TRACKER_FILTER_DIRECTORY : TRACKER_FILTER_FILE;
 
 		if (indexing_tree_file_is_filtered (tree, filter, file)) {
 			return FALSE;

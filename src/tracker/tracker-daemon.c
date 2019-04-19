@@ -53,7 +53,7 @@ static gboolean parse_watch (const gchar  *option_name,
 
 static GDBusConnection *connection = NULL;
 static GDBusProxy *proxy = NULL;
-static GMainLoop *main_loop;
+static GMainLoop  *main_loop;
 static GHashTable *miners_progress;
 static GHashTable *miners_status;
 static gint longest_miner_name_length = 0;
@@ -215,7 +215,7 @@ signal_handler (gpointer user_data)
 		in_loop = TRUE;
 		g_main_loop_quit (main_loop);
 
-		/* Fall through */
+	/* Fall through */
 	default:
 		if (g_strsignal (signo)) {
 			g_print ("\n");
@@ -279,7 +279,7 @@ miner_print_state (TrackerMinerManager *manager,
 {
 	const gchar *name;
 	time_t now;
-	gchar time_str[64];
+	gchar  time_str[64];
 	size_t len;
 	struct tm *local_time;
 
@@ -427,7 +427,7 @@ store_get_and_print_state (void)
 	const gchar *status = NULL;
 	gdouble progress = -1.0;
 	GError *error = NULL;
-	gchar *owner;
+	gchar  *owner;
 
 	owner = g_dbus_proxy_get_name_owner (proxy);
 	if (!owner) {
@@ -576,7 +576,7 @@ get_prefixes (TrackerSparqlConnection *connection)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
-	GHashTable *retval;
+	GHashTable  *retval;
 	const gchar *query;
 
 	retval = g_hash_table_new_full (g_str_hash,
@@ -599,8 +599,8 @@ get_prefixes (TrackerSparqlConnection *connection)
 
 	if (error) {
 		g_printerr ("%s, %s\n",
-			    _("Unable to retrieve namespace prefixes"),
-			    error->message);
+		            _("Unable to retrieve namespace prefixes"),
+		            error->message);
 
 		g_error_free (error);
 		return retval;
@@ -671,8 +671,8 @@ store_graph_update_interpret (WatchData  *wd,
                               gint        predicate)
 {
 	TrackerSparqlCursor *cursor;
-	GError *error = NULL;
-	gchar *query, *key;
+	GError  *error = NULL;
+	gchar   *query, *key;
 	gboolean ok = TRUE;
 
 	query = g_strdup_printf ("SELECT tracker:uri (%d) tracker:uri(%d) {}",
@@ -776,7 +776,7 @@ store_graph_update_cb (GDBusConnection *connection,
                        gpointer         user_data)
 
 {
-	WatchData *wd;
+	WatchData  *wd;
 	GHashTable *updates;
 	GVariantIter *iter1, *iter2;
 	gchar *class_name;
@@ -870,7 +870,7 @@ miner_pause (const gchar *miner,
 {
 	TrackerMinerManager *manager;
 	GError *error = NULL;
-	gchar *str;
+	gchar  *str;
 	guint32 cookie;
 
 	/* Don't auto-start the miners here */
@@ -929,7 +929,7 @@ miner_resume (const gchar *miner,
 {
 	TrackerMinerManager *manager;
 	GError *error = NULL;
-	gchar *str;
+	gchar  *str;
 
 	/* Don't auto-start the miners here */
 	manager = tracker_miner_manager_new_full (FALSE, &error);
@@ -978,7 +978,7 @@ miner_list (gboolean available,
 
 	if (available) {
 		GSList *miners_available;
-		gchar *str;
+		gchar  *str;
 		GSList *l;
 
 		miners_available = tracker_miner_manager_get_available (manager);
@@ -1001,7 +1001,7 @@ miner_list (gboolean available,
 
 	if (running) {
 		GSList *miners_running;
-		gchar *str;
+		gchar  *str;
 		GSList *l;
 
 		miners_running = tracker_miner_manager_get_running (manager);
@@ -1060,7 +1060,7 @@ miner_pause_details (void)
 	for (l = miners_running; l; l = l->next) {
 		const gchar *name;
 		GStrv pause_applications, pause_reasons;
-		gint i;
+		gint  i;
 
 		name = tracker_miner_manager_get_display_name (manager, l->data);
 
@@ -1132,19 +1132,19 @@ miner_pause_details (void)
 inline static const gchar *
 verbosity_to_string (TrackerVerbosity verbosity)
 {
-        GType type;
-        GEnumClass *enum_class;
-        GEnumValue *enum_value;
+	GType type;
+	GEnumClass *enum_class;
+	GEnumValue *enum_value;
 
-        type = tracker_verbosity_get_type ();
-        enum_class = G_ENUM_CLASS (g_type_class_peek (type));
-        enum_value = g_enum_get_value (enum_class, verbosity);
+	type = tracker_verbosity_get_type ();
+	enum_class = G_ENUM_CLASS (g_type_class_peek (type));
+	enum_value = g_enum_get_value (enum_class, verbosity);
 
-        if (!enum_value) {
-                return "unknown";
-        }
+	if (!enum_value) {
+		return "unknown";
+	}
 
-        return enum_value->value_nick;
+	return enum_value->value_nick;
 }
 
 inline static void
@@ -1359,7 +1359,7 @@ daemon_run (void)
 
 			if (is_running) {
 				GStrv pause_applications, pause_reasons;
-				gchar *status = NULL;
+				gchar  *status = NULL;
 				gdouble progress;
 				gint remaining_time;
 				gboolean is_paused;
@@ -1488,7 +1488,7 @@ daemon_run (void)
 	}
 
 	/* Processes */
-	GError *error = NULL;
+	GError  *error = NULL;
 	gpointer verbosity_type_enum_class_pointer = NULL;
 	TrackerVerbosity set_log_verbosity_value = TRACKER_VERBOSITY_ERRORS;
 
@@ -1540,7 +1540,7 @@ daemon_run (void)
 
 	if (list_processes) {
 		GSList *pids, *l;
-		gchar *str;
+		gchar  *str;
 
 		pids = tracker_process_find_all ();
 
@@ -1602,7 +1602,7 @@ daemon_run (void)
 
 	if (set_log_verbosity) {
 		GSList *all;
-		gchar *str;
+		gchar  *str;
 		gint longest = 0;
 
 		all = tracker_gsettings_get_all (&longest);

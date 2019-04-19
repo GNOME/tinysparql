@@ -110,13 +110,13 @@ struct _TrackerNotifierEventCache {
 };
 
 struct _TrackerNotifierEvent {
-	gint8 type;
-	guint delayed : 1;
+	gint8  type;
+	guint  delayed : 1;
 	gint64 id;
 	const gchar *rdf_type; /* Belongs to cache */
 	gchar *urn;
 	gchar *location;
-	guint ref_count;
+	guint  ref_count;
 };
 
 enum {
@@ -158,7 +158,7 @@ tracker_notifier_cache_id (TrackerNotifier *notifier,
 		return;
 
 	if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		gint64 id = tracker_sparql_cursor_get_integer (cursor, 0);
+		gint64  id = tracker_sparql_cursor_get_integer (cursor, 0);
 		gint64 *ptr = g_memdup (&id, sizeof (gint64));
 
 		g_hash_table_insert (priv->cached_ids, g_strdup (urn), ptr);
@@ -464,7 +464,7 @@ tracker_notifier_query_extra_info (TrackerNotifier *notifier,
                                    GPtrArray       *events)
 {
 	TrackerNotifierPrivate *priv;
-	TrackerSparqlCursor *cursor;
+	TrackerSparqlCursor  *cursor;
 	TrackerNotifierEvent *event;
 	gchar *sparql;
 	gint idx = 0, col;
@@ -544,7 +544,7 @@ tracker_notifier_query_extra_deleted_info (TrackerNotifier *notifier,
                                            GPtrArray       *events)
 {
 	TrackerNotifierPrivate *priv;
-	TrackerSparqlCursor *cursor;
+	TrackerSparqlCursor  *cursor;
 	TrackerNotifierEvent *event;
 	const gchar *urn;
 	gchar *sparql;
@@ -642,7 +642,7 @@ expand_class_iris (TrackerNotifier  *notifier,
 {
 	TrackerNotifierPrivate *priv;
 	TrackerSparqlCursor *cursor;
-	GArray *expanded;
+	GArray  *expanded;
 	GString *sparql;
 	gint i, n_classes;
 
@@ -688,7 +688,7 @@ tracker_notifier_initable_init (GInitable     *initable,
                                 GError       **error)
 {
 	TrackerNotifier *notifier = TRACKER_NOTIFIER (initable);
-	TrackerDomainOntology *domain_ontology;
+	TrackerDomainOntology  *domain_ontology;
 	TrackerNotifierPrivate *priv;
 	gchar *dbus_name;
 
@@ -874,8 +874,8 @@ tracker_notifier_init (TrackerNotifier *notifier)
 
 	priv = tracker_notifier_get_instance_private (notifier);
 	priv->cached_events = g_hash_table_new_full (g_str_hash,
-						     g_str_equal,
-						     NULL,
+	                                             g_str_equal,
+	                                             NULL,
 	                                             (GDestroyNotify) tracker_notifier_event_cache_free);
 	priv->cached_ids = g_hash_table_new_full (g_str_hash,
 	                                          g_str_equal,

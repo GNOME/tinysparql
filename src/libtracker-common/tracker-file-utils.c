@@ -108,7 +108,7 @@ tracker_file_get_size (const gchar *path)
 	GFileInfo *info;
 	GFile     *file;
 	GError    *error = NULL;
-	goffset    size;
+	goffset size;
 
 	g_return_val_if_fail (path != NULL, 0);
 
@@ -145,7 +145,7 @@ file_get_mtime (GFile *file)
 {
 	GFileInfo *info;
 	GError    *error = NULL;
-	guint64    mtime;
+	guint64 mtime;
 
 	info = g_file_query_info (file,
 	                          G_FILE_ATTRIBUTE_TIME_MODIFIED,
@@ -175,7 +175,7 @@ guint64
 tracker_file_get_mtime (const gchar *path)
 {
 	GFile     *file;
-	guint64    mtime;
+	guint64 mtime;
 
 	g_return_val_if_fail (path != NULL, 0);
 
@@ -193,7 +193,7 @@ guint64
 tracker_file_get_mtime_uri (const gchar *uri)
 {
 	GFile     *file;
-	guint64    mtime;
+	guint64 mtime;
 
 	g_return_val_if_fail (uri != NULL, 0);
 
@@ -328,7 +328,7 @@ tracker_file_system_has_enough_space (const gchar *path,
 	gchar *str1;
 	gchar *str2;
 	gboolean enough;
-	guint64 remaining;
+	guint64  remaining;
 
 	g_return_val_if_fail (path != NULL, FALSE);
 
@@ -405,7 +405,7 @@ tracker_path_list_filter_duplicates (GSList      *roots,
 	while (l1) {
 		const gchar *path;
 		gchar       *p;
-		gboolean     reset = FALSE;
+		gboolean reset = FALSE;
 
 		path = l1->data;
 

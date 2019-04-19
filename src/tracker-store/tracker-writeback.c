@@ -151,7 +151,7 @@ tracker_writeback_init (TrackerDataManager                *data_manager,
 {
 	TrackerOntologies *ontologies;
 	GStrv predicates_to_signal;
-	gint i, count;
+	gint  i, count;
 
 	g_return_if_fail (private == NULL);
 

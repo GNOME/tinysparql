@@ -44,34 +44,34 @@ struct _TrackerPropertyPrivate {
 	gchar         *name;
 	gchar         *table_name;
 
-	gboolean       use_gvdb;
+	gboolean use_gvdb;
 
-	TrackerPropertyType  data_type;
-	TrackerClass   *domain;
-	TrackerClass   *domain_index;
-	TrackerClass   *range;
-	gint           weight;
-	gint           id;
-	gboolean       indexed;
+	TrackerPropertyType data_type;
+	TrackerClass    *domain;
+	TrackerClass    *domain_index;
+	TrackerClass    *range;
+	gint weight;
+	gint id;
+	gboolean indexed;
 	TrackerProperty *secondary_index;
-	gboolean       orig_fulltext_indexed;
-	gboolean       fulltext_indexed;
-	gboolean       multiple_values;
-	gboolean       last_multiple_values;
-	gboolean       transient;
-	gboolean       is_inverse_functional_property;
-	gboolean       is_new;
-	gboolean       db_schema_changed;
-	gboolean       writeback;
+	gboolean orig_fulltext_indexed;
+	gboolean fulltext_indexed;
+	gboolean multiple_values;
+	gboolean last_multiple_values;
+	gboolean transient;
+	gboolean is_inverse_functional_property;
+	gboolean is_new;
+	gboolean db_schema_changed;
+	gboolean writeback;
 	gchar         *default_value;
 	GPtrArray     *is_new_domain_index;
-	gboolean       force_journal;
+	gboolean force_journal;
 
 	GArray        *super_properties;
 	GArray        *domain_indexes;
 	GArray        *last_super_properties;
-	gboolean       cardinality_changed;
-	gboolean       orig_multiple_values;
+	gboolean cardinality_changed;
+	gboolean orig_multiple_values;
 
 	TrackerOntologies *ontologies;
 };
@@ -257,8 +257,8 @@ tracker_property_get_table_name (TrackerProperty *property)
 	if (!priv->table_name) {
 		if (tracker_property_get_multiple_values (property)) {
 			priv->table_name = g_strdup_printf ("%s_%s",
-				tracker_class_get_name (tracker_property_get_domain (property)),
-				tracker_property_get_name (property));
+			                                    tracker_class_get_name (tracker_property_get_domain (property)),
+			                                    tracker_property_get_name (property));
 		} else {
 			priv->table_name = g_strdup (tracker_class_get_name (tracker_property_get_domain (property)));
 		}
@@ -306,7 +306,7 @@ tracker_property_get_domain (TrackerProperty *property)
 	TrackerPropertyPrivate *priv;
 
 	/* Removed for performance:
-	 g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL); */
+	   g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL); */
 
 	g_return_val_if_fail (property != NULL, NULL);
 
@@ -328,7 +328,7 @@ tracker_property_get_domain_indexes (TrackerProperty *property)
 	TrackerPropertyPrivate *priv;
 
 	/* Removed for performance:
-	 g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL); */
+	   g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL); */
 
 	g_return_val_if_fail (property != NULL, NULL);
 
@@ -463,7 +463,7 @@ tracker_property_get_fulltext_indexed (TrackerProperty *property)
 	TrackerPropertyPrivate *priv;
 
 	/* Removed for performance:
-	 g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL); */
+	   g_return_val_if_fail (TRACKER_IS_PROPERTY (property), NULL); */
 
 	g_return_val_if_fail (property != NULL, FALSE);
 
@@ -471,7 +471,7 @@ tracker_property_get_fulltext_indexed (TrackerProperty *property)
 
 	if (priv->use_gvdb) {
 		GVariant *value;
-		gboolean result;
+		gboolean  result;
 
 		value = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "fulltext-indexed");
 		if (value != NULL) {
@@ -583,7 +583,7 @@ tracker_property_get_multiple_values (TrackerProperty *property)
 
 	if (priv->use_gvdb) {
 		GVariant *value;
-		gboolean result;
+		gboolean  result;
 
 		value = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "max-cardinality");
 		if (value != NULL) {
@@ -634,7 +634,7 @@ tracker_property_get_is_inverse_functional_property (TrackerProperty *property)
 
 	if (priv->use_gvdb) {
 		GVariant *value;
-		gboolean result;
+		gboolean  result;
 
 		value = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "inverse-functional");
 		if (value != NULL) {
@@ -835,7 +835,7 @@ tracker_property_set_secondary_index (TrackerProperty *property,
 }
 
 void
-tracker_property_set_range (TrackerProperty *property,
+tracker_property_set_range (TrackerProperty  *property,
                             TrackerClass     *value)
 {
 	TrackerPropertyPrivate *priv;

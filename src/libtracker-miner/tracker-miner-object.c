@@ -64,7 +64,7 @@ struct _TrackerMinerPrivate {
 	gboolean started;
 	gint n_pauses;
 	gchar *status;
-	gdouble progress;
+	gdouble  progress;
 	gint remaining_time;
 	gint availability_cookie;
 	guint update_id;
@@ -391,9 +391,9 @@ miner_set_property (GObject      *object,
 
 		new_progress = PROGRESS_ROUNDED (g_value_get_double (value));
 		trace ("(Miner:'%s') Set property:'progress' to '%2.2f' (%2.2f before rounded)",
-		         G_OBJECT_TYPE_NAME (miner),
-		         new_progress,
-		         g_value_get_double (value));
+		       G_OBJECT_TYPE_NAME (miner),
+		       new_progress,
+		       g_value_get_double (value));
 
 		/* NOTE: We don't round the current progress before
 		 * comparison because we use the rounded value when

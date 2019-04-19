@@ -55,8 +55,8 @@ enum {
 static guint signals[LAST_SIGNAL] = { 0 };
 
 typedef struct {
-	GFile *root;
-	GFile *current_dir;
+	GFile  *root;
+	GFile  *current_dir;
 	GQueue *pending_dirs;
 	GPtrArray *query_files;
 	guint flags;
@@ -87,7 +87,7 @@ typedef struct {
 	GList *pending_index_roots;
 	RootData *current_index_root;
 
-	guint stopped : 1;
+	guint  stopped : 1;
 } TrackerFileNotifierPrivate;
 
 typedef struct {
@@ -249,7 +249,7 @@ crawler_check_directory_contents_cb (TrackerCrawler *crawler,
 	 */
 	if (!tracker_indexing_tree_file_is_root (priv->indexing_tree, parent)) {
 		process = tracker_indexing_tree_parent_is_indexable (priv->indexing_tree,
-								     parent, children);
+		                                                     parent, children);
 	}
 
 	if (process) {
@@ -368,10 +368,10 @@ file_notifier_traverse_tree (TrackerFileNotifier *notifier)
 
 	/* We want the directory and its direct contents, hence depth=2 */
 	tracker_file_system_traverse (priv->file_system,
-				      directory,
-				      G_LEVEL_ORDER,
-				      file_notifier_traverse_tree_foreach,
-				      2, notifier);
+	                              directory,
+	                              G_LEVEL_ORDER,
+	                              file_notifier_traverse_tree_foreach,
+	                              2, notifier);
 }
 
 static gboolean
@@ -425,19 +425,19 @@ file_notifier_add_node_foreach (GNode    *node,
 
 		/* Intern file in filesystem */
 		canonical = tracker_file_system_get_file (priv->file_system,
-							  file, file_type,
-							  data->cur_parent);
+		                                          file, file_type,
+		                                          data->cur_parent);
 
 		if (priv->current_index_root->flags & TRACKER_DIRECTORY_FLAG_CHECK_MTIME) {
 			time = g_file_info_get_attribute_uint64 (file_info,
-								 G_FILE_ATTRIBUTE_TIME_MODIFIED);
+			                                         G_FILE_ATTRIBUTE_TIME_MODIFIED);
 
 			time_ptr = g_new (guint64, 1);
 			*time_ptr = time;
 
 			tracker_file_system_set_property (priv->file_system, canonical,
-							  quark_property_filesystem_mtime,
-							  time_ptr);
+			                                  quark_property_filesystem_mtime,
+			                                  time_ptr);
 		}
 
 		g_object_unref (file_info);
@@ -517,8 +517,8 @@ _insert_store_info (TrackerFileNotifier *notifier,
 
 static void
 sparql_files_query_populate (TrackerFileNotifier *notifier,
-			     TrackerSparqlCursor *cursor,
-			     gboolean             check_root)
+                             TrackerSparqlCursor *cursor,
+                             gboolean             check_root)
 {
 	TrackerFileNotifierPrivate *priv;
 	GFile *parent = NULL;
@@ -582,7 +582,7 @@ sparql_contents_check_deleted (TrackerFileNotifier *notifier,
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *uri;
-		gboolean is_folder;
+		gboolean  is_folder;
 		GFileType file_type;
 
 		/* Sometimes URI can be NULL when nie:url and
@@ -612,7 +612,7 @@ sparql_contents_check_deleted (TrackerFileNotifier *notifier,
 			 * the delete event.
 			 */
 			canonical = _insert_store_info (notifier, file,
-							file_type,
+			                                file_type,
 			                                parent, iri, 0);
 			g_signal_emit (notifier, signals[FILE_DELETED], 0, canonical);
 		} else if (priv->current_index_root->current_dir_content_filtered ||
@@ -676,8 +676,8 @@ finish_current_directory (TrackerFileNotifier *notifier,
 	 */
 	tracker_file_system_forget_files (priv->file_system,
 	                                  directory,
-					  interrupted ?
-					  G_FILE_TYPE_UNKNOWN :
+	                                  interrupted ?
+	                                  G_FILE_TYPE_UNKNOWN :
 	                                  G_FILE_TYPE_REGULAR);
 
 	if (interrupted || !crawl_directory_in_current_root (notifier)) {
@@ -711,7 +711,7 @@ finish_current_directory (TrackerFileNotifier *notifier,
 
 static gboolean
 root_data_remove_directory (RootData *data,
-			    GFile    *directory)
+                            GFile    *directory)
 {
 	GList *l = data->pending_dirs->head, *next;
 	GFile *file;
@@ -730,12 +730,12 @@ root_data_remove_directory (RootData *data,
 	}
 
 	return (g_file_equal (data->current_dir, directory) ||
-		g_file_has_prefix (data->current_dir, directory));
+	        g_file_has_prefix (data->current_dir, directory));
 }
 
 static void
 file_notifier_current_root_check_remove_directory (TrackerFileNotifier *notifier,
-						   GFile               *file)
+                                                   GFile               *file)
 {
 	TrackerFileNotifierPrivate *priv;
 
@@ -782,7 +782,7 @@ sparql_contents_query_cb (GObject      *object,
 
 out:
 	if (error) {
-	        g_error_free (error);
+		g_error_free (error);
 	}
 }
 
@@ -827,16 +827,16 @@ sparql_contents_query_start (TrackerFileNotifier *notifier,
 /* Query for file information, used on all elements found during crawling */
 static void
 sparql_files_query_cb (GObject      *object,
-		       GAsyncResult *result,
-		       gpointer      user_data)
+                       GAsyncResult *result,
+                       gpointer      user_data)
 {
 	TrackerFileNotifier *notifier = user_data;
 	TrackerFileNotifierPrivate *priv;
 	TrackerSparqlCursor *cursor;
 	gboolean directory_modified;
-	GError *error = NULL;
+	GError  *error = NULL;
 	GFile *directory;
-	guint flags;
+	guint  flags;
 
 	priv = tracker_file_notifier_get_instance_private (notifier);
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
@@ -879,15 +879,15 @@ sparql_files_query_cb (GObject      *object,
 
 static gchar *
 sparql_files_compose_query (GFile **files,
-			    guint   n_files)
+                            guint   n_files)
 {
 	GString *str;
 	gchar *uri;
 	gint i = 0;
 
 	str = g_string_new ("SELECT ?url ?u nfo:fileLastModified(?u) {"
-			    "  ?u a rdfs:Resource ; nie:url ?url . "
-			    "FILTER (?url IN (");
+	                    "  ?u a rdfs:Resource ; nie:url ?url . "
+	                    "FILTER (?url IN (");
 	for (i = 0; i < n_files; i++) {
 		if (i != 0)
 			g_string_append_c (str, ',');
@@ -1313,7 +1313,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 			                                          G_FILE_TYPE_DIRECTORY,
 			                                          NULL);
 			tracker_indexing_tree_get_root (priv->indexing_tree,
-							canonical, &flags);
+			                                canonical, &flags);
 			notifier_queue_root (notifier, canonical, flags, FALSE);
 			return;
 		}
@@ -1324,7 +1324,7 @@ monitor_item_deleted_cb (TrackerMonitor *monitor,
 	if (!tracker_indexing_tree_file_is_indexable (priv->indexing_tree,
 	                                              file, file_type)) {
 		/* File was not indexed */
-		return ;
+		return;
 	}
 
 	/* Fetch the interned copy */
@@ -1400,7 +1400,7 @@ monitor_item_moved_cb (TrackerMonitor *monitor,
 		}
 		/* else, file, do nothing */
 	} else {
-		gboolean source_stored, should_process_other;
+		gboolean  source_stored, should_process_other;
 		GFileType file_type;
 		GFile *check_file;
 
@@ -1588,7 +1588,7 @@ indexing_tree_directory_removed (TrackerIndexingTree *indexing_tree,
 			} else if (tracker_indexing_tree_file_is_root (indexing_tree,
 			                                               parent)) {
 				g_signal_emit (notifier, signals[FILE_CREATED],
-					       0, directory);
+				               0, directory);
 			}
 
 			g_object_unref (parent);
@@ -1707,7 +1707,7 @@ check_disable_monitor (TrackerFileNotifier *notifier)
 {
 	TrackerFileNotifierPrivate *priv;
 	TrackerSparqlCursor *cursor;
-	gint64 folder_count = 0;
+	gint64  folder_count = 0;
 	GError *error = NULL;
 
 	priv = tracker_file_notifier_get_instance_private (notifier);

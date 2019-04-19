@@ -41,8 +41,8 @@ GQuark tracker_date_error_quark (void) {
 }
 
 gdouble
-tracker_string_to_date (const gchar *date_string,
-                        gint        *offset_p,
+tracker_string_to_date (const gchar  *date_string,
+                        gint         *offset_p,
                         GError      **error)
 {
 	/* TODO Add more checks.
@@ -203,12 +203,12 @@ tracker_string_to_date (const gchar *date_string,
 gchar *
 tracker_date_to_string (gdouble date_time)
 {
-	gchar     buffer[30];
+	gchar  buffer[30];
 	time_t seconds;
 	gint64 total_milliseconds;
 	gint milliseconds;
 	struct tm utc_time;
-	size_t    count;
+	size_t count;
 
 	memset (buffer, '\0', sizeof (buffer));
 	memset (&utc_time, 0, sizeof (struct tm));

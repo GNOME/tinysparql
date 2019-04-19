@@ -31,7 +31,7 @@
  */
 typedef struct {
 	const gchar *word;
-	gsize        word_length;
+	gsize word_length;
 } TrackerParserReservedWord;
 
 static const TrackerParserReservedWord reserved_words[] = {
@@ -41,7 +41,7 @@ static const TrackerParserReservedWord reserved_words[] = {
 
 gboolean
 tracker_parser_is_reserved_word_utf8 (const gchar *word,
-                                      gsize word_length)
+                                      gsize        word_length)
 {
 	gint i = 0;
 

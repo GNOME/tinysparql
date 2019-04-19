@@ -314,7 +314,7 @@ void
 tracker_events_transact (void)
 {
 	TrackerEventBatch *prev_events, *events;
-	TrackerClass *rdf_type;
+	TrackerClass  *rdf_type;
 	GHashTableIter iter;
 
 	g_return_if_fail (private != NULL);

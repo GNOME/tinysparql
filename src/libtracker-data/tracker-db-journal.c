@@ -74,36 +74,36 @@ struct _TrackerDBJournalReader {
 	GDataInputStream *stream;
 	GInputStream *underlying_stream;
 	GFileInfo *underlying_stream_info;
-	GMappedFile *file;
-	const gchar *current;
-	const gchar *end;
-	const gchar *entry_begin;
-	const gchar *entry_end;
-	const gchar *last_success;
-	const gchar *start;
+	GMappedFile  *file;
+	const gchar  *current;
+	const gchar  *end;
+	const gchar  *entry_begin;
+	const gchar  *entry_end;
+	const gchar  *last_success;
+	const gchar  *start;
 	guint32 amount_of_triples;
-	gint64 time;
+	gint64  time;
 	TrackerDBJournalEntryType type;
-	gchar *uri;
-	gint g_id;
-	gint s_id;
-	gint p_id;
-	gint o_id;
+	gchar  *uri;
+	gint   g_id;
+	gint   s_id;
+	gint   p_id;
+	gint   o_id;
 	gchar *object;
-	guint current_file;
-	guint total_chunks;
+	guint  current_file;
+	guint  total_chunks;
 };
 
 struct _TrackerDBJournal {
 	gchar *journal_filename;
 	GFile *journal_location;
 	int journal;
-	gsize cur_size;
-	guint cur_block_len;
-	guint cur_block_alloc;
+	gsize  cur_size;
+	guint  cur_block_len;
+	guint  cur_block_alloc;
 	gchar *cur_block;
-	guint cur_entry_amount;
-	guint cur_pos;
+	guint  cur_entry_amount;
+	guint  cur_pos;
 
 	TransactionFormat transaction_format;
 	gboolean in_transaction;
@@ -111,7 +111,7 @@ struct _TrackerDBJournal {
 };
 
 static struct {
-	gsize chunk_size;
+	gsize  chunk_size;
 	gboolean do_rotating;
 	gchar *rotate_to;
 	gboolean rotate_progress_flag;
@@ -157,9 +157,9 @@ static guint32
 read_uint32 (const guint8 *data)
 {
 	return data[0] << 24 |
-	       data[1] << 16 |
-	       data[2] << 8 |
-	       data[3];
+	        data[1] << 16 |
+	        data[2] << 8 |
+	        data[3];
 }
 
 static guint32
@@ -194,7 +194,7 @@ scan_for_nul (GBufferedInputStream *stream,
 {
 	const gchar *buffer;
 	gsize start, end, peeked;
-	gint i;
+	gint  i;
 	gsize available, checked;
 
 	checked = *checked_out;
@@ -226,7 +226,7 @@ journal_read_string (TrackerDBJournalReader  *jreader,
 		/* based on GDataInputStream code */
 
 		GBufferedInputStream *bstream;
-		gsize checked;
+		gsize  checked;
 		gssize found_pos;
 
 		bstream = G_BUFFERED_INPUT_STREAM (jreader->stream);
@@ -285,7 +285,7 @@ static gboolean
 journal_verify_header (TrackerDBJournalReader *jreader)
 {
 	gchar header[8];
-	gint i;
+	gint  i;
 	GError *error = NULL;
 
 	/* Version 00003 is identical, it just has no UPDATE operations */
@@ -532,7 +532,7 @@ db_journal_writer_init (TrackerDBJournal  *jwriter,
 {
 	gchar *directory;
 	gint mode;
-	GError *n_error = NULL;
+	GError  *n_error = NULL;
 	gboolean ret;
 
 	directory = g_path_get_dirname (filename);
@@ -573,9 +573,9 @@ tracker_db_journal_new (GFile        *data_location,
 {
 	TrackerDBJournal *writer;
 	gboolean ret;
-	gchar *filename;
-	GError *n_error = NULL;
-	GFile *child;
+	gchar   *filename;
+	GError  *n_error = NULL;
+	GFile   *child;
 
 	writer = g_new0 (TrackerDBJournal, 1);
 	writer->transaction_format = TRANSACTION_FORMAT_DATA;
@@ -603,9 +603,9 @@ tracker_db_journal_ontology_new (GFile     *data_location,
 {
 	TrackerDBJournal *writer;
 	gboolean ret;
-	gchar *filename;
-	GError *n_error = NULL;
-	GFile *child;
+	gchar   *filename;
+	GError  *n_error = NULL;
+	GFile   *child;
 
 	writer = g_new0 (TrackerDBJournal, 1);
 	writer->transaction_format = TRANSACTION_FORMAT_ONTOLOGY;
@@ -1089,7 +1089,7 @@ tracker_db_journal_commit_db_transaction (TrackerDBJournal  *writer,
                                           GError           **error)
 {
 	gboolean ret;
-	GError *n_error = NULL;
+	GError  *n_error = NULL;
 
 	g_return_val_if_fail (writer->in_transaction == TRUE, FALSE);
 
@@ -1238,7 +1238,7 @@ db_journal_reader_init (TrackerDBJournalReader  *jreader,
                         GFile                   *data_location,
                         GError                 **error)
 {
-	gchar *filename_open;
+	gchar  *filename_open;
 	GError *n_error = NULL;
 
 	g_return_val_if_fail (jreader->file == NULL, FALSE);
@@ -1285,8 +1285,8 @@ tracker_db_journal_reader_new (GFile   *data_location,
 {
 	TrackerDBJournalReader *reader;
 	GError *n_error = NULL;
-	gchar *filename;
-	GFile *child;
+	gchar  *filename;
+	GFile  *child;
 
 	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
 	filename = g_file_get_path (child);
@@ -1310,9 +1310,9 @@ tracker_db_journal_reader_ontology_new (GFile   *data_location,
                                         GError **error)
 {
 	TrackerDBJournalReader *reader;
-	gchar *filename;
+	gchar  *filename;
 	GError *n_error = NULL;
-	GFile *child;
+	GFile  *child;
 
 	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_ONTOLOGY_FILENAME);
 	filename = g_file_get_path (child);
@@ -1753,12 +1753,12 @@ gboolean
 tracker_db_journal_reader_verify_last (GFile   *data_location,
                                        GError **error)
 {
-	guint32 entry_size_check;
+	guint32  entry_size_check;
 	gboolean success = FALSE;
 	TrackerDBJournalReader jreader = { 0 };
 	GError *n_error = NULL;
-	gchar *filename;
-	GFile *child;
+	gchar  *filename;
+	GFile  *child;
 
 	child = g_file_get_child (data_location, TRACKER_DB_JOURNAL_FILENAME);
 	filename = g_file_get_path (child);
@@ -1957,7 +1957,7 @@ on_chunk_copied_delete (GObject      *source_object,
 {
 	GOutputStream *ostream = G_OUTPUT_STREAM (source_object);
 	GError *error = NULL;
-	GFile *source = G_FILE (user_data);
+	GFile  *source = G_FILE (user_data);
 
 	g_output_stream_splice_finish (ostream, res, &error);
 	if (!error) {
@@ -1981,9 +1981,9 @@ tracker_db_journal_rotate (TrackerDBJournal  *writer,
 	gchar *filename, *gzfilename;
 	gchar *fullpath;
 	GConverter *converter;
-	GInputStream *istream;
+	GInputStream  *istream;
 	GOutputStream *ostream, *cstream;
-	GError *n_error = NULL;
+	GError  *n_error = NULL;
 	gboolean ret;
 
 #ifdef DISABLE_JOURNAL
@@ -1992,7 +1992,7 @@ tracker_db_journal_rotate (TrackerDBJournal  *writer,
 
 	if (writer->cur_journal_file == 0) {
 		gchar *directory;
-		GDir *journal_dir;
+		GDir  *journal_dir;
 		const gchar *f_name;
 
 		directory = g_path_get_dirname (writer->journal_filename);
@@ -2037,9 +2037,9 @@ tracker_db_journal_rotate (TrackerDBJournal  *writer,
 
 	if (g_rename (writer->journal_filename, fullpath) < 0) {
 		g_set_error (error, TRACKER_DB_JOURNAL_ERROR,
-			     TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
+		             TRACKER_DB_JOURNAL_ERROR_COULD_NOT_WRITE,
 		             "Could not rotate journal file %s: %s",
-			     writer->journal_filename,
+		             writer->journal_filename,
 		             g_strerror (errno));
 		return FALSE;
 	}

@@ -26,12 +26,12 @@
 
 typedef struct {
 	/* DomainOntologies section */
-	GFile *cache_location;
-	GFile *journal_location;
-	GFile *ontology_location;
-	gchar *name;
-	gchar *domain;
-	gchar *ontology_name;
+	GFile  *cache_location;
+	GFile  *journal_location;
+	GFile  *ontology_location;
+	gchar  *name;
+	gchar  *domain;
+	gchar  *ontology_name;
 	gchar **miners;
 } TrackerDomainOntologyPrivate;
 
@@ -198,8 +198,8 @@ key_file_get_location (GKeyFile     *key_file,
                        GError      **error)
 {
 	GError *inner_error = NULL;
-	gchar *value;
-	GFile *file;
+	gchar  *value;
+	GFile  *file;
 
 	value = g_key_file_get_string (key_file, section, key, &inner_error);
 	if (inner_error) {
@@ -267,7 +267,7 @@ find_rule_in_data_dirs (const gchar *name)
 {
 	const gchar* const *data_dirs;
 	gchar *path, *rule_name;
-	guint i;
+	guint  i;
 
 	data_dirs = g_get_system_data_dirs ();
 	rule_name = g_strconcat (name, ".rule", NULL);

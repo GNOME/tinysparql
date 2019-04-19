@@ -32,15 +32,15 @@
 #include "tracker-language.h"
 
 typedef struct _TrackerLanguagePrivate TrackerLanguagePrivate;
-typedef struct _Languages           Languages;
+typedef struct _Languages Languages;
 
 struct _TrackerLanguagePrivate {
 	GHashTable    *stop_words;
-	gboolean       enable_stemmer;
+	gboolean enable_stemmer;
 	gchar         *language_code;
 
-	GMutex         stemmer_mutex;
-	gpointer       stemmer;
+	GMutex stemmer_mutex;
+	gpointer stemmer;
 };
 
 struct _Languages {
@@ -164,7 +164,7 @@ language_finalize (GObject *object)
 
 	g_free (priv->language_code);
 
-	(G_OBJECT_CLASS (tracker_language_parent_class)->finalize) (object);
+	(G_OBJECT_CLASS (tracker_language_parent_class)->finalize)(object);
 }
 
 static void
@@ -264,7 +264,7 @@ language_add_stopwords (TrackerLanguage *language,
 	}
 
 	content = g_mapped_file_get_contents (mapped_file);
-	words = g_strsplit_set (content, "\n" , -1);
+	words = g_strsplit_set (content, "\n", -1);
 
 	g_mapped_file_unref (mapped_file);
 

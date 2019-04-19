@@ -37,7 +37,7 @@
 
 static gint limit = -1;
 static gint offset;
-static gchar **terms;
+static gchar  **terms;
 static gboolean or_operator;
 static gboolean detailed;
 static gboolean all;
@@ -278,16 +278,16 @@ get_contacts_results (TrackerSparqlConnection *connection,
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
 				g_print ("  '%s%s%s', %s (%s)\n",
-		                         disable_color ? "" : TITLE_BEGIN,
+				         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
-		                         disable_color ? "" : TITLE_END,
+				         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
 				         tracker_sparql_cursor_get_string (cursor, 2, NULL));
 			} else {
 				g_print ("  '%s%s%s', %s\n",
-		                         disable_color ? "" : TITLE_BEGIN,
+				         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
-		                         disable_color ? "" : TITLE_END,
+				         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL));
 			}
 
@@ -330,8 +330,8 @@ get_contacts (TrackerSparqlConnection *connection,
 		                         "ORDER BY ASC(nco:fullname(?contact)) ASC(nco:hasEmailAddress(?contact)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
-                                         _("No name"),
-                                         _("No E-mail address"),
+		                         _("No name"),
+		                         _("No E-mail address"),
 		                         fts,
 		                         search_offset,
 		                         search_limit);
@@ -343,8 +343,8 @@ get_contacts (TrackerSparqlConnection *connection,
 		                         "ORDER BY ASC(nco:fullname(?contact)) ASC(nco:hasEmailAddress(?contact)) "
 		                         "OFFSET %d "
 		                         "LIMIT %d",
-                                         _("No name"),
-                                         _("No E-mail address"),
+		                         _("No name"),
+		                         _("No E-mail address"),
 		                         search_offset,
 		                         search_limit);
 	}
@@ -489,16 +489,16 @@ get_files_results (TrackerSparqlConnection *connection,
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
 				g_print ("  %s%s%s (%s)\n",
-		                         disable_color ? "" : TITLE_BEGIN,
+				         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
-		                         disable_color ? "" : TITLE_END,
+				         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
 
 				if (tracker_sparql_cursor_get_n_columns (cursor) > 2)
 					print_snippet (tracker_sparql_cursor_get_string (cursor, 2, NULL));
 			} else {
 				g_print ("  %s%s%s\n",
-		                         disable_color ? "" : TITLE_BEGIN,
+				         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
 				         disable_color ? "" : TITLE_END);
 
@@ -803,13 +803,13 @@ get_music_artists (TrackerSparqlConnection *connection,
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
 				g_print ("  '%s%s%s' (%s)\n",
-		                         disable_color ? "" : TITLE_BEGIN,
+				         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
-		                         disable_color ? "" : TITLE_END,
+				         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
 			} else {
 				g_print ("  '%s%s%s'\n",
-		                         disable_color ? "" : TITLE_BEGIN,
+				         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
 				         disable_color ? "" : TITLE_END);
 			}
@@ -892,13 +892,13 @@ get_music_albums (TrackerSparqlConnection *connection,
 		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			if (details) {
 				g_print ("  '%s%s%s' (%s)\n",
-		                         disable_color ? "" : TITLE_BEGIN,
+				         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
-		                         disable_color ? "" : TITLE_END,
+				         disable_color ? "" : TITLE_END,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL));
 			} else {
 				g_print ("  '%s%s%s'\n",
-		                         disable_color ? "" : TITLE_BEGIN,
+				         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 1, NULL),
 				         disable_color ? "" : TITLE_END);
 			}
@@ -1467,7 +1467,7 @@ get_all_by_search (TrackerSparqlConnection *connection,
 				print_snippet (tracker_sparql_cursor_get_string (cursor, 3, NULL));
 			} else {
 				g_print ("  %s%s%s\n",
-		                         disable_color ? "" : TITLE_BEGIN,
+				         disable_color ? "" : TITLE_BEGIN,
 				         tracker_sparql_cursor_get_string (cursor, 0, NULL),
 				         disable_color ? "" : TITLE_END);
 				print_snippet (tracker_sparql_cursor_get_string (cursor, 1, NULL));
@@ -1503,7 +1503,7 @@ search_run (void)
 	if (terms) {
 		TrackerLanguage *language;
 		gboolean stop_words_found;
-		gchar **p;
+		gchar  **p;
 
 		/* Check terms don't have additional quotes */
 		for (p = terms; *p; p++) {

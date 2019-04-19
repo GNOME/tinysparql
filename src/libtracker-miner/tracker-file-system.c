@@ -42,8 +42,8 @@ struct _FileNodeProperty {
 };
 
 struct _FileNodeData {
-	GFile *file;
-	gchar *uri_prefix;
+	GFile  *file;
+	gchar  *uri_prefix;
 	GArray *properties;
 	guint shallow   : 1;
 	guint unowned : 1;
@@ -275,7 +275,7 @@ file_tree_lookup (GNode     *tree,
 		else if (ptr[0] == '\0') {
 			g_free (uri);
 			return tree;
-                }
+		}
 	}
 
 	parent = tree;
@@ -471,8 +471,8 @@ reparent_child_nodes_to_parent (GNode *node)
 		child = g_node_next_sibling (child);
 
 		uri_prefix = g_strdup_printf ("%s/%s",
-					      node_data->uri_prefix,
-					      data->uri_prefix);
+		                              node_data->uri_prefix,
+		                              data->uri_prefix);
 
 		g_free (data->uri_prefix);
 		data->uri_prefix = uri_prefix;
@@ -730,8 +730,8 @@ tracker_file_system_traverse (TrackerFileSystem             *file_system,
 }
 
 void
-tracker_file_system_register_property (GQuark             prop,
-                                       GDestroyNotify     destroy_notify)
+tracker_file_system_register_property (GQuark         prop,
+                                       GDestroyNotify destroy_notify)
 {
 	g_return_if_fail (prop != 0);
 
@@ -775,7 +775,7 @@ tracker_file_system_set_property (TrackerFileSystem *file_system,
 {
 	FileNodeProperty property, *match;
 	GDestroyNotify destroy_notify;
-	FileNodeData *data;
+	FileNodeData  *data;
 	GNode *node;
 
 	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
@@ -886,7 +886,7 @@ tracker_file_system_unset_property (TrackerFileSystem *file_system,
 	FileNodeProperty property, *match;
 	GDestroyNotify destroy_notify = NULL;
 	GNode *node;
-	guint index;
+	guint  index;
 
 	g_return_if_fail (TRACKER_IS_FILE_SYSTEM (file_system));
 	g_return_if_fail (file != NULL);
@@ -935,7 +935,7 @@ tracker_file_system_steal_property (TrackerFileSystem *file_system,
 	FileNodeData *data;
 	FileNodeProperty property, *match;
 	GNode *node;
-	guint index;
+	guint  index;
 	gpointer prop_value;
 
 	g_return_val_if_fail (TRACKER_IS_FILE_SYSTEM (file_system), NULL);
@@ -976,7 +976,7 @@ typedef struct {
 
 static gboolean
 append_deleted_files (GNode    *node,
-		      gpointer  user_data)
+                      gpointer  user_data)
 {
 	ForgetFilesData *data;
 	FileNodeData *node_data;
@@ -1007,8 +1007,8 @@ forget_file (FileNodeData *node_data)
 
 void
 tracker_file_system_forget_files (TrackerFileSystem *file_system,
-				  GFile             *root,
-				  GFileType          file_type)
+                                  GFile             *root,
+                                  GFileType          file_type)
 {
 	ForgetFilesData data = { file_system, NULL, file_type };
 	GNode *node;
@@ -1025,7 +1025,7 @@ tracker_file_system_forget_files (TrackerFileSystem *file_system,
 	g_node_traverse (node,
 	                 G_PRE_ORDER,
 	                 (file_type == G_FILE_TYPE_REGULAR) ?
-	                   G_TRAVERSE_LEAVES : G_TRAVERSE_ALL,
+	                 G_TRAVERSE_LEAVES : G_TRAVERSE_ALL,
 	                 -1, append_deleted_files,
 	                 &data);
 

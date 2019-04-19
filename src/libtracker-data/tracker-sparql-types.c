@@ -33,7 +33,7 @@ enum {
 /* Helper structs */
 static TrackerDataTable *
 tracker_data_table_new (const gchar *tablename,
-			const gchar *subject,
+                        const gchar *subject,
                         gint         idx)
 {
 	TrackerDataTable *table;
@@ -64,7 +64,7 @@ tracker_data_table_set_predicate_variable (TrackerDataTable *table,
 
 static TrackerVariable *
 tracker_variable_new (const gchar *sql_prefix,
-		      const gchar *name)
+                      const gchar *name)
 {
 	TrackerVariable *variable;
 
@@ -100,7 +100,7 @@ tracker_variable_get_sql_expression (TrackerVariable *variable)
 
 gchar *
 tracker_variable_get_extra_sql_expression (TrackerVariable *variable,
-					   const gchar     *suffix)
+                                           const gchar     *suffix)
 {
 	return g_strdup_printf ("%s:%s", variable->sql_expression, suffix);
 }
@@ -157,7 +157,7 @@ tracker_token_variable_init (TrackerToken    *token,
 
 void
 tracker_token_parameter_init (TrackerToken *token,
-			      const gchar  *parameter)
+                              const gchar  *parameter)
 {
 	token->type = TOKEN_TYPE_PARAMETER;
 	token->content.parameter = g_strdup (parameter);
@@ -340,7 +340,7 @@ tracker_binding_get_table (TrackerBinding *binding)
 
 void
 tracker_binding_set_db_column_name (TrackerBinding *binding,
-				    const gchar    *column_name)
+                                    const gchar    *column_name)
 {
 	g_free (binding->sql_db_column_name);
 	binding->sql_db_column_name = g_strdup (column_name);
@@ -348,7 +348,7 @@ tracker_binding_set_db_column_name (TrackerBinding *binding,
 
 void
 tracker_binding_set_sql_expression (TrackerBinding *binding,
-				    const gchar    *sql_expression)
+                                    const gchar    *sql_expression)
 {
 	g_free (binding->sql_expression);
 	binding->sql_expression = g_strdup (sql_expression);
@@ -359,8 +359,8 @@ tracker_binding_get_sql_expression (TrackerBinding *binding)
 {
 	if (!binding->sql_expression && binding->table) {
 		binding->sql_expression =  g_strdup_printf ("\"%s\".\"%s\"",
-							    binding->table->sql_query_tablename,
-							    binding->sql_db_column_name);
+		                                            binding->table->sql_query_tablename,
+		                                            binding->sql_db_column_name);
 	}
 
 	return binding->sql_expression;
@@ -371,9 +371,9 @@ tracker_binding_get_extra_sql_expression (TrackerBinding *binding,
                                           const gchar    *suffix)
 {
 	return g_strdup_printf ("\"%s\".\"%s:%s\"",
-				binding->table->sql_query_tablename,
-				binding->sql_db_column_name,
-				suffix);
+	                        binding->table->sql_query_tablename,
+	                        binding->sql_db_column_name,
+	                        suffix);
 }
 
 void
@@ -411,7 +411,7 @@ tracker_literal_binding_init (TrackerLiteralBinding *binding)
 
 TrackerBinding *
 tracker_literal_binding_new (const gchar      *literal,
-			     TrackerDataTable *table)
+                             TrackerDataTable *table)
 {
 	TrackerBinding *binding;
 
@@ -450,7 +450,7 @@ tracker_parameter_binding_init (TrackerParameterBinding *binding)
 
 TrackerBinding *
 tracker_parameter_binding_new (const gchar      *name,
-			       TrackerDataTable *table)
+                               TrackerDataTable *table)
 {
 	TrackerBinding *binding;
 
@@ -476,8 +476,8 @@ tracker_variable_binding_init (TrackerVariableBinding *binding)
 
 TrackerBinding *
 tracker_variable_binding_new (TrackerVariable  *variable,
-			      TrackerClass     *type,
-			      TrackerDataTable *table)
+                              TrackerClass     *type,
+                              TrackerDataTable *table)
 {
 	TrackerBinding *binding;
 
@@ -491,7 +491,7 @@ tracker_variable_binding_new (TrackerVariable  *variable,
 
 void
 tracker_variable_binding_set_nullable (TrackerVariableBinding *binding,
-				       gboolean                nullable)
+                                       gboolean                nullable)
 {
 	binding->nullable = !!nullable;
 }
@@ -654,7 +654,7 @@ tracker_context_get_parent (TrackerContext *context)
 
 void
 tracker_context_add_variable_ref (TrackerContext  *context,
-				  TrackerVariable *variable)
+                                  TrackerVariable *variable)
 {
 	g_hash_table_add (context->variable_set, variable);
 }
@@ -735,7 +735,7 @@ tracker_select_context_ensure_variable (TrackerSelectContext *context,
 	if (!context->variables) {
 		context->variables =
 			g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
-					       (GDestroyNotify) tracker_variable_free);
+			                       (GDestroyNotify) tracker_variable_free);
 	}
 
 	variable = g_hash_table_lookup (context->variables, name);
@@ -866,7 +866,7 @@ tracker_triple_context_init (TrackerTripleContext *context)
 	context->variable_bindings =
 		g_hash_table_new_full (tracker_variable_hash,
 		                       tracker_variable_equal, NULL,
-				       (GDestroyNotify) g_ptr_array_unref);
+		                       (GDestroyNotify) g_ptr_array_unref);
 }
 
 TrackerContext *
@@ -918,7 +918,7 @@ tracker_triple_context_add_literal_binding (TrackerTripleContext  *context,
 
 GPtrArray *
 tracker_triple_context_lookup_variable_binding_list (TrackerTripleContext *context,
-						     TrackerVariable      *variable)
+                                                     TrackerVariable      *variable)
 {
 	return g_hash_table_lookup (context->variable_bindings, variable);
 }
@@ -954,11 +954,11 @@ tracker_triple_context_get_variable_binding_list (TrackerTripleContext *context,
 
 					sample = tracker_variable_get_sample_binding (variable);
 					binding = tracker_variable_binding_new (variable, sample->type,
-										tracker_binding_get_table (TRACKER_BINDING (sample)));
+					                                        tracker_binding_get_table (TRACKER_BINDING (sample)));
 					tracker_binding_set_sql_expression (binding,
-									    tracker_variable_get_sql_expression (variable));
+					                                    tracker_variable_get_sql_expression (variable));
 					tracker_binding_set_data_type (binding,
-								       TRACKER_BINDING (sample)->data_type);
+					                               TRACKER_BINDING (sample)->data_type);
 					g_ptr_array_add (binding_list, binding);
 					break;
 				}

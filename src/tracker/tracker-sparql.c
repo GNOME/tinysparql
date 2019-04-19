@@ -52,9 +52,9 @@ typedef struct _NodeFindData NodeFindData;
 typedef struct _NodePrintData NodePrintData;
 
 struct _NodeData {
-	gchar *class;
+	gchar  *class;
 	GSList *properties;
-	guint parent_known:1;
+	guint parent_known : 1;
 };
 
 struct _NodeFindData {
@@ -64,7 +64,7 @@ struct _NodeFindData {
 };
 
 struct _NodePrintData {
-	GHashTable *prefixes;
+	GHashTable  *prefixes;
 	GHashTable  *filter_parents;
 	const gchar *highlight_text;
 };
@@ -149,7 +149,7 @@ tracker_sparql_get_prefixes (void)
 	TrackerSparqlConnection *connection;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
-	GHashTable *retval;
+	GHashTable  *retval;
 	const gchar *query;
 
 	connection = tracker_sparql_connection_get (NULL, &error);
@@ -184,8 +184,8 @@ tracker_sparql_get_prefixes (void)
 
 	if (error) {
 		g_printerr ("%s, %s\n",
-			    _("Unable to retrieve namespace prefixes"),
-			    error->message);
+		            _("Unable to retrieve namespace prefixes"),
+		            error->message);
 
 		g_error_free (error);
 		return retval;
@@ -228,10 +228,10 @@ get_class_from_prefix (TrackerSparqlConnection *connection,
 	gchar *found = NULL;
 
 	query = "SELECT ?prefix ?ns "
-		"WHERE {"
-		"  ?ns a tracker:Namespace ;"
-		"  tracker:prefix ?prefix "
-		"}";
+	        "WHERE {"
+	        "  ?ns a tracker:Namespace ;"
+	        "  tracker:prefix ?prefix "
+	        "}";
 
 	/* We have namespace prefix, get full name */
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
@@ -395,7 +395,7 @@ get_shorthand_str_for_offsets (GHashTable  *prefixes,
                                const gchar *str)
 {
 	GString *result = NULL;
-	gchar **properties;
+	gchar  **properties;
 	gint i;
 
 	if (!str) {
@@ -925,9 +925,9 @@ tree_get (TrackerSparqlConnection *connection,
 	GHashTable *prefixes;
 	GHashTable *filter_parents;
 	GError *error = NULL;
-	gchar *query;
-	gchar *class_lookup_longhand;
-	GNode *root, *found_node, *node;
+	gchar  *query;
+	gchar  *class_lookup_longhand;
+	GNode  *root, *found_node, *node;
 
 	root = tree_new ();
 
@@ -1337,7 +1337,7 @@ sparql_run (void)
 
 	if (file) {
 		gchar *path_in_utf8;
-		gsize size;
+		gsize  size;
 
 		path_in_utf8 = g_filename_to_utf8 (file, -1, NULL, NULL, &error);
 		if (error) {
@@ -1384,7 +1384,7 @@ sparql_run (void)
 
 #if 0
 			if (results) {
-				GPtrArray *insert;
+				GPtrArray  *insert;
 				GHashTable *solution;
 				GHashTableIter iter;
 				gpointer key, value;

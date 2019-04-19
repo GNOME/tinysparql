@@ -36,14 +36,14 @@
 #include "tracker-index.h"
 #include "tracker-dbus.h"
 
-static gchar **reindex_mime_types;
+static gchar  **reindex_mime_types;
 static gboolean index_file;
 static gboolean backup;
 static gboolean restore;
 static gboolean import;
-static gchar **filenames;
+static gchar  **filenames;
 
-#define INDEX_OPTIONS_ENABLED()	  \
+#define INDEX_OPTIONS_ENABLED()   \
 	((filenames && g_strv_length (filenames) > 0) || \
 	 (index_file || \
 	  backup || \
@@ -200,7 +200,7 @@ import_turtle_files (void)
 
 	for (p = filenames; *p; p++) {
 		GError *error = NULL;
-		GFile *file;
+		GFile  *file;
 
 		g_print ("%s:'%s'\n",
 		         _("Importing Turtle file"),

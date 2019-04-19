@@ -69,8 +69,8 @@ tracker_direct_statement_constructed (GObject *object)
 
 static GValue *
 insert_value (TrackerDirectStatement *stmt,
-	      const gchar            *name,
-	      GType                   type)
+              const gchar            *name,
+              GType                   type)
 {
 	TrackerDirectStatementPrivate *priv;
 	GValue *value;
@@ -173,7 +173,7 @@ static GHashTable *
 create_values_ht (void)
 {
 	return g_hash_table_new_full (g_str_hash, g_str_equal,
-				      g_free, free_gvalue);
+	                              g_free, free_gvalue);
 }
 
 static GHashTable *

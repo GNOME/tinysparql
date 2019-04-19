@@ -130,7 +130,7 @@ tracker_ontology_get_uri (TrackerOntology *ontology)
 
 void
 tracker_ontology_set_uri (TrackerOntology *ontology,
-                          const gchar    *value)
+                          const gchar     *value)
 {
 	TrackerOntologyPrivate *priv;
 

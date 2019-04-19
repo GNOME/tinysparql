@@ -109,8 +109,8 @@ tracker_process_get_uid_for_pid (const gchar  *pid_as_string,
 	GFile *f;
 	GFileInfo *info;
 	GError *error = NULL;
-	gchar *fn;
-	gchar *proc_dir_name;
+	gchar  *fn;
+	gchar  *proc_dir_name;
 	guint uid;
 
 	proc_dir_name = g_build_filename ("/proc", pid_as_string, NULL);
@@ -158,7 +158,7 @@ tracker_process_find_all (void)
 	GSList *found_pids = NULL;
 	guint32 own_pid;
 	guint32 own_uid;
-	gchar *own_pid_str;
+	gchar  *own_pid_str;
 
 	/* Unless we are stopping processes or listing processes,
 	 * don't iterate them.
@@ -173,11 +173,11 @@ tracker_process_find_all (void)
 
 	for (l = pids; l; l = l->next) {
 		GError *error = NULL;
-		gchar *filename;
+		gchar  *filename;
 #ifdef __sun /* Solaris */
 		psinfo_t psinfo = { 0 };
 #endif
-		gchar *contents = NULL;
+		gchar  *contents = NULL;
 		gchar **strv;
 		guint uid;
 		pid_t pid;
@@ -244,9 +244,9 @@ tracker_process_find_all (void)
 #else /* ! __OpenBSD__ */
 	GSList *found_pids = NULL;
 	gchar **strv;
-	gchar *basename;
+	gchar  *basename;
 	pid_t pid;
-	gint i, nproc;
+	gint  i, nproc;
 	gchar buf[_POSIX2_LINE_MAX];
 	struct kinfo_proc *plist, *kp;
 	kvm_t *kd;
@@ -292,7 +292,7 @@ tracker_process_stop (TrackerProcessTypes daemons_to_term,
                       TrackerProcessTypes daemons_to_kill)
 {
 	GSList *pids, *l;
-	gchar *str;
+	gchar  *str;
 
 	if (daemons_to_kill == TRACKER_PROCESS_TYPE_NONE &&
 	    daemons_to_term == TRACKER_PROCESS_TYPE_NONE) {
@@ -317,7 +317,7 @@ tracker_process_stop (TrackerProcessTypes daemons_to_term,
 		pd = l->data;
 		basename = pd->cmd;
 		pid = pd->pid;
-		
+
 		if (daemons_to_term != TRACKER_PROCESS_TYPE_NONE) {
 			if ((daemons_to_term == TRACKER_PROCESS_TYPE_STORE &&
 			     !g_str_has_suffix (basename, "tracker-store")) ||
@@ -328,7 +328,7 @@ tracker_process_stop (TrackerProcessTypes daemons_to_term,
 
 			if (kill (pid, SIGTERM) == -1) {
 				const gchar *errstr = g_strerror (errno);
-						
+
 				str = g_strdup_printf (_("Could not terminate process %d — “%s”"), pid, basename);
 				g_printerr ("  %s: %s\n",
 				            str,

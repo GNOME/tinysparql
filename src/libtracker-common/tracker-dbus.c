@@ -47,7 +47,7 @@ typedef struct {
 	gchar *sender;
 	gchar *binary;
 	gulong pid;
-	guint clean_up_id;
+	guint  clean_up_id;
 	gint n_active_requests;
 } ClientData;
 
@@ -135,7 +135,7 @@ client_data_new (gchar *sender)
 {
 	ClientData *cd;
 	gboolean get_binary = TRUE;
-	GError *error = NULL;
+	GError  *error = NULL;
 
 	cd = g_slice_new0 (ClientData);
 	cd->sender = sender;
@@ -165,9 +165,9 @@ client_data_new (gchar *sender)
 
 	if (get_binary) {
 #ifndef __OpenBSD__
-		gchar *filename;
-		gchar *pid_str;
-		gchar *contents = NULL;
+		gchar  *filename;
+		gchar  *pid_str;
+		gchar  *contents = NULL;
 		GError *error = NULL;
 		gchar **strv;
 #ifdef __sun /* Solaris */
@@ -213,7 +213,7 @@ client_data_new (gchar *sender)
 #else
 		gint nproc;
 		struct kinfo_proc *kp;
-		kvm_t *kd;
+		kvm_t  *kd;
 		gchar **strv;
 
 		if ((kd = kvm_openfiles (NULL, NULL, NULL, KVM_NO_FILES, NULL)) == NULL)
@@ -314,7 +314,7 @@ tracker_dbus_slist_to_strv (GSList *list)
 {
 	GSList  *l;
 	gchar  **strv;
-	gint     i = 0;
+	gint i = 0;
 
 	strv = g_new0 (gchar*, g_slist_length (list) + 1);
 
@@ -347,7 +347,7 @@ tracker_dbus_request_begin (const gchar *sender,
                             ...)
 {
 	TrackerDBusRequest *request;
-	gchar *str;
+	gchar  *str;
 	va_list args;
 
 	va_start (args, format);
@@ -376,17 +376,17 @@ tracker_dbus_request_end (TrackerDBusRequest *request,
 {
 	if (!error) {
 		g_debug ("---> [%d%s%s|%lu] Success, no error given",
-			 request->request_id,
-			 request->cd ? "|" : "",
-			 request->cd ? request->cd->binary : "",
-			 request->cd ? request->cd->pid : 0);
+		         request->request_id,
+		         request->cd ? "|" : "",
+		         request->cd ? request->cd->binary : "",
+		         request->cd ? request->cd->pid : 0);
 	} else {
 		g_message ("---> [%d%s%s|%lu] Failed, %s",
-			   request->request_id,
-			   request->cd ? "|" : "",
-			   request->cd ? request->cd->binary : "",
-			   request->cd ? request->cd->pid : 0,
-			   error->message);
+		           request->request_id,
+		           request->cd ? "|" : "",
+		           request->cd ? request->cd->binary : "",
+		           request->cd ? request->cd->pid : 0,
+		           error->message);
 	}
 
 	if (request->cd) {
@@ -405,7 +405,7 @@ tracker_dbus_request_info (TrackerDBusRequest    *request,
                            const gchar           *format,
                            ...)
 {
-	gchar *str;
+	gchar  *str;
 	va_list args;
 
 	va_start (args, format);
@@ -426,7 +426,7 @@ tracker_dbus_request_comment (TrackerDBusRequest    *request,
                               const gchar           *format,
                               ...)
 {
-	gchar *str;
+	gchar  *str;
 	va_list args;
 
 	va_start (args, format);
@@ -447,7 +447,7 @@ tracker_dbus_request_debug (TrackerDBusRequest    *request,
                             const gchar           *format,
                             ...)
 {
-	gchar *str;
+	gchar  *str;
 	va_list args;
 
 	va_start (args, format);

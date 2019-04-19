@@ -30,11 +30,11 @@
 #include "tracker-config.h"
 #include "tracker-extract.h"
 
-static gchar *verbosity;
-static gchar *output_format = "turtle";
+static gchar  *verbosity;
+static gchar  *output_format = "turtle";
 static gchar **filenames;
 
-#define EXTRACT_OPTIONS_ENABLED()	  \
+#define EXTRACT_OPTIONS_ENABLED()         \
 	((filenames && g_strv_length (filenames) > 0))
 
 static GOptionEntry entries[] = {
@@ -56,7 +56,7 @@ extract_files (TrackerVerbosity  verbosity,
                char             *output_format)
 {
 	char **p;
-	char *tracker_extract_path;
+	char  *tracker_extract_path;
 	char verbosity_str[2];
 	GError *error = NULL;
 
@@ -66,9 +66,9 @@ extract_files (TrackerVerbosity  verbosity,
 
 	for (p = filenames; *p; p++) {
 		char *argv[] = {tracker_extract_path,
-		                "--output-format", output_format,
-		                "--verbosity", verbosity_str,
-		                "--file", *p, NULL };
+			        "--output-format", output_format,
+			        "--verbosity", verbosity_str,
+			        "--file", *p, NULL };
 
 		g_spawn_sync(NULL, argv, NULL, G_SPAWN_DEFAULT, NULL, NULL, NULL, NULL, NULL, &error);
 

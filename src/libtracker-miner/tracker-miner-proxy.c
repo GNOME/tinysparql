@@ -46,7 +46,7 @@
 #include "tracker-miner-proxy.h"
 
 typedef struct {
-	TrackerMiner *miner;
+	TrackerMiner  *miner;
 	GDBusConnection *d_connection;
 	GDBusNodeInfo *introspection_data;
 	gchar *dbus_path;
@@ -55,11 +55,11 @@ typedef struct {
 } TrackerMinerProxyPrivate;
 
 typedef struct {
-	gint cookie;
+	gint   cookie;
 	gchar *application;
 	gchar *reason;
 	gchar *watch_name;
-	guint watch_name_id;
+	guint  watch_name_id;
 } PauseData;
 
 enum {
@@ -76,47 +76,47 @@ G_DEFINE_TYPE_WITH_CODE (TrackerMinerProxy, tracker_miner_proxy, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, tracker_miner_proxy_initable_iface_init))
 
 static const gchar introspection_xml[] =
-  "<node>"
-  "  <interface name='org.freedesktop.Tracker1.Miner'>"
-  "    <method name='Start'>"
-  "    </method>"
-  "    <method name='GetStatus'>"
-  "      <arg type='s' name='status' direction='out' />"
-  "    </method>"
-  "    <method name='GetProgress'>"
-  "      <arg type='d' name='progress' direction='out' />"
-  "    </method>"
-  "    <method name='GetRemainingTime'>"
-  "      <arg type='i' name='remaining_time' direction='out' />"
-  "    </method>"
-  "    <method name='GetPauseDetails'>"
-  "      <arg type='as' name='pause_applications' direction='out' />"
-  "      <arg type='as' name='pause_reasons' direction='out' />"
-  "    </method>"
-  "    <method name='Pause'>"
-  "      <arg type='s' name='application' direction='in' />"
-  "      <arg type='s' name='reason' direction='in' />"
-  "      <arg type='i' name='cookie' direction='out' />"
-  "    </method>"
-  "    <method name='PauseForProcess'>"
-  "      <arg type='s' name='application' direction='in' />"
-  "      <arg type='s' name='reason' direction='in' />"
-  "      <arg type='i' name='cookie' direction='out' />"
-  "    </method>"
-  "    <method name='Resume'>"
-  "      <arg type='i' name='cookie' direction='in' />"
-  "    </method>"
-  "    <signal name='Started' />"
-  "    <signal name='Stopped' />"
-  "    <signal name='Paused' />"
-  "    <signal name='Resumed' />"
-  "    <signal name='Progress'>"
-  "      <arg type='s' name='status' />"
-  "      <arg type='d' name='progress' />"
-  "      <arg type='i' name='remaining_time' />"
-  "    </signal>"
-  "  </interface>"
-  "</node>";
+	"<node>"
+	"  <interface name='org.freedesktop.Tracker1.Miner'>"
+	"    <method name='Start'>"
+	"    </method>"
+	"    <method name='GetStatus'>"
+	"      <arg type='s' name='status' direction='out' />"
+	"    </method>"
+	"    <method name='GetProgress'>"
+	"      <arg type='d' name='progress' direction='out' />"
+	"    </method>"
+	"    <method name='GetRemainingTime'>"
+	"      <arg type='i' name='remaining_time' direction='out' />"
+	"    </method>"
+	"    <method name='GetPauseDetails'>"
+	"      <arg type='as' name='pause_applications' direction='out' />"
+	"      <arg type='as' name='pause_reasons' direction='out' />"
+	"    </method>"
+	"    <method name='Pause'>"
+	"      <arg type='s' name='application' direction='in' />"
+	"      <arg type='s' name='reason' direction='in' />"
+	"      <arg type='i' name='cookie' direction='out' />"
+	"    </method>"
+	"    <method name='PauseForProcess'>"
+	"      <arg type='s' name='application' direction='in' />"
+	"      <arg type='s' name='reason' direction='in' />"
+	"      <arg type='i' name='cookie' direction='out' />"
+	"    </method>"
+	"    <method name='Resume'>"
+	"      <arg type='i' name='cookie' direction='in' />"
+	"    </method>"
+	"    <signal name='Started' />"
+	"    <signal name='Stopped' />"
+	"    <signal name='Paused' />"
+	"    <signal name='Resumed' />"
+	"    <signal name='Progress'>"
+	"      <arg type='s' name='status' />"
+	"      <arg type='d' name='progress' />"
+	"      <arg type='i' name='remaining_time' />"
+	"    </signal>"
+	"  </interface>"
+	"</node>";
 
 #define TRACKER_SERVICE "org.freedesktop.Tracker1"
 
@@ -126,7 +126,7 @@ pause_data_new (const gchar *application,
                 const gchar *watch_name,
                 guint        watch_name_id)
 {
-	PauseData *data;
+	PauseData  *data;
 	static gint cookie = 1;
 
 	data = g_slice_new0 (PauseData);

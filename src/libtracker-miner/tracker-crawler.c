@@ -25,7 +25,7 @@
 #include "tracker-miner-enum-types.h"
 #include "tracker-utils.h"
 
-#define FILE_ATTRIBUTES	  \
+#define FILE_ATTRIBUTES   \
 	G_FILE_ATTRIBUTE_STANDARD_NAME "," \
 	G_FILE_ATTRIBUTE_STANDARD_TYPE
 
@@ -39,13 +39,13 @@
 
 #define MAX_SIMULTANEOUS_ITEMS       64
 
-typedef struct TrackerCrawlerPrivate  TrackerCrawlerPrivate;
+typedef struct TrackerCrawlerPrivate TrackerCrawlerPrivate;
 typedef struct DirectoryChildData DirectoryChildData;
 typedef struct DirectoryProcessingData DirectoryProcessingData;
 typedef struct DirectoryRootInfo DirectoryRootInfo;
 
 typedef struct {
-	TrackerCrawler *crawler;
+	TrackerCrawler  *crawler;
 	GFileEnumerator *enumerator;
 	DirectoryRootInfo  *root_info;
 	DirectoryProcessingData *dir_info;
@@ -55,19 +55,19 @@ typedef struct {
 
 struct DirectoryChildData {
 	GFile          *child;
-	gboolean        is_dir;
+	gboolean is_dir;
 };
 
 struct DirectoryProcessingData {
-	GNode *node;
+	GNode  *node;
 	GSList *children;
 	guint was_inspected : 1;
 	guint ignored_by_content : 1;
 };
 
 struct DirectoryRootInfo {
-	GFile *directory;
-	GNode *tree;
+	GFile  *directory;
+	GNode  *tree;
 
 	GQueue *directory_processing_queue;
 
@@ -91,9 +91,9 @@ struct TrackerCrawlerPrivate {
 	GCancellable   *cancellable;
 
 	/* Idle handler for processing found data */
-	guint           idle_id;
+	guint idle_id;
 
-	gdouble         throttle;
+	gdouble throttle;
 
 	gchar          *file_attributes;
 
@@ -101,10 +101,10 @@ struct TrackerCrawlerPrivate {
 	GTimer         *timer;
 
 	/* Status */
-	gboolean        is_running;
-	gboolean        is_finished;
-	gboolean        is_paused;
-	gboolean        was_started;
+	gboolean is_running;
+	gboolean is_finished;
+	gboolean is_paused;
+	gboolean was_started;
 };
 
 enum {
@@ -138,14 +138,14 @@ static gboolean check_contents_defaults  (TrackerCrawler  *crawler,
 static void     data_provider_data_free  (DataProviderData        *dpd);
 
 static void     data_provider_begin      (TrackerCrawler          *crawler,
-					  DirectoryRootInfo       *info,
-					  DirectoryProcessingData *dir_data);
+                                          DirectoryRootInfo       *info,
+                                          DirectoryProcessingData *dir_data);
 static void     data_provider_end        (TrackerCrawler          *crawler,
                                           DirectoryRootInfo       *info);
 static void     directory_root_info_free (DirectoryRootInfo *info);
 
 
-static guint signals[LAST_SIGNAL] = { 0, };
+static guint  signals[LAST_SIGNAL] = { 0, };
 static GQuark file_info_quark = 0;
 
 G_DEFINE_TYPE_WITH_PRIVATE (TrackerCrawler, tracker_crawler, G_TYPE_OBJECT)
@@ -205,7 +205,7 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		              NULL,
 		              G_TYPE_NONE,
 		              6,
-			      G_TYPE_FILE,
+		              G_TYPE_FILE,
 		              G_TYPE_POINTER,
 		              G_TYPE_UINT,
 		              G_TYPE_UINT,
@@ -217,7 +217,7 @@ tracker_crawler_class_init (TrackerCrawlerClass *klass)
 		              G_SIGNAL_RUN_LAST,
 		              G_STRUCT_OFFSET (TrackerCrawlerClass, finished),
 		              NULL, NULL,
-			      NULL,
+		              NULL,
 		              G_TYPE_NONE,
 		              1, G_TYPE_BOOLEAN);
 
@@ -359,7 +359,7 @@ tracker_crawler_new (TrackerDataProvider *data_provider)
 
 static gboolean
 check_file (TrackerCrawler    *crawler,
-	    DirectoryRootInfo *info,
+            DirectoryRootInfo *info,
             GFile             *file)
 {
 	gboolean use = FALSE;
@@ -386,8 +386,8 @@ check_file (TrackerCrawler    *crawler,
 
 static gboolean
 check_directory (TrackerCrawler    *crawler,
-		 DirectoryRootInfo *info,
-		 GFile             *file)
+                 DirectoryRootInfo *info,
+                 GFile             *file)
 {
 	gboolean use = FALSE;
 	TrackerCrawlerPrivate *priv;
@@ -413,7 +413,7 @@ check_directory (TrackerCrawler    *crawler,
 
 static DirectoryChildData *
 directory_child_data_new (GFile    *child,
-			  gboolean  is_dir)
+                          gboolean  is_dir)
 {
 	DirectoryChildData *child_data;
 
@@ -453,8 +453,8 @@ directory_processing_data_free (DirectoryProcessingData *data)
 
 static void
 directory_processing_data_add_child (DirectoryProcessingData *data,
-				     GFile                   *child,
-				     gboolean                 is_dir)
+                                     GFile                   *child,
+                                     gboolean                 is_dir)
 {
 	DirectoryChildData *child_data;
 
@@ -545,7 +545,7 @@ directory_root_info_new (GFile                 *file,
 
 static gboolean
 directory_tree_free_foreach (GNode    *node,
-			     gpointer  user_data)
+                             gpointer  user_data)
 {
 	g_object_unref (node->data);
 	return FALSE;
@@ -561,16 +561,16 @@ directory_root_info_free (DirectoryRootInfo *info)
 	g_object_unref (info->directory);
 
 	g_node_traverse (info->tree,
-			 G_PRE_ORDER,
-			 G_TRAVERSE_ALL,
-			 -1,
-			 directory_tree_free_foreach,
-			 NULL);
+	                 G_PRE_ORDER,
+	                 G_TRAVERSE_ALL,
+	                 -1,
+	                 directory_tree_free_foreach,
+	                 NULL);
 	g_node_destroy (info->tree);
 
 	g_queue_foreach (info->directory_processing_queue,
-			 (GFunc) directory_processing_data_free,
-			 NULL);
+	                 (GFunc) directory_processing_data_free,
+	                 NULL);
 	g_queue_free (info->directory_processing_queue);
 
 	g_slice_free (DirectoryRootInfo, info);
@@ -582,7 +582,7 @@ process_next (TrackerCrawler *crawler)
 	TrackerCrawlerPrivate   *priv;
 	DirectoryRootInfo       *info;
 	DirectoryProcessingData *dir_data = NULL;
-	gboolean                 stop_idle = FALSE;
+	gboolean stop_idle = FALSE;
 
 	priv = tracker_crawler_get_instance_private (crawler);
 
@@ -615,8 +615,8 @@ process_next (TrackerCrawler *crawler)
 				stop_idle = TRUE;
 			}
 		} else if (dir_data->was_inspected &&
-			   !dir_data->ignored_by_content &&
-			   dir_data->children != NULL) {
+		           !dir_data->ignored_by_content &&
+		           dir_data->children != NULL) {
 			DirectoryChildData *child_data;
 			GNode *child_node = NULL;
 
@@ -636,7 +636,7 @@ process_next (TrackerCrawler *crawler)
 			     *	 check if it's running before going on */
 			    priv->is_running) {
 				child_node = g_node_prepend_data (dir_data->node,
-								  g_object_ref (child_data->child));
+				                                  g_object_ref (child_data->child));
 			}
 
 			if (G_NODE_IS_ROOT (dir_data->node) && priv->is_running &&
@@ -658,12 +658,12 @@ process_next (TrackerCrawler *crawler)
 		 * to process, emit ::directory-crawled and free data.
 		 */
 		g_signal_emit (crawler, signals[DIRECTORY_CRAWLED], 0,
-			       info->directory,
-			       info->tree,
-			       info->directories_found,
-			       info->directories_ignored,
-			       info->files_found,
-			       info->files_ignored);
+		               info->directory,
+		               info->tree,
+		               info->directories_found,
+		               info->directories_ignored,
+		               info->files_found,
+		               info->files_ignored);
 
 		data_provider_end (crawler, info);
 		g_queue_pop_head (priv->directories);
@@ -759,8 +759,8 @@ static void
 data_provider_data_process (DataProviderData *dpd)
 {
 	TrackerCrawler *crawler;
-	GSList *l;
-	GList *children = NULL;
+	GSList  *l;
+	GList   *children = NULL;
 	gboolean use;
 
 	crawler = dpd->crawler;
@@ -956,7 +956,7 @@ data_provider_begin_cb (GObject      *object,
 	TrackerCrawlerPrivate *priv;
 	GFileEnumerator *enumerator;
 	DirectoryRootInfo *info;
-	DataProviderData *dpd;
+	DataProviderData  *dpd;
 	GError *error = NULL;
 
 	enumerator = tracker_data_provider_begin_finish (TRACKER_DATA_PROVIDER (object), result, &error);
@@ -1218,7 +1218,7 @@ tracker_crawler_set_throttle (TrackerCrawler *crawler,
  **/
 void
 tracker_crawler_set_file_attributes (TrackerCrawler *crawler,
-				     const gchar    *file_attributes)
+                                     const gchar    *file_attributes)
 {
 	TrackerCrawlerPrivate *priv;
 
@@ -1262,7 +1262,7 @@ tracker_crawler_get_file_attributes (TrackerCrawler *crawler)
  **/
 GFileInfo *
 tracker_crawler_get_file_info (TrackerCrawler *crawler,
-			       GFile          *file)
+                               GFile          *file)
 {
 	GFileInfo *info;
 

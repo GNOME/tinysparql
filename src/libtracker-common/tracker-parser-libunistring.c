@@ -45,24 +45,24 @@ typedef enum {
 
 struct TrackerParser {
 	const gchar           *txt;
-	gint                   txt_size;
+	gint txt_size;
 
 	TrackerLanguage       *language;
-	guint                  max_word_length;
-	gboolean               enable_stemmer;
-	gboolean               enable_unaccent;
-	gboolean               ignore_stop_words;
-	gboolean               ignore_reserved_words;
-	gboolean               ignore_numbers;
-	gboolean               enable_forced_wordbreaks;
+	guint max_word_length;
+	gboolean enable_stemmer;
+	gboolean enable_unaccent;
+	gboolean ignore_stop_words;
+	gboolean ignore_reserved_words;
+	gboolean ignore_numbers;
+	gboolean enable_forced_wordbreaks;
 
 	/* Private members */
 	gchar                 *word;
-	gint                   word_length;
-	guint                  word_position;
+	gint  word_length;
+	guint word_position;
 
 	/* Cursor, as index of the input array of bytes */
-	gsize                  cursor;
+	gsize cursor;
 	/* libunistring flags array */
 	gchar                 *word_break_flags;
 	/* general category of the  start character in words */
@@ -164,9 +164,9 @@ tracker_parser_unaccent_nfkd_string (gpointer  str,
                                      gsize    *str_length)
 {
 	gchar *word;
-	gsize word_length;
-	gsize i;
-	gsize j;
+	gsize  word_length;
+	gsize  i;
+	gsize  j;
 
 	g_return_val_if_fail (str != NULL, FALSE);
 	g_return_val_if_fail (str_length != NULL, FALSE);
@@ -222,7 +222,7 @@ process_word_utf8 (TrackerParser         *parser,
                    TrackerParserWordType  type,
                    gboolean              *stop_word)
 {
-	gchar word_buffer [WORD_BUFFER_LENGTH];
+	gchar  word_buffer [WORD_BUFFER_LENGTH];
 	gchar *normalized = NULL;
 	gchar *stemmed = NULL;
 	size_t new_word_length;
@@ -335,7 +335,7 @@ parser_next (TrackerParser *parser,
              gint          *byte_offset_end,
              gboolean      *stop_word)
 {
-	gsize word_length = 0;
+	gsize  word_length = 0;
 	gchar *processed_word = NULL;
 
 	*byte_offset_start = 0;

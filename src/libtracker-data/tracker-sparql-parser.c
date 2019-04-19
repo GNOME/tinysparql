@@ -39,8 +39,8 @@ struct _TrackerRuleState {
 	TrackerParserNode *node;
 	gssize start_pos;
 	gint cur_child;
-	guint visited  : 1;
-	guint finished : 1;
+	guint  visited  : 1;
+	guint  finished : 1;
 };
 
 struct _TrackerNodeTree {
@@ -50,11 +50,11 @@ struct _TrackerNodeTree {
 };
 
 struct _TrackerParserNode {
-	GNode node;
+	GNode  node;
 	const TrackerGrammarRule *rule;
 	gssize start;
 	gssize end;
-	guint n_children;
+	guint  n_children;
 	gint cur_child;
 };
 
@@ -79,16 +79,16 @@ struct _TrackerGrammarParser {
 };
 
 static void tracker_grammar_rule_print_helper (GString                  *str,
-					       const TrackerGrammarRule *rule,
-					       gint                      depth);
+                                               const TrackerGrammarRule *rule,
+                                               gint                      depth);
 
 static void
 tracker_grammar_rule_print_children (GString                  *str,
-				     const TrackerGrammarRule *rules,
-				     const gchar              *start,
-				     const gchar              *sep,
-				     const gchar              *end,
-				     gint                      depth)
+                                     const TrackerGrammarRule *rules,
+                                     const gchar              *start,
+                                     const gchar              *sep,
+                                     const gchar              *end,
+                                     gint                      depth)
 {
 	gint i;
 
@@ -105,8 +105,8 @@ tracker_grammar_rule_print_children (GString                  *str,
 
 static void
 tracker_grammar_rule_print_helper (GString                  *str,
-				   const TrackerGrammarRule *rule,
-				   gint                      depth)
+                                   const TrackerGrammarRule *rule,
+                                   gint                      depth)
 {
 	if (depth == 0) {
 		g_string_append (str, "…");
@@ -125,23 +125,23 @@ tracker_grammar_rule_print_helper (GString                  *str,
 		break;
 	case RULE_TYPE_SEQUENCE:
 		tracker_grammar_rule_print_children (str, rule->data.children,
-						     "(", " ", ")", depth);
+		                                     "(", " ", ")", depth);
 		break;
 	case RULE_TYPE_OR:
 		tracker_grammar_rule_print_children (str, rule->data.children,
-						     "(", " | ", ")", depth);
+		                                     "(", " | ", ")", depth);
 		break;
 	case RULE_TYPE_GTE0:
 		tracker_grammar_rule_print_children (str, rule->data.children,
-						     "(", " ", ")*", depth);
+		                                     "(", " ", ")*", depth);
 		break;
 	case RULE_TYPE_GT0:
 		tracker_grammar_rule_print_children (str, rule->data.children,
-						     "(", " ", ")+", depth);
+		                                     "(", " ", ")+", depth);
 		break;
 	case RULE_TYPE_OPTIONAL:
 		tracker_grammar_rule_print_children (str, rule->data.children,
-						     "(", " ", ")?", depth);
+		                                     "(", " ", ")?", depth);
 		break;
 	case RULE_TYPE_NIL:
 		break;
@@ -307,7 +307,7 @@ tracker_parser_state_peek (TrackerParserState *state)
 static TrackerParserNode *
 tracker_parser_state_pop (TrackerParserState *state)
 {
-	TrackerRuleState *rule_state;
+	TrackerRuleState  *rule_state;
 	TrackerParserNode *node = NULL;
 
 	rule_state = tracker_parser_state_peek (state);
@@ -437,8 +437,8 @@ tracker_parser_state_take_error (TrackerParserState       *state,
 
 static void
 tracker_parser_state_forward (TrackerParserState   *state,
-			      TrackerGrammarParser *parser,
-			      gssize                len)
+                              TrackerGrammarParser *parser,
+                              gssize                len)
 {
 	g_assert (len >= 0 && state->current + len <= parser->query_len);
 	state->current += len;
@@ -456,7 +456,7 @@ tracker_parser_state_rewind (TrackerParserState *state)
 
 static void
 tracker_parser_state_skip_whitespace (TrackerParserState   *state,
-				      TrackerGrammarParser *parser)
+                                      TrackerGrammarParser *parser)
 {
 	while (state->current < parser->query_len) {
 		/* Skip comments too */
@@ -534,7 +534,7 @@ tracker_grammar_parser_apply_rule_terminal (TrackerGrammarParser     *parser,
                                             TrackerParserState       *state,
                                             const TrackerGrammarRule *rule)
 {
-	TrackerParserNode *node;
+	TrackerParserNode  *node;
 	TrackerTerminalFunc func;
 	const gchar *str, *end;
 
@@ -651,7 +651,7 @@ tracker_parser_state_rollback (TrackerParserState   *state,
 			if (!tracker_parser_state_peek (state)->visited)
 				break;
 
-			/* Fall through */
+		/* Fall through */
 		case RULE_TYPE_GTE0:
 		case RULE_TYPE_OPTIONAL:
 			tracker_parser_state_iterate (state, parser, FALSE);
@@ -801,8 +801,8 @@ tracker_parser_node_get_rule (TrackerParserNode *node)
 
 gboolean
 tracker_parser_node_get_extents (TrackerParserNode *node,
-				 gssize            *start,
-				 gssize            *end)
+                                 gssize            *start,
+                                 gssize            *end)
 {
 	if (start)
 		*start = node->start;

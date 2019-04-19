@@ -34,15 +34,15 @@
 
 #include "tracker-db-backup.h"
 
-#define TRACKER_DB_BACKUP_META_FILENAME_T	"meta-backup.db.tmp"
+#define TRACKER_DB_BACKUP_META_FILENAME_T       "meta-backup.db.tmp"
 
 typedef struct {
-	GFile *destination;
-	GFile *file;
+	GFile   *destination;
+	GFile   *file;
 	TrackerDBBackupFinished callback;
 	gpointer user_data;
 	GDestroyNotify destroy;
-	GError *error;
+	GError  *error;
 } BackupInfo;
 
 GQuark
@@ -121,7 +121,7 @@ backup_job (GTask        *task,
 
 		if (!backup) {
 			g_set_error (&info->error, TRACKER_DB_BACKUP_ERROR, TRACKER_DB_BACKUP_ERROR_UNKNOWN,
-				     "Unable to initialize sqlite3 backup from '%s' to '%s'", src_path, temp_path);
+			             "Unable to initialize sqlite3 backup from '%s' to '%s'", src_path, temp_path);
 		}
 	}
 
@@ -139,8 +139,8 @@ backup_job (GTask        *task,
 			g_set_error (&info->error,
 			             TRACKER_DB_BACKUP_ERROR,
 			             TRACKER_DB_BACKUP_ERROR_UNKNOWN,
-				     "Unable to finish sqlite3 backup: %s",
-				     sqlite3_errmsg (temp_db));
+			             "Unable to finish sqlite3 backup: %s",
+			             sqlite3_errmsg (temp_db));
 		}
 		backup = NULL;
 	}

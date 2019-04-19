@@ -35,21 +35,21 @@
 /* The life time of an item in the cache */
 #define CACHE_LIFETIME_SECONDS 1
 
-typedef struct TrackerMonitorPrivate  TrackerMonitorPrivate;
+typedef struct TrackerMonitorPrivate TrackerMonitorPrivate;
 
 struct TrackerMonitorPrivate {
 	GHashTable    *monitors;
 
-	gboolean       enabled;
+	gboolean enabled;
 
-	guint          monitor_limit;
-	gboolean       monitor_limit_warned;
-	guint          monitors_ignored;
+	guint monitor_limit;
+	gboolean monitor_limit_warned;
+	guint monitors_ignored;
 
 	/* For FAM, the _CHANGES_DONE event is not signalled, so we
 	 * have to just use the _CHANGED event instead.
 	 */
-	gboolean       use_changed_event;
+	gboolean use_changed_event;
 
 	GHashTable    *cached_events;
 
@@ -63,7 +63,7 @@ typedef struct {
 	gchar    *other_file_uri;
 	gboolean  is_directory;
 	GTimeVal  start_time;
-	guint32   event_type;
+	guint32 event_type;
 	gboolean  expirable;
 } EventData;
 
@@ -381,7 +381,7 @@ get_inotify_limit (void)
 	GError      *error = NULL;
 	const gchar *filename;
 	gchar       *contents = NULL;
-	guint        limit;
+	guint limit;
 
 	filename = "/proc/sys/fs/inotify/max_user_watches";
 
@@ -719,7 +719,7 @@ monitor_event_cb (GFileMonitor      *file_monitor,
 		/* In any case, cached events are stale */
 		g_hash_table_remove (priv->cached_events, file);
 
-		/* Fall through */
+	/* Fall through */
 	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
 		emit_signal_for_event (monitor, event_type,
 		                       is_directory, file, NULL);
@@ -988,7 +988,7 @@ remove_recursively (TrackerMonitor *monitor,
 	TrackerMonitorPrivate *priv;
 	GHashTableIter iter;
 	gpointer iter_file, iter_file_monitor;
-	guint items_removed = 0;
+	guint  items_removed = 0;
 	gchar *uri;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
@@ -1088,7 +1088,7 @@ tracker_monitor_is_watched_by_string (TrackerMonitor *monitor,
 {
 	TrackerMonitorPrivate *priv;
 	GFile      *file;
-	gboolean    watched;
+	gboolean watched;
 
 	g_return_val_if_fail (TRACKER_IS_MONITOR (monitor), FALSE);
 	g_return_val_if_fail (path != NULL, FALSE);

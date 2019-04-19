@@ -21,7 +21,7 @@
 #include "config.h"
 #include "tracker-uuid.h"
 
-#if ! GLIB_CHECK_VERSION (2, 52, 0)
+#if !GLIB_CHECK_VERSION (2, 52, 0)
 #include <uuid/uuid.h>
 #endif
 
@@ -35,7 +35,7 @@ tracker_generate_uuid (void)
 	g_free (uuid);
 #else
 	uuid_t base = { 0, };
-	gchar uuid[37];
+	gchar  uuid[37];
 
 	uuid_generate (base);
 	uuid_unparse_lower (base, uuid);

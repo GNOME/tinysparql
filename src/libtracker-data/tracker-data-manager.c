@@ -69,25 +69,25 @@
 struct _TrackerDataManager {
 	GObject parent_instance;
 
-	GFile *ontology_location;
-	GFile *cache_location;
-	GFile *data_location;
+	GFile  *ontology_location;
+	GFile  *cache_location;
+	GFile  *data_location;
 	guint initialized      : 1;
 	guint journal_check    : 1;
 	guint restoring_backup : 1;
 	guint first_time_index : 1;
 	guint flags;
 
-	gint select_cache_size;
-	gint update_cache_size;
+	gint  select_cache_size;
+	gint  update_cache_size;
 
 #ifndef DISABLE_JOURNAL
-	gboolean  in_journal_replay;
-	TrackerDBJournal *journal_writer;
-	TrackerDBJournal *ontology_writer;
+	gboolean in_journal_replay;
+	TrackerDBJournal  *journal_writer;
+	TrackerDBJournal  *ontology_writer;
 #endif
 
-	TrackerDBManager *db_manager;
+	TrackerDBManager  *db_manager;
 	TrackerOntologies *ontologies;
 	TrackerData *data_update;
 
@@ -400,7 +400,7 @@ check_unsupported_property_value_change (TrackerDataManager *manager,
                                          const gchar        *predicate,
                                          const gchar        *object)
 {
-	GError *error = NULL;
+	GError  *error = NULL;
 	gboolean needed = TRUE;
 	gchar *query = NULL;
 	TrackerDBCursor *cursor;
@@ -451,7 +451,7 @@ update_property_value (TrackerDataManager  *manager,
                        TrackerProperty     *property,
                        GError             **error_in)
 {
-	GError *error = NULL;
+	GError  *error = NULL;
 	gboolean needed = TRUE;
 	gboolean is_new = FALSE;
 
@@ -583,8 +583,8 @@ fix_indexed (TrackerDataManager  *manager,
 	GError *internal_error = NULL;
 	TrackerDBInterface *iface;
 	TrackerClass *class;
-	const gchar *service_name;
-	const gchar *field_name;
+	const gchar  *service_name;
+	const gchar  *field_name;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
@@ -867,7 +867,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 		tracker_class_set_notify (class, (strcmp (object, "true") == 0));
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_TRACKER "domainIndex") == 0) {
 		TrackerClass *class;
-		TrackerProperty *property;
+		TrackerProperty  *property;
 		TrackerProperty **properties;
 		gboolean ignore = FALSE;
 		gboolean had = FALSE;
@@ -1405,12 +1405,12 @@ check_for_max_cardinality_change (TrackerDataManager  *manager,
 {
 	gboolean orig_multiple_values = tracker_property_get_orig_multiple_values (property);
 	gboolean new_multiple_values = tracker_property_get_multiple_values (property);
-	GError *n_error = NULL;
+	GError  *n_error = NULL;
 	const gchar *ontology_path = "Unknown";
 
 	if (tracker_property_get_is_new (property) == FALSE &&
 	    (orig_multiple_values != new_multiple_values &&
-		 orig_multiple_values == TRUE)) {
+	     orig_multiple_values == TRUE)) {
 		const gchar *ontology_path = "Unknown";
 		const gchar *subject = tracker_property_get_uri (property);
 
@@ -1579,7 +1579,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 	if (seen_classes) {
 		for (i = 0; i < seen_classes->len; i++) {
 			TrackerClass *class = g_ptr_array_index (seen_classes, i);
-			const gchar *subject;
+			const gchar  *subject;
 			GError *n_error = NULL;
 
 			subject = tracker_class_get_uri (class);
@@ -1614,7 +1614,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 			gchar *query;
 			TrackerProperty *secondary_index;
 			gboolean indexed_set = FALSE, in_onto;
-			GError *n_error = NULL;
+			GError  *n_error = NULL;
 			TrackerSparqlCursor *cursor;
 
 			subject = tracker_property_get_uri (property);
@@ -2132,7 +2132,7 @@ class_add_super_classes_from_db (TrackerDBInterface *iface,
 	if (cursor) {
 		while (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
 			TrackerClass *super_class;
-			const gchar *super_class_uri;
+			const gchar  *super_class_uri;
 
 			super_class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
 			super_class = tracker_ontologies_get_class_by_uri (manager->ontologies, super_class_uri);
@@ -2246,7 +2246,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
 			TrackerOntology *ontology;
 			const gchar     *uri;
-			time_t           last_mod;
+			time_t last_mod;
 
 			ontology = tracker_ontology_new ();
 			tracker_ontology_set_ontologies (ontology, manager->ontologies);
@@ -2325,9 +2325,9 @@ db_get_static_data (TrackerDBInterface  *iface,
 		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
 			TrackerClass *class;
 			const gchar  *uri;
-			gint          id;
-			GValue        value = { 0 };
-			gboolean      notify;
+			gint id;
+			GValue value = { 0 };
+			gboolean notify;
 
 			class = tracker_class_new (FALSE);
 
@@ -2396,10 +2396,10 @@ db_get_static_data (TrackerDBInterface  *iface,
 			GValue value = { 0 };
 			TrackerProperty *property;
 			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri, *default_value;
-			gboolean         multi_valued, indexed, fulltext_indexed;
-			gboolean         transient, is_inverse_functional_property;
-			gboolean         writeback, force_journal;
-			gint             id;
+			gboolean multi_valued, indexed, fulltext_indexed;
+			gboolean transient, is_inverse_functional_property;
+			gboolean writeback, force_journal;
+			gint id;
 
 			property = tracker_property_new (FALSE);
 
@@ -2596,8 +2596,8 @@ range_change_for (TrackerProperty *property,
 
 	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_INTEGER ||
 	    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DOUBLE) {
-			g_string_append_printf (sel_col_sql, ", \"%s\" + 0, \"%s:graph\"",
-			                        field_name, field_name);
+		g_string_append_printf (sel_col_sql, ", \"%s\" + 0, \"%s:graph\"",
+		                        field_name, field_name);
 	} else if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
 
 		/* TODO (see above) */
@@ -2635,7 +2635,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	GError *internal_error = NULL;
 	const char *field_name;
 	const char *sql_type;
-	gboolean    not_single;
+	gboolean not_single;
 
 	field_name = tracker_property_get_name (property);
 
@@ -2857,7 +2857,7 @@ copy_from_domain_to_domain_index (TrackerDBInterface  *iface,
 {
 	GError *internal_error = NULL;
 	TrackerClass *source_domain;
-	const gchar *source_name, *dest_name;
+	const gchar  *source_name, *dest_name;
 	gchar *query;
 
 	source_domain = tracker_property_get_domain (domain_index);
@@ -2894,10 +2894,10 @@ typedef struct {
 } ScheduleCopy;
 
 static void
-schedule_copy (GPtrArray *schedule,
+schedule_copy (GPtrArray       *schedule,
                TrackerProperty *prop,
-               const gchar *field_name,
-               const gchar *suffix)
+               const gchar     *field_name,
+               const gchar     *suffix)
 {
 	ScheduleCopy *sched = g_new0 (ScheduleCopy, 1);
 	sched->prop = prop;
@@ -2913,7 +2913,7 @@ create_insert_delete_triggers (TrackerDBInterface  *iface,
                                gint                 n_properties,
                                GError             **error)
 {
-	GError *internal_error = NULL;
+	GError  *internal_error = NULL;
 	GString *trigger_query;
 	gint i;
 
@@ -3093,9 +3093,9 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 	GString          *sel_col_sql = NULL;
 	TrackerProperty **properties, *property, **domain_indexes;
 	GSList           *class_properties = NULL, *field_it;
-	gboolean          main_class;
-	guint             i, n_props;
-	gboolean          in_alter = in_update;
+	gboolean main_class;
+	guint i, n_props;
+	gboolean in_alter = in_update;
 	GError           *internal_error = NULL;
 	GPtrArray        *copy_schedule = NULL;
 
@@ -3425,7 +3425,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 	}
 
 	if (!tracker_class_get_is_new (service) && in_change && sel_col_sql && in_col_sql) {
-		guint i;
+		guint  i;
 		gchar *query;
 
 		query = g_strdup_printf ("INSERT INTO \"%s\"(%s) "
@@ -3441,7 +3441,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 			g_propagate_error (error, internal_error);
 			goto error_out;
 		}
-		
+
 		g_free (query);
 
 		for (i = 0; i < n_props; i++) {
@@ -3457,7 +3457,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 				/* Function does what it must do, so reusable atm */
 				range_change_for (property, n_in_col_sql, n_sel_col_sql, field_name);
 
-                                /* Columns happen to be the same for decomposed multi-value and single value atm */
+				/* Columns happen to be the same for decomposed multi-value and single value atm */
 
 				query = g_strdup_printf ("INSERT INTO \"%s_%s\"(%s) "
 				                         "SELECT %s FROM \"%s_TEMP\" "
@@ -3477,7 +3477,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 					g_propagate_error (error, internal_error);
 					goto error_out;
 				}
-		
+
 				g_free (query);
 			}
 		}
@@ -3547,7 +3547,7 @@ clean_decomposed_transient_metadata (TrackerDataManager *manager,
                                      TrackerDBInterface *iface)
 {
 	TrackerProperty **properties;
-	TrackerProperty *property;
+	TrackerProperty  *property;
 	guint i, n_props;
 
 	properties = tracker_ontologies_get_properties (manager->ontologies, &n_props);
@@ -3557,8 +3557,8 @@ clean_decomposed_transient_metadata (TrackerDataManager *manager,
 
 		if (tracker_property_get_transient (property)) {
 			TrackerClass *domain;
-			const gchar *service_name;
-			const gchar *prop_name;
+			const gchar  *service_name;
+			const gchar  *prop_name;
 			GError *error = NULL;
 
 			domain = tracker_property_get_domain (property);
@@ -4216,7 +4216,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	}
 
 	tracker_db_manager_set_vtab_user_data (manager->db_manager,
-					       manager->ontologies);
+	                                       manager->ontologies);
 
 	manager->first_time_index = is_first_time_index;
 
@@ -4277,8 +4277,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		} else {
 			if (internal_error) {
 				if (!g_error_matches (internal_error,
-					                  TRACKER_DB_JOURNAL_ERROR,
-					                  TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
+				                      TRACKER_DB_JOURNAL_ERROR,
+				                      TRACKER_DB_JOURNAL_ERROR_BEGIN_OF_JOURNAL)) {
 					g_propagate_error (error, internal_error);
 					return FALSE;
 				} else {
@@ -4316,8 +4316,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 		for (l = sorted; l; l = l->next) {
 			GError *ontology_error = NULL;
-			GFile *ontology_file = l->data;
-			gchar *uri = g_file_get_uri (ontology_file);
+			GFile  *ontology_file = l->data;
+			gchar  *uri = g_file_get_uri (ontology_file);
 
 			g_debug ("Loading ontology %s", uri);
 
@@ -4453,7 +4453,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		GList *ontos = NULL;
 		GPtrArray *seen_classes;
 		GPtrArray *seen_properties;
-		GError *n_error = NULL;
+		GError  *n_error = NULL;
 		gboolean transaction_started = FALSE;
 
 		seen_classes = g_ptr_array_new ();
@@ -4629,7 +4629,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				}
 			} else {
 				GError *ontology_error = NULL;
-				gchar *uri = g_file_get_uri (ontology_file);
+				gchar  *uri = g_file_get_uri (ontology_file);
 
 				g_debug ("Ontology file '%s' got added", uri);
 				g_free (uri);
@@ -4810,7 +4810,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	}
 
 	tracker_db_manager_set_vtab_user_data (manager->db_manager,
-					       manager->ontologies);
+	                                       manager->ontologies);
 
 skip_ontology_check:
 
@@ -4950,7 +4950,7 @@ tracker_data_manager_dispose (GObject *object)
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (object);
 	TrackerDBStatement *stmt;
 	TrackerDBInterface *iface;
-	GError *error = NULL;
+	GError  *error = NULL;
 	gboolean readonly = TRUE;
 
 	if (manager->db_manager) {

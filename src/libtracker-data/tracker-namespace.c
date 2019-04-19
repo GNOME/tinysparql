@@ -127,7 +127,7 @@ tracker_namespace_get_is_new (TrackerNamespace *namespace)
 
 void
 tracker_namespace_set_uri (TrackerNamespace *namespace,
-                           const gchar    *value)
+                           const gchar      *value)
 {
 	TrackerNamespacePrivate *priv;
 
@@ -146,7 +146,7 @@ tracker_namespace_set_uri (TrackerNamespace *namespace,
 
 void
 tracker_namespace_set_prefix (TrackerNamespace *namespace,
-                              const gchar    *value)
+                              const gchar      *value)
 {
 	TrackerNamespacePrivate *priv;
 

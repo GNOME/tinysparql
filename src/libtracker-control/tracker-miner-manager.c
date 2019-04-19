@@ -60,10 +60,10 @@ struct MinerData {
 	gchar *name_suffix;
 
 	GDBusConnection *connection;
-	guint progress_signal;
-	guint paused_signal;
-	guint resumed_signal;
-	guint watch_name_id;
+	guint  progress_signal;
+	guint  paused_signal;
+	guint  resumed_signal;
+	guint  watch_name_id;
 	GObject *manager; /* weak */
 };
 
@@ -124,8 +124,8 @@ tracker_miner_manager_class_init (TrackerMinerManagerClass *klass)
 	g_object_class_install_property (object_class,
 	                                 PROP_AUTO_START,
 	                                 g_param_spec_boolean ("auto-start",
-	                                                      "Auto Start",
-	                                                      "If set, auto starts miners when querying their status",
+	                                                       "Auto Start",
+	                                                       "If set, auto starts miners when querying their status",
 	                                                       TRUE,
 	                                                       G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
 	g_object_class_install_property (object_class,
@@ -440,7 +440,7 @@ miner_manager_initable_init (GInitable     *initable,
 
 	for (m = priv->miners; m; m = m->next) {
 		GDBusProxy *proxy;
-		MinerData *data;
+		MinerData  *data;
 
 		data = m->data;
 		data->connection = g_object_ref (priv->connection);
@@ -663,7 +663,7 @@ tracker_miner_manager_get_running (TrackerMinerManager *manager)
 	GError *error = NULL;
 	GVariant *v;
 	GVariantIter *iter;
-	const gchar *str = NULL;
+	const gchar  *str = NULL;
 	gchar *prefix;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), NULL);
@@ -720,7 +720,7 @@ check_file (GFile    *file,
 	TrackerMinerManager *manager;
 	TrackerMinerManagerPrivate *priv;
 	GKeyFile *key_file;
-	gchar *path, *dbus_path, *display_name, *name_suffix, *full_name_suffix, *description;
+	gchar  *path, *dbus_path, *display_name, *name_suffix, *full_name_suffix, *description;
 	GError *error = NULL;
 	MinerData *data;
 
@@ -846,7 +846,7 @@ tracker_miner_manager_get_available (TrackerMinerManager *manager)
 {
 	TrackerMinerManagerPrivate *priv;
 	GSList *list = NULL;
-	GList *m;
+	GList  *m;
 
 	priv = tracker_miner_manager_get_instance_private (manager);
 
@@ -881,7 +881,7 @@ tracker_miner_manager_pause (TrackerMinerManager *manager,
                              const gchar         *reason,
                              guint32             *cookie)
 {
-	GDBusProxy *proxy;
+	GDBusProxy  *proxy;
 	const gchar *app_name;
 	GError *error = NULL;
 	GVariant *v;
@@ -959,7 +959,7 @@ tracker_miner_manager_pause_for_process (TrackerMinerManager *manager,
                                          const gchar         *reason,
                                          guint32             *cookie)
 {
-	GDBusProxy *proxy;
+	GDBusProxy  *proxy;
 	const gchar *app_name;
 	GError *error = NULL;
 	GVariant *v;
@@ -1076,8 +1076,8 @@ tracker_miner_manager_is_active (TrackerMinerManager *manager,
                                  const gchar         *miner)
 {
 	TrackerMinerManagerPrivate *priv;
-	GError *error = NULL;
-	gboolean active = FALSE;
+	GError   *error = NULL;
+	gboolean  active = FALSE;
 	GVariant *v;
 
 	g_return_val_if_fail (TRACKER_IS_MINER_MANAGER (manager), FALSE);
@@ -1254,8 +1254,8 @@ tracker_miner_manager_is_paused (TrackerMinerManager *manager,
 {
 	GDBusProxy *proxy;
 	GStrv apps, r;
-	GError *error = NULL;
-	gboolean paused;
+	GError   *error = NULL;
+	gboolean  paused;
 	GVariant *v;
 
 	if (applications) {
@@ -1518,13 +1518,13 @@ miner_manager_index_file_sync (TrackerMinerManager *manager,
 }
 
 static void
-miner_manager_index_file_thread (GTask *task,
-                                 gpointer source_object,
-                                 gpointer task_data,
+miner_manager_index_file_thread (GTask        *task,
+                                 gpointer      source_object,
+                                 gpointer      task_data,
                                  GCancellable *cancellable)
 {
 	TrackerMinerManager *manager = source_object;
-	GFile *file = task_data;
+	GFile  *file = task_data;
 	GError *error = NULL;
 
 	miner_manager_index_file_sync (manager, METHOD_INDEX_FILE,
@@ -1621,7 +1621,7 @@ miner_manager_index_file_for_process_thread (GTask        *task,
                                              GCancellable *cancellable)
 {
 	TrackerMinerManager *manager = source_object;
-	GFile *file = task_data;
+	GFile  *file = task_data;
 	GError *error = NULL;
 
 	miner_manager_index_file_sync (manager, METHOD_INDEX_FILE_FOR_PROCESS,

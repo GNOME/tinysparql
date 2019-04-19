@@ -85,9 +85,9 @@ process_files_cb (GObject      *object,
 	conn = TRACKER_SPARQL_CONNECTION (object);
 	cursor = tracker_sparql_connection_query_finish (conn, result, &error);
 
-        if (error) {
-                g_critical ("Could not check files on mount point for missing metadata: %s", error->message);
-                g_error_free (error);
+	if (error) {
+		g_critical ("Could not check files on mount point for missing metadata: %s", error->message);
+		g_error_free (error);
 		return;
 	}
 
@@ -101,7 +101,7 @@ process_files_cb (GObject      *object,
 }
 
 static void
-remove_files_cb (GObject *object,
+remove_files_cb (GObject      *object,
                  GAsyncResult *result,
                  gpointer      user_data)
 {
@@ -112,9 +112,9 @@ remove_files_cb (GObject *object,
 	conn = TRACKER_SPARQL_CONNECTION (object);
 	cursor = tracker_sparql_connection_query_finish (conn, result, &error);
 
-        if (error) {
-                g_critical ("Could not remove files on mount point with missing metadata: %s", error->message);
-                g_error_free (error);
+	if (error) {
+		g_critical ("Could not remove files on mount point with missing metadata: %s", error->message);
+		g_error_free (error);
 		return;
 	}
 
@@ -130,25 +130,25 @@ static void
 _tracker_decorator_query_append_rdf_type_filter (TrackerDecorator *decorator,
                                                  GString          *query)
 {
-       const gchar **class_names;
-       gint i = 0;
+	const gchar **class_names;
+	gint i = 0;
 
-       class_names = tracker_decorator_get_class_names (decorator);
+	class_names = tracker_decorator_get_class_names (decorator);
 
-       if (!class_names || !*class_names)
-               return;
+	if (!class_names || !*class_names)
+		return;
 
-       g_string_append (query, "&& ?type IN (");
+	g_string_append (query, "&& ?type IN (");
 
-       while (class_names[i]) {
-               if (i != 0)
-                       g_string_append (query, ",");
+	while (class_names[i]) {
+		if (i != 0)
+			g_string_append (query, ",");
 
-               g_string_append (query, class_names[i]);
-               i++;
-       }
+		g_string_append (query, class_names[i]);
+		i++;
+	}
 
-       g_string_append (query, ") ");
+	g_string_append (query, ") ");
 }
 
 static void

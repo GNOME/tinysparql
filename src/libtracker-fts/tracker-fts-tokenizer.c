@@ -288,7 +288,7 @@ get_fts_weights (TrackerDBInterface *iface,
 
 	if (G_UNLIKELY (weights == NULL)) {
 		TrackerDataManager *manager;
-		TrackerOntologies *ontologies;
+		TrackerOntologies  *ontologies;
 		sqlite3_stmt *stmt;
 		sqlite3 *db;
 		const gchar *uri;

@@ -274,7 +274,7 @@ tracker_namespace_manager_expand_uri (TrackerNamespaceManager *self,
 {
 	TrackerNamespaceManagerPrivate *priv;
 
-	char prefix[MAX_PREFIX_LENGTH + 1] = { 0 };
+	char  prefix[MAX_PREFIX_LENGTH + 1] = { 0 };
 	char *colon;
 	char *namespace = NULL;
 

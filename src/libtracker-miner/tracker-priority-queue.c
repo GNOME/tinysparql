@@ -34,7 +34,7 @@ struct PrioritySegment
 
 struct _TrackerPriorityQueue
 {
-	GQueue queue;
+	GQueue  queue;
 	GArray *segments;
 
 	gint ref_count;

@@ -75,10 +75,10 @@ tracker_seconds_estimate (gdouble seconds_elapsed,
 }
 
 gchar *
-tracker_seconds_estimate_to_string (gdouble   seconds_elapsed,
-                                    gboolean  short_string,
-                                    guint     items_done,
-                                    guint     items_remaining)
+tracker_seconds_estimate_to_string (gdouble  seconds_elapsed,
+                                    gboolean short_string,
+                                    guint    items_done,
+                                    guint    items_remaining)
 {
 	guint estimate;
 
@@ -99,7 +99,7 @@ tracker_seconds_to_string (gdouble  seconds_elapsed,
 	GString *s;
 	gchar   *str;
 	gdouble  total;
-	gint     days, hours, minutes, seconds;
+	gint days, hours, minutes, seconds;
 
 	g_return_val_if_fail (seconds_elapsed >= 0.0, g_strdup (_("less than one second")));
 
@@ -180,9 +180,9 @@ tracker_strhex (const guint8 *data,
                 gsize         size,
                 gchar         delimiter)
 {
-	gsize i;
-	gsize j;
-	gsize new_str_length;
+	gsize  i;
+	gsize  j;
+	gsize  new_str_length;
 	gchar *new_str;
 
 	/* Get new string length. If input string has N bytes, we need:
@@ -256,8 +256,8 @@ range_is_xdigit (const gchar *str,
 
 static gunichar
 xdigit_to_unichar (const gchar *str,
-		   gssize       start,
-		   gssize       end)
+                   gssize       start,
+                   gssize       end)
 {
 	gunichar ch = 0;
 	gssize i;
@@ -304,8 +304,8 @@ tracker_unescape_unichars (const gchar  *str,
 			g_string_append_c (copy, str[i + 1]);
 			i += 2;
 		} else if (len - i >= 6 &&
-		    strncmp (&str[i], "\\u", 2) == 0 &&
-		    range_is_xdigit (&str[i], 2, 6)) {
+		           strncmp (&str[i], "\\u", 2) == 0 &&
+		           range_is_xdigit (&str[i], 2, 6)) {
 			ch = xdigit_to_unichar (&str[i], 2, 6);
 			g_string_append_unichar (copy, ch);
 			i += 6;

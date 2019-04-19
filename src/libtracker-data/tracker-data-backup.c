@@ -33,17 +33,17 @@
 #include "tracker-db-backup.h"
 
 typedef struct {
-	GFile *destination, *journal;
+	GFile   *destination, *journal;
 	TrackerDataBackupFinished callback;
 	gpointer user_data;
 	GDestroyNotify destroy;
-	GError *error;
+	GError  *error;
 } BackupSaveInfo;
 
 #ifndef DISABLE_JOURNAL
 
 typedef struct {
-	GPid pid;
+	GPid  pid;
 	guint stdout_watch_id;
 	guint stderr_watch_id;
 	GIOChannel *stdin_channel;
@@ -228,7 +228,7 @@ process_context_child_watch_cb (GPid     pid,
 
 #ifdef DISABLE_JOURNAL
 static void
-on_backup_finished (GError *error,
+on_backup_finished (GError  *error,
                     gpointer user_data)
 {
 	BackupSaveInfo *info = user_data;
@@ -315,7 +315,7 @@ dir_move_to_temp (const gchar *path,
 	temp_dir = g_build_filename (path, tmpname, NULL);
 	if (g_mkdir (temp_dir, 0777) < 0) {
 		g_critical ("Could not move %s to temp directory: %m",
-			    path);
+		            path);
 		g_free (temp_dir);
 		return;
 	}
@@ -419,14 +419,14 @@ tracker_data_backup_save (TrackerDataManager        *data_manager,
 	BackupSaveInfo *info;
 	ProcessContext *context;
 	gchar **argv;
-	gchar *path, *directory;
+	gchar  *path, *directory;
 	GError *local_error = NULL;
 	GDir *journal_dir;
-	GPid pid;
+	GPid  pid;
 	GPtrArray *files;
 	const gchar *f_name;
 	gboolean result;
-	gint stdin_fd, stdout_fd, stderr_fd;
+	gint  stdin_fd, stdout_fd, stderr_fd;
 	guint i;
 
 	info = g_new0 (BackupSaveInfo, 1);
@@ -586,11 +586,11 @@ tracker_data_backup_restore (TrackerDataManager   *manager,
 		TrackerDBJournal *journal_writer;
 		guint select_cache_size, update_cache_size;
 #ifndef DISABLE_JOURNAL
-		GError *n_error = NULL;
-		GFile *parent = g_file_get_parent (info->destination);
-		gchar *tmp_stdout = NULL;
-		gchar *tmp_stderr = NULL;
-		gchar **argv;
+		GError  *n_error = NULL;
+		GFile   *parent = g_file_get_parent (info->destination);
+		gchar   *tmp_stdout = NULL;
+		gchar   *tmp_stderr = NULL;
+		gchar  **argv;
 		gboolean result;
 		gint exit_status;
 #endif /* DISABLE_JOURNAL */
@@ -657,7 +657,7 @@ tracker_data_backup_restore (TrackerDataManager   *manager,
 		flags &= ~TRACKER_DB_MANAGER_FORCE_REINDEX;
 
 		g_file_copy (info->journal, info->destination,
-		             G_FILE_COPY_OVERWRITE, 
+		             G_FILE_COPY_OVERWRITE,
 		             NULL, NULL, NULL,
 		             &info->error);
 #endif /* DISABLE_JOURNAL */

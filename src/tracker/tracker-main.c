@@ -43,7 +43,7 @@
 const char usage_string[] =
 	"tracker [--version] [--help]\n"
 	"               <command> [<args>]";
- 
+
 const char usage_more_info_string[] =
 	N_("See “tracker help <command>” to read about a specific subcommand.");
 
@@ -83,8 +83,8 @@ tracker_version (int argc, const char **argv)
  * require working tree to be present -- anything uses this needs
  * RUN_SETUP for reading from the configuration file.
  */
-#define NEED_NOTHING		(1<<0)
-#define NEED_WORK_TREE		(1<<1)
+#define NEED_NOTHING            (1<<0)
+#define NEED_WORK_TREE          (1<<1)
 
 struct cmd_struct {
 	const char *cmd;
@@ -97,7 +97,7 @@ static struct cmd_struct commands[] = {
 	{ "daemon", tracker_daemon, NEED_WORK_TREE, N_("Start, stop, pause and list processes responsible for indexing content") },
 	{ "extract", tracker_extract, NEED_WORK_TREE, N_("Extract information from a file") },
 	{ "help", tracker_help, NEED_NOTHING, N_("Get help on how to use Tracker and any of these commands") },
-	{ "info", tracker_info, NEED_WORK_TREE, N_("Show information known about local files or items indexed") }, 
+	{ "info", tracker_info, NEED_WORK_TREE, N_("Show information known about local files or items indexed") },
 	{ "index", tracker_index, NEED_NOTHING, N_("Backup, restore, import and (re)index by MIME type or file name") },
 	{ "reset", tracker_reset, NEED_NOTHING,  N_("Reset or remove index and revert configurations to defaults") },
 	{ "search", tracker_search, NEED_WORK_TREE, N_("Search for content indexed or show content by type") },

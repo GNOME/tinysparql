@@ -21,7 +21,7 @@
 #include "config.h"
 
 #define _XOPEN_SOURCE
-#define _XOPEN_SOURCE_EXTENDED 1	/* strcasecmp is XPG4v2 */
+#define _XOPEN_SOURCE_EXTENDED 1        /* strcasecmp is XPG4v2 */
 #include <time.h>
 
 #include <strings.h>
@@ -39,7 +39,7 @@ tracker_string_in_string_list (const gchar  *str,
                                gchar       **strv)
 {
 	gchar **p;
-	gint    i;
+	gint i;
 
 	g_return_val_if_fail (str != NULL, -1);
 
@@ -78,8 +78,8 @@ tracker_string_list_to_gslist (gchar **strv,
                                gsize   size)
 {
 	GSList *list;
-	gsize   i;
-	gsize   size_used;
+	gsize i;
+	gsize size_used;
 
 	if (!strv) {
 		return NULL;
@@ -123,7 +123,7 @@ list_to_string_list (GSList *list, gint length)
 {
 	GSList  *l;
 	gchar  **strv;
-	gint     i;
+	gint i;
 
 	strv = g_new0 (gchar*, length + 1);
 
@@ -156,45 +156,45 @@ gboolean
 tracker_gslist_with_string_data_equal (GSList *list1,
                                        GSList *list2)
 {
-        GSList *sl;
+	GSList *sl;
 
-        if (list1 == list2) {
-                return TRUE;
-        }
+	if (list1 == list2) {
+		return TRUE;
+	}
 
-        if (g_slist_length (list1) != g_slist_length (list2)) {
-                return FALSE;
-        }
+	if (g_slist_length (list1) != g_slist_length (list2)) {
+		return FALSE;
+	}
 
-        /* NOTE: This is probably not the most efficient way to do
-         * this, but we don't want to order the list first since that
-         * would involve creating new memory. This would make sense
-         * for large list operations I think. We don't expect to be
-         * doing much if any of that.
-         */
-        for (sl = list1; sl; sl = sl->next) {
-                const gchar *str;
+	/* NOTE: This is probably not the most efficient way to do
+	 * this, but we don't want to order the list first since that
+	 * would involve creating new memory. This would make sense
+	 * for large list operations I think. We don't expect to be
+	 * doing much if any of that.
+	 */
+	for (sl = list1; sl; sl = sl->next) {
+		const gchar *str;
 
-                str = sl->data;
+		str = sl->data;
 
-                /* If we are not still in the list, remove the dir */
-                if (!tracker_string_in_gslist (str, list2)) {
-                        return FALSE;
-                }
-        }
+		/* If we are not still in the list, remove the dir */
+		if (!tracker_string_in_gslist (str, list2)) {
+			return FALSE;
+		}
+	}
 
-        for (sl = list2; sl; sl = sl->next) {
-                const gchar *str;
+	for (sl = list2; sl; sl = sl->next) {
+		const gchar *str;
 
-                str = sl->data;
+		str = sl->data;
 
-                /* If we are now in the list, add the dir */
-                if (!tracker_string_in_gslist (str, list1)) {
-                        return FALSE;
-                }
-        }
+		/* If we are now in the list, add the dir */
+		if (!tracker_string_in_gslist (str, list1)) {
+			return FALSE;
+		}
+	}
 
-        return TRUE;
+	return TRUE;
 }
 
 GSList *

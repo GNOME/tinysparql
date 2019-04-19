@@ -31,7 +31,7 @@
 
 #include "tracker-sql.h"
 
-#define SQL_OPTIONS_ENABLED()	  \
+#define SQL_OPTIONS_ENABLED()     \
 	(file || \
 	 query)
 
@@ -54,7 +54,7 @@ static int
 sql_by_file (void)
 {
 	GError *error = NULL;
-	gchar *path_in_utf8;
+	gchar  *path_in_utf8;
 	gsize size;
 
 	path_in_utf8 = g_filename_to_utf8 (file, -1, NULL, NULL, &error);
