@@ -195,7 +195,7 @@ function_sparql_string_join (sqlite3_context *context,
 
 	separator = (gchar *)sqlite3_value_text (argv[argc-1]);
 
-	for (i = 0;i < argc-1; i++) {
+	for (i = 0; i < argc-1; i++) {
 		if (sqlite3_value_type (argv[argc-1]) == SQLITE_TEXT) {
 			const gchar *text = (gchar *)sqlite3_value_text (argv[i]);
 
