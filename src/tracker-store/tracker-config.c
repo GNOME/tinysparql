@@ -143,7 +143,7 @@ config_finalize (GObject *object)
 	 * future expansion.
 	 */
 
-	(G_OBJECT_CLASS (tracker_config_parent_class)->finalize) (object);
+	(G_OBJECT_CLASS (tracker_config_parent_class)->finalize)(object);
 }
 
 static void
@@ -151,7 +151,7 @@ config_constructed (GObject *object)
 {
 	GSettings *settings;
 
-	(G_OBJECT_CLASS (tracker_config_parent_class)->constructed) (object);
+	(G_OBJECT_CLASS (tracker_config_parent_class)->constructed)(object);
 
 	settings = G_SETTINGS (object);
 

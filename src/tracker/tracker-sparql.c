@@ -623,7 +623,7 @@ tree_node_find_foreach (GNode    *node,
 
 	data = user_data;
 
-	if ((data->func) (data->class, node_data->class)) {
+	if ((data->func)(data->class, node_data->class)) {
 		data->node = node;
 		return TRUE;
 	}

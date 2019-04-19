@@ -182,7 +182,7 @@ property_finalize (GObject *object)
 
 	g_free (priv->default_value);
 
-	(G_OBJECT_CLASS (tracker_property_parent_class)->finalize) (object);
+	(G_OBJECT_CLASS (tracker_property_parent_class)->finalize)(object);
 }
 
 /**

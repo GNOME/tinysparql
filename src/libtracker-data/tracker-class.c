@@ -97,7 +97,7 @@ class_finalize (GObject *object)
 		g_array_free (priv->last_super_classes, TRUE);
 	}
 
-	(G_OBJECT_CLASS (tracker_class_parent_class)->finalize) (object);
+	(G_OBJECT_CLASS (tracker_class_parent_class)->finalize)(object);
 }
 
 TrackerClass *

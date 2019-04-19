@@ -109,7 +109,7 @@ tracker_data_provider_begin (TrackerDataProvider    *data_provider,
 		return NULL;
 	}
 
-	return (* iface->begin) (data_provider, url, attributes, flags, cancellable, error);
+	return (*iface->begin)(data_provider, url, attributes, flags, cancellable, error);
 }
 
 /**
@@ -169,7 +169,7 @@ tracker_data_provider_begin_async (TrackerDataProvider   *data_provider,
 		return;
 	}
 
-	(* iface->begin_async) (data_provider, url, attributes, flags, io_priority, cancellable, callback, user_data);
+	(*iface->begin_async)(data_provider, url, attributes, flags, io_priority, cancellable, callback, user_data);
 }
 
 /**
@@ -203,5 +203,5 @@ tracker_data_provider_begin_finish (TrackerDataProvider  *data_provider,
 		return NULL;
 	}
 
-	return (* iface->begin_finish) (data_provider, result, error);
+	return (*iface->begin_finish)(data_provider, result, error);
 }

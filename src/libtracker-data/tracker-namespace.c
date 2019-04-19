@@ -66,7 +66,7 @@ namespace_finalize (GObject *object)
 	g_free (priv->uri);
 	g_free (priv->prefix);
 
-	(G_OBJECT_CLASS (tracker_namespace_parent_class)->finalize) (object);
+	(G_OBJECT_CLASS (tracker_namespace_parent_class)->finalize)(object);
 }
 
 TrackerNamespace *

@@ -63,7 +63,7 @@ ontology_finalize (GObject *object)
 
 	g_free (priv->uri);
 
-	(G_OBJECT_CLASS (tracker_ontology_parent_class)->finalize) (object);
+	(G_OBJECT_CLASS (tracker_ontology_parent_class)->finalize)(object);
 }
 
 TrackerOntology *

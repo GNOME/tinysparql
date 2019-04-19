@@ -442,7 +442,7 @@ find_node_foreach (GNode    *node,
 	FindNodeData *data = user_data;
 	NodeData *node_data = node->data;
 
-	if ((data->func) (data->file, node_data->file)) {
+	if ((data->func)(data->file, node_data->file)) {
 		data->node = node;
 		return TRUE;
 	}
