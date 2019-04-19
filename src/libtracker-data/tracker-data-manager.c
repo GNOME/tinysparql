@@ -2812,7 +2812,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 				 * the unique index for proper constraints */
 			}
 
-			error_out:
+error_out:
 
 			if (sql) {
 				g_string_free (sql, TRUE);
