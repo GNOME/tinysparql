@@ -406,7 +406,7 @@ check_unsupported_property_value_change (TrackerDataManager *manager,
 	TrackerDBCursor *cursor;
 
 	query = g_strdup_printf ("SELECT ?old_value WHERE { "
-	                           "<%s> %s ?old_value "
+	                         "  <%s> %s ?old_value "
 	                         "}", subject, kind);
 
 	cursor = tracker_data_query_sparql_cursor (manager, query, &error);
@@ -466,7 +466,7 @@ update_property_value (TrackerDataManager  *manager,
 		TrackerDBCursor *cursor;
 
 		query = g_strdup_printf ("SELECT ?old_value WHERE { "
-		                           "<%s> %s ?old_value "
+		                         "  <%s> %s ?old_value "
 		                         "}", subject, kind);
 
 		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
@@ -544,7 +544,7 @@ check_range_conversion_is_allowed (TrackerDataManager  *manager,
 	gchar *query;
 
 	query = g_strdup_printf ("SELECT ?old_value WHERE { "
-	                           "<%s> rdfs:range ?old_value "
+	                         "  <%s> rdfs:range ?old_value "
 	                         "}", subject);
 
 	cursor = tracker_data_query_sparql_cursor (manager, query, NULL);
@@ -2708,15 +2708,16 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			}
 
 			sql = g_string_new ("");
-			g_string_append_printf (sql, "CREATE TABLE \"%s_%s\" ("
-			                             "ID INTEGER NOT NULL, "
-			                             "\"%s\" %s NOT NULL, "
-			                             "\"%s:graph\" INTEGER",
-			                             service_name,
-			                             field_name,
-			                             field_name,
-			                             sql_type,
-			                             field_name);
+			g_string_append_printf (sql,
+			                        "CREATE TABLE \"%s_%s\" ("
+			                        "ID INTEGER NOT NULL, "
+			                        "\"%s\" %s NOT NULL, "
+			                        "\"%s:graph\" INTEGER",
+			                        service_name,
+			                        field_name,
+			                        field_name,
+			                        sql_type,
+			                        field_name);
 
 			if (in_change && !tracker_property_get_is_new (property)) {
 				in_col_sql = g_string_new ("ID");
@@ -4473,9 +4474,9 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		 * has changed since we dealt with the file last time. */
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &n_error,
-		        "SELECT Resource.Uri, \"rdfs:Resource\".\"nao:lastModified\" FROM \"tracker:Ontology\" "
-		        "INNER JOIN Resource ON Resource.ID = \"tracker:Ontology\".ID "
-		        "INNER JOIN \"rdfs:Resource\" ON \"tracker:Ontology\".ID = \"rdfs:Resource\".ID");
+		                                              "SELECT Resource.Uri, \"rdfs:Resource\".\"nao:lastModified\" FROM \"tracker:Ontology\" "
+		                                              "INNER JOIN Resource ON Resource.ID = \"tracker:Ontology\".ID "
+		                                              "INNER JOIN \"rdfs:Resource\" ON \"tracker:Ontology\".ID = \"rdfs:Resource\".ID");
 
 		if (stmt) {
 			cursor = tracker_db_statement_start_cursor (stmt, &n_error);

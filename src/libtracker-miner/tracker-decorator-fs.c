@@ -170,8 +170,9 @@ check_files (TrackerDecorator    *decorator,
 		                        mount_point_urn);
 	}
 
-	g_string_append (query, " a nfo:FileDataObject ;"
-	                        " a ?type .");
+	g_string_append (query,
+	                 " a nfo:FileDataObject ;"
+	                 " a ?type .");
 	g_string_append_printf (query,
 	                        "FILTER (! EXISTS { ?urn nie:dataSource <%s> } ",
 	                        data_source);
