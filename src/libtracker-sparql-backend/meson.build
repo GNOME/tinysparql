@@ -62,7 +62,7 @@ tracker_sparql_gir = custom_target('tracker-sparql-gir',
     install_dir: gir_dir)
 
 tracker_sparql_typelib = custom_target('tracker-sparql-typelib',
-    command: [g_ir_compiler, '--output', '@OUTPUT@', '@INPUT@'],
+    command: [g_ir_compiler, '--includedir', build_root, '--output', '@OUTPUT@', '@INPUT@'],
     input: tracker_sparql_gir,
     output: 'Tracker-@0@.typelib'.format(tracker_api_version),
     install: true,
