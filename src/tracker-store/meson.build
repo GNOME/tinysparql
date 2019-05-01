@@ -43,7 +43,6 @@ dbus_service_file = configure_file(
     input: 'org.freedesktop.Tracker1.service.in',
     output: 'org.freedesktop.Tracker1.service',
     configuration: conf,
-    install: true,
     install_dir: dbus_services_dir)
 
 i18n.merge_file('tracker-store-desktop-file',
@@ -59,7 +58,6 @@ if install_systemd_user_services
       input: 'tracker-store.service.in',
       output: 'tracker-store.service',
       configuration: conf,
-      install: true,
       install_dir: systemd_user_services_dir)
 endif
 

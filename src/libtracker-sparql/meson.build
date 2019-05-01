@@ -91,7 +91,6 @@ configure_file(
     input: 'tracker-sparql.pc.in',
     output: 'tracker-sparql-@0@.pc'.format(tracker_api_version),
     configuration: conf,
-    install: true,
     install_dir: join_paths(get_option('prefix'), get_option('libdir'), 'pkgconfig'))
 
 install_headers(

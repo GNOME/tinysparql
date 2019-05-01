@@ -10,7 +10,6 @@ foreach schema : tracker_gsettings_schemas
     input: schema,
     output: '@PLAINNAME@',
     copy: true,
-    install: true,
     install_dir: gsettings_schema_dir)
 endforeach
 
