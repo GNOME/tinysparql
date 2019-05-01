@@ -15,7 +15,7 @@ foreach schema : tracker_gsettings_schemas
 endforeach
 
 tracker_store_settings_enums = custom_target('tracker-store-settings-enums',
-    input: '../src/libtracker-common/tracker-enums.h',
+    input: tracker_common_enums_header,
     output: 'org.freedesktop.Tracker.enums.xml',
     command: [glib_mkenums,
               '--comments', '<!-- @comment@ -->',

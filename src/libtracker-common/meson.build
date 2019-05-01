@@ -1,7 +1,9 @@
 subdir('stop-words')
 
+tracker_common_enums_header = files('tracker-enums.h')
+
 enums = gnome.mkenums('tracker-enum-types',
-  sources: 'tracker-enums.h',
+  sources: tracker_common_enums_header,
   c_template: 'tracker-enum-types.c.template',
   h_template: 'tracker-enum-types.h.template',
 )
