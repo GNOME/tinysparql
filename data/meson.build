@@ -1,14 +1,14 @@
-schemas = [
+tracker_gsettings_schemas = files([
   'org.freedesktop.Tracker.DB.gschema.xml',
   'org.freedesktop.Tracker.FTS.gschema.xml',
   'org.freedesktop.Tracker.gschema.xml',
   'org.freedesktop.Tracker.Store.gschema.xml'
-]
+])
 
-foreach schema : schemas
+foreach schema : tracker_gsettings_schemas
   schemas = configure_file(
     input: schema,
-    output: schema,
+    output: '@PLAINNAME@',
     copy: true,
     install: true,
     install_dir: gsettings_schema_dir)
@@ -28,9 +28,13 @@ tracker_store_settings_enums = custom_target('tracker-store-settings-enums',
     install: true,
     install_dir: gsettings_schema_dir)
 
-# for unit tests
+# Compile schemas locally so that the functional-tests can use them without
+# them being installed into /usr.
+#
 custom_target('compile-schemas',
   output: 'gschemas.compiled',
   command: [find_program('glib-compile-schemas'), meson.current_build_dir()],
   build_by_default: true,
   depends: tracker_store_settings_enums)
+
+tracker_uninstalled_gsettings_schema_dir = meson.current_build_dir()
