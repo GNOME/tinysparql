@@ -274,6 +274,7 @@ reset_run (void)
 		                                     NULL,
 		                                     NULL,
 		                                     NULL,
+		                                     NULL,
 		                                     &error);
 
 		if (!db_manager) {

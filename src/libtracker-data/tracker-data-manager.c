@@ -4201,14 +4201,12 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                                              manager->update_cache_size,
 	                                              busy_callback, manager, "",
 	                                              G_OBJECT (manager),
+						      manager->ontologies,
 	                                              &internal_error);
 	if (!manager->db_manager) {
 		g_propagate_error (error, internal_error);
 		return FALSE;
 	}
-
-	tracker_db_manager_set_vtab_user_data (manager->db_manager,
-					       manager->ontologies);
 
 	manager->first_time_index = is_first_time_index;
 
@@ -4800,9 +4798,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			}
 		}
 	}
-
-	tracker_db_manager_set_vtab_user_data (manager->db_manager,
-					       manager->ontologies);
 
 skip_ontology_check:
 
