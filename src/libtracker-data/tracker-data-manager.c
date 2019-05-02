@@ -3954,7 +3954,6 @@ static void
 load_ontologies_gvdb (TrackerDataManager  *manager,
                       GError             **error)
 {
-	TrackerOntologies *ontologies;
 	gchar *filename;
 	GFile *child;
 
@@ -3962,13 +3961,7 @@ load_ontologies_gvdb (TrackerDataManager  *manager,
 	filename = g_file_get_path (child);
 	g_object_unref (child);
 
-	ontologies = tracker_ontologies_load_gvdb (filename, error);
-
-	if (ontologies != NULL) {
-		g_object_unref (manager->ontologies);
-		manager->ontologies = ontologies;
-	}
-
+	tracker_ontologies_load_gvdb (manager->ontologies, filename, error);
 	g_free (filename);
 }
 
@@ -4208,14 +4201,12 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                                              manager->update_cache_size,
 	                                              busy_callback, manager, "",
 	                                              G_OBJECT (manager),
+						      manager->ontologies,
 	                                              &internal_error);
 	if (!manager->db_manager) {
 		g_propagate_error (error, internal_error);
 		return FALSE;
 	}
-
-	tracker_db_manager_set_vtab_user_data (manager->db_manager,
-					       manager->ontologies);
 
 	manager->first_time_index = is_first_time_index;
 
@@ -4807,9 +4798,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			}
 		}
 	}
-
-	tracker_db_manager_set_vtab_user_data (manager->db_manager,
-					       manager->ontologies);
 
 skip_ontology_check:
 

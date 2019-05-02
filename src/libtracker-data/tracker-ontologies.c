@@ -613,26 +613,25 @@ tracker_ontologies_write_gvdb (TrackerOntologies  *ontologies,
 	return retval;
 }
 
-TrackerOntologies *
-tracker_ontologies_load_gvdb (const gchar  *filename,
-                              GError      **error)
+gboolean
+tracker_ontologies_load_gvdb (TrackerOntologies  *ontologies,
+			      const gchar        *filename,
+                              GError            **error)
 {
-	TrackerOntologies *ontologies;
 	TrackerOntologiesPrivate *priv;
+	GvdbTable *gvdb_table;
 
-	ontologies = tracker_ontologies_new ();
 	priv = tracker_ontologies_get_instance_private (ontologies);
 
-	priv->gvdb_table = gvdb_table_new (filename, TRUE, error);
-	if (!priv->gvdb_table) {
-		g_object_unref (ontologies);
-		return NULL;
-	}
+	gvdb_table = gvdb_table_new (filename, TRUE, error);
+	if (!gvdb_table)
+		return FALSE;
 
+	priv->gvdb_table = gvdb_table;
 	priv->gvdb_namespaces_table = gvdb_table_get_table (priv->gvdb_table, "namespaces");
 	priv->gvdb_classes_table = gvdb_table_get_table (priv->gvdb_table, "classes");
 	priv->gvdb_properties_table = gvdb_table_get_table (priv->gvdb_table, "properties");
-	return ontologies;
+	return TRUE;
 }
 
 GVariant *

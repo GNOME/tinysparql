@@ -55,6 +55,7 @@ TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerF
                                                                gpointer                busy_user_data,
                                                                const gchar            *busy_operation,
                                                                GObject                *iface_data,
+                                                               gpointer                vtab_data,
                                                                GError                **error);
 void                tracker_db_manager_free                   (TrackerDBManager      *db_manager);
 void                tracker_db_manager_remove_all             (TrackerDBManager      *db_manager);
@@ -94,9 +95,6 @@ gboolean            tracker_db_manager_get_tokenizer_changed  (TrackerDBManager 
 void                tracker_db_manager_tokenizer_update       (TrackerDBManager      *db_manager);
 
 void                tracker_db_manager_check_perform_vacuum   (TrackerDBManager      *db_manager);
-
-void                tracker_db_manager_set_vtab_user_data     (TrackerDBManager      *db_manager,
-                                                               gpointer               user_data);
 
 G_END_DECLS
 

@@ -586,6 +586,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 			gpointer                busy_user_data,
 			const gchar            *busy_operation,
                         GObject                *iface_data,
+                        gpointer                vtab_data,
 			GError                **error)
 {
 	TrackerDBManager *db_manager;
@@ -605,6 +606,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	}
 
 	db_manager = g_new0 (TrackerDBManager, 1);
+	db_manager->vtab_data = vtab_data;
 
 	/* First set defaults for return values */
 	if (first_time) {
@@ -1262,11 +1264,4 @@ tracker_db_manager_check_perform_vacuum (TrackerDBManager *db_manager)
 
 	iface = tracker_db_manager_get_writable_db_interface (db_manager);
 	tracker_db_interface_execute_query (iface, NULL, "VACUUM");
-}
-
-void
-tracker_db_manager_set_vtab_user_data (TrackerDBManager *db_manager,
-                                       gpointer          user_data)
-{
-	db_manager->vtab_data = user_data;
 }
