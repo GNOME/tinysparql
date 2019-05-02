@@ -1,3 +1,17 @@
+NEW in 2.2.2 - 2019-05-02
+=========================
+
+  * Fixed initialization of virtual tables
+  * Fixed segmentation fault in libtracker-miner
+  * Don't try to create JSON-LD nodes with unsigned integers
+  * Handle correctly backreferences in TrackerResource tree
+  * Many documentation fixes
+  * Fixed handling doubles with exponents in SPARQL
+  * Don't limit to specific desktop environments
+  * Build and test fixes
+
+Translations: hr
+
 NEW in 2.2.1 - 2019-03-06
 =========================
 
