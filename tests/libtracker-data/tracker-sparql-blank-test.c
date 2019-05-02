@@ -141,8 +141,6 @@ teardown (TestInfo      *info,
 	gchar *cleanup_command;
 
 	/* clean up */
-	g_print ("Removing temporary data (%s)\n", info->data_location);
-
 	cleanup_command = g_strdup_printf ("rm -Rf %s/", info->data_location);
 	g_spawn_command_line_sync (cleanup_command, NULL, NULL, NULL, NULL);
 	g_free (cleanup_command);
