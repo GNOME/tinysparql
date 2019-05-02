@@ -93,7 +93,8 @@ void               tracker_ontologies_add_id_uri_pair      (TrackerOntologies *o
 gboolean           tracker_ontologies_write_gvdb           (TrackerOntologies  *ontologies,
                                                             const gchar        *filename,
                                                             GError            **error);
-TrackerOntologies *tracker_ontologies_load_gvdb            (const gchar        *filename,
+gboolean           tracker_ontologies_load_gvdb            (TrackerOntologies  *ontologies,
+                                                            const gchar        *filename,
                                                             GError            **error);
 GVariant *         tracker_ontologies_get_namespace_value_gvdb  (TrackerOntologies *ontologies,
                                                                  const gchar       *uri,
