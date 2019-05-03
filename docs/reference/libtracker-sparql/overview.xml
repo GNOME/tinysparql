@@ -16,45 +16,12 @@
     <title>Connection methods</title>
 
     <para>
-      The Tracker SPARQL library provides several underlying methods to perform
-      queries and updates to the Tracker Store.
-
-      <itemizedlist>
-	<listitem>
-	  <emphasis>Direct Access:</emphasis>
-	  <para>
-	    All Read-Only operations done in a
-	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
-	    will by default use this method, as it doesn't involve any D-Bus traffic,
-	    and thus, it will perform much better. There is no real connection with
-	    the Tracker Store in this case, as the access is direct to the underlying
-	    SQLite database. Again, note that this method applies only to
-	    <emphasis>Read-Only</emphasis> operations.
-	  </para>
-	  <para>
-	    If you plan to only do Read-Only queries to the store, you can get the
-	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
-	    object using <function><link linkend="tracker-sparql-connection-get-direct">tracker_sparql_connection_get_direct</link></function>. Otherwise, if you also plan to use the same connection object
-	    for <emphasis>Write</emphasis> operations, you must get the connection object with
-	    <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>.
-	  </para>
-	</listitem>
-	<listitem>
-	  <emphasis>D-Bus FD passing:</emphasis>
-	  <para>
-	    The <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
-	    will use the File Descriptor passing method via D-Bus to connect to the Store for all non
-		Read-Only queries on
-	    <type><link linkend="TrackerSparqlConnection-struct">TrackerSparqlConnection</link></type>
-	    objects obtained with
-	    <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>.
-	  </para>
-      <para>
-		See the <link linkend="tracker-overview-environment-variables">Environment Variables</link> section
-		to check how you can force also Read-Only queries to be done using D-Bus.
-      </para>
-	</listitem>
-      </itemizedlist>
+        To access the session-wide Tracker store, you should call
+        <function><link linkend="tracker-sparql-connection-get">tracker_sparql_connection_get</link></function>.
+    </para>
+    <para>
+        You can create and access a private store using
+        <function><link linkend="tracker-sparql-connection-local-new">tracker_sparql_connection_local_new</link></function>.
     </para>
   </chapter>
 
