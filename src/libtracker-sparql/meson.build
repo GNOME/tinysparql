@@ -76,6 +76,7 @@ libtracker_sparql_intermediate_c = static_library('tracker-sparql-intermediate-c
     enums_c, enums_h,
     libtracker_sparql_c_sources,
     dependencies: [tracker_common_dep, json_glib],
+    link_with: libtracker_sparql_intermediate_vala,
 )
 
 sparqlinc = [include_directories('.'), meson.current_build_dir()]
