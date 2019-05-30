@@ -2423,26 +2423,33 @@ translate_Create (TrackerSparql  *sparql,
 		silent = TRUE;
 
 	_call_rule (sparql, NAMED_RULE_GraphRef, error);
+	g_assert (!tracker_token_is_empty (&sparql->current_state.graph));
 
-	if (!tracker_token_is_empty (&sparql->current_state.graph)) {
-		const gchar *graph_name;
+	graph_name = tracker_token_get_idstring (&sparql->current_state.graph);
 
-		graph_name = tracker_token_get_idstring (&sparql->current_state.graph);
-
-		if (!tracker_data_manager_create_graph (sparql->data_manager,
-		                                        graph_name,
-		                                        &inner_error)) {
-			if (silent) {
-				g_error_free (inner_error);
-				return TRUE;
-			} else {
-				g_propagate_error (error, inner_error);
-				return FALSE;
-			}
-		}
+	if (tracker_data_manager_find_graph (sparql->data_manager, graph_name) != 0) {
+		inner_error = g_error_new (TRACKER_SPARQL_ERROR,
+		                           TRACKER_SPARQL_ERROR_CONSTRAINT,
+		                           "Graph '%s' already exists",
+		                           graph_name);
+		goto error;
 	}
 
+	if (!tracker_data_manager_create_graph (sparql->data_manager,
+	                                        graph_name,
+	                                        &inner_error))
+		goto error;
+
 	return TRUE;
+
+error:
+	if (silent) {
+		g_error_free (inner_error);
+		return TRUE;
+	} else {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
 }
 
 static gboolean
@@ -3234,9 +3241,95 @@ static gboolean
 translate_ServiceGraphPattern (TrackerSparql  *sparql,
                                GError        **error)
 {
+	gssize pattern_start, pattern_end;
+	TrackerParserNode *pattern, *node;
+	gchar *pattern_str, *escaped_str, *var_str;
+	TrackerContext *context;
+	GList *variables = NULL;
+	TrackerToken service;
+	GString *service_sparql;
+	gboolean silent = FALSE, do_join;
+	gint i = 0;
+
 	/* ServiceGraphPattern ::= 'SERVICE' 'SILENT'? VarOrIri GroupGraphPattern
 	 */
-	_unimplemented ("SERVICE");
+	do_join = !tracker_string_builder_is_empty (sparql->current_state.sql);
+
+	if (do_join) {
+		_prepend_string (sparql, "SELECT * FROM (");
+		_append_string (sparql, ") NATURAL INNER JOIN (");
+	}
+
+	context = tracker_triple_context_new ();
+	tracker_sparql_push_context (sparql, context);
+
+	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_SERVICE);
+
+	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_SILENT))
+		silent = TRUE;
+
+	_call_rule (sparql, NAMED_RULE_VarOrIri, error);
+	_init_token (&service, sparql->current_state.prev_node, sparql);
+
+	pattern = _skip_rule (sparql, NAMED_RULE_GroupGraphPattern);
+	_append_string (sparql, "SELECT ");
+	service_sparql = g_string_new ("SELECT ");
+
+	for (node = tracker_sparql_parser_tree_find_first (pattern, TRUE);
+	     node;
+	     node = tracker_sparql_parser_tree_find_next (node, TRUE)) {
+		const TrackerGrammarRule *rule;
+		TrackerBinding *binding;
+		TrackerVariable *var;
+
+		if (!g_node_is_ancestor ((GNode *) pattern, (GNode *) node))
+			break;
+
+		rule = tracker_parser_node_get_rule (node);
+
+		if (!tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
+		                                TERMINAL_TYPE_VAR1) &&
+		    !tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
+						TERMINAL_TYPE_VAR2))
+			continue;
+
+		if (i > 0)
+			_append_string (sparql, ", ");
+
+		var_str = _extract_node_string (node, sparql);
+		var = _extract_node_variable (node, sparql);
+		variables = g_list_prepend (variables, var);
+		binding = tracker_variable_binding_new (var, NULL, NULL);
+		_add_binding (sparql, binding);
+
+
+		_append_string_printf (sparql, "col%d AS %s ",
+				       i, tracker_variable_get_sql_expression (var));
+		g_string_append_printf (service_sparql, "?%s ", var_str);
+		g_free (var_str);
+		i++;
+	}
+
+	tracker_parser_node_get_extents (pattern, &pattern_start, &pattern_end);
+	pattern_str = g_strndup (&sparql->sparql[pattern_start], pattern_end - pattern_start);
+	escaped_str = _escape_sql_string (pattern_str);
+	g_string_append (service_sparql, escaped_str);
+	g_free (pattern_str);
+	g_free (escaped_str);
+
+	_append_string_printf (sparql, "FROM tracker_service WHERE service=\"%s\" AND query=\"%s\" AND silent=%d ",
+			       tracker_token_get_idstring (&service),
+			       service_sparql->str,
+			       silent);
+
+	tracker_token_unset (&service);
+	tracker_sparql_pop_context (sparql, TRUE);
+	g_string_free (service_sparql, TRUE);
+
+	if (do_join)
+		_append_string (sparql, ") ");
+
+	return TRUE;
 }
 
 static gboolean
