@@ -33,7 +33,7 @@ tracker_store_settings_enums = custom_target('tracker-store-settings-enums',
 #
 custom_target('compile-schemas',
   output: 'gschemas.compiled',
-  command: [find_program('glib-compile-schemas'), meson.current_build_dir()],
+  command: [glib_compile_schemas, meson.current_build_dir()],
   build_by_default: true,
   depends: tracker_store_settings_enums)
 
