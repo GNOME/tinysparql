@@ -13,11 +13,8 @@ libtracker_bus = static_library('tracker-bus',
         # doesn't seem to work here.
         '--target-glib', glib_required,
     ],
-    # This doesn't depend on tracker_common_dep because of
-    # https://github.com/mesonbuild/meson/issues/671
-    dependencies: [glib, gio, gio_unix, tracker_sparql_intermediate_dep],
+    dependencies: [tracker_common_dep, tracker_sparql_intermediate_dep],
     include_directories: [commoninc, configinc, srcinc],
-    link_with: libtracker_common,
 )
 
 tracker_sparql_bus_dep = declare_dependency(

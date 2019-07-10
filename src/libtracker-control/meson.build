@@ -13,12 +13,9 @@ libtracker_control = library('tracker-control-' + tracker_api_version,
     version: libversion,
     install: true,
     install_rpath: tracker_internal_libs_dir,
-    # This doesn't depend on tracker_common_dep because of
-    # https://github.com/mesonbuild/meson/issues/671
-    dependencies: [gio, tracker_sparql_dep, tracker_miner_dep],
+    dependencies: [tracker_common_dep, tracker_sparql_dep, tracker_miner_dep],
     include_directories: [commoninc, configinc, srcinc],
     link_args: vflag,
-    link_with: libtracker_common,
 )
 
 controlinc = include_directories('.')
