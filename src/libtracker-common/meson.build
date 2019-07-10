@@ -39,6 +39,12 @@ if build_machine.system() == 'openbsd'
   tracker_common_dependencies += libkvm
 endif
 
+# We build libtracker-common as a shared library, even though it's
+# for internal use only. The fact is that we can't link to it statically
+# in libtracker-sparql, because that library is used inside tracker-miners
+# which has its own incompatible libtracker-miners-common library.
+#
+# See: https://gitlab.gnome.org/GNOME/tracker/issues/116
 libtracker_common = library('tracker-common',
   tracker_common_sources,
   dependencies: tracker_common_dependencies + [unicode_library],
