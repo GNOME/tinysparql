@@ -30,7 +30,7 @@ tracker_store = executable('tracker-store',
     ],
     install: true,
     install_dir: join_paths(get_option('prefix'), get_option('libexecdir')),
-    install_rpath: tracker_internal_libs_dir)
+    install_rpath: tracker_install_rpath)
 
 install_data(
     'tracker-backup.xml',
