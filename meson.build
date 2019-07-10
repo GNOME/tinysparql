@@ -322,6 +322,7 @@ po_subdir = join_paths(source_root, 'po')
 gsettings_schema_dir = join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
 
 tracker_internal_libs_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tracker-' + tracker_api_version)
+tracker_install_rpath = ':'.join([tracker_internal_libs_dir, libdir])
 
 # NOTE: We don't use ${TRACKER_API_VERSION} because other content like
 # the ontology is installed to the same location.
