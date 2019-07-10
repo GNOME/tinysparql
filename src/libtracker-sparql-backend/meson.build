@@ -16,11 +16,6 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
     link_args: vflag,
     link_whole: [libtracker_sparql_intermediate_c, libtracker_sparql_intermediate_vala],
 
-    # We need to pass this because link_whole doesn't trigger the .vapi
-    # to be included in some versions of Meson.
-    # https://github.com/mesonbuild/meson/pull/2030
-    link_with: libtracker_sparql_intermediate_vala,
-
     dependencies: [tracker_common_dep, tracker_sparql_remote_dep, tracker_sparql_bus_dep, tracker_sparql_direct_dep, libtracker_sparql_c_vapi_dep],
 )
 
