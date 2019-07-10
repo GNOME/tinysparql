@@ -319,7 +319,7 @@ source_root = meson.current_source_dir()
 build_root = meson.current_build_dir()
 po_subdir = join_paths(source_root, 'po')
 
-gsettings_schema_dir = join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
+gsettings_schema_dir = join_paths(get_option('prefix'), get_option('datadir'), 'glib-2.0', 'schemas')
 
 tracker_internal_libs_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tracker-' + tracker_api_version)
 tracker_install_rpath = ':'.join([tracker_internal_libs_dir, libdir])
