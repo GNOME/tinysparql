@@ -65,7 +65,8 @@ static gboolean helper_translate_date (TrackerSparql  *sparql,
 static gboolean helper_translate_time (TrackerSparql  *sparql,
                                        guint           format,
                                        GError        **error);
-static TrackerDBStatement * prepare_query (TrackerDBInterface    *iface,
+static TrackerDBStatement * prepare_query (TrackerSparql         *sparql,
+                                           TrackerDBInterface    *iface,
                                            TrackerStringBuilder  *str,
                                            GPtrArray             *literals,
                                            GHashTable            *parameters,
@@ -3588,7 +3589,7 @@ get_solution_for_pattern (TrackerSparql      *sparql,
 	}
 
 	iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
-	stmt = prepare_query (iface, sparql->sql,
+	stmt = prepare_query (sparql, iface, sparql->sql,
 	                      TRACKER_SELECT_CONTEXT (sparql->context)->literal_bindings,
 	                      NULL, FALSE,
 	                      error);
@@ -8238,7 +8239,8 @@ tracker_sparql_new (TrackerDataManager *manager,
 }
 
 static TrackerDBStatement *
-prepare_query (TrackerDBInterface    *iface,
+prepare_query (TrackerSparql         *sparql,
+               TrackerDBInterface    *iface,
                TrackerStringBuilder  *str,
                GPtrArray             *literals,
 	       GHashTable            *parameters,
@@ -8356,7 +8358,7 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 		return NULL;
 
 	iface = tracker_data_manager_get_db_interface (sparql->data_manager);
-	stmt = prepare_query (iface, sparql->sql,
+	stmt = prepare_query (sparql, iface, sparql->sql,
 	                      TRACKER_SELECT_CONTEXT (sparql->context)->literal_bindings,
 			      parameters,
 	                      sparql->cacheable,
