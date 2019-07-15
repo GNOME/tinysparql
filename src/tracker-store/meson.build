@@ -21,6 +21,7 @@ tracker_store_sources = [
 
 tracker_store = executable('tracker-store',
     tracker_store_sources,
+    tracker_sparql_vapi,
     c_args: tracker_c_args + [
         '-include', 'config.h'
     ],

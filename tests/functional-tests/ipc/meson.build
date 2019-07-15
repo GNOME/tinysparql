@@ -4,7 +4,7 @@ functional_ipc_test_c_args = [
 ]
 
 insert_or_replace_test = executable('test-insert-or-replace',
-  'test-insert-or-replace.vala',
+  'test-insert-or-replace.vala', tracker_sparql_vapi,
   dependencies: [tracker_common_dep, tracker_sparql_dep])
 test('functional-ipc-insert-or-replace', insert_or_replace_test,
   env: test_env)
