@@ -134,7 +134,8 @@ enum {
 #if HAVE_TRACKER_FTS
 static gboolean tracker_data_manager_fts_changed (TrackerDataManager *manager);
 static void tracker_data_manager_update_fts (TrackerDataManager *manager,
-                                             TrackerDBInterface *iface);
+                                             TrackerDBInterface *iface,
+					     const gchar        *database);
 #endif
 
 static void tracker_data_manager_initable_iface_init (GInitableIface *iface);
@@ -3854,24 +3855,33 @@ static void
 rebuild_fts_tokens (TrackerDataManager *manager,
                     TrackerDBInterface *iface)
 {
-	g_debug ("Rebuilding FTS tokens, this may take a moment...");
-	tracker_db_interface_sqlite_fts_rebuild_tokens (iface);
-	g_debug ("FTS tokens rebuilt");
+	GHashTableIter iter;
+	gchar *graph;
 
+	g_debug ("Rebuilding FTS tokens, this may take a moment...");
+	tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main");
+
+	g_hash_table_iter_init (&iter, manager->graphs);
+	while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL))
+		tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph);
+
+	g_debug ("FTS tokens rebuilt");
 	/* Update the stamp file */
 	tracker_db_manager_tokenizer_update (manager->db_manager);
 }
 
 static gboolean
-tracker_data_manager_init_fts (TrackerDBInterface *iface,
+tracker_data_manager_init_fts (TrackerDataManager *manager,
+                               TrackerDBInterface *iface,
+                               const gchar        *database,
                                gboolean            create)
 {
 	GHashTable *fts_props, *multivalued;
-	TrackerDataManager *manager;
 
-	manager = tracker_db_interface_get_user_data (iface);
 	ontology_get_fts_properties (manager, &fts_props, &multivalued);
-	tracker_db_interface_sqlite_fts_init (iface, fts_props,
+	tracker_db_interface_sqlite_fts_init (iface,
+					      database,
+					      fts_props,
 	                                      multivalued, create);
 	g_hash_table_unref (fts_props);
 	g_hash_table_unref (multivalued);
@@ -3880,12 +3890,15 @@ tracker_data_manager_init_fts (TrackerDBInterface *iface,
 
 static void
 tracker_data_manager_update_fts (TrackerDataManager *manager,
-                                 TrackerDBInterface *iface)
+                                 TrackerDBInterface *iface,
+                                 const gchar        *database)
 {
 	GHashTable *fts_properties, *multivalued;
 
 	ontology_get_fts_properties (manager, &fts_properties, &multivalued);
-	tracker_db_interface_sqlite_fts_alter_table (iface, fts_properties, multivalued);
+	tracker_db_interface_sqlite_fts_alter_table (iface, database,
+						     fts_properties,
+						     multivalued);
 	g_hash_table_unref (fts_properties);
 	g_hash_table_unref (multivalued);
 }
@@ -4076,11 +4089,11 @@ tracker_data_manager_update_union_views (TrackerDataManager  *manager,
 		str = g_string_new (NULL);
 		g_string_append (str,
 		                 "CREATE VIEW temp.\"unionGraph_fts5\" AS "
-		                 "SELECT 0 AS graph, ROWID, *, fts5, rank, tracker_offsets(fts5) AS offsets FROM \"main\".\"fts5\" ");
+		                 "SELECT 0 AS graph, ROWID, *, fts5, rank FROM \"main\".\"fts5\" ");
 
 		g_hash_table_iter_init (&iter, graphs);
 		while (g_hash_table_iter_next (&iter, &graph_name, &graph_id)) {
-			g_string_append_printf (str, "UNION ALL SELECT %d AS graph, ROWID, *, fts5, rank, tracker_offsets(fts5) AS offsets FROM \"%s\".\"fts5\" ",
+			g_string_append_printf (str, "UNION ALL SELECT %d AS graph, ROWID, *, fts5, rank FROM \"%s\".\"fts5\" ",
 			                        GPOINTER_TO_INT (graph_id),
 			                        (gchar *) graph_name);
 		}
@@ -4223,11 +4236,15 @@ tracker_data_manager_initialize_iface (TrackerDataManager  *data_manager,
 			                                         error)) {
 				return FALSE;
 			}
+
+#if HAVE_TRACKER_FTS
+			tracker_data_manager_init_fts (data_manager, iface, value, FALSE);
+#endif
 		}
 	}
 
 #if HAVE_TRACKER_FTS
-	tracker_data_manager_init_fts (iface, FALSE);
+	tracker_data_manager_init_fts (data_manager, iface, "main", FALSE);
 #endif
 
 	return TRUE;
@@ -4531,7 +4548,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		}
 
 #if HAVE_TRACKER_FTS
-		tracker_data_manager_init_fts (iface, TRUE);
+		tracker_data_manager_init_fts (manager, iface, "main", TRUE);
 #endif
 
 		tracker_data_manager_initialize_iface (manager, iface, &internal_error);
@@ -4879,7 +4896,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				update_fts = tracker_data_manager_fts_changed (manager);
 
 				if (update_fts)
-					tracker_db_interface_sqlite_fts_delete_table (iface);
+					tracker_db_interface_sqlite_fts_delete_table (iface, "main");
 #endif
 
 				tracker_data_ontology_setup_db (manager, iface, "main", TRUE,
@@ -4894,19 +4911,30 @@ tracker_data_manager_initable_init (GInitable     *initable,
 					g_hash_table_iter_init (&iter, graphs);
 
 					while (g_hash_table_iter_next (&iter, &value, NULL)) {
+						if (update_fts)
+							tracker_db_interface_sqlite_fts_delete_table (iface, value);
+
 						tracker_data_ontology_setup_db (manager, iface, value, TRUE,
 						                                &ontology_error);
 						if (ontology_error)
 							break;
+
+#if HAVE_TRACKER_FTS
+						if (update_fts) {
+							tracker_data_manager_update_fts (manager, iface, value);
+						} else {
+							tracker_data_manager_init_fts (manager, iface, value, FALSE);
+						}
+#endif
 					}
 				}
 
 				if (!ontology_error) {
 #if HAVE_TRACKER_FTS
 					if (update_fts) {
-						tracker_data_manager_update_fts (manager, iface);
+						tracker_data_manager_update_fts (manager, iface, "main");
 					} else {
-						tracker_data_manager_init_fts (iface, FALSE);
+						tracker_data_manager_init_fts (manager, iface, "main", FALSE);
 					}
 #endif
 				}
@@ -5266,6 +5294,8 @@ tracker_data_manager_create_graph (TrackerDataManager  *manager,
 	if (!tracker_data_ontology_setup_db (manager, iface, name,
 	                                     FALSE, error))
 		goto detach;
+
+	tracker_data_manager_init_fts (manager, iface, name, TRUE);
 
 	id = tracker_data_ensure_graph (manager->data_update, name, error);
 	if (id == 0)

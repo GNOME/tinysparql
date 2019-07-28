@@ -2080,6 +2080,7 @@ _fts_create_properties (GHashTable *properties)
 
 void
 tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
+                                      const gchar         *database,
                                       GHashTable          *properties,
                                       GHashTable          *multivalued,
                                       gboolean             create)
@@ -2090,7 +2091,7 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 	tracker_fts_init_db (db_interface->db, db_interface, properties);
 
 	if (create &&
-	    !tracker_fts_create_table (db_interface->db, "fts5",
+	    !tracker_fts_create_table (db_interface->db, database, "fts5",
 				       properties, multivalued)) {
 		g_warning ("FTS tables creation failed");
 	}
@@ -2119,32 +2120,36 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 #if HAVE_TRACKER_FTS
 
 void
-tracker_db_interface_sqlite_fts_delete_table (TrackerDBInterface  *db_interface)
+tracker_db_interface_sqlite_fts_delete_table (TrackerDBInterface *db_interface,
+                                              const gchar        *database)
 {
-	if (!tracker_fts_delete_table (db_interface->db, "fts5")) {
+	if (!tracker_fts_delete_table (db_interface->db, database, "fts5")) {
 		g_critical ("Failed to delete FTS table");
 	}
 }
 
 void
 tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
-					     GHashTable          *properties,
-					     GHashTable          *multivalued)
+                                             const gchar         *database,
+                                             GHashTable          *properties,
+                                             GHashTable          *multivalued)
 {
-	if (!tracker_fts_alter_table (db_interface->db, "fts5", properties, multivalued)) {
+	if (!tracker_fts_alter_table (db_interface->db, database, "fts5", properties, multivalued)) {
 		g_critical ("Failed to update FTS columns");
 	}
 }
 
 static gchar *
 tracker_db_interface_sqlite_fts_create_query (TrackerDBInterface  *db_interface,
+                                              const gchar         *database,
                                               gboolean             delete,
                                               const gchar        **properties)
 {
 	GString *insert_str, *values_str;
 	gint i;
 
-	insert_str = g_string_new ("INSERT INTO fts5 (");
+	insert_str = g_string_new (NULL);
+	g_string_append_printf (insert_str, "INSERT INTO \"%s\".fts5 (", database);
 	values_str = g_string_new (NULL);
 
 	if (delete) {
@@ -2167,15 +2172,17 @@ tracker_db_interface_sqlite_fts_create_query (TrackerDBInterface  *db_interface,
 }
 
 static gchar *
-tracker_db_interface_sqlite_fts_create_delete_all_query (TrackerDBInterface *db_interface)
+tracker_db_interface_sqlite_fts_create_delete_all_query (TrackerDBInterface *db_interface,
+                                                         const gchar        *database)
 {
 	GString *insert_str;
 
 	insert_str = g_string_new (NULL);
 	g_string_append_printf (insert_str,
-	                        "INSERT INTO fts5 (fts5, rowid %s) "
+	                        "INSERT INTO \"%s\".fts5 (fts5, rowid %s) "
 	                        "SELECT 'delete', rowid %s FROM fts_view "
 	                        "WHERE rowid = ?",
+				database,
 	                        db_interface->fts_properties,
 	                        db_interface->fts_properties);
 	return g_string_free (insert_str, FALSE);
@@ -2183,6 +2190,7 @@ tracker_db_interface_sqlite_fts_create_delete_all_query (TrackerDBInterface *db_
 
 gboolean
 tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
+                                             const gchar         *database,
                                              int                  id,
                                              const gchar        **properties,
                                              const gchar        **text)
@@ -2193,6 +2201,7 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
 	gint i;
 
 	query = tracker_db_interface_sqlite_fts_create_query (db_interface,
+							      database,
 	                                                      FALSE, properties);
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
@@ -2228,6 +2237,7 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
 
 gboolean
 tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
+                                             const gchar         *database,
                                              int                  rowid,
                                              const gchar         *property,
                                              const gchar         *old_text)
@@ -2238,6 +2248,7 @@ tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
 	gchar *query;
 
 	query = tracker_db_interface_sqlite_fts_create_query (db_interface,
+							      database,
 	                                                      TRUE, properties);
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
@@ -2268,13 +2279,14 @@ tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
 
 gboolean
 tracker_db_interface_sqlite_fts_delete_id (TrackerDBInterface *db_interface,
+                                           const gchar        *database,
                                            int                 id)
 {
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
 	gchar *query;
 
-	query = tracker_db_interface_sqlite_fts_create_delete_all_query (db_interface);
+	query = tracker_db_interface_sqlite_fts_create_delete_all_query (db_interface, database);
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 	                                              &error,
@@ -2304,9 +2316,10 @@ tracker_db_interface_sqlite_fts_delete_id (TrackerDBInterface *db_interface,
 }
 
 void
-tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface *interface)
+tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface *interface,
+                                                const gchar        *database)
 {
-	tracker_fts_rebuild_tokens (interface->db, "fts5");
+	tracker_fts_rebuild_tokens (interface->db, database, "fts5");
 }
 
 #endif

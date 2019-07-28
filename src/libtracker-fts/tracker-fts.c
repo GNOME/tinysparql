@@ -79,10 +79,11 @@ tracker_fts_init_db (sqlite3            *db,
 }
 
 gboolean
-tracker_fts_create_table (sqlite3    *db,
-                          gchar      *table_name,
-                          GHashTable *tables,
-                          GHashTable *grouped_columns)
+tracker_fts_create_table (sqlite3     *db,
+                          const gchar *database,
+                          gchar       *table_name,
+                          GHashTable  *tables,
+                          GHashTable  *grouped_columns)
 {
 	GString *str, *from, *fts;
 	GHashTableIter iter;
@@ -95,12 +96,14 @@ tracker_fts_create_table (sqlite3    *db,
 
 	/* Create view on tables/columns marked as FTS-indexed */
 	g_hash_table_iter_init (&iter, tables);
-	str = g_string_new ("CREATE VIEW fts_view AS SELECT Resource.ID as rowid ");
-	from = g_string_new ("FROM Resource ");
+	str = g_string_new ("CREATE VIEW ");
+	g_string_append_printf (str, "\"%s\".fts_view AS SELECT \"rdfs:Resource\".ID as rowid ",
+				database);
+	from = g_string_new ("FROM \"rdfs:Resource\" ");
 
 	fts = g_string_new ("CREATE VIRTUAL TABLE ");
-	g_string_append_printf (fts, "%s USING fts5(content=\"fts_view\", ",
-				table_name);
+	g_string_append_printf (fts, "\"%s\".%s USING fts5(content=\"fts_view\", ",
+				database, table_name);
 
 	while (g_hash_table_iter_next (&iter, (gpointer *) &index_table,
 				       (gpointer *) &columns)) {
@@ -124,9 +127,9 @@ tracker_fts_create_table (sqlite3    *db,
 			columns = columns->next;
 		}
 
-		g_string_append_printf (from, "LEFT OUTER JOIN \"%s\" ON "
-					" Resource.ID = \"%s\".ID ",
-					index_table, index_table);
+		g_string_append_printf (from, "LEFT OUTER JOIN \"%s\".\"%s\" ON "
+					" \"rdfs:Resource\".ID = \"%s\".ID ",
+					database, index_table, index_table);
 	}
 
 	g_string_append (str, from->str);
@@ -158,22 +161,20 @@ tracker_fts_create_table (sqlite3    *db,
 }
 
 gboolean
-tracker_fts_delete_table (sqlite3 *db,
-                          gchar   *table_name)
+tracker_fts_delete_table (sqlite3     *db,
+			  const gchar *database,
+                          gchar       *table_name)
 {
 	gchar *query;
 	int rc;
 
-	rc = sqlite3_exec (db, "DROP VIEW IF EXISTS unionGraph_fts5", NULL, NULL, NULL);
+	query = g_strdup_printf ("DROP VIEW fts_view");
+	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
+	g_free (query);
 
 	if (rc == SQLITE_OK) {
-		query = g_strdup_printf ("DROP VIEW fts_view");
-		rc = sqlite3_exec (db, query, NULL, NULL, NULL);
-		g_free (query);
-	}
-
-	if (rc == SQLITE_OK) {
-		query = g_strdup_printf ("DROP TABLE %s", table_name);
+		query = g_strdup_printf ("DROP TABLE \"%s\".%s",
+					 database, table_name);
 		sqlite3_exec (db, query, NULL, NULL, NULL);
 		g_free (query);
 	}
@@ -182,23 +183,24 @@ tracker_fts_delete_table (sqlite3 *db,
 }
 
 gboolean
-tracker_fts_alter_table (sqlite3    *db,
-			 gchar      *table_name,
-			 GHashTable *tables,
-			 GHashTable *grouped_columns)
+tracker_fts_alter_table (sqlite3     *db,
+			 const gchar *database,
+			 gchar       *table_name,
+			 GHashTable  *tables,
+			 GHashTable  *grouped_columns)
 {
 	gchar *query, *tmp_name;
 	int rc;
 
 	tmp_name = g_strdup_printf ("%s_TMP", table_name);
 
-	if (!tracker_fts_create_table (db, tmp_name, tables, grouped_columns)) {
+	if (!tracker_fts_create_table (db, database, tmp_name, tables, grouped_columns)) {
 		g_free (tmp_name);
 		return FALSE;
 	}
 
-	query = g_strdup_printf ("INSERT INTO %s (rowid) SELECT rowid FROM fts_view",
-				 tmp_name);
+	query = g_strdup_printf ("INSERT INTO \"%s\".%s (rowid) SELECT rowid FROM fts_view",
+				 database, tmp_name);
 	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
 	g_free (query);
 
@@ -207,8 +209,8 @@ tracker_fts_alter_table (sqlite3    *db,
 		return FALSE;
 	}
 
-	query = g_strdup_printf ("INSERT INTO %s(%s) VALUES('rebuild')",
-				 tmp_name, tmp_name);
+	query = g_strdup_printf ("INSERT INTO \"%s\".%s(%s) VALUES('rebuild')",
+				 database, tmp_name, tmp_name);
 	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
 	g_free (query);
 
@@ -217,8 +219,8 @@ tracker_fts_alter_table (sqlite3    *db,
 		return FALSE;
 	}
 
-	query = g_strdup_printf ("ALTER TABLE %s RENAME TO %s",
-				 tmp_name, table_name);
+	query = g_strdup_printf ("ALTER TABLE \"%s\".%s RENAME TO %s",
+				 database, tmp_name, table_name);
 	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
 	g_free (query);
 	g_free (tmp_name);
@@ -228,13 +230,14 @@ tracker_fts_alter_table (sqlite3    *db,
 
 void
 tracker_fts_rebuild_tokens (sqlite3     *db,
+			    const gchar *database,
                             const gchar *table_name)
 {
 	gchar *query;
 
 	/* This special query rebuilds the tokens in the given FTS table */
-	query = g_strdup_printf ("INSERT INTO %s(%s) VALUES('rebuild')",
-				 table_name, table_name);
+	query = g_strdup_printf ("INSERT INTO \"%s\".%s(%s) VALUES('rebuild')",
+				 database, table_name, table_name);
 	sqlite3_exec(db, query, NULL, NULL, NULL);
 	g_free (query);
 }

@@ -996,6 +996,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 			g_ptr_array_add (text, NULL);
 
 			tracker_db_interface_sqlite_fts_update_text (iface,
+								     database,
 			                                             resource->id,
 			                                             (const gchar **) properties->pdata,
 			                                             (const gchar **) text->pdata);
@@ -1367,6 +1368,10 @@ get_old_property_values (TrackerData      *data,
                          GError          **error)
 {
 	GArray *old_values;
+	const gchar *database;
+
+	database = data->resource_buffer->graph->graph ?
+		data->resource_buffer->graph->graph : "main";
 
 	/* read existing property values */
 	old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
@@ -1419,6 +1424,7 @@ get_old_property_values (TrackerData      *data,
 						}
 
 						tracker_db_interface_sqlite_fts_delete_text (iface,
+											     database,
 						                                             data->resource_buffer->id,
 						                                             property_name,
 						                                             str->str);
@@ -1909,7 +1915,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 		if (strcmp (tracker_class_get_uri (class), TRACKER_PREFIX_RDFS "Resource") == 0 &&
 		    g_hash_table_size (data->resource_buffer->tables) == 0) {
 #if HAVE_TRACKER_FTS
-			tracker_db_interface_sqlite_fts_delete_id (iface, data->resource_buffer->id);
+			tracker_db_interface_sqlite_fts_delete_id (iface, database, data->resource_buffer->id);
 #endif
 			/* skip subclass query when deleting whole resource
 			   to improve performance */
