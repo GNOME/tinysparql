@@ -3846,7 +3846,10 @@ ontology_get_fts_properties (TrackerDataManager  *manager,
 			list = g_list_prepend (NULL, (gpointer) name);
 			g_hash_table_insert (*fts_properties, (gpointer) table_name, list);
 		} else {
-			list = g_list_append (list, (gpointer) name);
+			g_hash_table_steal (*fts_properties, (gpointer) table_name);
+			list = g_list_insert_sorted (list, (gpointer) name,
+			                             (GCompareFunc) strcmp);
+			g_hash_table_insert (*fts_properties, (gpointer) table_name, list);
 		}
 	}
 }

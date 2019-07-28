@@ -40,17 +40,20 @@ get_fts_properties (GHashTable  *tables)
 {
 	GList *table_columns, *columns;
 	gchar **property_names;
-	GHashTableIter iter;
+	GList *keys, *l;
 
 	columns = NULL;
-	g_hash_table_iter_init (&iter, tables);
+	keys = g_hash_table_get_keys (tables);
+	keys = g_list_sort (keys, (GCompareFunc) strcmp);
 
-	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &table_columns)) {
+	for (l = keys; l; l = l->next) {
+		table_columns = g_hash_table_lookup (tables, l->data);
 		columns = g_list_concat (columns, g_list_copy (table_columns));
 	}
 
 	property_names = tracker_glist_to_string_list (columns);
 	g_list_free (columns);
+	g_list_free (keys);
 
 	return property_names;
 }
@@ -86,16 +89,14 @@ tracker_fts_create_table (sqlite3     *db,
                           GHashTable  *grouped_columns)
 {
 	GString *str, *from, *fts;
-	GHashTableIter iter;
 	gchar *index_table;
-	GList *columns;
+	GList *columns, *keys, *l;
 	gint rc;
 
 	if (g_hash_table_size (tables) == 0)
 		return TRUE;
 
 	/* Create view on tables/columns marked as FTS-indexed */
-	g_hash_table_iter_init (&iter, tables);
 	str = g_string_new ("CREATE VIEW ");
 	g_string_append_printf (str, "\"%s\".fts_view AS SELECT \"rdfs:Resource\".ID as rowid ",
 				database);
@@ -105,8 +106,13 @@ tracker_fts_create_table (sqlite3     *db,
 	g_string_append_printf (fts, "\"%s\".%s USING fts5(content=\"fts_view\", ",
 				database, table_name);
 
-	while (g_hash_table_iter_next (&iter, (gpointer *) &index_table,
-				       (gpointer *) &columns)) {
+	keys = g_hash_table_get_keys (tables);
+	keys = g_list_sort (keys, (GCompareFunc) strcmp);
+
+	for (l = keys; l; l = l->next) {
+		index_table = l->data;
+		columns = g_hash_table_lookup (tables, l->data);
+
 		while (columns) {
 			if (grouped_columns &&
 			    g_hash_table_lookup (grouped_columns, columns->data)) {
@@ -131,6 +137,8 @@ tracker_fts_create_table (sqlite3     *db,
 					" \"rdfs:Resource\".ID = \"%s\".ID ",
 					database, index_table, index_table);
 	}
+
+	g_list_free (keys);
 
 	g_string_append (str, from->str);
 	g_string_free (from, TRUE);
