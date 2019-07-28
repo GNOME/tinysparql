@@ -1839,11 +1839,14 @@ _end_triples_block (TrackerSparql  *sparql,
 				_append_graph_checks (sparql, "graph",
 						      (GStrv) sparql->anon_graphs->pdata,
 						      sparql->anon_graphs->len);
-			} else if (sparql->named_graphs->len > 0 &&
-				   tracker_token_get_variable (&sparql->current_state.graph)) {
-				_append_graph_checks (sparql, "graph",
-						      (GStrv) sparql->named_graphs->pdata,
-						      sparql->named_graphs->len);
+			} else if (tracker_token_get_variable (&sparql->current_state.graph)) {
+				if (sparql->named_graphs->len > 0) {
+					_append_graph_checks (sparql, "graph",
+					                      (GStrv) sparql->named_graphs->pdata,
+					                      sparql->named_graphs->len);
+				} else {
+					_append_string (sparql, "WHERE \"graph\" != 0 ");
+				}
 			}
 
 			_append_string (sparql, ") ");
@@ -1868,11 +1871,14 @@ _end_triples_block (TrackerSparql  *sparql,
 					_append_graph_checks (sparql, "graph",
 					                      (GStrv) sparql->anon_graphs->pdata,
 					                      sparql->anon_graphs->len);
-				} else if (sparql->named_graphs->len > 0 &&
-				           tracker_token_get_variable (&sparql->current_state.graph)) {
-					_append_graph_checks (sparql, "graph",
-					                      (GStrv) sparql->named_graphs->pdata,
-					                      sparql->named_graphs->len);
+				} else if (tracker_token_get_variable (&sparql->current_state.graph)) {
+					if (sparql->named_graphs->len > 0) {
+						_append_graph_checks (sparql, "graph",
+						                      (GStrv) sparql->named_graphs->pdata,
+						                      sparql->named_graphs->len);
+					} else {
+						_append_string (sparql, "WHERE \"graph\" != 0 ");
+					}
 				}
 
 				_append_string (sparql, ") ");
