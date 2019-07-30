@@ -3,22 +3,22 @@
 # Copyright (C) 2007 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009, 2010, 2011.
-# Daniel Mustieles <daniel.mustieles@gmail.com>, 2010-2016, 2017, 2018, 2019.
+# Daniel Mustieles <daniel.mustieles@gmail.com>, 2010-2019.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2019-01-05 17:28+0000\n"
-"PO-Revision-Date: 2019-01-08 16:02+0100\n"
+"POT-Creation-Date: 2019-05-29 07:32+0000\n"
+"PO-Revision-Date: 2019-07-30 09:32+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
-"Language-Team: es <gnome-es-list@gnome.org>\n"
-"Language: es\n"
+"Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
+"Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Gtranslator 3.32.1\n"
 
 #: data/org.freedesktop.Tracker.DB.gschema.xml:24
 msgid "Maximum size of journal"
@@ -691,7 +691,7 @@ msgstr ""
 
 #: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
 #: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:384 src/tracker/tracker-search.c:1778
+#: src/tracker/tracker-reset.c:385 src/tracker/tracker-search.c:1778
 #: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
 #: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
@@ -1000,7 +1000,8 @@ msgstr "Proceso %d matado: «%s»"
 
 #: src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
-msgstr "Matar todos los procesos de Tracker y borrar todas las bases de datos"
+msgstr ""
+"Matar todos los procesos de Tracker y eliminar todas las bases de datos"
 
 #: src/tracker/tracker-reset.c:56
 msgid "Same as --hard but the backup & journal are restored after restart"
@@ -1069,7 +1070,7 @@ msgstr "[s|N]"
 msgid "yes"
 msgstr "sí"
 
-#: src/tracker/tracker-reset.c:306
+#: src/tracker/tracker-reset.c:307
 msgid "Resetting existing configuration…"
 msgstr "Restableciendo la configuración existente…"
 
@@ -1663,8 +1664,6 @@ msgstr[1] "%d archivos"
 
 #: src/tracker/tracker-status.c:524
 #, c-format
-#| msgid "%d folders"
-#| msgid_plural "%d folders"
 msgid "%d folder"
 msgid_plural "%d folders"
 msgstr[0] "%d carpeta"
@@ -1712,8 +1711,8 @@ msgstr "ETIQUETA"
 #: src/tracker/tracker-tag.c:65
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
 msgstr ""
-"Borrar una etiqueta (si se omiten los ARCHIVOS, la ETIQUETA se elimina para "
-"todos los archivos)"
+"Eliminar una etiqueta (si se omiten los ARCHIVOS, la ETIQUETA se elimina "
+"para todos los archivos)"
 
 #: src/tracker/tracker-tag.c:69
 msgid "Description for a tag (this is only used with --add)"
@@ -1841,7 +1840,7 @@ msgstr ""
 
 #: src/tracker/tracker-tag.c:1092
 msgid "Add and delete actions can not be used together"
-msgstr "Añadir y borrar acciones que no se pueden usar conjuntamente"
+msgstr "Añadir y eliminar acciones que no se pueden usar conjuntamente"
 
 #: src/tracker/tracker-tag.c:1094
 msgid "The --description option can only be used with --add"
