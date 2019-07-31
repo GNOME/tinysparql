@@ -207,6 +207,7 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 {
 	TrackerServiceCursor *cursor = (TrackerServiceCursor *) vtab_cursor;
 	const ConstraintData *constraints = (const ConstraintData *) idx_str;
+	gchar *uri_scheme = NULL;
 	GError *error = NULL;
 	gint i;
 
@@ -225,7 +226,26 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 	if (!cursor->service || !cursor->query)
 		return SQLITE_ERROR;
 
-	cursor->conn = tracker_sparql_connection_remote_new (cursor->service);
+	uri_scheme = g_uri_parse_scheme (cursor->service);
+	if (g_strcmp0 (uri_scheme, "dbus") == 0) {
+		const gchar *bus_name = &cursor->service[strlen (uri_scheme) + 1];
+
+		cursor->conn = tracker_sparql_connection_bus_new (bus_name, NULL, &error);
+		if (!cursor->conn)
+			goto fail;
+	} else if (g_strcmp0 (uri_scheme, "http") == 0) {
+		cursor->conn = tracker_sparql_connection_remote_new (cursor->service);
+	}
+
+	if (!cursor->conn) {
+		g_set_error (&error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_UNSUPPORTED,
+		             "Unsupported uri '%s'",
+		             cursor->service);
+		goto fail;
+	}
+
 	cursor->sparql_cursor = tracker_sparql_connection_query (cursor->conn,
 								 cursor->query,
 								 NULL, &error);
@@ -238,9 +258,13 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 	if (error)
 		goto fail;
 
+	g_free (uri_scheme);
+
 	return SQLITE_OK;
 
 fail:
+	g_free (uri_scheme);
+
 	if (cursor->silent) {
 		cursor->finished = TRUE;
 		g_error_free (error);
