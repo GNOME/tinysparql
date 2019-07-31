@@ -239,6 +239,8 @@ public abstract class Tracker.Sparql.Connection : Object {
 	 */
 	public extern async static new Connection local_new_async (Tracker.Sparql.ConnectionFlags flags, File store, File? journal, File? ontology, Cancellable? cancellable = null) throws Sparql.Error, IOError;
 
+	public extern static new Connection bus_new (string service_name, DBusConnection? dbus_connection = null) throws Sparql.Error, IOError, DBusError, GLib.Error;
+
 	/**
 	 * tracker_sparql_connection_query:
 	 * @self: a #TrackerSparqlConnection
