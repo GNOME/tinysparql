@@ -276,9 +276,7 @@ def dbus_session_file_get():
         with open(dbus_session_file, 'r') as f:
             content = f.read()
             return dbus_session_get_from_content(content)
-    except (IOError, OSError) as e:
-        print("Unexpected error: %s %s" % (e.strerror, e.filename),
-              file=sys.stderr)
+    except FileNotFoundError as e:
         # Expect this if we have a new session to set up
         return False
 
