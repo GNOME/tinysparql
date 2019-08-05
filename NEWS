@@ -1,3 +1,26 @@
+NEW in 2.2.3 - unreleased
+=========================
+
+  * Fixed a tracker-store issue that caused incomplete results to be
+    returned in some cases (https://gitlab.gnome.org/GNOME/tracker/merge_requests/96)
+      * This allows the tracker-writeback daemon to work correctly. It had been
+        broken for several releases
+  * Fixed a potential segmentation fault in libtracker-data (https://gitlab.gnome.org/GNOME/tracker/merge_requests/98/)
+  * Improved how we link to the internal libtracker-common library
+      * This allows building with link-time optimization (LTO) enabled, which
+        was previously broken (https://gitlab.gnome.org/GNOME/tracker/issues/117)
+      * The internal libtracker-common library is no longer installed as
+        a shared library
+  * Fixed build failure on slow platforms (https://gitlab.gnome.org/GNOME/tracker/issues/96)
+  * Fixed an unnecessary error message when connecting to D-Bus fails (https://gitlab.gnome.org/GNOME/tracker/merge_requests/100/)
+  * Test suite no longer requires Tracker to be installed on the host (https://gitlab.gnome.org/GNOME/tracker/issues/24)
+  * Some improvements to the utils/sandbox developer tool
+  * Fixed some build problems for developers who install Tracker into a
+    non-standard location
+  * Documentation fixes, including a rewritten README.md file
+
+Translations: es
+
 NEW in 2.2.2 - 2019-05-02
 =========================
 
