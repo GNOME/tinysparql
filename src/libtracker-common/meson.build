@@ -39,7 +39,7 @@ if build_machine.system() == 'openbsd'
   tracker_common_dependencies += libkvm
 endif
 
-libtracker_common = library('tracker-common',
+libtracker_common = static_library('tracker-common',
   tracker_common_sources,
   dependencies: tracker_common_dependencies + [unicode_library],
   c_args: tracker_c_args,
@@ -50,15 +50,6 @@ libtracker_common = library('tracker-common',
 
 commoninc = include_directories('.')
 
-# This dependency can't be used everywhere right now. The issue is that if
-# every other library depends on this one, we end up with a combinatorial
-# explosion that results in the link line for src/tracker/tracker being
-# nearly 200,000 characters long which causes this kind of error:
-#
-#     Linking target src/tracker/tracker
-#     ninja: fatal: posix_spawn: Argument list too long
-#
-# Upstream issue: https://github.com/mesonbuild/meson/issues/671
 tracker_common_dep = declare_dependency(
   sources: [tracker_common_enum_header],
   link_with: libtracker_common,
