@@ -22,7 +22,7 @@ executable('tracker', sources,
         '-DMANDIR="@0@"'.format(join_paths(get_option('prefix'), get_option('datadir'), 'man')),
     ],
     install: true,
-    install_rpath: tracker_internal_libs_dir,
+    install_rpath: tracker_install_rpath,
     # This doesn't depend on tracker_common_dep because of
     # https://github.com/mesonbuild/meson/issues/671
     dependencies: [tracker_control_dep, tracker_sparql_dep, tracker_data_dep],

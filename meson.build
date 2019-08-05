@@ -322,6 +322,7 @@ po_subdir = join_paths(source_root, 'po')
 gsettings_schema_dir = join_paths(get_option('datadir'), 'glib-2.0', 'schemas')
 
 tracker_internal_libs_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tracker-' + tracker_api_version)
+tracker_install_rpath = ':'.join([tracker_internal_libs_dir, libdir])
 
 # NOTE: We don't use ${TRACKER_API_VERSION} because other content like
 # the ontology is installed to the same location.
@@ -329,6 +330,7 @@ tracker_ontologies_dir = join_paths(get_option('prefix'), get_option('datadir'),
 
 vapi_dir = join_paths(get_option('prefix'), get_option('datadir'), 'vala', 'vapi')
 
+glib_compile_schemas = find_program('glib-compile-schemas')
 glib_mkenums = find_program('glib-mkenums')
 g_ir_compiler = find_program('g-ir-compiler', gobject_introspection.get_pkgconfig_variable('g_ir_compiler'))
 g_ir_merge = find_program('g-ir-merge', join_paths(meson.current_source_dir(), 'utils', 'g-ir-merge', 'g-ir-merge'))
@@ -372,6 +374,8 @@ elif sqlite.version().version_compare('3.8.4.2')
   # See https://mail.gnome.org/archives/tracker-list/2014-April/msg00001.html
   sqlite_safe = false
 endif
+
+meson.add_install_script('meson_integration_commands.sh', glib_compile_schemas.path(), gsettings_schema_dir)
 
 summary = [
   '\nBuild Configuration:',
