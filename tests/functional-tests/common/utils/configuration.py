@@ -18,10 +18,14 @@
 # 02110-1301, USA.
 #
 
-"Constants describing Tracker D-Bus services"
 
 import json
+import logging
 import os
+import sys
+
+from . import options
+
 
 if 'TRACKER_FUNCTIONAL_TEST_CONFIG' not in os.environ:
     raise RuntimeError("The TRACKER_FUNCTIONAL_TEST_CONFIG environment "
@@ -89,3 +93,7 @@ TEST_ONTOLOGIES_DIR = os.path.normpath(
 TRACKER_STORE_PATH = os.path.normpath(expandvars(config['TRACKER_STORE_PATH']))
 
 disableJournal = (len(config['disableJournal']) == 0)
+
+
+if options.get_environment_boolean('TRACKER_TESTS_VERBOSE'):
+    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
