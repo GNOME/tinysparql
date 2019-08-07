@@ -1,7 +1,12 @@
-NEW in 2.3.0-alpha1 - unreleased
-=========================
+NEW in 2.2.99.0 - 2019-08-07
+============================
 
   * Support for storing Musicbrainz metadata in the multimedia ontology.
+  * Doc cleanups
+  * Test suite improvements
+  * Build fixes
+  * Fix detection of files that need writeback
+  * Fix crashes and invalid memory writes
 
 NEW in 2.2.2 - 2019-05-02
 =========================
