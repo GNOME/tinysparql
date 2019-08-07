@@ -4158,7 +4158,9 @@ check_db_consistency (TrackerDBInterface *iface)
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, NULL,
 						      "SELECT ID FROM \"rdfs:Resource\" "
-						      "LEFT OUTER JOIN Resource ON ID LIMIT 1");
+						      "EXCEPT "
+	                                              "SELECT ID FROM Resource "
+	                                              "LIMIT 1");
 
 	if (stmt) {
 		cursor = tracker_db_statement_start_cursor (stmt, NULL);
