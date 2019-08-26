@@ -1440,6 +1440,14 @@ generate_sparql_insert_pattern (TrackerResource    *resource,
 	const GValue *value;
 	gboolean had_property = FALSE;
 
+	/* If the resource has no properties, this function would generate invalid
+	 * SPARQL. */
+	if (g_hash_table_size(priv->properties) == 0) {
+		g_warning("Resource with identifier %s has no properties. Unable to "
+		          " serialize to SPARQL.", priv->identifier);
+		return;
+	}
+
 	/* First, emit any sub-resources. */
 	g_hash_table_foreach (priv->properties, generate_sparql_relation_inserts_foreach, data);
 
