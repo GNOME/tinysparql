@@ -37,7 +37,7 @@ with open(os.environ['TRACKER_FUNCTIONAL_TEST_CONFIG']) as f:
 TEST_DBUS_DAEMON_CONFIG_FILE = config['TEST_DBUS_DAEMON_CONFIG_FILE']
 
 
-disableJournal = bool(config['disableJournal']))
+disableJournal = bool(config['disableJournal'])
 
 def test_environment(tmpdir):
     return {
