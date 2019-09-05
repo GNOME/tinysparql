@@ -1,3 +1,16 @@
+NEW in 2.2.99.1 - 2019-09-05
+============================
+
+  * Handle circular references in TrackerResource
+  * Removed stress tests
+  * Handle application/x-zero-size
+  * Refactors and cleanups in functional testing infrastructure
+  * Documentation improvements
+  * Make tracker_sparql_escape_string() escape single quotes
+  * Don't make tracker:referenceSource a subproperty of nie:identifier
+
+Translations: eu
+
 NEW in 2.2.99.0 - 2019-08-07
 ============================
 
