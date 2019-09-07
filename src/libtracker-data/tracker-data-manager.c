@@ -4362,15 +4362,8 @@ update_interface_cb (TrackerDBManager   *db_manager,
 			/* This is where we bump the generation for the readonly case, in response to
 			 * tables being attached or detached due to graph changes.
 			 */
-			if (readonly && changed) {
+			if (readonly && changed)
 				data_manager->generation++;
-				if (!tracker_data_manager_update_union_views (data_manager, iface,
-				                                              NULL, &error)) {
-					g_critical ("Could not update union views: %s\n",
-					            error->message);
-					g_error_free (error);
-				}
-			}
 		} else {
 			g_critical ("Could not update attached databases: %s\n",
 			            error->message);
