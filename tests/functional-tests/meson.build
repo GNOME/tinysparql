@@ -24,7 +24,6 @@ config_json = configure_file(
 functional_tests = [
   '01-insertion',
   '02-sparql-bugs',
-  '03-fts-functions',
   '04-group-concat',
   '05-coalesce',
   '06-distance',
@@ -36,6 +35,10 @@ functional_tests = [
   '16-collation',
   '17-ontology-changes',
 ]
+
+if get_option('fts')
+  functional_tests += '03-fts-functions'
+endif
 
 test_env = environment()
 
