@@ -46,10 +46,24 @@ test_env.set('TRACKER_FUNCTIONAL_TEST_CONFIG', config_json_full_path)
 
 foreach t: functional_tests
   file = '@0@.py'.format(t)
-  test('functional-' + t, python,
+  test_parts = t.split('-')
+  test_name = t
+  if test_parts.length() > 1
+    parts = []
+    i = 0
+    foreach p: test_parts
+      if i > 0
+        parts += p
+      endif
+      i += 1
+    endforeach
+    test_name = '-'.join(parts)
+  endif
+  test(test_name, python,
     args: [file],
     env: test_env,
     workdir: meson.current_source_dir(),
+    suite: ['functional'],
     timeout: 60)
 endforeach
 
