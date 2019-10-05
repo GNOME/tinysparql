@@ -5,6 +5,8 @@ NEW in 2.3.1 - unreleased
     inserting new values. This was causing tracker-extract to log errors for
     multi-disc music albums stored as FLAC files with embedded CUE sheets.
 
+Translations: sk
+
 NEW in 2.3.0 - 2019-09-09
 =========================
 
