@@ -78,4 +78,12 @@ SELECT ?s { ?s a nfo:FileDataObject }
       interest.
     </para>
   </section>
+  <section>
+    <title>No libtracker-miner</title>
+    <para>
+      This library offered a too shallow collection of abstract objects
+      whose sole role is inserting data to Tracker data store. There is
+      no provided migration path, use TrackerSparqlConnection directly.
+    </para>
+  </section>
 </chapter>
