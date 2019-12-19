@@ -28,17 +28,10 @@
 
 #include <libtracker-common/tracker-common.h>
 
-#include "tracker-daemon.h"
-#include "tracker-extract.h"
 #include "tracker-help.h"
-#include "tracker-index.h"
 #include "tracker-info.h"
-#include "tracker-reset.h"
-#include "tracker-search.h"
 #include "tracker-sparql.h"
 #include "tracker-sql.h"
-#include "tracker-status.h"
-#include "tracker-tag.h"
 
 const char usage_string[] =
 	"tracker [--version] [--help]\n"
@@ -94,17 +87,10 @@ struct cmd_struct {
 };
 
 static struct cmd_struct commands[] = {
-	{ "daemon", tracker_daemon, NEED_WORK_TREE, N_("Start, stop, pause and list processes responsible for indexing content") },
-	{ "extract", tracker_extract, NEED_WORK_TREE, N_("Extract information from a file") },
 	{ "help", tracker_help, NEED_NOTHING, N_("Get help on how to use Tracker and any of these commands") },
-	{ "info", tracker_info, NEED_WORK_TREE, N_("Show information known about local files or items indexed") }, 
-	{ "index", tracker_index, NEED_NOTHING, N_("Backup, restore, import and (re)index by MIME type or file name") },
-	{ "reset", tracker_reset, NEED_NOTHING,  N_("Reset or remove index and revert configurations to defaults") },
-	{ "search", tracker_search, NEED_WORK_TREE, N_("Search for content indexed or show content by type") },
+	{ "info", tracker_info, NEED_WORK_TREE, N_("Show information known about local files or items indexed") },
 	{ "sparql", tracker_sparql, NEED_WORK_TREE, N_("Query and update the index using SPARQL or search, list and tree the ontology") },
 	{ "sql", tracker_sql, NEED_WORK_TREE, N_("Query the database at the lowest level using SQL") },
-	{ "status", tracker_status, NEED_NOTHING, N_("Show the indexing progress, content statistics and index state") },
-	{ "tag", tracker_tag, NEED_WORK_TREE, N_("Create, list or delete tags for indexed content") },
 	{ "version", tracker_version, NEED_NOTHING, N_("Show the license and version in use") },
 };
 

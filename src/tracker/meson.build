@@ -1,20 +1,9 @@
 sources = [
-    'tracker-miner-manager.c',
     'tracker-main.c',
-    'tracker-config.c',
-    'tracker-daemon.c',
-    'tracker-dbus.c',
-    'tracker-extract.c',
     'tracker-help.c',
-    'tracker-index.c',
     'tracker-info.c',
-    'tracker-process.c',
-    'tracker-reset.c',
-    'tracker-search.c',
     'tracker-sparql.c',
     'tracker-sql.c',
-    'tracker-status.c',
-    'tracker-tag.c',
 ]
 
 executable('tracker', sources,
