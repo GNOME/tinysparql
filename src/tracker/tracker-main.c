@@ -155,6 +155,10 @@ static void
 print_usage_list_cmds (void)
 {
 	int i, longest = 0;
+	GList *extra_commands = NULL;
+	GFileEnumerator *enumerator;
+	GFileInfo *info;
+	GFile *dir;
 
 	for (i = 0; i < G_N_ELEMENTS(commands); i++) {
 		if (longest < strlen (commands[i].cmd))
@@ -164,15 +168,44 @@ print_usage_list_cmds (void)
 	puts (_("Available tracker commands are:"));
 
 	for (i = 0; i < G_N_ELEMENTS(commands); i++) {
-		/* Don't list version in commands */
-		if (!strcmp (commands[i].cmd, "version") ||
-		    !strcmp (commands[i].cmd, "help")) {
-			continue;
-		}
-
 		g_print ("   %s   ", commands[i].cmd);
 		mput_char (' ', longest - strlen (commands[i].cmd));
 		puts (_(commands[i].help));
+	}
+
+	dir = g_file_new_for_path (LIBEXECDIR "/tracker/");
+	enumerator = g_file_enumerate_children (dir,
+	                                        G_FILE_ATTRIBUTE_STANDARD_NAME ","
+	                                        G_FILE_ATTRIBUTE_STANDARD_IS_SYMLINK ","
+	                                        G_FILE_ATTRIBUTE_STANDARD_SYMLINK_TARGET,
+	                                        G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+	                                        NULL, NULL);
+	g_object_unref (dir);
+
+	while ((info = g_file_enumerator_next_file (enumerator, NULL, NULL)) != NULL) {
+		/* Filter builtin commands */
+		if (g_file_info_get_is_symlink (info) &&
+		    g_strcmp0 (g_file_info_get_symlink_target (info), BINDIR "/tracker") == 0)
+			continue;
+
+		extra_commands = g_list_prepend (extra_commands,
+		                                 g_strdup (g_file_info_get_name (info)));
+		g_object_unref (info);
+	}
+
+	g_object_unref (enumerator);
+
+	if (extra_commands) {
+		extra_commands = g_list_sort (extra_commands, (GCompareFunc) g_strcmp0);
+
+		g_print ("\n");
+		puts (_("Additional / third party commands are:"));
+
+		while (extra_commands) {
+			g_print ("   %s   \n", (gchar *) extra_commands->data);
+			g_free (extra_commands->data);
+			extra_commands = g_list_remove (extra_commands, extra_commands->data);
+		}
 	}
 }
 

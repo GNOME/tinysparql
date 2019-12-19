@@ -17,6 +17,7 @@ executable('tracker', sources,
     c_args: tracker_c_args + [
         '-DLIBEXECDIR="@0@"'.format(join_paths(get_option('prefix'), get_option('libexecdir'))),
         '-DMANDIR="@0@"'.format(join_paths(get_option('prefix'), get_option('datadir'), 'man')),
+        '-DBINDIR="@0@"'.format(join_paths(get_option('prefix'), get_option('bindir'))),
     ],
     install: true,
     install_rpath: tracker_install_rpath,
