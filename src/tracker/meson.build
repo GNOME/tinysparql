@@ -1,10 +1,17 @@
+modules = [
+    'help',
+    'info',
+    'sparql',
+    'sql',
+]
+
 sources = [
     'tracker-main.c',
-    'tracker-help.c',
-    'tracker-info.c',
-    'tracker-sparql.c',
-    'tracker-sql.c',
 ]
+
+foreach m: modules
+    sources += 'tracker-@0@.c'.format(m)
+endforeach
 
 executable('tracker', sources,
     c_args: tracker_c_args + [
@@ -19,6 +26,7 @@ executable('tracker', sources,
     include_directories: [commoninc, configinc, srcinc],
 )
 
+meson.add_install_script('make-subcommand-links.sh', modules)
 
 if install_bash_completion
     install_data(

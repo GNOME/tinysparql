@@ -66,7 +66,7 @@ tracker_help (int argc, const char **argv)
 }
 
 static int
-tracker_version (int argc, const char **argv)
+print_version (void)
 {
 	puts (about);
 	return 0;
@@ -91,7 +91,6 @@ static struct cmd_struct commands[] = {
 	{ "info", tracker_info, NEED_WORK_TREE, N_("Show information known about local files or items indexed") },
 	{ "sparql", tracker_sparql, NEED_WORK_TREE, N_("Query and update the index using SPARQL or search, list and tree the ontology") },
 	{ "sql", tracker_sql, NEED_WORK_TREE, N_("Query the database at the lowest level using SQL") },
-	{ "version", tracker_version, NEED_NOTHING, N_("Show the license and version in use") },
 };
 
 static int
@@ -118,14 +117,8 @@ static void
 handle_command (int argc, const char **argv)
 {
 	gchar *log_filename = NULL;
-	const char *cmd = argv[0];
+	char *cmd = g_path_get_basename (argv[0]);
 	int i;
-
-	/* Turn "tracker cmd --help" into "tracker help cmd" */
-	if (argc > 1 && !strcmp (argv[1], "--help")) {
-		argv[1] = argv[0];
-		argv[0] = cmd = "help";
-	}
 
 	tracker_log_init (0, &log_filename);
 	if (log_filename != NULL) {
@@ -140,11 +133,13 @@ handle_command (int argc, const char **argv)
 			continue;
 		}
 
+		g_free (cmd);
 		exit (run_builtin (p, argc, argv));
 	}
 
 	g_printerr (_("“%s” is not a tracker command. See “tracker --help”"), argv[0]);
 	g_printerr ("\n");
+	g_free (cmd);
 	exit (EXIT_FAILURE);
 }
 
@@ -190,10 +185,10 @@ print_usage (void)
 }
 
 int
-main (int original_argc, char **original_argv)
+main (int argc, char *argv[])
 {
-	const char **argv = (const char **) original_argv;
-	int argc = original_argc;
+	gboolean basename_is_bin = FALSE;
+	gchar *command_basename;
 
 	setlocale (LC_ALL, "");
 
@@ -201,24 +196,46 @@ main (int original_argc, char **original_argv)
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
-	argv++;
-	argc--;
+	command_basename = g_path_get_basename (argv[0]);
+	basename_is_bin = g_strcmp0 (command_basename, "tracker") == 0;
+	g_free (command_basename);
 
-	if (argc > 0) {
-		/* For cases like --version */
-		if (g_str_has_prefix (argv[0], "--")) {
-			argv[0] += 2;
+	if (g_path_is_absolute (argv[0]) &&
+	    g_str_has_prefix (argv[0], LIBEXECDIR "/tracker/")) {
+		/* This is a subcommand call */
+		handle_command (argc, (const gchar **) argv);
+		exit (EXIT_FAILURE);
+	} else if (basename_is_bin) {
+		/* This is a call to the main tracker executable,
+		 * look up and exec the subcommand if any.
+		 */
+		if (argc > 1) {
+			const gchar *subcommand = argv[1];
+			gchar *path;
+
+			if (g_strcmp0 (subcommand, "--version") == 0) {
+				print_version ();
+				exit (EXIT_SUCCESS);
+			} else if (g_strcmp0 (subcommand, "--help") == 0) {
+				subcommand = "help";
+			}
+
+			path = g_build_filename (LIBEXECDIR, "tracker", subcommand, NULL);
+
+			if (g_file_test (path, G_FILE_TEST_EXISTS)) {
+				/* Manipulate argv in place, in order to launch subcommand */
+				argv[1] = path;
+				execv (path, &argv[1]);
+			} else {
+				print_usage ();
+			}
+
+			g_free (path);
+		} else {
+			/* The user didn't specify a command; give them help */
+			print_usage ();
+			exit (EXIT_SUCCESS);
 		}
-	} else {
-		/* The user didn't specify a command; give them help */
-		print_usage ();
-		exit (1);
-	}
-
-	handle_command (argc, argv);
-
-	if ((char **) argv != original_argv) {
-		g_strfreev ((char **) argv);
 	}
 
 	return EXIT_FAILURE;
