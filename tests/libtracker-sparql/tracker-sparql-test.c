@@ -305,7 +305,7 @@ test_tracker_sparql_get_connection_async (void)
 	 * tracker_sparql_connection_get_async would never return.
 	 */
 	g_test_trap_subprocess ("/libtracker-sparql/tracker-sparql/get_connection_async/subprocess",
-	                        G_USEC_PER_SEC * 2,
+	                        G_USEC_PER_SEC * 5,
 	                        G_TEST_SUBPROCESS_INHERIT_STDOUT |
 	                        G_TEST_SUBPROCESS_INHERIT_STDERR);
 
