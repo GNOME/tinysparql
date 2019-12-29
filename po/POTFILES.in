@@ -7,11 +7,6 @@ src/libtracker-common/tracker-dbus.c
 src/libtracker-common/tracker-utils.c
 src/libtracker-data/tracker-collation.c
 src/libtracker-data/tracker-data-backup.c
-src/libtracker-miner/tracker-data-provider.c
-src/libtracker-miner/tracker-miner-fs.c
-src/libtracker-miner/tracker-miner-object.c
-src/libtracker-miner/tracker-miner-online.c
-src/libtracker-miner/tracker-miner-proxy.c
 src/tracker-store/tracker-main.vala
 src/tracker-store/tracker-store.desktop.in
 src/tracker/tracker-config.c
