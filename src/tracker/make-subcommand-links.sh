@@ -10,7 +10,7 @@ then
     for l in `find $libexecdir/tracker -type l`
     do
 	# Delete all previous links to our own binary
-	if [[ `readlink $l` = "$bindir/tracker" ]]
+	if [ `readlink $l` = "$bindir/tracker" ]
 	then
 	    rm $l
 	fi
