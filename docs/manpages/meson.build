@@ -4,7 +4,8 @@ manpages = [
     'import',
     'info',
     'sparql',
-    'sql'
+    'sql',
+    'xdg-portal',
 ]
 
 foreach m : manpages
