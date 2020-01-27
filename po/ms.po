@@ -1,0 +1,618 @@
+# Malay translation for tracker.
+# Copyright (C) 2020 tracker's COPYRIGHT HOLDER
+# This file is distributed under the same license as the tracker package.
+# abuyop <abuyop@gmail.com>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tracker master\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
+"POT-Creation-Date: 2020-01-24 10:21+0000\n"
+"PO-Revision-Date: 2020-01-25 12:44+0800\n"
+"Language-Team: Pasukan Terjemahan GNOME Malaysia\n"
+"Language: ms\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Last-Translator: abuyop <abuyop@gmail.com>\n"
+"X-Generator: Poedit 2.0.6\n"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:24
+msgid "Maximum size of journal"
+msgstr "Saiz maksimum jurnal"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:25
+msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+msgstr ""
+"Saiz bagi jurnal pada putaran dalam MB. Guna -1 untuk lumpuhkan pemutaran."
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:29
+msgid "Location of journal pieces"
+msgstr "Lokasi cebisan jurnal"
+
+#: data/org.freedesktop.Tracker.DB.gschema.xml:30
+msgid "Where to store a journal chunk when it hits the max size."
+msgstr "Lokasi menyimpan satu cebisan jurnal ketika ia mencapai saiz maksimum."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
+msgid "Maximum length of a word to be indexed"
+msgstr "Panjang maksimum satu perkataan yang diindeks"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
+msgid ""
+"Words with more characters than this length will be ignored by the indexer."
+msgstr ""
+"Perkataan dengan lebih aksara berbanding panjang ini akan diabaikan oleh "
+"pengindeks."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
+msgid "Maximum number of words to index in a document"
+msgstr "Bilangan maksimum perkataan untuk diindeks dalam satu dokumen"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
+msgid ""
+"Indexer will read only this maximum number of words from a single document."
+msgstr ""
+"Pengindeks akan baca-sahaja bilangan maksimum perkataan dari satu dokumen "
+"tunggal."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
+msgid "Enable stemmer"
+msgstr "Benarkan stemmer"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
+msgid ""
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
+msgstr ""
+"Ringkaskan perkataan pada akar sahaja untuk dapatkan lagi keputusan. Iaitu "
+"“shelves” dan “shelf” ke “shel”"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
+msgid "Enable unaccent"
+msgstr "Benarkan tanpa-aksen"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
+msgid ""
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
+msgstr ""
+"Terjemah aksara teraksen setara dengan tanpa-aksen. Iaitu Idéa” to “Idea” "
+"untuk menambah baik pemadanan."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
+msgid "Ignore numbers"
+msgstr "Abai angka"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
+msgid "If enabled, numbers will not be indexed."
+msgstr "Jika dibenarkan, angka tidak akan diindeks."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
+msgid "Ignore stop words"
+msgstr "Abai perkataan henti"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
+msgid ""
+"If enabled, the words listed in the stop-words list are ignored. E.g. common "
+"words like “the”, “yes”, “no”, etc."
+msgstr ""
+"Jika dibenarkan, perkataan tersenarai dalam senarai perkataan-henti "
+"diabaikan. Iaitu perkataan umum seperti “the”, “yes”, “no”, dll."
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:24
+msgid "Log verbosity"
+msgstr "Log kejelaan"
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:25
+msgid "Log verbosity."
+msgstr "Log kejelaan."
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:29
+msgid "GraphUpdated delay"
+msgstr "Lengah GraphUpdated"
+
+#: data/org.freedesktop.Tracker.Store.gschema.xml:30
+msgid ""
+"Period in milliseconds between GraphUpdated signals being emitted when "
+"indexed data has changed inside the database."
+msgstr ""
+"Tempoh dalam milisaat antara isyarat GraphUpdated disiarkan ketika data "
+"terindeks telah berubah di dalam pangkalan data."
+
+#: src/libtracker-common/tracker-utils.c:90
+msgid "unknown time"
+msgstr "masa tidak diketahui"
+
+#: src/libtracker-common/tracker-utils.c:104
+#: src/libtracker-common/tracker-utils.c:155
+msgid "less than one second"
+msgstr "kurang dari satu saat"
+
+#. Translators: this is %d days
+#: src/libtracker-common/tracker-utils.c:119
+#, c-format
+msgid " %dd"
+msgstr " %dh"
+
+#. Translators: this is %2.2d hours
+#: src/libtracker-common/tracker-utils.c:123
+#, c-format
+msgid " %2.2dh"
+msgstr " %2.2dj"
+
+#. Translators: this is %2.2d minutes
+#: src/libtracker-common/tracker-utils.c:127
+#, c-format
+msgid " %2.2dm"
+msgstr " %2.2dm"
+
+#. Translators: this is %2.2d seconds
+#: src/libtracker-common/tracker-utils.c:131
+#, c-format
+msgid " %2.2ds"
+msgstr " %2.2ds"
+
+#: src/libtracker-common/tracker-utils.c:135
+#, c-format
+msgid " %d day"
+msgid_plural " %d days"
+msgstr[0] " %d hari"
+msgstr[1] " %d hari"
+
+#: src/libtracker-common/tracker-utils.c:139
+#, c-format
+msgid " %2.2d hour"
+msgid_plural " %2.2d hours"
+msgstr[0] " %2.2d jam"
+msgstr[1] " %2.2d jam"
+
+#: src/libtracker-common/tracker-utils.c:143
+#, c-format
+msgid " %2.2d minute"
+msgid_plural " %2.2d minutes"
+msgstr[0] " %2.2d minit"
+msgstr[1] " %2.2d minit"
+
+#: src/libtracker-common/tracker-utils.c:147
+#, c-format
+msgid " %2.2d second"
+msgid_plural " %2.2d seconds"
+msgstr[0] " %2.2d saat"
+msgstr[1] " %2.2d saat"
+
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtracker-data/tracker-collation.c:333
+msgid "the|a|an"
+msgstr "the|a|an"
+
+#. Daemon options
+#: src/tracker-store/tracker-main.vala:60
+msgid "Displays version information"
+msgstr "Papar maklumat versi"
+
+#: src/tracker-store/tracker-main.vala:61
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
+"0)"
+msgstr ""
+"Pengelogan, 0 = ralat sahaja, 1 = minimum, 2 = terperinci dan 3 = "
+"nyahpepijat (lalai = 0)"
+
+#: src/tracker-store/tracker-main.vala:62
+msgid "Disable automatic shutdown"
+msgstr "Lumpuhkan penutupan automatik"
+
+#. Indexer options
+#: src/tracker-store/tracker-main.vala:65
+msgid "Force a re-index of all content"
+msgstr "Paksa satu indeks-semula bagi semua kandungan"
+
+#: src/tracker-store/tracker-main.vala:66
+msgid "Only allow read based actions on the database"
+msgstr "Hanya benarkan tindakan berasaskan baca pada pangkalan data"
+
+#: src/tracker-store/tracker-main.vala:67
+msgid "Load a specified domain ontology"
+msgstr "Muat satu ontologi domain dinyatakan"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: src/tracker-store/tracker-main.vala:227
+msgid "— start the tracker daemon"
+msgstr "— mulakan daemon penjejak"
+
+#: src/tracker-store/tracker-store.desktop.in:3
+msgid "Tracker Store"
+msgstr "Stor Penjejak"
+
+#: src/tracker-store/tracker-store.desktop.in:4
+msgid "Metadata database store and lookup manager"
+msgstr "Stor pangkalan data data meta dan pengurus carian"
+
+#: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
+#, c-format
+msgid "failed to exec “%s”: %s"
+msgstr "gagal melakukan “%s”: %s"
+
+#: src/tracker/tracker-info.c:50
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+msgstr "Tunjuk ruang nama penuh (iaitu jangan guna nie:title, guna URL penuh)"
+
+#: src/tracker/tracker-info.c:54
+msgid "Show plain text content if available for resources"
+msgstr "Tunjuk kandungan teks biasa jika tersedia untuk sumber"
+
+#. To translators:
+#. * IRI (International Resource Identifier) is a generalization
+#. * of the URI. While URI supports only ASCI encoding, IRI
+#. * fully supports international characters. In practice, UTF-8
+#. * is the most popular encoding used for IRI.
+#.
+#: src/tracker/tracker-info.c:64
+msgid ""
+"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
+"(e.g. <file:///path/to/some/file.txt>)"
+msgstr ""
+"Selain dari mencari satu nama fail, anggap argumen FILE sebagai IRi sebenar "
+"(iaitu <file:///laluan/ke/beberapa/fail.txt>)"
+
+#: src/tracker/tracker-info.c:68
+msgid "Output results as RDF in Turtle format"
+msgstr "Keputusan output sebagai RDF dalam format Turtle"
+
+#: src/tracker/tracker-info.c:72
+msgid "RDF property to treat as URL (eg. “nie:url”)"
+msgstr "Sifat RDF untuk dianggap sebagai URL (cth. “nie:url”)"
+
+#: src/tracker/tracker-info.c:76 src/tracker/tracker-info.c:77
+#: src/tracker/tracker-sparql.c:106 src/tracker/tracker-sql.c:44
+msgid "FILE"
+msgstr "FILE"
+
+#: src/tracker/tracker-info.c:268 src/tracker/tracker-sparql.c:172
+#: src/tracker/tracker-sparql.c:1086
+msgid "Could not establish a connection to Tracker"
+msgstr "Tidak dapat jalinkan satu sambungan dengan Penjejak"
+
+#: src/tracker/tracker-info.c:269 src/tracker/tracker-sparql.c:173
+#: src/tracker/tracker-sparql.c:1087
+msgid "No error given"
+msgstr "Tiada ralat diberi"
+
+#: src/tracker/tracker-info.c:293
+msgid "Querying information for entity"
+msgstr "Menanya maklumat untuk entiti"
+
+#: src/tracker/tracker-info.c:317
+msgid "Unable to retrieve URN for URI"
+msgstr "Tidak boleh memperoleh URN untuk URI"
+
+#: src/tracker/tracker-info.c:327 src/tracker/tracker-info.c:361
+msgid "Unable to retrieve data for URI"
+msgstr "Tidak boleh memperoleh data untuk URI"
+
+#: src/tracker/tracker-info.c:370
+msgid "No metadata available for that URI"
+msgstr "Tiada data meta tersedia untuk URI tersebut"
+
+#: src/tracker/tracker-info.c:375 src/tracker/tracker-sparql.c:1449
+#: src/tracker/tracker-sparql.c:1452 src/tracker/tracker-sql.c:146
+msgid "Results"
+msgstr "Keputusan"
+
+#: src/tracker/tracker-info.c:430 src/tracker/tracker-sparql.c:1497
+#: src/tracker/tracker-sql.c:238
+msgid "Unrecognized options"
+msgstr "Pilihan tidak dikenali"
+
+#: src/tracker/tracker-main.c:41
+msgid "See “tracker help <command>” to read about a specific subcommand."
+msgstr ""
+"Sila rujuk “tracker help <command>” untuk membaca berkenaan satu subperintah "
+"khusus"
+
+#: src/tracker/tracker-main.c:90
+msgid "Get help on how to use Tracker and any of these commands"
+msgstr ""
+"Dapatkan bantuan bagaimana hendak guna Penjejak dan mana-mana perintah ini"
+
+#: src/tracker/tracker-main.c:91
+msgid "Show information known about local files or items indexed"
+msgstr "Tunjuk maklumat diketahui berkenaan fail setempat atau item terindeks"
+
+#: src/tracker/tracker-main.c:92
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"Tanya dan kemas kini indeks menggunakan SPARQL atau gelintar, senarai dan "
+"pepohonkan ontologi"
+
+#: src/tracker/tracker-main.c:93
+msgid "Query the database at the lowest level using SQL"
+msgstr "Tanya pangkalan data pada aras terendah menggunakan SQL"
+
+#: src/tracker/tracker-main.c:140
+#, c-format
+msgid "“%s” is not a tracker command. See “tracker --help”"
+msgstr "“%s” bukanlah satu perintah penjejak. Sila rujuk “tracker --help”"
+
+#: src/tracker/tracker-main.c:168
+msgid "Available tracker commands are:"
+msgstr "Perintah penjejak tersedia adalah:"
+
+#: src/tracker/tracker-main.c:202
+msgid "Additional / third party commands are:"
+msgstr "Perintah pihak ketiga / tambahan adalah:"
+
+#: src/tracker/tracker-sparql.c:105
+msgid "Path to use to run a query or update from file"
+msgstr ""
+"Laluan yang digunakan untuk menjalankan pertanyaan atau mengemas kini dari "
+"fail"
+
+#: src/tracker/tracker-sparql.c:109
+msgid "SPARQL query"
+msgstr "Pertanyaan SPARQL"
+
+#: src/tracker/tracker-sparql.c:110
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/tracker/tracker-sparql.c:113
+msgid "This is used with --query and for database updates only."
+msgstr ""
+"Ia digunakan dengan --query dan untuk kemas kini pangkalan data sahaja."
+
+#: src/tracker/tracker-sparql.c:117
+msgid "Retrieve classes"
+msgstr "Peroleh kelas-kelas"
+
+#: src/tracker/tracker-sparql.c:121
+msgid "Retrieve class prefixes"
+msgstr "Peroleh awalan-awalan kelas"
+
+#: src/tracker/tracker-sparql.c:125
+msgid ""
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+"Resource)"
+msgstr ""
+"Peroleh sifat-sifat satu kelas, awalan boleh juga digunakan (iaitu rdfs:"
+"Resource)"
+
+#: src/tracker/tracker-sparql.c:126 src/tracker/tracker-sparql.c:130
+#: src/tracker/tracker-sparql.c:138 src/tracker/tracker-sparql.c:146
+#: src/tracker/tracker-sparql.c:150
+msgid "CLASS"
+msgstr "KELAS"
+
+#: src/tracker/tracker-sparql.c:129
+msgid ""
+"Retrieve classes which notify changes in the database (CLASS is optional)"
+msgstr ""
+"Peroleh kelas-kelas yang memaklumkan perubahan dalam pangkalan data (CLASS "
+"adalah pilihan)"
+
+#: src/tracker/tracker-sparql.c:133
+msgid ""
+"Retrieve indexes used in database to improve performance (PROPERTY is "
+"optional)"
+msgstr ""
+"Peroleh indeks-indeks yang digunakan dalam pangkalan data untuk menambah "
+"baik prestasi (PROPERTY adalah pilihan)"
+
+#: src/tracker/tracker-sparql.c:134
+msgid "PROPERTY"
+msgstr "SIFAT"
+
+#: src/tracker/tracker-sparql.c:137
+msgid ""
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
+msgstr ""
+"Jelaskan subkelas, superkelas (boleh digunakan dengan -s untuk menyorot "
+"bahagian pepohon dan -p untuk menunjukkan sifat)"
+
+#: src/tracker/tracker-sparql.c:141
+msgid ""
+"Search for a class or property and display more information (e.g. Document)"
+msgstr "Gelintar kelas atau sifat dan papar lagi maklumat (iaitu Dokumen)"
+
+#: src/tracker/tracker-sparql.c:142
+msgid "CLASS/PROPERTY"
+msgstr "KELAS/SIFAT"
+
+#: src/tracker/tracker-sparql.c:145
+msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+msgstr "Kembalikan kependekan bagi kelas (iaitu nfo:FileDataObject)."
+
+#: src/tracker/tracker-sparql.c:149
+msgid "Returns the full namespace for a class."
+msgstr "Kembalikan ruang nama penuh bagi satu kelas."
+
+#: src/tracker/tracker-sparql.c:153
+msgid "Remote service to query to"
+msgstr "Perkhidmatan jauh untuk pertanyaan"
+
+#: src/tracker/tracker-sparql.c:154
+msgid "BASE_URL"
+msgstr "URL_DASAR"
+
+#: src/tracker/tracker-sparql.c:200
+msgid "Unable to retrieve namespace prefixes"
+msgstr "Tidak memperoleh awalan ruang nama"
+
+#: src/tracker/tracker-sparql.c:208
+msgid "No namespace prefixes were returned"
+msgstr "Tiada awalan ruang nama dikembalikan"
+
+#: src/tracker/tracker-sparql.c:254
+msgid "Could not get namespace prefixes"
+msgstr "Tidak memperoleh awalan ruang nama"
+
+#: src/tracker/tracker-sparql.c:263
+msgid "No namespace prefixes were found"
+msgstr "Tiada awalan ruang nama ditemui"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/tracker/tracker-sparql.c:509 src/tracker/tracker-sparql.c:557
+msgid "None"
+msgstr "Tiada"
+
+#: src/tracker/tracker-sparql.c:963
+msgid "Could not create tree: subclass query failed"
+msgstr "Tidak dapat mencipta pepohon: pertanyaan subkelas gagal"
+
+#: src/tracker/tracker-sparql.c:1012
+msgid "Could not create tree: class properties query failed"
+msgstr "Tidak dapat mencipta pepohon: pertanyaan sifat kelas gagal"
+
+#: src/tracker/tracker-sparql.c:1100
+msgid "Could not list classes"
+msgstr "Tidak dapat menyenarai kelas"
+
+#: src/tracker/tracker-sparql.c:1108
+msgid "No classes were found"
+msgstr "Tiada kelas ditemui"
+
+#: src/tracker/tracker-sparql.c:1108 src/tracker/tracker-sparql.c:1299
+msgid "Classes"
+msgstr "Kelas"
+
+#: src/tracker/tracker-sparql.c:1124
+msgid "Could not list class prefixes"
+msgstr "Tidak dapat menyenaraikan awalan-awalan kelas"
+
+#: src/tracker/tracker-sparql.c:1132
+msgid "No class prefixes were found"
+msgstr "Tiada awalan kelas ditemui"
+
+#: src/tracker/tracker-sparql.c:1132
+msgid "Prefixes"
+msgstr "Awalan"
+
+#: src/tracker/tracker-sparql.c:1152
+msgid ""
+"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
+msgstr ""
+"Tidak dapat mencari sifat bagi awalan kelas, iaitu :Resource dalam “rdfs:"
+"Resource”"
+
+#: src/tracker/tracker-sparql.c:1191
+msgid "Could not list properties"
+msgstr "Tidak dapat menyenaraikan sifat"
+
+#: src/tracker/tracker-sparql.c:1199
+msgid "No properties were found"
+msgstr "Tiada sifat-sifat ditemui"
+
+#: src/tracker/tracker-sparql.c:1199 src/tracker/tracker-sparql.c:1322
+msgid "Properties"
+msgstr "Ciri-ciri"
+
+#: src/tracker/tracker-sparql.c:1227
+msgid "Could not find notify classes"
+msgstr "Tidak dapat mencari makluman kelas"
+
+#: src/tracker/tracker-sparql.c:1235
+msgid "No notifies were found"
+msgstr "Tiada makluman ditemui"
+
+#: src/tracker/tracker-sparql.c:1235
+msgid "Notifies"
+msgstr "Maklumkan"
+
+#: src/tracker/tracker-sparql.c:1261
+msgid "Could not find indexed properties"
+msgstr "Tidak dapat mencari sifat terindeks"
+
+#: src/tracker/tracker-sparql.c:1269
+msgid "No indexes were found"
+msgstr "Tiada indeks-indeks ditemui"
+
+#: src/tracker/tracker-sparql.c:1269
+msgid "Indexes"
+msgstr "Indeks"
+
+#: src/tracker/tracker-sparql.c:1291
+msgid "Could not search classes"
+msgstr "Tidak dapat menggelintar kelas"
+
+#: src/tracker/tracker-sparql.c:1299
+msgid "No classes were found to match search term"
+msgstr "Tiada kelas ditemui untuk sepadankan dengan terma gelintar"
+
+#: src/tracker/tracker-sparql.c:1314
+msgid "Could not search properties"
+msgstr "Tidak dapat menggelintar sifat"
+
+#: src/tracker/tracker-sparql.c:1322
+msgid "No properties were found to match search term"
+msgstr "Tiada sifat ditemui untuk sepadankan dengan terma gelintar"
+
+#: src/tracker/tracker-sparql.c:1358 src/tracker/tracker-sql.c:65
+msgid "Could not get UTF-8 path from path"
+msgstr "Tidak peroleh laluan UTF-8 dari laluan"
+
+#: src/tracker/tracker-sparql.c:1370 src/tracker/tracker-sql.c:76
+msgid "Could not read file"
+msgstr "Tidak dapat membaca fail"
+
+#: src/tracker/tracker-sparql.c:1389
+msgid "Could not run update"
+msgstr "Tidak dapat mejalankan kemas kini"
+
+#: src/tracker/tracker-sparql.c:1396
+msgid "Done"
+msgstr "Selesai"
+
+#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
+#: src/tracker/tracker-sql.c:172
+msgid "Could not run query"
+msgstr "Tidak dapat menjalankan pertanyaan"
+
+#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
+msgid "No results found matching your query"
+msgstr "Tiada keputusan ditemui sepadan dengan pertanyaan anda"
+
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sql.c:247
+msgid "File and query can not be used together"
+msgstr "Fail dan pertanyaan tidak boleh digunakan bersama-sama"
+
+#: src/tracker/tracker-sparql.c:1508
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"Argumen --list-properties hanya boleh kosong ketika digunakan dengan argumen "
+"--tree"
+
+#: src/tracker/tracker-sql.c:43
+msgid "Path to use to run a query from file"
+msgstr "Laluan yang digunakan untuk menjalankan satu pertanyaan dari fail"
+
+#: src/tracker/tracker-sql.c:47
+msgid "SQL query"
+msgstr "Pertanyaan SQL"
+
+#: src/tracker/tracker-sql.c:48
+msgid "SQL"
+msgstr "SQL"
+
+#: src/tracker/tracker-sql.c:120
+msgid "Failed to initialize data manager"
+msgstr "Gagal mengawalkan pengurus data"
+
+#: src/tracker/tracker-sql.c:180
+msgid "Empty result set"
+msgstr "Keputusan kosong ditetapkan"
