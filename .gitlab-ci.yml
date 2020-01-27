@@ -50,6 +50,7 @@ stages:
     when: always
     paths:
     - build/meson-logs/testlog.txt
+    - build/callgrind.out.*
 
 
 test-fedora-latest:
