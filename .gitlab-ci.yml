@@ -49,7 +49,7 @@ stages:
   artifacts:
     when: always
     paths:
-    - build/meson-logs/testlog.txt
+    - build/meson-logs/testlog*.txt
     - build/callgrind.out.*
 
 
