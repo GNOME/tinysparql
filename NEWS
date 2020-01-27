@@ -1,3 +1,9 @@
+NEW in 2.3.2 - unreleased
+=========================
+
+  * Location info for photos is now inserted into the DB. It didn't
+    work before as we failed to process SPARQL "blank nodes" correctly.
+
 NEW in 2.3.1 - 2019-10-12
 =========================
 
