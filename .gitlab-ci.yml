@@ -16,7 +16,7 @@ stages:
 
 .test_template: &test
   stage: test
-  tags: [gnome-build-meta, ipv6, osuosl, x86_64]
+  tags: [gnome-build-meta, ipv6, x86_64]
 
   script:
     - su tracker -c 'mkdir build'
