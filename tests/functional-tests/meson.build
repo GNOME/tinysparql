@@ -37,11 +37,10 @@ test_env.prepend('PYTHONPATH', tracker_uninstalled_testutils_dir)
 test_env.set('TRACKER_FUNCTIONAL_TEST_CONFIG', config_json_full_path)
 
 foreach test_name: functional_tests
-  file = '@0@.py'.format(test_name)
+  file = meson.current_source_dir() / '@0@.py'.format(test_name)
   test(test_name, python,
     args: [file],
     env: test_env,
-    workdir: meson.current_source_dir(),
     suite: ['functional'],
     timeout: 60)
 endforeach
