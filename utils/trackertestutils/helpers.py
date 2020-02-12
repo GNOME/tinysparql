@@ -156,7 +156,8 @@ class await_insert():
 
         def timeout_cb():
             log.info("Timeout fired after %s seconds", self.timeout)
-            raise AwaitTimeoutException()
+            raise AwaitTimeoutException(
+                f"Timeout awaiting insert of resource matching: {self.predicates}")
 
         self.signal_id = self.notifier.connect('events', match_cb)
         self.timeout_id = GLib.timeout_add_seconds(self.timeout, timeout_cb)
@@ -238,7 +239,9 @@ class await_update():
 
         def timeout_cb():
             log.info("Timeout fired after %s seconds", self.timeout)
-            raise AwaitTimeoutException()
+            raise AwaitTimeoutException(
+                f"Timeout awaiting update of resource {self.resource_id} "
+                f"matching: {self.after_predicates}")
 
         self.signal_id = self.notifier.connect('events', match_cb)
         self.timeout_id = GLib.timeout_add_seconds(self.timeout, timeout_cb)
@@ -296,7 +299,8 @@ class await_delete():
 
         def timeout_cb():
             log.info("Timeout fired after %s seconds", self.timeout)
-            raise AwaitTimeoutException()
+            raise AwaitTimeoutException(
+                f"Timeout awaiting removal of resource {self.resource_id} ")
 
         self.signal_id = self.notifier.connect('events', match_cb)
         self.timeout_id = GLib.timeout_add_seconds(self.timeout, timeout_cb)
