@@ -9,16 +9,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2019-09-21 08:15+0000\n"
-"PO-Revision-Date: 2019-12-25 04:08+0100\n"
-"Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
+"POT-Creation-Date: 2020-01-28 00:18+0000\n"
+"PO-Revision-Date: 2020-02-14 22:05+0100\n"
+"Last-Translator: Fran Diéguez <frandieguez@gnome.org>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2.4\n"
+"X-Generator: Poedit 2.3\n"
 "X-Project-Style: gnome\n"
 
 #: data/org.freedesktop.Tracker.DB.gschema.xml:24
@@ -37,7 +37,8 @@ msgstr "Localización dos anacos do diario"
 #: data/org.freedesktop.Tracker.DB.gschema.xml:30
 msgid "Where to store a journal chunk when it hits the max size."
 msgstr ""
-"Indica se se debe gardar un fragmento do diario cando alcanza o tamaño máximo."
+"Indica se se debe gardar un fragmento do diario cando alcanza o tamaño "
+"máximo."
 
 #: data/org.freedesktop.Tracker.FTS.gschema.xml:26
 msgid "Maximum length of a word to be indexed"
@@ -193,21 +194,6 @@ msgstr[1] " %2.2d segundos"
 msgid "the|a|an"
 msgstr "o|a|os|as|un|unha|uns|unhas|the|a|an"
 
-#: src/libtracker-miner/tracker-data-provider.c:108
-#: src/libtracker-miner/tracker-data-provider.c:168
-msgid "Operation not supported"
-msgstr "Operación non admitida"
-
-#: src/libtracker-miner/tracker-miner-proxy.c:346
-msgid "Cookie not recognized to resume paused miner"
-msgstr "Non se recoñece a «cookie» para resumir o mineiro pausado"
-
-#: src/libtracker-miner/tracker-miner-proxy.c:403
-msgid "Pause application and reason match an already existing pause request"
-msgstr ""
-"A aplicación de pausa e a razón xa coinciden cunha solicitude de pausa "
-"existente"
-
 #. Daemon options
 #: src/tracker-store/tracker-main.vala:60
 msgid "Displays version information"
@@ -253,584 +239,18 @@ msgstr "Almacén de Tracker"
 msgid "Metadata database store and lookup manager"
 msgstr "Xestor de almacenamento e busca na base de datos de metadatos"
 
-#: src/tracker/tracker-config.c:60
-#, c-format
-msgid "Could not get GSettings for miners, manager could not be created, %s"
-msgstr ""
-"Non foi posíbel obter os GSettings para os mineiros, non foi posíbel o "
-"xestor, %s"
-
-#: src/tracker/tracker-config.c:61 src/tracker/tracker-daemon.c:461
-#: src/tracker/tracker-daemon.c:482 src/tracker/tracker-daemon.c:707
-#: src/tracker/tracker-daemon.c:739 src/tracker/tracker-daemon.c:889
-#: src/tracker/tracker-daemon.c:947 src/tracker/tracker-daemon.c:982
-#: src/tracker/tracker-daemon.c:1051 src/tracker/tracker-daemon.c:1242
-#: src/tracker/tracker-daemon.c:1308 src/tracker/tracker-daemon.c:1669
-#: src/tracker/tracker-dbus.c:45 src/tracker/tracker-dbus.c:63
-#: src/tracker/tracker-index.c:123 src/tracker/tracker-index.c:155
-#: src/tracker/tracker-index.c:196 src/tracker/tracker-index.c:272
-#: src/tracker/tracker-index.c:329 src/tracker/tracker-info.c:264
-#: src/tracker/tracker-process.c:80 src/tracker/tracker-process.c:206
-#: src/tracker/tracker-process.c:335 src/tracker/tracker-process.c:356
-#: src/tracker/tracker-search.c:1581 src/tracker/tracker-sparql.c:173
-#: src/tracker/tracker-sparql.c:1087 src/tracker/tracker-status.c:74
-#: src/tracker/tracker-status.c:303 src/tracker/tracker-status.c:313
-#: src/tracker/tracker-status.c:387 src/tracker/tracker-status.c:432
-#: src/tracker/tracker-status.c:461 src/tracker/tracker-tag.c:977
-msgid "No error given"
-msgstr "Non se obtivo ningún erro"
-
-#: src/tracker/tracker-daemon.c:121 src/tracker/tracker-daemon.c:428
-msgid "Unavailable"
-msgstr "Non dispoñíbel"
-
-#. generic
-#: src/tracker/tracker-daemon.c:122
-msgid "Initializing"
-msgstr "Inicializando"
-
-#: src/tracker/tracker-daemon.c:123
-msgid "Processing…"
-msgstr "Procesando…"
-
-#: src/tracker/tracker-daemon.c:124
-msgid "Fetching…"
-msgstr "Obtendo…"
-
-#. miner/rss
-#: src/tracker/tracker-daemon.c:125
-#, c-format
-msgid "Crawling single directory “%s”"
-msgstr "Analizando o cartafol único «%s»"
-
-#: src/tracker/tracker-daemon.c:126
-#, c-format
-msgid "Crawling recursively directory “%s”"
-msgstr "Analizando recursivamente polo cartafol «%s»"
-
-#: src/tracker/tracker-daemon.c:127
-msgid "Paused"
-msgstr "Detido"
-
-#: src/tracker/tracker-daemon.c:128
-msgid "Idle"
-msgstr "Inactivo"
-
-#: src/tracker/tracker-daemon.c:134
-msgid "Follow status changes as they happen"
-msgstr "Seguir os cambios de estado conforme se producen"
-
-#: src/tracker/tracker-daemon.c:138
-msgid ""
-"Watch changes to the database in real time (e.g. resources or files being "
-"added)"
-msgstr ""
-"Vexa os cambios na base de datos en tempo real (p.ex. os recursos ou "
-"ficheiros que se engaden)"
-
-#: src/tracker/tracker-daemon.c:139
-msgid "ONTOLOGY"
-msgstr "ONTOLOXÍA"
-
-#: src/tracker/tracker-daemon.c:142
-msgid "List common statuses for miners and the store"
-msgstr "Lista de estados comúns para os mineiros e o almacén"
-
-#: src/tracker/tracker-daemon.c:147
-msgid "Pause a miner (you must use this with --miner)"
-msgstr "Pausar un mineiro (debe usalo con «--miner»)"
-
-#: src/tracker/tracker-daemon.c:148 src/tracker/tracker-daemon.c:152
-msgid "REASON"
-msgstr "RAZÓN"
-
-#: src/tracker/tracker-daemon.c:151
-msgid ""
-"Pause a miner while the calling process is alive or until resumed (you must "
-"use this with --miner)"
-msgstr ""
-"Pausar un mineiro mentres o proceso de chamada estea activo ou até que se "
-"reanude (debe usalo con «--miner»)"
-
-#: src/tracker/tracker-daemon.c:155
-msgid "Resume a miner (you must use this with --miner)"
-msgstr "Reanudar un mineiro (debe usalo con «--miner»)"
-
-#: src/tracker/tracker-daemon.c:156
-msgid "COOKIE"
-msgstr "COOKIE"
-
-#: src/tracker/tracker-daemon.c:159
-msgid ""
-"Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
-"Applications)"
-msgstr ""
-"Mineiro que usar con --resume ou --pause (pode usar sufixos, ex. «Ficheiros» "
-"ou «Aplicacións»)"
-
-#: src/tracker/tracker-daemon.c:160
-msgid "MINER"
-msgstr "MINEIRO"
-
-#: src/tracker/tracker-daemon.c:163
-msgid "List all miners currently running"
-msgstr "Listar todos os mineiros actualmente en execución"
-
-#: src/tracker/tracker-daemon.c:167
-msgid "List all miners installed"
-msgstr "Listar tódolos mineiros instalados"
-
-#: src/tracker/tracker-daemon.c:171
-msgid "List pause reasons"
-msgstr "Listar os motivos de pausa"
-
-#: src/tracker/tracker-daemon.c:176
-msgid "List all Tracker processes"
-msgstr "Listar tódolos procesos de Tracker"
-
-#: src/tracker/tracker-daemon.c:178
-msgid ""
-"Use SIGKILL to stop all matching processes, either “store”, “miners” or “all” "
-"may be used, no parameter equals “all”"
-msgstr ""
-"USar SIGKILL para parar tódolos procesos coincidentes, se debe usar «store», "
-"«miners», «all» ningún parámetro iguala a «all»"
-
-#: src/tracker/tracker-daemon.c:179 src/tracker/tracker-daemon.c:182
-msgid "APPS"
-msgstr "APLICACIÓNS"
-
-#: src/tracker/tracker-daemon.c:181
-msgid ""
-"Use SIGTERM to stop all matching processes, either “store”, “miners” or “all” "
-"may be used, no parameter equals “all”"
-msgstr ""
-"Usar SIGTERM para parar todos os procesos coincidentes, débese usar «store», "
-"«miners» ou «all», ningún parámetro equivale a «all»"
-
-#: src/tracker/tracker-daemon.c:184
-msgid "Starts miners (which indirectly starts tracker-store too)"
-msgstr "Inicia mineiros (que indirectamente inicia Tracker tamén)"
-
-#: src/tracker/tracker-daemon.c:187 src/tracker/tracker-extract.c:42
-msgid ""
-"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
-"“errors”) for all processes"
-msgstr ""
-"Estabelece o nivel de detalle a «NIVEL» («depuración», «detallado», «mínimo», "
-"«erros») para todos os procesos"
-
-#: src/tracker/tracker-daemon.c:188 src/tracker/tracker-extract.c:43
-msgid "LEVEL"
-msgstr "NIVEL"
-
-#: src/tracker/tracker-daemon.c:190
-msgid "Show logging values in terms of log verbosity for each process"
-msgstr ""
-"Mostrar valores de rexistro en termos de rexistro detallado para cada proceso"
-
-#: src/tracker/tracker-daemon.c:263
-#, c-format
-msgid "Could not get status from miner: %s"
-msgstr "Non foi posíbel obter o estado do mineiro: %s"
-
-#. Translators: %s is a time string
-#: src/tracker/tracker-daemon.c:325
-#, c-format
-msgid "%s remaining"
-msgstr "%s restante"
-
-#: src/tracker/tracker-daemon.c:328
-msgid "unknown time left"
-msgstr "tempo restante descoñecido"
-
-#. Work out lengths for output spacing
-#: src/tracker/tracker-daemon.c:341 src/tracker/tracker-daemon.c:1318
-msgid "PAUSED"
-msgstr "PAUSADO"
-
-#: src/tracker/tracker-daemon.c:358
-msgid "Not running or is a disabled plugin"
-msgstr "Non está en execución ou é un complemento desactivado"
-
-#: src/tracker/tracker-daemon.c:460
-msgid "Could not retrieve tracker-store status"
-msgstr "Non se puido obter o estado do tracker-store"
-
-#: src/tracker/tracker-daemon.c:481
-msgid "Could not retrieve tracker-store progress"
-msgstr "Non foi posíbel obter o progreso de tracker-store"
-
-#: src/tracker/tracker-daemon.c:611 src/tracker/tracker-sparql.c:200
-msgid "Unable to retrieve namespace prefixes"
-msgstr "Non foi posíbel obter os prefixos de espazos de nomes"
-
-#: src/tracker/tracker-daemon.c:619 src/tracker/tracker-sparql.c:208
-msgid "No namespace prefixes were returned"
-msgstr "Non foi posíbel ningún prefixo de espazo de nomes"
-
-#: src/tracker/tracker-daemon.c:698 src/tracker/tracker-daemon.c:725
-msgid "Could not run SPARQL query"
-msgstr "Non foi posíbel executar a consulta SPARQL"
-
-#: src/tracker/tracker-daemon.c:706 src/tracker/tracker-daemon.c:738
-msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
-msgstr ""
-"Non foi posíbel chamar a tracker_sparql_cursor_next() na consulta SPARQL"
-
-#: src/tracker/tracker-daemon.c:888
-#, c-format
-msgid "Could not pause miner, manager could not be created, %s"
-msgstr "Non foi posíbel pausar o mineiro, non foi posíbel crear o xestor, %s"
-
-#: src/tracker/tracker-daemon.c:895
-#, c-format
-msgid "Attempting to pause miner “%s” with reason “%s”"
-msgstr "Tentando pausar o mineiro «%s» coa razón «%s»"
-
-#: src/tracker/tracker-daemon.c:903 src/tracker/tracker-daemon.c:909
-#, c-format
-msgid "Could not pause miner: %s"
-msgstr "Non foi posíbel pausar o mineiro: %s"
-
-#: src/tracker/tracker-daemon.c:915
-#, c-format
-msgid "Cookie is %d"
-msgstr "A «cookie» é %d"
-
-#: src/tracker/tracker-daemon.c:922 src/tracker/tracker-daemon.c:1275
-#: src/tracker/tracker-daemon.c:1419
-msgid "Press Ctrl+C to stop"
-msgstr "Prema «Ctrl+C» para parar"
-
-#: src/tracker/tracker-daemon.c:946
-#, c-format
-msgid "Could not resume miner, manager could not be created, %s"
-msgstr "Non foi posíbel reanudar o mineiro, non foi posíbel crear o xestor, %s"
-
-#: src/tracker/tracker-daemon.c:953
-#, c-format
-msgid "Attempting to resume miner %s with cookie %d"
-msgstr "Tentando resumir o mineiro %s coa «cookie» %d"
-
-#: src/tracker/tracker-daemon.c:960
-#, c-format
-msgid "Could not resume miner: %s"
-msgstr "Non foi posíbel resumir o mineiro: %s"
-
-#: src/tracker/tracker-daemon.c:964 src/tracker/tracker-index.c:222
-#: src/tracker/tracker-sparql.c:1396
-msgid "Done"
-msgstr "Feito"
-
-#: src/tracker/tracker-daemon.c:981
-#, c-format
-msgid "Could not list miners, manager could not be created, %s"
-msgstr "Non foi posíbel mostrar os mineiros, non foi posíbel crear o xestor, %s"
-
-#: src/tracker/tracker-daemon.c:995
-#, c-format
-msgid "Found %d miner installed"
-msgid_plural "Found %d miners installed"
-msgstr[0] "Atopouse %d mineiro instalados"
-msgstr[1] "Atopáronse %d mineiros instalados"
-
-#: src/tracker/tracker-daemon.c:1018
-#, c-format
-msgid "Found %d miner running"
-msgid_plural "Found %d miners running"
-msgstr[0] "Atopouse %d mineiro en execución"
-msgstr[1] "Atopáronse %d mineiros en execución"
-
-#: src/tracker/tracker-daemon.c:1050
-#, c-format
-msgid "Could not get pause details, manager could not be created, %s"
-msgstr ""
-"Non foi posíbel obter os detalles de pausa, non foi posíbel crear o xestor, %s"
-
-#: src/tracker/tracker-daemon.c:1060
-msgid "No miners are running"
-msgstr "Non hai ningún mineiro en execución"
-
-#: src/tracker/tracker-daemon.c:1100 src/tracker/tracker-daemon.c:1354
-#: src/tracker/tracker-daemon.c:1603 src/tracker/tracker-daemon.c:1646
-msgid "Miners"
-msgstr "Mineiros"
-
-#: src/tracker/tracker-daemon.c:1107
-msgid "Application"
-msgstr "Aplicación"
-
-#: src/tracker/tracker-daemon.c:1109
-msgid "Reason"
-msgstr "Razón"
-
-#: src/tracker/tracker-daemon.c:1118
-msgid "No miners are paused"
-msgstr "Non hai ningún mineiro pausado"
-
-#: src/tracker/tracker-daemon.c:1206
-msgid "Only one of “all”, “store” and “miners” options are allowed"
-msgstr "Só se permite unha das opcións «all», «store» e «miners»"
-
-#: src/tracker/tracker-daemon.c:1241
-msgid "Could not get SPARQL connection"
-msgstr "Non foi posíbel estabelecer unha conexión con SPARQL"
-
-#: src/tracker/tracker-daemon.c:1273
-msgid "Now listening for resource updates to the database"
-msgstr "Escoitando as actualizacións de recursos na base de datos"
-
-#: src/tracker/tracker-daemon.c:1274
-msgid "All nie:plainTextContent properties are omitted"
-msgstr "Omítense todas as propiedades nie:plainTextConten"
-
-#: src/tracker/tracker-daemon.c:1289
-msgid "Common statuses include"
-msgstr "Os estados comúns inclúen"
-
-#: src/tracker/tracker-daemon.c:1307 src/tracker/tracker-status.c:460
-#, c-format
-msgid "Could not get status, manager could not be created, %s"
-msgstr "Non foi posíbel obter o estado, non foi posíbel crear o xestor, %s"
-
-#. Display states
-#: src/tracker/tracker-daemon.c:1328
-msgid "Store"
-msgstr "Almacenar"
-
-#: src/tracker/tracker-daemon.c:1362
-#, c-format
-msgid "Could not get display name for miner “%s”"
-msgstr "Non foi posíbel obter o nome en pantalla para o mineiro «%s»"
-
-#: src/tracker/tracker-daemon.c:1460
-msgid "You can not use miner pause and resume switches together"
-msgstr "Non pode usar un mineiro pausado e resumir os cambios á vez"
-
-#: src/tracker/tracker-daemon.c:1466
-msgid "You must provide the miner for pause or resume commands"
-msgstr "Debe fornecer o mineiro para as ordes pausar ou resumir"
-
-#: src/tracker/tracker-daemon.c:1472
-msgid "You must provide a pause or resume command for the miner"
-msgstr "Debe fornecer unha pausa ou resumir a orde para o mineiro"
-
-#: src/tracker/tracker-daemon.c:1508
-msgid "You can not use the --kill and --terminate arguments together"
-msgstr ""
-"Non se poden empregar os argumentos --kill e --terminate de forma conxunta"
-
-#: src/tracker/tracker-daemon.c:1514
-msgid "You can not use the --get-logging and --set-logging arguments together"
-msgstr ""
-"Non é posíbel usar os argumentos «--get-logging» e «--set-logging» á vez"
-
-#: src/tracker/tracker-daemon.c:1529 src/tracker/tracker-extract.c:105
-msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
-msgstr ""
-"Rexistro detallado non válido, probe con «debug», «detailed», «minimal» ou "
-"«errors»"
-
-#: src/tracker/tracker-daemon.c:1557 src/tracker/tracker-process.c:305
-#, c-format
-msgid "Found %d PID…"
-msgid_plural "Found %d PIDs…"
-msgstr[0] "Atopouse %d PID…"
-msgstr[1] "Atopáronse %d PID…"
-
-#: src/tracker/tracker-daemon.c:1567
-#, c-format
-msgid "Found process ID %d for “%s”"
-msgstr "Atopouse o ID do proceso %d para «%s»"
-
-#: src/tracker/tracker-daemon.c:1597 src/tracker/tracker-daemon.c:1640
-msgid "Components"
-msgstr "Compoñentes"
-
-#: src/tracker/tracker-daemon.c:1604 src/tracker/tracker-daemon.c:1647
-msgid "Only those with config listed"
-msgstr "Só aqueles coa configuración listada"
-
-#: src/tracker/tracker-daemon.c:1623
-#, c-format
-msgid "Setting log verbosity for all components to “%s”…"
-msgstr "Estabelecendo o rexistro detallado para tódolos compoñentens a «%s»…"
-
-#: src/tracker/tracker-daemon.c:1663
-msgid "Starting miners…"
-msgstr "Inciando mineiros…"
-
-#: src/tracker/tracker-daemon.c:1668
-#, c-format
-msgid "Could not start miners, manager could not be created, %s"
-msgstr "Non foi posíbel iniciar os mineiros, non foi posíbel crear o xestor, %s"
-
-#: src/tracker/tracker-daemon.c:1693
-msgid "perhaps a disabled plugin?"
-msgstr "quizáis é un engadido desactivado?"
-
-#: src/tracker/tracker-daemon.c:1737
-msgid ""
-"If no arguments are given, the status of the store and data miners is shown"
-msgstr ""
-"Se non se fornecen argumentos, mostrarase o estado do almacenamento e dos "
-"mineiros de datos"
-
-#: src/tracker/tracker-daemon.c:1742 src/tracker/tracker-extract.c:147
-#: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:357 src/tracker/tracker-search.c:1778
-#: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:240
-#: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
-msgid "Unrecognized options"
-msgstr "Non se recoñeceron as opcións"
-
-#: src/tracker/tracker-dbus.c:44
-msgid "Could not get D-Bus connection"
-msgstr "Non foi posíbel estabelecer unha conexión co D-Bus"
-
-#: src/tracker/tracker-dbus.c:62
-msgid "Could not create D-Bus proxy to tracker-store"
-msgstr "Non foi posíbel crear o proxy de D-Bus ao tracker-store"
-
-#: src/tracker/tracker-extract.c:45
-msgid "Output results format: “sparql”, “turtle” or “json-ld”"
-msgstr "O formato dos resultados da saída: «sparql», «turtle» ou «json-ld»"
-
-#: src/tracker/tracker-extract.c:46
-msgid "FORMAT"
-msgstr "FORMATO"
-
-#: src/tracker/tracker-extract.c:48 src/tracker/tracker-extract.c:49
-#: src/tracker/tracker-index.c:60 src/tracker/tracker-index.c:71
-#: src/tracker/tracker-index.c:72 src/tracker/tracker-info.c:71
-#: src/tracker/tracker-info.c:72 src/tracker/tracker-reset.c:63
-#: src/tracker/tracker-sparql.c:106 src/tracker/tracker-sql.c:44
-msgid "FILE"
-msgstr "FICHEIRO"
-
-#: src/tracker/tracker-extract.c:77
-msgid "Could not run tracker-extract: "
-msgstr "Non se puido executar tracker-extract:"
-
 #: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "fallo ao executar «%s»: %s"
 
-#: src/tracker/tracker-index.c:56
-msgid ""
-"Tell miners to reindex files which match the mime type supplied (for new "
-"extractors), use -m MIME1 -m MIME2"
-msgstr ""
-"Decir aos mineiros que reindexen os ficheiros que coincidan co tipo MIME "
-"fornecido (para extractores novos), uso -m MIME1 -m MIME2"
-
-#: src/tracker/tracker-index.c:57
-msgid "MIME"
-msgstr "MIME"
-
-#: src/tracker/tracker-index.c:59
-msgid "Tell miners to (re)index a given file"
-msgstr "Decir aos mineiros que (re)indexen un ficheiro dado"
-
-#: src/tracker/tracker-index.c:62
-msgid "Backup current index / database to the file provided"
-msgstr "Respaldar o índice actual / bases de datos ao ficheiro fornecido"
-
-#: src/tracker/tracker-index.c:65
-msgid "Restore a database from a previous backup (see --backup)"
-msgstr "Restaura unha base de datos desde o respaldo anterior (vexa --backup)"
-
-#: src/tracker/tracker-index.c:68
-msgid "Import a dataset from the provided file (in Turtle format)"
-msgstr ""
-"Importar un conxunto de datos desde un ficheiro fornecido (en formato Turtle)"
-
-#: src/tracker/tracker-index.c:122
-#, c-format
-msgid "Could not reindex mimetypes, manager could not be created, %s"
-msgstr ""
-"Non foi posíbel reindexar os tipos MIME, non foi posíbel crear o xestor, %s"
-
-#: src/tracker/tracker-index.c:132
-msgid "Could not reindex mimetypes"
-msgstr "Non foi posíbel reindexar os tipos MIME"
-
-#: src/tracker/tracker-index.c:138
-msgid "Reindexing mime types was successful"
-msgstr "Reindexando dos tipos MIME correctamente"
-
-#: src/tracker/tracker-index.c:154
-#, c-format
-msgid "Could not (re)index file, manager could not be created, %s"
-msgstr ""
-"Non foi posíbel (re)indexar o ficheiro, non foi posíbel crear o xestor, %s"
-
-#: src/tracker/tracker-index.c:169
-msgid "Could not (re)index file"
-msgstr "Non foi posíbel (re)indexar o ficheiro"
-
-#: src/tracker/tracker-index.c:175
-msgid "(Re)indexing file was successful"
-msgstr "(Re)indexado do ficheiro correctamente"
-
-#: src/tracker/tracker-index.c:195 src/tracker/tracker-info.c:263
-#: src/tracker/tracker-search.c:1580 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086 src/tracker/tracker-status.c:73
-#: src/tracker/tracker-status.c:386 src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
-
-#: src/tracker/tracker-index.c:206
-msgid "Importing Turtle file"
-msgstr "Importando ficheiro Turtle"
-
-#: src/tracker/tracker-index.c:215
-msgid "Unable to import Turtle file"
-msgstr "Non foi posíbel importar o ficheiro Turtle"
-
-#: src/tracker/tracker-index.c:251
-msgid "Backing up database"
-msgstr "Respaldando base de datos"
-
-#: src/tracker/tracker-index.c:271 src/tracker/tracker-index.c:328
-msgid "Could not backup database"
-msgstr "Non foi posíbel facer unha copia de respaldo da base de datos"
-
-#: src/tracker/tracker-index.c:308
-msgid "Restoring database from backup"
-msgstr "Restaurando base de datos desde o respaldo"
-
-#: src/tracker/tracker-index.c:437
-msgid ""
-"Only one action (--backup, --restore, --index-file or --import) can be used "
-"at a time"
-msgstr ""
-"Só pode usar á vez unha acción (--backup, --restore, --index-file ou --import)"
-
-#: src/tracker/tracker-index.c:439
-msgid "Missing one or more files which are required"
-msgstr "Faltan un ou máis ficheiros que son requiridos"
-
-#: src/tracker/tracker-index.c:441
-msgid "Only one file can be used with --backup and --restore"
-msgstr "Só pode usar un ficheiro con --backup ou --restore"
-
-#: src/tracker/tracker-index.c:443
-msgid ""
-"Actions (--backup, --restore, --index-file and --import) can not be used with "
-"--reindex-mime-type"
-msgstr ""
-"As accións (--backup, --restore, --index-file and --import) non poden usarse "
-"con --reindex-mime-type"
-
-#: src/tracker/tracker-info.c:49
+#: src/tracker/tracker-info.c:50
 msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr ""
-"Mostrar espazos de nomes completos (ex. non usar nie:títlo, usar URL completo)"
+"Mostrar espazos de nomes completos (ex. non usar nie:títlo, usar URL "
+"completo)"
 
-#: src/tracker/tracker-info.c:53
+#: src/tracker/tracker-info.c:54
 msgid "Show plain text content if available for resources"
 msgstr "Mostra o contido en texto plano se está dispoñíbel para os recursos"
 
@@ -840,434 +260,99 @@ msgstr "Mostra o contido en texto plano se está dispoñíbel para os recursos"
 #. * fully supports international characters. In practice, UTF-8
 #. * is the most popular encoding used for IRI.
 #.
-#: src/tracker/tracker-info.c:63
+#: src/tracker/tracker-info.c:64
 msgid ""
-"Instead of looking up a file name, treat the FILE arguments as actual IRIs (e."
-"g. <file:///path/to/some/file.txt>)"
+"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
+"(e.g. <file:///path/to/some/file.txt>)"
 msgstr ""
 "No lugar de buscar por un nome de ficheiro, tratar os argumentos FILE como "
 "IRIs reais (p.ex. <file:///ruta/a/algun/ficheiro.txt>)"
 
-#: src/tracker/tracker-info.c:67
+#: src/tracker/tracker-info.c:68
 msgid "Output results as RDF in Turtle format"
 msgstr "Mostrar os resultados como RDF en formato Turtle"
 
-#: src/tracker/tracker-info.c:285
+#: src/tracker/tracker-info.c:72
+msgid "RDF property to treat as URL (eg. “nie:url”)"
+msgstr "A propiedade de RDF para tratar como URL (p.ex. «nie:url»)"
+
+#: src/tracker/tracker-info.c:76 src/tracker/tracker-info.c:77
+#: src/tracker/tracker-sparql.c:106 src/tracker/tracker-sql.c:44
+msgid "FILE"
+msgstr "FICHEIRO"
+
+#: src/tracker/tracker-info.c:268 src/tracker/tracker-sparql.c:172
+#: src/tracker/tracker-sparql.c:1086
+msgid "Could not establish a connection to Tracker"
+msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
+
+#: src/tracker/tracker-info.c:269 src/tracker/tracker-sparql.c:173
+#: src/tracker/tracker-sparql.c:1087
+msgid "No error given"
+msgstr "Non se obtivo ningún erro"
+
+#: src/tracker/tracker-info.c:293
 msgid "Querying information for entity"
 msgstr "Consultando a información para a entidade"
 
-#: src/tracker/tracker-info.c:309
+#: src/tracker/tracker-info.c:317
 msgid "Unable to retrieve URN for URI"
 msgstr "Non foi posíbel obter o URN para o URI"
 
-#: src/tracker/tracker-info.c:319 src/tracker/tracker-info.c:353
+#: src/tracker/tracker-info.c:327 src/tracker/tracker-info.c:361
 msgid "Unable to retrieve data for URI"
 msgstr "Non foi posíbel obter datos para o URI"
 
-#: src/tracker/tracker-info.c:362
+#: src/tracker/tracker-info.c:370
 msgid "No metadata available for that URI"
 msgstr "Non existen metadatos dispoñíbeis para ese URI"
 
-#: src/tracker/tracker-info.c:367 src/tracker/tracker-search.c:1455
-#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
-#: src/tracker/tracker-sql.c:148
+#: src/tracker/tracker-info.c:375 src/tracker/tracker-sparql.c:1449
+#: src/tracker/tracker-sparql.c:1452 src/tracker/tracker-sql.c:146
 msgid "Results"
 msgstr "Resultados"
 
-#: src/tracker/tracker-main.c:48
+#: src/tracker/tracker-info.c:430 src/tracker/tracker-sparql.c:1497
+#: src/tracker/tracker-sql.c:238
+msgid "Unrecognized options"
+msgstr "Non se recoñeceron as opcións"
+
+#: src/tracker/tracker-main.c:41
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr "Vexa «tracker help <orde>» para ler sobre unha suborde específica."
 
-#: src/tracker/tracker-main.c:97
-msgid "Start, stop, pause and list processes responsible for indexing content"
-msgstr ""
-"Iniciar, deter, pausar e listar os procesos responsábeis para indexar contido"
-
-#: src/tracker/tracker-main.c:98
-msgid "Extract information from a file"
-msgstr "Extrae información dun ficheiro"
-
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:90
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Obter axuda sobre como usar Tracker e calquera destas ordes"
 
-#: src/tracker/tracker-main.c:100
+#: src/tracker/tracker-main.c:91
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Mostrar información coñecida sobre os ficheiros locais ou elementos indexados"
 
-#: src/tracker/tracker-main.c:101
-msgid "Backup, restore, import and (re)index by MIME type or file name"
-msgstr ""
-"Respalda, restaura, importa e (re)indexa por tipo MIME ou nome de ficheiro"
-
-#: src/tracker/tracker-main.c:102
-msgid "Reset or remove index and revert configurations to defaults"
-msgstr ""
-"Reiniciar ou eliminar un índice e reverter as configuracións aos "
-"predeterminados"
-
-#: src/tracker/tracker-main.c:103
-msgid "Search for content indexed or show content by type"
-msgstr "Buscar por contidos indexados ou mostrar contido por tipo"
-
-#: src/tracker/tracker-main.c:104
+#: src/tracker/tracker-main.c:92
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Consultar e actualizar o índice usando SPARQL ou busque, liste ou mostre un "
 "árbore a ontoloxía"
 
-#: src/tracker/tracker-main.c:105
+#: src/tracker/tracker-main.c:93
 msgid "Query the database at the lowest level using SQL"
 msgstr "Consultar a base de datos a baixo nivel usando SQL"
 
-#: src/tracker/tracker-main.c:106
-msgid "Show the indexing progress, content statistics and index state"
-msgstr ""
-"Mostrar o progreso de indexado, estatísticas de contido ou estado do índice"
-
-#: src/tracker/tracker-main.c:107
-msgid "Create, list or delete tags for indexed content"
-msgstr "Crear, listar ou eliminar etiquetas para o contido indexado"
-
-#: src/tracker/tracker-main.c:108
-msgid "Show the license and version in use"
-msgstr "Mostrar a licenza e versión en uso"
-
-#: src/tracker/tracker-main.c:160
+#: src/tracker/tracker-main.c:140
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "«%s» non é unha orde de tracker. Vexa «tracker --help»"
 
-#: src/tracker/tracker-main.c:183
+#: src/tracker/tracker-main.c:168
 msgid "Available tracker commands are:"
 msgstr "As ordes de tracker dispoñíbeis son:"
 
-#: src/tracker/tracker-process.c:79
-msgid "Could not open /proc"
-msgstr "Non se puido abrir /proc"
-
-#: src/tracker/tracker-process.c:132
-msgid "Could not stat() file"
-msgstr "Non foi posíbel facer stat() do ficheiro"
-
-#: src/tracker/tracker-process.c:203
-#, c-format
-msgid "Could not open “%s”"
-msgstr "Non se puido abrir «%s»"
-
-#: src/tracker/tracker-process.c:332
-#, c-format
-msgid "Could not terminate process %d — “%s”"
-msgstr "Non se puido terminar o proceso %d — «%s»"
-
-#: src/tracker/tracker-process.c:338
-#, c-format
-msgid "Terminated process %d — “%s”"
-msgstr "Proceso %d terminado — «%s»"
-
-#: src/tracker/tracker-process.c:353
-#, c-format
-msgid "Could not kill process %d — “%s”"
-msgstr "Non se puido matar o proceso %d — «%s»"
-
-#: src/tracker/tracker-process.c:359
-#, c-format
-msgid "Killed process %d — “%s”"
-msgstr "Proceso %d matado — «%s»"
-
-#: src/tracker/tracker-reset.c:53
-msgid "Kill all Tracker processes and remove all databases"
-msgstr "Matar todos os procesos de Tracker e borrar todas as bases de datos"
-
-#: src/tracker/tracker-reset.c:56
-msgid "Same as --hard but the backup & journal are restored after restart"
-msgstr ""
-"Igual que --hard pero o respaldo e o diario restáuranse despois de reiniciar"
-
-#: src/tracker/tracker-reset.c:59
-msgid "Remove all configuration files so they are re-generated on next start"
-msgstr ""
-"Quitar todos os ficheiros de configuración para que se rexeneren no seguinte "
-"inicio"
-
-#: src/tracker/tracker-reset.c:62
-msgid ""
-"Erase indexed information about a file, works recursively for directories"
-msgstr ""
-"Elimina a información indexada dun ficheiro, funciona de forma recursiva para "
-"os cartafoles"
-
-#. Now, delete the element recursively
-#: src/tracker/tracker-reset.c:127
-msgid "Deleting…"
-msgstr "Eliminando…"
-
-#: src/tracker/tracker-reset.c:148
-msgid ""
-"The indexed data for this file has been deleted and will be reindexed again."
-msgstr ""
-"Os datos indexados para este ficheiro foi eliminado e volverá a indexarse de "
-"novo."
-
-#. TRANSLATORS: --hard and --soft are commandline arguments
-#: src/tracker/tracker-reset.c:175
-msgid "You can not use the --hard and --soft arguments together"
-msgstr "Non é posíbel usar os argumentos «--hard» e «--soft» á vez"
-
-#: src/tracker/tracker-reset.c:183
-msgid "CAUTION: This process may irreversibly delete data."
-msgstr "PERIGO: Este proceso pode eliminar datos de forma irreversíbel."
-
-#: src/tracker/tracker-reset.c:184
-msgid ""
-"Although most content indexed by Tracker can be safely reindexed, it can’t be "
-"assured that this is the case for all data. Be aware that you may be "
-"incurring in a data loss situation, proceed at your own risk."
-msgstr ""
-"Aínda que a maioría dos contidos indexados por Tracker poden reindexarse de "
-"forma segura, non pode asegurarse que este sexa o caso para todos os datos. "
-"Teña en conta que pode chegarse a unha situación de perda de datos, proceda "
-"baixo o seu risco."
-
-#: src/tracker/tracker-reset.c:189
-msgid "Are you sure you want to proceed?"
-msgstr "Está seguro de que quere seguir?"
-
-#. TRANSLATORS: This is to be displayed on command line output
-#: src/tracker/tracker-reset.c:191
-msgid "[y|N]"
-msgstr "[s|N]"
-
-#. TRANSLATORS: this is our test for a [y|N] question in the command line.
-#. * A partial or full match will be considered an affirmative answer,
-#. * it is intentionally lowercase, so please keep it like this.
-#.
-#: src/tracker/tracker-reset.c:200
-msgid "yes"
-msgstr "si"
-
-#: src/tracker/tracker-reset.c:279
-msgid "Resetting existing configuration…"
-msgstr "Restabelecendo a configuración existente…"
-
-#: src/tracker/tracker-search.c:80
-msgid "Search for files"
-msgstr "Buscar ficheiros"
-
-#: src/tracker/tracker-search.c:84
-msgid "Search for folders"
-msgstr "Buscar cartafoles"
-
-#: src/tracker/tracker-search.c:88
-msgid "Search for music files"
-msgstr "Buscar ficheiros de música"
-
-#: src/tracker/tracker-search.c:92
-msgid "Search for music albums (--all has no effect on this)"
-msgstr "Buscar álbumes de música («--all» non ten efecto sobre isto)"
-
-#: src/tracker/tracker-search.c:96
-msgid "Search for music artists (--all has no effect on this)"
-msgstr "Buscar artistas musicais («--all» non ten efecto sobre isto)"
-
-#: src/tracker/tracker-search.c:100
-msgid "Search for image files"
-msgstr "Buscar ficheiros de imaxes"
-
-#: src/tracker/tracker-search.c:104
-msgid "Search for video files"
-msgstr "Buscar ficheiros de vídeo"
-
-#: src/tracker/tracker-search.c:108
-msgid "Search for document files"
-msgstr "Buscar ficheiros de documentos"
-
-#: src/tracker/tracker-search.c:112
-msgid "Search for emails"
-msgstr "Buscar correos electrónicos"
-
-#: src/tracker/tracker-search.c:116
-msgid "Search for contacts"
-msgstr "Buscar contactos"
-
-#: src/tracker/tracker-search.c:120
-msgid "Search for software (--all has no effect on this)"
-msgstr "Buscar software («--all» non ten efecto sobre isto) "
-
-#: src/tracker/tracker-search.c:124
-msgid "Search for software categories (--all has no effect on this)"
-msgstr "Buscar categorías de software («--all» non ten efecto sobre isto)"
-
-#: src/tracker/tracker-search.c:128
-msgid "Search for feeds (--all has no effect on this)"
-msgstr "Buscar fornecedores («--all» non ten efecto sobre isto)"
-
-#: src/tracker/tracker-search.c:132
-msgid "Search for bookmarks (--all has no effect on this)"
-msgstr "Buscar marcadores («--all» non ten efecto sobre isto)"
-
-#: src/tracker/tracker-search.c:138 src/tracker/tracker-tag.c:73
-msgid "Limit the number of results shown"
-msgstr "Limitar o número de resultados mostrados"
-
-#: src/tracker/tracker-search.c:142 src/tracker/tracker-tag.c:77
-msgid "Offset the results"
-msgstr "Desprazar os resultados"
-
-#: src/tracker/tracker-search.c:146
-msgid "Use OR for search terms instead of AND (the default)"
-msgstr "Use OR para buscar termos en lugar de AND (o predeterminado)"
-
-#: src/tracker/tracker-search.c:150
-msgid ""
-"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
-"feeds, --software, --software-categories)"
-msgstr ""
-"Mostrar a URN para os resultados (non se aplica para «--music-albums», «--"
-"music-artists», «--feeds», «--software», «--software-categories»)"
-
-#: src/tracker/tracker-search.c:154
-msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
-msgstr ""
-"Devolver tamén todas as coincidencias non existentes (ex. incluir volúmenes "
-"sen montar)"
-
-#: src/tracker/tracker-search.c:158
-msgid ""
-"Disable showing snippets with results. This is only shown for some "
-"categories, e.g. Documents, Music…"
-msgstr ""
-"Desactivar os snippets mostrados con resultados. Isto só se mostra para "
-"algunhas categorías, p.ex. Documentos, Música…"
-
-#: src/tracker/tracker-search.c:162
-msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
-msgstr "Desactivar a Busca de texto completa (FTS). Implica --disable-snippets"
-
-#: src/tracker/tracker-search.c:166
-msgid "Disable color when printing snippets and results"
-msgstr "Desacticar a cor ao imprimir snippets e resultados"
-
-#: src/tracker/tracker-search.c:173 src/tracker/tracker-status.c:57
-msgid "search terms"
-msgstr "termos de busca"
-
-#: src/tracker/tracker-search.c:174 src/tracker/tracker-status.c:58
-msgid "EXPRESSION"
-msgstr "EXPRESIÓN"
-
-#: src/tracker/tracker-search.c:192 src/tracker/tracker-tag.c:103
-msgid ""
-"NOTE: Limit was reached, there are more items in the database not listed here"
-msgstr ""
-"NOTA: Atinxiuse o límite; hai máis elementos na base de datos que non son "
-"listados aquí"
-
-#: src/tracker/tracker-search.c:286 src/tracker/tracker-search.c:395
-#: src/tracker/tracker-search.c:497 src/tracker/tracker-search.c:811
-#: src/tracker/tracker-search.c:900 src/tracker/tracker-search.c:990
-#: src/tracker/tracker-search.c:1072 src/tracker/tracker-search.c:1156
-#: src/tracker/tracker-search.c:1238 src/tracker/tracker-search.c:1442
-msgid "Could not get search results"
-msgstr "Non foi posíbel obter os resultados"
-
-#: src/tracker/tracker-search.c:295
-msgid "No contacts were found"
-msgstr "Non foi posíbel ningún contacto"
-
-#: src/tracker/tracker-search.c:299
-msgid "Contacts"
-msgstr "Contactos"
-
-#: src/tracker/tracker-search.c:356 src/tracker/tracker-search.c:369
-msgid "No name"
-msgstr "Sen nome"
-
-#: src/tracker/tracker-search.c:357 src/tracker/tracker-search.c:370
-msgid "No E-mail address"
-msgstr "Sen enderezo de correo electrónico"
-
-#: src/tracker/tracker-search.c:404
-msgid "No emails were found"
-msgstr "Non foi posíbel atopar ningún correo-e"
-
-#: src/tracker/tracker-search.c:408
-msgid "Emails"
-msgstr "Correos electrónicos"
-
-#: src/tracker/tracker-search.c:506
-msgid "No files were found"
-msgstr "Non foi posíbel atopar ningún ficheiro"
-
-#: src/tracker/tracker-search.c:510 src/tracker/tracker-tag.c:439
-msgid "Files"
-msgstr "Ficheiros"
-
-#: src/tracker/tracker-search.c:820
-msgid "No artists were found"
-msgstr "Non foi posíbel atopar ningún artista"
-
-#: src/tracker/tracker-search.c:824
-msgid "Artists"
-msgstr "Artistas"
-
-#: src/tracker/tracker-search.c:909
-msgid "No music was found"
-msgstr "Non se atopou música"
-
-#: src/tracker/tracker-search.c:913
-msgid "Albums"
-msgstr "Álbumes"
-
-#: src/tracker/tracker-search.c:999
-msgid "No bookmarks were found"
-msgstr "No se atoparon marcadores"
-
-#: src/tracker/tracker-search.c:1003
-msgid "Bookmarks"
-msgstr "Marcadores"
-
-#: src/tracker/tracker-search.c:1081
-msgid "No feeds were found"
-msgstr "Non se atopou ningún fornecedor"
-
-#: src/tracker/tracker-search.c:1085
-msgid "Feeds"
-msgstr "Fornecedores"
-
-#: src/tracker/tracker-search.c:1165
-msgid "No software was found"
-msgstr "Non se atopou software"
-
-#: src/tracker/tracker-search.c:1169
-msgid "Software"
-msgstr "Software"
-
-#: src/tracker/tracker-search.c:1247
-msgid "No software categories were found"
-msgstr "Non se atoparon categorías de software"
-
-#: src/tracker/tracker-search.c:1251
-msgid "Software Categories"
-msgstr "Categorías de software"
-
-#: src/tracker/tracker-search.c:1451
-msgid "No results were found matching your query"
-msgstr "Non se atopou ningún resultado coincidente coa súa consulta"
-
-#: src/tracker/tracker-search.c:1553
-#, c-format
-msgid "Search term “%s” is a stop word."
-msgstr "O termo de busca «%s» é unha palabra de parada."
-
-#: src/tracker/tracker-search.c:1564
-msgid ""
-"Stop words are common words which may be ignored during the indexing process."
-msgstr ""
-"As palabras de parada son palabras que poden ignorarse durante o proceso de "
-"indexado."
+#: src/tracker/tracker-main.c:202
+msgid "Additional / third party commands are:"
+msgstr "As ordes de terceiros/adicionais son:"
 
 #: src/tracker/tracker-sparql.c:105
 msgid "Path to use to run a query or update from file"
@@ -1296,7 +381,8 @@ msgstr "Obter prefixos de clases"
 
 #: src/tracker/tracker-sparql.c:125
 msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+"Resource)"
 msgstr ""
 "Obter as propiedades para unha clase, tamén se poden usar prefixos (ex. rdfs:"
 "Recurso)"
@@ -1330,8 +416,8 @@ msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
 msgstr ""
-"Describe as subclases, superclases (pode usarse con -s para realzar partes do "
-"árbore e -p para mostrar as propiedades)"
+"Describe as subclases, superclases (pode usarse con -s para realzar partes "
+"do árbore e -p para mostrar as propiedades)"
 
 #: src/tracker/tracker-sparql.c:141
 msgid ""
@@ -1359,6 +445,14 @@ msgstr "Servizo remoto ao que consultar"
 msgid "BASE_URL"
 msgstr "URL_BASE"
 
+#: src/tracker/tracker-sparql.c:200
+msgid "Unable to retrieve namespace prefixes"
+msgstr "Non foi posíbel obter os prefixos de espazos de nomes"
+
+#: src/tracker/tracker-sparql.c:208
+msgid "No namespace prefixes were returned"
+msgstr "Non foi posíbel ningún prefixo de espazo de nomes"
+
 #: src/tracker/tracker-sparql.c:254
 msgid "Could not get namespace prefixes"
 msgstr "Non foi posíbel obter os prefixos de espazos de nomes"
@@ -1371,33 +465,7 @@ msgstr "Non foi posíbel atopar ningún prefixo de espazo de nomes"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#. To translators: This is to say there are no
-#. * tags found with a particular unique ID.
-#. To translators: This is to say there are no
-#. * files found associated with multiple tags, e.g.:
-#. *
-#. *   Files:
-#. *     None
-#. *
-#.
-#. To translators: This is to say there are no
-#. * resources found associated with this tag, e.g.:
-#. *
-#. *   Tags (shown by name):
-#. *     None
-#. *
-#.
-#. To translators: This is to say there are no
-#. * tags found for a particular file, e.g.:
-#. *
-#. *   /path/to/some/file:
-#. *     None
-#. *
-#.
 #: src/tracker/tracker-sparql.c:509 src/tracker/tracker-sparql.c:557
-#: src/tracker/tracker-status.c:136 src/tracker/tracker-tag.c:323
-#: src/tracker/tracker-tag.c:455 src/tracker/tracker-tag.c:577
-#: src/tracker/tracker-tag.c:955
 msgid "None"
 msgstr "Ningún"
 
@@ -1506,8 +574,12 @@ msgstr "Non se puido ler o ficheiro"
 msgid "Could not run update"
 msgstr "Non foi posíbel execuctar a actualización"
 
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:141
-#: src/tracker/tracker-sql.c:174
+#: src/tracker/tracker-sparql.c:1396
+msgid "Done"
+msgstr "Feito"
+
+#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
+#: src/tracker/tracker-sql.c:172
 msgid "Could not run query"
 msgstr "Non foi posíbel executar a consulta"
 
@@ -1515,7 +587,7 @@ msgstr "Non foi posíbel executar a consulta"
 msgid "No results found matching your query"
 msgstr "Non se encontraron resultados coincidentes coa súa consulta"
 
-#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sql.c:249
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sql.c:247
 msgid "File and query can not be used together"
 msgstr "Non foi posíbel usar conxuntamente o ficheiro e a consulta"
 
@@ -1524,8 +596,8 @@ msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
 msgstr ""
-"O argumento --list-properties só pode estar baleiro cando se usa co argumento "
-"--tree"
+"O argumento --list-properties só pode estar baleiro cando se usa co "
+"argumento --tree"
 
 #: src/tracker/tracker-sql.c:43
 msgid "Path to use to run a query from file"
@@ -1543,279 +615,889 @@ msgstr "SQL"
 msgid "Failed to initialize data manager"
 msgstr "Produciuse un fallo ao iniciar o administrador de datos"
 
-#: src/tracker/tracker-sql.c:182
+#: src/tracker/tracker-sql.c:180
 msgid "Empty result set"
 msgstr "Conxunto de resultados baleiro"
 
-#: src/tracker/tracker-status.c:49
-msgid "Show statistics for current index / data set"
-msgstr "Mostrar estatísticas do índice / conxunto de datos actuais"
+#~ msgid "Operation not supported"
+#~ msgstr "Operación non admitida"
 
-#: src/tracker/tracker-status.c:53
-msgid ""
-"Collect debug information useful for problem reporting and investigation, "
-"results are output to terminal"
-msgstr ""
-"Recoller información de depuración útil para xerar informes e investigar "
-"erros, os resultados mostraranse no terminal"
+#~ msgid "Cookie not recognized to resume paused miner"
+#~ msgstr "Non se recoñece a «cookie» para resumir o mineiro pausado"
 
-#: src/tracker/tracker-status.c:85
-msgid "Could not get Tracker statistics"
-msgstr "Non se puideron obter as estatísticas do Tracker"
+#~ msgid "Pause application and reason match an already existing pause request"
+#~ msgstr ""
+#~ "A aplicación de pausa e a razón xa coinciden cunha solicitude de pausa "
+#~ "existente"
 
-#: src/tracker/tracker-status.c:92
-msgid "No statistics available"
-msgstr "Non hai estatísticas dispoñíbeis"
+#~ msgid "Could not get GSettings for miners, manager could not be created, %s"
+#~ msgstr ""
+#~ "Non foi posíbel obter os GSettings para os mineiros, non foi posíbel o "
+#~ "xestor, %s"
 
-#. To translators: This is to say there are no
-#. * statistics found. We use a "Statistics:
-#. * None" with multiple print statements
-#: src/tracker/tracker-status.c:133
-msgid "Statistics:"
-msgstr "Estatísticas:"
+#~ msgid "Unavailable"
+#~ msgstr "Non dispoñíbel"
 
-#: src/tracker/tracker-status.c:170
-msgid "Version"
-msgstr "Versión"
+#~ msgid "Initializing"
+#~ msgstr "Inicializando"
 
-#: src/tracker/tracker-status.c:177
-msgid "Disk Information"
-msgstr "Información do disco"
+#~ msgid "Processing…"
+#~ msgstr "Procesando…"
 
-#: src/tracker/tracker-status.c:184 src/tracker/tracker-status.c:538
-msgid "Remaining space on database partition"
-msgstr "Espazo libre na partición da base de datos"
+#~ msgid "Fetching…"
+#~ msgstr "Obtendo…"
 
-#. 3. Size of dataset (tracker-stats), size of databases
-#: src/tracker/tracker-status.c:191
-msgid "Data Set"
-msgstr "Conxunto de datos"
+#~ msgid "Crawling single directory “%s”"
+#~ msgstr "Analizando o cartafol único «%s»"
 
-#: src/tracker/tracker-status.c:223
-msgid "Configuration"
-msgstr "Configuración"
+#~ msgid "Crawling recursively directory “%s”"
+#~ msgstr "Analizando recursivamente polo cartafol «%s»"
 
-#: src/tracker/tracker-status.c:251
-msgid "No configuration was found"
-msgstr "Non se atopou configuración"
+#~ msgid "Paused"
+#~ msgstr "Detido"
 
-#: src/tracker/tracker-status.c:255
-msgid "States"
-msgstr "Estados"
+#~ msgid "Idle"
+#~ msgstr "Inactivo"
 
-#: src/tracker/tracker-status.c:296
-msgid "Data Statistics"
-msgstr "Estatísticas dos datos"
+#~ msgid "Follow status changes as they happen"
+#~ msgstr "Seguir os cambios de estado conforme se producen"
 
-#: src/tracker/tracker-status.c:302
-msgid "No connection available"
-msgstr "Non hai unha conexión dispoñíbel"
+#~ msgid ""
+#~ "Watch changes to the database in real time (e.g. resources or files being "
+#~ "added)"
+#~ msgstr ""
+#~ "Vexa os cambios na base de datos en tempo real (p.ex. os recursos ou "
+#~ "ficheiros que se engaden)"
 
-#: src/tracker/tracker-status.c:312
-msgid "Could not get statistics"
-msgstr "Non foi posíbel obter as estatísticas"
+#~ msgid "ONTOLOGY"
+#~ msgstr "ONTOLOXÍA"
 
-#: src/tracker/tracker-status.c:318
-msgid "No statistics were available"
-msgstr "Non hai estatísticas dispoñíbeis"
+#~ msgid "List common statuses for miners and the store"
+#~ msgstr "Lista de estados comúns para os mineiros e o almacén"
 
-#: src/tracker/tracker-status.c:331
-msgid "Database is currently empty"
-msgstr "A base de datos está baleira actualmente"
+#~ msgid "Pause a miner (you must use this with --miner)"
+#~ msgstr "Pausar un mineiro (debe usalo con «--miner»)"
 
-#: src/tracker/tracker-status.c:408 src/tracker/tracker-status.c:431
-msgid "Could not get basic status for Tracker"
-msgstr "Non foi posíbel obter o estado básico de Tracker"
+#~ msgid "REASON"
+#~ msgstr "RAZÓN"
 
-#: src/tracker/tracker-status.c:515
-msgid "Currently indexed"
-msgstr "Indexados actualmente"
+#~ msgid ""
+#~ "Pause a miner while the calling process is alive or until resumed (you "
+#~ "must use this with --miner)"
+#~ msgstr ""
+#~ "Pausar un mineiro mentres o proceso de chamada estea activo ou até que se "
+#~ "reanude (debe usalo con «--miner»)"
 
-#: src/tracker/tracker-status.c:518 src/tracker/tracker-tag.c:559
-#, c-format
-msgid "%d file"
-msgid_plural "%d files"
-msgstr[0] "%d ficheiro"
-msgstr[1] "%d ficheiros"
+#~ msgid "Resume a miner (you must use this with --miner)"
+#~ msgstr "Reanudar un mineiro (debe usalo con «--miner»)"
 
-#: src/tracker/tracker-status.c:524
-#, c-format
-msgid "%d folder"
-msgid_plural "%d folders"
-msgstr[0] "%d cartafol"
-msgstr[1] "%d cartafol"
+#~ msgid "COOKIE"
+#~ msgstr "COOKIE"
 
-#: src/tracker/tracker-status.c:550
-msgid "Data is still being indexed"
-msgstr "Os datos aínda se están indexando"
+#~ msgid ""
+#~ "Miner to use with --resume or --pause (you can use suffixes, e.g. Files "
+#~ "or Applications)"
+#~ msgstr ""
+#~ "Mineiro que usar con --resume ou --pause (pode usar sufixos, ex. "
+#~ "«Ficheiros» ou «Aplicacións»)"
 
-#: src/tracker/tracker-status.c:551
-#, c-format
-msgid "Estimated %s left"
-msgstr "Quedan aproximadamente %s"
+#~ msgid "MINER"
+#~ msgstr "MINEIRO"
 
-#: src/tracker/tracker-status.c:555
-msgid "All data miners are idle, indexing complete"
-msgstr "Todos os mineiros están ociosos, o indexado completou"
+#~ msgid "List all miners currently running"
+#~ msgstr "Listar todos os mineiros actualmente en execución"
 
-#: src/tracker/tracker-tag.c:53
-msgid "List all tags (using FILTER if specified; FILTER always uses logical OR)"
-msgstr ""
-"Listar tódalas etiquetas (usando FILTRO se se especifica; FILTRO sempre usa o "
-"OR lóxico)"
+#~ msgid "List all miners installed"
+#~ msgstr "Listar tódolos mineiros instalados"
 
-#: src/tracker/tracker-tag.c:54
-msgid "FILTER"
-msgstr "FILTRO"
+#~ msgid "List pause reasons"
+#~ msgstr "Listar os motivos de pausa"
 
-#: src/tracker/tracker-tag.c:57
-msgid "Show files associated with each tag (this is only used with --list)"
-msgstr ""
-"Mostrar os ficheiros asociados con cada etiqueta (só se usa con «--list»)"
+#~ msgid "List all Tracker processes"
+#~ msgstr "Listar tódolos procesos de Tracker"
 
-#: src/tracker/tracker-tag.c:61
-msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
-msgstr ""
-"Engadir unha etiqueta (se se omiten os FICHEIROS, A ETIQUETA non se asocia "
-"con ningún ficheiro)"
+#~ msgid ""
+#~ "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
+#~ "“all” may be used, no parameter equals “all”"
+#~ msgstr ""
+#~ "USar SIGKILL para parar tódolos procesos coincidentes, se debe usar "
+#~ "«store», «miners», «all» ningún parámetro iguala a «all»"
 
-#: src/tracker/tracker-tag.c:62 src/tracker/tracker-tag.c:66
-msgid "TAG"
-msgstr "ETIQUETA"
+#~ msgid "APPS"
+#~ msgstr "APLICACIÓNS"
 
-#: src/tracker/tracker-tag.c:65
-msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
-msgstr ""
-"Eliminar unha etiqueta (se se omiten os FICHEIROS, a ETIQUETA elimínase para "
-"todos os ficheiros)"
+#~ msgid ""
+#~ "Use SIGTERM to stop all matching processes, either “store”, “miners” or "
+#~ "“all” may be used, no parameter equals “all”"
+#~ msgstr ""
+#~ "Usar SIGTERM para parar todos os procesos coincidentes, débese usar "
+#~ "«store», «miners» ou «all», ningún parámetro equivale a «all»"
 
-#: src/tracker/tracker-tag.c:69
-msgid "Description for a tag (this is only used with --add)"
-msgstr "Descrición para unha etiqueta (só se usa con «--add»)"
+#~ msgid "Starts miners (which indirectly starts tracker-store too)"
+#~ msgstr "Inicia mineiros (que indirectamente inicia Tracker tamén)"
 
-#: src/tracker/tracker-tag.c:70
-msgid "STRING"
-msgstr "CADEA"
+#~ msgid ""
+#~ "Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
+#~ "“errors”) for all processes"
+#~ msgstr ""
+#~ "Estabelece o nivel de detalle a «NIVEL» («depuración», «detallado», "
+#~ "«mínimo», «erros») para todos os procesos"
 
-#: src/tracker/tracker-tag.c:81
-msgid "Use AND for search terms instead of OR (the default)"
-msgstr "Use AND para buscar termos en lugar de OR (o predeterminado)"
+#~ msgid "LEVEL"
+#~ msgstr "NIVEL"
 
-#: src/tracker/tracker-tag.c:86
-msgid "FILE…"
-msgstr "FICHEIRO…"
+#~ msgid "Show logging values in terms of log verbosity for each process"
+#~ msgstr ""
+#~ "Mostrar valores de rexistro en termos de rexistro detallado para cada "
+#~ "proceso"
 
-#: src/tracker/tracker-tag.c:87
-msgid "FILE [FILE…]"
-msgstr "FICHEIRO [FICHEIRO…]"
+#~ msgid "Could not get status from miner: %s"
+#~ msgstr "Non foi posíbel obter o estado do mineiro: %s"
 
-#: src/tracker/tracker-tag.c:249
-msgid "Could not get file URNs"
-msgstr "Non foi posíbel obter os URN do ficheiro"
+#~ msgid "%s remaining"
+#~ msgstr "%s restante"
 
-#: src/tracker/tracker-tag.c:314
-msgid "Could not get files related to tag"
-msgstr "Non foi posíbel obter ficheiros relacionados coa etiqueta"
+#~ msgid "unknown time left"
+#~ msgstr "tempo restante descoñecido"
 
-#: src/tracker/tracker-tag.c:381
-msgid "Could not get all tags in the database"
-msgstr "Non foi posíbel obter todas as etiquetas da base de datos"
+#~ msgid "PAUSED"
+#~ msgstr "PAUSADO"
 
-#: src/tracker/tracker-tag.c:391
-msgid "No files have been tagged"
-msgstr "Non se marcou con etiquetas ningún ficheiro"
+#~ msgid "Not running or is a disabled plugin"
+#~ msgstr "Non está en execución ou é un complemento desactivado"
 
-#: src/tracker/tracker-tag.c:426
-msgid "Could not get files for matching tags"
-msgstr "Non foi posíbel obter os ficheiros relacionados coas etiquetas"
+#~ msgid "Could not retrieve tracker-store status"
+#~ msgstr "Non se puido obter o estado do tracker-store"
 
-#: src/tracker/tracker-tag.c:435
-msgid "No files were found matching ALL of those tags"
-msgstr "Non se atopou ningún resultado coincidente con TODAS as etiquetas"
+#~ msgid "Could not retrieve tracker-store progress"
+#~ msgstr "Non foi posíbel obter o progreso de tracker-store"
 
-#: src/tracker/tracker-tag.c:514 src/tracker/tracker-tag.c:929
-msgid "Could not get all tags"
-msgstr "Non foi posíbel obter todas as etiquetas"
+#~ msgid "Could not run SPARQL query"
+#~ msgstr "Non foi posíbel executar a consulta SPARQL"
 
-#: src/tracker/tracker-tag.c:523 src/tracker/tracker-tag.c:938
-msgid "No tags were found"
-msgstr "Non se atopou ningunha etiqueta"
+#~ msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
+#~ msgstr ""
+#~ "Non foi posíbel chamar a tracker_sparql_cursor_next() na consulta SPARQL"
 
-#: src/tracker/tracker-tag.c:527
-msgid "Tags (shown by name)"
-msgstr "Etiquetas (mostradas por nome)"
+#~ msgid "Could not pause miner, manager could not be created, %s"
+#~ msgstr ""
+#~ "Non foi posíbel pausar o mineiro, non foi posíbel crear o xestor, %s"
 
-#: src/tracker/tracker-tag.c:601
-msgid "No files were modified"
-msgstr "Non se modificou ningún ficheiro"
+#~ msgid "Attempting to pause miner “%s” with reason “%s”"
+#~ msgstr "Tentando pausar o mineiro «%s» coa razón «%s»"
 
-#: src/tracker/tracker-tag.c:651 src/tracker/tracker-tag.c:659
-msgid "Files do not exist or aren’t indexed"
-msgstr "Os ficheiros non existen ou non están indexado"
+#~ msgid "Could not pause miner: %s"
+#~ msgstr "Non foi posíbel pausar o mineiro: %s"
 
-#: src/tracker/tracker-tag.c:709
-msgid "Could not add tag"
-msgstr "Non foi posíbel engadir a etiqueta"
+#~ msgid "Cookie is %d"
+#~ msgstr "A «cookie» é %d"
 
-#: src/tracker/tracker-tag.c:725
-msgid "Tag was added successfully"
-msgstr "Etiqueta engadida correctamente"
+#~ msgid "Press Ctrl+C to stop"
+#~ msgstr "Prema «Ctrl+C» para parar"
 
-#: src/tracker/tracker-tag.c:754
-msgid "Could not add tag to files"
-msgstr "Non foi posíbel engadir as etiquetas aos ficheiros"
+#~ msgid "Could not resume miner, manager could not be created, %s"
+#~ msgstr ""
+#~ "Non foi posíbel reanudar o mineiro, non foi posíbel crear o xestor, %s"
 
-#: src/tracker/tracker-tag.c:764
-msgid "Tagged"
-msgstr "Etiquetado"
+#~ msgid "Attempting to resume miner %s with cookie %d"
+#~ msgstr "Tentando resumir o mineiro %s coa «cookie» %d"
 
-#: src/tracker/tracker-tag.c:765
-msgid "Not tagged, file is not indexed"
-msgstr "Sen etiquetar, o ficheiro non está indexado"
+#~ msgid "Could not resume miner: %s"
+#~ msgstr "Non foi posíbel resumir o mineiro: %s"
 
-#: src/tracker/tracker-tag.c:811
-msgid "Could not get tag by label"
-msgstr "Non foi posíbel obter a etiqueta"
+#~ msgid "Could not list miners, manager could not be created, %s"
+#~ msgstr ""
+#~ "Non foi posíbel mostrar os mineiros, non foi posíbel crear o xestor, %s"
 
-#: src/tracker/tracker-tag.c:822
-msgid "No tags were found by that name"
-msgstr "Non foi posíbel atopar ningunha etiqueta con ese nome"
+#~ msgid "Found %d miner installed"
+#~ msgid_plural "Found %d miners installed"
+#~ msgstr[0] "Atopouse %d mineiro instalados"
+#~ msgstr[1] "Atopáronse %d mineiros instalados"
 
-#: src/tracker/tracker-tag.c:839
-msgid "None of the files had this tag set"
-msgstr "Ningún dos ficheiros ten este conxunto de etiquetas"
+#~ msgid "Found %d miner running"
+#~ msgid_plural "Found %d miners running"
+#~ msgstr[0] "Atopouse %d mineiro en execución"
+#~ msgstr[1] "Atopáronse %d mineiros en execución"
 
-#: src/tracker/tracker-tag.c:885
-msgid "Could not remove tag"
-msgstr "Non foi posíbel quitar a etiqueta"
+#~ msgid "Could not get pause details, manager could not be created, %s"
+#~ msgstr ""
+#~ "Non foi posíbel obter os detalles de pausa, non foi posíbel crear o "
+#~ "xestor, %s"
 
-#: src/tracker/tracker-tag.c:892
-msgid "Tag was removed successfully"
-msgstr "Etiqueta quitada correctamente"
+#~ msgid "No miners are running"
+#~ msgstr "Non hai ningún mineiro en execución"
 
-#: src/tracker/tracker-tag.c:896
-msgid "Untagged"
-msgstr "Sen etiquetar"
+#~ msgid "Miners"
+#~ msgstr "Mineiros"
 
-#: src/tracker/tracker-tag.c:897
-msgid "File not indexed or already untagged"
-msgstr "O ficheiro non está indexado ou xa se desetiquetou"
+#~ msgid "Application"
+#~ msgstr "Aplicación"
 
-#: src/tracker/tracker-tag.c:1088
-msgid "The --list option is required for --show-files"
-msgstr "Requírese a opción «--list» para «--show-files»"
+#~ msgid "Reason"
+#~ msgstr "Razón"
 
-#: src/tracker/tracker-tag.c:1090
-msgid ""
-"The --and-operator option can only be used with --list and tag label arguments"
-msgstr ""
-"A opción «--and-operator» só se pode usar con «--list» e os argumentos de "
-"etiqueta"
+#~ msgid "No miners are paused"
+#~ msgstr "Non hai ningún mineiro pausado"
 
-#: src/tracker/tracker-tag.c:1092
-msgid "Add and delete actions can not be used together"
-msgstr "Engadir ou borrar accións que non se poden usar conxuntamente"
+#~ msgid "Only one of “all”, “store” and “miners” options are allowed"
+#~ msgstr "Só se permite unha das opcións «all», «store» e «miners»"
 
-#: src/tracker/tracker-tag.c:1094
-msgid "The --description option can only be used with --add"
-msgstr "A opción «--description» só se pode usar con «--add»"
+#~ msgid "Could not get SPARQL connection"
+#~ msgstr "Non foi posíbel estabelecer unha conexión con SPARQL"
+
+#~ msgid "Now listening for resource updates to the database"
+#~ msgstr "Escoitando as actualizacións de recursos na base de datos"
+
+#~ msgid "All nie:plainTextContent properties are omitted"
+#~ msgstr "Omítense todas as propiedades nie:plainTextConten"
+
+#~ msgid "Common statuses include"
+#~ msgstr "Os estados comúns inclúen"
+
+#~ msgid "Could not get status, manager could not be created, %s"
+#~ msgstr "Non foi posíbel obter o estado, non foi posíbel crear o xestor, %s"
+
+#~ msgid "Store"
+#~ msgstr "Almacenar"
+
+#~ msgid "Could not get display name for miner “%s”"
+#~ msgstr "Non foi posíbel obter o nome en pantalla para o mineiro «%s»"
+
+#~ msgid "You can not use miner pause and resume switches together"
+#~ msgstr "Non pode usar un mineiro pausado e resumir os cambios á vez"
+
+#~ msgid "You must provide the miner for pause or resume commands"
+#~ msgstr "Debe fornecer o mineiro para as ordes pausar ou resumir"
+
+#~ msgid "You must provide a pause or resume command for the miner"
+#~ msgstr "Debe fornecer unha pausa ou resumir a orde para o mineiro"
+
+#~ msgid "You can not use the --kill and --terminate arguments together"
+#~ msgstr ""
+#~ "Non se poden empregar os argumentos --kill e --terminate de forma conxunta"
+
+#~ msgid ""
+#~ "You can not use the --get-logging and --set-logging arguments together"
+#~ msgstr ""
+#~ "Non é posíbel usar os argumentos «--get-logging» e «--set-logging» á vez"
+
+#~ msgid ""
+#~ "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
+#~ msgstr ""
+#~ "Rexistro detallado non válido, probe con «debug», «detailed», «minimal» "
+#~ "ou «errors»"
+
+#~ msgid "Found %d PID…"
+#~ msgid_plural "Found %d PIDs…"
+#~ msgstr[0] "Atopouse %d PID…"
+#~ msgstr[1] "Atopáronse %d PID…"
+
+#~ msgid "Found process ID %d for “%s”"
+#~ msgstr "Atopouse o ID do proceso %d para «%s»"
+
+#~ msgid "Components"
+#~ msgstr "Compoñentes"
+
+#~ msgid "Only those with config listed"
+#~ msgstr "Só aqueles coa configuración listada"
+
+#~ msgid "Setting log verbosity for all components to “%s”…"
+#~ msgstr ""
+#~ "Estabelecendo o rexistro detallado para tódolos compoñentens a «%s»…"
+
+#~ msgid "Starting miners…"
+#~ msgstr "Inciando mineiros…"
+
+#~ msgid "Could not start miners, manager could not be created, %s"
+#~ msgstr ""
+#~ "Non foi posíbel iniciar os mineiros, non foi posíbel crear o xestor, %s"
+
+#~ msgid "perhaps a disabled plugin?"
+#~ msgstr "quizáis é un engadido desactivado?"
+
+#~ msgid ""
+#~ "If no arguments are given, the status of the store and data miners is "
+#~ "shown"
+#~ msgstr ""
+#~ "Se non se fornecen argumentos, mostrarase o estado do almacenamento e dos "
+#~ "mineiros de datos"
+
+#~ msgid "Could not get D-Bus connection"
+#~ msgstr "Non foi posíbel estabelecer unha conexión co D-Bus"
+
+#~ msgid "Could not create D-Bus proxy to tracker-store"
+#~ msgstr "Non foi posíbel crear o proxy de D-Bus ao tracker-store"
+
+#~ msgid "Output results format: “sparql”, “turtle” or “json-ld”"
+#~ msgstr "O formato dos resultados da saída: «sparql», «turtle» ou «json-ld»"
+
+#~ msgid "FORMAT"
+#~ msgstr "FORMATO"
+
+#~ msgid "Could not run tracker-extract: "
+#~ msgstr "Non se puido executar tracker-extract:"
+
+#~ msgid ""
+#~ "Tell miners to reindex files which match the mime type supplied (for new "
+#~ "extractors), use -m MIME1 -m MIME2"
+#~ msgstr ""
+#~ "Decir aos mineiros que reindexen os ficheiros que coincidan co tipo MIME "
+#~ "fornecido (para extractores novos), uso -m MIME1 -m MIME2"
+
+#~ msgid "MIME"
+#~ msgstr "MIME"
+
+#~ msgid "Tell miners to (re)index a given file"
+#~ msgstr "Decir aos mineiros que (re)indexen un ficheiro dado"
+
+#~ msgid "Backup current index / database to the file provided"
+#~ msgstr "Respaldar o índice actual / bases de datos ao ficheiro fornecido"
+
+#~ msgid "Restore a database from a previous backup (see --backup)"
+#~ msgstr ""
+#~ "Restaura unha base de datos desde o respaldo anterior (vexa --backup)"
+
+#~ msgid "Import a dataset from the provided file (in Turtle format)"
+#~ msgstr ""
+#~ "Importar un conxunto de datos desde un ficheiro fornecido (en formato "
+#~ "Turtle)"
+
+#~ msgid "Could not reindex mimetypes, manager could not be created, %s"
+#~ msgstr ""
+#~ "Non foi posíbel reindexar os tipos MIME, non foi posíbel crear o xestor, "
+#~ "%s"
+
+#~ msgid "Could not reindex mimetypes"
+#~ msgstr "Non foi posíbel reindexar os tipos MIME"
+
+#~ msgid "Reindexing mime types was successful"
+#~ msgstr "Reindexando dos tipos MIME correctamente"
+
+#~ msgid "Could not (re)index file, manager could not be created, %s"
+#~ msgstr ""
+#~ "Non foi posíbel (re)indexar o ficheiro, non foi posíbel crear o xestor, %s"
+
+#~ msgid "Could not (re)index file"
+#~ msgstr "Non foi posíbel (re)indexar o ficheiro"
+
+#~ msgid "(Re)indexing file was successful"
+#~ msgstr "(Re)indexado do ficheiro correctamente"
+
+#~ msgid "Importing Turtle file"
+#~ msgstr "Importando ficheiro Turtle"
+
+#~ msgid "Unable to import Turtle file"
+#~ msgstr "Non foi posíbel importar o ficheiro Turtle"
+
+#~ msgid "Backing up database"
+#~ msgstr "Respaldando base de datos"
+
+#~ msgid "Could not backup database"
+#~ msgstr "Non foi posíbel facer unha copia de respaldo da base de datos"
+
+#~ msgid "Restoring database from backup"
+#~ msgstr "Restaurando base de datos desde o respaldo"
+
+#~ msgid ""
+#~ "Only one action (--backup, --restore, --index-file or --import) can be "
+#~ "used at a time"
+#~ msgstr ""
+#~ "Só pode usar á vez unha acción (--backup, --restore, --index-file ou --"
+#~ "import)"
+
+#~ msgid "Missing one or more files which are required"
+#~ msgstr "Faltan un ou máis ficheiros que son requiridos"
+
+#~ msgid "Only one file can be used with --backup and --restore"
+#~ msgstr "Só pode usar un ficheiro con --backup ou --restore"
+
+#~ msgid ""
+#~ "Actions (--backup, --restore, --index-file and --import) can not be used "
+#~ "with --reindex-mime-type"
+#~ msgstr ""
+#~ "As accións (--backup, --restore, --index-file and --import) non poden "
+#~ "usarse con --reindex-mime-type"
+
+#~ msgid ""
+#~ "Start, stop, pause and list processes responsible for indexing content"
+#~ msgstr ""
+#~ "Iniciar, deter, pausar e listar os procesos responsábeis para indexar "
+#~ "contido"
+
+#~ msgid "Extract information from a file"
+#~ msgstr "Extrae información dun ficheiro"
+
+#~ msgid "Backup, restore, import and (re)index by MIME type or file name"
+#~ msgstr ""
+#~ "Respalda, restaura, importa e (re)indexa por tipo MIME ou nome de ficheiro"
+
+#~ msgid "Reset or remove index and revert configurations to defaults"
+#~ msgstr ""
+#~ "Reiniciar ou eliminar un índice e reverter as configuracións aos "
+#~ "predeterminados"
+
+#~ msgid "Search for content indexed or show content by type"
+#~ msgstr "Buscar por contidos indexados ou mostrar contido por tipo"
+
+#~ msgid "Show the indexing progress, content statistics and index state"
+#~ msgstr ""
+#~ "Mostrar o progreso de indexado, estatísticas de contido ou estado do "
+#~ "índice"
+
+#~ msgid "Create, list or delete tags for indexed content"
+#~ msgstr "Crear, listar ou eliminar etiquetas para o contido indexado"
+
+#~ msgid "Show the license and version in use"
+#~ msgstr "Mostrar a licenza e versión en uso"
+
+#~ msgid "Could not open /proc"
+#~ msgstr "Non se puido abrir /proc"
+
+#~ msgid "Could not stat() file"
+#~ msgstr "Non foi posíbel facer stat() do ficheiro"
+
+#~ msgid "Could not open “%s”"
+#~ msgstr "Non se puido abrir «%s»"
+
+#~ msgid "Could not terminate process %d — “%s”"
+#~ msgstr "Non se puido terminar o proceso %d — «%s»"
+
+#~ msgid "Terminated process %d — “%s”"
+#~ msgstr "Proceso %d terminado — «%s»"
+
+#~ msgid "Could not kill process %d — “%s”"
+#~ msgstr "Non se puido matar o proceso %d — «%s»"
+
+#~ msgid "Killed process %d — “%s”"
+#~ msgstr "Proceso %d matado — «%s»"
+
+#~ msgid "Kill all Tracker processes and remove all databases"
+#~ msgstr "Matar todos os procesos de Tracker e borrar todas as bases de datos"
+
+#~ msgid "Same as --hard but the backup & journal are restored after restart"
+#~ msgstr ""
+#~ "Igual que --hard pero o respaldo e o diario restáuranse despois de "
+#~ "reiniciar"
+
+#~ msgid ""
+#~ "Remove all configuration files so they are re-generated on next start"
+#~ msgstr ""
+#~ "Quitar todos os ficheiros de configuración para que se rexeneren no "
+#~ "seguinte inicio"
+
+#~ msgid ""
+#~ "Erase indexed information about a file, works recursively for directories"
+#~ msgstr ""
+#~ "Elimina a información indexada dun ficheiro, funciona de forma recursiva "
+#~ "para os cartafoles"
+
+#~ msgid "Deleting…"
+#~ msgstr "Eliminando…"
+
+#~ msgid ""
+#~ "The indexed data for this file has been deleted and will be reindexed "
+#~ "again."
+#~ msgstr ""
+#~ "Os datos indexados para este ficheiro foi eliminado e volverá a indexarse "
+#~ "de novo."
+
+#~ msgid "You can not use the --hard and --soft arguments together"
+#~ msgstr "Non é posíbel usar os argumentos «--hard» e «--soft» á vez"
+
+#~ msgid "CAUTION: This process may irreversibly delete data."
+#~ msgstr "PERIGO: Este proceso pode eliminar datos de forma irreversíbel."
+
+#~ msgid ""
+#~ "Although most content indexed by Tracker can be safely reindexed, it "
+#~ "can’t be assured that this is the case for all data. Be aware that you "
+#~ "may be incurring in a data loss situation, proceed at your own risk."
+#~ msgstr ""
+#~ "Aínda que a maioría dos contidos indexados por Tracker poden reindexarse "
+#~ "de forma segura, non pode asegurarse que este sexa o caso para todos os "
+#~ "datos. Teña en conta que pode chegarse a unha situación de perda de "
+#~ "datos, proceda baixo o seu risco."
+
+#~ msgid "Are you sure you want to proceed?"
+#~ msgstr "Está seguro de que quere seguir?"
+
+#~ msgid "[y|N]"
+#~ msgstr "[s|N]"
+
+#~ msgid "yes"
+#~ msgstr "si"
+
+#~ msgid "Resetting existing configuration…"
+#~ msgstr "Restabelecendo a configuración existente…"
+
+#~ msgid "Search for files"
+#~ msgstr "Buscar ficheiros"
+
+#~ msgid "Search for folders"
+#~ msgstr "Buscar cartafoles"
+
+#~ msgid "Search for music files"
+#~ msgstr "Buscar ficheiros de música"
+
+#~ msgid "Search for music albums (--all has no effect on this)"
+#~ msgstr "Buscar álbumes de música («--all» non ten efecto sobre isto)"
+
+#~ msgid "Search for music artists (--all has no effect on this)"
+#~ msgstr "Buscar artistas musicais («--all» non ten efecto sobre isto)"
+
+#~ msgid "Search for image files"
+#~ msgstr "Buscar ficheiros de imaxes"
+
+#~ msgid "Search for video files"
+#~ msgstr "Buscar ficheiros de vídeo"
+
+#~ msgid "Search for document files"
+#~ msgstr "Buscar ficheiros de documentos"
+
+#~ msgid "Search for emails"
+#~ msgstr "Buscar correos electrónicos"
+
+#~ msgid "Search for contacts"
+#~ msgstr "Buscar contactos"
+
+#~ msgid "Search for software (--all has no effect on this)"
+#~ msgstr "Buscar software («--all» non ten efecto sobre isto) "
+
+#~ msgid "Search for software categories (--all has no effect on this)"
+#~ msgstr "Buscar categorías de software («--all» non ten efecto sobre isto)"
+
+#~ msgid "Search for feeds (--all has no effect on this)"
+#~ msgstr "Buscar fornecedores («--all» non ten efecto sobre isto)"
+
+#~ msgid "Search for bookmarks (--all has no effect on this)"
+#~ msgstr "Buscar marcadores («--all» non ten efecto sobre isto)"
+
+#~ msgid "Limit the number of results shown"
+#~ msgstr "Limitar o número de resultados mostrados"
+
+#~ msgid "Offset the results"
+#~ msgstr "Desprazar os resultados"
+
+#~ msgid "Use OR for search terms instead of AND (the default)"
+#~ msgstr "Use OR para buscar termos en lugar de AND (o predeterminado)"
+
+#~ msgid ""
+#~ "Show URNs for results (doesn’t apply to --music-albums, --music-artists, "
+#~ "--feeds, --software, --software-categories)"
+#~ msgstr ""
+#~ "Mostrar a URN para os resultados (non se aplica para «--music-albums», «--"
+#~ "music-artists», «--feeds», «--software», «--software-categories»)"
+
+#~ msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
+#~ msgstr ""
+#~ "Devolver tamén todas as coincidencias non existentes (ex. incluir "
+#~ "volúmenes sen montar)"
+
+#~ msgid ""
+#~ "Disable showing snippets with results. This is only shown for some "
+#~ "categories, e.g. Documents, Music…"
+#~ msgstr ""
+#~ "Desactivar os snippets mostrados con resultados. Isto só se mostra para "
+#~ "algunhas categorías, p.ex. Documentos, Música…"
+
+#~ msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
+#~ msgstr ""
+#~ "Desactivar a Busca de texto completa (FTS). Implica --disable-snippets"
+
+#~ msgid "Disable color when printing snippets and results"
+#~ msgstr "Desacticar a cor ao imprimir snippets e resultados"
+
+#~ msgid "search terms"
+#~ msgstr "termos de busca"
+
+#~ msgid "EXPRESSION"
+#~ msgstr "EXPRESIÓN"
+
+#~ msgid ""
+#~ "NOTE: Limit was reached, there are more items in the database not listed "
+#~ "here"
+#~ msgstr ""
+#~ "NOTA: Atinxiuse o límite; hai máis elementos na base de datos que non son "
+#~ "listados aquí"
+
+#~ msgid "Could not get search results"
+#~ msgstr "Non foi posíbel obter os resultados"
+
+#~ msgid "No contacts were found"
+#~ msgstr "Non foi posíbel ningún contacto"
+
+#~ msgid "Contacts"
+#~ msgstr "Contactos"
+
+#~ msgid "No name"
+#~ msgstr "Sen nome"
+
+#~ msgid "No E-mail address"
+#~ msgstr "Sen enderezo de correo electrónico"
+
+#~ msgid "No emails were found"
+#~ msgstr "Non foi posíbel atopar ningún correo-e"
+
+#~ msgid "Emails"
+#~ msgstr "Correos electrónicos"
+
+#~ msgid "No files were found"
+#~ msgstr "Non foi posíbel atopar ningún ficheiro"
+
+#~ msgid "Files"
+#~ msgstr "Ficheiros"
+
+#~ msgid "No artists were found"
+#~ msgstr "Non foi posíbel atopar ningún artista"
+
+#~ msgid "Artists"
+#~ msgstr "Artistas"
+
+#~ msgid "No music was found"
+#~ msgstr "Non se atopou música"
+
+#~ msgid "Albums"
+#~ msgstr "Álbumes"
+
+#~ msgid "No bookmarks were found"
+#~ msgstr "No se atoparon marcadores"
+
+#~ msgid "Bookmarks"
+#~ msgstr "Marcadores"
+
+#~ msgid "No feeds were found"
+#~ msgstr "Non se atopou ningún fornecedor"
+
+#~ msgid "Feeds"
+#~ msgstr "Fornecedores"
+
+#~ msgid "No software was found"
+#~ msgstr "Non se atopou software"
+
+#~ msgid "Software"
+#~ msgstr "Software"
+
+#~ msgid "No software categories were found"
+#~ msgstr "Non se atoparon categorías de software"
+
+#~ msgid "Software Categories"
+#~ msgstr "Categorías de software"
+
+#~ msgid "No results were found matching your query"
+#~ msgstr "Non se atopou ningún resultado coincidente coa súa consulta"
+
+#~ msgid "Search term “%s” is a stop word."
+#~ msgstr "O termo de busca «%s» é unha palabra de parada."
+
+#~ msgid ""
+#~ "Stop words are common words which may be ignored during the indexing "
+#~ "process."
+#~ msgstr ""
+#~ "As palabras de parada son palabras que poden ignorarse durante o proceso "
+#~ "de indexado."
+
+#~ msgid "Show statistics for current index / data set"
+#~ msgstr "Mostrar estatísticas do índice / conxunto de datos actuais"
+
+#~ msgid ""
+#~ "Collect debug information useful for problem reporting and investigation, "
+#~ "results are output to terminal"
+#~ msgstr ""
+#~ "Recoller información de depuración útil para xerar informes e investigar "
+#~ "erros, os resultados mostraranse no terminal"
+
+#~ msgid "Could not get Tracker statistics"
+#~ msgstr "Non se puideron obter as estatísticas do Tracker"
+
+#~ msgid "No statistics available"
+#~ msgstr "Non hai estatísticas dispoñíbeis"
+
+#~ msgid "Statistics:"
+#~ msgstr "Estatísticas:"
+
+#~ msgid "Version"
+#~ msgstr "Versión"
+
+#~ msgid "Disk Information"
+#~ msgstr "Información do disco"
+
+#~ msgid "Remaining space on database partition"
+#~ msgstr "Espazo libre na partición da base de datos"
+
+#~ msgid "Data Set"
+#~ msgstr "Conxunto de datos"
+
+#~ msgid "Configuration"
+#~ msgstr "Configuración"
+
+#~ msgid "No configuration was found"
+#~ msgstr "Non se atopou configuración"
+
+#~ msgid "States"
+#~ msgstr "Estados"
+
+#~ msgid "Data Statistics"
+#~ msgstr "Estatísticas dos datos"
+
+#~ msgid "No connection available"
+#~ msgstr "Non hai unha conexión dispoñíbel"
+
+#~ msgid "Could not get statistics"
+#~ msgstr "Non foi posíbel obter as estatísticas"
+
+#~ msgid "No statistics were available"
+#~ msgstr "Non hai estatísticas dispoñíbeis"
+
+#~ msgid "Database is currently empty"
+#~ msgstr "A base de datos está baleira actualmente"
+
+#~ msgid "Could not get basic status for Tracker"
+#~ msgstr "Non foi posíbel obter o estado básico de Tracker"
+
+#~ msgid "Currently indexed"
+#~ msgstr "Indexados actualmente"
+
+#~ msgid "%d file"
+#~ msgid_plural "%d files"
+#~ msgstr[0] "%d ficheiro"
+#~ msgstr[1] "%d ficheiros"
+
+#~ msgid "%d folder"
+#~ msgid_plural "%d folders"
+#~ msgstr[0] "%d cartafol"
+#~ msgstr[1] "%d cartafol"
+
+#~ msgid "Data is still being indexed"
+#~ msgstr "Os datos aínda se están indexando"
+
+#~ msgid "Estimated %s left"
+#~ msgstr "Quedan aproximadamente %s"
+
+#~ msgid "All data miners are idle, indexing complete"
+#~ msgstr "Todos os mineiros están ociosos, o indexado completou"
+
+#~ msgid ""
+#~ "List all tags (using FILTER if specified; FILTER always uses logical OR)"
+#~ msgstr ""
+#~ "Listar tódalas etiquetas (usando FILTRO se se especifica; FILTRO sempre "
+#~ "usa o OR lóxico)"
+
+#~ msgid "FILTER"
+#~ msgstr "FILTRO"
+
+#~ msgid "Show files associated with each tag (this is only used with --list)"
+#~ msgstr ""
+#~ "Mostrar os ficheiros asociados con cada etiqueta (só se usa con «--list»)"
+
+#~ msgid ""
+#~ "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+#~ msgstr ""
+#~ "Engadir unha etiqueta (se se omiten os FICHEIROS, A ETIQUETA non se "
+#~ "asocia con ningún ficheiro)"
+
+#~ msgid "TAG"
+#~ msgstr "ETIQUETA"
+
+#~ msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
+#~ msgstr ""
+#~ "Eliminar unha etiqueta (se se omiten os FICHEIROS, a ETIQUETA elimínase "
+#~ "para todos os ficheiros)"
+
+#~ msgid "Description for a tag (this is only used with --add)"
+#~ msgstr "Descrición para unha etiqueta (só se usa con «--add»)"
+
+#~ msgid "STRING"
+#~ msgstr "CADEA"
+
+#~ msgid "Use AND for search terms instead of OR (the default)"
+#~ msgstr "Use AND para buscar termos en lugar de OR (o predeterminado)"
+
+#~ msgid "FILE…"
+#~ msgstr "FICHEIRO…"
+
+#~ msgid "FILE [FILE…]"
+#~ msgstr "FICHEIRO [FICHEIRO…]"
+
+#~ msgid "Could not get file URNs"
+#~ msgstr "Non foi posíbel obter os URN do ficheiro"
+
+#~ msgid "Could not get files related to tag"
+#~ msgstr "Non foi posíbel obter ficheiros relacionados coa etiqueta"
+
+#~ msgid "Could not get all tags in the database"
+#~ msgstr "Non foi posíbel obter todas as etiquetas da base de datos"
+
+#~ msgid "No files have been tagged"
+#~ msgstr "Non se marcou con etiquetas ningún ficheiro"
+
+#~ msgid "Could not get files for matching tags"
+#~ msgstr "Non foi posíbel obter os ficheiros relacionados coas etiquetas"
+
+#~ msgid "No files were found matching ALL of those tags"
+#~ msgstr "Non se atopou ningún resultado coincidente con TODAS as etiquetas"
+
+#~ msgid "Could not get all tags"
+#~ msgstr "Non foi posíbel obter todas as etiquetas"
+
+#~ msgid "No tags were found"
+#~ msgstr "Non se atopou ningunha etiqueta"
+
+#~ msgid "Tags (shown by name)"
+#~ msgstr "Etiquetas (mostradas por nome)"
+
+#~ msgid "No files were modified"
+#~ msgstr "Non se modificou ningún ficheiro"
+
+#~ msgid "Files do not exist or aren’t indexed"
+#~ msgstr "Os ficheiros non existen ou non están indexado"
+
+#~ msgid "Could not add tag"
+#~ msgstr "Non foi posíbel engadir a etiqueta"
+
+#~ msgid "Tag was added successfully"
+#~ msgstr "Etiqueta engadida correctamente"
+
+#~ msgid "Could not add tag to files"
+#~ msgstr "Non foi posíbel engadir as etiquetas aos ficheiros"
+
+#~ msgid "Tagged"
+#~ msgstr "Etiquetado"
+
+#~ msgid "Not tagged, file is not indexed"
+#~ msgstr "Sen etiquetar, o ficheiro non está indexado"
+
+#~ msgid "Could not get tag by label"
+#~ msgstr "Non foi posíbel obter a etiqueta"
+
+#~ msgid "No tags were found by that name"
+#~ msgstr "Non foi posíbel atopar ningunha etiqueta con ese nome"
+
+#~ msgid "None of the files had this tag set"
+#~ msgstr "Ningún dos ficheiros ten este conxunto de etiquetas"
+
+#~ msgid "Could not remove tag"
+#~ msgstr "Non foi posíbel quitar a etiqueta"
+
+#~ msgid "Tag was removed successfully"
+#~ msgstr "Etiqueta quitada correctamente"
+
+#~ msgid "Untagged"
+#~ msgstr "Sen etiquetar"
+
+#~ msgid "File not indexed or already untagged"
+#~ msgstr "O ficheiro non está indexado ou xa se desetiquetou"
+
+#~ msgid "The --list option is required for --show-files"
+#~ msgstr "Requírese a opción «--list» para «--show-files»"
+
+#~ msgid ""
+#~ "The --and-operator option can only be used with --list and tag label "
+#~ "arguments"
+#~ msgstr ""
+#~ "A opción «--and-operator» só se pode usar con «--list» e os argumentos de "
+#~ "etiqueta"
+
+#~ msgid "Add and delete actions can not be used together"
+#~ msgstr "Engadir ou borrar accións que non se poden usar conxuntamente"
+
+#~ msgid "The --description option can only be used with --add"
+#~ msgstr "A opción «--description» só se pode usar con «--add»"
