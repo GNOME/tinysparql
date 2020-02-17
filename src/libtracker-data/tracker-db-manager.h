@@ -64,32 +64,15 @@ TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerF
                                                                GObject                *iface_data,
                                                                gpointer                vtab_data,
                                                                GError                **error);
-void                tracker_db_manager_remove_all             (TrackerDBManager      *db_manager);
-void                tracker_db_manager_optimize               (TrackerDBManager      *db_manager);
-const gchar *       tracker_db_manager_get_file               (TrackerDBManager      *db_manager);
 TrackerDBInterface *tracker_db_manager_get_db_interface       (TrackerDBManager      *db_manager);
 TrackerDBInterface *tracker_db_manager_get_writable_db_interface (TrackerDBManager   *db_manager);
 
-void                tracker_db_manager_ensure_location        (TrackerDBManager      *db_manager,
-							       GFile                 *cache_location);
 gboolean            tracker_db_manager_has_enough_space       (TrackerDBManager      *db_manager);
-void                tracker_db_manager_update_version         (TrackerDBManager      *db_manager);
 
 TrackerDBManagerFlags
                     tracker_db_manager_get_flags              (TrackerDBManager      *db_manager,
 							       guint                 *select_cache_size,
                                                                guint                 *update_cache_size);
-
-gboolean            tracker_db_manager_get_first_index_done   (TrackerDBManager      *db_manager);
-guint64             tracker_db_manager_get_last_crawl_done    (TrackerDBManager      *db_manager);
-gboolean            tracker_db_manager_get_need_mtime_check   (TrackerDBManager      *db_manager);
-
-void                tracker_db_manager_set_first_index_done   (TrackerDBManager      *db_manager,
-							       gboolean               done);
-void                tracker_db_manager_set_last_crawl_done    (TrackerDBManager      *db_manager,
-							       gboolean               done);
-void                tracker_db_manager_set_need_mtime_check   (TrackerDBManager      *db_manager,
-							       gboolean               needed);
 
 gboolean            tracker_db_manager_locale_changed         (TrackerDBManager      *db_manager,
                                                                GError               **error);

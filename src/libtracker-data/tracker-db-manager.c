@@ -159,28 +159,11 @@ static guint signals[N_SIGNALS] = { 0 };
 
 G_DEFINE_TYPE (TrackerDBManager, tracker_db_manager, G_TYPE_OBJECT)
 
-static gboolean            db_exec_no_reply                        (TrackerDBInterface   *iface,
-                                                                    const gchar          *query,
-                                                                    ...);
 static TrackerDBInterface *tracker_db_manager_create_db_interface   (TrackerDBManager    *db_manager,
                                                                      gboolean             readonly,
                                                                      GError             **error);
 
 static TrackerDBInterface * init_writable_db_interface              (TrackerDBManager *db_manager);
-
-static gboolean
-db_exec_no_reply (TrackerDBInterface *iface,
-                  const gchar        *query,
-                  ...)
-{
-	va_list                     args;
-
-	va_start (args, query);
-	tracker_db_interface_execute_vquery (iface, NULL, query, args);
-	va_end (args);
-
-	return TRUE;
-}
 
 TrackerDBManagerFlags
 tracker_db_manager_get_flags (TrackerDBManager *db_manager,
@@ -264,7 +247,7 @@ db_set_params (TrackerDBInterface   *iface,
 	g_debug ("  Setting cache size to %d", cache_size);
 }
 
-void
+static void
 tracker_db_manager_remove_all (TrackerDBManager *db_manager)
 {
 	gchar *filename;
@@ -369,7 +352,7 @@ db_get_version (TrackerDBManager *db_manager)
 	return version;
 }
 
-void
+static void
 tracker_db_manager_update_version (TrackerDBManager *db_manager)
 {
 	TrackerDBInterface *iface;
@@ -427,12 +410,6 @@ tracker_db_manager_locale_changed (TrackerDBManager  *db_manager,
 	gchar *current_locale;
 	gboolean changed;
 
-	/* As a special case, we allow calling this API function before
-	 * tracker_data_manager_init() has been called, so it can be used
-	 * to check for locale mismatches for initializing the database.
-	 */
-	tracker_db_manager_ensure_location (db_manager, db_manager->cache_location);
-
 	/* Get current collation locale */
 	current_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
 
@@ -474,25 +451,6 @@ tracker_db_manager_set_current_locale (TrackerDBManager *db_manager)
 }
 
 static void
-db_manager_analyze (TrackerDBManager   *db_manager,
-                    TrackerDBInterface *iface)
-{
-	guint64             current_mtime;
-
-	current_mtime = tracker_file_get_mtime (db_manager->db.abs_filename);
-
-	if (current_mtime > db_manager->db.mtime) {
-		g_info ("  Analyzing DB:'%s'", db_manager->db.name);
-		db_exec_no_reply (iface, "ANALYZE %s.Services", db_manager->db.name);
-
-		/* Remember current mtime for future */
-		db_manager->db.mtime = current_mtime;
-	} else {
-		g_info ("  Not updating DB:'%s', no changes since last optimize", db_manager->db.name);
-	}
-}
-
-static void
 db_recreate_all (TrackerDBManager  *db_manager,
 		 GError           **error)
 {
@@ -519,7 +477,7 @@ db_recreate_all (TrackerDBManager  *db_manager,
 	g_clear_object (&db_manager->db.wal_iface);
 }
 
-void
+static void
 tracker_db_manager_ensure_location (TrackerDBManager *db_manager,
 				    GFile            *cache_location)
 {
@@ -942,41 +900,6 @@ tracker_db_manager_finalize (GObject *object)
 	g_free (db_manager->in_use_filename);
 
 	G_OBJECT_CLASS (tracker_db_manager_parent_class)->finalize (object);
-}
-
-void
-tracker_db_manager_optimize (TrackerDBManager *db_manager)
-{
-	gboolean dbs_are_open = FALSE;
-	TrackerDBInterface *iface;
-
-	g_info ("Optimizing database...");
-
-	g_info ("  Checking database is not in use");
-
-	iface = tracker_db_manager_get_writable_db_interface (db_manager);
-
-	/* Check if any connections are open? */
-	if (G_OBJECT (iface)->ref_count > 1) {
-		g_info ("  database is still in use with %d references!",
-		        G_OBJECT (iface)->ref_count);
-
-		dbs_are_open = TRUE;
-	}
-
-	if (dbs_are_open) {
-		g_info ("  Not optimizing database, still in use with > 1 reference");
-		return;
-	}
-
-	/* Optimize the metadata database */
-	db_manager_analyze (db_manager, iface);
-}
-
-const gchar *
-tracker_db_manager_get_file (TrackerDBManager *db_manager)
-{
-	return db_manager->db.abs_filename;
 }
 
 static TrackerDBInterface *
