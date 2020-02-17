@@ -112,9 +112,6 @@ typedef struct {
 	gchar              *abs_filename;
 	gint                cache_size;
 	gint                page_size;
-	gboolean            attached;
-	gboolean            is_index;
-	guint64             mtime;
 } TrackerDBDefinition;
 
 static TrackerDBDefinition db_base = {
@@ -124,9 +121,6 @@ static TrackerDBDefinition db_base = {
 	NULL,
 	TRACKER_DB_CACHE_SIZE_DEFAULT,
 	8192,
-	FALSE,
-	FALSE,
-	0
 };
 
 struct _TrackerDBManager {
@@ -742,8 +736,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 			if (!must_recreate) {
 				gchar *busy_status;
 
-				db_manager->db.mtime = tracker_file_get_mtime (db_manager->db.abs_filename);
-
 				loaded = TRUE;
 
 				/* Report OPERATION - STATUS */
@@ -820,10 +812,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 				return FALSE;
 			}
 		}
-	}
-
-	if (!loaded) {
-		db_manager->db.mtime = tracker_file_get_mtime (db_manager->db.abs_filename);
 	}
 
 	if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
