@@ -9,8 +9,8 @@
 msgid ""
 msgstr "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-01-08 17:59+0000\n"
-"PO-Revision-Date: 2020-02-15 10:00+0100\n"
+"POT-Creation-Date: 2020-02-19 16:56+0000\n"
+"PO-Revision-Date: 2020-02-19 10:00+0100\n"
 "Last-Translator: Asier Sarasua Garmendia <asier.sarasua@gmail.com>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
@@ -18,96 +18,6 @@ msgstr "Project-Id-Version: tracker master\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:24
-msgid "Maximum size of journal"
-msgstr "Egunkariaren gehieneko tamaina"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:25
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr "Egunkariaren tamaina biraketan (MB-tan). Erabili -1 balio biraketa desgaitzeko."
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:29
-msgid "Location of journal pieces"
-msgstr "Egunkariaren zatien kokalekua"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:30
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr "Egunkariaren zatiak non gordeko diren gehieneko tamainara heltzean."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
-msgid "Maximum length of a word to be indexed"
-msgstr "Hitz baten gehieneko luzera indexatzeko"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr "Indexatzaileak ez ikusi egingo die luzera hau baino karaktere gehiago dituzten hitzei."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
-msgid "Maximum number of words to index in a document"
-msgstr "Gehieneko hitzen kopurua dokumentu batean indexatzeko"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr "Indexatzaileak soilik gehieneko hitz kopurua irakurriko ditu dokumentu bakarretik."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
-msgid "Enable stemmer"
-msgstr "Gaitu erro-bilaketa"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
-msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
-msgstr "Sinplifikatu hitzak haien errora emaitza gehiago lortzeko. Adibidez, “basamortua” eta “basapiztia” “basa” gisa"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
-msgid "Enable unaccent"
-msgstr "Gaitu azenturik gabe"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
-msgstr "Itzuli azentuak dituzten karaktereak dagokien azenturik gabeko karakteretara. Adib. “Idéa” terminotik “Idea” terminora bat-etortzea hobetzeko."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
-msgid "Ignore numbers"
-msgstr "Ez ikusi egin zenbakiei"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
-msgid "If enabled, numbers will not be indexed."
-msgstr "Gaituta dagoenean zenbakiak ez dira indexatuko."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
-msgid "Ignore stop words"
-msgstr "Ez ikusi hitz hutsei"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
-msgstr "Gaitzen denean hitz hutsen zerrendan dauden hitzei ez ikusi egingo zaie. Adibidez, “bai“, “zein“, “eta“, bezalako hitzak."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:24
-msgid "Log verbosity"
-msgstr "Erregistro xehatua"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:25
-msgid "Log verbosity."
-msgstr "Erregistro xehatua."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:29
-msgid "GraphUpdated delay"
-msgstr "GraphUpdated-en atzerapena"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:30
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr "GraphUpdated seinaleak jaurtitzeko bitarteak (milisegundotan) indexatutako datuak datu-base barruan aldatzen direnean."
 
 #: src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -180,59 +90,116 @@ msgstr[1] " %2.2d segundo"
 msgid "the|a|an"
 msgstr "bat"
 
-#. Daemon options
-#: src/tracker-store/tracker-main.vala:60
-msgid "Displays version information"
-msgstr "Bertsioari buruzko informazioa bistaratzen du"
+#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-info.c:53
+#: src/tracker/tracker-sparql.c:107 src/tracker/tracker-sql.c:44
+msgid "Location of the database"
+msgstr "Datu-basearen kokalekua"
 
-#: src/tracker-store/tracker-main.vala:61
-msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
-"0)"
-msgstr "Erregistroa:  0 = erroreak soilik, 1 = gutxienekoa, 2 = xehea eta 3 = arazketa (lehenetsia=0)"
+#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-endpoint.c:60
+msgid "DIR"
+msgstr "DIR"
 
-#: src/tracker-store/tracker-main.vala:62
-msgid "Disable automatic shutdown"
-msgstr "Desgaitu itzaltze automatikoa"
+#: src/tracker/tracker-endpoint.c:51
+msgid "Specify the DBus name of this endpoint"
+msgstr "Zehaztu amaiera-puntu honen DBus izena"
 
-#. Indexer options
-#: src/tracker-store/tracker-main.vala:65
-msgid "Force a re-index of all content"
-msgstr "Behartu eduki guztia berriro indexatzera"
+#: src/tracker/tracker-endpoint.c:52 src/tracker/tracker-endpoint.c:56
+msgid "NAME"
+msgstr "IZENA"
 
-#: src/tracker-store/tracker-main.vala:66
-msgid "Only allow read based actions on the database"
-msgstr "Baimendu irakurketaren ekintzak soilik datu-basean"
+#: src/tracker/tracker-endpoint.c:55
+msgid "Specify the ontology name used in this endpoint"
+msgstr "Zehaztu amaiera-puntu honetarako erabilitako ontologia-izena"
 
-#: src/tracker-store/tracker-main.vala:67
-msgid "Load a specified domain ontology"
-msgstr "Kargatu zehaztutako domeinuaren ontologia bat"
+#: src/tracker/tracker-endpoint.c:59
+msgid "Specify a path to an ontology to be used in this endpoint"
+msgstr "Zehaztu amaiera-puntu honetan erabiliko den ontologia baten bide-izena"
 
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: src/tracker-store/tracker-main.vala:227
-msgid "— start the tracker daemon"
-msgstr "— abiarazi tracker-en daemon-a"
+#: src/tracker/tracker-endpoint.c:63
+msgid "Use session bus"
+msgstr "Erabili saioaren bus-a"
 
-#: src/tracker-store/tracker-store.desktop.in:3
-msgid "Tracker Store"
-msgstr "Tracker biltegia"
+#: src/tracker/tracker-endpoint.c:67
+msgid "Use system bus"
+msgstr "Erabili sistemaren bus-a"
 
-#: src/tracker-store/tracker-store.desktop.in:4
-msgid "Metadata database store and lookup manager"
-msgstr "Metadatuen datu-basearen biltegia eta bilaketa-kudeatzailea"
+#: src/tracker/tracker-endpoint.c:77
+msgid "No database path was provided"
+msgstr "Ez da datu-basearen bide-izenik hornitu"
+
+#: src/tracker/tracker-endpoint.c:82
+msgid "No endpoint information was provided"
+msgstr "Ez da amaiera-puntuaren informaziorik hornitu"
+
+#: src/tracker/tracker-endpoint.c:87
+msgid "One “ontology” or “ontology path” option should be provided"
+msgstr "“Ontologia” edo “ontologia-bide” bat hornitu behar da"
+
+#: src/tracker/tracker-endpoint.c:137 src/tracker/tracker-info.c:471
+#: src/tracker/tracker-sparql.c:1529 src/tracker/tracker-sql.c:231
+msgid "Unrecognized options"
+msgstr "Aukera ezezagunak"
+
+#: src/tracker/tracker-endpoint.c:163
+#, c-format
+msgid "Opening database at %s…"
+msgstr "%s kokaguneko datu-basea irekitzen…"
+
+#: src/tracker/tracker-endpoint.c:174
+#, c-format
+msgid "Creating endpoint at %s…"
+msgstr "%s kokaguneko amaiera-puntua sortzen…"
+
+#: src/tracker/tracker-endpoint.c:211
+msgid "Could not own DBus name"
+msgstr "Ezin izan da DBus izenaren jabetza eskuratu"
+
+#: src/tracker/tracker-endpoint.c:217
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "SPARQL komandoak entzuten. Sakatu Ctrl-C gelditzeko."
+
+#: src/tracker/tracker-endpoint.c:225
+msgid "DBus name lost"
+msgstr "DBus izena galdu egin da"
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:232
+msgid "Closing connection…"
+msgstr "Konexioa ixten…"
 
 #: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "huts egin du “%s” exekutatzean: %s"
 
-#: src/tracker/tracker-info.c:50
+#: src/tracker/tracker-info.c:54 src/tracker/tracker-info.c:91
+#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:108
+#: src/tracker/tracker-sparql.c:120 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
+msgid "FILE"
+msgstr "FITXATEGIA"
+
+#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:111
+msgid "Connects to a DBus service"
+msgstr "DBus zerbitzu batekin konektatzen du"
+
+#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:112
+msgid "DBus service name"
+msgstr "DBus zerbitzuaren izena"
+
+#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:115
+msgid "Connects to a remote service"
+msgstr "Urreneko zerbitzu batekin konektatzen du"
+
+#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:116
+msgid "Remote service URI"
+msgstr "Urruneko zerbitzuaren URIa"
+
+#: src/tracker/tracker-info.c:65
 msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr "Erakutsi izen-espazio osoa (adib. ez erabili nie:title, erabili URL osoak)"
 
-#: src/tracker/tracker-info.c:54
+#: src/tracker/tracker-info.c:69
 msgid "Show plain text content if available for resources"
 msgstr "Erakutsi testu soileko edukia baliabideentzako eskuragarri egonez gero"
 
@@ -242,190 +209,181 @@ msgstr "Erakutsi testu soileko edukia baliabideentzako eskuragarri egonez gero"
 #. * fully supports international characters. In practice, UTF-8
 #. * is the most popular encoding used for IRI.
 #.
-#: src/tracker/tracker-info.c:64
+#: src/tracker/tracker-info.c:79
 msgid ""
 "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
 "(e.g. <file:///path/to/some/file.txt>)"
 msgstr "Fitxategi-izen bat bilatu beharrean, tratatu FILE argumentuak benetako IRI gisa (adib. <file:///path/to/some/file.txt>)"
 
-#: src/tracker/tracker-info.c:68
+#: src/tracker/tracker-info.c:83
 msgid "Output results as RDF in Turtle format"
 msgstr "Erakutsi emaitzak RDF gisa Turtle formatuan"
 
-#: src/tracker/tracker-info.c:72
+#: src/tracker/tracker-info.c:87
 msgid "RDF property to treat as URL (eg. “nie:url”)"
 msgstr "URL gisa hartuko den RDF propietatea (adib. “nie:url”)"
 
-#: src/tracker/tracker-info.c:76 src/tracker/tracker-info.c:77
-#: src/tracker/tracker-sparql.c:106 src/tracker/tracker-sql.c:44
-msgid "FILE"
-msgstr "FITXATEGIA"
-
-#: src/tracker/tracker-info.c:268 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086
+#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:208
+#: src/tracker/tracker-sparql.c:1118
 msgid "Could not establish a connection to Tracker"
 msgstr "Ezin izan da Tracker-ekin konektatu"
 
-#: src/tracker/tracker-info.c:269 src/tracker/tracker-sparql.c:173
-#: src/tracker/tracker-sparql.c:1087
+#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:209
+#: src/tracker/tracker-sparql.c:1119
 msgid "No error given"
 msgstr "Ez da errorerik eman"
 
-#: src/tracker/tracker-info.c:293
+#: src/tracker/tracker-info.c:334
 msgid "Querying information for entity"
 msgstr "Entitatearen informazioa kontsultatzen"
 
-#: src/tracker/tracker-info.c:317
+#: src/tracker/tracker-info.c:358
 msgid "Unable to retrieve URN for URI"
 msgstr "Ezin da URIaren URNa eskuratu"
 
-#: src/tracker/tracker-info.c:327 src/tracker/tracker-info.c:361
+#: src/tracker/tracker-info.c:368 src/tracker/tracker-info.c:402
 msgid "Unable to retrieve data for URI"
 msgstr "Ezin da URIaren daturik eskuratu"
 
-#: src/tracker/tracker-info.c:370
+#: src/tracker/tracker-info.c:411
 msgid "No metadata available for that URI"
 msgstr "Ez dago URIaren metadaturik eskuragarri"
 
-#: src/tracker/tracker-info.c:375 src/tracker/tracker-sparql.c:1449
-#: src/tracker/tracker-sparql.c:1452 src/tracker/tracker-sql.c:146
+#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1481
+#: src/tracker/tracker-sparql.c:1484 src/tracker/tracker-sql.c:139
 msgid "Results"
 msgstr "Emaitzak"
 
-#: src/tracker/tracker-info.c:430 src/tracker/tracker-sparql.c:1497
-#: src/tracker/tracker-sql.c:238
-msgid "Unrecognized options"
-msgstr "Aukera ezezagunak"
-
-#: src/tracker/tracker-main.c:41
+#: src/tracker/tracker-main.c:42
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr "Ikus “tracker help <komandoa>“ azpikomando zehatz bati buruz irakurtzeko."
 
-#: src/tracker/tracker-main.c:90
+#: src/tracker/tracker-main.c:91
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Lortu Tracker eta komando hauetariko edozer nola erabiltzen den buruzko laguntza"
 
-#: src/tracker/tracker-main.c:91
+#: src/tracker/tracker-main.c:92
 msgid "Show information known about local files or items indexed"
 msgstr "Erakutsi lokaleko fitxategiei edo indexatutako elementuei buruzko informazio ezaguna"
 
-#: src/tracker/tracker-main.c:92
+#: src/tracker/tracker-main.c:93
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr "Kontsultatu eta eguneratu indizea SPARQL edo bilatu, zerrendatu eta sortu zuhaitz ontologikoa"
 
-#: src/tracker/tracker-main.c:93
+#: src/tracker/tracker-main.c:94
+msgid "Create a SPARQL endpoint"
+msgstr "Sortu SPARQL amaiera-puntu bat"
+
+#: src/tracker/tracker-main.c:95
 msgid "Query the database at the lowest level using SQL"
 msgstr "Kontsultatu datu-basea maila baxuenean SQL erabiliz"
 
-#: src/tracker/tracker-main.c:140
+#: src/tracker/tracker-main.c:142
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "“%s” ez da tracker-en komandoa. Ikus “tracker --help“"
 
-#: src/tracker/tracker-main.c:168
+#: src/tracker/tracker-main.c:170
 msgid "Available tracker commands are:"
 msgstr "Tracker-en komando erabilgarriak:"
 
-#: src/tracker/tracker-main.c:202
+#: src/tracker/tracker-main.c:204
 msgid "Additional / third party commands are:"
 msgstr "Hirugarrenen komandoak edo komando gehigarriak honakoak dira:"
 
-#: src/tracker/tracker-sparql.c:105
+#: src/tracker/tracker-sparql.c:119
 msgid "Path to use to run a query or update from file"
 msgstr "Kontsulta exekutatzeko edo fitxategitik eguneratzeko bide-izena"
 
-#: src/tracker/tracker-sparql.c:109
+#: src/tracker/tracker-sparql.c:123
 msgid "SPARQL query"
 msgstr "SPARQL kontsulta"
 
-#: src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sparql.c:124
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:113
+#: src/tracker/tracker-sparql.c:127
 msgid "This is used with --query and for database updates only."
 msgstr "Hau datu-baseak eguneratzeko soilik erabiltzen da --query aukerarekin."
 
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-sparql.c:131
 msgid "Retrieve classes"
 msgstr "Eskuratu klaseak"
 
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-sparql.c:135
 msgid "Retrieve class prefixes"
 msgstr "Eskuratu klaseen aurrizkiak"
 
-#: src/tracker/tracker-sparql.c:125
+#: src/tracker/tracker-sparql.c:139
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr "Eskuratu klase baten propietateak, aurrizkiak ere erabiliko dira (adib. rdfs:Resource)"
 
-#: src/tracker/tracker-sparql.c:126 src/tracker/tracker-sparql.c:130
-#: src/tracker/tracker-sparql.c:138 src/tracker/tracker-sparql.c:146
-#: src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:140 src/tracker/tracker-sparql.c:144
+#: src/tracker/tracker-sparql.c:152 src/tracker/tracker-sparql.c:160
+#: src/tracker/tracker-sparql.c:164
 msgid "CLASS"
 msgstr "KLASEA"
 
-#: src/tracker/tracker-sparql.c:129
+#: src/tracker/tracker-sparql.c:143
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr "Datu-basean aldaketak jakinarazten dituzten klaseak eskuratu (KLASEA aukerakoa da)"
 
-#: src/tracker/tracker-sparql.c:133
+#: src/tracker/tracker-sparql.c:147
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
 msgstr "Datu-basearen errendimendua hobetzean erabilitako indizeak eskuratu (PROPIETATEA aukerakoa da)"
 
-#: src/tracker/tracker-sparql.c:134
+#: src/tracker/tracker-sparql.c:148
 msgid "PROPERTY"
 msgstr "PROPIETATEA"
 
-#: src/tracker/tracker-sparql.c:137
+#: src/tracker/tracker-sparql.c:151
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
 msgstr "Azaldu azpiklaseak, goi-klaseak (-s aukerarekin erabil daiteke zuhaitzaren zatiak nabarmentzeko, eta -p aukerarekin propietateak erakusteko)"
 
-#: src/tracker/tracker-sparql.c:141
+#: src/tracker/tracker-sparql.c:155
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr "Bilatu klase edo propietate bat eta bistaratu informazio gehiago (adib. Dokumentua)"
 
-#: src/tracker/tracker-sparql.c:142
+#: src/tracker/tracker-sparql.c:156
 msgid "CLASS/PROPERTY"
 msgstr "KLASEA/PROPIETATEA"
 
-#: src/tracker/tracker-sparql.c:145
+#: src/tracker/tracker-sparql.c:159
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Klase baten laburtzapena itzultzen du (adib. nfo:FileDataObject)."
 
-#: src/tracker/tracker-sparql.c:149
+#: src/tracker/tracker-sparql.c:163
 msgid "Returns the full namespace for a class."
 msgstr "Klase baten izen-espazio osoa itzultzen du."
 
-#: src/tracker/tracker-sparql.c:153
-msgid "Remote service to query to"
-msgstr "Urruneko zerbitzua kontsultatzeko"
+#. TRANSLATORS: Those are commandline arguments
+#: src/tracker/tracker-sparql.c:190
+msgid "Specify one --database, --dbus-service or --remote-service option"
+msgstr "Zehaztu --database, --dbus-service edo --remote-service aukera bat"
 
-#: src/tracker/tracker-sparql.c:154
-msgid "BASE_URL"
-msgstr "OINARRIZKO_URL"
-
-#: src/tracker/tracker-sparql.c:200
+#: src/tracker/tracker-sparql.c:236
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Ezin dira izen-espazioaren aurrizkiak eskuratu"
 
-#: src/tracker/tracker-sparql.c:208
+#: src/tracker/tracker-sparql.c:244
 msgid "No namespace prefixes were returned"
 msgstr "Ez da izen-espazioaren aurrizkirik itzuli"
 
-#: src/tracker/tracker-sparql.c:254
+#: src/tracker/tracker-sparql.c:290
 msgid "Could not get namespace prefixes"
 msgstr "Ezin izan da izen-espazioaren aurrizkirik eskuratu"
 
-#: src/tracker/tracker-sparql.c:263
+#: src/tracker/tracker-sparql.c:299
 msgid "No namespace prefixes were found"
 msgstr "Ez da izen-espazioaren aurrizkirik aurkitu"
 
@@ -433,153 +391,275 @@ msgstr "Ez da izen-espazioaren aurrizkirik aurkitu"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:509 src/tracker/tracker-sparql.c:557
+#: src/tracker/tracker-sparql.c:545 src/tracker/tracker-sparql.c:593
 msgid "None"
 msgstr "Bat ere ez"
 
-#: src/tracker/tracker-sparql.c:963
+#: src/tracker/tracker-sparql.c:999
 msgid "Could not create tree: subclass query failed"
 msgstr "Ezin izan da zuhaitza sortu: azpiklasearen kontsultak huts egin du"
 
-#: src/tracker/tracker-sparql.c:1012
+#: src/tracker/tracker-sparql.c:1048
 msgid "Could not create tree: class properties query failed"
 msgstr "Ezin izan da zuhaitza sortu: klasearen propietateen kontsultak huts egin du"
 
-#: src/tracker/tracker-sparql.c:1100
+#: src/tracker/tracker-sparql.c:1132
 msgid "Could not list classes"
 msgstr "Ezin izan da klaserik zerrendatu"
 
-#: src/tracker/tracker-sparql.c:1108
+#: src/tracker/tracker-sparql.c:1140
 msgid "No classes were found"
 msgstr "Ez da klaserik aurkitu"
 
-#: src/tracker/tracker-sparql.c:1108 src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1140 src/tracker/tracker-sparql.c:1331
 msgid "Classes"
 msgstr "Klaseak"
 
-#: src/tracker/tracker-sparql.c:1124
+#: src/tracker/tracker-sparql.c:1156
 msgid "Could not list class prefixes"
 msgstr "Ezin izan da klaseen aurrizkirik zerrendatu"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1164
 msgid "No class prefixes were found"
 msgstr "Ez da klasearen aurrizkirik aurkitu"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1164
 msgid "Prefixes"
 msgstr "Aurrizkiak"
 
-#: src/tracker/tracker-sparql.c:1152
+#: src/tracker/tracker-sparql.c:1184
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr "Ezin izan da klasearen aurrizkiaren propietaterik aurkitu, adib: :Resource “rdfs:Resource“-en"
 
-#: src/tracker/tracker-sparql.c:1191
+#: src/tracker/tracker-sparql.c:1223
 msgid "Could not list properties"
 msgstr "Ezin izan da propietaterik zerrendatu"
 
-#: src/tracker/tracker-sparql.c:1199
+#: src/tracker/tracker-sparql.c:1231
 msgid "No properties were found"
 msgstr "Ez da propietaterik aurkitu"
 
-#: src/tracker/tracker-sparql.c:1199 src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1231 src/tracker/tracker-sparql.c:1354
 msgid "Properties"
 msgstr "Propietateak"
 
-#: src/tracker/tracker-sparql.c:1227
+#: src/tracker/tracker-sparql.c:1259
 msgid "Could not find notify classes"
 msgstr "Ezin izan da jakinarazpenen klaserik aurkitu"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1267
 msgid "No notifies were found"
 msgstr "Ez da jakinarazpenik aurkitu"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1267
 msgid "Notifies"
 msgstr "Jakinarazpenak"
 
-#: src/tracker/tracker-sparql.c:1261
+#: src/tracker/tracker-sparql.c:1293
 msgid "Could not find indexed properties"
 msgstr "Ezin izan da indexatutako propietaterik aurkitu"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1301
 msgid "No indexes were found"
 msgstr "Ez da indizerik aurkitu"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1301
 msgid "Indexes"
 msgstr "Indizeak"
 
-#: src/tracker/tracker-sparql.c:1291
+#: src/tracker/tracker-sparql.c:1323
 msgid "Could not search classes"
 msgstr "Ezin izan da klaserik bilatu"
 
-#: src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1331
 msgid "No classes were found to match search term"
 msgstr "Ez da bilaketaren terminoarekin bat datorren klaserik aurkitu"
 
-#: src/tracker/tracker-sparql.c:1314
+#: src/tracker/tracker-sparql.c:1346
 msgid "Could not search properties"
 msgstr "Ezin izan da propietaterik bilatu"
 
-#: src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1354
 msgid "No properties were found to match search term"
 msgstr "Ez da bilaketaren terminoarekin bat datorren propietaterik aurkitu"
 
-#: src/tracker/tracker-sparql.c:1358 src/tracker/tracker-sql.c:65
+#: src/tracker/tracker-sparql.c:1390 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Ezin izan da UTF-8 bide-izenik eskuratu bide-izenetik"
 
-#: src/tracker/tracker-sparql.c:1370 src/tracker/tracker-sql.c:76
+#: src/tracker/tracker-sparql.c:1402 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Ezin izan da fitxategia irakurri"
 
-#: src/tracker/tracker-sparql.c:1389
+#: src/tracker/tracker-sparql.c:1421
 msgid "Could not run update"
 msgstr "Ezin izan da eguneratzea exekutatu"
 
-#: src/tracker/tracker-sparql.c:1396
+#: src/tracker/tracker-sparql.c:1428
 msgid "Done"
 msgstr "Eginda"
 
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
+#: src/tracker/tracker-sparql.c:1469 src/tracker/tracker-sql.c:132
+#: src/tracker/tracker-sql.c:165
 msgid "Could not run query"
 msgstr "Ezin izan da kontsulta exekutatu"
 
-#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
+#: src/tracker/tracker-sparql.c:1481 src/tracker/tracker-sparql.c:1484
 msgid "No results found matching your query"
 msgstr "Ez da zure kontsultarekin bat datorren emaitzarik aurkitu"
 
-#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sql.c:247
+#: src/tracker/tracker-sparql.c:1538 src/tracker/tracker-sql.c:242
 msgid "File and query can not be used together"
 msgstr "Fitxategia eta kontsulta ezin dira batera erabili"
 
-#: src/tracker/tracker-sparql.c:1508
+#: src/tracker/tracker-sparql.c:1540
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
 msgstr "--list-properties argumentuak soilik hutsa izan daiteke --tree argumentuarekin batera erabiltzen bada"
 
-#: src/tracker/tracker-sql.c:43
+#: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
 msgstr "Bide-izena (kontsulta fitxategitik exekutatzeko)"
 
-#: src/tracker/tracker-sql.c:47
+#: src/tracker/tracker-sql.c:52
 msgid "SQL query"
 msgstr "SQL kontsulta"
 
-#: src/tracker/tracker-sql.c:48
+#: src/tracker/tracker-sql.c:53
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:120
+#: src/tracker/tracker-sql.c:113
 msgid "Failed to initialize data manager"
 msgstr "Huts egin du datuen kudeatzailea hasieratzean"
 
-#: src/tracker/tracker-sql.c:180
+#: src/tracker/tracker-sql.c:173
 msgid "Empty result set"
 msgstr "Emaitzaren multzoa hutsik"
+
+#: src/tracker/tracker-sql.c:240
+msgid "A database path must be specified"
+msgstr "Datu-basearen bide-izen bat zehaztu behar da"
+
+#~ msgid "Maximum size of journal"
+#~ msgstr "Egunkariaren gehieneko tamaina"
+
+#~ msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+#~ msgstr ""
+#~ "Egunkariaren tamaina biraketan (MB-tan). Erabili -1 balio biraketa "
+#~ "desgaitzeko."
+
+#~ msgid "Location of journal pieces"
+#~ msgstr "Egunkariaren zatien kokalekua"
+
+#~ msgid "Where to store a journal chunk when it hits the max size."
+#~ msgstr "Egunkariaren zatiak non gordeko diren gehieneko tamainara heltzean."
+
+#~ msgid "Maximum length of a word to be indexed"
+#~ msgstr "Hitz baten gehieneko luzera indexatzeko"
+
+#~ msgid ""
+#~ "Words with more characters than this length will be ignored by the "
+#~ "indexer."
+#~ msgstr ""
+#~ "Indexatzaileak ez ikusi egingo die luzera hau baino karaktere gehiago "
+#~ "dituzten hitzei."
+
+#~ msgid "Maximum number of words to index in a document"
+#~ msgstr "Gehieneko hitzen kopurua dokumentu batean indexatzeko"
+
+#~ msgid ""
+#~ "Indexer will read only this maximum number of words from a single "
+#~ "document."
+#~ msgstr ""
+#~ "Indexatzaileak soilik gehieneko hitz kopurua irakurriko ditu dokumentu "
+#~ "bakarretik."
+
+#~ msgid "Enable stemmer"
+#~ msgstr "Gaitu erro-bilaketa"
+
+#~ msgid ""
+#~ "Simplify the words to their root to provide more results. E.g. “shelves” "
+#~ "and “shelf” to “shel”"
+#~ msgstr ""
+#~ "Sinplifikatu hitzak haien errora emaitza gehiago lortzeko. Adibidez, "
+#~ "“basamortua” eta “basapiztia” “basa” gisa"
+
+#~ msgid "Enable unaccent"
+#~ msgstr "Gaitu azenturik gabe"
+
+#~ msgid ""
+#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” "
+#~ "to “Idea” for improved matching."
+#~ msgstr ""
+#~ "Itzuli azentuak dituzten karaktereak dagokien azenturik gabeko "
+#~ "karakteretara. Adib. “Idéa” terminotik “Idea” terminora bat-etortzea "
+#~ "hobetzeko."
+
+#~ msgid "Ignore numbers"
+#~ msgstr "Ez ikusi egin zenbakiei"
+
+#~ msgid "If enabled, numbers will not be indexed."
+#~ msgstr "Gaituta dagoenean zenbakiak ez dira indexatuko."
+
+#~ msgid "Ignore stop words"
+#~ msgstr "Ez ikusi hitz hutsei"
+
+#~ msgid ""
+#~ "If enabled, the words listed in the stop-words list are ignored. E.g. "
+#~ "common words like “the”, “yes”, “no”, etc."
+#~ msgstr ""
+#~ "Gaitzen denean hitz hutsen zerrendan dauden hitzei ez ikusi egingo zaie. "
+#~ "Adibidez, “bai“, “zein“, “eta“, bezalako hitzak."
+
+#~ msgid "Log verbosity"
+#~ msgstr "Erregistro xehatua"
+
+#~ msgid "Log verbosity."
+#~ msgstr "Erregistro xehatua."
+
+#~ msgid "GraphUpdated delay"
+#~ msgstr "GraphUpdated-en atzerapena"
+
+#~ msgid ""
+#~ "Period in milliseconds between GraphUpdated signals being emitted when "
+#~ "indexed data has changed inside the database."
+#~ msgstr ""
+#~ "GraphUpdated seinaleak jaurtitzeko bitarteak (milisegundotan) "
+#~ "indexatutako datuak datu-base barruan aldatzen direnean."
+
+#~ msgid "Displays version information"
+#~ msgstr "Bertsioari buruzko informazioa bistaratzen du"
+
+#~ msgid ""
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default = 0)"
+#~ msgstr ""
+#~ "Erregistroa:  0 = erroreak soilik, 1 = gutxienekoa, 2 = xehea eta 3 = "
+#~ "arazketa (lehenetsia=0)"
+
+#~ msgid "Disable automatic shutdown"
+#~ msgstr "Desgaitu itzaltze automatikoa"
+
+#~ msgid "Force a re-index of all content"
+#~ msgstr "Behartu eduki guztia berriro indexatzera"
+
+#~ msgid "Load a specified domain ontology"
+#~ msgstr "Kargatu zehaztutako domeinuaren ontologia bat"
+
+#~ msgid "— start the tracker daemon"
+#~ msgstr "— abiarazi tracker-en daemon-a"
+
+#~ msgid "Tracker Store"
+#~ msgstr "Tracker biltegia"
+
+#~ msgid "Metadata database store and lookup manager"
+#~ msgstr "Metadatuen datu-basearen biltegia eta bilaketa-kudeatzailea"
+
+#~ msgid "BASE_URL"
+#~ msgstr "OINARRIZKO_URL"
 
 #~ msgid "Error starting “tar” program"
 #~ msgstr "Errorea “tar“ programa abiaraztean"
@@ -1293,9 +1373,6 @@ msgstr "Emaitzaren multzoa hutsik"
 #~ msgid "Configuration"
 #~ msgstr "Konfigurazioa"
 
-#~ msgid "No configuration was found"
-#~ msgstr "Ez da konfiguraziorik aurkitu"
-
 #~ msgid "States"
 #~ msgstr "Egoerak"
 
@@ -1485,9 +1562,6 @@ msgstr "Emaitzaren multzoa hutsik"
 #~ msgstr ""
 #~ "Erakutsi RDF klaseei buruzko estatistikak, ez lehenetsi gisa arrunt gutxi "
 #~ "batzuk (bilaketaren terminoen eraginez)"
-
-#~ msgid "No network connection"
-#~ msgstr "Ez dago sareko konexiorik"
 
 #~ msgid "Indexing not recommended on this network connection"
 #~ msgstr "Indexatzea ez da gomendatzen sareko konexio honekin"
@@ -2520,9 +2594,6 @@ msgstr "Emaitzaren multzoa hutsik"
 #~ msgid "Status and Miners options cannot be used together"
 #~ msgstr "Egoeraren eta biltzaileen aukerak ezin dira aldi berean erabili"
 
-#~ msgid "Restore databases from the file provided"
-#~ msgstr "Leheneratu datu-baseak emandako fitxategitik"
-
 #~ msgid ""
 #~ "You can not use the --terminate with --hard-reset or --soft-reset, --kill "
 #~ "is implied"
@@ -2591,9 +2662,6 @@ msgstr "Emaitzaren multzoa hutsik"
 
 #~ msgid "- Query or update using SPARQL"
 #~ msgstr "- Kontsultatu edo eguneratu SPARQL erabiliz"
-
-#~ msgid "An argument must be supplied"
-#~ msgstr "Argumentu bat eman behar da"
 
 #~ msgid " - Show statistics for all Nepomuk defined ontology classes"
 #~ msgstr ""
