@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-01-08 17:59+0000\n"
-"PO-Revision-Date: 2020-01-24 07:13-0300\n"
+"POT-Creation-Date: 2020-02-19 16:56+0000\n"
+"PO-Revision-Date: 2020-02-20 06:29-0300\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -28,107 +28,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "X-Generator: Gtranslator 3.32.0\n"
 "X-Project-Style: gnome\n"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:24
-msgid "Maximum size of journal"
-msgstr "Tamanho máximo do diário"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:25
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr "Tamanho do diário em rotações em MB. Use -1 para desativar a rotação."
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:29
-msgid "Location of journal pieces"
-msgstr "Localização das entradas de diário"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:30
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr "Onde armazenar um pedaço do diário que atingiu o tamanho máximo."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
-msgid "Maximum length of a word to be indexed"
-msgstr "Comprimento máximo de uma palavra a ser indexada"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr ""
-"Palavras com mais caracteres que esse comprimento serão ignoradas pelo "
-"indexador."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
-msgid "Maximum number of words to index in a document"
-msgstr "Número máximo de palavras a indexar em um documento"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr ""
-"O indexador lerá apenas esse número máximo de palavras de um único documento."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
-msgid "Enable stemmer"
-msgstr "Habilitar primeira vez"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
-msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
-msgstr ""
-"Simplificar as palavras à sua raiz para fornecer mais resultados. (p.ex, "
-"“shelves” e “shelf” a “shel”)"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
-msgid "Enable unaccent"
-msgstr "Habilitar remoção de acentos"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
-msgstr ""
-"Caracteres traduzidos acentuados equivalentes aos não acentuados. (p.ex., "
-"“método” a “metodo” para resultados melhores)"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
-msgid "Ignore numbers"
-msgstr "Ignorar números"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
-msgid "If enabled, numbers will not be indexed."
-msgstr "Se habilitado, números não serão indexados."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
-msgid "Ignore stop words"
-msgstr "Ignorar palavras de paradas"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
-msgstr ""
-"Se habilitado, as palavras listadas na lista de palavras vazias são "
-"ignoradas. (p.ex., palavras comuns como “o”, “sim”, “não”, etc.)"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:24
-msgid "Log verbosity"
-msgstr "Nível de detalhe do log"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:25
-msgid "Log verbosity."
-msgstr "Nível de detalhe do log."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:29
-msgid "GraphUpdated delay"
-msgstr "Atraso do GraphUpdated"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:30
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-"Período, em milissegundos, entre sinais do GraphUpdated sendo emitidos "
-"quando dados indexados forem alterados dentro da base de dados."
 
 #: src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -201,62 +100,125 @@ msgstr[1] " %2.2d segundos"
 msgid "the|a|an"
 msgstr "the|a|an|o|um|uma"
 
-#. Daemon options
-#: src/tracker-store/tracker-main.vala:60
-msgid "Displays version information"
-msgstr "Exibe informações de versão"
+#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-info.c:53
+#: src/tracker/tracker-sparql.c:107 src/tracker/tracker-sql.c:44
+#| msgid "Only allow read based actions on the database"
+msgid "Location of the database"
+msgstr "Local do banco de dados"
 
-#: src/tracker-store/tracker-main.vala:61
-msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
-"0)"
+#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-endpoint.c:60
+msgid "DIR"
+msgstr "DIR"
+
+#: src/tracker/tracker-endpoint.c:51
+msgid "Specify the DBus name of this endpoint"
+msgstr "Especifica o nome do DBus do ponto de extremidade"
+
+#: src/tracker/tracker-endpoint.c:52 src/tracker/tracker-endpoint.c:56
+msgid "NAME"
+msgstr "NOME"
+
+#: src/tracker/tracker-endpoint.c:55
+msgid "Specify the ontology name used in this endpoint"
+msgstr "Especifique o nome da ontologia usada para este ponto de extremidade"
+
+#: src/tracker/tracker-endpoint.c:59
+msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr ""
-"Logging, 0 = somente erros, 1 = mínimo, 2 = detalhado e 3 = depuração (o "
-"padrão é = 0)"
+"Especifique um caminho para uma ontologia a ser usada neste ponto de "
+"extremidade"
 
-#: src/tracker-store/tracker-main.vala:62
-msgid "Disable automatic shutdown"
-msgstr "Desabilitar desligamento automático"
+#: src/tracker/tracker-endpoint.c:63
+msgid "Use session bus"
+msgstr "Usa o barramento de sessão"
 
-#. Indexer options
-#: src/tracker-store/tracker-main.vala:65
-msgid "Force a re-index of all content"
-msgstr "Forçar a reindexação de todo o conteúdo"
+#: src/tracker/tracker-endpoint.c:67
+msgid "Use system bus"
+msgstr "Usa o barramento de sistema"
 
-#: src/tracker-store/tracker-main.vala:66
-msgid "Only allow read based actions on the database"
-msgstr "Somente permitir leituras baseadas em ações no banco de dados"
+#: src/tracker/tracker-endpoint.c:77
+#| msgid "Restore databases from the file provided"
+msgid "No database path was provided"
+msgstr "Nenhum banco de dados foi fornecido"
 
-#: src/tracker-store/tracker-main.vala:67
-msgid "Load a specified domain ontology"
-msgstr "Carregar uma ontologia de domínio específico"
+#: src/tracker/tracker-endpoint.c:82
+#| msgid "No configuration was found"
+msgid "No endpoint information was provided"
+msgstr "Nenhuma informação de ponto de extremidade foi fornecida"
 
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: src/tracker-store/tracker-main.vala:227
-msgid "— start the tracker daemon"
-msgstr "— inicia o serviço tracker"
+#: src/tracker/tracker-endpoint.c:87
+msgid "One “ontology” or “ontology path” option should be provided"
+msgstr "Uma opção “ontology” ou “ontology path” deve ser fornecida"
 
-#: src/tracker-store/tracker-store.desktop.in:3
-msgid "Tracker Store"
-msgstr "Armazenador do Tracker"
+#: src/tracker/tracker-endpoint.c:137 src/tracker/tracker-info.c:471
+#: src/tracker/tracker-sparql.c:1529 src/tracker/tracker-sql.c:231
+msgid "Unrecognized options"
+msgstr "Opções desconhecidas"
 
-#: src/tracker-store/tracker-store.desktop.in:4
-msgid "Metadata database store and lookup manager"
-msgstr "Armazenamento de banco de dados de metadados e gerenciador de procura"
+#: src/tracker/tracker-endpoint.c:163
+#, c-format
+msgid "Opening database at %s…"
+msgstr "Abrindo banco de dados em %s…"
+
+#: src/tracker/tracker-endpoint.c:174
+#, c-format
+msgid "Creating endpoint at %s…"
+msgstr "Criando ponto de extremidade em %s…"
+
+#: src/tracker/tracker-endpoint.c:211
+#| msgid "Could not run update"
+msgid "Could not own DBus name"
+msgstr "Não foi possível se apropriar de um nome de DBus"
+
+#: src/tracker/tracker-endpoint.c:217
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "Ouvindo a comandos SPARQL. Pressione Ctrl-C para parar."
+
+#: src/tracker/tracker-endpoint.c:225
+msgid "DBus name lost"
+msgstr "Nome de DBus perdido"
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:232
+#| msgid "No network connection"
+msgid "Closing connection…"
+msgstr "Fechando conexão…"
 
 #: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "falha ao exec “%s”: %s"
 
-#: src/tracker/tracker-info.c:50
+#: src/tracker/tracker-info.c:54 src/tracker/tracker-info.c:91
+#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:108
+#: src/tracker/tracker-sparql.c:120 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
+msgid "FILE"
+msgstr "ARQUIVO"
+
+#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:111
+msgid "Connects to a DBus service"
+msgstr "Conecta a um serviço DBus"
+
+#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:112
+msgid "DBus service name"
+msgstr "Nome do serviço DBus"
+
+#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:115
+msgid "Connects to a remote service"
+msgstr "Conecta a um serviço remoto"
+
+#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:116
+#| msgid "Remote service to query to"
+msgid "Remote service URI"
+msgstr "URI de serviço remoto"
+
+#: src/tracker/tracker-info.c:65
 msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr ""
 "Exibe espaços de nomes completos (ex.: não usa nie:title, usa URLs completas)"
 
-#: src/tracker/tracker-info.c:54
+#: src/tracker/tracker-info.c:69
 msgid "Show plain text content if available for resources"
 msgstr "Mostra o conteúdo de textos puros se disponível pelos recursos"
 
@@ -266,7 +228,7 @@ msgstr "Mostra o conteúdo de textos puros se disponível pelos recursos"
 #. * fully supports international characters. In practice, UTF-8
 #. * is the most popular encoding used for IRI.
 #.
-#: src/tracker/tracker-info.c:64
+#: src/tracker/tracker-info.c:79
 msgid ""
 "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
 "(e.g. <file:///path/to/some/file.txt>)"
@@ -274,120 +236,113 @@ msgstr ""
 "Ao invés de procurar por um nome de arquivo, trata os argumentos de FILE "
 "como as atuais IRIs (p;ex., <file:///diretório/para/algum/arquivo.txt>)"
 
-#: src/tracker/tracker-info.c:68
+#: src/tracker/tracker-info.c:83
 msgid "Output results as RDF in Turtle format"
 msgstr "Exibe os resultados como RDF em formato Turtle"
 
-#: src/tracker/tracker-info.c:72
+#: src/tracker/tracker-info.c:87
 msgid "RDF property to treat as URL (eg. “nie:url”)"
 msgstr "Propriedade RDF para tratar como URL (p.ex., “nie:url”)"
 
-#: src/tracker/tracker-info.c:76 src/tracker/tracker-info.c:77
-#: src/tracker/tracker-sparql.c:106 src/tracker/tracker-sql.c:44
-msgid "FILE"
-msgstr "ARQUIVO"
-
-#: src/tracker/tracker-info.c:268 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086
+#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:208
+#: src/tracker/tracker-sparql.c:1118
 msgid "Could not establish a connection to Tracker"
 msgstr "Não foi possível estabelecer uma conexão com o Tracker"
 
-#: src/tracker/tracker-info.c:269 src/tracker/tracker-sparql.c:173
-#: src/tracker/tracker-sparql.c:1087
+#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:209
+#: src/tracker/tracker-sparql.c:1119
 msgid "No error given"
 msgstr "Nenhum erro informado"
 
-#: src/tracker/tracker-info.c:293
+#: src/tracker/tracker-info.c:334
 msgid "Querying information for entity"
 msgstr "Requisitando informações para entidade"
 
-#: src/tracker/tracker-info.c:317
+#: src/tracker/tracker-info.c:358
 msgid "Unable to retrieve URN for URI"
 msgstr "Não foi possível recuperar URN para URI"
 
-#: src/tracker/tracker-info.c:327 src/tracker/tracker-info.c:361
+#: src/tracker/tracker-info.c:368 src/tracker/tracker-info.c:402
 msgid "Unable to retrieve data for URI"
 msgstr "Não foi possível recuperar dados para URI"
 
-#: src/tracker/tracker-info.c:370
+#: src/tracker/tracker-info.c:411
 msgid "No metadata available for that URI"
 msgstr "Não há metadados disponíveis para essa URI"
 
-#: src/tracker/tracker-info.c:375 src/tracker/tracker-sparql.c:1449
-#: src/tracker/tracker-sparql.c:1452 src/tracker/tracker-sql.c:146
+#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1481
+#: src/tracker/tracker-sparql.c:1484 src/tracker/tracker-sql.c:139
 msgid "Results"
 msgstr "Resultados"
 
-#: src/tracker/tracker-info.c:430 src/tracker/tracker-sparql.c:1497
-#: src/tracker/tracker-sql.c:238
-msgid "Unrecognized options"
-msgstr "Opções desconhecidas"
-
-#: src/tracker/tracker-main.c:41
+#: src/tracker/tracker-main.c:42
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr "Veja “tracker help <comando>” para ler sobre um subcomando específico."
 
-#: src/tracker/tracker-main.c:90
+#: src/tracker/tracker-main.c:91
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Obtém ajuda de como usar o Tracker e qualquer um destes comandos"
 
-#: src/tracker/tracker-main.c:91
+#: src/tracker/tracker-main.c:92
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Mostra informações conhecidas a respeito de arquivos locais ou itens "
 "indexados"
 
-#: src/tracker/tracker-main.c:92
+#: src/tracker/tracker-main.c:93
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Consulta e atualiza o índice usando SPARQL ou pesquisa, lista e ramifica a "
 "ontologia"
 
-#: src/tracker/tracker-main.c:93
+#: src/tracker/tracker-main.c:94
+msgid "Create a SPARQL endpoint"
+msgstr "Cria um ponto de extremidade SPARQL"
+
+#: src/tracker/tracker-main.c:95
 msgid "Query the database at the lowest level using SQL"
 msgstr "Consulta o banco de dados até o nível mais baixo usando SQL"
 
-#: src/tracker/tracker-main.c:140
+#: src/tracker/tracker-main.c:142
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "“%s” não é um comando do tracker. Veja “tracker --help”"
 
-#: src/tracker/tracker-main.c:168
+#: src/tracker/tracker-main.c:170
 msgid "Available tracker commands are:"
 msgstr "Comandos disponíveis do tracker são:"
 
-#: src/tracker/tracker-main.c:202
-#| msgid "Available tracker commands are:"
+#: src/tracker/tracker-main.c:204
 msgid "Additional / third party commands are:"
 msgstr "Comandos de terceiros / adicionais são:"
 
-#: src/tracker/tracker-sparql.c:105
+#: src/tracker/tracker-sparql.c:119
 msgid "Path to use to run a query or update from file"
 msgstr ""
 "Caminho a ser usado na execução da consulta ou atualização de um arquivo"
 
-#: src/tracker/tracker-sparql.c:109
+#: src/tracker/tracker-sparql.c:123
 msgid "SPARQL query"
 msgstr "Consulta SPARQL"
 
-#: src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sparql.c:124
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:113
+#: src/tracker/tracker-sparql.c:127
 msgid "This is used with --query and for database updates only."
 msgstr "Isto é usado com --query e para atualizações de base de dados somente."
 
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-sparql.c:131
 msgid "Retrieve classes"
 msgstr "Classes de recuperação"
 
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-sparql.c:135
 msgid "Retrieve class prefixes"
 msgstr "Prefixos de classes de recuperação"
 
-#: src/tracker/tracker-sparql.c:125
+#: src/tracker/tracker-sparql.c:139
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -395,20 +350,20 @@ msgstr ""
 "Propriedades de recuperação para uma classe, prefixos podem ser usados "
 "também (p.ex., “rdfs:Recurso”)"
 
-#: src/tracker/tracker-sparql.c:126 src/tracker/tracker-sparql.c:130
-#: src/tracker/tracker-sparql.c:138 src/tracker/tracker-sparql.c:146
-#: src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:140 src/tracker/tracker-sparql.c:144
+#: src/tracker/tracker-sparql.c:152 src/tracker/tracker-sparql.c:160
+#: src/tracker/tracker-sparql.c:164
 msgid "CLASS"
 msgstr "CLASSE"
 
-#: src/tracker/tracker-sparql.c:129
+#: src/tracker/tracker-sparql.c:143
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Classes de recuperação que notificam de alterações no banco de dados (CLASS "
 "é opcional)"
 
-#: src/tracker/tracker-sparql.c:133
+#: src/tracker/tracker-sparql.c:147
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -416,11 +371,11 @@ msgstr ""
 "Recupera índices usados no banco de dados para melhorar a performance "
 "(PROPRIEDADE é opcional)"
 
-#: src/tracker/tracker-sparql.c:134
+#: src/tracker/tracker-sparql.c:148
 msgid "PROPERTY"
 msgstr "PROPRIEDADE"
 
-#: src/tracker/tracker-sparql.c:137
+#: src/tracker/tracker-sparql.c:151
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -428,46 +383,44 @@ msgstr ""
 "Descreve subclasses, superclasses (pode ser usado com -s para destacar "
 "partes da árvore e -p para mostrar propriedades)"
 
-#: src/tracker/tracker-sparql.c:141
+#: src/tracker/tracker-sparql.c:155
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Procura por uma classe ou propriedade e exibe mais informações (p.ex., "
 "Documento)"
 
-#: src/tracker/tracker-sparql.c:142
+#: src/tracker/tracker-sparql.c:156
 msgid "CLASS/PROPERTY"
 msgstr "CLASSE/PROPRIEDADE"
 
-#: src/tracker/tracker-sparql.c:145
+#: src/tracker/tracker-sparql.c:159
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Retorna a abreviação da classe (p.ex., “nfo:FileDataObject”)."
 
-#: src/tracker/tracker-sparql.c:149
+#: src/tracker/tracker-sparql.c:163
 msgid "Returns the full namespace for a class."
 msgstr "Retorna o espaço de nomes completo de uma classe."
 
-#: src/tracker/tracker-sparql.c:153
-msgid "Remote service to query to"
-msgstr "Serviço remoto a ser consultado"
+#. TRANSLATORS: Those are commandline arguments
+#: src/tracker/tracker-sparql.c:190
+msgid "Specify one --database, --dbus-service or --remote-service option"
+msgstr ""
+"Especifique uma opção entre --database, --dbus-service ou --remote-service"
 
-#: src/tracker/tracker-sparql.c:154
-msgid "BASE_URL"
-msgstr "URL_BASE"
-
-#: src/tracker/tracker-sparql.c:200
+#: src/tracker/tracker-sparql.c:236
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Não foi possível recuperar o prefixos de espaço de nomes"
 
-#: src/tracker/tracker-sparql.c:208
+#: src/tracker/tracker-sparql.c:244
 msgid "No namespace prefixes were returned"
 msgstr "Nenhum prefixo de espaço de nomes foi retornado"
 
-#: src/tracker/tracker-sparql.c:254
+#: src/tracker/tracker-sparql.c:290
 msgid "Could not get namespace prefixes"
 msgstr "Não foi possível os prefixos de espaço de nomes"
 
-#: src/tracker/tracker-sparql.c:263
+#: src/tracker/tracker-sparql.c:299
 msgid "No namespace prefixes were found"
 msgstr "Nenhum prefixo de espaço de nomes foi encontrado"
 
@@ -475,132 +428,132 @@ msgstr "Nenhum prefixo de espaço de nomes foi encontrado"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:509 src/tracker/tracker-sparql.c:557
+#: src/tracker/tracker-sparql.c:545 src/tracker/tracker-sparql.c:593
 msgid "None"
 msgstr "Nenhum(a)"
 
-#: src/tracker/tracker-sparql.c:963
+#: src/tracker/tracker-sparql.c:999
 msgid "Could not create tree: subclass query failed"
 msgstr "Não foi possível criar árvore: consulta da subclasse falhou"
 
-#: src/tracker/tracker-sparql.c:1012
+#: src/tracker/tracker-sparql.c:1048
 msgid "Could not create tree: class properties query failed"
 msgstr ""
 "Não foi possível criar árvore: consulta de propriedades de classe falhou"
 
-#: src/tracker/tracker-sparql.c:1100
+#: src/tracker/tracker-sparql.c:1132
 msgid "Could not list classes"
 msgstr "Não foi possível listar classes"
 
-#: src/tracker/tracker-sparql.c:1108
+#: src/tracker/tracker-sparql.c:1140
 msgid "No classes were found"
 msgstr "Nenhuma classe foi encontrada"
 
-#: src/tracker/tracker-sparql.c:1108 src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1140 src/tracker/tracker-sparql.c:1331
 msgid "Classes"
 msgstr "Classes"
 
-#: src/tracker/tracker-sparql.c:1124
+#: src/tracker/tracker-sparql.c:1156
 msgid "Could not list class prefixes"
 msgstr "Não foi possível listar os prefixos da classe"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1164
 msgid "No class prefixes were found"
 msgstr "Nenhum prefixo de classe foi encontrado"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1164
 msgid "Prefixes"
 msgstr "Prefixos"
 
-#: src/tracker/tracker-sparql.c:1152
+#: src/tracker/tracker-sparql.c:1184
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Não foi possível encontrar propriedades para o prefixo da classe. (p.ex, "
 "Recurso em “rdfs:Resource”)"
 
-#: src/tracker/tracker-sparql.c:1191
+#: src/tracker/tracker-sparql.c:1223
 msgid "Could not list properties"
 msgstr "Não foi possível listar as propriedades"
 
-#: src/tracker/tracker-sparql.c:1199
+#: src/tracker/tracker-sparql.c:1231
 msgid "No properties were found"
 msgstr "Nenhuma propriedade encontrada"
 
-#: src/tracker/tracker-sparql.c:1199 src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1231 src/tracker/tracker-sparql.c:1354
 msgid "Properties"
 msgstr "Propriedades"
 
-#: src/tracker/tracker-sparql.c:1227
+#: src/tracker/tracker-sparql.c:1259
 msgid "Could not find notify classes"
 msgstr "Não foi possível encontrar classes de notificação"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1267
 msgid "No notifies were found"
 msgstr "Nenhuma notificação encontrada"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1267
 msgid "Notifies"
 msgstr "Notificação"
 
-#: src/tracker/tracker-sparql.c:1261
+#: src/tracker/tracker-sparql.c:1293
 msgid "Could not find indexed properties"
 msgstr "Não foi possível encontrar as propriedades indexadas"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1301
 msgid "No indexes were found"
 msgstr "Nenhum índice foi encontrado"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1301
 msgid "Indexes"
 msgstr "Índices"
 
-#: src/tracker/tracker-sparql.c:1291
+#: src/tracker/tracker-sparql.c:1323
 msgid "Could not search classes"
 msgstr "Não foi possível pesquisar classes"
 
-#: src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1331
 msgid "No classes were found to match search term"
 msgstr "Nenhuma classe foi encontrada para este termo pesquisado"
 
-#: src/tracker/tracker-sparql.c:1314
+#: src/tracker/tracker-sparql.c:1346
 msgid "Could not search properties"
 msgstr "Não foi possível pesquisar propriedades"
 
-#: src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1354
 msgid "No properties were found to match search term"
 msgstr "Nenhuma propriedade foi encontrada para este termo pesquisado"
 
-#: src/tracker/tracker-sparql.c:1358 src/tracker/tracker-sql.c:65
+#: src/tracker/tracker-sparql.c:1390 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Não foi possível obter o caminho em UTF-8 do caminho informado"
 
-#: src/tracker/tracker-sparql.c:1370 src/tracker/tracker-sql.c:76
+#: src/tracker/tracker-sparql.c:1402 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Não foi possível ler o arquivo"
 
-#: src/tracker/tracker-sparql.c:1389
+#: src/tracker/tracker-sparql.c:1421
 msgid "Could not run update"
 msgstr "Não foi possível executar atualização"
 
-#: src/tracker/tracker-sparql.c:1396
+#: src/tracker/tracker-sparql.c:1428
 msgid "Done"
 msgstr "Concluído"
 
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
+#: src/tracker/tracker-sparql.c:1469 src/tracker/tracker-sql.c:132
+#: src/tracker/tracker-sql.c:165
 msgid "Could not run query"
 msgstr "Não foi possível executar consulta"
 
-#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
+#: src/tracker/tracker-sparql.c:1481 src/tracker/tracker-sparql.c:1484
 msgid "No results found matching your query"
 msgstr "Nenhum resultado localizado correspondente à sua pesquisa"
 
-#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sql.c:247
+#: src/tracker/tracker-sparql.c:1538 src/tracker/tracker-sql.c:242
 msgid "File and query can not be used together"
 msgstr "Arquivo e consulta não podem ser usados juntos"
 
-#: src/tracker/tracker-sparql.c:1508
+#: src/tracker/tracker-sparql.c:1540
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -608,25 +561,147 @@ msgstr ""
 "O argumento --list-properties só pode estar vazio quando usado com o "
 "argumento --tree"
 
-#: src/tracker/tracker-sql.c:43
+#: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
 msgstr "Caminho para usar na execução da consulta de um arquivo"
 
-#: src/tracker/tracker-sql.c:47
+#: src/tracker/tracker-sql.c:52
 msgid "SQL query"
 msgstr "Consulta SQL"
 
-#: src/tracker/tracker-sql.c:48
+#: src/tracker/tracker-sql.c:53
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:120
+#: src/tracker/tracker-sql.c:113
 msgid "Failed to initialize data manager"
 msgstr "Falhou ao iniciar gerenciador de dados"
 
-#: src/tracker/tracker-sql.c:180
+#: src/tracker/tracker-sql.c:173
 msgid "Empty result set"
 msgstr "Definição de resultado vazio"
+
+#: src/tracker/tracker-sql.c:240
+#| msgid "An argument must be supplied"
+msgid "A database path must be specified"
+msgstr "Um caminho de banco de dados deve ser especificado"
+
+#~ msgid "Maximum size of journal"
+#~ msgstr "Tamanho máximo do diário"
+
+#~ msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+#~ msgstr ""
+#~ "Tamanho do diário em rotações em MB. Use -1 para desativar a rotação."
+
+#~ msgid "Location of journal pieces"
+#~ msgstr "Localização das entradas de diário"
+
+#~ msgid "Where to store a journal chunk when it hits the max size."
+#~ msgstr "Onde armazenar um pedaço do diário que atingiu o tamanho máximo."
+
+#~ msgid "Maximum length of a word to be indexed"
+#~ msgstr "Comprimento máximo de uma palavra a ser indexada"
+
+#~ msgid ""
+#~ "Words with more characters than this length will be ignored by the "
+#~ "indexer."
+#~ msgstr ""
+#~ "Palavras com mais caracteres que esse comprimento serão ignoradas pelo "
+#~ "indexador."
+
+#~ msgid "Maximum number of words to index in a document"
+#~ msgstr "Número máximo de palavras a indexar em um documento"
+
+#~ msgid ""
+#~ "Indexer will read only this maximum number of words from a single "
+#~ "document."
+#~ msgstr ""
+#~ "O indexador lerá apenas esse número máximo de palavras de um único "
+#~ "documento."
+
+#~ msgid "Enable stemmer"
+#~ msgstr "Habilitar primeira vez"
+
+#~ msgid ""
+#~ "Simplify the words to their root to provide more results. E.g. “shelves” "
+#~ "and “shelf” to “shel”"
+#~ msgstr ""
+#~ "Simplificar as palavras à sua raiz para fornecer mais resultados. (p.ex, "
+#~ "“shelves” e “shelf” a “shel”)"
+
+#~ msgid "Enable unaccent"
+#~ msgstr "Habilitar remoção de acentos"
+
+#~ msgid ""
+#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” "
+#~ "to “Idea” for improved matching."
+#~ msgstr ""
+#~ "Caracteres traduzidos acentuados equivalentes aos não acentuados. (p.ex., "
+#~ "“método” a “metodo” para resultados melhores)"
+
+#~ msgid "Ignore numbers"
+#~ msgstr "Ignorar números"
+
+#~ msgid "If enabled, numbers will not be indexed."
+#~ msgstr "Se habilitado, números não serão indexados."
+
+#~ msgid "Ignore stop words"
+#~ msgstr "Ignorar palavras de paradas"
+
+#~ msgid ""
+#~ "If enabled, the words listed in the stop-words list are ignored. E.g. "
+#~ "common words like “the”, “yes”, “no”, etc."
+#~ msgstr ""
+#~ "Se habilitado, as palavras listadas na lista de palavras vazias são "
+#~ "ignoradas. (p.ex., palavras comuns como “o”, “sim”, “não”, etc.)"
+
+#~ msgid "Log verbosity"
+#~ msgstr "Nível de detalhe do log"
+
+#~ msgid "Log verbosity."
+#~ msgstr "Nível de detalhe do log."
+
+#~ msgid "GraphUpdated delay"
+#~ msgstr "Atraso do GraphUpdated"
+
+#~ msgid ""
+#~ "Period in milliseconds between GraphUpdated signals being emitted when "
+#~ "indexed data has changed inside the database."
+#~ msgstr ""
+#~ "Período, em milissegundos, entre sinais do GraphUpdated sendo emitidos "
+#~ "quando dados indexados forem alterados dentro da base de dados."
+
+#~ msgid "Displays version information"
+#~ msgstr "Exibe informações de versão"
+
+#~ msgid ""
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default = 0)"
+#~ msgstr ""
+#~ "Logging, 0 = somente erros, 1 = mínimo, 2 = detalhado e 3 = depuração (o "
+#~ "padrão é = 0)"
+
+#~ msgid "Disable automatic shutdown"
+#~ msgstr "Desabilitar desligamento automático"
+
+#~ msgid "Force a re-index of all content"
+#~ msgstr "Forçar a reindexação de todo o conteúdo"
+
+#~ msgid "Load a specified domain ontology"
+#~ msgstr "Carregar uma ontologia de domínio específico"
+
+#~ msgid "— start the tracker daemon"
+#~ msgstr "— inicia o serviço tracker"
+
+#~ msgid "Tracker Store"
+#~ msgstr "Armazenador do Tracker"
+
+#~ msgid "Metadata database store and lookup manager"
+#~ msgstr ""
+#~ "Armazenamento de banco de dados de metadados e gerenciador de procura"
+
+#~ msgid "BASE_URL"
+#~ msgstr "URL_BASE"
 
 #~ msgid "Error starting “tar” program"
 #~ msgstr "Erro ao iniciar programa “tar”"
@@ -1351,9 +1426,6 @@ msgstr "Definição de resultado vazio"
 #~ msgid "Configuration"
 #~ msgstr "Configuração"
 
-#~ msgid "No configuration was found"
-#~ msgstr "Nenhuma configuração foi encontrada"
-
 #~ msgid "States"
 #~ msgstr "Estados"
 
@@ -1546,9 +1618,6 @@ msgstr "Definição de resultado vazio"
 #~ msgstr ""
 #~ "Exec=gdbus call -e -d org.freedesktop.DBus -o /org/freedesktop/DBus -m "
 #~ "org.freedesktop.DBus.StartServiceByName org.freedesktop.Tracker1 0"
-
-#~ msgid "No network connection"
-#~ msgstr "Sem conexão de rede"
 
 #~ msgid "Indexing not recommended on this network connection"
 #~ msgstr "Indexação não recomendada nesta conexão de rede"
@@ -2564,9 +2633,6 @@ msgstr "Definição de resultado vazio"
 #~ msgid "Status and Miners options cannot be used together"
 #~ msgstr "Estados gerais e mineração não podem ser utilizados em conjunto"
 
-#~ msgid "Restore databases from the file provided"
-#~ msgstr "Restaurar bancos de dados a partir do arquivo fornecido"
-
 #~ msgid ""
 #~ "You can not use the --terminate with --hard-reset or --soft-reset, --kill "
 #~ "is implied"
@@ -2635,9 +2701,6 @@ msgstr "Definição de resultado vazio"
 
 #~ msgid "- Query or update using SPARQL"
 #~ msgstr "- Consulta ou atualização usando SPARQL"
-
-#~ msgid "An argument must be supplied"
-#~ msgstr "Um argumento deve ser informado"
 
 #~ msgid " - Show statistics for all Nepomuk defined ontology classes"
 #~ msgstr ""
