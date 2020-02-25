@@ -74,18 +74,18 @@ static gboolean
 sanity_check (void)
 {
 	if (!database_path) {
-		g_print ("%s\n", _("No database path was provided"));
+		g_printerr ("%s\n", _("No database path was provided"));
 		return FALSE;
 	}
 
 	if (!dbus_service) {
-		g_print ("%s\n", _("No endpoint information was provided"));
+		g_printerr ("%s\n", _("No endpoint information was provided"));
 		return FALSE;
 	}
 
 	if (!!ontology_path == !!ontology_name) {
 		/* TRANSLATORS: those are commandline arguments */
-		g_print ("%s\n", _("One “ontology” or “ontology-path” option should be provided"));
+		g_printerr ("%s\n", _("One “ontology” or “ontology-path” option should be provided"));
 		return FALSE;
 	}
 
