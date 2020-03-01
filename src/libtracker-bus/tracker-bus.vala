@@ -57,16 +57,16 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	static void send_query (DBusConnection bus, string dbus_name, string object_path, string sparql, UnixOutputStream output, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.IOError, GLib.Error {
+	static void send_query (DBusConnection bus, string dbus_name, string object_path, string sparql, VariantBuilder? arguments, UnixOutputStream output, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.IOError, GLib.Error {
 		var message = new DBusMessage.method_call (dbus_name, object_path, ENDPOINT_IFACE, "Query");
 		var fd_list = new UnixFDList ();
-		message.set_body (new Variant ("(sh)", sparql, fd_list.append (output.fd)));
+		message.set_body (new Variant ("(sha{sv})", sparql, fd_list.append (output.fd), arguments));
 		message.set_unix_fd_list (fd_list);
 
 		bus.send_message_with_reply.begin (message, DBusSendMessageFlags.NONE, int.MAX, null, cancellable, callback);
 	}
 
-	public static async Sparql.Cursor perform_query_call (DBusConnection bus, string dbus_name, string object_path, string sparql, Cancellable? cancellable) throws GLib.IOError, GLib.Error {
+	public static async Sparql.Cursor perform_query_call (DBusConnection bus, string dbus_name, string object_path, string sparql, VariantBuilder? arguments, Cancellable? cancellable) throws GLib.IOError, GLib.Error {
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);
@@ -74,7 +74,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool received_result = false;
-		send_query (bus, dbus_name, object_path, sparql, output, cancellable, (o, res) => {
+		send_query (bus, dbus_name, object_path, sparql, arguments, output, cancellable, (o, res) => {
 			dbus_res = res;
 			if (received_result) {
 				perform_query_call.callback ();
@@ -120,7 +120,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, DBusError {
-		return yield perform_query_call (bus, dbus_name, object_path, sparql, cancellable);
+		return yield perform_query_call (bus, dbus_name, object_path, sparql, null, cancellable);
 	}
 
 	void send_update (string method, UnixInputStream input, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.Error, GLib.IOError {
