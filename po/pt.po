@@ -1293,7 +1293,7 @@ msgid ""
 "Indexing content will be as <b>fast</b> as possible but other applications "
 "may suffer and be slower as a result."
 msgstr ""
-"Indexar conteúdo será <b>tão rápido</> quanto possível, mas as outras "
+"Indexar conteúdo será <b>tão rápido</b> quanto possível, mas as outras "
 "aplicações podem sofrer atrasos e tornarem-se mais lentas."
 
 #: ../src/tracker-preferences/tracker-preferences.ui.h:19
