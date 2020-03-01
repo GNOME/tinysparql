@@ -123,6 +123,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		return yield perform_query_call (bus, dbus_name, object_path, sparql, null, cancellable);
 	}
 
+	public override Sparql.Statement? query_statement (string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error {
+		return new Bus.Statement (bus, dbus_name, object_path, sparql);
+	}
+
 	void send_update (string method, UnixInputStream input, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.Error, GLib.IOError {
 		var message = new DBusMessage.method_call (dbus_name, object_path, ENDPOINT_IFACE, method);
 		var fd_list = new UnixFDList ();
