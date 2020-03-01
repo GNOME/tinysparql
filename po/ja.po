@@ -1,17 +1,18 @@
 # tracker ja.po.
-# Copyright (C) 2008,2010,2011 Free Software Foundation, Inc
+# Copyright (C) 2008-2013, 2020 Free Software Foundation, Inc
 # This file is distributed under the same license as the tracker package.
 # Takao Fujiwara <takao.fujiwara@sun.com>, 2008.
-# Takeshi AIHANA <takeshi.aihana@gmail.com>, 2010,2011.
-# Jiro Matsuzawa <jmatsuzawa@gnome.org>, 2013
+# Takeshi AIHANA <takeshi.aihana@gmail.com>, 2010, 2011.
+# Jiro Matsuzawa <jmatsuzawa@gnome.org>, 2013.
+# sicklylife <translation@sicklylife.jp>, 2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker tracker-0.12\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
 "POT-Creation-Date: 2019-09-26 07:35+0000\n"
-"PO-Revision-Date: 2013-09-22 21:08+0900\n"
-"Last-Translator: Jiro Matsuzawa <jmatsuzawa@gnome.org>\n"
+"PO-Revision-Date: 2020-03-01 23:46+0900\n"
+"Last-Translator: sicklylife <translation@sicklylife.jp>\n"
 "Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -60,32 +61,24 @@ msgid "Enable stemmer"
 msgstr "Stemmer を有効にするかどうか"
 
 #: data/org.freedesktop.Tracker.FTS.gschema.xml:38
-#, fuzzy
-#| msgid ""
-#| "Simplify the words to their root to provide more results. E.g. 'shelves' "
-#| "and 'shelf' to 'shel'"
 msgid ""
 "Simplify the words to their root to provide more results. E.g. “shelves” and "
 "“shelf” to “shel”"
 msgstr ""
 "通常よりもたくさんの結果を得るために単語の源 (複数形ならばその単数形) も含め"
-"るかどうかです (例: 'shelves' や 'shelf' ならば 'shel')。"
+"るかどうかです (例: “shelves”や“shelf”ならば“shel”)。"
 
 #: data/org.freedesktop.Tracker.FTS.gschema.xml:43
 msgid "Enable unaccent"
 msgstr "アクセント語の対応を有効にするかどうか"
 
 #: data/org.freedesktop.Tracker.FTS.gschema.xml:44
-#, fuzzy
-#| msgid ""
-#| "Translate accented characters to the equivalent unaccented. E.g. 'Idéa' "
-#| "to 'Idea' for improved matching."
 msgid ""
 "Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
 "“Idea” for improved matching."
 msgstr ""
 "アクセント語の文字をそれと等価なアクセントを持たない文字に変換するかどうかで"
-"す (例: 検索率を改善するために 'Idéa' を 'Idea' にするなど)。"
+"す (例: 検索率を改善するために“Idéa”を“Idea”にするなど)。"
 
 #: data/org.freedesktop.Tracker.FTS.gschema.xml:49
 msgid "Ignore numbers"
@@ -100,16 +93,12 @@ msgid "Ignore stop words"
 msgstr "ストップワードを無視する"
 
 #: data/org.freedesktop.Tracker.FTS.gschema.xml:56
-#, fuzzy
-#| msgid ""
-#| "If enabled, the words listed in the stop-words list are ignored. E.g. "
-#| "common words like 'the', 'yes', 'no', etc."
 msgid ""
 "If enabled, the words listed in the stop-words list are ignored. E.g. common "
 "words like “the”, “yes”, “no”, etc."
 msgstr ""
 "TRUE にすると、stop-words のリストにある単語はインデックス化されなくなります "
-"(例: 'the' や 'yes' や 'no' といった一般的な単語です)。"
+"(例: “the”や“yes”や“no”といった一般的な単語です)。"
 
 #: data/org.freedesktop.Tracker.Store.gschema.xml:24
 msgid "Log verbosity"
@@ -262,7 +251,7 @@ msgstr ""
 #. Indexer options
 #: src/tracker-store/tracker-main.vala:65
 msgid "Force a re-index of all content"
-msgstr "全ての情報に対して強制的に再インデックス化を実施する"
+msgstr "すべての情報に対して強制的に再インデックス化を実施する"
 
 #: src/tracker-store/tracker-main.vala:66
 msgid "Only allow read based actions on the database"
@@ -276,10 +265,8 @@ msgstr ""
 #. * usage string - Usage: COMMAND <THIS_MESSAGE>
 #.
 #: src/tracker-store/tracker-main.vala:229
-#, fuzzy
-#| msgid "- start the tracker daemon"
 msgid "— start the tracker daemon"
-msgstr "- Tracker のデーモンを起動する"
+msgstr "— Tracker のデーモンを起動する"
 
 #: src/tracker-store/tracker-store.desktop.in:3
 msgid "Tracker Store"
@@ -307,22 +294,20 @@ msgstr "初期化中です"
 
 #: src/tracker/tracker-daemon.c:123
 msgid "Processing…"
-msgstr "処理中..."
+msgstr "処理中…"
 
 #: src/tracker/tracker-daemon.c:124
 msgid "Fetching…"
-msgstr "取得中..."
+msgstr "取得中…"
 
 #. miner/rss
 #: src/tracker/tracker-daemon.c:125
-#, fuzzy, c-format
-#| msgid "Crawling single directory '%s'"
+#, c-format
 msgid "Crawling single directory “%s”"
 msgstr "単一のフォルダー (%s) のクロール中です"
 
 #: src/tracker/tracker-daemon.c:126
-#, fuzzy, c-format
-#| msgid "Crawling recursively directory '%s'"
+#, c-format
 msgid "Crawling recursively directory “%s”"
 msgstr "フォルダー (%s) の再帰的なクロール中です"
 
@@ -394,7 +379,7 @@ msgstr "現在実行中の収集デーモンの一覧を表示する"
 
 #: src/tracker/tracker-daemon.c:167
 msgid "List all miners installed"
-msgstr "インストール済の全ての収集デーモンを一覧表示する"
+msgstr "インストール済のすべての収集デーモンを一覧表示する"
 
 #: src/tracker/tracker-daemon.c:171
 msgid "List pause reasons"
@@ -402,51 +387,39 @@ msgstr "停止の理由を一覧表示する"
 
 #: src/tracker/tracker-daemon.c:176
 msgid "List all Tracker processes"
-msgstr "全ての Tracker プロセスを一覧表示する"
+msgstr "すべての Tracker プロセスを一覧表示する"
 
 #: src/tracker/tracker-daemon.c:178
-#, fuzzy
-#| msgid ""
-#| "Use SIGKILL to stop all matching processes, either \"store\", \"miners\" "
-#| "or \"all\" may be used, no parameter equals \"all\""
 msgid ""
 "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
 "“all” may be used, no parameter equals “all”"
 msgstr ""
-"SIGKILL を使って APPS にマッチするプロセスを停止する (APP は \"store"
-"\"、\"miners\"、\"all\" のいずれかで指定しない場合は \"all\")"
+"SIGKILL を使って APPS にマッチするプロセスを停止する (APP は“store”"
+"、“miners”、“all”のいずれかで指定しない場合は“all”)"
 
 #: src/tracker/tracker-daemon.c:179 src/tracker/tracker-daemon.c:182
 msgid "APPS"
 msgstr "APPS"
 
 #: src/tracker/tracker-daemon.c:181
-#, fuzzy
-#| msgid ""
-#| "Use SIGTERM to stop all matching processes, either \"store\", \"miners\" "
-#| "or \"all\" may be used, no parameter equals \"all\""
 msgid ""
 "Use SIGTERM to stop all matching processes, either “store”, “miners” or "
 "“all” may be used, no parameter equals “all”"
 msgstr ""
-"SIGTERM を使って APPS にマッチするプロセスを停止する (APP は \"store"
-"\"、\"miners\"、\"all\" のいずれかで指定しない場合は \"all\")"
+"SIGTERM を使って APPS にマッチするプロセスを停止する (APP は“store”"
+"、“miners”、“all”のいずれかで指定しない場合は“all”)"
 
 #: src/tracker/tracker-daemon.c:184
 msgid "Starts miners (which indirectly starts tracker-store too)"
 msgstr "収集デーモンを起動する (tracker-store も間接的に起動する)"
 
 #: src/tracker/tracker-daemon.c:187 src/tracker/tracker-extract.c:42
-#, fuzzy
-#| msgid ""
-#| "Sets the logging verbosity to LEVEL ('debug', 'detailed', 'minimal', "
-#| "'errors') for all processes"
 msgid ""
 "Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
 "“errors”) for all processes"
 msgstr ""
-"全てのプロセスに対して記録するログの LEVEL を指定する "
-"('debug'、'detailed'、'minimal'、'errors')"
+"すべてのプロセスに対して記録するログの LEVEL を指定する "
+"(“debug”、“detailed”、“minimal”、“errors”)"
 
 #: src/tracker/tracker-daemon.c:188 src/tracker/tracker-extract.c:43
 msgid "LEVEL"
@@ -481,16 +454,12 @@ msgid "Not running or is a disabled plugin"
 msgstr "プラグインが実行されていないか無効になっています"
 
 #: src/tracker/tracker-daemon.c:461
-#, fuzzy
-#| msgid "Could not get Tracker statistics"
 msgid "Could not retrieve tracker-store status"
-msgstr "Tracker の統計情報を取得できませんでした"
+msgstr ""
 
 #: src/tracker/tracker-daemon.c:482
-#, fuzzy
-#| msgid "Could not retrieve tags for the current selection"
 msgid "Could not retrieve tracker-store progress"
-msgstr "現在の選択対象からタグを取得できませんでした"
+msgstr ""
 
 #: src/tracker/tracker-daemon.c:612 src/tracker/tracker-sparql.c:200
 msgid "Unable to retrieve namespace prefixes"
@@ -501,10 +470,8 @@ msgid "No namespace prefixes were returned"
 msgstr "名前空間の接頭子が見つかりませんでした"
 
 #: src/tracker/tracker-daemon.c:699 src/tracker/tracker-daemon.c:726
-#, fuzzy
-#| msgid "Could not run query"
 msgid "Could not run SPARQL query"
-msgstr "クエリを実行できませんでした"
+msgstr "SPARQL クエリを実行できませんでした"
 
 #: src/tracker/tracker-daemon.c:707 src/tracker/tracker-daemon.c:739
 msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
@@ -517,10 +484,9 @@ msgstr ""
 "収集デーモンを一時停止できません (マネージャーを生成できませんでした): %s"
 
 #: src/tracker/tracker-daemon.c:896
-#, fuzzy, c-format
-#| msgid "Attempting to pause miner '%s' with reason '%s'"
+#, c-format
 msgid "Attempting to pause miner “%s” with reason “%s”"
-msgstr "'%s' を '%s' という理由で一時停止中です"
+msgstr "“%s”を“%s”という理由で一時停止中です"
 
 #: src/tracker/tracker-daemon.c:904 src/tracker/tracker-daemon.c:910
 #, c-format
@@ -534,10 +500,8 @@ msgstr "クッキーは %d です"
 
 #: src/tracker/tracker-daemon.c:923 src/tracker/tracker-daemon.c:1276
 #: src/tracker/tracker-daemon.c:1420
-#, fuzzy
-#| msgid "Press Ctrl+C to end pause"
 msgid "Press Ctrl+C to stop"
-msgstr "[Ctrl]+C を押下すると再開します"
+msgstr "[Ctrl]+C を押下すると停止します"
 
 #: src/tracker/tracker-daemon.c:947
 #, c-format
@@ -592,11 +556,8 @@ msgid "Miners"
 msgstr "収集デーモン"
 
 #: src/tracker/tracker-daemon.c:1108
-#, fuzzy
-#| msgid "Application"
-#| msgid_plural "Applications"
 msgid "Application"
-msgstr "アプリケーションの数"
+msgstr "アプリケーション"
 
 #: src/tracker/tracker-daemon.c:1110
 msgid "Reason"
@@ -611,10 +572,8 @@ msgid "Only one of “all”, “store” and “miners” options are allowed"
 msgstr ""
 
 #: src/tracker/tracker-daemon.c:1242
-#, fuzzy
-#| msgid "Could not establish a connection to Tracker"
 msgid "Could not get SPARQL connection"
-msgstr "Tracker への接続を確立できませんでした"
+msgstr "SPARQL 接続を取得できませんでした"
 
 #: src/tracker/tracker-daemon.c:1274
 msgid "Now listening for resource updates to the database"
@@ -640,10 +599,9 @@ msgid "Store"
 msgstr "データ格納デーモン"
 
 #: src/tracker/tracker-daemon.c:1363
-#, fuzzy, c-format
-#| msgid "Could not get status from miner: %s"
+#, c-format
 msgid "Could not get display name for miner “%s”"
-msgstr "収集デーモンから状態を取得できませんでした: %s"
+msgstr ""
 
 #: src/tracker/tracker-daemon.c:1461
 msgid "You can not use miner pause and resume switches together"
@@ -667,13 +625,10 @@ msgstr ""
 "--get-logging オプションと一緒に --set-logging オプションは指定できません"
 
 #: src/tracker/tracker-daemon.c:1530 src/tracker/tracker-extract.c:105
-#, fuzzy
-#| msgid ""
-#| "Invalid log verbosity, try 'debug', 'detailed', 'minimal' or 'errors'"
 msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 msgstr ""
-"ログの記録レベルが間違っています ('debug'、'detailed'、'minimal'、'errors' の"
-"いずれかを指定してみてください)"
+"ログの記録レベルが間違っています (“debug”、“detailed”、“minimal”、"
+"“errors”のいずれかを指定してみてください)"
 
 #: src/tracker/tracker-daemon.c:1558 src/tracker/tracker-process.c:305
 #, c-format
@@ -682,10 +637,9 @@ msgid_plural "Found %d PIDs…"
 msgstr[0] ""
 
 #: src/tracker/tracker-daemon.c:1568
-#, fuzzy, c-format
-#| msgid "Found process ID %d for '%s'"
+#, c-format
 msgid "Found process ID %d for “%s”"
-msgstr "'%2$s' プロセス (PID:%1$d) が起動中です"
+msgstr "“%2$s”プロセス (PID:%1$d) が起動中です"
 
 #: src/tracker/tracker-daemon.c:1598 src/tracker/tracker-daemon.c:1641
 msgid "Components"
@@ -696,14 +650,13 @@ msgid "Only those with config listed"
 msgstr "一覧にある設定を持つものだけ"
 
 #: src/tracker/tracker-daemon.c:1624
-#, fuzzy, c-format
-#| msgid "Setting log verbosity for all components to '%s'…"
+#, c-format
 msgid "Setting log verbosity for all components to “%s”…"
-msgstr "全てのコンポーネントで記録するログのレベルを '%s' に設定中..."
+msgstr "すべてのコンポーネントで記録するログのレベルを“%s”に設定中…"
 
 #: src/tracker/tracker-daemon.c:1664
 msgid "Starting miners…"
-msgstr "収集デーモンの起動中..."
+msgstr "収集デーモンの起動中…"
 
 #: src/tracker/tracker-daemon.c:1669
 #, c-format
@@ -728,10 +681,8 @@ msgid "Unrecognized options"
 msgstr "不明なオプション"
 
 #: src/tracker/tracker-dbus.c:44
-#, fuzzy
-#| msgid "Could not establish a connection to Tracker"
 msgid "Could not get D-Bus connection"
-msgstr "Tracker への接続を確立できませんでした"
+msgstr "D-Bus 接続を取得できませんでした"
 
 #: src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
@@ -754,15 +705,13 @@ msgid "FILE"
 msgstr "ファイル"
 
 #: src/tracker/tracker-extract.c:77
-#, fuzzy
-#| msgid "Could not run query"
 msgid "Could not run tracker-extract: "
-msgstr "クエリを実行できませんでした"
+msgstr "tracker-extract を実行できませんでした: "
 
 #: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
 #, c-format
 msgid "failed to exec “%s”: %s"
-msgstr ""
+msgstr "“%s”の実行に失敗しました: %s"
 
 #: src/tracker/tracker-index.c:56
 msgid ""
@@ -781,16 +730,12 @@ msgid "Tell miners to (re)index a given file"
 msgstr "指定したファイルのインデックスを再生成する"
 
 #: src/tracker/tracker-index.c:62
-#, fuzzy
-#| msgid "Backup databases to the file provided"
 msgid "Backup current index / database to the file provided"
-msgstr "指定したファイルにデータベースをバックアップする"
+msgstr ""
 
 #: src/tracker/tracker-index.c:65
-#, fuzzy
-#| msgid "Restoring database from backup"
 msgid "Restore a database from a previous backup (see --backup)"
-msgstr "データベースのリストア中"
+msgstr ""
 
 #: src/tracker/tracker-index.c:68
 msgid "Import a dataset from the provided file (in Turtle format)"
@@ -845,10 +790,8 @@ msgid "Backing up database"
 msgstr "データベースのバックアップ中"
 
 #: src/tracker/tracker-index.c:271 src/tracker/tracker-index.c:328
-#, fuzzy
-#| msgid "Could not update tags"
 msgid "Could not backup database"
-msgstr "タグを更新できませんでした"
+msgstr "データベースをバックアップできませんでした"
 
 #: src/tracker/tracker-index.c:308
 msgid "Restoring database from backup"
@@ -875,10 +818,8 @@ msgid ""
 msgstr ""
 
 #: src/tracker/tracker-info.c:49
-#, fuzzy
-#| msgid "Show full namespaces (i.e. don't use nie:title, use full URLs)"
 msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
-msgstr "名前空間を全て表示する (i.e. nie:title 表記ではなく URL 表記)"
+msgstr "名前空間をすべて表示する (i.e. nie:title 表記ではなく URL 表記)"
 
 #: src/tracker/tracker-info.c:53
 msgid "Show plain text content if available for resources"
@@ -989,55 +930,45 @@ msgid "Could not open /proc"
 msgstr "/proc ファイルシステムをオープンできませんでした"
 
 #: src/tracker/tracker-process.c:132
-#, fuzzy
-#| msgid "Could not read file"
 msgid "Could not stat() file"
-msgstr "ファイルの読み込みに失敗しました"
+msgstr "ファイルを stat() できませんでした"
 
 #: src/tracker/tracker-process.c:203
-#, fuzzy, c-format
-#| msgid "Could not open '%s'"
+#, c-format
 msgid "Could not open “%s”"
-msgstr "'%s' を開けませんでした"
+msgstr "“%s”を開けませんでした"
 
 #: src/tracker/tracker-process.c:332
-#, fuzzy, c-format
-#| msgid "Could not terminate process %d"
+#, c-format
 msgid "Could not terminate process %d — “%s”"
-msgstr "PID:%d のプロセスを終了できませんでした"
+msgstr "PID:%d (%s) のプロセスを終了できませんでした"
 
 #: src/tracker/tracker-process.c:338
-#, fuzzy, c-format
-#| msgid "Terminated process %d"
+#, c-format
 msgid "Terminated process %d — “%s”"
-msgstr "PID:%d のプロセスを終了しました"
+msgstr "PID:%d (%s) のプロセスを終了しました"
 
 #: src/tracker/tracker-process.c:353
-#, fuzzy, c-format
-#| msgid "Could not kill process %d"
+#, c-format
 msgid "Could not kill process %d — “%s”"
-msgstr "PID:%d のプロセスを強制終了できませんでした"
+msgstr "PID:%d (%s) のプロセスを強制終了できませんでした"
 
 #: src/tracker/tracker-process.c:359
-#, fuzzy, c-format
-#| msgid "Killed process %d"
+#, c-format
 msgid "Killed process %d — “%s”"
-msgstr "PID:%d のプロセスを強制終了しました"
+msgstr "PID:%d (%s) のプロセスを強制終了しました"
 
 #: src/tracker/tracker-reset.c:53
 msgid "Kill all Tracker processes and remove all databases"
-msgstr "全ての Tracker プロセスを強制終了してデータベースを全て削除する"
+msgstr "すべての Tracker プロセスを強制終了してデータベースをすべて削除する"
 
 #: src/tracker/tracker-reset.c:56
-#, fuzzy
-#| msgid ""
-#| "Same as --hard-reset but the backup & journal are restored after restart"
 msgid "Same as --hard but the backup & journal are restored after restart"
-msgstr "--hard-reset に加え再起動後にバックアップしたジャーナルをリストアする"
+msgstr "--hard に加え再起動後にバックアップしたジャーナルをリストアする"
 
 #: src/tracker/tracker-reset.c:59
 msgid "Remove all configuration files so they are re-generated on next start"
-msgstr "全ての設定ファイルを削除する (そのため次回起動した時に再生成される)"
+msgstr "すべての設定ファイルを削除する (そのため次回起動した時に再生成される)"
 
 #: src/tracker/tracker-reset.c:62
 msgid ""
@@ -1046,10 +977,8 @@ msgstr ""
 
 #. Now, delete the element recursively
 #: src/tracker/tracker-reset.c:127
-#, fuzzy
-#| msgid "Fetching…"
 msgid "Deleting…"
-msgstr "取得中..."
+msgstr "削除…"
 
 #: src/tracker/tracker-reset.c:148
 msgid ""
@@ -1058,11 +987,9 @@ msgstr ""
 
 #. TRANSLATORS: --hard and --soft are commandline arguments
 #: src/tracker/tracker-reset.c:175
-#, fuzzy
-#| msgid "You can not use the --hard-reset and --soft-reset arguments together"
 msgid "You can not use the --hard and --soft arguments together"
 msgstr ""
-"--hard-reset オプションと一緒に --soft-reset オプションは指定できません"
+"--hard オプションと一緒に --soft オプションは指定できません"
 
 #: src/tracker/tracker-reset.c:183
 msgid "CAUTION: This process may irreversibly delete data."
@@ -1089,14 +1016,12 @@ msgstr ""
 #. * it is intentionally lowercase, so please keep it like this.
 #.
 #: src/tracker/tracker-reset.c:200
-#, fuzzy
-#| msgid "Yes"
 msgid "yes"
-msgstr "はい"
+msgstr ""
 
 #: src/tracker/tracker-reset.c:307
 msgid "Resetting existing configuration…"
-msgstr "既存の設定の更新中..."
+msgstr "既存の設定の更新中…"
 
 #: src/tracker/tracker-search.c:80
 msgid "Search for files"
@@ -1164,13 +1089,9 @@ msgstr "結果のオフセットを指定する"
 
 #: src/tracker/tracker-search.c:146
 msgid "Use OR for search terms instead of AND (the default)"
-msgstr "検索する際に AND ではなく OR を使う (デフォルト)"
+msgstr "検索するときに AND ではなく OR を使う (デフォルト)"
 
 #: src/tracker/tracker-search.c:150
-#, fuzzy
-#| msgid ""
-#| "Show URNs for results (doesn't apply to --music-albums, --music-artists, "
-#| "--feeds, --software, --software-categories)"
 msgid ""
 "Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
 "feeds, --software, --software-categories)"
@@ -1181,14 +1102,10 @@ msgstr ""
 #: src/tracker/tracker-search.c:154
 msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 msgstr ""
-"実在しないが検索条件を満足するものを全て表示する (i.e. アンマウントしたボ"
+"実在しないが検索条件を満足するものをすべて表示する (i.e. アンマウントしたボ"
 "リュームのものが含まれる)"
 
 #: src/tracker/tracker-search.c:158
-#, fuzzy
-#| msgid ""
-#| "Disable showing snippets with results. This is only shown for some "
-#| "categories, e.g. Documents, Music..."
 msgid ""
 "Disable showing snippets with results. This is only shown for some "
 "categories, e.g. Documents, Music…"
@@ -1314,10 +1231,9 @@ msgid "No results were found matching your query"
 msgstr "検索条件を満足する結果はありませんでした"
 
 #: src/tracker/tracker-search.c:1553
-#, fuzzy, c-format
-#| msgid "Search term '%s' is a stop word."
+#, c-format
 msgid "Search term “%s” is a stop word."
-msgstr "指定した '%s' は検索できません"
+msgstr "指定した“%s”は検索できません"
 
 #: src/tracker/tracker-search.c:1564
 msgid ""
@@ -1326,7 +1242,7 @@ msgstr "この文字 (列) はインデックスの生成過程で無視され�
 
 #: src/tracker/tracker-sparql.c:105
 msgid "Path to use to run a query or update from file"
-msgstr "検索または更新する際に使用するパスを指定する"
+msgstr "検索または更新するときに使用するパスを指定する"
 
 #: src/tracker/tracker-sparql.c:109
 msgid "SPARQL query"
@@ -1369,10 +1285,6 @@ msgstr ""
 "データベース内の変更を通知するクラスの一覧を取得する (CLASS はオプション)"
 
 #: src/tracker/tracker-sparql.c:133
-#, fuzzy
-#| msgid ""
-#| "Retrieve indexes used in database to improve performance (PROPERTY is "
-#| "optional) "
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -1458,16 +1370,12 @@ msgid "None"
 msgstr "なし"
 
 #: src/tracker/tracker-sparql.c:963
-#, fuzzy
-#| msgid "Could not update tags for file"
 msgid "Could not create tree: subclass query failed"
-msgstr "ファイルのタグを更新できませんでした"
+msgstr ""
 
 #: src/tracker/tracker-sparql.c:1012
-#, fuzzy
-#| msgid "Could not search properties"
 msgid "Could not create tree: class properties query failed"
-msgstr "プロパティを検索できませんでした"
+msgstr ""
 
 #: src/tracker/tracker-sparql.c:1100
 msgid "Could not list classes"
@@ -1494,14 +1402,10 @@ msgid "Prefixes"
 msgstr "接頭子"
 
 #: src/tracker/tracker-sparql.c:1152
-#, fuzzy
-#| msgid ""
-#| "Could not find property for class prefix, e.g. :Resource in 'rdfs:"
-#| "Resource'"
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
-"クラスの接頭子のプロパティが見つかりませんでした (例: 'rdfs:Resource' のリ"
+"クラスの接頭子のプロパティが見つかりませんでした (例: “rdfs:Resource”のリ"
 "ソース)"
 
 #: src/tracker/tracker-sparql.c:1191
@@ -1588,22 +1492,16 @@ msgid ""
 msgstr ""
 
 #: src/tracker/tracker-sql.c:43
-#, fuzzy
-#| msgid "Path to use to run a query or update from file"
 msgid "Path to use to run a query from file"
-msgstr "検索または更新する際に使用するパスを指定する"
+msgstr ""
 
 #: src/tracker/tracker-sql.c:47
-#, fuzzy
-#| msgid "SPARQL query"
 msgid "SQL query"
-msgstr "SPARQL クエリを指定する"
+msgstr ""
 
 #: src/tracker/tracker-sql.c:48
-#, fuzzy
-#| msgid "SPARQL"
 msgid "SQL"
-msgstr "SPARQL"
+msgstr "SQL"
 
 #: src/tracker/tracker-sql.c:120
 msgid "Failed to initialize data manager"
@@ -1614,10 +1512,8 @@ msgid "Empty result set"
 msgstr "結果を空にする"
 
 #: src/tracker/tracker-status.c:49
-#, fuzzy
-#| msgid "Show statistics about the data stored"
 msgid "Show statistics for current index / data set"
-msgstr "保存してある検索データの統計情報を表示します"
+msgstr ""
 
 #: src/tracker/tracker-status.c:53
 msgid ""
@@ -1641,16 +1537,12 @@ msgid "Statistics:"
 msgstr "統計情報:"
 
 #: src/tracker/tracker-status.c:170
-#, fuzzy
-#| msgid "Print version"
 msgid "Version"
-msgstr "バージョンを表示する"
+msgstr "バージョン"
 
 #: src/tracker/tracker-status.c:177
-#, fuzzy
-#| msgid "Displays version information"
 msgid "Disk Information"
-msgstr "バージョン情報を表示する"
+msgstr "ディスク情報"
 
 #: src/tracker/tracker-status.c:184 src/tracker/tracker-status.c:538
 msgid "Remaining space on database partition"
@@ -1666,71 +1558,52 @@ msgid "Configuration"
 msgstr ""
 
 #: src/tracker/tracker-status.c:251
-#, fuzzy
-#| msgid "No music was found"
 msgid "No configuration was found"
-msgstr "楽曲が見つかりませんでした"
+msgstr ""
 
 #: src/tracker/tracker-status.c:255
 msgid "States"
 msgstr ""
 
 #: src/tracker/tracker-status.c:296
-#, fuzzy
-#| msgid "Statistics:"
 msgid "Data Statistics"
-msgstr "統計情報:"
+msgstr ""
 
 #: src/tracker/tracker-status.c:302
-#, fuzzy
-#| msgid "No statistics available"
 msgid "No connection available"
-msgstr "統計情報は無効です"
+msgstr ""
 
 #: src/tracker/tracker-status.c:312
-#, fuzzy
-#| msgid "Could not get Tracker statistics"
 msgid "Could not get statistics"
-msgstr "Tracker の統計情報を取得できませんでした"
+msgstr "統計情報を取得できませんでした"
 
 #: src/tracker/tracker-status.c:318
-#, fuzzy
-#| msgid "No statistics available"
 msgid "No statistics were available"
-msgstr "統計情報は無効です"
+msgstr ""
 
 #: src/tracker/tracker-status.c:331
-#, fuzzy
-#| msgid "Data object '%s' currently exists"
 msgid "Database is currently empty"
-msgstr "現在、'%s' というデータオブジェクトは存在しています"
+msgstr "データベースは現在空です"
 
 #: src/tracker/tracker-status.c:408 src/tracker/tracker-status.c:431
-#, fuzzy
-#| msgid "Could not get status from miner: %s"
 msgid "Could not get basic status for Tracker"
-msgstr "収集デーモンから状態を取得できませんでした: %s"
+msgstr ""
 
 #: src/tracker/tracker-status.c:515
-#, fuzzy
-#| msgid "Would be indexed"
 msgid "Currently indexed"
-msgstr "インデックスの生成"
+msgstr ""
 
 #: src/tracker/tracker-status.c:518 src/tracker/tracker-tag.c:559
-#, fuzzy, c-format
-#| msgid "Ignored files"
+#, c-format
 msgid "%d file"
 msgid_plural "%d files"
-msgstr[0] "インデックス化しないファイル"
+msgstr[0] "%d 個のファイル"
 
 #: src/tracker/tracker-status.c:524
-#, fuzzy, c-format
-#| msgid "Folder"
-#| msgid_plural "Folders"
+#, c-format
 msgid "%d folder"
 msgid_plural "%d folders"
-msgstr[0] "フォルダーの数"
+msgstr[0] "%d 個のフォルダー"
 
 #: src/tracker/tracker-status.c:550
 msgid "Data is still being indexed"
@@ -1749,7 +1622,7 @@ msgstr ""
 msgid ""
 "List all tags (using FILTER if specified; FILTER always uses logical OR)"
 msgstr ""
-"全てのタグを一覧表示する (FILTER が指定されている場合は利用する。FILTER は常"
+"すべてのタグを一覧表示する (FILTER が指定されている場合は利用する。FILTER は常"
 "に論理和です)"
 
 #: src/tracker/tracker-tag.c:54
@@ -1772,7 +1645,7 @@ msgstr "TAG"
 
 #: src/tracker/tracker-tag.c:65
 msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
-msgstr "タグを削除する (FILE を省略した場合は全てのファイルからTAG を削除する)"
+msgstr "タグを削除する (FILE を省略した場合はすべてのファイルからTAG を削除する)"
 
 #: src/tracker/tracker-tag.c:69
 msgid "Description for a tag (this is only used with --add)"
@@ -1783,18 +1656,16 @@ msgid "STRING"
 msgstr "STRING"
 
 #: src/tracker/tracker-tag.c:81
-#, fuzzy
-#| msgid "Use OR for search terms instead of AND (the default)"
 msgid "Use AND for search terms instead of OR (the default)"
-msgstr "検索する際に AND ではなく OR を使う (デフォルト)"
+msgstr "検索するときに OR ではなく AND を使う (デフォルト)"
 
 #: src/tracker/tracker-tag.c:86
 msgid "FILE…"
-msgstr "FILE..."
+msgstr "FILE…"
 
 #: src/tracker/tracker-tag.c:87
 msgid "FILE [FILE…]"
-msgstr "ファイル [ファイル...]"
+msgstr "ファイル [ファイル…]"
 
 #: src/tracker/tracker-tag.c:249
 msgid "Could not get file URNs"
@@ -1805,32 +1676,24 @@ msgid "Could not get files related to tag"
 msgstr "タグに関連づけられたファイルを取得できませんでした"
 
 #: src/tracker/tracker-tag.c:381
-#, fuzzy
-#| msgid "Could not get all tags"
 msgid "Could not get all tags in the database"
-msgstr "全てのタグを取得できませんでした"
+msgstr "データベースのすべてのタグを取得できませんでした"
 
 #: src/tracker/tracker-tag.c:391
-#, fuzzy
-#| msgid "One or more files have not been specified"
 msgid "No files have been tagged"
-msgstr "1個以上のファイルを指定してください"
+msgstr ""
 
 #: src/tracker/tracker-tag.c:426
-#, fuzzy
-#| msgid "Could not get files related to tag"
 msgid "Could not get files for matching tags"
-msgstr "タグに関連づけられたファイルを取得できませんでした"
+msgstr ""
 
 #: src/tracker/tracker-tag.c:435
-#, fuzzy
-#| msgid "No results were found matching your query"
 msgid "No files were found matching ALL of those tags"
-msgstr "検索条件を満足する結果はありませんでした"
+msgstr ""
 
 #: src/tracker/tracker-tag.c:514 src/tracker/tracker-tag.c:929
 msgid "Could not get all tags"
-msgstr "全てのタグを取得できませんでした"
+msgstr "すべてのタグを取得できませんでした"
 
 #: src/tracker/tracker-tag.c:523 src/tracker/tracker-tag.c:938
 msgid "No tags were found"
@@ -1901,12 +1764,10 @@ msgid "The --list option is required for --show-files"
 msgstr "--show-files オプションには --list オプションが必要です"
 
 #: src/tracker/tracker-tag.c:1090
-#, fuzzy
-#| msgid "The --description option can only be used with --add"
 msgid ""
 "The --and-operator option can only be used with --list and tag label "
 "arguments"
-msgstr "--description オプションは --add オプションとのみ指定できます"
+msgstr ""
 
 #: src/tracker/tracker-tag.c:1092
 msgid "Add and delete actions can not be used together"
@@ -1996,14 +1857,14 @@ msgstr "--description オプションは --add オプションとのみ指定で
 #~ msgstr "モニターを有効にするかどうか"
 
 #~ msgid "Set to false to completely disable any file monitoring"
-#~ msgstr "FALSE にすると、全てのファイルの監視を完全に無効にします。"
+#~ msgstr "FALSE にすると、すべてのファイルの監視を完全に無効にします。"
 
 #~ msgid "Enable writeback"
 #~ msgstr "ライトバックを有効にするかどうか"
 
 #~ msgid "Set to false to completely disable any file writeback"
 #~ msgstr ""
-#~ "FALSE にすると、全てのファイルに対するライトバック (キャッシュメモリの使"
+#~ "FALSE にすると、すべてのファイルに対するライトバック (キャッシュメモリの使"
 #~ "用) が無効になり I/O の割り込みが発生します。"
 
 #~ msgid "Index removable devices"
@@ -2126,7 +1987,7 @@ msgstr "--description オプションは --add オプションとのみ指定で
 #~ msgstr "RSS/ATOM 形式の配信元を収集します"
 
 #~ msgid "All posts"
-#~ msgstr "全ての投稿"
+#~ msgstr "すべての投稿"
 
 #~ msgid "By usage"
 #~ msgstr "利用別"
@@ -2147,7 +2008,7 @@ msgstr "--description オプションは --add オプションとのみ指定で
 #~ "15)"
 
 #~ msgid "Runs until all configured locations are indexed and then exits"
-#~ msgstr "対象となる全ての場所のインデックスを生成して終了する"
+#~ msgstr "対象となるすべての場所のインデックスを生成して終了する"
 
 #~ msgid "Checks if FILE is eligible for being mined based on configuration"
 #~ msgstr ""
@@ -2282,10 +2143,10 @@ msgstr "--description オプションは --add オプションとのみ指定で
 #~ "kill オプションは指定できません"
 
 #~ msgid "Removing configuration files…"
-#~ msgstr "設定ファイルの削除中..."
+#~ msgstr "設定ファイルの削除中…"
 
 #~ msgid "Waiting one second before starting miners…"
-#~ msgstr "収集デーモンを起動する前に1秒間待機しています..."
+#~ msgstr "収集デーモンを起動する前に1秒間待機しています…"
 
 #~ msgid "General options"
 #~ msgstr "全般のオプション"
@@ -2497,7 +2358,7 @@ msgstr "--description オプションは --add オプションとのみ指定で
 #~ "files or just images"
 #~ msgstr ""
 #~ "上にあるトップバーから検索したいデータの種類を選択してください\n"
-#~ "(例: 全て、ファイルだけ、画像だけ)"
+#~ "(例: すべて、ファイルだけ、画像だけ)"
 
 #~ msgid "Start to search using the entry box above"
 #~ msgstr "その隣にあるエントリに入力すると検索を開始します"
@@ -2529,21 +2390,11 @@ msgstr "--description オプションは --add オプションとのみ指定で
 #~ msgid "Items"
 #~ msgstr "個のアイテム"
 
-#, fuzzy
-#~| msgid "Loading..."
-#~ msgid "Loading…"
-#~ msgstr "読み込み中..."
-
 #~ msgid "Pages"
 #~ msgstr "ページ数"
 
 #~ msgid "_Show Parent Directory"
 #~ msgstr "親フォルダーの表示(_S)"
-
-#, fuzzy
-#~| msgid "Tags"
-#~ msgid "_Tags…"
-#~ msgstr "タグ"
 
 #~ msgid "Search and Indexing"
 #~ msgstr "検索とインデックス生成"
@@ -2568,7 +2419,7 @@ msgstr "--description オプションは --add オプションとのみ指定で
 
 #~ msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 #~ msgstr ""
-#~ "これは全てのリムーバブルメディア、メモリカード、CD、DVD などを含みます"
+#~ "これはすべてのリムーバブルメディア、メモリカード、CD、DVD などを含みます"
 
 #~ msgid "Include optical di_scs"
 #~ msgstr "光学ディスク (CD/DVDなど) も対象にする(_S)"
@@ -2744,13 +2595,13 @@ msgstr "--description オプションは --add オプションとのみ指定で
 #~ "はインデックス化されていない状態となります。Tracker は次回起動時に、初回実"
 #~ "行時と同様にデータのインデックス化を開始します。\n"
 #~ "\n"
-#~ "<b>警告: インデックス化したデータは全て削除されます! 取り戻すことはできま"
+#~ "<b>警告: インデックス化したデータはすべて削除されます! 取り戻すことはできま"
 #~ "せん!</b>\n"
 #~ "\n"
 #~ "このボタンをクリックすると設定画面も閉じます。"
 
 #~ msgid "Yes, remove all of my indexed data"
-#~ msgstr "はい、インデックス化したデータを全て削除します"
+#~ msgstr "はい、インデックス化したデータをすべて削除します"
 
 #~ msgid "Reset Indexed Data"
 #~ msgstr "インデックス化したデータのリセット"
@@ -2792,10 +2643,10 @@ msgstr "--description オプションは --add オプションとのみ指定で
 #~ msgstr "- Turtle 形式のファイルを使ってデータをインポートする"
 
 #~ msgid "- Get all information about one or more files"
-#~ msgstr "- 1個以上のファイルに関する情報を全て取得する"
+#~ msgstr "- 1個以上のファイルに関する情報をすべて取得する"
 
 #~ msgid "- Search for terms in all data"
-#~ msgstr "- 全てのデータから検索する"
+#~ msgstr "- すべてのデータから検索する"
 
 #~ msgid ""
 #~ "Applies an AND operator to all terms separated by a space (see --or-"
@@ -2850,8 +2701,8 @@ msgstr "--description オプションは --add オプションとのみ指定で
 #~ msgid "no error given"
 #~ msgstr "エラーはありませんでした"
 
-#~ msgid "_Tags..."
-#~ msgstr "タグの付与(_T)..."
+#~ msgid "_Tags…"
+#~ msgstr "タグの付与(_T)…"
 
 #~ msgid "%d%%"
 #~ msgstr "%d%%"
@@ -2884,8 +2735,8 @@ msgstr "--description オプションは --add オプションとのみ指定で
 #~ msgid "Processes images and albums on Flickr"
 #~ msgstr "Flickr にある画像やアルバムを処理します"
 
-#~ msgid "Tags..."
-#~ msgstr "タグの付与..."
+#~ msgid "Tags…"
+#~ msgstr "タグの付与…"
 
 #~ msgid "Tag one or more files"
 #~ msgstr "１個以上のファイルにタグを付与します"
