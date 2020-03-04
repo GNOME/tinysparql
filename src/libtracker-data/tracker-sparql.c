@@ -2438,8 +2438,14 @@ translate_SelectClause (TrackerSparql  *sparql,
 				}
 
 				tracker_sparql_swap_builder (sparql, old);
-			} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_PARENS) ||
-			           _check_in_rule (sparql, NAMED_RULE_Expression)) {
+			} else {
+				gboolean parens = FALSE;
+
+				if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_PARENS))
+					parens = TRUE;
+				else if (!_check_in_rule (sparql, NAMED_RULE_Expression))
+					break;
+
 				if (!first)
 					_append_string (sparql, ", ");
 
@@ -2460,9 +2466,9 @@ translate_SelectClause (TrackerSparql  *sparql,
 				}
 
 				tracker_sparql_swap_builder (sparql, old);
-				_accept (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_PARENS);
-			} else {
-				break;
+
+				if (parens)
+					_expect (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_PARENS);
 			}
 
 			first = FALSE;
