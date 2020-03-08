@@ -36,7 +36,6 @@
 #include "tracker-db-manager.h"
 #include "tracker-ontologies.h"
 #include "tracker-property.h"
-#include "tracker-sparql-query.h"
 #include "tracker-sparql.h"
 #include "tracker-turtle-reader.h"
 
