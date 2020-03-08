@@ -113,7 +113,7 @@ def create_sandbox(index_location, prefix=None, verbosity=0, dbus_config=None,
     log.debug('Using index location "%s"' % index_location)
 
     sandbox = helpers.TrackerDBusSandbox(dbus_config, extra_env=extra_env)
-    sandbox.start(new_session=(interactive == True))
+    sandbox.start(new_session=True)
 
     # Update our own environment, so when we launch a subprocess it has the
     # same settings as the Tracker daemons.
