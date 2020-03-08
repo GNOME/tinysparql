@@ -124,7 +124,8 @@ def create_sandbox(index_location, prefix=None, verbosity=0, dbus_config=None,
     return sandbox
 
 
-def config_set(sandbox, content_locations_recursive=None, content_locations_single=None):
+def config_set(sandbox, content_locations_recursive=None,
+               content_locations_single=None, applications=False):
     dconfclient = dconf.DConfClient(sandbox)
 
     if content_locations_recursive:
@@ -133,11 +134,13 @@ def config_set(sandbox, content_locations_recursive=None, content_locations_sing
     if content_locations_single:
         log.debug("Using non-recursive content locations: %s" %
               content_locations_single)
+    if applications:
+        log.debug("Indexing applications")
 
     def locations_gsetting(locations):
         locations = [dir if dir.startswith('&') else os.path.abspath(dir)
                      for dir in locations]
-        return GLib.Variant('as', locations).print_(False)
+        return GLib.Variant('as', locations)
 
     dconfclient.write('org.freedesktop.Tracker.Miner.Files',
                       'index-recursive-directories',
@@ -145,7 +148,9 @@ def config_set(sandbox, content_locations_recursive=None, content_locations_sing
     dconfclient.write('org.freedesktop.Tracker.Miner.Files',
                       'index-single-directories',
                       locations_gsetting(content_locations_recursive or []))
-
+    dconfclient.write('org.freedesktop.Tracker.Miner.Files',
+                      'index-applications',
+                      GLib.Variant('b', applications))
 
 def link_to_mime_data():
     '''Create symlink to $XDG_DATA_HOME/mime in our custom data home dir.
