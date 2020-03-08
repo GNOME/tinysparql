@@ -408,13 +408,21 @@ def main():
             command = [shell, '-c', ' '.join(shlex.quote(c) for c in args.command)]
 
             log.debug("Running: %s", command)
-            result = subprocess.run(command)
+            interrupted = False
+            try:
+                result = subprocess.run(command)
+            except KeyboardInterrupt:
+                interrupted = True
 
             if len(miner_watches) > 0:
                 wait_for_miners(miner_watches)
 
-            log.debug("Process finished with returncode %i", result.returncode)
-            sys.exit(result.returncode)
+            if interrupted:
+                log.debug("Process exited due to SIGINT")
+                sys.exit(0)
+            else:
+                log.debug("Process finished with returncode %i", result.returncode)
+                sys.exit(result.returncode)
     finally:
         sandbox.stop()
         if index_tmpdir:
