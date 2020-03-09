@@ -1,3 +1,11 @@
+NEW in 2.3.3 - 2020-03-09
+=========================
+  * Fix race condition during tracker-store shutdown maybe leading to
+    warnings and missed writeback events.
+  * Made fts:offsets stronger against corrupt FTS tables
+
+Translations: ja
+
 NEW in 2.3.2 - 2020-02-18
 =========================
 
