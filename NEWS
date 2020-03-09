@@ -1,3 +1,7 @@
+NEW in 2.3.4 - 2020-03-10
+=========================
+  * Brown paper bag release, fix NULL check.
+
 NEW in 2.3.3 - 2020-03-09
 =========================
   * Fix race condition during tracker-store shutdown maybe leading to
