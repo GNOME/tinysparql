@@ -39,7 +39,6 @@
 "http://www.tracker-project.org/ontologies/tracker#Namespace"
 "http://www.tracker-project.org/ontologies/tracker#Ontology"
 "http://www.tracker-project.org/ontologies/tracker#damaged"
-"http://www.tracker-project.org/ontologies/tracker#defaultValue"
 "http://www.tracker-project.org/ontologies/tracker#domainIndex"
 "http://www.tracker-project.org/ontologies/tracker#fulltextIndexed"
 "http://www.tracker-project.org/ontologies/tracker#fulltextNoLimit"
