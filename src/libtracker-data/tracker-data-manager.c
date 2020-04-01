@@ -1761,10 +1761,6 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 				g_propagate_error (error, n_error);
 				return;
 			}
-
-			if (n_error) {
-				g_propagate_error (error, n_error);
-			}
 		}
 	}
 }
