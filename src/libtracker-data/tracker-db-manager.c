@@ -636,7 +636,9 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	}
 
 	if (need_to_create) {
-		*first_time = TRUE;
+		if (first_time) {
+			*first_time = TRUE;
+		}
 
 		if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) == 0 &&
 		     !tracker_file_system_has_enough_space (db_manager->data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, TRUE)) {
