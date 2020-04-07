@@ -10,7 +10,7 @@ mkdir -p $subcommands_dir
 for l in `find $subcommands_dir -type l`
 do
 # Delete all previous links to our own binary
-if [ `readlink $l` = "$cli_dir/tracker3" ]
+if [ `readlink $l` = "$cli_dir/tracker3" ] || [ `readlink $l` = "$cli_dir/tracker" ];
 then
     rm $l
 fi
