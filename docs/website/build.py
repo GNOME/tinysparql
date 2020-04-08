@@ -100,7 +100,7 @@ def main():
     log.info("Copying API reference documentation from %s", apidocs_src)
     apidocs_dest = output_path.joinpath('docs/api-preview')
     apidocs_dest.mkdir(parents=True)
-    for name in ['libtracker-sparql', 'ontology']:
+    for name in ['libtracker-sparql3', 'tracker3-nepomuk']:
         shutil.copytree(apidocs_src.joinpath(name), apidocs_dest.joinpath(name))
 
     log.info("Adding preview header to API reference documentation")
