@@ -3567,7 +3567,6 @@ get_ontologies (TrackerDataManager  *manager,
 	sorted = g_list_sort (sorted, (GCompareFunc) compare_file_names);
 
 	/* Add our builtin ontologies so they are loaded first */
-	sorted = g_list_prepend (sorted, g_file_new_for_uri ("resource://org/freedesktop/tracker/ontology/31-nao.ontology"));
 	sorted = g_list_prepend (sorted, g_file_new_for_uri ("resource://org/freedesktop/tracker/ontology/20-dc.ontology"));
 	sorted = g_list_prepend (sorted, g_file_new_for_uri ("resource://org/freedesktop/tracker/ontology/12-nrl.ontology"));
 	sorted = g_list_prepend (sorted, g_file_new_for_uri ("resource://org/freedesktop/tracker/ontology/11-rdf.ontology"));
