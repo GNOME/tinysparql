@@ -9,11 +9,10 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
 
 nmm: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "nmm" ;
-	nao:lastModified "2014-09-19T11:05:00Z" .
+	tracker:lastModified "2014-09-19T11:05:00Z" .
 
 nmm:MusicPiece a rdfs:Class ;
 	rdfs:label "Music" ;

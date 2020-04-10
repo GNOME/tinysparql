@@ -3,11 +3,10 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix tracker: <http://www.tracker-project.org/ontologies/tracker#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix nao: <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
 
 rdf: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "rdf" ;
-	nao:lastModified "2019-06-09T21:00:00Z" .
+	tracker:lastModified "2019-06-09T21:00:00Z" .
 
 rdfs: a tracker:Namespace ;
 	tracker:prefix "rdfs" .
@@ -101,6 +100,13 @@ tracker:Namespace a rdfs:Class ;
 tracker:Ontology a rdfs:Class ;
 	rdfs:label "Ontology" ;
 	rdfs:subClassOf rdfs:Resource .
+
+tracker:lastModified a rdf:Property ;
+	rdfs:label "lastModified" ;
+	rdfs:comment "last modification date" ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain tracker:Ontology ;
+	rdfs:range xsd:dateTime .
 
 tracker:prefix a rdf:Property ;
 	nrl:maxCardinality 1 ;

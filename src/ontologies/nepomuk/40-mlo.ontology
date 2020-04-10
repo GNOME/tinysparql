@@ -11,7 +11,7 @@
 mlo: a tracker:Namespace, tracker:Ontology ;
 	tracker:prefix "mlo" ;
 	nao:deprecated true ;
-	nao:lastModified "2011-03-28T19:32:00Z" .
+	tracker:lastModified "2011-03-28T19:32:00Z" .
 
 mlo:GeoLocation a rdfs:Class ;
 	rdfs:label "Location" ;
