@@ -201,6 +201,9 @@ tracker_fts_alter_table (sqlite3     *db,
 	gchar *query, *tmp_name;
 	int rc;
 
+	if (g_hash_table_size (tables) == 0)
+		return TRUE;
+
 	tmp_name = g_strdup_printf ("%s_TMP", table_name);
 
 	if (!tracker_fts_create_table (db, database, tmp_name, tables, grouped_columns)) {
