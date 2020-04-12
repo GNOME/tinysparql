@@ -15,8 +15,12 @@ controls this. Here are the latest tests that were run:
 
 Some distros also run the test suite, including these:
 
-  * Ubuntu autopkgtest: https://autopkgtest.ubuntu.com/packages/tracker/
-  * Debian builds: https://buildd.debian.org/status/package.php?p=tracker
+  * Ubuntu autopkgtest:
+      * https://autopkgtest.ubuntu.com/packages/tracker/
+      * https://autopkgtest.ubuntu.com/packages/tracker-miners/
+  * Debian builds:
+      * https://buildd.debian.org/status/package.php?p=tracker
+      * https://buildd.debian.org/status/package.php?p=tracker-miners
   * Debian reproducible-builds:
       * https://tests.reproducible-builds.org/debian/rb-pkg/unstable/amd64/tracker.html
       * https://tests.reproducible-builds.org/debian/rb-pkg/unstable/amd64/tracker-miners.html
