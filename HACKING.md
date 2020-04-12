@@ -17,7 +17,9 @@ Some distros also run the test suite, including these:
 
   * Ubuntu autopkgtest: https://autopkgtest.ubuntu.com/packages/tracker/
   * Debian builds: https://buildd.debian.org/status/package.php?p=tracker
-  * Debian reproducible-builds: https://tests.reproducible-builds.org/tracker/
+  * Debian reproducible-builds:
+      * https://tests.reproducible-builds.org/debian/rb-pkg/unstable/amd64/tracker.html
+      * https://tests.reproducible-builds.org/debian/rb-pkg/unstable/amd64/tracker-miners.html
 
 OpenSuSE do automated whole-system testing that includes the GNOME desktop for their Tumbleweed rolling release distro: https://openqa.opensuse.org/group_overview/1
 
