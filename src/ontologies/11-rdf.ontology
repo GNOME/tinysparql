@@ -167,12 +167,6 @@ tracker:modified a rdf:Property ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range xsd:integer .
 
-# used to track resources that have been partially restored and require reextraction
-tracker:damaged a rdf:Property ;
-	nrl:maxCardinality 1 ;
-	rdfs:domain rdfs:Resource ;
-	rdfs:range xsd:boolean .
-
 tracker:notify a rdf:Property ;
 	rdfs:comment "Whether resources of this class emits notifications on changes" ;
 	nrl:maxCardinality 1 ;
