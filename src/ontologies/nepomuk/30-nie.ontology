@@ -174,16 +174,15 @@ nie:comment a rdf:Property ;
 
 nie:interpretedAs a rdf:Property ;
 	rdfs:comment "Links the DataObject with the InformationElement it is interpreted as" ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:DataObject ;
-	rdfs:range nie:InformationElement .
+	rdfs:range nie:InformationElement ;
+	tracker:indexed true .
 
 nie:isStoredAs a rdf:Property ;
 	rdfs:comment "Links the information element with the DataObject it is stored in" ;
- 	tracker:deprecated true ;
-	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nie:DataObject .
+	rdfs:range nie:DataObject ;
+	tracker:indexed true .
 
 nie:version a rdf:Property ;
 	rdfs:comment "The current version of the given data object. Exact semantics is unspecified at this level. Use more specific subproperties if needed" ;
