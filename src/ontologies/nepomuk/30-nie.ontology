@@ -225,19 +225,16 @@ nie:keyword a rdf:Property ;
 
 nie:hasLogicalPart a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nie:InformationElement ;
-	tracker:weight 2 .
+	rdfs:range nie:InformationElement .
 
 nie:hasPart a rdf:Property ;
 	rdfs:subPropertyOf nie:relatedTo ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nie:DataObject ;
-	tracker:weight 2 .
+	rdfs:range nie:DataObject .
 
 nie:isPartOf a rdf:Property ;
 	rdfs:domain nie:DataObject ;
-	rdfs:range nie:InformationElement ;
-	tracker:weight 2 .
+	rdfs:range nie:InformationElement .
 
 # Bug in nepomuk specification. Taking domain from superproperty
 nie:licenseType a rdf:Property ;
@@ -253,8 +250,7 @@ nie:characterSet a rdf:Property ;
 
 nie:isLogicalPartOf a rdf:Property ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nie:InformationElement ;
-	tracker:weight 2 .
+	rdfs:range nie:InformationElement .
 
 nie:contentSize a rdf:Property ;
 	nrl:maxCardinality 1 ;
@@ -264,8 +260,7 @@ nie:contentSize a rdf:Property ;
 nie:rootElementOf a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nie:InformationElement ;
-	rdfs:range nie:DataSource ;
-	tracker:weight 2 .
+	rdfs:range nie:DataSource .
 
 nie:usageCounter a rdf:Property ;
 	nrl:maxCardinality 1 ;
