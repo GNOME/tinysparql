@@ -29,7 +29,7 @@ file](https://gitlab.gnome.org/GNOME/tracker/-/blob/master/HACKING.md).
 We provide an online version of the documentation for the latest in-development version
 of Tracker. You can browse it here:
 
-  * [libtracker-sparql](../api-preview/libtracker-sparql/)
-  * [ontology](../api-preview/ontology/)
+  * [libtracker-sparql](../api-preview/libtracker-sparql3/)
+  * [ontology](../api-preview/tracker3-nepomuk/)
 
 Be aware that some libraries from Tracker 2.0 will not be available for Tracker 3.0.
