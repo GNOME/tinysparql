@@ -23,6 +23,7 @@
 
 #ifdef G_ENABLE_DEBUG
 static const GDebugKey tracker_debug_keys[] = {
+  { "ontology-changes", TRACKER_DEBUG_ONTOLOGY_CHANGES },
   { "sql-statements", TRACKER_DEBUG_SQL_STATEMENTS },
 };
 #endif /* G_ENABLE_DEBUG */
