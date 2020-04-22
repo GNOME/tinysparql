@@ -614,7 +614,7 @@ print_ontology_class (Ontology      *ontology,
 	g_fprintf (f, "<refsect2 role='rdf-class' id='%s'>\n", id);
 	g_fprintf (f, "<title>%s</title>\n", name);
 
-	if (klass->description || klass->description || klass->notify) {
+	if (klass->description || klass->deprecated || klass->notify) {
 		g_fprintf (f, "<refsect3 id='%s.description'>\n", id);
 		g_fprintf (f, "  <title>Description</title>\n");
 
