@@ -166,6 +166,20 @@ static gboolean     resource_buffer_switch     (TrackerData  *data,
                                                 gint          subject_id,
                                                 GError      **error);
 
+void tracker_data_insert_statement_with_uri    (TrackerData  *data,
+                                                const gchar  *graph,
+                                                const gchar  *subject,
+                                                const gchar  *predicate,
+                                                GBytes       *object,
+                                                GError      **error);
+void tracker_data_insert_statement_with_string (TrackerData  *data,
+                                                const gchar  *graph,
+                                                const gchar  *subject,
+                                                const gchar  *predicate,
+                                                GBytes       *object,
+                                                GError      **error);
+
+
 void
 tracker_data_add_commit_statement_callback (TrackerData             *data,
                                             TrackerCommitCallback    callback,
