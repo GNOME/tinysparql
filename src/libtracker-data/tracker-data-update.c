@@ -803,12 +803,6 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 				tracker_db_statement_bind_int (stmt, param++, resource->id);
 				statement_bind_gvalue (stmt, &param, &property->value);
 
-				if (resource->graph->id != 0) {
-					tracker_db_statement_bind_int (stmt, param++, resource->graph->id);
-				} else {
-					tracker_db_statement_bind_null (stmt, param++);
-				}
-
 				tracker_db_statement_execute (stmt, &actual_error);
 				g_object_unref (stmt);
 
