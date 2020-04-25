@@ -1779,32 +1779,6 @@ delete_metadata_decomposed (TrackerData      *data,
 }
 
 static void
-db_delete_row (TrackerDBInterface *iface,
-               const gchar        *database,
-               const gchar        *table_name,
-               gint                id)
-{
-	TrackerDBStatement *stmt;
-	GError *error = NULL;
-
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
-	                                              "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
-	                                              database, table_name);
-
-	if (stmt) {
-		tracker_db_statement_bind_int (stmt, 0, id);
-		tracker_db_statement_execute (stmt, &error);
-		g_object_unref (stmt);
-	}
-
-	if (error) {
-		g_warning ("%s", error->message);
-		g_error_free (error);
-		error = NULL;
-	}
-}
-
-static void
 cache_delete_resource_type_full (TrackerData  *data,
                                  TrackerClass *class,
                                  gboolean      single_type)
@@ -1813,7 +1787,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 	TrackerDBStatement *stmt;
 	TrackerDBCursor    *cursor = NULL;
 	TrackerProperty   **properties, *prop;
-	gboolean            found, direct_delete;
+	gboolean            found;
 	gint                i;
 	guint               p, n_props;
 	GError             *error = NULL;
@@ -1890,9 +1864,6 @@ cache_delete_resource_type_full (TrackerData  *data,
 		}
 	}
 
-	/* bypass buffer if possible */
-	direct_delete = g_hash_table_size (data->resource_buffer->tables) == 0;
-
 	/* delete all property values */
 
 	properties = tracker_ontologies_get_properties (ontologies, &n_props);
@@ -1913,14 +1884,6 @@ cache_delete_resource_type_full (TrackerData  *data,
 		multiple_values = tracker_property_get_multiple_values (prop);
 		table_name = tracker_property_get_table_name (prop);
 		field_name = tracker_property_get_name (prop);
-
-		if (direct_delete) {
-			if (multiple_values) {
-				db_delete_row (iface, database, table_name, data->resource_buffer->id);
-			}
-			/* single-valued property values are deleted right after the loop by deleting the row in the class table */
-			continue;
-		}
 
 		old_values = get_old_property_values (data, prop, NULL);
 
@@ -1958,33 +1921,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 		}
 	}
 
-	if (direct_delete) {
-		/* delete row from class table */
-		db_delete_row (iface, database, tracker_class_get_name (class), data->resource_buffer->id);
-
-		if (!single_type) {
-			/* delete row from rdfs:Resource_rdf:type table */
-			/* this is not necessary when deleting the whole resource
-			   as all property values are deleted implicitly */
-			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
-						                      "DELETE FROM \"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?");
-
-			if (stmt) {
-				tracker_db_statement_bind_int (stmt, 0, data->resource_buffer->id);
-				tracker_db_statement_bind_int (stmt, 1, tracker_class_get_id (class));
-				tracker_db_statement_execute (stmt, &error);
-				g_object_unref (stmt);
-			}
-
-			if (error) {
-				g_warning ("Could not delete cache resource: %s", error->message);
-				g_error_free (error);
-				error = NULL;
-			}
-		}
-	} else {
-		cache_delete_row (data, class);
-	}
+	cache_delete_row (data, class);
 
 	if (data->delete_callbacks) {
 		guint n;
