@@ -219,6 +219,19 @@ tracker_data_remove_commit_statement_callback (TrackerData           *data,
 }
 
 void
+tracker_data_dispatch_commit_statement_callbacks (TrackerData *data)
+{
+	if (data->commit_callbacks) {
+		guint n;
+		for (n = 0; n < data->commit_callbacks->len; n++) {
+			TrackerCommitDelegate *delegate;
+			delegate = g_ptr_array_index (data->commit_callbacks, n);
+			delegate->callback (delegate->user_data);
+		}
+	}
+}
+
+void
 tracker_data_add_rollback_statement_callback (TrackerData             *data,
                                               TrackerCommitCallback    callback,
                                               gpointer                 user_data)
@@ -253,6 +266,19 @@ tracker_data_remove_rollback_statement_callback (TrackerData          *data,
 		if (delegate->callback == callback && delegate->user_data == user_data) {
 			g_ptr_array_remove_index (data->rollback_callbacks, i);
 			return;
+		}
+	}
+}
+
+void
+tracker_data_dispatch_rollback_statement_callbacks (TrackerData *data)
+{
+	if (data->rollback_callbacks) {
+		guint n;
+		for (n = 0; n < data->rollback_callbacks->len; n++) {
+			TrackerCommitDelegate *delegate;
+			delegate = g_ptr_array_index (data->rollback_callbacks, n);
+			delegate->callback (delegate->user_data);
 		}
 	}
 }
@@ -296,6 +322,32 @@ tracker_data_remove_insert_statement_callback (TrackerData             *data,
 }
 
 void
+tracker_data_dispatch_insert_statement_callbacks (TrackerData *data,
+                                                  gint         predicate_id,
+                                                  gint         object_id,
+                                                  const gchar *object)
+{
+	if (data->insert_callbacks) {
+		guint n;
+
+		for (n = 0; n < data->insert_callbacks->len; n++) {
+			TrackerStatementDelegate *delegate;
+
+			delegate = g_ptr_array_index (data->insert_callbacks, n);
+			delegate->callback (data->resource_buffer->graph->id,
+			                    data->resource_buffer->graph->graph,
+			                    data->resource_buffer->id,
+			                    data->resource_buffer->subject,
+			                    predicate_id,
+			                    object_id,
+			                    object,
+			                    data->resource_buffer->types,
+			                    delegate->user_data);
+		}
+	}
+}
+
+void
 tracker_data_add_delete_statement_callback (TrackerData             *data,
                                             TrackerStatementCallback callback,
                                             gpointer                 user_data)
@@ -329,6 +381,32 @@ tracker_data_remove_delete_statement_callback (TrackerData             *data,
 		if (delegate->callback == callback && delegate->user_data == user_data) {
 			g_ptr_array_remove_index (data->delete_callbacks, i);
 			return;
+		}
+	}
+}
+
+void
+tracker_data_dispatch_delete_statement_callbacks (TrackerData *data,
+                                                  gint         predicate_id,
+                                                  gint         object_id,
+                                                  const gchar *object)
+{
+	if (data->delete_callbacks) {
+		guint n;
+
+		for (n = 0; n < data->delete_callbacks->len; n++) {
+			TrackerStatementDelegate *delegate;
+
+			delegate = g_ptr_array_index (data->delete_callbacks, n);
+			delegate->callback (data->resource_buffer->graph->id,
+			                    data->resource_buffer->graph->graph,
+			                    data->resource_buffer->id,
+			                    data->resource_buffer->subject,
+			                    predicate_id,
+			                    object_id,
+			                    object,
+			                    data->resource_buffer->types,
+			                    delegate->user_data);
 		}
 	}
 }
@@ -1147,23 +1225,10 @@ cache_create_service_decomposed (TrackerData  *data,
 	cache_insert_value (data, "rdfs:Resource_rdf:type", "rdf:type",
 	                    &gvalue, TRUE, FALSE, FALSE);
 
-	if (data->insert_callbacks) {
-		guint n;
-
-		for (n = 0; n < data->insert_callbacks->len; n++) {
-			TrackerStatementDelegate *delegate;
-
-			delegate = g_ptr_array_index (data->insert_callbacks, n);
-			delegate->callback (data->resource_buffer->graph->id,
-			                    data->resource_buffer->graph->graph,
-			                    data->resource_buffer->id, data->resource_buffer->subject,
-			                    tracker_property_get_id (tracker_ontologies_get_rdf_type (ontologies)),
-			                    class_id,
-			                    tracker_class_get_uri (cl),
-			                    data->resource_buffer->types,
-			                    delegate->user_data);
-		}
-	}
+	tracker_data_dispatch_insert_statement_callbacks (data,
+	                                                  tracker_property_get_id (tracker_ontologies_get_rdf_type (ontologies)),
+	                                                  class_id,
+	                                                  tracker_class_get_uri (cl));
 
 	/* When a new class created, make sure we propagate to the domain indexes
 	 * the property values already set, if any. */
@@ -1909,23 +1974,10 @@ cache_delete_resource_type_full (TrackerData  *data,
 
 	cache_delete_row (data, class);
 
-	if (data->delete_callbacks) {
-		guint n;
-
-		for (n = 0; n < data->delete_callbacks->len; n++) {
-			TrackerStatementDelegate *delegate;
-
-			delegate = g_ptr_array_index (data->delete_callbacks, n);
-			delegate->callback (data->resource_buffer->graph->id,
-			                    data->resource_buffer->graph->graph,
-			                    data->resource_buffer->id, data->resource_buffer->subject,
-			                    tracker_property_get_id (tracker_ontologies_get_rdf_type (ontologies)),
-			                    tracker_class_get_id (class),
-			                    tracker_class_get_uri (class),
-			                    data->resource_buffer->types,
-			                    delegate->user_data);
-		}
-	}
+	tracker_data_dispatch_delete_statement_callbacks (data,
+	                                                  tracker_property_get_id (tracker_ontologies_get_rdf_type (ontologies)),
+	                                                  tracker_class_get_id (class),
+	                                                  tracker_class_get_uri (class));
 
 	g_ptr_array_remove (data->resource_buffer->types, class);
 }
@@ -2044,7 +2096,7 @@ tracker_data_delete_statement (TrackerData  *data,
                                GError      **error)
 {
 	TrackerClass       *class;
-	gint                subject_id = 0, graph_id = 0;
+	gint                subject_id = 0;
 	gboolean            change = FALSE;
 	TrackerOntologies  *ontologies;
 	const gchar *object_str;
@@ -2065,9 +2117,6 @@ tracker_data_delete_statement (TrackerData  *data,
 		return;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-
-	if (graph)
-		graph_id = tracker_data_manager_find_graph (data->manager, graph);
 
 	object_str = g_bytes_get_data (object, NULL);
 
@@ -2095,18 +2144,11 @@ tracker_data_delete_statement (TrackerData  *data,
 			return;
 		}
 
-		if (data->delete_callbacks && change) {
-			guint n;
-			for (n = 0; n < data->delete_callbacks->len; n++) {
-				TrackerStatementDelegate *delegate;
-
-				delegate = g_ptr_array_index (data->delete_callbacks, n);
-				delegate->callback (graph_id, graph, subject_id, subject,
-				                    pred_id, object_id,
-				                    object_str,
-				                    data->resource_buffer->types,
-				                    delegate->user_data);
-			}
+		if (change) {
+			tracker_data_dispatch_delete_statement_callbacks (data,
+			                                                  pred_id,
+			                                                  object_id,
+			                                                  object_str);
 		}
 	}
 }
@@ -2209,7 +2251,7 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 	GError          *actual_error = NULL;
 	TrackerClass    *class;
 	TrackerProperty *property;
-	gint             prop_id = 0, graph_id = 0;
+	gint             prop_id = 0;
 	gint             final_prop_id = 0, object_id = 0;
 	gboolean change = FALSE;
 	TrackerOntologies *ontologies;
@@ -2243,9 +2285,6 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 	if (!resource_buffer_switch (data, graph, subject, 0, error))
 		return;
 
-	if (graph)
-		graph_id = tracker_data_manager_find_graph (data->manager, graph);
-
 	object_str = g_bytes_get_data (object, NULL);
 
 	if (property == tracker_ontologies_get_rdf_type (ontologies)) {
@@ -2277,19 +2316,10 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (data->manager, iface, predicate);
 			object_id = query_resource_id (data, object_str);
 
-			if (data->insert_callbacks) {
-				guint n;
-				for (n = 0; n < data->insert_callbacks->len; n++) {
-					TrackerStatementDelegate *delegate;
-
-					delegate = g_ptr_array_index (data->insert_callbacks, n);
-					delegate->callback (graph_id, graph, data->resource_buffer->id, subject,
-					                    final_prop_id, object_id,
-					                    object_str,
-					                    data->resource_buffer->types,
-					                    delegate->user_data);
-				}
-			}
+			tracker_data_dispatch_insert_statement_callbacks (data,
+			                                                  final_prop_id,
+			                                                  object_id,
+			                                                  object_str);
 		}
 	}
 }
@@ -2305,7 +2335,7 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 	GError          *actual_error = NULL;
 	TrackerProperty *property;
 	gboolean         change;
-	gint             graph_id = 0, pred_id = 0;
+	gint             pred_id = 0;
 	TrackerOntologies *ontologies;
 	TrackerDBInterface *iface;
 	const gchar *object_str;
@@ -2337,9 +2367,6 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 	if (!resource_buffer_switch (data, graph, subject, 0, error))
 		return;
 
-	if (graph)
-		graph_id = tracker_data_manager_find_graph (data->manager, graph);
-
 	/* add value to metadata database */
 	change = cache_insert_metadata_decomposed (data, property, object, &actual_error);
 
@@ -2348,22 +2375,14 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 		return;
 	}
 
-	if (data->insert_callbacks && change) {
-		guint n;
-
+	if (change) {
 		pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (data->manager, iface, predicate);
 		object_str = g_bytes_get_data (object, NULL);
 
-		for (n = 0; n < data->insert_callbacks->len; n++) {
-			TrackerStatementDelegate *delegate;
-
-			delegate = g_ptr_array_index (data->insert_callbacks, n);
-			delegate->callback (graph_id, graph, data->resource_buffer->id, subject,
-			                    pred_id, 0 /* Always a literal */,
-			                    object_str,
-			                    data->resource_buffer->types,
-			                    delegate->user_data);
-		}
+		tracker_data_dispatch_insert_statement_callbacks (data,
+		                                                  pred_id,
+		                                                  0, /* Always a literal */
+		                                                  object_str);
 	}
 }
 
@@ -2538,14 +2557,7 @@ tracker_data_commit_transaction (TrackerData  *data,
 	g_ptr_array_set_size (data->update_buffer.graphs, 0);
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
 
-	if (data->commit_callbacks) {
-		guint n;
-		for (n = 0; n < data->commit_callbacks->len; n++) {
-			TrackerCommitDelegate *delegate;
-			delegate = g_ptr_array_index (data->commit_callbacks, n);
-			delegate->callback (delegate->user_data);
-		}
-	}
+	tracker_data_dispatch_commit_statement_callbacks (data);
 }
 
 void
@@ -2572,14 +2584,7 @@ tracker_data_rollback_transaction (TrackerData *data)
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 
-	if (data->rollback_callbacks) {
-		guint n;
-		for (n = 0; n < data->rollback_callbacks->len; n++) {
-			TrackerCommitDelegate *delegate;
-			delegate = g_ptr_array_index (data->rollback_callbacks, n);
-			delegate->callback (delegate->user_data);
-		}
-	}
+	tracker_data_dispatch_rollback_statement_callbacks (data);
 }
 
 static GVariant *
