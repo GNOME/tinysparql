@@ -59,7 +59,7 @@ are indexed. This should bring resource usage to zero.
 
 If the Tracker store is using a lot of disk space and you are sure that
 there is no unreplaceable data stored in the database, you can run `tracker
-reset --hard` to delete everything stored in the database.  
+reset --hard` to delete everything stored in the database.
 
 ## Can Tracker help me organize my music collection?
 
