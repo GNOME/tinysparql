@@ -256,6 +256,7 @@ tracker_endpoint (int argc, const char **argv)
 	} else {
 		g_print (_("New database created. Use the --dbus-service option to "
 		           "share this database on a message bus."));
+		g_print ("\n");
 	}
 
 	if (connection) {
