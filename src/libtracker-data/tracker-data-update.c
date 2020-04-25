@@ -1925,16 +1925,17 @@ cache_delete_resource_type_full (TrackerData  *data,
 		old_values = get_old_property_values (data, prop, NULL);
 
 		for (y = old_values->len - 1; y >= 0 ; y--) {
-			GValue *old_gvalue;
+			GValue *old_gvalue, copy = G_VALUE_INIT;
 
 			old_gvalue = &g_array_index (old_values, GValue, y);
+			g_value_init (&copy, G_VALUE_TYPE (old_gvalue));
+			g_value_copy (old_gvalue, &copy);
 
 			value_set_remove_value (old_values, old_gvalue);
 			cache_delete_value (data, table_name, field_name,
-			                    old_gvalue, multiple_values,
+			                    &copy, multiple_values,
 			                    tracker_property_get_fulltext_indexed (prop),
 			                    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_DATETIME);
-
 
 			if (!multiple_values) {
 				TrackerClass **domain_index_classes;
@@ -1945,7 +1946,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 						cache_delete_value (data,
 						                    tracker_class_get_name (*domain_index_classes),
 						                    field_name,
-						                    old_gvalue, multiple_values,
+						                    &copy, multiple_values,
 						                    tracker_property_get_fulltext_indexed (prop),
 						                    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_DATETIME);
 					}
@@ -1953,6 +1954,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 				}
 			}
 
+			g_value_unset (&copy);
 		}
 	}
 
