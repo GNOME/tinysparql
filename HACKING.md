@@ -41,6 +41,7 @@ The following environment variables control logging from Tracker daemons:
 
         - collation
         - ontology-changes
+        - sparql
         - sqlite
         - sql-statements
 
