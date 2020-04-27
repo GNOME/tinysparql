@@ -95,6 +95,8 @@ Unlike Tracker, it doesn't support SPARQL or provide a Linked Data endpoint.
 [Baloo](https://community.kde.org/Baloo) is a metadata and search framework by
 KDE, implemented using Xapian.
 
+[Recoll](https://www.lesbonscomptes.com/recoll/) is a cross-platform desktop search application powered by Xapian.
+
 [Apache Lucene + Solr](http://lucene.apache.org/) is a search engine which
 targets very large-scale workloads. It has a much heavier footprint compared to
 Tracker.
