@@ -491,7 +491,8 @@ class TrackerDBusSandbox:
         for busname in self.daemon.list_names_sync():
             if busname.startswith('org.freedesktop.Tracker3'):
                 pid = self.daemon.get_connection_unix_process_id_sync(busname)
-                tracker_processes.append(pid)
+                if pid is not None:
+                    tracker_processes.append(pid)
 
         log.info("Terminating %i Tracker processes", len(tracker_processes))
         for pid in tracker_processes:
@@ -513,8 +514,11 @@ class TrackerDBusSandbox:
     def stop_miner_fs(self):
         log.info("Stopping tracker-miner-fs process.")
         pid = self.daemon.get_connection_unix_process_id_sync('org.freedesktop.Tracker1.Miner.Files')
-        os.kill(pid, signal.SIGTERM)
-        psutil.wait_pid(pid)
+        if pid:
+            os.kill(pid, signal.SIGTERM)
+            psutil.wait_pid(pid)
+        else:
+            log.info("tracker-miner-fs process was not found on the message bus.")
 
     def get_connection(self):
         return self.daemon.get_connection()
