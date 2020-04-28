@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-04-23 21:51+0000\n"
-"PO-Revision-Date: 2020-04-25 09:59+0300\n"
+"POT-Creation-Date: 2020-04-27 21:38+0000\n"
+"PO-Revision-Date: 2020-04-28 11:13+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -103,7 +103,6 @@ msgstr "the|a|an"
 #: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:41
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
 #: src/tracker/tracker-sparql.c:107 src/tracker/tracker-sql.c:44
-#| msgid "Only allow read based actions on the database"
 msgid "Location of the database"
 msgstr "Розташування бази даних"
 
@@ -135,56 +134,55 @@ msgstr "Використовувати шину сеансу"
 msgid "Use system bus"
 msgstr "Використовувати шину системи"
 
-#: src/tracker/tracker-endpoint.c:86
-msgid "No database path was provided"
-msgstr "Не вказано шляху до бази даних"
-
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:92
+#: src/tracker/tracker-endpoint.c:87
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Має бути вказано один з параметрів «ontology» або «ontology-path»"
 
-#: src/tracker/tracker-endpoint.c:134
+#: src/tracker/tracker-endpoint.c:129
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Створюємо кінцеву точку у %s…"
 
-#: src/tracker/tracker-endpoint.c:170
-#| msgid "Could not run update"
+#: src/tracker/tracker-endpoint.c:165
 msgid "Could not own DBus name"
 msgstr "Не вдалося присвоїти назву DBus"
 
-#: src/tracker/tracker-endpoint.c:174
+#: src/tracker/tracker-endpoint.c:169
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Очікуємо на команди SPARQL. Натисніть Ctrl-C, щоб припинити."
 
-#: src/tracker/tracker-endpoint.c:184
+#: src/tracker/tracker-endpoint.c:179
 msgid "DBus name lost"
 msgstr "Втрачено назву DBus"
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:189
+#: src/tracker/tracker-endpoint.c:184
 msgid "Closing connection…"
 msgstr "Розриваємо з'єднання…"
 
-#: src/tracker/tracker-endpoint.c:209 src/tracker/tracker-export.c:231
+#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:231
 #: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
 #: src/tracker/tracker-sparql.c:1516 src/tracker/tracker-sql.c:231
 msgid "Unrecognized options"
 msgstr "Невідомий параметр"
 
-#: src/tracker/tracker-endpoint.c:235
+#: src/tracker/tracker-endpoint.c:234
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Відкриваємо базу даних у %s…"
 
-#: src/tracker/tracker-endpoint.c:254
+#: src/tracker/tracker-endpoint.c:237
+msgid "Creating in-memory database"
+msgstr "Створюємо базу даних у оперативній пам'яті"
+
+#: src/tracker/tracker-endpoint.c:257
 msgid ""
 "New database created. Use the --dbus-service option to share this database "
 "on a message bus."
 msgstr ""
-"Створено базу даних. Скористайтеся параметром --dbus-service, щоб оприлюднити"
-" цю базу даних на шині повідомлень."
+"Створено базу даних. Скористайтеся параметром --dbus-service, щоб "
+"оприлюднити цю базу даних на шині повідомлень."
 
 #: src/tracker/tracker-export.c:42 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
@@ -212,7 +210,6 @@ msgstr "З'єднує із віддаленою службою"
 
 #: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:116
-#| msgid "Remote service to query to"
 msgid "Remote service URI"
 msgstr "Адреса віддаленої служби"
 
@@ -221,8 +218,8 @@ msgstr "Адреса віддаленої служби"
 #: src/tracker/tracker-sparql.c:190
 msgid "Specify one --database, --dbus-service or --remote-service option"
 msgstr ""
-"Вкажіть один з параметрів --database, --dbus-service або --remote-service"
-" option"
+"Вкажіть один з параметрів --database, --dbus-service або --remote-service "
+"option"
 
 #: src/tracker/tracker-export.c:186 src/tracker/tracker-import.c:99
 #: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1105
@@ -245,7 +242,6 @@ msgid "failed to exec “%s”: %s"
 msgstr "не вдалося виконати «%s»: %s"
 
 #: src/tracker/tracker-import.c:117
-#| msgid "Could not run update"
 msgid "Could not run import"
 msgstr "Не вдалося виконати імпортування"
 
@@ -322,7 +318,6 @@ msgid "Export data from a Tracker database"
 msgstr "Експортувати дані з бази даних Tracker"
 
 #: src/tracker/tracker-main.c:96
-#| msgid "Could not backup database"
 msgid "Import data into a Tracker database"
 msgstr "Імпортувати дані до бази даних Tracker"
 
@@ -351,7 +346,6 @@ msgid "Available tracker commands are:"
 msgstr "Доступні команди tracker:"
 
 #: src/tracker/tracker-main.c:212
-#| msgid "Available tracker commands are:"
 msgid "Additional / third party commands are:"
 msgstr "Додаткові або сторонні команди:"
 
@@ -609,3 +603,6 @@ msgstr "Порожній набір результатів"
 #: src/tracker/tracker-sql.c:240
 msgid "A database path must be specified"
 msgstr "Слід вказати шлях до бази даних"
+
+#~ msgid "No database path was provided"
+#~ msgstr "Не вказано шляху до бази даних"
