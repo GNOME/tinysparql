@@ -243,6 +243,11 @@ translate_error (GError *error)
 	if (error->domain == TRACKER_DATA_ONTOLOGY_ERROR) {
 		/* This is an internal error domain, so translate to a libtracker-sparql error code. */
 		switch (error->code) {
+			case TRACKER_DATA_ONTOLOGY_NOT_FOUND:
+				new_error = g_error_new_literal (TRACKER_SPARQL_ERROR,
+				                                 TRACKER_SPARQL_ERROR_ONTOLOGY_NOT_FOUND,
+				                                 error->message);
+				break;
 			case TRACKER_DATA_UNSUPPORTED_LOCATION:
 			case TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE:
 				new_error = g_error_new_literal (TRACKER_SPARQL_ERROR,
