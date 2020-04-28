@@ -38,6 +38,10 @@ from . import psutil_mini as psutil
 log = logging.getLogger(__name__)
 
 
+TRACKER_DBUS_PREFIX = 'org.freedesktop.Tracker3'
+TRACKER_MINER_FS_BUSNAME = 'org.freedesktop.Tracker3.Miner.Files'
+
+
 class AwaitException(RuntimeError):
     pass
 
@@ -489,7 +493,7 @@ class TrackerDBusSandbox:
 
         log.info("Looking for active Tracker processes on the bus")
         for busname in self.daemon.list_names_sync():
-            if busname.startswith('org.freedesktop.Tracker3'):
+            if busname.startswith(TRACKER_DBUS_PREFIX):
                 pid = self.daemon.get_connection_unix_process_id_sync(busname)
                 if pid is not None:
                     tracker_processes.append(pid)
@@ -511,14 +515,21 @@ class TrackerDBusSandbox:
         log.info("Stopping D-Bus daemon for sandbox.")
         self.daemon.stop()
 
-    def stop_miner_fs(self):
-        log.info("Stopping tracker-miner-fs process.")
-        pid = self.daemon.get_connection_unix_process_id_sync('org.freedesktop.Tracker1.Miner.Files')
+    def stop_daemon(self, busname):
+        """Stops the daemon that owns 'busname'.
+
+        This can be used if you want to force the miner-fs to exit, for
+        example.
+
+        """
+        log.info("Stopping daemon process that owns %s.", busname)
+        pid = self.daemon.get_connection_unix_process_id_sync(busname)
         if pid:
             os.kill(pid, signal.SIGTERM)
             psutil.wait_pid(pid)
+            log.info("Process %i has stopped.", pid)
         else:
-            log.info("tracker-miner-fs process was not found on the message bus.")
+            log.info("Couldn't find a process owning %s.", busname)
 
     def get_connection(self):
         return self.daemon.get_connection()
