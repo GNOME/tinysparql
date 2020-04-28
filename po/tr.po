@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-02-02 17:58+0000\n"
-"PO-Revision-Date: 2020-02-05 20:46+0300\n"
+"POT-Creation-Date: 2020-04-27 21:38+0000\n"
+"PO-Revision-Date: 2020-04-28 15:50+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -21,108 +21,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.3\n"
 "X-POOTLE-MTIME: 1436541455.000000\n"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:24
-msgid "Maximum size of journal"
-msgstr "En yüksek günlük boyutu"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:25
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr "Günlüklemenin MB türünden devri. Devretmeyi kapatmak için -1 kullanın."
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:29
-msgid "Location of journal pieces"
-msgstr "Günlük parçalarının konumu"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:30
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr "Azami boyutuna ulaştığında, günlük parçasının nerede depolanacağı."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
-msgid "Maximum length of a word to be indexed"
-msgstr "İndekslenecek sözcüğün azami uzunluğu"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr ""
-"Bu uzunluktan daha çok karaktere sahip olan sözcükler indeksleyici "
-"tarafından yoksayılacaktır."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
-msgid "Maximum number of words to index in a document"
-msgstr "Bir belgede indekslenecek sözcüklerin azami sayısı"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr "İndeksleyici, tek bir belgeden azami bu kadar sözcüğü okuyacaktır."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
-msgid "Enable stemmer"
-msgstr "Kök ayırıcıyı etkinleştir"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
-msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
-msgstr ""
-"Daha çok sonuç sağlamak için sözcüklerin köklerini basitleştirin. Örn. "
-"“shelves” ve “shelf” sözcükleri, “shel” olsun"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
-msgid "Enable unaccent"
-msgstr "Vurgulu harf düzelticiyi etkinleştir"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
-msgstr ""
-"Vurgulu karakterleri, vurgulu olmayan eşdeğerlerine çevir. Örn. “Idéa” "
-"sözcüğünü, eşleşmeyi arttırmak için “Idea” sözcüğüne çevir."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
-msgid "Ignore numbers"
-msgstr "Sayıları yoksay"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
-msgid "If enabled, numbers will not be indexed."
-msgstr "Etkinleştirildiğinde sayılar indekslenmez."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
-msgid "Ignore stop words"
-msgstr "Durdurma sözcüklerini yoksay"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
-msgstr ""
-"Etkinleştirildiğinde durdurma-sözcüklerinde listelenen sözcükler yok "
-"sayılır. Örneğin; “evet”, “hayır” ve “ve” gibi sözcükler."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:24
-msgid "Log verbosity"
-msgstr "Sistem günlüğü ayrıntısı"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:25
-msgid "Log verbosity."
-msgstr "Sistem günlüğü ayrıntısı."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:29
-msgid "GraphUpdated delay"
-msgstr "GraphUpdated gecikmesi"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:30
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-"İndekslenmiş veri, veritabanı içinde değiştiğinde, GraphUpdated sinyalini "
-"oluşması arasındaki milisaniye türünden süre."
 
 #: src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -191,61 +91,156 @@ msgstr[0] " %2.2d saniye"
 msgid "the|a|an"
 msgstr "the|a|an"
 
-#. Daemon options
-#: src/tracker-store/tracker-main.vala:60
-msgid "Displays version information"
-msgstr "Sürüm bilgisini görüntüler"
+#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:41
+#: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
+#: src/tracker/tracker-sparql.c:107 src/tracker/tracker-sql.c:44
+msgid "Location of the database"
+msgstr "Veri tabanının konumu"
 
-#: src/tracker-store/tracker-main.vala:61
+#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-endpoint.c:60
+msgid "DIR"
+msgstr "DİZİN"
+
+#: src/tracker/tracker-endpoint.c:51
+msgid "Specify the DBus name of this endpoint"
+msgstr "Bu uç noktanın DBus adını belirtin"
+
+#: src/tracker/tracker-endpoint.c:52 src/tracker/tracker-endpoint.c:56
+msgid "NAME"
+msgstr "AD"
+
+#: src/tracker/tracker-endpoint.c:55
+msgid "Specify the ontology name used in this endpoint"
+msgstr "Bu uç noktada kullanılan ontoloji adını belirtin"
+
+#: src/tracker/tracker-endpoint.c:59
+msgid "Specify a path to an ontology to be used in this endpoint"
+msgstr "Bu uç noktada kullanılan ontolojiye bir yol belirtin"
+
+#: src/tracker/tracker-endpoint.c:63
+msgid "Use session bus"
+msgstr "Oturum veri yolunu kullan"
+
+#: src/tracker/tracker-endpoint.c:67
+msgid "Use system bus"
+msgstr "Sistem veri yolunu kullan"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:87
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr "Bir “ontology” veya “ontology-path” seçeneği sağlanmalıdır"
+
+#: src/tracker/tracker-endpoint.c:129
+#, c-format
+msgid "Creating endpoint at %s…"
+msgstr "%s konumunda uç nokta oluşturuluyor…"
+
+#: src/tracker/tracker-endpoint.c:165
+msgid "Could not own DBus name"
+msgstr "DBus adı edinilemedi"
+
+#: src/tracker/tracker-endpoint.c:169
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "SPARQL komutları dinleniyor. Durdurmak için Ctrl-C’ye bas."
+
+#: src/tracker/tracker-endpoint.c:179
+msgid "DBus name lost"
+msgstr "DBus adı kaybedildi"
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:184
+msgid "Closing connection…"
+msgstr "Bağlantı kapatılıyor…"
+
+#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:231
+#: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
+#: src/tracker/tracker-sparql.c:1516 src/tracker/tracker-sql.c:231
+msgid "Unrecognized options"
+msgstr "Tanınmayan seçenekler"
+
+#: src/tracker/tracker-endpoint.c:234
+#, c-format
+msgid "Opening database at %s…"
+msgstr "%s konumundaki veri tabanı açılıyor…"
+
+#: src/tracker/tracker-endpoint.c:237
+msgid "Creating in-memory database"
+msgstr "Bellek içi veri tabanı oluşturuluyor"
+
+#: src/tracker/tracker-endpoint.c:257
 msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
-"0)"
+"New database created. Use the --dbus-service option to share this database "
+"on a message bus."
 msgstr ""
-"Günlükleme, 0 = hatalar, 1 = en az, 2 = ayrıntılı ve 3 = hata ayıklama "
-"(öntanımlı = 0)"
+"Yeni veri tabanı oluşturuldu. Bu veri tabanını, ileti veri yolunda paylaşmak "
+"için --dbus-service seçeneğini kullan."
 
-#: src/tracker-store/tracker-main.vala:62
-msgid "Disable automatic shutdown"
-msgstr "Kendiliğinden kapatmayı devre dışı bırak"
+#: src/tracker/tracker-export.c:42 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
+#: src/tracker/tracker-info.c:54 src/tracker/tracker-info.c:91
+#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:108
+#: src/tracker/tracker-sparql.c:120 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
+msgid "FILE"
+msgstr "DOSYA"
 
-#. Indexer options
-#: src/tracker-store/tracker-main.vala:65
-msgid "Force a re-index of all content"
-msgstr "Tüm içeriği yeniden dizinlemeye zorla"
+#: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:111
+msgid "Connects to a DBus service"
+msgstr "DBus hizmetine bağlanır"
 
-#: src/tracker-store/tracker-main.vala:66
-msgid "Only allow read based actions on the database"
-msgstr "Veritabanında yalnızca okuma tabanlı eylemlere izin ver"
+#: src/tracker/tracker-export.c:46 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:112
+msgid "DBus service name"
+msgstr "DBus hizmet adı"
 
-#: src/tracker-store/tracker-main.vala:67
-msgid "Load a specified domain ontology"
-msgstr "Belirli bir alan ontolojisi yükleyin"
+#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:115
+msgid "Connects to a remote service"
+msgstr "Uzak hizmete bağlanır"
 
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: src/tracker-store/tracker-main.vala:227
-msgid "— start the tracker daemon"
-msgstr "— tracker artalan uygulamasını çalıştır"
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:116
+msgid "Remote service URI"
+msgstr "Uzak hizmet URI’si"
 
-#: src/tracker-store/tracker-store.desktop.in:3
-msgid "Tracker Store"
-msgstr "Tracker Deposu"
+#. TRANSLATORS: Those are commandline arguments
+#: src/tracker/tracker-export.c:76 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-sparql.c:190
+msgid "Specify one --database, --dbus-service or --remote-service option"
+msgstr ""
+"Şu seçeneklerden birini belirtin: --database, --dbus-service veya --remote-"
+"service"
 
-#: src/tracker-store/tracker-store.desktop.in:4
-msgid "Metadata database store and lookup manager"
-msgstr "Üst veri veritabanı deposu ve arama yöneticisi"
+#: src/tracker/tracker-export.c:186 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1105
+msgid "Could not establish a connection to Tracker"
+msgstr "Tracker uygulamasına bağlantı kurulamıyor"
+
+#: src/tracker/tracker-export.c:187 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:1106
+msgid "No error given"
+msgstr "Hata belirtilmedi"
+
+#: src/tracker/tracker-export.c:206 src/tracker/tracker-sparql.c:1456
+#: src/tracker/tracker-sql.c:132 src/tracker/tracker-sql.c:165
+msgid "Could not run query"
+msgstr "Sorgu çalıştırılamadı"
 
 #: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "“%s” çalıştırma başarısız: %s"
 
-#: src/tracker/tracker-info.c:50
+#: src/tracker/tracker-import.c:117
+msgid "Could not run import"
+msgstr "İçe aktarım çalıştırılamadı"
+
+#: src/tracker/tracker-info.c:65
 msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr "Tüm ad alanlarını göster (örn. nie:title kullanma, tam URL kullan)"
 
-#: src/tracker/tracker-info.c:54
+#: src/tracker/tracker-info.c:69
 msgid "Show plain text content if available for resources"
 msgstr "Kaynaklar için mümkünse düz metin içeriği göster"
 
@@ -255,7 +250,7 @@ msgstr "Kaynaklar için mümkünse düz metin içeriği göster"
 #. * fully supports international characters. In practice, UTF-8
 #. * is the most popular encoding used for IRI.
 #.
-#: src/tracker/tracker-info.c:64
+#: src/tracker/tracker-info.c:79
 msgid ""
 "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
 "(e.g. <file:///path/to/some/file.txt>)"
@@ -263,121 +258,113 @@ msgstr ""
 "Bir dosya adına bakmak yerine, gerçek IRI olarak DOSYA değişkenleri kullan "
 "(örn. <file:///path/to/some/file.txt>)"
 
-#: src/tracker/tracker-info.c:68
+#: src/tracker/tracker-info.c:83
 msgid "Output results as RDF in Turtle format"
 msgstr "RDF olarak Turtle biçiminde sonuç çıktısı"
 
-#: src/tracker/tracker-info.c:72
+#: src/tracker/tracker-info.c:87
 msgid "RDF property to treat as URL (eg. “nie:url”)"
 msgstr "URL olarak işlem görecek RDF özelliği (ör. “nie:url”)"
 
-#: src/tracker/tracker-info.c:76 src/tracker/tracker-info.c:77
-#: src/tracker/tracker-sparql.c:106 src/tracker/tracker-sql.c:44
-msgid "FILE"
-msgstr "DOSYA"
-
-#: src/tracker/tracker-info.c:268 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086
-msgid "Could not establish a connection to Tracker"
-msgstr "Tracker uygulamasına bağlantı kurulamıyor"
-
-#: src/tracker/tracker-info.c:269 src/tracker/tracker-sparql.c:173
-#: src/tracker/tracker-sparql.c:1087
-msgid "No error given"
-msgstr "Hata belirtilmedi"
-
-#: src/tracker/tracker-info.c:293
+#: src/tracker/tracker-info.c:334
 msgid "Querying information for entity"
 msgstr "Birim için sorgulama bilgisi"
 
-#: src/tracker/tracker-info.c:317
+#: src/tracker/tracker-info.c:358
 msgid "Unable to retrieve URN for URI"
 msgstr "URI için olan URN alınamadı"
 
-#: src/tracker/tracker-info.c:327 src/tracker/tracker-info.c:361
+#: src/tracker/tracker-info.c:368 src/tracker/tracker-info.c:402
 msgid "Unable to retrieve data for URI"
 msgstr "URI için veri alınamadı"
 
-#: src/tracker/tracker-info.c:370
+#: src/tracker/tracker-info.c:411
 msgid "No metadata available for that URI"
 msgstr "Bu URI için bir üst veri kullanılabilir değil"
 
-#: src/tracker/tracker-info.c:375 src/tracker/tracker-sparql.c:1449
-#: src/tracker/tracker-sparql.c:1452 src/tracker/tracker-sql.c:146
+#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1468
+#: src/tracker/tracker-sparql.c:1471 src/tracker/tracker-sql.c:139
 msgid "Results"
 msgstr "Sonuçlar"
 
-#: src/tracker/tracker-info.c:430 src/tracker/tracker-sparql.c:1497
-#: src/tracker/tracker-sql.c:238
-msgid "Unrecognized options"
-msgstr "Tanınmayan seçenekler"
-
-#: src/tracker/tracker-main.c:41
+#: src/tracker/tracker-main.c:44
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
-"Belirli bir alt komut hakkında bilgi almak için  'tracker help <komut>' "
-"göz atın"
+"Belirli alt komut hakkında bilgi almak için “tracker help <command>” "
+"komutuna göz atın."
 
-#: src/tracker/tracker-main.c:90
+#: src/tracker/tracker-main.c:93
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Tracker kullanımı ve bu komutların herhangi birisi için yardım alın"
 
-#: src/tracker/tracker-main.c:91
+#: src/tracker/tracker-main.c:94
+msgid "Create a SPARQL endpoint"
+msgstr "SPARQL uç noktası oluştur"
+
+#: src/tracker/tracker-main.c:95
+msgid "Export data from a Tracker database"
+msgstr "Tracker veri tabanından veri aktar"
+
+#: src/tracker/tracker-main.c:96
+msgid "Import data into a Tracker database"
+msgstr "Tracker veri tabanına veri aktar"
+
+#: src/tracker/tracker-main.c:97
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Yerel dosyala veya indekslenmiş öğeler hakkında bilinen bilgileri göster"
 
-#: src/tracker/tracker-main.c:92
+#: src/tracker/tracker-main.c:98
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "SPARQL kullanarak veya arayarak indeksi sorgula ve güncelle, ontolojiyi "
 "listele ve ağaç yapısında göster"
 
-#: src/tracker/tracker-main.c:93
+#: src/tracker/tracker-main.c:99
 msgid "Query the database at the lowest level using SQL"
 msgstr "SQL kullanarak en düşük düzeyde veritabanını sorgula"
 
-#: src/tracker/tracker-main.c:140
+#: src/tracker/tracker-main.c:139
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "“%s” bir tracker komutu değil. “tracker --help” göz atın"
 
-#: src/tracker/tracker-main.c:168
+#: src/tracker/tracker-main.c:174
 msgid "Available tracker commands are:"
 msgstr "Kullanılabilir tracker komutları:"
 
-#: src/tracker/tracker-main.c:202
+#: src/tracker/tracker-main.c:212
 msgid "Additional / third party commands are:"
 msgstr "Ek / Üçüncü taraf komutlar:"
 
-#: src/tracker/tracker-sparql.c:105
+#: src/tracker/tracker-sparql.c:119
 msgid "Path to use to run a query or update from file"
 msgstr "Bir sorgunun çalışacağı veya dosyada güncelleneceği yol"
 
-#: src/tracker/tracker-sparql.c:109
+#: src/tracker/tracker-sparql.c:123
 msgid "SPARQL query"
 msgstr "SPARQL sorgusu"
 
-#: src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sparql.c:124
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:113
+#: src/tracker/tracker-sparql.c:127
 msgid "This is used with --query and for database updates only."
 msgstr ""
 "--query ile birlikte kullanılır ve yalnızca veritabanı güncellemeleri "
 "içindir."
 
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-sparql.c:131
 msgid "Retrieve classes"
 msgstr "Sınıfları getir"
 
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-sparql.c:135
 msgid "Retrieve class prefixes"
 msgstr "Sınıf ön eklerini getir"
 
-#: src/tracker/tracker-sparql.c:125
+#: src/tracker/tracker-sparql.c:139
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -385,19 +372,19 @@ msgstr ""
 "Bir sınıf için özellikleri getir, ön ekler de kullanılabilir (örn. rdfs:"
 "Resource)"
 
-#: src/tracker/tracker-sparql.c:126 src/tracker/tracker-sparql.c:130
-#: src/tracker/tracker-sparql.c:138 src/tracker/tracker-sparql.c:146
-#: src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:140 src/tracker/tracker-sparql.c:144
+#: src/tracker/tracker-sparql.c:152 src/tracker/tracker-sparql.c:160
+#: src/tracker/tracker-sparql.c:164
 msgid "CLASS"
 msgstr "SINIF"
 
-#: src/tracker/tracker-sparql.c:129
+#: src/tracker/tracker-sparql.c:143
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Değişiklikleri veritabanına bildiren sınıfları getir (SINIF isteğe bağlıdır)"
 
-#: src/tracker/tracker-sparql.c:133
+#: src/tracker/tracker-sparql.c:147
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -405,11 +392,11 @@ msgstr ""
 "Veritabanının verimliliğini arttırmak için kullanılan indeksleri getir "
 "(ÖZELLİK isteğe bağlıdır)"
 
-#: src/tracker/tracker-sparql.c:134
+#: src/tracker/tracker-sparql.c:148
 msgid "PROPERTY"
 msgstr "ÖZELLİK"
 
-#: src/tracker/tracker-sparql.c:137
+#: src/tracker/tracker-sparql.c:151
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -417,45 +404,37 @@ msgstr ""
 "Alt sınıflar, süper sınıfları tanımla (ağacın bölümlerini vurgulamak için -s "
 "ve özellikleri göstermek için -p ile birlikte kullanılabilir)"
 
-#: src/tracker/tracker-sparql.c:141
+#: src/tracker/tracker-sparql.c:155
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Bir sınıf veya özellik için ara ve daha fazla bilgi göster (örn. Belge)"
 
-#: src/tracker/tracker-sparql.c:142
+#: src/tracker/tracker-sparql.c:156
 msgid "CLASS/PROPERTY"
 msgstr "SINIF/ÖZELLİK"
 
-#: src/tracker/tracker-sparql.c:145
+#: src/tracker/tracker-sparql.c:159
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Bir sınıfın kısaltılmış halini döner (örn. nfo:FileDataObject)."
 
-#: src/tracker/tracker-sparql.c:149
+#: src/tracker/tracker-sparql.c:163
 msgid "Returns the full namespace for a class."
 msgstr "Bir sınıfın tam ad alanını döner."
 
-#: src/tracker/tracker-sparql.c:153
-msgid "Remote service to query to"
-msgstr "Sorgulanacak uzak hizmet"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "BASE_URL"
-msgstr "BASE_URL"
-
-#: src/tracker/tracker-sparql.c:200
+#: src/tracker/tracker-sparql.c:223
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Alan adı ön ekleri alınamıyor"
 
-#: src/tracker/tracker-sparql.c:208
+#: src/tracker/tracker-sparql.c:231
 msgid "No namespace prefixes were returned"
 msgstr "Dönen bir alan adı ön eki yok"
 
-#: src/tracker/tracker-sparql.c:254
+#: src/tracker/tracker-sparql.c:277
 msgid "Could not get namespace prefixes"
 msgstr "Ad alanı ön ekleri alınamadı"
 
-#: src/tracker/tracker-sparql.c:263
+#: src/tracker/tracker-sparql.c:286
 msgid "No namespace prefixes were found"
 msgstr "Hiçbir ad alanı ön eki bulunamadı"
 
@@ -463,130 +442,125 @@ msgstr "Hiçbir ad alanı ön eki bulunamadı"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:509 src/tracker/tracker-sparql.c:557
+#: src/tracker/tracker-sparql.c:532 src/tracker/tracker-sparql.c:580
 msgid "None"
 msgstr "Hiçbiri"
 
-#: src/tracker/tracker-sparql.c:963
+#: src/tracker/tracker-sparql.c:986
 msgid "Could not create tree: subclass query failed"
 msgstr "Ağaç oluşturulamadı: altsınıf sorgusu başarısız oldu"
 
-#: src/tracker/tracker-sparql.c:1012
+#: src/tracker/tracker-sparql.c:1035
 msgid "Could not create tree: class properties query failed"
 msgstr "Ağaç oluşturulamadı: sınıf özellikleri sorgusu başarısız oldu"
 
-#: src/tracker/tracker-sparql.c:1100
+#: src/tracker/tracker-sparql.c:1119
 msgid "Could not list classes"
 msgstr "Sınıflar listelenemedi"
 
-#: src/tracker/tracker-sparql.c:1108
+#: src/tracker/tracker-sparql.c:1127
 msgid "No classes were found"
 msgstr "Hiçbir sınıf bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1108 src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1127 src/tracker/tracker-sparql.c:1318
 msgid "Classes"
 msgstr "Sınıflar"
 
-#: src/tracker/tracker-sparql.c:1124
+#: src/tracker/tracker-sparql.c:1143
 msgid "Could not list class prefixes"
 msgstr "Sınıf ön ekleri listelenemedi"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1151
 msgid "No class prefixes were found"
 msgstr "Hiçbir sınıf ön eki bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1151
 msgid "Prefixes"
 msgstr "Önekler"
 
-#: src/tracker/tracker-sparql.c:1152
+#: src/tracker/tracker-sparql.c:1171
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Sınıf ön eki için özellik bulunamadı, örn: “rdfs:Resource” içindeki Resource"
 
-#: src/tracker/tracker-sparql.c:1191
+#: src/tracker/tracker-sparql.c:1210
 msgid "Could not list properties"
 msgstr "Özellikler listelenemedi"
 
-#: src/tracker/tracker-sparql.c:1199
+#: src/tracker/tracker-sparql.c:1218
 msgid "No properties were found"
 msgstr "Hiçbir özellik bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1199 src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1218 src/tracker/tracker-sparql.c:1341
 msgid "Properties"
 msgstr "Özellikler"
 
-#: src/tracker/tracker-sparql.c:1227
+#: src/tracker/tracker-sparql.c:1246
 msgid "Could not find notify classes"
 msgstr "Bildirim sınıfları bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1254
 msgid "No notifies were found"
 msgstr "Hiçbir bildirim bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1254
 msgid "Notifies"
 msgstr "Bildirimler"
 
-#: src/tracker/tracker-sparql.c:1261
+#: src/tracker/tracker-sparql.c:1280
 msgid "Could not find indexed properties"
 msgstr "Dizinlenmiş özellikler bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1288
 msgid "No indexes were found"
 msgstr "Hiçbir dizinleme bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1288
 msgid "Indexes"
 msgstr "Dizinlemeler"
 
-#: src/tracker/tracker-sparql.c:1291
+#: src/tracker/tracker-sparql.c:1310
 msgid "Could not search classes"
 msgstr "Sınıflar aranamadı"
 
-#: src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1318
 msgid "No classes were found to match search term"
 msgstr "Arama terimleriyle eşleşen hiçbir sınıf bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1314
+#: src/tracker/tracker-sparql.c:1333
 msgid "Could not search properties"
 msgstr "Özellikler aranamadı"
 
-#: src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1341
 msgid "No properties were found to match search term"
 msgstr "Arama terimleriyle eşleşen hiçbir özellik bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1358 src/tracker/tracker-sql.c:65
+#: src/tracker/tracker-sparql.c:1377 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Yoldan UTF-8 yolu alınamadı"
 
-#: src/tracker/tracker-sparql.c:1370 src/tracker/tracker-sql.c:76
+#: src/tracker/tracker-sparql.c:1389 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Dosya okunamadı"
 
-#: src/tracker/tracker-sparql.c:1389
+#: src/tracker/tracker-sparql.c:1408
 msgid "Could not run update"
 msgstr "Güncelleme çalıştırılamadı"
 
-#: src/tracker/tracker-sparql.c:1396
+#: src/tracker/tracker-sparql.c:1415
 msgid "Done"
 msgstr "Tamamlandı"
 
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Sorgu çalıştırılamadı"
-
-#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
+#: src/tracker/tracker-sparql.c:1468 src/tracker/tracker-sparql.c:1471
 msgid "No results found matching your query"
 msgstr "Sorgunuzla eşleşen hiçbir sonuç bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sql.c:247
+#: src/tracker/tracker-sparql.c:1525 src/tracker/tracker-sql.c:242
 msgid "File and query can not be used together"
 msgstr "Dosya ve sorgu birlikte kullanılamaz"
 
-#: src/tracker/tracker-sparql.c:1508
+#: src/tracker/tracker-sparql.c:1527
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -594,25 +568,143 @@ msgstr ""
 "--list-properties argümanı yalnızca --tree argümanı ile birlikte "
 "kullanıldığında boş olabilir"
 
-#: src/tracker/tracker-sql.c:43
+#: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
 msgstr "Dosyadan bir sorgu çalıştırmak için kullanılacak yol"
 
-#: src/tracker/tracker-sql.c:47
+#: src/tracker/tracker-sql.c:52
 msgid "SQL query"
 msgstr "SQL sorgusu"
 
-#: src/tracker/tracker-sql.c:48
+#: src/tracker/tracker-sql.c:53
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:120
+#: src/tracker/tracker-sql.c:113
 msgid "Failed to initialize data manager"
 msgstr "Veri yöneticisini ilklendirme başarısız oldu"
 
-#: src/tracker/tracker-sql.c:180
+#: src/tracker/tracker-sql.c:173
 msgid "Empty result set"
 msgstr "Boş sonuç kümesi"
+
+#: src/tracker/tracker-sql.c:240
+msgid "A database path must be specified"
+msgstr "Veri tabanı yolu belirtilmelidir"
+
+#~ msgid "Maximum size of journal"
+#~ msgstr "En yüksek günlük boyutu"
+
+#~ msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+#~ msgstr ""
+#~ "Günlüklemenin MB türünden devri. Devretmeyi kapatmak için -1 kullanın."
+
+#~ msgid "Location of journal pieces"
+#~ msgstr "Günlük parçalarının konumu"
+
+#~ msgid "Where to store a journal chunk when it hits the max size."
+#~ msgstr "Azami boyutuna ulaştığında, günlük parçasının nerede depolanacağı."
+
+#~ msgid "Maximum length of a word to be indexed"
+#~ msgstr "İndekslenecek sözcüğün azami uzunluğu"
+
+#~ msgid ""
+#~ "Words with more characters than this length will be ignored by the "
+#~ "indexer."
+#~ msgstr ""
+#~ "Bu uzunluktan daha çok karaktere sahip olan sözcükler indeksleyici "
+#~ "tarafından yoksayılacaktır."
+
+#~ msgid "Maximum number of words to index in a document"
+#~ msgstr "Bir belgede indekslenecek sözcüklerin azami sayısı"
+
+#~ msgid ""
+#~ "Indexer will read only this maximum number of words from a single "
+#~ "document."
+#~ msgstr "İndeksleyici, tek bir belgeden azami bu kadar sözcüğü okuyacaktır."
+
+#~ msgid "Enable stemmer"
+#~ msgstr "Kök ayırıcıyı etkinleştir"
+
+#~ msgid ""
+#~ "Simplify the words to their root to provide more results. E.g. “shelves” "
+#~ "and “shelf” to “shel”"
+#~ msgstr ""
+#~ "Daha çok sonuç sağlamak için sözcüklerin köklerini basitleştirin. Örn. "
+#~ "“shelves” ve “shelf” sözcükleri, “shel” olsun"
+
+#~ msgid "Enable unaccent"
+#~ msgstr "Vurgulu harf düzelticiyi etkinleştir"
+
+#~ msgid ""
+#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” "
+#~ "to “Idea” for improved matching."
+#~ msgstr ""
+#~ "Vurgulu karakterleri, vurgulu olmayan eşdeğerlerine çevir. Örn. “Idéa” "
+#~ "sözcüğünü, eşleşmeyi arttırmak için “Idea” sözcüğüne çevir."
+
+#~ msgid "Ignore numbers"
+#~ msgstr "Sayıları yoksay"
+
+#~ msgid "If enabled, numbers will not be indexed."
+#~ msgstr "Etkinleştirildiğinde sayılar indekslenmez."
+
+#~ msgid "Ignore stop words"
+#~ msgstr "Durdurma sözcüklerini yoksay"
+
+#~ msgid ""
+#~ "If enabled, the words listed in the stop-words list are ignored. E.g. "
+#~ "common words like “the”, “yes”, “no”, etc."
+#~ msgstr ""
+#~ "Etkinleştirildiğinde durdurma-sözcüklerinde listelenen sözcükler yok "
+#~ "sayılır. Örneğin; “evet”, “hayır” ve “ve” gibi sözcükler."
+
+#~ msgid "Log verbosity"
+#~ msgstr "Sistem günlüğü ayrıntısı"
+
+#~ msgid "Log verbosity."
+#~ msgstr "Sistem günlüğü ayrıntısı."
+
+#~ msgid "GraphUpdated delay"
+#~ msgstr "GraphUpdated gecikmesi"
+
+#~ msgid ""
+#~ "Period in milliseconds between GraphUpdated signals being emitted when "
+#~ "indexed data has changed inside the database."
+#~ msgstr ""
+#~ "İndekslenmiş veri, veritabanı içinde değiştiğinde, GraphUpdated sinyalini "
+#~ "oluşması arasındaki milisaniye türünden süre."
+
+#~ msgid "Displays version information"
+#~ msgstr "Sürüm bilgisini görüntüler"
+
+#~ msgid ""
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default = 0)"
+#~ msgstr ""
+#~ "Günlükleme, 0 = hatalar, 1 = en az, 2 = ayrıntılı ve 3 = hata ayıklama "
+#~ "(öntanımlı = 0)"
+
+#~ msgid "Disable automatic shutdown"
+#~ msgstr "Kendiliğinden kapatmayı devre dışı bırak"
+
+#~ msgid "Force a re-index of all content"
+#~ msgstr "Tüm içeriği yeniden dizinlemeye zorla"
+
+#~ msgid "Load a specified domain ontology"
+#~ msgstr "Belirli bir alan ontolojisi yükleyin"
+
+#~ msgid "— start the tracker daemon"
+#~ msgstr "— tracker artalan uygulamasını çalıştır"
+
+#~ msgid "Tracker Store"
+#~ msgstr "Tracker Deposu"
+
+#~ msgid "Metadata database store and lookup manager"
+#~ msgstr "Üst veri veritabanı deposu ve arama yöneticisi"
+
+#~ msgid "BASE_URL"
+#~ msgstr "BASE_URL"
 
 #~ msgid "Error starting “tar” program"
 #~ msgstr "“tar” programı başlatılırken hata"
@@ -974,12 +1066,6 @@ msgstr "Boş sonuç kümesi"
 
 #~ msgid "Unable to import Turtle file"
 #~ msgstr "Turtle dosyası içe aktarılamadı"
-
-#~ msgid "Backing up database"
-#~ msgstr "Veritabanı yedekleniyor"
-
-#~ msgid "Could not backup database"
-#~ msgstr "Veritabanı yedeklenemedi"
 
 #~ msgid "Restoring database from backup"
 #~ msgstr "Veritabanı yedekten geri yükleniyor"
@@ -1500,9 +1586,6 @@ msgstr "Boş sonuç kümesi"
 #~ msgstr ""
 #~ "Sadece öntanımlı olarak belirtilmiş genel olanları (arama terimleriyle "
 #~ "ima edilen) değil, TÜM RDF sınıfları hakkında istatistikleri göster"
-
-#~ msgid "No network connection"
-#~ msgstr "Ağ bağlantısı yok"
 
 #~ msgid "Indexing not recommended on this network connection"
 #~ msgstr "Bu ağ bağlantısında indekslemek önerilmez"
