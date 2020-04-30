@@ -30,6 +30,13 @@ tool.
 The relevant schemas are `org.freedesktop.Tracker.Miner.Files` and
 `org.freedesktop.Tracker.Extract`.
 
+To tell Tracker's indexer to ignore a directory and all its contents, you can
+create an empty file named `.nomedia` inside the directory. This trick also
+works [on Android](https://www.lifewire.com/nomedia-file-4172882) devices.
+Files named `.trackerignore`, `.git` and `.hg` have the same effect. You can
+configure this behaviour with the org.freedesktop.Tracker.Miner.Files
+`ignored-directories-with-content` GSettings key.
+
 ## Why does Tracker consume resources on my PC?
 
 When you add or edit files, Tracker will update its index. This should be very
