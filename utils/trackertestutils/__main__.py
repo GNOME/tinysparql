@@ -189,6 +189,11 @@ def argument_parser():
     parser.add_argument('--store-tmpdir', action='store_true',
                         help="create index in a temporary directory and "
                              "delete it on exit (useful for automated testing)")
+    parser.add_argument('--index-recursive-directories', nargs='+',
+                        help="override the default locations Tracker should index")
+    parser.add_argument('--index-recursive-tmpdir', action='store_true',
+                        help="create a temporary directory and configure Tracker "
+                             "to only index that location (useful for automated testing)")
     parser.add_argument('--wait-for-miner', type=str, action='append',
                         help="wait for one or more daemons to start, and "
                              "return to idle for at least 1 second, before "
@@ -345,9 +350,23 @@ def main():
     if args.store_location != default_store_location and args.store_tmpdir:
         raise RuntimeError("The --store-tmpdir flag is enabled, but --store= was also passed.")
     if args.store_tmpdir:
-        store_location = store_tmpdir = tempfile.mkdtemp(prefix='tracker-sandbox')
+        store_location = store_tmpdir = tempfile.mkdtemp(prefix='tracker-sandbox-store')
     else:
         store_location = args.store_location
+
+    index_recursive_directories = None
+    index_recursive_tmpdir = None
+
+    if args.index_recursive_directories and args.index_recursive_tmpdir:
+        raise RuntimeError("The --index-recursive-tmpdir flag is enabled, but "
+                           "--index-recursive-directories= was also passed.")
+    if args.index_recursive_tmpdir:
+        # This tmpdir goes in cwd because paths under /tmp are ignored for indexing
+        index_recursive_tmpdir = tempfile.mkdtemp(prefix='tracker-indexed-tmpdir', dir=os.getcwd())
+        index_recursive_directories = [index_recursive_tmpdir]
+        os.environ['TRACKER_INDEXED_TMPDIR'] = index_recursive_tmpdir
+    else:
+        index_recursive_directories = args.index_recursive_directories
 
     interactive = not (args.command)
 
@@ -355,7 +374,7 @@ def main():
     sandbox = create_sandbox(store_location, args.prefix,
                              dbus_config=args.dbus_config,
                              interactive=interactive)
-    config_set(sandbox)
+    config_set(sandbox, index_recursive_directories)
 
     link_to_mime_data()
 
@@ -399,6 +418,8 @@ def main():
         sandbox.stop()
         if store_tmpdir:
             shutil.rmtree(store_tmpdir, ignore_errors=True)
+        if index_recursive_tmpdir:
+            shutil.rmtree(index_recursive_tmpdir, ignore_errors=True)
 
 
 # Entry point/start
