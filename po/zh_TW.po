@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
 "POT-Creation-Date: 2020-04-27 21:38+0000\n"
-"PO-Revision-Date: 2020-05-02 15:53+0800\n"
+"PO-Revision-Date: 2020-05-02 16:20+0800\n"
 "Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>\n"
 "Language-Team: Chinese <zh-l10n@linux.org.tw>\n"
 "Language: zh_TW\n"
@@ -270,7 +270,7 @@ msgstr "無法取回 URI 的資料"
 
 #: src/tracker/tracker-info.c:411
 msgid "No metadata available for that URI"
-msgstr "沒有那個 URI 的詮釋資料可用"
+msgstr "沒有那個 URI 的中介資料可用"
 
 #: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1468
 #: src/tracker/tracker-sparql.c:1471 src/tracker/tracker-sql.c:139
