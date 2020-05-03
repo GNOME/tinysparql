@@ -147,6 +147,10 @@ def config_set(sandbox, content_locations_recursive=None,
                       'index-applications',
                       GLib.Variant('b', applications))
 
+    dconfclient.write('org.freedesktop.Tracker3.Miner.Files',
+                      'initial-sleep',
+                      GLib.Variant('i', 0))
+
 def link_to_mime_data():
     '''Create symlink to $XDG_DATA_HOME/mime in our custom data home dir.
 
