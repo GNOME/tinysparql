@@ -4588,15 +4588,47 @@ translate_GraphGraphPattern (TrackerSparql  *sparql,
 	return TRUE;
 }
 
+static GList *
+extract_variables (TrackerSparql     *sparql,
+                   TrackerParserNode *pattern)
+{
+	TrackerParserNode *node;
+	GList *variables = NULL;
+
+	for (node = tracker_sparql_parser_tree_find_first (pattern, TRUE);
+	     node;
+	     node = tracker_sparql_parser_tree_find_next (node, TRUE)) {
+		const TrackerGrammarRule *rule;
+
+		if (!g_node_is_ancestor ((GNode *) pattern, (GNode *) node))
+			break;
+
+		rule = tracker_parser_node_get_rule (node);
+
+		if (!tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
+		                                TERMINAL_TYPE_VAR1) &&
+		    !tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
+						TERMINAL_TYPE_VAR2) &&
+		    !tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
+		                                TERMINAL_TYPE_PARAMETERIZED_VAR))
+			continue;
+
+		variables = g_list_prepend (variables, node);
+	}
+
+	return variables;
+}
+
 static gboolean
 translate_ServiceGraphPattern (TrackerSparql  *sparql,
                                GError        **error)
 {
 	gssize pattern_start, pattern_end;
-	TrackerParserNode *pattern, *node;
+	TrackerParserNode *pattern;
 	gchar *pattern_str, *escaped_str, *var_str;
 	TrackerContext *context;
 	GList *variables = NULL;
+	GList *variable_rules = NULL, *l;
 	TrackerToken service;
 	GString *service_sparql;
 	gboolean silent = FALSE, do_join;
@@ -4626,23 +4658,12 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 	_append_string (sparql, "SELECT ");
 	service_sparql = g_string_new ("SELECT ");
 
-	for (node = tracker_sparql_parser_tree_find_first (pattern, TRUE);
-	     node;
-	     node = tracker_sparql_parser_tree_find_next (node, TRUE)) {
-		const TrackerGrammarRule *rule;
+	variable_rules = extract_variables (sparql, pattern);
+
+	for (l = variable_rules; l; l = l->next) {
+		TrackerParserNode *node = l->data;
 		TrackerBinding *binding;
 		TrackerVariable *var;
-
-		if (!g_node_is_ancestor ((GNode *) pattern, (GNode *) node))
-			break;
-
-		rule = tracker_parser_node_get_rule (node);
-
-		if (!tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
-		                                TERMINAL_TYPE_VAR1) &&
-		    !tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
-						TERMINAL_TYPE_VAR2))
-			continue;
 
 		if (i > 0)
 			_append_string (sparql, ", ");
@@ -4676,6 +4697,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 	tracker_token_unset (&service);
 	tracker_sparql_pop_context (sparql, TRUE);
 	g_string_free (service_sparql, TRUE);
+	g_list_free (variable_rules);
 
 	if (do_join)
 		_append_string (sparql, ") ");
