@@ -137,13 +137,13 @@ def config_set(sandbox, content_locations_recursive=None,
                      for dir in locations]
         return GLib.Variant('as', locations)
 
-    dconfclient.write('org.freedesktop.Tracker.Miner.Files',
+    dconfclient.write('org.freedesktop.Tracker3.Miner.Files',
                       'index-recursive-directories',
                       locations_gsetting(content_locations_recursive or []))
-    dconfclient.write('org.freedesktop.Tracker.Miner.Files',
+    dconfclient.write('org.freedesktop.Tracker3.Miner.Files',
                       'index-single-directories',
                       locations_gsetting(content_locations_single or []))
-    dconfclient.write('org.freedesktop.Tracker.Miner.Files',
+    dconfclient.write('org.freedesktop.Tracker3.Miner.Files',
                       'index-applications',
                       GLib.Variant('b', applications))
 
