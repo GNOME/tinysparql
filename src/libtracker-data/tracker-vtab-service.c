@@ -24,10 +24,12 @@
 #include "tracker-vtab-service.h"
 #include <libtracker-sparql/tracker-sparql.h>
 
-#define N_VIRTUAL_COLUMNS 100
-#define COL_SERVICE 101
-#define COL_QUERY 102
-#define COL_SILENT 103
+#define N_VARIABLES 100
+#define COL_SERVICE 0
+#define COL_QUERY 1
+#define COL_SILENT 2
+#define COL_LAST 3
+#define COL_FIRST_VARIABLE COL_LAST
 
 typedef struct {
 	sqlite3 *db;
@@ -104,13 +106,16 @@ service_create (sqlite3            *db,
 
 	str = g_string_new ("CREATE TABLE x(\n");
 
-	for (i = 0; i <= N_VIRTUAL_COLUMNS; i++)
-		g_string_append_printf (str, "col%d TEXT, ", i);
-
 	g_string_append (str,
 			 "service TEXT HIDDEN, "
 			 "query TEXT HIDDEN, "
-			 "silent INTEGER HIDDEN)");
+			 "silent INTEGER HIDDEN");
+
+	for (i = 0; i < N_VARIABLES; i++)
+		g_string_append_printf (str, ", col%d TEXT", i);
+
+	g_string_append (str, ")");
+
 	rc = sqlite3_declare_vtab (module->db, str->str);
 	g_string_free (str, TRUE);
 
@@ -208,6 +213,7 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 {
 	TrackerServiceCursor *cursor = (TrackerServiceCursor *) vtab_cursor;
 	const ConstraintData *constraints = (const ConstraintData *) idx_str;
+	TrackerSparqlStatement *statement;
 	gchar *uri_scheme = NULL;
 	GError *error = NULL;
 	gint i;
@@ -268,9 +274,17 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 		goto fail;
 	}
 
-	cursor->sparql_cursor = tracker_sparql_connection_query (cursor->conn,
-								 cursor->query,
-								 NULL, &error);
+	statement = tracker_sparql_connection_query_statement (cursor->conn,
+	                                                       cursor->query,
+	                                                       NULL, &error);
+	if (error)
+		goto fail;
+
+	cursor->sparql_cursor = tracker_sparql_statement_execute (statement,
+	                                                          NULL,
+	                                                          &error);
+	g_object_unref (statement);
+
 	if (error)
 		goto fail;
 
@@ -335,10 +349,17 @@ service_column (sqlite3_vtab_cursor *vtab_cursor,
 		sqlite3_result_text (context, cursor->query, -1, NULL);
 	} else if (n_col == COL_SILENT) {
 		sqlite3_result_int (context, cursor->silent);
-	} else if (n_col < tracker_sparql_cursor_get_n_columns (cursor->sparql_cursor)) {
-		/* FIXME: Handle other types better */
-		str = tracker_sparql_cursor_get_string (cursor->sparql_cursor, n_col, NULL);
-		sqlite3_result_text (context, g_strdup (str), -1, g_free);
+	} else if (n_col >= COL_FIRST_VARIABLE &&
+	           n_col < COL_FIRST_VARIABLE + N_VARIABLES) {
+		gint query_col = n_col - COL_FIRST_VARIABLE;
+
+		if (query_col < tracker_sparql_cursor_get_n_columns (cursor->sparql_cursor)) {
+			/* FIXME: Handle other types better */
+			str = tracker_sparql_cursor_get_string (cursor->sparql_cursor, query_col, NULL);
+			sqlite3_result_text (context, g_strdup (str), -1, g_free);
+		} else {
+			sqlite3_result_null (context);
+		}
 	} else {
 		sqlite3_result_null (context);
 	}
