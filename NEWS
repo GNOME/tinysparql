@@ -1,3 +1,29 @@
+NEW in 2.99.1 - 2020-05-03
+==========================
+
+  Highlighted updates compared to 2.x:
+  ------------------------------------
+  * A full implementation of SPARQL 1.1
+  * A change of paradigm. There is no central store, services are
+    free to create their own, and to make those an endpoint for public
+    access. Applications may syndicate queries across external endpoints
+    through the SERVICE syntax.
+  * No tracker-store
+  * No libtracker-miner
+  * No libtracker-control
+  * API changes
+    - Explicit API to create a local store, or proxy a DBus/remote one
+    - TrackerEndpoint proxies local stores out of process
+    - separate python library to write tests
+  * A base and reference ontologies of our own
+    - Officially it's no longer Nepomuk
+    - No more broken links
+  * An extensible CLI tool, with a generic set of core subcommands
+  * Parallel installable to tracker 2.x
+  * Documentation
+  * Tests
+  * Many many others
+
 NEW in 2.3.0 - 2019-09-09
 =========================
 
