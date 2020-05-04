@@ -8747,6 +8747,8 @@ prepare_query (TrackerSparql         *sparql,
 				g_set_error (error, TRACKER_SPARQL_ERROR,
 					     TRACKER_SPARQL_ERROR_TYPE,
 					     "Parameter '%s' has no given value", name);
+				g_object_unref (stmt);
+				return NULL;
 			}
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_BOOLEAN) {
 			if (g_str_equal (binding->literal, "1") ||
