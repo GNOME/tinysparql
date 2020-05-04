@@ -4662,8 +4662,15 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 
 	for (l = variable_rules; l; l = l->next) {
 		TrackerParserNode *node = l->data;
+		const TrackerGrammarRule *rule;
 		TrackerBinding *binding;
 		TrackerVariable *var;
+
+		rule = tracker_parser_node_get_rule (node);
+
+		if (tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
+		                               TERMINAL_TYPE_PARAMETERIZED_VAR))
+			continue;
 
 		if (i > 0)
 			_append_string (sparql, ", ");
@@ -4673,7 +4680,6 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 		variables = g_list_prepend (variables, var);
 		binding = tracker_variable_binding_new (var, NULL, NULL);
 		_add_binding (sparql, binding);
-
 
 		_append_string_printf (sparql, "col%d AS %s ",
 				       i, tracker_variable_get_sql_expression (var));
@@ -4693,6 +4699,33 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 			       tracker_token_get_idstring (&service),
 			       service_sparql->str,
 			       silent);
+
+	i = 0;
+
+	/* Proxy parameters to the virtual table */
+	for (l = variable_rules; l; l = l->next) {
+		TrackerParserNode *node = l->data;
+		const TrackerGrammarRule *rule;
+		TrackerBinding *binding;
+		gchar *name;
+
+		rule = tracker_parser_node_get_rule (node);
+
+		if (!tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
+		                                TERMINAL_TYPE_PARAMETERIZED_VAR))
+			continue;
+
+		name = _extract_node_string (node, sparql);
+		binding = tracker_parameter_binding_new (name, NULL);
+		_add_binding (sparql, binding);
+
+		_append_string_printf (sparql,
+		                       "AND valuename%d = \"%s\" AND value%d = ",
+		                       i, name, i);
+		_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (binding));
+		g_free (name);
+		i++;
+	}
 
 	tracker_token_unset (&service);
 	tracker_sparql_pop_context (sparql, TRUE);
