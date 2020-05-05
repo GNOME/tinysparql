@@ -428,13 +428,47 @@ service_eof (sqlite3_vtab_cursor *vtab_cursor)
 	return cursor->finished;
 }
 
+static void
+cursor_column_to_result (TrackerSparqlCursor *cursor,
+                         gint                 column,
+                         sqlite3_context     *context)
+{
+	const gchar *str;
+
+	if (column >= tracker_sparql_cursor_get_n_columns (cursor)) {
+		sqlite3_result_null (context);
+		return;
+	}
+
+	switch (tracker_sparql_cursor_get_value_type (cursor, column)) {
+	case TRACKER_SPARQL_VALUE_TYPE_URI:
+	case TRACKER_SPARQL_VALUE_TYPE_STRING:
+	case TRACKER_SPARQL_VALUE_TYPE_DATETIME:
+	case TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE:
+		str = tracker_sparql_cursor_get_string (cursor, column, NULL);
+		sqlite3_result_text (context, g_strdup (str), -1, g_free);
+		break;
+	case TRACKER_SPARQL_VALUE_TYPE_INTEGER:
+	case TRACKER_SPARQL_VALUE_TYPE_BOOLEAN:
+		sqlite3_result_int64 (context,
+		                      tracker_sparql_cursor_get_integer (cursor, column));
+		break;
+	case TRACKER_SPARQL_VALUE_TYPE_DOUBLE:
+		sqlite3_result_double (context,
+		                       tracker_sparql_cursor_get_double (cursor, column));
+		break;
+	case TRACKER_SPARQL_VALUE_TYPE_UNBOUND:
+	default:
+		sqlite3_result_null (context);
+	}
+}
+
 static int
 service_column (sqlite3_vtab_cursor *vtab_cursor,
 		sqlite3_context     *context,
 		int                  n_col)
 {
 	TrackerServiceCursor *cursor = (TrackerServiceCursor *) vtab_cursor;
-	const gchar *str;
 
 	if (n_col == COL_SERVICE) {
 		sqlite3_result_text (context, cursor->service, -1, NULL);
@@ -456,15 +490,9 @@ service_column (sqlite3_vtab_cursor *vtab_cursor,
 			sqlite3_result_null (context);
 	} else if (n_col >= COL_FIRST_VARIABLE &&
 	           n_col < COL_FIRST_VARIABLE + N_VARIABLES) {
-		gint query_col = n_col - COL_FIRST_VARIABLE;
-
-		if (query_col < tracker_sparql_cursor_get_n_columns (cursor->sparql_cursor)) {
-			/* FIXME: Handle other types better */
-			str = tracker_sparql_cursor_get_string (cursor->sparql_cursor, query_col, NULL);
-			sqlite3_result_text (context, g_strdup (str), -1, g_free);
-		} else {
-			sqlite3_result_null (context);
-		}
+		cursor_column_to_result (cursor->sparql_cursor,
+		                         n_col - COL_FIRST_VARIABLE,
+		                         context);
 	} else {
 		sqlite3_result_null (context);
 	}
