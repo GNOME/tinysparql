@@ -13,6 +13,16 @@ exports all data stored in a Tracker database, in Turtle format.
 The output is intended to be machine-readable, not human readable.
 Use a tool such as rapper(1) to convert the data to different formats.
 
+.SH OPTIONS
+.TP
+.B \-g, \-\-show-graphs
+This flag causes the relevant GRAPH statements to be output along with
+the data.
+
+In this mode the output is TriG syntax rather than Turtle, due to
+the extra GRAPH statements. Some tools which understand Turtle do not
+understand TriG.
+
 .SH EXAMPLES
 .TP
 Export all data from Tracker Index and prettify the output using rapper(1).
