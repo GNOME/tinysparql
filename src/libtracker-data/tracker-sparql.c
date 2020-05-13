@@ -4679,6 +4679,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 		var = _extract_node_variable (node, sparql);
 		variables = g_list_prepend (variables, var);
 		binding = tracker_variable_binding_new (var, NULL, NULL);
+		tracker_binding_set_data_type (binding, TRACKER_PROPERTY_TYPE_STRING);
 		_add_binding (sparql, binding);
 
 		_append_string_printf (sparql, "col%d AS %s ",
