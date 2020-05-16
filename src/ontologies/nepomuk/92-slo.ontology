@@ -180,5 +180,6 @@ slo:endTime a rdf:Property ;
 slo:routeDetails a rdf:Property ;
 	rdfs:label "Pointer to a file containing route details (e.g. KML file)." ;
 	rdfs:comment "FIXME Domain can be resource if we handle map-files correctly in the ontology";
+	nrl:maxCardinality 1 ;
 	rdfs:domain slo:Route ;
 	rdfs:range  xsd:string .
