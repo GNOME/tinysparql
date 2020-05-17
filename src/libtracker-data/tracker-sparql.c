@@ -847,8 +847,12 @@ _prepend_path_element (TrackerSparql      *sparql,
 				       "FROM \"%s\" "
 				       "UNION "
 				       "SELECT ID, value, graph, ID_type, value_type "
+				       "FROM \"%s\" "
+				       "UNION "
+				       "SELECT value, value, graph, value_type, value_type "
 				       "FROM \"%s\") ",
 				       path_elem->name,
+				       path_elem->data.composite.child1->name,
 				       path_elem->data.composite.child1->name,
 				       path_elem->data.composite.child1->name);
 		break;
