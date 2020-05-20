@@ -692,8 +692,8 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_uri, const char *, TRACKER_TYPE_URI
  *
  * Returns the list of all known values of the given property.
  *
- * Returns: (transfer full) (element-type GValue): a #GList of #GValue
- * instances, which must be freed by the caller.
+ * Returns: (transfer container) (element-type GValue): a #GList of #GValue
+ * instances. The list should be freed with g_list_free()
  *
  * Since: 1.10
  */
