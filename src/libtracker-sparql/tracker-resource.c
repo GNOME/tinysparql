@@ -963,6 +963,29 @@ tracker_resource_compare (TrackerResource *a,
 	return strcmp (a_priv->identifier, b_priv->identifier);
 };
 
+/**
+ * tracker_resource_get_properties:
+ * @resource: a #TrackerResource
+ *
+ * Gets the list of properties defined in @resource
+ *
+ * Returns: (transfer container) (element-type utf8): The list of properties.
+ *          The list should be freed with g_list_free().
+ *
+ * Since: 3.0
+ **/
+GList *
+tracker_resource_get_properties (TrackerResource *resource)
+{
+	TrackerResourcePrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_RESOURCE (resource), NULL);
+
+	priv = GET_PRIVATE (resource);
+
+	return g_hash_table_get_keys (priv->properties);
+}
+
 /* Helper function for serialization code. This allows you to selectively
  * populate 'interned_namespaces' from 'all_namespaces' based on when a
  * particular prefix is actually used. This is quite inefficient compared
