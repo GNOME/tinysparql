@@ -100,6 +100,7 @@ def create_sandbox(store_location, prefix=None, use_session_dirs=False,
     if prefix and prefix != '/usr':
         environment_set_and_add_path(extra_env, 'PATH', prefix, 'bin')
         environment_set_and_add_path(extra_env, 'LD_LIBRARY_PATH', prefix, 'lib')
+        environment_set_and_add_path(extra_env, 'LD_LIBRARY_PATH', prefix, 'lib64')
         environment_set_and_add_path(extra_env, 'XDG_DATA_DIRS', prefix, 'share')
 
     # Preferences
