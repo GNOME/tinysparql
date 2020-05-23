@@ -83,8 +83,22 @@ def environment_set_and_add_path(env, var, prefix, suffix):
     env[var] = full
 
 
+class ExternalDBusSandbox():
+    def __init__(self, session_bus_address, extra_env):
+        self.session_bus_address = session_bus_address
+        self.extra_env = extra_env
+
+    def get_session_bus_address(self):
+        return self.session_bus_address
+
+    def stop(self):
+        log.info("Not stopping D-Bus daemon managed by another process")
+        pass
+
+
 def create_sandbox(store_location, prefix=None, use_session_dirs=False,
-                   dbus_config=None, interactive=False):
+                   dbus_config=None, dbus_session_bus_address=None,
+                   interactive=False):
     assert prefix is None or dbus_config is None
 
     extra_env = {}
@@ -109,13 +123,18 @@ def create_sandbox(store_location, prefix=None, use_session_dirs=False,
     log.debug('Using prefix location "%s"' % prefix)
     log.debug('Using store location "%s"' % store_location)
 
-    sandbox = helpers.TrackerDBusSandbox(dbus_config, extra_env=extra_env)
-    sandbox.start(new_session=True)
-
     # Update our own environment, so when we launch a subprocess it has the
     # same settings as the Tracker daemons.
     os.environ.update(extra_env)
-    os.environ['DBUS_SESSION_BUS_ADDRESS'] = sandbox.daemon.get_address()
+
+    if dbus_session_bus_address:
+        sandbox = ExternalDBusSandbox(dbus_session_bus_address, extra_env=extra_env)
+        os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session_bus_address
+    else:
+        sandbox = helpers.TrackerDBusSandbox(dbus_config, extra_env=extra_env)
+        sandbox.start(new_session=True)
+        os.environ['DBUS_SESSION_BUS_ADDRESS'] = sandbox.daemon.get_address()
+
     os.environ['TRACKER_SANDBOX'] = '1'
 
     return sandbox
@@ -208,6 +227,9 @@ def argument_parser():
                              "exiting. Usually used with `tracker index` where "
                              "you should pass --wait-for-miner=Files and "
                              "--wait-for-miner=Extract")
+    parser.add_argument('-d', '--dbus-session-bus', metavar='ADDRESS',
+                        help="use an existing D-Bus session bus. This can be "
+                             "used to run commands inside an existing sandbox")
     parser.add_argument('--debug-dbus', action='store_true',
                         help="show stdout and stderr messages from every daemon "
                              "running on the sandbox session bus. By default we "
@@ -334,6 +356,9 @@ def main():
 
     init_logging(args.debug_sandbox, args.debug_dbus)
 
+    if args.debug_dbus and args.dbus_session_bus_address:
+        log.warn("The --debug-dbus flag has no effect when --dbus-session-bus is used")
+
     shell = os.environ.get('SHELL', '/bin/bash')
 
     if args.prefix is None and args.dbus_config is None:
@@ -389,6 +414,7 @@ def main():
     sandbox = create_sandbox(store_location, args.prefix,
                              use_session_dirs=use_session_dirs,
                              dbus_config=args.dbus_config,
+                             dbus_session_bus_address=args.dbus_session_bus,
                              interactive=interactive)
     config_set(sandbox, index_recursive_directories)
 
