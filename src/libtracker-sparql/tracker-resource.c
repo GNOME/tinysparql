@@ -1838,7 +1838,7 @@ tracker_resource_serialize (TrackerResource *resource)
 
 	/* Use a stable sort, so that GVariants are byte compatible */
 	properties = tracker_resource_get_properties (resource);
-	properties = g_list_sort (properties, g_strcmp0);
+	properties = g_list_sort (properties, (GCompareFunc) g_strcmp0);
 
 	for (l = properties; l; l = l->next) {
 		pred = l->data;
