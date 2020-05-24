@@ -8,10 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-04-27 21:38+0000\n"
-"PO-Revision-Date: 2020-05-02 17:36+0300\n"
-"Last-Translator: Florentina Mușat <florentina.musat.28 [at] gmail [dot] "
-"com>\n"
+"POT-Creation-Date: 2020-05-18 20:52+0000\n"
+"PO-Revision-Date: 2020-05-22 15:12+0300\n"
+"Last-Translator: Florentina Mușat <emryslokadottir [at] gmail [dot] com>\n"
 "Language-Team: Romanian Gnome Team <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2);\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.3.1\n"
 "X-Launchpad-Export-Date: 2009-10-03 17:40+0000\n"
 "X-Project-Style: gnome\n"
 
@@ -98,9 +97,9 @@ msgstr[2] " %2.2d de secunde"
 msgid "the|a|an"
 msgstr "the|a|an|un|o"
 
-#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:41
+#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
-#: src/tracker/tracker-sparql.c:107 src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Locația bazei de date"
 
@@ -159,9 +158,9 @@ msgstr "Nume DBus pierdut"
 msgid "Closing connection…"
 msgstr "Se închide conexiunea…"
 
-#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:231
+#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:305
 #: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
-#: src/tracker/tracker-sparql.c:1516 src/tracker/tracker-sql.c:231
+#: src/tracker/tracker-sparql.c:1546 src/tracker/tracker-sql.c:231
 msgid "Unrecognized options"
 msgstr "Opțiuni nerecunoscute"
 
@@ -182,52 +181,56 @@ msgstr ""
 "A fost creată o nouă bază de date. Utilizați opțiunea --dbus-service pentru "
 "a partaja această bază de date pe o magistrală de mesaj."
 
-#: src/tracker/tracker-export.c:42 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
 #: src/tracker/tracker-info.c:54 src/tracker/tracker-info.c:91
-#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:108
-#: src/tracker/tracker-sparql.c:120 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sparql.c:122 src/tracker/tracker-sql.c:45
 #: src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FIȘIER"
 
-#: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:49
-#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:111
+#: src/tracker/tracker-export.c:46 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:113
 msgid "Connects to a DBus service"
 msgstr "Se conectează la un serviciu DBus"
 
-#: src/tracker/tracker-export.c:46 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:112
+#: src/tracker/tracker-export.c:47 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:114
 msgid "DBus service name"
 msgstr "Nume de serviciu DBus"
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:53
-#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:115
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:117
 msgid "Connects to a remote service"
 msgstr "Se conectează la un serviciu de la distanță"
 
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:116
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:118
 msgid "Remote service URI"
 msgstr "Serviciu URI la distanță"
 
+#: src/tracker/tracker-export.c:54
+msgid "Output TriG format which includes named graph information"
+msgstr "Formatul de ieșire TriG care include informațiile de graf numit"
+
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:76 src/tracker/tracker-import.c:83
-#: src/tracker/tracker-sparql.c:190
+#: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-sparql.c:196
 msgid "Specify one --database, --dbus-service or --remote-service option"
 msgstr "Specifică o opțiune --database, --dbus-service sau --remote-service"
 
-#: src/tracker/tracker-export.c:186 src/tracker/tracker-import.c:99
-#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1105
+#: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
 msgid "Could not establish a connection to Tracker"
 msgstr "Nu s-a putut stabili o conexiune la Tracker"
 
-#: src/tracker/tracker-export.c:187 src/tracker/tracker-import.c:100
-#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:1106
+#: src/tracker/tracker-export.c:255 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:1112
 msgid "No error given"
 msgstr "Nu s-a primit nicio"
 
-#: src/tracker/tracker-export.c:206 src/tracker/tracker-sparql.c:1456
+#: src/tracker/tracker-export.c:276 src/tracker/tracker-sparql.c:1486
 #: src/tracker/tracker-sql.c:132 src/tracker/tracker-sql.c:165
 msgid "Could not run query"
 msgstr "Nu s-a putut rula cererea"
@@ -289,8 +292,8 @@ msgstr "Nu s-au putut obține date pentru URI"
 msgid "No metadata available for that URI"
 msgstr "Nu sunt disponibile metadate pentru acel URI"
 
-#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1468
-#: src/tracker/tracker-sparql.c:1471 src/tracker/tracker-sql.c:139
+#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1498
+#: src/tracker/tracker-sparql.c:1501 src/tracker/tracker-sql.c:139
 msgid "Results"
 msgstr "Rezultate"
 
@@ -346,33 +349,33 @@ msgstr "Comenzile tracker disponibile sunt:"
 msgid "Additional / third party commands are:"
 msgstr "Comenzile adiționale / externe sunt:"
 
-#: src/tracker/tracker-sparql.c:119
+#: src/tracker/tracker-sparql.c:121
 msgid "Path to use to run a query or update from file"
 msgstr "Calea de utilizat pentru a rula o cerere sau o actualizare din fișier"
 
-#: src/tracker/tracker-sparql.c:123
+#: src/tracker/tracker-sparql.c:125
 msgid "SPARQL query"
 msgstr "Cerere SPARQL"
 
-#: src/tracker/tracker-sparql.c:124
+#: src/tracker/tracker-sparql.c:126
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:127
+#: src/tracker/tracker-sparql.c:129
 msgid "This is used with --query and for database updates only."
 msgstr ""
 "Aceasta este utilizat cu --query și doar pentru actualizări ale bazei de "
 "date."
 
-#: src/tracker/tracker-sparql.c:131
+#: src/tracker/tracker-sparql.c:133
 msgid "Retrieve classes"
 msgstr "Întoarce clasele"
 
-#: src/tracker/tracker-sparql.c:135
+#: src/tracker/tracker-sparql.c:137
 msgid "Retrieve class prefixes"
 msgstr "Întoarce prefixele claselor"
 
-#: src/tracker/tracker-sparql.c:139
+#: src/tracker/tracker-sparql.c:141
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -380,20 +383,20 @@ msgstr ""
 "Întoarce proprietăți ale claselor; și prefixele pot fi utilizate (de ex. "
 "rdfs:Resursă)"
 
-#: src/tracker/tracker-sparql.c:140 src/tracker/tracker-sparql.c:144
-#: src/tracker/tracker-sparql.c:152 src/tracker/tracker-sparql.c:160
-#: src/tracker/tracker-sparql.c:164
+#: src/tracker/tracker-sparql.c:142 src/tracker/tracker-sparql.c:146
+#: src/tracker/tracker-sparql.c:158 src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-sparql.c:170
 msgid "CLASS"
 msgstr "CLASĂ"
 
-#: src/tracker/tracker-sparql.c:143
+#: src/tracker/tracker-sparql.c:145
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Întoarce clasa care notifică schimbările din baza de date (CLASĂ este "
 "opțional)"
 
-#: src/tracker/tracker-sparql.c:147
+#: src/tracker/tracker-sparql.c:149
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -401,11 +404,15 @@ msgstr ""
 "Preia indexurile utilizate în baza de date pentru a îmbunătăți performanța "
 "(PROPRIETATE este opțională)"
 
-#: src/tracker/tracker-sparql.c:148
+#: src/tracker/tracker-sparql.c:150
 msgid "PROPERTY"
 msgstr "PROPRIETATE"
 
-#: src/tracker/tracker-sparql.c:151
+#: src/tracker/tracker-sparql.c:153
+msgid "Retrieve all named graphs"
+msgstr "Obține toate graficele numite"
+
+#: src/tracker/tracker-sparql.c:157
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -413,38 +420,38 @@ msgstr ""
 "Descrie subclasele, superclasele (poate fi utilizat cu -s pentru a evidenția "
 "părți din arbore și -p pentru a arăta proprietățile)"
 
-#: src/tracker/tracker-sparql.c:155
+#: src/tracker/tracker-sparql.c:161
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Caută o clasă sau o proprietate și afișează mai multe informații (de ex. "
 "Document)"
 
-#: src/tracker/tracker-sparql.c:156
+#: src/tracker/tracker-sparql.c:162
 msgid "CLASS/PROPERTY"
 msgstr "CLASĂ/PROPRIETATE"
 
-#: src/tracker/tracker-sparql.c:159
+#: src/tracker/tracker-sparql.c:165
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Întoarce numele scurt pentru o clasă (de ex: nfo:FileDataObject)."
 
-#: src/tracker/tracker-sparql.c:163
+#: src/tracker/tracker-sparql.c:169
 msgid "Returns the full namespace for a class."
 msgstr "Întoarce spațiul de nume complet pentru o clasă."
 
-#: src/tracker/tracker-sparql.c:223
+#: src/tracker/tracker-sparql.c:229
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Imposibil de găsit prefixele spațiilor de nume"
 
-#: src/tracker/tracker-sparql.c:231
+#: src/tracker/tracker-sparql.c:237
 msgid "No namespace prefixes were returned"
 msgstr "Nu s-a returnat niciun prefix de spațiu de nume"
 
-#: src/tracker/tracker-sparql.c:277
+#: src/tracker/tracker-sparql.c:283
 msgid "Could not get namespace prefixes"
 msgstr "Nu s-au putut obține prefixele spațiului de nume"
 
-#: src/tracker/tracker-sparql.c:286
+#: src/tracker/tracker-sparql.c:292
 msgid "No namespace prefixes were found"
 msgstr "Nu s-au găsit prefixe ale spațiului de nume"
 
@@ -452,127 +459,139 @@ msgstr "Nu s-au găsit prefixe ale spațiului de nume"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:532 src/tracker/tracker-sparql.c:580
+#: src/tracker/tracker-sparql.c:538 src/tracker/tracker-sparql.c:586
 msgid "None"
 msgstr "Nimic"
 
-#: src/tracker/tracker-sparql.c:986
+#: src/tracker/tracker-sparql.c:992
 msgid "Could not create tree: subclass query failed"
 msgstr "Nu s-a putut crea arborele: interogarea subclasei a eșuat"
 
-#: src/tracker/tracker-sparql.c:1035
+#: src/tracker/tracker-sparql.c:1041
 msgid "Could not create tree: class properties query failed"
 msgstr "Nu s-a putut crea arborele: interogarea proprietăților clasei a eșuat"
 
-#: src/tracker/tracker-sparql.c:1119
+#: src/tracker/tracker-sparql.c:1125
 msgid "Could not list classes"
 msgstr "Nu s-au putut lista clasele"
 
-#: src/tracker/tracker-sparql.c:1127
+#: src/tracker/tracker-sparql.c:1133
 msgid "No classes were found"
 msgstr "Nu au fost găsite clase"
 
-#: src/tracker/tracker-sparql.c:1127 src/tracker/tracker-sparql.c:1318
+#: src/tracker/tracker-sparql.c:1133 src/tracker/tracker-sparql.c:1348
 msgid "Classes"
 msgstr "Clase"
 
-#: src/tracker/tracker-sparql.c:1143
+#: src/tracker/tracker-sparql.c:1149
 msgid "Could not list class prefixes"
 msgstr "Nu s-au putut lista prefixele claselor"
 
-#: src/tracker/tracker-sparql.c:1151
+#: src/tracker/tracker-sparql.c:1157
 msgid "No class prefixes were found"
 msgstr "Nu au fost găsite prefixe de clase"
 
-#: src/tracker/tracker-sparql.c:1151
+#: src/tracker/tracker-sparql.c:1157
 msgid "Prefixes"
 msgstr "Prefixe"
 
-#: src/tracker/tracker-sparql.c:1171
+#: src/tracker/tracker-sparql.c:1177
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Nu s-a putut găsi proprietatea pentru prefixul de clasă, de ex. :Resource în "
 "„rdfs:Resource”"
 
-#: src/tracker/tracker-sparql.c:1210
+#: src/tracker/tracker-sparql.c:1216
 msgid "Could not list properties"
 msgstr "Nu s-au putut lista proprietățile"
 
-#: src/tracker/tracker-sparql.c:1218
+#: src/tracker/tracker-sparql.c:1224
 msgid "No properties were found"
 msgstr "Nu s-a găsit nicio proprietate"
 
-#: src/tracker/tracker-sparql.c:1218 src/tracker/tracker-sparql.c:1341
+#: src/tracker/tracker-sparql.c:1224 src/tracker/tracker-sparql.c:1371
 msgid "Properties"
 msgstr "Proprietăți"
 
-#: src/tracker/tracker-sparql.c:1246
+#: src/tracker/tracker-sparql.c:1252
 msgid "Could not find notify classes"
 msgstr "Nu s-au găsit clasele de notificare"
 
-#: src/tracker/tracker-sparql.c:1254
+#: src/tracker/tracker-sparql.c:1260
 msgid "No notifies were found"
 msgstr "Nu s-a găsit nicio notificare"
 
-#: src/tracker/tracker-sparql.c:1254
+#: src/tracker/tracker-sparql.c:1260
 msgid "Notifies"
 msgstr "Notifică"
 
-#: src/tracker/tracker-sparql.c:1280
+#: src/tracker/tracker-sparql.c:1286
 msgid "Could not find indexed properties"
 msgstr "Nu s-au putut găsi proprietăți indexate"
 
-#: src/tracker/tracker-sparql.c:1288
+#: src/tracker/tracker-sparql.c:1294
 msgid "No indexes were found"
 msgstr "Nu s-a găsit niciun index"
 
-#: src/tracker/tracker-sparql.c:1288
+#: src/tracker/tracker-sparql.c:1294
 msgid "Indexes"
 msgstr "Indexuri"
 
 #: src/tracker/tracker-sparql.c:1310
+msgid "Could not list named graphs"
+msgstr "Nu s-au putut lista graficele numite"
+
+#: src/tracker/tracker-sparql.c:1318
+msgid "No graphs were found"
+msgstr "Nu s-au găsit grafice"
+
+#: src/tracker/tracker-sparql.c:1318
+msgid "Named graphs"
+msgstr "Grafice numite"
+
+#: src/tracker/tracker-sparql.c:1340
 msgid "Could not search classes"
 msgstr "Nu s-au putut căuta clasele"
 
-#: src/tracker/tracker-sparql.c:1318
+#: src/tracker/tracker-sparql.c:1348
 msgid "No classes were found to match search term"
 msgstr "Nu au fost găsite clase care să se potrivească termenilor de căutare"
 
-#: src/tracker/tracker-sparql.c:1333
+#: src/tracker/tracker-sparql.c:1363
 msgid "Could not search properties"
 msgstr "Nu s-au putut căuta proprietățile"
 
-#: src/tracker/tracker-sparql.c:1341
+#: src/tracker/tracker-sparql.c:1371
 msgid "No properties were found to match search term"
 msgstr ""
 "Nu au fost găsite proprietăți care să se potrivească termenilor de căutare"
 
-#: src/tracker/tracker-sparql.c:1377 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Nu s-a putut obține o cale UTF-8 din cale"
 
-#: src/tracker/tracker-sparql.c:1389 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-sparql.c:1419 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Nu s-a putut citi fișierul"
 
-#: src/tracker/tracker-sparql.c:1408
+#: src/tracker/tracker-sparql.c:1438
 msgid "Could not run update"
 msgstr "Nu s-a putut porni actualizarea"
 
-#: src/tracker/tracker-sparql.c:1415
+#: src/tracker/tracker-sparql.c:1445
 msgid "Done"
 msgstr "Terminat"
 
-#: src/tracker/tracker-sparql.c:1468 src/tracker/tracker-sparql.c:1471
+#: src/tracker/tracker-sparql.c:1498 src/tracker/tracker-sparql.c:1501
 msgid "No results found matching your query"
 msgstr "Pentru căutarea dumneavoastră nu a fost găsit nici un rezultat"
 
-#: src/tracker/tracker-sparql.c:1525 src/tracker/tracker-sql.c:242
+#: src/tracker/tracker-sparql.c:1555 src/tracker/tracker-sql.c:242
 msgid "File and query can not be used together"
 msgstr "Fișierul și cererea nu pot fi utilizate împreună"
 
-#: src/tracker/tracker-sparql.c:1527
+#: src/tracker/tracker-sparql.c:1557
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -1555,9 +1574,6 @@ msgstr "Trebuie specificată o cale a bazei de date"
 
 #~ msgid "Could not get all tags"
 #~ msgstr "Nu s-au putut obține toate etichetele"
-
-#~ msgid "No tags were found"
-#~ msgstr "Nu s-a găsit nicio etichetă"
 
 #~ msgid "Tags (shown by name)"
 #~ msgstr "Etichete (arătate după nume)"
