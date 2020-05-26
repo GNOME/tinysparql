@@ -1883,7 +1883,6 @@ tracker_resource_serialize (TrackerResource *resource)
 /**
  * tracker_resource_deserialize:
  * @variant: a #GVariant
- * @error: return location for errors
  *
  * Deserializes a #TrackerResource previously serialized with
  * tracker_resource_serialize(). It is implied that both ends
