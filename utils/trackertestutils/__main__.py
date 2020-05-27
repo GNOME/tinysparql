@@ -208,19 +208,21 @@ def argument_parser():
                         help="run Tracker from the given install prefix. You "
                              "can run the system version of Tracker by "
                              "specifying --prefix=/usr")
-    parser.add_argument('-s', '--store', metavar='DIR', action=expand_path,
-                        default=default_store_location, dest='store_location',
-                        help=f"directory to store the index (default={default_store_location})")
     parser.add_argument('--use-session-dirs', action='store_true',
                         help=f"update the real Tracker index (use with care!)")
-    parser.add_argument('--store-tmpdir', action='store_true',
-                        help="create index in a temporary directory and "
-                             "delete it on exit (useful for automated testing)")
-    parser.add_argument('--index-recursive-directories', nargs='+',
-                        help="override the default locations Tracker should index")
-    parser.add_argument('--index-recursive-tmpdir', action='store_true',
-                        help="create a temporary directory and configure Tracker "
-                             "to only index that location (useful for automated testing)")
+    store_group = parser.add_mutually_exclusive_group()
+    store_group.add_argument('-s', '--store', metavar='DIR', action=expand_path,
+                             default=default_store_location, dest='store_location',
+                             help=f"directory to store the index (default={default_store_location})")
+    store_group.add_argument('--store-tmpdir', action='store_true',
+                             help="create index in a temporary directory and "
+                                  "delete it on exit (useful for automated testing)")
+    index_group = parser.add_mutually_exclusive_group()
+    index_group.add_argument('--index-recursive-directories', nargs='+',
+                             help="override the default locations Tracker should index")
+    index_group.add_argument('--index-recursive-tmpdir', action='store_true',
+                             help="create a temporary directory and configure Tracker "
+                                  "to only index that location (useful for automated testing)")
     parser.add_argument('--wait-for-miner', type=str, action='append',
                         help="wait for one or more daemons to start, and "
                              "return to idle for at least 1 second, before "
@@ -391,8 +393,6 @@ def main():
                                "--index-recursive-tmpdir")
         use_session_dirs = True
     else:
-        if args.store_location != default_store_location and args.store_tmpdir:
-            raise RuntimeError("The --store-tmpdir flag is enabled, but --store= was also passed.")
         if args.store_tmpdir:
             store_location = store_tmpdir = tempfile.mkdtemp(prefix='tracker-sandbox-store')
         else:
@@ -401,9 +401,6 @@ def main():
     index_recursive_directories = None
     index_recursive_tmpdir = None
 
-    if args.index_recursive_directories and args.index_recursive_tmpdir:
-        raise RuntimeError("The --index-recursive-tmpdir flag is enabled, but "
-                           "--index-recursive-directories= was also passed.")
     if args.index_recursive_tmpdir:
         # This tmpdir goes in cwd because paths under /tmp are ignored for indexing
         index_recursive_tmpdir = tempfile.mkdtemp(prefix='tracker-indexed-tmpdir', dir=os.getcwd())
