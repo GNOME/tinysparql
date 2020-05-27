@@ -385,6 +385,10 @@ def main():
         if args.store_location != default_store_location or args.store_tmpdir:
             raise RuntimeError("The --use-session-dirs flag cannot be combined "
                                " with --store= or --store-tmpdir")
+        if args.index_recursive_directories or args.index_recursive_tmpdir:
+            raise RuntimeError("The --use-session-dir flag cannot be combined "
+                               " with --index-recursive-directories or "
+                               "--index-recursive-tmpdir")
         use_session_dirs = True
     else:
         if args.store_location != default_store_location and args.store_tmpdir:
@@ -416,9 +420,11 @@ def main():
                              dbus_config=args.dbus_config,
                              dbus_session_bus_address=args.dbus_session_bus,
                              interactive=interactive)
-    config_set(sandbox, index_recursive_directories)
 
     if not use_session_dirs:
+        # We only want to overwrite dconf keys if XDG_CONFIG_HOME is set to a
+        # a temporary directory. We don't want to upset the user's real config.
+        config_set(sandbox, index_recursive_directories)
         link_to_mime_data()
 
     miner_watches = {}
