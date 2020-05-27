@@ -33,6 +33,7 @@ typedef struct _TrackerGrammarParser TrackerGrammarParser;
 
 #define NODES_PER_CHUNK 128
 #define RULE_STATE_DEFAULT_SIZE 128
+#define SNIPPET_LENGTH 30
 
 struct _TrackerRuleState {
 	const TrackerGrammarRule *rule;
@@ -669,13 +670,54 @@ rule_equals (gconstpointer a,
 	}
 }
 
+static gchar *
+get_error_snippet (TrackerGrammarParser *parser,
+                   TrackerParserState   *state)
+{
+	gssize start, end, error_pos;
+	gchar *sample, *snippet;
+
+	start = state->error_len - SNIPPET_LENGTH / 2;
+	end = state->error_len + SNIPPET_LENGTH / 2;
+	error_pos = SNIPPET_LENGTH / 2;
+
+	if (start < 0) {
+		end += ABS (start);
+		error_pos += start;
+		start = 0;
+	}
+
+	if (end > parser->query_len) {
+		gint move = end - parser->query_len;
+
+		if (start >= move) {
+			start -= move;
+			error_pos += move;
+		}
+
+		end -= move;
+	}
+
+	sample = g_strndup (&parser->query[start], end - start);
+	snippet = g_strdup_printf ("%s%s%s\n%*c‸",
+	                           start == 0 ? " " : "…",
+	                           sample,
+	                           end == parser->query_len ? " " : "…",
+	                           (gint) error_pos + 1, ' ');
+	g_free (sample);
+
+	return snippet;
+}
+
 static void
-tracker_parser_state_propagate_error (TrackerParserState  *state,
-                                      GError             **error)
+tracker_parser_state_propagate_error (TrackerGrammarParser  *parser,
+                                      TrackerParserState    *state,
+                                      GError               **error)
 {
 	const TrackerGrammarRule *rule;
 	GString *str = g_string_new (NULL);
 	GHashTable *repeated;
+	gchar *snippet;
 
 	if (state->current > state->error_len) {
 		/* The errors gathered are outdated, but we are propagating
@@ -714,6 +756,10 @@ tracker_parser_state_propagate_error (TrackerParserState  *state,
 		g_hash_table_unref (repeated);
 	}
 
+	snippet = get_error_snippet (parser, state);
+	g_string_append_printf (str, ":\n%s", snippet);
+	g_free (snippet);
+
 	g_set_error (error,
 	             TRACKER_SPARQL_ERROR,
 	             TRACKER_SPARQL_ERROR_PARSE,
@@ -740,7 +786,7 @@ tracker_grammar_parser_apply (TrackerGrammarParser      *parser,
 	state.node_tree->root = tracker_parser_state_transact_match (&state);
 
 	if (!tracker_grammar_parser_read (parser, &state)) {
-		tracker_parser_state_propagate_error (&state, error);
+		tracker_parser_state_propagate_error (parser, &state, error);
 		tracker_node_tree_free (state.node_tree);
 		g_free (state.rule_states.rules);
 		return NULL;
