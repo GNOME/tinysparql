@@ -83,8 +83,22 @@ def environment_set_and_add_path(env, var, prefix, suffix):
     env[var] = full
 
 
+class ExternalDBusSandbox():
+    def __init__(self, session_bus_address, extra_env):
+        self.session_bus_address = session_bus_address
+        self.extra_env = extra_env
+
+    def get_session_bus_address(self):
+        return self.session_bus_address
+
+    def stop(self):
+        log.info("Not stopping D-Bus daemon managed by another process")
+        pass
+
+
 def create_sandbox(store_location, prefix=None, use_session_dirs=False,
-                   dbus_config=None, interactive=False):
+                   dbus_config=None, dbus_session_bus_address=None,
+                   interactive=False):
     assert prefix is None or dbus_config is None
 
     extra_env = {}
@@ -109,13 +123,18 @@ def create_sandbox(store_location, prefix=None, use_session_dirs=False,
     log.debug('Using prefix location "%s"' % prefix)
     log.debug('Using store location "%s"' % store_location)
 
-    sandbox = helpers.TrackerDBusSandbox(dbus_config, extra_env=extra_env)
-    sandbox.start(new_session=True)
-
     # Update our own environment, so when we launch a subprocess it has the
     # same settings as the Tracker daemons.
     os.environ.update(extra_env)
-    os.environ['DBUS_SESSION_BUS_ADDRESS'] = sandbox.daemon.get_address()
+
+    if dbus_session_bus_address:
+        sandbox = ExternalDBusSandbox(dbus_session_bus_address, extra_env=extra_env)
+        os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session_bus_address
+    else:
+        sandbox = helpers.TrackerDBusSandbox(dbus_config, extra_env=extra_env)
+        sandbox.start(new_session=True)
+        os.environ['DBUS_SESSION_BUS_ADDRESS'] = sandbox.daemon.get_address()
+
     os.environ['TRACKER_SANDBOX'] = '1'
 
     return sandbox
@@ -189,25 +208,30 @@ def argument_parser():
                         help="run Tracker from the given install prefix. You "
                              "can run the system version of Tracker by "
                              "specifying --prefix=/usr")
-    parser.add_argument('-s', '--store', metavar='DIR', action=expand_path,
-                        default=default_store_location, dest='store_location',
-                        help=f"directory to store the index (default={default_store_location})")
     parser.add_argument('--use-session-dirs', action='store_true',
                         help=f"update the real Tracker index (use with care!)")
-    parser.add_argument('--store-tmpdir', action='store_true',
-                        help="create index in a temporary directory and "
-                             "delete it on exit (useful for automated testing)")
-    parser.add_argument('--index-recursive-directories', nargs='+',
-                        help="override the default locations Tracker should index")
-    parser.add_argument('--index-recursive-tmpdir', action='store_true',
-                        help="create a temporary directory and configure Tracker "
-                             "to only index that location (useful for automated testing)")
+    store_group = parser.add_mutually_exclusive_group()
+    store_group.add_argument('-s', '--store', metavar='DIR', action=expand_path,
+                             default=default_store_location, dest='store_location',
+                             help=f"directory to store the index (default={default_store_location})")
+    store_group.add_argument('--store-tmpdir', action='store_true',
+                             help="create index in a temporary directory and "
+                                  "delete it on exit (useful for automated testing)")
+    index_group = parser.add_mutually_exclusive_group()
+    index_group.add_argument('--index-recursive-directories', nargs='+',
+                             help="override the default locations Tracker should index")
+    index_group.add_argument('--index-recursive-tmpdir', action='store_true',
+                             help="create a temporary directory and configure Tracker "
+                                  "to only index that location (useful for automated testing)")
     parser.add_argument('--wait-for-miner', type=str, action='append',
                         help="wait for one or more daemons to start, and "
                              "return to idle for at least 1 second, before "
                              "exiting. Usually used with `tracker index` where "
                              "you should pass --wait-for-miner=Files and "
                              "--wait-for-miner=Extract")
+    parser.add_argument('-d', '--dbus-session-bus', metavar='ADDRESS',
+                        help="use an existing D-Bus session bus. This can be "
+                             "used to run commands inside an existing sandbox")
     parser.add_argument('--debug-dbus', action='store_true',
                         help="show stdout and stderr messages from every daemon "
                              "running on the sandbox session bus. By default we "
@@ -334,6 +358,9 @@ def main():
 
     init_logging(args.debug_sandbox, args.debug_dbus)
 
+    if args.debug_dbus and args.dbus_session_bus:
+        log.warn("The --debug-dbus flag has no effect when --dbus-session-bus is used")
+
     shell = os.environ.get('SHELL', '/bin/bash')
 
     if args.prefix is None and args.dbus_config is None:
@@ -360,10 +387,12 @@ def main():
         if args.store_location != default_store_location or args.store_tmpdir:
             raise RuntimeError("The --use-session-dirs flag cannot be combined "
                                " with --store= or --store-tmpdir")
+        if args.index_recursive_directories or args.index_recursive_tmpdir:
+            raise RuntimeError("The --use-session-dir flag cannot be combined "
+                               " with --index-recursive-directories or "
+                               "--index-recursive-tmpdir")
         use_session_dirs = True
     else:
-        if args.store_location != default_store_location and args.store_tmpdir:
-            raise RuntimeError("The --store-tmpdir flag is enabled, but --store= was also passed.")
         if args.store_tmpdir:
             store_location = store_tmpdir = tempfile.mkdtemp(prefix='tracker-sandbox-store')
         else:
@@ -372,9 +401,6 @@ def main():
     index_recursive_directories = None
     index_recursive_tmpdir = None
 
-    if args.index_recursive_directories and args.index_recursive_tmpdir:
-        raise RuntimeError("The --index-recursive-tmpdir flag is enabled, but "
-                           "--index-recursive-directories= was also passed.")
     if args.index_recursive_tmpdir:
         # This tmpdir goes in cwd because paths under /tmp are ignored for indexing
         index_recursive_tmpdir = tempfile.mkdtemp(prefix='tracker-indexed-tmpdir', dir=os.getcwd())
@@ -389,10 +415,13 @@ def main():
     sandbox = create_sandbox(store_location, args.prefix,
                              use_session_dirs=use_session_dirs,
                              dbus_config=args.dbus_config,
+                             dbus_session_bus_address=args.dbus_session_bus,
                              interactive=interactive)
-    config_set(sandbox, index_recursive_directories)
 
     if not use_session_dirs:
+        # We only want to overwrite dconf keys if XDG_CONFIG_HOME is set to a
+        # a temporary directory. We don't want to upset the user's real config.
+        config_set(sandbox, index_recursive_directories)
         link_to_mime_data()
 
     miner_watches = {}

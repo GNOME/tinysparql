@@ -636,3 +636,6 @@ class TrackerDBusSandbox:
 
     def get_connection(self):
         return self.daemon.get_connection()
+
+    def get_session_bus_address(self):
+        return self.daemon.get_address()
