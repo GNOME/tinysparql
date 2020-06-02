@@ -337,18 +337,17 @@ export_run_photo_favourites (void)
 	const gchar *query;
 	g_autoptr(GError) error = NULL;
 
-	query = "SELECT \"\" COALESCE(nie:url(?u), ?u) ?p ?v"
-	         "       (EXISTS { ?p rdfs:range [ rdfs:subClassOf rdfs:Resource ] }) AS ?is_resource "
+	query = "SELECT \"\" COALESCE(nie:url(?u), ?u) ?p ?v ?is_resource"
 	        "{"
 	        "    { "
-	        "        SELECT ?u (rdf:type AS ?p) (nmm:Photo AS ?v) "
+	        "        SELECT ?u (rdf:type AS ?p) (nmm:Photo AS ?v) (true AS ?is_resource)"
 	        "        { "
 	        "            ?u a nmm:Photo ; nao:hasTag nao:predefined-tag-favorite . "
 	        "        } "
 	        "    } "
 	        "    UNION "
 	        "    { "
-	        "        SELECT ?u (nao:hasTag AS ?p) (nao:predefined-tag-favorite AS ?v) "
+	        "        SELECT ?u (nao:hasTag AS ?p) (nao:predefined-tag-favorite AS ?v) (true AS ?is_resource)"
 	        "        { "
 	        "            ?u a nmm:Photo ; nao:hasTag nao:predefined-tag-favorite . "
 	        "        } "
@@ -371,18 +370,17 @@ export_run_files_starred (void)
 	const gchar *query;
 	g_autoptr(GError) error = NULL;
 
-	query = "SELECT \"\" COALESCE(nie:url(?u), ?u) ?p ?v"
-	         "       (EXISTS { ?p rdfs:range [ rdfs:subClassOf rdfs:Resource ] }) AS ?is_resource "
+	query = "SELECT \"\" COALESCE(nie:url(?u), ?u) ?p ?v ?is_resource"
 	        "{"
 	        "    { "
-	        "        SELECT ?u (rdf:type AS ?p) (nfo:FileDataObject AS ?v) "
+	        "        SELECT ?u (rdf:type AS ?p) (nfo:FileDataObject AS ?v) (true AS ?is_resource)"
 	        "        { "
 	        "            ?u a nfo:FileDataObject ; nao:hasTag <urn:gnome:nautilus:starred> "
 	        "        } "
 	        "    } "
 	        "    UNION "
 	        "    { "
-	        "        SELECT ?u (nao:hasTag AS ?p) (<urn:gnome:nautilus:starred> AS ?v) "
+	        "        SELECT ?u (nao:hasTag AS ?p) (<urn:gnome:nautilus:starred> AS ?v) (true AS ?is_resource)"
 	        "        { "
 	        "            ?u a nfo:FileDataObject ; nao:hasTag <urn:gnome:nautilus:starred> "
 	        "        } "
