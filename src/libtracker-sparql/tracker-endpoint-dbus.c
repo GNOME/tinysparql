@@ -520,6 +520,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			}
 		}
 
+		g_variant_iter_free (arguments);
 		g_free (query);
 	} else if (g_strcmp0 (method_name, "Update") == 0 ||
 	           g_strcmp0 (method_name, "UpdateArray") == 0) {
