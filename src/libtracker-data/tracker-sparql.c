@@ -1982,8 +1982,8 @@ convert_expression_to_string (TrackerSparql       *sparql,
 		 */
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		/* ID => Uri */
-		_prepend_string (sparql, "(SELECT Uri FROM Resource WHERE ID = ");
+		/* ID (or string) => Uri */
+		_prepend_string (sparql, "SparqlPrintIRI(");
 		_append_string (sparql, ") ");
 		break;
 	case TRACKER_PROPERTY_TYPE_BOOLEAN:

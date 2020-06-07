@@ -1800,6 +1800,57 @@ function_sparql_bnode (sqlite3_context *context,
 	generate_uuid (context, "urn:bnode");
 }
 
+static void
+function_sparql_print_iri (sqlite3_context *context,
+                           int              argc,
+                           sqlite3_value   *argv[])
+{
+	if (argc > 1) {
+		sqlite3_result_error (context, "Invalid argument count", -1);
+		return;
+	}
+
+	if (sqlite3_value_type (argv[0]) == SQLITE_INTEGER) {
+		sqlite3_stmt *stmt;
+		gboolean store_auxdata = FALSE;
+		sqlite3 *db;
+		gint result;
+
+		stmt = sqlite3_get_auxdata (context, 1);
+
+		if (stmt == NULL) {
+			store_auxdata = TRUE;
+			db = sqlite3_context_db_handle (context);
+
+			result = sqlite3_prepare_v2 (db, "SELECT Uri FROM Resource WHERE ID = ?",
+			                             -1, &stmt, NULL);
+			if (result != SQLITE_OK) {
+				sqlite3_result_error (context, sqlite3_errstr (result), -1);
+				return;
+			}
+		}
+
+		sqlite3_reset (stmt);
+		sqlite3_bind_value (stmt, 1, argv[0]);
+		result = stmt_step (stmt);
+
+		if (result == SQLITE_DONE) {
+			sqlite3_result_null (context);
+		} else if (result == SQLITE_ROW) {
+			sqlite3_result_value (context, sqlite3_column_value (stmt, 0));
+		} else {
+			sqlite3_result_error (context, sqlite3_errstr (result), -1);
+		}
+
+		if (store_auxdata) {
+			sqlite3_set_auxdata (context, 1, stmt,
+			                     (void (*) (void*)) sqlite3_finalize);
+		}
+	} else {
+		sqlite3_result_value (context, argv[0]);
+	}
+}
+
 static int
 check_interrupt (void *user_data)
 {
@@ -1874,6 +1925,8 @@ initialize_functions (TrackerDBInterface *db_interface)
 		  function_sparql_langmatches },
 		{ "SparqlStrLang", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_strlang },
+		{ "SparqlPrintIRI", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_print_iri },
 		/* Numbers */
 		{ "SparqlCeil", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_ceil },
