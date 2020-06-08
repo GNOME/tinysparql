@@ -1740,16 +1740,23 @@ generate_uuid (sqlite3_context *context,
 {
 	gchar *uuid = NULL;
 	sqlite3_stmt *stmt;
+	gboolean store_auxdata = FALSE;
 	sqlite3 *db;
 	gint result;
 
-	db = sqlite3_context_db_handle (context);
+	stmt = sqlite3_get_auxdata (context, 1);
 
-	result = sqlite3_prepare_v2 (db, "SELECT ID FROM Resource WHERE Uri=?",
-				     -1, &stmt, NULL);
-	if (result != SQLITE_OK) {
-		sqlite3_result_error (context, sqlite3_errstr (result), -1);
-		return;
+	if (stmt == NULL) {
+		db = sqlite3_context_db_handle (context);
+
+		result = sqlite3_prepare_v2 (db, "SELECT ID FROM Resource WHERE Uri=?",
+		                             -1, &stmt, NULL);
+		if (result != SQLITE_OK) {
+			sqlite3_result_error (context, sqlite3_errstr (result), -1);
+			return;
+		}
+
+		store_auxdata = TRUE;
 	}
 
 	do {
@@ -1761,7 +1768,10 @@ generate_uuid (sqlite3_context *context,
 		result = stmt_step (stmt);
 	} while (result == SQLITE_ROW);
 
-	sqlite3_finalize (stmt);
+	if (store_auxdata) {
+		sqlite3_set_auxdata (context, 1, stmt,
+		                     (void (*) (void*)) sqlite3_finalize);
+	}
 
 	if (result != SQLITE_DONE) {
 		sqlite3_result_error (context, sqlite3_errstr (result), -1);
