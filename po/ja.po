@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: tracker tracker-0.12\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
 "POT-Creation-Date: 2020-05-26 22:53+0000\n"
-"PO-Revision-Date: 2020-03-01 23:46+0900\n"
+"PO-Revision-Date: 2020-06-10 18:45+0900\n"
 "Last-Translator: sicklylife <translation@sicklylife.jp>\n"
 "Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
 "Language: ja\n"
@@ -90,10 +90,8 @@ msgstr ""
 #: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
 #: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
-#, fuzzy
-#| msgid "Only allow read based actions on the database"
 msgid "Location of the database"
-msgstr "データベース上で読み込み系の操作だけ許可する"
+msgstr ""
 
 #: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-endpoint.c:60
 msgid "DIR"
@@ -134,10 +132,8 @@ msgid "Creating endpoint at %s…"
 msgstr ""
 
 #: src/tracker/tracker-endpoint.c:165
-#, fuzzy
-#| msgid "Could not run update"
 msgid "Could not own DBus name"
-msgstr "アップグレードを実施できませんでした"
+msgstr ""
 
 #: src/tracker/tracker-endpoint.c:169
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
@@ -164,10 +160,8 @@ msgid "Opening database at %s…"
 msgstr ""
 
 #: src/tracker/tracker-endpoint.c:237
-#, fuzzy
-#| msgid "Backing up database"
 msgid "Creating in-memory database"
-msgstr "データベースのバックアップ中"
+msgstr ""
 
 #: src/tracker/tracker-endpoint.c:257
 msgid ""
@@ -235,10 +229,8 @@ msgid "failed to exec “%s”: %s"
 msgstr "“%s”の実行に失敗しました: %s"
 
 #: src/tracker/tracker-import.c:117
-#, fuzzy
-#| msgid "Could not run update"
 msgid "Could not run import"
-msgstr "アップグレードを実施できませんでした"
+msgstr ""
 
 #: src/tracker/tracker-info.c:65
 msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
@@ -306,10 +298,8 @@ msgid "Export data from a Tracker database"
 msgstr ""
 
 #: src/tracker/tracker-main.c:96
-#, fuzzy
-#| msgid "Could not backup database"
 msgid "Import data into a Tracker database"
-msgstr "データベースをバックアップできませんでした"
+msgstr ""
 
 #: src/tracker/tracker-main.c:97
 msgid "Show information known about local files or items indexed"
@@ -394,10 +384,8 @@ msgid "PROPERTY"
 msgstr "PROPERTY"
 
 #: src/tracker/tracker-sparql.c:153
-#, fuzzy
-#| msgid "Retrieve classes"
 msgid "Retrieve all named graphs"
-msgstr "クラスの一覧を取得する"
+msgstr ""
 
 #: src/tracker/tracker-sparql.c:157
 msgid ""
@@ -522,16 +510,12 @@ msgid "Indexes"
 msgstr "インデックス"
 
 #: src/tracker/tracker-sparql.c:1310
-#, fuzzy
-#| msgid "Could not list classes"
 msgid "Could not list named graphs"
-msgstr "クラスの一覧を表示できませんでした"
+msgstr ""
 
 #: src/tracker/tracker-sparql.c:1318
-#, fuzzy
-#| msgid "No tags were found"
 msgid "No graphs were found"
-msgstr "タグが見つかりませんでした"
+msgstr ""
 
 #: src/tracker/tracker-sparql.c:1318
 msgid "Named graphs"
@@ -604,10 +588,8 @@ msgid "Empty result set"
 msgstr "結果を空にする"
 
 #: src/tracker/tracker-sql.c:240
-#, fuzzy
-#| msgid "An argument must be supplied"
 msgid "A database path must be specified"
-msgstr "引数を指定してください"
+msgstr "データベースのパスを指定してください"
 
 #~ msgid "Maximum size of journal"
 #~ msgstr "ジャーナルのサイズ (最大値)"
