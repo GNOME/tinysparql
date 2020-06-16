@@ -88,7 +88,7 @@ namespace Tracker {
 
 		public virtual Statement? query_statement (string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error;
 
-                public virtual Notifier? create_notifier (NotifierFlags flags);
+                public virtual Notifier? create_notifier ();
                 public virtual void close ();
                 public async virtual bool close_async () throws GLib.IOError;
 	}

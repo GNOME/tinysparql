@@ -217,8 +217,7 @@ TrackerSparqlStatement * tracker_sparql_connection_query_statement (TrackerSparq
                                                                     GCancellable             *cancellable,
                                                                     GError                  **error);
 TRACKER_AVAILABLE_IN_ALL
-TrackerNotifier * tracker_sparql_connection_create_notifier (TrackerSparqlConnection *connection,
-                                                             TrackerNotifierFlags     flags);
+TrackerNotifier * tracker_sparql_connection_create_notifier (TrackerSparqlConnection *connection);
 
 TRACKER_AVAILABLE_IN_ALL
 void tracker_sparql_connection_close (TrackerSparqlConnection *connection);

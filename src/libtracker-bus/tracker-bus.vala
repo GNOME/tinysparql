@@ -268,10 +268,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		return reply.get_body ().get_child_value (0);
 	}
 
-	public override Tracker.Notifier? create_notifier (Tracker.NotifierFlags flags) {
+	public override Tracker.Notifier? create_notifier () {
 		var notifier = (Tracker.Notifier) Object.new (typeof (Tracker.Notifier),
 		                                              "connection", this,
-		                                              "flags", flags, null);
+		                                              null);
 
 		notifier.signal_subscribe (this.bus, this.dbus_name, null);
 

@@ -685,7 +685,7 @@ tracker_endpoint_dbus_initable_init (GInitable     *initable,
 		                                   error);
 
 	conn = tracker_endpoint_get_sparql_connection (endpoint);
-	endpoint_dbus->notifier = tracker_sparql_connection_create_notifier (conn, 0);
+	endpoint_dbus->notifier = tracker_sparql_connection_create_notifier (conn);
 	g_signal_connect (endpoint_dbus->notifier, "events",
 	                  G_CALLBACK (notifier_events_cb), endpoint);
 

@@ -83,8 +83,7 @@ struct _TrackerSparqlConnectionClass
                                                       const gchar              *sparql,
                                                       GCancellable             *cancellable,
                                                       GError                  **error);
-	TrackerNotifier * (* create_notifier) (TrackerSparqlConnection *connection,
-	                                       TrackerNotifierFlags     flags);
+	TrackerNotifier * (* create_notifier) (TrackerSparqlConnection *connection);
 
 	void (* close) (TrackerSparqlConnection *connection);
         void (* close_async) (TrackerSparqlConnection *connection,

@@ -566,7 +566,6 @@ tracker_sparql_connection_query_statement (TrackerSparqlConnection  *connection,
 /**
  * tracker_sparql_connection_create_notifier:
  * @connection: a #TrackerSparqlConnection
- * @flags: flags to modify notifier behavior
  *
  * Creates a new #TrackerNotifier to notify about changes in @connection.
  * See #TrackerNotifier documentation for information about how to use this
@@ -576,12 +575,11 @@ tracker_sparql_connection_query_statement (TrackerSparqlConnection  *connection,
  *          when no longer needed.
  **/
 TrackerNotifier *
-tracker_sparql_connection_create_notifier (TrackerSparqlConnection *connection,
-                                           TrackerNotifierFlags     flags)
+tracker_sparql_connection_create_notifier (TrackerSparqlConnection *connection)
 {
 	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), NULL);
 
-	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->create_notifier (connection, flags);
+	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->create_notifier (connection);
 }
 
 /**

@@ -870,8 +870,7 @@ tracker_direct_connection_get_namespace_manager (TrackerSparqlConnection *self)
 }
 
 static TrackerNotifier *
-tracker_direct_connection_create_notifier (TrackerSparqlConnection *self,
-					   TrackerNotifierFlags     flags)
+tracker_direct_connection_create_notifier (TrackerSparqlConnection *self)
 {
 	TrackerDirectConnectionPrivate *priv;
 	TrackerNotifier *notifier;
@@ -881,7 +880,6 @@ tracker_direct_connection_create_notifier (TrackerSparqlConnection *self,
 
 	notifier = g_object_new (TRACKER_TYPE_NOTIFIER,
 	                         "connection", self,
-				 "flags", flags,
 				 NULL);
 
 	tracker_data = tracker_data_manager_get_data (priv->data_manager);
