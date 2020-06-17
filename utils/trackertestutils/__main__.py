@@ -133,7 +133,7 @@ def create_sandbox(store_location, prefix=None, use_session_dirs=False,
     else:
         sandbox = helpers.TrackerDBusSandbox(dbus_config, extra_env=extra_env)
         sandbox.start(new_session=True)
-        os.environ['DBUS_SESSION_BUS_ADDRESS'] = sandbox.daemon.get_address()
+        os.environ['DBUS_SESSION_BUS_ADDRESS'] = sandbox.get_session_bus_address()
 
     os.environ['TRACKER_SANDBOX'] = '1'
 

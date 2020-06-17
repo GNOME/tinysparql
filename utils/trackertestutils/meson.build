@@ -6,6 +6,8 @@ sources = [
   'helpers.py',
   'mainloop.py',
   'psutil_mini.py',
+  'sandbox.py',
+  'storehelper.py',
 ]
 
 if get_option('test_utils')
