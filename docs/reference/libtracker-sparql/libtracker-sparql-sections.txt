@@ -235,7 +235,6 @@ tracker_notifier_event_get_type
 TRACKER_TYPE_NOTIFIER_EVENT_TYPE
 tracker_notifier_event_type_get_type
 TRACKER_TYPE_NOTIFIER_FLAGS
-tracker_notifier_flags_get_type
 TrackerNotifierClass
 </SECTION>
 
