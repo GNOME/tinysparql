@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-05-18 20:52+0000\n"
-"PO-Revision-Date: 2020-05-19 09:09+0300\n"
+"POT-Creation-Date: 2020-06-21 15:18+0000\n"
+"PO-Revision-Date: 2020-06-21 20:06+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -303,9 +303,10 @@ msgid "Results"
 msgstr "Результати"
 
 #: src/tracker/tracker-main.c:44
-msgid "See “tracker help <command>” to read about a specific subcommand."
+#| msgid "See “tracker help <command>” to read about a specific subcommand."
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
-"Див. «tracker help <команда>», щоб дізнатися більше про специфічну допоміжну "
+"Див. «tracker3 help <команда>», щоб дізнатися більше про специфічну допоміжну "
 "команду."
 
 #: src/tracker/tracker-main.c:93
@@ -342,12 +343,14 @@ msgstr "Надіслати запит до бази даних на найниж
 
 #: src/tracker/tracker-main.c:139
 #, c-format
-msgid "“%s” is not a tracker command. See “tracker --help”"
-msgstr "«%s» не є командою tracker. Див. «tracker --help»"
+#| msgid "“%s” is not a tracker command. See “tracker --help”"
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "«%s» не є командою tracker3. Див. «tracker3 --help»"
 
 #: src/tracker/tracker-main.c:174
-msgid "Available tracker commands are:"
-msgstr "Доступні команди tracker:"
+#| msgid "Available tracker commands are:"
+msgid "Available tracker3 commands are:"
+msgstr "Доступні команди tracker3:"
 
 #: src/tracker/tracker-main.c:212
 msgid "Additional / third party commands are:"
@@ -411,7 +414,6 @@ msgid "PROPERTY"
 msgstr "ВЛАСТИВІСТЬ"
 
 #: src/tracker/tracker-sparql.c:153
-#| msgid "Retrieve classes"
 msgid "Retrieve all named graphs"
 msgstr "Отримати усі іменовані графи"
 
@@ -542,12 +544,10 @@ msgid "Indexes"
 msgstr "Індекси"
 
 #: src/tracker/tracker-sparql.c:1310
-#| msgid "Could not list classes"
 msgid "Could not list named graphs"
 msgstr "Не вдалося створити список іменованих графів"
 
 #: src/tracker/tracker-sparql.c:1318
-#| msgid "No classes were found"
 msgid "No graphs were found"
 msgstr "Графів не знайдено"
 
