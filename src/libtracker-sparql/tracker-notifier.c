@@ -80,6 +80,8 @@ typedef struct _TrackerNotifierEventCache TrackerNotifierEventCache;
 struct _TrackerNotifierSubscription {
 	GDBusConnection *connection;
 	TrackerNotifier *notifier;
+	TrackerSparqlStatement *statement;
+	gint n_statement_slots;
 	gchar *service;
 	gchar *object_path;
 	guint handler_id;
@@ -89,6 +91,8 @@ struct _TrackerNotifierPrivate {
 	TrackerSparqlConnection *connection;
 	GHashTable *subscriptions; /* guint -> TrackerNotifierSubscription */
 	GCancellable *cancellable;
+	TrackerSparqlStatement *local_statement;
+	gint n_local_statement_slots;
 };
 
 struct _TrackerNotifierEventCache {
@@ -146,6 +150,7 @@ tracker_notifier_subscription_free (TrackerNotifierSubscription *subscription)
 	g_dbus_connection_signal_unsubscribe (subscription->connection,
 	                                      subscription->handler_id);
 	g_object_unref (subscription->connection);
+	g_clear_object (&subscription->statement);
 	g_free (subscription->service);
 	g_free (subscription->object_path);
 	g_free (subscription);
@@ -379,33 +384,12 @@ tracker_notifier_emit_events_in_idle (TrackerNotifierEventCache *cache)
 
 static gchar *
 create_extra_info_query (TrackerNotifier           *notifier,
-                         TrackerNotifierEventCache *cache)
+                         TrackerNotifierEventCache *cache,
+                         gint                       n_slots)
 {
-	GString *sparql, *filter;
-	gboolean has_elements = FALSE;
+	GString *sparql;
 	gchar *service;
-	GSequenceIter *iter;
-
-	filter = g_string_new (NULL);
-
-	for (iter = g_sequence_get_begin_iter (cache->sequence);
-	     !g_sequence_iter_is_end (iter);
-	     iter = g_sequence_iter_next (iter)) {
-		TrackerNotifierEvent *event;
-
-		event = g_sequence_get (iter);
-
-		if (has_elements)
-			g_string_append_c (filter, ' ');
-
-		g_string_append_printf (filter, "%" G_GINT64_FORMAT, event->id);
-		has_elements = TRUE;
-	}
-
-	if (!has_elements) {
-		g_string_free (filter, TRUE);
-		return NULL;
-	}
+	gint i;
 
 	sparql = g_string_new ("SELECT ?id ?uri ");
 
@@ -417,11 +401,16 @@ create_extra_info_query (TrackerNotifier           *notifier,
 		                        service);
 	}
 
-	g_string_append_printf (sparql,
-	                        "{ VALUES ?id { %s }"
-	                        "  BIND (tracker:uri(?id) AS ?uri)"
-	                        "}", filter->str);
-	g_string_free (filter, TRUE);
+	g_string_append (sparql, "{ VALUES ?id { ");
+
+	for (i = 0; i < n_slots; i++) {
+		g_string_append_printf (sparql, "~arg%d ", i + 1);
+	}
+
+	g_string_append (sparql,
+	                 "  } ."
+	                 "  BIND (tracker:uri(xsd:integer(?id)) AS ?uri)"
+	                 "} ");
 
 	if (service)
 		g_string_append (sparql, "} ");
@@ -433,22 +422,68 @@ create_extra_info_query (TrackerNotifier           *notifier,
 	return g_string_free (sparql, FALSE);
 }
 
+static TrackerSparqlStatement *
+ensure_extra_info_statement (TrackerNotifier           *notifier,
+                             TrackerNotifierEventCache *cache,
+                             gint                      *n_slots_out)
+{
+	TrackerSparqlStatement **ptr;
+	TrackerNotifierPrivate *priv;
+	gchar *sparql;
+	gint *n_slots, new_slots;
+	GError *error = NULL;
+
+	priv = tracker_notifier_get_instance_private (notifier);
+
+	if (cache->subscription) {
+		ptr = &cache->subscription->statement;
+		n_slots = &cache->subscription->n_statement_slots;
+	} else {
+		ptr = &priv->local_statement;
+		n_slots = &priv->n_local_statement_slots;
+	}
+
+	if (*ptr && *n_slots >= g_sequence_get_length (cache->sequence)) {
+		*n_slots_out = *n_slots;
+		return *ptr;
+	}
+
+	g_clear_object (ptr);
+	new_slots = g_sequence_get_length (cache->sequence);
+	sparql = create_extra_info_query (notifier, cache, new_slots);
+	*ptr = tracker_sparql_connection_query_statement (priv->connection,
+	                                                  sparql,
+	                                                  priv->cancellable,
+	                                                  &error);
+	g_free (sparql);
+
+	if (error) {
+		g_warning ("Error querying notifier info: %s\n", error->message);
+		g_error_free (error);
+		return NULL;
+	}
+
+	*n_slots = new_slots;
+	*n_slots_out = new_slots;
+
+	return *ptr;
+}
+
 static void
 query_extra_info_cb (GObject      *object,
                      GAsyncResult *res,
                      gpointer      user_data)
 {
 	TrackerNotifierEventCache *cache = user_data;
-	TrackerSparqlConnection *conn;
+	TrackerSparqlStatement *statement;
 	TrackerSparqlCursor *cursor;
 	TrackerNotifierEvent *event;
 	GSequenceIter *iter;
 	GError *error = NULL;
-	gint col;
 	gint64 id;
 
-	conn = TRACKER_SPARQL_CONNECTION (object);
-	cursor = tracker_sparql_connection_query_finish (conn, res, &error);
+	statement = TRACKER_SPARQL_STATEMENT (object);
+	cursor = tracker_sparql_statement_execute_finish (statement, res, &error);
 
 	if (!cursor) {
 		if (!g_error_matches (error,
@@ -470,8 +505,10 @@ query_extra_info_cb (GObject      *object,
 	 * clause.
 	 */
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		col = 0;
-		id = tracker_sparql_cursor_get_integer (cursor, col++);
+		id = tracker_sparql_cursor_get_integer (cursor, 0);
+		if (id == 0)
+			continue;
+
 		event = g_sequence_get (iter);
 		iter = g_sequence_iter_next (iter);
 
@@ -481,7 +518,7 @@ query_extra_info_cb (GObject      *object,
 			break;
 		}
 
-		event->urn = g_strdup (tracker_sparql_cursor_get_string (cursor, col++, NULL));
+		event->urn = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
 	}
 
 	g_object_unref (cursor);
@@ -490,22 +527,54 @@ query_extra_info_cb (GObject      *object,
 }
 
 static void
+bind_arguments (TrackerSparqlStatement    *statement,
+                TrackerNotifierEventCache *cache,
+                gint                       n_slots)
+{
+	GSequenceIter *iter;
+	gchar *arg_name;
+	gint i = 0;
+
+	for (iter = g_sequence_get_begin_iter (cache->sequence);
+	     !g_sequence_iter_is_end (iter);
+	     iter = g_sequence_iter_next (iter)) {
+		TrackerNotifierEvent *event;
+
+		event = g_sequence_get (iter);
+
+		arg_name = g_strdup_printf ("arg%d", i + 1);
+		tracker_sparql_statement_bind_int (statement, arg_name, event->id);
+		g_free (arg_name);
+		i++;
+	}
+
+	/* Fill in missing slots with 0's */
+	while (i < n_slots) {
+		arg_name = g_strdup_printf ("arg%d", i + 1);
+		tracker_sparql_statement_bind_int (statement, arg_name, 0);
+		g_free (arg_name);
+		i++;
+	}
+}
+
+static void
 tracker_notifier_query_extra_info (TrackerNotifier           *notifier,
                                    TrackerNotifierEventCache *cache)
 {
 	TrackerNotifierPrivate *priv;
-	gchar *sparql;
+	TrackerSparqlStatement *statement;
+	gint n_slots;
 
-	sparql = create_extra_info_query (notifier, cache);
-	if (!sparql)
+	statement = ensure_extra_info_statement (notifier, cache, &n_slots);
+	if (!statement)
 		return;
 
+	bind_arguments (statement, cache, n_slots);
 	priv = tracker_notifier_get_instance_private (notifier);
-	tracker_sparql_connection_query_async (priv->connection, sparql,
-					       priv->cancellable,
-	                                       query_extra_info_cb,
-	                                       cache);
-	g_free (sparql);
+	tracker_sparql_statement_execute_async (statement,
+	                                        priv->cancellable,
+	                                        query_extra_info_cb,
+	                                        cache);
 }
 
 void
@@ -592,6 +661,7 @@ tracker_notifier_finalize (GObject *object)
 
 	g_cancellable_cancel (priv->cancellable);
 	g_clear_object (&priv->cancellable);
+	g_clear_object (&priv->local_statement);
 
 	if (priv->connection)
 		g_object_unref (priv->connection);
