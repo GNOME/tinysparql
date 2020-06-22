@@ -6,8 +6,8 @@ enum_types = gnome.mkenums('tracker-sparql-enum-types',
     install_header: true,
 )
 
-libtracker_sparql_c_vapi = files('libtracker-sparql-intermediate-c.vapi')
-libtracker_sparql_c_vapi_dep = meson.get_compiler('vala').find_library('libtracker-sparql-intermediate-c', dirs: meson.current_source_dir())
+tracker_sparql_vapi = files('tracker-sparql.vapi')
+tracker_sparql_vapi_dep = meson.get_compiler('vala').find_library('tracker-sparql', dirs: meson.current_source_dir())
 
 libtracker_sparql_c_sources = files(
     'tracker-connection.c',
@@ -49,7 +49,7 @@ sparqlinc = [include_directories('.'), meson.current_build_dir()]
 tracker_sparql_intermediate_dep = declare_dependency(
     link_with: [libtracker_sparql_intermediate],
     include_directories: [srcinc, include_directories('.')],
-    dependencies: [ libtracker_sparql_c_vapi_dep ],
+    dependencies: [ tracker_sparql_vapi_dep ],
 )
 
 install_headers(
@@ -58,17 +58,11 @@ install_headers(
     'tracker-sparql.h',
     subdir: 'tracker-@0@/libtracker-sparql'.format(tracker_api_version))
 
-# FIXME: we can't depend properly on the generated .vapi to do this.
-tracker_sparql_vapi = custom_target('tracker-sparql-' + tracker_api_version + '.vapi',
-    #input: 'tracker-sparql-intermediate-vala.vapi',
-    output: 'tracker-sparql-' + tracker_api_version + '.vapi',
-    command: [
-        'sed', '-e', 's#libtracker-sparql/.*[.]h#libtracker-sparql/tracker-sparql.h#',
-        libtracker_sparql_c_vapi,
-    ],
-    capture: true,
-    install: true,
-    install_dir: vapi_dir)
+install_data(
+    tracker_sparql_vapi,
+    rename: ['tracker-sparql-' + tracker_api_version + '.vapi'],
+    install_dir: vapi_dir,
+)
 
 install_data(
     'tracker-sparql.deps',

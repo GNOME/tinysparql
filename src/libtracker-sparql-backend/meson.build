@@ -22,7 +22,7 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
 
     link_whole: [libtracker_sparql_intermediate],
 
-    dependencies: [tracker_common_dep, tracker_sparql_remote_dep, tracker_sparql_bus_dep, tracker_sparql_direct_dep, libtracker_sparql_c_vapi_dep],
+    dependencies: [tracker_common_dep, tracker_sparql_remote_dep, tracker_sparql_bus_dep, tracker_sparql_direct_dep, tracker_sparql_vapi_dep],
 )
 
 tracker_sparql_dep = declare_dependency(
