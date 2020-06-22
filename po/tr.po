@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-04-27 21:38+0000\n"
-"PO-Revision-Date: 2020-04-28 15:50+0300\n"
+"POT-Creation-Date: 2020-06-21 15:18+0000\n"
+"PO-Revision-Date: 2020-06-23 00:40+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -91,9 +91,9 @@ msgstr[0] " %2.2d saniye"
 msgid "the|a|an"
 msgstr "the|a|an"
 
-#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:41
+#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
-#: src/tracker/tracker-sparql.c:107 src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Veri tabanının konumu"
 
@@ -152,9 +152,9 @@ msgstr "DBus adı kaybedildi"
 msgid "Closing connection…"
 msgstr "Bağlantı kapatılıyor…"
 
-#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:231
+#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:305
 #: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
-#: src/tracker/tracker-sparql.c:1516 src/tracker/tracker-sql.c:231
+#: src/tracker/tracker-sparql.c:1546 src/tracker/tracker-sql.c:231
 msgid "Unrecognized options"
 msgstr "Tanınmayan seçenekler"
 
@@ -175,54 +175,58 @@ msgstr ""
 "Yeni veri tabanı oluşturuldu. Bu veri tabanını, ileti veri yolunda paylaşmak "
 "için --dbus-service seçeneğini kullan."
 
-#: src/tracker/tracker-export.c:42 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
 #: src/tracker/tracker-info.c:54 src/tracker/tracker-info.c:91
-#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:108
-#: src/tracker/tracker-sparql.c:120 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sparql.c:122 src/tracker/tracker-sql.c:45
 #: src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "DOSYA"
 
-#: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:49
-#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:111
+#: src/tracker/tracker-export.c:46 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:113
 msgid "Connects to a DBus service"
 msgstr "DBus hizmetine bağlanır"
 
-#: src/tracker/tracker-export.c:46 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:112
+#: src/tracker/tracker-export.c:47 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:114
 msgid "DBus service name"
 msgstr "DBus hizmet adı"
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:53
-#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:115
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:117
 msgid "Connects to a remote service"
 msgstr "Uzak hizmete bağlanır"
 
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:116
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:118
 msgid "Remote service URI"
 msgstr "Uzak hizmet URI’si"
 
+#: src/tracker/tracker-export.c:54
+msgid "Output TriG format which includes named graph information"
+msgstr "Adlandırılmış graf bilgisini içeren TriG biçiminde çıktıla"
+
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:76 src/tracker/tracker-import.c:83
-#: src/tracker/tracker-sparql.c:190
+#: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-sparql.c:196
 msgid "Specify one --database, --dbus-service or --remote-service option"
 msgstr ""
 "Şu seçeneklerden birini belirtin: --database, --dbus-service veya --remote-"
 "service"
 
-#: src/tracker/tracker-export.c:186 src/tracker/tracker-import.c:99
-#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1105
+#: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
 msgid "Could not establish a connection to Tracker"
 msgstr "Tracker uygulamasına bağlantı kurulamıyor"
 
-#: src/tracker/tracker-export.c:187 src/tracker/tracker-import.c:100
-#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:1106
+#: src/tracker/tracker-export.c:255 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:1112
 msgid "No error given"
 msgstr "Hata belirtilmedi"
 
-#: src/tracker/tracker-export.c:206 src/tracker/tracker-sparql.c:1456
+#: src/tracker/tracker-export.c:276 src/tracker/tracker-sparql.c:1486
 #: src/tracker/tracker-sql.c:132 src/tracker/tracker-sql.c:165
 msgid "Could not run query"
 msgstr "Sorgu çalıştırılamadı"
@@ -282,15 +286,15 @@ msgstr "URI için veri alınamadı"
 msgid "No metadata available for that URI"
 msgstr "Bu URI için bir üst veri kullanılabilir değil"
 
-#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1468
-#: src/tracker/tracker-sparql.c:1471 src/tracker/tracker-sql.c:139
+#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1498
+#: src/tracker/tracker-sparql.c:1501 src/tracker/tracker-sql.c:139
 msgid "Results"
 msgstr "Sonuçlar"
 
 #: src/tracker/tracker-main.c:44
-msgid "See “tracker help <command>” to read about a specific subcommand."
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
-"Belirli alt komut hakkında bilgi almak için “tracker help <command>” "
+"Belirli alt komut hakkında bilgi almak için “tracker3 help <komut>” "
 "komutuna göz atın."
 
 #: src/tracker/tracker-main.c:93
@@ -326,45 +330,44 @@ msgid "Query the database at the lowest level using SQL"
 msgstr "SQL kullanarak en düşük düzeyde veritabanını sorgula"
 
 #: src/tracker/tracker-main.c:139
-#, c-format
-msgid "“%s” is not a tracker command. See “tracker --help”"
-msgstr "“%s” bir tracker komutu değil. “tracker --help” göz atın"
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "“%s” bir tracker3 komutu değil. “tracker3 --help” göz atın"
 
 #: src/tracker/tracker-main.c:174
-msgid "Available tracker commands are:"
-msgstr "Kullanılabilir tracker komutları:"
+msgid "Available tracker3 commands are:"
+msgstr "Kullanılabilir tracker3 komutları:"
 
 #: src/tracker/tracker-main.c:212
 msgid "Additional / third party commands are:"
 msgstr "Ek / Üçüncü taraf komutlar:"
 
-#: src/tracker/tracker-sparql.c:119
+#: src/tracker/tracker-sparql.c:121
 msgid "Path to use to run a query or update from file"
 msgstr "Bir sorgunun çalışacağı veya dosyada güncelleneceği yol"
 
-#: src/tracker/tracker-sparql.c:123
+#: src/tracker/tracker-sparql.c:125
 msgid "SPARQL query"
 msgstr "SPARQL sorgusu"
 
-#: src/tracker/tracker-sparql.c:124
+#: src/tracker/tracker-sparql.c:126
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:127
+#: src/tracker/tracker-sparql.c:129
 msgid "This is used with --query and for database updates only."
 msgstr ""
 "--query ile birlikte kullanılır ve yalnızca veritabanı güncellemeleri "
 "içindir."
 
-#: src/tracker/tracker-sparql.c:131
+#: src/tracker/tracker-sparql.c:133
 msgid "Retrieve classes"
 msgstr "Sınıfları getir"
 
-#: src/tracker/tracker-sparql.c:135
+#: src/tracker/tracker-sparql.c:137
 msgid "Retrieve class prefixes"
 msgstr "Sınıf ön eklerini getir"
 
-#: src/tracker/tracker-sparql.c:139
+#: src/tracker/tracker-sparql.c:141
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -372,19 +375,19 @@ msgstr ""
 "Bir sınıf için özellikleri getir, ön ekler de kullanılabilir (örn. rdfs:"
 "Resource)"
 
-#: src/tracker/tracker-sparql.c:140 src/tracker/tracker-sparql.c:144
-#: src/tracker/tracker-sparql.c:152 src/tracker/tracker-sparql.c:160
-#: src/tracker/tracker-sparql.c:164
+#: src/tracker/tracker-sparql.c:142 src/tracker/tracker-sparql.c:146
+#: src/tracker/tracker-sparql.c:158 src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-sparql.c:170
 msgid "CLASS"
 msgstr "SINIF"
 
-#: src/tracker/tracker-sparql.c:143
+#: src/tracker/tracker-sparql.c:145
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Değişiklikleri veritabanına bildiren sınıfları getir (SINIF isteğe bağlıdır)"
 
-#: src/tracker/tracker-sparql.c:147
+#: src/tracker/tracker-sparql.c:149
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -392,11 +395,15 @@ msgstr ""
 "Veritabanının verimliliğini arttırmak için kullanılan indeksleri getir "
 "(ÖZELLİK isteğe bağlıdır)"
 
-#: src/tracker/tracker-sparql.c:148
+#: src/tracker/tracker-sparql.c:150
 msgid "PROPERTY"
 msgstr "ÖZELLİK"
 
-#: src/tracker/tracker-sparql.c:151
+#: src/tracker/tracker-sparql.c:153
+msgid "Retrieve all named graphs"
+msgstr "Tüm adlandırılmış grafları getir"
+
+#: src/tracker/tracker-sparql.c:157
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -404,37 +411,37 @@ msgstr ""
 "Alt sınıflar, süper sınıfları tanımla (ağacın bölümlerini vurgulamak için -s "
 "ve özellikleri göstermek için -p ile birlikte kullanılabilir)"
 
-#: src/tracker/tracker-sparql.c:155
+#: src/tracker/tracker-sparql.c:161
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Bir sınıf veya özellik için ara ve daha fazla bilgi göster (örn. Belge)"
 
-#: src/tracker/tracker-sparql.c:156
+#: src/tracker/tracker-sparql.c:162
 msgid "CLASS/PROPERTY"
 msgstr "SINIF/ÖZELLİK"
 
-#: src/tracker/tracker-sparql.c:159
+#: src/tracker/tracker-sparql.c:165
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Bir sınıfın kısaltılmış halini döner (örn. nfo:FileDataObject)."
 
-#: src/tracker/tracker-sparql.c:163
+#: src/tracker/tracker-sparql.c:169
 msgid "Returns the full namespace for a class."
 msgstr "Bir sınıfın tam ad alanını döner."
 
-#: src/tracker/tracker-sparql.c:223
+#: src/tracker/tracker-sparql.c:229
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Alan adı ön ekleri alınamıyor"
 
-#: src/tracker/tracker-sparql.c:231
+#: src/tracker/tracker-sparql.c:237
 msgid "No namespace prefixes were returned"
 msgstr "Dönen bir alan adı ön eki yok"
 
-#: src/tracker/tracker-sparql.c:277
+#: src/tracker/tracker-sparql.c:283
 msgid "Could not get namespace prefixes"
 msgstr "Ad alanı ön ekleri alınamadı"
 
-#: src/tracker/tracker-sparql.c:286
+#: src/tracker/tracker-sparql.c:292
 msgid "No namespace prefixes were found"
 msgstr "Hiçbir ad alanı ön eki bulunamadı"
 
@@ -442,125 +449,138 @@ msgstr "Hiçbir ad alanı ön eki bulunamadı"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:532 src/tracker/tracker-sparql.c:580
+#: src/tracker/tracker-sparql.c:538 src/tracker/tracker-sparql.c:586
 msgid "None"
 msgstr "Hiçbiri"
 
-#: src/tracker/tracker-sparql.c:986
+#: src/tracker/tracker-sparql.c:992
 msgid "Could not create tree: subclass query failed"
 msgstr "Ağaç oluşturulamadı: altsınıf sorgusu başarısız oldu"
 
-#: src/tracker/tracker-sparql.c:1035
+#: src/tracker/tracker-sparql.c:1041
 msgid "Could not create tree: class properties query failed"
 msgstr "Ağaç oluşturulamadı: sınıf özellikleri sorgusu başarısız oldu"
 
-#: src/tracker/tracker-sparql.c:1119
+#: src/tracker/tracker-sparql.c:1125
 msgid "Could not list classes"
 msgstr "Sınıflar listelenemedi"
 
-#: src/tracker/tracker-sparql.c:1127
+#: src/tracker/tracker-sparql.c:1133
 msgid "No classes were found"
 msgstr "Hiçbir sınıf bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1127 src/tracker/tracker-sparql.c:1318
+#: src/tracker/tracker-sparql.c:1133 src/tracker/tracker-sparql.c:1348
 msgid "Classes"
 msgstr "Sınıflar"
 
-#: src/tracker/tracker-sparql.c:1143
+#: src/tracker/tracker-sparql.c:1149
 msgid "Could not list class prefixes"
 msgstr "Sınıf ön ekleri listelenemedi"
 
-#: src/tracker/tracker-sparql.c:1151
+#: src/tracker/tracker-sparql.c:1157
 msgid "No class prefixes were found"
 msgstr "Hiçbir sınıf ön eki bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1151
+#: src/tracker/tracker-sparql.c:1157
 msgid "Prefixes"
 msgstr "Önekler"
 
-#: src/tracker/tracker-sparql.c:1171
+#: src/tracker/tracker-sparql.c:1177
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Sınıf ön eki için özellik bulunamadı, örn: “rdfs:Resource” içindeki Resource"
 
-#: src/tracker/tracker-sparql.c:1210
+#: src/tracker/tracker-sparql.c:1216
 msgid "Could not list properties"
 msgstr "Özellikler listelenemedi"
 
-#: src/tracker/tracker-sparql.c:1218
+#: src/tracker/tracker-sparql.c:1224
 msgid "No properties were found"
 msgstr "Hiçbir özellik bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1218 src/tracker/tracker-sparql.c:1341
+#: src/tracker/tracker-sparql.c:1224 src/tracker/tracker-sparql.c:1371
 msgid "Properties"
 msgstr "Özellikler"
 
-#: src/tracker/tracker-sparql.c:1246
+#: src/tracker/tracker-sparql.c:1252
 msgid "Could not find notify classes"
 msgstr "Bildirim sınıfları bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1254
+#: src/tracker/tracker-sparql.c:1260
 msgid "No notifies were found"
 msgstr "Hiçbir bildirim bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1254
+#: src/tracker/tracker-sparql.c:1260
 msgid "Notifies"
 msgstr "Bildirimler"
 
-#: src/tracker/tracker-sparql.c:1280
+#: src/tracker/tracker-sparql.c:1286
 msgid "Could not find indexed properties"
 msgstr "Dizinlenmiş özellikler bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1288
+#: src/tracker/tracker-sparql.c:1294
 msgid "No indexes were found"
 msgstr "Hiçbir dizinleme bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1288
+#: src/tracker/tracker-sparql.c:1294
 msgid "Indexes"
 msgstr "Dizinlemeler"
 
+# https://tr.wikipedia.org/wiki/Graf_(matematik)
 #: src/tracker/tracker-sparql.c:1310
+msgid "Could not list named graphs"
+msgstr "Adlandırılmış graflar listelenemedi"
+
+#: src/tracker/tracker-sparql.c:1318
+msgid "No graphs were found"
+msgstr "Hiçbir graf bulunamadı"
+
+#: src/tracker/tracker-sparql.c:1318
+msgid "Named graphs"
+msgstr "Adlandırılmış graflar"
+
+#: src/tracker/tracker-sparql.c:1340
 msgid "Could not search classes"
 msgstr "Sınıflar aranamadı"
 
-#: src/tracker/tracker-sparql.c:1318
+#: src/tracker/tracker-sparql.c:1348
 msgid "No classes were found to match search term"
 msgstr "Arama terimleriyle eşleşen hiçbir sınıf bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1333
+#: src/tracker/tracker-sparql.c:1363
 msgid "Could not search properties"
 msgstr "Özellikler aranamadı"
 
-#: src/tracker/tracker-sparql.c:1341
+#: src/tracker/tracker-sparql.c:1371
 msgid "No properties were found to match search term"
 msgstr "Arama terimleriyle eşleşen hiçbir özellik bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1377 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Yoldan UTF-8 yolu alınamadı"
 
-#: src/tracker/tracker-sparql.c:1389 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-sparql.c:1419 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Dosya okunamadı"
 
-#: src/tracker/tracker-sparql.c:1408
+#: src/tracker/tracker-sparql.c:1438
 msgid "Could not run update"
 msgstr "Güncelleme çalıştırılamadı"
 
-#: src/tracker/tracker-sparql.c:1415
+#: src/tracker/tracker-sparql.c:1445
 msgid "Done"
 msgstr "Tamamlandı"
 
-#: src/tracker/tracker-sparql.c:1468 src/tracker/tracker-sparql.c:1471
+#: src/tracker/tracker-sparql.c:1498 src/tracker/tracker-sparql.c:1501
 msgid "No results found matching your query"
 msgstr "Sorgunuzla eşleşen hiçbir sonuç bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1525 src/tracker/tracker-sql.c:242
+#: src/tracker/tracker-sparql.c:1555 src/tracker/tracker-sql.c:242
 msgid "File and query can not be used together"
 msgstr "Dosya ve sorgu birlikte kullanılamaz"
 
-#: src/tracker/tracker-sparql.c:1527
+#: src/tracker/tracker-sparql.c:1557
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -1503,9 +1523,6 @@ msgstr "Veri tabanı yolu belirtilmelidir"
 
 #~ msgid "Could not get all tags"
 #~ msgstr "Tüm etiketler alınamadı"
-
-#~ msgid "No tags were found"
-#~ msgstr "Hiçbir etiket bulunamadı"
 
 #~ msgid "Tags (shown by name)"
 #~ msgstr "Etiketler (ada göre gösteriliyor)"
