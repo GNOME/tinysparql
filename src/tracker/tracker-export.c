@@ -184,7 +184,7 @@ print_trig (TrackerSparqlCursor *cursor,
 	gchar *predicate;
 	gchar *object;
 	gchar *previous_graph = NULL;
-	const gchar *graph;
+	const gchar *graph = NULL;
 
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		graph = tracker_sparql_cursor_get_string (cursor, 0, NULL);
