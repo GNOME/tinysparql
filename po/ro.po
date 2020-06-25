@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-05-18 20:52+0000\n"
-"PO-Revision-Date: 2020-05-22 15:12+0300\n"
-"Last-Translator: Florentina Mușat <emryslokadottir [at] gmail [dot] com>\n"
+"POT-Creation-Date: 2020-06-21 15:18+0000\n"
+"PO-Revision-Date: 2020-06-25 12:12+0300\n"
+"Last-Translator: Florentina Mușat <florentina.musat.28@gmail.com>\n"
 "Language-Team: Romanian Gnome Team <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -298,9 +298,9 @@ msgid "Results"
 msgstr "Rezultate"
 
 #: src/tracker/tracker-main.c:44
-msgid "See “tracker help <command>” to read about a specific subcommand."
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
-"Consultați „tracker help <comandă>” pentru a citi despre o subcomandă "
+"Consultați „tracker3 help <command>” pentru a citi despre o subcomandă "
 "specifică."
 
 #: src/tracker/tracker-main.c:93
@@ -338,12 +338,12 @@ msgstr "Interoghează baza de date la cel mai scăzut nivel utilizând SQL"
 
 #: src/tracker/tracker-main.c:139
 #, c-format
-msgid "“%s” is not a tracker command. See “tracker --help”"
-msgstr "„%s” nu este o comandă tracker. Consultați „tracker --help”"
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "„%s” nu este o comandă tracker3. Consultați „tracker3 --help”"
 
 #: src/tracker/tracker-main.c:174
-msgid "Available tracker commands are:"
-msgstr "Comenzile tracker disponibile sunt:"
+msgid "Available tracker3 commands are:"
+msgstr "Comenzile tracker3 disponibile sunt:"
 
 #: src/tracker/tracker-main.c:212
 msgid "Additional / third party commands are:"
