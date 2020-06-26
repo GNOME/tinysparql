@@ -1,3 +1,21 @@
+NEW in 2.99.2 - 2020-06-26
+==========================
+  * Dropped priority argument from tracker_sparql_connection_update*()
+  * Better parser error messages
+  * SPARQL correctness fixes
+  * Fixes to tracker_sparql_cursor_is_bound() checks
+  * Ontology clean ups and sync ups with Nepomuk
+  * Fixed lifetime of blank node labels
+  * Fixes to recursive property paths
+  * Ensure property functions pick non NULL values
+  * Several fixes merge SERVICE{} data with the local graph pattern
+  * Add `tracker export --show-graphs` CLI subcommand to show available
+    graphs
+  * Parameter bindings within SERVICE{} clauses are now allowed
+  * Fixes to single/double quote escaping
+  * Fixes to make tracker-sandbox more usable in tests
+  * Many cleanups, memory leak and performance fixes
+
 NEW in 2.99.1 - 2020-05-03
 ==========================
 

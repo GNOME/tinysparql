@@ -1,5 +1,5 @@
 project('tracker', 'c', 'vala',
-        version: '2.99.1',
+        version: '2.99.2',
         meson_version: '>=0.50')
 
 gnome = import('gnome')
