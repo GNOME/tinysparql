@@ -766,10 +766,11 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
 
 	priv = tracker_notifier_get_instance_private (notifier);
 
-	subscription = tracker_notifier_subscription_new (notifier, connection,
-	                                                  service, object_path);
 	if (!object_path)
 		object_path = DEFAULT_OBJECT_PATH;
+
+	subscription = tracker_notifier_subscription_new (notifier, connection,
+	                                                  service, object_path);
 
 	subscription->handler_id =
 		g_dbus_connection_signal_subscribe (connection,
