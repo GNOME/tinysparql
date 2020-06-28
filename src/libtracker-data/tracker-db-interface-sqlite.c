@@ -3001,14 +3001,14 @@ tracker_db_statement_sqlite_release (TrackerDBStatement *stmt)
 
 	g_assert (stmt->stmt_is_owned);
 
+	stmt->stmt_is_owned = FALSE;
+
 	if (stmt->stmt_is_used) {
 		stmt->stmt_is_used = FALSE;
 		tracker_db_statement_sqlite_reset (stmt);
 		g_object_unref (stmt);
 		g_object_unref (iface);
 	}
-
-	stmt->stmt_is_owned = FALSE;
 }
 
 static void
