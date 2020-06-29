@@ -192,7 +192,7 @@ def main():
     log.info("Copying API reference documentation from %s", apidocs_src)
     apidocs_dest = output_path.joinpath('docs/api-preview')
     apidocs_dest.mkdir(parents=True)
-    for name in ['libtracker-sparql3', 'tracker3-nepomuk']:
+    for name in ['libtracker-sparql-3', 'ontology-3']:
         src = apidocs_src.joinpath(name)
         dest  = apidocs_dest.joinpath(name)
         if not src.exists():
