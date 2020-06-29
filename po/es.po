@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-05-18 20:52+0000\n"
-"PO-Revision-Date: 2020-05-20 12:03+0200\n"
+"POT-Creation-Date: 2020-06-21 15:18+0000\n"
+"PO-Revision-Date: 2020-06-29 15:49+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
 "Language: es_ES\n"
@@ -295,7 +295,8 @@ msgid "Results"
 msgstr "Resultados"
 
 #: src/tracker/tracker-main.c:44
-msgid "See “tracker help <command>” to read about a specific subcommand."
+#| msgid "See “tracker help <command>” to read about a specific subcommand."
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
 "Ejecute «tracker help <command>» para leer sobre un subcomando específico."
 
@@ -333,12 +334,14 @@ msgstr "Consultar la base de datos a bajo nivel usando SQL"
 
 #: src/tracker/tracker-main.c:139
 #, c-format
-msgid "“%s” is not a tracker command. See “tracker --help”"
-msgstr "«%s» no es un comando de Tracker. Consulte «tracker --help»"
+#| msgid "“%s” is not a tracker command. See “tracker --help”"
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "«%s» no es un comando de tracker3. Consulte «tracker3 --help»"
 
 #: src/tracker/tracker-main.c:174
-msgid "Available tracker commands are:"
-msgstr "Los comandos de Tracker disponibles son:"
+#| msgid "Available tracker commands are:"
+msgid "Available tracker3 commands are:"
+msgstr "Los comandos de tracker3 disponibles son:"
 
 #: src/tracker/tracker-main.c:212
 msgid "Additional / third party commands are:"
@@ -402,7 +405,6 @@ msgid "PROPERTY"
 msgstr "PROPIEDAD"
 
 #: src/tracker/tracker-sparql.c:153
-#| msgid "Retrieve classes"
 msgid "Retrieve all named graphs"
 msgstr "Obtener todos los grafos con nombre"
 
@@ -532,12 +534,10 @@ msgid "Indexes"
 msgstr "Índices"
 
 #: src/tracker/tracker-sparql.c:1310
-#| msgid "Could not list classes"
 msgid "Could not list named graphs"
 msgstr "No se pudieron lista los grafos con nombre"
 
 #: src/tracker/tracker-sparql.c:1318
-#| msgid "No tags were found"
 msgid "No graphs were found"
 msgstr "No se han encontrado grafos"
 
