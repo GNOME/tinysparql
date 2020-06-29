@@ -28,8 +28,6 @@
 #include "ttl_xml.h"
 #include "ttlresource2xml.h"
 
-#define TRACKER_ONTOLOGY_CLASS "http://tracker.api.gnome.org/ontology/v3/tracker#Ontology"
-
 static void
 class_get_parent_hierarchy (Ontology       *ontology,
                             const gchar    *class_name,
