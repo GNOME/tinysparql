@@ -98,10 +98,6 @@ struct TrackerDBInterface {
 	/* Used if TRACKER_DB_INTERFACE_USE_MUTEX is set */
 	GMutex mutex;
 
-	/* Wal */
-	TrackerDBWalCallback wal_hook;
-	gpointer wal_hook_data;
-
 	/* User data */
 	gpointer user_data;
 	GDestroyNotify user_data_destroy_notify;
@@ -2438,28 +2434,6 @@ tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
 		g_critical ("Couldn't set title collation function: %s",
 		            sqlite3_errmsg (db_interface->db));
 	}
-}
-
-static gint
-wal_hook (gpointer     user_data,
-          sqlite3     *db,
-          const gchar *db_name,
-          gint         n_pages)
-{
-	TrackerDBInterface *iface = user_data;
-
-	iface->wal_hook (iface, n_pages, iface->wal_hook_data);
-	return SQLITE_OK;
-}
-
-void
-tracker_db_interface_sqlite_wal_hook (TrackerDBInterface   *interface,
-                                      TrackerDBWalCallback  callback,
-                                      gpointer              user_data)
-{
-	interface->wal_hook = callback;
-	interface->wal_hook_data = user_data;
-	sqlite3_wal_hook (interface->db, wal_hook, interface);
 }
 
 gboolean
