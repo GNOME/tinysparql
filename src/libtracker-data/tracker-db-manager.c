@@ -1000,6 +1000,44 @@ tracker_db_manager_check_perform_vacuum (TrackerDBManager *db_manager)
 	tracker_db_interface_execute_query (iface, NULL, "VACUUM");
 }
 
+static gboolean
+ensure_create_database_file (TrackerDBManager  *db_manager,
+                             GFile             *file,
+                             GError           **error)
+{
+	TrackerDBInterface *iface;
+	GError *file_error = NULL;
+	gchar *path;
+
+	/* Ensure the database is created from scratch */
+	if (!g_file_delete (file, NULL, &file_error)) {
+		if (!g_error_matches (file_error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND)) {
+			g_propagate_error (error, file_error);
+			return FALSE;
+		}
+
+		g_clear_error (&file_error);
+	}
+
+	/* Create the database file in a separate interface, so we can
+	 * configure page_size and journal_mode outside a transaction, so
+	 * they apply throughout the whole lifetime.
+	 */
+	path = g_file_get_path (file);
+	iface = tracker_db_interface_sqlite_new (path,
+	                                         db_manager->shared_cache_key,
+	                                         0, error);
+	if (!iface)
+		return FALSE;
+
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d",
+	                                    db_manager->db.page_size);
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA journal_mode = WAL");
+
+	g_object_unref (iface);
+	return TRUE;
+}
+
 gboolean
 tracker_db_manager_attach_database (TrackerDBManager    *db_manager,
                                     TrackerDBInterface  *iface,
@@ -1018,17 +1056,9 @@ tracker_db_manager_attach_database (TrackerDBManager    *db_manager,
 		g_free (escaped);
 
 		if (create) {
-			GError *inner_error = NULL;
-
-			/* Create the database from scratch */
-			if (!g_file_delete (file, NULL, &inner_error)) {
-				if (!g_error_matches (inner_error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND)) {
-					g_object_unref (file);
-					g_propagate_error (error, inner_error);
-					return FALSE;
-				}
-
-				g_clear_error (&inner_error);
+			if (!ensure_create_database_file (db_manager, file, error)) {
+				g_object_unref (file);
+				return FALSE;
 			}
 		}
 	}
