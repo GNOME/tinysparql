@@ -53,9 +53,6 @@
 /* Required minimum space needed to create databases (5Mb) */
 #define TRACKER_DB_MIN_REQUIRED_SPACE 5242880
 
-/* Default memory settings for databases */
-#define TRACKER_DB_PAGE_SIZE_DONT_SET -1
-
 /* Set current database version we are working with */
 #define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_2_3
 
@@ -194,6 +191,9 @@ db_set_params (TrackerDBInterface   *iface,
 	GError *internal_error = NULL;
 	TrackerDBStatement *stmt;
 
+	TRACKER_NOTE (SQLITE, g_message ("  Setting page size to %d", page_size));
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".page_size = %d", database, page_size);
+
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".synchronous = NORMAL", database);
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".auto_vacuum = 0", database);
 
@@ -225,11 +225,6 @@ db_set_params (TrackerDBInterface   *iface,
 	}
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".journal_size_limit = 10240000", database);
-
-	if (page_size != TRACKER_DB_PAGE_SIZE_DONT_SET) {
-		TRACKER_NOTE (SQLITE, g_message ("  Setting page size to %d", page_size));
-		tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".page_size = %d", database, page_size);
-	}
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".cache_size = %d", database, cache_size);
 	TRACKER_NOTE (SQLITE, g_message ("  Setting cache size to %d", cache_size));
