@@ -600,7 +600,7 @@ print_ontology_class (Ontology      *ontology,
                       OntologyClass *klass,
                       FILE          *f)
 {
-	g_autofree gchar *name, *id;
+	g_autofree gchar *name = NULL, *id = NULL;
 
 	g_return_if_fail (f != NULL);
 
