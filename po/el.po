@@ -9,123 +9,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: el\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2019-01-19 20:26+0000\n"
-"PO-Revision-Date: 2019-01-20 23:25+0200\n"
-"Last-Translator: Efstathios Iosifidis <iosifidis@opensuse.org>\n"
+"POT-Creation-Date: 2020-06-21 15:18+0000\n"
+"PO-Revision-Date: 2020-07-15 20:18+0300\n"
+"Last-Translator: Efstathios Iosifidis <eiosifidis@gnome.org>\n"
 "Language-Team: Ελληνικά <>\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 1.8.7.1\n"
 "X-Project-Style: gnome\n"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:24
-msgid "Maximum size of journal"
-msgstr "Μέγιστο μέγεθος αρχείου καταγραφής"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:25
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr ""
-"Μέγεθος του αρχείου καταγραφής σε περιστροφή σε MB. Χρήση του -1 για "
-"απενεργοποίηση της περιστροφής."
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:29
-msgid "Location of journal pieces"
-msgstr "Θέση των τμημάτων της καταγραφής"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:30
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr ""
-"Θέση αποθήκευσης ενός τμήματος καταγραφής όταν φτάνει το μέγιστο μέγεθος."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
-msgid "Maximum length of a word to be indexed"
-msgstr "Μέγιστο μήκος μιας λέξης για ευρετηριοποίηση"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr ""
-"Λέξεις με λιγότερους χαρακτήρες από αυτό το μήκος θα αγνοηθούν από το "
-"ευρετήριο."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
-msgid "Maximum number of words to index in a document"
-msgstr "Μέγιστος αριθμός λέξεων για ευρετηριοποίηση σε ένα έγγραφο"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr ""
-"Το ευρετήριο θα διαβάσει μόνο αυτόν τον μέγιστο αριθμό των λέξεων από ένα "
-"μοναδικό έγγραφο."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
-msgid "Enable stemmer"
-msgstr "Ενεργοποίηση stemmer"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
-msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
-msgstr ""
-"Απλοποίηση των λέξεων στην ρίζα τους για παροχή περισσότερων αποτελεσμάτων. "
-"Π.χ. «ράφια» και «ράφι» σε «ράφ»"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
-msgid "Enable unaccent"
-msgstr "Ενεργοποίηση άτονων"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
-msgstr ""
-"Μετάφραση τονισμένων χαρακτήρων σε ισοδύναμους άτονους. Π.χ. «Ιδέα» σε "
-"«Ιδεα» για βελτιωμένη αντιστοίχηση."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
-msgid "Ignore numbers"
-msgstr "Παράβλεψη αριθμών"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
-msgid "If enabled, numbers will not be indexed."
-msgstr "Εάν ενεργοποιηθεί, οι αριθμοί δεν θα ευρετηριοποιηθούν."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
-msgid "Ignore stop words"
-msgstr "Παράβλεψη φιλτραρισμένων λέξεων"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
-msgstr ""
-"Εάν ενεργοποιηθεί, οι καταχωρημένες λέξεις στη λίστα κενών λέξεων θα "
-"αγνοηθούν. Π.χ. κοινές λέξεις όπως «το», «ναι», «όχι», κλπ."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:24
-msgid "Log verbosity"
-msgstr "Αρχείο καταγραφής με αναλυτική περιγραφή"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:25
-msgid "Log verbosity."
-msgstr "Αρχείο καταγραφής με αναλυτική περιγραφή"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:29
-msgid "GraphUpdated delay"
-msgstr "Καθυστέρηση ενημέρωσης γραφήματος"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:30
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-"Η περίοδος σε χιλιοστά δευτερολέπτου μεταξύ σημάτων ενημέρωσης γραφήματος "
-"που εκπέμπονται όταν ευρετηριοποιημένα δεδομένα έχουν αλλάξει μέσα στη βάση "
-"δεδομένων."
 
 # #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
 #
@@ -196,477 +90,943 @@ msgstr[1] " σε %2.2d δευτερόλεπτα"
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-data/tracker-collation.c:332
+#: src/libtracker-data/tracker-collation.c:333
 msgid "the|a|an"
 msgstr "το|ένα|μία"
 
-#: src/libtracker-data/tracker-data-backup.c:494
-#: src/libtracker-data/tracker-data-backup.c:634
-msgid "Error starting “tar” program"
-msgstr "Σφάλμα εκκίνησης του προγράμματος «tar»"
+#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
+#: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
+#: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
+msgid "Location of the database"
+msgstr "Τοποθεσία της βάσης δεδομένων"
 
-#: src/libtracker-data/tracker-data-backup.c:495
-#: src/libtracker-data/tracker-data-backup.c:635
-#: src/tracker/tracker-config.c:61 src/tracker/tracker-daemon.c:462
-#: src/tracker/tracker-daemon.c:483 src/tracker/tracker-daemon.c:708
-#: src/tracker/tracker-daemon.c:740 src/tracker/tracker-daemon.c:890
-#: src/tracker/tracker-daemon.c:948 src/tracker/tracker-daemon.c:983
-#: src/tracker/tracker-daemon.c:1052 src/tracker/tracker-daemon.c:1243
-#: src/tracker/tracker-daemon.c:1309 src/tracker/tracker-daemon.c:1670
-#: src/tracker/tracker-dbus.c:45 src/tracker/tracker-dbus.c:63
-#: src/tracker/tracker-index.c:123 src/tracker/tracker-index.c:155
-#: src/tracker/tracker-index.c:196 src/tracker/tracker-index.c:272
-#: src/tracker/tracker-index.c:329 src/tracker/tracker-info.c:264
-#: src/tracker/tracker-process.c:80 src/tracker/tracker-process.c:206
-#: src/tracker/tracker-process.c:335 src/tracker/tracker-process.c:356
-#: src/tracker/tracker-search.c:1581 src/tracker/tracker-sparql.c:173
-#: src/tracker/tracker-sparql.c:1087 src/tracker/tracker-status.c:74
-#: src/tracker/tracker-status.c:303 src/tracker/tracker-status.c:313
-#: src/tracker/tracker-status.c:387 src/tracker/tracker-status.c:432
-#: src/tracker/tracker-status.c:461 src/tracker/tracker-tag.c:977
+#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-endpoint.c:60
+msgid "DIR"
+msgstr "ΚΑΤΑΛΟΓΟΣ"
+
+#: src/tracker/tracker-endpoint.c:51
+msgid "Specify the DBus name of this endpoint"
+msgstr "Καθορίστε το όνομα DBus αυτού του τελικού σημείου"
+
+#: src/tracker/tracker-endpoint.c:52 src/tracker/tracker-endpoint.c:56
+msgid "NAME"
+msgstr "ΟΝΟΜΑ"
+
+#: src/tracker/tracker-endpoint.c:55
+msgid "Specify the ontology name used in this endpoint"
+msgstr ""
+"Καθορίστε το όνομα οντολογίας που χρησιμοποιείται σε αυτό το τελικό σημείο"
+
+#: src/tracker/tracker-endpoint.c:59
+msgid "Specify a path to an ontology to be used in this endpoint"
+msgstr ""
+"Καθορίστε μια διαδρομή για μια οντολογία που θα χρησιμοποιηθεί σε αυτό το "
+"τελικό σημείο"
+
+#: src/tracker/tracker-endpoint.c:63
+msgid "Use session bus"
+msgstr "Χρήση συνεδρίας διαύλου"
+
+#: src/tracker/tracker-endpoint.c:67
+msgid "Use system bus"
+msgstr "Χρήση διαύλου συστήματος"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:87
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr "Θα πρέπει να παρέχεται μία επιλογή «ontology» ή «ontology-path»"
+
+#: src/tracker/tracker-endpoint.c:129
+#, c-format
+msgid "Creating endpoint at %s…"
+msgstr "Δημιουργία τελικού σημείου στο %s…"
+
+#: src/tracker/tracker-endpoint.c:165
+msgid "Could not own DBus name"
+msgstr "Αδυναμία κατοχής ονόματος DBus"
+
+#: src/tracker/tracker-endpoint.c:169
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "Ακούγοντας εντολές SPARQL. Πατήστε Ctrl-C για διακοπή."
+
+#: src/tracker/tracker-endpoint.c:179
+msgid "DBus name lost"
+msgstr "Λίστα ονομάτων DBus"
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:184
+msgid "Closing connection…"
+msgstr "Κλείσιμο σύνδεσης…"
+
+#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:305
+#: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
+#: src/tracker/tracker-sparql.c:1546 src/tracker/tracker-sql.c:231
+msgid "Unrecognized options"
+msgstr "Άγνωστες επιλογές"
+
+#: src/tracker/tracker-endpoint.c:234
+#, c-format
+msgid "Opening database at %s…"
+msgstr "Άνοιγμα βάσης δεδομένων στο %s…"
+
+#: src/tracker/tracker-endpoint.c:237
+msgid "Creating in-memory database"
+msgstr "Δημιουργία βάσης δεδομένων στην μνήμη"
+
+#: src/tracker/tracker-endpoint.c:257
+msgid ""
+"New database created. Use the --dbus-service option to share this database "
+"on a message bus."
+msgstr ""
+"Δημιουργήθηκε νέα βάση δεδομένων. Χρησιμοποιήστε την επιλογή --dbus-service "
+"για να μοιραστείτε αυτήν τη βάση δεδομένων σε ένα μήνυμα διαύλου."
+
+#: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
+#: src/tracker/tracker-info.c:54 src/tracker/tracker-info.c:91
+#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sparql.c:122 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
+msgid "FILE"
+msgstr "ΑΡΧΕΙΟ"
+
+#: src/tracker/tracker-export.c:46 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:113
+msgid "Connects to a DBus service"
+msgstr "Συνδέεται στην υπηρεσία DBus"
+
+#: src/tracker/tracker-export.c:47 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:114
+msgid "DBus service name"
+msgstr "Όνομα υπηρεσίας DBus"
+
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:117
+msgid "Connects to a remote service"
+msgstr "Συνδέεται με απομακρυσμένη υπηρεσία"
+
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:118
+msgid "Remote service URI"
+msgstr "URI απομακρυσμένης υπηρεσίας"
+
+#: src/tracker/tracker-export.c:54
+msgid "Output TriG format which includes named graph information"
+msgstr "Μορφή TriG εξόδου που περιλαμβάνει πληροφορίες γραφήματος με όνομα"
+
+#. TRANSLATORS: Those are commandline arguments
+#: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-sparql.c:196
+msgid "Specify one --database, --dbus-service or --remote-service option"
+msgstr "Καθορίστε μια επιλογή --database, --dbus-service ή --remote-service"
+
+#: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
+msgid "Could not establish a connection to Tracker"
+msgstr "Αδυναμία σύνδεσης με το Tracker"
+
+#: src/tracker/tracker-export.c:255 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:1112
 msgid "No error given"
 msgstr "Δεν προέκυψε σφάλμα"
 
-#: src/libtracker-data/tracker-data-backup.c:648
+#: src/tracker/tracker-export.c:276 src/tracker/tracker-sparql.c:1486
+#: src/tracker/tracker-sql.c:132 src/tracker/tracker-sql.c:165
+msgid "Could not run query"
+msgstr "Αδυναμία εκτέλεσης ερωτήματος"
+
+#: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
 #, c-format
-msgid "Unknown error, “tar” exited with status %d"
-msgstr "Άγνωστο σφάλμα, το «tar» εξήλθε με κατάσταση %d"
+msgid "failed to exec “%s”: %s"
+msgstr "αποτυχία εκτέλεσης του «%s»: %s"
 
-#: src/libtracker-miner/tracker-data-provider.c:108
-#: src/libtracker-miner/tracker-data-provider.c:168
-msgid "Operation not supported"
-msgstr "Ανυποστήρικτη λειτουργία"
+#: src/tracker/tracker-import.c:117
+msgid "Could not run import"
+msgstr "Δεν ήταν δυνατή η εκτέλεση εισαγωγής"
 
-#: src/libtracker-miner/tracker-miner-proxy.c:346
-msgid "Cookie not recognized to resume paused miner"
+#: src/tracker/tracker-info.c:65
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 msgstr ""
-"Το cookie δεν αναγνωρίσθηκε για να ξαναρχίσει ο εξορύκτης που είναι σε παύση"
+"Εμφάνιση πλήρων χώρων ονόματος (δηλ. να μην γίνει χρήση του nie:title, να "
+"χρησιμοποιηθούν τα πλήρη URL)"
 
-#: src/libtracker-miner/tracker-miner-proxy.c:403
-msgid "Pause application and reason match an already existing pause request"
-msgstr ""
-"Η παύση της εφαρμογής και η αιτία ταιριάζουν με ένα ήδη υπάρχον αίτημα παύσης"
+#: src/tracker/tracker-info.c:69
+msgid "Show plain text content if available for resources"
+msgstr "Εμφάνιση περιεχομένου απλού κειμένου αν είναι διαθέσιμο για πόρους"
 
-#. Daemon options
-#: src/tracker-store/tracker-main.vala:60
-msgid "Displays version information"
-msgstr "Εμφανίζει πληροφορίες έκδοσης"
-
-#: src/tracker-store/tracker-main.vala:61
-msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
-"0)"
-msgstr ""
-"Καταγραφή, 0 = μόνο σφάλματα, 1 = ελάχιστα, 2= λεπτομερώς και 3 = "
-"αποσφαλμάτωση (προεπιλογή = 0)"
-
-#: src/tracker-store/tracker-main.vala:62
-msgid "Disable automatic shutdown"
-msgstr "Απενεργοποίηση αυτόματου τερματισμού"
-
-#. Indexer options
-#: src/tracker-store/tracker-main.vala:65
-msgid "Force a re-index of all content"
-msgstr "Εξαναγκασμός για επανα-ευρετηριοποίηση όλου του περιεχομένου"
-
-#: src/tracker-store/tracker-main.vala:66
-msgid "Only allow read based actions on the database"
-msgstr ""
-"Να επιτρέπονται ενέργειες μόνο βασισμένες στην ανάγνωση στην βάση δεδομένων"
-
-#: src/tracker-store/tracker-main.vala:67
-msgid "Load a specified domain ontology"
-msgstr "Φόρτωση μια συγκεκριμένης οντολογίας τομέα"
-
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#. To translators:
+#. * IRI (International Resource Identifier) is a generalization
+#. * of the URI. While URI supports only ASCI encoding, IRI
+#. * fully supports international characters. In practice, UTF-8
+#. * is the most popular encoding used for IRI.
 #.
-#: src/tracker-store/tracker-main.vala:229
-msgid "— start the tracker daemon"
-msgstr "— Εκκίνηση της υπηρεσίας tracker"
-
-#: src/tracker-store/tracker-store.desktop.in:3
-msgid "Tracker Store"
-msgstr "Αποθήκη του Tracker"
-
-#: src/tracker-store/tracker-store.desktop.in:4
-msgid "Metadata database store and lookup manager"
+#: src/tracker/tracker-info.c:79
+msgid ""
+"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
+"(e.g. <file:///path/to/some/file.txt>)"
 msgstr ""
-"Διαχειριστής αναζήτησης και αποθήκευσης μεταδεδομένων στη βάση δεδομένων"
+"Αντί την αναζήτηση ενός ονόματος αρχείου, αντιμετώπιση των επιχειρημάτων "
+"ΑΡΧΕΙΩΝ ως πραγματικά IRI (π.χ. <file:///path/to/some/file.txt>)"
 
-#: src/tracker/tracker-config.c:60
+#: src/tracker/tracker-info.c:83
+msgid "Output results as RDF in Turtle format"
+msgstr "Αποτελέσματα εξόδου ως RDF σε μορφή Turtle"
+
+#: src/tracker/tracker-info.c:87
+msgid "RDF property to treat as URL (eg. “nie:url”)"
+msgstr "Ιδιότητα RDF για μεταχείριση ως URL (π.χ. \"nie:url\")"
+
+#: src/tracker/tracker-info.c:334
+msgid "Querying information for entity"
+msgstr "Ερώτημα για πληροφορίες για την οντότητα"
+
+#: src/tracker/tracker-info.c:358
+msgid "Unable to retrieve URN for URI"
+msgstr "Αδυναμία ανάκτησης του URN για το URI"
+
+#: src/tracker/tracker-info.c:368 src/tracker/tracker-info.c:402
+msgid "Unable to retrieve data for URI"
+msgstr "Αδυναμία ανάκτησης των δεδομένων για το URI"
+
+#: src/tracker/tracker-info.c:411
+msgid "No metadata available for that URI"
+msgstr "Δεν είναι διαθέσιμα μεταδεδομένα για αυτό το URI"
+
+#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1498
+#: src/tracker/tracker-sparql.c:1501 src/tracker/tracker-sql.c:139
+msgid "Results"
+msgstr "Αποτελέσματα"
+
+#: src/tracker/tracker-main.c:44
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
+msgstr ""
+"Δείτε την «tracker3 help <command>» για να διαβάσετε σχετικά με μια "
+"συγκεκριμένη υποεντολή."
+
+#: src/tracker/tracker-main.c:93
+msgid "Get help on how to use Tracker and any of these commands"
+msgstr ""
+"Λήψη βοήθειας για τη χρήση του Tracker οποιασδήποτε από αυτές τις εντολές"
+
+#: src/tracker/tracker-main.c:94
+msgid "Create a SPARQL endpoint"
+msgstr "Δημιουργία τελικού σημείου SPARQL"
+
+#: src/tracker/tracker-main.c:95
+msgid "Export data from a Tracker database"
+msgstr "Εξαγωγή δεδομένων από την βάση δεδομένων Tracker"
+
+#: src/tracker/tracker-main.c:96
+msgid "Import data into a Tracker database"
+msgstr "Εισαγωγή δεδομένων σε μια βάση δεδομένων Tracker"
+
+#: src/tracker/tracker-main.c:97
+msgid "Show information known about local files or items indexed"
+msgstr ""
+"Να εμφανίζονται οι πληροφορίες που είναι γνωστές για τοπικά αρχεία ή "
+"στοιχεία από ευρετήριο"
+
+#: src/tracker/tracker-main.c:98
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"Ερώτηση και ενημέρωση του ευρετηρίου χρησιμοποιώντας SPARQL ή αναζήτηση, "
+"κατάλογο και δένδρο της οντολογίας"
+
+#: src/tracker/tracker-main.c:99
+msgid "Query the database at the lowest level using SQL"
+msgstr "Ερώτημα στη βάση δεδομένων στο πιο χαμηλό επίπεδο χρησιμοποιώντας SQL"
+
+#: src/tracker/tracker-main.c:139
 #, c-format
-msgid "Could not get GSettings for miners, manager could not be created, %s"
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "Το «%s» δεν είναι μια εντολή του tracker3. Δείτε «tracker --help»"
+
+#: src/tracker/tracker-main.c:174
+msgid "Available tracker3 commands are:"
+msgstr "Οι διαθέσιμες εντολές tracker3 είναι:"
+
+#: src/tracker/tracker-main.c:212
+msgid "Additional / third party commands are:"
+msgstr "Οι πρόσθετες / εντολές τρίτων είναι:"
+
+#: src/tracker/tracker-sparql.c:121
+msgid "Path to use to run a query or update from file"
 msgstr ""
-"Αδυναμία λήψης GSettings για εξορύκτες, ο διαχειριστής δεν μπόρεσε να "
-"δημιουργηθεί, %s"
+"Χρησιμοποιούμενη διαδρομή εκτέλεσης ενός ερωτήματος ή ενημέρωσης από αρχείο"
 
-#: src/tracker/tracker-daemon.c:121 src/tracker/tracker-daemon.c:429
-msgid "Unavailable"
-msgstr "Μη διαθέσιμο"
+#: src/tracker/tracker-sparql.c:125
+msgid "SPARQL query"
+msgstr "Ερώτημα SPARQL"
 
-#. generic
-#: src/tracker/tracker-daemon.c:122
-msgid "Initializing"
-msgstr "Αρχικοποίηση"
+#: src/tracker/tracker-sparql.c:126
+msgid "SPARQL"
+msgstr "SPARQL"
 
-#: src/tracker/tracker-daemon.c:123
-msgid "Processing…"
-msgstr "Επεξεργασία…"
+#: src/tracker/tracker-sparql.c:129
+msgid "This is used with --query and for database updates only."
+msgstr ""
+"Αυτό χρησιμοποιείται με το --query και μόνο για την ενημέρωση της βάσης "
+"δεδομένων."
 
-#: src/tracker/tracker-daemon.c:124
-msgid "Fetching…"
-msgstr "Ανάκτηση…"
+#: src/tracker/tracker-sparql.c:133
+msgid "Retrieve classes"
+msgstr "Ανάκτηση κλάσεων"
 
-#. miner/rss
-#: src/tracker/tracker-daemon.c:125
-#, c-format
-msgid "Crawling single directory “%s”"
-msgstr "Σάρωση μοναδικού καταλόγου «%s»"
+#: src/tracker/tracker-sparql.c:137
+msgid "Retrieve class prefixes"
+msgstr "Ανάκτηση προθεμάτων κλάσης"
 
-#: src/tracker/tracker-daemon.c:126
-#, c-format
-msgid "Crawling recursively directory “%s”"
-msgstr "Αναδρομική σάρωση του καταλόγου «%s»"
-
-#: src/tracker/tracker-daemon.c:127
-msgid "Paused"
-msgstr "Έγινε παύση"
-
-#: src/tracker/tracker-daemon.c:128
-msgid "Idle"
-msgstr "Αδρανής"
-
-#: src/tracker/tracker-daemon.c:134
-msgid "Follow status changes as they happen"
-msgstr "Παρακολούθηση αλλαγών κατάστασης καθώς συμβαίνουν"
-
-#: src/tracker/tracker-daemon.c:138
+#: src/tracker/tracker-sparql.c:141
 msgid ""
-"Watch changes to the database in real time (e.g. resources or files being "
-"added)"
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+"Resource)"
 msgstr ""
-"Παρακολούθηση των αλλαγών στη βάση δεδομένων σε πραγματικό χρόνο (π.χ. πόροι "
-"ή προστιθέμενα αρχεία)"
+"Ανάκτηση ιδιοτήτων για μια κλάση, επίσης μπορείτε να χρησιμοποιήσετε "
+"προθέματα (π.χ. rdfs:Resource)"
 
-#: src/tracker/tracker-daemon.c:139
-msgid "ONTOLOGY"
-msgstr "ΟΝΤΟΛΟΓΙΑ"
+#: src/tracker/tracker-sparql.c:142 src/tracker/tracker-sparql.c:146
+#: src/tracker/tracker-sparql.c:158 src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-sparql.c:170
+msgid "CLASS"
+msgstr "ΚΛΑΣΗ"
 
-#: src/tracker/tracker-daemon.c:142
-msgid "List common statuses for miners and the store"
-msgstr "Κατάλογος συνήθων καταστάσεων για τους εξορύκτες και την αποθήκη"
-
-#: src/tracker/tracker-daemon.c:147
-msgid "Pause a miner (you must use this with --miner)"
-msgstr "Παύση ενός εξορύκτη (θα πρέπει να γίνει χρήση του με --miner)"
-
-#: src/tracker/tracker-daemon.c:148 src/tracker/tracker-daemon.c:152
-msgid "REASON"
-msgstr "ΛΟΓΟΣ"
-
-#: src/tracker/tracker-daemon.c:151
+#: src/tracker/tracker-sparql.c:145
 msgid ""
-"Pause a miner while the calling process is alive or until resumed (you must "
-"use this with --miner)"
+"Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
-"Παύση ενός εξορύκτη ενώ η καλούσα διεργασία είναι ζωντανή ή μέχρι τη "
-"συνέχισή της (θα πρέπει να το χρησιμοποιήσετε με --miner)"
+"Ανάκτηση κλάσεων που ενημερώνουν για αλλαγές στην βάση δεδομένων (Η ΚΛΑΣΗ "
+"είναι προαιρετική)"
 
-#: src/tracker/tracker-daemon.c:155
-msgid "Resume a miner (you must use this with --miner)"
-msgstr "Συνέχιση ενός εξορύκτη (πρέπει να το χρησιμοποιήσετε με --miner)"
-
-#: src/tracker/tracker-daemon.c:156
-msgid "COOKIE"
-msgstr "COOKIE"
-
-#: src/tracker/tracker-daemon.c:159
+#: src/tracker/tracker-sparql.c:149
 msgid ""
-"Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
-"Applications)"
+"Retrieve indexes used in database to improve performance (PROPERTY is "
+"optional)"
 msgstr ""
-"Χρήση εξορύκτη με --resume ή --pause (μπορείτε να χρησιμοποιήσετε "
-"καταλήξεις, π.χ. αρχεία ή εφαρμογές)"
+"Ανάκτηση ευρετηρίων που χρησιμοποιούνται στη βάση δεδομένων για την βελτίωση "
+"της απόδοσης (το PROPERTY είναι προαιρετικό) "
 
-#: src/tracker/tracker-daemon.c:160
-msgid "MINER"
-msgstr "ΕΞΟΡΥΚΤΗΣ"
+#: src/tracker/tracker-sparql.c:150
+msgid "PROPERTY"
+msgstr "ΙΔΙΟΤΗΤΑ"
 
-#: src/tracker/tracker-daemon.c:163
-msgid "List all miners currently running"
-msgstr "Κατάλογος όλων των εξορυκτών που εκτελούνται τώρα"
+#: src/tracker/tracker-sparql.c:153
+msgid "Retrieve all named graphs"
+msgstr "Ανάκτηση όλων των γραφημάτων με ονόματα"
 
-#
-#: src/tracker/tracker-daemon.c:167
-msgid "List all miners installed"
-msgstr "Κατάλογος όλων των εγκατεστημένων εξορυκτών"
-
-#: src/tracker/tracker-daemon.c:171
-msgid "List pause reasons"
-msgstr "Κατάλογων των αιτιών παύσης"
-
-#: src/tracker/tracker-daemon.c:176
-msgid "List all Tracker processes"
-msgstr "Προβολή όλων των διεργασιών του Tracker"
-
-#: src/tracker/tracker-daemon.c:178
+#: src/tracker/tracker-sparql.c:157
 msgid ""
-"Use SIGKILL to stop all matching processes, either “store”, “miners” or "
-"“all” may be used, no parameter equals “all”"
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
 msgstr ""
-"Χρησιμοποιήστε SIGKILL για τερματισμό όλων των σύμφωνων διεργασιών, είτε "
-"μπορεί να χρησιμοποιηθούν η «store» (αποθήκευση), «miners» (εξορύκτες) ή "
-"«all» (όλα), καμιά όμως παράμετρος δεν ισοδυναμεί με «all»"
+"Περιγραφή υπο-κλάσεων και υπερ-κλάσεων (μπορεί να χρησιμοποιηθεί με το -s "
+"για να τονίσει κάποια τμήματα του δένδρου και με το -p για να δείξει τις "
+"ιδιότητες)"
 
-#: src/tracker/tracker-daemon.c:179 src/tracker/tracker-daemon.c:182
-msgid "APPS"
-msgstr "ΕΦΑΡΜΟΓΕΣ"
-
-#: src/tracker/tracker-daemon.c:181
+#: src/tracker/tracker-sparql.c:161
 msgid ""
-"Use SIGTERM to stop all matching processes, either “store”, “miners” or "
-"“all” may be used, no parameter equals “all”"
+"Search for a class or property and display more information (e.g. Document)"
 msgstr ""
-"Χρησιμοποιήστε SIGTERM για τερματισμό όλων των σύμφωνων διεργασιών, είτε "
-"μπορεί να χρησιμοποιηθούν η «store» (αποθήκευση), «miners» (εξορύκτες) ή "
-"«all» (όλα), καμιά όμως παράμετρος δεν ισοδυναμεί με «all»"
+"Αναζήτηση για κλάση ή ιδιότητα και προβολή περισσότερων πληροφοριών (π.χ. "
+"έγγραφο)"
 
-#: src/tracker/tracker-daemon.c:184
-msgid "Starts miners (which indirectly starts tracker-store too)"
-msgstr "Εκκινεί εξορύκτες (που έμμεσα εκκινεί και την αποθήκη του tracker)"
+#: src/tracker/tracker-sparql.c:162
+msgid "CLASS/PROPERTY"
+msgstr "ΚΛΑΣΗ/ΙΔΙΟΤΗΤΑ"
 
-#: src/tracker/tracker-daemon.c:187 src/tracker/tracker-extract.c:42
-msgid ""
-"Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
-"“errors”) for all processes"
-msgstr ""
-"Ορισμός της περιγραφής σύνδεσης σε LEVEL («debug», «detailed», «minimal», "
-"«errors») για όλες τις διεργασίες"
+#: src/tracker/tracker-sparql.c:165
+msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+msgstr "Επιστρέφει τη συντομογραφία για μια κλάση (π.χ. nfo:FileDataObject)."
 
-#: src/tracker/tracker-daemon.c:188 src/tracker/tracker-extract.c:43
-msgid "LEVEL"
-msgstr "ΕΠΙΠΕΔΟ"
+#: src/tracker/tracker-sparql.c:169
+msgid "Returns the full namespace for a class."
+msgstr "Επιστρέφει το πλήρες όνομα χώρου (namespace) για μια κλάση"
 
-#: src/tracker/tracker-daemon.c:190
-msgid "Show logging values in terms of log verbosity for each process"
-msgstr ""
-"Εμφάνιση τιμών ημερολογίου με όρους περιγραφής σύνδεσης για κάθε διεργασία"
-
-#: src/tracker/tracker-daemon.c:264
-#, c-format
-msgid "Could not get status from miner: %s"
-msgstr "Αδυναμία λήψης κατάστασης του εξορύκτη: %s"
-
-#. Translators: %s is a time string
-#: src/tracker/tracker-daemon.c:326
-#, c-format
-msgid "%s remaining"
-msgstr "απομένει %s"
-
-# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
-#
-#: src/tracker/tracker-daemon.c:329
-msgid "unknown time left"
-msgstr "άγνωστος χρόνος απομένει"
-
-#. Work out lengths for output spacing
-#: src/tracker/tracker-daemon.c:342 src/tracker/tracker-daemon.c:1319
-msgid "PAUSED"
-msgstr "ΣΕ ΠΑΥΣΗ"
-
-#: src/tracker/tracker-daemon.c:359
-msgid "Not running or is a disabled plugin"
-msgstr "Το πρόσθετο δεν εκτελείται ή είναι απενεργοποιημένο"
-
-#: src/tracker/tracker-daemon.c:461
-msgid "Could not retrieve tracker-store status"
-msgstr "Αδύνατη η ανάκτηση κατάστασης της αποθήκης του tracker"
-
-#: src/tracker/tracker-daemon.c:482
-msgid "Could not retrieve tracker-store progress"
-msgstr "Αδύνατη η ανάκτηση προόδου της αποθήκης του tracker"
-
-#: src/tracker/tracker-daemon.c:612 src/tracker/tracker-sparql.c:200
+#: src/tracker/tracker-sparql.c:229
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Αδυναμία ανάκτησης προθεμάτων των χώρων ονομάτων"
 
-#: src/tracker/tracker-daemon.c:620 src/tracker/tracker-sparql.c:208
+#: src/tracker/tracker-sparql.c:237
 msgid "No namespace prefixes were returned"
 msgstr "Δεν επιστράφηκαν τα προθέματα των χώρων ονομάτων"
 
-#: src/tracker/tracker-daemon.c:699 src/tracker/tracker-daemon.c:726
-msgid "Could not run SPARQL query"
-msgstr "Αδύνατη η εκτέλεση ερωτήματος SPARQL"
+#: src/tracker/tracker-sparql.c:283
+msgid "Could not get namespace prefixes"
+msgstr "Αδυναμία λήψης προθεμάτων για τον χώρο ονομάτων"
 
-#: src/tracker/tracker-daemon.c:707 src/tracker/tracker-daemon.c:739
-msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
-msgstr "Αδύνατη η κλήση του tracker_sparql_cursor_next() σε ερώτημα SPARQL"
+#: src/tracker/tracker-sparql.c:292
+msgid "No namespace prefixes were found"
+msgstr "Δεν βρέθηκαν προθέματα για χώρο ονομάτων"
 
-#: src/tracker/tracker-daemon.c:889
-#, c-format
-msgid "Could not pause miner, manager could not be created, %s"
-msgstr "Αδυναμία παύσης εξορύκτη, αδυναμία δημιουργίας διαχειριστή, %s"
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/tracker/tracker-sparql.c:538 src/tracker/tracker-sparql.c:586
+msgid "None"
+msgstr "Κανένα"
 
-#: src/tracker/tracker-daemon.c:896
-#, c-format
-msgid "Attempting to pause miner “%s” with reason “%s”"
-msgstr "Προσπάθεια παύσης της εξόρυξης «%s» για τον λόγο «%s»"
+#: src/tracker/tracker-sparql.c:992
+msgid "Could not create tree: subclass query failed"
+msgstr "Αδυναμία δημιουργίας του δένδρου: αποτυχία του ερωτήματος για υποκλάση"
 
-#: src/tracker/tracker-daemon.c:904 src/tracker/tracker-daemon.c:910
-#, c-format
-msgid "Could not pause miner: %s"
-msgstr "Αδυναμία παύσης εξορύκτη: %s"
+#: src/tracker/tracker-sparql.c:1041
+msgid "Could not create tree: class properties query failed"
+msgstr ""
+"Αδυναμία δημιουργίας του δένδρου: αποτυχία του ερωτήματος για ιδιότητες "
+"κλάσης"
 
-#: src/tracker/tracker-daemon.c:916
-#, c-format
-msgid "Cookie is %d"
-msgstr "Το Cookie είναι %d"
+#: src/tracker/tracker-sparql.c:1125
+msgid "Could not list classes"
+msgstr "Αδυναμία προβολής της λίστας των κλάσεων"
 
-#: src/tracker/tracker-daemon.c:923 src/tracker/tracker-daemon.c:1276
-#: src/tracker/tracker-daemon.c:1420
-msgid "Press Ctrl+C to stop"
-msgstr "Πατήστε Ctrl+C για να σταματήσετε"
+#: src/tracker/tracker-sparql.c:1133
+msgid "No classes were found"
+msgstr "Δεν βρέθηκαν κλάσεις"
 
-#: src/tracker/tracker-daemon.c:947
-#, c-format
-msgid "Could not resume miner, manager could not be created, %s"
-msgstr "Αδυναμία συνέχισης εξορύκτη, αδυναμία δημιουργίας διαχειριστή, %s"
+#: src/tracker/tracker-sparql.c:1133 src/tracker/tracker-sparql.c:1348
+msgid "Classes"
+msgstr "Κλάσεις"
 
-#: src/tracker/tracker-daemon.c:954
-#, c-format
-msgid "Attempting to resume miner %s with cookie %d"
-msgstr "Προσπάθεια συνέχισης του εξορύκτη %s με το cookie %d"
+#: src/tracker/tracker-sparql.c:1149
+msgid "Could not list class prefixes"
+msgstr "Αδυναμία προβολής της λίστας των προθεμάτων της κλάσης"
 
-#: src/tracker/tracker-daemon.c:961
-#, c-format
-msgid "Could not resume miner: %s"
-msgstr "Αδυναμία συνέχισης εξορύκτη: %s"
+#: src/tracker/tracker-sparql.c:1157
+msgid "No class prefixes were found"
+msgstr "Δεν βρέθηκαν προθέματα κλάσεων"
 
-#: src/tracker/tracker-daemon.c:965 src/tracker/tracker-index.c:222
-#: src/tracker/tracker-sparql.c:1396
+# #-#-#-#-#  gimp.gimp-2-4.el.po (el)  #-#-#-#-#
+#: src/tracker/tracker-sparql.c:1157
+msgid "Prefixes"
+msgstr "Προθέματα"
+
+#: src/tracker/tracker-sparql.c:1177
+msgid ""
+"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
+msgstr ""
+"Αδυναμία εύρεσης ιδιότητας για πρόθεμα κλάσης, π.χ. Πηγές στο «rdfs:Resource»"
+
+#: src/tracker/tracker-sparql.c:1216
+msgid "Could not list properties"
+msgstr "Αδυναμία προβολής λίστας με τις ιδιότητες"
+
+#: src/tracker/tracker-sparql.c:1224
+msgid "No properties were found"
+msgstr "Δεν βρέθηκαν ιδιότητες"
+
+#: src/tracker/tracker-sparql.c:1224 src/tracker/tracker-sparql.c:1371
+msgid "Properties"
+msgstr "Ιδιότητες"
+
+#: src/tracker/tracker-sparql.c:1252
+msgid "Could not find notify classes"
+msgstr "Αδυναμία εύρεσης κλάσεων ειδοποίησης"
+
+#: src/tracker/tracker-sparql.c:1260
+msgid "No notifies were found"
+msgstr "Δεν βρέθηκαν ειδοποιήσεις"
+
+#: src/tracker/tracker-sparql.c:1260
+msgid "Notifies"
+msgstr "Ειδοποιήσεις"
+
+#: src/tracker/tracker-sparql.c:1286
+msgid "Could not find indexed properties"
+msgstr "Αδυναμία εύρεσης ευρετηριοποιημένων ιδιοτήτων"
+
+#: src/tracker/tracker-sparql.c:1294
+msgid "No indexes were found"
+msgstr "Δεν βρέθηκαν ευρετήρια"
+
+#: src/tracker/tracker-sparql.c:1294
+msgid "Indexes"
+msgstr "Ευρετήρια"
+
+#: src/tracker/tracker-sparql.c:1310
+msgid "Could not list named graphs"
+msgstr "Αδυναμία προβολής της λίστας γραφημάτων με ονόματα"
+
+#: src/tracker/tracker-sparql.c:1318
+msgid "No graphs were found"
+msgstr "Δεν βρέθηκαν γραφικά"
+
+#: src/tracker/tracker-sparql.c:1318
+msgid "Named graphs"
+msgstr "Γραφήματα μη ονόματα"
+
+#: src/tracker/tracker-sparql.c:1340
+msgid "Could not search classes"
+msgstr "Αδυναμία αναζήτησης κλάσεων"
+
+#: src/tracker/tracker-sparql.c:1348
+msgid "No classes were found to match search term"
+msgstr "Δεν βρέθηκαν κλάσεις που να ταιριάζουν με τον όρο αναζήτησης"
+
+#: src/tracker/tracker-sparql.c:1363
+msgid "Could not search properties"
+msgstr "Αδυναμία αναζήτησης ιδιοτήτων"
+
+#: src/tracker/tracker-sparql.c:1371
+msgid "No properties were found to match search term"
+msgstr "Δεν βρέθηκαν ιδιότητες που να ταιριάζουν με τον όρο αναζήτησης"
+
+#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:70
+msgid "Could not get UTF-8 path from path"
+msgstr "Αδυναμία λήψης της διαδρομής UTF-8 από διαδρομή"
+
+#: src/tracker/tracker-sparql.c:1419 src/tracker/tracker-sql.c:81
+msgid "Could not read file"
+msgstr "Αδυναμία ανάγνωσης του αρχείου"
+
+#: src/tracker/tracker-sparql.c:1438
+msgid "Could not run update"
+msgstr "Αδυναμία εκτέλεσης ενημέρωσης"
+
+#: src/tracker/tracker-sparql.c:1445
 msgid "Done"
 msgstr "Ολοκληρώθηκε"
 
-#: src/tracker/tracker-daemon.c:982
-#, c-format
-msgid "Could not list miners, manager could not be created, %s"
-msgstr "Αδυναμία καταχώρισης εξορυκτών, αδυναμία δημιουργίας διαχειριστή, %s"
+#: src/tracker/tracker-sparql.c:1498 src/tracker/tracker-sparql.c:1501
+msgid "No results found matching your query"
+msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν στο ερώτημά σας"
 
-#: src/tracker/tracker-daemon.c:996
-#, c-format
-msgid "Found %d miner installed"
-msgid_plural "Found %d miners installed"
-msgstr[0] "Βρέθηκε %d εγκατεστημένος εξορύκτης"
-msgstr[1] "Βρέθηκαν %d εγκατεστημένοι εξορύκτες"
+#: src/tracker/tracker-sparql.c:1555 src/tracker/tracker-sql.c:242
+msgid "File and query can not be used together"
+msgstr "Το αρχείο και το ερώτημα δεν μπορούν να χρησιμοποιηθούν ταυτόχρονα"
 
-#: src/tracker/tracker-daemon.c:1019
-#, c-format
-msgid "Found %d miner running"
-msgid_plural "Found %d miners running"
-msgstr[0] "Βρέθηκε %d εκτελούμενος εξορύκτης"
-msgstr[1] "Βρέθηκαν %d εκτελούμενοι εξορύκτες"
-
-#: src/tracker/tracker-daemon.c:1051
-#, c-format
-msgid "Could not get pause details, manager could not be created, %s"
+#: src/tracker/tracker-sparql.c:1557
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
 msgstr ""
-"Αδυναμία λήψης λεπτομερειών παύσης, αδυναμία δημιουργίας διαχειριστή, %s"
+"Το όρισμα --list-properties μπορεί να είναι κενό μόνο όταν χρησιμοποιείται "
+"με το όρισμα --tree"
 
-#: src/tracker/tracker-daemon.c:1061
-msgid "No miners are running"
-msgstr "Δεν εκτελείται κανένας εξορύκτης"
+#: src/tracker/tracker-sql.c:48
+msgid "Path to use to run a query from file"
+msgstr "Χρησιμοποιούμενη διαδρομή εκτέλεσης ενός ερωτήματος από αρχείο"
 
-#: src/tracker/tracker-daemon.c:1101 src/tracker/tracker-daemon.c:1355
-#: src/tracker/tracker-daemon.c:1604 src/tracker/tracker-daemon.c:1647
-msgid "Miners"
-msgstr "Εξορύκτες"
+#: src/tracker/tracker-sql.c:52
+msgid "SQL query"
+msgstr "Ερώτημα SQL"
 
-#: src/tracker/tracker-daemon.c:1108
-msgid "Application"
-msgstr "Εφαρμογή"
+#: src/tracker/tracker-sql.c:53
+msgid "SQL"
+msgstr "SQL"
 
-#: src/tracker/tracker-daemon.c:1110
-msgid "Reason"
-msgstr "Αιτία"
+#: src/tracker/tracker-sql.c:113
+msgid "Failed to initialize data manager"
+msgstr "Αποτυχία αρχικοποίησης διαχειριστή δεδομένων"
 
-#: src/tracker/tracker-daemon.c:1119
-msgid "No miners are paused"
-msgstr "Δεν υπάρχουν εξορύκτες σε παύση"
+#: src/tracker/tracker-sql.c:173
+msgid "Empty result set"
+msgstr "Κενό σύνολο αποτελέσματος"
 
-#: src/tracker/tracker-daemon.c:1207
-msgid "Only one of “all”, “store” and “miners” options are allowed"
-msgstr "Επιτρέπεται μόνο μία από τις επιλογές «all», «store» και «miners»"
+#: src/tracker/tracker-sql.c:240
+msgid "A database path must be specified"
+msgstr "Πρέπει να καθοριστεί μια διαδρομή βάσης δεδομένων"
 
-#: src/tracker/tracker-daemon.c:1242
-msgid "Could not get SPARQL connection"
-msgstr "Αδύνατη η σύνδεση με το SPARQL"
+#~ msgid "Maximum size of journal"
+#~ msgstr "Μέγιστο μέγεθος αρχείου καταγραφής"
 
-#: src/tracker/tracker-daemon.c:1274
-msgid "Now listening for resource updates to the database"
-msgstr "Τώρα ακούει τις ενημερώσεις της πηγής στη βάση δεδομένων"
+#~ msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+#~ msgstr ""
+#~ "Μέγεθος του αρχείου καταγραφής σε περιστροφή σε MB. Χρήση του -1 για "
+#~ "απενεργοποίηση της περιστροφής."
 
-#: src/tracker/tracker-daemon.c:1275
-msgid "All nie:plainTextContent properties are omitted"
-msgstr "Παραλείπονται όλες οι ιδιότητες του nie:plainTextContent"
+#~ msgid "Location of journal pieces"
+#~ msgstr "Θέση των τμημάτων της καταγραφής"
 
-#: src/tracker/tracker-daemon.c:1290
-msgid "Common statuses include"
-msgstr "Οι συνήθεις καταστάσεις περιλαμβάνουν"
+#~ msgid "Where to store a journal chunk when it hits the max size."
+#~ msgstr ""
+#~ "Θέση αποθήκευσης ενός τμήματος καταγραφής όταν φτάνει το μέγιστο μέγεθος."
 
-#: src/tracker/tracker-daemon.c:1308 src/tracker/tracker-status.c:460
-#, c-format
-msgid "Could not get status, manager could not be created, %s"
-msgstr "Αδυναμία λήψης κατάστασης, αδυναμία δημιουργίας διαχειριστή, %s"
+#~ msgid "Maximum length of a word to be indexed"
+#~ msgstr "Μέγιστο μήκος μιας λέξης για ευρετηριοποίηση"
 
-#. Display states
-#: src/tracker/tracker-daemon.c:1329
-msgid "Store"
-msgstr "Αποθήκη"
+#~ msgid ""
+#~ "Words with more characters than this length will be ignored by the "
+#~ "indexer."
+#~ msgstr ""
+#~ "Λέξεις με λιγότερους χαρακτήρες από αυτό το μήκος θα αγνοηθούν από το "
+#~ "ευρετήριο."
 
-#: src/tracker/tracker-daemon.c:1363
-#, c-format
-msgid "Could not get display name for miner “%s”"
-msgstr "Αδύνατη η λήψη ονόματος εμφάνισης για τον εξορύκτη του «%s»"
+#~ msgid "Maximum number of words to index in a document"
+#~ msgstr "Μέγιστος αριθμός λέξεων για ευρετηριοποίηση σε ένα έγγραφο"
 
-#: src/tracker/tracker-daemon.c:1461
-msgid "You can not use miner pause and resume switches together"
-msgstr ""
-"Αδύνατο να χρησιμοποιήσετε μαζί την παύση εξορύκτη και την συνέχιση διακοπτών"
+#~ msgid ""
+#~ "Indexer will read only this maximum number of words from a single "
+#~ "document."
+#~ msgstr ""
+#~ "Το ευρετήριο θα διαβάσει μόνο αυτόν τον μέγιστο αριθμό των λέξεων από ένα "
+#~ "μοναδικό έγγραφο."
 
-#: src/tracker/tracker-daemon.c:1467
-msgid "You must provide the miner for pause or resume commands"
-msgstr "Πρέπει να παύσετε τον εξορύκτη ή να συνεχίσετε τις εντολές"
+#~ msgid "Enable stemmer"
+#~ msgstr "Ενεργοποίηση stemmer"
 
-#: src/tracker/tracker-daemon.c:1473
-msgid "You must provide a pause or resume command for the miner"
-msgstr "Πρέπει να παύσετε ή να συνεχίσετε την εντολή για τον εξορύκτη"
+#~ msgid ""
+#~ "Simplify the words to their root to provide more results. E.g. “shelves” "
+#~ "and “shelf” to “shel”"
+#~ msgstr ""
+#~ "Απλοποίηση των λέξεων στην ρίζα τους για παροχή περισσότερων "
+#~ "αποτελεσμάτων. Π.χ. «ράφια» και «ράφι» σε «ράφ»"
 
-#: src/tracker/tracker-daemon.c:1509
-msgid "You can not use the --kill and --terminate arguments together"
-msgstr "Αδυναμία χρήσης των ορισμάτων --kill και --terminate μαζί"
+#~ msgid "Enable unaccent"
+#~ msgstr "Ενεργοποίηση άτονων"
 
-#: src/tracker/tracker-daemon.c:1515
-msgid "You can not use the --get-logging and --set-logging arguments together"
-msgstr "Αδυναμία χρήσης των ορισμάτων --get-logging και --set-logging μαζί"
+#~ msgid ""
+#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” "
+#~ "to “Idea” for improved matching."
+#~ msgstr ""
+#~ "Μετάφραση τονισμένων χαρακτήρων σε ισοδύναμους άτονους. Π.χ. «Ιδέα» σε "
+#~ "«Ιδεα» για βελτιωμένη αντιστοίχηση."
 
-#: src/tracker/tracker-daemon.c:1530 src/tracker/tracker-extract.c:105
-msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
-msgstr ""
-"Μη έγκυρη περιγραφή ιστορικού, δοκιμάστε «debug», «detailed», «minimal» ή "
-"«errors»"
+#~ msgid "Ignore numbers"
+#~ msgstr "Παράβλεψη αριθμών"
 
-#: src/tracker/tracker-daemon.c:1558 src/tracker/tracker-process.c:305
-#, c-format
-msgid "Found %d PID…"
-msgid_plural "Found %d PIDs…"
-msgstr[0] "Βρέθηκαν %d PID…"
-msgstr[1] "Βρέθηκαν %d PIDs…"
+#~ msgid "If enabled, numbers will not be indexed."
+#~ msgstr "Εάν ενεργοποιηθεί, οι αριθμοί δεν θα ευρετηριοποιηθούν."
 
-#: src/tracker/tracker-daemon.c:1568
-#, c-format
-msgid "Found process ID %d for “%s”"
-msgstr "Βρέθηκε η ταυτότητα της διεργασίας %d για το «%s»"
+#~ msgid "Ignore stop words"
+#~ msgstr "Παράβλεψη φιλτραρισμένων λέξεων"
+
+#~ msgid ""
+#~ "If enabled, the words listed in the stop-words list are ignored. E.g. "
+#~ "common words like “the”, “yes”, “no”, etc."
+#~ msgstr ""
+#~ "Εάν ενεργοποιηθεί, οι καταχωρημένες λέξεις στη λίστα κενών λέξεων θα "
+#~ "αγνοηθούν. Π.χ. κοινές λέξεις όπως «το», «ναι», «όχι», κλπ."
+
+#~ msgid "Log verbosity"
+#~ msgstr "Αρχείο καταγραφής με αναλυτική περιγραφή"
+
+#~ msgid "Log verbosity."
+#~ msgstr "Αρχείο καταγραφής με αναλυτική περιγραφή"
+
+#~ msgid "GraphUpdated delay"
+#~ msgstr "Καθυστέρηση ενημέρωσης γραφήματος"
+
+#~ msgid ""
+#~ "Period in milliseconds between GraphUpdated signals being emitted when "
+#~ "indexed data has changed inside the database."
+#~ msgstr ""
+#~ "Η περίοδος σε χιλιοστά δευτερολέπτου μεταξύ σημάτων ενημέρωσης γραφήματος "
+#~ "που εκπέμπονται όταν ευρετηριοποιημένα δεδομένα έχουν αλλάξει μέσα στη "
+#~ "βάση δεδομένων."
+
+#~ msgid "Error starting “tar” program"
+#~ msgstr "Σφάλμα εκκίνησης του προγράμματος «tar»"
+
+#~ msgid "Unknown error, “tar” exited with status %d"
+#~ msgstr "Άγνωστο σφάλμα, το «tar» εξήλθε με κατάσταση %d"
+
+#~ msgid "Operation not supported"
+#~ msgstr "Ανυποστήρικτη λειτουργία"
+
+#~ msgid "Cookie not recognized to resume paused miner"
+#~ msgstr ""
+#~ "Το cookie δεν αναγνωρίσθηκε για να ξαναρχίσει ο εξορύκτης που είναι σε "
+#~ "παύση"
+
+#~ msgid "Pause application and reason match an already existing pause request"
+#~ msgstr ""
+#~ "Η παύση της εφαρμογής και η αιτία ταιριάζουν με ένα ήδη υπάρχον αίτημα "
+#~ "παύσης"
+
+#~ msgid "Displays version information"
+#~ msgstr "Εμφανίζει πληροφορίες έκδοσης"
+
+#~ msgid ""
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default = 0)"
+#~ msgstr ""
+#~ "Καταγραφή, 0 = μόνο σφάλματα, 1 = ελάχιστα, 2= λεπτομερώς και 3 = "
+#~ "αποσφαλμάτωση (προεπιλογή = 0)"
+
+#~ msgid "Disable automatic shutdown"
+#~ msgstr "Απενεργοποίηση αυτόματου τερματισμού"
+
+#~ msgid "Force a re-index of all content"
+#~ msgstr "Εξαναγκασμός για επανα-ευρετηριοποίηση όλου του περιεχομένου"
+
+#~ msgid "Load a specified domain ontology"
+#~ msgstr "Φόρτωση μια συγκεκριμένης οντολογίας τομέα"
+
+#~ msgid "— start the tracker daemon"
+#~ msgstr "— Εκκίνηση της υπηρεσίας tracker"
+
+#~ msgid "Tracker Store"
+#~ msgstr "Αποθήκη του Tracker"
+
+#~ msgid "Metadata database store and lookup manager"
+#~ msgstr ""
+#~ "Διαχειριστής αναζήτησης και αποθήκευσης μεταδεδομένων στη βάση δεδομένων"
+
+#~ msgid "Could not get GSettings for miners, manager could not be created, %s"
+#~ msgstr ""
+#~ "Αδυναμία λήψης GSettings για εξορύκτες, ο διαχειριστής δεν μπόρεσε να "
+#~ "δημιουργηθεί, %s"
+
+#~ msgid "Unavailable"
+#~ msgstr "Μη διαθέσιμο"
+
+#~ msgid "Initializing"
+#~ msgstr "Αρχικοποίηση"
+
+#~ msgid "Processing…"
+#~ msgstr "Επεξεργασία…"
+
+#~ msgid "Fetching…"
+#~ msgstr "Ανάκτηση…"
+
+#~ msgid "Crawling single directory “%s”"
+#~ msgstr "Σάρωση μοναδικού καταλόγου «%s»"
+
+#~ msgid "Crawling recursively directory “%s”"
+#~ msgstr "Αναδρομική σάρωση του καταλόγου «%s»"
+
+#~ msgid "Paused"
+#~ msgstr "Έγινε παύση"
+
+#~ msgid "Idle"
+#~ msgstr "Αδρανής"
+
+#~ msgid "Follow status changes as they happen"
+#~ msgstr "Παρακολούθηση αλλαγών κατάστασης καθώς συμβαίνουν"
+
+#~ msgid ""
+#~ "Watch changes to the database in real time (e.g. resources or files being "
+#~ "added)"
+#~ msgstr ""
+#~ "Παρακολούθηση των αλλαγών στη βάση δεδομένων σε πραγματικό χρόνο (π.χ. "
+#~ "πόροι ή προστιθέμενα αρχεία)"
+
+#~ msgid "ONTOLOGY"
+#~ msgstr "ΟΝΤΟΛΟΓΙΑ"
+
+#~ msgid "List common statuses for miners and the store"
+#~ msgstr "Κατάλογος συνήθων καταστάσεων για τους εξορύκτες και την αποθήκη"
+
+#~ msgid "Pause a miner (you must use this with --miner)"
+#~ msgstr "Παύση ενός εξορύκτη (θα πρέπει να γίνει χρήση του με --miner)"
+
+#~ msgid "REASON"
+#~ msgstr "ΛΟΓΟΣ"
+
+#~ msgid ""
+#~ "Pause a miner while the calling process is alive or until resumed (you "
+#~ "must use this with --miner)"
+#~ msgstr ""
+#~ "Παύση ενός εξορύκτη ενώ η καλούσα διεργασία είναι ζωντανή ή μέχρι τη "
+#~ "συνέχισή της (θα πρέπει να το χρησιμοποιήσετε με --miner)"
+
+#~ msgid "Resume a miner (you must use this with --miner)"
+#~ msgstr "Συνέχιση ενός εξορύκτη (πρέπει να το χρησιμοποιήσετε με --miner)"
+
+#~ msgid "COOKIE"
+#~ msgstr "COOKIE"
+
+#~ msgid ""
+#~ "Miner to use with --resume or --pause (you can use suffixes, e.g. Files "
+#~ "or Applications)"
+#~ msgstr ""
+#~ "Χρήση εξορύκτη με --resume ή --pause (μπορείτε να χρησιμοποιήσετε "
+#~ "καταλήξεις, π.χ. αρχεία ή εφαρμογές)"
+
+#~ msgid "MINER"
+#~ msgstr "ΕΞΟΡΥΚΤΗΣ"
+
+#~ msgid "List all miners currently running"
+#~ msgstr "Κατάλογος όλων των εξορυκτών που εκτελούνται τώρα"
+
+#
+#~ msgid "List all miners installed"
+#~ msgstr "Κατάλογος όλων των εγκατεστημένων εξορυκτών"
+
+#~ msgid "List pause reasons"
+#~ msgstr "Κατάλογων των αιτιών παύσης"
+
+#~ msgid "List all Tracker processes"
+#~ msgstr "Προβολή όλων των διεργασιών του Tracker"
+
+#~ msgid ""
+#~ "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
+#~ "“all” may be used, no parameter equals “all”"
+#~ msgstr ""
+#~ "Χρησιμοποιήστε SIGKILL για τερματισμό όλων των σύμφωνων διεργασιών, είτε "
+#~ "μπορεί να χρησιμοποιηθούν η «store» (αποθήκευση), «miners» (εξορύκτες) ή "
+#~ "«all» (όλα), καμιά όμως παράμετρος δεν ισοδυναμεί με «all»"
+
+#~ msgid "APPS"
+#~ msgstr "ΕΦΑΡΜΟΓΕΣ"
+
+#~ msgid ""
+#~ "Use SIGTERM to stop all matching processes, either “store”, “miners” or "
+#~ "“all” may be used, no parameter equals “all”"
+#~ msgstr ""
+#~ "Χρησιμοποιήστε SIGTERM για τερματισμό όλων των σύμφωνων διεργασιών, είτε "
+#~ "μπορεί να χρησιμοποιηθούν η «store» (αποθήκευση), «miners» (εξορύκτες) ή "
+#~ "«all» (όλα), καμιά όμως παράμετρος δεν ισοδυναμεί με «all»"
+
+#~ msgid "Starts miners (which indirectly starts tracker-store too)"
+#~ msgstr "Εκκινεί εξορύκτες (που έμμεσα εκκινεί και την αποθήκη του tracker)"
+
+#~ msgid ""
+#~ "Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
+#~ "“errors”) for all processes"
+#~ msgstr ""
+#~ "Ορισμός της περιγραφής σύνδεσης σε LEVEL («debug», «detailed», «minimal», "
+#~ "«errors») για όλες τις διεργασίες"
+
+#~ msgid "LEVEL"
+#~ msgstr "ΕΠΙΠΕΔΟ"
+
+#~ msgid "Show logging values in terms of log verbosity for each process"
+#~ msgstr ""
+#~ "Εμφάνιση τιμών ημερολογίου με όρους περιγραφής σύνδεσης για κάθε διεργασία"
+
+#~ msgid "Could not get status from miner: %s"
+#~ msgstr "Αδυναμία λήψης κατάστασης του εξορύκτη: %s"
+
+#~ msgid "%s remaining"
+#~ msgstr "απομένει %s"
+
+# #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
+#
+#~ msgid "unknown time left"
+#~ msgstr "άγνωστος χρόνος απομένει"
+
+#~ msgid "PAUSED"
+#~ msgstr "ΣΕ ΠΑΥΣΗ"
+
+#~ msgid "Not running or is a disabled plugin"
+#~ msgstr "Το πρόσθετο δεν εκτελείται ή είναι απενεργοποιημένο"
+
+#~ msgid "Could not retrieve tracker-store status"
+#~ msgstr "Αδύνατη η ανάκτηση κατάστασης της αποθήκης του tracker"
+
+#~ msgid "Could not retrieve tracker-store progress"
+#~ msgstr "Αδύνατη η ανάκτηση προόδου της αποθήκης του tracker"
+
+#~ msgid "Could not run SPARQL query"
+#~ msgstr "Αδύνατη η εκτέλεση ερωτήματος SPARQL"
+
+#~ msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
+#~ msgstr "Αδύνατη η κλήση του tracker_sparql_cursor_next() σε ερώτημα SPARQL"
+
+#~ msgid "Could not pause miner, manager could not be created, %s"
+#~ msgstr "Αδυναμία παύσης εξορύκτη, αδυναμία δημιουργίας διαχειριστή, %s"
+
+#~ msgid "Attempting to pause miner “%s” with reason “%s”"
+#~ msgstr "Προσπάθεια παύσης της εξόρυξης «%s» για τον λόγο «%s»"
+
+#~ msgid "Could not pause miner: %s"
+#~ msgstr "Αδυναμία παύσης εξορύκτη: %s"
+
+#~ msgid "Cookie is %d"
+#~ msgstr "Το Cookie είναι %d"
+
+#~ msgid "Press Ctrl+C to stop"
+#~ msgstr "Πατήστε Ctrl+C για να σταματήσετε"
+
+#~ msgid "Could not resume miner, manager could not be created, %s"
+#~ msgstr "Αδυναμία συνέχισης εξορύκτη, αδυναμία δημιουργίας διαχειριστή, %s"
+
+#~ msgid "Attempting to resume miner %s with cookie %d"
+#~ msgstr "Προσπάθεια συνέχισης του εξορύκτη %s με το cookie %d"
+
+#~ msgid "Could not resume miner: %s"
+#~ msgstr "Αδυναμία συνέχισης εξορύκτη: %s"
+
+#~ msgid "Could not list miners, manager could not be created, %s"
+#~ msgstr ""
+#~ "Αδυναμία καταχώρισης εξορυκτών, αδυναμία δημιουργίας διαχειριστή, %s"
+
+#~ msgid "Found %d miner installed"
+#~ msgid_plural "Found %d miners installed"
+#~ msgstr[0] "Βρέθηκε %d εγκατεστημένος εξορύκτης"
+#~ msgstr[1] "Βρέθηκαν %d εγκατεστημένοι εξορύκτες"
+
+#~ msgid "Found %d miner running"
+#~ msgid_plural "Found %d miners running"
+#~ msgstr[0] "Βρέθηκε %d εκτελούμενος εξορύκτης"
+#~ msgstr[1] "Βρέθηκαν %d εκτελούμενοι εξορύκτες"
+
+#~ msgid "Could not get pause details, manager could not be created, %s"
+#~ msgstr ""
+#~ "Αδυναμία λήψης λεπτομερειών παύσης, αδυναμία δημιουργίας διαχειριστή, %s"
+
+#~ msgid "No miners are running"
+#~ msgstr "Δεν εκτελείται κανένας εξορύκτης"
+
+#~ msgid "Miners"
+#~ msgstr "Εξορύκτες"
+
+#~ msgid "Application"
+#~ msgstr "Εφαρμογή"
+
+#~ msgid "Reason"
+#~ msgstr "Αιτία"
+
+#~ msgid "No miners are paused"
+#~ msgstr "Δεν υπάρχουν εξορύκτες σε παύση"
+
+#~ msgid "Only one of “all”, “store” and “miners” options are allowed"
+#~ msgstr "Επιτρέπεται μόνο μία από τις επιλογές «all», «store» και «miners»"
+
+#~ msgid "Could not get SPARQL connection"
+#~ msgstr "Αδύνατη η σύνδεση με το SPARQL"
+
+#~ msgid "Now listening for resource updates to the database"
+#~ msgstr "Τώρα ακούει τις ενημερώσεις της πηγής στη βάση δεδομένων"
+
+#~ msgid "All nie:plainTextContent properties are omitted"
+#~ msgstr "Παραλείπονται όλες οι ιδιότητες του nie:plainTextContent"
+
+#~ msgid "Common statuses include"
+#~ msgstr "Οι συνήθεις καταστάσεις περιλαμβάνουν"
+
+#~ msgid "Could not get status, manager could not be created, %s"
+#~ msgstr "Αδυναμία λήψης κατάστασης, αδυναμία δημιουργίας διαχειριστή, %s"
+
+#~ msgid "Store"
+#~ msgstr "Αποθήκη"
+
+#~ msgid "Could not get display name for miner “%s”"
+#~ msgstr "Αδύνατη η λήψη ονόματος εμφάνισης για τον εξορύκτη του «%s»"
+
+#~ msgid "You can not use miner pause and resume switches together"
+#~ msgstr ""
+#~ "Αδύνατο να χρησιμοποιήσετε μαζί την παύση εξορύκτη και την συνέχιση "
+#~ "διακοπτών"
+
+#~ msgid "You must provide the miner for pause or resume commands"
+#~ msgstr "Πρέπει να παύσετε τον εξορύκτη ή να συνεχίσετε τις εντολές"
+
+#~ msgid "You must provide a pause or resume command for the miner"
+#~ msgstr "Πρέπει να παύσετε ή να συνεχίσετε την εντολή για τον εξορύκτη"
+
+#~ msgid "You can not use the --kill and --terminate arguments together"
+#~ msgstr "Αδυναμία χρήσης των ορισμάτων --kill και --terminate μαζί"
+
+#~ msgid ""
+#~ "You can not use the --get-logging and --set-logging arguments together"
+#~ msgstr "Αδυναμία χρήσης των ορισμάτων --get-logging και --set-logging μαζί"
+
+#~ msgid ""
+#~ "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
+#~ msgstr ""
+#~ "Μη έγκυρη περιγραφή ιστορικού, δοκιμάστε «debug», «detailed», «minimal» ή "
+#~ "«errors»"
+
+#~ msgid "Found %d PID…"
+#~ msgid_plural "Found %d PIDs…"
+#~ msgstr[0] "Βρέθηκαν %d PID…"
+#~ msgstr[1] "Βρέθηκαν %d PIDs…"
+
+#~ msgid "Found process ID %d for “%s”"
+#~ msgstr "Βρέθηκε η ταυτότητα της διεργασίας %d για το «%s»"
 
 # #-#-#-#-#  gnome-icon-theme.HEAD.el.po (el)  #-#-#-#-#
 # 48x48/emblems/emblem-documents.icon.in.h:1
@@ -677,562 +1037,345 @@ msgstr "Βρέθηκε η ταυτότητα της διεργασίας %d γι
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
 # 48x48/emblems/emblem-documents.icon.in.h:1
-#: src/tracker/tracker-daemon.c:1598 src/tracker/tracker-daemon.c:1641
-msgid "Components"
-msgstr "Συστατικά στοιχεία"
-
-#: src/tracker/tracker-daemon.c:1605 src/tracker/tracker-daemon.c:1648
-msgid "Only those with config listed"
-msgstr "Μόνο αυτά που έχουν λίστα config"
-
-#: src/tracker/tracker-daemon.c:1624
-#, c-format
-msgid "Setting log verbosity for all components to “%s”…"
-msgstr "Ρύθμιση περιγραφής ιστορικού για όλα τα συστατικά στοιχεία στο «%s»…"
-
-#: src/tracker/tracker-daemon.c:1664
-msgid "Starting miners…"
-msgstr "Εκκίνηση των εξορυκτών…"
-
-#: src/tracker/tracker-daemon.c:1669
-#, c-format
-msgid "Could not start miners, manager could not be created, %s"
-msgstr "Αδυναμία εκκίνησης των εξορυκτών, αδυναμία δημιουργίας διαχειριστή, %s"
-
-#: src/tracker/tracker-daemon.c:1694
-msgid "perhaps a disabled plugin?"
-msgstr "ίσως ένα απενεργοποιημένο πρόσθετο;"
-
-#: src/tracker/tracker-daemon.c:1738
-msgid ""
-"If no arguments are given, the status of the store and data miners is shown"
-msgstr ""
-"Αν δεν δίνεται κανένα όρισμα, εμφανίζεται η κατάσταση αποθήκευσης και "
-"εξόρυξης δεδομένων"
-
-#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
-#: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:384 src/tracker/tracker-search.c:1778
-#: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
-#: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
-msgid "Unrecognized options"
-msgstr "Άγνωστες επιλογές"
-
-#: src/tracker/tracker-dbus.c:44
-msgid "Could not get D-Bus connection"
-msgstr "Αδύνατη η σύνδεση με D-Bus"
-
-#: src/tracker/tracker-dbus.c:62
-msgid "Could not create D-Bus proxy to tracker-store"
-msgstr "Αδύνατη η δημιουργία διαμεσολαβητή D-Bus στην αποθήκη του tracker"
-
-#: src/tracker/tracker-extract.c:45
-msgid "Output results format: “sparql”, “turtle” or “json-ld”"
-msgstr "Αποτελέσματα εξόδου: «sparql», «turtle» ή «json-ld»"
-
-#: src/tracker/tracker-extract.c:46
-msgid "FORMAT"
-msgstr "ΜΟΡΦΗ"
-
-#: src/tracker/tracker-extract.c:48 src/tracker/tracker-extract.c:49
-#: src/tracker/tracker-index.c:60 src/tracker/tracker-index.c:71
-#: src/tracker/tracker-index.c:72 src/tracker/tracker-info.c:71
-#: src/tracker/tracker-info.c:72 src/tracker/tracker-reset.c:63
-#: src/tracker/tracker-sparql.c:106 src/tracker/tracker-sql.c:44
-msgid "FILE"
-msgstr "ΑΡΧΕΙΟ"
-
-#: src/tracker/tracker-extract.c:77
-msgid "Could not run tracker-extract: "
-msgstr "Αδυναμία εκτέλεσης του tracker-extract: "
-
-#: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "αποτυχία εκτέλεσης του «%s»: %s"
-
-#: src/tracker/tracker-index.c:56
-msgid ""
-"Tell miners to reindex files which match the mime type supplied (for new "
-"extractors), use -m MIME1 -m MIME2"
-msgstr ""
-"Πείτε στους εξορύκτες να κάνουν επαναευρετηριοποίηση των αρχείων που "
-"ταιριάζουν με τον παρεχόμενο τύπο mime (για νέους εξαγωγείς), χρησιμοποιήστε "
-"-m MIME1, -m MIME2"
-
-#: src/tracker/tracker-index.c:57
-msgid "MIME"
-msgstr "MIME"
-
-#: src/tracker/tracker-index.c:59
-msgid "Tell miners to (re)index a given file"
-msgstr ""
-"Πείτε στους εξορύκτες να κάνουν (επανα)ευρετηριοποίηση στο δεδομένο αρχείο"
-
-#: src/tracker/tracker-index.c:62
-msgid "Backup current index / database to the file provided"
-msgstr ""
-"Αντίγραφο ασφαλείας τρέχοντος δείκτη / βάσης δεδομένων στο παρεχόμενο αρχείο"
-
-#: src/tracker/tracker-index.c:65
-msgid "Restore a database from a previous backup (see --backup)"
-msgstr ""
-"Επαναφορά βάσης δεδομένων από προηγούμενο αντίγραφο ασφαλείας (δείτε --"
-"backup)"
-
-#: src/tracker/tracker-index.c:68
-msgid "Import a dataset from the provided file (in Turtle format)"
-msgstr "Εισαγωγή συνόλου δεδομένων από το παρεχόμενο αρχείο (σε μορφή Turtle)"
-
-#: src/tracker/tracker-index.c:122
-#, c-format
-msgid "Could not reindex mimetypes, manager could not be created, %s"
-msgstr ""
-"Αδυναμία επαναευρετηριοποίησης τύπων mime, αδυναμία δημιουργίας διαχειριστή, "
-"%s"
-
-#: src/tracker/tracker-index.c:132
-msgid "Could not reindex mimetypes"
-msgstr "Αδυναμία επαναευρετηριοποίησης των τύπων MIME"
-
-#: src/tracker/tracker-index.c:138
-msgid "Reindexing mime types was successful"
-msgstr "Η επαναευρετηριοποίηση των τύπων mime ήταν επιτυχής"
-
-#: src/tracker/tracker-index.c:154
-#, c-format
-msgid "Could not (re)index file, manager could not be created, %s"
-msgstr ""
-"Αδυναμία (επανα)ευρετηριοποίησης αρχείου, αδυναμία δημιουργίας διαχειριστή, "
-"%s"
-
-#: src/tracker/tracker-index.c:169
-msgid "Could not (re)index file"
-msgstr "Αδυναμία (επανα)ευρετηριοποίησης του αρχείου"
-
-#: src/tracker/tracker-index.c:175
-msgid "(Re)indexing file was successful"
-msgstr "Η (επανα)ευρετηριοποίηση του αρχείου ήταν επιτυχής"
-
-#: src/tracker/tracker-index.c:195 src/tracker/tracker-info.c:263
-#: src/tracker/tracker-search.c:1580 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086 src/tracker/tracker-status.c:73
-#: src/tracker/tracker-status.c:386 src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "Αδυναμία σύνδεσης με το Tracker"
-
-#: src/tracker/tracker-index.c:206
-msgid "Importing Turtle file"
-msgstr "Εισαγωγή αρχείου Turtle"
-
-#: src/tracker/tracker-index.c:215
-msgid "Unable to import Turtle file"
-msgstr "Αδύνατη η εισαγωγή αρχείου Turtle"
-
-#: src/tracker/tracker-index.c:251
-msgid "Backing up database"
-msgstr "Δημιουργία αντίγραφου ασφαλείας της βάσης δεδομένων"
-
-#: src/tracker/tracker-index.c:271 src/tracker/tracker-index.c:328
-msgid "Could not backup database"
-msgstr "Αδύνατη η δημιουργία αντιγράφου ασφαλείας της βάσης δεδομένων"
-
-#: src/tracker/tracker-index.c:308
-msgid "Restoring database from backup"
-msgstr "Επαναφορά βάσης δεδομένων από αντίγραφο ασφαλείας"
-
-#: src/tracker/tracker-index.c:437
-msgid ""
-"Only one action (--backup, --restore, --index-file or --import) can be used "
-"at a time"
-msgstr ""
-"Μπορεί να χρησιμοποιηθεί μόνο μια ενέργεια τη φορά (--backup, --restore, --"
-"index-file ή --import)"
-
-#: src/tracker/tracker-index.c:439
-msgid "Missing one or more files which are required"
-msgstr "Λείπουν ένα ή περισσότερα αρχεία που απαιτούνται"
-
-#: src/tracker/tracker-index.c:441
-msgid "Only one file can be used with --backup and --restore"
-msgstr "Μόνο ένα αρχείο μπορεί να χρησιμοποιηθεί με --backup και --restore"
-
-#: src/tracker/tracker-index.c:443
-msgid ""
-"Actions (--backup, --restore, --index-file and --import) can not be used "
-"with --reindex-mime-type"
-msgstr ""
-"Οι ενέργειες (--backup, --restore, --index-file και --import) δεν μπορούν να "
-"χρησιμοποιηθούν με το --reindex-mime-type"
-
-#: src/tracker/tracker-info.c:49
-msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
-msgstr ""
-"Εμφάνιση πλήρων χώρων ονόματος (δηλ. να μην γίνει χρήση του nie:title, να "
-"χρησιμοποιηθούν τα πλήρη URL)"
-
-#: src/tracker/tracker-info.c:53
-msgid "Show plain text content if available for resources"
-msgstr "Εμφάνιση περιεχομένου απλού κειμένου αν είναι διαθέσιμο για πόρους"
-
-#. To translators:
-#. * IRI (International Resource Identifier) is a generalization
-#. * of the URI. While URI supports only ASCI encoding, IRI
-#. * fully supports international characters. In practice, UTF-8
-#. * is the most popular encoding used for IRI.
-#.
-#: src/tracker/tracker-info.c:63
-msgid ""
-"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-"(e.g. <file:///path/to/some/file.txt>)"
-msgstr ""
-"Αντί την αναζήτηση ενός ονόματος αρχείου, αντιμετώπιση των επιχειρημάτων "
-"ΑΡΧΕΙΩΝ ως πραγματικά IRI (π.χ. <file:///path/to/some/file.txt>)"
-
-#: src/tracker/tracker-info.c:67
-msgid "Output results as RDF in Turtle format"
-msgstr "Αποτελέσματα εξόδου ως RDF σε μορφή Turtle"
-
-#: src/tracker/tracker-info.c:285
-msgid "Querying information for entity"
-msgstr "Ερώτημα για πληροφορίες για την οντότητα"
-
-#: src/tracker/tracker-info.c:309
-msgid "Unable to retrieve URN for URI"
-msgstr "Αδυναμία ανάκτησης του URN για το URI"
-
-#: src/tracker/tracker-info.c:319 src/tracker/tracker-info.c:353
-msgid "Unable to retrieve data for URI"
-msgstr "Αδυναμία ανάκτησης των δεδομένων για το URI"
-
-#: src/tracker/tracker-info.c:362
-msgid "No metadata available for that URI"
-msgstr "Δεν είναι διαθέσιμα μεταδεδομένα για αυτό το URI"
-
-#: src/tracker/tracker-info.c:367 src/tracker/tracker-search.c:1455
-#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
-#: src/tracker/tracker-sql.c:146
-msgid "Results"
-msgstr "Αποτελέσματα"
-
-#: src/tracker/tracker-main.c:48
-msgid "See “tracker help <command>” to read about a specific subcommand."
-msgstr ""
-"Δείτε την «<command> βοήθεια του Tracker» για να διαβάσετε σχετικά με μια "
-"συγκεκριμένη υποεντολή."
-
-#: src/tracker/tracker-main.c:97
-msgid "Start, stop, pause and list processes responsible for indexing content"
-msgstr ""
-"Οι διεργασίες εκκίνησης, διακοπής, παύσης και καταλόγου είναι υπεύθυνες για "
-"το περιεχόμενο του ευρετηρίου"
-
-#: src/tracker/tracker-main.c:98
-msgid "Extract information from a file"
-msgstr "Εξαγωγή πληροφοριών από αρχείο"
-
-#: src/tracker/tracker-main.c:99
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr ""
-"Λήψη βοήθειας για τη χρήση του Tracker οποιασδήποτε από αυτές τις εντολές"
-
-#: src/tracker/tracker-main.c:100
-msgid "Show information known about local files or items indexed"
-msgstr ""
-"Να εμφανίζονται οι πληροφορίες που είναι γνωστές για τοπικά αρχεία ή "
-"στοιχεία από ευρετήριο"
-
-#: src/tracker/tracker-main.c:101
-msgid "Backup, restore, import and (re)index by MIME type or file name"
-msgstr ""
-"Αντίγραφα ασφαλείας, επαναφορά, εισαγωγή και (νέο) ευρετήριο σύμφωνα με τον "
-"τύπο MIME ή το όνομα του αρχείου"
-
-#: src/tracker/tracker-main.c:102
-msgid "Reset or remove index and revert configurations to defaults"
-msgstr ""
-"Επαναφορά ή αφαίρεση δείκτη και επιστροφή των ρυθμίσεων στις προεπιλογές"
-
-#: src/tracker/tracker-main.c:103
-msgid "Search for content indexed or show content by type"
-msgstr ""
-"Αναζήτηση για περιεχόμενο από ευρετήριο ή εμφάνιση περιεχομένου κατά τύπο"
-
-#: src/tracker/tracker-main.c:104
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"Ερώτηση και ενημέρωση του ευρετηρίου χρησιμοποιώντας SPARQL ή αναζήτηση, "
-"κατάλογο και δένδρο της οντολογίας"
-
-#: src/tracker/tracker-main.c:105
-msgid "Query the database at the lowest level using SQL"
-msgstr "Ερώτημα στη βάση δεδομένων στο πιο χαμηλό επίπεδο χρησιμοποιώντας SQL"
-
-#: src/tracker/tracker-main.c:106
-msgid "Show the indexing progress, content statistics and index state"
-msgstr ""
-"Να εμφανίζεται η πρόοδος ευρετηρίασης, στατιστικών περιεχομένου και "
-"κατάστασης δείκτη"
-
-#: src/tracker/tracker-main.c:107
-msgid "Create, list or delete tags for indexed content"
-msgstr ""
-"Δημιουργία, καταλογοποίηση ή διαγραφή ετικετών για περιεχόμενο από ευρετήριο"
-
-#: src/tracker/tracker-main.c:108
-msgid "Show the license and version in use"
-msgstr "Να εμφανίζεται η άδεια και η έκδοση που χρησιμοποιείται"
-
-#: src/tracker/tracker-main.c:153
-#, c-format
-msgid "“%s” is not a tracker command. See “tracker --help”"
-msgstr "Το «%s» δεν είναι μια εντολή του Tracker. Δείτε 'tracker --help'"
-
-#: src/tracker/tracker-main.c:176
-msgid "Available tracker commands are:"
-msgstr "Οι διαθέσιμες εντολές του Tracker είναι:"
-
-#: src/tracker/tracker-process.c:79
-msgid "Could not open /proc"
-msgstr "Αδυναμία ανοίγματος του /proc"
-
-#: src/tracker/tracker-process.c:132
-msgid "Could not stat() file"
-msgstr "Αδύνατο το stat() του αρχείου"
-
-#: src/tracker/tracker-process.c:203
-#, c-format
-msgid "Could not open “%s”"
-msgstr "Αδυναμία ανοίγματος «%s»"
-
-#: src/tracker/tracker-process.c:332
-#, c-format
-msgid "Could not terminate process %d — “%s”"
-msgstr "Αδυναμία τερματισμού της διεργασίας %d — «%s»"
-
-#: src/tracker/tracker-process.c:338
-#, c-format
-msgid "Terminated process %d — “%s”"
-msgstr "Τερματισμένη διεργασία %d — «%s»"
-
-#: src/tracker/tracker-process.c:353
-#, c-format
-msgid "Could not kill process %d — “%s”"
-msgstr "Αδυναμία βίαιου τερματισμού της διεργασίας %d — «%s»"
-
-#: src/tracker/tracker-process.c:359
-#, c-format
-msgid "Killed process %d — “%s”"
-msgstr "Τερματισμένη διεργασία %d — «%s»"
-
-#: src/tracker/tracker-reset.c:53
-msgid "Kill all Tracker processes and remove all databases"
-msgstr ""
-"Τερματισμός όλων των λειτουργιών του Tracker και αφαίρεση όλων των βάσεων "
-"δεδομένων"
-
-#: src/tracker/tracker-reset.c:56
-msgid "Same as --hard but the backup & journal are restored after restart"
-msgstr ""
-"Το ίδιο με --hard αλλά τα αντίγραφα ασφαλείας και το ημερολόγιο επανέρχονται "
-"μετά από επανεκκίνηση"
-
-#: src/tracker/tracker-reset.c:59
-msgid "Remove all configuration files so they are re-generated on next start"
-msgstr ""
-"Αφαίρεση όλων των αρχείων ρύθμισης ώστε αυτά να ξαναδημιουργηθούν στην "
-"επόμενη εκκίνηση"
-
-#: src/tracker/tracker-reset.c:62
-msgid ""
-"Erase indexed information about a file, works recursively for directories"
-msgstr ""
-"Η διαγραφή αρχειοθετημένων πληροφοριών ενός αρχείου, λειτουργεί αναδρομικά "
-"και για τους καταλόγους"
-
-#. Now, delete the element recursively
-#: src/tracker/tracker-reset.c:127
-msgid "Deleting…"
-msgstr "Διαγραφή…"
-
-#: src/tracker/tracker-reset.c:148
-msgid ""
-"The indexed data for this file has been deleted and will be reindexed again."
-msgstr ""
-"Τα αρχειοθετημένα δεδομένα για το αρχείο αυτό θα διαγραφούν και θα "
-"αρχειοθετηθούν ξανά."
-
-#. TRANSLATORS: --hard and --soft are commandline arguments
-#: src/tracker/tracker-reset.c:175
-msgid "You can not use the --hard and --soft arguments together"
-msgstr "Αδυναμία χρήσης των ορισμάτων --hard και --soft μαζί"
-
-#: src/tracker/tracker-reset.c:183
-msgid "CAUTION: This process may irreversibly delete data."
-msgstr "ΠΡΟΣΟΧΗ: Αυτή η διαδικασία μπορεί ανεπανόρθωτα να διαγράψει δεδομένα."
-
-#: src/tracker/tracker-reset.c:184
-msgid ""
-"Although most content indexed by Tracker can be safely reindexed, it can’t "
-"be assured that this is the case for all data. Be aware that you may be "
-"incurring in a data loss situation, proceed at your own risk."
-msgstr ""
-"Αν και το περισσότερο περιεχόμενο που είναι αρχειοθετημένο από το Tracker "
-"μπορεί να ξαναρχειοθετηθεί με ασφάλεια, δεν μπορεί να διασφαλιστεί για όλα "
-"τα δεδομένα. Θα πρέπει να γνωρίζετε ότι μπορεί να προκληθεί απώλεια "
-"δεδομένων, γι' αυτό το λόγο προχωρήστε με δική σας ευθύνη."
-
-#: src/tracker/tracker-reset.c:189
-msgid "Are you sure you want to proceed?"
-msgstr "Είσαστε βέβαιοι ότι θέλετε να προχωρήσετε;"
-
-#. TRANSLATORS: This is to be displayed on command line output
-#: src/tracker/tracker-reset.c:191
-msgid "[y|N]"
-msgstr "[ν|Ο]"
-
-#. TRANSLATORS: this is our test for a [y|N] question in the command line.
-#. * A partial or full match will be considered an affirmative answer,
-#. * it is intentionally lowercase, so please keep it like this.
-#.
-#: src/tracker/tracker-reset.c:200
-msgid "yes"
-msgstr "ναι"
-
-#: src/tracker/tracker-reset.c:306
-msgid "Resetting existing configuration…"
-msgstr "Επαναφορά υπάρχουσας ρύθμισης…"
-
-#: src/tracker/tracker-search.c:80
-msgid "Search for files"
-msgstr "Αναζήτηση για αρχεία"
-
-#: src/tracker/tracker-search.c:84
-msgid "Search for folders"
-msgstr "Αναζήτηση για φακέλους"
-
-#: src/tracker/tracker-search.c:88
-msgid "Search for music files"
-msgstr "Αναζήτηση για αρχεία μουσικής"
-
-#: src/tracker/tracker-search.c:92
-msgid "Search for music albums (--all has no effect on this)"
-msgstr "Αναζήτηση για μουσικά άλμπουμ (το --all δεν το επηρεάζει)"
-
-#: src/tracker/tracker-search.c:96
-msgid "Search for music artists (--all has no effect on this)"
-msgstr "Αναζήτηση για μουσικούς καλλιτέχνες (το --all δεν το επηρεάζει)"
-
-#: src/tracker/tracker-search.c:100
-msgid "Search for image files"
-msgstr "Αναζήτηση για αρχεία εικόνων"
-
-#: src/tracker/tracker-search.c:104
-msgid "Search for video files"
-msgstr "Αναζήτηση αρχεία βίντεο"
-
-#: src/tracker/tracker-search.c:108
-msgid "Search for document files"
-msgstr "Αναζήτηση για αρχεία εγγράφων"
-
-#: src/tracker/tracker-search.c:112
-msgid "Search for emails"
-msgstr "Αναζήτηση για ηλεκτρονικά μηνύματα"
-
-#: src/tracker/tracker-search.c:116
-msgid "Search for contacts"
-msgstr "Αναζήτηση για επαφές"
-
-#: src/tracker/tracker-search.c:120
-msgid "Search for software (--all has no effect on this)"
-msgstr "Αναζήτηση για λογισμικό (το --all δεν το επηρεάζει)"
-
-#: src/tracker/tracker-search.c:124
-msgid "Search for software categories (--all has no effect on this)"
-msgstr "Αναζήτηση για κατηγορίες λογισμικού (το --all δεν το επηρεάζει)"
-
-#: src/tracker/tracker-search.c:128
-msgid "Search for feeds (--all has no effect on this)"
-msgstr "Αναζήτηση για ροές (το --all δεν το επηρεάζει)"
-
-#: src/tracker/tracker-search.c:132
-msgid "Search for bookmarks (--all has no effect on this)"
-msgstr "Αναζήτηση για σελιδοδείκτες (το --all δεν το επηρεάζει)"
-
-#: src/tracker/tracker-search.c:138 src/tracker/tracker-tag.c:73
-msgid "Limit the number of results shown"
-msgstr "Περιορισμός αριθμού των αποτελεσμάτων που θα εμφανίζονται"
-
-#: src/tracker/tracker-search.c:142 src/tracker/tracker-tag.c:77
-msgid "Offset the results"
-msgstr "Μετατόπιση των αποτελεσμάτων"
-
-#: src/tracker/tracker-search.c:146
-msgid "Use OR for search terms instead of AND (the default)"
-msgstr "Χρήση του OR για αναζήτηση όρων αντί για AND (η προεπιλογή)"
-
-#: src/tracker/tracker-search.c:150
-msgid ""
-"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
-"feeds, --software, --software-categories)"
-msgstr ""
-"Εμφάνιση των URN για αποτελέσματα (δεν έχει εφαρμογή στα --music-albums, --"
-"music-artists, --feeds, --software, --software-categories)"
-
-#: src/tracker/tracker-search.c:154
-msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
-msgstr ""
-"Να επιστραφούν όλες οι μη υπάρχουσες συμφωνίες επίσης (δηλ. συμπερίληψη μη "
-"προσαρτημένων τόμων)"
-
-#: src/tracker/tracker-search.c:158
-msgid ""
-"Disable showing snippets with results. This is only shown for some "
-"categories, e.g. Documents, Music…"
-msgstr ""
-"Απενεργοποίηση εμφάνισης τμημάτων με αποτελέσματα. Αυτό εμφανίζεται μόνο για "
-"μερικές κατηγορίες, π.χ. έγγραφα, μουσική…"
-
-#: src/tracker/tracker-search.c:162
-msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
-msgstr ""
-"Απενεργοποίηση πλήρους αναζήτησης κειμένου (FTS). Υπονοεί --disable-snippets"
-
-#: src/tracker/tracker-search.c:166
-msgid "Disable color when printing snippets and results"
-msgstr "Απενεργοποίηση χρώματος κατά την εκτύπωση τμημάτων και αποτελεσμάτων"
-
-#: src/tracker/tracker-search.c:173 src/tracker/tracker-status.c:57
-msgid "search terms"
-msgstr "όροι αναζήτησης"
-
-#: src/tracker/tracker-search.c:174 src/tracker/tracker-status.c:58
-msgid "EXPRESSION"
-msgstr "ΕΚΦΡΑΣΗ"
-
-#: src/tracker/tracker-search.c:192 src/tracker/tracker-tag.c:103
-msgid ""
-"NOTE: Limit was reached, there are more items in the database not listed here"
-msgstr ""
-"ΣΗΜΕΙΩΣΗ: Φτάσατε το όριο, υπάρχουν περισσότερα στοιχεία στη βάση δεδομένων "
-"που δεν εμφανίζονται στην λίστα"
-
-#: src/tracker/tracker-search.c:286 src/tracker/tracker-search.c:395
-#: src/tracker/tracker-search.c:497 src/tracker/tracker-search.c:811
-#: src/tracker/tracker-search.c:900 src/tracker/tracker-search.c:990
-#: src/tracker/tracker-search.c:1072 src/tracker/tracker-search.c:1156
-#: src/tracker/tracker-search.c:1238 src/tracker/tracker-search.c:1442
-msgid "Could not get search results"
-msgstr "Αδυναμία λήψης των αποτελεσμάτων της αναζήτησης"
-
-#: src/tracker/tracker-search.c:295
-msgid "No contacts were found"
-msgstr "Δεν βρέθηκαν επαφές"
-
-#: src/tracker/tracker-search.c:299
-msgid "Contacts"
-msgstr "Επαφές"
+#~ msgid "Components"
+#~ msgstr "Συστατικά στοιχεία"
+
+#~ msgid "Only those with config listed"
+#~ msgstr "Μόνο αυτά που έχουν λίστα config"
+
+#~ msgid "Setting log verbosity for all components to “%s”…"
+#~ msgstr ""
+#~ "Ρύθμιση περιγραφής ιστορικού για όλα τα συστατικά στοιχεία στο «%s»…"
+
+#~ msgid "Starting miners…"
+#~ msgstr "Εκκίνηση των εξορυκτών…"
+
+#~ msgid "Could not start miners, manager could not be created, %s"
+#~ msgstr ""
+#~ "Αδυναμία εκκίνησης των εξορυκτών, αδυναμία δημιουργίας διαχειριστή, %s"
+
+#~ msgid "perhaps a disabled plugin?"
+#~ msgstr "ίσως ένα απενεργοποιημένο πρόσθετο;"
+
+#~ msgid ""
+#~ "If no arguments are given, the status of the store and data miners is "
+#~ "shown"
+#~ msgstr ""
+#~ "Αν δεν δίνεται κανένα όρισμα, εμφανίζεται η κατάσταση αποθήκευσης και "
+#~ "εξόρυξης δεδομένων"
+
+#~ msgid "Could not get D-Bus connection"
+#~ msgstr "Αδύνατη η σύνδεση με D-Bus"
+
+#~ msgid "Could not create D-Bus proxy to tracker-store"
+#~ msgstr "Αδύνατη η δημιουργία διαμεσολαβητή D-Bus στην αποθήκη του tracker"
+
+#~ msgid "Output results format: “sparql”, “turtle” or “json-ld”"
+#~ msgstr "Αποτελέσματα εξόδου: «sparql», «turtle» ή «json-ld»"
+
+#~ msgid "FORMAT"
+#~ msgstr "ΜΟΡΦΗ"
+
+#~ msgid "Could not run tracker-extract: "
+#~ msgstr "Αδυναμία εκτέλεσης του tracker-extract: "
+
+#~ msgid ""
+#~ "Tell miners to reindex files which match the mime type supplied (for new "
+#~ "extractors), use -m MIME1 -m MIME2"
+#~ msgstr ""
+#~ "Πείτε στους εξορύκτες να κάνουν επαναευρετηριοποίηση των αρχείων που "
+#~ "ταιριάζουν με τον παρεχόμενο τύπο mime (για νέους εξαγωγείς), "
+#~ "χρησιμοποιήστε -m MIME1, -m MIME2"
+
+#~ msgid "MIME"
+#~ msgstr "MIME"
+
+#~ msgid "Tell miners to (re)index a given file"
+#~ msgstr ""
+#~ "Πείτε στους εξορύκτες να κάνουν (επανα)ευρετηριοποίηση στο δεδομένο αρχείο"
+
+#~ msgid "Backup current index / database to the file provided"
+#~ msgstr ""
+#~ "Αντίγραφο ασφαλείας τρέχοντος δείκτη / βάσης δεδομένων στο παρεχόμενο "
+#~ "αρχείο"
+
+#~ msgid "Restore a database from a previous backup (see --backup)"
+#~ msgstr ""
+#~ "Επαναφορά βάσης δεδομένων από προηγούμενο αντίγραφο ασφαλείας (δείτε --"
+#~ "backup)"
+
+#~ msgid "Import a dataset from the provided file (in Turtle format)"
+#~ msgstr ""
+#~ "Εισαγωγή συνόλου δεδομένων από το παρεχόμενο αρχείο (σε μορφή Turtle)"
+
+#~ msgid "Could not reindex mimetypes, manager could not be created, %s"
+#~ msgstr ""
+#~ "Αδυναμία επαναευρετηριοποίησης τύπων mime, αδυναμία δημιουργίας "
+#~ "διαχειριστή, %s"
+
+#~ msgid "Could not reindex mimetypes"
+#~ msgstr "Αδυναμία επαναευρετηριοποίησης των τύπων MIME"
+
+#~ msgid "Reindexing mime types was successful"
+#~ msgstr "Η επαναευρετηριοποίηση των τύπων mime ήταν επιτυχής"
+
+#~ msgid "Could not (re)index file, manager could not be created, %s"
+#~ msgstr ""
+#~ "Αδυναμία (επανα)ευρετηριοποίησης αρχείου, αδυναμία δημιουργίας "
+#~ "διαχειριστή, %s"
+
+#~ msgid "Could not (re)index file"
+#~ msgstr "Αδυναμία (επανα)ευρετηριοποίησης του αρχείου"
+
+#~ msgid "(Re)indexing file was successful"
+#~ msgstr "Η (επανα)ευρετηριοποίηση του αρχείου ήταν επιτυχής"
+
+#~ msgid "Importing Turtle file"
+#~ msgstr "Εισαγωγή αρχείου Turtle"
+
+#~ msgid "Unable to import Turtle file"
+#~ msgstr "Αδύνατη η εισαγωγή αρχείου Turtle"
+
+#~ msgid "Restoring database from backup"
+#~ msgstr "Επαναφορά βάσης δεδομένων από αντίγραφο ασφαλείας"
+
+#~ msgid ""
+#~ "Only one action (--backup, --restore, --index-file or --import) can be "
+#~ "used at a time"
+#~ msgstr ""
+#~ "Μπορεί να χρησιμοποιηθεί μόνο μια ενέργεια τη φορά (--backup, --restore, "
+#~ "--index-file ή --import)"
+
+#~ msgid "Missing one or more files which are required"
+#~ msgstr "Λείπουν ένα ή περισσότερα αρχεία που απαιτούνται"
+
+#~ msgid "Only one file can be used with --backup and --restore"
+#~ msgstr "Μόνο ένα αρχείο μπορεί να χρησιμοποιηθεί με --backup και --restore"
+
+#~ msgid ""
+#~ "Actions (--backup, --restore, --index-file and --import) can not be used "
+#~ "with --reindex-mime-type"
+#~ msgstr ""
+#~ "Οι ενέργειες (--backup, --restore, --index-file και --import) δεν μπορούν "
+#~ "να χρησιμοποιηθούν με το --reindex-mime-type"
+
+#~ msgid ""
+#~ "Start, stop, pause and list processes responsible for indexing content"
+#~ msgstr ""
+#~ "Οι διεργασίες εκκίνησης, διακοπής, παύσης και καταλόγου είναι υπεύθυνες "
+#~ "για το περιεχόμενο του ευρετηρίου"
+
+#~ msgid "Extract information from a file"
+#~ msgstr "Εξαγωγή πληροφοριών από αρχείο"
+
+#~ msgid "Backup, restore, import and (re)index by MIME type or file name"
+#~ msgstr ""
+#~ "Αντίγραφα ασφαλείας, επαναφορά, εισαγωγή και (νέο) ευρετήριο σύμφωνα με "
+#~ "τον τύπο MIME ή το όνομα του αρχείου"
+
+#~ msgid "Reset or remove index and revert configurations to defaults"
+#~ msgstr ""
+#~ "Επαναφορά ή αφαίρεση δείκτη και επιστροφή των ρυθμίσεων στις προεπιλογές"
+
+#~ msgid "Search for content indexed or show content by type"
+#~ msgstr ""
+#~ "Αναζήτηση για περιεχόμενο από ευρετήριο ή εμφάνιση περιεχομένου κατά τύπο"
+
+#~ msgid "Show the indexing progress, content statistics and index state"
+#~ msgstr ""
+#~ "Να εμφανίζεται η πρόοδος ευρετηρίασης, στατιστικών περιεχομένου και "
+#~ "κατάστασης δείκτη"
+
+#~ msgid "Create, list or delete tags for indexed content"
+#~ msgstr ""
+#~ "Δημιουργία, καταλογοποίηση ή διαγραφή ετικετών για περιεχόμενο από "
+#~ "ευρετήριο"
+
+#~ msgid "Show the license and version in use"
+#~ msgstr "Να εμφανίζεται η άδεια και η έκδοση που χρησιμοποιείται"
+
+#~ msgid "Could not open /proc"
+#~ msgstr "Αδυναμία ανοίγματος του /proc"
+
+#~ msgid "Could not stat() file"
+#~ msgstr "Αδύνατο το stat() του αρχείου"
+
+#~ msgid "Could not open “%s”"
+#~ msgstr "Αδυναμία ανοίγματος «%s»"
+
+#~ msgid "Could not terminate process %d — “%s”"
+#~ msgstr "Αδυναμία τερματισμού της διεργασίας %d — «%s»"
+
+#~ msgid "Terminated process %d — “%s”"
+#~ msgstr "Τερματισμένη διεργασία %d — «%s»"
+
+#~ msgid "Could not kill process %d — “%s”"
+#~ msgstr "Αδυναμία βίαιου τερματισμού της διεργασίας %d — «%s»"
+
+#~ msgid "Killed process %d — “%s”"
+#~ msgstr "Τερματισμένη διεργασία %d — «%s»"
+
+#~ msgid "Kill all Tracker processes and remove all databases"
+#~ msgstr ""
+#~ "Τερματισμός όλων των λειτουργιών του Tracker και αφαίρεση όλων των βάσεων "
+#~ "δεδομένων"
+
+#~ msgid "Same as --hard but the backup & journal are restored after restart"
+#~ msgstr ""
+#~ "Το ίδιο με --hard αλλά τα αντίγραφα ασφαλείας και το ημερολόγιο "
+#~ "επανέρχονται μετά από επανεκκίνηση"
+
+#~ msgid ""
+#~ "Remove all configuration files so they are re-generated on next start"
+#~ msgstr ""
+#~ "Αφαίρεση όλων των αρχείων ρύθμισης ώστε αυτά να ξαναδημιουργηθούν στην "
+#~ "επόμενη εκκίνηση"
+
+#~ msgid ""
+#~ "Erase indexed information about a file, works recursively for directories"
+#~ msgstr ""
+#~ "Η διαγραφή αρχειοθετημένων πληροφοριών ενός αρχείου, λειτουργεί "
+#~ "αναδρομικά και για τους καταλόγους"
+
+#~ msgid "Deleting…"
+#~ msgstr "Διαγραφή…"
+
+#~ msgid ""
+#~ "The indexed data for this file has been deleted and will be reindexed "
+#~ "again."
+#~ msgstr ""
+#~ "Τα αρχειοθετημένα δεδομένα για το αρχείο αυτό θα διαγραφούν και θα "
+#~ "αρχειοθετηθούν ξανά."
+
+#~ msgid "You can not use the --hard and --soft arguments together"
+#~ msgstr "Αδυναμία χρήσης των ορισμάτων --hard και --soft μαζί"
+
+#~ msgid "CAUTION: This process may irreversibly delete data."
+#~ msgstr ""
+#~ "ΠΡΟΣΟΧΗ: Αυτή η διαδικασία μπορεί ανεπανόρθωτα να διαγράψει δεδομένα."
+
+#~ msgid ""
+#~ "Although most content indexed by Tracker can be safely reindexed, it "
+#~ "can’t be assured that this is the case for all data. Be aware that you "
+#~ "may be incurring in a data loss situation, proceed at your own risk."
+#~ msgstr ""
+#~ "Αν και το περισσότερο περιεχόμενο που είναι αρχειοθετημένο από το Tracker "
+#~ "μπορεί να ξαναρχειοθετηθεί με ασφάλεια, δεν μπορεί να διασφαλιστεί για "
+#~ "όλα τα δεδομένα. Θα πρέπει να γνωρίζετε ότι μπορεί να προκληθεί απώλεια "
+#~ "δεδομένων, γι' αυτό το λόγο προχωρήστε με δική σας ευθύνη."
+
+#~ msgid "Are you sure you want to proceed?"
+#~ msgstr "Είσαστε βέβαιοι ότι θέλετε να προχωρήσετε;"
+
+#~ msgid "[y|N]"
+#~ msgstr "[ν|Ο]"
+
+#~ msgid "yes"
+#~ msgstr "ναι"
+
+#~ msgid "Resetting existing configuration…"
+#~ msgstr "Επαναφορά υπάρχουσας ρύθμισης…"
+
+#~ msgid "Search for files"
+#~ msgstr "Αναζήτηση για αρχεία"
+
+#~ msgid "Search for folders"
+#~ msgstr "Αναζήτηση για φακέλους"
+
+#~ msgid "Search for music files"
+#~ msgstr "Αναζήτηση για αρχεία μουσικής"
+
+#~ msgid "Search for music albums (--all has no effect on this)"
+#~ msgstr "Αναζήτηση για μουσικά άλμπουμ (το --all δεν το επηρεάζει)"
+
+#~ msgid "Search for music artists (--all has no effect on this)"
+#~ msgstr "Αναζήτηση για μουσικούς καλλιτέχνες (το --all δεν το επηρεάζει)"
+
+#~ msgid "Search for image files"
+#~ msgstr "Αναζήτηση για αρχεία εικόνων"
+
+#~ msgid "Search for video files"
+#~ msgstr "Αναζήτηση αρχεία βίντεο"
+
+#~ msgid "Search for document files"
+#~ msgstr "Αναζήτηση για αρχεία εγγράφων"
+
+#~ msgid "Search for emails"
+#~ msgstr "Αναζήτηση για ηλεκτρονικά μηνύματα"
+
+#~ msgid "Search for contacts"
+#~ msgstr "Αναζήτηση για επαφές"
+
+#~ msgid "Search for software (--all has no effect on this)"
+#~ msgstr "Αναζήτηση για λογισμικό (το --all δεν το επηρεάζει)"
+
+#~ msgid "Search for software categories (--all has no effect on this)"
+#~ msgstr "Αναζήτηση για κατηγορίες λογισμικού (το --all δεν το επηρεάζει)"
+
+#~ msgid "Search for feeds (--all has no effect on this)"
+#~ msgstr "Αναζήτηση για ροές (το --all δεν το επηρεάζει)"
+
+#~ msgid "Search for bookmarks (--all has no effect on this)"
+#~ msgstr "Αναζήτηση για σελιδοδείκτες (το --all δεν το επηρεάζει)"
+
+#~ msgid "Limit the number of results shown"
+#~ msgstr "Περιορισμός αριθμού των αποτελεσμάτων που θα εμφανίζονται"
+
+#~ msgid "Offset the results"
+#~ msgstr "Μετατόπιση των αποτελεσμάτων"
+
+#~ msgid "Use OR for search terms instead of AND (the default)"
+#~ msgstr "Χρήση του OR για αναζήτηση όρων αντί για AND (η προεπιλογή)"
+
+#~ msgid ""
+#~ "Show URNs for results (doesn’t apply to --music-albums, --music-artists, "
+#~ "--feeds, --software, --software-categories)"
+#~ msgstr ""
+#~ "Εμφάνιση των URN για αποτελέσματα (δεν έχει εφαρμογή στα --music-albums, "
+#~ "--music-artists, --feeds, --software, --software-categories)"
+
+#~ msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
+#~ msgstr ""
+#~ "Να επιστραφούν όλες οι μη υπάρχουσες συμφωνίες επίσης (δηλ. συμπερίληψη "
+#~ "μη προσαρτημένων τόμων)"
+
+#~ msgid ""
+#~ "Disable showing snippets with results. This is only shown for some "
+#~ "categories, e.g. Documents, Music…"
+#~ msgstr ""
+#~ "Απενεργοποίηση εμφάνισης τμημάτων με αποτελέσματα. Αυτό εμφανίζεται μόνο "
+#~ "για μερικές κατηγορίες, π.χ. έγγραφα, μουσική…"
+
+#~ msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
+#~ msgstr ""
+#~ "Απενεργοποίηση πλήρους αναζήτησης κειμένου (FTS). Υπονοεί --disable-"
+#~ "snippets"
+
+#~ msgid "Disable color when printing snippets and results"
+#~ msgstr ""
+#~ "Απενεργοποίηση χρώματος κατά την εκτύπωση τμημάτων και αποτελεσμάτων"
+
+#~ msgid "search terms"
+#~ msgstr "όροι αναζήτησης"
+
+#~ msgid "EXPRESSION"
+#~ msgstr "ΕΚΦΡΑΣΗ"
+
+#~ msgid ""
+#~ "NOTE: Limit was reached, there are more items in the database not listed "
+#~ "here"
+#~ msgstr ""
+#~ "ΣΗΜΕΙΩΣΗ: Φτάσατε το όριο, υπάρχουν περισσότερα στοιχεία στη βάση "
+#~ "δεδομένων που δεν εμφανίζονται στην λίστα"
+
+#~ msgid "Could not get search results"
+#~ msgstr "Αδυναμία λήψης των αποτελεσμάτων της αναζήτησης"
+
+#~ msgid "No contacts were found"
+#~ msgstr "Δεν βρέθηκαν επαφές"
+
+#~ msgid "Contacts"
+#~ msgstr "Επαφές"
 
 # #-#-#-#-#  gimp-plug-ins.gimp-2-4.el.po (el)  #-#-#-#-#
 #
@@ -1316,660 +1459,288 @@ msgstr "Επαφές"
 # #-#-#-#-#  bug-buddy.bug-buddy-2-0.el.po (bug-buddy 2.0.6)  #-#-#-#-##
 # #-#-#-#-#  gnome-libs.gnome-libs-1-0.el.po (gnome-libs 1.2.12)  #-#-#-#-##
 # #-#-#-#-#  nautilus.nautilus-gnome-1.el.po (nautilus 0.8.3)  #-#-#-#-##
-#: src/tracker/tracker-search.c:356 src/tracker/tracker-search.c:369
-msgid "No name"
-msgstr "Χωρίς όνομα"
+#~ msgid "No name"
+#~ msgstr "Χωρίς όνομα"
 
-#: src/tracker/tracker-search.c:357 src/tracker/tracker-search.c:370
-msgid "No E-mail address"
-msgstr "Χωρίς διευθύνσεις ηλεκτρονικού ταχυδρομείου"
+#~ msgid "No E-mail address"
+#~ msgstr "Χωρίς διευθύνσεις ηλεκτρονικού ταχυδρομείου"
 
-#: src/tracker/tracker-search.c:404
-msgid "No emails were found"
-msgstr "Δεν βρέθηκαν μηνύματα ηλεκτρονικού ταχυδρομείου"
+#~ msgid "No emails were found"
+#~ msgstr "Δεν βρέθηκαν μηνύματα ηλεκτρονικού ταχυδρομείου"
 
-#: src/tracker/tracker-search.c:408
-msgid "Emails"
-msgstr "Αλληλογραφία"
+#~ msgid "Emails"
+#~ msgstr "Αλληλογραφία"
 
-#: src/tracker/tracker-search.c:506
-msgid "No files were found"
-msgstr "Δεν βρέθηκαν αρχεία"
+#~ msgid "No files were found"
+#~ msgstr "Δεν βρέθηκαν αρχεία"
 
 # #-#-#-#-#  anjuta.HEAD.el.po (anjuta 0.1.9)  #-#-#-#-#
 #
-#: src/tracker/tracker-search.c:510 src/tracker/tracker-tag.c:439
-msgid "Files"
-msgstr "Αρχεία"
+#~ msgid "Files"
+#~ msgstr "Αρχεία"
 
-#: src/tracker/tracker-search.c:820
-msgid "No artists were found"
-msgstr "Δεν βρέθηκαν καλλιτέχνες"
+#~ msgid "No artists were found"
+#~ msgstr "Δεν βρέθηκαν καλλιτέχνες"
 
-#: src/tracker/tracker-search.c:824
-msgid "Artists"
-msgstr "Καλλιτέχνες"
+#~ msgid "Artists"
+#~ msgstr "Καλλιτέχνες"
 
-#: src/tracker/tracker-search.c:909
-msgid "No music was found"
-msgstr "Δεν βρέθηκε μουσική"
+#~ msgid "No music was found"
+#~ msgstr "Δεν βρέθηκε μουσική"
 
-#: src/tracker/tracker-search.c:913
-msgid "Albums"
-msgstr "Άλμπουμ"
+#~ msgid "Albums"
+#~ msgstr "Άλμπουμ"
 
-#: src/tracker/tracker-search.c:999
-msgid "No bookmarks were found"
-msgstr "Δεν βρέθηκαν σελιδοδείκτες"
+#~ msgid "No bookmarks were found"
+#~ msgstr "Δεν βρέθηκαν σελιδοδείκτες"
 
-#: src/tracker/tracker-search.c:1003
-msgid "Bookmarks"
-msgstr "Σελιδοδείκτες"
+#~ msgid "Bookmarks"
+#~ msgstr "Σελιδοδείκτες"
 
-#: src/tracker/tracker-search.c:1081
-msgid "No feeds were found"
-msgstr "Δεν βρέθηκαν ροές"
+#~ msgid "No feeds were found"
+#~ msgstr "Δεν βρέθηκαν ροές"
 
 # #-#-#-#-#  anjuta.HEAD.el.po (anjuta 0.1.9)  #-#-#-#-#
 #
-#: src/tracker/tracker-search.c:1085
-msgid "Feeds"
-msgstr "Ροές"
-
-#: src/tracker/tracker-search.c:1165
-msgid "No software was found"
-msgstr "Δεν βρέθηκε λογισμικό"
-
-#: src/tracker/tracker-search.c:1169
-msgid "Software"
-msgstr "Λογισμικό"
-
-#: src/tracker/tracker-search.c:1247
-msgid "No software categories were found"
-msgstr "Δεν βρέθηκαν κατηγορίες λογισμικού"
-
-#: src/tracker/tracker-search.c:1251
-msgid "Software Categories"
-msgstr "Κατηγορίες λογισμικού"
-
-#: src/tracker/tracker-search.c:1451
-msgid "No results were found matching your query"
-msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν στην αναζήτησή σας"
-
-#: src/tracker/tracker-search.c:1553
-#, c-format
-msgid "Search term “%s” is a stop word."
-msgstr "Ο όρος αναζήτησης «%s» είναι φιλτραρισμένη λέξη."
-
-#: src/tracker/tracker-search.c:1564
-msgid ""
-"Stop words are common words which may be ignored during the indexing process."
-msgstr ""
-"Φιλτραρισμένες λέξεις είναι κοινές λέξεις που μπορεί να αγνοηθούν κατά τη "
-"διεργασία ευρετηριοποίησης."
-
-#: src/tracker/tracker-sparql.c:105
-msgid "Path to use to run a query or update from file"
-msgstr ""
-"Χρησιμοποιούμενη διαδρομή εκτέλεσης ενός ερωτήματος ή ενημέρωσης από αρχείο"
-
-#: src/tracker/tracker-sparql.c:109
-msgid "SPARQL query"
-msgstr "Ερώτημα SPARQL"
-
-#: src/tracker/tracker-sparql.c:110
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:113
-msgid "This is used with --query and for database updates only."
-msgstr ""
-"Αυτό χρησιμοποιείται με το --query και μόνο για την ενημέρωση της βάσης "
-"δεδομένων."
-
-#: src/tracker/tracker-sparql.c:117
-msgid "Retrieve classes"
-msgstr "Ανάκτηση κλάσεων"
-
-#: src/tracker/tracker-sparql.c:121
-msgid "Retrieve class prefixes"
-msgstr "Ανάκτηση προθεμάτων κλάσης"
-
-#: src/tracker/tracker-sparql.c:125
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
-msgstr ""
-"Ανάκτηση ιδιοτήτων για μια κλάση, επίσης μπορείτε να χρησιμοποιήσετε "
-"προθέματα (π.χ. rdfs:Resource)"
-
-#: src/tracker/tracker-sparql.c:126 src/tracker/tracker-sparql.c:130
-#: src/tracker/tracker-sparql.c:138 src/tracker/tracker-sparql.c:146
-#: src/tracker/tracker-sparql.c:150
-msgid "CLASS"
-msgstr "ΚΛΑΣΗ"
-
-#: src/tracker/tracker-sparql.c:129
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-"Ανάκτηση κλάσεων που ενημερώνουν για αλλαγές στην βάση δεδομένων (Η ΚΛΑΣΗ "
-"είναι προαιρετική)"
-
-#: src/tracker/tracker-sparql.c:133
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
-msgstr ""
-"Ανάκτηση ευρετηρίων που χρησιμοποιούνται στη βάση δεδομένων για την βελτίωση "
-"της απόδοσης (το PROPERTY είναι προαιρετικό) "
-
-#: src/tracker/tracker-sparql.c:134
-msgid "PROPERTY"
-msgstr "ΙΔΙΟΤΗΤΑ"
-
-#: src/tracker/tracker-sparql.c:137
-msgid ""
-"Describe subclasses, superclasses (can be used with -s to highlight parts of "
-"the tree and -p to show properties)"
-msgstr ""
-"Περιγραφή υπο-κλάσεων και υπερ-κλάσεων (μπορεί να χρησιμοποιηθεί με το -s "
-"για να τονίσει κάποια τμήματα του δένδρου και με το -p για να δείξει τις "
-"ιδιότητες)"
-
-#: src/tracker/tracker-sparql.c:141
-msgid ""
-"Search for a class or property and display more information (e.g. Document)"
-msgstr ""
-"Αναζήτηση για κλάση ή ιδιότητα και προβολή περισσότερων πληροφοριών (π.χ. "
-"έγγραφο)"
-
-#: src/tracker/tracker-sparql.c:142
-msgid "CLASS/PROPERTY"
-msgstr "ΚΛΑΣΗ/ΙΔΙΟΤΗΤΑ"
-
-#: src/tracker/tracker-sparql.c:145
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Επιστρέφει τη συντομογραφία για μια κλάση (π.χ. nfo:FileDataObject)."
-
-#: src/tracker/tracker-sparql.c:149
-msgid "Returns the full namespace for a class."
-msgstr "Επιστρέφει το πλήρες όνομα χώρου (namespace) για μια κλάση"
-
-#: src/tracker/tracker-sparql.c:153
-msgid "Remote service to query to"
-msgstr "Απομακρυσμένη υπηρεσία για αναζήτηση σε"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "BASE_URL"
-msgstr "BASE_URL"
-
-#: src/tracker/tracker-sparql.c:254
-msgid "Could not get namespace prefixes"
-msgstr "Αδυναμία λήψης προθεμάτων για τον χώρο ονομάτων"
-
-#: src/tracker/tracker-sparql.c:263
-msgid "No namespace prefixes were found"
-msgstr "Δεν βρέθηκαν προθέματα για χώρο ονομάτων"
-
-#. To translators: This is to say there are no
-#. * search results found. We use a "foo: None"
-#. * with multiple print statements, where "foo"
-#. * may be Music or Images, etc.
-#. To translators: This is to say there are no
-#. * tags found with a particular unique ID.
-#. To translators: This is to say there are no
-#. * files found associated with multiple tags, e.g.:
-#. *
-#. *   Files:
-#. *     None
-#. *
-#.
-#. To translators: This is to say there are no
-#. * resources found associated with this tag, e.g.:
-#. *
-#. *   Tags (shown by name):
-#. *     None
-#. *
-#.
-#. To translators: This is to say there are no
-#. * tags found for a particular file, e.g.:
-#. *
-#. *   /path/to/some/file:
-#. *     None
-#. *
-#.
-#: src/tracker/tracker-sparql.c:509 src/tracker/tracker-sparql.c:557
-#: src/tracker/tracker-status.c:136 src/tracker/tracker-tag.c:323
-#: src/tracker/tracker-tag.c:455 src/tracker/tracker-tag.c:577
-#: src/tracker/tracker-tag.c:955
-msgid "None"
-msgstr "Κανένα"
-
-#: src/tracker/tracker-sparql.c:963
-msgid "Could not create tree: subclass query failed"
-msgstr "Αδυναμία δημιουργίας του δένδρου: αποτυχία του ερωτήματος για υποκλάση"
-
-#: src/tracker/tracker-sparql.c:1012
-msgid "Could not create tree: class properties query failed"
-msgstr ""
-"Αδυναμία δημιουργίας του δένδρου: αποτυχία του ερωτήματος για ιδιότητες "
-"κλάσης"
-
-#: src/tracker/tracker-sparql.c:1100
-msgid "Could not list classes"
-msgstr "Αδυναμία προβολής της λίστας των κλάσεων"
-
-#: src/tracker/tracker-sparql.c:1108
-msgid "No classes were found"
-msgstr "Δεν βρέθηκαν κλάσεις"
-
-#: src/tracker/tracker-sparql.c:1108 src/tracker/tracker-sparql.c:1299
-msgid "Classes"
-msgstr "Κλάσεις"
-
-#: src/tracker/tracker-sparql.c:1124
-msgid "Could not list class prefixes"
-msgstr "Αδυναμία προβολής της λίστας των προθεμάτων της κλάσης"
-
-#: src/tracker/tracker-sparql.c:1132
-msgid "No class prefixes were found"
-msgstr "Δεν βρέθηκαν προθέματα κλάσεων"
-
-# #-#-#-#-#  gimp.gimp-2-4.el.po (el)  #-#-#-#-#
-#: src/tracker/tracker-sparql.c:1132
-msgid "Prefixes"
-msgstr "Προθέματα"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid ""
-"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
-msgstr ""
-"Αδυναμία εύρεσης ιδιότητας για πρόθεμα κλάσης, π.χ. Πηγές στο «rdfs:Resource»"
-
-#: src/tracker/tracker-sparql.c:1191
-msgid "Could not list properties"
-msgstr "Αδυναμία προβολής λίστας με τις ιδιότητες"
-
-#: src/tracker/tracker-sparql.c:1199
-msgid "No properties were found"
-msgstr "Δεν βρέθηκαν ιδιότητες"
-
-#: src/tracker/tracker-sparql.c:1199 src/tracker/tracker-sparql.c:1322
-msgid "Properties"
-msgstr "Ιδιότητες"
-
-#: src/tracker/tracker-sparql.c:1227
-msgid "Could not find notify classes"
-msgstr "Αδυναμία εύρεσης κλάσεων ειδοποίησης"
-
-#: src/tracker/tracker-sparql.c:1235
-msgid "No notifies were found"
-msgstr "Δεν βρέθηκαν ειδοποιήσεις"
-
-#: src/tracker/tracker-sparql.c:1235
-msgid "Notifies"
-msgstr "Ειδοποιήσεις"
-
-#: src/tracker/tracker-sparql.c:1261
-msgid "Could not find indexed properties"
-msgstr "Αδυναμία εύρεσης ευρετηριοποιημένων ιδιοτήτων"
-
-#: src/tracker/tracker-sparql.c:1269
-msgid "No indexes were found"
-msgstr "Δεν βρέθηκαν ευρετήρια"
-
-#: src/tracker/tracker-sparql.c:1269
-msgid "Indexes"
-msgstr "Ευρετήρια"
-
-#: src/tracker/tracker-sparql.c:1291
-msgid "Could not search classes"
-msgstr "Αδυναμία αναζήτησης κλάσεων"
-
-#: src/tracker/tracker-sparql.c:1299
-msgid "No classes were found to match search term"
-msgstr "Δεν βρέθηκαν κλάσεις που να ταιριάζουν με τον όρο αναζήτησης"
-
-#: src/tracker/tracker-sparql.c:1314
-msgid "Could not search properties"
-msgstr "Αδυναμία αναζήτησης ιδιοτήτων"
-
-#: src/tracker/tracker-sparql.c:1322
-msgid "No properties were found to match search term"
-msgstr "Δεν βρέθηκαν ιδιότητες που να ταιριάζουν με τον όρο αναζήτησης"
-
-#: src/tracker/tracker-sparql.c:1358 src/tracker/tracker-sql.c:65
-msgid "Could not get UTF-8 path from path"
-msgstr "Αδυναμία λήψης της διαδρομής UTF-8 από διαδρομή"
-
-#: src/tracker/tracker-sparql.c:1370 src/tracker/tracker-sql.c:76
-msgid "Could not read file"
-msgstr "Αδυναμία ανάγνωσης του αρχείου"
-
-#: src/tracker/tracker-sparql.c:1389
-msgid "Could not run update"
-msgstr "Αδυναμία εκτέλεσης ενημέρωσης"
-
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Αδυναμία εκτέλεσης ερωτήματος"
-
-#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
-msgid "No results found matching your query"
-msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν στο ερώτημά σας"
-
-#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sql.c:247
-msgid "File and query can not be used together"
-msgstr "Το αρχείο και το ερώτημα δεν μπορούν να χρησιμοποιηθούν ταυτόχρονα"
-
-#: src/tracker/tracker-sparql.c:1508
-msgid ""
-"The --list-properties argument can only be empty when used with the --tree "
-"argument"
-msgstr ""
-"Το όρισμα --list-properties μπορεί να είναι κενό μόνο όταν χρησιμοποιείται "
-"με το όρισμα --tree"
-
-#: src/tracker/tracker-sql.c:43
-msgid "Path to use to run a query from file"
-msgstr "Χρησιμοποιούμενη διαδρομή εκτέλεσης ενός ερωτήματος από αρχείο"
-
-#: src/tracker/tracker-sql.c:47
-msgid "SQL query"
-msgstr "Ερώτημα SQL"
-
-#: src/tracker/tracker-sql.c:48
-msgid "SQL"
-msgstr "SQL"
-
-#: src/tracker/tracker-sql.c:120
-msgid "Failed to initialize data manager"
-msgstr "Αποτυχία αρχικοποίησης διαχειριστή δεδομένων"
-
-#: src/tracker/tracker-sql.c:180
-msgid "Empty result set"
-msgstr "Κενό σύνολο αποτελέσματος"
-
-#: src/tracker/tracker-status.c:49
-msgid "Show statistics for current index / data set"
-msgstr "Εμφάνιση στατιστικών για τον τρέχοντα δείκτη / σύνολο δεδομένων"
-
-#: src/tracker/tracker-status.c:53
-msgid ""
-"Collect debug information useful for problem reporting and investigation, "
-"results are output to terminal"
-msgstr ""
-"Συλλέξτε χρήσιμες πληροφορίες αποσφαλμάτωσης για αναφορά προβλημάτων και "
-"έρευνα, τα αποτελέσματα είναι έξοδος στο τερματικό"
-
-#: src/tracker/tracker-status.c:85
-msgid "Could not get Tracker statistics"
-msgstr "Αδυναμία λήψης των στατιστικών του Tracker"
-
-#: src/tracker/tracker-status.c:92
-msgid "No statistics available"
-msgstr "Χωρίς διαθέσιμα στατιστικά"
-
-#. To translators: This is to say there are no
-#. * statistics found. We use a "Statistics:
-#. * None" with multiple print statements
-#: src/tracker/tracker-status.c:133
-msgid "Statistics:"
-msgstr "Στατιστικά:"
-
-#: src/tracker/tracker-status.c:170
-msgid "Version"
-msgstr "Έκδοση"
-
-#: src/tracker/tracker-status.c:177
-msgid "Disk Information"
-msgstr "Πληροφορίες δίσκου"
-
-#: src/tracker/tracker-status.c:184 src/tracker/tracker-status.c:538
-msgid "Remaining space on database partition"
-msgstr "Υπολειπόμενος χώρος στην κατάτμηση βάσης δεδομένων"
-
-#. 3. Size of dataset (tracker-stats), size of databases
-#: src/tracker/tracker-status.c:191
-msgid "Data Set"
-msgstr "Σύνολο δεδομένων"
-
-#: src/tracker/tracker-status.c:223
-msgid "Configuration"
-msgstr "Ρύθμιση"
-
-#: src/tracker/tracker-status.c:251
-msgid "No configuration was found"
-msgstr "Δεν βρέθηκε καμιά ρύθμιση"
-
-#: src/tracker/tracker-status.c:255
-msgid "States"
-msgstr "Καταστάσεις"
-
-#: src/tracker/tracker-status.c:296
-msgid "Data Statistics"
-msgstr "Στατιστικά βάσης δεδομένων"
-
-#: src/tracker/tracker-status.c:302
-msgid "No connection available"
-msgstr "Δεν υπάρχει διαθέσιμη σύνδεση"
-
-#: src/tracker/tracker-status.c:312
-msgid "Could not get statistics"
-msgstr "Αδύνατη η λήψη στατιστικών"
-
-#: src/tracker/tracker-status.c:318
-msgid "No statistics were available"
-msgstr "Δεν υπήρχαν διαθέσιμα στατιστικά"
-
-#: src/tracker/tracker-status.c:331
-msgid "Database is currently empty"
-msgstr "Η βάση δεδομένων είναι προς το παρόν κενή"
-
-#: src/tracker/tracker-status.c:408 src/tracker/tracker-status.c:431
-msgid "Could not get basic status for Tracker"
-msgstr "Αδυναμία λήψης βασικής κατάστασης για το Tracker"
-
-#: src/tracker/tracker-status.c:515
-msgid "Currently indexed"
-msgstr "Τρέχον ευρετήριο"
-
-#: src/tracker/tracker-status.c:518 src/tracker/tracker-tag.c:559
-#, c-format
-msgid "%d file"
-msgid_plural "%d files"
-msgstr[0] "%d αρχείο"
-msgstr[1] "%d αρχεία"
-
-#: src/tracker/tracker-status.c:524
-#, c-format
-#| msgid "%d folders"
-#| msgid_plural "%d folders"
-msgid "%d folder"
-msgid_plural "%d folders"
-msgstr[0] "%d φάκελος"
-msgstr[1] "%d φάκελοι"
-
-#: src/tracker/tracker-status.c:550
-msgid "Data is still being indexed"
-msgstr "Τα δεδομένα ευρετηριοποιούνται ακόμα"
-
-#: src/tracker/tracker-status.c:551
-#, c-format
-msgid "Estimated %s left"
-msgstr "Υπολογίζεται ότι απομένουν %s"
-
-#: src/tracker/tracker-status.c:555
-msgid "All data miners are idle, indexing complete"
-msgstr "Όλοι οι εξορύκτες δεδομένων είναι αδρανείς, η ευρετηρίαση ολοκληρώθηκε"
-
-#: src/tracker/tracker-tag.c:53
-msgid ""
-"List all tags (using FILTER if specified; FILTER always uses logical OR)"
-msgstr ""
-"Λίστα όλων των ετικετών (με την χρήση ΦΙΛΤΡΩΝ αν αυτό προσδιορίζεται· τα "
-"ΦΙΛΤΡΑ χρησιμοποιούν πάντα λογικό Ή)"
-
-#: src/tracker/tracker-tag.c:54
-msgid "FILTER"
-msgstr "ΦΙΛΤΡΑ"
-
-#: src/tracker/tracker-tag.c:57
-msgid "Show files associated with each tag (this is only used with --list)"
-msgstr ""
-"Εμφάνιση αρχείων που σχετίζονται με κάθε ετικέτα (αυτό χρησιμοποιείται μόνο "
-"με --list)"
-
-#: src/tracker/tracker-tag.c:61
-msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
-msgstr ""
-"Προσθήκη ετικέτας (Αν τα ΑΡΧΕΙΑ έχουν παραληφθεί, η ΕΤΙΚΕΤΑ δεν συσχετίζεται "
-"με κανένα αρχείο)"
-
-#: src/tracker/tracker-tag.c:62 src/tracker/tracker-tag.c:66
-msgid "TAG"
-msgstr "ΕΤΙΚΕΤΑ"
-
-#: src/tracker/tracker-tag.c:65
-msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
-msgstr ""
-"Διαγραφή ετικέτας (Αν τα ΑΡΧΕΙΑ έχουν παραλειφθεί, η ΕΤΙΚΕΤΑ αφαιρείται από "
-"όλα τα αρχεία)"
-
-#: src/tracker/tracker-tag.c:69
-msgid "Description for a tag (this is only used with --add)"
-msgstr "Περιγραφή ετικέτας (αυτό χρησιμοποιείται μόνο με το --add)"
-
-#: src/tracker/tracker-tag.c:70
-msgid "STRING"
-msgstr "ΣΥΜΒΟΛΟΣΕΙΡΑ"
-
-#: src/tracker/tracker-tag.c:81
-msgid "Use AND for search terms instead of OR (the default)"
-msgstr "Χρήση του AND για αναζήτηση όρων αντί για OR (η προεπιλογή)"
-
-#: src/tracker/tracker-tag.c:86
-msgid "FILE…"
-msgstr "ΑΡΧΕΙΟ…"
-
-#: src/tracker/tracker-tag.c:87
-msgid "FILE [FILE…]"
-msgstr "ΑΡΧΕΙΟ [ΑΡΧΕΙΟ…]"
-
-#: src/tracker/tracker-tag.c:249
-msgid "Could not get file URNs"
-msgstr "Αδυναμία λήψης των URNs του αρχείου"
-
-#: src/tracker/tracker-tag.c:314
-msgid "Could not get files related to tag"
-msgstr "Αδυναμία λήψης τα αρχείων σχετικών με την ετικέτα"
-
-#: src/tracker/tracker-tag.c:381
-msgid "Could not get all tags in the database"
-msgstr "Αδυναμία λήψης όλων των ετικετών στην βάση δεδομένων"
-
-#: src/tracker/tracker-tag.c:391
-msgid "No files have been tagged"
-msgstr "Κανένα αρχείο δεν έχει ετικέτα"
-
-#: src/tracker/tracker-tag.c:426
-msgid "Could not get files for matching tags"
-msgstr "Αδυναμία λήψης τα αρχείων σχετικών με την ετικέτα"
-
-#: src/tracker/tracker-tag.c:435
-msgid "No files were found matching ALL of those tags"
-msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν όλες τις ετικέτες"
-
-#: src/tracker/tracker-tag.c:514 src/tracker/tracker-tag.c:929
-msgid "Could not get all tags"
-msgstr "Αδυναμία λήψης όλων των ετικετών"
-
-#: src/tracker/tracker-tag.c:523 src/tracker/tracker-tag.c:938
-msgid "No tags were found"
-msgstr "Δεν βρέθηκαν ετικέτες"
-
-#: src/tracker/tracker-tag.c:527
-msgid "Tags (shown by name)"
-msgstr "Ετικέτες (εμφανίζονται κατά όνομα)"
-
-#: src/tracker/tracker-tag.c:601
-msgid "No files were modified"
-msgstr "Δεν έχουν τροποποιηθεί αρχεία"
-
-#: src/tracker/tracker-tag.c:651 src/tracker/tracker-tag.c:659
-msgid "Files do not exist or aren’t indexed"
-msgstr "Αρχεία που δεν υπάρχουν ή δεν έχουν ευρετηριοποιηθεί"
-
-#: src/tracker/tracker-tag.c:709
-msgid "Could not add tag"
-msgstr "Αδυναμία προσθήκης ετικέτας"
-
-#: src/tracker/tracker-tag.c:725
-msgid "Tag was added successfully"
-msgstr "Η ετικέτα προστέθηκε με επιτυχία"
-
-#: src/tracker/tracker-tag.c:754
-msgid "Could not add tag to files"
-msgstr "Αδυναμία προσθήκης ετικέτας στα αρχεία"
-
-#: src/tracker/tracker-tag.c:764
-msgid "Tagged"
-msgstr "Με ετικέτα"
-
-#: src/tracker/tracker-tag.c:765
-msgid "Not tagged, file is not indexed"
-msgstr "Χωρίς ετικέτα, το αρχείο δεν είναι ευρετηριοποιημένο"
-
-#: src/tracker/tracker-tag.c:811
-msgid "Could not get tag by label"
-msgstr "Αδυναμία λήψης των ετικετών"
-
-#: src/tracker/tracker-tag.c:822
-msgid "No tags were found by that name"
-msgstr "Δεν βρέθηκαν ετικέτες με αυτό το όνομα"
-
-#: src/tracker/tracker-tag.c:839
-msgid "None of the files had this tag set"
-msgstr "Κανένα από τα αρχεία δεν έχει αυτό το σύνολο της ετικέτας"
-
-#: src/tracker/tracker-tag.c:885
-msgid "Could not remove tag"
-msgstr "Αδυναμία αφαίρεσης ετικέτας"
-
-#: src/tracker/tracker-tag.c:892
-msgid "Tag was removed successfully"
-msgstr "Η ετικέτα αφαιρέθηκε με επιτυχία"
-
-#: src/tracker/tracker-tag.c:896
-msgid "Untagged"
-msgstr "Χωρίς ετικέτα"
-
-#: src/tracker/tracker-tag.c:897
-msgid "File not indexed or already untagged"
-msgstr "Το αρχείο δεν είναι ευρετηριοποιημένο ή είναι ήδη χωρίς ετικέτα"
-
-#: src/tracker/tracker-tag.c:1088
-msgid "The --list option is required for --show-files"
-msgstr "Η επιλογή --list είναι απαιτούμενη για το --show-files"
-
-#: src/tracker/tracker-tag.c:1090
-msgid ""
-"The --and-operator option can only be used with --list and tag label "
-"arguments"
-msgstr ""
-"Η επιλογή --and-operator μπορεί να χρησιμοποιηθεί μόνο με την --list και με "
-"ορίσματα ετικετών"
-
-#: src/tracker/tracker-tag.c:1092
-msgid "Add and delete actions can not be used together"
-msgstr ""
-"Η εντολή προσθήκη και διαγραφή δεν μπορούν να χρησιμοποιηθούν ταυτόχρονα"
-
-#: src/tracker/tracker-tag.c:1094
-msgid "The --description option can only be used with --add"
-msgstr "Η επιλογή --description μπορεί να χρησιμοποιηθεί μόνο με την --add"
+#~ msgid "Feeds"
+#~ msgstr "Ροές"
+
+#~ msgid "No software was found"
+#~ msgstr "Δεν βρέθηκε λογισμικό"
+
+#~ msgid "Software"
+#~ msgstr "Λογισμικό"
+
+#~ msgid "No software categories were found"
+#~ msgstr "Δεν βρέθηκαν κατηγορίες λογισμικού"
+
+#~ msgid "Software Categories"
+#~ msgstr "Κατηγορίες λογισμικού"
+
+#~ msgid "No results were found matching your query"
+#~ msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν στην αναζήτησή σας"
+
+#~ msgid "Search term “%s” is a stop word."
+#~ msgstr "Ο όρος αναζήτησης «%s» είναι φιλτραρισμένη λέξη."
+
+#~ msgid ""
+#~ "Stop words are common words which may be ignored during the indexing "
+#~ "process."
+#~ msgstr ""
+#~ "Φιλτραρισμένες λέξεις είναι κοινές λέξεις που μπορεί να αγνοηθούν κατά τη "
+#~ "διεργασία ευρετηριοποίησης."
+
+#~ msgid "BASE_URL"
+#~ msgstr "BASE_URL"
+
+#~ msgid "Show statistics for current index / data set"
+#~ msgstr "Εμφάνιση στατιστικών για τον τρέχοντα δείκτη / σύνολο δεδομένων"
+
+#~ msgid ""
+#~ "Collect debug information useful for problem reporting and investigation, "
+#~ "results are output to terminal"
+#~ msgstr ""
+#~ "Συλλέξτε χρήσιμες πληροφορίες αποσφαλμάτωσης για αναφορά προβλημάτων και "
+#~ "έρευνα, τα αποτελέσματα είναι έξοδος στο τερματικό"
+
+#~ msgid "Could not get Tracker statistics"
+#~ msgstr "Αδυναμία λήψης των στατιστικών του Tracker"
+
+#~ msgid "No statistics available"
+#~ msgstr "Χωρίς διαθέσιμα στατιστικά"
+
+#~ msgid "Statistics:"
+#~ msgstr "Στατιστικά:"
+
+#~ msgid "Version"
+#~ msgstr "Έκδοση"
+
+#~ msgid "Disk Information"
+#~ msgstr "Πληροφορίες δίσκου"
+
+#~ msgid "Remaining space on database partition"
+#~ msgstr "Υπολειπόμενος χώρος στην κατάτμηση βάσης δεδομένων"
+
+#~ msgid "Data Set"
+#~ msgstr "Σύνολο δεδομένων"
+
+#~ msgid "Configuration"
+#~ msgstr "Ρύθμιση"
+
+#~ msgid "No configuration was found"
+#~ msgstr "Δεν βρέθηκε καμιά ρύθμιση"
+
+#~ msgid "States"
+#~ msgstr "Καταστάσεις"
+
+#~ msgid "Data Statistics"
+#~ msgstr "Στατιστικά βάσης δεδομένων"
+
+#~ msgid "No connection available"
+#~ msgstr "Δεν υπάρχει διαθέσιμη σύνδεση"
+
+#~ msgid "Could not get statistics"
+#~ msgstr "Αδύνατη η λήψη στατιστικών"
+
+#~ msgid "No statistics were available"
+#~ msgstr "Δεν υπήρχαν διαθέσιμα στατιστικά"
+
+#~ msgid "Database is currently empty"
+#~ msgstr "Η βάση δεδομένων είναι προς το παρόν κενή"
+
+#~ msgid "Could not get basic status for Tracker"
+#~ msgstr "Αδυναμία λήψης βασικής κατάστασης για το Tracker"
+
+#~ msgid "Currently indexed"
+#~ msgstr "Τρέχον ευρετήριο"
+
+#~ msgid "%d file"
+#~ msgid_plural "%d files"
+#~ msgstr[0] "%d αρχείο"
+#~ msgstr[1] "%d αρχεία"
+
+#~| msgid "%d folders"
+#~| msgid_plural "%d folders"
+#~ msgid "%d folder"
+#~ msgid_plural "%d folders"
+#~ msgstr[0] "%d φάκελος"
+#~ msgstr[1] "%d φάκελοι"
+
+#~ msgid "Data is still being indexed"
+#~ msgstr "Τα δεδομένα ευρετηριοποιούνται ακόμα"
+
+#~ msgid "Estimated %s left"
+#~ msgstr "Υπολογίζεται ότι απομένουν %s"
+
+#~ msgid "All data miners are idle, indexing complete"
+#~ msgstr ""
+#~ "Όλοι οι εξορύκτες δεδομένων είναι αδρανείς, η ευρετηρίαση ολοκληρώθηκε"
+
+#~ msgid ""
+#~ "List all tags (using FILTER if specified; FILTER always uses logical OR)"
+#~ msgstr ""
+#~ "Λίστα όλων των ετικετών (με την χρήση ΦΙΛΤΡΩΝ αν αυτό προσδιορίζεται· τα "
+#~ "ΦΙΛΤΡΑ χρησιμοποιούν πάντα λογικό Ή)"
+
+#~ msgid "FILTER"
+#~ msgstr "ΦΙΛΤΡΑ"
+
+#~ msgid "Show files associated with each tag (this is only used with --list)"
+#~ msgstr ""
+#~ "Εμφάνιση αρχείων που σχετίζονται με κάθε ετικέτα (αυτό χρησιμοποιείται "
+#~ "μόνο με --list)"
+
+#~ msgid ""
+#~ "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+#~ msgstr ""
+#~ "Προσθήκη ετικέτας (Αν τα ΑΡΧΕΙΑ έχουν παραληφθεί, η ΕΤΙΚΕΤΑ δεν "
+#~ "συσχετίζεται με κανένα αρχείο)"
+
+#~ msgid "TAG"
+#~ msgstr "ΕΤΙΚΕΤΑ"
+
+#~ msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
+#~ msgstr ""
+#~ "Διαγραφή ετικέτας (Αν τα ΑΡΧΕΙΑ έχουν παραλειφθεί, η ΕΤΙΚΕΤΑ αφαιρείται "
+#~ "από όλα τα αρχεία)"
+
+#~ msgid "Description for a tag (this is only used with --add)"
+#~ msgstr "Περιγραφή ετικέτας (αυτό χρησιμοποιείται μόνο με το --add)"
+
+#~ msgid "STRING"
+#~ msgstr "ΣΥΜΒΟΛΟΣΕΙΡΑ"
+
+#~ msgid "Use AND for search terms instead of OR (the default)"
+#~ msgstr "Χρήση του AND για αναζήτηση όρων αντί για OR (η προεπιλογή)"
+
+#~ msgid "FILE…"
+#~ msgstr "ΑΡΧΕΙΟ…"
+
+#~ msgid "FILE [FILE…]"
+#~ msgstr "ΑΡΧΕΙΟ [ΑΡΧΕΙΟ…]"
+
+#~ msgid "Could not get file URNs"
+#~ msgstr "Αδυναμία λήψης των URNs του αρχείου"
+
+#~ msgid "Could not get files related to tag"
+#~ msgstr "Αδυναμία λήψης τα αρχείων σχετικών με την ετικέτα"
+
+#~ msgid "Could not get all tags in the database"
+#~ msgstr "Αδυναμία λήψης όλων των ετικετών στην βάση δεδομένων"
+
+#~ msgid "No files have been tagged"
+#~ msgstr "Κανένα αρχείο δεν έχει ετικέτα"
+
+#~ msgid "Could not get files for matching tags"
+#~ msgstr "Αδυναμία λήψης τα αρχείων σχετικών με την ετικέτα"
+
+#~ msgid "No files were found matching ALL of those tags"
+#~ msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν όλες τις ετικέτες"
+
+#~ msgid "Could not get all tags"
+#~ msgstr "Αδυναμία λήψης όλων των ετικετών"
+
+#~ msgid "Tags (shown by name)"
+#~ msgstr "Ετικέτες (εμφανίζονται κατά όνομα)"
+
+#~ msgid "No files were modified"
+#~ msgstr "Δεν έχουν τροποποιηθεί αρχεία"
+
+#~ msgid "Files do not exist or aren’t indexed"
+#~ msgstr "Αρχεία που δεν υπάρχουν ή δεν έχουν ευρετηριοποιηθεί"
+
+#~ msgid "Could not add tag"
+#~ msgstr "Αδυναμία προσθήκης ετικέτας"
+
+#~ msgid "Tag was added successfully"
+#~ msgstr "Η ετικέτα προστέθηκε με επιτυχία"
+
+#~ msgid "Could not add tag to files"
+#~ msgstr "Αδυναμία προσθήκης ετικέτας στα αρχεία"
+
+#~ msgid "Tagged"
+#~ msgstr "Με ετικέτα"
+
+#~ msgid "Not tagged, file is not indexed"
+#~ msgstr "Χωρίς ετικέτα, το αρχείο δεν είναι ευρετηριοποιημένο"
+
+#~ msgid "Could not get tag by label"
+#~ msgstr "Αδυναμία λήψης των ετικετών"
+
+#~ msgid "No tags were found by that name"
+#~ msgstr "Δεν βρέθηκαν ετικέτες με αυτό το όνομα"
+
+#~ msgid "None of the files had this tag set"
+#~ msgstr "Κανένα από τα αρχεία δεν έχει αυτό το σύνολο της ετικέτας"
+
+#~ msgid "Could not remove tag"
+#~ msgstr "Αδυναμία αφαίρεσης ετικέτας"
+
+#~ msgid "Tag was removed successfully"
+#~ msgstr "Η ετικέτα αφαιρέθηκε με επιτυχία"
+
+#~ msgid "Untagged"
+#~ msgstr "Χωρίς ετικέτα"
+
+#~ msgid "File not indexed or already untagged"
+#~ msgstr "Το αρχείο δεν είναι ευρετηριοποιημένο ή είναι ήδη χωρίς ετικέτα"
+
+#~ msgid "The --list option is required for --show-files"
+#~ msgstr "Η επιλογή --list είναι απαιτούμενη για το --show-files"
+
+#~ msgid ""
+#~ "The --and-operator option can only be used with --list and tag label "
+#~ "arguments"
+#~ msgstr ""
+#~ "Η επιλογή --and-operator μπορεί να χρησιμοποιηθεί μόνο με την --list και "
+#~ "με ορίσματα ετικετών"
+
+#~ msgid "Add and delete actions can not be used together"
+#~ msgstr ""
+#~ "Η εντολή προσθήκη και διαγραφή δεν μπορούν να χρησιμοποιηθούν ταυτόχρονα"
+
+#~ msgid "The --description option can only be used with --add"
+#~ msgstr "Η επιλογή --description μπορεί να χρησιμοποιηθεί μόνο με την --add"
 
 #~ msgid "All posts"
 #~ msgstr "Όλες οι καταχωρήσεις"
@@ -1982,9 +1753,6 @@ msgstr "Η επιλογή --description μπορεί να χρησιμοποιη
 
 #~ msgid "Removing configuration files…"
 #~ msgstr "Αφαίρεση αρχείων ρυθμίσεων…"
-
-#~ msgid "No network connection"
-#~ msgstr "Δεν υπάρχει σύνδεση δικτύου"
 
 #~ msgid "Indexing not recommended on this network connection"
 #~ msgstr "Δεν συστήνεται η ευρετηριοποίηση σε αυτή τη σύνδεση δικτύου"
@@ -3228,9 +2996,6 @@ msgstr "Η επιλογή --description μπορεί να χρησιμοποιη
 
 #~ msgid "- Query or update using SPARQL"
 #~ msgstr "- Ερώτημα ή ενημέρωση με την χρήση SPARQL"
-
-#~ msgid "An argument must be supplied"
-#~ msgstr "Πρέπει να οριστεί ένα όρισμα"
 
 #~ msgid " - Show statistics for all Nepomuk defined ontology classes"
 #~ msgstr ""
