@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-06-21 15:18+0000\n"
-"PO-Revision-Date: 2020-06-21 20:06+0300\n"
+"POT-Creation-Date: 2020-07-18 12:56+0000\n"
+"PO-Revision-Date: 2020-07-18 16:26+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -100,6 +100,17 @@ msgstr[3] " %2.2d секунда"
 msgid "the|a|an"
 msgstr "the|a|an"
 
+#: src/portal/tracker-main.c:53
+msgid "Version"
+msgstr "Версія"
+
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:204
+#: src/tracker/tracker-export.c:305 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-info.c:471 src/tracker/tracker-sparql.c:1546
+#: src/tracker/tracker-sql.c:231
+msgid "Unrecognized options"
+msgstr "Невідомий параметр"
+
 #: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
 #: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
@@ -160,12 +171,6 @@ msgstr "Втрачено назву DBus"
 #: src/tracker/tracker-endpoint.c:184
 msgid "Closing connection…"
 msgstr "Розриваємо з'єднання…"
-
-#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:305
-#: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
-#: src/tracker/tracker-sparql.c:1546 src/tracker/tracker-sql.c:231
-msgid "Unrecognized options"
-msgstr "Невідомий параметр"
 
 #: src/tracker/tracker-endpoint.c:234
 #, c-format
@@ -303,11 +308,10 @@ msgid "Results"
 msgstr "Результати"
 
 #: src/tracker/tracker-main.c:44
-#| msgid "See “tracker help <command>” to read about a specific subcommand."
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
-"Див. «tracker3 help <команда>», щоб дізнатися більше про специфічну допоміжну "
-"команду."
+"Див. «tracker3 help <команда>», щоб дізнатися більше про специфічну "
+"допоміжну команду."
 
 #: src/tracker/tracker-main.c:93
 msgid "Get help on how to use Tracker and any of these commands"
@@ -343,12 +347,10 @@ msgstr "Надіслати запит до бази даних на найниж
 
 #: src/tracker/tracker-main.c:139
 #, c-format
-#| msgid "“%s” is not a tracker command. See “tracker --help”"
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr "«%s» не є командою tracker3. Див. «tracker3 --help»"
 
 #: src/tracker/tracker-main.c:174
-#| msgid "Available tracker commands are:"
 msgid "Available tracker3 commands are:"
 msgstr "Доступні команди tracker3:"
 
