@@ -2,6 +2,7 @@
 # Please keep this file sorted alphabetically.
 src/libtracker-common/tracker-utils.c
 src/libtracker-data/tracker-collation.c
+src/portal/tracker-main.c
 src/tracker/tracker-endpoint.c
 src/tracker/tracker-export.c
 src/tracker/tracker-help.c
