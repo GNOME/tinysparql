@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-06-21 15:18+0000\n"
+"POT-Creation-Date: 2020-07-18 12:56+0000\n"
 "PO-Revision-Date: 2020-06-25 12:12+0300\n"
 "Last-Translator: Florentina Mușat <florentina.musat.28@gmail.com>\n"
 "Language-Team: Romanian Gnome Team <gnomero-list@lists.sourceforge.net>\n"
@@ -97,6 +97,17 @@ msgstr[2] " %2.2d de secunde"
 msgid "the|a|an"
 msgstr "the|a|an|un|o"
 
+#: src/portal/tracker-main.c:53
+msgid "Version"
+msgstr "Versiune"
+
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:204
+#: src/tracker/tracker-export.c:305 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-info.c:471 src/tracker/tracker-sparql.c:1546
+#: src/tracker/tracker-sql.c:231
+msgid "Unrecognized options"
+msgstr "Opțiuni nerecunoscute"
+
 #: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
 #: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
@@ -157,12 +168,6 @@ msgstr "Nume DBus pierdut"
 #: src/tracker/tracker-endpoint.c:184
 msgid "Closing connection…"
 msgstr "Se închide conexiunea…"
-
-#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:305
-#: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
-#: src/tracker/tracker-sparql.c:1546 src/tracker/tracker-sql.c:231
-msgid "Unrecognized options"
-msgstr "Opțiuni nerecunoscute"
 
 #: src/tracker/tracker-endpoint.c:234
 #, c-format
@@ -1446,9 +1451,6 @@ msgstr "Trebuie specificată o cale a bazei de date"
 
 #~ msgid "Statistics:"
 #~ msgstr "Statistici:"
-
-#~ msgid "Version"
-#~ msgstr "Versiune"
 
 #~ msgid "Disk Information"
 #~ msgstr "Informații disc"
