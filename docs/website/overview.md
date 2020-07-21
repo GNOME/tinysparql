@@ -100,3 +100,6 @@ KDE, implemented using Xapian.
 [Apache Lucene + Solr](http://lucene.apache.org/) is a search engine which
 targets very large-scale workloads. It has a much heavier footprint compared to
 Tracker.
+
+See the Wikipedia article on [Desktop
+search](https://en.wikipedia.org/wiki/Desktop_search) for more information.
