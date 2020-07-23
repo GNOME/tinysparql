@@ -890,6 +890,7 @@ tracker_endpoint_dbus_class_init (TrackerEndpointDBusClass *klass)
 static void
 tracker_endpoint_dbus_init (TrackerEndpointDBus *endpoint)
 {
+	endpoint->cancellable = g_cancellable_new ();
 }
 
 /**
