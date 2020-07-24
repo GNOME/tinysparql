@@ -28,21 +28,6 @@
  * is created, events can be listened for by connecting to the
  * #TrackerNotifier::events signal. This object was added in Tracker 1.12.
  *
- * #TrackerNotifier is tracker:id centric, the ID can be
- * obtained from every event through tracker_notifier_event_get_id().
- * The expected way to retrieving metadata is a query of the form:
- * |[<!-- language="SPARQL" -->
- * SELECT ?urn …
- * WHERE {
- *   ?urn a rdfs:Resource .
- *   …
- *   FILTER (tracker:id(?urn) = …)
- * }
- * ]|
- *
- * If the %TRACKER_NOTIFIER_FLAG_QUERY_URN flag is passed, the extra
- * metadata will be available through tracker_notifier_event_get_urn().
- *
  * # Known caveats # {#trackernotifier-caveats}
  *
  * * The %TRACKER_NOTIFIER_EVENT_DELETE events will be received after the
@@ -55,12 +40,6 @@
  *   known to Tracker, this may make tracking of elements in specific
  *   folders hard using solely the #TrackerNotifier/Tracker data
  *   available at event notification time.
- *
- * The recommendation to fix those is making the caller aware
- * of tracker:ids, querying those in the application SPARQL
- * queries so the client can search the formerly queried data for
- * matching IDs when #TrackerNotifier events happen. URNs are just
- * as effective as a matching mechanism, but more costly.
  */
 
 #include "config.h"
@@ -885,7 +864,8 @@ tracker_notifier_event_get_event_type (TrackerNotifierEvent *event)
  * tracker_notifier_event_get_id:
  * @event: A #TrackerNotifierEvent
  *
- * Returns the tracker:id of the element being notified upon.
+ * Returns the tracker:id of the element being notified upon. This is a #gint64
+ * which is used as efficient internal identifier for the resource.
  *
  * Returns: the resource ID
  *
@@ -902,8 +882,8 @@ tracker_notifier_event_get_id (TrackerNotifierEvent *event)
  * tracker_notifier_event_get_urn:
  * @event: A #TrackerNotifierEvent
  *
- * Returns the Uniform Resource Name of the element if the
- * notifier has the flag %TRACKER_NOTIFIER_FLAG_QUERY_URN enabled.
+ * Returns the Uniform Resource Name of the element. This is Tracker's
+ * public identifier for the resource.
  *
  * This URN is an unique string identifier for the resource being
  * notified upon, typically of the form "urn:uuid:...".
