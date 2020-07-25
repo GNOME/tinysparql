@@ -36,6 +36,10 @@ image_files = [
 
 private_headers = [
     'tracker-notifier-private.h',
+    'tracker-private.h',
+    'direct',
+    'bus',
+    'remote',
 ]
 
 gnome.gtkdoc('libtracker-sparql',
