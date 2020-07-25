@@ -200,9 +200,11 @@ tracker_sparql_cursor_class_init (TrackerSparqlCursorClass *klass)
  * tracker_sparql_cursor_get_connection:
  * @cursor: a #TrackerSparqlCursor
  *
- * Returns: (transfer none): the #TrackerSparqlConnection associated with this
- * #TrackerSparqlCursor. The returned object must not be unreferenced
- * by the caller.
+ * Returns the #TrackerSparqlConnection associated with this
+ * #TrackerSparqlCursor.
+ *
+ * Returns: (transfer none): the cursor #TrackerSparqlConnection. The
+ * returned object must not be unreferenced by the caller.
  */
 TrackerSparqlConnection *
 tracker_sparql_cursor_get_connection (TrackerSparqlCursor *cursor)

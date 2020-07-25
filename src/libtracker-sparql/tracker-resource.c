@@ -916,6 +916,17 @@ tracker_resource_set_identifier (TrackerResource *self,
 	}
 }
 
+/**
+ * tracker_resource_identifier_compare_func:
+ * @resource: a #TrackerResource
+ * @identifier: a string identifying the resource
+ *
+ * A helper function that compares a #TrackerResource by its identifier
+ * string.
+ *
+ * Returns: an integer less than, equal to, or greater than zero, if the
+ *          resource identifier is <, == or > than @identifier
+ **/
 gint
 tracker_resource_identifier_compare_func (TrackerResource *resource,
                                           const char      *identifier)

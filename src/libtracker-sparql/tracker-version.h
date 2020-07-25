@@ -35,10 +35,49 @@ G_BEGIN_DECLS
 
 #define TRACKER_AVAILABLE_IN_ALL _TRACKER_EXTERN
 
+/**
+ * tracker_major_version:
+ *
+ * The major version of the Tracker library.
+ *
+ * An integer variable exported from the library linked against at application run time.
+ */
 GLIB_VAR const guint tracker_major_version;
+
+/**
+ * tracker_minor_version:
+ *
+ * The minor version of the Tracker library.
+ *
+ * An integer variable exported from the library linked against at application run time.
+ */
 GLIB_VAR const guint tracker_minor_version;
+
+/**
+ * tracker_micro_version:
+ *
+ * The micro version of the Tracker library.
+ *
+ * An integer variable exported from the library linked against at application run time.
+ */
 GLIB_VAR const guint tracker_micro_version;
+
+/**
+ * tracker_interface_age:
+ *
+ * The interface age of the Tracker library. Defines how far back the API has last been extended.
+ *
+ * An integer variable exported from the library linked against at application run time.
+ */
 GLIB_VAR const guint tracker_interface_age;
+
+/**
+ * tracker_binary_age:
+ *
+ * The binary age of the Tracker library. Defines how far back backwards compatibility reaches.
+ *
+ * An integer variable exported from the library linked against at application run time.
+ */
 GLIB_VAR const guint tracker_binary_age;
 
 /**

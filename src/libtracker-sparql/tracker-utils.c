@@ -16,12 +16,34 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+/**
+ * SECTION: tracker-misc
+ * @short_description: miscellaneous functionality
+ * @title: Utility Functions
+ * @stability: Stable
+ * @include: tracker-sparql.h
+ *
+ * Collection of Tracker utility functions.
+ */
+
 #include "config.h"
 
 #include "tracker-utils.h"
 
 #include "libtracker-data/tracker-uuid.h"
 
+/**
+ * tracker_sparql_escape_string:
+ * @literal: a string to escape
+ *
+ * Escapes @literal so it is suitable for insertion in
+ * SPARQL queries as string literals. Manual construction
+ * of query strings based user input is best avoided at
+ * all cost, use of #TrackerSparqlStatement is recommended
+ * instead.
+ *
+ * Returns: (transfer full): the escaped string
+ **/
 gchar *
 tracker_sparql_escape_string (const gchar* literal)
 {
@@ -73,6 +95,13 @@ tracker_sparql_escape_string (const gchar* literal)
 	return g_string_free (str, FALSE);
 }
 
+/**
+ * tracker_sparql_get_uuid_urn:
+ *
+ * Creates a fresh UUID-based URN.
+ *
+ * Returns: (transfer full): A newly generated UUID URN.
+ **/
 gchar *
 tracker_sparql_get_uuid_urn (void)
 {
