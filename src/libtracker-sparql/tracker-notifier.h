@@ -30,9 +30,21 @@
 #define TRACKER_TYPE_NOTIFIER (tracker_notifier_get_type ())
 #define TRACKER_TYPE_NOTIFIER_EVENT (tracker_notifier_event_get_type ())
 
+/**
+ * TrackerNotifier:
+ *
+ * The <structname>TrackerNotifier</structname> object allows subscribing
+ * to changes in the stored data.
+ */
 TRACKER_AVAILABLE_IN_ALL
 G_DECLARE_DERIVABLE_TYPE (TrackerNotifier, tracker_notifier, TRACKER, NOTIFIER, GObject)
 
+/**
+ * TrackerNotifierEvent:
+ *
+ * The <structname>TrackerNotifierEvent</structname> struct represents a
+ * change event in the stored data.
+ */
 typedef struct _TrackerNotifierEvent TrackerNotifierEvent;
 
 /**

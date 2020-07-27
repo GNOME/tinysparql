@@ -16,6 +16,17 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+/**
+ * SECTION: tracker-version
+ * @short_description: variables and functions to check Tracker version
+ * @title: Version Information
+ * @stability: Stable
+ * @include: tracker-sparql.h
+ *
+ * Tracker provides version information, primarily useful in configure checks
+ * for builds that have a configure script. Applications will not typically use
+ * the features described here.
+ */
 
 #include "config.h"
 

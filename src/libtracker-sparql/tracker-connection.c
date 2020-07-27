@@ -16,6 +16,54 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
+
+/**
+ * SECTION: tracker-sparql-connection
+ * @short_description: Connection to SPARQL triple store
+ * @title: TrackerSparqlConnection
+ * @stability: Stable
+ * @include: tracker-sparql.h
+ *
+ * <para>
+ * #TrackerSparqlConnection is an object that represents a connection to a
+ * SPARQL triple store. This store may be local and private (see
+ * tracker_sparql_connection_new()), or it may be a remote connection to a
+ * public endpoint (See tracker_sparql_connection_bus_new() and
+ * tracker_sparql_connection_remote_new()).
+ * </para>
+ *
+ * <para>
+ * A #TrackerSparqlConnection is private to the calling process, it can be
+ * exposed publicly via a #TrackerEndpoint, see tracker_endpoint_dbus_new().
+ * </para>
+ *
+ * <para>
+ * Updates on a connection are performed via the tracker_sparql_connection_update()
+ * family of calls. tracker_sparql_connection_update_array() may be used for batched
+ * updates. All functions have asynchronous variants.
+ * </para>
+ *
+ * <para>
+ * Queries on a connection are performed via tracker_sparql_connection_query()
+ * and tracker_sparql_connection_query_statement(). The first call receives a
+ * query string and returns a #TrackerSparqlCursor to iterate the results. The
+ * second call returns a #TrackerSparqlStatement object that may be reused for
+ * repeatable queries with variable parameters. tracker_sparql_statement_execute()
+ * will returns a #TrackerSparqlCursor.
+ * </para>
+ *
+ * <para>
+ * Depending on the ontology definition, #TrackerSparqlConnection may emit
+ * notifications whenever changes happen in the stored data. These notifications
+ * can be processed via a #TrackerNotifier obtained with
+ * tracker_sparql_connection_create_notifier().
+ * </para>
+ *
+ * <para>
+ * After use, a #TrackerSparqlConnection should be closed. See
+ * tracker_sparql_connection_close() and tracker_sparql_connection_close_async().
+ * </para>
+ */
 #include "config.h"
 
 #include "tracker-connection.h"

@@ -162,6 +162,8 @@ tracker_namespace_manager_get_default ()
  * @self: a #TrackerNamespaceManager
  * @prefix: a string
  *
+ * Returns whether @prefix is known.
+ *
  * Returns: %TRUE if the #TrackerNamespaceManager knows about @prefix, %FALSE otherwise
  *
  * Since: 1.10

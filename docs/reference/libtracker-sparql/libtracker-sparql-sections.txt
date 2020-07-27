@@ -213,7 +213,6 @@ tracker_sparql_cursor_set_connection
 <SECTION>
 <FILE>tracker-notifier</FILE>
 <TITLE>TrackerNotifier</TITLE>
-TrackerNotifierFlags
 TrackerNotifier
 TrackerNotifierEventType
 TrackerNotifierEvent
@@ -243,7 +242,6 @@ TrackerNotifierClass
 <TITLE>TrackerEndpoint</TITLE>
 TrackerEndpoint
 TrackerEndpointDBus
-tracker_endpoint_dbus_get_type
 tracker_endpoint_dbus_new
 tracker_endpoint_get_sparql_connection
 <SUBSECTION Standard>
@@ -256,6 +254,7 @@ TRACKER_IS_ENDPOINT_DBUS
 TRACKER_IS_ENDPOINT_DBUS_CLASS
 TrackerEndpointClass
 TrackerEndpointDBusClass
+tracker_endpoint_dbus_get_type
 </SECTION>
 
 <SECTION>

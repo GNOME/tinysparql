@@ -30,6 +30,12 @@
 #include <libtracker-sparql/tracker-connection.h>
 #include <libtracker-sparql/tracker-version.h>
 
+/**
+ * TrackerEndpoint:
+ *
+ * The <structname>TrackerEndpoint</structname> object represents a public
+ * connection to a #TrackerSparqlConnection.
+ */
 #define TRACKER_TYPE_ENDPOINT tracker_endpoint_get_type()
 TRACKER_AVAILABLE_IN_ALL
 G_DECLARE_DERIVABLE_TYPE (TrackerEndpoint, tracker_endpoint, TRACKER, ENDPOINT, GObject)
