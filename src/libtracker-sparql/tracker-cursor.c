@@ -415,13 +415,21 @@ tracker_sparql_cursor_next (TrackerSparqlCursor  *cursor,
                             GCancellable         *cancellable,
                             GError              **error)
 {
+	GError *inner_error = NULL;
+	gboolean success;
+
 	g_return_val_if_fail (TRACKER_IS_SPARQL_CURSOR (cursor), FALSE);
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), FALSE);
 	g_return_val_if_fail (!error || !*error, FALSE);
 
-	return TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->next (cursor,
-	                                                       cancellable,
-	                                                       error);
+	success = TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->next (cursor,
+	                                                          cancellable,
+	                                                          &inner_error);
+
+	if (inner_error)
+		g_propagate_error (error, _translate_internal_error (inner_error));
+
+	return success;
 }
 
 /**
@@ -464,13 +472,21 @@ tracker_sparql_cursor_next_finish (TrackerSparqlCursor  *cursor,
                                    GAsyncResult         *res,
                                    GError              **error)
 {
+	GError *inner_error = NULL;
+	gboolean success;
+
 	g_return_val_if_fail (TRACKER_IS_SPARQL_CURSOR (cursor), FALSE);
 	g_return_val_if_fail (G_IS_ASYNC_RESULT (res), FALSE);
 	g_return_val_if_fail (!error || !*error, FALSE);
 
-	return TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->next_finish (cursor,
-	                                                              res,
-	                                                              error);
+	success = TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->next_finish (cursor,
+	                                                                 res,
+	                                                                 error);
+
+	if (inner_error)
+		g_propagate_error (error, _translate_internal_error (inner_error));
+
+	return success;
 }
 
 /**

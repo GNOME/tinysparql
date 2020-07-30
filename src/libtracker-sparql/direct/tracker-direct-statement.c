@@ -20,6 +20,7 @@
 #include "config.h"
 #include "tracker-direct-statement.h"
 #include "tracker-data.h"
+#include "tracker-private.h"
 
 typedef struct _TrackerDirectStatementPrivate TrackerDirectStatementPrivate;
 
@@ -143,10 +144,16 @@ tracker_direct_statement_execute (TrackerSparqlStatement  *stmt,
                                   GError                 **error)
 {
 	TrackerDirectStatementPrivate *priv;
+	TrackerSparqlCursor *cursor;
+	GError *inner_error = NULL;
 
 	priv = tracker_direct_statement_get_instance_private (TRACKER_DIRECT_STATEMENT (stmt));
 
-	return tracker_sparql_execute_cursor (priv->sparql, priv->values, error);
+	cursor = tracker_sparql_execute_cursor (priv->sparql, priv->values, &inner_error);
+	if (inner_error)
+		g_propagate_error (error, _translate_internal_error (inner_error));
+
+	return cursor;
 }
 
 static void
@@ -232,7 +239,14 @@ tracker_direct_statement_execute_finish (TrackerSparqlStatement  *stmt,
                                          GAsyncResult            *res,
                                          GError                 **error)
 {
-	return g_task_propagate_pointer (G_TASK (res), error);
+	TrackerSparqlCursor *cursor;
+	GError *inner_error = NULL;
+
+	cursor = g_task_propagate_pointer (G_TASK (res), &inner_error);
+	if (inner_error)
+		g_propagate_error (error, _translate_internal_error (inner_error));
+
+	return cursor;
 }
 
 static void

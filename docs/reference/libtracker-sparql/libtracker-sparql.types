@@ -10,5 +10,4 @@ tracker_resource_get_type
 tracker_sparql_connection_get_type
 tracker_sparql_connection_flags_get_type
 tracker_sparql_cursor_get_type
-tracker_sparql_error_get_type
 tracker_sparql_statement_get_type

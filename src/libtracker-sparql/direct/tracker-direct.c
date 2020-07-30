@@ -26,6 +26,7 @@
 #include <libtracker-data/tracker-data.h>
 #include <libtracker-data/tracker-sparql.h>
 #include <libtracker-sparql/tracker-notifier-private.h>
+#include <libtracker-sparql/tracker-private.h>
 
 typedef struct _TrackerDirectConnectionPrivate TrackerDirectConnectionPrivate;
 
@@ -235,41 +236,6 @@ translate_flags (TrackerSparqlConnectionFlags flags)
 	return db_flags;
 }
 
-static GError *
-translate_error (GError *error)
-{
-	GError *new_error = NULL;
-
-	if (error->domain == TRACKER_DATA_ONTOLOGY_ERROR) {
-		/* This is an internal error domain, so translate to a libtracker-sparql error code. */
-		switch (error->code) {
-			case TRACKER_DATA_ONTOLOGY_NOT_FOUND:
-				new_error = g_error_new_literal (TRACKER_SPARQL_ERROR,
-				                                 TRACKER_SPARQL_ERROR_ONTOLOGY_NOT_FOUND,
-				                                 error->message);
-				break;
-			case TRACKER_DATA_UNSUPPORTED_LOCATION:
-			case TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE:
-				new_error = g_error_new_literal (TRACKER_SPARQL_ERROR,
-				                                 TRACKER_SPARQL_ERROR_UNSUPPORTED,
-				                                 error->message);
-				break;
-			default:
-				new_error = g_error_new_literal (TRACKER_SPARQL_ERROR,
-				                                 TRACKER_SPARQL_ERROR_INTERNAL,
-				                                 error->message);
-		}
-	}
-
-	if (new_error) {
-		g_error_free (error);
-		return new_error;
-	} else {
-		return error;
-	}
-}
-
-
 static gboolean
 tracker_direct_connection_initable_init (GInitable     *initable,
                                          GCancellable  *cancellable,
@@ -301,7 +267,7 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	                                               priv->ontology,
 	                                               100, 100);
 	if (!g_initable_init (G_INITABLE (priv->data_manager), cancellable, &inner_error)) {
-		g_propagate_error (error, translate_error (inner_error));
+		g_propagate_error (error, _translate_internal_error (inner_error));
 		g_clear_object (&priv->data_manager);
 		return FALSE;
 	}
@@ -649,18 +615,22 @@ tracker_direct_connection_query (TrackerSparqlConnection  *self,
 	TrackerDirectConnection *conn;
 	TrackerSparql *query;
 	TrackerSparqlCursor *cursor;
+	GError *inner_error = NULL;
 
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
 	g_mutex_lock (&priv->mutex);
 	query = tracker_sparql_new (priv->data_manager, sparql);
-	cursor = tracker_sparql_execute_cursor (query, NULL, error);
+	cursor = tracker_sparql_execute_cursor (query, NULL, &inner_error);
 	g_object_unref (query);
 
 	if (cursor)
 		tracker_sparql_cursor_set_connection (cursor, self);
 	g_mutex_unlock (&priv->mutex);
+
+	if (inner_error)
+		g_propagate_error (error, _translate_internal_error (inner_error));
 
 	return cursor;
 }
@@ -686,7 +656,7 @@ tracker_direct_connection_query_async (TrackerSparqlConnection *self,
 	                      (GDestroyNotify) task_data_free);
 
 	if (!g_thread_pool_push (priv->select_pool, task, &error)) {
-		g_task_return_error (task, error);
+		g_task_return_error (task, _translate_internal_error (error));
 		g_object_unref (task);
 	}
 }
@@ -717,14 +687,18 @@ tracker_direct_connection_update (TrackerSparqlConnection  *self,
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
 	TrackerData *data;
+	GError *inner_error = NULL;
 
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
 	g_mutex_lock (&priv->mutex);
 	data = tracker_data_manager_get_data (priv->data_manager);
-	tracker_data_update_sparql (data, sparql, error);
+	tracker_data_update_sparql (data, sparql, &inner_error);
 	g_mutex_unlock (&priv->mutex);
+
+	if (inner_error)
+		g_propagate_error (error, inner_error);
 }
 
 static void
@@ -754,7 +728,11 @@ tracker_direct_connection_update_finish (TrackerSparqlConnection  *self,
                                          GAsyncResult             *res,
                                          GError                  **error)
 {
-	g_task_propagate_boolean (G_TASK (res), error);
+	GError *inner_error = NULL;
+
+	g_task_propagate_boolean (G_TASK (res), &inner_error);
+	if (inner_error)
+		g_propagate_error (error, _translate_internal_error (inner_error));
 }
 
 static void
@@ -796,7 +774,14 @@ tracker_direct_connection_update_array_finish (TrackerSparqlConnection  *self,
                                                GAsyncResult             *res,
                                                GError                  **error)
 {
-	return g_task_propagate_boolean (G_TASK (res), error);
+	GError *inner_error = NULL;
+	gboolean result;
+
+	result = g_task_propagate_boolean (G_TASK (res), &inner_error);
+	if (inner_error)
+		g_propagate_error (error, _translate_internal_error (inner_error));
+
+	return result;
 }
 
 static GVariant *
@@ -809,15 +794,18 @@ tracker_direct_connection_update_blank (TrackerSparqlConnection  *self,
 	TrackerDirectConnection *conn;
 	TrackerData *data;
 	GVariant *blank_nodes;
+	GError *inner_error = NULL;
 
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
 	g_mutex_lock (&priv->mutex);
 	data = tracker_data_manager_get_data (priv->data_manager);
-	blank_nodes = tracker_data_update_sparql_blank (data, sparql, error);
+	blank_nodes = tracker_data_update_sparql_blank (data, sparql, &inner_error);
 	g_mutex_unlock (&priv->mutex);
 
+	if (inner_error)
+		g_propagate_error (error, _translate_internal_error (inner_error));
 	return blank_nodes;
 }
 
@@ -848,7 +836,14 @@ tracker_direct_connection_update_blank_finish (TrackerSparqlConnection  *self,
                                                GAsyncResult             *res,
                                                GError                  **error)
 {
-	return g_task_propagate_pointer (G_TASK (res), error);
+	GError *inner_error = NULL;
+	GVariant *result;
+
+	result = g_task_propagate_pointer (G_TASK (res), &inner_error);
+	if (inner_error)
+		g_propagate_error (error, _translate_internal_error (inner_error));
+
+	return result;
 }
 
 static TrackerNamespaceManager *

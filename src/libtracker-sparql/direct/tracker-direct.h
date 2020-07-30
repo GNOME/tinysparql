@@ -53,4 +53,7 @@ TrackerDirectConnection *tracker_direct_connection_new (TrackerSparqlConnectionF
 
 TrackerDataManager *tracker_direct_connection_get_data_manager (TrackerDirectConnection *conn);
 
+/* Internal helper function */
+GError *translate_db_interface_error (GError *error);
+
 #endif /* __TRACKER_LOCAL_CONNECTION_H__ */

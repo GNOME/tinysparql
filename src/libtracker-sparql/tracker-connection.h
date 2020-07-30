@@ -23,6 +23,7 @@
 #error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
 #endif
 
+#include <libtracker-sparql/tracker-error.h>
 #include <libtracker-sparql/tracker-notifier.h>
 #include <libtracker-sparql/tracker-version.h>
 #include <gio/gio.h>
@@ -66,58 +67,6 @@ G_DECLARE_DERIVABLE_TYPE (TrackerSparqlConnection,
 #include "tracker-statement.h"
 #include "tracker-namespace-manager.h"
 
-/**
- * TrackerSparqlError:
- * @TRACKER_SPARQL_ERROR_PARSE: Error parsing the SPARQL string.
- * @TRACKER_SPARQL_ERROR_UNKNOWN_CLASS: Unknown class.
- * @TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY: Unknown property.
- * @TRACKER_SPARQL_ERROR_TYPE: Wrong type.
- * @TRACKER_SPARQL_ERROR_CONSTRAINT: Subject is not in the domain of a property or
- *                             trying to set multiple values for a single valued
- *                             property.
- * @TRACKER_SPARQL_ERROR_NO_SPACE: There was no disk space available to perform the request.
- * @TRACKER_SPARQL_ERROR_INTERNAL: Internal error.
- * @TRACKER_SPARQL_ERROR_UNSUPPORTED: Unsupported feature or method.
- * @TRACKER_SPARQL_ERROR_UNKNOWN_GRAPH: Unknown graph.
- * @TRACKER_SPARQL_ERROR_ONTOLOGY_NOT_FOUND: The specified ontology wasn't found.
- * @TRACKER_SPARQL_N_ERRORS: The total number of error codes.
- *
- * Error domain for Tracker Sparql. Errors in this domain will be from the
- * #TrackerSparqlError enumeration. See #GError for more information on error
- * domains.
- */
-typedef enum {
-	TRACKER_SPARQL_ERROR_PARSE,
-	TRACKER_SPARQL_ERROR_UNKNOWN_CLASS,
-	TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
-	TRACKER_SPARQL_ERROR_TYPE,
-	TRACKER_SPARQL_ERROR_CONSTRAINT,
-	TRACKER_SPARQL_ERROR_NO_SPACE,
-	TRACKER_SPARQL_ERROR_INTERNAL,
-	TRACKER_SPARQL_ERROR_UNSUPPORTED,
-	TRACKER_SPARQL_ERROR_UNKNOWN_GRAPH,
-	TRACKER_SPARQL_ERROR_ONTOLOGY_NOT_FOUND,
-	TRACKER_SPARQL_N_ERRORS,
-} TrackerSparqlError;
-
-static const GDBusErrorEntry tracker_sparql_error_entries[] =
-{
-	{TRACKER_SPARQL_ERROR_PARSE, "org.freedesktop.Tracker.Error.Parse"},
-	{TRACKER_SPARQL_ERROR_UNKNOWN_CLASS, "org.freedesktop.Tracker.Error.UnknownClass"},
-	{TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY, "org.freedesktop.Tracker.Error.UnknownProperty"},
-	{TRACKER_SPARQL_ERROR_TYPE, "org.freedesktop.Tracker.Error.Type"},
-	{TRACKER_SPARQL_ERROR_CONSTRAINT, "org.freedesktop.Tracker.Error.Constraint"},
-	{TRACKER_SPARQL_ERROR_NO_SPACE, "org.freedesktop.Tracker.Error.NoSpace"},
-	{TRACKER_SPARQL_ERROR_INTERNAL, "org.freedesktop.Tracker.Error.Internal"},
-	{TRACKER_SPARQL_ERROR_UNSUPPORTED, "org.freedesktop.Tracker.Error.Unsupported"},
-	{TRACKER_SPARQL_ERROR_UNKNOWN_GRAPH, "org.freedesktop.Tracker.Error.UnknownGraph"},
-	{TRACKER_SPARQL_ERROR_ONTOLOGY_NOT_FOUND, "org.freedesktop.Tracker.Error.OntologyNotFound"},
-};
-
-#define TRACKER_SPARQL_ERROR tracker_sparql_error_quark ()
-
-TRACKER_AVAILABLE_IN_ALL
-GQuark tracker_sparql_error_quark (void);
 
 TRACKER_AVAILABLE_IN_ALL
 TrackerSparqlConnection * tracker_sparql_connection_new (TrackerSparqlConnectionFlags   flags,
