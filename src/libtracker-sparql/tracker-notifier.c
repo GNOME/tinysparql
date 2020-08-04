@@ -71,6 +71,7 @@ struct _TrackerNotifierPrivate {
 	GCancellable *cancellable;
 	TrackerSparqlStatement *local_statement;
 	gint n_local_statement_slots;
+	GMutex mutex;
 };
 
 struct _TrackerNotifierEventCache {
@@ -78,6 +79,7 @@ struct _TrackerNotifierEventCache {
 	gchar *graph;
 	TrackerNotifier *notifier;
 	GSequence *sequence;
+	GSequenceIter *first;
 };
 
 struct _TrackerNotifierEvent {
@@ -100,10 +102,15 @@ enum {
 
 static guint signals[N_SIGNALS] = { 0 };
 
+#define N_SLOTS 50 /* In sync with tracker-vtab-service.c parameters */
+
 #define DEFAULT_OBJECT_PATH "/org/freedesktop/Tracker3/Endpoint"
 
 G_DEFINE_TYPE_WITH_CODE (TrackerNotifier, tracker_notifier, G_TYPE_OBJECT,
                          G_ADD_PRIVATE (TrackerNotifier))
+
+static void tracker_notifier_query_extra_info (TrackerNotifier           *notifier,
+                                               TrackerNotifierEventCache *cache);
 
 static TrackerNotifierSubscription *
 tracker_notifier_subscription_new (TrackerNotifier *notifier,
@@ -365,8 +372,7 @@ tracker_notifier_emit_events_in_idle (TrackerNotifierEventCache *cache)
 
 static gchar *
 create_extra_info_query (TrackerNotifier           *notifier,
-                         TrackerNotifierEventCache *cache,
-                         gint                       n_slots)
+                         TrackerNotifierEventCache *cache)
 {
 	GString *sparql;
 	gchar *service;
@@ -384,7 +390,7 @@ create_extra_info_query (TrackerNotifier           *notifier,
 
 	g_string_append (sparql, "{ VALUES ?id { ");
 
-	for (i = 0; i < n_slots; i++) {
+	for (i = 0; i < N_SLOTS; i++) {
 		g_string_append_printf (sparql, "~arg%d ", i + 1);
 	}
 
@@ -405,33 +411,26 @@ create_extra_info_query (TrackerNotifier           *notifier,
 
 static TrackerSparqlStatement *
 ensure_extra_info_statement (TrackerNotifier           *notifier,
-                             TrackerNotifierEventCache *cache,
-                             gint                      *n_slots_out)
+                             TrackerNotifierEventCache *cache)
 {
 	TrackerSparqlStatement **ptr;
 	TrackerNotifierPrivate *priv;
 	gchar *sparql;
-	gint *n_slots, new_slots;
 	GError *error = NULL;
 
 	priv = tracker_notifier_get_instance_private (notifier);
 
 	if (cache->subscription) {
 		ptr = &cache->subscription->statement;
-		n_slots = &cache->subscription->n_statement_slots;
 	} else {
 		ptr = &priv->local_statement;
-		n_slots = &priv->n_local_statement_slots;
 	}
 
-	if (*ptr && *n_slots >= g_sequence_get_length (cache->sequence)) {
-		*n_slots_out = *n_slots;
+	if (*ptr) {
 		return *ptr;
 	}
 
-	g_clear_object (ptr);
-	new_slots = g_sequence_get_length (cache->sequence);
-	sparql = create_extra_info_query (notifier, cache, new_slots);
+	sparql = create_extra_info_query (notifier, cache);
 	*ptr = tracker_sparql_connection_query_statement (priv->connection,
 	                                                  sparql,
 	                                                  priv->cancellable,
@@ -443,9 +442,6 @@ ensure_extra_info_statement (TrackerNotifier           *notifier,
 		g_error_free (error);
 		return NULL;
 	}
-
-	*n_slots = new_slots;
-	*n_slots_out = new_slots;
 
 	return *ptr;
 }
@@ -462,7 +458,7 @@ handle_cursor (GTask        *task,
 	GSequenceIter *iter;
 	gint64 id;
 
-	iter = g_sequence_get_begin_iter (cache->sequence);
+	iter = cache->first;
 
 	/* We rely here in both the GPtrArray and the query items being
 	 * sorted by tracker:id, the former will be so because the way it's
@@ -487,8 +483,13 @@ handle_cursor (GTask        *task,
 	}
 
 	tracker_sparql_cursor_close (cursor);
+	cache->first = iter;
 
-	tracker_notifier_emit_events_in_idle (cache);
+	if (g_sequence_iter_is_end (cache->first)) {
+		tracker_notifier_emit_events_in_idle (cache);
+	} else {
+		tracker_notifier_query_extra_info (cache->notifier, cache);
+	}
 
 	g_task_return_boolean (task, TRUE);
 }
@@ -549,15 +550,16 @@ query_extra_info_cb (GObject      *object,
 
 static void
 bind_arguments (TrackerSparqlStatement    *statement,
-                TrackerNotifierEventCache *cache,
-                gint                       n_slots)
+                TrackerNotifierEventCache *cache)
 {
 	GSequenceIter *iter;
 	gchar *arg_name;
 	gint i = 0;
 
-	for (iter = g_sequence_get_begin_iter (cache->sequence);
-	     !g_sequence_iter_is_end (iter);
+	tracker_sparql_statement_clear_bindings (statement);
+
+	for (iter = cache->first;
+	     !g_sequence_iter_is_end (iter) && i < N_SLOTS;
 	     iter = g_sequence_iter_next (iter)) {
 		TrackerNotifierEvent *event;
 
@@ -570,7 +572,7 @@ bind_arguments (TrackerSparqlStatement    *statement,
 	}
 
 	/* Fill in missing slots with 0's */
-	while (i < n_slots) {
+	while (i < N_SLOTS) {
 		arg_name = g_strdup_printf ("arg%d", i + 1);
 		tracker_sparql_statement_bind_int (statement, arg_name, 0);
 		g_free (arg_name);
@@ -584,18 +586,23 @@ tracker_notifier_query_extra_info (TrackerNotifier           *notifier,
 {
 	TrackerNotifierPrivate *priv;
 	TrackerSparqlStatement *statement;
-	gint n_slots;
 
-	statement = ensure_extra_info_statement (notifier, cache, &n_slots);
-	if (!statement)
-		return;
-
-	bind_arguments (statement, cache, n_slots);
 	priv = tracker_notifier_get_instance_private (notifier);
+
+	g_mutex_lock (&priv->mutex);
+
+	statement = ensure_extra_info_statement (notifier, cache);
+	if (!statement)
+		goto out;
+
+	bind_arguments (statement, cache);
 	tracker_sparql_statement_execute_async (statement,
 	                                        priv->cancellable,
 	                                        query_extra_info_cb,
 	                                        cache);
+
+out:
+	g_mutex_unlock (&priv->mutex);
 }
 
 void
@@ -608,6 +615,7 @@ _tracker_notifier_event_cache_flush_events (TrackerNotifierEventCache *cache)
 		return;
 	}
 
+	cache->first = g_sequence_get_begin_iter (cache->sequence);
 	tracker_notifier_query_extra_info (notifier, cache);
 }
 
