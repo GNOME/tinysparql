@@ -481,7 +481,7 @@ tracker_sparql_cursor_next_finish (TrackerSparqlCursor  *cursor,
 
 	success = TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->next_finish (cursor,
 	                                                                 res,
-	                                                                 error);
+	                                                                 &inner_error);
 
 	if (inner_error)
 		g_propagate_error (error, _translate_internal_error (inner_error));
