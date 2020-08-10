@@ -21,6 +21,22 @@
 #include "tracker-error.h"
 #include <libtracker-data/tracker-data.h>
 
+static const GDBusErrorEntry tracker_sparql_error_entries[] =
+{
+	{TRACKER_SPARQL_ERROR_CONSTRAINT, "org.freedesktop.Tracker.Error.Constraint"},
+	{TRACKER_SPARQL_ERROR_INTERNAL, "org.freedesktop.Tracker.Error.Internal"},
+	{TRACKER_SPARQL_ERROR_NO_SPACE, "org.freedesktop.Tracker.Error.NoSpace"},
+	{TRACKER_SPARQL_ERROR_ONTOLOGY_NOT_FOUND, "org.freedesktop.Tracker.Error.OntologyNotFound"},
+	{TRACKER_SPARQL_ERROR_OPEN_ERROR, "org.freedesktop.Tracker.Error.OpenError"},
+	{TRACKER_SPARQL_ERROR_PARSE, "org.freedesktop.Tracker.Error.Parse"},
+	{TRACKER_SPARQL_ERROR_QUERY_FAILED, "org.freedesktop.Tracker.Error.QueryFailed"},
+	{TRACKER_SPARQL_ERROR_TYPE, "org.freedesktop.Tracker.Error.Type"},
+	{TRACKER_SPARQL_ERROR_UNKNOWN_CLASS, "org.freedesktop.Tracker.Error.UnknownClass"},
+	{TRACKER_SPARQL_ERROR_UNKNOWN_GRAPH, "org.freedesktop.Tracker.Error.UnknownGraph"},
+	{TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY, "org.freedesktop.Tracker.Error.UnknownProperty"},
+	{TRACKER_SPARQL_ERROR_UNSUPPORTED, "org.freedesktop.Tracker.Error.Unsupported"},
+};
+
 G_STATIC_ASSERT (G_N_ELEMENTS (tracker_sparql_error_entries) == TRACKER_SPARQL_N_ERRORS);
 
 GQuark
