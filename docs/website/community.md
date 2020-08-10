@@ -13,7 +13,7 @@ posts.
 
 Real time discussion can be found in the #tracker channel on the GIMPnet IRC
 network, also bridged to the Matrix channel #tracker:gnome.org.
-[Click here to join the conversation in your browser](https://riot.im/app/#/room/#tracker:gnome.org)
-using the Riot.im webapp.
+[Click here to join the conversation in your browser](https://app.element.io/#/room/#tracker:gnome.org)
+using the Element webapp.
 
 There is also a [Tracker project wiki](https://wiki.gnome.org/Projects/Tracker).
