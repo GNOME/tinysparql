@@ -38,6 +38,7 @@
     <xi:include href="xml/tracker-endpoint.xml"/>
     <xi:include href="xml/tracker-misc.xml"/>
     <xi:include href="xml/tracker-version.xml"/>
+    <xi:include href="xml/tracker-sparql-error.xml"/>
   </part>
 
   <part id="base-ontology">

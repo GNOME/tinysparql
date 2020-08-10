@@ -178,10 +178,24 @@ tracker_db_interface_sqlite_enable_shared_cache (void)
 }
 
 static void
+result_context_function_error (sqlite3_context *context,
+			       const gchar     *sparql_function,
+			       const gchar     *error_message)
+{
+	gchar *message;
+
+	message = g_strdup_printf ("%s: %s", sparql_function, error_message);
+	sqlite3_result_error (context, message, -1);
+
+	g_free (message);
+}
+
+static void
 function_sparql_string_join (sqlite3_context *context,
                              int              argc,
                              sqlite3_value   *argv[])
 {
+	const gchar *fn = "fn:string-join";
 	GString *str = NULL;
 	const gchar *separator;
 	gint i;
@@ -189,7 +203,7 @@ function_sparql_string_join (sqlite3_context *context,
 	/* fn:string-join (str1, str2, ..., separator) */
 
 	if (sqlite3_value_type (argv[argc-1]) != SQLITE_TEXT) {
-		sqlite3_result_error (context, "Invalid separator", -1);
+		result_context_function_error (context, fn, "Invalid separator");
 		return;
 	}
 
@@ -225,11 +239,12 @@ function_sparql_string_from_filename (sqlite3_context *context,
                                       int              argc,
                                       sqlite3_value   *argv[])
 {
+	const gchar *fn = "fn:string-from-filename";
 	gchar  *name = NULL;
 	gchar  *suffix = NULL;
 
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -259,12 +274,13 @@ function_sparql_uri_is_parent (sqlite3_context *context,
                                int              argc,
                                sqlite3_value   *argv[])
 {
+	const gchar *fn = "tracker:uri-is-parent";
 	const gchar *uri, *parent, *remaining;
 	gboolean match = FALSE;
 	guint parent_len;
 
 	if (argc != 2) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -272,7 +288,7 @@ function_sparql_uri_is_parent (sqlite3_context *context,
 	uri = (gchar *)sqlite3_value_text (argv[1]);
 
 	if (!parent || !uri) {
-		sqlite3_result_error (context, "Invalid arguments", -1);
+		result_context_function_error (context, fn, "Invalid arguments");
 		return;
 	}
 
@@ -371,6 +387,7 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
                                    int              argc,
                                    sqlite3_value   *argv[])
 {
+	const gchar *fn = "tracker:uri-is-descendant";
 	const gchar *child;
 	gboolean match = FALSE;
 	gint i;
@@ -378,7 +395,7 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 	/* fn:uri-is-descendant (parent1, parent2, ..., parentN, child) */
 
 	if (argc < 2) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -387,7 +404,7 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 			sqlite3_result_int (context, FALSE);
 			return;
 		} else if (sqlite3_value_type (argv[i]) != SQLITE_TEXT) {
-			sqlite3_result_error (context, "Invalid non-text argument", -1);
+			result_context_function_error (context, fn, "Invalid non-text argument");
 			return;
 		}
 	}
@@ -414,8 +431,10 @@ function_sparql_format_time (sqlite3_context *context,
                              int              argc,
                              sqlite3_value   *argv[])
 {
+	const gchar *fn = "SparqlFormatTime helper";
+
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -435,7 +454,7 @@ function_sparql_format_time (sqlite3_context *context,
 		str = sqlite3_value_text (argv[0]);
 		sqlite3_result_text (context, g_strdup (str), -1, g_free);
 	} else {
-		sqlite3_result_error (context, "Invalid argument type", -1);
+		result_context_function_error (context, fn, "Invalid argument type");
 	}
 }
 
@@ -444,8 +463,10 @@ function_sparql_timestamp (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
 {
+	const gchar *fn = "SparqlTimestamp helper";
+
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -467,14 +488,14 @@ function_sparql_timestamp (sqlite3_context *context,
 		time = tracker_string_to_date (str, &offset, &error);
 
 		if (error) {
-			sqlite3_result_error (context, "Failed time string conversion", -1);
+			result_context_function_error (context, fn, "Failed time string conversion");
 			g_error_free (error);
 			return;
 		}
 
 		sqlite3_result_double (context, time + offset);
 	} else {
-		sqlite3_result_error (context, "Invalid argument type", -1);
+		result_context_function_error (context, fn, "Invalid argument type");
 	}
 }
 
@@ -483,10 +504,11 @@ function_sparql_time_sort (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
 {
+	const gchar *fn = "SparqlTimeSort helper";
 	gint64 sort_key;
 
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -508,14 +530,14 @@ function_sparql_time_sort (sqlite3_context *context,
 		time = tracker_string_to_date (value, NULL, &error);
 
 		if (error) {
-			sqlite3_result_error (context, "Failed time string conversion", -1);
+			result_context_function_error (context, fn, "Failed time string conversion");
 			g_error_free (error);
 			return;
 		}
 
 		sort_key = (gint64) (time * G_USEC_PER_SEC);
 	} else {
-		sqlite3_result_error (context, "Invalid argument type", -1);
+		result_context_function_error (context, fn, "Invalid argument type");
 		return;
 	}
 
@@ -527,8 +549,9 @@ function_sparql_time_zone_duration (sqlite3_context *context,
                                     int              argc,
                                     sqlite3_value   *argv[])
 {
+	const gchar *fn = "timezone-from-dateTime";
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -546,14 +569,14 @@ function_sparql_time_zone_duration (sqlite3_context *context,
 		tracker_string_to_date (str, &offset, &error);
 
 		if (error) {
-			sqlite3_result_error (context, "Invalid date", -1);
+			result_context_function_error (context, fn, "Invalid date");
 			g_error_free (error);
 			return;
 		}
 
 		sqlite3_result_int (context, offset);
 	} else {
-		sqlite3_result_error (context, "Invalid argument type", -1);
+		result_context_function_error (context, fn, "Invalid argument type");
 	}
 }
 
@@ -563,7 +586,7 @@ function_sparql_time_zone_substr (sqlite3_context *context,
                                   sqlite3_value   *argv[])
 {
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		sqlite3_result_error (context, "Invalid argument count converting timezone to string", -1);
 		return;
 	}
 
@@ -596,7 +619,7 @@ function_sparql_time_zone_substr (sqlite3_context *context,
 			sqlite3_result_text (context, "", -1, NULL);
 		}
 	} else {
-		sqlite3_result_error (context, "Invalid argument type", -1);
+		sqlite3_result_error (context, "Invalid argument type converting timezone to string", -1);
 	}
 }
 
@@ -631,8 +654,10 @@ function_sparql_time_zone (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
 {
+	const gchar *fn = "SparqlTimezone helper";
+
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -651,7 +676,7 @@ function_sparql_time_zone (sqlite3_context *context,
 		tracker_string_to_date (str, &offset, &error);
 
 		if (error) {
-			sqlite3_result_error (context, "Invalid date", -1);
+			result_context_function_error (context, fn, "Invalid date");
 			g_error_free (error);
 			return;
 		}
@@ -659,7 +684,7 @@ function_sparql_time_zone (sqlite3_context *context,
 		duration = offset_to_duration (offset);
 		sqlite3_result_text (context, g_strdup (duration), -1, g_free);
 	} else {
-		sqlite3_result_error (context, "Invalid argument type", -1);
+		result_context_function_error (context, fn, "Invalid argument type");
 	}
 }
 
@@ -668,6 +693,8 @@ function_sparql_cartesian_distance (sqlite3_context *context,
                                     int              argc,
                                     sqlite3_value   *argv[])
 {
+	const gchar *fn = "tracker:cartesian-distance";
+
 	gdouble lat1;
 	gdouble lat2;
 	gdouble lon1;
@@ -680,7 +707,7 @@ function_sparql_cartesian_distance (sqlite3_context *context,
 	gdouble d;
 
 	if (argc != 4) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -703,6 +730,8 @@ function_sparql_haversine_distance (sqlite3_context *context,
                                     int              argc,
                                     sqlite3_value   *argv[])
 {
+	const gchar *fn = "tracker:haversine-distance";
+
 	gdouble lat1;
 	gdouble lat2;
 	gdouble lon1;
@@ -716,7 +745,7 @@ function_sparql_haversine_distance (sqlite3_context *context,
 	gdouble d;
 
 	if (argc != 4) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -740,13 +769,14 @@ function_sparql_regex (sqlite3_context *context,
                        int              argc,
                        sqlite3_value   *argv[])
 {
+	const gchar *fn = "fn:matches";
 	gboolean ret;
 	const gchar *text, *pattern, *flags = "";
 	GRegexCompileFlags regex_flags;
 	GRegex *regex;
 
 	if (argc != 2 && argc != 3) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -780,7 +810,7 @@ function_sparql_regex (sqlite3_context *context,
 				break;
 			default:
 				err_str = g_strdup_printf ("Invalid SPARQL regex flag '%c'", *flags);
-				sqlite3_result_error (context, err_str, -1);
+				result_context_function_error (context, fn, err_str);
 				g_free (err_str);
 				return;
 			}
@@ -790,7 +820,7 @@ function_sparql_regex (sqlite3_context *context,
 		regex = g_regex_new (pattern, regex_flags, 0, &error);
 
 		if (error) {
-			sqlite3_result_error (context, error->message, -1);
+			result_context_function_error (context, fn, error->message);
 			g_clear_error (&error);
 			return;
 		}
@@ -826,6 +856,7 @@ function_sparql_replace (sqlite3_context *context,
                          int              argc,
                          sqlite3_value   *argv[])
 {
+	const gchar *fn = "fn:replace";
 	TrackerDBInterface *db_interface = sqlite3_user_data (context);
 	TrackerDBReplaceFuncChecks *checks = &db_interface->replace_func_checks;
 	gboolean store_regex = FALSE, store_replace_regex = FALSE;
@@ -843,7 +874,7 @@ function_sparql_replace (sqlite3_context *context,
 	} else if (argc == 4) {
 		flags = (gchar *)sqlite3_value_text (argv[3]);
 	} else {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -870,7 +901,7 @@ function_sparql_replace (sqlite3_context *context,
 				break;
 			default:
 				err_str = g_strdup_printf ("Invalid SPARQL regex flag '%c'", flags[i]);
-				sqlite3_result_error (context, err_str, -1);
+				result_context_function_error (context, fn, err_str);
 				g_free (err_str);
 				return;
 			}
@@ -879,7 +910,7 @@ function_sparql_replace (sqlite3_context *context,
 		regex = g_regex_new (pattern, regex_flags, 0, &error);
 
 		if (error) {
-			sqlite3_result_error (context, error->message, -1);
+			result_context_function_error (context, fn, error->message);
 			g_clear_error (&error);
 			return;
 		}
@@ -890,7 +921,7 @@ function_sparql_replace (sqlite3_context *context,
 		if (g_regex_match (regex, "", 0, NULL)) {
 			err_str = g_strdup_printf ("The given pattern '%s' matches a zero-length string.",
 			                           pattern);
-			sqlite3_result_error (context, err_str, -1);
+			result_context_function_error (context, fn, err_str);
 			g_regex_unref (regex);
 			g_free (err_str);
 			return;
@@ -908,7 +939,7 @@ function_sparql_replace (sqlite3_context *context,
 		                           "that is not immediately followed by a digit 0-9 and "
 		                           "not immediately preceded by a \"\\\".",
 		                           replacement);
-		sqlite3_result_error (context, err_str, -1);
+		result_context_function_error (context, fn, err_str);
 		g_free (err_str);
 		return;
 	}
@@ -964,7 +995,7 @@ function_sparql_replace (sqlite3_context *context,
 	}
 
 	if (error) {
-		sqlite3_result_error (context, error->message, -1);
+		result_context_function_error (context, fn, error->message);
 		g_clear_error (&error);
 		return;
 	}
@@ -1062,6 +1093,7 @@ function_sparql_normalize (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
 {
+	const gchar *fn = "tracker:normalize";
 	const gchar *nfstr;
 	const uint16_t *zInput;
 	uint16_t *zOutput;
@@ -1070,7 +1102,7 @@ function_sparql_normalize (sqlite3_context *context,
 	uninorm_t nf;
 
 	if (argc != 2) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1090,7 +1122,7 @@ function_sparql_normalize (sqlite3_context *context,
 	else if (g_ascii_strcasecmp (nfstr, "nfkd") == 0)
 		nf = UNINORM_NFKD;
 	else {
-		sqlite3_result_error (context, "Invalid normalization specified, options are 'nfc', 'nfd', 'nfkc' or 'nfkd'", -1);
+		result_context_function_error (context, fn, "Invalid normalization specified, options are 'nfc', 'nfd', 'nfkc' or 'nfkd'");
 		return;
 	}
 
@@ -1136,6 +1168,7 @@ function_sparql_lower_case (sqlite3_context *context,
                             int              argc,
                             sqlite3_value   *argv[])
 {
+	const gchar *fn = "fn:lower-case";
 	const UChar *zInput;
 	UChar *zOutput;
 	int nInput;
@@ -1166,7 +1199,7 @@ function_sparql_lower_case (sqlite3_context *context,
 		sqlite3_snprintf (128, zBuf, "ICU error: u_strToLower(): %s", u_errorName (status));
 		zBuf[127] = '\0';
 		sqlite3_free (zOutput);
-		sqlite3_result_error (context, zBuf, -1);
+		result_context_function_error (context, fn, zBuf);
 		return;
 	}
 
@@ -1178,6 +1211,7 @@ function_sparql_upper_case (sqlite3_context *context,
                             int              argc,
                             sqlite3_value   *argv[])
 {
+	const gchar *fn = "fn:upper-case";
 	const UChar *zInput;
 	UChar *zOutput;
 	int nInput;
@@ -1208,7 +1242,7 @@ function_sparql_upper_case (sqlite3_context *context,
 		sqlite3_snprintf (128, zBuf, "ICU error: u_strToUpper(): %s", u_errorName (status));
 		zBuf[127] = '\0';
 		sqlite3_free (zOutput);
-		sqlite3_result_error (context, zBuf, -1);
+		result_context_function_error (context, fn, zBuf);
 		return;
 	}
 
@@ -1220,6 +1254,7 @@ function_sparql_case_fold (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
 {
+	const gchar *fn = "tracker:case-fold";
 	const UChar *zInput;
 	UChar *zOutput;
 	int nInput;
@@ -1250,7 +1285,7 @@ function_sparql_case_fold (sqlite3_context *context,
 		sqlite3_snprintf (128, zBuf, "ICU error: u_strFoldCase: %s", u_errorName (status));
 		zBuf[127] = '\0';
 		sqlite3_free (zOutput);
-		sqlite3_result_error (context, zBuf, -1);
+		result_context_function_error (context, fn, zBuf);
 		return;
 	}
 
@@ -1296,6 +1331,7 @@ function_sparql_normalize (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
 {
+	const gchar *fn = "tracker:normalize";
 	const gchar *nfstr;
 	const uint16_t *zInput;
 	uint16_t *zOutput = NULL;
@@ -1305,7 +1341,7 @@ function_sparql_normalize (sqlite3_context *context,
 	UErrorCode status = U_ZERO_ERROR;
 
 	if (argc != 2) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1325,7 +1361,7 @@ function_sparql_normalize (sqlite3_context *context,
 	else if (g_ascii_strcasecmp (nfstr, "nfkd") == 0)
 		normalizer = unorm2_getNFKDInstance (&status);
 	else {
-		sqlite3_result_error (context, "Invalid normalization specified", -1);
+		result_context_function_error (context, fn, "Invalid normalization specified");
 		return;
 	}
 
@@ -1339,7 +1375,7 @@ function_sparql_normalize (sqlite3_context *context,
 		sqlite3_snprintf (128, zBuf, "ICU error: unorm_normalize: %s", u_errorName (status));
 		zBuf[127] = '\0';
 		sqlite3_free (zOutput);
-		sqlite3_result_error (context, zBuf, -1);
+		result_context_function_error (context, fn, zBuf);
 		return;
 	}
 
@@ -1351,6 +1387,7 @@ function_sparql_unaccent (sqlite3_context *context,
                           int              argc,
                           sqlite3_value   *argv[])
 {
+	const gchar *fn = "tracker:unaccent";
 	const uint16_t *zInput;
 	uint16_t *zOutput = NULL;
 	int nInput;
@@ -1378,7 +1415,7 @@ function_sparql_unaccent (sqlite3_context *context,
 		sqlite3_snprintf (128, zBuf, "ICU error: unorm_normalize: %s", u_errorName (status));
 		zBuf[127] = '\0';
 		sqlite3_free (zOutput);
-		sqlite3_result_error (context, zBuf, -1);
+		result_context_function_error (context, fn, zBuf);
 		return;
 	}
 
@@ -1395,11 +1432,12 @@ function_sparql_encode_for_uri (sqlite3_context *context,
                                 int              argc,
                                 sqlite3_value   *argv[])
 {
+	const gchar *fn = "fn:encode-for-uri";
 	const gchar *str;
 	gchar *encoded;
 
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1413,11 +1451,12 @@ function_sparql_uri (sqlite3_context *context,
                      int              argc,
                      sqlite3_value   *argv[])
 {
+	const gchar *fn = "tracker:uri";
 	const gchar *str;
 	gchar *encoded;
 
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1433,17 +1472,18 @@ function_sparql_string_before (sqlite3_context *context,
                                int              argc,
                                sqlite3_value   *argv[])
 {
+	const gchar *fn = "fn:substring-before";
 	const gchar *str, *substr, *loc;
 	gint len;
 
 	if (argc != 2) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
 	if (sqlite3_value_type (argv[0]) != SQLITE_TEXT ||
 	    sqlite3_value_type (argv[1]) != SQLITE_TEXT) {
-		sqlite3_result_error (context, "Invalid argument types", -1);
+		result_context_function_error (context, fn, "Invalid argument types");
 		return;
 	}
 
@@ -1471,17 +1511,18 @@ function_sparql_string_after (sqlite3_context *context,
                               int              argc,
                               sqlite3_value   *argv[])
 {
+	const gchar *fn = "fn:substring-after";
 	const gchar *str, *substr, *loc;
 	gint len;
 
 	if (argc != 2) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
 	if (sqlite3_value_type (argv[0]) != SQLITE_TEXT ||
 	    sqlite3_value_type (argv[1]) != SQLITE_TEXT) {
-		sqlite3_result_error (context, "Invalid argument types", -1);
+		result_context_function_error (context, fn, "Invalid argument types");
 		return;
 	}
 
@@ -1509,10 +1550,11 @@ function_sparql_ceil (sqlite3_context *context,
                       int              argc,
                       sqlite3_value   *argv[])
 {
+	const gchar *fn = "fn:numeric-ceil";
 	gdouble value;
 
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1525,10 +1567,11 @@ function_sparql_floor (sqlite3_context *context,
                        int              argc,
                        sqlite3_value   *argv[])
 {
+	const gchar *fn = "fn:numeric-floor";
 	gdouble value;
 
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1541,11 +1584,12 @@ function_sparql_data_type (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
 {
+	const gchar *fn = "SparqlDateType helper";
 	TrackerPropertyType prop_type;
 	const gchar *type = NULL;
 
 	if (argc != 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1591,8 +1635,10 @@ function_sparql_rand (sqlite3_context *context,
                       int              argc,
                       sqlite3_value   *argv[])
 {
+	const gchar *fn = "rand";
+
 	if (argc != 0) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1601,15 +1647,16 @@ function_sparql_rand (sqlite3_context *context,
 
 static void
 function_sparql_checksum (sqlite3_context *context,
-			  int              argc,
-			  sqlite3_value   *argv[])
+                          int              argc,
+                          sqlite3_value   *argv[])
 {
+	const gchar *fn = "SparqlCheckSum helper";
 	const gchar *str, *checksumstr;
 	GChecksumType checksum;
 	gchar *result;
 
 	if (argc != 2) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1617,7 +1664,7 @@ function_sparql_checksum (sqlite3_context *context,
 	checksumstr = (gchar *)sqlite3_value_text (argv[1]);
 
 	if (!str || !checksumstr) {
-		sqlite3_result_error (context, "Invalid arguments", -1);
+		result_context_function_error (context, fn, "Invalid arguments");
 		return;
 	}
 
@@ -1634,7 +1681,7 @@ function_sparql_checksum (sqlite3_context *context,
 	else if (g_ascii_strcasecmp (checksumstr, "sha512") == 0)
 		checksum = G_CHECKSUM_SHA512;
 	else {
-		sqlite3_result_error (context, "Invalid checksum method specified", -1);
+		result_context_function_error (context, fn, "Invalid checksum method specified");
 		return;
 	}
 
@@ -1647,11 +1694,12 @@ function_sparql_langmatches (sqlite3_context *context,
                              int              argc,
                              sqlite3_value   *argv[])
 {
+	const gchar *fn = "langMatches";
 	const gchar *str, *langtag;
 	gint type;
 
 	if (argc != 2) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1684,11 +1732,12 @@ function_sparql_strlang (sqlite3_context *context,
                          int              argc,
                          sqlite3_value   *argv[])
 {
+	const gchar *fn = "strlang";
 	const gchar *str, *langtag;
 	GString *langstr;
 
 	if (argc != 2) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1732,6 +1781,7 @@ stmt_step (sqlite3_stmt *stmt)
 
 static void
 generate_uuid (sqlite3_context *context,
+               const gchar     *fn,
                const gchar     *uri_prefix)
 {
 	gchar *uuid = NULL;
@@ -1748,7 +1798,7 @@ generate_uuid (sqlite3_context *context,
 		result = sqlite3_prepare_v2 (db, "SELECT ID FROM Resource WHERE Uri=?",
 		                             -1, &stmt, NULL);
 		if (result != SQLITE_OK) {
-			sqlite3_result_error (context, sqlite3_errstr (result), -1);
+			result_context_function_error (context, fn, sqlite3_errstr (result));
 			return;
 		}
 
@@ -1770,7 +1820,7 @@ generate_uuid (sqlite3_context *context,
 	}
 
 	if (result != SQLITE_DONE) {
-		sqlite3_result_error (context, sqlite3_errstr (result), -1);
+		result_context_function_error (context, fn, sqlite3_errstr (result));
 		g_free (uuid);
 	} else {
 		sqlite3_result_text (context, uuid, -1, g_free);
@@ -1782,15 +1832,16 @@ function_sparql_uuid (sqlite3_context *context,
                       int              argc,
                       sqlite3_value   *argv[])
 {
+	const gchar *fn = "SparqlUUID helper";
 	const gchar *prefix;
 
 	if (argc > 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
 	prefix = sqlite3_value_text (argv[0]);
-	generate_uuid (context, prefix);
+	generate_uuid (context, fn, prefix);
 }
 
 static void
@@ -1798,12 +1849,14 @@ function_sparql_bnode (sqlite3_context *context,
                        int              argc,
                        sqlite3_value   *argv[])
 {
+	const gchar *fn = "SparlBNODE helper";
+
 	if (argc > 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
-	generate_uuid (context, "urn:bnode");
+	generate_uuid (context, fn, "urn:bnode");
 }
 
 static void
@@ -1811,8 +1864,10 @@ function_sparql_print_iri (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
 {
+	const gchar *fn = "PrintIRI helper";
+
 	if (argc > 1) {
-		sqlite3_result_error (context, "Invalid argument count", -1);
+		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
@@ -1831,7 +1886,7 @@ function_sparql_print_iri (sqlite3_context *context,
 			result = sqlite3_prepare_v2 (db, "SELECT Uri FROM Resource WHERE ID = ?",
 			                             -1, &stmt, NULL);
 			if (result != SQLITE_OK) {
-				sqlite3_result_error (context, sqlite3_errstr (result), -1);
+				result_context_function_error (context, fn, sqlite3_errstr (result));
 				return;
 			}
 		}
@@ -1845,7 +1900,7 @@ function_sparql_print_iri (sqlite3_context *context,
 		} else if (result == SQLITE_ROW) {
 			sqlite3_result_value (context, sqlite3_column_value (stmt, 0));
 		} else {
-			sqlite3_result_error (context, sqlite3_errstr (result), -1);
+			result_context_function_error (context, fn, sqlite3_errstr (result));
 		}
 
 		if (store_auxdata) {
