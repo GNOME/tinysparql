@@ -1,3 +1,13 @@
+NEW in 2.99.3 - 2020-08-10
+==========================
+  * Add portal
+  * Use WAL on all database connections
+  * Fix race conditions in reusable statements
+  * Documentation fixes and improvements
+  * Better errors from library function calls
+  * Test fixes
+  * CI improvements
+
 NEW in 2.99.2 - 2020-06-26
 ==========================
   * Dropped priority argument from tracker_sparql_connection_update*()
