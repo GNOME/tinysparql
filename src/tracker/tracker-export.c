@@ -78,7 +78,7 @@ create_connection (GError **error)
 		return tracker_sparql_connection_remote_new (remote_service);
 	} else {
 		/* TRANSLATORS: Those are commandline arguments */
-		g_printerr (_("Specify one --database, --dbus-service or --remote-service option"));
+		g_printerr (_("Specify one “--database”, “--dbus-service” or “--remote-service” option"));
 		exit (EXIT_FAILURE);
 	}
 }
