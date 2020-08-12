@@ -3,16 +3,16 @@
 # This file is distributed under the same license as the Tracker package.
 # Ignacio Casal Quinteiro <icq@cvs.gnome.org>, 2007, 2008.
 # Mancomún - Centro de Referencia e Servizos de Software Libre <g11n@mancomun.org>, 2009.
-# Fran Dieguez <frandieguez@gnome.gl>, 2011-2020.
+# Fran Dieguez <frandieguez@gnome.org>, 2011-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-07-18 12:56+0000\n"
-"PO-Revision-Date: 2020-08-04 13:17+0200\n"
-"Last-Translator: Fran Dieguez <frandieguez@gnome.gl>\n"
-"Language-Team: Galician <Proxecto Trasno <proxecto@trasno.gal>>\n"
+"POT-Creation-Date: 2020-08-11 16:39+0000\n"
+"PO-Revision-Date: 2020-08-13 00:48+0200\n"
+"Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
+"Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -106,7 +106,6 @@ msgstr "Non se recoñeceron as opcións"
 #: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
 #: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
-#| msgid "Only allow read based actions on the database"
 msgid "Location of the database"
 msgstr "Localización da base de datos"
 
@@ -149,7 +148,6 @@ msgid "Creating endpoint at %s…"
 msgstr "Creando «endpoint» en %s…"
 
 #: src/tracker/tracker-endpoint.c:165
-#| msgid "Could not run update"
 msgid "Could not own DBus name"
 msgstr "Non é posíbel posuír un nome de DBus"
 
@@ -172,16 +170,18 @@ msgid "Opening database at %s…"
 msgstr "Abrindo a base de datos en %s…"
 
 #: src/tracker/tracker-endpoint.c:237
-#| msgid "Backing up database"
 msgid "Creating in-memory database"
 msgstr "Creando unha base de datos en memoria"
 
 #: src/tracker/tracker-endpoint.c:257
+#| msgid ""
+#| "New database created. Use the --dbus-service option to share this "
+#| "database on a message bus."
 msgid ""
-"New database created. Use the --dbus-service option to share this database "
+"New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
-"Nova base de datos creada. Use a opción --dbus-service para compartir esta "
+"Nova base de datos creada. Use a opción «--dbus-service» para compartir esta "
 "base de datos nun bus de mensaxes."
 
 #: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
@@ -210,7 +210,6 @@ msgstr "Conéctase a un servizo remoto"
 
 #: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:118
-#| msgid "Remote service to query to"
 msgid "Remote service URI"
 msgstr "URI do servizo remoto"
 
@@ -221,8 +220,10 @@ msgstr "Mostra o formato TriG que inclúe información dos grafos con nome"
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
 #: src/tracker/tracker-sparql.c:196
-msgid "Specify one --database, --dbus-service or --remote-service option"
-msgstr "Especifique unha opción --database, --dbus-service ou --remote-service"
+#| msgid "Specify one --database, --dbus-service or --remote-service option"
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr ""
+"Especifique unha opción «--database», «--dbus-service» ou «--remote-service»"
 
 #: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
 #: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
@@ -245,7 +246,6 @@ msgid "failed to exec “%s”: %s"
 msgstr "fallo ao executar «%s»: %s"
 
 #: src/tracker/tracker-import.c:117
-#| msgid "Could not run update"
 msgid "Could not run import"
 msgstr "Non foi posíbel executar a importación"
 
@@ -303,7 +303,6 @@ msgid "Results"
 msgstr "Resultados"
 
 #: src/tracker/tracker-main.c:44
-#| msgid "See “tracker help <command>” to read about a specific subcommand."
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr "Vexa «tracker3 help <orde>» para ler sobre unha suborde específica."
 
@@ -320,7 +319,6 @@ msgid "Export data from a Tracker database"
 msgstr "Exportar datos desde unha base de datos Tracker"
 
 #: src/tracker/tracker-main.c:96
-#| msgid "Could not backup database"
 msgid "Import data into a Tracker database"
 msgstr "Importar datos na base de datos de Tracker"
 
@@ -342,12 +340,10 @@ msgstr "Consultar a base de datos a baixo nivel usando SQL"
 
 #: src/tracker/tracker-main.c:139
 #, c-format
-#| msgid "“%s” is not a tracker command. See “tracker --help”"
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr "«%s» non é unha orde de tracker3. Vexa «tracker3 --help»"
 
 #: src/tracker/tracker-main.c:174
-#| msgid "Available tracker commands are:"
 msgid "Available tracker3 commands are:"
 msgstr "As ordes de tracker3 dispoñíbeis son:"
 
@@ -413,7 +409,6 @@ msgid "PROPERTY"
 msgstr "PROPIEDADE"
 
 #: src/tracker/tracker-sparql.c:153
-#| msgid "Retrieve classes"
 msgid "Retrieve all named graphs"
 msgstr "Obter todos os grafos con nome"
 
@@ -544,12 +539,10 @@ msgid "Indexes"
 msgstr "Índices"
 
 #: src/tracker/tracker-sparql.c:1310
-#| msgid "Could not list classes"
 msgid "Could not list named graphs"
 msgstr "Non foi posíbel listar os grafos con nome"
 
 #: src/tracker/tracker-sparql.c:1318
-#| msgid "No tags were found"
 msgid "No graphs were found"
 msgstr "Non se atoparon grafos"
 
