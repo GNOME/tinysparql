@@ -66,7 +66,7 @@ test_blank (TestInfo      *info,
 	                                            "INSERT { _:foo a rdfs:Resource . _:bar a rdfs:Resource } ",
 	                                            &error);
 	g_assert_no_error (error);
-	g_assert (updates != NULL);
+	g_assert_true (updates != NULL);
 
 	g_variant_iter_init (&iter, updates);
 	while ((rows = g_variant_iter_next_value (&iter))) {
@@ -98,15 +98,15 @@ test_blank (TestInfo      *info,
 	g_assert_cmpint (len, ==, 3);
 
 	g_assert_cmpstr (solutions[0][0], ==, "foo");
-	g_assert (solutions[0][1] != NULL);
+	g_assert_true (solutions[0][1] != NULL);
 
 	g_assert_cmpstr (solutions[1][0], ==, "foo");
-	g_assert (solutions[1][1] != NULL);
+	g_assert_true (solutions[1][1] != NULL);
 
 	g_assert_cmpstr (solutions[0][1], ==, solutions[1][1]);
 
 	g_assert_cmpstr (solutions[2][0], ==, "bar");
-	g_assert (solutions[2][1] != NULL);
+	g_assert_true (solutions[2][1] != NULL);
 
 	g_assert_cmpstr (solutions[2][1], !=, solutions[1][1]);
 

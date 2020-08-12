@@ -30,13 +30,13 @@ test_resource_get_empty (void)
 
 	resource = tracker_resource_new ("http://example.com/resource");
 
-	g_assert (tracker_resource_get_values (resource, "http://example.com/0") == NULL);
+	g_assert_true (tracker_resource_get_values (resource, "http://example.com/0") == NULL);
 
-	g_assert (tracker_resource_get_first_double (resource, "http://example.com/0") == 0.0);
-	g_assert (tracker_resource_get_first_int (resource, "http://example.com/0") == 0);
-	g_assert (tracker_resource_get_first_int64 (resource, "http://example.com/0") == 0);
-	g_assert (tracker_resource_get_first_string (resource, "http://example.com/0") == NULL);
-	g_assert (tracker_resource_get_first_uri (resource, "http://example.com/0") == NULL);
+	g_assert_true (tracker_resource_get_first_double (resource, "http://example.com/0") == 0.0);
+	g_assert_true (tracker_resource_get_first_int (resource, "http://example.com/0") == 0);
+	g_assert_true (tracker_resource_get_first_int64 (resource, "http://example.com/0") == 0);
+	g_assert_true (tracker_resource_get_first_string (resource, "http://example.com/0") == NULL);
+	g_assert_true (tracker_resource_get_first_uri (resource, "http://example.com/0") == NULL);
 
 	g_object_unref (resource);
 }
@@ -54,9 +54,9 @@ test_resource_get_set_simple (void)
 	tracker_resource_set_string (resource, "http://example.com/4", "Hello");
 	tracker_resource_set_uri (resource, "http://example.com/5", "http://example.com/");
 
-	g_assert (tracker_resource_get_first_double (resource, "http://example.com/1") == 0.6);
+	g_assert_true (tracker_resource_get_first_double (resource, "http://example.com/1") == 0.6);
 	g_assert_cmpint (tracker_resource_get_first_int (resource, "http://example.com/2"), ==, 60);
-	g_assert (tracker_resource_get_first_int64 (resource, "http://example.com/3") == 123456789);
+	g_assert_true (tracker_resource_get_first_int64 (resource, "http://example.com/3") == 123456789);
 	g_assert_cmpstr (tracker_resource_get_first_string (resource, "http://example.com/4"), ==, "Hello");
 	g_assert_cmpstr (tracker_resource_get_first_uri (resource, "http://example.com/5"), ==, "http://example.com/");
 
@@ -119,7 +119,7 @@ test_resource_get_set_many (void)
 
 	g_assert_cmpint (g_value_get_int (list->data), ==, 60);
 	g_assert_cmpstr (g_value_get_string (list->next->data), ==, "Hello");
-	g_assert (G_VALUE_HOLDS (list->next->next->data, RANDOM_GVALUE_TYPE));
+	g_assert_true (G_VALUE_HOLDS (list->next->next->data, RANDOM_GVALUE_TYPE));
 
 	g_list_free_full (list, (GDestroyNotify) g_value_unset);
 

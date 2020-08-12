@@ -46,7 +46,7 @@ ensure_file_exists (const gchar *filename)
 static void
 remove_file (const gchar *filename)
 {
-        g_assert (g_file_test (filename, G_FILE_TEST_EXISTS));
+        g_assert_true (g_file_test (filename, G_FILE_TEST_EXISTS));
         g_assert_cmpint (g_remove (filename), ==, 0);
 }
 
@@ -93,9 +93,9 @@ test_path_list_filter_duplicates (void)
 	result = tracker_path_list_filter_duplicates (input_as_list, ".", TRUE);
 	g_assert_cmpint (3, ==, g_slist_length (result));
 
-	g_assert (string_in_list (result, "/home"));
-	g_assert (string_in_list (result, "/tmp"));
-	g_assert (string_in_list (result, "/usr"));
+	g_assert_true (string_in_list (result, "/home"));
+	g_assert_true (string_in_list (result, "/tmp"));
+	g_assert_true (string_in_list (result, "/usr"));
 
 	g_slist_foreach (input_as_list, (GFunc) g_free, NULL);
 	g_slist_foreach (result, (GFunc) g_free, NULL);
@@ -114,15 +114,15 @@ test_path_list_filter_duplicates_with_exceptions ()
 
         result = tracker_path_list_filter_duplicates (input_as_list, "/home/user/MyDocs", FALSE);
         g_assert_cmpint (g_slist_length (result), ==, 3);
-	g_assert (string_in_list (result, "/home/user/MyDocs"));
-	g_assert (string_in_list (result, "/home/user/MyDocs/.sounds"));
-	g_assert (string_in_list (result, "/home/user/MyDocs/visible"));
+	g_assert_true (string_in_list (result, "/home/user/MyDocs"));
+	g_assert_true (string_in_list (result, "/home/user/MyDocs/.sounds"));
+	g_assert_true (string_in_list (result, "/home/user/MyDocs/visible"));
 	g_slist_foreach (result, (GFunc) g_free, NULL);
 
 
         result = tracker_path_list_filter_duplicates (input_as_list, "/home/user/MyDocs", TRUE);
         g_assert_cmpint (g_slist_length (result), ==, 1);
-	g_assert (string_in_list (result, "/home/user/MyDocs"));
+	g_assert_true (string_in_list (result, "/home/user/MyDocs"));
 	g_slist_foreach (result, (GFunc) g_free, NULL);
 
 	g_slist_foreach (input_as_list, (GFunc) g_free, NULL);
@@ -200,16 +200,16 @@ test_path_evaluate_name (void)
 	g_free (expected);
 
 	result = tracker_path_evaluate_name ("");
-	g_assert (!result);
+	g_assert_true (!result);
 	g_free (result);
 
 	result = tracker_path_evaluate_name (NULL);
-	g_assert (!result);
+	g_assert_true (!result);
 	g_free (result);
 
         g_setenv ("HOME", "", TRUE);
         result = tracker_path_evaluate_name ("~/but-no-home.txt");
-        g_assert (!result);
+        g_assert_true (!result);
         g_free (result);
         g_setenv ("HOME", home, TRUE);
 
@@ -284,15 +284,15 @@ test_file_utils_open_close ()
         FILE *f;
 
         f = tracker_file_open (TEST_FILENAME);
-        g_assert (f);
+        g_assert_true (f);
         tracker_file_close (f, TRUE);
 
         f = tracker_file_open (TEST_FILENAME);
-        g_assert (f);
+        g_assert_true (f);
         tracker_file_close (f, FALSE);
 
         f = tracker_file_open ("./file-does-NOT-exist");
-        g_assert (!f);
+        g_assert_true (!f);
 }
 
 static void
@@ -368,11 +368,11 @@ static void
 test_file_system_has_enough_space ()
 {
         /* Hopefully we will always have 1 byte free... */
-        g_assert (tracker_file_system_has_enough_space ("/home", 1, FALSE));
-        g_assert (tracker_file_system_has_enough_space ("/home", 1, TRUE));
+        g_assert_true (tracker_file_system_has_enough_space ("/home", 1, FALSE));
+        g_assert_true (tracker_file_system_has_enough_space ("/home", 1, TRUE));
 
         /* gulong goes only up to 4Gb. Cannot ask for unreasonable amount of space */
-        //g_assert (!tracker_file_system_has_enough_space ("/home", G_MAXULONG, FALSE));
+        //g_assert_true (!tracker_file_system_has_enough_space ("/home", G_MAXULONG, FALSE));
 }
 
 static void
@@ -383,11 +383,11 @@ test_file_utils_is_hidden ()
         ensure_file_exists ("./non-hidden-test-file");
 
         f = g_file_new_for_path (TEST_HIDDEN_FILENAME);
-        g_assert (tracker_file_is_hidden (f));
+        g_assert_true (tracker_file_is_hidden (f));
         g_object_unref (f);
 
         f = g_file_new_for_path ("./non-hidden-test-file");
-        g_assert (!tracker_file_is_hidden (f));
+        g_assert_true (!tracker_file_is_hidden (f));
         g_object_unref (f);
 
         remove_file ("./non-hidden-test-file");
@@ -402,8 +402,8 @@ test_file_utils_cmp ()
         two = g_file_new_for_path (TEST_FILENAME);
         three = g_file_new_for_path (TEST_HIDDEN_FILENAME);
 
-        g_assert (!tracker_file_cmp (one, two));
-        g_assert (tracker_file_cmp (two, three));
+        g_assert_true (!tracker_file_cmp (one, two));
+        g_assert_true (tracker_file_cmp (two, three));
 }
 
 int

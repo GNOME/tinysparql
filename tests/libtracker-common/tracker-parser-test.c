@@ -142,7 +142,7 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 		g_assert_cmpuint (nwords, == , testdata->expected_nwords);
 	else
 		/* We'll assert if both expected number of words fail */
-		g_assert ((nwords == testdata->expected_nwords) ||
+		g_assert_true ((nwords == testdata->expected_nwords) ||
 		          (nwords == testdata->alternate_expected_nwords));
 }
 

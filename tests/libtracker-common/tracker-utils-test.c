@@ -78,22 +78,22 @@ test_seconds_estimate_to_string ()
 static void
 test_is_empty_string ()
 {
-        g_assert (tracker_is_empty_string (NULL));
-        g_assert (tracker_is_empty_string (""));
-        g_assert (!tracker_is_empty_string ("Eeeeepa not empty"));
+        g_assert_true (tracker_is_empty_string (NULL));
+        g_assert_true (tracker_is_empty_string (""));
+        g_assert_true (!tracker_is_empty_string ("Eeeeepa not empty"));
 }
 
 static void
 test_is_blank_string ()
 {
-        g_assert (tracker_is_blank_string (NULL));
-        g_assert (tracker_is_blank_string (""));
-        g_assert (tracker_is_blank_string (" "));
-        g_assert (tracker_is_blank_string ("       "));
-        g_assert (!tracker_is_blank_string ("   -    "));
-        g_assert (!tracker_is_blank_string ("   -"));
-        g_assert (!tracker_is_blank_string ("-   "));
-        g_assert (!tracker_is_blank_string ("nonono"));
+        g_assert_true (tracker_is_blank_string (NULL));
+        g_assert_true (tracker_is_blank_string (""));
+        g_assert_true (tracker_is_blank_string (" "));
+        g_assert_true (tracker_is_blank_string ("       "));
+        g_assert_true (!tracker_is_blank_string ("   -    "));
+        g_assert_true (!tracker_is_blank_string ("   -"));
+        g_assert_true (!tracker_is_blank_string ("-   "));
+        g_assert_true (!tracker_is_blank_string ("nonono"));
 
 }
 
