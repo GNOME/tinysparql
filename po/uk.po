@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-07-18 12:56+0000\n"
-"PO-Revision-Date: 2020-07-18 16:26+0300\n"
+"POT-Creation-Date: 2020-08-11 16:39+0000\n"
+"PO-Revision-Date: 2020-08-12 09:16+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -182,11 +182,14 @@ msgid "Creating in-memory database"
 msgstr "Створюємо базу даних у оперативній пам'яті"
 
 #: src/tracker/tracker-endpoint.c:257
+#| msgid ""
+#| "New database created. Use the --dbus-service option to share this "
+#| "database on a message bus."
 msgid ""
-"New database created. Use the --dbus-service option to share this database "
+"New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
-"Створено базу даних. Скористайтеся параметром --dbus-service, щоб "
+"Створено базу даних. Скористайтеся параметром «--dbus-service», щоб "
 "оприлюднити цю базу даних на шині повідомлень."
 
 #: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
@@ -225,10 +228,11 @@ msgstr "Вивести дані у форматі TriG із включенням
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
 #: src/tracker/tracker-sparql.c:196
-msgid "Specify one --database, --dbus-service or --remote-service option"
+#| msgid "Specify one --database, --dbus-service or --remote-service option"
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
-"Вкажіть один з параметрів --database, --dbus-service або --remote-service "
-"option"
+"Вкажіть один з параметрів «--database», «--dbus-service» або"
+" «--remote-service»"
 
 #: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
 #: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
