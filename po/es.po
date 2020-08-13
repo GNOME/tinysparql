@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-06-21 15:18+0000\n"
-"PO-Revision-Date: 2020-06-29 15:49+0200\n"
+"POT-Creation-Date: 2020-08-11 16:39+0000\n"
+"PO-Revision-Date: 2020-08-13 10:39+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
 "Language: es_ES\n"
@@ -91,6 +91,17 @@ msgstr[1] " %2.2d segundos"
 msgid "the|a|an"
 msgstr "el|un|una"
 
+#: src/portal/tracker-main.c:53
+msgid "Version"
+msgstr "Versión"
+
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:204
+#: src/tracker/tracker-export.c:305 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-info.c:471 src/tracker/tracker-sparql.c:1546
+#: src/tracker/tracker-sql.c:231
+msgid "Unrecognized options"
+msgstr "No se reconocieron las opciones"
+
 #: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
 #: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
@@ -152,12 +163,6 @@ msgstr "Nombre Dbus perdido"
 msgid "Closing connection…"
 msgstr "Cerrando conexión…"
 
-#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:305
-#: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
-#: src/tracker/tracker-sparql.c:1546 src/tracker/tracker-sql.c:231
-msgid "Unrecognized options"
-msgstr "No se reconocieron las opciones"
-
 #: src/tracker/tracker-endpoint.c:234
 #, c-format
 msgid "Opening database at %s…"
@@ -168,11 +173,14 @@ msgid "Creating in-memory database"
 msgstr "Creando base de datos en la memoria"
 
 #: src/tracker/tracker-endpoint.c:257
+#| msgid ""
+#| "New database created. Use the --dbus-service option to share this "
+#| "database on a message bus."
 msgid ""
-"New database created. Use the --dbus-service option to share this database "
+"New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
-"Nueva base de datos creada. Use la opción --debus-service del servicio para "
+"Nueva base de datos creada. Use la opción «--dbus-service» del servicio para "
 "compartir esta base de datos en un bus de mensajes."
 
 #: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
@@ -211,10 +219,11 @@ msgstr "Formato TriG de salida que incluye información de grafos con nombre"
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
 #: src/tracker/tracker-sparql.c:196
-msgid "Specify one --database, --dbus-service or --remote-service option"
+#| msgid "Specify one --database, --dbus-service or --remote-service option"
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
-"Especifique una opción de --database, --dbus-service o --remote-service "
-"option"
+"Especifique una opción de «--database», «--dbus-service» o «--remote-"
+"service» option"
 
 #: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
 #: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
@@ -295,7 +304,6 @@ msgid "Results"
 msgstr "Resultados"
 
 #: src/tracker/tracker-main.c:44
-#| msgid "See “tracker help <command>” to read about a specific subcommand."
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
 "Ejecute «tracker help <command>» para leer sobre un subcomando específico."
@@ -334,12 +342,10 @@ msgstr "Consultar la base de datos a bajo nivel usando SQL"
 
 #: src/tracker/tracker-main.c:139
 #, c-format
-#| msgid "“%s” is not a tracker command. See “tracker --help”"
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr "«%s» no es un comando de tracker3. Consulte «tracker3 --help»"
 
 #: src/tracker/tracker-main.c:174
-#| msgid "Available tracker commands are:"
 msgid "Available tracker3 commands are:"
 msgstr "Los comandos de tracker3 disponibles son:"
 
@@ -1426,9 +1432,6 @@ msgstr "Se debe proporcionar una ruta a la base de datos"
 
 #~ msgid "Statistics:"
 #~ msgstr "Estadísticas:"
-
-#~ msgid "Version"
-#~ msgstr "Versión"
 
 #~ msgid "Disk Information"
 #~ msgstr "Información del disco"
