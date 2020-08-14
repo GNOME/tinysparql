@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-07-18 12:56+0000\n"
-"PO-Revision-Date: 2020-06-25 12:12+0300\n"
+"POT-Creation-Date: 2020-08-11 16:39+0000\n"
+"PO-Revision-Date: 2020-08-14 15:16+0300\n"
 "Last-Translator: Florentina Mușat <florentina.musat.28@gmail.com>\n"
 "Language-Team: Romanian Gnome Team <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2);\n"
-"X-Generator: Poedit 2.3.1\n"
+"X-Generator: Poedit 2.4\n"
 "X-Launchpad-Export-Date: 2009-10-03 17:40+0000\n"
 "X-Project-Style: gnome\n"
 
@@ -180,11 +180,11 @@ msgstr "Creează o bază de date în memorie"
 
 #: src/tracker/tracker-endpoint.c:257
 msgid ""
-"New database created. Use the --dbus-service option to share this database "
+"New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
-"A fost creată o nouă bază de date. Utilizați opțiunea --dbus-service pentru "
-"a partaja această bază de date pe o magistrală de mesaj."
+"A fost creată o nouă bază de date. Utilizați opțiunea „--dbus-service” "
+"pentru a partaja această bază de date pe o magistrală de mesaj."
 
 #: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
@@ -222,8 +222,9 @@ msgstr "Formatul de ieșire TriG care include informațiile de graf numit"
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
 #: src/tracker/tracker-sparql.c:196
-msgid "Specify one --database, --dbus-service or --remote-service option"
-msgstr "Specifică o opțiune --database, --dbus-service sau --remote-service"
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr ""
+"Specifică o opțiune „--database”, „--dbus-service” sau „--remote-service”"
 
 #: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
 #: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
