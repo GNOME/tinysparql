@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-05-18 20:52+0000\n"
-"PO-Revision-Date: 2020-05-24 15:19+0200\n"
+"POT-Creation-Date: 2020-08-11 16:39+0000\n"
+"PO-Revision-Date: 2020-08-16 11:58+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
 "Language: pl\n"
@@ -95,6 +95,17 @@ msgstr[2] " %2.2d sekund"
 msgid "the|a|an"
 msgstr "the|a|an"
 
+#: src/portal/tracker-main.c:53
+msgid "Version"
+msgstr "Wersja"
+
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:204
+#: src/tracker/tracker-export.c:305 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-info.c:471 src/tracker/tracker-sparql.c:1546
+#: src/tracker/tracker-sql.c:231
+msgid "Unrecognized options"
+msgstr "Nierozpoznane opcje"
+
 #: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
 #: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
@@ -156,12 +167,6 @@ msgstr "Utracono nazwę D-Bus"
 msgid "Closing connection…"
 msgstr "Zamykanie połączenia…"
 
-#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:305
-#: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
-#: src/tracker/tracker-sparql.c:1546 src/tracker/tracker-sql.c:231
-msgid "Unrecognized options"
-msgstr "Nierozpoznane opcje"
-
 #: src/tracker/tracker-endpoint.c:234
 #, c-format
 msgid "Opening database at %s…"
@@ -173,10 +178,10 @@ msgstr "Tworzenie bazy danych w pamięci"
 
 #: src/tracker/tracker-endpoint.c:257
 msgid ""
-"New database created. Use the --dbus-service option to share this database "
+"New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
-"Utworzono nową bazę danych. Użycie opcji --dbus-service umożliwia "
+"Utworzono nową bazę danych. Użycie opcji „--dbus-service” umożliwia "
 "udostępnienie tej bazy na magistrali komunikatów."
 
 #: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
@@ -215,9 +220,10 @@ msgstr "Wyjściowy format TriG zawierający informacje o nazwanym wykresie"
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
 #: src/tracker/tracker-sparql.c:196
-msgid "Specify one --database, --dbus-service or --remote-service option"
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
-"Należy podać jedną opcję --database, --dbus-service lub --remote-service"
+"Należy podać jedną opcję „--database”, „--dbus-service” lub „--remote-"
+"service”"
 
 #: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
 #: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
@@ -297,9 +303,9 @@ msgid "Results"
 msgstr "Wyniki"
 
 #: src/tracker/tracker-main.c:44
-msgid "See “tracker help <command>” to read about a specific subcommand."
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
-"Polecenie „tracker help <polecenie>” wyświetli pomoc o podanym podpoleceniu."
+"Polecenie „tracker3 help <polecenie>” wyświetli pomoc o podanym podpoleceniu."
 
 #: src/tracker/tracker-main.c:93
 msgid "Get help on how to use Tracker and any of these commands"
@@ -336,13 +342,13 @@ msgstr "Odpytuje bazę danych na najniższym poziomie za pomocą SQL"
 
 #: src/tracker/tracker-main.c:139
 #, c-format
-msgid "“%s” is not a tracker command. See “tracker --help”"
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr ""
-"„%s” nie jest poleceniem programu Tracker. Proszę wpisać „tracker --help”"
+"„%s” nie jest poleceniem programu Tracker 3. Proszę wpisać „tracker3 --help”"
 
 #: src/tracker/tracker-main.c:174
-msgid "Available tracker commands are:"
-msgstr "Dostępne polecenia programu Tracker:"
+msgid "Available tracker3 commands are:"
+msgstr "Dostępne polecenia programu Tracker 3:"
 
 #: src/tracker/tracker-main.c:212
 msgid "Additional / third party commands are:"
