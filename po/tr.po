@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-06-21 15:18+0000\n"
-"PO-Revision-Date: 2020-06-23 00:40+0300\n"
+"POT-Creation-Date: 2020-08-11 16:39+0000\n"
+"PO-Revision-Date: 2020-08-16 21:21+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -91,6 +91,17 @@ msgstr[0] " %2.2d saniye"
 msgid "the|a|an"
 msgstr "the|a|an"
 
+#: src/portal/tracker-main.c:53
+msgid "Version"
+msgstr "Sürüm"
+
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:204
+#: src/tracker/tracker-export.c:305 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-info.c:471 src/tracker/tracker-sparql.c:1546
+#: src/tracker/tracker-sql.c:231
+msgid "Unrecognized options"
+msgstr "Tanınmayan seçenekler"
+
 #: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
 #: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
@@ -152,12 +163,6 @@ msgstr "DBus adı kaybedildi"
 msgid "Closing connection…"
 msgstr "Bağlantı kapatılıyor…"
 
-#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:305
-#: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
-#: src/tracker/tracker-sparql.c:1546 src/tracker/tracker-sql.c:231
-msgid "Unrecognized options"
-msgstr "Tanınmayan seçenekler"
-
 #: src/tracker/tracker-endpoint.c:234
 #, c-format
 msgid "Opening database at %s…"
@@ -169,11 +174,11 @@ msgstr "Bellek içi veri tabanı oluşturuluyor"
 
 #: src/tracker/tracker-endpoint.c:257
 msgid ""
-"New database created. Use the --dbus-service option to share this database "
+"New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
 "Yeni veri tabanı oluşturuldu. Bu veri tabanını, ileti veri yolunda paylaşmak "
-"için --dbus-service seçeneğini kullan."
+"için “--dbus-service” seçeneğini kullan."
 
 #: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
@@ -211,10 +216,10 @@ msgstr "Adlandırılmış graf bilgisini içeren TriG biçiminde çıktıla"
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
 #: src/tracker/tracker-sparql.c:196
-msgid "Specify one --database, --dbus-service or --remote-service option"
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
-"Şu seçeneklerden birini belirtin: --database, --dbus-service veya --remote-"
-"service"
+"Şu seçeneklerden birini belirtin: “--database”, “--dbus-service” veya “--remote-"
+"service”"
 
 #: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
 #: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
@@ -259,8 +264,8 @@ msgid ""
 "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
 "(e.g. <file:///path/to/some/file.txt>)"
 msgstr ""
-"Bir dosya adına bakmak yerine, gerçek IRI olarak DOSYA değişkenleri kullan "
-"(örn. <file:///path/to/some/file.txt>)"
+"Dosya adına bakmak yerine, DOSYA değişkenlerini gerçek IRIler olarak kullan "
+"(örn. <file:///yolu/belirtilen/bir/dosya.txt>)"
 
 #: src/tracker/tracker-info.c:83
 msgid "Output results as RDF in Turtle format"
@@ -268,7 +273,7 @@ msgstr "RDF olarak Turtle biçiminde sonuç çıktısı"
 
 #: src/tracker/tracker-info.c:87
 msgid "RDF property to treat as URL (eg. “nie:url”)"
-msgstr "URL olarak işlem görecek RDF özelliği (ör. “nie:url”)"
+msgstr "URL olarak işlenecek RDF özelliği (ör. “nie:url”)"
 
 #: src/tracker/tracker-info.c:334
 msgid "Querying information for entity"
@@ -284,7 +289,7 @@ msgstr "URI için veri alınamadı"
 
 #: src/tracker/tracker-info.c:411
 msgid "No metadata available for that URI"
-msgstr "Bu URI için bir üst veri kullanılabilir değil"
+msgstr "Bu URI için üst veri kullanılabilir değil"
 
 #: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1498
 #: src/tracker/tracker-sparql.c:1501 src/tracker/tracker-sql.c:139
@@ -294,8 +299,8 @@ msgstr "Sonuçlar"
 #: src/tracker/tracker-main.c:44
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
-"Belirli alt komut hakkında bilgi almak için “tracker3 help <komut>” "
-"komutuna göz atın."
+"Belirli alt komut hakkında bilgi almak için “tracker3 help <komut>” komutuna "
+"göz atın."
 
 #: src/tracker/tracker-main.c:93
 msgid "Get help on how to use Tracker and any of these commands"
@@ -330,6 +335,7 @@ msgid "Query the database at the lowest level using SQL"
 msgstr "SQL kullanarak en düşük düzeyde veritabanını sorgula"
 
 #: src/tracker/tracker-main.c:139
+#, c-format
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr "“%s” bir tracker3 komutu değil. “tracker3 --help” göz atın"
 
@@ -343,7 +349,7 @@ msgstr "Ek / Üçüncü taraf komutlar:"
 
 #: src/tracker/tracker-sparql.c:121
 msgid "Path to use to run a query or update from file"
-msgstr "Bir sorgunun çalışacağı veya dosyada güncelleneceği yol"
+msgstr "Sorgunun çalışacağı veya dosyadan güncelleneceği yol"
 
 #: src/tracker/tracker-sparql.c:125
 msgid "SPARQL query"
@@ -356,7 +362,7 @@ msgstr "SPARQL"
 #: src/tracker/tracker-sparql.c:129
 msgid "This is used with --query and for database updates only."
 msgstr ""
-"--query ile birlikte kullanılır ve yalnızca veritabanı güncellemeleri "
+"--query ile birlikte kullanılır ve yalnızca veri tabanı güncellemeleri "
 "içindir."
 
 #: src/tracker/tracker-sparql.c:133
@@ -423,11 +429,11 @@ msgstr "SINIF/ÖZELLİK"
 
 #: src/tracker/tracker-sparql.c:165
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Bir sınıfın kısaltılmış halini döner (örn. nfo:FileDataObject)."
+msgstr "Bir sınıfın kısaltılmış halini döndürür (örn. nfo:FileDataObject)."
 
 #: src/tracker/tracker-sparql.c:169
 msgid "Returns the full namespace for a class."
-msgstr "Bir sınıfın tam ad alanını döner."
+msgstr "Bir sınıfın tam ad alanını döndürür."
 
 #: src/tracker/tracker-sparql.c:229
 msgid "Unable to retrieve namespace prefixes"
@@ -443,7 +449,7 @@ msgstr "Ad alanı ön ekleri alınamadı"
 
 #: src/tracker/tracker-sparql.c:292
 msgid "No namespace prefixes were found"
-msgstr "Hiçbir ad alanı ön eki bulunamadı"
+msgstr "Herhangi bir ad alanı ön eki bulunamadı"
 
 #. To translators: This is to say there are no
 #. * search results found. We use a "foo: None"
@@ -467,7 +473,7 @@ msgstr "Sınıflar listelenemedi"
 
 #: src/tracker/tracker-sparql.c:1133
 msgid "No classes were found"
-msgstr "Hiçbir sınıf bulunamadı"
+msgstr "Herhangi bir sınıf bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1133 src/tracker/tracker-sparql.c:1348
 msgid "Classes"
@@ -479,7 +485,7 @@ msgstr "Sınıf ön ekleri listelenemedi"
 
 #: src/tracker/tracker-sparql.c:1157
 msgid "No class prefixes were found"
-msgstr "Hiçbir sınıf ön eki bulunamadı"
+msgstr "Herhangi bir sınıf ön eki bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1157
 msgid "Prefixes"
@@ -497,7 +503,7 @@ msgstr "Özellikler listelenemedi"
 
 #: src/tracker/tracker-sparql.c:1224
 msgid "No properties were found"
-msgstr "Hiçbir özellik bulunamadı"
+msgstr "Herhangi bir özellik bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1224 src/tracker/tracker-sparql.c:1371
 msgid "Properties"
@@ -509,7 +515,7 @@ msgstr "Bildirim sınıfları bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1260
 msgid "No notifies were found"
-msgstr "Hiçbir bildirim bulunamadı"
+msgstr "Herhangi bir bildirim bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1260
 msgid "Notifies"
@@ -521,7 +527,7 @@ msgstr "Dizinlenmiş özellikler bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1294
 msgid "No indexes were found"
-msgstr "Hiçbir dizinleme bulunamadı"
+msgstr "Herhangi bir dizinleme bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1294
 msgid "Indexes"
@@ -534,7 +540,7 @@ msgstr "Adlandırılmış graflar listelenemedi"
 
 #: src/tracker/tracker-sparql.c:1318
 msgid "No graphs were found"
-msgstr "Hiçbir graf bulunamadı"
+msgstr "Herhangi bir graf bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1318
 msgid "Named graphs"
@@ -546,7 +552,7 @@ msgstr "Sınıflar aranamadı"
 
 #: src/tracker/tracker-sparql.c:1348
 msgid "No classes were found to match search term"
-msgstr "Arama terimleriyle eşleşen hiçbir sınıf bulunamadı"
+msgstr "Arama terimleriyle eşleşen sınıf bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1363
 msgid "Could not search properties"
@@ -554,7 +560,7 @@ msgstr "Özellikler aranamadı"
 
 #: src/tracker/tracker-sparql.c:1371
 msgid "No properties were found to match search term"
-msgstr "Arama terimleriyle eşleşen hiçbir özellik bulunamadı"
+msgstr "Arama terimleriyle eşleşen özellik bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
@@ -574,7 +580,7 @@ msgstr "Tamamlandı"
 
 #: src/tracker/tracker-sparql.c:1498 src/tracker/tracker-sparql.c:1501
 msgid "No results found matching your query"
-msgstr "Sorgunuzla eşleşen hiçbir sonuç bulunamadı"
+msgstr "Sorgunuzla eşleşen sonuç bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1555 src/tracker/tracker-sql.c:242
 msgid "File and query can not be used together"
@@ -1397,9 +1403,6 @@ msgstr "Veri tabanı yolu belirtilmelidir"
 
 #~ msgid "Statistics:"
 #~ msgstr "İstatistikler:"
-
-#~ msgid "Version"
-#~ msgstr "Sürüm"
 
 #~ msgid "Disk Information"
 #~ msgstr "Disk Bilgileri"
