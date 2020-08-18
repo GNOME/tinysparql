@@ -10,7 +10,7 @@
 static void
 remove_file (const gchar *filename)
 {
-        g_assert (unlink (filename) == 0);
+        g_assert_true (unlink (filename) == 0);
 }
 
 static void
@@ -61,7 +61,7 @@ test_gvdb_walk (void)
                 g_free (key);
         }
 
-        g_assert (gvdb_table_write_contents (root_table, DB_FILE, FALSE, NULL));
+        g_assert_true (gvdb_table_write_contents (root_table, DB_FILE, FALSE, NULL));
 
         g_hash_table_unref (ns_table);
         g_hash_table_unref (root_table);
@@ -104,23 +104,23 @@ test_gvdb_nested_keys (void)
                 g_free (key);
         }
 
-        g_assert (gvdb_table_write_contents (root_table, DB_FILE, FALSE, NULL));
+        g_assert_true (gvdb_table_write_contents (root_table, DB_FILE, FALSE, NULL));
 
         g_hash_table_unref (ns_table);
         g_hash_table_unref (root_table);
 
         root_level = gvdb_table_new (DB_FILE, TRUE, NULL);
-        g_assert (root_level);
+        g_assert_true (root_level);
 
         ns_level = gvdb_table_get_table (root_level, "namespaces");
-        g_assert (ns_level);
+        g_assert_true (ns_level);
         
         keys = gvdb_table_list (ns_level, "");
-        g_assert (keys);
+        g_assert_true (keys);
         g_assert_cmpint (g_strv_length (keys), ==, 3);
         for (item_id = 0; item_id < 3; item_id++) {
                 key = g_strdup_printf ("ns%d", item_id);
-                g_assert (gvdb_table_has_value (ns_level, key));
+                g_assert_true (gvdb_table_has_value (ns_level, key));
                 value = gvdb_table_get_raw_value (ns_level, key);
                 g_assert_cmpstr (g_variant_get_string (value, NULL), ==, "http://some.cool.ns");
                 g_free (key);
@@ -142,17 +142,17 @@ simple_test (const gchar *filename, gboolean use_byteswap)
 
         table = gvdb_hash_table_new (NULL, "level1");
         gvdb_hash_table_insert_string (table, "key1", "here just a flat string");
-        g_assert (gvdb_table_write_contents (table, filename, use_byteswap, NULL));
+        g_assert_true (gvdb_table_write_contents (table, filename, use_byteswap, NULL));
         g_hash_table_unref (table);
 
         read = gvdb_table_new (filename, TRUE, NULL);
-        g_assert (read);
-        g_assert (gvdb_table_is_valid (read));
+        g_assert_true (read);
+        g_assert_true (gvdb_table_is_valid (read));
 
-        g_assert (gvdb_table_has_value (read, "key1"));
+        g_assert_true (gvdb_table_has_value (read, "key1"));
         value = gvdb_table_get_value (read, "key1");
         expected = g_variant_new_string ("here just a flat string");
-        g_assert (g_variant_equal (value, expected));
+        g_assert_true (g_variant_equal (value, expected));
 
         g_variant_unref (expected);
         g_variant_unref (value);
@@ -194,19 +194,19 @@ test_gvdb_ref_unref (void)
         /* Create a table */
         table = gvdb_hash_table_new (NULL, "level1");
         gvdb_hash_table_insert_string (table, "key1", "whatever");
-        g_assert (gvdb_table_write_contents (table, DB_FILE, FALSE, NULL));
+        g_assert_true (gvdb_table_write_contents (table, DB_FILE, FALSE, NULL));
         g_hash_table_unref (table);
 
         /* Read the table */
         read = gvdb_table_new (DB_FILE, TRUE, NULL);
-        g_assert (read && gvdb_table_is_valid (read));
+        g_assert_true (read && gvdb_table_is_valid (read));
 
         /* Run the checks with a reference */
         read_ref = gvdb_table_ref (read);
-        g_assert (gvdb_table_has_value (read_ref, "key1"));
+        g_assert_true (gvdb_table_has_value (read_ref, "key1"));
         value = gvdb_table_get_value (read_ref, "key1");
         expected = g_variant_new_string ("whatever");
-        g_assert (g_variant_equal (value, expected));
+        g_assert_true (g_variant_equal (value, expected));
 
         g_variant_unref (expected);
         g_variant_unref (value);
@@ -228,7 +228,7 @@ test_gvdb_corrupted_file (void)
                              -1, NULL);
 
         gvdb_table_new ("./test_invalid.gvdb", TRUE, &error);
-        g_assert (error);
+        g_assert_true (error);
 
         remove_file ("./test_invalid.gvdb");
 }

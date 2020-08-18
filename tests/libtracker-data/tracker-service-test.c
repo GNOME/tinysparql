@@ -59,7 +59,7 @@ check_result (TrackerSparqlCursor *cursor,
 	GError *nerror = NULL;
 
 	if (test_info->expect_query_error) {
-		g_assert (error != NULL);
+		g_assert_true (error != NULL);
 	} else {
 		g_assert_no_error (error);
 	}
@@ -111,7 +111,7 @@ check_result (TrackerSparqlCursor *cursor,
 			}
 		}
 	} else if (test_info->expect_query_error) {
-		g_assert (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
+		g_assert_true (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
 		g_string_free (test_results, TRUE);
 		g_free (results);
 		return;

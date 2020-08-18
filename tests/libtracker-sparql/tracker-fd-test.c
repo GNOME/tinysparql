@@ -180,8 +180,8 @@ query_and_compare_results (const char *query)
 	}
 
 	/* Check that both cursors are at the end (same number of rows) */
-	g_assert (!tracker_sparql_cursor_next (cursor_glib, NULL, NULL));
-	g_assert (!tracker_sparql_cursor_next (cursor_fd, NULL, NULL));
+	g_assert_true (!tracker_sparql_cursor_next (cursor_glib, NULL, NULL));
+	g_assert_true (!tracker_sparql_cursor_next (cursor_fd, NULL, NULL));
 
 	g_object_unref (cursor_glib);
 	g_object_unref (cursor_fd);
@@ -213,7 +213,7 @@ test_tracker_sparql_query_iterate_error (DataFixture  *fixture,
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
 	/* tracker_sparql_query_iterate should return null on error */
-	g_assert (!cursor);
+	g_assert_true (!cursor);
 
 	/* error should be set, along with its message, note: we don't
 	 * use g_assert_error() because the code does not match the
@@ -221,7 +221,7 @@ test_tracker_sparql_query_iterate_error (DataFixture  *fixture,
 	 * dbus/error matching between client/server. This should be
 	 * fixed in gdbus.
 	 */
-	g_assert (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
+	g_assert_true (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
 
 	g_error_free (error);
 }
@@ -237,7 +237,7 @@ test_tracker_sparql_query_iterate_empty_subprocess (DataFixture  *fixture,
 
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
-	g_assert (tracker_sparql_cursor_next (cursor, NULL, NULL));
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, NULL));
 
 	/* Testing we fail with this error:
 	 *
@@ -258,13 +258,13 @@ test_tracker_sparql_query_iterate_empty (DataFixture  *fixture,
 
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
-	g_assert (cursor);
+	g_assert_true (cursor);
 	g_assert_no_error (error);
 
-	g_assert (!tracker_sparql_cursor_next (cursor, NULL, NULL));
+	g_assert_true (!tracker_sparql_cursor_next (cursor, NULL, NULL));
 	/* This should be 1, the original test had it wrong: there's one column,
 	 * no matter if there are no results*/
-	g_assert (tracker_sparql_cursor_get_n_columns (cursor) == 1);
+	g_assert_true (tracker_sparql_cursor_get_n_columns (cursor) == 1);
 
 	g_test_trap_subprocess ("/steroids/tracker/tracker_sparql_query_iterate_empty/subprocess", 0, 0);
 	g_test_trap_assert_failed ();
@@ -283,10 +283,10 @@ test_tracker_sparql_query_iterate_sigpipe (DataFixture  *fixture,
 
 	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
-	g_assert (cursor);
+	g_assert_true (cursor);
 	g_assert_no_error (error);
 
-	g_assert (tracker_sparql_cursor_next (cursor, NULL, NULL));
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, NULL));
 
 	g_object_unref (cursor);
 }
@@ -336,7 +336,7 @@ async_update_array_callback (GObject      *source_object,
 	tracker_sparql_connection_update_array_finish (connection, result, &error);
 
 	/* main error is only set on fatal (D-Bus) errors that apply to the whole update */
-	g_assert (error != NULL);
+	g_assert_true (error != NULL);
 
 	g_main_loop_quit (data->main_loop);
 }
@@ -385,7 +385,7 @@ test_tracker_sparql_update_fast_error (DataFixture  *fixture,
 
 	tracker_sparql_connection_update (connection, query, NULL, &error);
 
-	g_assert (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
+	g_assert_true (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
 	g_error_free (error);
 }
 
@@ -400,7 +400,7 @@ test_tracker_sparql_update_blank_fast_small (DataFixture  *fixture,
 	results = tracker_sparql_connection_update_blank (connection, query, NULL, &error);
 
 	g_assert_no_error (error);
-	g_assert (results);
+	g_assert_true (results);
 
 	/* FIXME: Properly test once we get update_blank implemented */
 }
@@ -426,7 +426,7 @@ test_tracker_sparql_update_blank_fast_large (DataFixture  *fixture,
 	g_free (query);
 
 	g_assert_no_error (error);
-	g_assert (results);
+	g_assert_true (results);
 
 	/* FIXME: Properly test once we get update_blank implemented */
 }
@@ -441,8 +441,8 @@ test_tracker_sparql_update_blank_fast_error (DataFixture  *fixture,
 
 	results = tracker_sparql_connection_update_blank (connection, query, NULL, &error);
 
-	g_assert (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
-	g_assert (!results);
+	g_assert_true (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
+	g_assert_true (!results);
 
 	g_error_free (error);
 }
@@ -460,7 +460,7 @@ test_tracker_sparql_update_blank_fast_no_blanks (DataFixture  *fixture,
 	/* FIXME: Properly test once we get update_blank implemented */
 
 	g_assert_no_error (error);
-	g_assert (results);
+	g_assert_true (results);
 }
 
 static void
@@ -473,7 +473,7 @@ test_tracker_batch_sparql_update_fast (DataFixture  *fixture,
 	/* FIXME: batch update is missing so far
 	 * tracker_sparql_connection_batch_update (connection, query, NULL, &error); */
 
-	/* g_assert (!error); */
+	/* g_assert_true (!error); */
 }
 
 static void
@@ -491,12 +491,12 @@ async_query_cb (GObject      *source_object,
 	cursor_fd = tracker_sparql_connection_query_finish (connection, result, &error);
 
 	g_assert_no_error (error);
-	g_assert (cursor_fd != NULL);
+	g_assert_true (cursor_fd != NULL);
 
 	cursor_glib = tracker_sparql_connection_query (connection, data->query, NULL, &error);
 
 	g_assert_no_error (error);
-	g_assert (cursor_glib != NULL);
+	g_assert_true (cursor_glib != NULL);
 
 	while (tracker_sparql_cursor_next (cursor_fd, NULL, NULL) &&
 	       tracker_sparql_cursor_next (cursor_glib, NULL, NULL)) {
@@ -505,8 +505,8 @@ async_query_cb (GObject      *source_object,
 				 tracker_sparql_cursor_get_string (cursor_glib, 0, NULL));
 	}
 
-	g_assert (!tracker_sparql_cursor_next (cursor_fd, NULL, NULL));
-	g_assert (!tracker_sparql_cursor_next (cursor_glib, NULL, NULL));
+	g_assert_true (!tracker_sparql_cursor_next (cursor_fd, NULL, NULL));
+	g_assert_true (!tracker_sparql_cursor_next (cursor_glib, NULL, NULL));
 
 	g_object_unref (cursor_fd);
 	g_object_unref (cursor_glib);
@@ -551,7 +551,7 @@ cancel_query_cb (GObject      *source_object,
 	tracker_sparql_connection_query_finish (connection, result, &error);
 
 	/* An error should be returned (cancelled!) */
-	g_assert (error);
+	g_assert_true (error);
 }
 
 static void
@@ -630,7 +630,7 @@ cancel_update_cb (GObject      *source_object,
 	tracker_sparql_connection_update_finish (connection, result, &error);
 
 	/* An error should be returned (cancelled!) */
-	g_assert (error);
+	g_assert_true (error);
 }
 
 static void
@@ -669,7 +669,7 @@ async_update_blank_callback (GObject      *source_object,
 	results = tracker_sparql_connection_update_blank_finish (connection, result, &error);
 
 	g_assert_no_error (error);
-	g_assert (results != NULL);
+	g_assert_true (results != NULL);
 }
 
 static void

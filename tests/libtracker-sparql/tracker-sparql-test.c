@@ -119,7 +119,7 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 
 	query = GPOINTER_TO_INT(user_data);
 
-	g_assert (result != NULL);
+	g_assert_true (result != NULL);
 	success = tracker_sparql_cursor_next_finish (TRACKER_SPARQL_CURSOR (source),
 	                                             result,
 	                                             &error);
@@ -132,7 +132,7 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 	}
 
 	cursor = TRACKER_SPARQL_CURSOR (source);
-	g_assert (cursor != NULL);
+	g_assert_true (cursor != NULL);
 	connection = tracker_sparql_cursor_get_connection (cursor);
 
 	if (!success) {
@@ -173,18 +173,18 @@ test_tracker_sparql_cursor_next_async_query (TrackerSparqlConnection *connection
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
-	g_assert (query < G_N_ELEMENTS (queries));
+	g_assert_true (query < G_N_ELEMENTS (queries));
 	g_print ("ASYNC query %d starting:\n", query);
 
 	cancellables[query] = g_cancellable_new ();
-	g_assert (cancellables[query] != NULL);
+	g_assert_true (cancellables[query] != NULL);
 
 	cursor = tracker_sparql_connection_query (connection,
 	                                          queries[query],
 	                                          NULL,
 	                                          &error);
 	g_assert_no_error (error);
-	g_assert (cursor != NULL);
+	g_assert_true (cursor != NULL);
 
 	tracker_sparql_cursor_next_async (cursor,
 	                                  cancellables[query],
@@ -208,7 +208,7 @@ test_tracker_sparql_cursor_next_async (void)
 
 	connection = create_local_connection (&error);
 	g_assert_no_error (error);
-	g_assert (connection != NULL);
+	g_assert_true (connection != NULL);
 
 	test_tracker_sparql_cursor_next_async_query (connection, 0);
 	g_main_loop_run (main_loop);
