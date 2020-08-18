@@ -41,6 +41,7 @@ static gchar *ontology_path = NULL;
 static gboolean session_bus = FALSE;
 static gboolean system_bus = FALSE;
 static gboolean name_owned = FALSE;
+static gboolean list = FALSE;
 
 static GOptionEntry entries[] = {
 	{ "database", 'd', 0, G_OPTION_ARG_FILENAME, &database_path,
@@ -67,6 +68,10 @@ static GOptionEntry entries[] = {
 	  N_("Use system bus"),
 	  NULL
 	},
+	{ "list", 'l', 0, G_OPTION_ARG_NONE, &list,
+	  N_("List SPARQL endpoints available in DBus"),
+	  NULL
+	},
 	{ NULL }
 };
 
@@ -82,7 +87,14 @@ typedef enum _TrackerEndpointError {
 static gboolean
 sanity_check (void)
 {
-	if (!!ontology_path == !!ontology_name) {
+	if (list &&
+	    (ontology_path || ontology_name || dbus_service || database_path)) {
+		/* TRANSLATORS: these are commandline arguments */
+		g_printerr ("%s\n", _("--list can only be used with --session or --system"));
+		return FALSE;
+	}
+
+	if (!list && !!ontology_path == !!ontology_name) {
 		/* TRANSLATORS: those are commandline arguments */
 		g_printerr ("%s\n", _("One “ontology” or “ontology-path” option should be provided"));
 		return FALSE;
@@ -187,6 +199,89 @@ run_endpoint (TrackerSparqlConnection  *connection,
 	return TRUE;
 }
 
+static int
+run_list_endpoints (void)
+{
+	GDBusConnection *connection;
+	GDBusMessage *message, *reply;
+	GVariant *variant;
+	GStrv names;
+	guint i;
+
+	if (system_bus) {
+		connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, NULL);
+	} else {
+		connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+	}
+
+	message = g_dbus_message_new_method_call ("org.freedesktop.DBus",
+	                                          "/org/freedesktop/DBus",
+	                                          "org.freedesktop.DBus",
+	                                          "ListNames");
+	reply = g_dbus_connection_send_message_with_reply_sync (connection,
+	                                                        message,
+	                                                        G_DBUS_SEND_MESSAGE_FLAGS_NONE,
+	                                                        -1,
+	                                                        NULL,
+	                                                        NULL,
+	                                                        NULL);
+	g_object_unref (message);
+
+	if (!reply)
+		return EXIT_FAILURE;
+
+	if (g_dbus_message_get_error_name (reply)) {
+		g_object_unref (reply);
+		return EXIT_FAILURE;
+	}
+
+	variant = g_dbus_message_get_body (reply);
+	g_variant_get (variant, "(^a&s)", &names);
+
+	for (i = 0; names[i]; i++) {
+		GDBusMessage *check;
+		GError *error = NULL;
+
+		if (names[i][0] == ':')
+			continue;
+
+		/* Do a 'Query' method call, we don't mind the wrong message arguments,
+		 * and even look for that specific error to detect at least the interface
+		 * is implemented by this DBus service.
+		 */
+		message = g_dbus_message_new_method_call (names[i],
+		                                          "/org/freedesktop/Tracker3/Endpoint",
+		                                          "org.freedesktop.Tracker3.Endpoint",
+		                                          "Query");
+		check = g_dbus_connection_send_message_with_reply_sync (connection,
+		                                                       message,
+		                                                       G_DBUS_SEND_MESSAGE_FLAGS_NONE,
+		                                                       -1,
+		                                                       NULL,
+		                                                       NULL,
+		                                                       NULL);
+		g_object_unref (message);
+
+		if (!check)
+			continue;
+
+		if (!g_dbus_message_to_gerror (check, &error)) {
+			g_object_unref (check);
+			continue;
+		}
+
+		if (g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_INVALID_ARGS))
+			g_print ("%s\n", names[i]);
+
+		g_clear_error (&error);
+		g_object_unref (check);
+	}
+
+	g_object_unref (reply);
+
+	return EXIT_SUCCESS;
+}
+
 int
 tracker_endpoint (int argc, const char **argv)
 {
@@ -215,6 +310,10 @@ tracker_endpoint (int argc, const char **argv)
 		g_free (help);
 		g_option_context_free (context);
 		return EXIT_FAILURE;
+	}
+
+	if (list) {
+		return run_list_endpoints ();
 	}
 
 	if (database_path)
