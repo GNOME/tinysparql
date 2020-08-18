@@ -1,6 +1,6 @@
 #-*- mode: shell-script;-*-
 
-tracker_cmds()
+tracker3_cmds()
 {
     local cur prev words cword
     _init_completion -s || return
@@ -8,7 +8,7 @@ tracker_cmds()
     cur=${COMP_WORDS[COMP_CWORD]}
 
     if [[ $cword == 1 ]]; then
-	possible=`tracker | egrep "   [a-z].*   " | awk '{ print ($1) }'`
+	possible=`tracker3 | egrep "   [a-z].*   " | awk '{ print ($1) }' | sort | uniq`
 	COMPREPLY=( $(compgen -W "$possible" -- $cur) )
 	return 0;
     fi
@@ -17,11 +17,16 @@ tracker_cmds()
 	-h|--help)
 	    return 0;
 	    ;;
-	extract|info|-f|--file)
+	extract|info|-f|--file|-d|--database|-a|--add|-d|--remove)
 	    if [[ $cur != -* ]]; then
 		_filedir
 		return 0;
 	    fi
+	    ;;
+	-b|--dbus-service)
+	    possible=`tracker3 endpoint --list`
+	    COMPREPLY=( $(compgen -W "$possible" -- $cur) )
+	    return 0;
 	    ;;
 	*)
 	    ;;
@@ -37,4 +42,4 @@ tracker_cmds()
     fi
 }
 
-complete -F tracker_cmds tracker
+complete -F tracker3_cmds tracker3
