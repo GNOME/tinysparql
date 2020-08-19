@@ -7,12 +7,13 @@ tracker-export - Export all data from a Tracker database.
 
 == SYNOPSIS
 
-*tracker export* [_options_...]
+*tracker export* [_options_...] [*IRI*...]
 
 == DESCRIPTION
 
-*tracker export* exports all data stored in a Tracker database, in
-Turtle format.
+*tracker export* exports data stored in a Tracker database, in
+Turtle format. By default all data is exported, if any *IRI*, only those
+resources will be printed.
 
 The output is intended to be machine-readable, not human readable. Use a
 tool such as rapper(1) to convert the data to different formats.

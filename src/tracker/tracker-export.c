@@ -37,6 +37,7 @@ static gchar *database_path;
 static gchar *dbus_service;
 static gchar *remote_service;
 static gboolean show_graphs;
+static gchar **iris;
 
 static GOptionEntry entries[] = {
 	{ "database", 'd', 0, G_OPTION_ARG_FILENAME, &database_path,
@@ -55,6 +56,9 @@ static GOptionEntry entries[] = {
 	  N_("Output TriG format which includes named graph information"),
 	  NULL
 	},
+	{ G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &iris,
+	  N_("IRI"),
+	  N_("IRI")},
 	{ NULL }
 };
 
@@ -246,7 +250,8 @@ export_run_default (void)
 	g_autoptr(TrackerSparqlCursor) cursor = NULL;
 	g_autoptr(GError) error = NULL;
 	g_autoptr(GHashTable) prefixes = NULL;
-	const gchar *query;
+	g_autoptr(GString) query = NULL;
+	guint i;
 
 	connection = create_connection (&error);
 
@@ -259,18 +264,36 @@ export_run_default (void)
 
 	prefixes = tracker_sparql_get_prefixes (connection);
 
-	query = "SELECT ?g ?u ?p ?v "
-	        "       (EXISTS { ?p rdfs:range [ rdfs:subClassOf rdfs:Resource ] }) AS ?is_resource "
-	        "{ "
-	        "    GRAPH ?g { "
-	        "        ?u ?p ?v "
-	        "        FILTER NOT EXISTS { ?u a rdf:Property } "
-	        "        FILTER NOT EXISTS { ?u a rdfs:Class } "
-	        "        FILTER NOT EXISTS { ?u a nrl:Namespace } "
-	        "    } "
-	        "} ORDER BY ?g ?u";
+	query = g_string_new (NULL);
+	g_string_append (query,
+	                 "SELECT ?g ?u ?p ?v "
+	                 "       (EXISTS { ?p rdfs:range [ rdfs:subClassOf rdfs:Resource ] }) AS ?is_resource "
+	                 "{ "
+	                 "    GRAPH ?g { "
+	                 "        ?u ?p ?v ");
 
-	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+	if (iris) {
+		g_string_append (query, "FILTER (?u IN (");
+
+		for (i = 0; iris[i]; i++) {
+			if (i != 0)
+				g_string_append_c (query, ',');
+			g_string_append_printf (query, "<%s>", iris[i]);
+		}
+
+		g_string_append (query, "))");
+	} else {
+		g_string_append (query,
+		                 "FILTER NOT EXISTS { ?u a rdf:Property } "
+		                 "FILTER NOT EXISTS { ?u a rdfs:Class } "
+		                 "FILTER NOT EXISTS { ?u a nrl:Namespace } ");
+	}
+
+	g_string_append (query,
+	                 "    } "
+	                 "} ORDER BY ?g ?u");
+
+	cursor = tracker_sparql_connection_query (connection, query->str, NULL, &error);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
