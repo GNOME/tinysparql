@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-08-11 16:39+0000\n"
-"PO-Revision-Date: 2020-08-12 09:16+0300\n"
+"POT-Creation-Date: 2020-08-19 20:26+0000\n"
+"PO-Revision-Date: 2020-08-19 23:38+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n==1 ? 3 : n%10==1 && n%100!=11 ? 0 : n"
 "%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Lokalize 20.07.70\n"
+"X-Generator: Lokalize 20.11.70\n"
 
 #: src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -104,87 +104,92 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "Версія"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:204
-#: src/tracker/tracker-export.c:305 src/tracker/tracker-import.c:160
-#: src/tracker/tracker-info.c:471 src/tracker/tracker-sparql.c:1546
-#: src/tracker/tracker-sql.c:231
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:299
+#: src/tracker/tracker-export.c:333 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-sparql.c:1555 src/tracker/tracker-sql.c:237
 msgid "Unrecognized options"
 msgstr "Невідомий параметр"
 
-#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
-#: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
-#: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:44
+#: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Розташування бази даних"
 
-#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-endpoint.c:60
+#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
 msgid "DIR"
 msgstr "КАТАЛОГ"
 
-#: src/tracker/tracker-endpoint.c:51
+#: src/tracker/tracker-endpoint.c:52
 msgid "Specify the DBus name of this endpoint"
 msgstr "Вказати назву DBus цієї кінцевої точки"
 
-#: src/tracker/tracker-endpoint.c:52 src/tracker/tracker-endpoint.c:56
+#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
 msgid "NAME"
 msgstr "НАЗВА"
 
-#: src/tracker/tracker-endpoint.c:55
+#: src/tracker/tracker-endpoint.c:56
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Вказати назву онтології, яку використано у цій кінцевій точці"
 
-#: src/tracker/tracker-endpoint.c:59
+#: src/tracker/tracker-endpoint.c:60
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "Вказати шлях до онтології, який буде використано у цій кінцевій точці"
 
-#: src/tracker/tracker-endpoint.c:63
+#: src/tracker/tracker-endpoint.c:64
 msgid "Use session bus"
 msgstr "Використовувати шину сеансу"
 
-#: src/tracker/tracker-endpoint.c:67
+#: src/tracker/tracker-endpoint.c:68
 msgid "Use system bus"
 msgstr "Використовувати шину системи"
 
+#: src/tracker/tracker-endpoint.c:72
+msgid "List SPARQL endpoints available in DBus"
+msgstr "Вивести список кінцевих точок SPARQL, які доступні у DBus"
+
+#. TRANSLATORS: these are commandline arguments
+#: src/tracker/tracker-endpoint.c:93
+msgid "--list can only be used with --session or --system"
+msgstr "--list можна використовувати лише разом із --session або --system"
+
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:87
+#: src/tracker/tracker-endpoint.c:99
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Має бути вказано один з параметрів «ontology» або «ontology-path»"
 
-#: src/tracker/tracker-endpoint.c:129
+#: src/tracker/tracker-endpoint.c:141
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Створюємо кінцеву точку у %s…"
 
-#: src/tracker/tracker-endpoint.c:165
+#: src/tracker/tracker-endpoint.c:177
 msgid "Could not own DBus name"
 msgstr "Не вдалося присвоїти назву DBus"
 
-#: src/tracker/tracker-endpoint.c:169
+#: src/tracker/tracker-endpoint.c:181
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Очікуємо на команди SPARQL. Натисніть Ctrl-C, щоб припинити."
 
-#: src/tracker/tracker-endpoint.c:179
+#: src/tracker/tracker-endpoint.c:191
 msgid "DBus name lost"
 msgstr "Втрачено назву DBus"
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:184
+#: src/tracker/tracker-endpoint.c:196
 msgid "Closing connection…"
 msgstr "Розриваємо з'єднання…"
 
-#: src/tracker/tracker-endpoint.c:234
+#: src/tracker/tracker-endpoint.c:333
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Відкриваємо базу даних у %s…"
 
-#: src/tracker/tracker-endpoint.c:237
+#: src/tracker/tracker-endpoint.c:336
 msgid "Creating in-memory database"
 msgstr "Створюємо базу даних у оперативній пам'яті"
 
-#: src/tracker/tracker-endpoint.c:257
-#| msgid ""
-#| "New database created. Use the --dbus-service option to share this "
-#| "database on a message bus."
+#: src/tracker/tracker-endpoint.c:356
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -192,60 +197,62 @@ msgstr ""
 "Створено базу даних. Скористайтеся параметром «--dbus-service», щоб "
 "оприлюднити цю базу даних на шині повідомлень."
 
-#: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
-#: src/tracker/tracker-info.c:54 src/tracker/tracker-info.c:91
-#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:110
-#: src/tracker/tracker-sparql.c:122 src/tracker/tracker-sql.c:45
-#: src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
+#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "ФАЙЛ"
 
-#: src/tracker/tracker-export.c:46 src/tracker/tracker-import.c:49
-#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:113
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "З'єднує зі службою DBus"
 
-#: src/tracker/tracker-export.c:47 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:114
+#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "Назва служби DBus"
 
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:53
-#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "З'єднує із віддаленою службою"
 
-#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "Адреса віддаленої служби"
 
-#: src/tracker/tracker-export.c:54
+#: src/tracker/tracker-export.c:56
 msgid "Output TriG format which includes named graph information"
 msgstr "Вивести дані у форматі TriG із включенням даних іменованих графів"
 
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-export.c:61
+#| msgid "DIR"
+msgid "IRI"
+msgstr "IRI"
+
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
-#: src/tracker/tracker-sparql.c:196
-#| msgid "Specify one --database, --dbus-service or --remote-service option"
+#: src/tracker/tracker-export.c:86 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-sparql.c:197
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
-"Вкажіть один з параметрів «--database», «--dbus-service» або"
-" «--remote-service»"
+"Вкажіть один з параметрів «--database», «--dbus-service» або «--remote-"
+"service»"
 
-#: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
-#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
+#: src/tracker/tracker-export.c:260 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-sparql.c:1113
 msgid "Could not establish a connection to Tracker"
 msgstr "Не вдалося встановити з'єднання з Tracker"
 
-#: src/tracker/tracker-export.c:255 src/tracker/tracker-import.c:100
-#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:1112
+#: src/tracker/tracker-export.c:261 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-sparql.c:1114
 msgid "No error given"
 msgstr "Повідомлення про помилку не вказано"
 
-#: src/tracker/tracker-export.c:276 src/tracker/tracker-sparql.c:1486
-#: src/tracker/tracker-sql.c:132 src/tracker/tracker-sql.c:165
+#: src/tracker/tracker-export.c:300 src/tracker/tracker-sparql.c:1491
+#: src/tracker/tracker-sql.c:135 src/tracker/tracker-sql.c:168
 msgid "Could not run query"
 msgstr "Не вдалося виконати запит"
 
@@ -258,135 +265,78 @@ msgstr "не вдалося виконати «%s»: %s"
 msgid "Could not run import"
 msgstr "Не вдалося виконати імпортування"
 
-#: src/tracker/tracker-info.c:65
-msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
-msgstr ""
-"Показати повні простори імен (тобто не використовуйте nie:title, "
-"використовуйте повні URL)"
-
-#: src/tracker/tracker-info.c:69
-msgid "Show plain text content if available for resources"
-msgstr "Показати для ресурсів вміст у вигляді звичайного тексту, якщо доступно"
-
-#. To translators:
-#. * IRI (International Resource Identifier) is a generalization
-#. * of the URI. While URI supports only ASCI encoding, IRI
-#. * fully supports international characters. In practice, UTF-8
-#. * is the most popular encoding used for IRI.
-#.
-#: src/tracker/tracker-info.c:79
-msgid ""
-"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-"(e.g. <file:///path/to/some/file.txt>)"
-msgstr ""
-"Замість пошуку за назвою файла, вважати аргументи ФАЙЛ адресами (наприклад "
-"<file:///шлях/до/якогось/файла.txt>)"
-
-#: src/tracker/tracker-info.c:83
-msgid "Output results as RDF in Turtle format"
-msgstr "Вивести результати як RDF у форматі Turtle"
-
-#: src/tracker/tracker-info.c:87
-msgid "RDF property to treat as URL (eg. “nie:url”)"
-msgstr "Властивість RDF, яку слід обробляти як адресу (наприклад «nie:url»)"
-
-#: src/tracker/tracker-info.c:334
-msgid "Querying information for entity"
-msgstr "Запит інформації для об'єкту"
-
-#: src/tracker/tracker-info.c:358
-msgid "Unable to retrieve URN for URI"
-msgstr "Не вдалося отримати URN для URI"
-
-#: src/tracker/tracker-info.c:368 src/tracker/tracker-info.c:402
-msgid "Unable to retrieve data for URI"
-msgstr "Не вдалося отримати дані для URI"
-
-#: src/tracker/tracker-info.c:411
-msgid "No metadata available for that URI"
-msgstr "Для цього URI немає доступних метаданих"
-
-#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1498
-#: src/tracker/tracker-sparql.c:1501 src/tracker/tracker-sql.c:139
-msgid "Results"
-msgstr "Результати"
-
-#: src/tracker/tracker-main.c:44
+#: src/tracker/tracker-main.c:43
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
 "Див. «tracker3 help <команда>», щоб дізнатися більше про специфічну "
 "допоміжну команду."
 
-#: src/tracker/tracker-main.c:93
+#: src/tracker/tracker-main.c:92
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr ""
 "Отримати довідку щодо того, як користуватися Tracker і будь-якою з цих команд"
 
-#: src/tracker/tracker-main.c:94
+#: src/tracker/tracker-main.c:93
 msgid "Create a SPARQL endpoint"
 msgstr "Створити кінцеву точку SPARQL"
 
-#: src/tracker/tracker-main.c:95
+#: src/tracker/tracker-main.c:94
 msgid "Export data from a Tracker database"
 msgstr "Експортувати дані з бази даних Tracker"
 
-#: src/tracker/tracker-main.c:96
+#: src/tracker/tracker-main.c:95
 msgid "Import data into a Tracker database"
 msgstr "Імпортувати дані до бази даних Tracker"
 
-#: src/tracker/tracker-main.c:97
-msgid "Show information known about local files or items indexed"
-msgstr "Показати відомості щодо локальних файлів або індексованих записів"
-
-#: src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:96
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Надіслати запит і оновити покажчик за допомогою SPARQL або виконати пошук, "
 "побудувати список вмісту та ієрархію онтології"
 
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:97
 msgid "Query the database at the lowest level using SQL"
 msgstr "Надіслати запит до бази даних на найнижчому рівні за допомогою SQL"
 
-#: src/tracker/tracker-main.c:139
+#: src/tracker/tracker-main.c:137
 #, c-format
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr "«%s» не є командою tracker3. Див. «tracker3 --help»"
 
-#: src/tracker/tracker-main.c:174
+#: src/tracker/tracker-main.c:172
 msgid "Available tracker3 commands are:"
 msgstr "Доступні команди tracker3:"
 
-#: src/tracker/tracker-main.c:212
+#: src/tracker/tracker-main.c:210
 msgid "Additional / third party commands are:"
 msgstr "Додаткові або сторонні команди:"
 
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-sparql.c:122
 msgid "Path to use to run a query or update from file"
 msgstr "Шлях, що використовується для виконання запиту або оновлення з файла"
 
-#: src/tracker/tracker-sparql.c:125
+#: src/tracker/tracker-sparql.c:126
 msgid "SPARQL query"
 msgstr "Запит SPARQL"
 
-#: src/tracker/tracker-sparql.c:126
+#: src/tracker/tracker-sparql.c:127
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:129
+#: src/tracker/tracker-sparql.c:130
 msgid "This is used with --query and for database updates only."
 msgstr "Це використовується з ключем --query і лише для оновлень бази даних."
 
-#: src/tracker/tracker-sparql.c:133
+#: src/tracker/tracker-sparql.c:134
 msgid "Retrieve classes"
 msgstr "Отримати класи"
 
-#: src/tracker/tracker-sparql.c:137
+#: src/tracker/tracker-sparql.c:138
 msgid "Retrieve class prefixes"
 msgstr "Отримати префікси класів"
 
-#: src/tracker/tracker-sparql.c:141
+#: src/tracker/tracker-sparql.c:142
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -394,20 +344,20 @@ msgstr ""
 "Отримати властивості класу, також можна використовувати префікси (напр. rdfs:"
 "Resource)"
 
-#: src/tracker/tracker-sparql.c:142 src/tracker/tracker-sparql.c:146
-#: src/tracker/tracker-sparql.c:158 src/tracker/tracker-sparql.c:166
-#: src/tracker/tracker-sparql.c:170
+#: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
+#: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
+#: src/tracker/tracker-sparql.c:171
 msgid "CLASS"
 msgstr "КЛАС"
 
-#: src/tracker/tracker-sparql.c:145
+#: src/tracker/tracker-sparql.c:146
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Отримати класи, які повідомляють про зміни у базі даних (КЛАС — "
 "необов'язковий параметр)"
 
-#: src/tracker/tracker-sparql.c:149
+#: src/tracker/tracker-sparql.c:150
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -415,15 +365,15 @@ msgstr ""
 "Отримати індекси, що використовуються у базі даних для покращення "
 "продуктивності (ВЛАСТИВІСТЬ — необов'язковий параметр)"
 
-#: src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:151
 msgid "PROPERTY"
 msgstr "ВЛАСТИВІСТЬ"
 
-#: src/tracker/tracker-sparql.c:153
+#: src/tracker/tracker-sparql.c:154
 msgid "Retrieve all named graphs"
 msgstr "Отримати усі іменовані графи"
 
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-sparql.c:158
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -431,38 +381,38 @@ msgstr ""
 "Зробити опис підкласів, суперкласів (можна використовувати з -s, щоб "
 "виділити частини дерева, і -p, щоб показати властивості)"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-sparql.c:162
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Знайти клас або властивість і показати про нього додаткову інформацію (напр. "
 "Document)"
 
-#: src/tracker/tracker-sparql.c:162
+#: src/tracker/tracker-sparql.c:163
 msgid "CLASS/PROPERTY"
 msgstr "КЛАС/ВЛАСТИВІСТЬ"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-sparql.c:166
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Повертає скорочений запис класу (напр.: nfo:FileDataObject)."
 
-#: src/tracker/tracker-sparql.c:169
+#: src/tracker/tracker-sparql.c:170
 msgid "Returns the full namespace for a class."
 msgstr "Повертає повний простір імен для класу."
 
-#: src/tracker/tracker-sparql.c:229
+#: src/tracker/tracker-sparql.c:230
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Не вдалося отримати префікси просторів імен"
 
-#: src/tracker/tracker-sparql.c:237
+#: src/tracker/tracker-sparql.c:238
 msgid "No namespace prefixes were returned"
 msgstr "Не отримано жодного префіксу простору імен"
 
-#: src/tracker/tracker-sparql.c:283
+#: src/tracker/tracker-sparql.c:284
 msgid "Could not get namespace prefixes"
 msgstr "Не вдалося отримати префікси просторів імен"
 
-#: src/tracker/tracker-sparql.c:292
+#: src/tracker/tracker-sparql.c:293
 msgid "No namespace prefixes were found"
 msgstr "Префікси просторів імен не знайдені"
 
@@ -470,138 +420,143 @@ msgstr "Префікси просторів імен не знайдені"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:538 src/tracker/tracker-sparql.c:586
+#: src/tracker/tracker-sparql.c:539 src/tracker/tracker-sparql.c:587
 msgid "None"
 msgstr "Немає"
 
-#: src/tracker/tracker-sparql.c:992
+#: src/tracker/tracker-sparql.c:993
 msgid "Could not create tree: subclass query failed"
 msgstr "Не вдалося створити дерево: помилка запиту підкласу"
 
-#: src/tracker/tracker-sparql.c:1041
+#: src/tracker/tracker-sparql.c:1042
 msgid "Could not create tree: class properties query failed"
 msgstr "Не вдалося створити дерево: помилка запиту властивостей класу"
 
-#: src/tracker/tracker-sparql.c:1125
+#: src/tracker/tracker-sparql.c:1129
 msgid "Could not list classes"
 msgstr "Не вдалося показати перелік класів"
 
-#: src/tracker/tracker-sparql.c:1133
+#: src/tracker/tracker-sparql.c:1137
 msgid "No classes were found"
 msgstr "Класи не знайдені"
 
-#: src/tracker/tracker-sparql.c:1133 src/tracker/tracker-sparql.c:1348
+#: src/tracker/tracker-sparql.c:1137 src/tracker/tracker-sparql.c:1353
 msgid "Classes"
 msgstr "Класи"
 
-#: src/tracker/tracker-sparql.c:1149
+#: src/tracker/tracker-sparql.c:1153
 msgid "Could not list class prefixes"
 msgstr "Не вдалося вивести перелік префіксів класів"
 
-#: src/tracker/tracker-sparql.c:1157
+#: src/tracker/tracker-sparql.c:1161
 msgid "No class prefixes were found"
 msgstr "Префікси класів не знайдені"
 
-#: src/tracker/tracker-sparql.c:1157
+#: src/tracker/tracker-sparql.c:1161
 msgid "Prefixes"
 msgstr "Префікси"
 
-#: src/tracker/tracker-sparql.c:1177
+#: src/tracker/tracker-sparql.c:1181
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Не вдалося знайти властивість для префіксу класу, наприклад, :Resource в "
 "«rdfs:Resource»"
 
-#: src/tracker/tracker-sparql.c:1216
+#: src/tracker/tracker-sparql.c:1220
 msgid "Could not list properties"
 msgstr "Не вдалося показати перелік властивостей"
 
-#: src/tracker/tracker-sparql.c:1224
+#: src/tracker/tracker-sparql.c:1228
 msgid "No properties were found"
 msgstr "Властивості не знайдені"
 
-#: src/tracker/tracker-sparql.c:1224 src/tracker/tracker-sparql.c:1371
+#: src/tracker/tracker-sparql.c:1228 src/tracker/tracker-sparql.c:1376
 msgid "Properties"
 msgstr "Властивості"
 
-#: src/tracker/tracker-sparql.c:1252
+#: src/tracker/tracker-sparql.c:1256
 msgid "Could not find notify classes"
 msgstr "Не вдалося знайти класи сповіщень"
 
-#: src/tracker/tracker-sparql.c:1260
+#: src/tracker/tracker-sparql.c:1264
 msgid "No notifies were found"
 msgstr "Сповіщення не знайдені"
 
-#: src/tracker/tracker-sparql.c:1260
+#: src/tracker/tracker-sparql.c:1264
 msgid "Notifies"
 msgstr "Сповіщення"
 
-#: src/tracker/tracker-sparql.c:1286
+#: src/tracker/tracker-sparql.c:1290
 msgid "Could not find indexed properties"
 msgstr "Не вдалося знайти проіндексовані властивості"
 
-#: src/tracker/tracker-sparql.c:1294
+#: src/tracker/tracker-sparql.c:1298
 msgid "No indexes were found"
 msgstr "Індекси не знайдені"
 
-#: src/tracker/tracker-sparql.c:1294
+#: src/tracker/tracker-sparql.c:1298
 msgid "Indexes"
 msgstr "Індекси"
 
-#: src/tracker/tracker-sparql.c:1310
+#: src/tracker/tracker-sparql.c:1314
 msgid "Could not list named graphs"
 msgstr "Не вдалося створити список іменованих графів"
 
-#: src/tracker/tracker-sparql.c:1318
+#: src/tracker/tracker-sparql.c:1322
 msgid "No graphs were found"
 msgstr "Графів не знайдено"
 
-#: src/tracker/tracker-sparql.c:1318
+#: src/tracker/tracker-sparql.c:1322
 msgid "Named graphs"
 msgstr "Іменовані графи"
 
-#: src/tracker/tracker-sparql.c:1340
+#: src/tracker/tracker-sparql.c:1345
 msgid "Could not search classes"
 msgstr "Не вдалося виконати пошук класів"
 
-#: src/tracker/tracker-sparql.c:1348
+#: src/tracker/tracker-sparql.c:1353
 msgid "No classes were found to match search term"
 msgstr "Не знайдено жодного класу, що відповідає параметрам пошуку"
 
-#: src/tracker/tracker-sparql.c:1363
+#: src/tracker/tracker-sparql.c:1368
 msgid "Could not search properties"
 msgstr "Не вдалося виконати пошук властивостей"
 
-#: src/tracker/tracker-sparql.c:1371
+#: src/tracker/tracker-sparql.c:1376
 msgid "No properties were found to match search term"
 msgstr "Не знайдено жодної властивості, що відповідає параметрам пошуку"
 
-#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-sparql.c:1412 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Не вдалося отримати шлях у кодуванні UTF-8"
 
-#: src/tracker/tracker-sparql.c:1419 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-sparql.c:1424 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Не вдалося прочитати файл"
 
-#: src/tracker/tracker-sparql.c:1438
+#: src/tracker/tracker-sparql.c:1443
 msgid "Could not run update"
 msgstr "Не вдалося виконати оновлення"
 
-#: src/tracker/tracker-sparql.c:1445
+#: src/tracker/tracker-sparql.c:1450
 msgid "Done"
 msgstr "Виконано"
 
-#: src/tracker/tracker-sparql.c:1498 src/tracker/tracker-sparql.c:1501
+#: src/tracker/tracker-sparql.c:1504 src/tracker/tracker-sparql.c:1507
 msgid "No results found matching your query"
 msgstr "Не знайдено нічого, що відповідає вашому запиту"
 
-#: src/tracker/tracker-sparql.c:1555 src/tracker/tracker-sql.c:242
+#: src/tracker/tracker-sparql.c:1504 src/tracker/tracker-sparql.c:1507
+#: src/tracker/tracker-sql.c:142
+msgid "Results"
+msgstr "Результати"
+
+#: src/tracker/tracker-sparql.c:1564 src/tracker/tracker-sql.c:248
 msgid "File and query can not be used together"
 msgstr "Не можна одночасно використовувати файл і запит"
 
-#: src/tracker/tracker-sparql.c:1557
+#: src/tracker/tracker-sparql.c:1566
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -621,14 +576,51 @@ msgstr "Запит SQL"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:113
+#: src/tracker/tracker-sql.c:114
 msgid "Failed to initialize data manager"
 msgstr "Не вдалося ініціалізувати диспетчер даних"
 
-#: src/tracker/tracker-sql.c:173
+#: src/tracker/tracker-sql.c:176
 msgid "Empty result set"
 msgstr "Порожній набір результатів"
 
-#: src/tracker/tracker-sql.c:240
+#: src/tracker/tracker-sql.c:246
 msgid "A database path must be specified"
 msgstr "Слід вказати шлях до бази даних"
+
+#~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+#~ msgstr ""
+#~ "Показати повні простори імен (тобто не використовуйте nie:title, "
+#~ "використовуйте повні URL)"
+
+#~ msgid "Show plain text content if available for resources"
+#~ msgstr ""
+#~ "Показати для ресурсів вміст у вигляді звичайного тексту, якщо доступно"
+
+#~ msgid ""
+#~ "Instead of looking up a file name, treat the FILE arguments as actual "
+#~ "IRIs (e.g. <file:///path/to/some/file.txt>)"
+#~ msgstr ""
+#~ "Замість пошуку за назвою файла, вважати аргументи ФАЙЛ адресами "
+#~ "(наприклад <file:///шлях/до/якогось/файла.txt>)"
+
+#~ msgid "Output results as RDF in Turtle format"
+#~ msgstr "Вивести результати як RDF у форматі Turtle"
+
+#~ msgid "RDF property to treat as URL (eg. “nie:url”)"
+#~ msgstr "Властивість RDF, яку слід обробляти як адресу (наприклад «nie:url»)"
+
+#~ msgid "Querying information for entity"
+#~ msgstr "Запит інформації для об'єкту"
+
+#~ msgid "Unable to retrieve URN for URI"
+#~ msgstr "Не вдалося отримати URN для URI"
+
+#~ msgid "Unable to retrieve data for URI"
+#~ msgstr "Не вдалося отримати дані для URI"
+
+#~ msgid "No metadata available for that URI"
+#~ msgstr "Для цього URI немає доступних метаданих"
+
+#~ msgid "Show information known about local files or items indexed"
+#~ msgstr "Показати відомості щодо локальних файлів або індексованих записів"
