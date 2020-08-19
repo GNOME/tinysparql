@@ -28,6 +28,7 @@
 #include <glib/gi18n.h>
 
 #include <libtracker-sparql/tracker-sparql.h>
+#include <libtracker-common/tracker-common.h>
 
 #include "tracker-sparql.h"
 #include "tracker-color.h"
@@ -278,6 +279,8 @@ export_run_default (void)
 		return EXIT_FAILURE;
 	}
 
+	tracker_term_pipe_to_pager ();
+
 	g_hash_table_foreach (prefixes, (GHFunc) print_prefix, NULL);
 	g_print ("\n");
 
@@ -286,6 +289,8 @@ export_run_default (void)
 	} else {
 		print_turtle (cursor, prefixes, FALSE);
 	}
+
+	tracker_term_pager_close ();
 
 	return EXIT_SUCCESS;
 }
