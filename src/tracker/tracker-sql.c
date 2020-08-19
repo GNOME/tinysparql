@@ -102,6 +102,7 @@ sql_by_query (void)
 	gint n_rows = 0;
 	GFile *db_location;
 	TrackerDataManager *data_manager;
+	gint retval = EXIT_SUCCESS;
 
 	db_location = g_file_new_for_commandline_arg (database_path);
 	data_manager = tracker_data_manager_new (TRACKER_DB_MANAGER_READONLY,
@@ -115,6 +116,8 @@ sql_by_query (void)
 		g_error_free (error);
 		return EXIT_FAILURE;
 	}
+
+	tracker_term_pipe_to_pager ();
 
 	g_print ("--------------------------------------------------\n");
 	g_print ("\n\n");
@@ -132,8 +135,8 @@ sql_by_query (void)
 		            _("Could not run query"),
 		            error->message);
 		g_error_free (error);
-
-		return EXIT_FAILURE;
+		retval = EXIT_FAILURE;
+		goto out;
 	}
 
 	g_print ("%s:\n", _("Results"));
@@ -165,15 +168,18 @@ sql_by_query (void)
 		            _("Could not run query"),
 		            error->message);
 		g_error_free (error);
-
-		return EXIT_FAILURE;
+		retval = EXIT_FAILURE;
+		goto out;
 	}
 
 	if (n_rows == 0) {
 		g_print ("%s\n", _("Empty result set"));
 	}
 
-	return EXIT_SUCCESS;
+out:
+	tracker_term_pager_close ();
+
+	return retval;
 }
 
 static int
