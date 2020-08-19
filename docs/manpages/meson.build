@@ -2,7 +2,6 @@ manpages = [
     'endpoint',
     'export',
     'import',
-    'info',
     'sparql',
     'sql',
     'xdg-portal',

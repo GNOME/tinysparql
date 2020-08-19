@@ -3,7 +3,6 @@ modules = [
     'export',
     'help',
     'import',
-    'info',
     'sparql',
     'sql',
 ]
