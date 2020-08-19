@@ -32,7 +32,6 @@
 #include "tracker-export.h"
 #include "tracker-help.h"
 #include "tracker-import.h"
-#include "tracker-info.h"
 #include "tracker-sparql.h"
 #include "tracker-sql.h"
 
@@ -94,7 +93,6 @@ static struct cmd_struct commands[] = {
 	{ "endpoint", tracker_endpoint, NEED_NOTHING, N_("Create a SPARQL endpoint") },
 	{ "export", tracker_export, NEED_WORK_TREE, N_("Export data from a Tracker database") },
 	{ "import", tracker_import, NEED_WORK_TREE, N_("Import data into a Tracker database") },
-	{ "info", tracker_info, NEED_WORK_TREE, N_("Show information known about local files or items indexed") },
 	{ "sparql", tracker_sparql, NEED_WORK_TREE, N_("Query and update the index using SPARQL or search, list and tree the ontology") },
 	{ "sql", tracker_sql, NEED_WORK_TREE, N_("Query the database at the lowest level using SQL") },
 };
