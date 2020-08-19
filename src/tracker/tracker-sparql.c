@@ -30,6 +30,7 @@
 #include <glib/gi18n.h>
 
 #include <libtracker-sparql/tracker-sparql.h>
+#include <libtracker-common/tracker-common.h>
 
 #include "tracker-sparql.h"
 #include "tracker-color.h"
@@ -1103,6 +1104,7 @@ sparql_run (void)
 	TrackerSparqlConnection *connection;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
+	gint retval = EXIT_SUCCESS;
 
 	connection = create_connection (&error);
 
@@ -1113,6 +1115,8 @@ sparql_run (void)
 		g_clear_error (&error);
 		return EXIT_FAILURE;
 	}
+
+	tracker_term_pipe_to_pager ();
 
 	if (list_classes) {
 		const gchar *query;
@@ -1126,8 +1130,8 @@ sparql_run (void)
 			            error->message);
 			g_error_free (error);
 			g_object_unref (connection);
-
-			return EXIT_FAILURE;
+			retval = EXIT_FAILURE;
+			goto out;
 		}
 
 		print_cursor (cursor, _("No classes were found"), _("Classes"), TRUE);
@@ -1150,8 +1154,8 @@ sparql_run (void)
 			            error->message);
 			g_error_free (error);
 			g_object_unref (connection);
-
-			return EXIT_FAILURE;
+			retval = EXIT_FAILURE;
+			goto out;
 		}
 
 		print_cursor (cursor, _("No class prefixes were found"), _("Prefixes"), FALSE);
@@ -1191,8 +1195,8 @@ sparql_run (void)
 			if (!class_name_no_property) {
 				g_free (property);
 				g_object_unref (connection);
-
-				return EXIT_FAILURE;
+				retval = EXIT_FAILURE;
+				goto out;
 			}
 
 			class_name = g_strconcat (class_name_no_property, property, NULL);
@@ -1217,8 +1221,8 @@ sparql_run (void)
 			            error->message);
 			g_error_free (error);
 			g_object_unref (connection);
-
-			return EXIT_FAILURE;
+			retval = EXIT_FAILURE;
+			goto out;
 		}
 
 		print_cursor (cursor, _("No properties were found"), _("Properties"), TRUE);
@@ -1253,8 +1257,8 @@ sparql_run (void)
 			            error->message);
 			g_error_free (error);
 			g_object_unref (connection);
-
-			return EXIT_FAILURE;
+			retval = EXIT_FAILURE;
+			goto out;
 		}
 
 		print_cursor (cursor, _("No notifies were found"), _("Notifies"), TRUE);
@@ -1287,8 +1291,8 @@ sparql_run (void)
 			            error->message);
 			g_error_free (error);
 			g_object_unref (connection);
-
-			return EXIT_FAILURE;
+			retval = EXIT_FAILURE;
+			goto out;
 		}
 
 		print_cursor (cursor, _("No indexes were found"), _("Indexes"), TRUE);
@@ -1311,15 +1315,16 @@ sparql_run (void)
 			            error->message);
 			g_error_free (error);
 			g_object_unref (connection);
-
-			return EXIT_FAILURE;
+			retval = EXIT_FAILURE;
+			goto out;
 		}
 
 		print_cursor (cursor, _("No graphs were found"), _("Named graphs"), TRUE);
 	}
 
 	if (tree) {
-		return tree_get (connection, tree, search);
+		retval = tree_get (connection, tree, search);
+		goto out;
 	}
 
 	if (search) {
@@ -1341,8 +1346,8 @@ sparql_run (void)
 			            error->message);
 			g_error_free (error);
 			g_object_unref (connection);
-
-			return EXIT_FAILURE;
+			retval = EXIT_FAILURE;
+			goto out;
 		}
 
 		print_cursor (cursor, _("No classes were found to match search term"), _("Classes"), TRUE);
@@ -1364,8 +1369,8 @@ sparql_run (void)
 			            error->message);
 			g_error_free (error);
 			g_object_unref (connection);
-
-			return EXIT_FAILURE;
+			retval = EXIT_FAILURE;
+			goto out;
 		}
 
 		print_cursor (cursor, _("No properties were found to match search term"), _("Properties"), TRUE);
@@ -1409,8 +1414,8 @@ sparql_run (void)
 			            error->message);
 			g_error_free (error);
 			g_object_unref (connection);
-
-			return EXIT_FAILURE;
+			retval = EXIT_FAILURE;
+			goto out;
 		}
 
 		g_file_get_contents (path_in_utf8, &query, &size, &error);
@@ -1422,8 +1427,8 @@ sparql_run (void)
 			g_error_free (error);
 			g_free (path_in_utf8);
 			g_object_unref (connection);
-
-			return EXIT_FAILURE;
+			retval = EXIT_FAILURE;
+			goto out;
 		}
 
 		g_free (path_in_utf8);
@@ -1438,8 +1443,8 @@ sparql_run (void)
 				            _("Could not run update"),
 				            error->message);
 				g_error_free (error);
-
-				return EXIT_FAILURE;
+				retval = EXIT_FAILURE;
+				goto out;
 			}
 
 			g_print ("%s\n", _("Done"));
@@ -1491,7 +1496,8 @@ sparql_run (void)
 					g_hash_table_unref (prefixes);
 				}
 
-				return EXIT_FAILURE;
+				retval = EXIT_FAILURE;
+				goto out;
 			}
 
 			if (G_UNLIKELY (prefixes)) {
@@ -1505,7 +1511,10 @@ sparql_run (void)
 
 	g_object_unref (connection);
 
-	return EXIT_SUCCESS;
+out:
+	tracker_term_pager_close ();
+
+	return retval;
 }
 
 static int
