@@ -1,0 +1,9 @@
+SELECT ?t
+{
+  {
+    SELECT ?t {
+      ?t a rdfs:Resource
+    }
+    VALUES ?t { example:A }
+  }
+}

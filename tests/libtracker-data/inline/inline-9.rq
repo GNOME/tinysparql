@@ -1,0 +1,6 @@
+SELECT ?f {
+  SELECT ?f {
+    VALUES (?u ?f) { (example:x 42) }
+    ?u a example:A .
+  }
+}

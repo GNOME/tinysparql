@@ -1,0 +1,7 @@
+SELECT ?l {
+  SELECT ?u ?t ?l {
+    ?u a ?t ;
+       rdfs:label ?l
+  }
+  VALUES (?u ?t) { (example:x example:A) }
+}
