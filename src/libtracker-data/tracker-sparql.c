@@ -3708,8 +3708,19 @@ translate_ValuesClause (TrackerSparql  *sparql,
 	/* ValuesClause ::= ( 'VALUES' DataBlock )?
 	 */
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_VALUES)) {
-		_prepend_string (sparql, "SELECT * FROM (");
-		_append_string (sparql, ") NATURAL INNER JOIN (");
+		if (sparql->current_state.context == sparql->context) {
+			/* ValuesClause happens at the end of a select, if
+			 * this is the topmost one, we won't have further
+			 * SELECT clauses above us to clamp the result set,
+			 * and we don't want the right hand side variables
+			 * to leak into it.
+			 */
+			_append_string (sparql, "NATURAL INNER JOIN (");
+		} else {
+			_prepend_string (sparql, "SELECT * FROM (");
+			_append_string (sparql, ") NATURAL INNER JOIN (");
+		}
+
 		_call_rule (sparql, NAMED_RULE_DataBlock, error);
 		_append_string (sparql, ") ");
 	}
