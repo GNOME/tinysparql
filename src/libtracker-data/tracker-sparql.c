@@ -3017,15 +3017,16 @@ translate_SubSelect (TrackerSparql  *sparql,
 	_call_rule (sparql, NAMED_RULE_WhereClause, error);
 
 	_call_rule (sparql, NAMED_RULE_SolutionModifier, error);
-	_call_rule (sparql, NAMED_RULE_ValuesClause, error);
-
-	tracker_sparql_swap_builder (sparql, old);
 
 	/* Now that we have all variable/binding information available,
 	 * process the select clause.
 	 */
 	if (!_postprocess_rule (sparql, select_clause, select, error))
 		return FALSE;
+
+	tracker_sparql_swap_builder (sparql, old);
+
+	_call_rule (sparql, NAMED_RULE_ValuesClause, error);
 
 	sparql->current_state.expression_type = TRACKER_SELECT_CONTEXT (context)->type;
 	tracker_sparql_pop_context (sparql, FALSE);
