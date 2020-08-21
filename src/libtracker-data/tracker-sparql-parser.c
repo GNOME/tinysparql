@@ -639,6 +639,8 @@ tracker_grammar_parser_read (TrackerGrammarParser *parser,
 		}
 	}
 
+	tracker_parser_state_skip_whitespace (state, parser);
+
 	return parser->query[state->current] == '\0';
 }
 
