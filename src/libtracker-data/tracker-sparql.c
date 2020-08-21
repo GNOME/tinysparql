@@ -5437,6 +5437,7 @@ translate_InlineDataFull (TrackerSparql  *sparql,
 	if (n_values == 0)
 		_append_string (sparql, "SELECT NULL WHERE FALSE");
 
+	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_BRACE);
 	_append_string (sparql, ") ");
 
 	return TRUE;
