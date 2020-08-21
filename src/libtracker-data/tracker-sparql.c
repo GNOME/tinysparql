@@ -5470,7 +5470,7 @@ translate_DataBlockValue (TrackerSparql  *sparql,
 		return TRUE;
 	}
 
-	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state.select_context);
+	select_context = TRACKER_SELECT_CONTEXT (sparql->context);
 	rule = _current_rule (sparql);
 
 	switch (rule) {
