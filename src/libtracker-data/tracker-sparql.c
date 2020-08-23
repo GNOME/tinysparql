@@ -110,6 +110,12 @@ enum
 	TRACKER_SPARQL_TYPE_CONSTRUCT,
 };
 
+typedef enum
+{
+	TRACKER_SPARQL_QUERY_SELECT,
+	TRACKER_SPARQL_QUERY_UPDATE
+} TrackerSparqlQueryType;
+
 struct _TrackerSparql
 {
 	GObject parent_instance;
@@ -132,6 +138,7 @@ struct _TrackerSparql
 	GVariantBuilder *blank_nodes;
 	GHashTable *solution_var_map;
 
+	TrackerSparqlQueryType query_type;
 	gboolean silent;
 	gboolean cacheable;
 	guint generation;
@@ -9172,6 +9179,7 @@ tracker_sparql_new (TrackerDataManager *manager,
 	g_return_val_if_fail (query != NULL, NULL);
 
 	sparql = g_object_new (TRACKER_TYPE_SPARQL, NULL);
+	sparql->query_type = TRACKER_SPARQL_QUERY_SELECT;
 	sparql->data_manager = g_object_ref (manager);
 	if (strcasestr (query, "\\u"))
 		sparql->sparql = tracker_unescape_unichars (query, -1);
@@ -9385,6 +9393,7 @@ tracker_sparql_new_update (TrackerDataManager *manager,
 	g_return_val_if_fail (query != NULL, NULL);
 
 	sparql = g_object_new (TRACKER_TYPE_SPARQL, NULL);
+	sparql->query_type = TRACKER_SPARQL_QUERY_UPDATE;
 	sparql->data_manager = g_object_ref (manager);
 	if (strcasestr (query, "\\u"))
 		sparql->sparql = tracker_unescape_unichars (query, -1);
