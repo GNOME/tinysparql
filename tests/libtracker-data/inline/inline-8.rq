@@ -1,0 +1,5 @@
+SELECT ?u {
+  SELECT ?u ?f {
+    VALUES (?u ?f) { (1 2) }
+  }
+}

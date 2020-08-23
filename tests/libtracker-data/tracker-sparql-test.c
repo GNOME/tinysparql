@@ -277,6 +277,20 @@ const TestInfo tests[] = {
 	{ "constraint/coexisting-2", "constraint/data", FALSE, FALSE },
 	{ "constraint/coexisting-3", "constraint/data", FALSE, FALSE },
 	{ "constraint/coexisting-4", "constraint/data", FALSE, FALSE },
+	/* Inline data */
+	{ "inline/inline-1", "inline/data", FALSE, FALSE },
+	{ "inline/inline-2", "inline/data", FALSE, FALSE },
+	{ "inline/inline-3", "inline/data", FALSE, FALSE },
+	{ "inline/inline-4", "inline/data", FALSE, FALSE },
+	{ "inline/inline-5", "inline/data", FALSE, FALSE },
+	{ "inline/inline-6", "inline/data", FALSE, FALSE },
+	{ "inline/inline-7", "inline/data", FALSE, FALSE },
+	{ "inline/inline-8", "inline/data", FALSE, FALSE },
+	{ "inline/inline-9", "inline/data", FALSE, FALSE },
+	{ "inline/values-1", "inline/data", FALSE, FALSE },
+	{ "inline/values-2", "inline/data", FALSE, FALSE },
+	{ "inline/values-3", "inline/data", FALSE, FALSE },
+	{ "inline/values-4", "inline/data", FALSE, FALSE },
 	{ NULL }
 };
 

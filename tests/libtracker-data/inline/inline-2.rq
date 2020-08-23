@@ -1,0 +1,8 @@
+SELECT ?a ?b {
+  VALUES (?a ?b) {
+    ( 1 'a' )
+    ( 'b' 2 )
+    ( 3 'c' )
+    ( UNDEF 4.2 )
+  }
+}

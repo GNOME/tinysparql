@@ -1,0 +1,5 @@
+SELECT ?a ?b {
+  VALUES ?a { 1 2 3 }
+  VALUES ?b { 'a' 'b' 'c' }
+}
+ORDER BY ?a ?b

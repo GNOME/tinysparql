@@ -1,0 +1,4 @@
+SELECT ?u ?t {
+  ?u a ?t
+}
+VALUES (?u ?t) { (example:A rdfs:Resource) }

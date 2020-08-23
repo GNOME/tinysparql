@@ -1,0 +1,4 @@
+SELECT ?u {
+  VALUES ?t { example:A } .
+  ?u a ?t
+}

@@ -1,0 +1,4 @@
+SELECT ?u {
+  ?u a rdfs:Class .
+  VALUES ?u { example:A }
+}

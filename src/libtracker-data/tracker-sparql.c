@@ -3017,15 +3017,16 @@ translate_SubSelect (TrackerSparql  *sparql,
 	_call_rule (sparql, NAMED_RULE_WhereClause, error);
 
 	_call_rule (sparql, NAMED_RULE_SolutionModifier, error);
-	_call_rule (sparql, NAMED_RULE_ValuesClause, error);
-
-	tracker_sparql_swap_builder (sparql, old);
 
 	/* Now that we have all variable/binding information available,
 	 * process the select clause.
 	 */
 	if (!_postprocess_rule (sparql, select_clause, select, error))
 		return FALSE;
+
+	tracker_sparql_swap_builder (sparql, old);
+
+	_call_rule (sparql, NAMED_RULE_ValuesClause, error);
 
 	sparql->current_state.expression_type = TRACKER_SELECT_CONTEXT (context)->type;
 	tracker_sparql_pop_context (sparql, FALSE);
@@ -3707,8 +3708,19 @@ translate_ValuesClause (TrackerSparql  *sparql,
 	/* ValuesClause ::= ( 'VALUES' DataBlock )?
 	 */
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_VALUES)) {
-		_prepend_string (sparql, "SELECT * FROM (");
-		_append_string (sparql, ") NATURAL INNER JOIN (");
+		if (sparql->current_state.context == sparql->context) {
+			/* ValuesClause happens at the end of a select, if
+			 * this is the topmost one, we won't have further
+			 * SELECT clauses above us to clamp the result set,
+			 * and we don't want the right hand side variables
+			 * to leak into it.
+			 */
+			_append_string (sparql, "NATURAL INNER JOIN (");
+		} else {
+			_prepend_string (sparql, "SELECT * FROM (");
+			_append_string (sparql, ") NATURAL INNER JOIN (");
+		}
+
 		_call_rule (sparql, NAMED_RULE_DataBlock, error);
 		_append_string (sparql, ") ");
 	}
@@ -5437,6 +5449,7 @@ translate_InlineDataFull (TrackerSparql  *sparql,
 	if (n_values == 0)
 		_append_string (sparql, "SELECT NULL WHERE FALSE");
 
+	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_BRACE);
 	_append_string (sparql, ") ");
 
 	return TRUE;
@@ -5457,7 +5470,7 @@ translate_DataBlockValue (TrackerSparql  *sparql,
 		return TRUE;
 	}
 
-	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state.select_context);
+	select_context = TRACKER_SELECT_CONTEXT (sparql->context);
 	rule = _current_rule (sparql);
 
 	switch (rule) {
