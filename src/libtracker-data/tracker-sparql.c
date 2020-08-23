@@ -3908,11 +3908,11 @@ translate_Drop (TrackerSparql  *sparql,
 			g_hash_table_iter_init (&iter, ht);
 
 			while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL))
-				graphs = g_list_prepend (graphs, (gpointer) graph);
+				graphs = g_list_prepend (graphs, g_strdup (graph));
 		}
 	} else {
 		graph = tracker_token_get_idstring (&sparql->current_state.graph);
-		graphs = g_list_prepend (graphs, (gpointer) graph);
+		graphs = g_list_prepend (graphs, g_strdup (graph));
 	}
 
 	for (l = graphs; l; l = l->next) {
@@ -3929,7 +3929,7 @@ translate_Drop (TrackerSparql  *sparql,
 			break;
 	}
 
-	g_list_free (graphs);
+	g_list_free_full (graphs, g_free);
 
 	return handle_silent (silent, inner_error, error);
 }
