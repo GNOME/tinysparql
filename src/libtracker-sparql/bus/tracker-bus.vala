@@ -95,12 +95,16 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		try {
 			message.to_gerror ();
 		} catch (IOError e_io) {
+			GLib.DBusError.strip_remote_error (e_io);
 			throw e_io;
-		} catch (Sparql.Error e_sparql) {
-			throw e_sparql;
 		} catch (DBusError e_dbus) {
+			GLib.DBusError.strip_remote_error (e_dbus);
 			throw e_dbus;
+		} catch (Sparql.Error e_sparql) {
+			GLib.DBusError.strip_remote_error (e_sparql);
+			throw e_sparql;
 		} catch (Error e) {
+			GLib.DBusError.strip_remote_error (e);
 			throw new IOError.FAILED (e.message);
 		}
 	}
