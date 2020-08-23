@@ -2014,7 +2014,7 @@ ensure_graph_buffer (TrackerDataUpdateBuffer  *buffer,
 			return graph_buffer;
 	}
 
-	if (name && !tracker_data_manager_find_graph (data->manager, name)) {
+	if (name && !tracker_data_manager_find_graph (data->manager, name, TRUE)) {
 		if (!tracker_data_manager_create_graph (data->manager, name, error))
 			return NULL;
 	}
@@ -2023,7 +2023,8 @@ ensure_graph_buffer (TrackerDataUpdateBuffer  *buffer,
 	graph_buffer->graph = g_strdup (name);
 	if (graph_buffer->graph) {
 		graph_buffer->id = tracker_data_manager_find_graph (data->manager,
-								    graph_buffer->graph);
+		                                                    graph_buffer->graph,
+		                                                    TRUE);
 	}
 
 	graph_buffer->resources =
@@ -2562,6 +2563,8 @@ tracker_data_commit_transaction (TrackerData  *data,
 		data->update_buffer.fts_ever_updated = FALSE;
 	}
 
+	tracker_data_manager_commit_graphs (data->manager);
+
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 
 	g_ptr_array_set_size (data->update_buffer.graphs, 0);
@@ -2591,6 +2594,8 @@ tracker_data_rollback_transaction (TrackerData *data)
 		g_warning ("Transaction rollback failed: %s\n", ignorable->message);
 		g_clear_error (&ignorable);
 	}
+
+	tracker_data_manager_rollback_graphs (data->manager);
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 

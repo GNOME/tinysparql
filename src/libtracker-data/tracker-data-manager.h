@@ -94,12 +94,16 @@ gboolean             tracker_data_manager_copy_graph  (TrackerDataManager  *mana
                                                        const gchar         *destination,
                                                        GError             **error);
 
-GHashTable *         tracker_data_manager_get_graphs       (TrackerDataManager *manager);
+GHashTable *         tracker_data_manager_get_graphs       (TrackerDataManager *manager,
+                                                            gboolean            in_transaction);
 
 gint                 tracker_data_manager_find_graph       (TrackerDataManager *manager,
-                                                            const gchar        *name);
+                                                            const gchar        *name,
+                                                            gboolean            in_transaction);
 
 guint                tracker_data_manager_get_generation   (TrackerDataManager *manager);
+void                 tracker_data_manager_rollback_graphs (TrackerDataManager *manager);
+void                 tracker_data_manager_commit_graphs (TrackerDataManager *manager);
 
 G_END_DECLS
 

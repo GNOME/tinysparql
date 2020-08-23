@@ -688,8 +688,11 @@ static GHashTable *
 tracker_sparql_get_effective_graphs (TrackerSparql *sparql)
 {
 	GHashTable *graphs;
+	gboolean in_transaction;
 
-	graphs = tracker_data_manager_get_graphs (sparql->data_manager);
+	in_transaction = sparql->query_type == TRACKER_SPARQL_QUERY_UPDATE;
+	graphs = tracker_data_manager_get_graphs (sparql->data_manager,
+						  in_transaction);
 
 	if (graphs && sparql->policy.graphs) {
 		if (!sparql->policy.filtered_graphs) {
@@ -835,6 +838,7 @@ tracker_sparql_find_graph (TrackerSparql *sparql,
                            const gchar   *name)
 {
 	GHashTable *effective_graphs;
+	gboolean in_transaction;
 
 	effective_graphs = tracker_sparql_get_effective_graphs (sparql);
 	if (!effective_graphs ||
@@ -842,7 +846,10 @@ tracker_sparql_find_graph (TrackerSparql *sparql,
 		return 0;
 	}
 
-	return tracker_data_manager_find_graph (sparql->data_manager, name);
+	in_transaction = sparql->query_type == TRACKER_SPARQL_QUERY_UPDATE;
+
+	return tracker_data_manager_find_graph (sparql->data_manager, name,
+	                                        in_transaction);
 }
 
 static void

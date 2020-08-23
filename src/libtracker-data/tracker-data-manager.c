@@ -80,6 +80,7 @@ struct _TrackerDataManager {
 	TrackerOntologies *ontologies;
 	TrackerData *data_update;
 
+	GHashTable *transaction_graphs;
 	GHashTable *graphs;
 
 	gchar *status;
@@ -198,8 +199,12 @@ tracker_data_manager_ensure_graphs (TrackerDataManager  *manager,
 }
 
 GHashTable *
-tracker_data_manager_get_graphs (TrackerDataManager *manager)
+tracker_data_manager_get_graphs (TrackerDataManager *manager,
+                                 gboolean            in_transaction)
 {
+	if (manager->transaction_graphs && in_transaction)
+		return manager->transaction_graphs;
+
 	return manager->graphs;
 }
 
@@ -4827,6 +4832,25 @@ tracker_data_manager_get_namespaces (TrackerDataManager *manager)
 	return ht;
 }
 
+static GHashTable *
+copy_graphs (GHashTable *graphs)
+{
+	GHashTable *copy;
+	GHashTableIter iter;
+	gpointer key, value;
+
+	copy = g_hash_table_new_full (g_str_hash,
+				      g_str_equal,
+				      g_free,
+				      NULL);
+	g_hash_table_iter_init (&iter, graphs);
+
+	while (g_hash_table_iter_next (&iter, &key, &value))
+		g_hash_table_insert (copy, g_strdup (key), value);
+
+	return copy;
+}
+
 gboolean
 tracker_data_manager_create_graph (TrackerDataManager  *manager,
                                    const gchar         *name,
@@ -4852,9 +4876,10 @@ tracker_data_manager_create_graph (TrackerDataManager  *manager,
 	if (id == 0)
 		goto detach;
 
-	g_hash_table_insert (manager->graphs, g_strdup (name), GINT_TO_POINTER (id));
+	if (!manager->transaction_graphs)
+		manager->transaction_graphs = copy_graphs (manager->graphs);
 
-	manager->generation++;
+	g_hash_table_insert (manager->transaction_graphs, g_strdup (name), GINT_TO_POINTER (id));
 
 	return TRUE;
 
@@ -4887,22 +4912,29 @@ tracker_data_manager_drop_graph (TrackerDataManager  *manager,
 	if (!tracker_data_delete_graph (manager->data_update, name, error))
 		return FALSE;
 
-	manager->generation++;
+	if (!manager->transaction_graphs)
+		manager->transaction_graphs = copy_graphs (manager->graphs);
 
-	if (manager->graphs)
-		g_hash_table_remove (manager->graphs, name);
+	g_hash_table_remove (manager->transaction_graphs, name);
 
 	return TRUE;
 }
 
 gint
 tracker_data_manager_find_graph (TrackerDataManager *manager,
-                                 const gchar        *name)
+                                 const gchar        *name,
+                                 gboolean            in_transaction)
 {
 	TrackerDBInterface *iface;
 	GHashTable *graphs;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
+
+	if (in_transaction && manager->transaction_graphs) {
+		return GPOINTER_TO_INT (g_hash_table_lookup (manager->transaction_graphs,
+		                                             name));
+	}
+
 	graphs = tracker_data_manager_ensure_graphs (manager, iface, NULL);
 
 	if (!graphs)
@@ -5052,4 +5084,21 @@ guint
 tracker_data_manager_get_generation (TrackerDataManager *manager)
 {
 	return manager->generation;
+}
+
+void
+tracker_data_manager_commit_graphs (TrackerDataManager *manager)
+{
+	if (manager->transaction_graphs) {
+		g_clear_pointer (&manager->graphs, g_hash_table_unref);
+		manager->graphs = manager->transaction_graphs;
+		manager->transaction_graphs = NULL;
+		manager->generation++;
+	}
+}
+
+void
+tracker_data_manager_rollback_graphs (TrackerDataManager *manager)
+{
+	g_clear_pointer (&manager->transaction_graphs, g_hash_table_unref);
 }
