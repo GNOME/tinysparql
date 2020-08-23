@@ -869,7 +869,7 @@ _prepend_path_element (TrackerSparql      *sparql,
 
 			graph = tracker_token_get_idstring (&sparql->current_state.graph);
 
-			if (tracker_data_manager_find_graph (sparql->data_manager, graph)) {
+			if (tracker_sparql_find_graph (sparql, graph)) {
 				table_name = g_strdup_printf ("\"%s\".\"%s\"", graph,
 				                              tracker_property_get_table_name (path_elem->data.property));
 				graph_column = g_strdup_printf ("%d",
@@ -7381,7 +7381,7 @@ handle_property_function (TrackerSparql    *sparql,
 
 		graph = tracker_token_get_idstring (&sparql->current_state.graph);
 
-		if (tracker_data_manager_find_graph (sparql->data_manager, graph)) {
+		if (tracker_sparql_find_graph (sparql, graph)) {
 			_append_string_printf (sparql, "FROM \"%s\".\"%s\" ",
 			                       graph,
 			                       tracker_property_get_table_name (property));
