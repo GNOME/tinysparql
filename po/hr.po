@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
 "POT-Creation-Date: 2020-08-24 17:47+0000\n"
-"PO-Revision-Date: 2020-08-24 23:59+0200\n"
+"PO-Revision-Date: 2020-08-25 00:03+0200\n"
 "Last-Translator: gogo <linux.hr@protonmail.com>\n"
 "Language-Team: Croatian <hr@li.org>\n"
 "Language: hr\n"
@@ -221,7 +221,7 @@ msgstr "URI udaljene usluge"
 
 #: src/tracker/tracker-export.c:56
 msgid "Output TriG format which includes named graph information"
-msgstr "Izlazni TriG format koji uključuje informacije s nazivima grafikona"
+msgstr "Izlazni TriG format koji uključuje informacije imenovanih grafikona"
 
 #: src/tracker/tracker-export.c:60 src/tracker/tracker-export.c:61
 msgid "IRI"
