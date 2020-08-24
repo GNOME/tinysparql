@@ -1,3 +1,16 @@
+NEW in 2.99.4 - 2020-08-24
+==========================
+  * CLI modernization
+    - integration with pager
+    - bash completion for endpoints
+  * Use curly quotes consistently in CLI options
+  * SPARQL parsing fixes
+  * Multiple fixes around 'VALUES' SPARQL syntax
+  * Fix race conditions around graph creation
+  * Better use of asserts in tests
+
+Translations: en_GB, es, eu, gl, pl, pt_BR, ro, sl, tr, uk
+
 NEW in 2.99.3 - 2020-08-10
 ==========================
   * Add portal
