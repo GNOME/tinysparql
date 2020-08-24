@@ -110,6 +110,12 @@ enum
 	TRACKER_SPARQL_TYPE_CONSTRUCT,
 };
 
+typedef enum
+{
+	TRACKER_SPARQL_QUERY_SELECT,
+	TRACKER_SPARQL_QUERY_UPDATE
+} TrackerSparqlQueryType;
+
 struct _TrackerSparql
 {
 	GObject parent_instance;
@@ -132,6 +138,7 @@ struct _TrackerSparql
 	GVariantBuilder *blank_nodes;
 	GHashTable *solution_var_map;
 
+	TrackerSparqlQueryType query_type;
 	gboolean silent;
 	gboolean cacheable;
 	guint generation;
@@ -681,8 +688,11 @@ static GHashTable *
 tracker_sparql_get_effective_graphs (TrackerSparql *sparql)
 {
 	GHashTable *graphs;
+	gboolean in_transaction;
 
-	graphs = tracker_data_manager_get_graphs (sparql->data_manager);
+	in_transaction = sparql->query_type == TRACKER_SPARQL_QUERY_UPDATE;
+	graphs = tracker_data_manager_get_graphs (sparql->data_manager,
+						  in_transaction);
 
 	if (graphs && sparql->policy.graphs) {
 		if (!sparql->policy.filtered_graphs) {
@@ -828,6 +838,7 @@ tracker_sparql_find_graph (TrackerSparql *sparql,
                            const gchar   *name)
 {
 	GHashTable *effective_graphs;
+	gboolean in_transaction;
 
 	effective_graphs = tracker_sparql_get_effective_graphs (sparql);
 	if (!effective_graphs ||
@@ -835,7 +846,10 @@ tracker_sparql_find_graph (TrackerSparql *sparql,
 		return 0;
 	}
 
-	return tracker_data_manager_find_graph (sparql->data_manager, name);
+	in_transaction = sparql->query_type == TRACKER_SPARQL_QUERY_UPDATE;
+
+	return tracker_data_manager_find_graph (sparql->data_manager, name,
+	                                        in_transaction);
 }
 
 static void
@@ -869,7 +883,7 @@ _prepend_path_element (TrackerSparql      *sparql,
 
 			graph = tracker_token_get_idstring (&sparql->current_state.graph);
 
-			if (tracker_data_manager_find_graph (sparql->data_manager, graph)) {
+			if (tracker_sparql_find_graph (sparql, graph)) {
 				table_name = g_strdup_printf ("\"%s\".\"%s\"", graph,
 				                              tracker_property_get_table_name (path_elem->data.property));
 				graph_column = g_strdup_printf ("%d",
@@ -3920,11 +3934,11 @@ translate_Drop (TrackerSparql  *sparql,
 			g_hash_table_iter_init (&iter, ht);
 
 			while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL))
-				graphs = g_list_prepend (graphs, (gpointer) graph);
+				graphs = g_list_prepend (graphs, g_strdup (graph));
 		}
 	} else {
 		graph = tracker_token_get_idstring (&sparql->current_state.graph);
-		graphs = g_list_prepend (graphs, (gpointer) graph);
+		graphs = g_list_prepend (graphs, g_strdup (graph));
 	}
 
 	for (l = graphs; l; l = l->next) {
@@ -3941,7 +3955,7 @@ translate_Drop (TrackerSparql  *sparql,
 			break;
 	}
 
-	g_list_free (graphs);
+	g_list_free_full (graphs, g_free);
 
 	return handle_silent (silent, inner_error, error);
 }
@@ -7394,7 +7408,7 @@ handle_property_function (TrackerSparql    *sparql,
 
 		graph = tracker_token_get_idstring (&sparql->current_state.graph);
 
-		if (tracker_data_manager_find_graph (sparql->data_manager, graph)) {
+		if (tracker_sparql_find_graph (sparql, graph)) {
 			_append_string_printf (sparql, "FROM \"%s\".\"%s\" ",
 			                       graph,
 			                       tracker_property_get_table_name (property));
@@ -9185,6 +9199,7 @@ tracker_sparql_new (TrackerDataManager *manager,
 	g_return_val_if_fail (query != NULL, NULL);
 
 	sparql = g_object_new (TRACKER_TYPE_SPARQL, NULL);
+	sparql->query_type = TRACKER_SPARQL_QUERY_SELECT;
 	sparql->data_manager = g_object_ref (manager);
 	if (strcasestr (query, "\\u"))
 		sparql->sparql = tracker_unescape_unichars (query, -1);
@@ -9398,6 +9413,7 @@ tracker_sparql_new_update (TrackerDataManager *manager,
 	g_return_val_if_fail (query != NULL, NULL);
 
 	sparql = g_object_new (TRACKER_TYPE_SPARQL, NULL);
+	sparql->query_type = TRACKER_SPARQL_QUERY_UPDATE;
 	sparql->data_manager = g_object_ref (manager);
 	if (strcasestr (query, "\\u"))
 		sparql->sparql = tracker_unescape_unichars (query, -1);
