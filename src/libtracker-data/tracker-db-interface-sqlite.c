@@ -2181,7 +2181,10 @@ close_database (TrackerDBInterface *db_interface)
 
 	if (db_interface->db) {
 		rc = sqlite3_close (db_interface->db);
-		g_warn_if_fail (rc == SQLITE_OK);
+		if (rc != SQLITE_OK) {
+			g_warning ("Database closed uncleanly: %s",
+				   sqlite3_errstr (rc));
+		}
 	}
 }
 
