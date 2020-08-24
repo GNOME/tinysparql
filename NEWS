@@ -1,3 +1,12 @@
+NEW in 2.3.5 - 2020-08-24
+=========================
+  * Add 'tracker export' subcommand to ease migration to 3.x
+  * Use correct signature for DBusSignalCallback
+  * get the systemd user unit dir from pkg-config
+  * Replace sensitive terms
+
+Translations: lt, uk
+
 NEW in 2.3.4 - 2020-03-10
 =========================
   * Brown paper bag release, fix NULL check.
