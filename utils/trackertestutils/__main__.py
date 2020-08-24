@@ -255,8 +255,8 @@ def init_logging(debug_sandbox, debug_dbus):
         root.setLevel(logging.DEBUG)
         root.addHandler(sandbox_log_handler)
     else:
-        dbus_stderr = logging.getLogger('trackertestutils.dbusdaemon.stderr')
-        dbus_stdout = logging.getLogger('trackertestutils.dbusdaemon.stdout')
+        dbus_stderr = logging.getLogger('sandbox-session-bus.stderr')
+        dbus_stdout = logging.getLogger('sandbox-session-bus.stdout')
 
         dbus_handler = logging.StreamHandler(stream=sys.stderr)
         dbus_handler.setFormatter(logging.Formatter(DBUS_FORMAT))
