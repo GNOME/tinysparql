@@ -60,7 +60,6 @@ struct _TrackerParserNode {
 };
 
 struct _TrackerParserState {
-	TrackerParserNode *root;
 	TrackerNodeTree *node_tree;
 	gssize current;
 	struct {
@@ -633,9 +632,6 @@ tracker_grammar_parser_read (TrackerGrammarParser *parser,
 		} else {
 			if (!tracker_parser_state_rollback (state, parser))
 				break;
-
-			/* We rolled back successfully, keep going. */
-			//tracker_parser_state_take_error (state, NULL);
 		}
 	}
 
