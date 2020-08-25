@@ -637,7 +637,8 @@ tracker_grammar_parser_read (TrackerGrammarParser *parser,
 
 	tracker_parser_state_skip_whitespace (state, parser);
 
-	return parser->query[state->current] == '\0';
+	return (g_node_first_child ((GNode *) state->node_tree->root) > 0 &&
+		parser->query[state->current] == '\0');
 }
 
 static void
