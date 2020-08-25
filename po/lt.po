@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: HEAD\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-06-21 09:46+0000\n"
-"PO-Revision-Date: 2020-06-21 12:54+0300\n"
+"POT-Creation-Date: 2020-08-25 11:17+0000\n"
+"PO-Revision-Date: 2020-08-25 22:31+0300\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -272,7 +272,6 @@ msgid "Only allow read based actions on the database"
 msgstr "Leisti tik skaitymo veiksmus duomenų bazėje"
 
 #: src/tracker-store/tracker-main.vala:67
-#| msgid "Runs for a specific domain ontology"
 msgid "Load a specified domain ontology"
 msgstr "Įkelti specifinę domeno ontologiją"
 
@@ -577,8 +576,6 @@ msgid "Miners"
 msgstr "Gavėjai"
 
 #: src/tracker/tracker-daemon.c:1108
-#| msgid "Application"
-#| msgid_plural "Applications"
 msgid "Application"
 msgstr "Programa"
 
@@ -695,11 +692,12 @@ msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr "Nepateikti argumentai, rodomi gavėjai ir saugyklos duomenys"
 
-#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
-#: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:385 src/tracker/tracker-search.c:1778
-#: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
-#: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
+#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-export.c:439
+#: src/tracker/tracker-extract.c:147 src/tracker/tracker-index.c:412
+#: src/tracker/tracker-info.c:422 src/tracker/tracker-reset.c:385
+#: src/tracker/tracker-search.c:1778 src/tracker/tracker-sparql.c:1497
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-status.c:587
+#: src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Neatpažinti parametrai"
 
@@ -710,6 +708,36 @@ msgstr "Nepavyko užmegzti D-Bus ryšio"
 #: src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Nepavyko sukurti D-Bus tarpininko tracker-store sistemai"
+
+#: src/tracker/tracker-export.c:40
+msgid "Output TriG format which includes named graph information"
+msgstr "Išvesti TriG formatu, kuriame yra grafo informacija su pavadinimais"
+
+#: src/tracker/tracker-export.c:44
+msgid "Export a specific type of data."
+msgstr "Eksportuoti nurodyti tipo duomenis."
+
+#: src/tracker/tracker-export.c:45
+msgid "TYPE"
+msgstr "TIPAS"
+
+#: src/tracker/tracker-export.c:252 src/tracker/tracker-index.c:195
+#: src/tracker/tracker-info.c:263 src/tracker/tracker-search.c:1580
+#: src/tracker/tracker-sparql.c:172 src/tracker/tracker-sparql.c:1086
+#: src/tracker/tracker-status.c:73 src/tracker/tracker-status.c:386
+#: src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "Nepavyko užmegzti ryšio su „Tracker“ sistema"
+
+#: src/tracker/tracker-export.c:262 src/tracker/tracker-sparql.c:1437
+#: src/tracker/tracker-sql.c:139 src/tracker/tracker-sql.c:172
+msgid "Could not run query"
+msgstr "Nepavyko įvykdyti užklausos"
+
+#: src/tracker/tracker-export.c:456
+#| msgid "Unrecognized options"
+msgid "Unrecognized value for '--type' option"
+msgstr "Neatpažinta vertė parametrui „--type“"
 
 #: src/tracker/tracker-extract.c:45
 msgid "Output results format: “sparql”, “turtle” or “json-ld”"
@@ -789,13 +817,6 @@ msgstr "Nepavyko (per)indeksuoti failo"
 #: src/tracker/tracker-index.c:175
 msgid "(Re)indexing file was successful"
 msgstr "Failo (per)indeksavimas sėkmingas"
-
-#: src/tracker/tracker-index.c:195 src/tracker/tracker-info.c:263
-#: src/tracker/tracker-search.c:1580 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086 src/tracker/tracker-status.c:73
-#: src/tracker/tracker-status.c:386 src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "Nepavyko užmegzti ryšio su „Tracker“ sistema"
 
 #: src/tracker/tracker-index.c:206
 msgid "Importing Turtle file"
@@ -890,73 +911,77 @@ msgstr "Nėra metaduomenų šiam URI"
 msgid "Results"
 msgstr "Rezultatai"
 
-#: src/tracker/tracker-main.c:48
+#: src/tracker/tracker-main.c:49
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
 "Daugiau apie šią po-komandą galite perskaityti įvykdę „tracker help "
 "<command>“"
 
-#: src/tracker/tracker-main.c:97
+#: src/tracker/tracker-main.c:98
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Paleisti, sustabdyti, pristabdyti bei išvardinti turinio indeksavimo procesus"
 
-#: src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:99
+msgid "Export data from a Tracker database"
+msgstr "Eksportuoti duomenis iš Tracker duomenų bazės"
+
+#: src/tracker/tracker-main.c:100
 msgid "Extract information from a file"
 msgstr "Išgauti informaciją iš failo"
 
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:101
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Gauti žinyną apie Tracker naudojimą ir visas šias komandas"
 
-#: src/tracker/tracker-main.c:100
+#: src/tracker/tracker-main.c:102
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Rodyti žinomą informaciją apie indeksuojamus vietinius failus ir elementus"
 
-#: src/tracker/tracker-main.c:101
+#: src/tracker/tracker-main.c:103
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Padaryti, atkurti atsarginę kopiją, importuoti  ir (per)indeksuoti MIME tipą "
 "ar failo pavadinimą"
 
-#: src/tracker/tracker-main.c:102
+#: src/tracker/tracker-main.c:104
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr "Atstatyti ar pašalinti indeksą bei grąžinti numatytąją konfigūraciją"
 
-#: src/tracker/tracker-main.c:103
+#: src/tracker/tracker-main.c:105
 msgid "Search for content indexed or show content by type"
 msgstr "Ieškoti indeksuojamo turinio ir rodyti turinį pagal tipą"
 
-#: src/tracker/tracker-main.c:104
+#: src/tracker/tracker-main.c:106
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Užklausti ir atnaujinti indeksą naudojant SPARQL arba ieškoti, išvardinti "
 "bei pateikti medžio ontologiją"
 
-#: src/tracker/tracker-main.c:105
+#: src/tracker/tracker-main.c:107
 msgid "Query the database at the lowest level using SQL"
 msgstr "Užklausti duomenų bazės žemiausiame lygyje naudojant SQL"
 
-#: src/tracker/tracker-main.c:106
+#: src/tracker/tracker-main.c:108
 msgid "Show the indexing progress, content statistics and index state"
 msgstr "Rodyti indeksavimo progresą, turinio statistiką bei indekso būseną"
 
-#: src/tracker/tracker-main.c:107
+#: src/tracker/tracker-main.c:109
 msgid "Create, list or delete tags for indexed content"
 msgstr "Sukurti, išvardinti ar ištrinti indeksuoto turinio žymas"
 
-#: src/tracker/tracker-main.c:108
+#: src/tracker/tracker-main.c:110
 msgid "Show the license and version in use"
 msgstr "Rodyti licenciją bei naudojamą versiją"
 
-#: src/tracker/tracker-main.c:153
+#: src/tracker/tracker-main.c:155
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "„%s“ nėra tracker komanda. Žiūrėti „tracker --help“"
 
-#: src/tracker/tracker-main.c:176
+#: src/tracker/tracker-main.c:178
 msgid "Available tracker commands are:"
 msgstr "Galimos tracker komandos yra:"
 
@@ -1514,11 +1539,6 @@ msgstr "Nepavyko perskaityti failo"
 msgid "Could not run update"
 msgstr "Nepavyko atnaujinti"
 
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Nepavyko įvykdyti užklausos"
-
 #: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
 msgstr "Užklausos atitinkančių rezultatų nerasta"
@@ -1641,7 +1661,6 @@ msgstr "Šiuo metu indeksuojama"
 
 #: src/tracker/tracker-status.c:518 src/tracker/tracker-tag.c:559
 #, c-format
-#| msgid "Ignored files"
 msgid "%d file"
 msgid_plural "%d files"
 msgstr[0] "%d failas"
@@ -1650,8 +1669,6 @@ msgstr[2] "%d failų"
 
 #: src/tracker/tracker-status.c:524
 #, c-format
-#| msgid "Folder"
-#| msgid_plural "Folders"
 msgid "%d folder"
 msgid_plural "%d folders"
 msgstr[0] "%d aplankas"
