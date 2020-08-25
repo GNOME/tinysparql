@@ -3,14 +3,14 @@
 # Copyright (C) 2007 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009, 2010, 2011.
-# Daniel Mustieles <daniel.mustieles@gmail.com>, 2010-2019.
+# Daniel Mustieles <daniel.mustieles@gmail.com>, 2010-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2019-05-29 07:32+0000\n"
-"PO-Revision-Date: 2019-07-30 09:32+0200\n"
+"POT-Creation-Date: 2020-08-25 01:51+0000\n"
+"PO-Revision-Date: 2020-08-25 13:16+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
 "Language: es_ES\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 3.32.1\n"
+"X-Generator: Gtranslator 3.36.0\n"
 
 #: data/org.freedesktop.Tracker.DB.gschema.xml:24
 msgid "Maximum size of journal"
@@ -190,7 +190,7 @@ msgstr[1] " %2.2d segundos"
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-data/tracker-collation.c:332
+#: src/libtracker-data/tracker-collation.c:333
 msgid "the|a|an"
 msgstr "el|un|una"
 
@@ -689,11 +689,12 @@ msgstr ""
 "Si no se proporcionan argumentos, se muestra el estado del almacenamiento y "
 "de los mineros de datos"
 
-#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
-#: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:385 src/tracker/tracker-search.c:1778
-#: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
-#: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
+#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-export.c:439
+#: src/tracker/tracker-extract.c:147 src/tracker/tracker-index.c:412
+#: src/tracker/tracker-info.c:422 src/tracker/tracker-reset.c:385
+#: src/tracker/tracker-search.c:1778 src/tracker/tracker-sparql.c:1497
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-status.c:587
+#: src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "No se reconocieron las opciones"
 
@@ -704,6 +705,36 @@ msgstr "No se pudo obtener una conexión a D-Bus"
 #: src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "No se pudo crear un proxu de D-Bus a tracker-store"
+
+#: src/tracker/tracker-export.c:40
+msgid "Output TriG format which includes named graph information"
+msgstr "Formato TriG de salida que incluye información del gráfico mencionado"
+
+#: src/tracker/tracker-export.c:44
+msgid "Export a specific type of data."
+msgstr "Exportar un tipo específico de datos"
+
+#: src/tracker/tracker-export.c:45
+msgid "TYPE"
+msgstr "TIPO"
+
+#: src/tracker/tracker-export.c:252 src/tracker/tracker-index.c:195
+#: src/tracker/tracker-info.c:263 src/tracker/tracker-search.c:1580
+#: src/tracker/tracker-sparql.c:172 src/tracker/tracker-sparql.c:1086
+#: src/tracker/tracker-status.c:73 src/tracker/tracker-status.c:386
+#: src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "No se pudo establecer una conexión con Tracker"
+
+#: src/tracker/tracker-export.c:262 src/tracker/tracker-sparql.c:1437
+#: src/tracker/tracker-sql.c:139 src/tracker/tracker-sql.c:172
+msgid "Could not run query"
+msgstr "No se pudo ejecutar la consulta"
+
+#: src/tracker/tracker-export.c:456
+#| msgid "Unrecognized options"
+msgid "Unrecognized value for '--type' option"
+msgstr "Valor no reconocido para la opción «--type»"
 
 #: src/tracker/tracker-extract.c:45
 msgid "Output results format: “sparql”, “turtle” or “json-ld”"
@@ -788,13 +819,6 @@ msgstr "No se pudo (re)indexar el archivo"
 #: src/tracker/tracker-index.c:175
 msgid "(Re)indexing file was successful"
 msgstr "(Re)indexado del archivo correctamente"
-
-#: src/tracker/tracker-index.c:195 src/tracker/tracker-info.c:263
-#: src/tracker/tracker-search.c:1580 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086 src/tracker/tracker-status.c:73
-#: src/tracker/tracker-status.c:386 src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "No se pudo establecer una conexión con Tracker"
 
 #: src/tracker/tracker-index.c:206
 msgid "Importing Turtle file"
@@ -891,77 +915,81 @@ msgstr "No existen metadatos disponibles para ese URI"
 msgid "Results"
 msgstr "Resultados"
 
-#: src/tracker/tracker-main.c:48
+#: src/tracker/tracker-main.c:49
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
 "Ejecute «tracker help <command>» para leer sobre un subcomando específico."
 
-#: src/tracker/tracker-main.c:97
+#: src/tracker/tracker-main.c:98
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Iniciar, detener, pausar y listar procesos responsables del indexado del "
 "contenido"
 
-#: src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:99
+msgid "Export data from a Tracker database"
+msgstr "Exportar datos de una base de datos de Tracker"
+
+#: src/tracker/tracker-main.c:100
 msgid "Extract information from a file"
 msgstr "Extraer información de un archivo"
 
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:101
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Obtener ayuda sobre cómo usar Tracker y cualquiera de sus comandos"
 
-#: src/tracker/tracker-main.c:100
+#: src/tracker/tracker-main.c:102
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Mostrar información conocida sobre archivos locales o elementos indexados"
 
-#: src/tracker/tracker-main.c:101
+#: src/tracker/tracker-main.c:103
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Respaldar, restaurar, importar y (re)indexar por tipo MIME o por nombre de "
 "archivo"
 
-#: src/tracker/tracker-main.c:102
+#: src/tracker/tracker-main.c:104
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr ""
 "Reiniciar o eliminar el índice y revertir la configuración a sus valores "
 "predeterminados"
 
-#: src/tracker/tracker-main.c:103
+#: src/tracker/tracker-main.c:105
 msgid "Search for content indexed or show content by type"
 msgstr "Buscar contenido indexado o mostrar contenido por tipo"
 
-#: src/tracker/tracker-main.c:104
+#: src/tracker/tracker-main.c:106
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Consultar y actualizar el índice usando SPARQL o buscar, listar y mostrar el "
 "árbol de ontologías"
 
-#: src/tracker/tracker-main.c:105
+#: src/tracker/tracker-main.c:107
 msgid "Query the database at the lowest level using SQL"
 msgstr "Consultar la base de datos a bajo nivel usando SQL"
 
-#: src/tracker/tracker-main.c:106
+#: src/tracker/tracker-main.c:108
 msgid "Show the indexing progress, content statistics and index state"
 msgstr ""
 "Mostrar el progreso de indexado, las estadísticas del contenido y el estado "
 "de la indexación"
 
-#: src/tracker/tracker-main.c:107
+#: src/tracker/tracker-main.c:109
 msgid "Create, list or delete tags for indexed content"
 msgstr "Crear, listar o eliminar etiquetas para el contenido indexado"
 
-#: src/tracker/tracker-main.c:108
+#: src/tracker/tracker-main.c:110
 msgid "Show the license and version in use"
 msgstr "Mostrar la licencia y la versión en uso"
 
-#: src/tracker/tracker-main.c:153
+#: src/tracker/tracker-main.c:155
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "«%s» no es un comando de Tracker. Consulte «tracker --help»"
 
-#: src/tracker/tracker-main.c:176
+#: src/tracker/tracker-main.c:178
 msgid "Available tracker commands are:"
 msgstr "Los comandos de Tracker disponibles son:"
 
@@ -1529,11 +1557,6 @@ msgstr "No se pudo leer el archivo"
 #: src/tracker/tracker-sparql.c:1389
 msgid "Could not run update"
 msgstr "No se pudo ejecutar la actualización"
-
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "No se pudo ejecutar la consulta"
 
 #: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
