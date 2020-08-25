@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-08-19 20:26+0000\n"
-"PO-Revision-Date: 2020-08-20 08:13-0300\n"
+"POT-Creation-Date: 2020-08-24 22:04+0000\n"
+"PO-Revision-Date: 2020-08-24 22:47-0300\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -157,7 +157,6 @@ msgstr "--list pode ser usado apenas com --session ou --system"
 
 #. TRANSLATORS: those are commandline arguments
 #: src/tracker/tracker-endpoint.c:99
-#| msgid "One “ontology” or “ontology path” option should be provided"
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Uma opção “ontology” ou “ontology-path” deve ser fornecida"
 
@@ -189,7 +188,6 @@ msgid "Opening database at %s…"
 msgstr "Abrindo banco de dados em %s…"
 
 #: src/tracker/tracker-endpoint.c:336
-#| msgid "Backing up database"
 msgid "Creating in-memory database"
 msgstr "Criando banco de dados em memória"
 
@@ -230,17 +228,15 @@ msgstr "URI de serviço remoto"
 
 #: src/tracker/tracker-export.c:56
 msgid "Output TriG format which includes named graph information"
-msgstr "ostrar formato TriG que inclui informações de grafo nomeado"
+msgstr "Mostra formato TriG que inclui informações de grafo nomeado"
 
 #: src/tracker/tracker-export.c:60 src/tracker/tracker-export.c:61
-#| msgid "DIR"
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:86 src/tracker/tracker-import.c:83
 #: src/tracker/tracker-sparql.c:197
-#| msgid "Specify one --database, --dbus-service or --remote-service option"
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Especifique uma opção entre “--database”, “--dbus-service” ou “--remote-"
@@ -267,12 +263,10 @@ msgid "failed to exec “%s”: %s"
 msgstr "falha ao exec “%s”: %s"
 
 #: src/tracker/tracker-import.c:117
-#| msgid "Could not run update"
 msgid "Could not run import"
 msgstr "Não foi possível executar a importação"
 
 #: src/tracker/tracker-main.c:43
-#| msgid "See “tracker help <command>” to read about a specific subcommand."
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr "Veja “tracker help <comando>” para ler sobre um subcomando específico."
 
@@ -289,7 +283,6 @@ msgid "Export data from a Tracker database"
 msgstr "Exporta dados de um banco de dados Tracker"
 
 #: src/tracker/tracker-main.c:95
-#| msgid "Could not backup database"
 msgid "Import data into a Tracker database"
 msgstr "Importa dados de um banco de dados Tracker"
 
@@ -306,12 +299,10 @@ msgstr "Consulta o banco de dados até o nível mais baixo usando SQL"
 
 #: src/tracker/tracker-main.c:137
 #, c-format
-#| msgid "“%s” is not a tracker command. See “tracker --help”"
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr "“%s” não é um comando do tracker3. Veja “tracker3 --help”"
 
 #: src/tracker/tracker-main.c:172
-#| msgid "Available tracker commands are:"
 msgid "Available tracker3 commands are:"
 msgstr "Comandos disponíveis do tracker3 são:"
 
@@ -378,7 +369,6 @@ msgid "PROPERTY"
 msgstr "PROPRIEDADE"
 
 #: src/tracker/tracker-sparql.c:154
-#| msgid "Retrieve classes"
 msgid "Retrieve all named graphs"
 msgstr "Obtém todos os grafos nomeados"
 
@@ -510,12 +500,10 @@ msgid "Indexes"
 msgstr "Índices"
 
 #: src/tracker/tracker-sparql.c:1314
-#| msgid "Could not list classes"
 msgid "Could not list named graphs"
 msgstr "Não foi possível listar grafos nomeados"
 
 #: src/tracker/tracker-sparql.c:1322
-#| msgid "No tags were found"
 msgid "No graphs were found"
 msgstr "Nenhum grafo foi localizado"
 
