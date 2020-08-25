@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-06-21 15:18+0000\n"
-"PO-Revision-Date: 2020-06-27 10:59-0400\n"
+"POT-Creation-Date: 2020-08-25 16:04+0000\n"
+"PO-Revision-Date: 2020-08-25 16:41-0400\n"
 "Last-Translator: Boyuan Yang <073plan@gmail.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 2.3.1\n"
+"X-Generator: Poedit 2.4.1\n"
 
 #: src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -95,139 +95,154 @@ msgstr[0] " %2.2d 秒"
 msgid "the|a|an"
 msgstr "the|a|an"
 
-#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
-#: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
-#: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
+#: src/portal/tracker-main.c:53
+msgid "Version"
+msgstr "版本"
+
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:299
+#: src/tracker/tracker-export.c:333 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
+msgid "Unrecognized options"
+msgstr "无法识别的选项"
+
+#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:44
+#: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "数据库的位置"
 
-#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-endpoint.c:60
+#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
 msgid "DIR"
-msgstr ""
+msgstr "目录"
 
-#: src/tracker/tracker-endpoint.c:51
+#: src/tracker/tracker-endpoint.c:52
 msgid "Specify the DBus name of this endpoint"
 msgstr "指定此端点的 DBus 名称"
 
-#: src/tracker/tracker-endpoint.c:52 src/tracker/tracker-endpoint.c:56
+#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
 msgid "NAME"
-msgstr ""
+msgstr "名称"
 
-#: src/tracker/tracker-endpoint.c:55
+#: src/tracker/tracker-endpoint.c:56
 msgid "Specify the ontology name used in this endpoint"
-msgstr ""
+msgstr "指定要在此端点使用的本体名称"
 
-#: src/tracker/tracker-endpoint.c:59
+#: src/tracker/tracker-endpoint.c:60
 msgid "Specify a path to an ontology to be used in this endpoint"
-msgstr ""
+msgstr "指定要在此端点使用的本体路径"
 
-#: src/tracker/tracker-endpoint.c:63
+#: src/tracker/tracker-endpoint.c:64
 msgid "Use session bus"
 msgstr "使用会话总线"
 
-#: src/tracker/tracker-endpoint.c:67
+#: src/tracker/tracker-endpoint.c:68
 msgid "Use system bus"
 msgstr "使用系统总线"
 
-#. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:87
-msgid "One “ontology” or “ontology-path” option should be provided"
-msgstr ""
+#: src/tracker/tracker-endpoint.c:72
+msgid "List SPARQL endpoints available in DBus"
+msgstr "列出 DBus 中可用的 SPARQL 端点"
 
-#: src/tracker/tracker-endpoint.c:129
+#. TRANSLATORS: these are commandline arguments
+#: src/tracker/tracker-endpoint.c:93
+msgid "--list can only be used with --session or --system"
+msgstr "--list 只能和 --session 或 --system 一起使用"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:99
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr "应提供一个“本体”或“本体路径”选项"
+
+#: src/tracker/tracker-endpoint.c:141
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "正在 %s 创建端点…"
 
-#: src/tracker/tracker-endpoint.c:165
+#: src/tracker/tracker-endpoint.c:177
 msgid "Could not own DBus name"
 msgstr "无法拥有 DBus 名称"
 
-#: src/tracker/tracker-endpoint.c:169
+#: src/tracker/tracker-endpoint.c:181
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "正在监听 SPARQL 命令。按下 Ctrl-C 以停止。"
 
-#: src/tracker/tracker-endpoint.c:179
+#: src/tracker/tracker-endpoint.c:191
 msgid "DBus name lost"
 msgstr "DBus 名称丢失"
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:184
+#: src/tracker/tracker-endpoint.c:196
 msgid "Closing connection…"
 msgstr "正在关闭连接…"
 
-#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:305
-#: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
-#: src/tracker/tracker-sparql.c:1546 src/tracker/tracker-sql.c:231
-msgid "Unrecognized options"
-msgstr "无法识别的选项"
-
-#: src/tracker/tracker-endpoint.c:234
+#: src/tracker/tracker-endpoint.c:333
 #, c-format
 msgid "Opening database at %s…"
 msgstr "正在打开 %s 的数据库…"
 
-#: src/tracker/tracker-endpoint.c:237
+#: src/tracker/tracker-endpoint.c:336
 msgid "Creating in-memory database"
 msgstr "正在创建内存数据库"
 
-#: src/tracker/tracker-endpoint.c:257
+#: src/tracker/tracker-endpoint.c:356
 msgid ""
-"New database created. Use the --dbus-service option to share this database "
+"New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
-msgstr "已创建新数据库。请使用 --dbus-service 选项以在消息总线上共享此数据库。"
+msgstr "已创建新数据库。请使用“--dbus-service”选项以在消息总线上共享此数据库。"
 
-#: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
-#: src/tracker/tracker-info.c:54 src/tracker/tracker-info.c:91
-#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:110
-#: src/tracker/tracker-sparql.c:122 src/tracker/tracker-sql.c:45
-#: src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
+#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "文件"
 
-#: src/tracker/tracker-export.c:46 src/tracker/tracker-import.c:49
-#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:113
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "连接到 DBus 服务"
 
-#: src/tracker/tracker-export.c:47 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:114
+#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "DBus 服务名称"
 
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:53
-#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "连接到远程服务"
 
-#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "远程服务 URI"
 
-#: src/tracker/tracker-export.c:54
+#: src/tracker/tracker-export.c:56
 msgid "Output TriG format which includes named graph information"
-msgstr "输出包含命名图信息的 TriG 格式。"
+msgstr "输出包含命名图信息的 TriG 格式"
+
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-export.c:61
+msgid "IRI"
+msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
-#: src/tracker/tracker-sparql.c:196
-msgid "Specify one --database, --dbus-service or --remote-service option"
-msgstr "请指定 --database, --dbus-service 或 ---remote-service 选项中的一个"
+#: src/tracker/tracker-export.c:86 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-sparql.c:199
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr "请指定“--database”、“--dbus-service”或“--remote-service”选项中的一个"
 
-#: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
-#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
+#: src/tracker/tracker-export.c:260 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-sparql.c:1115
 msgid "Could not establish a connection to Tracker"
 msgstr "无法建立到 Tracker 的连接"
 
-#: src/tracker/tracker-export.c:255 src/tracker/tracker-import.c:100
-#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:1112
+#: src/tracker/tracker-export.c:261 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-sparql.c:1116
 msgid "No error given"
 msgstr "未指定错误"
 
-#: src/tracker/tracker-export.c:276 src/tracker/tracker-sparql.c:1486
-#: src/tracker/tracker-sql.c:132 src/tracker/tracker-sql.c:165
+#: src/tracker/tracker-export.c:300 src/tracker/tracker-sparql.c:1493
+#: src/tracker/tracker-sql.c:135 src/tracker/tracker-sql.c:168
 msgid "Could not run query"
 msgstr "无法运行查询"
 
@@ -240,159 +255,104 @@ msgstr "无法运行“%s”：%s"
 msgid "Could not run import"
 msgstr "无法运行导入"
 
-#: src/tracker/tracker-info.c:65
-msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
-msgstr "显示完整命名空间（即不使用 nie:title，而使用完整 URL）"
-
-#: src/tracker/tracker-info.c:69
-msgid "Show plain text content if available for resources"
-msgstr "对合适的资源以纯文本显示其内容"
-
-#. To translators:
-#. * IRI (International Resource Identifier) is a generalization
-#. * of the URI. While URI supports only ASCI encoding, IRI
-#. * fully supports international characters. In practice, UTF-8
-#. * is the most popular encoding used for IRI.
-#.
-#: src/tracker/tracker-info.c:79
-msgid ""
-"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-"(e.g. <file:///path/to/some/file.txt>)"
-msgstr ""
-"将 FILE 参数视为实际的 IRI（如 <file:///path/to/some/file.txt>），而不是文件"
-"名"
-
-#: src/tracker/tracker-info.c:83
-msgid "Output results as RDF in Turtle format"
-msgstr "将结果输出为 Turtle 格式 的 RDF 文件"
-
-#: src/tracker/tracker-info.c:87
-msgid "RDF property to treat as URL (eg. “nie:url”)"
-msgstr ""
-
-#: src/tracker/tracker-info.c:334
-msgid "Querying information for entity"
-msgstr "查询实体的信息"
-
-#: src/tracker/tracker-info.c:358
-msgid "Unable to retrieve URN for URI"
-msgstr "无法为 URI 检索 URN"
-
-#: src/tracker/tracker-info.c:368 src/tracker/tracker-info.c:402
-msgid "Unable to retrieve data for URI"
-msgstr "无法为 URI 检索数据"
-
-#: src/tracker/tracker-info.c:411
-msgid "No metadata available for that URI"
-msgstr "没有那个 URI 可用的元数据"
-
-#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1498
-#: src/tracker/tracker-sparql.c:1501 src/tracker/tracker-sql.c:139
-msgid "Results"
-msgstr "结果"
-
-#: src/tracker/tracker-main.c:44
+#: src/tracker/tracker-main.c:43
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr "请查阅“tracker3 help <命令>”以了解特定子命令的信息。"
 
-#: src/tracker/tracker-main.c:93
+#: src/tracker/tracker-main.c:92
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "获取关于使用 Tracker 与这些命令的帮助"
 
-#: src/tracker/tracker-main.c:94
+#: src/tracker/tracker-main.c:93
 msgid "Create a SPARQL endpoint"
 msgstr "创建一个 SPARQL 端点"
 
-#: src/tracker/tracker-main.c:95
+#: src/tracker/tracker-main.c:94
 msgid "Export data from a Tracker database"
 msgstr "从一个 Tracker 数据库导出数据"
 
-#: src/tracker/tracker-main.c:96
+#: src/tracker/tracker-main.c:95
 msgid "Import data into a Tracker database"
 msgstr "将数据导入一个 Tracker 数据库"
 
-#: src/tracker/tracker-main.c:97
-msgid "Show information known about local files or items indexed"
-msgstr "显示已索引的本地文件或项目的信息"
-
-#: src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:96
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr "使用 SPARQL 查找与更新索引，或搜索、列出数据本体的树状图"
 
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:97
 msgid "Query the database at the lowest level using SQL"
 msgstr "使用 SQL 查找最底层的数据库"
 
-#: src/tracker/tracker-main.c:139
+#: src/tracker/tracker-main.c:137
 #, c-format
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr "“%s”不是 tracker3 命令。请查阅“tracker --help”"
 
-#: src/tracker/tracker-main.c:174
+#: src/tracker/tracker-main.c:172
 msgid "Available tracker3 commands are:"
 msgstr "可用的 tracker3 命令有："
 
-#: src/tracker/tracker-main.c:212
+#: src/tracker/tracker-main.c:210
 msgid "Additional / third party commands are:"
 msgstr "额外的/第三方的命令有："
 
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-sparql.c:122
 msgid "Path to use to run a query or update from file"
 msgstr "使用文件中指定的查询和更新路径"
 
-#: src/tracker/tracker-sparql.c:125
+#: src/tracker/tracker-sparql.c:126
 msgid "SPARQL query"
 msgstr "SPARQL 查询"
 
-#: src/tracker/tracker-sparql.c:126
+#: src/tracker/tracker-sparql.c:127
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:129
+#: src/tracker/tracker-sparql.c:130
 msgid "This is used with --query and for database updates only."
 msgstr "这只随 --query 使用和只用于数据库更新。"
 
-#: src/tracker/tracker-sparql.c:133
+#: src/tracker/tracker-sparql.c:134
 msgid "Retrieve classes"
 msgstr "检索类"
 
-#: src/tracker/tracker-sparql.c:137
+#: src/tracker/tracker-sparql.c:138
 msgid "Retrieve class prefixes"
 msgstr "检索类前缀"
 
-#: src/tracker/tracker-sparql.c:141
+#: src/tracker/tracker-sparql.c:142
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr "为一个类检索属性，可以使用前缀（例如 rdfs:Resource）"
 
-#: src/tracker/tracker-sparql.c:142 src/tracker/tracker-sparql.c:146
-#: src/tracker/tracker-sparql.c:158 src/tracker/tracker-sparql.c:166
-#: src/tracker/tracker-sparql.c:170
+#: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
+#: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
+#: src/tracker/tracker-sparql.c:171
 msgid "CLASS"
 msgstr "类"
 
-#: src/tracker/tracker-sparql.c:145
+#: src/tracker/tracker-sparql.c:146
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr "检索数据库中提示变化的类（类是可选的）"
 
-#: src/tracker/tracker-sparql.c:149
+#: src/tracker/tracker-sparql.c:150
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
 msgstr "获取数据库中使用的索引以提升性能（属性 是可选的）"
 
-#: src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:151
 msgid "PROPERTY"
 msgstr "属性"
 
-#: src/tracker/tracker-sparql.c:153
+#: src/tracker/tracker-sparql.c:154
 msgid "Retrieve all named graphs"
 msgstr "获取全部命名图"
 
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-sparql.c:158
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -400,36 +360,36 @@ msgstr ""
 "描述子类 (subclasses)、超类 (superclasses)（可与 -s 合用以高亮树中的部分，-p "
 "合用显示属性）"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-sparql.c:162
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr "搜索一个类或者属性并显示更多信息（例如文件）"
 
-#: src/tracker/tracker-sparql.c:162
+#: src/tracker/tracker-sparql.c:163
 msgid "CLASS/PROPERTY"
 msgstr "类或属性"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-sparql.c:166
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "返回某个类的简写（如 nfo:FileDataObject）"
 
-#: src/tracker/tracker-sparql.c:169
+#: src/tracker/tracker-sparql.c:170
 msgid "Returns the full namespace for a class."
 msgstr "返回某个类的完整名字空间。"
 
-#: src/tracker/tracker-sparql.c:229
+#: src/tracker/tracker-sparql.c:232
 msgid "Unable to retrieve namespace prefixes"
 msgstr "无法获取名字空间前缀"
 
-#: src/tracker/tracker-sparql.c:237
+#: src/tracker/tracker-sparql.c:240
 msgid "No namespace prefixes were returned"
 msgstr "没有返回名字空间前缀"
 
-#: src/tracker/tracker-sparql.c:283
+#: src/tracker/tracker-sparql.c:286
 msgid "Could not get namespace prefixes"
 msgstr "无法获取名字空间前缀"
 
-#: src/tracker/tracker-sparql.c:292
+#: src/tracker/tracker-sparql.c:295
 msgid "No namespace prefixes were found"
 msgstr "没有找到名字空间前缀"
 
@@ -437,136 +397,141 @@ msgstr "没有找到名字空间前缀"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:538 src/tracker/tracker-sparql.c:586
+#: src/tracker/tracker-sparql.c:541 src/tracker/tracker-sparql.c:589
 msgid "None"
 msgstr "无"
 
-#: src/tracker/tracker-sparql.c:992
+#: src/tracker/tracker-sparql.c:995
 msgid "Could not create tree: subclass query failed"
 msgstr "无法创建树：查询子类失败"
 
-#: src/tracker/tracker-sparql.c:1041
+#: src/tracker/tracker-sparql.c:1044
 msgid "Could not create tree: class properties query failed"
 msgstr "无法创建树：查询类属性失败"
 
-#: src/tracker/tracker-sparql.c:1125
+#: src/tracker/tracker-sparql.c:1131
 msgid "Could not list classes"
 msgstr "不能列出类"
 
-#: src/tracker/tracker-sparql.c:1133
+#: src/tracker/tracker-sparql.c:1139
 msgid "No classes were found"
 msgstr "没有找到类"
 
-#: src/tracker/tracker-sparql.c:1133 src/tracker/tracker-sparql.c:1348
+#: src/tracker/tracker-sparql.c:1139 src/tracker/tracker-sparql.c:1355
 msgid "Classes"
 msgstr "类"
 
-#: src/tracker/tracker-sparql.c:1149
+#: src/tracker/tracker-sparql.c:1155
 msgid "Could not list class prefixes"
 msgstr "无法列出类前缀"
 
-#: src/tracker/tracker-sparql.c:1157
+#: src/tracker/tracker-sparql.c:1163
 msgid "No class prefixes were found"
 msgstr "没有找到类前缀"
 
-#: src/tracker/tracker-sparql.c:1157
+#: src/tracker/tracker-sparql.c:1163
 msgid "Prefixes"
 msgstr "前缀"
 
-#: src/tracker/tracker-sparql.c:1177
+#: src/tracker/tracker-sparql.c:1183
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr "无法找到类前缀的属性，例如“rdfs:Resource”中的 :Resource"
 
-#: src/tracker/tracker-sparql.c:1216
+#: src/tracker/tracker-sparql.c:1222
 msgid "Could not list properties"
 msgstr "无法列出属性"
 
-#: src/tracker/tracker-sparql.c:1224
+#: src/tracker/tracker-sparql.c:1230
 msgid "No properties were found"
 msgstr "没有找到属性"
 
-#: src/tracker/tracker-sparql.c:1224 src/tracker/tracker-sparql.c:1371
+#: src/tracker/tracker-sparql.c:1230 src/tracker/tracker-sparql.c:1378
 msgid "Properties"
 msgstr "属性"
 
-#: src/tracker/tracker-sparql.c:1252
+#: src/tracker/tracker-sparql.c:1258
 msgid "Could not find notify classes"
 msgstr "无法找到提示类"
 
-#: src/tracker/tracker-sparql.c:1260
+#: src/tracker/tracker-sparql.c:1266
 msgid "No notifies were found"
 msgstr "没有找到提示"
 
-#: src/tracker/tracker-sparql.c:1260
+#: src/tracker/tracker-sparql.c:1266
 msgid "Notifies"
 msgstr "提示"
 
-#: src/tracker/tracker-sparql.c:1286
+#: src/tracker/tracker-sparql.c:1292
 msgid "Could not find indexed properties"
 msgstr "无法列出索引的属性"
 
-#: src/tracker/tracker-sparql.c:1294
+#: src/tracker/tracker-sparql.c:1300
 msgid "No indexes were found"
 msgstr "没有找到索引"
 
-#: src/tracker/tracker-sparql.c:1294
+#: src/tracker/tracker-sparql.c:1300
 msgid "Indexes"
 msgstr "索引"
 
-#: src/tracker/tracker-sparql.c:1310
+#: src/tracker/tracker-sparql.c:1316
 msgid "Could not list named graphs"
 msgstr "无法列出命名图"
 
-#: src/tracker/tracker-sparql.c:1318
+#: src/tracker/tracker-sparql.c:1324
 msgid "No graphs were found"
 msgstr "未找到图"
 
-#: src/tracker/tracker-sparql.c:1318
+#: src/tracker/tracker-sparql.c:1324
 msgid "Named graphs"
 msgstr "命名图"
 
-#: src/tracker/tracker-sparql.c:1340
+#: src/tracker/tracker-sparql.c:1347
 msgid "Could not search classes"
 msgstr "不能列出类"
 
-#: src/tracker/tracker-sparql.c:1348
+#: src/tracker/tracker-sparql.c:1355
 msgid "No classes were found to match search term"
 msgstr "没有发现符合搜索条件的类"
 
-#: src/tracker/tracker-sparql.c:1363
+#: src/tracker/tracker-sparql.c:1370
 msgid "Could not search properties"
 msgstr "无法搜索属性"
 
-#: src/tracker/tracker-sparql.c:1371
+#: src/tracker/tracker-sparql.c:1378
 msgid "No properties were found to match search term"
 msgstr "没有发现匹配搜索条件的属性"
 
-#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-sparql.c:1414 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "无法从路径中找到 UTF-8 路径"
 
-#: src/tracker/tracker-sparql.c:1419 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-sparql.c:1426 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "不能读取文件"
 
-#: src/tracker/tracker-sparql.c:1438
+#: src/tracker/tracker-sparql.c:1445
 msgid "Could not run update"
 msgstr "不能运行升级"
 
-#: src/tracker/tracker-sparql.c:1445
+#: src/tracker/tracker-sparql.c:1452
 msgid "Done"
 msgstr "完成"
 
-#: src/tracker/tracker-sparql.c:1498 src/tracker/tracker-sparql.c:1501
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
 msgid "No results found matching your query"
 msgstr "未找到满足您的查询的结果"
 
-#: src/tracker/tracker-sparql.c:1555 src/tracker/tracker-sql.c:242
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
+#: src/tracker/tracker-sql.c:142
+msgid "Results"
+msgstr "结果"
+
+#: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:248
 msgid "File and query can not be used together"
 msgstr "添加和删除动作不能同时使用"
 
-#: src/tracker/tracker-sparql.c:1557
+#: src/tracker/tracker-sparql.c:1568
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -584,17 +549,51 @@ msgstr "SQL 查询"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:113
+#: src/tracker/tracker-sql.c:114
 msgid "Failed to initialize data manager"
 msgstr "初始化数据管理器失败"
 
-#: src/tracker/tracker-sql.c:173
+#: src/tracker/tracker-sql.c:176
 msgid "Empty result set"
 msgstr "空结果集"
 
-#: src/tracker/tracker-sql.c:240
+#: src/tracker/tracker-sql.c:246
 msgid "A database path must be specified"
 msgstr "必须指定数据库路径"
+
+#~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+#~ msgstr "显示完整命名空间（即不使用 nie:title，而使用完整 URL）"
+
+#~ msgid "Show plain text content if available for resources"
+#~ msgstr "对合适的资源以纯文本显示其内容"
+
+#~ msgid ""
+#~ "Instead of looking up a file name, treat the FILE arguments as actual "
+#~ "IRIs (e.g. <file:///path/to/some/file.txt>)"
+#~ msgstr ""
+#~ "将 FILE 参数视为实际的 IRI（如 <file:///path/to/some/file.txt>），而不是文"
+#~ "件名"
+
+#~ msgid "Output results as RDF in Turtle format"
+#~ msgstr "将结果输出为 Turtle 格式 的 RDF 文件"
+
+#~ msgid "RDF property to treat as URL (eg. “nie:url”)"
+#~ msgstr "视为 URL 处理的 RDF 属性（例如“nie:url”)"
+
+#~ msgid "Querying information for entity"
+#~ msgstr "查询实体的信息"
+
+#~ msgid "Unable to retrieve URN for URI"
+#~ msgstr "无法为 URI 检索 URN"
+
+#~ msgid "Unable to retrieve data for URI"
+#~ msgstr "无法为 URI 检索数据"
+
+#~ msgid "No metadata available for that URI"
+#~ msgstr "没有那个 URI 可用的元数据"
+
+#~ msgid "Show information known about local files or items indexed"
+#~ msgstr "显示已索引的本地文件或项目的信息"
 
 #~ msgid "Maximum size of journal"
 #~ msgstr "日志的最大尺寸"
@@ -1337,9 +1336,6 @@ msgstr "必须指定数据库路径"
 
 #~ msgid "Statistics:"
 #~ msgstr "统计："
-
-#~ msgid "Version"
-#~ msgstr "版本"
 
 #~ msgid "Disk Information"
 #~ msgstr "磁盘信息"
