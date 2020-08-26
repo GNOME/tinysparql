@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2019-01-20 21:26+0000\n"
-"PO-Revision-Date: 2019-01-25 18:13+0100\n"
+"POT-Creation-Date: 2020-08-26 14:50+0000\n"
+"PO-Revision-Date: 2020-08-26 21:32+0200\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
 "%100==4 ? 3 : 0);\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 2.1.1\n"
+"X-Generator: Poedit 2.3\n"
 
 #: data/org.freedesktop.Tracker.DB.gschema.xml:24
 msgid "Maximum size of journal"
@@ -200,7 +200,7 @@ msgstr[3] " %2.2d sekunde"
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-data/tracker-collation.c:332
+#: src/libtracker-data/tracker-collation.c:333
 msgid "the|a|an"
 msgstr "the|a|an"
 
@@ -718,11 +718,12 @@ msgid ""
 msgstr ""
 "Če ni podanega argumenta, se prikaže stanje shrambe in rudarjev podatkov"
 
-#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
-#: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:384 src/tracker/tracker-search.c:1778
-#: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
-#: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
+#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-export.c:439
+#: src/tracker/tracker-extract.c:147 src/tracker/tracker-index.c:412
+#: src/tracker/tracker-info.c:422 src/tracker/tracker-reset.c:385
+#: src/tracker/tracker-search.c:1778 src/tracker/tracker-sparql.c:1497
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-status.c:587
+#: src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Nepoznane možnosti"
 
@@ -733,6 +734,35 @@ msgstr "Ni mogoče pridobiti povezave vodila D-Bus"
 #: src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Ni mogoče ustvariti posredniškega vodila D-Bus za tracker-store"
+
+#: src/tracker/tracker-export.c:40
+msgid "Output TriG format which includes named graph information"
+msgstr "Odvodni zapis TriG, ki vključuje tudi podatke"
+
+#: src/tracker/tracker-export.c:44
+msgid "Export a specific type of data."
+msgstr "Izvoz specifične vrste podatkov."
+
+#: src/tracker/tracker-export.c:45
+msgid "TYPE"
+msgstr "VRSTA"
+
+#: src/tracker/tracker-export.c:252 src/tracker/tracker-index.c:195
+#: src/tracker/tracker-info.c:263 src/tracker/tracker-search.c:1580
+#: src/tracker/tracker-sparql.c:172 src/tracker/tracker-sparql.c:1086
+#: src/tracker/tracker-status.c:73 src/tracker/tracker-status.c:386
+#: src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "Povezave s Trackerjem ni mogoče vzpostaviti"
+
+#: src/tracker/tracker-export.c:262 src/tracker/tracker-sparql.c:1437
+#: src/tracker/tracker-sql.c:139 src/tracker/tracker-sql.c:172
+msgid "Could not run query"
+msgstr "Poizvedbe ni mogoče zagnati"
+
+#: src/tracker/tracker-export.c:456
+msgid "Unrecognized value for '--type' option"
+msgstr "Nepoznana vrednost za možnost »--type«"
 
 #: src/tracker/tracker-extract.c:45
 msgid "Output results format: “sparql”, “turtle” or “json-ld”"
@@ -816,13 +846,6 @@ msgstr "Ni mogoče (znova) pripraviti kazala datoteke"
 #: src/tracker/tracker-index.c:175
 msgid "(Re)indexing file was successful"
 msgstr "(Ponovna) priprava kazala je bila uspešna"
-
-#: src/tracker/tracker-index.c:195 src/tracker/tracker-info.c:263
-#: src/tracker/tracker-search.c:1580 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086 src/tracker/tracker-status.c:73
-#: src/tracker/tracker-status.c:386 src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "Povezave s Trackerjem ni mogoče vzpostaviti"
 
 #: src/tracker/tracker-index.c:206
 msgid "Importing Turtle file"
@@ -918,78 +941,82 @@ msgstr "Za URI ni razpoložljivih metapodakov"
 msgid "Results"
 msgstr "Rezultati"
 
-#: src/tracker/tracker-main.c:48
+#: src/tracker/tracker-main.c:49
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
 "Oglejte si ukaz »tracker help <ukaz>«, kjer so zabeležene podrobnosti o "
 "posameznem podukazu."
 
-#: src/tracker/tracker-main.c:97
+#: src/tracker/tracker-main.c:98
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Začnite, ustavite, prekinite in izpišite procese, ki so odgovorni za "
 "indeksiranje vsebine"
 
-#: src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:99
+msgid "Export data from a Tracker database"
+msgstr "Izvozi izrezke iz podatkovne zbirke Tracker"
+
+#: src/tracker/tracker-main.c:100
 msgid "Extract information from a file"
 msgstr "Preberi podrobnosti iz datoteke"
 
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:101
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Pridobi pomoč za uporabo programa Tracker in njegovih ukazov"
 
-#: src/tracker/tracker-main.c:100
+#: src/tracker/tracker-main.c:102
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Pokaži znane informacije o krajevnih datotekah ali indeksiranih elementih"
 
-#: src/tracker/tracker-main.c:101
+#: src/tracker/tracker-main.c:103
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Varnostno kopirajte, obnovite, uvozite in (ponovno) indeksirajte po vrsti "
 "MIME ali imenu datoteke"
 
-#: src/tracker/tracker-main.c:102
+#: src/tracker/tracker-main.c:104
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr ""
 "Ponastavite ali odstranite kazalo in povrnite prilagoditve na privzete "
 "vrednosti"
 
-#: src/tracker/tracker-main.c:103
+#: src/tracker/tracker-main.c:105
 msgid "Search for content indexed or show content by type"
 msgstr "Išči indeksirano vsebino ali pokaži vsebino glede na vrsto"
 
-#: src/tracker/tracker-main.c:104
+#: src/tracker/tracker-main.c:106
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Izvajanje poizvedb in posodobitev kazal s SPARQL oziroma iskanje, "
 "izpisovanje in prikaz drevesne strukture"
 
-#: src/tracker/tracker-main.c:105
+#: src/tracker/tracker-main.c:107
 msgid "Query the database at the lowest level using SQL"
 msgstr "Poizveduj po zbirki podatkov na najnižji ravni s SQL"
 
-#: src/tracker/tracker-main.c:106
+#: src/tracker/tracker-main.c:108
 msgid "Show the indexing progress, content statistics and index state"
 msgstr "Pokaži napredek indeksiranja, statistiko vsebine in stanje kazala"
 
-#: src/tracker/tracker-main.c:107
+#: src/tracker/tracker-main.c:109
 msgid "Create, list or delete tags for indexed content"
 msgstr "Ustvari, izpiši ali izbriši oznake za indeksirano vsebino"
 
-#: src/tracker/tracker-main.c:108
+#: src/tracker/tracker-main.c:110
 msgid "Show the license and version in use"
 msgstr "Pokaži licenco in različico, ki se uporablja"
 
-#: src/tracker/tracker-main.c:153
+#: src/tracker/tracker-main.c:155
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr ""
 "Ukaz »%s« ni ukaz tega programa. Za podrobnosti si oglejte izpis »tracker --"
 "help«"
 
-#: src/tracker/tracker-main.c:176
+#: src/tracker/tracker-main.c:178
 msgid "Available tracker commands are:"
 msgstr "Na voljo so ukazi programa Tracker:"
 
@@ -1094,7 +1121,7 @@ msgstr "[y|N]"
 msgid "yes"
 msgstr "da"
 
-#: src/tracker/tracker-reset.c:306
+#: src/tracker/tracker-reset.c:307
 msgid "Resetting existing configuration…"
 msgstr "Poteka čiščenje obstoječih nastavitev ..."
 
@@ -1552,11 +1579,6 @@ msgstr "Ni mogoče prebrati datoteke"
 #: src/tracker/tracker-sparql.c:1389
 msgid "Could not run update"
 msgstr "Posodobitve ni mogoče zagnati"
-
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Poizvedbe ni mogoče zagnati"
 
 #: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
