@@ -8,117 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-01-08 17:59+0000\n"
-"PO-Revision-Date: 2020-01-14 17:49+0700\n"
-"Last-Translator: Sucipto <sucipto@pm.me>\n"
+"POT-Creation-Date: 2020-08-25 16:04+0000\n"
+"PO-Revision-Date: 2020-08-26 21:47+0700\n"
+"Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: GNOME Indonesian Translation Team <gnome@i15n.org>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural= n!=1;\n"
+"X-Generator: Poedit 2.4.1\n"
 "X-DamnedLies-Scope: partial\n"
-"X-Generator: Gtranslator 3.34.0\n"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:24
-msgid "Maximum size of journal"
-msgstr "Ukuran maksimum jurnal"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:25
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr "Ukuran jurnal saat rotasi, dalam MB. Pakai -1 untuk mencegah rotasi."
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:29
-msgid "Location of journal pieces"
-msgstr "Lokasi pecahan jurnal"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:30
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr "Dimana menyimpan penggalan jurnal ketika mencapai ukuran maks."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
-msgid "Maximum length of a word to be indexed"
-msgstr "Panjang kata maksimum yang diindeks"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr "Kata dengan cacah huruf lebih dari ini akan diabaikan oleh pengindeks."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
-msgid "Maximum number of words to index in a document"
-msgstr "Cacah kata maksimum yang diindeks dalam suatu dokumen"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr ""
-"Pengindeks hanya akan membaca sejumlah maksimum kata ini dari suatu dokumen "
-"tunggal."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
-msgid "Enable stemmer"
-msgstr "Aktifkan stemmer"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
-msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
-msgstr ""
-"Sederhanakan kata ke akarnya untuk menyediakan lebih banyak hasil. Mis. "
-"\"shelves\" dan \"shelf\" menjadi \"shel\""
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
-msgid "Enable unaccent"
-msgstr "Aktifkan hapus-aksen"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
-msgstr ""
-"Terjemahkan karakter beraksen ke tanpa aksen ekuivalennya, mis. \"Idéa\" to "
-"\"Idea\" untuk pencocokan yang lebih baik."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
-msgid "Ignore numbers"
-msgstr "Abaikan bilangan"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
-msgid "If enabled, numbers will not be indexed."
-msgstr "Bila diaktifkan, bilangan tak akan diindeks."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
-msgid "Ignore stop words"
-msgstr "Abaikan kata henti"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
-msgstr ""
-"Bila diaktifkan, kata yang didaftar dalam daftar kata henti akan diabaikan. "
-"Mis. kata umum seperti \"the\", \"yes\", \"no\", dsb."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:24
-msgid "Log verbosity"
-msgstr "Tingkat rincian log"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:25
-msgid "Log verbosity."
-msgstr "Tingkat rincian log."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:29
-msgid "GraphUpdated delay"
-msgstr "Tundaan GraphUpdated"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:30
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-"Periode dalam milidetik antara sinyal GraphUpdated dipancarkan ketika data "
-"terindeks telah berubah di dalam basis data."
 
 #: src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -191,215 +91,261 @@ msgstr[1] " %2.2d detik"
 msgid "the|a|an"
 msgstr "the|a|an"
 
-#. Daemon options
-#: src/tracker-store/tracker-main.vala:60
-msgid "Displays version information"
-msgstr "Tampilkan informasi versi"
+#: src/portal/tracker-main.c:53
+msgid "Version"
+msgstr "Versi"
 
-#: src/tracker-store/tracker-main.vala:61
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:299
+#: src/tracker/tracker-export.c:333 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
+msgid "Unrecognized options"
+msgstr "Opsi tak dikenal"
+
+#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:44
+#: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sql.c:44
+msgid "Location of the database"
+msgstr "Lokasi basis data"
+
+#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
+msgid "DIR"
+msgstr "DIR"
+
+#: src/tracker/tracker-endpoint.c:52
+msgid "Specify the DBus name of this endpoint"
+msgstr "Tentukan nama DBus titik akhir ini"
+
+#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
+msgid "NAME"
+msgstr "NAMA"
+
+#: src/tracker/tracker-endpoint.c:56
+msgid "Specify the ontology name used in this endpoint"
+msgstr "Tentukan nama ontologi yang digunakan di titik akhir ini"
+
+#: src/tracker/tracker-endpoint.c:60
+msgid "Specify a path to an ontology to be used in this endpoint"
+msgstr "Tentukan path ke ontologi yang akan digunakan di titik akhir ini"
+
+#: src/tracker/tracker-endpoint.c:64
+msgid "Use session bus"
+msgstr "Gunakan bus sesi"
+
+#: src/tracker/tracker-endpoint.c:68
+msgid "Use system bus"
+msgstr "Gunakan bus sistem"
+
+#: src/tracker/tracker-endpoint.c:72
+msgid "List SPARQL endpoints available in DBus"
+msgstr "Buat daftar titik akhir SPARQL yang tersedia di DBus"
+
+#. TRANSLATORS: these are commandline arguments
+#: src/tracker/tracker-endpoint.c:93
+msgid "--list can only be used with --session or --system"
+msgstr "--list hanya dapat digunakan dengan --session atau --system"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:99
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr "Satu opsi \"ontology\" atau \"ontology-path\" harus disediakan"
+
+#: src/tracker/tracker-endpoint.c:141
+#, c-format
+msgid "Creating endpoint at %s…"
+msgstr "Membuat titik akhir di %s…"
+
+#: src/tracker/tracker-endpoint.c:177
+msgid "Could not own DBus name"
+msgstr "Tidak dapat memiliki nama DBus"
+
+#: src/tracker/tracker-endpoint.c:181
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "Mendengarkan perintah SPARQL. Tekan Ctrl-C untuk berhenti."
+
+#: src/tracker/tracker-endpoint.c:191
+msgid "DBus name lost"
+msgstr "Nama DBus hilang"
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:196
+msgid "Closing connection…"
+msgstr "Menutup koneksi…"
+
+#: src/tracker/tracker-endpoint.c:333
+#, c-format
+msgid "Opening database at %s…"
+msgstr "Membuka basis data di %s…"
+
+#: src/tracker/tracker-endpoint.c:336
+msgid "Creating in-memory database"
+msgstr "Membuat basis data dalam memori"
+
+#: src/tracker/tracker-endpoint.c:356
 msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
-"0)"
+"New database created. Use the “--dbus-service” option to share this database "
+"on a message bus."
 msgstr ""
-"Log, 0 = hanya galat, 1 = minimal, 2 = terrinci, dan 3 = pengawakutuan "
-"(bawaan=0)"
+"Basis data baru dibuat. Gunakan opsi \"--dbus-service\" untuk berbagi basis "
+"data ini di bus pesan."
 
-#: src/tracker-store/tracker-main.vala:62
-msgid "Disable automatic shutdown"
-msgstr "Nonaktifkan mati otomatis"
+#: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
+#: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
+#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+msgid "FILE"
+msgstr "BERKAS"
 
-#. Indexer options
-#: src/tracker-store/tracker-main.vala:65
-msgid "Force a re-index of all content"
-msgstr "Paksa indeks ulang semua isi"
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-sparql.c:114
+msgid "Connects to a DBus service"
+msgstr "Hubungkan ke layanan DBus"
 
-#: src/tracker-store/tracker-main.vala:66
-msgid "Only allow read based actions on the database"
-msgstr "Hanya ijinkan baca berdasarkan aksi pada basis data"
+#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-sparql.c:115
+msgid "DBus service name"
+msgstr "Nama layanan DBus"
 
-#: src/tracker-store/tracker-main.vala:67
-msgid "Load a specified domain ontology"
-msgstr "Muat ontologi domain yang spesifik"
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-sparql.c:118
+msgid "Connects to a remote service"
+msgstr "Menghubungkan ke layanan jarak jauh"
 
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: src/tracker-store/tracker-main.vala:227
-msgid "— start the tracker daemon"
-msgstr "— mulai daemon tracker"
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-sparql.c:119
+msgid "Remote service URI"
+msgstr "URI layanan jarak jauh"
 
-#: src/tracker-store/tracker-store.desktop.in:3
-msgid "Tracker Store"
-msgstr "Penyimpanan Tracker"
+#: src/tracker/tracker-export.c:56
+msgid "Output TriG format which includes named graph information"
+msgstr "Keluaran format TriG yang mencakup informasi grafik bernama"
 
-#: src/tracker-store/tracker-store.desktop.in:4
-msgid "Metadata database store and lookup manager"
-msgstr "Manajer lookup dan penyimpanan basis data metadata"
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-export.c:61
+msgid "IRI"
+msgstr "IRI"
+
+#. TRANSLATORS: Those are commandline arguments
+#: src/tracker/tracker-export.c:86 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-sparql.c:199
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr ""
+"Tentukan satu opsi \"--database\", \"--dbus-service\" atau \"--remote-service"
+"\""
+
+#: src/tracker/tracker-export.c:260 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-sparql.c:1115
+msgid "Could not establish a connection to Tracker"
+msgstr "Tak bisa membentuk koneksi ke Pelacak"
+
+#: src/tracker/tracker-export.c:261 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-sparql.c:1116
+msgid "No error given"
+msgstr "Tak ada galat yang diberikan"
+
+#: src/tracker/tracker-export.c:300 src/tracker/tracker-sparql.c:1493
+#: src/tracker/tracker-sql.c:135 src/tracker/tracker-sql.c:168
+msgid "Could not run query"
+msgstr "Tak bisa menjalankan kueri"
 
 #: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "gagal mengeksekusi “%s”: %s"
 
-#: src/tracker/tracker-info.c:50
-msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+#: src/tracker/tracker-import.c:117
+msgid "Could not run import"
+msgstr "Tidak dapat menjalankan impor"
+
+#: src/tracker/tracker-main.c:43
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
-"Tunjukkan namespace lengkap (yaitu jangan memakai nie:title, gunakan URL "
-"lengkap)"
-
-#: src/tracker/tracker-info.c:54
-msgid "Show plain text content if available for resources"
-msgstr "Tunjukkan isi teks polos bila tersedia bagi sumber daya"
-
-#. To translators:
-#. * IRI (International Resource Identifier) is a generalization
-#. * of the URI. While URI supports only ASCI encoding, IRI
-#. * fully supports international characters. In practice, UTF-8
-#. * is the most popular encoding used for IRI.
-#.
-#: src/tracker/tracker-info.c:64
-msgid ""
-"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-"(e.g. <file:///path/to/some/file.txt>)"
-msgstr ""
-"Alih-alih mencari suatu nama berkas, perlakukan argumen BERKAS sebagai IRI "
-"sebenarnya (mis. <file:///path/ke/suatu/berkas.txt>)"
-
-#: src/tracker/tracker-info.c:68
-msgid "Output results as RDF in Turtle format"
-msgstr "Keluarkan hasil sebagai RDF dalam format Turtle"
-
-#: src/tracker/tracker-info.c:72
-msgid "RDF property to treat as URL (eg. “nie:url”)"
-msgstr "Properti RDF untuk diperlakukan sebagai URL (mis. “nie:url”)"
-
-#: src/tracker/tracker-info.c:76 src/tracker/tracker-info.c:77
-#: src/tracker/tracker-sparql.c:106 src/tracker/tracker-sql.c:44
-msgid "FILE"
-msgstr "BERKAS"
-
-#: src/tracker/tracker-info.c:268 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086
-msgid "Could not establish a connection to Tracker"
-msgstr "Tak bisa membentuk koneksi ke Pelacak"
-
-#: src/tracker/tracker-info.c:269 src/tracker/tracker-sparql.c:173
-#: src/tracker/tracker-sparql.c:1087
-msgid "No error given"
-msgstr "Tak ada galat yang diberikan"
-
-#: src/tracker/tracker-info.c:293
-msgid "Querying information for entity"
-msgstr "Mengkueri informasi tentang entitas"
-
-#: src/tracker/tracker-info.c:317
-msgid "Unable to retrieve URN for URI"
-msgstr "Tak bisa mengambil URN bagi URI"
-
-#: src/tracker/tracker-info.c:327 src/tracker/tracker-info.c:361
-msgid "Unable to retrieve data for URI"
-msgstr "Tak bisa mengambil data bagi URI"
-
-#: src/tracker/tracker-info.c:370
-msgid "No metadata available for that URI"
-msgstr "Tak tersedia metadata bagi URI itu"
-
-#: src/tracker/tracker-info.c:375 src/tracker/tracker-sparql.c:1449
-#: src/tracker/tracker-sparql.c:1452 src/tracker/tracker-sql.c:146
-msgid "Results"
-msgstr "Hasil"
-
-#: src/tracker/tracker-info.c:430 src/tracker/tracker-sparql.c:1497
-#: src/tracker/tracker-sql.c:238
-msgid "Unrecognized options"
-msgstr "Opsi tak dikenal"
-
-#: src/tracker/tracker-main.c:41
-msgid "See “tracker help <command>” to read about a specific subcommand."
-msgstr ""
-"Lihat \"tracker help <perintah>\" untuk membaca tentang suatu sub perintah "
+"Lihat \"tracker3 help <perintah>\" untuk membaca tentang suatu sub perintah "
 "tertentu."
 
-#: src/tracker/tracker-main.c:90
+#: src/tracker/tracker-main.c:92
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr ""
 "Dapatkan bantuan tentang bagaimana memakai Tracker dan sebarang perintah ini"
 
-#: src/tracker/tracker-main.c:91
-msgid "Show information known about local files or items indexed"
-msgstr ""
-"Tampilkan informasi yang diketahui tengan berkas lokal atau butir yang "
-"diindeks"
+#: src/tracker/tracker-main.c:93
+msgid "Create a SPARQL endpoint"
+msgstr "Buat titik akhir SPARQL"
 
-#: src/tracker/tracker-main.c:92
+#: src/tracker/tracker-main.c:94
+msgid "Export data from a Tracker database"
+msgstr "Ekspor data dari basis data Tracker"
+
+#: src/tracker/tracker-main.c:95
+msgid "Import data into a Tracker database"
+msgstr "Impor data ke basis data Tracker"
+
+#: src/tracker/tracker-main.c:96
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Kueri dan mutakhirkan indeks memakai SPARQL atau cari, daftar, dan pohon "
 "ontologi"
 
-#: src/tracker/tracker-main.c:93
+#: src/tracker/tracker-main.c:97
 msgid "Query the database at the lowest level using SQL"
 msgstr "Kueri basis data pada aras terrendah memakai SQL"
 
-#: src/tracker/tracker-main.c:140
+#: src/tracker/tracker-main.c:137
 #, c-format
-msgid "“%s” is not a tracker command. See “tracker --help”"
-msgstr "\"%s\" bukan suatu perintah tracker. Lihat \"tracker --help\""
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "\"%s\" bukan suatu perintah tracker3. Lihat \"tracker3 --help\""
 
-#: src/tracker/tracker-main.c:168
-msgid "Available tracker commands are:"
-msgstr "Perintah tracker yang tersedia:"
+#: src/tracker/tracker-main.c:172
+msgid "Available tracker3 commands are:"
+msgstr "Perintah tracker3 yang tersedia:"
 
-#: src/tracker/tracker-main.c:202
-#| msgid "Available tracker commands are:"
+#: src/tracker/tracker-main.c:210
 msgid "Additional / third party commands are:"
 msgstr "Perintah tambahan / pihak ketiga adalah:"
 
-#: src/tracker/tracker-sparql.c:105
+#: src/tracker/tracker-sparql.c:122
 msgid "Path to use to run a query or update from file"
 msgstr "Path untuk menjalankan kueri atau pembaruan dari berkas"
 
-#: src/tracker/tracker-sparql.c:109
+#: src/tracker/tracker-sparql.c:126
 msgid "SPARQL query"
 msgstr "Kueri SPARQL"
 
-#: src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sparql.c:127
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:113
+#: src/tracker/tracker-sparql.c:130
 msgid "This is used with --query and for database updates only."
 msgstr "Ini dipakai dengan --kueri dan bagi pembaruan basis data saja."
 
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-sparql.c:134
 msgid "Retrieve classes"
 msgstr "Ambil kelas"
 
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-sparql.c:138
 msgid "Retrieve class prefixes"
 msgstr "Ambil prefiks kelas"
 
-#: src/tracker/tracker-sparql.c:125
+#: src/tracker/tracker-sparql.c:142
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr ""
 "Ambil properti bagi kelas, prefiks juga dapat dipakai (mis. rdfs:Resource)"
 
-#: src/tracker/tracker-sparql.c:126 src/tracker/tracker-sparql.c:130
-#: src/tracker/tracker-sparql.c:138 src/tracker/tracker-sparql.c:146
-#: src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
+#: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
+#: src/tracker/tracker-sparql.c:171
 msgid "CLASS"
 msgstr "KELAS"
 
-#: src/tracker/tracker-sparql.c:129
+#: src/tracker/tracker-sparql.c:146
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Ambil kelas yang memberitahu perubahan dalam basis data (CLASS opsional)"
 
-#: src/tracker/tracker-sparql.c:133
+#: src/tracker/tracker-sparql.c:150
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -407,11 +353,15 @@ msgstr ""
 "Ambil indeks yang dipakai dalam basis data untuk memperbaiki kinerja "
 "(PROPERTY opsional)"
 
-#: src/tracker/tracker-sparql.c:134
+#: src/tracker/tracker-sparql.c:151
 msgid "PROPERTY"
 msgstr "PROPERTI"
 
-#: src/tracker/tracker-sparql.c:137
+#: src/tracker/tracker-sparql.c:154
+msgid "Retrieve all named graphs"
+msgstr "Ambil semua grafik bernama"
+
+#: src/tracker/tracker-sparql.c:158
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -419,45 +369,37 @@ msgstr ""
 "Menguraikan subkelas, superkelas (dapat dipakai dengan -s untuk menyorot "
 "bagian dari pohon dan -p untuk menampilkan properti)"
 
-#: src/tracker/tracker-sparql.c:141
+#: src/tracker/tracker-sparql.c:162
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Cari kelas atau properti dan tampilkan lebih banyak informasi (mis. Dokumen)"
 
-#: src/tracker/tracker-sparql.c:142
+#: src/tracker/tracker-sparql.c:163
 msgid "CLASS/PROPERTY"
 msgstr "KELAS/PROPERTI"
 
-#: src/tracker/tracker-sparql.c:145
+#: src/tracker/tracker-sparql.c:166
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Mengembalikan singkatan bagis suatu kelas (mis. nfo:FileDataObject)."
 
-#: src/tracker/tracker-sparql.c:149
+#: src/tracker/tracker-sparql.c:170
 msgid "Returns the full namespace for a class."
 msgstr "Mengembalikan namespace lengkap bagi suatu kelas."
 
-#: src/tracker/tracker-sparql.c:153
-msgid "Remote service to query to"
-msgstr "Layanan jauh untuk kueri ke"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "BASE_URL"
-msgstr "BASE_URL"
-
-#: src/tracker/tracker-sparql.c:200
+#: src/tracker/tracker-sparql.c:232
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Tak bisa mengambil prefiks namespace"
 
-#: src/tracker/tracker-sparql.c:208
+#: src/tracker/tracker-sparql.c:240
 msgid "No namespace prefixes were returned"
 msgstr "Tak ada prefiks namespace yang dikembalikan"
 
-#: src/tracker/tracker-sparql.c:254
+#: src/tracker/tracker-sparql.c:286
 msgid "Could not get namespace prefixes"
 msgstr "Tak bisa mendapat prefiks namespace"
 
-#: src/tracker/tracker-sparql.c:263
+#: src/tracker/tracker-sparql.c:295
 msgid "No namespace prefixes were found"
 msgstr "Tak ditemukan prefiks namespace"
 
@@ -465,131 +407,143 @@ msgstr "Tak ditemukan prefiks namespace"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:509 src/tracker/tracker-sparql.c:557
+#: src/tracker/tracker-sparql.c:541 src/tracker/tracker-sparql.c:589
 msgid "None"
 msgstr "Nihil"
 
-#: src/tracker/tracker-sparql.c:963
+#: src/tracker/tracker-sparql.c:995
 msgid "Could not create tree: subclass query failed"
 msgstr "Tak bisa membuat pohon: kueri subkelas gagal"
 
-#: src/tracker/tracker-sparql.c:1012
+#: src/tracker/tracker-sparql.c:1044
 msgid "Could not create tree: class properties query failed"
 msgstr "Tak bisa membuat pohon: kueri properti subkelas gagal"
 
-#: src/tracker/tracker-sparql.c:1100
+#: src/tracker/tracker-sparql.c:1131
 msgid "Could not list classes"
 msgstr "Tak bisa menyusun daftar kelas"
 
-#: src/tracker/tracker-sparql.c:1108
+#: src/tracker/tracker-sparql.c:1139
 msgid "No classes were found"
 msgstr "Tak ditemukan kelas"
 
-#: src/tracker/tracker-sparql.c:1108 src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1139 src/tracker/tracker-sparql.c:1355
 msgid "Classes"
 msgstr "Kelas"
 
-#: src/tracker/tracker-sparql.c:1124
+#: src/tracker/tracker-sparql.c:1155
 msgid "Could not list class prefixes"
 msgstr "Tak bisa menampilkan daftar prefiks kelas"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1163
 msgid "No class prefixes were found"
 msgstr "Tak ada prefiks kelas yang ditemukan"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1163
 msgid "Prefixes"
 msgstr "Prefiks"
 
-#: src/tracker/tracker-sparql.c:1152
+#: src/tracker/tracker-sparql.c:1183
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Tak bisa temukan properti bagi prefiks kelas, mis. :Resource dalam “rdfs:"
 "Resource”"
 
-#: src/tracker/tracker-sparql.c:1191
+#: src/tracker/tracker-sparql.c:1222
 msgid "Could not list properties"
 msgstr "Tak bisa meyusun daftar properti"
 
-#: src/tracker/tracker-sparql.c:1199
+#: src/tracker/tracker-sparql.c:1230
 msgid "No properties were found"
 msgstr "Tak ditemukan properti"
 
-#: src/tracker/tracker-sparql.c:1199 src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1230 src/tracker/tracker-sparql.c:1378
 msgid "Properties"
 msgstr "Properti"
 
-#: src/tracker/tracker-sparql.c:1227
+#: src/tracker/tracker-sparql.c:1258
 msgid "Could not find notify classes"
 msgstr "Tak bisa temukan kelas pemberitahuan"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1266
 msgid "No notifies were found"
 msgstr "Tak ditemukan pemberitahuan"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1266
 msgid "Notifies"
 msgstr "Memberitahu"
 
-#: src/tracker/tracker-sparql.c:1261
+#: src/tracker/tracker-sparql.c:1292
 msgid "Could not find indexed properties"
 msgstr "Tak bisa temukan properti terindeks"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1300
 msgid "No indexes were found"
 msgstr "Tak ditemukan indeks"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1300
 msgid "Indexes"
 msgstr "Indeks"
 
-#: src/tracker/tracker-sparql.c:1291
+#: src/tracker/tracker-sparql.c:1316
+msgid "Could not list named graphs"
+msgstr "Tidak dapat mencantumkan grafik bernama"
+
+#: src/tracker/tracker-sparql.c:1324
+msgid "No graphs were found"
+msgstr "Tidak ada grafik yang ditemukan"
+
+#: src/tracker/tracker-sparql.c:1324
+msgid "Named graphs"
+msgstr "Grafik bernama"
+
+#: src/tracker/tracker-sparql.c:1347
 msgid "Could not search classes"
 msgstr "Tak bisa mencari kelas"
 
-#: src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1355
 msgid "No classes were found to match search term"
 msgstr "Tak ada kelas yang ditemukan agar cocok dengan istilah pencarian"
 
-#: src/tracker/tracker-sparql.c:1314
+#: src/tracker/tracker-sparql.c:1370
 msgid "Could not search properties"
 msgstr "Tak bisa mencari properti"
 
-#: src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1378
 msgid "No properties were found to match search term"
 msgstr "Tak ada properti yang ditemukan agar cocok dengan istilah pencarian"
 
-#: src/tracker/tracker-sparql.c:1358 src/tracker/tracker-sql.c:65
+#: src/tracker/tracker-sparql.c:1414 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Tak bisa mendapat path UTF-8 dari path"
 
-#: src/tracker/tracker-sparql.c:1370 src/tracker/tracker-sql.c:76
+#: src/tracker/tracker-sparql.c:1426 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Tak bisa membaca berkas"
 
-#: src/tracker/tracker-sparql.c:1389
+#: src/tracker/tracker-sparql.c:1445
 msgid "Could not run update"
 msgstr "Tak bisa menjalankan pemutakhiran"
 
-#: src/tracker/tracker-sparql.c:1396
+#: src/tracker/tracker-sparql.c:1452
 msgid "Done"
 msgstr "Selesai"
 
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Tak bisa menjalankan kueri"
-
-#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
 msgid "No results found matching your query"
 msgstr "Tak ada hasil yang cocok dengan kueri Anda"
 
-#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sql.c:247
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
+#: src/tracker/tracker-sql.c:142
+msgid "Results"
+msgstr "Hasil"
+
+#: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:248
 msgid "File and query can not be used together"
 msgstr "Berkas dan kueri tak dapat dipakai bersama"
 
-#: src/tracker/tracker-sparql.c:1508
+#: src/tracker/tracker-sparql.c:1568
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -597,25 +551,182 @@ msgstr ""
 "Argumen —list-properties hanya bisa kosong ketika dipakai dengan argumen —"
 "tree"
 
-#: src/tracker/tracker-sql.c:43
+#: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
 msgstr "Path untuk menjalankan kueri dari berkas"
 
-#: src/tracker/tracker-sql.c:47
+#: src/tracker/tracker-sql.c:52
 msgid "SQL query"
 msgstr "kueri SQL"
 
-#: src/tracker/tracker-sql.c:48
+#: src/tracker/tracker-sql.c:53
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:120
+#: src/tracker/tracker-sql.c:114
 msgid "Failed to initialize data manager"
 msgstr "Gagal menginisialisasi manajer data"
 
-#: src/tracker/tracker-sql.c:180
+#: src/tracker/tracker-sql.c:176
 msgid "Empty result set"
 msgstr "Set hasil kosong"
+
+#: src/tracker/tracker-sql.c:246
+msgid "A database path must be specified"
+msgstr "Path basis data harus ditentukan"
+
+#~ msgid "Maximum size of journal"
+#~ msgstr "Ukuran maksimum jurnal"
+
+#~ msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+#~ msgstr ""
+#~ "Ukuran jurnal saat rotasi, dalam MB. Pakai -1 untuk mencegah rotasi."
+
+#~ msgid "Location of journal pieces"
+#~ msgstr "Lokasi pecahan jurnal"
+
+#~ msgid "Where to store a journal chunk when it hits the max size."
+#~ msgstr "Dimana menyimpan penggalan jurnal ketika mencapai ukuran maks."
+
+#~ msgid "Maximum length of a word to be indexed"
+#~ msgstr "Panjang kata maksimum yang diindeks"
+
+#~ msgid ""
+#~ "Words with more characters than this length will be ignored by the "
+#~ "indexer."
+#~ msgstr ""
+#~ "Kata dengan cacah huruf lebih dari ini akan diabaikan oleh pengindeks."
+
+#~ msgid "Maximum number of words to index in a document"
+#~ msgstr "Cacah kata maksimum yang diindeks dalam suatu dokumen"
+
+#~ msgid ""
+#~ "Indexer will read only this maximum number of words from a single "
+#~ "document."
+#~ msgstr ""
+#~ "Pengindeks hanya akan membaca sejumlah maksimum kata ini dari suatu "
+#~ "dokumen tunggal."
+
+#~ msgid "Enable stemmer"
+#~ msgstr "Aktifkan stemmer"
+
+#~ msgid ""
+#~ "Simplify the words to their root to provide more results. E.g. “shelves” "
+#~ "and “shelf” to “shel”"
+#~ msgstr ""
+#~ "Sederhanakan kata ke akarnya untuk menyediakan lebih banyak hasil. Mis. "
+#~ "\"shelves\" dan \"shelf\" menjadi \"shel\""
+
+#~ msgid "Enable unaccent"
+#~ msgstr "Aktifkan hapus-aksen"
+
+#~ msgid ""
+#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” "
+#~ "to “Idea” for improved matching."
+#~ msgstr ""
+#~ "Terjemahkan karakter beraksen ke tanpa aksen ekuivalennya, mis. \"Idéa\" "
+#~ "to \"Idea\" untuk pencocokan yang lebih baik."
+
+#~ msgid "Ignore numbers"
+#~ msgstr "Abaikan bilangan"
+
+#~ msgid "If enabled, numbers will not be indexed."
+#~ msgstr "Bila diaktifkan, bilangan tak akan diindeks."
+
+#~ msgid "Ignore stop words"
+#~ msgstr "Abaikan kata henti"
+
+#~ msgid ""
+#~ "If enabled, the words listed in the stop-words list are ignored. E.g. "
+#~ "common words like “the”, “yes”, “no”, etc."
+#~ msgstr ""
+#~ "Bila diaktifkan, kata yang didaftar dalam daftar kata henti akan "
+#~ "diabaikan. Mis. kata umum seperti \"the\", \"yes\", \"no\", dsb."
+
+#~ msgid "Log verbosity"
+#~ msgstr "Tingkat rincian log"
+
+#~ msgid "Log verbosity."
+#~ msgstr "Tingkat rincian log."
+
+#~ msgid "GraphUpdated delay"
+#~ msgstr "Tundaan GraphUpdated"
+
+#~ msgid ""
+#~ "Period in milliseconds between GraphUpdated signals being emitted when "
+#~ "indexed data has changed inside the database."
+#~ msgstr ""
+#~ "Periode dalam milidetik antara sinyal GraphUpdated dipancarkan ketika "
+#~ "data terindeks telah berubah di dalam basis data."
+
+#~ msgid "Displays version information"
+#~ msgstr "Tampilkan informasi versi"
+
+#~ msgid ""
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default = 0)"
+#~ msgstr ""
+#~ "Log, 0 = hanya galat, 1 = minimal, 2 = terrinci, dan 3 = pengawakutuan "
+#~ "(bawaan=0)"
+
+#~ msgid "Disable automatic shutdown"
+#~ msgstr "Nonaktifkan mati otomatis"
+
+#~ msgid "Force a re-index of all content"
+#~ msgstr "Paksa indeks ulang semua isi"
+
+#~ msgid "Load a specified domain ontology"
+#~ msgstr "Muat ontologi domain yang spesifik"
+
+#~ msgid "— start the tracker daemon"
+#~ msgstr "— mulai daemon tracker"
+
+#~ msgid "Tracker Store"
+#~ msgstr "Penyimpanan Tracker"
+
+#~ msgid "Metadata database store and lookup manager"
+#~ msgstr "Manajer lookup dan penyimpanan basis data metadata"
+
+#~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+#~ msgstr ""
+#~ "Tunjukkan namespace lengkap (yaitu jangan memakai nie:title, gunakan URL "
+#~ "lengkap)"
+
+#~ msgid "Show plain text content if available for resources"
+#~ msgstr "Tunjukkan isi teks polos bila tersedia bagi sumber daya"
+
+#~ msgid ""
+#~ "Instead of looking up a file name, treat the FILE arguments as actual "
+#~ "IRIs (e.g. <file:///path/to/some/file.txt>)"
+#~ msgstr ""
+#~ "Alih-alih mencari suatu nama berkas, perlakukan argumen BERKAS sebagai "
+#~ "IRI sebenarnya (mis. <file:///path/ke/suatu/berkas.txt>)"
+
+#~ msgid "Output results as RDF in Turtle format"
+#~ msgstr "Keluarkan hasil sebagai RDF dalam format Turtle"
+
+#~ msgid "RDF property to treat as URL (eg. “nie:url”)"
+#~ msgstr "Properti RDF untuk diperlakukan sebagai URL (mis. “nie:url”)"
+
+#~ msgid "Querying information for entity"
+#~ msgstr "Mengkueri informasi tentang entitas"
+
+#~ msgid "Unable to retrieve URN for URI"
+#~ msgstr "Tak bisa mengambil URN bagi URI"
+
+#~ msgid "Unable to retrieve data for URI"
+#~ msgstr "Tak bisa mengambil data bagi URI"
+
+#~ msgid "No metadata available for that URI"
+#~ msgstr "Tak tersedia metadata bagi URI itu"
+
+#~ msgid "Show information known about local files or items indexed"
+#~ msgstr ""
+#~ "Tampilkan informasi yang diketahui tengan berkas lokal atau butir yang "
+#~ "diindeks"
+
+#~ msgid "BASE_URL"
+#~ msgstr "BASE_URL"
 
 #~ msgid "Error starting “tar” program"
 #~ msgstr "Galat saat memulai program \"tar\""
@@ -984,12 +1095,6 @@ msgstr "Set hasil kosong"
 #~ msgid "Unable to import Turtle file"
 #~ msgstr "Tak bisa mengimpor berkas Turtle"
 
-#~ msgid "Backing up database"
-#~ msgstr "Membuat cadangan basis data"
-
-#~ msgid "Could not backup database"
-#~ msgstr "Tak bisa membuat cadangan basis data"
-
 #~ msgid "Restoring database from backup"
 #~ msgstr "Mengembalikan basis data dari cadangan"
 
@@ -1306,9 +1411,6 @@ msgstr "Set hasil kosong"
 #~ msgid "Statistics:"
 #~ msgstr "Statistik:"
 
-#~ msgid "Version"
-#~ msgstr "Versi"
-
 #~ msgid "Disk Information"
 #~ msgstr "Informasi Disk"
 
@@ -1428,9 +1530,6 @@ msgstr "Set hasil kosong"
 
 #~ msgid "Could not get all tags"
 #~ msgstr "Tak bisa mendapat semua tag"
-
-#~ msgid "No tags were found"
-#~ msgstr "Tak ditemukan tag"
 
 #~ msgid "Tags (shown by name)"
 #~ msgstr "Tag (ditampilkan berdasar nama)"
