@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2019-01-05 17:28+0000\n"
-"PO-Revision-Date: 2019-01-27 01:30+0200\n"
+"POT-Creation-Date: 2020-08-26 19:36+0000\n"
+"PO-Revision-Date: 2020-08-27 10:20+0200\n"
 "Last-Translator: Florentina Mușat <florentina.musat.28 [at] gmail [dot] "
 "com>\n"
 "Language-Team: Romanian Gnome Team <gnomero-list@lists.sourceforge.net>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2);\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 2.4.1\n"
 "X-Launchpad-Export-Date: 2009-10-03 17:40+0000\n"
 "X-Project-Style: gnome\n"
 
@@ -195,7 +195,7 @@ msgstr[2] " %2.2d de secunde"
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-data/tracker-collation.c:332
+#: src/libtracker-data/tracker-collation.c:333
 msgid "the|a|an"
 msgstr "the|a|an|un|o"
 
@@ -707,11 +707,12 @@ msgstr ""
 "Dacă nu sunt furnizate argumente, este arătată starea stocării și a "
 "minerilor de date"
 
-#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
-#: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:384 src/tracker/tracker-search.c:1778
-#: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
-#: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
+#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-export.c:439
+#: src/tracker/tracker-extract.c:147 src/tracker/tracker-index.c:412
+#: src/tracker/tracker-info.c:422 src/tracker/tracker-reset.c:385
+#: src/tracker/tracker-search.c:1778 src/tracker/tracker-sparql.c:1497
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-status.c:587
+#: src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Opțiuni nerecunoscute"
 
@@ -722,6 +723,35 @@ msgstr "Nu s-a putut obține conexiunea D-Bus"
 #: src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Nu s-a putut crea proxy-ul D-Bus către tracker-store"
+
+#: src/tracker/tracker-export.c:40
+msgid "Output TriG format which includes named graph information"
+msgstr "Produce un format TriG care include informații de grafuri numite"
+
+#: src/tracker/tracker-export.c:44
+msgid "Export a specific type of data."
+msgstr "Exportă un tip specific de date."
+
+#: src/tracker/tracker-export.c:45
+msgid "TYPE"
+msgstr "TIP"
+
+#: src/tracker/tracker-export.c:252 src/tracker/tracker-index.c:195
+#: src/tracker/tracker-info.c:263 src/tracker/tracker-search.c:1580
+#: src/tracker/tracker-sparql.c:172 src/tracker/tracker-sparql.c:1086
+#: src/tracker/tracker-status.c:73 src/tracker/tracker-status.c:386
+#: src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "Nu s-a putut stabili o conexiune la Tracker"
+
+#: src/tracker/tracker-export.c:262 src/tracker/tracker-sparql.c:1437
+#: src/tracker/tracker-sql.c:139 src/tracker/tracker-sql.c:172
+msgid "Could not run query"
+msgstr "Nu s-a putut rula cererea"
+
+#: src/tracker/tracker-export.c:456
+msgid "Unrecognized value for '--type' option"
+msgstr "Opțiune nerecunoscută pentru opțiunea „--type”"
 
 #: src/tracker/tracker-extract.c:45
 msgid "Output results format: “sparql”, “turtle” or “json-ld”"
@@ -806,13 +836,6 @@ msgstr "Nu s-a putut (re)indexa fișierul"
 #: src/tracker/tracker-index.c:175
 msgid "(Re)indexing file was successful"
 msgstr "(Re)indexarea fișierului a fost cu succes"
-
-#: src/tracker/tracker-index.c:195 src/tracker/tracker-info.c:263
-#: src/tracker/tracker-search.c:1580 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086 src/tracker/tracker-status.c:73
-#: src/tracker/tracker-status.c:386 src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "Nu s-a putut stabili o conexiune la Tracker"
 
 #: src/tracker/tracker-index.c:206
 msgid "Importing Turtle file"
@@ -908,77 +931,81 @@ msgstr "Nu sunt disponibile metadate pentru acel URI"
 msgid "Results"
 msgstr "Rezultate"
 
-#: src/tracker/tracker-main.c:48
+#: src/tracker/tracker-main.c:49
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
 "Consultați „tracker help <comandă>” pentru a citi despre o subcomandă "
 "specifică."
 
-#: src/tracker/tracker-main.c:97
+#: src/tracker/tracker-main.c:98
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Pornește, oprește, pauzează și listează procesele responsabile de indexarea "
 "conținutului"
 
-#: src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:99
+msgid "Export data from a Tracker database"
+msgstr "Exportă date dintr-o bază de date Tracker"
+
+#: src/tracker/tracker-main.c:100
 msgid "Extract information from a file"
 msgstr "Extrage informații dintr-un fișier"
 
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:101
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr ""
 "Obțineți ajutor despre cum să utilizați Tracker și oricare din aceste comenzi"
 
-#: src/tracker/tracker-main.c:100
+#: src/tracker/tracker-main.c:102
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Arată informațiile cunoscute despre fișierele locale sau elementele indexate"
 
-#: src/tracker/tracker-main.c:101
+#: src/tracker/tracker-main.c:103
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Creează o copie de rezervă, restaurează, importă și (re)indexează după tipul "
 "MIME sau numele de fișier"
 
-#: src/tracker/tracker-main.c:102
+#: src/tracker/tracker-main.c:104
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr ""
 "Restabilește sau elimină indexul și restaurează configurările la implicite"
 
-#: src/tracker/tracker-main.c:103
+#: src/tracker/tracker-main.c:105
 msgid "Search for content indexed or show content by type"
 msgstr "Caută pentru conținut indexat sau arată conținutul după tip"
 
-#: src/tracker/tracker-main.c:104
+#: src/tracker/tracker-main.c:106
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Interoghează și actualizează indexul utilizând SPARQL sau caută, listează și "
 "afișează sub formă de arbore ontologia"
 
-#: src/tracker/tracker-main.c:105
+#: src/tracker/tracker-main.c:107
 msgid "Query the database at the lowest level using SQL"
 msgstr "Interoghează baza de date la cel mai scăzut nivel utilizând SQL"
 
-#: src/tracker/tracker-main.c:106
+#: src/tracker/tracker-main.c:108
 msgid "Show the indexing progress, content statistics and index state"
 msgstr ""
 "Arată procesul de indexare, statisticile conținutului și starea indexului"
 
-#: src/tracker/tracker-main.c:107
+#: src/tracker/tracker-main.c:109
 msgid "Create, list or delete tags for indexed content"
 msgstr "Creează, listează sau șterge etichete pentru conținutul indexat"
 
-#: src/tracker/tracker-main.c:108
+#: src/tracker/tracker-main.c:110
 msgid "Show the license and version in use"
 msgstr "Arată licența și versiunea în uz"
 
-#: src/tracker/tracker-main.c:153
+#: src/tracker/tracker-main.c:155
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "„%s” nu este o comandă tracker. Consultați „tracker --help”"
 
-#: src/tracker/tracker-main.c:176
+#: src/tracker/tracker-main.c:178
 msgid "Available tracker commands are:"
 msgstr "Comenzile tracker disponibile sunt:"
 
@@ -1087,7 +1114,7 @@ msgstr "[y|N]"
 msgid "yes"
 msgstr "da"
 
-#: src/tracker/tracker-reset.c:306
+#: src/tracker/tracker-reset.c:307
 msgid "Resetting existing configuration…"
 msgstr "Se resetează configurația existentă…"
 
@@ -1548,11 +1575,6 @@ msgstr "Nu s-a putut citi fișierul"
 #: src/tracker/tracker-sparql.c:1389
 msgid "Could not run update"
 msgstr "Nu s-a putut porni actualizarea"
-
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Nu s-a putut rula cererea"
 
 #: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
