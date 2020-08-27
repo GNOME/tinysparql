@@ -1,0 +1,22 @@
+SELECT ?u ?s {
+  {
+    SELECT ?u ('a' AS ?s) {
+      ?u a rdfs:Resource
+    }
+    ORDER BY STR(?u)
+    LIMIT 1
+  }
+  UNION
+  {
+    SELECT ?u ?s {
+      ?u a rdfs:Resource .
+      SERVICE <dbus:%s> {
+        SELECT ?u ('b' AS ?s) {
+          ?u nrl:indexed true
+        }
+        ORDER BY STR(?u)
+        LIMIT 1
+      }
+    }
+  }
+}

@@ -40,6 +40,7 @@ const TestInfo tests[] = {
 	{ "service/service-before-triples-1", FALSE },
 	{ "service/service-local-filter-1", FALSE },
 	{ "service/service-union-with-local-1", FALSE },
+	{ "service/service-union-with-local-2", FALSE },
 };
 
 static GDBusConnection *dbus_conn = NULL;
