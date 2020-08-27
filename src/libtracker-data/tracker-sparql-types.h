@@ -164,6 +164,7 @@ typedef enum {
 struct _TrackerPathElement {
 	TrackerPathOperator op;
 	TrackerPropertyType type;
+	gchar *graph;
 	gchar *name;
 
 	union {
@@ -326,8 +327,10 @@ GHashTable      * tracker_solution_get_bindings    (TrackerSolution *solution);
 
 /* Property path element */
 TrackerPathElement * tracker_path_element_property_new (TrackerPathOperator  op,
+                                                        const gchar         *graph,
                                                         TrackerProperty     *prop);
 TrackerPathElement * tracker_path_element_operator_new (TrackerPathOperator  op,
+                                                        const gchar         *graph,
                                                         TrackerPathElement  *child1,
                                                         TrackerPathElement  *child2);
 
@@ -361,6 +364,7 @@ void tracker_select_context_add_path_element (TrackerSelectContext *context,
                                               TrackerPathElement   *path_elem);
 TrackerPathElement *
      tracker_select_context_lookup_path_element_for_property (TrackerSelectContext *context,
+                                                              const gchar          *graph,
                                                               TrackerProperty      *property);
 
 /* Triple context */
