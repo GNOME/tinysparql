@@ -5894,6 +5894,8 @@ translate_GroupGraphPattern (TrackerSparql  *sparql,
 		_append_string (sparql, ") ");
 	} else if (rule == NAMED_RULE_GroupGraphPatternSub) {
 		_call_rule (sparql, rule, error);
+	} else {
+		_append_string (sparql, "SELECT NULL");
 	}
 
 	tracker_sparql_pop_context (sparql, TRUE);
