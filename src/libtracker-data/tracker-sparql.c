@@ -5047,7 +5047,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 	gssize pattern_start, pattern_end;
 	TrackerParserNode *pattern;
 	gchar *pattern_str, *escaped_str, *var_str;
-	TrackerContext *context;
+	TrackerContext *context, *parent;
 	GList *variables = NULL;
 	GList *variable_rules = NULL, *l;
 	GList *join_vars = NULL;
@@ -5066,6 +5066,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 	}
 
 	context = tracker_triple_context_new ();
+	parent = sparql->current_state.context;
 	tracker_sparql_push_context (sparql, context);
 
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_SERVICE);
@@ -5105,6 +5106,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 		const TrackerGrammarRule *rule;
 		TrackerBinding *binding;
 		TrackerVariable *var;
+		gboolean referenced = FALSE;
 
 		rule = tracker_parser_node_get_rule (node);
 
@@ -5113,7 +5115,9 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 			continue;
 
 		var_str = _extract_node_string (node, sparql);
-		var = _extract_node_variable (node, sparql);
+		var = tracker_select_context_ensure_variable (TRACKER_SELECT_CONTEXT (sparql->context),
+							      var_str);
+		referenced = tracker_context_lookup_variable_ref (parent, var);
 
 		if (g_list_find (variables, var))
 			continue;
@@ -5122,12 +5126,13 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 			_append_string (sparql, ", ");
 
 		/* Variable was used before in the graph pattern, preserve
-		* for later so we join on it properly.
-		*/
-		if (do_join && tracker_variable_get_sample_binding (var))
+		 * for later so we join on it properly.
+		 */
+		if (do_join && referenced)
 			join_vars = g_list_prepend (join_vars, var);
 
 		variables = g_list_prepend (variables, var);
+		tracker_context_add_variable_ref (sparql->current_state.context, var);
 		binding = tracker_variable_binding_new (var, NULL, NULL);
 		tracker_binding_set_data_type (binding, TRACKER_PROPERTY_TYPE_STRING);
 		_add_binding (sparql, binding);
