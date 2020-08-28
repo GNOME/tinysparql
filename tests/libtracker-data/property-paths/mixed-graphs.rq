@@ -1,0 +1,9 @@
+SELECT ?a ?n1 ?n2 {
+  GRAPH <A> {
+    ?u foaf:name ?a ;
+       foaf:knows/foaf:name ?n1
+  }
+  GRAPH <B> {
+    ?u foaf:knows/foaf:name ?n2
+  }
+}

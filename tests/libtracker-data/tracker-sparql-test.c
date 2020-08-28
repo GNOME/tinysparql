@@ -196,6 +196,7 @@ const TestInfo tests[] = {
 	{ "subqueries/subqueries-union-1", "subqueries/data-1", FALSE },
 	{ "subqueries/subqueries-union-2", "subqueries/data-1", FALSE },
 	{ "subqueries/subqueries-union-3", "subqueries/data-1", FALSE },
+	{ "subqueries/subqueries-union-4", "subqueries/data-1", FALSE },
 	{ "subqueries/subqueries-minus-1", "subqueries/data-1", FALSE },
 	{ "subqueries/subqueries-minus-2", "subqueries/data-1", FALSE },
 	{ "subqueries/subqueries-minus-3", "subqueries/data-1", FALSE },
@@ -246,6 +247,7 @@ const TestInfo tests[] = {
 	{ "property-paths/mixed-recursive-and-inverse-3", "property-paths/data", FALSE },
 	{ "property-paths/mixed-optional-and-sequence-1", "property-paths/data-2", FALSE },
 	{ "property-paths/mixed-optional-and-sequence-2", "property-paths/data-2", FALSE },
+	{ "property-paths/mixed-graphs", "property-paths/data-3", FALSE },
 	/* Update tests */
 	{ "update/insert-data-query-1", "update/insert-data-1", FALSE, FALSE },
 	{ "update/insert-data-query-2", "update/insert-data-2", FALSE, TRUE },

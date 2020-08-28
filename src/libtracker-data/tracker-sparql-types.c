@@ -530,11 +530,13 @@ static void
 tracker_path_element_free (TrackerPathElement *elem)
 {
 	g_free (elem->name);
+	g_free (elem->graph);
 	g_free (elem);
 }
 
 TrackerPathElement *
 tracker_path_element_property_new (TrackerPathOperator  op,
+                                   const gchar         *graph,
                                    TrackerProperty     *prop)
 {
 	TrackerPathElement *elem;
@@ -545,6 +547,7 @@ tracker_path_element_property_new (TrackerPathOperator  op,
 
 	elem = g_new0 (TrackerPathElement, 1);
 	elem->op = op;
+	elem->graph = g_strdup (graph);
 	elem->type = tracker_property_get_data_type (prop);
 	elem->data.property = prop;
 
@@ -553,6 +556,7 @@ tracker_path_element_property_new (TrackerPathOperator  op,
 
 TrackerPathElement *
 tracker_path_element_operator_new (TrackerPathOperator  op,
+                                   const gchar         *graph,
                                    TrackerPathElement  *child1,
                                    TrackerPathElement  *child2)
 {
@@ -568,6 +572,7 @@ tracker_path_element_operator_new (TrackerPathOperator  op,
 
 	elem = g_new0 (TrackerPathElement, 1);
 	elem->op = op;
+	elem->graph = g_strdup (graph);
 	elem->data.composite.child1 = child1;
 	elem->data.composite.child2 = child2;
 	elem->type = child2 ? child2->type : child1->type;
@@ -614,6 +619,7 @@ tracker_path_element_set_unique_name (TrackerPathElement *elem,
 	}
 
 	elem->name = g_strdup_printf ("p%d_%s", id, name);
+
 }
 
 /* Context */
@@ -844,6 +850,7 @@ tracker_select_context_add_path_element (TrackerSelectContext *context,
 
 TrackerPathElement *
 tracker_select_context_lookup_path_element_for_property (TrackerSelectContext *context,
+                                                         const gchar          *graph,
                                                          TrackerProperty      *property)
 {
 	guint i;
@@ -857,6 +864,7 @@ tracker_select_context_lookup_path_element_for_property (TrackerSelectContext *c
 		path_elem = g_ptr_array_index (context->path_elements, i);
 
 		if (path_elem->op == TRACKER_PATH_OPERATOR_NONE &&
+		    g_strcmp0 (path_elem->graph, graph) == 0 &&
 		    path_elem->data.property == property)
 			return path_elem;
 	}

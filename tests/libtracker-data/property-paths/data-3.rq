@@ -1,0 +1,15 @@
+INSERT {
+  GRAPH <A> {
+    _:a a foaf:Person ;
+        foaf:name "a" ;
+        foaf:knows _:b .
+    _:b a foaf:Person ;
+        foaf:name "A_b" .
+  }
+  GRAPH <B> {
+    _:a a foaf:Person;
+        foaf:knows _:c .
+    _:c a foaf:Person ;
+        foaf:name "B_c" .
+  }
+}
