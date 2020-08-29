@@ -2672,40 +2672,53 @@ translate_SelectClause (TrackerSparql  *sparql,
 	} else {
 		do {
 			TrackerVariable *var;
-			TrackerBinding *binding;
 
 			if (_check_in_rule (sparql, NAMED_RULE_Var)) {
+				gchar *name;
+				gboolean found;
+
 				if (!first)
 					_append_string (sparql, ", ");
 
 				_call_rule (sparql, NAMED_RULE_Var, error);
-				var = _last_node_variable (sparql);
-
-				if (!tracker_variable_has_bindings (var)) {
-					_raise (PARSE, "Undefined variable", var->name);
-				}
-
-				binding = TRACKER_BINDING (tracker_variable_get_sample_binding (var));
+				name = _dup_last_string (sparql);
 
 				str = _append_placeholder (sparql);
 				old = tracker_sparql_swap_builder (sparql, str);
 
-				_append_string_printf (sparql, "%s ",
-				                       tracker_variable_get_sql_expression (var));
+				found = tracker_context_lookup_variable_by_name (sparql->current_state.context,
+				                                                 name);
+				var = _last_node_variable (sparql);
 
-				if (sparql->current_state.select_context == sparql->context)
-					convert_expression_to_string (sparql, binding->data_type);
+				if (found) {
+					_append_string_printf (sparql, "%s ",
+					                       tracker_variable_get_sql_expression (var));
 
-				select_context->type = binding->data_type;
+					if (sparql->current_state.select_context == sparql->context)
+						convert_expression_to_string (sparql, sparql->current_state.expression_type);
+
+					select_context->type = sparql->current_state.expression_type;
+				} else {
+					_append_string (sparql, "NULL ");
+					select_context->type = TRACKER_PROPERTY_TYPE_UNKNOWN;
+				}
 
 				if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_AS)) {
-					if (!handle_as (sparql, binding->data_type, error))
+					if (!handle_as (sparql, select_context->type, error)) {
+						g_free (name);
 						return FALSE;
+					}
 				} else {
-					tracker_sparql_add_select_var (sparql, var->name, binding->data_type);
+					if (!found) {
+						_append_string_printf (sparql, "AS %s ",
+						                       tracker_variable_get_sql_expression (var));
+					}
+
+					tracker_sparql_add_select_var (sparql, name, select_context->type);
 				}
 
 				tracker_sparql_swap_builder (sparql, old);
+				g_free (name);
 			} else {
 				gboolean parens = FALSE;
 
@@ -2989,9 +3002,6 @@ translate_SelectQuery (TrackerSparql  *sparql,
 	}
 
 	_call_rule (sparql, NAMED_RULE_WhereClause, error);
-
-	if (!_check_undefined_variables (sparql, TRACKER_SELECT_CONTEXT (sparql->context), error))
-		return FALSE;
 
 	_call_rule (sparql, NAMED_RULE_SolutionModifier, error);
 
@@ -7020,14 +7030,20 @@ translate_Var (TrackerSparql  *sparql,
 	    _accept (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_VAR2)) {
 		if (sparql->current_state.type == TRACKER_SPARQL_TYPE_SELECT ||
 		    sparql->current_state.type == TRACKER_SPARQL_TYPE_CONSTRUCT) {
-			TrackerVariableBinding *binding;
+			TrackerVariableBinding *binding = NULL;
 			TrackerVariable *var;
+			gchar *name;
 
 			/* Ensure the variable is referenced in the context */
-			var = _extract_node_variable (sparql->current_state.prev_node,
-			                              sparql);
+			name = _dup_last_string (sparql);
+			var = tracker_select_context_lookup_variable (TRACKER_SELECT_CONTEXT (sparql->context),
+			                                              name);
+			g_free (name);
 
-			binding = tracker_variable_get_sample_binding (var);
+			sparql->current_state.expression_type = TRACKER_PROPERTY_TYPE_UNKNOWN;
+
+			if (var)
+				binding = tracker_variable_get_sample_binding (var);
 
 			if (binding)
 				sparql->current_state.expression_type = TRACKER_BINDING (binding)->data_type;
@@ -7348,6 +7364,7 @@ translate_PrimaryExpression (TrackerSparql  *sparql,
 	TrackerGrammarNamedRule rule;
 	TrackerBinding *binding;
 	TrackerVariable *variable;
+	gchar *name;
 
 	/* PrimaryExpression ::= BrackettedExpression | BuiltInCall | iriOrFunction | RDFLiteral | NumericLiteral | BooleanLiteral | Var
 	 */
@@ -7366,14 +7383,23 @@ translate_PrimaryExpression (TrackerSparql  *sparql,
 		break;
 	case NAMED_RULE_Var:
 		_call_rule (sparql, rule, error);
-		variable = _last_node_variable (sparql);
-		_append_variable_sql (sparql, variable);
+		name = _dup_last_string (sparql);
 
-		/* If the variable is bound, propagate the binding data type */
-		if (tracker_variable_has_bindings (variable)) {
-			binding = TRACKER_BINDING (tracker_variable_get_sample_binding (variable));
-			sparql->current_state.expression_type = binding->data_type;
+		if (tracker_context_lookup_variable_by_name (sparql->current_state.context,
+		                                             name)) {
+			variable = _last_node_variable (sparql);
+			_append_variable_sql (sparql, variable);
+
+			/* If the variable is bound, propagate the binding data type */
+			if (tracker_variable_has_bindings (variable)) {
+				binding = TRACKER_BINDING (tracker_variable_get_sample_binding (variable));
+				sparql->current_state.expression_type = binding->data_type;
+			}
+		} else {
+			_append_string (sparql, "NULL ");
 		}
+
+		g_free (name);
 		break;
 	case NAMED_RULE_RDFLiteral:
 		_call_rule (sparql, rule, error);
