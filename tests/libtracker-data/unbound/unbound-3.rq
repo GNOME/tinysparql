@@ -1,0 +1,1 @@
+SELECT ?x { BIND (?a AS ?x) }
