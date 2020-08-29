@@ -5550,13 +5550,13 @@ intersect_var_set (GHashTable *ht1,
 {
 	GHashTableIter iter;
 	GList *intersection = NULL;
-	gpointer key;
+	gpointer key, value;
 
 	g_hash_table_iter_init (&iter, ht1);
 
-	while (g_hash_table_iter_next (&iter, &key, NULL)) {
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		if (g_hash_table_contains (ht2, key))
-			intersection = g_list_prepend (intersection, key);
+			intersection = g_list_prepend (intersection, value);
 	}
 
 	return intersection;
@@ -5587,7 +5587,7 @@ translate_MinusGraphPattern (TrackerSparql  *sparql,
 
 	intersection = intersect_var_set (cur_context->variable_set, context->variable_set);
 
-	vars = g_hash_table_get_keys (cur_context->variable_set);
+	vars = g_hash_table_get_values (cur_context->variable_set);
 	cur = tracker_sparql_swap_builder (sparql, pre);
 	append_subquery_select_vars (sparql, cur_context, vars);
 	tracker_sparql_swap_builder (sparql, cur);
@@ -5654,7 +5654,7 @@ translate_GroupOrUnionGraphPattern (TrackerSparql  *sparql,
 		}
 	} while (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_UNION));
 
-	vars = g_hash_table_get_keys (context->variable_set);
+	vars = g_hash_table_get_values (context->variable_set);
 
 	if (placeholders->len > 1) {
 		/* We are performing an union of multiple GroupGraphPattern,

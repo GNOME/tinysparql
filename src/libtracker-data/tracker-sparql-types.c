@@ -653,8 +653,7 @@ tracker_context_class_init (TrackerContextClass *klass)
 static void
 tracker_context_init (TrackerContext *context)
 {
-	context->variable_set = g_hash_table_new (tracker_variable_hash,
-	                                          tracker_variable_equal);
+	context->variable_set = g_hash_table_new (g_str_hash, g_str_equal);
 }
 
 TrackerContext *
@@ -684,27 +683,34 @@ void
 tracker_context_add_variable_ref (TrackerContext  *context,
 				  TrackerVariable *variable)
 {
-	g_hash_table_add (context->variable_set, variable);
+	g_hash_table_insert (context->variable_set, variable->name, variable);
 }
 
 gboolean
 tracker_context_lookup_variable_ref (TrackerContext  *context,
                                      TrackerVariable *variable)
 {
-	return g_hash_table_lookup (context->variable_set, variable) != NULL;
+	return g_hash_table_lookup (context->variable_set, variable->name) != NULL;
+}
+
+gboolean
+tracker_context_lookup_variable_by_name (TrackerContext  *context,
+                                         const gchar     *name)
+{
+	return g_hash_table_lookup (context->variable_set, name) != NULL;
 }
 
 void
 tracker_context_propagate_variables (TrackerContext *context)
 {
 	GHashTableIter iter;
-	gpointer key;
+	gpointer key, value;
 
 	g_assert (context->parent != NULL);
 	g_hash_table_iter_init (&iter, context->variable_set);
 
-	while (g_hash_table_iter_next (&iter, &key, NULL))
-		g_hash_table_add (context->parent->variable_set, key);
+	while (g_hash_table_iter_next (&iter, &key, &value))
+		g_hash_table_insert (context->parent->variable_set, key, value);
 }
 
 /* Select context */
@@ -985,7 +991,7 @@ tracker_triple_context_get_variable_binding_list (TrackerTripleContext *context,
 				 */
 				if (TRACKER_IS_SELECT_CONTEXT (current_context) &&
 				    tracker_context_get_parent (current_context) &&
-				    g_hash_table_lookup (parent_context->variable_set, variable)) {
+				    g_hash_table_lookup (parent_context->variable_set, variable->name)) {
 					TrackerVariableBinding *sample;
 					TrackerBinding *binding;
 
