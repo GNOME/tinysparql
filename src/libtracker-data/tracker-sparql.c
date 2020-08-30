@@ -3896,6 +3896,7 @@ translate_Clear (TrackerSparql  *sparql,
 			break;
 	}
 
+	tracker_token_unset (&sparql->current_state.graph);
 	g_list_free (graphs);
 
 	return handle_silent (silent, inner_error, error);
@@ -3956,6 +3957,7 @@ translate_Drop (TrackerSparql  *sparql,
 	}
 
 	g_list_free_full (graphs, g_free);
+	tracker_token_unset (&sparql->current_state.graph);
 
 	return handle_silent (silent, inner_error, error);
 }
@@ -4001,9 +4003,13 @@ translate_Create (TrackerSparql  *sparql,
 	                                        &inner_error))
 		goto error;
 
+	tracker_token_unset (&sparql->current_state.graph);
+
 	return TRUE;
 
 error:
+	tracker_token_unset (&sparql->current_state.graph);
+
 	return handle_silent (silent, inner_error, error);
 }
 
@@ -4024,11 +4030,13 @@ translate_Add (TrackerSparql  *sparql,
 
 	_call_rule (sparql, NAMED_RULE_GraphOrDefault, error);
 	source = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_TO);
 
 	_call_rule (sparql, NAMED_RULE_GraphOrDefault, error);
 	destination = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	if (g_strcmp0 (source, destination) == 0) {
 		g_free (source);
@@ -4094,11 +4102,13 @@ translate_Move (TrackerSparql  *sparql,
 
 	_call_rule (sparql, NAMED_RULE_GraphOrDefault, error);
 	source = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_TO);
 
 	_call_rule (sparql, NAMED_RULE_GraphOrDefault, error);
 	destination = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	if (g_strcmp0 (source, destination) == 0) {
 		g_free (source);
@@ -4174,6 +4184,7 @@ translate_Copy (TrackerSparql  *sparql,
 	g_assert (!tracker_token_is_empty (&sparql->current_state.graph) ||
 		  sparql->current_state.graph_op == GRAPH_OP_DEFAULT);
 	source = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_TO);
 
@@ -4181,6 +4192,7 @@ translate_Copy (TrackerSparql  *sparql,
 	g_assert (!tracker_token_is_empty (&sparql->current_state.graph) ||
 		  sparql->current_state.graph_op == GRAPH_OP_DEFAULT);
 	destination = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	if (g_strcmp0 (source, destination) == 0) {
 		g_free (source);
