@@ -1027,6 +1027,8 @@ ensure_create_database_file (TrackerDBManager  *db_manager,
 	iface = tracker_db_interface_sqlite_new (path,
 	                                         db_manager->shared_cache_key,
 	                                         0, error);
+	g_free (path);
+
 	if (!iface)
 		return FALSE;
 
