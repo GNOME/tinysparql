@@ -2596,6 +2596,8 @@ handle_as (TrackerSparql        *sparql,
 	binding = tracker_variable_binding_new (var, NULL, NULL);
 	tracker_binding_set_data_type (binding, type);
 	tracker_variable_set_sample_binding (var, TRACKER_VARIABLE_BINDING (binding));
+	g_object_unref (binding);
+
 	_append_string_printf (sparql, "AS %s ",
 			       tracker_variable_get_sql_expression (var));
 
@@ -5148,6 +5150,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 		binding = tracker_variable_binding_new (var, NULL, NULL);
 		tracker_binding_set_data_type (binding, TRACKER_PROPERTY_TYPE_STRING);
 		_add_binding (sparql, binding);
+		g_object_unref (binding);
 
 		_append_string_printf (sparql, "col%d AS %s ",
 				       i, tracker_variable_get_sql_expression (var));
@@ -5276,6 +5279,7 @@ translate_Bind (TrackerSparql  *sparql,
 	binding = tracker_variable_binding_new (variable, NULL, NULL);
 	tracker_binding_set_data_type (binding, type);
 	tracker_variable_set_sample_binding (variable, TRACKER_VARIABLE_BINDING (binding));
+	g_object_unref (binding);
 
 	if (!is_empty) {
 		_append_string (sparql, "FROM (");
@@ -5365,6 +5369,7 @@ translate_InlineDataOneVar (TrackerSparql  *sparql,
 	var = _last_node_variable (sparql);
 	binding = tracker_variable_binding_new (var, NULL, NULL);
 	tracker_variable_set_sample_binding (var, TRACKER_VARIABLE_BINDING (binding));
+	g_object_unref (binding);
 
 	_append_string (sparql, "(");
 	_append_variable_sql (sparql, var);
@@ -5420,6 +5425,7 @@ translate_InlineDataFull (TrackerSparql  *sparql,
 			var = _last_node_variable (sparql);
 			binding = tracker_variable_binding_new (var, NULL, NULL);
 			tracker_variable_set_sample_binding (var, TRACKER_VARIABLE_BINDING (binding));
+			g_object_unref (binding);
 			n_args++;
 
 			_append_variable_sql (sparql, var);
