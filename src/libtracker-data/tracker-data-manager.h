@@ -105,6 +105,8 @@ guint                tracker_data_manager_get_generation   (TrackerDataManager *
 void                 tracker_data_manager_rollback_graphs (TrackerDataManager *manager);
 void                 tracker_data_manager_commit_graphs (TrackerDataManager *manager);
 
+void                 tracker_data_manager_release_memory (TrackerDataManager *manager);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DATA_MANAGER_H__ */

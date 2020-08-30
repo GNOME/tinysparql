@@ -92,6 +92,7 @@ gboolean            tracker_db_manager_detach_database        (TrackerDBManager 
                                                                TrackerDBInterface    *iface,
                                                                const gchar           *name,
                                                                GError               **error);
+void                tracker_db_manager_release_memory         (TrackerDBManager      *db_manager);
 
 G_END_DECLS
 

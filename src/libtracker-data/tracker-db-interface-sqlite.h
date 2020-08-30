@@ -93,6 +93,7 @@ gboolean            tracker_db_interface_attach_database               (TrackerD
 gboolean            tracker_db_interface_detach_database               (TrackerDBInterface       *db_interface,
                                                                         const gchar              *name,
                                                                         GError                  **error);
+gssize              tracker_db_interface_sqlite_release_memory         (TrackerDBInterface       *db_interface);
 
 G_END_DECLS
 
