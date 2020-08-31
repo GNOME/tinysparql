@@ -346,6 +346,8 @@ void tracker_context_add_variable_ref    (TrackerContext  *context,
 					  TrackerVariable *variable);
 gboolean tracker_context_lookup_variable_ref (TrackerContext  *context,
                                               TrackerVariable *variable);
+gboolean tracker_context_lookup_variable_by_name (TrackerContext  *context,
+                                                  const gchar     *name);
 
 /* Select context */
 GType            tracker_select_context_get_type (void) G_GNUC_CONST;
