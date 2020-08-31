@@ -45,6 +45,11 @@ struct _TrackerDirectConnectionPrivate
 
 	GList *notifiers;
 
+	gint64 timestamp;
+	gint64 cleanup_timestamp;
+
+	guint cleanup_timeout_id;
+
 	guint initialized : 1;
 	guint closing     : 1;
 };
@@ -63,6 +68,7 @@ typedef enum {
 	TASK_TYPE_QUERY,
 	TASK_TYPE_UPDATE,
 	TASK_TYPE_UPDATE_BLANK,
+	TASK_TYPE_RELEASE_MEMORY,
 } TaskType;
 
 typedef struct {
@@ -103,6 +109,37 @@ task_data_free (TaskData *task)
 	g_free (task);
 }
 
+static gboolean
+cleanup_timeout_cb (gpointer user_data)
+{
+	TrackerDirectConnection *conn = user_data;
+	TrackerDirectConnectionPrivate *priv;
+	gint64 timestamp;
+	GTask *task;
+
+	priv = tracker_direct_connection_get_instance_private (conn);
+	timestamp = g_get_monotonic_time ();
+
+	/* If we already cleaned up */
+	if (priv->timestamp < priv->cleanup_timestamp)
+		return G_SOURCE_CONTINUE;
+	/* If the connection was used less than 10s ago */
+	if (timestamp - priv->timestamp < 10 * G_USEC_PER_SEC)
+		return G_SOURCE_CONTINUE;
+
+	priv->cleanup_timestamp = timestamp;
+
+	task = g_task_new (conn, NULL, NULL, NULL);
+	g_task_set_task_data (task,
+	                      task_data_query_new (TASK_TYPE_RELEASE_MEMORY, NULL),
+	                      (GDestroyNotify) task_data_free);
+
+	g_thread_pool_push (priv->update_thread, task, NULL);
+
+	return G_SOURCE_CONTINUE;
+}
+
+
 static void
 update_thread_func (gpointer data,
                     gpointer user_data)
@@ -115,6 +152,7 @@ update_thread_func (gpointer data,
 	GError *error = NULL;
 	gpointer retval = NULL;
 	GDestroyNotify destroy_notify = NULL;
+	gboolean update_timestamp = TRUE;
 
 	conn = user_data;
 	priv = tracker_direct_connection_get_instance_private (conn);
@@ -133,6 +171,10 @@ update_thread_func (gpointer data,
 		retval = tracker_data_update_sparql_blank (tracker_data, task_data->query, &error);
 		destroy_notify = (GDestroyNotify) g_variant_unref;
 		break;
+	case TASK_TYPE_RELEASE_MEMORY:
+		tracker_data_manager_release_memory (priv->data_manager);
+		update_timestamp = FALSE;
+		break;
 	}
 
 	if (error)
@@ -143,6 +185,10 @@ update_thread_func (gpointer data,
 		g_task_return_boolean (task, TRUE);
 
 	g_object_unref (task);
+
+	if (update_timestamp)
+		tracker_direct_connection_update_timestamp (conn);
+
 	g_mutex_unlock (&priv->mutex);
 }
 
@@ -283,6 +329,9 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	}
 
 	g_hash_table_unref (namespaces);
+
+	priv->cleanup_timeout_id =
+		g_timeout_add_seconds (30, cleanup_timeout_cb, conn);
 
 	return TRUE;
 }
@@ -542,6 +591,9 @@ tracker_direct_connection_finalize (GObject *object)
 	conn = TRACKER_DIRECT_CONNECTION (object);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
+	if (!priv->closing)
+		tracker_sparql_connection_close (TRACKER_SPARQL_CONNECTION (object));
+
 	g_clear_object (&priv->store);
 	g_clear_object (&priv->ontology);
 	g_clear_object (&priv->namespace_manager);
@@ -623,6 +675,7 @@ tracker_direct_connection_query (TrackerSparqlConnection  *self,
 	g_mutex_lock (&priv->mutex);
 	query = tracker_sparql_new (priv->data_manager, sparql);
 	cursor = tracker_sparql_execute_cursor (query, NULL, &inner_error);
+	tracker_direct_connection_update_timestamp (conn);
 	g_object_unref (query);
 
 	if (cursor)
@@ -695,6 +748,7 @@ tracker_direct_connection_update (TrackerSparqlConnection  *self,
 	g_mutex_lock (&priv->mutex);
 	data = tracker_data_manager_get_data (priv->data_manager);
 	tracker_data_update_sparql (data, sparql, &inner_error);
+	tracker_direct_connection_update_timestamp (conn);
 	g_mutex_unlock (&priv->mutex);
 
 	if (inner_error)
@@ -802,6 +856,7 @@ tracker_direct_connection_update_blank (TrackerSparqlConnection  *self,
 	g_mutex_lock (&priv->mutex);
 	data = tracker_data_manager_get_data (priv->data_manager);
 	blank_nodes = tracker_data_update_sparql_blank (data, sparql, &inner_error);
+	tracker_direct_connection_update_timestamp (conn);
 	g_mutex_unlock (&priv->mutex);
 
 	if (inner_error)
@@ -898,6 +953,11 @@ tracker_direct_connection_close (TrackerSparqlConnection *self)
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 	priv->closing = TRUE;
+
+	if (priv->cleanup_timeout_id) {
+		g_source_remove (priv->cleanup_timeout_id);
+		priv->cleanup_timeout_id = 0;
+	}
 
 	if (priv->update_thread) {
 		g_thread_pool_free (priv->update_thread, TRUE, TRUE);
@@ -1039,4 +1099,13 @@ tracker_direct_connection_get_data_manager (TrackerDirectConnection *conn)
 
 	priv = tracker_direct_connection_get_instance_private (conn);
 	return priv->data_manager;
+}
+
+void
+tracker_direct_connection_update_timestamp (TrackerDirectConnection *conn)
+{
+	TrackerDirectConnectionPrivate *priv;
+
+	priv = tracker_direct_connection_get_instance_private (conn);
+	priv->timestamp = g_get_monotonic_time ();
 }

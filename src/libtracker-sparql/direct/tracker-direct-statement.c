@@ -239,12 +239,17 @@ tracker_direct_statement_execute_finish (TrackerSparqlStatement  *stmt,
                                          GAsyncResult            *res,
                                          GError                 **error)
 {
+	TrackerDirectConnection *conn;
 	TrackerSparqlCursor *cursor;
 	GError *inner_error = NULL;
 
 	cursor = g_task_propagate_pointer (G_TASK (res), &inner_error);
 	if (inner_error)
 		g_propagate_error (error, _translate_internal_error (inner_error));
+
+	g_object_get (stmt, "connection", &conn, NULL);
+	tracker_direct_connection_update_timestamp (conn);
+	g_object_unref (conn);
 
 	return cursor;
 }

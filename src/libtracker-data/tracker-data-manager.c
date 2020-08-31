@@ -5102,3 +5102,9 @@ tracker_data_manager_rollback_graphs (TrackerDataManager *manager)
 {
 	g_clear_pointer (&manager->transaction_graphs, g_hash_table_unref);
 }
+
+void
+tracker_data_manager_release_memory (TrackerDataManager *manager)
+{
+	tracker_db_manager_release_memory (manager->db_manager);
+}

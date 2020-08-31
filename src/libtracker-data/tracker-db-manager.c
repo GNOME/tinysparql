@@ -1027,6 +1027,8 @@ ensure_create_database_file (TrackerDBManager  *db_manager,
 	iface = tracker_db_interface_sqlite_new (path,
 	                                         db_manager->shared_cache_key,
 	                                         0, error);
+	g_free (path);
+
 	if (!iface)
 		return FALSE;
 
@@ -1084,4 +1086,43 @@ tracker_db_manager_detach_database (TrackerDBManager    *db_manager,
                                     GError             **error)
 {
 	return tracker_db_interface_detach_database (iface, name, error);
+}
+
+void
+tracker_db_manager_release_memory (TrackerDBManager *db_manager)
+{
+	TrackerDBInterface *iface;
+	gint i, len;
+
+	g_async_queue_lock (db_manager->interfaces);
+	len = g_async_queue_length_unlocked (db_manager->interfaces);
+
+	for (i = 0; i < len; i++) {
+		iface = g_async_queue_try_pop_unlocked (db_manager->interfaces);
+		if (!iface)
+			break;
+
+		if (tracker_db_interface_get_is_used (iface))
+			g_async_queue_push_unlocked (db_manager->interfaces, iface);
+		else
+			g_object_unref (iface);
+	}
+
+	if (g_async_queue_length_unlocked (db_manager->interfaces) < len) {
+		g_debug ("Freed %d readonly interfaces",
+		         len - g_async_queue_length_unlocked (db_manager->interfaces));
+	}
+
+	if (db_manager->db.iface) {
+		gssize bytes;
+
+		bytes = tracker_db_interface_sqlite_release_memory (db_manager->db.iface);
+
+		if (bytes > 0) {
+			g_debug ("Freed %" G_GSSIZE_MODIFIER "d bytes from writable interface",
+			         bytes);
+		}
+	}
+
+	g_async_queue_unlock (db_manager->interfaces);
 }

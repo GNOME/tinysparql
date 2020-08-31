@@ -3757,3 +3757,15 @@ tracker_db_interface_detach_database (TrackerDBInterface  *db_interface,
 	sqlite3_finalize (stmt);
 	return retval;
 }
+
+gssize
+tracker_db_interface_sqlite_release_memory (TrackerDBInterface *db_interface)
+{
+	db_interface->select_stmt_lru.head = db_interface->select_stmt_lru.tail = NULL;
+	db_interface->select_stmt_lru.size = 0;
+	db_interface->update_stmt_lru.head = db_interface->update_stmt_lru.tail = NULL;
+	db_interface->update_stmt_lru.size = 0;
+	g_hash_table_remove_all (db_interface->dynamic_statements);
+
+	return (gssize) sqlite3_db_release_memory (db_interface->db);
+}

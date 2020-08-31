@@ -2596,6 +2596,8 @@ handle_as (TrackerSparql        *sparql,
 	binding = tracker_variable_binding_new (var, NULL, NULL);
 	tracker_binding_set_data_type (binding, type);
 	tracker_variable_set_sample_binding (var, TRACKER_VARIABLE_BINDING (binding));
+	g_object_unref (binding);
+
 	_append_string_printf (sparql, "AS %s ",
 			       tracker_variable_get_sql_expression (var));
 
@@ -3906,6 +3908,7 @@ translate_Clear (TrackerSparql  *sparql,
 			break;
 	}
 
+	tracker_token_unset (&sparql->current_state.graph);
 	g_list_free (graphs);
 
 	return handle_silent (silent, inner_error, error);
@@ -3966,6 +3969,7 @@ translate_Drop (TrackerSparql  *sparql,
 	}
 
 	g_list_free_full (graphs, g_free);
+	tracker_token_unset (&sparql->current_state.graph);
 
 	return handle_silent (silent, inner_error, error);
 }
@@ -4011,9 +4015,13 @@ translate_Create (TrackerSparql  *sparql,
 	                                        &inner_error))
 		goto error;
 
+	tracker_token_unset (&sparql->current_state.graph);
+
 	return TRUE;
 
 error:
+	tracker_token_unset (&sparql->current_state.graph);
+
 	return handle_silent (silent, inner_error, error);
 }
 
@@ -4034,11 +4042,13 @@ translate_Add (TrackerSparql  *sparql,
 
 	_call_rule (sparql, NAMED_RULE_GraphOrDefault, error);
 	source = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_TO);
 
 	_call_rule (sparql, NAMED_RULE_GraphOrDefault, error);
 	destination = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	if (g_strcmp0 (source, destination) == 0) {
 		g_free (source);
@@ -4104,11 +4114,13 @@ translate_Move (TrackerSparql  *sparql,
 
 	_call_rule (sparql, NAMED_RULE_GraphOrDefault, error);
 	source = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_TO);
 
 	_call_rule (sparql, NAMED_RULE_GraphOrDefault, error);
 	destination = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	if (g_strcmp0 (source, destination) == 0) {
 		g_free (source);
@@ -4184,6 +4196,7 @@ translate_Copy (TrackerSparql  *sparql,
 	g_assert (!tracker_token_is_empty (&sparql->current_state.graph) ||
 		  sparql->current_state.graph_op == GRAPH_OP_DEFAULT);
 	source = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_TO);
 
@@ -4191,6 +4204,7 @@ translate_Copy (TrackerSparql  *sparql,
 	g_assert (!tracker_token_is_empty (&sparql->current_state.graph) ||
 		  sparql->current_state.graph_op == GRAPH_OP_DEFAULT);
 	destination = g_strdup (tracker_token_get_idstring (&sparql->current_state.graph));
+	tracker_token_unset (&sparql->current_state.graph);
 
 	if (g_strcmp0 (source, destination) == 0) {
 		g_free (source);
@@ -5146,6 +5160,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 		binding = tracker_variable_binding_new (var, NULL, NULL);
 		tracker_binding_set_data_type (binding, TRACKER_PROPERTY_TYPE_STRING);
 		_add_binding (sparql, binding);
+		g_object_unref (binding);
 
 		_append_string_printf (sparql, "col%d AS %s ",
 				       i, tracker_variable_get_sql_expression (var));
@@ -5274,6 +5289,7 @@ translate_Bind (TrackerSparql  *sparql,
 	binding = tracker_variable_binding_new (variable, NULL, NULL);
 	tracker_binding_set_data_type (binding, type);
 	tracker_variable_set_sample_binding (variable, TRACKER_VARIABLE_BINDING (binding));
+	g_object_unref (binding);
 
 	if (!is_empty) {
 		_append_string (sparql, "FROM (");
@@ -5363,6 +5379,7 @@ translate_InlineDataOneVar (TrackerSparql  *sparql,
 	var = _last_node_variable (sparql);
 	binding = tracker_variable_binding_new (var, NULL, NULL);
 	tracker_variable_set_sample_binding (var, TRACKER_VARIABLE_BINDING (binding));
+	g_object_unref (binding);
 
 	_append_string (sparql, "(");
 	_append_variable_sql (sparql, var);
@@ -5418,6 +5435,7 @@ translate_InlineDataFull (TrackerSparql  *sparql,
 			var = _last_node_variable (sparql);
 			binding = tracker_variable_binding_new (var, NULL, NULL);
 			tracker_variable_set_sample_binding (var, TRACKER_VARIABLE_BINDING (binding));
+			g_object_unref (binding);
 			n_args++;
 
 			_append_variable_sql (sparql, var);
