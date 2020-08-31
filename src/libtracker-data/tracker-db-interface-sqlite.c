@@ -2613,7 +2613,6 @@ tracker_db_interface_prepare_stmt (TrackerDBInterface  *db_interface,
 	sqlite3_stmt *sqlite_stmt;
 	int retval;
 
-	TRACKER_NOTE (SQL_STATEMENTS, g_message ("Preparing query: '%s'", full_query));
 	retval = sqlite3_prepare_v2 (db_interface->db, full_query, -1, &sqlite_stmt, NULL);
 
 	if (retval != SQLITE_OK) {
@@ -2850,6 +2849,22 @@ execute_stmt (TrackerDBInterface  *interface,
 	result = SQLITE_OK;
 
 	g_atomic_int_inc (&interface->n_active_cursors);
+
+#ifdef G_ENABLE_DEBUG
+        if (TRACKER_DEBUG_CHECK (SQL_STATEMENTS)) {
+	        gchar *full_query;
+
+	        full_query = sqlite3_expanded_sql (stmt);
+
+	        if (full_query) {
+		        g_message ("Executing update: '%s'", full_query);
+		        sqlite3_free (full_query);
+	        } else {
+		        g_message ("Executing update: '%s'",
+		                   sqlite3_sql (stmt));
+	        }
+        }
+#endif
 
 	while (result == SQLITE_OK  ||
 	       result == SQLITE_ROW) {
@@ -3182,6 +3197,22 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
 
 	iface = ref_stmt->db_interface;
 	g_atomic_int_inc (&iface->n_active_cursors);
+
+#ifdef G_ENABLE_DEBUG
+        if (TRACKER_DEBUG_CHECK (SQL_STATEMENTS)) {
+	        gchar *full_query;
+
+	        full_query = sqlite3_expanded_sql (ref_stmt->stmt);
+
+	        if (full_query) {
+		        g_message ("Executing query: '%s'", full_query);
+		        sqlite3_free (full_query);
+	        } else {
+		        g_message ("Executing query: '%s'",
+		                   sqlite3_sql (ref_stmt->stmt));
+	        }
+        }
+#endif
 
 	cursor = g_object_new (TRACKER_TYPE_DB_CURSOR, NULL);
 
