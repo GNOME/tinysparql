@@ -10,7 +10,7 @@ tracker_data_dependencies = [
 
 tracker_data_dependencies += tracker_fts_dep
 
-libtracker_data = library('tracker-data',
+libtracker_data = static_library('tracker-data',
     'tracker-class.c',
     'tracker-collation.c',
     'tracker-crc32.c',
@@ -36,8 +36,6 @@ libtracker_data = library('tracker-data',
     tracker_data_enums[0],
     tracker_data_enums[1],
     c_args: tracker_c_args,
-    install: true,
-    install_dir: tracker_internal_libs_dir,
     # This doesn't depend on tracker_common_dep because of
     # https://github.com/mesonbuild/meson/issues/671
     # We do *not* want --no-undefined here, this library uses
