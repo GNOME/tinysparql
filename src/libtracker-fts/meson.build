@@ -11,7 +11,8 @@ libtracker_fts = static_library('tracker-fts',
     'tracker-fts-tokenizer.c',
     libtracker_fts_fts5,
     dependencies: [tracker_common_dep],
-    c_args: tracker_c_args
+    c_args: tracker_c_args,
+    gnu_symbol_visibility: 'hidden'
 )
 
 tracker_fts_dep = declare_dependency(
