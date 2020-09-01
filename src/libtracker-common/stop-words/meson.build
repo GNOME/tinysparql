@@ -1,4 +1,5 @@
 stopwords_files = [
+  'stopwords.cs',
   'stopwords.da',
   'stopwords.de',
   'stopwords.en',
