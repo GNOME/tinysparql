@@ -30,6 +30,14 @@ tool such as rapper(1) to convert the data to different formats.
   the extra GRAPH statements. Some tools which understand Turtle do not
   understand TriG.
 
+*--2to3*::
+  Helper for migrating data from Tracker 2.x databases. This option
+  takes an argument specifying the scope. Only the “files-starred”
+  argument is available so far.
+
+*--keyfile*::
+  Outputs the data in a key file format. Only may be used with --2to3
+
 == EXAMPLES
 
 Export all data from Tracker Index and prettify the output using
