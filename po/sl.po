@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
 "POT-Creation-Date: 2020-08-20 19:43+0000\n"
-"PO-Revision-Date: 2020-08-21 22:40+0200\n"
+"PO-Revision-Date: 2020-09-01 21:37+0200\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -125,7 +125,7 @@ msgstr "MAPA"
 
 #: src/tracker/tracker-endpoint.c:52
 msgid "Specify the DBus name of this endpoint"
-msgstr ""
+msgstr "Določi ime vodila DBus za to končno točko"
 
 #: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
 msgid "NAME"
@@ -133,11 +133,11 @@ msgstr "IME"
 
 #: src/tracker/tracker-endpoint.c:56
 msgid "Specify the ontology name used in this endpoint"
-msgstr ""
+msgstr "Določi ontološko ime, uporabljeno za to končno točko"
 
 #: src/tracker/tracker-endpoint.c:60
 msgid "Specify a path to an ontology to be used in this endpoint"
-msgstr ""
+msgstr "Določi pot do ontološkega predmeta, uporabljenega za to končno točko"
 
 #: src/tracker/tracker-endpoint.c:64
 msgid "Use session bus"
@@ -149,12 +149,14 @@ msgstr "Uporabi sistemsko vodilo"
 
 #: src/tracker/tracker-endpoint.c:72
 msgid "List SPARQL endpoints available in DBus"
-msgstr ""
+msgstr "Izpiši končne točke SPARQL, razpoložljive prek vodila DBus"
 
 #. TRANSLATORS: these are commandline arguments
 #: src/tracker/tracker-endpoint.c:93
 msgid "--list can only be used with --session or --system"
 msgstr ""
+"zastavico --list je mogoče uporabiti z zastavicama --session (seja) in --"
+"system (sistem)"
 
 #. TRANSLATORS: those are commandline arguments
 #: src/tracker/tracker-endpoint.c:99
@@ -167,10 +169,8 @@ msgid "Creating endpoint at %s…"
 msgstr "Poteka ustvarjanje končne točne na %s …"
 
 #: src/tracker/tracker-endpoint.c:177
-#, fuzzy
-#| msgid "Could not run update"
 msgid "Could not own DBus name"
-msgstr "Posodobitve ni mogoče zagnati"
+msgstr "Ni si mogoče prilastiti imena vodila DBus"
 
 #: src/tracker/tracker-endpoint.c:181
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
@@ -188,13 +188,11 @@ msgstr "Poteka zapiranje omrežne povezave"
 #: src/tracker/tracker-endpoint.c:333
 #, c-format
 msgid "Opening database at %s…"
-msgstr ""
+msgstr "Poteka odpiranje podatkovne zbirke %s …"
 
 #: src/tracker/tracker-endpoint.c:336
-#, fuzzy
-#| msgid "Backing up database"
 msgid "Creating in-memory database"
-msgstr "Ustvarjanje varnostne kopije podatkovne zbirke"
+msgstr "Poteka ustvarjanje pomnilniške podatkovne zbirke"
 
 #: src/tracker/tracker-endpoint.c:356
 msgid ""
@@ -212,7 +210,7 @@ msgstr "DATOTEKA"
 #: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:49
 #: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
-msgstr ""
+msgstr "Vzpostavi povezavo z vodilom DBus"
 
 #: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:115
@@ -231,7 +229,7 @@ msgstr "Naslov URI oddaljene storitve"
 
 #: src/tracker/tracker-export.c:56
 msgid "Output TriG format which includes named graph information"
-msgstr ""
+msgstr "Odvodni zapis TriG, ki vključuje podatke o imenskih grafih"
 
 #: src/tracker/tracker-export.c:60 src/tracker/tracker-export.c:61
 msgid "IRI"
@@ -242,6 +240,8 @@ msgstr "IRI"
 #: src/tracker/tracker-sparql.c:197
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
+"Določiti je traba možnost »--database« (zbirka), »--dbus-service« (storitev "
+"dbus), ali pa »--remote-service« (oddaljena storitev)"
 
 #: src/tracker/tracker-export.c:260 src/tracker/tracker-import.c:99
 #: src/tracker/tracker-sparql.c:1113
@@ -264,18 +264,14 @@ msgid "failed to exec “%s”: %s"
 msgstr "izvajanje »%s« je spodletelo: %s"
 
 #: src/tracker/tracker-import.c:117
-#, fuzzy
-#| msgid "Could not run update"
 msgid "Could not run import"
-msgstr "Posodobitve ni mogoče zagnati"
+msgstr "Ni mogoče zagnati posodobitve"
 
 #: src/tracker/tracker-main.c:43
-#, fuzzy
-#| msgid "See “tracker help <command>” to read about a specific subcommand."
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
-"Oglejte si ukaz »tracker help <ukaz>«, kjer so zabeležene podrobnosti o "
-"posameznem podukazu."
+"Oglejte si ukaz »tracker3 help <ukaz>«, kjer so zabeležene podrobnosti o "
+"posameznem pod-ukazu."
 
 #: src/tracker/tracker-main.c:92
 msgid "Get help on how to use Tracker and any of these commands"
@@ -283,17 +279,15 @@ msgstr "Pridobi pomoč za uporabo programa Tracker in njegovih ukazov"
 
 #: src/tracker/tracker-main.c:93
 msgid "Create a SPARQL endpoint"
-msgstr ""
+msgstr "Ustvari končno točko SPARQL"
 
 #: src/tracker/tracker-main.c:94
 msgid "Export data from a Tracker database"
-msgstr ""
+msgstr "Izvoz podatkov iz podatkovne zbirke Tracker"
 
 #: src/tracker/tracker-main.c:95
-#, fuzzy
-#| msgid "Could not backup database"
 msgid "Import data into a Tracker database"
-msgstr "Ni mogoče ustvariti varnostne kopije podatkovne zbirke"
+msgstr "Uvozi podatke v podatkovno zbirko Tracker"
 
 #: src/tracker/tracker-main.c:96
 msgid ""
@@ -315,16 +309,12 @@ msgstr ""
 "help«"
 
 #: src/tracker/tracker-main.c:172
-#, fuzzy
-#| msgid "Available tracker commands are:"
 msgid "Available tracker3 commands are:"
-msgstr "Na voljo so ukazi programa Tracker:"
+msgstr "Ukazi programa Tracker so:"
 
 #: src/tracker/tracker-main.c:210
-#, fuzzy
-#| msgid "Available tracker commands are:"
 msgid "Additional / third party commands are:"
-msgstr "Na voljo so ukazi programa Tracker:"
+msgstr "Dodatni zunanji ukazi so:"
 
 #: src/tracker/tracker-sparql.c:122
 msgid "Path to use to run a query or update from file"
@@ -332,7 +322,7 @@ msgstr "Pot za zagon poizvedbe ali posodobitve iz datoteke"
 
 #: src/tracker/tracker-sparql.c:126
 msgid "SPARQL query"
-msgstr "poizvedba SPARQL"
+msgstr "Poizvedba SPARQL"
 
 #: src/tracker/tracker-sparql.c:127
 msgid "SPARQL"
@@ -384,10 +374,8 @@ msgid "PROPERTY"
 msgstr "LASTNOST"
 
 #: src/tracker/tracker-sparql.c:154
-#, fuzzy
-#| msgid "Retrieve classes"
 msgid "Retrieve all named graphs"
-msgstr "Pridobi razrede"
+msgstr "Pridobi vse imenovane grafe"
 
 #: src/tracker/tracker-sparql.c:158
 msgid ""
@@ -525,7 +513,7 @@ msgstr "Ni najdenih grafov"
 
 #: src/tracker/tracker-sparql.c:1322
 msgid "Named graphs"
-msgstr ""
+msgstr "Imenovani grafi"
 
 #: src/tracker/tracker-sparql.c:1345
 msgid "Could not search classes"
@@ -545,7 +533,7 @@ msgstr "Ni mogoče najti lastnosti za skladanje iskalnega niza"
 
 #: src/tracker/tracker-sparql.c:1412 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
-msgstr "Iz poti ni mogoče dobiti poti UTF-8 "
+msgstr "Iz poti ni mogoče dobiti poti UTF-8"
 
 #: src/tracker/tracker-sparql.c:1424 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
