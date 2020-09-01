@@ -82,6 +82,7 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
     '../libtracker-data/libtracker-data.vapi',
     'direct/tracker-direct.vapi',
     'tracker-backend.vala',
+    tracker_gresources,
 
     gnu_symbol_visibility: 'hidden',
 
