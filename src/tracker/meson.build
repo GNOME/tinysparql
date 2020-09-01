@@ -27,8 +27,6 @@ executable(command_name, sources,
     ],
     install: true,
     install_rpath: tracker_install_rpath,
-    # This doesn't depend on tracker_common_dep because of
-    # https://github.com/mesonbuild/meson/issues/671
     dependencies: [tracker_sparql_dep, tracker_data_dep],
     include_directories: [commoninc, configinc, srcinc],
 )

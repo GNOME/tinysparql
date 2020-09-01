@@ -36,8 +36,6 @@ libtracker_data = static_library('tracker-data',
     tracker_data_enums[0],
     tracker_data_enums[1],
     c_args: tracker_c_args,
-    # This doesn't depend on tracker_common_dep because of
-    # https://github.com/mesonbuild/meson/issues/671
     # We do *not* want --no-undefined here, this library uses
     # symbols from libtracker-sparql, but does not mean it should
     # be linked to it.
