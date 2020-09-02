@@ -579,7 +579,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 			g_object_unref (db_manager);
 			return NULL;
 		}
-	} else {
+	} else if ((flags & TRACKER_DB_MANAGER_SKIP_VERSION_CHECK) == 0) {
 		version = db_get_version (db_manager);
 
 		if (version < TRACKER_DB_VERSION_NOW) {
