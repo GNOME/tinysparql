@@ -1,1 +1,1 @@
-SELECT ?o WHERE { ?o fts:match "tr" }
+SELECT ?o WHERE { ?o fts:match "tr" } ORDER BY ?o

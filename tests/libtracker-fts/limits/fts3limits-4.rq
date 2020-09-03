@@ -1,1 +1,1 @@
-SELECT ?o WHERE { ?o fts:match "pr" }
+SELECT ?o WHERE { ?o fts:match "pr" } ORDER BY ?o
