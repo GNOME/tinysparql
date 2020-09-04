@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
 "POT-Creation-Date: 2020-08-20 19:43+0000\n"
-"PO-Revision-Date: 2020-09-01 21:37+0200\n"
+"PO-Revision-Date: 2020-09-03 21:25+0200\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -161,7 +161,7 @@ msgstr ""
 #. TRANSLATORS: those are commandline arguments
 #: src/tracker/tracker-endpoint.c:99
 msgid "One “ontology” or “ontology-path” option should be provided"
-msgstr ""
+msgstr "Navesti je treba možnost »ontology« ali »ontology-path«"
 
 #: src/tracker/tracker-endpoint.c:141
 #, c-format
@@ -175,6 +175,7 @@ msgstr "Ni si mogoče prilastiti imena vodila DBus"
 #: src/tracker/tracker-endpoint.c:181
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr ""
+"Poteka prisluh za izvedbo ukazov SPARQL. Tipki Ctlr-C zaustavita opravilo."
 
 #: src/tracker/tracker-endpoint.c:191
 msgid "DBus name lost"
@@ -199,6 +200,8 @@ msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
+"Ustvarjena je nova podatkovna zbirka. Uporabite zastavico »--dbus-service« "
+"za souporabo zbirke prek sporočilnega vodila."
 
 #: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
@@ -294,19 +297,18 @@ msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Izvajanje poizvedb in posodobitev kazal s SPARQL oziroma iskanje, "
-"izpisovanje in prikaz drevesne strukture"
+"izpisovanje in prikaz drevesne strukture ontoloških predmetov"
 
 #: src/tracker/tracker-main.c:97
 msgid "Query the database at the lowest level using SQL"
 msgstr "Poizveduj po zbirki podatkov na najnižji ravni s SQL"
 
 #: src/tracker/tracker-main.c:137
-#, fuzzy, c-format
-#| msgid "“%s” is not a tracker command. See “tracker --help”"
+#, c-format
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr ""
-"Ukaz »%s« ni ukaz tega programa. Za podrobnosti si oglejte izpis »tracker --"
-"help«"
+"Ukaz »%s« ni ukaz tega programa tracker3. Za podrobnosti si oglejte izpis "
+"»tracker --help«"
 
 #: src/tracker/tracker-main.c:172
 msgid "Available tracker3 commands are:"
@@ -590,7 +592,7 @@ msgstr "Prazen niz rezultatov"
 
 #: src/tracker/tracker-sql.c:246
 msgid "A database path must be specified"
-msgstr ""
+msgstr "Določena mora biti pot podatkovne zbirke"
 
 #~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 #~ msgstr ""
