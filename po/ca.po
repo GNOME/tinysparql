@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-07-18 12:56+0000\n"
+"POT-Creation-Date: 2020-08-30 09:12+0000\n"
 "PO-Revision-Date: 2017-09-01 17:24+0200\n"
 "Last-Translator: Jordi Mas <jmas@softcatala.org>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
@@ -96,142 +96,153 @@ msgstr "the|a|an|un|uns|una|unes|el|la|els|les"
 msgid "Version"
 msgstr "Versió"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:204
-#: src/tracker/tracker-export.c:305 src/tracker/tracker-import.c:160
-#: src/tracker/tracker-info.c:471 src/tracker/tracker-sparql.c:1546
-#: src/tracker/tracker-sql.c:231
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:299
+#: src/tracker/tracker-export.c:333 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
 msgid "Unrecognized options"
 msgstr "No s'han reconegut les opcions"
 
-#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
-#: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
-#: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:44
+#: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Ubicació de la base de dades"
 
-#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-endpoint.c:60
+#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
 msgid "DIR"
 msgstr "DIR"
 
-#: src/tracker/tracker-endpoint.c:51
+#: src/tracker/tracker-endpoint.c:52
 msgid "Specify the DBus name of this endpoint"
 msgstr "Especifica el nom DBus d'aquest extrem"
 
-#: src/tracker/tracker-endpoint.c:52 src/tracker/tracker-endpoint.c:56
+#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
 msgid "NAME"
 msgstr "NOM"
 
-#: src/tracker/tracker-endpoint.c:55
+#: src/tracker/tracker-endpoint.c:56
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Especifica el nom d'ontologia usat en aquest extrem"
 
-#: src/tracker/tracker-endpoint.c:59
+#: src/tracker/tracker-endpoint.c:60
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "Especifica un camí a una ontologia que s'utilitzarà en aquest extrem"
 
-#: src/tracker/tracker-endpoint.c:63
+#: src/tracker/tracker-endpoint.c:64
 msgid "Use session bus"
 msgstr "Utilitza el bus de la sessió"
 
-#: src/tracker/tracker-endpoint.c:67
+#: src/tracker/tracker-endpoint.c:68
 msgid "Use system bus"
 msgstr "Utilitza el bus del sistema"
 
+#: src/tracker/tracker-endpoint.c:72
+msgid "List SPARQL endpoints available in DBus"
+msgstr "Llista els extrems SPARQL disponibles a DBus"
+
+#. TRANSLATORS: these are commandline arguments
+#: src/tracker/tracker-endpoint.c:93
+msgid "--list can only be used with --session or --system"
+msgstr "--list només es pot utilitzar amb --session o --system"
+
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:87
+#: src/tracker/tracker-endpoint.c:99
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "S'ha de proporcionar una opció «ontology» o «ontology-path»"
 
-#: src/tracker/tracker-endpoint.c:129
+#: src/tracker/tracker-endpoint.c:141
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "S'està creant un punt extrem a %s…"
 
-#: src/tracker/tracker-endpoint.c:165
+#: src/tracker/tracker-endpoint.c:177
 msgid "Could not own DBus name"
 msgstr "No s'ha pogut obtenir la propietat del nom DBus"
 
-#: src/tracker/tracker-endpoint.c:169
+#: src/tracker/tracker-endpoint.c:181
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "S'estan escoltant les ordres SPARQL. Premeu Ctrl-C per a aturar."
 
-#: src/tracker/tracker-endpoint.c:179
+#: src/tracker/tracker-endpoint.c:191
 msgid "DBus name lost"
 msgstr "S'ha perdut el nom DBus"
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:184
+#: src/tracker/tracker-endpoint.c:196
 msgid "Closing connection…"
 msgstr "S'està tancant la connexió…"
 
-#: src/tracker/tracker-endpoint.c:234
+#: src/tracker/tracker-endpoint.c:333
 #, c-format
 msgid "Opening database at %s…"
 msgstr "S'està obrint la base de dades en %s…"
 
-#: src/tracker/tracker-endpoint.c:237
+#: src/tracker/tracker-endpoint.c:336
 msgid "Creating in-memory database"
 msgstr "Creació d'una base de dades en memòria"
 
-#: src/tracker/tracker-endpoint.c:257
+#: src/tracker/tracker-endpoint.c:356
 msgid ""
-"New database created. Use the --dbus-service option to share this database "
-"on a message bus."
+"New database created. Use the “--dbus-service” option to share this database"
+" on a message bus."
 msgstr ""
-"S'ha creat una base de dades nova. Utilitzeu l'opció --dbus-service per a "
+"S'ha creat una base de dades nova. Utilitzeu l'opció «--dbus-service» per a "
 "compartir aquesta base de dades en un bus de missatges."
 
-#: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
-#: src/tracker/tracker-info.c:54 src/tracker/tracker-info.c:91
-#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:110
-#: src/tracker/tracker-sparql.c:122 src/tracker/tracker-sql.c:45
-#: src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
+#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FITXER"
 
-#: src/tracker/tracker-export.c:46 src/tracker/tracker-import.c:49
-#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:113
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "Connecta a un servei DBus"
 
-#: src/tracker/tracker-export.c:47 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:114
+#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "Nom del servei DBus"
 
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:53
-#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "Connecta a un servei remot"
 
-#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "URI del servei remot"
 
-#: src/tracker/tracker-export.c:54
+#: src/tracker/tracker-export.c:56
 msgid "Output TriG format which includes named graph information"
 msgstr "Format TriG de sortida que inclou informació del gràfic amb nom"
 
-#. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
-#: src/tracker/tracker-sparql.c:196
-msgid "Specify one --database, --dbus-service or --remote-service option"
-msgstr "Especifica una opció --database --dbus-service o --remote-service"
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-export.c:61
+msgid "IRI"
+msgstr "IRI"
 
-#: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
-#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
+#. TRANSLATORS: Those are commandline arguments
+#: src/tracker/tracker-export.c:86 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-sparql.c:199
+msgid ""
+"Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr "Especifica una opció «--database», «--dbus-service» o «--remote-service»"
+
+#: src/tracker/tracker-export.c:260 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-sparql.c:1115
 msgid "Could not establish a connection to Tracker"
 msgstr "No s'ha pogut establir una connexió amb el Tracker"
 
-#: src/tracker/tracker-export.c:255 src/tracker/tracker-import.c:100
-#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:1112
+#: src/tracker/tracker-export.c:261 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-sparql.c:1116
 msgid "No error given"
 msgstr "No s'ha rebut cap error"
 
-#: src/tracker/tracker-export.c:276 src/tracker/tracker-sparql.c:1486
-#: src/tracker/tracker-sql.c:132 src/tracker/tracker-sql.c:165
+#: src/tracker/tracker-export.c:300 src/tracker/tracker-sparql.c:1493
+#: src/tracker/tracker-sql.c:135 src/tracker/tracker-sql.c:168
 msgid "Could not run query"
 msgstr "No s'ha pogut executar la consulta"
 
@@ -244,87 +255,30 @@ msgstr "no s'ha pogut executar «%s»: %s"
 msgid "Could not run import"
 msgstr "No s'ha pogut executar la importació"
 
-#: src/tracker/tracker-info.c:65
-msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
-msgstr ""
-"Mostra el nom sencer d'espais (per exemple mostra l'URL sencer en comptes de"
-" nie:title)"
-
-#: src/tracker/tracker-info.c:69
-msgid "Show plain text content if available for resources"
-msgstr "Mostra el contingut del text pla si és disponible pels recursos"
-
-#. To translators:
-#. * IRI (International Resource Identifier) is a generalization
-#. * of the URI. While URI supports only ASCI encoding, IRI
-#. * fully supports international characters. In practice, UTF-8
-#. * is the most popular encoding used for IRI.
-#: src/tracker/tracker-info.c:79
-msgid ""
-"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-"(e.g. <file:///path/to/some/file.txt>)"
-msgstr ""
-"En comptes de cercar un nom de fitxer, tracta els arguments «FILE» (fitxer) "
-"com a IRI (p. ex. <file:///camí/a/algun/fitxer.txt>)"
-
-#: src/tracker/tracker-info.c:83
-msgid "Output results as RDF in Turtle format"
-msgstr "Dóna els resultats com a RDF en format Turtle"
-
-#: src/tracker/tracker-info.c:87
-msgid "RDF property to treat as URL (eg. “nie:url”)"
-msgstr "Propietat RDF per a tractar com a URL (p. ex. «nieurl»)"
-
-#: src/tracker/tracker-info.c:334
-msgid "Querying information for entity"
-msgstr "Informació de consulta per l'entrada"
-
-#: src/tracker/tracker-info.c:358
-msgid "Unable to retrieve URN for URI"
-msgstr "No s'ha pogut recuperar l'URN per l'URI"
-
-#: src/tracker/tracker-info.c:368 src/tracker/tracker-info.c:402
-msgid "Unable to retrieve data for URI"
-msgstr "No s'han pogut recuperar les dades per l'URI"
-
-#: src/tracker/tracker-info.c:411
-msgid "No metadata available for that URI"
-msgstr "No hi ha metadades disponibles per aquest URI"
-
-#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1498
-#: src/tracker/tracker-sparql.c:1501 src/tracker/tracker-sql.c:139
-msgid "Results"
-msgstr "Resultats"
-
-#: src/tracker/tracker-main.c:44
+#: src/tracker/tracker-main.c:43
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
 "Vegeu «tracker3 help <command>» per a llegir més sobre una subordre "
 "específica."
 
-#: src/tracker/tracker-main.c:93
+#: src/tracker/tracker-main.c:92
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr ""
 "Obteniu ajuda de com utilitzar el Tracker i qualsevol d'aquestes ordres"
 
-#: src/tracker/tracker-main.c:94
+#: src/tracker/tracker-main.c:93
 msgid "Create a SPARQL endpoint"
 msgstr "Crea un extrem SPARQL"
 
-#: src/tracker/tracker-main.c:95
+#: src/tracker/tracker-main.c:94
 msgid "Export data from a Tracker database"
 msgstr "Exporta les dades des d'una base de dades del Tracker"
 
-#: src/tracker/tracker-main.c:96
+#: src/tracker/tracker-main.c:95
 msgid "Import data into a Tracker database"
 msgstr "Importa dades a una base de dades del Tracker"
 
-#: src/tracker/tracker-main.c:97
-msgid "Show information known about local files or items indexed"
-msgstr ""
-"Mostra la informació coneguda sobre fitxers locals o elements indexats"
-
-#: src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:96
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the "
 "ontology"
@@ -332,51 +286,51 @@ msgstr ""
 "Consulta i actualitza l'índex utilitzant SPARQL o cerca, la llista i l'arbre"
 " de l'ontologia"
 
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:97
 msgid "Query the database at the lowest level using SQL"
 msgstr "Consulta la base de dades a baix nivell utilitzant SQL"
 
-#: src/tracker/tracker-main.c:139
+#: src/tracker/tracker-main.c:137
 #, c-format
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr "«%s» no és una ordre del Tracker3. Vegeu «tracker3 --help»"
 
-#: src/tracker/tracker-main.c:174
+#: src/tracker/tracker-main.c:172
 msgid "Available tracker3 commands are:"
 msgstr "Les ordres disponibles del tracker3 són:"
 
-#: src/tracker/tracker-main.c:212
+#: src/tracker/tracker-main.c:210
 msgid "Additional / third party commands are:"
 msgstr "Les ordres addicionals / de tercers són:"
 
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-sparql.c:122
 msgid "Path to use to run a query or update from file"
 msgstr ""
 "Camí a utilitzar per executar la consulta o actualitzar des d'un fitxer"
 
-#: src/tracker/tracker-sparql.c:125
+#: src/tracker/tracker-sparql.c:126
 msgid "SPARQL query"
 msgstr "Consulta SPARQL"
 
-#: src/tracker/tracker-sparql.c:126
+#: src/tracker/tracker-sparql.c:127
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:129
+#: src/tracker/tracker-sparql.c:130
 msgid "This is used with --query and for database updates only."
 msgstr ""
 "Només s'utilitza amb «--query» i només per actualitzacions de la base de "
 "dades."
 
-#: src/tracker/tracker-sparql.c:133
+#: src/tracker/tracker-sparql.c:134
 msgid "Retrieve classes"
 msgstr "Recupera les classes"
 
-#: src/tracker/tracker-sparql.c:137
+#: src/tracker/tracker-sparql.c:138
 msgid "Retrieve class prefixes"
 msgstr "Recupera els prefixos de classe"
 
-#: src/tracker/tracker-sparql.c:141
+#: src/tracker/tracker-sparql.c:142
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. "
 "rdfs:Resource)"
@@ -384,20 +338,20 @@ msgstr ""
 "Recupera les propietats per una classe, també es poden utilitzar prefixos "
 "(per exemple rdfs:Resource)"
 
-#: src/tracker/tracker-sparql.c:142 src/tracker/tracker-sparql.c:146
-#: src/tracker/tracker-sparql.c:158 src/tracker/tracker-sparql.c:166
-#: src/tracker/tracker-sparql.c:170
+#: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
+#: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
+#: src/tracker/tracker-sparql.c:171
 msgid "CLASS"
 msgstr "CLASSE"
 
-#: src/tracker/tracker-sparql.c:145
+#: src/tracker/tracker-sparql.c:146
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Recupera classes que notifiquin de canvis a la base de dades («CLASSE» és "
 "opcional)"
 
-#: src/tracker/tracker-sparql.c:149
+#: src/tracker/tracker-sparql.c:150
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -405,15 +359,15 @@ msgstr ""
 "Recupera índexs utilitzats a la base de dades per millorar el rendiment "
 "(«PROPIETAT» és opcional)"
 
-#: src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:151
 msgid "PROPERTY"
 msgstr "PROPIETAT"
 
-#: src/tracker/tracker-sparql.c:153
+#: src/tracker/tracker-sparql.c:154
 msgid "Retrieve all named graphs"
 msgstr "Recupera tots els grafs amb nom"
 
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-sparql.c:158
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of"
 " the tree and -p to show properties)"
@@ -421,37 +375,37 @@ msgstr ""
 "Descriu subclasses, superclasses (es pot utilitzar amb -s per realçar les "
 "parts de l'arbre i -p per mostrar les propietats)"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-sparql.c:162
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Cerca una classe o propietat i mostra'n informació (per exemple «Document»)"
 
-#: src/tracker/tracker-sparql.c:162
+#: src/tracker/tracker-sparql.c:163
 msgid "CLASS/PROPERTY"
 msgstr "CLASSE/PROPIETAT"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-sparql.c:166
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Retorna el nom abreviat d'una classe (p. ex. nfo:FileDataObject)."
 
-#: src/tracker/tracker-sparql.c:169
+#: src/tracker/tracker-sparql.c:170
 msgid "Returns the full namespace for a class."
 msgstr "Retorna el nom d'espais complet d'una classe."
 
-#: src/tracker/tracker-sparql.c:229
+#: src/tracker/tracker-sparql.c:232
 msgid "Unable to retrieve namespace prefixes"
 msgstr "No s'han pogut recuperar els prefixos de l'espai de noms"
 
-#: src/tracker/tracker-sparql.c:237
+#: src/tracker/tracker-sparql.c:240
 msgid "No namespace prefixes were returned"
 msgstr "No s'ha retornat cap prefix d'espai de noms"
 
-#: src/tracker/tracker-sparql.c:283
+#: src/tracker/tracker-sparql.c:286
 msgid "Could not get namespace prefixes"
 msgstr "No s'han pogut obtenir els prefixos d'espai de noms"
 
-#: src/tracker/tracker-sparql.c:292
+#: src/tracker/tracker-sparql.c:295
 msgid "No namespace prefixes were found"
 msgstr "No s'ha trobat prefixos d'espai de nom"
 
@@ -459,140 +413,145 @@ msgstr "No s'ha trobat prefixos d'espai de nom"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:538 src/tracker/tracker-sparql.c:586
+#: src/tracker/tracker-sparql.c:541 src/tracker/tracker-sparql.c:589
 msgid "None"
 msgstr "Cap"
 
-#: src/tracker/tracker-sparql.c:992
+#: src/tracker/tracker-sparql.c:995
 msgid "Could not create tree: subclass query failed"
 msgstr "No s'ha pogut crear l'arbre: ha fallat la consulta de la subclasse"
 
-#: src/tracker/tracker-sparql.c:1041
+#: src/tracker/tracker-sparql.c:1044
 msgid "Could not create tree: class properties query failed"
 msgstr ""
 "No s'ha pogut crear l'arbre: ha fallat la consulta de les propietats de la "
 "classe"
 
-#: src/tracker/tracker-sparql.c:1125
+#: src/tracker/tracker-sparql.c:1131
 msgid "Could not list classes"
 msgstr "No s'han pogut llistar les classes"
 
-#: src/tracker/tracker-sparql.c:1133
+#: src/tracker/tracker-sparql.c:1139
 msgid "No classes were found"
 msgstr "No s'ha trobat cap classe"
 
-#: src/tracker/tracker-sparql.c:1133 src/tracker/tracker-sparql.c:1348
+#: src/tracker/tracker-sparql.c:1139 src/tracker/tracker-sparql.c:1355
 msgid "Classes"
 msgstr "Classes"
 
-#: src/tracker/tracker-sparql.c:1149
+#: src/tracker/tracker-sparql.c:1155
 msgid "Could not list class prefixes"
 msgstr "No s'han pogut llistar els prefixos de classe"
 
-#: src/tracker/tracker-sparql.c:1157
+#: src/tracker/tracker-sparql.c:1163
 msgid "No class prefixes were found"
 msgstr "No s'ha trobat cap prefix de classe"
 
-#: src/tracker/tracker-sparql.c:1157
+#: src/tracker/tracker-sparql.c:1163
 msgid "Prefixes"
 msgstr "Prefixos"
 
-#: src/tracker/tracker-sparql.c:1177
+#: src/tracker/tracker-sparql.c:1183
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "No s'ha pogut trobar la propietat per al prefix de la classe, per exemple "
 ":Recursos a «rdfs:Resource»"
 
-#: src/tracker/tracker-sparql.c:1216
+#: src/tracker/tracker-sparql.c:1222
 msgid "Could not list properties"
 msgstr "No s'han pogut llistar les propietats"
 
-#: src/tracker/tracker-sparql.c:1224
+#: src/tracker/tracker-sparql.c:1230
 msgid "No properties were found"
 msgstr "No s'ha trobat cap propietat"
 
-#: src/tracker/tracker-sparql.c:1224 src/tracker/tracker-sparql.c:1371
+#: src/tracker/tracker-sparql.c:1230 src/tracker/tracker-sparql.c:1378
 msgid "Properties"
 msgstr "Propietats"
 
-#: src/tracker/tracker-sparql.c:1252
+#: src/tracker/tracker-sparql.c:1258
 msgid "Could not find notify classes"
 msgstr "No s'ha trobat cap classe de notificació"
 
-#: src/tracker/tracker-sparql.c:1260
+#: src/tracker/tracker-sparql.c:1266
 msgid "No notifies were found"
 msgstr "No s'ha trobat cap notificació"
 
-#: src/tracker/tracker-sparql.c:1260
+#: src/tracker/tracker-sparql.c:1266
 msgid "Notifies"
 msgstr "Notificacions"
 
-#: src/tracker/tracker-sparql.c:1286
+#: src/tracker/tracker-sparql.c:1292
 msgid "Could not find indexed properties"
 msgstr "No s'ha pogut trobar cap propietat indexada"
 
-#: src/tracker/tracker-sparql.c:1294
+#: src/tracker/tracker-sparql.c:1300
 msgid "No indexes were found"
 msgstr "No s'ha trobat cap índex"
 
-#: src/tracker/tracker-sparql.c:1294
+#: src/tracker/tracker-sparql.c:1300
 msgid "Indexes"
 msgstr "Índexs"
 
-#: src/tracker/tracker-sparql.c:1310
+#: src/tracker/tracker-sparql.c:1316
 msgid "Could not list named graphs"
 msgstr "No s'han pogut llistar els grafs amb nom"
 
-#: src/tracker/tracker-sparql.c:1318
+#: src/tracker/tracker-sparql.c:1324
 msgid "No graphs were found"
 msgstr "No s'ha trobat cap graf"
 
-#: src/tracker/tracker-sparql.c:1318
+#: src/tracker/tracker-sparql.c:1324
 msgid "Named graphs"
 msgstr "Grafs amb nom"
 
-#: src/tracker/tracker-sparql.c:1340
+#: src/tracker/tracker-sparql.c:1347
 msgid "Could not search classes"
 msgstr "No s'han pogut cercar les classes"
 
-#: src/tracker/tracker-sparql.c:1348
+#: src/tracker/tracker-sparql.c:1355
 msgid "No classes were found to match search term"
 msgstr "No s'ha trobat cap classe que coincideixi amb el terme de cerca"
 
-#: src/tracker/tracker-sparql.c:1363
+#: src/tracker/tracker-sparql.c:1370
 msgid "Could not search properties"
 msgstr "No s'han pogut cercar les propietats"
 
-#: src/tracker/tracker-sparql.c:1371
+#: src/tracker/tracker-sparql.c:1378
 msgid "No properties were found to match search term"
 msgstr "No s'ha trobat cap propietat que coincideixi amb el terme de cerca"
 
-#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-sparql.c:1414 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "No s'ha pogut obtenir el camí UTF-8 del camí"
 
-#: src/tracker/tracker-sparql.c:1419 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-sparql.c:1426 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "No s'ha pogut llegir el fitxer"
 
-#: src/tracker/tracker-sparql.c:1438
+#: src/tracker/tracker-sparql.c:1445
 msgid "Could not run update"
 msgstr "No s'ha pogut executar l'actualització"
 
-#: src/tracker/tracker-sparql.c:1445
+#: src/tracker/tracker-sparql.c:1452
 msgid "Done"
 msgstr "Fet"
 
-#: src/tracker/tracker-sparql.c:1498 src/tracker/tracker-sparql.c:1501
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
 msgid "No results found matching your query"
 msgstr "No s'ha trobat cap resultat que coincideixi amb la consulta"
 
-#: src/tracker/tracker-sparql.c:1555 src/tracker/tracker-sql.c:242
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
+#: src/tracker/tracker-sql.c:142
+msgid "Results"
+msgstr "Resultats"
+
+#: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:248
 msgid "File and query can not be used together"
 msgstr "No es poden utilitzar alhora un fitxer i una consulta"
 
-#: src/tracker/tracker-sparql.c:1557
+#: src/tracker/tracker-sparql.c:1568
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -612,14 +571,51 @@ msgstr "Consulta SQL"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:113
+#: src/tracker/tracker-sql.c:114
 msgid "Failed to initialize data manager"
 msgstr "No s'ha pogut iniciar el gestor de dades"
 
-#: src/tracker/tracker-sql.c:173
+#: src/tracker/tracker-sql.c:176
 msgid "Empty result set"
 msgstr "El conjunt de resultats és buit"
 
-#: src/tracker/tracker-sql.c:240
+#: src/tracker/tracker-sql.c:246
 msgid "A database path must be specified"
 msgstr "Cal especificar un camí a la base de dades"
+
+#~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+#~ msgstr ""
+#~ "Mostra el nom sencer d'espais (per exemple mostra l'URL sencer en comptes de"
+#~ " nie:title)"
+
+#~ msgid "Show plain text content if available for resources"
+#~ msgstr "Mostra el contingut del text pla si és disponible pels recursos"
+
+#~ msgid ""
+#~ "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
+#~ "(e.g. <file:///path/to/some/file.txt>)"
+#~ msgstr ""
+#~ "En comptes de cercar un nom de fitxer, tracta els arguments «FILE» (fitxer) "
+#~ "com a IRI (p. ex. <file:///camí/a/algun/fitxer.txt>)"
+
+#~ msgid "Output results as RDF in Turtle format"
+#~ msgstr "Dóna els resultats com a RDF en format Turtle"
+
+#~ msgid "RDF property to treat as URL (eg. “nie:url”)"
+#~ msgstr "Propietat RDF per a tractar com a URL (p. ex. «nieurl»)"
+
+#~ msgid "Querying information for entity"
+#~ msgstr "Informació de consulta per l'entrada"
+
+#~ msgid "Unable to retrieve URN for URI"
+#~ msgstr "No s'ha pogut recuperar l'URN per l'URI"
+
+#~ msgid "Unable to retrieve data for URI"
+#~ msgstr "No s'han pogut recuperar les dades per l'URI"
+
+#~ msgid "No metadata available for that URI"
+#~ msgstr "No hi ha metadades disponibles per aquest URI"
+
+#~ msgid "Show information known about local files or items indexed"
+#~ msgstr ""
+#~ "Mostra la informació coneguda sobre fitxers locals o elements indexats"
