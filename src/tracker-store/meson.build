@@ -47,14 +47,6 @@ dbus_service_file = configure_file(
     install: true,
     install_dir: dbus_services_dir)
 
-i18n.merge_file('tracker-store-desktop-file',
-    type: 'desktop',
-    input: 'tracker-store.desktop.in',
-    output: 'tracker-store.desktop',
-    po_dir: po_subdir,
-    install: true,
-    install_dir: join_paths(get_option('sysconfdir'), 'xdg/autostart'))
-
 if install_systemd_user_services
   configure_file(
       input: 'tracker-store.service.in',
