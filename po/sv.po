@@ -1,16 +1,16 @@
 # Swedish translation for tracker.
-# Copyright © 2006-2019 Free Software Foundation
+# Copyright © 2006-2020 Free Software Foundation
 # This file is distributed under the same license as the tracker package.
 # Daniel Nylander <po@danielnylander.se>, 2007, 2008, 2009, 2010, 2011.
 # Josef Andersson <josef.andersson@fripost.org>, 2015.
-# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019.
+# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019, 2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2019-01-19 20:26+0000\n"
-"PO-Revision-Date: 2019-02-07 22:15+0100\n"
+"POT-Creation-Date: 2020-08-27 19:13+0000\n"
+"PO-Revision-Date: 2020-09-06 12:33+0200\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 2.4.1\n"
 "X-Project-Style: gnome\n"
 
 #: data/org.freedesktop.Tracker.DB.gschema.xml:24
@@ -189,7 +189,7 @@ msgstr[1] " %2.2d sekunder"
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-data/tracker-collation.c:332
+#: src/libtracker-data/tracker-collation.c:333
 msgid "the|a|an"
 msgstr "the|a|an"
 
@@ -681,11 +681,12 @@ msgid ""
 "If no arguments are given, the status of the store and data miners is shown"
 msgstr "Om inga argument ges visas statusen för lagret och datainsamlarna"
 
-#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
-#: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:384 src/tracker/tracker-search.c:1778
-#: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
-#: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
+#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-export.c:439
+#: src/tracker/tracker-extract.c:147 src/tracker/tracker-index.c:412
+#: src/tracker/tracker-info.c:422 src/tracker/tracker-reset.c:385
+#: src/tracker/tracker-search.c:1778 src/tracker/tracker-sparql.c:1497
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-status.c:587
+#: src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Okända flaggor"
 
@@ -696,6 +697,35 @@ msgstr "Kunde inte etablera en D-Bus-anslutning"
 #: src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Kunde inte etablera en D-Bus-proxy till tracker-store"
+
+#: src/tracker/tracker-export.c:40
+msgid "Output TriG format which includes named graph information"
+msgstr "Skriv ut TriG-format som inkluderar information om namngivna grafer"
+
+#: src/tracker/tracker-export.c:44
+msgid "Export a specific type of data."
+msgstr "Exportera en specifik datatyp."
+
+#: src/tracker/tracker-export.c:45
+msgid "TYPE"
+msgstr "TYP"
+
+#: src/tracker/tracker-export.c:252 src/tracker/tracker-index.c:195
+#: src/tracker/tracker-info.c:263 src/tracker/tracker-search.c:1580
+#: src/tracker/tracker-sparql.c:172 src/tracker/tracker-sparql.c:1086
+#: src/tracker/tracker-status.c:73 src/tracker/tracker-status.c:386
+#: src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "Kunde inte etablera en anslutning till Tracker"
+
+#: src/tracker/tracker-export.c:262 src/tracker/tracker-sparql.c:1437
+#: src/tracker/tracker-sql.c:139 src/tracker/tracker-sql.c:172
+msgid "Could not run query"
+msgstr "Kunde inte köra sökfråga"
+
+#: src/tracker/tracker-export.c:456
+msgid "Unrecognized value for '--type' option"
+msgstr "Okänt värde för flaggan ”--type”"
 
 #: src/tracker/tracker-extract.c:45
 msgid "Output results format: “sparql”, “turtle” or “json-ld”"
@@ -775,13 +805,6 @@ msgstr "Kunde inte (om)indexera filen"
 #: src/tracker/tracker-index.c:175
 msgid "(Re)indexing file was successful"
 msgstr "(Om)indexering av filen lyckades"
-
-#: src/tracker/tracker-index.c:195 src/tracker/tracker-info.c:263
-#: src/tracker/tracker-search.c:1580 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086 src/tracker/tracker-status.c:73
-#: src/tracker/tracker-status.c:386 src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "Kunde inte etablera en anslutning till Tracker"
 
 #: src/tracker/tracker-index.c:206
 msgid "Importing Turtle file"
@@ -877,72 +900,76 @@ msgstr "Inget metadata tillgänglig för denna URI"
 msgid "Results"
 msgstr "Resultat"
 
-#: src/tracker/tracker-main.c:48
+#: src/tracker/tracker-main.c:49
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
 "Se ”tracker help <kommando>” för att läsa om ett specifikt underkommando."
 
-#: src/tracker/tracker-main.c:97
+#: src/tracker/tracker-main.c:98
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Starta, stoppa, pausa och lista processer ansvariga för att indexera innehåll"
 
-#: src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:99
+msgid "Export data from a Tracker database"
+msgstr "Exportera data från en Tracker-databas"
+
+#: src/tracker/tracker-main.c:100
 msgid "Extract information from a file"
 msgstr "Extrahera information från en fil"
 
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:101
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Få hjälp med om hur man använder Tracker och dessa kommandon"
 
-#: src/tracker/tracker-main.c:100
+#: src/tracker/tracker-main.c:102
 msgid "Show information known about local files or items indexed"
 msgstr "Visa känd information om indexerade lokala filer eller objekt"
 
-#: src/tracker/tracker-main.c:101
+#: src/tracker/tracker-main.c:103
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Ta en säkerhetskopia, återställ, importera och (om)indexera efter MIME-typ "
 "eller filnamn"
 
-#: src/tracker/tracker-main.c:102
+#: src/tracker/tracker-main.c:104
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr ""
 "Återställ eller ta bort index och återställ konfigurationer till standard"
 
-#: src/tracker/tracker-main.c:103
+#: src/tracker/tracker-main.c:105
 msgid "Search for content indexed or show content by type"
 msgstr "Sök efter indexerat innehåll eller visa innehåll efter typ"
 
-#: src/tracker/tracker-main.c:104
+#: src/tracker/tracker-main.c:106
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Fråga och uppdatera indexet med SPARQL eller sök, lista och visa ontologin "
 "som ett träd"
 
-#: src/tracker/tracker-main.c:105
+#: src/tracker/tracker-main.c:107
 msgid "Query the database at the lowest level using SQL"
 msgstr "Fråga databasen vid den lägsta nivån med SQL"
 
-#: src/tracker/tracker-main.c:106
+#: src/tracker/tracker-main.c:108
 msgid "Show the indexing progress, content statistics and index state"
 msgstr "Visa indexeringsprocessen, innehållsstatistik och indexeringstillstånd"
 
-#: src/tracker/tracker-main.c:107
+#: src/tracker/tracker-main.c:109
 msgid "Create, list or delete tags for indexed content"
 msgstr "Skapa, lista eller ta bort taggar för indexerat innehåll"
 
-#: src/tracker/tracker-main.c:108
+#: src/tracker/tracker-main.c:110
 msgid "Show the license and version in use"
 msgstr "Visa licensen och versionen som används"
 
-#: src/tracker/tracker-main.c:153
+#: src/tracker/tracker-main.c:155
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "”%s” är inte ett tracker-kommando. Se ”tracker --help”"
 
-#: src/tracker/tracker-main.c:176
+#: src/tracker/tracker-main.c:178
 msgid "Available tracker commands are:"
 msgstr "Tillgängliga tracker-kommandon är:"
 
@@ -1047,7 +1074,7 @@ msgstr "[j|N]"
 msgid "yes"
 msgstr "ja"
 
-#: src/tracker/tracker-reset.c:306
+#: src/tracker/tracker-reset.c:307
 msgid "Resetting existing configuration…"
 msgstr "Återställer existerande konfigurationer…"
 
@@ -1143,7 +1170,7 @@ msgstr ""
 
 #: src/tracker/tracker-search.c:162
 msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
-msgstr "inaktivera fulltextsökning (FTS). Implicerar --disable-snippets"
+msgstr "Inaktivera fulltextsökning (FTS). Implicerar --disable-snippets"
 
 #: src/tracker/tracker-search.c:166
 msgid "Disable color when printing snippets and results"
@@ -1497,11 +1524,6 @@ msgstr "Kunde inte läsa filen"
 #: src/tracker/tracker-sparql.c:1389
 msgid "Could not run update"
 msgstr "Kunde inte köra uppdatering"
-
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Kunde inte köra sökfråga"
 
 #: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
