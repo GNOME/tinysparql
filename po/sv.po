@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-01-08 17:59+0000\n"
-"PO-Revision-Date: 2020-01-26 01:49+0100\n"
+"POT-Creation-Date: 2020-09-04 23:14+0000\n"
+"PO-Revision-Date: 2020-09-06 20:51+0200\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -18,109 +18,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2.4\n"
+"X-Generator: Poedit 2.4.1\n"
 "X-Project-Style: gnome\n"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:24
-msgid "Maximum size of journal"
-msgstr "Maximal storlek för journal"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:25
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr ""
-"Storlek på journalen i MB vid rotation. Använd -1 för att inaktivera "
-"rotation."
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:29
-msgid "Location of journal pieces"
-msgstr "Platsen för journaldelar"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:30
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr "Var en journaldel ska lagras när den når maxstorlek."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
-msgid "Maximum length of a word to be indexed"
-msgstr "Maximal längd på ord att indexera"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr "Ord med flera tecken än detta kommer att ignoreras av indexeraren."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
-msgid "Maximum number of words to index in a document"
-msgstr "Maximalt antal ord att indexera i ett dokument"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr ""
-"Indexeraren kommer som mest att läsa detta antal ord från ett dokument."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
-msgid "Enable stemmer"
-msgstr "Aktivera bildande av ordstam"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
-msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
-msgstr ""
-"Förenkla orden till deras ordstam för att få fler resultat. T.ex. ”hyllor” "
-"och ”hylla” till ”hyll”"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
-msgid "Enable unaccent"
-msgstr "Aktivera icke-accent"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
-msgstr ""
-"Översätt tecken med accent till motsvarande utan accent. T.ex. ”Idé” till "
-"”Ide” för bättre matchning."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
-msgid "Ignore numbers"
-msgstr "Ignorera siffror"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
-msgid "If enabled, numbers will not be indexed."
-msgstr "Om aktiverat kommer inte siffror att indexeras."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
-msgid "Ignore stop words"
-msgstr "Ignorera stoppord"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
-msgstr ""
-"Om aktiverad kommer orden som listas i stoppordlistan att ignoreras. T.ex. "
-"vanliga ord som ”ja”, ”nej”, ”och” etc."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:24
-msgid "Log verbosity"
-msgstr "Loggutförlighet"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:25
-msgid "Log verbosity."
-msgstr "Loggutförlighet."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:29
-msgid "GraphUpdated delay"
-msgstr "GraphUpdated-fördröjning"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:30
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-"Period i millisekunder mellan att GraphUpdated-signaler sänds när indexerat "
-"data har ändrats i databasen."
 
 #: src/libtracker-common/tracker-utils.c:90
 msgid "unknown time"
@@ -193,209 +92,258 @@ msgstr[1] " %2.2d sekunder"
 msgid "the|a|an"
 msgstr "the|a|an"
 
-#. Daemon options
-#: src/tracker-store/tracker-main.vala:60
-msgid "Displays version information"
-msgstr "Visar versionsinformation"
+#: src/portal/tracker-main.c:53
+msgid "Version"
+msgstr "Version"
 
-#: src/tracker-store/tracker-main.vala:61
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:299
+#: src/tracker/tracker-export.c:517 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
+msgid "Unrecognized options"
+msgstr "Okända flaggor"
+
+#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:47
+#: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sql.c:44
+msgid "Location of the database"
+msgstr "Plats för databasen"
+
+#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
+msgid "DIR"
+msgstr "KAT"
+
+#: src/tracker/tracker-endpoint.c:52
+msgid "Specify the DBus name of this endpoint"
+msgstr "Ange DBus-namnet för denna ändpunkt"
+
+#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
+msgid "NAME"
+msgstr "NAMN"
+
+#: src/tracker/tracker-endpoint.c:56
+msgid "Specify the ontology name used in this endpoint"
+msgstr "Ange namnet på ontologin som används i denna ändpunkt"
+
+#: src/tracker/tracker-endpoint.c:60
+msgid "Specify a path to an ontology to be used in this endpoint"
+msgstr "Ange en sökväg till en ontologi att använda i denna ändpunkt"
+
+#: src/tracker/tracker-endpoint.c:64
+msgid "Use session bus"
+msgstr "Använd sessionsbuss"
+
+#: src/tracker/tracker-endpoint.c:68
+msgid "Use system bus"
+msgstr "Använd systembuss"
+
+#: src/tracker/tracker-endpoint.c:72
+msgid "List SPARQL endpoints available in DBus"
+msgstr "Lista SPARQL-ändpunkter tillgängliga i DBus"
+
+#. TRANSLATORS: these are commandline arguments
+#: src/tracker/tracker-endpoint.c:93
+msgid "--list can only be used with --session or --system"
+msgstr "--list kan endast användas med --session eller --system"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:99
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr "En flagga ”ontology” eller ”ontology-path” ska tillhandahållas"
+
+#: src/tracker/tracker-endpoint.c:141
+#, c-format
+msgid "Creating endpoint at %s…"
+msgstr "Skapar ändpunkt på %s…"
+
+#: src/tracker/tracker-endpoint.c:177
+msgid "Could not own DBus name"
+msgstr "Kunde inte äga DBus-namn"
+
+#: src/tracker/tracker-endpoint.c:181
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "Lyssnar efter SPARQL-kommandon. Tryck Ctrl-C för att stoppa."
+
+#: src/tracker/tracker-endpoint.c:191
+msgid "DBus name lost"
+msgstr "DBus-namn förlorat"
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:196
+msgid "Closing connection…"
+msgstr "Stänger anslutning…"
+
+#: src/tracker/tracker-endpoint.c:333
+#, c-format
+msgid "Opening database at %s…"
+msgstr "Öppnar databas på %s…"
+
+#: src/tracker/tracker-endpoint.c:336
+msgid "Creating in-memory database"
+msgstr "Skapar databas i minne"
+
+#: src/tracker/tracker-endpoint.c:356
 msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
-"0)"
+"New database created. Use the “--dbus-service” option to share this database "
+"on a message bus."
 msgstr ""
-"Loggning, 0 = endast fel, 1 = minimal, 2 = detaljerad samt 3 = felsökning "
-"(standard = 0)"
+"Ny databas skapad. Använd flaggan ”--dbus-service” för att dela denna "
+"databas på en meddelandebuss."
 
-#: src/tracker-store/tracker-main.vala:62
-msgid "Disable automatic shutdown"
-msgstr "Inaktivera automatisk nedstängning"
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
+#: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
+#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+msgid "FILE"
+msgstr "FIL"
 
-#. Indexer options
-#: src/tracker-store/tracker-main.vala:65
-msgid "Force a re-index of all content"
-msgstr "Tvinga igenom en omindexering av samtligt innehåll"
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-sparql.c:114
+msgid "Connects to a DBus service"
+msgstr "Ansluter till en DBus-tjänst"
 
-#: src/tracker-store/tracker-main.vala:66
-msgid "Only allow read based actions on the database"
-msgstr "Tillåt endast läsbaserade åtgärder på databasen"
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-sparql.c:115
+msgid "DBus service name"
+msgstr "DBus-tjänstenamn"
 
-#: src/tracker-store/tracker-main.vala:67
-msgid "Load a specified domain ontology"
-msgstr "Läs in en angiven domänontologi"
+#: src/tracker/tracker-export.c:55 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-sparql.c:118
+msgid "Connects to a remote service"
+msgstr "Ansluter till en fjärrtjänst"
 
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: src/tracker-store/tracker-main.vala:227
-msgid "— start the tracker daemon"
-msgstr "— starta tracker-demonen"
+#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-sparql.c:119
+msgid "Remote service URI"
+msgstr "URI till fjärrtjänst"
 
-#: src/tracker-store/tracker-store.desktop.in:3
-msgid "Tracker Store"
-msgstr "Tracker-lagring"
+#: src/tracker/tracker-export.c:59
+msgid "Output TriG format which includes named graph information"
+msgstr "Skriv ut TriG-format som inkluderar information om namngivna grafer"
 
-#: src/tracker-store/tracker-store.desktop.in:4
-msgid "Metadata database store and lookup manager"
-msgstr "Lagrings- och uppslagshanterare för metadatabas"
+#: src/tracker/tracker-export.c:71 src/tracker/tracker-export.c:72
+msgid "IRI"
+msgstr "IRI"
+
+#. TRANSLATORS: Those are commandline arguments
+#: src/tracker/tracker-export.c:97 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-sparql.c:199
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr "Ange en flagga ”--database”, ”--dbus-service” eller ”--remote-service”"
+
+#: src/tracker/tracker-export.c:308 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-sparql.c:1115
+msgid "Could not establish a connection to Tracker"
+msgstr "Kunde inte etablera en anslutning till Tracker"
+
+#: src/tracker/tracker-export.c:309 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-sparql.c:1116
+msgid "No error given"
+msgstr "Inget fel gavs"
+
+#: src/tracker/tracker-export.c:348 src/tracker/tracker-export.c:399
+#: src/tracker/tracker-export.c:412 src/tracker/tracker-export.c:422
+#: src/tracker/tracker-sparql.c:1493 src/tracker/tracker-sql.c:135
+#: src/tracker/tracker-sql.c:168
+msgid "Could not run query"
+msgstr "Kunde inte köra sökfråga"
 
 #: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "misslyckades med att exekvera ”%s”: %s"
 
-#: src/tracker/tracker-info.c:50
-msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+#: src/tracker/tracker-import.c:117
+msgid "Could not run import"
+msgstr "Kunde inte köra import"
+
+#: src/tracker/tracker-main.c:43
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
-"Visa fullständiga namnrymder (använd alltså inte nie:title, använd "
-"fullständiga URL:er)"
+"Se ”tracker3 help <kommando>” för att läsa om ett specifikt underkommando."
 
-#: src/tracker/tracker-info.c:54
-msgid "Show plain text content if available for resources"
-msgstr "Visa textinnehåll om tillgängligt för resurser"
-
-#. To translators:
-#. * IRI (International Resource Identifier) is a generalization
-#. * of the URI. While URI supports only ASCI encoding, IRI
-#. * fully supports international characters. In practice, UTF-8
-#. * is the most popular encoding used for IRI.
-#.
-#: src/tracker/tracker-info.c:64
-msgid ""
-"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-"(e.g. <file:///path/to/some/file.txt>)"
-msgstr ""
-"Istället för att slå upp ett filnamn, behandla FIL-argument som IRI:er (t."
-"ex. <file:///sökväg/till/någon/fil.txt>)"
-
-#: src/tracker/tracker-info.c:68
-msgid "Output results as RDF in Turtle format"
-msgstr "Visa resultat som RDF i Turtle-format"
-
-#: src/tracker/tracker-info.c:72
-msgid "RDF property to treat as URL (eg. “nie:url”)"
-msgstr "RDF-egenskap att behandla som URL (t.ex. ”nie:url”)"
-
-#: src/tracker/tracker-info.c:76 src/tracker/tracker-info.c:77
-#: src/tracker/tracker-sparql.c:106 src/tracker/tracker-sql.c:44
-msgid "FILE"
-msgstr "FIL"
-
-#: src/tracker/tracker-info.c:268 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086
-msgid "Could not establish a connection to Tracker"
-msgstr "Kunde inte etablera en anslutning till Tracker"
-
-#: src/tracker/tracker-info.c:269 src/tracker/tracker-sparql.c:173
-#: src/tracker/tracker-sparql.c:1087
-msgid "No error given"
-msgstr "Inget fel gavs"
-
-#: src/tracker/tracker-info.c:293
-msgid "Querying information for entity"
-msgstr "Frågar efter information för entiteten"
-
-#: src/tracker/tracker-info.c:317
-msgid "Unable to retrieve URN for URI"
-msgstr "Kunde inte hämta URN för URI"
-
-#: src/tracker/tracker-info.c:327 src/tracker/tracker-info.c:361
-msgid "Unable to retrieve data for URI"
-msgstr "Kunde inte hämta data för URI"
-
-#: src/tracker/tracker-info.c:370
-msgid "No metadata available for that URI"
-msgstr "Inget metadata tillgänglig för denna URI"
-
-#: src/tracker/tracker-info.c:375 src/tracker/tracker-sparql.c:1449
-#: src/tracker/tracker-sparql.c:1452 src/tracker/tracker-sql.c:146
-msgid "Results"
-msgstr "Resultat"
-
-#: src/tracker/tracker-info.c:430 src/tracker/tracker-sparql.c:1497
-#: src/tracker/tracker-sql.c:238
-msgid "Unrecognized options"
-msgstr "Okända flaggor"
-
-#: src/tracker/tracker-main.c:41
-msgid "See “tracker help <command>” to read about a specific subcommand."
-msgstr ""
-"Se ”tracker help <kommando>” för att läsa om ett specifikt underkommando."
-
-#: src/tracker/tracker-main.c:90
+#: src/tracker/tracker-main.c:92
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Få hjälp med om hur man använder Tracker och dessa kommandon"
 
-#: src/tracker/tracker-main.c:91
-msgid "Show information known about local files or items indexed"
-msgstr "Visa känd information om indexerade lokala filer eller objekt"
+#: src/tracker/tracker-main.c:93
+msgid "Create a SPARQL endpoint"
+msgstr "Skapa en SPARQL-ändpunkt"
 
-#: src/tracker/tracker-main.c:92
+#: src/tracker/tracker-main.c:94
+msgid "Export data from a Tracker database"
+msgstr "Exportera data från en Tracker-databas"
+
+#: src/tracker/tracker-main.c:95
+msgid "Import data into a Tracker database"
+msgstr "Importera data till en Tracker-databas"
+
+#: src/tracker/tracker-main.c:96
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Fråga och uppdatera indexet med SPARQL eller sök, lista och visa ontologin "
 "som ett träd"
 
-#: src/tracker/tracker-main.c:93
+#: src/tracker/tracker-main.c:97
 msgid "Query the database at the lowest level using SQL"
 msgstr "Fråga databasen vid den lägsta nivån med SQL"
 
-#: src/tracker/tracker-main.c:140
+#: src/tracker/tracker-main.c:137
 #, c-format
-msgid "“%s” is not a tracker command. See “tracker --help”"
-msgstr "”%s” är inte ett tracker-kommando. Se ”tracker --help”"
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "”%s” är inte ett tracker3-kommando. Se ”tracker3 --help”"
 
-#: src/tracker/tracker-main.c:168
-msgid "Available tracker commands are:"
-msgstr "Tillgängliga tracker-kommandon är:"
+#: src/tracker/tracker-main.c:172
+msgid "Available tracker3 commands are:"
+msgstr "Tillgängliga tracker3-kommandon är:"
 
-#: src/tracker/tracker-main.c:202
+#: src/tracker/tracker-main.c:210
 msgid "Additional / third party commands are:"
 msgstr "Tillgängliga kommandon / tredjepartskommandon är:"
 
-#: src/tracker/tracker-sparql.c:105
+#: src/tracker/tracker-sparql.c:122
 msgid "Path to use to run a query or update from file"
 msgstr "Sökväg att använda för att köra en sökfråga eller uppdatera från fil"
 
-#: src/tracker/tracker-sparql.c:109
+#: src/tracker/tracker-sparql.c:126
 msgid "SPARQL query"
 msgstr "SPARQL-fråga"
 
-#: src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sparql.c:127
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:113
+#: src/tracker/tracker-sparql.c:130
 msgid "This is used with --query and for database updates only."
 msgstr "Detta används endast med --query och för databasuppdateringar."
 
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-sparql.c:134
 msgid "Retrieve classes"
 msgstr "Hämta klasser"
 
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-sparql.c:138
 msgid "Retrieve class prefixes"
 msgstr "Hämta klassprefix"
 
-#: src/tracker/tracker-sparql.c:125
+#: src/tracker/tracker-sparql.c:142
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr ""
 "Hämta egenskaper för en klass, prefix kan även användas (t.ex. rdfs:Resource)"
 
-#: src/tracker/tracker-sparql.c:126 src/tracker/tracker-sparql.c:130
-#: src/tracker/tracker-sparql.c:138 src/tracker/tracker-sparql.c:146
-#: src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
+#: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
+#: src/tracker/tracker-sparql.c:171
 msgid "CLASS"
 msgstr "KLASS"
 
-#: src/tracker/tracker-sparql.c:129
+#: src/tracker/tracker-sparql.c:146
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr "Hämta klasser som aviserar ändringar i databasen (KLASS är valfritt)"
 
-#: src/tracker/tracker-sparql.c:133
+#: src/tracker/tracker-sparql.c:150
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -403,11 +351,15 @@ msgstr ""
 "Hämta index som används i databasen för att förbättra prestandan (EGENSKAP "
 "är valfri)"
 
-#: src/tracker/tracker-sparql.c:134
+#: src/tracker/tracker-sparql.c:151
 msgid "PROPERTY"
 msgstr "EGENSKAP"
 
-#: src/tracker/tracker-sparql.c:137
+#: src/tracker/tracker-sparql.c:154
+msgid "Retrieve all named graphs"
+msgstr "Hämta alla namngivna grafer"
+
+#: src/tracker/tracker-sparql.c:158
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -415,45 +367,37 @@ msgstr ""
 "Beskriv subklasser, superklasser (kan användas med -s för att markera delar "
 "av trädet och -p för att visa egenskaper)"
 
-#: src/tracker/tracker-sparql.c:141
+#: src/tracker/tracker-sparql.c:162
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Sök efter en klass eller egenskap och visa mer information (t.ex. dokument)"
 
-#: src/tracker/tracker-sparql.c:142
+#: src/tracker/tracker-sparql.c:163
 msgid "CLASS/PROPERTY"
 msgstr "KLASS/EGENSKAP"
 
-#: src/tracker/tracker-sparql.c:145
+#: src/tracker/tracker-sparql.c:166
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Returnera genvägen för en klass (t.ex. nfo:FileDataObject)."
 
-#: src/tracker/tracker-sparql.c:149
+#: src/tracker/tracker-sparql.c:170
 msgid "Returns the full namespace for a class."
 msgstr "Returnera hela namnrymden för en klass."
 
-#: src/tracker/tracker-sparql.c:153
-msgid "Remote service to query to"
-msgstr "Fjärrtjänst att fråga"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "BASE_URL"
-msgstr "BAS-URL"
-
-#: src/tracker/tracker-sparql.c:200
+#: src/tracker/tracker-sparql.c:232
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Kunde inte hämta namnrymdsprefix"
 
-#: src/tracker/tracker-sparql.c:208
+#: src/tracker/tracker-sparql.c:240
 msgid "No namespace prefixes were returned"
 msgstr "Inga namnrymdsprefix returnerades"
 
-#: src/tracker/tracker-sparql.c:254
+#: src/tracker/tracker-sparql.c:286
 msgid "Could not get namespace prefixes"
 msgstr "Kunde inte få tag på namnrymdsprefix"
 
-#: src/tracker/tracker-sparql.c:263
+#: src/tracker/tracker-sparql.c:295
 msgid "No namespace prefixes were found"
 msgstr "Inga namnrymdsprefix hittades"
 
@@ -461,130 +405,142 @@ msgstr "Inga namnrymdsprefix hittades"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:509 src/tracker/tracker-sparql.c:557
+#: src/tracker/tracker-sparql.c:541 src/tracker/tracker-sparql.c:589
 msgid "None"
 msgstr "Inga"
 
-#: src/tracker/tracker-sparql.c:963
+#: src/tracker/tracker-sparql.c:995
 msgid "Could not create tree: subclass query failed"
 msgstr "Kunde inte skapa träd: subklassfråga misslyckades"
 
-#: src/tracker/tracker-sparql.c:1012
+#: src/tracker/tracker-sparql.c:1044
 msgid "Could not create tree: class properties query failed"
 msgstr "Kunde inte skapa träd: fråga för klassegenskaper misslyckades"
 
-#: src/tracker/tracker-sparql.c:1100
+#: src/tracker/tracker-sparql.c:1131
 msgid "Could not list classes"
 msgstr "Kunde inte lista klasser"
 
-#: src/tracker/tracker-sparql.c:1108
+#: src/tracker/tracker-sparql.c:1139
 msgid "No classes were found"
 msgstr "Inga klasser hittades"
 
-#: src/tracker/tracker-sparql.c:1108 src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1139 src/tracker/tracker-sparql.c:1355
 msgid "Classes"
 msgstr "Klasser"
 
-#: src/tracker/tracker-sparql.c:1124
+#: src/tracker/tracker-sparql.c:1155
 msgid "Could not list class prefixes"
 msgstr "Kunde inte lista klassprefix"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1163
 msgid "No class prefixes were found"
 msgstr "Inga klassprefix hittades"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1163
 msgid "Prefixes"
 msgstr "Prefix"
 
-#: src/tracker/tracker-sparql.c:1152
+#: src/tracker/tracker-sparql.c:1183
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Kunde inte hitta egenskap för klassprefix, t.ex. :Resource i ”rdfs:Resource”"
 
-#: src/tracker/tracker-sparql.c:1191
+#: src/tracker/tracker-sparql.c:1222
 msgid "Could not list properties"
 msgstr "Kunde inte lista egenskaper"
 
-#: src/tracker/tracker-sparql.c:1199
+#: src/tracker/tracker-sparql.c:1230
 msgid "No properties were found"
 msgstr "Inga egenskaper hittades"
 
-#: src/tracker/tracker-sparql.c:1199 src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1230 src/tracker/tracker-sparql.c:1378
 msgid "Properties"
 msgstr "Egenskaper"
 
-#: src/tracker/tracker-sparql.c:1227
+#: src/tracker/tracker-sparql.c:1258
 msgid "Could not find notify classes"
 msgstr "Kunde inte hitta aviseringsklasser"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1266
 msgid "No notifies were found"
 msgstr "Inga aviseringar hittades"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1266
 msgid "Notifies"
 msgstr "Aviserar"
 
-#: src/tracker/tracker-sparql.c:1261
+#: src/tracker/tracker-sparql.c:1292
 msgid "Could not find indexed properties"
 msgstr "Kunde inte hitta indexerade egenskaper"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1300
 msgid "No indexes were found"
 msgstr "Inga index hittades"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1300
 msgid "Indexes"
 msgstr "Index"
 
-#: src/tracker/tracker-sparql.c:1291
+#: src/tracker/tracker-sparql.c:1316
+msgid "Could not list named graphs"
+msgstr "Kunde inte lista namngivna grafer"
+
+#: src/tracker/tracker-sparql.c:1324
+msgid "No graphs were found"
+msgstr "Inga grafer hittades"
+
+#: src/tracker/tracker-sparql.c:1324
+msgid "Named graphs"
+msgstr "Namngivna grafer"
+
+#: src/tracker/tracker-sparql.c:1347
 msgid "Could not search classes"
 msgstr "Kunde inte söka efter klasser"
 
-#: src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1355
 msgid "No classes were found to match search term"
 msgstr "Inga klasser hittades som matchade sökvillkoret"
 
-#: src/tracker/tracker-sparql.c:1314
+#: src/tracker/tracker-sparql.c:1370
 msgid "Could not search properties"
 msgstr "Kunde inte söka efter egenskaper"
 
-#: src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1378
 msgid "No properties were found to match search term"
 msgstr "Inga egenskaper hittades som matchade sökvillkoret"
 
-#: src/tracker/tracker-sparql.c:1358 src/tracker/tracker-sql.c:65
+#: src/tracker/tracker-sparql.c:1414 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Kunde inte få tag på UTF-8-sökväg från sökvägen"
 
-#: src/tracker/tracker-sparql.c:1370 src/tracker/tracker-sql.c:76
+#: src/tracker/tracker-sparql.c:1426 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Kunde inte läsa filen"
 
-#: src/tracker/tracker-sparql.c:1389
+#: src/tracker/tracker-sparql.c:1445
 msgid "Could not run update"
 msgstr "Kunde inte köra uppdatering"
 
-#: src/tracker/tracker-sparql.c:1396
+#: src/tracker/tracker-sparql.c:1452
 msgid "Done"
 msgstr "Klar"
 
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Kunde inte köra sökfråga"
-
-#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
 msgid "No results found matching your query"
 msgstr "Inga resultat hittades som matchade din sökfråga"
 
-#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sql.c:247
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
+#: src/tracker/tracker-sql.c:142
+msgid "Results"
+msgstr "Resultat"
+
+#: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:248
 msgid "File and query can not be used together"
 msgstr "Fil och fråga kan inte användas samtidigt"
 
-#: src/tracker/tracker-sparql.c:1508
+#: src/tracker/tracker-sparql.c:1568
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -592,25 +548,179 @@ msgstr ""
 "--list-properties-egenskapen kan endast vara tom om den används med --tree-"
 "argumentet"
 
-#: src/tracker/tracker-sql.c:43
+#: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
 msgstr "Sökväg att använda för att köra en sökfråga från fil"
 
-#: src/tracker/tracker-sql.c:47
+#: src/tracker/tracker-sql.c:52
 msgid "SQL query"
 msgstr "SQL-fråga"
 
-#: src/tracker/tracker-sql.c:48
+#: src/tracker/tracker-sql.c:53
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:120
+#: src/tracker/tracker-sql.c:114
 msgid "Failed to initialize data manager"
 msgstr "Misslyckades med att initiera datahanterare"
 
-#: src/tracker/tracker-sql.c:180
+#: src/tracker/tracker-sql.c:176
 msgid "Empty result set"
 msgstr "Inga resultat"
+
+#: src/tracker/tracker-sql.c:246
+msgid "A database path must be specified"
+msgstr "En databassökväg måste anges"
+
+#~ msgid "Maximum size of journal"
+#~ msgstr "Maximal storlek för journal"
+
+#~ msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+#~ msgstr ""
+#~ "Storlek på journalen i MB vid rotation. Använd -1 för att inaktivera "
+#~ "rotation."
+
+#~ msgid "Location of journal pieces"
+#~ msgstr "Platsen för journaldelar"
+
+#~ msgid "Where to store a journal chunk when it hits the max size."
+#~ msgstr "Var en journaldel ska lagras när den når maxstorlek."
+
+#~ msgid "Maximum length of a word to be indexed"
+#~ msgstr "Maximal längd på ord att indexera"
+
+#~ msgid ""
+#~ "Words with more characters than this length will be ignored by the "
+#~ "indexer."
+#~ msgstr "Ord med flera tecken än detta kommer att ignoreras av indexeraren."
+
+#~ msgid "Maximum number of words to index in a document"
+#~ msgstr "Maximalt antal ord att indexera i ett dokument"
+
+#~ msgid ""
+#~ "Indexer will read only this maximum number of words from a single "
+#~ "document."
+#~ msgstr ""
+#~ "Indexeraren kommer som mest att läsa detta antal ord från ett dokument."
+
+#~ msgid "Enable stemmer"
+#~ msgstr "Aktivera bildande av ordstam"
+
+#~ msgid ""
+#~ "Simplify the words to their root to provide more results. E.g. “shelves” "
+#~ "and “shelf” to “shel”"
+#~ msgstr ""
+#~ "Förenkla orden till deras ordstam för att få fler resultat. T.ex. "
+#~ "”hyllor” och ”hylla” till ”hyll”"
+
+#~ msgid "Enable unaccent"
+#~ msgstr "Aktivera icke-accent"
+
+#~ msgid ""
+#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” "
+#~ "to “Idea” for improved matching."
+#~ msgstr ""
+#~ "Översätt tecken med accent till motsvarande utan accent. T.ex. ”Idé” till "
+#~ "”Ide” för bättre matchning."
+
+#~ msgid "Ignore numbers"
+#~ msgstr "Ignorera siffror"
+
+#~ msgid "If enabled, numbers will not be indexed."
+#~ msgstr "Om aktiverat kommer inte siffror att indexeras."
+
+#~ msgid "Ignore stop words"
+#~ msgstr "Ignorera stoppord"
+
+#~ msgid ""
+#~ "If enabled, the words listed in the stop-words list are ignored. E.g. "
+#~ "common words like “the”, “yes”, “no”, etc."
+#~ msgstr ""
+#~ "Om aktiverad kommer orden som listas i stoppordlistan att ignoreras. T."
+#~ "ex. vanliga ord som ”ja”, ”nej”, ”och” etc."
+
+#~ msgid "Log verbosity"
+#~ msgstr "Loggutförlighet"
+
+#~ msgid "Log verbosity."
+#~ msgstr "Loggutförlighet."
+
+#~ msgid "GraphUpdated delay"
+#~ msgstr "GraphUpdated-fördröjning"
+
+#~ msgid ""
+#~ "Period in milliseconds between GraphUpdated signals being emitted when "
+#~ "indexed data has changed inside the database."
+#~ msgstr ""
+#~ "Period i millisekunder mellan att GraphUpdated-signaler sänds när "
+#~ "indexerat data har ändrats i databasen."
+
+#~ msgid "Displays version information"
+#~ msgstr "Visar versionsinformation"
+
+#~ msgid ""
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default = 0)"
+#~ msgstr ""
+#~ "Loggning, 0 = endast fel, 1 = minimal, 2 = detaljerad samt 3 = felsökning "
+#~ "(standard = 0)"
+
+#~ msgid "Disable automatic shutdown"
+#~ msgstr "Inaktivera automatisk nedstängning"
+
+#~ msgid "Force a re-index of all content"
+#~ msgstr "Tvinga igenom en omindexering av samtligt innehåll"
+
+#~ msgid "Load a specified domain ontology"
+#~ msgstr "Läs in en angiven domänontologi"
+
+#~ msgid "— start the tracker daemon"
+#~ msgstr "— starta tracker-demonen"
+
+#~ msgid "Tracker Store"
+#~ msgstr "Tracker-lagring"
+
+#~ msgid "Metadata database store and lookup manager"
+#~ msgstr "Lagrings- och uppslagshanterare för metadatabas"
+
+#~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+#~ msgstr ""
+#~ "Visa fullständiga namnrymder (använd alltså inte nie:title, använd "
+#~ "fullständiga URL:er)"
+
+#~ msgid "Show plain text content if available for resources"
+#~ msgstr "Visa textinnehåll om tillgängligt för resurser"
+
+#~ msgid ""
+#~ "Instead of looking up a file name, treat the FILE arguments as actual "
+#~ "IRIs (e.g. <file:///path/to/some/file.txt>)"
+#~ msgstr ""
+#~ "Istället för att slå upp ett filnamn, behandla FIL-argument som IRI:er (t."
+#~ "ex. <file:///sökväg/till/någon/fil.txt>)"
+
+#~ msgid "Output results as RDF in Turtle format"
+#~ msgstr "Visa resultat som RDF i Turtle-format"
+
+#~ msgid "RDF property to treat as URL (eg. “nie:url”)"
+#~ msgstr "RDF-egenskap att behandla som URL (t.ex. ”nie:url”)"
+
+#~ msgid "Querying information for entity"
+#~ msgstr "Frågar efter information för entiteten"
+
+#~ msgid "Unable to retrieve URN for URI"
+#~ msgstr "Kunde inte hämta URN för URI"
+
+#~ msgid "Unable to retrieve data for URI"
+#~ msgstr "Kunde inte hämta data för URI"
+
+#~ msgid "No metadata available for that URI"
+#~ msgstr "Inget metadata tillgänglig för denna URI"
+
+#~ msgid "Show information known about local files or items indexed"
+#~ msgstr "Visa känd information om indexerade lokala filer eller objekt"
+
+#~ msgid "BASE_URL"
+#~ msgstr "BAS-URL"
 
 #~ msgid "Error starting “tar” program"
 #~ msgstr "Fel vid start av programmet ”tar”"
@@ -968,12 +1078,6 @@ msgstr "Inga resultat"
 #~ msgid "Unable to import Turtle file"
 #~ msgstr "Kunde inte importera Turtle-filen"
 
-#~ msgid "Backing up database"
-#~ msgstr "Säkerhetskopierar databasen"
-
-#~ msgid "Could not backup database"
-#~ msgstr "Kunde inte ta en säkerhetskopia av databasen"
-
 #~ msgid "Restoring database from backup"
 #~ msgstr "Återställer databas från säkerhetskopia"
 
@@ -1287,9 +1391,6 @@ msgstr "Inga resultat"
 #~ msgid "Statistics:"
 #~ msgstr "Statistik:"
 
-#~ msgid "Version"
-#~ msgstr "Version"
-
 #~ msgid "Disk Information"
 #~ msgstr "Diskinformation"
 
@@ -1409,9 +1510,6 @@ msgstr "Inga resultat"
 #~ msgid "Could not get all tags"
 #~ msgstr "Kunde inte få tag på alla taggar"
 
-#~ msgid "No tags were found"
-#~ msgstr "Inga taggar hittades"
-
 #~ msgid "Tags (shown by name)"
 #~ msgstr "Taggar (visade efter namn)"
 
@@ -1491,9 +1589,6 @@ msgstr "Inga resultat"
 #~ msgstr ""
 #~ "Visa statistik om ALLA RDF-klasser, inte bara de vanliga som är standard "
 #~ "(implicerat av söktermer)"
-
-#~ msgid "No network connection"
-#~ msgstr "Ingen nätverksanslutning"
 
 #~ msgid "Indexing not recommended on this network connection"
 #~ msgstr "Indexering rekommenderas inte för denna nätverksanslutning"
