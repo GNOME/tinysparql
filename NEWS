@@ -1,3 +1,9 @@
+NEW in 2.3.6 - 2020-09-07
+=========================
+  * Do not autostart tracker-store
+
+Translations: de, es, hu, id, lt, pl, pt_BR, ro, sl, sv
+
 NEW in 2.3.5 - 2020-08-24
 =========================
   * Add 'tracker export' subcommand to ease migration to 3.x
