@@ -337,8 +337,21 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 		}
 	}
 
-	if (!cursor->service || !cursor->query)
+	if (!cursor->service) {
+		g_set_error (&error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_PARSE,
+		             "Service not given to services virtual table");
 		goto fail;
+	}
+
+	if (!cursor->query) {
+		g_set_error (&error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_PARSE,
+		             "Query not given to services virtual table");
+		goto fail;
+	}
 
 	connection = g_hash_table_lookup (cursor->vtab->cached_connections,
 	                                  cursor->service);
