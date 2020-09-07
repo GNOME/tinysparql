@@ -1,14 +1,14 @@
-tracker-xdg-portal(1)
-=====================
+tracker-xdg-portal-3(1)
+=======================
 
 == NAME
 
-tracker-xdg-portal - Portal to Tracker endpoints
+tracker-xdg-portal-3 - Portal to Tracker endpoints
 
 == SYNOPSIS
 
 ....
-tracker-xdg-portal [--version | -v]
+tracker-xdg-portal-3 [--version | -v]
 ....
 
 == DESCRIPTION
