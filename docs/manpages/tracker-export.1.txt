@@ -1,17 +1,17 @@
-tracker-export(1)
-=================
+tracker3-export(1)
+==================
 
 == NAME
 
-tracker-export - Export all data from a Tracker database.
+tracker3-export - Export all data from a Tracker database.
 
 == SYNOPSIS
 
-*tracker export* [_options_...] [*IRI*...]
+*tracker3 export* [_options_...] [*IRI*...]
 
 == DESCRIPTION
 
-*tracker export* exports data stored in a Tracker database, in
+*tracker3 export* exports data stored in a Tracker database, in
 Turtle format. By default all data is exported, if any *IRI*, only those
 resources will be printed.
 
@@ -23,7 +23,7 @@ tool such as rapper(1) to convert the data to different formats.
 *-g, --show-graphs*::
   Tracker can separate data into multiple graphs. This feature is used
   by the filesystem miner to separate different types of content. This
-  flag causes the releveant GRAPH statements to be output along with
+  flag causes the relevant GRAPH statements to be output along with
   the data.
 
   In this mode the output is TriG syntax rather than Turtle, due to
@@ -44,9 +44,9 @@ Export all data from Tracker Index and prettify the output using
 rapper(1).::
 
 ....
-$ tracker export -b org.freedesktop.Tracker1.Miner.Files | rapper - -I . -i turtle -o turtle
+$ tracker3 export -b org.freedesktop.Tracker1.Miner.Files | rapper - -I . -i turtle -o turtle
 ....
 
 == SEE ALSO
 
-*tracker-import*(1), *tracker-sparql*(1).
+*tracker3-import*(1), *tracker3-sparql*(1).
