@@ -17,9 +17,9 @@ int main (int argc, const char **argv)
     "}";
 
   connection = tracker_sparql_connection_bus_new ("org.freedesktop.Tracker3.Miner.Files", NULL, NULL, &error);
-  if (!connection) {
+  if (!error) {
     g_printerr ("Couldn't obtain a connection to the Tracker store: %s",
-                error ? error->message : "unknown error");
+                error->message);
     g_clear_error (&error);
 
     return 1;
@@ -33,7 +33,7 @@ int main (int argc, const char **argv)
   if (error) {
     /* Some error happened performing the query, not good */
     g_printerr ("Couldn't update the Tracker store: %s",
-                error ? error->message : "unknown error");
+                error->message);
 
     g_clear_error (&error);
     g_object_unref (connection);
