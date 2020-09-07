@@ -1,17 +1,17 @@
-tracker-sparql(1)
-=================
+tracker3-sparql(1)
+==================
 
 == NAME
 
-tracker-sparql - Use SparQL to query the Tracker databases.
+tracker3-sparql - Use SparQL to query the Tracker databases.
 
 == SYNOPSIS
 
 ....
-tracker sparql -q <sparql> [-u] | -f <file>
-tracker sparql -t [class] [-s <needle>] [-p]
-tracker sparql [-c] [-p] [-x] [-n [class]] [-i [property]] [-s <needle>]
-tracker sparql [--get-longhand <class>] [--get-shorthand <class>]
+tracker3 sparql -q <sparql> [-u] | -f <file>
+tracker3 sparql -t [class] [-s <needle>] [-p]
+tracker3 sparql [-c] [-p] [-x] [-n [class]] [-i [property]] [-s <needle>]
+tracker3 sparql [--get-longhand <class>] [--get-shorthand <class>]
 ....
 
 == DESCRIPTION
@@ -38,7 +38,7 @@ not have to be an absolute path.
 *-q, --query=<__sparql__>*::
   Use a _sparql_ string to query the database with.
 *-u, --update*::
-  This has to be used with *--query*. This tells "tracker sparql" to use
+  This has to be used with *--query*. This tells "tracker3 sparql" to use
   the SPARQL update extensions so it knows it isn't a regular data
   lookup request. So if your query is intended to change data in the
   database, this option is needed.
@@ -64,7 +64,7 @@ not have to be an absolute path.
 This gives the following result:
 
 ----
-$ tracker sparql -p nfo:Video
+$ tracker3 sparql -p nfo:Video
 
 Properties: 2
   http://tracker.api.gnome.org/ontology/v3/nfo#frameRate
@@ -98,7 +98,7 @@ See also *--tree* and *--query*.
   *--get-shorthand* and *--get-longhand* for details). For example:
 
 ----
-$ tracker sparql -t nmo:MMSMessage
+$ tracker3 sparql -t nmo:MMSMessage
 ROOT
   +-- rdfs:Resource (C)
   |  +-- nie:InformationElement (C)
@@ -118,7 +118,7 @@ The *--properties* command line option can be used to show properties
 for each class displayed, for example:
 
 ----
-$ tracker sparql -t nfo:FileDataObject -p
+$ tracker3 sparql -t nfo:FileDataObject -p
 ROOT
   +-- rdfs:Resource (C)
   |  --> http://purl.org/dc/elements/1.1/contributor (P)
@@ -175,7 +175,7 @@ ROOT
   example:
 
 ----
-$ tracker sparql -s text
+$ tracker3 sparql -s text
 
 Classes: 4
   http://tracker.api.gnome.org/ontology/v3/nfo#TextDocument
@@ -196,7 +196,7 @@ See also *--tree*.
   Returns the shorthand for a class given by a URL. For example:
 
 ----
-$ tracker sparql --get-shorthand http://tracker.api.gnome.org/ontology/v3/nmo#plainTextMessageContent
+$ tracker3 sparql --get-shorthand http://tracker.api.gnome.org/ontology/v3/nmo#plainTextMessageContent
 nmo:plainTextMessageContent
 ----
 
@@ -205,7 +205,7 @@ nmo:plainTextMessageContent
   For example:
 
 ----
-$ tracker sparql --get-longhand nmm:MusicPiece
+$ tracker3 sparql --get-longhand nmm:MusicPiece
 http://tracker.api.gnome.org/ontology/v3/nmm#MusicPiece
 ----
 
@@ -214,13 +214,13 @@ http://tracker.api.gnome.org/ontology/v3/nmm#MusicPiece
 List all classes::
 +
 ....
-$ tracker sparql -q "SELECT ?cl WHERE { ?cl a rdfs:Class }"
+$ tracker3 sparql -q "SELECT ?cl WHERE { ?cl a rdfs:Class }"
 ....
 
 List all properties for the Resources class (see --list-properties)::
 +
 ----
-$ tracker sparql -q "SELECT ?prop WHERE {
+$ tracker3 sparql -q "SELECT ?prop WHERE {
     ?prop a rdf:Property ;
     rdfs:domain <http://www.w3.org/2000/01/rdf-schema#Resource>
 }"
@@ -229,7 +229,7 @@ $ tracker sparql -q "SELECT ?prop WHERE {
 List all class namespace prefixes::
 +
 ----
-$ tracker sparql -q "SELECT ?prefix ?ns WHERE {
+$ tracker3 sparql -q "SELECT ?prefix ?ns WHERE {
     ?ns a nrl:Namespace ;
     nrl:prefix ?prefix
 }"
@@ -238,16 +238,16 @@ $ tracker sparql -q "SELECT ?prefix ?ns WHERE {
 List all music files::
 +
 ----
-$ tracker sparql -q "SELECT ?song WHERE { ?song a nmm:MusicPiece }"
+$ tracker3 sparql -q "SELECT ?song WHERE { ?song a nmm:MusicPiece }"
 ----
 
 List all music albums, showing title, track count, and length in seconds.::
 +
 ----
-$ tracker sparql -q "SELECT ?title COUNT(?song)
-                    AS songs
-                    SUM(?length) AS totallength
-                    WHERE {
+$ tracker3 sparql -q "SELECT ?title COUNT(?song)
+                      AS songs
+                      SUM(?length) AS totallength
+                      WHERE {
     ?album a nmm:MusicAlbum ;
     nie:title ?title .
     ?song nmm:musicAlbum ?album ;
@@ -258,7 +258,7 @@ $ tracker sparql -q "SELECT ?title COUNT(?song)
 List all music from a particular artist::
 +
 ----
-$ tracker sparql -q "SELECT ?song ?title WHERE {
+$ tracker3 sparql -q "SELECT ?song ?title WHERE {
     ?song nmm:performer [ nmm:artistName 'Artist Name' ] ;
     nie:title ?title
 }"
@@ -267,7 +267,7 @@ $ tracker sparql -q "SELECT ?song ?title WHERE {
 Set the played count for a song::
 +
 ----
-$ tracker sparql -u -q "DELETE {
+$ tracker3 sparql -u -q "DELETE {
     <file:///home/user/Music/song.mp3> nie:usageCounter ?count
 } WHERE {
     <file:///home/user/Music/song.mp3> nie:usageCounter ?count
@@ -279,13 +279,13 @@ $ tracker sparql -u -q "DELETE {
 List all image files::
 +
 ----
-$ tracker sparql -q "SELECT ?image WHERE { ?image a nfo:Image }"
+$ tracker3 sparql -q "SELECT ?image WHERE { ?image a nfo:Image }"
 ----
 
 List all image files with a specific tag::
 +
 ----
-$ tracker sparql -q "SELECT ?image WHERE {
+$ tracker3 sparql -q "SELECT ?image WHERE {
     ?image a nfo:Image ;
     nao:hasTag [ nao:prefLabel 'tag' ]
 }"
@@ -294,7 +294,7 @@ $ tracker sparql -q "SELECT ?image WHERE {
 List all image files created on a specific month and order by date::
 +
 ----
-$ tracker sparql -q "SELECT ?image ?date WHERE {
+$ tracker3 sparql -q "SELECT ?image ?date WHERE {
     ?image a nfo:Image ;
     nie:contentCreated ?date .
     FILTER (?date >= '2008-07-01T00:00:00' &&
@@ -304,7 +304,7 @@ $ tracker sparql -q "SELECT ?image ?date WHERE {
 
 == SEE ALSO
 
-*tracker-sql*(1), *tracker-store*(1), *tracker-info*(1).
+*tracker3-sql*(1), *tracker3-info*(1).
 
 *http://nepomuk.semanticdesktop.org/*
 *http://www.w3.org/TR/rdf-sparql-query/*

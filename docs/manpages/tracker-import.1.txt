@@ -1,17 +1,17 @@
-tracker-import(1)
-=================
+tracker3-import(1)
+==================
 
 == NAME
 
-tracker-import - Import data into a Tracker database.
+tracker3-import - Import data into a Tracker database.
 
 == SYNOPSIS
 
-*tracker import* FILE.ttl
+*tracker3 import* FILE.ttl
 
 == DESCRIPTION
 
-*tracker import* imports data into a Tracker database.
+*tracker3 import* imports data into a Tracker database.
 
 The data must conform to the existing ontology of the database.
 
@@ -20,4 +20,4 @@ to convert the data from other formats to Turtle.
 
 == SEE ALSO
 
-*tracker-export*(1), *tracker-sparql*(1).
+*tracker3-export*(1), *tracker3-sparql*(1).
