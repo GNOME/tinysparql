@@ -1,3 +1,20 @@
+NEW in 2.99.5 - 2020-09-07
+==========================
+  * Fix DBus logging in tracker-sandbox test helper
+  * Removed programming terms from English stop word list
+  * Handle empty input correctly
+  * Fix possible database locks when using "tracker3 sql" on a
+    running database
+  * Fixes for SERVICE clauses in UNIONs
+  * Handle empty group graph patterns as per the spec
+  * Fixes to property paths being used in different graphs
+  * Release memory on inactivity
+  * Fix build/linking with 2.x in the system
+  * Add "tracker3 export --2to3" helper for data migrations
+  * Hide FTS5 search syntax from fts:match
+
+Translations: cs, fr, fur, gl, hr, id, lt, pt_BR, zh_CN
+
 NEW in 2.99.4 - 2020-08-24
 ==========================
   * CLI modernization
