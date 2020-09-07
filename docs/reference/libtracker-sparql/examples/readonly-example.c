@@ -25,7 +25,7 @@ int main (int argc, const char **argv)
   if (error) {
     /* Some error happened performing the query, not good */
     g_printerr ("Couldn't query the Tracker Store: '%s'",
-                error ? error->message : "unknown error");
+                error->message);
     g_clear_error (&error);
 
     return 1;
