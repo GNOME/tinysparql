@@ -34,7 +34,6 @@
 #include <glib.h>
 
 #include "tracker-date-time.h"
-#include "tracker-type-utils.h"
 
 GQuark tracker_date_error_quark (void) {
 	return g_quark_from_static_string ("tracker_date_error-quark");
