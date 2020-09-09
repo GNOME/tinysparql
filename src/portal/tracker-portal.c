@@ -48,6 +48,7 @@ struct _TrackerPortal
 	GCancellable *cancellable;
 	GArray *sessions;
 	guint64 session_ids;
+	gchar *test_flatpak_info;
 };
 
 enum
@@ -130,6 +131,7 @@ tracker_portal_finalize (GObject *object)
 		portal->register_id = 0;
 	}
 
+	g_clear_pointer (&portal->test_flatpak_info, g_free);
 	g_clear_object (&portal->dbus_connection);
 	g_clear_pointer (&portal->node_info,
 	                 g_dbus_node_info_unref);
@@ -174,6 +176,15 @@ tracker_portal_init (TrackerPortal *portal)
 {
 	portal->sessions = g_array_new (FALSE, TRUE, sizeof (TrackerSession));
 	g_array_set_clear_func (portal->sessions, clear_session);
+
+	/* This envvar is used for testing purposes. We do not count on it
+	 * being set on real sessions, as the portal is an autostart service
+	 * and inherits the session environment. If someone could change the
+	 * session environment for malicious intents, this seems a smaller
+	 * concern.
+	 */
+	portal->test_flatpak_info = g_strdup (g_getenv ("TRACKER_TEST_PORTAL_FLATPAK_INFO"));
+	unsetenv ("TRACKER_TEST_PORTAL_FLATPAK_INFO");
 }
 
 static void
@@ -196,7 +207,8 @@ endpoint_closed_cb (TrackerPortalEndpoint *endpoint,
 }
 
 static GStrv
-load_client_configuration (GDBusMethodInvocation  *invocation,
+load_client_configuration (TrackerPortal          *portal,
+                           GDBusMethodInvocation  *invocation,
                            const gchar            *service_uri,
                            GError                **error)
 {
@@ -204,8 +216,18 @@ load_client_configuration (GDBusMethodInvocation  *invocation,
 	GError *inner_error = NULL;
 	GStrv graphs;
 
-	flatpak_info = tracker_invocation_lookup_app_info_sync (invocation,
-	                                                        NULL, &inner_error);
+	if (portal->test_flatpak_info) {
+		flatpak_info = g_key_file_new ();
+		if (!g_key_file_load_from_file (flatpak_info,
+						portal->test_flatpak_info,
+						G_KEY_FILE_NONE,
+						&inner_error))
+			g_clear_pointer (&flatpak_info, g_key_file_unref);
+	} else {
+		flatpak_info = tracker_invocation_lookup_app_info_sync (invocation,
+		                                                        NULL, &inner_error);
+	}
+
 	if (!flatpak_info) {
 		GStrv default_graphs = { NULL };
 
@@ -275,7 +297,7 @@ portal_iface_method_call (GDBusConnection       *connection,
 		g_variant_get (parameters, "(s)", &uri);
 		g_debug ("Creating session for service URI '%s'", uri);
 
-		graphs = load_client_configuration (invocation, uri, &error);
+		graphs = load_client_configuration (portal, invocation, uri, &error);
 		if (!graphs) {
 			g_debug ("Session rejected by policy");
 			g_dbus_method_invocation_return_gerror (invocation, error);

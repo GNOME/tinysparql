@@ -49,37 +49,39 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// ensure that error domain is registered with GDBus
 		new Sparql.Error.INTERNAL ("");
 
-		var message = new DBusMessage.method_call (dbus_name, object_path, DBUS_PEER_IFACE, "Ping");
+		// If this environment variable is present, we always go via the portal,
+		if (Environment.get_variable("TRACKER_TEST_PORTAL_FLATPAK_INFO") == null) {
+			var message = new DBusMessage.method_call (dbus_name, object_path, DBUS_PEER_IFACE, "Ping");
 
-		try {
-			this.bus.send_message_with_reply_sync (message, 0, timeout, null).to_gerror();
-			this.dbus_name = dbus_name;
-			this.object_path = object_path;
-		} catch (GLib.Error e) {
-			if (GLib.FileUtils.test ("/.flatpak-info", GLib.FileTest.EXISTS)) {
-				/* We are in a flatpak sandbox, check going through the portal */
-
-				if (object_path == "/org/freedesktop/Tracker3/Endpoint")
-					object_path = null;
-
-				string uri = Tracker.util_build_dbus_uri (GLib.BusType.SESSION, dbus_name, object_path);
-				message = new DBusMessage.method_call (PORTAL_NAME, PORTAL_PATH, PORTAL_IFACE, "CreateSession");
-				message.set_body (new Variant ("(s)", uri));
-
-				var reply = this.bus.send_message_with_reply_sync (message, 0, timeout, null);
-
-				reply.to_gerror();
-
-				var variant = reply.get_body ();
-				variant.get_child(0, "o", out object_path);
-
-				this.dbus_name = PORTAL_NAME;
+			try {
+				this.bus.send_message_with_reply_sync (message, 0, timeout, null).to_gerror();
+				this.dbus_name = dbus_name;
 				this.object_path = object_path;
-				this.sandboxed = true;
-			} else {
-				throw e;
+				return;
+			} catch (GLib.Error e) {
+				if (!GLib.FileUtils.test ("/.flatpak-info", GLib.FileTest.EXISTS)) {
+					throw e;
+				}
 			}
 		}
+
+		/* We are in a flatpak sandbox, check going through the portal */
+		if (object_path == "/org/freedesktop/Tracker3/Endpoint")
+			object_path = null;
+
+		string uri = Tracker.util_build_dbus_uri (GLib.BusType.SESSION, dbus_name, object_path);
+		var message = new DBusMessage.method_call (PORTAL_NAME, PORTAL_PATH, PORTAL_IFACE, "CreateSession");
+		message.set_body (new Variant ("(s)", uri));
+
+		var reply = this.bus.send_message_with_reply_sync (message, 0, timeout, null);
+		reply.to_gerror();
+
+		var variant = reply.get_body ();
+		variant.get_child(0, "o", out object_path);
+
+		this.dbus_name = PORTAL_NAME;
+		this.object_path = object_path;
+		this.sandboxed = true;
 	}
 
 	static void pipe (out UnixInputStream input, out UnixOutputStream output) throws IOError {
