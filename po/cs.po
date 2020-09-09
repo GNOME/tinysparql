@@ -4,14 +4,14 @@
 #
 # Kamil Páral <ripper42@gmail.com>, 2008.
 # Petr Kovar <pknbe@volny.cz>, 2010.
-# Marek Černocký <marek@manet.cz>, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019.
+# Marek Černocký <marek@manet.cz>, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker\n"
+"Project-Id-Version: tracker tracker-2.3\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2019-01-05 17:28+0000\n"
-"PO-Revision-Date: 2019-02-08 14:19+0100\n"
+"POT-Creation-Date: 2020-09-07 10:44+0000\n"
+"PO-Revision-Date: 2019-09-09 08:35+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -192,7 +192,7 @@ msgstr[2] " %2.2d sekund"
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-data/tracker-collation.c:332
+#: src/libtracker-data/tracker-collation.c:333
 msgid "the|a|an"
 msgstr "-"
 
@@ -281,14 +281,6 @@ msgstr "Načíst určenou ontologii domény"
 #: src/tracker-store/tracker-main.vala:229
 msgid "— start the tracker daemon"
 msgstr "– spustit démona prohledávače Tracker"
-
-#: src/tracker-store/tracker-store.desktop.in:3
-msgid "Tracker Store"
-msgstr "Úložiště prohledávače Tracker"
-
-#: src/tracker-store/tracker-store.desktop.in:4
-msgid "Metadata database store and lookup manager"
-msgstr "Úložiště databáze metadat a správce vyhledávání"
 
 #: src/tracker/tracker-config.c:60
 #, c-format
@@ -703,11 +695,12 @@ msgstr ""
 "Pokud není zadán žádný argument, zobrazí se stav uložiště a démonů na "
 "dolování dat"
 
-#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
-#: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:384 src/tracker/tracker-search.c:1778
-#: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
-#: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
+#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-export.c:439
+#: src/tracker/tracker-extract.c:147 src/tracker/tracker-index.c:412
+#: src/tracker/tracker-info.c:422 src/tracker/tracker-reset.c:385
+#: src/tracker/tracker-search.c:1778 src/tracker/tracker-sparql.c:1497
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-status.c:587
+#: src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Nerozpoznaný přepínač"
 
@@ -718,6 +711,35 @@ msgstr "Nelze získat připojení k D-Bus"
 #: src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Nelze vytvořit proxy sběrnice D-Bus pro tracker-store"
+
+#: src/tracker/tracker-export.c:40
+msgid "Output TriG format which includes named graph information"
+msgstr "Vypsat formát TriG s informacemi v podobě pojmenovaných grafů"
+
+#: src/tracker/tracker-export.c:44
+msgid "Export a specific type of data."
+msgstr "Exportovat konkrétní typ dat"
+
+#: src/tracker/tracker-export.c:45
+msgid "TYPE"
+msgstr "TYP"
+
+#: src/tracker/tracker-export.c:252 src/tracker/tracker-index.c:195
+#: src/tracker/tracker-info.c:263 src/tracker/tracker-search.c:1580
+#: src/tracker/tracker-sparql.c:172 src/tracker/tracker-sparql.c:1086
+#: src/tracker/tracker-status.c:73 src/tracker/tracker-status.c:386
+#: src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "Nelze vytvořit spojení k prohledávači Tracker"
+
+#: src/tracker/tracker-export.c:262 src/tracker/tracker-sparql.c:1437
+#: src/tracker/tracker-sql.c:139 src/tracker/tracker-sql.c:172
+msgid "Could not run query"
+msgstr "Nelze spustit dotaz"
+
+#: src/tracker/tracker-export.c:456
+msgid "Unrecognized value for '--type' option"
+msgstr "Nerozpoznaná hodnota pro volbu „--type“"
 
 #: src/tracker/tracker-extract.c:45
 msgid "Output results format: “sparql”, “turtle” or “json-ld”"
@@ -797,13 +819,6 @@ msgstr "Nelze (pře)indexovat soubor"
 #: src/tracker/tracker-index.c:175
 msgid "(Re)indexing file was successful"
 msgstr "(Pře)indexování souboru bylo úspěšné"
-
-#: src/tracker/tracker-index.c:195 src/tracker/tracker-info.c:263
-#: src/tracker/tracker-search.c:1580 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086 src/tracker/tracker-status.c:73
-#: src/tracker/tracker-status.c:386 src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "Nelze vytvořit spojení k prohledávači Tracker"
 
 #: src/tracker/tracker-index.c:206
 msgid "Importing Turtle file"
@@ -899,74 +914,78 @@ msgstr "Pro tento identifikátor URI nejsou dostupná žádná metadata"
 msgid "Results"
 msgstr "Výsledky"
 
-#: src/tracker/tracker-main.c:48
+#: src/tracker/tracker-main.c:49
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
 "Informace ke konkrétnímu příkazu si můžete přečíst pomocí „tracker help "
 "<příkaz>“"
 
-#: src/tracker/tracker-main.c:97
+#: src/tracker/tracker-main.c:98
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Spustit, zastavit, pozastavit nebo vypsat procesy zodpovídající za "
 "indexování obsahu"
 
-#: src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:99
+msgid "Export data from a Tracker database"
+msgstr "Exportovat data z databáze Tracker"
+
+#: src/tracker/tracker-main.c:100
 msgid "Extract information from a file"
 msgstr "Vytáhnout informace ze souboru"
 
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:101
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr ""
 "Získat nápovědu k používání aplikace Tracker a některého z těchto příkazů"
 
-#: src/tracker/tracker-main.c:100
+#: src/tracker/tracker-main.c:102
 msgid "Show information known about local files or items indexed"
 msgstr "Zobrazit informace známé o místních souborech a indexovaných položkách"
 
-#: src/tracker/tracker-main.c:101
+#: src/tracker/tracker-main.c:103
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Zálohovat, obnovit, importovat a (re)indexovat podle typu MIME nebo názvu "
 "souboru"
 
-#: src/tracker/tracker-main.c:102
+#: src/tracker/tracker-main.c:104
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr "Vynulovat nebo smazat index a nastavení vrátit na výchozí hodnoty"
 
-#: src/tracker/tracker-main.c:103
+#: src/tracker/tracker-main.c:105
 msgid "Search for content indexed or show content by type"
 msgstr "Vyhledat indexovaný obsah nebo zobrazit obsah podle typu"
 
-#: src/tracker/tracker-main.c:104
+#: src/tracker/tracker-main.c:106
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Pomocí SPARQL položit dotaz nebo aktulizovat index, nebo vyhledat v "
 "ontologii nebo ji vypsat jako seznam nebo strom"
 
-#: src/tracker/tracker-main.c:105
+#: src/tracker/tracker-main.c:107
 msgid "Query the database at the lowest level using SQL"
 msgstr "Položit dotaz do databáze na nejnižší úrovni pomocí SQL"
 
-#: src/tracker/tracker-main.c:106
+#: src/tracker/tracker-main.c:108
 msgid "Show the indexing progress, content statistics and index state"
 msgstr "Zobrazit průběh indexování, statistiky o obsahu a stav indexu"
 
-#: src/tracker/tracker-main.c:107
+#: src/tracker/tracker-main.c:109
 msgid "Create, list or delete tags for indexed content"
 msgstr "Vytvořit, zobrazit nebo smazat štítky pro indexovaný obsah"
 
-#: src/tracker/tracker-main.c:108
+#: src/tracker/tracker-main.c:110
 msgid "Show the license and version in use"
 msgstr "Zobrazit licenci a používanou verzi"
 
-#: src/tracker/tracker-main.c:153
+#: src/tracker/tracker-main.c:155
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "„%s“ není příkaz aplikace tracker. Viz „tracker --help“"
 
-#: src/tracker/tracker-main.c:176
+#: src/tracker/tracker-main.c:178
 msgid "Available tracker commands are:"
 msgstr "Dostupné příkazy aplikace tracker jsou:"
 
@@ -1070,7 +1089,7 @@ msgstr "[a|N]"
 msgid "yes"
 msgstr "ano"
 
-#: src/tracker/tracker-reset.c:306
+#: src/tracker/tracker-reset.c:307
 msgid "Resetting existing configuration…"
 msgstr "Nastavení se uvádí do počátečního stavu…"
 
@@ -1525,11 +1544,6 @@ msgstr "Nelze číst soubor"
 msgid "Could not run update"
 msgstr "Nelze spustit aktualizaci"
 
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Nelze spustit dotaz"
-
 #: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
 msgstr "Nebyly nalezeny žádné výsledky odpovídající vašemu dotazu"
@@ -1842,15 +1856,3 @@ msgstr "Přidání a smazání ikon nelze provést naráz"
 #: src/tracker/tracker-tag.c:1094
 msgid "The --description option can only be used with --add"
 msgstr "Přepínač --description je možné použít jen spolu s přepínačem --add"
-
-#~ msgid "All posts"
-#~ msgstr "Všechny záznamy"
-
-#~ msgid "By usage"
-#~ msgstr "Podle použití"
-
-#~ msgid "Data store is not available"
-#~ msgstr "Datové úložiště není dostupné"
-
-#~ msgid "Removing configuration files…"
-#~ msgstr "Odstraňují se soubory s nastavením…"
