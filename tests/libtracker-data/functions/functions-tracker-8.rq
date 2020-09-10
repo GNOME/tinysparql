@@ -1,0 +1,22 @@
+SELECT
+  ?nfd1 ?nfd2 ?nfd3
+  ?nfc1 ?nfc2 ?nfc3
+  ?nfkd1 ?nfkd2 ?nfkd3
+  ?nfkc1 ?nfkc2 ?nfkc3
+{
+  # From http://www.unicode.org/reports/tr15/#Compatibility_Composite_Figure
+  BIND ((tracker:normalize ('\ufb01', 'nfd') = '\ufb01') AS ?nfd1) .
+  BIND ((tracker:normalize ('\ufb01', 'nfc') = '\ufb01') AS ?nfc1) .
+  BIND ((tracker:normalize ('\ufb01', 'nfkd') = '\u0066\u0069') AS ?nfkd1) .
+  BIND ((tracker:normalize ('\ufb01', 'nfkc') = '\u0066\u0069') AS ?nfkc1) .
+
+  BIND ((tracker:normalize ('\u0032\u2075', 'nfd') = '\u0032\u2075') AS ?nfd2) .
+  BIND ((tracker:normalize ('\u0032\u2075', 'nfc') = '\u0032\u2075') AS ?nfc2) .
+  BIND ((tracker:normalize ('\u0032\u2075', 'nfkd') = '\u0032\u0035') AS ?nfkd2) .
+  BIND ((tracker:normalize ('\u0032\u2075', 'nfkc') = '\u0032\u0035') AS ?nfkc2) .
+
+  BIND ((tracker:normalize ('\u1e9b\u0323', 'nfd') = '\u017f\u0323\u0307') AS ?nfd3) .
+  BIND ((tracker:normalize ('\u1e9b\u0323', 'nfc') = '\u1e9b\u0323') AS ?nfc3) .
+  BIND ((tracker:normalize ('\u1e9b\u0323', 'nfkd') = '\u0073\u0323\u0307') AS ?nfkd3) .
+  BIND ((tracker:normalize ('\u1e9b\u0323', 'nfkc') = '\u1e69') AS ?nfkc3) .
+}
