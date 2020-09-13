@@ -1,3 +1,8 @@
+NEW in 3.0.0 - 2020-09-13
+=========================
+
+Translations: da, de, it, kk, ko, lv
+
 NEW in 2.99.5 - 2020-09-07
 ==========================
   * Fix DBus logging in tracker-sandbox test helper
