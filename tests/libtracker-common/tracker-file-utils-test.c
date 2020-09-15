@@ -292,7 +292,7 @@ test_file_utils_open_close ()
         tracker_file_close (f, FALSE);
 
         f = tracker_file_open ("./file-does-NOT-exist");
-        g_assert_true (!f);
+        g_assert_null (f);
 }
 
 static void

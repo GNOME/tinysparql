@@ -246,10 +246,13 @@ tracker_fts_rebuild_tokens (sqlite3     *db,
                             const gchar *table_name)
 {
 	gchar *query;
+	gint rc;
 
 	/* This special query rebuilds the tokens in the given FTS table */
 	query = g_strdup_printf ("INSERT INTO \"%s\".%s(%s) VALUES('rebuild')",
 				 database, table_name, table_name);
-	sqlite3_exec(db, query, NULL, NULL, NULL);
+	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
 	g_free (query);
+
+	g_warn_if_fail (rc == SQLITE_OK);
 }

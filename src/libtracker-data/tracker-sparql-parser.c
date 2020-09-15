@@ -548,8 +548,6 @@ tracker_parser_state_iterate (TrackerParserState   *state,
 
 	/* Find the first parent that has a next child to handle */
 	while (state->rule_states.len > 0) {
-		tracker_parser_state_peek_current_rule (state);
-
 		if (tracker_parser_state_next_child (state, TRUE)) {
 			child = tracker_parser_state_lookup_child (state);
 			tracker_parser_state_skip_whitespace (state, parser);
