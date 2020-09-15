@@ -9,7 +9,7 @@ int main (int argc, const char **argv)
     "INSERT { _:foo a nie:InformationElement } WHERE { ?x a rdfs:Class }";
 
   connection = tracker_sparql_connection_bus_new ("org.freedesktop.Tracker1", NULL, NULL, &error);
-  if (!error) {
+  if (error) {
     g_printerr ("Couldn't obtain a connection to the Tracker store: %s",
                 error->message);
     g_clear_error (&error);
