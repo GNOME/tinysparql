@@ -229,34 +229,6 @@ test_date_time_from_string ()
 }
 
 static void
-test_date_time_get_local_date ()
-{
-        GValue value = G_VALUE_INIT;
-        GError *error = NULL;
-
-        g_value_init (&value, TRACKER_TYPE_DATE_TIME);
-
-        tracker_date_time_set_from_string (&value, "2011-10-28T17:43:00+03:00", &error);
-        g_assert_true (!error);
-
-        g_assert_cmpint (tracker_date_time_get_local_date (&value), ==, 15275);
-}
-
-static void
-test_date_time_get_local_time ()
-{
-        GValue value = G_VALUE_INIT;
-        GError *error = NULL;
-
-        g_value_init (&value, TRACKER_TYPE_DATE_TIME);
-
-        tracker_date_time_set_from_string (&value, "2011-10-28T17:43:00+03:00", &error);
-        g_assert_true (!error);
-
-        g_assert_cmpint (tracker_date_time_get_local_time (&value), ==, 63780);
-}
-
-static void
 test_date_time_conversions (void)
 {
         GError *error = NULL;
@@ -295,10 +267,6 @@ main (gint argc, gchar **argv)
                          test_date_time_get_set);
         g_test_add_func ("/libtracker-common/date-time/from_string",
                          test_date_time_from_string);
-        g_test_add_func ("/libtracker-common/date-time/get_local_date",
-                         test_date_time_get_local_date);
-        g_test_add_func ("/libtracker-common/date-time/get_local_time",
-                         test_date_time_get_local_time);
         g_test_add_func ("/libtracker-common/date-time/conversions",
                          test_date_time_conversions);
 

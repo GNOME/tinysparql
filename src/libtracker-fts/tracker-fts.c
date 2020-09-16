@@ -38,24 +38,30 @@ int sqlite3_fts5_init ();
 static gchar **
 get_fts_properties (GHashTable  *tables)
 {
-	GList *table_columns, *columns;
-	gchar **property_names;
+	GList *table_columns;
+	GArray *property_names;
 	GList *keys, *l;
 
-	columns = NULL;
 	keys = g_hash_table_get_keys (tables);
 	keys = g_list_sort (keys, (GCompareFunc) strcmp);
 
+	property_names = g_array_new (TRUE, FALSE, sizeof (gchar *));
+
 	for (l = keys; l; l = l->next) {
 		table_columns = g_hash_table_lookup (tables, l->data);
-		columns = g_list_concat (columns, g_list_copy (table_columns));
+
+		while (table_columns) {
+			gchar *str;
+
+			str = g_strdup (table_columns->data);
+			g_array_append_val (property_names, str);
+			table_columns = table_columns->next;
+		}
 	}
 
-	property_names = tracker_glist_to_string_list (columns);
-	g_list_free (columns);
 	g_list_free (keys);
 
-	return property_names;
+	return (gchar **) g_array_free (property_names, FALSE);
 }
 
 gboolean

@@ -6,7 +6,6 @@ tracker-dbus
 tracker-file-utils
 tracker-ontology
 tracker-thumbnailer
-tracker-type-utils
 tracker-utils
 tracker-date-time-test
 tracker-media-art-test

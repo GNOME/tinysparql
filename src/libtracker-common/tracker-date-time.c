@@ -34,7 +34,6 @@
 #include <glib.h>
 
 #include "tracker-date-time.h"
-#include "tracker-type-utils.h"
 
 GQuark tracker_date_error_quark (void) {
 	return g_quark_from_static_string ("tracker_date_error-quark");
@@ -349,28 +348,4 @@ tracker_date_time_get_offset (const GValue *value)
 
 	/* UTC offset */
 	return value->data[1].v_int;
-}
-
-gint
-tracker_date_time_get_local_date (const GValue *value)
-{
-	gdouble local_timestamp;
-
-	g_return_val_if_fail (G_VALUE_HOLDS (value, TRACKER_TYPE_DATE_TIME), 0);
-
-	/* return number of days since epoch */
-	local_timestamp = tracker_date_time_get_time (value) + tracker_date_time_get_offset (value);
-	return (gint) (local_timestamp / 3600 / 24);
-}
-
-gint
-tracker_date_time_get_local_time (const GValue *value)
-{
-	gdouble local_timestamp;
-
-	g_return_val_if_fail (G_VALUE_HOLDS (value, TRACKER_TYPE_DATE_TIME), 0);
-
-	/* return local time of day */
-	local_timestamp = tracker_date_time_get_time (value) + tracker_date_time_get_offset (value);
-	return (int) local_timestamp % (24 * 3600);
 }
