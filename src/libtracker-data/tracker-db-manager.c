@@ -40,6 +40,7 @@
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-interface.h"
 #include "tracker-data-manager.h"
+#include "tracker-file-utils.h"
 #include "tracker-uuid.h"
 
 #define UNKNOWN_STATUS 0.5
