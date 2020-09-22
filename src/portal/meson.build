@@ -10,7 +10,7 @@ executable('tracker-xdg-portal-@0@'.format(tracker_api_major), sources,
     install: true,
     install_rpath: tracker_install_rpath,
     install_dir: get_option('libexecdir'),
-    dependencies: [tracker_sparql_dep],
+    dependencies: [tracker_sparql_dep, tracker_common_dep],
     include_directories: [commoninc, configinc, srcinc],
 )
 

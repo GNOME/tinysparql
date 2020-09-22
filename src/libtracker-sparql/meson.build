@@ -104,7 +104,7 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
 tracker_sparql_dep = declare_dependency(
     link_with: libtracker_sparql,
     include_directories: srcinc,
-    dependencies: [tracker_common_dep],
+    dependencies: [glib, gio],
 )
 
 pkg.generate(libtracker_sparql,
