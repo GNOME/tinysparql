@@ -15,7 +15,7 @@ big benefits for the user; shared data between applications and
 information which is relational to other information (for example:
 mixing contacts with files, locations, activities and etc.).</description>
   <homepage rdf:resource="https://wiki.gnome.org/Projects/Tracker" />
-  <mailing-list rdf:resource="http://mail.gnome.org/mailman/listinfo/tracker-list" />
+  <developer-forum rdf:resource="https://discourse.gnome.org/tag/tracker" />
   <download-page rdf:resource="http://download.gnome.org/sources/tracker/" />
   <bug-database rdf:resource="https://gitlab.gnome.org/GNOME/tracker/issues/" />
   <category rdf:resource="http://api.gnome.org/doap-extensions#core" />
