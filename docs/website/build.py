@@ -62,7 +62,7 @@ def apidocs_header(tracker_commit):
     <div class="warning">
         <p>This is a documentation preview for the next version of Tracker,
            generated from <a href="https://gitlab.gnome.org/GNOME/tracker/commit/{tracker_commit}/">tracker.git commit {tracker_commit[:7]}</a>.</p>
-        <p>See the <a href="../..">Tracker website</a> for more documentation.</p>
+        <p>See the <a href="https://gnome.pages.gitlab.gnome.org/tracker/docs/developer/">Tracker website</a> for more documentation.</p>
     </div>"""
 
 
