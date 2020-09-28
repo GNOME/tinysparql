@@ -6,6 +6,8 @@ config_json_full_path = join_paths(meson.current_build_dir(), 'configuration.jso
 
 testconf.set('TEST_CLI_DIR', tracker_uninstalled_cli_dir)
 testconf.set('TEST_ONTOLOGIES_DIR', tracker_uninstalled_nepomuk_ontologies_dir)
+testconf.set('TEST_DBUS_DAEMON_CONFIG_FILE', build_root / 'tests' / 'test-bus.conf')
+testconf.set('TEST_PORTAL_FLATPAK_INFO', source_root / 'tests' / 'flatpak-info')
 testconf.set('TRACKER_VERSION', meson.project_version())
 
 config_json = configure_file(
