@@ -263,6 +263,11 @@ load_client_configuration (TrackerPortal          *portal,
 
 	if (!graphs) {
 		g_debug ("Service '%s' not found in Tracker policy", service_uri);
+		g_set_error (error,
+			     G_IO_ERROR,
+			     G_IO_ERROR_NOT_FOUND,
+			     "Service '%s' not found in Tracker policy",
+			     service_uri);
 		return NULL;
 	}
 
