@@ -30,6 +30,7 @@ functional_tests = [
   'collation',
   'ontology-changes',
   'cli',
+  'portal',
 ]
 
 test_env = environment()
