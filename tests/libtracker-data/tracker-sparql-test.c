@@ -140,6 +140,13 @@ const TestInfo tests[] = {
 	{ "functions/functions-datatypes-2", "functions/data-2", FALSE },
 	{ "functions/functions-datatypes-3", "functions/data-3", FALSE },
 	{ "functions/functions-datatypes-4", "functions/data-4", FALSE },
+	{ "functions/functions-builtin-hash-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-ucase-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-lcase-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-strbefore-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-strafter-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-ceil-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-floor-1", "functions/data-1", FALSE },
 	/* Graph semantics and operations */
 	{ "graph/graph-1", "graph/data-1", FALSE },
 	{ "graph/graph-2", "graph/data-2", FALSE },
@@ -539,7 +546,7 @@ main (int argc, char **argv)
 	gint result;
 	gint i;
 
-	setlocale (LC_COLLATE, "en_US.utf8");
+	setlocale (LC_ALL, "en_US.utf8");
 
 	current_dir = g_get_current_dir ();
 	tests_data_dir = g_build_filename (current_dir, "sparql-test-data-XXXXXX", NULL);

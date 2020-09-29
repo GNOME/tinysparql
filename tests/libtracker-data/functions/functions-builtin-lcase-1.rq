@@ -1,0 +1,1 @@
+SELECT (LCASE('HELLO') AS ?str1) (LCASE('МОСКВА') AS ?str2) {}
