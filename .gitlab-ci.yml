@@ -67,12 +67,16 @@ coverage-analysis:
   allow_failure: true
   script:
     - dnf install -y gcovr
-    - su tracker -c 'mkdir coverage-build'
+    - su tracker -c 'mkdir -p coverage-build/coveragereport'
     - su tracker -c 'cd coverage-build; meson .. -Db_lto=true -Db_coverage=true'
     - su tracker -c 'cd coverage-build; ninja'
     - su tracker -c 'cd coverage-build; env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session eatmydata meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}'
-    - su tracker -c 'cd coverage-build; gcovr --root=.. --exclude=../tests --exclude=../utils --exclude=../examples'
-  coverage: '/^TOTAL.*\s+(\d+\%)$/'
+    - su tracker -c 'cd coverage-build; gcovr --html-details --print-summary --root=.. --exclude=../docs/reference --exclude=../tests --exclude=../utils --exclude=../examples --output coveragereport/index.html'
+  coverage: '/^lines: (\d+\.\d+\%)/'
+  artifacts:
+    when: always
+    paths:
+    - coverage-build/coveragereport
 
 coverity:
   stage: analysis

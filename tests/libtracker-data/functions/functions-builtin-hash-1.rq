@@ -1,0 +1,8 @@
+SELECT
+  (MD5('abc') AS ?md5)
+  (SHA1('abc') AS ?sha1)
+  (SHA256('abc') AS ?sha256)
+  (SHA384('abc') AS ?sha384)
+  (SHA512('abc') AS ?sha512)
+{
+}

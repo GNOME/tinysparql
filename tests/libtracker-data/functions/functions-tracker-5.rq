@@ -1,0 +1,1 @@
+SELECT (tracker:unaccent ('áêïoù') AS ?str) {}

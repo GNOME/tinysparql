@@ -7741,6 +7741,7 @@ handle_custom_function (TrackerSparql  *sparql,
 	} else if (g_str_equal (function, TRACKER_NS "title-order")) {
 		_call_rule (sparql, NAMED_RULE_ArgList, error);
 		_append_string (sparql, "COLLATE " TRACKER_TITLE_COLLATION_NAME " ");
+		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_UNKNOWN;
 	} else if (g_str_equal (function, TRACKER_NS "ascii-lower-case")) {
 		sparql->current_state->convert_to_string = TRUE;
 		_append_string (sparql, "lower (");

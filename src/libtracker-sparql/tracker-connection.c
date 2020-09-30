@@ -99,8 +99,8 @@ tracker_sparql_connection_class_init (TrackerSparqlConnectionClass *klass)
 /**
  * tracker_sparql_connection_new:
  * @flags: values from #TrackerSparqlConnectionFlags
- * @store: the directory that contains the database as a #GFile, or %NULL
- * @ontology: the directory that contains the database schemas as a #GFile, or %NULL
+ * @store: (nullable): the directory that contains the database as a #GFile, or %NULL
+ * @ontology: (nullable): the directory that contains the database schemas as a #GFile, or %NULL
  * @cancellable: (nullable): a #GCancellable, or %NULL
  * @error: pointer to a #GError
  *

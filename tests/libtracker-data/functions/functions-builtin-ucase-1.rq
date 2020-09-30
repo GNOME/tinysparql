@@ -1,0 +1,1 @@
+SELECT (UCASE('hello') AS ?str1) (UCASE('москва') AS ?str2) {}

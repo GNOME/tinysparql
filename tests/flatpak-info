@@ -1,0 +1,2 @@
+[Policy Tracker3]
+dbus:org.freedesktop.PortalTest=tracker:Allowed

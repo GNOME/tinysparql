@@ -114,6 +114,12 @@ const TestInfo tests[] = {
 	{ "functions/functions-property-1", "functions/data-1", FALSE },
 	{ "functions/functions-tracker-1", "functions/data-1", FALSE },
 	{ "functions/functions-tracker-2", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-3", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-4", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-5", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-6", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-7", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-8", "functions/data-2", FALSE },
 	{ "functions/functions-tracker-loc-1", "functions/data-3", FALSE },
 	{ "functions/functions-xpath-1", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-2", "functions/data-1", FALSE },
@@ -134,6 +140,13 @@ const TestInfo tests[] = {
 	{ "functions/functions-datatypes-2", "functions/data-2", FALSE },
 	{ "functions/functions-datatypes-3", "functions/data-3", FALSE },
 	{ "functions/functions-datatypes-4", "functions/data-4", FALSE },
+	{ "functions/functions-builtin-hash-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-ucase-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-lcase-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-strbefore-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-strafter-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-ceil-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-floor-1", "functions/data-1", FALSE },
 	/* Graph semantics and operations */
 	{ "graph/graph-1", "graph/data-1", FALSE },
 	{ "graph/graph-2", "graph/data-2", FALSE },
@@ -197,6 +210,7 @@ const TestInfo tests[] = {
 	{ "sort/query-sort-7", "sort/data-sort-1", FALSE },
 	{ "sort/query-sort-8", "sort/data-sort-5", FALSE },
 	{ "sort/query-sort-9", "sort/data-sort-5", FALSE },
+	{ "sort/query-title-sort-1", "sort/data-title-sort-1", FALSE },
 	{ "subqueries/subqueries-1", "subqueries/data-1", FALSE },
 	{ "subqueries/subqueries-union-1", "subqueries/data-1", FALSE },
 	{ "subqueries/subqueries-union-2", "subqueries/data-1", FALSE },
@@ -532,7 +546,7 @@ main (int argc, char **argv)
 	gint result;
 	gint i;
 
-	setlocale (LC_COLLATE, "en_US.utf8");
+	setlocale (LC_ALL, "en_US.utf8");
 
 	current_dir = g_get_current_dir ();
 	tests_data_dir = g_build_filename (current_dir, "sparql-test-data-XXXXXX", NULL);

@@ -1,5 +1,10 @@
 tests = []
 
+test_bus_conf_file = configure_file(
+  input: 'test-bus.conf.in',
+  output: 'test-bus.conf',
+  configuration: conf)
+
 subdir('common')
 
 subdir('gvdb')
@@ -8,6 +13,7 @@ subdir('libtracker-data')
 subdir('libtracker-fts')
 subdir('libtracker-sparql')
 subdir('functional-tests')
+subdir('services')
 
 foreach t: tests
   test_name = t.get('name')

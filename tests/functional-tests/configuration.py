@@ -38,6 +38,8 @@ if 'TRACKER_FUNCTIONAL_TEST_CONFIG' not in os.environ:
 with open(os.environ['TRACKER_FUNCTIONAL_TEST_CONFIG']) as f:
     config = json.load(f)
 
+TEST_DBUS_DAEMON_CONFIG_FILE = config['TEST_DBUS_DAEMON_CONFIG_FILE']
+TEST_PORTAL_FLATPAK_INFO = config['TEST_PORTAL_FLATPAK_INFO']
 
 def cli_dir():
     return config['TEST_CLI_DIR']

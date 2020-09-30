@@ -1,0 +1,7 @@
+SELECT
+  (tracker:uri-is-descendant ('file:///', 'file:///a') AS ?a)
+  (tracker:uri-is-descendant ('file:///a', 'file:///b') AS ?b)
+  (tracker:uri-is-descendant ('file:///a', 'file:///') AS ?c)
+  (tracker:uri-is-descendant ('file:///', 'file:///a/b') AS ?d)
+{
+}
