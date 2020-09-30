@@ -4572,6 +4572,8 @@ translate_Modify (TrackerSparql  *sparql,
 		retval = iterate_solution (sparql, solution, insert, error);
 	}
 
+	tracker_token_unset (&sparql->current_state->graph);
+
 	tracker_solution_free (solution);
 
 	return retval;
