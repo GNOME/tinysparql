@@ -59,7 +59,9 @@ The following GNOME applications use Tracker:
  * [GNOME Files](https://wiki.gnome.org/Apps/Files) (uses Tracker Miner FS for full-text search within files)
  * [GNOME Games](https://wiki.gnome.org/Apps/Games) (uses Tracker Miner FS to find games)
  * [GNOME Music](https://wiki.gnome.org/Apps/Music) (uses Tracker Miner FS to find music and store playlist data)
+ * [GNOME Notes](https://wiki.gnome.org/Apps/Notes) (uses Tracker SPARQL to store notes)
  * [GNOME Photos](https://wiki.gnome.org/Apps/Photos) (uses Tracker Miner FS to find photos and Tracker SPARQL to store album data)
+ * [GNOME Usage](https://gitlab.gnome.org/GNOME/gnome-usage) (uses Tracker Miner FS to measure disk usage)
  * [GNOME Videos](https://wiki.gnome.org/Apps/Videos) (uses Tracker Miner FS to find video content)
 
 Although Tracker is able to store contacts and calendar entries,
@@ -77,6 +79,11 @@ for this.
 [Grilo](https://wiki.gnome.org/Projects/Grilo) is a library for finding and
 fetching media content from many different sources. It uses Tracker Miner FS to
 browse and search local media content.
+
+[Netatalk](http://netatalk.sourceforge.net/) is an [Apple Filing
+Protocol](https://en.wikipedia.org/wiki/Apple_Filing_Protocol) media server.
+It [uses Tracker Miner FS](http://netatalk.sourceforge.net/3.1/htmldocs/configuration.html#idm140604592868992)
+to search through server content.
 
 [Rygel](https://wiki.gnome.org/Projects/Rygel) is a home media solution that serves
 content over UPnP. It uses Tracker Miner FS to find your media files.
