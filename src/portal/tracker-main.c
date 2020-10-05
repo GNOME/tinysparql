@@ -76,7 +76,6 @@ name_acquired_callback (GDBusConnection *connection,
                         gpointer         user_data)
 {
 	g_debug ("Name '%s' acquired", name);
-	g_main_loop_quit (user_data);
 }
 
 static void
@@ -123,23 +122,20 @@ main (int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	main_loop = g_main_loop_new (NULL, FALSE);
+	portal = tracker_portal_new (connection, NULL, &error);
+	if (!portal) {
+		g_printerr ("%s", error->message);
+		return EXIT_FAILURE;
+	}
 
 	g_bus_own_name_on_connection (connection,
 	                              "org.freedesktop.portal.Tracker",
 	                              G_BUS_NAME_OWNER_FLAGS_NONE,
 	                              name_acquired_callback,
 	                              name_lost_callback,
-	                              g_main_loop_ref (main_loop),
-	                              (GDestroyNotify) g_main_loop_unref);
+	                              NULL, NULL);
 
-	g_main_loop_run (main_loop);
-
-	portal = tracker_portal_new (connection, NULL, &error);
-	if (!portal) {
-		g_printerr ("%s", error->message);
-		return EXIT_FAILURE;
-	}
+	main_loop = g_main_loop_new (NULL, FALSE);
 
 	g_unix_signal_add (SIGINT, sigterm_cb, main_loop);
 	g_unix_signal_add (SIGTERM, sigterm_cb, main_loop);
