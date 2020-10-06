@@ -2674,7 +2674,7 @@ tracker_data_load_turtle_file (TrackerData  *data,
 {
 	TrackerTurtleReader *reader = NULL;
 	GError *inner_error = NULL;
-	const gchar *subject, *predicate, *object_str;
+	const gchar *subject, *predicate, *object_str, *langtag;
 	gboolean object_is_uri;
 
 	reader = tracker_turtle_reader_new_for_file (file, &inner_error);
@@ -2685,12 +2685,12 @@ tracker_data_load_turtle_file (TrackerData  *data,
 	                                   &subject,
 	                                   &predicate,
 	                                   &object_str,
-	                                   NULL,
+	                                   &langtag,
 	                                   &object_is_uri,
 	                                   &inner_error)) {
 		GBytes *object;
 
-		object = g_bytes_new (object_str, strlen (object_str) + 1);
+		object = tracker_sparql_make_langstring (object_str, langtag);
 
 		if (object_is_uri) {
 			tracker_data_insert_statement_with_uri (data, graph,
