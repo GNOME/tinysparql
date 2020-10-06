@@ -294,6 +294,8 @@ parse_terminal (TrackerTurtleReader  *reader,
 
 	if (out)
 		*out = str;
+	else
+		g_free (str);
 
 	return TRUE;
 }
@@ -589,14 +591,18 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 			           parse_terminal (reader, terminal_STRING_LITERAL_LONG2, 3, &str)) {
 				reader->object = g_strcompress (str);
 				g_free (str);
-				if (!handle_type_cast (reader, error))
-					return FALSE;
+				if (!parse_terminal (reader, terminal_LANGTAG, 0, NULL)) {
+					if (!handle_type_cast (reader, error))
+						return FALSE;
+				}
 			} else if (parse_terminal (reader, terminal_STRING_LITERAL1, 1, &str) ||
 			           parse_terminal (reader, terminal_STRING_LITERAL2, 1, &str)) {
 				reader->object = g_strcompress (str);
 				g_free (str);
-				if (!handle_type_cast (reader, error))
-					return FALSE;
+				if (!parse_terminal (reader, terminal_LANGTAG, 0, NULL)) {
+					if (!handle_type_cast (reader, error))
+						return FALSE;
+				}
 			} else if (parse_terminal (reader, terminal_DOUBLE, 0, &str) ||
 			           parse_terminal (reader, terminal_INTEGER, 0, &str)) {
 				reader->object = str;
