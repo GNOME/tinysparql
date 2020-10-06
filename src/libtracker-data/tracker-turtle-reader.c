@@ -585,14 +585,14 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 				reader->object = generate_bnode (reader, str);
 				reader->object_is_uri = TRUE;
 				g_free (str);
-			} else if (parse_terminal (reader, terminal_STRING_LITERAL1, 1, &str) ||
-			           parse_terminal (reader, terminal_STRING_LITERAL2, 1, &str)) {
+			} else if (parse_terminal (reader, terminal_STRING_LITERAL_LONG1, 3, &str) ||
+			           parse_terminal (reader, terminal_STRING_LITERAL_LONG2, 3, &str)) {
 				reader->object = g_strcompress (str);
 				g_free (str);
 				if (!handle_type_cast (reader, error))
 					return FALSE;
-			} else if (parse_terminal (reader, terminal_STRING_LITERAL_LONG1, 3, &str) ||
-			           parse_terminal (reader, terminal_STRING_LITERAL_LONG2, 3, &str)) {
+			} else if (parse_terminal (reader, terminal_STRING_LITERAL1, 1, &str) ||
+			           parse_terminal (reader, terminal_STRING_LITERAL2, 1, &str)) {
 				reader->object = g_strcompress (str);
 				g_free (str);
 				if (!handle_type_cast (reader, error))
