@@ -2685,6 +2685,7 @@ tracker_data_load_turtle_file (TrackerData  *data,
 	                                   &subject,
 	                                   &predicate,
 	                                   &object_str,
+	                                   NULL,
 	                                   &object_is_uri,
 	                                   &inner_error)) {
 		GBytes *object;
