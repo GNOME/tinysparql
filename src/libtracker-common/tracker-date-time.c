@@ -222,7 +222,7 @@ tracker_date_to_string (gdouble date_time,
 	gmtime_r (&seconds, &utc_time);
 
 	/* Output is ISO 8601 format : "YYYY-MM-DDThh:mm:ss" */
-	count = strftime (buffer, sizeof (buffer), "%FT%T", &utc_time);
+	count = strftime (buffer, sizeof (buffer), "%4Y-%m-%dT%T", &utc_time);
 
 	/* Append milliseconds (if non-zero) and time zone */
 	if (milliseconds > 0) {
