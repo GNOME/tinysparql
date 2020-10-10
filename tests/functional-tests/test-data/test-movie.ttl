@@ -7,6 +7,7 @@ _:3 a nfo:FileHash ;
   nfo:hashAlgorithm "gibest" .
 
 <file:///home/sam/Videos/My%20Movie.avi> a nmm:Video , nfo:FileDataObject ;
+  nie:title """It"""@en ;
   nfo:frameRate 25 ;
   nfo:channels 2 ;
   nfo:hasHash _:3 ;
