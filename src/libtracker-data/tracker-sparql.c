@@ -9371,25 +9371,29 @@ prepare_query (TrackerSparql         *sparql,
 				return NULL;
 			}
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_DATE) {
+			GError *inner_error = NULL;
 			gchar *full_str;
 			gdouble datetime;
 
 			full_str = g_strdup_printf ("%sT00:00:00Z", binding->literal);
-			datetime = tracker_string_to_date (full_str, NULL, error);
+			datetime = tracker_string_to_date (full_str, NULL, &inner_error);
 			g_free (full_str);
 
-			if (datetime < 0) {
+			if (inner_error) {
+				g_propagate_error (error, inner_error);
 				g_object_unref (stmt);
 				return NULL;
 			}
 
 			tracker_db_statement_bind_int (stmt, i, (int) datetime);
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME) {
+			GError *inner_error = NULL;
 			gdouble datetime;
 			gint offset = 0;
 
-			datetime = tracker_string_to_date (binding->literal, offset, error);
-			if (datetime < 0) {
+			datetime = tracker_string_to_date (binding->literal, offset, &inner_error);
+			if (inner_error) {
+				g_propagate_error (error, inner_error);
 				g_object_unref (stmt);
 				return NULL;
 			}
