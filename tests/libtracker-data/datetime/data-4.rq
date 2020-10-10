@@ -1,0 +1,4 @@
+INSERT {
+	example:x a example:A ;
+	   example:p "0100-12-31T21:00:00-03:00"
+}
