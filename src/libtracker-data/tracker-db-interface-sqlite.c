@@ -530,7 +530,7 @@ function_sparql_time_sort (sqlite3_context *context,
 		time = tracker_string_to_date (value, NULL, &error);
 
 		if (error) {
-			result_context_function_error (context, fn, "Failed time string conversion");
+			result_context_function_error (context, fn, error->message);
 			g_error_free (error);
 			return;
 		}
