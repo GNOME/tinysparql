@@ -1147,11 +1147,12 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 			tracker_data_resource_buffer_flush (data, resource, &actual_error);
 			if (actual_error) {
 				g_propagate_error (error, actual_error);
-				break;
+				goto out;
 			}
 		}
 	}
 
+out:
 	g_ptr_array_set_size (data->update_buffer.graphs, 0);
 	data->resource_buffer = NULL;
 }
