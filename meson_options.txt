@@ -5,8 +5,6 @@ option('man', type: 'boolean', value: true, yield: true,
 option('override_sqlite_version_check', type: 'boolean', value: false,
        description: 'Override checks for broken sqlite versions')
 
-option('network_manager', type: 'feature', value: 'auto',
-       description: 'Connection detection through NetworkManager')
 option('stemmer', type: 'feature', value: 'auto',
        description: 'Stemming words while indexing')
 option('unicode_support', type: 'combo', choices: ['icu', 'unistring', 'auto'], value: 'auto',
