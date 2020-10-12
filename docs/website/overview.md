@@ -53,14 +53,16 @@ provided by Tracker to gnome-shell.
 
 The following GNOME applications use Tracker:
 
- * [GNOME Books](https://wiki.gnome.org/Apps/Books) (uses Tracker to find ebooks)
- * [GNOME Boxes](https://wiki.gnome.org/Apps/Boxes) (uses Tracker to find VM images)
- * [GNOME Documents](https://wiki.gnome.org/Apps/Documents) (uses Tracker to find documents)
- * [GNOME Files](https://wiki.gnome.org/Apps/Files) (uses Tracker for full-text search within files)
- * [GNOME Games](https://wiki.gnome.org/Apps/Games) (uses Tracker to find games)
- * [GNOME Music](https://wiki.gnome.org/Apps/Music) (uses Tracker to find music and store playlist data)
- * [GNOME Photos](https://wiki.gnome.org/Apps/Photos) (uses Tracker to find photos and store album data)
- * [GNOME Videos](https://wiki.gnome.org/Apps/Videos) (uses Tracker to find video content)
+ * [GNOME Books](https://wiki.gnome.org/Apps/Books) (uses Tracker Miner FS to find ebooks)
+ * [GNOME Boxes](https://wiki.gnome.org/Apps/Boxes) (uses Tracker Miner FS to find VM images)
+ * [GNOME Documents](https://wiki.gnome.org/Apps/Documents) (uses Tracker Miner FS to find documents)
+ * [GNOME Files](https://wiki.gnome.org/Apps/Files) (uses Tracker Miner FS for full-text search within files)
+ * [GNOME Games](https://wiki.gnome.org/Apps/Games) (uses Tracker Miner FS to find games)
+ * [GNOME Music](https://wiki.gnome.org/Apps/Music) (uses Tracker Miner FS to find music and store playlist data)
+ * [GNOME Notes](https://wiki.gnome.org/Apps/Notes) (uses Tracker SPARQL to store notes)
+ * [GNOME Photos](https://wiki.gnome.org/Apps/Photos) (uses Tracker Miner FS to find photos and Tracker SPARQL to store album data)
+ * [GNOME Usage](https://gitlab.gnome.org/GNOME/gnome-usage) (uses Tracker Miner FS to measure disk usage)
+ * [GNOME Videos](https://wiki.gnome.org/Apps/Videos) (uses Tracker Miner FS to find video content)
 
 Although Tracker is able to store contacts and calendar entries,
 GNOME uses [Evolution Data Server](https://developer.gnome.org/platform-overview/stable/tech-eds.html)
@@ -75,27 +77,33 @@ for this.
 ### Media tools
 
 [Grilo](https://wiki.gnome.org/Projects/Grilo) is a library for finding and
-fetching media content from many different sources. It uses Tracker to browse
-and search local media content.
+fetching media content from many different sources. It uses Tracker Miner FS to
+browse and search local media content.
+
+[Netatalk](http://netatalk.sourceforge.net/) is an [Apple Filing
+Protocol](https://en.wikipedia.org/wiki/Apple_Filing_Protocol) media server.
+It [uses Tracker Miner FS](http://netatalk.sourceforge.net/3.1/htmldocs/configuration.html#idm140604592868992)
+to search through server content.
 
 [Rygel](https://wiki.gnome.org/Projects/Rygel) is a home media solution that serves
-content over UPnP. It uses Tracker to find your media files.
+content over UPnP. It uses Tracker Miner FS to find your media files.
 
 ### Sailfish OS
 
-[Sailfish OS](https://sailfishos.org) uses Tracker for [indexing media
+[Sailfish OS](https://sailfishos.org) uses Tracker Miner FS for [indexing media
 content](https://sailfishos.org/wiki/Core_Areas_and_APIs).
 
 ## Related projects
 
-[Xapian](https://xapian.org/) provides similar functionality to Tracker.
-It focuses more on scalability and less on having a lightweight footprint.
+[Xapian](https://xapian.org/) provides similar functionality to Tracker Miner
+FS. It focuses more on scalability and less on having a lightweight footprint.
 Unlike Tracker, it doesn't support SPARQL or provide a Linked Data endpoint.
 
 [Baloo](https://community.kde.org/Baloo) is a metadata and search framework by
 KDE, implemented using Xapian.
 
-[Recoll](https://www.lesbonscomptes.com/recoll/) is a cross-platform desktop search application powered by Xapian.
+[Recoll](https://www.lesbonscomptes.com/recoll/) is a cross-platform desktop
+search application powered by Xapian.
 
 [Apache Lucene + Solr](http://lucene.apache.org/) is a search engine which
 targets very large-scale workloads. It has a much heavier footprint compared to
