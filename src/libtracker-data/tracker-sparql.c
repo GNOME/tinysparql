@@ -2540,32 +2540,47 @@ static gboolean
 translate_Update (TrackerSparql  *sparql,
                   GError        **error)
 {
+	gboolean cont = TRUE;
+
 	/* Update ::= Prologue ( Update1 ( ';' Update )? )?
 	 *
 	 * TRACKER EXTENSION:
 	 * ';' separator is made optional.
+	 *
+	 * Note: Even though the rule is defined recursively, we
+	 * process it iteratively here. This is in order to avoid
+	 * making maximum update buffer depend on stack size.
 	 */
-	_call_rule (sparql, NAMED_RULE_Prologue, error);
+	while (cont) {
+		_call_rule (sparql, NAMED_RULE_Prologue, error);
 
-	if (!sparql->current_state->blank_node_map) {
-		sparql->current_state->blank_node_map =
-			g_hash_table_new_full (g_str_hash, g_str_equal,
-			                       g_free, g_free);
-	}
+		if (!sparql->current_state->blank_node_map) {
+			sparql->current_state->blank_node_map =
+				g_hash_table_new_full (g_str_hash, g_str_equal,
+				                       g_free, g_free);
+		}
 
-	if (_check_in_rule (sparql, NAMED_RULE_Update1)) {
-		if (sparql->blank_nodes)
-			g_variant_builder_open (sparql->blank_nodes, G_VARIANT_TYPE ("aa{ss}"));
+		if (_check_in_rule (sparql, NAMED_RULE_Update1)) {
+			if (sparql->blank_nodes)
+				g_variant_builder_open (sparql->blank_nodes, G_VARIANT_TYPE ("aa{ss}"));
 
-		_call_rule (sparql, NAMED_RULE_Update1, error);
+			_call_rule (sparql, NAMED_RULE_Update1, error);
 
-		if (sparql->blank_nodes)
-			g_variant_builder_close (sparql->blank_nodes);
+			if (sparql->blank_nodes)
+				g_variant_builder_close (sparql->blank_nodes);
 
-		_optional (sparql, RULE_TYPE_LITERAL, LITERAL_SEMICOLON);
+			_optional (sparql, RULE_TYPE_LITERAL, LITERAL_SEMICOLON);
 
-		if (_check_in_rule (sparql, NAMED_RULE_Update))
-			_call_rule (sparql, NAMED_RULE_Update, error);
+			if (_check_in_rule (sparql, NAMED_RULE_Update)) {
+				/* Handle the rule inline in the next iteration */
+				tracker_sparql_iter_next (sparql);
+				cont = TRUE;
+			} else {
+				cont = FALSE;
+			}
+		} else {
+			cont = FALSE;
+		}
 	}
 
 	return TRUE;
