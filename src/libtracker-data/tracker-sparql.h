@@ -45,4 +45,7 @@ GVariant *      tracker_sparql_execute_update (TrackerSparql  *sparql,
 					       gboolean        blank,
 					       GError        **error);
 
+GBytes * tracker_sparql_make_langstring (const gchar *str,
+                                         const gchar *langtag);
+
 #endif /* __TRACKER_SPARQL_H__ */

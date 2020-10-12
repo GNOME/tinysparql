@@ -1781,7 +1781,7 @@ load_ontology_file (TrackerDataManager  *manager,
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, &ttl_error)) {
+	                                   NULL, NULL, &ttl_error)) {
 		GError *ontology_error = NULL;
 
 		tracker_data_ontology_load_statement (manager, ontology_uri,
@@ -1829,7 +1829,7 @@ get_ontology_from_file (TrackerDataManager *manager,
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, &error)) {
+	                                   NULL, NULL, &error)) {
 		if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 			if (g_strcmp0 (object, TRACKER_PREFIX_NRL "Ontology") == 0) {
 				TrackerOntology *ontology;
@@ -2007,7 +2007,7 @@ import_ontology_file (TrackerDataManager *manager,
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, &error)) {
+	                                   NULL, NULL, &error)) {
 		tracker_data_ontology_process_statement (manager,
 		                                         subject, predicate, object,
 		                                         in_update);

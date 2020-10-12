@@ -38,6 +38,7 @@ gboolean tracker_turtle_reader_next (TrackerTurtleReader  *reader,
                                      const gchar         **subject,
                                      const gchar         **predicate,
                                      const gchar         **object,
+                                     const gchar         **object_lang,
                                      gboolean             *object_is_uri,
                                      GError              **error);
 

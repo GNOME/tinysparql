@@ -55,6 +55,7 @@ struct _TrackerTurtleReader {
 	gchar *subject;
 	gchar *predicate;
 	gchar *object;
+	gchar *object_lang;
 	gboolean object_is_uri;
 	ParserState state;
 };
@@ -229,6 +230,7 @@ pop_stack (TrackerTurtleReader *reader)
 		/* Restore the old subject as current object */
 		reader->object = s;
 		reader->object_is_uri = TRUE;
+		g_clear_pointer (&reader->object_lang, g_free);
 		s = NULL;
 	} else if (reader->state == STATE_SUBJECT) {
 		g_clear_pointer (&reader->subject, g_free);
@@ -294,6 +296,8 @@ parse_terminal (TrackerTurtleReader  *reader,
 
 	if (out)
 		*out = str;
+	else
+		g_free (str);
 
 	return TRUE;
 }
@@ -484,7 +488,7 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
                                     GError              **error)
 {
 	while (TRUE) {
-		gchar *str;
+		gchar *str, *lang;
 
 		advance_whitespace (reader);
 
@@ -563,6 +567,7 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 			break;
 		case STATE_OBJECT:
 			g_clear_pointer (&reader->object, g_free);
+			g_clear_pointer (&reader->object_lang, g_free);
 			reader->object_is_uri = FALSE;
 
 			if (parse_token (reader, "[")) {
@@ -585,18 +590,24 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 				reader->object = generate_bnode (reader, str);
 				reader->object_is_uri = TRUE;
 				g_free (str);
-			} else if (parse_terminal (reader, terminal_STRING_LITERAL1, 1, &str) ||
-			           parse_terminal (reader, terminal_STRING_LITERAL2, 1, &str)) {
-				reader->object = g_strcompress (str);
-				g_free (str);
-				if (!handle_type_cast (reader, error))
-					return FALSE;
 			} else if (parse_terminal (reader, terminal_STRING_LITERAL_LONG1, 3, &str) ||
 			           parse_terminal (reader, terminal_STRING_LITERAL_LONG2, 3, &str)) {
 				reader->object = g_strcompress (str);
 				g_free (str);
-				if (!handle_type_cast (reader, error))
-					return FALSE;
+				if (parse_terminal (reader, terminal_LANGTAG, 0, &lang)) {
+					reader->object_lang = lang;
+				} else if (!handle_type_cast (reader, error)) {
+						return FALSE;
+				}
+			} else if (parse_terminal (reader, terminal_STRING_LITERAL1, 1, &str) ||
+			           parse_terminal (reader, terminal_STRING_LITERAL2, 1, &str)) {
+				reader->object = g_strcompress (str);
+				g_free (str);
+				if (parse_terminal (reader, terminal_LANGTAG, 0, &lang)) {
+					reader->object_lang = lang;
+				} else if (!handle_type_cast (reader, error)) {
+						return FALSE;
+				}
 			} else if (parse_terminal (reader, terminal_DOUBLE, 0, &str) ||
 			           parse_terminal (reader, terminal_INTEGER, 0, &str)) {
 				reader->object = str;
@@ -658,6 +669,7 @@ tracker_turtle_reader_next (TrackerTurtleReader  *reader,
                             const gchar         **subject,
                             const gchar         **predicate,
                             const gchar         **object,
+                            const gchar         **object_lang,
                             gboolean             *object_is_uri,
                             GError              **error)
 {

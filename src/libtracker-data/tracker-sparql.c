@@ -8746,20 +8746,9 @@ translate_RDFLiteral (TrackerSparql  *sparql,
 	if (is_parameter) {
 		binding = tracker_parameter_binding_new (str, NULL);
 	} else {
-		GString *langstr;
 		GBytes *bytes;
 
-		langstr = g_string_new (str);
-
-		if (langtag) {
-			g_string_append_c (langstr, '\0');
-			g_string_append_printf (langstr, "%s", &langtag[1]);
-		}
-
-		bytes = g_bytes_new_take (langstr->str,
-		                          langstr->len + 1);
-		g_string_free (langstr, FALSE);
-
+		bytes = tracker_sparql_make_langstring (str, langtag);
 		binding = tracker_literal_binding_new (bytes, NULL);
 		g_bytes_unref (bytes);
 	}
@@ -9565,4 +9554,25 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 	}
 
 	return NULL;
+}
+
+GBytes *
+tracker_sparql_make_langstring (const gchar *str,
+                                const gchar *langtag)
+{
+	GString *langstr;
+	GBytes *bytes;
+
+	langstr = g_string_new (str);
+
+	if (langtag) {
+		g_string_append_c (langstr, '\0');
+		g_string_append_printf (langstr, "%s", &langtag[1]);
+	}
+
+	bytes = g_bytes_new_take (langstr->str,
+	                          langstr->len + 1);
+	g_string_free (langstr, FALSE);
+
+	return bytes;
 }

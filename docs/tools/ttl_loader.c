@@ -390,7 +390,7 @@ ttl_loader_load_ontology (Ontology    *ontology,
 	while (inner_error == NULL &&
 	       tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, &inner_error)) {
+	                                   NULL, NULL, &inner_error)) {
 		load_in_memory (ontology, subject, predicate, object);
 	}
 
@@ -429,7 +429,7 @@ ttl_loader_load_description (GFile *file)
 	while (error == NULL &&
 	       tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, &error)) {
+	                                   NULL, NULL, &error)) {
 		load_description (desc, subject, predicate, object);
 	}
 
