@@ -37,6 +37,20 @@ Files named `.trackerignore`, `.git` and `.hg` have the same effect. You can
 configure this behaviour with the org.freedesktop.Tracker.Miner.Files
 `ignored-directories-with-content` GSettings key.
 
+## When I search, I don't see all the results I expect. Why?
+
+If a file doesn't appear in search results, first check that the location is
+indexed. From the commandline, you can run:
+
+    $ tracker3 info $FILENAME
+
+This will show all the information stored about the file, if there is any.
+
+If the file should be indexed but nothing is shown, you can check
+if there was an error while indexing. Use this command:
+
+    $ tracker3 status $FILENAME
+
 ## Why does Tracker consume resources on my PC?
 
 When you add or edit files, Tracker will update its index. This should be very
