@@ -2,14 +2,13 @@
 
 ## What is Tracker?
 
-Tracker is an efficient search engine and
-[triplestore](https://en.wikipedia.org/wiki/Triplestore) for desktop, embedded
-and mobile.
+Tracker is an efficient search engine and distributed database
+for desktop, embedded and mobile.
 
 It is a middleware component aimed at desktop application developers who
 want their apps to browse and search user content. It's not designed to be
 used directly by desktop users, but it provides a commandline tool named
-`tracker` for the adventurous.
+`tracker3` for the adventurous.
 
 Tracker allows your application to instantly perform full-text searches across
 all documents. This feature is used by the 'search' bar in GNOME Files, for
@@ -26,18 +25,16 @@ If you need to go beyond simple searches, you'll be happy to know that
 Tracker is also a [linked data](http://linkeddata.org/) endpoint and it
 understands [SPARQL](https://www.w3.org/TR/2013/REC-sparql11-overview-20130321/).
 
-Apps can also store their own data in the Tracker database, but this feature
-isn't widely used yet. The [next major version of
-Tracker](https://gitlab.gnome.org/GNOME/tracker/-/milestones/1) aims to bring
-improvements in this regard.
+Apps can also store data in their own Tracker SPARQL database. If you want,
+this data can be published as a D-Bus service to enable distributed queries.
 
-There are several components that make up Tracker:
+Tracker 3 is divided into two subprojects:
 
-  * **tracker-store**, which stores the index.
-  * **tracker-miner-fs**, a daemon which crawls and monitors the filesystem to find content
-  * **tracker-extract**, a suite of modules to extract metadata and content
-    from many different types of file.
-  * the **ontologies**, which define the database schema and the linked data vocabulary.
+  * [**Tracker SPARQL**](https://gitlab.gnome.org/GNOME/tracker), a
+    lightweight database library built around SQLite.
+  * [**Tracker Miners**](https://gitlab.gnome.org/GNOME/tracker-miners/),
+    a set of daemons which crawl the filesystem and extract metadata from
+    many types of file to provide a system-wide search service.
 
 ## Who uses Tracker?
 
