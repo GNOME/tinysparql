@@ -50,7 +50,6 @@
   </part>
 
   <xi:include href="ontologies.xml"/>
-  <xi:include href="private-store.xml"/>
   <xi:include href="examples.xml"/>
   <xi:include href="limits.xml"/>
   <xi:include href="performance.xml"/>
