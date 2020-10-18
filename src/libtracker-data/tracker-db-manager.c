@@ -819,7 +819,8 @@ TrackerDBInterface *
 tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 {
 	GError *internal_error = NULL;
-	TrackerDBInterface *interface;
+	TrackerDBInterface *interface = NULL;
+	guint len, i;
 
 	/* The interfaces never actually leave the async queue,
 	 * we use it as a thread synchronized LRU, which doesn't
@@ -830,19 +831,30 @@ tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 	 * in the interface lock).
 	 */
 	g_async_queue_lock (db_manager->interfaces);
-	interface = g_async_queue_try_pop_unlocked (db_manager->interfaces);
+	len = g_async_queue_length_unlocked (db_manager->interfaces);
 
-	if (interface && tracker_db_interface_get_is_used (interface) &&
-	    g_async_queue_length_unlocked (db_manager->interfaces) < MAX_INTERFACES) {
-		/* Put it back and go at creating a new one */
-		g_async_queue_push_front_unlocked (db_manager->interfaces, interface);
+	/* 1st. Find a free interface */
+	for (i = 0; i < len; i++) {
+		interface = g_async_queue_try_pop_unlocked (db_manager->interfaces);
+
+		if (!interface)
+			break;
+		if (!tracker_db_interface_get_is_used (interface))
+			break;
+
+		g_async_queue_push_unlocked (db_manager->interfaces, interface);
 		interface = NULL;
+	}
+
+	/* 2nd. If no more interfaces can be created, pick one */
+	if (!interface && len >= MAX_INTERFACES) {
+		interface = g_async_queue_try_pop_unlocked (db_manager->interfaces);
 	}
 
 	if (interface) {
 		g_signal_emit (db_manager, signals[UPDATE_INTERFACE], 0, interface);
 	} else {
-		/* Create a new one to satisfy the request */
+		/* 3rd. Create a new interface to satisfy the request */
 		interface = tracker_db_manager_create_db_interface (db_manager,
 		                                                    TRUE, &internal_error);
 
