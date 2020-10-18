@@ -70,7 +70,9 @@ struct _TrackerNotifierPrivate {
 	GHashTable *subscriptions; /* guint -> TrackerNotifierSubscription */
 	GCancellable *cancellable;
 	TrackerSparqlStatement *local_statement;
+	GAsyncQueue *queue;
 	gint n_local_statement_slots;
+	gboolean querying;
 	GMutex mutex;
 };
 
@@ -454,6 +456,8 @@ handle_cursor (GTask        *task,
 {
 	TrackerNotifierEventCache *cache = task_data;
 	TrackerSparqlCursor *cursor = source_object;
+	TrackerNotifier *notifier = cache->notifier;
+	TrackerNotifierPrivate *priv = tracker_notifier_get_instance_private (notifier);
 	TrackerNotifierEvent *event;
 	GSequenceIter *iter;
 	gint64 id;
@@ -486,9 +490,19 @@ handle_cursor (GTask        *task,
 	cache->first = iter;
 
 	if (g_sequence_iter_is_end (cache->first)) {
+		TrackerNotifierEventCache *next;
+
 		tracker_notifier_emit_events_in_idle (cache);
+
+		g_async_queue_lock (priv->queue);
+		next = g_async_queue_try_pop_unlocked (priv->queue);
+		if (next)
+			tracker_notifier_query_extra_info (notifier, next);
+		else
+			priv->querying = FALSE;
+		g_async_queue_unlock (priv->queue);
 	} else {
-		tracker_notifier_query_extra_info (cache->notifier, cache);
+		tracker_notifier_query_extra_info (notifier, cache);
 	}
 
 	g_task_return_boolean (task, TRUE);
@@ -609,6 +623,7 @@ void
 _tracker_notifier_event_cache_flush_events (TrackerNotifierEventCache *cache)
 {
 	TrackerNotifier *notifier = cache->notifier;
+	TrackerNotifierPrivate *priv = tracker_notifier_get_instance_private (notifier);
 
 	if (g_sequence_is_empty (cache->sequence)) {
 		_tracker_notifier_event_cache_free (cache);
@@ -616,7 +631,15 @@ _tracker_notifier_event_cache_flush_events (TrackerNotifierEventCache *cache)
 	}
 
 	cache->first = g_sequence_get_begin_iter (cache->sequence);
-	tracker_notifier_query_extra_info (notifier, cache);
+
+	g_async_queue_lock (priv->queue);
+	if (priv->querying) {
+		g_async_queue_push_unlocked (priv->queue, cache);
+	} else {
+		priv->querying = TRUE;
+		tracker_notifier_query_extra_info (notifier, cache);
+	}
+	g_async_queue_unlock (priv->queue);
 }
 
 static void
@@ -691,6 +714,7 @@ tracker_notifier_finalize (GObject *object)
 	g_cancellable_cancel (priv->cancellable);
 	g_clear_object (&priv->cancellable);
 	g_clear_object (&priv->local_statement);
+	g_async_queue_unref (priv->queue);
 
 	if (priv->connection)
 		g_object_unref (priv->connection);
@@ -755,6 +779,7 @@ tracker_notifier_init (TrackerNotifier *notifier)
 	priv->subscriptions = g_hash_table_new_full (NULL, NULL, NULL,
 	                                             (GDestroyNotify) tracker_notifier_subscription_free);
 	priv->cancellable = g_cancellable_new ();
+	priv->queue = g_async_queue_new ();
 }
 
 /**
