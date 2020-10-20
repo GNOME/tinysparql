@@ -14,10 +14,14 @@ See the [overview](overview) for more information.
 The default configuration of Tracker Miner FS is to look at files and folders
 in your XDG content directories such as `Documents`, `Music`, `Pictures` and
 `Videos`.  It also looks at files in your home directory and `Downloads`
-directory, but it doesn't recurse into folders.
+directory, but it doesn't recurse into folders there.
 
 You might want to [control what Tracker indexes] so that it finds files in
 other places too.
+
+## Does Tracker recursively index my home directory?
+
+Not by default. See [What files will Tracker index](#what-files-will-tracker-index).
 
 ## How can I control what Tracker indexes?
 
