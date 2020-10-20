@@ -6,22 +6,24 @@ and mobile.
 
 The Tracker project is divided into two main repositories:
 
-  * [Tracker core](https://gitlab.gnome.org/GNOME/tracker) contains the
+  * [Tracker SPARQL](https://gitlab.gnome.org/GNOME/tracker) contains the
     triplestore database, provided as the `libtracker-sparql` library
     and implemented using [SQLite](http://sqlite.org/). This repo also contains
-    the database ontologies and the commandline user interface (`tracker`).
+    the database ontologies and the commandline user interface (`tracker3`).
 
   * [Tracker Miners](https://gitlab.gnome.org/GNOME/tracker-miners) contains
-    the indexer daemon (*tracker-miner-fs*) and tools to extract metadata
+    the indexer daemon (*tracker-miner-fs-3*) and tools to extract metadata
     from many different filetypes.
 
 More information on Tracker can be found at:
 
+  * <https://gnome.pages.gitlab.gnome.org/tracker/>
   * <https://wiki.gnome.org/Projects/Tracker>
 
 Source code and issue tracking:
 
   * <https://gitlab.gnome.org/GNOME/tracker>
+  * <https://gitlab.gnome.org/GNOME/tracker-miners>
 
 All discussion related to Tracker happens on:
 
@@ -111,22 +113,22 @@ shell.
 
 Now check that it runs the correct version of the Tracker CLI:
 
-    ./run-uninstalled -- tracker --version
+    ./run-uninstalled -- tracker3 --version
 
 Let's try and index some content. (Subtitute ~/Music for any other location
 where you have interesting data). We need to explicitly tell the script to wait
 for the miners to finish, or it will exit too soon. (This is a workaround for
 [issue #122](https://gitlab.gnome.org/GNOME/tracker/issues/122).)
 
-    ./run-uninstalled --wait-for-miner=Files --wait-for-miner=Extract -- tracker index --file ~/Music
+    ./run-uninstalled --wait-for-miner=Files --wait-for-miner=Extract -- tracker3 index --file ~/Music
 
 Let's see what files were found!
 
-    ./run-uninstalled  -- tracker sparql -q 'SELECT ?url { ?u nie:url ?url } }'
+    ./run-uninstalled  -- tracker3 sparql -q 'SELECT ?url { ?u nie:url ?url } }'
 
 Or, you can try a full-text search ...
 
-    ./run-uninstalled -- tracker search "bananas"
+    ./run-uninstalled -- tracker3 search "bananas"
 
 There are many more things you can do with the script.
 
