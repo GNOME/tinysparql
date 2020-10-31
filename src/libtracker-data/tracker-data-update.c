@@ -411,12 +411,13 @@ tracker_data_dispatch_delete_statement_callbacks (TrackerData *data,
 }
 
 static gint
-tracker_data_update_get_new_service_id (TrackerData *data)
+tracker_data_update_get_new_service_id (TrackerData  *data,
+                                        GError      **error)
 {
 	TrackerDBCursor    *cursor = NULL;
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	GError *error = NULL;
+	GError *inner_error = NULL;
 
 	if (data->in_ontology_transaction) {
 		if (G_LIKELY (data->max_ontology_id != 0)) {
@@ -425,25 +426,25 @@ tracker_data_update_get_new_service_id (TrackerData *data)
 
 		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
 		                                              "SELECT MAX(ID) AS A FROM Resource WHERE ID <= %d", TRACKER_ONTOLOGIES_MAX_ID);
 
 		if (stmt) {
-			cursor = tracker_db_statement_start_cursor (stmt, &error);
+			cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
 			g_object_unref (stmt);
 		}
 
 		if (cursor) {
-			if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+			if (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
 				data->max_ontology_id = MAX (tracker_db_cursor_get_int (cursor, 0), data->max_ontology_id);
 			}
 
 			g_object_unref (cursor);
 		}
 
-		if (G_UNLIKELY (error)) {
-			g_warning ("Could not get new resource ID for ontology transaction: %s\n", error->message);
-			g_error_free (error);
+		if (G_UNLIKELY (inner_error)) {
+			g_propagate_error (error, inner_error);
+			return 0;
 		}
 
 		return ++data->max_ontology_id;
@@ -456,25 +457,25 @@ tracker_data_update_get_new_service_id (TrackerData *data)
 
 		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
 		                                              "SELECT MAX(ID) AS A FROM Resource");
 
 		if (stmt) {
-			cursor = tracker_db_statement_start_cursor (stmt, &error);
+			cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
 			g_object_unref (stmt);
 		}
 
 		if (cursor) {
-			if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+			if (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
 				data->max_service_id = MAX (tracker_db_cursor_get_int (cursor, 0), data->max_service_id);
 			}
 
 			g_object_unref (cursor);
 		}
 
-		if (G_UNLIKELY (error)) {
-			g_warning ("Could not get new resource ID: %s\n", error->message);
-			g_error_free (error);
+		if (G_UNLIKELY (inner_error)) {
+			g_propagate_error (error, inner_error);
+			return 0;
 		}
 
 		return ++data->max_service_id;
@@ -774,7 +775,7 @@ ensure_resource_id (TrackerData *data,
                     gboolean    *create)
 {
 	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
+	TrackerDBStatement *stmt = NULL;
 	GError *error = NULL;
 	gint id;
 
@@ -787,9 +788,12 @@ ensure_resource_id (TrackerData *data,
 	if (id == 0) {
 		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
-		id = tracker_data_update_get_new_service_id (data);
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
-		                                              "INSERT INTO Resource (ID, Uri, BlankNode) VALUES (?, ?, ?)");
+		id = tracker_data_update_get_new_service_id (data, &error);
+
+		if (id > 0) {
+			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
+			                                              "INSERT INTO Resource (ID, Uri, BlankNode) VALUES (?, ?, ?)");
+		}
 
 		if (stmt) {
 			tracker_db_statement_bind_int (stmt, 0, id);
