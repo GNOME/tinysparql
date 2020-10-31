@@ -804,7 +804,7 @@ ensure_resource_id (TrackerData *data,
 		}
 
 		if (error) {
-			g_critical ("Could not ensure resource existence: %s", error->message);
+			g_error ("Could not ensure resource existence: %s", error->message);
 			g_error_free (error);
 		}
 
