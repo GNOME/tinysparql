@@ -58,6 +58,14 @@ if there was an error while indexing. Use this command:
 
 ## Why does Tracker consume resources on my PC?
 
+Memory management in Linux is [complex](http://opsmonkey.blogspot.com/2007/01/linux-memory-overcommit.html).
+It's normal that processes may appear to use 1GB or more of RAM -- this number
+doesn't directly correspond to physical memory, and it's only a problem if you
+get to a low-memory situation and the kernel is unable to
+reclaim the memory. Tracker Miner FS integrates with the [low-memory-monitor service](https://www.hadess.net/2019/08/low-memory-monitor-new-project.html)
+when it's available, and has a [30 second timeout](https://gitlab.gnome.org/GNOME/tracker-miners/-/commit/ccb0b4ebbff4dfacf17ea67ce56bb27c39741811)
+that asks the system to reclaim the spare memory when indexing is finished.
+
 When you add or edit files, Tracker Miner FS will update its index. This should
 be very quick, but if a huge number of files are added then it may cause
 noticably high CPU and IO usage until the new files have been indexed. This is
