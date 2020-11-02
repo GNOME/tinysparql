@@ -39,7 +39,31 @@ Related projects:
     extends Tracker to allow searching and indexing some kinds of online
     content.
 
-# Developing Tracker
+## Goals and Non-goals
+
+Here's a summary of the goals and non-goals of the Tracker project.
+
+ 1. Provide real-time searching and browsing of desktop content.
+ 2. Provide searchable data storage for desktop apps.
+ 3. Allow full-text search within common document types.
+ 4. Allow advanced queries using a standard query language.
+ 5. Be secure and private by default.
+ 6. Be efficient enough for desktop and mobile use.
+ 7. Be maintainable by a small team.
+
+These are some things we currently don't want to do in Tracker itself.
+
+ * Depend on features of a specific filesystem. Tracker should work on
+   all commonly used filesystems.
+ * Index source code. There are plenty of IDEs and source-code indexing tools already.
+ * Index user data in network / cloud services. This is out of scope for the core of
+   Tracker but can be done by third party projects -- see
+   [Gnome Online Miners](https://wiki.gnome.org/Projects/GnomeOnlineMiners).
+ * Index data on the Web.
+ * Provide our own GUI components. Tracker is a middleware component, not an end user
+   application.
+
+## Developing Tracker
 
 If you want to help develop and improve Tracker, great! Remember that Tracker
 is a middleware component, designed to be integrated into larger codebases. To
@@ -52,7 +76,7 @@ Component](https://wiki.gnome.org/Newcomers/BuildSystemComponent) workflow.
 It's also possible to build Tracker on its own and install it inside your home
 directory for testing purposes.  Read on for instructions on how to do this.
 
-## Compilation
+### Compilation
 
 Tracker uses the [Meson build system](http://mesonbuild.com), which you must
 have installed in order to build Tracker.
@@ -81,13 +105,13 @@ new, isolated prefix named `opt/tracker` inside your home folder.
     cd build
     ninja install
 
-## Running the testsuite
+### Running the testsuite
 
 At this point you can run the Tracker test suite from the `build` directory:
 
     meson test --print-errorlogs
 
-## Using the run-uninstalled script
+### Using the run-uninstalled script
 
 Tracker normally runs automatically, indexing content in the background so that
 search results are available quickly when needed.
