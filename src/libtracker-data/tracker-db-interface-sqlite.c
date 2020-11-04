@@ -288,7 +288,7 @@ function_sparql_uri_is_parent (sqlite3_context *context,
 	uri = (gchar *)sqlite3_value_text (argv[1]);
 
 	if (!parent || !uri) {
-		result_context_function_error (context, fn, "Invalid arguments");
+		sqlite3_result_int (context, FALSE);
 		return;
 	}
 
