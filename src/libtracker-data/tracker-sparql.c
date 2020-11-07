@@ -9459,7 +9459,7 @@ prepare_query (TrackerSparql         *sparql,
 			gdouble datetime;
 			gint offset = 0;
 
-			datetime = tracker_string_to_date (binding->literal, offset, &inner_error);
+			datetime = tracker_string_to_date (binding->literal, &offset, &inner_error);
 			if (inner_error) {
 				g_propagate_error (error, inner_error);
 				g_object_unref (stmt);
