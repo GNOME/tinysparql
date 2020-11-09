@@ -685,6 +685,8 @@ tracker_turtle_reader_next (TrackerTurtleReader  *reader,
 	*subject = reader->subject;
 	*predicate = reader->predicate;
 	*object = reader->object;
+	if (object_lang)
+		*object_lang = reader->object_lang;
 	if (object_is_uri)
 		*object_is_uri = reader->object_is_uri;
 
