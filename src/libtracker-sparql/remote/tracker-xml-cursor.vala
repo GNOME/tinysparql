@@ -144,7 +144,7 @@ public class Tracker.Remote.XmlCursor : Tracker.Sparql.Cursor {
 		return _vars[column];
 	}
 
-	public override unowned string? get_string (int column, out long length = null) requires (_cur_row != null) {
+	public override unowned string? get_string (int column, out long? length = null) requires (_cur_row != null) {
 		length = 0;
 
 		var variable = _vars[column];
