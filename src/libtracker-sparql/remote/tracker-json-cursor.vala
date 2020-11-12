@@ -95,7 +95,7 @@ public class Tracker.Remote.JsonCursor : Tracker.Sparql.Cursor {
 		return _vars.get_string_element (column);
 	}
 
-	public override unowned string? get_string (int column, out long length = null) requires (_cur_row != null) {
+	public override unowned string? get_string (int column, out long? length = null) requires (_cur_row != null) {
 		var col_node = _cur_row.get_member (get_variable_name (column));
 		length = 0;
 
