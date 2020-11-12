@@ -762,8 +762,8 @@ tracker_notifier_init (TrackerNotifier *notifier)
  * @notifier: a #TrackerNotifier
  * @connection: a #GDBusConnection
  * @service: DBus service name to subscribe to events for
- * @object_path: DBus object path to subscribe to events for, or %NULL
- * @graph: graph to listen events for, or %NULL
+ * @object_path: (nullable): DBus object path to subscribe to events for, or %NULL
+ * @graph: (nullable): graph to listen events for, or %NULL
  *
  * Listens to notification events from a remote SPARQL endpoint as a DBus
  * service (see #TrackerEndpointDBus). If the @object_path argument is
