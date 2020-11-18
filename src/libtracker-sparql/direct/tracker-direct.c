@@ -984,7 +984,7 @@ tracker_direct_connection_close (TrackerSparqlConnection *self)
 	}
 }
 
-void
+static void
 async_close_thread_func (GTask        *task,
                          gpointer      source_object,
                          gpointer      task_data,
@@ -997,7 +997,7 @@ async_close_thread_func (GTask        *task,
 	g_task_return_boolean (task, TRUE);
 }
 
-void
+static void
 tracker_direct_connection_close_async (TrackerSparqlConnection *connection,
                                        GCancellable            *cancellable,
                                        GAsyncReadyCallback      callback,
@@ -1010,7 +1010,7 @@ tracker_direct_connection_close_async (TrackerSparqlConnection *connection,
 	g_object_unref (task);
 }
 
-gboolean
+static gboolean
 tracker_direct_connection_close_finish (TrackerSparqlConnection  *connection,
                                         GAsyncResult             *res,
                                         GError                  **error)
