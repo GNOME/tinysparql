@@ -1,5 +1,6 @@
 libtracker_direct = static_library('tracker-direct',
     'tracker-direct.c',
+    'tracker-direct-batch.c',
     'tracker-direct-statement.c',
     c_args: tracker_c_args + [
 	'-include', 'libtracker-sparql/tracker-private.h',

@@ -24,6 +24,8 @@
 #include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-data/tracker-data-manager.h>
 
+#include "tracker-direct-batch.h"
+
 #define TRACKER_TYPE_DIRECT_CONNECTION         (tracker_direct_connection_get_type())
 #define TRACKER_DIRECT_CONNECTION(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DIRECT_CONNECTION, TrackerDirectConnection))
 #define TRACKER_DIRECT_CONNECTION_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_DIRECT_CONNECTION, TrackerDirectConnectionClass))
@@ -55,7 +57,19 @@ TrackerDataManager *tracker_direct_connection_get_data_manager (TrackerDirectCon
 
 void tracker_direct_connection_update_timestamp (TrackerDirectConnection *conn);
 
-/* Internal helper function */
+/* Internal helper functions */
 GError *translate_db_interface_error (GError *error);
+
+gboolean tracker_direct_connection_update_batch (TrackerDirectConnection  *conn,
+                                                 TrackerBatch             *batch,
+                                                 GError                  **error);
+void tracker_direct_connection_update_batch_async (TrackerDirectConnection  *conn,
+                                                   TrackerBatch             *batch,
+                                                   GCancellable             *cancellable,
+                                                   GAsyncReadyCallback       callback,
+                                                   gpointer                  user_data);
+gboolean tracker_direct_connection_update_batch_finish (TrackerDirectConnection  *conn,
+                                                        GAsyncResult             *res,
+                                                        GError                  **error);
 
 #endif /* __TRACKER_LOCAL_CONNECTION_H__ */

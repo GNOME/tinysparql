@@ -26,6 +26,7 @@
 #include <libtracker-sparql/tracker-version.h>
 #include <libtracker-sparql/tracker-error.h>
 #include <libtracker-sparql/tracker-connection.h>
+#include <libtracker-sparql/tracker-batch.h>
 #include <libtracker-sparql/tracker-cursor.h>
 #include <libtracker-sparql/tracker-endpoint.h>
 #include <libtracker-sparql/tracker-endpoint-dbus.h>

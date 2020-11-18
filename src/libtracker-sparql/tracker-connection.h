@@ -64,6 +64,7 @@ G_DECLARE_DERIVABLE_TYPE (TrackerSparqlConnection,
                           TRACKER, SPARQL_CONNECTION,
                           GObject)
 
+#include "tracker-batch.h"
 #include "tracker-cursor.h"
 #include "tracker-statement.h"
 #include "tracker-namespace-manager.h"
@@ -154,6 +155,9 @@ TRACKER_AVAILABLE_IN_3_1
 gboolean tracker_sparql_connection_update_resource_finish (TrackerSparqlConnection  *connection,
                                                            GAsyncResult             *res,
                                                            GError                  **error);
+TRACKER_AVAILABLE_IN_3_1
+TrackerBatch * tracker_sparql_connection_create_batch (TrackerSparqlConnection *connection);
+
 TRACKER_AVAILABLE_IN_ALL
 GVariant * tracker_sparql_connection_update_blank (TrackerSparqlConnection  *connection,
                                                    const gchar              *sparql,

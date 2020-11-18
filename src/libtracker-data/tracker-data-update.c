@@ -3065,6 +3065,7 @@ update_resource_single (TrackerData      *data,
 		                                    &graph_uri);
 	}
 
+	/* Handle rdf:type first */
 	if (g_list_find_custom (properties, "rdf:type", (GCompareFunc) g_strcmp0)) {
 		update_resource_property (data, graph_uri, resource,
 		                          subject, "rdf:type",
@@ -3078,6 +3079,9 @@ update_resource_single (TrackerData      *data,
 	}
 
 	for (l = properties; l; l = l->next) {
+		if (g_str_equal (l->data, "rdf:type"))
+			continue;
+
 		if (!update_resource_property (data, graph_uri, resource,
 		                               subject, l->data,
 		                               visited, bnodes,

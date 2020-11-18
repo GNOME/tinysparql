@@ -123,6 +123,7 @@ tracker_sparql_connection_update_resource_async
 tracker_sparql_connection_update_resource_finish
 tracker_sparql_connection_get_namespace_manager
 tracker_sparql_connection_create_notifier
+tracker_sparql_connection_create_batch
 tracker_sparql_connection_close
 tracker_sparql_connection_close_async
 tracker_sparql_connection_close_finish
@@ -265,6 +266,27 @@ TRACKER_IS_ENDPOINT_DBUS_CLASS
 TrackerEndpointClass
 TrackerEndpointDBusClass
 tracker_endpoint_dbus_get_type
+</SECTION>
+
+<SECTION>
+<FILE>tracker-batch</FILE>
+<TITLE>TrackerBatch</TITLE>
+TrackerBatch
+tracker_batch_get_connection
+tracker_batch_add_sparql
+tracker_batch_add_resource
+tracker_batch_execute
+tracker_batch_execute_async
+tracker_batch_execute_finish
+<SUBSECTION Standard>
+TrackerBatchClass
+TRACKER_BATCH
+TRACKER_BATCH_CLASS
+TRACKER_BATCH_GET_CLASS
+TRACKER_IS_BATCH
+TRACKER_IS_BATCH_CLASS
+TRACKER_TYPE_BATCH
+tracker_batch_get_type
 </SECTION>
 
 <SECTION>

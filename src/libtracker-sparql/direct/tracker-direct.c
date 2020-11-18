@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "tracker-direct.h"
+#include "tracker-direct-batch.h"
 #include "tracker-direct-statement.h"
 #include "libtracker-sparql/tracker-private.h"
 #include <libtracker-data/tracker-data.h>
@@ -74,6 +75,7 @@ typedef enum {
 	TASK_TYPE_UPDATE,
 	TASK_TYPE_UPDATE_BLANK,
 	TASK_TYPE_UPDATE_RESOURCE,
+	TASK_TYPE_UPDATE_BATCH,
 	TASK_TYPE_RELEASE_MEMORY,
 } TaskType;
 
@@ -219,6 +221,9 @@ update_thread_func (gpointer data,
 		update_resource (tracker_data, data->graph, data->resource, &error);
 		break;
 	}
+	case TASK_TYPE_UPDATE_BATCH:
+		tracker_direct_batch_update (task_data->data, priv->data_manager, &error);
+		break;
 	case TASK_TYPE_RELEASE_MEMORY:
 		tracker_data_manager_release_memory (priv->data_manager);
 		update_timestamp = FALSE;
@@ -1156,6 +1161,21 @@ tracker_direct_connection_update_resource_finish (TrackerSparqlConnection  *conn
 	return g_task_propagate_boolean (G_TASK (res), error);
 }
 
+static TrackerBatch *
+tracker_direct_connection_create_batch (TrackerSparqlConnection *connection)
+{
+	TrackerDirectConnectionPrivate *priv;
+	TrackerDirectConnection *conn;
+
+	conn = TRACKER_DIRECT_CONNECTION (connection);
+	priv = tracker_direct_connection_get_instance_private (conn);
+
+	if (priv->flags & TRACKER_SPARQL_CONNECTION_FLAGS_READONLY)
+		return NULL;
+
+	return tracker_direct_batch_new (connection);
+}
+
 static void
 tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 {
@@ -1189,6 +1209,7 @@ tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 	sparql_connection_class->update_resource = tracker_direct_connection_update_resource;
 	sparql_connection_class->update_resource_async = tracker_direct_connection_update_resource_async;
 	sparql_connection_class->update_resource_finish = tracker_direct_connection_update_resource_finish;
+	sparql_connection_class->create_batch = tracker_direct_connection_create_batch;
 
 	props[PROP_FLAGS] =
 		g_param_spec_flags ("flags",
@@ -1249,4 +1270,66 @@ tracker_direct_connection_update_timestamp (TrackerDirectConnection *conn)
 
 	priv = tracker_direct_connection_get_instance_private (conn);
 	priv->timestamp = g_get_monotonic_time ();
+}
+
+gboolean
+tracker_direct_connection_update_batch (TrackerDirectConnection  *conn,
+                                        TrackerBatch             *batch,
+                                        GError                  **error)
+{
+	TrackerDirectConnectionPrivate *priv;
+	GError *inner_error = NULL;
+
+	priv = tracker_direct_connection_get_instance_private (conn);
+
+	g_mutex_lock (&priv->mutex);
+	tracker_direct_batch_update (TRACKER_DIRECT_BATCH (batch),
+	                             priv->data_manager, &inner_error);
+	tracker_direct_connection_update_timestamp (conn);
+	g_mutex_unlock (&priv->mutex);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+void
+tracker_direct_connection_update_batch_async (TrackerDirectConnection  *conn,
+                                              TrackerBatch             *batch,
+                                              GCancellable             *cancellable,
+                                              GAsyncReadyCallback       callback,
+                                              gpointer                  user_data)
+{
+	TrackerDirectConnectionPrivate *priv;
+	GTask *task;
+
+	priv = tracker_direct_connection_get_instance_private (conn);
+
+	task = g_task_new (batch, cancellable, callback, user_data);
+	g_task_set_task_data (task,
+	                      task_data_query_new (TASK_TYPE_UPDATE_BATCH,
+	                                           g_object_ref (batch),
+	                                           g_object_unref),
+	                      (GDestroyNotify) task_data_free);
+
+	g_thread_pool_push (priv->update_thread, task, NULL);
+}
+
+gboolean
+tracker_direct_connection_update_batch_finish (TrackerDirectConnection  *conn,
+                                               GAsyncResult             *res,
+                                               GError                  **error)
+{
+	GError *inner_error = NULL;
+
+	g_task_propagate_boolean (G_TASK (res), &inner_error);
+	if (inner_error) {
+		g_propagate_error (error, _translate_internal_error (inner_error));
+		return FALSE;
+	}
+
+	return TRUE;
 }

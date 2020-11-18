@@ -769,3 +769,23 @@ tracker_sparql_connection_close_finish (TrackerSparqlConnection  *connection,
 	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->close_finish (connection,
 	                                                                       res, error);
 }
+
+/**
+ * tracker_sparql_connection_create_batch:
+ * @connection: a #TrackerSparqlConnection
+ *
+ * Creates a new batch to store and execute update commands. If the connection
+ * is readonly or cannot issue SPARQL updates, %NULL will be returned.
+ *
+ * Returns: (transfer full): (nullable): A new #TrackerBatch
+ **/
+TrackerBatch *
+tracker_sparql_connection_create_batch (TrackerSparqlConnection *connection)
+{
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), NULL);
+
+	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->create_batch)
+		return NULL;
+
+	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->create_batch (connection);
+}

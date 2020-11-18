@@ -105,6 +105,7 @@ struct _TrackerSparqlConnectionClass
 	gboolean (* update_resource_finish) (TrackerSparqlConnection  *connection,
 					     GAsyncResult             *res,
 					     GError                  **error);
+	TrackerBatch * (* create_batch) (TrackerSparqlConnection *connection);
 };
 
 typedef struct _TrackerSparqlCursorClass TrackerSparqlCursorClass;
@@ -225,6 +226,28 @@ struct _TrackerNotifierClass {
 
 	void (* events) (TrackerNotifier *notifier,
 	                 const GPtrArray *events);
+};
+
+typedef struct _TrackerBatchClass TrackerBatchClass;
+
+struct _TrackerBatchClass {
+	GObjectClass parent_class;
+
+	void (* add_sparql) (TrackerBatch *batch,
+			     const gchar  *sparql);
+	void (* add_resource) (TrackerBatch    *batch,
+			       const gchar     *graph,
+			       TrackerResource *resource);
+	gboolean (* execute) (TrackerBatch  *batch,
+			      GCancellable  *cancellable,
+			      GError       **error);
+	void (* execute_async) (TrackerBatch        *batch,
+				GCancellable        *cancellable,
+				GAsyncReadyCallback  callback,
+				gpointer             user_data);
+	gboolean (* execute_finish) (TrackerBatch  *batch,
+				     GAsyncResult  *res,
+				     GError       **error);
 };
 
 void tracker_sparql_cursor_set_connection (TrackerSparqlCursor     *cursor,
