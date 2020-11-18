@@ -90,6 +90,21 @@ struct _TrackerSparqlConnectionClass
         gboolean (* close_finish) (TrackerSparqlConnection  *connection,
                                    GAsyncResult             *res,
                                    GError                  **error);
+
+	gboolean (* update_resource) (TrackerSparqlConnection  *connection,
+				      const gchar              *graph,
+				      TrackerResource          *resource,
+				      GCancellable             *cancellable,
+				      GError                  **error);
+	void (* update_resource_async) (TrackerSparqlConnection *connection,
+					const gchar             *graph,
+					TrackerResource         *resource,
+					GCancellable            *cancellable,
+					GAsyncReadyCallback      callback,
+					gpointer                 user_data);
+	gboolean (* update_resource_finish) (TrackerSparqlConnection  *connection,
+					     GAsyncResult             *res,
+					     GError                  **error);
 };
 
 typedef struct _TrackerSparqlCursorClass TrackerSparqlCursorClass;

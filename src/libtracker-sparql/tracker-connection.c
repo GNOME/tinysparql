@@ -538,6 +538,102 @@ tracker_sparql_connection_update_blank_finish (TrackerSparqlConnection  *connect
 }
 
 /**
+ * tracker_sparql_connection_update_resource:
+ * @connection: a #TrackerSparqlConnection
+ * @graph: (nullable): RDF graph where the resource should be inserted/updated, or %NULL for the default graph
+ * @resource: a #TrackerResource
+ * @cancellable: (nullable): a #GCancellable, or %NULL
+ * @error: pointer to a #GError, or %NULL
+ *
+ * Inserts a resource as described by @resource, on the graph described by @graph.
+ * This operation blocks until done.
+ *
+ * Returns: #TRUE if there were no errors.
+ *
+ * Since: 3.1
+ **/
+gboolean
+tracker_sparql_connection_update_resource (TrackerSparqlConnection  *connection,
+                                           const gchar              *graph,
+                                           TrackerResource          *resource,
+                                           GCancellable             *cancellable,
+                                           GError                  **error)
+{
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), FALSE);
+	g_return_val_if_fail (TRACKER_IS_RESOURCE (resource), FALSE);
+	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), FALSE);
+	g_return_val_if_fail (!error || !*error, FALSE);
+
+	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_resource (connection,
+	                                                                          graph,
+	                                                                          resource,
+	                                                                          cancellable,
+	                                                                          error);
+}
+
+/**
+ * tracker_sparql_connection_update_resource_async:
+ * @connection: a #TrackerSparqlConnection
+ * @graph: (nullable): RDF graph where the resource should be inserted/updated, or %NULL for the default graph
+ * @resource: a #TrackerResource
+ * @cancellable: (nullable): a #GCancellable, or %NULL
+ * @callback: the #GAsyncReadyCallback called when the operation completes
+ * @user_data: data passed to @callback
+ *
+ * Inserts a resource as described by @resource, on the graph described by @graph.
+ * This operation is executed asynchronously, when finished @callback will be
+ * executed.
+ *
+ * Since: 3.1
+ **/
+void
+tracker_sparql_connection_update_resource_async (TrackerSparqlConnection *connection,
+                                                 const gchar             *graph,
+                                                 TrackerResource         *resource,
+                                                 GCancellable            *cancellable,
+                                                 GAsyncReadyCallback      callback,
+                                                 gpointer                 user_data)
+{
+	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
+	g_return_if_fail (TRACKER_IS_RESOURCE (resource));
+	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+	g_return_if_fail (callback != NULL);
+
+	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_resource_async (connection,
+	                                                                         graph,
+	                                                                         resource,
+	                                                                         cancellable,
+	                                                                         callback,
+	                                                                         user_data);
+}
+
+/**
+ * tracker_sparql_connection_update_resource_finish:
+ * @connection: a #TrackerSparqlConnection
+ * @res: a #GAsyncResult with the result of the operation
+ * @error: pointer to a #GError, or %NULL
+ *
+ * Finishes a tracker_sparql_connection_update_resource_async() operation.
+ *
+ * Returns: #TRUE if there were no errors.
+ *
+ * Since: 3.1
+ **/
+gboolean
+tracker_sparql_connection_update_resource_finish (TrackerSparqlConnection  *connection,
+                                                  GAsyncResult             *res,
+                                                  GError                  **error)
+{
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), FALSE);
+	g_return_val_if_fail (G_IS_ASYNC_RESULT (res), FALSE);
+	g_return_val_if_fail (!error || !*error, FALSE);
+
+	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_resource_finish (connection,
+	                                                                                 res,
+	                                                                                 error);
+}
+
+/**
  * tracker_sparql_connection_get_namespace_manager:
  * @connection: a #TrackerSparqlConnection
  *

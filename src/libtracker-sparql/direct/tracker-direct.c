@@ -54,6 +54,11 @@ struct _TrackerDirectConnectionPrivate
 	guint closing     : 1;
 };
 
+typedef struct {
+	gchar *graph;
+	TrackerResource *resource;
+} UpdateResource;
+
 enum {
 	PROP_0,
 	PROP_FLAGS,
@@ -68,6 +73,7 @@ typedef enum {
 	TASK_TYPE_QUERY,
 	TASK_TYPE_UPDATE,
 	TASK_TYPE_UPDATE_BLANK,
+	TASK_TYPE_UPDATE_RESOURCE,
 	TASK_TYPE_RELEASE_MEMORY,
 } TaskType;
 
@@ -143,6 +149,39 @@ cleanup_timeout_cb (gpointer user_data)
 	return G_SOURCE_CONTINUE;
 }
 
+gboolean
+update_resource (TrackerData      *data,
+                 const gchar      *graph,
+                 TrackerResource  *resource,
+                 GError          **error)
+{
+	GError *inner_error = NULL;
+
+	tracker_data_begin_transaction (data, &inner_error);
+	if (inner_error)
+		goto error;
+
+	tracker_data_update_resource (data,
+	                              graph,
+	                              resource,
+	                              NULL,
+	                              &inner_error);
+
+	if (inner_error) {
+		tracker_data_rollback_transaction (data);
+		goto error;
+	}
+
+	tracker_data_commit_transaction (data, &inner_error);
+	if (inner_error)
+		goto error;
+
+	return TRUE;
+
+error:
+	g_propagate_error (error, inner_error);
+	return FALSE;
+}
 
 static void
 update_thread_func (gpointer data,
@@ -175,6 +214,11 @@ update_thread_func (gpointer data,
 		retval = tracker_data_update_sparql_blank (tracker_data, task_data->data, &error);
 		destroy_notify = (GDestroyNotify) g_variant_unref;
 		break;
+	case TASK_TYPE_UPDATE_RESOURCE: {
+		UpdateResource *data = task_data->data;
+		update_resource (tracker_data, data->graph, data->resource, &error);
+		break;
+	}
 	case TASK_TYPE_RELEASE_MEMORY:
 		tracker_data_manager_release_memory (priv->data_manager);
 		update_timestamp = FALSE;
@@ -1027,6 +1071,91 @@ tracker_direct_connection_close_finish (TrackerSparqlConnection  *connection,
 	return g_task_propagate_boolean (G_TASK (res), error);
 }
 
+static UpdateResource *
+update_resource_data_new (const gchar     *graph,
+                          TrackerResource *resource)
+{
+	UpdateResource *data;
+
+	data = g_new0 (UpdateResource, 1);
+	data->graph = g_strdup (graph);
+	data->resource = g_object_ref (resource);
+
+	return data;
+}
+
+static void
+update_resource_data_free (UpdateResource *data)
+{
+	g_free (data->graph);
+	g_object_unref (data->resource);
+	g_free (data);
+}
+
+static gboolean
+tracker_direct_connection_update_resource (TrackerSparqlConnection  *self,
+                                           const gchar              *graph,
+                                           TrackerResource          *resource,
+                                           GCancellable             *cancellable,
+                                           GError                  **error)
+{
+	TrackerDirectConnectionPrivate *priv;
+	TrackerDirectConnection *conn;
+	TrackerData *data;
+	GError *inner_error = NULL;
+
+	conn = TRACKER_DIRECT_CONNECTION (self);
+	priv = tracker_direct_connection_get_instance_private (conn);
+
+	g_mutex_lock (&priv->mutex);
+	data = tracker_data_manager_get_data (priv->data_manager);
+	update_resource (data, graph, resource, &inner_error);
+	tracker_direct_connection_update_timestamp (conn);
+	g_mutex_unlock (&priv->mutex);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static void
+tracker_direct_connection_update_resource_async (TrackerSparqlConnection *self,
+                                                 const gchar             *graph,
+                                                 TrackerResource         *resource,
+                                                 GCancellable            *cancellable,
+                                                 GAsyncReadyCallback      callback,
+                                                 gpointer                 user_data)
+{
+	TrackerDirectConnectionPrivate *priv;
+	TrackerDirectConnection *conn;
+	TaskData *task_data;
+	GTask *task;
+
+	conn = TRACKER_DIRECT_CONNECTION (self);
+	priv = tracker_direct_connection_get_instance_private (conn);
+
+	task_data = task_data_query_new (TASK_TYPE_UPDATE_RESOURCE,
+	                                 update_resource_data_new (graph, resource),
+	                                 (GDestroyNotify) update_resource_data_free);
+
+	task = g_task_new (self, cancellable, callback, user_data);
+	g_task_set_task_data (task, task_data,
+	                      (GDestroyNotify) task_data_free);
+
+	g_thread_pool_push (priv->update_thread, task, NULL);
+}
+
+static gboolean
+tracker_direct_connection_update_resource_finish (TrackerSparqlConnection  *connection,
+                                                  GAsyncResult             *res,
+                                                  GError                  **error)
+{
+	return g_task_propagate_boolean (G_TASK (res), error);
+}
+
 static void
 tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 {
@@ -1057,6 +1186,9 @@ tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 	sparql_connection_class->close = tracker_direct_connection_close;
 	sparql_connection_class->close_async = tracker_direct_connection_close_async;
 	sparql_connection_class->close_finish = tracker_direct_connection_close_finish;
+	sparql_connection_class->update_resource = tracker_direct_connection_update_resource;
+	sparql_connection_class->update_resource_async = tracker_direct_connection_update_resource_async;
+	sparql_connection_class->update_resource_finish = tracker_direct_connection_update_resource_finish;
 
 	props[PROP_FLAGS] =
 		g_param_spec_flags ("flags",

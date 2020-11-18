@@ -25,6 +25,7 @@
 
 #include <libtracker-sparql/tracker-error.h>
 #include <libtracker-sparql/tracker-notifier.h>
+#include <libtracker-sparql/tracker-resource.h>
 #include <libtracker-sparql/tracker-version.h>
 #include <gio/gio.h>
 
@@ -136,6 +137,23 @@ TRACKER_AVAILABLE_IN_ALL
 gboolean tracker_sparql_connection_update_array_finish (TrackerSparqlConnection  *connection,
                                                         GAsyncResult             *res,
                                                         GError                  **error);
+TRACKER_AVAILABLE_IN_3_1
+gboolean tracker_sparql_connection_update_resource (TrackerSparqlConnection  *connection,
+                                                    const gchar              *graph,
+                                                    TrackerResource          *resource,
+                                                    GCancellable             *cancellable,
+                                                    GError                  **error);
+TRACKER_AVAILABLE_IN_3_1
+void tracker_sparql_connection_update_resource_async (TrackerSparqlConnection *connection,
+                                                      const gchar             *graph,
+                                                      TrackerResource         *resource,
+                                                      GCancellable            *cancellable,
+                                                      GAsyncReadyCallback      callback,
+                                                      gpointer                 user_data);
+TRACKER_AVAILABLE_IN_3_1
+gboolean tracker_sparql_connection_update_resource_finish (TrackerSparqlConnection  *connection,
+                                                           GAsyncResult             *res,
+                                                           GError                  **error);
 TRACKER_AVAILABLE_IN_ALL
 GVariant * tracker_sparql_connection_update_blank (TrackerSparqlConnection  *connection,
                                                    const gchar              *sparql,
