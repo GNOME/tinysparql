@@ -73,7 +73,8 @@ typedef enum {
 
 typedef struct {
 	TaskType type;
-	gchar *query;
+	gpointer data;
+	GDestroyNotify destroy;
 } TaskData;
 
 static void tracker_direct_connection_initable_iface_init (GInitableIface *iface);
@@ -90,22 +91,25 @@ G_DEFINE_TYPE_WITH_CODE (TrackerDirectConnection, tracker_direct_connection,
                                                 tracker_direct_connection_async_initable_iface_init))
 
 static TaskData *
-task_data_query_new (TaskType     type,
-                     const gchar *sparql)
+task_data_query_new (TaskType       type,
+                     gpointer       data,
+                     GDestroyNotify destroy)
 {
-	TaskData *data;
+	TaskData *task;
 
-	data = g_new0 (TaskData, 1);
-	data->type = type;
-	data->query = g_strdup (sparql);
+	task = g_new0 (TaskData, 1);
+	task->type = type;
+	task->data = data;
+	task->destroy = destroy;
 
-	return data;
+	return task;
 }
 
 static void
 task_data_free (TaskData *task)
 {
-	g_free (task->query);
+	if (task->destroy && task->data)
+		task->destroy (task->data);
 	g_free (task);
 }
 
@@ -131,7 +135,7 @@ cleanup_timeout_cb (gpointer user_data)
 
 	task = g_task_new (conn, NULL, NULL, NULL);
 	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_RELEASE_MEMORY, NULL),
+	                      task_data_query_new (TASK_TYPE_RELEASE_MEMORY, NULL, NULL),
 	                      (GDestroyNotify) task_data_free);
 
 	g_thread_pool_push (priv->update_thread, task, NULL);
@@ -165,10 +169,10 @@ update_thread_func (gpointer data,
 		g_warning ("Queries don't go through this thread");
 		break;
 	case TASK_TYPE_UPDATE:
-		tracker_data_update_sparql (tracker_data, task_data->query, &error);
+		tracker_data_update_sparql (tracker_data, task_data->data, &error);
 		break;
 	case TASK_TYPE_UPDATE_BLANK:
-		retval = tracker_data_update_sparql_blank (tracker_data, task_data->query, &error);
+		retval = tracker_data_update_sparql_blank (tracker_data, task_data->data, &error);
 		destroy_notify = (GDestroyNotify) g_variant_unref;
 		break;
 	case TASK_TYPE_RELEASE_MEMORY:
@@ -217,7 +221,7 @@ query_thread_pool_func (gpointer data,
 	}
 
 	cursor = tracker_sparql_connection_query (TRACKER_SPARQL_CONNECTION (g_task_get_source_object (task)),
-	                                          task_data->query,
+	                                          task_data->data,
 	                                          g_task_get_cancellable (task),
 	                                          &error);
 	if (cursor)
@@ -705,7 +709,9 @@ tracker_direct_connection_query_async (TrackerSparqlConnection *self,
 
 	task = g_task_new (self, cancellable, callback, user_data);
 	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_QUERY, sparql),
+	                      task_data_query_new (TASK_TYPE_QUERY,
+	                                           g_strdup (sparql),
+	                                           g_free),
 	                      (GDestroyNotify) task_data_free);
 
 	if (!g_thread_pool_push (priv->select_pool, task, &error)) {
@@ -771,7 +777,9 @@ tracker_direct_connection_update_async (TrackerSparqlConnection *self,
 
 	task = g_task_new (self, cancellable, callback, user_data);
 	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_UPDATE, sparql),
+	                      task_data_query_new (TASK_TYPE_UPDATE,
+	                                           g_strdup (sparql),
+	                                           g_free),
 	                      (GDestroyNotify) task_data_free);
 
 	g_thread_pool_push (priv->update_thread, task, NULL);
@@ -813,8 +821,7 @@ tracker_direct_connection_update_array_async (TrackerSparqlConnection  *self,
 	concatenated = g_strjoinv ("\n", array_copy);
 	g_free (array_copy);
 
-	task_data = task_data_query_new (TASK_TYPE_UPDATE, NULL);
-	task_data->query = concatenated;
+	task_data = task_data_query_new (TASK_TYPE_UPDATE, concatenated, g_free);
 
 	task = g_task_new (self, cancellable, callback, user_data);
 	g_task_set_task_data (task, task_data,
@@ -880,7 +887,9 @@ tracker_direct_connection_update_blank_async (TrackerSparqlConnection *self,
 
 	task = g_task_new (self, cancellable, callback, user_data);
 	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_UPDATE_BLANK, sparql),
+	                      task_data_query_new (TASK_TYPE_UPDATE_BLANK,
+	                                           g_strdup (sparql),
+	                                           g_free),
 	                      (GDestroyNotify) task_data_free);
 
 	g_thread_pool_push (priv->update_thread, task, NULL);
