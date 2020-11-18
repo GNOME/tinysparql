@@ -5108,3 +5108,68 @@ tracker_data_manager_release_memory (TrackerDataManager *manager)
 {
 	tracker_db_manager_release_memory (manager->db_manager);
 }
+
+gboolean
+tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
+                                    const gchar         *term,
+                                    GHashTable          *prefix_map,
+                                    gchar              **prefix,
+                                    gchar              **expanded)
+{
+	const gchar *sep, *expanded_ns = NULL;
+	TrackerOntologies *ontologies;
+	TrackerNamespace **namespaces;
+	guint n_namespaces, i;
+	gchar *ns;
+
+	sep = strchr (term, ':');
+
+	if (sep) {
+		ns = g_strndup (term, sep - term);
+		sep++;
+	} else {
+		ns = g_strdup (term);
+	}
+
+	if (prefix_map)
+		expanded_ns = g_hash_table_lookup (prefix_map, ns);
+
+	if (!expanded_ns) {
+		ontologies = tracker_data_manager_get_ontologies (manager);
+		namespaces = tracker_ontologies_get_namespaces (ontologies, &n_namespaces);
+
+		for (i = 0; i < n_namespaces; i++) {
+			if (!g_str_equal (ns, tracker_namespace_get_prefix (namespaces[i])))
+				continue;
+
+			expanded_ns = tracker_namespace_get_uri (namespaces[i]);
+
+			if (prefix_map)
+				g_hash_table_insert (prefix_map, ns, g_strdup (expanded_ns));
+			break;
+		}
+	}
+
+	if (!expanded_ns) {
+		if (prefix)
+			*prefix = NULL;
+		if (expanded)
+			*expanded = g_strdup (term);
+
+		g_free (ns);
+		return FALSE;
+	}
+
+	if (prefix)
+		*prefix = g_strdup (expanded_ns);
+
+	if (expanded) {
+		if (sep) {
+			*expanded = g_strdup_printf ("%s%s", expanded_ns, sep);
+		} else {
+			*expanded = g_strdup (expanded_ns);
+		}
+	}
+
+	return TRUE;
+}
