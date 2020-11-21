@@ -1,3 +1,8 @@
+version_header = configure_file(
+    input: 'tracker-version-generated.h.meson.in',
+    output: 'tracker-version-generated.h',
+    configuration: conf)
+
 enum_types = gnome.mkenums('tracker-sparql-enum-types',
     sources: ['tracker-notifier.h', 'tracker-connection.h'],
     c_template: 'tracker-sparql-enum-types.c.template',
@@ -59,6 +64,7 @@ install_headers(
     libtracker_sparql_c_public_headers,
     'tracker-ontologies.h',
     'tracker-sparql.h',
+    version_header,
     subdir: 'tracker-@0@/libtracker-sparql'.format(tracker_api_version))
 
 install_data(

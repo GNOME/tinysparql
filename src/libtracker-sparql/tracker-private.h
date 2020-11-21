@@ -20,8 +20,9 @@
 #ifndef __TRACKER_PRIVATE_H__
 #define __TRACKER_PRIVATE_H__
 
-#include "tracker-cursor.h"
-#include "tracker-endpoint-dbus.h"
+#include <libtracker-sparql/tracker-version-generated.h>
+#include <libtracker-sparql/tracker-cursor.h>
+#include <libtracker-sparql/tracker-endpoint-dbus.h>
 
 typedef struct _TrackerSparqlConnectionClass TrackerSparqlConnectionClass;
 
