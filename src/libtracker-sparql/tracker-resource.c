@@ -2010,3 +2010,24 @@ tracker_resource_deserialize (GVariant *variant)
 
 	return resource;
 }
+
+/**
+ * tracker_resource_get_property_overwrite:
+ * @resource: a #TrackerResource
+ * @property_uri: a string identifying the property to query
+ *
+ * Returns whether the prior values for this property would be deleted
+ * in the SPARQL issued by @resource.
+ *
+ * Returns: #TRUE if the property would be overwritten
+ *
+ * Since: 3.1
+ **/
+gboolean
+tracker_resource_get_property_overwrite (TrackerResource *resource,
+                                         const gchar     *property_uri)
+{
+	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
+
+	return g_hash_table_contains (priv->overwrite, property_uri);
+}

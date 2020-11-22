@@ -114,6 +114,9 @@ GVariant * tracker_resource_serialize (TrackerResource *resource);
 TRACKER_AVAILABLE_IN_ALL
 TrackerResource * tracker_resource_deserialize (GVariant *variant);
 
+TRACKER_AVAILABLE_IN_3_1
+gboolean tracker_resource_get_property_overwrite (TrackerResource *resource, const gchar *property_uri);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_RESOURCE_H__ */
