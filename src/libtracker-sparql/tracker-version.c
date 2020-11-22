@@ -66,8 +66,6 @@ const guint tracker_binary_age = TRACKER_BINARY_AGE;
  *   given version, or a string describing the version mismatch.
  *   The returned string is owned by Tracker and must not be modified
  *   or freed.
- *
- * Since: 0.10
  **/
 const gchar *
 tracker_check_version (guint required_major,

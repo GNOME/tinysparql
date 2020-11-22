@@ -135,8 +135,6 @@ GLIB_VAR const guint tracker_binary_age;
  * }
  * </programlisting>
  * </example>
- *
- * Since: 0.10
  **/
 #define TRACKER_CHECK_VERSION(major,minor,micro)    \
     (TRACKER_MAJOR_VERSION > (major) || \

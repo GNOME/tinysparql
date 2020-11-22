@@ -99,8 +99,6 @@ finalize (GObject *object)
  * Creates a new #TrackerNamespaceManager instance.
  *
  * Returns: a new #TrackerNamespaceManager instance
- *
- * Since: 1.10
  */
 TrackerNamespaceManager *
 tracker_namespace_manager_new ()
@@ -123,8 +121,6 @@ tracker_namespace_manager_new ()
  * ontologies, if they have been modified since they were installed.
  *
  * Returns: (transfer none): a global, shared #TrackerNamespaceManager instance
- *
- * Since: 1.10
  */
 TrackerNamespaceManager *
 tracker_namespace_manager_get_default ()
@@ -165,8 +161,6 @@ tracker_namespace_manager_get_default ()
  * Returns whether @prefix is known.
  *
  * Returns: %TRUE if the #TrackerNamespaceManager knows about @prefix, %FALSE otherwise
- *
- * Since: 1.10
  */
 gboolean
 tracker_namespace_manager_has_prefix (TrackerNamespaceManager *self,
@@ -190,8 +184,6 @@ tracker_namespace_manager_has_prefix (TrackerNamespaceManager *self,
  * is not known.
  *
  * Returns: a string owned by the #TrackerNamespaceManager, or %NULL
- *
- * Since: 1.10
  */
 const char *
 tracker_namespace_manager_lookup_prefix (TrackerNamespaceManager *self,
@@ -216,8 +208,6 @@ tracker_namespace_manager_lookup_prefix (TrackerNamespaceManager *self,
  *
  * Only one prefix is allowed for a given namespace, and all prefixes must
  * be unique.
- *
- * Since: 1.10
  */
 void
 tracker_namespace_manager_add_prefix (TrackerNamespaceManager *self,
@@ -264,8 +254,6 @@ tracker_namespace_manager_add_prefix (TrackerNamespaceManager *self,
  * expanded URI. Otherwise, a copy of @compact_uri will be returned.
  *
  * Returns: a newly-allocated string
- *
- * Since: 1.10
  */
 char *
 tracker_namespace_manager_expand_uri (TrackerNamespaceManager *self,
@@ -307,8 +295,6 @@ tracker_namespace_manager_expand_uri (TrackerNamespaceManager *self,
  * Writes out all namespaces as Turtle @prefix statements.
  *
  * Returns: a newly-allocated string
- *
- * Since: 1.10
  */
 char *
 tracker_namespace_manager_print_turtle (TrackerNamespaceManager *self)
@@ -338,8 +324,6 @@ tracker_namespace_manager_print_turtle (TrackerNamespaceManager *self)
  * @user_data: user data to pass to the function
  *
  * Calls @func for each known prefix / URI pair.
- *
- * Since: 1.10
  */
 void
 tracker_namespace_manager_foreach (TrackerNamespaceManager *self,

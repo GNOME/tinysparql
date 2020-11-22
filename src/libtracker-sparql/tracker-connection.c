@@ -182,8 +182,6 @@ tracker_sparql_connection_class_init (TrackerSparqlConnectionClass *klass)
  *
  * Returns: (transfer full): a new remote #TrackerSparqlConnection. Call
  * g_object_unref() on the object when no longer used.
- *
- * Since: 1.12
  */
 
 /**
