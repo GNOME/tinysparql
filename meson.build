@@ -305,7 +305,6 @@ typelib_dir = gobject_introspection.get_pkgconfig_variable('typelibdir',
 
 subdir('src')
 subdir('docs')
-subdir('examples')
 subdir('utils')
 
 test_c_args = tracker_c_args + [
@@ -319,6 +318,7 @@ tracker_uninstalled_stop_words_dir = join_paths(meson.current_source_dir(), 'src
 tracker_uninstalled_testutils_dir = join_paths(meson.current_source_dir(), 'utils')
 
 subdir('tests')
+subdir('examples')
 
 subdir('po')
 
