@@ -7,7 +7,7 @@ It's a search engine, and a database.
 Tracker Miner FS indexes content from your home directory automatically, so
 applications can provide instant search results when you need them.
 
-See the [overview](overview) for more information.
+See the [overview](../overview) for more information.
 
 ## What files will Tracker index?
 
