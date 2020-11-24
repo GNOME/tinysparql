@@ -32,10 +32,10 @@ typedef struct _TrackerNamespacePrivate TrackerNamespacePrivate;
 struct _TrackerNamespacePrivate {
 	gchar *uri;
 
-	gboolean use_gvdb;
+	guint use_gvdb : 1;
+	guint is_new : 1;
 
 	gchar *prefix;
-	gboolean is_new;
 	TrackerOntologies *ontologies;
 };
 
@@ -79,7 +79,7 @@ tracker_namespace_new (gboolean use_gvdb)
 
 	if (use_gvdb) {
 		priv = tracker_namespace_get_instance_private (namespace);
-		priv->use_gvdb = use_gvdb;
+		priv->use_gvdb = !!use_gvdb;
 	}
 
 	return namespace;
@@ -173,7 +173,7 @@ tracker_namespace_set_is_new (TrackerNamespace *namespace,
 
 	priv = tracker_namespace_get_instance_private (namespace);
 
-	priv->is_new = value;
+	priv->is_new = !!value;
 }
 
 void

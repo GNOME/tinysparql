@@ -45,32 +45,32 @@ struct _TrackerPropertyPrivate {
 	gchar         *name;
 	gchar         *table_name;
 
-	gboolean       use_gvdb;
-
 	TrackerPropertyType  data_type;
 	TrackerClass   *domain;
 	TrackerClass   *domain_index;
 	TrackerClass   *range;
 	gint           weight;
 	gint           id;
-	gboolean       indexed;
+	guint          use_gvdb : 1;
+	guint          indexed : 1;
+	guint          orig_fulltext_indexed : 1;
+	guint          fulltext_indexed : 1;
+	guint          multiple_values : 1;
+	guint          last_multiple_values : 1;
+	guint          is_inverse_functional_property : 1;
+	guint          is_new : 1;
+	guint          db_schema_changed : 1;
+	guint          writeback : 1;
+	guint          force_journal : 1;
+	guint          cardinality_changed : 1;
+	guint          orig_multiple_values : 1;
+
 	TrackerProperty *secondary_index;
-	gboolean       orig_fulltext_indexed;
-	gboolean       fulltext_indexed;
-	gboolean       multiple_values;
-	gboolean       last_multiple_values;
-	gboolean       is_inverse_functional_property;
-	gboolean       is_new;
-	gboolean       db_schema_changed;
-	gboolean       writeback;
 	GPtrArray     *is_new_domain_index;
-	gboolean       force_journal;
 
 	GArray        *super_properties;
 	GArray        *domain_indexes;
 	GArray        *last_super_properties;
-	gboolean       cardinality_changed;
-	gboolean       orig_multiple_values;
 
 	TrackerOntologies *ontologies;
 };
@@ -201,7 +201,7 @@ tracker_property_new (gboolean use_gvdb)
 
 	if (use_gvdb) {
 		priv = tracker_property_get_instance_private (property);
-		priv->use_gvdb = use_gvdb;
+		priv->use_gvdb = !!use_gvdb;
 	}
 
 	return property;
@@ -858,7 +858,7 @@ tracker_property_set_indexed (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	priv->indexed = value;
+	priv->indexed = !!value;
 }
 
 void
@@ -871,7 +871,7 @@ tracker_property_set_is_new (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	priv->is_new = value;
+	priv->is_new = !!value;
 }
 
 void
@@ -931,7 +931,7 @@ tracker_property_set_writeback (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	priv->writeback = value;
+	priv->writeback = !!value;
 }
 
 void
@@ -944,7 +944,7 @@ tracker_property_set_db_schema_changed (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	priv->db_schema_changed = value;
+	priv->db_schema_changed = !!value;
 }
 
 void
@@ -957,7 +957,7 @@ tracker_property_set_cardinality_changed (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	priv->cardinality_changed = value;
+	priv->cardinality_changed = !!value;
 }
 
 void
@@ -970,7 +970,7 @@ tracker_property_set_orig_fulltext_indexed (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	priv->orig_fulltext_indexed = value;
+	priv->orig_fulltext_indexed = !!value;
 }
 
 void
@@ -983,7 +983,7 @@ tracker_property_set_fulltext_indexed (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	priv->fulltext_indexed = value;
+	priv->fulltext_indexed = !!value;
 }
 
 void
@@ -996,7 +996,7 @@ tracker_property_set_multiple_values (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	priv->multiple_values = value;
+	priv->multiple_values = !!value;
 	g_clear_pointer (&priv->table_name, g_free);
 }
 
@@ -1010,7 +1010,7 @@ tracker_property_set_last_multiple_values (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	priv->last_multiple_values = value;
+	priv->last_multiple_values = !!value;
 }
 
 void
@@ -1023,7 +1023,7 @@ tracker_property_set_orig_multiple_values (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	priv->orig_multiple_values = value;
+	priv->orig_multiple_values = !!value;
 }
 
 
@@ -1037,7 +1037,7 @@ tracker_property_set_is_inverse_functional_property (TrackerProperty *property,
 
 	priv = tracker_property_get_instance_private (property);
 
-	priv->is_inverse_functional_property = value;
+	priv->is_inverse_functional_property = !!value;
 }
 
 void
