@@ -339,6 +339,8 @@ summary = [
   '\nBuild Configuration:',
   '    Prefix:                                 ' + get_option('prefix'),
   '    Source code location:                   ' + meson.current_source_dir(),
+  '    Debug:                                  ' + get_option('debug').to_string(),
+  '    Optimization:                           ' + get_option('optimization'),
   '    Compiler:                               ' + cc.get_id(),
   '\nFeature Support:',
   '    Unicode support library:                ' + unicode_library_name,
