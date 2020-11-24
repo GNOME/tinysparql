@@ -35,11 +35,11 @@ struct _TrackerClassPrivate {
 	gchar *uri;
 	gchar *name;
 	gint id;
-	gboolean is_new;
-	gboolean db_schema_changed;
-	gboolean notify;
+	guint is_new : 1;
+	guint db_schema_changed : 1;
+	guint notify : 1;
+	guint use_gvdb : 1;
 
-	gboolean use_gvdb;
 
 	GArray *super_classes;
 	GArray *domain_indexes;
@@ -109,7 +109,7 @@ tracker_class_new (gboolean use_gvdb)
 
 	if (use_gvdb) {
 		priv = tracker_class_get_instance_private (service);
-		priv->use_gvdb = use_gvdb;
+		priv->use_gvdb = !!use_gvdb;
 	}
 
 	return service;
@@ -407,7 +407,7 @@ tracker_class_set_is_new (TrackerClass *service,
 
 	priv = tracker_class_get_instance_private (service);
 
-	priv->is_new = value;
+	priv->is_new = !!value;
 }
 
 
@@ -421,7 +421,7 @@ tracker_class_set_notify (TrackerClass *service,
 
 	priv = tracker_class_get_instance_private (service);
 
-	priv->notify = value;
+	priv->notify = !!value;
 }
 
 void
@@ -434,7 +434,7 @@ tracker_class_set_db_schema_changed (TrackerClass *service,
 
 	priv = tracker_class_get_instance_private (service);
 
-	priv->db_schema_changed = value;
+	priv->db_schema_changed = !!value;
 }
 
 void
