@@ -340,6 +340,8 @@ summary = [
   '    Prefix:                                 ' + get_option('prefix'),
   '    Source code location:                   ' + meson.current_source_dir(),
   '    Compiler:                               ' + cc.get_id(),
+  '    Debug:                                  ' + get_option('debug').to_string(),
+  '    Optimization:                           ' + get_option('optimization'),
   '\nFeature Support:',
   '    Unicode support library:                ' + unicode_library_name,
   '    Use external FTS module:                ' + (not sqlite3_has_builtin_fts5).to_string(),
