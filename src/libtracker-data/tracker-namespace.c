@@ -32,6 +32,7 @@ typedef struct _TrackerNamespacePrivate TrackerNamespacePrivate;
 struct _TrackerNamespacePrivate {
 	gchar *uri;
 
+	GMutex mutex;
 	guint use_gvdb : 1;
 	guint is_new : 1;
 
@@ -54,6 +55,10 @@ tracker_namespace_class_init (TrackerNamespaceClass *klass)
 static void
 tracker_namespace_init (TrackerNamespace *service)
 {
+	TrackerNamespacePrivate *priv;
+
+	priv = tracker_namespace_get_instance_private (service);
+	g_mutex_init (&priv->mutex);
 }
 
 static void
@@ -85,6 +90,29 @@ tracker_namespace_new (gboolean use_gvdb)
 	return namespace;
 }
 
+static void
+tracker_namespace_maybe_sync_from_gvdb (TrackerNamespace *namespace)
+{
+	TrackerNamespacePrivate *priv;
+
+	priv = tracker_namespace_get_instance_private (namespace);
+
+	if (!priv->use_gvdb)
+		return;
+
+	g_mutex_lock (&priv->mutex);
+
+	/* In case the lock was contended, make the second lose */
+	if (!priv->use_gvdb)
+		goto out;
+
+	priv->prefix = g_strdup (tracker_ontologies_get_namespace_string_gvdb (priv->ontologies, priv->uri, "prefix"));
+
+	priv->use_gvdb = FALSE;
+out:
+	g_mutex_unlock (&priv->mutex);
+}
+
 const gchar *
 tracker_namespace_get_uri (TrackerNamespace *namespace)
 {
@@ -106,9 +134,7 @@ tracker_namespace_get_prefix (TrackerNamespace *namespace)
 
 	priv = tracker_namespace_get_instance_private (namespace);
 
-	if (!priv->prefix && priv->use_gvdb) {
-		priv->prefix = g_strdup (tracker_ontologies_get_namespace_string_gvdb (priv->ontologies, priv->uri, "prefix"));
-	}
+	tracker_namespace_maybe_sync_from_gvdb (namespace);
 
 	return priv->prefix;
 }

@@ -40,6 +40,7 @@ struct _TrackerClassPrivate {
 	guint notify : 1;
 	guint use_gvdb : 1;
 
+	GMutex mutex;
 
 	GArray *super_classes;
 	GArray *domain_indexes;
@@ -73,6 +74,7 @@ tracker_class_init (TrackerClass *service)
 	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
 	priv->last_domain_indexes = NULL;
 	priv->last_super_classes = NULL;
+	g_mutex_init (&priv->mutex);
 }
 
 static void
@@ -113,6 +115,46 @@ tracker_class_new (gboolean use_gvdb)
 	}
 
 	return service;
+}
+
+static void
+tracker_class_maybe_sync_from_gvdb (TrackerClass *service)
+{
+	TrackerClassPrivate *priv;
+	TrackerClass *super_class;
+	GVariant *variant;
+
+	priv = tracker_class_get_instance_private (service);
+
+	if (!priv->use_gvdb)
+		return;
+
+	g_mutex_lock (&priv->mutex);
+
+	/* In case the lock was contended, make the second lose */
+	if (!priv->use_gvdb)
+		goto out;
+
+	tracker_class_reset_super_classes (service);
+
+	variant = tracker_ontologies_get_class_value_gvdb (priv->ontologies, priv->uri, "super-classes");
+	if (variant) {
+		GVariantIter iter;
+		const gchar *uri;
+
+		g_variant_iter_init (&iter, variant);
+		while (g_variant_iter_loop (&iter, "&s", &uri)) {
+			super_class = tracker_ontologies_get_class_by_uri (priv->ontologies, uri);
+
+			tracker_class_add_super_class (service, super_class);
+		}
+
+		g_variant_unref (variant);
+	}
+
+	priv->use_gvdb = FALSE;
+out:
+	g_mutex_unlock (&priv->mutex);
 }
 
 const gchar *
@@ -160,27 +202,7 @@ tracker_class_get_super_classes (TrackerClass *service)
 
 	priv = tracker_class_get_instance_private (service);
 
-	if (priv->use_gvdb) {
-		TrackerClass *super_class;
-		GVariant *variant;
-
-		tracker_class_reset_super_classes (service);
-
-		variant = tracker_ontologies_get_class_value_gvdb (priv->ontologies, priv->uri, "super-classes");
-		if (variant) {
-			GVariantIter iter;
-			const gchar *uri;
-
-			g_variant_iter_init (&iter, variant);
-			while (g_variant_iter_loop (&iter, "&s", &uri)) {
-				super_class = tracker_ontologies_get_class_by_uri (priv->ontologies, uri);
-
-				tracker_class_add_super_class (service, super_class);
-			}
-
-			g_variant_unref (variant);
-		}
-	}
+	tracker_class_maybe_sync_from_gvdb (service);
 
 	return (TrackerClass **) priv->super_classes->data;
 }

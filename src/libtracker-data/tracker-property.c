@@ -44,6 +44,7 @@ struct _TrackerPropertyPrivate {
 	gchar         *uri;
 	gchar         *name;
 	gchar         *table_name;
+	GMutex         mutex;
 
 	TrackerPropertyType  data_type;
 	TrackerClass   *domain;
@@ -145,6 +146,7 @@ tracker_property_init (TrackerProperty *property)
 	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 	priv->last_super_properties = NULL;
 	priv->cardinality_changed = FALSE;
+	g_mutex_init (&priv->mutex);
 }
 
 static void
@@ -207,6 +209,103 @@ tracker_property_new (gboolean use_gvdb)
 	return property;
 }
 
+static void
+tracker_property_maybe_sync_from_gvdb (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+	GVariant *variant;
+	const gchar *range_uri;
+	const gchar *domain_uri;
+	TrackerClass *domain_index;
+
+	priv = tracker_property_get_instance_private (property);
+
+	if (!priv->use_gvdb)
+		return;
+
+	g_mutex_lock (&priv->mutex);
+
+	/* In case the lock was contended, make the second lose */
+	if (!priv->use_gvdb)
+		goto out;
+
+	/* Data type */
+	range_uri = tracker_ontologies_get_property_string_gvdb (priv->ontologies, priv->uri, "range");
+	if (strcmp (range_uri, XSD_STRING) == 0) {
+		priv->data_type = TRACKER_PROPERTY_TYPE_STRING;
+	} else if (strcmp (range_uri, RDF_LANGSTRING) == 0) {
+		priv->data_type = TRACKER_PROPERTY_TYPE_LANGSTRING;
+	} else if (strcmp (range_uri, XSD_BOOLEAN) == 0) {
+		priv->data_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
+	} else if (strcmp (range_uri, XSD_INTEGER) == 0) {
+		priv->data_type = TRACKER_PROPERTY_TYPE_INTEGER;
+	} else if (strcmp (range_uri, XSD_DOUBLE) == 0) {
+		priv->data_type = TRACKER_PROPERTY_TYPE_DOUBLE;
+	} else if (strcmp (range_uri, XSD_DATE) == 0) {
+		priv->data_type = TRACKER_PROPERTY_TYPE_DATE;
+	} else if (strcmp (range_uri, XSD_DATETIME) == 0) {
+		priv->data_type = TRACKER_PROPERTY_TYPE_DATETIME;
+	} else {
+		priv->data_type = TRACKER_PROPERTY_TYPE_RESOURCE;
+	}
+
+	/* Range */
+	priv->range = g_object_ref (tracker_ontologies_get_class_by_uri (priv->ontologies, range_uri));
+
+	/* Domain */
+	domain_uri = tracker_ontologies_get_property_string_gvdb (priv->ontologies, priv->uri, "domain");
+	priv->domain = g_object_ref (tracker_ontologies_get_class_by_uri (priv->ontologies, domain_uri));
+
+	/* Domain indexes */
+	tracker_property_reset_domain_indexes (property);
+
+	variant = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "domain-indexes");
+	if (variant) {
+		GVariantIter iter;
+		const gchar *uri;
+
+		g_variant_iter_init (&iter, variant);
+		while (g_variant_iter_loop (&iter, "&s", &uri)) {
+			domain_index = tracker_ontologies_get_class_by_uri (priv->ontologies, uri);
+
+			tracker_property_add_domain_index (property, domain_index);
+		}
+
+		g_variant_unref (variant);
+	}
+
+	/* Fulltext indexed */
+	variant = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "fulltext-indexed");
+	if (variant != NULL) {
+		priv->fulltext_indexed = g_variant_get_boolean (variant);
+		g_variant_unref (variant);
+	} else {
+		priv->fulltext_indexed = FALSE;
+	}
+
+	/* Cardinality */
+	variant = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "max-cardinality");
+	if (variant != NULL) {
+		priv->multiple_values = FALSE;
+		g_variant_unref (variant);
+	} else {
+		priv->multiple_values = TRUE;
+	}
+
+	/* Inverse functional property */
+	variant = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "inverse-functional");
+	if (variant != NULL) {
+		priv->is_inverse_functional_property = g_variant_get_boolean (variant);
+		g_variant_unref (variant);
+	} else {
+		priv->is_inverse_functional_property = FALSE;
+	}
+
+	priv->use_gvdb = FALSE;
+out:
+	g_mutex_unlock (&priv->mutex);
+}
+
 const gchar *
 tracker_property_get_uri (TrackerProperty *property)
 {
@@ -262,28 +361,7 @@ tracker_property_get_data_type (TrackerProperty *property)
 
 	priv = tracker_property_get_instance_private (property);
 
-	if (priv->use_gvdb) {
-		const gchar *range_uri;
-
-		range_uri = tracker_ontologies_get_property_string_gvdb (priv->ontologies, priv->uri, "range");
-		if (strcmp (range_uri, XSD_STRING) == 0) {
-			priv->data_type = TRACKER_PROPERTY_TYPE_STRING;
-		} else if (strcmp (range_uri, RDF_LANGSTRING) == 0) {
-			priv->data_type = TRACKER_PROPERTY_TYPE_LANGSTRING;
-		} else if (strcmp (range_uri, XSD_BOOLEAN) == 0) {
-			priv->data_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
-		} else if (strcmp (range_uri, XSD_INTEGER) == 0) {
-			priv->data_type = TRACKER_PROPERTY_TYPE_INTEGER;
-		} else if (strcmp (range_uri, XSD_DOUBLE) == 0) {
-			priv->data_type = TRACKER_PROPERTY_TYPE_DOUBLE;
-		} else if (strcmp (range_uri, XSD_DATE) == 0) {
-			priv->data_type = TRACKER_PROPERTY_TYPE_DATE;
-		} else if (strcmp (range_uri, XSD_DATETIME) == 0) {
-			priv->data_type = TRACKER_PROPERTY_TYPE_DATETIME;
-		} else {
-			priv->data_type = TRACKER_PROPERTY_TYPE_RESOURCE;
-		}
-	}
+	tracker_property_maybe_sync_from_gvdb (property);
 
 	return priv->data_type;
 }
@@ -300,12 +378,7 @@ tracker_property_get_domain (TrackerProperty *property)
 
 	priv = tracker_property_get_instance_private (property);
 
-	if (!priv->domain && priv->use_gvdb) {
-		const gchar *domain_uri;
-
-		domain_uri = tracker_ontologies_get_property_string_gvdb (priv->ontologies, priv->uri, "domain");
-		priv->domain = g_object_ref (tracker_ontologies_get_class_by_uri (priv->ontologies, domain_uri));
-	}
+	tracker_property_maybe_sync_from_gvdb (property);
 
 	return priv->domain;
 }
@@ -322,27 +395,7 @@ tracker_property_get_domain_indexes (TrackerProperty *property)
 
 	priv = tracker_property_get_instance_private (property);
 
-	if (priv->use_gvdb) {
-		TrackerClass *domain_index;
-		GVariant *variant;
-
-		tracker_property_reset_domain_indexes (property);
-
-		variant = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "domain-indexes");
-		if (variant) {
-			GVariantIter iter;
-			const gchar *uri;
-
-			g_variant_iter_init (&iter, variant);
-			while (g_variant_iter_loop (&iter, "&s", &uri)) {
-				domain_index = tracker_ontologies_get_class_by_uri (priv->ontologies, uri);
-
-				tracker_property_add_domain_index (property, domain_index);
-			}
-
-			g_variant_unref (variant);
-		}
-	}
+	tracker_property_maybe_sync_from_gvdb (property);
 
 	return (TrackerClass ** ) priv->domain_indexes->data;
 }
@@ -387,12 +440,7 @@ tracker_property_get_range (TrackerProperty *property)
 
 	priv = tracker_property_get_instance_private (property);
 
-	if (!priv->range && priv->use_gvdb) {
-		const gchar *range_uri;
-
-		range_uri = tracker_ontologies_get_property_string_gvdb (priv->ontologies, priv->uri, "range");
-		priv->range = g_object_ref (tracker_ontologies_get_class_by_uri (priv->ontologies, range_uri));
-	}
+	tracker_property_maybe_sync_from_gvdb (property);
 
 	return priv->range;
 }
@@ -457,20 +505,7 @@ tracker_property_get_fulltext_indexed (TrackerProperty *property)
 
 	priv = tracker_property_get_instance_private (property);
 
-	if (priv->use_gvdb) {
-		GVariant *value;
-		gboolean result;
-
-		value = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "fulltext-indexed");
-		if (value != NULL) {
-			result = g_variant_get_boolean (value);
-			g_variant_unref (value);
-		} else {
-			result = FALSE;
-		}
-
-		return result;
-	}
+	tracker_property_maybe_sync_from_gvdb (property);
 
 	return priv->fulltext_indexed;
 }
@@ -569,20 +604,7 @@ tracker_property_get_multiple_values (TrackerProperty *property)
 
 	priv = tracker_property_get_instance_private (property);
 
-	if (priv->use_gvdb) {
-		GVariant *value;
-		gboolean result;
-
-		value = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "max-cardinality");
-		if (value != NULL) {
-			result = FALSE;
-			g_variant_unref (value);
-		} else {
-			result = TRUE;
-		}
-
-		return result;
-	}
+	tracker_property_maybe_sync_from_gvdb (property);
 
 	return priv->multiple_values;
 }
@@ -620,20 +642,7 @@ tracker_property_get_is_inverse_functional_property (TrackerProperty *property)
 
 	priv = tracker_property_get_instance_private (property);
 
-	if (priv->use_gvdb) {
-		GVariant *value;
-		gboolean result;
-
-		value = tracker_ontologies_get_property_value_gvdb (priv->ontologies, priv->uri, "inverse-functional");
-		if (value != NULL) {
-			result = g_variant_get_boolean (value);
-			g_variant_unref (value);
-		} else {
-			result = FALSE;
-		}
-
-		return result;
-	}
+	tracker_property_maybe_sync_from_gvdb (property);
 
 	return priv->is_inverse_functional_property;
 }
