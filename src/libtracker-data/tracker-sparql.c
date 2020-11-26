@@ -9569,6 +9569,7 @@ tracker_sparql_new_update (TrackerDataManager *manager,
 GVariant *
 tracker_sparql_execute_update (TrackerSparql  *sparql,
                                gboolean        blank,
+                               GHashTable     *bnode_map,
                                GError        **error)
 {
 	TrackerSparqlState state = { 0 };
@@ -9584,6 +9585,8 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 
 	sparql->current_state = &state;
 	sparql->current_state->node = tracker_node_tree_get_root (sparql->tree);
+	sparql->current_state->blank_node_map =
+		bnode_map ? g_hash_table_ref (bnode_map) : NULL;
 	tracker_sparql_init_string_builder (sparql);
 	retval = _call_rule_func (sparql, NAMED_RULE_Update, error);
 	sparql->current_state = NULL;

@@ -2637,7 +2637,7 @@ update_sparql (TrackerData  *data,
 	}
 
 	sparql_query = tracker_sparql_new_update (data->manager, update);
-	blank_nodes = tracker_sparql_execute_update (sparql_query, blank, &actual_error);
+	blank_nodes = tracker_sparql_execute_update (sparql_query, blank, NULL, &actual_error);
 	g_object_unref (sparql_query);
 
 	if (actual_error) {
