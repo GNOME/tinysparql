@@ -137,6 +137,12 @@ void     tracker_data_remove_rollback_statement_callback (TrackerData           
                                                           TrackerCommitCallback      callback,
                                                           gpointer                   user_data);
 
+gboolean tracker_data_update_resource (TrackerData      *data,
+                                       const gchar      *graph,
+                                       TrackerResource  *resource,
+                                       GHashTable       *bnodes,
+                                       GError          **error);
+
 GType         tracker_data_get_type (void) G_GNUC_CONST;
 TrackerData * tracker_data_new      (TrackerDataManager *manager);
 

@@ -47,6 +47,7 @@ tracker_resource_get_first_uri
 tracker_resource_get_identifier
 tracker_resource_get_values
 tracker_resource_get_properties
+tracker_resource_get_property_overwrite
 tracker_resource_identifier_compare_func
 tracker_resource_print_sparql_update
 tracker_resource_print_turtle
@@ -117,8 +118,12 @@ tracker_sparql_connection_update_array_finish
 tracker_sparql_connection_update_blank
 tracker_sparql_connection_update_blank_async
 tracker_sparql_connection_update_blank_finish
+tracker_sparql_connection_update_resource
+tracker_sparql_connection_update_resource_async
+tracker_sparql_connection_update_resource_finish
 tracker_sparql_connection_get_namespace_manager
 tracker_sparql_connection_create_notifier
+tracker_sparql_connection_create_batch
 tracker_sparql_connection_close
 tracker_sparql_connection_close_async
 tracker_sparql_connection_close_finish
@@ -264,6 +269,27 @@ tracker_endpoint_dbus_get_type
 </SECTION>
 
 <SECTION>
+<FILE>tracker-batch</FILE>
+<TITLE>TrackerBatch</TITLE>
+TrackerBatch
+tracker_batch_get_connection
+tracker_batch_add_sparql
+tracker_batch_add_resource
+tracker_batch_execute
+tracker_batch_execute_async
+tracker_batch_execute_finish
+<SUBSECTION Standard>
+TrackerBatchClass
+TRACKER_BATCH
+TRACKER_BATCH_CLASS
+TRACKER_BATCH_GET_CLASS
+TRACKER_IS_BATCH
+TRACKER_IS_BATCH_CLASS
+TRACKER_TYPE_BATCH
+tracker_batch_get_type
+</SECTION>
+
+<SECTION>
 <TITLE>Version Information</TITLE>
 <FILE>tracker-version</FILE>
 tracker_major_version
@@ -274,7 +300,18 @@ tracker_interface_age
 tracker_check_version
 
 <SUBSECTION>
+TRACKER_MAJOR_VERSION
+TRACKER_MINOR_VERSION
+TRACKER_MICRO_VERSION
 TRACKER_CHECK_VERSION
 <SUBSECTION Private>
 TRACKER_AVAILABLE_IN_ALL
+TRACKER_AVAILABLE_IN_3_1
+TRACKER_DEPRECATED_IN_3_1
+TRACKER_DEPRECATED_IN_3_1_FOR
+TRACKER_VERSION_MAX_ALLOWED
+TRACKER_VERSION_MIN_REQUIRED
+TRACKER_VERSION_CUR
+TRACKER_VERSION_3_0
+TRACKER_VERSION_3_1
 </SECTION>

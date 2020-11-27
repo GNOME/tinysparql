@@ -1,3 +1,8 @@
+version_header = configure_file(
+    input: 'tracker-version-generated.h.meson.in',
+    output: 'tracker-version-generated.h',
+    configuration: conf)
+
 enum_types = gnome.mkenums('tracker-sparql-enum-types',
     sources: ['tracker-notifier.h', 'tracker-connection.h'],
     c_template: 'tracker-sparql-enum-types.c.template',
@@ -10,6 +15,7 @@ tracker_sparql_vapi = files('tracker-sparql.vapi')
 tracker_sparql_vapi_dep = meson.get_compiler('vala').find_library('tracker-sparql', dirs: meson.current_source_dir())
 
 libtracker_sparql_c_sources = files(
+    'tracker-batch.c',
     'tracker-connection.c',
     'tracker-cursor.c',
     'tracker-endpoint.c',
@@ -25,6 +31,7 @@ libtracker_sparql_c_sources = files(
 )
 
 libtracker_sparql_c_public_headers = files(
+    'tracker-batch.h',
     'tracker-connection.h',
     'tracker-cursor.h',
     'tracker-endpoint.h',
@@ -59,6 +66,7 @@ install_headers(
     libtracker_sparql_c_public_headers,
     'tracker-ontologies.h',
     'tracker-sparql.h',
+    version_header,
     subdir: 'tracker-@0@/libtracker-sparql'.format(tracker_api_version))
 
 install_data(

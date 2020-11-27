@@ -310,58 +310,6 @@ tracker_sparql_expand_base (TrackerSparql *sparql,
 		return g_strdup (term);
 }
 
-static inline gchar *
-tracker_sparql_expand_prefix (TrackerSparql *sparql,
-                              const gchar   *term)
-{
-	const gchar *sep;
-	gchar *ns, *expanded_ns;
-
-	sep = strchr (term, ':');
-
-	if (sep) {
-		ns = g_strndup (term, sep - term);
-		sep++;
-	} else {
-		ns = g_strdup (term);
-	}
-
-	expanded_ns = g_hash_table_lookup (sparql->prefix_map, ns);
-
-	if (!expanded_ns && g_strcmp0 (ns, "fn") == 0)
-		expanded_ns = FN_NS;
-
-	if (!expanded_ns) {
-		TrackerOntologies *ontologies;
-		TrackerNamespace **namespaces;
-		guint n_namespaces, i;
-
-		ontologies = tracker_data_manager_get_ontologies (sparql->data_manager);
-		namespaces = tracker_ontologies_get_namespaces (ontologies, &n_namespaces);
-
-		for (i = 0; i < n_namespaces; i++) {
-			if (!g_str_equal (ns, tracker_namespace_get_prefix (namespaces[i])))
-				continue;
-
-			expanded_ns = g_strdup (tracker_namespace_get_uri (namespaces[i]));
-			g_hash_table_insert (sparql->prefix_map, g_strdup (ns), expanded_ns);
-		}
-
-		if (!expanded_ns) {
-			g_free (ns);
-			return NULL;
-		}
-	}
-
-	g_free (ns);
-
-	if (sep) {
-		return g_strdup_printf ("%s%s", expanded_ns, sep);
-	} else {
-		return g_strdup (expanded_ns);
-	}
-}
-
 static inline void
 tracker_sparql_iter_next (TrackerSparql *sparql)
 {
@@ -1117,7 +1065,10 @@ _extract_node_string (TrackerParserNode *node,
 
 			unexpanded = g_strndup (terminal_start + add_start,
 						terminal_end - terminal_start - subtract_end);
-			str = tracker_sparql_expand_prefix (sparql, unexpanded);
+			tracker_data_manager_expand_prefix (sparql->data_manager,
+			                                    unexpanded,
+			                                    sparql->prefix_map,
+			                                    NULL, &str);
 			g_free (unexpanded);
 			break;
 		}
@@ -9310,6 +9261,8 @@ tracker_sparql_init (TrackerSparql *sparql)
 {
 	sparql->prefix_map = g_hash_table_new_full (g_str_hash, g_str_equal,
 	                                            g_free, g_free);
+	g_hash_table_insert (sparql->prefix_map, g_strdup ("fn"), g_strdup (FN_NS));
+
 	sparql->cached_bindings = g_hash_table_new_full (g_str_hash, g_str_equal,
 							 g_free, g_object_unref);
 	sparql->parameters = g_hash_table_new_full (g_str_hash, g_str_equal,
@@ -9616,6 +9569,7 @@ tracker_sparql_new_update (TrackerDataManager *manager,
 GVariant *
 tracker_sparql_execute_update (TrackerSparql  *sparql,
                                gboolean        blank,
+                               GHashTable     *bnode_map,
                                GError        **error)
 {
 	TrackerSparqlState state = { 0 };
@@ -9631,6 +9585,8 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 
 	sparql->current_state = &state;
 	sparql->current_state->node = tracker_node_tree_get_root (sparql->tree);
+	sparql->current_state->blank_node_map =
+		bnode_map ? g_hash_table_ref (bnode_map) : NULL;
 	tracker_sparql_init_string_builder (sparql);
 	retval = _call_rule_func (sparql, NAMED_RULE_Update, error);
 	sparql->current_state = NULL;

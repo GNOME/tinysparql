@@ -20,8 +20,9 @@
 #ifndef __TRACKER_PRIVATE_H__
 #define __TRACKER_PRIVATE_H__
 
-#include "tracker-cursor.h"
-#include "tracker-endpoint-dbus.h"
+#include <libtracker-sparql/tracker-version-generated.h>
+#include <libtracker-sparql/tracker-cursor.h>
+#include <libtracker-sparql/tracker-endpoint-dbus.h>
 
 typedef struct _TrackerSparqlConnectionClass TrackerSparqlConnectionClass;
 
@@ -89,6 +90,22 @@ struct _TrackerSparqlConnectionClass
         gboolean (* close_finish) (TrackerSparqlConnection  *connection,
                                    GAsyncResult             *res,
                                    GError                  **error);
+
+	gboolean (* update_resource) (TrackerSparqlConnection  *connection,
+				      const gchar              *graph,
+				      TrackerResource          *resource,
+				      GCancellable             *cancellable,
+				      GError                  **error);
+	void (* update_resource_async) (TrackerSparqlConnection *connection,
+					const gchar             *graph,
+					TrackerResource         *resource,
+					GCancellable            *cancellable,
+					GAsyncReadyCallback      callback,
+					gpointer                 user_data);
+	gboolean (* update_resource_finish) (TrackerSparqlConnection  *connection,
+					     GAsyncResult             *res,
+					     GError                  **error);
+	TrackerBatch * (* create_batch) (TrackerSparqlConnection *connection);
 };
 
 typedef struct _TrackerSparqlCursorClass TrackerSparqlCursorClass;
@@ -209,6 +226,28 @@ struct _TrackerNotifierClass {
 
 	void (* events) (TrackerNotifier *notifier,
 	                 const GPtrArray *events);
+};
+
+typedef struct _TrackerBatchClass TrackerBatchClass;
+
+struct _TrackerBatchClass {
+	GObjectClass parent_class;
+
+	void (* add_sparql) (TrackerBatch *batch,
+			     const gchar  *sparql);
+	void (* add_resource) (TrackerBatch    *batch,
+			       const gchar     *graph,
+			       TrackerResource *resource);
+	gboolean (* execute) (TrackerBatch  *batch,
+			      GCancellable  *cancellable,
+			      GError       **error);
+	void (* execute_async) (TrackerBatch        *batch,
+				GCancellable        *cancellable,
+				GAsyncReadyCallback  callback,
+				gpointer             user_data);
+	gboolean (* execute_finish) (TrackerBatch  *batch,
+				     GAsyncResult  *res,
+				     GError       **error);
 };
 
 void tracker_sparql_cursor_set_connection (TrackerSparqlCursor     *cursor,

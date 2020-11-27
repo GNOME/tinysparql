@@ -227,8 +227,6 @@ set_property (GObject      *object,
  * Creates a TrackerResource instance.
  *
  * Returns: a newly created #TrackerResource. Free with g_object_unref() when done
- *
- * Since: 1.10
  */
 TrackerResource *
 tracker_resource_new (const char *identifier)
@@ -264,8 +262,6 @@ tracker_resource_new (const char *identifier)
  * You can pass any kind of GValue for @value, but serialization functions will
  * normally only be able to serialize URIs/relationships and fundamental value
  * types (string, int, etc.).
- *
- * Since: 1.10
  */
 void
 tracker_resource_set_gvalue (TrackerResource *self,
@@ -363,8 +359,6 @@ validate_pointer (const void *pointer,
  * @value: the property object
  *
  * Sets a single-valued boolean object.
- *
- * Since: 1.10
  */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_boolean, gboolean, G_TYPE_BOOLEAN, g_value_set_boolean, validate_boolean);
 
@@ -375,8 +369,6 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_boolean, gboolean, G_TYPE_BOOLEAN, 
  * @value: the property object
  *
  * Sets a single-valued double object.
- *
- * Since: 1.10
  */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_double, double, G_TYPE_DOUBLE, g_value_set_double, validate_double);
 
@@ -387,8 +379,6 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_double, double, G_TYPE_DOUBLE, g_va
  * @value: the property object
  *
  * Sets a single-valued integer object.
- *
- * Since: 1.10
  */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_int, int, G_TYPE_INT, g_value_set_int, validate_int);
 
@@ -399,8 +389,6 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_int, int, G_TYPE_INT, g_value_set_i
  * @value: the property object
  *
  * Sets a single-valued integer object.
- *
- * Since: 1.10
  */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_int64, gint64, G_TYPE_INT64, g_value_set_int64, validate_int64);
 
@@ -414,8 +402,6 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_int64, gint64, G_TYPE_INT64, g_valu
  * function produces similar RDF to tracker_resource_set_uri(),
  * although in this function the URI will depend on the identifier
  * set on @resource.
- *
- * Since: 1.10
  */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_relation, TrackerResource *, TRACKER_TYPE_RESOURCE, g_value_set_object, validate_pointer);
 
@@ -429,8 +415,6 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_relation, TrackerResource *, TRACKE
  * function produces similar RDF to tracker_resource_set_uri(),
  * although in this function the URI will depend on the identifier
  * set on @resource. This function takes ownership of @resource.
- *
- * Since: 2.0
  */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_take_relation, TrackerResource *, TRACKER_TYPE_RESOURCE, g_value_take_object, validate_pointer);
 
@@ -441,8 +425,6 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_take_relation, TrackerResource *, T
  * @value: the property object
  *
  * Sets a single-valued string object.
- *
- * Since: 1.10
  */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_string, const char *, G_TYPE_STRING, g_value_set_string, validate_pointer);
 
@@ -455,8 +437,6 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_string, const char *, G_TYPE_STRING
  * Sets a single-valued resource object as a string URI. This function
  * produces similar RDF to tracker_resource_set_relation(), although
  * it requires that the URI is previously known.
- *
- * Since: 1.10
  */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_uri, const char *, TRACKER_TYPE_URI, g_value_set_string, validate_pointer);
 
@@ -471,8 +451,6 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_uri, const char *, TRACKER_TYPE_URI
  * You can pass any kind of GValue for @value, but serialization functions will
  * normally only be able to serialize URIs/relationships and fundamental value
  * types (string, int, etc.).
- *
- * Since: 1.10
  */
 void
 tracker_resource_add_gvalue (TrackerResource *self,
@@ -583,8 +561,6 @@ tracker_resource_add_gvalue (TrackerResource *self,
  * @value: the property object
  *
  * Adds a boolean object to a multi-valued property.
- *
- * Since: 1.10
  */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_boolean, gboolean, G_TYPE_BOOLEAN, g_value_set_boolean, validate_boolean);
 
@@ -595,8 +571,6 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_boolean, gboolean, G_TYPE_BOOLEAN, 
  * @value: the property object
  *
  * Adds a double object to a multi-valued property.
- *
- * Since: 1.10
  */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_double, double, G_TYPE_DOUBLE, g_value_set_double, validate_double);
 
@@ -607,8 +581,6 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_double, double, G_TYPE_DOUBLE, g_va
  * @value: the property object
  *
  * Adds an integer object to a multi-valued property.
- *
- * Since: 1.10
  */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_int, int, G_TYPE_INT, g_value_set_int, validate_int);
 
@@ -619,8 +591,6 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_int, int, G_TYPE_INT, g_value_set_i
  * @value: the property object
  *
  * Adds an integer object to a multi-valued property.
- *
- * Since: 1.10
  */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_int64, gint64, G_TYPE_INT64, g_value_set_int64, validate_int64);
 
@@ -634,8 +604,6 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_int64, gint64, G_TYPE_INT64, g_valu
  * function produces similar RDF to tracker_resource_add_uri(),
  * although in this function the URI will depend on the identifier
  * set on @resource.
- *
- * Since: 1.10
  */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_relation, TrackerResource *, TRACKER_TYPE_RESOURCE, g_value_set_object, validate_pointer);
 
@@ -649,8 +617,6 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_relation, TrackerResource *, TRACKE
  * function produces similar RDF to tracker_resource_add_uri(),
  * although in this function the URI will depend on the identifier
  * set on @resource. This function takes ownership of @resource.
- *
- * Since: 2.0
  */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_take_relation, TrackerResource *, TRACKER_TYPE_RESOURCE, g_value_take_object, validate_pointer);
 
@@ -662,8 +628,6 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_take_relation, TrackerResource *, T
  * @value: the property object
  *
  * Adds a string object to a multi-valued property.
- *
- * Since: 1.10
  */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_string, const char *, G_TYPE_STRING, g_value_set_string, validate_pointer);
 
@@ -676,8 +640,6 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_string, const char *, G_TYPE_STRING
  * Adds a resource object to a multi-valued property. This function
  * produces similar RDF to tracker_resource_add_relation(), although
  * it requires that the URI is previously known.
- *
- * Since: 1.10
  */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_uri, const char *, TRACKER_TYPE_URI, g_value_set_string, validate_pointer);
 
@@ -691,8 +653,6 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_uri, const char *, TRACKER_TYPE_URI
  *
  * Returns: (transfer container) (element-type GValue): a #GList of #GValue
  * instances. The list should be freed with g_list_free()
- *
- * Since: 1.10
  */
 GList *tracker_resource_get_values (TrackerResource *self,
                                     const char      *property_uri)
@@ -768,8 +728,6 @@ GList *tracker_resource_get_values (TrackerResource *self,
  * Returns the first boolean object previously assigned to a property.
  *
  * Returns: the first boolean object
- *
- * Since: 1.10
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_boolean, gboolean, G_TYPE_BOOLEAN, g_value_get_boolean, FALSE);
 
@@ -781,8 +739,6 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_boolean, gboolean, G_TYPE_BOO
  * Returns the first double object previously assigned to a property.
  *
  * Returns: the first double object
- *
- * Since: 1.10
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_double, double, G_TYPE_DOUBLE, g_value_get_double, 0.0);
 
@@ -794,8 +750,6 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_double, double, G_TYPE_DOUBLE
  * Returns the first integer object previously assigned to a property.
  *
  * Returns: the first integer object
- *
- * Since: 1.10
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_int, int, G_TYPE_INT, g_value_get_int, 0);
 
@@ -807,8 +761,6 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_int, int, G_TYPE_INT, g_value
  * Returns the first integer object previously assigned to a property.
  *
  * Returns: the first integer object
- *
- * Since: 1.10
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_int64, gint64, G_TYPE_INT64, g_value_get_int64, 0);
 
@@ -820,8 +772,6 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_int64, gint64, G_TYPE_INT64, 
  * Returns the first resource object previously assigned to a property.
  *
  * Returns: (transfer none): the first resource object
- *
- * Since: 1.10
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_relation, TrackerResource *, TRACKER_TYPE_RESOURCE, g_value_get_object, NULL);
 
@@ -833,8 +783,6 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_relation, TrackerResource *, 
  * Returns the first string object previously assigned to a property.
  *
  * Returns: the first string object
- *
- * Since: 1.10
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_string, const char *, G_TYPE_STRING, g_value_get_string, NULL);
 
@@ -846,8 +794,6 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_string, const char *, G_TYPE_
  * Returns the first resource object previously assigned to a property.
  *
  * Returns: the first resource object as an URI.
- *
- * Since: 1.10
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_uri, const char *, TRACKER_TYPE_URI, g_value_get_string, NULL);
 
@@ -861,8 +807,6 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_uri, const char *, TRACKER_TY
  * SPARQL blank node identifier, such as "_:123".
  *
  * Returns: a string owned by the resource
- *
- * Since: 1.10
  */
 const char *
 tracker_resource_get_identifier (TrackerResource *self)
@@ -888,8 +832,6 @@ tracker_resource_get_identifier (TrackerResource *self)
  *
  * If the identifier is set to NULL, a SPARQL blank node identifier such as
  * "_:123" is assigned to the resource.
- *
- * Since: 1.10
  */
 void
 tracker_resource_set_identifier (TrackerResource *self,
@@ -953,8 +895,6 @@ tracker_resource_identifier_compare_func (TrackerResource *resource,
  * thing.
  *
  * Returns: 0 if the identifiers are the same, -1 or +1 otherwise
- *
- * Since: 1.10
  */
 gint
 tracker_resource_compare (TrackerResource *a,
@@ -1284,8 +1224,6 @@ generate_turtle (TrackerResource    *resource,
  * usual prefixes for all of the ontologies that Tracker ships with by default.
  *
  * Returns: a newly-allocated string
- *
- * Since: 1.10
  */
 char *
 tracker_resource_print_turtle (TrackerResource         *self,
@@ -1541,8 +1479,6 @@ generate_sparql_insert_pattern (TrackerResource    *resource,
  * usual prefixes for all of the ontologies that Tracker ships with by default.
  *
  * Returns: a newly-allocated string containing a SPARQL update command.
- *
- * Since: 1.10
  */
 char *
 tracker_resource_print_sparql_update (TrackerResource         *resource,
@@ -1731,8 +1667,6 @@ generate_jsonld_namespace_mapping_foreach (gpointer key,
  * usual prefixes for all of the ontologies that Tracker ships with by default.
  *
  * Returns: a newly-allocated string containing JSON-LD data.
- *
- * Since: 2.0.5
  */
 char *
 tracker_resource_print_jsonld (TrackerResource         *self,
@@ -1819,8 +1753,6 @@ tracker_serialize_single_value (TrackerResource         *resource,
  *
  * Returns: (transfer full): A variant describing the resource,
  *          the reference is floating.
- *
- * Since: 3.0
  **/
 GVariant *
 tracker_resource_serialize (TrackerResource *resource)
@@ -1898,8 +1830,6 @@ tracker_resource_serialize (TrackerResource *resource)
  *
  * Returns: (transfer full): A TrackerResource, or %NULL if
  *          deserialization fails.
- *
- * Since: 3.0
  **/
 TrackerResource *
 tracker_resource_deserialize (GVariant *variant)
@@ -2009,4 +1939,25 @@ tracker_resource_deserialize (GVariant *variant)
 	}
 
 	return resource;
+}
+
+/**
+ * tracker_resource_get_property_overwrite:
+ * @resource: a #TrackerResource
+ * @property_uri: a string identifying the property to query
+ *
+ * Returns whether the prior values for this property would be deleted
+ * in the SPARQL issued by @resource.
+ *
+ * Returns: #TRUE if the property would be overwritten
+ *
+ * Since: 3.1
+ **/
+gboolean
+tracker_resource_get_property_overwrite (TrackerResource *resource,
+                                         const gchar     *property_uri)
+{
+	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
+
+	return g_hash_table_contains (priv->overwrite, property_uri);
 }

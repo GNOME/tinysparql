@@ -883,8 +883,6 @@ _tracker_notifier_get_connection (TrackerNotifier *notifier)
  * Returns the event type.
  *
  * Returns: The event type
- *
- * Since: 1.12
  **/
 TrackerNotifierEventType
 tracker_notifier_event_get_event_type (TrackerNotifierEvent *event)
@@ -901,8 +899,6 @@ tracker_notifier_event_get_event_type (TrackerNotifierEvent *event)
  * which is used as efficient internal identifier for the resource.
  *
  * Returns: the resource ID
- *
- * Since: 1.12
  **/
 gint64
 tracker_notifier_event_get_id (TrackerNotifierEvent *event)
@@ -922,8 +918,6 @@ tracker_notifier_event_get_id (TrackerNotifierEvent *event)
  * notified upon, typically of the form "urn:uuid:...".
  *
  * Returns: The element URN
- *
- * Since: 1.12
  **/
 const gchar *
 tracker_notifier_event_get_urn (TrackerNotifierEvent *event)

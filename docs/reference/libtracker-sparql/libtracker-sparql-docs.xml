@@ -36,6 +36,7 @@
     <xi:include href="xml/tracker-sparql-cursor.xml"/>
     <xi:include href="xml/tracker-notifier.xml"/>
     <xi:include href="xml/tracker-endpoint.xml"/>
+    <xi:include href="xml/tracker-batch.xml"/>
     <xi:include href="xml/tracker-misc.xml"/>
     <xi:include href="xml/tracker-version.xml"/>
     <xi:include href="xml/tracker-sparql-error.xml"/>
@@ -67,33 +68,13 @@
     <title>Index of deprecated symbols</title>
     <xi:include href="xml/api-index-deprecated.xml"><xi:fallback /></xi:include>
   </index>
-  <index id="api-index-0-10" role="0.10">
-    <title>Index of new symbols in 0.10</title>
-    <xi:include href="xml/api-index-0.10.xml"><xi:fallback /></xi:include>
+  <index id="api-index-3-0" role="3.0">
+    <title>Index of new symbols in 3.1</title>
+    <xi:include href="xml/api-index-3.0.xml"><xi:fallback /></xi:include>
   </index>
-  <index id="api-index-0-12" role="0.12">
-    <title>Index of new symbols in 0.12</title>
-    <xi:include href="xml/api-index-0.12.xml"><xi:fallback /></xi:include>
-  </index>
-  <index id="api-index-1-10" role="1.10">
-    <title>Index of new symbols in 1.10</title>
-    <xi:include href="xml/api-index-1.10.xml"><xi:fallback /></xi:include>
-  </index>
-  <index id="api-index-1-12" role="1.12">
-    <title>Index of new symbols in 1.12</title>
-    <xi:include href="xml/api-index-1.12.xml"><xi:fallback /></xi:include>
-  </index>
-  <index id="api-index-2-0" role="2.0">
-    <title>Index of new symbols in 2.0</title>
-    <xi:include href="xml/api-index-2.0.xml"><xi:fallback /></xi:include>
-  </index>
-  <index id="api-index-2-0-5" role="2.0.5">
-    <title>Index of new symbols in 2.0.5</title>
-    <xi:include href="xml/api-index-2.0.5.xml"><xi:fallback /></xi:include>
-  </index>
-  <index id="api-index-2-2" role="2.2">
-    <title>Index of new symbols in 2.2</title>
-    <xi:include href="xml/api-index-2.2.xml"><xi:fallback /></xi:include>
+  <index id="api-index-3-1" role="3.1">
+    <title>Index of new symbols in 3.1</title>
+    <xi:include href="xml/api-index-3.1.xml"><xi:fallback /></xi:include>
   </index>
 
   <xi:include href="xml/annotation-glossary.xml"><xi:fallback /></xi:include>
