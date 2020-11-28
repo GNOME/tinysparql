@@ -143,6 +143,10 @@ gboolean tracker_data_update_resource (TrackerData      *data,
                                        GHashTable       *bnodes,
                                        GError          **error);
 
+gint tracker_data_update_ensure_resource (TrackerData  *data,
+                                          const gchar  *uri,
+                                          gboolean     *create);
+
 GType         tracker_data_get_type (void) G_GNUC_CONST;
 TrackerData * tracker_data_new      (TrackerDataManager *manager);
 

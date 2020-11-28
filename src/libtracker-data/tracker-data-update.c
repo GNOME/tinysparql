@@ -142,9 +142,6 @@ enum {
 
 G_DEFINE_TYPE (TrackerData, tracker_data, G_TYPE_OBJECT);
 
-static gint         ensure_resource_id         (TrackerData      *data,
-                                                const gchar      *uri,
-                                                gboolean         *create);
 static void         cache_insert_value         (TrackerData      *data,
                                                 const gchar      *table_name,
                                                 const gchar      *field_name,
@@ -774,10 +771,10 @@ query_resource_id (TrackerData *data,
 	return id;
 }
 
-static gint
-ensure_resource_id (TrackerData *data,
-                    const gchar *uri,
-                    gboolean    *create)
+gint
+tracker_data_update_ensure_resource (TrackerData  *data,
+                                     const gchar  *uri,
+                                     gboolean     *create)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt = NULL;
@@ -1629,7 +1626,7 @@ bytes_to_gvalue (GBytes              *bytes,
 		tracker_date_time_set_from_string (gvalue, value, error);
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		object_id = ensure_resource_id (data, value, NULL);
+		object_id = tracker_data_update_ensure_resource (data, value, NULL);
 		g_value_init (gvalue, G_TYPE_INT64);
 		g_value_set_int64 (gvalue, object_id);
 		break;
@@ -2196,7 +2193,10 @@ resource_buffer_switch (TrackerData  *data,
 			resource_buffer->subject = subject_dup;
 		}
 
-		resource_buffer->id = ensure_resource_id (data, resource_buffer->subject, &resource_buffer->create);
+		resource_buffer->id =
+			tracker_data_update_ensure_resource (data,
+			                                     resource_buffer->subject,
+			                                     &resource_buffer->create);
 		resource_buffer->fts_updated = FALSE;
 		if (resource_buffer->create) {
 			resource_buffer->types = g_ptr_array_new ();
@@ -2908,7 +2908,7 @@ tracker_data_ensure_graph (TrackerData  *data,
 	TrackerDBStatement *stmt;
 	gint id;
 
-	id = ensure_resource_id (data, uri, NULL);
+	id = tracker_data_update_ensure_resource (data, uri, NULL);
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
 	                                              "INSERT OR IGNORE INTO Graph (ID) VALUES (?)");
