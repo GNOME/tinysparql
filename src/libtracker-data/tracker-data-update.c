@@ -37,6 +37,7 @@
 #include "tracker-property.h"
 #include "tracker-sparql.h"
 #include "tracker-turtle-reader.h"
+#include "tracker-uuid.h"
 
 typedef struct _TrackerDataUpdateBuffer TrackerDataUpdateBuffer;
 typedef struct _TrackerDataUpdateBufferGraph TrackerDataUpdateBufferGraph;
@@ -1578,8 +1579,7 @@ get_bnode_for_resource (GHashTable      *bnodes,
 		return bnode;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	bnode = tracker_data_query_unused_uuid (data->manager,
-	                                        iface);
+	bnode = tracker_data_update_ensure_new_bnode (data, iface, NULL);
 	identifier = tracker_resource_get_identifier (resource);
 	g_hash_table_insert (bnodes, g_strdup (identifier), bnode);
 
@@ -1627,8 +1627,7 @@ bytes_from_gvalue (GValue       *gvalue,
 				TrackerDBInterface *iface;
 
 				iface = tracker_data_manager_get_writable_db_interface (data->manager);
-				bnode = tracker_data_query_unused_uuid (data->manager,
-				                                        iface);
+				bnode = tracker_data_update_ensure_new_bnode (data, iface, NULL);
 				g_hash_table_insert (bnodes, g_strdup (uri), bnode);
 			}
 
@@ -3062,4 +3061,58 @@ tracker_data_update_resource (TrackerData      *data,
 	g_hash_table_unref (bnodes);
 
 	return retval;
+}
+
+gchar *
+tracker_data_update_ensure_new_bnode (TrackerData         *data,
+                                      TrackerDBInterface  *iface,
+                                      GError             **error)
+{
+	TrackerDBStatement *stmt = NULL;
+	GError *inner_error = NULL;
+	gchar *uuid, *key;
+	gint id;
+
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
+
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              &inner_error,
+	                                              "INSERT INTO Resource (Uri, BlankNode) VALUES (?, ?)");
+	if (!stmt) {
+		g_propagate_error (error, inner_error);
+		return NULL;
+	}
+
+	while (TRUE) {
+		uuid = tracker_generate_uuid ("urn:bnode:");
+
+		tracker_db_statement_bind_text (stmt, 0, uuid);
+		tracker_db_statement_bind_int (stmt, 1, 1);
+		tracker_db_statement_execute (stmt, &inner_error);
+
+		if (!inner_error ||
+		    !g_error_matches (inner_error,
+		                      TRACKER_DB_INTERFACE_ERROR,
+		                      TRACKER_DB_CONSTRAINT)) {
+			break;
+		}
+
+		/* Constraint error, retry */
+		g_clear_error (&inner_error);
+		g_free (uuid);
+	}
+
+	g_object_unref (stmt);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return NULL;
+	}
+
+	id = tracker_db_interface_sqlite_get_last_insert_id (iface);
+	key = g_strdup (uuid);
+	g_hash_table_insert (data->update_buffer.resource_cache, key, GINT_TO_POINTER (id));
+	g_hash_table_add (data->update_buffer.new_resources, key);
+
+	return uuid;
 }
