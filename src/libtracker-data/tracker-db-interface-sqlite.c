@@ -2916,6 +2916,11 @@ execute_stmt (TrackerDBInterface  *interface,
 				             TRACKER_DB_INTERFACE_ERROR,
 				             TRACKER_DB_INTERRUPTED,
 				             "Interrupted");
+			} else if (result == SQLITE_CONSTRAINT) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_CONSTRAINT,
+				             "Constraint would be broken");
 			} else {
 				g_set_error (error,
 				             TRACKER_DB_INTERFACE_ERROR,
