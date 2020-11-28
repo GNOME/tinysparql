@@ -127,8 +127,6 @@ struct _TrackerData {
 	GPtrArray *delete_callbacks;
 	GPtrArray *commit_callbacks;
 	GPtrArray *rollback_callbacks;
-	gint max_service_id;
-	gint max_ontology_id;
 };
 
 struct _TrackerDataClass {
@@ -409,78 +407,6 @@ tracker_data_dispatch_delete_statement_callbacks (TrackerData *data,
 			                    data->resource_buffer->types,
 			                    delegate->user_data);
 		}
-	}
-}
-
-static gint
-tracker_data_update_get_new_service_id (TrackerData  *data,
-                                        GError      **error)
-{
-	TrackerDBCursor    *cursor = NULL;
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	GError *inner_error = NULL;
-
-	if (data->in_ontology_transaction) {
-		if (G_LIKELY (data->max_ontology_id != 0)) {
-			return ++data->max_ontology_id;
-		}
-
-		iface = tracker_data_manager_get_writable_db_interface (data->manager);
-
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
-		                                              "SELECT MAX(ID) AS A FROM Resource WHERE ID <= %d", TRACKER_ONTOLOGIES_MAX_ID);
-
-		if (stmt) {
-			cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
-			g_object_unref (stmt);
-		}
-
-		if (cursor) {
-			if (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
-				data->max_ontology_id = MAX (tracker_db_cursor_get_int (cursor, 0), data->max_ontology_id);
-			}
-
-			g_object_unref (cursor);
-		}
-
-		if (G_UNLIKELY (inner_error)) {
-			g_propagate_error (error, inner_error);
-			return 0;
-		}
-
-		return ++data->max_ontology_id;
-	} else {
-		if (G_LIKELY (data->max_service_id != 0)) {
-			return ++data->max_service_id;
-		}
-
-		data->max_service_id = TRACKER_ONTOLOGIES_MAX_ID;
-
-		iface = tracker_data_manager_get_writable_db_interface (data->manager);
-
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
-		                                              "SELECT MAX(ID) AS A FROM Resource");
-
-		if (stmt) {
-			cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
-			g_object_unref (stmt);
-		}
-
-		if (cursor) {
-			if (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
-				data->max_service_id = MAX (tracker_db_cursor_get_int (cursor, 0), data->max_service_id);
-			}
-
-			g_object_unref (cursor);
-		}
-
-		if (G_UNLIKELY (inner_error)) {
-			g_propagate_error (error, inner_error);
-			return 0;
-		}
-
-		return ++data->max_service_id;
 	}
 }
 
@@ -791,17 +717,12 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
-	id = tracker_data_update_get_new_service_id (data, &error);
-
-	if (id > 0) {
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
-							      "INSERT INTO Resource (ID, Uri, BlankNode) VALUES (?, ?, ?)");
-	}
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
+	                                              "INSERT INTO Resource (Uri, BlankNode) VALUES (?, ?)");
 
 	if (stmt) {
-		tracker_db_statement_bind_int (stmt, 0, id);
-		tracker_db_statement_bind_text (stmt, 1, uri);
-		tracker_db_statement_bind_int (stmt, 2, g_str_has_prefix (uri, "urn:bnode:"));
+		tracker_db_statement_bind_text (stmt, 0, uri);
+		tracker_db_statement_bind_int (stmt, 1, g_str_has_prefix (uri, "urn:bnode:"));
 		tracker_db_statement_execute (stmt, &error);
 		g_object_unref (stmt);
 	}

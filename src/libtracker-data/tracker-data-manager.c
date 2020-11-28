@@ -4618,10 +4618,8 @@ data_manager_perform_cleanup (TrackerDataManager  *manager,
 	g_string_append (str, ") ");
 	g_string_append_printf (str,
 	                        "DELETE FROM Resource "
-	                        "WHERE Resource.ID > %d "
-	                        "AND Resource.ID NOT IN (SELECT ID FROM referencedElements) "
-	                        "AND Resource.ID NOT IN (SELECT ID FROM Graph)",
-	                        TRACKER_ONTOLOGIES_MAX_ID);
+	                        "WHERE Resource.ID NOT IN (SELECT ID FROM referencedElements) "
+	                        "AND Resource.ID NOT IN (SELECT ID FROM Graph)");
 
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
@@ -4922,7 +4920,7 @@ tracker_data_manager_clear_graph (TrackerDataManager  *manager,
 			continue;
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
-		                                              "DELETE FROM \"%s\".\"%s\" WHERE ID > 100000",
+		                                              "DELETE FROM \"%s\".\"%s\"",
 		                                              graph,
 		                                              tracker_class_get_name (classes[i]));
 		if (!stmt)
@@ -4940,7 +4938,7 @@ tracker_data_manager_clear_graph (TrackerDataManager  *manager,
 
 		service = tracker_property_get_domain (properties[i]);
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
-		                                              "DELETE FROM \"%s\".\"%s_%s\" WHERE ID > 100000",
+		                                              "DELETE FROM \"%s\".\"%s_%s\"",
 		                                              graph,
 		                                              tracker_class_get_name (service),
 		                                              tracker_property_get_name (properties[i]));
@@ -4991,7 +4989,7 @@ tracker_data_manager_copy_graph (TrackerDataManager  *manager,
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
 		                                              "INSERT OR REPLACE INTO \"%s\".\"%s\" "
-		                                              "SELECT * from \"%s\".\"%s\" WHERE ID > 100000",
+		                                              "SELECT * from \"%s\".\"%s\"",
 		                                              destination,
 		                                              tracker_class_get_name (classes[i]),
 		                                              source,
@@ -5012,7 +5010,7 @@ tracker_data_manager_copy_graph (TrackerDataManager  *manager,
 		service = tracker_property_get_domain (properties[i]);
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
 		                                              "INSERT OR REPLACE INTO \"%s\".\"%s_%s\" "
-		                                              "SELECT * from \"%s\".\"%s_%s\" WHERE ID > 100000",
+		                                              "SELECT * from \"%s\".\"%s_%s\"",
 		                                              destination,
 		                                              tracker_class_get_name (service),
 		                                              tracker_property_get_name (properties[i]),
