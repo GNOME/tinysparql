@@ -4071,6 +4071,10 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			return FALSE;
 		}
 
+		if (!create_base_tables (manager, iface, error)) {
+			return FALSE;
+		}
+
 		for (l = sorted; l; l = l->next) {
 			GError *ontology_error = NULL;
 			GFile *ontology_file = l->data;
@@ -4089,10 +4093,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			}
 
 			g_free (uri);
-		}
-
-		if (!create_base_tables (manager, iface, error)) {
-			return FALSE;
 		}
 
 		tracker_data_ontology_setup_db (manager, iface, "main", FALSE,
