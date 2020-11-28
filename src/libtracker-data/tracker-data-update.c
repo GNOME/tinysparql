@@ -785,37 +785,56 @@ ensure_resource_id (TrackerData *data,
 	GError *error = NULL;
 	gint id;
 
-	id = query_resource_id (data, uri);
+	id = GPOINTER_TO_INT (g_hash_table_lookup (data->update_buffer.resource_cache, uri));
 
-	if (create) {
-		*create = (id == 0);
+	if (id != 0) {
+		if (create)
+			*create = FALSE;
+		return id;
 	}
 
-	if (id == 0) {
-		iface = tracker_data_manager_get_writable_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
-		id = tracker_data_update_get_new_service_id (data, &error);
+	id = tracker_data_update_get_new_service_id (data, &error);
 
-		if (id > 0) {
-			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
-			                                              "INSERT INTO Resource (ID, Uri, BlankNode) VALUES (?, ?, ?)");
-		}
-
-		if (stmt) {
-			tracker_db_statement_bind_int (stmt, 0, id);
-			tracker_db_statement_bind_text (stmt, 1, uri);
-			tracker_db_statement_bind_int (stmt, 2, g_str_has_prefix (uri, "urn:bnode:"));
-			tracker_db_statement_execute (stmt, &error);
-			g_object_unref (stmt);
-		}
-
-		if (error) {
-			g_error ("Could not ensure resource existence: %s", error->message);
-			g_error_free (error);
-		}
-
-		g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
+	if (id > 0) {
+		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
+							      "INSERT INTO Resource (ID, Uri, BlankNode) VALUES (?, ?, ?)");
 	}
+
+	if (stmt) {
+		tracker_db_statement_bind_int (stmt, 0, id);
+		tracker_db_statement_bind_text (stmt, 1, uri);
+		tracker_db_statement_bind_int (stmt, 2, g_str_has_prefix (uri, "urn:bnode:"));
+		tracker_db_statement_execute (stmt, &error);
+		g_object_unref (stmt);
+	}
+
+	if (error) {
+		if (g_error_matches (error,
+		                     TRACKER_DB_INTERFACE_ERROR,
+		                     TRACKER_DB_CONSTRAINT)) {
+			id = query_resource_id (data, uri);
+
+			if (id != 0) {
+				if (create)
+					*create = FALSE;
+
+				g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
+				g_error_free (error);
+				return id;
+			}
+		}
+
+		g_error ("Could not ensure resource existence: %s", error->message);
+		g_error_free (error);
+	}
+
+	if (create)
+		*create = TRUE;
+
+	id = tracker_db_interface_sqlite_get_last_insert_id (iface);
+	g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
 
 	return id;
 }
