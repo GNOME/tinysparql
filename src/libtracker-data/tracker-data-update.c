@@ -970,7 +970,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 
 				if (stmt) {
 					tracker_db_statement_bind_int (stmt, 0, resource->id);
-					tracker_db_statement_bind_int (stmt, 1, ensure_resource_id (data, tracker_class_get_uri (table->class), NULL));
+					tracker_db_statement_bind_int (stmt, 1, tracker_class_get_id (table->class));
 					tracker_db_statement_execute (stmt, &actual_error);
 					g_object_unref (stmt);
 				}
@@ -1243,9 +1243,6 @@ cache_create_service_decomposed (TrackerData  *data,
 	g_value_init (&gvalue, G_TYPE_INT64);
 
 	cache_insert_row (data, cl);
-
-	/* This is the original, no idea why tracker_class_get_id wasn't used here:
-	 * class_id = ensure_resource_id (tracker_class_get_uri (cl), NULL); */
 
 	class_id = tracker_class_get_id (cl);
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
