@@ -55,8 +55,6 @@ struct _TrackerDataUpdateBuffer {
 	GHashTable *new_resources;
 	/* string -> TrackerDataUpdateBufferGraph */
 	GPtrArray *graphs;
-
-	gboolean fts_ever_updated;
 };
 
 struct _TrackerDataUpdateBufferGraph {
@@ -1054,7 +1052,6 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 			                                             resource->id,
 			                                             (const gchar **) properties->pdata,
 			                                             (const gchar **) text->pdata);
-			data->update_buffer.fts_ever_updated = TRUE;
 			g_ptr_array_free (properties, TRUE);
 			g_ptr_array_free (text, TRUE);
 		}
@@ -1135,8 +1132,6 @@ tracker_data_update_buffer_clear (TrackerData *data)
 	g_hash_table_remove_all (data->update_buffer.new_resources);
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
 	data->resource_buffer = NULL;
-
-	data->update_buffer.fts_ever_updated = FALSE;
 }
 
 static void
@@ -1491,8 +1486,6 @@ get_old_property_values (TrackerData      *data,
 
 				g_ptr_array_unref (fts_props);
 				g_ptr_array_unref (fts_text);
-
-				data->update_buffer.fts_ever_updated = TRUE;
 
 				old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
 			} else {
@@ -2663,10 +2656,6 @@ tracker_data_commit_transaction (TrackerData  *data,
 	data->resource_time = 0;
 	data->in_transaction = FALSE;
 	data->in_ontology_transaction = FALSE;
-
-	if (data->update_buffer.fts_ever_updated) {
-		data->update_buffer.fts_ever_updated = FALSE;
-	}
 
 	tracker_data_manager_commit_graphs (data->manager);
 
