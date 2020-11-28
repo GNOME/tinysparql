@@ -162,7 +162,6 @@ static gboolean     delete_metadata_decomposed (TrackerData      *data,
 static gboolean     resource_buffer_switch     (TrackerData  *data,
                                                 const gchar  *graph,
                                                 const gchar  *subject,
-                                                gint          subject_id,
                                                 GError      **error);
 static gboolean update_resource_single (TrackerData      *data,
                                         const gchar      *graph,
@@ -2161,7 +2160,6 @@ static gboolean
 resource_buffer_switch (TrackerData  *data,
                         const gchar  *graph,
                         const gchar  *subject,
-                        gint          subject_id,
                         GError      **error)
 {
 	TrackerDataUpdateBufferGraph *graph_buffer;
@@ -2197,11 +2195,8 @@ resource_buffer_switch (TrackerData  *data,
 			subject_dup = g_strdup (subject);
 			resource_buffer->subject = subject_dup;
 		}
-		if (subject_id > 0) {
-			resource_buffer->id = subject_id;
-		} else {
-			resource_buffer->id = ensure_resource_id (data, resource_buffer->subject, &resource_buffer->create);
-		}
+
+		resource_buffer->id = ensure_resource_id (data, resource_buffer->subject, &resource_buffer->create);
 		resource_buffer->fts_updated = FALSE;
 		if (resource_buffer->create) {
 			resource_buffer->types = g_ptr_array_new ();
@@ -2246,7 +2241,7 @@ tracker_data_delete_statement (TrackerData  *data,
 		return;
 	}
 
-	if (!resource_buffer_switch (data, graph, subject, subject_id, error))
+	if (!resource_buffer_switch (data, graph, subject, error))
 		return;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
@@ -2311,7 +2306,7 @@ tracker_data_delete_all (TrackerData  *data,
 		return;
 	}
 
-	if (!resource_buffer_switch (data, graph, subject, subject_id, error))
+	if (!resource_buffer_switch (data, graph, subject, error))
 		return;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
@@ -2475,7 +2470,7 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 
 	data->has_persistent = TRUE;
 
-	if (!resource_buffer_switch (data, graph, subject, 0, error))
+	if (!resource_buffer_switch (data, graph, subject, error))
 		return;
 
 	object_str = g_bytes_get_data (object, NULL);
@@ -2557,7 +2552,7 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 
 	data->has_persistent = TRUE;
 
-	if (!resource_buffer_switch (data, graph, subject, 0, error))
+	if (!resource_buffer_switch (data, graph, subject, error))
 		return;
 
 	/* add value to metadata database */
@@ -2615,9 +2610,7 @@ tracker_data_update_statement (TrackerData  *data,
 				return;
 			}
 
-			if (!resource_buffer_switch (data, graph, subject,
-			                             ensure_resource_id (data, subject, NULL),
-			                             error))
+			if (!resource_buffer_switch (data, graph, subject, error))
 				return;
 
 			cache_delete_all_values (data,
@@ -2626,9 +2619,7 @@ tracker_data_update_statement (TrackerData  *data,
 			                         tracker_property_get_fulltext_indexed (property),
 			                         tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
 		} else {
-			if (!resource_buffer_switch (data, graph, subject,
-			                             ensure_resource_id (data, subject, NULL),
-			                             error))
+			if (!resource_buffer_switch (data, graph, subject, error))
 				return;
 
 			if (!delete_single_valued (data, graph, subject, predicate,
