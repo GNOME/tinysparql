@@ -50,6 +50,8 @@ typedef struct _TrackerCommitDelegate TrackerCommitDelegate;
 struct _TrackerDataUpdateBuffer {
 	/* string -> integer */
 	GHashTable *resource_cache;
+	/* set of string, key is same pointer than resource_cache, and owned there */
+	GHashTable *new_resources;
 	/* string -> TrackerDataUpdateBufferGraph */
 	GPtrArray *graphs;
 
@@ -705,6 +707,7 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt = NULL;
 	GError *error = NULL;
+	gchar *key;
 	gint id;
 
 	id = GPOINTER_TO_INT (g_hash_table_lookup (data->update_buffer.resource_cache, uri));
@@ -751,7 +754,9 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 		*create = TRUE;
 
 	id = tracker_db_interface_sqlite_get_last_insert_id (iface);
-	g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
+	key = g_strdup (uri);
+	g_hash_table_insert (data->update_buffer.resource_cache, key, GINT_TO_POINTER (id));
+	g_hash_table_add (data->update_buffer.new_resources, key);
 
 	return id;
 }
@@ -1100,6 +1105,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 
 out:
 	g_ptr_array_set_size (data->update_buffer.graphs, 0);
+	g_hash_table_remove_all (data->update_buffer.new_resources);
 	data->resource_buffer = NULL;
 }
 
@@ -1125,6 +1131,7 @@ static void
 tracker_data_update_buffer_clear (TrackerData *data)
 {
 	g_ptr_array_set_size (data->update_buffer.graphs, 0);
+	g_hash_table_remove_all (data->update_buffer.new_resources);
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
 	data->resource_buffer = NULL;
 
@@ -2117,7 +2124,11 @@ resource_buffer_switch (TrackerData  *data,
 		resource_buffer->id =
 			tracker_data_update_ensure_resource (data,
 			                                     resource_buffer->subject,
-			                                     &resource_buffer->create);
+			                                     NULL);
+		resource_buffer->create =
+			g_hash_table_contains (data->update_buffer.new_resources,
+			                       resource_buffer->subject);
+
 		resource_buffer->fts_updated = FALSE;
 		if (resource_buffer->create) {
 			resource_buffer->types = g_ptr_array_new ();
@@ -2594,6 +2605,7 @@ tracker_data_begin_transaction (TrackerData  *data,
 
 	if (data->update_buffer.resource_cache == NULL) {
 		data->update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+		data->update_buffer.new_resources = g_hash_table_new (g_str_hash, g_str_equal);
 		/* used for normal transactions */
 		data->update_buffer.graphs = g_ptr_array_new_with_free_func ((GDestroyNotify) graph_buffer_free);
 	}
