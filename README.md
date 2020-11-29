@@ -144,11 +144,11 @@ where you have interesting data). We need to explicitly tell the script to wait
 for the miners to finish, or it will exit too soon. (This is a workaround for
 [issue #122](https://gitlab.gnome.org/GNOME/tracker/issues/122).)
 
-    ./run-uninstalled --wait-for-miner=Files --wait-for-miner=Extract -- tracker3 index --file ~/Music
+    ./run-uninstalled --wait-for-miner=Files --wait-for-miner=Extract -- tracker3 index --add ~/Music
 
 Let's see what files were found!
 
-    ./run-uninstalled  -- tracker3 sparql -q 'SELECT ?url { ?u nie:url ?url } }'
+    ./run-uninstalled  -- tracker3 sparql --dbus-service=org.freedesktop.Tracker3.Miner.Files -q 'SELECT ?url { ?u nie:url ?url }'
 
 Or, you can try a full-text search ...
 
