@@ -68,7 +68,6 @@ static gboolean helper_translate_time (TrackerSparql  *sparql,
                                        GError        **error);
 static TrackerDBStatement * prepare_query (TrackerSparql         *sparql,
                                            TrackerDBInterface    *iface,
-                                           TrackerStringBuilder  *str,
                                            GPtrArray             *literals,
                                            GHashTable            *parameters,
                                            gboolean               cached,
@@ -164,6 +163,7 @@ struct _TrackerSparql
 
 	TrackerContext *context;
 	TrackerStringBuilder *sql;
+	gchar *sql_string;
 
 	GHashTable *prefix_map;
 	GList *filter_clauses;
@@ -225,6 +225,7 @@ tracker_sparql_finalize (GObject *object)
 	g_hash_table_destroy (sparql->parameters);
 	g_hash_table_destroy (sparql->cached_bindings);
 
+	g_clear_pointer (&sparql->sql_string, g_free);
 
 	if (sparql->sql)
 		tracker_string_builder_free (sparql->sql);
@@ -2027,6 +2028,7 @@ tracker_sparql_init_string_builder (TrackerSparql *sparql)
 	TrackerStringBuilder *str;
 
 	g_clear_pointer (&sparql->sql, tracker_string_builder_free);
+	g_clear_pointer (&sparql->sql_string, g_free);
 	sparql->sql = sparql->current_state->sql = tracker_string_builder_new ();
 	sparql->current_state->with_clauses = _prepend_placeholder (sparql);
 
@@ -4362,7 +4364,7 @@ get_solution_for_pattern (TrackerSparql      *sparql,
 	}
 
 	iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
-	stmt = prepare_query (sparql, iface, sparql->sql,
+	stmt = prepare_query (sparql, iface,
 	                      TRACKER_SELECT_CONTEXT (sparql->context)->literal_bindings,
 	                      NULL, TRUE,
 	                      error);
@@ -9330,23 +9332,24 @@ tracker_sparql_new (TrackerDataManager *manager,
 static TrackerDBStatement *
 prepare_query (TrackerSparql         *sparql,
                TrackerDBInterface    *iface,
-               TrackerStringBuilder  *str,
                GPtrArray             *literals,
-	       GHashTable            *parameters,
+               GHashTable            *parameters,
                gboolean               cached,
                GError               **error)
 {
 	TrackerDBStatement *stmt;
-	gchar *query;
 	guint i;
 
-	query = tracker_string_builder_to_string (str);
+	if (!sparql->sql_string) {
+		sparql->sql_string = tracker_string_builder_to_string (sparql->sql);
+		g_clear_pointer (&sparql->sql, tracker_string_builder_free);
+	}
+
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              cached ?
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT :
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              error, "%s", query);
-	g_free (query);
+	                                              error, "%s", sparql->sql_string);
 
 	if (!stmt || !literals)
 		return stmt;
@@ -9496,12 +9499,13 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 		sparql->current_state = NULL;
 		tracker_sparql_state_clear (&state);
 
+
 		if (!retval)
 			goto error;
 	}
 
 	iface = tracker_data_manager_get_db_interface (sparql->data_manager);
-	stmt = prepare_query (sparql, iface, sparql->sql,
+	stmt = prepare_query (sparql, iface,
 	                      TRACKER_SELECT_CONTEXT (sparql->context)->literal_bindings,
 			      parameters,
 	                      sparql->cacheable,
