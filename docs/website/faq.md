@@ -77,7 +77,8 @@ then you might see unwanted high resource usage.
 
 If you see high resource usage from Tracker Miner FS even when no files have
 changed on disk, this probably indicates a bug in Tracker or one of its
-dependencies.  We can [work together](community) to find out what the problem is.
+dependencies.
+See [How can I help debug problems with Tracker services?](#how-can-i-help-debug-problems-with-tracker-services).
 
 ## How can I disable Tracker in GNOME?
 
@@ -85,7 +86,7 @@ Tracker is a core dependency of GNOME, and some things will not work as
 expected if you disable it completely.
 
 If you are experiencing performance problems, see [Why does Tracker consume
-resources on my PC?](#why-does-tracker-consume-resources-on-my-pc).
+resources on my PC?].
 
 In case of a bug you may need to temporarily stop Tracker Miner FS indexing.
 The simplest way is to [edit the
@@ -106,4 +107,39 @@ Musicbrainz database.
 Programs that fix tags and organize music collections on disk, such as
 [Beets](http://beets.io/), work well with Tracker.
 
+## How can I help debug problems with Tracker services?
+
+We are always happy when someone wants to help with development, so [tell us
+what you're debugging](../community) and you might get useful pointers.
+
+If you see prolonged spikes in CPU and/or IO usage, you can use these commands
+to find out what the Tracker daemons are doing. You'll need to use a Terminal
+program to run these commands.
+
+  * **Check Tracker daemon status**: You can view live status messages from
+    Tracker daemons by running: `tracker3 daemon status --follow`. This may
+    explain what the daemon is currently doing.
+
+  * **Check the system log**: You can view error logs from Tracker daemons by
+    running this command:
+
+        journalctl --user --unit=tracker-miner-fs-3.service --unit=tracker-extract-3.service --priority=7
+      
+  * **Run the daemon manually**: To see debug output from a Tracker daemon,
+    you'll need to kill the running process and start a new one from the
+    console with appropriate flags. On a systemd system, you can do this:
+
+        systemctl mask --user --now tracker-miner-fs-3.service
+    
+    Then, start the Tracker service manually, setting appropriate
+    TRACKER_DEBUG settings.
+
+        env TRACKER_DEBUG=config,sparql /usr/libexec/tracker-miner-fs-3
+
+    You can also use debugging tools like GDB in this way. See the
+    [HACKING.md file](https://gitlab.gnome.org/GNOME/tracker/-/blob/master/HACKING.md)
+    for more details!
+
+
+[Why does Tracker consume resources on my PC?]: #why-does-tracker-consume-resources-on-my-pc
 [control what Tracker indexes]: #how-can-i-control-what-tracker-indexes
