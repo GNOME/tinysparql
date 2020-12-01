@@ -74,9 +74,17 @@ add_project_arguments(['-D', 'TRACKER_COMPILATION'],
                       ['-D', 'G_LOG_STRUCTURED=1'],
                       language: 'vala')
 
-debug_cflags = []
-debug = get_option('debug')
+if get_option('buildtype') == 'plain'
+  # Default case is to allow TRACKER_DEBUG which is very useful for
+  # triaging user-reported issues.
+  # Use --buildtype=release to disable debug completely.
+  debug = 1
+else
+  debug = get_option('debug')
+endif
 optimization = get_option('optimization')
+
+debug_cflags = []
 if debug
   debug_cflags += '-DG_ENABLE_DEBUG'
   if optimization in ['0', 'g']
