@@ -9349,7 +9349,7 @@ prepare_query (TrackerSparql         *sparql,
 	                                              cached ?
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT :
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              error, "%s", sparql->sql_string);
+	                                              error, sparql->sql_string);
 
 	if (!stmt || !literals)
 		return stmt;

@@ -48,11 +48,11 @@ tracker_data_query_rdf_type (TrackerDataManager *manager,
 	iface = tracker_data_manager_get_writable_db_interface (manager);
 	ontologies = tracker_data_manager_get_ontologies (manager);
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
-	                                              "FROM \"%s\".\"rdfs:Resource_rdf:type\" "
-	                                              "WHERE ID = ?",
-	                                              graph ? graph : "main");
+	stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+	                                               "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
+	                                               "FROM \"%s\".\"rdfs:Resource_rdf:type\" "
+	                                               "WHERE ID = ?",
+	                                               graph ? graph : "main");
 
 	if (stmt) {
 		tracker_db_statement_bind_int (stmt, 0, id);

@@ -406,7 +406,7 @@ export_2to3_with_query (const gchar  *query,
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              &inner_error,
-	                                              "%s", query);
+	                                              query);
 	if (!stmt) {
 		g_propagate_prefixed_error (error, inner_error,
 		                            "%s: ", _("Could not run query"));

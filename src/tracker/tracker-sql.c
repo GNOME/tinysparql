@@ -124,7 +124,7 @@ sql_by_query (void)
 
 	iface = tracker_data_manager_get_db_interface (data_manager);
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &error, "%s", query);
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &error, query);
 
 	if (stmt) {
 		cursor = tracker_db_statement_start_cursor (stmt, &error);

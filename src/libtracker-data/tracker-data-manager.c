@@ -3332,9 +3332,9 @@ query_table_exists (TrackerDBInterface  *iface,
 	TrackerDBStatement *stmt;
 	gboolean exists = FALSE;
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
-	                                              "SELECT 1 FROM sqlite_master WHERE tbl_name=\"%s\" AND type=\"table\"",
-	                                              table_name);
+	stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
+	                                               "SELECT 1 FROM sqlite_master WHERE tbl_name=\"%s\" AND type=\"table\"",
+	                                               table_name);
 	if (stmt) {
 		cursor = tracker_db_statement_start_cursor (stmt, error);
 		g_object_unref (stmt);
@@ -4624,7 +4624,7 @@ data_manager_perform_cleanup (TrackerDataManager  *manager,
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 	                                              &internal_error,
-	                                              "%s", str->str);
+	                                              str->str);
 	g_string_free (str, TRUE);
 
 	if (!stmt)
@@ -4919,10 +4919,10 @@ tracker_data_manager_clear_graph (TrackerDataManager  *manager,
 		if (g_str_has_prefix (tracker_class_get_name (classes[i]), "xsd:"))
 			continue;
 
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
-		                                              "DELETE FROM \"%s\".\"%s\"",
-		                                              graph,
-		                                              tracker_class_get_name (classes[i]));
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
+		                                               "DELETE FROM \"%s\".\"%s\"",
+		                                               graph,
+		                                               tracker_class_get_name (classes[i]));
 		if (!stmt)
 			break;
 
@@ -4937,11 +4937,11 @@ tracker_data_manager_clear_graph (TrackerDataManager  *manager,
 			continue;
 
 		service = tracker_property_get_domain (properties[i]);
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
-		                                              "DELETE FROM \"%s\".\"%s_%s\"",
-		                                              graph,
-		                                              tracker_class_get_name (service),
-		                                              tracker_property_get_name (properties[i]));
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
+		                                               "DELETE FROM \"%s\".\"%s_%s\"",
+		                                               graph,
+		                                               tracker_class_get_name (service),
+		                                               tracker_property_get_name (properties[i]));
 		if (!stmt)
 			break;
 
@@ -4987,13 +4987,13 @@ tracker_data_manager_copy_graph (TrackerDataManager  *manager,
 		if (g_str_has_prefix (tracker_class_get_name (classes[i]), "xsd:"))
 			continue;
 
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
-		                                              "INSERT OR REPLACE INTO \"%s\".\"%s\" "
-		                                              "SELECT * from \"%s\".\"%s\"",
-		                                              destination,
-		                                              tracker_class_get_name (classes[i]),
-		                                              source,
-		                                              tracker_class_get_name (classes[i]));
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
+		                                               "INSERT OR REPLACE INTO \"%s\".\"%s\" "
+		                                               "SELECT * from \"%s\".\"%s\"",
+		                                               destination,
+		                                               tracker_class_get_name (classes[i]),
+		                                               source,
+		                                               tracker_class_get_name (classes[i]));
 		if (!stmt)
 			break;
 
@@ -5008,15 +5008,15 @@ tracker_data_manager_copy_graph (TrackerDataManager  *manager,
 			continue;
 
 		service = tracker_property_get_domain (properties[i]);
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
-		                                              "INSERT OR REPLACE INTO \"%s\".\"%s_%s\" "
-		                                              "SELECT * from \"%s\".\"%s_%s\"",
-		                                              destination,
-		                                              tracker_class_get_name (service),
-		                                              tracker_property_get_name (properties[i]),
-		                                              source,
-		                                              tracker_class_get_name (service),
-		                                              tracker_property_get_name (properties[i]));
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
+		                                               "INSERT OR REPLACE INTO \"%s\".\"%s_%s\" "
+		                                               "SELECT * from \"%s\".\"%s_%s\"",
+		                                               destination,
+		                                               tracker_class_get_name (service),
+		                                               tracker_property_get_name (properties[i]),
+		                                               source,
+		                                               tracker_class_get_name (service),
+		                                               tracker_property_get_name (properties[i]));
 		if (!stmt)
 			break;
 
