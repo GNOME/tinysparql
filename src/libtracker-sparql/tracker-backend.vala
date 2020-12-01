@@ -17,13 +17,21 @@
  * Boston, MA  02110-1301, USA.
  */
 
+/* All apps using libtracker-sparql will call one of these constructors, so
+ * we take the opportunity to call tracker_get_debug_flags(). This has the
+ * effect of printing the 'help' message if TRACKER_DEBUG=help is set.
+ */
+
 public static Tracker.Sparql.Connection tracker_sparql_connection_remote_new (string url_base) {
+	Tracker.get_debug_flags ();
 	return new Tracker.Remote.Connection (url_base);
 }
 
 public static Tracker.Sparql.Connection tracker_sparql_connection_bus_new (string service, string? object_path, DBusConnection? conn) throws Tracker.Sparql.Error, IOError, DBusError, GLib.Error {
 	GLib.DBusConnection dbus_conn;
 	string path;
+
+	Tracker.get_debug_flags ();
 
 	if (conn != null)
 		dbus_conn = conn;
@@ -39,12 +47,14 @@ public static Tracker.Sparql.Connection tracker_sparql_connection_bus_new (strin
 }
 
 public static Tracker.Sparql.Connection tracker_sparql_connection_new (Tracker.Sparql.ConnectionFlags flags, File? store, File? ontology, Cancellable? cancellable = null) throws GLib.Error, Tracker.Sparql.Error, IOError {
+	Tracker.get_debug_flags ();
 	var conn = new Tracker.Direct.Connection (flags, store, ontology);
 	conn.init (cancellable);
 	return conn;
 }
 
 public static async Tracker.Sparql.Connection tracker_sparql_connection_new_async (Tracker.Sparql.ConnectionFlags flags, File? store, File ontology, Cancellable? cancellable = null) throws GLib.Error, Tracker.Sparql.Error, IOError {
+	Tracker.get_debug_flags ();
 	var conn = new Tracker.Direct.Connection (flags, store, ontology);
 	yield conn.init_async (Priority.DEFAULT, cancellable);
 	return conn;
