@@ -87,6 +87,7 @@ _translate_internal_error (GError *error)
 			/* This should never happen as we don't call sqlite3_interrupt()
 			 * anywhere, so it doesn't get its own public error code. */
 			case TRACKER_DB_INTERRUPTED: new_code = TRACKER_SPARQL_ERROR_INTERNAL; break;
+			case TRACKER_DB_CONSTRAINT: new_code = TRACKER_SPARQL_ERROR_CONSTRAINT; break;
 			default: g_warn_if_reached ();
 		}
 

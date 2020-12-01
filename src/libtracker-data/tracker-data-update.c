@@ -37,6 +37,7 @@
 #include "tracker-property.h"
 #include "tracker-sparql.h"
 #include "tracker-turtle-reader.h"
+#include "tracker-uuid.h"
 
 typedef struct _TrackerDataUpdateBuffer TrackerDataUpdateBuffer;
 typedef struct _TrackerDataUpdateBufferGraph TrackerDataUpdateBufferGraph;
@@ -50,10 +51,10 @@ typedef struct _TrackerCommitDelegate TrackerCommitDelegate;
 struct _TrackerDataUpdateBuffer {
 	/* string -> integer */
 	GHashTable *resource_cache;
+	/* set of string, key is same pointer than resource_cache, and owned there */
+	GHashTable *new_resources;
 	/* string -> TrackerDataUpdateBufferGraph */
 	GPtrArray *graphs;
-
-	gboolean fts_ever_updated;
 };
 
 struct _TrackerDataUpdateBufferGraph {
@@ -127,8 +128,6 @@ struct _TrackerData {
 	GPtrArray *delete_callbacks;
 	GPtrArray *commit_callbacks;
 	GPtrArray *rollback_callbacks;
-	gint max_service_id;
-	gint max_ontology_id;
 };
 
 struct _TrackerDataClass {
@@ -142,9 +141,6 @@ enum {
 
 G_DEFINE_TYPE (TrackerData, tracker_data, G_TYPE_OBJECT);
 
-static gint         ensure_resource_id         (TrackerData      *data,
-                                                const gchar      *uri,
-                                                gboolean         *create);
 static void         cache_insert_value         (TrackerData      *data,
                                                 const gchar      *table_name,
                                                 const gchar      *field_name,
@@ -162,7 +158,6 @@ static gboolean     delete_metadata_decomposed (TrackerData      *data,
 static gboolean     resource_buffer_switch     (TrackerData  *data,
                                                 const gchar  *graph,
                                                 const gchar  *subject,
-                                                gint          subject_id,
                                                 GError      **error);
 static gboolean update_resource_single (TrackerData      *data,
                                         const gchar      *graph,
@@ -413,78 +408,6 @@ tracker_data_dispatch_delete_statement_callbacks (TrackerData *data,
 			                    data->resource_buffer->types,
 			                    delegate->user_data);
 		}
-	}
-}
-
-static gint
-tracker_data_update_get_new_service_id (TrackerData  *data,
-                                        GError      **error)
-{
-	TrackerDBCursor    *cursor = NULL;
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	GError *inner_error = NULL;
-
-	if (data->in_ontology_transaction) {
-		if (G_LIKELY (data->max_ontology_id != 0)) {
-			return ++data->max_ontology_id;
-		}
-
-		iface = tracker_data_manager_get_writable_db_interface (data->manager);
-
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
-		                                              "SELECT MAX(ID) AS A FROM Resource WHERE ID <= %d", TRACKER_ONTOLOGIES_MAX_ID);
-
-		if (stmt) {
-			cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
-			g_object_unref (stmt);
-		}
-
-		if (cursor) {
-			if (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
-				data->max_ontology_id = MAX (tracker_db_cursor_get_int (cursor, 0), data->max_ontology_id);
-			}
-
-			g_object_unref (cursor);
-		}
-
-		if (G_UNLIKELY (inner_error)) {
-			g_propagate_error (error, inner_error);
-			return 0;
-		}
-
-		return ++data->max_ontology_id;
-	} else {
-		if (G_LIKELY (data->max_service_id != 0)) {
-			return ++data->max_service_id;
-		}
-
-		data->max_service_id = TRACKER_ONTOLOGIES_MAX_ID;
-
-		iface = tracker_data_manager_get_writable_db_interface (data->manager);
-
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
-		                                              "SELECT MAX(ID) AS A FROM Resource");
-
-		if (stmt) {
-			cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
-			g_object_unref (stmt);
-		}
-
-		if (cursor) {
-			if (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
-				data->max_service_id = MAX (tracker_db_cursor_get_int (cursor, 0), data->max_service_id);
-			}
-
-			g_object_unref (cursor);
-		}
-
-		if (G_UNLIKELY (inner_error)) {
-			g_propagate_error (error, inner_error);
-			return 0;
-		}
-
-		return ++data->max_service_id;
 	}
 }
 
@@ -775,47 +698,64 @@ query_resource_id (TrackerData *data,
 	return id;
 }
 
-static gint
-ensure_resource_id (TrackerData *data,
-                    const gchar *uri,
-                    gboolean    *create)
+gint
+tracker_data_update_ensure_resource (TrackerData  *data,
+                                     const gchar  *uri,
+                                     gboolean     *create)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt = NULL;
 	GError *error = NULL;
+	gchar *key;
 	gint id;
 
-	id = query_resource_id (data, uri);
+	id = GPOINTER_TO_INT (g_hash_table_lookup (data->update_buffer.resource_cache, uri));
 
-	if (create) {
-		*create = (id == 0);
+	if (id != 0) {
+		if (create)
+			*create = FALSE;
+		return id;
 	}
 
-	if (id == 0) {
-		iface = tracker_data_manager_get_writable_db_interface (data->manager);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
-		id = tracker_data_update_get_new_service_id (data, &error);
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
+	                                              "INSERT INTO Resource (Uri, BlankNode) VALUES (?, ?)");
 
-		if (id > 0) {
-			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
-			                                              "INSERT INTO Resource (ID, Uri, BlankNode) VALUES (?, ?, ?)");
-		}
-
-		if (stmt) {
-			tracker_db_statement_bind_int (stmt, 0, id);
-			tracker_db_statement_bind_text (stmt, 1, uri);
-			tracker_db_statement_bind_int (stmt, 2, g_str_has_prefix (uri, "urn:bnode:"));
-			tracker_db_statement_execute (stmt, &error);
-			g_object_unref (stmt);
-		}
-
-		if (error) {
-			g_error ("Could not ensure resource existence: %s", error->message);
-			g_error_free (error);
-		}
-
-		g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
+	if (stmt) {
+		tracker_db_statement_bind_text (stmt, 0, uri);
+		tracker_db_statement_bind_int (stmt, 1, g_str_has_prefix (uri, "urn:bnode:"));
+		tracker_db_statement_execute (stmt, &error);
+		g_object_unref (stmt);
 	}
+
+	if (error) {
+		if (g_error_matches (error,
+		                     TRACKER_DB_INTERFACE_ERROR,
+		                     TRACKER_DB_CONSTRAINT)) {
+			id = query_resource_id (data, uri);
+
+			if (id != 0) {
+				if (create)
+					*create = FALSE;
+
+				g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
+				g_error_free (error);
+				return id;
+			}
+		}
+
+		g_error ("Could not ensure resource existence: %s", error->message);
+		g_error_free (error);
+	}
+
+	if (create)
+		*create = TRUE;
+
+	id = tracker_db_interface_sqlite_get_last_insert_id (iface);
+	key = g_strdup (uri);
+	g_hash_table_insert (data->update_buffer.resource_cache, key, GINT_TO_POINTER (id));
+	g_hash_table_add (data->update_buffer.new_resources, key);
 
 	return id;
 }
@@ -901,23 +841,23 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
 
 				if (table->delete_value && property->delete_all_values) {
-					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-					                                              "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
-					                                              database,
-					                                              table_name);
+					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
+					                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
+					                                               database,
+					                                               table_name);
 				} else if (table->delete_value) {
 					/* delete rows for multiple value properties */
-					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-					                                              "DELETE FROM \"%s\".\"%s\" WHERE ID = ? AND \"%s\" = ?",
-					                                              database,
-					                                              table_name,
-					                                              property->name);
+					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
+					                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ? AND \"%s\" = ?",
+					                                               database,
+					                                               table_name,
+					                                               property->name);
 				} else {
-					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-					                                              "INSERT OR IGNORE INTO \"%s\".\"%s\" (ID, \"%s\") VALUES (?, ?)",
-					                                              database,
-					                                              table_name,
-					                                              property->name);
+					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
+					                                               "INSERT OR IGNORE INTO \"%s\".\"%s\" (ID, \"%s\") VALUES (?, ?)",
+					                                               database,
+					                                               table_name,
+					                                               property->name);
 				}
 
 				if (actual_error) {
@@ -945,13 +885,13 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 
 			if (table->delete_row) {
 				/* remove entry from rdf:type table */
-				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-				                                              "DELETE FROM \"%s\".\"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?",
-				                                              database);
+				stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
+				                                               "DELETE FROM \"%s\".\"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?",
+				                                               database);
 
 				if (stmt) {
 					tracker_db_statement_bind_int (stmt, 0, resource->id);
-					tracker_db_statement_bind_int (stmt, 1, ensure_resource_id (data, tracker_class_get_uri (table->class), NULL));
+					tracker_db_statement_bind_int (stmt, 1, tracker_class_get_id (table->class));
 					tracker_db_statement_execute (stmt, &actual_error);
 					g_object_unref (stmt);
 				}
@@ -962,9 +902,9 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 				}
 
 				/* remove row from class table */
-				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-				                                              "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
-				                                              database, table_name);
+				stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
+				                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
+				                                               database, table_name);
 
 				if (stmt) {
 					tracker_db_statement_bind_int (stmt, 0, resource->id);
@@ -1019,15 +959,15 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 				g_string_append (sql, ")");
 				g_string_append (values_sql, ")");
 
-				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-				                                              "%s %s", sql->str, values_sql->str);
+				stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
+				                                               "%s %s", sql->str, values_sql->str);
 				g_string_free (sql, TRUE);
 				g_string_free (values_sql, TRUE);
 			} else {
 				g_string_append (sql, " WHERE ID = ?");
 
 				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-				                                              "%s", sql->str);
+				                                              sql->str);
 				g_string_free (sql, TRUE);
 			}
 
@@ -1112,7 +1052,6 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 			                                             resource->id,
 			                                             (const gchar **) properties->pdata,
 			                                             (const gchar **) text->pdata);
-			data->update_buffer.fts_ever_updated = TRUE;
 			g_ptr_array_free (properties, TRUE);
 			g_ptr_array_free (text, TRUE);
 		}
@@ -1164,6 +1103,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 
 out:
 	g_ptr_array_set_size (data->update_buffer.graphs, 0);
+	g_hash_table_remove_all (data->update_buffer.new_resources);
 	data->resource_buffer = NULL;
 }
 
@@ -1189,10 +1129,9 @@ static void
 tracker_data_update_buffer_clear (TrackerData *data)
 {
 	g_ptr_array_set_size (data->update_buffer.graphs, 0);
+	g_hash_table_remove_all (data->update_buffer.new_resources);
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
 	data->resource_buffer = NULL;
-
-	data->update_buffer.fts_ever_updated = FALSE;
 }
 
 static void
@@ -1224,9 +1163,6 @@ cache_create_service_decomposed (TrackerData  *data,
 	g_value_init (&gvalue, G_TYPE_INT64);
 
 	cache_insert_row (data, cl);
-
-	/* This is the original, no idea why tracker_class_get_id wasn't used here:
-	 * class_id = ensure_resource_id (tracker_class_get_uri (cl), NULL); */
 
 	class_id = tracker_class_get_id (cl);
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
@@ -1413,9 +1349,9 @@ get_property_values (TrackerData     *data,
 
 		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-		                                              "SELECT \"%s\" FROM \"%s\".\"%s\" WHERE ID = ?",
-		                                              field_name, database, table_name);
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+		                                               "SELECT \"%s\" FROM \"%s\".\"%s\" WHERE ID = ?",
+		                                               field_name, database, table_name);
 
 		if (stmt) {
 			tracker_db_statement_bind_int (stmt, 0, data->resource_buffer->id);
@@ -1551,8 +1487,6 @@ get_old_property_values (TrackerData      *data,
 				g_ptr_array_unref (fts_props);
 				g_ptr_array_unref (fts_text);
 
-				data->update_buffer.fts_ever_updated = TRUE;
-
 				old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
 			} else {
 				old_values = get_property_values (data, property);
@@ -1614,7 +1548,7 @@ bytes_to_gvalue (GBytes              *bytes,
 		tracker_date_time_set_from_string (gvalue, value, error);
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		object_id = ensure_resource_id (data, value, NULL);
+		object_id = tracker_data_update_ensure_resource (data, value, NULL);
 		g_value_init (gvalue, G_TYPE_INT64);
 		g_value_set_int64 (gvalue, object_id);
 		break;
@@ -1638,8 +1572,7 @@ get_bnode_for_resource (GHashTable      *bnodes,
 		return bnode;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	bnode = tracker_data_query_unused_uuid (data->manager,
-	                                        iface);
+	bnode = tracker_data_update_ensure_new_bnode (data, iface, NULL);
 	identifier = tracker_resource_get_identifier (resource);
 	g_hash_table_insert (bnodes, g_strdup (identifier), bnode);
 
@@ -1687,8 +1620,7 @@ bytes_from_gvalue (GValue       *gvalue,
 				TrackerDBInterface *iface;
 
 				iface = tracker_data_manager_get_writable_db_interface (data->manager);
-				bnode = tracker_data_query_unused_uuid (data->manager,
-				                                        iface);
+				bnode = tracker_data_update_ensure_new_bnode (data, iface, NULL);
 				g_hash_table_insert (bnodes, g_strdup (uri), bnode);
 			}
 
@@ -1999,11 +1931,11 @@ cache_delete_resource_type_full (TrackerData  *data,
 
 		/* retrieve all subclasses we need to remove from the subject
 		 * before we can remove the class specified as object of the statement */
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-			                                      "SELECT (SELECT Uri FROM Resource WHERE ID = subclass.ID) "
-			                                      "FROM \"%s\".\"rdfs:Resource_rdf:type\" AS type INNER JOIN \"%s\".\"rdfs:Class_rdfs:subClassOf\" AS subclass ON (type.\"rdf:type\" = subclass.ID) "
-		                                              "WHERE type.ID = ? AND subclass.\"rdfs:subClassOf\" = (SELECT ID FROM Resource WHERE Uri = ?)",
-		                                              database, database);
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+		                                               "SELECT (SELECT Uri FROM Resource WHERE ID = subclass.ID) "
+		                                               "FROM \"%s\".\"rdfs:Resource_rdf:type\" AS type INNER JOIN \"%s\".\"rdfs:Class_rdfs:subClassOf\" AS subclass ON (type.\"rdf:type\" = subclass.ID) "
+		                                               "WHERE type.ID = ? AND subclass.\"rdfs:subClassOf\" = (SELECT ID FROM Resource WHERE Uri = ?)",
+		                                               database, database);
 
 		if (stmt) {
 			tracker_db_statement_bind_int (stmt, 0, data->resource_buffer->id);
@@ -2145,7 +2077,6 @@ static gboolean
 resource_buffer_switch (TrackerData  *data,
                         const gchar  *graph,
                         const gchar  *subject,
-                        gint          subject_id,
                         GError      **error)
 {
 	TrackerDataUpdateBufferGraph *graph_buffer;
@@ -2181,11 +2112,15 @@ resource_buffer_switch (TrackerData  *data,
 			subject_dup = g_strdup (subject);
 			resource_buffer->subject = subject_dup;
 		}
-		if (subject_id > 0) {
-			resource_buffer->id = subject_id;
-		} else {
-			resource_buffer->id = ensure_resource_id (data, resource_buffer->subject, &resource_buffer->create);
-		}
+
+		resource_buffer->id =
+			tracker_data_update_ensure_resource (data,
+			                                     resource_buffer->subject,
+			                                     NULL);
+		resource_buffer->create =
+			g_hash_table_contains (data->update_buffer.new_resources,
+			                       resource_buffer->subject);
+
 		resource_buffer->fts_updated = FALSE;
 		if (resource_buffer->create) {
 			resource_buffer->types = g_ptr_array_new ();
@@ -2230,7 +2165,7 @@ tracker_data_delete_statement (TrackerData  *data,
 		return;
 	}
 
-	if (!resource_buffer_switch (data, graph, subject, subject_id, error))
+	if (!resource_buffer_switch (data, graph, subject, error))
 		return;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
@@ -2295,7 +2230,7 @@ tracker_data_delete_all (TrackerData  *data,
 		return;
 	}
 
-	if (!resource_buffer_switch (data, graph, subject, subject_id, error))
+	if (!resource_buffer_switch (data, graph, subject, error))
 		return;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
@@ -2459,7 +2394,7 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 
 	data->has_persistent = TRUE;
 
-	if (!resource_buffer_switch (data, graph, subject, 0, error))
+	if (!resource_buffer_switch (data, graph, subject, error))
 		return;
 
 	object_str = g_bytes_get_data (object, NULL);
@@ -2541,7 +2476,7 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 
 	data->has_persistent = TRUE;
 
-	if (!resource_buffer_switch (data, graph, subject, 0, error))
+	if (!resource_buffer_switch (data, graph, subject, error))
 		return;
 
 	/* add value to metadata database */
@@ -2599,9 +2534,7 @@ tracker_data_update_statement (TrackerData  *data,
 				return;
 			}
 
-			if (!resource_buffer_switch (data, graph, subject,
-			                             ensure_resource_id (data, subject, NULL),
-			                             error))
+			if (!resource_buffer_switch (data, graph, subject, error))
 				return;
 
 			cache_delete_all_values (data,
@@ -2610,9 +2543,7 @@ tracker_data_update_statement (TrackerData  *data,
 			                         tracker_property_get_fulltext_indexed (property),
 			                         tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
 		} else {
-			if (!resource_buffer_switch (data, graph, subject,
-			                             ensure_resource_id (data, subject, NULL),
-			                             error))
+			if (!resource_buffer_switch (data, graph, subject, error))
 				return;
 
 			if (!delete_single_valued (data, graph, subject, predicate,
@@ -2666,6 +2597,7 @@ tracker_data_begin_transaction (TrackerData  *data,
 
 	if (data->update_buffer.resource_cache == NULL) {
 		data->update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+		data->update_buffer.new_resources = g_hash_table_new (g_str_hash, g_str_equal);
 		/* used for normal transactions */
 		data->update_buffer.graphs = g_ptr_array_new_with_free_func ((GDestroyNotify) graph_buffer_free);
 	}
@@ -2724,10 +2656,6 @@ tracker_data_commit_transaction (TrackerData  *data,
 	data->resource_time = 0;
 	data->in_transaction = FALSE;
 	data->in_ontology_transaction = FALSE;
-
-	if (data->update_buffer.fts_ever_updated) {
-		data->update_buffer.fts_ever_updated = FALSE;
-	}
 
 	tracker_data_manager_commit_graphs (data->manager);
 
@@ -2901,7 +2829,7 @@ tracker_data_ensure_graph (TrackerData  *data,
 	TrackerDBStatement *stmt;
 	gint id;
 
-	id = ensure_resource_id (data, uri, NULL);
+	id = tracker_data_update_ensure_resource (data, uri, NULL);
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
 	                                              "INSERT OR IGNORE INTO Graph (ID) VALUES (?)");
@@ -3122,4 +3050,58 @@ tracker_data_update_resource (TrackerData      *data,
 	g_hash_table_unref (bnodes);
 
 	return retval;
+}
+
+gchar *
+tracker_data_update_ensure_new_bnode (TrackerData         *data,
+                                      TrackerDBInterface  *iface,
+                                      GError             **error)
+{
+	TrackerDBStatement *stmt = NULL;
+	GError *inner_error = NULL;
+	gchar *uuid, *key;
+	gint id;
+
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
+
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              &inner_error,
+	                                              "INSERT INTO Resource (Uri, BlankNode) VALUES (?, ?)");
+	if (!stmt) {
+		g_propagate_error (error, inner_error);
+		return NULL;
+	}
+
+	while (TRUE) {
+		uuid = tracker_generate_uuid ("urn:bnode:");
+
+		tracker_db_statement_bind_text (stmt, 0, uuid);
+		tracker_db_statement_bind_int (stmt, 1, 1);
+		tracker_db_statement_execute (stmt, &inner_error);
+
+		if (!inner_error ||
+		    !g_error_matches (inner_error,
+		                      TRACKER_DB_INTERFACE_ERROR,
+		                      TRACKER_DB_CONSTRAINT)) {
+			break;
+		}
+
+		/* Constraint error, retry */
+		g_clear_error (&inner_error);
+		g_free (uuid);
+	}
+
+	g_object_unref (stmt);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return NULL;
+	}
+
+	id = tracker_db_interface_sqlite_get_last_insert_id (iface);
+	key = g_strdup (uuid);
+	g_hash_table_insert (data->update_buffer.resource_cache, key, GINT_TO_POINTER (id));
+	g_hash_table_add (data->update_buffer.new_resources, key);
+
+	return uuid;
 }

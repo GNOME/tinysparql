@@ -198,9 +198,9 @@ db_set_params (TrackerDBInterface   *iface,
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".auto_vacuum = 0", database);
 
 	if (enable_wal) {
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-		                                              &internal_error,
-		                                              "PRAGMA \"%s\".journal_mode = WAL", database);
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+		                                               &internal_error,
+		                                               "PRAGMA \"%s\".journal_mode = WAL", database);
 
 		if (internal_error) {
 			g_info ("Can't set journal mode to WAL: '%s'",
@@ -324,9 +324,9 @@ tracker_db_manager_update_version (TrackerDBManager *db_manager)
 	GError *error = NULL;
 
 	iface = tracker_db_manager_get_writable_db_interface (db_manager);
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              &error, "PRAGMA user_version = %d",
-						      TRACKER_DB_VERSION_NOW);
+	stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+	                                               &error, "PRAGMA user_version = %d",
+	                                               TRACKER_DB_VERSION_NOW);
 	if (stmt) {
 		tracker_db_statement_execute (stmt, &error);
 		g_object_unref (stmt);

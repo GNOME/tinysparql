@@ -2341,7 +2341,7 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 	                                              &error,
-	                                              "%s", query);
+	                                              query);
 	g_free (query);
 
         if (!stmt || error) {
@@ -2395,7 +2395,7 @@ tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 	                                              &error,
-	                                              "%s", query);
+	                                              query);
 	g_free (query);
 
 	if (!stmt || error) {
@@ -2434,7 +2434,7 @@ tracker_db_interface_sqlite_fts_delete_id (TrackerDBInterface *db_interface,
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 	                                              &error,
-	                                              "%s", query);
+	                                              query);
 	g_free (query);
 
 	if (!stmt || error) {
@@ -2785,35 +2785,27 @@ TrackerDBStatement *
 tracker_db_interface_create_statement (TrackerDBInterface           *db_interface,
                                        TrackerDBStatementCacheType   cache_type,
                                        GError                      **error,
-                                       const gchar                  *query,
-                                       ...)
+                                       const gchar                  *query)
 {
 	TrackerDBStatement *stmt = NULL;
-	va_list args;
-	gchar *full_query;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (db_interface), NULL);
-
-	va_start (args, query);
-	full_query = g_strdup_vprintf (query, args);
-	va_end (args);
 
 	tracker_db_interface_lock (db_interface);
 
 	if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
 		stmt = tracker_db_interface_lru_lookup (db_interface, &cache_type,
-		                                        full_query);
+		                                        query);
 	}
 
 	if (!stmt) {
 		sqlite3_stmt *sqlite_stmt;
 
 		sqlite_stmt = tracker_db_interface_prepare_stmt (db_interface,
-		                                                 full_query,
+		                                                 query,
 		                                                 error);
 		if (!sqlite_stmt) {
 			tracker_db_interface_unlock (db_interface);
-			g_free (full_query);
 			return NULL;
 		}
 
@@ -2831,11 +2823,34 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 	}
 
 	stmt->stmt_is_owned = TRUE;
-	g_free (full_query);
 
 	tracker_db_interface_unlock (db_interface);
 
 	return g_object_ref_sink (stmt);
+}
+
+TrackerDBStatement *
+tracker_db_interface_create_vstatement (TrackerDBInterface           *db_interface,
+                                        TrackerDBStatementCacheType   cache_type,
+                                        GError                      **error,
+                                        const gchar                  *query,
+                                        ...)
+{
+	TrackerDBStatement *stmt;
+	va_list args;
+	gchar *full_query;
+
+	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (db_interface), NULL);
+
+	va_start (args, query);
+	full_query = g_strdup_vprintf (query, args);
+	va_end (args);
+
+	stmt = tracker_db_interface_create_statement (db_interface, cache_type,
+	                                              error, full_query);
+	g_free (full_query);
+
+	return stmt;
 }
 
 static gboolean
@@ -2916,6 +2931,11 @@ execute_stmt (TrackerDBInterface  *interface,
 				             TRACKER_DB_INTERFACE_ERROR,
 				             TRACKER_DB_INTERRUPTED,
 				             "Interrupted");
+			} else if (result == SQLITE_CONSTRAINT) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_CONSTRAINT,
+				             "Constraint would be broken");
 			} else {
 				g_set_error (error,
 				             TRACKER_DB_INTERFACE_ERROR,

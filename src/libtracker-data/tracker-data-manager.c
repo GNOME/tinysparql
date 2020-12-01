@@ -706,7 +706,6 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
                                       const gchar         *subject,
                                       const gchar         *predicate,
                                       const gchar         *object,
-                                      gint                *max_id,
                                       gboolean             in_update,
                                       GHashTable          *classes,
                                       GHashTable          *properties,
@@ -735,8 +734,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				return;
 			}
 
-			subject_id = ++(*max_id);
-
+			subject_id = tracker_data_update_ensure_resource (manager->data_update,
+			                                                  subject, NULL);
 			class = tracker_class_new (FALSE);
 			tracker_class_set_ontologies (class, manager->ontologies);
 			tracker_class_set_is_new (class, in_update);
@@ -779,8 +778,9 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				return;
 			}
 
-			subject_id = ++(*max_id);
-
+			subject_id = tracker_data_update_ensure_resource (manager->data_update,
+			                                                  subject,
+			                                                  NULL);
 			property = tracker_property_new (FALSE);
 			tracker_property_set_ontologies (property, manager->ontologies);
 			tracker_property_set_is_new (property, in_update);
@@ -1756,7 +1756,6 @@ tracker_data_ontology_free_seen (GPtrArray *seen)
 static void
 load_ontology_file (TrackerDataManager  *manager,
                     GFile               *file,
-                    gint                *max_id,
                     gboolean             in_update,
                     GPtrArray           *seen_classes,
                     GPtrArray           *seen_properties,
@@ -1786,7 +1785,7 @@ load_ontology_file (TrackerDataManager  *manager,
 
 		tracker_data_ontology_load_statement (manager, ontology_uri,
 		                                      subject, predicate, object,
-		                                      max_id, in_update, NULL, NULL,
+		                                      in_update, NULL, NULL,
 		                                      seen_classes, seen_properties, &ontology_error);
 
 		if (ontology_error) {
@@ -3333,9 +3332,9 @@ query_table_exists (TrackerDBInterface  *iface,
 	TrackerDBStatement *stmt;
 	gboolean exists = FALSE;
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
-	                                              "SELECT 1 FROM sqlite_master WHERE tbl_name=\"%s\" AND type=\"table\"",
-	                                              table_name);
+	stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
+	                                               "SELECT 1 FROM sqlite_master WHERE tbl_name=\"%s\" AND type=\"table\"",
+	                                               table_name);
 	if (stmt) {
 		cursor = tracker_db_statement_start_cursor (stmt, error);
 		g_object_unref (stmt);
@@ -3537,39 +3536,6 @@ get_ontologies (TrackerDataManager  *manager,
 	g_object_unref (enumerator);
 
 	return sorted;
-}
-
-
-static gint
-get_new_service_id (TrackerDBInterface *iface)
-{
-	TrackerDBCursor    *cursor = NULL;
-	TrackerDBStatement *stmt;
-	gint max_service_id = 0;
-	GError *error = NULL;
-
-	/* Don't intermix this thing with tracker_data_update_get_new_service_id,
-	 * if you use this, know what you are doing! */
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
-	                                              "SELECT MAX(ID) AS A FROM Resource WHERE ID <= %d", TRACKER_ONTOLOGIES_MAX_ID);
-
-	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &error);
-		g_object_unref (stmt);
-	}
-
-	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
-			max_service_id = tracker_db_cursor_get_int (cursor, 0);
-		}
-		g_object_unref (cursor);
-	}
-
-	if (error) {
-		g_error ("Unable to get max ID, aborting: %s", error->message);
-	}
-
-	return ++max_service_id;
 }
 
 static void
@@ -4021,7 +3987,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	GHashTable *ontos_table;
 	GHashTable *graphs;
 	GList *sorted = NULL, *l;
-	gint max_id = 0;
 	gboolean read_only;
 	GError *internal_error = NULL;
 
@@ -4100,6 +4065,16 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			return FALSE;
 		}
 
+		tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
+
+		if (!create_base_tables (manager, iface, error)) {
+			return FALSE;
+		}
+
 		for (l = sorted; l; l = l->next) {
 			GError *ontology_error = NULL;
 			GFile *ontology_file = l->data;
@@ -4108,7 +4083,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Loading ontology %s", uri));
 
 			load_ontology_file (manager, ontology_file,
-			                    &max_id,
 			                    FALSE,
 			                    NULL,
 			                    NULL,
@@ -4119,16 +4093,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			}
 
 			g_free (uri);
-		}
-
-		tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return FALSE;
-		}
-
-		if (!create_base_tables (manager, iface, error)) {
-			return FALSE;
 		}
 
 		tracker_data_ontology_setup_db (manager, iface, "main", FALSE,
@@ -4352,14 +4316,9 @@ tracker_data_manager_initable_init (GInitable     *initable,
 						transaction_started = TRUE;
 					}
 
-					if (max_id == 0) {
-						/* In case of first-time, this wont start at zero */
-						max_id = get_new_service_id (iface);
-					}
 					/* load ontology from files into memory, set all new's
 					 * is_new to TRUE */
 					load_ontology_file (manager, ontology_file,
-					                    &max_id,
 					                    TRUE,
 					                    seen_classes,
 					                    seen_properties,
@@ -4414,14 +4373,9 @@ tracker_data_manager_initable_init (GInitable     *initable,
 					transaction_started = TRUE;
 				}
 
-				if (max_id == 0) {
-					/* In case of first-time, this wont start at zero */
-					max_id = get_new_service_id (iface);
-				}
 				/* load ontology from files into memory, set all new's
 				 * is_new to TRUE */
 				load_ontology_file (manager, ontology_file,
-				                    &max_id,
 				                    TRUE,
 				                    seen_classes,
 				                    seen_properties,
@@ -4664,15 +4618,13 @@ data_manager_perform_cleanup (TrackerDataManager  *manager,
 	g_string_append (str, ") ");
 	g_string_append_printf (str,
 	                        "DELETE FROM Resource "
-	                        "WHERE Resource.ID > %d "
-	                        "AND Resource.ID NOT IN (SELECT ID FROM referencedElements) "
-	                        "AND Resource.ID NOT IN (SELECT ID FROM Graph)",
-	                        TRACKER_ONTOLOGIES_MAX_ID);
+	                        "WHERE Resource.ID NOT IN (SELECT ID FROM referencedElements) "
+	                        "AND Resource.ID NOT IN (SELECT ID FROM Graph)");
 
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 	                                              &internal_error,
-	                                              "%s", str->str);
+	                                              str->str);
 	g_string_free (str, TRUE);
 
 	if (!stmt)
@@ -4967,10 +4919,10 @@ tracker_data_manager_clear_graph (TrackerDataManager  *manager,
 		if (g_str_has_prefix (tracker_class_get_name (classes[i]), "xsd:"))
 			continue;
 
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
-		                                              "DELETE FROM \"%s\".\"%s\" WHERE ID > 100000",
-		                                              graph,
-		                                              tracker_class_get_name (classes[i]));
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
+		                                               "DELETE FROM \"%s\".\"%s\"",
+		                                               graph,
+		                                               tracker_class_get_name (classes[i]));
 		if (!stmt)
 			break;
 
@@ -4985,11 +4937,11 @@ tracker_data_manager_clear_graph (TrackerDataManager  *manager,
 			continue;
 
 		service = tracker_property_get_domain (properties[i]);
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
-		                                              "DELETE FROM \"%s\".\"%s_%s\" WHERE ID > 100000",
-		                                              graph,
-		                                              tracker_class_get_name (service),
-		                                              tracker_property_get_name (properties[i]));
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
+		                                               "DELETE FROM \"%s\".\"%s_%s\"",
+		                                               graph,
+		                                               tracker_class_get_name (service),
+		                                               tracker_property_get_name (properties[i]));
 		if (!stmt)
 			break;
 
@@ -5035,13 +4987,13 @@ tracker_data_manager_copy_graph (TrackerDataManager  *manager,
 		if (g_str_has_prefix (tracker_class_get_name (classes[i]), "xsd:"))
 			continue;
 
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
-		                                              "INSERT OR REPLACE INTO \"%s\".\"%s\" "
-		                                              "SELECT * from \"%s\".\"%s\" WHERE ID > 100000",
-		                                              destination,
-		                                              tracker_class_get_name (classes[i]),
-		                                              source,
-		                                              tracker_class_get_name (classes[i]));
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
+		                                               "INSERT OR REPLACE INTO \"%s\".\"%s\" "
+		                                               "SELECT * from \"%s\".\"%s\"",
+		                                               destination,
+		                                               tracker_class_get_name (classes[i]),
+		                                               source,
+		                                               tracker_class_get_name (classes[i]));
 		if (!stmt)
 			break;
 
@@ -5056,15 +5008,15 @@ tracker_data_manager_copy_graph (TrackerDataManager  *manager,
 			continue;
 
 		service = tracker_property_get_domain (properties[i]);
-		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
-		                                              "INSERT OR REPLACE INTO \"%s\".\"%s_%s\" "
-		                                              "SELECT * from \"%s\".\"%s_%s\" WHERE ID > 100000",
-		                                              destination,
-		                                              tracker_class_get_name (service),
-		                                              tracker_property_get_name (properties[i]),
-		                                              source,
-		                                              tracker_class_get_name (service),
-		                                              tracker_property_get_name (properties[i]));
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
+		                                               "INSERT OR REPLACE INTO \"%s\".\"%s_%s\" "
+		                                               "SELECT * from \"%s\".\"%s_%s\"",
+		                                               destination,
+		                                               tracker_class_get_name (service),
+		                                               tracker_property_get_name (properties[i]),
+		                                               source,
+		                                               tracker_class_get_name (service),
+		                                               tracker_property_get_name (properties[i]));
 		if (!stmt)
 			break;
 
