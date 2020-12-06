@@ -3083,7 +3083,7 @@ tracker_data_update_ensure_new_bnode (TrackerData         *data,
 	}
 
 	while (TRUE) {
-		uuid = tracker_generate_uuid ("urn:bnode:");
+		uuid = tracker_generate_uuid ("urn:bnode");
 
 		tracker_db_statement_bind_text (stmt, 0, uuid);
 		tracker_db_statement_bind_int (stmt, 1, 1);
