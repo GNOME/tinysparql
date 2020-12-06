@@ -1648,6 +1648,18 @@ bytes_from_gvalue (GValue       *gvalue,
 			object = get_bnode_for_resource (bnodes, data, res);
 
 		*bytes = g_bytes_new (object, strlen (object) + 1);
+	} else if (G_VALUE_HOLDS (gvalue, TRACKER_TYPE_DATE_TIME)) {
+		gdouble time;
+		gint offset;
+
+		time = tracker_date_time_get_time (gvalue);
+		offset = tracker_date_time_get_offset (gvalue);
+		str = tracker_date_to_string (time, offset);
+
+		*bytes = g_bytes_new_take (str, strlen (str) + 1);
+	} else {
+		g_warning ("Conversion to bytes unavailable for type %s",
+		           G_VALUE_TYPE_NAME (gvalue));
 	}
 }
 
