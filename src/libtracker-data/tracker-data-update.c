@@ -1567,13 +1567,13 @@ get_bnode_for_resource (GHashTable      *bnodes,
 	const gchar *identifier;
 	gchar *bnode;
 
-	bnode = g_hash_table_lookup (bnodes, resource);
+	identifier = tracker_resource_get_identifier (resource);
+	bnode = g_hash_table_lookup (bnodes, identifier);
 	if (bnode)
 		return bnode;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	bnode = tracker_data_update_ensure_new_bnode (data, iface, NULL);
-	identifier = tracker_resource_get_identifier (resource);
 	g_hash_table_insert (bnodes, g_strdup (identifier), bnode);
 
 	return bnode;
