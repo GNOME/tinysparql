@@ -2219,7 +2219,7 @@ tracker_data_delete_statement (TrackerData  *data,
 	}
 }
 
-static void
+static gboolean
 tracker_data_delete_all (TrackerData  *data,
                          const gchar  *graph,
                          const gchar  *subject,
@@ -2232,23 +2232,30 @@ tracker_data_delete_all (TrackerData  *data,
 	GArray *old_values;
 	GError *inner_error = NULL;
 
-	g_return_if_fail (subject != NULL);
-	g_return_if_fail (predicate != NULL);
-	g_return_if_fail (data->in_transaction);
+	g_return_val_if_fail (subject != NULL, FALSE);
+	g_return_val_if_fail (predicate != NULL, FALSE);
+	g_return_val_if_fail (data->in_transaction, FALSE);
 
 	subject_id = query_resource_id (data, subject);
 
 	if (subject_id == 0) {
 		/* subject not in database */
-		return;
+		return FALSE;
 	}
 
 	if (!resource_buffer_switch (data, graph, subject, error))
-		return;
+		return FALSE;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 	property = tracker_ontologies_get_property_by_uri (ontologies,
 	                                                   predicate);
+	old_values = get_old_property_values (data, property, &inner_error);
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	} else if (!old_values || old_values->len == 0) {
+		return FALSE;
+	}
 
 	if (tracker_property_get_multiple_values (property)) {
 		cache_delete_all_values (data,
@@ -2257,22 +2264,16 @@ tracker_data_delete_all (TrackerData  *data,
 		                         tracker_property_get_fulltext_indexed (property),
 		                         tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
 	} else {
-		old_values = get_old_property_values (data, property, &inner_error);
-		if (inner_error) {
-			g_propagate_error (error, inner_error);
-			return;
-		}
-
-		if (old_values->len > 0) {
-			cache_delete_value (data,
-			                    tracker_property_get_table_name (property),
-			                    tracker_property_get_name (property),
-			                    &g_array_index (old_values, GValue, 0),
-			                    FALSE,
-			                    tracker_property_get_fulltext_indexed (property),
-			                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
-		}
+		cache_delete_value (data,
+		                    tracker_property_get_table_name (property),
+		                    tracker_property_get_name (property),
+		                    &g_array_index (old_values, GValue, 0),
+		                    FALSE,
+		                    tracker_property_get_fulltext_indexed (property),
+		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
 	}
+
+	return TRUE;
 }
 
 static gboolean
@@ -2895,11 +2896,12 @@ resource_maybe_reset_property (TrackerData      *data,
 	if (g_str_has_prefix (subject, "_:"))
 		return TRUE;
 
-	tracker_data_delete_all (data,
-	                         graph, subject_uri, property_uri,
-	                         &inner_error);
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
+	if (!tracker_data_delete_all (data,
+	                              graph, subject_uri, property_uri,
+	                              &inner_error)) {
+		if (inner_error)
+			g_propagate_error (error, inner_error);
+
 		return FALSE;
 	}
 
@@ -2925,14 +2927,6 @@ update_resource_property (TrackerData      *data,
 	                                    property,
 	                                    NULL, NULL,
 	                                    &property_uri);
-
-	if (tracker_resource_get_property_overwrite (resource, property) &&
-	    !resource_maybe_reset_property (data, graph_uri, resource,
-	                                    subject, property_uri,
-	                                    bnodes, error)) {
-		g_free (property_uri);
-		return FALSE;
-	}
 
 	for (v = values; v && !inner_error; v = v->next) {
 		GBytes *bytes = NULL;
@@ -2985,6 +2979,7 @@ update_resource_single (TrackerData      *data,
 	GError *inner_error = NULL;
 	const gchar *subject;
 	gchar *graph_uri = NULL;
+	gboolean is_bnode = FALSE;
 
 	if (g_hash_table_lookup (visited, resource))
 		return TRUE;
@@ -2994,8 +2989,10 @@ update_resource_single (TrackerData      *data,
 	properties = tracker_resource_get_properties (resource);
 
 	subject = tracker_resource_get_identifier (resource);
-	if (!subject || g_str_has_prefix (subject, "_:"))
+	if (!subject || g_str_has_prefix (subject, "_:")) {
+		is_bnode = TRUE;
 		subject = get_bnode_for_resource (bnodes, data, resource);
+	}
 
 	if (graph) {
 		tracker_data_manager_expand_prefix (data->manager,
@@ -3016,6 +3013,40 @@ update_resource_single (TrackerData      *data,
 		}
 	}
 
+	if (!is_bnode) {
+		gboolean need_flush = FALSE;
+
+		for (l = properties; l; l = l->next) {
+			const gchar *property = l->data;
+
+			if (tracker_resource_get_property_overwrite (resource, property)) {
+				gchar *property_uri;
+
+				tracker_data_manager_expand_prefix (data->manager,
+				                                    property,
+				                                    NULL, NULL,
+				                                    &property_uri);
+
+				if (resource_maybe_reset_property (data, graph_uri, resource,
+				                                   subject, property_uri,
+				                                   bnodes, &inner_error)) {
+					need_flush = TRUE;
+				} else if (inner_error) {
+					g_free (property_uri);
+					goto out;
+				}
+
+				g_free (property_uri);
+			}
+		}
+
+		if (need_flush) {
+			tracker_data_update_buffer_flush (data, &inner_error);
+			if (inner_error)
+				goto out;
+		}
+	}
+
 	for (l = properties; l; l = l->next) {
 		if (g_str_equal (l->data, "rdf:type"))
 			continue;
@@ -3029,6 +3060,7 @@ update_resource_single (TrackerData      *data,
 
 	g_list_free (properties);
 
+out:
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
