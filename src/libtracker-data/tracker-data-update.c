@@ -2219,7 +2219,6 @@ tracker_data_delete_all (TrackerData  *data,
 	TrackerProperty *property;
 	GArray *old_values;
 	GError *inner_error = NULL;
-	guint i;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -2238,33 +2237,30 @@ tracker_data_delete_all (TrackerData  *data,
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 	property = tracker_ontologies_get_property_by_uri (ontologies,
 	                                                   predicate);
-	old_values = get_old_property_values (data, property, &inner_error);
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		return;
+
+	if (tracker_property_get_multiple_values (property)) {
+		cache_delete_all_values (data,
+		                         tracker_property_get_table_name (property),
+		                         tracker_property_get_name (property),
+		                         tracker_property_get_fulltext_indexed (property),
+		                         tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+	} else {
+		old_values = get_old_property_values (data, property, &inner_error);
+		if (inner_error) {
+			g_propagate_error (error, inner_error);
+			return;
+		}
+
+		if (old_values->len > 0) {
+			cache_delete_value (data,
+			                    tracker_property_get_table_name (property),
+			                    tracker_property_get_name (property),
+			                    &g_array_index (old_values, GValue, 0),
+			                    FALSE,
+			                    tracker_property_get_fulltext_indexed (property),
+			                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+		}
 	}
-
-	for (i = 0; i < old_values->len; i++) {
-		GValue *value;
-		GBytes *bytes;
-
-		value = &g_array_index (old_values, GValue, i);
-		bytes_from_gvalue (value,
-		                   &bytes,
-		                   data,
-		                   NULL);
-
-		tracker_data_delete_statement (data, graph, subject,
-		                               predicate, bytes,
-		                               &inner_error);
-		g_bytes_unref (bytes);
-
-		if (inner_error)
-			break;
-	}
-
-	if (inner_error)
-		g_propagate_error (error, inner_error);
 }
 
 static gboolean
