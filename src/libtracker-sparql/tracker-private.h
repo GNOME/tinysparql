@@ -180,6 +180,12 @@ struct _TrackerEndpointDBusClass {
 	gchar * (* add_prologue) (TrackerEndpointDBus *endpoint_dbus);
 };
 
+typedef struct _TrackerEndpointHttpClass TrackerEndpointHttpClass;
+
+struct _TrackerEndpointHttpClass {
+	struct _TrackerEndpointClass parent_class;
+};
+
 typedef struct _TrackerResourceClass TrackerResourceClass;
 
 struct _TrackerResourceClass

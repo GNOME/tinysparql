@@ -40,20 +40,21 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (TrackerEndpoint, tracker_endpoint, G_TYPE_O
 
 /**
  * SECTION: tracker-endpoint
- * @short_description: Expose a database to other processes
+ * @short_description: Expose a database outside the process
  * @title: TrackerEndpoint
  * @stability: Stable
  * @include: tracker-endpoint.h
  *
  * <para>
- * #TrackerEndpoint allows sharing data with other processes on the system,
- * using a Tracker-specific D-Bus API.
+ * #TrackerEndpoint allows sharing data, either with other processes on the
+ * system via a Tracker-specific D-Bus API, or remote peers via the HTTP
+ * SPARQL protocol.
  * </para>
  * <para>
- * When it is shared in this way, processes can connect to your database using
- * tracker_sparql_connection_bus_new() and can also fetch data directly from
- * SPARQL queries using the <userinput>SELECT { SERVICE ... }</userinput>
- * syntax.
+ * When it is shared in this way, other peers can connect to your database using
+ * tracker_sparql_connection_bus_new() or tracker_sparql_connection_remote_new(),
+ * and can also fetch data directly from SPARQL queries using the
+ * <userinput>SELECT { SERVICE ... }</userinput> syntax.
  * </para>
  */
 

@@ -20,6 +20,7 @@ libtracker_sparql_c_sources = files(
     'tracker-cursor.c',
     'tracker-endpoint.c',
     'tracker-endpoint-dbus.c',
+    'tracker-endpoint-http.c',
     'tracker-error.c',
     'tracker-namespace-manager.c',
     'tracker-notifier.c',
@@ -39,6 +40,7 @@ libtracker_sparql_c_public_headers = files(
     'tracker-cursor.h',
     'tracker-endpoint.h',
     'tracker-endpoint-dbus.h',
+    'tracker-endpoint-http.h',
     'tracker-error.h',
     'tracker-namespace-manager.h',
     'tracker-notifier.h',
@@ -52,7 +54,7 @@ libtracker_sparql_c_public_headers = files(
 libtracker_sparql_intermediate = static_library('tracker-sparql-intermediate',
     enum_types,
     libtracker_sparql_c_sources,
-    dependencies: [tracker_common_dep, json_glib, libxml2],
+    dependencies: [tracker_common_dep, json_glib, libxml2, libsoup],
     gnu_symbol_visibility: 'hidden',
 )
 

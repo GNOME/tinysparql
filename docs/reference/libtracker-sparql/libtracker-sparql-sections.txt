@@ -252,9 +252,11 @@ TrackerNotifierClass
 <FILE>tracker-endpoint</FILE>
 <TITLE>TrackerEndpoint</TITLE>
 TrackerEndpoint
+tracker_endpoint_get_sparql_connection
 TrackerEndpointDBus
 tracker_endpoint_dbus_new
-tracker_endpoint_get_sparql_connection
+TrackerEndpointHttp
+tracker_endpoint_http_new
 <SUBSECTION Standard>
 TRACKER_TYPE_ENDPOINT
 TRACKER_TYPE_ENDPOINT_DBUS
@@ -263,9 +265,17 @@ TRACKER_ENDPOINT_DBUS_CLASS
 TRACKER_ENDPOINT_DBUS_GET_CLASS
 TRACKER_IS_ENDPOINT_DBUS
 TRACKER_IS_ENDPOINT_DBUS_CLASS
+TRACKER_TYPE_ENDPOINT_HTTP
+TRACKER_ENDPOINT_HTTP
+TRACKER_ENDPOINT_HTTP_CLASS
+TRACKER_ENDPOINT_HTTP_GET_CLASS
+TRACKER_IS_ENDPOINT_HTTP
+TRACKER_IS_ENDPOINT_HTTP_CLASS
 TrackerEndpointClass
 TrackerEndpointDBusClass
+TrackerEndpointHttpClass
 tracker_endpoint_dbus_get_type
+tracker_endpoint_http_get_type
 </SECTION>
 
 <SECTION>
