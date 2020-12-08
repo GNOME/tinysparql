@@ -1,3 +1,19 @@
+NEW in 3.0.2 - 2020-12-08
+=========================
+  * Update some wording in website
+  * Fix initialization issues in portal
+  * Improve turtle parser
+  * Improve checks for dates in the far past/future
+  * Cleanup meson build options
+  * Fix invalid reads
+  * Make UPDATE parser tree processing iterative rather
+    than recursive
+  * Fix errors in tracker:uri-is-parent
+  * Protect harder against invalid database state
+  * Introspection annotation fixes
+  * Improve thread safety of internal ontology objects
+  * Add missing <package> element to gir file
+
 NEW in 3.0.1 - 2020-10-02
 =========================
   * Reference Discourse instead of the mailing list
