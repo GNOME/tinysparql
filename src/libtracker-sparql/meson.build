@@ -136,6 +136,7 @@ tracker_sparql_gir = gnome.generate_gir(libtracker_sparql,
         '--c-include',
         'libtracker-sparql/tracker-sparql.h',
         '-DTRACKER_COMPILATION',
-    ])
+    ],
+    export_packages: 'tracker-sparql-3.0')
 
 tracker_sparql_uninstalled_dir = meson.current_build_dir()
