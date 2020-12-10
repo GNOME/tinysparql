@@ -32,6 +32,7 @@ foreach t: tests
   test(test_name, test_exe,
     env: test_env,
     timeout: test_timeout,
+    protocol: 'tap',
     suite: test_suite,
     is_parallel: test_is_parallel)
 endforeach
