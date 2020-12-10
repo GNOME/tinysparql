@@ -19,15 +19,16 @@ stages:
   stage: test
 
   script:
-    - su tracker -c 'mkdir build'
-    - su tracker -c 'cd build; meson .. -Db_lto=true -Db_coverage=true -Dsystemd_user_services=false'
-    - su tracker -c 'cd build; ninja'
+    - mkdir build
+    - cd build
+    - meson .. -Db_lto=true -Db_coverage=true -Dsystemd_user_services=false
+    - ninja
     - |
       # Remove the many "CI_" variables from the environment. Meson dumps the
       # whole environment for every failed test, and that gives a whole
       # screenful of junk each time unless we strip these.
       unset $(env|grep -o '^CI_[^=]*')
-      su tracker -c 'cd build; env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session eatmydata meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}'
+      env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session eatmydata meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
 
   after_script:
     - |
@@ -66,12 +67,12 @@ coverage-analysis:
   image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:latest
   allow_failure: true
   script:
-    - dnf install -y gcovr
-    - su tracker -c 'mkdir -p coverage-build/coveragereport'
-    - su tracker -c 'cd coverage-build; meson .. -Db_lto=true -Db_coverage=true'
-    - su tracker -c 'cd coverage-build; ninja'
-    - su tracker -c 'cd coverage-build; env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session eatmydata meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}'
-    - su tracker -c 'cd coverage-build; gcovr --html-details --print-summary --root=.. --exclude=../docs/reference --exclude=../tests --exclude=../utils --exclude=../examples --output coveragereport/index.html'
+    - mkdir -p coverage-build/coveragereport
+    - cd coverage-build
+    - meson .. -Db_lto=true -Db_coverage=true
+    - ninja
+    - env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session eatmydata meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
+    - gcovr --html-details --print-summary --root=.. --exclude=../docs/reference --exclude=../tests --exclude=../utils --exclude=../examples --output coveragereport/index.html
   coverage: '/^lines: (\d+\.\d+\%)/'
   artifacts:
     when: always
@@ -83,17 +84,17 @@ coverity:
   image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:latest
   allow_failure: true
   script:
-    - dnf install -y clang
-    - su tracker -c 'curl https://scan.coverity.com/download/linux64 --data "token=$COVERITY_TOKEN&project=Tracker" --output /tmp/coverity_tool.tgz'
-    - su tracker -c 'tar zxf /tmp/coverity_tool.tgz'
-    - su tracker -c 'mkdir coverity-build'
-    - su tracker -c 'export CC=clang; cd coverity-build; meson ..'
-    - su tracker -c 'cd coverity-build; ../cov-analysis-linux64-*/bin/cov-build --dir cov-int ninja'
-    - su tracker -c 'cd coverity-build; tar czf cov-int.tar.gz cov-int'
-    - su tracker -c 'curl https://scan.coverity.com/builds?project=Tracker
+    - curl https://scan.coverity.com/download/linux64 --data "token=$COVERITY_TOKEN&project=Tracker" --output /tmp/coverity_tool.tgz
+    - tar zxf /tmp/coverity_tool.tgz
+    - mkdir coverity-build
+    - cd coverity-build
+    - env CC=clang meson ..
+    - ../cov-analysis-linux64-*/bin/cov-build --dir cov-int ninja
+    - tar czf cov-int.tar.gz cov-int
+    - curl https://scan.coverity.com/builds?project=Tracker
       --form token=$COVERITY_TOKEN --form email=carlosg@gnome.org
       --form file=@coverity-build/cov-int.tar.gz --form version="`git describe --tags`"
-      --form description="gitlab CI build"'
+      --form description="gitlab CI build"
   only:
     - master
 
@@ -106,10 +107,10 @@ pages:
   script:
     - export install_prefix="$(pwd)/tracker-install"
     # Build tracker and install.
-    - su tracker -w install_prefix -c 'mkdir build; cd build; meson .. --prefix="$install_prefix"; ninja install'
+    - mkdir build; pushd build; meson .. --prefix="$install_prefix"; ninja install; popd
     # Build tracker-miners and install any documentation from there as well.
-    - su tracker -w install_prefix -c '.gitlab-ci/checkout-tracker-miners.sh'
-    - su tracker -w install_prefix -c 'cd extra/tracker-miners; mkdir build; cd build; env PKG_CONFIG_PATH="$install_prefix/lib64/pkgconfig" meson .. --prefix="$install_prefix"; ninja install'
+    - .gitlab-ci/checkout-tracker-miners.sh
+    - pushd extra/tracker-miners; mkdir build; pushd build; env PKG_CONFIG_PATH="$install_prefix/lib64/pkgconfig" meson .. --prefix="$install_prefix"; ninja install; popd; popd
     # Generate the website using mkdocs.
     - |
       export tracker_commit=$CI_COMMIT_SHA
