@@ -18,15 +18,16 @@ stages:
   stage: test
 
   script:
-    - su tracker -c 'mkdir build'
-    - su tracker -c 'cd build; meson .. -Db_lto=true'
-    - su tracker -c 'cd build; ninja'
+    - mkdir build
+    - cd build
+    - meson .. -Db_lto=true
+    - ninja
     - |
       # Remove the many "CI_" variables from the environment. Meson dumps the
       # whole environment for every failed test, and that gives a whole
       # screenful of junk each time unless we strip these.
       unset $(env|grep -o '^CI_[^=]*')
-      su tracker -c 'cd build; env LANG=C.UTF-8 LC_ALL=C.UTF-8 eatmydata meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}'
+      env LANG=C.UTF-8 LC_ALL=C.UTF-8 eatmydata meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
 
   after_script:
     - |
