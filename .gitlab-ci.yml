@@ -67,7 +67,6 @@ coverage-analysis:
   image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:latest
   allow_failure: true
   script:
-    - dnf install -y gcovr
     - mkdir -p coverage-build/coveragereport
     - cd coverage-build
     - meson .. -Db_lto=true -Db_coverage=true
@@ -85,7 +84,6 @@ coverity:
   image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:latest
   allow_failure: true
   script:
-    - dnf install -y clang
     - curl https://scan.coverity.com/download/linux64 --data "token=$COVERITY_TOKEN&project=Tracker" --output /tmp/coverity_tool.tgz
     - tar zxf /tmp/coverity_tool.tgz
     - mkdir coverity-build
