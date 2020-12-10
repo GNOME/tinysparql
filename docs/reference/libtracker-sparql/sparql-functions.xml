@@ -214,6 +214,16 @@
 	Picks the first non-null value. Equivalent to
 	<systemitem>COALESCE</systemitem>.
       </para>
+
+    </sect2>
+      <sect2 id="tracker:strip-punctuation">
+      <title>tracker:strip-punctuation</title>
+      <programlisting>
+	tracker:strip-punctuation (?string)
+      </programlisting>
+      <para>
+	Removes any Unicode character which has the  General Category value of P (Punctuation) from the string.
+      </para>
     </sect2>
   </chapter>
 

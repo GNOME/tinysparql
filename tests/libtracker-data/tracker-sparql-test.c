@@ -122,6 +122,7 @@ const TestInfo tests[] = {
 	{ "functions/functions-tracker-6", "functions/data-2", FALSE },
 	{ "functions/functions-tracker-7", "functions/data-2", FALSE },
 	{ "functions/functions-tracker-8", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-9", "functions/data-2", FALSE },
 	{ "functions/functions-tracker-loc-1", "functions/data-3", FALSE },
 	{ "functions/functions-xpath-1", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-2", "functions/data-1", FALSE },

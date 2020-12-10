@@ -1,0 +1,1 @@
+SELECT (tracker:strip-punctuation ('hello, World!?') AS ?str) {}
