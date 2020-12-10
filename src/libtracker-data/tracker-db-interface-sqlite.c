@@ -1292,6 +1292,31 @@ function_sparql_case_fold (sqlite3_context *context,
 	sqlite3_result_text16 (context, zOutput, -1, sqlite3_free);
 }
 
+static void
+function_sparql_strip_punctuation (sqlite3_context *context,
+                                   int              argc,
+                                   sqlite3_value   *argv[])
+{
+	const gchar *fn = "tracker:strip-punctuation";
+	gchar *input, *replacement = "", *output = NULL;
+	GError *error = NULL;
+	GRegex *regex;
+	input = (gchar *)sqlite3_value_text (argv[0]);
+	const gchar *pattern = "\\p{P}";
+
+	regex = g_regex_new (pattern, 0, 0, &error);
+	if (error)
+	{
+		result_context_function_error (context, fn, error->message);
+		g_clear_error (&error);
+		return;
+	}
+
+	output = g_regex_replace (regex, input, -1, 0, replacement, 0, &error);
+
+	sqlite3_result_text (context, output, -1, g_free);
+}
+
 static gunichar2 *
 normalize_string (const gunichar2    *string,
                   gsize               string_len, /* In gunichar2s */
@@ -1970,6 +1995,8 @@ initialize_functions (TrackerDBInterface *db_interface)
 		  function_sparql_upper_case },
 		{ "SparqlCaseFold", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_case_fold },
+		{"SparqlStripPunctuation", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		 function_sparql_strip_punctuation },
 		{ "SparqlNormalize", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_normalize },
 		{ "SparqlUnaccent", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,

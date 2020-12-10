@@ -7774,6 +7774,11 @@ handle_custom_function (TrackerSparql  *sparql,
 		_append_string (sparql, "SparqlCaseFold (");
 		_call_rule (sparql, NAMED_RULE_ArgList, error);
 		_append_string (sparql, ") ");
+	} else if (g_str_equal (function, TRACKER_NS "strip-punctuation")) {
+		sparql->current_state->convert_to_string = TRUE;
+		_append_string (sparql, "SparqlStripPunctuation (");
+		_call_rule (sparql, NAMED_RULE_ArgList, error);
+		_append_string (sparql, ") ");
 	} else if (g_str_equal (function, TRACKER_NS "title-order")) {
 		_call_rule (sparql, NAMED_RULE_ArgList, error);
 		_append_string (sparql, "COLLATE " TRACKER_TITLE_COLLATION_NAME " ");
