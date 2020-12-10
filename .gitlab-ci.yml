@@ -93,7 +93,7 @@ coverity:
     - tar czf cov-int.tar.gz cov-int
     - curl https://scan.coverity.com/builds?project=Tracker
       --form token=$COVERITY_TOKEN --form email=carlosg@gnome.org
-      --form file=@coverity-build/cov-int.tar.gz --form version="`git describe --tags`"
+      --form file=@cov-int.tar.gz --form version="`git describe --tags`"
       --form description="gitlab CI build"
   only:
     - master
