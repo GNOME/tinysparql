@@ -48,6 +48,11 @@ typedef struct {
 } Request;
 
 enum {
+	BLOCK_REMOTE_ADDRESS,
+	N_SIGNALS
+};
+
+enum {
 	PROP_0,
 	PROP_HTTP_PORT,
 	PROP_HTTP_CERTIFICATE,
@@ -58,6 +63,7 @@ enum {
 #define JSON_TYPE "application/sparql-results+json"
 
 static GParamSpec *props[N_PROPS];
+static guint signals[N_SIGNALS];
 
 static void tracker_endpoint_http_initable_iface_init (GInitableIface *iface);
 
@@ -198,8 +204,21 @@ server_callback (SoupServer        *server,
 	TrackerEndpoint *endpoint = user_data;
 	TrackerSparqlConnection *conn;
 	TrackerSerializerFormat format;
+	GSocketAddress *remote_address;
+	gboolean block = FALSE;
 	const gchar *sparql;
 	Request *request;
+
+	remote_address = soup_client_context_get_remote_address (client);
+	if (remote_address) {
+		g_signal_emit (endpoint, signals[BLOCK_REMOTE_ADDRESS], 0,
+		               remote_address, &block);
+	}
+
+	if (block) {
+		soup_message_set_status_full (message, 500, "Remote address disallowed");
+		return;
+	}
 
 	sparql = g_hash_table_lookup (query, "query");
 	if (!sparql) {
@@ -320,6 +339,24 @@ tracker_endpoint_http_class_init (TrackerEndpointHttpClass *klass)
 	object_class->finalize = tracker_endpoint_http_finalize;
 	object_class->set_property = tracker_endpoint_http_set_property;
 	object_class->get_property = tracker_endpoint_http_get_property;
+
+	/**
+	 * TrackerEndpointHttp::block-remote-address:
+	 * @self: The #TrackerNotifier
+	 * @address: The socket address of the remote connection
+	 *
+	 * Allows control over the connections stablished. The given
+	 * address is that of the requesting peer.
+	 *
+	 * Returning %FALSE in this handler allows the connection,
+	 * returning %TRUE blocks it. The default with no signal
+	 * handlers connected is %FALSE.
+	 */
+	signals[BLOCK_REMOTE_ADDRESS] =
+		g_signal_new ("block-remote-address",
+		              TRACKER_TYPE_ENDPOINT_HTTP, 0, 0,
+		              g_signal_accumulator_first_wins, NULL, NULL,
+		              G_TYPE_BOOLEAN, 1, G_TYPE_SOCKET_ADDRESS);
 
 	props[PROP_HTTP_PORT] =
 		g_param_spec_uint ("http-port",
