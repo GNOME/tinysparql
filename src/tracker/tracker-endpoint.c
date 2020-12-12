@@ -43,6 +43,7 @@ static gboolean system_bus = FALSE;
 static gboolean name_owned = FALSE;
 static gboolean list = FALSE;
 static gint http_port = -1;
+static gboolean http_loopback;
 
 static GOptionEntry entries[] = {
 	{ "database", 'd', 0, G_OPTION_ARG_FILENAME, &database_path,
@@ -63,6 +64,10 @@ static GOptionEntry entries[] = {
 	},
 	{ "http-port", 0, 0, G_OPTION_ARG_INT, &http_port,
 	  N_("HTTP port"),
+	  NULL
+	},
+	{ "loopback", 0, 0, G_OPTION_ARG_NONE, &http_loopback,
+	  N_("Whether to only allow HTTP connections in the loopback device"),
 	  NULL
 	},
 	{ "session", 0, 0, G_OPTION_ARG_NONE, &session_bus,
@@ -141,6 +146,28 @@ name_lost_cb (GDBusConnection *connection,
 }
 
 static gboolean
+block_http_handler (TrackerEndpointHttp *endpoint_http,
+                    GSocketAddress      *address,
+                    gpointer             user_data)
+{
+	GInetAddress *inet_address;
+
+	if (!G_IS_INET_SOCKET_ADDRESS (address))
+		return TRUE;
+
+	inet_address = g_inet_socket_address_get_address (G_INET_SOCKET_ADDRESS (address));
+
+	if (http_loopback) {
+		if (g_inet_address_get_is_loopback (inet_address))
+			return FALSE;
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gboolean
 run_http_endpoint (TrackerSparqlConnection  *connection,
                    GError                  **error)
 {
@@ -170,6 +197,9 @@ run_http_endpoint (TrackerSparqlConnection  *connection,
 		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
+
+	g_signal_connect (endpoint, "block-remote-address",
+	                  G_CALLBACK (block_http_handler), NULL);
 
 	main_loop = g_main_loop_new (NULL, FALSE);
 
