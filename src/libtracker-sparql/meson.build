@@ -27,6 +27,7 @@ libtracker_sparql_c_sources = files(
     'tracker-statement.c',
     'tracker-serializer.c',
     'tracker-serializer-json.c',
+    'tracker-serializer-xml.c',
     'tracker-uri.c',
     'tracker-utils.c',
     'tracker-version.c',
@@ -51,7 +52,7 @@ libtracker_sparql_c_public_headers = files(
 libtracker_sparql_intermediate = static_library('tracker-sparql-intermediate',
     enum_types,
     libtracker_sparql_c_sources,
-    dependencies: [tracker_common_dep, json_glib],
+    dependencies: [tracker_common_dep, json_glib, libxml2],
     gnu_symbol_visibility: 'hidden',
 )
 
