@@ -250,6 +250,12 @@ struct _TrackerBatchClass {
 				     GError       **error);
 };
 
+typedef struct _TrackerSerializerClass TrackerSerializerClass;
+
+struct _TrackerSerializerClass {
+	GInputStreamClass parent_class;
+};
+
 void tracker_sparql_cursor_set_connection (TrackerSparqlCursor     *cursor,
                                            TrackerSparqlConnection *connection);
 GError * _translate_internal_error (GError *error);

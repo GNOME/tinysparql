@@ -37,6 +37,7 @@ image_files = [
 private_headers = [
     'tracker-notifier-private.h',
     'tracker-private.h',
+    'tracker-serializer.h',
     'direct',
     'bus',
     'remote',
