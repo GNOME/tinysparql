@@ -128,8 +128,8 @@ class TrackerStoreCollationTests (fixtures.TrackerSparqlDirectTest):
 
 if __name__ == "__main__":
     print("""
-    TODO:
-      * Check what happens in non-english encoding
-      * Dynamic change of collation (not implemented yet in tracker)
+#    TODO:
+#      * Check what happens in non-english encoding
+#      * Dynamic change of collation
     """)
     fixtures.tracker_test_main()

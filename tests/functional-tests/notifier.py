@@ -100,7 +100,6 @@ class TrackerNotifierTests():
         self.assertEqual(len(self.results_deletes), 0)
         self.assertEqual(len(self.results_inserts), 1)
         self.assertEqual(len(self.results_updates), 0)
-        print(self.results_inserts[0])
         assert self.results_inserts[0].get_urn() == 'test://signals-contact-add'
 
     def test_02_remove_contact(self):
