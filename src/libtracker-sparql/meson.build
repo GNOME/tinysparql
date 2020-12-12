@@ -26,6 +26,7 @@ libtracker_sparql_c_sources = files(
     'tracker-resource.c',
     'tracker-statement.c',
     'tracker-serializer.c',
+    'tracker-serializer-json.c',
     'tracker-uri.c',
     'tracker-utils.c',
     'tracker-version.c',

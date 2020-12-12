@@ -38,6 +38,7 @@ private_headers = [
     'tracker-notifier-private.h',
     'tracker-private.h',
     'tracker-serializer.h',
+    'tracker-serializer-json.h',
     'direct',
     'bus',
     'remote',
