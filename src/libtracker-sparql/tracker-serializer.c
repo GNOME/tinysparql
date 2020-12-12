@@ -22,6 +22,8 @@
 #include "config.h"
 
 #include "tracker-serializer.h"
+#include "tracker-serializer-json.h"
+#include "tracker-serializer-xml.h"
 
 #include "tracker-private.h"
 
@@ -125,7 +127,23 @@ GInputStream *
 tracker_serializer_new (TrackerSparqlCursor     *cursor,
                         TrackerSerializerFormat  format)
 {
-	return NULL;
+	GType type;
+
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CURSOR (cursor), NULL);
+
+	switch (format) {
+	case TRACKER_SERIALIZER_FORMAT_JSON:
+		type = TRACKER_TYPE_SERIALIZER_JSON;
+		break;
+	case TRACKER_SERIALIZER_FORMAT_XML:
+		type = TRACKER_TYPE_SERIALIZER_XML;
+		break;
+	default:
+		g_warn_if_reached ();
+		return NULL;
+	}
+
+	return g_object_new (type, "cursor", cursor, NULL);
 }
 
 TrackerSparqlCursor *
