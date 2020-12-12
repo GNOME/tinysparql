@@ -42,6 +42,7 @@ static gboolean session_bus = FALSE;
 static gboolean system_bus = FALSE;
 static gboolean name_owned = FALSE;
 static gboolean list = FALSE;
+static gint http_port = -1;
 
 static GOptionEntry entries[] = {
 	{ "database", 'd', 0, G_OPTION_ARG_FILENAME, &database_path,
@@ -59,6 +60,10 @@ static GOptionEntry entries[] = {
 	{ "ontology-path", 'p', 0, G_OPTION_ARG_FILENAME, &ontology_path,
 	  N_("Specify a path to an ontology to be used in this endpoint"),
 	  N_("DIR")
+	},
+	{ "http-port", 0, 0, G_OPTION_ARG_INT, &http_port,
+	  N_("HTTP port"),
+	  NULL
 	},
 	{ "session", 0, 0, G_OPTION_ARG_NONE, &session_bus,
 	  N_("Use session bus"),
@@ -100,6 +105,12 @@ sanity_check (void)
 		return FALSE;
 	}
 
+	if (http_port > 0 && dbus_service) {
+		/* TRANSLATORS: those are commandline arguments */
+		g_printerr ("%s\n", _("--http-port cannot be used with --dbus-service"));
+		return FALSE;
+	}
+
 	return TRUE;
 }
 
@@ -127,6 +138,53 @@ name_lost_cb (GDBusConnection *connection,
 {
 	name_owned = FALSE;
 	g_main_loop_quit (user_data);
+}
+
+static gboolean
+run_http_endpoint (TrackerSparqlConnection  *connection,
+                   GError                  **error)
+{
+	TrackerEndpoint *endpoint = NULL;
+	g_autoptr(GMainLoop) main_loop = NULL;
+	GError *inner_error = NULL;
+	GInetAddress *loopback;
+	gchar *loopback_str, *address;
+
+	loopback = g_inet_address_new_loopback (G_SOCKET_FAMILY_IPV4);
+	loopback_str = g_inet_address_to_string (loopback);
+	address = g_strdup_printf ("http://%s:%d/sparql/",
+				   loopback_str,
+				   http_port);
+
+	g_print (_("Creating HTTP endpoint at %s…"), address);
+	g_print ("\n");
+	g_free (address);
+	g_free (loopback_str);
+	g_object_unref (loopback);
+
+	endpoint = TRACKER_ENDPOINT (tracker_endpoint_http_new (connection,
+	                                                        http_port,
+	                                                        NULL, NULL, &inner_error));
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	main_loop = g_main_loop_new (NULL, FALSE);
+
+	g_print ("%s\n", _("Listening to SPARQL commands. Press Ctrl-C to stop."));
+
+	g_unix_signal_add (SIGINT, sigterm_cb, main_loop);
+	g_unix_signal_add (SIGTERM, sigterm_cb, main_loop);
+
+	g_main_loop_run (main_loop);
+
+	/* Carriage return, so we paper over the ^C */
+	g_print ("\r%s\n", _("Closing connection…"));
+	g_clear_object (&endpoint);
+
+	return TRUE;
 }
 
 static gboolean
@@ -345,7 +403,14 @@ tracker_endpoint (int argc, const char **argv)
 		return EXIT_FAILURE;
 	}
 
-	if (dbus_service) {
+	if (http_port > 0) {
+		run_http_endpoint (connection, &error);
+
+		if (error) {
+			g_printerr ("%s\n", error->message);
+			g_error_free (error);
+		}
+	} else if (dbus_service) {
 		run_endpoint (connection, &error);
 
 		if (error) {
