@@ -11,6 +11,8 @@ tracker3 endpoint [--dbus-service | -b] <service_name>
                   [--database-path | -d] <database_path>
                   [[--ontology | -o] <ontology_name> |
                    [--ontology-path | -p] <ontology_path>]
+                  [--http-port] <port>
+                  [--loopback]
                   [[--system | --session]]
 ....
 
@@ -48,6 +50,11 @@ The database itself will be stored according to _database_path_.
   Use the system bus.
 *-l, --list*::
   List all SPARQL endpoints available in DBus
+*--http-port*::
+  Creates a HTTP endpoint that listens in the specified port
+*--loopback*::
+  Allows only HTTP connections in the loopback device. Only
+  effective with HTTP endpoints.
 
 == EXAMPLES
 
@@ -61,6 +68,17 @@ Access this endpoint with the *tracker3-sparql(1)* subcommand.
     SELECT ?s ?o
     WHERE {
       ?u a ?o
+    }"
+
+Export a Nepomuk endpoint via HTTP.
+
+  $ tracker3 endpoint --http-port 8080 -o nepomuk --loopback
+
+Access this endpoint via HTTP.
+
+  $ tracker3 sparql --remote-service http://127.0.0.1:8080/sparql -q "
+    SELECT ?u {
+      ?u a rdfs:Resource
     }"
 
 == SEE ALSO
