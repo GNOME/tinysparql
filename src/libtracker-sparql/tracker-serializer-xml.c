@@ -125,7 +125,7 @@ serialize_up_to_position (TrackerSerializerXml  *serializer_xml,
 		xmlTextWriterStartElement (serializer_xml->writer, "result");
 
 		for (i = 0; i < tracker_sparql_cursor_get_n_columns (cursor); i++) {
-			const gchar *var, *str, *type, *datatype = NULL;
+			const gchar *var, *str, *type = NULL, *datatype = NULL;
 
 			if (tracker_sparql_cursor_get_value_type (cursor, i) == TRACKER_SPARQL_VALUE_TYPE_UNBOUND)
 				continue;
