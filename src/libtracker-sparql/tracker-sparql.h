@@ -30,6 +30,7 @@
 #include <libtracker-sparql/tracker-cursor.h>
 #include <libtracker-sparql/tracker-endpoint.h>
 #include <libtracker-sparql/tracker-endpoint-dbus.h>
+#include <libtracker-sparql/tracker-endpoint-http.h>
 #include <libtracker-sparql/tracker-version.h>
 #include <libtracker-sparql/tracker-ontologies.h>
 #include <libtracker-sparql/tracker-resource.h>

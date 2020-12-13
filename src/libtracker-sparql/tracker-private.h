@@ -180,6 +180,12 @@ struct _TrackerEndpointDBusClass {
 	gchar * (* add_prologue) (TrackerEndpointDBus *endpoint_dbus);
 };
 
+typedef struct _TrackerEndpointHttpClass TrackerEndpointHttpClass;
+
+struct _TrackerEndpointHttpClass {
+	struct _TrackerEndpointClass parent_class;
+};
+
 typedef struct _TrackerResourceClass TrackerResourceClass;
 
 struct _TrackerResourceClass
@@ -248,6 +254,12 @@ struct _TrackerBatchClass {
 	gboolean (* execute_finish) (TrackerBatch  *batch,
 				     GAsyncResult  *res,
 				     GError       **error);
+};
+
+typedef struct _TrackerSerializerClass TrackerSerializerClass;
+
+struct _TrackerSerializerClass {
+	GInputStreamClass parent_class;
 };
 
 void tracker_sparql_cursor_set_connection (TrackerSparqlCursor     *cursor,

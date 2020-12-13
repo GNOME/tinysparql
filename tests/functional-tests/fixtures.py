@@ -275,6 +275,12 @@ class TrackerCommandLineTestCase(ut.TestCase):
         path = self.env.get('PATH', []).split(':')
         self.env['PATH'] = ':'.join([cfg.cli_dir()] + path)
         self.env['TRACKER_CLI_SUBCOMMANDS_DIR'] = os.path.join(cfg.cli_dir(), 'subcommands')
+        self.bg_processes = []
+
+    def tearDown(self):
+        for bg_process in self.bg_processes:
+            bg_process.terminate()
+            bg_process.wait()
 
     @contextlib.contextmanager
     def tmpdir(self):
@@ -306,3 +312,26 @@ class TrackerCommandLineTestCase(ut.TestCase):
                 "Error: %s" % result.stderr.decode('utf-8')]))
 
         return result.stdout.decode('utf-8')
+
+    def run_background(self, command, init_string=None):
+        command = [str(c) for c in command]
+        log.info("Running in background: %s", ' '.join(command))
+        result = subprocess.Popen(
+            command, stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL, env=self.env,
+            encoding='UTF-8')
+        initialized = False
+
+        if result.returncode != None:
+            raise CliError('\n'.join([
+                "CLI command failed.",
+                "Command: %s" % ' '.join(command),
+                "Error: %s" % result.stderr.decode('utf-8')]))
+
+        # Wait for the specified output
+        while init_string and not initialized:
+            txt = result.stdout.readline();
+            initialized = txt.find(init_string) >= 0
+
+        result.stdout.close()
+        self.bg_processes.append(result);

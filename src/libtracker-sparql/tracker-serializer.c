@@ -1,0 +1,158 @@
+/*
+ * Copyright (C) 2020, Red Hat, Inc
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA  02110-1301, USA.
+ *
+ * Author: Carlos Garnacho <carlosg@gnome.org>
+ */
+
+#include "config.h"
+
+#include "tracker-serializer.h"
+#include "tracker-serializer-json.h"
+#include "tracker-serializer-xml.h"
+
+#include "tracker-private.h"
+
+enum {
+	PROP_0,
+	PROP_CURSOR,
+	N_PROPS
+};
+
+static GParamSpec *props[N_PROPS];
+
+typedef struct _TrackerSerializerPrivate TrackerSerializerPrivate;
+
+struct _TrackerSerializerPrivate
+{
+	TrackerSparqlCursor *cursor;
+};
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (TrackerSerializer, tracker_serializer,
+                                     G_TYPE_INPUT_STREAM)
+
+static void
+tracker_serializer_finalize (GObject *object)
+{
+	TrackerSerializer *serializer = TRACKER_SERIALIZER (object);
+	TrackerSerializerPrivate *priv =
+		tracker_serializer_get_instance_private (serializer);
+
+	g_object_unref (priv->cursor);
+
+	G_OBJECT_CLASS (tracker_serializer_parent_class)->finalize (object);
+}
+static void
+tracker_serializer_set_property (GObject      *object,
+                                 guint         prop_id,
+                                 const GValue *value,
+                                 GParamSpec   *pspec)
+{
+	TrackerSerializer *serializer = TRACKER_SERIALIZER (object);
+	TrackerSerializerPrivate *priv =
+		tracker_serializer_get_instance_private (serializer);
+
+	switch (prop_id) {
+	case PROP_CURSOR:
+		priv->cursor = g_value_get_object (value);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
+tracker_serializer_get_property (GObject    *object,
+                                 guint       prop_id,
+                                 GValue     *value,
+                                 GParamSpec *pspec)
+{
+	TrackerSerializer *serializer = TRACKER_SERIALIZER (object);
+	TrackerSerializerPrivate *priv =
+		tracker_serializer_get_instance_private (serializer);
+
+	switch (prop_id) {
+	case PROP_CURSOR:
+		g_value_set_object (value, priv->cursor);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+		break;
+	}
+}
+
+static void
+tracker_serializer_class_init (TrackerSerializerClass *klass)
+{
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+	object_class->finalize = tracker_serializer_finalize;
+	object_class->set_property = tracker_serializer_set_property;
+	object_class->get_property = tracker_serializer_get_property;
+
+	props[PROP_CURSOR] =
+		g_param_spec_object ("cursor",
+		                     "cursor",
+		                     "cursor",
+		                     TRACKER_TYPE_SPARQL_CURSOR,
+		                     G_PARAM_CONSTRUCT_ONLY |
+		                     G_PARAM_STATIC_STRINGS |
+		                     G_PARAM_READABLE |
+		                     G_PARAM_WRITABLE);
+
+	g_object_class_install_properties (object_class, N_PROPS, props);
+}
+
+static void
+tracker_serializer_init (TrackerSerializer *serializer)
+{
+}
+
+GInputStream *
+tracker_serializer_new (TrackerSparqlCursor     *cursor,
+                        TrackerSerializerFormat  format)
+{
+	GType type;
+
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CURSOR (cursor), NULL);
+
+	switch (format) {
+	case TRACKER_SERIALIZER_FORMAT_JSON:
+		type = TRACKER_TYPE_SERIALIZER_JSON;
+		break;
+	case TRACKER_SERIALIZER_FORMAT_XML:
+		type = TRACKER_TYPE_SERIALIZER_XML;
+		break;
+	default:
+		g_warn_if_reached ();
+		return NULL;
+	}
+
+	return g_object_new (type, "cursor", cursor, NULL);
+}
+
+TrackerSparqlCursor *
+tracker_serializer_get_cursor (TrackerSerializer *serializer)
+{
+	TrackerSerializerPrivate *priv =
+		tracker_serializer_get_instance_private (serializer);
+
+	g_return_val_if_fail (TRACKER_IS_SERIALIZER (serializer), NULL);
+
+	return priv->cursor;
+}

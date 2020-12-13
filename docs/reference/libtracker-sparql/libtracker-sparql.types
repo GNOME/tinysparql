@@ -2,6 +2,7 @@
 
 tracker_endpoint_get_type
 tracker_endpoint_dbus_get_type
+tracker_endpoint_http_get_type
 tracker_namespace_manager_get_type
 tracker_notifier_get_type
 tracker_notifier_event_get_type
