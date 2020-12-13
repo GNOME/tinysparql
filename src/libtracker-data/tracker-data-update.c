@@ -84,7 +84,6 @@ struct _TrackerDataUpdateBufferResource {
 struct _TrackerDataUpdateBufferProperty {
 	const gchar *name;
 	GValue value;
-	guint date_time : 1;
 	guint delete_all_values : 1;
 };
 
@@ -144,8 +143,7 @@ static void         cache_insert_value         (TrackerData      *data,
                                                 const gchar      *table_name,
                                                 const gchar      *field_name,
                                                 GValue           *value,
-                                                gboolean          multiple_values,
-                                                gboolean          date_time);
+                                                gboolean          multiple_values);
 static GArray      *get_old_property_values    (TrackerData      *data,
                                                 TrackerProperty  *property,
                                                 GError          **error);
@@ -570,7 +568,7 @@ cache_ensure_table (TrackerData *data,
 		g_value_init (&gvalue, G_TYPE_INT64);
 		g_value_set_int64 (&gvalue, get_transaction_modseq (data));
 		cache_insert_value (data, "rdfs:Resource", "nrl:modified",
-		                    &gvalue, FALSE, FALSE);
+		                    &gvalue, FALSE);
 	}
 
 	table = g_hash_table_lookup (data->resource_buffer->tables, table_name);
@@ -599,8 +597,7 @@ cache_insert_value (TrackerData *data,
                     const gchar *table_name,
                     const gchar *field_name,
                     GValue      *value,
-                    gboolean     multiple_values,
-                    gboolean     date_time)
+                    gboolean     multiple_values)
 {
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty  property = { 0 };
@@ -611,7 +608,6 @@ cache_insert_value (TrackerData *data,
 
 	g_value_init (&property.value, G_VALUE_TYPE (value));
 	g_value_copy (value, &property.value);
-	property.date_time = date_time;
 
 	table = cache_ensure_table (data, table_name, multiple_values);
 	g_array_append_val (table->properties, property);
@@ -632,14 +628,12 @@ cache_delete_row (TrackerData  *data,
 static void
 cache_delete_all_values (TrackerData *data,
                          const gchar *table_name,
-                         const gchar *field_name,
-                         gboolean     date_time)
+                         const gchar *field_name)
 {
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty  property = { 0 };
 
 	property.name = field_name;
-	property.date_time = date_time;
 	property.delete_all_values = TRUE;
 
 	table = cache_ensure_table (data, table_name, TRUE);
@@ -652,8 +646,7 @@ cache_delete_value (TrackerData *data,
                     const gchar *table_name,
                     const gchar *field_name,
                     GValue      *value,
-                    gboolean     multiple_values,
-                    gboolean     date_time)
+                    gboolean     multiple_values)
 {
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty  property = { 0 };
@@ -662,7 +655,6 @@ cache_delete_value (TrackerData *data,
 
 	g_value_init (&property.value, G_VALUE_TYPE (value));
 	g_value_copy (value, &property.value);
-	property.date_time = date_time;
 
 	table = cache_ensure_table (data, table_name, multiple_values);
 	table->delete_value = TRUE;
@@ -1161,7 +1153,7 @@ cache_create_service_decomposed (TrackerData  *data,
 
 	g_value_set_int64 (&gvalue, class_id);
 	cache_insert_value (data, "rdfs:Resource_rdf:type", "rdf:type",
-	                    &gvalue, TRUE, FALSE);
+	                    &gvalue, TRUE);
 
 	tracker_data_dispatch_insert_statement_callbacks (data,
 	                                                  tracker_property_get_id (tracker_ontologies_get_rdf_type (ontologies)),
@@ -1209,8 +1201,7 @@ cache_create_service_decomposed (TrackerData  *data,
 			                    tracker_class_get_name (cl),
 			                    tracker_property_get_name (*domain_indexes),
 			                    v,
-			                    tracker_property_get_multiple_values (*domain_indexes),
-			                    tracker_property_get_data_type (*domain_indexes) == TRACKER_PROPERTY_TYPE_DATETIME);
+			                    tracker_property_get_multiple_values (*domain_indexes));
 		}
 
 		domain_indexes++;
@@ -1681,8 +1672,7 @@ process_domain_indexes (TrackerData     *data,
 			                    tracker_class_get_name (*domain_index_classes),
 			                    field_name,
 			                    gvalue,
-			                    FALSE,
-			                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+			                    FALSE);
 		}
 		domain_index_classes++;
 	}
@@ -1786,8 +1776,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 	} else {
 		cache_insert_value (data, table_name, field_name,
 		                    &value,
-		                    multiple_values,
-		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+		                    multiple_values);
 
 		if (!multiple_values) {
 			process_domain_indexes (data, property, &value, field_name);
@@ -1840,8 +1829,7 @@ delete_metadata_decomposed (TrackerData      *data,
 		/* value not found */
 	} else {
 		cache_delete_value (data, table_name, field_name,
-		                    &value, multiple_values,
-		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+		                    &value, multiple_values);
 
 		if (!multiple_values) {
 			TrackerClass **domain_index_classes;
@@ -1853,8 +1841,7 @@ delete_metadata_decomposed (TrackerData      *data,
 					cache_delete_value (data,
 					                    tracker_class_get_name (*domain_index_classes),
 					                    field_name,
-					                    &value, multiple_values,
-					                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+					                    &value, multiple_values);
 				}
 				domain_index_classes++;
 			}
@@ -1995,8 +1982,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 
 			value_set_remove_value (old_values, old_gvalue);
 			cache_delete_value (data, table_name, field_name,
-			                    &copy, multiple_values,
-			                    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_DATETIME);
+			                    &copy, multiple_values);
 
 			if (!multiple_values) {
 				TrackerClass **domain_index_classes;
@@ -2007,8 +1993,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 						cache_delete_value (data,
 						                    tracker_class_get_name (*domain_index_classes),
 						                    field_name,
-						                    &copy, multiple_values,
-						                    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_DATETIME);
+						                    &copy, multiple_values);
 					}
 					domain_index_classes++;
 				}
@@ -2244,15 +2229,13 @@ tracker_data_delete_all (TrackerData  *data,
 	if (tracker_property_get_multiple_values (property)) {
 		cache_delete_all_values (data,
 		                         tracker_property_get_table_name (property),
-		                         tracker_property_get_name (property),
-		                         tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+		                         tracker_property_get_name (property));
 	} else {
 		cache_delete_value (data,
 		                    tracker_property_get_table_name (property),
 		                    tracker_property_get_name (property),
 		                    &g_array_index (old_values, GValue, 0),
-		                    FALSE,
-		                    tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+		                    FALSE);
 	}
 
 	return TRUE;
@@ -2278,8 +2261,7 @@ delete_single_valued (TrackerData  *data,
 	if (super_is_single_valued && multiple_values) {
 		cache_delete_all_values (data,
 		                         tracker_property_get_table_name (field),
-		                         tracker_property_get_name (field),
-		                         tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_DATETIME);
+		                         tracker_property_get_name (field));
 	} else if (!multiple_values) {
 		GError *inner_error = NULL;
 		GArray *old_values;
@@ -2291,8 +2273,7 @@ delete_single_valued (TrackerData  *data,
 			                    tracker_property_get_table_name (field),
 			                    tracker_property_get_name (field),
 			                    &g_array_index (old_values, GValue, 0),
-			                    FALSE,
-			                    tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_DATETIME);
+			                    FALSE);
 		} else {
 			/* no need to error out if statement does not exist for any reason */
 			g_clear_error (&inner_error);
@@ -2530,8 +2511,7 @@ tracker_data_update_statement (TrackerData  *data,
 
 			cache_delete_all_values (data,
 			                         tracker_property_get_table_name (property),
-			                         tracker_property_get_name (property),
-			                         tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME);
+			                         tracker_property_get_name (property));
 		} else {
 			if (!resource_buffer_switch (data, graph, subject, error))
 				return;
