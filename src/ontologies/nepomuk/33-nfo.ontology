@@ -299,7 +299,7 @@ nfo:commentCharacterCount a rdf:Property ;
 
 nfo:duration a rdf:Property ;
 	rdfs:label "duration" ;
-	rdfs:comment "Duration of a media piece." ;
+	rdfs:comment "Duration of a media piece, measured in seconds." ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nfo:Media ;
 	rdfs:range xsd:integer .
