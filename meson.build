@@ -78,7 +78,7 @@ if get_option('buildtype') == 'plain'
   # Default case is to allow TRACKER_DEBUG which is very useful for
   # triaging user-reported issues.
   # Use --buildtype=release to disable debug completely.
-  debug = 1
+  debug = true
 else
   debug = get_option('debug')
 endif
