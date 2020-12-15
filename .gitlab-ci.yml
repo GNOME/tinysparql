@@ -62,6 +62,10 @@ test-ubuntu-rolling:
   image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/ubuntu:rolling
   <<: *test
 
+test-fedora-rawhide:
+  image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:rawhide
+  <<: *test
+
 coverage-analysis:
   stage: analysis
   image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:latest
