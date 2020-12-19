@@ -2189,6 +2189,65 @@ tracker_data_delete_statement (TrackerData  *data,
 }
 
 static gboolean
+delete_all_helper (TrackerData      *data,
+                   const gchar      *graph,
+                   const gchar      *subject,
+                   TrackerProperty  *subproperty,
+                   TrackerProperty  *property,
+                   GArray           *old_values,
+                   GError          **error)
+{
+	TrackerProperty **super_properties;
+	GArray *super_old_values;
+	GValue *value;
+	gint i;
+
+	if (subproperty == property) {
+		if (tracker_property_get_multiple_values (property)) {
+			cache_delete_all_values (data,
+			                         tracker_property_get_table_name (property),
+			                         tracker_property_get_name (property));
+		} else {
+			cache_delete_value (data,
+			                    tracker_property_get_table_name (property),
+			                    tracker_property_get_name (property),
+			                    &g_array_index (old_values, GValue, 0),
+			                    FALSE);
+		}
+	} else {
+		super_old_values = get_old_property_values (data, property, error);
+		if (!super_old_values)
+			return FALSE;
+
+		for (i = 0; i < old_values->len; i++) {
+			value = &g_array_index (old_values, GValue, i);
+
+			if (!value_set_remove_value (super_old_values, value))
+				continue;
+
+			cache_delete_value (data,
+			                    tracker_property_get_table_name (property),
+			                    tracker_property_get_name (property),
+			                    value,
+			                    tracker_property_get_multiple_values (property));
+		}
+	}
+
+	/* also delete super property values */
+	super_properties = tracker_property_get_super_properties (property);
+	while (*super_properties) {
+		if (!delete_all_helper (data, graph, subject,
+		                        subproperty, *super_properties,
+		                        old_values, error))
+			return FALSE;
+
+		super_properties++;
+	}
+
+	return TRUE;
+}
+
+static gboolean
 tracker_data_delete_all (TrackerData  *data,
                          const gchar  *graph,
                          const gchar  *subject,
@@ -2226,19 +2285,9 @@ tracker_data_delete_all (TrackerData  *data,
 		return FALSE;
 	}
 
-	if (tracker_property_get_multiple_values (property)) {
-		cache_delete_all_values (data,
-		                         tracker_property_get_table_name (property),
-		                         tracker_property_get_name (property));
-	} else {
-		cache_delete_value (data,
-		                    tracker_property_get_table_name (property),
-		                    tracker_property_get_name (property),
-		                    &g_array_index (old_values, GValue, 0),
-		                    FALSE);
-	}
-
-	return TRUE;
+	return delete_all_helper (data, graph, subject,
+	                          property, property,
+	                          old_values, error);
 }
 
 static gboolean
