@@ -2763,191 +2763,6 @@ schedule_copy (GPtrArray *schedule,
 }
 
 static void
-create_insert_delete_triggers (TrackerDBInterface  *iface,
-                               const gchar         *database,
-                               const gchar         *table_name,
-                               const gchar * const *properties,
-                               gint                 n_properties,
-                               GError             **error)
-{
-	GError *internal_error = NULL;
-	GString *trigger_query;
-	gint i;
-
-	/* Insert trigger */
-	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    "DROP TRIGGER IF EXISTS \"%s\".\"trigger_insert_%s\" ",
-	                                    database,
-	                                    table_name);
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	trigger_query = g_string_new (NULL);
-	g_string_append_printf (trigger_query,
-	                        "CREATE TRIGGER \"%s\".\"trigger_insert_%s\" "
-	                        "AFTER INSERT ON \"%s\" "
-	                        "FOR EACH ROW BEGIN ",
-	                        database, table_name,
-	                        table_name);
-	for (i = 0; i < n_properties; i++) {
-		g_string_append_printf (trigger_query,
-		                        "INSERT OR IGNORE INTO Refcount (ROWID, Refcount) "
-		                        "SELECT NEW.\"%s\", 0 WHERE NEW.\"%s\" IS NOT NULL; "
-		                        "UPDATE Refcount SET Refcount = Refcount + 1 WHERE Refcount.ROWID = NEW.\"%s\"; ",
-		                        properties[i],
-		                        properties[i],
-		                        properties[i]);
-	}
-
-	g_string_append (trigger_query, "END; ");
-	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    "%s", trigger_query->str);
-	g_string_free (trigger_query, TRUE);
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	/* Delete trigger */
-	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    "DROP TRIGGER IF EXISTS \"%s\".\"trigger_delete_%s\" ",
-	                                    database,
-	                                    table_name);
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	trigger_query = g_string_new (NULL);
-	g_string_append_printf (trigger_query,
-	                        "CREATE TRIGGER \"%s\".\"trigger_delete_%s\" "
-	                        "AFTER DELETE ON \"%s\" "
-	                        "FOR EACH ROW BEGIN ",
-	                        database, table_name,
-	                        table_name);
-	for (i = 0; i < n_properties; i++) {
-		g_string_append_printf (trigger_query,
-		                        "UPDATE Refcount SET Refcount = Refcount - 1 WHERE Refcount.rowid = OLD.\"%s\"; "
-		                        "DELETE FROM Refcount WHERE Refcount.ROWID = OLD.\"%s\" AND Refcount.Refcount = 0; ",
-		                        properties[i], properties[i]);
-	}
-
-	g_string_append (trigger_query, "END; ");
-	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    "%s", trigger_query->str);
-	g_string_free (trigger_query, TRUE);
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-}
-
-static void
-create_table_triggers (TrackerDataManager  *manager,
-                       TrackerDBInterface  *iface,
-                       const gchar         *database,
-                       TrackerClass        *klass,
-                       GError             **error)
-{
-	const gchar *property_name;
-	TrackerProperty **properties, *property;
-	GError *internal_error = NULL;
-	GPtrArray *trigger_properties;
-	guint i, n_props;
-
-	trigger_properties = g_ptr_array_new ();
-	g_ptr_array_add (trigger_properties, "ROWID");
-
-	properties = tracker_ontologies_get_properties (manager->ontologies, &n_props);
-
-	for (i = 0; i < n_props; i++) {
-		gboolean multivalued;
-		gchar *table_name;
-
-		property = properties[i];
-
-		if (tracker_property_get_domain (property) != klass ||
-		    tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE)
-			continue;
-
-		property_name = tracker_property_get_name (property);
-		multivalued = tracker_property_get_multiple_values (property);
-
-		if (multivalued) {
-			const gchar * const properties[] = { "ID", property_name };
-
-			table_name = g_strdup_printf ("%s_%s",
-			                              tracker_class_get_name (klass),
-			                              property_name);
-
-			create_insert_delete_triggers (iface, database, table_name, properties,
-			                               G_N_ELEMENTS (properties),
-			                               &internal_error);
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
-				g_ptr_array_unref (trigger_properties);
-				g_free (table_name);
-				return;
-			}
-		} else {
-			table_name = g_strdup (tracker_class_get_name (klass));
-			g_ptr_array_add (trigger_properties, (gchar *) property_name);
-		}
-
-		tracker_db_interface_execute_query (iface, &internal_error,
-		                                    "DROP TRIGGER IF EXISTS \"trigger_update_%s_%s\"",
-		                                    tracker_class_get_name (klass),
-		                                    property_name);
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			g_ptr_array_unref (trigger_properties);
-			g_free (table_name);
-			return;
-		}
-
-		tracker_db_interface_execute_query (iface, &internal_error,
-		                                    "CREATE TRIGGER \"%s\".\"trigger_update_%s_%s\" "
-		                                    "AFTER UPDATE OF \"%s\" ON \"%s\" "
-		                                    "FOR EACH ROW BEGIN "
-		                                    "INSERT OR IGNORE INTO Refcount (ROWID, Refcount) "
-		                                    "SELECT NEW.\"%s\", 0 WHERE NEW.\"%s\" IS NOT NULL; "
-		                                    "UPDATE Refcount SET Refcount = Refcount + 1 WHERE Refcount.ROWID = NEW.\"%s\"; "
-		                                    "UPDATE Refcount SET Refcount = Refcount - 1 WHERE Refcount.rowid = OLD.\"%s\";"
-		                                    "DELETE FROM Refcount WHERE Refcount.ROWID = OLD.\"%s\" AND Refcount.Refcount = 0; "
-		                                    "END",
-		                                    database,
-		                                    tracker_class_get_name (klass),
-		                                    property_name,
-		                                    property_name, table_name,
-		                                    property_name, property_name,
-		                                    property_name, property_name, property_name);
-		g_free (table_name);
-
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			g_ptr_array_unref (trigger_properties);
-			return;
-		}
-	}
-
-	create_insert_delete_triggers (iface, database,
-	                               tracker_class_get_name (klass),
-	                               (const gchar * const *) trigger_properties->pdata,
-	                               trigger_properties->len,
-	                               &internal_error);
-	g_ptr_array_unref (trigger_properties);
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-}
-
-static void
 create_decomposed_metadata_tables (TrackerDataManager  *manager,
                                    TrackerDBInterface  *iface,
                                    const gchar         *database,
@@ -3250,18 +3065,10 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		}
 	}
 
-	if (!in_update || in_change || tracker_class_get_is_new (service)) {
-		/* FIXME: We are trusting object refcount will stay intact across
-		 * ontology changes. One situation where this is not true are
-		 * removal or properties with rdfs:Resource range.
-		 */
-		create_table_triggers (manager, iface, database, service, &internal_error);
-
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			goto error_out;
-		}
-	}
+	/* FIXME: We are trusting object refcount will stay intact across
+	 * ontology changes. One situation where this is not true are
+	 * removal or properties with rdfs:Resource range.
+	 */
 
 	if (copy_schedule) {
 		guint i;
@@ -4924,7 +4731,7 @@ tracker_data_manager_clear_graph (TrackerDataManager  *manager,
 		                                               graph,
 		                                               tracker_class_get_name (classes[i]));
 		if (!stmt)
-			break;
+			goto out;
 
 		tracker_db_statement_execute (stmt, &inner_error);
 		g_object_unref (stmt);
@@ -4943,11 +4750,17 @@ tracker_data_manager_clear_graph (TrackerDataManager  *manager,
 		                                               tracker_class_get_name (service),
 		                                               tracker_property_get_name (properties[i]));
 		if (!stmt)
-			break;
+			goto out;
 
 		tracker_db_statement_execute (stmt, &inner_error);
 		g_object_unref (stmt);
 	}
+
+	tracker_db_interface_execute_query (iface,
+					    &inner_error,
+					    "DELETE FROM \"%s\".Refcount",
+					    graph);
+out:
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -5018,12 +4831,30 @@ tracker_data_manager_copy_graph (TrackerDataManager  *manager,
 		                                               tracker_class_get_name (service),
 		                                               tracker_property_get_name (properties[i]));
 		if (!stmt)
-			break;
+			goto out;
 
 		tracker_db_statement_execute (stmt, &inner_error);
 		g_object_unref (stmt);
 	}
 
+	/* Transfer refcounts */
+	tracker_db_interface_execute_query (iface,
+					    &inner_error,
+					    "INSERT OR IGNORE INTO \"%s\".Refcount "
+					    "SELECT ID, 0 from \"%s\".Refcount",
+					    destination,
+					    source);
+	if (inner_error)
+		goto out;
+
+	tracker_db_interface_execute_query (iface,
+					    &inner_error,
+					    "UPDATE \"%s\".Refcount AS B "
+					    "SET Refcount = B.Refcount + A.Refcount "
+					    "FROM (SELECT ID, Refcount FROM \"%s\".Refcount) AS A "
+					    "WHERE B.ID = A.ID",
+					    destination, source);
+out:
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
