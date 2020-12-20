@@ -3005,11 +3005,8 @@ update_resource_single (TrackerData      *data,
 		                          subject, "rdf:type",
 		                          visited, bnodes,
 		                          &inner_error);
-
-		if (inner_error) {
-			g_propagate_error (error, inner_error);
-			return FALSE;
-		}
+		if (inner_error)
+			goto out;
 	}
 
 	if (!is_bnode) {
@@ -3057,9 +3054,10 @@ update_resource_single (TrackerData      *data,
 			break;
 	}
 
-	g_list_free (properties);
-
 out:
+	g_list_free (properties);
+	g_free (graph_uri);
+
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
