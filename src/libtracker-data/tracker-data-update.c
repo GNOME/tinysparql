@@ -1102,7 +1102,7 @@ tracker_data_update_buffer_might_flush (TrackerData  *data,
 		graph = g_ptr_array_index (data->update_buffer.graphs, i);
 		count += g_hash_table_size (graph->resources);
 
-		if (count >= 1000) {
+		if (count >= 50) {
 			tracker_data_update_buffer_flush (data, error);
 			break;
 		}
