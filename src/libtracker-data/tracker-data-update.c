@@ -2244,6 +2244,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 		    g_hash_table_size (data->resource_buffer->tables) == 0) {
 #if HAVE_TRACKER_FTS
 			tracker_db_interface_sqlite_fts_delete_id (iface, data->resource_buffer->id);
+			data->resource_buffer->fts_updated = TRUE;
 #endif
 			/* skip subclass query when deleting whole resource
 			   to improve performance */
