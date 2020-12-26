@@ -57,6 +57,21 @@ class TestPortal(fixtures.TrackerPortalTest):
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0][0], 'b')
 
+    def test_04_rows_cols(self):
+        self.start_service('org.freedesktop.PortalTest')
+        res = self.query(
+            'org.freedesktop.PortalTest',
+            'select ?a ?b { VALUES (?a ?b) { (1 2) (3 4) (5 6) } }')
+        self.assertEqual(len(res), 3)
+        self.assertEqual(res[0][0], '1')
+        self.assertEqual(res[0][1], '2')
+        self.assertEqual(len(res[0]), 2)
+        self.assertEqual(res[1][0], '3')
+        self.assertEqual(res[1][1], '4')
+        self.assertEqual(len(res[1]), 2)
+        self.assertEqual(res[2][0], '5')
+        self.assertEqual(res[2][1], '6')
+        self.assertEqual(len(res[2]), 2)
 
 if __name__ == '__main__':
     fixtures.tracker_test_main()
