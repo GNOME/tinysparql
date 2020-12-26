@@ -446,6 +446,7 @@ update_cb (GObject      *object,
 	                                               res, &error);
 	if (error) {
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
+		g_error_free (error);
 	} else {
 		g_dbus_method_invocation_return_value (request->invocation, NULL);
 	}

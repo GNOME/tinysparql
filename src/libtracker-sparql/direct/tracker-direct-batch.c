@@ -198,7 +198,7 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 
 	priv = tracker_direct_batch_get_instance_private (batch);
 	data = tracker_data_manager_get_data (data_manager);
-	bnodes = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_free);
+	bnodes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
 	tracker_data_begin_transaction (data, &inner_error);
 	if (inner_error)

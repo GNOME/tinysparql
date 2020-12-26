@@ -5097,10 +5097,12 @@ tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
 			expanded_ns = tracker_namespace_get_uri (namespaces[i]);
 
 			if (prefix_map)
-				g_hash_table_insert (prefix_map, ns, g_strdup (expanded_ns));
+				g_hash_table_insert (prefix_map, g_strdup (ns), g_strdup (expanded_ns));
 			break;
 		}
 	}
+
+	g_free (ns);
 
 	if (!expanded_ns) {
 		if (prefix)
@@ -5108,7 +5110,6 @@ tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
 		if (expanded)
 			*expanded = g_strdup (term);
 
-		g_free (ns);
 		return FALSE;
 	}
 

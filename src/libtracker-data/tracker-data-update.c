@@ -1625,13 +1625,12 @@ bytes_from_gvalue (GValue       *gvalue,
 			}
 
 			*bytes = g_bytes_new (bnode, strlen (bnode) + 1);
-		} else if (tracker_data_manager_expand_prefix (data->manager,
-		                                               g_value_get_string (gvalue),
-		                                               NULL, NULL,
-		                                               &expanded)) {
-			*bytes = g_bytes_new_take (expanded, strlen (expanded) + 1);
 		} else {
-			*bytes = g_bytes_new (uri, strlen (uri) + 1);
+			tracker_data_manager_expand_prefix (data->manager,
+			                                    g_value_get_string (gvalue),
+			                                    NULL, NULL,
+			                                    &expanded);
+			*bytes = g_bytes_new_take (expanded, strlen (expanded) + 1);
 		}
 	} else if (G_VALUE_HOLDS_STRING (gvalue)) {
 		const gchar *ptr;
@@ -3006,11 +3005,8 @@ update_resource_single (TrackerData      *data,
 		                          subject, "rdf:type",
 		                          visited, bnodes,
 		                          &inner_error);
-
-		if (inner_error) {
-			g_propagate_error (error, inner_error);
-			return FALSE;
-		}
+		if (inner_error)
+			goto out;
 	}
 
 	if (!is_bnode) {
@@ -3058,9 +3054,10 @@ update_resource_single (TrackerData      *data,
 			break;
 	}
 
-	g_list_free (properties);
-
 out:
+	g_list_free (properties);
+	g_free (graph_uri);
+
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
