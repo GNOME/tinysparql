@@ -69,7 +69,7 @@ class Tracker.Bus.FDCursor : Tracker.Sparql.Cursor {
 		return variable_names[column];
 	}
 
-	public override unowned string? get_string (int column, out long? length = null)
+	public override unowned string? get_string (int column, out long length = null)
 	requires (cursor_finished == false) {
 		unowned string str = null;
 
