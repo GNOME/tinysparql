@@ -868,23 +868,6 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 			GString *sql, *values_sql;
 
 			if (table->delete_row) {
-				/* remove entry from rdf:type table */
-				stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-				                                               "DELETE FROM \"%s\".\"rdfs:Resource_rdf:type\" WHERE ID = ? AND \"rdf:type\" = ?",
-				                                               database);
-
-				if (stmt) {
-					tracker_db_statement_bind_int (stmt, 0, resource->id);
-					tracker_db_statement_bind_int (stmt, 1, tracker_class_get_id (table->class));
-					tracker_db_statement_execute (stmt, &actual_error);
-					g_object_unref (stmt);
-				}
-
-				if (actual_error) {
-					g_propagate_error (error, actual_error);
-					return;
-				}
-
 				/* remove row from class table */
 				stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 				                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
@@ -1877,6 +1860,7 @@ cache_delete_resource_type_full (TrackerData  *data,
 	GError             *error = NULL;
 	TrackerOntologies  *ontologies;
 	const gchar        *database;
+	GValue gvalue = G_VALUE_INIT;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
@@ -1963,9 +1947,10 @@ cache_delete_resource_type_full (TrackerData  *data,
 
 		prop = properties[p];
 
-		if (tracker_property_get_domain (prop) != class) {
+		if (prop == tracker_ontologies_get_rdf_type (ontologies))
 			continue;
-		}
+		if (tracker_property_get_domain (prop) != class)
+			continue;
 
 		multiple_values = tracker_property_get_multiple_values (prop);
 		table_name = tracker_property_get_table_name (prop);
@@ -2002,6 +1987,11 @@ cache_delete_resource_type_full (TrackerData  *data,
 			g_value_unset (&copy);
 		}
 	}
+
+	g_value_init (&gvalue, G_TYPE_INT64);
+	g_value_set_int64 (&gvalue, tracker_class_get_id (class));
+	cache_delete_value (data, "rdfs:Resource_rdf:type", "rdf:type",
+	                    &gvalue, TRUE);
 
 	cache_delete_row (data, class);
 
