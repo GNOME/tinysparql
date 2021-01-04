@@ -4,14 +4,14 @@
 # This file is distributed under the same license as the tracker package.
 # Gintautas Miliauskas <gintas@akl.lt>, 2008.
 # Žygimantas Beručka <zygis@gnome.org>, 2009, 2010, 2013.
-# Aurimas Černius <aurisc4@gmail.com>, 2013-2020.
+# Aurimas Černius <aurisc4@gmail.com>, 2013-2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: HEAD\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-08-25 19:27+0000\n"
-"PO-Revision-Date: 2020-08-25 23:33+0300\n"
+"POT-Creation-Date: 2020-12-26 22:13+0000\n"
+"PO-Revision-Date: 2021-01-04 16:12+0200\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -20,73 +20,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n"
 "%100<10 || n%100>=20) ? 1 : 2)\n"
-"X-Generator: Gtranslator 3.36.0\n"
+"X-Generator: Gtranslator 3.38.0\n"
 "X-Project-Style: gnome\n"
-
-#: src/libtracker-common/tracker-utils.c:90
-msgid "unknown time"
-msgstr "nežinomas laikas"
-
-#: src/libtracker-common/tracker-utils.c:104
-#: src/libtracker-common/tracker-utils.c:155
-msgid "less than one second"
-msgstr "mažiau nei sekundė"
-
-#. Translators: this is %d days
-#: src/libtracker-common/tracker-utils.c:119
-#, c-format
-msgid " %dd"
-msgstr " %dd"
-
-#. Translators: this is %2.2d hours
-#: src/libtracker-common/tracker-utils.c:123
-#, c-format
-msgid " %2.2dh"
-msgstr " %2.2d val."
-
-#. Translators: this is %2.2d minutes
-#: src/libtracker-common/tracker-utils.c:127
-#, c-format
-msgid " %2.2dm"
-msgstr " %2.2d min."
-
-#. Translators: this is %2.2d seconds
-#: src/libtracker-common/tracker-utils.c:131
-#, c-format
-msgid " %2.2ds"
-msgstr " %2.2d s."
-
-#: src/libtracker-common/tracker-utils.c:135
-#, c-format
-msgid " %d day"
-msgid_plural " %d days"
-msgstr[0] " %d dieną"
-msgstr[1] " %d dienas"
-msgstr[2] " %d dienų"
-
-#: src/libtracker-common/tracker-utils.c:139
-#, c-format
-msgid " %2.2d hour"
-msgid_plural " %2.2d hours"
-msgstr[0] " %2.2d valandą"
-msgstr[1] " %2.2d valandas"
-msgstr[2] " %2.2d valandų"
-
-#: src/libtracker-common/tracker-utils.c:143
-#, c-format
-msgid " %2.2d minute"
-msgid_plural " %2.2d minutes"
-msgstr[0] " %2.2d minutę"
-msgstr[1] " %2.2d minutes"
-msgstr[2] " %2.2d minučių"
-
-#: src/libtracker-common/tracker-utils.c:147
-#, c-format
-msgid " %2.2d second"
-msgid_plural " %2.2d seconds"
-msgstr[0] " %2.2d sekundę"
-msgstr[1] " %2.2d sekundes"
-msgstr[2] " %2.2d sekundžių"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -102,96 +37,111 @@ msgstr " "
 msgid "Version"
 msgstr "Versija"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:299
-#: src/tracker/tracker-export.c:333 src/tracker/tracker-import.c:160
+#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
+#: src/tracker/tracker-export.c:517 src/tracker/tracker-import.c:160
 #: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
 msgid "Unrecognized options"
 msgstr "Neatpažinti parametrai"
 
-#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:44
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:47
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
-#| msgid "Only allow read based actions on the database"
 msgid "Location of the database"
 msgstr "Duomenų bazės vieta"
 
-#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
+#: src/tracker/tracker-endpoint.c:51 src/tracker/tracker-endpoint.c:63
 msgid "DIR"
 msgstr "KAT"
 
-#: src/tracker/tracker-endpoint.c:52
+#: src/tracker/tracker-endpoint.c:54
 msgid "Specify the DBus name of this endpoint"
 msgstr "Nurodykite šio taško DBus pavadinimą"
 
-#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
+#: src/tracker/tracker-endpoint.c:55 src/tracker/tracker-endpoint.c:59
 msgid "NAME"
 msgstr "PAVADINIMAS"
 
-#: src/tracker/tracker-endpoint.c:56
+#: src/tracker/tracker-endpoint.c:58
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Nurodykite šiame taške naudojamą ontologiją"
 
-#: src/tracker/tracker-endpoint.c:60
+#: src/tracker/tracker-endpoint.c:62
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "Nurodykite kelią iki šio taško ontologijos"
 
-#: src/tracker/tracker-endpoint.c:64
+#: src/tracker/tracker-endpoint.c:66
+msgid "HTTP port"
+msgstr "HTTP prievadas"
+
+#: src/tracker/tracker-endpoint.c:70
+msgid "Whether to only allow HTTP connections in the loopback device"
+msgstr "Ar leisti HTTP ryšius tik grįžtančiajame įrenginyje"
+
+#: src/tracker/tracker-endpoint.c:74
 msgid "Use session bus"
 msgstr "Naudoti seanso magistralę"
 
-#: src/tracker/tracker-endpoint.c:68
+#: src/tracker/tracker-endpoint.c:78
 msgid "Use system bus"
 msgstr "Naudoti sistemos magistralę"
 
-#: src/tracker/tracker-endpoint.c:72
+#: src/tracker/tracker-endpoint.c:82
 msgid "List SPARQL endpoints available in DBus"
 msgstr "Išvardinti SPARQL taškus, prieinamus DBus"
 
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:93
+#: src/tracker/tracker-endpoint.c:103
 msgid "--list can only be used with --session or --system"
 msgstr "--list galima naudoti tik su --session arba --system"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:99
+#: src/tracker/tracker-endpoint.c:109
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Galima nurodyti vienintelę „ontology“ arba „ontology-path“"
 
-#: src/tracker/tracker-endpoint.c:141
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:115
+msgid "--http-port cannot be used with --dbus-service"
+msgstr "--http-port negalima naudoti kartu su --dbus-service"
+
+#: src/tracker/tracker-endpoint.c:186
+#, c-format
+#| msgid "Creating endpoint at %s…"
+msgid "Creating HTTP endpoint at %s…"
+msgstr "Kuriamas HTTP prieigos taškas %s…"
+
+#: src/tracker/tracker-endpoint.c:206 src/tracker/tracker-endpoint.c:269
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "Klausoma SPARQL komandų. Paspauskite Vald-C sustabdymui."
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:214 src/tracker/tracker-endpoint.c:284
+msgid "Closing connection…"
+msgstr "Užveriamas ryšys…"
+
+#: src/tracker/tracker-endpoint.c:229
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Kuriamas taškas %s…"
 
-#: src/tracker/tracker-endpoint.c:177
-#| msgid "Could not run update"
+#: src/tracker/tracker-endpoint.c:265
 msgid "Could not own DBus name"
 msgstr "Nepavyko pasisavinti DBus pavadinimo"
 
-#: src/tracker/tracker-endpoint.c:181
-msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr "Klausoma SPARQL komandų. Paspauskite Vald-C sustabdymui."
-
-#: src/tracker/tracker-endpoint.c:191
+#: src/tracker/tracker-endpoint.c:279
 msgid "DBus name lost"
 msgstr "DBus pavadinimas prarastas"
 
-#. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:196
-#| msgid "No network connection"
-msgid "Closing connection…"
-msgstr "Užveriamas ryšys…"
-
-#: src/tracker/tracker-endpoint.c:333
+#: src/tracker/tracker-endpoint.c:421
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Atveriama duomenų bazė %s…"
 
-#: src/tracker/tracker-endpoint.c:336
-#| msgid "Backing up database"
+#: src/tracker/tracker-endpoint.c:424
 msgid "Creating in-memory database"
 msgstr "Kuriama duomenų bazė atmintyje"
 
-#: src/tracker/tracker-endpoint.c:356
+#: src/tracker/tracker-endpoint.c:451
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -199,62 +149,63 @@ msgstr ""
 "Nauja duomenų bazė sukurta. Naudokite parametrą „--dbus-service“ dalinimuisi "
 "šia duomenų baze pranešimų magistralėje."
 
-#: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
 #: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FAILAS"
 
-#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:49
 #: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "Prisijungia prie DBus tarnybos"
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "DBus tarnybos pavadinimas"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-export.c:55 src/tracker/tracker-import.c:53
 #: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "Prisijungia prie nuotolinės tarnybos"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:119
-#| msgid "Remote service to query to"
 msgid "Remote service URI"
 msgstr "Nuotolinės tarnybos URI"
 
-#: src/tracker/tracker-export.c:56
+#: src/tracker/tracker-export.c:59
 msgid "Output TriG format which includes named graph information"
 msgstr "Išvesti TriG formatu, kuriame yra grafo informacija su pavadinimais"
 
-#: src/tracker/tracker-export.c:60 src/tracker/tracker-export.c:61
+#: src/tracker/tracker-export.c:71 src/tracker/tracker-export.c:72
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:86 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-export.c:97 src/tracker/tracker-import.c:83
 #: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Nurodykite vienintelį parametrą „--database“, „--dbus-service“ arba „--"
 "remote-service“"
 
-#: src/tracker/tracker-export.c:260 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-export.c:308 src/tracker/tracker-import.c:99
 #: src/tracker/tracker-sparql.c:1115
 msgid "Could not establish a connection to Tracker"
 msgstr "Nepavyko užmegzti ryšio su „Tracker“ sistema"
 
-#: src/tracker/tracker-export.c:261 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-export.c:309 src/tracker/tracker-import.c:100
 #: src/tracker/tracker-sparql.c:1116
 msgid "No error given"
 msgstr "Nenurodyta klaida"
 
-#: src/tracker/tracker-export.c:300 src/tracker/tracker-sparql.c:1493
-#: src/tracker/tracker-sql.c:135 src/tracker/tracker-sql.c:168
+#: src/tracker/tracker-export.c:348 src/tracker/tracker-export.c:399
+#: src/tracker/tracker-export.c:412 src/tracker/tracker-export.c:422
+#: src/tracker/tracker-sparql.c:1493 src/tracker/tracker-sql.c:135
+#: src/tracker/tracker-sql.c:168
 msgid "Could not run query"
 msgstr "Nepavyko įvykdyti užklausos"
 
@@ -264,12 +215,10 @@ msgid "failed to exec “%s”: %s"
 msgstr "nepavyko įvykdyti „%s“: %s"
 
 #: src/tracker/tracker-import.c:117
-#| msgid "Could not run update"
 msgid "Could not run import"
 msgstr "Nepavyko paleisti importo"
 
 #: src/tracker/tracker-main.c:43
-#| msgid "See “tracker help <command>” to read about a specific subcommand."
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
 "Daugiau apie šią po-komandą galite perskaityti įvykdę „tracker3 help "
@@ -288,7 +237,6 @@ msgid "Export data from a Tracker database"
 msgstr "Eksportuoti duomenis iš Tracker duomenų bazės"
 
 #: src/tracker/tracker-main.c:95
-#| msgid "Export data from a Tracker database"
 msgid "Import data into a Tracker database"
 msgstr "Importuoti duomenis į Tracker duomenų bazę"
 
@@ -305,17 +253,14 @@ msgstr "Užklausti duomenų bazės žemiausiame lygyje naudojant SQL"
 
 #: src/tracker/tracker-main.c:137
 #, c-format
-#| msgid "“%s” is not a tracker command. See “tracker --help”"
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr "„%s“ nėra tracker3 komanda. Žiūrėti „tracker3 --help“"
 
 #: src/tracker/tracker-main.c:172
-#| msgid "Available tracker commands are:"
 msgid "Available tracker3 commands are:"
 msgstr "Galimos tracker3 komandos yra:"
 
 #: src/tracker/tracker-main.c:210
-#| msgid "Available tracker commands are:"
 msgid "Additional / third party commands are:"
 msgstr "Papildomos / trečiųjų šalių komandos yra:"
 
@@ -376,7 +321,6 @@ msgid "PROPERTY"
 msgstr "SAVYBĖ"
 
 #: src/tracker/tracker-sparql.c:154
-#| msgid "Retrieve classes"
 msgid "Retrieve all named graphs"
 msgstr "Gauti visus grafus su pavadinimais"
 
@@ -504,12 +448,10 @@ msgid "Indexes"
 msgstr "Indeksai"
 
 #: src/tracker/tracker-sparql.c:1316
-#| msgid "Could not list classes"
 msgid "Could not list named graphs"
 msgstr "Nepavyko išvardinti grafų su pavadinimais"
 
 #: src/tracker/tracker-sparql.c:1324
-#| msgid "No tags were found"
 msgid "No graphs were found"
 msgstr "Nerasta grafų"
 
@@ -591,9 +533,50 @@ msgid "Empty result set"
 msgstr "Tuščias rezultatas"
 
 #: src/tracker/tracker-sql.c:246
-#| msgid "An argument must be supplied"
 msgid "A database path must be specified"
 msgstr "Duomenų bazės kelias turi būti nurodytas"
+
+#~ msgid "unknown time"
+#~ msgstr "nežinomas laikas"
+
+#~ msgid "less than one second"
+#~ msgstr "mažiau nei sekundė"
+
+#~ msgid " %dd"
+#~ msgstr " %dd"
+
+#~ msgid " %2.2dh"
+#~ msgstr " %2.2d val."
+
+#~ msgid " %2.2dm"
+#~ msgstr " %2.2d min."
+
+#~ msgid " %2.2ds"
+#~ msgstr " %2.2d s."
+
+#~ msgid " %d day"
+#~ msgid_plural " %d days"
+#~ msgstr[0] " %d dieną"
+#~ msgstr[1] " %d dienas"
+#~ msgstr[2] " %d dienų"
+
+#~ msgid " %2.2d hour"
+#~ msgid_plural " %2.2d hours"
+#~ msgstr[0] " %2.2d valandą"
+#~ msgstr[1] " %2.2d valandas"
+#~ msgstr[2] " %2.2d valandų"
+
+#~ msgid " %2.2d minute"
+#~ msgid_plural " %2.2d minutes"
+#~ msgstr[0] " %2.2d minutę"
+#~ msgstr[1] " %2.2d minutes"
+#~ msgstr[2] " %2.2d minučių"
+
+#~ msgid " %2.2d second"
+#~ msgid_plural " %2.2d seconds"
+#~ msgstr[0] " %2.2d sekundę"
+#~ msgstr[1] " %2.2d sekundes"
+#~ msgstr[2] " %2.2d sekundžių"
 
 #~ msgid "Maximum size of journal"
 #~ msgstr "Didžiausias leistinas žurnalo dydis"
