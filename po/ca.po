@@ -28,7 +28,6 @@ msgstr ""
 #. * case doesn't matter. Given English media is quite common, it is
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
-#.
 #: src/libtracker-data/tracker-collation.c:333
 msgid "the|a|an"
 msgstr "the|a|an|un|uns|una|unes|el|la|els|les"
@@ -266,7 +265,7 @@ msgstr "Les ordres addicionals / de tercers són:"
 #: src/tracker/tracker-sparql.c:122
 msgid "Path to use to run a query or update from file"
 msgstr ""
-"Camí a utilitzar per executar la consulta o actualitzar des d'un fitxer"
+"Camí a utilitzar per a executar la consulta o actualitzar des d'un fitxer"
 
 #: src/tracker/tracker-sparql.c:126
 msgid "SPARQL query"
@@ -332,8 +331,8 @@ msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
 msgstr ""
-"Descriu subclasses, superclasses (es pot utilitzar amb -s per realçar les "
-"parts de l'arbre i -p per mostrar les propietats)"
+"Descriu subclasses, superclasses (es pot utilitzar amb -s per a realçar les "
+"parts de l'arbre i -p per a mostrar les propietats)"
 
 #: src/tracker/tracker-sparql.c:162
 msgid ""
@@ -521,7 +520,7 @@ msgstr ""
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
-msgstr "Camí a utilitzar per executar la consulta des d'un fitxer"
+msgstr "Camí a utilitzar per a executar la consulta des d'un fitxer"
 
 #: src/tracker/tracker-sql.c:52
 msgid "SQL query"
