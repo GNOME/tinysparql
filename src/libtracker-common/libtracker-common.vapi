@@ -97,6 +97,9 @@ namespace Tracker {
 	[CCode (cheader_filename = "libtracker-common/tracker-common.h")]
 	public void ioprio_init ();
 
+	[CCode (cheader_filename = "libtracker-common/tracker-debug.h")]
+	public uint get_debug_flags ();
+
 	[CCode (cname = "g_message", cheader_filename = "glib.h")]
 	[PrintfFormat]
 	public void message (string format, ...);
