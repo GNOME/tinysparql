@@ -1,3 +1,31 @@
+NEW in 3.1.0.alpha - 2021-01-10
+===============================
+  * Add TrackerBatch, object made to hold multiple updates
+    (in SPARQL string form, or TrackerResource) that will
+    be performed atomically.
+  * Add TrackerEndpointHttp, a TrackerEndpoint subclass to
+    implement a (readonly) SPARQL HTTP endpoint as per
+    https://www.w3.org/TR/2013/REC-sparql11-protocol-20130321/
+  * Add tracker:strip-punctuation SPARQL function
+  * Specify that nfo:duration is expressed in seconds
+  * Fix portal initialization order
+  * Improve TTL parser
+  * Improve date/time parsing
+  * Make handling of large series of UPDATEs iteratively
+    to avoid stack size limits
+  * Improve parallelization of queries
+  * Optimize idempotent DELETE operations
+  * Optimize insert operations
+  * Optimize database resource refcount management
+  * Fix tracker_notifier_signal_subscribe annotation
+  * Fix possible race conditions handling ontology objects
+  * Handle NULL arguments in tracker:uri-is-parent
+  * Avoid FTS5 table inconsistency with SQLite >= 3.34.0
+  * Memory leak fixes
+  * Documentation improvements
+
+Translations: ca, de, es, eu, fur, gl, lt, ro, uk, zh_TW
+
 NEW in 3.0.1 - 2020-10-02
 =========================
   * Reference Discourse instead of the mailing list
