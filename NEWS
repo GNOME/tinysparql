@@ -1,3 +1,10 @@
+NEW in 3.0.3 - 2021-01-10
+=========================
+  * Avoid FTS5 table inconsistency with SQLite >= 3.34.0
+  * Fix out parameter in VAPI/Vala files
+
+Translations: ro
+
 NEW in 3.0.2 - 2020-12-08
 =========================
   * Update some wording in website
