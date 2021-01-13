@@ -5,14 +5,14 @@
 # Matic Žgur <mr.zgur@gmail.com>, 2007.
 # Andrej Žnidaršič <andrej.znidarsic@gmail.com>, 2009–2010.
 # Martin Srebotnjak <miles@filmsi.net>, 2011.
-# Matej Urbančič <mateju@svn.gnome.org>, 2008–2020.
+# Matej Urbančič <mateju@svn.gnome.org>, 2008–2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-08-20 19:43+0000\n"
-"PO-Revision-Date: 2020-09-03 21:25+0200\n"
+"POT-Creation-Date: 2021-01-13 11:45+0000\n"
+"PO-Revision-Date: 2021-01-13 21:41+0100\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -22,76 +22,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
 "%100==4 ? 3 : 0);\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 2.3\n"
-
-#: src/libtracker-common/tracker-utils.c:90
-msgid "unknown time"
-msgstr "neznan čas"
-
-#: src/libtracker-common/tracker-utils.c:104
-#: src/libtracker-common/tracker-utils.c:155
-msgid "less than one second"
-msgstr "manj kot eno sekundo"
-
-#. Translators: this is %d days
-#: src/libtracker-common/tracker-utils.c:119
-#, c-format
-msgid " %dd"
-msgstr " %dd"
-
-#. Translators: this is %2.2d hours
-#: src/libtracker-common/tracker-utils.c:123
-#, c-format
-msgid " %2.2dh"
-msgstr " %2.2dh"
-
-#. Translators: this is %2.2d minutes
-#: src/libtracker-common/tracker-utils.c:127
-#, c-format
-msgid " %2.2dm"
-msgstr " %2.2dm"
-
-#. Translators: this is %2.2d seconds
-#: src/libtracker-common/tracker-utils.c:131
-#, c-format
-msgid " %2.2ds"
-msgstr " %2.2ds"
-
-#: src/libtracker-common/tracker-utils.c:135
-#, c-format
-msgid " %d day"
-msgid_plural " %d days"
-msgstr[0] " %d dni"
-msgstr[1] " %d dan"
-msgstr[2] " %d dneva"
-msgstr[3] " %d dni"
-
-#: src/libtracker-common/tracker-utils.c:139
-#, c-format
-msgid " %2.2d hour"
-msgid_plural " %2.2d hours"
-msgstr[0] " %2.2d ur"
-msgstr[1] " %2.2d ura"
-msgstr[2] " %2.2d uri"
-msgstr[3] " %2.2d ure"
-
-#: src/libtracker-common/tracker-utils.c:143
-#, c-format
-msgid " %2.2d minute"
-msgid_plural " %2.2d minutes"
-msgstr[0] " %2.2d minut"
-msgstr[1] " %2.2d minuta"
-msgstr[2] " %2.2d minuti"
-msgstr[3] " %2.2d minute"
-
-#: src/libtracker-common/tracker-utils.c:147
-#, c-format
-msgid " %2.2d second"
-msgid_plural " %2.2d seconds"
-msgstr[0] " %2.2d sekund"
-msgstr[1] " %2.2d sekunda"
-msgstr[2] " %2.2d sekundi"
-msgstr[3] " %2.2d sekunde"
+"X-Generator: Poedit 2.4.1\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -107,95 +38,113 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "Različica"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:299
-#: src/tracker/tracker-export.c:333 src/tracker/tracker-import.c:160
-#: src/tracker/tracker-sparql.c:1555 src/tracker/tracker-sql.c:237
+#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
+#: src/tracker/tracker-export.c:517 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
 msgid "Unrecognized options"
 msgstr "Nepoznane možnosti"
 
-#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:44
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:47
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Mesto podatkovne zbirke"
 
-#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
+#: src/tracker/tracker-endpoint.c:51 src/tracker/tracker-endpoint.c:63
 msgid "DIR"
 msgstr "MAPA"
 
-#: src/tracker/tracker-endpoint.c:52
+#: src/tracker/tracker-endpoint.c:54
 msgid "Specify the DBus name of this endpoint"
 msgstr "Določi ime vodila DBus za to končno točko"
 
-#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
+#: src/tracker/tracker-endpoint.c:55 src/tracker/tracker-endpoint.c:59
 msgid "NAME"
 msgstr "IME"
 
-#: src/tracker/tracker-endpoint.c:56
+#: src/tracker/tracker-endpoint.c:58
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Določi ontološko ime, uporabljeno za to končno točko"
 
-#: src/tracker/tracker-endpoint.c:60
+#: src/tracker/tracker-endpoint.c:62
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "Določi pot do ontološkega predmeta, uporabljenega za to končno točko"
 
-#: src/tracker/tracker-endpoint.c:64
+#: src/tracker/tracker-endpoint.c:66
+msgid "HTTP port"
+msgstr "Vrata HTTP"
+
+#: src/tracker/tracker-endpoint.c:70
+msgid "Whether to only allow HTTP connections in the loopback device"
+msgstr "Ali naj bodo dovoljene le povezave HTTP pri povratnih zankah"
+
+#: src/tracker/tracker-endpoint.c:74
 msgid "Use session bus"
 msgstr "Uporabi vodilo seje"
 
-#: src/tracker/tracker-endpoint.c:68
+#: src/tracker/tracker-endpoint.c:78
 msgid "Use system bus"
 msgstr "Uporabi sistemsko vodilo"
 
-#: src/tracker/tracker-endpoint.c:72
+#: src/tracker/tracker-endpoint.c:82
 msgid "List SPARQL endpoints available in DBus"
 msgstr "Izpiši končne točke SPARQL, razpoložljive prek vodila DBus"
 
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:93
+#: src/tracker/tracker-endpoint.c:103
 msgid "--list can only be used with --session or --system"
 msgstr ""
 "zastavico --list je mogoče uporabiti z zastavicama --session (seja) in --"
 "system (sistem)"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:99
+#: src/tracker/tracker-endpoint.c:109
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Navesti je treba možnost »ontology« ali »ontology-path«"
 
-#: src/tracker/tracker-endpoint.c:141
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:115
+msgid "--http-port cannot be used with --dbus-service"
+msgstr "argumenta --http-port ni mogoče uporabiti z --dbus-service"
+
+#: src/tracker/tracker-endpoint.c:186
 #, c-format
-msgid "Creating endpoint at %s…"
-msgstr "Poteka ustvarjanje končne točne na %s …"
+msgid "Creating HTTP endpoint at %s…"
+msgstr "Poteka ustvarjanje končne točne HTTP na %s …"
 
-#: src/tracker/tracker-endpoint.c:177
-msgid "Could not own DBus name"
-msgstr "Ni si mogoče prilastiti imena vodila DBus"
-
-#: src/tracker/tracker-endpoint.c:181
+#: src/tracker/tracker-endpoint.c:206 src/tracker/tracker-endpoint.c:269
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr ""
 "Poteka prisluh za izvedbo ukazov SPARQL. Tipki Ctlr-C zaustavita opravilo."
 
-#: src/tracker/tracker-endpoint.c:191
-msgid "DBus name lost"
-msgstr "Ime vodila DBus je izgubljeno"
-
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:196
+#: src/tracker/tracker-endpoint.c:214 src/tracker/tracker-endpoint.c:284
 msgid "Closing connection…"
 msgstr "Poteka zapiranje omrežne povezave"
 
-#: src/tracker/tracker-endpoint.c:333
+#: src/tracker/tracker-endpoint.c:229
+#, c-format
+msgid "Creating endpoint at %s…"
+msgstr "Poteka ustvarjanje končne točne na %s …"
+
+#: src/tracker/tracker-endpoint.c:265
+msgid "Could not own DBus name"
+msgstr "Ni si mogoče prilastiti imena vodila DBus"
+
+#: src/tracker/tracker-endpoint.c:279
+msgid "DBus name lost"
+msgstr "Ime vodila DBus je izgubljeno"
+
+#: src/tracker/tracker-endpoint.c:421
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Poteka odpiranje podatkovne zbirke %s …"
 
-#: src/tracker/tracker-endpoint.c:336
+#: src/tracker/tracker-endpoint.c:424
 msgid "Creating in-memory database"
 msgstr "Poteka ustvarjanje pomnilniške podatkovne zbirke"
 
-#: src/tracker/tracker-endpoint.c:356
+#: src/tracker/tracker-endpoint.c:451
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -203,61 +152,63 @@ msgstr ""
 "Ustvarjena je nova podatkovna zbirka. Uporabite zastavico »--dbus-service« "
 "za souporabo zbirke prek sporočilnega vodila."
 
-#: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
 #: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "DATOTEKA"
 
-#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:49
 #: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "Vzpostavi povezavo z vodilom DBus"
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "IMe storitve DBus"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-export.c:55 src/tracker/tracker-import.c:53
 #: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "Vzpostavi povezavo z oddaljeno storitvijo"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "Naslov URI oddaljene storitve"
 
-#: src/tracker/tracker-export.c:56
+#: src/tracker/tracker-export.c:59
 msgid "Output TriG format which includes named graph information"
 msgstr "Odvodni zapis TriG, ki vključuje podatke o imenskih grafih"
 
-#: src/tracker/tracker-export.c:60 src/tracker/tracker-export.c:61
+#: src/tracker/tracker-export.c:71 src/tracker/tracker-export.c:72
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:86 src/tracker/tracker-import.c:83
-#: src/tracker/tracker-sparql.c:197
+#: src/tracker/tracker-export.c:97 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Določiti je traba možnost »--database« (zbirka), »--dbus-service« (storitev "
 "dbus), ali pa »--remote-service« (oddaljena storitev)"
 
-#: src/tracker/tracker-export.c:260 src/tracker/tracker-import.c:99
-#: src/tracker/tracker-sparql.c:1113
+#: src/tracker/tracker-export.c:308 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-sparql.c:1115
 msgid "Could not establish a connection to Tracker"
 msgstr "Povezave s Trackerjem ni mogoče vzpostaviti"
 
-#: src/tracker/tracker-export.c:261 src/tracker/tracker-import.c:100
-#: src/tracker/tracker-sparql.c:1114
+#: src/tracker/tracker-export.c:309 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-sparql.c:1116
 msgid "No error given"
 msgstr "Ni dane napake"
 
-#: src/tracker/tracker-export.c:300 src/tracker/tracker-sparql.c:1491
-#: src/tracker/tracker-sql.c:135 src/tracker/tracker-sql.c:168
+#: src/tracker/tracker-export.c:348 src/tracker/tracker-export.c:399
+#: src/tracker/tracker-export.c:412 src/tracker/tracker-export.c:422
+#: src/tracker/tracker-sparql.c:1493 src/tracker/tracker-sql.c:135
+#: src/tracker/tracker-sql.c:168
 msgid "Could not run query"
 msgstr "Poizvedbe ni mogoče zagnati"
 
@@ -405,19 +356,19 @@ msgstr "Vrne podatke razreda (na primer nfo:FileDataObject)."
 msgid "Returns the full namespace for a class."
 msgstr "Vrne polno določilo imenskega prostora za razred gradnika."
 
-#: src/tracker/tracker-sparql.c:230
+#: src/tracker/tracker-sparql.c:232
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Ni mogoče pridobiti predpon imenskega prostora"
 
-#: src/tracker/tracker-sparql.c:238
+#: src/tracker/tracker-sparql.c:240
 msgid "No namespace prefixes were returned"
 msgstr "Predpone imenskega prostora niso bile vrnjene"
 
-#: src/tracker/tracker-sparql.c:284
+#: src/tracker/tracker-sparql.c:286
 msgid "Could not get namespace prefixes"
 msgstr "Predpon imenskega prostora ni mogoče dobiti"
 
-#: src/tracker/tracker-sparql.c:293
+#: src/tracker/tracker-sparql.c:295
 msgid "No namespace prefixes were found"
 msgstr "Predpon imenskega prostora ni mogoče najti"
 
@@ -425,144 +376,144 @@ msgstr "Predpon imenskega prostora ni mogoče najti"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:539 src/tracker/tracker-sparql.c:587
+#: src/tracker/tracker-sparql.c:541 src/tracker/tracker-sparql.c:589
 msgid "None"
 msgstr "Brez"
 
-#: src/tracker/tracker-sparql.c:993
+#: src/tracker/tracker-sparql.c:995
 msgid "Could not create tree: subclass query failed"
 msgstr ""
 "Ni mogoče ustvariti drevesa: poizvedba podrejenega razreda je spodletela"
 
-#: src/tracker/tracker-sparql.c:1042
+#: src/tracker/tracker-sparql.c:1044
 msgid "Could not create tree: class properties query failed"
 msgstr "Ni mogoče ustvariti drevesa: poizvedba razreda lastnosti je spodletela"
 
-#: src/tracker/tracker-sparql.c:1129
+#: src/tracker/tracker-sparql.c:1131
 msgid "Could not list classes"
 msgstr "Razredov ni mogoče izpisati"
 
-#: src/tracker/tracker-sparql.c:1137
+#: src/tracker/tracker-sparql.c:1139
 msgid "No classes were found"
 msgstr "Razredov ni mogoče najti"
 
-#: src/tracker/tracker-sparql.c:1137 src/tracker/tracker-sparql.c:1353
+#: src/tracker/tracker-sparql.c:1139 src/tracker/tracker-sparql.c:1355
 msgid "Classes"
 msgstr "Razredi"
 
-#: src/tracker/tracker-sparql.c:1153
+#: src/tracker/tracker-sparql.c:1155
 msgid "Could not list class prefixes"
 msgstr "Predpon razredov ni mogoče izpisati"
 
-#: src/tracker/tracker-sparql.c:1161
+#: src/tracker/tracker-sparql.c:1163
 msgid "No class prefixes were found"
 msgstr "Predpon razredov ni mogoče najti"
 
-#: src/tracker/tracker-sparql.c:1161
+#: src/tracker/tracker-sparql.c:1163
 msgid "Prefixes"
 msgstr "Predpona"
 
-#: src/tracker/tracker-sparql.c:1181
+#: src/tracker/tracker-sparql.c:1183
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Ni mogoče najti lastnosti za predpono razreda, na primer :Resource v »rdfs:"
 "Resource«"
 
-#: src/tracker/tracker-sparql.c:1220
+#: src/tracker/tracker-sparql.c:1222
 msgid "Could not list properties"
 msgstr "Lastnosti ni mogoče izpisati"
 
-#: src/tracker/tracker-sparql.c:1228
+#: src/tracker/tracker-sparql.c:1230
 msgid "No properties were found"
 msgstr "Lastnosti ni mogoče najti"
 
-#: src/tracker/tracker-sparql.c:1228 src/tracker/tracker-sparql.c:1376
+#: src/tracker/tracker-sparql.c:1230 src/tracker/tracker-sparql.c:1378
 msgid "Properties"
 msgstr "Lastnosti"
 
-#: src/tracker/tracker-sparql.c:1256
+#: src/tracker/tracker-sparql.c:1258
 msgid "Could not find notify classes"
 msgstr "Ni mogoče najti razredov obvestil"
 
-#: src/tracker/tracker-sparql.c:1264
+#: src/tracker/tracker-sparql.c:1266
 msgid "No notifies were found"
 msgstr "Ni najdenih obvestil"
 
-#: src/tracker/tracker-sparql.c:1264
+#: src/tracker/tracker-sparql.c:1266
 msgid "Notifies"
 msgstr "Obvestila"
 
-#: src/tracker/tracker-sparql.c:1290
+#: src/tracker/tracker-sparql.c:1292
 msgid "Could not find indexed properties"
 msgstr "Ni mogoče najti lastnosti v kazalu"
 
-#: src/tracker/tracker-sparql.c:1298
+#: src/tracker/tracker-sparql.c:1300
 msgid "No indexes were found"
 msgstr "Kazal ni bilo mogoče najti"
 
-#: src/tracker/tracker-sparql.c:1298
+#: src/tracker/tracker-sparql.c:1300
 msgid "Indexes"
 msgstr "Kazala"
 
-#: src/tracker/tracker-sparql.c:1314
+#: src/tracker/tracker-sparql.c:1316
 msgid "Could not list named graphs"
 msgstr "Ni mogoče izpisati imenovanih grafov"
 
-#: src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1324
 msgid "No graphs were found"
 msgstr "Ni najdenih grafov"
 
-#: src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1324
 msgid "Named graphs"
 msgstr "Imenovani grafi"
 
-#: src/tracker/tracker-sparql.c:1345
+#: src/tracker/tracker-sparql.c:1347
 msgid "Could not search classes"
 msgstr "Ni mogoče iskati razredov"
 
-#: src/tracker/tracker-sparql.c:1353
+#: src/tracker/tracker-sparql.c:1355
 msgid "No classes were found to match search term"
 msgstr "Ni mogoče najti razredov za skladanje iskalnega niza"
 
-#: src/tracker/tracker-sparql.c:1368
+#: src/tracker/tracker-sparql.c:1370
 msgid "Could not search properties"
 msgstr "Ni mogoče iskati lastnosti"
 
-#: src/tracker/tracker-sparql.c:1376
+#: src/tracker/tracker-sparql.c:1378
 msgid "No properties were found to match search term"
 msgstr "Ni mogoče najti lastnosti za skladanje iskalnega niza"
 
-#: src/tracker/tracker-sparql.c:1412 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-sparql.c:1414 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Iz poti ni mogoče dobiti poti UTF-8"
 
-#: src/tracker/tracker-sparql.c:1424 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-sparql.c:1426 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Ni mogoče prebrati datoteke"
 
-#: src/tracker/tracker-sparql.c:1443
+#: src/tracker/tracker-sparql.c:1445
 msgid "Could not run update"
 msgstr "Posodobitve ni mogoče zagnati"
 
-#: src/tracker/tracker-sparql.c:1450
+#: src/tracker/tracker-sparql.c:1452
 msgid "Done"
 msgstr "Končano"
 
-#: src/tracker/tracker-sparql.c:1504 src/tracker/tracker-sparql.c:1507
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
 msgid "No results found matching your query"
 msgstr "Ni zadetkov skladnih s poizvedbo"
 
-#: src/tracker/tracker-sparql.c:1504 src/tracker/tracker-sparql.c:1507
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
 #: src/tracker/tracker-sql.c:142
 msgid "Results"
 msgstr "Rezultati"
 
-#: src/tracker/tracker-sparql.c:1564 src/tracker/tracker-sql.c:248
+#: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:248
 msgid "File and query can not be used together"
 msgstr "Datoteke in poizvedbe ni mogoče uporabiti skupaj"
 
-#: src/tracker/tracker-sparql.c:1566
+#: src/tracker/tracker-sparql.c:1568
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -593,6 +544,52 @@ msgstr "Prazen niz rezultatov"
 #: src/tracker/tracker-sql.c:246
 msgid "A database path must be specified"
 msgstr "Določena mora biti pot podatkovne zbirke"
+
+#~ msgid "unknown time"
+#~ msgstr "neznan čas"
+
+#~ msgid "less than one second"
+#~ msgstr "manj kot eno sekundo"
+
+#~ msgid " %dd"
+#~ msgstr " %dd"
+
+#~ msgid " %2.2dh"
+#~ msgstr " %2.2dh"
+
+#~ msgid " %2.2dm"
+#~ msgstr " %2.2dm"
+
+#~ msgid " %2.2ds"
+#~ msgstr " %2.2ds"
+
+#~ msgid " %d day"
+#~ msgid_plural " %d days"
+#~ msgstr[0] " %d dni"
+#~ msgstr[1] " %d dan"
+#~ msgstr[2] " %d dneva"
+#~ msgstr[3] " %d dni"
+
+#~ msgid " %2.2d hour"
+#~ msgid_plural " %2.2d hours"
+#~ msgstr[0] " %2.2d ur"
+#~ msgstr[1] " %2.2d ura"
+#~ msgstr[2] " %2.2d uri"
+#~ msgstr[3] " %2.2d ure"
+
+#~ msgid " %2.2d minute"
+#~ msgid_plural " %2.2d minutes"
+#~ msgstr[0] " %2.2d minut"
+#~ msgstr[1] " %2.2d minuta"
+#~ msgstr[2] " %2.2d minuti"
+#~ msgstr[3] " %2.2d minute"
+
+#~ msgid " %2.2d second"
+#~ msgid_plural " %2.2d seconds"
+#~ msgstr[0] " %2.2d sekund"
+#~ msgstr[1] " %2.2d sekunda"
+#~ msgstr[2] " %2.2d sekundi"
+#~ msgstr[3] " %2.2d sekunde"
 
 #~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 #~ msgstr ""
