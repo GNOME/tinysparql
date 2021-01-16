@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-12-13 20:18+0000\n"
-"PO-Revision-Date: 2020-12-18 07:16+0100\n"
+"POT-Creation-Date: 2021-01-13 11:45+0000\n"
+"PO-Revision-Date: 2021-01-16 19:35+0100\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <f.t.public@gmail.com>\n"
 "Language: fur\n"
@@ -165,12 +165,12 @@ msgstr "Non dal servizi DBus"
 #: src/tracker/tracker-export.c:55 src/tracker/tracker-import.c:53
 #: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
-msgstr "Si conet a un servizi rimot"
+msgstr "Si conet a un servizi esterni"
 
 #: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
-msgstr "URI dal servizi rimot"
+msgstr "URI dal servizi esterni"
 
 #: src/tracker/tracker-export.c:59
 msgid "Output TriG format which includes named graph information"
