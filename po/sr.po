@@ -1,15 +1,16 @@
 # Serbian translation for tracker.
-# Courtesy of Prevod.org team (http://prevod.org/) -- 2011—2017.
+# Courtesy of Prevod.org team (http://prevod.org/) -- 2011—2021.
 # This file is distributed under the same license as the tracker package.
-# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2012—2017.
 # Милош Поповић <gpopac@gmail.com>, 2011—2015.
+# Марко М. Костић <marko.m.kostic@gmail.com>, 2019.
+# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2012—2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-01-08 17:59+0000\n"
-"PO-Revision-Date: 2020-02-09 11:24+0100\n"
-"Last-Translator: Марко М. Костић <marko.m.kostic@gmail.com>\n"
+"POT-Creation-Date: 2021-01-10 17:46+0000\n"
+"PO-Revision-Date: 2021-01-23 13:28+0200\n"
+"Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: српски <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
 "MIME-Version: 1.0\n"
@@ -18,177 +19,6 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=n==1? 3 : n%10==1 && n%100!=11 ? 0 : n"
 "%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Project-Style: gnome\n"
-"X-Generator: Poedit 2.2.4\n"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:24
-msgid "Maximum size of journal"
-msgstr "Највећа величина дневника"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:25
-msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-msgstr ""
-"Величина дневника при заокретању у мегабајтима. Користите -1 да искључите "
-"заокретање."
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:29
-msgid "Location of journal pieces"
-msgstr "Место до делова дневника"
-
-#: data/org.freedesktop.Tracker.DB.gschema.xml:30
-msgid "Where to store a journal chunk when it hits the max size."
-msgstr ""
-"Где ће бити ускладиштени делићи дневника када достигне највећу величину."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:26
-msgid "Maximum length of a word to be indexed"
-msgstr "Највећа дужина речи за попис"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:27
-msgid ""
-"Words with more characters than this length will be ignored by the indexer."
-msgstr "Пописник неће узимати у обзир речи са већим бројем знакова од овог."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:32
-msgid "Maximum number of words to index in a document"
-msgstr "Највећи број речи за попис у документу"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:33
-msgid ""
-"Indexer will read only this maximum number of words from a single document."
-msgstr "Пописник ће прочитати само овај највећи број речи из једног документа."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
-msgid "Enable stemmer"
-msgstr "Укључи скраћивање на основу"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:38
-msgid ""
-"Simplify the words to their root to provide more results. E.g. “shelves” and "
-"“shelf” to “shel”"
-msgstr ""
-"Поједностављује речи на њихов корен зарад више резултата. Нпр. „shelves“ и "
-"„shelf“ на „shel“"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:43
-msgid "Enable unaccent"
-msgstr "Укључује ненаглашавање"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:44
-msgid ""
-"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-"“Idea” for improved matching."
-msgstr ""
-"Преводи наглашене знакове на одговарајуће ненаглашене. Нпр. „Idéa“ у „Idea“ "
-"зарад побољшаног подударања."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:49
-msgid "Ignore numbers"
-msgstr "Занемарује бројеве"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:50
-msgid "If enabled, numbers will not be indexed."
-msgstr "Ако је укључено, бројеви неће бити пописани."
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:55
-msgid "Ignore stop words"
-msgstr "Занемарује зауставне речи"
-
-#: data/org.freedesktop.Tracker.FTS.gschema.xml:56
-msgid ""
-"If enabled, the words listed in the stop-words list are ignored. E.g. common "
-"words like “the”, “yes”, “no”, etc."
-msgstr ""
-"Ако је укључено, речи које се налазе на списку зауставних речи биће "
-"занемарене. Нпр. опште речи као „the“, „yes“, „no“, итд."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:24
-msgid "Log verbosity"
-msgstr "Опширност записника"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:25
-msgid "Log verbosity."
-msgstr "Опширан записник."
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:29
-msgid "GraphUpdated delay"
-msgstr "Застој освежавања графика"
-
-#: data/org.freedesktop.Tracker.Store.gschema.xml:30
-msgid ""
-"Period in milliseconds between GraphUpdated signals being emitted when "
-"indexed data has changed inside the database."
-msgstr ""
-"Трајање у милисекундама између емитовања сигнала освежавања графика када се "
-"пописани подаци измене унутар базе података."
-
-#: src/libtracker-common/tracker-utils.c:90
-msgid "unknown time"
-msgstr "непознато време"
-
-#: src/libtracker-common/tracker-utils.c:104
-#: src/libtracker-common/tracker-utils.c:155
-msgid "less than one second"
-msgstr "мање од једне секунде"
-
-#. Translators: this is %d days
-#: src/libtracker-common/tracker-utils.c:119
-#, c-format
-msgid " %dd"
-msgstr " %dд"
-
-#. Translators: this is %2.2d hours
-#: src/libtracker-common/tracker-utils.c:123
-#, c-format
-msgid " %2.2dh"
-msgstr " %2.2dч"
-
-#. Translators: this is %2.2d minutes
-#: src/libtracker-common/tracker-utils.c:127
-#, c-format
-msgid " %2.2dm"
-msgstr " %2.2dм"
-
-#. Translators: this is %2.2d seconds
-#: src/libtracker-common/tracker-utils.c:131
-#, c-format
-msgid " %2.2ds"
-msgstr " %2.2dс"
-
-#: src/libtracker-common/tracker-utils.c:135
-#, c-format
-msgid " %d day"
-msgid_plural " %d days"
-msgstr[0] " %d дан"
-msgstr[1] " %d дана"
-msgstr[2] " %d дана"
-msgstr[3] " %d дан"
-
-#: src/libtracker-common/tracker-utils.c:139
-#, c-format
-msgid " %2.2d hour"
-msgid_plural " %2.2d hours"
-msgstr[0] " %2.2d сат"
-msgstr[1] " %2.2d сата"
-msgstr[2] " %2.2d сати"
-msgstr[3] " %2.2d сат"
-
-#: src/libtracker-common/tracker-utils.c:143
-#, c-format
-msgid " %2.2d minute"
-msgid_plural " %2.2d minutes"
-msgstr[0] " %2.2d минут"
-msgstr[1] " %2.2d минута"
-msgstr[2] " %2.2d минута"
-msgstr[3] " %2.2d минут"
-
-#: src/libtracker-common/tracker-utils.c:147
-#, c-format
-msgid " %2.2d second"
-msgid_plural " %2.2d seconds"
-msgstr[0] " %2.2d секунда"
-msgstr[1] " %2.2d секунде"
-msgstr[2] " %2.2d секунди"
-msgstr[3] " %2.2d секунда"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -200,190 +30,240 @@ msgstr[3] " %2.2d секунда"
 msgid "the|a|an"
 msgstr "један"
 
-#. Daemon options
-#: src/tracker-store/tracker-main.vala:60
-msgid "Displays version information"
-msgstr "Исписује податке о издању програма"
+#: src/portal/tracker-main.c:53
+msgid "Version"
+msgstr "Издање"
 
-#: src/tracker-store/tracker-main.vala:61
+#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:299
+#: src/tracker/tracker-export.c:517 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
+msgid "Unrecognized options"
+msgstr "Непознате опције"
+
+#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:47
+#: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sql.c:44
+msgid "Location of the database"
+msgstr "Место базе података"
+
+#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
+msgid "DIR"
+msgstr "ДИР"
+
+#: src/tracker/tracker-endpoint.c:52
+msgid "Specify the DBus name of this endpoint"
+msgstr "Наводи назив Д-сабирнице ове крајње тачке"
+
+#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
+msgid "NAME"
+msgstr "НАЗИВ"
+
+#: src/tracker/tracker-endpoint.c:56
+msgid "Specify the ontology name used in this endpoint"
+msgstr "Наводи назив онтологије коришћене у овој крајњој тачки"
+
+#: src/tracker/tracker-endpoint.c:60
+msgid "Specify a path to an ontology to be used in this endpoint"
+msgstr "Наводи путању до онтологије за коришћење у овој крајњој тачки"
+
+#: src/tracker/tracker-endpoint.c:64
+msgid "Use session bus"
+msgstr "Користи сабирницу сесије"
+
+#: src/tracker/tracker-endpoint.c:68
+msgid "Use system bus"
+msgstr "Користи сабирницу система"
+
+#: src/tracker/tracker-endpoint.c:72
+msgid "List SPARQL endpoints available in DBus"
+msgstr "Исписује СПАРКуЛ крајње тачке доступне у Д-сабирници"
+
+#. TRANSLATORS: these are commandline arguments
+#: src/tracker/tracker-endpoint.c:93
+msgid "--list can only be used with --session or --system"
+msgstr "„--list“ се може користити само са „--session“ или „--system“"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:99
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr "Треба бити достављена опција „ontology“ или „ontology-path“"
+
+#: src/tracker/tracker-endpoint.c:141
+#, c-format
+msgid "Creating endpoint at %s…"
+msgstr "Правим крајњу тачку на „%s“…"
+
+#: src/tracker/tracker-endpoint.c:177
+msgid "Could not own DBus name"
+msgstr "Не могу да поседујем назив Д-сабирнице"
+
+#: src/tracker/tracker-endpoint.c:181
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "Ослушкујем за СПАРКуЛ наредбама. Притисните „Ctrl-C“ да зауставите."
+
+#: src/tracker/tracker-endpoint.c:191
+msgid "DBus name lost"
+msgstr "Назив Д-сабирнице је загубљен"
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:196
+msgid "Closing connection…"
+msgstr "Затварам везу…"
+
+#: src/tracker/tracker-endpoint.c:333
+#, c-format
+msgid "Opening database at %s…"
+msgstr "Отварам базу података на „%s“…"
+
+#: src/tracker/tracker-endpoint.c:336
+msgid "Creating in-memory database"
+msgstr "Правим базу података у меморији"
+
+#: src/tracker/tracker-endpoint.c:356
 msgid ""
-"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default = "
-"0)"
+"New database created. Use the “--dbus-service” option to share this database "
+"on a message bus."
 msgstr ""
-"Записник, 0 = само грешке, 1 = најмање, 2 = детаљно и 3 = прочишћавање "
-"(задато = 0)"
+"Нова база података је створена. Користите опцију „--dbus-service“ да делите "
+"ову базу података на сабирници порука."
 
-#: src/tracker-store/tracker-main.vala:62
-msgid "Disable automatic shutdown"
-msgstr "Онемогући самостално гашење"
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
+#: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
+#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+msgid "FILE"
+msgstr "ДАТОТЕКА"
 
-#. Indexer options
-#: src/tracker-store/tracker-main.vala:65
-msgid "Force a re-index of all content"
-msgstr "Присили поновни попис свог садржаја"
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-sparql.c:114
+msgid "Connects to a DBus service"
+msgstr "Повезује се на услугу Д-сабирнице"
 
-#: src/tracker-store/tracker-main.vala:66
-msgid "Only allow read based actions on the database"
-msgstr "Дозвољава само читање базе података"
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-sparql.c:115
+msgid "DBus service name"
+msgstr "Назив услуге Д-сабирнице"
 
-#: src/tracker-store/tracker-main.vala:67
-msgid "Load a specified domain ontology"
-msgstr "Учитава наведену онтологију домена"
+#: src/tracker/tracker-export.c:55 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-sparql.c:118
+msgid "Connects to a remote service"
+msgstr "Повезује се на удаљену услугу"
 
-#. Translators: this messagge will apper immediately after the
-#. * usage string - Usage: COMMAND <THIS_MESSAGE>
-#.
-#: src/tracker-store/tracker-main.vala:227
-msgid "— start the tracker daemon"
-msgstr "— покреће трагачевог демона"
+#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-sparql.c:119
+msgid "Remote service URI"
+msgstr "Путања удаљене услуге"
 
-#: src/tracker-store/tracker-store.desktop.in:3
-msgid "Tracker Store"
-msgstr "Трагачево складиште"
+#: src/tracker/tracker-export.c:59
+msgid "Output TriG format which includes named graph information"
+msgstr "Исписује ТриГ формат који обухвата информације именованог графика"
 
-#: src/tracker-store/tracker-store.desktop.in:4
-msgid "Metadata database store and lookup manager"
-msgstr "Управник складиштем базе података метаподатака и претрагом"
+#: src/tracker/tracker-export.c:71 src/tracker/tracker-export.c:72
+msgid "IRI"
+msgstr "ИРИ"
+
+#. TRANSLATORS: Those are commandline arguments
+#: src/tracker/tracker-export.c:97 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-sparql.c:199
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr ""
+"Наведите једну опцију „--database“, „--dbus-service“ или „--remote-service“"
+
+#: src/tracker/tracker-export.c:308 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-sparql.c:1115
+msgid "Could not establish a connection to Tracker"
+msgstr "Не могу да успоставим везу са Трагачем"
+
+#: src/tracker/tracker-export.c:309 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-sparql.c:1116
+msgid "No error given"
+msgstr "Није дата грешка"
+
+#: src/tracker/tracker-export.c:348 src/tracker/tracker-export.c:399
+#: src/tracker/tracker-export.c:412 src/tracker/tracker-export.c:422
+#: src/tracker/tracker-sparql.c:1493 src/tracker/tracker-sql.c:135
+#: src/tracker/tracker-sql.c:168
+msgid "Could not run query"
+msgstr "Не могу да покренем упит"
 
 #: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "нисам успео да извршим „%s“: %s"
 
-#: src/tracker/tracker-info.c:50
-msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
-msgstr ""
-"Приказује читаве називне просторе (тј. не користи „nie:title“, користи пуне "
-"адресе)"
+#: src/tracker/tracker-import.c:117
+msgid "Could not run import"
+msgstr "Не могу да покренем увоз"
 
-#: src/tracker/tracker-info.c:54
-msgid "Show plain text content if available for resources"
-msgstr "Приказује садржај обичног текста ако је доступан за ресурсе"
+#: src/tracker/tracker-main.c:43
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
+msgstr "Видите „tracker3 help <наредба>“ да прочитате о нарочитој поткоманди."
 
-#. To translators:
-#. * IRI (International Resource Identifier) is a generalization
-#. * of the URI. While URI supports only ASCI encoding, IRI
-#. * fully supports international characters. In practice, UTF-8
-#. * is the most popular encoding used for IRI.
-#.
-#: src/tracker/tracker-info.c:64
-msgid ""
-"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-"(e.g. <file:///path/to/some/file.txt>)"
-msgstr ""
-"Уместо да тражи назив датотеке, сматра аргументе ДАТОТЕКЕ као актуелене ИРИ-"
-"се (нпр. <file:///путања/до/неке/датотеке.txt>)"
-
-#: src/tracker/tracker-info.c:68
-msgid "Output results as RDF in Turtle format"
-msgstr "Исписује резултате као РДФ у Корњачином формату"
-
-#: src/tracker/tracker-info.c:72
-msgid "RDF property to treat as URL (eg. “nie:url”)"
-msgstr "РДФ својство које треба посматрати као УРЛ (нпр.: \"nie:url\")"
-
-#: src/tracker/tracker-info.c:76 src/tracker/tracker-info.c:77
-#: src/tracker/tracker-sparql.c:106 src/tracker/tracker-sql.c:44
-msgid "FILE"
-msgstr "ДАТОТЕКА"
-
-#: src/tracker/tracker-info.c:268 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086
-msgid "Could not establish a connection to Tracker"
-msgstr "Не могу да успоставим везу са Трагачем"
-
-#: src/tracker/tracker-info.c:269 src/tracker/tracker-sparql.c:173
-#: src/tracker/tracker-sparql.c:1087
-msgid "No error given"
-msgstr "Није дата грешка"
-
-#: src/tracker/tracker-info.c:293
-msgid "Querying information for entity"
-msgstr "Пропитујем податке за ентитет"
-
-#: src/tracker/tracker-info.c:317
-msgid "Unable to retrieve URN for URI"
-msgstr "Не могу да довучем једнолични назив изворишта за путању"
-
-#: src/tracker/tracker-info.c:327 src/tracker/tracker-info.c:361
-msgid "Unable to retrieve data for URI"
-msgstr "Не могу да довучем податке за путању"
-
-#: src/tracker/tracker-info.c:370
-msgid "No metadata available for that URI"
-msgstr "Нема доступних метаподатака за ту путању"
-
-#: src/tracker/tracker-info.c:375 src/tracker/tracker-sparql.c:1449
-#: src/tracker/tracker-sparql.c:1452 src/tracker/tracker-sql.c:146
-msgid "Results"
-msgstr "Резултати"
-
-#: src/tracker/tracker-info.c:430 src/tracker/tracker-sparql.c:1497
-#: src/tracker/tracker-sql.c:238
-msgid "Unrecognized options"
-msgstr "Непознате опције"
-
-#: src/tracker/tracker-main.c:41
-msgid "See “tracker help <command>” to read about a specific subcommand."
-msgstr "Видите „tracker help <наредба>“ да прочитате о нарочитој поткоманди."
-
-#: src/tracker/tracker-main.c:90
+#: src/tracker/tracker-main.c:92
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Добавља помоћ о коришћењу Трагача и о било којој од ових наредби"
 
-#: src/tracker/tracker-main.c:91
-msgid "Show information known about local files or items indexed"
-msgstr "Показује познате податке о месним датотекама или пописане ставке"
+#: src/tracker/tracker-main.c:93
+msgid "Create a SPARQL endpoint"
+msgstr "Прави СПАРКуЛ крајњу тачку"
 
-#: src/tracker/tracker-main.c:92
+#: src/tracker/tracker-main.c:94
+msgid "Export data from a Tracker database"
+msgstr "Извози податке из базе података Трагача"
+
+#: src/tracker/tracker-main.c:95
+msgid "Import data into a Tracker database"
+msgstr "Увози податке у базу података Трагача"
+
+#: src/tracker/tracker-main.c:96
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Пропитује и освежава попис користећи СПАРКуЛ или претрагу, списак и стабло "
 "онтологије"
 
-#: src/tracker/tracker-main.c:93
+#: src/tracker/tracker-main.c:97
 msgid "Query the database at the lowest level using SQL"
 msgstr "Пропитује базу података на нижем нивоу користећи СКуЛ"
 
-#: src/tracker/tracker-main.c:140
+#: src/tracker/tracker-main.c:137
 #, c-format
-msgid "“%s” is not a tracker command. See “tracker --help”"
-msgstr "„%s“ није трагачева наредба. Видите „tracker --help“"
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "„%s“ није наредба трагача3. Видите „tracker3 --help“"
 
-#: src/tracker/tracker-main.c:168
-msgid "Available tracker commands are:"
-msgstr "Доступне наредбе трагача су:"
+#: src/tracker/tracker-main.c:172
+msgid "Available tracker3 commands are:"
+msgstr "Доступне наредбе трагача3 су:"
 
-#: src/tracker/tracker-main.c:202
+#: src/tracker/tracker-main.c:210
 msgid "Additional / third party commands are:"
-msgstr "Додатне наредбе/наредбе треће стране су:"
+msgstr "Додатне и наредбе трећих страна су:"
 
-#: src/tracker/tracker-sparql.c:105
+#: src/tracker/tracker-sparql.c:122
 msgid "Path to use to run a query or update from file"
 msgstr "Путања за коришћење за покретање упита или ажурирање из датотеке"
 
-#: src/tracker/tracker-sparql.c:109
+#: src/tracker/tracker-sparql.c:126
 msgid "SPARQL query"
 msgstr "СПАРКуЛ упит"
 
-#: src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-sparql.c:127
 msgid "SPARQL"
 msgstr "СПАРКуЛ"
 
-#: src/tracker/tracker-sparql.c:113
+#: src/tracker/tracker-sparql.c:130
 msgid "This is used with --query and for database updates only."
 msgstr "Ово се користи уз „--query“ и само за ажурирања базе података."
 
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-sparql.c:134
 msgid "Retrieve classes"
 msgstr "Довлачи разреде"
 
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-sparql.c:138
 msgid "Retrieve class prefixes"
 msgstr "Довлачи префиксе разреда"
 
-#: src/tracker/tracker-sparql.c:125
+#: src/tracker/tracker-sparql.c:142
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -391,19 +271,19 @@ msgstr ""
 "Довлачи својства за разред, префикси такође могу бити коришћени (нпр. rdfs:"
 "Resource)"
 
-#: src/tracker/tracker-sparql.c:126 src/tracker/tracker-sparql.c:130
-#: src/tracker/tracker-sparql.c:138 src/tracker/tracker-sparql.c:146
-#: src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
+#: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
+#: src/tracker/tracker-sparql.c:171
 msgid "CLASS"
 msgstr "КЛАСА"
 
-#: src/tracker/tracker-sparql.c:129
+#: src/tracker/tracker-sparql.c:146
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Довлачи разреде који обавештавају измене у бази података (РАЗРЕД је изборно)"
 
-#: src/tracker/tracker-sparql.c:133
+#: src/tracker/tracker-sparql.c:150
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -411,11 +291,15 @@ msgstr ""
 "Довлачи пописнике коришћене у бази податка за побољшање делотворности "
 "(СВОЈСТВО је изборно)"
 
-#: src/tracker/tracker-sparql.c:134
+#: src/tracker/tracker-sparql.c:151
 msgid "PROPERTY"
 msgstr "СВОЈСТВО"
 
-#: src/tracker/tracker-sparql.c:137
+#: src/tracker/tracker-sparql.c:154
+msgid "Retrieve all named graphs"
+msgstr "Довлачи све именоване графике"
+
+#: src/tracker/tracker-sparql.c:158
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -423,44 +307,36 @@ msgstr ""
 "Описује подразреде, суперразреде (може бити коришћено са „-s“ за истицање "
 "делова стабла и са „-p“ за показивање својстава)"
 
-#: src/tracker/tracker-sparql.c:141
+#: src/tracker/tracker-sparql.c:162
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr "Тражи разред или својство и приказује више података (нпр. Документ)"
 
-#: src/tracker/tracker-sparql.c:142
+#: src/tracker/tracker-sparql.c:163
 msgid "CLASS/PROPERTY"
 msgstr "РАЗРЕД/СВОЈСТВО"
 
-#: src/tracker/tracker-sparql.c:145
+#: src/tracker/tracker-sparql.c:166
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Исписује скраћеницу за разред (нпр: „nfo:FileDataObject“)."
 
-#: src/tracker/tracker-sparql.c:149
+#: src/tracker/tracker-sparql.c:170
 msgid "Returns the full namespace for a class."
 msgstr "Исписује потпун називни простор за разред."
 
-#: src/tracker/tracker-sparql.c:153
-msgid "Remote service to query to"
-msgstr "Удаљена услуга која се пропитује"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "BASE_URL"
-msgstr "АДРЕСА_ОСНОВЕ"
-
-#: src/tracker/tracker-sparql.c:200
+#: src/tracker/tracker-sparql.c:232
 msgid "Unable to retrieve namespace prefixes"
 msgstr "Не могу да довучем префиксе назива"
 
-#: src/tracker/tracker-sparql.c:208
+#: src/tracker/tracker-sparql.c:240
 msgid "No namespace prefixes were returned"
 msgstr "Нема префикса назива"
 
-#: src/tracker/tracker-sparql.c:254
+#: src/tracker/tracker-sparql.c:286
 msgid "Could not get namespace prefixes"
 msgstr "Не могу да добавим префиксе називног простора"
 
-#: src/tracker/tracker-sparql.c:263
+#: src/tracker/tracker-sparql.c:295
 msgid "No namespace prefixes were found"
 msgstr "Нисам пронашао префиксе називног простора"
 
@@ -468,131 +344,143 @@ msgstr "Нисам пронашао префиксе називног прост
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:509 src/tracker/tracker-sparql.c:557
+#: src/tracker/tracker-sparql.c:541 src/tracker/tracker-sparql.c:589
 msgid "None"
 msgstr "Ништа"
 
-#: src/tracker/tracker-sparql.c:963
+#: src/tracker/tracker-sparql.c:995
 msgid "Could not create tree: subclass query failed"
 msgstr "Не могу да створим стабло: упит подразреда није успео"
 
-#: src/tracker/tracker-sparql.c:1012
+#: src/tracker/tracker-sparql.c:1044
 msgid "Could not create tree: class properties query failed"
 msgstr "Не могу да створим стабло: упит својстава разреда није успео"
 
-#: src/tracker/tracker-sparql.c:1100
+#: src/tracker/tracker-sparql.c:1131
 msgid "Could not list classes"
 msgstr "Не могу да испишем разреде"
 
-#: src/tracker/tracker-sparql.c:1108
+#: src/tracker/tracker-sparql.c:1139
 msgid "No classes were found"
 msgstr "Нисам пронашао разреде"
 
-#: src/tracker/tracker-sparql.c:1108 src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1139 src/tracker/tracker-sparql.c:1355
 msgid "Classes"
 msgstr "Разреди"
 
-#: src/tracker/tracker-sparql.c:1124
+#: src/tracker/tracker-sparql.c:1155
 msgid "Could not list class prefixes"
 msgstr "Не могу да испишем префиксе разреда"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1163
 msgid "No class prefixes were found"
 msgstr "Нисам пронашао префиксе разреда"
 
-#: src/tracker/tracker-sparql.c:1132
+#: src/tracker/tracker-sparql.c:1163
 msgid "Prefixes"
 msgstr "Префикси"
 
-#: src/tracker/tracker-sparql.c:1152
+#: src/tracker/tracker-sparql.c:1183
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Не могу да пронађем својство за префикс разреда, нпр. :Resource у „rdfs:"
 "Resource“"
 
-#: src/tracker/tracker-sparql.c:1191
+#: src/tracker/tracker-sparql.c:1222
 msgid "Could not list properties"
 msgstr "Не могу да испишем својства"
 
-#: src/tracker/tracker-sparql.c:1199
+#: src/tracker/tracker-sparql.c:1230
 msgid "No properties were found"
 msgstr "Нисам пронашао својства"
 
-#: src/tracker/tracker-sparql.c:1199 src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1230 src/tracker/tracker-sparql.c:1378
 msgid "Properties"
 msgstr "Својства"
 
-#: src/tracker/tracker-sparql.c:1227
+#: src/tracker/tracker-sparql.c:1258
 msgid "Could not find notify classes"
 msgstr "Не могу да пронађем разреде обавештења"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1266
 msgid "No notifies were found"
 msgstr "Нисам пронашао обавештења"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1266
 msgid "Notifies"
 msgstr "Обавештења"
 
-#: src/tracker/tracker-sparql.c:1261
+#: src/tracker/tracker-sparql.c:1292
 msgid "Could not find indexed properties"
 msgstr "Не могу да пронађем пописана својства"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1300
 msgid "No indexes were found"
 msgstr "Нисам пронашао попис"
 
-#: src/tracker/tracker-sparql.c:1269
+#: src/tracker/tracker-sparql.c:1300
 msgid "Indexes"
 msgstr "Пописи"
 
-#: src/tracker/tracker-sparql.c:1291
+#: src/tracker/tracker-sparql.c:1316
+msgid "Could not list named graphs"
+msgstr "Не могу да испишем именоване графике"
+
+#: src/tracker/tracker-sparql.c:1324
+msgid "No graphs were found"
+msgstr "Нисам пронашао графике"
+
+#: src/tracker/tracker-sparql.c:1324
+msgid "Named graphs"
+msgstr "Именовани графици"
+
+#: src/tracker/tracker-sparql.c:1347
 msgid "Could not search classes"
 msgstr "Не могу да претражим разреде"
 
-#: src/tracker/tracker-sparql.c:1299
+#: src/tracker/tracker-sparql.c:1355
 msgid "No classes were found to match search term"
 msgstr "Нисам пронашао разреде који одговарају термину претраге"
 
-#: src/tracker/tracker-sparql.c:1314
+#: src/tracker/tracker-sparql.c:1370
 msgid "Could not search properties"
 msgstr "Не могу да претражим својства"
 
-#: src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1378
 msgid "No properties were found to match search term"
 msgstr "Нисам пронашао својства која одговарају термину претраге"
 
-#: src/tracker/tracker-sparql.c:1358 src/tracker/tracker-sql.c:65
+#: src/tracker/tracker-sparql.c:1414 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Не могу да добавим УТФ-8 путању за путању"
 
-#: src/tracker/tracker-sparql.c:1370 src/tracker/tracker-sql.c:76
+#: src/tracker/tracker-sparql.c:1426 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Не могу да прочитам датотеку"
 
-#: src/tracker/tracker-sparql.c:1389
+#: src/tracker/tracker-sparql.c:1445
 msgid "Could not run update"
 msgstr "Не могу да покренем ажурирање"
 
-#: src/tracker/tracker-sparql.c:1396
+#: src/tracker/tracker-sparql.c:1452
 msgid "Done"
 msgstr "Обављено"
 
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Не могу да покренем упит"
-
-#: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
 msgid "No results found matching your query"
 msgstr "Нисам пронашао ниједан резултат који одговара вашем упиту"
 
-#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sql.c:247
+#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
+#: src/tracker/tracker-sql.c:142
+msgid "Results"
+msgstr "Резултати"
+
+#: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:248
 msgid "File and query can not be used together"
 msgstr "Датотека и упит не могу бити коришћени заједно"
 
-#: src/tracker/tracker-sparql.c:1508
+#: src/tracker/tracker-sparql.c:1568
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -600,25 +488,226 @@ msgstr ""
 "Аргумент „--list-properties“ може бити празан само када се користи са "
 "аргументом „--tree“"
 
-#: src/tracker/tracker-sql.c:43
+#: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
 msgstr "Путања за покретање упита из датотеке"
 
-#: src/tracker/tracker-sql.c:47
+#: src/tracker/tracker-sql.c:52
 msgid "SQL query"
-msgstr "SQL упит"
+msgstr "СКуЛ упит"
 
-#: src/tracker/tracker-sql.c:48
+#: src/tracker/tracker-sql.c:53
 msgid "SQL"
-msgstr "SQL"
+msgstr "СКуЛ"
 
-#: src/tracker/tracker-sql.c:120
+#: src/tracker/tracker-sql.c:114
 msgid "Failed to initialize data manager"
 msgstr "Нисам успео да покренем управника података"
 
-#: src/tracker/tracker-sql.c:180
+#: src/tracker/tracker-sql.c:176
 msgid "Empty result set"
 msgstr "Празан скуп резлтата"
+
+#: src/tracker/tracker-sql.c:246
+msgid "A database path must be specified"
+msgstr "Путања базе података мора бити наведена"
+
+msgid "RDF property to treat as URL (eg. “nie:url”)"
+msgstr "РДФ својство које треба посматрати као УРЛ (нпр.: \"nie:url\")"
+
+#~ msgid "Maximum size of journal"
+#~ msgstr "Највећа величина дневника"
+
+#~ msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
+#~ msgstr ""
+#~ "Величина дневника при заокретању у мегабајтима. Користите -1 да искључите "
+#~ "заокретање."
+
+#~ msgid "Location of journal pieces"
+#~ msgstr "Место до делова дневника"
+
+#~ msgid "Where to store a journal chunk when it hits the max size."
+#~ msgstr ""
+#~ "Где ће бити ускладиштени делићи дневника када достигне највећу величину."
+
+#~ msgid "Maximum length of a word to be indexed"
+#~ msgstr "Највећа дужина речи за попис"
+
+#~ msgid ""
+#~ "Words with more characters than this length will be ignored by the "
+#~ "indexer."
+#~ msgstr "Пописник неће узимати у обзир речи са већим бројем знакова од овог."
+
+#~ msgid "Maximum number of words to index in a document"
+#~ msgstr "Највећи број речи за попис у документу"
+
+#~ msgid ""
+#~ "Indexer will read only this maximum number of words from a single "
+#~ "document."
+#~ msgstr ""
+#~ "Пописник ће прочитати само овај највећи број речи из једног документа."
+
+#~ msgid "Enable stemmer"
+#~ msgstr "Укључи скраћивање на основу"
+
+#~ msgid ""
+#~ "Simplify the words to their root to provide more results. E.g. “shelves” "
+#~ "and “shelf” to “shel”"
+#~ msgstr ""
+#~ "Поједностављује речи на њихов корен зарад више резултата. Нпр. „shelves“ "
+#~ "и „shelf“ на „shel“"
+
+#~ msgid "Enable unaccent"
+#~ msgstr "Укључује ненаглашавање"
+
+#~ msgid ""
+#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” "
+#~ "to “Idea” for improved matching."
+#~ msgstr ""
+#~ "Преводи наглашене знакове на одговарајуће ненаглашене. Нпр. „Idéa“ у "
+#~ "„Idea“ зарад побољшаног подударања."
+
+#~ msgid "Ignore numbers"
+#~ msgstr "Занемарује бројеве"
+
+#~ msgid "If enabled, numbers will not be indexed."
+#~ msgstr "Ако је укључено, бројеви неће бити пописани."
+
+#~ msgid "Ignore stop words"
+#~ msgstr "Занемарује зауставне речи"
+
+#~ msgid ""
+#~ "If enabled, the words listed in the stop-words list are ignored. E.g. "
+#~ "common words like “the”, “yes”, “no”, etc."
+#~ msgstr ""
+#~ "Ако је укључено, речи које се налазе на списку зауставних речи биће "
+#~ "занемарене. Нпр. опште речи као „the“, „yes“, „no“, итд."
+
+#~ msgid "Log verbosity"
+#~ msgstr "Опширност записника"
+
+#~ msgid "Log verbosity."
+#~ msgstr "Опширан записник."
+
+#~ msgid "GraphUpdated delay"
+#~ msgstr "Застој освежавања графика"
+
+#~ msgid ""
+#~ "Period in milliseconds between GraphUpdated signals being emitted when "
+#~ "indexed data has changed inside the database."
+#~ msgstr ""
+#~ "Трајање у милисекундама између емитовања сигнала освежавања графика када "
+#~ "се пописани подаци измене унутар базе података."
+
+#~ msgid "unknown time"
+#~ msgstr "непознато време"
+
+#~ msgid "less than one second"
+#~ msgstr "мање од једне секунде"
+
+#~ msgid " %dd"
+#~ msgstr " %dд"
+
+#~ msgid " %2.2dh"
+#~ msgstr " %2.2dч"
+
+#~ msgid " %2.2dm"
+#~ msgstr " %2.2dм"
+
+#~ msgid " %2.2ds"
+#~ msgstr " %2.2dс"
+
+#~ msgid " %d day"
+#~ msgid_plural " %d days"
+#~ msgstr[0] " %d дан"
+#~ msgstr[1] " %d дана"
+#~ msgstr[2] " %d дана"
+#~ msgstr[3] " %d дан"
+
+#~ msgid " %2.2d hour"
+#~ msgid_plural " %2.2d hours"
+#~ msgstr[0] " %2.2d сат"
+#~ msgstr[1] " %2.2d сата"
+#~ msgstr[2] " %2.2d сати"
+#~ msgstr[3] " %2.2d сат"
+
+#~ msgid " %2.2d minute"
+#~ msgid_plural " %2.2d minutes"
+#~ msgstr[0] " %2.2d минут"
+#~ msgstr[1] " %2.2d минута"
+#~ msgstr[2] " %2.2d минута"
+#~ msgstr[3] " %2.2d минут"
+
+#~ msgid " %2.2d second"
+#~ msgid_plural " %2.2d seconds"
+#~ msgstr[0] " %2.2d секунда"
+#~ msgstr[1] " %2.2d секунде"
+#~ msgstr[2] " %2.2d секунди"
+#~ msgstr[3] " %2.2d секунда"
+
+#~ msgid "Displays version information"
+#~ msgstr "Исписује податке о издању програма"
+
+#~ msgid ""
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default = 0)"
+#~ msgstr ""
+#~ "Записник, 0 = само грешке, 1 = најмање, 2 = детаљно и 3 = прочишћавање "
+#~ "(задато = 0)"
+
+#~ msgid "Disable automatic shutdown"
+#~ msgstr "Онемогући самостално гашење"
+
+#~ msgid "Force a re-index of all content"
+#~ msgstr "Присили поновни попис свог садржаја"
+
+#~ msgid "Load a specified domain ontology"
+#~ msgstr "Учитава наведену онтологију домена"
+
+#~ msgid "— start the tracker daemon"
+#~ msgstr "— покреће трагачевог демона"
+
+#~ msgid "Tracker Store"
+#~ msgstr "Трагачево складиште"
+
+#~ msgid "Metadata database store and lookup manager"
+#~ msgstr "Управник складиштем базе података метаподатака и претрагом"
+
+#~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+#~ msgstr ""
+#~ "Приказује читаве називне просторе (тј. не користи „nie:title“, користи "
+#~ "пуне адресе)"
+
+#~ msgid "Show plain text content if available for resources"
+#~ msgstr "Приказује садржај обичног текста ако је доступан за ресурсе"
+
+#~ msgid ""
+#~ "Instead of looking up a file name, treat the FILE arguments as actual "
+#~ "IRIs (e.g. <file:///path/to/some/file.txt>)"
+#~ msgstr ""
+#~ "Уместо да тражи назив датотеке, сматра аргументе ДАТОТЕКЕ као актуелене "
+#~ "ИРИ-се (нпр. <file:///путања/до/неке/датотеке.txt>)"
+
+#~ msgid "Output results as RDF in Turtle format"
+#~ msgstr "Исписује резултате као РДФ у Корњачином формату"
+
+#~ msgid "Querying information for entity"
+#~ msgstr "Пропитујем податке за ентитет"
+
+#~ msgid "Unable to retrieve URN for URI"
+#~ msgstr "Не могу да довучем једнолични назив изворишта за путању"
+
+#~ msgid "Unable to retrieve data for URI"
+#~ msgstr "Не могу да довучем податке за путању"
+
+#~ msgid "No metadata available for that URI"
+#~ msgstr "Нема доступних метаподатака за ту путању"
+
+#~ msgid "Show information known about local files or items indexed"
+#~ msgstr "Показује познате податке о месним датотекама или пописане ставке"
+
+#~ msgid "BASE_URL"
+#~ msgstr "АДРЕСА_ОСНОВЕ"
 
 #~ msgid "Error starting “tar” program"
 #~ msgstr "Грешка покретања програма „тар“"
@@ -989,12 +1078,6 @@ msgstr "Празан скуп резлтата"
 #~ msgid "Unable to import Turtle file"
 #~ msgstr "Не могу да увезем датотеку Корњаче"
 
-#~ msgid "Backing up database"
-#~ msgstr "Правим резерву базе података"
-
-#~ msgid "Could not backup database"
-#~ msgstr "Не могу да направим резерву базе података"
-
 #~ msgid "Restoring database from backup"
 #~ msgstr "Враћам базу података из резерве"
 
@@ -1313,9 +1396,6 @@ msgstr "Празан скуп резлтата"
 #~ msgid "Statistics:"
 #~ msgstr "Статистика:"
 
-#~ msgid "Version"
-#~ msgstr "Издање"
-
 #~ msgid "Disk Information"
 #~ msgstr "Подаци о диску"
 
@@ -1442,9 +1522,6 @@ msgstr "Празан скуп резлтата"
 #~ msgid "Could not get all tags"
 #~ msgstr "Не могу да добавим све ознаке"
 
-#~ msgid "No tags were found"
-#~ msgstr "Нисам пронашао ознаке"
-
 #~ msgid "Tags (shown by name)"
 #~ msgstr "Ознаке (приказане према називу)"
 
@@ -1524,9 +1601,6 @@ msgstr "Празан скуп резлтата"
 #~ msgstr ""
 #~ "Приказује статистику о СВИМ РДФ разредима, не само о општем који је "
 #~ "основни (примењено мерилима претраге)"
-
-#~ msgid "No network connection"
-#~ msgstr "Нема мрежне везе"
 
 #~ msgid "Indexing not recommended on this network connection"
 #~ msgstr "Пописивање није препоручљиво на овој мрежној вези"
@@ -2625,9 +2699,6 @@ msgstr "Празан скуп резлтата"
 #~ msgid "- Query or update using SPARQL"
 #~ msgstr "— Пропитајте или ажурирајте користећи СПАРКуЛ"
 
-#~ msgid "An argument must be supplied"
-#~ msgstr "Један аргумент мора бити достављен"
-
 #~ msgid " - Show statistics for all Nepomuk defined ontology classes"
 #~ msgstr ""
 #~ " — Приказује статистику за све Непомукове одређене онтолошке разреде"
@@ -2677,3 +2748,16 @@ msgstr "Празан скуп резлтата"
 
 #~ msgid "0"
 #~ msgstr "0"
+
+#~ msgid "Export a specific type of data."
+#~ msgstr "Извози специфичну врсту података."
+
+#~ msgid "TYPE"
+#~ msgstr "ВРСТА"
+
+#~| msgid "Unrecognized options"
+#~ msgid "Unrecognized value for '--type' option"
+#~ msgstr "Непозната вредност за опцију „--type“"
+
+#~ msgid "Could not backup database"
+#~ msgstr "Не могу да направим резерву базе података"
