@@ -1,15 +1,16 @@
 # Serbian translation for tracker.
-# Courtesy of Prevod.org team (http://prevod.org/) -- 2011—2017.
+# Courtesy of Prevod.org team (http://prevod.org/) -- 2011—2021.
 # This file is distributed under the same license as the tracker package.
-# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2012—2017.
 # Милош Поповић <gpopac@gmail.com>, 2011—2015.
+# Марко М. Костић <marko.m.kostic@gmail.com>, 2019.
+# Мирослав Николић <miroslavnikolic@rocketmail.com>, 2012—2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2019-02-17 15:14+0000\n"
-"PO-Revision-Date: 2019-02-28 19:31+0100\n"
-"Last-Translator: Марко М. Костић <marko.m.kostic@gmail.com>\n"
+"POT-Creation-Date: 2020-12-23 16:25+0000\n"
+"PO-Revision-Date: 2021-01-23 09:43+0200\n"
+"Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: српски <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +19,6 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=n==1? 3 : n%10==1 && n%100!=11 ? 0 : n"
 "%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Project-Style: gnome\n"
-"X-Generator: Poedit 2.2\n"
 
 #: data/org.freedesktop.Tracker.DB.gschema.xml:24
 msgid "Maximum size of journal"
@@ -196,7 +196,7 @@ msgstr[3] " %2.2d секунда"
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-data/tracker-collation.c:332
+#: src/libtracker-data/tracker-collation.c:333
 msgid "the|a|an"
 msgstr "један"
 
@@ -281,14 +281,6 @@ msgstr "Учитава наведену онтологију домена"
 #: src/tracker-store/tracker-main.vala:229
 msgid "— start the tracker daemon"
 msgstr "— покреће трагачевог демона"
-
-#: src/tracker-store/tracker-store.desktop.in:3
-msgid "Tracker Store"
-msgstr "Трагачево складиште"
-
-#: src/tracker-store/tracker-store.desktop.in:4
-msgid "Metadata database store and lookup manager"
-msgstr "Управник складиштем базе података метаподатака и претрагом"
 
 #: src/tracker/tracker-config.c:60
 #, c-format
@@ -697,11 +689,12 @@ msgid ""
 msgstr ""
 "Ако нису дати аргументи, приказују се стања копача складишта и података"
 
-#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
-#: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:384 src/tracker/tracker-search.c:1778
-#: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
-#: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
+#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-export.c:439
+#: src/tracker/tracker-extract.c:147 src/tracker/tracker-index.c:412
+#: src/tracker/tracker-info.c:422 src/tracker/tracker-reset.c:385
+#: src/tracker/tracker-search.c:1778 src/tracker/tracker-sparql.c:1497
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-status.c:587
+#: src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Непознате опције"
 
@@ -712,6 +705,36 @@ msgstr "Не могу да добавим везу Д-сабирнице"
 #: src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "Не могу да направим посредника Д-сабирнице до трагачевог складишта"
+
+#: src/tracker/tracker-export.c:40
+msgid "Output TriG format which includes named graph information"
+msgstr "Исписује ТриГ формат који обухвата информације именованог графика"
+
+#: src/tracker/tracker-export.c:44
+msgid "Export a specific type of data."
+msgstr "Извози специфичну врсту података."
+
+#: src/tracker/tracker-export.c:45
+msgid "TYPE"
+msgstr "ВРСТА"
+
+#: src/tracker/tracker-export.c:252 src/tracker/tracker-index.c:195
+#: src/tracker/tracker-info.c:263 src/tracker/tracker-search.c:1580
+#: src/tracker/tracker-sparql.c:172 src/tracker/tracker-sparql.c:1086
+#: src/tracker/tracker-status.c:73 src/tracker/tracker-status.c:386
+#: src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "Не могу да успоставим везу са Трагачем"
+
+#: src/tracker/tracker-export.c:262 src/tracker/tracker-sparql.c:1437
+#: src/tracker/tracker-sql.c:139 src/tracker/tracker-sql.c:172
+msgid "Could not run query"
+msgstr "Не могу да покренем упит"
+
+#: src/tracker/tracker-export.c:456
+#| msgid "Unrecognized options"
+msgid "Unrecognized value for '--type' option"
+msgstr "Непозната вредност за опцију „--type“"
 
 #: src/tracker/tracker-extract.c:45
 msgid "Output results format: “sparql”, “turtle” or “json-ld”"
@@ -793,13 +816,6 @@ msgstr "Не могу (поново) да попишем датотеку"
 #: src/tracker/tracker-index.c:175
 msgid "(Re)indexing file was successful"
 msgstr "(Поновно) пописивање датотеке је било успешно"
-
-#: src/tracker/tracker-index.c:195 src/tracker/tracker-info.c:263
-#: src/tracker/tracker-search.c:1580 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086 src/tracker/tracker-status.c:73
-#: src/tracker/tracker-status.c:386 src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "Не могу да успоставим везу са Трагачем"
 
 #: src/tracker/tracker-index.c:206
 msgid "Importing Turtle file"
@@ -896,71 +912,75 @@ msgstr "Нема доступних метаподатака за ту пута�
 msgid "Results"
 msgstr "Резултати"
 
-#: src/tracker/tracker-main.c:48
+#: src/tracker/tracker-main.c:49
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr "Видите „tracker help <наредба>“ да прочитате о нарочитој поткоманди."
 
-#: src/tracker/tracker-main.c:97
+#: src/tracker/tracker-main.c:98
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "Покреће, зауставља, паузира и исписује процесе одговорне за садржај "
 "пописивања"
 
-#: src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:99
+msgid "Export data from a Tracker database"
+msgstr "Извози податке из базе података Трагача"
+
+#: src/tracker/tracker-main.c:100
 msgid "Extract information from a file"
 msgstr "Извлачи информације из датотеке"
 
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:101
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Добавља помоћ о коришћењу Трагача и о било којој од ових наредби"
 
-#: src/tracker/tracker-main.c:100
+#: src/tracker/tracker-main.c:102
 msgid "Show information known about local files or items indexed"
 msgstr "Показује познате податке о месним датотекама или пописане ставке"
 
-#: src/tracker/tracker-main.c:101
+#: src/tracker/tracker-main.c:103
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "Прави резерву, враћа, увози и (поново)пописује према МИМЕ врсти или називу "
 "датотеке"
 
-#: src/tracker/tracker-main.c:102
+#: src/tracker/tracker-main.c:104
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr "Враћа или уклања попис и враћа подешавања на основна"
 
-#: src/tracker/tracker-main.c:103
+#: src/tracker/tracker-main.c:105
 msgid "Search for content indexed or show content by type"
 msgstr "Тражи пописани садржај или приказује садржај према врсти"
 
-#: src/tracker/tracker-main.c:104
+#: src/tracker/tracker-main.c:106
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Пропитује и освежава попис користећи СПАРКуЛ или претрагу, списак и стабло "
 "онтологије"
 
-#: src/tracker/tracker-main.c:105
+#: src/tracker/tracker-main.c:107
 msgid "Query the database at the lowest level using SQL"
 msgstr "Пропитује базу података на нижем нивоу користећи СКуЛ"
 
-#: src/tracker/tracker-main.c:106
+#: src/tracker/tracker-main.c:108
 msgid "Show the indexing progress, content statistics and index state"
 msgstr "Показује напредовање пописивања, статистику садржаја и стање пописа"
 
-#: src/tracker/tracker-main.c:107
+#: src/tracker/tracker-main.c:109
 msgid "Create, list or delete tags for indexed content"
 msgstr "Прави, исписује или брише ознаке за пописани садржај"
 
-#: src/tracker/tracker-main.c:108
+#: src/tracker/tracker-main.c:110
 msgid "Show the license and version in use"
 msgstr "Показује дозволу и издање у употреби"
 
-#: src/tracker/tracker-main.c:153
+#: src/tracker/tracker-main.c:155
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "„%s“ није трагачева наредба. Видите „tracker --help“"
 
-#: src/tracker/tracker-main.c:176
+#: src/tracker/tracker-main.c:178
 msgid "Available tracker commands are:"
 msgstr "Доступне наредбе трагача су:"
 
@@ -1067,7 +1087,7 @@ msgstr "[д|Н]"
 msgid "yes"
 msgstr "да"
 
-#: src/tracker/tracker-reset.c:306
+#: src/tracker/tracker-reset.c:307
 msgid "Resetting existing configuration…"
 msgstr "Враћам постојећа подешавања…"
 
@@ -1523,11 +1543,6 @@ msgstr "Не могу да прочитам датотеку"
 msgid "Could not run update"
 msgstr "Не могу да покренем ажурирање"
 
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Не могу да покренем упит"
-
 #: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
 msgstr "Нисам пронашао ниједан резултат који одговара вашем упиту"
@@ -1841,6 +1856,12 @@ msgstr "Радње додавања и брисања не могу бити к�
 #: src/tracker/tracker-tag.c:1094
 msgid "The --description option can only be used with --add"
 msgstr "Опција „--description“ може бити коришћена само уз „--add“"
+
+#~ msgid "Tracker Store"
+#~ msgstr "Трагачево складиште"
+
+#~ msgid "Metadata database store and lookup manager"
+#~ msgstr "Управник складиштем базе података метаподатака и претрагом"
 
 #~ msgid "All posts"
 #~ msgstr "Сва постављања"
