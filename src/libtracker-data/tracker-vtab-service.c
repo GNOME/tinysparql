@@ -158,6 +158,7 @@ service_best_index (sqlite3_vtab       *vtab,
 {
 	int i, argv_idx = 1;
 	ConstraintData *data;
+	gboolean has_service = FALSE;
 
 	data = sqlite3_malloc (sizeof (ConstraintData) * info->nConstraint);
 	bzero (data, sizeof (ConstraintData) * info->nConstraint);
@@ -174,6 +175,9 @@ service_best_index (sqlite3_vtab       *vtab,
 		if (info->aConstraint[i].op != SQLITE_INDEX_CONSTRAINT_EQ)
 			goto error;
 
+		if (info->aConstraint[i].iColumn == COL_SERVICE)
+			has_service = TRUE;
+
 		data[i].column = info->aConstraint[i].iColumn;
 		data[i].op = info->aConstraint[i].op;
 
@@ -185,6 +189,9 @@ service_best_index (sqlite3_vtab       *vtab,
 	info->orderByConsumed = FALSE;
 	info->idxStr = (char *) data;
 	info->needToFreeIdxStr = TRUE;
+
+	if (!has_service)
+		return SQLITE_CONSTRAINT;
 
 	return SQLITE_OK;
 

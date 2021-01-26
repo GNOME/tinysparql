@@ -5214,6 +5214,15 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 		i++;
 	}
 
+	if (tracker_token_get_variable (&service)) {
+		if (variable_rules != NULL)
+			_append_string (sparql, ", ");
+
+		_append_string_printf (sparql, "service AS %s ",
+		                       tracker_token_get_idstring (&service));
+		join_vars = g_list_prepend (join_vars, tracker_token_get_variable (&service));
+	}
+
 	tracker_parser_node_get_extents (pattern, &pattern_start, &pattern_end);
 	pattern_str = g_strndup (&sparql->sparql[pattern_start], pattern_end - pattern_start);
 	escaped_str = _escape_sql_string (pattern_str, '"');
@@ -5222,10 +5231,14 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 	g_free (pattern_str);
 	g_free (escaped_str);
 
-	_append_string_printf (sparql, "FROM tracker_service WHERE service=\"%s\" AND query=\"%s\" AND silent=%d ",
-			       tracker_token_get_idstring (&service),
+	_append_string_printf (sparql, "FROM tracker_service WHERE query=\"%s\" AND silent=%d ",
 			       service_sparql->str,
 			       silent);
+
+	if (!tracker_token_get_variable (&service)) {
+		_append_string_printf (sparql, "AND service=\"%s\" ",
+		                       tracker_token_get_idstring (&service));
+	}
 
 	i = 0;
 
