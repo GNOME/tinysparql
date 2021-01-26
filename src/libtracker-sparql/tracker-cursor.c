@@ -256,7 +256,7 @@ tracker_sparql_cursor_get_n_columns (TrackerSparqlCursor *cursor)
  * Retrieves a string representation of the data in the current
  * row in @column.
  *
- * Returns: a string which must not be freed. %NULL is returned if
+ * Returns: (nullable): a string which must not be freed. %NULL is returned if
  * the column is not in the [0,#n_columns] range.
  */
 const gchar *

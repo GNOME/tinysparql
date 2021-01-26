@@ -222,7 +222,7 @@ set_property (GObject      *object,
 
 /**
  * tracker_resource_new:
- * @identifier: A string containing a URI
+ * @identifier: (nullable): A string containing a URI, or %NULL.
  *
  * Creates a TrackerResource instance.
  *
