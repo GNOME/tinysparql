@@ -55,6 +55,7 @@ The following GNOME applications use Tracker:
  * [GNOME Documents](https://wiki.gnome.org/Apps/Documents) (uses Tracker Miner FS to find documents)
  * [GNOME Files](https://wiki.gnome.org/Apps/Files) (uses Tracker Miner FS for full-text search within files)
  * [GNOME Games](https://wiki.gnome.org/Apps/Games) (uses Tracker Miner FS to find games)
+ * [GNOME Health](https://flathub.org/apps/details/dev.Cogitri.Health) (uses Tracker SPARQL to store health data)
  * [GNOME Music](https://wiki.gnome.org/Apps/Music) (uses Tracker Miner FS to find music and store playlist data)
  * [GNOME Notes](https://wiki.gnome.org/Apps/Notes) (uses Tracker SPARQL to store notes)
  * [GNOME Photos](https://wiki.gnome.org/Apps/Photos) (uses Tracker Miner FS to find photos and Tracker SPARQL to store album data)
