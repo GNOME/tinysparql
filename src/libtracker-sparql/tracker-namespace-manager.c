@@ -183,7 +183,7 @@ tracker_namespace_manager_has_prefix (TrackerNamespaceManager *self,
  * Looks up the namespace URI corresponding to @prefix, or %NULL if the prefix
  * is not known.
  *
- * Returns: a string owned by the #TrackerNamespaceManager, or %NULL
+ * Returns: (nullable): a string owned by the #TrackerNamespaceManager, or %NULL
  */
 const char *
 tracker_namespace_manager_lookup_prefix (TrackerNamespaceManager *self,
