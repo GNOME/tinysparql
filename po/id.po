@@ -1,15 +1,16 @@
 # Translation of tracker into Indonesian
 # Copyright (C) 2011 THE tracker'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker package.
-# Andika Triwidada <andika@gmail.com>, 2011-2015, 2018.
+# Andika Triwidada <andika@gmail.com>, 2011-2015, 2018.,
+# Kukuh Syafaat <kukuhsyafaat@gnome.org>, 2017-2021.
 # Sucipto <sucipto@pm.me>, 2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-08-25 16:04+0000\n"
-"PO-Revision-Date: 2020-08-26 21:47+0700\n"
+"POT-Creation-Date: 2021-01-23 12:32+0000\n"
+"PO-Revision-Date: 2021-02-01 18:03+0700\n"
 "Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: GNOME Indonesian Translation Team <gnome@i15n.org>\n"
 "Language: id\n"
@@ -17,69 +18,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural= n!=1;\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 2.4.2\n"
 "X-DamnedLies-Scope: partial\n"
-
-#: src/libtracker-common/tracker-utils.c:90
-msgid "unknown time"
-msgstr "waktu tidak diketahui"
-
-#: src/libtracker-common/tracker-utils.c:104
-#: src/libtracker-common/tracker-utils.c:155
-msgid "less than one second"
-msgstr "kurang dari satu detik"
-
-#. Translators: this is %d days
-#: src/libtracker-common/tracker-utils.c:119
-#, c-format
-msgid " %dd"
-msgstr " %dh"
-
-#. Translators: this is %2.2d hours
-#: src/libtracker-common/tracker-utils.c:123
-#, c-format
-msgid " %2.2dh"
-msgstr " %2.2dj"
-
-#. Translators: this is %2.2d minutes
-#: src/libtracker-common/tracker-utils.c:127
-#, c-format
-msgid " %2.2dm"
-msgstr " %2.2dm"
-
-#. Translators: this is %2.2d seconds
-#: src/libtracker-common/tracker-utils.c:131
-#, c-format
-msgid " %2.2ds"
-msgstr " %2.2dd"
-
-#: src/libtracker-common/tracker-utils.c:135
-#, c-format
-msgid " %d day"
-msgid_plural " %d days"
-msgstr[0] " %d hari"
-msgstr[1] " %d hari"
-
-#: src/libtracker-common/tracker-utils.c:139
-#, c-format
-msgid " %2.2d hour"
-msgid_plural " %2.2d hours"
-msgstr[0] " %2.2d jam"
-msgstr[1] " %2.2d jam"
-
-#: src/libtracker-common/tracker-utils.c:143
-#, c-format
-msgid " %2.2d minute"
-msgid_plural " %2.2d minutes"
-msgstr[0] " %2.2d menit"
-msgstr[1] " %2.2d menit"
-
-#: src/libtracker-common/tracker-utils.c:147
-#, c-format
-msgid " %2.2d second"
-msgid_plural " %2.2d seconds"
-msgstr[0] " %2.2d detik"
-msgstr[1] " %2.2d detik"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -95,92 +35,110 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "Versi"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:299
-#: src/tracker/tracker-export.c:333 src/tracker/tracker-import.c:160
+#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
+#: src/tracker/tracker-export.c:517 src/tracker/tracker-import.c:160
 #: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
 msgid "Unrecognized options"
 msgstr "Opsi tak dikenal"
 
-#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:44
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:47
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Lokasi basis data"
 
-#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
+#: src/tracker/tracker-endpoint.c:51 src/tracker/tracker-endpoint.c:63
 msgid "DIR"
 msgstr "DIR"
 
-#: src/tracker/tracker-endpoint.c:52
+#: src/tracker/tracker-endpoint.c:54
 msgid "Specify the DBus name of this endpoint"
 msgstr "Tentukan nama DBus titik akhir ini"
 
-#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
+#: src/tracker/tracker-endpoint.c:55 src/tracker/tracker-endpoint.c:59
 msgid "NAME"
 msgstr "NAMA"
 
-#: src/tracker/tracker-endpoint.c:56
+#: src/tracker/tracker-endpoint.c:58
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Tentukan nama ontologi yang digunakan di titik akhir ini"
 
-#: src/tracker/tracker-endpoint.c:60
+#: src/tracker/tracker-endpoint.c:62
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "Tentukan path ke ontologi yang akan digunakan di titik akhir ini"
 
-#: src/tracker/tracker-endpoint.c:64
+#: src/tracker/tracker-endpoint.c:66
+msgid "HTTP port"
+msgstr "Port HTTP"
+
+#: src/tracker/tracker-endpoint.c:70
+msgid "Whether to only allow HTTP connections in the loopback device"
+msgstr "Apakah hanya memperbolehkan sambungan HTTP di perangkat loopback"
+
+#: src/tracker/tracker-endpoint.c:74
 msgid "Use session bus"
 msgstr "Gunakan bus sesi"
 
-#: src/tracker/tracker-endpoint.c:68
+#: src/tracker/tracker-endpoint.c:78
 msgid "Use system bus"
 msgstr "Gunakan bus sistem"
 
-#: src/tracker/tracker-endpoint.c:72
+#: src/tracker/tracker-endpoint.c:82
 msgid "List SPARQL endpoints available in DBus"
 msgstr "Buat daftar titik akhir SPARQL yang tersedia di DBus"
 
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:93
+#: src/tracker/tracker-endpoint.c:103
 msgid "--list can only be used with --session or --system"
 msgstr "--list hanya dapat digunakan dengan --session atau --system"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:99
+#: src/tracker/tracker-endpoint.c:109
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Satu opsi \"ontology\" atau \"ontology-path\" harus disediakan"
 
-#: src/tracker/tracker-endpoint.c:141
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:115
+msgid "--http-port cannot be used with --dbus-service"
+msgstr "--http-port tidak dapat digunakan dengan --dbus-service"
+
+#: src/tracker/tracker-endpoint.c:186
+#, c-format
+msgid "Creating HTTP endpoint at %s…"
+msgstr "Membuat titik akhir HTTP di %s…"
+
+#: src/tracker/tracker-endpoint.c:206 src/tracker/tracker-endpoint.c:269
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "Mendengarkan perintah SPARQL. Tekan Ctrl-C untuk berhenti."
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:214 src/tracker/tracker-endpoint.c:284
+msgid "Closing connection…"
+msgstr "Menutup koneksi…"
+
+#: src/tracker/tracker-endpoint.c:229
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Membuat titik akhir di %s…"
 
-#: src/tracker/tracker-endpoint.c:177
+#: src/tracker/tracker-endpoint.c:265
 msgid "Could not own DBus name"
 msgstr "Tidak dapat memiliki nama DBus"
 
-#: src/tracker/tracker-endpoint.c:181
-msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr "Mendengarkan perintah SPARQL. Tekan Ctrl-C untuk berhenti."
-
-#: src/tracker/tracker-endpoint.c:191
+#: src/tracker/tracker-endpoint.c:279
 msgid "DBus name lost"
 msgstr "Nama DBus hilang"
 
-#. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:196
-msgid "Closing connection…"
-msgstr "Menutup koneksi…"
-
-#: src/tracker/tracker-endpoint.c:333
+#: src/tracker/tracker-endpoint.c:421
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Membuka basis data di %s…"
 
-#: src/tracker/tracker-endpoint.c:336
+#: src/tracker/tracker-endpoint.c:424
 msgid "Creating in-memory database"
 msgstr "Membuat basis data dalam memori"
 
-#: src/tracker/tracker-endpoint.c:356
+#: src/tracker/tracker-endpoint.c:451
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -188,61 +146,63 @@ msgstr ""
 "Basis data baru dibuat. Gunakan opsi \"--dbus-service\" untuk berbagi basis "
 "data ini di bus pesan."
 
-#: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
 #: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "BERKAS"
 
-#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:49
 #: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "Hubungkan ke layanan DBus"
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "Nama layanan DBus"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-export.c:55 src/tracker/tracker-import.c:53
 #: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "Menghubungkan ke layanan jarak jauh"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "URI layanan jarak jauh"
 
-#: src/tracker/tracker-export.c:56
+#: src/tracker/tracker-export.c:59
 msgid "Output TriG format which includes named graph information"
 msgstr "Keluaran format TriG yang mencakup informasi grafik bernama"
 
-#: src/tracker/tracker-export.c:60 src/tracker/tracker-export.c:61
+#: src/tracker/tracker-export.c:71 src/tracker/tracker-export.c:72
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:86 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-export.c:97 src/tracker/tracker-import.c:83
 #: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Tentukan satu opsi \"--database\", \"--dbus-service\" atau \"--remote-service"
 "\""
 
-#: src/tracker/tracker-export.c:260 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-export.c:308 src/tracker/tracker-import.c:99
 #: src/tracker/tracker-sparql.c:1115
 msgid "Could not establish a connection to Tracker"
 msgstr "Tak bisa membentuk koneksi ke Pelacak"
 
-#: src/tracker/tracker-export.c:261 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-export.c:309 src/tracker/tracker-import.c:100
 #: src/tracker/tracker-sparql.c:1116
 msgid "No error given"
 msgstr "Tak ada galat yang diberikan"
 
-#: src/tracker/tracker-export.c:300 src/tracker/tracker-sparql.c:1493
-#: src/tracker/tracker-sql.c:135 src/tracker/tracker-sql.c:168
+#: src/tracker/tracker-export.c:348 src/tracker/tracker-export.c:399
+#: src/tracker/tracker-export.c:412 src/tracker/tracker-export.c:422
+#: src/tracker/tracker-sparql.c:1493 src/tracker/tracker-sql.c:135
+#: src/tracker/tracker-sql.c:168
 msgid "Could not run query"
 msgstr "Tak bisa menjalankan kueri"
 
@@ -574,6 +534,44 @@ msgstr "Set hasil kosong"
 #: src/tracker/tracker-sql.c:246
 msgid "A database path must be specified"
 msgstr "Path basis data harus ditentukan"
+
+#~ msgid "unknown time"
+#~ msgstr "waktu tidak diketahui"
+
+#~ msgid "less than one second"
+#~ msgstr "kurang dari satu detik"
+
+#~ msgid " %dd"
+#~ msgstr " %dh"
+
+#~ msgid " %2.2dh"
+#~ msgstr " %2.2dj"
+
+#~ msgid " %2.2dm"
+#~ msgstr " %2.2dm"
+
+#~ msgid " %2.2ds"
+#~ msgstr " %2.2dd"
+
+#~ msgid " %d day"
+#~ msgid_plural " %d days"
+#~ msgstr[0] " %d hari"
+#~ msgstr[1] " %d hari"
+
+#~ msgid " %2.2d hour"
+#~ msgid_plural " %2.2d hours"
+#~ msgstr[0] " %2.2d jam"
+#~ msgstr[1] " %2.2d jam"
+
+#~ msgid " %2.2d minute"
+#~ msgid_plural " %2.2d minutes"
+#~ msgstr[0] " %2.2d menit"
+#~ msgstr[1] " %2.2d menit"
+
+#~ msgid " %2.2d second"
+#~ msgid_plural " %2.2d seconds"
+#~ msgstr[0] " %2.2d detik"
+#~ msgstr[1] " %2.2d detik"
 
 #~ msgid "Maximum size of journal"
 #~ msgstr "Ukuran maksimum jurnal"
