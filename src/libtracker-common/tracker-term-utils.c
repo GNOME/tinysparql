@@ -39,18 +39,37 @@ tracker_term_ellipsize (const gchar          *str,
                         gint                  max_len,
                         TrackerEllipsizeMode  mode)
 {
-	gint len = strlen (str);
+	gsize size = strlen (str);
+	glong len = g_utf8_strlen (str, size);
+	const gchar *begin, *end, *pos;
 	gchar *substr, *retval;
+	gint i;
 
 	if (len < max_len)
 		return g_strdup (str);
 
+	/* Account for the ellipsizing char */
+	max_len--;
+	if (max_len <= 0)
+		return g_strdup ("…");
+
+	begin = str;
+	end = &str[size];
+
 	if (mode == TRACKER_ELLIPSIZE_START) {
-		substr = g_memdup (str + len - max_len + 1, max_len - 1);
+		pos = begin;
+		for (i = 0; i < max_len; i++)
+			pos = g_utf8_find_next_char (pos, end);
+
+		substr = g_strndup (begin, pos - begin);
 		retval = g_strdup_printf ("…%s", substr);
 		g_free (substr);
 	} else {
-		substr = g_memdup (str, max_len - 1);
+		pos = end;
+		for (i = 0; i < max_len; i++)
+			pos = g_utf8_find_prev_char (begin, pos);
+
+		substr = g_strndup (pos, end - pos);
 		retval = g_strdup_printf ("%s…", substr);
 		g_free (substr);
 	}
