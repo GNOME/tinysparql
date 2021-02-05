@@ -1,16 +1,17 @@
 # Swedish translation for tracker.
-# Copyright © 2006-2020 Free Software Foundation
+# Copyright © 2006-2021 Free Software Foundation
 # This file is distributed under the same license as the tracker package.
 # Daniel Nylander <po@danielnylander.se>, 2007, 2008, 2009, 2010, 2011.
 # Josef Andersson <josef.andersson@fripost.org>, 2015.
-# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019, 2020.
+# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019, 2020, 2021.
+# Luna Jernberg <droidbittin@gmail.com>, 2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-09-04 23:14+0000\n"
-"PO-Revision-Date: 2020-09-06 20:51+0200\n"
+"POT-Creation-Date: 2020-12-14 19:29+0000\n"
+"PO-Revision-Date: 2021-02-05 17:24+0100\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -18,69 +19,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 2.4.2\n"
 "X-Project-Style: gnome\n"
-
-#: src/libtracker-common/tracker-utils.c:90
-msgid "unknown time"
-msgstr "okänd tid"
-
-#: src/libtracker-common/tracker-utils.c:104
-#: src/libtracker-common/tracker-utils.c:155
-msgid "less than one second"
-msgstr "mindre än en sekund"
-
-#. Translators: this is %d days
-#: src/libtracker-common/tracker-utils.c:119
-#, c-format
-msgid " %dd"
-msgstr " %d d"
-
-#. Translators: this is %2.2d hours
-#: src/libtracker-common/tracker-utils.c:123
-#, c-format
-msgid " %2.2dh"
-msgstr " %2.2d h"
-
-#. Translators: this is %2.2d minutes
-#: src/libtracker-common/tracker-utils.c:127
-#, c-format
-msgid " %2.2dm"
-msgstr " %2.2d m"
-
-#. Translators: this is %2.2d seconds
-#: src/libtracker-common/tracker-utils.c:131
-#, c-format
-msgid " %2.2ds"
-msgstr " %2.2d s"
-
-#: src/libtracker-common/tracker-utils.c:135
-#, c-format
-msgid " %d day"
-msgid_plural " %d days"
-msgstr[0] " %d dygn"
-msgstr[1] " %d dygn"
-
-#: src/libtracker-common/tracker-utils.c:139
-#, c-format
-msgid " %2.2d hour"
-msgid_plural " %2.2d hours"
-msgstr[0] " %2.2d timme"
-msgstr[1] " %2.2d timmar"
-
-#: src/libtracker-common/tracker-utils.c:143
-#, c-format
-msgid " %2.2d minute"
-msgid_plural " %2.2d minutes"
-msgstr[0] " %2.2d minut"
-msgstr[1] " %2.2d minuter"
-
-#: src/libtracker-common/tracker-utils.c:147
-#, c-format
-msgid " %2.2d second"
-msgid_plural " %2.2d seconds"
-msgstr[0] " %2.2d sekund"
-msgstr[1] " %2.2d sekunder"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -96,92 +36,110 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "Version"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:299
+#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
 #: src/tracker/tracker-export.c:517 src/tracker/tracker-import.c:160
 #: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
 msgid "Unrecognized options"
 msgstr "Okända flaggor"
 
-#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:47
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:47
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Plats för databasen"
 
-#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
+#: src/tracker/tracker-endpoint.c:51 src/tracker/tracker-endpoint.c:63
 msgid "DIR"
 msgstr "KAT"
 
-#: src/tracker/tracker-endpoint.c:52
+#: src/tracker/tracker-endpoint.c:54
 msgid "Specify the DBus name of this endpoint"
 msgstr "Ange DBus-namnet för denna ändpunkt"
 
-#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
+#: src/tracker/tracker-endpoint.c:55 src/tracker/tracker-endpoint.c:59
 msgid "NAME"
 msgstr "NAMN"
 
-#: src/tracker/tracker-endpoint.c:56
+#: src/tracker/tracker-endpoint.c:58
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Ange namnet på ontologin som används i denna ändpunkt"
 
-#: src/tracker/tracker-endpoint.c:60
+#: src/tracker/tracker-endpoint.c:62
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "Ange en sökväg till en ontologi att använda i denna ändpunkt"
 
-#: src/tracker/tracker-endpoint.c:64
+#: src/tracker/tracker-endpoint.c:66
+msgid "HTTP port"
+msgstr "HTTP-port"
+
+#: src/tracker/tracker-endpoint.c:70
+msgid "Whether to only allow HTTP connections in the loopback device"
+msgstr "Huruvida endast HTTP-anslutningar ska tillåtas i loopback-enheten"
+
+#: src/tracker/tracker-endpoint.c:74
 msgid "Use session bus"
 msgstr "Använd sessionsbuss"
 
-#: src/tracker/tracker-endpoint.c:68
+#: src/tracker/tracker-endpoint.c:78
 msgid "Use system bus"
 msgstr "Använd systembuss"
 
-#: src/tracker/tracker-endpoint.c:72
+#: src/tracker/tracker-endpoint.c:82
 msgid "List SPARQL endpoints available in DBus"
 msgstr "Lista SPARQL-ändpunkter tillgängliga i DBus"
 
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:93
+#: src/tracker/tracker-endpoint.c:103
 msgid "--list can only be used with --session or --system"
 msgstr "--list kan endast användas med --session eller --system"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:99
+#: src/tracker/tracker-endpoint.c:109
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "En flagga ”ontology” eller ”ontology-path” ska tillhandahållas"
 
-#: src/tracker/tracker-endpoint.c:141
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:115
+msgid "--http-port cannot be used with --dbus-service"
+msgstr "--http-port kan inte användas tillsammans med --dbus-service"
+
+#: src/tracker/tracker-endpoint.c:186
+#, c-format
+msgid "Creating HTTP endpoint at %s…"
+msgstr "Skapar HTTP-ändpunkt på %s…"
+
+#: src/tracker/tracker-endpoint.c:206 src/tracker/tracker-endpoint.c:269
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "Lyssnar efter SPARQL-kommandon. Tryck Ctrl-C för att stoppa."
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:214 src/tracker/tracker-endpoint.c:284
+msgid "Closing connection…"
+msgstr "Stänger anslutning…"
+
+#: src/tracker/tracker-endpoint.c:229
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Skapar ändpunkt på %s…"
 
-#: src/tracker/tracker-endpoint.c:177
+#: src/tracker/tracker-endpoint.c:265
 msgid "Could not own DBus name"
 msgstr "Kunde inte äga DBus-namn"
 
-#: src/tracker/tracker-endpoint.c:181
-msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr "Lyssnar efter SPARQL-kommandon. Tryck Ctrl-C för att stoppa."
-
-#: src/tracker/tracker-endpoint.c:191
+#: src/tracker/tracker-endpoint.c:279
 msgid "DBus name lost"
 msgstr "DBus-namn förlorat"
 
-#. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:196
-msgid "Closing connection…"
-msgstr "Stänger anslutning…"
-
-#: src/tracker/tracker-endpoint.c:333
+#: src/tracker/tracker-endpoint.c:421
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Öppnar databas på %s…"
 
-#: src/tracker/tracker-endpoint.c:336
+#: src/tracker/tracker-endpoint.c:424
 msgid "Creating in-memory database"
 msgstr "Skapar databas i minne"
 
-#: src/tracker/tracker-endpoint.c:356
+#: src/tracker/tracker-endpoint.c:451
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -571,6 +529,44 @@ msgstr "Inga resultat"
 #: src/tracker/tracker-sql.c:246
 msgid "A database path must be specified"
 msgstr "En databassökväg måste anges"
+
+#~ msgid "unknown time"
+#~ msgstr "okänd tid"
+
+#~ msgid "less than one second"
+#~ msgstr "mindre än en sekund"
+
+#~ msgid " %dd"
+#~ msgstr " %d d"
+
+#~ msgid " %2.2dh"
+#~ msgstr " %2.2d h"
+
+#~ msgid " %2.2dm"
+#~ msgstr " %2.2d m"
+
+#~ msgid " %2.2ds"
+#~ msgstr " %2.2d s"
+
+#~ msgid " %d day"
+#~ msgid_plural " %d days"
+#~ msgstr[0] " %d dygn"
+#~ msgstr[1] " %d dygn"
+
+#~ msgid " %2.2d hour"
+#~ msgid_plural " %2.2d hours"
+#~ msgstr[0] " %2.2d timme"
+#~ msgstr[1] " %2.2d timmar"
+
+#~ msgid " %2.2d minute"
+#~ msgid_plural " %2.2d minutes"
+#~ msgstr[0] " %2.2d minut"
+#~ msgstr[1] " %2.2d minuter"
+
+#~ msgid " %2.2d second"
+#~ msgid_plural " %2.2d seconds"
+#~ msgstr[0] " %2.2d sekund"
+#~ msgstr[1] " %2.2d sekunder"
 
 #~ msgid "Maximum size of journal"
 #~ msgstr "Maximal storlek för journal"
