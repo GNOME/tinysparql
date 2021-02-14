@@ -65,6 +65,11 @@ test-ubuntu-rolling:
 
 test-fedora-rawhide:
   image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:rawhide
+  before_script:
+    - git clone https://github.com/mesonbuild/meson
+    - cd meson
+    - pip3 install --user .
+    - cd ..
   <<: *test
 
 coverage-analysis:
