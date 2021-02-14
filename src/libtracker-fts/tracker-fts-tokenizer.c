@@ -245,12 +245,14 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
 
 		first = FALSE;
 
-		if (str->len != 0)
-			g_string_append_c (str, ',');
+		if (offsets->len != 0) {
+			if (str->len != 0)
+				g_string_append_c (str, ',');
 
-		g_string_append_printf (str, "%s,%d",
-		                        data->property_names[col],
-		                        g_array_index (offsets, gint, n_token));
+			g_string_append_printf (str, "%s,%d",
+						data->property_names[col],
+						g_array_index (offsets, gint, n_token));
+		}
 	}
 
 	if (offsets)
