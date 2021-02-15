@@ -134,8 +134,8 @@ main (int argc, char *argv[])
 	gchar *test_data_dir;
 	gchar *query;
 	gint i;
-	GTimer *timer;
 
+	g_print ("1..1\n");
 	test_data_dir = g_build_filename (g_get_tmp_dir (),
 	                                  "insert-or-replace-test-data-XXXXXX",
 	                                  NULL);
@@ -149,8 +149,6 @@ main (int argc, char *argv[])
 	g_initable_init (G_INITABLE (manager), NULL, &error);
 	g_assert_no_error (error);
 
-	timer = g_timer_new ();
-
 	for (i = 0; i < N_QUERIES; i++) {
 		query = g_strdup_printf (insert_query_replace,
 		                         i, i, i, i, i, i, i, i, i , i, i, i, i);
@@ -159,11 +157,6 @@ main (int argc, char *argv[])
 		g_assert_no_error (error);
 		g_free (query);
 	}
-
-	g_print ("REPLACE  : %u contacts: %f\n",
-	         N_QUERIES, g_timer_elapsed (timer, NULL));
-	g_timer_destroy (timer);
-	timer = g_timer_new ();
 
 	for (i = 0; i < N_QUERIES; i++) {
 		query = g_strdup_printf (insert_query_original,
@@ -174,13 +167,11 @@ main (int argc, char *argv[])
 		g_free (query);
 	}
 
-	g_print ("ORIGINAL : %u contacts: %f\n", N_QUERIES,
-	         g_timer_elapsed (timer, NULL));
-	g_timer_destroy (timer);
-
 	g_object_unref (manager);
 	g_object_unref (cache);
 	g_object_unref (ontology);
+
+	g_print ("ok 1 /libtracker-data/insert-or-replace\n");
 
 	return 0;
 }

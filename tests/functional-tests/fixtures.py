@@ -63,7 +63,16 @@ def tracker_test_main():
                             handlers=[handler_stderr, handler_stdout],
                             format='%(message)s')
 
-    ut.main(verbosity=2)
+    runner = None
+
+    try:
+        from tap import TAPTestRunner
+        runner = TAPTestRunner()
+        runner.set_stream(True)
+    except ImportError as e:
+        log.info('No TAP test runner found: %s', e)
+
+    ut.main(testRunner=runner, verbosity=2)
 
 
 class TrackerSparqlDirectTest(ut.TestCase):

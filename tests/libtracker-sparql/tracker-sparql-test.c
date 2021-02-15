@@ -126,7 +126,7 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 
 	if (finished == 1 && next == next_to_cancel) {
 		g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CANCELLED);
-		g_print ("Got Cancellation GError\n");
+		g_print ("# Got Cancellation GError\n");
 	} else {
 		g_assert_no_error (error);
 	}
@@ -153,7 +153,7 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 		 */
 		if (next == next_to_cancel && finished == 1) {
 			/* Cancel */
-			g_print ("Cancelling cancellable:%p at count:%d\n",
+			g_print ("# Cancelling cancellable:%p at count:%d\n",
 			         cancellables[query],
 			         next);
 			g_cancellable_cancel (cancellables[query]);
@@ -174,7 +174,7 @@ test_tracker_sparql_cursor_next_async_query (TrackerSparqlConnection *connection
 	GError *error = NULL;
 
 	g_assert_true (query < G_N_ELEMENTS (queries));
-	g_print ("ASYNC query %d starting:\n", query);
+	g_print ("# ASYNC query %d starting:\n", query);
 
 	cancellables[query] = g_cancellable_new ();
 	g_assert_true (cancellables[query] != NULL);

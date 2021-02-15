@@ -203,8 +203,8 @@ db_set_params (TrackerDBInterface   *iface,
 		                                               "PRAGMA \"%s\".journal_mode = WAL", database);
 
 		if (internal_error) {
-			g_info ("Can't set journal mode to WAL: '%s'",
-			        internal_error->message);
+			g_debug ("Can't set journal mode to WAL: '%s'",
+			         internal_error->message);
 			g_propagate_error (error, internal_error);
 		} else {
 			TrackerDBCursor *cursor;
@@ -392,7 +392,7 @@ tracker_db_manager_locale_changed (TrackerDBManager  *db_manager,
 		             current_locale);
 		changed = TRUE;
 	} else {
-		g_info ("Current and DB locales match: '%s'", db_locale);
+		g_debug ("Current and DB locales match: '%s'", db_locale);
 		changed = FALSE;
 	}
 
@@ -409,7 +409,7 @@ tracker_db_manager_set_current_locale (TrackerDBManager *db_manager)
 
 	/* Get current collation locale */
 	current_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
-	g_info ("Saving DB locale as: '%s'", current_locale);
+	g_debug ("Saving DB locale as: '%s'", current_locale);
 	db_set_locale (db_manager, current_locale);
 	g_free (current_locale);
 }
@@ -663,7 +663,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 				/* Size is 1 when using echo > file.db, none of our databases
 				 * are only one byte in size even initually. */
 				if (size <= 1) {
-					g_info ("Database is corrupt: size is 1 byte or less.");
+					g_debug ("Database is corrupt: size is 1 byte or less.");
 					return FALSE;
 				}
 

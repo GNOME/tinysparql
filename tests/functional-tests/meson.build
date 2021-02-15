@@ -44,6 +44,7 @@ foreach test_name: functional_tests
   test(test_name, python,
     args: [file],
     env: test_env,
+    protocol: 'tap',
     suite: ['functional'],
     timeout: 60)
 endforeach

@@ -3864,7 +3864,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			return FALSE;
 		}
 
-		g_info ("Applying ontologies from %s", g_file_peek_path (manager->ontology_location));
+		g_debug ("Applying ontologies from %s", g_file_peek_path (manager->ontology_location));
 		sorted = get_ontologies (manager, manager->ontology_location, &internal_error);
 
 		if (internal_error) {
@@ -3960,7 +3960,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		if (read_only) {
 			/* Not all ontology information is saved in the gvdb cache, so
 			 * it can only be used for read-only connections. */
-			g_info ("Loading cached ontologies from gvdb cache");
+			g_debug ("Loading cached ontologies from gvdb cache");
 			load_ontologies_gvdb (manager, &gvdb_error);
 
 			if (gvdb_error) {
@@ -3972,7 +3972,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		}
 
 		if (load_from_db) {
-			g_info ("Loading ontologies from database.");
+			g_debug ("Loading ontologies from database.");
 
 			db_get_static_data (iface, manager, &internal_error);
 			if (internal_error) {
@@ -4003,7 +4003,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		seen_classes = g_ptr_array_new ();
 		seen_properties = g_ptr_array_new ();
 
-		g_info ("Applying ontologies from %s to existing database", g_file_peek_path (manager->ontology_location));
+		g_debug ("Applying ontologies from %s to existing database", g_file_peek_path (manager->ontology_location));
 
 		/* Get all the ontology files from ontology_location */
 		ontos = get_ontologies (manager, manager->ontology_location, &internal_error);
