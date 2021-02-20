@@ -83,6 +83,10 @@ struct _TrackerDataManager {
 	GHashTable *transaction_graphs;
 	GHashTable *graphs;
 
+	/* Cached remote connections */
+	GMutex connections_lock;
+	GHashTable *cached_connections;
+
 	gchar *status;
 };
 
@@ -142,6 +146,7 @@ static void
 tracker_data_manager_init (TrackerDataManager *manager)
 {
 	manager->generation = 1;
+	g_mutex_init (&manager->connections_lock);
 }
 
 GQuark
@@ -4478,6 +4483,8 @@ tracker_data_manager_dispose (GObject *object)
 		g_clear_object (&manager->db_manager);
 	}
 
+	g_clear_pointer (&manager->cached_connections, g_hash_table_unref);
+
 	G_OBJECT_CLASS (tracker_data_manager_parent_class)->dispose (object);
 }
 
@@ -4490,6 +4497,7 @@ tracker_data_manager_finalize (GObject *object)
 	g_clear_object (&manager->data_update);
 	g_clear_pointer (&manager->graphs, g_hash_table_unref);
 	g_free (manager->status);
+	g_mutex_clear (&manager->connections_lock);
 
 	G_OBJECT_CLASS (tracker_data_manager_parent_class)->finalize (object);
 }
@@ -4956,4 +4964,89 @@ tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
 	}
 
 	return TRUE;
+}
+
+TrackerSparqlConnection *
+tracker_data_manager_get_remote_connection (TrackerDataManager  *data_manager,
+                                            const gchar         *uri,
+                                            GError             **error)
+{
+	TrackerSparqlConnection *connection = NULL;
+	GError *inner_error = NULL;
+	gchar *uri_scheme = NULL;
+
+	g_mutex_lock (&data_manager->connections_lock);
+
+	if (!data_manager->cached_connections) {
+		data_manager->cached_connections =
+			g_hash_table_new_full (g_str_hash, g_str_equal,
+			                       g_free, g_object_unref);
+	}
+
+	connection = g_hash_table_lookup (data_manager->cached_connections, uri);
+
+	if (!connection) {
+		uri_scheme = g_uri_parse_scheme (uri);
+		if (g_strcmp0 (uri_scheme, "dbus") == 0) {
+			gchar *bus_name, *object_path;
+			GDBusConnection *dbus_connection;
+			GBusType bus_type;
+
+			if (!tracker_util_parse_dbus_uri (uri,
+			                                  &bus_type,
+			                                  &bus_name, &object_path)) {
+				g_set_error (&inner_error,
+					     TRACKER_SPARQL_ERROR,
+					     TRACKER_SPARQL_ERROR_PARSE,
+					     "Failed to parse uri '%s'",
+					     uri);
+				goto fail;
+			}
+
+			if (!g_dbus_is_name (bus_name)) {
+				g_set_error (&inner_error,
+				             TRACKER_SPARQL_ERROR,
+				             TRACKER_SPARQL_ERROR_PARSE,
+				             "Invalid bus name '%s'",
+				             bus_name);
+				goto fail;
+			}
+
+			dbus_connection = g_bus_get_sync (bus_type, NULL, &inner_error);
+			if (!dbus_connection)
+				goto fail;
+
+			connection = tracker_sparql_connection_bus_new (bus_name, object_path,
+			                                                dbus_connection, &inner_error);
+			g_free (bus_name);
+			g_free (object_path);
+
+			if (!connection)
+				goto fail;
+		} else if (g_strcmp0 (uri_scheme, "http") == 0) {
+			connection = tracker_sparql_connection_remote_new (uri);
+		}
+
+		if (!connection) {
+			g_set_error (&inner_error,
+			             TRACKER_SPARQL_ERROR,
+			             TRACKER_SPARQL_ERROR_UNSUPPORTED,
+			             "Unsupported uri '%s'",
+			             uri);
+			goto fail;
+		}
+
+		g_hash_table_insert (data_manager->cached_connections,
+		                     g_strdup (uri),
+		                     connection);
+	}
+
+fail:
+	g_mutex_unlock (&data_manager->connections_lock);
+	g_free (uri_scheme);
+
+	if (inner_error)
+		g_propagate_error (error, inner_error);
+
+	return connection;
 }
