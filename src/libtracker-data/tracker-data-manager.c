@@ -3823,7 +3823,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                                              manager->update_cache_size,
 	                                              busy_callback, manager,
 	                                              G_OBJECT (manager),
-	                                              manager->ontologies,
+	                                              manager,
 	                                              &internal_error);
 	if (!manager->db_manager) {
 		g_propagate_error (error, internal_error);

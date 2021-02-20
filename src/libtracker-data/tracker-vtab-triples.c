@@ -20,6 +20,7 @@
  */
 #include "config.h"
 
+#include "tracker-ontologies.h"
 #include "tracker-vtab-triples.h"
 
 /* Define some constraints for older SQLite, we will never get
@@ -594,10 +595,11 @@ triples_rowid (sqlite3_vtab_cursor *vtab_cursor,
 }
 
 void
-tracker_vtab_triples_init (sqlite3           *db,
-                           TrackerOntologies *ontologies)
+tracker_vtab_triples_init (sqlite3            *db,
+                           TrackerDataManager *data_manager)
 {
 	TrackerTriplesModule *module;
+	TrackerOntologies *ontologies;
 	static const sqlite3_module triples_module = {
 		2, /* version */
 		NULL, /* create(), null because this is an eponymous-only table */
@@ -626,6 +628,7 @@ tracker_vtab_triples_init (sqlite3           *db,
 
 	module = g_new0 (TrackerTriplesModule, 1);
 	module->db = db;
+	ontologies = tracker_data_manager_get_ontologies (data_manager);
 	g_set_object (&module->ontologies, ontologies);
 	sqlite3_create_module_v2 (db, "tracker_triples", &triples_module,
 	                          module, tracker_triples_module_free);

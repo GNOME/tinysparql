@@ -59,7 +59,7 @@ gboolean            tracker_db_interface_sqlite_wal_checkpoint         (TrackerD
                                                                         gboolean                  blocking,
                                                                         GError                  **error);
 gboolean            tracker_db_interface_init_vtabs                    (TrackerDBInterface       *interface,
-                                                                        TrackerOntologies        *ontologies);
+                                                                        gpointer                  vtab_data);
 
 void                tracker_db_interface_sqlite_fts_delete_table       (TrackerDBInterface       *interface,
                                                                         const gchar              *database);

@@ -566,8 +566,8 @@ service_rowid (sqlite3_vtab_cursor *vtab_cursor,
 }
 
 void
-tracker_vtab_service_init (sqlite3           *db,
-			   TrackerOntologies *ontologies)
+tracker_vtab_service_init (sqlite3            *db,
+                           TrackerDataManager *data_manager)
 {
 	TrackerServiceModule *module;
 	static const sqlite3_module service_module = {

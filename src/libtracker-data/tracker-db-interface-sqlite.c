@@ -3741,10 +3741,10 @@ tracker_db_interface_get_is_used (TrackerDBInterface *db_interface)
 
 gboolean
 tracker_db_interface_init_vtabs (TrackerDBInterface *db_interface,
-                                 TrackerOntologies  *ontologies)
+                                 gpointer            vtab_data)
 {
-	tracker_vtab_triples_init (db_interface->db, ontologies);
-	tracker_vtab_service_init (db_interface->db, ontologies);
+	tracker_vtab_triples_init (db_interface->db, vtab_data);
+	tracker_vtab_service_init (db_interface->db, vtab_data);
 	return TRUE;
 }
 
