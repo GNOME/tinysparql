@@ -24,6 +24,7 @@
 #include "tracker-direct-batch.h"
 #include "tracker-direct-statement.h"
 #include "libtracker-sparql/tracker-private.h"
+#include <libtracker-common/tracker-utils.h>
 #include <libtracker-data/tracker-data.h>
 #include <libtracker-data/tracker-sparql.h>
 #include <libtracker-sparql/tracker-notifier-private.h>
@@ -1176,6 +1177,46 @@ tracker_direct_connection_create_batch (TrackerSparqlConnection *connection)
 	return tracker_direct_batch_new (connection);
 }
 
+static gboolean
+tracker_direct_connection_lookup_dbus_service (TrackerSparqlConnection  *connection,
+                                               const gchar              *dbus_name,
+                                               const gchar              *dbus_path,
+                                               gchar                   **name,
+                                               gchar                   **path)
+{
+	TrackerDirectConnectionPrivate *priv;
+	TrackerDirectConnection *conn;
+	TrackerSparqlConnection *remote;
+	GError *error = NULL;
+	gchar *uri;
+
+	conn = TRACKER_DIRECT_CONNECTION (connection);
+	priv = tracker_direct_connection_get_instance_private (conn);
+
+	uri = tracker_util_build_dbus_uri (G_BUS_TYPE_SESSION,
+	                                   dbus_name, dbus_path);
+	remote = tracker_data_manager_get_remote_connection (priv->data_manager,
+	                                                     uri, &error);
+	if (error) {
+		g_warning ("Error getting remote connection '%s': %s", uri, error->message);
+		g_error_free (error);
+	}
+
+	g_free (uri);
+
+	if (!remote)
+		return FALSE;
+	if (!g_object_class_find_property (G_OBJECT_GET_CLASS (remote), "bus-name"))
+		return FALSE;
+
+	g_object_get (remote,
+	              "bus-name", name,
+	              "bus-object-path", path,
+	              NULL);
+
+	return TRUE;
+}
+
 static void
 tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 {
@@ -1210,6 +1251,7 @@ tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 	sparql_connection_class->update_resource_async = tracker_direct_connection_update_resource_async;
 	sparql_connection_class->update_resource_finish = tracker_direct_connection_update_resource_finish;
 	sparql_connection_class->create_batch = tracker_direct_connection_create_batch;
+	sparql_connection_class->lookup_dbus_service = tracker_direct_connection_lookup_dbus_service;
 
 	props[PROP_FLAGS] =
 		g_param_spec_flags ("flags",
