@@ -105,7 +105,7 @@ class TestPortal(fixtures.TrackerPortalTest):
             self.bus,
             'org.freedesktop.PortalTest',
             None,
-            None)
+            'tracker:Allowed')
 
         self.update(
             'org.freedesktop.PortalTest',
