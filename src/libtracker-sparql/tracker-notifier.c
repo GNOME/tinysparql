@@ -812,7 +812,7 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
 {
 	TrackerNotifierSubscription *subscription;
 	TrackerNotifierPrivate *priv;
-	gchar *dbus_name = NULL, *dbus_path = NULL;
+	gchar *dbus_name = NULL, *dbus_path = NULL, *full_graph = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_NOTIFIER (notifier), 0);
 	g_return_val_if_fail (G_IS_DBUS_CONNECTION (connection), 0);
@@ -822,6 +822,16 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
 
 	if (!object_path)
 		object_path = DEFAULT_OBJECT_PATH;
+
+	if (graph) {
+		TrackerNamespaceManager *namespaces;
+
+		namespaces = tracker_sparql_connection_get_namespace_manager (priv->connection);
+		if (namespaces) {
+			full_graph = tracker_namespace_manager_expand_uri (namespaces,
+			                                                   graph);
+		}
+	}
 
 	tracker_sparql_connection_lookup_dbus_service (priv->connection,
 	                                               service,
@@ -838,7 +848,7 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
 		                                    "org.freedesktop.Tracker3.Endpoint",
 		                                    "GraphUpdated",
 		                                    dbus_path ? dbus_path : object_path,
-		                                    graph,
+		                                    full_graph ? full_graph : graph,
 		                                    G_DBUS_SIGNAL_FLAGS_NONE,
 		                                    graph_updated_cb,
 		                                    subscription, NULL);
@@ -849,6 +859,7 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
 
 	g_free (dbus_name);
 	g_free (dbus_path);
+	g_free (full_graph);
 
 	return subscription->handler_id;
 }
