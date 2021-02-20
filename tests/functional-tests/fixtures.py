@@ -210,6 +210,7 @@ class TrackerPortalTest(ut.TestCase):
         extra_env = {}
         extra_env['TRACKER_TEST_PORTAL_FLATPAK_INFO'] = cfg.TEST_PORTAL_FLATPAK_INFO
 
+        self.loop = trackertestutils.mainloop.MainLoop()
         self.message_queues = {}
         self.connections = {}
         self.sandbox = trackertestutils.helpers.TrackerDBusSandbox(
@@ -219,6 +220,7 @@ class TrackerPortalTest(ut.TestCase):
 
         self.bus = self.sandbox.get_session_bus_connection()
         self.dbus_address = self.sandbox.get_session_bus_address()
+        os.environ['DBUS_SESSION_BUS_ADDRESS'] = self.dbus_address
 
         try:
             log.info("Starting portal")
@@ -271,6 +273,13 @@ class TrackerPortalTest(ut.TestCase):
             store = self.connections[service_name]
 
         return store.query(sparql)
+
+    def create_local_connection(self):
+        return Tracker.SparqlConnection.new(
+            Tracker.SparqlConnectionFlags.NONE,
+            None,
+            Gio.File.new_for_path(cfg.ontologies_dir()),
+            None)
 
 
 class CliError(Exception):
