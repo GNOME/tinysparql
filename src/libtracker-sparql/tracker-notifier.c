@@ -50,6 +50,7 @@
 #include "tracker-private.h"
 #include "tracker-sparql-enum-types.h"
 #include <libtracker-common/tracker-common.h>
+#include <direct/tracker-direct.h>
 
 typedef struct _TrackerNotifierPrivate TrackerNotifierPrivate;
 typedef struct _TrackerNotifierSubscription TrackerNotifierSubscription;
@@ -811,6 +812,7 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
 {
 	TrackerNotifierSubscription *subscription;
 	TrackerNotifierPrivate *priv;
+	gchar *dbus_name = NULL, *dbus_path = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_NOTIFIER (notifier), 0);
 	g_return_val_if_fail (G_IS_DBUS_CONNECTION (connection), 0);
@@ -821,15 +823,21 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
 	if (!object_path)
 		object_path = DEFAULT_OBJECT_PATH;
 
+	tracker_sparql_connection_lookup_dbus_service (priv->connection,
+	                                               service,
+	                                               object_path,
+	                                               &dbus_name,
+	                                               &dbus_path);
+
 	subscription = tracker_notifier_subscription_new (notifier, connection,
 	                                                  service, object_path);
 
 	subscription->handler_id =
 		g_dbus_connection_signal_subscribe (connection,
-		                                    service,
+		                                    dbus_name ? dbus_name : service,
 		                                    "org.freedesktop.Tracker3.Endpoint",
 		                                    "GraphUpdated",
-		                                    object_path,
+		                                    dbus_path ? dbus_path : object_path,
 		                                    graph,
 		                                    G_DBUS_SIGNAL_FLAGS_NONE,
 		                                    graph_updated_cb,
@@ -838,6 +846,9 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
 	g_hash_table_insert (priv->subscriptions,
 	                     GUINT_TO_POINTER (subscription->handler_id),
 	                     subscription);
+
+	g_free (dbus_name);
+	g_free (dbus_path);
 
 	return subscription->handler_id;
 }
