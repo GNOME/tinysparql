@@ -34,21 +34,22 @@
 #include "tracker-sparql.h"
 
 GPtrArray*
-tracker_data_query_rdf_type (TrackerDataManager *manager,
-                             const gchar        *graph,
-                             gint                id)
+tracker_data_query_rdf_type (TrackerDataManager  *manager,
+                             const gchar         *graph,
+                             gint                 id,
+                             GError             **error)
 {
 	TrackerDBCursor *cursor = NULL;
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
 	GPtrArray *ret = NULL;
-	GError *error = NULL;
+	GError *inner_error = NULL;
 	TrackerOntologies *ontologies;
 
 	iface = tracker_data_manager_get_writable_db_interface (manager);
 	ontologies = tracker_data_manager_get_ontologies (manager);
 
-	stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+	stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
 	                                               "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
 	                                               "FROM \"%s\".\"rdfs:Resource_rdf:type\" "
 	                                               "WHERE ID = ?",
@@ -56,7 +57,7 @@ tracker_data_query_rdf_type (TrackerDataManager *manager,
 
 	if (stmt) {
 		tracker_db_statement_bind_int (stmt, 0, id);
-		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
 		g_object_unref (stmt);
 	}
 
@@ -67,7 +68,7 @@ tracker_data_query_rdf_type (TrackerDataManager *manager,
 		 * function is called fairly often) */
 
 		ret = g_ptr_array_sized_new (20);
-		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+		while (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
 			const gchar *class_uri;
 			TrackerClass *cl;
 
@@ -82,14 +83,12 @@ tracker_data_query_rdf_type (TrackerDataManager *manager,
 		g_object_unref (cursor);
 	}
 
-	if (G_UNLIKELY (error)) {
-		g_critical ("Could not query RDF type: %s\n", error->message);
-		g_error_free (error);
-
-		if (ret) {
-			g_ptr_array_free (ret, FALSE);
-			ret = NULL;
-		}
+	if (G_UNLIKELY (inner_error)) {
+		g_propagate_prefixed_error (error,
+		                            inner_error,
+		                            "Querying RDF type:");
+		g_clear_pointer (&ret, g_ptr_array_unref);
+		return NULL;
 	}
 
 	return ret;

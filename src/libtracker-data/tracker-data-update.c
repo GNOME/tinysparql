@@ -2307,6 +2307,8 @@ resource_buffer_switch (TrackerData  *data,
 		TrackerDataUpdateBufferResource *resource_buffer;
 		gchar *subject_dup;
 		gint resource_id;
+		gboolean create;
+		GPtrArray *rdf_types;
 
 		/* subject not yet in cache, retrieve or create ID */
 		resource_id =
@@ -2317,20 +2319,30 @@ resource_buffer_switch (TrackerData  *data,
 		if (resource_id == 0)
 			return FALSE;
 
+		create = g_hash_table_contains (data->update_buffer.new_resources,
+		                                subject);
+		if (!create) {
+			rdf_types = tracker_data_query_rdf_type (data->manager,
+			                                         graph,
+			                                         resource_id,
+			                                         &inner_error);
+			if (!rdf_types) {
+				g_propagate_error (error, inner_error);
+				return FALSE;
+			}
+		}
+
 		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
 		resource_buffer->id = resource_id;
 		subject_dup = g_strdup (subject);
 		resource_buffer->subject = subject_dup;
-
-		resource_buffer->create =
-			g_hash_table_contains (data->update_buffer.new_resources,
-			                       resource_buffer->subject);
+		resource_buffer->create = create;
 
 		resource_buffer->fts_updated = FALSE;
 		if (resource_buffer->create) {
 			resource_buffer->types = g_ptr_array_new ();
 		} else {
-			resource_buffer->types = tracker_data_query_rdf_type (data->manager, graph, resource_buffer->id);
+			resource_buffer->types = rdf_types;
 		}
 		resource_buffer->predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_array_unref);
 		resource_buffer->tables = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) cache_table_free);

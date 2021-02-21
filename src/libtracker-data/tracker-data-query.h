@@ -44,9 +44,10 @@ TrackerDBCursor     *tracker_data_query_sparql_cursor (TrackerDataManager  *mana
                                                        const gchar         *query,
                                                        GError             **error);
 
-GPtrArray*           tracker_data_query_rdf_type      (TrackerDataManager *manager,
-                                                       const gchar        *graph,
-                                                       gint                id);
+GPtrArray*           tracker_data_query_rdf_type      (TrackerDataManager  *manager,
+                                                       const gchar         *graph,
+                                                       gint                 id,
+                                                       GError             **error);
 
 G_END_DECLS
 
