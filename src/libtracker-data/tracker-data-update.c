@@ -1275,9 +1275,10 @@ tracker_data_update_buffer_clear (TrackerData *data)
 	data->resource_buffer = NULL;
 }
 
-static void
-cache_create_service_decomposed (TrackerData  *data,
-                                 TrackerClass *cl)
+static gboolean
+cache_create_service_decomposed (TrackerData   *data,
+                                 TrackerClass  *cl,
+                                 GError       **error)
 {
 	TrackerClass       **super_classes;
 	TrackerProperty    **domain_indexes;
@@ -1288,14 +1289,15 @@ cache_create_service_decomposed (TrackerData  *data,
 	/* also create instance of all super classes */
 	super_classes = tracker_class_get_super_classes (cl);
 	while (*super_classes) {
-		cache_create_service_decomposed (data, *super_classes);
+		if (!cache_create_service_decomposed (data, *super_classes, error))
+			return FALSE;
 		super_classes++;
 	}
 
 	for (i = 0; i < data->resource_buffer->types->len; i++) {
 		if (g_ptr_array_index (data->resource_buffer->types, i) == cl) {
 			/* ignore duplicate statement */
-			return;
+			return TRUE;
 		}
 	}
 
@@ -1324,22 +1326,21 @@ cache_create_service_decomposed (TrackerData  *data,
 	domain_indexes = tracker_class_get_domain_indexes (cl);
 	if (!domain_indexes) {
 		/* Nothing else to do, return */
-		return;
+		return TRUE;
 	}
 
 	while (*domain_indexes) {
-		GError *error = NULL;
+		GError *inner_error = NULL;
 		GArray *old_values;
 
 		/* read existing property values */
-		old_values = get_old_property_values (data, *domain_indexes, &error);
-		if (error) {
-			g_critical ("Couldn't get old values for property '%s': '%s'",
-			            tracker_property_get_name (*domain_indexes),
-			            error->message);
-			g_clear_error (&error);
-			domain_indexes++;
-			continue;
+		old_values = get_old_property_values (data, *domain_indexes, &inner_error);
+		if (inner_error) {
+			g_propagate_prefixed_error (error,
+			                            inner_error,
+			                            "Getting old values for '%s':",
+			                            tracker_property_get_name (*domain_indexes));
+			return FALSE;
 		}
 
 		if (old_values &&
@@ -1365,6 +1366,8 @@ cache_create_service_decomposed (TrackerData  *data,
 
 		domain_indexes++;
 	}
+
+	return TRUE;
 }
 
 static gboolean
@@ -2665,7 +2668,8 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 		   cope with inference and insert blank rows */
 		class = tracker_ontologies_get_class_by_uri (ontologies, object_str);
 		if (class != NULL) {
-			cache_create_service_decomposed (data, class);
+			if (!cache_create_service_decomposed (data, class, error))
+				return;
 		} else {
 			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_CLASS,
 			             "Class '%s' not found in the ontology", object_str);
