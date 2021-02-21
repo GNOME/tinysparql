@@ -409,39 +409,45 @@ tracker_data_dispatch_delete_statement_callbacks (TrackerData *data,
 	}
 }
 
-static gint
-tracker_data_update_get_next_modseq (TrackerData *data)
+static gboolean
+tracker_data_update_initialize_modseq (TrackerData  *data,
+                                       GError      **error)
 {
 	TrackerDBCursor    *cursor = NULL;
 	TrackerDBInterface *temp_iface;
 	TrackerDBStatement *stmt;
-	GError             *error = NULL;
+	GError             *inner_error = NULL;
 	gint                max_modseq = 0;
+
+	/* Is it already initialized? */
+	if (data->transaction_modseq != 0)
+		return TRUE;
 
 	temp_iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
-	stmt = tracker_db_interface_create_statement (temp_iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+	stmt = tracker_db_interface_create_statement (temp_iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
 	                                              "SELECT MAX(\"nrl:modified\") AS A FROM \"rdfs:Resource\"");
 
 	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
 		g_object_unref (stmt);
 	}
 
 	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
-			max_modseq = MAX (tracker_db_cursor_get_int (cursor, 0), max_modseq);
+		if (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
+			max_modseq = tracker_db_cursor_get_int (cursor, 0);
+			data->transaction_modseq = max_modseq + 1;
 		}
 
 		g_object_unref (cursor);
 	}
 
-	if (G_UNLIKELY (error)) {
-		g_warning ("Could not get new resource ID: %s\n", error->message);
-		g_error_free (error);
+	if (G_UNLIKELY (inner_error)) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
 	}
 
-	return ++max_modseq;
+	return TRUE;
 }
 
 static void
@@ -514,10 +520,6 @@ tracker_data_new (TrackerDataManager *manager)
 static gint
 get_transaction_modseq (TrackerData *data)
 {
-	if (G_UNLIKELY (data->transaction_modseq == 0)) {
-		data->transaction_modseq = tracker_data_update_get_next_modseq (data);
-	}
-
 	/* Always use 1 for ontology transactions */
 	if (data->in_ontology_transaction) {
 		return 1;
@@ -2801,6 +2803,10 @@ tracker_data_begin_transaction (TrackerData  *data,
 		return;
 	}
 
+	if (!data->in_ontology_transaction &&
+	    !tracker_data_update_initialize_modseq (data, error))
+		return;
+
 	data->resource_time = time (NULL);
 
 	data->has_persistent = FALSE;
@@ -2858,7 +2864,6 @@ tracker_data_commit_transaction (TrackerData  *data,
 		return;
 	}
 
-	get_transaction_modseq (data);
 	if (data->has_persistent && !data->in_ontology_transaction) {
 		data->transaction_modseq++;
 	}
