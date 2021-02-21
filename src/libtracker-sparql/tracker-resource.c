@@ -31,6 +31,9 @@
 /* For tracker_sparql_escape_string */
 #include "tracker-utils.h"
 
+/* For prefixed names parsing */
+#include "libtracker-data/tracker-sparql-grammar.h"
+
 #include <tracker-private.h>
 
 typedef struct {
@@ -934,6 +937,26 @@ tracker_resource_get_properties (TrackerResource *resource)
 	return g_hash_table_get_keys (priv->properties);
 }
 
+static gchar *
+parse_prefix (const gchar *prefixed_name)
+{
+	const gchar *end, *token_end;
+
+	end = &prefixed_name[strlen(prefixed_name)];
+
+	if (!terminal_PNAME_NS (prefixed_name, end, &token_end))
+		return NULL;
+
+	/* We have read the ':', take a step back */
+	if (token_end && token_end > prefixed_name)
+		token_end--;
+
+	if (*token_end != ':')
+		return NULL;
+
+	return g_strndup (prefixed_name, token_end - prefixed_name);
+}
+
 /* Helper function for serialization code. This allows you to selectively
  * populate 'interned_namespaces' from 'all_namespaces' based on when a
  * particular prefix is actually used. This is quite inefficient compared
@@ -952,7 +975,7 @@ maybe_intern_prefix_of_compact_uri (TrackerNamespaceManager *all_namespaces,
 	 * we can't really tell if the user has done something dumb like defining a
 	 * "urn" prefix.
 	 */
-	char *prefix = g_uri_parse_scheme (uri);
+	char *prefix = parse_prefix (uri);
 
 	if (prefix == NULL) {
 		g_warning ("Invalid URI or compact URI: %s", uri);
@@ -991,12 +1014,13 @@ is_builtin_class (const gchar             *uri_or_curie,
 	gchar *prefix = NULL;
 	gboolean has_prefix;
 
-	// blank nodes should be processed as nested resource
-	// g_uri_parse_scheme returns NULL for blank nodes, i.e. _:1
+	/* blank nodes should be processed as nested resource
+	 * parse_prefix returns NULL for blank nodes, i.e. _:1
+	 */
 	if (is_blank_node (uri_or_curie))
 		return FALSE;
 
-	prefix = g_uri_parse_scheme (uri_or_curie);
+	prefix = parse_prefix (uri_or_curie);
 
 	if (!prefix)
 		return TRUE;
@@ -1069,7 +1093,7 @@ generate_turtle_uri_value (const char              *uri_or_curie_or_blank,
 	if (is_blank_node (uri_or_curie_or_blank)) {
 		g_string_append (string, uri_or_curie_or_blank);
 	} else {
-		char *prefix = g_uri_parse_scheme (uri_or_curie_or_blank);
+		char *prefix = parse_prefix (uri_or_curie_or_blank);
 
 		if (prefix && tracker_namespace_manager_has_prefix (all_namespaces, prefix)) {
 			/* It's a compact URI and we know the prefix */
