@@ -1456,8 +1456,9 @@ check_property_domain (TrackerData     *data,
 }
 
 static GArray *
-get_property_values (TrackerData     *data,
-                     TrackerProperty *property)
+get_property_values (TrackerData      *data,
+                     TrackerProperty  *property,
+                     GError          **error)
 {
 	gboolean multiple_values;
 	const gchar *database;
@@ -1478,30 +1479,25 @@ get_property_values (TrackerData     *data,
 		TrackerDBCursor    *cursor = NULL;
 		const gchar        *table_name;
 		const gchar        *field_name;
-		GError             *error = NULL;
+		GError             *inner_error = NULL;
 
 		table_name = tracker_property_get_table_name (property);
 		field_name = tracker_property_get_name (property);
 
 		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
-		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
 		                                               "SELECT \"%s\" FROM \"%s\".\"%s\" WHERE ID = ?",
 		                                               field_name, database, table_name);
 
 		if (stmt) {
 			tracker_db_statement_bind_int (stmt, 0, data->resource_buffer->id);
-			cursor = tracker_db_statement_start_cursor (stmt, &error);
+			cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
 			g_object_unref (stmt);
 		}
 
-		if (error) {
-			g_warning ("Could not get property values: %s\n", error->message);
-			g_error_free (error);
-		}
-
 		if (cursor) {
-			while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+			while (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
 				GValue gvalue = { 0 };
 
 				tracker_db_cursor_get_value (cursor, 0, &gvalue);
@@ -1522,12 +1518,14 @@ get_property_values (TrackerData     *data,
 							time = g_value_dup_string (&gvalue);
 							g_value_unset (&gvalue);
 							g_value_init (&gvalue, TRACKER_TYPE_DATE_TIME);
-							tracker_date_time_set_from_string (&gvalue, time, &error);
+							tracker_date_time_set_from_string (&gvalue, time, &inner_error);
 							g_free (time);
 
-							if (error) {
-								g_warning ("Error in date conversion: %s", error->message);
-								g_error_free (error);
+							if (inner_error) {
+								g_propagate_prefixed_error (error,
+								                            inner_error,
+								                            "Error in date conversion:");
+								return NULL;
 							}
 						}
 					}
@@ -1535,7 +1533,13 @@ get_property_values (TrackerData     *data,
 					g_array_append_val (old_values, gvalue);
 				}
 			}
+
 			g_object_unref (cursor);
+		}
+
+		if (inner_error) {
+			g_propagate_error (error, inner_error);
+			return NULL;
 		}
 	}
 
@@ -1594,7 +1598,13 @@ get_old_property_values (TrackerData      *data,
 						GString *str;
 						gint i;
 
-						old_values = get_property_values (data, prop);
+						old_values = get_property_values (data, prop, error);
+						if (!old_values) {
+							g_ptr_array_unref (fts_props);
+							g_ptr_array_unref (fts_text);
+							return NULL;
+						}
+
 						property_name = tracker_property_get_name (prop);
 						str = g_string_new (NULL);
 
@@ -1625,12 +1635,12 @@ get_old_property_values (TrackerData      *data,
 
 				old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
 			} else {
-				old_values = get_property_values (data, property);
+				old_values = get_property_values (data, property, error);
 			}
 
 			data->resource_buffer->fts_updated = TRUE;
 		} else {
-			old_values = get_property_values (data, property);
+			old_values = get_property_values (data, property, error);
 		}
 	}
 
