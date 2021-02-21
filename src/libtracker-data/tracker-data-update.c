@@ -1072,9 +1072,10 @@ tracker_data_resource_unref (TrackerData *data,
 }
 
 /* Only applies to multivalued properties */
-static void
-tracker_data_resource_unref_all (TrackerData     *data,
-				 TrackerProperty *property)
+static gboolean
+tracker_data_resource_unref_all (TrackerData      *data,
+                                 TrackerProperty  *property,
+                                 GError          **error)
 {
 	GArray *old_values;
 	gint i;
@@ -1082,7 +1083,9 @@ tracker_data_resource_unref_all (TrackerData     *data,
 	g_assert (tracker_property_get_multiple_values (property) == TRUE);
 	g_assert (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE);
 
-	old_values = get_old_property_values (data, property, NULL);
+	old_values = get_old_property_values (data, property, error);
+	if (!old_values)
+		return FALSE;
 
 	for (i = 0; i < old_values->len; i++) {
 		GValue *value;
@@ -1090,6 +1093,8 @@ tracker_data_resource_unref_all (TrackerData     *data,
 		value = &g_array_index (old_values, GValue, i);
 		tracker_data_resource_unref (data, g_value_get_int64 (value), TRUE);
 	}
+
+	return TRUE;
 }
 
 static void
@@ -2422,8 +2427,10 @@ delete_all_helper (TrackerData      *data,
 			cache_delete_all_values (data,
 			                         tracker_property_get_table_name (property),
 			                         tracker_property_get_name (property));
-			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
-				tracker_data_resource_unref_all (data, property);
+			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+				if (!tracker_data_resource_unref_all (data, property, error))
+					return FALSE;
+			}
 		} else {
 			value = &g_array_index (old_values, GValue, 0);
 			cache_delete_value (data,
@@ -2535,8 +2542,10 @@ delete_single_valued (TrackerData  *data,
 		cache_delete_all_values (data,
 		                         tracker_property_get_table_name (field),
 		                         tracker_property_get_name (field));
-		if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE)
-			tracker_data_resource_unref_all (data, field);
+		if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			if (!tracker_data_resource_unref_all (data, field, error))
+				return FALSE;
+		}
 	} else if (!multiple_values) {
 		GError *inner_error = NULL;
 		GArray *old_values;
@@ -2792,8 +2801,10 @@ tracker_data_update_statement (TrackerData  *data,
 			cache_delete_all_values (data,
 			                         tracker_property_get_table_name (property),
 			                         tracker_property_get_name (property));
-			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
-				tracker_data_resource_unref_all (data, property);
+			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+				if (!tracker_data_resource_unref_all (data, property, error))
+					return;
+			}
 		} else {
 			if (!resource_buffer_switch (data, graph, subject, error))
 				return;
