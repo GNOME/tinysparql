@@ -36,7 +36,8 @@ G_BEGIN_DECLS
 
 gint                 tracker_data_query_resource_id   (TrackerDataManager  *manager,
                                                        TrackerDBInterface  *iface,
-                                                       const gchar         *uri);
+                                                       const gchar         *uri,
+                                                       GError             **error);
 gchar               *tracker_data_query_unused_uuid   (TrackerDataManager  *manager,
                                                        TrackerDBInterface  *iface);
 

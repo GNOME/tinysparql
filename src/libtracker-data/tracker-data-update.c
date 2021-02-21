@@ -666,8 +666,9 @@ cache_delete_value (TrackerData *data,
 }
 
 static gint
-query_resource_id (TrackerData *data,
-                   const gchar *uri)
+query_resource_id (TrackerData  *data,
+                   const gchar  *uri,
+                   GError      **error)
 {
 	TrackerDBInterface *iface;
 	gint id;
@@ -676,7 +677,7 @@ query_resource_id (TrackerData *data,
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	if (id == 0) {
-		id = tracker_data_query_resource_id (data->manager, iface, uri);
+		id = tracker_data_query_resource_id (data->manager, iface, uri, error);
 
 		if (id) {
 			g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
@@ -722,14 +723,14 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 		if (g_error_matches (inner_error,
 		                     TRACKER_DB_INTERFACE_ERROR,
 		                     TRACKER_DB_CONSTRAINT)) {
-			id = query_resource_id (data, uri);
+			g_clear_error (&inner_error);
+			id = query_resource_id (data, uri, &inner_error);
 
 			if (id != 0) {
 				if (create)
 					*create = FALSE;
 
 				g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
-				g_error_free (inner_error);
 				return id;
 			}
 		}
@@ -2375,7 +2376,7 @@ tracker_data_delete_statement (TrackerData  *data,
 	g_return_if_fail (object != NULL);
 	g_return_if_fail (data->in_transaction);
 
-	subject_id = query_resource_id (data, subject);
+	subject_id = query_resource_id (data, subject, error);
 
 	if (subject_id == 0) {
 		/* subject not in database */
@@ -2510,7 +2511,7 @@ tracker_data_delete_all (TrackerData  *data,
 	g_return_val_if_fail (predicate != NULL, FALSE);
 	g_return_val_if_fail (data->in_transaction, FALSE);
 
-	subject_id = query_resource_id (data, subject);
+	subject_id = query_resource_id (data, subject, error);
 
 	if (subject_id == 0) {
 		/* subject not in database */
@@ -2688,8 +2689,21 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 			return;
 		}
 
-		final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (data->manager, iface, predicate);
-		object_id = query_resource_id (data, object_str);
+		final_prop_id = prop_id;
+
+		if (final_prop_id == 0) {
+			final_prop_id = tracker_data_query_resource_id (data->manager,
+			                                                iface,
+			                                                predicate,
+			                                                error);
+		}
+
+		if (final_prop_id == 0)
+			return;
+
+		object_id = query_resource_id (data, object_str, error);
+		if (object_id == 0)
+			return;
 
 		change = TRUE;
 	} else {
@@ -2702,8 +2716,21 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 		}
 
 		if (change) {
-			final_prop_id = (prop_id != 0) ? prop_id : tracker_data_query_resource_id (data->manager, iface, predicate);
-			object_id = query_resource_id (data, object_str);
+			final_prop_id = prop_id;
+
+			if (final_prop_id == 0) {
+				final_prop_id = tracker_data_query_resource_id (data->manager,
+				                                                iface,
+				                                                predicate,
+				                                                error);
+			}
+
+			if (final_prop_id == 0)
+				return;
+
+			object_id = query_resource_id (data, object_str, error);
+			if (object_id == 0)
+				return;
 
 			tracker_data_dispatch_insert_statement_callbacks (data,
 			                                                  final_prop_id,
@@ -2765,9 +2792,17 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 	}
 
 	if (change) {
-		pred_id = (pred_id != 0) ? pred_id : tracker_data_query_resource_id (data->manager, iface, predicate);
-		object_str = g_bytes_get_data (object, NULL);
+		if (pred_id == 0) {
+			pred_id = tracker_data_query_resource_id (data->manager,
+			                                          iface,
+			                                          predicate,
+			                                          error);
+		}
 
+		if (pred_id == 0)
+			return;
+
+		object_str = g_bytes_get_data (object, NULL);
 		tracker_data_dispatch_insert_statement_callbacks (data,
 		                                                  pred_id,
 		                                                  0, /* Always a literal */
@@ -3137,7 +3172,10 @@ tracker_data_delete_graph (TrackerData  *data,
 	TrackerDBStatement *stmt;
 	gint id;
 
-	id = query_resource_id (data, uri);
+	id = query_resource_id (data, uri, error);
+	if (id == 0)
+		return FALSE;
+
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
 	                                              "DELETE FROM Graph WHERE ID = ?");

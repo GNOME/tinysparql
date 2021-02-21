@@ -95,37 +95,40 @@ tracker_data_query_rdf_type (TrackerDataManager  *manager,
 }
 
 gint
-tracker_data_query_resource_id (TrackerDataManager *manager,
-                                TrackerDBInterface *iface,
-                                const gchar        *uri)
+tracker_data_query_resource_id (TrackerDataManager  *manager,
+                                TrackerDBInterface  *iface,
+                                const gchar         *uri,
+                                GError             **error)
 {
 	TrackerDBCursor *cursor = NULL;
 	TrackerDBStatement *stmt;
-	GError *error = NULL;
+	GError *inner_error = NULL;
 	gint id = 0;
 
 	g_return_val_if_fail (uri != NULL, 0);
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
 	                                              "SELECT ID FROM Resource WHERE Uri = ?");
 
 	if (stmt) {
 		tracker_db_statement_bind_text (stmt, 0, uri);
-		cursor = tracker_db_statement_start_cursor (stmt, &error);
+		cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
 		g_object_unref (stmt);
 	}
 
 	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+		if (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
 			id = tracker_db_cursor_get_int (cursor, 0);
 		}
 
 		g_object_unref (cursor);
 	}
 
-	if (G_UNLIKELY (error)) {
-		g_critical ("Could not query resource ID: %s\n", error->message);
-		g_error_free (error);
+	if (G_UNLIKELY (inner_error)) {
+		g_propagate_prefixed_error (error,
+		                            inner_error,
+		                            "Querying resource ID:");
+		return 0;
 	}
 
 	return id;
