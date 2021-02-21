@@ -1705,9 +1705,10 @@ bytes_to_gvalue (GBytes              *bytes,
 }
 
 static const gchar *
-get_bnode_for_resource (GHashTable      *bnodes,
-                        TrackerData     *data,
-                        TrackerResource *resource)
+get_bnode_for_resource (GHashTable       *bnodes,
+                        TrackerData      *data,
+                        TrackerResource  *resource,
+                        GError          **error)
 {
 	TrackerDBInterface *iface;
 	const gchar *identifier;
@@ -1719,17 +1720,21 @@ get_bnode_for_resource (GHashTable      *bnodes,
 		return bnode;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	bnode = tracker_data_update_ensure_new_bnode (data, iface, NULL);
+	bnode = tracker_data_update_ensure_new_bnode (data, iface, error);
+	if (!bnode)
+		return NULL;
+
 	g_hash_table_insert (bnodes, g_strdup (identifier), bnode);
 
 	return bnode;
 }
 
-static void
+static gboolean
 bytes_from_gvalue (GValue       *gvalue,
                    GBytes      **bytes,
                    TrackerData  *data,
-                   GHashTable   *bnodes)
+                   GHashTable   *bnodes,
+                   GError      **error)
 {
 	gchar *str;
 
@@ -1766,7 +1771,10 @@ bytes_from_gvalue (GValue       *gvalue,
 				TrackerDBInterface *iface;
 
 				iface = tracker_data_manager_get_writable_db_interface (data->manager);
-				bnode = tracker_data_update_ensure_new_bnode (data, iface, NULL);
+				bnode = tracker_data_update_ensure_new_bnode (data, iface, error);
+				if (!bnode)
+					return FALSE;
+
 				g_hash_table_insert (bnodes, g_strdup (uri), bnode);
 			}
 
@@ -1789,8 +1797,11 @@ bytes_from_gvalue (GValue       *gvalue,
 		res = g_value_get_object (gvalue);
 		object = tracker_resource_get_identifier (res);
 
-		if (!object || g_str_has_prefix (object, "_:"))
-			object = get_bnode_for_resource (bnodes, data, res);
+		if (!object || g_str_has_prefix (object, "_:")) {
+			object = get_bnode_for_resource (bnodes, data, res, error);
+			if (!object)
+				return FALSE;
+		}
 
 		*bytes = g_bytes_new (object, strlen (object) + 1);
 	} else if (G_VALUE_HOLDS (gvalue, TRACKER_TYPE_DATE_TIME)) {
@@ -1803,9 +1814,15 @@ bytes_from_gvalue (GValue       *gvalue,
 
 		*bytes = g_bytes_new_take (str, strlen (str) + 1);
 	} else {
-		g_warning ("Conversion to bytes unavailable for type %s",
-		           G_VALUE_TYPE_NAME (gvalue));
+		g_set_error (error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_UNSUPPORTED,
+		             "Conversion to bytes unavailable for type %s",
+		             G_VALUE_TYPE_NAME (gvalue));
+		return FALSE;
 	}
+
+	return TRUE;
 }
 
 static gboolean
@@ -2146,7 +2163,9 @@ cache_delete_resource_type_full (TrackerData   *data,
 		table_name = tracker_property_get_table_name (prop);
 		field_name = tracker_property_get_name (prop);
 
-		old_values = get_old_property_values (data, prop, NULL);
+		old_values = get_old_property_values (data, prop, error);
+		if (!old_values)
+			return FALSE;
 
 		for (y = old_values->len - 1; y >= 0 ; y--) {
 			GValue *old_gvalue, copy = G_VALUE_INIT;
@@ -3167,10 +3186,12 @@ update_resource_property (TrackerData      *data,
 				break;
 		}
 
-		bytes_from_gvalue (v->data,
-		                   &bytes,
-		                   data,
-		                   bnodes);
+		if (!bytes_from_gvalue (v->data,
+		                        &bytes,
+		                        data,
+		                        bnodes,
+		                        &inner_error))
+			break;
 
 		tracker_data_insert_statement (data,
 		                               graph_uri,
@@ -3216,7 +3237,9 @@ update_resource_single (TrackerData      *data,
 	subject = tracker_resource_get_identifier (resource);
 	if (!subject || g_str_has_prefix (subject, "_:")) {
 		is_bnode = TRUE;
-		subject = get_bnode_for_resource (bnodes, data, resource);
+		subject = get_bnode_for_resource (bnodes, data, resource, error);
+		if (!subject)
+			return FALSE;
 	}
 
 	if (graph) {
