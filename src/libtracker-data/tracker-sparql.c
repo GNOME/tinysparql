@@ -9483,7 +9483,7 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
                                GError        **error)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBInterface *iface;
+	TrackerDBInterface *iface = NULL;
 	TrackerDBCursor *cursor = NULL;
 	TrackerPropertyType *types;
 	const gchar * const *names;
@@ -9543,6 +9543,8 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 	g_object_unref (stmt);
 
 error:
+	if (iface)
+		tracker_db_interface_unref_use (iface);
 	g_mutex_unlock (&sparql->mutex);
 
 	return TRACKER_SPARQL_CURSOR (cursor);
