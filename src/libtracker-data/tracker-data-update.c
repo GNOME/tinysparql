@@ -687,11 +687,12 @@ query_resource_id (TrackerData *data,
 gint
 tracker_data_update_ensure_resource (TrackerData  *data,
                                      const gchar  *uri,
-                                     gboolean     *create)
+                                     gboolean     *create,
+                                     GError      **error)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt = NULL;
-	GError *error = NULL;
+	GError *inner_error = NULL;
 	gchar *key;
 	gint id;
 
@@ -705,18 +706,18 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &inner_error,
 	                                              "INSERT INTO Resource (Uri, BlankNode) VALUES (?, ?)");
 
 	if (stmt) {
 		tracker_db_statement_bind_text (stmt, 0, uri);
 		tracker_db_statement_bind_int (stmt, 1, g_str_has_prefix (uri, "urn:bnode:"));
-		tracker_db_statement_execute (stmt, &error);
+		tracker_db_statement_execute (stmt, &inner_error);
 		g_object_unref (stmt);
 	}
 
-	if (error) {
-		if (g_error_matches (error,
+	if (inner_error) {
+		if (g_error_matches (inner_error,
 		                     TRACKER_DB_INTERFACE_ERROR,
 		                     TRACKER_DB_CONSTRAINT)) {
 			id = query_resource_id (data, uri);
@@ -726,13 +727,14 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 					*create = FALSE;
 
 				g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
-				g_error_free (error);
+				g_error_free (inner_error);
 				return id;
 			}
 		}
 
-		g_error ("Could not ensure resource existence: %s", error->message);
-		g_error_free (error);
+		g_propagate_error (error, inner_error);
+
+		return 0;
 	}
 
 	if (create)
@@ -1680,7 +1682,7 @@ bytes_to_gvalue (GBytes              *bytes,
 		tracker_date_time_set_from_string (gvalue, value, error);
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		object_id = tracker_data_update_ensure_resource (data, value, NULL);
+		object_id = tracker_data_update_ensure_resource (data, value, NULL, error);
 		g_value_init (gvalue, G_TYPE_INT64);
 		g_value_set_int64 (gvalue, object_id);
 		break;
@@ -2261,7 +2263,10 @@ resource_buffer_switch (TrackerData  *data,
 		resource_id =
 			tracker_data_update_ensure_resource (data,
 			                                     subject,
-			                                     NULL);
+			                                     NULL,
+			                                     error);
+		if (resource_id == 0)
+			return FALSE;
 
 		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
 		resource_buffer->id = resource_id;
@@ -3034,7 +3039,10 @@ tracker_data_ensure_graph (TrackerData  *data,
 	TrackerDBStatement *stmt;
 	gint id;
 
-	id = tracker_data_update_ensure_resource (data, uri, NULL);
+	id = tracker_data_update_ensure_resource (data, uri, NULL, error);
+	if (id == 0)
+		return 0;
+
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
 	                                              "INSERT OR IGNORE INTO Graph (ID) VALUES (?)");
