@@ -735,7 +735,10 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			}
 
 			subject_id = tracker_data_update_ensure_resource (manager->data_update,
-			                                                  subject, NULL);
+			                                                  subject, NULL, error);
+			if (!subject_id)
+				return;
+
 			class = tracker_class_new (FALSE);
 			tracker_class_set_ontologies (class, manager->ontologies);
 			tracker_class_set_is_new (class, in_update);
@@ -780,7 +783,10 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 			subject_id = tracker_data_update_ensure_resource (manager->data_update,
 			                                                  subject,
-			                                                  NULL);
+			                                                  NULL, error);
+			if (!subject_id)
+				return;
+
 			property = tracker_property_new (FALSE);
 			tracker_property_set_ontologies (property, manager->ontologies);
 			tracker_property_set_is_new (property, in_update);

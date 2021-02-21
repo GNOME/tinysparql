@@ -4503,7 +4503,8 @@ check_idempotent_delete (TrackerSparql     *sparql,
 		subject_str = _extract_node_string (subject, sparql);
 		iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
 		skip = tracker_data_query_resource_id (sparql->data_manager,
-		                                       iface, subject_str) == 0;
+		                                       iface, subject_str,
+		                                       NULL) == 0;
 		g_free (subject_str);
 
 		if (!skip)
