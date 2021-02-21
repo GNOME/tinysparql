@@ -2254,19 +2254,20 @@ resource_buffer_switch (TrackerData  *data,
 
 	if (data->resource_buffer == NULL) {
 		TrackerDataUpdateBufferResource *resource_buffer;
-		gchar *subject_dup = NULL;
+		gchar *subject_dup;
+		gint resource_id;
 
 		/* subject not yet in cache, retrieve or create ID */
-		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
-		if (subject != NULL) {
-			subject_dup = g_strdup (subject);
-			resource_buffer->subject = subject_dup;
-		}
-
-		resource_buffer->id =
+		resource_id =
 			tracker_data_update_ensure_resource (data,
-			                                     resource_buffer->subject,
+			                                     subject,
 			                                     NULL);
+
+		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
+		resource_buffer->id = resource_id;
+		subject_dup = g_strdup (subject);
+		resource_buffer->subject = subject_dup;
+
 		resource_buffer->create =
 			g_hash_table_contains (data->update_buffer.new_resources,
 			                       resource_buffer->subject);
