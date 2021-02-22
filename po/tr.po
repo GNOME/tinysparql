@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2021-01-23 12:32+0000\n"
-"PO-Revision-Date: 2021-02-04 01:54+0300\n"
+"POT-Creation-Date: 2021-02-03 22:56+0000\n"
+"PO-Revision-Date: 2021-02-22 11:02+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 2.2.3\n"
+"X-Generator: Poedit 2.4.2\n"
 "X-POOTLE-MTIME: 1436541455.000000\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
@@ -56,7 +56,7 @@ msgstr "DİZİN"
 
 #: src/tracker/tracker-endpoint.c:54
 msgid "Specify the DBus name of this endpoint"
-msgstr "Bu uç noktanın DBus adını belirtin"
+msgstr "Bu uç noktanın DBus adını belirt"
 
 #: src/tracker/tracker-endpoint.c:55 src/tracker/tracker-endpoint.c:59
 msgid "NAME"
@@ -64,11 +64,11 @@ msgstr "AD"
 
 #: src/tracker/tracker-endpoint.c:58
 msgid "Specify the ontology name used in this endpoint"
-msgstr "Bu uç noktada kullanılan ontoloji adını belirtin"
+msgstr "Bu uç noktada kullanılan ontoloji adını belirt"
 
 #: src/tracker/tracker-endpoint.c:62
 msgid "Specify a path to an ontology to be used in this endpoint"
-msgstr "Bu uç noktada kullanılan ontolojiye bir yol belirtin"
+msgstr "Bu uç noktada kullanılan ontolojiye yol belirt"
 
 #: src/tracker/tracker-endpoint.c:66
 msgid "HTTP port"
@@ -76,7 +76,7 @@ msgstr "HTTP bağlantı noktası"
 
 #: src/tracker/tracker-endpoint.c:70
 msgid "Whether to only allow HTTP connections in the loopback device"
-msgstr ""
+msgstr "Loopback aygıtında yalnızca HTTP bağlantılarına izin verilmesi"
 
 #: src/tracker/tracker-endpoint.c:74
 msgid "Use session bus"
@@ -221,12 +221,12 @@ msgstr "İçe aktarım çalıştırılamadı"
 #: src/tracker/tracker-main.c:43
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
-"Belirli alt komut hakkında bilgi almak için “tracker3 help <komut>” komutuna "
-"göz atın."
+"Belirli alt komutla ilgili bilgi almak için “tracker3 help <komut>” komutuna "
+"göz at."
 
 #: src/tracker/tracker-main.c:92
 msgid "Get help on how to use Tracker and any of these commands"
-msgstr "Tracker kullanımı ve bu komutların herhangi birisi için yardım alın"
+msgstr "Tracker kullanımı ve bu komutların herhangi birisi için yardım al"
 
 #: src/tracker/tracker-main.c:93
 msgid "Create a SPARQL endpoint"
@@ -254,7 +254,7 @@ msgstr "SQL kullanarak en düşük düzeyde veri tabanını sorgula"
 #: src/tracker/tracker-main.c:137
 #, c-format
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "“%s” bir tracker3 komutu değil. “tracker3 --help” göz atın"
+msgstr "“%s”, tracker3 komutu değil. “tracker3 --help” göz at"
 
 #: src/tracker/tracker-main.c:172
 msgid "Available tracker3 commands are:"
@@ -262,7 +262,7 @@ msgstr "Kullanılabilir tracker3 komutları:"
 
 #: src/tracker/tracker-main.c:210
 msgid "Additional / third party commands are:"
-msgstr "Ek / Üçüncü taraf komutlar:"
+msgstr "Ek / üçüncü taraf komutlar:"
 
 #: src/tracker/tracker-sparql.c:122
 msgid "Path to use to run a query or update from file"
@@ -295,8 +295,7 @@ msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr ""
-"Bir sınıf için özellikleri getir, ön ekler de kullanılabilir (örn. rdfs:"
-"Resource)"
+"Sınıf için özellikleri getir, ön ekler de kullanılabilir (örn. rdfs:Resource)"
 
 #: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
 #: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
@@ -378,7 +377,7 @@ msgstr "Hiçbiri"
 
 #: src/tracker/tracker-sparql.c:995
 msgid "Could not create tree: subclass query failed"
-msgstr "Ağaç oluşturulamadı: altsınıf sorgusu başarısız oldu"
+msgstr "Ağaç oluşturulamadı: alt sınıf sorgusu başarısız oldu"
 
 #: src/tracker/tracker-sparql.c:1044
 msgid "Could not create tree: class properties query failed"
@@ -440,15 +439,15 @@ msgstr "Bildirimler"
 
 #: src/tracker/tracker-sparql.c:1292
 msgid "Could not find indexed properties"
-msgstr "Dizinlenmiş özellikler bulunamadı"
+msgstr "İndekslenmiş özellikler bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1300
 msgid "No indexes were found"
-msgstr "Herhangi bir dizinleme bulunamadı"
+msgstr "Herhangi bir indeks bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1300
 msgid "Indexes"
-msgstr "Dizinlemeler"
+msgstr "İndeksler"
 
 # https://tr.wikipedia.org/wiki/Graf_(matematik)
 #: src/tracker/tracker-sparql.c:1316
