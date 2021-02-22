@@ -106,6 +106,12 @@ struct _TrackerSparqlConnectionClass
 					     GAsyncResult             *res,
 					     GError                  **error);
 	TrackerBatch * (* create_batch) (TrackerSparqlConnection *connection);
+
+	gboolean (* lookup_dbus_service) (TrackerSparqlConnection  *connection,
+	                                  const gchar              *dbus_name,
+	                                  const gchar              *dbus_path,
+	                                  gchar                   **name,
+	                                  gchar                   **path);
 };
 
 typedef struct _TrackerSparqlCursorClass TrackerSparqlCursorClass;
@@ -262,6 +268,12 @@ struct _TrackerSerializerClass {
 	GInputStreamClass parent_class;
 };
 
+gboolean
+tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connection,
+                                               const gchar              *dbus_name,
+                                               const gchar              *dbus_path,
+                                               gchar                   **name,
+                                               gchar                   **path);
 void tracker_sparql_cursor_set_connection (TrackerSparqlCursor     *cursor,
                                            TrackerSparqlConnection *connection);
 GError * _translate_internal_error (GError *error);

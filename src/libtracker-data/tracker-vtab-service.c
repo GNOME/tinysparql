@@ -35,12 +35,12 @@
 
 typedef struct {
 	sqlite3 *db;
+	TrackerDataManager *data_manager;
 } TrackerServiceModule;
 
 typedef struct {
 	struct sqlite3_vtab parent;
 	TrackerServiceModule *module;
-	GHashTable *cached_connections;
 	GList *cursors;
 } TrackerServiceVTab;
 
@@ -86,7 +86,6 @@ tracker_service_vtab_free (gpointer data)
 {
 	TrackerServiceVTab *vtab = data;
 
-	g_hash_table_unref (vtab->cached_connections);
 	g_list_free (vtab->cursors);
 	g_free (vtab);
 }
@@ -119,10 +118,6 @@ service_create (sqlite3            *db,
 
 	vtab = g_new0 (TrackerServiceVTab, 1);
 	vtab->module = module;
-	vtab->cached_connections = g_hash_table_new_full (g_str_hash,
-	                                                  g_str_equal,
-	                                                  g_free,
-	                                                  g_object_unref);
 
 	str = g_string_new ("CREATE TABLE x(\n");
 
@@ -295,10 +290,11 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 {
 	TrackerServiceCursor *cursor = (TrackerServiceCursor *) vtab_cursor;
 	const ConstraintData *constraints = (const ConstraintData *) idx_str;
+	TrackerServiceVTab *vtab = cursor->vtab;
+	TrackerServiceModule *module = vtab->module;
 	TrackerSparqlConnection *connection;
 	TrackerSparqlStatement *statement;
 	GHashTable *names = NULL, *values = NULL;
-	gchar *uri_scheme = NULL;
 	GError *error = NULL;
 	gint i;
 
@@ -360,64 +356,11 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 		goto fail;
 	}
 
-	connection = g_hash_table_lookup (cursor->vtab->cached_connections,
-	                                  cursor->service);
-
-	if (!connection) {
-		uri_scheme = g_uri_parse_scheme (cursor->service);
-		if (g_strcmp0 (uri_scheme, "dbus") == 0) {
-			gchar *bus_name, *object_path;
-			GDBusConnection *dbus_connection;
-			GBusType bus_type;
-
-			if (!tracker_util_parse_dbus_uri (cursor->service,
-			                                  &bus_type,
-			                                  &bus_name, &object_path)) {
-				g_set_error (&error,
-					     TRACKER_SPARQL_ERROR,
-					     TRACKER_SPARQL_ERROR_PARSE,
-					     "Failed to parse uri '%s'",
-					     cursor->service);
-				goto fail;
-			}
-
-			if (!g_dbus_is_name (bus_name)) {
-				g_set_error (&error,
-				             TRACKER_SPARQL_ERROR,
-				             TRACKER_SPARQL_ERROR_PARSE,
-				             "Invalid bus name '%s'",
-				             bus_name);
-				goto fail;
-			}
-
-			dbus_connection = g_bus_get_sync (bus_type, NULL, &error);
-			if (!dbus_connection)
-				goto fail;
-
-			connection = tracker_sparql_connection_bus_new (bus_name, object_path,
-			                                                dbus_connection, &error);
-			g_free (bus_name);
-			g_free (object_path);
-
-			if (!connection)
-				goto fail;
-		} else if (g_strcmp0 (uri_scheme, "http") == 0) {
-			connection = tracker_sparql_connection_remote_new (cursor->service);
-		}
-
-		if (!connection) {
-			g_set_error (&error,
-			             TRACKER_SPARQL_ERROR,
-			             TRACKER_SPARQL_ERROR_UNSUPPORTED,
-			             "Unsupported uri '%s'",
-			             cursor->service);
-			goto fail;
-		}
-
-		g_hash_table_insert (cursor->vtab->cached_connections,
-		                     g_strdup (cursor->service),
-		                     connection);
-	}
+	connection = tracker_data_manager_get_remote_connection (module->data_manager,
+	                                                         cursor->service,
+	                                                         &error);
+	if (!connection)
+		goto fail;
 
 	statement = tracker_sparql_connection_query_statement (connection,
 	                                                       cursor->query,
@@ -440,14 +383,11 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 	if (error)
 		goto fail;
 
-	g_free (uri_scheme);
-
 	return SQLITE_OK;
 
 fail:
 	g_clear_pointer (&names, g_hash_table_unref);
 	g_clear_pointer (&values, g_hash_table_unref);
-	g_free (uri_scheme);
 
 	if (cursor->silent) {
 		cursor->finished = TRUE;
@@ -566,8 +506,8 @@ service_rowid (sqlite3_vtab_cursor *vtab_cursor,
 }
 
 void
-tracker_vtab_service_init (sqlite3           *db,
-			   TrackerOntologies *ontologies)
+tracker_vtab_service_init (sqlite3            *db,
+                           TrackerDataManager *data_manager)
 {
 	TrackerServiceModule *module;
 	static const sqlite3_module service_module = {
@@ -598,6 +538,7 @@ tracker_vtab_service_init (sqlite3           *db,
 
 	module = g_new0 (TrackerServiceModule, 1);
 	module->db = db;
+	module->data_manager = data_manager;
 	sqlite3_create_module_v2 (db, "tracker_service", &service_module,
 	                          module, tracker_service_module_free);
 }

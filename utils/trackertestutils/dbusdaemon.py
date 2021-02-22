@@ -151,6 +151,9 @@ class DBusDaemon:
         #monitor = subprocess.Popen(['dbus-monitor', '--address', self.address])
 
     def stop(self):
+        if self._previous_sigterm_handler:
+            signal.signal(signal.SIGTERM, self._previous_sigterm_handler)
+            self._previous_sigterm_handler = None
         if self.process:
             log.debug("  Stopping DBus daemon")
             self.process.terminate()
@@ -161,9 +164,6 @@ class DBusDaemon:
             for thread in self._threads:
                 thread.join()
             self.threads = []
-        if self._previous_sigterm_handler:
-            signal.signal(signal.SIGTERM, self._previous_sigterm_handler)
-            self._previous_sigterm_handler = None
         log.debug("DBus daemon stopped")
 
     def pipe_to_log(self, pipe, dbuslog):

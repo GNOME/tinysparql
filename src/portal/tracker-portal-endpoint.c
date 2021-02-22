@@ -92,6 +92,26 @@ tracker_portal_endpoint_filter_graph (TrackerEndpointDBus *endpoint_dbus,
 			return FALSE;
 		} else if (g_strcmp0 (graph_name, endpoint->graphs[i]) == 0) {
 			return FALSE;
+		} else {
+			TrackerNamespaceManager *namespaces;
+			gchar *expanded;
+
+			/* We may have been given a prefixed name instead of an
+			 * URI, expand it in order to check with the given graph.
+			 *
+			 * FIXME: This is not going to work for prefixes outside
+			 * the well-known namespaces.
+			 */
+			namespaces = tracker_namespace_manager_get_default ();
+			expanded = tracker_namespace_manager_expand_uri (namespaces,
+			                                                 endpoint->graphs[i]);
+
+			if (g_strcmp0 (graph_name, expanded) == 0) {
+				g_free (expanded);
+				return FALSE;
+			}
+
+			g_free (expanded);
 		}
 	}
 

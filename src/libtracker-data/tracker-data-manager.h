@@ -112,6 +112,9 @@ gboolean             tracker_data_manager_expand_prefix (TrackerDataManager  *ma
                                                          GHashTable          *prefix_map,
                                                          gchar              **prefix,
                                                          gchar              **expanded);
+TrackerSparqlConnection * tracker_data_manager_get_remote_connection (TrackerDataManager  *data_manager,
+                                                                      const gchar         *uri,
+                                                                      GError             **error);
 
 G_END_DECLS
 

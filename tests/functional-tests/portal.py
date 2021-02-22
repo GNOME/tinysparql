@@ -20,7 +20,11 @@
 Test portal
 """
 
+import gi
+gi.require_version('Tracker', '3.0')
 from gi.repository import GLib
+from gi.repository import Gio
+from gi.repository import Tracker
 
 import unittest
 
@@ -72,6 +76,50 @@ class TestPortal(fixtures.TrackerPortalTest):
         self.assertEqual(res[2][0], '5')
         self.assertEqual(res[2][1], '6')
         self.assertEqual(len(res[2]), 2)
+
+    def __wait_for_notifier(self):
+        """
+        In the callback of the signals, there should be a self.loop.quit ()
+        """
+        self.timeout_id = GLib.timeout_add_seconds(
+            configuration.DEFAULT_TIMEOUT, self.__timeout_on_idle)
+        self.loop.run_checked()
+
+    def __timeout_on_idle(self):
+        self.loop.quit()
+        self.fail("Timeout, the signal never came after %i seconds!" % configuration.DEFAULT_TIMEOUT)
+
+    def __notifier_event_cb(self, notifier, service, graph, events):
+        if self.timeout_id != 0:
+            GLib.source_remove(self.timeout_id)
+            self.timeout_id = 0
+        self.loop.quit()
+
+    def test_05_local_connection_notifier(self):
+        self.start_service('org.freedesktop.PortalTest')
+
+        conn = self.create_local_connection()
+        notifier = conn.create_notifier();
+        notifier.connect('events', self.__notifier_event_cb)
+        signalId = notifier.signal_subscribe(
+            self.bus,
+            'org.freedesktop.PortalTest',
+            None,
+            'tracker:Allowed')
+
+        self.update(
+            'org.freedesktop.PortalTest',
+            'INSERT { GRAPH tracker:Allowed { <b> a nmm:MusicPiece } }')
+
+        self.__wait_for_notifier()
+        notifier.signal_unsubscribe(signalId);
+        conn.close()
+
+        res = self.query(
+            'org.freedesktop.PortalTest',
+            'select ?a { ?a a nmm:MusicPiece }')
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0][0], 'b')
 
 if __name__ == '__main__':
     fixtures.tracker_test_main()

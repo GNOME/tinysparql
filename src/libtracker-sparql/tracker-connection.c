@@ -93,6 +93,29 @@ tracker_sparql_connection_class_init (TrackerSparqlConnectionClass *klass)
 	object_class->dispose = tracker_sparql_connection_dispose;
 }
 
+gboolean
+tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connection,
+                                               const gchar              *dbus_name,
+                                               const gchar              *dbus_path,
+                                               gchar                   **name,
+                                               gchar                   **path)
+{
+	TrackerSparqlConnectionClass *connection_class;
+
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), FALSE);
+	g_return_val_if_fail (dbus_name != NULL, FALSE);
+
+	connection_class = TRACKER_SPARQL_CONNECTION_GET_CLASS (connection);
+	if (!connection_class->lookup_dbus_service)
+		return FALSE;
+
+	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->lookup_dbus_service (connection,
+	                                                                              dbus_name,
+	                                                                              dbus_path,
+	                                                                              name,
+	                                                                              path);
+}
+
 /* The constructor functions are defined in the libtracker-sparql-backend, but
  * documented here. */
 
