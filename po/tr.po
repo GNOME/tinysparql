@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
 "POT-Creation-Date: 2021-02-03 22:56+0000\n"
-"PO-Revision-Date: 2021-02-22 11:02+0300\n"
+"PO-Revision-Date: 2021-02-22 11:06+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -244,7 +244,7 @@ msgstr "Tracker veri tabanına veri aktar"
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
-"SPARQL kullanarak veya arayarak indeksi sorgula ve güncelle, ontolojiyi "
+"SPARQL kullanarak veya arayarak dizinlemeyi sorgula ve güncelle, ontolojiyi "
 "listele ve ağaç yapısında göster"
 
 #: src/tracker/tracker-main.c:97
@@ -314,7 +314,7 @@ msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
 msgstr ""
-"Veri tabanının verimliliğini arttırmak için kullanılan indeksleri getir "
+"Veri tabanının verimliliğini arttırmak için kullanılan dizinlemeleri getir "
 "(ÖZELLİK isteğe bağlıdır)"
 
 #: src/tracker/tracker-sparql.c:151
@@ -439,15 +439,15 @@ msgstr "Bildirimler"
 
 #: src/tracker/tracker-sparql.c:1292
 msgid "Could not find indexed properties"
-msgstr "İndekslenmiş özellikler bulunamadı"
+msgstr "Dizinlenmiş özellikler bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1300
 msgid "No indexes were found"
-msgstr "Herhangi bir indeks bulunamadı"
+msgstr "Herhangi bir dizinleme bulunamadı"
 
 #: src/tracker/tracker-sparql.c:1300
 msgid "Indexes"
-msgstr "İndeksler"
+msgstr "Dizinlemeler"
 
 # https://tr.wikipedia.org/wiki/Graf_(matematik)
 #: src/tracker/tracker-sparql.c:1316
