@@ -229,6 +229,8 @@ const TestInfo tests[] = {
 	/* Unknown property */
 	{ "error/query-error-2", "error/query-error-2", TRUE, FALSE },
 	{ "error/update-error-query-1", "error/update-error-1", FALSE, TRUE },
+	/* Remapping variables in BIND */
+	{ "error/bind-reused-same-pattern", "error/query-error-1", TRUE, FALSE },
 
 	{ "turtle/turtle-query-001", "turtle/turtle-data-001", FALSE },
 	{ "turtle/turtle-query-002", "turtle/turtle-data-002", FALSE },
@@ -243,6 +245,7 @@ const TestInfo tests[] = {
 	{ "bind/bind5", "bind/data", FALSE },
 	{ "bind/bind6", "bind/data", FALSE },
 	{ "bind/bind7", "bind/data", FALSE },
+	{ "bind/bind-reused-different-patterns", "bind/data", FALSE },
 	/* Property paths */
 	{ "property-paths/inverse-path-1", "property-paths/data", FALSE },
 	{ "property-paths/inverse-path-2", "property-paths/data", FALSE },

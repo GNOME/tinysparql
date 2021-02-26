@@ -1,0 +1,3 @@
+# Bound variables are allowed to be reused across different
+# group graph patterns.
+SELECT ?u { { BIND (1 AS ?u) } UNION { BIND (2 AS ?u) } }
