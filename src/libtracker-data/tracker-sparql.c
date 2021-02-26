@@ -5312,7 +5312,8 @@ translate_Bind (TrackerSparql  *sparql,
 	TrackerVariable *variable;
 	TrackerBinding *binding;
 	TrackerPropertyType type;
-	gboolean is_empty;
+	gboolean is_empty, already_defined;
+	gchar *var_name;
 
 	/* Bind ::= 'BIND' '(' Expression 'AS' Var ')'
 	 */
@@ -5337,9 +5338,18 @@ translate_Bind (TrackerSparql  *sparql,
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_AS);
 	_call_rule (sparql, NAMED_RULE_Var, error);
 
+	/* "The variable introduced by the BIND clause must
+	 * not have been used in the group graph pattern up
+	 * to the point of use in BIND."
+	 */
+	var_name = _dup_last_string (sparql);
+	already_defined = tracker_context_lookup_variable_by_name (sparql->current_state->context,
+	                                                           var_name);
+	g_free (var_name);
+
 	variable = _last_node_variable (sparql);
 
-	if (tracker_variable_has_bindings (variable))
+	if (already_defined)
 		_raise (PARSE, "Expected undefined variable in BIND", variable->name);
 
 	_append_string_printf (sparql, "AS %s ",
