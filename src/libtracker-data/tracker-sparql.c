@@ -790,6 +790,49 @@ tracker_sparql_add_union_graph_subquery_for_class (TrackerSparql *sparql,
 	tracker_sparql_swap_builder (sparql, old);
 }
 
+static void
+tracker_sparql_add_union_graph_subquery_for_named_graphs (TrackerSparql *sparql)
+{
+	TrackerStringBuilder *old;
+	gpointer graph_id;
+	GHashTable *graphs;
+	GHashTableIter iter;
+	gboolean first = TRUE;
+
+	if (g_hash_table_lookup (sparql->current_state->union_views, "graphs"))
+		return;
+
+	g_hash_table_add (sparql->current_state->union_views, g_strdup ("graphs"));
+	old = tracker_sparql_swap_builder (sparql, sparql->current_state->with_clauses);
+
+	if (tracker_string_builder_is_empty (sparql->current_state->with_clauses))
+		_append_string (sparql, "WITH ");
+	else
+		_append_string (sparql, ", ");
+
+	graphs = tracker_sparql_get_effective_graphs (sparql);
+
+	_append_string (sparql, "\"unionGraph_graphs\"(graph) AS (");
+
+	g_hash_table_iter_init (&iter, graphs);
+	while (g_hash_table_iter_next (&iter, NULL, &graph_id)) {
+		if (first)
+			_append_string (sparql, "VALUES ");
+		else
+			_append_string (sparql, ", ");
+
+		_append_string_printf (sparql, "(%d) ", GPOINTER_TO_INT (graph_id));
+		first = FALSE;
+	}
+
+	if (g_hash_table_size (graphs) == 0)
+		_append_string (sparql, "SELECT NULL WHERE FALSE");
+
+	_append_string (sparql, ") ");
+
+	tracker_sparql_swap_builder (sparql, old);
+}
+
 static gint
 tracker_sparql_find_graph (TrackerSparql *sparql,
                            const gchar   *name)
@@ -5049,7 +5092,9 @@ static gboolean
 translate_GraphGraphPattern (TrackerSparql  *sparql,
                              GError        **error)
 {
+	TrackerStringBuilder *str, *old;
 	TrackerToken old_graph;
+	TrackerVariable *graph_var;
 	gboolean do_join;
 
 	/* GraphGraphPattern ::= 'GRAPH' VarOrIri GroupGraphPattern
@@ -5066,9 +5111,36 @@ translate_GraphGraphPattern (TrackerSparql  *sparql,
 
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_GRAPH);
 	_call_rule (sparql, NAMED_RULE_VarOrIri, error);
+	graph_var = _last_node_variable (sparql);
 	_init_token (&sparql->current_state->graph,
 	             sparql->current_state->prev_node, sparql);
+
+	str = _append_placeholder (sparql);
+
 	_call_rule (sparql, NAMED_RULE_GroupGraphPattern, error);
+
+	if (graph_var && !tracker_variable_has_bindings (graph_var)) {
+		TrackerBinding *binding;
+
+		tracker_sparql_add_union_graph_subquery_for_named_graphs (sparql);
+
+		old = tracker_sparql_swap_builder (sparql, str);
+		_append_string_printf (sparql,
+		                       "SELECT * FROM ( "
+		                       "SELECT graph AS %s FROM \"unionGraph_graphs\"),"
+		                       " (",
+		                       tracker_variable_get_sql_expression (graph_var));
+
+		tracker_sparql_swap_builder (sparql, old);
+		_append_string (sparql, ") ");
+
+		binding = tracker_variable_binding_new (graph_var, NULL, NULL);
+		tracker_binding_set_data_type (TRACKER_BINDING (binding),
+		                               TRACKER_PROPERTY_TYPE_RESOURCE);
+		tracker_variable_set_sample_binding (graph_var,
+		                                     TRACKER_VARIABLE_BINDING (binding));
+		g_object_unref (binding);
+	}
 
 	tracker_token_unset (&sparql->current_state->graph);
 	sparql->current_state->graph = old_graph;
