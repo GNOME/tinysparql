@@ -9406,6 +9406,8 @@ tracker_sparql_new (TrackerDataManager *manager,
 	sparql = g_object_new (TRACKER_TYPE_SPARQL, NULL);
 	sparql->query_type = TRACKER_SPARQL_QUERY_SELECT;
 	sparql->data_manager = g_object_ref (manager);
+	sparql->generation = tracker_data_manager_get_generation (sparql->data_manager);
+
 	if (strcasestr (query, "\\u"))
 		sparql->sparql = tracker_unescape_unichars (query, -1);
 	else
