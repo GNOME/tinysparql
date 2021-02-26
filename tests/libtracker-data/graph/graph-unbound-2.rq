@@ -1,0 +1,1 @@
+SELECT ?g ?a { GRAPH ?g { BIND (1 AS ?a) } } ORDER BY ?g ?a
