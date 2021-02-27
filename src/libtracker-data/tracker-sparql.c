@@ -5196,7 +5196,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 	GList *variable_rules = NULL, *l;
 	GList *join_vars = NULL;
 	TrackerToken service;
-	GString *service_sparql;
+	GString *service_sparql = NULL;
 	gboolean silent = FALSE, do_join;
 	gint i = 0;
 
@@ -5241,7 +5241,6 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 
 	pattern = _skip_rule (sparql, NAMED_RULE_GroupGraphPattern);
 	_append_string (sparql, "SELECT ");
-	service_sparql = g_string_new ("SELECT ");
 
 	variable_rules = extract_variables (sparql, pattern);
 
@@ -5269,6 +5268,9 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 		if (i > 0)
 			_append_string (sparql, ", ");
 
+		if (!service_sparql)
+			service_sparql = g_string_new ("SELECT ");
+
 		/* Variable was used before in the graph pattern, preserve
 		 * for later so we join on it properly.
 		 */
@@ -5289,6 +5291,9 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 		i++;
 	}
 
+	if (variable_rules == NULL)
+		_append_string (sparql, "* ");
+
 	if (tracker_token_get_variable (&service)) {
 		if (variable_rules != NULL)
 			_append_string (sparql, ", ");
@@ -5298,22 +5303,27 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 		join_vars = g_list_prepend (join_vars, tracker_token_get_variable (&service));
 	}
 
-	tracker_parser_node_get_extents (pattern, &pattern_start, &pattern_end);
-	pattern_str = g_strndup (&sparql->sparql[pattern_start], pattern_end - pattern_start);
-	escaped_str = _escape_sql_string (pattern_str, '"');
-	g_string_append (service_sparql, escaped_str);
-	g_list_free (variables);
-	g_free (pattern_str);
-	g_free (escaped_str);
+	if (service_sparql) {
+		tracker_parser_node_get_extents (pattern, &pattern_start, &pattern_end);
+		pattern_str = g_strndup (&sparql->sparql[pattern_start], pattern_end - pattern_start);
+		escaped_str = _escape_sql_string (pattern_str, '"');
+		g_string_append (service_sparql, escaped_str);
+		g_list_free (variables);
+		g_free (pattern_str);
+		g_free (escaped_str);
+	}
 
 	_append_string_printf (sparql, "FROM tracker_service WHERE query=\"%s\" AND silent=%d ",
-			       service_sparql->str,
+	                       service_sparql ? service_sparql->str : "",
 			       silent);
 
 	if (!tracker_token_get_variable (&service)) {
 		_append_string_printf (sparql, "AND service=\"%s\" ",
 		                       tracker_token_get_idstring (&service));
 	}
+
+	if (service_sparql)
+		g_string_free (service_sparql, TRUE);
 
 	i = 0;
 
@@ -5344,7 +5354,6 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 
 	tracker_token_unset (&service);
 	tracker_sparql_pop_context (sparql, TRUE);
-	g_string_free (service_sparql, TRUE);
 	g_list_free (variable_rules);
 
 	if (do_join) {
