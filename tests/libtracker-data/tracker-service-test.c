@@ -43,6 +43,8 @@ const TestInfo tests[] = {
 	{ "service/service-union-with-local-2", FALSE },
 	{ "service/service-var-1", FALSE },
 	{ "service/service-var-2", FALSE },
+	{ "service/service-empty-1", FALSE },
+	{ "service/service-empty-2", FALSE },
 };
 
 static GDBusConnection *dbus_conn = NULL;
