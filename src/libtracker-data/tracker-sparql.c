@@ -3708,6 +3708,8 @@ translate_LimitOffsetClauses (TrackerSparql  *sparql,
 		                                            TRACKER_LITERAL_BINDING (limit));
 		_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (limit));
 		g_object_unref (limit);
+	} else if (offset) {
+		_append_string (sparql, "LIMIT -1 ");
 	}
 
 	if (offset) {
