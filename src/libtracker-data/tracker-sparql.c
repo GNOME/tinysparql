@@ -150,6 +150,7 @@ typedef struct
 	gint fts_match_idx;
 
 	gboolean convert_to_string;
+	gboolean in_property_function;
 } TrackerSparqlState;
 
 struct _TrackerSparql
@@ -7595,8 +7596,13 @@ handle_property_function (TrackerSparql    *sparql,
 			  GError          **error)
 {
 	TrackerPropertyType type;
+	gboolean in_property_function;
 
-	if (tracker_property_get_multiple_values (property)) {
+	in_property_function = sparql->current_state->in_property_function;
+	sparql->current_state->in_property_function = TRUE;
+
+	if (!in_property_function &&
+	    tracker_property_get_multiple_values (property)) {
 		TrackerStringBuilder *str, *old;
 
 		_append_string (sparql, "(SELECT GROUP_CONCAT (");
@@ -7638,12 +7644,13 @@ handle_property_function (TrackerSparql    *sparql,
 		}
 	}
 
-	_append_string (sparql, "WHERE ID = ");
+	_append_string (sparql, "WHERE ID IN (");
 	_call_rule (sparql, NAMED_RULE_ArgList, error);
-	_append_string_printf (sparql, "AND \"%s\" IS NOT NULL",
+	_append_string_printf (sparql, ") AND \"%s\" IS NOT NULL",
 	                       tracker_property_get_name (property));
 	_append_string (sparql, ") ");
 
+	sparql->current_state->in_property_function = in_property_function;
 	sparql->current_state->expression_type = type;
 
 	return TRUE;
