@@ -6,14 +6,14 @@
 # Kaan Özdinçer <kaanozdincer@gmail.com>, 2015.
 # İbrahim Aydın <brhm.1995@hotmail.com>, 2017.
 # Muhammet Kara <muhammetk@gmail.com>, 2014, 2015, 2017.
-# Emin Tufan Çetin <etcetin@gmail.com>, 2018-2019.
+# Emin Tufan Çetin <etcetin@gmail.com>, 2018-2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2019-01-05 17:28+0000\n"
-"PO-Revision-Date: 2019-02-05 17:48+0300\n"
+"POT-Creation-Date: 2021-01-23 08:47+0000\n"
+"PO-Revision-Date: 2021-02-28 12:35+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Gtranslator 3.30.1\n"
+"X-Generator: Poedit 2.4.1\n"
 "X-POOTLE-MTIME: 1436541455.000000\n"
 
 #: data/org.freedesktop.Tracker.DB.gschema.xml:24
@@ -187,7 +187,7 @@ msgstr[0] " %2.2d saniye"
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-data/tracker-collation.c:332
+#: src/libtracker-data/tracker-collation.c:333
 msgid "the|a|an"
 msgstr "the|a|an"
 
@@ -273,14 +273,6 @@ msgstr "Belirli bir alan ontolojisi yükleyin"
 msgid "— start the tracker daemon"
 msgstr "— tracker artalan uygulamasını çalıştır"
 
-#: src/tracker-store/tracker-store.desktop.in:3
-msgid "Tracker Store"
-msgstr "Tracker Deposu"
-
-#: src/tracker-store/tracker-store.desktop.in:4
-msgid "Metadata database store and lookup manager"
-msgstr "Üst veri veritabanı deposu ve arama yöneticisi"
-
 #: src/tracker/tracker-config.c:60
 #, c-format
 msgid "Could not get GSettings for miners, manager could not be created, %s"
@@ -297,7 +289,7 @@ msgstr "Başlatılıyor"
 
 #: src/tracker/tracker-daemon.c:123
 msgid "Processing…"
-msgstr "İşleniyor..."
+msgstr "İşleniyor…"
 
 #: src/tracker/tracker-daemon.c:124
 msgid "Fetching…"
@@ -413,8 +405,8 @@ msgid ""
 "“all” may be used, no parameter equals “all”"
 msgstr ""
 "Tüm eşleşen süreçleri durdurmak için SIGTERM kullanın, “store” (depola), "
-"“miners” (madenciler), veya “all” (tümü) kullanabilir, “tümü” ne eşit bir "
-"parametre yoktur "
+"“miners” (madenciler), veya “all” (tümü) kullanabilir, “tümü”ne eşit bir "
+"parametre yoktur"
 
 #: src/tracker/tracker-daemon.c:184
 msgid "Starts miners (which indirectly starts tracker-store too)"
@@ -681,11 +673,12 @@ msgid ""
 msgstr ""
 "Verilmiş bir değişken yoksa, deponun durumu ve veri madencileri gözükür"
 
-#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-extract.c:147
-#: src/tracker/tracker-index.c:412 src/tracker/tracker-info.c:422
-#: src/tracker/tracker-reset.c:384 src/tracker/tracker-search.c:1778
-#: src/tracker/tracker-sparql.c:1497 src/tracker/tracker-sql.c:238
-#: src/tracker/tracker-status.c:587 src/tracker/tracker-tag.c:1079
+#: src/tracker/tracker-daemon.c:1743 src/tracker/tracker-export.c:439
+#: src/tracker/tracker-extract.c:147 src/tracker/tracker-index.c:412
+#: src/tracker/tracker-info.c:422 src/tracker/tracker-reset.c:385
+#: src/tracker/tracker-search.c:1778 src/tracker/tracker-sparql.c:1497
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-status.c:587
+#: src/tracker/tracker-tag.c:1079
 msgid "Unrecognized options"
 msgstr "Tanınmayan seçenekler"
 
@@ -696,6 +689,35 @@ msgstr "D-Bus bağlantısı alınamadı"
 #: src/tracker/tracker-dbus.c:62
 msgid "Could not create D-Bus proxy to tracker-store"
 msgstr "tracker-store için D-Bus vekili oluşturulamadı"
+
+#: src/tracker/tracker-export.c:40
+msgid "Output TriG format which includes named graph information"
+msgstr "Adlandırılmış graf bilgisini içeren TriG biçiminde çıktıla"
+
+#: src/tracker/tracker-export.c:44
+msgid "Export a specific type of data."
+msgstr "Belirli türde veriyi dışa aktar."
+
+#: src/tracker/tracker-export.c:45
+msgid "TYPE"
+msgstr "TÜR"
+
+#: src/tracker/tracker-export.c:252 src/tracker/tracker-index.c:195
+#: src/tracker/tracker-info.c:263 src/tracker/tracker-search.c:1580
+#: src/tracker/tracker-sparql.c:172 src/tracker/tracker-sparql.c:1086
+#: src/tracker/tracker-status.c:73 src/tracker/tracker-status.c:386
+#: src/tracker/tracker-tag.c:976
+msgid "Could not establish a connection to Tracker"
+msgstr "Tracker uygulamasına bağlantı kurulamıyor"
+
+#: src/tracker/tracker-export.c:262 src/tracker/tracker-sparql.c:1437
+#: src/tracker/tracker-sql.c:139 src/tracker/tracker-sql.c:172
+msgid "Could not run query"
+msgstr "Sorgu çalıştırılamadı"
+
+#: src/tracker/tracker-export.c:456
+msgid "Unrecognized value for '--type' option"
+msgstr "'--type' seçeneği için tanınmayan değer"
 
 #: src/tracker/tracker-extract.c:45
 msgid "Output results format: “sparql”, “turtle” or “json-ld”"
@@ -775,13 +797,6 @@ msgstr "Dosya (yeniden)indekslenemedi"
 #: src/tracker/tracker-index.c:175
 msgid "(Re)indexing file was successful"
 msgstr "Dosya (yeniden)indeksleme başarılı oldu"
-
-#: src/tracker/tracker-index.c:195 src/tracker/tracker-info.c:263
-#: src/tracker/tracker-search.c:1580 src/tracker/tracker-sparql.c:172
-#: src/tracker/tracker-sparql.c:1086 src/tracker/tracker-status.c:73
-#: src/tracker/tracker-status.c:386 src/tracker/tracker-tag.c:976
-msgid "Could not establish a connection to Tracker"
-msgstr "Tracker uygulamasına bağlantı kurulamıyor"
 
 #: src/tracker/tracker-index.c:206
 msgid "Importing Turtle file"
@@ -875,74 +890,78 @@ msgstr "Bu URI için bir üst veri kullanılabilir değil"
 msgid "Results"
 msgstr "Sonuçlar"
 
-#: src/tracker/tracker-main.c:48
+#: src/tracker/tracker-main.c:49
 msgid "See “tracker help <command>” to read about a specific subcommand."
 msgstr ""
-"Belirli bir alt komut hakkında bilgi almak için  'tracker help <komut>' "
-"gözatın"
+"Belirli bir alt komut hakkında bilgi almak için “tracker help <komut>” göz "
+"atın."
 
-#: src/tracker/tracker-main.c:97
+#: src/tracker/tracker-main.c:98
 msgid "Start, stop, pause and list processes responsible for indexing content"
 msgstr ""
 "İndekslenmiş içerik için başlat, durdur, duraklat ve listeleme süreçleri "
 "uygundur"
 
-#: src/tracker/tracker-main.c:98
+#: src/tracker/tracker-main.c:99
+msgid "Export data from a Tracker database"
+msgstr "Tracker veri tabanından veri aktar"
+
+#: src/tracker/tracker-main.c:100
 msgid "Extract information from a file"
 msgstr "Bir dosyadan bilgi ayıklayın"
 
-#: src/tracker/tracker-main.c:99
+#: src/tracker/tracker-main.c:101
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr "Tracker kullanımı ve bu komutların herhangi birisi için yardım alın"
 
-#: src/tracker/tracker-main.c:100
+#: src/tracker/tracker-main.c:102
 msgid "Show information known about local files or items indexed"
 msgstr ""
 "Yerel dosyala veya indekslenmiş öğeler hakkında bilinen bilgileri göster"
 
-#: src/tracker/tracker-main.c:101
+#: src/tracker/tracker-main.c:103
 msgid "Backup, restore, import and (re)index by MIME type or file name"
 msgstr ""
 "MIME türü veya dosya adı tarafından yedekle, geri yükle, içe aktar ve "
 "(yeniden)indeksleme"
 
-#: src/tracker/tracker-main.c:102
+#: src/tracker/tracker-main.c:104
 msgid "Reset or remove index and revert configurations to defaults"
 msgstr "İndeksi sıfırla veya kaldır ve yapılandırmaları varsayılana geri al"
 
-#: src/tracker/tracker-main.c:103
+#: src/tracker/tracker-main.c:105
 msgid "Search for content indexed or show content by type"
 msgstr "İndekslenmiş içerik için ara veya türe göre içeriği göster"
 
-#: src/tracker/tracker-main.c:104
+#: src/tracker/tracker-main.c:106
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "SPARQL kullanarak veya arayarak indeksi sorgula ve güncelle, ontolojiyi "
 "listele ve ağaç yapısında göster"
 
-#: src/tracker/tracker-main.c:105
+#: src/tracker/tracker-main.c:107
 msgid "Query the database at the lowest level using SQL"
 msgstr "SQL kullanarak en düşük düzeyde veritabanını sorgula"
 
-#: src/tracker/tracker-main.c:106
+#: src/tracker/tracker-main.c:108
 msgid "Show the indexing progress, content statistics and index state"
 msgstr "İndeksleme sürecini göster, içerik istatistikleri ve indeks durumu"
 
-#: src/tracker/tracker-main.c:107
+#: src/tracker/tracker-main.c:109
 msgid "Create, list or delete tags for indexed content"
 msgstr "İndeksli içerik için etiketleri oluştur, listele veya sil"
 
-#: src/tracker/tracker-main.c:108
+#: src/tracker/tracker-main.c:110
 msgid "Show the license and version in use"
 msgstr "Kullanılan lisans ve sürümü göster"
 
-#: src/tracker/tracker-main.c:153
+#: src/tracker/tracker-main.c:155
 #, c-format
 msgid "“%s” is not a tracker command. See “tracker --help”"
 msgstr "“%s” bir tracker komutu değil. “tracker --help” gözatın"
 
-#: src/tracker/tracker-main.c:176
+#: src/tracker/tracker-main.c:178
 msgid "Available tracker commands are:"
 msgstr "Kullanılabilir tracker komutları:"
 
@@ -1047,7 +1066,7 @@ msgstr "[e|H]"
 msgid "yes"
 msgstr "evet"
 
-#: src/tracker/tracker-reset.c:306
+#: src/tracker/tracker-reset.c:307
 msgid "Resetting existing configuration…"
 msgstr "Var olan yapılandırma sıfırlanıyor…"
 
@@ -1159,7 +1178,7 @@ msgstr "İFADE"
 msgid ""
 "NOTE: Limit was reached, there are more items in the database not listed here"
 msgstr ""
-"NOT: Sınıra ulaşıldı, veritabanında burada gösterilemeyen daha fazla öge var."
+"NOT: Sınıra ulaşıldı, veri tabanında burada gösterilemeyen daha fazla öge var"
 
 #: src/tracker/tracker-search.c:286 src/tracker/tracker-search.c:395
 #: src/tracker/tracker-search.c:497 src/tracker/tracker-search.c:811
@@ -1501,11 +1520,6 @@ msgstr "Dosya okunamadı"
 msgid "Could not run update"
 msgstr "Güncelleme çalıştırılamadı"
 
-#: src/tracker/tracker-sparql.c:1437 src/tracker/tracker-sql.c:139
-#: src/tracker/tracker-sql.c:172
-msgid "Could not run query"
-msgstr "Sorgu çalıştırılamadı"
-
 #: src/tracker/tracker-sparql.c:1449 src/tracker/tracker-sparql.c:1452
 msgid "No results found matching your query"
 msgstr "Sorgunuzla eşleşen hiçbir sonuç bulunamadı"
@@ -1634,8 +1648,6 @@ msgstr[0] "%d dosya"
 
 #: src/tracker/tracker-status.c:524
 #, c-format
-#| msgid "%d folders"
-#| msgid_plural "%d folders"
 msgid "%d folder"
 msgid_plural "%d folders"
 msgstr[0] "%d klasör"
@@ -1817,6 +1829,12 @@ msgstr "Ekle ve sil eylemleri birlikte kullanılamaz"
 #: src/tracker/tracker-tag.c:1094
 msgid "The --description option can only be used with --add"
 msgstr "--description seçeneği yalnızca --add ile birlikte kullanılabilir"
+
+#~ msgid "Tracker Store"
+#~ msgstr "Tracker Deposu"
+
+#~ msgid "Metadata database store and lookup manager"
+#~ msgstr "Üst veri veritabanı deposu ve arama yöneticisi"
 
 #~ msgid "All posts"
 #~ msgstr "Tüm gönderiler"
