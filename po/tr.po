@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2021-02-03 22:56+0000\n"
-"PO-Revision-Date: 2021-02-22 11:06+0300\n"
+"POT-Creation-Date: 2021-02-22 08:07+0000\n"
+"PO-Revision-Date: 2021-02-28 12:41+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 2.4.2\n"
+"X-Generator: Poedit 2.4.1\n"
 "X-POOTLE-MTIME: 1436541455.000000\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
@@ -189,7 +189,7 @@ msgstr "IRI"
 #: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
-"Şu seçeneklerden birini belirtin: “--database”, “--dbus-service” veya “--"
+"Şu seçeneklerden birini belirt: “--database”, “--dbus-service” veya “--"
 "remote-service”"
 
 #: src/tracker/tracker-export.c:308 src/tracker/tracker-import.c:99
@@ -254,7 +254,7 @@ msgstr "SQL kullanarak en düşük düzeyde veri tabanını sorgula"
 #: src/tracker/tracker-main.c:137
 #, c-format
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "“%s”, tracker3 komutu değil. “tracker3 --help” göz at"
+msgstr "“%s”, tracker3 komutu değil. Göz at: “tracker3 --help”"
 
 #: src/tracker/tracker-main.c:172
 msgid "Available tracker3 commands are:"
