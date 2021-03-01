@@ -118,6 +118,7 @@ const TestInfo tests[] = {
 	{ "expr-ops/query-unplus-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-res-1", "expr-ops/data", FALSE },
 	{ "functions/functions-property-1", "functions/data-1", FALSE },
+	{ "functions/functions-property-2", "functions/data-5", FALSE },
 	{ "functions/functions-tracker-1", "functions/data-1", FALSE },
 	{ "functions/functions-tracker-2", "functions/data-2", FALSE },
 	{ "functions/functions-tracker-3", "functions/data-2", FALSE },

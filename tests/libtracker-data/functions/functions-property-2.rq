@@ -1,0 +1,8 @@
+PREFIX ex: <http://example/>
+PREFIX ns: <http://www.w3.org/2005/xpath-functions#>
+
+SELECT ?b ex:s(ex:a(?b))
+{
+  ?b a ex:B ;
+}
+ORDER BY ?b
