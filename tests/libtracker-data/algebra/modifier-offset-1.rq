@@ -1,0 +1,1 @@
+SELECT ?a { VALUES ?a { 1 2 3 } } OFFSET 1

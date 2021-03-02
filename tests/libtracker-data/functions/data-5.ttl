@@ -1,0 +1,19 @@
+@prefix : <http://example/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+:x a :A .
+:x :s "first" .
+
+:q a :A .
+:q :s "second" .
+
+:ba a :B .
+:ba :o "First group" .
+:ba :a :x .
+
+:bb a :B .
+:bb :o "Second group" .
+:bb :a :q .
+
+:bc a :B .
+:bc :o "Third group" .

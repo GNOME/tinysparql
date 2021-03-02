@@ -62,6 +62,10 @@ const TestInfo tests[] = {
 	{ "algebra/filter-in-4", "algebra/data-2", FALSE },
 	{ "algebra/filter-in-5", "algebra/data-2", FALSE },
 	{ "algebra/var-scope-join-1", "algebra/var-scope-join-1", FALSE },
+	{ "algebra/modifier-limit-offset-1", "algebra/data-1", FALSE },
+	{ "algebra/modifier-limit-offset-2", "algebra/data-1", FALSE },
+	{ "algebra/modifier-limit-1", "algebra/data-1", FALSE },
+	{ "algebra/modifier-offset-1", "algebra/data-1", FALSE },
 	{ "anon/query", "anon/data", FALSE },
 	{ "anon/query-2", "anon/data", FALSE },
 	{ "anon/query-3", "anon/data", FALSE },
@@ -114,6 +118,7 @@ const TestInfo tests[] = {
 	{ "expr-ops/query-unplus-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-res-1", "expr-ops/data", FALSE },
 	{ "functions/functions-property-1", "functions/data-1", FALSE },
+	{ "functions/functions-property-2", "functions/data-5", FALSE },
 	{ "functions/functions-tracker-1", "functions/data-1", FALSE },
 	{ "functions/functions-tracker-2", "functions/data-2", FALSE },
 	{ "functions/functions-tracker-3", "functions/data-2", FALSE },
@@ -160,6 +165,9 @@ const TestInfo tests[] = {
 	{ "graph/non-existent-1",  "graph/data-1", FALSE },
 	{ "graph/non-existent-2",  "graph/data-1", FALSE },
 	{ "graph/non-existent-3",  "graph/data-1", FALSE },
+	{ "graph/graph-unbound-1", "graph/data-1", FALSE },
+	{ "graph/graph-unbound-2", "graph/data-1", FALSE },
+	{ "graph/graph-unbound-3", "graph/data-1", FALSE },
 	{ "graph/drop", "graph/data-drop", FALSE },
 	{ "graph/drop-non-existent", "graph/data-drop-non-existent", FALSE, TRUE },
 	{ "graph/drop-default", "graph/data-drop-default", FALSE },
@@ -229,6 +237,8 @@ const TestInfo tests[] = {
 	/* Unknown property */
 	{ "error/query-error-2", "error/query-error-2", TRUE, FALSE },
 	{ "error/update-error-query-1", "error/update-error-1", FALSE, TRUE },
+	/* Remapping variables in BIND */
+	{ "error/bind-reused-same-pattern", "error/query-error-1", TRUE, FALSE },
 
 	{ "turtle/turtle-query-001", "turtle/turtle-data-001", FALSE },
 	{ "turtle/turtle-query-002", "turtle/turtle-data-002", FALSE },
@@ -243,6 +253,7 @@ const TestInfo tests[] = {
 	{ "bind/bind5", "bind/data", FALSE },
 	{ "bind/bind6", "bind/data", FALSE },
 	{ "bind/bind7", "bind/data", FALSE },
+	{ "bind/bind-reused-different-patterns", "bind/data", FALSE },
 	/* Property paths */
 	{ "property-paths/inverse-path-1", "property-paths/data", FALSE },
 	{ "property-paths/inverse-path-2", "property-paths/data", FALSE },

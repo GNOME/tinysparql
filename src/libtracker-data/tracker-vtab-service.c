@@ -296,6 +296,7 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 	TrackerSparqlStatement *statement;
 	GHashTable *names = NULL, *values = NULL;
 	GError *error = NULL;
+	gboolean empty_query = FALSE;
 	gint i;
 
 	cursor->finished = FALSE;
@@ -354,6 +355,11 @@ service_filter (sqlite3_vtab_cursor  *vtab_cursor,
 		             TRACKER_SPARQL_ERROR_PARSE,
 		             "Query not given to services virtual table");
 		goto fail;
+	} else if (*cursor->query == '\0') {
+		g_clear_pointer (&names, g_hash_table_unref);
+		g_clear_pointer (&values, g_hash_table_unref);
+		cursor->finished = TRUE;
+		return SQLITE_OK;
 	}
 
 	connection = tracker_data_manager_get_remote_connection (module->data_manager,
@@ -389,9 +395,9 @@ fail:
 	g_clear_pointer (&names, g_hash_table_unref);
 	g_clear_pointer (&values, g_hash_table_unref);
 
-	if (cursor->silent) {
+	if (cursor->silent || empty_query) {
 		cursor->finished = TRUE;
-		g_error_free (error);
+		g_clear_error (&error);
 		return SQLITE_OK;
 	} else {
 		tracker_service_cursor_set_vtab_error (cursor, error->message);

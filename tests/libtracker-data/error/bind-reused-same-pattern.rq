@@ -1,0 +1,3 @@
+# BIND is not allowed to redefine variables already defined
+# in the same group graph pattern.
+SELECT ?u { BIND (1 AS ?u) . BIND (2 AS ?u) }
