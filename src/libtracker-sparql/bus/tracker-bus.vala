@@ -41,7 +41,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		get { return object_path; }
 	}
 
-	public Connection (string dbus_name, string object_path, DBusConnection? dbus_connection) throws Sparql.Error, IOError, DBusError, GLib.Error {
+	public async Connection (string dbus_name, string object_path, DBusConnection? dbus_connection, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		Object ();
 		this.sandboxed = false;
 		this.bus = dbus_connection;
@@ -54,7 +54,8 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 			var message = new DBusMessage.method_call (dbus_name, object_path, DBUS_PEER_IFACE, "Ping");
 
 			try {
-				this.bus.send_message_with_reply_sync (message, 0, timeout, null).to_gerror();
+				var reply = yield this.bus.send_message_with_reply (message, 0, timeout, cancellable);
+				reply.to_gerror ();
 				this.dbus_name = dbus_name;
 				this.object_path = object_path;
 				return;
@@ -73,8 +74,8 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		var message = new DBusMessage.method_call (PORTAL_NAME, PORTAL_PATH, PORTAL_IFACE, "CreateSession");
 		message.set_body (new Variant ("(s)", uri));
 
-		var reply = this.bus.send_message_with_reply_sync (message, 0, timeout, null);
-		reply.to_gerror();
+		var reply = yield this.bus.send_message_with_reply (message, 0, timeout, cancellable);
+		reply.to_gerror ();
 
 		var variant = reply.get_body ();
 		variant.get_child(0, "o", out object_path);

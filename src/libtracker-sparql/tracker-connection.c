@@ -197,6 +197,34 @@ tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
  */
 
 /**
+ * tracker_sparql_connection_bus_new_async:
+ * @service_name: The name of the D-Bus service to connect to.
+ * @object_path: (nullable): The path to the object, or %NULL to use the default.
+ * @dbus_connection: (nullable): The #GDBusConnection to use, or %NULL to use the session bus
+ * @cancellable: (nullable): a #GCancellable, or %NULL
+ * @callback: the #GAsyncReadyCallback called when the operation completes
+ * @user_data: data passed to @callback
+ *
+ * Connects to a database owned by another process on the
+ * local machine. This is an asynchronous operation.
+ *
+ * Since: 3.1
+ */
+
+/**
+ * tracker_sparql_connection_bus_new_finish:
+ * @result: the #GAsyncResult
+ * @error: pointer to a #GError
+ *
+ * Completion function for tracker_sparql_connection_bus_new_async().
+ *
+ * Returns: (transfer full): a new #TrackerSparqlConnection. Call g_object_unref() on the
+ * object when no longer used.
+ *
+ * Since: 3.1
+ */
+
+/**
  * tracker_sparql_connection_remote_new:
  * @uri_base: Base URI of the remote connection
  *

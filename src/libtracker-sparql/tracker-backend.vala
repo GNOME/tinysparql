@@ -28,6 +28,29 @@ public static Tracker.Sparql.Connection tracker_sparql_connection_remote_new (st
 }
 
 public static Tracker.Sparql.Connection tracker_sparql_connection_bus_new (string service, string? object_path, DBusConnection? conn) throws Tracker.Sparql.Error, IOError, DBusError, GLib.Error {
+	Tracker.get_debug_flags ();
+
+	var context = GLib.MainContext.ref_thread_default();
+	var loop = new GLib.MainLoop(context);
+	GLib.Error? error = null;
+	Tracker.Sparql.Connection? sparql_conn = null;
+	tracker_sparql_connection_bus_new_async.begin(service, object_path, conn, null, (o, res) => {
+		try {
+			sparql_conn = tracker_sparql_connection_bus_new_async.end(res);
+		} catch (Error e) {
+			error = e;
+		}
+		loop.quit();
+	});
+	loop.run ();
+
+	if (error != null)
+		throw error;
+
+	return sparql_conn;
+}
+
+public static async Tracker.Sparql.Connection tracker_sparql_connection_bus_new_async (string service, string? object_path, DBusConnection? conn, Cancellable? cancellable) throws Tracker.Sparql.Error, IOError, DBusError, GLib.Error {
 	GLib.DBusConnection dbus_conn;
 	string path;
 
@@ -36,14 +59,14 @@ public static Tracker.Sparql.Connection tracker_sparql_connection_bus_new (strin
 	if (conn != null)
 		dbus_conn = conn;
 	else
-		dbus_conn = GLib.Bus.get_sync (GLib.BusType.SESSION, null);
+		dbus_conn = yield GLib.Bus.get (GLib.BusType.SESSION, cancellable);
 
 	if (object_path != null)
 		path = object_path;
 	else
 		path = "/org/freedesktop/Tracker3/Endpoint";
 
-	return new Tracker.Bus.Connection (service, path, dbus_conn);
+	return yield new Tracker.Bus.Connection (service, path, dbus_conn, cancellable);
 }
 
 public static Tracker.Sparql.Connection tracker_sparql_connection_new (Tracker.Sparql.ConnectionFlags flags, File? store, File? ontology, Cancellable? cancellable = null) throws GLib.Error, Tracker.Sparql.Error, IOError {
