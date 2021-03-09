@@ -92,6 +92,17 @@ TrackerSparqlConnection * tracker_sparql_connection_bus_new (const gchar      *s
                                                              const gchar      *object_path,
                                                              GDBusConnection  *dbus_connection,
                                                              GError          **error);
+TRACKER_AVAILABLE_IN_3_1
+void tracker_sparql_connection_bus_new_async (const gchar         *service_name,
+                                              const gchar         *object_path,
+                                              GDBusConnection     *dbus_connection,
+                                              GCancellable        *cancellable,
+                                              GAsyncReadyCallback  callback,
+                                              gpointer             user_data);
+TRACKER_AVAILABLE_IN_3_1
+TrackerSparqlConnection * tracker_sparql_connection_bus_new_finish (GAsyncResult  *result,
+                                                                    GError       **error);
+
 TRACKER_AVAILABLE_IN_ALL
 TrackerSparqlConnection * tracker_sparql_connection_remote_new (const gchar *uri_base);
 
