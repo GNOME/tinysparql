@@ -89,11 +89,12 @@ tracker_fts_init_db (sqlite3               *db,
 }
 
 gboolean
-tracker_fts_create_table (sqlite3     *db,
-                          const gchar *database,
-                          gchar       *table_name,
-                          GHashTable  *tables,
-                          GHashTable  *grouped_columns)
+tracker_fts_create_table (sqlite3      *db,
+                          const gchar  *database,
+                          gchar        *table_name,
+                          GHashTable   *tables,
+                          GHashTable   *grouped_columns,
+                          GError      **error)
 {
 	GString *str, *from, *fts;
 	gchar *index_table;
@@ -153,17 +154,15 @@ tracker_fts_create_table (sqlite3     *db,
 	rc = sqlite3_exec(db, str->str, NULL, NULL, NULL);
 	g_string_free (str, TRUE);
 
-	if (rc != SQLITE_OK) {
-		g_assert_not_reached();
-		return FALSE;
-	}
+	if (rc != SQLITE_OK)
+		goto error;
 
 	g_string_append (fts, "tokenize=TrackerTokenizer)");
 	rc = sqlite3_exec(db, fts->str, NULL, NULL, NULL);
 	g_string_free (fts, TRUE);
 
 	if (rc != SQLITE_OK)
-		return FALSE;
+		goto error;
 
 	str = g_string_new (NULL);
 	g_string_append_printf (str,
@@ -172,13 +171,23 @@ tracker_fts_create_table (sqlite3     *db,
 	rc = sqlite3_exec (db, str->str, NULL, NULL, NULL);
 	g_string_free (str, TRUE);
 
-	return (rc == SQLITE_OK);
+error:
+	if (rc != SQLITE_OK) {
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_OPEN_ERROR,
+		             "%s", sqlite3_errstr (rc));
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 gboolean
-tracker_fts_delete_table (sqlite3     *db,
-			  const gchar *database,
-                          gchar       *table_name)
+tracker_fts_delete_table (sqlite3      *db,
+                          const gchar  *database,
+                          gchar        *table_name,
+                          GError      **error)
 {
 	gchar *query;
 	int rc;
@@ -194,15 +203,24 @@ tracker_fts_delete_table (sqlite3     *db,
 		g_free (query);
 	}
 
-	return rc == SQLITE_OK;
+	if (rc != SQLITE_OK) {
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_OPEN_ERROR,
+		             "%s", sqlite3_errstr (rc));
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 gboolean
-tracker_fts_alter_table (sqlite3     *db,
-			 const gchar *database,
-			 gchar       *table_name,
-			 GHashTable  *tables,
-			 GHashTable  *grouped_columns)
+tracker_fts_alter_table (sqlite3      *db,
+                         const gchar  *database,
+                         gchar        *table_name,
+                         GHashTable   *tables,
+                         GHashTable   *grouped_columns,
+                         GError      **error)
 {
 	gchar *query, *tmp_name;
 	int rc;
@@ -212,7 +230,7 @@ tracker_fts_alter_table (sqlite3     *db,
 
 	tmp_name = g_strdup_printf ("%s_TMP", table_name);
 
-	if (!tracker_fts_create_table (db, database, tmp_name, tables, grouped_columns)) {
+	if (!tracker_fts_create_table (db, database, tmp_name, tables, grouped_columns, error)) {
 		g_free (tmp_name);
 		return FALSE;
 	}
@@ -222,28 +240,34 @@ tracker_fts_alter_table (sqlite3     *db,
 	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
 	g_free (query);
 
-	if (rc != SQLITE_OK) {
-		g_free (tmp_name);
-		return FALSE;
-	}
+	if (rc != SQLITE_OK)
+		goto error;
 
 	query = g_strdup_printf ("INSERT INTO \"%s\".%s(%s) VALUES('rebuild')",
 				 database, tmp_name, tmp_name);
 	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
 	g_free (query);
 
-	if (rc != SQLITE_OK) {
-		g_free (tmp_name);
-		return FALSE;
-	}
+	if (rc != SQLITE_OK)
+		goto error;
 
 	query = g_strdup_printf ("ALTER TABLE \"%s\".%s RENAME TO %s",
 				 database, tmp_name, table_name);
 	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
 	g_free (query);
+
+error:
 	g_free (tmp_name);
 
-	return rc == SQLITE_OK;
+	if (rc != SQLITE_OK) {
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_OPEN_ERROR,
+		             "%s", sqlite3_errstr (rc));
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 void

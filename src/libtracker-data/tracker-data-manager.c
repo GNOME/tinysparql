@@ -133,9 +133,10 @@ enum {
 };
 
 static gboolean tracker_data_manager_fts_changed (TrackerDataManager *manager);
-static void tracker_data_manager_update_fts (TrackerDataManager *manager,
-                                             TrackerDBInterface *iface,
-					     const gchar        *database);
+static gboolean tracker_data_manager_update_fts (TrackerDataManager  *manager,
+                                                 TrackerDBInterface  *iface,
+                                                 const gchar         *database,
+                                                 GError             **error);
 
 static void tracker_data_manager_initable_iface_init (GInitableIface *iface);
 
@@ -3554,36 +3555,45 @@ rebuild_fts_tokens (TrackerDataManager *manager,
 }
 
 static gboolean
-tracker_data_manager_init_fts (TrackerDataManager *manager,
-                               TrackerDBInterface *iface,
-                               const gchar        *database,
-                               gboolean            create)
+tracker_data_manager_init_fts (TrackerDataManager  *manager,
+                               TrackerDBInterface  *iface,
+                               const gchar         *database,
+                               gboolean             create,
+                               GError             **error)
 {
 	GHashTable *fts_props, *multivalued;
+	gboolean retval;
 
 	ontology_get_fts_properties (manager, &fts_props, &multivalued);
-	tracker_db_interface_sqlite_fts_init (iface,
-					      database,
-					      fts_props,
-	                                      multivalued, create);
+	retval = tracker_db_interface_sqlite_fts_init (iface,
+	                                               database,
+	                                               fts_props,
+	                                               multivalued, create,
+	                                               error);
 	g_hash_table_unref (fts_props);
 	g_hash_table_unref (multivalued);
-	return TRUE;
+
+	return retval;
 }
 
-static void
-tracker_data_manager_update_fts (TrackerDataManager *manager,
-                                 TrackerDBInterface *iface,
-                                 const gchar        *database)
+static gboolean
+tracker_data_manager_update_fts (TrackerDataManager  *manager,
+                                 TrackerDBInterface  *iface,
+                                 const gchar         *database,
+                                 GError             **error)
 {
 	GHashTable *fts_properties, *multivalued;
+	gboolean retval;
 
 	ontology_get_fts_properties (manager, &fts_properties, &multivalued);
-	tracker_db_interface_sqlite_fts_alter_table (iface, database,
-						     fts_properties,
-						     multivalued);
+	retval = tracker_db_interface_sqlite_fts_alter_table (iface, database,
+	                                                      fts_properties,
+	                                                      multivalued,
+	                                                      error);
 	g_hash_table_unref (fts_properties);
 	g_hash_table_unref (multivalued);
+
+	return retval;
 }
 
 GFile *
@@ -3665,11 +3675,14 @@ tracker_data_manager_initialize_iface (TrackerDataManager  *data_manager,
 				return FALSE;
 			}
 
-			tracker_data_manager_init_fts (data_manager, iface, value, FALSE);
+			if (!tracker_data_manager_init_fts (data_manager, iface,
+			                                    value, FALSE, error))
+				return FALSE;
 		}
 	}
 
-	tracker_data_manager_init_fts (data_manager, iface, "main", FALSE);
+	if (!tracker_data_manager_init_fts (data_manager, iface, "main", FALSE, error))
+		return FALSE;
 
 	return TRUE;
 }
@@ -3803,7 +3816,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	TrackerDBCursor *cursor;
 	TrackerDBStatement *stmt;
 	GHashTable *ontos_table;
-	GHashTable *graphs;
+	GHashTable *graphs = NULL;
 	GList *sorted = NULL, *l;
 	gboolean read_only;
 	GError *internal_error = NULL;
@@ -3927,7 +3940,10 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			return FALSE;
 		}
 
-		tracker_data_manager_init_fts (manager, iface, "main", TRUE);
+		if (!tracker_data_manager_init_fts (manager, iface, "main", TRUE, &internal_error)) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
 
 		tracker_data_manager_initialize_iface (manager, iface, &internal_error);
 		if (internal_error) {
@@ -4259,12 +4275,13 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				update_fts = tracker_data_manager_fts_changed (manager);
 
 				if (update_fts)
-					tracker_db_interface_sqlite_fts_delete_table (iface, "main");
+					tracker_db_interface_sqlite_fts_delete_table (iface, "main", &ontology_error);
 
-				tracker_data_ontology_setup_db (manager, iface, "main", TRUE,
-				                                &ontology_error);
+				if (!ontology_error)
+					tracker_data_ontology_setup_db (manager, iface, "main", TRUE, &ontology_error);
 
-				graphs = tracker_data_manager_ensure_graphs (manager, iface, &ontology_error);
+				if (!ontology_error)
+					graphs = tracker_data_manager_ensure_graphs (manager, iface, &ontology_error);
 
 				if (graphs) {
 					GHashTableIter iter;
@@ -4274,7 +4291,10 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 					while (g_hash_table_iter_next (&iter, &value, NULL)) {
 						if (update_fts)
-							tracker_db_interface_sqlite_fts_delete_table (iface, value);
+							tracker_db_interface_sqlite_fts_delete_table (iface, value, &ontology_error);
+
+						if (ontology_error)
+							break;
 
 						tracker_data_ontology_setup_db (manager, iface, value, TRUE,
 						                                &ontology_error);
@@ -4282,18 +4302,21 @@ tracker_data_manager_initable_init (GInitable     *initable,
 							break;
 
 						if (update_fts) {
-							tracker_data_manager_update_fts (manager, iface, value);
+							tracker_data_manager_update_fts (manager, iface, value, &ontology_error);
 						} else {
-							tracker_data_manager_init_fts (manager, iface, value, FALSE);
+							tracker_data_manager_init_fts (manager, iface, value, FALSE, &ontology_error);
 						}
+
+						if (ontology_error)
+							break;
 					}
 				}
 
 				if (!ontology_error) {
 					if (update_fts) {
-						tracker_data_manager_update_fts (manager, iface, "main");
+						tracker_data_manager_update_fts (manager, iface, "main", &ontology_error);
 					} else {
-						tracker_data_manager_init_fts (manager, iface, "main", FALSE);
+						tracker_data_manager_init_fts (manager, iface, "main", FALSE, &ontology_error);
 					}
 				}
 
@@ -4643,7 +4666,8 @@ tracker_data_manager_create_graph (TrackerDataManager  *manager,
 	                                     FALSE, error))
 		goto detach;
 
-	tracker_data_manager_init_fts (manager, iface, name, TRUE);
+	if (!tracker_data_manager_init_fts (manager, iface, name, TRUE, error))
+		goto detach;
 
 	id = tracker_data_ensure_graph (manager->data_update, name, error);
 	if (id == 0)
