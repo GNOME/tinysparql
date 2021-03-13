@@ -3535,23 +3535,29 @@ ontology_get_fts_properties (TrackerDataManager  *manager,
 	}
 }
 
-static void
-rebuild_fts_tokens (TrackerDataManager *manager,
-                    TrackerDBInterface *iface)
+static gboolean
+rebuild_fts_tokens (TrackerDataManager  *manager,
+                    TrackerDBInterface  *iface,
+                    GError             **error)
 {
 	GHashTableIter iter;
 	gchar *graph;
 
 	g_debug ("Rebuilding FTS tokens, this may take a moment...");
-	tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main");
+	if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", error))
+		return FALSE;
 
 	g_hash_table_iter_init (&iter, manager->graphs);
-	while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL))
-		tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph);
+	while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
+		if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph, error))
+			return FALSE;
+	}
 
 	g_debug ("FTS tokens rebuilt");
 	/* Update the stamp file */
 	tracker_db_manager_tokenizer_update (manager->db_manager);
+
+	return TRUE;
 }
 
 static gboolean
@@ -4412,9 +4418,11 @@ skip_ontology_check:
 
 		tracker_db_manager_set_current_locale (manager->db_manager);
 
-		rebuild_fts_tokens (manager, iface);
+		if (!rebuild_fts_tokens (manager, iface, error))
+			return FALSE;
 	} else if (!read_only && tracker_db_manager_get_tokenizer_changed (manager->db_manager)) {
-		rebuild_fts_tokens (manager, iface);
+		if (!rebuild_fts_tokens (manager, iface, error))
+			return FALSE;
 	}
 
 	if (!read_only) {

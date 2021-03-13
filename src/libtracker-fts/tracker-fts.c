@@ -270,10 +270,11 @@ error:
 	return TRUE;
 }
 
-void
-tracker_fts_rebuild_tokens (sqlite3     *db,
-			    const gchar *database,
-                            const gchar *table_name)
+gboolean
+tracker_fts_rebuild_tokens (sqlite3      *db,
+			    const gchar  *database,
+                            const gchar  *table_name,
+                            GError      **error)
 {
 	gchar *query;
 	gint rc;
@@ -284,5 +285,13 @@ tracker_fts_rebuild_tokens (sqlite3     *db,
 	rc = sqlite3_exec(db, query, NULL, NULL, NULL);
 	g_free (query);
 
-	g_warn_if_fail (rc == SQLITE_OK);
+	if (rc != SQLITE_OK) {
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_OPEN_ERROR,
+		             "%s", sqlite3_errstr (rc));
+		return FALSE;
+	}
+
+	return TRUE;
 }

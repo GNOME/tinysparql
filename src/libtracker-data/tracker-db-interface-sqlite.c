@@ -2494,11 +2494,12 @@ tracker_db_interface_sqlite_fts_delete_id (TrackerDBInterface *db_interface,
 	return TRUE;
 }
 
-void
-tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface *interface,
-                                                const gchar        *database)
+gboolean
+tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface  *interface,
+                                                const gchar         *database,
+                                                GError             **error)
 {
-	tracker_fts_rebuild_tokens (interface->db, database, "fts5");
+	return tracker_fts_rebuild_tokens (interface->db, database, "fts5", error);
 }
 
 void

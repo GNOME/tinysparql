@@ -49,9 +49,10 @@ gboolean    tracker_fts_alter_table      (sqlite3      *db,
                                           GHashTable   *tables,
                                           GHashTable   *grouped_columns,
                                           GError      **error);
-void        tracker_fts_rebuild_tokens   (sqlite3     *db,
-                                          const gchar *database,
-                                          const gchar *table_name);
+gboolean    tracker_fts_rebuild_tokens   (sqlite3      *db,
+                                          const gchar  *database,
+                                          const gchar  *table_name,
+                                          GError      **error);
 
 G_END_DECLS
 
