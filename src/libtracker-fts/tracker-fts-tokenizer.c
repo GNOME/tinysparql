@@ -380,7 +380,9 @@ tracker_rank_function (const Fts5ExtensionApi  *api,
 }
 
 static fts5_api *
-get_fts5_api (sqlite3 *db) {
+get_fts5_api (sqlite3  *db,
+              GError  **error)
+{
 	int rc = SQLITE_OK;
 	sqlite3_stmt *stmt;
 	fts5_api *api = NULL;
@@ -391,7 +393,7 @@ get_fts5_api (sqlite3 *db) {
 		rc = sqlite3_prepare_v2(db, "SELECT fts5(?1)",
 		                        -1, &stmt, 0);
 		if (rc != SQLITE_OK)
-			return NULL;
+			goto error;
 
 		sqlite3_bind_pointer (stmt, 1, (void*) &api, "fts5_api_ptr", NULL);
 		sqlite3_step (stmt);
@@ -402,7 +404,7 @@ get_fts5_api (sqlite3 *db) {
 		                        -1, &stmt, 0);
 
 		if (rc != SQLITE_OK)
-			return NULL;
+			goto error;
 
 		if (sqlite3_step (stmt) == SQLITE_ROW)
 			memcpy (&api, sqlite3_column_blob (stmt, 0), sizeof (api));
@@ -411,6 +413,14 @@ get_fts5_api (sqlite3 *db) {
 	sqlite3_finalize (stmt);
 
 	return api;
+
+error:
+	g_set_error (error,
+	             TRACKER_DB_INTERFACE_ERROR,
+	             TRACKER_DB_OPEN_ERROR,
+	             "Could not override fts5 tokenizer: %s",
+	             sqlite3_errstr (rc));
+	return NULL;
 }
 
 static TrackerTokenizerFunctionData *
@@ -437,14 +447,15 @@ gboolean
 tracker_tokenizer_initialize (sqlite3                *db,
                               TrackerDBInterface     *interface,
                               TrackerDBManagerFlags   flags,
-                              const gchar           **property_names)
+                              const gchar           **property_names,
+                              GError                **error)
 {
 	TrackerTokenizerData *data;
 	TrackerTokenizerFunctionData *func_data;
 	fts5_tokenizer *tokenizer;
 	fts5_api *api;
 
-	api = get_fts5_api (db);
+	api = get_fts5_api (db, error);
 
 	if (!api)
 		return FALSE;

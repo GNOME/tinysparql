@@ -29,6 +29,7 @@
 gboolean tracker_tokenizer_initialize (sqlite3                *db,
                                        TrackerDBInterface     *interface,
                                        TrackerDBManagerFlags   flags,
-                                       const gchar           **property_names);
+                                       const gchar           **property_names,
+                                       GError                **error);
 
 #endif /* __TRACKER_FTS_TOKENIZER_H__ */

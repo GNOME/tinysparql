@@ -2254,7 +2254,9 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 	GError *inner_error = NULL;
 	GStrv fts_columns;
 
-	tracker_fts_init_db (db_interface->db, db_interface, db_interface->flags, properties);
+	if (!tracker_fts_init_db (db_interface->db, db_interface,
+	                          db_interface->flags, properties, error))
+		return FALSE;
 
 	if (create &&
 	    !tracker_fts_create_table (db_interface->db, database, "fts5",

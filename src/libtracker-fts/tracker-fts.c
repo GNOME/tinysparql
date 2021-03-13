@@ -65,10 +65,11 @@ get_fts_properties (GHashTable  *tables)
 }
 
 gboolean
-tracker_fts_init_db (sqlite3               *db,
-                     TrackerDBInterface    *interface,
-                     TrackerDBManagerFlags  flags,
-                     GHashTable            *tables)
+tracker_fts_init_db (sqlite3                *db,
+                     TrackerDBInterface     *interface,
+                     TrackerDBManagerFlags   flags,
+                     GHashTable             *tables,
+                     GError                **error)
 {
 	gchar **property_names;
 	gboolean retval;
@@ -76,13 +77,16 @@ tracker_fts_init_db (sqlite3               *db,
 	gchar *err;
 
 	if (sqlite3_load_extension (db, NULL, "sqlite3_fts5_init", &err) != SQLITE_OK) {
-		g_warning ("Could not load fts5 module: %s", err);
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_OPEN_ERROR,
+		             "Could not load fts5 module: %s", err);
 		return FALSE;
 	}
 #endif
 
 	property_names = get_fts_properties (tables);
-	retval = tracker_tokenizer_initialize (db, interface, flags, (const gchar **) property_names);
+	retval = tracker_tokenizer_initialize (db, interface, flags, (const gchar **) property_names, error);
 	g_strfreev (property_names);
 
 	return retval;
