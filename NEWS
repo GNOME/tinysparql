@@ -1,3 +1,16 @@
+NEW in 3.1.0.rc - 2021-03-14
+============================
+  * Add tracker_sparql_connection_bus_new_async()
+  * Fix TrackerNotifier signal subscriptions across the portal
+  * Fix race condition / crash when performing SELECT queries
+  * Propagate errors better when updating the database
+  * Do not miss valid prefixed names in TrackerResource
+  * Sparql 1.1 correctness fixes
+  * Handle nesting of multivalued property functions
+  * CI improvements in JUnit test results
+
+Translations: fr, gl, hr, ko, pl, sr, tr
+
 NEW in 3.1.0.beta - 2021-02-14
 ==============================
   * Fix possible crash in fts:offsets function
