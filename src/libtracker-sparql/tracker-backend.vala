@@ -30,10 +30,13 @@ public static Tracker.Sparql.Connection tracker_sparql_connection_remote_new (st
 public static Tracker.Sparql.Connection tracker_sparql_connection_bus_new (string service, string? object_path, DBusConnection? conn) throws Tracker.Sparql.Error, IOError, DBusError, GLib.Error {
 	Tracker.get_debug_flags ();
 
-	var context = GLib.MainContext.ref_thread_default();
+	var context = new GLib.MainContext ();
 	var loop = new GLib.MainLoop(context);
 	GLib.Error? error = null;
 	Tracker.Sparql.Connection? sparql_conn = null;
+
+	context.push_thread_default ();
+
 	tracker_sparql_connection_bus_new_async.begin(service, object_path, conn, null, (o, res) => {
 		try {
 			sparql_conn = tracker_sparql_connection_bus_new_async.end(res);
@@ -43,6 +46,8 @@ public static Tracker.Sparql.Connection tracker_sparql_connection_bus_new (strin
 		loop.quit();
 	});
 	loop.run ();
+
+	context.pop_thread_default ();
 
 	if (error != null)
 		throw error;
