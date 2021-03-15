@@ -1,6 +1,6 @@
 # Italian translation of tracker
 # Copyright (C) 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2015, 2017, 2018, 2019 Free Software Foundation, Inc
-# Copyright (C) 2020 Free Software Foundation, Inc
+# Copyright (C) 2020, 2021 Free Software Foundation, Inc
 # This file is distributed under the same license as the tracker package.
 #
 # Glossario:
@@ -10,14 +10,14 @@
 # pause → interrompere
 #
 # Luca Ferretti <lferrett@gnome.org>, 2006, 2007, 2008, 2009, 2012.
-# Milo Casagrande <milo@milo.name>, 2013, 2014, 2015, 2017, 2018, 2019, 2020.
+# Milo Casagrande <milo@milo.name>, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-08-25 16:04+0000\n"
-"PO-Revision-Date: 2020-08-31 15:52+0200\n"
+"POT-Creation-Date: 2021-02-28 09:42+0000\n"
+"PO-Revision-Date: 2021-03-07 17:06+0100\n"
 "Last-Translator: Milo Casagrande <milo@milo.name>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "Language: it\n"
@@ -25,69 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
-"X-Generator: Poedit 2.4.1\n"
-
-# non sono sicuro sia <tempo>, potrebbe anche essere <ora>
-#: src/libtracker-common/tracker-utils.c:90
-msgid "unknown time"
-msgstr "tempo sconosciuto"
-
-#: src/libtracker-common/tracker-utils.c:104
-#: src/libtracker-common/tracker-utils.c:155
-msgid "less than one second"
-msgstr "meno di un secondo"
-
-#. Translators: this is %d days
-#: src/libtracker-common/tracker-utils.c:119
-#, c-format
-msgid " %dd"
-msgstr " %dd"
-
-#. Translators: this is %2.2d hours
-#: src/libtracker-common/tracker-utils.c:123
-#, c-format
-msgid " %2.2dh"
-msgstr " %2.2dh"
-
-#. Translators: this is %2.2d minutes
-#: src/libtracker-common/tracker-utils.c:127
-#, c-format
-msgid " %2.2dm"
-msgstr " %2.2dm"
-
-#. Translators: this is %2.2d seconds
-#: src/libtracker-common/tracker-utils.c:131
-#, c-format
-msgid " %2.2ds"
-msgstr " %2.2ds"
-
-#: src/libtracker-common/tracker-utils.c:135
-#, c-format
-msgid " %d day"
-msgid_plural " %d days"
-msgstr[0] " %d giorno"
-msgstr[1] " %d giorni"
-
-#: src/libtracker-common/tracker-utils.c:139
-#, c-format
-msgid " %2.2d hour"
-msgid_plural " %2.2d hours"
-msgstr[0] " %2.2d ora"
-msgstr[1] " %2.2d ore"
-
-#: src/libtracker-common/tracker-utils.c:143
-#, c-format
-msgid " %2.2d minute"
-msgid_plural " %2.2d minutes"
-msgstr[0] " %2.2d minuto"
-msgstr[1] " %2.2d minuti"
-
-#: src/libtracker-common/tracker-utils.c:147
-#, c-format
-msgid " %2.2d second"
-msgid_plural " %2.2d seconds"
-msgstr[0] " %2.2d secondo"
-msgstr[1] " %2.2d secondi"
+"X-Generator: Poedit 2.4.2\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -103,92 +41,110 @@ msgstr "the|a|an|il|lo|la|le|gli|i|un|uno|una"
 msgid "Version"
 msgstr "Versione"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:299
-#: src/tracker/tracker-export.c:333 src/tracker/tracker-import.c:160
+#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
+#: src/tracker/tracker-export.c:517 src/tracker/tracker-import.c:160
 #: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
 msgid "Unrecognized options"
 msgstr "Opzioni non riconosciute"
 
-#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:44
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:47
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Posizione del database"
 
-#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
+#: src/tracker/tracker-endpoint.c:51 src/tracker/tracker-endpoint.c:63
 msgid "DIR"
 msgstr "DIR"
 
-#: src/tracker/tracker-endpoint.c:52
+#: src/tracker/tracker-endpoint.c:54
 msgid "Specify the DBus name of this endpoint"
 msgstr "Indica il nome DBusi di questo endpoint"
 
-#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
+#: src/tracker/tracker-endpoint.c:55 src/tracker/tracker-endpoint.c:59
 msgid "NAME"
 msgstr "NOME"
 
-#: src/tracker/tracker-endpoint.c:56
+#: src/tracker/tracker-endpoint.c:58
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Indica il nome dell'ontologia usata con questo endpoint"
 
-#: src/tracker/tracker-endpoint.c:60
+#: src/tracker/tracker-endpoint.c:62
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "Indica un percorso a un'ontologia da usare con questo endpoint"
 
-#: src/tracker/tracker-endpoint.c:64
+#: src/tracker/tracker-endpoint.c:66
+msgid "HTTP port"
+msgstr "Porta HTTP"
+
+#: src/tracker/tracker-endpoint.c:70
+msgid "Whether to only allow HTTP connections in the loopback device"
+msgstr "Indica se consentire solo connessioni HTTP sul dispositivo di loopback"
+
+#: src/tracker/tracker-endpoint.c:74
 msgid "Use session bus"
 msgstr "Usa bus di sessione"
 
-#: src/tracker/tracker-endpoint.c:68
+#: src/tracker/tracker-endpoint.c:78
 msgid "Use system bus"
 msgstr "Usa bus di sistema"
 
-#: src/tracker/tracker-endpoint.c:72
+#: src/tracker/tracker-endpoint.c:82
 msgid "List SPARQL endpoints available in DBus"
 msgstr "Elenca endpoint SPARQL disponibili in DBus"
 
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:93
+#: src/tracker/tracker-endpoint.c:103
 msgid "--list can only be used with --session or --system"
 msgstr "--list può essere usata solo con --session o --system"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:99
+#: src/tracker/tracker-endpoint.c:109
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Un'opzione «ontology» o «ontology-path» deve essere fornita"
 
-#: src/tracker/tracker-endpoint.c:141
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:115
+msgid "--http-port cannot be used with --dbus-service"
+msgstr "--http-port non può essere usata con --dbus-service"
+
+#: src/tracker/tracker-endpoint.c:186
+#, c-format
+msgid "Creating HTTP endpoint at %s…"
+msgstr "Creazione endpoint HTTP su %s…"
+
+#: src/tracker/tracker-endpoint.c:206 src/tracker/tracker-endpoint.c:269
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "In ascolto per comandi SPARQL, premere Ctrl-C per fermare."
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:214 src/tracker/tracker-endpoint.c:284
+msgid "Closing connection…"
+msgstr "Chiusura connessione…"
+
+#: src/tracker/tracker-endpoint.c:229
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Creazione endpoint su %s…"
 
-#: src/tracker/tracker-endpoint.c:177
+#: src/tracker/tracker-endpoint.c:265
 msgid "Could not own DBus name"
 msgstr "Impossibile appropriarsi del nome DBus"
 
-#: src/tracker/tracker-endpoint.c:181
-msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr "In ascolto per comandi SPARQL, premere Ctrl-C per fermare."
-
-#: src/tracker/tracker-endpoint.c:191
+#: src/tracker/tracker-endpoint.c:279
 msgid "DBus name lost"
 msgstr "Nome DBus perso"
 
-#. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:196
-msgid "Closing connection…"
-msgstr "Chiusura connessione…"
-
-#: src/tracker/tracker-endpoint.c:333
+#: src/tracker/tracker-endpoint.c:421
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Apertura database su %s…"
 
-#: src/tracker/tracker-endpoint.c:336
+#: src/tracker/tracker-endpoint.c:424
 msgid "Creating in-memory database"
 msgstr "Creazione database in memoria"
 
-#: src/tracker/tracker-endpoint.c:356
+#: src/tracker/tracker-endpoint.c:451
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -196,62 +152,64 @@ msgstr ""
 "Nuovo database creato. Usare l'opzione «--dbus-service» per condividerlo su "
 "un bus di messaggi."
 
-#: src/tracker/tracker-export.c:45 src/tracker/tracker-import.c:46
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:46
 #: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
 #: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FILE"
 
-#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:49
 #: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "Connette a un servizio DBus"
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "Nome servizio DBus"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-export.c:55 src/tracker/tracker-import.c:53
 #: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "Connette a un servizio remoto"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "URI servizio remoto"
 
-#: src/tracker/tracker-export.c:56
+#: src/tracker/tracker-export.c:59
 msgid "Output TriG format which includes named graph information"
 msgstr "Formato di output TriG che comprende informazioni sui grafi con nome"
 
-#: src/tracker/tracker-export.c:60 src/tracker/tracker-export.c:61
+#: src/tracker/tracker-export.c:71 src/tracker/tracker-export.c:72
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:86 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-export.c:97 src/tracker/tracker-import.c:83
 #: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Specificare un'opzione tra «--database», «--dbus-service» o «--remote-"
 "service»"
 
-#: src/tracker/tracker-export.c:260 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-export.c:308 src/tracker/tracker-import.c:99
 #: src/tracker/tracker-sparql.c:1115
 msgid "Could not establish a connection to Tracker"
 msgstr "Impossibile stabilere una connessione con Tracker"
 
-#: src/tracker/tracker-export.c:261 src/tracker/tracker-import.c:100
+#: src/tracker/tracker-export.c:309 src/tracker/tracker-import.c:100
 #: src/tracker/tracker-sparql.c:1116
 msgid "No error given"
 msgstr "Nessun errore fornito"
 
 # hmmmm, misterioso
-#: src/tracker/tracker-export.c:300 src/tracker/tracker-sparql.c:1493
-#: src/tracker/tracker-sql.c:135 src/tracker/tracker-sql.c:168
+#: src/tracker/tracker-export.c:348 src/tracker/tracker-export.c:399
+#: src/tracker/tracker-export.c:412 src/tracker/tracker-export.c:422
+#: src/tracker/tracker-sparql.c:1493 src/tracker/tracker-sql.c:135
+#: src/tracker/tracker-sql.c:168
 msgid "Could not run query"
 msgstr "Impossibile eseguire l'interrogazione"
 
