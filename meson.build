@@ -332,6 +332,9 @@ if not get_option('override_sqlite_version_check')
     elif sqlite.version().version_compare('>= 3.24.0') and sqlite.version().version_compare('<= 3.28.0')
         error(template.format('>=3.24.0, <= 3.28.0',
                               'https://gitlab.gnome.org/GNOME/tracker/merge_requests/160#note_664713'))
+    elif sqlite.version().version_compare('>= 3.35.0') and sqlite.version().version_compare('<= 3.35.1')
+        error(template.format('>=3.35.0, <= 3.35.1',
+                              'https://mail.gnome.org/archives/distributor-list/2021-March/msg00000.html'))
     endif
 endif
 
