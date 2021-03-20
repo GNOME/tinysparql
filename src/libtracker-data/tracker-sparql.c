@@ -9455,13 +9455,17 @@ tracker_sparql_new (TrackerDataManager *manager,
 					   &sparql->parser_error);
 	if (tree) {
 		TrackerSparqlState state = { 0 };
+		GError *internal_error = NULL;
 
 		sparql->tree = tree;
 
 		sparql->current_state = &state;
 		sparql->current_state->node = tracker_node_tree_get_root (sparql->tree);
 		tracker_sparql_init_string_builder (sparql);
-		_call_rule_func (sparql, NAMED_RULE_Query, &sparql->parser_error);
+
+		if (!_call_rule_func (sparql, NAMED_RULE_Query, &internal_error))
+			g_propagate_error (&sparql->parser_error, internal_error);
+
 		sparql->current_state = NULL;
 
 		tracker_sparql_state_clear (&state);
