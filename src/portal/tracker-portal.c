@@ -229,7 +229,7 @@ load_client_configuration (TrackerPortal          *portal,
 	}
 
 	if (!flatpak_info) {
-		GStrv default_graphs = { NULL };
+		gchar *default_graphs[] = { NULL };
 
 		if (inner_error) {
 			g_warning ("Error reading .flatpak-info.");
