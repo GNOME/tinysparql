@@ -300,7 +300,7 @@ char *
 tracker_namespace_manager_print_turtle (TrackerNamespaceManager *self)
 {
 	TrackerNamespaceManagerPrivate *priv;
-	GString *result = g_string_new ("");
+	GString *result;
 	GHashTableIter iter;
 	const char *prefix;
 	const char *namespace;
@@ -308,6 +308,8 @@ tracker_namespace_manager_print_turtle (TrackerNamespaceManager *self)
 	g_return_val_if_fail (TRACKER_IS_NAMESPACE_MANAGER (self), NULL);
 
 	priv = GET_PRIVATE (self);
+
+	result = g_string_new ("");
 
 	g_hash_table_iter_init (&iter, priv->prefix_to_namespace);
 	while (g_hash_table_iter_next (&iter, (gpointer *)&prefix, (gpointer *)&namespace)) {
