@@ -213,7 +213,7 @@ load_client_configuration (TrackerPortal          *portal,
                            GError                **error)
 {
 	g_autoptr (GKeyFile) flatpak_info = NULL;
-	GError *inner_error = NULL;
+	g_autoptr(GError) inner_error = NULL;
 	GStrv graphs;
 
 	if (portal->test_flatpak_info) {
