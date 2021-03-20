@@ -4448,12 +4448,12 @@ data_manager_perform_cleanup (TrackerDataManager  *manager,
 	const gchar *graph;
 	GString *str;
 
-	str = g_string_new ("WITH referencedElements(ID) AS ("
-	                    "SELECT ID FROM \"main\".Refcount ");
-
 	graphs = tracker_data_manager_ensure_graphs (manager, iface, &internal_error);
 	if (!graphs)
 		goto fail;
+
+	str = g_string_new ("WITH referencedElements(ID) AS ("
+	                    "SELECT ID FROM \"main\".Refcount ");
 
 	g_hash_table_iter_init (&iter, graphs);
 
