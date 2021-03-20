@@ -2951,7 +2951,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 					put_change = TRUE;
 				}
 
-				if (in_change && put_change) {
+				if (in_change && put_change && in_col_sql && sel_col_sql) {
 					range_change_for (property, in_col_sql, sel_col_sql, field_name);
 				}
 			}
