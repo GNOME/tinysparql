@@ -1,3 +1,17 @@
+NEW in 3.1.0 - 2021-03-20
+=========================
+  * Add build-time warning for SQLite 3.35.[01]
+  * Workaround other SQLite 3.35 bug
+
+  Highlighted changes since 3.0:
+  * New, faster API for updates, see TrackerBatch and
+    tracker_sparql_connection_update_resource
+  * New API to create HTTP endpoints, see
+    tracker_endpoint_http_new
+  * New tracker:strip-punctuation SPARQL function
+  * Multiple performance improvements
+  * Several SPARQL 1.1 correctness fixes
+
 NEW in 3.1.0.rc - 2021-03-14
 ============================
   * Add tracker_sparql_connection_bus_new_async()
