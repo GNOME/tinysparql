@@ -635,6 +635,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 					/* Statements are single use here... */
 					g_object_unref (stmt);
 				} else {
+					query_request_free (request);
 					g_dbus_method_invocation_return_gerror (invocation,
 					                                        error);
 				}
