@@ -3020,13 +3020,12 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Copy: %s", query));
 
 		tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
+		g_free (query);
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			goto error_out;
 		}
-		
-		g_free (query);
 
 		for (i = 0; i < n_props; i++) {
 			property = properties[i];
