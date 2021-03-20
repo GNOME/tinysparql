@@ -75,9 +75,7 @@ _translate_internal_error (GError *error)
 				                                 TRACKER_SPARQL_ERROR_INTERNAL,
 				                                 error->message);
 		}
-	}
-
-	if (error->domain == TRACKER_DB_INTERFACE_ERROR) {
+	} else if (error->domain == TRACKER_DB_INTERFACE_ERROR) {
 		TrackerSparqlError new_code = TRACKER_SPARQL_ERROR_INTERNAL;
 
 		switch (error->code) {
