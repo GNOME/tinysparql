@@ -244,6 +244,7 @@ create_connections (TrackerSparqlConnection **dbus,
                     GError                  **error)
 {
 	StartupData data;
+	GThread *thread;
 
 	data.direct = create_local_connection (NULL);
 	if (!data.direct)
@@ -252,7 +253,7 @@ create_connections (TrackerSparqlConnection **dbus,
 	if (!data.dbus_conn)
 		return FALSE;
 
-	g_thread_new (NULL, thread_func, &data);
+	thread = g_thread_new (NULL, thread_func, &data);
 
 	while (!started)
 		g_usleep (100);
@@ -261,6 +262,7 @@ create_connections (TrackerSparqlConnection **dbus,
 	*dbus = tracker_sparql_connection_bus_new (bus_name,
 	                                           NULL, data.dbus_conn, error);
 	*direct = create_local_connection (error);
+	g_thread_unref (thread);
 
 	return TRUE;
 }
