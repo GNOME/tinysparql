@@ -1627,7 +1627,6 @@ _add_quad (TrackerSparql  *sparql,
 			tracker_binding_set_db_column_name (binding, "fts5");
 			tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->context),
 			                                            TRACKER_LITERAL_BINDING (binding));
-			g_object_unref (binding);
 
 			fts_table = tracker_sparql_add_fts_subquery (sparql, graph, subject,
 			                                             TRACKER_LITERAL_BINDING (binding));
@@ -1635,6 +1634,7 @@ _add_quad (TrackerSparql  *sparql,
 			db_table = fts_table;
 			share_table = FALSE;
 			is_fts = TRUE;
+			g_object_unref (binding);
 		} else if (property != NULL) {
 			db_table = tracker_property_get_table_name (property);
 
