@@ -406,10 +406,8 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 		                                    service_name,
 		                                    field_name);
 
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return;
-		}
+		if (internal_error)
+			goto out;
 
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
 		              g_message ("Creating index (multi-value property): "
@@ -425,10 +423,8 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 		                                    field_name,
 		                                    expr);
 
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return;
-		}
+		if (internal_error)
+			goto out;
 	} else {
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
 		              g_message ("Creating index (multi-value property): "
@@ -444,9 +440,13 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 		                                    field_name,
 		                                    expr);
 
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-		}
+		if (internal_error)
+			goto out;
+	}
+
+out:
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
 	}
 
 	g_free (expr);
