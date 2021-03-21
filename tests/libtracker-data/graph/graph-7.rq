@@ -1,0 +1,7 @@
+SELECT ?g ?s ?v WHERE {
+	GRAPH ?g {
+                ?s a rdfs:Resource .
+		OPTIONAL { ?s example:p ?v } .
+	}
+}
+ORDER BY ?g ?s ?v
