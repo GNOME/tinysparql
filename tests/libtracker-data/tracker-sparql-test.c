@@ -162,6 +162,7 @@ const TestInfo tests[] = {
 	{ "graph/graph-4", "graph/data-3", FALSE },
 	{ "graph/graph-5", "graph/data-4", FALSE },
 	{ "graph/graph-6", "graph/data-5", FALSE },
+	{ "graph/graph-7", "graph/data-5", FALSE },
 	{ "graph/non-existent-1",  "graph/data-1", FALSE },
 	{ "graph/non-existent-2",  "graph/data-1", FALSE },
 	{ "graph/non-existent-3",  "graph/data-1", FALSE },
