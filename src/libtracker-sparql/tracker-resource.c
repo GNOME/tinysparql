@@ -444,6 +444,17 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_string, const char *, G_TYPE_STRING
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_uri, const char *, TRACKER_TYPE_URI, g_value_set_string, validate_pointer);
 
 /**
+ * tracker_resource_set_datetime:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Sets a single-valued GDateTime as a #TrackerResource
+ * Since: 3.2
+ */
+SET_PROPERTY_FOR_GTYPE (tracker_resource_set_datetime, GDateTime *, G_TYPE_DATE_TIME, g_value_set_boxed, validate_pointer);
+
+/**
  * tracker_resource_add_gvalue:
  * @self: the #TrackerResource
  * @property_uri: a string identifying the property to set
@@ -646,6 +657,16 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_string, const char *, G_TYPE_STRING
  */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_uri, const char *, TRACKER_TYPE_URI, g_value_set_string, validate_pointer);
 
+/**
+ * tracker_resource_add_datetime:
+ * @self: the #TrackerResource
+ * @property_uri: a string identifying the property to modify
+ * @value: the property object
+ *
+ * Adds GDateTime object to the multi-valued property.
+ * Since: 3.2
+ */
+ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_datetime, GDateTime *, G_TYPE_DATE_TIME, g_value_set_boxed, validate_pointer);
 
 /**
  * tracker_resource_get_values:
@@ -799,6 +820,18 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_string, const char *, G_TYPE_
  * Returns: the first resource object as an URI.
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_uri, const char *, TRACKER_TYPE_URI, g_value_get_string, NULL);
+
+/**
+ * tracker_resource_get_first_datetime:
+ * @self: A #TrackerResource
+ * @property_uri: a string identifying the property to look up
+ *
+ * Returns the first resource object previously assigned to a property.
+ *
+ * Returns: the first GDateTime object
+ * Since: 3.2
+ */
+GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_datetime, GDateTime *, G_TYPE_DATE_TIME, g_value_get_boxed, NULL);
 
 /**
  * tracker_resource_get_identifier:
