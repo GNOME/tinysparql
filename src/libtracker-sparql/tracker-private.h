@@ -145,6 +145,8 @@ struct _TrackerSparqlCursorClass
                                 gint                 column);
         gboolean (* get_boolean) (TrackerSparqlCursor *cursor,
                                   gint                 column);
+        GDateTime* (* get_datetime) (TrackerSparqlCursor *cursor,
+                                     gint                 column);
         gboolean (* is_bound) (TrackerSparqlCursor *cursor,
                                gint                 column);
         gint (* get_n_columns) (TrackerSparqlCursor *cursor);
@@ -217,6 +219,9 @@ struct _TrackerSparqlStatementClass
         void (* bind_double) (TrackerSparqlStatement *stmt,
                               const gchar            *name,
                               gdouble                 value);
+        void (* bind_datetime) (TrackerSparqlStatement *stmt,
+                                const gchar            *name,
+                                GDateTime              *value);
 
         TrackerSparqlCursor * (* execute) (TrackerSparqlStatement  *stmt,
                                            GCancellable            *cancellable,
