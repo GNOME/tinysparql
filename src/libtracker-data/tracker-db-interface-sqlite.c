@@ -2243,21 +2243,29 @@ _fts_create_properties (GHashTable *properties)
 	return (gchar **) g_ptr_array_free (cols, FALSE);
 }
 
-void
+gboolean
 tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
                                       const gchar         *database,
                                       GHashTable          *properties,
                                       GHashTable          *multivalued,
-                                      gboolean             create)
+                                      gboolean             create,
+                                      GError             **error)
 {
+	GError *inner_error = NULL;
 	GStrv fts_columns;
 
-	tracker_fts_init_db (db_interface->db, db_interface, db_interface->flags, properties);
+	if (!tracker_fts_init_db (db_interface->db, db_interface,
+	                          db_interface->flags, properties, error))
+		return FALSE;
 
 	if (create &&
 	    !tracker_fts_create_table (db_interface->db, database, "fts5",
-				       properties, multivalued)) {
-		g_warning ("FTS tables creation failed");
+	                               properties, multivalued,
+	                               &inner_error)) {
+		g_propagate_prefixed_error (error,
+		                            inner_error,
+		                            "FTS tables creation failed: ");
+		return FALSE;
 	}
 
 	fts_columns = _fts_create_properties (properties);
@@ -2278,26 +2286,27 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 		                                              FALSE);
 		g_strfreev (fts_columns);
 	}
+
+	return TRUE;
 }
 
-void
-tracker_db_interface_sqlite_fts_delete_table (TrackerDBInterface *db_interface,
-                                              const gchar        *database)
+gboolean
+tracker_db_interface_sqlite_fts_delete_table (TrackerDBInterface  *db_interface,
+                                              const gchar         *database,
+                                              GError             **error)
 {
-	if (!tracker_fts_delete_table (db_interface->db, database, "fts5")) {
-		g_critical ("Failed to delete FTS table");
-	}
+	return tracker_fts_delete_table (db_interface->db, database, "fts5", error);
 }
 
-void
+gboolean
 tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
                                              const gchar         *database,
                                              GHashTable          *properties,
-                                             GHashTable          *multivalued)
+                                             GHashTable          *multivalued,
+                                             GError             **error)
 {
-	if (!tracker_fts_alter_table (db_interface->db, database, "fts5", properties, multivalued)) {
-		g_critical ("Failed to update FTS columns");
-	}
+	return tracker_fts_alter_table (db_interface->db, database, "fts5",
+	                                properties, multivalued, error);
 }
 
 static gchar *
@@ -2487,11 +2496,12 @@ tracker_db_interface_sqlite_fts_delete_id (TrackerDBInterface *db_interface,
 	return TRUE;
 }
 
-void
-tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface *interface,
-                                                const gchar        *database)
+gboolean
+tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface  *interface,
+                                                const gchar         *database,
+                                                GError             **error)
 {
-	tracker_fts_rebuild_tokens (interface->db, database, "fts5");
+	return tracker_fts_rebuild_tokens (interface->db, database, "fts5", error);
 }
 
 void
