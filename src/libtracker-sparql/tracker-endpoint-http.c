@@ -41,7 +41,11 @@ struct _TrackerEndpointHttp {
 
 typedef struct {
 	TrackerEndpoint *endpoint;
+#if SOUP_CHECK_VERSION (2, 99, 2)
+        SoupServerMessage *message;
+#else
 	SoupMessage *message;
+#endif
 	GInputStream *istream;
 	GTask *task;
 	TrackerSerializerFormat format;
@@ -90,9 +94,11 @@ handle_request_in_thread (GTask        *task,
 	GError *error = NULL;
 	gssize count;
 
-	g_object_get (request->message,
-	              "response-body", &message_body,
-	              NULL);
+#if SOUP_CHECK_VERSION (2, 99, 2)
+        message_body = soup_server_message_get_response_body (request->message);
+#else
+        message_body = request->message->response_body;
+#endif
 
 	while (!finished) {
 		count = g_input_stream_read (request->istream,
@@ -127,12 +133,22 @@ request_finished_cb (GObject      *object,
 	endpoint_http = TRACKER_ENDPOINT_HTTP (request->endpoint);
 
 	if (!g_task_propagate_boolean (G_TASK (result), &error)) {
+#if SOUP_CHECK_VERSION (2, 99, 2)
+                soup_server_message_set_status (request->message, 500,
+                                                error ? error->message :
+                                                "No error message");
+#else
 		soup_message_set_status_full (request->message, 500,
 		                              error ? error->message :
 		                              "No error message");
+#endif
 		g_clear_error (&error);
 	} else {
+#if SOUP_CHECK_VERSION (2, 99, 2)
+                soup_server_message_set_status (request->message, 200, NULL);
+#else
 		soup_message_set_status (request->message, 200);
+#endif
 	}
 
 	soup_server_unpause_message (endpoint_http->server, request->message);
@@ -153,7 +169,11 @@ query_async_cb (GObject      *object,
 	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
 	                                                 result, &error);
 	if (error) {
+#if SOUP_CHECK_VERSION (2, 99, 2)
+                soup_server_message_set_status (request->message, 500, error->message);
+#else
 		soup_message_set_status_full (request->message, 500, error->message);
+#endif
 		soup_server_unpause_message (endpoint_http->server, request->message);
 		request_free (request);
 		return;
@@ -167,16 +187,25 @@ query_async_cb (GObject      *object,
 	g_task_run_in_thread (request->task, handle_request_in_thread);
 }
 
+#if SOUP_CHECK_VERSION (2, 99, 2)
+static gboolean
+pick_format (SoupServerMessage       *message,
+             TrackerSerializerFormat *format)
+#else
 static gboolean
 pick_format (SoupMessage             *message,
              TrackerSerializerFormat *format)
+#endif
 {
 	SoupMessageHeaders *request_headers, *response_headers;
 
-	g_object_get (message,
-	              "request-headers", &request_headers,
-	              "response-headers", &response_headers,
-	              NULL);
+#if SOUP_CHECK_VERSION (2, 99, 2)
+        request_headers = soup_server_message_get_request_headers (message);
+        response_headers = soup_server_message_get_response_headers (message);
+#else
+        request_headers = message->request_headers;
+        response_headers = message->response_headers;
+#endif
 
 	if (soup_message_headers_header_contains (request_headers, "Accept", JSON_TYPE)) {
 		soup_message_headers_set_content_type (response_headers, JSON_TYPE, NULL);
@@ -193,6 +222,14 @@ pick_format (SoupMessage             *message,
 	return FALSE;
 }
 
+#if SOUP_CHECK_VERSION (2, 99, 2)
+static void
+server_callback (SoupServer        *server,
+	         SoupServerMessage *message,
+                 const char        *path,
+	         GHashTable        *query,
+                 gpointer           user_data)
+#else
 static void
 server_callback (SoupServer        *server,
                  SoupMessage       *message,
@@ -200,6 +237,7 @@ server_callback (SoupServer        *server,
                  GHashTable        *query,
                  SoupClientContext *client,
                  gpointer           user_data)
+#endif
 {
 	TrackerEndpoint *endpoint = user_data;
 	TrackerSparqlConnection *conn;
@@ -209,25 +247,41 @@ server_callback (SoupServer        *server,
 	const gchar *sparql;
 	Request *request;
 
+#if SOUP_CHECK_VERSION (2, 99, 2)
+        remote_address = soup_server_message_get_remote_address (message);
+#else
 	remote_address = soup_client_context_get_remote_address (client);
+#endif
 	if (remote_address) {
 		g_signal_emit (endpoint, signals[BLOCK_REMOTE_ADDRESS], 0,
 		               remote_address, &block);
 	}
 
 	if (block) {
+#if SOUP_CHECK_VERSION (2, 99, 2)
+                soup_server_message_set_status (message, 500, "Remote address disallowed");
+#else
 		soup_message_set_status_full (message, 500, "Remote address disallowed");
+#endif
 		return;
 	}
 
 	sparql = g_hash_table_lookup (query, "query");
 	if (!sparql) {
+#if SOUP_CHECK_VERSION (2, 99, 2)
+                soup_server_message_set_status (message, 500, "No query given");
+#else
 		soup_message_set_status_full (message, 500, "No query given");
+#endif
 		return;
 	}
 
 	if (!pick_format (message, &format)) {
+#if SOUP_CHECK_VERSION (2, 99, 2)
+                soup_server_message_set_status (message, 500, "No recognized accepted formats");
+#else
 		soup_message_set_status_full (message, 500, "No recognized accepted formats");
+#endif
 		return;
 	}
 

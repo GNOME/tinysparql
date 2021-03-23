@@ -7,13 +7,19 @@ sources = [
     '../../libtracker-common/libtracker-common.vapi'
 ]
 
+if get_option('soup2')
+  vala_defines = ['--define=SOUP2']
+else
+  vala_defines = []
+endif
+
 libtracker_remote = static_library('tracker-remote', sources,
     dependencies: tracker_remote_dependencies + [tracker_common_dep, tracker_sparql_intermediate_dep],
     c_args: tracker_c_args + [
         '-include', 'config.h',
         '-include', 'libtracker-sparql/tracker-private.h',
     ],
-    vala_args: [
+    vala_args: vala_defines + [
         '--debug',
         '--pkg', 'posix',
         # FIXME: Meson has code to add --target-glib automatically, but it
