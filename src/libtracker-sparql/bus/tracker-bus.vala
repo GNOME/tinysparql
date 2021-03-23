@@ -22,6 +22,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	string dbus_name;
 	string object_path;
 	bool sandboxed;
+	NamespaceManager namespaces;
 
 	private const string DBUS_PEER_IFACE = "org.freedesktop.DBus.Peer";
 
@@ -58,6 +59,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 				reply.to_gerror ();
 				this.dbus_name = dbus_name;
 				this.object_path = object_path;
+				yield this.init_namespaces ();
 				return;
 			} catch (GLib.Error e) {
 				if (!GLib.FileUtils.test ("/.flatpak-info", GLib.FileTest.EXISTS)) {
@@ -83,6 +85,16 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		this.dbus_name = PORTAL_NAME;
 		this.object_path = object_path;
 		this.sandboxed = true;
+
+		yield this.init_namespaces ();
+	}
+
+	private async void init_namespaces () throws Sparql.Error, IOError, DBusError, GLib.Error {
+		this.namespaces = new NamespaceManager ();
+		var cursor = yield this.query_async ("SELECT ?prefix ?name { ?name nrl:prefix ?prefix }", null);
+		while (cursor.next ())
+			this.namespaces.add_prefix(cursor.get_string(0), cursor.get_string(1));
+		cursor.close ();
 	}
 
 	static void pipe (out UnixInputStream input, out UnixOutputStream output) throws IOError {
@@ -351,5 +363,9 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public async override bool close_async () throws GLib.IOError {
 		this.close ();
 		return true;
+	}
+
+	public override Tracker.NamespaceManager? get_namespace_manager () {
+		return namespaces;
 	}
 }
