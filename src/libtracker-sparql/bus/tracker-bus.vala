@@ -194,7 +194,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		return new Bus.Statement (bus, dbus_name, object_path, sparql);
 	}
 
-	void send_update (string method, UnixInputStream input, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.Error, GLib.IOError {
+	static void send_update (DBusConnection bus, string dbus_name, string object_path, string method, UnixInputStream input, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.Error, GLib.IOError {
 		var message = new DBusMessage.method_call (dbus_name, object_path, ENDPOINT_IFACE, method);
 		var fd_list = new UnixFDList ();
 		message.set_body (new Variant ("(h)", fd_list.append (input.fd)));
@@ -226,7 +226,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool sent_update = false;
-		send_update ("Update", input, cancellable, (o, res) => {
+		send_update (bus, dbus_name, object_path, "Update", input, cancellable, (o, res) => {
 			dbus_res = res;
 			if (sent_update) {
 				update_async.callback ();
@@ -250,7 +250,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		handle_error_reply (reply);
 	}
 
-	public async override bool update_array_async (string[] sparql, Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, DBusError {
+	public static async bool perform_update_array (DBusConnection bus, string dbus_name, string object_path, string[] sparql, Cancellable? cancellable) throws GLib.IOError, GLib.Error {
 		if (sparql.length == 0)
 			return true;
 
@@ -261,10 +261,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool sent_update = false;
-		send_update ("UpdateArray", input, cancellable, (o, res) => {
+		send_update (bus, dbus_name, object_path, "UpdateArray", input, cancellable, (o, res) => {
 			dbus_res = res;
 			if (sent_update) {
-				update_array_async.callback ();
+				perform_update_array.callback ();
 			}
 		});
 
@@ -290,6 +290,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
                 return true;
 	}
 
+	public async override bool update_array_async (string[] sparql, Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, DBusError {
+		return yield perform_update_array (bus, dbus_name, object_path, sparql, cancellable);
+	}
+
 	public override GLib.Variant? update_blank (string sparql, Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, DBusError {
 		// use separate main context for sync operation
 		var context = new MainContext ();
@@ -313,7 +317,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool sent_update = false;
-		send_update ("UpdateBlank", input, cancellable, (o, res) => {
+		send_update (bus, dbus_name, object_path, "UpdateBlank", input, cancellable, (o, res) => {
 			dbus_res = res;
 			if (sent_update) {
 				update_blank_async.callback ();
