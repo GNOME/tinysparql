@@ -372,4 +372,11 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public override Tracker.NamespaceManager? get_namespace_manager () {
 		return namespaces;
 	}
+
+	public override Tracker.Batch? create_batch () {
+		var batch = (Tracker.Batch) Object.new (typeof (Tracker.Bus.Batch),
+		                                        "connection", this,
+		                                        null);
+		return batch;
+	}
 }
