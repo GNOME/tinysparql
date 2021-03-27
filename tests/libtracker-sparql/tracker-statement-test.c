@@ -50,6 +50,7 @@ TestInfo tests[] = {
 	{ "offset", "statement/offset.rq", "statement/offset.out", "0" },
 	{ "offset-2", "statement/offset.rq", "statement/offset-2.out", "1" },
 	{ "datetime", "statement/datetime.rq", "statement/datetime.out", NULL, NULL, "2020-12-04T04:10:03Z" },
+	{ "cast", "statement/cast.rq", "statement/cast.out", "2021-02-24T22:01:02Z" },
 };
 
 typedef struct {

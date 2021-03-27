@@ -1,0 +1,6 @@
+SELECT ?s {
+  ?s nrl:lastModified ?d
+  FILTER ( ?d <= ~arg1^^xsd:dateTime )
+}
+ORDER BY ASC ?d
+LIMIT 1
