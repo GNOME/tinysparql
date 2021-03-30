@@ -848,6 +848,26 @@ tracker_direct_connection_update_finish (TrackerSparqlConnection  *self,
 }
 
 static void
+on_batch_finished (GObject      *source,
+                   GAsyncResult *result,
+                   gpointer      user_data)
+{
+	TrackerBatch *batch = TRACKER_BATCH (source);
+	GTask *task = user_data;
+	GError *error = NULL;
+	gboolean retval;
+
+	retval = tracker_batch_execute_finish (batch, result, &error);
+
+	if (retval)
+		g_task_return_boolean (task, TRUE);
+	else
+		g_task_return_error (task, error);
+
+	g_object_unref (task);
+}
+
+static void
 tracker_direct_connection_update_array_async (TrackerSparqlConnection  *self,
                                               gchar                   **updates,
                                               gint                      n_updates,
@@ -855,29 +875,18 @@ tracker_direct_connection_update_array_async (TrackerSparqlConnection  *self,
                                               GAsyncReadyCallback       callback,
                                               gpointer                  user_data)
 {
-	TrackerDirectConnectionPrivate *priv;
-	TrackerDirectConnection *conn;
-	TaskData *task_data;
+	TrackerBatch *batch;
 	GTask *task;
-	gchar *concatenated;
-	gchar **array_copy;
+	gint i;
 
-	conn = TRACKER_DIRECT_CONNECTION (self);
-	priv = tracker_direct_connection_get_instance_private (conn);
+	batch = tracker_sparql_connection_create_batch (self);
 
-	/* Make a NULL-terminated array and concatenate it */
-	array_copy = g_new0 (gchar *, n_updates + 1);
-	memcpy (array_copy, updates, n_updates * sizeof (gchar *));
-	concatenated = g_strjoinv ("\n", array_copy);
-	g_free (array_copy);
-
-	task_data = task_data_query_new (TASK_TYPE_UPDATE, concatenated, g_free);
+	for (i = 0; i < n_updates; i++)
+		tracker_batch_add_sparql (batch, updates[i]);
 
 	task = g_task_new (self, cancellable, callback, user_data);
-	g_task_set_task_data (task, task_data,
-	                      (GDestroyNotify) task_data_free);
-
-	g_thread_pool_push (priv->update_thread, task, NULL);
+	tracker_batch_execute_async (batch, cancellable, on_batch_finished, task);
+	g_object_unref (batch);
 }
 
 static gboolean
