@@ -41,7 +41,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		get { return object_path; }
 	}
 
-	public async Connection (string dbus_name, string object_path, DBusConnection? dbus_connection, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError, GLib.Error {
+	public async Connection (string dbus_name, string object_path, DBusConnection dbus_connection, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		Object ();
 		this.sandboxed = false;
 		this.bus = dbus_connection;
