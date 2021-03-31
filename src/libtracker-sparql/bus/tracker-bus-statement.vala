@@ -26,7 +26,7 @@ public class Tracker.Bus.Statement : Tracker.Sparql.Statement {
 	private string object_path;
 	private HashTable<string,GLib.Variant> arguments;
 
-	public Statement (DBusConnection bus, string dbus_name, string object_path, string query) {
+	public Statement (DBusConnection bus, string? dbus_name, string object_path, string query) {
 		Object ();
 		this.bus = bus;
 		this.dbus_name = dbus_name;

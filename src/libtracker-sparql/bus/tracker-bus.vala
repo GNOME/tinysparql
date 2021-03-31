@@ -41,7 +41,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		get { return object_path; }
 	}
 
-	public async Connection (string dbus_name, string object_path, DBusConnection dbus_connection, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError, GLib.Error {
+	public async Connection (string? dbus_name, string object_path, DBusConnection dbus_connection, Cancellable? cancellable) throws Sparql.Error, IOError, DBusError, GLib.Error {
 		Object ();
 		this.sandboxed = false;
 		this.bus = dbus_connection;
@@ -50,7 +50,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		new Sparql.Error.INTERNAL ("");
 
 		// If this environment variable is present, we always go via the portal,
-		if (Environment.get_variable("TRACKER_TEST_PORTAL_FLATPAK_INFO") == null) {
+		if (Environment.get_variable("TRACKER_TEST_PORTAL_FLATPAK_INFO") == null || dbus_name == null) {
 			var message = new DBusMessage.method_call (dbus_name, object_path, DBUS_PEER_IFACE, "Ping");
 
 			try {
@@ -60,7 +60,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 				this.object_path = object_path;
 				return;
 			} catch (GLib.Error e) {
-				if (!GLib.FileUtils.test ("/.flatpak-info", GLib.FileTest.EXISTS)) {
+				if (!GLib.FileUtils.test ("/.flatpak-info", GLib.FileTest.EXISTS) || dbus_name == null) {
 					throw e;
 				}
 			}
@@ -112,7 +112,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		}
 	}
 
-	static void send_query (DBusConnection bus, string dbus_name, string object_path, string sparql, VariantBuilder? arguments, UnixOutputStream output, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.IOError, GLib.Error {
+	static void send_query (DBusConnection bus, string? dbus_name, string object_path, string sparql, VariantBuilder? arguments, UnixOutputStream output, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.IOError, GLib.Error {
 		var message = new DBusMessage.method_call (dbus_name, object_path, ENDPOINT_IFACE, "Query");
 		var fd_list = new UnixFDList ();
 		message.set_body (new Variant ("(sha{sv})", sparql, fd_list.append (output.fd), arguments));
@@ -121,7 +121,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		bus.send_message_with_reply.begin (message, DBusSendMessageFlags.NONE, int.MAX, null, cancellable, callback);
 	}
 
-	public static async Sparql.Cursor perform_query_call (DBusConnection bus, string dbus_name, string object_path, string sparql, VariantBuilder? arguments, Cancellable? cancellable) throws GLib.IOError, GLib.Error {
+	public static async Sparql.Cursor perform_query_call (DBusConnection bus, string? dbus_name, string object_path, string sparql, VariantBuilder? arguments, Cancellable? cancellable) throws GLib.IOError, GLib.Error {
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);

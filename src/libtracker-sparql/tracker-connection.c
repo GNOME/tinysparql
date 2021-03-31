@@ -182,7 +182,8 @@ tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
 
 /**
  * tracker_sparql_connection_bus_new:
- * @service_name: The name of the D-Bus service to connect to.
+ * @service_name: (nullable): The name of the D-Bus service to connect
+ * to, or %NULL if @connection is not a message bus connection.
  * @object_path: (nullable): The path to the object, or %NULL to use the default.
  * @dbus_connection: (nullable): The #GDBusConnection to use, or %NULL to use the session bus
  * @error: pointer to a #GError
@@ -198,7 +199,8 @@ tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
 
 /**
  * tracker_sparql_connection_bus_new_async:
- * @service_name: The name of the D-Bus service to connect to.
+ * @service_name: (nullable): The name of the D-Bus service to connect
+ * to, or %NULL if @connection is not a message bus connection.
  * @object_path: (nullable): The path to the object, or %NULL to use the default.
  * @dbus_connection: (nullable): The #GDBusConnection to use, or %NULL to use the session bus
  * @cancellable: (nullable): a #GCancellable, or %NULL

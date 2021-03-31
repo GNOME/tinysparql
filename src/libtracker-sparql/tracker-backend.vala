@@ -27,8 +27,15 @@ public static Tracker.Sparql.Connection tracker_sparql_connection_remote_new (st
 	return new Tracker.Remote.Connection (url_base);
 }
 
-public static Tracker.Sparql.Connection tracker_sparql_connection_bus_new (string service, string? object_path, DBusConnection? conn) throws Tracker.Sparql.Error, IOError, DBusError, GLib.Error {
+public static Tracker.Sparql.Connection tracker_sparql_connection_bus_new (string? service, string? object_path, DBusConnection? conn) throws Tracker.Sparql.Error, IOError, DBusError, GLib.Error {
 	Tracker.get_debug_flags ();
+
+	return_val_if_fail (service != null || conn is DBusConnection, null);
+
+	if (service == null && conn != null) {
+		var unique_name = conn.get_unique_name();
+		return_val_if_fail (unique_name == null, null);
+	}
 
 	var context = new GLib.MainContext ();
 	var loop = new GLib.MainLoop(context);
@@ -55,16 +62,24 @@ public static Tracker.Sparql.Connection tracker_sparql_connection_bus_new (strin
 	return sparql_conn;
 }
 
-public static async Tracker.Sparql.Connection tracker_sparql_connection_bus_new_async (string service, string? object_path, DBusConnection? conn, Cancellable? cancellable) throws Tracker.Sparql.Error, IOError, DBusError, GLib.Error {
+public static async Tracker.Sparql.Connection tracker_sparql_connection_bus_new_async (string? service, string? object_path, DBusConnection? conn, Cancellable? cancellable) throws Tracker.Sparql.Error, IOError, DBusError, GLib.Error {
 	GLib.DBusConnection dbus_conn;
 	string path;
 
 	Tracker.get_debug_flags ();
 
-	if (conn != null)
+	return_if_fail (service != null || conn is DBusConnection);
+
+	if (conn != null) {
+		if (service == null) {
+			var unique_name = conn.get_unique_name();
+			return_if_fail (unique_name == null);
+		}
+
 		dbus_conn = conn;
-	else
+	} else {
 		dbus_conn = yield GLib.Bus.get (GLib.BusType.SESSION, cancellable);
+	}
 
 	if (object_path != null)
 		path = object_path;

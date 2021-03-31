@@ -787,7 +787,8 @@ tracker_notifier_init (TrackerNotifier *notifier)
  * tracker_notifier_signal_subscribe:
  * @notifier: a #TrackerNotifier
  * @connection: a #GDBusConnection
- * @service: DBus service name to subscribe to events for
+ * @service: (nullable): DBus service name to subscribe to events for,
+ * or %NULL if @connection is not a message bus connection.
  * @object_path: (nullable): DBus object path to subscribe to events for, or %NULL
  * @graph: (nullable): graph to listen events for, or %NULL
  *
@@ -812,11 +813,15 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
 {
 	TrackerNotifierSubscription *subscription;
 	TrackerNotifierPrivate *priv;
+	const gchar *unique_name;
 	gchar *dbus_name = NULL, *dbus_path = NULL, *full_graph = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_NOTIFIER (notifier), 0);
 	g_return_val_if_fail (G_IS_DBUS_CONNECTION (connection), 0);
-	g_return_val_if_fail (service != NULL, 0);
+
+	unique_name = g_dbus_connection_get_unique_name (connection);
+	g_return_val_if_fail ((service == NULL && unique_name == NULL) || (service != NULL && unique_name != NULL),
+                              0);
 
 	priv = tracker_notifier_get_instance_private (notifier);
 
