@@ -1627,7 +1627,6 @@ _add_quad (TrackerSparql  *sparql,
 			tracker_binding_set_db_column_name (binding, "fts5");
 			tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->context),
 			                                            TRACKER_LITERAL_BINDING (binding));
-			g_object_unref (binding);
 
 			fts_table = tracker_sparql_add_fts_subquery (sparql, graph, subject,
 			                                             TRACKER_LITERAL_BINDING (binding));
@@ -1635,6 +1634,7 @@ _add_quad (TrackerSparql  *sparql,
 			db_table = fts_table;
 			share_table = FALSE;
 			is_fts = TRUE;
+			g_object_unref (binding);
 		} else if (property != NULL) {
 			db_table = tracker_property_get_table_name (property);
 
@@ -9455,13 +9455,17 @@ tracker_sparql_new (TrackerDataManager *manager,
 					   &sparql->parser_error);
 	if (tree) {
 		TrackerSparqlState state = { 0 };
+		GError *internal_error = NULL;
 
 		sparql->tree = tree;
 
 		sparql->current_state = &state;
 		sparql->current_state->node = tracker_node_tree_get_root (sparql->tree);
 		tracker_sparql_init_string_builder (sparql);
-		_call_rule_func (sparql, NAMED_RULE_Query, &sparql->parser_error);
+
+		if (!_call_rule_func (sparql, NAMED_RULE_Query, &internal_error))
+			g_propagate_error (&sparql->parser_error, internal_error);
+
 		sparql->current_state = NULL;
 
 		tracker_sparql_state_clear (&state);

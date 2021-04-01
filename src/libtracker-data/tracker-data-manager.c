@@ -406,10 +406,8 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 		                                    service_name,
 		                                    field_name);
 
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return;
-		}
+		if (internal_error)
+			goto out;
 
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
 		              g_message ("Creating index (multi-value property): "
@@ -425,10 +423,8 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 		                                    field_name,
 		                                    expr);
 
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return;
-		}
+		if (internal_error)
+			goto out;
 	} else {
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
 		              g_message ("Creating index (multi-value property): "
@@ -444,9 +440,13 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 		                                    field_name,
 		                                    expr);
 
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-		}
+		if (internal_error)
+			goto out;
+	}
+
+out:
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
 	}
 
 	g_free (expr);
@@ -2951,7 +2951,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 					put_change = TRUE;
 				}
 
-				if (in_change && put_change) {
+				if (in_change && put_change && in_col_sql && sel_col_sql) {
 					range_change_for (property, in_col_sql, sel_col_sql, field_name);
 				}
 			}
@@ -3020,13 +3020,12 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Copy: %s", query));
 
 		tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
+		g_free (query);
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			goto error_out;
 		}
-		
-		g_free (query);
 
 		for (i = 0; i < n_props; i++) {
 			property = properties[i];
@@ -4449,12 +4448,12 @@ data_manager_perform_cleanup (TrackerDataManager  *manager,
 	const gchar *graph;
 	GString *str;
 
-	str = g_string_new ("WITH referencedElements(ID) AS ("
-	                    "SELECT ID FROM \"main\".Refcount ");
-
 	graphs = tracker_data_manager_ensure_graphs (manager, iface, &internal_error);
 	if (!graphs)
 		goto fail;
+
+	str = g_string_new ("WITH referencedElements(ID) AS ("
+	                    "SELECT ID FROM \"main\".Refcount ");
 
 	g_hash_table_iter_init (&iter, graphs);
 

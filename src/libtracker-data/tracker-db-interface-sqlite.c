@@ -1399,7 +1399,7 @@ function_sparql_normalize (sqlite3_context *context,
 		char zBuf[128];
 		sqlite3_snprintf (128, zBuf, "ICU error: unorm_normalize: %s", u_errorName (status));
 		zBuf[127] = '\0';
-		sqlite3_free (zOutput);
+		g_free (zOutput);
 		result_context_function_error (context, fn, zBuf);
 		return;
 	}
@@ -1439,7 +1439,7 @@ function_sparql_unaccent (sqlite3_context *context,
 		char zBuf[128];
 		sqlite3_snprintf (128, zBuf, "ICU error: unorm_normalize: %s", u_errorName (status));
 		zBuf[127] = '\0';
-		sqlite3_free (zOutput);
+		g_free (zOutput);
 		result_context_function_error (context, fn, zBuf);
 		return;
 	}
@@ -3819,8 +3819,9 @@ tracker_db_interface_detach_database (TrackerDBInterface  *db_interface,
 	gchar *sql;
 
 	sql = g_strdup_printf ("DETACH DATABASE \"%s\"", name);
-
 	stmt = tracker_db_interface_prepare_stmt (db_interface, sql, error);
+	g_free (sql);
+
 	if (!stmt)
 		return FALSE;
 

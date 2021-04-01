@@ -751,18 +751,21 @@ create_dbus_connection (GError **error)
 {
 	TrackerSparqlConnection *dbus;
 	GDBusConnection *dbus_conn;
+	GThread *thread;
 
 	dbus_conn = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, error);
 	if (!dbus_conn)
 		return NULL;
 
-	g_thread_new (NULL, thread_func, dbus_conn);
+	thread = g_thread_new (NULL, thread_func, dbus_conn);
 
 	while (!started)
 		g_usleep (100);
 
 	dbus = tracker_sparql_connection_bus_new (g_dbus_connection_get_unique_name (dbus_conn),
 						  NULL, dbus_conn, error);
+	g_thread_unref (thread);
+
 	return dbus;
 }
 

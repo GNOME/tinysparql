@@ -163,7 +163,6 @@ tracker_fts_create_table (sqlite3      *db,
 
 	g_string_append (fts, "tokenize=TrackerTokenizer)");
 	rc = sqlite3_exec(db, fts->str, NULL, NULL, NULL);
-	g_string_free (fts, TRUE);
 
 	if (rc != SQLITE_OK)
 		goto error;
@@ -176,6 +175,8 @@ tracker_fts_create_table (sqlite3      *db,
 	g_string_free (str, TRUE);
 
 error:
+	g_string_free (fts, TRUE);
+
 	if (rc != SQLITE_OK) {
 		g_set_error (error,
 		             TRACKER_DB_INTERFACE_ERROR,

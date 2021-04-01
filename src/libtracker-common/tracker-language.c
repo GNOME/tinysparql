@@ -298,7 +298,7 @@ language_set_stopword_list (TrackerLanguage *language,
 	language_add_stopwords (language, stopword_filename);
 	g_free (stopword_filename);
 
-	if (!language_code || strcmp (language_code, "en") != 0) {
+	if (g_strcmp0 (language_code, "en") != 0) {
 		stopword_filename = language_get_stopword_filename ("en");
 		language_add_stopwords (language, stopword_filename);
 		g_free (stopword_filename);

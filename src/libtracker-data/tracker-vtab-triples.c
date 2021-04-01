@@ -192,7 +192,7 @@ triples_best_index (sqlite3_vtab       *vtab,
 			continue;
 
 		if (info->aConstraint[i].iColumn == COL_ROWID) {
-			g_free (idx_str);
+			sqlite3_free (idx_str);
 			return SQLITE_ERROR;
 		}
 
@@ -201,7 +201,7 @@ triples_best_index (sqlite3_vtab       *vtab,
 		    info->aConstraint[i].op != SQLITE_INDEX_CONSTRAINT_NE &&
 		    info->aConstraint[i].op != SQLITE_INDEX_CONSTRAINT_ISNULL &&
 		    info->aConstraint[i].op != SQLITE_INDEX_CONSTRAINT_ISNOTNULL) {
-			g_free (idx_str);
+			sqlite3_free (idx_str);
 			return SQLITE_ERROR;
 		}
 

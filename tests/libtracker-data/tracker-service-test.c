@@ -184,6 +184,7 @@ test_sparql_query (TestInfo      *test_info,
 	gchar *results_filename;
 	gchar *prefix, *test_prefix;
 	GFile *ontology;
+	GThread *thread;
 
 	/* initialization */
 	prefix = g_build_filename (TOP_SRCDIR, "tests", "libtracker-data", NULL);
@@ -198,7 +199,7 @@ test_sparql_query (TestInfo      *test_info,
 	remote = tracker_sparql_connection_new (0, NULL, ontology, NULL, &error);
 	g_assert_no_error (error);
 
-	g_thread_new (NULL, thread_func, remote);
+	thread = g_thread_new (NULL, thread_func, remote);
 	while (!endpoint) {
 		g_usleep (100);
 	}
@@ -230,6 +231,7 @@ test_sparql_query (TestInfo      *test_info,
 	g_clear_object (&local);
 	g_clear_object (&remote);
 	g_clear_object (&endpoint);
+	g_thread_unref (thread);
 }
 
 static void
