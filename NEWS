@@ -1,3 +1,14 @@
+NEW in 3.1.1 - 2021-04-02
+=========================
+  * Better error handling during database initialization
+  * Implemented tracker_sparql_connection_update_array_async
+    over TrackerBatch, resulting in lower memory usage.
+  * VAPI updates
+  * Updated tracker_sparql_connection_update_array docs
+  * Leak and double free fixes
+
+Translations: en_GB, nl, zh_CN
+
 NEW in 3.1.0 - 2021-03-20
 =========================
   * Add build-time warning for SQLite 3.35.[01]
