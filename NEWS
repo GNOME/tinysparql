@@ -1,3 +1,13 @@
+NEW in 3.0.4 - 2021-04-02
+=========================
+  * Add missing flags in VAPI
+  * Flag SQLite 3.35.[01] as bad releases
+  * Work around bug in SQLite 3.35.x
+  * Allow prefixed names as per spec in TrackerResource
+  * Fix race conditions in TrackerDBInterface ownership
+
+Translations: sr
+
 NEW in 3.0.3 - 2021-01-10
 =========================
   * Avoid FTS5 table inconsistency with SQLite >= 3.34.0
