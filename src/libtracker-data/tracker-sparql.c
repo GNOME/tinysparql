@@ -5021,8 +5021,28 @@ translate_OptionalGraphPattern (TrackerSparql  *sparql,
 
 	_call_rule (sparql, NAMED_RULE_GroupGraphPattern, error);
 
-	if (do_join)
+	if (do_join) {
+		/* FIXME: This is a workaround for SQLite 3.35.x, where
+		 * the optimization on UNION ALLs inside JOINs (Point 8c in
+		 * the 3.35.0 release notes) break in this very specific
+		 * case:
+		 *
+		 *   SELECT * { GRAPH ?g { ?a ... OPTIONAL { ?a ... } } }
+		 *
+		 * This is a workaround to make this one case ineligible
+		 * for query flattening optimizations, specifically make
+		 * it fall through case 8 in the list at
+		 * https://sqlite.org/optoverview.html#flattening,
+		 * "The subquery does not use LIMIT or the outer query is not
+		 * a join.", we will now meet both here.
+		 *
+		 * This should be evaluated again in future SQLite versions.
+		 */
+		if (tracker_token_get_variable (&sparql->current_state->graph))
+			_append_string (sparql, "LIMIT -1 ");
+
 		_append_string (sparql, ") ");
+	}
 
 	return TRUE;
 }
@@ -9445,7 +9465,7 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
                                GError        **error)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBInterface *iface;
+	TrackerDBInterface *iface = NULL;
 	TrackerDBCursor *cursor = NULL;
 	TrackerPropertyType *types;
 	const gchar * const *names;
@@ -9504,6 +9524,8 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 	g_object_unref (stmt);
 
 error:
+	if (iface)
+		tracker_db_interface_unref_use (iface);
 	g_mutex_unlock (&sparql->mutex);
 
 	return TRACKER_SPARQL_CURSOR (cursor);

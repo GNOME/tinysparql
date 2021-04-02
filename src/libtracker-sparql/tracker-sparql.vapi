@@ -35,6 +35,10 @@ namespace Tracker {
 	public enum Sparql.ConnectionFlags {
 		NONE     = 0,
 		READONLY = 1 << 0,
+		FTS_ENABLE_STEMMER = 1 << 1,
+		FTS_ENABLE_UNACCENT = 1 << 2,
+		FTS_ENABLE_STOP_WORDS = 1 << 3,
+		FTS_ENABLE_IGNORE_NUMBERS = 1 << 4,
 	}
 
 	[CCode (cheader_filename = "libtracker-sparql/tracker-sparql.h")]

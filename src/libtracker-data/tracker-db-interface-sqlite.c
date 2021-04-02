@@ -84,8 +84,8 @@ struct TrackerDBInterface {
 	/* Compiled regular expressions */
 	TrackerDBReplaceFuncChecks replace_func_checks;
 
-	/* Number of active cursors */
-	gint n_active_cursors;
+	/* Number of users (e.g. active cursors) */
+	gint n_users;
 
 	guint flags;
 	GCancellable *cancellable;
@@ -2849,7 +2849,7 @@ execute_stmt (TrackerDBInterface  *interface,
 
 	result = SQLITE_OK;
 
-	g_atomic_int_inc (&interface->n_active_cursors);
+	tracker_db_interface_ref_use (interface);
 
 #ifdef G_ENABLE_DEBUG
         if (TRACKER_DEBUG_CHECK (SQL_STATEMENTS)) {
@@ -2892,7 +2892,7 @@ execute_stmt (TrackerDBInterface  *interface,
 		}
 	}
 
-	g_atomic_int_add (&interface->n_active_cursors, -1);
+	tracker_db_interface_unref_use (interface);
 
 	if (result != SQLITE_DONE) {
 		/* This is rather fatal */
@@ -3074,11 +3074,12 @@ tracker_db_cursor_close (TrackerDBCursor *cursor)
 	iface = cursor->ref_stmt->db_interface;
 
 	g_object_ref (iface);
-	g_atomic_int_add (&iface->n_active_cursors, -1);
 
 	tracker_db_interface_lock (iface);
 	g_clear_pointer (&cursor->ref_stmt, tracker_db_statement_sqlite_release);
 	tracker_db_interface_unlock (iface);
+
+	tracker_db_interface_unref_use (iface);
 
 	g_object_unref (iface);
 }
@@ -3197,7 +3198,7 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
 	TrackerDBInterface *iface;
 
 	iface = ref_stmt->db_interface;
-	g_atomic_int_inc (&iface->n_active_cursors);
+	tracker_db_interface_ref_use (iface);
 
 #ifdef G_ENABLE_DEBUG
         if (TRACKER_DEBUG_CHECK (SQL_STATEMENTS)) {
@@ -3686,10 +3687,22 @@ tracker_db_interface_get_user_data (TrackerDBInterface *db_interface)
 	return db_interface->user_data;
 }
 
+void
+tracker_db_interface_ref_use (TrackerDBInterface *db_interface)
+{
+	g_atomic_int_inc (&db_interface->n_users);
+}
+
+gboolean
+tracker_db_interface_unref_use (TrackerDBInterface *db_interface)
+{
+	return g_atomic_int_dec_and_test (&db_interface->n_users);
+}
+
 gboolean
 tracker_db_interface_get_is_used (TrackerDBInterface *db_interface)
 {
-	return g_atomic_int_get (&db_interface->n_active_cursors) > 0;
+	return g_atomic_int_get (&db_interface->n_users) > 0;
 }
 
 gboolean

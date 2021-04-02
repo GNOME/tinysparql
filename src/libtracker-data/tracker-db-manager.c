@@ -862,6 +862,8 @@ tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 		}
 	}
 
+	tracker_db_interface_ref_use (interface);
+
 	g_async_queue_push_unlocked (db_manager->interfaces, interface);
 	g_async_queue_unlock (db_manager->interfaces);
 
