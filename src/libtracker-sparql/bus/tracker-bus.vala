@@ -239,6 +239,9 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override bool update_array_async (string[] sparql, Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, DBusError {
+		if (sparql.length == 0)
+			return true;
+
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);
