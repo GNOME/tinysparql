@@ -121,6 +121,9 @@ struct _TrackerSparqlConnectionClass
 	GInputStream * (* serialize_finish) (TrackerSparqlConnection  *connection,
 	                                     GAsyncResult             *res,
 	                                     GError                  **error);
+	void (* map_connection) (TrackerSparqlConnection  *connection,
+	                         const gchar              *handle_name,
+	                         TrackerSparqlConnection  *service_connection);
 };
 
 struct _TrackerSparqlCursorClass

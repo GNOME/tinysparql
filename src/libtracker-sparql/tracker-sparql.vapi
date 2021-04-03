@@ -114,6 +114,7 @@ namespace Tracker {
                 public async virtual bool close_async () throws GLib.IOError;
 
                 public async virtual GLib.InputStream serialize_async (SerializeFlags flags, RdfFormat format, string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
+                public virtual void map_connection (string handle_name, Sparql.Connection service_connection);
 	}
 
 	[CCode (cheader_filename = "libtracker-sparql/tracker-sparql.h")]

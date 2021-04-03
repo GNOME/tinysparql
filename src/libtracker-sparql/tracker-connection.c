@@ -944,3 +944,47 @@ tracker_sparql_connection_serialize_finish (TrackerSparqlConnection  *connection
 	                                                                           result,
 	                                                                           error);
 }
+
+/**
+ * tracker_sparql_connection_map_connection:
+ * @connection: a #TrackerSparqlConnection
+ * @handle_name: handle name for @service_connection
+ * @service_connection: a #TrackerSparqlConnection to use from @connection
+ *
+ * Maps @service_connection so it is available as a "private:@handle_name" URI
+ * in @connection. This can be accessed via the SERVICE SPARQL syntax in
+ * queries from @connection. E.g.:
+ *
+ * ```sparql
+ * SELECT ?u {
+ *   SERVICE <private:other-connection> {
+ *     ?u a rdfs:Resource
+ *   }
+ * }
+ * ```
+ *
+ * This is useful to interrelate data from multiple
+ * #TrackerSparqlConnection instances maintained by the same process,
+ * without creating a public endpoint for @service_connection.
+ *
+ * @connection may only be a #TrackerSparqlConnection created via
+ * tracker_sparql_connection_new() and tracker_sparql_connection_new_async().
+ *
+ * Since: 3.3
+ **/
+void
+tracker_sparql_connection_map_connection (TrackerSparqlConnection *connection,
+					  const gchar             *handle_name,
+					  TrackerSparqlConnection *service_connection)
+{
+	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
+	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (service_connection));
+	g_return_if_fail (handle_name && *handle_name);
+
+	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->map_connection)
+		return;
+
+	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->map_connection (connection,
+	                                                                  handle_name,
+	                                                                  service_connection);
+}

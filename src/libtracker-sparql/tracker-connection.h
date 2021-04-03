@@ -244,6 +244,11 @@ TrackerSparqlStatement * tracker_sparql_connection_load_statement_from_gresource
                                                                                   GCancellable             *cancellable,
                                                                                   GError                  **error);
 
+TRACKER_AVAILABLE_IN_3_3
+void tracker_sparql_connection_map_connection (TrackerSparqlConnection *connection,
+					       const gchar             *handle_name,
+					       TrackerSparqlConnection *service_connection);
+
 G_END_DECLS
 
 #endif /* __TRACKER_SPARQL_CONNECTION_H__ */
