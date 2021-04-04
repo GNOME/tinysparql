@@ -44,6 +44,8 @@
  */
 typedef struct _TrackerEndpointDBus TrackerEndpointDBus;
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (TrackerEndpointDBus, g_object_unref);
+
 TRACKER_AVAILABLE_IN_ALL
 GType tracker_endpoint_dbus_get_type (void) G_GNUC_CONST;
 
