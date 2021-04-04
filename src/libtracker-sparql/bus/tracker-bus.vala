@@ -342,6 +342,18 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		return reply.get_body ().get_child_value (0);
 	}
 
+	public override bool update_resource (string? graph, Resource resource, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
+		var batch = this.create_batch ();
+		batch.add_resource (graph, resource);
+		return batch.execute (cancellable);
+	}
+
+	public async override bool update_resource_async (string? graph, Resource resource, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
+		var batch = this.create_batch ();
+		batch.add_resource (graph, resource);
+		return yield batch.execute_async (cancellable);
+	}
+
 	public override Tracker.Notifier? create_notifier () {
 		var notifier = (Tracker.Notifier) Object.new (typeof (Tracker.Notifier),
 		                                              "connection", this,

@@ -84,8 +84,8 @@ namespace Tracker {
 		public async virtual bool update_array_async (string[] sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 		public virtual GLib.Variant? update_blank (string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 		public async virtual GLib.Variant? update_blank_async (string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
-		public virtual void update_resource (string? graph, Resource resource, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
-		public async virtual void update_resource_async (string? graph, Resource resource, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
+		public virtual bool update_resource (string? graph, Resource resource, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
+		public async virtual bool update_resource_async (string? graph, Resource resource, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 
 		public virtual NamespaceManager? get_namespace_manager ();
 
