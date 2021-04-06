@@ -377,6 +377,50 @@ test_tracker_sparql_update_array_async (DataFixture   *fixture,
 }
 
 static void
+async_update_array_empty_callback (GObject      *source_object,
+                                   GAsyncResult *result,
+                                   gpointer      user_data)
+{
+	GError *error = NULL;
+	AsyncData *data = user_data;
+
+	tracker_sparql_connection_update_array_finish (connection, result, &error);
+
+	/* main error is only set on fatal (D-Bus) errors that apply to the whole update */
+	g_assert_no_error (error);
+
+	g_main_loop_quit (data->main_loop);
+}
+
+static void
+test_tracker_sparql_update_array_async_empty (DataFixture   *fixture,
+                                              gconstpointer  user_data)
+{
+	const gchar **queries = NULL;
+	GMainLoop *main_loop;
+	AsyncData *data;
+
+	main_loop = g_main_loop_new (NULL, FALSE);
+
+	data = g_slice_new (AsyncData);
+	data->main_loop = main_loop;
+
+	/* Cast here is because vala doesn't make const-char-** possible :( */
+	tracker_sparql_connection_update_array_async (connection,
+	                                              (char**) queries,
+	                                              0,
+	                                              NULL,
+	                                              async_update_array_empty_callback,
+	                                              data);
+
+	g_main_loop_run (main_loop);
+
+	g_slice_free (AsyncData, data);
+	g_main_loop_unref (main_loop);
+
+}
+
+static void
 test_tracker_sparql_update_fast_error (DataFixture  *fixture,
                                        gconstpointer user_data)
 {
@@ -816,6 +860,8 @@ main (gint argc, gchar **argv)
 			test_tracker_sparql_update_blank_async, delete_test_data);
 	g_test_add ("/steroids/tracker/tracker_sparql_update_array_async", DataFixture, NULL, insert_test_data,
 			test_tracker_sparql_update_array_async, delete_test_data);
+	g_test_add ("/steroids/tracker/tracker_sparql_update_array_async_empty", DataFixture, NULL, insert_test_data,
+			test_tracker_sparql_update_array_async_empty, delete_test_data);
 
 	return g_test_run ();
 }

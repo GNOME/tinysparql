@@ -429,7 +429,7 @@ tracker_sparql_connection_update_array_async (TrackerSparqlConnection  *connecti
                                               gpointer                  user_data)
 {
 	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
-	g_return_if_fail (sparql != NULL);
+	g_return_if_fail (sparql != NULL || sparql_length == 0);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_array_async (connection,
