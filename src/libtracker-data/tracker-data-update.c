@@ -770,21 +770,22 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 		tracker_db_statement_bind_double (stmt, (*idx)++, g_value_get_double (value));
 		break;
 	default:
-		if (type == TRACKER_TYPE_DATE_TIME) {
-			gdouble time = tracker_date_time_get_time (value);
-			int offset = tracker_date_time_get_offset (value);
+		if (type == G_TYPE_DATE_TIME) {
+			GDateTime *datetime = g_value_get_boxed (value);
 
 			/* If we have anything that prevents a unix timestamp to be
 			 * lossless, we use the ISO8601 string.
 			 */
-			if (offset != 0 || floor (time) != time) {
+			if (g_date_time_get_utc_offset (datetime) != 0 ||
+			    g_date_time_get_microsecond (datetime) != 0) {
 				gchar *str;
 
-				str = tracker_date_to_string (time, offset);
+				str = tracker_date_format_iso8601 (datetime);
 				tracker_db_statement_bind_text (stmt, (*idx)++, str);
 				g_free (str);
 			} else {
-				tracker_db_statement_bind_int (stmt, (*idx)++, round (time));
+				tracker_db_statement_bind_int (stmt, (*idx)++,
+				                               g_date_time_to_unix (datetime));
 			}
 		} else if (type == G_TYPE_BYTES) {
 			GBytes *bytes;
@@ -1390,12 +1391,12 @@ value_equal (GValue *value1,
 		/* does RDF define equality for floating point values? */
 		return g_value_get_double (value1) == g_value_get_double (value2);
 	default:
-		if (type == TRACKER_TYPE_DATE_TIME) {
-			/* ignore UTC offset for comparison, irrelevant for comparison according to xsd:dateTime spec
+		if (type == G_TYPE_DATE_TIME) {
+			/* UTC offset is ignored for comparison, irrelevant according to xsd:dateTime spec
 			 * http://www.w3.org/TR/xmlschema-2/#dateTime
-			 * also ignore sub-millisecond as this is a floating point comparison
 			 */
-			return fabs (tracker_date_time_get_time (value1) - tracker_date_time_get_time (value2)) < 0.001;
+			return g_date_time_compare (g_value_get_boxed (value1),
+			                            g_value_get_boxed (value2)) == 0;
 		}
 		g_assert_not_reached ();
 	}
@@ -1513,29 +1514,27 @@ get_property_values (TrackerData      *data,
 
 				if (G_VALUE_TYPE (&gvalue)) {
 					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
+						GDateTime *datetime;
+
 						if (G_VALUE_TYPE (&gvalue) == G_TYPE_INT64) {
-							gdouble time;
-
-							time = g_value_get_int64 (&gvalue);
+							datetime = g_date_time_new_from_unix_utc (g_value_get_int64 (&gvalue));
 							g_value_unset (&gvalue);
-							g_value_init (&gvalue, TRACKER_TYPE_DATE_TIME);
-							/* UTC offset is irrelevant for comparison */
-							tracker_date_time_set (&gvalue, time, 0);
+							g_value_init (&gvalue, G_TYPE_DATE_TIME);
+							g_value_take_boxed (&gvalue, datetime);
 						} else {
-							gchar *time;
-
-							time = g_value_dup_string (&gvalue);
+							datetime = tracker_date_new_from_iso8601 (g_value_get_string (&gvalue),
+												  &inner_error);
 							g_value_unset (&gvalue);
-							g_value_init (&gvalue, TRACKER_TYPE_DATE_TIME);
-							tracker_date_time_set_from_string (&gvalue, time, &inner_error);
-							g_free (time);
 
 							if (inner_error) {
 								g_propagate_prefixed_error (error,
 								                            inner_error,
-								                            "Error in date conversion:");
+											    "Error in date conversion:");
 								return NULL;
 							}
+
+							g_value_init (&gvalue, G_TYPE_DATE_TIME);
+							g_value_take_boxed (&gvalue, datetime);
 						}
 					}
 
@@ -1664,7 +1663,8 @@ bytes_to_gvalue (GBytes              *bytes,
                  GError             **error)
 {
 	gint object_id;
-	gchar *datetime;
+	gchar *datetime_str;
+	GDateTime *datetime;
 	const gchar *value;
 
 	value = g_bytes_get_data (bytes, NULL);
@@ -1694,13 +1694,21 @@ bytes_to_gvalue (GBytes              *bytes,
 		break;
 	case TRACKER_PROPERTY_TYPE_DATE:
 		g_value_init (gvalue, G_TYPE_INT64);
-		datetime = g_strdup_printf ("%sT00:00:00Z", value);
-		g_value_set_int64 (gvalue, tracker_string_to_date (datetime, NULL, error));
-		g_free (datetime);
+		datetime_str = g_strdup_printf ("%sT00:00:00Z", value);
+		datetime = tracker_date_new_from_iso8601 (datetime_str, error);
+		g_free (datetime_str);
+
+		if (datetime) {
+			g_value_set_int64 (gvalue, g_date_time_to_unix (datetime));
+			g_date_time_unref (datetime);
+		}
 		break;
 	case TRACKER_PROPERTY_TYPE_DATETIME:
-		g_value_init (gvalue, TRACKER_TYPE_DATE_TIME);
-		tracker_date_time_set_from_string (gvalue, value, error);
+		g_value_init (gvalue, G_TYPE_DATE_TIME);
+		datetime = tracker_date_new_from_iso8601 (value, error);
+
+		if (datetime)
+			g_value_take_boxed (gvalue, datetime);
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
 		object_id = tracker_data_update_ensure_resource (data, value, NULL, error);
@@ -1813,15 +1821,13 @@ bytes_from_gvalue (GValue       *gvalue,
 		}
 
 		*bytes = g_bytes_new (object, strlen (object) + 1);
-	} else if (G_VALUE_HOLDS (gvalue, TRACKER_TYPE_DATE_TIME)) {
-		gdouble time;
-		gint offset;
+	} else if (G_VALUE_HOLDS (gvalue, G_TYPE_DATE_TIME)) {
+		GDateTime *datetime;
 
-		time = tracker_date_time_get_time (gvalue);
-		offset = tracker_date_time_get_offset (gvalue);
-		str = tracker_date_to_string (time, offset);
-
+		datetime = g_value_get_boxed (gvalue);
+		str = tracker_date_format_iso8601 (datetime);
 		*bytes = g_bytes_new_take (str, strlen (str) + 1);
+		g_free (str);
 	} else {
 		g_set_error (error,
 		             TRACKER_SPARQL_ERROR,
