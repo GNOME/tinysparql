@@ -126,7 +126,7 @@
     <para>
       Integers are 64 bit wide. Floating point numbers have IEEE764
       double precision. Dates/times have microsecond precision, and may
-      range between 0000-01-01 00:00:00 and 9999-12-31 23:59:59.
+      range between 0001-01-01 00:00:00 and 9999-12-31 23:59:59.
     </para>
   </sect2>
 </part>
