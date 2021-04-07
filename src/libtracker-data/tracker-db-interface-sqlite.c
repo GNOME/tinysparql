@@ -442,12 +442,20 @@ function_sparql_format_time (sqlite3_context *context,
 		sqlite3_result_null (context);
 		return;
 	} else if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
-		gdouble seconds;
-		gchar *str;
+		GDateTime *datetime;
+		gint64 timestamp;
 
-		seconds = sqlite3_value_double (argv[0]);
-		str = tracker_date_to_string (seconds, 0);
-		sqlite3_result_text (context, str, -1, g_free);
+		timestamp = sqlite3_value_int64 (argv[0]);
+		datetime = g_date_time_new_from_unix_utc (timestamp);
+
+		if (datetime) {
+			sqlite3_result_text (context,
+					     tracker_date_format_iso8601 (datetime),
+					     -1, g_free);
+			g_date_time_unref (datetime);
+		} else {
+			result_context_function_error (context, fn, "Datetime conversion error");
+		}
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 		const gchar *str;
 
@@ -480,20 +488,21 @@ function_sparql_timestamp (sqlite3_context *context,
 		sqlite3_result_double (context, seconds);
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 		GError *error = NULL;
+		GDateTime *datetime;
 		const gchar *str;
-		gdouble time;
-		gint offset;
 
 		str = sqlite3_value_text (argv[0]);
-		time = tracker_string_to_date (str, &offset, &error);
-
+		datetime = tracker_date_new_from_iso8601 (str, &error);
 		if (error) {
 			result_context_function_error (context, fn, "Failed time string conversion");
 			g_error_free (error);
 			return;
 		}
 
-		sqlite3_result_double (context, time + offset);
+		sqlite3_result_int64 (context,
+				      g_date_time_to_unix (datetime) +
+				      (g_date_time_get_utc_offset (datetime) / G_USEC_PER_SEC));
+		g_date_time_unref (datetime);
 	} else {
 		result_context_function_error (context, fn, "Invalid argument type");
 	}
@@ -522,20 +531,21 @@ function_sparql_time_sort (sqlite3_context *context,
 		value = sqlite3_value_double (argv[0]);
 		sort_key = (gint64) (value * G_USEC_PER_SEC);
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
+		GDateTime *datetime;
 		const gchar *value;
-		gdouble time;
 		GError *error = NULL;
 
 		value = sqlite3_value_text (argv[0]);
-		time = tracker_string_to_date (value, NULL, &error);
-
+		datetime = tracker_date_new_from_iso8601 (value, &error);
 		if (error) {
 			result_context_function_error (context, fn, error->message);
 			g_error_free (error);
 			return;
 		}
 
-		sort_key = (gint64) (time * G_USEC_PER_SEC);
+		sort_key = ((g_date_time_to_unix (datetime) * G_USEC_PER_SEC) +
+			    g_date_time_get_microsecond (datetime));
+		g_date_time_unref (datetime);
 	} else {
 		result_context_function_error (context, fn, "Invalid argument type");
 		return;
@@ -562,19 +572,21 @@ function_sparql_time_zone_duration (sqlite3_context *context,
 		sqlite3_result_int (context, 0);
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 		GError *error = NULL;
+		GDateTime *datetime;
 		const gchar *str;
-		gint offset;
 
 		str = sqlite3_value_text (argv[0]);
-		tracker_string_to_date (str, &offset, &error);
-
+		datetime = tracker_date_new_from_iso8601 (str, &error);
 		if (error) {
 			result_context_function_error (context, fn, "Invalid date");
 			g_error_free (error);
 			return;
 		}
 
-		sqlite3_result_int (context, offset);
+		sqlite3_result_int64 (context,
+				      g_date_time_get_utc_offset (datetime) /
+				      G_USEC_PER_SEC);
+		g_date_time_unref (datetime);
 	} else {
 		result_context_function_error (context, fn, "Invalid argument type");
 	}
@@ -668,21 +680,22 @@ function_sparql_time_zone (sqlite3_context *context,
 		sqlite3_result_text (context, "PT0S", -1, NULL);
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 		GError *error = NULL;
+		GDateTime *datetime;
 		const gchar *str;
 		gchar *duration;
-		gint offset;
 
 		str = sqlite3_value_text (argv[0]);
-		tracker_string_to_date (str, &offset, &error);
-
+		datetime = tracker_date_new_from_iso8601 (str, &error);
 		if (error) {
 			result_context_function_error (context, fn, "Invalid date");
 			g_error_free (error);
 			return;
 		}
 
-		duration = offset_to_duration (offset);
+		duration = offset_to_duration (g_date_time_get_utc_offset (datetime) /
+					       G_USEC_PER_SEC);
 		sqlite3_result_text (context, g_strdup (duration), -1, g_free);
+		g_date_time_unref (datetime);
 	} else {
 		result_context_function_error (context, fn, "Invalid argument type");
 	}
