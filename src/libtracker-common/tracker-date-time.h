@@ -58,6 +58,10 @@ gdouble  tracker_string_to_date                (const gchar  *date_string,
 gchar *  tracker_date_to_string                (gdouble       date_time,
                                                 gint          offset);
 
+GDateTime * tracker_date_new_from_iso8601 (const gchar  *string,
+					   GError      **error);
+gchar * tracker_date_format_iso8601 (GDateTime *datetime);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_DATE_TIME_H__ */
