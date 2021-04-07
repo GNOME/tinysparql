@@ -349,3 +349,35 @@ tracker_date_time_get_offset (const GValue *value)
 	/* UTC offset */
 	return value->data[1].v_int;
 }
+
+GDateTime *
+tracker_date_new_from_iso8601 (const gchar  *string,
+			       GError      **error)
+{
+	GDateTime *datetime;
+	GTimeZone *tz;
+
+	tz = g_time_zone_new_local ();
+	datetime = g_date_time_new_from_iso8601 (string, tz);
+	g_time_zone_unref (tz);
+
+	if (!datetime) {
+		g_set_error (error,
+			     TRACKER_DATE_ERROR,
+			     TRACKER_DATE_ERROR_INVALID_ISO8601,
+		             "'%s' is not a ISO 8601 date string. "
+			     "Allowed form is CCYY-MM-DDThh:mm:ss[.ssssss][Z|(+|-)hh:mm]",
+			     string);
+	}
+
+	return datetime;
+}
+
+gchar *
+tracker_date_format_iso8601 (GDateTime *datetime)
+{
+	if (g_date_time_get_utc_offset (datetime) == 0)
+		return g_date_time_format (datetime, "%C%y-%m-%dT%TZ");
+	else
+		return g_date_time_format (datetime, "%C%y-%m-%dT%T%:z");
+}
