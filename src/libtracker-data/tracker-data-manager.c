@@ -1243,6 +1243,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 		tracker_namespace_set_prefix (namespace, object);
 	} else if (g_strcmp0 (predicate, NRL_LAST_MODIFIED) == 0) {
 		TrackerOntology *ontology;
+		GDateTime *datetime;
+		GError *error = NULL;
 
 		ontology = tracker_ontologies_get_ontology_by_uri (manager->ontologies, subject);
 		if (ontology == NULL) {
@@ -1254,7 +1256,16 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			return;
 		}
 
-		tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object, NULL, NULL));
+		datetime = tracker_date_new_from_iso8601 (object, &error);
+		if (!datetime) {
+			g_critical ("%s: error parsing nrl:lastModified: %s",
+				    ontology_path, error->message);
+			g_error_free (error);
+			return;
+		}
+
+		tracker_ontology_set_last_modified (ontology, g_date_time_to_unix (datetime));
+		g_date_time_unref (datetime);
 	}
 }
 
@@ -1856,6 +1867,8 @@ get_ontology_from_file (TrackerDataManager *manager,
 			}
 		} else if (g_strcmp0 (predicate, NRL_LAST_MODIFIED) == 0) {
 			TrackerOntology *ontology;
+			GDateTime *datetime;
+			GError *error = NULL;
 
 			ontology = g_hash_table_lookup (ontology_uris, subject);
 			if (ontology == NULL) {
@@ -1865,7 +1878,16 @@ get_ontology_from_file (TrackerDataManager *manager,
 				return NULL;
 			}
 
-			tracker_ontology_set_last_modified (ontology, tracker_string_to_date (object, NULL, NULL));
+			datetime = tracker_date_new_from_iso8601 (object, NULL);
+			if (!datetime) {
+				g_critical ("%s: error parsing nrl:lastModified: %s",
+					    subject, error->message);
+				g_error_free (error);
+				return NULL;
+			}
+
+			tracker_ontology_set_last_modified (ontology, g_date_time_to_unix (datetime));
+			g_date_time_unref (datetime);
 
 			/* This one is here because lower ontology_uris is destroyed, and
 			 * else would this one's reference also be destroyed with it */
