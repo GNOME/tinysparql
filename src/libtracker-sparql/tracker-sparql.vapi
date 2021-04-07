@@ -64,6 +64,8 @@ namespace Tracker {
 		public static string escape_uri_vprintf (string format, va_list args);
 		[CCode (cheader_filename = "libtracker-sparql/tracker-sparql.h")]
 		public static string get_uuid_urn ();
+		[CCode (cheader_filename = "libtracker-sparql/tracker-sparql.h")]
+		public static GLib.File get_ontology_nepomuk ();
 	}
 
 	[CCode (cheader_filename = "libtracker-sparql/tracker-sparql.h")]
