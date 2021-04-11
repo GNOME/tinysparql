@@ -2474,7 +2474,8 @@ _end_triples_block (TrackerSparql  *sparql,
 
 		first = FALSE;
 		binding = g_ptr_array_index (triple_context->literal_bindings, i);
-		if (binding->data_type == TRACKER_PROPERTY_TYPE_DATETIME) {
+		if (binding->data_type == TRACKER_PROPERTY_TYPE_DATE ||
+		    binding->data_type == TRACKER_PROPERTY_TYPE_DATETIME) {
 			_append_string_printf (sparql, "SparqlTimeSort (%s) = SparqlTimeSort (", tracker_binding_get_sql_expression (binding));
 			_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (binding));
 			_append_string (sparql, ") ");
