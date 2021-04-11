@@ -8995,11 +8995,11 @@ translate_RDFLiteral (TrackerSparql  *sparql,
 		cast = _dup_last_string (sparql);
 	}
 
-	if (is_parameter && (langtag || cast)) {
+	if (is_parameter && langtag) {
 		g_free (str);
 		g_free (langtag);
 		g_free (cast);
-		_raise (PARSE, "Parameter cannot have LANGTAG/^^ modifiers", "RDFLiteral");
+		_raise (PARSE, "Parameter cannot have LANGTAG modifier", "RDFLiteral");
 	}
 
 	if (is_parameter) {
