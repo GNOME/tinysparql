@@ -7415,6 +7415,7 @@ translate_RelationalExpression (TrackerSparql  *sparql,
                                 GError        **error)
 {
 	const gchar *old_sep;
+	gboolean bool_op = TRUE;
 
 	/* RelationalExpression ::= NumericExpression ( '=' NumericExpression | '!=' NumericExpression | '<' NumericExpression | '>' NumericExpression | '<=' NumericExpression | '>=' NumericExpression | 'IN' ExpressionList | 'NOT' 'IN' ExpressionList )?
 	 */
@@ -7425,39 +7426,37 @@ translate_RelationalExpression (TrackerSparql  *sparql,
 		old_sep = tracker_sparql_swap_current_expression_list_separator (sparql, ", ");
 		_call_rule (sparql, NAMED_RULE_ExpressionList, error);
 		tracker_sparql_swap_current_expression_list_separator (sparql, old_sep);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_NOT)) {
 		_expect (sparql, RULE_TYPE_LITERAL, LITERAL_OP_IN);
 		_append_string (sparql, "NOT IN ");
 		old_sep = tracker_sparql_swap_current_expression_list_separator (sparql, ", ");
 		_call_rule (sparql, NAMED_RULE_ExpressionList, error);
 		tracker_sparql_swap_current_expression_list_separator (sparql, old_sep);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_EQ)) {
 		_append_string (sparql, " = ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_NE)) {
 		_append_string (sparql, " != ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_LT)) {
 		_append_string (sparql, " < ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_GT)) {
 		_append_string (sparql, " > ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_LE)) {
 		_append_string (sparql, " <= ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_GE)) {
 		_append_string (sparql, " >= ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
+	} else {
+		/* This is an unary expression */
+		bool_op = FALSE;
 	}
+
+	if (bool_op)
+		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 
 	return TRUE;
 }
