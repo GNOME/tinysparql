@@ -29,6 +29,8 @@
 #include <libtracker-sparql/tracker-version.h>
 #include <gio/gio.h>
 
+G_BEGIN_DECLS
+
 /**
  * TrackerSparqlConnectionFlags:
  * @TRACKER_SPARQL_CONNECTION_FLAGS_NONE: No flags.
@@ -209,5 +211,7 @@ TRACKER_AVAILABLE_IN_ALL
 gboolean tracker_sparql_connection_close_finish (TrackerSparqlConnection  *connection,
                                                  GAsyncResult             *res,
                                                  GError                  **error);
+
+G_END_DECLS
 
 #endif /* __TRACKER_SPARQL_CONNECTION_H__ */

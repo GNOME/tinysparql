@@ -24,6 +24,8 @@
 #include <gio/gio.h>
 #include <libtracker-sparql/tracker-version.h>
 
+G_BEGIN_DECLS
+
 /**
  * SECTION: tracker-sparql-error
  * @short_description: Error codes
@@ -74,5 +76,7 @@ typedef enum {
 
 TRACKER_AVAILABLE_IN_ALL
 GQuark tracker_sparql_error_quark (void);
+
+G_END_DECLS
 
 #endif

@@ -29,6 +29,8 @@
 #include <libtracker-sparql/tracker-endpoint.h>
 #include <libtracker-sparql/tracker-version.h>
 
+G_BEGIN_DECLS
+
 #define TRACKER_TYPE_ENDPOINT_HTTP         (tracker_endpoint_http_get_type())
 #define TRACKER_ENDPOINT_HTTP(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_ENDPOINT_HTTP, TrackerEndpointHttp))
 #define TRACKER_ENDPOINT_HTTP_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_ENDPOINT_HTTP, TrackerEndpointHttpClass))
@@ -55,5 +57,7 @@ TrackerEndpointHttp * tracker_endpoint_http_new (TrackerSparqlConnection  *sparq
                                                  GTlsCertificate          *certificate,
                                                  GCancellable             *cancellable,
                                                  GError                  **error);
+
+G_END_DECLS
 
 #endif /* TRACKER_ENDPOINT_HTTP_H */

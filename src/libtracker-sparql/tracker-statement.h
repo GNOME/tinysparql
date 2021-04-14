@@ -26,6 +26,8 @@
 #include <gio/gio.h>
 #include <libtracker-sparql/tracker-version.h>
 
+G_BEGIN_DECLS
+
 /**
  * TrackerSparqlStatement:
  *
@@ -87,5 +89,7 @@ TrackerSparqlCursor * tracker_sparql_statement_execute_finish (TrackerSparqlStat
 
 TRACKER_AVAILABLE_IN_ALL
 void tracker_sparql_statement_clear_bindings (TrackerSparqlStatement *stmt);
+
+G_END_DECLS
 
 #endif /* __TRACKER_SPARQL_STATEMENT_H__ */
