@@ -29,6 +29,8 @@
 #include <libtracker-sparql/tracker-endpoint.h>
 #include <libtracker-sparql/tracker-version.h>
 
+G_BEGIN_DECLS
+
 #define TRACKER_TYPE_ENDPOINT_DBUS         (tracker_endpoint_dbus_get_type())
 #define TRACKER_ENDPOINT_DBUS(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_ENDPOINT_DBUS, TrackerEndpointDBus))
 #define TRACKER_ENDPOINT_DBUS_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_ENDPOINT_DBUS, TrackerEndpointDBusClass))
@@ -56,5 +58,7 @@ tracker_endpoint_dbus_new (TrackerSparqlConnection  *sparql_connection,
                            const gchar              *object_path,
                            GCancellable             *cancellable,
                            GError                  **error);
+
+G_END_DECLS
 
 #endif /* __TRACKER_ENDPOINT_DBUS_H__ */

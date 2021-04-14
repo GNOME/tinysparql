@@ -29,6 +29,8 @@
 #include <libtracker-sparql/tracker-resource.h>
 #include <gio/gio.h>
 
+G_BEGIN_DECLS
+
 #define TRACKER_TYPE_BATCH tracker_batch_get_type ()
 
 TRACKER_AVAILABLE_IN_ALL
@@ -66,5 +68,7 @@ TRACKER_AVAILABLE_IN_3_1
 gboolean tracker_batch_execute_finish (TrackerBatch  *batch,
                                        GAsyncResult  *res,
                                        GError       **error);
+
+G_END_DECLS
 
 #endif /* __TRACKER_BATCH_H__ */

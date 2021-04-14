@@ -30,6 +30,8 @@
 #include <libtracker-sparql/tracker-connection.h>
 #include <libtracker-sparql/tracker-version.h>
 
+G_BEGIN_DECLS
+
 /**
  * TrackerEndpoint:
  *
@@ -42,5 +44,7 @@ G_DECLARE_DERIVABLE_TYPE (TrackerEndpoint, tracker_endpoint, TRACKER, ENDPOINT, 
 
 TRACKER_AVAILABLE_IN_ALL
 TrackerSparqlConnection * tracker_endpoint_get_sparql_connection (TrackerEndpoint *endpoint);
+
+G_END_DECLS
 
 #endif /* __TRACKER_ENDPOINT_H__ */

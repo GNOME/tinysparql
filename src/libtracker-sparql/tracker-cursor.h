@@ -26,6 +26,8 @@
 #include <gio/gio.h>
 #include <libtracker-sparql/tracker-version.h>
 
+G_BEGIN_DECLS
+
 /**
  * TrackerSparqlCursor:
  *
@@ -113,5 +115,7 @@ gboolean tracker_sparql_cursor_next_finish (TrackerSparqlCursor  *cursor,
 
 TRACKER_AVAILABLE_IN_ALL
 void tracker_sparql_cursor_rewind (TrackerSparqlCursor *cursor);
+
+G_END_DECLS
 
 #endif /* __TRACKER_SPARQL_CURSOR_H__ */

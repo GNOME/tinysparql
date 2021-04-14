@@ -27,6 +27,8 @@
 #include <gio/gio.h>
 #include <libtracker-sparql/tracker-version.h>
 
+G_BEGIN_DECLS
+
 #define TRACKER_TYPE_NOTIFIER (tracker_notifier_get_type ())
 #define TRACKER_TYPE_NOTIFIER_EVENT (tracker_notifier_event_get_type ())
 
@@ -81,5 +83,7 @@ TRACKER_AVAILABLE_IN_ALL
 gint64        tracker_notifier_event_get_id         (TrackerNotifierEvent *event);
 TRACKER_AVAILABLE_IN_ALL
 const gchar * tracker_notifier_event_get_urn        (TrackerNotifierEvent *event);
+
+G_END_DECLS
 
 #endif /* __TRACKER_NOTIFIER_H__ */
