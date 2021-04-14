@@ -157,7 +157,7 @@ tracker_term_pipe_to_pager (void)
 	if (!tracker_term_is_tty ())
 		return FALSE;
 
-	if (pipe2 (fds, O_CLOEXEC) < 0)
+	if (g_unix_open_pipe (fds, FD_CLOEXEC, NULL) < 0)
 		return FALSE;
 
 	pager_command = best_pager ();
