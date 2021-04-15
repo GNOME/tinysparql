@@ -41,22 +41,9 @@ typedef enum  {
 
 GQuark   tracker_date_error_quark              (void);
 
-GType    tracker_date_time_get_type            (void);
-
-void     tracker_date_time_set                 (GValue       *value,
-                                                gdouble       time,
-                                                gint          offset);
-void     tracker_date_time_set_from_string     (GValue       *value,
-                                                const gchar  *date_time_string,
-                                                GError      **error);
-gdouble  tracker_date_time_get_time            (const GValue *value);
-gint     tracker_date_time_get_offset          (const GValue *value);
-
-gdouble  tracker_string_to_date                (const gchar  *date_string,
-                                                gint         *offset,
-                                                GError      **error);
-gchar *  tracker_date_to_string                (gdouble       date_time,
-                                                gint          offset);
+GDateTime * tracker_date_new_from_iso8601 (const gchar  *string,
+					   GError      **error);
+gchar * tracker_date_format_iso8601 (GDateTime *datetime);
 
 G_END_DECLS
 

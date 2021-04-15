@@ -9542,10 +9542,10 @@ prepare_query (TrackerSparql         *sparql,
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_DATE) {
 			GError *inner_error = NULL;
 			gchar *full_str;
-			gdouble datetime;
+			GDateTime *datetime;
 
 			full_str = g_strdup_printf ("%sT00:00:00Z", binding->literal);
-			datetime = tracker_string_to_date (full_str, NULL, &inner_error);
+			datetime = tracker_date_new_from_iso8601 (full_str, &inner_error);
 			g_free (full_str);
 
 			if (inner_error) {
@@ -9554,13 +9554,14 @@ prepare_query (TrackerSparql         *sparql,
 				return NULL;
 			}
 
-			tracker_db_statement_bind_int (stmt, i, (int) datetime);
+			tracker_db_statement_bind_int (stmt, i,
+						       g_date_time_to_unix (datetime));
+			g_date_time_unref (datetime);
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME) {
 			GError *inner_error = NULL;
-			gdouble datetime;
-			gint offset = 0;
+			GDateTime *datetime;
 
-			datetime = tracker_string_to_date (binding->literal, &offset, &inner_error);
+			datetime = tracker_date_new_from_iso8601 (binding->literal, &inner_error);
 			if (inner_error) {
 				g_propagate_error (error, inner_error);
 				g_object_unref (stmt);
@@ -9570,11 +9571,15 @@ prepare_query (TrackerSparql         *sparql,
 			/* If we have anything that prevents a unix timestamp to be
 			 * lossless, we use the ISO8601 string.
 			 */
-			if (offset != 0 || floor (datetime) != datetime) {
+			if (g_date_time_get_utc_offset (datetime) != 0 ||
+			    g_date_time_get_microsecond (datetime) != 0) {
 				tracker_db_statement_bind_text (stmt, i, binding->literal);
 			} else {
-				tracker_db_statement_bind_int (stmt, i, datetime);
+				tracker_db_statement_bind_int (stmt, i,
+							       g_date_time_to_unix (datetime));
 			}
+
+			g_date_time_unref (datetime);
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_INTEGER) {
 			tracker_db_statement_bind_int (stmt, i, atoi (binding->literal));
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_LANGSTRING &&
