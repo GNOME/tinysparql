@@ -26,3 +26,5 @@ option('test_utils_dir', type: 'string', value: '',
        description: 'Directory to install trackertestutils Python package (or empty to use the default)')
 option('tests_tap_protocol', type: 'boolean', value: false,
        description: 'Whether to enable TAP protocol on tests')
+option('soup2', type: 'boolean', value: true,
+       description: 'Whether to build with libsoup2')

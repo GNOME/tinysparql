@@ -52,6 +52,12 @@ libxml2 = dependency('libxml-2.0', version: '> 2.6')
 sqlite = dependency('sqlite3', version: '>' + sqlite_required)
 dbus = dependency('dbus-1')
 
+if get_option('soup2')
+  libsoup = dependency('libsoup-2.4', version: '> 2.40', required: true)
+else
+  libsoup = dependency('libsoup-3.0', version: '>= 2.99.2', required: true)
+endif
+
 libmath = cc.find_library('m', required: false)
 
 if get_option('man')
