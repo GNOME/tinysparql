@@ -71,8 +71,8 @@ static void
 test_file_system_has_enough_space ()
 {
         /* Hopefully we will always have 1 byte free... */
-        g_assert_true (tracker_file_system_has_enough_space ("/home", 1, FALSE));
-        g_assert_true (tracker_file_system_has_enough_space ("/home", 1, TRUE));
+        g_assert_true (tracker_file_system_has_enough_space ("/tmp", 1, FALSE));
+        g_assert_true (tracker_file_system_has_enough_space ("/tmp", 1, TRUE));
 
         /* gulong goes only up to 4Gb. Cannot ask for unreasonable amount of space */
         //g_assert_true (!tracker_file_system_has_enough_space ("/home", G_MAXULONG, FALSE));
