@@ -44,7 +44,7 @@ Export all data from Tracker Index and prettify the output using
 rapper(1).::
 
 ....
-$ tracker3 export -b org.freedesktop.Tracker1.Miner.Files | rapper - -I . -i turtle -o turtle
+$ tracker3 export -b org.freedesktop.Tracker3.Miner.Files | rapper - -I . -i turtle -o turtle
 ....
 
 == SEE ALSO
