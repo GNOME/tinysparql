@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-09-23 10:16+0000\n"
-"PO-Revision-Date: 2020-10-12 22:44+0800\n"
-"Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>\n"
+"POT-Creation-Date: 2021-04-15 11:23+0000\n"
+"PO-Revision-Date: 2021-04-17 17:23+0800\n"
+"Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese <zh-l10n@linux.org.tw>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 2.4.2\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -32,92 +32,110 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "版本"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:299
+#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
 #: src/tracker/tracker-export.c:517 src/tracker/tracker-import.c:160
 #: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
 msgid "Unrecognized options"
 msgstr "無法辨識的選項"
 
-#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-export.c:47
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:47
 #: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "資料庫的位置"
 
-#: src/tracker/tracker-endpoint.c:49 src/tracker/tracker-endpoint.c:61
+#: src/tracker/tracker-endpoint.c:51 src/tracker/tracker-endpoint.c:63
 msgid "DIR"
 msgstr "DIR"
 
-#: src/tracker/tracker-endpoint.c:52
+#: src/tracker/tracker-endpoint.c:54
 msgid "Specify the DBus name of this endpoint"
 msgstr "指定此端點的 DBus 名稱"
 
-#: src/tracker/tracker-endpoint.c:53 src/tracker/tracker-endpoint.c:57
+#: src/tracker/tracker-endpoint.c:55 src/tracker/tracker-endpoint.c:59
 msgid "NAME"
 msgstr "NAME"
 
-#: src/tracker/tracker-endpoint.c:56
+#: src/tracker/tracker-endpoint.c:58
 msgid "Specify the ontology name used in this endpoint"
 msgstr "指定此端點使用的 ontology 名稱"
 
-#: src/tracker/tracker-endpoint.c:60
+#: src/tracker/tracker-endpoint.c:62
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "指定此端點要使用的 ontology 路徑"
 
-#: src/tracker/tracker-endpoint.c:64
+#: src/tracker/tracker-endpoint.c:66
+msgid "HTTP port"
+msgstr "HTTP 連接埠"
+
+#: src/tracker/tracker-endpoint.c:70
+msgid "Whether to only allow HTTP connections in the loopback device"
+msgstr "是否僅允許在迴路裝置中連接 HTTP"
+
+#: src/tracker/tracker-endpoint.c:74
 msgid "Use session bus"
 msgstr "使用工作階段匯流排"
 
-#: src/tracker/tracker-endpoint.c:68
+#: src/tracker/tracker-endpoint.c:78
 msgid "Use system bus"
 msgstr "使用系統匯流排"
 
-#: src/tracker/tracker-endpoint.c:72
+#: src/tracker/tracker-endpoint.c:82
 msgid "List SPARQL endpoints available in DBus"
 msgstr "列出 DBus 中可用的 SPARQL 端點"
 
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:93
+#: src/tracker/tracker-endpoint.c:103
 msgid "--list can only be used with --session or --system"
 msgstr "--list 僅可以搭配 --session 或 --system 使用"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:99
+#: src/tracker/tracker-endpoint.c:109
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "應該提供一個「ontology」或「ontology-path」選項"
 
-#: src/tracker/tracker-endpoint.c:141
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:115
+msgid "--http-port cannot be used with --dbus-service"
+msgstr "--http-port 不能與 --dbus-service 一起使用"
+
+#: src/tracker/tracker-endpoint.c:186
+#, c-format
+msgid "Creating HTTP endpoint at %s…"
+msgstr "正建立 HTTP 端點於  %s…"
+
+#: src/tracker/tracker-endpoint.c:206 src/tracker/tracker-endpoint.c:269
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "聆聽 SPARQL 指令中。請按 Ctrl-C 停止。"
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:214 src/tracker/tracker-endpoint.c:284
+msgid "Closing connection…"
+msgstr "關閉連線中…"
+
+#: src/tracker/tracker-endpoint.c:229
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "建立位於 %s 的端點中…"
 
-#: src/tracker/tracker-endpoint.c:177
+#: src/tracker/tracker-endpoint.c:265
 msgid "Could not own DBus name"
 msgstr "無法擁有 DBus 名稱"
 
-#: src/tracker/tracker-endpoint.c:181
-msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr "聆聽 SPARQL 指令中。請按 Ctrl-C 停止。"
-
-#: src/tracker/tracker-endpoint.c:191
+#: src/tracker/tracker-endpoint.c:279
 msgid "DBus name lost"
 msgstr "DBus 名稱遺失"
 
-#. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:196
-msgid "Closing connection…"
-msgstr "關閉連線中…"
-
-#: src/tracker/tracker-endpoint.c:333
+#: src/tracker/tracker-endpoint.c:421
 #, c-format
 msgid "Opening database at %s…"
 msgstr "開啟位於 %s 的資料庫中…"
 
-#: src/tracker/tracker-endpoint.c:336
+#: src/tracker/tracker-endpoint.c:424
 msgid "Creating in-memory database"
 msgstr "建立記憶體內的資料庫"
 
-#: src/tracker/tracker-endpoint.c:356
+#: src/tracker/tracker-endpoint.c:451
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -156,7 +174,6 @@ msgid "Output TriG format which includes named graph information"
 msgstr "輸出 TriG 格式，它包含命名的圖表資訊"
 
 #: src/tracker/tracker-export.c:71 src/tracker/tracker-export.c:72
-#| msgid "DIR"
 msgid "IRI"
 msgstr "IRI"
 
