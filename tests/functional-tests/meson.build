@@ -1,13 +1,8 @@
-modules = ['gi']
-
 if get_option('tests_tap_protocol')
   protocol = 'tap'
-  modules += 'tap'
 else
   protocol = 'exitcode'
 endif
-
-python = import('python').find_installation('python3', modules: modules)
 
 testconf = configuration_data()
 
