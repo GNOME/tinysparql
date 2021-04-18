@@ -1,4 +1,13 @@
-python = find_program('python3')
+modules = ['gi']
+
+if get_option('tests_tap_protocol')
+  protocol = 'tap'
+  modules += 'tap'
+else
+  protocol = 'exitcode'
+endif
+
+python = import('python').find_installation('python3', modules: modules)
 
 testconf = configuration_data()
 
@@ -39,12 +48,6 @@ test_env.prepend('GI_TYPELIB_PATH', tracker_sparql_uninstalled_dir)
 test_env.prepend('LD_LIBRARY_PATH', tracker_sparql_uninstalled_dir)
 test_env.prepend('PYTHONPATH', tracker_uninstalled_testutils_dir)
 test_env.set('TRACKER_FUNCTIONAL_TEST_CONFIG', config_json_full_path)
-
-if get_option('tests_tap_protocol')
-  protocol = 'tap'
-else
-  protocol = 'exitcode'
-endif
 
 foreach test_name: functional_tests
   file = meson.current_source_dir() / '@0@.py'.format(test_name)
