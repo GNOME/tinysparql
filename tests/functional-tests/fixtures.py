@@ -112,8 +112,8 @@ class TrackerSparqlBusTest (ut.TestCase):
     fixture setup.
     """
 
-    @classmethod
-    def database_process_fn(self, message_queue):
+    @staticmethod
+    def database_process_fn(tmpdir, message_queue):
         # This runs in a separate process and provides a clean Tracker database
         # exported over D-Bus to the main test process.
 
@@ -122,7 +122,7 @@ class TrackerSparqlBusTest (ut.TestCase):
 
         conn = Tracker.SparqlConnection.new(
             Tracker.SparqlConnectionFlags.NONE,
-            Gio.File.new_for_path(self.tmpdir),
+            Gio.File.new_for_path(tmpdir),
             Gio.File.new_for_path(cfg.ontologies_dir()),
             None)
 
@@ -139,7 +139,7 @@ class TrackerSparqlBusTest (ut.TestCase):
 
         message_queue = multiprocessing.Queue()
         self.process = multiprocessing.Process(target=self.database_process_fn,
-                                               args=(message_queue,))
+                                               args=(self.tmpdir, message_queue,))
         try:
             self.process.start()
             service_name = message_queue.get()
@@ -161,8 +161,8 @@ class TrackerSparqlBusTest (ut.TestCase):
 
 
 class TrackerPortalTest(ut.TestCase):
-    @classmethod
-    def database_process_fn(self, service_name, in_queue, out_queue, dbus_address):
+    @staticmethod
+    def database_process_fn(service_name, in_queue, out_queue, dbus_address):
         # This runs in a separate process and provides a clean Tracker database
         # exported over D-Bus to the main test process.
 
