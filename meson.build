@@ -65,6 +65,12 @@ if get_option('man')
   xsltproc = find_program('xsltproc')
 endif
 
+py_modules = ['gi']
+if get_option('tests_tap_protocol')
+  py_modules += 'tap'
+endif
+python = import('python').find_installation('python3', modules: py_modules)
+
 add_project_arguments('-Wformat', '-Wformat-security', language: 'c')
 
 # There are various gchar vs. unsigned char warnings that occur in extract
