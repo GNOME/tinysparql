@@ -125,9 +125,9 @@ tracker_namespace_manager_new ()
 TrackerNamespaceManager *
 tracker_namespace_manager_get_default ()
 {
-	static TrackerNamespaceManager * volatile default_namespace_manager__volatile = NULL;
+	static TrackerNamespaceManager *default_namespace_manager = NULL;
 
-	if (g_once_init_enter (&default_namespace_manager__volatile)) {
+	if (g_once_init_enter (&default_namespace_manager)) {
 		TrackerNamespaceManager *manager = tracker_namespace_manager_new();
 
 		tracker_namespace_manager_add_prefix (manager, "rdf", TRACKER_PREFIX_RDF);
@@ -147,10 +147,10 @@ tracker_namespace_manager_get_default ()
 		tracker_namespace_manager_add_prefix (manager, "mfo", TRACKER_PREFIX_MFO);
 		tracker_namespace_manager_add_prefix (manager, "osinfo", TRACKER_PREFIX_OSINFO);
 
-		g_once_init_leave (&default_namespace_manager__volatile, manager);
+		g_once_init_leave (&default_namespace_manager, manager);
 	}
 
-	return default_namespace_manager__volatile;
+	return default_namespace_manager;
 }
 
 /**
