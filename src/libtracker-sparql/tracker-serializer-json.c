@@ -139,14 +139,6 @@ serialize_up_to_position (TrackerSerializerJson  *serializer_json,
 		for (i = 0; i < tracker_sparql_cursor_get_n_columns (cursor); i++) {
 			const gchar *var, *str, *type = NULL, *datatype = NULL;
 
-			if (tracker_sparql_cursor_get_value_type (cursor, i) == TRACKER_SPARQL_VALUE_TYPE_UNBOUND)
-				continue;
-
-			var = g_ptr_array_index (serializer_json->vars, i);
-			json_builder_set_member_name (builder, var);
-
-			json_builder_begin_object (builder);
-
 			switch (tracker_sparql_cursor_get_value_type (cursor, i)) {
 			case TRACKER_SPARQL_VALUE_TYPE_URI:
 				type = "uri";
@@ -171,10 +163,14 @@ serialize_up_to_position (TrackerSerializerJson  *serializer_json,
 			case TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE:
 				type = "bnode";
 				break;
-			default:
-				g_warn_if_reached ();
-				break;
+			case TRACKER_SPARQL_VALUE_TYPE_UNBOUND:
+                                continue;
 			}
+
+			var = g_ptr_array_index (serializer_json->vars, i);
+			json_builder_set_member_name (builder, var);
+
+			json_builder_begin_object (builder);
 
 			json_builder_set_member_name (builder, "type");
 			json_builder_add_string_value (builder, type);

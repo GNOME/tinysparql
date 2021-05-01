@@ -1715,7 +1715,7 @@ bytes_to_gvalue (GBytes              *bytes,
 		g_value_init (gvalue, G_TYPE_INT64);
 		g_value_set_int64 (gvalue, object_id);
 		break;
-	default:
+	case TRACKER_PROPERTY_TYPE_UNKNOWN:
 		g_warn_if_reached ();
 		break;
 	}
