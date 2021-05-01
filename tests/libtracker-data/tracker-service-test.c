@@ -41,6 +41,7 @@ const TestInfo tests[] = {
 	{ "service/service-local-filter-1", FALSE },
 	{ "service/service-union-with-local-1", FALSE },
 	{ "service/service-union-with-local-2", FALSE },
+	{ "service/service-union-with-local-3", FALSE },
 	{ "service/service-var-1", FALSE },
 	{ "service/service-var-2", FALSE },
 	{ "service/service-empty-1", FALSE },

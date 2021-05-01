@@ -142,6 +142,8 @@ typedef struct
 
 	GHashTable *union_views;
 
+	GList *service_clauses;
+
 	const gchar *expression_list_separator;
 	TrackerPropertyType expression_type;
 	guint type;
@@ -214,6 +216,7 @@ tracker_sparql_state_clear (TrackerSparqlState *state)
 	g_clear_pointer (&state->construct_query,
 	                 tracker_string_builder_free);
 	g_clear_object (&state->as_in_group_by);
+	g_clear_pointer (&state->service_clauses, g_list_free);
 }
 
 static void
@@ -4912,6 +4915,28 @@ translate_TriplesTemplate (TrackerSparql  *sparql,
 }
 
 static gboolean
+apply_service_graph_patterns (TrackerSparql  *sparql,
+			      GError        **error)
+{
+	if (sparql->current_state->service_clauses) {
+		TrackerParserNode *clause;
+
+		while (sparql->current_state->service_clauses) {
+			clause = sparql->current_state->service_clauses->data;
+
+			if (!_postprocess_rule (sparql, clause, NULL, error))
+				return FALSE;
+
+			sparql->current_state->service_clauses =
+				g_list_delete_link (sparql->current_state->service_clauses,
+				                    sparql->current_state->service_clauses);
+		}
+	}
+
+	return TRUE;
+}
+
+static gboolean
 translate_GroupGraphPatternSub (TrackerSparql  *sparql,
                                 GError        **error)
 {
@@ -4980,6 +5005,9 @@ translate_GroupGraphPatternSub (TrackerSparql  *sparql,
 		}
 	}
 
+	if (!apply_service_graph_patterns (sparql, error))
+		return FALSE;
+
 	/* Handle filters last, they apply to the pattern as a whole */
 	if (sparql->filter_clauses) {
 		GList *filters = sparql->filter_clauses;
@@ -5043,17 +5071,31 @@ translate_GraphPatternNotTriples (TrackerSparql  *sparql,
                                   GError        **error)
 {
 	TrackerGrammarNamedRule rule;
+	TrackerParserNode *node;
 
 	/* GraphPatternNotTriples ::= GroupOrUnionGraphPattern | OptionalGraphPattern | MinusGraphPattern | GraphGraphPattern | ServiceGraphPattern | Filter | Bind | InlineData
 	 */
 	rule = _current_rule (sparql);
 
+	if (rule == NAMED_RULE_OptionalGraphPattern ||
+	    rule == NAMED_RULE_MinusGraphPattern) {
+		/* These rules are not commutative, so the service
+		 * graphs must be applied in the same order.
+		 */
+		if (!apply_service_graph_patterns (sparql, error))
+			return FALSE;
+	}
+
 	switch (rule) {
+	case NAMED_RULE_ServiceGraphPattern:
+		node = _skip_rule (sparql, rule);
+		sparql->current_state->service_clauses =
+			g_list_prepend (sparql->current_state->service_clauses, node);
+		break;
 	case NAMED_RULE_GroupOrUnionGraphPattern:
 	case NAMED_RULE_OptionalGraphPattern:
 	case NAMED_RULE_MinusGraphPattern:
 	case NAMED_RULE_GraphGraphPattern:
-	case NAMED_RULE_ServiceGraphPattern:
 	case NAMED_RULE_Filter:
 	case NAMED_RULE_Bind:
 	case NAMED_RULE_InlineData:
