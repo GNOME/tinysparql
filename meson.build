@@ -83,6 +83,7 @@ cc_warning_flags = [
   # enums with hundreds of entries that are only partially covered in
   # some of the switches.
   '-Wswitch',
+  '-Werror=switch',
   # Too many warnings in libtracker-data/tracker-sparql-grammar.h
   '-Wno-tautological-constant-out-of-range-compare',
   # There are various gchar vs. unsigned char warnings that occur in
