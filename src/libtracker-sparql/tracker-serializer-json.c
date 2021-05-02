@@ -35,7 +35,7 @@ struct _TrackerSerializerJson
 	JsonGenerator *generator;
 	GString *data;
 	GPtrArray *vars;
-	gssize current_pos;
+	gsize current_pos;
 	guint stream_closed : 1;
 	guint cursor_started : 1;
 	guint cursor_finished : 1;
