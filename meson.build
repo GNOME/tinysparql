@@ -86,9 +86,6 @@ cc_warning_flags = [
   '-Werror=switch',
   # Too many warnings in libtracker-data/tracker-sparql-grammar.h
   '-Wno-tautological-constant-out-of-range-compare',
-  # Similarly there are many instances of guint vs. int comparisons.
-  # There would be easy but tedious to fix.
-  '-Wno-sign-compare',
   # This probably deserves a better look.
   '-Wno-missing-field-initializers',
   # Too many unused parameters in tests. Disabling this warning only
