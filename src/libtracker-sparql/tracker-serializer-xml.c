@@ -109,7 +109,7 @@ serialize_up_to_position (TrackerSerializerXml  *serializer_xml,
 	}
 
 	while (!serializer_xml->cursor_finished &&
-	       xmlBufferLength (serializer_xml->buffer) < pos) {
+	       (gsize) xmlBufferLength (serializer_xml->buffer) < pos) {
 		if (!tracker_sparql_cursor_next (cursor, cancellable, &inner_error)) {
 			if (inner_error) {
 				g_propagate_error (error, inner_error);
