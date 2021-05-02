@@ -101,7 +101,7 @@ test_tracker_sparql_escape_uri_vprintf (void)
 }
 
 static void test_tracker_sparql_cursor_next_async_query (TrackerSparqlConnection *connection,
-                                                         gint                     query);
+                                                         guint                    query);
 
 static void
 test_tracker_sparql_cursor_next_async_cb (GObject      *source,
@@ -112,7 +112,7 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	gboolean success;
-	static gint finished = 0;
+	static guint finished = 0;
 	static gint next = 0;
 	gint next_to_cancel = 1;
 	gint query;
@@ -168,7 +168,7 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 
 static void
 test_tracker_sparql_cursor_next_async_query (TrackerSparqlConnection *connection,
-                                             gint                     query)
+                                             guint                    query)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
