@@ -531,7 +531,7 @@ tracker_ontologies_write_gvdb (TrackerOntologies  *ontologies,
 	const gchar *uri;
 	gboolean retval;
 	gchar *str;
-	gint i;
+	guint i;
 
 	root_table = gvdb_hash_table_new (NULL, NULL);
 

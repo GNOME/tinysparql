@@ -544,7 +544,7 @@ static void
 cache_table_free (TrackerDataUpdateBufferTable *table)
 {
 	TrackerDataUpdateBufferProperty *property;
-	gint                            i;
+	guint i;
 
 	for (i = 0; i < table->properties->len; i++) {
 		property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
@@ -820,7 +820,8 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 	TrackerDataUpdateBufferProperty *property;
 	GHashTableIter                  iter;
 	const gchar                    *table_name, *database;
-	gint                            i, param;
+	guint                           i;
+        gint                            param;
 	GError                         *actual_error = NULL;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
@@ -1080,7 +1081,7 @@ tracker_data_resource_unref_all (TrackerData      *data,
                                  GError          **error)
 {
 	GArray *old_values;
-	gint i;
+	guint i;
 
 	g_assert (tracker_property_get_multiple_values (property) == TRUE);
 	g_assert (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE);
@@ -1223,7 +1224,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 	TrackerDataUpdateBufferResource *resource;
 	GHashTableIter iter;
 	GError *actual_error = NULL;
-	gint i;
+	guint i;
 
 	for (i = 0; i < data->update_buffer.graphs->len; i++) {
 		graph = g_ptr_array_index (data->update_buffer.graphs, i);
@@ -1255,7 +1256,7 @@ tracker_data_update_buffer_might_flush (TrackerData  *data,
                                         GError      **error)
 {
 	TrackerDataUpdateBufferGraph *graph;
-	gint i, count = 0;
+	guint i, count = 0;
 
 	for (i = 0; i < data->update_buffer.graphs->len; i++) {
 		graph = g_ptr_array_index (data->update_buffer.graphs, i);
@@ -1285,7 +1286,8 @@ cache_create_service_decomposed (TrackerData   *data,
 	TrackerClass       **super_classes;
 	TrackerProperty    **domain_indexes;
 	GValue              gvalue = { 0 };
-	gint                i, class_id;
+	guint               i;
+        gint                class_id;
 	TrackerOntologies  *ontologies;
 
 	/* also create instance of all super classes */
@@ -1407,7 +1409,7 @@ value_set_add_value (GArray *value_set,
                      GValue *value)
 {
 	GValue gvalue_copy = { 0 };
-	gint i;
+	guint i;
 
 	g_return_val_if_fail (G_VALUE_TYPE (value), FALSE);
 
@@ -1432,7 +1434,7 @@ static gboolean
 value_set_remove_value (GArray *value_set,
                         GValue *value)
 {
-	gint i;
+	guint i;
 
 	g_return_val_if_fail (G_VALUE_TYPE (value), FALSE);
 
@@ -1455,7 +1457,7 @@ static gboolean
 check_property_domain (TrackerData     *data,
                        TrackerProperty *property)
 {
-	gint type_index;
+	guint type_index;
 
 	for (type_index = 0; type_index < data->resource_buffer->types->len; type_index++) {
 		if (tracker_property_get_domain (property) == g_ptr_array_index (data->resource_buffer->types, type_index)) {
@@ -1604,7 +1606,7 @@ get_old_property_values (TrackerData      *data,
 					    && check_property_domain (data, prop)) {
 						const gchar *property_name;
 						GString *str;
-						gint i;
+						guint j;
 
 						old_values = get_property_values (data, prop, error);
 						if (!old_values) {
@@ -1617,9 +1619,9 @@ get_old_property_values (TrackerData      *data,
 						str = g_string_new (NULL);
 
 						/* delete old fts entries */
-						for (i = 0; i < old_values->len; i++) {
-							GValue *value = &g_array_index (old_values, GValue, i);
-							if (i != 0)
+						for (j = 0; j < old_values->len; j++) {
+							GValue *value = &g_array_index (old_values, GValue, j);
+							if (j != 0)
 								g_string_append_c (str, ',');
 							g_string_append (str, g_value_get_string (value));
 						}
@@ -2074,8 +2076,7 @@ cache_delete_resource_type_full (TrackerData   *data,
 	TrackerDBCursor    *cursor = NULL;
 	TrackerProperty   **properties, *prop;
 	gboolean            found;
-	gint                i;
-	guint               p, n_props;
+	guint               i, p, n_props;
 	GError             *inner_error = NULL;
 	TrackerOntologies  *ontologies;
 	const gchar        *database;
@@ -2248,7 +2249,7 @@ ensure_graph_buffer (TrackerDataUpdateBuffer  *buffer,
                      GError                  **error)
 {
 	TrackerDataUpdateBufferGraph *graph_buffer;
-	gint i;
+	guint i;
 
 	for (i = 0; i < buffer->graphs->len; i++) {
 		graph_buffer = g_ptr_array_index (buffer->graphs, i);
@@ -2442,7 +2443,7 @@ delete_all_helper (TrackerData      *data,
 	TrackerProperty **super_properties;
 	GArray *super_old_values;
 	GValue *value;
-	gint i;
+	guint i;
 
 	if (subproperty == property) {
 		if (tracker_property_get_multiple_values (property)) {

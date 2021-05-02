@@ -1964,7 +1964,7 @@ check_interrupt (void *user_data)
 static void
 initialize_functions (TrackerDBInterface *db_interface)
 {
-	gint i;
+	gsize i;
 	struct {
 		gchar *name;
 		int n_args;
@@ -3161,7 +3161,7 @@ static void
 tracker_db_cursor_finalize (GObject *object)
 {
 	TrackerDBCursor *cursor;
-	int i;
+	guint i;
 
 	cursor = TRACKER_DB_CURSOR (object);
 
@@ -3297,7 +3297,7 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
 	cursor->ref_stmt = tracker_db_statement_sqlite_grab (ref_stmt);
 
 	if (types) {
-		gint i;
+		guint i;
 
 		cursor->types = g_new (TrackerPropertyType, n_types);
 		cursor->n_types = n_types;
@@ -3307,7 +3307,7 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
 	}
 
 	if (variable_names) {
-		gint i;
+		guint i;
 
 		cursor->variable_names = g_new (gchar *, n_variable_names);
 		cursor->n_variable_names = n_variable_names;

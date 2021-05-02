@@ -1555,7 +1555,7 @@ tracker_data_ontology_process_changes_pre_db (TrackerDataManager  *manager,
                                               GPtrArray           *seen_properties,
                                               GError             **error)
 {
-	gint i;
+	guint i;
 	if (seen_classes) {
 		for (i = 0; i < seen_classes->len; i++) {
 			GError *n_error = NULL;
@@ -1599,7 +1599,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
                                                GPtrArray           *seen_properties,
                                                GError             **error)
 {
-	gint i;
+	guint i;
 	/* TODO: Collect the ontology-paths of the seen events for proper error reporting */
 	const gchar *ontology_path = "Unknown";
 

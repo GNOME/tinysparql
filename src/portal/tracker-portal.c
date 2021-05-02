@@ -192,7 +192,7 @@ endpoint_closed_cb (TrackerPortalEndpoint *endpoint,
                     gpointer               user_data)
 {
 	TrackerPortal *portal = user_data;
-	gint i;
+	guint i;
 
 	for (i = 0; i < portal->sessions->len; i++) {
 		TrackerSession *session;
@@ -370,7 +370,7 @@ portal_iface_method_call (GDBusConnection       *connection,
 	} else if (g_strcmp0 (method_name, "CloseSession") == 0) {
 		g_autofree gchar *object_path = NULL;
 		gboolean found = FALSE;
-		gint i;
+		guint i;
 
 		g_variant_get (parameters, "(o)", &object_path);
 		g_debug ("Got request for closing session '%s'", object_path);

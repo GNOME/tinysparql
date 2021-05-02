@@ -725,7 +725,7 @@ notifier_events_cb (TrackerNotifier *notifier,
 	TrackerEndpointDBus *endpoint_dbus = user_data;
 	GVariantBuilder builder;
 	GError *error = NULL;
-	gint i;
+	guint i;
 
 	if (tracker_endpoint_dbus_filter_graph (endpoint_dbus, graph))
 		return;

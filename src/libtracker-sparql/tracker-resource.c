@@ -698,7 +698,7 @@ GList *tracker_resource_get_values (TrackerResource *self,
 	if (G_VALUE_HOLDS (value, G_TYPE_PTR_ARRAY)) {
 		GList *result = NULL;
 		GPtrArray *array;
-		int i;
+		guint i;
 
 		array = g_value_get_boxed (value);
 
@@ -1088,7 +1088,7 @@ generate_turtle_resources_foreach (gpointer key,
 	const GValue *value = value_ptr;
 	GenerateTurtleData *data = user_data;
 	TrackerResource *resource;
-	int i;
+	guint i;
 
 	if (G_VALUE_HOLDS (value, TRACKER_TYPE_RESOURCE)) {
 		resource = g_value_get_object (value);
@@ -1211,7 +1211,7 @@ generate_turtle_property (const char              *property,
 
 	g_string_append (string, " ");
 	if (G_VALUE_HOLDS (value, G_TYPE_PTR_ARRAY)) {
-		int i;
+		guint i;
 		GPtrArray *array = g_value_get_boxed (value);
 		if (array->len > 0) {
 			generate_turtle_value (g_ptr_array_index (array, 0),
@@ -1340,7 +1340,7 @@ generate_sparql_relation_deletes_foreach (gpointer key,
 {
 	const GValue *value = value_ptr;
 	GenerateSparqlData *data = user_data;
-	int i;
+	guint i;
 
 	if (G_VALUE_HOLDS (value, TRACKER_TYPE_RESOURCE)) {
 		TrackerResource *relation = g_value_get_object (value);
@@ -1382,7 +1382,7 @@ generate_sparql_relation_inserts_foreach (gpointer key,
 		GPtrArray *array = g_value_get_boxed (value);
 		const GValue *array_value;
 		TrackerResource *relation;
-		gint i;
+		guint i;
 
 		for (i = 0; i < array->len; i++) {
 			array_value = g_ptr_array_index (array, i);

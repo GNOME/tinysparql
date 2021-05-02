@@ -261,7 +261,7 @@ tracker_resolve_relative_uri (const gchar  *base,
 	gchar **base_split, **rel_split, *host;
 	GPtrArray *base_norm, *rel_norm;
 	GString *str;
-	gint i;
+	guint i;
 
 	/* Relative IRIs are combined with base IRIs with a simplified version
 	 * of the algorithm described at RFC3986, Section 5.2. We don't care

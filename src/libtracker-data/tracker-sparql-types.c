@@ -296,12 +296,12 @@ GHashTable *
 tracker_solution_get_bindings (TrackerSolution *solution)
 {
 	GHashTable *ht;
-	gint i;
+	guint i;
 
 	ht = g_hash_table_new (g_str_hash, g_str_equal);
 
 	for (i = 0; i < solution->columns->len; i++) {
-		gint values_pos = solution->solution_index * solution->n_cols + i;
+		guint values_pos = solution->solution_index * solution->n_cols + i;
 		gchar *name, *value;
 
 		if (values_pos >= solution->values->len)
@@ -809,7 +809,7 @@ void
 tracker_select_context_add_literal_binding (TrackerSelectContext  *context,
                                             TrackerLiteralBinding *binding)
 {
-	gint i;
+	guint i;
 
 	/* Literal bindings are reserved to the root context */
 	g_assert (TRACKER_CONTEXT (context)->parent == NULL);

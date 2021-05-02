@@ -100,7 +100,7 @@ query_helper (TrackerDataManager *manager, const gchar *query_filename, const gc
 		}
 
 		if (cursor) {
-			gint col;
+			guint col;
 
 			while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 				for (col = 0; col < tracker_db_cursor_get_n_columns (cursor); col++) {
