@@ -28,8 +28,6 @@
 #include <fcntl.h>
 #include <stdio.h>
 
-static guint n_columns = 0;
-static guint n_rows = 0;
 static GSubprocess *pager = NULL;
 static gint stdout_fd = 0;
 static guint signal_handler_id = 0;
@@ -77,36 +75,37 @@ tracker_term_ellipsize (const gchar          *str,
 	return retval;
 }
 
-static gboolean
-fd_term_dimensions (gint  fd,
-                    gint *cols,
-                    gint *rows)
+static void
+fd_term_dimensions (gint   fd,
+                    guint *cols,
+                    guint *rows)
 {
-        struct winsize ws = {};
+	struct winsize ws = {};
 
-        if (ioctl(fd, TIOCGWINSZ, &ws) < 0)
-                return FALSE;
+	if (ioctl(fd, TIOCGWINSZ, &ws) < 0) {
+		*cols = 0;
+		*rows = 0;
+	}
 
-        if (ws.ws_col <= 0 || ws.ws_row <= 0)
-                return FALSE;
-
-        *cols = ws.ws_col;
-        *rows = ws.ws_row;
-
-        return TRUE;
+	*cols = ws.ws_col;
+	*rows = ws.ws_row;
 }
 
 void
 tracker_term_dimensions (guint *columns,
                          guint *rows)
 {
-	if (n_columns == 0 || n_rows == 0)
+	static guint n_columns = 0;
+	static guint n_rows = 0;
+
+	if (n_columns == 0 || n_rows == 0) {
 		fd_term_dimensions (STDOUT_FILENO, &n_columns, &n_rows);
 
-	if (n_columns <= 0)
-		n_columns = 80;
-	if (n_rows <= 0)
-		n_rows = 24;
+		if (n_columns == 0)
+			n_columns = 80;
+		if (n_rows == 0)
+			n_rows = 24;
+	}
 
 	if (columns)
 		*columns = n_columns;
