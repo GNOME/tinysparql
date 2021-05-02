@@ -89,7 +89,6 @@ handle_request_in_thread (GTask        *task,
 {
 	Request *request = task_data;
 	gchar *buffer[1000];
-	gboolean finished = FALSE;
 	SoupMessageBody *message_body;
 	GError *error = NULL;
 	gssize count;
@@ -100,20 +99,22 @@ handle_request_in_thread (GTask        *task,
         message_body = request->message->response_body;
 #endif
 
-	while (!finished) {
+	for (;;) {
 		count = g_input_stream_read (request->istream,
 		                             buffer, sizeof (buffer),
 		                             cancellable, &error);
-		if (count == -1) {
+		if (count < 0) {
 			g_task_return_error (task, error);
 			break;
-		} else if (count < sizeof (buffer)) {
-			finished = TRUE;
 		}
 
 		soup_message_body_append (message_body,
 		                          SOUP_MEMORY_COPY,
 		                          buffer, count);
+
+		if ((gsize) count < sizeof (buffer)) {
+			break;
+		}
 	}
 
 	g_input_stream_close (request->istream, cancellable, NULL);
