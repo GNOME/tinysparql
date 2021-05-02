@@ -93,7 +93,7 @@ tracker_utf8_truncate (const gchar  *str,
 {
 	gchar *retv = NULL;
 
-	if (g_utf8_strlen (str, -1) > max_size) {
+	if ((gsize) g_utf8_strlen (str, -1) > max_size) {
 		gchar *substring = g_utf8_substring (str, 0, max_size - 3);
 		retv = g_strdup_printf ("%s[…]", substring);
 		g_free (substring);
