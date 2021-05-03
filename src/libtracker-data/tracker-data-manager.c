@@ -2802,7 +2802,6 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
                                    const gchar         *database,
                                    TrackerClass        *service,
                                    gboolean             in_update,
-                                   gboolean             in_change,
                                    GError             **error)
 {
 	const char       *service_name;
@@ -2813,6 +2812,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 	GSList           *class_properties = NULL, *field_it;
 	guint             i, n_props;
 	gboolean          in_alter = in_update;
+        gboolean          in_change;
 	GError           *internal_error = NULL;
 	GPtrArray        *copy_schedule = NULL;
 
@@ -2826,6 +2826,8 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		/* xsd classes do not derive from rdfs:Resource and do not need separate tables */
 		return;
 	}
+
+        in_change = tracker_class_get_db_schema_changed (service);
 
 	if (in_change && !tracker_class_get_is_new (service)) {
 		TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Rename: ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name));
@@ -3253,7 +3255,6 @@ tracker_data_ontology_setup_db (TrackerDataManager  *manager,
 	for (i = 0; i < n_classes; i++) {
 		/* Also !is_new classes are processed, they might have new properties */
 		create_decomposed_metadata_tables (manager, iface, database, classes[i], in_update,
-		                                   tracker_class_get_db_schema_changed (classes[i]),
 		                                   &internal_error);
 
 		if (internal_error) {
