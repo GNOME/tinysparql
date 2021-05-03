@@ -285,12 +285,12 @@ static void
 set_index_for_single_value_property (TrackerDBInterface  *iface,
                                      const gchar         *database,
                                      const gchar         *service_name,
-                                     const gchar         *field_name,
+                                     TrackerProperty     *property,
                                      gboolean             enabled,
-                                     gboolean             datetime,
                                      GError             **error)
 {
 	GError *internal_error = NULL;
+        const gchar *field_name = tracker_property_get_name (property);
 
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
 	              g_message ("Dropping index (single-value property): "
@@ -311,7 +311,7 @@ set_index_for_single_value_property (TrackerDBInterface  *iface,
 	if (enabled) {
 		gchar *expr;
 
-		if (datetime)
+		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME)
 			expr = g_strdup_printf ("SparqlTimeSort(\"%s\")", field_name);
 		else
 			expr = g_strdup_printf ("\"%s\"", field_name);
@@ -645,9 +645,8 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 
 		secondary_index = tracker_property_get_secondary_index (property);
 		if (secondary_index == NULL) {
-			set_index_for_single_value_property (iface, database, service_name, field_name,
+			set_index_for_single_value_property (iface, database, service_name, property,
 			                                     recreate && tracker_property_get_indexed (property),
-			                                     datetime,
 			                                     &internal_error);
 		} else {
 			set_secondary_index_for_single_value_property (iface, database, service_name, field_name,
@@ -662,9 +661,8 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 			set_index_for_single_value_property (iface,
 			                                     database,
 			                                     tracker_class_get_name (*domain_index_classes),
-			                                     field_name,
+			                                     property,
 			                                     recreate,
-			                                     datetime,
 			                                     &internal_error);
 			domain_index_classes++;
 		}
@@ -2963,8 +2961,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 
 				/* This is implicit for all domain-specific-indices */
 				set_index_for_single_value_property (iface, database, service_name,
-				                                     field_name, TRUE,
-				                                     datetime,
+				                                     property, TRUE,
 				                                     &internal_error);
 				if (internal_error) {
 					g_string_free (alter_sql, TRUE);
@@ -3014,8 +3011,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 			secondary_index = tracker_property_get_secondary_index (field);
 			if (secondary_index == NULL) {
 				set_index_for_single_value_property (iface, database, service_name,
-				                                     field_name, TRUE,
-				                                     datetime,
+				                                     field, TRUE,
 				                                     &internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
