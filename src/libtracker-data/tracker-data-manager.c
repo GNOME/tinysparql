@@ -3081,7 +3081,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 					g_propagate_error (error, internal_error);
 					goto error_out;
 				}
-		
+
 				g_free (query);
 			}
 		}
