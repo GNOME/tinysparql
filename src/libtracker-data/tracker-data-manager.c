@@ -2880,104 +2880,106 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 			goto error_out;
 		}
 
-		field_name = tracker_property_get_name (property);
 
-		if (sql_type_for_single_value) {
-			/* single value */
+		if (!sql_type_for_single_value)
+                        continue;
 
-			if (in_update) {
-				TRACKER_NOTE (ONTOLOGY_CHANGES,
-				              g_message ("%sAltering database for class '%s' property '%s': single value (%s)",
-				                         in_alter ? "" : "  ",
-				                         service_name,
-				                         field_name,
-				                         in_alter ? "alter" : "create"));
+                /* single value */
+
+                field_name = tracker_property_get_name (property);
+
+		if (in_update) {
+			TRACKER_NOTE (ONTOLOGY_CHANGES,
+			              g_message ("%sAltering database for class '%s' property '%s': single value (%s)",
+			                         in_alter ? "" : "  ",
+			                         service_name,
+			                         field_name,
+			                         in_alter ? "alter" : "create"));
+		}
+
+		if (!in_alter) {
+			put_change = TRUE;
+			class_properties = g_slist_prepend (class_properties, property);
+
+			g_string_append_printf (create_sql, ", \"%s\" %s",
+			                        field_name,
+			                        sql_type_for_single_value);
+
+			if (!copy_schedule) {
+				copy_schedule = g_ptr_array_new_with_free_func (g_free);
 			}
 
-			if (!in_alter) {
-				put_change = TRUE;
-				class_properties = g_slist_prepend (class_properties, property);
+			if (is_domain_index && tracker_property_get_is_new_domain_index (property, service)) {
+				schedule_copy (copy_schedule, property, field_name, NULL);
+			}
 
-				g_string_append_printf (create_sql, ", \"%s\" %s",
-				                        field_name,
-				                        sql_type_for_single_value);
+			if (g_ascii_strcasecmp (sql_type_for_single_value, "TEXT") == 0 ||
+			    g_ascii_strcasecmp (sql_type_for_single_value, "BLOB") == 0) {
+				g_string_append (create_sql, " COLLATE " TRACKER_COLLATION_NAME);
+			}
 
-				if (!copy_schedule) {
-					copy_schedule = g_ptr_array_new_with_free_func (g_free);
-				}
+			if (tracker_property_get_is_inverse_functional_property (property)) {
+				g_string_append (create_sql, " UNIQUE");
+			}
+		} else if ((!is_domain_index && tracker_property_get_is_new (property)) ||
+		           (is_domain_index && tracker_property_get_is_new_domain_index (property, service))) {
+			GString *alter_sql = NULL;
 
-				if (is_domain_index && tracker_property_get_is_new_domain_index (property, service)) {
-					schedule_copy (copy_schedule, property, field_name, NULL);
-				}
+			put_change = FALSE;
+			class_properties = g_slist_prepend (class_properties, property);
 
-				if (g_ascii_strcasecmp (sql_type_for_single_value, "TEXT") == 0 ||
-				    g_ascii_strcasecmp (sql_type_for_single_value, "BLOB") == 0) {
-					g_string_append (create_sql, " COLLATE " TRACKER_COLLATION_NAME);
-				}
+			alter_sql = g_string_new ("ALTER TABLE ");
+			g_string_append_printf (alter_sql, "\"%s\".\"%s\" ADD COLUMN \"%s\" %s",
+			                        database,
+			                        service_name,
+			                        field_name,
+			                        sql_type_for_single_value);
 
-				if (tracker_property_get_is_inverse_functional_property (property)) {
-					g_string_append (create_sql, " UNIQUE");
-				}
-			} else if ((!is_domain_index && tracker_property_get_is_new (property)) ||
-			           (is_domain_index && tracker_property_get_is_new_domain_index (property, service))) {
-				GString *alter_sql = NULL;
+			if (g_ascii_strcasecmp (sql_type_for_single_value, "TEXT") == 0 ||
+			    g_ascii_strcasecmp (sql_type_for_single_value, "BLOB") == 0) {
+				g_string_append (alter_sql, " COLLATE " TRACKER_COLLATION_NAME);
+			}
 
-				put_change = FALSE;
-				class_properties = g_slist_prepend (class_properties, property);
+			if (tracker_property_get_is_inverse_functional_property (property)) {
+				g_string_append (alter_sql, " UNIQUE");
+			}
 
-				alter_sql = g_string_new ("ALTER TABLE ");
-				g_string_append_printf (alter_sql, "\"%s\".\"%s\" ADD COLUMN \"%s\" %s",
-				                        database,
-				                        service_name,
-				                        field_name,
-				                        sql_type_for_single_value);
-
-				if (g_ascii_strcasecmp (sql_type_for_single_value, "TEXT") == 0 ||
-				    g_ascii_strcasecmp (sql_type_for_single_value, "BLOB") == 0) {
-					g_string_append (alter_sql, " COLLATE " TRACKER_COLLATION_NAME);
-				}
-
-				if (tracker_property_get_is_inverse_functional_property (property)) {
-					g_string_append (alter_sql, " UNIQUE");
-				}
-
-				TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Altering: '%s'", alter_sql->str));
-				tracker_db_interface_execute_query (iface, &internal_error, "%s", alter_sql->str);
+			TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Altering: '%s'", alter_sql->str));
+			tracker_db_interface_execute_query (iface, &internal_error, "%s", alter_sql->str);
+			if (internal_error) {
+				g_string_free (alter_sql, TRUE);
+				g_propagate_error (error, internal_error);
+				goto error_out;
+			} else if (is_domain_index) {
+				copy_from_domain_to_domain_index (iface, database, property,
+				                                  field_name, NULL,
+				                                  service,
+				                                  &internal_error);
 				if (internal_error) {
 					g_string_free (alter_sql, TRUE);
 					g_propagate_error (error, internal_error);
 					goto error_out;
-				} else if (is_domain_index) {
-					copy_from_domain_to_domain_index (iface, database, property,
-					                                  field_name, NULL,
-					                                  service,
-					                                  &internal_error);
-					if (internal_error) {
-						g_string_free (alter_sql, TRUE);
-						g_propagate_error (error, internal_error);
-						goto error_out;
-					}
-
-					/* This is implicit for all domain-specific-indices */
-					set_index_for_single_value_property (iface, database, service_name,
-					                                     field_name, TRUE,
-					                                     datetime,
-					                                     &internal_error);
-					if (internal_error) {
-						g_string_free (alter_sql, TRUE);
-						g_propagate_error (error, internal_error);
-						goto error_out;
-					}
 				}
 
-				g_string_free (alter_sql, TRUE);
-			} else {
-				put_change = TRUE;
+				/* This is implicit for all domain-specific-indices */
+				set_index_for_single_value_property (iface, database, service_name,
+				                                     field_name, TRUE,
+				                                     datetime,
+				                                     &internal_error);
+				if (internal_error) {
+					g_string_free (alter_sql, TRUE);
+					g_propagate_error (error, internal_error);
+					goto error_out;
+				}
 			}
 
-			if (in_change && put_change && in_col_sql && sel_col_sql) {
-				range_change_for (property, in_col_sql, sel_col_sql, field_name);
-			}
+			g_string_free (alter_sql, TRUE);
+		} else {
+			put_change = TRUE;
+		}
+
+		if (in_change && put_change && in_col_sql && sel_col_sql) {
+			range_change_for (property, in_col_sql, sel_col_sql, field_name);
 		}
 	}
 
