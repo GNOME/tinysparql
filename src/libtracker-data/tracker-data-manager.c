@@ -341,7 +341,6 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
                                     const gchar         *database,
                                     const gchar         *service_name,
                                     TrackerProperty     *property,
-                                    gboolean             enabled,
                                     gboolean             recreate,
                                     GError             **error)
 {
@@ -392,7 +391,10 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 	else
 		expr = g_strdup_printf ("\"%s\"", field_name);
 
-	if (enabled) {
+	if (tracker_property_get_indexed (property)) {
+                /* use different UNIQUE index for properties whose
+                 * value should be indexed to minimize index size */
+
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
 		              g_message ("Creating index (multi-value property): "
 		                         "CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
@@ -426,6 +428,9 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 		if (internal_error)
 			goto out;
 	} else {
+                /* we still have to include the property value in
+                 * the unique index for proper constraints */
+
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
 		              g_message ("Creating index (multi-value property): "
 		                         "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (ID, %s)",
@@ -632,9 +637,7 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 	service_name = tracker_class_get_name (class);
 
 	if (tracker_property_get_multiple_values (property)) {
-		set_index_for_multi_value_property (iface, database, service_name, property,
-		                                    tracker_property_get_indexed (property),
-		                                    recreate,
+		set_index_for_multi_value_property (iface, database, service_name, property, recreate,
 		                                    &internal_error);
 	} else {
 		TrackerProperty *secondary_index;
@@ -2618,25 +2621,12 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			}
 
 			/* multiple values */
-			if (tracker_property_get_indexed (property)) {
-				/* use different UNIQUE index for properties whose
-				 * value should be indexed to minimize index size */
-				set_index_for_multi_value_property (iface, database, service_name, property, TRUE, TRUE,
-				                                    &internal_error);
-				if (internal_error) {
-					g_propagate_error (error, internal_error);
-					goto error_out;
-				}
-			} else {
-				set_index_for_multi_value_property (iface, database, service_name, property, FALSE, TRUE,
-				                                    &internal_error);
-				/* we still have to include the property value in
-				 * the unique index for proper constraints */
-				if (internal_error) {
-					g_propagate_error (error, internal_error);
-					goto error_out;
-				}
-			}
+                        set_index_for_multi_value_property (iface, database, service_name, property, TRUE,
+                                                            &internal_error);
+                        if (internal_error) {
+                                g_propagate_error (error, internal_error);
+                                goto error_out;
+                        }
 
 			if (in_change && !tracker_property_get_is_new (property) &&
 			    !tracker_property_get_cardinality_changed (property) && in_col_sql && sel_col_sql) {
@@ -2666,25 +2656,12 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			}
 
 			/* multiple values */
-			if (tracker_property_get_indexed (property)) {
-				/* use different UNIQUE index for properties whose
-				 * value should be indexed to minimize index size */
-				set_index_for_multi_value_property (iface, database, service_name, property, TRUE, TRUE,
-				                                    &internal_error);
-				if (internal_error) {
-					g_propagate_error (error, internal_error);
-					goto error_out;
-				}
-			} else {
-				set_index_for_multi_value_property (iface, database, service_name, property, FALSE, TRUE,
-				                                    &internal_error);
-				if (internal_error) {
-					g_propagate_error (error, internal_error);
-					goto error_out;
-				}
-				/* we still have to include the property value in
-				 * the unique index for proper constraints */
-			}
+                        set_index_for_multi_value_property (iface, database, service_name, property, TRUE,
+                                                            &internal_error);
+                        if (internal_error) {
+                                g_propagate_error (error, internal_error);
+                                goto error_out;
+                        }
 
 			error_out:
 
