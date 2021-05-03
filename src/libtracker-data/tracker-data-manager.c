@@ -621,7 +621,6 @@ static void
 fix_indexed_on_db (TrackerDataManager  *manager,
                    const gchar         *database,
                    TrackerProperty     *property,
-                   gboolean             recreate,
                    GError             **error)
 {
 	GError *internal_error = NULL;
@@ -637,7 +636,7 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 	service_name = tracker_class_get_name (class);
 
 	if (tracker_property_get_multiple_values (property)) {
-		set_index_for_multi_value_property (iface, database, service_name, property, recreate,
+		set_index_for_multi_value_property (iface, database, service_name, property, TRUE,
 		                                    &internal_error);
 	} else {
 		TrackerProperty *secondary_index;
@@ -646,12 +645,12 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 		secondary_index = tracker_property_get_secondary_index (property);
 		if (secondary_index == NULL) {
 			set_index_for_single_value_property (iface, database, service_name, property,
-			                                     recreate && tracker_property_get_indexed (property),
+			                                     tracker_property_get_indexed (property),
 			                                     &internal_error);
 		} else {
 			set_secondary_index_for_single_value_property (iface, database, service_name, field_name,
 			                                               tracker_property_get_name (secondary_index),
-			                                               recreate && tracker_property_get_indexed (property),
+			                                               tracker_property_get_indexed (property),
 			                                               &internal_error);
 		}
 
@@ -662,7 +661,7 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 			                                     database,
 			                                     tracker_class_get_name (*domain_index_classes),
 			                                     property,
-			                                     recreate,
+			                                     TRUE,
 			                                     &internal_error);
 			domain_index_classes++;
 		}
@@ -676,7 +675,6 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 static void
 fix_indexed (TrackerDataManager  *manager,
              TrackerProperty     *property,
-             gboolean             recreate,
              GError             **error)
 {
 	TrackerDBInterface *iface;
@@ -695,8 +693,7 @@ fix_indexed (TrackerDataManager  *manager,
 	g_hash_table_iter_init (&iter, graphs);
 
 	while (g_hash_table_iter_next (&iter, &value, NULL)) {
-		fix_indexed_on_db (manager, value, property, recreate,
-		                   &internal_error);
+		fix_indexed_on_db (manager, value, property, &internal_error);
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			break;
@@ -1687,7 +1684,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 				                           TRACKER_PREFIX_NRL "indexed",
 				                           "true", allowed_boolean_conversions,
 				                           NULL, property, &n_error)) {
-					fix_indexed (manager, property, TRUE, &n_error);
+					fix_indexed (manager, property, &n_error);
 					indexed_set = TRUE;
 				}
 			} else {
@@ -1697,7 +1694,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 				                           TRACKER_PREFIX_NRL "indexed",
 				                           "false", allowed_boolean_conversions,
 				                           NULL, property, &n_error)) {
-					fix_indexed (manager, property, TRUE, &n_error);
+					fix_indexed (manager, property, &n_error);
 					indexed_set = TRUE;
 				}
 			}
@@ -1717,7 +1714,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 				                           tracker_property_get_uri (secondary_index), NULL,
 				                           NULL, property, &n_error)) {
 					if (!indexed_set) {
-						fix_indexed (manager, property, TRUE, &n_error);
+						fix_indexed (manager, property, &n_error);
 					}
 				}
 			} else {
@@ -1728,7 +1725,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 				                           NULL, NULL,
 				                           NULL, property, &n_error)) {
 					if (!indexed_set) {
-						fix_indexed (manager, property, TRUE, &n_error);
+						fix_indexed (manager, property, &n_error);
 					}
 				}
 			}
@@ -3374,19 +3371,9 @@ tracker_data_manager_recreate_indexes (TrackerDataManager  *manager,
 		return;
 	}
 
-	TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Dropping all indexes..."));
-	for (i = 0; i < n_properties; i++) {
-		fix_indexed (manager, properties [i], FALSE, &internal_error);
-
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return;
-		}
-	}
-
 	TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Starting index re-creation..."));
 	for (i = 0; i < n_properties; i++) {
-		fix_indexed (manager, properties [i], TRUE, &internal_error);
+		fix_indexed (manager, properties [i], &internal_error);
 
 		if (internal_error) {
 			g_critical ("Unable to create index for %s: %s",
