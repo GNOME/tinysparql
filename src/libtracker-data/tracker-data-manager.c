@@ -340,14 +340,14 @@ static void
 set_index_for_multi_value_property (TrackerDBInterface  *iface,
                                     const gchar         *database,
                                     const gchar         *service_name,
-                                    const gchar         *field_name,
+                                    TrackerProperty     *property,
                                     gboolean             enabled,
                                     gboolean             recreate,
-                                    gboolean             datetime,
                                     GError             **error)
 {
 	GError *internal_error = NULL;
 	gchar *expr;
+        const gchar *field_name = tracker_property_get_name (property);
 
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
 	              g_message ("Dropping index (multi-value property): "
@@ -387,7 +387,7 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 		return;
 	}
 
-	if (datetime)
+	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME)
 		expr = g_strdup_printf ("SparqlTimeSort(\"%s\")", field_name);
 	else
 		expr = g_strdup_printf ("\"%s\"", field_name);
@@ -634,10 +634,9 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 	datetime = tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME;
 
 	if (tracker_property_get_multiple_values (property)) {
-		set_index_for_multi_value_property (iface, database, service_name, field_name,
+		set_index_for_multi_value_property (iface, database, service_name, property,
 		                                    tracker_property_get_indexed (property),
 		                                    recreate,
-		                                    datetime,
 		                                    &internal_error);
 	} else {
 		TrackerProperty *secondary_index;
@@ -2627,16 +2626,14 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			if (tracker_property_get_indexed (property)) {
 				/* use different UNIQUE index for properties whose
 				 * value should be indexed to minimize index size */
-				set_index_for_multi_value_property (iface, database, service_name, field_name, TRUE, TRUE,
-				                                    datetime,
+				set_index_for_multi_value_property (iface, database, service_name, property, TRUE, TRUE,
 				                                    &internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
 					goto error_out;
 				}
 			} else {
-				set_index_for_multi_value_property (iface, database, service_name, field_name, FALSE, TRUE,
-				                                    datetime,
+				set_index_for_multi_value_property (iface, database, service_name, property, FALSE, TRUE,
 				                                    &internal_error);
 				/* we still have to include the property value in
 				 * the unique index for proper constraints */
@@ -2677,16 +2674,14 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			if (tracker_property_get_indexed (property)) {
 				/* use different UNIQUE index for properties whose
 				 * value should be indexed to minimize index size */
-				set_index_for_multi_value_property (iface, database, service_name, field_name, TRUE, TRUE,
-				                                    datetime,
+				set_index_for_multi_value_property (iface, database, service_name, property, TRUE, TRUE,
 				                                    &internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
 					goto error_out;
 				}
 			} else {
-				set_index_for_multi_value_property (iface, database, service_name, field_name, FALSE, TRUE,
-				                                    datetime,
+				set_index_for_multi_value_property (iface, database, service_name, property, FALSE, TRUE,
 				                                    &internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
