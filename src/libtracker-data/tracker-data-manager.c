@@ -2522,11 +2522,9 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	GError *internal_error = NULL;
 	const char *field_name;
 	const char *sql_type;
-	gboolean    not_single, datetime;
+	gboolean    datetime;
 
 	field_name = tracker_property_get_name (property);
-
-	not_single = !sql_type_for_single_value;
 
 	switch (tracker_property_get_data_type (property)) {
 	case TRACKER_PROPERTY_TYPE_STRING:
@@ -2554,7 +2552,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	                                 tracker_property_get_is_new_domain_index (property, service) ||
 	                                 tracker_property_get_cardinality_changed (property) ||
 	                                 tracker_property_get_db_schema_changed (property)))) {
-		if (not_single || tracker_property_get_multiple_values (property)) {
+		if (tracker_property_get_multiple_values (property)) {
 			GString *sql = NULL;
 			GString *in_col_sql = NULL;
 			GString *sel_col_sql = NULL;
