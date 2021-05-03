@@ -341,7 +341,6 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
                                     const gchar         *database,
                                     const gchar         *service_name,
                                     TrackerProperty     *property,
-                                    gboolean             recreate,
                                     GError             **error)
 {
 	GError *internal_error = NULL;
@@ -379,10 +378,6 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 
 	if (internal_error) {
 		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	if (!recreate) {
 		return;
 	}
 
@@ -636,8 +631,7 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 	service_name = tracker_class_get_name (class);
 
 	if (tracker_property_get_multiple_values (property)) {
-		set_index_for_multi_value_property (iface, database, service_name, property, TRUE,
-		                                    &internal_error);
+		set_index_for_multi_value_property (iface, database, service_name, property, &internal_error);
 	} else {
 		TrackerProperty *secondary_index;
 		TrackerClass **domain_index_classes;
@@ -2618,8 +2612,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			}
 
 			/* multiple values */
-                        set_index_for_multi_value_property (iface, database, service_name, property, TRUE,
-                                                            &internal_error);
+                        set_index_for_multi_value_property (iface, database, service_name, property, &internal_error);
                         if (internal_error) {
                                 g_propagate_error (error, internal_error);
                                 goto error_out;
@@ -2653,8 +2646,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			}
 
 			/* multiple values */
-                        set_index_for_multi_value_property (iface, database, service_name, property, TRUE,
-                                                            &internal_error);
+                        set_index_for_multi_value_property (iface, database, service_name, property, &internal_error);
                         if (internal_error) {
                                 g_propagate_error (error, internal_error);
                                 goto error_out;
