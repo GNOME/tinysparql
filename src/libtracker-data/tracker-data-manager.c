@@ -624,14 +624,12 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 	TrackerClass *class;
 	const gchar *service_name;
 	const gchar *field_name;
-	gboolean datetime;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
 	class = tracker_property_get_domain (property);
 	field_name = tracker_property_get_name (property);
 	service_name = tracker_class_get_name (class);
-	datetime = tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME;
 
 	if (tracker_property_get_multiple_values (property)) {
 		set_index_for_multi_value_property (iface, database, service_name, property,
@@ -2519,7 +2517,6 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	GError *internal_error = NULL;
 	const char *field_name;
 	const char *sql_type;
-	gboolean    datetime;
 
 	field_name = tracker_property_get_name (property);
 
@@ -2542,8 +2539,6 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 		sql_type = "";
 		break;
 	}
-
-	datetime = tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME;
 
 	if (!in_update || (in_update && (tracker_property_get_is_new (property) ||
 	                                 tracker_property_get_is_new_domain_index (property, service) ||
@@ -2849,11 +2844,10 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
                 const gchar *sql_type_for_single_value = NULL;
 		gboolean put_change;
 		const gchar *field_name;
-		gboolean is_domain_index, datetime;
+		gboolean is_domain_index;
 
 		property = properties[i];
 		is_domain_index = is_a_domain_index (domain_indexes, property);
-		datetime = tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME;
 
 		if (tracker_property_get_domain (property) != service && !is_domain_index) {
                         continue;
@@ -2990,7 +2984,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 	for (field_it = class_properties; field_it != NULL; field_it = field_it->next) {
 		TrackerProperty *field, *secondary_index;
 		const char *field_name;
-		gboolean is_domain_index, datetime;
+		gboolean is_domain_index;
 
 		field = field_it->data;
 
@@ -3001,7 +2995,6 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		    && (tracker_property_get_indexed (field) || is_domain_index)) {
 
 			field_name = tracker_property_get_name (field);
-			datetime = tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_DATETIME;
 
 			secondary_index = tracker_property_get_secondary_index (field);
 			if (secondary_index == NULL) {
