@@ -2497,13 +2497,36 @@ range_change_for (TrackerProperty *property,
 	}
 }
 
+static void property_get_sql_representation (TrackerProperty  *property,
+                                             const gchar     **type)
+{
+        switch (tracker_property_get_data_type (property)) {
+	case TRACKER_PROPERTY_TYPE_STRING:
+	case TRACKER_PROPERTY_TYPE_LANGSTRING:
+		*type = "TEXT";
+		break;
+	case TRACKER_PROPERTY_TYPE_INTEGER:
+	case TRACKER_PROPERTY_TYPE_BOOLEAN:
+	case TRACKER_PROPERTY_TYPE_DATE:
+	case TRACKER_PROPERTY_TYPE_DATETIME:
+	case TRACKER_PROPERTY_TYPE_RESOURCE:
+		*type = "INTEGER";
+		break;
+	case TRACKER_PROPERTY_TYPE_DOUBLE:
+		*type = "REAL";
+		break;
+	case TRACKER_PROPERTY_TYPE_UNKNOWN:
+                g_assert_not_reached();
+		break;
+	}
+}
+
 static void
 create_decomposed_metadata_property_table (TrackerDBInterface *iface,
                                            TrackerProperty    *property,
                                            const gchar        *database,
                                            const gchar        *service_name,
                                            TrackerClass       *service,
-                                           const gchar       **sql_type_for_single_value,
                                            gboolean            in_update,
                                            gboolean            in_change,
                                            GError            **error)
@@ -2512,161 +2535,138 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	const char *field_name;
 	const char *sql_type;
 
-	field_name = tracker_property_get_name (property);
+        property_get_sql_representation (property, &sql_type);
 
-	switch (tracker_property_get_data_type (property)) {
-	case TRACKER_PROPERTY_TYPE_STRING:
-	case TRACKER_PROPERTY_TYPE_LANGSTRING:
-		sql_type = "TEXT";
-		break;
-	case TRACKER_PROPERTY_TYPE_INTEGER:
-	case TRACKER_PROPERTY_TYPE_BOOLEAN:
-	case TRACKER_PROPERTY_TYPE_DATE:
-	case TRACKER_PROPERTY_TYPE_DATETIME:
-	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		sql_type = "INTEGER";
-		break;
-	case TRACKER_PROPERTY_TYPE_DOUBLE:
-		sql_type = "REAL";
-		break;
-	case TRACKER_PROPERTY_TYPE_UNKNOWN:
-		sql_type = "";
-		break;
-	}
+	field_name = tracker_property_get_name (property);
 
 	if (!in_update || (in_update && (tracker_property_get_is_new (property) ||
 	                                 tracker_property_get_is_new_domain_index (property, service) ||
 	                                 tracker_property_get_cardinality_changed (property) ||
 	                                 tracker_property_get_db_schema_changed (property)))) {
-		if (tracker_property_get_multiple_values (property)) {
-			GString *sql = NULL;
-			GString *in_col_sql = NULL;
-			GString *sel_col_sql = NULL;
 
-			/* multiple values */
+		GString *sql = NULL;
+		GString *in_col_sql = NULL;
+		GString *sel_col_sql = NULL;
 
-			if (in_update) {
-				TRACKER_NOTE (ONTOLOGY_CHANGES,
-				              g_message ("Altering database for class '%s' property '%s': multi value",
-				                         service_name, field_name));
-			}
+		if (in_update) {
+			TRACKER_NOTE (ONTOLOGY_CHANGES,
+			              g_message ("Altering database for class '%s' property '%s': multi value",
+			                         service_name, field_name));
+		}
 
-			if (in_change && !tracker_property_get_is_new (property) && !tracker_property_get_cardinality_changed (property)) {
-				TRACKER_NOTE (ONTOLOGY_CHANGES,
-				              g_message ("Drop index: DROP INDEX IF EXISTS \"%s_%s_ID\"\nRename: ALTER TABLE \"%s_%s\" RENAME TO \"%s_%s_TEMP\"",
-				                         service_name, field_name, service_name, field_name, service_name, field_name));
-
-				tracker_db_interface_execute_query (iface, &internal_error,
-				                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s_ID\"",
-				                                    database,
-				                                    service_name,
-				                                    field_name);
-
-				if (internal_error) {
-					g_propagate_error (error, internal_error);
-					goto error_out;
-				}
-
-				tracker_db_interface_execute_query (iface, &internal_error,
-				                                    "ALTER TABLE \"%s\".\"%s_%s\" RENAME TO \"%s_%s_TEMP\"",
-				                                    database, service_name, field_name,
-				                                    service_name, field_name);
-
-				if (internal_error) {
-					g_propagate_error (error, internal_error);
-					goto error_out;
-				}
-			} else if (in_change && tracker_property_get_cardinality_changed (property)) {
-				/* We should be dropping all indices colliding with the new table name */
-				tracker_db_interface_execute_query (iface, &internal_error,
-				                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s\"",
-				                                    database,
-				                                    service_name,
-				                                    field_name);
-			}
-
-			sql = g_string_new ("");
-			g_string_append_printf (sql,
-			                        "CREATE TABLE \"%s\".\"%s_%s\" ("
-			                        "ID INTEGER NOT NULL, "
-			                        "\"%s\" %s NOT NULL",
-			                        database,
-			                        service_name,
-			                        field_name,
-			                        field_name,
-			                        sql_type);
-
-			if (in_change && !tracker_property_get_is_new (property)) {
-				in_col_sql = g_string_new ("ID");
-				sel_col_sql = g_string_new ("ID");
-
-				range_change_for (property, in_col_sql, sel_col_sql, field_name);
-			}
+		if (in_change && !tracker_property_get_is_new (property) && !tracker_property_get_cardinality_changed (property)) {
+			TRACKER_NOTE (ONTOLOGY_CHANGES,
+			              g_message ("Drop index: DROP INDEX IF EXISTS \"%s_%s_ID\"\nRename: ALTER TABLE \"%s_%s\" RENAME TO \"%s_%s_TEMP\"",
+			                         service_name, field_name, service_name, field_name, service_name, field_name));
 
 			tracker_db_interface_execute_query (iface, &internal_error,
-			                                    "%s)", sql->str);
+			                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s_ID\"",
+			                                    database,
+			                                    service_name,
+			                                    field_name);
 
 			if (internal_error) {
 				g_propagate_error (error, internal_error);
 				goto error_out;
 			}
 
-			/* multiple values */
-                        set_index_for_multi_value_property (iface, database, service, property, &internal_error);
-                        if (internal_error) {
-                                g_propagate_error (error, internal_error);
-                                goto error_out;
-                        }
+			tracker_db_interface_execute_query (iface, &internal_error,
+			                                    "ALTER TABLE \"%s\".\"%s_%s\" RENAME TO \"%s_%s_TEMP\"",
+			                                    database, service_name, field_name,
+			                                    service_name, field_name);
 
-			if (in_change && !tracker_property_get_is_new (property) &&
-			    !tracker_property_get_cardinality_changed (property) && in_col_sql && sel_col_sql) {
-				gchar *query;
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				goto error_out;
+			}
+		} else if (in_change && tracker_property_get_cardinality_changed (property)) {
+			/* We should be dropping all indices colliding with the new table name */
+			tracker_db_interface_execute_query (iface, &internal_error,
+			                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s\"",
+			                                    database,
+			                                    service_name,
+			                                    field_name);
+		}
 
-				query = g_strdup_printf ("INSERT INTO \"%s\".\"%s_%s\"(%s) "
-				                         "SELECT %s FROM \"%s\".\"%s_%s_TEMP\"",
-				                         database, service_name, field_name, in_col_sql->str,
-				                         sel_col_sql->str, database, service_name, field_name);
+		sql = g_string_new ("");
+		g_string_append_printf (sql,
+		                        "CREATE TABLE \"%s\".\"%s_%s\" ("
+		                        "ID INTEGER NOT NULL, "
+		                        "\"%s\" %s NOT NULL",
+		                        database,
+		                        service_name,
+		                        field_name,
+		                        field_name,
+		                        sql_type);
 
-				tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
+		if (in_change && !tracker_property_get_is_new (property)) {
+			in_col_sql = g_string_new ("ID");
+			sel_col_sql = g_string_new ("ID");
 
-				if (internal_error) {
-					g_free (query);
-					g_propagate_error (error, internal_error);
-					goto error_out;
-				}
+			range_change_for (property, in_col_sql, sel_col_sql, field_name);
+		}
 
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "%s)", sql->str);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			goto error_out;
+		}
+
+		/* multiple values */
+                set_index_for_multi_value_property (iface, database, service, property, &internal_error);
+                if (internal_error) {
+                        g_propagate_error (error, internal_error);
+                        goto error_out;
+                }
+
+		if (in_change && !tracker_property_get_is_new (property) &&
+		    !tracker_property_get_cardinality_changed (property) && in_col_sql && sel_col_sql) {
+			gchar *query;
+
+			query = g_strdup_printf ("INSERT INTO \"%s\".\"%s_%s\"(%s) "
+			                         "SELECT %s FROM \"%s\".\"%s_%s_TEMP\"",
+			                         database, service_name, field_name, in_col_sql->str,
+			                         sel_col_sql->str, database, service_name, field_name);
+
+			tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
+
+			if (internal_error) {
 				g_free (query);
-				tracker_db_interface_execute_query (iface, &internal_error, "DROP TABLE \"%s\".\"%s_%s_TEMP\"",
-				                                    database, service_name, field_name);
-
-				if (internal_error) {
-					g_propagate_error (error, internal_error);
-					goto error_out;
-				}
+				g_propagate_error (error, internal_error);
+				goto error_out;
 			}
 
-			/* multiple values */
-                        set_index_for_multi_value_property (iface, database, service, property, &internal_error);
-                        if (internal_error) {
-                                g_propagate_error (error, internal_error);
-                                goto error_out;
-                        }
+			g_free (query);
+			tracker_db_interface_execute_query (iface, &internal_error, "DROP TABLE \"%s\".\"%s_%s_TEMP\"",
+			                                    database, service_name, field_name);
 
-			error_out:
-
-			if (sql) {
-				g_string_free (sql, TRUE);
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				goto error_out;
 			}
+		}
 
-			if (sel_col_sql) {
-				g_string_free (sel_col_sql, TRUE);
-			}
+		/* multiple values */
+                set_index_for_multi_value_property (iface, database, service, property, &internal_error);
+                if (internal_error) {
+                        g_propagate_error (error, internal_error);
+                        goto error_out;
+                }
 
-			if (in_col_sql) {
-				g_string_free (in_col_sql, TRUE);
-			}
-		} else if (sql_type_for_single_value) {
-			*sql_type_for_single_value = sql_type;
+		error_out:
+
+		if (sql) {
+			g_string_free (sql, TRUE);
+		}
+
+		if (sel_col_sql) {
+			g_string_free (sel_col_sql, TRUE);
+		}
+
+		if (in_col_sql) {
+			g_string_free (in_col_sql, TRUE);
 		}
 	}
 }
@@ -2807,7 +2807,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 	domain_indexes = tracker_class_get_domain_indexes (service);
 
 	for (i = 0; i < n_props; i++) {
-                const gchar *sql_type_for_single_value = NULL;
+                const gchar *sql_type;
 		gboolean put_change;
 		const gchar *field_name;
 		gboolean is_domain_index;
@@ -2819,27 +2819,27 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
                         continue;
                 }
 
-		create_decomposed_metadata_property_table (iface, property,
-							   database,
-		                                           service_name,
-		                                           service,
-		                                           &sql_type_for_single_value,
-		                                           in_alter,
-		                                           in_change,
-		                                           &internal_error);
+                if (tracker_property_get_multiple_values (property)) {
+                        /* Multi-valued property. */
 
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			goto error_out;
-		}
-
-
-		if (!sql_type_for_single_value)
+                        create_decomposed_metadata_property_table (iface, property,
+                                                                   database,
+                                                                   service_name,
+                                                                   service,
+                                                                   in_alter,
+                                                                   in_change,
+                                                                   &internal_error);
+                        if (internal_error) {
+                                g_propagate_error (error, internal_error);
+                                goto error_out;
+                        }
                         continue;
+                }
 
-                /* single value */
+                /* Single-valued property. */
 
                 field_name = tracker_property_get_name (property);
+                property_get_sql_representation (property, &sql_type);
 
 		if (in_update) {
 			TRACKER_NOTE (ONTOLOGY_CHANGES,
@@ -2856,7 +2856,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 
 			g_string_append_printf (create_sql, ", \"%s\" %s",
 			                        field_name,
-			                        sql_type_for_single_value);
+			                        sql_type);
 
 			if (!copy_schedule) {
 				copy_schedule = g_ptr_array_new_with_free_func (g_free);
@@ -2866,8 +2866,8 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 				schedule_copy (copy_schedule, property, field_name, NULL);
 			}
 
-			if (g_ascii_strcasecmp (sql_type_for_single_value, "TEXT") == 0 ||
-			    g_ascii_strcasecmp (sql_type_for_single_value, "BLOB") == 0) {
+			if (g_ascii_strcasecmp (sql_type, "TEXT") == 0 ||
+			    g_ascii_strcasecmp (sql_type, "BLOB") == 0) {
 				g_string_append (create_sql, " COLLATE " TRACKER_COLLATION_NAME);
 			}
 
@@ -2886,10 +2886,10 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 			                        database,
 			                        service_name,
 			                        field_name,
-			                        sql_type_for_single_value);
+			                        sql_type);
 
-			if (g_ascii_strcasecmp (sql_type_for_single_value, "TEXT") == 0 ||
-			    g_ascii_strcasecmp (sql_type_for_single_value, "BLOB") == 0) {
+			if (g_ascii_strcasecmp (sql_type, "TEXT") == 0 ||
+			    g_ascii_strcasecmp (sql_type, "BLOB") == 0) {
 				g_string_append (alter_sql, " COLLATE " TRACKER_COLLATION_NAME);
 			}
 
