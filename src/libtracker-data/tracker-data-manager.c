@@ -236,25 +236,27 @@ handle_unsupported_ontology_change (TrackerDataManager  *manager,
 static void
 set_secondary_index_for_single_value_property (TrackerDBInterface  *iface,
                                                const gchar         *database,
-                                               const gchar         *service_name,
+                                               TrackerClass        *class,
                                                TrackerProperty     *property,
-                                               const gchar         *second_field_name,
+                                               TrackerProperty     *secondary,
                                                gboolean             enabled,
                                                GError             **error)
 {
 	GError *internal_error = NULL;
-        const gchar *field_name = tracker_property_get_name (property);
+        const gchar *class_name = tracker_class_get_name (class);
+        const gchar *property_name = tracker_property_get_name (property);
+        const gchar *secondary_name = tracker_property_get_name (secondary);
 
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
 	              g_message ("Dropping secondary index (single-value property):  "
 	                         "DROP INDEX IF EXISTS \"%s_%s\"",
-	                         service_name, field_name));
+	                         class_name, property_name));
 
 	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s\"",
 	                                    database,
-	                                    service_name,
-	                                    field_name);
+	                                    class_name,
+	                                    property_name);
 
 	if (internal_error) {
 		g_propagate_error (error, internal_error);
@@ -265,16 +267,16 @@ set_secondary_index_for_single_value_property (TrackerDBInterface  *iface,
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
 		              g_message ("Creating secondary index (single-value property): "
 		                         "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
-		                         service_name, field_name, service_name, field_name, second_field_name));
+		                         class_name, property_name, class_name, property_name, secondary_name));
 
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE INDEX \"%s\".\"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
 		                                    database,
-		                                    service_name,
-		                                    field_name,
-		                                    service_name,
-		                                    field_name,
-		                                    second_field_name);
+		                                    class_name,
+		                                    property_name,
+		                                    class_name,
+		                                    property_name,
+		                                    secondary_name);
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
@@ -643,8 +645,8 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 			                                     tracker_property_get_indexed (property),
 			                                     &internal_error);
 		} else {
-			set_secondary_index_for_single_value_property (iface, database, service_name, property,
-			                                               tracker_property_get_name (secondary_index),
+			set_secondary_index_for_single_value_property (iface, database, class, property,
+			                                               secondary_index,
 			                                               tracker_property_get_indexed (property),
 			                                               &internal_error);
 		}
@@ -2970,8 +2972,8 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 					goto error_out;
 				}
 			} else {
-				set_secondary_index_for_single_value_property (iface, database, service_name, field,
-				                                               tracker_property_get_name (secondary_index),
+				set_secondary_index_for_single_value_property (iface, database, service, field,
+				                                               secondary_index,
 				                                               TRUE, &internal_error);
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
