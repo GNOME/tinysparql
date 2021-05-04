@@ -340,24 +340,25 @@ set_index_for_single_value_property (TrackerDBInterface  *iface,
 static void
 set_index_for_multi_value_property (TrackerDBInterface  *iface,
                                     const gchar         *database,
-                                    const gchar         *service_name,
+                                    TrackerClass        *class,
                                     TrackerProperty     *property,
                                     GError             **error)
 {
 	GError *internal_error = NULL;
 	gchar *expr;
-        const gchar *field_name = tracker_property_get_name (property);
+        const gchar *class_name = tracker_class_get_name (class);
+        const gchar *property_name = tracker_property_get_name (property);
 
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
 	              g_message ("Dropping index (multi-value property): "
 	                         "DROP INDEX IF EXISTS \"%s_%s_ID_ID\"",
-	                         service_name, field_name));
+	                         class_name, property_name));
 
 	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s_ID_ID\"",
 	                                    database,
-	                                    service_name,
-	                                    field_name);
+	                                    class_name,
+	                                    property_name);
 
 	if (internal_error) {
 		g_propagate_error (error, internal_error);
@@ -370,12 +371,12 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
 	              g_message ("Dropping index (multi-value property): "
 	                         "DROP INDEX IF EXISTS \"%s_%s_ID\"",
-	                         service_name, field_name));
+	                         class_name, property_name));
 	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s_ID\"",
 	                                    database,
-	                                    service_name,
-	                                    field_name);
+	                                    class_name,
+	                                    property_name);
 
 	if (internal_error) {
 		g_propagate_error (error, internal_error);
@@ -383,9 +384,9 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 	}
 
 	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME)
-		expr = g_strdup_printf ("SparqlTimeSort(\"%s\")", field_name);
+		expr = g_strdup_printf ("SparqlTimeSort(\"%s\")", property_name);
 	else
-		expr = g_strdup_printf ("\"%s\"", field_name);
+		expr = g_strdup_printf ("\"%s\"", property_name);
 
 	if (tracker_property_get_indexed (property)) {
                 /* use different UNIQUE index for properties whose
@@ -394,15 +395,15 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
 		              g_message ("Creating index (multi-value property): "
 		                         "CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
-		                         service_name, field_name, service_name, field_name));
+		                         class_name, property_name, class_name, property_name));
 
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE INDEX \"%s\".\"%s_%s_ID\" ON \"%s_%s\" (ID)",
 		                                    database,
-		                                    service_name,
-		                                    field_name,
-		                                    service_name,
-		                                    field_name);
+		                                    class_name,
+		                                    property_name,
+		                                    class_name,
+		                                    property_name);
 
 		if (internal_error)
 			goto out;
@@ -410,15 +411,15 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
 		              g_message ("Creating index (multi-value property): "
 		                        "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (%s, ID)",
-		                        service_name, field_name, service_name, field_name, expr));
+		                        class_name, property_name, class_name, property_name, expr));
 
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE UNIQUE INDEX \"%s\".\"%s_%s_ID_ID\" ON \"%s_%s\" (%s, ID)",
 		                                    database,
-		                                    service_name,
-		                                    field_name,
-		                                    service_name,
-		                                    field_name,
+		                                    class_name,
+		                                    property_name,
+		                                    class_name,
+		                                    property_name,
 		                                    expr);
 
 		if (internal_error)
@@ -430,15 +431,15 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
 		              g_message ("Creating index (multi-value property): "
 		                         "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (ID, %s)",
-		                         service_name, field_name, service_name, field_name, expr));
+		                         class_name, property_name, class_name, property_name, expr));
 
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE UNIQUE INDEX \"%s\".\"%s_%s_ID_ID\" ON \"%s_%s\" (ID, %s)",
 		                                    database,
-		                                    service_name,
-		                                    field_name,
-		                                    service_name,
-		                                    field_name,
+		                                    class_name,
+		                                    property_name,
+		                                    class_name,
+		                                    property_name,
 		                                    expr);
 
 		if (internal_error)
@@ -630,7 +631,7 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 	service_name = tracker_class_get_name (class);
 
 	if (tracker_property_get_multiple_values (property)) {
-		set_index_for_multi_value_property (iface, database, service_name, property, &internal_error);
+		set_index_for_multi_value_property (iface, database, class, property, &internal_error);
 	} else {
 		TrackerProperty *secondary_index;
 		TrackerClass **domain_index_classes;
@@ -2611,7 +2612,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			}
 
 			/* multiple values */
-                        set_index_for_multi_value_property (iface, database, service_name, property, &internal_error);
+                        set_index_for_multi_value_property (iface, database, service, property, &internal_error);
                         if (internal_error) {
                                 g_propagate_error (error, internal_error);
                                 goto error_out;
@@ -2645,7 +2646,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			}
 
 			/* multiple values */
-                        set_index_for_multi_value_property (iface, database, service_name, property, &internal_error);
+                        set_index_for_multi_value_property (iface, database, service, property, &internal_error);
                         if (internal_error) {
                                 g_propagate_error (error, internal_error);
                                 goto error_out;
