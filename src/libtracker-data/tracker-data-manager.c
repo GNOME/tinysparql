@@ -2624,13 +2624,6 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			goto error_out;
 		}
 
-		/* multiple values */
-                set_index_for_multi_value_property (iface, database, service, property, &internal_error);
-                if (internal_error) {
-                        g_propagate_error (error, internal_error);
-                        goto error_out;
-                }
-
 		if (in_change && !tracker_property_get_is_new (property) &&
 		    !tracker_property_get_cardinality_changed (property) && in_col_sql && sel_col_sql) {
 			gchar *query;
@@ -2658,7 +2651,6 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			}
 		}
 
-		/* multiple values */
                 set_index_for_multi_value_property (iface, database, service, property, &internal_error);
                 if (internal_error) {
                         g_propagate_error (error, internal_error);
