@@ -626,12 +626,9 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 	GError *internal_error = NULL;
 	TrackerDBInterface *iface;
 	TrackerClass *class;
-	const gchar *service_name;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
-
-	class = tracker_property_get_domain (property);
-	service_name = tracker_class_get_name (class);
+        class = tracker_property_get_domain (property);
 
 	if (tracker_property_get_multiple_values (property)) {
 		set_index_for_multi_value_property (iface, database, class, property, &internal_error);
