@@ -237,12 +237,13 @@ static void
 set_secondary_index_for_single_value_property (TrackerDBInterface  *iface,
                                                const gchar         *database,
                                                const gchar         *service_name,
-                                               const gchar         *field_name,
+                                               TrackerProperty     *property,
                                                const gchar         *second_field_name,
                                                gboolean             enabled,
                                                GError             **error)
 {
 	GError *internal_error = NULL;
+        const gchar *field_name = tracker_property_get_name (property);
 
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
 	              g_message ("Dropping secondary index (single-value property):  "
@@ -622,12 +623,10 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 	TrackerDBInterface *iface;
 	TrackerClass *class;
 	const gchar *service_name;
-	const gchar *field_name;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
 	class = tracker_property_get_domain (property);
-	field_name = tracker_property_get_name (property);
 	service_name = tracker_class_get_name (class);
 
 	if (tracker_property_get_multiple_values (property)) {
@@ -642,7 +641,7 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 			                                     tracker_property_get_indexed (property),
 			                                     &internal_error);
 		} else {
-			set_secondary_index_for_single_value_property (iface, database, service_name, field_name,
+			set_secondary_index_for_single_value_property (iface, database, service_name, property,
 			                                               tracker_property_get_name (secondary_index),
 			                                               tracker_property_get_indexed (property),
 			                                               &internal_error);
@@ -2949,7 +2948,6 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 	/* create index for single-valued fields */
 	for (field_it = class_properties; field_it != NULL; field_it = field_it->next) {
 		TrackerProperty *field, *secondary_index;
-		const char *field_name;
 		gboolean is_domain_index;
 
 		field = field_it->data;
@@ -2959,8 +2957,6 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 
 		if (!tracker_property_get_multiple_values (field)
 		    && (tracker_property_get_indexed (field) || is_domain_index)) {
-
-			field_name = tracker_property_get_name (field);
 
 			secondary_index = tracker_property_get_secondary_index (field);
 			if (secondary_index == NULL) {
@@ -2972,7 +2968,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 					goto error_out;
 				}
 			} else {
-				set_secondary_index_for_single_value_property (iface, database, service_name, field_name,
+				set_secondary_index_for_single_value_property (iface, database, service_name, field,
 				                                               tracker_property_get_name (secondary_index),
 				                                               TRUE, &internal_error);
 				if (internal_error) {
