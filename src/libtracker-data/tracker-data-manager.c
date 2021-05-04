@@ -2498,27 +2498,37 @@ range_change_for (TrackerProperty *property,
 }
 
 static void property_get_sql_representation (TrackerProperty  *property,
-                                             const gchar     **type)
+                                             const gchar     **type,
+                                             const gchar     **collation)
 {
+        const gchar *_type = NULL;
+        const gchar *_collation = NULL;
+
         switch (tracker_property_get_data_type (property)) {
 	case TRACKER_PROPERTY_TYPE_STRING:
 	case TRACKER_PROPERTY_TYPE_LANGSTRING:
-		*type = "TEXT";
+		_type = "TEXT";
+                _collation = TRACKER_COLLATION_NAME;
 		break;
 	case TRACKER_PROPERTY_TYPE_INTEGER:
 	case TRACKER_PROPERTY_TYPE_BOOLEAN:
 	case TRACKER_PROPERTY_TYPE_DATE:
 	case TRACKER_PROPERTY_TYPE_DATETIME:
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		*type = "INTEGER";
+		_type = "INTEGER";
 		break;
 	case TRACKER_PROPERTY_TYPE_DOUBLE:
-		*type = "REAL";
+		_type = "REAL";
 		break;
 	case TRACKER_PROPERTY_TYPE_UNKNOWN:
                 g_assert_not_reached();
 		break;
 	}
+
+        if (type)
+                *type = _type;
+        if (collation)
+                *collation = _collation;
 }
 
 static void
@@ -2535,7 +2545,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	const char *field_name;
 	const char *sql_type;
 
-        property_get_sql_representation (property, &sql_type);
+        property_get_sql_representation (property, &sql_type, NULL);
 
 	field_name = tracker_property_get_name (property);
 
@@ -2808,6 +2818,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 
 	for (i = 0; i < n_props; i++) {
                 const gchar *sql_type;
+                const gchar *sql_collation;
 		gboolean put_change;
 		const gchar *field_name;
 		gboolean is_domain_index;
@@ -2839,7 +2850,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
                 /* Single-valued property. */
 
                 field_name = tracker_property_get_name (property);
-                property_get_sql_representation (property, &sql_type);
+                property_get_sql_representation (property, &sql_type, &sql_collation);
 
 		if (in_update) {
 			TRACKER_NOTE (ONTOLOGY_CHANGES,
@@ -2866,9 +2877,8 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 				schedule_copy (copy_schedule, property, field_name, NULL);
 			}
 
-			if (g_ascii_strcasecmp (sql_type, "TEXT") == 0 ||
-			    g_ascii_strcasecmp (sql_type, "BLOB") == 0) {
-				g_string_append (create_sql, " COLLATE " TRACKER_COLLATION_NAME);
+			if (sql_collation) {
+				g_string_append_printf (create_sql, " COLLATE %s", sql_collation);
 			}
 
 			if (tracker_property_get_is_inverse_functional_property (property)) {
@@ -2888,9 +2898,8 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 			                        field_name,
 			                        sql_type);
 
-			if (g_ascii_strcasecmp (sql_type, "TEXT") == 0 ||
-			    g_ascii_strcasecmp (sql_type, "BLOB") == 0) {
-				g_string_append (alter_sql, " COLLATE " TRACKER_COLLATION_NAME);
+			if (sql_collation) {
+				g_string_append_printf (alter_sql, " COLLATE %s", sql_collation);
 			}
 
 			if (tracker_property_get_is_inverse_functional_property (property)) {
