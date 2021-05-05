@@ -136,20 +136,21 @@ pkg.generate(libtracker_sparql,
     ],
 )
 
-tracker_sparql_gir = gnome.generate_gir(libtracker_sparql,
-    sources: libtracker_sparql_c_sources + libtracker_sparql_c_public_headers,
-    nsversion: tracker_api_version,
-    namespace: 'Tracker',
-    identifier_prefix: 'Tracker',
-    symbol_prefix: 'tracker',
-    includes : ['GLib-2.0', 'GObject-2.0', 'Gio-2.0' ],
-    link_with: libtracker_sparql,
-    install: true,
-    extra_args: [
-        '--c-include',
-        'libtracker-sparql/tracker-sparql.h',
-        '-DTRACKER_COMPILATION',
-    ],
-    export_packages: 'tracker-sparql-3.0')
-
+if get_option('introspection').enabled()
+    tracker_sparql_gir = gnome.generate_gir(libtracker_sparql,
+        sources: libtracker_sparql_c_sources + libtracker_sparql_c_public_headers,
+        nsversion: tracker_api_version,
+        namespace: 'Tracker',
+        identifier_prefix: 'Tracker',
+        symbol_prefix: 'tracker',
+        includes : ['GLib-2.0', 'GObject-2.0', 'Gio-2.0' ],
+        link_with: libtracker_sparql,
+        install: true,
+        extra_args: [
+            '--c-include',
+            'libtracker-sparql/tracker-sparql.h',
+            '-DTRACKER_COMPILATION',
+        ],
+        export_packages: 'tracker-sparql-3.0')
+endif
 tracker_sparql_uninstalled_dir = meson.current_build_dir()

@@ -43,7 +43,7 @@ gio_unix = dependency('gio-unix-2.0', version: '>' + glib_required)
 glib = dependency('glib-2.0', version: '>' + glib_required)
 gmodule = dependency('gmodule-2.0', version: '>' + glib_required)
 gobject = dependency('gobject-2.0', version: '>' + glib_required)
-gobject_introspection = dependency('gobject-introspection-1.0')
+gobject_introspection = dependency('gobject-introspection-1.0', required: get_option('introspection'))
 icu_i18n = dependency('icu-i18n', version: '> 4.8.1.1', required: false)
 icu_uc = dependency('icu-uc', version: '> 4.8.1.1', required: false)
 json_glib = dependency('json-glib-1.0', version: '>= 1.4', required: true)
@@ -312,8 +312,10 @@ tracker_ontologies_dir = join_paths(get_option('prefix'), get_option('datadir'),
 
 vapi_dir = join_paths(get_option('prefix'), get_option('datadir'), 'vala', 'vapi')
 
-typelib_dir = gobject_introspection.get_pkgconfig_variable('typelibdir',
+if gobject_introspection.found()
+  typelib_dir = gobject_introspection.get_pkgconfig_variable('typelibdir',
                                                            define_variable:  [ 'libdir', libdir ])
+endif
 
 subdir('src')
 subdir('docs')
