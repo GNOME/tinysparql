@@ -86,9 +86,6 @@ cc_warning_flags = [
   '-Werror=switch',
   # Too many warnings in libtracker-data/tracker-sparql-grammar.h
   '-Wno-tautological-constant-out-of-range-compare',
-  # There are various gchar vs. unsigned char warnings that occur in
-  # extract modules, it is not worth adding casts everywhere.
-  '-Wno-pointer-sign',
   # Similarly there are many instances of guint vs. int comparisons.
   # There would be easy but tedious to fix.
   '-Wno-sign-compare',
