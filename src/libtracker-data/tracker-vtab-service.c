@@ -33,6 +33,10 @@
 #define COL_FIRST_PARAMETER COL_LAST
 #define COL_FIRST_VARIABLE (COL_LAST + (N_PARAMETERS * 2))
 
+/* Avoid casts everywhere. */
+#define sqlite3_value_text(x) ((const gchar *) sqlite3_value_text(x))
+#define sqlite3_column_text(x, y) ((const gchar *) sqlite3_column_text(x, y))
+
 typedef struct {
 	sqlite3 *db;
 	TrackerDataManager *data_manager;
