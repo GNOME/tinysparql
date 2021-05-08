@@ -22,6 +22,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	string dbus_name;
 	string object_path;
 	bool sandboxed;
+	NamespaceManager namespaces;
 
 	private const string DBUS_PEER_IFACE = "org.freedesktop.DBus.Peer";
 
@@ -58,6 +59,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 				reply.to_gerror ();
 				this.dbus_name = dbus_name;
 				this.object_path = object_path;
+				yield this.init_namespaces ();
 				return;
 			} catch (GLib.Error e) {
 				if (!GLib.FileUtils.test ("/.flatpak-info", GLib.FileTest.EXISTS)) {
@@ -83,6 +85,16 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		this.dbus_name = PORTAL_NAME;
 		this.object_path = object_path;
 		this.sandboxed = true;
+
+		yield this.init_namespaces ();
+	}
+
+	private async void init_namespaces () throws Sparql.Error, IOError, DBusError, GLib.Error {
+		this.namespaces = new NamespaceManager ();
+		var cursor = yield this.query_async ("SELECT ?prefix ?name { ?name nrl:prefix ?prefix }", null);
+		while (cursor.next ())
+			this.namespaces.add_prefix(cursor.get_string(0), cursor.get_string(1));
+		cursor.close ();
 	}
 
 	static void pipe (out UnixInputStream input, out UnixOutputStream output) throws IOError {
@@ -182,7 +194,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		return new Bus.Statement (bus, dbus_name, object_path, sparql);
 	}
 
-	void send_update (string method, UnixInputStream input, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.Error, GLib.IOError {
+	static void send_update (DBusConnection bus, string dbus_name, string object_path, string method, UnixInputStream input, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.Error, GLib.IOError {
 		var message = new DBusMessage.method_call (dbus_name, object_path, ENDPOINT_IFACE, method);
 		var fd_list = new UnixFDList ();
 		message.set_body (new Variant ("(h)", fd_list.append (input.fd)));
@@ -214,7 +226,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool sent_update = false;
-		send_update ("Update", input, cancellable, (o, res) => {
+		send_update (bus, dbus_name, object_path, "Update", input, cancellable, (o, res) => {
 			dbus_res = res;
 			if (sent_update) {
 				update_async.callback ();
@@ -238,7 +250,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		handle_error_reply (reply);
 	}
 
-	public async override bool update_array_async (string[] sparql, Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, DBusError {
+	public static async bool perform_update_array (DBusConnection bus, string dbus_name, string object_path, string[] sparql, Cancellable? cancellable) throws GLib.IOError, GLib.Error {
 		if (sparql.length == 0)
 			return true;
 
@@ -249,10 +261,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool sent_update = false;
-		send_update ("UpdateArray", input, cancellable, (o, res) => {
+		send_update (bus, dbus_name, object_path, "UpdateArray", input, cancellable, (o, res) => {
 			dbus_res = res;
 			if (sent_update) {
-				update_array_async.callback ();
+				perform_update_array.callback ();
 			}
 		});
 
@@ -278,6 +290,10 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
                 return true;
 	}
 
+	public async override bool update_array_async (string[] sparql, Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, DBusError {
+		return yield perform_update_array (bus, dbus_name, object_path, sparql, cancellable);
+	}
+
 	public override GLib.Variant? update_blank (string sparql, Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, DBusError {
 		// use separate main context for sync operation
 		var context = new MainContext ();
@@ -301,7 +317,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		// send D-Bus request
 		AsyncResult dbus_res = null;
 		bool sent_update = false;
-		send_update ("UpdateBlank", input, cancellable, (o, res) => {
+		send_update (bus, dbus_name, object_path, "UpdateBlank", input, cancellable, (o, res) => {
 			dbus_res = res;
 			if (sent_update) {
 				update_blank_async.callback ();
@@ -324,6 +340,18 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		var reply = bus.send_message_with_reply.end (dbus_res);
 		handle_error_reply (reply);
 		return reply.get_body ().get_child_value (0);
+	}
+
+	public override bool update_resource (string? graph, Resource resource, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
+		var batch = this.create_batch ();
+		batch.add_resource (graph, resource);
+		return batch.execute (cancellable);
+	}
+
+	public async override bool update_resource_async (string? graph, Resource resource, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
+		var batch = this.create_batch ();
+		batch.add_resource (graph, resource);
+		return yield batch.execute_async (cancellable);
 	}
 
 	public override Tracker.Notifier? create_notifier () {
@@ -351,5 +379,16 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public async override bool close_async () throws GLib.IOError {
 		this.close ();
 		return true;
+	}
+
+	public override Tracker.NamespaceManager? get_namespace_manager () {
+		return namespaces;
+	}
+
+	public override Tracker.Batch? create_batch () {
+		var batch = (Tracker.Batch) Object.new (typeof (Tracker.Bus.Batch),
+		                                        "connection", this,
+		                                        null);
+		return batch;
 	}
 }
