@@ -186,7 +186,7 @@ string_chunk_append (TrackerStringChunk *chunk,
 
 	if (chunk->len + len > chunk->allocated_size) {
 		/* Expand size */
-		gssize new_size = fitting_power_of_two (chunk->len + len);
+		gsize new_size = fitting_power_of_two (chunk->len + len);
 
 		g_assert (new_size > chunk->allocated_size);
 		chunk->string = g_realloc (chunk->string, new_size);

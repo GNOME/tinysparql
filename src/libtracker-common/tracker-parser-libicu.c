@@ -64,7 +64,7 @@ struct TrackerParser {
 
 	/* Text as UChars */
 	UChar                 *utxt;
-	gint                   utxt_size;
+	gsize                  utxt_size;
 	/* Original offset of each UChar in the input txt string */
 	gint32                *offsets;
 

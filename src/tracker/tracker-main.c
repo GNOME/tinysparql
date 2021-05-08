@@ -121,7 +121,7 @@ static void
 handle_command (int argc, const char **argv)
 {
 	char *cmd = g_path_get_basename (argv[0]);
-	int i;
+	guint i;
 
 	for (i = 0; i < G_N_ELEMENTS (commands); i++) {
 		struct cmd_struct *p = commands + i;
@@ -151,7 +151,7 @@ mput_char (char c, unsigned int num)
 static void
 print_usage_list_cmds (void)
 {
-	int i, longest = 0;
+	guint i, longest = 0;
 	GList *extra_commands = NULL;
 	GFileEnumerator *enumerator;
 	GFileInfo *info;

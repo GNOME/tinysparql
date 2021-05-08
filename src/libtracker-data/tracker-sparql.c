@@ -628,7 +628,7 @@ static gboolean
 tracker_sparql_graph_is_whitelisted (TrackerSparql *sparql,
                                      const gchar   *graph)
 {
-	gint i;
+	guint i;
 
 	if (!sparql->policy.graphs)
 		return TRUE;
@@ -657,7 +657,7 @@ tracker_sparql_get_effective_graphs (TrackerSparql *sparql)
 
 	if (graphs && sparql->policy.graphs) {
 		if (!sparql->policy.filtered_graphs) {
-			gint i;
+			guint i;
 
 			sparql->policy.filtered_graphs =
 				g_hash_table_new_full (g_str_hash,
@@ -1651,7 +1651,7 @@ _add_quad (TrackerSparql  *sparql,
 				if (binding_list) {
 					TrackerClass *domain_index = NULL;
 					TrackerClass **classes;
-					gint i = 0, j;
+					guint i = 0, j;
 
 					classes = tracker_property_get_domain_indexes (property);
 
@@ -2244,7 +2244,7 @@ _end_triples_block (TrackerSparql  *sparql,
 	TrackerContext *context;
 	GHashTableIter iter;
 	gboolean first = TRUE;
-	gint i;
+	guint i;
 
 	context = sparql->current_state->context;
 	g_assert (TRACKER_IS_TRIPLE_CONTEXT (context));
@@ -2858,7 +2858,7 @@ intersect_set (GPtrArray *array,
                GPtrArray *set)
 {
 	const gchar *set_graph, *graph;
-	gint i = 0, j;
+	guint i = 0, j;
 	gboolean found;
 
 	while (i < array->len) {
@@ -5287,7 +5287,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 	if (sparql->policy.services &&
 	    tracker_token_get_literal (&service)) {
 		gboolean found = FALSE;
-		gint i;
+		guint i;
 
 		for (i = 0; i < sparql->policy.services->len; i++) {
 			if (g_strcmp0 (g_ptr_array_index (sparql->policy.services, i),
@@ -5872,7 +5872,7 @@ translate_GroupOrUnionGraphPattern (TrackerSparql  *sparql,
 	TrackerContext *context;
 	GPtrArray *placeholders;
 	GList *vars, *c;
-	gint idx = 0;
+	guint idx = 0;
 	gboolean do_join;
 
 	/* GroupOrUnionGraphPattern ::= GroupGraphPattern ( 'UNION' GroupGraphPattern )*
@@ -6424,7 +6424,7 @@ translate_PathAlternative (TrackerSparql  *sparql,
 
 	if (path_elems->len > 1) {
 		TrackerPathElement *path_elem;
-		gint i;
+		guint i;
 
 		path_elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_ALTERNATIVE,
 		                                               tracker_token_get_idstring (&sparql->current_state->graph),
@@ -6661,7 +6661,7 @@ translate_PathNegatedPropertySet (TrackerSparql  *sparql,
 		}
 
 		if (path_elems->len > 1) {
-			gint i;
+			guint i;
 
 			path_elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_INTERSECTION,
 			                                               tracker_token_get_idstring (&sparql->current_state->graph),
@@ -6890,7 +6890,7 @@ translate_Collection (TrackerSparql  *sparql,
 {
 	TrackerToken old_subject, old_predicate, old_object, *old_token, *cur;
 	GArray *elems;
-	gint i;
+	guint i;
 
 	/* Collection ::= '(' GraphNode+ ')'
 	 */

@@ -145,8 +145,8 @@ struct _TrackerToken {
 struct _TrackerSolution {
 	GPtrArray *columns;
 	GPtrArray *values;
-	int solution_index;
-	int n_cols;
+	guint solution_index;
+	guint n_cols;
 };
 
 typedef enum {

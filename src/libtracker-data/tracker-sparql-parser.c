@@ -76,7 +76,7 @@ struct _TrackerParserState {
 
 struct _TrackerGrammarParser {
 	const gchar *query;
-	gsize query_len;
+	gssize query_len;
 };
 
 static TrackerNodeTree *
@@ -424,7 +424,7 @@ tracker_grammar_parser_apply_rule_literal (TrackerGrammarParser     *parser,
 {
 	TrackerParserNode *node;
 	gboolean next_isalnum;
-	gsize len;
+	gssize len;
 
 	if (rule->string[0] != parser->query[state->current] &&
 	    rule->string[0] != g_ascii_tolower (parser->query[state->current]))
@@ -743,7 +743,7 @@ tracker_parser_state_propagate_error (TrackerGrammarParser  *parser,
 		rule = g_ptr_array_index (state->error_rules, 0);
 		append_rule (str, rule);
 	} else {
-		gint i;
+		guint i;
 
 		g_string_append (str, "one of ");
 		repeated = g_hash_table_new (rule_hash, rule_equals);

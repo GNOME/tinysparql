@@ -503,7 +503,7 @@ insert_statement_cb (gint         graph_id,
 	TrackerProperty *rdf_type = tracker_ontologies_get_rdf_type (ontologies);
 	TrackerNotifierEventCache *cache;
 	TrackerClass *new_class = NULL;
-	gint i;
+	guint i;
 
 	cache = lookup_event_cache (notifier, graph_id, graph);
 
@@ -549,7 +549,7 @@ delete_statement_cb (gint         graph_id,
 	TrackerProperty *rdf_type = tracker_ontologies_get_rdf_type (ontologies);
 	TrackerNotifierEventCache *cache;
 	TrackerClass *class_being_removed = NULL;
-	gint i;
+	guint i;
 
 	cache = lookup_event_cache (notifier, graph_id, graph);
 

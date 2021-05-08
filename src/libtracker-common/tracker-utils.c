@@ -93,7 +93,7 @@ tracker_utf8_truncate (const gchar  *str,
 {
 	gchar *retv = NULL;
 
-	if (g_utf8_strlen (str, -1) > max_size) {
+	if ((gsize) g_utf8_strlen (str, -1) > max_size) {
 		gchar *substring = g_utf8_substring (str, 0, max_size - 3);
 		retv = g_strdup_printf ("%s[…]", substring);
 		g_free (substring);
@@ -261,7 +261,7 @@ tracker_resolve_relative_uri (const gchar  *base,
 	gchar **base_split, **rel_split, *host;
 	GPtrArray *base_norm, *rel_norm;
 	GString *str;
-	gint i;
+	guint i;
 
 	/* Relative IRIs are combined with base IRIs with a simplified version
 	 * of the algorithm described at RFC3986, Section 5.2. We don't care

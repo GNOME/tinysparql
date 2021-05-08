@@ -355,7 +355,7 @@ check_result (TrackerDBCursor *cursor,
 	test_results = g_string_new ("");
 
 	if (cursor) {
-		gint col;
+		guint col;
 
 		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
 			GString *row_str = g_string_new (NULL);

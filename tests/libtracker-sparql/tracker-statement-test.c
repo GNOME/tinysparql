@@ -284,7 +284,7 @@ add_tests (TrackerSparqlConnection *conn,
            const gchar             *name,
            gboolean                 run_service_tests)
 {
-	gint i;
+	guint i;
 
 	for (i = 0; i < G_N_ELEMENTS (tests); i++) {
 		gchar *testpath;

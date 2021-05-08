@@ -255,7 +255,7 @@ main (int argc, char **argv)
 {
 	GError *error = NULL;
 	gint result;
-	gint i;
+	guint i;
 
 	setlocale (LC_COLLATE, "en_US.utf8");
 

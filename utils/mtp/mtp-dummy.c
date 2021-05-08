@@ -38,7 +38,7 @@ static gboolean use_hidden;
 static gboolean use_batch;
 
 /* copy_rate*1024*COPY_TIMEOUT_MS/1000 */
-static gint timeout_copy_rate;
+static gsize timeout_copy_rate;
 
 static gchar *buffer;
 static gsize  buffer_size;
@@ -298,7 +298,7 @@ Simulating MTP daemon with:\n\
   * File:    %s (%" G_GSIZE_FORMAT " bytes)\n\
   * Destdir: %s\n\
   * Copies:  %d\n\
-  * Rate:    %d KBytes/s (%d bytes every %d ms)\n\
+  * Rate:    %d KBytes/s (%" G_GSIZE_FORMAT "bytes every %d ms)\n\
   * Mode:    %s\n",
 	         file_uri,
 	         buffer_size,
