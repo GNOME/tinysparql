@@ -100,6 +100,21 @@ tracker_sparql_cursor_real_get_boolean (TrackerSparqlCursor *cursor,
 	return g_ascii_strcasecmp (text, "true") == 0;
 }
 
+static GDateTime *
+tracker_sparql_cursor_real_get_datetime (TrackerSparqlCursor *cursor,
+                                         gint                 column)
+{
+	const gchar *text;
+	GDateTime *date_time;
+
+	g_return_val_if_fail (tracker_sparql_cursor_real_is_bound (cursor, column), NULL);
+
+	text = tracker_sparql_cursor_get_string (cursor, column, NULL);
+	date_time = g_date_time_new_from_iso8601 (text, NULL);
+
+	return date_time;
+}
+
 static void
 tracker_sparql_cursor_finalize (GObject *object)
 {
@@ -164,6 +179,7 @@ tracker_sparql_cursor_class_init (TrackerSparqlCursorClass *klass)
 	klass->get_integer = tracker_sparql_cursor_real_get_integer;
 	klass->get_double = tracker_sparql_cursor_real_get_double;
 	klass->get_boolean = tracker_sparql_cursor_real_get_boolean;
+	klass->get_datetime = tracker_sparql_cursor_real_get_datetime;
 	klass->is_bound = tracker_sparql_cursor_real_is_bound;
 
 	/**
@@ -365,6 +381,26 @@ tracker_sparql_cursor_get_variable_name (TrackerSparqlCursor *cursor,
 
 	return TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->get_variable_name (cursor,
 	                                                                    column);
+}
+
+/**
+ * tracker_sparql_cursor_get_datetime:
+ * @cursor: a #TrackerSparqlCursor
+ * @column: column number to retrieve (first one is 0)
+ *
+ * Retrieve an GDateTime pointer for the current row in @column.
+ *
+ * Returns: (transfer full) (nullable): #GDateTime object, or %NULL if the given column does not contain a xsd:date or xsd:dateTime
+ * Since: 3.2
+ */
+GDateTime *
+tracker_sparql_cursor_get_datetime (TrackerSparqlCursor *cursor,
+                                    gint                 column)
+{
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CURSOR (cursor), NULL);
+
+	return TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->get_datetime (cursor,
+	                                                               column);
 }
 
 /**

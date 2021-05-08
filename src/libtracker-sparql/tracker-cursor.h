@@ -90,6 +90,9 @@ TrackerSparqlValueType tracker_sparql_cursor_get_value_type (TrackerSparqlCursor
 TRACKER_AVAILABLE_IN_ALL
 const gchar * tracker_sparql_cursor_get_variable_name (TrackerSparqlCursor *cursor,
                                                        gint                 column);
+TRACKER_AVAILABLE_IN_3_2
+GDateTime * tracker_sparql_cursor_get_datetime (TrackerSparqlCursor *cursor,
+                                                gint                 column);
 TRACKER_AVAILABLE_IN_ALL
 void tracker_sparql_cursor_close (TrackerSparqlCursor *cursor);
 

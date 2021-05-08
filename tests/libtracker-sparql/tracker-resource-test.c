@@ -37,6 +37,7 @@ test_resource_get_empty (void)
 	g_assert_true (tracker_resource_get_first_int64 (resource, "http://example.com/0") == 0);
 	g_assert_true (tracker_resource_get_first_string (resource, "http://example.com/0") == NULL);
 	g_assert_true (tracker_resource_get_first_uri (resource, "http://example.com/0") == NULL);
+	g_assert_true (tracker_resource_get_first_datetime (resource, "http://example.com/0") == NULL);
 
 	g_object_unref (resource);
 }
@@ -45,21 +46,26 @@ static void
 test_resource_get_set_simple (void)
 {
 	TrackerResource *resource;
+	GDateTime *date_time;
 
 	resource = tracker_resource_new ("http://example.com/resource");
+	date_time = g_date_time_new_now_utc ();
 
 	tracker_resource_set_double (resource, "http://example.com/1", 0.6);
 	tracker_resource_set_int (resource, "http://example.com/2", 60);
 	tracker_resource_set_int64 (resource, "http://example.com/3", 123456789);
 	tracker_resource_set_string (resource, "http://example.com/4", "Hello");
 	tracker_resource_set_uri (resource, "http://example.com/5", "http://example.com/");
+	tracker_resource_set_datetime (resource, "http://example.com/6", date_time);
 
 	g_assert_true (tracker_resource_get_first_double (resource, "http://example.com/1") == 0.6);
 	g_assert_cmpint (tracker_resource_get_first_int (resource, "http://example.com/2"), ==, 60);
 	g_assert_true (tracker_resource_get_first_int64 (resource, "http://example.com/3") == 123456789);
 	g_assert_cmpstr (tracker_resource_get_first_string (resource, "http://example.com/4"), ==, "Hello");
 	g_assert_cmpstr (tracker_resource_get_first_uri (resource, "http://example.com/5"), ==, "http://example.com/");
+	g_assert_true (g_date_time_compare (tracker_resource_get_first_datetime (resource, "http://example.com/6"), date_time) == 0);
 
+	g_date_time_unref (date_time);
 	g_object_unref (resource);
 }
 
@@ -101,28 +107,33 @@ test_resource_get_set_many (void)
 	TrackerResource *resource;
 	GValue value = G_VALUE_INIT;
 	GList *list;
+	GDateTime *date_time;
 
 	resource = tracker_resource_new ("http://example.com/resource");
+	date_time = g_date_time_new_now_utc ();
 
 	/* All the add_* functions except for add_gvalue are generated using the
 	 * same macro, so we only need to test one or two of them here.
 	 */
 	tracker_resource_add_int (resource, "http://example.com/0", 60);
 	tracker_resource_add_string (resource, "http://example.com/0", "Hello");
+	tracker_resource_add_datetime (resource, "http://example.com/0", date_time);
 
 	init_gvalue_with_random_type (&value);
 	tracker_resource_add_gvalue (resource, "http://example.com/0", &value);
 	g_value_unset (&value);
 
 	list = tracker_resource_get_values (resource, "http://example.com/0");
-	g_assert_cmpint (g_list_length (list), ==, 3);
+	g_assert_cmpint (g_list_length (list), ==, 4);
 
 	g_assert_cmpint (g_value_get_int (list->data), ==, 60);
 	g_assert_cmpstr (g_value_get_string (list->next->data), ==, "Hello");
-	g_assert_true (G_VALUE_HOLDS (list->next->next->data, RANDOM_GVALUE_TYPE));
+	g_assert_cmpint (g_date_time_compare (g_value_get_boxed (list->next->next->data), date_time), ==, 0);
+	g_assert_true (G_VALUE_HOLDS (list->next->next->next->data, RANDOM_GVALUE_TYPE));
 
 	g_list_free_full (list, (GDestroyNotify) g_value_unset);
 
+	g_date_time_unref (date_time);
 	g_object_unref (resource);
 }
 

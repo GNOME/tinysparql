@@ -49,6 +49,7 @@ TestInfo tests[] = {
 	{ "limit-2", "statement/limit.rq", "statement/limit-2.out", "2" },
 	{ "offset", "statement/offset.rq", "statement/offset.out", "0" },
 	{ "offset-2", "statement/offset.rq", "statement/offset-2.out", "1" },
+	{ "datetime", "statement/datetime.rq", "statement/datetime.out", NULL, NULL, "2020-12-04T04:10:03Z" },
 };
 
 typedef struct {
@@ -82,12 +83,19 @@ check_result (TrackerSparqlCursor *cursor,
 
 		for (col = 0; col < tracker_sparql_cursor_get_n_columns (cursor); col++) {
 			const gchar *str;
+			GDateTime *date_time;
 
 			if (col > 0) {
 				g_string_append (row_str, "\t");
 			}
+			if (g_strcmp0 (g_path_get_basename (results_filename), "datetime.out") == 0) {
 
-			str = tracker_sparql_cursor_get_string (cursor, col, NULL);
+				date_time = tracker_sparql_cursor_get_datetime (cursor, col);
+				str = g_date_time_format_iso8601 (date_time);
+				g_date_time_unref (date_time);
+
+			} else
+				str = tracker_sparql_cursor_get_string (cursor, col, NULL);
 
 			/* Hack to avoid misc properties that might tamper with
 			 * test reproduceability in DESCRIBE and other unrestricted
@@ -160,6 +168,7 @@ query_statement (TestInfo      *test_info,
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	gchar *path, *query;
+	GDateTime *date_time;
 
 	path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
 	                         test_info->query_file, NULL);
@@ -184,8 +193,11 @@ query_statement (TestInfo      *test_info,
 		tracker_sparql_statement_bind_string (stmt, "arg1", test_info->arg1);
 	if (test_info->arg2)
 		tracker_sparql_statement_bind_string (stmt, "arg2", test_info->arg2);
-	if (test_info->arg3)
-		tracker_sparql_statement_bind_string (stmt, "arg3", test_info->arg3);
+	if (test_info->arg3) {
+		date_time = g_date_time_new_from_iso8601 (test_info->arg3, NULL);
+		tracker_sparql_statement_bind_datetime (stmt, "arg3", date_time);
+		g_date_time_unref (date_time);
+	}
 
 	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
 

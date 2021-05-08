@@ -51,6 +51,11 @@ public class Tracker.Bus.Statement : Tracker.Sparql.Statement {
 		this.arguments.insert (name, new GLib.Variant.string (value));
 	}
 
+	public override void bind_datetime (string name, DateTime value) {
+		string date_time = value.to_string ();
+		this.arguments.insert (name, new GLib.Variant.string (date_time));
+	}
+
 	public override void clear_bindings () {
 		this.arguments.remove_all ();
 	}
