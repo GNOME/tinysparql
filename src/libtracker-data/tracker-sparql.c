@@ -2177,7 +2177,7 @@ convert_expression_to_string (TrackerSparql       *sparql,
 		_append_string (sparql, ") ");
 		break;
 	case TRACKER_PROPERTY_TYPE_LANGSTRING:
-	default:
+        case TRACKER_PROPERTY_TYPE_UNKNOWN:
 		/* Let sqlite convert the expression to string */
 		_prepend_string (sparql, "CAST (");
 		_append_string (sparql, " AS TEXT) ");

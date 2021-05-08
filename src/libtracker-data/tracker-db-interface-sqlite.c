@@ -3616,7 +3616,9 @@ tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
 
 	if (column_type == SQLITE_NULL) {
 		return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
-	} else if (column < cursor->n_types) {
+        }
+
+	if (column < cursor->n_types) {
 		switch (cursor->types[column]) {
 		case TRACKER_PROPERTY_TYPE_RESOURCE:
 			return TRACKER_SPARQL_VALUE_TYPE_URI;
@@ -3628,12 +3630,15 @@ tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
 			return TRACKER_SPARQL_VALUE_TYPE_DATETIME;
 		case TRACKER_PROPERTY_TYPE_BOOLEAN:
 			return TRACKER_SPARQL_VALUE_TYPE_BOOLEAN;
-		default:
+                case TRACKER_PROPERTY_TYPE_DATE:
+                case TRACKER_PROPERTY_TYPE_LANGSTRING:
+		case TRACKER_PROPERTY_TYPE_STRING:
+                case TRACKER_PROPERTY_TYPE_UNKNOWN:
 			return TRACKER_SPARQL_VALUE_TYPE_STRING;
 		}
-	} else {
-		return TRACKER_SPARQL_VALUE_TYPE_STRING;
 	}
+
+        return TRACKER_SPARQL_VALUE_TYPE_STRING;
 }
 
 const gchar*

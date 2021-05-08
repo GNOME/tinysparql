@@ -360,7 +360,8 @@ convert_to_string (const gchar         *table_name,
 	case TRACKER_PROPERTY_TYPE_DATETIME:
 		return g_strdup_printf ("SparqlFormatTime (t.\"%s\")",
 		                        table_name);
-	default:
+        case TRACKER_PROPERTY_TYPE_DOUBLE:
+	case TRACKER_PROPERTY_TYPE_UNKNOWN:
 		/* Let sqlite convert the expression to string */
 		return g_strdup_printf ("CAST (t.\"%s\" AS TEXT)",
 		                        table_name);

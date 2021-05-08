@@ -1,6 +1,9 @@
 project('tracker', 'c', 'vala',
         version: '3.2.0-alpha',
-        meson_version: '>=0.51')
+        meson_version: '>=0.51',
+        default_options: [
+          'c_std=c99',
+          'warning_level=3'])
 
 gnome = import('gnome')
 i18n = import('i18n')
@@ -71,11 +74,31 @@ if get_option('tests_tap_protocol')
 endif
 python = import('python').find_installation('python3', modules: py_modules)
 
-add_project_arguments('-Wformat', '-Wformat-security', language: 'c')
-
-# There are various gchar vs. unsigned char warnings that occur in extract
-# modules, it's not worth adding casts everywhere so we disable the warning.
-add_project_arguments('-Wno-pointer-sign', language: 'c')
+cc_warning_flags = [
+  '-Wformat',
+  '-Wformat-security',
+  # There are numerous switches over data or token types in the
+  # codebase. This makes it easy to verify that all are handled
+  # correctly. -Wswitch-enum could be even better, but there are a few
+  # enums with hundreds of entries that are only partially covered in
+  # some of the switches.
+  '-Wswitch',
+  '-Werror=switch',
+  # Too many warnings in libtracker-data/tracker-sparql-grammar.h
+  '-Wno-tautological-constant-out-of-range-compare',
+  # There are various gchar vs. unsigned char warnings that occur in
+  # extract modules, it is not worth adding casts everywhere.
+  '-Wno-pointer-sign',
+  # Similarly there are many instances of guint vs. int comparisons.
+  # There would be easy but tedious to fix.
+  '-Wno-sign-compare',
+  # This probably deserves a better look.
+  '-Wno-missing-field-initializers',
+  # Too many unused parameters in tests. Disabling this warning only
+  # for the tests executables could be a better solution.
+  '-Wno-unused-parameter',
+]
+add_project_arguments(cc.get_supported_arguments(cc_warning_flags), language: 'c')
 
 add_project_arguments('-DTRACKER_COMPILATION',
                       '-DG_LOG_DOMAIN="Tracker"',

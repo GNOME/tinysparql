@@ -26,12 +26,12 @@
 
 #include "tracker-locale.h"
 
-static const gchar *locale_names[TRACKER_LOCALE_LAST] = {
-	"LANG",
-	"LC_TIME",
-	"LC_COLLATE",
-	"LC_NUMERIC",
-	"LC_MONETARY"
+static const gchar *locale_names[] = {
+	[TRACKER_LOCALE_LANGUAGE] = "LANG",
+	[TRACKER_LOCALE_TIME]     = "LC_TIME",
+	[TRACKER_LOCALE_COLLATE]  = "LC_COLLATE",
+	[TRACKER_LOCALE_NUMERIC]  = "LC_NUMERIC",
+	[TRACKER_LOCALE_MONETARY] = "LC_MONETARY"
 };
 
 static GRecMutex locales_mutex;

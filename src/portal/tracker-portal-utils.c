@@ -45,7 +45,6 @@ parse_app_info_from_flatpak_info (int pid, GError **error)
 	g_autoptr(GError) local_error = NULL;
 	g_autoptr(GMappedFile) mapped = NULL;
 	g_autoptr(GKeyFile) metadata = NULL;
-	g_autofree char *id = NULL;
 
 	root_path = g_strdup_printf ("/proc/%u/root", pid);
 	root_fd = openat (AT_FDCWD, root_path, O_RDONLY | O_NONBLOCK | O_DIRECTORY | O_CLOEXEC | O_NOCTTY);

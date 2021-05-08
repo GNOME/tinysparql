@@ -368,7 +368,6 @@ portal_iface_method_call (GDBusConnection       *connection,
 		g_dbus_method_invocation_return_value (invocation,
 		                                       g_variant_new ("(o)", session.object_path));
 	} else if (g_strcmp0 (method_name, "CloseSession") == 0) {
-		g_autofree gchar *uri = NULL;
 		g_autofree gchar *object_path = NULL;
 		gboolean found = FALSE;
 		gint i;

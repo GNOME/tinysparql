@@ -36,16 +36,16 @@
 GType
 tracker_uri_get_type (void)
 {
-	static volatile gsize g_define_type_id__volatile = 0;
-	if (g_once_init_enter (&g_define_type_id__volatile)) {
+	static gsize g_define_type_id = 0;
+	if (g_once_init_enter (&g_define_type_id)) {
 		GTypeInfo info = { 0, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, };
-		GType g_define_type_id = g_type_register_static (G_TYPE_STRING,
-		                                                 g_intern_static_string ("TrackerUri"),
-		                                                 &info,
-		                                                 0);
-		g_once_init_leave (&g_define_type_id__volatile, g_define_type_id);
+		GType type = g_type_register_static (G_TYPE_STRING,
+		                                     g_intern_static_string ("TrackerUri"),
+		                                     &info,
+		                                     0);
+		g_once_init_leave (&g_define_type_id, type);
 	}
-	return g_define_type_id__volatile;
+	return g_define_type_id;
 }
 
 static const char *
