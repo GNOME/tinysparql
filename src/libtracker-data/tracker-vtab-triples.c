@@ -23,6 +23,10 @@
 #include "tracker-ontologies.h"
 #include "tracker-vtab-triples.h"
 
+/* Avoid casts everywhere. */
+#define sqlite3_value_text(x) ((const gchar *) sqlite3_value_text(x))
+#define sqlite3_column_text(x, y) ((const gchar *) sqlite3_column_text(x, y))
+
 /* Define some constraints for older SQLite, we will never get
  * those in older versions, and simplifies checks in code.
  */

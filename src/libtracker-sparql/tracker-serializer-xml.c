@@ -29,6 +29,9 @@
 
 #include <libxml/xmlwriter.h>
 
+/* Make required type casts a bit more descriptive. */
+#define XML(x) ((const xmlChar *) x)
+
 struct _TrackerSerializerXml
 {
 	TrackerSerializer parent_instance;
@@ -75,15 +78,15 @@ serialize_up_to_position (TrackerSerializerXml  *serializer_xml,
 
 	if (!serializer_xml->head_printed) {
 		xmlTextWriterStartDocument (serializer_xml->writer, "1.0", "UTF-8", NULL);
-		xmlTextWriterStartElement (serializer_xml->writer, "sparql");
+		xmlTextWriterStartElement (serializer_xml->writer, XML ("sparql"));
 
-		xmlTextWriterStartElement (serializer_xml->writer, "head");
+		xmlTextWriterStartElement (serializer_xml->writer, XML ("head"));
 
 		for (i = 0; i < tracker_sparql_cursor_get_n_columns (cursor); i++) {
 			const gchar *var;
 
 			var = tracker_sparql_cursor_get_variable_name (cursor, i);
-			xmlTextWriterStartElement (serializer_xml->writer, "variable");
+			xmlTextWriterStartElement (serializer_xml->writer, XML ("variable"));
 
 			if (var && *var) {
 				g_ptr_array_add (serializer_xml->vars,
@@ -94,14 +97,14 @@ serialize_up_to_position (TrackerSerializerXml  *serializer_xml,
 			}
 
 			xmlTextWriterWriteFormatAttribute (serializer_xml->writer,
-			                                   "name",
+			                                   XML ("name"),
 			                                   "%s",
-			                                   (gchar *) g_ptr_array_index (serializer_xml->vars, i));
+			                                   g_ptr_array_index (serializer_xml->vars, i));
 			xmlTextWriterEndElement (serializer_xml->writer);
 		}
 
 		xmlTextWriterEndElement (serializer_xml->writer);
-		xmlTextWriterStartElement (serializer_xml->writer, "results");
+		xmlTextWriterStartElement (serializer_xml->writer, XML ("results"));
 		serializer_xml->head_printed = TRUE;
 	}
 
@@ -122,7 +125,7 @@ serialize_up_to_position (TrackerSerializerXml  *serializer_xml,
 			serializer_xml->cursor_started = TRUE;
 		}
 
-		xmlTextWriterStartElement (serializer_xml->writer, "result");
+		xmlTextWriterStartElement (serializer_xml->writer, XML ("result"));
 
 		for (i = 0; i < tracker_sparql_cursor_get_n_columns (cursor); i++) {
 			const gchar *var, *str, *type = NULL, *datatype = NULL;
@@ -157,17 +160,17 @@ serialize_up_to_position (TrackerSerializerXml  *serializer_xml,
 
 			var = g_ptr_array_index (serializer_xml->vars, i);
 
-			xmlTextWriterStartElement (serializer_xml->writer, "binding");
+			xmlTextWriterStartElement (serializer_xml->writer, XML ("binding"));
 			xmlTextWriterWriteFormatAttribute (serializer_xml->writer,
-			                                   "name",
+			                                   XML ("name"),
 			                                   "%s",
 			                                   var);
 
-			xmlTextWriterStartElement (serializer_xml->writer, type);
+			xmlTextWriterStartElement (serializer_xml->writer, XML (type));
 
 			if (datatype) {
 				xmlTextWriterWriteFormatAttribute (serializer_xml->writer,
-				                                   "datatype",
+				                                   XML ("datatype"),
 				                                   "%s",
 				                                   datatype);
 			}
@@ -175,7 +178,7 @@ serialize_up_to_position (TrackerSerializerXml  *serializer_xml,
 			str = tracker_sparql_cursor_get_string (cursor, i, NULL);
 
 			if (str) {
-				xmlTextWriterWriteRaw (serializer_xml->writer, str);
+				xmlTextWriterWriteRaw (serializer_xml->writer, XML (str));
 			}
 
 			xmlTextWriterEndElement (serializer_xml->writer);

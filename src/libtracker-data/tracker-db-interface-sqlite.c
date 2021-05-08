@@ -59,6 +59,9 @@
 #include "tracker-vtab-service.h"
 #include "tracker-vtab-triples.h"
 
+/* Avoid casts everywhere. */
+#define sqlite3_value_text(x) ((const gchar *) sqlite3_value_text(x))
+
 typedef struct {
 	TrackerDBStatement *head;
 	TrackerDBStatement *tail;
