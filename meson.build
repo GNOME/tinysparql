@@ -342,7 +342,7 @@ vapi_dir = join_paths(get_option('prefix'), get_option('datadir'), 'vala', 'vapi
 
 if gobject_introspection.found()
   typelib_dir = gobject_introspection.get_pkgconfig_variable('typelibdir',
-                                                           define_variable:  [ 'libdir', libdir ])
+                                                             define_variable: [ 'libdir', libdir ])
 endif
 
 subdir('src')
