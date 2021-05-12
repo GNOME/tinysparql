@@ -107,5 +107,9 @@ search application powered by Xapian.
 targets very large-scale workloads. It has a much heavier footprint compared to
 Tracker.
 
+[ripgrep-all](https://phiresky.github.io/blog/2019/rga--ripgrep-for-zip-targz-docx-odt-epub-jpg/)
+is a commandline tool that can search for text within many types of file, and
+caches extracted data between runs.
+
 See the Wikipedia article on [Desktop
 search](https://en.wikipedia.org/wiki/Desktop_search) for more information.
