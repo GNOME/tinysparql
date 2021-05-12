@@ -55,6 +55,9 @@ libxml2 = dependency('libxml-2.0', version: '> 2.6')
 sqlite = dependency('sqlite3', version: '>' + sqlite_required)
 dbus = dependency('dbus-1')
 
+gidocgen = dependency('gi-docgen', version: '>= 2021.1', fallback: ['gi-docgen', 'dummy_dep'])
+gidocgen = find_program('gi-docgen')
+
 if get_option('soup2')
   libsoup = dependency('libsoup-2.4', version: '> 2.40', required: true)
 else

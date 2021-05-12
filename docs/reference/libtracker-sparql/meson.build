@@ -1,67 +1,33 @@
-version_xml = configure_file(input: 'version.xml.in',
-    output: 'version.xml',
-    configuration: conf)
-
-generated = custom_target('base-ontology-doc-generated',
-    output: 'gen-doc.stamp',
-    command: [ttl2xml,
-              '-d', join_paths(source_root, 'src/ontologies/'),
-              '-o', join_paths(meson.current_build_dir(), 'xml/'),
-              '-e', meson.current_source_dir()],
-    depends: ttl2xml,
-    depend_files: base_ontology,
-    build_by_default: true,
-)
-
-example_files = [
-    'examples/ontologies/defining-cardinality-1.rq', 'examples/ontologies/defining-cardinality-2.txt',
-    'examples/ontologies/defining-cardinality-3.rq', 'examples/ontologies/defining-classes-1.txt',
-    'examples/ontologies/defining-classes-2.txt', 'examples/ontologies/defining-classes-3.rq',
-    'examples/ontologies/defining-fts-indexes-1.txt', 'examples/ontologies/defining-fts-indexes-2.rq',
-    'examples/ontologies/defining-indexes-1.txt', 'examples/ontologies/defining-namespaces-1.txt',
-    'examples/ontologies/defining-properties-1.txt', 'examples/ontologies/defining-properties-2.txt',
-    'examples/ontologies/defining-properties-3.txt', 'examples/ontologies/defining-properties-4.rq',
-    'examples/ontologies/defining-uniqueness-1.txt', 'examples/ontologies/defining-uniqueness-2.rq',
-    'examples/ontologies/example.description', 'examples/ontologies/predefined-elements-1.txt',
-    'examples/ontologies/predefined-elements-2.rq',
-    'examples/readonly-example.c', 'examples/writeonly-example.c',
-    'examples/writeonly-with-blank-nodes-example.c',
+content = [
+  'tutorial.md',
 ]
 
-image_files = [
-    'images/triple-graph-1.png',
-    'images/triple-graph-2.png',
-    'images/triple-graph-3.png',
-]
+# The TOML gi-docgen configuration wants a list of quoted file names.
+_quoted = []
+foreach c : content
+  _quoted += '"@0@"'.format(c)
+endforeach
 
-private_headers = [
-    'tracker-notifier-private.h',
-    'tracker-private.h',
-    'tracker-serializer.h',
-    'tracker-serializer-json.h',
-    'tracker-serializer-xml.h',
-    'direct',
-    'bus',
-    'remote',
-]
+gidocgen_conf = configuration_data()
+gidocgen_conf.set('version', meson.project_version())
+gidocgen_conf.set('content', ','.join(_quoted))
+gidocgen_toml = configure_file(input: 'tracker-sparql.toml.in', output: 'tracker-sparql.toml', configuration: gidocgen_conf)
 
-gnome.gtkdoc('libtracker-sparql',
-    src_dir: sparqlinc,
-    main_xml: 'libtracker-sparql-docs.xml',
-    scan_args: ['--ignore-headers=' + ' '.join(private_headers)],
-    content_files: [
-        'overview.xml',
-        'examples.xml',
-        'ontologies.xml',
-        'migrating-1to2.xml',
-        'sparql-and-tracker.xml',
-        'sparql-functions.xml',
-        example_files ],
-    html_assets: image_files,
-    gobject_typesfile: 'libtracker-sparql.types',
-    dependencies: tracker_sparql_dep,
-    fixxref_args: fixxref_args,
-    module_version: tracker_api_major,
-    install: true)
-
-subdir('examples')
+custom_target(
+  'docgen',
+  input: [ gidocgen_toml, tracker_sparql_gir[0] ],
+  output: 'docs',
+  command: [
+    gidocgen,
+    'generate',
+    '--quiet',
+    #'--add-include-path=@0@'.format(meson.current_build_dir() / '../../../gtk'),
+    '--config=@INPUT0@',
+    '--output-dir=@OUTPUT@',
+    #'--no-namespace-dir',
+    '--content-dir=@0@'.format(meson.current_source_dir()),
+    '@INPUT1@',
+  ],
+  depends: tracker_sparql_gir[0],
+  depend_files: [ content ],
+  build_by_default: true)
