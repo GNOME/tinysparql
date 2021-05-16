@@ -251,6 +251,9 @@ coverity:
     - build-fedora-rawhide-container@x86_64
   only:
     - master
+  except:
+    changes:
+      - po/*.po
 
 pages:
   extends:
