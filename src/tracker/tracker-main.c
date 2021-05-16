@@ -39,9 +39,6 @@ const char usage_string[] =
 	"tracker3 [--version] [--help]\n"
 	"                <command> [<args>]";
 
-const char usage_more_info_string[] =
-	N_("See “tracker3 help <command>” to read about a specific subcommand.");
-
 const char about[] =
 	"Tracker " PACKAGE_VERSION "\n"
 	"\n"
@@ -222,7 +219,7 @@ print_usage (void)
 {
 	g_print ("usage: %s\n\n", usage_string);
 	print_usage_list_cmds ();
-	g_print ("\n%s\n", _(usage_more_info_string));
+	g_print ("\n%s\n", _("See “tracker3 help <command>” to read about a specific subcommand."));
 }
 
 int
