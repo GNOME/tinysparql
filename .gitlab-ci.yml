@@ -59,9 +59,9 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2021-05-15.8'
+    BASE_TAG: '2021-05-15.9'
     FDO_UPSTREAM_REPO: GNOME/tracker
-    FDO_DISTRIBUTION_PACKAGES: 'clang gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto'
+    FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto'
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
       dnf builddep -y tracker tracker-miners --setopt=install_weak_deps=False &&
@@ -341,6 +341,21 @@ coverity:
   except:
     changes:
       - po/*.po
+
+static-scan:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:rawhide@x86_64
+  stage: analysis
+  needs:
+    - build-fedora-rawhide-container@x86_64
+  script:
+    - meson --buildtype=debug _scan_build
+    - ninja -C _scan_build scan-build
+  artifacts:
+    paths:
+      - _scan_build/meson-logs
+  allow_failure: true
 
 pages:
   extends:
