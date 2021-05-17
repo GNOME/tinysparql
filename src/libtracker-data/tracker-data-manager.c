@@ -1204,6 +1204,17 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			return;
 		}
 
+                if (!tracker_property_get_indexed (property)) {
+                        g_critical ("%s: nrl:secondaryindex only applies to nrl:indexed properties", ontology_path);
+                        return;
+                }
+
+                if (tracker_property_get_multiple_values (property) ||
+                    tracker_property_get_multiple_values (secondary_index)) {
+                        g_critical ("%s: nrl:secondaryindex cannot be applied to properties with nrl:maxCardinality higher than one", ontology_path);
+                        return;
+                }
+
 		tracker_property_set_secondary_index (property, secondary_index);
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_NRL "fulltextIndexed") == 0) {
 		TrackerProperty *property;
