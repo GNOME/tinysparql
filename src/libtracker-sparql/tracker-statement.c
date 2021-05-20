@@ -214,9 +214,9 @@ tracker_sparql_statement_bind_boolean (TrackerSparqlStatement *stmt,
 	g_return_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt));
 	g_return_if_fail (name != NULL);
 
-	return TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->bind_boolean (stmt,
-	                                                                name,
-	                                                                value);
+	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->bind_boolean (stmt,
+	                                                         name,
+	                                                         value);
 }
 
 /**
@@ -235,9 +235,9 @@ tracker_sparql_statement_bind_int (TrackerSparqlStatement *stmt,
 	g_return_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt));
 	g_return_if_fail (name != NULL);
 
-	return TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->bind_int (stmt,
-	                                                            name,
-	                                                            value);
+	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->bind_int (stmt,
+	                                                     name,
+	                                                     value);
 }
 
 /**
@@ -256,9 +256,9 @@ tracker_sparql_statement_bind_double (TrackerSparqlStatement *stmt,
 	g_return_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt));
 	g_return_if_fail (name != NULL);
 
-	return TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->bind_double (stmt,
-	                                                               name,
-	                                                               value);
+	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->bind_double (stmt,
+	                                                        name,
+	                                                        value);
 }
 
 /**
@@ -278,9 +278,9 @@ tracker_sparql_statement_bind_string (TrackerSparqlStatement *stmt,
 	g_return_if_fail (name != NULL);
 	g_return_if_fail (value != NULL);
 
-	return TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->bind_string (stmt,
-	                                                               name,
-	                                                               value);
+	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->bind_string (stmt,
+	                                                        name,
+	                                                        value);
 }
 
 /**
@@ -302,9 +302,9 @@ tracker_sparql_statement_bind_datetime (TrackerSparqlStatement *stmt,
 	g_return_if_fail (name != NULL);
 	g_return_if_fail (value != NULL);
 
-	return TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->bind_datetime (stmt,
-								         name,
-							                 value);
+	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->bind_datetime (stmt,
+	                                                          name,
+	                                                          value);
 }
 
 /**
@@ -350,10 +350,10 @@ tracker_sparql_statement_execute_async (TrackerSparqlStatement *stmt,
 	g_return_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt));
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
-	return TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->execute_async (stmt,
-	                                                                 cancellable,
-	                                                                 callback,
-	                                                                 user_data);
+	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->execute_async (stmt,
+	                                                          cancellable,
+	                                                          callback,
+	                                                          user_data);
 }
 
 /**

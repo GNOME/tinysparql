@@ -350,10 +350,10 @@ tracker_sparql_connection_update (TrackerSparqlConnection  *connection,
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 	g_return_if_fail (!error || !*error);
 
-	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update (connection,
-	                                                                 sparql,
-	                                                                 cancellable,
-	                                                                 error);
+	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update (connection,
+	                                                          sparql,
+	                                                          cancellable,
+	                                                          error);
 }
 
 /**
@@ -402,9 +402,9 @@ tracker_sparql_connection_update_finish (TrackerSparqlConnection  *connection,
 	g_return_if_fail (G_IS_ASYNC_RESULT (res));
 	g_return_if_fail (!error || !*error);
 
-	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_finish (connection,
-	                                                                        res,
-	                                                                        error);
+	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_finish (connection,
+	                                                                 res,
+	                                                                 error);
 }
 
 /**
