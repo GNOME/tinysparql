@@ -1757,15 +1757,6 @@ tracker_data_ontology_process_changes_post_import (GPtrArray *seen_classes,
 }
 
 static void
-tracker_data_ontology_free_seen (GPtrArray *seen)
-{
-	if (seen) {
-		g_ptr_array_foreach (seen, (GFunc) g_object_unref, NULL);
-		g_ptr_array_free (seen, TRUE);
-	}
-}
-
-static void
 load_ontology_file (TrackerDataManager  *manager,
                     GFile               *file,
                     gboolean             in_update,
@@ -3994,8 +3985,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		GError *n_error = NULL;
 		gboolean transaction_started = FALSE;
 
-		seen_classes = g_ptr_array_new ();
-		seen_properties = g_ptr_array_new ();
+		seen_classes = g_ptr_array_new_with_free_func (g_object_unref);
+		seen_properties = g_ptr_array_new_with_free_func (g_object_unref);
 
 		g_debug ("Applying ontologies from %s to existing database", g_file_peek_path (manager->ontology_location));
 
@@ -4131,8 +4122,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 						g_warning ("%s", ontology_error->message);
 						g_error_free (ontology_error);
 
-						tracker_data_ontology_free_seen (seen_classes);
-						tracker_data_ontology_free_seen (seen_properties);
+						g_clear_pointer (&seen_classes, g_ptr_array_unref);
+						g_clear_pointer (&seen_properties, g_ptr_array_unref);
 						tracker_data_ontology_import_finished (manager);
 
 						/* as we're processing an ontology change,
@@ -4188,8 +4179,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 					g_warning ("%s", ontology_error->message);
 					g_error_free (ontology_error);
 
-					tracker_data_ontology_free_seen (seen_classes);
-					tracker_data_ontology_free_seen (seen_properties);
+					g_clear_pointer (&seen_classes, g_ptr_array_unref);
+					g_clear_pointer (&seen_properties, g_ptr_array_unref);
 					tracker_data_ontology_import_finished (manager);
 
 					/* as we're processing an ontology change,
@@ -4306,8 +4297,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				g_warning ("%s", ontology_error->message);
 				g_error_free (ontology_error);
 
-				tracker_data_ontology_free_seen (seen_classes);
-				tracker_data_ontology_free_seen (seen_properties);
+				g_clear_pointer (&seen_classes, g_ptr_array_unref);
+				g_clear_pointer (&seen_properties, g_ptr_array_unref);
 				tracker_data_ontology_import_finished (manager);
 
 				/* as we're processing an ontology change,
@@ -4341,8 +4332,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			write_ontologies_gvdb (manager, TRUE /* overwrite */, NULL);
 		}
 
-		tracker_data_ontology_free_seen (seen_classes);
-		tracker_data_ontology_free_seen (seen_properties);
+		g_clear_pointer (&seen_classes, g_ptr_array_unref);
+		g_clear_pointer (&seen_properties, g_ptr_array_unref);
 
 		/* Reset the is_new flag for all classes and properties */
 		tracker_data_ontology_import_finished (manager);

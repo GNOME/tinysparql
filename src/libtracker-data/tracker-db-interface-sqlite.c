@@ -1821,6 +1821,12 @@ stmt_step (sqlite3_stmt *stmt)
 }
 
 static void
+stmt_destroy (void *stmt)
+{
+	sqlite3_finalize ((sqlite3_stmt *) stmt);
+}
+
+static void
 generate_uuid (sqlite3_context *context,
                const gchar     *fn,
                const gchar     *uri_prefix)
@@ -1856,8 +1862,7 @@ generate_uuid (sqlite3_context *context,
 	} while (result == SQLITE_ROW);
 
 	if (store_auxdata) {
-		sqlite3_set_auxdata (context, 1, stmt,
-		                     (void (*) (void*)) sqlite3_finalize);
+		sqlite3_set_auxdata (context, 1, (void*) stmt, stmt_destroy);
 	}
 
 	if (result != SQLITE_DONE) {
@@ -1945,8 +1950,7 @@ function_sparql_print_iri (sqlite3_context *context,
 		}
 
 		if (store_auxdata) {
-			sqlite3_set_auxdata (context, 1, stmt,
-			                     (void (*) (void*)) sqlite3_finalize);
+			sqlite3_set_auxdata (context, 1, (void*) stmt, stmt_destroy);
 		}
 	} else {
 		sqlite3_result_value (context, argv[0]);
