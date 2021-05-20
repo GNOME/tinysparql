@@ -26,8 +26,6 @@
 #include <string.h>
 
 typedef struct _TrackerRuleState TrackerRuleState;
-typedef struct _TrackerNodeTree TrackerNodeTree;
-typedef struct _TrackerParserNode TrackerParserNode;
 typedef struct _TrackerParserState TrackerParserState;
 typedef struct _TrackerGrammarParser TrackerGrammarParser;
 
