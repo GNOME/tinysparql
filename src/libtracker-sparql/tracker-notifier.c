@@ -54,7 +54,6 @@
 
 typedef struct _TrackerNotifierPrivate TrackerNotifierPrivate;
 typedef struct _TrackerNotifierSubscription TrackerNotifierSubscription;
-typedef struct _TrackerNotifierEventCache TrackerNotifierEventCache;
 
 struct _TrackerNotifierSubscription {
 	GDBusConnection *connection;

@@ -60,8 +60,6 @@ tracker_uri_to_property_type(const gchar *uri)
         return TRACKER_PROPERTY_TYPE_RESOURCE;
 }
 
-typedef struct _TrackerPropertyPrivate TrackerPropertyPrivate;
-
 struct _TrackerPropertyPrivate {
 	gchar         *uri;
 	gchar         *name;

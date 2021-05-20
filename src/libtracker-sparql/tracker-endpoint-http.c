@@ -29,8 +29,6 @@
 
 #define SERVER_HEADER "Tracker " PACKAGE_VERSION " (https://gitlab.gnome.org/GNOME/tracker/issues/)"
 
-typedef struct _TrackerEndpointHttp TrackerEndpointHttp;
-
 struct _TrackerEndpointHttp {
 	TrackerEndpoint parent_instance;
 	SoupServer *server;

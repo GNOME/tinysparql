@@ -50,8 +50,6 @@ typedef enum {
 	TRACKER_DB_MANAGER_SKIP_VERSION_CHECK    = 1 << 9,
 } TrackerDBManagerFlags;
 
-typedef struct _TrackerDBManager TrackerDBManager;
-
 gboolean            tracker_db_manager_db_exists              (GFile *cache_location);
 
 TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerFlags   flags,
