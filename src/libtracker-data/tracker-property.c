@@ -143,7 +143,7 @@ tracker_property_type_get_type (void)
 	return etype;
 }
 
-G_DEFINE_TYPE_WITH_PRIVATE (TrackerProperty, tracker_property, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerProperty, tracker_property, G_TYPE_OBJECT)
 
 static void
 tracker_property_class_init (TrackerPropertyClass *klass)

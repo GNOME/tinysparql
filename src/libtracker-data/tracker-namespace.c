@@ -42,7 +42,7 @@ struct _TrackerNamespacePrivate {
 
 static void namespace_finalize     (GObject      *object);
 
-G_DEFINE_TYPE_WITH_PRIVATE (TrackerNamespace, tracker_namespace, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerNamespace, tracker_namespace, G_TYPE_OBJECT)
 
 static void
 tracker_namespace_class_init (TrackerNamespaceClass *klass)

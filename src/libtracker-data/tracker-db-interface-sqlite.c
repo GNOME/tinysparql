@@ -168,7 +168,7 @@ enum {
 
 G_DEFINE_TYPE_WITH_CODE (TrackerDBInterface, tracker_db_interface, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
-                                                tracker_db_interface_initable_iface_init));
+                                                tracker_db_interface_initable_iface_init))
 
 G_DEFINE_TYPE (TrackerDBStatement, tracker_db_statement, G_TYPE_INITIALLY_UNOWNED)
 

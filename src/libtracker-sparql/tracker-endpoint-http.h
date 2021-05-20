@@ -46,7 +46,7 @@ G_BEGIN_DECLS
  */
 typedef struct _TrackerEndpointHttp TrackerEndpointHttp;
 
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (TrackerEndpointHttp, g_object_unref);
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (TrackerEndpointHttp, g_object_unref)
 
 TRACKER_AVAILABLE_IN_3_1
 GType tracker_endpoint_http_get_type (void) G_GNUC_CONST;

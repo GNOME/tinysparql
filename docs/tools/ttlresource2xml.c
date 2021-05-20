@@ -481,7 +481,7 @@ print_flag (FILE *f,
 	g_fprintf (f, "<alt>%s</alt>", flag_description);
 	g_fprintf (f, "</inlinemediaobject>");
 	g_fprintf (f, "</link>");
-};
+}
 
 static void
 print_property_table (FILE          *f,

@@ -52,7 +52,7 @@ struct _TrackerClassPrivate {
 
 static void class_finalize     (GObject      *object);
 
-G_DEFINE_TYPE_WITH_PRIVATE (TrackerClass, tracker_class, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerClass, tracker_class, G_TYPE_OBJECT)
 
 static void
 tracker_class_class_init (TrackerClassClass *klass)
