@@ -153,9 +153,7 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 		 */
 		if (next == next_to_cancel && finished == 1) {
 			/* Cancel */
-			g_print ("# Cancelling cancellable:%p at count:%d\n",
-			         cancellables[query],
-			         next);
+			g_print ("# Cancelling cancellable: at count:%d\n", next);
 			g_cancellable_cancel (cancellables[query]);
 		}
 

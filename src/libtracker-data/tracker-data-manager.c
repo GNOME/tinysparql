@@ -3663,8 +3663,8 @@ setup_interface_cb (TrackerDBManager   *db_manager,
 	guint flags;
 
 	if (!tracker_data_manager_initialize_iface (data_manager, iface, &error)) {
-		g_critical ("Could not set up interface %p: %s",
-		            iface, error->message);
+		g_critical ("Could not set up interface : %s",
+		            error->message);
 		g_error_free (error);
 	}
 

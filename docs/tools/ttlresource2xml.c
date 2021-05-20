@@ -442,7 +442,7 @@ print_class_hierarchy (FILE          *f,
 {
 	GPtrArray *strings;
 	gchar *id;
-	gint i;
+	gsize i;
 
 	strings = class_get_parent_hierarchy_strings (klass, ontology);
 

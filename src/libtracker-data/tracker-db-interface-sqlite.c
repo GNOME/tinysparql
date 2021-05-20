@@ -2523,7 +2523,7 @@ tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface  *interface,
 void
 tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
 {
-	TRACKER_NOTE (SQLITE, g_message ("Resetting collator in db interface %p", db_interface));
+	TRACKER_NOTE (SQLITE, g_message ("Resetting collator in db interface"));
 
 	/* This will overwrite any other collation set before, if any */
 	if (sqlite3_create_collation_v2 (db_interface->db,
