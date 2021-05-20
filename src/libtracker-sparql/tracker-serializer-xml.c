@@ -99,7 +99,7 @@ serialize_up_to_position (TrackerSerializerXml  *serializer_xml,
 			xmlTextWriterWriteFormatAttribute (serializer_xml->writer,
 			                                   XML ("name"),
 			                                   "%s",
-			                                   g_ptr_array_index (serializer_xml->vars, i));
+			                                   (char *) g_ptr_array_index (serializer_xml->vars, i));
 			xmlTextWriterEndElement (serializer_xml->writer);
 		}
 
