@@ -61,7 +61,7 @@ check-merge-request:
   variables:
     BASE_TAG: '2021-05-15.9'
     FDO_UPSTREAM_REPO: GNOME/tracker
-    FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto'
+    FDO_DISTRIBUTION_PACKAGES: 'bash clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto'
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
       dnf builddep -y tracker tracker-miners --setopt=install_weak_deps=False &&
@@ -146,6 +146,8 @@ build-fedora-container@aarch64:
   stage: prepare
   variables:
     GIT_STRATEGY: none
+  tags:
+    - aarch64
   needs:
     - check-commit-log
     - check-merge-request
@@ -175,6 +177,7 @@ build-alpine-container@x86_64:
 .build-template: &build
   stage: build
   script:
+    - echo "I'm running on $FDO_DISTRIBUTION_TAG"
     - meson . build -Db_lto=true -Db_coverage=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
     - ninja -C build
   artifacts:
@@ -205,7 +208,17 @@ build-fedora@aarch64:
   needs:
     - build-fedora-container@aarch64
   allow_failure: true
-  <<: *build
+  stage: build
+  variables:
+    FDO_DISTRIBUTION_TAG: "aarch64-$BASE_TAG"
+    FDO_DISTRIBUTION_VERSION: 34
+    CI_DEBUG_TRACE: "true"
+  script:
+    - echo "I'm running on $FDO_DISTRIBUTION_TAG"
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build
 
 build-ubuntu-rolling@x86_64:
   extends:
