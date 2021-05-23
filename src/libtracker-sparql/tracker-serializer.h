@@ -29,7 +29,7 @@
 G_DECLARE_DERIVABLE_TYPE (TrackerSerializer,
                           tracker_serializer,
                           TRACKER, SERIALIZER,
-                          GInputStream);
+                          GInputStream)
 
 typedef enum
 {

@@ -29,7 +29,6 @@
 #define GRAPH_ALL "*"
 #define GRAPH_DEFAULT "default"
 
-typedef struct _TrackerPortalEndpoint TrackerPortalEndpoint;
 typedef struct _TrackerPortalEndpointClass TrackerPortalEndpointClass;
 
 struct _TrackerPortalEndpoint

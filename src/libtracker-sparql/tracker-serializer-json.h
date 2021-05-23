@@ -31,6 +31,6 @@
 G_DECLARE_FINAL_TYPE (TrackerSerializerJson,
                       tracker_serializer_json,
                       TRACKER, SERIALIZER_JSON,
-                      TrackerSerializer);
+                      TrackerSerializer)
 
 #endif /* TRACKER_SERIALIZER_JSON_H */

@@ -168,7 +168,7 @@ enum {
 
 G_DEFINE_TYPE_WITH_CODE (TrackerDBInterface, tracker_db_interface, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
-                                                tracker_db_interface_initable_iface_init));
+                                                tracker_db_interface_initable_iface_init))
 
 G_DEFINE_TYPE (TrackerDBStatement, tracker_db_statement, G_TYPE_INITIALLY_UNOWNED)
 
@@ -1821,6 +1821,12 @@ stmt_step (sqlite3_stmt *stmt)
 }
 
 static void
+stmt_destroy (void *stmt)
+{
+	sqlite3_finalize ((sqlite3_stmt *) stmt);
+}
+
+static void
 generate_uuid (sqlite3_context *context,
                const gchar     *fn,
                const gchar     *uri_prefix)
@@ -1856,8 +1862,7 @@ generate_uuid (sqlite3_context *context,
 	} while (result == SQLITE_ROW);
 
 	if (store_auxdata) {
-		sqlite3_set_auxdata (context, 1, stmt,
-		                     (void (*) (void*)) sqlite3_finalize);
+		sqlite3_set_auxdata (context, 1, (void*) stmt, stmt_destroy);
 	}
 
 	if (result != SQLITE_DONE) {
@@ -1945,8 +1950,7 @@ function_sparql_print_iri (sqlite3_context *context,
 		}
 
 		if (store_auxdata) {
-			sqlite3_set_auxdata (context, 1, stmt,
-			                     (void (*) (void*)) sqlite3_finalize);
+			sqlite3_set_auxdata (context, 1, (void*) stmt, stmt_destroy);
 		}
 	} else {
 		sqlite3_result_value (context, argv[0]);
@@ -2523,7 +2527,7 @@ tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface  *interface,
 void
 tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
 {
-	TRACKER_NOTE (SQLITE, g_message ("Resetting collator in db interface %p", db_interface));
+	TRACKER_NOTE (SQLITE, g_message ("Resetting collator in db interface"));
 
 	/* This will overwrite any other collation set before, if any */
 	if (sqlite3_create_collation_v2 (db_interface->db,

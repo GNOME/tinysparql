@@ -83,7 +83,7 @@ static void         language_set_property      (GObject       *object,
                                                 const GValue  *value,
                                                 GParamSpec    *pspec);
 
-G_DEFINE_TYPE_WITH_PRIVATE (TrackerLanguage, tracker_language, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerLanguage, tracker_language, G_TYPE_OBJECT)
 
 static void
 tracker_language_class_init (TrackerLanguageClass *klass)

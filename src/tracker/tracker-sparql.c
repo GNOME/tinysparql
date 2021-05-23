@@ -609,6 +609,13 @@ tree_node_data_new (const gchar *class,
 }
 
 static void
+tree_data_free (gpointer data,
+                gpointer user_data)
+{
+	g_free (data);
+}
+
+static void
 tree_node_data_free (NodeData *data)
 {
 	if (data == NULL) {
@@ -616,7 +623,7 @@ tree_node_data_free (NodeData *data)
 	}
 
 	if (data->properties) {
-		g_slist_foreach (data->properties, (GFunc) g_free, NULL);
+		g_slist_foreach (data->properties, tree_data_free, NULL);
 		g_slist_free (data->properties);
 	}
 
@@ -631,7 +638,8 @@ tree_new (void)
 }
 
 static gboolean
-tree_free_foreach (GNode *node)
+tree_free_foreach (GNode    *node,
+                   gpointer  data)
 {
 	tree_node_data_free (node->data);
 	return FALSE;
@@ -644,7 +652,7 @@ tree_free (GNode *node)
 	                 G_POST_ORDER,
 	                 G_TRAVERSE_ALL,
 	                 -1,
-	                 (GNodeTraverseFunc) tree_free_foreach,
+	                 tree_free_foreach,
 	                 NULL);
 	g_node_destroy (node);
 }

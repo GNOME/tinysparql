@@ -80,7 +80,7 @@ fd_term_dimensions (gint   fd,
                     guint *cols,
                     guint *rows)
 {
-	struct winsize ws = {};
+	struct winsize ws = { 0 };
 
 	if (ioctl(fd, TIOCGWINSZ, &ws) < 0) {
 		*cols = 0;

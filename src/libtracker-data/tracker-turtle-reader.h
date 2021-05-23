@@ -28,7 +28,7 @@
 G_DECLARE_FINAL_TYPE (TrackerTurtleReader,
                       tracker_turtle_reader,
                       TRACKER, TURTLE_READER,
-                      GObject);
+                      GObject)
 
 TrackerTurtleReader * tracker_turtle_reader_new (GInputStream *stream);
 TrackerTurtleReader * tracker_turtle_reader_new_for_file (GFile   *file,

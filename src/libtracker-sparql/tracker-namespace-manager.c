@@ -38,7 +38,7 @@ typedef struct {
 	GHashTable *namespace_to_prefix;
 } TrackerNamespaceManagerPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (TrackerNamespaceManager, tracker_namespace_manager, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerNamespaceManager, tracker_namespace_manager, G_TYPE_OBJECT)
 #define GET_PRIVATE(object)  (tracker_namespace_manager_get_instance_private (object))
 
 /**
@@ -335,4 +335,4 @@ tracker_namespace_manager_foreach (TrackerNamespaceManager *self,
 	TrackerNamespaceManagerPrivate *priv = GET_PRIVATE (self);
 
 	g_hash_table_foreach (priv->prefix_to_namespace, func, user_data);
-};
+}

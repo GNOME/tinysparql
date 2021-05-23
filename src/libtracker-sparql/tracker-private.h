@@ -24,8 +24,6 @@
 #include <libtracker-sparql/tracker-cursor.h>
 #include <libtracker-sparql/tracker-endpoint-dbus.h>
 
-typedef struct _TrackerSparqlConnectionClass TrackerSparqlConnectionClass;
-
 struct _TrackerSparqlConnectionClass
 {
 	GObjectClass parent_class;
@@ -114,8 +112,6 @@ struct _TrackerSparqlConnectionClass
 	                                  gchar                   **path);
 };
 
-typedef struct _TrackerSparqlCursorClass TrackerSparqlCursorClass;
-
 struct _TrackerSparqlCursorClass
 {
 	GObjectClass parent_class;
@@ -152,13 +148,9 @@ struct _TrackerSparqlCursorClass
         gint (* get_n_columns) (TrackerSparqlCursor *cursor);
 };
 
-typedef struct _TrackerEndpointClass TrackerEndpointClass;
-
 struct _TrackerEndpointClass {
 	GObjectClass parent_class;
 };
-
-typedef struct _TrackerEndpointDBus TrackerEndpointDBus;
 
 struct _TrackerEndpointDBus {
 	TrackerEndpoint parent_instance;
@@ -194,14 +186,10 @@ struct _TrackerEndpointHttpClass {
 	struct _TrackerEndpointClass parent_class;
 };
 
-typedef struct _TrackerResourceClass TrackerResourceClass;
-
 struct _TrackerResourceClass
 {
 	GObjectClass parent_class;
 };
-
-typedef struct _TrackerSparqlStatementClass TrackerSparqlStatementClass;
 
 struct _TrackerSparqlStatementClass
 {
@@ -236,16 +224,12 @@ struct _TrackerSparqlStatementClass
 	void (* clear_bindings) (TrackerSparqlStatement *stmt);
 };
 
-typedef struct _TrackerNotifierClass TrackerNotifierClass;
-
 struct _TrackerNotifierClass {
 	GObjectClass parent_class;
 
 	void (* events) (TrackerNotifier *notifier,
 	                 const GPtrArray *events);
 };
-
-typedef struct _TrackerBatchClass TrackerBatchClass;
 
 struct _TrackerBatchClass {
 	GObjectClass parent_class;
@@ -266,8 +250,6 @@ struct _TrackerBatchClass {
 				     GAsyncResult  *res,
 				     GError       **error);
 };
-
-typedef struct _TrackerSerializerClass TrackerSerializerClass;
 
 struct _TrackerSerializerClass {
 	GInputStreamClass parent_class;

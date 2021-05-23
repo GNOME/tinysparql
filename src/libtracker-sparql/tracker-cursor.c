@@ -414,7 +414,7 @@ tracker_sparql_cursor_close (TrackerSparqlCursor *cursor)
 {
 	g_return_if_fail (TRACKER_IS_SPARQL_CURSOR (cursor));
 
-	return TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->close (cursor);
+	TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->close (cursor);
 }
 
 /**
@@ -487,10 +487,10 @@ tracker_sparql_cursor_next_async (TrackerSparqlCursor  *cursor,
 	g_return_if_fail (TRACKER_IS_SPARQL_CURSOR (cursor));
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
-	return TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->next_async (cursor,
-	                                                             cancellable,
-	                                                             callback,
-	                                                             user_data);
+	TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->next_async (cursor,
+	                                                      cancellable,
+	                                                      callback,
+	                                                      user_data);
 }
 
 /**
@@ -536,5 +536,5 @@ tracker_sparql_cursor_rewind (TrackerSparqlCursor *cursor)
 {
 	g_return_if_fail (TRACKER_IS_SPARQL_CURSOR (cursor));
 
-	return TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->rewind (cursor);
+	TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->rewind (cursor);
 }

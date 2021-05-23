@@ -370,6 +370,8 @@ convert_to_string (const gchar         *table_name,
 		return g_strdup_printf ("CAST (t.\"%s\" AS TEXT)",
 		                        table_name);
 	}
+
+	g_assert_not_reached();
 }
 
 static void

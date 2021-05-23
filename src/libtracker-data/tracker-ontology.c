@@ -39,7 +39,7 @@ struct _TrackerOntologyPrivate {
 
 static void ontology_finalize     (GObject      *object);
 
-G_DEFINE_TYPE_WITH_PRIVATE (TrackerOntology, tracker_ontology, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (TrackerOntology, tracker_ontology, G_TYPE_OBJECT)
 
 static void
 tracker_ontology_class_init (TrackerOntologyClass *klass)

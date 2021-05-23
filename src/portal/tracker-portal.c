@@ -28,7 +28,6 @@
 #include "tracker-portal-endpoint.h"
 #include "tracker-portal-utils.h"
 
-typedef struct _TrackerPortal TrackerPortal;
 typedef struct _TrackerSession TrackerSession;
 
 struct _TrackerSession

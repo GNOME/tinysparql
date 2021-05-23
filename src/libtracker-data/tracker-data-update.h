@@ -43,10 +43,6 @@ typedef struct _TrackerDataClass TrackerDataClass;
 #define TRACKER_IS_DATA_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), TRACKER_TYPE_DATA))
 #define TRACKER_DATA_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_DATA, TrackerDataClass))
 
-typedef struct _TrackerData TrackerData;
-typedef struct _TrackerDataClass TrackerDataClass;
-
-typedef struct _TrackerData TrackerData;
 typedef struct _TrackerData TrackerDataUpdate;
 
 typedef void (*TrackerStatementCallback) (gint                  graph_id,

@@ -26,8 +26,6 @@
 #include <string.h>
 
 typedef struct _TrackerRuleState TrackerRuleState;
-typedef struct _TrackerNodeTree TrackerNodeTree;
-typedef struct _TrackerParserNode TrackerParserNode;
 typedef struct _TrackerParserState TrackerParserState;
 typedef struct _TrackerGrammarParser TrackerGrammarParser;
 
@@ -635,7 +633,7 @@ tracker_grammar_parser_read (TrackerGrammarParser *parser,
 
 	tracker_parser_state_skip_whitespace (state, parser);
 
-	return (g_node_first_child ((GNode *) state->node_tree->root) > 0 &&
+	return (g_node_first_child ((GNode *) state->node_tree->root) &&
 		parser->query[state->current] == '\0');
 }
 

@@ -32,14 +32,11 @@ typedef struct {
 	const gchar *query;
 } AsyncData;
 
-typedef struct {
-} DataFixture;
-
 static TrackerSparqlConnection *connection;
 gboolean started = FALSE;
 
 static void
-delete_test_data (DataFixture   *fixture,
+delete_test_data (gpointer      *fixture,
                   gconstpointer  user_data)
 {
 	GError *error = NULL;
@@ -55,7 +52,7 @@ delete_test_data (DataFixture   *fixture,
 }
 
 static void
-insert_test_data (DataFixture   *fixture,
+insert_test_data (gpointer      *fixture,
                   gconstpointer  user_data)
 {
 	GError *error = NULL;
@@ -188,23 +185,23 @@ query_and_compare_results (const char *query)
 }
 
 static void
-test_tracker_sparql_query_iterate (DataFixture  *fixture,
-                                   gconstpointer user_data)
+test_tracker_sparql_query_iterate (gpointer      *fixture,
+                                   gconstpointer  user_data)
 {
 	query_and_compare_results ("SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}");
 }
 
 static void
-test_tracker_sparql_query_iterate_largerow (DataFixture  *fixture,
-                                            gconstpointer user_data)
+test_tracker_sparql_query_iterate_largerow (gpointer      *fixture,
+                                            gconstpointer  user_data)
 {
 	query_and_compare_results ("SELECT nao:identifier(?r) WHERE {?r a nmm:Photo}");
 }
 
 /* Runs an invalid query */
 static void
-test_tracker_sparql_query_iterate_error (DataFixture  *fixture,
-                                         gconstpointer user_data)
+test_tracker_sparql_query_iterate_error (gpointer      *fixture,
+                                         gconstpointer  user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -228,8 +225,8 @@ test_tracker_sparql_query_iterate_error (DataFixture  *fixture,
 
 /* Runs a query returning an empty set */
 static void
-test_tracker_sparql_query_iterate_empty_subprocess (DataFixture  *fixture,
-                                                    gconstpointer user_data)
+test_tracker_sparql_query_iterate_empty_subprocess (gpointer      *fixture,
+                                                    gconstpointer  user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -249,8 +246,8 @@ test_tracker_sparql_query_iterate_empty_subprocess (DataFixture  *fixture,
 }
 
 static void
-test_tracker_sparql_query_iterate_empty (DataFixture  *fixture,
-                                         gconstpointer user_data)
+test_tracker_sparql_query_iterate_empty (gpointer      *fixture,
+                                         gconstpointer  user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -274,8 +271,8 @@ test_tracker_sparql_query_iterate_empty (DataFixture  *fixture,
 
 /* Closes the cursor before all results are read */
 static void
-test_tracker_sparql_query_iterate_sigpipe (DataFixture  *fixture,
-                                           gconstpointer user_data)
+test_tracker_sparql_query_iterate_sigpipe (gpointer      *fixture,
+                                           gconstpointer  user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -292,8 +289,8 @@ test_tracker_sparql_query_iterate_sigpipe (DataFixture  *fixture,
 }
 
 static void
-test_tracker_sparql_update_fast_small (DataFixture  *fixture,
-                                       gconstpointer user_data)
+test_tracker_sparql_update_fast_small (gpointer      *fixture,
+                                       gconstpointer  user_data)
 {
 	GError *error = NULL;
 	const gchar *query = "INSERT { _:x a nfo:Image }";
@@ -304,8 +301,8 @@ test_tracker_sparql_update_fast_small (DataFixture  *fixture,
 }
 
 static void
-test_tracker_sparql_update_fast_large (DataFixture  *fixture,
-                                       gconstpointer user_data)
+test_tracker_sparql_update_fast_large (gpointer      *fixture,
+                                       gconstpointer  user_data)
 {
 	GError *error = NULL;
 	gchar *lots;
@@ -343,7 +340,7 @@ async_update_array_callback (GObject      *source_object,
 
 
 static void
-test_tracker_sparql_update_array_async (DataFixture   *fixture,
+test_tracker_sparql_update_array_async (gpointer      *fixture,
                                         gconstpointer  user_data)
 {
 	const gchar *queries[6] = { "INSERT { _:a a nfo:Image }",
@@ -393,7 +390,7 @@ async_update_array_empty_callback (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_array_async_empty (DataFixture   *fixture,
+test_tracker_sparql_update_array_async_empty (gpointer      *fixture,
                                               gconstpointer  user_data)
 {
 	const gchar **queries = NULL;
@@ -421,8 +418,8 @@ test_tracker_sparql_update_array_async_empty (DataFixture   *fixture,
 }
 
 static void
-test_tracker_sparql_update_fast_error (DataFixture  *fixture,
-                                       gconstpointer user_data)
+test_tracker_sparql_update_fast_error (gpointer      *fixture,
+                                       gconstpointer  user_data)
 {
 	GError *error = NULL;
 	const gchar *query = "blork blork blork";
@@ -434,8 +431,8 @@ test_tracker_sparql_update_fast_error (DataFixture  *fixture,
 }
 
 static void
-test_tracker_sparql_update_blank_fast_small (DataFixture  *fixture,
-                                             gconstpointer user_data)
+test_tracker_sparql_update_blank_fast_small (gpointer      *fixture,
+                                             gconstpointer  user_data)
 {
 	GError *error = NULL;
 	const gchar *query = "INSERT { _:x a nfo:Image }";
@@ -450,8 +447,8 @@ test_tracker_sparql_update_blank_fast_small (DataFixture  *fixture,
 }
 
 static void
-test_tracker_sparql_update_blank_fast_large (DataFixture  *fixture,
-                                             gconstpointer user_data)
+test_tracker_sparql_update_blank_fast_large (gpointer      *fixture,
+                                             gconstpointer  user_data)
 {
 	GError *error = NULL;
 	gchar *lots;
@@ -476,8 +473,8 @@ test_tracker_sparql_update_blank_fast_large (DataFixture  *fixture,
 }
 
 static void
-test_tracker_sparql_update_blank_fast_error (DataFixture  *fixture,
-                                             gconstpointer user_data)
+test_tracker_sparql_update_blank_fast_error (gpointer      *fixture,
+                                             gconstpointer  user_data)
 {
 	GError *error = NULL;
 	const gchar *query = "blork blork blork";
@@ -492,8 +489,8 @@ test_tracker_sparql_update_blank_fast_error (DataFixture  *fixture,
 }
 
 static void
-test_tracker_sparql_update_blank_fast_no_blanks (DataFixture  *fixture,
-                                                 gconstpointer user_data)
+test_tracker_sparql_update_blank_fast_no_blanks (gpointer      *fixture,
+                                                 gconstpointer  user_data)
 {
 	GError *error = NULL;
 	const gchar *query = "INSERT { <urn:not_blank> a nfo:Image }";
@@ -508,8 +505,8 @@ test_tracker_sparql_update_blank_fast_no_blanks (DataFixture  *fixture,
 }
 
 static void
-test_tracker_batch_sparql_update_fast (DataFixture  *fixture,
-                                       gconstpointer user_data)
+test_tracker_batch_sparql_update_fast (gpointer      *fixture,
+                                       gconstpointer  user_data)
 {
 	/* GError *error = NULL; */
 	/* const gchar *query = "INSERT { _:x a nfo:Image }"; */
@@ -557,8 +554,8 @@ async_query_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_query_iterate_async (DataFixture  *fixture,
-                                         gconstpointer user_data)
+test_tracker_sparql_query_iterate_async (gpointer      *fixture,
+                                         gconstpointer  user_data)
 {
 	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
 	GMainLoop *main_loop;
@@ -599,8 +596,8 @@ cancel_query_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_query_iterate_async_cancel (DataFixture  *fixture,
-                                                gconstpointer user_data)
+test_tracker_sparql_query_iterate_async_cancel (gpointer      *fixture,
+                                                gconstpointer  user_data)
 {
 	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
 	GMainLoop *main_loop;
@@ -637,8 +634,8 @@ async_update_callback (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_async (DataFixture  *fixture,
-                                  gconstpointer user_data)
+test_tracker_sparql_update_async (gpointer      *fixture,
+                                  gconstpointer  user_data)
 {
 	const gchar *query = "INSERT { _:x a nfo:Image }";
 	GMainLoop *main_loop;
@@ -678,8 +675,8 @@ cancel_update_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_async_cancel (DataFixture  *fixture,
-                                         gconstpointer user_data)
+test_tracker_sparql_update_async_cancel (gpointer      *fixture,
+                                         gconstpointer  user_data)
 {
 	GCancellable *cancellable = g_cancellable_new ();
 	const gchar *query = "INSERT { _:x a nfo:Image }";
@@ -717,8 +714,8 @@ async_update_blank_callback (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_update_blank_async (DataFixture *fixture,
-                                        gconstpointer user_data)
+test_tracker_sparql_update_blank_async (gpointer      *fixture,
+                                        gconstpointer  user_data)
 {
 	const gchar *query = "INSERT { _:x a nfo:Image }";
 	GMainLoop *main_loop;
@@ -820,47 +817,47 @@ main (gint argc, gchar **argv)
 
 	connection = create_dbus_connection (NULL);
 
-	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_query_iterate, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_largerow", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_largerow", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_query_iterate_largerow, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_error", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_error", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_query_iterate_error, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_empty", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_empty", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_query_iterate_empty, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_empty/subprocess", DataFixture, NULL,
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_empty/subprocess", gpointer, NULL,
 			insert_test_data, test_tracker_sparql_query_iterate_empty_subprocess, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_sigpipe", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_sigpipe", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_query_iterate_sigpipe, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_fast_small", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_fast_small", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_fast_small, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_fast_large", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_fast_large", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_fast_large, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_fast_error", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_fast_error", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_fast_error, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_small", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_small", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_blank_fast_small, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_large", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_large", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_blank_fast_large, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_error", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_error", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_blank_fast_error, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_no_blanks", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_fast_no_blanks", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_blank_fast_no_blanks, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_batch_sparql_update_fast", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_batch_sparql_update_fast", gpointer, NULL, insert_test_data,
 			test_tracker_batch_sparql_update_fast, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_async", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_async", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_query_iterate_async, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_async_cancel", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_query_iterate_async_cancel", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_query_iterate_async_cancel, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_async", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_async", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_async, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_async_cancel", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_async_cancel", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_async_cancel, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_async", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_blank_async", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_blank_async, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_array_async", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_array_async", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_array_async, delete_test_data);
-	g_test_add ("/steroids/tracker/tracker_sparql_update_array_async_empty", DataFixture, NULL, insert_test_data,
+	g_test_add ("/steroids/tracker/tracker_sparql_update_array_async_empty", gpointer, NULL, insert_test_data,
 			test_tracker_sparql_update_array_async_empty, delete_test_data);
 
 	return g_test_run ();

@@ -169,7 +169,7 @@ query_request_new (TrackerEndpointDBus   *endpoint,
 
 	stream = g_unix_output_stream_new (fd, TRUE);
 	buffered_stream = g_buffered_output_stream_new_sized (stream,
-	                                                      getpagesize ());
+	                                                      sysconf (_SC_PAGE_SIZE));
 
 	request->data_stream = g_data_output_stream_new (buffered_stream);
 	g_data_output_stream_set_byte_order (request->data_stream,
@@ -212,7 +212,7 @@ update_request_new (TrackerEndpointDBus   *endpoint,
 	stream = g_unix_input_stream_new (input, TRUE);
 	request->input_stream = g_data_input_stream_new (stream);
 	g_buffered_input_stream_set_buffer_size (G_BUFFERED_INPUT_STREAM (request->input_stream),
-	                                         getpagesize ());
+	                                         sysconf (_SC_PAGE_SIZE));
 	g_data_input_stream_set_byte_order (request->input_stream,
 	                                    G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 	g_object_unref (stream);

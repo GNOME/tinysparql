@@ -31,6 +31,6 @@
 G_DECLARE_FINAL_TYPE (TrackerSerializerXml,
                       tracker_serializer_xml,
                       TRACKER, SERIALIZER_XML,
-                      TrackerSerializer);
+                      TrackerSerializer)
 
 #endif /* TRACKER_SERIALIZER_XML_H */

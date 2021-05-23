@@ -139,7 +139,7 @@ enum {
 	PROP_MANAGER
 };
 
-G_DEFINE_TYPE (TrackerData, tracker_data, G_TYPE_OBJECT);
+G_DEFINE_TYPE (TrackerData, tracker_data, G_TYPE_OBJECT)
 
 static void         cache_insert_value         (TrackerData      *data,
                                                 const gchar      *table_name,
