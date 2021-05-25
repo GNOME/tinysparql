@@ -1647,7 +1647,6 @@ get_old_property_values (TrackerData      *data,
 				old_values = get_property_values (data, property, error);
 			}
 
-			data->resource_buffer->fts_updated = TRUE;
 		} else {
 			old_values = get_property_values (data, property, error);
 		}
@@ -1901,6 +1900,9 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 	super_properties = tracker_property_get_super_properties (property);
 	multiple_values = tracker_property_get_multiple_values (property);
 
+	data->resource_buffer->fts_updated |=
+		tracker_property_get_fulltext_indexed (property);
+
 	while (*super_properties) {
 		gboolean super_is_multi;
 		GArray *super_old_values;
@@ -1911,6 +1913,9 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 			g_propagate_error (error, new_error);
 			return FALSE;
 		}
+
+		data->resource_buffer->fts_updated |=
+			tracker_property_get_fulltext_indexed (*super_properties);
 
 		if (super_is_multi || super_old_values->len == 0) {
 			change |= cache_insert_metadata_decomposed (data, *super_properties, object,
