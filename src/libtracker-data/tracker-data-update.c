@@ -87,12 +87,12 @@ struct _TrackerDataUpdateBufferProperty {
 	const gchar *name;
 	GValue value;
 	guint delete_all_values : 1;
+	guint delete_value : 1;
 };
 
 struct _TrackerDataUpdateBufferTable {
 	gboolean insert;
 	gboolean delete_row;
-	gboolean delete_value;
 	gboolean multiple_values;
 	TrackerClass *class;
 	/* TrackerDataUpdateBufferProperty */
@@ -641,7 +641,6 @@ cache_delete_all_values (TrackerData *data,
 	property.delete_all_values = TRUE;
 
 	table = cache_ensure_table (data, table_name, TRUE);
-	table->delete_value = TRUE;
 	g_array_append_val (table->properties, property);
 }
 
@@ -656,12 +655,12 @@ cache_delete_value (TrackerData *data,
 	TrackerDataUpdateBufferProperty  property = { 0 };
 
 	property.name = field_name;
+	property.delete_value = TRUE;
 
 	g_value_init (&property.value, G_VALUE_TYPE (value));
 	g_value_copy (value, &property.value);
 
 	table = cache_ensure_table (data, table_name, multiple_values);
-	table->delete_value = TRUE;
 	g_array_append_val (table->properties, property);
 }
 
@@ -832,12 +831,12 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 			for (i = 0; i < table->properties->len; i++) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
 
-				if (table->delete_value && property->delete_all_values) {
+				if (property->delete_all_values) {
 					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 					                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
 					                                               database,
 					                                               table_name);
-				} else if (table->delete_value) {
+				} else if (property->delete_value) {
 					/* delete rows for multiple value properties */
 					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 					                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ? AND \"%s\" = ?",
@@ -968,7 +967,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 
 			for (i = 0; i < table->properties->len; i++) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
-				if (table->delete_value) {
+				if (property->delete_value) {
 					/* just set value to NULL for single value properties */
 					tracker_db_statement_bind_null (stmt, param++);
 				} else {
