@@ -37,9 +37,9 @@
     <para>
       The <function><link linkend="tracker-sparql-connection-query-statement">tracker_sparql_connection_query_statement</link></function>
       function can be used to obtain a <link linkend="TrackerSparqlStatement">TrackerSparqlStatement</link> object holding a prepared SPARQL
-	    query that can then be executed with <function><link linkend="tracker-sparql-statement-execute">tracker_sparql_statement_execute</link>.
+	    query that can then be executed with <function><link linkend="tracker-sparql-statement-execute">tracker_sparql_statement_execute</link></function>.
 	    The query string can contain <systemitem>~name</systemitem> placeholders which can be replaced with arbitrary values before query execution with the
-	    <function><link linkend="tracker-sparql-statement-bind-string">tracker_sparql_statement_bind_string</link> and similar functions.
+	    <function><link linkend="tracker-sparql-statement-bind-string">tracker_sparql_statement_bind_string</link></function> and similar functions.
 	    This allows parsing the query string only once and to execute it multiple times with different parameters with potentially significant performance gains.
     </para>
 
