@@ -2361,25 +2361,6 @@ tracker_db_interface_sqlite_fts_create_query (TrackerDBInterface  *db_interface,
 	return g_string_free (insert_str, FALSE);
 }
 
-static gchar *
-tracker_db_interface_sqlite_fts_create_delete_all_query (TrackerDBInterface *db_interface,
-                                                         const gchar        *database)
-{
-	GString *insert_str;
-
-	insert_str = g_string_new (NULL);
-	g_string_append_printf (insert_str,
-	                        "INSERT INTO \"%s\".fts5 (fts5, rowid %s) "
-	                        "SELECT 'delete', rowid %s FROM \"%s\".fts_view "
-	                        "WHERE rowid = ? AND COALESCE(NULL %s) IS NOT NULL",
-				database,
-	                        db_interface->fts_properties,
-	                        db_interface->fts_properties,
-	                        database,
-				db_interface->fts_properties);
-	return g_string_free (insert_str, FALSE);
-}
-
 gboolean
 tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
                                              const gchar         *database,
@@ -2471,44 +2452,6 @@ tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
 
 	if (error) {
 		g_warning ("Could not delete FTS text: %s", error->message);
-		g_error_free (error);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-gboolean
-tracker_db_interface_sqlite_fts_delete_id (TrackerDBInterface *db_interface,
-                                           const gchar        *database,
-                                           int                 id)
-{
-	TrackerDBStatement *stmt;
-	GError *error = NULL;
-	gchar *query;
-
-	query = tracker_db_interface_sqlite_fts_create_delete_all_query (db_interface, database);
-	stmt = tracker_db_interface_create_statement (db_interface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error,
-	                                              query);
-	g_free (query);
-
-	if (!stmt || error) {
-		if (error) {
-			g_warning ("Could not create FTS delete statement: %s",
-			           error->message);
-			g_error_free (error);
-		}
-		return FALSE;
-	}
-
-	tracker_db_statement_bind_int (stmt, 0, id);
-	tracker_db_statement_execute (stmt, &error);
-	g_object_unref (stmt);
-
-	if (error) {
-		g_warning ("Could not delete FTS content: %s", error->message);
 		g_error_free (error);
 		return FALSE;
 	}

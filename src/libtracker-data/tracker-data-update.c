@@ -87,12 +87,12 @@ struct _TrackerDataUpdateBufferProperty {
 	const gchar *name;
 	GValue value;
 	guint delete_all_values : 1;
+	guint delete_value : 1;
 };
 
 struct _TrackerDataUpdateBufferTable {
 	gboolean insert;
 	gboolean delete_row;
-	gboolean delete_value;
 	gboolean multiple_values;
 	TrackerClass *class;
 	/* TrackerDataUpdateBufferProperty */
@@ -641,7 +641,6 @@ cache_delete_all_values (TrackerData *data,
 	property.delete_all_values = TRUE;
 
 	table = cache_ensure_table (data, table_name, TRUE);
-	table->delete_value = TRUE;
 	g_array_append_val (table->properties, property);
 }
 
@@ -656,12 +655,12 @@ cache_delete_value (TrackerData *data,
 	TrackerDataUpdateBufferProperty  property = { 0 };
 
 	property.name = field_name;
+	property.delete_value = TRUE;
 
 	g_value_init (&property.value, G_VALUE_TYPE (value));
 	g_value_copy (value, &property.value);
 
 	table = cache_ensure_table (data, table_name, multiple_values);
-	table->delete_value = TRUE;
 	g_array_append_val (table->properties, property);
 }
 
@@ -833,12 +832,12 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 			for (i = 0; i < table->properties->len; i++) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
 
-				if (table->delete_value && property->delete_all_values) {
+				if (property->delete_all_values) {
 					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 					                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
 					                                               database,
 					                                               table_name);
-				} else if (table->delete_value) {
+				} else if (property->delete_value) {
 					/* delete rows for multiple value properties */
 					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 					                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ? AND \"%s\" = ?",
@@ -969,7 +968,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 
 			for (i = 0; i < table->properties->len; i++) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
-				if (table->delete_value) {
+				if (property->delete_value) {
 					/* just set value to NULL for single value properties */
 					tracker_db_statement_bind_null (stmt, param++);
 				} else {
@@ -1648,7 +1647,6 @@ get_old_property_values (TrackerData      *data,
 				old_values = get_property_values (data, property, error);
 			}
 
-			data->resource_buffer->fts_updated = TRUE;
 		} else {
 			old_values = get_property_values (data, property, error);
 		}
@@ -1902,6 +1900,9 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 	super_properties = tracker_property_get_super_properties (property);
 	multiple_values = tracker_property_get_multiple_values (property);
 
+	data->resource_buffer->fts_updated |=
+		tracker_property_get_fulltext_indexed (property);
+
 	while (*super_properties) {
 		gboolean super_is_multi;
 		GArray *super_old_values;
@@ -1912,6 +1913,9 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 			g_propagate_error (error, new_error);
 			return FALSE;
 		}
+
+		data->resource_buffer->fts_updated |=
+			tracker_property_get_fulltext_indexed (*super_properties);
 
 		if (super_is_multi || super_old_values->len == 0) {
 			change |= cache_insert_metadata_decomposed (data, *super_properties, object,
@@ -2090,8 +2094,6 @@ cache_delete_resource_type_full (TrackerData   *data,
 	if (!single_type) {
 		if (strcmp (tracker_class_get_uri (class), TRACKER_PREFIX_RDFS "Resource") == 0 &&
 		    g_hash_table_size (data->resource_buffer->tables) == 0) {
-			tracker_db_interface_sqlite_fts_delete_id (iface, database, data->resource_buffer->id);
-			data->resource_buffer->fts_updated = TRUE;
 
 			/* skip subclass query when deleting whole resource
 			   to improve performance */
