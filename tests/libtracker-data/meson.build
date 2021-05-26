@@ -44,6 +44,6 @@ foreach base_name: libtracker_data_slow_tests
         'name': base_name,
         'exe': binary,
         'suite': ['data', 'slow'],
-        'timeout': 280
+        'timeout': 100
     }
 endforeach

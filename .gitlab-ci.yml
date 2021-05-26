@@ -1,7 +1,11 @@
-# The container images used in this pipeline are built from this
-# GitLab project: https://gitlab.gnome.org/GNOME/tracker-oci-images
+include:
+  - remote: "https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/290b79e0e78eab67a83766f4e9691be554fc4afd/templates/ci-fairy.yml"
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/290b79e0e78eab67a83766f4e9691be554fc4afd/templates/alpine.yml'
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/290b79e0e78eab67a83766f4e9691be554fc4afd/templates/fedora.yml'
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/290b79e0e78eab67a83766f4e9691be554fc4afd/templates/ubuntu.yml'
 
 variables:
+  MESON_TEST_TIMEOUT_MULTIPLIER: 3
   # These can be used to see verbose log output from the functional-tests.
   # See HACKING.md for more information.
   TRACKER_DEBUG: ""
@@ -10,25 +14,228 @@ variables:
   MESON_TEST_EXTRA_ARGS: ""
 
 stages:
+  - review
+  - prepare
+  - build
   - test
   - analysis
   - website
 
-.test_template: &test
-  stage: test
+.check-template: &check
+  extends:
+    - .fdo.ci-fairy
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - check-junit-report.xml
+    reports:
+      junit: check-junit-report.xml
 
+check-commit-log:
+  variables:
+    GIT_DEPTH: "100"
+  stage: review
   script:
-    - mkdir build
+    - if [[ x"$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" != "x" ]] ;
+      then
+        ci-fairy check-commits --junit-xml=check-junit-report.xml ;
+      else
+        echo "Not a merge request" ;
+      fi
+  <<: *check
+
+check-merge-request:
+  variables:
+    GIT_STRATEGY: none
+  stage: review
+  script:
+    - if [[ x"$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" != "x" ]] ;
+      then
+        ci-fairy check-merge-request --require-allow-collaboration --junit-xml=check-junit-report.xml ;
+      else
+        echo "Not a merge request" ;
+      fi
+  <<: *check
+
+.tracker.fedora@common:
+  variables:
+    BASE_TAG: '2021-05-15.9'
+    FDO_UPSTREAM_REPO: GNOME/tracker
+    FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto'
+    FDO_DISTRIBUTION_EXEC: |
+      dnf install -y 'dnf-command(builddep)' &&
+      dnf builddep -y tracker tracker-miners --setopt=install_weak_deps=False &&
+      dnf clean all &&
+      pip3 install beautifulsoup4 mkdocs mkdocs-cinder tap.py meson
+
+.tracker.ubuntu@common:
+  variables:
+    BASE_TAG: '2021-05-15.5'
+    FDO_UPSTREAM_REPO: GNOME/tracker
+    FDO_DISTRIBUTION_PACKAGES: 'python3-tap umockdev libumockdev-dev upower asciidoc-base git'
+    FDO_DISTRIBUTION_EXEC: |
+      export DEBIAN_FRONTEND=noninteractive &&
+      sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list &&
+      apt-get -yq update && apt-get -yq upgrade &&
+      apt-get -yq build-dep tracker tracker-miners
+
+.tracker.alpine@common:
+  variables:
+    BASE_TAG: '2021-05-15.5'
+    FDO_UPSTREAM_REPO: GNOME/tracker
+    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala'
+
+.tracker.fedora:34@x86_64:
+  extends: .tracker.fedora@common
+  variables:
+    FDO_DISTRIBUTION_VERSION: 34
+    FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
+
+.tracker.fedora:rawhide@x86_64:
+  extends: .tracker.fedora@common
+  variables:
+    FDO_DISTRIBUTION_VERSION: rawhide
+    FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
+
+.tracker.fedora:34@aarch64:
+  extends: .tracker.fedora@common
+  variables:
+    FDO_DISTRIBUTION_VERSION: 34
+    FDO_DISTRIBUTION_TAG: "aarch64-${BASE_TAG}"
+  tags:
+    - aarch64
+
+.tracker.ubuntu:rolling@x86_64:
+  extends: .tracker.ubuntu@common
+  variables:
+    FDO_DISTRIBUTION_VERSION: rolling
+    FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
+
+.tracker.alpine:edge@x86_64:
+  extends: .tracker.alpine@common
+  variables:
+    FDO_DISTRIBUTION_VERSION: edge
+    FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
+
+build-fedora-container@x86_64:
+  extends:
+    - .fdo.container-build@fedora
+    - .tracker.fedora:34@x86_64
+  stage: prepare
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - check-commit-log
+    - check-merge-request
+
+build-fedora-rawhide-container@x86_64:
+  extends:
+    - .fdo.container-build@fedora
+    - .tracker.fedora:rawhide@x86_64
+  stage: prepare
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - check-commit-log
+    - check-merge-request
+
+build-fedora-container@aarch64:
+  extends:
+    - .fdo.container-build@fedora
+    - .tracker.fedora:34@aarch64
+  stage: prepare
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - check-commit-log
+    - check-merge-request
+
+build-ubuntu-container@x86_64:
+  extends:
+    - .fdo.container-build@ubuntu
+    - .tracker.ubuntu:rolling@x86_64
+  stage: prepare
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - check-commit-log
+    - check-merge-request
+
+build-alpine-container@x86_64:
+  extends:
+    - .fdo.container-build@alpine
+    - .tracker.alpine:edge@x86_64
+  stage: prepare
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - check-commit-log
+    - check-merge-request
+
+.build-template: &build
+  stage: build
+  script:
+    - meson . build -Db_lto=true -Db_coverage=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
+    - ninja -C build
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build
+
+build-fedora@x86_64:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:34@x86_64
+  needs:
+    - build-fedora-container@x86_64
+  <<: *build
+
+build-fedora-rawhide@x86_64:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:rawhide@x86_64
+  needs:
+    - build-fedora-rawhide-container@x86_64
+  <<: *build
+
+build-fedora@aarch64:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:34@aarch64
+  needs:
+    - build-fedora-container@aarch64
+  allow_failure: true
+  <<: *build
+
+build-ubuntu-rolling@x86_64:
+  extends:
+    - .fdo.distribution-image@ubuntu
+    - .tracker.ubuntu:rolling@x86_64
+  needs:
+    - build-ubuntu-container@x86_64
+  <<: *build
+
+build-alpine-edge@x86_64:
+  extends:
+    - .fdo.distribution-image@alpine
+    - .tracker.alpine:edge@x86_64
+  needs:
+    - build-alpine-container@x86_64
+  <<: *build
+
+.test-template: &test
+  stage: test
+  variables:
+    G_SLICE: "always-malloc"
+    MALLOC_CHECK_: "3"
+  script:
     - cd build
-    - meson .. -Db_lto=true -Db_coverage=true -Dsystemd_user_services=false -Dtests_tap_protocol=true
-    - ninja
     - |
       # Remove the many "CI_" variables from the environment. Meson dumps the
       # whole environment for every failed test, and that gives a whole
       # screenful of junk each time unless we strip these.
       unset $(env|grep -o '^CI_[^=]*')
-      env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session eatmydata meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
-
+      env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
   after_script:
     - |
       echo "Distribution: "
@@ -42,51 +249,78 @@ stages:
       echo "MESON_TEST_EXTRA_ARGS: ${MESON_TEST_EXTRA_ARGS}"
       echo
       echo "These values can be set at https://gitlab.gnome.org/GNOME/tracker/pipelines/new"
-
   artifacts:
+    expire_in: 1 day
     when: always
     paths:
-    - build/meson-logs/testlog.txt
+    - build
     reports:
       junit: "build/meson-logs/testlog.junit.xml"
 
-
-test-alpine-edge:
-  image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/alpine:edge
+test-fedora@x86_64:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:34@x86_64
+  needs:
+    - build-fedora@x86_64
   <<: *test
 
-test-fedora-latest:
-  image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:latest
+test-fedora-rawhide@x86_64:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:rawhide@x86_64
+  needs:
+    - build-fedora-rawhide@x86_64
   <<: *test
 
-test-ubuntu-rolling:
-  image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/ubuntu:rolling
+test-fedora@aarch64:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:34@aarch64
+  needs:
+    - build-fedora@aarch64
+  allow_failure: true
   <<: *test
 
-test-fedora-rawhide:
-  image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:rawhide
+test-ubuntu@x86_64:
+  extends:
+    - .fdo.distribution-image@ubuntu
+    - .tracker.ubuntu:rolling@x86_64
+  needs:
+    - build-ubuntu-rolling@x86_64
+  <<: *test
+
+test-alpine@x86_64:
+  extends:
+    - .fdo.distribution-image@alpine
+    - .tracker.alpine:edge@x86_64
+  needs:
+    - build-alpine-edge@x86_64
   <<: *test
 
 coverage-analysis:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:rawhide@x86_64
   stage: analysis
-  image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:latest
   allow_failure: true
   script:
-    - mkdir -p coverage-build/coveragereport
-    - cd coverage-build
-    - meson .. -Db_lto=true -Db_coverage=true
-    - ninja
-    - env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session eatmydata meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
+    - cd build
+    - mkdir -p coveragereport
     - gcovr --html-details --print-summary --root=.. --exclude=../docs/reference --exclude=../tests --exclude=../utils --exclude=../examples --output coveragereport/index.html
   coverage: '/^lines: (\d+\.\d+\%)/'
   artifacts:
     when: always
     paths:
-    - coverage-build/coveragereport
+    - build/coveragereport
+  needs:
+    - test-fedora@x86_64
 
 coverity:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:rawhide@x86_64
   stage: analysis
-  image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:latest
   allow_failure: true
   script:
     - curl https://scan.coverity.com/download/linux64 --data "token=$COVERITY_TOKEN&project=Tracker" --output /tmp/coverity_tool.tgz
@@ -100,19 +334,38 @@ coverity:
       --form token=$COVERITY_TOKEN --form email=carlosg@gnome.org
       --form file=@cov-int.tar.gz --form version="`git describe --tags`"
       --form description="gitlab CI build"
+  needs:
+    - build-fedora-rawhide-container@x86_64
   only:
     - master
+  except:
+    changes:
+      - po/*.po
+
+static-scan:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:rawhide@x86_64
+  stage: analysis
+  needs:
+    - build-fedora-rawhide-container@x86_64
+  script:
+    - meson --buildtype=debug _scan_build
+    - ninja -C _scan_build scan-build
+  artifacts:
+    paths:
+      - _scan_build/meson-logs
+  allow_failure: true
 
 pages:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:rawhide@x86_64
   stage: website
-  image: registry.gitlab.gnome.org/gnome/tracker-oci-images/amd64/fedora:latest
-  dependencies: []
-  before_script:
-    - pip3 install beautifulsoup4 mkdocs mkdocs-cinder
   script:
     - export install_prefix="$(pwd)/tracker-install"
     # Build tracker and install.
-    - mkdir build; pushd build; meson .. --prefix="$install_prefix"; ninja install; popd
+    - mkdir website-build; pushd website-build; meson .. --prefix="$install_prefix"; ninja; ninja install; popd
     # Build tracker-miners and install any documentation from there as well.
     - .gitlab-ci/checkout-tracker-miners.sh
     - pushd extra/tracker-miners; mkdir build; pushd build; env PKG_CONFIG_PATH="$install_prefix/lib64/pkgconfig" meson .. --prefix="$install_prefix"; ninja install; popd; popd
@@ -124,6 +377,8 @@ pages:
   artifacts:
     paths:
       - public
+  needs:
+    - build-fedora-rawhide-container@x86_64
   only:
     - master
     - /^sam\/website.*$/

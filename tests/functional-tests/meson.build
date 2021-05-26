@@ -51,7 +51,7 @@ foreach test_name: functional_tests
     env: test_env,
     protocol: protocol,
     suite: ['functional'],
-    timeout: 60)
+    timeout: 30)
 endforeach
 
 subdir('ipc')

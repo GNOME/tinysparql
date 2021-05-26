@@ -5,7 +5,7 @@ tracker_target=
 mkdir extra
 cd extra
 
-git clone https://gitlab.gnome.org/GNOME/tracker-miners.git
+git clone --depth 1 https://gitlab.gnome.org/GNOME/tracker-miners.git
 
 if [ $? -ne 0 ]; then
   echo Checkout failed
