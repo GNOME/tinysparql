@@ -177,6 +177,8 @@ build-alpine-container@x86_64:
   script:
     - meson . build -Db_lto=true -Db_coverage=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
     - ninja -C build
+    - |
+      if [ -z "$NO_DOCS" ]; then ninja -C build libtracker-sparql-3-doc ontology-3-doc; fi
   artifacts:
     expire_in: 1 day
     paths:
@@ -221,6 +223,8 @@ build-alpine-edge@x86_64:
     - .tracker.alpine:edge@x86_64
   needs:
     - build-alpine-container@x86_64
+  variables:
+    NO_DOCS: "true"
   <<: *build
 
 .test-template: &test
