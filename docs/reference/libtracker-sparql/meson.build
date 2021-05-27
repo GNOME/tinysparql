@@ -1,6 +1,7 @@
 content = [
   'overview.md',
   'ontologies.md',
+  'examples.md',
   'limits.md',
   'performance.md',
   'sparql-and-tracker.md',
