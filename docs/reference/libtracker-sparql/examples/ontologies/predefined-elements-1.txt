@@ -1,1 +1,0 @@
-ex:self a ex:Mammal.
