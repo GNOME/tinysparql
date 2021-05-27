@@ -6,6 +6,7 @@ content = [
   'performance.md',
   'sparql-and-tracker.md',
   'sparql-functions.md',
+  'migrating-2to3.md',
   'tutorial.md',
 ]
 
