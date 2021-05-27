@@ -2,6 +2,7 @@ content = [
   'overview.md',
   'limits.md',
   'performance.md',
+  'sparql-functions.md',
   'tutorial.md',
 ]
 
