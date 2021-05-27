@@ -1,6 +1,7 @@
 content = [
   'overview.md',
   'limits.md',
+  'performance.md',
   'tutorial.md',
 ]
 
