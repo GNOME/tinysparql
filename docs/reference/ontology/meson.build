@@ -17,6 +17,5 @@ gnome.gtkdoc('ontology',
     src_dir: include_directories('.'),
     main_xml: 'ontology-docs.xml',
     html_assets: icon_images,
-    fixxref_args: fixxref_args,
     module_version: tracker_api_major,
     install: true)
