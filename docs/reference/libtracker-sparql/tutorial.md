@@ -140,115 +140,75 @@ got unwieldly soon! Luckily, that is not necessarily the case, the
 variables may be used anywhere in the triple definition, with other
 triple elements consisting of literals you want to match for, e.g.:
 
-<!--       <example> -->
-<!-- 	<title> -->
-<!-- 	  Give me the title of resource <systemitem><a></systemitem> (Result: "Images"). -->
-<!--         </title> -->
-<!--         <programlisting language="SPARQL"> -->
-<!-- SELECT ?songName { <a> nie:title ?songName } -->
-<!-- 	</programlisting> -->
-<!--       </example> -->
+```
+# Give me the title of resource <a> (Result: "Images")
+SELECT ?songName { <a> nie:title ?songName }
+```
 
-<!--       <example> -->
-<!-- 	<title> -->
-<!-- 	  What is this text to <b>? (Result: the nie:title) -->
-<!--         </title> -->
-<!--         <programlisting language="SPARQL"> -->
-<!-- SELECT ?predicate { <b> ?predicate "Go Off!" } -->
-<!--         </programlisting> -->
-<!--       </example> -->
+```SPARQL
+# What is this text to <b>? (Result: the nie:title)
+SELECT ?predicate { <b> ?predicate "Go Off!" }
+```
 
-<!--       <example> -->
-<!-- 	<title> -->
-<!-- 	  What is the resource URI of this fine musician? (Result: <systemitem><d></systemitem>) -->
-<!--         </title> -->
-<!--         <programlisting language="SPARQL"> -->
-<!-- SELECT ?subject { ?subject nmm:artistName "Marty Friedman" } -->
-<!--         </programlisting> -->
-<!--       </example> -->
+```SPARQL
+# What is the resource URI of this fine musician? (Result: <d>)
+SELECT ?subject { ?subject nmm:artistName "Marty Friedman" }
+```
 
-<!--       <example> -->
-<!-- 	<title> -->
-<!-- 	  Give me all resources that are a music piece (Result: <systemitem><a></systemitem>) -->
-<!--         </title> -->
-<!--         <programlisting language="SPARQL"> -->
-<!-- SELECT ?song { ?song a nmm:MusicPiece } -->
-<!--         </programlisting> -->
-<!--       </example> -->
-<!--     </para> -->
-<!--     <para> -->
-<!--       And also combinations of them, for example: -->
+```SPARQL
+# Give me all resources that are a music piece (Result: <a>)
+SELECT ?song { ?song a nmm:MusicPiece }
+```
 
-<!--       <example> -->
-<!-- 	<title> -->
-<!-- 	  Give me all predicate/object pairs for resource <systemitem><a></systemitem> -->
-<!--         </title> -->
-<!--         <programlisting language="SPARQL"> -->
-<!-- SELECT ?pred ?obj { <a> ?pred ?obj } -->
-<!--         </programlisting> -->
-<!--       </example> -->
+And also combinations of them, for example:
 
-<!--       <example> -->
-<!-- 	<title> -->
-<!-- 	  <quote>The Answer to the Ultimate Question of Life, the Universe, and Everything</quote> -->
-<!--         </title> -->
-<!--         <programlisting language="SPARQL"> -->
-<!-- SELECT ?subj ?pred { ?subj ?pred 42 } -->
-<!--         </programlisting> -->
-<!--       </example> -->
+```SPARQL
+# Give me all predicate/object pairs for resource <a>
+SELECT ?pred ?obj { <a> ?pred ?obj }
+```
 
-<!--       <example> -->
-<!-- 	<title> -->
-<!-- 	  Give me all resources that have a title, and their title. -->
-<!--         </title> -->
-<!--         <programlisting language="SPARQL"> -->
-<!-- SELECT ?subj ?obj { ?subj nie:title ?obj } -->
-<!--         </programlisting> -->
-<!--       </example> -->
+```SPARQL
+# The Answer to the Ultimate Question of Life, the Universe, and Everything
+SELECT ?subj ?pred { ?subj ?pred 42 }
+```
 
-<!--       And of course, the graph pattern can hold more complex triple -->
-<!--       definitions, that will be matched as a whole across the stored -->
-<!--       data. for example: -->
+```SPARQL
+# Give me all resources that have a title, and their title.
+SELECT ?subj ?obj { ?subj nie:title ?obj }
+```
 
-<!--       <example> -->
-<!-- 	<title> -->
-<!-- 	  Give me all songs from this fine album -->
-<!--         </title> -->
-<!--         <programlisting language="SPARQL"> -->
-<!-- SELECT ?song { ?album nie:title "Go Off!" . -->
-<!--                ?song nmm:musicAlbum ?album } -->
-<!--         </programlisting> -->
-<!--       </example> -->
+And of course, the graph pattern can hold more complex triple
+definitions, that will be matched as a whole across the stored
+data. for example:
 
-<!--       <example> -->
-<!-- 	<title> -->
-<!-- 	  Give me all song resources, their title, and their album title -->
-<!--         </title> -->
-<!--         <programlisting language="SPARQL"> -->
-<!-- SELECT ?song ?songTitle ?albumTitle { ?song a nmm:MusicPiece ; -->
-<!--                                             nmm:musicAlbum ?album ; -->
-<!--                                             nie:title ?songTitle . -->
-<!--                                       ?album nie:title ?albumTitle } -->
-<!--         </programlisting> -->
-<!--       </example> -->
-<!--     </para> -->
-<!--     <para> -->
-<!--       Stop a bit to think on the graph pattern expressed in the last query: -->
-<!--       <graphic fileref="triple-graph-3.png" format="PNG"></graphic> -->
+```SPARQL
+# Give me all songs from this fine album
+SELECT ?song { ?album nie:title "Go Off!" .
+               ?song nmm:musicAlbum ?album }
+```
 
-<!-- This pattern on one hand consists of specified data (eg. ?song must be -->
-<!-- a <systemitem>nmm:MusicPiece</systemitem>, it must have a -->
-<!-- <systemitem>nmm:musicAlbum</systemitem> and a -->
-<!-- <systemitem>nie:title</systemitem>, ?album must have a -->
-<!-- <systemitem>nie:title</systemitem>), which must all apply for a match -->
-<!-- to happen. -->
- 
+```SPARQL
+# Give me all song resources, their title, and their album title
+SELECT ?song ?songTitle ?albumTitle { ?song a nmm:MusicPiece ;
+                                            nmm:musicAlbum ?album ;
+                                            nie:title ?songTitle .
+                                      ?album nie:title ?albumTitle }
+```
+
+Stop a bit to think on the graph pattern expressed in the last query:
+![Graph Pattern](triple-graph-3.png)
+
+This pattern on one hand consists of specified data (eg. `?song` must be
+a `nmm:MusicPiece`, it must have a `nmm:musicAlbum` and a `nie:title`,
+`?album` must have a `nie:title`, which must all apply for a match
+to happen.
+
 On the other hand, the graph pattern contains a number of variables,
 some only used internally in the graph pattern, as a temporary
 variable of sorts (?album, in order to express the relation between
 ?song and its album title), while other variables are requested in the
 result set.
- 
+
   <!-- FIXME: Keep writing! -->
   <!--
   <chapter id="tracker-tutorial-ontologies">
@@ -276,7 +236,7 @@ result set.
     <title>Filtering data</title>
   </chapter>
   <chapter id="tracker-tutorial-binding">
-g    <title>Binding expressions to variables</title>
+    <title>Binding expressions to variables</title>
   </chapter>
   <chapter id="tracker-tutorial-aggregates">
     <title>Aggregates</title>
