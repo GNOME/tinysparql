@@ -31,5 +31,6 @@ content_files = [
 content_images = [
     "images/triple-graph-1.png",
     "images/triple-graph-2.png",
+    "images/triple-graph-3.png",
 ]
 # urlmap_file = "urlmap.js"
