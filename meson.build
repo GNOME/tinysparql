@@ -3,7 +3,7 @@ project('tracker', 'c', 'vala',
         meson_version: '>=0.51',
         default_options: [
           'c_std=c99',
-          'warning_level=3'])
+          'warning_level=2'])
 
 gnome = import('gnome')
 i18n = import('i18n')
