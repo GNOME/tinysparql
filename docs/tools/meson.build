@@ -1,11 +1,15 @@
 # These tools are used for generating the ontologies documentation.
 
-ttl_loader_files = [
-    'ttl_loader.c',
-    'ttl_model.c',
+doctool_gresources = gnome.compile_resources('tracker_doctool_gresources', 'dsc-ontology.gresource.xml')
+
+doctool_files = [
+    'tracker-ontology-model.c',
     'ttl_xml.c',
+    'ttlresource2xml.c',
+    'ttl2xml.c',
 ]
 
 ttl2xml = executable('ttl2xml',
-    ttl_loader_files, 'ttl2xml.c', 'ttlresource2xml.c',
-    dependencies: [tracker_data_dep, tracker_sparql_dep])
+    doctool_files,
+    doctool_gresources,
+    dependencies: [tracker_sparql_dep])

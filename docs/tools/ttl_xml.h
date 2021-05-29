@@ -21,15 +21,15 @@
 #define __TTL_XML_H__
 
 #include <gio/gio.h>
-#include "ttl_model.h"
-#include <stdio.h>
+#include "tracker-ontology-model.h"
 
 G_BEGIN_DECLS
 
-void ttl_xml_print (OntologyDescription *description,
-                    Ontology            *ontology,
-                    GFile               *file,
-                    const gchar         *description_dir);
+void ttl_xml_print (TrackerOntologyDescription *description,
+                    TrackerOntologyModel       *model,
+		    const gchar                *prefix,
+                    GFile                      *output_location,
+                    const gchar                *description_dir);
 
 G_END_DECLS
 

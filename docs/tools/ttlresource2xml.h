@@ -23,18 +23,18 @@
 #define __TTLRESOURCE2XML_H__
 
 #include <glib.h>
-#include "ttl_model.h"
+#include "tracker-ontology-model.h"
 
 G_BEGIN_DECLS
 
-void print_ontology_class (Ontology      *ontology,
-                           OntologyClass *klass,
-                           FILE          *f);
-void print_ontology_extra_properties (Ontology      *ontology,
-                                      const char    *ontology_prefix,
-                                      const char    *classname,
-                                      GList         *properties_for_class,
-                                      FILE          *f);
+void print_ontology_class (TrackerOntologyModel *model,
+                           TrackerOntologyClass *klass,
+                           FILE                 *f);
+void print_ontology_extra_properties (TrackerOntologyModel *model,
+                                      const char           *ontology_prefix,
+                                      const char           *classname,
+                                      GList                *properties_for_class,
+                                      FILE                 *f);
 
 G_END_DECLS
 

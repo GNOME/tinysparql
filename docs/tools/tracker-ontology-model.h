@@ -17,15 +17,19 @@
  * 02110-1301, USA.
  */
 
-#ifndef __TTL_MODEL_H__
-#define __TTL_MODEL_H__
+#ifndef TRACKER_ONTOLOGY_MODEL_H
+#define TRACKER_ONTOLOGY_MODEL_H
 
 #include <glib.h>
 
 G_BEGIN_DECLS
 
+typedef struct _TrackerOntologyModel TrackerOntologyModel;
+
 typedef struct {
 	gchar *classname;
+	gchar *shortname;
+	gchar *basename;
 	gchar *specification;
 	GList *superclasses;
 	GList *subclasses;
@@ -35,12 +39,13 @@ typedef struct {
 	GList *instances;
 	gboolean notify;
 	gboolean deprecated;
-} OntologyClass;
+} TrackerOntologyClass;
 
 typedef struct {
 	gchar *propertyname;
+	gchar *shortname;
+	gchar *basename;
 	gchar *specification;
-	GList *type;
 	GList *domain;
 	GList *range;
 	GList *superproperties;
@@ -50,7 +55,7 @@ typedef struct {
 	gboolean deprecated;
         gboolean fulltextIndexed;
         gchar *weight;
-} OntologyProperty;
+} TrackerOntologyProperty;
 
 typedef struct {
 	gchar *title;
@@ -64,30 +69,27 @@ typedef struct {
 	gchar *baseUrl;
 	gchar *localPrefix;
 	gchar *relativePath;
-} OntologyDescription;
+} TrackerOntologyDescription;
 
-typedef struct {
-	GHashTable *classes;
-	GHashTable *properties;
-	GHashTable *prefixes;
-} Ontology;
+TrackerOntologyModel * tracker_ontology_model_new (GFile   *ontology_location,
+                                                   GError **error);
+void tracker_ontology_model_free (TrackerOntologyModel *model);
 
+GStrv tracker_ontology_model_get_prefixes (TrackerOntologyModel *model);
 
-OntologyClass *       ttl_model_class_new        (const gchar *classname);
-void                  ttl_model_class_free       (OntologyClass *klass);
+TrackerOntologyDescription * tracker_ontology_model_get_description (TrackerOntologyModel *model,
+                                                                     const gchar          *prefix);
 
-OntologyDescription * ttl_model_description_new  (void);
-void                  ttl_model_description_free (OntologyDescription *desc);
+GList * tracker_ontology_model_list_classes (TrackerOntologyModel *model,
+                                             const gchar          *prefix);
+GList * tracker_ontology_model_list_properties (TrackerOntologyModel *model,
+                                                const gchar          *prefix);
 
-OntologyProperty *    ttl_model_property_new     (const gchar *propname);
-void                  ttl_model_property_free    (OntologyProperty *property);
+TrackerOntologyClass * tracker_ontology_model_get_class (TrackerOntologyModel *model,
+                                                         const gchar          *class_name);
+TrackerOntologyProperty * tracker_ontology_model_get_property (TrackerOntologyModel *model,
+                                                               const gchar          *prop_name);
 
-gchar *               ttl_model_name_to_shortname (Ontology    *ontology,
-                                                   const gchar *name,
-                                                   const gchar *separator);
-
-gchar *               ttl_model_name_to_basename (Ontology    *ontology,
-                                                  const gchar *name);
 G_END_DECLS
 
-#endif /* __TRACKER_TTL_MODEL_H__ */
+#endif /* TRACKER_ONTOLOGY_MODEL_H */
