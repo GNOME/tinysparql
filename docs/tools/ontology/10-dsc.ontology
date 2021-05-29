@@ -1,0 +1,65 @@
+# Ontology to load ontology descriptions, coming
+# as .description files alongside ontologies.
+@prefix dsc: <http://tracker.api.gnome.org/ontology/v3/dsc#> .
+@prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+dsc: a nrl:Namespace, nrl:Ontology ;
+	nrl:prefix "dsc" ;
+	nrl:lastModified "2021-05-28T14:00:00Z" .
+
+dsc:Ontology a rdfs:Class ;
+	rdfs:subClassOf rdfs:Resource .
+
+dsc:title a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain dsc:Ontology ;
+	rdfs:range xsd:string .
+
+dsc:description a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain dsc:Ontology ;
+	rdfs:range xsd:string .
+
+dsc:author a rdf:Property ;
+	rdfs:domain dsc:Ontology ;
+	rdfs:range xsd:string .
+
+dsc:editor a rdf:Property ;
+	rdfs:domain dsc:Ontology ;
+	rdfs:range xsd:string .
+
+dsc:contributor a rdf:Property ;
+	rdfs:domain dsc:Ontology ;
+	rdfs:range xsd:string .
+
+dsc:upstream a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain dsc:Ontology ;
+	rdfs:range xsd:string .
+
+dsc:gitlog a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain dsc:Ontology ;
+	rdfs:range xsd:string .
+
+dsc:localPrefix a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain dsc:Ontology ;
+	rdfs:range xsd:string .
+
+dsc:baseUrl a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain dsc:Ontology ;
+	rdfs:range xsd:string .
+
+dsc:relativePath a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain dsc:Ontology ;
+	rdfs:range xsd:string .
+
+dsc:copyright a rdf:Property ;
+	rdfs:domain dsc:Ontology ;
+	rdfs:range xsd:string .

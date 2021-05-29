@@ -1,0 +1,5 @@
+<gresources>
+  <gresource prefix="/org/freedesktop/tracker/doctool">
+    <file>ontology/10-dsc.ontology</file>
+  </gresource>
+</gresources>

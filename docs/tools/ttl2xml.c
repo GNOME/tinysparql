@@ -21,10 +21,9 @@
 #include <gio/gio.h>
 #include <string.h>
 #include <stdio.h>
-#include "ttl_loader.h"
-#include "ttl_model.h"
+
+#include "tracker-ontology-model.h"
 #include "ttl_xml.h"
-#include "ttlresource2xml.h"
 
 static gchar *ontology_dir = NULL;
 static gchar *output_dir = NULL;
@@ -46,69 +45,16 @@ static GOptionEntry   entries[] = {
 	{ NULL }
 };
 
-static gint
-compare_files (gconstpointer a,
-	       gconstpointer b)
-{
-	const GFile *file_a = a, *file_b = b;
-	gchar *basename_a, *basename_b;
-	gint res;
-
-	basename_a = g_file_get_basename ((GFile*) file_a);
-	basename_b = g_file_get_basename ((GFile*) file_b);
-	res = strcmp (basename_a, basename_b);
-
-	g_free (basename_a);
-	g_free (basename_b);
-
-	return res;
-}
-
-static GList *
-get_description_files (GFile *dir)
-{
-	GFileEnumerator *enumerator;
-	GFileInfo *info;
-	GFile *desc_file;
-	GList *files;
-	const gchar *name;
-
-	enumerator = g_file_enumerate_children (dir,
-	                                        G_FILE_ATTRIBUTE_STANDARD_NAME,
-	                                        G_FILE_QUERY_INFO_NONE,
-	                                        NULL, NULL);
-
-	if (!enumerator) {
-		return NULL;
-	}
-
-	files = NULL;
-
-	while ((info = g_file_enumerator_next_file (enumerator, NULL, NULL)) != NULL) {
-		name = g_file_info_get_name (info);
-
-		if (g_str_has_suffix (name, ".description")) {
-			desc_file = g_file_enumerator_get_child (enumerator, info);
-			files = g_list_insert_sorted (files, desc_file, compare_files);
-		}
-
-		g_object_unref (info);
-	}
-
-	g_object_unref (enumerator);
-
-	return files;
-}
-
 gint
 main (gint argc, gchar **argv)
 {
 	GOptionContext *context;
-	OntologyDescription *description = NULL;
-	GList *description_files, *l;
+	TrackerOntologyDescription *description = NULL;
+	TrackerOntologyModel *model = NULL;
 	g_autoptr(GFile) ontology_file = NULL, output_file = NULL;
 	gchar *path;
-	gboolean success;
+	GStrv prefixes = NULL;
+	gint i;
 	g_autoptr(GError) error = NULL;
 
 	/* Translators: this messagge will apper immediately after the  */
@@ -136,47 +82,31 @@ main (gint argc, gchar **argv)
 
 	ontology_file = g_file_new_for_commandline_arg (ontology_dir);
 	output_file = g_file_new_for_commandline_arg (output_dir);
-	description_files = get_description_files (ontology_file);
 
-	if (!description_files) {
-		g_printerr ("Ontology description files not found in dir\n");
+	model = tracker_ontology_model_new (ontology_file, &error);
+	if (error) {
+		g_printerr ("Error loading ontology: %s\n", error->message);
+		g_error_free (error);
 		return -1;
 	}
+
+	prefixes = tracker_ontology_model_get_prefixes (model);
 
 	path = g_file_get_path (output_file);
 	g_mkdir_with_parents (path, 0755);
 	g_free (path);
 
-	success = TRUE;
-	for (l = description_files; l; l = l->next) {
-		Ontology *ontology = NULL;
-		g_autoptr(GFile) ttl_file = NULL, ttl_output_file = NULL;
-		gchar *filename;
+	for (i = 0; prefixes[i]; i++) {
+		description = tracker_ontology_model_get_description (model, prefixes[i]);
+		if (!description)
+			continue;
 
-		description = ttl_loader_load_description (l->data);
-		ttl_file = g_file_get_child (ontology_file, description->relativePath);
-
-		filename = g_strdup_printf ("%s-ontology.xml", description->localPrefix);
-		ttl_output_file = g_file_get_child (output_file, filename);
-		g_free (filename);
-
-		ontology = ttl_loader_new_ontology ();
-
-		success &= ttl_loader_load_ontology (ontology, ttl_file, &error);
-
-		if (error) {
-			g_printerr ("%s: Turtle parse error: %s\n", g_file_peek_path (ttl_file), error->message);
-			g_clear_error (&error);
-		}
-
-		ttl_xml_print (description, ontology, ttl_output_file, description_dir);
-
-		ttl_loader_free_ontology (ontology);
-		ttl_loader_free_description (description);
+		ttl_xml_print (description, model, prefixes[i], output_file, description_dir);
 	}
-	g_list_free_full (description_files, (GDestroyNotify) g_object_unref);
 
+	g_strfreev (prefixes);
+	tracker_ontology_model_free (model);
 	g_option_context_free (context);
 
-	return !(success);
+	return 0;
 }

@@ -23,8 +23,8 @@
 #include "ttlresource2xml.h"
 
 typedef struct {
-	Ontology *ontology;
-	OntologyDescription *description;
+	TrackerOntologyModel *model;
+	TrackerOntologyDescription *description;
 	FILE *output;
 } CallbackInfo;
 
@@ -88,7 +88,7 @@ print_deprecated_message (FILE *f)
 #endif
 
 static void
-print_xml_header (FILE *f, OntologyDescription *desc)
+print_xml_header (FILE *f, TrackerOntologyDescription *desc)
 {
 	g_fprintf (f, "<?xml version='1.0' encoding='UTF-8'?>\n");
 	g_fprintf (f, "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook XML V4.5//EN\"\n"
@@ -107,7 +107,7 @@ print_xml_header (FILE *f, OntologyDescription *desc)
 }
 
 static void
-print_xml_footer (FILE *f, OntologyDescription *desc)
+print_xml_footer (FILE *f, TrackerOntologyDescription *desc)
 {
 	g_fprintf (f, "<refsect1>\n");
 	g_fprintf (f, "<title>Credits and Copyright</title>\n");
@@ -131,12 +131,6 @@ print_xml_footer (FILE *f, OntologyDescription *desc)
 	g_fprintf (f, "</refentry>\n");
 }
 
-static gint compare_class (gconstpointer a,
-                           gconstpointer b)
-{
-	return strcmp (((OntologyClass *)a)->classname, ((OntologyClass *)b)->classname);
-}
-
 /* By default we list properties under their respective class.
  *
  * Ontologies can contain properties whose class is in a different
@@ -146,8 +140,9 @@ static gint compare_class (gconstpointer a,
  * extra properties provided for that class.
  */
 static GHashTable *
-get_extra_properties (GList *classes,
-                      GList *properties)
+get_extra_properties (TrackerOntologyModel *model,
+                      GList                *classes,
+                      GList                *properties)
 {
 	GList *l, *c;
 	GHashTable *extra_properties;
@@ -158,17 +153,27 @@ get_extra_properties (GList *classes,
 	extra_properties = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
 	for (l = properties; l; l = l->next) {
-		OntologyProperty *prop = l->data;
+		TrackerOntologyProperty *prop;
 		gboolean has_domain_in_this_ontology = FALSE;
 
-		for (c = classes; c; c = c->next) {
-			OntologyClass *klass;
+		prop = tracker_ontology_model_get_property (model, l->data);
 
-			klass = c->data;
-			if (g_list_find_custom (prop->domain, klass->classname, (GCompareFunc)strcmp)) {
-				has_domain_in_this_ontology = TRUE;
-				break;
+		for (c = prop->domain; c; c = c->next) {
+			TrackerOntologyDescription *desc = NULL;
+			TrackerOntologyClass *klass;
+			gchar *prefix;
+			const gchar *sep;
+
+			klass = tracker_ontology_model_get_class (model, c->data);
+			sep = strstr (klass->shortname, ":");
+
+			if (sep) {
+				prefix = g_strndup (klass->shortname, sep - klass->shortname);
+				desc = tracker_ontology_model_get_description (model, prefix);
+				g_free (prefix);
 			}
+
+			has_domain_in_this_ontology = desc != NULL;
 		}
 
 		if (!has_domain_in_this_ontology) {
@@ -194,8 +199,8 @@ get_extra_properties (GList *classes,
 }
 
 static void
-print_synopsis (FILE                 *f,
-                OntologyDescription *desc)
+print_synopsis (FILE                       *f,
+                TrackerOntologyDescription *desc)
 {
 	g_fprintf (f, "<refsynopsisdiv>\n");
 	g_fprintf (f, "<synopsis>\n");
@@ -205,10 +210,10 @@ print_synopsis (FILE                 *f,
 }
 
 static void
-print_toc_classes (FILE       *f,
-                   Ontology   *ontology,
-                   const char *id,
-                   GList      *classes)
+print_toc_classes (FILE                 *f,
+                   TrackerOntologyModel *model,
+                   const char           *id,
+                   GList                *classes)
 {
 	GList *l;
 
@@ -219,12 +224,12 @@ print_toc_classes (FILE       *f,
 	g_fprintf (f, "<title>Classes</title>");
 
 	for (l = classes; l; l = l->next) {
-		OntologyClass *klass;
-		g_autofree char *basename = NULL, *id = NULL;
+		TrackerOntologyClass *klass;
+		const char *basename = NULL, *id = NULL;
 
-		klass = l->data;
-		basename = ttl_model_name_to_basename (ontology, klass->classname);
-		id = ttl_model_name_to_shortname (ontology, klass->classname, "-");
+		klass = tracker_ontology_model_get_class (model, l->data);
+		basename = klass->basename;
+		id = klass->shortname;
 
 		if (l != classes) {
 			g_fprintf (f, ", ");
@@ -236,10 +241,10 @@ print_toc_classes (FILE       *f,
 }
 
 static void
-print_toc_extra_properties (FILE       *f,
-                            Ontology   *ontology,
-                            const char *id,
-                            GHashTable *extra_properties)
+print_toc_extra_properties (FILE                 *f,
+                            TrackerOntologyModel *model,
+                            const char           *id,
+                            GHashTable           *extra_properties)
 {
 	GList *props_for_class, *c, *l;
 	g_autoptr(GList) classes = NULL;
@@ -259,13 +264,12 @@ print_toc_extra_properties (FILE       *f,
 		classname = c->data;
 		props_for_class = g_hash_table_lookup (extra_properties, classname);
 		for (l = props_for_class; l; l = l->next) {
-			OntologyProperty *prop;
-			g_autofree char *basename = NULL, *prop_id = NULL;
+			TrackerOntologyProperty *prop;
+			const char *basename = NULL, *prop_id = NULL;
 
-			prop = g_hash_table_lookup (ontology->properties, l->data);
-
-			basename = ttl_model_name_to_basename (ontology, prop->propertyname);
-			prop_id = ttl_model_name_to_shortname (ontology, prop->propertyname, "-");
+			prop = tracker_ontology_model_get_property (model, l->data);
+			basename = prop->basename;
+			prop_id = prop->shortname;
 
 			if (print_comma) {
 				g_fprintf (f, ", ");
@@ -282,16 +286,22 @@ print_toc_extra_properties (FILE       *f,
 
 /* Generate docbook XML document for one ontology. */
 void
-ttl_xml_print (OntologyDescription *description,
-               Ontology            *ontology,
-               GFile               *file,
-               const gchar         *description_dir)
+ttl_xml_print (TrackerOntologyDescription *description,
+               TrackerOntologyModel       *model,
+	       const gchar                *prefix,
+               GFile                      *output_location,
+               const gchar                *description_dir)
 {
-	gchar *upper_name, *path, *introduction, *basename;
+	gchar *upper_name, *path, *introduction, *basename, *filename;
 	g_autoptr(GList) classes = NULL, properties = NULL, extra_classes = NULL;
 	g_autoptr(GHashTable) extra_properties = NULL;
+	GFile *file;
 	GList *l;
 	FILE *f;
+
+	filename = g_strdup_printf ("%s-ontology.xml", description->localPrefix);
+	file = g_file_get_child (output_location, filename);
+	g_free (filename);
 
 	path = g_file_get_path (file);
 	f = fopen (path, "w");
@@ -299,16 +309,15 @@ ttl_xml_print (OntologyDescription *description,
 	g_free (path);
 
 	upper_name = g_ascii_strup (description->localPrefix, -1);
-	classes = g_list_sort (g_hash_table_get_values (ontology->classes), compare_class);
-	properties = g_hash_table_get_values (ontology->properties);
-
-	extra_properties = get_extra_properties (classes, properties);
+	classes = tracker_ontology_model_list_classes (model, prefix);
+	properties = tracker_ontology_model_list_properties (model, prefix);
+	extra_properties = get_extra_properties (model, classes, properties);
 
 	print_xml_header (f, description);
 
 	print_synopsis (f, description);
-	print_toc_classes (f, ontology, description->localPrefix, classes);
-	print_toc_extra_properties (f, ontology, description->localPrefix, extra_properties);
+	print_toc_classes (f, model, description->localPrefix, classes);
+	print_toc_extra_properties (f, model, description->localPrefix, extra_properties);
 
 	basename = g_strdup_printf ("%s-introduction.xml", description->localPrefix);
 	introduction = g_build_filename (description_dir, basename, NULL);
@@ -320,11 +329,14 @@ ttl_xml_print (OntologyDescription *description,
 	}
 
 	if (classes != NULL) {
-    	g_fprintf (f, "<refsect1 id='%s-classes'>\n", description->localPrefix);
+		g_fprintf (f, "<refsect1 id='%s-classes'>\n", description->localPrefix);
 		g_fprintf (f, "<title>Class Details</title>\n");
 
 		for (l = classes; l; l = l->next) {
-			print_ontology_class (ontology, l->data, f);
+			TrackerOntologyClass *klass;
+
+			klass = tracker_ontology_model_get_class (model, l->data);
+			print_ontology_class (model, klass, f);
 		}
 
 		g_fprintf (f, "</refsect1>\n");
@@ -344,7 +356,7 @@ ttl_xml_print (OntologyDescription *description,
 
 			properties_for_class = g_hash_table_lookup (extra_properties, classname);
 			if (properties_for_class) {
-				print_ontology_extra_properties (ontology, description->localPrefix, classname, properties_for_class, f);
+				print_ontology_extra_properties (model, description->localPrefix, classname, properties_for_class, f);
 			}
 		}
 
@@ -355,5 +367,6 @@ ttl_xml_print (OntologyDescription *description,
 
 	g_free (upper_name);
 	g_free (introduction);
+	g_object_unref (file);
 	fclose (f);
 }

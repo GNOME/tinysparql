@@ -23,39 +23,34 @@
 #include <glib/gprintf.h>
 #include <gio/gio.h>
 #include <stdlib.h>
-#include "ttl_loader.h"
-#include "ttl_model.h"
+#include "tracker-ontology-model.h"
 #include "ttl_xml.h"
 #include "ttlresource2xml.h"
 
 static void
-class_get_parent_hierarchy (Ontology       *ontology,
-                            const gchar    *class_name,
-                            GList         **list)
+class_get_parent_hierarchy (TrackerOntologyModel  *model,
+                            const gchar           *class_name,
+                            GList                **list)
 {
-	OntologyClass *klass;
+	TrackerOntologyClass *klass;
 	GList *l;
 
 	/* Ensure we only got the same class there once */
 	*list = g_list_remove (*list, (gpointer) class_name);
 	*list = g_list_prepend (*list, (gpointer) class_name);
 
-	klass = g_hash_table_lookup (ontology->classes, class_name);
-
-	if (!klass) {
-		klass = ttl_model_class_new (class_name);
-		g_hash_table_insert (ontology->classes, g_strdup (klass->classname), klass);
+	klass = tracker_ontology_model_get_class (model, class_name);
+	if (!klass)
 		return;
-	}
 
 	for (l = klass->superclasses; l; l = l->next) {
-		class_get_parent_hierarchy (ontology, l->data, list);
+		class_get_parent_hierarchy (model, l->data, list);
 	}
 }
 
 static GList *
-class_get_hierarchy (Ontology      *ontology,
-                     OntologyClass *klass)
+class_get_hierarchy (TrackerOntologyModel *model,
+                     TrackerOntologyClass *klass)
 {
 	GList *hierarchy = NULL, *l;
 
@@ -68,40 +63,33 @@ class_get_hierarchy (Ontology      *ontology,
 		hierarchy = g_list_prepend (hierarchy, l->data);
 	}
 
-	class_get_parent_hierarchy (ontology, klass->classname, &hierarchy);
+	class_get_parent_hierarchy (model, klass->classname, &hierarchy);
 
 	return hierarchy;
 }
 
 static void
-print_predefined_instances (FILE          *f,
-                            OntologyClass *klass,
-                            Ontology      *ontology)
+print_predefined_instances (FILE                 *f,
+                            TrackerOntologyClass *klass,
+                            TrackerOntologyModel *model)
 {
-	gchar *shortname, *id;
+	const gchar *id;
 	GList *l;
 
 	if (!klass->instances)
 		return;
 
-	shortname = ttl_model_name_to_shortname (ontology, klass->classname, NULL);
-	id = ttl_model_name_to_shortname (ontology, klass->classname, "-");
+	id = klass->shortname;
 
 	g_fprintf (f, "<refsect3 id='%s.predefined-instances'>", id);
 	g_fprintf (f, "<title>Predefined instances</title><para>");
-	g_fprintf (f, "%s has the following predefined instances: ", shortname);
+	g_fprintf (f, "%s has the following predefined instances: ", klass->shortname);
         g_fprintf (f, "<itemizedlist>\n");
 
-	g_free (shortname);
-	g_free (id);
-
 	for (l = klass->instances; l; l = l->next) {
-		shortname = ttl_model_name_to_shortname (ontology, l->data, NULL);
-
 		g_fprintf (f, "<listitem><para>");
-		g_fprintf (f, "<literal>%s</literal>", shortname);
+		g_fprintf (f, "<literal>%s</literal>", (gchar*) l->data);
 		g_fprintf (f, "</para></listitem>\n");
-		g_free (shortname);
 	}
 
 	g_fprintf (f, "</itemizedlist></para></refsect3>\n");
@@ -113,7 +101,7 @@ typedef struct {
 } HierarchyString;
 
 typedef struct {
-	OntologyClass *class;
+	TrackerOntologyClass *class;
 	GList *hierarchy;
 	GHashTable *resolved_children;
 	GHashTable *resolved_parents;
@@ -180,15 +168,15 @@ list_filter (GList *original,
 }
 
 static HierarchyContext *
-hierarchy_context_new (OntologyClass *klass,
-                       Ontology      *ontology)
+hierarchy_context_new (TrackerOntologyClass *klass,
+                       TrackerOntologyModel *model)
 {
 	HierarchyContext *context;
 	GList *l;
 
 	context = g_new0 (HierarchyContext, 1);
 	context->class = klass;
-	context->hierarchy = class_get_hierarchy (ontology, klass);
+	context->hierarchy = class_get_hierarchy (model, klass);
 	context->placed = g_hash_table_new (g_str_hash, g_str_equal);
 	context->resolved_parents = g_hash_table_new_full (g_str_hash,
 	                                                   g_str_equal,
@@ -201,7 +189,7 @@ hierarchy_context_new (OntologyClass *klass,
 	context->strings = g_ptr_array_new_with_free_func ((GDestroyNotify) hierarchy_string_free);
 
 	for (l = context->hierarchy; l; l = l->next) {
-		OntologyClass *cl = g_hash_table_lookup (ontology->classes, l->data);
+		TrackerOntologyClass *cl = tracker_ontology_model_get_class (model, l->data);
 
 		g_hash_table_insert (context->resolved_parents,
 		                     cl->classname,
@@ -230,9 +218,9 @@ hierarchy_context_free (HierarchyContext *context)
 }
 
 static GList *
-hierarchy_context_get_single_parented_children (HierarchyContext *context,
-                                                OntologyClass    *klass,
-                                                Ontology         *ontology)
+hierarchy_context_get_single_parented_children (HierarchyContext     *context,
+                                                TrackerOntologyClass *klass,
+                                                TrackerOntologyModel *model)
 {
 	GList *filtered = NULL, *children, *l;
 
@@ -282,23 +270,22 @@ check_parents_placed (GList      *parents,
 }
 
 static void
-hierarchy_context_resolve_class (HierarchyContext *context,
-                                 OntologyClass    *klass,
-                                 Ontology         *ontology)
+hierarchy_context_resolve_class (HierarchyContext     *context,
+                                 TrackerOntologyClass *klass,
+                                 TrackerOntologyModel *model)
 {
 	GList *l = g_list_find_custom (context->hierarchy, klass->classname,
 				       (GCompareFunc) g_strcmp0);
 	gint pos = g_list_position (context->hierarchy, l);
 	GList *children, *parents;
-	gchar *shortname, *link;
+	const gchar *shortname, *link;
 	HierarchyString *str;
 	gboolean is_child;
 
 	if (pos < 0)
 		return;
 
-	shortname = ttl_model_name_to_shortname (ontology, klass->classname, NULL);
-	link = ttl_model_name_to_shortname (ontology, klass->classname, "-");
+	shortname = link = klass->shortname;
 	parents = g_hash_table_lookup (context->resolved_parents,
 	                               klass->classname);
 
@@ -367,7 +354,7 @@ hierarchy_context_resolve_class (HierarchyContext *context,
 		/* Step 2: Modify all strings downwards, adding the lineart
 		 * necessary for all children of this class.
 		 */
-		children = hierarchy_context_get_single_parented_children (context, klass, ontology);
+		children = hierarchy_context_get_single_parented_children (context, klass, model);
 		l = l->next;
 		pos++;
 
@@ -406,27 +393,24 @@ hierarchy_context_resolve_class (HierarchyContext *context,
 			}
 		}
 	}
-
-	g_free (shortname);
-	g_free (link);
 }
 
 static GPtrArray *
-class_get_parent_hierarchy_strings (OntologyClass *klass,
-                                    Ontology      *ontology)
+class_get_parent_hierarchy_strings (TrackerOntologyClass *klass,
+                                    TrackerOntologyModel *model)
 {
 	HierarchyContext *context;
 	GList *c;
 	GPtrArray *strings = NULL;
 
-	context = hierarchy_context_new (klass, ontology);
+	context = hierarchy_context_new (klass, model);
 
 	/* Proceed from parent to child classes, populating the 
 	 * context->strings array.
 	 */
 	for (c = context->hierarchy; c; c = c->next) {
-		OntologyClass *cl = g_hash_table_lookup (ontology->classes, c->data);
-		hierarchy_context_resolve_class (context, cl, ontology);
+		TrackerOntologyClass *cl = tracker_ontology_model_get_class (model, c->data);
+		hierarchy_context_resolve_class (context, cl, model);
 	}
 
 	strings = g_ptr_array_ref (context->strings);
@@ -436,26 +420,24 @@ class_get_parent_hierarchy_strings (OntologyClass *klass,
 }
 
 static void
-print_class_hierarchy (FILE          *f,
-                       OntologyClass *klass,
-                       Ontology      *ontology)
+print_class_hierarchy (FILE                 *f,
+                       TrackerOntologyClass *klass,
+                       TrackerOntologyModel *model)
 {
 	GPtrArray *strings;
-	gchar *id;
+	const gchar *id;
 	gsize i;
 
-	strings = class_get_parent_hierarchy_strings (klass, ontology);
+	strings = class_get_parent_hierarchy_strings (klass, model);
 
 	if (!strings)
 		return;
 
-	id = ttl_model_name_to_shortname (ontology, klass->classname, "-");
+	id = klass->shortname;
 
 	g_fprintf (f, "<refsect3 id='%s.hierarchy'>", id);
 	g_fprintf (f, "<title>Class hierarchy</title>");
 	g_fprintf (f, "<screen>");
-
-	g_free (id);
 
 	for (i = 0; i < strings->len; i++) {
 		HierarchyString *str = g_ptr_array_index (strings, i);
@@ -467,7 +449,7 @@ print_class_hierarchy (FILE          *f,
 }
 
 static void
-print_flag (FILE *f,
+print_flag (FILE        *f,
             const gchar *flag_property_link,
             const gchar *icon_name,
             const gchar *flag_description)
@@ -484,10 +466,10 @@ print_flag (FILE *f,
 }
 
 static void
-print_property_table (FILE          *f,
-                      Ontology      *ontology,
-                      const char    *id,
-                      GList         *properties)
+print_property_table (FILE                 *f,
+                      TrackerOntologyModel *model,
+                      const char           *id,
+                      GList                *properties)
 {
 	GList *l, *m;
 	g_autoptr(GList) properties_sorted = NULL;
@@ -509,16 +491,17 @@ print_property_table (FILE          *f,
 
 	g_fprintf (f, "<tbody>");
 	for (l = properties_sorted; l; l = l->next) {
-		OntologyProperty *prop;
-		g_autofree gchar *shortname = NULL, *basename = NULL, *type_name = NULL, *type_class_id = NULL, *prop_id = NULL;
+		TrackerOntologyProperty *prop;
+		TrackerOntologyClass *range;
+		const gchar *shortname = NULL, *basename = NULL, *type_name = NULL, *type_class_id = NULL, *prop_id = NULL;
 
-		prop = g_hash_table_lookup (ontology->properties, l->data);
+		prop = tracker_ontology_model_get_property (model, l->data);
+		range = tracker_ontology_model_get_class (model, prop->range->data);
 
-		prop_id = ttl_model_name_to_shortname (ontology, prop->propertyname, "-");
-		shortname = ttl_model_name_to_shortname (ontology, prop->propertyname, NULL);
-		basename = ttl_model_name_to_basename (ontology, prop->propertyname);
-		type_name = ttl_model_name_to_basename (ontology, prop->range->data);
-		type_class_id = ttl_model_name_to_shortname (ontology, prop->range->data, "-");
+		prop_id = shortname = prop->shortname;
+		basename = prop->basename;
+		type_name = range->basename;
+		type_class_id = range->shortname;
 
 		g_fprintf (f, "<row role=\"member\">");
 
@@ -548,11 +531,12 @@ print_property_table (FILE          *f,
 
 		if (prop->superproperties) {
 			for (m = prop->superproperties; m; m = m->next) {
-				g_autofree gchar *shortname = NULL, *superprop_id = NULL;
+				const gchar *shortname = NULL, *superprop_id = NULL;
 				g_autofree gchar *message = NULL;
+				TrackerOntologyProperty *superprop;
 
-				shortname = ttl_model_name_to_shortname (ontology, m->data, NULL);
-				superprop_id = ttl_model_name_to_shortname (ontology, m->data, "-");
+				superprop = tracker_ontology_model_get_property (model, m->data);
+				shortname = superprop_id = superprop->shortname;
 
 				message = g_strdup_printf ("This property extends %s", shortname);
 
@@ -596,16 +580,16 @@ print_property_table (FILE          *f,
 }
 
 void
-print_ontology_class (Ontology      *ontology,
-                      OntologyClass *klass,
-                      FILE          *f)
+print_ontology_class (TrackerOntologyModel *model,
+                      TrackerOntologyClass *klass,
+                      FILE                 *f)
 {
-	g_autofree gchar *name = NULL, *id = NULL;
+	const gchar *name = NULL, *id = NULL;
 
 	g_return_if_fail (f != NULL);
 
-	name = ttl_model_name_to_basename (ontology, klass->classname);
-	id = ttl_model_name_to_shortname (ontology, klass->classname, "-");
+	name = klass->basename;
+	id = klass->shortname;
 
 	/* Anchor for external links. */
 	g_fprintf (f, "<anchor id='%s' />\n", name);
@@ -645,29 +629,29 @@ print_ontology_class (Ontology      *ontology,
 		g_fprintf (f, "</refsect3>\n");
 	}
 
-	print_class_hierarchy (f, klass, ontology);
-	print_predefined_instances (f, klass, ontology);
+	print_class_hierarchy (f, klass, model);
+	print_predefined_instances (f, klass, model);
 
-	print_property_table (f, ontology, id, klass->in_domain_of);
+	print_property_table (f, model, id, klass->in_domain_of);
 
 	g_fprintf (f, "</refsect2>\n");
 }
 
 void
-print_ontology_extra_properties (Ontology      *ontology,
-                                 const char    *ontology_prefix,
-                                 const char    *classname,
-                                 GList         *properties_for_class,
-                                 FILE          *f)
+print_ontology_extra_properties (TrackerOntologyModel *model,
+                                 const char           *ontology_prefix,
+                                 const char           *classname,
+                                 GList                *properties_for_class,
+                                 FILE                 *f)
 {
-	g_autofree gchar *short_classname = NULL;
-	g_autofree gchar *section_id = NULL, *class_id = NULL;
+	TrackerOntologyClass *klass;
+	const gchar *short_classname = NULL, *class_id = NULL;
+	gchar *section_id = NULL;
 
 	g_return_if_fail (f != NULL);
 
-	short_classname = ttl_model_name_to_shortname (ontology, classname, ":");
-
-	class_id = ttl_model_name_to_shortname (ontology, classname, "-");
+	klass = tracker_ontology_model_get_class (model, classname);
+	short_classname = class_id = klass->shortname;
 	section_id = g_strconcat (ontology_prefix, ".", class_id, NULL);
 
 	g_fprintf (f, "<refsect2 role='rdf-property-list' id='%s'>\n", section_id);
@@ -679,6 +663,9 @@ print_ontology_extra_properties (Ontology      *ontology,
 	           short_classname);
 	g_fprintf (f, "</refsect3>\n");
 
-	print_property_table (f, ontology, section_id, properties_for_class);
+	print_property_table (f, model, section_id, properties_for_class);
 	g_fprintf (f, "</refsect2>\n");
+
+	g_free (section_id);
 }
+
