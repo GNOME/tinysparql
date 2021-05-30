@@ -6,7 +6,6 @@ doctool_files = [
     'tracker-ontology-model.c',
     'tracker-utils.c',
     'ttl_xml.c',
-    'ttlresource2xml.c',
     'ttl2xml.c',
 ]
 
