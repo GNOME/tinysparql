@@ -22,8 +22,8 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "tracker-docgen-xml.h"
 #include "tracker-ontology-model.h"
-#include "ttl_xml.h"
 
 static gchar *ontology_dir = NULL;
 static gchar *output_dir = NULL;

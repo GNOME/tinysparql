@@ -20,8 +20,8 @@
 #include <glib/gprintf.h>
 #include <gio/gio.h>
 
+#include "tracker-docgen-xml.h"
 #include "tracker-utils.h"
-#include "ttl_xml.h"
 
 typedef struct {
 	TrackerOntologyModel *model;
