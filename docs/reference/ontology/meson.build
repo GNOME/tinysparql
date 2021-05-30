@@ -4,11 +4,11 @@ version_xml = configure_file(input: 'version.xml.in',
 
 generated = custom_target('ontology-doc-generated',
     output: 'gen-doc.stamp',
-    command: [ttl2xml,
+    command: [tracker_docgen,
               '-d', join_paths(source_root, 'src/ontologies/nepomuk'),
               '-o', join_paths(meson.current_build_dir(), 'xml/'),
               '-e', meson.current_source_dir()],
-    depends: ttl2xml,
+    depends: tracker_docgen,
     depend_files: nepomuk,
     build_by_default: true,
 )
