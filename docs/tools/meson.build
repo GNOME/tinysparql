@@ -4,12 +4,12 @@ doctool_gresources = gnome.compile_resources('tracker_doctool_gresources', 'dsc-
 
 doctool_files = [
     'tracker-docgen-xml.c',
+    'tracker-main.c',
     'tracker-ontology-model.c',
     'tracker-utils.c',
-    'ttl2xml.c',
 ]
 
-ttl2xml = executable('ttl2xml',
+tracker_docgen = executable('tracker-docgen',
     doctool_files,
     doctool_gresources,
     dependencies: [tracker_sparql_dep])
