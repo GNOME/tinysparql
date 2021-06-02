@@ -3,6 +3,7 @@
 doctool_gresources = gnome.compile_resources('tracker_doctool_gresources', 'dsc-ontology.gresource.xml')
 
 doctool_files = [
+    'tracker-docgen-md.c',
     'tracker-docgen-xml.c',
     'tracker-main.c',
     'tracker-ontology-model.c',
