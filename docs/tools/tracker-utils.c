@@ -26,6 +26,11 @@
 
 #include "tracker-utils.h"
 
+enum {
+	INSERT_BEFORE,
+	INSERT_AFTER
+};
+
 static void
 class_get_parent_hierarchy (TrackerOntologyModel  *model,
                             const gchar           *class_name,
@@ -86,7 +91,9 @@ hierarchy_string_new (void)
 	HierarchyString *str;
 
 	str = g_new0 (HierarchyString, 1);
-	str->str = g_string_new ("");
+	str->before = g_string_new ("");
+	str->after = g_string_new ("");
+	str->link_label = g_string_new ("");
 
 	return str;
 }
@@ -94,31 +101,32 @@ hierarchy_string_new (void)
 static void
 hierarchy_string_free (HierarchyString *str)
 {
-	g_string_free (str->str, TRUE);
+	g_string_free (str->before, TRUE);
+	g_string_free (str->after, TRUE);
+	g_string_free (str->link_label, TRUE);
 	g_free (str);
 }
 
 static void
 hierarchy_string_append (HierarchyString *str,
+                         int              pos,
                          const gchar     *substr)
 {
-	g_string_append (str->str, substr);
+	if (pos == INSERT_BEFORE)
+		g_string_append (str->before, substr);
+	else
+		g_string_append (str->after, substr);
+
 	str->visible_len += g_utf8_strlen (substr, -1);
 }
 
 static void
-hierarchy_string_append_link (HierarchyString *str,
-                              const gchar     *substr,
-                              const gchar     *link,
-                              gboolean         bold)
+hierarchy_string_append_link (HierarchyString      *str,
+                              TrackerOntologyClass *klass)
 {
-	if (bold)
-		g_string_append_printf (str->str, "<emphasis><link linkend=\"%s\">%s</link></emphasis>",
-					link, substr);
-	else
-		g_string_append_printf (str->str, "<link linkend=\"%s\">%s</link>", link, substr);
-
-	str->visible_len += g_utf8_strlen (substr, -1);
+	g_string_append (str->link_label, klass->shortname);
+	str->class = klass;
+	str->visible_len += g_utf8_strlen (klass->shortname, -1);
 }
 
 static GList *
@@ -212,6 +220,7 @@ hierarchy_context_get_single_parented_children (HierarchyContext     *context,
 
 static void
 fill_padding (HierarchyString *str,
+              gint             pos,
               gint             max_len,
               gchar           *substr)
 {
@@ -221,7 +230,7 @@ fill_padding (HierarchyString *str,
 		return;
 
 	while (padding > 0) {
-		hierarchy_string_append (str, substr);
+		hierarchy_string_append (str, pos, substr);
 		padding--;
 	}
 }
@@ -249,14 +258,12 @@ hierarchy_context_resolve_class (HierarchyContext     *context,
 				       (GCompareFunc) g_strcmp0);
 	gint pos = g_list_position (context->hierarchy, l);
 	GList *children, *parents;
-	const gchar *shortname, *link;
 	HierarchyString *str;
 	gboolean is_child;
 
 	if (pos < 0)
 		return;
 
-	shortname = link = klass->shortname;
 	parents = g_hash_table_lookup (context->resolved_parents,
 	                               klass->classname);
 
@@ -293,25 +300,25 @@ hierarchy_context_resolve_class (HierarchyContext     *context,
 
 			str = g_ptr_array_index (context->strings, i);
 
-			fill_padding (str, max_len, is_child ? "─" : " ");
+			fill_padding (str, INSERT_AFTER, max_len, is_child ? "─" : " ");
 
 			if (first_pending) {
-				hierarchy_string_append (str, "──┐");
+				hierarchy_string_append (str, INSERT_AFTER, "──┐");
 				first_pending = FALSE;
 			} else if (is_child) {
-				hierarchy_string_append (str, "──┤");
+				hierarchy_string_append (str, INSERT_AFTER, "──┤");
 			} else {
-				hierarchy_string_append (str, "  │");
+				hierarchy_string_append (str, INSERT_AFTER, "  │");
 			}
 		}
 
 		/* Step 3: Finally, print the current class */
 		str = g_ptr_array_index (context->strings, pos);
-		fill_padding (str, max_len - 1, " ");
+		fill_padding (str, INSERT_BEFORE, max_len - 1, " ");
 
-		hierarchy_string_append (str, "   └── ");
-		hierarchy_string_append_link (str, shortname, link, klass == context->class);
-		hierarchy_string_append (str, " ");
+		hierarchy_string_append (str, INSERT_BEFORE, "   └── ");
+		hierarchy_string_append_link (str, klass);
+		hierarchy_string_append (str, INSERT_AFTER, " ");
 	} else {
 		/* The current class has only 1 parent, lineart for those is
 		 * displayed on the left side.
@@ -319,8 +326,8 @@ hierarchy_context_resolve_class (HierarchyContext     *context,
 
 		/* Step 1: Print the current class */
 		str = g_ptr_array_index (context->strings, pos);
-		hierarchy_string_append_link (str, shortname, link, klass == context->class);
-		hierarchy_string_append (str, " ");
+		hierarchy_string_append_link (str, klass);
+		hierarchy_string_append (str, INSERT_AFTER, " ");
 
 		/* Step 2: Modify all strings downwards, adding the lineart
 		 * necessary for all children of this class.
@@ -340,16 +347,16 @@ hierarchy_context_resolve_class (HierarchyContext     *context,
 
 			if (is_child) {
 				if (len > 1)
-					hierarchy_string_append (str, "├── ");
+					hierarchy_string_append (str, INSERT_BEFORE, "├── ");
 				else if (len == 1)
-					hierarchy_string_append (str, "╰── ");
+					hierarchy_string_append (str, INSERT_BEFORE, "╰── ");
 
 				children = g_list_delete_link (children, cur);
 				g_hash_table_insert (context->placed,
 				                     l->data, GINT_TO_POINTER (TRUE));
 			} else {
 				if (len > 0)
-					hierarchy_string_append (str, "│   ");
+					hierarchy_string_append (str, INSERT_BEFORE, "│   ");
 				else if (len == 0 &&
 					 !g_hash_table_lookup (context->placed, l->data)) {
 					GList *cl_parents;
@@ -358,7 +365,7 @@ hierarchy_context_resolve_class (HierarchyContext     *context,
 
 					if (g_list_length (cl_parents) == 1 ||
 					    !check_parents_placed (cl_parents, context->placed)) {
-						hierarchy_string_append (str, "    ");
+						hierarchy_string_append (str, INSERT_BEFORE, "    ");
 					}
 				}
 			}

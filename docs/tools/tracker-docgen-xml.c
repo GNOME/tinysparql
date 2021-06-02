@@ -78,7 +78,20 @@ print_class_hierarchy (FILE                 *f,
 
 	for (i = 0; i < strings->len; i++) {
 		HierarchyString *str = g_ptr_array_index (strings, i);
-		g_fprintf (f, "    %s\n", str->str->str);
+
+		if (str->class == klass) {
+			g_fprintf (f, "    %s<emphasis><link linkend=\"%s\">%s</link></emphasis>%s\n",
+			           str->before->str,
+			           str->class->shortname,
+			           str->link_label->str,
+			           str->after->str);
+		} else {
+			g_fprintf (f, "    %s<link linkend=\"%s\">%s</link>%s\n",
+			           str->before->str,
+			           str->class->shortname,
+			           str->link_label->str,
+			           str->after->str);
+		}
 	}
 
 	g_fprintf (f, "</screen></refsect3>\n");

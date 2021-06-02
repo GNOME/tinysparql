@@ -28,7 +28,10 @@
 G_BEGIN_DECLS
 
 typedef struct {
-	GString *str;
+	GString *before;
+	GString *after;
+	GString *link_label;
+	TrackerOntologyClass *class;
 	gint visible_len;
 } HierarchyString;
 
