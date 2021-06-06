@@ -2,5 +2,5 @@
 directory=gi-docgen
 url=https://gitlab.gnome.org/GNOME/gi-docgen.git
 push-url=ssh://git@gitlab.gnome.org:GNOME/gi-docgen.git
-revision=main
+revision=wip/carlosg/multi-content-dir
 depth=1
