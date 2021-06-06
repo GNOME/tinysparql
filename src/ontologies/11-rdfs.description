@@ -1,0 +1,12 @@
+@prefix dsc: <http://tracker.api.gnome.org/ontology/v3/dsc#> .
+
+<virtual-ontology-uri:11-rdfs.ontology> a dsc:Ontology ;
+	dsc:title "RDF Schema (RDFS)" ;
+	dsc:description "Data-modelling vocabulary for RDF data" ;
+	dsc:author "W3C" ;
+	dsc:editor "Tracker developers (translation into turtle)" ;
+	dsc:gitlog "http://git.gnome.org/cgit/tracker/log/src/ontologies/11-rdf.ontology";
+
+	dsc:localPrefix "rdfs" ;
+	dsc:baseUrl "http://www.w3.org/2000/01/rdf-schema#" ;
+	dsc:relativePath "./11-rdf.ontology" .
