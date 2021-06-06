@@ -1,3 +1,22 @@
+documents_with_examples = [
+  [ 'examples.md.in', 'examples.md' ],
+]
+examples = []
+
+foreach doc : documents_with_examples
+  examples += custom_target(
+    'examples-generate',
+    input: doc[0],
+    output: doc[1],
+    command: [
+      'embed-files.py',
+      '@INPUT@',
+      '@OUTPUT@',
+    ],
+    depend_files: [ doc[0] ],
+    build_by_default: true)
+endforeach
+
 base_ontology_docs = custom_target('ontology-docgen',
     output: ['dc-ontology.md'],
     command: [tracker_docgen,
@@ -12,7 +31,6 @@ base_ontology_docs = custom_target('ontology-docgen',
 content = [
   'overview.md',
   'ontologies.md',
-  'examples.md',
   'limits.md',
   'performance.md',
   'sparql-and-tracker.md',
@@ -22,6 +40,7 @@ content = [
 ]
 
 generated_content = [
+  'examples.md',
   'xsd-ontology.md',
   'dc-ontology.md',
   'rdf-ontology.md',
@@ -57,6 +76,6 @@ custom_target(
     '--content-dir=@0@'.format(icon_images_base),
     '@INPUT1@',
   ],
-  depends: [tracker_sparql_gir[0], base_ontology_docs],
+  depends: [tracker_sparql_gir[0], base_ontology_docs, examples],
   depend_files: [ content ],
   build_by_default: true)
