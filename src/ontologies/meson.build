@@ -2,6 +2,7 @@ base_ontology = files(
     '10-xsd.description',
     '10-xsd.ontology',
     '11-rdf.description',
+    '11-rdfs.description',
     '11-rdf.ontology',
     '12-nrl.description',
     '12-nrl.ontology',
