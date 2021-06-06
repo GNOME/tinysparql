@@ -1,3 +1,14 @@
+base_ontology_docs = custom_target('ontology-docgen',
+    output: ['dc-ontology.md'],
+    command: [tracker_docgen,
+              '--md',
+              '-d', join_paths(source_root, 'src/ontologies/'),
+              '-o', join_paths(meson.current_build_dir())],
+    depends: tracker_docgen,
+    depend_files: [base_ontology],
+    build_by_default: true,
+)
+
 content = [
   'overview.md',
   'ontologies.md',
@@ -10,9 +21,17 @@ content = [
   'tutorial.md',
 ]
 
+generated_content = [
+  'xsd-ontology.md',
+  'dc-ontology.md',
+  'rdf-ontology.md',
+  'rdfs-ontology.md',
+  'nrl-ontology.md',
+]
+
 # The TOML gi-docgen configuration wants a list of quoted file names.
 _quoted = []
-foreach c : content
+foreach c : content + generated_content
   _quoted += '"@0@"'.format(c)
 endforeach
 
@@ -34,8 +53,10 @@ custom_target(
     '--output-dir=@OUTPUT@',
     #'--no-namespace-dir',
     '--content-dir=@0@'.format(meson.current_source_dir()),
+    '--content-dir=@0@'.format(meson.current_build_dir()),
+    '--content-dir=@0@'.format(icon_images_base),
     '@INPUT1@',
   ],
-  depends: tracker_sparql_gir[0],
+  depends: [tracker_sparql_gir[0], base_ontology_docs],
   depend_files: [ content ],
   build_by_default: true)
