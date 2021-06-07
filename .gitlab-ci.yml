@@ -59,14 +59,14 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2021-05-15.9'
+    BASE_TAG: '2021-06-07.1'
     FDO_UPSTREAM_REPO: GNOME/tracker
     FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto'
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
       dnf builddep -y tracker tracker-miners --setopt=install_weak_deps=False &&
       dnf clean all &&
-      pip3 install beautifulsoup4 mkdocs mkdocs-cinder tap.py meson
+      pip3 install beautifulsoup4 mkdocs mkdocs-cinder tap.py meson toml typogrify
 
 .tracker.ubuntu@common:
   variables:
