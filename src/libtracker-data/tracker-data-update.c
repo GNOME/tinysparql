@@ -1827,7 +1827,6 @@ bytes_from_gvalue (GValue       *gvalue,
 		datetime = g_value_get_boxed (gvalue);
 		str = tracker_date_format_iso8601 (datetime);
 		*bytes = g_bytes_new_take (str, strlen (str) + 1);
-		g_free (str);
 	} else {
 		g_set_error (error,
 		             TRACKER_SPARQL_ERROR,
