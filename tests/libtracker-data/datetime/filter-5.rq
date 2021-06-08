@@ -1,0 +1,9 @@
+SELECT ?d {
+  VALUES ?d {
+    '2010-02-16T11:00:00Z'^^xsd:dateTime
+    '2011-02-16T11:00:00.123Z'^^xsd:dateTime
+    '2012-02-16T11:00:00Z'^^xsd:dateTime
+  }
+  FILTER (?d IN ('2011-02-16T11:00:00.123Z'^^xsd:dateTime, '2012-02-16T11:00:00Z'^^xsd:dateTime, '2013-02-16T11:00:00Z'^^xsd:dateTime))
+}
+ORDER BY ?d

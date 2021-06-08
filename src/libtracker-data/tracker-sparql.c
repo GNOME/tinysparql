@@ -153,6 +153,7 @@ typedef struct
 
 	gboolean convert_to_string;
 	gboolean in_property_function;
+	gboolean in_relational_expression;
 } TrackerSparqlState;
 
 struct _TrackerSparql
@@ -2474,7 +2475,8 @@ _end_triples_block (TrackerSparql  *sparql,
 
 		first = FALSE;
 		binding = g_ptr_array_index (triple_context->literal_bindings, i);
-		if (binding->data_type == TRACKER_PROPERTY_TYPE_DATETIME) {
+		if (binding->data_type == TRACKER_PROPERTY_TYPE_DATE ||
+		    binding->data_type == TRACKER_PROPERTY_TYPE_DATETIME) {
 			_append_string_printf (sparql, "SparqlTimeSort (%s) = SparqlTimeSort (", tracker_binding_get_sql_expression (binding));
 			_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (binding));
 			_append_string (sparql, ") ");
@@ -7413,50 +7415,68 @@ static gboolean
 translate_RelationalExpression (TrackerSparql  *sparql,
                                 GError        **error)
 {
+	TrackerStringBuilder *str, *old;
 	const gchar *old_sep;
+	gboolean in_relational_expression, bool_op = TRUE;
 
 	/* RelationalExpression ::= NumericExpression ( '=' NumericExpression | '!=' NumericExpression | '<' NumericExpression | '>' NumericExpression | '<=' NumericExpression | '>=' NumericExpression | 'IN' ExpressionList | 'NOT' 'IN' ExpressionList )?
 	 */
+	str = _append_placeholder (sparql);
+	old = tracker_sparql_swap_builder (sparql, str);
 	_call_rule (sparql, NAMED_RULE_NumericExpression, error);
+	tracker_sparql_swap_builder (sparql, old);
+
+	in_relational_expression = sparql->current_state->in_relational_expression;
+	sparql->current_state->in_relational_expression = TRUE;
 
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_IN)) {
 		_append_string (sparql, "IN ");
 		old_sep = tracker_sparql_swap_current_expression_list_separator (sparql, ", ");
 		_call_rule (sparql, NAMED_RULE_ExpressionList, error);
 		tracker_sparql_swap_current_expression_list_separator (sparql, old_sep);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_NOT)) {
 		_expect (sparql, RULE_TYPE_LITERAL, LITERAL_OP_IN);
 		_append_string (sparql, "NOT IN ");
 		old_sep = tracker_sparql_swap_current_expression_list_separator (sparql, ", ");
 		_call_rule (sparql, NAMED_RULE_ExpressionList, error);
 		tracker_sparql_swap_current_expression_list_separator (sparql, old_sep);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_EQ)) {
 		_append_string (sparql, " = ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_NE)) {
 		_append_string (sparql, " != ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_LT)) {
 		_append_string (sparql, " < ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_GT)) {
 		_append_string (sparql, " > ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_LE)) {
 		_append_string (sparql, " <= ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OP_GE)) {
 		_append_string (sparql, " >= ");
 		_call_rule (sparql, NAMED_RULE_NumericExpression, error);
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
+	} else {
+		/* This is an unary expression */
+		sparql->current_state->in_relational_expression = FALSE;
+		bool_op = FALSE;
 	}
+
+	if (sparql->current_state->in_relational_expression &&
+	    (sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_DATE ||
+	     sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_DATETIME)) {
+		old = tracker_sparql_swap_builder (sparql, str);
+		_prepend_string (sparql, "SparqlTimeSort(");
+		_append_string (sparql, ") ");
+		tracker_sparql_swap_builder (sparql, old);
+	}
+
+	if (bool_op)
+		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
+
+	sparql->current_state->in_relational_expression = in_relational_expression;
 
 	return TRUE;
 }
@@ -7597,12 +7617,17 @@ translate_PrimaryExpression (TrackerSparql  *sparql,
 	TrackerGrammarNamedRule rule;
 	TrackerBinding *binding;
 	TrackerVariable *variable;
+	TrackerStringBuilder *str, *old;
+	gboolean is_datetime_comparison = FALSE;
 	gchar *name;
 
 	/* PrimaryExpression ::= BrackettedExpression | BuiltInCall | iriOrFunction | RDFLiteral | NumericLiteral | BooleanLiteral | Var
 	 */
 	rule = _current_rule (sparql);
 	select_context = TRACKER_SELECT_CONTEXT (sparql->context);
+
+	str = _append_placeholder (sparql);
+	old = tracker_sparql_swap_builder (sparql, str);
 
 	switch (rule) {
 	case NAMED_RULE_NumericLiteral:
@@ -7617,6 +7642,11 @@ translate_PrimaryExpression (TrackerSparql  *sparql,
 	case NAMED_RULE_Var:
 		_call_rule (sparql, rule, error);
 		name = _dup_last_string (sparql);
+
+		is_datetime_comparison =
+			(sparql->current_state->in_relational_expression &&
+			 (sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_DATE ||
+			  sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_DATETIME));
 
 		if (tracker_context_lookup_variable_by_name (sparql->current_state->context,
 		                                             name)) {
@@ -7638,6 +7668,13 @@ translate_PrimaryExpression (TrackerSparql  *sparql,
 		_call_rule (sparql, rule, error);
 		binding = g_ptr_array_index (select_context->literal_bindings,
 		                             select_context->literal_bindings->len - 1);
+		sparql->current_state->expression_type = binding->data_type;
+
+		is_datetime_comparison =
+			(sparql->current_state->in_relational_expression &&
+			 (binding->data_type == TRACKER_PROPERTY_TYPE_DATE ||
+			  binding->data_type == TRACKER_PROPERTY_TYPE_DATETIME));
+
 		_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (binding));
 		break;
 	case NAMED_RULE_BrackettedExpression:
@@ -7648,6 +7685,13 @@ translate_PrimaryExpression (TrackerSparql  *sparql,
 	default:
 		g_assert_not_reached ();
 	}
+
+	if (is_datetime_comparison) {
+		_prepend_string (sparql, "SparqlTimeSort(");
+		_append_string (sparql, ") ");
+	}
+
+	tracker_sparql_swap_builder (sparql, old);
 
 	return TRUE;
 }
@@ -8951,11 +8995,11 @@ translate_RDFLiteral (TrackerSparql  *sparql,
 		cast = _dup_last_string (sparql);
 	}
 
-	if (is_parameter && (langtag || cast)) {
+	if (is_parameter && langtag) {
 		g_free (str);
 		g_free (langtag);
 		g_free (cast);
-		_raise (PARSE, "Parameter cannot have LANGTAG/^^ modifiers", "RDFLiteral");
+		_raise (PARSE, "Parameter cannot have LANGTAG modifier", "RDFLiteral");
 	}
 
 	if (is_parameter) {
