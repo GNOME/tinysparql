@@ -1,3 +1,28 @@
+NEW in 3.2.0-alpha - 2021-06-11
+===============================
+  * Add support for libsoup 3.x
+  * Add missing autocleanup functions
+  * Support empty array updates
+  * VAPI fixes
+  * Add missing G_BEGIN_DECLS/G_END_DECLS guards
+  * Build fixes for macOS
+  * Code cleanups
+  * Manpage fixes
+  * CI & unit test improvements
+  * Documentation fixes and updates
+  * Fix crash in "tracker3 export --2to3" subcommand
+  * Handle arbitrary order of SERVICE and regular graph
+    patterns
+  * Added new GDateTime helper API to resources, cursors
+    and statements
+  * Implement missing TrackerSparqlConnection methods in
+    bus connections
+  * Many code cleanups and improvements
+  * Fix rare bug that lead to triples being silently eaten
+  * Improvements to datetime comparisons
+
+Translations: el, ne, oc, zh_TW
+
 NEW in 3.1.1 - 2021-04-02
 =========================
   * Better error handling during database initialization
