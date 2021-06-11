@@ -1,3 +1,16 @@
+NEW in 3.1.2 - 2021-06-11
+=========================
+  * Add missing autocleanup functions
+  * Support empty array updates
+  * VAPI fixes
+  * Add missing G_BEGIN_DECLS/G_END_DECLS guards
+  * Manpage fixes
+  * Fix crash in "tracker3 export --2to3" subcommand
+  * Fix rare bug that lead to triples being silently eaten
+  * Improvements to datetime handling
+
+Translations: el, ne, oc, zh_TW
+
 NEW in 3.1.1 - 2021-04-02
 =========================
   * Better error handling during database initialization
