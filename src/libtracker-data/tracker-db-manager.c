@@ -776,7 +776,8 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 	                                    g_weak_ref_get (&db_manager->iface_data),
 	                                    g_object_unref);
 
-	tracker_db_interface_init_vtabs (connection, db_manager->vtab_data);
+	if (db_manager->vtab_data)
+		tracker_db_interface_init_vtabs (connection, db_manager->vtab_data);
 
 	iface_set_params (connection,
 	                  readonly,

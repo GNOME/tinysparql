@@ -32,7 +32,7 @@ typedef struct _TrackerOntologyPrivate TrackerOntologyPrivate;
 
 struct _TrackerOntologyPrivate {
 	gchar *uri;
-	time_t last_modified;
+	gint64 last_modified;
 	gboolean is_new;
 	TrackerOntologies *ontologies;
 };
@@ -76,7 +76,7 @@ tracker_ontology_new (void)
 	return ontology;
 }
 
-time_t
+gint64
 tracker_ontology_get_last_modified (TrackerOntology *ontology)
 {
 	TrackerOntologyPrivate *priv;
@@ -103,7 +103,7 @@ tracker_ontology_get_is_new (TrackerOntology *ontology)
 
 void
 tracker_ontology_set_last_modified (TrackerOntology *ontology,
-                                    time_t           value)
+                                    gint64           value)
 {
 	TrackerOntologyPrivate *priv;
 

@@ -1831,7 +1831,7 @@ terminal_VARNAME (const gchar  *str,
 		  const gchar  *end,
 		  const gchar **str_out)
 {
-	ACCEPT_CHAR(PN_CHARS_U || RANGE_NUMBER);
+	ACCEPT_UNICHAR (PN_CHARS_U || RANGE_NUMBER);
 	OPTIONAL_UNICODE_STRING (PN_CHARS_U || RANGE_NUMBER ||
 				 ch == 0x00B7 || (ch >= 0x0300 && ch <= 0x036F) ||
 				 (ch >= 0x203F && ch <= 0x2040));

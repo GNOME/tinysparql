@@ -9,7 +9,7 @@ testconf.set('TEST_ONTOLOGIES_DIR', tracker_uninstalled_nepomuk_ontologies_dir)
 testconf.set('TEST_DBUS_DAEMON_CONFIG_FILE', build_root / 'tests' / 'test-bus.conf')
 testconf.set('TEST_PORTAL_FLATPAK_INFO', source_root / 'tests' / 'flatpak-info')
 testconf.set('TRACKER_VERSION', meson.project_version())
-testconf.set('TEST_TAP_ENABLED', get_option('tests_tap_protocol'))
+testconf.set('TEST_TAP_ENABLED', get_option('tests_tap_protocol').to_string())
 
 config_json = configure_file(
   input: 'configuration.json.in',

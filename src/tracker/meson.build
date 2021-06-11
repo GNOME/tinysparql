@@ -26,7 +26,7 @@ executable(command_name, sources,
         '-DBINDIR="@0@"'.format(join_paths(get_option('prefix'), get_option('bindir'))),
     ],
     install: true,
-    install_rpath: tracker_install_rpath,
+    install_rpath: tracker_internal_libs_dir,
     dependencies: [tracker_sparql_dep, tracker_data_dep],
     include_directories: [commoninc, configinc, srcinc],
 )
