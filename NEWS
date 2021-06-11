@@ -1,3 +1,7 @@
+NEW in 3.2.0.alpha.1 - 2021-06-12
+=================================
+  * Brown paper bag release
+
 NEW in 3.2.0-alpha - 2021-06-11
 ===============================
   * Add support for libsoup 3.x
