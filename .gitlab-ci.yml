@@ -16,6 +16,7 @@ variables:
 stages:
   - review
   - prepare
+  - code-review
   - build
   - test
   - analysis
@@ -59,9 +60,9 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2021-05-15.9'
+    BASE_TAG: '2021-06-13.2'
     FDO_UPSTREAM_REPO: GNOME/tracker
-    FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto'
+    FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto uncrustify patch diffutils'
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
       dnf builddep -y tracker tracker-miners --setopt=install_weak_deps=False &&
@@ -171,6 +172,19 @@ build-alpine-container@x86_64:
   needs:
     - check-commit-log
     - check-merge-request
+
+check-code-style:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:34@x86_64
+  needs:
+    - build-fedora-container@x86_64
+  stage: code-review
+  script:
+    - git fetch origin master;
+      export common_parent_sha=$(diff --old-line-format='' --new-line-format='' <(git rev-list --first-parent "origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-${CI_DEFAULT_BRANCH}}") <(git rev-list --first-parent HEAD) | head -1) ;
+      python3 -u ./check-style.py --dry-run --sha $common_parent_sha ;
+  allow_failure: true
 
 .build-template: &build
   stage: build
