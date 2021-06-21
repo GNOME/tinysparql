@@ -1,0 +1,10 @@
+# this is a complete turtle document
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foo: <http://example.org/ns#> .
+@prefix : <http://other.example.org/ns#> .
+
+foo:bar a rdfs:Resource .
+:bar a rdfs:Resource .
+
+foo:bar foo: : .
+:bar : foo:bar .

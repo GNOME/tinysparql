@@ -1,0 +1,36 @@
+@prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+# Simple Comment before the triple pattern
+@prefix rdfs:#Simple comment after the predicate
+ <http://www.w3.org/2000/01/rdf-schema#> .
+
+@prefix foo: <http://example.org/ns#> .
+@prefix : <http://other.example.org/ns#> .
+
+foo:
+
+#Multi-lined comment after the subject
+
+# Comment can contain spaces between its lines
+
+ a nrl:Namespace ; # Another comment between two objects
+	nrl:prefix "foo" .
+
+: a nrl:Namespace # Another multi-line comment
+# before the semi-colon
+
+ ;
+	nrl:prefix "" .
+
+foo: # comment after PN_NAME_NS
+	a rdf:Property ;#
+	rdfs:domain rdfs:Resource ;
+	rdfs:range rdfs:Resource .
+
+<http://other.example.org/ns#>  a rdf:Property ;
+	rdfs:domain # Another comment
+	rdfs:Resource # Multi-lines comment
+	# Comment
+	# Comment
+;
+	rdfs:range rdfs:Resource .
