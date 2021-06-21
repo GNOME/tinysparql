@@ -4859,9 +4859,9 @@ tracker_data_manager_copy_graph (TrackerDataManager  *manager,
 	tracker_db_interface_execute_query (iface,
 					    &inner_error,
 					    "UPDATE \"%s\".Refcount AS B "
-					    "SET Refcount = B.Refcount + A.Refcount "
-					    "FROM (SELECT ID, Refcount FROM \"%s\".Refcount) AS A "
-					    "WHERE B.ID = A.ID",
+					    "SET Refcount = Refcount + "
+					    "(SELECT Refcount FROM \"%s\".Refcount AS A "
+					    "WHERE B.ID = A.ID)",
 					    destination, source);
 out:
 	if (inner_error) {
