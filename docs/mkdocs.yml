@@ -1,6 +1,7 @@
 site_name: Tracker
 theme: cinder
 docs_dir: ./website
+site_url: https://gnome.pages.gitlab.gnome.org/tracker/
 
 nav:
   - Home: 'index.md'
