@@ -71,6 +71,8 @@ G_DEFINE_TYPE (TrackerTurtleReader,
                tracker_turtle_reader,
                G_TYPE_OBJECT)
 
+static void advance_whitespace_and_comments (TrackerTurtleReader *reader);
+
 static void
 tracker_turtle_reader_finalize (GObject *object)
 {
@@ -386,15 +388,15 @@ handle_prefix (TrackerTurtleReader  *reader,
 {
 	gchar *prefix = NULL, *uri = NULL;
 
-	advance_whitespace (reader);
+	advance_whitespace_and_comments(reader);
 	if (!parse_terminal (reader, terminal_PNAME_NS, 0, &prefix))
 		goto error;
 
-	advance_whitespace (reader);
+	advance_whitespace_and_comments(reader);
 	if (!parse_terminal (reader, terminal_IRIREF, 1, &uri))
 		goto error;
 
-	advance_whitespace (reader);
+	advance_whitespace_and_comments(reader);
 	if (!parse_token (reader, "."))
 		goto error;
 
@@ -416,11 +418,11 @@ handle_base (TrackerTurtleReader  *reader,
 {
 	gchar *base = NULL;
 
-	advance_whitespace (reader);
+	advance_whitespace_and_comments(reader);
 	if (!parse_terminal (reader, terminal_IRIREF, 0, &base))
 		goto error;
 
-	advance_whitespace (reader);
+	advance_whitespace_and_comments(reader);
 	if (!parse_token (reader, "."))
 		goto error;
 
@@ -458,12 +460,13 @@ handle_type_cast (TrackerTurtleReader  *reader,
 }
 
 static void
-skip_comments (TrackerTurtleReader *reader)
+advance_whitespace_and_comments (TrackerTurtleReader *reader)
 {
 	const gchar *buffer, *str;
 	gsize size;
 
 	while (TRUE) {
+		advance_whitespace (reader);
 		buffer = g_buffered_input_stream_peek_buffer (reader->buffered_stream,
 		                                              &size);
 		if (size == 0)
@@ -478,8 +481,6 @@ skip_comments (TrackerTurtleReader *reader)
 		if (!g_input_stream_skip (G_INPUT_STREAM (reader->buffered_stream),
 		                          str + 1 - buffer, NULL, NULL))
 			break;
-
-		advance_whitespace (reader);
 	}
 }
 
@@ -490,7 +491,7 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 	while (TRUE) {
 		gchar *str, *lang;
 
-		advance_whitespace (reader);
+		advance_whitespace_and_comments(reader);
 
 		if (g_buffered_input_stream_fill (reader->buffered_stream, -1, NULL, error) < 0)
 			return FALSE;
@@ -500,8 +501,6 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 			reader->state = STATE_SUBJECT;
 			break;
 		case STATE_SUBJECT:
-			skip_comments (reader);
-
 			if (g_buffered_input_stream_get_available (reader->buffered_stream) == 0)
 				return FALSE;
 
@@ -644,7 +643,7 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 				reader->state = STATE_OBJECT;
 			} else if (parse_token (reader, ";")) {
 				/* Dot is allowed after semicolon */
-				advance_whitespace (reader);
+				advance_whitespace_and_comments(reader);
 				if (parse_token (reader, "."))
 					reader->state = STATE_SUBJECT;
 				else
