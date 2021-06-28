@@ -387,6 +387,8 @@ summary = [
   '    Unicode support library:                ' + unicode_library_name,
   '    Use external FTS module:                ' + (not sqlite3_has_builtin_fts5).to_string(),
   '    Build with Stemming support:            ' + have_libstemmer.to_string(),
+  '    API documentation:                      ' + get_option('docs').to_string(),
+  '    CLI documentation (manpages):           ' + get_option('man').to_string(),
 ]
 
 if get_option('bash_completion')
