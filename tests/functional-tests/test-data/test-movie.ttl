@@ -1,6 +1,7 @@
 @prefix nmm: <http://tracker.api.gnome.org/ontology/v3/nmm#> .
 @prefix nfo: <http://tracker.api.gnome.org/ontology/v3/nfo#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix nie: <http://tracker.api.gnome.org/ontology/v3/nie#> .
 
 _:3 a nfo:FileHash ;
   nfo:hashValue "123456789ABC" ;
