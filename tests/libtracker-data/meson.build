@@ -5,6 +5,7 @@ data_test_c_args = test_c_args + [
 libtracker_data_tests = [
     'crc32',
     'ontology-change',
+    'ontology-error',
     'sparql-blank',
     'insert-or-replace',
     'service',
