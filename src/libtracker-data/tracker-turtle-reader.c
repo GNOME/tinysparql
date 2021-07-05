@@ -374,7 +374,8 @@ generate_bnode (TrackerTurtleReader *reader,
 
 static gchar *
 expand_prefix (TrackerTurtleReader *reader,
-               const gchar         *shortname)
+               const gchar         *shortname,
+               GError             **error)
 {
 	GHashTableIter iter;
 	gpointer key, value;
@@ -391,6 +392,11 @@ expand_prefix (TrackerTurtleReader *reader,
 		}
 	}
 
+	g_set_error (error,
+	             TRACKER_SPARQL_ERROR,
+	             TRACKER_SPARQL_ERROR_PARSE,
+	             "Unknown prefix %s at line %" G_GOFFSET_FORMAT ", column %" G_GOFFSET_FORMAT,
+	             shortname, reader->line_no, reader->column_no - strlen(shortname));
 	return NULL;
 }
 
@@ -575,8 +581,12 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 				reader->subject = expand_base (reader, str);
 			} else if (parse_terminal (reader, terminal_PNAME_LN, 0, &str) ||
 			           parse_terminal (reader, terminal_PNAME_NS, 0, &str)) {
-				reader->subject = expand_prefix (reader, str);
+				reader->subject = expand_prefix (reader, str, error);
 				g_free (str);
+
+				if (*error) {
+					return FALSE;
+				}
 			} else if (parse_terminal (reader, terminal_BLANK_NODE_LABEL, 0, &str)) {
 				reader->subject = generate_bnode (reader, str);
 				g_free (str);
@@ -599,8 +609,12 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 				reader->predicate = expand_base (reader, str);
 			} else if (parse_terminal (reader, terminal_PNAME_LN, 0, &str) ||
 			           parse_terminal (reader, terminal_PNAME_NS, 0, &str)) {
-				reader->predicate = expand_prefix (reader, str);
+				reader->predicate = expand_prefix (reader, str, error);
 				g_free (str);
+
+				if (*error) {
+					return FALSE;
+				}
 			} else {
 				g_set_error (error,
 				             TRACKER_SPARQL_ERROR,
@@ -629,9 +643,13 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 				reader->object_is_uri = TRUE;
 			} else if (parse_terminal (reader, terminal_PNAME_LN, 0, &str) ||
 			           parse_terminal (reader, terminal_PNAME_NS, 0, &str)) {
-				reader->object = expand_prefix (reader, str);
+				reader->object = expand_prefix (reader, str, error);
 				reader->object_is_uri = TRUE;
 				g_free (str);
+
+				if (*error) {
+					return FALSE;
+				}
 			} else if (parse_terminal (reader, terminal_BLANK_NODE_LABEL, 0, &str)) {
 				reader->object = generate_bnode (reader, str);
 				reader->object_is_uri = TRUE;
