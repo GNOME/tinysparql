@@ -4848,21 +4848,21 @@ tracker_data_manager_copy_graph (TrackerDataManager  *manager,
 
 	/* Transfer refcounts */
 	tracker_db_interface_execute_query (iface,
-					    &inner_error,
-					    "INSERT OR IGNORE INTO \"%s\".Refcount "
-					    "SELECT ID, 0 from \"%s\".Refcount",
-					    destination,
-					    source);
+	                                    &inner_error,
+	                                    "INSERT OR IGNORE INTO \"%s\".Refcount "
+	                                    "SELECT ID, 0 from \"%s\".Refcount",
+	                                    destination,
+	                                    source);
 	if (inner_error)
 		goto out;
 
 	tracker_db_interface_execute_query (iface,
-					    &inner_error,
-					    "UPDATE \"%s\".Refcount AS B "
-					    "SET Refcount = Refcount + "
-					    "(SELECT Refcount FROM \"%s\".Refcount AS A "
-					    "WHERE B.ID = A.ID)",
-					    destination, source);
+	                                    &inner_error,
+	                                    "UPDATE \"%s\".Refcount AS B "
+	                                    "SET Refcount = Refcount + "
+	                                    "(SELECT Refcount FROM \"%s\".Refcount AS A "
+	                                    "WHERE B.ID = A.ID)",
+	                                    destination, source);
 out:
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
