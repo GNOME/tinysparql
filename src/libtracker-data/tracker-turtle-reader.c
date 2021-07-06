@@ -596,7 +596,7 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 				if (parse_terminal (reader, terminal_LANGTAG, 0, &lang)) {
 					reader->object_lang = lang;
 				} else if (!handle_type_cast (reader, error)) {
-						return FALSE;
+					return FALSE;
 				}
 			} else if (parse_terminal (reader, terminal_STRING_LITERAL1, 1, &str) ||
 			           parse_terminal (reader, terminal_STRING_LITERAL2, 1, &str)) {
@@ -605,7 +605,7 @@ tracker_turtle_reader_iterate_next (TrackerTurtleReader  *reader,
 				if (parse_terminal (reader, terminal_LANGTAG, 0, &lang)) {
 					reader->object_lang = lang;
 				} else if (!handle_type_cast (reader, error)) {
-						return FALSE;
+					return FALSE;
 				}
 			} else if (parse_terminal (reader, terminal_DOUBLE, 0, &str) ||
 			           parse_terminal (reader, terminal_INTEGER, 0, &str)) {
