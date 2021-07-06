@@ -43,6 +43,7 @@ test_env.prepend('GI_TYPELIB_PATH', tracker_sparql_uninstalled_dir)
 test_env.prepend('LD_LIBRARY_PATH', tracker_sparql_uninstalled_dir)
 test_env.prepend('PYTHONPATH', tracker_uninstalled_testutils_dir)
 test_env.set('TRACKER_FUNCTIONAL_TEST_CONFIG', config_json_full_path)
+test_env.set('GIO_USE_VFS', 'local')
 
 foreach test_name: functional_tests
   file = meson.current_source_dir() / '@0@.py'.format(test_name)
