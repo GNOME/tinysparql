@@ -5021,6 +5021,7 @@ tracker_data_manager_get_remote_connection (TrackerDataManager  *data_manager,
 			                                                dbus_connection, &inner_error);
 			g_free (bus_name);
 			g_free (object_path);
+			g_object_unref (dbus_connection);
 
 			if (!connection)
 				goto fail;
