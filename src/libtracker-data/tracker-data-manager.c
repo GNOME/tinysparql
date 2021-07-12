@@ -3888,8 +3888,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			                    NULL,
 			                    &ontology_error);
 			if (ontology_error) {
-				g_error ("Error loading ontology (%s): %s",
-				         uri, ontology_error->message);
+				g_propagate_error (error, ontology_error);
+				return FALSE;
 			}
 
 			g_free (uri);
