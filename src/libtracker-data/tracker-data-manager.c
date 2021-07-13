@@ -4557,9 +4557,10 @@ tracker_data_manager_get_db_manager (TrackerDataManager *manager)
 }
 
 TrackerDBInterface *
-tracker_data_manager_get_db_interface (TrackerDataManager *manager)
+tracker_data_manager_get_db_interface (TrackerDataManager  *manager,
+                                       GError             **error)
 {
-	return tracker_db_manager_get_db_interface (manager->db_manager);
+	return tracker_db_manager_get_db_interface (manager->db_manager, error);
 }
 
 TrackerDBInterface *
