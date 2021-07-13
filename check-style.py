@@ -29,7 +29,7 @@ def find_chunks(diff):
             len = int(match.group(2))
             end = start + len
 
-            if file.endswith('.c') or file.endswith('.h') or file.endswith('.vala'):
+            if len > 0 and (file.endswith('.c') or file.endswith('.h') or file.endswith('.vala')):
                 chunks.append({ 'file': file, 'start': start, 'end': end })
 
     return chunks
