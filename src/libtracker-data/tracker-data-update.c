@@ -874,6 +874,8 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 			}
 		} else {
 			GString *sql, *values_sql;
+			GHashTable *visited_properties;
+			gint n;
 
 			if (table->delete_row) {
 				/* remove row from class table */
@@ -917,18 +919,27 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 				g_string_append (sql, " SET ");
 			}
 
-			for (i = 0; i < table->properties->len; i++) {
-				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
+			visited_properties = g_hash_table_new (g_str_hash, g_str_equal);
+
+			for (n = table->properties->len - 1; n >= 0; n--) {
+				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, n);
+				if (g_hash_table_contains (visited_properties, property->name))
+					continue;
+
 				if (table->insert) {
 					g_string_append_printf (sql, ", \"%s\"", property->name);
 					g_string_append (values_sql, ", ?");
 				} else {
-					if (i > 0) {
+					if (n < (int) table->properties->len - 1) {
 						g_string_append (sql, ", ");
 					}
 					g_string_append_printf (sql, "\"%s\" = ?", property->name);
 				}
+
+				g_hash_table_add (visited_properties, (gpointer) property->name);
 			}
+
+			g_hash_table_unref (visited_properties);
 
 			if (table->insert) {
 				g_string_append (sql, ")");
@@ -966,15 +977,24 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 				param = 0;
 			}
 
-			for (i = 0; i < table->properties->len; i++) {
-				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
+			visited_properties = g_hash_table_new (g_str_hash, g_str_equal);
+
+			for (n = table->properties->len - 1; n >= 0; n--) {
+				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, n);
+				if (g_hash_table_contains (visited_properties, property->name))
+					continue;
+
 				if (property->delete_value) {
 					/* just set value to NULL for single value properties */
 					tracker_db_statement_bind_null (stmt, param++);
 				} else {
 					statement_bind_gvalue (stmt, &param, &property->value);
 				}
+
+				g_hash_table_add (visited_properties, (gpointer) property->name);
 			}
+
+			g_hash_table_unref (visited_properties);
 
 			if (!table->insert) {
 				tracker_db_statement_bind_int (stmt, param++, resource->id);
