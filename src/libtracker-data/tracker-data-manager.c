@@ -4560,6 +4560,14 @@ TrackerDBInterface *
 tracker_data_manager_get_db_interface (TrackerDataManager  *manager,
                                        GError             **error)
 {
+	if (!manager->db_manager) {
+		g_set_error (error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_QUERY_FAILED,
+		             "Triple store is closing");
+		return NULL;
+	}
+
 	return tracker_db_manager_get_db_interface (manager->db_manager, error);
 }
 
