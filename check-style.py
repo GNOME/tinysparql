@@ -46,7 +46,7 @@ def reformat_chunks(chunks, rewrite):
 
                 tmp.write(bytes(line, 'utf-8'))
 
-                if i == end - 1:
+                if i == end - 2:
                     tmp.write(b'/** *INDENT-OFF* **/\n')
 
             tmp.seek(0)
