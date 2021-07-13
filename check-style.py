@@ -8,7 +8,7 @@ import sys
 import tempfile
 
 def run_diff(sha):
-    proc = subprocess.Popen(["git", "diff", "--function-context", sha, "HEAD"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    proc = subprocess.Popen(["git", "diff", "-U0", "--function-context", sha, "HEAD"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     files = proc.stdout.read().strip().decode('utf-8')
     return files.split('\n')
 
