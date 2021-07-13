@@ -2519,6 +2519,11 @@ delete_all_helper (TrackerData      *data,
 		super_properties++;
 	}
 
+	if (subproperty == property) {
+		/* Clear the buffered property values */
+		g_array_remove_range (old_values, 0, old_values->len);
+	}
+
 	return TRUE;
 }
 
