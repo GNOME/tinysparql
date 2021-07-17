@@ -9740,7 +9740,11 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 			goto error;
 	}
 
-	iface = tracker_data_manager_get_db_interface (sparql->data_manager);
+	iface = tracker_data_manager_get_db_interface (sparql->data_manager,
+	                                               error);
+	if (!iface)
+		goto error;
+
 	stmt = prepare_query (sparql, iface,
 	                      TRACKER_SELECT_CONTEXT (sparql->context)->literal_bindings,
 			      parameters,

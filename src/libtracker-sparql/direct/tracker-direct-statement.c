@@ -167,6 +167,9 @@ execute_in_thread (GTask        *task,
 	GHashTable *values = task_data;
 	GError *error = NULL;
 
+	if (g_task_return_error_if_cancelled (task))
+		return;
+
 	priv = tracker_direct_statement_get_instance_private (object);
 	cursor = tracker_sparql_execute_cursor (priv->sparql, values, &error);
 

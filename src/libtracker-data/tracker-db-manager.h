@@ -63,7 +63,8 @@ TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerF
                                                                GObject                *iface_data,
                                                                gpointer                vtab_data,
                                                                GError                **error);
-TrackerDBInterface *tracker_db_manager_get_db_interface       (TrackerDBManager      *db_manager);
+TrackerDBInterface *tracker_db_manager_get_db_interface       (TrackerDBManager      *db_manager,
+                                                               GError               **error);
 TrackerDBInterface *tracker_db_manager_get_writable_db_interface (TrackerDBManager   *db_manager);
 
 gboolean            tracker_db_manager_has_enough_space       (TrackerDBManager      *db_manager);

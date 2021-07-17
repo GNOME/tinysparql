@@ -817,7 +817,8 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
  * returns: (callee-owns): a database connection
  **/
 TrackerDBInterface *
-tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
+tracker_db_manager_get_db_interface (TrackerDBManager  *db_manager,
+                                     GError           **error)
 {
 	GError *internal_error = NULL;
 	TrackerDBInterface *interface = NULL;
@@ -863,8 +864,7 @@ tracker_db_manager_get_db_interface (TrackerDBManager *db_manager)
 			g_signal_emit (db_manager, signals[SETUP_INTERFACE], 0, interface);
 		} else {
 			if (g_async_queue_length_unlocked (db_manager->interfaces) == 0) {
-				g_critical ("Error opening database: %s", internal_error->message);
-				g_error_free (internal_error);
+				g_propagate_prefixed_error (error, internal_error, "Error opening database: ");
 				g_async_queue_unlock (db_manager->interfaces);
 				return NULL;
 			} else {

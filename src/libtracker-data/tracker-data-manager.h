@@ -72,7 +72,8 @@ GFile *              tracker_data_manager_get_cache_location  (TrackerDataManage
 TrackerOntologies *  tracker_data_manager_get_ontologies      (TrackerDataManager *manager);
 
 TrackerDBManager *   tracker_data_manager_get_db_manager      (TrackerDataManager *manager);
-TrackerDBInterface * tracker_data_manager_get_db_interface    (TrackerDataManager *manager);
+TrackerDBInterface * tracker_data_manager_get_db_interface    (TrackerDataManager  *manager,
+                                                               GError             **error);
 TrackerDBInterface * tracker_data_manager_get_writable_db_interface (TrackerDataManager *manager);
 TrackerData *        tracker_data_manager_get_data            (TrackerDataManager *manager);
 
