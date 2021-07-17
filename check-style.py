@@ -7,8 +7,11 @@ import subprocess
 import sys
 import tempfile
 
+# Path relative to this script
+uncrustify_cfg = 'utils/uncrustify.cfg'
+
 def run_diff(sha):
-    proc = subprocess.Popen(["git", "diff", "--function-context", sha, "HEAD"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    proc = subprocess.Popen(["git", "diff", "-U0", "--function-context", sha, "HEAD"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     files = proc.stdout.read().strip().decode('utf-8')
     return files.split('\n')
 
@@ -29,7 +32,7 @@ def find_chunks(diff):
             len = int(match.group(2))
             end = start + len
 
-            if file.endswith('.c') or file.endswith('.h') or file.endswith('.vala'):
+            if len > 0 and (file.endswith('.c') or file.endswith('.h') or file.endswith('.vala')):
                 chunks.append({ 'file': file, 'start': start, 'end': end })
 
     return chunks
@@ -46,7 +49,7 @@ def reformat_chunks(chunks, rewrite):
 
                 tmp.write(bytes(line, 'utf-8'))
 
-                if i == end - 1:
+                if i == end - 2:
                     tmp.write(b'/** *INDENT-OFF* **/\n')
 
             tmp.seek(0)
@@ -72,7 +75,7 @@ def reformat_chunks(chunks, rewrite):
         tmp = create_temp_file(chunk['file'], chunk['start'], chunk['end'])
 
         # uncrustify chunk
-        proc = subprocess.Popen(["uncrustify", "-c", "./utils/uncrustify.cfg", "-f", tmp.name], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        proc = subprocess.Popen(["uncrustify", "-c", uncrustify_cfg, "-f", tmp.name], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         reindented = proc.stdout.readlines()
         tmp.close()
 
