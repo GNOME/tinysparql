@@ -3131,6 +3131,8 @@ tracker_data_load_turtle_file (TrackerData  *data,
 	                                   &object_str,
 	                                   &langtag,
 	                                   &object_is_uri,
+	                                   NULL,
+	                                   NULL,
 	                                   &inner_error)) {
 		GBytes *object;
 
@@ -3139,11 +3141,11 @@ tracker_data_load_turtle_file (TrackerData  *data,
 		if (object_is_uri) {
 			tracker_data_insert_statement_with_uri (data, graph,
 			                                        subject, predicate, object,
-								&inner_error);
+			                                        &inner_error);
 		} else {
 			tracker_data_insert_statement_with_string (data, graph,
 			                                           subject, predicate, object,
-								   &inner_error);
+			                                           &inner_error);
 		}
 
 		g_bytes_unref (object);

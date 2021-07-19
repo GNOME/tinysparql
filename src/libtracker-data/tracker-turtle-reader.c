@@ -735,15 +735,26 @@ tracker_turtle_reader_next (TrackerTurtleReader  *reader,
                             const gchar         **object,
                             const gchar         **object_lang,
                             gboolean             *object_is_uri,
+                            goffset              *last_parsed_line_no,
+                            goffset              *last_parsed_column_no,
                             GError              **error)
 {
+	gboolean ret;
+
 	g_return_val_if_fail (TRACKER_IS_TURTLE_READER (reader), FALSE);
 	g_return_val_if_fail (subject, FALSE);
 	g_return_val_if_fail (predicate, FALSE);
 	g_return_val_if_fail (object, FALSE);
 	g_return_val_if_fail (!error || !*error, FALSE);
 
-	if (!tracker_turtle_reader_iterate_next (reader, error))
+	ret = tracker_turtle_reader_iterate_next (reader, error);
+
+	if (last_parsed_line_no)
+		*last_parsed_line_no = reader->line_no;
+	if (last_parsed_column_no)
+		*last_parsed_column_no = reader->column_no;
+
+	if (!ret)
 		return FALSE;
 
 	*subject = reader->subject;

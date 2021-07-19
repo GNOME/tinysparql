@@ -1794,7 +1794,8 @@ load_ontology_file (TrackerDataManager  *manager,
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, &ttl_error)) {
+	                                   NULL, NULL, NULL,
+	                                   NULL, &ttl_error)) {
 		GError *ontology_error = NULL;
 
 		tracker_data_ontology_load_statement (manager, ontology_uri,
@@ -1844,7 +1845,8 @@ get_ontology_from_file (TrackerDataManager *manager,
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, &internal_error)) {
+	                                   NULL, NULL, NULL,
+	                                   NULL, &internal_error)) {
 		if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 			if (g_strcmp0 (object, TRACKER_PREFIX_NRL "Ontology") == 0) {
 				TrackerOntology *ontology;
@@ -2037,7 +2039,8 @@ import_ontology_file (TrackerDataManager *manager,
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, &error)) {
+	                                   NULL, NULL, NULL,
+	                                   NULL, &error)) {
 		tracker_data_ontology_process_statement (manager,
 		                                         subject, predicate, object,
 		                                         in_update);
@@ -4023,8 +4026,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		 * has changed since we dealt with the file last time. */
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &n_error,
-		        "SELECT Resource.Uri, \"nrl:Ontology\".\"nrl:lastModified\" FROM \"nrl:Ontology\" "
-		        "INNER JOIN Resource ON Resource.ID = \"nrl:Ontology\".ID ");
+		                                              "SELECT Resource.Uri, \"nrl:Ontology\".\"nrl:lastModified\" FROM \"nrl:Ontology\" "
+		                                              "INNER JOIN Resource ON Resource.ID = \"nrl:Ontology\".ID ");
 
 		if (stmt) {
 			cursor = tracker_db_statement_start_cursor (stmt, &n_error);
@@ -4141,7 +4144,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 						if (ontos) {
 							g_list_free_full (ontos, g_object_unref);
 						}
-						
+
 						goto rollback_db_changes;
 					}
 
@@ -4181,7 +4184,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 					if (ontos) {
 						g_list_free_full (ontos, g_object_unref);
 					}
-					
+
 					goto rollback_db_changes;
 				}
 
@@ -4288,7 +4291,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				if (ontos) {
 					g_list_free_full (ontos, g_object_unref);
 				}
-				
+
 				goto rollback_db_changes;
 			}
 
