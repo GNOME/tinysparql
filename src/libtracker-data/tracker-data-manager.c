@@ -217,20 +217,33 @@ tracker_data_manager_get_graphs (TrackerDataManager *manager,
 static void
 handle_unsupported_ontology_change (TrackerDataManager  *manager,
                                     const gchar         *ontology_path,
+                                    goffset              stmt_line_no,
+                                    goffset              stmt_column_no,
                                     const gchar         *subject,
                                     const gchar         *change,
                                     const gchar         *old,
                                     const gchar         *attempted_new,
                                     GError             **error)
 {
+	gchar *stmt_location;
+
+	if (ontology_path == NULL)
+		stmt_location = g_strdup ("");
+	else if (stmt_line_no == -1 || stmt_column_no == -1)
+		stmt_location = g_strdup_printf ("%s: ", ontology_path);
+	else
+		stmt_location = g_strdup_printf ("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
+		                                 ontology_path, stmt_line_no, stmt_column_no);
+
 	g_set_error (error, TRACKER_DATA_ONTOLOGY_ERROR,
 	             TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE,
-	             "%s: Unsupported ontology change for %s: can't change %s (old=%s, attempted new=%s)",
-	             ontology_path != NULL ? ontology_path : "Unknown",
+	             "%sUnsupported ontology change for %s: can't change %s (old=%s, attempted new=%s)",
+	             stmt_location,
 	             subject != NULL ? subject : "Unknown",
 	             change != NULL ? change : "Unknown",
 	             old != NULL ? old : "Unknown",
 	             attempted_new != NULL ? attempted_new : "Unknown");
+	g_free (stmt_location);
 }
 
 static void
@@ -243,9 +256,9 @@ set_secondary_index_for_single_value_property (TrackerDBInterface  *iface,
                                                GError             **error)
 {
 	GError *internal_error = NULL;
-        const gchar *class_name = tracker_class_get_name (class);
-        const gchar *property_name = tracker_property_get_name (property);
-        const gchar *secondary_name = tracker_property_get_name (secondary);
+	const gchar *class_name = tracker_class_get_name (class);
+	const gchar *property_name = tracker_property_get_name (property);
+	const gchar *secondary_name = tracker_property_get_name (secondary);
 
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
 	              g_message ("Dropping secondary index (single-value property):  "
@@ -503,7 +516,7 @@ update_property_value (TrackerDataManager  *manager,
 		TrackerDBCursor *cursor;
 
 		query = g_strdup_printf ("SELECT ?old_value WHERE { "
-		                           "<%s> %s ?old_value "
+		                         "<%s> %s ?old_value "
 		                         "}", subject, kind);
 
 		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
@@ -521,6 +534,8 @@ update_property_value (TrackerDataManager  *manager,
 				if (allowed && !is_allowed_conversion (str, object, allowed)) {
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
+					                                    -1,
+					                                    -1,
 					                                    subject,
 					                                    kind,
 					                                    str,
@@ -587,7 +602,7 @@ check_range_conversion_is_allowed (TrackerDataManager  *manager,
 	gchar *query;
 
 	query = g_strdup_printf ("SELECT ?old_value WHERE { "
-	                           "<%s> rdfs:range ?old_value "
+	                         "<%s> rdfs:range ?old_value "
 	                         "}", subject);
 
 	cursor = tracker_data_query_sparql_cursor (manager, query, NULL);
@@ -603,6 +618,8 @@ check_range_conversion_is_allowed (TrackerDataManager  *manager,
 			if (!is_allowed_conversion (str, object, allowed_range_conversions)) {
 				handle_unsupported_ontology_change (manager,
 				                                    ontology_path,
+				                                    -1,
+				                                    -1,
 				                                    subject,
 				                                    "rdfs:range",
 				                                    str,
@@ -890,6 +907,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				if (!ignore && !had) {
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
+					                                    object_line_no,
+					                                    object_column_no,
 					                                    tracker_class_get_name (class),
 					                                    "rdfs:subClassOf",
 					                                    "-",
@@ -1065,6 +1084,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				if (!ignore && !had) {
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
+					                                    object_line_no,
+					                                    object_column_no,
 					                                    tracker_property_get_name (property),
 					                                    "rdfs:subPropertyOf",
 					                                    "-",
@@ -1113,6 +1134,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				if (old_domain != domain) {
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
+					                                    object_line_no,
+					                                    object_column_no,
 					                                    tracker_property_get_name (property),
 					                                    "rdfs:domain",
 					                                    tracker_class_get_name (old_domain),
@@ -1412,6 +1435,8 @@ check_for_deleted_super_classes (TrackerDataManager  *manager,
 
 			handle_unsupported_ontology_change (manager,
 			                                    ontology_path,
+			                                    -1,
+			                                    -1,
 			                                    subject,
 			                                    "rdfs:subClassOf", "-", "-",
 			                                    error);
@@ -1434,12 +1459,14 @@ check_for_max_cardinality_change (TrackerDataManager  *manager,
 
 	if (tracker_property_get_is_new (property) == FALSE &&
 	    (orig_multiple_values != new_multiple_values &&
-		 orig_multiple_values == TRUE)) {
+	     orig_multiple_values == TRUE)) {
 		const gchar *ontology_path = "Unknown";
 		const gchar *subject = tracker_property_get_uri (property);
 
 		handle_unsupported_ontology_change (manager,
 		                                    ontology_path,
+		                                    -1,
+		                                    -1,
 		                                    subject,
 		                                    "nrl:maxCardinality", "none", "1",
 		                                    &n_error);
@@ -1662,6 +1689,8 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 				if (tracker_sparql_cursor_get_boolean (cursor, 0) != in_onto) {
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
+					                                    -1,
+					                                    -1,
 					                                    subject,
 					                                    "nrl:InverseFunctionalProperty", "-", "-",
 					                                    &n_error);
