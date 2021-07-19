@@ -316,6 +316,7 @@ test-alpine@x86_64:
     - build-alpine-edge@x86_64
   <<: *test
 
+
 coverage-analysis:
   extends:
     - .fdo.distribution-image@fedora
@@ -400,3 +401,27 @@ pages:
   only:
     - master
     - /^sam\/website.*$/
+
+sqlite-compatibility:
+  stage: weekly-tasks
+  cache: { key: $CI_JOB_NAME, paths: [ ./sqlite-downloads/ ] }
+  script:
+    - |
+      mkdir -p sqlite-downloads
+      for version in $(grep -v '^#' ./sqlite3_versions_tested); do
+        echo "Installing SQLite ${version} into /usr"    # This is a CI container so we can break it :)
+        mkdir ./sqlite-build
+        bash ./utils/sqlite/fetch_build_install_sqlite.sh $version ./sqlite-downloads ./sqlite-builds /usr
+        echo "Building Tracker SPARQL against SQLite ${version}"
+        rm -Rf ./build; meson . build -Db_lto=true -Db_coverage=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
+        ninja -C build
+        echo "Running Tracker SPARQL test suite"
+        (cd build; env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS} )
+        echo "Cleaning up"
+        rm -Rf ./sqlite-build ./build
+      done
+  extends:
+    - .fdo.distribution-image@ubuntu
+    - .tracker.ubuntu:rolling@x86_64
+  needs:
+    - build-ubuntu-container@x86_64
