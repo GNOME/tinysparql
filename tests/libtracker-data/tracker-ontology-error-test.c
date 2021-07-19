@@ -49,6 +49,8 @@ ontology_error_helper (GFile *ontology_location, char *error_path)
 	gchar *error_msg = NULL;
 	GError* error = NULL;
 	GError* ontology_error = NULL;
+	GMatchInfo *matchInfo;
+	GRegex *regex;
 
 	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_IN_MEMORY,
 	                                    NULL, ontology_location,
@@ -58,8 +60,16 @@ ontology_error_helper (GFile *ontology_location, char *error_path)
 
 	g_file_get_contents (error_path, &error_msg, NULL, &error);
 	g_assert_no_error (error);
-	g_assert_cmpstr (ontology_error->message, ==, error_msg);
 
+	regex = g_regex_new (error_msg, 0, 0, &error);
+	g_regex_match (regex, ontology_error->message, 0, &matchInfo);
+
+	if (!g_match_info_matches (matchInfo))
+		g_error ("Error Message: %s doesn't match the regular expression: %s",
+		         ontology_error->message, error_msg);
+
+	g_regex_unref (regex);
+	g_match_info_unref (matchInfo);
 	g_error_free (ontology_error);
 	g_free (error_msg);
 	g_object_unref (manager);
