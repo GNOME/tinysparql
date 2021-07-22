@@ -44,7 +44,6 @@ sqlite_required = '3.15.0'
 gio = dependency('gio-2.0', version: '>' + glib_required)
 gio_unix = dependency('gio-unix-2.0', version: '>' + glib_required)
 glib = dependency('glib-2.0', version: '>' + glib_required)
-gmodule = dependency('gmodule-2.0', version: '>' + glib_required)
 gobject = dependency('gobject-2.0', version: '>' + glib_required)
 gobject_introspection = dependency('gobject-introspection-1.0', required: get_option('introspection'))
 icu_i18n = dependency('icu-i18n', version: '> 4.8.1.1', required: false)
