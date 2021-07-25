@@ -41,8 +41,11 @@ tests += {
   'suite': ['sparql'],
 }
 
+test_gresources = gnome.compile_resources('test_gresources', 'statement-queries.gresource.xml')
+
 tracker_statement_test = executable('tracker-statement-test',
   'tracker-statement-test.c',
+  test_gresources,
   dependencies: [tracker_common_dep, tracker_sparql_dep],
   c_args: libtracker_sparql_test_c_args + test_c_args)
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/test/sparql/">
+    <file>statement/cast.rq</file>
+    <file>statement/datetime.rq</file>
+    <file>statement/filter.rq</file>
+    <file>statement/limit.rq</file>
+    <file>statement/object-iri.rq</file>
+    <file>statement/object.rq</file>
+    <file>statement/offset.rq</file>
+    <file>statement/simple-error.rq</file>
+    <file>statement/simple.rq</file>
+    <file>statement/subject.rq</file>
+  </gresource>
+</gresources>
