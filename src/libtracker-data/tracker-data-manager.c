@@ -701,13 +701,16 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
                                       const gchar         *subject,
                                       const gchar         *predicate,
                                       const gchar         *object,
+                                      goffset              object_line_no,
+                                      goffset              object_column_no,
                                       gboolean             in_update,
-                                      GHashTable          *classes,
-                                      GHashTable          *properties,
                                       GPtrArray           *seen_classes,
                                       GPtrArray           *seen_properties,
                                       GError             **error)
 {
+	gchar *object_location = g_strdup_printf("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT,
+	                                         ontology_path, object_line_no, object_column_no);
+
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
 			TrackerClass *class;
@@ -719,7 +722,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				if (seen_classes)
 					g_ptr_array_add (seen_classes, g_object_ref (class));
 				if (!in_update) {
-					g_critical ("%s: Duplicate definition of class %s", ontology_path, subject);
+					g_critical ("%s: Duplicate definition of class %s", object_location, subject);
 				} else {
 					/* Reset for a correct post-check */
 					tracker_class_reset_domain_indexes (class);
@@ -745,12 +748,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			if (seen_classes)
 				g_ptr_array_add (seen_classes, g_object_ref (class));
 
-			if (classes) {
-				g_hash_table_insert (classes, GINT_TO_POINTER (subject_id), class);
-			} else {
-				g_object_unref (class);
-			}
-
+			g_object_unref (class);
 		} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
 			TrackerProperty *property;
 			gint subject_id;
@@ -760,7 +758,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				if (seen_properties)
 					g_ptr_array_add (seen_properties, g_object_ref (property));
 				if (!in_update) {
-					g_critical ("%s: Duplicate definition of property %s", ontology_path, subject);
+					g_critical ("%s: Duplicate definition of property %s", object_location, subject);
 				} else {
 					/* Reset for a correct post and pre-check */
 					tracker_property_set_last_multiple_values (property, TRUE);
@@ -794,18 +792,13 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			if (seen_properties)
 				g_ptr_array_add (seen_properties, g_object_ref (property));
 
-			if (properties) {
-				g_hash_table_insert (properties, GINT_TO_POINTER (subject_id), property);
-			} else {
-				g_object_unref (property);
-			}
-
+			g_object_unref (property);
 		} else if (g_strcmp0 (object, NRL_INVERSE_FUNCTIONAL_PROPERTY) == 0) {
 			TrackerProperty *property;
 
 			property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 			if (property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_path, subject);
+				g_critical ("%s: Unknown property %s", object_location, subject);
 				goto out;
 			}
 
@@ -815,7 +808,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 			if (tracker_ontologies_get_namespace_by_uri (manager->ontologies, subject) != NULL) {
 				if (!in_update)
-					g_critical ("%s: Duplicate definition of namespace %s", ontology_path, subject);
+					g_critical ("%s: Duplicate definition of namespace %s", object_location, subject);
 				goto out;
 			}
 
@@ -831,7 +824,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 			if (tracker_ontologies_get_ontology_by_uri (manager->ontologies, subject) != NULL) {
 				if (!in_update)
-					g_critical ("%s: Duplicate definition of ontology %s", ontology_path, subject);
+					g_critical ("%s: Duplicate definition of ontology %s", object_location, subject);
 				goto out;
 			}
 
@@ -849,7 +842,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		class = tracker_ontologies_get_class_by_uri (manager->ontologies, subject);
 		if (class == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, subject);
+			g_critical ("%s: Unknown class %s", object_location, subject);
 			goto out;
 		}
 
@@ -863,7 +856,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 				super_class = tracker_ontologies_get_class_by_uri (manager->ontologies, object);
 				if (super_class == NULL) {
-					g_critical ("%s: Unknown class %s", ontology_path, object);
+					g_critical ("%s: Unknown class %s", object_location, object);
 					goto out;
 				}
 
@@ -872,7 +865,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 						ignore = TRUE;
 						TRACKER_NOTE (ONTOLOGY_CHANGES,
 						              g_message ("%s: Class %s already has rdfs:subClassOf in %s",
-						                         ontology_path, object, subject));
+						                         object_location, object, subject));
 						break;
 					}
 					super_classes++;
@@ -915,7 +908,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		super_class = tracker_ontologies_get_class_by_uri (manager->ontologies, object);
 		if (super_class == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, object);
+			g_critical ("%s: Unknown class %s", object_location, object);
 			goto out;
 		}
 
@@ -927,7 +920,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 		class = tracker_ontologies_get_class_by_uri (manager->ontologies, subject);
 
 		if (class == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, subject);
+			g_critical ("%s: Unknown class %s", object_location, subject);
 			goto out;
 		}
 
@@ -943,7 +936,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 		class = tracker_ontologies_get_class_by_uri (manager->ontologies, subject);
 
 		if (class == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, subject);
+			g_critical ("%s: Unknown class %s", object_location, subject);
 			goto out;
 		}
 
@@ -966,13 +959,13 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 			g_critical ("%s: Unknown property %s for nrl:domainIndex in %s."
 			            "Don't release this .ontology change!",
-			            ontology_path, object, subject);
+			            object_location, object, subject);
 			goto out;
 		}
 
 		if (tracker_property_get_multiple_values (property)) {
 			g_critical ("%s: Property %s has multiple values while trying to add it as nrl:domainIndex in %s, this isn't supported",
-			            ontology_path, object, subject);
+			            object_location, object, subject);
 			goto out;
 		}
 
@@ -981,7 +974,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			if (tracker_property_get_domain (properties[i]) == class &&
 			    properties[i] == property) {
 				g_critical ("%s: Property %s is already a first-class property of %s while trying to add it as nrl:domainIndex",
-				            ontology_path, object, subject);
+				            object_location, object, subject);
 			}
 		}
 
@@ -990,7 +983,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			if (property == *properties) {
 				TRACKER_NOTE (ONTOLOGY_CHANGES,
 				              g_message ("%s: Property %s already a nrl:domainIndex in %s",
-				                         ontology_path, object, subject));
+				                         object_location, object, subject));
 				ignore = TRUE;
 			}
 			properties++;
@@ -1025,7 +1018,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
+			g_critical ("%s: Unknown property %s", object_location, subject);
 			goto out;
 		}
 
@@ -1039,7 +1032,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 				super_property = tracker_ontologies_get_property_by_uri (manager->ontologies, object);
 				if (super_property == NULL) {
-					g_critical ("%s: Unknown property %s", ontology_path, object);
+					g_critical ("%s: Unknown property %s", object_location, object);
 					goto out;
 				}
 
@@ -1048,7 +1041,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 						ignore = TRUE;
 						TRACKER_NOTE (ONTOLOGY_CHANGES,
 						              g_message ("%s: Property %s already has rdfs:subPropertyOf in %s",
-						                         ontology_path, object, subject));
+						                         object_location, object, subject));
 						break;
 					}
 					super_properties++;
@@ -1090,7 +1083,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		super_property = tracker_ontologies_get_property_by_uri (manager->ontologies, object);
 		if (super_property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, object);
+			g_critical ("%s: Unknown property %s", object_location, object);
 			goto out;
 		}
 
@@ -1102,13 +1095,13 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
+			g_critical ("%s: Unknown property %s", object_location, subject);
 			goto out;
 		}
 
 		domain = tracker_ontologies_get_class_by_uri (manager->ontologies, object);
 		if (domain == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, object);
+			g_critical ("%s: Unknown class %s", object_location, object);
 			goto out;
 		}
 
@@ -1137,7 +1130,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
+			g_critical ("%s: Unknown property %s", object_location, subject);
 			goto out;
 		}
 
@@ -1157,7 +1150,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		range = tracker_ontologies_get_class_by_uri (manager->ontologies, object);
 		if (range == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, object);
+			g_critical ("%s: Unknown class %s", object_location, object);
 			goto out;
 		}
 
@@ -1167,7 +1160,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
+			g_critical ("%s: Unknown property %s", object_location, subject);
 			goto out;
 		}
 
@@ -1184,7 +1177,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
+			g_critical ("%s: Unknown property %s", object_location, subject);
 			goto out;
 		}
 
@@ -1194,24 +1187,24 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
+			g_critical ("%s: Unknown property %s", object_location, subject);
 			goto out;
 		}
 
 		secondary_index = tracker_ontologies_get_property_by_uri (manager->ontologies, object);
 		if (secondary_index == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, object);
+			g_critical ("%s: Unknown property %s", object_location, object);
 			goto out;
 		}
 
 		if (!tracker_property_get_indexed (property)) {
-			g_critical ("%s: nrl:secondaryindex only applies to nrl:indexed properties", ontology_path);
+			g_critical ("%s: nrl:secondaryindex only applies to nrl:indexed properties", object_location);
 			goto out;
 		}
 
 		if (tracker_property_get_multiple_values (property) ||
 		    tracker_property_get_multiple_values (secondary_index)) {
-			g_critical ("%s: nrl:secondaryindex cannot be applied to properties with nrl:maxCardinality higher than one", ontology_path);
+			g_critical ("%s: nrl:secondaryindex cannot be applied to properties with nrl:maxCardinality higher than one", object_location);
 			goto out;
 		}
 
@@ -1221,7 +1214,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
+			g_critical ("%s: Unknown property %s", object_location, subject);
 			goto out;
 		}
 
@@ -1232,7 +1225,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		namespace = tracker_ontologies_get_namespace_by_uri (manager->ontologies, subject);
 		if (namespace == NULL) {
-			g_critical ("%s: Unknown namespace %s", ontology_path, subject);
+			g_critical ("%s: Unknown namespace %s", object_location, subject);
 			goto out;
 		}
 
@@ -1248,7 +1241,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		ontology = tracker_ontologies_get_ontology_by_uri (manager->ontologies, subject);
 		if (ontology == NULL) {
-			g_critical ("%s: Unknown ontology %s", ontology_path, subject);
+			g_critical ("%s: Unknown ontology %s", object_location, subject);
 			goto out;
 		}
 
@@ -1259,7 +1252,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 		datetime = tracker_date_new_from_iso8601 (object, &error);
 		if (!datetime) {
 			g_critical ("%s: error parsing nrl:lastModified: %s",
-			            ontology_path, error->message);
+			            object_location, error->message);
 			g_error_free (error);
 			goto out;
 		}
@@ -1269,6 +1262,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 	}
 
 out:
+	g_free(object_location);
 }
 
 
@@ -1781,6 +1775,7 @@ load_ontology_file (TrackerDataManager  *manager,
 	GError *ttl_error = NULL;
 	gchar *ontology_uri;
 	const gchar *subject, *predicate, *object;
+	goffset object_line_no, object_column_no;
 
 	reader = tracker_turtle_reader_new_for_file (file, &ttl_error);
 
@@ -1796,13 +1791,13 @@ load_ontology_file (TrackerDataManager  *manager,
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, NULL,
-	                                   NULL, &ttl_error)) {
+	                                   NULL, NULL, &object_line_no,
+	                                   &object_column_no, &ttl_error)) {
 		GError *ontology_error = NULL;
 
 		tracker_data_ontology_load_statement (manager, ontology_uri,
 		                                      subject, predicate, object,
-		                                      in_update, NULL, NULL,
+		                                      object_line_no, object_column_no, in_update,
 		                                      seen_classes, seen_properties, &ontology_error);
 
 		if (ontology_error) {
