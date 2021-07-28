@@ -22,11 +22,6 @@
  * effect of printing the 'help' message if TRACKER_DEBUG=help is set.
  */
 
-public static Tracker.Sparql.Connection tracker_sparql_connection_remote_new (string url_base) {
-	Tracker.get_debug_flags ();
-	return new Tracker.Remote.Connection (url_base);
-}
-
 public static Tracker.Sparql.Connection tracker_sparql_connection_bus_new (string service, string? object_path, DBusConnection? conn) throws Tracker.Sparql.Error, IOError, DBusError, GLib.Error {
 	Tracker.get_debug_flags ();
 
