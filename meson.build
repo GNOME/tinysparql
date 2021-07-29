@@ -1,6 +1,6 @@
 project('tracker', 'c', 'vala',
         version: '3.2.0.alpha.1',
-        meson_version: '>=0.51',
+        meson_version: '>=0.56',
         default_options: [
           'c_std=c99',
           'warning_level=2'])
@@ -44,6 +44,7 @@ sqlite_required = '3.15.0'
 gio = dependency('gio-2.0', version: '>' + glib_required)
 gio_unix = dependency('gio-unix-2.0', version: '>' + glib_required)
 glib = dependency('glib-2.0', version: '>' + glib_required)
+gmodule = dependency('gmodule-2.0', version: '>' + glib_required)
 gobject = dependency('gobject-2.0', version: '>' + glib_required)
 gobject_introspection = dependency('gobject-introspection-1.0', required: get_option('introspection'))
 icu_i18n = dependency('icu-i18n', version: '> 4.8.1.1', required: false)
@@ -52,14 +53,23 @@ json_glib = dependency('json-glib-1.0', version: '>= 1.4', required: true)
 libxml2 = dependency('libxml-2.0', version: '> 2.6')
 sqlite = dependency('sqlite3', version: '>' + sqlite_required)
 dbus = dependency('dbus-1')
-
-if get_option('soup2')
-  libsoup = dependency('libsoup-2.4', version: '> 2.40', required: true)
-else
-  libsoup = dependency('libsoup-3.0', version: '>= 2.99.2', required: true)
-endif
+libsoup2 = dependency('libsoup-2.4', version: '> 2.40', required: false)
+libsoup3 = dependency('libsoup-3.0', version: '>= 2.99.2', required: false)
 
 libmath = cc.find_library('m', required: false)
+libdl = cc.find_library('dl')
+
+soup_backends = ''
+if libsoup2.found()
+  soup_backends = soup_backends + '2.x '
+endif
+if libsoup3.found()
+  soup_backends = soup_backends + '3.x '
+endif
+
+if not libsoup2.found() and not libsoup3.found()
+  error('At least one of libsoup2 or libsoup3 is required')
+endif
 
 if get_option('man')
   asciidoc = find_program('asciidoc')
@@ -293,6 +303,10 @@ conf.set('TRACKER_MICRO_VERSION', tracker_micro_version)
 conf.set('TRACKER_INTERFACE_AGE', 0)
 conf.set('TRACKER_BINARY_AGE', 100 * tracker_minor_version + tracker_micro_version)
 
+# Check for RTLD_NOLOAD
+have_rtld_noload = cc.has_header_symbol('dlfcn.h', 'RTLD_NOLOAD')
+conf.set('HAVE_RTLD_NOLOAD', have_rtld_noload)
+
 # Config that goes in some other generated files (.desktop, .service, etc)
 conf.set('abs_top_builddir', meson.current_build_dir())
 conf.set('libexecdir', join_paths(get_option('prefix'), get_option('libexecdir')))
@@ -387,6 +401,7 @@ summary = [
   '    Build with Stemming support:            ' + have_libstemmer.to_string(),
   '    API documentation:                      ' + get_option('docs').to_string(),
   '    CLI documentation (manpages):           ' + get_option('man').to_string(),
+  '    Libsoup backends:                       ' + soup_backends,
 ]
 
 if get_option('bash_completion')

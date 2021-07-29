@@ -57,3 +57,6 @@
 
 /* Define to the Tracker minor version */
 #mesondefine TRACKER_MINOR_VERSION
+
+/* Whether RTLD_NOLOAD is defined */
+#mesondefine HAVE_RTLD_NOLOAD
