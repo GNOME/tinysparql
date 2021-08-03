@@ -48,34 +48,31 @@ generated_content = [
   'nrl-ontology.md',
 ]
 
-# The TOML gi-docgen configuration wants a list of quoted file names.
-_quoted = []
-foreach c : content + generated_content
-  _quoted += '"@0@"'.format(c)
+required_hotdoc_extensions = [
+  'gi-extension',
+  'devhelp-extension',
+  'syntax-highlighting-extension',
+]
+
+foreach ext: required_hotdoc_extensions
+  if not hotdoc.has_extensions(ext)
+    error('Documentation enabled but HotDoc extension "@0@" is missing'.format(ext))
+  endif
 endforeach
 
-gidocgen_conf = configuration_data()
-gidocgen_conf.set('version', meson.project_version())
-gidocgen_conf.set('content', ','.join(_quoted))
-gidocgen_toml = configure_file(input: 'tracker-sparql.toml.in', output: 'tracker-sparql.toml', configuration: gidocgen_conf)
-
-custom_target(
-  'docgen',
-  input: [ gidocgen_toml, tracker_sparql_gir[0] ],
-  output: 'docs',
-  command: [
-    gidocgen,
-    'generate',
-    '--quiet',
-    #'--add-include-path=@0@'.format(meson.current_build_dir() / '../../../gtk'),
-    '--config=@INPUT0@',
-    '--output-dir=@OUTPUT@',
-    #'--no-namespace-dir',
-    '--content-dir=@0@'.format(meson.current_source_dir()),
-    '--content-dir=@0@'.format(meson.current_build_dir()),
-    '--content-dir=@0@'.format(icon_images_base),
-    '@INPUT1@',
-  ],
-  depends: [tracker_sparql_gir[0], base_ontology_docs, examples],
-  depend_files: [ content ],
-  build_by_default: true)
+hotdoc.generate_doc('tracker',
+  project_version: tracker_version,
+  languages: [ 'c', 'python', 'javascript' ],
+  gi_c_sources: [libtracker_sparql_c_sources, libtracker_sparql_c_public_headers, libtracker_sparql_remote_c_sources],
+  gi_sources: [tracker_sparql_gir[0].full_path()],
+  sitemap: 'sitemap.txt',
+  index: 'index.md',
+  gi_index: 'gi-index.md',
+  gi_smart_index: true,
+  gi_c_source_roots: [sparqlinc],
+  dependencies: [tracker_sparql_dep, glib, gobject],
+  extra_assets: [join_paths(meson.current_source_dir(), 'images')],
+  syntax_highlighting_activate: true,
+  devhelp_activate: true,
+  install: true,
+)
