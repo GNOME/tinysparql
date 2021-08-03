@@ -19,7 +19,9 @@
 
 /**
  * SECTION: tracker-notifier
+ * @title: TrackerNotifier
  * @short_description: Listen to changes in the Tracker database
+ * @stability: Stable
  * @include: libtracker-sparql/tracker-sparql.h
  *
  * #TrackerNotifier is an object that receives notifications about

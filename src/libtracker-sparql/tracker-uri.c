@@ -19,6 +19,16 @@
  * Boston, MA  02110-1301, USA.
  */
 
+/**
+ * SECTION: tracker-uri
+ * @short_description: URI utility functions
+ * @title: URI Utilities
+ * @stability: Stable
+ * @include: libtracker-sparql/tracker-sparql.h
+ *
+ * Tracker defines some utility functions to deal with URI strings.
+ */
+
 #include "config.h"
 
 #include <string.h>
