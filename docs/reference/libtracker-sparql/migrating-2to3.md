@@ -1,4 +1,9 @@
-Title: Migrating from libtracker-sparql 2.x to 3.0
+---
+title: Migrating from 2.x to 3.0
+short-description: Migrating from libtracker-sparql 2.x to 3.0
+...
+
+# Migrating from libtracker-sparql 2.x to 3.0
 
 Tracker 3.0 is a new major version, containing some large
 syntax and conceptual changes.
@@ -68,7 +73,7 @@ This library offered a too shallow collection of abstract objects
 whose sole role is inserting data to Tracker data store. There is
 no provided migration path, use TrackerSparqlConnection directly.
 
-# No `tracker_sparql_connection_load()/load_async()/load_finish()`
+## No `tracker_sparql_connection_load()/load_async()/load_finish()`
 
 This is superseded by the "LOAD <url>" SPARQL syntax.
 
