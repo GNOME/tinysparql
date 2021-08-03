@@ -23,10 +23,8 @@
  * @stability: Stable
  * @include: tracker-sparql.h
  *
- * <para>
  * #TrackerSparqlCursor is an object which provides methods to iterate the
  * results of a query to the Tracker Store.
- * </para>
  */
 #include "config.h"
 
