@@ -28,6 +28,18 @@ base_ontology_docs = custom_target('ontology-docgen',
     build_by_default: true,
 )
 
+nepomuk_ontology_docs = custom_target('nepomuk-docgen',
+    output: ['nie-ontology.md'],
+    command: [tracker_docgen,
+              '--md',
+              '-d', join_paths(source_root, 'src/ontologies/nepomuk'),
+              '-o', join_paths(meson.current_build_dir()),
+              '-e', meson.current_source_dir()],
+    depends: tracker_docgen,
+    depend_files: [base_ontology],
+    build_by_default: true,
+)
+
 content = [
   'overview.md',
   'ontologies.md',
@@ -37,15 +49,6 @@ content = [
   'sparql-functions.md',
   'migrating-2to3.md',
   'tutorial.md',
-]
-
-generated_content = [
-  'examples.md',
-  'xsd-ontology.md',
-  'dc-ontology.md',
-  'rdf-ontology.md',
-  'rdfs-ontology.md',
-  'nrl-ontology.md',
 ]
 
 required_hotdoc_extensions = [

@@ -3,6 +3,16 @@ index.md
 	examples.md
 	tutorial.md
 	ontologies.md
+		nepomuk.md
+			nie-ontology.md
+			nao-ontology.md
+			nfo-ontology.md
+			nco-ontology.md
+			nmm-ontology.md
+			mfo-ontology.md
+			slo-ontology.md
+			tracker-ontology.md
+			osinfo-ontology.md
 		base-ontology.md
 			xsd-ontology.md
 			dc-ontology.md

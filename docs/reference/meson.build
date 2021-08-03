@@ -10,4 +10,3 @@ icon_images = files(
 )
 
 subdir('libtracker-sparql')
-subdir('ontology')
