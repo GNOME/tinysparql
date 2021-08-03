@@ -241,7 +241,7 @@ are treated as parameters at query time, so it is possible
 to prepare a query statement once and reuse it many times
 assigning different values to those parameters at query time.
 
-See [class@Tracker.SparqlStatement] documentation for more information.
+See [](TrackerSparqlStatement) documentation for more information.
 
 ## Full-text search
 

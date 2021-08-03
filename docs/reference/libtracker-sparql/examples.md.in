@@ -10,32 +10,32 @@ SPARQL Library.
 
 ## Querying the Store
 
-First, a [class@Tracker.SparqlConnection] object must be acquired
-with [ctor@Tracker.SparqlConnection.new], [ctor@Tracker.SparqlConnection.bus_new]
-or [ctor@Tracker.SparqlConnection.remote_new].
+First, a [](TrackerSparqlConnection) object must be acquired
+with [](tracker_sparql_connection_new), [](tracker_sparql_connection_bus_new)
+or [](tracker_sparql_connection_remote_new).
 
-Then, a query can be launched either synchronously ([method@Tracker.SparqlConnection.query])
-or asynchronously ([method@Tracker.SparqlConnection.query_async]). If launched
+Then, a query can be launched either synchronously ([](tracker_sparql_connection_query))
+or asynchronously ([](tracker_sparql_connection_query_async)). If launched
 asynchronously, the results of the query can be obtained with
-[method@Tracker.SparqlConnection.query_finish].
+[](tracker_sparql_connection_query_finish).
 
-If the query was successful, a [class@Tracker.SparqlCursor]
+If the query was successful, a [](TrackerSparqlCursor)
 will be available. You can now iterate the results of the query both
-synchronously (with [method@Tracker.SparqlCursor.next]) or asynchronously
-(with [method@Tracker.SparqlCursor.next_async] and
-[method@Tracker.SparqlCursor.next_finish]).
+synchronously (with [](tracker_sparql_cursor_next)) or asynchronously
+(with [](tracker_sparql_cursor_next_async) and
+[](tracker_sparql_cursor_next_finish)).
 
-The [method@Tracker.SparqlConnection.query_statement] function can be used
-to obtain a [class@Tracker.SparqlStatement] object holding a prepared SPARQL
-query that can then be executed with [method@Tracker.SparqlStatement.execute].
+The [](tracker_sparql_connection_query_statement) function can be used
+to obtain a [](TrackerSparqlStatement) object holding a prepared SPARQL
+query that can then be executed with [](tracker_sparql_statement_execute).
 The query string can contain `~name` placeholders which can be replaced with
 arbitrary values before query execution with
-[method@Tracker.SparqlStatement.bind_string] and similar functions.
+[](tracker_sparql_statement_bind_string) and similar functions.
 This allows parsing the query string only once and to execute it multiple
 times with different parameters with potentially significant performance gains.
 
-Once you end up with the query, remember to call [method@Tracker.SparqlCursor.close].
-The same applies to [method@Tracker.SparqlConnection.close] when no longer needed.
+Once you end up with the query, remember to call [](tracker_sparql_cursor_close).
+The same applies to [](tracker_sparql_connection_close) when no longer needed.
 
 The following program shows how Read-Only queries can be done to the store in a
 synchronous way:
@@ -47,17 +47,17 @@ synchronous way:
 ## Updating the store
 
 In order to perform updates in the store, a new writable
-[class@Tracker.SparqlConnection] object must be acquired with
-[ctor@Tracker.SparqlConnection.new].
+[](TrackerSparqlConnection) object must be acquired with
+[](tracker_sparql_connection_new).
 
 Once a proper connection object has been acquired, the update can
-be launched either synchronously ([method@Tracker.SparqlConnection.update])
-or asynchronously ([method@Tracker.SparqlConnection.update_async]).
+be launched either synchronously ([](tracker_sparql_connection_update))
+or asynchronously ([](tracker_sparql_connection_update_async)).
 If launched asynchronously, the result of the operation can be obtained with
-[method@Tracker.SparqlConnection.update_finish].
+[](tracker_sparql_connection_update_finish).
 
 Once you no longer need the connection, remember to call
-[method@Tracker.SparqlConnection.close] on the [class@Tracker.SparqlConnection].
+[](tracker_sparql_connection_close) on the [](TrackerSparqlConnection).
 
 The following program shows how a synchronous update can be done to the store:
 
@@ -73,10 +73,10 @@ The majority of the work here is already described in the
 The difference with this example is that sometimes you want to
 insert data and have the URNs returned which were created to
 avoid re-querying for them. This is done using
-the [method@Tracker.SparqlConnection.update_blank] function (or asynchronously with
-[method@Tracker.SparqlConnection.update_blank_async]).
+the [](tracker_sparql_connection_update_blank) function (or asynchronously with
+[](tracker_sparql_connection_update_blank_async)).
 If launched asynchronously, the result of the operation can be obtained with
-[method@Tracker.SparqlConnection.update_blank_finish]
+[](tracker_sparql_connection_update_blank_finish)]
 
 The `_:foo` in the example is how a blank node is
 represented in SPARQL. The `foo` part is used to generate the

@@ -110,7 +110,7 @@ those elements in place. Other ontologies might have similar concepts.
 
 Notifiers are now created through tracker_sparql_connection_create_notifier().
 
-## Different signature of [signal@Tracker.Notifier::events] signal
+## Different signature of [](TrackerNotifier::events) signal
 
 A TrackerNotifier may hint changes across multiple endpoints (local or remote),
 in consequence the signal additionally contains 2 string arguments, notifying

@@ -102,6 +102,6 @@ SELECT ?u { ?u fts:match "sideshow" }
 
 ## Use TrackerSparqlStatement
 
-Using [class@Tracker.SparqlStatement] allows to parse and compile
+Using [](TrackerSparqlStatement) allows to parse and compile
 a query once, and reuse it many times. Its usage
 is recommended wherever possible.

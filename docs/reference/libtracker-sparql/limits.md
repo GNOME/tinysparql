@@ -60,7 +60,7 @@ SQLite has a limit on the number of databases that can be attached,
 defined by `SQLITE_MAX_LIMIT_ATTACHED` (defaults to 10, maximum 128).
 
 Tracker uses attached databases to implement its support for multiple
-graphs, so the maximum amount of graphs for a given [class@Tracker.SparqlConnection]
+graphs, so the maximum amount of graphs for a given [](TrackerSparqlConnection)
 is equally restricted.
 
 ## Limits on glob search
@@ -73,7 +73,7 @@ SPARQL syntax.
 
 SQLite defines a maximum of 999 parameters to be passed as arguments
 to a statement, controlled by `SQLITE_MAX_VARIABLE_NUMBER`.
-[class@Tracker.SparqlStatement] has the same limit.
+[](TrackerSparqlStatement) has the same limit.
 
 ## Maximum number of pages in a database
 
