@@ -3,6 +3,8 @@ title: Builtin SPARQL functions
 short-description: Builtin SPARQL functions
 ...
 
+# Builtin SPARQL functions
+
 Besides the functions built in the SPARQL 1.1 syntax, type casts
 and functional properties, Tracker supports a number of SPARQL
 functions. Some of these functions have correspondences in XPath.

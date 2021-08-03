@@ -3,6 +3,8 @@ title: Performance dos and donts
 short-description: Performance dos and donts
 ...
 
+# Performance advise
+
 SPARQL is a very powerful query language. As it should be
 suspected, this means there are areas where performance is
 sacrificed for versatility.

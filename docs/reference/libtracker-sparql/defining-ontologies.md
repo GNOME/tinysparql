@@ -1,7 +1,9 @@
 ---
-title: Defining Ontologies
+title: Defining ontologies
 short-description: Defining Ontologies
 ...
+
+# Defining ontologies
 
 An ontology defines the entities that a Tracker endpoint can store, as
 well as their properties and the relationships between different entities.

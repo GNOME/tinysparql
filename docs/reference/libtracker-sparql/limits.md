@@ -3,6 +3,8 @@ title: Limits
 short-description: Implementation limits
 ...
 
+# Limits
+
 Tracker is implemented on top of SQLite, and all of its benefits and
 [limits](https://www.sqlite.org/limits.html) apply. This
 document will break down how those limits apply to Tracker. Depending on

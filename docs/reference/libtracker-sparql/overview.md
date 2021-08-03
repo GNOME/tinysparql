@@ -3,6 +3,8 @@ title: Overview
 short-description: Library Overview
 ...
 
+# Overview
+
 Tracker SPARQL allows creating and connecting to one or more
 triplestore databases. It is used by the
 [Tracker Miners filesystem indexer](https://gitlab.gnome.org/GNOME/tracker-miners/),

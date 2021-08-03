@@ -1,7 +1,9 @@
 ---
-title: Base Ontology
+title: Base ontology
 short-description: Base for defining ontologies
 ...
+
+# Base ontology
 
 The base ontology is the seed for defining application-specific
 ontologies. It defines the basic types and property/class

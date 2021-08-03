@@ -3,6 +3,8 @@ title: SPARQL as understood by Tracker
 short-description: SPARQL as understood by Tracker
 ...
 
+# SPARQL as understood by Tracker
+
 This section describes the choices made by Tracker in its interpretation
 of the SPARQL documents, as well as its extensions and divergences.
 
