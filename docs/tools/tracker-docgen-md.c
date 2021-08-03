@@ -197,8 +197,9 @@ print_property_table (FILE                 *f,
 		}
 
 		/* Description column */
+		g_fprintf (f, "| ");
 		if (prop->description) {
-			g_fprintf (f, "| %s", prop->description);
+			g_fprintf (f, "%s", prop->description);
 		}
 		g_fprintf (f, "|\n");
 	}
@@ -323,8 +324,11 @@ print_link (FILE *f,
 static void
 print_md_header (FILE *f, TrackerOntologyDescription *desc)
 {
-	g_fprintf (f, "Title: %s\n\n", desc->title);
-	g_fprintf (f, "%s\n\n", desc->description);
+	g_fprintf (f, "---\n");
+	g_fprintf (f, "title: %s\n", desc->title);
+	g_fprintf (f, "short-description: %s\n", desc->description);
+	g_fprintf (f, "...\n\n");
+	g_fprintf (f, "# %s\n\n", desc->title);
 }
 
 static void
