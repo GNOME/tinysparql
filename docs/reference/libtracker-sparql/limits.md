@@ -1,5 +1,7 @@
-Title: Implementation limits
-Slug: implementation-limits
+---
+title: Limits
+short-description: Implementation limits
+...
 
 Tracker is implemented on top of SQLite, and all of its benefits and
 [limits](https://www.sqlite.org/limits.html) apply. This

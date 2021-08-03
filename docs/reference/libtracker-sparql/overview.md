@@ -1,4 +1,7 @@
-Title: Overview
+---
+title: Overview
+short-description: Library Overview
+...
 
 Tracker SPARQL allows creating and connecting to one or more
 triplestore databases. It is used by the

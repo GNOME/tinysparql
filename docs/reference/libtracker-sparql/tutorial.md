@@ -1,6 +1,7 @@
-----
-Title: SPARQL Tutorial
-----
+---
+title: SPARQL Tutorial
+short-description: SPARQL Tutorial
+...
 
 # SPARQL Tutorial
 
@@ -26,7 +27,7 @@ Subject and object are 2 graph vertices and the predicate is the edge,
 the accumulation of those triples form the full graph. For example,
 the following triples:
 
-```
+```turtle
 <a> a nfo:FileDataObject .
 <a> a nmm:MusicPiece .
 <a> nie:title "Images" .
@@ -34,12 +35,16 @@ the following triples:
 <a> nmm:albumArtist <c> .
 <a> nmm:albumArtist <d> .
 <a> nmm:performer <e> .
+
 <b> a nmm:MusicAlbum .
 <b> nie:title "Go Off!" .
+
 <c> a nmm:Artist .
 <c> nmm:artistName "Jason Becker" .
+
 <d> a nmm:Artist .
 <d> nmm:artistName "Marty Friedman" .
+
 <e> a nmm:Artist .
 <e> nmm:artistName "Cacophony" .
 ```
@@ -55,36 +60,44 @@ providing multiple objects (with `,` separator) or multiple
 predicate/object pairs (with `;` separator), the previous RDF could be
 transformed into:
 
-```
+```turtle
 <a> a nfo:FileDataObject, nmm:MusicPiece .
 <a> nie:title "Images" .
 <a> nmm:musicAlbum <b> .
 <a> nmm:albumArtist <c> , <d> .
 <a> nmm:performer <e> .
+
 <b> a nmm:MusicAlbum .
 <b> nie:title "Go Off!" .
+
 <c> a nmm:Artist .
 <c> nmm:artistName "Jason Becker" .
+
 <d> a nmm:Artist .
 <d> nmm:artistName "Marty Friedman" .
+
 <e> a nmm:Artist .
 <e> nmm:artistName "Cacophony" .
 ```
 
 And further into:
 
-```
+```turtle
 <a> a nfo:FileDataObject, nmm:MusicPiece ;
     nie:title "Images" ;
     nmm:musicAlbum <b> ;
     nmm:albumArtist <c>, <d> ;
     nmm:performer <e> .
+
 <b> a nmm:MusicAlbum ;
     nie:title "Go Off!" .
+
 <c> a nmm:Artist ;
     nmm:artistName "Jason Becker" .
+
 <d> a nmm:Artist ;
     nmm:artistName "Marty Friedman" .
+
 <e> a nmm:Artist ;
     nmm:artistName "Cacophony" .
 ```
@@ -140,7 +153,7 @@ got unwieldly soon! Luckily, that is not necessarily the case, the
 variables may be used anywhere in the triple definition, with other
 triple elements consisting of literals you want to match for, e.g.:
 
-```
+```SPARQL
 # Give me the title of resource <a> (Result: "Images")
 SELECT ?songName { <a> nie:title ?songName }
 ```

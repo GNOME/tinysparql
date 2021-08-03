@@ -1,5 +1,7 @@
-Title: Performance dos and donts
-Slug: performance-dos-donts
+---
+title: Performance dos and donts
+short-description: Performance dos and donts
+...
 
 SPARQL is a very powerful query language. As it should be
 suspected, this means there are areas where performance is

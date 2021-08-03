@@ -1,5 +1,7 @@
-Title: SPARQL as understood by Tracker
-Slug: sparql-and-tracker
+---
+title: SPARQL as understood by Tracker
+short-description: SPARQL as understood by Tracker
+...
 
 This section describes the choices made by Tracker in its interpretation
 of the SPARQL documents, as well as its extensions and divergences.
