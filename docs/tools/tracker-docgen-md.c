@@ -109,7 +109,7 @@ print_flag (FILE        *f,
             const gchar *icon_name,
             const gchar *flag_description)
 {
-	g_fprintf (f, "[![%s](%s \"%s\")](%s)",
+	g_fprintf (f, "[![%s](images/%s \"%s\")](%s)",
 	           flag_description, icon_name, flag_description, flag_property_link);
 }
 
