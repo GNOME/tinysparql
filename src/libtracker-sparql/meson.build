@@ -156,7 +156,7 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
 	'-include', 'libtracker-sparql/tracker-private.h',
         '-DPRIVATE_LIBDIR="@0@"'.format(tracker_internal_libs_dir),
         '-DBUILD_LIBDIR="@0@"'.format(meson.current_build_dir()),
-        '-DBUILDROOT="@0@"'.format(meson.project_build_root()),
+        '-DBUILDROOT="@0@"'.format(meson.build_root()),
     ],
 
     link_whole: [libtracker_sparql_intermediate],
