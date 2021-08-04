@@ -3810,7 +3810,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 	manager->db_manager = tracker_db_manager_new (manager->flags,
 	                                              manager->cache_location,
-	                                              &is_create,
 	                                              FALSE,
 	                                              manager->select_cache_size,
 	                                              manager->update_cache_size,
@@ -3822,6 +3821,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		g_propagate_error (error, internal_error);
 		return FALSE;
 	}
+
+	is_create = tracker_db_manager_is_first_time (manager->db_manager);
 
 	g_signal_connect (manager->db_manager, "setup-interface",
 	                  G_CALLBACK (setup_interface_cb), manager);

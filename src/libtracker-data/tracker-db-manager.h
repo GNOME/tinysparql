@@ -54,7 +54,6 @@ gboolean            tracker_db_manager_db_exists              (GFile *cache_loca
 
 TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerFlags   flags,
                                                                GFile                  *cache_location,
-                                                               gboolean               *first_time,
                                                                gboolean                shared_cache,
                                                                guint                   select_cache_size,
                                                                guint                   update_cache_size,
@@ -68,6 +67,8 @@ TrackerDBInterface *tracker_db_manager_get_db_interface       (TrackerDBManager 
 TrackerDBInterface *tracker_db_manager_get_writable_db_interface (TrackerDBManager   *db_manager);
 
 gboolean            tracker_db_manager_has_enough_space       (TrackerDBManager      *db_manager);
+
+gboolean            tracker_db_manager_is_first_time          (TrackerDBManager      *db_manager);
 
 TrackerDBManagerFlags
                     tracker_db_manager_get_flags              (TrackerDBManager      *db_manager,
