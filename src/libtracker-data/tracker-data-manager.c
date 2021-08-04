@@ -3888,12 +3888,12 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			                    NULL,
 			                    NULL,
 			                    &ontology_error);
+			g_free (uri);
+
 			if (ontology_error) {
 				g_propagate_error (error, ontology_error);
-				return FALSE;
+				goto rollback_newly_created_db;
 			}
-
-			g_free (uri);
 		}
 
 		tracker_data_ontology_setup_db (manager, iface, "main", FALSE,
@@ -3907,18 +3907,18 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
-			return FALSE;
+			goto rollback_newly_created_db;
 		}
 
 		if (!tracker_data_manager_init_fts (manager, iface, "main", TRUE, &internal_error)) {
 			g_propagate_error (error, internal_error);
-			return FALSE;
+			goto rollback_newly_created_db;
 		}
 
 		tracker_data_manager_initialize_iface (manager, iface, &internal_error);
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
-			return FALSE;
+			goto rollback_newly_created_db;
 		}
 
 		/* store ontology in database */
@@ -3930,7 +3930,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
-			return FALSE;
+			goto rollback_newly_created_db;
 		}
 
 		write_ontologies_gvdb (manager, TRUE /* overwrite */, NULL);
@@ -4399,6 +4399,11 @@ skip_ontology_check:
 	tracker_data_manager_update_status (manager, "Idle");
 
 	return TRUE;
+
+rollback_newly_created_db:
+	tracker_data_rollback_transaction (manager->data_update);
+	tracker_db_manager_rollback_db_creation (manager->db_manager, NULL);
+	return FALSE;
 }
 
 static gboolean

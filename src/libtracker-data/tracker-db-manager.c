@@ -463,6 +463,29 @@ tracker_db_manager_db_exists (GFile *cache_location)
 	return db_exists;
 }
 
+int
+tracker_db_manager_rollback_db_creation (TrackerDBManager  *db_manager,
+                                         GError           **error)
+{
+	gchar *dir;
+	gchar *filename;
+	int ret;
+
+	g_return_val_if_fail (db_manager->first_time, -1);
+
+	if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) != 0)
+		return 0;
+
+	dir = g_file_get_path (db_manager->cache_location);
+	filename = g_build_filename (dir, db_base.file, NULL);
+
+	ret = g_unlink (filename);
+
+	g_free (dir);
+	g_free (filename);
+	return ret;
+}
+
 static gboolean
 db_check_integrity (TrackerDBManager *db_manager)
 {
