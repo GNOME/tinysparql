@@ -1,6 +1,6 @@
 project('tracker', 'c', 'vala',
         version: '3.2.0.alpha.1',
-        meson_version: '>=0.56',
+        meson_version: '>=0.51',
         default_options: [
           'c_std=c99',
           'warning_level=2'])
