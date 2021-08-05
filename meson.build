@@ -71,9 +71,6 @@ if not libsoup2.found() and not libsoup3.found()
   error('At least one of libsoup2 or libsoup3 is required')
 endif
 
-gidocgen = dependency('gi-docgen', version: '>= 2021.1', fallback: ['gi-docgen', 'dummy_dep'])
-gidocgen = find_program('gi-docgen')
-
 if get_option('man')
   asciidoc = find_program('asciidoc')
   xsltproc = find_program('xsltproc')
