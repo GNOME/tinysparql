@@ -3932,13 +3932,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			import_ontology_file (manager, l->data, FALSE);
 		}
 
-		tracker_data_commit_transaction (manager->data_update, &internal_error);
-
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			goto rollback_newly_created_db;
-		}
-
 		write_ontologies_gvdb (manager, TRUE /* overwrite */, NULL);
 
 		ontologies = tracker_ontologies_get_ontologies (manager->ontologies, &n_ontologies);
@@ -3952,6 +3945,13 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				g_critical ("%s", n_error->message);
 				g_clear_error (&n_error);
 			}
+		}
+
+		tracker_data_commit_transaction (manager->data_update, &internal_error);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			goto rollback_newly_created_db;
 		}
 
 		g_list_free_full (sorted, g_object_unref);
