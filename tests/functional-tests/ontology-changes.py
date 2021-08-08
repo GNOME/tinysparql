@@ -240,7 +240,6 @@ class PropertyRangeIntToString (OntologyChangeTestTemplate):
     """
     Change the range of a property from int to string. There shouldn't be any data loss.
     """
-    @ut.skip("Fails with: Unable to insert multiple values for subject `http://example.org/ns#a_int' and single valued property `rdfs:comment' (old_value: 'This property is integer in basic here is string', new value: 'Property to test the changes string/int')")
     def test_property_range_int_to_str(self):
         self.template_test_ontology_change()
 
@@ -269,7 +268,6 @@ class PropertyRangeStringToInt (OntologyChangeTestTemplate):
     Change the range of a property from string to int. There shouldn't be any data loss.
     """
 
-    @ut.skip("Fails with: Unable to insert multiple values for subject `http://example.org/ns#a_int' and single valued property `rdfs:comment' (old_value: 'Property to test the changes string/int', new value: 'This property is integer in basic here is string')")
     def test_property_range_str_to_int(self):
         self.template_test_ontology_change()
 
@@ -573,7 +571,6 @@ class OntologyAddPropertyTest (OntologyChangeTestTemplate):
     """
     Add new properties in the ontology, with/without super prop and different ranges and cardinalities
     """
-    @ut.skip("Fails with:Unable to insert multiple values for subject `http://example.org/ns#a_int' and single valued property `rdfs:comment' (old_value: 'This property is integer in basic here is string', new value: 'Property to test the changes string/int')")
     def test_ontology_add_property(self):
         self.template_test_ontology_change()
 
@@ -668,7 +665,6 @@ class DomainIndexAddTest (OntologyChangeTestTemplate):
     """
     Add nrl:domainIndex to a class and check there is no data loss.
     """
-    @ut.skip("Fails with: basic-future/91-test.ontology: Unsupported ontology change for test:b_property: can't change rdfs:domain (old=test:A, attempted new=test:B) ")
     def test_domain_index_add(self):
         self.template_test_ontology_change()
 
