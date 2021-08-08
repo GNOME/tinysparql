@@ -181,7 +181,9 @@ class PropertyRangeStringToDate (OntologyChangeTestTemplate):
     Change the range of a property from string to date. There shouldn't be any data loss.
     """
 
-    @ut.skip("Fails with: basic-future/91-test.ontology: Unsupported ontology change for http://example.org/ns#a_string: can't change rdfs:range (old=http://www.w3.org/2001/XMLSchema#dateTime, attempted new=http://www.w3.org/2001/XMLSchema#string)")
+    # Conversion from string to dateTime is not allowed
+    @ut.expectedFailure
+
     def test_property_range_string_to_date(self):
         self.template_test_ontology_change()
 
@@ -211,7 +213,9 @@ class PropertyRangeDateToString (OntologyChangeTestTemplate):
     Change the range of a property from date to string. There shouldn't be any data loss.
     """
 
-    @ut.skip("fails with: basic-future/91-test.ontology: Unsupported ontology change for http://example.org/ns#a_string: can't change rdfs:range (old=http://www.w3.org/2001/XMLSchema#dateTime, attempted new=http://www.w3.org/2001/XMLSchema#string)")
+    # Conversion from dateTime to string is currently not allowed
+    @ut.expectedFailure
+
     def test_property_range_date_to_string(self):
         self.template_test_ontology_change()
 
@@ -754,7 +758,10 @@ class SuperclassRemovalTest (OntologyChangeTestTemplate):
     """
     Remove the superclass relation between two classes
     """
-    @ut.skip("Fails with: Unsupported ontology change for http://example.org/ns#B: can't change rdfs:subClassOf (old=-, attempted new=-)")
+
+    # Changes to rdfs:subClassOf are not allowed
+    @ut.expectedFailure
+
     def test_superclass_removal(self):
         self.template_test_ontology_change()
 
@@ -797,7 +804,10 @@ class SuperclassAdditionTest (OntologyChangeTestTemplate):
     """
     Add a superclass to a class with no superclass previously
     """
-    @ut.skip("Fails with: basic-future/91-test.ontology: Unsupported ontology change for test:B: can't change rdfs:subClassOf (old=-, attempted new=test:A)")
+
+    # Changes to rdfs:subClassOf are not allowed
+    @ut.expectedFailure
+
     def test_superclass_addition(self):
         self.template_test_ontology_change()
 
@@ -840,7 +850,10 @@ class PropertyPromotionTest (OntologyChangeTestTemplate):
     """
     Move a property to the superclass
     """
-    @ut.skip("Fails with: basic-future/91-test.ontology: Unsupported ontology change for test:b_property: can't change rdfs:domain (old=test:A, attempted new=test:B)")
+
+    # Changes to rdfs:domain are not allowed
+    @ut.expectedFailure
+
     def test_property_promotion(self):
         self.template_test_ontology_change()
 
@@ -876,7 +889,10 @@ class PropertyRelegationTest (OntologyChangeTestTemplate):
     """
     Move a property to the subclass
     """
-    @ut.skip("Fails")
+
+    # Changes to rdfs:domain are not allowed
+    @ut.expectedFailure
+
     def test_property_relegation(self):
         self.template_test_ontology_change()
 
