@@ -12,6 +12,8 @@ src/tracker/tracker-help.desktop.in
 src/tracker/tracker-import.c
 src/tracker/tracker-import.desktop.in
 src/tracker/tracker-main.c
+src/tracker/tracker-shell.c
+src/tracker/tracker-shell.desktop.in
 src/tracker/tracker-sparql.c
 src/tracker/tracker-sparql.desktop.in
 src/tracker/tracker-sql.c

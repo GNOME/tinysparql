@@ -1,0 +1,49 @@
+tracker3-shell(1)
+=================
+
+== NAME
+
+tracker3-shell - Open a testing session to SPARQL endpoints.
+
+== SYNOPSIS
+
+....
+tracker3 shell
+tracker3 shell -d <directory>
+tracker3 shell -b <busname>
+tracker3 shell -r <httpservice>
+....
+
+== DESCRIPTION
+
+This command creates a shell to issue SPARQL commands on a consistent
+connection. If called with no arguments, an in-memory database using
+the Nepomuk ontology will be used. If provided a specific database
+location, this SPARQL endpoint will be used for queries.
+
+== OPTIONS
+
+*-d, --database=<__directory__>*::
+  Open a database _directory_.
+*-b, --dbus-service=<__busname__>*::
+  Connect to a SPARQL endpoint at a D-Bus name.
+*-r, --remote-service=<__httpservice__>*::
+  Connect to a SPARQL endpoint at a HTTP server.
+
+== EXAMPLES
+
+Connect to tracker-miner-fs-3 bus name::
++
+----
+$ tracker3 shell -b org.freedesktop.Tracker3.Miner.Files
+----
+
+Connect to Wikidata SPARQL service::
++
+----
+$ tracker3 shell -r https://query.wikidata.org/sparql
+----
+
+== SEE ALSO
+
+*tracker3-sparql*(1).

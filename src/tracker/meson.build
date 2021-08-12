@@ -10,6 +10,7 @@ commands = [
     { 'name': 'export', 'sources': 'tracker-export.c', 'extra_deps': [tracker_sparql_private_dep] },
     { 'name': 'help', 'sources': 'tracker-help.c', 'extra_deps': [] },
     { 'name': 'import', 'sources': 'tracker-import.c', 'extra_deps': [] },
+    { 'name': 'shell', 'sources': 'tracker-shell.c', 'extra_deps': [] },
     { 'name': 'sparql', 'sources': ['tracker-sparql.c', sparql_gresource], 'extra_deps': [] },
     { 'name': 'sql', 'sources': 'tracker-sql.c', 'extra_deps': [tracker_sparql_private_dep] },
 ]

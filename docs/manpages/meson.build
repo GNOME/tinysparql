@@ -2,6 +2,7 @@ manpages = [
     ['tracker3-endpoint', 1, true],
     ['tracker3-export', 1, true],
     ['tracker3-import', 1, true],
+    ['tracker3-shell', 1, true],
     ['tracker3-sparql', 1, true],
     ['tracker3-sql', 1, true],
     ['tracker-xdg-portal-3', 1, false],
