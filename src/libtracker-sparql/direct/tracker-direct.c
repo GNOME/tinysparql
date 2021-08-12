@@ -332,6 +332,8 @@ translate_flags (TrackerSparqlConnectionFlags flags)
 		db_flags |= TRACKER_DB_MANAGER_FTS_ENABLE_STOP_WORDS;
 	if ((flags & TRACKER_SPARQL_CONNECTION_FLAGS_FTS_IGNORE_NUMBERS) != 0)
 		db_flags |= TRACKER_DB_MANAGER_FTS_IGNORE_NUMBERS;
+	if ((flags & TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES) != 0)
+		db_flags |= TRACKER_DB_MANAGER_ANONYMOUS_BNODES;
 
 	return db_flags;
 }
