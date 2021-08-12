@@ -50,11 +50,13 @@ typedef enum {
 	TRACKER_DB_MANAGER_SKIP_VERSION_CHECK    = 1 << 9,
 } TrackerDBManagerFlags;
 
+int                 tracker_db_manager_rollback_db_creation   (TrackerDBManager *db_manager,
+                                                               GError **error);
+
 gboolean            tracker_db_manager_db_exists              (GFile *cache_location);
 
 TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerFlags   flags,
                                                                GFile                  *cache_location,
-                                                               gboolean               *first_time,
                                                                gboolean                shared_cache,
                                                                guint                   select_cache_size,
                                                                guint                   update_cache_size,
@@ -68,6 +70,8 @@ TrackerDBInterface *tracker_db_manager_get_db_interface       (TrackerDBManager 
 TrackerDBInterface *tracker_db_manager_get_writable_db_interface (TrackerDBManager   *db_manager);
 
 gboolean            tracker_db_manager_has_enough_space       (TrackerDBManager      *db_manager);
+
+gboolean            tracker_db_manager_is_first_time          (TrackerDBManager      *db_manager);
 
 TrackerDBManagerFlags
                     tracker_db_manager_get_flags              (TrackerDBManager      *db_manager,

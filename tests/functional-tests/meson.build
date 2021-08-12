@@ -34,6 +34,7 @@ functional_tests = [
   'notifier',
   'collation',
   'ontology-changes',
+  'ontology-rollback',
   'cli',
   'portal',
 ]

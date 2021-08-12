@@ -1,0 +1,40 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix test: <http://example.org/ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .
+
+test: a nrl:Namespace, nrl:Ontology ;
+        nrl:lastModified "2010-03-24T11:00:04Z" ;
+        nrl:prefix "test" .
+
+test:A a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource .
+
+test:B a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource ;
+    rdfs:comment "Class B" . # This will be removed
+
+# The property will be removed in the error-free ontology
+test:a_tmp_prop a rdf:Property ;
+    rdfs:range xsd:integer ;
+    rdfs:domain test:A .
+
+# The range will be changed
+test:b_range_boolean_string a rdf:Property ;
+    rdfs:range xsd:boolean ;
+    rdfs:domain test:B .
+
+# The domain will be changed
+test:b_a_domain a rdf:Property ;
+    rdfs:range xsd:integer ;
+    rdfs:domain test:B .
+
+# ***** MALFORMED STATEMENT ******
+test:x a rdf:Property rdfs:Class ;
+# ********************************
+
+# The domain and range will be changed
+test:a_b_domain_range a rdf:Property ;
+    rdfs:range test:B ;
+    rdfs:domain test:A .

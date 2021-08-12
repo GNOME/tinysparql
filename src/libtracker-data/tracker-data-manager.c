@@ -1819,19 +1819,21 @@ load_ontology_file (TrackerDataManager  *manager,
 
 static TrackerOntology*
 get_ontology_from_file (TrackerDataManager *manager,
-                        GFile              *file)
+                        GFile              *file,
+                        GError            **error)
 {
 	const gchar *subject, *predicate, *object;
 	TrackerTurtleReader *reader;
-	GError *error = NULL;
+	GError *internal_error = NULL;
 	GHashTable *ontology_uris;
 	TrackerOntology *ret = NULL;
 
-	reader = tracker_turtle_reader_new_for_file (file, &error);
+	reader = tracker_turtle_reader_new_for_file (file, &internal_error);
 
-	if (error) {
-		g_critical ("Turtle parse error: %s", error->message);
-		g_error_free (error);
+	if (internal_error) {
+		g_propagate_prefixed_error (error, internal_error,
+		                            "Turtle parse error: %s",
+		                            internal_error->message);
 		return NULL;
 	}
 
@@ -1842,7 +1844,7 @@ get_ontology_from_file (TrackerDataManager *manager,
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, &error)) {
+	                                   NULL, NULL, &internal_error)) {
 		if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 			if (g_strcmp0 (object, TRACKER_PREFIX_NRL "Ontology") == 0) {
 				TrackerOntology *ontology;
@@ -1859,21 +1861,21 @@ get_ontology_from_file (TrackerDataManager *manager,
 		} else if (g_strcmp0 (predicate, NRL_LAST_MODIFIED) == 0) {
 			TrackerOntology *ontology;
 			GDateTime *datetime;
-			GError *error = NULL;
+			GError *parsing_error;
 
 			ontology = g_hash_table_lookup (ontology_uris, subject);
 			if (ontology == NULL) {
 				gchar *uri = g_file_get_uri (file);
 				g_critical ("%s: Unknown ontology %s", uri, subject);
 				g_free (uri);
-				return NULL;
+				continue;
 			}
 
-			datetime = tracker_date_new_from_iso8601 (object, NULL);
+			datetime = tracker_date_new_from_iso8601 (object, &parsing_error);
 			if (!datetime) {
-				g_critical ("%s: error parsing nrl:lastModified: %s",
-					    subject, error->message);
-				g_error_free (error);
+				g_propagate_prefixed_error (error, parsing_error,
+				                            "%s: error parsing nrl:lastModified: %s",
+				                            subject, parsing_error->message);
 				return NULL;
 			}
 
@@ -1891,15 +1893,19 @@ get_ontology_from_file (TrackerDataManager *manager,
 	g_hash_table_unref (ontology_uris);
 	g_object_unref (reader);
 
-	if (error) {
-		g_critical ("Turtle parse error: %s", error->message);
-		g_error_free (error);
+	if (internal_error) {
+		g_propagate_prefixed_error (error, internal_error,
+		                            "Turtle parse error: %s",
+		                            internal_error->message);
+		return NULL;
 	}
 
 	if (ret == NULL) {
 		gchar *uri = g_file_get_uri (file);
-		g_critical ("Ontology file has no nrl:lastModified header: %s", uri);
+		g_propagate_prefixed_error (error, internal_error,
+		                            "Ontology file has no nrl:lastModified header: %s", uri);
 		g_free (uri);
+		return NULL;
 	}
 
 	return ret;
@@ -3810,7 +3816,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 	manager->db_manager = tracker_db_manager_new (manager->flags,
 	                                              manager->cache_location,
-	                                              &is_create,
 	                                              FALSE,
 	                                              manager->select_cache_size,
 	                                              manager->update_cache_size,
@@ -3822,6 +3827,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		g_propagate_error (error, internal_error);
 		return FALSE;
 	}
+
+	is_create = tracker_db_manager_is_first_time (manager->db_manager);
 
 	g_signal_connect (manager->db_manager, "setup-interface",
 	                  G_CALLBACK (setup_interface_cb), manager);
@@ -3887,12 +3894,12 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			                    NULL,
 			                    NULL,
 			                    &ontology_error);
+			g_free (uri);
+
 			if (ontology_error) {
 				g_propagate_error (error, ontology_error);
-				return FALSE;
+				goto rollback_newly_created_db;
 			}
-
-			g_free (uri);
 		}
 
 		tracker_data_ontology_setup_db (manager, iface, "main", FALSE,
@@ -3906,30 +3913,23 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
-			return FALSE;
+			goto rollback_newly_created_db;
 		}
 
 		if (!tracker_data_manager_init_fts (manager, iface, "main", TRUE, &internal_error)) {
 			g_propagate_error (error, internal_error);
-			return FALSE;
+			goto rollback_newly_created_db;
 		}
 
 		tracker_data_manager_initialize_iface (manager, iface, &internal_error);
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
-			return FALSE;
+			goto rollback_newly_created_db;
 		}
 
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
 			import_ontology_file (manager, l->data, FALSE);
-		}
-
-		tracker_data_commit_transaction (manager->data_update, &internal_error);
-
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return FALSE;
 		}
 
 		write_ontologies_gvdb (manager, TRUE /* overwrite */, NULL);
@@ -3945,6 +3945,13 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				g_critical ("%s", n_error->message);
 				g_clear_error (&n_error);
 			}
+		}
+
+		tracker_data_commit_transaction (manager->data_update, &internal_error);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			goto rollback_newly_created_db;
 		}
 
 		g_list_free_full (sorted, g_object_unref);
@@ -4059,16 +4066,14 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			gint last_mod;
 
 			/* Parse a TrackerOntology from ontology_file */
-			ontology = get_ontology_from_file (manager, ontology_file);
+			ontology = get_ontology_from_file (manager, ontology_file, &internal_error);
 
-			if (!ontology) {
-				/* TODO: cope with full custom .ontology files: deal with this
-				 * error gracefully. App devs might install wrong ontology files
-				 * and we shouldn't critical() due to this. */
+			if (internal_error) {
 				gchar *uri = g_file_get_uri (ontology_file);
-				g_critical ("Can't get ontology from file: %s", uri);
+				g_propagate_prefixed_error (error, internal_error,
+				                            "Can't get ontology from file: %s", uri);
 				g_free (uri);
-				continue;
+				return FALSE;
 			}
 
 			ontology_uri = tracker_ontology_get_uri (ontology);
@@ -4127,34 +4132,17 @@ tracker_data_manager_initable_init (GInitable     *initable,
 					                    seen_properties,
 					                    &ontology_error);
 
-					if (g_error_matches (ontology_error,
-					                     TRACKER_DATA_ONTOLOGY_ERROR,
-					                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
-						g_warning ("%s", ontology_error->message);
-						g_error_free (ontology_error);
+					if (ontology_error) {
+						g_propagate_error (error, ontology_error);
 
 						g_clear_pointer (&seen_classes, g_ptr_array_unref);
 						g_clear_pointer (&seen_properties, g_ptr_array_unref);
-						tracker_data_ontology_import_finished (manager);
 
-						/* as we're processing an ontology change,
-						   transaction is guaranteed to be started */
-						tracker_data_rollback_transaction (manager->data_update);
-
-						if (ontos_table) {
-							g_hash_table_unref (ontos_table);
-						}
 						if (ontos) {
 							g_list_free_full (ontos, g_object_unref);
 						}
-						g_object_unref (manager->ontology_location);
-
-						goto skip_ontology_check;
-					}
-
-					if (ontology_error) {
-						g_critical ("Fatal error dealing with ontology changes: %s", ontology_error->message);
-						g_error_free (ontology_error);
+						
+						goto rollback_db_changes;
 					}
 
 					to_reload = g_list_prepend (to_reload, l->data);
@@ -4184,28 +4172,17 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				                    seen_properties,
 				                    &ontology_error);
 
-				if (g_error_matches (ontology_error,
-				                     TRACKER_DATA_ONTOLOGY_ERROR,
-				                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
-					g_warning ("%s", ontology_error->message);
-					g_error_free (ontology_error);
+				if (ontology_error) {
+					g_propagate_error (error, ontology_error);
 
 					g_clear_pointer (&seen_classes, g_ptr_array_unref);
 					g_clear_pointer (&seen_properties, g_ptr_array_unref);
-					tracker_data_ontology_import_finished (manager);
 
-					/* as we're processing an ontology change,
-					   transaction is guaranteed to be started */
-					tracker_data_rollback_transaction (manager->data_update);
-
-					if (ontos_table) {
-						g_hash_table_unref (ontos_table);
-					}
 					if (ontos) {
 						g_list_free_full (ontos, g_object_unref);
 					}
-
-					goto skip_ontology_check;
+					
+					goto rollback_db_changes;
 				}
 
 				if (ontology_error) {
@@ -4302,28 +4279,17 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				}
 			}
 
-			if (g_error_matches (ontology_error,
-			                     TRACKER_DATA_ONTOLOGY_ERROR,
-			                     TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE)) {
-				g_warning ("%s", ontology_error->message);
-				g_error_free (ontology_error);
+			if (ontology_error) {
+				g_propagate_error (error, ontology_error);
 
 				g_clear_pointer (&seen_classes, g_ptr_array_unref);
 				g_clear_pointer (&seen_properties, g_ptr_array_unref);
-				tracker_data_ontology_import_finished (manager);
 
-				/* as we're processing an ontology change,
-				   transaction is guaranteed to be started */
-				tracker_data_rollback_transaction (manager->data_update);
-
-				if (ontos_table) {
-					g_hash_table_unref (ontos_table);
-				}
 				if (ontos) {
 					g_list_free_full (ontos, g_object_unref);
 				}
-
-				goto skip_ontology_check;
+				
+				goto rollback_db_changes;
 			}
 
 			if (ontology_error) {
@@ -4362,8 +4328,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 	}
 
-
-skip_ontology_check:
 	if (!read_only && is_create) {
 		tracker_db_manager_set_current_locale (manager->db_manager);
 		tracker_db_manager_tokenizer_update (manager->db_manager);
@@ -4398,6 +4362,21 @@ skip_ontology_check:
 	tracker_data_manager_update_status (manager, "Idle");
 
 	return TRUE;
+
+rollback_db_changes:
+	tracker_data_ontology_import_finished (manager);
+	tracker_data_rollback_transaction (manager->data_update);
+
+	if (ontos_table) {
+		g_hash_table_unref (ontos_table);
+	}
+
+	return FALSE;
+
+rollback_newly_created_db:
+	tracker_data_rollback_transaction (manager->data_update);
+	tracker_db_manager_rollback_db_creation (manager->db_manager, NULL);
+	return FALSE;
 }
 
 static gboolean

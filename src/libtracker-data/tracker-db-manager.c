@@ -128,6 +128,7 @@ struct _TrackerDBManager {
 	TrackerDBManagerFlags flags;
 	guint s_cache_size;
 	guint u_cache_size;
+	gboolean first_time;
 
 	gpointer vtab_data;
 
@@ -151,6 +152,12 @@ static TrackerDBInterface *tracker_db_manager_create_db_interface   (TrackerDBMa
                                                                      GError             **error);
 
 static TrackerDBInterface * init_writable_db_interface              (TrackerDBManager *db_manager);
+
+gboolean
+tracker_db_manager_is_first_time (TrackerDBManager *db_manager)
+{
+	return db_manager->first_time;
+}
 
 TrackerDBManagerFlags
 tracker_db_manager_get_flags (TrackerDBManager *db_manager,
@@ -456,6 +463,29 @@ tracker_db_manager_db_exists (GFile *cache_location)
 	return db_exists;
 }
 
+int
+tracker_db_manager_rollback_db_creation (TrackerDBManager  *db_manager,
+                                         GError           **error)
+{
+	gchar *dir;
+	gchar *filename;
+	int ret;
+
+	g_return_val_if_fail (db_manager->first_time, -1);
+
+	if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) != 0)
+		return 0;
+
+	dir = g_file_get_path (db_manager->cache_location);
+	filename = g_build_filename (dir, db_base.file, NULL);
+
+	ret = g_unlink (filename);
+
+	g_free (dir);
+	g_free (filename);
+	return ret;
+}
+
 static gboolean
 db_check_integrity (TrackerDBManager *db_manager)
 {
@@ -513,16 +543,15 @@ db_check_integrity (TrackerDBManager *db_manager)
 
 TrackerDBManager *
 tracker_db_manager_new (TrackerDBManagerFlags   flags,
-			GFile                  *cache_location,
-			gboolean               *first_time,
-			gboolean                shared_cache,
-			guint                   select_cache_size,
-			guint                   update_cache_size,
-			TrackerBusyCallback     busy_callback,
-			gpointer                busy_user_data,
+                        GFile                  *cache_location,
+                        gboolean                shared_cache,
+                        guint                   select_cache_size,
+                        guint                   update_cache_size,
+                        TrackerBusyCallback     busy_callback,
+                        gpointer                busy_user_data,
                         GObject                *iface_data,
                         gpointer                vtab_data,
-			GError                **error)
+                        GError                **error)
 {
 	TrackerDBManager *db_manager;
 	TrackerDBVersion version;
@@ -534,10 +563,8 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	db_manager = g_object_new (TRACKER_TYPE_DB_MANAGER, NULL);
 	db_manager->vtab_data = vtab_data;
 
-	/* First set defaults for return values */
-	if (first_time) {
-		*first_time = FALSE;
-	}
+	/* Set default value for first_time */
+	db_manager->first_time = FALSE;
 
 	/* Set up locations */
 	db_manager->flags = flags;
@@ -618,9 +645,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	}
 
 	if (need_to_create) {
-		if (first_time) {
-			*first_time = TRUE;
-		}
+		db_manager->first_time = TRUE;
 
 		if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) == 0 &&
 		     !tracker_file_system_has_enough_space (db_manager->data_dir, TRACKER_DB_MIN_REQUIRED_SPACE, TRUE)) {

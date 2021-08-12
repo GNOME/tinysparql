@@ -1,0 +1,35 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix test: <http://example.org/ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .
+
+test: a nrl:Namespace, nrl:Ontology ;
+        nrl:lastModified "2010-03-24T11:00:04Z" ;
+        nrl:prefix "test" .
+
+test:A a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource .
+
+test:B a rdfs:Class ;
+    rdfs:subClassOf rdfs:Resource .
+
+# The property is removed
+# test:a_tmp_prop a rdf:Property ;
+#    rdfs:range xsd:integer ;
+#    rdfs:domain test:A .
+
+# The range changed from xsd:boolean to xsd:string
+test:b_range_boolean_string a rdf:Property ;
+    rdfs:range xsd:string ;
+    rdfs:domain test:B .
+
+# The domain is changed from test:B to test:A
+test:b_a_domain a rdf:Property ;
+    rdfs:range xsd:integer ;
+    rdfs:domain test:A .
+
+# The domain and range are exchanged
+test:a_b_domain_range a rdf:Property ;
+    rdfs:range test:A ;
+    rdfs:domain test:B .
