@@ -1291,7 +1291,8 @@ out:
 
 static void
 check_for_deleted_domain_index (TrackerDataManager *manager,
-                                TrackerClass       *class)
+                                TrackerClass       *class,
+                                GError            **error)
 {
 	TrackerProperty **last_domain_indexes;
 	GSList *hfound = NULL, *deleted = NULL;
@@ -1356,7 +1357,6 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 		}
 
 		for (l = deleted; l != NULL; l = l->next) {
-			GError *error = NULL;
 			TrackerProperty *prop = l->data;
 			const gchar *uri;
 			GBytes *bytes;
@@ -1373,19 +1373,11 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 			                               tracker_class_get_uri (class),
 			                               TRACKER_PREFIX_NRL "domainIndex",
 			                               bytes,
-			                               &error);
+			                               error);
 			g_bytes_unref (bytes);
 
-			if (error) {
-				g_critical ("Ontology change, %s", error->message);
-				g_clear_error (&error);
-			} else {
-				tracker_data_update_buffer_flush (manager->data_update, &error);
-				if (error) {
-					g_critical ("Ontology change, %s", error->message);
-					g_clear_error (&error);
-				}
-			}
+			if (!(*error))
+				tracker_data_update_buffer_flush (manager->data_update, error);
 		}
 
 		g_slist_free (deleted);
@@ -1584,7 +1576,13 @@ tracker_data_ontology_process_changes_pre_db (TrackerDataManager  *manager,
 			GError *n_error = NULL;
 			TrackerClass *class = g_ptr_array_index (seen_classes, i);
 
-			check_for_deleted_domain_index (manager, class);
+			check_for_deleted_domain_index (manager, class, &n_error);
+
+			if (n_error) {
+				g_propagate_error (error, n_error);
+				return;
+			}
+
 			check_for_deleted_super_classes (manager, class, &n_error);
 
 			if (n_error) {
@@ -3981,8 +3979,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			update_ontology_last_modified (manager, iface, ontologies[i], &n_error);
 
 			if (n_error) {
-				g_critical ("%s", n_error->message);
-				g_clear_error (&n_error);
+				g_propagate_error (error, n_error);
+				goto rollback_newly_created_db;
 			}
 		}
 
@@ -4092,8 +4090,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		}
 
 		if (n_error) {
-			g_warning ("%s", n_error->message);
-			g_clear_error (&n_error);
+			g_propagate_error (error, n_error);
+			return FALSE;
 		}
 
 		for (l = ontos; l; l = l->next) {
