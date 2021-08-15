@@ -1944,10 +1944,10 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
                                          const gchar        *subject,
                                          const gchar        *predicate,
                                          const gchar        *object,
-                                         gboolean            in_update)
+                                         gboolean            in_update,
+                                         GError            **error)
 {
 	TrackerProperty *property;
-	GError *error = NULL;
 	GBytes *bytes;
 
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
@@ -2026,58 +2026,64 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
 	bytes = g_bytes_new (object, strlen (object) + 1);
 	property = tracker_ontologies_get_property_by_uri (manager->ontologies, predicate);
 
+	if (!property) {
+		g_set_error (error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+		             "Unknown property %s", predicate);
+		goto out;
+	}
+
 	if (tracker_property_get_is_new (property) ||
 	    tracker_property_get_multiple_values (property)) {
 		tracker_data_insert_statement (manager->data_update, NULL,
 		                               subject, predicate, bytes,
-		                               &error);
+		                               error);
 	} else {
 		tracker_data_update_statement (manager->data_update, NULL,
-					       subject, predicate, bytes,
-		                               &error);
+		                               subject, predicate, bytes,
+		                               error);
 	}
 
+out:
 	g_bytes_unref (bytes);
-
-	if (error != NULL) {
-		g_critical ("%s", error->message);
-		g_error_free (error);
-		return;
-	}
 }
 
 static void
-import_ontology_file (TrackerDataManager *manager,
-                      GFile              *file,
-                      gboolean            in_update)
+import_ontology_file (TrackerDataManager  *manager,
+                      GFile               *file,
+                      gboolean             in_update,
+                      GError             **error)
 {
 	const gchar *subject, *predicate, *object;
-	GError *error = NULL;
 	TrackerTurtleReader* reader;
+	goffset object_line_no, object_column_no;
+	gchar *ontology_uri = g_file_get_uri (file);
 
-	reader = tracker_turtle_reader_new_for_file (file, &error);
+	reader = tracker_turtle_reader_new_for_file (file, error);
 
-	if (error != NULL) {
-		g_critical ("%s", error->message);
-		g_error_free (error);
-		return;
-	}
+	if (!reader)
+		goto out;
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, NULL,
-	                                   NULL, &error)) {
+	                                   NULL, NULL, &object_line_no,
+	                                   &object_column_no, error)) {
+		GError *internal_error = NULL;
+
 		tracker_data_ontology_process_statement (manager,
 		                                         subject, predicate, object,
-		                                         in_update);
+		                                         in_update, &internal_error);
+
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+		}
 	}
 
 	g_object_unref (reader);
 
-	if (error) {
-		g_critical ("%s", error->message);
-		g_error_free (error);
-	}
+out:
+	g_free (ontology_uri);
 }
 
 static void
@@ -3958,7 +3964,11 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
-			import_ontology_file (manager, l->data, FALSE);
+			import_ontology_file (manager, l->data, FALSE, &internal_error);
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				goto rollback_newly_created_db;
+			}
 		}
 
 		write_ontologies_gvdb (manager, TRUE /* overwrite */, NULL);
@@ -4321,15 +4331,14 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				goto rollback_db_changes;
 			}
 
-			if (ontology_error) {
-				g_propagate_error (error, ontology_error);
-				return FALSE;
-			}
-
 			for (l = to_reload; l; l = l->next) {
 				GFile *ontology_file = l->data;
 				/* store ontology in database */
-				import_ontology_file (manager, ontology_file, TRUE);
+				import_ontology_file (manager, ontology_file, TRUE, &internal_error);
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto rollback_db_changes;
+				}
 			}
 			g_list_free (to_reload);
 
