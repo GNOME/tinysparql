@@ -592,7 +592,6 @@ update_property_value (TrackerDataManager  *manager,
 
 static void
 check_range_conversion_is_allowed (TrackerDataManager  *manager,
-                                   const gchar         *ontology_path,
                                    const gchar         *subject,
                                    const gchar         *predicate,
                                    const gchar         *object,
@@ -617,7 +616,7 @@ check_range_conversion_is_allowed (TrackerDataManager  *manager,
 		if (g_strcmp0 (object, str) != 0) {
 			if (!is_allowed_conversion (str, object, allowed_range_conversions)) {
 				handle_unsupported_ontology_change (manager,
-				                                    ontology_path,
+				                                    NULL,
 				                                    -1,
 				                                    -1,
 				                                    subject,
@@ -751,8 +750,10 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 			subject_id = tracker_data_update_ensure_resource (manager->data_update,
 			                                                  subject, NULL, error);
-			if (!subject_id)
+			if (!subject_id) {
+				g_prefix_error (error, "%s:", object_location);
 				goto out;
+			}
 
 			class = tracker_class_new (FALSE);
 			tracker_class_set_ontologies (class, manager->ontologies);
@@ -794,8 +795,10 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			subject_id = tracker_data_update_ensure_resource (manager->data_update,
 			                                                  subject,
 			                                                  NULL, error);
-			if (!subject_id)
+			if (!subject_id) {
+				g_prefix_error (error, "%s:", object_location);
 				goto out;
+			}
 
 			property = tracker_property_new (FALSE);
 			tracker_property_set_ontologies (property, manager->ontologies);
@@ -1160,13 +1163,12 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 		if (tracker_property_get_is_new (property) != in_update) {
 			GError *err = NULL;
 			check_range_conversion_is_allowed (manager,
-			                                   ontology_path,
 			                                   subject,
 			                                   predicate,
 			                                   object,
 			                                   &err);
 			if (err) {
-				g_propagate_error (error, err);
+				g_propagate_prefixed_error (error, err, "%s: ", object_location);
 				goto out;
 			}
 		}
@@ -1800,18 +1802,17 @@ load_ontology_file (TrackerDataManager  *manager,
 {
 	TrackerTurtleReader *reader;
 	GError *ttl_error = NULL;
-	gchar *ontology_uri;
+	gchar *ontology_uri = g_file_get_uri (file);
 	const gchar *subject, *predicate, *object;
 	goffset object_line_no, object_column_no;
 
 	reader = tracker_turtle_reader_new_for_file (file, &ttl_error);
 
 	if (ttl_error) {
-		g_propagate_error (error, ttl_error);
+		g_propagate_prefixed_error (error, ttl_error, "%s: ", ontology_uri);
+		g_free (ontology_uri);
 		return;
 	}
-
-	ontology_uri = g_file_get_uri (file);
 
 	/* Post checks are only needed for ontology updates, not the initial
 	 * ontology */
@@ -1833,12 +1834,14 @@ load_ontology_file (TrackerDataManager  *manager,
 		}
 	}
 
+	if (ttl_error) {
+		g_propagate_prefixed_error (error, ttl_error,
+		                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
+		                            ontology_uri, object_line_no, object_column_no);
+	}
+
 	g_free (ontology_uri);
 	g_object_unref (reader);
-
-	if (ttl_error) {
-		g_propagate_error (error, ttl_error);
-	}
 }
 
 
@@ -1852,14 +1855,14 @@ get_ontology_from_file (TrackerDataManager *manager,
 	GError *internal_error = NULL;
 	GHashTable *ontology_uris;
 	TrackerOntology *ret = NULL;
+	goffset object_line_no, object_column_no;
+	gchar *ontology_uri = g_file_get_uri (file);
 
 	reader = tracker_turtle_reader_new_for_file (file, &internal_error);
 
 	if (internal_error) {
-		g_propagate_prefixed_error (error, internal_error,
-		                            "Turtle parse error: %s",
-		                            internal_error->message);
-		return NULL;
+		g_propagate_prefixed_error (error, internal_error, "%s: ", ontology_uri);
+		goto out;
 	}
 
 	ontology_uris = g_hash_table_new_full (g_str_hash,
@@ -1869,8 +1872,8 @@ get_ontology_from_file (TrackerDataManager *manager,
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, NULL,
-	                                   NULL, &internal_error)) {
+	                                   NULL, NULL, &object_line_no,
+	                                   &object_column_no, &internal_error)) {
 		if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 			if (g_strcmp0 (object, TRACKER_PREFIX_NRL "Ontology") == 0) {
 				TrackerOntology *ontology;
@@ -1891,18 +1894,17 @@ get_ontology_from_file (TrackerDataManager *manager,
 
 			ontology = g_hash_table_lookup (ontology_uris, subject);
 			if (ontology == NULL) {
-				gchar *uri = g_file_get_uri (file);
-				g_critical ("%s: Unknown ontology %s", uri, subject);
-				g_free (uri);
+				g_critical ("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": Unknown ontology %s",
+				            ontology_uri, object_line_no, object_column_no, subject);
 				continue;
 			}
 
 			datetime = tracker_date_new_from_iso8601 (object, &parsing_error);
 			if (!datetime) {
 				g_propagate_prefixed_error (error, parsing_error,
-				                            "%s: error parsing nrl:lastModified: %s",
-				                            subject, parsing_error->message);
-				return NULL;
+				                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": error parsing nrl:lastModified: ",
+				                            ontology_uri, object_line_no, object_column_no);
+				goto out;
 			}
 
 			tracker_ontology_set_last_modified (ontology, g_date_time_to_unix (datetime));
@@ -1921,19 +1923,21 @@ get_ontology_from_file (TrackerDataManager *manager,
 
 	if (internal_error) {
 		g_propagate_prefixed_error (error, internal_error,
-		                            "Turtle parse error: %s",
-		                            internal_error->message);
-		return NULL;
+		                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": Turtle parse error: ",
+		                            ontology_uri, object_line_no, object_column_no);
+		goto out;
 	}
 
 	if (ret == NULL) {
-		gchar *uri = g_file_get_uri (file);
-		g_propagate_prefixed_error (error, internal_error,
-		                            "Ontology file has no nrl:lastModified header: %s", uri);
-		g_free (uri);
-		return NULL;
+		g_set_error (error,
+		             TRACKER_SPARQL_ERROR,
+			     TRACKER_SPARQL_ERROR_OPEN_ERROR,
+		             "%s: Ontology has no nrl:lastModified header", ontology_uri);
+		goto out;
 	}
 
+out:
+	g_free (ontology_uri);
 	return ret;
 }
 
@@ -2060,8 +2064,10 @@ import_ontology_file (TrackerDataManager  *manager,
 
 	reader = tracker_turtle_reader_new_for_file (file, error);
 
-	if (!reader)
+	if (!reader) {
+		g_prefix_error (error, "%s:", ontology_uri);
 		goto out;
+	}
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
@@ -2074,8 +2080,16 @@ import_ontology_file (TrackerDataManager  *manager,
 		                                         in_update, &internal_error);
 
 		if (internal_error) {
-			g_propagate_error (error, internal_error);
+			g_propagate_prefixed_error (error, internal_error,
+			                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
+			                            ontology_uri, object_line_no, object_column_no);
 		}
+	}
+
+	if (*error) {
+		g_prefix_error (error,
+		                "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ":",
+		                ontology_uri, object_line_no, object_column_no);
 	}
 
 	g_object_unref (reader);
@@ -4106,10 +4120,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			ontology = get_ontology_from_file (manager, ontology_file, &internal_error);
 
 			if (internal_error) {
-				gchar *uri = g_file_get_uri (ontology_file);
-				g_propagate_prefixed_error (error, internal_error,
-				                            "Can't get ontology from file: %s", uri);
-				g_free (uri);
+				g_propagate_error (error, internal_error);
 				return FALSE;
 			}
 
