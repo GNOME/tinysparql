@@ -494,7 +494,52 @@ print_toc_extra_properties (FILE                 *f,
 	g_fprintf (f, "\n\n");
 }
 
-/* Generate docbook markdown document for one ontology. */
+void
+generate_keywords (TrackerOntologyModel       *model,
+		   TrackerOntologyDescription *description,
+		   GFile                      *output_location,
+		   GList                      *classes,
+		   GList                      *properties)
+{
+	gchar *path, *filename;
+	GFile *file;
+	GList *l;
+	FILE *f;
+
+	filename = g_strdup_printf ("%s-ontology.keywords", description->localPrefix);
+	file = g_file_get_child (output_location, filename);
+	g_free (filename);
+
+	path = g_file_get_path (file);
+	f = fopen (path, "w");
+	g_assert (f != NULL);
+	g_free (path);
+
+	for (l = classes; l != NULL; l = l->next) {
+		TrackerOntologyClass *klass;
+
+		klass = tracker_ontology_model_get_class (model, l->data);
+		g_fprintf (f, "  <keyword type=\"rdf-class\" name=\"%s\" link=\"%s-ontology.html#%s\"/>\n",
+			   klass->shortname,
+			   description->localPrefix,
+			   klass->shortname);
+	}
+
+	for (l = properties; l != NULL; l = l->next) {
+		TrackerOntologyProperty *prop;
+
+		prop = tracker_ontology_model_get_property (model, l->data);
+		g_fprintf (f, "  <keyword type=\"rdf-property\" name=\"%s\" link=\"%s-ontology.html#%s\"/>\n",
+			   prop->shortname,
+			   description->localPrefix,
+			   prop->shortname);
+	}
+
+	g_object_unref (file);
+	fclose (f);
+}
+
+/* Generate markdown document for one ontology. */
 void
 ttl_md_print (TrackerOntologyDescription *description,
               TrackerOntologyModel       *model,
@@ -573,6 +618,8 @@ ttl_md_print (TrackerOntologyDescription *description,
 	}
 
 	print_md_footer (f, description);
+
+	generate_keywords (model, description, output_location, classes, properties);
 
 	g_free (upper_name);
 	g_free (introduction);
