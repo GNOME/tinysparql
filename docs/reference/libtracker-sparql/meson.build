@@ -63,7 +63,8 @@ foreach ext: required_hotdoc_extensions
   endif
 endforeach
 
-hotdoc.generate_doc('tracker',
+docs_name = 'Tracker'
+hotdoc.generate_doc(docs_name,
   project_version: tracker_version,
   languages: [ 'c', 'python', 'javascript' ],
   gi_c_sources: [libtracker_sparql_c_sources, libtracker_sparql_c_public_headers, libtracker_sparql_remote_c_sources],
@@ -80,3 +81,5 @@ hotdoc.generate_doc('tracker',
   devhelp_activate: true,
   install: true,
 )
+
+meson.add_install_script('install-devhelp.sh', docs_name)

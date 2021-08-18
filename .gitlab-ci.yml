@@ -192,7 +192,7 @@ check-code-style:
     - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_lto=true -Db_coverage=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
     - ninja -C build
     - |
-      if [ -z "$NO_DOCS" ]; then ninja -C build docs/reference/libtracker-sparql/tracker-doc; fi
+      if [ -z "$NO_DOCS" ]; then ninja -C build docs/reference/libtracker-sparql/Tracker-doc; fi
   artifacts:
     expire_in: 1 day
     paths:
