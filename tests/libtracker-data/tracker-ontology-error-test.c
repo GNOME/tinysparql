@@ -39,6 +39,7 @@ const TestInfo tests[] = {
 	{ "ontology-error/unknown-prefix-001" },
 	{ "ontology-error/unknown-prefix-002" },
 	{ "ontology-error/unknown-prefix-003" },
+	{ "ontology-error/incomplete-property-001" },
 	{ NULL }
 };
 
