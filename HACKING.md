@@ -92,5 +92,5 @@ commandline is controlled by the D-Bus .service.in files stored in
     Exec=/usr/bin/valgrind @abs_top_builddir@/src/tracker-store/tracker-store
 
 By default the run-uninstalled script and the functional-tests will only show
-output from Tracker code. For the functional-tests, set TRACKER_TESTS_VERBOSE=1
+output from Tracker code. For the functional-tests, set TRACKER_DEBUG=tests
 to see output from Valgrind. For tracker-sandbox use the `--debug-dbus` option.
