@@ -744,6 +744,9 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 					tracker_class_reset_domain_indexes (class);
 					tracker_class_reset_super_classes (class);
 					tracker_class_set_notify (class, FALSE);
+					tracker_class_set_ontology_path (class, ontology_path);
+					tracker_class_set_definition_line_no (class, object_line_no);
+					tracker_class_set_definition_column_no (class, object_column_no);
 				}
 				goto out;
 			}
@@ -760,6 +763,9 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			tracker_class_set_is_new (class, in_update);
 			tracker_class_set_uri (class, subject);
 			tracker_class_set_id (class, subject_id);
+			tracker_class_set_ontology_path (class, ontology_path);
+			tracker_class_set_definition_line_no (class, object_line_no);
+			tracker_class_set_definition_column_no (class, object_column_no);
 			tracker_ontologies_add_class (manager->ontologies, class);
 			tracker_ontologies_add_id_uri_pair (manager->ontologies, subject_id, subject);
 
