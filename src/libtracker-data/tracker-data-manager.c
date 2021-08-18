@@ -1805,6 +1805,45 @@ tracker_data_ontology_process_changes_post_import (GPtrArray *seen_classes,
 }
 
 static void
+check_properties_completeness (TrackerOntologies  *ontologies,
+                               GError            **error)
+{
+	guint i;
+	guint n_properties;
+	TrackerProperty **properties;
+
+	properties = tracker_ontologies_get_properties (ontologies, &n_properties);
+
+	for (i = 0; i < n_properties; i++) {
+		TrackerProperty *property = properties[i];
+		gchar *missing_definition = NULL;
+
+		if (!tracker_property_get_domain (property))
+			missing_definition = "domain";
+		else if (!tracker_property_get_range (property))
+			missing_definition = "range";
+
+		if (missing_definition) {
+			const gchar *ontology_path = tracker_property_get_ontology_path (property);
+			goffset line_no = tracker_property_get_definition_line_no (property);
+			goffset column_no = tracker_property_get_definition_column_no (property);
+			const gchar *property_name = tracker_property_get_name (property);
+			gchar *definition_location = g_strdup_printf ("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT,
+			                                              ontology_path, line_no, column_no);
+
+			g_set_error (error,
+			             TRACKER_SPARQL_ERROR,
+				     TRACKER_SPARQL_ERROR_OPEN_ERROR,
+			             "%s: Property %s has no defined %s.",
+			             definition_location, property_name, missing_definition);
+
+			g_free (definition_location);
+			return;
+		}
+	}
+}
+
+static void
 load_ontology_file (TrackerDataManager  *manager,
                     GFile               *file,
                     gboolean             in_update,
@@ -3961,8 +4000,12 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			}
 		}
 
-		tracker_data_ontology_setup_db (manager, iface, "main", FALSE,
-		                                &internal_error);
+		check_properties_completeness (manager->ontologies, &internal_error);
+
+		if (!internal_error) {
+			tracker_data_ontology_setup_db (manager, iface, "main", FALSE,
+			                                &internal_error);
+		}
 
 		if (!internal_error) {
 			tracker_data_ontology_import_into_db (manager, iface,
@@ -4264,6 +4307,21 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			}
 
 			g_object_unref (ontology);
+		}
+
+		check_properties_completeness (manager->ontologies, &n_error);
+
+		if (n_error) {
+			g_propagate_error (error, n_error);
+
+			g_clear_pointer (&seen_classes, g_ptr_array_unref);
+			g_clear_pointer (&seen_properties, g_ptr_array_unref);
+
+			if (ontos) {
+				g_list_free_full (ontos, g_object_unref);
+			}
+
+			goto rollback_db_changes;
 		}
 
 		if (to_reload) {
