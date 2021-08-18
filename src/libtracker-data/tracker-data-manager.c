@@ -788,6 +788,9 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 					tracker_property_set_is_inverse_functional_property (property, FALSE);
 					tracker_property_set_multiple_values (property, TRUE);
 					tracker_property_set_fulltext_indexed (property, FALSE);
+					tracker_property_set_ontology_path (property, ontology_path);
+					tracker_property_set_definition_line_no (property, object_line_no);
+					tracker_property_set_definition_column_no (property, object_column_no);
 				}
 				goto out;
 			}
@@ -806,6 +809,9 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			tracker_property_set_uri (property, subject);
 			tracker_property_set_id (property, subject_id);
 			tracker_property_set_multiple_values (property, TRUE);
+			tracker_property_set_ontology_path (property, ontology_path);
+			tracker_property_set_definition_line_no (property, object_line_no);
+			tracker_property_set_definition_column_no (property, object_column_no);
 			tracker_ontologies_add_property (manager->ontologies, property);
 			tracker_ontologies_add_id_uri_pair (manager->ontologies, subject_id, subject);
 

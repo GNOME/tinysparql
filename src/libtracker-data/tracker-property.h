@@ -90,6 +90,9 @@ gboolean            tracker_property_get_fulltext_indexed    (TrackerProperty   
 gboolean            tracker_property_get_multiple_values     (TrackerProperty      *property);
 gboolean            tracker_property_get_last_multiple_values(TrackerProperty      *property);
 gboolean            tracker_property_get_orig_multiple_values(TrackerProperty      *property);
+const gchar *       tracker_property_get_ontology_path       (TrackerProperty      *property);
+goffset             tracker_property_get_definition_line_no  (TrackerProperty      *property);
+goffset             tracker_property_get_definition_column_no(TrackerProperty      *property);
 gboolean            tracker_property_get_is_new              (TrackerProperty      *property);
 gboolean            tracker_property_get_is_new_domain_index (TrackerProperty      *property,
                                                               TrackerClass         *class);
@@ -128,6 +131,12 @@ void                tracker_property_set_last_multiple_values(TrackerProperty   
                                                               gboolean              value);
 void                tracker_property_set_orig_multiple_values(TrackerProperty      *property,
                                                               gboolean              value);
+void                tracker_property_set_ontology_path       (TrackerProperty      *property,
+                                                              const gchar          *value);
+void                tracker_property_set_definition_line_no  (TrackerProperty      *property,
+                                                              goffset               value);
+void                tracker_property_set_definition_column_no(TrackerProperty      *property,
+                                                              goffset               value);
 void                tracker_property_set_is_new              (TrackerProperty      *property,
                                                               gboolean              value);
 void                tracker_property_set_is_new_domain_index (TrackerProperty      *property,
