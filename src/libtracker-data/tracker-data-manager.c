@@ -490,7 +490,6 @@ is_allowed_conversion (const gchar *oldv,
 
 static gboolean
 update_property_value (TrackerDataManager  *manager,
-                       const gchar         *ontology_path,
                        const gchar         *kind,
                        const gchar         *subject,
                        const gchar         *predicate,
@@ -504,11 +503,20 @@ update_property_value (TrackerDataManager  *manager,
 	gboolean needed = TRUE;
 	gboolean is_new = FALSE;
 	GBytes *bytes;
+	const gchar *ontology_path = NULL;
+	goffset line_no = -1;
+	goffset column_no = -1;
 
 	if (class) {
 		is_new = tracker_class_get_is_new (class);
+		ontology_path = tracker_class_get_ontology_path (class);
+		line_no = tracker_class_get_definition_line_no (class);
+		column_no = tracker_class_get_definition_column_no (class);
 	} else if (property) {
 		is_new = tracker_property_get_is_new (property);
+		ontology_path = tracker_property_get_ontology_path (property);
+		line_no = tracker_property_get_definition_line_no (property);
+		column_no = tracker_property_get_definition_column_no (property);
 	}
 
 	if (!is_new) {
@@ -534,8 +542,8 @@ update_property_value (TrackerDataManager  *manager,
 				if (allowed && !is_allowed_conversion (str, object, allowed)) {
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
-					                                    -1,
-					                                    -1,
+					                                    line_no,
+					                                    column_no,
 					                                    subject,
 					                                    kind,
 					                                    str,
@@ -1589,7 +1597,7 @@ check_for_max_cardinality_change (TrackerDataManager  *manager,
 		GError *n_error = NULL;
 		const gchar *subject = tracker_property_get_uri (property);
 
-		if (update_property_value (manager, NULL,
+		if (update_property_value (manager,
 		                           "nrl:maxCardinality",
 		                           subject,
 		                           TRACKER_PREFIX_NRL "maxCardinality",
@@ -1749,8 +1757,6 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
                                                GError             **error)
 {
 	guint i;
-	/* TODO: Collect the ontology-paths of the seen events for proper error reporting */
-	const gchar *ontology_path = "Unknown";
 
 	/* This updates property-property changes and marks classes for necessity
 	 * of having their tables recreated later. There's support for
@@ -1765,14 +1771,14 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 			subject = tracker_class_get_uri (class);
 
 			if (tracker_class_get_notify (class)) {
-				update_property_value (manager, ontology_path,
+				update_property_value (manager,
 				                       "nrl:notify",
 				                       subject,
 				                       TRACKER_PREFIX_NRL "notify",
 				                       "true", allowed_boolean_conversions,
 				                       class, NULL, &n_error);
 			} else {
-				update_property_value (manager, ontology_path,
+				update_property_value (manager,
 				                       "nrl:notify",
 				                       subject,
 				                       TRACKER_PREFIX_NRL "notify",
@@ -1838,7 +1844,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 			}
 
 			if (tracker_property_get_indexed (property)) {
-				if (update_property_value (manager, ontology_path,
+				if (update_property_value (manager,
 				                           "nrl:indexed",
 				                           subject,
 				                           TRACKER_PREFIX_NRL "indexed",
@@ -1848,7 +1854,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 					indexed_set = TRUE;
 				}
 			} else {
-				if (update_property_value (manager, ontology_path,
+				if (update_property_value (manager,
 				                           "nrl:indexed",
 				                           subject,
 				                           TRACKER_PREFIX_NRL "indexed",
@@ -1867,7 +1873,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 			secondary_index = tracker_property_get_secondary_index (property);
 
 			if (secondary_index) {
-				if (update_property_value (manager, ontology_path,
+				if (update_property_value (manager,
 				                           "nrl:secondaryIndex",
 				                           subject,
 				                           TRACKER_PREFIX_NRL "secondaryIndex",
@@ -1878,7 +1884,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 					}
 				}
 			} else {
-				if (update_property_value (manager, ontology_path,
+				if (update_property_value (manager,
 				                           "nrl:secondaryIndex",
 				                           subject,
 				                           TRACKER_PREFIX_NRL "secondaryIndex",
@@ -1895,7 +1901,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 				return;
 			}
 
-			if (update_property_value (manager, ontology_path,
+			if (update_property_value (manager,
 			                           "rdfs:range", subject, TRACKER_PREFIX_RDFS "range",
 			                           tracker_class_get_uri (tracker_property_get_range (property)),
 			                           allowed_range_conversions,
