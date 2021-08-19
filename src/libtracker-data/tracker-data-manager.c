@@ -1508,15 +1508,19 @@ check_for_deleted_super_classes (TrackerDataManager  *manager,
 		}
 
 		if (!found) {
-			const gchar *ontology_path = "Unknown";
+			const gchar *ontology_path = tracker_class_get_ontology_path (class);
+			goffset line_no = tracker_class_get_definition_line_no (class);
+			goffset column_no = tracker_class_get_definition_column_no (class);
 			const gchar *subject = tracker_class_get_uri (class);
+			const gchar *last_super_class_uri = tracker_class_get_uri (last_super_class);
 
 			handle_unsupported_ontology_change (manager,
 			                                    ontology_path,
-			                                    -1,
-			                                    -1,
+			                                    line_no,
+			                                    column_no,
 			                                    subject,
-			                                    "rdfs:subClassOf", "-", "-",
+			                                    "rdfs:subClassOf",
+			                                    last_super_class_uri, "-",
 			                                    error);
 			return;
 		}
