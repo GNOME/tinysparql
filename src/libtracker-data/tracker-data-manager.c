@@ -685,6 +685,31 @@ check_max_cardinality_change_is_allowed (TrackerDataManager  *manager,
 }
 
 static void
+ensure_inverse_functional_property (TrackerDataManager  *manager,
+                                    const gchar         *property_uri,
+                                    GError             **error)
+{
+	TrackerDBCursor *cursor;
+	gchar *query;
+
+	query = g_strdup_printf ("ASK { <%s> a nrl:InverseFunctionalProperty }", property_uri);
+	cursor = tracker_data_query_sparql_cursor (manager, query, NULL);
+	g_free (query);
+
+	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+		if (!tracker_db_cursor_get_int (cursor, 0)) {
+			handle_unsupported_ontology_change (manager,
+			                                    NULL, -1, -1,
+			                                    property_uri,
+			                                    "nrl:InverseFunctionalProperty", "-", "-",
+			                                    error);
+		}
+
+		g_object_unref (cursor);
+	}
+}
+
+static void
 fix_indexed_on_db (TrackerDataManager  *manager,
                    const gchar         *database,
                    TrackerProperty     *property,
@@ -883,6 +908,27 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			if (property == NULL) {
 				g_critical ("%s: Unknown property %s", object_location, subject);
 				goto out;
+			}
+
+			if (in_update) {
+				GError *err = NULL;
+
+				if (tracker_property_get_is_new (property)) {
+					const gchar* property_uri = tracker_property_get_uri (property);
+
+					g_set_error (&err,
+					             TRACKER_SPARQL_ERROR,
+					             TRACKER_SPARQL_ERROR_UNSUPPORTED,
+					             "Unsupported adding the new inverse functional property: %s",
+					             property_uri);
+				} else {
+					ensure_inverse_functional_property (manager, subject, &err);
+				}
+
+				if (err) {
+					g_propagate_prefixed_error (error, err, "%s: ", object_location);
+					goto out;
+				}
 			}
 
 			tracker_property_set_is_inverse_functional_property (property, TRUE);
@@ -1767,10 +1813,14 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 
 			if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 				if (tracker_sparql_cursor_get_boolean (cursor, 0) != in_onto) {
+					const gchar *ontology_path = tracker_property_get_ontology_path (property);
+					goffset line_no = tracker_property_get_definition_line_no (property);
+					goffset column_no = tracker_property_get_definition_column_no (property);
+
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
-					                                    -1,
-					                                    -1,
+					                                    line_no,
+					                                    column_no,
 					                                    subject,
 					                                    "nrl:InverseFunctionalProperty", "-", "-",
 					                                    &n_error);
