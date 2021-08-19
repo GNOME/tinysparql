@@ -634,6 +634,57 @@ check_range_conversion_is_allowed (TrackerDataManager  *manager,
 }
 
 static void
+check_max_cardinality_change_is_allowed (TrackerDataManager  *manager,
+                                         const gchar         *subject,
+                                         const gchar         *predicate,
+                                         const gchar         *object,
+                                         GError             **error)
+{
+	TrackerDBCursor *cursor;
+	gchar *query;
+	gint new_max_cardinality = atoi (object);
+	gboolean unsupported = FALSE;
+
+	query = g_strdup_printf ("SELECT ?old_value WHERE { "
+	                         "<%s> nrl:maxCardinality ?old_value "
+	                         "}", subject);
+
+	cursor = tracker_data_query_sparql_cursor (manager, query, NULL);
+
+	g_free (query);
+
+	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+		const gchar *orig_object = tracker_db_cursor_get_string (cursor, 0, NULL);
+		gint orig_max_cardinality;
+
+		orig_max_cardinality = atoi (orig_object);
+
+		// If nrl:maxCardinality != 1, then the property support multiple values
+		if (new_max_cardinality == 1 && orig_max_cardinality != 1)
+			unsupported = TRUE;
+
+		g_object_unref (cursor);
+	} else {
+		/* nrl:maxCardinality not set
+		   by default it allows multiple values */
+		if (new_max_cardinality == 1)
+			unsupported = TRUE;
+	}
+
+	if (unsupported) {
+		handle_unsupported_ontology_change (manager,
+		                                    NULL,
+		                                    -1,
+		                                    -1,
+		                                    subject,
+		                                    "nrl:maxCardinality",
+		                                    "N",
+		                                    object,
+		                                    error);
+	}
+}
+
+static void
 fix_indexed_on_db (TrackerDataManager  *manager,
                    const gchar         *database,
                    TrackerProperty     *property,
@@ -644,7 +695,7 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 	TrackerClass *class;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
-        class = tracker_property_get_domain (property);
+	class = tracker_property_get_domain (property);
 
 	if (tracker_property_get_multiple_values (property)) {
 		set_index_for_multi_value_property (iface, database, class, property, &internal_error);
@@ -1201,6 +1252,27 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			goto out;
 		}
 
+		if (atoi (object) == 0) {
+			g_set_error (error,
+			             TRACKER_SPARQL_ERROR,
+			             TRACKER_SPARQL_ERROR_TYPE,
+			             "Property nrl:maxCardinality only accepts integers greater than 0");
+			goto out;
+		}
+
+		if (tracker_property_get_is_new (property) != in_update) {
+			GError *err = NULL;
+			check_max_cardinality_change_is_allowed (manager,
+			                                         subject,
+			                                         predicate,
+			                                         object,
+			                                         &err);
+			if (err) {
+				g_propagate_prefixed_error (error, err, "%s: ", object_location);
+				goto out;
+			}
+		}
+
 		if (atoi (object) == 1) {
 			tracker_property_set_multiple_values (property, FALSE);
 			tracker_property_set_last_multiple_values (property, FALSE);
@@ -1460,32 +1532,14 @@ check_for_max_cardinality_change (TrackerDataManager  *manager,
 {
 	gboolean orig_multiple_values = tracker_property_get_orig_multiple_values (property);
 	gboolean new_multiple_values = tracker_property_get_multiple_values (property);
-	GError *n_error = NULL;
-	const gchar *ontology_path = "Unknown";
 
 	if (tracker_property_get_is_new (property) == FALSE &&
-	    (orig_multiple_values != new_multiple_values &&
-	     orig_multiple_values == TRUE)) {
-		const gchar *ontology_path = "Unknown";
+	    orig_multiple_values != new_multiple_values &&
+	    orig_multiple_values == FALSE) {
+		GError *n_error = NULL;
 		const gchar *subject = tracker_property_get_uri (property);
 
-		handle_unsupported_ontology_change (manager,
-		                                    ontology_path,
-		                                    -1,
-		                                    -1,
-		                                    subject,
-		                                    "nrl:maxCardinality", "none", "1",
-		                                    &n_error);
-		if (n_error) {
-			g_propagate_error (error, n_error);
-			return;
-		}
-	} else if (tracker_property_get_is_new (property) == FALSE &&
-	           orig_multiple_values != new_multiple_values &&
-	           orig_multiple_values == FALSE) {
-		const gchar *subject = tracker_property_get_uri (property);
-
-		if (update_property_value (manager, ontology_path,
+		if (update_property_value (manager, NULL,
 		                           "nrl:maxCardinality",
 		                           subject,
 		                           TRACKER_PREFIX_NRL "maxCardinality",
@@ -1501,7 +1555,17 @@ check_for_max_cardinality_change (TrackerDataManager  *manager,
 		}
 
 		if (n_error) {
-			g_propagate_error (error, n_error);
+			const gchar* ontology_path = tracker_property_get_ontology_path (property);
+			goffset line_no = tracker_property_get_definition_line_no (property);
+			goffset column_no = tracker_property_get_definition_column_no (property);
+			gchar* property_location;
+
+			property_location = g_strdup_printf ("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT,
+			                                     ontology_path, line_no, column_no);
+
+			g_propagate_prefixed_error (error, n_error, "%s:", property_location);
+
+			g_free (property_location);
 			return;
 		}
 	}
