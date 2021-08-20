@@ -136,6 +136,7 @@ build-fedora-rawhide-container@x86_64:
   stage: prepare
   variables:
     GIT_STRATEGY: none
+  allow_failure: true
   needs:
     - check-commit-log
     - check-merge-request
@@ -212,6 +213,7 @@ build-fedora-rawhide@x86_64:
     - .tracker.fedora:rawhide@x86_64
   needs:
     - build-fedora-rawhide-container@x86_64
+  allow_failure: true
   <<: *build
 
 build-fedora@aarch64:
@@ -291,6 +293,7 @@ test-fedora-rawhide@x86_64:
     - .tracker.fedora:rawhide@x86_64
   needs:
     - build-fedora-rawhide@x86_64
+  allow_failure: true
   <<: *test
 
 test-fedora@aarch64:
@@ -321,7 +324,7 @@ test-alpine@x86_64:
 coverage-analysis:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:rawhide@x86_64
+    - .tracker.fedora:34@x86_64
   stage: analysis
   allow_failure: true
   script:
@@ -339,7 +342,7 @@ coverage-analysis:
 coverity:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:rawhide@x86_64
+    - .tracker.fedora:34@x86_64
   stage: analysis
   allow_failure: true
   script:
@@ -355,7 +358,7 @@ coverity:
       --form file=@cov-int.tar.gz --form version="`git describe --tags`"
       --form description="gitlab CI build"
   needs:
-    - build-fedora-rawhide-container@x86_64
+    - build-fedora-container@x86_64
   only:
     - master
   except:
@@ -365,10 +368,10 @@ coverity:
 static-scan:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:rawhide@x86_64
+    - .tracker.fedora:34@x86_64
   stage: analysis
   needs:
-    - build-fedora-rawhide-container@x86_64
+    - build-fedora-container@x86_64
   script:
     - meson --buildtype=debug _scan_build
     - ninja -C _scan_build scan-build
@@ -380,7 +383,7 @@ static-scan:
 pages:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:rawhide@x86_64
+    - .tracker.fedora:34@x86_64
   stage: website
   script:
     - export install_prefix="$(pwd)/tracker-install"
@@ -398,7 +401,7 @@ pages:
     paths:
       - public
   needs:
-    - build-fedora-rawhide-container@x86_64
+    - build-fedora-container@x86_64
   only:
     - master
     - /^sam\/website.*$/
