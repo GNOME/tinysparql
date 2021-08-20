@@ -74,7 +74,7 @@ test:b_property_n a rdf:Property ;
 
 # ****** TEST CHANGE *****
 test:C a rdfs:Class ;
-    nrl:domainIndex test:a_n_cardinality ;
+    nrl:domainIndex test:a_int ;
     rdfs:subClassOf test:A .
 # *************************
 
