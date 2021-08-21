@@ -1,0 +1,57 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix test: <http://example.org/ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .
+
+test: a nrl:Namespace, nrl:Ontology ;
+        nrl:lastModified "2010-03-23T11:00:04Z" ;
+        nrl:prefix "test" .
+
+test:A a rdfs:Class .
+
+test:a_string a rdf:Property ;
+    rdfs:comment "Property to test the conversions from string" ;
+    rdfs:domain test:A ;
+    rdfs:range  xsd:string ;
+    nrl:maxCardinality 1 .
+
+test:a_datetime a rdf:Property ;
+    rdfs:comment "Property to test the changes string/date" ;
+    rdfs:domain test:A ;
+    rdfs:range  xsd:datetime ; # Should be dateTime
+    nrl:maxCardinality 1 .
+
+test:a_int a rdf:Property ;
+    rdfs:comment "Property to test the changes string/int" ;
+    rdfs:domain test:A ;
+    rdfs:range  xsd:integer ;
+    nrl:maxCardinality 1 .
+
+# The property is not defined
+test:not_exist a nrl:InverseFunctionalProperty .
+
+test:a_n_cardinality a rdf:Property ;
+    rdfs:comment "Property to test the cardinality changes" ;
+    rdfs:domain test:A ;
+    rdfs:range xsd:string .
+# Max cardinality N because is not specified
+
+test:a_superprop a rdf:Property ;
+    rdfs:comment "To use as superproperty and test the superproperty changes in the subprop." ;
+    rdfs:domain test:a ;  # not defined class
+    rdfs:range xsd:string ;
+    nrl:maxCardinality 1 .
+
+# Can't make n cardinality property as a domain index
+test:C a rdfs:Class ;
+    nrl:domainIndex test:a_n_cardinality ;
+    rdfs:subClassOf test:a . # not defined class
+
+test:prop1 a rdf:property . # Should be rdf:Property
+
+test:c_subprop_n a rdf:Property ;
+     rdfs:comment "To test changes in the superproperty" ;
+     rdfs:subPropertyOf test:a_superprop_n ; # not defined property
+     rdfs:domain test:not_exist ; # not defined class
+     rdfs:range xsd:string .
