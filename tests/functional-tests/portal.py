@@ -121,5 +121,25 @@ class TestPortal(fixtures.TrackerPortalTest):
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0][0], 'b')
 
+    def test_06_id_access(self):
+        self.start_service('org.freedesktop.PortalTest')
+        self.update(
+            'org.freedesktop.PortalTest',
+            'CREATE GRAPH tracker:Allowed;' +
+            'INSERT { GRAPH tracker:Allowed { <b> a nfo:FileDataObject } }')
+        res = self.query(
+            'org.freedesktop.PortalTest',
+            'select tracker:id(xsd:string) tracker:uri(1) { }')
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0][0], '0')
+        self.assertEqual(res[0][1], None)
+
+        res = self.query(
+            'org.freedesktop.PortalTest',
+            'select tracker:id(<b>) tracker:uri(tracker:id(<b>)) { }')
+        self.assertEqual(len(res), 1)
+        self.assertNotEqual(res[0][0], '0')
+        self.assertEqual(res[0][1], 'b')
+
 if __name__ == '__main__':
     fixtures.tracker_test_main()
