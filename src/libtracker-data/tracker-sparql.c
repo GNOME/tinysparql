@@ -82,6 +82,8 @@ static void _append_graph_checks (TrackerSparql *sparql,
                                   GStrv          graphs,
                                   gint           len);
 
+static GHashTable * tracker_sparql_get_effective_graphs (TrackerSparql *sparql);
+
 #define _raise(v,s,sub)   \
 	G_STMT_START { \
 	g_set_error (error, TRACKER_SPARQL_ERROR, \
@@ -487,6 +489,28 @@ _escape_sql_string (const gchar *str,
 }
 
 static inline void
+_append_resource_rowid_access_check (TrackerSparql *sparql)
+{
+	GHashTable *graphs;
+	GList *names, *l;
+
+	graphs = tracker_sparql_get_effective_graphs (sparql);
+	names = g_hash_table_get_keys (graphs);
+
+	_append_string (sparql, "SELECT ID FROM Graph ");
+
+	if (!sparql->policy.filter_unnamed_graph)
+		names = g_list_prepend (names, "main");
+
+	for (l = names; l; l = l->next) {
+		_append_string_printf (sparql, "UNION SELECT ID FROM \"%s\".Refcount ",
+				       l->data);
+	}
+
+	g_list_free (names);
+}
+
+static inline void
 _append_literal_sql (TrackerSparql         *sparql,
                      TrackerLiteralBinding *binding)
 {
@@ -545,8 +569,16 @@ _append_literal_sql (TrackerSparql         *sparql,
 		_append_string_printf (sparql, "?%d ", idx + 1);
 	}
 
-	if (TRACKER_BINDING (binding)->data_type == TRACKER_PROPERTY_TYPE_RESOURCE)
+	if (TRACKER_BINDING (binding)->data_type == TRACKER_PROPERTY_TYPE_RESOURCE) {
+		if (sparql->policy.graphs || sparql->policy.filter_unnamed_graph) {
+			_append_string_printf (sparql, "AND ID IN (");
+			_append_resource_rowid_access_check (sparql);
+			_append_string (sparql, ") ");
+		}
+
 		_append_string_printf (sparql, "), 0) ");
+	}
+
 	if (TRACKER_BINDING (binding)->data_type == TRACKER_PROPERTY_TYPE_STRING ||
 	    TRACKER_BINDING (binding)->data_type == TRACKER_PROPERTY_TYPE_LANGSTRING)
 		_append_string (sparql, "COLLATE " TRACKER_COLLATION_NAME " ");
@@ -2160,8 +2192,15 @@ convert_expression_to_string (TrackerSparql       *sparql,
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
 		/* ID (or string) => Uri */
-		_prepend_string (sparql, "SparqlPrintIRI(");
-		_append_string (sparql, ") ");
+		if (sparql->policy.graphs || sparql->policy.filter_unnamed_graph) {
+			_prepend_string (sparql, "SparqlPrintIRI((SELECT ");
+			_append_string (sparql, "AS ID WHERE ID IN (");
+			_append_resource_rowid_access_check (sparql);
+			_append_string (sparql, "))) ");
+		} else {
+			_prepend_string (sparql, "SparqlPrintIRI(");
+			_append_string (sparql, ") ");
+		}
 		break;
 	case TRACKER_PROPERTY_TYPE_BOOLEAN:
 		_prepend_string (sparql, "CASE ");
