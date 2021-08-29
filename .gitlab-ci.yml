@@ -333,7 +333,7 @@ coverage-analysis:
     - ninja
     - env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
     - mkdir -p coveragereport
-    - gcovr --html-details --print-summary --root=.. --exclude=../docs/reference --exclude=../tests --exclude=../utils --exclude=../examples --output coveragereport/index.html
+    - gcovr --html-details --print-summary --root=.. --exclude=../docs/reference --exclude=../tests --exclude=../utils --exclude=../examples --exclude=.*_gresources\.c --exclude=.*enum-types\.c --output coveragereport/index.html
   coverage: '/^lines: (\d+\.\d+\%)/'
   artifacts:
     when: always
