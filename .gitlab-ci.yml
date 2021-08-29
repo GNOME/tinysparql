@@ -321,6 +321,29 @@ test-alpine@x86_64:
     - build-alpine-edge@x86_64
   <<: *test
 
+test-website:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:34@x86_64
+  stage: test
+  script:
+    - export install_prefix="$(pwd)/tracker-install"
+    # Build tracker and install.
+    - mkdir website-build; pushd website-build; meson .. --prefix="$install_prefix"; ninja; ninja install; popd
+    # Build tracker-miners and install any documentation from there as well.
+    - .gitlab-ci/checkout-tracker-miners.sh
+    - pushd extra/tracker-miners; mkdir build; pushd build; env PKG_CONFIG_PATH="$install_prefix/lib64/pkgconfig" meson .. --prefix="$install_prefix"; ninja install; popd; popd
+    # Generate the website using mkdocs.
+    - |
+      export tracker_commit=$CI_COMMIT_SHA
+      export tracker_miners_commit=$(git -C ./extra/tracker-miners rev-parse HEAD)
+      ./docs/website/build.py --output=website --api-docs="$install_prefix/share/gtk-doc/html" --tracker-commit=${tracker_commit} --man-pages ./docs/manpages/*.txt ./extra/tracker-miners/docs/manpages/*.txt
+  artifacts:
+    paths:
+      - website
+  needs:
+    - build-fedora-container@x86_64
+
 coverage-analysis:
   extends:
     - .fdo.distribution-image@fedora
@@ -389,22 +412,11 @@ pages:
     - .tracker.fedora:34@x86_64
   stage: website
   script:
-    - export install_prefix="$(pwd)/tracker-install"
-    # Build tracker and install.
-    - mkdir website-build; pushd website-build; meson .. --prefix="$install_prefix"; ninja; ninja install; popd
-    # Build tracker-miners and install any documentation from there as well.
-    - .gitlab-ci/checkout-tracker-miners.sh
-    - pushd extra/tracker-miners; mkdir build; pushd build; env PKG_CONFIG_PATH="$install_prefix/lib64/pkgconfig" meson .. --prefix="$install_prefix"; ninja install; popd; popd
-    # Generate the website using mkdocs.
-    - |
-      export tracker_commit=$CI_COMMIT_SHA
-      export tracker_miners_commit=$(git -C ./extra/tracker-miners rev-parse HEAD)
-      ./docs/website/build.py --api-docs="$install_prefix/share/gtk-doc/html" --tracker-commit=${tracker_commit} --man-pages ./docs/manpages/*.txt ./extra/tracker-miners/docs/manpages/*.txt
+    - mv website public
   artifacts:
     paths:
       - public
   needs:
-    - build-fedora-container@x86_64
+    - test-website
   only:
     - master
-    - /^sam\/website.*$/

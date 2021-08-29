@@ -32,7 +32,6 @@ import tempfile
 
 log = logging.getLogger('build.py')
 
-output_path = pathlib.Path('public')
 website_root = pathlib.Path(__file__).parent
 docs_root = website_root.parent
 source_root = docs_root.parent
@@ -45,6 +44,8 @@ xmlto = shutil.which('xmlto')
 def argument_parser():
     parser = argparse.ArgumentParser(
         description="Tracker website build script")
+    parser.add_argument('--output', required=True, metavar='OUTPUT',
+                        help="Output directory")
     parser.add_argument('--debug', dest='debug', action='store_true',
                         help="Enable detailed logging to stderr")
     parser.add_argument('--api-docs', required=True, metavar='PATH',
@@ -143,6 +144,7 @@ def tmpdir():
 
 def main():
     args = argument_parser().parse_args()
+    output_path = pathlib.Path(args.output)
 
     if args.debug:
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
@@ -205,7 +207,7 @@ def main():
     for filename in apidocs_dest.rglob('*.html'):
         add_apidocs_header(text, filename)
 
-    log.info("Documentation available in public/ directory.")
+    log.info("Documentation available in %s/ directory.", args.output)
 
 
 try:
