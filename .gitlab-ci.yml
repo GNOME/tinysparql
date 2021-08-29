@@ -190,7 +190,7 @@ check-code-style:
 .build-template: &build
   stage: build
   script:
-    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_lto=true -Db_coverage=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
+    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
     - ninja -C build
     - |
       if [ -z "$NO_DOCS" ]; then ninja -C build docs/reference/libtracker-sparql/Tracker-doc; fi
@@ -328,7 +328,10 @@ coverage-analysis:
   stage: analysis
   allow_failure: true
   script:
+    - meson build -Db_coverage=true -Ddocs=false -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
     - cd build
+    - ninja
+    - env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
     - mkdir -p coveragereport
     - gcovr --html-details --print-summary --root=.. --exclude=../docs/reference --exclude=../tests --exclude=../utils --exclude=../examples --output coveragereport/index.html
   coverage: '/^lines: (\d+\.\d+\%)/'
@@ -337,7 +340,7 @@ coverage-analysis:
     paths:
     - build/coveragereport
   needs:
-    - test-fedora@x86_64
+    - build-fedora-container@x86_64
 
 coverity:
   extends:
