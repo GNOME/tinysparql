@@ -337,7 +337,7 @@ test-website:
     - |
       export tracker_commit=$CI_COMMIT_SHA
       export tracker_miners_commit=$(git -C ./extra/tracker-miners rev-parse HEAD)
-      ./docs/website/build.py --output=website --api-docs="$install_prefix/share/gtk-doc/html" --tracker-commit=${tracker_commit} --man-pages ./docs/manpages/*.txt ./extra/tracker-miners/docs/manpages/*.txt
+      ./docs/website/build.py --output=website --api-docs="$install_prefix/share/doc/Tracker/html" --tracker-commit=${tracker_commit} --man-pages ./docs/manpages/*.txt ./extra/tracker-miners/docs/manpages/*.txt
   artifacts:
     paths:
       - website
