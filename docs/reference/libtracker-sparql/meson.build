@@ -80,6 +80,7 @@ hotdoc.generate_doc(docs_name,
   html_extra_theme: join_paths(meson.current_source_dir(), 'theme-extra'),
   syntax_highlighting_activate: true,
   devhelp_activate: true,
+  devhelp_online: 'https://gnome.pages.gitlab.gnome.org/tracker/docs/developer/',
   install: true,
 )
 
