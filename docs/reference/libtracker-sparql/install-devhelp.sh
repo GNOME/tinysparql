@@ -24,5 +24,5 @@ echo -e "  </functions>\n</book>" >>fixed.devhelp2
 mv fixed.devhelp2 $devhelp_file
 
 # Step 3. Install all files
-mkdir -p ${MESON_INSTALL_PREFIX}/share/devhelp/books
-cp -a $docs_path ${MESON_INSTALL_PREFIX}/share/devhelp/books/
+mkdir -p ${MESON_INSTALL_DESTDIR_PREFIX}/share/devhelp/books
+cp -a $docs_path ${MESON_INSTALL_DESTDIR_PREFIX}/share/devhelp/books/
