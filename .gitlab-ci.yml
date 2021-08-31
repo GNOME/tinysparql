@@ -60,14 +60,18 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2021-08-23.0'
+    BASE_TAG: '2021-08-31.0'
     FDO_UPSTREAM_REPO: GNOME/tracker
-    FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto uncrustify patch diffutils cmake python-devel glib2-doc'
+    FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto uncrustify patch diffutils cmake python-devel'
     FDO_DISTRIBUTION_EXEC: |
-      dnf install -y 'dnf-command(builddep)' &&
+      dnf install -y 'dnf-command(builddep)' 'dnf-command(download)' &&
       dnf builddep -y tracker tracker-miners --setopt=install_weak_deps=False &&
       dnf clean all &&
-      pip3 install beautifulsoup4 mkdocs mkdocs-cinder tap.py meson hotdoc
+      pip3 install beautifulsoup4 mkdocs mkdocs-cinder tap.py meson hotdoc &&
+      # Installing gtk-doc docs with dnf does not end up with docs at
+      # /usr/share/gtk-doc, https://gitlab.gnome.org/GNOME/tracker/-/issues/324
+      dnf download glib2-doc &&
+      rpm -i ./glib2-doc*.rpm
 
 .tracker.ubuntu@common:
   variables:
