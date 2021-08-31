@@ -1,0 +1,132 @@
+/*
+ * Copyright (C) 2009, Nokia <ivan.frade@nokia.com>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
+ */
+
+#include <glib.h>
+#include <gio/gio.h>
+#include <string.h>
+#include <stdio.h>
+
+#include "tracker-docgen-md.h"
+#include "tracker-docgen-xml.h"
+#include "tracker-ontology-model.h"
+
+static gchar *ontology_dir = NULL;
+static gchar *output_dir = NULL;
+static gchar *description_dir = NULL;
+static gboolean xml = FALSE;
+static gboolean markdown = FALSE;
+
+static GOptionEntry   entries[] = {
+	{ "ontology-dir", 'd', 0, G_OPTION_ARG_FILENAME, &ontology_dir,
+	  "Ontology directory",
+	  NULL
+	},
+	{ "output-dir", 'o', 0, G_OPTION_ARG_FILENAME, &output_dir,
+	  "File to write the output (default stdout)",
+	  NULL
+	},
+	{ "description-dir", 'e', 0, G_OPTION_ARG_FILENAME, &description_dir,
+	  "Directory to find ontology descriptions",
+	  NULL
+	},
+	{ "xml", 'x', 0, G_OPTION_ARG_NONE, &xml,
+	  "Whether to produce docbook XML for gtk-doc",
+	  NULL
+	},
+	{ "md", 'm', 0, G_OPTION_ARG_NONE, &markdown,
+	  "Whether to produce markdown",
+	  NULL
+	},
+	{ NULL }
+};
+
+gint
+main (gint argc, gchar **argv)
+{
+	GOptionContext *context;
+	TrackerOntologyDescription *description = NULL;
+	TrackerOntologyModel *model = NULL;
+	g_autoptr(GFile) ontology_file = NULL, output_file = NULL;
+	gchar *path;
+	GStrv prefixes = NULL;
+	gint i;
+	g_autoptr(GError) error = NULL;
+
+	/* Translators: this messagge will apper immediately after the  */
+	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
+	context = g_option_context_new ("- Generates HTML doc for a TTL file");
+
+	/* Translators: this message will appear after the usage string */
+	/* and before the list of options.                              */
+	g_option_context_add_main_entries (context, entries, NULL);
+	g_option_context_parse (context, &argc, &argv, NULL);
+
+	if (!!xml == !!markdown) {
+		g_printerr ("%s\n",
+		            "One of --xml or --md must be provided");
+		return -1;
+	}
+
+	if (!ontology_dir || !output_dir) {
+		gchar *help;
+
+		g_printerr ("%s\n\n",
+		            "Ontology and output dirs are mandatory");
+
+		help = g_option_context_get_help (context, TRUE, NULL);
+		g_option_context_free (context);
+		g_printerr ("%s", help);
+		g_free (help);
+
+		return -1;
+	}
+
+	ontology_file = g_file_new_for_commandline_arg (ontology_dir);
+	output_file = g_file_new_for_commandline_arg (output_dir);
+
+	model = tracker_ontology_model_new (ontology_file, &error);
+	if (error) {
+		g_printerr ("Error loading ontology: %s\n", error->message);
+		g_error_free (error);
+		return -1;
+	}
+
+	prefixes = tracker_ontology_model_get_prefixes (model);
+
+	path = g_file_get_path (output_file);
+	g_mkdir_with_parents (path, 0755);
+	g_free (path);
+
+	for (i = 0; prefixes[i]; i++) {
+		description = tracker_ontology_model_get_description (model, prefixes[i]);
+		if (!description)
+			continue;
+
+		if (xml)
+			ttl_xml_print (description, model, prefixes[i], output_file, description_dir);
+		else if (markdown)
+			ttl_md_print (description, model, prefixes[i], output_file, description_dir);
+	}
+
+	g_strfreev (prefixes);
+	tracker_ontology_model_free (model);
+	g_option_context_free (context);
+
+	return 0;
+}

@@ -46,9 +46,8 @@ G_DEFINE_TYPE_WITH_PRIVATE (TrackerNamespaceManager, tracker_namespace_manager, 
  * @short_description: A set of well-known namespaces, and known abbreviations for them
  * @title: TrackerNamespaceManager
  * @stability: Stable
- * @include: tracker-namespace-manager.h
+ * @include: libtracker-sparql/tracker-sparql.h
  *
- * <para>
  * #TrackerNamespaceManager keeps track of namespaces. It allows you to assign
  * short prefixes for them to avoid typing full URLs all the time.
  *
@@ -58,7 +57,6 @@ G_DEFINE_TYPE_WITH_PRIVATE (TrackerNamespaceManager, tracker_namespace_manager, 
  * Usually you will want to use the default namespace manager, as returned by
  * tracker_namespace_manager_get_default(). This has a set of well-known
  * prefixes predefined.
- * </para>
  */
 
 static void finalize     (GObject *object);

@@ -60,14 +60,14 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2021-06-13.2'
+    BASE_TAG: '2021-08-23.0'
     FDO_UPSTREAM_REPO: GNOME/tracker
-    FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto uncrustify patch diffutils'
+    FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto uncrustify patch diffutils cmake python-devel glib2-doc'
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
       dnf builddep -y tracker tracker-miners --setopt=install_weak_deps=False &&
       dnf clean all &&
-      pip3 install beautifulsoup4 mkdocs mkdocs-cinder tap.py meson
+      pip3 install beautifulsoup4 mkdocs mkdocs-cinder tap.py meson hotdoc
 
 .tracker.ubuntu@common:
   variables:
@@ -136,6 +136,7 @@ build-fedora-rawhide-container@x86_64:
   stage: prepare
   variables:
     GIT_STRATEGY: none
+  allow_failure: true
   needs:
     - check-commit-log
     - check-merge-request
@@ -189,10 +190,10 @@ check-code-style:
 .build-template: &build
   stage: build
   script:
-    - meson . build -Db_lto=true -Db_coverage=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
+    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
     - ninja -C build
     - |
-      if [ -z "$NO_DOCS" ]; then ninja -C build libtracker-sparql-3-doc ontology-3-doc; fi
+      if [ -z "$NO_DOCS" ]; then ninja -C build docs/reference/libtracker-sparql/Tracker-doc; fi
   artifacts:
     expire_in: 1 day
     paths:
@@ -212,6 +213,7 @@ build-fedora-rawhide@x86_64:
     - .tracker.fedora:rawhide@x86_64
   needs:
     - build-fedora-rawhide-container@x86_64
+  allow_failure: true
   <<: *build
 
 build-fedora@aarch64:
@@ -229,6 +231,8 @@ build-ubuntu-rolling@x86_64:
     - .tracker.ubuntu:rolling@x86_64
   needs:
     - build-ubuntu-container@x86_64
+  variables:
+    NO_DOCS: "true"
   <<: *build
 
 build-alpine-edge@x86_64:
@@ -289,6 +293,7 @@ test-fedora-rawhide@x86_64:
     - .tracker.fedora:rawhide@x86_64
   needs:
     - build-fedora-rawhide@x86_64
+  allow_failure: true
   <<: *test
 
 test-fedora@aarch64:
@@ -316,28 +321,54 @@ test-alpine@x86_64:
     - build-alpine-edge@x86_64
   <<: *test
 
+test-website:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:34@x86_64
+  stage: test
+  script:
+    - export install_prefix="$(pwd)/tracker-install"
+    # Build tracker and install.
+    - mkdir website-build; pushd website-build; meson .. --prefix="$install_prefix"; ninja; ninja install; popd
+    # Build tracker-miners and install any documentation from there as well.
+    - .gitlab-ci/checkout-tracker-miners.sh
+    - pushd extra/tracker-miners; mkdir build; pushd build; env PKG_CONFIG_PATH="$install_prefix/lib64/pkgconfig" meson .. --prefix="$install_prefix"; ninja install; popd; popd
+    # Generate the website using mkdocs.
+    - |
+      export tracker_commit=$CI_COMMIT_SHA
+      export tracker_miners_commit=$(git -C ./extra/tracker-miners rev-parse HEAD)
+      ./docs/website/build.py --output=website --api-docs="$install_prefix/share/doc/Tracker/html" --tracker-commit=${tracker_commit} --man-pages ./docs/manpages/*.txt ./extra/tracker-miners/docs/manpages/*.txt
+  artifacts:
+    paths:
+      - website
+  needs:
+    - build-fedora-container@x86_64
+
 coverage-analysis:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:rawhide@x86_64
+    - .tracker.fedora:34@x86_64
   stage: analysis
   allow_failure: true
   script:
+    - meson build -Db_coverage=true -Ddocs=false -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
     - cd build
+    - ninja
+    - env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
     - mkdir -p coveragereport
-    - gcovr --html-details --print-summary --root=.. --exclude=../docs/reference --exclude=../tests --exclude=../utils --exclude=../examples --output coveragereport/index.html
+    - gcovr --html-details --print-summary --root=.. --exclude=../docs/reference --exclude=../tests --exclude=../utils --exclude=../examples --exclude=.*_gresources\.c --exclude=.*enum-types\.c --output coveragereport/index.html
   coverage: '/^lines: (\d+\.\d+\%)/'
   artifacts:
     when: always
     paths:
     - build/coveragereport
   needs:
-    - test-fedora@x86_64
+    - build-fedora-container@x86_64
 
 coverity:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:rawhide@x86_64
+    - .tracker.fedora:34@x86_64
   stage: analysis
   allow_failure: true
   script:
@@ -353,7 +384,7 @@ coverity:
       --form file=@cov-int.tar.gz --form version="`git describe --tags`"
       --form description="gitlab CI build"
   needs:
-    - build-fedora-rawhide-container@x86_64
+    - build-fedora-container@x86_64
   only:
     - master
   except:
@@ -363,10 +394,10 @@ coverity:
 static-scan:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:rawhide@x86_64
+    - .tracker.fedora:34@x86_64
   stage: analysis
   needs:
-    - build-fedora-rawhide-container@x86_64
+    - build-fedora-container@x86_64
   script:
     - meson --buildtype=debug _scan_build
     - ninja -C _scan_build scan-build
@@ -378,25 +409,14 @@ static-scan:
 pages:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:rawhide@x86_64
+    - .tracker.fedora:34@x86_64
   stage: website
   script:
-    - export install_prefix="$(pwd)/tracker-install"
-    # Build tracker and install.
-    - mkdir website-build; pushd website-build; meson .. --prefix="$install_prefix"; ninja; ninja install; popd
-    # Build tracker-miners and install any documentation from there as well.
-    - .gitlab-ci/checkout-tracker-miners.sh
-    - pushd extra/tracker-miners; mkdir build; pushd build; env PKG_CONFIG_PATH="$install_prefix/lib64/pkgconfig" meson .. --prefix="$install_prefix"; ninja install; popd; popd
-    # Generate the website using mkdocs.
-    - |
-      export tracker_commit=$CI_COMMIT_SHA
-      export tracker_miners_commit=$(git -C ./extra/tracker-miners rev-parse HEAD)
-      ./docs/website/build.py --api-docs="$install_prefix/share/gtk-doc/html" --tracker-commit=${tracker_commit} --man-pages ./docs/manpages/*.txt ./extra/tracker-miners/docs/manpages/*.txt
+    - mv website public
   artifacts:
     paths:
       - public
   needs:
-    - build-fedora-rawhide-container@x86_64
+    - test-website
   only:
     - master
-    - /^sam\/website.*$/

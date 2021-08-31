@@ -19,6 +19,23 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
+/**
+ * SECTION: tracker-endpoint-dbus
+ * @short_description: DBus endpoint
+ * @title: TrackerEndpointDBus
+ * @stability: Stable
+ * @include: libtracker-sparql/tracker-sparql.h
+ *
+ * #TrackerEndpointDBus is an endpoint implementation that exports
+ * a local #TrackerSparqlConnection so it is accessible in the given
+ * bus connection.
+ *
+ * Access to these endpoints may be transparently managed through
+ * the Tracker portal service for applications sandboxed via Flatpak, and
+ * access to data constrained to the graphs defined in the applications
+ * manifest.
+ */
+
 #include "config.h"
 
 #include "tracker-endpoint-dbus.h"

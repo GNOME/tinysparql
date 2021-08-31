@@ -32,7 +32,6 @@ import tempfile
 
 log = logging.getLogger('build.py')
 
-output_path = pathlib.Path('public')
 website_root = pathlib.Path(__file__).parent
 docs_root = website_root.parent
 source_root = docs_root.parent
@@ -45,6 +44,8 @@ xmlto = shutil.which('xmlto')
 def argument_parser():
     parser = argparse.ArgumentParser(
         description="Tracker website build script")
+    parser.add_argument('--output', required=True, metavar='OUTPUT',
+                        help="Output directory")
     parser.add_argument('--debug', dest='debug', action='store_true',
                         help="Enable detailed logging to stderr")
     parser.add_argument('--api-docs', required=True, metavar='PATH',
@@ -143,6 +144,7 @@ def tmpdir():
 
 def main():
     args = argument_parser().parse_args()
+    output_path = pathlib.Path(args.output)
 
     if args.debug:
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
@@ -190,22 +192,22 @@ def main():
     apidocs_src = pathlib.Path(args.api_docs)
 
     log.info("Copying API reference documentation from %s", apidocs_src)
-    apidocs_dest = output_path.joinpath('docs/api-preview')
-    apidocs_dest.mkdir(parents=True)
-    for name in ['libtracker-sparql-3', 'ontology-3']:
-        src = apidocs_src.joinpath(name)
-        dest  = apidocs_dest.joinpath(name)
-        if not src.exists():
-            raise RuntimeError("Expected path {} doesn't exist.".format(src))
-        log.info("  - Copying %s to %s (%i files)", src, dest, len(list(src.iterdir())))
-        shutil.copytree(src, dest)
+    apidocs_dest = output_path.joinpath('docs/developer/')
+    shutil.rmtree(apidocs_dest)
+
+    src = apidocs_src
+    dest  = apidocs_dest
+    if not src.exists():
+        raise RuntimeError("Expected path {} doesn't exist.".format(src))
+    log.info("  - Copying %s to %s (%i files)", src, dest, len(list(src.iterdir())))
+    shutil.copytree(src, dest)
 
     log.info("Adding preview header to API reference documentation")
     text = apidocs_header(args.tracker_commit)
     for filename in apidocs_dest.rglob('*.html'):
         add_apidocs_header(text, filename)
 
-    log.info("Documentation available in public/ directory.")
+    log.info("Documentation available in %s/ directory.", args.output)
 
 
 try:

@@ -52,10 +52,8 @@ G_DEFINE_TYPE_WITH_PRIVATE (TrackerResource, tracker_resource, G_TYPE_OBJECT)
  * @stability: Stable
  * @include: tracker-resource.h
  *
- * <para>
  * #TrackerResource keeps track of a set of properties for a given resource.
  * The resulting data can be serialized in several ways.
- * </para>
  */
 
 static char *

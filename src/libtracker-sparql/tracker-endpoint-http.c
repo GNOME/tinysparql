@@ -19,6 +19,23 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
+/**
+ * SECTION: tracker-endpoint-http
+ * @short_description: HTTP endpoint
+ * @title: TrackerEndpointHttp
+ * @stability: Stable
+ * @include: libtracker-sparql/tracker-sparql.h
+ *
+ * #TrackerEndpointHttp is an endpoint implementation that exports
+ * a local #TrackerSparqlConnection so it is accessible via HTTP
+ * requests.
+ *
+ * Access to these endpoints may be managed via the
+ * #TrackerEndpointHttp::block-remote-address signal, the boolean
+ * return value expressing whether the connection is blocked or not.
+ * Inspection of the requester address is left up to the user.
+ */
+
 #include "config.h"
 
 #include "tracker-endpoint-http.h"

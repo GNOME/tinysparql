@@ -1,67 +1,87 @@
-version_xml = configure_file(input: 'version.xml.in',
-    output: 'version.xml',
-    configuration: conf)
+documents_with_examples = [
+  [ 'examples.md.in', 'examples.md' ],
+]
+examples = []
 
-generated = custom_target('base-ontology-doc-generated',
-    output: 'gen-doc.stamp',
-    command: [ttl2xml,
+foreach doc : documents_with_examples
+  examples += custom_target(
+    'examples-generate',
+    input: doc[0],
+    output: doc[1],
+    command: [
+      'embed-files.py',
+      '@INPUT@',
+      '@OUTPUT@',
+    ],
+    depend_files: [ doc[0] ],
+    build_by_default: true)
+endforeach
+
+base_ontology_docs = custom_target('ontology-docgen',
+    output: ['dc-ontology.md'],
+    command: [tracker_docgen,
+              '--md',
               '-d', join_paths(source_root, 'src/ontologies/'),
-              '-o', join_paths(meson.current_build_dir(), 'xml/'),
-              '-e', meson.current_source_dir()],
-    depends: ttl2xml,
-    depend_files: base_ontology,
+              '-o', join_paths(meson.current_build_dir())],
+    depends: tracker_docgen,
+    depend_files: [base_ontology],
     build_by_default: true,
 )
 
-example_files = [
-    'examples/ontologies/defining-cardinality-1.rq', 'examples/ontologies/defining-cardinality-2.txt',
-    'examples/ontologies/defining-cardinality-3.rq', 'examples/ontologies/defining-classes-1.txt',
-    'examples/ontologies/defining-classes-2.txt', 'examples/ontologies/defining-classes-3.rq',
-    'examples/ontologies/defining-fts-indexes-1.txt', 'examples/ontologies/defining-fts-indexes-2.rq',
-    'examples/ontologies/defining-indexes-1.txt', 'examples/ontologies/defining-namespaces-1.txt',
-    'examples/ontologies/defining-properties-1.txt', 'examples/ontologies/defining-properties-2.txt',
-    'examples/ontologies/defining-properties-3.txt', 'examples/ontologies/defining-properties-4.rq',
-    'examples/ontologies/defining-uniqueness-1.txt', 'examples/ontologies/defining-uniqueness-2.rq',
-    'examples/ontologies/example.description', 'examples/ontologies/predefined-elements-1.txt',
-    'examples/ontologies/predefined-elements-2.rq',
-    'examples/readonly-example.c', 'examples/writeonly-example.c',
-    'examples/writeonly-with-blank-nodes-example.c',
+nepomuk_ontology_docs = custom_target('nepomuk-docgen',
+    output: ['nie-ontology.md'],
+    command: [tracker_docgen,
+              '--md',
+              '-d', join_paths(source_root, 'src/ontologies/nepomuk'),
+              '-o', join_paths(meson.current_build_dir()),
+              '-e', meson.current_source_dir()],
+    depends: tracker_docgen,
+    depend_files: [base_ontology],
+    build_by_default: true,
+)
+
+content = [
+  'overview.md',
+  'ontologies.md',
+  'limits.md',
+  'performance.md',
+  'sparql-and-tracker.md',
+  'sparql-functions.md',
+  'migrating-2to3.md',
+  'tutorial.md',
 ]
 
-image_files = [
-    'images/triple-graph-1.png',
-    'images/triple-graph-2.png',
-    'images/triple-graph-3.png',
+required_hotdoc_extensions = [
+  'gi-extension',
+  'devhelp-extension',
+  'syntax-highlighting-extension',
 ]
 
-private_headers = [
-    'tracker-notifier-private.h',
-    'tracker-private.h',
-    'tracker-serializer.h',
-    'tracker-serializer-json.h',
-    'tracker-serializer-xml.h',
-    'direct',
-    'bus',
-    'remote',
-]
+foreach ext: required_hotdoc_extensions
+  if not hotdoc.has_extensions(ext)
+    error('Documentation enabled but HotDoc extension "@0@" is missing'.format(ext))
+  endif
+endforeach
 
-gnome.gtkdoc('libtracker-sparql',
-    src_dir: sparqlinc,
-    main_xml: 'libtracker-sparql-docs.xml',
-    scan_args: ['--ignore-headers=' + ' '.join(private_headers)],
-    content_files: [
-        'overview.xml',
-        'examples.xml',
-        'ontologies.xml',
-        'migrating-1to2.xml',
-        'sparql-and-tracker.xml',
-        'sparql-functions.xml',
-        example_files ],
-    html_assets: image_files,
-    gobject_typesfile: 'libtracker-sparql.types',
-    dependencies: tracker_sparql_dep,
-    fixxref_args: fixxref_args,
-    module_version: tracker_api_major,
-    install: true)
+docs_name = 'Tracker'
+hotdoc.generate_doc(docs_name,
+  project_version: tracker_version,
+  languages: [ 'c', 'python', 'javascript' ],
+  gi_c_sources: [libtracker_sparql_c_sources, libtracker_sparql_c_public_headers, libtracker_sparql_remote_c_sources],
+  gi_sources: [tracker_sparql_gir[0].full_path()],
+  sitemap: 'sitemap.txt',
+  index: 'index.md',
+  gi_index: 'gi-index.md',
+  gi_smart_index: true,
+  gi_c_source_roots: [sparqlinc],
+  dependencies: [tracker_sparql_dep, base_ontology_docs, nepomuk_ontology_docs],
+  extra_assets: [join_paths(meson.current_source_dir(), 'images')],
+  html_theme: 'https://github.com/hotdoc/hotdoc_lumen_theme/releases/download/0.13.2/hotdoc_lumen_theme-0.13.2.tar.xz?sha256=5721189b7e985f27381ee20137f4a9003049a70a75ab1221a69fd04d27e752bc',
+  html_extra_theme: join_paths(meson.current_source_dir(), 'theme-extra'),
+  syntax_highlighting_activate: true,
+  devhelp_activate: true,
+  devhelp_online: 'https://gnome.pages.gitlab.gnome.org/tracker/docs/developer/',
+  install: true,
+)
 
-subdir('examples')
+meson.add_install_script('install-devhelp.sh', docs_name)
