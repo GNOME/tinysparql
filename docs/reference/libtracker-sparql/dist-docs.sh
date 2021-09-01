@@ -1,6 +1,16 @@
 #!/bin/sh
 docs_name=$1
 
+pushd ${MESON_SOURCE_ROOT}
+files=`git clean -nx docs/reference/libtracker-sparql/theme-extra/`
+if [ -n "$files" ]
+then
+  echo "Directory 'theme-extra' is unclean:"
+  echo -e "$files"
+  exit -1
+fi
+popd
+
 pushd $MESON_BUILD_ROOT
 
 # Ensure the build tree is compiled, we need generated files
