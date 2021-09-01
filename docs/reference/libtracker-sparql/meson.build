@@ -1,3 +1,14 @@
+fs = import('fs')
+
+if fs.exists('devhelp')
+  # Special case for tarballs, install the pre-generated docs
+  install_subdir('devhelp/books',
+    install_dir: join_paths(datadir, 'devhelp'))
+  subdir_done()
+endif
+
+hotdoc = import('hotdoc')
+
 documents_with_examples = [
   [ 'examples.md.in', 'examples.md' ],
 ]
@@ -85,3 +96,4 @@ hotdoc.generate_doc(docs_name,
 )
 
 meson.add_install_script('install-devhelp.sh', docs_name)
+meson.add_dist_script('dist-docs.sh', docs_name)
