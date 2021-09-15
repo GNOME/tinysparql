@@ -51,6 +51,10 @@
  *
  * After use, a #TrackerSparqlConnection should be closed. See
  * tracker_sparql_connection_close() and tracker_sparql_connection_close_async().
+ *
+ * A #TrackerSparqlConnection may be used from multiple threads, asynchronous
+ * database updates are executed sequentially on arrival order, asynchronous
+ * queries are executed in a thread pool.
  */
 #include "config.h"
 

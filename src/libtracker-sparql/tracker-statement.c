@@ -38,7 +38,9 @@
  * Once all arguments have a value, the query may be executed through
  * tracker_sparql_statement_execute() or tracker_sparql_statement_execute_async().
  *
- * This object was added in Tracker 2.2.
+ * It is possible to use a given #TrackerSparqlStatement in other threads than
+ * the one it was created from. It must be however used from just one thread
+ * at any given time.
  */
 #include "config.h"
 
