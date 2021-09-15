@@ -1,20 +1,27 @@
 executable(
-  'readonly-example',
-  'readonly-example.c',
+  'connection-example',
+  'connection-example.c',
   dependencies: tracker_sparql_dep,
   build_by_default: true
 )
 
 executable(
-  'writeonly-example',
-  'writeonly-example.c',
+  'private-store-example',
+  'private-store-example.c',
   dependencies: tracker_sparql_dep,
   build_by_default: true
 )
 
 executable(
-  'writeonly-with-blank-nodes-example',
-  'writeonly-with-blank-nodes-example.c',
+  'endpoint-example',
+  'endpoint-example.c',
+  dependencies: tracker_sparql_dep,
+  build_by_default: true
+)
+
+executable(
+  'notifier-example',
+  'notifier-example.c',
   dependencies: tracker_sparql_dep,
   build_by_default: true
 )

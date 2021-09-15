@@ -8,22 +8,16 @@ short-description: Examples
 This chapters shows some real examples of usage of the Tracker
 SPARQL Library.
 
-## Querying the Store
+## Querying a remote endpoint
 
-First, a [](TrackerSparqlConnection) object must be acquired
-with [](tracker_sparql_connection_new), [](tracker_sparql_connection_bus_new)
-or [](tracker_sparql_connection_remote_new).
+All SPARQL queries happen on a [](TrackerSparqlConnection), often these
+connections represent a remote endpoints maintained by another process or
+server.
 
-Then, a query can be launched either synchronously ([](tracker_sparql_connection_query))
-or asynchronously ([](tracker_sparql_connection_query_async)). If launched
-asynchronously, the results of the query can be obtained with
-[](tracker_sparql_connection_query_finish).
-
-If the query was successful, a [](TrackerSparqlCursor)
-will be available. You can now iterate the results of the query both
-synchronously (with [](tracker_sparql_cursor_next)) or asynchronously
-(with [](tracker_sparql_cursor_next_async) and
-[](tracker_sparql_cursor_next_finish)).
+This example demonstrates the use of these connections on a remote
+endpoint. Concretely creating a D-Bus [](TrackerSparqlConnection),
+creating a prepared statement from a SPARQL query string, executing
+the query, and obtaining the query results from the cursor.
 
 The [](tracker_sparql_connection_query_statement) function can be used
 to obtain a [](TrackerSparqlStatement) object holding a prepared SPARQL
@@ -34,70 +28,66 @@ arbitrary values before query execution with
 This allows parsing the query string only once and to execute it multiple
 times with different parameters with potentially significant performance gains.
 
+Multiple functions offer asynchronous variants, so the application
+main loop is not blocked while these operations are executed.
+
 Once you end up with the query, remember to call [](tracker_sparql_cursor_close).
 The same applies to [](tracker_sparql_connection_close) when no longer needed.
 
-The following program shows how Read-Only queries can be done to the store in a
-synchronous way:
-
 ```c
-{{examples/readonly-example.c}}
+{{examples/connection-example.c}}
 ```
 
-## Updating the store
+## Creating a private database
 
-In order to perform updates in the store, a new writable
-[](TrackerSparqlConnection) object must be acquired with
-[](tracker_sparql_connection_new).
+Applications may create private stores via the [](tracker_sparql_connection_new)
+constructor.
 
-Once a proper connection object has been acquired, the update can
-be launched either synchronously ([](tracker_sparql_connection_update))
-or asynchronously ([](tracker_sparql_connection_update_async)).
-If launched asynchronously, the result of the operation can be obtained with
-[](tracker_sparql_connection_update_finish).
+This example demonstrates the creation of a private store, for simplicity the
+example uses the builtin Nepomuk ontology, but the data structures may be defined
+by the application, see the documentation on
+[defining ontologies](defining-ontologies.md) for more information about this.
+
+The example also demonstrates the use of [](TrackerResource) and [](TrackerBatch)
+for insertion of RDF data. It is also possible the direct use of SPARQL update
+strings via [](tracker_sparql_connection_update).
+
+Multiple functions offer asynchronous variants, so the application
+main loop is not blocked while these operations are executed.
 
 Once you no longer need the connection, remember to call
 [](tracker_sparql_connection_close) on the [](TrackerSparqlConnection).
 
-The following program shows how a synchronous update can be done to the store:
-
 ```c
-{{examples/writeonly-example.c}}
+{{examples/private-store-example.c}}
 ```
 
-## Updating the store with blank nodes
+## Creating a SPARQL endpoint
 
-The majority of the work here is already described in the
-[previous example](#updating-the-store) where we talk about how to write the store.
+For some applications and services, it might be desirable to export a
+SPARQL store as an endpoint. Making it possible for other applications to
+query the data they hold.
 
-The difference with this example is that sometimes you want to
-insert data and have the URNs returned which were created to
-avoid re-querying for them. This is done using
-the [](tracker_sparql_connection_update_blank) function (or asynchronously with
-[](tracker_sparql_connection_update_blank_async)).
-If launched asynchronously, the result of the operation can be obtained with
-[](tracker_sparql_connection_update_blank_finish)]
-
-The `_:foo` in the example is how a blank node is
-represented in SPARQL. The `foo` part is used to generate the
-unique ID that is used for the new URN. It is also used in the
-`GVariant` that is returned. In the example below, we are creating
-a new blank node called `foo` for every class that exists.
-
-The format of the `GVariant` (in D-Bus terms) is `aaa{ss}` (an
-array of an array of dictionaries). This is rather complex but
-for a good reason. The first array represents each INSERT that
-may exist in the SPARQL. The second array represents each new
-node for a given WHERE clause (the example below illustrates
-this), you need this to differentiate between two INSERT
-statments like the one below in the same SPARQL sent to the
-store. Last, we have a final array to represent each new node's
-name (in this case `foo`) and the actual URN which was
-created. For most updates the first two outer arrays will only
-have one item in them.
-
-The following program shows how a synchronous blank node update can be done to the store:
+This example demonstrates the use of [](TrackerEndpoint) subclasses,
+concretely the creation of a D-Bus endpoint, that other applications
+may query e.g. through a connection created with
+[](tracker_sparql_connection_bus_new).
 
 ```c
-{{examples/writeonly-with-blank-nodes-example.c}}
+{{examples/endpoint-example.c}}
+```
+
+## Receiving notification on changes
+
+As an additional feature over SPARQL endpoints, Tracker allows for
+users of private and D-Bus SPARQL connections to receive notifications
+on changes of certain RDF classes (Those with the
+[nrl:notify](nrl-ontology.md#nrl:notify) property, like
+[nmm:MusicPiece](nmm-ontology.md#nmm:MusicPiece)).
+
+This example demonstrates the use of [](TrackerNotifier) to receive
+notifications on database updates.
+
+```c
+{{examples/notifier-example.c}}
 ```
