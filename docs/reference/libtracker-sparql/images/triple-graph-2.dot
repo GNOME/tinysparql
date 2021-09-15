@@ -1,0 +1,20 @@
+digraph G {
+  rankdir=LR;
+  graph [bgcolor="#00000000"];
+  node [fontname="Cantarell", style="filled", shape="ellipse", color="#000000", fillcolor="#d8e5e5"]; a, "nfo:FileDataObject", "nmm:MusicPiece", b, c, d, e;
+  node [shape="rectangle", color="#000000", fillcolor="#add8e6"]; Images, "Go Off!", "Marty Friedman", "Jason Becker", "Cacophony";
+  edge [fontname="Cantarell"];
+
+  a -> "nfo:FileDataObject" [label="rdf:type"];
+  a -> "nmm:MusicPiece" [label="rdf:type"];
+  a -> "Images" [label="nie:title"];
+  a -> b [label="nmm:musicAlbum"];
+  a -> c [label="nmm:albumArtist"];
+  a -> d [label="nmm:albumArtist"];
+  a -> e [label="nmm:performer"];
+
+  b -> "Go Off!" [label="nie:title"];
+  c -> "Jason Becker" [label="nmm:artistName"];
+  d -> "Marty Friedman" [label="nmm:artistName"];
+  e -> "Cacophony" [label="nmm:artistName"];
+}
