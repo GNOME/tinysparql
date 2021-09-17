@@ -1,0 +1,9 @@
+digraph G {
+  rankdir=LR;
+  graph [bgcolor="#00000000"];
+  node [fontname="Cantarell", style="filled", shape="ellipse", color="#000000", fillcolor="#d8e5e5"]; Subject;
+  node [shape="rectangle", color="#000000", fillcolor="#add8e6"]; Object;
+  edge [fontname="Cantarell"];
+
+  Subject -> Object [label=Predicate];
+}

@@ -25,6 +25,10 @@
  *
  * #TrackerSparqlCursor is an object which provides methods to iterate the
  * results of a query to the Tracker Store.
+ *
+ * It is possible to use a given #TrackerSparqlCursor in other threads than
+ * the one it was created from. It must be however used from just one thread
+ * at any given time.
  */
 #include "config.h"
 

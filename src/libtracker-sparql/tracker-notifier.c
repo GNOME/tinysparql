@@ -28,9 +28,9 @@
  * changes to the Tracker database. A #TrackerNotifier is created
  * through tracker_sparql_connection_create_notifier(), after the notifier
  * is created, events can be listened for by connecting to the
- * #TrackerNotifier::events signal. This object was added in Tracker 1.12.
+ * #TrackerNotifier::events signal.
  *
- * # Known caveats # {#trackernotifier-caveats}
+ * # Known caveats
  *
  * * The %TRACKER_NOTIFIER_EVENT_DELETE events will be received after the
  *   resource has been deleted. At that time queries on those elements will

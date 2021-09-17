@@ -34,6 +34,9 @@
  * the Tracker portal service for applications sandboxed via Flatpak, and
  * access to data constrained to the graphs defined in the applications
  * manifest.
+ *
+ * A #TrackerEndpointDBus may be created on a different thread/main
+ * context than the one creating the #TrackerSparqlConnection.
  */
 
 #include "config.h"

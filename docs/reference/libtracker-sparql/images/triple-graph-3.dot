@@ -1,0 +1,13 @@
+digraph G {
+  rankdir=LR;
+  graph [bgcolor="#00000000"];
+  node [fontname="Cantarell", style="filled", shape="ellipse", color="#000000", fillcolor="#d8e5e5"]; "nmm:MusicPiece";
+  node [style="filled,dotted", color="#000000", fillcolor="#ffffff"]; song, songTitle, album, albumTitle;
+  edge [fontname="Cantarell"];
+
+  song -> "nmm:MusicPiece" [label="rdf:type"];
+  song -> songTitle [label="nie:title"];
+  song -> album [label="nmm:MusicAlbum"];
+
+  album -> albumTitle [label="nie:title"];
+}

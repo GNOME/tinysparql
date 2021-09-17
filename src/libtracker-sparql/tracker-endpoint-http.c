@@ -34,6 +34,9 @@
  * #TrackerEndpointHttp::block-remote-address signal, the boolean
  * return value expressing whether the connection is blocked or not.
  * Inspection of the requester address is left up to the user.
+ *
+ * A #TrackerEndpointHttp may be created on a different thread/main
+ * context than the one creating the #TrackerSparqlConnection.
  */
 
 #include "config.h"

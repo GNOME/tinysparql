@@ -51,6 +51,10 @@
  *
  * After use, a #TrackerSparqlConnection should be closed. See
  * tracker_sparql_connection_close() and tracker_sparql_connection_close_async().
+ *
+ * A #TrackerSparqlConnection may be used from multiple threads, asynchronous
+ * database updates are executed sequentially on arrival order, asynchronous
+ * queries are executed in a thread pool.
  */
 #include "config.h"
 
@@ -467,6 +471,13 @@ tracker_sparql_connection_update_array_finish (TrackerSparqlConnection  *connect
  * its parts correctly escaped using tracker_sparql_escape_string(),
  * otherwise SPARQL injection is possible.
  *
+ * The format string of the `GVariant` is `aaa{ss}` (an array of an array
+ * of dictionaries). The first array represents each INSERT that may exist in
+ * the SPARQL string. The second array represents each new node for a given
+ * WHERE clause. The last array holds a string pair with the blank node name
+ * (e.g. `foo` for the blank node `_:foo`) and the URN that was generated for
+ * it. For most updates the first two outer arrays will only contain one item.
+ *
  * Returns: a #GVariant with the generated URNs, which should be freed with
  * g_variant_unref() when no longer used.
  */
@@ -496,7 +507,9 @@ tracker_sparql_connection_update_blank (TrackerSparqlConnection  *connection,
  *            asynchronous operation is finished.
  * @user_data: user-defined data to be passed to @callback
  *
- * Executes asynchronously a SPARQL update.
+ * Executes asynchronously a SPARQL update with blank nodes. See
+ * the tracker_sparql_connection_update_blank() documentation to
+ * see the differences with tracker_sparql_connection_update().
  */
 void
 tracker_sparql_connection_update_blank_async (TrackerSparqlConnection *connection,
@@ -523,7 +536,9 @@ tracker_sparql_connection_update_blank_async (TrackerSparqlConnection *connectio
  * @error: #GError for error reporting.
  *
  * Finishes the asynchronous SPARQL update operation, and returns
- * the URNs of the generated nodes, if any.
+ * the URNs of the generated nodes, if any. See the
+ * tracker_sparql_connection_update_blank() documentation for the interpretation
+ * of the returned #GVariant.
  *
  * Returns: a #GVariant with the generated URNs, which should be freed with
  * g_variant_unref() when no longer used.
