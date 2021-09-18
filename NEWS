@@ -1,3 +1,21 @@
+NEW in 3.2.0 - 2021-09-18
+=========================
+  * Fuller docs, with updated examples
+
+  Highlighted changes since 3.1:
+  * Improved developer experience when designing ontologies,
+    better handling of inconsistent ontologies, and more
+    accurate error reporting.
+  * Added new GDateTime helper API to resources, cursors
+    and statements.
+  * Several fixes to build and run on MacOS, with a brew
+    recipe now available.
+  * Added support for libsoup 3.x.
+  * Fresher and more complete documentation, built with hotdoc.
+  * Many other code fixes and performance improvements.
+
+Translations: da
+
 NEW in 3.2.0.rc - 2021-09-05
 ============================
   * Dropped bogus files from pre-generated documentation
