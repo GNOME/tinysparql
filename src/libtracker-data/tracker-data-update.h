@@ -141,7 +141,6 @@ gboolean tracker_data_update_resource (TrackerData      *data,
 
 gint tracker_data_update_ensure_resource (TrackerData  *data,
                                           const gchar  *uri,
-                                          gboolean     *create,
                                           GError      **error);
 gchar * tracker_data_update_ensure_new_bnode (TrackerData         *data,
                                               TrackerDBInterface  *iface,

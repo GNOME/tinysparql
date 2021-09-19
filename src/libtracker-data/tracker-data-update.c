@@ -689,7 +689,6 @@ query_resource_id (TrackerData  *data,
 gint
 tracker_data_update_ensure_resource (TrackerData  *data,
                                      const gchar  *uri,
-                                     gboolean     *create,
                                      GError      **error)
 {
 	TrackerDBInterface *iface;
@@ -701,8 +700,6 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 	id = GPOINTER_TO_INT (g_hash_table_lookup (data->update_buffer.resource_cache, uri));
 
 	if (id != 0) {
-		if (create)
-			*create = FALSE;
 		return id;
 	}
 
@@ -726,9 +723,6 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 			id = query_resource_id (data, uri, &inner_error);
 
 			if (id != 0) {
-				if (create)
-					*create = FALSE;
-
 				g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri), GINT_TO_POINTER (id));
 				return id;
 			}
@@ -738,9 +732,6 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 
 		return 0;
 	}
-
-	if (create)
-		*create = TRUE;
 
 	id = tracker_db_interface_sqlite_get_last_insert_id (iface);
 	key = g_strdup (uri);
@@ -1731,7 +1722,7 @@ bytes_to_gvalue (GBytes              *bytes,
 			g_value_take_boxed (gvalue, datetime);
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		object_id = tracker_data_update_ensure_resource (data, value, NULL, error);
+		object_id = tracker_data_update_ensure_resource (data, value, error);
 		g_value_init (gvalue, G_TYPE_INT64);
 		g_value_set_int64 (gvalue, object_id);
 		break;
@@ -2340,11 +2331,9 @@ resource_buffer_switch (TrackerData  *data,
 		GPtrArray *rdf_types;
 
 		/* subject not yet in cache, retrieve or create ID */
-		resource_id =
-			tracker_data_update_ensure_resource (data,
-			                                     subject,
-			                                     NULL,
-			                                     error);
+		resource_id = tracker_data_update_ensure_resource (data,
+		                                                   subject,
+		                                                   error);
 		if (resource_id == 0)
 			return FALSE;
 
@@ -3184,7 +3173,7 @@ tracker_data_ensure_graph (TrackerData  *data,
 	TrackerDBStatement *stmt;
 	gint id;
 
-	id = tracker_data_update_ensure_resource (data, uri, NULL, error);
+	id = tracker_data_update_ensure_resource (data, uri, error);
 	if (id == 0)
 		return 0;
 

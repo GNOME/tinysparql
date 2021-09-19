@@ -843,7 +843,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			}
 
 			subject_id = tracker_data_update_ensure_resource (manager->data_update,
-			                                                  subject, NULL, error);
+			                                                  subject, error);
 			if (!subject_id) {
 				g_prefix_error (error, "%s:", object_location);
 				goto fail;
@@ -894,7 +894,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 			subject_id = tracker_data_update_ensure_resource (manager->data_update,
 			                                                  subject,
-			                                                  NULL, error);
+			                                                  error);
 			if (!subject_id) {
 				g_prefix_error (error, "%s:", object_location);
 				goto fail;
