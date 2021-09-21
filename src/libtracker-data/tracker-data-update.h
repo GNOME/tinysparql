@@ -60,19 +60,19 @@ GQuark   tracker_data_error_quark                   (void);
 void     tracker_data_delete_statement              (TrackerData               *data,
                                                      const gchar               *graph,
                                                      const gchar               *subject,
-                                                     const gchar               *predicate,
+                                                     TrackerProperty           *predicate,
                                                      GBytes                    *object,
                                                      GError                   **error);
 void     tracker_data_insert_statement              (TrackerData               *data,
                                                      const gchar               *graph,
                                                      const gchar               *subject,
-                                                     const gchar               *predicate,
+                                                     TrackerProperty           *predicate,
                                                      GBytes                    *object,
                                                      GError                   **error);
 void     tracker_data_update_statement              (TrackerData               *data,
                                                      const gchar               *graph,
                                                      const gchar               *subject,
-                                                     const gchar               *predicate,
+                                                     TrackerProperty           *predicate,
                                                      GBytes                    *object,
                                                      GError                   **error);
 void     tracker_data_begin_transaction             (TrackerData               *data,

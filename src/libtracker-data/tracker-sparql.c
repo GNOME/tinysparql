@@ -2079,6 +2079,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
                            GError        **error)
 {
 	GError *inner_error = NULL;
+	TrackerProperty *predicate = NULL;
 
 	if ((tracker_token_is_empty (&sparql->current_state->graph) &&
 	     sparql->policy.filter_unnamed_graph) ||
@@ -2087,6 +2088,26 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 		_raise (CONSTRAINT, "Access to graph is disallowed",
 		        tracker_token_is_empty (&sparql->current_state->graph) ? "DEFAULT" :
 		        tracker_token_get_idstring (&sparql->current_state->graph));
+	}
+
+	if (sparql->current_state->type == TRACKER_SPARQL_TYPE_INSERT ||
+	    sparql->current_state->type == TRACKER_SPARQL_TYPE_DELETE ||
+	    sparql->current_state->type == TRACKER_SPARQL_TYPE_UPDATE) {
+		TrackerOntologies *ontologies;
+		const gchar *property;
+
+		ontologies = tracker_data_manager_get_ontologies (sparql->data_manager);
+		property = tracker_token_get_idstring (&sparql->current_state->predicate);
+		predicate = tracker_ontologies_get_property_by_uri (ontologies,
+		                                                    property);
+
+		if (predicate == NULL) {
+			g_set_error (error, TRACKER_SPARQL_ERROR,
+			             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+			             "Property '%s' not found in the ontology",
+			             property);
+			return FALSE;
+		}
 	}
 
 	switch (sparql->current_state->type) {
@@ -2110,7 +2131,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 		tracker_data_insert_statement (tracker_data_manager_get_data (sparql->data_manager),
 		                               tracker_token_get_idstring (&sparql->current_state->graph),
 		                               tracker_token_get_idstring (&sparql->current_state->subject),
-		                               tracker_token_get_idstring (&sparql->current_state->predicate),
+		                               predicate,
 		                               tracker_token_get_literal (&sparql->current_state->object),
 		                               &inner_error);
 		break;
@@ -2118,7 +2139,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 		tracker_data_delete_statement (tracker_data_manager_get_data (sparql->data_manager),
 		                               tracker_token_get_idstring (&sparql->current_state->graph),
 		                               tracker_token_get_idstring (&sparql->current_state->subject),
-		                               tracker_token_get_idstring (&sparql->current_state->predicate),
+		                               predicate,
 		                               tracker_token_get_literal (&sparql->current_state->object),
 		                               &inner_error);
 		break;
@@ -2126,7 +2147,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 		tracker_data_update_statement (tracker_data_manager_get_data (sparql->data_manager),
 		                               tracker_token_get_idstring (&sparql->current_state->graph),
 		                               tracker_token_get_idstring (&sparql->current_state->subject),
-		                               tracker_token_get_idstring (&sparql->current_state->predicate),
+		                               predicate,
 		                               tracker_token_get_literal (&sparql->current_state->object),
 		                               &inner_error);
 		break;

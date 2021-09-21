@@ -164,18 +164,18 @@ static gboolean update_resource_single (TrackerData      *data,
                                         GHashTable       *bnodes,
                                         GError          **error);
 
-void tracker_data_insert_statement_with_uri    (TrackerData  *data,
-                                                const gchar  *graph,
-                                                const gchar  *subject,
-                                                const gchar  *predicate,
-                                                GBytes       *object,
-                                                GError      **error);
-void tracker_data_insert_statement_with_string (TrackerData  *data,
-                                                const gchar  *graph,
-                                                const gchar  *subject,
-                                                const gchar  *predicate,
-                                                GBytes       *object,
-                                                GError      **error);
+void tracker_data_insert_statement_with_uri    (TrackerData      *data,
+                                                const gchar      *graph,
+                                                const gchar      *subject,
+                                                TrackerProperty  *predicate,
+                                                GBytes           *object,
+                                                GError          **error);
+void tracker_data_insert_statement_with_string (TrackerData      *data,
+                                                const gchar      *graph,
+                                                const gchar      *subject,
+                                                TrackerProperty  *predicate,
+                                                GBytes           *object,
+                                                GError          **error);
 
 
 void
@@ -2367,12 +2367,12 @@ resource_buffer_switch (TrackerData  *data,
 }
 
 void
-tracker_data_delete_statement (TrackerData  *data,
-                               const gchar  *graph,
-                               const gchar  *subject,
-                               const gchar  *predicate,
-                               GBytes       *object,
-                               GError      **error)
+tracker_data_delete_statement (TrackerData      *data,
+                               const gchar      *graph,
+                               const gchar      *subject,
+                               TrackerProperty  *predicate,
+                               GBytes           *object,
+                               GError          **error)
 {
 	TrackerClass       *class;
 	gint                subject_id = 0;
@@ -2399,7 +2399,8 @@ tracker_data_delete_statement (TrackerData  *data,
 
 	object_str = g_bytes_get_data (object, NULL);
 
-	if (object && g_strcmp0 (predicate, TRACKER_PREFIX_RDF "type") == 0) {
+	if (object &&
+	    predicate == tracker_ontologies_get_rdf_type (ontologies)) {
 		class = tracker_ontologies_get_class_by_uri (ontologies, object_str);
 		if (class != NULL) {
 			data->has_persistent = TRUE;
@@ -2410,19 +2411,11 @@ tracker_data_delete_statement (TrackerData  *data,
 			             "Class '%s' not found in the ontology", object_str);
 		}
 	} else {
-		gint pred_id = 0;
-		TrackerProperty *field;
+		gint pred_id;
 
-		field = tracker_ontologies_get_property_by_uri (ontologies, predicate);
-		if (field != NULL) {
-			pred_id = tracker_property_get_id (field);
-			data->has_persistent = TRUE;
-			change = delete_metadata_decomposed (data, field, object, error);
-		} else {
-			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
-			             "Property '%s' not found in the ontology", predicate);
-			return;
-		}
+		pred_id = tracker_property_get_id (predicate);
+		data->has_persistent = TRUE;
+		change = delete_metadata_decomposed (data, predicate, object, error);
 
 		if (change) {
 			tracker_data_dispatch_delete_statement_callbacks (data,
@@ -2551,46 +2544,43 @@ tracker_data_delete_all (TrackerData  *data,
 }
 
 static gboolean
-delete_single_valued (TrackerData  *data,
-                      const gchar  *graph,
-                      const gchar  *subject,
-                      const gchar  *predicate,
-                      gboolean      super_is_single_valued,
-                      GError      **error)
+delete_single_valued (TrackerData      *data,
+                      const gchar      *graph,
+                      const gchar      *subject,
+                      TrackerProperty  *predicate,
+                      gboolean          super_is_single_valued,
+                      GError          **error)
 {
-	TrackerProperty *field, **super_properties;
-	TrackerOntologies *ontologies;
+	TrackerProperty **super_properties;
 	gboolean multiple_values;
 
-	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	field = tracker_ontologies_get_property_by_uri (ontologies, predicate);
-	super_properties = tracker_property_get_super_properties (field);
-	multiple_values = tracker_property_get_multiple_values (field);
+	super_properties = tracker_property_get_super_properties (predicate);
+	multiple_values = tracker_property_get_multiple_values (predicate);
 
 	if (super_is_single_valued && multiple_values) {
 		cache_delete_all_values (data,
-		                         tracker_property_get_table_name (field),
-		                         tracker_property_get_name (field));
-		if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-			if (!tracker_data_resource_unref_all (data, field, error))
+		                         tracker_property_get_table_name (predicate),
+		                         tracker_property_get_name (predicate));
+		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			if (!tracker_data_resource_unref_all (data, predicate, error))
 				return FALSE;
 		}
 	} else if (!multiple_values) {
 		GError *inner_error = NULL;
 		GArray *old_values;
 
-		old_values = get_old_property_values (data, field, &inner_error);
+		old_values = get_old_property_values (data, predicate, &inner_error);
 
 		if (old_values && old_values->len == 1) {
 			GValue *value;
 
 			value = &g_array_index (old_values, GValue, 0);
 			cache_delete_value (data,
-			                    tracker_property_get_table_name (field),
-			                    tracker_property_get_name (field),
+			                    tracker_property_get_table_name (predicate),
+			                    tracker_property_get_name (predicate),
 			                    value,
 			                    FALSE);
-			if (tracker_property_get_data_type (field) == TRACKER_PROPERTY_TYPE_RESOURCE)
+			if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE)
 				tracker_data_resource_unref (data, g_value_get_int64 (value), multiple_values);
 		} else {
 			/* no need to error out if statement does not exist for any reason */
@@ -2600,7 +2590,7 @@ delete_single_valued (TrackerData  *data,
 
 	while (*super_properties) {
 		if (!delete_single_valued (data, graph, subject,
-		                           tracker_property_get_uri (*super_properties),
+		                           *super_properties,
 		                           super_is_single_valued,
 		                           error))
 			return FALSE;
@@ -2612,47 +2602,35 @@ delete_single_valued (TrackerData  *data,
 }
 
 void
-tracker_data_insert_statement (TrackerData  *data,
-                               const gchar  *graph,
-                               const gchar  *subject,
-                               const gchar  *predicate,
-                               GBytes       *object,
-                               GError      **error)
+tracker_data_insert_statement (TrackerData      *data,
+                               const gchar      *graph,
+                               const gchar      *subject,
+                               TrackerProperty  *predicate,
+                               GBytes           *object,
+                               GError          **error)
 {
-	TrackerProperty *property;
-	TrackerOntologies *ontologies;
-
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
 	g_return_if_fail (object != NULL);
 	g_return_if_fail (data->in_transaction);
 
-	ontologies = tracker_data_manager_get_ontologies (data->manager);
-
-	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
-	if (property != NULL) {
-		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-			tracker_data_insert_statement_with_uri (data, graph, subject, predicate, object, error);
-		} else {
-			tracker_data_insert_statement_with_string (data, graph, subject, predicate, object, error);
-		}
+	if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+		tracker_data_insert_statement_with_uri (data, graph, subject, predicate, object, error);
 	} else {
-		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
-		             "Property '%s' not found in the ontology", predicate);
+		tracker_data_insert_statement_with_string (data, graph, subject, predicate, object, error);
 	}
 }
 
 void
-tracker_data_insert_statement_with_uri (TrackerData  *data,
-                                        const gchar  *graph,
-                                        const gchar  *subject,
-                                        const gchar  *predicate,
-                                        GBytes       *object,
-                                        GError      **error)
+tracker_data_insert_statement_with_uri (TrackerData      *data,
+                                        const gchar      *graph,
+                                        const gchar      *subject,
+                                        TrackerProperty  *predicate,
+                                        GBytes           *object,
+                                        GError          **error)
 {
 	GError          *actual_error = NULL;
 	TrackerClass    *class;
-	TrackerProperty *property;
 	gint             prop_id = 0;
 	gboolean change = FALSE;
 	TrackerOntologies *ontologies;
@@ -2663,21 +2641,11 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 	g_return_if_fail (object != NULL);
 	g_return_if_fail (data->in_transaction);
 
-	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	g_assert (tracker_property_get_data_type (predicate) ==
+	          TRACKER_PROPERTY_TYPE_RESOURCE);
 
-	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
-	if (property == NULL) {
-		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
-		             "Property '%s' not found in the ontology", predicate);
-		return;
-	} else {
-		if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE) {
-			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_TYPE,
-			             "Property '%s' does not accept URIs", predicate);
-			return;
-		}
-		prop_id = tracker_property_get_id (property);
-	}
+	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	prop_id = tracker_property_get_id (predicate);
 
 	data->has_persistent = TRUE;
 
@@ -2686,7 +2654,7 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 
 	object_str = g_bytes_get_data (object, NULL);
 
-	if (property == tracker_ontologies_get_rdf_type (ontologies)) {
+	if (predicate == tracker_ontologies_get_rdf_type (ontologies)) {
 		/* handle rdf:type statements specially to
 		   cope with inference and insert blank rows */
 		class = tracker_ontologies_get_class_by_uri (ontologies, object_str);
@@ -2700,7 +2668,7 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 		}
 	} else {
 		/* add value to metadata database */
-		change = cache_insert_metadata_decomposed (data, property, object, &actual_error);
+		change = cache_insert_metadata_decomposed (data, predicate, object, &actual_error);
 
 		if (actual_error) {
 			g_propagate_error (error, actual_error);
@@ -2716,47 +2684,33 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 }
 
 void
-tracker_data_insert_statement_with_string (TrackerData  *data,
-                                           const gchar  *graph,
-                                           const gchar  *subject,
-                                           const gchar  *predicate,
-                                           GBytes       *object,
-                                           GError      **error)
+tracker_data_insert_statement_with_string (TrackerData      *data,
+                                           const gchar      *graph,
+                                           const gchar      *subject,
+                                           TrackerProperty  *predicate,
+                                           GBytes           *object,
+                                           GError          **error)
 {
 	GError          *actual_error = NULL;
-	TrackerProperty *property;
 	gboolean         change;
 	gint             pred_id = 0;
-	TrackerOntologies *ontologies;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
 	g_return_if_fail (object != NULL);
 	g_return_if_fail (data->in_transaction);
 
-	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	g_assert (tracker_property_get_data_type (predicate) !=
+	          TRACKER_PROPERTY_TYPE_RESOURCE);
 
-	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
-	if (property == NULL) {
-		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
-		             "Property '%s' not found in the ontology", predicate);
-		return;
-	} else {
-		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_TYPE,
-			             "Property '%s' only accepts URIs", predicate);
-			return;
-		}
-		pred_id = tracker_property_get_id (property);
-	}
-
+	pred_id = tracker_property_get_id (predicate);
 	data->has_persistent = TRUE;
 
 	if (!resource_buffer_switch (data, graph, subject, error))
 		return;
 
 	/* add value to metadata database */
-	change = cache_insert_metadata_decomposed (data, property, object, &actual_error);
+	change = cache_insert_metadata_decomposed (data, predicate, object, &actual_error);
 
 	if (actual_error) {
 		g_propagate_error (error, actual_error);
@@ -2771,14 +2725,13 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 }
 
 void
-tracker_data_update_statement (TrackerData  *data,
-                               const gchar  *graph,
-                               const gchar  *subject,
-                               const gchar  *predicate,
-                               GBytes       *object,
-                               GError      **error)
+tracker_data_update_statement (TrackerData      *data,
+                               const gchar      *graph,
+                               const gchar      *subject,
+                               TrackerProperty  *predicate,
+                               GBytes           *object,
+                               GError          **error)
 {
-	TrackerProperty *property;
 	TrackerOntologies *ontologies;
 	GError *new_error = NULL;
 
@@ -2787,64 +2740,59 @@ tracker_data_update_statement (TrackerData  *data,
 	g_return_if_fail (data->in_transaction);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
 
-	if (property != NULL) {
-		if (object == NULL) {
-			if (property == tracker_ontologies_get_rdf_type (ontologies)) {
-				g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNSUPPORTED,
-				             "Using 'null' with '%s' is not supported", predicate);
-				return;
-			}
-
-			/* Flush upfront to make a null,x,null,y,z work: When x is set then
-			 * if a null comes, we need to be flushed */
-
-			tracker_data_update_buffer_flush (data, &new_error);
-			if (new_error) {
-				g_propagate_error (error, new_error);
-				return;
-			}
-
-			if (!resource_buffer_switch (data, graph, subject, error))
-				return;
-
-			cache_delete_all_values (data,
-			                         tracker_property_get_table_name (property),
-			                         tracker_property_get_name (property));
-			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-				if (!tracker_data_resource_unref_all (data, property, error))
-					return;
-			}
-		} else {
-			if (!resource_buffer_switch (data, graph, subject, error))
-				return;
-
-			if (!delete_single_valued (data, graph, subject, predicate,
-			                           !tracker_property_get_multiple_values (property),
-			                           error))
-				return;
-
-			tracker_data_update_buffer_flush (data, &new_error);
-			if (new_error) {
-				g_propagate_error (error, new_error);
-				return;
-			}
-
-			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-				tracker_data_insert_statement_with_uri (data, graph, subject, predicate, object, error);
-			} else {
-				tracker_data_insert_statement_with_string (data, graph, subject, predicate, object, error);
-			}
+	if (object == NULL) {
+		if (predicate == tracker_ontologies_get_rdf_type (ontologies)) {
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNSUPPORTED,
+			             "Using 'null' with '%s' is not supported",
+			             tracker_property_get_uri (predicate));
+			return;
 		}
+
+		/* Flush upfront to make a null,x,null,y,z work: When x is set then
+		 * if a null comes, we need to be flushed */
 
 		tracker_data_update_buffer_flush (data, &new_error);
 		if (new_error) {
 			g_propagate_error (error, new_error);
+			return;
+		}
+
+		if (!resource_buffer_switch (data, graph, subject, error))
+			return;
+
+		cache_delete_all_values (data,
+		                         tracker_property_get_table_name (predicate),
+		                         tracker_property_get_name (predicate));
+		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			if (!tracker_data_resource_unref_all (data, predicate, error))
+				return;
 		}
 	} else {
-		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
-		             "Property '%s' not found in the ontology", predicate);
+		if (!resource_buffer_switch (data, graph, subject, error))
+			return;
+
+		if (!delete_single_valued (data, graph, subject, predicate,
+		                           !tracker_property_get_multiple_values (predicate),
+		                           error))
+			return;
+
+		tracker_data_update_buffer_flush (data, &new_error);
+		if (new_error) {
+			g_propagate_error (error, new_error);
+			return;
+		}
+
+		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			tracker_data_insert_statement_with_uri (data, graph, subject, predicate, object, error);
+		} else {
+			tracker_data_insert_statement_with_string (data, graph, subject, predicate, object, error);
+		}
+	}
+
+	tracker_data_update_buffer_flush (data, &new_error);
+	if (new_error) {
+		g_propagate_error (error, new_error);
 	}
 }
 
@@ -3044,8 +2992,9 @@ tracker_data_load_turtle_file (TrackerData  *data,
                                GError      **error)
 {
 	TrackerTurtleReader *reader = NULL;
+	TrackerOntologies *ontologies;
 	GError *inner_error = NULL;
-	const gchar *subject, *predicate, *object_str, *langtag;
+	const gchar *subject, *predicate_str, *object_str, *langtag;
 	gboolean object_is_uri;
 	goffset last_parsed_line_no, last_parsed_column_no;
 	gchar *ontology_uri;
@@ -3054,18 +3003,30 @@ tracker_data_load_turtle_file (TrackerData  *data,
 	if (!reader)
 		return;
 
+	ontologies = tracker_data_manager_get_ontologies (data->manager);
+
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject,
-	                                   &predicate,
+	                                   &predicate_str,
 	                                   &object_str,
 	                                   &langtag,
 	                                   &object_is_uri,
 	                                   &last_parsed_line_no,
 	                                   &last_parsed_column_no,
 	                                   &inner_error)) {
+		TrackerProperty *predicate;
 		GBytes *object;
 
 		object = tracker_sparql_make_langstring (object_str, langtag);
+
+		predicate = tracker_ontologies_get_property_by_uri (ontologies, predicate_str);
+		if (predicate == NULL) {
+			g_set_error (&inner_error, TRACKER_SPARQL_ERROR,
+			             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+			             "Property '%s' not found in the ontology",
+			             predicate_str);
+			goto failed;
+		}
 
 		if (object_is_uri) {
 			tracker_data_insert_statement_with_uri (data, graph,
@@ -3195,6 +3156,8 @@ update_resource_property (TrackerData      *data,
                           GHashTable       *bnodes,
                           GError          **error)
 {
+	TrackerOntologies *ontologies;
+	TrackerProperty *predicate;
 	GList *values, *v;
 	gchar *property_uri;
 	GError *inner_error = NULL;
@@ -3204,6 +3167,16 @@ update_resource_property (TrackerData      *data,
 	                                    property,
 	                                    NULL, NULL,
 	                                    &property_uri);
+
+	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	predicate = tracker_ontologies_get_property_by_uri (ontologies, property_uri);
+	if (predicate == NULL) {
+		g_set_error (error, TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+		             "Property '%s' not found in the ontology",
+		             property_uri);
+		return FALSE;
+	}
 
 	for (v = values; v && !inner_error; v = v->next) {
 		GBytes *bytes = NULL;
@@ -3229,7 +3202,7 @@ update_resource_property (TrackerData      *data,
 		tracker_data_insert_statement (data,
 		                               graph_uri,
 		                               subject,
-		                               property_uri,
+		                               predicate,
 		                               bytes,
 		                               &inner_error);
 		g_bytes_unref (bytes);

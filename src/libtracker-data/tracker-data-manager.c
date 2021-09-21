@@ -508,6 +508,8 @@ update_property_value (TrackerDataManager  *manager,
                        TrackerProperty     *property,
                        GError             **error_in)
 {
+	TrackerOntologies *ontologies;
+	TrackerProperty *pred;
 	GError *error = NULL;
 	gboolean needed = TRUE;
 	gboolean is_new = FALSE;
@@ -526,6 +528,16 @@ update_property_value (TrackerDataManager  *manager,
 		ontology_path = tracker_property_get_ontology_path (property);
 		line_no = tracker_property_get_definition_line_no (property);
 		column_no = tracker_property_get_definition_column_no (property);
+	}
+
+	ontologies = tracker_data_manager_get_ontologies (manager);
+	pred = tracker_ontologies_get_property_by_uri (ontologies, predicate);
+	if (!pred) {
+		g_set_error (error_in, TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+		             "Property '%s' not found in the ontology",
+		             predicate);
+		return FALSE;
 	}
 
 	if (!is_new) {
@@ -564,7 +576,7 @@ update_property_value (TrackerDataManager  *manager,
 
 				if (!unsup_onto_err) {
 					bytes = g_bytes_new (str, strlen (str) + 1);
-					tracker_data_delete_statement (manager->data_update, NULL, subject, predicate, bytes, &error);
+					tracker_data_delete_statement (manager->data_update, NULL, subject, pred, bytes, &error);
 					g_bytes_unref (bytes);
 
 					if (!error)
@@ -591,7 +603,7 @@ update_property_value (TrackerDataManager  *manager,
 	if (!error && needed && object) {
 		bytes = g_bytes_new (object, strlen (object) + 1);
 		tracker_data_insert_statement (manager->data_update, NULL, subject,
-		                               predicate, bytes,
+		                               pred, bytes,
 		                               &error);
 		g_bytes_unref (bytes);
 
@@ -1441,7 +1453,8 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
                                 TrackerClass       *class,
                                 GError            **error)
 {
-	TrackerProperty **last_domain_indexes;
+	TrackerProperty **last_domain_indexes, *property;
+	TrackerOntologies *ontologies;
 	GSList *hfound = NULL, *deleted = NULL;
 
 	last_domain_indexes = tracker_class_get_last_domain_indexes (class);
@@ -1449,6 +1462,11 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 	if (!last_domain_indexes) {
 		return;
 	}
+
+	ontologies = tracker_data_manager_get_ontologies (manager);
+	property = tracker_ontologies_get_property_by_uri (ontologies,
+	                                                   TRACKER_PREFIX_NRL "domainIndex");
+	g_assert (property);
 
 	while (*last_domain_indexes) {
 		TrackerProperty *last_domain_index = *last_domain_indexes;
@@ -1518,7 +1536,7 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 			bytes = g_bytes_new (uri, strlen (uri) + 1);
 			tracker_data_delete_statement (manager->data_update, NULL,
 			                               tracker_class_get_uri (class),
-			                               TRACKER_PREFIX_NRL "domainIndex",
+			                               property,
 			                               bytes,
 			                               error);
 			g_bytes_unref (bytes);
@@ -1642,8 +1660,10 @@ check_for_deleted_super_properties (TrackerDataManager  *manager,
                                     GError             **error)
 {
 	TrackerProperty **last_super_properties;
+	TrackerOntologies *ontologies;
 	GList *to_remove = NULL;
 
+	ontologies = tracker_data_manager_get_ontologies (manager);
 	last_super_properties = tracker_property_get_last_super_properties (property);
 
 	if (!last_super_properties) {
@@ -1684,12 +1704,21 @@ check_for_deleted_super_properties (TrackerDataManager  *manager,
 			const gchar *subject = tracker_property_get_uri (property);
 			GBytes *bytes;
 
+			property = tracker_ontologies_get_property_by_uri (ontologies,
+			                                                   TRACKER_PREFIX_RDFS "subPropertyOf");
+			if (!property) {
+				g_set_error (error, TRACKER_SPARQL_ERROR,
+				             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+				             "Property '%s' not found in the ontology",
+				             TRACKER_PREFIX_RDFS "subPropertyOf");
+				return;
+			}
+
 			tracker_property_del_super_property (property, prop_to_remove);
 
 			bytes = g_bytes_new (object, strlen (object) + 1);
 			tracker_data_delete_statement (manager->data_update, NULL, subject,
-			                               TRACKER_PREFIX_RDFS "subPropertyOf",
-			                               bytes, &n_error);
+			                               property, bytes, &n_error);
 			g_bytes_unref (bytes);
 
 			if (!n_error) {
@@ -2230,11 +2259,11 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
 	if (tracker_property_get_is_new (property) ||
 	    tracker_property_get_multiple_values (property)) {
 		tracker_data_insert_statement (manager->data_update, NULL,
-		                               subject, predicate, bytes,
+		                               subject, property, bytes,
 		                               error);
 	} else {
 		tracker_data_update_statement (manager->data_update, NULL,
-		                               subject, predicate, bytes,
+					       subject, property, bytes,
 		                               error);
 	}
 
