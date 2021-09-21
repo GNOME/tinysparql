@@ -50,7 +50,6 @@ typedef void (*TrackerStatementCallback) (gint                  graph_id,
                                           gint                  subject_id,
                                           gint                  predicate_id,
                                           gint                  object_id,
-                                          const gchar          *object,
                                           GPtrArray            *rdf_types,
                                           gpointer              user_data);
 typedef void (*TrackerCommitCallback)    (gpointer              user_data);

@@ -322,8 +322,7 @@ tracker_data_remove_insert_statement_callback (TrackerData             *data,
 void
 tracker_data_dispatch_insert_statement_callbacks (TrackerData *data,
                                                   gint         predicate_id,
-                                                  gint         object_id,
-                                                  const gchar *object)
+                                                  gint         object_id)
 {
 	if (data->insert_callbacks) {
 		guint n;
@@ -337,7 +336,6 @@ tracker_data_dispatch_insert_statement_callbacks (TrackerData *data,
 			                    data->resource_buffer->id,
 			                    predicate_id,
 			                    object_id,
-			                    object,
 			                    data->resource_buffer->types,
 			                    delegate->user_data);
 		}
@@ -385,8 +383,7 @@ tracker_data_remove_delete_statement_callback (TrackerData             *data,
 void
 tracker_data_dispatch_delete_statement_callbacks (TrackerData *data,
                                                   gint         predicate_id,
-                                                  gint         object_id,
-                                                  const gchar *object)
+                                                  gint         object_id)
 {
 	if (data->delete_callbacks) {
 		guint n;
@@ -400,7 +397,6 @@ tracker_data_dispatch_delete_statement_callbacks (TrackerData *data,
 			                    data->resource_buffer->id,
 			                    predicate_id,
 			                    object_id,
-			                    object,
 			                    data->resource_buffer->types,
 			                    delegate->user_data);
 		}
@@ -1330,8 +1326,7 @@ cache_create_service_decomposed (TrackerData   *data,
 
 	tracker_data_dispatch_insert_statement_callbacks (data,
 	                                                  tracker_property_get_id (tracker_ontologies_get_rdf_type (ontologies)),
-	                                                  class_id,
-	                                                  tracker_class_get_uri (cl));
+	                                                  class_id);
 
 	/* When a new class created, make sure we propagate to the domain indexes
 	 * the property values already set, if any. */
@@ -2236,8 +2231,7 @@ cache_delete_resource_type_full (TrackerData   *data,
 
 	tracker_data_dispatch_delete_statement_callbacks (data,
 	                                                  tracker_property_get_id (tracker_ontologies_get_rdf_type (ontologies)),
-	                                                  tracker_class_get_id (class),
-	                                                  tracker_class_get_uri (class));
+	                                                  tracker_class_get_id (class));
 
 	g_ptr_array_remove (data->resource_buffer->types, class);
 
@@ -2416,7 +2410,7 @@ tracker_data_delete_statement (TrackerData  *data,
 			             "Class '%s' not found in the ontology", object_str);
 		}
 	} else {
-		gint pred_id = 0, object_id = 0;
+		gint pred_id = 0;
 		TrackerProperty *field;
 
 		field = tracker_ontologies_get_property_by_uri (ontologies, predicate);
@@ -2433,8 +2427,7 @@ tracker_data_delete_statement (TrackerData  *data,
 		if (change) {
 			tracker_data_dispatch_delete_statement_callbacks (data,
 			                                                  pred_id,
-			                                                  object_id,
-			                                                  object_str);
+			                                                  0);
 		}
 	}
 }
@@ -2754,8 +2747,7 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 
 			tracker_data_dispatch_insert_statement_callbacks (data,
 			                                                  final_prop_id,
-			                                                  object_id,
-			                                                  object_str);
+			                                                  object_id);
 		}
 	}
 }
@@ -2774,7 +2766,6 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 	gint             pred_id = 0;
 	TrackerOntologies *ontologies;
 	TrackerDBInterface *iface;
-	const gchar *object_str;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -2822,11 +2813,9 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 		if (pred_id == 0)
 			return;
 
-		object_str = g_bytes_get_data (object, NULL);
 		tracker_data_dispatch_insert_statement_callbacks (data,
 		                                                  pred_id,
-		                                                  0, /* Always a literal */
-		                                                  object_str);
+		                                                  0 /* Always a literal */);
 	}
 }
 
