@@ -322,7 +322,7 @@ tracker_data_remove_insert_statement_callback (TrackerData             *data,
 void
 tracker_data_dispatch_insert_statement_callbacks (TrackerData *data,
                                                   gint         predicate_id,
-                                                  gint         object_id)
+                                                  gint         class_id)
 {
 	if (data->insert_callbacks) {
 		guint n;
@@ -335,7 +335,7 @@ tracker_data_dispatch_insert_statement_callbacks (TrackerData *data,
 			                    data->resource_buffer->graph->graph,
 			                    data->resource_buffer->id,
 			                    predicate_id,
-			                    object_id,
+			                    class_id,
 			                    data->resource_buffer->types,
 			                    delegate->user_data);
 		}
@@ -383,7 +383,7 @@ tracker_data_remove_delete_statement_callback (TrackerData             *data,
 void
 tracker_data_dispatch_delete_statement_callbacks (TrackerData *data,
                                                   gint         predicate_id,
-                                                  gint         object_id)
+                                                  gint         class_id)
 {
 	if (data->delete_callbacks) {
 		guint n;
@@ -396,7 +396,7 @@ tracker_data_dispatch_delete_statement_callbacks (TrackerData *data,
 			                    data->resource_buffer->graph->graph,
 			                    data->resource_buffer->id,
 			                    predicate_id,
-			                    object_id,
+			                    class_id,
 			                    data->resource_buffer->types,
 			                    delegate->user_data);
 		}
@@ -2654,7 +2654,6 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 	TrackerClass    *class;
 	TrackerProperty *property;
 	gint             prop_id = 0;
-	gint             object_id = 0;
 	gboolean change = FALSE;
 	TrackerOntologies *ontologies;
 	const gchar *object_str;
@@ -2709,13 +2708,9 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 		}
 
 		if (change) {
-			object_id = query_resource_id (data, object_str, error);
-			if (object_id == 0)
-				return;
-
 			tracker_data_dispatch_insert_statement_callbacks (data,
 			                                                  prop_id,
-			                                                  object_id);
+			                                                  0);
 		}
 	}
 }
