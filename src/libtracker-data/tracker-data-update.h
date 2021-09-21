@@ -48,7 +48,6 @@ typedef struct _TrackerData TrackerDataUpdate;
 typedef void (*TrackerStatementCallback) (gint                  graph_id,
                                           const gchar          *graph,
                                           gint                  subject_id,
-                                          const gchar          *subject,
                                           gint                  predicate_id,
                                           gint                  object_id,
                                           const gchar          *object,
