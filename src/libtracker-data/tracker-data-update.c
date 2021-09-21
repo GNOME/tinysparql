@@ -2654,10 +2654,9 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 	TrackerClass    *class;
 	TrackerProperty *property;
 	gint             prop_id = 0;
-	gint             final_prop_id = 0, object_id = 0;
+	gint             object_id = 0;
 	gboolean change = FALSE;
 	TrackerOntologies *ontologies;
-	TrackerDBInterface *iface;
 	const gchar *object_str;
 
 	g_return_if_fail (subject != NULL);
@@ -2666,7 +2665,6 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 	g_return_if_fail (data->in_transaction);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
 	if (property == NULL) {
@@ -2711,24 +2709,12 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 		}
 
 		if (change) {
-			final_prop_id = prop_id;
-
-			if (final_prop_id == 0) {
-				final_prop_id = tracker_data_query_resource_id (data->manager,
-				                                                iface,
-				                                                predicate,
-				                                                error);
-			}
-
-			if (final_prop_id == 0)
-				return;
-
 			object_id = query_resource_id (data, object_str, error);
 			if (object_id == 0)
 				return;
 
 			tracker_data_dispatch_insert_statement_callbacks (data,
-			                                                  final_prop_id,
+			                                                  prop_id,
 			                                                  object_id);
 		}
 	}
@@ -2747,7 +2733,6 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 	gboolean         change;
 	gint             pred_id = 0;
 	TrackerOntologies *ontologies;
-	TrackerDBInterface *iface;
 
 	g_return_if_fail (subject != NULL);
 	g_return_if_fail (predicate != NULL);
@@ -2755,7 +2740,6 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 	g_return_if_fail (data->in_transaction);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	property = tracker_ontologies_get_property_by_uri (ontologies, predicate);
 	if (property == NULL) {
@@ -2785,16 +2769,6 @@ tracker_data_insert_statement_with_string (TrackerData  *data,
 	}
 
 	if (change) {
-		if (pred_id == 0) {
-			pred_id = tracker_data_query_resource_id (data->manager,
-			                                          iface,
-			                                          predicate,
-			                                          error);
-		}
-
-		if (pred_id == 0)
-			return;
-
 		tracker_data_dispatch_insert_statement_callbacks (data,
 		                                                  pred_id,
 		                                                  0 /* Always a literal */);
