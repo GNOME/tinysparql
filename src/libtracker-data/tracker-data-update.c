@@ -2701,24 +2701,6 @@ tracker_data_insert_statement_with_uri (TrackerData  *data,
 			             "Class '%s' not found in the ontology", object_str);
 			return;
 		}
-
-		final_prop_id = prop_id;
-
-		if (final_prop_id == 0) {
-			final_prop_id = tracker_data_query_resource_id (data->manager,
-			                                                iface,
-			                                                predicate,
-			                                                error);
-		}
-
-		if (final_prop_id == 0)
-			return;
-
-		object_id = query_resource_id (data, object_str, error);
-		if (object_id == 0)
-			return;
-
-		change = TRUE;
 	} else {
 		/* add value to metadata database */
 		change = cache_insert_metadata_decomposed (data, property, object, &actual_error);
