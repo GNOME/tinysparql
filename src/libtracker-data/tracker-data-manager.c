@@ -513,7 +513,6 @@ update_property_value (TrackerDataManager  *manager,
 	GError *error = NULL;
 	gboolean needed = TRUE;
 	gboolean is_new = FALSE;
-	GBytes *bytes;
 	const gchar *ontology_path = NULL;
 	goffset line_no = -1;
 	goffset column_no = -1;
@@ -575,9 +574,16 @@ update_property_value (TrackerDataManager  *manager,
 				}
 
 				if (!unsup_onto_err) {
-					bytes = g_bytes_new (str, strlen (str) + 1);
-					tracker_data_delete_statement (manager->data_update, NULL, subject, pred, bytes, &error);
-					g_bytes_unref (bytes);
+					GValue value = G_VALUE_INIT;
+
+					tracker_data_query_string_to_value (manager,
+					                                    str, NULL,
+					                                    tracker_property_get_data_type (pred),
+					                                    &value, &error);
+
+					if (!error)
+						tracker_data_delete_statement (manager->data_update, NULL, subject, pred, &value, &error);
+					g_value_unset (&value);
 
 					if (!error)
 						tracker_data_update_buffer_flush (manager->data_update, &error);
@@ -601,11 +607,18 @@ update_property_value (TrackerDataManager  *manager,
 
 
 	if (!error && needed && object) {
-		bytes = g_bytes_new (object, strlen (object) + 1);
-		tracker_data_insert_statement (manager->data_update, NULL, subject,
-		                               pred, bytes,
-		                               &error);
-		g_bytes_unref (bytes);
+		GValue value = G_VALUE_INIT;
+
+		tracker_data_query_string_to_value (manager,
+		                                    object, NULL,
+		                                    tracker_property_get_data_type (pred),
+		                                    &value, &error);
+
+		if (!error)
+			tracker_data_insert_statement (manager->data_update, NULL, subject,
+			                               pred, &value,
+			                               &error);
+		g_value_unset (&value);
 
 		if (!error)
 			tracker_data_update_buffer_flush (manager->data_update, &error);
@@ -1524,7 +1537,7 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 		for (l = deleted; l != NULL; l = l->next) {
 			TrackerProperty *prop = l->data;
 			const gchar *uri;
-			GBytes *bytes;
+			GValue value = G_VALUE_INIT;
 
 			TRACKER_NOTE (ONTOLOGY_CHANGES,
 			              g_message ("Ontology change: deleting nrl:domainIndex: %s",
@@ -1533,13 +1546,19 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 			tracker_class_del_domain_index (class, prop);
 
 			uri = tracker_property_get_uri (prop);
-			bytes = g_bytes_new (uri, strlen (uri) + 1);
-			tracker_data_delete_statement (manager->data_update, NULL,
-			                               tracker_class_get_uri (class),
-			                               property,
-			                               bytes,
-			                               error);
-			g_bytes_unref (bytes);
+
+			if (tracker_data_query_string_to_value (manager,
+			                                        uri, NULL,
+			                                        tracker_property_get_data_type (property),
+			                                        &value, error)) {
+				tracker_data_delete_statement (manager->data_update, NULL,
+				                               tracker_class_get_uri (class),
+				                               property,
+				                               &value,
+				                               error);
+			}
+
+			g_value_unset (&value);
 
 			if (!(*error))
 				tracker_data_update_buffer_flush (manager->data_update, error);
@@ -1702,7 +1721,7 @@ check_for_deleted_super_properties (TrackerDataManager  *manager,
 			TrackerProperty *prop_to_remove = copy->data;
 			const gchar *object = tracker_property_get_uri (prop_to_remove);
 			const gchar *subject = tracker_property_get_uri (property);
-			GBytes *bytes;
+			GValue value = G_VALUE_INIT;
 
 			property = tracker_ontologies_get_property_by_uri (ontologies,
 			                                                   TRACKER_PREFIX_RDFS "subPropertyOf");
@@ -1716,10 +1735,15 @@ check_for_deleted_super_properties (TrackerDataManager  *manager,
 
 			tracker_property_del_super_property (property, prop_to_remove);
 
-			bytes = g_bytes_new (object, strlen (object) + 1);
-			tracker_data_delete_statement (manager->data_update, NULL, subject,
-			                               property, bytes, &n_error);
-			g_bytes_unref (bytes);
+			tracker_data_query_string_to_value (manager,
+			                                    object, NULL,
+			                                    tracker_property_get_data_type (property),
+			                                    &value, &n_error);
+
+			if (!n_error)
+				tracker_data_delete_statement (manager->data_update, NULL, subject,
+				                               property, &value, &n_error);
+			g_value_unset (&value);
 
 			if (!n_error) {
 				tracker_data_update_buffer_flush (manager->data_update, &n_error);
@@ -2170,7 +2194,7 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
                                          GError            **error)
 {
 	TrackerProperty *property;
-	GBytes *bytes;
+	GValue value = G_VALUE_INIT;
 
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
@@ -2245,7 +2269,6 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
 		}
 	}
 
-	bytes = g_bytes_new (object, strlen (object) + 1);
 	property = tracker_ontologies_get_property_by_uri (manager->ontologies, predicate);
 
 	if (!property) {
@@ -2256,19 +2279,25 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
 		goto out;
 	}
 
+	if (!tracker_data_query_string_to_value (manager,
+	                                         object, NULL,
+	                                         tracker_property_get_data_type (property),
+	                                         &value, error))
+		goto out;
+
 	if (tracker_property_get_is_new (property) ||
 	    tracker_property_get_multiple_values (property)) {
 		tracker_data_insert_statement (manager->data_update, NULL,
-		                               subject, property, bytes,
+		                               subject, property, &value,
 		                               error);
 	} else {
 		tracker_data_update_statement (manager->data_update, NULL,
-					       subject, property, bytes,
+		                               subject, property, &value,
 		                               error);
 	}
 
 out:
-	g_bytes_unref (bytes);
+	g_value_unset (&value);
 }
 
 static void

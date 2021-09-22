@@ -50,6 +50,13 @@ GPtrArray*           tracker_data_query_rdf_type      (TrackerDataManager  *mana
                                                        gint                 id,
                                                        GError             **error);
 
+gboolean             tracker_data_query_string_to_value (TrackerDataManager   *manager,
+                                                         const gchar          *value,
+                                                         const gchar          *langtag,
+                                                         TrackerPropertyType   type,
+                                                         GValue               *gvalue,
+                                                         GError              **error);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DATA_QUERY_H__ */

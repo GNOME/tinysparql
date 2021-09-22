@@ -187,3 +187,76 @@ tracker_data_query_sparql_cursor (TrackerDataManager  *manager,
 	return TRACKER_DB_CURSOR (cursor);
 }
 
+gboolean
+tracker_data_query_string_to_value (TrackerDataManager   *manager,
+                                    const gchar          *value,
+                                    const gchar          *langtag,
+                                    TrackerPropertyType   type,
+                                    GValue               *gvalue,
+                                    GError              **error)
+{
+	TrackerData *data;
+	gint object_id;
+	gchar *datetime_str;
+	GDateTime *datetime;
+
+	switch (type) {
+	case TRACKER_PROPERTY_TYPE_STRING:
+		g_value_init (gvalue, G_TYPE_STRING);
+		g_value_set_string (gvalue, value);
+		break;
+	case TRACKER_PROPERTY_TYPE_LANGSTRING:
+		g_value_init (gvalue, G_TYPE_BYTES);
+		g_value_take_boxed (gvalue, tracker_sparql_make_langstring (value, langtag));
+		break;
+	case TRACKER_PROPERTY_TYPE_INTEGER:
+		g_value_init (gvalue, G_TYPE_INT64);
+		g_value_set_int64 (gvalue, atoll (value));
+		break;
+	case TRACKER_PROPERTY_TYPE_BOOLEAN:
+		/* use G_TYPE_INT64 to be compatible with value stored in DB
+		   (important for value_equal function) */
+		g_value_init (gvalue, G_TYPE_INT64);
+		g_value_set_int64 (gvalue, g_ascii_strncasecmp (value, "true", 4) == 0);
+		break;
+	case TRACKER_PROPERTY_TYPE_DOUBLE:
+		g_value_init (gvalue, G_TYPE_DOUBLE);
+		g_value_set_double (gvalue, g_ascii_strtod (value, NULL));
+		break;
+	case TRACKER_PROPERTY_TYPE_DATE:
+		g_value_init (gvalue, G_TYPE_INT64);
+		datetime_str = g_strdup_printf ("%sT00:00:00Z", value);
+		datetime = tracker_date_new_from_iso8601 (datetime_str, error);
+		g_free (datetime_str);
+
+		if (!datetime)
+			return FALSE;
+
+		g_value_set_int64 (gvalue, g_date_time_to_unix (datetime));
+		g_date_time_unref (datetime);
+		break;
+	case TRACKER_PROPERTY_TYPE_DATETIME:
+		g_value_init (gvalue, G_TYPE_DATE_TIME);
+		datetime = tracker_date_new_from_iso8601 (value, error);
+
+		if (!datetime)
+			return FALSE;
+
+		g_value_take_boxed (gvalue, datetime);
+		break;
+	case TRACKER_PROPERTY_TYPE_RESOURCE:
+		data = tracker_data_manager_get_data (manager);
+		object_id = tracker_data_update_ensure_resource (data, value, error);
+		if (object_id == 0)
+			return FALSE;
+
+		g_value_init (gvalue, G_TYPE_INT64);
+		g_value_set_int64 (gvalue, object_id);
+		break;
+	case TRACKER_PROPERTY_TYPE_UNKNOWN:
+		g_warn_if_reached ();
+		return FALSE;
+	}
+
+	return TRUE;
+}

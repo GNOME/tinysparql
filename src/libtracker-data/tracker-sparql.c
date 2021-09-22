@@ -2074,12 +2074,44 @@ _construct_clause (TrackerSparql  *sparql,
 	return TRUE;
 }
 
+static void
+value_init_from_token (TrackerSparql    *sparql,
+                       GValue           *value,
+                       TrackerProperty  *property,
+                       TrackerToken     *token,
+                       GError          **error)
+{
+	GBytes *literal;
+
+	literal = tracker_token_get_literal (token);
+
+	if (literal) {
+		const gchar *str, *langstring = NULL;
+		gsize size;
+		int len;
+
+		str = g_bytes_get_data (literal, &size);
+		len = strlen (str);
+
+		if (((gsize) len + 1) < size)
+			langstring = &str[len + 1];
+
+		tracker_data_query_string_to_value (sparql->data_manager,
+		                                    str,
+		                                    langstring,
+		                                    tracker_property_get_data_type (property),
+		                                    value,
+		                                    error);
+	}
+}
+
 static gboolean
 tracker_sparql_apply_quad (TrackerSparql  *sparql,
                            GError        **error)
 {
 	GError *inner_error = NULL;
 	TrackerProperty *predicate = NULL;
+	GValue object = G_VALUE_INIT;
 
 	if ((tracker_token_is_empty (&sparql->current_state->graph) &&
 	     sparql->policy.filter_unnamed_graph) ||
@@ -2108,6 +2140,15 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 			             property);
 			return FALSE;
 		}
+
+		value_init_from_token (sparql, &object, predicate,
+		                       &sparql->current_state->object,
+		                       &inner_error);
+
+		if (inner_error) {
+			g_propagate_error (error, inner_error);
+			return FALSE;
+		}
 	}
 
 	switch (sparql->current_state->type) {
@@ -2132,7 +2173,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 		                               tracker_token_get_idstring (&sparql->current_state->graph),
 		                               tracker_token_get_idstring (&sparql->current_state->subject),
 		                               predicate,
-		                               tracker_token_get_literal (&sparql->current_state->object),
+		                               &object,
 		                               &inner_error);
 		break;
 	case TRACKER_SPARQL_TYPE_DELETE:
@@ -2140,7 +2181,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 		                               tracker_token_get_idstring (&sparql->current_state->graph),
 		                               tracker_token_get_idstring (&sparql->current_state->subject),
 		                               predicate,
-		                               tracker_token_get_literal (&sparql->current_state->object),
+		                               &object,
 		                               &inner_error);
 		break;
 	case TRACKER_SPARQL_TYPE_UPDATE:
@@ -2148,12 +2189,14 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 		                               tracker_token_get_idstring (&sparql->current_state->graph),
 		                               tracker_token_get_idstring (&sparql->current_state->subject),
 		                               predicate,
-		                               tracker_token_get_literal (&sparql->current_state->object),
+		                               &object,
 		                               &inner_error);
 		break;
 	default:
 		g_assert_not_reached ();
 	}
+
+	g_value_unset (&object);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -9096,9 +9139,15 @@ translate_RDFLiteral (TrackerSparql  *sparql,
 	if (is_parameter) {
 		binding = tracker_parameter_binding_new (str, NULL);
 	} else {
+		const gchar *lang = NULL;
 		GBytes *bytes;
 
-		bytes = tracker_sparql_make_langstring (str, langtag);
+		if (langtag) {
+			g_assert (langtag[0] == '@');
+			lang = &langtag[1];
+		}
+
+		bytes = tracker_sparql_make_langstring (str, lang);
 		binding = tracker_literal_binding_new (bytes, NULL);
 		g_bytes_unref (bytes);
 	}
@@ -9953,7 +10002,7 @@ tracker_sparql_make_langstring (const gchar *str,
 
 	if (langtag) {
 		g_string_append_c (langstr, '\0');
-		g_string_append_printf (langstr, "%s", &langtag[1]);
+		g_string_append_printf (langstr, "%s", langtag);
 	}
 
 	bytes = g_bytes_new_take (langstr->str,
