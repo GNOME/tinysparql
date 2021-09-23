@@ -1574,11 +1574,22 @@ get_old_property_values (TrackerData      *data,
 	old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
 	if (old_values == NULL) {
 		if (!check_property_domain (data, property)) {
+			TrackerDBInterface *iface;
+			gchar *resource;
+
+			iface = tracker_data_manager_get_writable_db_interface (data->manager);
+			resource = tracker_data_query_resource_urn (data->manager,
+			                                            iface,
+			                                            data->resource_buffer->id);
+
 			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
-			             "Subject `%s' is not in domain `%s' of property `%s'",
-			             data->resource_buffer->subject,
+			             "%s %s is not is not a %s, cannot have property `%s'",
+			             resource ? "Subject" : "Blank node",
+			             resource ? resource : "",
 			             tracker_class_get_name (tracker_property_get_domain (property)),
 			             tracker_property_get_name (property));
+			g_free (resource);
+
 			return NULL;
 		}
 
@@ -1778,6 +1789,8 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		/* value already inserted */
 	} else if (!multiple_values && old_values->len > 1) {
 		/* trying to add second value to single valued property */
+		TrackerDBInterface *iface;
+		gchar *resource;
 		GValue old_value = { 0 };
 		GValue new_value = { 0 };
 		GValue *v;
@@ -1799,14 +1812,21 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 			new_value_str = tracker_utf8_truncate (g_value_get_string (&new_value), 255);
 		}
 
+		iface = tracker_data_manager_get_writable_db_interface (data->manager);
+		resource = tracker_data_query_resource_urn (data->manager,
+		                                            iface,
+		                                            data->resource_buffer->id);
+
 		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
-		             "Unable to insert multiple values for subject `%s' and single valued property `%s' "
+		             "Unable to insert multiple values on single valued property `%s' for %s %s "
 		             "(old_value: '%s', new value: '%s')",
-		             data->resource_buffer->subject,
 		             field_name,
+		             resource ? "resource" : "blank node",
+		             resource ? resource : "",
 		             old_value_str ? old_value_str : "<untransformable>",
 		             new_value_str ? new_value_str : "<untransformable>");
 
+		g_free (resource);
 		g_free (old_value_str);
 		g_free (new_value_str);
 		g_value_unset (&old_value);

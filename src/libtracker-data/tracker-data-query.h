@@ -34,6 +34,9 @@ G_BEGIN_DECLS
 #error "only <libtracker-data/tracker-data.h> must be included directly."
 #endif
 
+gchar *              tracker_data_query_resource_urn  (TrackerDataManager  *manager,
+                                                       TrackerDBInterface  *iface,
+                                                       gint64               id);
 gint                 tracker_data_query_resource_id   (TrackerDataManager  *manager,
                                                        TrackerDBInterface  *iface,
                                                        const gchar         *uri,

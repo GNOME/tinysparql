@@ -94,6 +94,37 @@ tracker_data_query_rdf_type (TrackerDataManager  *manager,
 	return ret;
 }
 
+gchar *
+tracker_data_query_resource_urn (TrackerDataManager  *manager,
+                                 TrackerDBInterface  *iface,
+                                 gint64               id)
+{
+	TrackerDBCursor *cursor = NULL;
+	TrackerDBStatement *stmt;
+	gchar *uri = NULL;
+
+	g_return_val_if_fail (id != 0, NULL);
+
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, NULL,
+	                                              "SELECT Uri FROM Resource WHERE ID = ?");
+	if (!stmt)
+		return NULL;
+
+	tracker_db_statement_bind_int (stmt, 0, id);
+	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	g_object_unref (stmt);
+
+	if (!cursor)
+		return NULL;
+
+	if (tracker_db_cursor_iter_next (cursor, NULL, NULL))
+		uri = g_strdup (tracker_db_cursor_get_string (cursor, 0, NULL));
+
+	g_object_unref (cursor);
+
+	return uri;
+}
+
 gint
 tracker_data_query_resource_id (TrackerDataManager  *manager,
                                 TrackerDBInterface  *iface,
