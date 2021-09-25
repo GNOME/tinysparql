@@ -6976,9 +6976,10 @@ translate_TriplesNode (TrackerSparql  *sparql,
 	return TRUE;
 }
 
-static void
-tracker_sparql_generate_bnode (TrackerSparql *sparql,
-                               TrackerToken  *token)
+static gboolean
+tracker_sparql_generate_bnode (TrackerSparql  *sparql,
+                               TrackerToken   *token,
+                               GError        **error)
 {
 	if (sparql->current_state->type == TRACKER_SPARQL_TYPE_SELECT ||
 	    sparql->current_state->type == TRACKER_SPARQL_TYPE_CONSTRUCT) {
@@ -6987,14 +6988,17 @@ tracker_sparql_generate_bnode (TrackerSparql *sparql,
 		var = tracker_select_context_add_generated_variable (TRACKER_SELECT_CONTEXT (sparql->context));
 		tracker_token_variable_init (token, var);
 	} else {
-		TrackerDBInterface *iface;
-		gchar *bnode_id;
+		gint64 bnode_id;
 
-		iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
-		bnode_id = tracker_data_query_unused_uuid (sparql->data_manager, iface);
-		tracker_token_literal_init (token, bnode_id, -1);
-		g_free (bnode_id);
+		bnode_id = tracker_data_generate_bnode (tracker_data_manager_get_data (sparql->data_manager),
+		                                        error);
+		if (bnode_id == 0)
+			return FALSE;
+
+		tracker_token_bnode_init (token, bnode_id);
 	}
+
+	return TRUE;
 }
 
 static gboolean
@@ -7007,8 +7011,10 @@ translate_BlankNodePropertyList (TrackerSparql  *sparql,
 	 */
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_BRACKET);
 
-	tracker_sparql_generate_bnode (sparql,
-	                               &sparql->current_state->subject);
+	if (!tracker_sparql_generate_bnode (sparql,
+	                                    &sparql->current_state->subject,
+	                                    error))
+		return FALSE;
 
 	_call_rule (sparql, NAMED_RULE_PropertyListNotEmpty, error);
 
@@ -7101,7 +7107,8 @@ translate_Collection (TrackerSparql  *sparql,
 			g_array_set_size (elems, elems->len + 1);
 			cur = &g_array_index (elems, TrackerToken, 0);
 
-			tracker_sparql_generate_bnode (sparql, cur);
+			if (!tracker_sparql_generate_bnode (sparql, cur, error))
+				goto error;
 		}
 
 		sparql->current_state->subject = *cur;
@@ -7135,7 +7142,8 @@ translate_Collection (TrackerSparql  *sparql,
 			g_array_set_size (elems, elems->len + 1);
 			cur = &g_array_index (elems, TrackerToken, elems->len - 1);
 
-			tracker_sparql_generate_bnode (sparql, cur);
+			if (!tracker_sparql_generate_bnode (sparql, cur, error))
+				goto error;
 
 			sparql->current_state->object = *cur;
 
@@ -9398,7 +9406,7 @@ translate_BlankNode (TrackerSparql  *sparql,
                      GError        **error)
 {
 	TrackerDBInterface *iface;
-	gchar *bnode_id;
+	gint64 bnode_id;
 	TrackerVariable *var;
 
 	/* BlankNode ::= BLANK_NODE_LABEL | ANON
@@ -9410,31 +9418,49 @@ translate_BlankNode (TrackerSparql  *sparql,
         if (sparql->current_state->type != TRACKER_SPARQL_TYPE_SELECT &&
 	    sparql->current_state->type != TRACKER_SPARQL_TYPE_CONSTRUCT) {
 	        if (_accept (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_ANON)) {
-		        bnode_id = tracker_data_query_unused_uuid (sparql->data_manager, iface);
-		        tracker_token_literal_init (sparql->current_state->token, bnode_id, -1);
-		        g_free (bnode_id);
+		        bnode_id = tracker_data_generate_bnode (tracker_data_manager_get_data (sparql->data_manager),
+		                                                error);
+		        if (bnode_id == 0)
+			        return FALSE;
+
+		        tracker_token_bnode_init (sparql->current_state->token, bnode_id);
 	        } else if (_accept (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_BLANK_NODE_LABEL)) {
 		        gchar *str;
+		        gint64 *value;
 
 		        str = _dup_last_string (sparql);
 
 		        if (sparql->current_state->blank_node_map) {
-			        bnode_id = g_hash_table_lookup (sparql->current_state->blank_node_map, str);
+			        value = g_hash_table_lookup (sparql->current_state->blank_node_map, str);
 
-			        if (!bnode_id) {
-				        bnode_id = tracker_data_query_unused_uuid (sparql->data_manager, iface);
+			        if (value) {
+				        bnode_id = *value;
+			        } else {
+				        bnode_id = tracker_data_generate_bnode (tracker_data_manager_get_data (sparql->data_manager),
+				                                                error);
+				        if (bnode_id == 0)
+					        return FALSE;
+				        value = g_new0 (gint64, 1);
+				        *value = bnode_id;
 				        g_hash_table_insert (sparql->current_state->blank_node_map,
-				                             g_strdup (str), bnode_id);
+				                             g_strdup (str), value);
 			        }
 
 			        if (sparql->blank_nodes &&
 			            sparql->current_state->update_blank_nodes &&
 			            !g_hash_table_contains (sparql->current_state->update_blank_nodes, str)) {
+				        gchar *urn;
+
+				        urn = tracker_data_query_resource_urn (sparql->data_manager,
+				                                               iface,
+				                                               bnode_id);
+
 				        g_hash_table_add (sparql->current_state->update_blank_nodes, str);
-				        g_variant_builder_add (sparql->blank_nodes, "{ss}", str, bnode_id);
+				        g_variant_builder_add (sparql->blank_nodes, "{ss}", str, urn);
+				        g_free (urn);
 			        }
 
-			        tracker_token_literal_init (sparql->current_state->token, bnode_id, -1);
+			        tracker_token_bnode_init (sparql->current_state->token, bnode_id);
 		        } else {
 			        tracker_token_literal_init (sparql->current_state->token, str, -1);
 		        }

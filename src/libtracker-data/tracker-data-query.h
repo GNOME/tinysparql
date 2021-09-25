@@ -41,9 +41,6 @@ gint64               tracker_data_query_resource_id   (TrackerDataManager  *mana
                                                        TrackerDBInterface  *iface,
                                                        const gchar         *uri,
                                                        GError             **error);
-gchar               *tracker_data_query_unused_uuid   (TrackerDataManager  *manager,
-                                                       TrackerDBInterface  *iface);
-
 TrackerDBCursor     *tracker_data_query_sparql_cursor (TrackerDataManager  *manager,
                                                        const gchar         *query,
                                                        GError             **error);
