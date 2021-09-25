@@ -2112,6 +2112,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 	GError *inner_error = NULL;
 	TrackerProperty *predicate = NULL;
 	GValue object = G_VALUE_INIT;
+	gint64 subject = 0;
 
 	if ((tracker_token_is_empty (&sparql->current_state->graph) &&
 	     sparql->policy.filter_unnamed_graph) ||
@@ -2126,7 +2127,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 	    sparql->current_state->type == TRACKER_SPARQL_TYPE_DELETE ||
 	    sparql->current_state->type == TRACKER_SPARQL_TYPE_UPDATE) {
 		TrackerOntologies *ontologies;
-		const gchar *property;
+		const gchar *property, *subject_str;
 
 		ontologies = tracker_data_manager_get_ontologies (sparql->data_manager);
 		property = tracker_token_get_idstring (&sparql->current_state->predicate);
@@ -2149,6 +2150,13 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 			g_propagate_error (error, inner_error);
 			return FALSE;
 		}
+
+		subject_str = tracker_token_get_idstring (&sparql->current_state->subject);
+		subject = tracker_data_update_ensure_resource (tracker_data_manager_get_data (sparql->data_manager),
+		                                               subject_str,
+		                                               error);
+		if (subject == 0)
+			return FALSE;
 	}
 
 	switch (sparql->current_state->type) {
@@ -2171,7 +2179,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 	case TRACKER_SPARQL_TYPE_INSERT:
 		tracker_data_insert_statement (tracker_data_manager_get_data (sparql->data_manager),
 		                               tracker_token_get_idstring (&sparql->current_state->graph),
-		                               tracker_token_get_idstring (&sparql->current_state->subject),
+		                               subject,
 		                               predicate,
 		                               &object,
 		                               &inner_error);
@@ -2179,7 +2187,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 	case TRACKER_SPARQL_TYPE_DELETE:
 		tracker_data_delete_statement (tracker_data_manager_get_data (sparql->data_manager),
 		                               tracker_token_get_idstring (&sparql->current_state->graph),
-		                               tracker_token_get_idstring (&sparql->current_state->subject),
+		                               subject,
 		                               predicate,
 		                               &object,
 		                               &inner_error);
@@ -2187,7 +2195,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 	case TRACKER_SPARQL_TYPE_UPDATE:
 		tracker_data_update_statement (tracker_data_manager_get_data (sparql->data_manager),
 		                               tracker_token_get_idstring (&sparql->current_state->graph),
-		                               tracker_token_get_idstring (&sparql->current_state->subject),
+		                               subject,
 		                               predicate,
 		                               &object,
 		                               &inner_error);

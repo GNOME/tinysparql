@@ -575,6 +575,7 @@ update_property_value (TrackerDataManager  *manager,
 
 				if (!unsup_onto_err) {
 					GValue value = G_VALUE_INIT;
+					gint64 subject_id = 0;
 
 					tracker_data_query_string_to_value (manager,
 					                                    str, NULL,
@@ -582,7 +583,12 @@ update_property_value (TrackerDataManager  *manager,
 					                                    &value, &error);
 
 					if (!error)
-						tracker_data_delete_statement (manager->data_update, NULL, subject, pred, &value, &error);
+						subject_id = tracker_data_update_ensure_resource (manager->data_update,
+						                                                  subject,
+						                                                  &error);
+
+					if (!error)
+						tracker_data_delete_statement (manager->data_update, NULL, subject_id, pred, &value, &error);
 					g_value_unset (&value);
 
 					if (!error)
@@ -608,6 +614,7 @@ update_property_value (TrackerDataManager  *manager,
 
 	if (!error && needed && object) {
 		GValue value = G_VALUE_INIT;
+		gint64 subject_id = 0;
 
 		tracker_data_query_string_to_value (manager,
 		                                    object, NULL,
@@ -615,7 +622,12 @@ update_property_value (TrackerDataManager  *manager,
 		                                    &value, &error);
 
 		if (!error)
-			tracker_data_insert_statement (manager->data_update, NULL, subject,
+			subject_id = tracker_data_update_ensure_resource (manager->data_update,
+			                                                  subject,
+			                                                  &error);
+
+		if (!error)
+			tracker_data_insert_statement (manager->data_update, NULL, subject_id,
 			                               pred, &value,
 			                               &error);
 		g_value_unset (&value);
@@ -1538,6 +1550,7 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 			TrackerProperty *prop = l->data;
 			const gchar *uri;
 			GValue value = G_VALUE_INIT;
+			gint64 class_id = 0;
 
 			TRACKER_NOTE (ONTOLOGY_CHANGES,
 			              g_message ("Ontology change: deleting nrl:domainIndex: %s",
@@ -1551,8 +1564,14 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 			                                        uri, NULL,
 			                                        tracker_property_get_data_type (property),
 			                                        &value, error)) {
+				class_id = tracker_data_update_ensure_resource (manager->data_update,
+				                                                tracker_class_get_uri (class),
+				                                                error);
+			}
+
+			if (class_id != 0) {
 				tracker_data_delete_statement (manager->data_update, NULL,
-				                               tracker_class_get_uri (class),
+				                               class_id,
 				                               property,
 				                               &value,
 				                               error);
@@ -1722,6 +1741,7 @@ check_for_deleted_super_properties (TrackerDataManager  *manager,
 			const gchar *object = tracker_property_get_uri (prop_to_remove);
 			const gchar *subject = tracker_property_get_uri (property);
 			GValue value = G_VALUE_INIT;
+			gint64 subject_id;
 
 			property = tracker_ontologies_get_property_by_uri (ontologies,
 			                                                   TRACKER_PREFIX_RDFS "subPropertyOf");
@@ -1741,7 +1761,12 @@ check_for_deleted_super_properties (TrackerDataManager  *manager,
 			                                    &value, &n_error);
 
 			if (!n_error)
-				tracker_data_delete_statement (manager->data_update, NULL, subject,
+				subject_id = tracker_data_update_ensure_resource (manager->data_update,
+				                                                  subject,
+				                                                  &n_error);
+
+			if (!n_error)
+				tracker_data_delete_statement (manager->data_update, NULL, subject_id,
 				                               property, &value, &n_error);
 			g_value_unset (&value);
 
@@ -2195,6 +2220,7 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
 {
 	TrackerProperty *property;
 	GValue value = G_VALUE_INIT;
+	gint64 subject_id = 0;
 
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
@@ -2285,14 +2311,20 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
 	                                         &value, error))
 		goto out;
 
+	subject_id = tracker_data_update_ensure_resource (manager->data_update,
+	                                                  subject,
+	                                                  error);
+	if (subject_id == 0)
+		goto out;
+
 	if (tracker_property_get_is_new (property) ||
 	    tracker_property_get_multiple_values (property)) {
 		tracker_data_insert_statement (manager->data_update, NULL,
-		                               subject, property, &value,
+		                               subject_id, property, &value,
 		                               error);
 	} else {
 		tracker_data_update_statement (manager->data_update, NULL,
-		                               subject, property, &value,
+		                               subject_id, property, &value,
 		                               error);
 	}
 
