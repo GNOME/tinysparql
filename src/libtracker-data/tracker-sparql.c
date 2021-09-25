@@ -2082,6 +2082,15 @@ value_init_from_token (TrackerSparql    *sparql,
                        GError          **error)
 {
 	GBytes *literal;
+	gint64 bnode_id;
+
+	bnode_id = tracker_token_get_bnode (token);
+
+	if (bnode_id != 0) {
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, bnode_id);
+		return;
+	}
 
 	literal = tracker_token_get_literal (token);
 
@@ -2103,6 +2112,23 @@ value_init_from_token (TrackerSparql    *sparql,
 		                                    value,
 		                                    error);
 	}
+}
+
+static gint64
+tracker_sparql_get_subject_id (TrackerSparql  *sparql,
+                               GError        **error)
+{
+	const gchar *subject_str;
+	gint64 bnode_id;
+
+	bnode_id = tracker_token_get_bnode (&sparql->current_state->subject);
+	if (bnode_id != 0)
+		return bnode_id;
+
+	subject_str = tracker_token_get_idstring (&sparql->current_state->subject);
+	return tracker_data_update_ensure_resource (tracker_data_manager_get_data (sparql->data_manager),
+	                                            subject_str,
+	                                            error);
 }
 
 static gboolean
@@ -2127,7 +2153,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 	    sparql->current_state->type == TRACKER_SPARQL_TYPE_DELETE ||
 	    sparql->current_state->type == TRACKER_SPARQL_TYPE_UPDATE) {
 		TrackerOntologies *ontologies;
-		const gchar *property, *subject_str;
+		const gchar *property;
 
 		ontologies = tracker_data_manager_get_ontologies (sparql->data_manager);
 		property = tracker_token_get_idstring (&sparql->current_state->predicate);
@@ -2151,10 +2177,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 			return FALSE;
 		}
 
-		subject_str = tracker_token_get_idstring (&sparql->current_state->subject);
-		subject = tracker_data_update_ensure_resource (tracker_data_manager_get_data (sparql->data_manager),
-		                                               subject_str,
-		                                               error);
+		subject = tracker_sparql_get_subject_id (sparql, error);
 		if (subject == 0)
 			return FALSE;
 	}
