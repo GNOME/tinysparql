@@ -139,6 +139,7 @@ struct _TrackerToken {
 		gchar *parameter;
 		TrackerVariable *var;
 		TrackerPathElement *path;
+		gint64 bnode;
 	} content;
 };
 
@@ -304,6 +305,8 @@ void tracker_token_parameter_init (TrackerToken   *token,
 				   const gchar    *parameter);
 void tracker_token_path_init      (TrackerToken       *token,
                                    TrackerPathElement *path_elem);
+void tracker_token_bnode_init     (TrackerToken *token,
+                                   gint64        bnode_id);
 void tracker_token_unset (TrackerToken *token);
 
 gboolean           tracker_token_is_empty     (TrackerToken *token);
@@ -312,6 +315,7 @@ TrackerVariable  * tracker_token_get_variable (TrackerToken *token);
 const gchar      * tracker_token_get_idstring (TrackerToken *token);
 const gchar      * tracker_token_get_parameter (TrackerToken *token);
 TrackerPathElement * tracker_token_get_path   (TrackerToken *token);
+gint64             tracker_token_get_bnode    (TrackerToken *token);
 
 /* Solution */
 TrackerSolution * tracker_solution_new       (guint            n_cols);
