@@ -37,7 +37,7 @@ G_BEGIN_DECLS
 gchar *              tracker_data_query_resource_urn  (TrackerDataManager  *manager,
                                                        TrackerDBInterface  *iface,
                                                        gint64               id);
-gint                 tracker_data_query_resource_id   (TrackerDataManager  *manager,
+gint64               tracker_data_query_resource_id   (TrackerDataManager  *manager,
                                                        TrackerDBInterface  *iface,
                                                        const gchar         *uri,
                                                        GError             **error);
@@ -50,7 +50,7 @@ TrackerDBCursor     *tracker_data_query_sparql_cursor (TrackerDataManager  *mana
 
 GPtrArray*           tracker_data_query_rdf_type      (TrackerDataManager  *manager,
                                                        const gchar         *graph,
-                                                       gint                 id,
+                                                       gint64               id,
                                                        GError             **error);
 
 gboolean             tracker_data_query_string_to_value (TrackerDataManager   *manager,

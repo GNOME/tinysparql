@@ -45,11 +45,11 @@ typedef struct _TrackerDataClass TrackerDataClass;
 
 typedef struct _TrackerData TrackerDataUpdate;
 
-typedef void (*TrackerStatementCallback) (gint                  graph_id,
+typedef void (*TrackerStatementCallback) (gint64                graph_id,
                                           const gchar          *graph,
-                                          gint                  subject_id,
-                                          gint                  predicate_id,
-                                          gint                  object_id,
+                                          gint64                subject_id,
+                                          gint64                predicate_id,
+                                          gint64                object_id,
                                           GPtrArray            *rdf_types,
                                           gpointer              user_data);
 typedef void (*TrackerCommitCallback)    (gpointer              user_data);
@@ -98,7 +98,7 @@ void     tracker_data_load_turtle_file              (TrackerData               *
                                                      const gchar               *graph,
                                                      GError                   **error);
 
-gint     tracker_data_ensure_graph                  (TrackerData               *data,
+gint64   tracker_data_ensure_graph                  (TrackerData               *data,
                                                      const gchar               *name,
                                                      GError                   **error);
 gboolean tracker_data_delete_graph                  (TrackerData               *data,
@@ -137,9 +137,9 @@ gboolean tracker_data_update_resource (TrackerData      *data,
                                        GHashTable       *bnodes,
                                        GError          **error);
 
-gint tracker_data_update_ensure_resource (TrackerData  *data,
-                                          const gchar  *uri,
-                                          GError      **error);
+gint64 tracker_data_update_ensure_resource (TrackerData  *data,
+                                            const gchar  *uri,
+                                            GError      **error);
 gchar * tracker_data_update_ensure_new_bnode (TrackerData         *data,
                                               TrackerDBInterface  *iface,
                                               GError             **error);
