@@ -1676,23 +1676,23 @@ get_bnode_for_resource (GHashTable       *bnodes,
                         TrackerResource  *resource,
                         GError          **error)
 {
-	TrackerDBInterface *iface;
 	const gchar *identifier;
-	gchar *bnode;
+	gint64 *value, bnode_id;
 
 	identifier = tracker_resource_get_identifier (resource);
-	bnode = g_hash_table_lookup (bnodes, identifier);
-	if (bnode)
-		return query_resource_id (data, bnode, error);
+	value = g_hash_table_lookup (bnodes, identifier);
+	if (value)
+		return *value;
 
-	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	bnode = tracker_data_update_ensure_new_bnode (data, iface, error);
-	if (!bnode)
+	bnode_id = tracker_data_generate_bnode (data, error);
+	if (bnode_id == 0)
 		return 0;
 
-	g_hash_table_insert (bnodes, g_strdup (identifier), bnode);
+	value = g_new0 (gint64, 1);
+	*value = bnode_id;
+	g_hash_table_insert (bnodes, g_strdup (identifier), value);
 
-	return query_resource_id (data, bnode, error);
+	return bnode_id;
 }
 
 static gboolean
@@ -3179,11 +3179,11 @@ tracker_data_update_resource (TrackerData      *data,
 	return retval;
 }
 
-gchar *
-tracker_data_update_ensure_new_bnode (TrackerData         *data,
-                                      TrackerDBInterface  *iface,
-                                      GError             **error)
+gint64
+tracker_data_generate_bnode (TrackerData  *data,
+                             GError      **error)
 {
+	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt = NULL;
 	GError *inner_error = NULL;
 	gchar *uuid, *key;
@@ -3196,7 +3196,7 @@ tracker_data_update_ensure_new_bnode (TrackerData         *data,
 	                                              "INSERT INTO Resource (Uri, BlankNode) VALUES (?, ?)");
 	if (!stmt) {
 		g_propagate_error (error, inner_error);
-		return NULL;
+		return 0;
 	}
 
 	while (TRUE) {
@@ -3222,7 +3222,7 @@ tracker_data_update_ensure_new_bnode (TrackerData         *data,
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
-		return NULL;
+		return 0;
 	}
 
 	id = tracker_db_interface_sqlite_get_last_insert_id (iface);
@@ -3232,5 +3232,5 @@ tracker_data_update_ensure_new_bnode (TrackerData         *data,
 	g_hash_table_insert (data->update_buffer.resource_cache, key, value);
 	g_hash_table_add (data->update_buffer.new_resources, value);
 
-	return uuid;
+	return id;
 }

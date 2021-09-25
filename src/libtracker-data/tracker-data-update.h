@@ -140,9 +140,8 @@ gboolean tracker_data_update_resource (TrackerData      *data,
 gint64 tracker_data_update_ensure_resource (TrackerData  *data,
                                             const gchar  *uri,
                                             GError      **error);
-gchar * tracker_data_update_ensure_new_bnode (TrackerData         *data,
-                                              TrackerDBInterface  *iface,
-                                              GError             **error);
+gint64 tracker_data_generate_bnode (TrackerData  *data,
+                                    GError      **error);
 
 GType         tracker_data_get_type (void) G_GNUC_CONST;
 TrackerData * tracker_data_new      (TrackerDataManager *manager);
