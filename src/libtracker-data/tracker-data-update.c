@@ -704,7 +704,7 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 
 	if (stmt) {
 		tracker_db_statement_bind_text (stmt, 0, uri);
-		tracker_db_statement_bind_int (stmt, 1, g_str_has_prefix (uri, "urn:bnode:"));
+		tracker_db_statement_bind_int (stmt, 1, FALSE);
 		tracker_db_statement_execute (stmt, &inner_error);
 		g_object_unref (stmt);
 	}
@@ -730,6 +730,9 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 	value = g_new0 (gint64, 1);
 	*value = id;
 	g_hash_table_insert (data->update_buffer.resource_cache, key, value);
+
+	value = g_new0 (gint64, 1);
+	*value = id;
 	g_hash_table_add (data->update_buffer.new_resources, value);
 
 	return id;
@@ -2668,7 +2671,7 @@ tracker_data_begin_transaction (TrackerData  *data,
 
 	if (data->update_buffer.resource_cache == NULL) {
 		data->update_buffer.resource_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-		data->update_buffer.new_resources = g_hash_table_new (g_int64_hash, g_int64_equal);
+		data->update_buffer.new_resources = g_hash_table_new_full (g_int64_hash, g_int64_equal, g_free, NULL);
 		/* used for normal transactions */
 		data->update_buffer.graphs = g_ptr_array_new_with_free_func ((GDestroyNotify) graph_buffer_free);
 	}
@@ -3247,7 +3250,6 @@ tracker_data_generate_bnode (TrackerData  *data,
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt = NULL;
 	GError *inner_error = NULL;
-	gchar *uuid, *key;
 	gint64 *value, id;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
@@ -3260,25 +3262,9 @@ tracker_data_generate_bnode (TrackerData  *data,
 		return 0;
 	}
 
-	while (TRUE) {
-		uuid = tracker_generate_uuid ("urn:bnode");
-
-		tracker_db_statement_bind_text (stmt, 0, uuid);
-		tracker_db_statement_bind_int (stmt, 1, 1);
-		tracker_db_statement_execute (stmt, &inner_error);
-
-		if (!inner_error ||
-		    !g_error_matches (inner_error,
-		                      TRACKER_DB_INTERFACE_ERROR,
-		                      TRACKER_DB_CONSTRAINT)) {
-			break;
-		}
-
-		/* Constraint error, retry */
-		g_clear_error (&inner_error);
-		g_free (uuid);
-	}
-
+	tracker_db_statement_bind_null (stmt, 0);
+	tracker_db_statement_bind_int (stmt, 1, TRUE);
+	tracker_db_statement_execute (stmt, &inner_error);
 	g_object_unref (stmt);
 
 	if (inner_error) {
@@ -3287,10 +3273,8 @@ tracker_data_generate_bnode (TrackerData  *data,
 	}
 
 	id = tracker_db_interface_sqlite_get_last_insert_id (iface);
-	key = g_strdup (uuid);
 	value = g_new0 (gint64, 1);
 	*value = id;
-	g_hash_table_insert (data->update_buffer.resource_cache, key, value);
 	g_hash_table_add (data->update_buffer.new_resources, value);
 
 	return id;

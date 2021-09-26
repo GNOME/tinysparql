@@ -3485,7 +3485,7 @@ create_base_tables (TrackerDataManager  *manager,
 
 	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY,"
-	                                    " Uri TEXT NOT NULL, BlankNode INTEGER DEFAULT 0, UNIQUE (Uri))");
+	                                    " Uri TEXT, BlankNode INTEGER DEFAULT 0, UNIQUE (Uri))");
 
 	if (internal_error) {
 		g_propagate_error (error, internal_error);
@@ -4116,8 +4116,43 @@ tracker_data_manager_update_from_version (TrackerDataManager  *manager,
                                           TrackerDBVersion     version,
                                           GError             **error)
 {
+	TrackerDBInterface *iface;
+	GError *internal_error = NULL;
+
+	iface = tracker_data_manager_get_writable_db_interface (manager);
+
+	if (version < TRACKER_DB_VERSION_3_3) {
+		/* Anonymous blank nodes, remove "NOT NULL" restriction
+		 * from Resource.Uri.
+		 */
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "CREATE TABLE Resource_TEMP (ID INTEGER NOT NULL PRIMARY KEY,"
+		                                    " Uri TEXT, BlankNode INTEGER DEFAULT 0, UNIQUE (Uri))");
+		if (internal_error)
+			goto error;
+
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "INSERT INTO Resource_TEMP SELECT * FROM Resource");
+		if (internal_error)
+			goto error;
+
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "DROP TABLE Resource");
+		if (internal_error)
+			goto error;
+
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "ALTER TABLE Resource_TEMP RENAME TO Resource");
+		if (internal_error)
+			goto error;
+	}
+
 	tracker_db_manager_update_version (manager->db_manager);
 	return TRUE;
+
+error:
+	g_propagate_error (error, internal_error);
+	return FALSE;
 }
 
 static gboolean

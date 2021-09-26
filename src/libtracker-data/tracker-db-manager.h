@@ -54,10 +54,11 @@ typedef enum {
 	TRACKER_DB_VERSION_UNKNOWN = 0,
 	/* Starts at 25 because we forgot to clean up */
 	TRACKER_DB_VERSION_3_0 = 25, /* 3.0 */
+	TRACKER_DB_VERSION_3_3,      /* Blank nodes */
 } TrackerDBVersion;
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_3_0
+#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_3_3
 
 void                tracker_db_manager_rollback_db_creation   (TrackerDBManager *db_manager);
 
