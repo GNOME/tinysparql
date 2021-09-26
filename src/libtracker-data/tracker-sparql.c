@@ -9406,7 +9406,7 @@ translate_BlankNode (TrackerSparql  *sparql,
                      GError        **error)
 {
 	TrackerDBInterface *iface;
-	gint64 bnode_id;
+	gint64 bnode_id = 0;
 	TrackerVariable *var;
 
 	/* BlankNode ::= BLANK_NODE_LABEL | ANON
@@ -9433,38 +9433,37 @@ translate_BlankNode (TrackerSparql  *sparql,
 		        if (sparql->current_state->blank_node_map) {
 			        value = g_hash_table_lookup (sparql->current_state->blank_node_map, str);
 
-			        if (value) {
+			        if (value)
 				        bnode_id = *value;
-			        } else {
-				        bnode_id = tracker_data_generate_bnode (tracker_data_manager_get_data (sparql->data_manager),
-				                                                error);
-				        if (bnode_id == 0)
-					        return FALSE;
-				        value = g_new0 (gint64, 1);
-				        *value = bnode_id;
-				        g_hash_table_insert (sparql->current_state->blank_node_map,
-				                             g_strdup (str), value);
-			        }
-
-			        if (sparql->blank_nodes &&
-			            sparql->current_state->update_blank_nodes &&
-			            !g_hash_table_contains (sparql->current_state->update_blank_nodes, str)) {
-				        gchar *urn;
-
-				        urn = tracker_data_query_resource_urn (sparql->data_manager,
-				                                               iface,
-				                                               bnode_id);
-
-				        g_hash_table_add (sparql->current_state->update_blank_nodes, str);
-				        g_variant_builder_add (sparql->blank_nodes, "{ss}", str, urn);
-				        g_free (urn);
-			        }
-
-			        tracker_token_bnode_init (sparql->current_state->token, bnode_id);
-		        } else {
-			        tracker_token_literal_init (sparql->current_state->token, str, -1);
 		        }
 
+		        if (bnode_id == 0) {
+			        bnode_id = tracker_data_generate_bnode (tracker_data_manager_get_data (sparql->data_manager),
+				                                                error);
+			        if (bnode_id == 0)
+				        return FALSE;
+
+			        value = g_new0 (gint64, 1);
+			        *value = bnode_id;
+			        g_hash_table_insert (sparql->current_state->blank_node_map,
+			                             g_strdup (str), value);
+		        }
+
+		        if (sparql->blank_nodes &&
+		            sparql->current_state->update_blank_nodes &&
+		            !g_hash_table_contains (sparql->current_state->update_blank_nodes, str)) {
+			        gchar *urn;
+
+			        urn = tracker_data_query_resource_urn (sparql->data_manager,
+			                                               iface,
+			                                               bnode_id);
+
+			        g_hash_table_add (sparql->current_state->update_blank_nodes, str);
+			        g_variant_builder_add (sparql->blank_nodes, "{ss}", str, urn);
+			        g_free (urn);
+		        }
+
+		        tracker_token_bnode_init (sparql->current_state->token, bnode_id);
 		        g_free (str);
 	        } else {
 		        g_assert_not_reached ();
