@@ -4112,6 +4112,15 @@ update_interface_cb (TrackerDBManager   *db_manager,
 }
 
 static gboolean
+tracker_data_manager_update_from_version (TrackerDataManager  *manager,
+                                          TrackerDBVersion     version,
+                                          GError             **error)
+{
+	tracker_db_manager_update_version (manager->db_manager);
+	return TRUE;
+}
+
+static gboolean
 tracker_data_manager_initable_init (GInitable     *initable,
                                     GCancellable  *cancellable,
                                     GError       **error)
@@ -4213,6 +4222,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		if (!create_base_tables (manager, iface, error)) {
 			return FALSE;
 		}
+
+		tracker_db_manager_update_version (manager->db_manager);
 
 		for (l = sorted; l; l = l->next) {
 			GError *ontology_error = NULL;
@@ -4372,6 +4383,23 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		GError *n_error = NULL;
 		gboolean transaction_started = FALSE;
 		guint num_parsing_errors = 0;
+		TrackerDBVersion cur_version;
+
+		cur_version = tracker_db_manager_get_version (manager->db_manager);
+
+		if (cur_version < TRACKER_DB_VERSION_NOW) {
+			tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				return FALSE;
+			}
+			transaction_started = TRUE;
+
+			if (!tracker_data_manager_update_from_version (manager,
+			                                               cur_version,
+			                                               error))
+				return FALSE;
+		}
 
 		seen_classes = g_ptr_array_new_with_free_func (g_object_unref);
 		seen_properties = g_ptr_array_new_with_free_func (g_object_unref);
