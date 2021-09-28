@@ -753,6 +753,9 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 	case G_TYPE_DOUBLE:
 		tracker_db_statement_bind_double (stmt, (*idx)++, g_value_get_double (value));
 		break;
+	case G_TYPE_BOOLEAN:
+		tracker_db_statement_bind_int (stmt, (*idx)++, g_value_get_boolean (value));
+		break;
 	default:
 		if (type == G_TYPE_DATE_TIME) {
 			GDateTime *datetime = g_value_get_boxed (value);
@@ -1385,6 +1388,15 @@ value_equal (const GValue *value1,
 	GType type = G_VALUE_TYPE (value1);
 
 	if (type != G_VALUE_TYPE (value2)) {
+		/* Handle booleans specially */
+		if (type == G_TYPE_BOOLEAN && G_VALUE_TYPE (value2) == G_TYPE_INT64) {
+			return (g_value_get_boolean (value1) ==
+			        (g_value_get_int64 (value2) != 0));
+		} else if (type == G_TYPE_INT64 && G_VALUE_TYPE (value2) == G_TYPE_BOOLEAN) {
+			return ((g_value_get_int64 (value1) != 0) ==
+			        g_value_get_boolean (value2));
+		}
+
 		return FALSE;
 	}
 
@@ -1393,6 +1405,8 @@ value_equal (const GValue *value1,
 		return (strcmp (g_value_get_string (value1), g_value_get_string (value2)) == 0);
 	case G_TYPE_INT64:
 		return g_value_get_int64 (value1) == g_value_get_int64 (value2);
+	case G_TYPE_BOOLEAN:
+		return g_value_get_boolean (value1) == g_value_get_boolean (value2);
 	case G_TYPE_DOUBLE:
 		/* does RDF define equality for floating point values? */
 		return g_value_get_double (value1) == g_value_get_double (value2);
@@ -1404,6 +1418,8 @@ value_equal (const GValue *value1,
 			return g_date_time_compare (g_value_get_boxed (value1),
 			                            g_value_get_boxed (value2)) == 0;
 		}
+
+		g_critical ("No conversion for type %s", g_type_name (type));
 		g_assert_not_reached ();
 	}
 }
