@@ -570,6 +570,12 @@ static inline void
 _append_literal_sql (TrackerSparql         *sparql,
                      TrackerLiteralBinding *binding)
 {
+	TrackerDBManager *db_manager;
+	TrackerDBManagerFlags flags;
+
+	db_manager = tracker_data_manager_get_db_manager (sparql->data_manager);
+	flags = tracker_db_manager_get_flags (db_manager, NULL, NULL);
+
 	if (TRACKER_BINDING (binding)->data_type == TRACKER_PROPERTY_TYPE_RESOURCE) {
 		_append_string (sparql,
 		                "COALESCE((SELECT ID FROM Resource WHERE Uri = ");
@@ -586,11 +592,13 @@ _append_literal_sql (TrackerSparql         *sparql,
 
 		_append_string (sparql, "), ");
 
-		_append_string (sparql, "NULLIF(REPLACE(");
-		_append_literal_binding (sparql, binding);
-		_append_string (sparql, ", 'urn:bnode:', ''), ");
-		_append_literal_binding (sparql, binding);
-		_append_string (sparql, "), ");
+		if ((flags & TRACKER_DB_MANAGER_ANONYMOUS_BNODES) == 0) {
+			_append_string (sparql, "NULLIF(REPLACE(");
+			_append_literal_binding (sparql, binding);
+			_append_string (sparql, ", 'urn:bnode:', ''), ");
+			_append_literal_binding (sparql, binding);
+			_append_string (sparql, "), ");
+		}
 
 		_append_string (sparql, "0) ");
 	}

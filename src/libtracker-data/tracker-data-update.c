@@ -685,6 +685,8 @@ tracker_data_update_ensure_resource (TrackerData  *data,
                                      const gchar  *uri,
                                      GError      **error)
 {
+	TrackerDBManager *db_manager;
+	TrackerDBManagerFlags db_flags;
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt = NULL;
 	GError *inner_error = NULL;
@@ -695,6 +697,18 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 
 	if (value != NULL) {
 		return *value;
+	}
+
+	db_manager = tracker_data_manager_get_db_manager (data->manager);
+	db_flags = tracker_db_manager_get_flags (db_manager, NULL, NULL);
+
+	if ((db_flags & TRACKER_DB_MANAGER_ANONYMOUS_BNODES) == 0 &&
+	    g_str_has_prefix (uri, "urn:bnode:")) {
+		gchar *end;
+
+		id = g_ascii_strtoll (&uri[strlen ("urn:bnode:")], &end, 10);
+		if (id != 0 && end == &uri[strlen (uri)])
+			return id;
 	}
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
