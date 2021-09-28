@@ -157,6 +157,7 @@ static gboolean update_resource_single (TrackerData      *data,
                                         TrackerResource  *resource,
                                         GHashTable       *visited,
                                         GHashTable       *bnodes,
+                                        gint64           *id,
                                         GError          **error);
 
 void tracker_data_insert_statement_with_uri    (TrackerData      *data,
@@ -1671,16 +1672,14 @@ get_old_property_values (TrackerData      *data,
 }
 
 static gint64
-get_bnode_for_resource (GHashTable       *bnodes,
-                        TrackerData      *data,
-                        TrackerResource  *resource,
-                        GError          **error)
+get_bnode_id (GHashTable       *bnodes,
+	      TrackerData      *data,
+              const gchar      *str,
+              GError          **error)
 {
-	const gchar *identifier;
 	gint64 *value, bnode_id;
 
-	identifier = tracker_resource_get_identifier (resource);
-	value = g_hash_table_lookup (bnodes, identifier);
+	value = g_hash_table_lookup (bnodes, str);
 	if (value)
 		return *value;
 
@@ -1690,9 +1689,22 @@ get_bnode_for_resource (GHashTable       *bnodes,
 
 	value = g_new0 (gint64, 1);
 	*value = bnode_id;
-	g_hash_table_insert (bnodes, g_strdup (identifier), value);
+	g_hash_table_insert (bnodes, g_strdup (str), value);
 
 	return bnode_id;
+}
+
+static gint64
+get_bnode_for_resource (GHashTable       *bnodes,
+                        TrackerData      *data,
+                        TrackerResource  *resource,
+                        GError          **error)
+{
+	const gchar *identifier;
+
+	identifier = tracker_resource_get_identifier (resource);
+
+	return get_bnode_id (bnodes, data, identifier, error);
 }
 
 static gboolean
@@ -2467,18 +2479,10 @@ tracker_data_insert_statement_with_uri (TrackerData      *data,
 
 	if (predicate == tracker_ontologies_get_rdf_type (ontologies)) {
 		gchar *object_str = NULL;
+		gint64 object_id;
 
-		if (G_VALUE_HOLDS_INT64 (object)) {
-			gint64 object_id;
-
-			object_id = g_value_get_int64 (object);
-			object_str = g_strdup (tracker_ontologies_get_uri_by_id (ontologies, object_id));
-		} else {
-			tracker_data_manager_expand_prefix (data->manager,
-			                                    g_value_get_string (object),
-			                                    NULL, NULL,
-			                                    &object_str);
-		}
+		object_id = g_value_get_int64 (object);
+		object_str = g_strdup (tracker_ontologies_get_uri_by_id (ontologies, object_id));
 
 		/* handle rdf:type statements specially to
 		   cope with inference and insert blank rows */
@@ -3017,23 +3021,60 @@ update_resource_property (TrackerData      *data,
 	}
 
 	for (v = values; v && !inner_error; v = v->next) {
+		GValue *value, free_me = G_VALUE_INIT;
+		gint64 id;
+
 		if (G_VALUE_HOLDS (v->data, TRACKER_TYPE_RESOURCE)) {
-			update_resource_single (data,
-			                        graph_uri,
-			                        g_value_get_object (v->data),
-			                        visited,
-			                        bnodes,
-			                        &inner_error);
-			if (inner_error)
+
+			if (!update_resource_single (data,
+			                             graph_uri,
+			                             g_value_get_object (v->data),
+			                             visited,
+			                             bnodes,
+			                             &id,
+			                             &inner_error))
 				break;
+
+			g_value_init (&free_me, G_TYPE_INT64);
+			g_value_set_int64 (&free_me, id);
+			value = &free_me;
+		} else if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE &&
+		           g_type_is_a (G_VALUE_TYPE (v->data), G_TYPE_STRING)) {
+			gchar *object_str;
+
+			tracker_data_manager_expand_prefix (data->manager,
+			                                    g_value_get_string (v->data),
+			                                    NULL, NULL,
+			                                    &object_str);
+
+			if (g_str_has_prefix (object_str, "_:")) {
+				id = get_bnode_id (bnodes, data, object_str, error);
+				if (inner_error)
+					break;
+
+				g_value_init (&free_me, G_TYPE_INT64);
+				g_value_set_int64 (&free_me, id);
+			} else if (!tracker_data_query_string_to_value (data->manager,
+			                                                object_str,
+			                                                NULL,
+			                                                tracker_property_get_data_type (predicate),
+			                                                &free_me,
+			                                                &inner_error)) {
+				break;
+			}
+
+			value = &free_me;
+		} else {
+			value = v->data;
 		}
 
 		tracker_data_insert_statement (data,
 		                               graph_uri,
 		                               subject,
 		                               predicate,
-		                               v->data,
+		                               value,
 		                               &inner_error);
+		g_value_unset (&free_me);
 	}
 
 	g_list_free (values);
@@ -3053,6 +3094,7 @@ update_resource_single (TrackerData      *data,
                         TrackerResource  *resource,
                         GHashTable       *visited,
                         GHashTable       *bnodes,
+                        gint64           *id,
                         GError          **error)
 {
 	GList *properties, *l;
@@ -3151,6 +3193,9 @@ out:
 		return FALSE;
 	}
 
+	if (id)
+		*id = subject;
+
 	return TRUE;
 }
 
@@ -3171,7 +3216,7 @@ tracker_data_update_resource (TrackerData      *data,
 	else
 		bnodes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 
-	retval = update_resource_single (data, graph, resource, visited, bnodes, error);
+	retval = update_resource_single (data, graph, resource, visited, bnodes, NULL, error);
 
 	g_hash_table_unref (visited);
 	g_hash_table_unref (bnodes);
