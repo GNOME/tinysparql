@@ -39,8 +39,111 @@ const TestInfo tests[] = {
 	{ "ontology-error/unknown-prefix-001" },
 	{ "ontology-error/unknown-prefix-002" },
 	{ "ontology-error/unknown-prefix-003" },
+	{ "ontology-error/incomplete-property-001" },
+	{ "ontology-error/parsing-errors-001" },
 	{ NULL }
 };
+
+GString *recorded_error_msgs;
+GPrintFunc old_printerr_handler;
+
+static void
+printerr_handler (const gchar *string)
+{
+	gchar *error_msg = g_strdup (string);
+	g_strstrip (error_msg);
+
+	if (recorded_error_msgs->len)
+		g_string_append (recorded_error_msgs, "~\n");
+
+	g_string_append_printf (recorded_error_msgs, "%s\n", error_msg);
+	g_free (error_msg);
+}
+
+static void
+record_printed_errors ()
+{
+	recorded_error_msgs = g_string_new ("");
+	old_printerr_handler = g_set_printerr_handler (printerr_handler);
+}
+
+static void
+stop_error_recording (gchar **printed_error_msgs)
+{
+	g_set_printerr_handler (old_printerr_handler);
+
+	*printed_error_msgs = recorded_error_msgs->str;
+	g_string_free (recorded_error_msgs, FALSE);
+}
+
+static gchar*
+load_error_msgs (gchar *errors_path, gchar *ontology_path)
+{
+	GError *error = NULL;
+	gchar *raw_errors = NULL, *error_msg;
+	GString *prefixed_errors = NULL;
+	gchar *ret;
+	GFile *ontology_file = g_file_new_for_path (ontology_path);
+	gchar *ontology_uri = g_file_get_uri (ontology_file);
+
+	g_file_get_contents (errors_path, &raw_errors, NULL, &error);
+	g_assert_no_error (error);
+
+	error_msg = strtok (raw_errors, "~");
+	while (error_msg) {
+		if (!prefixed_errors) {
+			prefixed_errors = g_string_new ("");
+		} else {
+			g_string_append (prefixed_errors, "~\n");
+		}
+
+		g_strstrip (error_msg);
+		g_string_append_printf (prefixed_errors, "parsing-error: %s:%s\n",
+		                        ontology_uri, error_msg);
+		error_msg = strtok (NULL, "~");
+	}
+
+	ret = prefixed_errors->str;
+
+	g_string_free (prefixed_errors, FALSE);
+	g_free (raw_errors);
+	g_object_unref (ontology_file);
+	g_free (ontology_uri);
+	return ret;
+}
+
+static void
+assert_same_output (gchar *output1, gchar* output2)
+{
+	GError *error = NULL;
+	gchar *quoted_output1, *quoted_output2;
+	gchar *command_line;
+	gchar *quoted_command_line;
+	gchar *shell;
+	gchar *diff;
+
+	if (strcmp (output1, output2) == 0)
+		return;
+
+	/* print result difference */
+	quoted_output1 = g_shell_quote (output1);
+	quoted_output2 = g_shell_quote (output2);
+
+	command_line = g_strdup_printf ("diff -u <(echo %s) <(echo %s)", quoted_output1, quoted_output2);
+	quoted_command_line = g_shell_quote (command_line);
+	shell = g_strdup_printf ("bash -c %s", quoted_command_line);
+	g_spawn_command_line_sync (shell, &diff, NULL, NULL, &error);
+	g_assert_no_error (error);
+
+	g_error ("%s", diff);
+
+	g_free (quoted_output1);
+	g_free (quoted_output2);
+	g_free (command_line);
+	g_free (quoted_command_line);
+	g_free (shell);
+	g_free (diff);
+}
 
 static void
 ontology_error_helper (GFile *ontology_location, char *error_path)
@@ -49,6 +152,8 @@ ontology_error_helper (GFile *ontology_location, char *error_path)
 	gchar *error_msg = NULL;
 	GError* error = NULL;
 	GError* ontology_error = NULL;
+	GMatchInfo *matchInfo;
+	GRegex *regex;
 
 	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_IN_MEMORY,
 	                                    NULL, ontology_location,
@@ -58,8 +163,16 @@ ontology_error_helper (GFile *ontology_location, char *error_path)
 
 	g_file_get_contents (error_path, &error_msg, NULL, &error);
 	g_assert_no_error (error);
-	g_assert_cmpstr (ontology_error->message, ==, error_msg);
 
+	regex = g_regex_new (error_msg, 0, 0, &error);
+	g_regex_match (regex, ontology_error->message, 0, &matchInfo);
+
+	if (!g_match_info_matches (matchInfo))
+		g_error ("Error Message: %s doesn't match the regular expression: %s",
+		         ontology_error->message, error_msg);
+
+	g_regex_unref (regex);
+	g_match_info_unref (matchInfo);
 	g_error_free (ontology_error);
 	g_free (error_msg);
 	g_object_unref (manager);
@@ -94,8 +207,11 @@ test_ontology_error (void)
 		gchar *source_ontology_filename = g_strconcat (tests[i].test_name, ".ontology", NULL);
 		gchar *source_ontology_path = g_build_path (G_DIR_SEPARATOR_S, prefix, source_ontology_filename, NULL);
 		gchar *error_filename = g_strconcat (tests[i].test_name, ".out", NULL);
+		gchar *errors_filename = g_strconcat (tests[i].test_name, ".errors.out", NULL);
 		gchar *error_path = g_build_path (G_DIR_SEPARATOR_S, prefix, error_filename, NULL);
+		gchar *errors_path = g_build_path (G_DIR_SEPARATOR_S, prefix, errors_filename, NULL);
 		gchar *from, *to;
+		gchar *expected_error_msgs = "", *printed_error_msgs;
 
 		source_ontology_file = g_file_new_for_path (source_ontology_path);
 
@@ -103,7 +219,6 @@ test_ontology_error (void)
 		to = g_file_get_path (test_ontology_file);
 		g_debug ("copy %s to %s", from, to);
 		g_free (from);
-		g_free (to);
 
 		// Copy the ontology to the temporary ontologies directory
 		g_file_copy (source_ontology_file, test_ontology_file, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
@@ -111,12 +226,24 @@ test_ontology_error (void)
 		g_assert_no_error (error);
 		g_assert_cmpint (g_chmod (test_ontology_path, 0666), ==, 0);
 
-		ontology_error_helper (test_schemas, error_path);
+		/* The error messages are prefixed with the ontology path which contain the error
+		 * So, it needs the ontology path to prefix the expected error messages with it */
+		if (g_file_test (errors_path, G_FILE_TEST_EXISTS))
+			expected_error_msgs = load_error_msgs (errors_path, to);
 
+		record_printed_errors ();
+		ontology_error_helper (test_schemas, error_path);
+		stop_error_recording (&printed_error_msgs);
+
+		assert_same_output (expected_error_msgs, printed_error_msgs);
+
+		g_free (to);
 		g_free (source_ontology_filename);
 		g_free (source_ontology_path);
 		g_free (error_filename);
+		g_free (errors_filename);
 		g_free (error_path);
+		g_free (errors_path);
 		g_object_unref (source_ontology_file);
 	}
 

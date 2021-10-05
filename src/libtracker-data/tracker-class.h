@@ -63,6 +63,10 @@ TrackerProperty **tracker_class_get_domain_indexes     (TrackerClass        *ser
 TrackerProperty **tracker_class_get_last_domain_indexes(TrackerClass        *service);
 TrackerClass    **tracker_class_get_last_super_classes (TrackerClass        *service);
 
+const gchar *     tracker_class_get_ontology_path        (TrackerClass      *service);
+goffset           tracker_class_get_definition_line_no   (TrackerClass      *service);
+goffset           tracker_class_get_definition_column_no (TrackerClass      *service);
+
 void              tracker_class_set_uri                (TrackerClass        *service,
                                                         const gchar         *value);
 void              tracker_class_add_super_class        (TrackerClass        *service,
@@ -85,6 +89,12 @@ void              tracker_class_set_notify             (TrackerClass        *ser
 void              tracker_class_set_ontologies         (TrackerClass        *class,
                                                         TrackerOntologies   *ontologies);
 
+void              tracker_class_set_ontology_path        (TrackerClass      *service,
+                                                          const gchar       *value);
+void              tracker_class_set_definition_line_no   (TrackerClass      *service,
+                                                          goffset            value);
+void              tracker_class_set_definition_column_no (TrackerClass      *service,
+                                                          goffset            value);
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DATA_CLASS_H__ */

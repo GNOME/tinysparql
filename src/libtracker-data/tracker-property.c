@@ -86,6 +86,10 @@ struct _TrackerPropertyPrivate {
 	guint          cardinality_changed : 1;
 	guint          orig_multiple_values : 1;
 
+	gchar         *ontology_path;
+	goffset        definition_line_no;
+	goffset        definition_column_no;
+
 	TrackerProperty *secondary_index;
 	GPtrArray     *is_new_domain_index;
 
@@ -190,6 +194,10 @@ property_finalize (GObject *object)
 
 	if (priv->range) {
 		g_object_unref (priv->range);
+	}
+
+	if (priv->ontology_path) {
+		g_free (priv->ontology_path);
 	}
 
 	if (priv->secondary_index) {
@@ -637,6 +645,42 @@ tracker_property_get_orig_multiple_values (TrackerProperty *property)
 	return priv->orig_multiple_values;
 }
 
+const gchar *
+tracker_property_get_ontology_path (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
+
+	priv = tracker_property_get_instance_private (property);
+
+	return priv->ontology_path;
+}
+
+goffset
+tracker_property_get_definition_line_no (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
+
+	priv = tracker_property_get_instance_private (property);
+
+	return priv->definition_line_no;
+}
+
+goffset
+tracker_property_get_definition_column_no (TrackerProperty *property)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_PROPERTY (property), FALSE);
+
+	priv = tracker_property_get_instance_private (property);
+
+	return priv->definition_column_no;
+}
+
 gboolean
 tracker_property_get_is_inverse_functional_property (TrackerProperty *property)
 {
@@ -1023,6 +1067,47 @@ tracker_property_set_orig_multiple_values (TrackerProperty *property,
 	priv->orig_multiple_values = !!value;
 }
 
+void
+tracker_property_set_ontology_path (TrackerProperty *property,
+                                    const gchar     *value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = tracker_property_get_instance_private (property);
+
+	if (priv->ontology_path)
+		g_free (priv->ontology_path);
+
+	priv->ontology_path = g_strdup (value);
+}
+
+void
+tracker_property_set_definition_line_no (TrackerProperty *property,
+                                         goffset          value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = tracker_property_get_instance_private (property);
+
+	priv->definition_line_no = value;
+}
+
+void
+tracker_property_set_definition_column_no (TrackerProperty *property,
+                                           goffset          value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = tracker_property_get_instance_private (property);
+
+	priv->definition_column_no = value;
+}
 
 void
 tracker_property_set_is_inverse_functional_property (TrackerProperty *property,

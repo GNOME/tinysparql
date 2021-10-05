@@ -1,0 +1,13 @@
+22:29: Unknown class http://www.w3.org/2001/XMLSchema#datetime
+~
+32:47: Unknown property http://example.org/ns#not_exist
+~
+42:23: Unknown class http://example.org/ns#a
+~
+48:41: Property http://example.org/ns#a_n_cardinality has multiple values while trying to add it as nrl:domainIndex in http://example.org/ns#C, this isn't supported
+~
+49:27: Unknown class http://example.org/ns#a
+~
+55:43: Unknown property http://example.org/ns#a_superprop_n
+~
+56:32: Unknown class http://example.org/ns#not_exist

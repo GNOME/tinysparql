@@ -40,6 +40,8 @@ gboolean tracker_turtle_reader_next (TrackerTurtleReader  *reader,
                                      const gchar         **object,
                                      const gchar         **object_lang,
                                      gboolean             *object_is_uri,
+                                     goffset              *last_parsed_line_no,
+                                     goffset              *last_parsed_column_no,
                                      GError              **error);
 
 GHashTable *tracker_turtle_reader_get_prefixes (TrackerTurtleReader *reader);

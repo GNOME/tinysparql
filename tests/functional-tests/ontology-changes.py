@@ -682,13 +682,13 @@ class DomainIndexAddTest (OntologyChangeTestTemplate):
         self.tracker.update ("""
             INSERT { <%s> a test:B ;
                         test:a_string 'test-value' ;
-                        test:a_n_cardinality 'another-test-value'. }""" % (self.instance_a))
+                        test:a_int 5. }""" % (self.instance_a))
 
         self.instance_b = "test://ontology-changes/properties/add-domain-index/b"
         self.tracker.update ("""
             INSERT { <%s> a test:C ;
                         test:a_string 'test-value' ;
-                        test:a_n_cardinality 'another-test-value'. }""" % (self.instance_b))
+                        test:a_int 6. }""" % (self.instance_b))
 
     def validate_status(self):
         # Check the ontology
@@ -697,7 +697,7 @@ class DomainIndexAddTest (OntologyChangeTestTemplate):
         self.assertTrue(has_domainIndex)
 
         has_domainIndex = self.tracker.ask(
-            "ASK { test:C nrl:domainIndex test:a_n_cardinality }")
+            "ASK { test:C nrl:domainIndex test:a_int }")
         self.assertTrue(has_domainIndex)
 
         # Check the data
@@ -706,7 +706,7 @@ class DomainIndexAddTest (OntologyChangeTestTemplate):
         self.assertTrue(dataok)
 
         dataok = self.tracker.ask(
-            "ASK { <%s> test:a_n_cardinality 'another-test-value' }" % (self.instance_b))
+            "ASK { <%s> test:a_int 6 }" % (self.instance_b))
         self.assertTrue(dataok)
 
 

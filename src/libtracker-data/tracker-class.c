@@ -40,6 +40,10 @@ struct _TrackerClassPrivate {
 	guint notify : 1;
 	guint use_gvdb : 1;
 
+	gchar *ontology_path;
+	goffset definition_line_no;
+	goffset definition_column_no;
+
 	GMutex mutex;
 
 	GArray *super_classes;
@@ -89,6 +93,10 @@ class_finalize (GObject *object)
 
 	g_array_free (priv->super_classes, TRUE);
 	g_array_free (priv->domain_indexes, TRUE);
+
+	if (priv->ontology_path) {
+		g_free (priv->ontology_path);
+	}
 
 	if (priv->last_domain_indexes) {
 		g_array_free (priv->last_domain_indexes, TRUE);
@@ -278,6 +286,42 @@ tracker_class_get_db_schema_changed (TrackerClass *service)
 	priv = tracker_class_get_instance_private (service);
 
 	return priv->db_schema_changed;
+}
+
+const gchar *
+tracker_class_get_ontology_path (TrackerClass *service)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
+
+	priv = tracker_class_get_instance_private (service);
+
+	return priv->ontology_path;
+}
+
+goffset
+tracker_class_get_definition_line_no (TrackerClass *service)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
+
+	priv = tracker_class_get_instance_private (service);
+
+	return priv->definition_line_no;
+}
+
+goffset
+tracker_class_get_definition_column_no (TrackerClass *service)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
+
+	priv = tracker_class_get_instance_private (service);
+
+	return priv->definition_column_no;
 }
 
 void
@@ -470,4 +514,46 @@ tracker_class_set_ontologies (TrackerClass      *class,
 
 	priv = tracker_class_get_instance_private (class);
 	priv->ontologies = ontologies;
+}
+
+void
+tracker_class_set_ontology_path (TrackerClass *service,
+                                 const gchar  *value)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+
+	priv = tracker_class_get_instance_private (service);
+
+	if (priv->ontology_path)
+		g_free (priv->ontology_path);
+
+	priv->ontology_path = g_strdup (value);
+}
+
+void
+tracker_class_set_definition_line_no (TrackerClass *service,
+                                      goffset       value)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+
+	priv = tracker_class_get_instance_private (service);
+
+	priv->definition_line_no = value;
+}
+
+void
+tracker_class_set_definition_column_no (TrackerClass *service,
+                                        goffset       value)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_CLASS (service));
+
+	priv = tracker_class_get_instance_private (service);
+
+	priv->definition_column_no = value;
 }

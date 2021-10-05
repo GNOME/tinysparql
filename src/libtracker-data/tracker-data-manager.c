@@ -143,6 +143,8 @@ static void tracker_data_manager_initable_iface_init (GInitableIface *iface);
 G_DEFINE_TYPE_WITH_CODE (TrackerDataManager, tracker_data_manager, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, tracker_data_manager_initable_iface_init))
 
+#define print_parsing_err(format, ...) g_printerr ("\nparsing-error: " format "\n", __VA_ARGS__)
+
 static void
 tracker_data_manager_init (TrackerDataManager *manager)
 {
@@ -217,20 +219,33 @@ tracker_data_manager_get_graphs (TrackerDataManager *manager,
 static void
 handle_unsupported_ontology_change (TrackerDataManager  *manager,
                                     const gchar         *ontology_path,
+                                    goffset              stmt_line_no,
+                                    goffset              stmt_column_no,
                                     const gchar         *subject,
                                     const gchar         *change,
                                     const gchar         *old,
                                     const gchar         *attempted_new,
                                     GError             **error)
 {
+	gchar *stmt_location;
+
+	if (ontology_path == NULL)
+		stmt_location = g_strdup ("");
+	else if (stmt_line_no == -1 || stmt_column_no == -1)
+		stmt_location = g_strdup_printf ("%s: ", ontology_path);
+	else
+		stmt_location = g_strdup_printf ("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
+		                                 ontology_path, stmt_line_no, stmt_column_no);
+
 	g_set_error (error, TRACKER_DATA_ONTOLOGY_ERROR,
 	             TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE,
-	             "%s: Unsupported ontology change for %s: can't change %s (old=%s, attempted new=%s)",
-	             ontology_path != NULL ? ontology_path : "Unknown",
+	             "%sUnsupported ontology change for %s: can't change %s (old=%s, attempted new=%s)",
+	             stmt_location,
 	             subject != NULL ? subject : "Unknown",
 	             change != NULL ? change : "Unknown",
 	             old != NULL ? old : "Unknown",
 	             attempted_new != NULL ? attempted_new : "Unknown");
+	g_free (stmt_location);
 }
 
 static void
@@ -243,9 +258,9 @@ set_secondary_index_for_single_value_property (TrackerDBInterface  *iface,
                                                GError             **error)
 {
 	GError *internal_error = NULL;
-        const gchar *class_name = tracker_class_get_name (class);
-        const gchar *property_name = tracker_property_get_name (property);
-        const gchar *secondary_name = tracker_property_get_name (secondary);
+	const gchar *class_name = tracker_class_get_name (class);
+	const gchar *property_name = tracker_property_get_name (property);
+	const gchar *secondary_name = tracker_property_get_name (secondary);
 
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
 	              g_message ("Dropping secondary index (single-value property):  "
@@ -477,7 +492,6 @@ is_allowed_conversion (const gchar *oldv,
 
 static gboolean
 update_property_value (TrackerDataManager  *manager,
-                       const gchar         *ontology_path,
                        const gchar         *kind,
                        const gchar         *subject,
                        const gchar         *predicate,
@@ -491,11 +505,20 @@ update_property_value (TrackerDataManager  *manager,
 	gboolean needed = TRUE;
 	gboolean is_new = FALSE;
 	GBytes *bytes;
+	const gchar *ontology_path = NULL;
+	goffset line_no = -1;
+	goffset column_no = -1;
 
 	if (class) {
 		is_new = tracker_class_get_is_new (class);
+		ontology_path = tracker_class_get_ontology_path (class);
+		line_no = tracker_class_get_definition_line_no (class);
+		column_no = tracker_class_get_definition_column_no (class);
 	} else if (property) {
 		is_new = tracker_property_get_is_new (property);
+		ontology_path = tracker_property_get_ontology_path (property);
+		line_no = tracker_property_get_definition_line_no (property);
+		column_no = tracker_property_get_definition_column_no (property);
 	}
 
 	if (!is_new) {
@@ -503,7 +526,7 @@ update_property_value (TrackerDataManager  *manager,
 		TrackerDBCursor *cursor;
 
 		query = g_strdup_printf ("SELECT ?old_value WHERE { "
-		                           "<%s> %s ?old_value "
+		                         "<%s> %s ?old_value "
 		                         "}", subject, kind);
 
 		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
@@ -521,6 +544,8 @@ update_property_value (TrackerDataManager  *manager,
 				if (allowed && !is_allowed_conversion (str, object, allowed)) {
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
+					                                    line_no,
+					                                    column_no,
 					                                    subject,
 					                                    kind,
 					                                    str,
@@ -577,7 +602,6 @@ update_property_value (TrackerDataManager  *manager,
 
 static void
 check_range_conversion_is_allowed (TrackerDataManager  *manager,
-                                   const gchar         *ontology_path,
                                    const gchar         *subject,
                                    const gchar         *predicate,
                                    const gchar         *object,
@@ -587,7 +611,7 @@ check_range_conversion_is_allowed (TrackerDataManager  *manager,
 	gchar *query;
 
 	query = g_strdup_printf ("SELECT ?old_value WHERE { "
-	                           "<%s> rdfs:range ?old_value "
+	                         "<%s> rdfs:range ?old_value "
 	                         "}", subject);
 
 	cursor = tracker_data_query_sparql_cursor (manager, query, NULL);
@@ -602,7 +626,9 @@ check_range_conversion_is_allowed (TrackerDataManager  *manager,
 		if (g_strcmp0 (object, str) != 0) {
 			if (!is_allowed_conversion (str, object, allowed_range_conversions)) {
 				handle_unsupported_ontology_change (manager,
-				                                    ontology_path,
+				                                    NULL,
+				                                    -1,
+				                                    -1,
 				                                    subject,
 				                                    "rdfs:range",
 				                                    str,
@@ -618,6 +644,82 @@ check_range_conversion_is_allowed (TrackerDataManager  *manager,
 }
 
 static void
+check_max_cardinality_change_is_allowed (TrackerDataManager  *manager,
+                                         const gchar         *subject,
+                                         const gchar         *predicate,
+                                         const gchar         *object,
+                                         GError             **error)
+{
+	TrackerDBCursor *cursor;
+	gchar *query;
+	gint new_max_cardinality = atoi (object);
+	gboolean unsupported = FALSE;
+
+	query = g_strdup_printf ("SELECT ?old_value WHERE { "
+	                         "<%s> nrl:maxCardinality ?old_value "
+	                         "}", subject);
+
+	cursor = tracker_data_query_sparql_cursor (manager, query, NULL);
+
+	g_free (query);
+
+	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+		const gchar *orig_object = tracker_db_cursor_get_string (cursor, 0, NULL);
+		gint orig_max_cardinality;
+
+		orig_max_cardinality = atoi (orig_object);
+
+		// If nrl:maxCardinality != 1, then the property support multiple values
+		if (new_max_cardinality == 1 && orig_max_cardinality != 1)
+			unsupported = TRUE;
+
+		g_object_unref (cursor);
+	} else {
+		/* nrl:maxCardinality not set
+		   by default it allows multiple values */
+		if (new_max_cardinality == 1)
+			unsupported = TRUE;
+	}
+
+	if (unsupported) {
+		handle_unsupported_ontology_change (manager,
+		                                    NULL,
+		                                    -1,
+		                                    -1,
+		                                    subject,
+		                                    "nrl:maxCardinality",
+		                                    "N",
+		                                    object,
+		                                    error);
+	}
+}
+
+static void
+ensure_inverse_functional_property (TrackerDataManager  *manager,
+                                    const gchar         *property_uri,
+                                    GError             **error)
+{
+	TrackerDBCursor *cursor;
+	gchar *query;
+
+	query = g_strdup_printf ("ASK { <%s> a nrl:InverseFunctionalProperty }", property_uri);
+	cursor = tracker_data_query_sparql_cursor (manager, query, NULL);
+	g_free (query);
+
+	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+		if (!tracker_db_cursor_get_int (cursor, 0)) {
+			handle_unsupported_ontology_change (manager,
+			                                    NULL, -1, -1,
+			                                    property_uri,
+			                                    "nrl:InverseFunctionalProperty", "-", "-",
+			                                    error);
+		}
+
+		g_object_unref (cursor);
+	}
+}
+
+static void
 fix_indexed_on_db (TrackerDataManager  *manager,
                    const gchar         *database,
                    TrackerProperty     *property,
@@ -628,7 +730,7 @@ fix_indexed_on_db (TrackerDataManager  *manager,
 	TrackerClass *class;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
-        class = tracker_property_get_domain (property);
+	class = tracker_property_get_domain (property);
 
 	if (tracker_property_get_multiple_values (property)) {
 		set_index_for_multi_value_property (iface, database, class, property, &internal_error);
@@ -701,13 +803,19 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
                                       const gchar         *subject,
                                       const gchar         *predicate,
                                       const gchar         *object,
+                                      goffset              object_line_no,
+                                      goffset              object_column_no,
                                       gboolean             in_update,
-                                      GHashTable          *classes,
-                                      GHashTable          *properties,
+                                      gboolean            *loaded_successfully,
                                       GPtrArray           *seen_classes,
                                       GPtrArray           *seen_properties,
                                       GError             **error)
 {
+	gchar *object_location = g_strdup_printf("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT,
+	                                         ontology_path, object_line_no, object_column_no);
+
+	*loaded_successfully = TRUE;
+
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
 			TrackerClass *class;
@@ -719,38 +827,41 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				if (seen_classes)
 					g_ptr_array_add (seen_classes, g_object_ref (class));
 				if (!in_update) {
-					g_critical ("%s: Duplicate definition of class %s", ontology_path, subject);
+					print_parsing_err ("%s: Duplicate definition of class %s", object_location, subject);
 				} else {
 					/* Reset for a correct post-check */
 					tracker_class_reset_domain_indexes (class);
 					tracker_class_reset_super_classes (class);
 					tracker_class_set_notify (class, FALSE);
+					tracker_class_set_ontology_path (class, ontology_path);
+					tracker_class_set_definition_line_no (class, object_line_no);
+					tracker_class_set_definition_column_no (class, object_column_no);
 				}
-				return;
+				goto out;
 			}
 
 			subject_id = tracker_data_update_ensure_resource (manager->data_update,
 			                                                  subject, NULL, error);
-			if (!subject_id)
-				return;
+			if (!subject_id) {
+				g_prefix_error (error, "%s:", object_location);
+				goto fail;
+			}
 
 			class = tracker_class_new (FALSE);
 			tracker_class_set_ontologies (class, manager->ontologies);
 			tracker_class_set_is_new (class, in_update);
 			tracker_class_set_uri (class, subject);
 			tracker_class_set_id (class, subject_id);
+			tracker_class_set_ontology_path (class, ontology_path);
+			tracker_class_set_definition_line_no (class, object_line_no);
+			tracker_class_set_definition_column_no (class, object_column_no);
 			tracker_ontologies_add_class (manager->ontologies, class);
 			tracker_ontologies_add_id_uri_pair (manager->ontologies, subject_id, subject);
 
 			if (seen_classes)
 				g_ptr_array_add (seen_classes, g_object_ref (class));
 
-			if (classes) {
-				g_hash_table_insert (classes, GINT_TO_POINTER (subject_id), class);
-			} else {
-				g_object_unref (class);
-			}
-
+			g_object_unref (class);
 		} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
 			TrackerProperty *property;
 			gint subject_id;
@@ -760,7 +871,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				if (seen_properties)
 					g_ptr_array_add (seen_properties, g_object_ref (property));
 				if (!in_update) {
-					g_critical ("%s: Duplicate definition of property %s", ontology_path, subject);
+					print_parsing_err ("%s: Duplicate definition of property %s", object_location, subject);
 				} else {
 					/* Reset for a correct post and pre-check */
 					tracker_property_set_last_multiple_values (property, TRUE);
@@ -772,15 +883,20 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 					tracker_property_set_is_inverse_functional_property (property, FALSE);
 					tracker_property_set_multiple_values (property, TRUE);
 					tracker_property_set_fulltext_indexed (property, FALSE);
+					tracker_property_set_ontology_path (property, ontology_path);
+					tracker_property_set_definition_line_no (property, object_line_no);
+					tracker_property_set_definition_column_no (property, object_column_no);
 				}
-				return;
+				goto out;
 			}
 
 			subject_id = tracker_data_update_ensure_resource (manager->data_update,
 			                                                  subject,
 			                                                  NULL, error);
-			if (!subject_id)
-				return;
+			if (!subject_id) {
+				g_prefix_error (error, "%s:", object_location);
+				goto fail;
+			}
 
 			property = tracker_property_new (FALSE);
 			tracker_property_set_ontologies (property, manager->ontologies);
@@ -788,25 +904,44 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			tracker_property_set_uri (property, subject);
 			tracker_property_set_id (property, subject_id);
 			tracker_property_set_multiple_values (property, TRUE);
+			tracker_property_set_ontology_path (property, ontology_path);
+			tracker_property_set_definition_line_no (property, object_line_no);
+			tracker_property_set_definition_column_no (property, object_column_no);
 			tracker_ontologies_add_property (manager->ontologies, property);
 			tracker_ontologies_add_id_uri_pair (manager->ontologies, subject_id, subject);
 
 			if (seen_properties)
 				g_ptr_array_add (seen_properties, g_object_ref (property));
 
-			if (properties) {
-				g_hash_table_insert (properties, GINT_TO_POINTER (subject_id), property);
-			} else {
-				g_object_unref (property);
-			}
-
+			g_object_unref (property);
 		} else if (g_strcmp0 (object, NRL_INVERSE_FUNCTIONAL_PROPERTY) == 0) {
 			TrackerProperty *property;
 
 			property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 			if (property == NULL) {
-				g_critical ("%s: Unknown property %s", ontology_path, subject);
-				return;
+				print_parsing_err ("%s: Unknown property %s", object_location, subject);
+				goto fail;
+			}
+
+			if (in_update) {
+				GError *err = NULL;
+
+				if (tracker_property_get_is_new (property)) {
+					const gchar* property_uri = tracker_property_get_uri (property);
+
+					g_set_error (&err,
+					             TRACKER_SPARQL_ERROR,
+					             TRACKER_SPARQL_ERROR_UNSUPPORTED,
+					             "Unsupported adding the new inverse functional property: %s",
+					             property_uri);
+				} else {
+					ensure_inverse_functional_property (manager, subject, &err);
+				}
+
+				if (err) {
+					g_propagate_prefixed_error (error, err, "%s: ", object_location);
+					goto fail;
+				}
 			}
 
 			tracker_property_set_is_inverse_functional_property (property, TRUE);
@@ -815,8 +950,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 			if (tracker_ontologies_get_namespace_by_uri (manager->ontologies, subject) != NULL) {
 				if (!in_update)
-					g_critical ("%s: Duplicate definition of namespace %s", ontology_path, subject);
-				return;
+					print_parsing_err ("%s: Duplicate definition of namespace %s", object_location, subject);
+				goto out;
 			}
 
 			namespace = tracker_namespace_new (FALSE);
@@ -831,8 +966,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 			if (tracker_ontologies_get_ontology_by_uri (manager->ontologies, subject) != NULL) {
 				if (!in_update)
-					g_critical ("%s: Duplicate definition of ontology %s", ontology_path, subject);
-				return;
+					print_parsing_err ("%s: Duplicate definition of ontology %s", object_location, subject);
+				goto out;
 			}
 
 			ontology = tracker_ontology_new ();
@@ -849,8 +984,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		class = tracker_ontologies_get_class_by_uri (manager->ontologies, subject);
 		if (class == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown class %s", object_location, subject);
+			goto fail;
 		}
 
 		is_new = tracker_class_get_is_new (class);
@@ -863,8 +998,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 				super_class = tracker_ontologies_get_class_by_uri (manager->ontologies, object);
 				if (super_class == NULL) {
-					g_critical ("%s: Unknown class %s", ontology_path, object);
-					return;
+					print_parsing_err ("%s: Unknown class %s", object_location, object);
+					goto fail;
 				}
 
 				while (*super_classes) {
@@ -872,7 +1007,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 						ignore = TRUE;
 						TRACKER_NOTE (ONTOLOGY_CHANGES,
 						              g_message ("%s: Class %s already has rdfs:subClassOf in %s",
-						                         ontology_path, object, subject));
+						                         object_location, object, subject));
 						break;
 					}
 					super_classes++;
@@ -897,6 +1032,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				if (!ignore && !had) {
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
+					                                    object_line_no,
+					                                    object_column_no,
 					                                    tracker_class_get_name (class),
 					                                    "rdfs:subClassOf",
 					                                    "-",
@@ -910,13 +1047,16 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				tracker_class_add_super_class (class, super_class);
 			}
 
-			return;
+			if (*error)
+				goto fail;
+
+			goto out;
 		}
 
 		super_class = tracker_ontologies_get_class_by_uri (manager->ontologies, object);
 		if (super_class == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, object);
-			return;
+			print_parsing_err ("%s: Unknown class %s", object_location, object);
+			goto fail;
 		}
 
 		tracker_class_add_super_class (class, super_class);
@@ -927,8 +1067,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 		class = tracker_ontologies_get_class_by_uri (manager->ontologies, subject);
 
 		if (class == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown class %s", object_location, subject);
+			goto fail;
 		}
 
 		tracker_class_set_notify (class, (strcmp (object, "true") == 0));
@@ -943,45 +1083,30 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 		class = tracker_ontologies_get_class_by_uri (manager->ontologies, subject);
 
 		if (class == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown class %s", object_location, subject);
+			goto fail;
 		}
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, object);
 
 		if (property == NULL) {
-
-			/* In this case the import of the TTL will still make the introspection
-			 * have the URI set as a nrl:domainIndex for class. The critical
-			 * will have happened, but future operations might not cope with this
-			 * situation. TODO: add error handling so that the entire ontology
-			 * change operation is discarded, for example ignore the entire
-			 * .ontology file and rollback all changes that happened. I would
-			 * prefer a hard abort() here over a g_critical(), to be honest.
-			 *
-			 * Of course don't we yet allow just anybody to alter the ontology
-			 * files. So very serious is this lack of thorough error handling
-			 * not. Let's just not make mistakes when changing the .ontology
-			 * files for now. */
-
-			g_critical ("%s: Unknown property %s for nrl:domainIndex in %s."
-			            "Don't release this .ontology change!",
-			            ontology_path, object, subject);
-			return;
+			print_parsing_err ("%s: Unknown property %s for nrl:domainIndex in %s.",
+			                   object_location, object, subject);
+			goto fail;
 		}
 
 		if (tracker_property_get_multiple_values (property)) {
-			g_critical ("%s: Property %s has multiple values while trying to add it as nrl:domainIndex in %s, this isn't supported",
-			            ontology_path, object, subject);
-			return;
+			print_parsing_err ("%s: Property %s has multiple values while trying to add it as nrl:domainIndex in %s, this isn't supported",
+			                   object_location, object, subject);
+			goto fail;
 		}
 
 		properties = tracker_ontologies_get_properties (manager->ontologies, &n_props);
 		for (i = 0; i < n_props; i++) {
 			if (tracker_property_get_domain (properties[i]) == class &&
 			    properties[i] == property) {
-				g_critical ("%s: Property %s is already a first-class property of %s while trying to add it as nrl:domainIndex",
-				            ontology_path, object, subject);
+				print_parsing_err ("%s: Property %s is already a first-class property of %s while trying to add it as nrl:domainIndex",
+				                   object_location, object, subject);
 			}
 		}
 
@@ -990,7 +1115,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			if (property == *properties) {
 				TRACKER_NOTE (ONTOLOGY_CHANGES,
 				              g_message ("%s: Property %s already a nrl:domainIndex in %s",
-				                         ontology_path, object, subject));
+				                         object_location, object, subject));
 				ignore = TRUE;
 			}
 			properties++;
@@ -1025,8 +1150,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown property %s", object_location, subject);
+			goto fail;
 		}
 
 		is_new = tracker_property_get_is_new (property);
@@ -1039,8 +1164,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 				super_property = tracker_ontologies_get_property_by_uri (manager->ontologies, object);
 				if (super_property == NULL) {
-					g_critical ("%s: Unknown property %s", ontology_path, object);
-					return;
+					print_parsing_err ("%s: Unknown property %s", object_location, object);
+					goto fail;
 				}
 
 				while (*super_properties) {
@@ -1048,7 +1173,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 						ignore = TRUE;
 						TRACKER_NOTE (ONTOLOGY_CHANGES,
 						              g_message ("%s: Property %s already has rdfs:subPropertyOf in %s",
-						                         ontology_path, object, subject));
+						                         object_location, object, subject));
 						break;
 					}
 					super_properties++;
@@ -1072,6 +1197,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				if (!ignore && !had) {
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
+					                                    object_line_no,
+					                                    object_column_no,
 					                                    tracker_property_get_name (property),
 					                                    "rdfs:subPropertyOf",
 					                                    "-",
@@ -1085,13 +1212,16 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				tracker_property_add_super_property (property, super_property);
 			}
 
-			return;
+			if (*error)
+				goto fail;
+
+			goto out;
 		}
 
 		super_property = tracker_ontologies_get_property_by_uri (manager->ontologies, object);
 		if (super_property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, object);
-			return;
+			print_parsing_err ("%s: Unknown property %s", object_location, object);
+			goto fail;
 		}
 
 		tracker_property_add_super_property (property, super_property);
@@ -1102,14 +1232,14 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown property %s", object_location, subject);
+			goto fail;
 		}
 
 		domain = tracker_ontologies_get_class_by_uri (manager->ontologies, object);
 		if (domain == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, object);
-			return;
+			print_parsing_err ("%s: Unknown class %s", object_location, object);
+			goto fail;
 		}
 
 		is_new = tracker_property_get_is_new (property);
@@ -1120,6 +1250,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 				if (old_domain != domain) {
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
+					                                    object_line_no,
+					                                    object_column_no,
 					                                    tracker_property_get_name (property),
 					                                    "rdfs:domain",
 					                                    tracker_class_get_name (old_domain),
@@ -1127,7 +1259,11 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 					                                    error);
 				}
 			}
-			return;
+
+			if (*error)
+				goto fail;
+
+			goto out;
 		}
 
 		tracker_property_set_domain (property, domain);
@@ -1137,28 +1273,27 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown property %s", object_location, subject);
+			goto fail;
 		}
 
 		if (tracker_property_get_is_new (property) != in_update) {
 			GError *err = NULL;
 			check_range_conversion_is_allowed (manager,
-			                                   ontology_path,
 			                                   subject,
 			                                   predicate,
 			                                   object,
 			                                   &err);
 			if (err) {
-				g_propagate_error (error, err);
-				return;
+				g_propagate_prefixed_error (error, err, "%s: ", object_location);
+				goto fail;
 			}
 		}
 
 		range = tracker_ontologies_get_class_by_uri (manager->ontologies, object);
 		if (range == NULL) {
-			g_critical ("%s: Unknown class %s", ontology_path, object);
-			return;
+			print_parsing_err ("%s: Unknown class %s", object_location, object);
+			goto fail;
 		}
 
 		tracker_property_set_range (property, range);
@@ -1167,8 +1302,29 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown property %s", object_location, subject);
+			goto fail;
+		}
+
+		if (atoi (object) == 0) {
+			g_set_error (error,
+			             TRACKER_SPARQL_ERROR,
+			             TRACKER_SPARQL_ERROR_TYPE,
+			             "Property nrl:maxCardinality only accepts integers greater than 0");
+			goto fail;
+		}
+
+		if (tracker_property_get_is_new (property) != in_update) {
+			GError *err = NULL;
+			check_max_cardinality_change_is_allowed (manager,
+			                                         subject,
+			                                         predicate,
+			                                         object,
+			                                         &err);
+			if (err) {
+				g_propagate_prefixed_error (error, err, "%s: ", object_location);
+				goto fail;
+			}
 		}
 
 		if (atoi (object) == 1) {
@@ -1184,8 +1340,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown property %s", object_location, subject);
+			goto fail;
 		}
 
 		tracker_property_set_indexed (property, (strcmp (object, "true") == 0));
@@ -1194,26 +1350,26 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown property %s", object_location, subject);
+			goto fail;
 		}
 
 		secondary_index = tracker_ontologies_get_property_by_uri (manager->ontologies, object);
 		if (secondary_index == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, object);
-			return;
+			print_parsing_err ("%s: Unknown property %s", object_location, object);
+			goto fail;
 		}
 
-                if (!tracker_property_get_indexed (property)) {
-                        g_critical ("%s: nrl:secondaryindex only applies to nrl:indexed properties", ontology_path);
-                        return;
-                }
+		if (!tracker_property_get_indexed (property)) {
+			print_parsing_err ("%s: nrl:secondaryindex only applies to nrl:indexed properties", object_location);
+			goto fail;
+		}
 
-                if (tracker_property_get_multiple_values (property) ||
-                    tracker_property_get_multiple_values (secondary_index)) {
-                        g_critical ("%s: nrl:secondaryindex cannot be applied to properties with nrl:maxCardinality higher than one", ontology_path);
-                        return;
-                }
+		if (tracker_property_get_multiple_values (property) ||
+		    tracker_property_get_multiple_values (secondary_index)) {
+			print_parsing_err ("%s: nrl:secondaryindex cannot be applied to properties with nrl:maxCardinality higher than one", object_location);
+			goto fail;
+		}
 
 		tracker_property_set_secondary_index (property, secondary_index);
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_NRL "fulltextIndexed") == 0) {
@@ -1221,8 +1377,8 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 		if (property == NULL) {
-			g_critical ("%s: Unknown property %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown property %s", object_location, subject);
+			goto fail;
 		}
 
 		tracker_property_set_fulltext_indexed (property,
@@ -1232,12 +1388,12 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		namespace = tracker_ontologies_get_namespace_by_uri (manager->ontologies, subject);
 		if (namespace == NULL) {
-			g_critical ("%s: Unknown namespace %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown namespace %s", object_location, subject);
+			goto fail;
 		}
 
 		if (tracker_namespace_get_is_new (namespace) != in_update) {
-			return;
+			goto out;
 		}
 
 		tracker_namespace_set_prefix (namespace, object);
@@ -1248,31 +1404,41 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		ontology = tracker_ontologies_get_ontology_by_uri (manager->ontologies, subject);
 		if (ontology == NULL) {
-			g_critical ("%s: Unknown ontology %s", ontology_path, subject);
-			return;
+			print_parsing_err ("%s: Unknown ontology %s", object_location, subject);
+			goto fail;
 		}
 
 		if (tracker_ontology_get_is_new (ontology) != in_update) {
-			return;
+			goto out;
 		}
 
 		datetime = tracker_date_new_from_iso8601 (object, &error);
 		if (!datetime) {
-			g_critical ("%s: error parsing nrl:lastModified: %s",
-				    ontology_path, error->message);
+			print_parsing_err ("%s: error parsing nrl:lastModified: %s",
+			                   object_location, error->message);
 			g_error_free (error);
-			return;
+			goto fail;
 		}
 
 		tracker_ontology_set_last_modified (ontology, g_date_time_to_unix (datetime));
 		g_date_time_unref (datetime);
 	}
+
+out:
+	g_free(object_location);
+	return;
+
+fail:
+	g_free(object_location);
+	if (loaded_successfully)
+		*loaded_successfully = FALSE;
 }
 
 
 static void
 check_for_deleted_domain_index (TrackerDataManager *manager,
-                                TrackerClass       *class)
+                                TrackerClass       *class,
+                                GError            **error)
 {
 	TrackerProperty **last_domain_indexes;
 	GSList *hfound = NULL, *deleted = NULL;
@@ -1337,7 +1503,6 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 		}
 
 		for (l = deleted; l != NULL; l = l->next) {
-			GError *error = NULL;
 			TrackerProperty *prop = l->data;
 			const gchar *uri;
 			GBytes *bytes;
@@ -1354,19 +1519,11 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 			                               tracker_class_get_uri (class),
 			                               TRACKER_PREFIX_NRL "domainIndex",
 			                               bytes,
-			                               &error);
+			                               error);
 			g_bytes_unref (bytes);
 
-			if (error) {
-				g_critical ("Ontology change, %s", error->message);
-				g_clear_error (&error);
-			} else {
-				tracker_data_update_buffer_flush (manager->data_update, &error);
-				if (error) {
-					g_critical ("Ontology change, %s", error->message);
-					g_clear_error (&error);
-				}
-			}
+			if (!(*error))
+				tracker_data_update_buffer_flush (manager->data_update, error);
 		}
 
 		g_slist_free (deleted);
@@ -1411,13 +1568,19 @@ check_for_deleted_super_classes (TrackerDataManager  *manager,
 		}
 
 		if (!found) {
-			const gchar *ontology_path = "Unknown";
+			const gchar *ontology_path = tracker_class_get_ontology_path (class);
+			goffset line_no = tracker_class_get_definition_line_no (class);
+			goffset column_no = tracker_class_get_definition_column_no (class);
 			const gchar *subject = tracker_class_get_uri (class);
+			const gchar *last_super_class_uri = tracker_class_get_uri (last_super_class);
 
 			handle_unsupported_ontology_change (manager,
 			                                    ontology_path,
+			                                    line_no,
+			                                    column_no,
 			                                    subject,
-			                                    "rdfs:subClassOf", "-", "-",
+			                                    "rdfs:subClassOf",
+			                                    last_super_class_uri, "-",
 			                                    error);
 			return;
 		}
@@ -1433,30 +1596,14 @@ check_for_max_cardinality_change (TrackerDataManager  *manager,
 {
 	gboolean orig_multiple_values = tracker_property_get_orig_multiple_values (property);
 	gboolean new_multiple_values = tracker_property_get_multiple_values (property);
-	GError *n_error = NULL;
-	const gchar *ontology_path = "Unknown";
 
 	if (tracker_property_get_is_new (property) == FALSE &&
-	    (orig_multiple_values != new_multiple_values &&
-		 orig_multiple_values == TRUE)) {
-		const gchar *ontology_path = "Unknown";
+	    orig_multiple_values != new_multiple_values &&
+	    orig_multiple_values == FALSE) {
+		GError *n_error = NULL;
 		const gchar *subject = tracker_property_get_uri (property);
 
-		handle_unsupported_ontology_change (manager,
-		                                    ontology_path,
-		                                    subject,
-		                                    "nrl:maxCardinality", "none", "1",
-		                                    &n_error);
-		if (n_error) {
-			g_propagate_error (error, n_error);
-			return;
-		}
-	} else if (tracker_property_get_is_new (property) == FALSE &&
-	           orig_multiple_values != new_multiple_values &&
-	           orig_multiple_values == FALSE) {
-		const gchar *subject = tracker_property_get_uri (property);
-
-		if (update_property_value (manager, ontology_path,
+		if (update_property_value (manager,
 		                           "nrl:maxCardinality",
 		                           subject,
 		                           TRACKER_PREFIX_NRL "maxCardinality",
@@ -1472,7 +1619,17 @@ check_for_max_cardinality_change (TrackerDataManager  *manager,
 		}
 
 		if (n_error) {
-			g_propagate_error (error, n_error);
+			const gchar* ontology_path = tracker_property_get_ontology_path (property);
+			goffset line_no = tracker_property_get_definition_line_no (property);
+			goffset column_no = tracker_property_get_definition_column_no (property);
+			gchar* property_location;
+
+			property_location = g_strdup_printf ("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT,
+			                                     ontology_path, line_no, column_no);
+
+			g_propagate_prefixed_error (error, n_error, "%s:", property_location);
+
+			g_free (property_location);
 			return;
 		}
 	}
@@ -1561,7 +1718,13 @@ tracker_data_ontology_process_changes_pre_db (TrackerDataManager  *manager,
 			GError *n_error = NULL;
 			TrackerClass *class = g_ptr_array_index (seen_classes, i);
 
-			check_for_deleted_domain_index (manager, class);
+			check_for_deleted_domain_index (manager, class, &n_error);
+
+			if (n_error) {
+				g_propagate_error (error, n_error);
+				return;
+			}
+
 			check_for_deleted_super_classes (manager, class, &n_error);
 
 			if (n_error) {
@@ -1600,8 +1763,6 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
                                                GError             **error)
 {
 	guint i;
-	/* TODO: Collect the ontology-paths of the seen events for proper error reporting */
-	const gchar *ontology_path = "Unknown";
 
 	/* This updates property-property changes and marks classes for necessity
 	 * of having their tables recreated later. There's support for
@@ -1616,14 +1777,14 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 			subject = tracker_class_get_uri (class);
 
 			if (tracker_class_get_notify (class)) {
-				update_property_value (manager, ontology_path,
+				update_property_value (manager,
 				                       "nrl:notify",
 				                       subject,
 				                       TRACKER_PREFIX_NRL "notify",
 				                       "true", allowed_boolean_conversions,
 				                       class, NULL, &n_error);
 			} else {
-				update_property_value (manager, ontology_path,
+				update_property_value (manager,
 				                       "nrl:notify",
 				                       subject,
 				                       TRACKER_PREFIX_NRL "notify",
@@ -1664,8 +1825,14 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 
 			if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 				if (tracker_sparql_cursor_get_boolean (cursor, 0) != in_onto) {
+					const gchar *ontology_path = tracker_property_get_ontology_path (property);
+					goffset line_no = tracker_property_get_definition_line_no (property);
+					goffset column_no = tracker_property_get_definition_column_no (property);
+
 					handle_unsupported_ontology_change (manager,
 					                                    ontology_path,
+					                                    line_no,
+					                                    column_no,
 					                                    subject,
 					                                    "nrl:InverseFunctionalProperty", "-", "-",
 					                                    &n_error);
@@ -1683,7 +1850,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 			}
 
 			if (tracker_property_get_indexed (property)) {
-				if (update_property_value (manager, ontology_path,
+				if (update_property_value (manager,
 				                           "nrl:indexed",
 				                           subject,
 				                           TRACKER_PREFIX_NRL "indexed",
@@ -1693,7 +1860,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 					indexed_set = TRUE;
 				}
 			} else {
-				if (update_property_value (manager, ontology_path,
+				if (update_property_value (manager,
 				                           "nrl:indexed",
 				                           subject,
 				                           TRACKER_PREFIX_NRL "indexed",
@@ -1712,7 +1879,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 			secondary_index = tracker_property_get_secondary_index (property);
 
 			if (secondary_index) {
-				if (update_property_value (manager, ontology_path,
+				if (update_property_value (manager,
 				                           "nrl:secondaryIndex",
 				                           subject,
 				                           TRACKER_PREFIX_NRL "secondaryIndex",
@@ -1723,7 +1890,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 					}
 				}
 			} else {
-				if (update_property_value (manager, ontology_path,
+				if (update_property_value (manager,
 				                           "nrl:secondaryIndex",
 				                           subject,
 				                           TRACKER_PREFIX_NRL "secondaryIndex",
@@ -1740,7 +1907,7 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 				return;
 			}
 
-			if (update_property_value (manager, ontology_path,
+			if (update_property_value (manager,
 			                           "rdfs:range", subject, TRACKER_PREFIX_RDFS "range",
 			                           tracker_class_get_uri (tracker_property_get_range (property)),
 			                           allowed_range_conversions,
@@ -1768,39 +1935,88 @@ tracker_data_ontology_process_changes_post_import (GPtrArray *seen_classes,
 }
 
 static void
+check_properties_completeness (TrackerOntologies  *ontologies,
+                               GError            **error)
+{
+	guint i;
+	guint n_properties;
+	TrackerProperty **properties;
+
+	properties = tracker_ontologies_get_properties (ontologies, &n_properties);
+
+	for (i = 0; i < n_properties; i++) {
+		TrackerProperty *property = properties[i];
+		gchar *missing_definition = NULL;
+
+		if (!tracker_property_get_domain (property))
+			missing_definition = "domain";
+		else if (!tracker_property_get_range (property))
+			missing_definition = "range";
+
+		if (missing_definition) {
+			const gchar *ontology_path = tracker_property_get_ontology_path (property);
+			goffset line_no = tracker_property_get_definition_line_no (property);
+			goffset column_no = tracker_property_get_definition_column_no (property);
+			const gchar *property_name = tracker_property_get_name (property);
+			gchar *definition_location = g_strdup_printf ("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT,
+			                                              ontology_path, line_no, column_no);
+
+			g_set_error (error,
+			             TRACKER_SPARQL_ERROR,
+				     TRACKER_SPARQL_ERROR_OPEN_ERROR,
+			             "%s: Property %s has no defined %s.",
+			             definition_location, property_name, missing_definition);
+
+			g_free (definition_location);
+			return;
+		}
+	}
+}
+
+static void
 load_ontology_file (TrackerDataManager  *manager,
                     GFile               *file,
                     gboolean             in_update,
                     GPtrArray           *seen_classes,
                     GPtrArray           *seen_properties,
+                    guint               *num_parsing_errors,
                     GError             **error)
 {
 	TrackerTurtleReader *reader;
 	GError *ttl_error = NULL;
-	gchar *ontology_uri;
+	gchar *ontology_uri = g_file_get_uri (file);
 	const gchar *subject, *predicate, *object;
+	goffset object_line_no, object_column_no;
+
+	if (num_parsing_errors)
+		*num_parsing_errors = 0;
 
 	reader = tracker_turtle_reader_new_for_file (file, &ttl_error);
 
 	if (ttl_error) {
-		g_propagate_error (error, ttl_error);
+		g_propagate_prefixed_error (error, ttl_error, "%s: ", ontology_uri);
+		g_free (ontology_uri);
 		return;
 	}
-
-	ontology_uri = g_file_get_uri (file);
 
 	/* Post checks are only needed for ontology updates, not the initial
 	 * ontology */
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, &ttl_error)) {
+	                                   NULL, NULL, &object_line_no,
+	                                   &object_column_no, &ttl_error)) {
 		GError *ontology_error = NULL;
+		gboolean loaded_successfully;
 
 		tracker_data_ontology_load_statement (manager, ontology_uri,
 		                                      subject, predicate, object,
-		                                      in_update, NULL, NULL,
-		                                      seen_classes, seen_properties, &ontology_error);
+		                                      object_line_no, object_column_no, in_update,
+		                                      &loaded_successfully, seen_classes,
+		                                      seen_properties, &ontology_error);
+
+		if (num_parsing_errors && !loaded_successfully)
+			(*num_parsing_errors)++;
 
 		if (ontology_error) {
 			g_propagate_error (error, ontology_error);
@@ -1808,12 +2024,14 @@ load_ontology_file (TrackerDataManager  *manager,
 		}
 	}
 
+	if (ttl_error) {
+		g_propagate_prefixed_error (error, ttl_error,
+		                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
+		                            ontology_uri, object_line_no, object_column_no);
+	}
+
 	g_free (ontology_uri);
 	g_object_unref (reader);
-
-	if (ttl_error) {
-		g_propagate_error (error, ttl_error);
-	}
 }
 
 
@@ -1827,14 +2045,14 @@ get_ontology_from_file (TrackerDataManager *manager,
 	GError *internal_error = NULL;
 	GHashTable *ontology_uris;
 	TrackerOntology *ret = NULL;
+	goffset object_line_no, object_column_no;
+	gchar *ontology_uri = g_file_get_uri (file);
 
 	reader = tracker_turtle_reader_new_for_file (file, &internal_error);
 
 	if (internal_error) {
-		g_propagate_prefixed_error (error, internal_error,
-		                            "Turtle parse error: %s",
-		                            internal_error->message);
-		return NULL;
+		g_propagate_prefixed_error (error, internal_error, "%s: ", ontology_uri);
+		goto out;
 	}
 
 	ontology_uris = g_hash_table_new_full (g_str_hash,
@@ -1844,7 +2062,8 @@ get_ontology_from_file (TrackerDataManager *manager,
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, &internal_error)) {
+	                                   NULL, NULL, &object_line_no,
+	                                   &object_column_no, &internal_error)) {
 		if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 			if (g_strcmp0 (object, TRACKER_PREFIX_NRL "Ontology") == 0) {
 				TrackerOntology *ontology;
@@ -1865,18 +2084,17 @@ get_ontology_from_file (TrackerDataManager *manager,
 
 			ontology = g_hash_table_lookup (ontology_uris, subject);
 			if (ontology == NULL) {
-				gchar *uri = g_file_get_uri (file);
-				g_critical ("%s: Unknown ontology %s", uri, subject);
-				g_free (uri);
+				g_critical ("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": Unknown ontology %s",
+				            ontology_uri, object_line_no, object_column_no, subject);
 				continue;
 			}
 
 			datetime = tracker_date_new_from_iso8601 (object, &parsing_error);
 			if (!datetime) {
 				g_propagate_prefixed_error (error, parsing_error,
-				                            "%s: error parsing nrl:lastModified: %s",
-				                            subject, parsing_error->message);
-				return NULL;
+				                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": error parsing nrl:lastModified: ",
+				                            ontology_uri, object_line_no, object_column_no);
+				goto out;
 			}
 
 			tracker_ontology_set_last_modified (ontology, g_date_time_to_unix (datetime));
@@ -1895,19 +2113,21 @@ get_ontology_from_file (TrackerDataManager *manager,
 
 	if (internal_error) {
 		g_propagate_prefixed_error (error, internal_error,
-		                            "Turtle parse error: %s",
-		                            internal_error->message);
-		return NULL;
+		                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": Turtle parse error: ",
+		                            ontology_uri, object_line_no, object_column_no);
+		goto out;
 	}
 
 	if (ret == NULL) {
-		gchar *uri = g_file_get_uri (file);
-		g_propagate_prefixed_error (error, internal_error,
-		                            "Ontology file has no nrl:lastModified header: %s", uri);
-		g_free (uri);
-		return NULL;
+		g_set_error (error,
+		             TRACKER_SPARQL_ERROR,
+			     TRACKER_SPARQL_ERROR_OPEN_ERROR,
+		             "%s: Ontology has no nrl:lastModified header", ontology_uri);
+		goto out;
 	}
 
+out:
+	g_free (ontology_uri);
 	return ret;
 }
 
@@ -1916,10 +2136,10 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
                                          const gchar        *subject,
                                          const gchar        *predicate,
                                          const gchar        *object,
-                                         gboolean            in_update)
+                                         gboolean            in_update,
+                                         GError            **error)
 {
 	TrackerProperty *property;
-	GError *error = NULL;
 	GBytes *bytes;
 
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
@@ -1998,57 +2218,74 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
 	bytes = g_bytes_new (object, strlen (object) + 1);
 	property = tracker_ontologies_get_property_by_uri (manager->ontologies, predicate);
 
+	if (!property) {
+		g_set_error (error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+		             "Unknown property %s", predicate);
+		goto out;
+	}
+
 	if (tracker_property_get_is_new (property) ||
 	    tracker_property_get_multiple_values (property)) {
 		tracker_data_insert_statement (manager->data_update, NULL,
 		                               subject, predicate, bytes,
-		                               &error);
+		                               error);
 	} else {
 		tracker_data_update_statement (manager->data_update, NULL,
-					       subject, predicate, bytes,
-		                               &error);
+		                               subject, predicate, bytes,
+		                               error);
 	}
 
+out:
 	g_bytes_unref (bytes);
-
-	if (error != NULL) {
-		g_critical ("%s", error->message);
-		g_error_free (error);
-		return;
-	}
 }
 
 static void
-import_ontology_file (TrackerDataManager *manager,
-                      GFile              *file,
-                      gboolean            in_update)
+import_ontology_file (TrackerDataManager  *manager,
+                      GFile               *file,
+                      gboolean             in_update,
+                      GError             **error)
 {
 	const gchar *subject, *predicate, *object;
-	GError *error = NULL;
 	TrackerTurtleReader* reader;
+	goffset object_line_no, object_column_no;
+	gchar *ontology_uri = g_file_get_uri (file);
 
-	reader = tracker_turtle_reader_new_for_file (file, &error);
+	reader = tracker_turtle_reader_new_for_file (file, error);
 
-	if (error != NULL) {
-		g_critical ("%s", error->message);
-		g_error_free (error);
-		return;
+	if (!reader) {
+		g_prefix_error (error, "%s:", ontology_uri);
+		goto out;
 	}
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, &error)) {
+	                                   NULL, NULL, &object_line_no,
+	                                   &object_column_no, error)) {
+		GError *internal_error = NULL;
+
 		tracker_data_ontology_process_statement (manager,
 		                                         subject, predicate, object,
-		                                         in_update);
+		                                         in_update, &internal_error);
+
+		if (internal_error) {
+			g_propagate_prefixed_error (error, internal_error,
+			                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
+			                            ontology_uri, object_line_no, object_column_no);
+		}
+	}
+
+	if (*error) {
+		g_prefix_error (error,
+		                "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ":",
+		                ontology_uri, object_line_no, object_column_no);
 	}
 
 	g_object_unref (reader);
 
-	if (error) {
-		g_critical ("%s", error->message);
-		g_error_free (error);
-	}
+out:
+	g_free (ontology_uri);
 }
 
 static void
@@ -3854,6 +4091,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	if (is_create) {
 		TrackerOntology **ontologies;
 		guint n_ontologies, i;
+		guint num_parsing_errors = 0;
 
 		if (!manager->ontology_location) {
 			g_set_error (error,
@@ -3886,6 +4124,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			GError *ontology_error = NULL;
 			GFile *ontology_file = l->data;
 			gchar *uri = g_file_get_uri (ontology_file);
+			guint num_ontology_parsing_errors;
 
 			TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Loading ontology %s", uri));
 
@@ -3893,6 +4132,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			                    FALSE,
 			                    NULL,
 			                    NULL,
+			                    &num_ontology_parsing_errors,
 			                    &ontology_error);
 			g_free (uri);
 
@@ -3900,10 +4140,25 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				g_propagate_error (error, ontology_error);
 				goto rollback_newly_created_db;
 			}
+
+			num_parsing_errors += num_ontology_parsing_errors;
 		}
 
-		tracker_data_ontology_setup_db (manager, iface, "main", FALSE,
-		                                &internal_error);
+		if (num_parsing_errors) {
+			g_set_error (error,
+			             TRACKER_SPARQL_ERROR,
+			             TRACKER_SPARQL_ERROR_PARSE,
+			             "The ontology files contain %u parsing error(s)",
+			             num_parsing_errors);
+			goto rollback_newly_created_db;
+		}
+
+		check_properties_completeness (manager->ontologies, &internal_error);
+
+		if (!internal_error) {
+			tracker_data_ontology_setup_db (manager, iface, "main", FALSE,
+			                                &internal_error);
+		}
 
 		if (!internal_error) {
 			tracker_data_ontology_import_into_db (manager, iface,
@@ -3929,7 +4184,11 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
-			import_ontology_file (manager, l->data, FALSE);
+			import_ontology_file (manager, l->data, FALSE, &internal_error);
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				goto rollback_newly_created_db;
+			}
 		}
 
 		write_ontologies_gvdb (manager, TRUE /* overwrite */, NULL);
@@ -3942,8 +4201,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			update_ontology_last_modified (manager, iface, ontologies[i], &n_error);
 
 			if (n_error) {
-				g_critical ("%s", n_error->message);
-				g_clear_error (&n_error);
+				g_propagate_error (error, n_error);
+				goto rollback_newly_created_db;
 			}
 		}
 
@@ -4002,6 +4261,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		GPtrArray *seen_properties;
 		GError *n_error = NULL;
 		gboolean transaction_started = FALSE;
+		guint num_parsing_errors = 0;
 
 		seen_classes = g_ptr_array_new_with_free_func (g_object_unref);
 		seen_properties = g_ptr_array_new_with_free_func (g_object_unref);
@@ -4023,8 +4283,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		 * has changed since we dealt with the file last time. */
 
 		stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &n_error,
-		        "SELECT Resource.Uri, \"nrl:Ontology\".\"nrl:lastModified\" FROM \"nrl:Ontology\" "
-		        "INNER JOIN Resource ON Resource.ID = \"nrl:Ontology\".ID ");
+		                                              "SELECT Resource.Uri, \"nrl:Ontology\".\"nrl:lastModified\" FROM \"nrl:Ontology\" "
+		                                              "INNER JOIN Resource ON Resource.ID = \"nrl:Ontology\".ID ");
 
 		if (stmt) {
 			cursor = tracker_db_statement_start_cursor (stmt, &n_error);
@@ -4053,8 +4313,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		}
 
 		if (n_error) {
-			g_warning ("%s", n_error->message);
-			g_clear_error (&n_error);
+			g_propagate_error (error, n_error);
+			return FALSE;
 		}
 
 		for (l = ontos; l; l = l->next) {
@@ -4069,10 +4329,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			ontology = get_ontology_from_file (manager, ontology_file, &internal_error);
 
 			if (internal_error) {
-				gchar *uri = g_file_get_uri (ontology_file);
-				g_propagate_prefixed_error (error, internal_error,
-				                            "Can't get ontology from file: %s", uri);
-				g_free (uri);
+				g_propagate_error (error, internal_error);
 				return FALSE;
 			}
 
@@ -4111,6 +4368,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				 * modified in the latest version of the file, deal with changes. */
 				if (val != last_mod) {
 					gchar *uri = g_file_get_uri (ontology_file);
+					guint num_ontology_parsing_errors;
 
 					TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Ontology file '%s' needs update", uri));
 					g_free (uri);
@@ -4130,6 +4388,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 					                    TRUE,
 					                    seen_classes,
 					                    seen_properties,
+					                    &num_ontology_parsing_errors,
 					                    &ontology_error);
 
 					if (ontology_error) {
@@ -4141,9 +4400,11 @@ tracker_data_manager_initable_init (GInitable     *initable,
 						if (ontos) {
 							g_list_free_full (ontos, g_object_unref);
 						}
-						
+
 						goto rollback_db_changes;
 					}
+
+					num_parsing_errors += num_ontology_parsing_errors;
 
 					to_reload = g_list_prepend (to_reload, l->data);
 					update_nao = TRUE;
@@ -4151,6 +4412,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			} else {
 				GError *ontology_error = NULL;
 				gchar *uri = g_file_get_uri (ontology_file);
+				guint num_ontology_parsing_errors;
 
 				g_debug ("Ontology file '%s' got added", uri);
 				g_free (uri);
@@ -4170,6 +4432,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				                    TRUE,
 				                    seen_classes,
 				                    seen_properties,
+				                    &num_ontology_parsing_errors,
 				                    &ontology_error);
 
 				if (ontology_error) {
@@ -4181,14 +4444,11 @@ tracker_data_manager_initable_init (GInitable     *initable,
 					if (ontos) {
 						g_list_free_full (ontos, g_object_unref);
 					}
-					
+
 					goto rollback_db_changes;
 				}
 
-				if (ontology_error) {
-					g_critical ("Fatal error dealing with ontology changes: %s", ontology_error->message);
-					g_error_free (ontology_error);
-				}
+				num_parsing_errors += num_ontology_parsing_errors;
 
 				to_reload = g_list_prepend (to_reload, l->data);
 				update_nao = TRUE;
@@ -4204,6 +4464,30 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			}
 
 			g_object_unref (ontology);
+		}
+
+		if (num_parsing_errors) {
+			g_set_error (error,
+			             TRACKER_SPARQL_ERROR,
+			             TRACKER_SPARQL_ERROR_PARSE,
+			             "The ontology files contain %u parsing error(s)",
+			             num_parsing_errors);
+			goto rollback_db_changes;
+		}
+
+		check_properties_completeness (manager->ontologies, &n_error);
+
+		if (n_error) {
+			g_propagate_error (error, n_error);
+
+			g_clear_pointer (&seen_classes, g_ptr_array_unref);
+			g_clear_pointer (&seen_properties, g_ptr_array_unref);
+
+			if (ontos) {
+				g_list_free_full (ontos, g_object_unref);
+			}
+
+			goto rollback_db_changes;
 		}
 
 		if (to_reload) {
@@ -4288,19 +4572,18 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				if (ontos) {
 					g_list_free_full (ontos, g_object_unref);
 				}
-				
-				goto rollback_db_changes;
-			}
 
-			if (ontology_error) {
-				g_propagate_error (error, ontology_error);
-				return FALSE;
+				goto rollback_db_changes;
 			}
 
 			for (l = to_reload; l; l = l->next) {
 				GFile *ontology_file = l->data;
 				/* store ontology in database */
-				import_ontology_file (manager, ontology_file, TRUE);
+				import_ontology_file (manager, ontology_file, TRUE, &internal_error);
+				if (internal_error) {
+					g_propagate_error (error, internal_error);
+					goto rollback_db_changes;
+				}
 			}
 			g_list_free (to_reload);
 

@@ -3120,6 +3120,8 @@ tracker_data_load_turtle_file (TrackerData  *data,
 	GError *inner_error = NULL;
 	const gchar *subject, *predicate, *object_str, *langtag;
 	gboolean object_is_uri;
+	goffset last_parsed_line_no, last_parsed_column_no;
+	gchar *ontology_uri = g_file_get_uri (file);
 
 	reader = tracker_turtle_reader_new_for_file (file, &inner_error);
 	if (inner_error)
@@ -3131,6 +3133,8 @@ tracker_data_load_turtle_file (TrackerData  *data,
 	                                   &object_str,
 	                                   &langtag,
 	                                   &object_is_uri,
+	                                   &last_parsed_line_no,
+	                                   &last_parsed_column_no,
 	                                   &inner_error)) {
 		GBytes *object;
 
@@ -3139,11 +3143,11 @@ tracker_data_load_turtle_file (TrackerData  *data,
 		if (object_is_uri) {
 			tracker_data_insert_statement_with_uri (data, graph,
 			                                        subject, predicate, object,
-								&inner_error);
+			                                        &inner_error);
 		} else {
 			tracker_data_insert_statement_with_string (data, graph,
 			                                           subject, predicate, object,
-								   &inner_error);
+			                                           &inner_error);
 		}
 
 		g_bytes_unref (object);
@@ -3160,6 +3164,7 @@ tracker_data_load_turtle_file (TrackerData  *data,
 	if (inner_error)
 		goto failed;
 
+	g_free (ontology_uri);
 	g_clear_object (&reader);
 
 	return;
@@ -3167,7 +3172,11 @@ tracker_data_load_turtle_file (TrackerData  *data,
 failed:
 	g_clear_object (&reader);
 
-	g_propagate_error (error, inner_error);
+	g_propagate_prefixed_error (error, inner_error,
+	                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
+	                            ontology_uri, last_parsed_line_no, last_parsed_column_no);
+
+	g_free (ontology_uri);
 }
 
 gint
