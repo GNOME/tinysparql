@@ -36,6 +36,7 @@ static const GDBusErrorEntry tracker_sparql_error_entries[] =
 	{TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY, "org.freedesktop.Tracker.Error.UnknownProperty"},
 	{TRACKER_SPARQL_ERROR_UNSUPPORTED, "org.freedesktop.Tracker.Error.Unsupported"},
 	{TRACKER_SPARQL_ERROR_MISSING_LAST_MODIFIED_HEADER, "org.freedesktop.Tracker.Error.MissingLastModifiedHeader"},
+	{TRACKER_SPARQL_ERROR_INCOMPLETE_PROPERTY_DEFINITION, "org.freedesktop.Tracker.Error.IncompleteProperty"},
 };
 
 G_STATIC_ASSERT (G_N_ELEMENTS (tracker_sparql_error_entries) == TRACKER_SPARQL_N_ERRORS);
