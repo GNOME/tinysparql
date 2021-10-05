@@ -855,12 +855,13 @@ INSERT DATA {
 Where any second insert would be redundantly attempting to add the same
 triple to the store.
 
-Tracker deviates from the SPARQL standard in the handling of blank nodes.
-By default blank nodes are not really anonymous, they get a generated
-unique URN. The SPARQL standard makes blank nodes truly anonymous, you can
-only use them to determine that there is something that matches the graph
-pattern you defined. The practical difference could be seen with this
-query:
+By default, Tracker deviates from the SPARQL standard in the handling
+of blank nodes, these are considered a generator of URIs. The
+[](TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES) flag may be used to
+make Tracker honor the SPARQL 1.1 standard with those. The standard
+defines blank nodes as truly anonymous, you can only use them to determine
+that there is something that matches the graph pattern you defined. The
+practical difference could be seen with this query:
 
 ```SPARQL
 SELECT ?u {
@@ -869,11 +870,11 @@ SELECT ?u {
 }
 ```
 
-Tracker will provide you with URNs that can be fed into other SPARQL queries
-as URIs, while a other SPARQL engines will not. In these, the returned
-elements will be temporary names that can only be used to determine the
-existence of a distinct match. There, blank nodes can match named nodes, but
-named nodes do not match with blank nodes.
+Tracker by default will provide you with URNs that can be fed into other
+SPARQL queries as URIs. With [](TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES)
+enabled, the returned elements will be temporary names that can only be used to
+determine the existence of a distinct match. There, blank nodes can match named
+nodes, but named nodes do not match with blank nodes.
 
 This nature of blank nodes is however useful to query for elements whose
 resource URI is irrelevant, e.g.:
