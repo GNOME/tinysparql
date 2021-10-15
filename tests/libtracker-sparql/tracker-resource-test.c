@@ -58,7 +58,7 @@ test_resource_get_set_simple (void)
 	tracker_resource_set_uri (resource, "http://example.com/5", "http://example.com/");
 	tracker_resource_set_datetime (resource, "http://example.com/6", date_time);
 
-	g_assert_true (tracker_resource_get_first_double (resource, "http://example.com/1") == 0.6);
+	g_assert_cmpfloat_with_epsilon (tracker_resource_get_first_double (resource, "http://example.com/1"), 0.6, DBL_EPSILON);
 	g_assert_cmpint (tracker_resource_get_first_int (resource, "http://example.com/2"), ==, 60);
 	g_assert_true (tracker_resource_get_first_int64 (resource, "http://example.com/3") == 123456789);
 	g_assert_cmpstr (tracker_resource_get_first_string (resource, "http://example.com/4"), ==, "Hello");
