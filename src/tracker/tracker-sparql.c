@@ -1428,8 +1428,8 @@ sparql_run (void)
 			goto out;
 		}
 
-		g_file_get_contents (path_in_utf8, &query, &size, &error);
-		if (error) {
+		if (!g_file_get_contents (path_in_utf8, &query, &size, &error)) {
+			g_assert (error != NULL);
 			g_printerr ("%s:'%s', %s\n",
 			            _("Could not read file"),
 			            path_in_utf8,
