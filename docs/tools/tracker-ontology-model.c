@@ -303,7 +303,7 @@ tracker_ontology_model_new (GFile   *ontology_location,
 {
 	TrackerOntologyModel *model;
 	TrackerSparqlConnection *ontology_conn, *desc_conn;
-	GFileEnumerator *enumerator;
+	GFileEnumerator *enumerator = NULL;
 	GFileInfo *info;
 	GFile *dsc_ontology;
 
