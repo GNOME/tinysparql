@@ -5633,9 +5633,6 @@ translate_InlineDataOneVar (TrackerSparql  *sparql,
 	_call_rule (sparql, NAMED_RULE_Var, error);
 
 	var = _last_node_variable (sparql);
-	binding = tracker_variable_binding_new (var, NULL, NULL);
-	tracker_variable_set_sample_binding (var, TRACKER_VARIABLE_BINDING (binding));
-	g_object_unref (binding);
 
 	_append_string (sparql, "(");
 	_append_variable_sql (sparql, var);
@@ -5655,11 +5652,15 @@ translate_InlineDataOneVar (TrackerSparql  *sparql,
 		n_values++;
 	}
 
+	binding = tracker_variable_binding_new (var, NULL, NULL);
+	tracker_variable_set_sample_binding (var, TRACKER_VARIABLE_BINDING (binding));
+
 	if (n_values == 0)
 		_append_string (sparql, "SELECT NULL WHERE FALSE");
 	else
 		tracker_binding_set_data_type (binding, sparql->current_state->expression_type);
 
+	g_object_unref (binding);
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_BRACE);
 	_append_string (sparql, ") ");
 
