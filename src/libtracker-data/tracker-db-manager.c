@@ -463,27 +463,27 @@ tracker_db_manager_db_exists (GFile *cache_location)
 	return db_exists;
 }
 
-int
-tracker_db_manager_rollback_db_creation (TrackerDBManager  *db_manager,
-                                         GError           **error)
+void
+tracker_db_manager_rollback_db_creation (TrackerDBManager *db_manager)
 {
 	gchar *dir;
 	gchar *filename;
-	int ret;
 
-	g_return_val_if_fail (db_manager->first_time, -1);
+	g_return_if_fail (db_manager->first_time);
 
 	if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) != 0)
-		return 0;
+		return;
 
 	dir = g_file_get_path (db_manager->cache_location);
 	filename = g_build_filename (dir, db_base.file, NULL);
 
-	ret = g_unlink (filename);
+	if (g_unlink (filename) < 0) {
+		g_warning ("Could not delete database file '%s': %m",
+		           db_base.file);
+	}
 
 	g_free (dir);
 	g_free (filename);
-	return ret;
 }
 
 static gboolean

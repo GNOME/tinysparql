@@ -4658,7 +4658,7 @@ rollback_db_changes:
 
 rollback_newly_created_db:
 	tracker_data_rollback_transaction (manager->data_update);
-	tracker_db_manager_rollback_db_creation (manager->db_manager, NULL);
+	tracker_db_manager_rollback_db_creation (manager->db_manager);
 	return FALSE;
 }
 
