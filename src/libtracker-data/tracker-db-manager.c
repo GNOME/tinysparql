@@ -585,7 +585,14 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 
 			/* Make sure the directories exist */
-			g_mkdir_with_parents (db_manager->data_dir, 00755);
+			if (g_mkdir_with_parents (db_manager->data_dir, 00755) < 0) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_OPEN_ERROR,
+				             "Could not create database directory");
+				g_object_unref (db_manager);
+				return NULL;
+			}
 		}
 	} else {
 		db_manager->shared_cache_key = tracker_generate_uuid (NULL);
