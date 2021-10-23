@@ -763,7 +763,8 @@ tracker_db_manager_finalize (GObject *object)
 
 	if (db_manager->in_use_filename && !readonly) {
 		/* do not delete in-use file for read-only mode (direct access) */
-		g_unlink (db_manager->in_use_filename);
+		if (g_unlink (db_manager->in_use_filename) < 0)
+			g_warning ("Could not delete '" IN_USE_FILENAME "': %m");
 	}
 
 	g_free (db_manager->in_use_filename);
