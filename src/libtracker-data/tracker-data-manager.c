@@ -1430,8 +1430,7 @@ out:
 
 fail:
 	g_free(object_location);
-	if (loaded_successfully)
-		*loaded_successfully = FALSE;
+	*loaded_successfully = FALSE;
 }
 
 
