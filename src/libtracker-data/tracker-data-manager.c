@@ -1430,8 +1430,7 @@ out:
 
 fail:
 	g_free(object_location);
-	if (loaded_successfully)
-		*loaded_successfully = FALSE;
+	*loaded_successfully = FALSE;
 }
 
 
@@ -3273,13 +3272,12 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 				TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Copy supported nlr:maxCardinality change: %s", query));
 
 				tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
+				g_free (query);
 
 				if (internal_error) {
 					g_propagate_error (error, internal_error);
 					goto error_out;
 				}
-
-				g_free (query);
 			}
 		}
 
@@ -4191,7 +4189,10 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			}
 		}
 
-		write_ontologies_gvdb (manager, TRUE /* overwrite */, NULL);
+		if (!write_ontologies_gvdb (manager, TRUE /* overwrite */, &internal_error)) {
+			g_propagate_error (error, internal_error);
+			goto rollback_newly_created_db;
+		}
 
 		ontologies = tracker_ontologies_get_ontologies (manager->ontologies, &n_ontologies);
 
@@ -4243,7 +4244,10 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			}
 
 			if (!read_only) {
-				write_ontologies_gvdb (manager, FALSE /* overwrite */, NULL);
+				if (!write_ontologies_gvdb (manager, FALSE /* overwrite */, &internal_error)) {
+					g_propagate_error (error, internal_error);
+					return FALSE;
+				}
 			}
 		}
 
@@ -4589,7 +4593,10 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 			tracker_data_ontology_process_changes_post_import (seen_classes, seen_properties);
 
-			write_ontologies_gvdb (manager, TRUE /* overwrite */, NULL);
+			if (!write_ontologies_gvdb (manager, TRUE /* overwrite */, &internal_error)) {
+				g_propagate_error (error, internal_error);
+				goto rollback_db_changes;
+			}
 		}
 
 		g_clear_pointer (&seen_classes, g_ptr_array_unref);
@@ -4658,7 +4665,7 @@ rollback_db_changes:
 
 rollback_newly_created_db:
 	tracker_data_rollback_transaction (manager->data_update);
-	tracker_db_manager_rollback_db_creation (manager->db_manager, NULL);
+	tracker_db_manager_rollback_db_creation (manager->db_manager);
 	return FALSE;
 }
 

@@ -43,7 +43,8 @@ setup_man_path (void)
 		g_string_append (new_path, old_path); 
 	}
 
-	g_setenv ("MANPATH", new_path->str, TRUE);
+	if (!g_setenv ("MANPATH", new_path->str, TRUE))
+		g_warning ("Could not set MANPATH");
 
 	g_string_free (new_path, TRUE);
 }

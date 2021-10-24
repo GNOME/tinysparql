@@ -463,27 +463,27 @@ tracker_db_manager_db_exists (GFile *cache_location)
 	return db_exists;
 }
 
-int
-tracker_db_manager_rollback_db_creation (TrackerDBManager  *db_manager,
-                                         GError           **error)
+void
+tracker_db_manager_rollback_db_creation (TrackerDBManager *db_manager)
 {
 	gchar *dir;
 	gchar *filename;
-	int ret;
 
-	g_return_val_if_fail (db_manager->first_time, -1);
+	g_return_if_fail (db_manager->first_time);
 
 	if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) != 0)
-		return 0;
+		return;
 
 	dir = g_file_get_path (db_manager->cache_location);
 	filename = g_build_filename (dir, db_base.file, NULL);
 
-	ret = g_unlink (filename);
+	if (g_unlink (filename) < 0) {
+		g_warning ("Could not delete database file '%s': %m",
+		           db_base.file);
+	}
 
 	g_free (dir);
 	g_free (filename);
-	return ret;
 }
 
 static gboolean
@@ -585,7 +585,14 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
 
 			/* Make sure the directories exist */
-			g_mkdir_with_parents (db_manager->data_dir, 00755);
+			if (g_mkdir_with_parents (db_manager->data_dir, 00755) < 0) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_OPEN_ERROR,
+				             "Could not create database directory");
+				g_object_unref (db_manager);
+				return NULL;
+			}
 		}
 	} else {
 		db_manager->shared_cache_key = tracker_generate_uuid (NULL);
@@ -763,7 +770,8 @@ tracker_db_manager_finalize (GObject *object)
 
 	if (db_manager->in_use_filename && !readonly) {
 		/* do not delete in-use file for read-only mode (direct access) */
-		g_unlink (db_manager->in_use_filename);
+		if (g_unlink (db_manager->in_use_filename) < 0)
+			g_warning ("Could not delete '" IN_USE_FILENAME "': %m");
 	}
 
 	g_free (db_manager->in_use_filename);

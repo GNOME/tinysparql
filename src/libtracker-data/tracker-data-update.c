@@ -3121,11 +3121,11 @@ tracker_data_load_turtle_file (TrackerData  *data,
 	const gchar *subject, *predicate, *object_str, *langtag;
 	gboolean object_is_uri;
 	goffset last_parsed_line_no, last_parsed_column_no;
-	gchar *ontology_uri = g_file_get_uri (file);
+	gchar *ontology_uri;
 
-	reader = tracker_turtle_reader_new_for_file (file, &inner_error);
-	if (inner_error)
-		goto failed;
+	reader = tracker_turtle_reader_new_for_file (file, error);
+	if (!reader)
+		return;
 
 	while (tracker_turtle_reader_next (reader,
 	                                   &subject,
@@ -3161,10 +3161,6 @@ tracker_data_load_turtle_file (TrackerData  *data,
 			goto failed;
 	}
 
-	if (inner_error)
-		goto failed;
-
-	g_free (ontology_uri);
 	g_clear_object (&reader);
 
 	return;
@@ -3172,10 +3168,10 @@ tracker_data_load_turtle_file (TrackerData  *data,
 failed:
 	g_clear_object (&reader);
 
+	ontology_uri = g_file_get_uri (file);
 	g_propagate_prefixed_error (error, inner_error,
 	                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
 	                            ontology_uri, last_parsed_line_no, last_parsed_column_no);
-
 	g_free (ontology_uri);
 }
 

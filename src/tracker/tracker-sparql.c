@@ -1417,7 +1417,8 @@ sparql_run (void)
 		gsize size;
 
 		path_in_utf8 = g_filename_to_utf8 (file, -1, NULL, NULL, &error);
-		if (error) {
+		if (!path_in_utf8) {
+			g_assert (error != NULL);
 			g_printerr ("%s:'%s', %s\n",
 			            _("Could not get UTF-8 path from path"),
 			            file,
@@ -1428,8 +1429,8 @@ sparql_run (void)
 			goto out;
 		}
 
-		g_file_get_contents (path_in_utf8, &query, &size, &error);
-		if (error) {
+		if (!g_file_get_contents (path_in_utf8, &query, &size, &error)) {
+			g_assert (error != NULL);
 			g_printerr ("%s:'%s', %s\n",
 			            _("Could not read file"),
 			            path_in_utf8,

@@ -50,8 +50,7 @@ typedef enum {
 	TRACKER_DB_MANAGER_SKIP_VERSION_CHECK    = 1 << 9,
 } TrackerDBManagerFlags;
 
-int                 tracker_db_manager_rollback_db_creation   (TrackerDBManager *db_manager,
-                                                               GError **error);
+void                tracker_db_manager_rollback_db_creation   (TrackerDBManager *db_manager);
 
 gboolean            tracker_db_manager_db_exists              (GFile *cache_location);
 

@@ -75,8 +75,8 @@ sql_by_file (void)
 		return EXIT_FAILURE;
 	}
 
-	g_file_get_contents (path_in_utf8, &query, &size, &error);
-	if (error) {
+	if (!g_file_get_contents (path_in_utf8, &query, &size, &error)) {
+		g_assert (error != NULL);
 		g_printerr ("%s:'%s', %s\n",
 		            _("Could not read file"),
 		            path_in_utf8,
