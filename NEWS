@@ -1,3 +1,11 @@
+NEW in 3.2.1 - 2021-10-30
+=========================
+  * Better, more understandable errors when parsing the ontology
+  * Compare doubles with an epsilon in tests
+  * Fixes for issues spotted by Coverity
+
+Translations: he, lv
+
 NEW in 3.2.0 - 2021-09-18
 =========================
   * Fuller docs, with updated examples
