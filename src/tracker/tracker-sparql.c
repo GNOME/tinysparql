@@ -1083,7 +1083,7 @@ sparql_run (void)
 
 	namespaces = tracker_sparql_connection_get_namespace_manager (connection);
 
-	tracker_term_pipe_to_pager ();
+	tracker_term_pipe_to_pager (TRUE);
 
 	if (list_classes) {
 		stmt = load_statement (connection, "get-classes.rq");

@@ -147,10 +147,10 @@ best_pager (void)
 }
 
 gboolean
-tracker_term_pipe_to_pager (void)
+tracker_term_pipe_to_pager (gboolean quit_if_one_screen)
 {
 	GSubprocessLauncher *launcher;
-	gchar *pager_command;
+	gchar *pager_command, *less_env;
 	gint fds[2];
 
 	if (!tracker_term_is_tty ())
@@ -166,10 +166,14 @@ tracker_term_pipe_to_pager (void)
 	/* Ensure this is cached before we redirect to the pager */
 	tracker_term_dimensions (NULL, NULL);
 
+	if (quit_if_one_screen)
+		less_env = "FRSXMK";
+	else
+		less_env = "RSXMK";
+
 	launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
 	g_subprocess_launcher_take_stdin_fd (launcher, fds[0]);
-	g_subprocess_launcher_setenv (launcher, "LESS", "FRSXMK", TRUE);
-
+	g_subprocess_launcher_setenv (launcher, "LESS", less_env, TRUE);
 	pager = g_subprocess_launcher_spawn (launcher, NULL, pager_command, NULL);
 	g_free (pager_command);
 

@@ -117,7 +117,7 @@ sql_by_query (void)
 		return EXIT_FAILURE;
 	}
 
-	tracker_term_pipe_to_pager ();
+	tracker_term_pipe_to_pager (TRUE);
 
 	g_print ("--------------------------------------------------\n");
 	g_print ("\n\n");

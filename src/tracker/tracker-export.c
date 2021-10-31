@@ -388,7 +388,7 @@ export_run_default (void)
 		format = TRACKER_RDF_FORMAT_TURTLE;
 	}
 
-	tracker_term_pipe_to_pager ();
+	tracker_term_pipe_to_pager (TRUE);
 
 	tracker_sparql_connection_serialize_async (connection,
 	                                           TRACKER_SERIALIZE_FLAGS_NONE,
