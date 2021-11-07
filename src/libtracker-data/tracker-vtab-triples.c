@@ -55,6 +55,12 @@ enum {
 	IDX_MATCH_PREDICATE_NEG = 1 << 5,
 };
 
+enum {
+	WEIGHT_GRAPH     = 1 << 10,
+	WEIGHT_PREDICATE = 1 << 20,
+	WEIGHT_SUBJECT   = 1 << 30,
+};
+
 typedef struct {
 	sqlite3 *db;
 	TrackerOntologies *ontologies;
@@ -169,6 +175,7 @@ triples_best_index (sqlite3_vtab       *vtab,
 {
 	gboolean order_by_consumed = FALSE;
 	int i, argv_idx = 1, idx = 0;
+	int cost_divisor = 1;
 	char *idx_str;
 
 	idx_str = sqlite3_malloc (sizeof (char) * N_COLS);
@@ -221,12 +228,20 @@ triples_best_index (sqlite3_vtab       *vtab,
 		info->aConstraintUsage[i].argvIndex = argv_idx;
 		info->aConstraintUsage[i].omit = FALSE;
 		argv_idx++;
+
+		if (info->aConstraint[i].iColumn == COL_SUBJECT)
+			cost_divisor |= WEIGHT_SUBJECT;
+		else if (info->aConstraint[i].iColumn == COL_PREDICATE)
+			cost_divisor |= WEIGHT_PREDICATE;
+		else if (info->aConstraint[i].iColumn == COL_GRAPH)
+			cost_divisor |= WEIGHT_GRAPH;
 	}
 
 	info->idxNum = idx;
 	info->orderByConsumed = order_by_consumed;
 	info->idxStr = idx_str;
 	info->needToFreeIdxStr = TRUE;
+	info->estimatedCost = info->estimatedCost / cost_divisor;
 
 	return SQLITE_OK;
 }
