@@ -809,3 +809,47 @@ tracker_sparql_connection_create_batch (TrackerSparqlConnection *connection)
 
 	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->create_batch (connection);
 }
+
+/**
+ * tracker_sparql_connection_query_statement_from_gresource:
+ * @connection: a #TrackerSparqlConnection
+ * @resource_path: the resource path of the file to parse.
+ * @cancellable: a #GCancellable, or %NULL
+ * @error: return location for an error, or %NULL
+ *
+ * Prepares a #TrackerSparqlStatement for the SPARQL query contained as a resource
+ * file at @resource_path. SPARQL Query files typically have the .rq extension.
+ *
+ * Returns: (transfer full) (nullable): a prepared statement
+ *
+ * Since: 3.3
+ **/
+TrackerSparqlStatement *
+tracker_sparql_connection_load_statement_from_gresource (TrackerSparqlConnection  *connection,
+                                                         const gchar              *resource_path,
+                                                         GCancellable             *cancellable,
+                                                         GError                  **error)
+{
+	TrackerSparqlStatement *stmt;
+	GBytes *query;
+
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), NULL);
+	g_return_val_if_fail (resource_path && *resource_path, NULL);
+	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
+	g_return_val_if_fail (!error || !*error, NULL);
+
+	query = g_resources_lookup_data (resource_path,
+	                                 G_RESOURCE_LOOKUP_FLAGS_NONE,
+	                                 error);
+	if (!query)
+		return NULL;
+
+	stmt = TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->query_statement (connection,
+	                                                                          g_bytes_get_data (query,
+	                                                                                            NULL),
+	                                                                          cancellable,
+	                                                                          error);
+	g_bytes_unref (query);
+
+	return stmt;
+}

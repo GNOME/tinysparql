@@ -212,6 +212,12 @@ gboolean tracker_sparql_connection_close_finish (TrackerSparqlConnection  *conne
                                                  GAsyncResult             *res,
                                                  GError                  **error);
 
+TRACKER_AVAILABLE_IN_3_3
+TrackerSparqlStatement * tracker_sparql_connection_load_statement_from_gresource (TrackerSparqlConnection  *connection,
+                                                                                  const gchar              *resource_path,
+                                                                                  GCancellable             *cancellable,
+                                                                                  GError                  **error);
+
 G_END_DECLS
 
 #endif /* __TRACKER_SPARQL_CONNECTION_H__ */

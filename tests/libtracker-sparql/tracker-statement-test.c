@@ -38,19 +38,32 @@ typedef struct {
 
 TestInfo tests[] = {
 	{ "simple", "statement/simple.rq", "statement/simple.out", "hello" },
+	{ "simple-2", "/test/sparql/statement/simple.rq", "statement/simple.out", "hello" },
 	{ "simple-error", "statement/simple-error.rq" },
+	{ "simple-error-2", "/test/sparql/statement/simple-error.rq" },
 	{ "object", "statement/object.rq", "statement/object.out", "Music album" },
+	{ "object-2", "/test/sparql/statement/object.rq", "statement/object.out", "Music album" },
 	{ "object-iri", "statement/object-iri.rq", "statement/object-iri.out", "http://tracker.api.gnome.org/ontology/v3/nfo#MediaList" },
+	{ "object-iri-2", "/test/sparql/statement/object-iri.rq", "statement/object-iri.out", "http://tracker.api.gnome.org/ontology/v3/nfo#MediaList" },
 	{ "subject", "statement/subject.rq", "statement/subject.out", "http://tracker.api.gnome.org/ontology/v3/nmm#MusicAlbum" },
 	{ "subject-2", "statement/subject.rq", "statement/subject-2.out", "urn:nonexistent" },
+	{ "subject-3", "/test/sparql/statement/subject.rq", "statement/subject.out", "http://tracker.api.gnome.org/ontology/v3/nmm#MusicAlbum" },
+	{ "subject-4", "/test/sparql/statement/subject.rq", "statement/subject-2.out", "urn:nonexistent" },
 	{ "filter", "statement/filter.rq", "statement/filter.out", "http://tracker.api.gnome.org/ontology/v3/nmm#MusicAlbum", "Music album" },
+	{ "filter-2", "/test/sparql/statement/filter.rq", "statement/filter.out", "http://tracker.api.gnome.org/ontology/v3/nmm#MusicAlbum", "Music album" },
 	{ "service", "statement/service.rq", "statement/service.out", "Music album", NULL, NULL, TRUE },
 	{ "limit", "statement/limit.rq", "statement/limit.out", "1" },
 	{ "limit-2", "statement/limit.rq", "statement/limit-2.out", "2" },
+	{ "limit-3", "/test/sparql/statement/limit.rq", "statement/limit.out", "1" },
+	{ "limit-4", "/test/sparql/statement/limit.rq", "statement/limit-2.out", "2" },
 	{ "offset", "statement/offset.rq", "statement/offset.out", "0" },
 	{ "offset-2", "statement/offset.rq", "statement/offset-2.out", "1" },
+	{ "offset-3", "/test/sparql/statement/offset.rq", "statement/offset.out", "0" },
+	{ "offset-4", "/test/sparql/statement/offset.rq", "statement/offset-2.out", "1" },
 	{ "datetime", "statement/datetime.rq", "statement/datetime.out", NULL, NULL, "2020-12-04T04:10:03Z" },
+	{ "datetime-2", "/test/sparql/statement/datetime.rq", "statement/datetime.out", NULL, NULL, "2020-12-04T04:10:03Z" },
 	{ "cast", "statement/cast.rq", "statement/cast.out", "2021-02-24T22:01:02Z" },
+	{ "cast-2", "/test/sparql/statement/cast.rq", "statement/cast.out", "2021-02-24T22:01:02Z" },
 };
 
 typedef struct {
@@ -171,23 +184,31 @@ query_statement (TestInfo      *test_info,
 	gchar *path, *query;
 	GDateTime *date_time;
 
-	path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
-	                         test_info->query_file, NULL);
-	g_file_get_contents (path, &query, NULL, &error);
-	g_assert_no_error (error);
-	g_free (path);
+	if (test_info->query_file[0] == '/') {
+		/* Absolute paths refer to GResource paths here */
+		stmt = tracker_sparql_connection_load_statement_from_gresource (test_info->conn,
+		                                                                test_info->query_file,
+		                                                                NULL, &error);
+	} else {
+		path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
+		                         test_info->query_file, NULL);
+		g_file_get_contents (path, &query, NULL, &error);
+		g_assert_no_error (error);
+		g_free (path);
 
-	if (test_info->service) {
-		gchar *service_query;
+		if (test_info->service) {
+			gchar *service_query;
 
-		service_query = g_strdup_printf (query, bus_name);
+			service_query = g_strdup_printf (query, bus_name);
+			g_free (query);
+			query = service_query;
+		}
+
+		stmt = tracker_sparql_connection_query_statement (test_info->conn, query,
+		                                                  NULL, &error);
 		g_free (query);
-		query = service_query;
 	}
 
-	stmt = tracker_sparql_connection_query_statement (test_info->conn, query,
-	                                                  NULL, &error);
-	g_free (query);
 	g_assert_no_error (error);
 
 	if (test_info->arg1)
