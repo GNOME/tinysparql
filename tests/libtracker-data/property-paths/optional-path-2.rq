@@ -1,0 +1,5 @@
+select ?u {
+  # Bind a value impossible to have foaf:knows
+  BIND (foaf:name AS ?u) .
+  ?u foaf:knows? ?a
+}
