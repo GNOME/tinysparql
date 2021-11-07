@@ -1962,7 +1962,7 @@ check_properties_completeness (TrackerOntologies  *ontologies,
 
 			g_set_error (error,
 			             TRACKER_SPARQL_ERROR,
-				     TRACKER_SPARQL_ERROR_OPEN_ERROR,
+			             TRACKER_SPARQL_ERROR_INCOMPLETE_PROPERTY_DEFINITION,
 			             "%s: Property %s has no defined %s.",
 			             definition_location, property_name, missing_definition);
 
@@ -2120,7 +2120,7 @@ get_ontology_from_file (TrackerDataManager *manager,
 	if (ret == NULL) {
 		g_set_error (error,
 		             TRACKER_SPARQL_ERROR,
-			     TRACKER_SPARQL_ERROR_OPEN_ERROR,
+		             TRACKER_SPARQL_ERROR_MISSING_LAST_MODIFIED_HEADER,
 		             "%s: Ontology has no nrl:lastModified header", ontology_uri);
 		goto out;
 	}
