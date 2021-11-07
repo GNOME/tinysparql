@@ -287,6 +287,44 @@ tracker_namespace_manager_expand_uri (TrackerNamespaceManager *self,
 }
 
 /**
+ * tracker_namespace_manager_compress_uri:
+ * @self: a #TrackerNamespaceManager
+ * @uri: a URI or compact URI
+ *
+ * If @uri begins with one of the namespaces known to this
+ * #TrackerNamespaceManager, then the return value will be the
+ * compressed URI. Otherwise, %NULL will be returned.
+ *
+ * Returns: (transfer full): (nullable): the compressed URI
+ *
+ * Since: 3.3
+ **/
+char *
+tracker_namespace_manager_compress_uri (TrackerNamespaceManager *self,
+                                        const char              *uri)
+{
+	TrackerNamespaceManagerPrivate *priv;
+	GHashTableIter iter;
+	const char *prefix, *namespace, *suffix;
+
+	g_return_val_if_fail (TRACKER_IS_NAMESPACE_MANAGER (self), NULL);
+	g_return_val_if_fail (uri != NULL, NULL);
+
+	priv = GET_PRIVATE (self);
+
+	g_hash_table_iter_init (&iter, priv->prefix_to_namespace);
+
+	while (g_hash_table_iter_next (&iter, (gpointer *) &prefix, (gpointer *) &namespace)) {
+		if (g_str_has_prefix (uri, namespace)) {
+			suffix = &uri[strlen(namespace)];
+			return g_strdup_printf ("%s:%s", prefix, suffix);
+		}
+	}
+
+	return NULL;
+}
+
+/**
  * tracker_namespace_manager_print_turtle:
  * @self: a #TrackerNamespaceManager
  *
