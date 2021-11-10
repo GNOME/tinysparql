@@ -259,6 +259,7 @@ thread_func (gpointer user_data)
 {
 	StartupData *data = user_data;
 	TrackerEndpointDBus *endpoint;
+	TrackerEndpointHttp *endpoint_http;
 	GMainContext *context;
 	GMainLoop *main_loop;
 
@@ -271,6 +272,10 @@ thread_func (gpointer user_data)
 	if (!endpoint)
 		return NULL;
 
+	endpoint_http = tracker_endpoint_http_new (data->direct, 54321, NULL, NULL, NULL);
+	if (!endpoint_http)
+		return NULL;
+
 	started = TRUE;
 	g_main_loop_run (main_loop);
 
@@ -280,6 +285,7 @@ thread_func (gpointer user_data)
 static gboolean
 create_connections (TrackerSparqlConnection **dbus,
                     TrackerSparqlConnection **direct,
+                    TrackerSparqlConnection **remote,
                     GError                  **error)
 {
 	StartupData data;
@@ -301,6 +307,7 @@ create_connections (TrackerSparqlConnection **dbus,
 	*dbus = tracker_sparql_connection_bus_new (bus_name,
 	                                           NULL, data.dbus_conn, error);
 	*direct = create_local_connection (error);
+	*remote = tracker_sparql_connection_remote_new ("http://127.0.0.1:54321/sparql");
 	g_thread_unref (thread);
 
 	return TRUE;
@@ -332,16 +339,17 @@ add_tests (TrackerSparqlConnection *conn,
 gint
 main (gint argc, gchar **argv)
 {
-	TrackerSparqlConnection *dbus = NULL, *direct = NULL;
+	TrackerSparqlConnection *dbus = NULL, *direct = NULL, *remote = NULL;
 	GError *error = NULL;
 
 	g_test_init (&argc, &argv, NULL);
 
-	g_assert_true (create_connections (&dbus, &direct, &error));
+	g_assert_true (create_connections (&dbus, &direct, &remote, &error));
 	g_assert_no_error (error);
 
 	add_tests (direct, "direct", TRUE);
 	add_tests (dbus, "dbus", FALSE);
+	add_tests (remote, "http", FALSE);
 
 	return g_test_run ();
 }
