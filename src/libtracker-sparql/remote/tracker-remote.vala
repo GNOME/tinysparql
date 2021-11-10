@@ -37,7 +37,7 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 	}
 
 	private Soup.Message create_request (string sparql) {
-		var uri = _base_uri + "?query=" + sparql;
+		var uri = _base_uri + "?query=" + GLib.Uri.escape_string (sparql, null, false);
 		var message = new Soup.Message ("GET", uri);
 #if SOUP2
 		var headers = message.request_headers;
