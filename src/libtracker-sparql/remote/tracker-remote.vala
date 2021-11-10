@@ -83,18 +83,19 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 
 #if SOUP2
 		_session.send_message (message);
+		var data = (string) message.response_body.flatten ().data;
 #else
-                var body = _session.send_and_read (message);
+		var body = _session.send_and_read (message);
+		var data = (string) body.get_data();
 #endif
+
+		if (data == null || data == "")
+			throw new Sparql.Error.UNSUPPORTED ("Empty response");
 
 		if (cancellable != null && cancellable.is_cancelled ())
 			throw new IOError.CANCELLED ("Operation was cancelled");
 
-#if SOUP2
-                return create_cursor (message, (string) message.response_body.flatten ().data);
-#else
-                return create_cursor (message, (string) body.get_data());
-#endif
+                return create_cursor (message, (string) data);
 	}
 
 	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable) throws GLib.Error, Sparql.Error, IOError {
