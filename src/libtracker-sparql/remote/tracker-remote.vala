@@ -110,6 +110,10 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 #endif
 	}
 
+	public override Sparql.Statement? query_statement (string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error {
+		return new Remote.Statement (this, sparql);
+	}
+
 	public override void close () {
 	}
 

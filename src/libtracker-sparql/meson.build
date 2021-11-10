@@ -92,10 +92,12 @@ tracker_remote_dependencies = [json_glib, libxml2]
 
 libtracker_sparql_remote_c_sources = files (
     'tracker-endpoint-http.c',
+    'remote/tracker-remote-statement.c',
 )
 
 remote_sources = [
     libtracker_sparql_remote_c_sources,
+    'remote/tracker-remote.vapi',
     'remote/tracker-json-cursor.vala',
     'remote/tracker-xml-cursor.vala',
     'remote/tracker-remote.vala',
