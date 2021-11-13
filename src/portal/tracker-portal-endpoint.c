@@ -92,16 +92,15 @@ tracker_portal_endpoint_filter_graph (TrackerEndpointDBus *endpoint_dbus,
 		} else if (g_strcmp0 (graph_name, endpoint->graphs[i]) == 0) {
 			return FALSE;
 		} else {
+			TrackerSparqlConnection *connection;
 			TrackerNamespaceManager *namespaces;
 			gchar *expanded;
 
 			/* We may have been given a prefixed name instead of an
 			 * URI, expand it in order to check with the given graph.
-			 *
-			 * FIXME: This is not going to work for prefixes outside
-			 * the well-known namespaces.
 			 */
-			namespaces = tracker_namespace_manager_get_default ();
+			connection = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (endpoint));
+			namespaces = tracker_sparql_connection_get_namespace_manager (connection);
 			expanded = tracker_namespace_manager_expand_uri (namespaces,
 			                                                 endpoint->graphs[i]);
 
