@@ -870,3 +870,70 @@ tracker_sparql_connection_load_statement_from_gresource (TrackerSparqlConnection
 
 	return stmt;
 }
+
+/**
+ * tracker_sparql_connection_serialize_async:
+ * @connection: a #TrackerSparqlConnection
+ * @format: output RDF format
+ * @query: SPARQL query
+ * @cancellable: a #GCancellable
+ * @callback: the #GAsyncReadyCallback called when the operation completes
+ * @user_data: data passed to @callback
+ *
+ * Serializes data into the specified RDF format. @query must be either a
+ * `DESCRIBE` or `CONSTRUCT` query. This is an asynchronous operation,
+ * @callback will be invoked when the data is available for reading.
+ *
+ * The SPARQL endpoint may not support the specified format, in that case
+ * an error will be raised.
+ *
+ * Since: 3.3
+ **/
+void
+tracker_sparql_connection_serialize_async (TrackerSparqlConnection *connection,
+                                           TrackerRdfFormat         format,
+                                           const gchar             *query,
+                                           GCancellable            *cancellable,
+                                           GAsyncReadyCallback      callback,
+                                           gpointer                 user_data)
+{
+	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
+	g_return_if_fail (format < TRACKER_N_RDF_FORMATS);
+	g_return_if_fail (query != NULL);
+	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+	g_return_if_fail (callback != NULL);
+
+	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->serialize_async (connection,
+	                                                                   format,
+	                                                                   query,
+	                                                                   cancellable,
+	                                                                   callback,
+	                                                                   user_data);
+}
+
+/**
+ * tracker_sparql_connection_serialize_finish:
+ * @connection: a #TrackerSparqlConnection
+ * @result: the #GAsyncResult
+ * @error: location for returned errors, or %NULL
+ *
+ * Finishes a tracker_sparql_connection_serialize_async() operation.
+ * In case of error, %NULL will be returned and @error will be set.
+ *
+ * Returns: (transfer full): a #GInputStream to read RDF content.
+ *
+ * Since: 3.3
+ **/
+GInputStream *
+tracker_sparql_connection_serialize_finish (TrackerSparqlConnection  *connection,
+                                            GAsyncResult             *result,
+                                            GError                  **error)
+{
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), NULL);
+	g_return_val_if_fail (G_IS_ASYNC_RESULT (result), NULL);
+	g_return_val_if_fail (!error || !*error, NULL);
+
+	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->serialize_finish (connection,
+	                                                                           result,
+	                                                                           error);
+}
