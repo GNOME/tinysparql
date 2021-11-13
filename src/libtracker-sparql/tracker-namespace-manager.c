@@ -26,6 +26,7 @@
 
 #include "tracker-namespace-manager.h"
 #include "tracker-ontologies.h"
+#include "tracker-private.h"
 
 #define MAX_PREFIX_LENGTH 100
 
@@ -36,6 +37,7 @@ struct _TrackerNamespaceManager {
 typedef struct {
 	GHashTable *prefix_to_namespace;
 	GHashTable *namespace_to_prefix;
+	gboolean sealed;
 } TrackerNamespaceManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (TrackerNamespaceManager, tracker_namespace_manager, G_TYPE_OBJECT)
@@ -206,6 +208,10 @@ tracker_namespace_manager_lookup_prefix (TrackerNamespaceManager *self,
  *
  * Only one prefix is allowed for a given namespace, and all prefixes must
  * be unique.
+ *
+ * Since 3.3, This function may not be used on #TrackerNamespaceManager
+ * instances that were obtained through
+ * tracker_sparql_connection_get_namespace_manager().
  */
 void
 tracker_namespace_manager_add_prefix (TrackerNamespaceManager *self,
@@ -220,6 +226,7 @@ tracker_namespace_manager_add_prefix (TrackerNamespaceManager *self,
 	g_return_if_fail (ns != NULL);
 
 	priv = GET_PRIVATE (TRACKER_NAMESPACE_MANAGER (self));
+	g_return_if_fail (priv->sealed == FALSE);
 
 	if (strlen (prefix) > MAX_PREFIX_LENGTH) {
 		g_error ("Prefix is too long: max %i characters.", MAX_PREFIX_LENGTH);
@@ -371,4 +378,12 @@ tracker_namespace_manager_foreach (TrackerNamespaceManager *self,
 	TrackerNamespaceManagerPrivate *priv = GET_PRIVATE (self);
 
 	g_hash_table_foreach (priv->prefix_to_namespace, func, user_data);
+}
+
+void
+tracker_namespace_manager_seal (TrackerNamespaceManager *self)
+{
+	TrackerNamespaceManagerPrivate *priv = GET_PRIVATE (self);
+
+	priv->sealed = TRUE;
 }

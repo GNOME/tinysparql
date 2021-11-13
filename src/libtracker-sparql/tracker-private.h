@@ -265,4 +265,6 @@ void tracker_sparql_cursor_set_connection (TrackerSparqlCursor     *cursor,
                                            TrackerSparqlConnection *connection);
 GError * _translate_internal_error (GError *error);
 
+void tracker_namespace_manager_seal (TrackerNamespaceManager *namespaces);
+
 #endif /* __TRACKER_PRIVATE_H__ */
