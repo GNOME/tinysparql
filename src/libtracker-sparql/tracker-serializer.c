@@ -23,6 +23,7 @@
 
 #include "tracker-serializer.h"
 #include "tracker-serializer-json.h"
+#include "tracker-serializer-turtle.h"
 #include "tracker-serializer-xml.h"
 
 #include "tracker-private.h"
@@ -141,6 +142,11 @@ tracker_serializer_new (TrackerSparqlCursor     *cursor,
 		type = g_type_from_name ("TrackerSerializerXml");
 		if (type == 0)
 			type = TRACKER_TYPE_SERIALIZER_XML;
+		break;
+	case TRACKER_SERIALIZER_FORMAT_TTL:
+		type = g_type_from_name ("TrackerSerializerTurtle");
+		if (type == 0)
+			type = TRACKER_TYPE_SERIALIZER_TURTLE;
 		break;
 	default:
 		g_warn_if_reached ();

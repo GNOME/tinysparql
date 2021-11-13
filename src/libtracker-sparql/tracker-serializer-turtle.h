@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020, Red Hat, Inc
+ * Copyright (C) 2021, Red Hat, Inc
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,28 +19,18 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_SERIALIZER_H
-#define TRACKER_SERIALIZER_H
+#ifndef TRACKER_SERIALIZER_TURTLE_H
+#define TRACKER_SERIALIZER_TURTLE_H
 
 #include <libtracker-sparql/tracker-sparql.h>
+#include <libtracker-sparql/tracker-private.h>
+#include <libtracker-sparql/tracker-serializer.h>
 
-#define TRACKER_TYPE_SERIALIZER (tracker_serializer_get_type())
+#define TRACKER_TYPE_SERIALIZER_TURTLE (tracker_serializer_turtle_get_type())
 
-G_DECLARE_DERIVABLE_TYPE (TrackerSerializer,
-                          tracker_serializer,
-                          TRACKER, SERIALIZER,
-                          GInputStream)
+G_DECLARE_FINAL_TYPE (TrackerSerializerTurtle,
+                      tracker_serializer_turtle,
+                      TRACKER, SERIALIZER_TURTLE,
+                      TrackerSerializer)
 
-typedef enum
-{
-	TRACKER_SERIALIZER_FORMAT_JSON, /* application/sparql-results+json */
-	TRACKER_SERIALIZER_FORMAT_XML, /* application/sparql-results+xml */
-	TRACKER_SERIALIZER_FORMAT_TTL, /* text/turtle */
-} TrackerSerializerFormat;
-
-GInputStream * tracker_serializer_new (TrackerSparqlCursor     *cursor,
-                                       TrackerSerializerFormat  format);
-
-TrackerSparqlCursor * tracker_serializer_get_cursor (TrackerSerializer *serializer);
-
-#endif /* TRACKER_SERIALIZER_H */
+#endif /* TRACKER_SERIALIZER_TURTLE_H */
