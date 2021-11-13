@@ -227,6 +227,7 @@ query_statement (TestFixture   *test_fixture,
 	}
 
 	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+	g_object_unref (stmt);
 
 	if (test_info->output_file) {
 		g_assert_no_error (error);
