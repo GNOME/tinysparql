@@ -121,6 +121,8 @@ tracker_namespace_manager_new ()
  * ontologies, if they have been modified since they were installed.
  *
  * Returns: (transfer none): a global, shared #TrackerNamespaceManager instance
+ *
+ * Deprecated: 3.3: Use tracker_sparql_connection_get_namespace_manager() instead.
  */
 TrackerNamespaceManager *
 tracker_namespace_manager_get_default ()

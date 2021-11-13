@@ -42,7 +42,7 @@ G_DECLARE_FINAL_TYPE (TrackerNamespaceManager, tracker_namespace_manager, TRACKE
 
 TRACKER_AVAILABLE_IN_ALL
 TrackerNamespaceManager *tracker_namespace_manager_new (void);
-TRACKER_AVAILABLE_IN_ALL
+TRACKER_DEPRECATED_IN_3_3_FOR(tracker_sparql_connection_get_namespace_manager)
 TrackerNamespaceManager *tracker_namespace_manager_get_default (void);
 
 TRACKER_AVAILABLE_IN_ALL

@@ -19,6 +19,9 @@
 
 #include "config.h"
 
+/* Allow usage of tracker_namespace_manager_get_default() */
+#define TRACKER_VERSION_MIN_REQUIRED TRACKER_VERSION_3_2
+
 #include <glib.h>
 #include <json-glib/json-glib.h>
 
