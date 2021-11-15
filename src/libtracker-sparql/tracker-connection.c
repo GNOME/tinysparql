@@ -666,9 +666,14 @@ tracker_sparql_connection_update_resource_finish (TrackerSparqlConnection  *conn
 TrackerNamespaceManager *
 tracker_sparql_connection_get_namespace_manager (TrackerSparqlConnection *connection)
 {
+	TrackerNamespaceManager *manager;
+
 	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), NULL);
 
-	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->get_namespace_manager (connection);
+	manager = TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->get_namespace_manager (connection);
+	tracker_namespace_manager_seal (manager);
+
+	return manager;
 }
 
 /**
