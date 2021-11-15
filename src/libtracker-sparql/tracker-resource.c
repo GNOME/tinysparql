@@ -1269,7 +1269,7 @@ generate_turtle (TrackerResource    *resource,
  * tracker_resource_print_turtle:
  * @self: a #TrackerResource
  * @namespaces: (allow-none): a set of prefixed URLs, or %NULL to use the
- *     default set
+ *     Nepomuk set
  *
  * Serialize all the information in @resource as a Turtle document.
  *
@@ -1277,9 +1277,8 @@ generate_turtle (TrackerResource    *resource,
  * <https://www.w3.org/TR/2014/REC-turtle-20140225/>
  *
  * The @namespaces object is used to expand any compact URI values. In most
- * cases you should pass %NULL, which means the set of namespaces returned by
- * tracker_namespace_manager_get_default() will be used. This defines the
- * usual prefixes for all of the ontologies that Tracker ships with by default.
+ * cases you should pass the one returned by tracker_sparql_connection_get_namespace_manager()
+ * from the connection that is the intended recipient of this data.
  *
  * Returns: a newly-allocated string
  */
@@ -1524,7 +1523,7 @@ generate_sparql_insert_pattern (TrackerResource    *resource,
  * tracker_resource_print_sparql_update:
  * @self: a #TrackerResource
  * @namespaces: (allow-none): a set of prefixed URLs, or %NULL to use the
- *     default set
+ *     Nepomuk set
  * @graph_id: (allow-none): the URN of the graph the data should be added to,
  *     or %NULL
  *
@@ -1532,9 +1531,8 @@ generate_sparql_insert_pattern (TrackerResource    *resource,
  * stored in @resource.
  *
  * The @namespaces object is used to expand any compact URI values. In most
- * cases you should pass %NULL, which means the set of namespaces returned by
- * tracker_namespace_manager_get_default() will be used. This defines the
- * usual prefixes for all of the ontologies that Tracker ships with by default.
+ * cases you should pass the one returned by tracker_sparql_connection_get_namespace_manager()
+ * from the connection that is the intended recipient of this data.
  *
  * Returns: a newly-allocated string containing a SPARQL update command.
  */
@@ -1712,7 +1710,7 @@ generate_jsonld_namespace_mapping_foreach (gpointer key,
  * tracker_resource_print_jsonld:
  * @self: a #TrackerResource
  * @namespaces: (allow-none): a set of prefixed URLs, or %NULL to use the
- *     default set
+ *     Nepomuk set
  *
  * Serialize all the information in @resource as a JSON-LD document.
  *
@@ -1720,9 +1718,8 @@ generate_jsonld_namespace_mapping_foreach (gpointer key,
  * serialization format.
  *
  * The @namespaces object is used to expand any compact URI values. In most
- * cases you should pass %NULL, which means the set of namespaces returned by
- * tracker_namespace_manager_get_default() will be used. This defines the
- * usual prefixes for all of the ontologies that Tracker ships with by default.
+ * cases you should pass the one returned by tracker_sparql_connection_get_namespace_manager()
+ * from the connection that is the intended recipient of this data.
  *
  * Returns: a newly-allocated string containing JSON-LD data.
  */
