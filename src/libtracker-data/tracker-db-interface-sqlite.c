@@ -3375,6 +3375,14 @@ tracker_db_statement_bind_value (TrackerDBStatement *stmt,
 		data = g_bytes_get_data (bytes, &len);
 		sqlite3_bind_text (stmt->stmt, index + 1,
 		                   data, len, SQLITE_TRANSIENT);
+	} else if (type == G_TYPE_DATE_TIME) {
+		GDateTime *datetime;
+		gchar *str;
+
+		datetime = g_value_get_boxed (value);
+		str = tracker_date_format_iso8601 (datetime);
+		sqlite3_bind_text (stmt->stmt, index + 1,
+		                   str, -1, g_free);
 	} else {
 		GValue dest = G_VALUE_INIT;
 

@@ -33,7 +33,6 @@ typedef struct {
 	const gchar *arg2;
 	const gchar *arg3;
 	gboolean service;
-	TrackerSparqlConnection *conn;
 } TestInfo;
 
 TestInfo tests[] = {
@@ -65,6 +64,11 @@ TestInfo tests[] = {
 	{ "cast", "statement/cast.rq", "statement/cast.out", "2021-02-24T22:01:02Z" },
 	{ "cast-2", "/test/sparql/statement/cast.rq", "statement/cast.out", "2021-02-24T22:01:02Z" },
 };
+
+typedef struct {
+	TestInfo *test;
+	TrackerSparqlConnection *conn;
+} TestFixture;
 
 typedef struct {
 	TrackerSparqlConnection *direct;
@@ -166,16 +170,16 @@ check_result (TrackerSparqlCursor *cursor,
 }
 
 static void
-setup (TestInfo      *test_info,
+setup (TestFixture   *fixture,
        gconstpointer  context)
 {
-	const TestInfo *test = context;
+	const TestFixture *test = context;
 
-	*test_info = *test;
+	*fixture = *test;
 }
 
 static void
-query_statement (TestInfo      *test_info,
+query_statement (TestFixture   *test_fixture,
                  gconstpointer  context)
 {
 	TrackerSparqlStatement *stmt;
@@ -183,10 +187,11 @@ query_statement (TestInfo      *test_info,
 	GError *error = NULL;
 	gchar *path, *query;
 	GDateTime *date_time;
+	TestInfo *test_info = test_fixture->test;
 
 	if (test_info->query_file[0] == '/') {
 		/* Absolute paths refer to GResource paths here */
-		stmt = tracker_sparql_connection_load_statement_from_gresource (test_info->conn,
+		stmt = tracker_sparql_connection_load_statement_from_gresource (test_fixture->conn,
 		                                                                test_info->query_file,
 		                                                                NULL, &error);
 	} else {
@@ -204,7 +209,7 @@ query_statement (TestInfo      *test_info,
 			query = service_query;
 		}
 
-		stmt = tracker_sparql_connection_query_statement (test_info->conn, query,
+		stmt = tracker_sparql_connection_query_statement (test_fixture->conn, query,
 		                                                  NULL, &error);
 		g_free (query);
 	}
@@ -222,6 +227,7 @@ query_statement (TestInfo      *test_info,
 	}
 
 	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+	g_object_unref (stmt);
 
 	if (test_info->output_file) {
 		g_assert_no_error (error);
@@ -254,6 +260,7 @@ thread_func (gpointer user_data)
 {
 	StartupData *data = user_data;
 	TrackerEndpointDBus *endpoint;
+	TrackerEndpointHttp *endpoint_http;
 	GMainContext *context;
 	GMainLoop *main_loop;
 
@@ -266,6 +273,10 @@ thread_func (gpointer user_data)
 	if (!endpoint)
 		return NULL;
 
+	endpoint_http = tracker_endpoint_http_new (data->direct, 54321, NULL, NULL, NULL);
+	if (!endpoint_http)
+		return NULL;
+
 	started = TRUE;
 	g_main_loop_run (main_loop);
 
@@ -275,6 +286,7 @@ thread_func (gpointer user_data)
 static gboolean
 create_connections (TrackerSparqlConnection **dbus,
                     TrackerSparqlConnection **direct,
+                    TrackerSparqlConnection **remote,
                     GError                  **error)
 {
 	StartupData data;
@@ -296,6 +308,7 @@ create_connections (TrackerSparqlConnection **dbus,
 	*dbus = tracker_sparql_connection_bus_new (bus_name,
 	                                           NULL, data.dbus_conn, error);
 	*direct = create_local_connection (error);
+	*remote = tracker_sparql_connection_remote_new ("http://127.0.0.1:54321/sparql");
 	g_thread_unref (thread);
 
 	return TRUE;
@@ -309,14 +322,17 @@ add_tests (TrackerSparqlConnection *conn,
 	guint i;
 
 	for (i = 0; i < G_N_ELEMENTS (tests); i++) {
+		TestFixture *fixture;
 		gchar *testpath;
 
 		if (tests[i].service && !run_service_tests)
 			continue;
 
-		tests[i].conn = conn;
+		fixture = g_new0 (TestFixture, 1);
+		fixture->conn = conn;
+		fixture->test = &tests[i];
 		testpath = g_strconcat ("/libtracker-sparql/statement/", name, "/", tests[i].test_name, NULL);
-		g_test_add (testpath, TestInfo, &tests[i], setup, query_statement, NULL);
+		g_test_add (testpath, TestFixture, fixture, setup, query_statement, NULL);
 		g_free (testpath);
 	}
 }
@@ -324,16 +340,17 @@ add_tests (TrackerSparqlConnection *conn,
 gint
 main (gint argc, gchar **argv)
 {
-	TrackerSparqlConnection *dbus = NULL, *direct = NULL;
+	TrackerSparqlConnection *dbus = NULL, *direct = NULL, *remote = NULL;
 	GError *error = NULL;
 
 	g_test_init (&argc, &argv, NULL);
 
-	g_assert_true (create_connections (&dbus, &direct, &error));
+	g_assert_true (create_connections (&dbus, &direct, &remote, &error));
 	g_assert_no_error (error);
 
 	add_tests (direct, "direct", TRUE);
 	add_tests (dbus, "dbus", FALSE);
+	add_tests (remote, "http", FALSE);
 
 	return g_test_run ();
 }
