@@ -35,6 +35,8 @@ G_DECLARE_FINAL_TYPE (TrackerSparql, tracker_sparql,
 TrackerSparql *       tracker_sparql_new (TrackerDataManager *manager,
                                           const gchar        *sparql);
 
+gboolean              tracker_sparql_is_serializable (TrackerSparql *sparql);
+
 TrackerSparqlCursor * tracker_sparql_execute_cursor (TrackerSparql  *sparql,
                                                      GHashTable     *parameters,
                                                      GError        **error);

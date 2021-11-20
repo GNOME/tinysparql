@@ -10093,3 +10093,40 @@ tracker_sparql_make_langstring (const gchar *str,
 
 	return bytes;
 }
+
+gboolean
+tracker_sparql_is_serializable (TrackerSparql *sparql)
+{
+	TrackerParserNode *node;
+
+	/* Updates are the other way around */
+	if (sparql->query_type == TRACKER_SPARQL_QUERY_UPDATE)
+		return FALSE;
+
+	if (!sparql->tree)
+		return FALSE;
+
+	node = tracker_node_tree_get_root (sparql->tree);
+
+	for (node = tracker_sparql_parser_tree_find_first (node, FALSE);
+	     node;
+	     node = tracker_sparql_parser_tree_find_next (node, FALSE)) {
+		const TrackerGrammarRule *rule;
+
+		rule = tracker_parser_node_get_rule (node);
+
+		/* Only DESCRIBE and CONSTRUCT queries apply, since these
+		 * are guaranteed to return full RDF data.
+		 */
+		if (tracker_grammar_rule_is_a (rule, RULE_TYPE_RULE, NAMED_RULE_DescribeQuery) ||
+		    tracker_grammar_rule_is_a (rule, RULE_TYPE_RULE, NAMED_RULE_ConstructQuery))
+			return TRUE;
+
+		/* Early out in other query types */
+		if (tracker_grammar_rule_is_a (rule, RULE_TYPE_RULE, NAMED_RULE_SelectQuery) ||
+		    tracker_grammar_rule_is_a (rule, RULE_TYPE_RULE, NAMED_RULE_AskQuery))
+			break;
+	}
+
+	return FALSE;
+}
