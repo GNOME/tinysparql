@@ -277,6 +277,8 @@ convert_format (TrackerRdfFormat format)
 	switch (format) {
 	case TRACKER_RDF_FORMAT_TURTLE:
 		return TRACKER_SERIALIZER_FORMAT_TTL;
+	case TRACKER_RDF_FORMAT_TRIG:
+		return TRACKER_SERIALIZER_FORMAT_TRIG;
 	default:
 		g_assert_not_reached ();
 	}

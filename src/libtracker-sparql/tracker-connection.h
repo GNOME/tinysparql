@@ -56,6 +56,7 @@ typedef enum {
 
 typedef enum {
 	TRACKER_RDF_FORMAT_TURTLE,
+	TRACKER_RDF_FORMAT_TRIG,
 	TRACKER_N_RDF_FORMATS
 } TrackerRdfFormat;
 
