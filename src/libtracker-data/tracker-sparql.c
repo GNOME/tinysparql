@@ -3369,7 +3369,8 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 	                "SELECT "
 	                "  COALESCE((SELECT Uri FROM Resource WHERE ID = subject), 'urn:bnode:' || subject),"
 	                "  (SELECT Uri FROM Resource WHERE ID = predicate),"
-	                "  object "
+	                "  object, "
+	                "  (SELECT Uri FROM Resource WHERE ID = graph) "
 	                "FROM tracker_triples ");
 
 	if (sparql->policy.graphs) {
