@@ -28,12 +28,33 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 
 	const string XML_TYPE = "application/sparql-results+xml";
 	const string JSON_TYPE = "application/sparql-results+json";
+	const string TTL_TYPE = "text/turtle";
+	const string TRIG_TYPE = "application/trig";
 	const string USER_AGENT = "Tracker/" + PACKAGE_VERSION + " (https://gitlab.gnome.org/GNOME/tracker/issues/; tracker-list@lists.gnome.org) Tracker/" + PACKAGE_VERSION;
 
 	public Connection (string base_uri) {
 		Object ();
 		_base_uri = base_uri;
 		_session = new Soup.Session ();
+	}
+
+	private Soup.Message create_describe_request (string sparql, RdfFormat format) {
+		var uri = _base_uri + "?query=" + GLib.Uri.escape_string (sparql, null, false);
+		var message = new Soup.Message ("GET", uri);
+#if SOUP2
+		var headers = message.request_headers;
+#else
+                var headers = message.get_request_headers();
+#endif
+
+		headers.append ("User-Agent", USER_AGENT);
+
+		if (format == RdfFormat.TURTLE)
+			headers.append ("Accept", TTL_TYPE);
+		else if (format == RdfFormat.TRIG)
+			headers.append ("Accept", TRIG_TYPE);
+
+		return message;
 	}
 
 	private Soup.Message create_request (string sparql) {
@@ -119,5 +140,14 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 
 	public async override bool close_async () throws GLib.IOError {
 		return true;
+	}
+
+	public async override GLib.InputStream serialize_async (RdfFormat format, string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
+		var message = create_describe_request (sparql, format);
+#if SOUP2
+		return yield _session.send_async (message, cancellable);
+#else
+		return yield _session.send_async (message, GLib.Priority.DEFAULT, cancellable);
+#endif
 	}
 }

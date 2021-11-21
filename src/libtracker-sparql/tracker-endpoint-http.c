@@ -83,6 +83,8 @@ enum {
 
 #define XML_TYPE "application/sparql-results+xml"
 #define JSON_TYPE "application/sparql-results+json"
+#define TTL_TYPE "text/turtle"
+#define TRIG_TYPE "application/trig"
 
 static GParamSpec *props[N_PROPS];
 static guint signals[N_SIGNALS];
@@ -234,6 +236,14 @@ pick_format (SoupMessage             *message,
 	} else if (soup_message_headers_header_contains (request_headers, "Accept", XML_TYPE)) {
 		soup_message_headers_set_content_type (response_headers, XML_TYPE, NULL);
 		*format = TRACKER_SERIALIZER_FORMAT_XML;
+		return TRUE;
+	} else if (soup_message_headers_header_contains (request_headers, "Accept", TTL_TYPE)) {
+		soup_message_headers_set_content_type (response_headers, TTL_TYPE, NULL);
+		*format = TRACKER_SERIALIZER_FORMAT_TTL;
+		return TRUE;
+	} else if (soup_message_headers_header_contains (request_headers, "Accept", TRIG_TYPE)) {
+		soup_message_headers_set_content_type (response_headers, TRIG_TYPE, NULL);
+		*format = TRACKER_SERIALIZER_FORMAT_TRIG;
 		return TRUE;
 	} else {
 		return FALSE;
