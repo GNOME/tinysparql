@@ -3617,7 +3617,14 @@ tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
 		}
 	}
 
-        return TRACKER_SPARQL_VALUE_TYPE_STRING;
+	switch (column_type) {
+	case SQLITE_INTEGER:
+		return TRACKER_SPARQL_VALUE_TYPE_INTEGER;
+	case SQLITE_FLOAT:
+		return TRACKER_SPARQL_VALUE_TYPE_DOUBLE;
+	default:
+		return TRACKER_SPARQL_VALUE_TYPE_STRING;
+	}
 }
 
 const gchar*
