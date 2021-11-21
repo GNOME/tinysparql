@@ -69,7 +69,7 @@ tracker_serializer_set_property (GObject      *object,
 
 	switch (prop_id) {
 	case PROP_CURSOR:
-		priv->cursor = g_value_get_object (value);
+		priv->cursor = g_value_dup_object (value);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

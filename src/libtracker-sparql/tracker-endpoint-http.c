@@ -202,6 +202,7 @@ query_async_cb (GObject      *object,
 	request->task = g_task_new (endpoint_http, endpoint_http->cancellable,
 	                            request_finished_cb, request);
 	g_task_set_task_data (request->task, request, NULL);
+	g_object_unref (cursor);
 
 	g_task_run_in_thread (request->task, handle_request_in_thread);
 }
