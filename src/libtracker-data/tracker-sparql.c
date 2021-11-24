@@ -3360,6 +3360,7 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 	TrackerVariable *variable;
 	TrackerBinding *binding;
 	GList *resources = NULL, *l;
+	gboolean has_variables = FALSE;
 	gboolean glob = FALSE;
 
 	/* DescribeQuery ::= 'DESCRIBE' ( VarOrIri+ | '*' ) DatasetClause* WhereClause? SolutionModifier
@@ -3383,7 +3384,7 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 		_append_string (sparql, "WHERE ");
 	}
 	_append_string (sparql,
-	                "object IS NOT NULL AND subject IN (");
+	                "object IS NOT NULL ");
 
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_GLOB)) {
 		glob = TRUE;
@@ -3408,6 +3409,7 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 
 				variable = tracker_token_get_variable (&resource);
 				binding = tracker_variable_binding_new (variable, NULL, NULL);
+				has_variables = TRUE;
 			}
 
 			tracker_binding_set_data_type (binding, TRACKER_PROPERTY_TYPE_RESOURCE);
@@ -3416,6 +3418,25 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 		}
 
 		tracker_sparql_pop_context (sparql, FALSE);
+	}
+
+	if (has_variables) {
+		/* If we have variables, we will likely have a WHERE clause
+		 * that will return a moderately large set of results.
+		 *
+		 * Since the turning point is not that far where it is faster
+		 * to query everything from the triples table and filter later
+		 * than querying row by row, we soon want the former if there
+		 * is a WHERE pattern.
+		 *
+		 * To hint this to SQLite query planner, use the unary plus
+		 * operator to disqualify the term from constraining an index,
+		 * (https://www.sqlite.org/optoverview.html#disqualifying_where_clause_terms_using_unary_)
+		 * which is exactly what we are meaning to do here.
+		 */
+		_append_string (sparql, "AND +subject IN (");
+	} else {
+		_append_string (sparql, "AND subject IN (");
 	}
 
 	while (_check_in_rule (sparql, NAMED_RULE_DatasetClause))
