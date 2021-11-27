@@ -21,6 +21,7 @@
 #include "tracker-direct-statement.h"
 #include "tracker-data.h"
 #include "tracker-private.h"
+#include <libtracker-sparql/tracker-serializer.h>
 
 typedef struct _TrackerDirectStatementPrivate TrackerDirectStatementPrivate;
 
@@ -29,6 +30,12 @@ struct _TrackerDirectStatementPrivate
 	TrackerSparql *sparql;
 	GHashTable *values;
 };
+
+typedef struct
+{
+	GHashTable *values;
+	TrackerRdfFormat format;
+} RdfSerializationData;
 
 G_DEFINE_TYPE_WITH_PRIVATE (TrackerDirectStatement,
                             tracker_direct_statement,
@@ -193,6 +200,71 @@ execute_in_thread (GTask        *task,
 }
 
 static void
+rdf_serialization_data_free (RdfSerializationData *data)
+{
+	g_hash_table_unref (data->values);
+	g_free (data);
+}
+
+static TrackerSerializerFormat
+convert_format (TrackerRdfFormat format)
+{
+	switch (format) {
+	case TRACKER_RDF_FORMAT_TURTLE:
+		return TRACKER_SERIALIZER_FORMAT_TTL;
+	case TRACKER_RDF_FORMAT_TRIG:
+		return TRACKER_SERIALIZER_FORMAT_TRIG;
+	default:
+		g_assert_not_reached ();
+	}
+}
+
+static void
+serialize_in_thread (GTask        *task,
+                     gpointer      object,
+                     gpointer      task_data,
+                     GCancellable *cancellable)
+{
+	TrackerSparqlConnection *conn;
+	TrackerDirectStatementPrivate *priv;
+	TrackerSparqlCursor *cursor = NULL;
+	RdfSerializationData *data = task_data;
+	GInputStream *istream = NULL;
+	GError *error = NULL;
+
+	if (g_task_return_error_if_cancelled (task))
+		return;
+
+	priv = tracker_direct_statement_get_instance_private (object);
+	if (!tracker_sparql_is_serializable (priv->sparql)) {
+		g_set_error (&error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_PARSE,
+		             "Query is not DESCRIBE or CONSTRUCT");
+		goto out;
+	}
+
+	cursor = tracker_sparql_execute_cursor (priv->sparql, data->values, &error);
+	if (!cursor)
+		goto out;
+
+	conn = tracker_sparql_statement_get_connection (object);
+	tracker_direct_connection_update_timestamp (TRACKER_DIRECT_CONNECTION (conn));
+	tracker_sparql_cursor_set_connection (cursor, conn);
+	istream = tracker_serializer_new (cursor, convert_format (data->format));
+
+ out:
+	g_clear_object (&cursor);
+
+	if (istream)
+		g_task_return_pointer (task, istream, g_object_unref);
+	else
+		g_task_return_error (task, error);
+
+	g_object_unref (task);
+}
+
+static void
 free_gvalue (gpointer data)
 {
 	g_value_unset (data);
@@ -269,6 +341,43 @@ tracker_direct_statement_execute_finish (TrackerSparqlStatement  *stmt,
 }
 
 static void
+tracker_direct_statement_serialize_async (TrackerSparqlStatement *stmt,
+                                          TrackerRdfFormat        format,
+                                          GCancellable           *cancellable,
+                                          GAsyncReadyCallback     callback,
+                                          gpointer                user_data)
+{
+	TrackerDirectStatementPrivate *priv;
+	RdfSerializationData *data;
+	GTask *task;
+
+	priv = tracker_direct_statement_get_instance_private (TRACKER_DIRECT_STATEMENT (stmt));
+
+	data = g_new0 (RdfSerializationData, 1);
+	data->values = copy_values_deep (priv->values);
+	data->format = format;
+
+	task = g_task_new (stmt, cancellable, callback, user_data);
+	g_task_set_task_data (task, data, (GDestroyNotify) rdf_serialization_data_free);
+	g_task_run_in_thread (task, serialize_in_thread);
+}
+
+static GInputStream *
+tracker_direct_statement_serialize_finish (TrackerSparqlStatement  *stmt,
+                                           GAsyncResult            *res,
+                                           GError                 **error)
+{
+	GError *inner_error = NULL;
+	GInputStream *istream;
+
+	istream = g_task_propagate_pointer (G_TASK (res), &inner_error);
+	if (inner_error)
+		g_propagate_error (error, _translate_internal_error (inner_error));
+
+	return istream;
+}
+
+static void
 tracker_direct_statement_class_init (TrackerDirectStatementClass *klass)
 {
 	TrackerSparqlStatementClass *stmt_class = (TrackerSparqlStatementClass *) klass;
@@ -286,6 +395,8 @@ tracker_direct_statement_class_init (TrackerDirectStatementClass *klass)
 	stmt_class->execute = tracker_direct_statement_execute;
 	stmt_class->execute_async = tracker_direct_statement_execute_async;
 	stmt_class->execute_finish = tracker_direct_statement_execute_finish;
+	stmt_class->serialize_async = tracker_direct_statement_serialize_async;
+	stmt_class->serialize_finish = tracker_direct_statement_serialize_finish;
 }
 
 static void
