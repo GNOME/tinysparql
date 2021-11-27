@@ -1,0 +1,5 @@
+DESCRIBE ?u {
+  GRAPH ?g {
+    ?u a rdfs:Resource .
+  }
+}

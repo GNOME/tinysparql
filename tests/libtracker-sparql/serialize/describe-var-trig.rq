@@ -1,0 +1,3 @@
+DESCRIBE ?u {
+  ?u rdfs:label ~arg1
+}
