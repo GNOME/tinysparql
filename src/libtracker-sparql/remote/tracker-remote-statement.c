@@ -336,7 +336,7 @@ copy_values_deep (GHashTable *values)
 	return copy;
 }
 
-void
+static void
 tracker_remote_statement_execute_async (TrackerSparqlStatement *stmt,
                                         GCancellable           *cancellable,
                                         GAsyncReadyCallback     callback,
@@ -353,7 +353,7 @@ tracker_remote_statement_execute_async (TrackerSparqlStatement *stmt,
 	g_task_run_in_thread (task, execute_in_thread);
 }
 
-TrackerSparqlCursor *
+static TrackerSparqlCursor *
 tracker_remote_statement_execute_finish (TrackerSparqlStatement  *stmt,
                                          GAsyncResult            *res,
                                          GError                 **error)
@@ -361,7 +361,7 @@ tracker_remote_statement_execute_finish (TrackerSparqlStatement  *stmt,
 	return g_task_propagate_pointer (G_TASK (res), error);
 }
 
-void
+static void
 tracker_remote_statement_clear_bindings (TrackerSparqlStatement *stmt)
 {
 	TrackerRemoteStatement *remote_stmt = TRACKER_REMOTE_STATEMENT (stmt);
