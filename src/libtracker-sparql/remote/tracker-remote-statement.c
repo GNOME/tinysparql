@@ -370,6 +370,68 @@ tracker_remote_statement_clear_bindings (TrackerSparqlStatement *stmt)
 }
 
 static void
+serialize_cb (GObject      *source,
+              GAsyncResult *res,
+              gpointer      user_data)
+{
+	GInputStream *istream;
+	GError *error = NULL;
+	GTask *task = user_data;
+
+	istream = tracker_sparql_connection_serialize_finish (TRACKER_SPARQL_CONNECTION (source),
+	                                                      res, &error);
+	if (error)
+		g_task_return_error (task, error);
+	else
+		g_task_return_pointer (task, istream, g_object_unref);
+
+	g_object_unref (task);
+}
+
+static void
+tracker_remote_statement_serialize_async (TrackerSparqlStatement *stmt,
+                                          TrackerRdfFormat        format,
+                                          GCancellable           *cancellable,
+                                          GAsyncReadyCallback     callback,
+                                          gpointer                user_data)
+{
+	TrackerRemoteStatement *remote_stmt = TRACKER_REMOTE_STATEMENT (stmt);
+	gchar *rewritten_query = NULL;
+	GError *error = NULL;
+	GTask *task;
+
+	task = g_task_new (stmt, cancellable, callback, user_data);
+
+	if (g_hash_table_size (remote_stmt->bindings) > 0) {
+		rewritten_query = apply_bindings (stmt,
+		                                  remote_stmt->bindings,
+		                                  &error);
+		if (!rewritten_query) {
+			g_task_return_error (task, error);
+			g_object_unref (task);
+			return;
+		}
+	}
+
+	tracker_sparql_connection_serialize_async (tracker_sparql_statement_get_connection (stmt),
+	                                           format,
+	                                           rewritten_query ? rewritten_query :
+	                                           tracker_sparql_statement_get_sparql (stmt),
+	                                           cancellable,
+	                                           serialize_cb,
+	                                           task);
+	g_free (rewritten_query);
+}
+
+static GInputStream *
+tracker_remote_statement_serialize_finish (TrackerSparqlStatement  *stmt,
+                                           GAsyncResult            *res,
+                                           GError                 **error)
+{
+	return g_task_propagate_pointer (G_TASK (res), error);
+}
+
+static void
 tracker_remote_statement_class_init (TrackerRemoteStatementClass *klass)
 {
 	TrackerSparqlStatementClass *stmt_class = TRACKER_SPARQL_STATEMENT_CLASS (klass);
@@ -386,6 +448,8 @@ tracker_remote_statement_class_init (TrackerRemoteStatementClass *klass)
 	stmt_class->execute_async = tracker_remote_statement_execute_async;
 	stmt_class->execute_finish = tracker_remote_statement_execute_finish;
 	stmt_class->clear_bindings = tracker_remote_statement_clear_bindings;
+	stmt_class->serialize_async = tracker_remote_statement_serialize_async;
+	stmt_class->serialize_finish = tracker_remote_statement_serialize_finish;
 }
 
 static void
