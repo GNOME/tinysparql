@@ -91,6 +91,18 @@ TrackerSparqlCursor * tracker_sparql_statement_execute_finish (TrackerSparqlStat
                                                                GAsyncResult            *res,
                                                                GError                 **error);
 
+TRACKER_AVAILABLE_IN_3_3
+void tracker_sparql_statement_serialize_async (TrackerSparqlStatement *stmt,
+                                               TrackerRdfFormat        format,
+                                               GCancellable           *cancellable,
+                                               GAsyncReadyCallback     callback,
+                                               gpointer                user_data);
+
+TRACKER_AVAILABLE_IN_3_3
+GInputStream * tracker_sparql_statement_serialize_finish (TrackerSparqlStatement  *stmt,
+                                                          GAsyncResult            *result,
+                                                          GError                 **error);
+
 TRACKER_AVAILABLE_IN_ALL
 void tracker_sparql_statement_clear_bindings (TrackerSparqlStatement *stmt);
 

@@ -232,6 +232,15 @@ struct _TrackerSparqlStatementClass
                                                   GAsyncResult            *res,
                                                   GError                 **error);
 	void (* clear_bindings) (TrackerSparqlStatement *stmt);
+
+        void (* serialize_async) (TrackerSparqlStatement *stmt,
+                                  TrackerRdfFormat        format,
+                                  GCancellable           *cancellable,
+                                  GAsyncReadyCallback     callback,
+                                  gpointer                user_data);
+        GInputStream * (* serialize_finish) (TrackerSparqlStatement  *stmt,
+                                             GAsyncResult            *res,
+                                             GError                 **error);
 };
 
 struct _TrackerNotifierClass {
