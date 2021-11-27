@@ -93,4 +93,8 @@ public class Tracker.Bus.Statement : Tracker.Sparql.Statement {
 	public async override Sparql.Cursor execute_async (GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
 		return yield Tracker.Bus.Connection.perform_query_call (bus, dbus_name, object_path, query, get_arguments (), cancellable);
 	}
+
+	public async override GLib.InputStream serialize_async (RdfFormat format, GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
+		return yield Tracker.Bus.Connection.perform_serialize (bus, dbus_name, object_path, format, query, get_arguments (), cancellable);
+	}
 }

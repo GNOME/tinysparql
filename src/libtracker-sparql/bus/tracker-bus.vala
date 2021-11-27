@@ -392,19 +392,23 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 		return batch;
 	}
 
-	public async override GLib.InputStream serialize_async (RdfFormat format, string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
+	public static async GLib.InputStream perform_serialize (DBusConnection bus, string dbus_name, string object_path, RdfFormat format, string sparql, VariantBuilder? arguments, Cancellable? cancellable) throws GLib.IOError, GLib.Error {
 		UnixInputStream input;
 		UnixOutputStream output;
 		pipe (out input, out output);
 
 		var message = new DBusMessage.method_call (dbus_name, object_path, ENDPOINT_IFACE, "Serialize");
 		var fd_list = new UnixFDList ();
-		message.set_body (new Variant ("(shia{sv})", sparql, fd_list.append (output.fd), format, null));
+		message.set_body (new Variant ("(shia{sv})", sparql, fd_list.append (output.fd), format, arguments));
 		message.set_unix_fd_list (fd_list);
 
 		var reply = yield bus.send_message_with_reply (message, DBusSendMessageFlags.NONE, int.MAX, null, cancellable);
 		handle_error_reply (reply);
 
 		return input;
+	}
+
+	public async override GLib.InputStream serialize_async (RdfFormat format, string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
+		return yield perform_serialize (bus, dbus_name, object_path, format, sparql, null, cancellable);
 	}
 }

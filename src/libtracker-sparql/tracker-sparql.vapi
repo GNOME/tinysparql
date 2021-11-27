@@ -125,6 +125,7 @@ namespace Tracker {
 
 		public abstract Cursor execute (GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 		public async abstract Cursor execute_async (GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
+		public async abstract GLib.InputStream serialize_async (RdfFormat format, GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 	}
 
 	[CCode (cheader_filename = "libtracker-sparql/tracker-sparql.h")]
