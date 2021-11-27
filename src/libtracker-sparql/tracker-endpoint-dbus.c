@@ -533,6 +533,35 @@ splice_rdf_cb (GObject      *object,
 }
 
 static void
+stmt_serialize_cb (GObject      *object,
+                   GAsyncResult *res,
+                   gpointer      user_data)
+{
+	QueryRequest *request = user_data;
+	GInputStream *istream;
+	GError *error = NULL;
+
+	istream = tracker_sparql_statement_serialize_finish (TRACKER_SPARQL_STATEMENT (object),
+	                                                     res, &error);
+	if (!istream) {
+		g_dbus_method_invocation_return_gerror (request->invocation, error);
+		g_error_free (error);
+		query_request_free (request);
+		return;
+	}
+
+	g_dbus_method_invocation_return_value (request->invocation, NULL);
+	g_output_stream_splice_async (G_OUTPUT_STREAM (request->data_stream),
+	                              istream,
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+	                              G_PRIORITY_DEFAULT,
+	                              request->global_cancellable,
+	                              splice_rdf_cb,
+	                              request);
+}
+
+static void
 serialize_cb (GObject      *object,
               GAsyncResult *res,
               gpointer      user_data)
@@ -790,7 +819,6 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			return;
 		}
 
-		/* FIXME: arguments is currently unused */
 		g_variant_get (parameters, "(shia{sv})", &query, &handle, &format, &arguments);
 
 		if (fd_list)
@@ -808,12 +836,34 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			                                            query);
 
 			request = query_request_new (endpoint_dbus, invocation, fd);
-			tracker_sparql_connection_serialize_async (conn,
-			                                           format,
-			                                           query,
-			                                           request->cancellable,
-			                                           serialize_cb,
-			                                           request);
+
+			if (arguments) {
+				TrackerSparqlStatement *stmt;
+
+				stmt = create_statement (conn, query, arguments,
+				                         request->cancellable,
+				                         &error);
+				if (stmt) {
+					tracker_sparql_statement_serialize_async (stmt,
+					                                          format,
+					                                          request->cancellable,
+					                                          stmt_serialize_cb,
+					                                          request);
+					/* Statements are single use here... */
+					g_object_unref (stmt);
+				} else {
+					query_request_free (request);
+					g_dbus_method_invocation_return_gerror (invocation,
+					                                        error);
+				}
+			} else {
+				tracker_sparql_connection_serialize_async (conn,
+				                                           format,
+				                                           query,
+				                                           request->cancellable,
+				                                           serialize_cb,
+				                                           request);
+			}
 		}
 
 		g_free (query);
