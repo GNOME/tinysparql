@@ -108,7 +108,7 @@ handle_request_in_thread (GTask        *task,
                           GCancellable *cancellable)
 {
 	Request *request = task_data;
-	gchar *buffer[1000];
+	gchar buffer[1000];
 	SoupMessageBody *message_body;
 	GError *error = NULL;
 	gssize count;
