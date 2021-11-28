@@ -133,10 +133,14 @@ tracker_serializer_new (TrackerSparqlCursor     *cursor,
 
 	switch (format) {
 	case TRACKER_SERIALIZER_FORMAT_JSON:
-		type = TRACKER_TYPE_SERIALIZER_JSON;
+		type = g_type_from_name ("TrackerSerializerJson");
+		if (type == 0)
+			type = TRACKER_TYPE_SERIALIZER_JSON;
 		break;
 	case TRACKER_SERIALIZER_FORMAT_XML:
-		type = TRACKER_TYPE_SERIALIZER_XML;
+		type = g_type_from_name ("TrackerSerializerXml");
+		if (type == 0)
+			type = TRACKER_TYPE_SERIALIZER_XML;
 		break;
 	default:
 		g_warn_if_reached ();
