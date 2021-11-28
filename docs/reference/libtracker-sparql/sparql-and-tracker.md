@@ -262,3 +262,16 @@ this full-text search mechanism, by toggling the
 `tracker:fulltextIndexed` property on in the
 text `rdf:Property` instances. See the documentation
 on [defining ontologies](ontologies.html).
+
+## DESCRIBE queries
+
+The [SPARQL documentation](https://www.w3.org/TR/sparql11-query/#describe)
+says:
+
+```
+The DESCRIBE form returns a single result RDF graph containing RDF data about resources.
+```
+
+In order to allow serialization to RDF formats that allow expressing graph information
+(e.g. Trig), DESCRIBE resultsets have 4 columns for subject / predicate / object / graph
+information.
