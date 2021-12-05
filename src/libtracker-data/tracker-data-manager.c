@@ -82,6 +82,7 @@ struct _TrackerDataManager {
 
 	GHashTable *transaction_graphs;
 	GHashTable *graphs;
+	GMutex graphs_lock;
 
 	/* Cached remote connections */
 	GMutex connections_lock;
@@ -150,6 +151,7 @@ tracker_data_manager_init (TrackerDataManager *manager)
 {
 	manager->generation = 1;
 	g_mutex_init (&manager->connections_lock);
+	g_mutex_init (&manager->graphs_lock);
 }
 
 GQuark
@@ -209,10 +211,14 @@ tracker_data_manager_get_graphs (TrackerDataManager *manager,
 {
 	GHashTable *ht;
 
+	g_mutex_lock (&manager->graphs_lock);
+
 	if (manager->transaction_graphs && in_transaction)
 		ht = g_hash_table_ref (manager->transaction_graphs);
 	else
 		ht = g_hash_table_ref (manager->graphs);
+
+	g_mutex_unlock (&manager->graphs_lock);
 
 	return ht;
 }
@@ -4778,6 +4784,7 @@ tracker_data_manager_finalize (GObject *object)
 	g_clear_pointer (&manager->graphs, g_hash_table_unref);
 	g_free (manager->status);
 	g_mutex_clear (&manager->connections_lock);
+	g_mutex_clear (&manager->graphs_lock);
 
 	G_OBJECT_CLASS (tracker_data_manager_parent_class)->finalize (object);
 }
@@ -5162,12 +5169,16 @@ tracker_data_manager_get_generation (TrackerDataManager *manager)
 void
 tracker_data_manager_commit_graphs (TrackerDataManager *manager)
 {
+	g_mutex_lock (&manager->graphs_lock);
+
 	if (manager->transaction_graphs) {
 		g_clear_pointer (&manager->graphs, g_hash_table_unref);
 		manager->graphs = manager->transaction_graphs;
 		manager->transaction_graphs = NULL;
 		manager->generation++;
 	}
+
+	g_mutex_unlock (&manager->graphs_lock);
 }
 
 void
