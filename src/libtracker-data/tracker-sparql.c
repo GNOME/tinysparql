@@ -507,6 +507,7 @@ _append_resource_rowid_access_check (TrackerSparql *sparql)
 				       l->data);
 	}
 
+	g_hash_table_unref (graphs);
 	g_list_free (names);
 }
 
@@ -710,9 +711,9 @@ tracker_sparql_get_effective_graphs (TrackerSparql *sparql)
 			}
 		}
 
-		return sparql->policy.filtered_graphs;
+		return g_hash_table_ref (sparql->policy.filtered_graphs);
 	} else {
-		return graphs;
+		return g_hash_table_ref (graphs);
 	}
 }
 
@@ -767,6 +768,7 @@ _append_union_graph_with_clause (TrackerSparql *sparql,
 	}
 
 	_append_string (sparql, ") ");
+	g_hash_table_unref (graphs);
 }
 
 static void
@@ -868,6 +870,7 @@ tracker_sparql_add_union_graph_subquery_for_named_graphs (TrackerSparql *sparql)
 	_append_string (sparql, ") ");
 
 	tracker_sparql_swap_builder (sparql, old);
+	g_hash_table_unref (graphs);
 }
 
 static gint
@@ -880,9 +883,11 @@ tracker_sparql_find_graph (TrackerSparql *sparql,
 	effective_graphs = tracker_sparql_get_effective_graphs (sparql);
 	if (!effective_graphs ||
 	    !g_hash_table_contains (effective_graphs, name)) {
+		g_hash_table_unref (effective_graphs);
 		return 0;
 	}
 
+	g_hash_table_unref (effective_graphs);
 	in_transaction = sparql->query_type == TRACKER_SPARQL_QUERY_UPDATE;
 
 	return tracker_data_manager_find_graph (sparql->data_manager, name,
@@ -1591,6 +1596,8 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 			_append_literal_sql (sparql, binding);
 			_append_string (sparql, ", '\"', ' ') || '\"*'");
 		}
+
+		g_hash_table_unref (graphs);
 	}
 
 	_append_string (sparql, ") ");
@@ -3992,6 +3999,8 @@ translate_Clear (TrackerSparql  *sparql,
 
 			while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL))
 				graphs = g_list_prepend (graphs, (gpointer) graph);
+
+			g_hash_table_unref (ht);
 		}
 	} else {
 		graph = tracker_token_get_idstring (&sparql->current_state->graph);
@@ -4048,6 +4057,8 @@ translate_Drop (TrackerSparql  *sparql,
 
 			while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL))
 				graphs = g_list_prepend (graphs, g_strdup (graph));
+
+			g_hash_table_unref (ht);
 		}
 	} else {
 		graph = tracker_token_get_idstring (&sparql->current_state->graph);
