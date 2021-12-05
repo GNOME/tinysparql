@@ -711,9 +711,11 @@ tracker_sparql_get_effective_graphs (TrackerSparql *sparql)
 			}
 		}
 
+		g_hash_table_unref (graphs);
+
 		return g_hash_table_ref (sparql->policy.filtered_graphs);
 	} else {
-		return g_hash_table_ref (graphs);
+		return graphs;
 	}
 }
 

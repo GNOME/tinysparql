@@ -158,17 +158,14 @@ tracker_data_ontology_error_quark (void)
 	return g_quark_from_static_string ("tracker-data-ontology-error-quark");
 }
 
-static GHashTable *
-tracker_data_manager_ensure_graphs (TrackerDataManager  *manager,
-				    TrackerDBInterface  *iface,
-				    GError             **error)
+static gboolean
+tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
+                                        TrackerDBInterface  *iface,
+                                        GError             **error)
 {
 	TrackerDBCursor *cursor = NULL;
 	TrackerDBStatement *stmt;
 	GHashTable *graphs;
-
-	if (manager->graphs)
-		return manager->graphs;
 
 	graphs = g_hash_table_new_full (g_str_hash,
 					g_str_equal,
@@ -179,7 +176,7 @@ tracker_data_manager_ensure_graphs (TrackerDataManager  *manager,
 						      "SELECT ID, Uri FROM Resource WHERE ID IN (SELECT ID FROM Graph)");
 	if (!stmt) {
 		g_hash_table_unref (graphs);
-		return NULL;
+		return FALSE;
 	}
 
 	cursor = tracker_db_statement_start_cursor (stmt, error);
@@ -187,7 +184,7 @@ tracker_data_manager_ensure_graphs (TrackerDataManager  *manager,
 
 	if (!cursor) {
 		g_hash_table_unref (graphs);
-		return NULL;
+		return FALSE;
 	}
 
 	while (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
@@ -203,17 +200,21 @@ tracker_data_manager_ensure_graphs (TrackerDataManager  *manager,
 
 	g_object_unref (cursor);
 	manager->graphs = graphs;
-	return graphs;
+	return TRUE;
 }
 
 GHashTable *
 tracker_data_manager_get_graphs (TrackerDataManager *manager,
                                  gboolean            in_transaction)
 {
-	if (manager->transaction_graphs && in_transaction)
-		return manager->transaction_graphs;
+	GHashTable *ht;
 
-	return manager->graphs;
+	if (manager->transaction_graphs && in_transaction)
+		ht = g_hash_table_ref (manager->transaction_graphs);
+	else
+		ht = g_hash_table_ref (manager->graphs);
+
+	return ht;
 }
 
 static void
@@ -773,19 +774,12 @@ fix_indexed (TrackerDataManager  *manager,
              TrackerProperty     *property,
              GError             **error)
 {
-	TrackerDBInterface *iface;
 	GHashTable *graphs;
 	GHashTableIter iter;
 	GError *internal_error = NULL;
 	gpointer value;
 
-	iface = tracker_data_manager_get_writable_db_interface (manager);
-	graphs = tracker_data_manager_ensure_graphs (manager, iface, &internal_error);
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
+	graphs = tracker_data_manager_get_graphs (manager, FALSE);
 	g_hash_table_iter_init (&iter, graphs);
 
 	while (g_hash_table_iter_next (&iter, &value, NULL)) {
@@ -795,6 +789,8 @@ fix_indexed (TrackerDataManager  *manager,
 			break;
 		}
 	}
+
+	g_hash_table_unref (graphs);
 }
 
 static void
@@ -3870,7 +3866,7 @@ tracker_data_manager_initialize_iface (TrackerDataManager  *data_manager,
 {
 	GHashTable *graphs;
 
-	graphs = tracker_data_manager_ensure_graphs (data_manager, iface, NULL);
+	graphs = tracker_data_manager_get_graphs (data_manager, FALSE);
 
 	if (graphs) {
 		GHashTableIter iter;
@@ -3881,20 +3877,24 @@ tracker_data_manager_initialize_iface (TrackerDataManager  *data_manager,
 		while (g_hash_table_iter_next (&iter, &value, NULL)) {
 			if (!tracker_db_manager_attach_database (data_manager->db_manager,
 			                                         iface, value, FALSE,
-			                                         error)) {
-				return FALSE;
-			}
+			                                         error))
+				goto error;
 
 			if (!tracker_data_manager_init_fts (data_manager, iface,
 			                                    value, FALSE, error))
-				return FALSE;
+				goto error;
 		}
+
+		g_hash_table_unref (graphs);
 	}
 
 	if (!tracker_data_manager_init_fts (data_manager, iface, "main", FALSE, error))
 		return FALSE;
 
 	return TRUE;
+ error:
+	g_clear_pointer (&graphs, g_hash_table_unref);
+	return FALSE;
 }
 
 static void
@@ -4174,6 +4174,11 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			goto rollback_newly_created_db;
 		}
 
+		if (!tracker_data_manager_initialize_graphs (manager, iface, &internal_error)) {
+			g_propagate_error (error, internal_error);
+			goto rollback_newly_created_db;
+		}
+
 		tracker_data_manager_initialize_iface (manager, iface, &internal_error);
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
@@ -4249,6 +4254,11 @@ tracker_data_manager_initable_init (GInitable     *initable,
 					return FALSE;
 				}
 			}
+		}
+
+		if (!tracker_data_manager_initialize_graphs (manager, iface, &internal_error)) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
 		}
 
 		tracker_data_manager_initialize_iface (manager, iface, &internal_error);
@@ -4515,7 +4525,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 					tracker_data_ontology_setup_db (manager, iface, "main", TRUE, &ontology_error);
 
 				if (!ontology_error)
-					graphs = tracker_data_manager_ensure_graphs (manager, iface, &ontology_error);
+					graphs = tracker_data_manager_get_graphs (manager, FALSE);
 
 				if (graphs) {
 					GHashTableIter iter;
@@ -4544,6 +4554,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 						if (ontology_error)
 							break;
 					}
+
+					g_hash_table_unref (graphs);
 				}
 
 				if (!ontology_error) {
@@ -4681,9 +4693,7 @@ data_manager_perform_cleanup (TrackerDataManager  *manager,
 	const gchar *graph;
 	GString *str;
 
-	graphs = tracker_data_manager_ensure_graphs (manager, iface, &internal_error);
-	if (!graphs)
-		goto fail;
+	graphs = tracker_data_manager_get_graphs (manager, FALSE);
 
 	str = g_string_new ("WITH referencedElements(ID) AS ("
 	                    "SELECT ID FROM \"main\".Refcount ");
@@ -4701,6 +4711,7 @@ data_manager_perform_cleanup (TrackerDataManager  *manager,
 	                        "DELETE FROM Resource "
 	                        "WHERE Resource.ID NOT IN (SELECT ID FROM referencedElements) "
 	                        "AND Resource.ID NOT IN (SELECT ID FROM Graph)");
+	g_hash_table_unref (graphs);
 
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
@@ -4971,22 +4982,14 @@ tracker_data_manager_find_graph (TrackerDataManager *manager,
                                  const gchar        *name,
                                  gboolean            in_transaction)
 {
-	TrackerDBInterface *iface;
 	GHashTable *graphs;
+	gint graph_id;
 
-	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
+	graphs = tracker_data_manager_get_graphs (manager, in_transaction);
+	graph_id = GPOINTER_TO_UINT (g_hash_table_lookup (graphs, name));
+	g_hash_table_unref (graphs);
 
-	if (in_transaction && manager->transaction_graphs) {
-		return GPOINTER_TO_INT (g_hash_table_lookup (manager->transaction_graphs,
-		                                             name));
-	}
-
-	graphs = tracker_data_manager_ensure_graphs (manager, iface, NULL);
-
-	if (!graphs)
-		return 0;
-
-	return GPOINTER_TO_UINT (g_hash_table_lookup (graphs, name));
+	return graph_id;
 }
 
 gboolean
