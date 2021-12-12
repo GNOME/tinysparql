@@ -28,6 +28,7 @@ enum {
 	TOKEN_TYPE_VARIABLE,
 	TOKEN_TYPE_PARAMETER,
 	TOKEN_TYPE_PATH,
+	TOKEN_TYPE_BNODE,
 };
 
 /* Helper structs */
@@ -182,6 +183,14 @@ tracker_token_path_init (TrackerToken       *token,
 }
 
 void
+tracker_token_bnode_init (TrackerToken *token,
+                          gint64        bnode_id)
+{
+	token->type = TOKEN_TYPE_BNODE;
+	token->content.bnode = bnode_id;
+}
+
+void
 tracker_token_unset (TrackerToken *token)
 {
 	if (token->type == TOKEN_TYPE_LITERAL)
@@ -227,6 +236,14 @@ tracker_token_get_path (TrackerToken *token)
 	if (token->type == TOKEN_TYPE_PATH)
 		return token->content.path;
 	return NULL;
+}
+
+gint64
+tracker_token_get_bnode (TrackerToken *token)
+{
+	if (token->type == TOKEN_TYPE_BNODE)
+		return token->content.bnode;
+	return 0;
 }
 
 const gchar *

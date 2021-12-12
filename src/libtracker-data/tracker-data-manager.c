@@ -508,10 +508,11 @@ update_property_value (TrackerDataManager  *manager,
                        TrackerProperty     *property,
                        GError             **error_in)
 {
+	TrackerOntologies *ontologies;
+	TrackerProperty *pred;
 	GError *error = NULL;
 	gboolean needed = TRUE;
 	gboolean is_new = FALSE;
-	GBytes *bytes;
 	const gchar *ontology_path = NULL;
 	goffset line_no = -1;
 	goffset column_no = -1;
@@ -526,6 +527,16 @@ update_property_value (TrackerDataManager  *manager,
 		ontology_path = tracker_property_get_ontology_path (property);
 		line_no = tracker_property_get_definition_line_no (property);
 		column_no = tracker_property_get_definition_column_no (property);
+	}
+
+	ontologies = tracker_data_manager_get_ontologies (manager);
+	pred = tracker_ontologies_get_property_by_uri (ontologies, predicate);
+	if (!pred) {
+		g_set_error (error_in, TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+		             "Property '%s' not found in the ontology",
+		             predicate);
+		return FALSE;
 	}
 
 	if (!is_new) {
@@ -563,9 +574,22 @@ update_property_value (TrackerDataManager  *manager,
 				}
 
 				if (!unsup_onto_err) {
-					bytes = g_bytes_new (str, strlen (str) + 1);
-					tracker_data_delete_statement (manager->data_update, NULL, subject, predicate, bytes, &error);
-					g_bytes_unref (bytes);
+					GValue value = G_VALUE_INIT;
+					gint64 subject_id = 0;
+
+					tracker_data_query_string_to_value (manager,
+					                                    str, NULL,
+					                                    tracker_property_get_data_type (pred),
+					                                    &value, &error);
+
+					if (!error)
+						subject_id = tracker_data_update_ensure_resource (manager->data_update,
+						                                                  subject,
+						                                                  &error);
+
+					if (!error)
+						tracker_data_delete_statement (manager->data_update, NULL, subject_id, pred, &value, &error);
+					g_value_unset (&value);
 
 					if (!error)
 						tracker_data_update_buffer_flush (manager->data_update, &error);
@@ -589,11 +613,24 @@ update_property_value (TrackerDataManager  *manager,
 
 
 	if (!error && needed && object) {
-		bytes = g_bytes_new (object, strlen (object) + 1);
-		tracker_data_insert_statement (manager->data_update, NULL, subject,
-		                               predicate, bytes,
-		                               &error);
-		g_bytes_unref (bytes);
+		GValue value = G_VALUE_INIT;
+		gint64 subject_id = 0;
+
+		tracker_data_query_string_to_value (manager,
+		                                    object, NULL,
+		                                    tracker_property_get_data_type (pred),
+		                                    &value, &error);
+
+		if (!error)
+			subject_id = tracker_data_update_ensure_resource (manager->data_update,
+			                                                  subject,
+			                                                  &error);
+
+		if (!error)
+			tracker_data_insert_statement (manager->data_update, NULL, subject_id,
+			                               pred, &value,
+			                               &error);
+		g_value_unset (&value);
 
 		if (!error)
 			tracker_data_update_buffer_flush (manager->data_update, &error);
@@ -843,7 +880,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			}
 
 			subject_id = tracker_data_update_ensure_resource (manager->data_update,
-			                                                  subject, NULL, error);
+			                                                  subject, error);
 			if (!subject_id) {
 				g_prefix_error (error, "%s:", object_location);
 				goto fail;
@@ -894,7 +931,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 			subject_id = tracker_data_update_ensure_resource (manager->data_update,
 			                                                  subject,
-			                                                  NULL, error);
+			                                                  error);
 			if (!subject_id) {
 				g_prefix_error (error, "%s:", object_location);
 				goto fail;
@@ -1441,7 +1478,8 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
                                 TrackerClass       *class,
                                 GError            **error)
 {
-	TrackerProperty **last_domain_indexes;
+	TrackerProperty **last_domain_indexes, *property;
+	TrackerOntologies *ontologies;
 	GSList *hfound = NULL, *deleted = NULL;
 
 	last_domain_indexes = tracker_class_get_last_domain_indexes (class);
@@ -1449,6 +1487,11 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 	if (!last_domain_indexes) {
 		return;
 	}
+
+	ontologies = tracker_data_manager_get_ontologies (manager);
+	property = tracker_ontologies_get_property_by_uri (ontologies,
+	                                                   TRACKER_PREFIX_NRL "domainIndex");
+	g_assert (property);
 
 	while (*last_domain_indexes) {
 		TrackerProperty *last_domain_index = *last_domain_indexes;
@@ -1506,7 +1549,8 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 		for (l = deleted; l != NULL; l = l->next) {
 			TrackerProperty *prop = l->data;
 			const gchar *uri;
-			GBytes *bytes;
+			GValue value = G_VALUE_INIT;
+			gint64 class_id = 0;
 
 			TRACKER_NOTE (ONTOLOGY_CHANGES,
 			              g_message ("Ontology change: deleting nrl:domainIndex: %s",
@@ -1515,13 +1559,25 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 			tracker_class_del_domain_index (class, prop);
 
 			uri = tracker_property_get_uri (prop);
-			bytes = g_bytes_new (uri, strlen (uri) + 1);
-			tracker_data_delete_statement (manager->data_update, NULL,
-			                               tracker_class_get_uri (class),
-			                               TRACKER_PREFIX_NRL "domainIndex",
-			                               bytes,
-			                               error);
-			g_bytes_unref (bytes);
+
+			if (tracker_data_query_string_to_value (manager,
+			                                        uri, NULL,
+			                                        tracker_property_get_data_type (property),
+			                                        &value, error)) {
+				class_id = tracker_data_update_ensure_resource (manager->data_update,
+				                                                tracker_class_get_uri (class),
+				                                                error);
+			}
+
+			if (class_id != 0) {
+				tracker_data_delete_statement (manager->data_update, NULL,
+				                               class_id,
+				                               property,
+				                               &value,
+				                               error);
+			}
+
+			g_value_unset (&value);
 
 			if (!(*error))
 				tracker_data_update_buffer_flush (manager->data_update, error);
@@ -1642,8 +1698,10 @@ check_for_deleted_super_properties (TrackerDataManager  *manager,
                                     GError             **error)
 {
 	TrackerProperty **last_super_properties;
+	TrackerOntologies *ontologies;
 	GList *to_remove = NULL;
 
+	ontologies = tracker_data_manager_get_ontologies (manager);
 	last_super_properties = tracker_property_get_last_super_properties (property);
 
 	if (!last_super_properties) {
@@ -1682,15 +1740,35 @@ check_for_deleted_super_properties (TrackerDataManager  *manager,
 			TrackerProperty *prop_to_remove = copy->data;
 			const gchar *object = tracker_property_get_uri (prop_to_remove);
 			const gchar *subject = tracker_property_get_uri (property);
-			GBytes *bytes;
+			GValue value = G_VALUE_INIT;
+			gint64 subject_id;
+
+			property = tracker_ontologies_get_property_by_uri (ontologies,
+			                                                   TRACKER_PREFIX_RDFS "subPropertyOf");
+			if (!property) {
+				g_set_error (error, TRACKER_SPARQL_ERROR,
+				             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+				             "Property '%s' not found in the ontology",
+				             TRACKER_PREFIX_RDFS "subPropertyOf");
+				return;
+			}
 
 			tracker_property_del_super_property (property, prop_to_remove);
 
-			bytes = g_bytes_new (object, strlen (object) + 1);
-			tracker_data_delete_statement (manager->data_update, NULL, subject,
-			                               TRACKER_PREFIX_RDFS "subPropertyOf",
-			                               bytes, &n_error);
-			g_bytes_unref (bytes);
+			tracker_data_query_string_to_value (manager,
+			                                    object, NULL,
+			                                    tracker_property_get_data_type (property),
+			                                    &value, &n_error);
+
+			if (!n_error)
+				subject_id = tracker_data_update_ensure_resource (manager->data_update,
+				                                                  subject,
+				                                                  &n_error);
+
+			if (!n_error)
+				tracker_data_delete_statement (manager->data_update, NULL, subject_id,
+				                               property, &value, &n_error);
+			g_value_unset (&value);
 
 			if (!n_error) {
 				tracker_data_update_buffer_flush (manager->data_update, &n_error);
@@ -2141,7 +2219,8 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
                                          GError            **error)
 {
 	TrackerProperty *property;
-	GBytes *bytes;
+	GValue value = G_VALUE_INIT;
+	gint64 subject_id = 0;
 
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
@@ -2216,7 +2295,6 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
 		}
 	}
 
-	bytes = g_bytes_new (object, strlen (object) + 1);
 	property = tracker_ontologies_get_property_by_uri (manager->ontologies, predicate);
 
 	if (!property) {
@@ -2227,19 +2305,31 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
 		goto out;
 	}
 
+	if (!tracker_data_query_string_to_value (manager,
+	                                         object, NULL,
+	                                         tracker_property_get_data_type (property),
+	                                         &value, error))
+		goto out;
+
+	subject_id = tracker_data_update_ensure_resource (manager->data_update,
+	                                                  subject,
+	                                                  error);
+	if (subject_id == 0)
+		goto out;
+
 	if (tracker_property_get_is_new (property) ||
 	    tracker_property_get_multiple_values (property)) {
 		tracker_data_insert_statement (manager->data_update, NULL,
-		                               subject, predicate, bytes,
+		                               subject_id, property, &value,
 		                               error);
 	} else {
 		tracker_data_update_statement (manager->data_update, NULL,
-		                               subject, predicate, bytes,
+		                               subject_id, property, &value,
 		                               error);
 	}
 
 out:
-	g_bytes_unref (bytes);
+	g_value_unset (&value);
 }
 
 static void
@@ -3395,7 +3485,7 @@ create_base_tables (TrackerDataManager  *manager,
 
 	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "CREATE TABLE Resource (ID INTEGER NOT NULL PRIMARY KEY,"
-	                                    " Uri TEXT NOT NULL, BlankNode INTEGER DEFAULT 0, UNIQUE (Uri))");
+	                                    " Uri TEXT, BlankNode INTEGER DEFAULT 0, UNIQUE (Uri))");
 
 	if (internal_error) {
 		g_propagate_error (error, internal_error);
@@ -4022,6 +4112,50 @@ update_interface_cb (TrackerDBManager   *db_manager,
 }
 
 static gboolean
+tracker_data_manager_update_from_version (TrackerDataManager  *manager,
+                                          TrackerDBVersion     version,
+                                          GError             **error)
+{
+	TrackerDBInterface *iface;
+	GError *internal_error = NULL;
+
+	iface = tracker_data_manager_get_writable_db_interface (manager);
+
+	if (version < TRACKER_DB_VERSION_3_3) {
+		/* Anonymous blank nodes, remove "NOT NULL" restriction
+		 * from Resource.Uri.
+		 */
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "CREATE TABLE Resource_TEMP (ID INTEGER NOT NULL PRIMARY KEY,"
+		                                    " Uri TEXT, BlankNode INTEGER DEFAULT 0, UNIQUE (Uri))");
+		if (internal_error)
+			goto error;
+
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "INSERT INTO Resource_TEMP SELECT * FROM Resource");
+		if (internal_error)
+			goto error;
+
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "DROP TABLE Resource");
+		if (internal_error)
+			goto error;
+
+		tracker_db_interface_execute_query (iface, &internal_error,
+		                                    "ALTER TABLE Resource_TEMP RENAME TO Resource");
+		if (internal_error)
+			goto error;
+	}
+
+	tracker_db_manager_update_version (manager->db_manager);
+	return TRUE;
+
+error:
+	g_propagate_error (error, internal_error);
+	return FALSE;
+}
+
+static gboolean
 tracker_data_manager_initable_init (GInitable     *initable,
                                     GCancellable  *cancellable,
                                     GError       **error)
@@ -4123,6 +4257,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		if (!create_base_tables (manager, iface, error)) {
 			return FALSE;
 		}
+
+		tracker_db_manager_update_version (manager->db_manager);
 
 		for (l = sorted; l; l = l->next) {
 			GError *ontology_error = NULL;
@@ -4282,6 +4418,23 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		GError *n_error = NULL;
 		gboolean transaction_started = FALSE;
 		guint num_parsing_errors = 0;
+		TrackerDBVersion cur_version;
+
+		cur_version = tracker_db_manager_get_version (manager->db_manager);
+
+		if (cur_version < TRACKER_DB_VERSION_NOW) {
+			tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);
+			if (internal_error) {
+				g_propagate_error (error, internal_error);
+				return FALSE;
+			}
+			transaction_started = TRUE;
+
+			if (!tracker_data_manager_update_from_version (manager,
+			                                               cur_version,
+			                                               error))
+				return FALSE;
+		}
 
 		seen_classes = g_ptr_array_new_with_free_func (g_object_unref);
 		seen_properties = g_ptr_array_new_with_free_func (g_object_unref);

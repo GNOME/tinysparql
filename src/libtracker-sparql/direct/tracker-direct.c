@@ -332,6 +332,8 @@ translate_flags (TrackerSparqlConnectionFlags flags)
 		db_flags |= TRACKER_DB_MANAGER_FTS_ENABLE_STOP_WORDS;
 	if ((flags & TRACKER_SPARQL_CONNECTION_FLAGS_FTS_IGNORE_NUMBERS) != 0)
 		db_flags |= TRACKER_DB_MANAGER_FTS_IGNORE_NUMBERS;
+	if ((flags & TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES) != 0)
+		db_flags |= TRACKER_DB_MANAGER_ANONYMOUS_BNODES;
 
 	return db_flags;
 }
@@ -485,13 +487,11 @@ lookup_event_cache (TrackerNotifier *notifier,
  * (always the same one though), handle with care.
  */
 static void
-insert_statement_cb (gint         graph_id,
+insert_statement_cb (gint64       graph_id,
                      const gchar *graph,
-                     gint         subject_id,
-                     const gchar *subject,
-                     gint         predicate_id,
-                     gint         object_id,
-                     const gchar *object,
+                     gint64       subject_id,
+                     gint64       predicate_id,
+                     gint64       object_id,
                      GPtrArray   *rdf_types,
                      gpointer     user_data)
 {
@@ -531,13 +531,11 @@ insert_statement_cb (gint         graph_id,
 }
 
 static void
-delete_statement_cb (gint         graph_id,
+delete_statement_cb (gint64       graph_id,
                      const gchar *graph,
-                     gint         subject_id,
-                     const gchar *subject,
-                     gint         predicate_id,
-                     gint         object_id,
-                     const gchar *object,
+                     gint64       subject_id,
+                     gint64       predicate_id,
+                     gint64       object_id,
                      GPtrArray   *rdf_types,
                      gpointer     user_data)
 {
@@ -554,7 +552,10 @@ delete_statement_cb (gint         graph_id,
 	cache = lookup_event_cache (notifier, graph_id, graph);
 
 	if (predicate_id == tracker_property_get_id (rdf_type)) {
-		class_being_removed = tracker_ontologies_get_class_by_uri (ontologies, object);
+		const gchar *uri;
+
+		uri = tracker_ontologies_get_uri_by_id (ontologies, object_id);
+		class_being_removed = tracker_ontologies_get_class_by_uri (ontologies, uri);
 	}
 
 	for (i = 0; i < rdf_types->len; i++) {

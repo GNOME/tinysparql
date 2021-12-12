@@ -365,7 +365,7 @@ convert_to_string (const gchar         *table_name,
 	case TRACKER_PROPERTY_TYPE_INTEGER:
 		return g_strdup_printf ("t.\"%s\"", table_name);
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		return g_strdup_printf ("(SELECT Uri FROM Resource WHERE ID = t.\"%s\")",
+		return g_strdup_printf ("(SELECT COALESCE(Uri, 'urn:bnode:' || ID) FROM Resource WHERE ID = t.\"%s\")",
 		                        table_name);
 	case TRACKER_PROPERTY_TYPE_BOOLEAN:
 		return g_strdup_printf ("CASE t.\"%s\" "

@@ -37,10 +37,14 @@ the RDF abstract syntax, a blank node is just a unique node that can
 be used in one or more RDF statements, but has no intrinsic name.
 ```
 
-Tracker treats blank nodes as an URI generator instead. The string
-referencing a blank node (e.g. as returned by cursors) permanently
+By default Tracker treats blank nodes as an URI generator instead. The
+string referencing a blank node (e.g. as returned by cursors) permanently
 identifies that blank node and can be used as an URI reference in
 future queries.
+
+The blank node behavior defined in the RDF/SPARQL specifications can
+be enabled with the [](TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES)
+flag.
 
 ## Property functions
 

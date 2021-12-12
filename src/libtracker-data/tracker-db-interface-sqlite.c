@@ -1944,7 +1944,18 @@ function_sparql_print_iri (sqlite3_context *context,
 		if (result == SQLITE_DONE) {
 			sqlite3_result_null (context);
 		} else if (result == SQLITE_ROW) {
-			sqlite3_result_value (context, sqlite3_column_value (stmt, 0));
+			const gchar *value;
+
+			value = (const gchar *) sqlite3_column_text (stmt, 0);
+
+			if (value && *value) {
+				sqlite3_result_text (context, g_strdup (value), -1, g_free);
+			} else {
+				sqlite3_result_text (context,
+				                     g_strdup_printf ("urn:bnode:%" G_GINT64_FORMAT,
+				                                      (gint64) sqlite3_value_int64 (argv[0])),
+				                     -1, g_free);
+			}
 		} else {
 			result_context_function_error (context, fn, sqlite3_errstr (result));
 		}

@@ -39,6 +39,8 @@ G_BEGIN_DECLS
  * @TRACKER_SPARQL_CONNECTION_FLAGS_FTS_ENABLE_UNACCENT: Unaccenting is applied to FTS search terms.
  * @TRACKER_SPARQL_CONNECTION_FLAGS_FTS_ENABLE_STOP_WORDS: FTS Search terms are filtered through a stop word list.
  * @TRACKER_SPARQL_CONNECTION_FLAGS_FTS_IGNORE_NUMBERS: Ignore numbers in FTS search terms.
+ * @TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES: Treat blank nodes as specified in
+ *   SPARQL 1.1 syntax. Namely, they cannot be used as URIs. This flag is available since Tracker 3.3.
  *
  * Connection flags to modify #TrackerSparqlConnection behavior.
  */
@@ -49,6 +51,7 @@ typedef enum {
 	TRACKER_SPARQL_CONNECTION_FLAGS_FTS_ENABLE_UNACCENT   = 1 << 2,
 	TRACKER_SPARQL_CONNECTION_FLAGS_FTS_ENABLE_STOP_WORDS = 1 << 3,
 	TRACKER_SPARQL_CONNECTION_FLAGS_FTS_IGNORE_NUMBERS    = 1 << 4,
+	TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES      = 1 << 5,
 } TrackerSparqlConnectionFlags;
 
 /**
