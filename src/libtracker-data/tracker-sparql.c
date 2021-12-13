@@ -3367,7 +3367,7 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_DESCRIBE);
 	_append_string (sparql,
 	                "SELECT "
-	                "  (SELECT Uri FROM Resource WHERE ID = subject),"
+	                "  COALESCE((SELECT Uri FROM Resource WHERE ID = subject), 'urn:bnode:' || subject),"
 	                "  (SELECT Uri FROM Resource WHERE ID = predicate),"
 	                "  object "
 	                "FROM tracker_triples ");
