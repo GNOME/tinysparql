@@ -764,6 +764,9 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 	case G_TYPE_STRING:
 		tracker_db_statement_bind_text (stmt, (*idx)++, g_value_get_string (value));
 		break;
+	case G_TYPE_INT:
+		tracker_db_statement_bind_int (stmt, (*idx)++, g_value_get_int (value));
+		break;
 	case G_TYPE_INT64:
 		tracker_db_statement_bind_int (stmt, (*idx)++, g_value_get_int64 (value));
 		break;
@@ -806,6 +809,9 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 				/* String with langtag */
 				tracker_db_statement_bind_bytes (stmt, (*idx)++, bytes);
 			}
+		} else if (g_strcmp0 (g_type_name (type), "TrackerUri") == 0) {
+			/* FIXME: We can't access TrackerUri GType here */
+			tracker_db_statement_bind_text (stmt, (*idx)++, g_value_get_string (value));
 		} else {
 			g_warning ("Unknown type for binding: %s\n", G_VALUE_TYPE_NAME (value));
 		}
