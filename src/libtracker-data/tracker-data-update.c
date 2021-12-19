@@ -3096,6 +3096,7 @@ update_resource_property (TrackerData      *data,
 				break;
 			}
 
+			g_free (object_str);
 			value = &free_me;
 		} else {
 			value = v->data;
