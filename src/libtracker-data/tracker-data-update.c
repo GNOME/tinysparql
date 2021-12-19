@@ -2511,11 +2511,11 @@ tracker_data_insert_statement_with_uri (TrackerData      *data,
 		return;
 
 	if (predicate == tracker_ontologies_get_rdf_type (ontologies)) {
-		gchar *object_str = NULL;
+		const gchar *object_str = NULL;
 		gint64 object_id;
 
 		object_id = g_value_get_int64 (object);
-		object_str = g_strdup (tracker_ontologies_get_uri_by_id (ontologies, object_id));
+		object_str = tracker_ontologies_get_uri_by_id (ontologies, object_id);
 
 		/* handle rdf:type statements specially to
 		   cope with inference and insert blank rows */
