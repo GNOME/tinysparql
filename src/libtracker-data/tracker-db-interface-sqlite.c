@@ -2894,7 +2894,8 @@ execute_stmt (TrackerDBInterface  *interface,
 #endif
 
 	while (result == SQLITE_OK  ||
-	       result == SQLITE_ROW) {
+	       result == SQLITE_ROW ||
+	       result == SQLITE_LOCKED) {
 
 		if (g_cancellable_is_cancelled (cancellable)) {
 			result = SQLITE_INTERRUPT;
@@ -2913,6 +2914,15 @@ execute_stmt (TrackerDBInterface  *interface,
 			break;
 		case SQLITE_ROW:
 			break;
+		case SQLITE_LOCKED:
+			/* In-memory databases use a shared cache where readers
+			 * can temporarily block the writer thread, keep stepping
+			 * in this case until the database is no longer blocked.
+			 */
+			if (sqlite3_extended_errcode (interface->db) == SQLITE_LOCKED_SHAREDCACHE)
+				continue;
+			else
+				break;
 		default:
 			break;
 		}
