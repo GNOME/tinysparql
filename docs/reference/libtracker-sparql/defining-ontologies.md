@@ -394,3 +394,6 @@ possible incoherences (e.g. picking a single value if a property
 changes from multiple values to single value). After the manual
 data migration has been completed, the old classes and properties
 can be dropped.
+
+Once changes are made, the nrl:lastModified value should be updated
+so Tracker knows to reprocess the ontology.
