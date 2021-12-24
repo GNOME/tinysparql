@@ -9,16 +9,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2021-01-23 12:32+0000\n"
-"PO-Revision-Date: 2021-02-01 18:03+0700\n"
+"POT-Creation-Date: 2021-11-05 18:02+0000\n"
+"PO-Revision-Date: 2021-12-24 14:18+0700\n"
 "Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: GNOME Indonesian Translation Team <gnome@i15n.org>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural= n!=1;\n"
-"X-Generator: Poedit 2.4.2\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.0\n"
 "X-DamnedLies-Scope: partial\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
@@ -36,8 +36,8 @@ msgid "Version"
 msgstr "Versi"
 
 #: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
-#: src/tracker/tracker-export.c:517 src/tracker/tracker-import.c:160
-#: src/tracker/tracker-sparql.c:1557 src/tracker/tracker-sql.c:237
+#: src/tracker/tracker-export.c:516 src/tracker/tracker-import.c:160
+#: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:239
 msgid "Unrecognized options"
 msgstr "Opsi tak dikenal"
 
@@ -190,23 +190,23 @@ msgstr ""
 "\""
 
 #: src/tracker/tracker-export.c:308 src/tracker/tracker-import.c:99
-#: src/tracker/tracker-sparql.c:1115
+#: src/tracker/tracker-sparql.c:1123
 msgid "Could not establish a connection to Tracker"
 msgstr "Tak bisa membentuk koneksi ke Pelacak"
 
 #: src/tracker/tracker-export.c:309 src/tracker/tracker-import.c:100
-#: src/tracker/tracker-sparql.c:1116
+#: src/tracker/tracker-sparql.c:1124
 msgid "No error given"
 msgstr "Tak ada galat yang diberikan"
 
-#: src/tracker/tracker-export.c:348 src/tracker/tracker-export.c:399
-#: src/tracker/tracker-export.c:412 src/tracker/tracker-export.c:422
-#: src/tracker/tracker-sparql.c:1493 src/tracker/tracker-sql.c:135
-#: src/tracker/tracker-sql.c:168
+#: src/tracker/tracker-export.c:348 src/tracker/tracker-export.c:398
+#: src/tracker/tracker-export.c:411 src/tracker/tracker-export.c:421
+#: src/tracker/tracker-sparql.c:1502 src/tracker/tracker-sql.c:137
+#: src/tracker/tracker-sql.c:170
 msgid "Could not run query"
 msgstr "Tak bisa menjalankan kueri"
 
-#: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
+#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "gagal mengeksekusi “%s”: %s"
@@ -215,52 +215,52 @@ msgstr "gagal mengeksekusi “%s”: %s"
 msgid "Could not run import"
 msgstr "Tidak dapat menjalankan impor"
 
-#: src/tracker/tracker-main.c:43
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
-msgstr ""
-"Lihat \"tracker3 help <perintah>\" untuk membaca tentang suatu sub perintah "
-"tertentu."
-
-#: src/tracker/tracker-main.c:92
+#: src/tracker/tracker-main.c:89
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr ""
 "Dapatkan bantuan tentang bagaimana memakai Tracker dan sebarang perintah ini"
 
-#: src/tracker/tracker-main.c:93
+#: src/tracker/tracker-main.c:90
 msgid "Create a SPARQL endpoint"
 msgstr "Buat titik akhir SPARQL"
 
-#: src/tracker/tracker-main.c:94
+#: src/tracker/tracker-main.c:91
 msgid "Export data from a Tracker database"
 msgstr "Ekspor data dari basis data Tracker"
 
-#: src/tracker/tracker-main.c:95
+#: src/tracker/tracker-main.c:92
 msgid "Import data into a Tracker database"
 msgstr "Impor data ke basis data Tracker"
 
-#: src/tracker/tracker-main.c:96
+#: src/tracker/tracker-main.c:93
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
 "Kueri dan mutakhirkan indeks memakai SPARQL atau cari, daftar, dan pohon "
 "ontologi"
 
-#: src/tracker/tracker-main.c:97
+#: src/tracker/tracker-main.c:94
 msgid "Query the database at the lowest level using SQL"
 msgstr "Kueri basis data pada aras terrendah memakai SQL"
 
-#: src/tracker/tracker-main.c:137
+#: src/tracker/tracker-main.c:134
 #, c-format
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgstr "\"%s\" bukan suatu perintah tracker3. Lihat \"tracker3 --help\""
 
-#: src/tracker/tracker-main.c:172
+#: src/tracker/tracker-main.c:169
 msgid "Available tracker3 commands are:"
 msgstr "Perintah tracker3 yang tersedia:"
 
-#: src/tracker/tracker-main.c:210
+#: src/tracker/tracker-main.c:207
 msgid "Additional / third party commands are:"
 msgstr "Perintah tambahan / pihak ketiga adalah:"
+
+#: src/tracker/tracker-main.c:222
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
+msgstr ""
+"Lihat \"tracker3 help <perintah>\" untuk membaca tentang suatu sub perintah "
+"tertentu."
 
 #: src/tracker/tracker-sparql.c:122
 msgid "Path to use to run a query or update from file"
@@ -371,139 +371,139 @@ msgstr "Tak ditemukan prefiks namespace"
 msgid "None"
 msgstr "Nihil"
 
-#: src/tracker/tracker-sparql.c:995
+#: src/tracker/tracker-sparql.c:1003
 msgid "Could not create tree: subclass query failed"
 msgstr "Tak bisa membuat pohon: kueri subkelas gagal"
 
-#: src/tracker/tracker-sparql.c:1044
+#: src/tracker/tracker-sparql.c:1052
 msgid "Could not create tree: class properties query failed"
 msgstr "Tak bisa membuat pohon: kueri properti subkelas gagal"
 
-#: src/tracker/tracker-sparql.c:1131
+#: src/tracker/tracker-sparql.c:1139
 msgid "Could not list classes"
 msgstr "Tak bisa menyusun daftar kelas"
 
-#: src/tracker/tracker-sparql.c:1139
+#: src/tracker/tracker-sparql.c:1147
 msgid "No classes were found"
 msgstr "Tak ditemukan kelas"
 
-#: src/tracker/tracker-sparql.c:1139 src/tracker/tracker-sparql.c:1355
+#: src/tracker/tracker-sparql.c:1147 src/tracker/tracker-sparql.c:1363
 msgid "Classes"
 msgstr "Kelas"
 
-#: src/tracker/tracker-sparql.c:1155
+#: src/tracker/tracker-sparql.c:1163
 msgid "Could not list class prefixes"
 msgstr "Tak bisa menampilkan daftar prefiks kelas"
 
-#: src/tracker/tracker-sparql.c:1163
+#: src/tracker/tracker-sparql.c:1171
 msgid "No class prefixes were found"
 msgstr "Tak ada prefiks kelas yang ditemukan"
 
-#: src/tracker/tracker-sparql.c:1163
+#: src/tracker/tracker-sparql.c:1171
 msgid "Prefixes"
 msgstr "Prefiks"
 
-#: src/tracker/tracker-sparql.c:1183
+#: src/tracker/tracker-sparql.c:1191
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
 "Tak bisa temukan properti bagi prefiks kelas, mis. :Resource dalam “rdfs:"
 "Resource”"
 
-#: src/tracker/tracker-sparql.c:1222
+#: src/tracker/tracker-sparql.c:1230
 msgid "Could not list properties"
 msgstr "Tak bisa meyusun daftar properti"
 
-#: src/tracker/tracker-sparql.c:1230
+#: src/tracker/tracker-sparql.c:1238
 msgid "No properties were found"
 msgstr "Tak ditemukan properti"
 
-#: src/tracker/tracker-sparql.c:1230 src/tracker/tracker-sparql.c:1378
+#: src/tracker/tracker-sparql.c:1238 src/tracker/tracker-sparql.c:1386
 msgid "Properties"
 msgstr "Properti"
 
-#: src/tracker/tracker-sparql.c:1258
+#: src/tracker/tracker-sparql.c:1266
 msgid "Could not find notify classes"
 msgstr "Tak bisa temukan kelas pemberitahuan"
 
-#: src/tracker/tracker-sparql.c:1266
+#: src/tracker/tracker-sparql.c:1274
 msgid "No notifies were found"
 msgstr "Tak ditemukan pemberitahuan"
 
-#: src/tracker/tracker-sparql.c:1266
+#: src/tracker/tracker-sparql.c:1274
 msgid "Notifies"
 msgstr "Memberitahu"
 
-#: src/tracker/tracker-sparql.c:1292
+#: src/tracker/tracker-sparql.c:1300
 msgid "Could not find indexed properties"
 msgstr "Tak bisa temukan properti terindeks"
 
-#: src/tracker/tracker-sparql.c:1300
+#: src/tracker/tracker-sparql.c:1308
 msgid "No indexes were found"
 msgstr "Tak ditemukan indeks"
 
-#: src/tracker/tracker-sparql.c:1300
+#: src/tracker/tracker-sparql.c:1308
 msgid "Indexes"
 msgstr "Indeks"
 
-#: src/tracker/tracker-sparql.c:1316
+#: src/tracker/tracker-sparql.c:1324
 msgid "Could not list named graphs"
 msgstr "Tidak dapat mencantumkan grafik bernama"
 
-#: src/tracker/tracker-sparql.c:1324
+#: src/tracker/tracker-sparql.c:1332
 msgid "No graphs were found"
 msgstr "Tidak ada grafik yang ditemukan"
 
-#: src/tracker/tracker-sparql.c:1324
+#: src/tracker/tracker-sparql.c:1332
 msgid "Named graphs"
 msgstr "Grafik bernama"
 
-#: src/tracker/tracker-sparql.c:1347
+#: src/tracker/tracker-sparql.c:1355
 msgid "Could not search classes"
 msgstr "Tak bisa mencari kelas"
 
-#: src/tracker/tracker-sparql.c:1355
+#: src/tracker/tracker-sparql.c:1363
 msgid "No classes were found to match search term"
 msgstr "Tak ada kelas yang ditemukan agar cocok dengan istilah pencarian"
 
-#: src/tracker/tracker-sparql.c:1370
+#: src/tracker/tracker-sparql.c:1378
 msgid "Could not search properties"
 msgstr "Tak bisa mencari properti"
 
-#: src/tracker/tracker-sparql.c:1378
+#: src/tracker/tracker-sparql.c:1386
 msgid "No properties were found to match search term"
 msgstr "Tak ada properti yang ditemukan agar cocok dengan istilah pencarian"
 
-#: src/tracker/tracker-sparql.c:1414 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-sparql.c:1423 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Tak bisa mendapat path UTF-8 dari path"
 
-#: src/tracker/tracker-sparql.c:1426 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-sparql.c:1435 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Tak bisa membaca berkas"
 
-#: src/tracker/tracker-sparql.c:1445
+#: src/tracker/tracker-sparql.c:1454
 msgid "Could not run update"
 msgstr "Tak bisa menjalankan pemutakhiran"
 
-#: src/tracker/tracker-sparql.c:1452
+#: src/tracker/tracker-sparql.c:1461
 msgid "Done"
 msgstr "Selesai"
 
-#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
+#: src/tracker/tracker-sparql.c:1515 src/tracker/tracker-sparql.c:1518
 msgid "No results found matching your query"
 msgstr "Tak ada hasil yang cocok dengan kueri Anda"
 
-#: src/tracker/tracker-sparql.c:1506 src/tracker/tracker-sparql.c:1509
-#: src/tracker/tracker-sql.c:142
+#: src/tracker/tracker-sparql.c:1515 src/tracker/tracker-sparql.c:1518
+#: src/tracker/tracker-sql.c:144
 msgid "Results"
 msgstr "Hasil"
 
-#: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:248
+#: src/tracker/tracker-sparql.c:1575 src/tracker/tracker-sql.c:250
 msgid "File and query can not be used together"
 msgstr "Berkas dan kueri tak dapat dipakai bersama"
 
-#: src/tracker/tracker-sparql.c:1568
+#: src/tracker/tracker-sparql.c:1577
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -517,7 +517,7 @@ msgstr "Path untuk menjalankan kueri dari berkas"
 
 #: src/tracker/tracker-sql.c:52
 msgid "SQL query"
-msgstr "kueri SQL"
+msgstr "Kueri SQL"
 
 #: src/tracker/tracker-sql.c:53
 msgid "SQL"
@@ -527,11 +527,11 @@ msgstr "SQL"
 msgid "Failed to initialize data manager"
 msgstr "Gagal menginisialisasi manajer data"
 
-#: src/tracker/tracker-sql.c:176
+#: src/tracker/tracker-sql.c:178
 msgid "Empty result set"
 msgstr "Set hasil kosong"
 
-#: src/tracker/tracker-sql.c:246
+#: src/tracker/tracker-sql.c:248
 msgid "A database path must be specified"
 msgstr "Path basis data harus ditentukan"
 
