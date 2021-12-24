@@ -3130,19 +3130,12 @@ update_resource_single (TrackerData      *data,
                         gint64           *id,
                         GError          **error)
 {
-	GList *properties, *l;
+	GList *properties = NULL, *l;
 	GError *inner_error = NULL;
 	const gchar *subject_str;
 	gint64 subject;
 	gchar *graph_uri = NULL;
 	gboolean is_bnode = FALSE;
-
-	if (g_hash_table_lookup (visited, resource))
-		return TRUE;
-
-	g_hash_table_add (visited, resource);
-
-	properties = tracker_resource_get_properties (resource);
 
 	subject_str = tracker_resource_get_identifier (resource);
 	if (!subject_str || g_str_has_prefix (subject_str, "_:")) {
@@ -3155,6 +3148,13 @@ update_resource_single (TrackerData      *data,
 		if (subject == 0)
 			return FALSE;
 	}
+
+	if (g_hash_table_lookup (visited, resource))
+		goto out;
+
+	g_hash_table_add (visited, resource);
+
+	properties = tracker_resource_get_properties (resource);
 
 	if (graph) {
 		tracker_data_manager_expand_prefix (data->manager,

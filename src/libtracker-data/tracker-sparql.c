@@ -4830,6 +4830,15 @@ translate_Modify (TrackerSparql  *sparql,
 	}
 
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_WHERE)) {
+		GError *flush_error = NULL;
+
+		tracker_data_update_buffer_flush (tracker_data_manager_get_data (sparql->data_manager),
+		                                  &flush_error);
+		if (flush_error) {
+			g_propagate_error (error, flush_error);
+			return FALSE;
+		}
+
 		where = _skip_rule (sparql, NAMED_RULE_GroupGraphPattern);
 		solution = get_solution_for_pattern (sparql, where, error);
 		if (!solution)
