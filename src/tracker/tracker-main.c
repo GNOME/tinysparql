@@ -178,6 +178,7 @@ print_usage_list_cmds (void)
 	enumerator = g_file_enumerate_children (dir,
 	                                        G_FILE_ATTRIBUTE_STANDARD_NAME ","
 	                                        G_FILE_ATTRIBUTE_STANDARD_IS_SYMLINK ","
+	                                        G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN ","
 	                                        G_FILE_ATTRIBUTE_STANDARD_SYMLINK_TARGET,
 	                                        G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                                        NULL, &error);
@@ -186,8 +187,9 @@ print_usage_list_cmds (void)
 	if (enumerator) {
 		while ((info = g_file_enumerator_next_file (enumerator, NULL, NULL)) != NULL) {
 			/* Filter builtin commands */
-			if (g_file_info_get_is_symlink (info) &&
-			    g_strcmp0 (g_file_info_get_symlink_target (info), BINDIR "/tracker") == 0)
+			if (g_file_info_get_is_hidden (info) ||
+			    (g_file_info_get_is_symlink (info) &&
+			    g_strcmp0 (g_file_info_get_symlink_target (info), BINDIR "/tracker") == 0))
 				continue;
 
 			extra_commands = g_list_prepend (extra_commands,
