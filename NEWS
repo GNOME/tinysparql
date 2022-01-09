@@ -1,3 +1,25 @@
+NEW in 3.3.0.alpha - 2022-01-09
+===============================
+  * Add more specific error codes for problems found updating
+    a database to new ontology changes.
+  * Add method to create a TrackerStatement from a GResource file
+  * Fix 0-len matches in ? and * property path operators
+  * Handle query cancellation in TrackerEndpointDBus
+  * Consistency fixes to TrackerSparqlStatement API in all
+    connection types
+  * Deprecate tracker_namespace_manager_get_default(), use
+    tracker_sparql_connection_get_namespace_manager() instead
+  * Fix rare crash when concurrently querying the database while
+    a graph is being created/deleted.
+  * Add TRACKER_SPARQL_CONNECTION_ANONYMOUS_BNODES flag to
+    optionally enable a treatment of blank nodes that is
+    compliant with the SPARQL 1.1 specs.
+  * Documentation improvements
+  * Fix spurious locking errors with in-memory databases
+  * Fixes to CLI tools detection on NixOS
+
+Translations: fur, id
+
 NEW in 3.2.1 - 2021-10-30
 =========================
   * Better, more understandable errors when parsing the ontology
