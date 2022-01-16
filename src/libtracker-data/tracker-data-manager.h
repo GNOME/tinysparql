@@ -99,7 +99,7 @@ gboolean             tracker_data_manager_copy_graph  (TrackerDataManager  *mana
 GHashTable *         tracker_data_manager_get_graphs       (TrackerDataManager *manager,
                                                             gboolean            in_transaction);
 
-gint                 tracker_data_manager_find_graph       (TrackerDataManager *manager,
+TrackerRowid         tracker_data_manager_find_graph       (TrackerDataManager *manager,
                                                             const gchar        *name,
                                                             gboolean            in_transaction);
 

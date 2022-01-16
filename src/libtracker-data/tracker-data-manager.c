@@ -172,7 +172,7 @@ tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
 	graphs = g_hash_table_new_full (g_str_hash,
 					g_str_equal,
 					g_free,
-					NULL);
+	                                (GDestroyNotify) tracker_rowid_free);
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 						      "SELECT ID, Uri FROM Resource WHERE ID IN (SELECT ID FROM Graph)");
@@ -191,13 +191,13 @@ tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
 
 	while (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
 		const gchar *name;
-		gint id;
+		TrackerRowid id;
 
 		id = tracker_db_cursor_get_int (cursor, 0);
 		name = tracker_db_cursor_get_string (cursor, 1, NULL);
 
 		g_hash_table_insert (graphs, g_strdup (name),
-		                     GINT_TO_POINTER (id));
+		                     tracker_rowid_copy (&id));
 	}
 
 	g_object_unref (cursor);
@@ -4057,14 +4057,17 @@ update_attached_databases (TrackerDBInterface  *iface,
 			g_hash_table_remove (data_manager->graphs, name);
 			*changed = TRUE;
 		} else if (tracker_db_cursor_get_int (cursor, 2)) {
+			TrackerRowid id;
+
 			if (!tracker_db_manager_attach_database (data_manager->db_manager,
 			                                         iface, name, FALSE, error)) {
 				retval = FALSE;
 				break;
 			}
 
+			id = tracker_db_cursor_get_int (cursor, 3);
 			g_hash_table_insert (data_manager->graphs, g_strdup (name),
-			                     GINT_TO_POINTER (tracker_db_cursor_get_int (cursor, 3)));
+			                     tracker_rowid_copy (&id));
 			*changed = TRUE;
 		}
 	}
@@ -5058,11 +5061,11 @@ copy_graphs (GHashTable *graphs)
 	copy = g_hash_table_new_full (g_str_hash,
 				      g_str_equal,
 				      g_free,
-				      NULL);
+	                              (GDestroyNotify) tracker_rowid_free);
 	g_hash_table_iter_init (&iter, graphs);
 
 	while (g_hash_table_iter_next (&iter, &key, &value))
-		g_hash_table_insert (copy, g_strdup (key), value);
+		g_hash_table_insert (copy, g_strdup (key), tracker_rowid_copy (value));
 
 	return copy;
 }
@@ -5073,8 +5076,7 @@ tracker_data_manager_create_graph (TrackerDataManager  *manager,
                                    GError             **error)
 {
 	TrackerDBInterface *iface;
-	gint id;
-
+	TrackerRowid id;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
@@ -5096,7 +5098,8 @@ tracker_data_manager_create_graph (TrackerDataManager  *manager,
 	if (!manager->transaction_graphs)
 		manager->transaction_graphs = copy_graphs (manager->graphs);
 
-	g_hash_table_insert (manager->transaction_graphs, g_strdup (name), GINT_TO_POINTER (id));
+	g_hash_table_insert (manager->transaction_graphs, g_strdup (name),
+	                     tracker_rowid_copy (&id));
 
 	return TRUE;
 
@@ -5137,13 +5140,13 @@ tracker_data_manager_drop_graph (TrackerDataManager  *manager,
 	return TRUE;
 }
 
-gint
+TrackerRowid
 tracker_data_manager_find_graph (TrackerDataManager *manager,
                                  const gchar        *name,
                                  gboolean            in_transaction)
 {
 	GHashTable *graphs;
-	gint graph_id;
+	TrackerRowid graph_id;
 
 	graphs = tracker_data_manager_get_graphs (manager, in_transaction);
 	graph_id = GPOINTER_TO_UINT (g_hash_table_lookup (graphs, name));
