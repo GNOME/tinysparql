@@ -567,11 +567,11 @@ lookup_event_cache (TrackerNotifier *notifier,
  * (always the same one though), handle with care.
  */
 static void
-insert_statement_cb (gint64       graph_id,
-                     const gchar *graph,
-                     gint64       subject_id,
-                     gint64       predicate_id,
-                     gint64       object_id,
+insert_statement_cb (TrackerRowid  graph_id,
+                     const gchar  *graph,
+                     TrackerRowid  subject_id,
+                     TrackerRowid  predicate_id,
+                     TrackerRowid  object_id,
                      GPtrArray   *rdf_types,
                      gpointer     user_data)
 {
@@ -611,11 +611,11 @@ insert_statement_cb (gint64       graph_id,
 }
 
 static void
-delete_statement_cb (gint64       graph_id,
-                     const gchar *graph,
-                     gint64       subject_id,
-                     gint64       predicate_id,
-                     gint64       object_id,
+delete_statement_cb (TrackerRowid  graph_id,
+                     const gchar  *graph,
+                     TrackerRowid  subject_id,
+                     TrackerRowid  predicate_id,
+                     TrackerRowid  object_id,
                      GPtrArray   *rdf_types,
                      gpointer     user_data)
 {

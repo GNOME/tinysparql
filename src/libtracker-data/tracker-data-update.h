@@ -45,11 +45,11 @@ typedef struct _TrackerDataClass TrackerDataClass;
 
 typedef struct _TrackerData TrackerDataUpdate;
 
-typedef void (*TrackerStatementCallback) (gint64                graph_id,
+typedef void (*TrackerStatementCallback) (TrackerRowid          graph_id,
                                           const gchar          *graph,
-                                          gint64                subject_id,
-                                          gint64                predicate_id,
-                                          gint64                object_id,
+                                          TrackerRowid          subject_id,
+                                          TrackerRowid          predicate_id,
+                                          TrackerRowid          object_id,
                                           GPtrArray            *rdf_types,
                                           gpointer              user_data);
 typedef void (*TrackerCommitCallback)    (gpointer              user_data);
