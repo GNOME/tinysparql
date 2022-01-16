@@ -2951,7 +2951,8 @@ execute_stmt (TrackerDBInterface  *interface,
 				g_set_error (error,
 				             TRACKER_DB_INTERFACE_ERROR,
 				             TRACKER_DB_CONSTRAINT,
-				             "Constraint would be broken");
+				             "Constraint would be broken: %s",
+				             sqlite3_errmsg (interface->db));
 			} else {
 				g_set_error (error,
 				             TRACKER_DB_INTERFACE_ERROR,
