@@ -535,7 +535,9 @@ get_event_cache_ht (TrackerNotifier *notifier)
 
 	events = g_object_get_qdata (G_OBJECT (notifier), tracker_direct_notifier_quark ());
 	if (!events) {
-		events = g_hash_table_new_full (NULL, NULL, NULL,
+		events = g_hash_table_new_full (tracker_rowid_hash,
+		                                tracker_rowid_equal,
+		                                (GDestroyNotify) tracker_rowid_free,
 		                                (GDestroyNotify) _tracker_notifier_event_cache_free);
 		g_object_set_qdata_full (G_OBJECT (notifier), tracker_direct_notifier_quark (),
 		                         events, (GDestroyNotify) g_hash_table_unref);
@@ -546,18 +548,18 @@ get_event_cache_ht (TrackerNotifier *notifier)
 
 static TrackerNotifierEventCache *
 lookup_event_cache (TrackerNotifier *notifier,
-                    gint             graph_id,
+                    TrackerRowid     graph_id,
                     const gchar     *graph)
 {
 	TrackerNotifierEventCache *cache;
 	GHashTable *events;
 
 	events = get_event_cache_ht (notifier);
-	cache = g_hash_table_lookup (events, GINT_TO_POINTER (graph_id));
+	cache = g_hash_table_lookup (events, &graph_id);
 
 	if (!cache) {
 		cache = _tracker_notifier_event_cache_new (notifier, graph);
-		g_hash_table_insert (events, GINT_TO_POINTER (graph_id), cache);
+		g_hash_table_insert (events, tracker_rowid_copy (&graph_id), cache);
 	}
 
 	return cache;
