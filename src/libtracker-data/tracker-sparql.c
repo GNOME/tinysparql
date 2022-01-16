@@ -2752,7 +2752,8 @@ translate_Update (TrackerSparql  *sparql,
 		if (!sparql->current_state->blank_node_map) {
 			sparql->current_state->blank_node_map =
 				g_hash_table_new_full (g_str_hash, g_str_equal,
-				                       g_free, g_free);
+				                       g_free,
+				                       (GDestroyNotify) tracker_rowid_free);
 		}
 
 		if (_check_in_rule (sparql, NAMED_RULE_Update1)) {

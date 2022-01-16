@@ -36,7 +36,7 @@
 GPtrArray*
 tracker_data_query_rdf_type (TrackerDataManager  *manager,
                              const gchar         *graph,
-                             gint64               id,
+                             TrackerRowid         id,
                              GError             **error)
 {
 	TrackerDBCursor *cursor = NULL;
@@ -97,7 +97,7 @@ tracker_data_query_rdf_type (TrackerDataManager  *manager,
 gchar *
 tracker_data_query_resource_urn (TrackerDataManager  *manager,
                                  TrackerDBInterface  *iface,
-                                 gint64               id)
+                                 TrackerRowid         id)
 {
 	TrackerDBCursor *cursor = NULL;
 	TrackerDBStatement *stmt;
@@ -125,7 +125,7 @@ tracker_data_query_resource_urn (TrackerDataManager  *manager,
 	return uri;
 }
 
-gint64
+TrackerRowid
 tracker_data_query_resource_id (TrackerDataManager  *manager,
                                 TrackerDBInterface  *iface,
                                 const gchar         *uri,
@@ -134,7 +134,7 @@ tracker_data_query_resource_id (TrackerDataManager  *manager,
 	TrackerDBCursor *cursor = NULL;
 	TrackerDBStatement *stmt;
 	GError *inner_error = NULL;
-	gint64 id = 0;
+	TrackerRowid id = 0;
 
 	g_return_val_if_fail (uri != NULL, 0);
 
@@ -193,7 +193,7 @@ tracker_data_query_string_to_value (TrackerDataManager   *manager,
                                     GError              **error)
 {
 	TrackerData *data;
-	gint64 object_id;
+	TrackerRowid object_id;
 	gchar *datetime_str;
 	GDateTime *datetime;
 
