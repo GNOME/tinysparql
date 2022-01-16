@@ -102,8 +102,8 @@ tracker_ontologies_init (TrackerOntologies *ontologies)
 	                                          g_free,
 	                                          g_object_unref);
 
-	priv->id_uri_pairs = g_hash_table_new_full (g_direct_hash, g_direct_equal,
-	                                            NULL,
+	priv->id_uri_pairs = g_hash_table_new_full (tracker_rowid_hash, tracker_rowid_equal,
+	                                            (GDestroyNotify) tracker_rowid_free,
 	                                            g_free);
 
 	priv->properties = g_ptr_array_new_with_free_func (g_object_unref);
@@ -174,13 +174,13 @@ tracker_ontologies_get_rdf_type (TrackerOntologies *ontologies)
 
 const gchar*
 tracker_ontologies_get_uri_by_id (TrackerOntologies *ontologies,
-                                  gint               id)
+                                  TrackerRowid       id)
 {
 	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 
 	g_return_val_if_fail (id != -1, NULL);
 
-	return g_hash_table_lookup (priv->id_uri_pairs, GINT_TO_POINTER (id));
+	return g_hash_table_lookup (priv->id_uri_pairs, &id);
 }
 
 void
@@ -362,13 +362,13 @@ tracker_ontologies_add_property (TrackerOntologies *ontologies,
 
 void
 tracker_ontologies_add_id_uri_pair (TrackerOntologies *ontologies,
-                                    gint               id,
+                                    TrackerRowid       id,
                                     const gchar       *uri)
 {
 	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
 
 	g_hash_table_insert (priv->id_uri_pairs,
-	                     GINT_TO_POINTER (id),
+	                     tracker_rowid_copy (&id),
 	                     g_strdup (uri));
 }
 
@@ -561,7 +561,7 @@ tracker_ontologies_write_gvdb (TrackerOntologies  *ontologies,
 
 		item = gvdb_hash_table_insert_item (table, root, uri);
 
-		str = g_strdup_printf ("%d", tracker_class_get_id (class));
+		str = g_strdup_printf ("%" G_GINT64_FORMAT, tracker_class_get_id (class));
 		gvdb_hash_table_insert_statement (table, item, uri, "id", str);
 		g_free (str);
 
@@ -593,7 +593,7 @@ tracker_ontologies_write_gvdb (TrackerOntologies  *ontologies,
 
 		item = gvdb_hash_table_insert_item (table, root, uri);
 
-		str = g_strdup_printf ("%d", tracker_property_get_id (property));
+		str = g_strdup_printf ("%" G_GINT64_FORMAT, tracker_property_get_id (property));
 		gvdb_hash_table_insert_statement (table, item, uri, "id", str);
 		g_free (str);
 

@@ -23,6 +23,8 @@
 
 #include <glib-object.h>
 
+#include "tracker-rowid.h"
+
 G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
@@ -53,7 +55,7 @@ GType             tracker_class_get_type               (void) G_GNUC_CONST;
 TrackerClass *    tracker_class_new                    (gboolean             use_gvdb);
 const gchar *     tracker_class_get_uri                (TrackerClass        *service);
 const gchar *     tracker_class_get_name               (TrackerClass        *service);
-gint              tracker_class_get_id                 (TrackerClass        *service);
+TrackerRowid      tracker_class_get_id                 (TrackerClass        *service);
 gboolean          tracker_class_get_is_new             (TrackerClass        *service);
 gboolean          tracker_class_get_db_schema_changed  (TrackerClass        *service);
 gboolean          tracker_class_get_notify             (TrackerClass        *service);
@@ -78,7 +80,7 @@ void              tracker_class_del_domain_index       (TrackerClass        *ser
 void              tracker_class_reset_domain_indexes   (TrackerClass        *service);
 void              tracker_class_reset_super_classes   (TrackerClass        *service);
 void              tracker_class_set_id                 (TrackerClass        *service,
-                                                        gint                 id);
+                                                        TrackerRowid         id);
 void              tracker_class_set_is_new             (TrackerClass        *service,
                                                         gboolean             value);
 void              tracker_class_set_db_schema_changed  (TrackerClass        *service,

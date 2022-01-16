@@ -83,9 +83,9 @@ TrackerNamespace * tracker_ontologies_get_namespace_by_uri (TrackerOntologies *o
 TrackerOntology  * tracker_ontologies_get_ontology_by_uri  (TrackerOntologies *ontologies,
                                                             const gchar       *namespace_uri);
 const gchar*       tracker_ontologies_get_uri_by_id        (TrackerOntologies *ontologies,
-                                                            gint               id);
+                                                            TrackerRowid       id);
 void               tracker_ontologies_add_id_uri_pair      (TrackerOntologies *ontologies,
-                                                            gint               id,
+                                                            TrackerRowid       id,
                                                             const gchar       *uri);
 
 gboolean           tracker_ontologies_write_gvdb           (TrackerOntologies  *ontologies,

@@ -1112,7 +1112,7 @@ _prepend_path_element (TrackerSparql      *sparql,
 			_append_string (sparql, "WHERE ");
 		}
 
-		_append_string_printf (sparql, "predicate != %d ",
+		_append_string_printf (sparql, "predicate != %" G_GINT64_FORMAT " ",
 		                       tracker_property_get_id (path_elem->data.property));
 		_append_string (sparql, ") ");
 		break;

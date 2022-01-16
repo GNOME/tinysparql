@@ -575,7 +575,7 @@ update_property_value (TrackerDataManager  *manager,
 
 				if (!unsup_onto_err) {
 					GValue value = G_VALUE_INIT;
-					gint64 subject_id = 0;
+					TrackerRowid subject_id = 0;
 
 					tracker_data_query_string_to_value (manager,
 					                                    str, NULL,
@@ -614,7 +614,7 @@ update_property_value (TrackerDataManager  *manager,
 
 	if (!error && needed && object) {
 		GValue value = G_VALUE_INIT;
-		gint64 subject_id = 0;
+		TrackerRowid subject_id = 0;
 
 		tracker_data_query_string_to_value (manager,
 		                                    object, NULL,
@@ -858,7 +858,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
 			TrackerClass *class;
-			gint subject_id;
+			TrackerRowid subject_id;
 
 			class = tracker_ontologies_get_class_by_uri (manager->ontologies, subject);
 
@@ -903,7 +903,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			g_object_unref (class);
 		} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
 			TrackerProperty *property;
-			gint subject_id;
+			TrackerRowid subject_id;
 
 			property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 			if (property != NULL) {
@@ -1550,7 +1550,7 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 			TrackerProperty *prop = l->data;
 			const gchar *uri;
 			GValue value = G_VALUE_INIT;
-			gint64 class_id = 0;
+			TrackerRowid class_id = 0;
 
 			TRACKER_NOTE (ONTOLOGY_CHANGES,
 			              g_message ("Ontology change: deleting nrl:domainIndex: %s",
@@ -1741,7 +1741,7 @@ check_for_deleted_super_properties (TrackerDataManager  *manager,
 			const gchar *object = tracker_property_get_uri (prop_to_remove);
 			const gchar *subject = tracker_property_get_uri (property);
 			GValue value = G_VALUE_INIT;
-			gint64 subject_id;
+			TrackerRowid subject_id;
 
 			property = tracker_ontologies_get_property_by_uri (ontologies,
 			                                                   TRACKER_PREFIX_RDFS "subPropertyOf");
@@ -2220,7 +2220,7 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
 {
 	TrackerProperty *property;
 	GValue value = G_VALUE_INIT;
-	gint64 subject_id = 0;
+	TrackerRowid subject_id = 0;
 
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
@@ -2599,7 +2599,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
 			TrackerClass *class;
 			const gchar  *uri;
-			gint          id;
+			TrackerRowid id;
 			GValue        value = { 0 };
 			gboolean      notify;
 
@@ -2668,7 +2668,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed;
 			gboolean         is_inverse_functional_property;
-			gint             id;
+			TrackerRowid id;
 
 			property = tracker_property_new (FALSE);
 
@@ -2775,7 +2775,7 @@ static void
 insert_uri_in_resource_table (TrackerDataManager  *manager,
                               TrackerDBInterface  *iface,
                               const gchar         *uri,
-                              gint                 id,
+                              TrackerRowid         id,
                               GError             **error)
 {
 	TrackerDBStatement *stmt;
