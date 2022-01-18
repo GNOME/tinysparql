@@ -1652,7 +1652,7 @@ get_old_property_values (TrackerData      *data,
 				TrackerOntologies *ontologies;
 				guint i, n_props;
 				TrackerProperty   **properties, *prop;
-				GPtrArray *fts_props, *fts_text;
+				GPtrArray *fts_props;
 
 				/* first fulltext indexed property to be modified
 				 * retrieve values of all fulltext indexed properties
@@ -1661,7 +1661,6 @@ get_old_property_values (TrackerData      *data,
 				properties = tracker_ontologies_get_properties (ontologies, &n_props);
 
 				fts_props = g_ptr_array_new ();
-				fts_text = g_ptr_array_new_with_free_func (g_free);
 
 				for (i = 0; i < n_props; i++) {
 					prop = properties[i];
@@ -1669,45 +1668,22 @@ get_old_property_values (TrackerData      *data,
 					if (tracker_property_get_fulltext_indexed (prop)
 					    && check_property_domain (data, prop)) {
 						const gchar *property_name;
-						GString *str;
-						guint j;
-
-						old_values = get_property_values (data, prop, error);
-						if (!old_values) {
-							g_ptr_array_unref (fts_props);
-							g_ptr_array_unref (fts_text);
-							return NULL;
-						}
 
 						property_name = tracker_property_get_name (prop);
-						str = g_string_new (NULL);
-
-						/* delete old fts entries */
-						for (j = 0; j < old_values->len; j++) {
-							GValue *value = &g_array_index (old_values, GValue, j);
-							if (j != 0)
-								g_string_append_c (str, ',');
-							g_string_append (str, g_value_get_string (value));
-						}
-
 						g_ptr_array_add (fts_props, (gpointer) property_name);
-						g_ptr_array_add (fts_text, g_string_free (str, FALSE));
 					}
 				}
 
 				g_ptr_array_add (fts_props, NULL);
-				g_ptr_array_add (fts_text, NULL);
 
 				tracker_db_interface_sqlite_fts_delete_text (iface,
 				                                             database,
 				                                             data->resource_buffer->id,
-				                                             (const gchar **) fts_props->pdata,
-				                                             (const gchar **) fts_text->pdata);
+				                                             (const gchar **) fts_props->pdata);
 
 				g_ptr_array_unref (fts_props);
-				g_ptr_array_unref (fts_text);
 
-				old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
+				old_values = get_property_values (data, property, error);
 				data->resource_buffer->fts_updated = TRUE;
 			} else {
 				old_values = get_property_values (data, property, error);

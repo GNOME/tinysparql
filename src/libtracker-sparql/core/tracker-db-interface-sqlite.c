@@ -2335,10 +2335,9 @@ tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
 }
 
 static gchar *
-tracker_db_interface_sqlite_fts_create_query (TrackerDBInterface  *db_interface,
-                                              const gchar         *database,
-                                              gboolean             delete,
-                                              const gchar        **properties)
+tracker_db_interface_sqlite_fts_create_update_query (TrackerDBInterface  *db_interface,
+                                                     const gchar         *database,
+                                                     const gchar        **properties)
 {
 	GString *insert_str, *values_str;
 	gint i;
@@ -2346,11 +2345,6 @@ tracker_db_interface_sqlite_fts_create_query (TrackerDBInterface  *db_interface,
 	insert_str = g_string_new (NULL);
 	g_string_append_printf (insert_str, "INSERT INTO \"%s\".fts5 (", database);
 	values_str = g_string_new (NULL);
-
-	if (delete) {
-		g_string_append (insert_str, "fts5,");
-		g_string_append (values_str, "'delete',");
-	}
 
 	g_string_append (insert_str, "rowid");
 	g_string_append (values_str, "?");
@@ -2378,9 +2372,9 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
 	gchar *query;
 	gint i;
 
-	query = tracker_db_interface_sqlite_fts_create_query (db_interface,
-							      database,
-	                                                      FALSE, properties);
+	query = tracker_db_interface_sqlite_fts_create_update_query (db_interface,
+	                                                             database,
+	                                                             properties);
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 	                                              &error,
@@ -2413,28 +2407,44 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
         return TRUE;
 }
 
+static gchar *
+tracker_db_interface_sqlite_fts_create_delete_query (TrackerDBInterface  *db_interface,
+                                                     const gchar         *database,
+                                                     const gchar        **properties)
+{
+        GString *props_str;
+        gchar *query;
+        gint i;
+
+        props_str = g_string_new (NULL);
+
+        for (i = 0; properties[i] != NULL; i++)
+                g_string_append_printf (props_str, ",\"%s\"", properties[i]);
+
+        query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (fts5, ROWID %s) "
+                                 "SELECT 'delete', ROWID %s FROM \"%s\".fts_view WHERE ROWID = ?",
+                                 database,
+                                 props_str->str,
+                                 props_str->str,
+                                 database);
+        g_string_free (props_str, TRUE);
+
+        return query;
+}
+
 gboolean
 tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
                                              const gchar         *database,
                                              int                  rowid,
-                                             const gchar        **properties,
-                                             const gchar        **old_text)
+                                             const gchar        **properties)
 {
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
 	gchar *query;
-	gboolean has_text = FALSE;
-	gint i;
 
-	for (i = 0; old_text[i] != NULL; i++)
-		has_text |= old_text[i] && *old_text[i];
-
-	if (!has_text)
-		return TRUE;
-
-	query = tracker_db_interface_sqlite_fts_create_query (db_interface,
-							      database,
-	                                                      TRUE, properties);
+	query = tracker_db_interface_sqlite_fts_create_delete_query (db_interface,
+	                                                             database,
+	                                                             properties);
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 	                                              &error,
@@ -2449,9 +2459,6 @@ tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
 	}
 
 	tracker_db_statement_bind_int (stmt, 0, rowid);
-	for (i = 0; old_text[i] != NULL; i++)
-		tracker_db_statement_bind_text (stmt, i + 1, old_text[i]);
-
 	tracker_db_statement_execute (stmt, &error);
 	g_object_unref (stmt);
 
