@@ -147,9 +147,9 @@ static void         cache_insert_value         (TrackerData      *data,
                                                 const gchar      *field_name,
                                                 const GValue     *value,
                                                 gboolean          multiple_values);
-static GArray      *get_old_property_values    (TrackerData      *data,
-                                                TrackerProperty  *property,
-                                                GError          **error);
+static GArray      *get_property_values (TrackerData      *data,
+                                         TrackerProperty  *property,
+                                         GError          **error);
 static gboolean     delete_metadata_decomposed (TrackerData      *data,
                                                 TrackerProperty  *property,
                                                 const GValue     *object,
@@ -1148,7 +1148,7 @@ tracker_data_resource_unref_all (TrackerData      *data,
 	g_assert (tracker_property_get_multiple_values (property) == TRUE);
 	g_assert (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE);
 
-	old_values = get_old_property_values (data, property, error);
+	old_values = get_property_values (data, property, error);
 	if (!old_values)
 		return FALSE;
 
@@ -1399,7 +1399,7 @@ cache_create_service_decomposed (TrackerData   *data,
 		GArray *old_values;
 
 		/* read existing property values */
-		old_values = get_old_property_values (data, *domain_indexes, &inner_error);
+		old_values = get_property_values (data, *domain_indexes, &inner_error);
 		if (inner_error) {
 			g_propagate_prefixed_error (error,
 			                            inner_error,
@@ -1550,6 +1550,10 @@ get_property_values (TrackerData      *data,
 	const gchar *database;
 	GArray *old_values;
 
+	old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
+	if (old_values != NULL)
+		return old_values;
+
 	multiple_values = tracker_property_get_multiple_values (property);
 
 	old_values = g_array_sized_new (FALSE, TRUE, sizeof (GValue), multiple_values ? 4 : 1);
@@ -1626,21 +1630,6 @@ get_property_values (TrackerData      *data,
 			return NULL;
 		}
 	}
-
-	return old_values;
-}
-
-static GArray *
-get_old_property_values (TrackerData      *data,
-                         TrackerProperty  *property,
-                         GError          **error)
-{
-	GArray *old_values;
-
-	/* read existing property values */
-	old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
-	if (old_values == NULL)
-		old_values = get_property_values (data, property, error);
 
 	return old_values;
 }
@@ -1786,7 +1775,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 	}
 
 	/* read existing property values */
-	old_values = get_old_property_values (data, property, &new_error);
+	old_values = get_property_values (data, property, &new_error);
 	if (new_error) {
 		g_propagate_error (error, new_error);
 		return FALSE;
@@ -1806,7 +1795,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		const GValue *val;
 
 		super_is_multi = tracker_property_get_multiple_values (*super_properties);
-		super_old_values = get_old_property_values (data, *super_properties, &new_error);
+		super_old_values = get_property_values (data, *super_properties, &new_error);
 		if (new_error) {
 			g_propagate_error (error, new_error);
 			return FALSE;
@@ -1926,7 +1915,7 @@ delete_metadata_decomposed (TrackerData      *data,
 		tracker_property_get_fulltext_indexed (property);
 
 	/* read existing property values */
-	old_values = get_old_property_values (data, property, &new_error);
+	old_values = get_property_values (data, property, &new_error);
 	if (new_error) {
 		/* no need to error out if statement does not exist for any reason */
 		g_clear_error (&new_error);
@@ -2098,8 +2087,7 @@ cache_delete_resource_type_full (TrackerData   *data,
 		data->resource_buffer->fts_updated |=
 			tracker_property_get_fulltext_indexed (prop);
 
-		old_values = get_old_property_values (data, prop, error);
-
+		old_values = get_property_values (data, prop, error);
 		if (!old_values)
 			return FALSE;
 
@@ -2357,7 +2345,7 @@ delete_all_helper (TrackerData      *data,
 				tracker_data_resource_unref (data, g_value_get_int64 (value), FALSE);
 		}
 	} else {
-		super_old_values = get_old_property_values (data, property, error);
+		super_old_values = get_property_values (data, property, error);
 		if (!super_old_values)
 			return FALSE;
 
@@ -2420,7 +2408,7 @@ tracker_data_delete_all (TrackerData   *data,
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 	property = tracker_ontologies_get_property_by_uri (ontologies,
 	                                                   predicate);
-	old_values = get_old_property_values (data, property, &inner_error);
+	old_values = get_property_values (data, property, &inner_error);
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
@@ -2459,7 +2447,7 @@ delete_single_valued (TrackerData       *data,
 		GError *inner_error = NULL;
 		GArray *old_values;
 
-		old_values = get_old_property_values (data, predicate, &inner_error);
+		old_values = get_property_values (data, predicate, &inner_error);
 
 		if (old_values && old_values->len == 1) {
 			GValue *value;
