@@ -1639,38 +1639,8 @@ get_old_property_values (TrackerData      *data,
 
 	/* read existing property values */
 	old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
-	if (old_values == NULL) {
-		if (!check_property_domain (data, property)) {
-			if (data->implicit_create) {
-				if (!cache_create_service_decomposed (data,
-				                                      tracker_property_get_domain (property),
-				                                      error))
-					return NULL;
-			} else {
-				TrackerDBInterface *iface;
-				gchar *resource;
-
-				iface = tracker_data_manager_get_writable_db_interface (data->manager);
-				resource = tracker_data_query_resource_urn (data->manager,
-				                                            iface,
-				                                            data->resource_buffer->id);
-
-				g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
-				             "%s %s is not is not a %s, cannot have property `%s'",
-				             resource ? "Subject" : "Blank node",
-				             resource ? resource : "",
-				             tracker_class_get_name (tracker_property_get_domain (property)),
-				             tracker_property_get_name (property));
-				g_free (resource);
-
-				return NULL;
-			}
-		}
-
-		data->resource_buffer->fts_updated |=
-			tracker_property_get_fulltext_indexed (property);
+	if (old_values == NULL)
 		old_values = get_property_values (data, property, error);
-	}
 
 	return old_values;
 }
@@ -1787,6 +1757,33 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 	GArray             *old_values;
 	GError             *new_error = NULL;
 	gboolean            change = FALSE;
+
+	if (!check_property_domain (data, property)) {
+		if (data->implicit_create) {
+			if (!cache_create_service_decomposed (data,
+							      tracker_property_get_domain (property),
+							      error))
+				return FALSE;
+		} else {
+			TrackerDBInterface *iface;
+			gchar *resource;
+
+			iface = tracker_data_manager_get_writable_db_interface (data->manager);
+			resource = tracker_data_query_resource_urn (data->manager,
+								    iface,
+								    data->resource_buffer->id);
+
+			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
+				     "%s %s is not is not a %s, cannot have property `%s'",
+				     resource ? "Subject" : "Blank node",
+				     resource ? resource : "",
+				     tracker_class_get_name (tracker_property_get_domain (property)),
+				     tracker_property_get_name (property));
+			g_free (resource);
+
+			return FALSE;
+		}
+	}
 
 	/* read existing property values */
 	old_values = get_old_property_values (data, property, &new_error);
