@@ -842,6 +842,34 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	database = resource->graph->graph ? resource->graph->graph : "main";
 
+	if (resource->fts_updated && !resource->create) {
+		TrackerProperty *prop;
+		GArray *values;
+		GPtrArray *properties;
+
+		properties = NULL;
+		g_hash_table_iter_init (&iter, resource->predicates);
+
+		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
+			if (tracker_property_get_fulltext_indexed (prop)) {
+				if (!properties)
+					properties = g_ptr_array_new ();
+
+				g_ptr_array_add (properties, (gpointer) tracker_property_get_name (prop));
+			}
+		}
+
+		if (properties) {
+			g_ptr_array_add (properties, NULL);
+
+			tracker_db_interface_sqlite_fts_delete_text (iface,
+			                                             database,
+			                                             resource->id,
+			                                             (const gchar **) properties->pdata);
+			g_ptr_array_free (properties, TRUE);
+		}
+	}
+
 	g_hash_table_iter_init (&iter, resource->tables);
 	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
 		if (table->multiple_values) {
@@ -1608,10 +1636,6 @@ get_old_property_values (TrackerData      *data,
                          GError          **error)
 {
 	GArray *old_values;
-	const gchar *database;
-
-	database = data->resource_buffer->graph->graph ?
-		data->resource_buffer->graph->graph : "main";
 
 	/* read existing property values */
 	old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
@@ -1643,55 +1667,9 @@ get_old_property_values (TrackerData      *data,
 			}
 		}
 
-		if (tracker_property_get_fulltext_indexed (property)) {
-			TrackerDBInterface *iface;
-
-			iface = tracker_data_manager_get_writable_db_interface (data->manager);
-
-			if (!data->resource_buffer->fts_updated && !data->resource_buffer->create) {
-				TrackerOntologies *ontologies;
-				guint i, n_props;
-				TrackerProperty   **properties, *prop;
-				GPtrArray *fts_props;
-
-				/* first fulltext indexed property to be modified
-				 * retrieve values of all fulltext indexed properties
-				 */
-				ontologies = tracker_data_manager_get_ontologies (data->manager);
-				properties = tracker_ontologies_get_properties (ontologies, &n_props);
-
-				fts_props = g_ptr_array_new ();
-
-				for (i = 0; i < n_props; i++) {
-					prop = properties[i];
-
-					if (tracker_property_get_fulltext_indexed (prop)
-					    && check_property_domain (data, prop)) {
-						const gchar *property_name;
-
-						property_name = tracker_property_get_name (prop);
-						g_ptr_array_add (fts_props, (gpointer) property_name);
-					}
-				}
-
-				g_ptr_array_add (fts_props, NULL);
-
-				tracker_db_interface_sqlite_fts_delete_text (iface,
-				                                             database,
-				                                             data->resource_buffer->id,
-				                                             (const gchar **) fts_props->pdata);
-
-				g_ptr_array_unref (fts_props);
-
-				old_values = get_property_values (data, property, error);
-				data->resource_buffer->fts_updated = TRUE;
-			} else {
-				old_values = get_property_values (data, property, error);
-			}
-
-		} else {
-			old_values = get_property_values (data, property, error);
-		}
+		data->resource_buffer->fts_updated |=
+			tracker_property_get_fulltext_indexed (property);
+		old_values = get_property_values (data, property, error);
 	}
 
 	return old_values;
@@ -1947,6 +1925,9 @@ delete_metadata_decomposed (TrackerData      *data,
 	table_name = tracker_property_get_table_name (property);
 	field_name = tracker_property_get_name (property);
 
+	data->resource_buffer->fts_updated |=
+		tracker_property_get_fulltext_indexed (property);
+
 	/* read existing property values */
 	old_values = get_old_property_values (data, property, &new_error);
 	if (new_error) {
@@ -2117,7 +2098,11 @@ cache_delete_resource_type_full (TrackerData   *data,
 		table_name = tracker_property_get_table_name (prop);
 		field_name = tracker_property_get_name (prop);
 
+		data->resource_buffer->fts_updated |=
+			tracker_property_get_fulltext_indexed (prop);
+
 		old_values = get_old_property_values (data, prop, error);
+
 		if (!old_values)
 			return FALSE;
 
@@ -2674,6 +2659,9 @@ tracker_data_update_statement (TrackerData      *data,
 		if (!resource_buffer_switch (data, graph, subject, error))
 			return;
 
+		data->resource_buffer->fts_updated |=
+			tracker_property_get_fulltext_indexed (predicate);
+
 		cache_delete_all_values (data,
 		                         tracker_property_get_table_name (predicate),
 		                         tracker_property_get_name (predicate));
@@ -2684,6 +2672,9 @@ tracker_data_update_statement (TrackerData      *data,
 	} else {
 		if (!resource_buffer_switch (data, graph, subject, error))
 			return;
+
+		data->resource_buffer->fts_updated |=
+			tracker_property_get_fulltext_indexed (predicate);
 
 		if (!delete_single_valued (data, graph, subject, predicate,
 		                           !tracker_property_get_multiple_values (predicate),

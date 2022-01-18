@@ -2418,15 +2418,20 @@ tracker_db_interface_sqlite_fts_create_delete_query (TrackerDBInterface  *db_int
 
         props_str = g_string_new (NULL);
 
-        for (i = 0; properties[i] != NULL; i++)
-                g_string_append_printf (props_str, ",\"%s\"", properties[i]);
+        for (i = 0; properties[i] != NULL; i++) {
+		if (i != 0)
+			g_string_append_c (props_str, ',');
 
-        query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (fts5, ROWID %s) "
-                                 "SELECT 'delete', ROWID %s FROM \"%s\".fts_view WHERE ROWID = ?",
+                g_string_append_printf (props_str, "\"%s\"", properties[i]);
+        }
+
+        query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (fts5, ROWID, %s) "
+                                 "SELECT 'delete', ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ? AND COALESCE(%s, NULL) IS NOT NULL",
                                  database,
                                  props_str->str,
                                  props_str->str,
-                                 database);
+                                 database,
+                                 props_str->str);
         g_string_free (props_str, TRUE);
 
         return query;
