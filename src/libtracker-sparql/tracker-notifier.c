@@ -74,7 +74,8 @@ struct _TrackerNotifierPrivate {
 	TrackerSparqlStatement *local_statement;
 	GAsyncQueue *queue;
 	gint n_local_statement_slots;
-	gboolean querying;
+	guint querying : 1;
+	guint urn_query_disabled : 1;
 	GMutex mutex;
 };
 
@@ -633,7 +634,9 @@ _tracker_notifier_event_cache_flush_events (TrackerNotifierEventCache *cache)
 	cache->first = g_sequence_get_begin_iter (cache->sequence);
 
 	g_async_queue_lock (priv->queue);
-	if (priv->querying) {
+	if (priv->urn_query_disabled) {
+		tracker_notifier_emit_events_in_idle (cache);
+	} else if (priv->querying) {
 		g_async_queue_push_unlocked (priv->queue, cache);
 	} else {
 		priv->querying = TRUE;
@@ -945,4 +948,13 @@ tracker_notifier_event_get_urn (TrackerNotifierEvent *event)
 {
 	g_return_val_if_fail (event != NULL, NULL);
 	return event->urn;
+}
+
+void
+tracker_notifier_disable_urn_query (TrackerNotifier *notifier)
+{
+	TrackerNotifierPrivate *priv;
+
+	priv = tracker_notifier_get_instance_private (notifier);
+	priv->urn_query_disabled = TRUE;
 }

@@ -39,4 +39,6 @@ _tracker_notifier_event_cache_push_event (TrackerNotifierEventCache *cache,
 
 void _tracker_notifier_event_cache_flush_events (TrackerNotifierEventCache *cache);
 
+void tracker_notifier_disable_urn_query (TrackerNotifier *notifier);
+
 #endif /* __TRACKER_NOTIFIER_PRIVATE_H__ */
