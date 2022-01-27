@@ -30,3 +30,7 @@ option('tests_tap_protocol', type: 'boolean', value: false,
        description: 'Whether to enable TAP protocol on tests')
 option('introspection', type: 'feature', value: 'enabled',
        description: 'Whether to enable introspection')
+
+option('soup', type: 'array', value: ['auto'],
+       choices: ['auto', 'soup2', 'soup3'],
+       description: 'Which major versions of libsoup to use')
