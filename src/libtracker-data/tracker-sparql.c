@@ -2894,6 +2894,7 @@ translate_SelectClause (TrackerSparql  *sparql,
 	} else {
 		do {
 			TrackerVariable *var;
+			TrackerPropertyType prop_type;
 
 			if (_check_in_rule (sparql, NAMED_RULE_Var)) {
 				gchar *name;
@@ -2911,22 +2912,23 @@ translate_SelectClause (TrackerSparql  *sparql,
 				found = tracker_context_lookup_variable_by_name (sparql->current_state->context,
 				                                                 name);
 				var = _last_node_variable (sparql);
+				prop_type = sparql->current_state->expression_type;
 
 				if (found) {
 					_append_string_printf (sparql, "%s ",
 					                       tracker_variable_get_sql_expression (var));
 
 					if (sparql->current_state->select_context == sparql->context)
-						convert_expression_to_string (sparql, sparql->current_state->expression_type);
+						convert_expression_to_string (sparql, prop_type);
 
-					select_context->type = sparql->current_state->expression_type;
+					select_context->type = prop_type;
 				} else {
 					_append_string (sparql, "NULL ");
-					select_context->type = TRACKER_PROPERTY_TYPE_UNKNOWN;
+					select_context->type = prop_type = TRACKER_PROPERTY_TYPE_UNKNOWN;
 				}
 
 				if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_AS)) {
-					if (!handle_as (sparql, select_context->type, error)) {
+					if (!handle_as (sparql, prop_type, error)) {
 						g_free (name);
 						return FALSE;
 					}
@@ -2936,7 +2938,7 @@ translate_SelectClause (TrackerSparql  *sparql,
 						                       tracker_variable_get_sql_expression (var));
 					}
 
-					tracker_sparql_add_select_var (sparql, name, select_context->type);
+					tracker_sparql_add_select_var (sparql, name, prop_type);
 				}
 
 				tracker_sparql_swap_builder (sparql, old);
@@ -2955,20 +2957,21 @@ translate_SelectClause (TrackerSparql  *sparql,
 				str = _append_placeholder (sparql);
 				old = tracker_sparql_swap_builder (sparql, str);
 				_call_rule (sparql, NAMED_RULE_Expression, error);
+				prop_type = sparql->current_state->expression_type;
 
 				if (sparql->current_state->select_context == sparql->context)
-					convert_expression_to_string (sparql, sparql->current_state->expression_type);
+					convert_expression_to_string (sparql, prop_type);
 
-				select_context->type = sparql->current_state->expression_type;
+				select_context->type = prop_type;
 
 				if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_AS)) {
-					if (!handle_as (sparql, sparql->current_state->expression_type, error))
+					if (!handle_as (sparql, prop_type, error))
 						return FALSE;
 				} else if (sparql->current_state->select_context == sparql->context) {
 					/* This is only allowed on the topmost context, an
 					 * expression without AS in a subselect is meaningless
 					 */
-					tracker_sparql_add_select_var (sparql, "", sparql->current_state->expression_type);
+					tracker_sparql_add_select_var (sparql, "", prop_type);
 				}
 
 				tracker_sparql_swap_builder (sparql, old);
