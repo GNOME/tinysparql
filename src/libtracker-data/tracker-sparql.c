@@ -3406,13 +3406,19 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 	/* DescribeQuery ::= 'DESCRIBE' ( VarOrIri+ | '*' ) DatasetClause* WhereClause? SolutionModifier
 	 */
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_DESCRIBE);
-	_append_string (sparql,
-	                "SELECT "
-	                "  COALESCE((SELECT Uri FROM Resource WHERE ID = subject), 'urn:bnode:' || subject),"
-	                "  (SELECT Uri FROM Resource WHERE ID = predicate),"
-	                "  object, "
-	                "  (SELECT Uri FROM Resource WHERE ID = graph) "
-	                "FROM tracker_triples ");
+	_append_string_printf (sparql,
+	                       "SELECT "
+	                       "  COALESCE((SELECT Uri FROM Resource WHERE ID = subject), 'urn:bnode:' || subject),"
+	                       "  (SELECT Uri FROM Resource WHERE ID = predicate),"
+	                       "  object, "
+	                       "  (SELECT Uri FROM Resource WHERE ID = graph) ");
+
+	handle_value_type_column (sparql, TRACKER_PROPERTY_TYPE_RESOURCE, NULL);
+	handle_value_type_column (sparql, TRACKER_PROPERTY_TYPE_RESOURCE, NULL);
+	_append_string (sparql, ", object_type ");
+	handle_value_type_column (sparql, TRACKER_PROPERTY_TYPE_RESOURCE, NULL);
+
+	_append_string_printf (sparql, "FROM tracker_triples ");
 
 	if (sparql->policy.graphs) {
 		_append_graph_checks (sparql, "graph",

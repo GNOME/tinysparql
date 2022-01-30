@@ -37,11 +37,11 @@ GRAPH <B> {
 }
 
 GRAPH <A> {
-  <a> rdf:type "http://www.w3.org/2000/01/rdf-schema#Resource", "http://tracker.api.gnome.org/ontology/v3/nie#InformationElement", "http://tracker.api.gnome.org/ontology/v3/nfo#Media", "http://tracker.api.gnome.org/ontology/v3/nmm#MusicPiece" .
+  <a> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
 }
 
 GRAPH <B> {
-  <a> rdf:type "http://www.w3.org/2000/01/rdf-schema#Resource", "http://tracker.api.gnome.org/ontology/v3/nie#InformationElement", "http://tracker.api.gnome.org/ontology/v3/nfo#Media", "http://tracker.api.gnome.org/ontology/v3/nmm#MusicPiece" .
+  <a> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
 
-  <b> rdf:type "http://www.w3.org/2000/01/rdf-schema#Resource", "http://tracker.api.gnome.org/ontology/v3/nie#InformationElement", "http://tracker.api.gnome.org/ontology/v3/nfo#Media", "http://tracker.api.gnome.org/ontology/v3/nmm#MusicPiece" .
+  <b> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
 }
