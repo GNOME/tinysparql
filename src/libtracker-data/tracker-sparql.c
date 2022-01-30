@@ -2889,6 +2889,7 @@ translate_SelectClause (TrackerSparql  *sparql,
 
 			tracker_sparql_swap_builder (sparql, old);
 			first = FALSE;
+			select_context->n_columns++;
 		}
 	} else {
 		do {
@@ -2977,6 +2978,7 @@ translate_SelectClause (TrackerSparql  *sparql,
 			}
 
 			first = FALSE;
+			select_context->n_columns++;
 		} while (TRUE);
 	}
 
@@ -3285,6 +3287,7 @@ translate_ConstructQuery (TrackerSparql  *sparql,
                           GError        **error)
 {
 	TrackerParserNode *node = NULL;
+	TrackerSelectContext *select_context;
 	TrackerStringBuilder *old;
 
 	/* ConstructQuery ::= 'CONSTRUCT' ( ConstructTemplate DatasetClause* WhereClause SolutionModifier |
@@ -3343,6 +3346,9 @@ translate_ConstructQuery (TrackerSparql  *sparql,
 		}
 	}
 
+	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->select_context);
+	select_context->n_columns = 3;
+
 	return TRUE;
 }
 
@@ -3351,6 +3357,7 @@ translate_DescribeQuery (TrackerSparql  *sparql,
                          GError        **error)
 {
 	TrackerStringBuilder *where_str = NULL;
+	TrackerSelectContext *select_context;
 	TrackerVariable *variable;
 	TrackerBinding *binding;
 	GList *resources = NULL, *l;
@@ -3500,6 +3507,9 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 	g_list_free_full (resources, g_object_unref);
 	g_clear_pointer (&where_str, tracker_string_builder_free);
 
+	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->select_context);
+	select_context->n_columns = 4;
+
 	return TRUE;
 }
 
@@ -3508,6 +3518,7 @@ translate_AskQuery (TrackerSparql  *sparql,
                     GError        **error)
 {
 	TrackerStringBuilder *str, *old;
+	TrackerSelectContext *select_context;
 
 	/* AskQuery ::= 'ASK' DatasetClause* WhereClause SolutionModifier
 	 */
@@ -3527,6 +3538,9 @@ translate_AskQuery (TrackerSparql  *sparql,
 	tracker_sparql_swap_builder (sparql, old);
 
 	_append_string (sparql, ") WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END");
+
+	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->select_context);
+	select_context->n_columns = 1;
 
 	return TRUE;
 }

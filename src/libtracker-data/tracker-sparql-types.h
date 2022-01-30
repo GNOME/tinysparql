@@ -214,6 +214,9 @@ struct _TrackerSelectContext {
 
 	/* Property path elements */
 	GPtrArray *path_elements;
+
+	/* Number of variables retrieved in the SELECT */
+	guint n_columns;
 };
 
 struct _TrackerSelectContextClass {
