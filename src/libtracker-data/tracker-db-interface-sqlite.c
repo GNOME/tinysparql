@@ -115,6 +115,7 @@ struct TrackerDBCursor {
 	sqlite3_stmt *stmt;
 	TrackerDBStatement *ref_stmt;
 	gboolean finished;
+	guint n_columns;
 	TrackerPropertyType *types;
 	guint n_types;
 };
@@ -142,6 +143,7 @@ static TrackerDBStatement *tracker_db_statement_sqlite_new          (TrackerDBIn
                                                                      sqlite3_stmt          *sqlite_stmt);
 static void                tracker_db_statement_sqlite_reset        (TrackerDBStatement    *stmt);
 static TrackerDBCursor    *tracker_db_cursor_sqlite_new             (TrackerDBStatement    *ref_stmt,
+                                                                     guint                  n_columns,
                                                                      TrackerPropertyType   *types,
                                                                      guint                  n_types);
 static gboolean            tracker_db_cursor_get_boolean            (TrackerSparqlCursor   *cursor,
@@ -3220,6 +3222,7 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 
 static TrackerDBCursor *
 tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
+                              guint                n_columns,
                               TrackerPropertyType *types,
                               guint                n_types)
 {
@@ -3248,6 +3251,7 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
 	cursor = g_object_new (TRACKER_TYPE_DB_CURSOR, NULL);
 
 	cursor->finished = FALSE;
+	cursor->n_columns = n_columns;
 
 	cursor->stmt = ref_stmt->stmt;
 	cursor->ref_stmt = tracker_db_statement_sqlite_grab (ref_stmt);
@@ -3475,7 +3479,14 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 guint
 tracker_db_cursor_get_n_columns (TrackerDBCursor *cursor)
 {
-	return sqlite3_column_count (cursor->stmt);
+	guint n_columns;
+
+	if (cursor->n_columns == 0)
+		n_columns = sqlite3_column_count (cursor->stmt);
+	else
+		n_columns = cursor->n_columns;
+
+	return n_columns;
 }
 
 void
@@ -3516,6 +3527,9 @@ tracker_db_cursor_get_int (TrackerDBCursor *cursor,
 	TrackerDBInterface *iface;
 	gint64 result;
 
+	if (cursor->n_columns > 0 && column >= cursor->n_columns)
+		return 0;
+
 	iface = cursor->ref_stmt->db_interface;
 
 	tracker_db_interface_lock (iface);
@@ -3533,6 +3547,9 @@ tracker_db_cursor_get_double (TrackerDBCursor *cursor,
 {
 	TrackerDBInterface *iface;
 	gdouble result;
+
+	if (cursor->n_columns > 0 && column >= cursor->n_columns)
+		return 0;
 
 	iface = cursor->ref_stmt->db_interface;
 
@@ -3559,7 +3576,7 @@ tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
 {
 	TrackerDBInterface *iface;
 	gint column_type;
-	guint n_columns = sqlite3_column_count (cursor->stmt);
+	guint n_columns = tracker_db_cursor_get_n_columns (cursor);
 
 	g_return_val_if_fail (column < n_columns, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
 
@@ -3612,6 +3629,9 @@ tracker_db_cursor_get_variable_name (TrackerDBCursor *cursor,
 	TrackerDBInterface *iface;
 	const gchar *result;
 
+	if (cursor->n_columns > 0 && column >= cursor->n_columns)
+		return NULL;
+
 	iface = cursor->ref_stmt->db_interface;
 
 	tracker_db_interface_lock (iface);
@@ -3635,6 +3655,9 @@ tracker_db_cursor_get_string (TrackerDBCursor *cursor,
 {
 	TrackerDBInterface *iface;
 	const gchar *result;
+
+	if (cursor->n_columns > 0 && column >= cursor->n_columns)
+		return NULL;
 
 	iface = cursor->ref_stmt->db_interface;
 
@@ -3672,7 +3695,7 @@ tracker_db_statement_start_cursor (TrackerDBStatement  *stmt,
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 	g_return_val_if_fail (!stmt->stmt_is_used, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt, NULL, 0);
+	return tracker_db_cursor_sqlite_new (stmt, 0, NULL, 0);
 }
 
 TrackerDBCursor *
@@ -3684,7 +3707,7 @@ tracker_db_statement_start_sparql_cursor (TrackerDBStatement   *stmt,
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 	g_return_val_if_fail (!stmt->stmt_is_used, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt, types, n_types);
+	return tracker_db_cursor_sqlite_new (stmt, 0, types, n_types);
 }
 
 static void
