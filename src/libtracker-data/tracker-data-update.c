@@ -2895,6 +2895,13 @@ tracker_data_load_turtle_file (TrackerData  *data,
 			goto failed;
 		}
 
+		/* Skip nrl:added/nrl:modified when parsing */
+		if (g_strcmp0 (tracker_property_get_name (predicate),
+		               "nrl:modified") == 0 ||
+		    g_strcmp0 (tracker_property_get_name (predicate),
+		               "nrl:added") == 0)
+			continue;
+
 		if (!tracker_data_query_string_to_value (data->manager,
 		                                         object_str,
 		                                         langtag,
