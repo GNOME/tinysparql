@@ -2828,12 +2828,32 @@ handle_as (TrackerSparql        *sparql,
 	return TRUE;
 }
 
+static void
+handle_value_type_column (TrackerSparql        *sparql,
+                          TrackerPropertyType   prop_type,
+                          TrackerVariable      *var)
+{
+	TrackerVariable *type_var = NULL;
+
+	if (var)
+		type_var = lookup_subvariable (sparql, var, "type");
+
+	if (type_var) {
+		/* If a $var:type variable exists for this variable, use that */
+		_append_string_printf (sparql, ", %s ",
+		                       tracker_variable_get_sql_expression (type_var));
+	} else {
+		_append_string_printf (sparql, ", %d ", prop_type);
+	}
+}
+
 static gboolean
 translate_SelectClause (TrackerSparql  *sparql,
                         GError        **error)
 {
 	TrackerSelectContext *select_context;
 	TrackerStringBuilder *str, *old;
+	TrackerStringBuilder *vars, *types;
 	gboolean first = TRUE;
 
 	/* SelectClause ::= 'SELECT' ( 'DISTINCT' | 'REDUCED' )? ( ( Var | ( '(' Expression 'AS' Var ')' ) )+ | '*' )
@@ -2852,6 +2872,8 @@ translate_SelectClause (TrackerSparql  *sparql,
 	}
 
 	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->select_context);
+	vars = _append_placeholder (sparql);
+	types = _append_placeholder (sparql);
 
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_GLOB)) {
 		TrackerVariable *var;
@@ -2867,34 +2889,44 @@ translate_SelectClause (TrackerSparql  *sparql,
 		g_hash_table_iter_init (&iter, select_context->variables);
 
 		while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &var)) {
+			TrackerPropertyType prop_type;
+
 			/* Skip our own internal variables */
 			if (strchr (var->name, ':'))
 				continue;
+
+			old = tracker_sparql_swap_builder (sparql, vars);
 
 			if (!first)
 				_append_string (sparql, ", ");
 
 			str = _append_placeholder (sparql);
-			old = tracker_sparql_swap_builder (sparql, str);
+			tracker_sparql_swap_builder (sparql, str);
+			prop_type = TRACKER_BINDING (tracker_variable_get_sample_binding (var))->data_type;
 
 			_append_string_printf (sparql, "%s ",
 			                       tracker_variable_get_sql_expression (var));
 
 			if (sparql->current_state->select_context == sparql->context) {
-				TrackerPropertyType prop_type;
-
-				prop_type = TRACKER_BINDING (tracker_variable_get_sample_binding (var))->data_type;
 				convert_expression_to_string (sparql, prop_type);
 			}
 
+			if (sparql->current_state->select_context == sparql->context) {
+				tracker_sparql_swap_builder (sparql, types);
+				handle_value_type_column (sparql, prop_type, var);
+			}
+
 			tracker_sparql_swap_builder (sparql, old);
+
 			first = FALSE;
 			select_context->n_columns++;
 		}
 	} else {
 		do {
-			TrackerVariable *var;
+			TrackerVariable *var = NULL;
 			TrackerPropertyType prop_type;
+
+			old = tracker_sparql_swap_builder (sparql, vars);
 
 			if (_check_in_rule (sparql, NAMED_RULE_Var)) {
 				gchar *name;
@@ -2907,7 +2939,7 @@ translate_SelectClause (TrackerSparql  *sparql,
 				name = _dup_last_string (sparql);
 
 				str = _append_placeholder (sparql);
-				old = tracker_sparql_swap_builder (sparql, str);
+				tracker_sparql_swap_builder (sparql, str);
 
 				found = tracker_context_lookup_variable_by_name (sparql->current_state->context,
 				                                                 name);
@@ -2941,7 +2973,6 @@ translate_SelectClause (TrackerSparql  *sparql,
 					tracker_sparql_add_select_var (sparql, name, prop_type);
 				}
 
-				tracker_sparql_swap_builder (sparql, old);
 				g_free (name);
 			} else {
 				gboolean parens = FALSE;
@@ -2955,7 +2986,7 @@ translate_SelectClause (TrackerSparql  *sparql,
 					_append_string (sparql, ", ");
 
 				str = _append_placeholder (sparql);
-				old = tracker_sparql_swap_builder (sparql, str);
+				tracker_sparql_swap_builder (sparql, str);
 				_call_rule (sparql, NAMED_RULE_Expression, error);
 				prop_type = sparql->current_state->expression_type;
 
@@ -2974,11 +3005,16 @@ translate_SelectClause (TrackerSparql  *sparql,
 					tracker_sparql_add_select_var (sparql, "", prop_type);
 				}
 
-				tracker_sparql_swap_builder (sparql, old);
-
 				if (parens)
 					_expect (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_PARENS);
 			}
+
+			if (sparql->current_state->select_context == sparql->context) {
+				tracker_sparql_swap_builder (sparql, types);
+				handle_value_type_column (sparql, prop_type, var);
+			}
+
+			tracker_sparql_swap_builder (sparql, old);
 
 			first = FALSE;
 			select_context->n_columns++;
