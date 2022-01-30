@@ -116,8 +116,6 @@ struct TrackerDBCursor {
 	TrackerDBStatement *ref_stmt;
 	gboolean finished;
 	guint n_columns;
-	TrackerPropertyType *types;
-	guint n_types;
 };
 
 struct TrackerDBCursorClass {
@@ -143,9 +141,7 @@ static TrackerDBStatement *tracker_db_statement_sqlite_new          (TrackerDBIn
                                                                      sqlite3_stmt          *sqlite_stmt);
 static void                tracker_db_statement_sqlite_reset        (TrackerDBStatement    *stmt);
 static TrackerDBCursor    *tracker_db_cursor_sqlite_new             (TrackerDBStatement    *ref_stmt,
-                                                                     guint                  n_columns,
-                                                                     TrackerPropertyType   *types,
-                                                                     guint                  n_types);
+                                                                     guint                  n_columns);
 static gboolean            tracker_db_cursor_get_boolean            (TrackerSparqlCursor   *cursor,
                                                                      guint                  column);
 static gboolean            db_cursor_iter_next                      (TrackerDBCursor       *cursor,
@@ -3132,8 +3128,6 @@ tracker_db_cursor_finalize (GObject *object)
 
 	tracker_db_cursor_close (cursor);
 
-	g_free (cursor->types);
-
 	G_OBJECT_CLASS (tracker_db_cursor_parent_class)->finalize (object);
 }
 
@@ -3222,9 +3216,7 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 
 static TrackerDBCursor *
 tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
-                              guint                n_columns,
-                              TrackerPropertyType *types,
-                              guint                n_types)
+                              guint                n_columns)
 {
 	TrackerDBCursor *cursor;
 	TrackerDBInterface *iface;
@@ -3255,16 +3247,6 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
 
 	cursor->stmt = ref_stmt->stmt;
 	cursor->ref_stmt = tracker_db_statement_sqlite_grab (ref_stmt);
-
-	if (types) {
-		guint i;
-
-		cursor->types = g_new (TrackerPropertyType, n_types);
-		cursor->n_types = n_types;
-		for (i = 0; i < n_types; i++) {
-			cursor->types[i] = types[i];
-		}
-	}
 
 	return cursor;
 }
@@ -3658,26 +3640,6 @@ tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
 		return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
         }
 
-	if (column < cursor->n_types) {
-		switch (cursor->types[column]) {
-		case TRACKER_PROPERTY_TYPE_RESOURCE:
-			return TRACKER_SPARQL_VALUE_TYPE_URI;
-		case TRACKER_PROPERTY_TYPE_INTEGER:
-			return TRACKER_SPARQL_VALUE_TYPE_INTEGER;
-		case TRACKER_PROPERTY_TYPE_DOUBLE:
-			return TRACKER_SPARQL_VALUE_TYPE_DOUBLE;
-		case TRACKER_PROPERTY_TYPE_DATETIME:
-			return TRACKER_SPARQL_VALUE_TYPE_DATETIME;
-		case TRACKER_PROPERTY_TYPE_BOOLEAN:
-			return TRACKER_SPARQL_VALUE_TYPE_BOOLEAN;
-                case TRACKER_PROPERTY_TYPE_DATE:
-                case TRACKER_PROPERTY_TYPE_LANGSTRING:
-		case TRACKER_PROPERTY_TYPE_STRING:
-                case TRACKER_PROPERTY_TYPE_UNKNOWN:
-			return TRACKER_SPARQL_VALUE_TYPE_STRING;
-		}
-	}
-
 	switch (column_type) {
 	case SQLITE_INTEGER:
 		return TRACKER_SPARQL_VALUE_TYPE_INTEGER;
@@ -3761,20 +3723,18 @@ tracker_db_statement_start_cursor (TrackerDBStatement  *stmt,
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 	g_return_val_if_fail (!stmt->stmt_is_used, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt, 0, NULL, 0);
+	return tracker_db_cursor_sqlite_new (stmt, 0);
 }
 
 TrackerDBCursor *
-tracker_db_statement_start_sparql_cursor (TrackerDBStatement   *stmt,
-                                          guint                 n_columns,
-                                          TrackerPropertyType  *types,
-                                          guint                 n_types,
-                                          GError              **error)
+tracker_db_statement_start_sparql_cursor (TrackerDBStatement  *stmt,
+                                          guint                n_columns,
+                                          GError             **error)
 {
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 	g_return_val_if_fail (!stmt->stmt_is_used, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt, n_columns, types, n_types);
+	return tracker_db_cursor_sqlite_new (stmt, n_columns);
 }
 
 static void

@@ -144,8 +144,6 @@ TrackerDBCursor *       tracker_db_statement_start_cursor            (TrackerDBS
                                                                       GError                    **error);
 TrackerDBCursor *       tracker_db_statement_start_sparql_cursor     (TrackerDBStatement         *stmt,
                                                                       guint                       n_columns,
-                                                                      TrackerPropertyType        *types,
-                                                                      guint                       n_types,
                                                                       GError                    **error);
 
 /* Functions to deal with a cursor */

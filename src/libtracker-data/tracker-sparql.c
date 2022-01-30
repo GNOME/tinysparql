@@ -174,7 +174,6 @@ struct _TrackerSparql
 	GHashTable *prefix_map;
 	GList *filter_clauses;
 
-	GArray *var_types;
 	GHashTable *cached_bindings;
 
 	GVariantBuilder *blank_nodes;
@@ -242,7 +241,6 @@ tracker_sparql_finalize (GObject *object)
 
 	g_ptr_array_unref (sparql->named_graphs);
 	g_ptr_array_unref (sparql->anon_graphs);
-	g_array_unref (sparql->var_types);
 	g_free (sparql->base);
 
 	g_clear_pointer (&sparql->policy.graphs, g_ptr_array_unref);
@@ -2788,10 +2786,7 @@ tracker_sparql_add_select_var (TrackerSparql       *sparql,
 			       const gchar         *name,
 			       TrackerPropertyType  type)
 {
-	if (sparql->current_state->select_context == sparql->context) {
-		/* Topmost select context */
-		g_array_append_val (sparql->var_types, type);
-	} else {
+	if (sparql->current_state->select_context != sparql->context) {
 		TrackerContext *parent;
 		TrackerVariable *var;
 
@@ -4701,9 +4696,7 @@ get_solution_for_pattern (TrackerSparql      *sparql,
 	if (!stmt)
 		return NULL;
 
-	cursor = tracker_db_statement_start_sparql_cursor (stmt, 0,
-	                                                   NULL, 0,
-							   error);
+	cursor = tracker_db_statement_start_sparql_cursor (stmt, 0, error);
 	g_object_unref (stmt);
 
 	if (!cursor)
@@ -9791,7 +9784,6 @@ tracker_sparql_init (TrackerSparql *sparql)
 							 g_free, g_object_unref);
 	sparql->parameters = g_hash_table_new_full (g_str_hash, g_str_equal,
 	                                            g_free, g_object_unref);
-	sparql->var_types = g_array_new (FALSE, FALSE, sizeof (TrackerPropertyType));
 	sparql->anon_graphs = g_ptr_array_new_with_free_func (g_free);
 	sparql->named_graphs = g_ptr_array_new_with_free_func (g_free);
 	sparql->cacheable = TRUE;
@@ -9983,7 +9975,6 @@ tracker_sparql_reset_state (TrackerSparql *sparql)
 	g_clear_object (&sparql->context);
 	g_list_free (sparql->filter_clauses);
 	sparql->filter_clauses = NULL;
-	g_array_set_size (sparql->var_types, 0);
 	g_hash_table_remove_all (sparql->cached_bindings);
 	g_hash_table_remove_all (sparql->parameters);
 	g_ptr_array_set_size (sparql->anon_graphs, 0);
@@ -9999,8 +9990,6 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 	TrackerDBInterface *iface = NULL;
 	TrackerDBCursor *cursor = NULL;
 	TrackerSelectContext *select_context;
-	TrackerPropertyType *types;
-	guint n_types;
 
 	g_mutex_lock (&sparql->mutex);
 
@@ -10049,12 +10038,8 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 	if (!stmt)
 		goto error;
 
-	types = (TrackerPropertyType *) sparql->var_types->data;
-	n_types = sparql->var_types->len;
-
 	cursor = tracker_db_statement_start_sparql_cursor (stmt,
 	                                                   select_context->n_columns,
-							   types, n_types,
 							   error);
 	g_object_unref (stmt);
 
