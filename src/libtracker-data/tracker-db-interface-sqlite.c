@@ -3570,6 +3570,68 @@ tracker_db_cursor_get_boolean (TrackerSparqlCursor *sparql_cursor,
 	return (g_strcmp0 (tracker_db_cursor_get_string (cursor, column, NULL), "true") == 0);
 }
 
+static gboolean
+tracker_db_cursor_get_annotated_value_type (TrackerDBCursor        *cursor,
+                                            guint                   column,
+                                            TrackerSparqlValueType *value_type)
+{
+	TrackerDBInterface *iface;
+	TrackerPropertyType property_type;
+	gboolean is_null;
+
+	if (cursor->n_columns == 0)
+		return FALSE;
+
+	iface = cursor->ref_stmt->db_interface;
+
+	tracker_db_interface_lock (iface);
+
+	/* The value type may be annotated in extra columns, one per
+	 * user-visible column.
+	 */
+	property_type = sqlite3_column_int64 (cursor->stmt, column + cursor->n_columns);
+	is_null = sqlite3_column_type (cursor->stmt, column) == SQLITE_NULL;
+
+	tracker_db_interface_unlock (iface);
+
+	if (is_null) {
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
+		return TRUE;
+	}
+
+	switch (property_type) {
+	case TRACKER_PROPERTY_TYPE_UNKNOWN:
+		return FALSE;
+	case TRACKER_PROPERTY_TYPE_STRING:
+	case TRACKER_PROPERTY_TYPE_LANGSTRING:
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_STRING;
+		return TRUE;
+	case TRACKER_PROPERTY_TYPE_BOOLEAN:
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_BOOLEAN;
+		return TRUE;
+	case TRACKER_PROPERTY_TYPE_INTEGER:
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_INTEGER;
+		return TRUE;
+	case TRACKER_PROPERTY_TYPE_DOUBLE:
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_DOUBLE;
+		return TRUE;
+	case TRACKER_PROPERTY_TYPE_DATE:
+	case TRACKER_PROPERTY_TYPE_DATETIME:
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_DATETIME;
+		return TRUE;
+	case TRACKER_PROPERTY_TYPE_RESOURCE:
+		if (g_str_has_prefix (tracker_db_cursor_get_string (cursor, column, NULL),
+		                      "urn:bnode:"))
+			*value_type = TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE;
+		else
+			*value_type = TRACKER_SPARQL_VALUE_TYPE_URI;
+
+		return TRUE;
+	};
+
+	g_assert_not_reached ();
+}
+
 TrackerSparqlValueType
 tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
                                   guint            column)
@@ -3577,8 +3639,12 @@ tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
 	TrackerDBInterface *iface;
 	gint column_type;
 	guint n_columns = tracker_db_cursor_get_n_columns (cursor);
+	TrackerSparqlValueType value_type;
 
 	g_return_val_if_fail (column < n_columns, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
+
+	if (tracker_db_cursor_get_annotated_value_type (cursor, column, &value_type))
+		return value_type;
 
 	iface = cursor->ref_stmt->db_interface;
 
