@@ -4647,7 +4647,7 @@ get_solution_for_pattern (TrackerSparql      *sparql,
 
 	iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
 	stmt = prepare_query (sparql, iface,
-	                      TRACKER_SELECT_CONTEXT (sparql->context)->literal_bindings,
+			      TRACKER_SELECT_CONTEXT (sparql->context)->literal_bindings,
 	                      NULL, TRUE,
 	                      error);
 	g_clear_object (&sparql->context);
@@ -4655,7 +4655,7 @@ get_solution_for_pattern (TrackerSparql      *sparql,
 	if (!stmt)
 		return NULL;
 
-	cursor = tracker_db_statement_start_sparql_cursor (stmt,
+	cursor = tracker_db_statement_start_sparql_cursor (stmt, 0,
 	                                                   NULL, 0,
 							   error);
 	g_object_unref (stmt);
@@ -9952,6 +9952,7 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 	TrackerDBStatement *stmt;
 	TrackerDBInterface *iface = NULL;
 	TrackerDBCursor *cursor = NULL;
+	TrackerSelectContext *select_context;
 	TrackerPropertyType *types;
 	guint n_types;
 
@@ -9993,8 +9994,9 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 	if (!iface)
 		goto error;
 
+	select_context = TRACKER_SELECT_CONTEXT (sparql->context);
 	stmt = prepare_query (sparql, iface,
-	                      TRACKER_SELECT_CONTEXT (sparql->context)->literal_bindings,
+	                      select_context->literal_bindings,
 			      parameters,
 	                      sparql->cacheable,
 	                      error);
@@ -10005,6 +10007,7 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 	n_types = sparql->var_types->len;
 
 	cursor = tracker_db_statement_start_sparql_cursor (stmt,
+	                                                   select_context->n_columns,
 							   types, n_types,
 							   error);
 	g_object_unref (stmt);

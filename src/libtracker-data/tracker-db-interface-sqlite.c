@@ -3700,6 +3700,7 @@ tracker_db_statement_start_cursor (TrackerDBStatement  *stmt,
 
 TrackerDBCursor *
 tracker_db_statement_start_sparql_cursor (TrackerDBStatement   *stmt,
+                                          guint                 n_columns,
                                           TrackerPropertyType  *types,
                                           guint                 n_types,
                                           GError              **error)
@@ -3707,7 +3708,7 @@ tracker_db_statement_start_sparql_cursor (TrackerDBStatement   *stmt,
 	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), NULL);
 	g_return_val_if_fail (!stmt->stmt_is_used, NULL);
 
-	return tracker_db_cursor_sqlite_new (stmt, 0, types, n_types);
+	return tracker_db_cursor_sqlite_new (stmt, n_columns, types, n_types);
 }
 
 static void
