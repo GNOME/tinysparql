@@ -3461,12 +3461,19 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 guint
 tracker_db_cursor_get_n_columns (TrackerDBCursor *cursor)
 {
+	TrackerDBInterface *iface;
 	guint n_columns;
+
+	iface = cursor->ref_stmt->db_interface;
+
+	tracker_db_interface_lock (iface);
 
 	if (cursor->n_columns == 0)
 		n_columns = sqlite3_column_count (cursor->stmt);
 	else
 		n_columns = cursor->n_columns;
+
+	tracker_db_interface_unlock (iface);
 
 	return n_columns;
 }
