@@ -16,11 +16,16 @@ options.
 Tracker can store by default up to 1 GiB in a text field by default. This
 limit is controlled by `SQLITE_MAX_LENGTH`
 
-## Maximum number of properties
+## Maximum number of properties and select columns
 
 The maximum amount of properties in the domain of a single class, and
 the maximum number of global fulltext-search properties in the ontology
 are limited by `SQLITE_MAX_COLUMN` (defaults to 2000).
+
+Each column in the result set of a SELECT query contains additional
+information included as an additional column, so the limit of columns
+that can be retrieved in a single SELECT query is effectively half
+of `SQLITE_MAX_COLUMN` (1000 with the default settings).
 
 ## Underlying parser limits
 
