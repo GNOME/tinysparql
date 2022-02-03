@@ -406,7 +406,7 @@ create_extra_info_query (TrackerNotifier           *notifier,
 	if (service)
 		g_string_append (sparql, "} ");
 
-	g_string_append (sparql, "ORDER BY ?id");
+	g_string_append (sparql, "ORDER BY xsd:integer(?id)");
 
 	g_free (service);
 
