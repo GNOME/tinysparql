@@ -400,7 +400,8 @@ create_extra_info_query (TrackerNotifier           *notifier,
 
 	g_string_append (sparql,
 	                 "  } ."
-	                 "  BIND (tracker:uri(xsd:integer(?id)) AS ?uri)"
+	                 "  BIND (tracker:uri(xsd:integer(?id)) AS ?uri) ."
+	                 "  FILTER (?id > 0) ."
 	                 "} ");
 
 	if (service)
@@ -473,9 +474,6 @@ handle_cursor (GTask        *task,
 	 */
 	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		id = tracker_sparql_cursor_get_integer (cursor, 0);
-		if (id == 0)
-			continue;
-
 		event = g_sequence_get (iter);
 		iter = g_sequence_iter_next (iter);
 
