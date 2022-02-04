@@ -451,7 +451,7 @@ function_sparql_format_time (sqlite3_context *context,
 					     -1, g_free);
 			g_date_time_unref (datetime);
 		} else {
-			result_context_function_error (context, fn, "Datetime conversion error");
+			sqlite3_result_null (context);
 		}
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 		const gchar *str;
