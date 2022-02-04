@@ -402,6 +402,7 @@ tracker_sparql_statement_clear_bindings (TrackerSparqlStatement *stmt)
 /**
  * tracker_sparql_statement_serialize_async:
  * @stmt: a #TrackerSparqlStatement
+ * @flags: serialization flags
  * @format: RDF format of the serialized data
  * @cancellable: (nullable): a #GCancellable used to cancel the operation
  * @callback: user-defined #GAsyncReadyCallback to be called when
@@ -418,20 +419,26 @@ tracker_sparql_statement_clear_bindings (TrackerSparqlStatement *stmt)
  * The SPARQL endpoint may not support the specified format, in that case
  * an error will be raised.
  *
+ * The @flags argument is reserved for future expansions, currently
+ * %TRACKER_SERIALIZE_FLAGS_NONE must be passed.
+ *
  * Since: 3.3
  **/
 void
 tracker_sparql_statement_serialize_async (TrackerSparqlStatement *stmt,
+                                          TrackerSerializeFlags   flags,
                                           TrackerRdfFormat        format,
                                           GCancellable           *cancellable,
                                           GAsyncReadyCallback     callback,
                                           gpointer                user_data)
 {
 	g_return_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt));
+	g_return_if_fail (flags == TRACKER_SERIALIZE_FLAGS_NONE);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 	g_return_if_fail (callback != NULL);
 
 	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->serialize_async (stmt,
+	                                                            flags,
 	                                                            format,
 	                                                            cancellable,
 	                                                            callback,

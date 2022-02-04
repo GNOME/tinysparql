@@ -874,6 +874,7 @@ tracker_sparql_connection_load_statement_from_gresource (TrackerSparqlConnection
 /**
  * tracker_sparql_connection_serialize_async:
  * @connection: a #TrackerSparqlConnection
+ * @flags: serialization flags
  * @format: output RDF format
  * @query: SPARQL query
  * @cancellable: a #GCancellable
@@ -887,10 +888,14 @@ tracker_sparql_connection_load_statement_from_gresource (TrackerSparqlConnection
  * The SPARQL endpoint may not support the specified format, in that case
  * an error will be raised.
  *
+ * The @flags argument is reserved for future expansions, currently
+ * %TRACKER_SERIALIZE_FLAGS_NONE must be passed.
+ *
  * Since: 3.3
  **/
 void
 tracker_sparql_connection_serialize_async (TrackerSparqlConnection *connection,
+                                           TrackerSerializeFlags    flags,
                                            TrackerRdfFormat         format,
                                            const gchar             *query,
                                            GCancellable            *cancellable,
@@ -898,12 +903,14 @@ tracker_sparql_connection_serialize_async (TrackerSparqlConnection *connection,
                                            gpointer                 user_data)
 {
 	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
+	g_return_if_fail (flags == TRACKER_SERIALIZE_FLAGS_NONE);
 	g_return_if_fail (format < TRACKER_N_RDF_FORMATS);
 	g_return_if_fail (query != NULL);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 	g_return_if_fail (callback != NULL);
 
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->serialize_async (connection,
+	                                                                   flags,
 	                                                                   format,
 	                                                                   query,
 	                                                                   cancellable,

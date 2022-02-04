@@ -63,6 +63,7 @@ static const gchar introspection_xml[] =
 	"    <method name='Serialize'>"
 	"      <arg type='s' name='query' direction='in' />"
 	"      <arg type='h' name='output_stream' direction='in' />"
+	"      <arg type='i' name='flags' direction='in' />"
 	"      <arg type='i' name='format' direction='in' />"
 	"      <arg type='a{sv}' name='arguments' direction='in' />"
 	"    </method>"
@@ -807,6 +808,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		g_variant_iter_free (arguments);
 		g_free (query);
 	} else if (g_strcmp0 (method_name, "Serialize") == 0) {
+		TrackerSerializeFlags flags;
 		TrackerRdfFormat format;
 
 		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
@@ -819,7 +821,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			return;
 		}
 
-		g_variant_get (parameters, "(shia{sv})", &query, &handle, &format, &arguments);
+		g_variant_get (parameters, "(shiia{sv})", &query, &handle, &flags, &format, &arguments);
 
 		if (fd_list)
 			fd = g_unix_fd_list_get (fd_list, handle, &error);
@@ -845,6 +847,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 				                         &error);
 				if (stmt) {
 					tracker_sparql_statement_serialize_async (stmt,
+					                                          flags,
 					                                          format,
 					                                          request->cancellable,
 					                                          stmt_serialize_cb,
@@ -858,6 +861,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 				}
 			} else {
 				tracker_sparql_connection_serialize_async (conn,
+				                                           flags,
 				                                           format,
 				                                           query,
 				                                           request->cancellable,

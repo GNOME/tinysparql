@@ -142,7 +142,7 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 		return true;
 	}
 
-	public async override GLib.InputStream serialize_async (RdfFormat format, string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
+	public async override GLib.InputStream serialize_async (SerializeFlags flags, RdfFormat format, string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
 		var message = create_describe_request (sparql, format);
 #if SOUP2
 		return yield _session.send_async (message, cancellable);

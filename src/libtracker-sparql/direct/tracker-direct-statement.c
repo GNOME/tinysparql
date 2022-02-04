@@ -342,6 +342,7 @@ tracker_direct_statement_execute_finish (TrackerSparqlStatement  *stmt,
 
 static void
 tracker_direct_statement_serialize_async (TrackerSparqlStatement *stmt,
+                                          TrackerSerializeFlags   flags,
                                           TrackerRdfFormat        format,
                                           GCancellable           *cancellable,
                                           GAsyncReadyCallback     callback,

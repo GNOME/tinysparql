@@ -346,6 +346,7 @@ export_run_default (void)
 	loop = g_main_loop_new (NULL, FALSE);
 
 	tracker_sparql_connection_serialize_async (connection,
+	                                           TRACKER_SERIALIZE_FLAGS_NONE,
 	                                           show_graphs ?
 	                                           TRACKER_RDF_FORMAT_TRIG :
 	                                           TRACKER_RDF_FORMAT_TURTLE,

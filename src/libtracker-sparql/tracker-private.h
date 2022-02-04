@@ -112,6 +112,7 @@ struct _TrackerSparqlConnectionClass
 	                                  gchar                   **path);
 
 	void (* serialize_async) (TrackerSparqlConnection  *connection,
+	                          TrackerSerializeFlags     flags,
 	                          TrackerRdfFormat          format,
 	                          const gchar              *query,
 	                          GCancellable             *cancellable,
@@ -234,6 +235,7 @@ struct _TrackerSparqlStatementClass
 	void (* clear_bindings) (TrackerSparqlStatement *stmt);
 
         void (* serialize_async) (TrackerSparqlStatement *stmt,
+                                  TrackerSerializeFlags   flags,
                                   TrackerRdfFormat        format,
                                   GCancellable           *cancellable,
                                   GAsyncReadyCallback     callback,

@@ -60,6 +60,10 @@ typedef enum {
 	TRACKER_N_RDF_FORMATS
 } TrackerRdfFormat;
 
+typedef enum {
+	TRACKER_SERIALIZE_FLAGS_NONE = 0,
+} TrackerSerializeFlags;
+
 /**
  * TrackerSparqlConnection:
  *
@@ -212,6 +216,7 @@ void tracker_sparql_connection_close (TrackerSparqlConnection *connection);
 
 TRACKER_AVAILABLE_IN_3_3
 void tracker_sparql_connection_serialize_async (TrackerSparqlConnection  *connection,
+                                                TrackerSerializeFlags     flags,
                                                 TrackerRdfFormat          format,
                                                 const gchar              *query,
                                                 GCancellable             *cancellable,

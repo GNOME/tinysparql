@@ -390,6 +390,7 @@ serialize_cb (GObject      *source,
 
 static void
 tracker_remote_statement_serialize_async (TrackerSparqlStatement *stmt,
+                                          TrackerSerializeFlags   flags,
                                           TrackerRdfFormat        format,
                                           GCancellable           *cancellable,
                                           GAsyncReadyCallback     callback,
@@ -414,6 +415,7 @@ tracker_remote_statement_serialize_async (TrackerSparqlStatement *stmt,
 	}
 
 	tracker_sparql_connection_serialize_async (tracker_sparql_statement_get_connection (stmt),
+	                                           flags,
 	                                           format,
 	                                           rewritten_query ? rewritten_query :
 	                                           tracker_sparql_statement_get_sparql (stmt),

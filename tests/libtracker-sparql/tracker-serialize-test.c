@@ -169,6 +169,7 @@ serialize (TestFixture   *test_fixture,
 		tracker_sparql_statement_bind_string (stmt, "arg1", test_info->arg1);
 
 		tracker_sparql_statement_serialize_async (stmt,
+		                                          TRACKER_SERIALIZE_FLAGS_NONE,
 		                                          test_info->format,
 		                                          NULL,
 		                                          serialize_stmt_cb,
@@ -176,6 +177,7 @@ serialize (TestFixture   *test_fixture,
 		g_object_unref (stmt);
 	} else {
 		tracker_sparql_connection_serialize_async (test_fixture->conn,
+		                                           TRACKER_SERIALIZE_FLAGS_NONE,
 		                                           test_info->format,
 		                                           query,
 		                                           NULL,

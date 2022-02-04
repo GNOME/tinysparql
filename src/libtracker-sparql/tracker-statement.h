@@ -93,6 +93,7 @@ TrackerSparqlCursor * tracker_sparql_statement_execute_finish (TrackerSparqlStat
 
 TRACKER_AVAILABLE_IN_3_3
 void tracker_sparql_statement_serialize_async (TrackerSparqlStatement *stmt,
+                                               TrackerSerializeFlags   flags,
                                                TrackerRdfFormat        format,
                                                GCancellable           *cancellable,
                                                GAsyncReadyCallback     callback,

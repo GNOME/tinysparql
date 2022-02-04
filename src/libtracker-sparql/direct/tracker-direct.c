@@ -1331,6 +1331,7 @@ serialize_rdf_data_free (gpointer user_data)
 
 static void
 tracker_direct_connection_serialize_async (TrackerSparqlConnection  *self,
+                                           TrackerSerializeFlags     flags,
                                            TrackerRdfFormat          format,
                                            const gchar              *query,
                                            GCancellable             *cancellable,

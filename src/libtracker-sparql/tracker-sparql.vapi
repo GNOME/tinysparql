@@ -59,6 +59,11 @@ namespace Tracker {
 		TRIG,
 	}
 
+	[CCode (cheader_filename = "libtracker-sparql/tracker-connection.h")]
+	public enum SerializeFlags {
+		NONE = 0,
+	}
+
 	namespace Sparql {
 		[CCode (cheader_filename = "libtracker-sparql/tracker-sparql.h")]
 		public static string escape_string (string literal);
@@ -108,7 +113,7 @@ namespace Tracker {
                 public virtual void close ();
                 public async virtual bool close_async () throws GLib.IOError;
 
-                public async virtual GLib.InputStream serialize_async (RdfFormat format, string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
+                public async virtual GLib.InputStream serialize_async (SerializeFlags flags, RdfFormat format, string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 	}
 
 	[CCode (cheader_filename = "libtracker-sparql/tracker-sparql.h")]
@@ -125,7 +130,7 @@ namespace Tracker {
 
 		public abstract Cursor execute (GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 		public async abstract Cursor execute_async (GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
-		public async abstract GLib.InputStream serialize_async (RdfFormat format, GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
+		public async abstract GLib.InputStream serialize_async (SerializeFlags flags, RdfFormat format, GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 	}
 
 	[CCode (cheader_filename = "libtracker-sparql/tracker-sparql.h")]
