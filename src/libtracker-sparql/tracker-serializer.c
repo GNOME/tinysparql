@@ -23,6 +23,8 @@
 
 #include "tracker-serializer.h"
 #include "tracker-serializer-json.h"
+#include "tracker-serializer-trig.h"
+#include "tracker-serializer-turtle.h"
 #include "tracker-serializer-xml.h"
 
 #include "tracker-private.h"
@@ -68,7 +70,7 @@ tracker_serializer_set_property (GObject      *object,
 
 	switch (prop_id) {
 	case PROP_CURSOR:
-		priv->cursor = g_value_get_object (value);
+		priv->cursor = g_value_dup_object (value);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -133,10 +135,24 @@ tracker_serializer_new (TrackerSparqlCursor     *cursor,
 
 	switch (format) {
 	case TRACKER_SERIALIZER_FORMAT_JSON:
-		type = TRACKER_TYPE_SERIALIZER_JSON;
+		type = g_type_from_name ("TrackerSerializerJson");
+		if (type == 0)
+			type = TRACKER_TYPE_SERIALIZER_JSON;
 		break;
 	case TRACKER_SERIALIZER_FORMAT_XML:
-		type = TRACKER_TYPE_SERIALIZER_XML;
+		type = g_type_from_name ("TrackerSerializerXml");
+		if (type == 0)
+			type = TRACKER_TYPE_SERIALIZER_XML;
+		break;
+	case TRACKER_SERIALIZER_FORMAT_TTL:
+		type = g_type_from_name ("TrackerSerializerTurtle");
+		if (type == 0)
+			type = TRACKER_TYPE_SERIALIZER_TURTLE;
+		break;
+	case TRACKER_SERIALIZER_FORMAT_TRIG:
+		type = g_type_from_name ("TrackerSerializerTrig");
+		if (type == 0)
+			type = TRACKER_TYPE_SERIALIZER_TRIG;
 		break;
 	default:
 		g_warn_if_reached ();

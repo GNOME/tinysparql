@@ -1,0 +1,5 @@
+CONSTRUCT {
+  ?u <http://example.com/#prop> "Foo"
+} WHERE {
+  ?u a nmm:MusicPiece
+}

@@ -54,6 +54,16 @@ typedef enum {
 	TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES      = 1 << 5,
 } TrackerSparqlConnectionFlags;
 
+typedef enum {
+	TRACKER_RDF_FORMAT_TURTLE,
+	TRACKER_RDF_FORMAT_TRIG,
+	TRACKER_N_RDF_FORMATS
+} TrackerRdfFormat;
+
+typedef enum {
+	TRACKER_SERIALIZE_FLAGS_NONE = 0,
+} TrackerSerializeFlags;
+
 /**
  * TrackerSparqlConnection:
  *
@@ -203,6 +213,19 @@ TrackerNotifier * tracker_sparql_connection_create_notifier (TrackerSparqlConnec
 
 TRACKER_AVAILABLE_IN_ALL
 void tracker_sparql_connection_close (TrackerSparqlConnection *connection);
+
+TRACKER_AVAILABLE_IN_3_3
+void tracker_sparql_connection_serialize_async (TrackerSparqlConnection  *connection,
+                                                TrackerSerializeFlags     flags,
+                                                TrackerRdfFormat          format,
+                                                const gchar              *query,
+                                                GCancellable             *cancellable,
+                                                GAsyncReadyCallback      callback,
+                                                gpointer                 user_data);
+TRACKER_AVAILABLE_IN_3_3
+GInputStream * tracker_sparql_connection_serialize_finish (TrackerSparqlConnection  *connection,
+                                                           GAsyncResult             *result,
+                                                           GError                  **error);
 
 TRACKER_AVAILABLE_IN_ALL
 void tracker_sparql_connection_close_async (TrackerSparqlConnection *connection,

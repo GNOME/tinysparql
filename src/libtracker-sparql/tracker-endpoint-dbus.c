@@ -60,6 +60,13 @@ static const gchar introspection_xml[] =
 	"      <arg type='a{sv}' name='arguments' direction='in' />"
 	"      <arg type='as' name='result' direction='out' />"
 	"    </method>"
+	"    <method name='Serialize'>"
+	"      <arg type='s' name='query' direction='in' />"
+	"      <arg type='h' name='output_stream' direction='in' />"
+	"      <arg type='i' name='flags' direction='in' />"
+	"      <arg type='i' name='format' direction='in' />"
+	"      <arg type='a{sv}' name='arguments' direction='in' />"
+	"    </method>"
 	"    <method name='Update'>"
 	"      <arg type='h' name='input_stream' direction='in' />"
 	"    </method>"
@@ -507,6 +514,84 @@ stmt_execute_cb (GObject      *object,
 }
 
 static void
+splice_rdf_cb (GObject      *object,
+               GAsyncResult *res,
+               gpointer      user_data)
+{
+	QueryRequest *request = user_data;
+	GError *error = NULL;
+
+	g_output_stream_splice_finish (G_OUTPUT_STREAM (object),
+	                               res, &error);
+
+	if (error) {
+		/* The query request method invocations has been already replied */
+		g_warning ("Error splicing RDF data: %s", error->message);
+		g_error_free (error);
+	}
+
+	query_request_free (request);
+}
+
+static void
+stmt_serialize_cb (GObject      *object,
+                   GAsyncResult *res,
+                   gpointer      user_data)
+{
+	QueryRequest *request = user_data;
+	GInputStream *istream;
+	GError *error = NULL;
+
+	istream = tracker_sparql_statement_serialize_finish (TRACKER_SPARQL_STATEMENT (object),
+	                                                     res, &error);
+	if (!istream) {
+		g_dbus_method_invocation_return_gerror (request->invocation, error);
+		g_error_free (error);
+		query_request_free (request);
+		return;
+	}
+
+	g_dbus_method_invocation_return_value (request->invocation, NULL);
+	g_output_stream_splice_async (G_OUTPUT_STREAM (request->data_stream),
+	                              istream,
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+	                              G_PRIORITY_DEFAULT,
+	                              request->global_cancellable,
+	                              splice_rdf_cb,
+	                              request);
+}
+
+static void
+serialize_cb (GObject      *object,
+              GAsyncResult *res,
+              gpointer      user_data)
+{
+	QueryRequest *request = user_data;
+	GInputStream *istream;
+	GError *error = NULL;
+
+	istream = tracker_sparql_connection_serialize_finish (TRACKER_SPARQL_CONNECTION (object),
+	                                                      res, &error);
+	if (!istream) {
+		g_dbus_method_invocation_return_gerror (request->invocation, error);
+		g_error_free (error);
+		query_request_free (request);
+		return;
+	}
+
+	g_dbus_method_invocation_return_value (request->invocation, NULL);
+	g_output_stream_splice_async (G_OUTPUT_STREAM (request->data_stream),
+	                              istream,
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+	                              G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+	                              G_PRIORITY_DEFAULT,
+	                              request->global_cancellable,
+	                              splice_rdf_cb,
+	                              request);
+}
+
+static void
 update_cb (GObject      *object,
            GAsyncResult *res,
            gpointer      user_data)
@@ -721,6 +806,70 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		}
 
 		g_variant_iter_free (arguments);
+		g_free (query);
+	} else if (g_strcmp0 (method_name, "Serialize") == 0) {
+		TrackerSerializeFlags flags;
+		TrackerRdfFormat format;
+
+		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
+		                                            invocation,
+		                                            TRACKER_OPERATION_TYPE_SELECT)) {
+			g_dbus_method_invocation_return_error (invocation,
+			                                       G_DBUS_ERROR,
+			                                       G_DBUS_ERROR_ACCESS_DENIED,
+			                                       "Operation not allowed");
+			return;
+		}
+
+		g_variant_get (parameters, "(shiia{sv})", &query, &handle, &flags, &format, &arguments);
+
+		if (fd_list)
+			fd = g_unix_fd_list_get (fd_list, handle, &error);
+
+		if (fd < 0) {
+			g_dbus_method_invocation_return_error (invocation,
+			                                       G_DBUS_ERROR,
+			                                       G_DBUS_ERROR_INVALID_ARGS,
+			                                       "Did not get a file descriptor");
+		} else {
+			QueryRequest *request;
+
+			query = tracker_endpoint_dbus_add_prologue (endpoint_dbus,
+			                                            query);
+
+			request = query_request_new (endpoint_dbus, invocation, fd);
+
+			if (arguments) {
+				TrackerSparqlStatement *stmt;
+
+				stmt = create_statement (conn, query, arguments,
+				                         request->cancellable,
+				                         &error);
+				if (stmt) {
+					tracker_sparql_statement_serialize_async (stmt,
+					                                          flags,
+					                                          format,
+					                                          request->cancellable,
+					                                          stmt_serialize_cb,
+					                                          request);
+					/* Statements are single use here... */
+					g_object_unref (stmt);
+				} else {
+					query_request_free (request);
+					g_dbus_method_invocation_return_gerror (invocation,
+					                                        error);
+				}
+			} else {
+				tracker_sparql_connection_serialize_async (conn,
+				                                           flags,
+				                                           format,
+				                                           query,
+				                                           request->cancellable,
+				                                           serialize_cb,
+				                                           request);
+			}
+		}
+
 		g_free (query);
 	} else if (g_strcmp0 (method_name, "Update") == 0 ||
 	           g_strcmp0 (method_name, "UpdateArray") == 0) {

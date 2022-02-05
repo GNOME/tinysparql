@@ -83,6 +83,8 @@ enum {
 
 #define XML_TYPE "application/sparql-results+xml"
 #define JSON_TYPE "application/sparql-results+json"
+#define TTL_TYPE "text/turtle"
+#define TRIG_TYPE "application/trig"
 
 static GParamSpec *props[N_PROPS];
 static guint signals[N_SIGNALS];
@@ -106,7 +108,7 @@ handle_request_in_thread (GTask        *task,
                           GCancellable *cancellable)
 {
 	Request *request = task_data;
-	gchar *buffer[1000];
+	gchar buffer[1000];
 	SoupMessageBody *message_body;
 	GError *error = NULL;
 	gssize count;
@@ -202,6 +204,7 @@ query_async_cb (GObject      *object,
 	request->task = g_task_new (endpoint_http, endpoint_http->cancellable,
 	                            request_finished_cb, request);
 	g_task_set_task_data (request->task, request, NULL);
+	g_object_unref (cursor);
 
 	g_task_run_in_thread (request->task, handle_request_in_thread);
 }
@@ -233,6 +236,14 @@ pick_format (SoupMessage             *message,
 	} else if (soup_message_headers_header_contains (request_headers, "Accept", XML_TYPE)) {
 		soup_message_headers_set_content_type (response_headers, XML_TYPE, NULL);
 		*format = TRACKER_SERIALIZER_FORMAT_XML;
+		return TRUE;
+	} else if (soup_message_headers_header_contains (request_headers, "Accept", TTL_TYPE)) {
+		soup_message_headers_set_content_type (response_headers, TTL_TYPE, NULL);
+		*format = TRACKER_SERIALIZER_FORMAT_TTL;
+		return TRUE;
+	} else if (soup_message_headers_header_contains (request_headers, "Accept", TRIG_TYPE)) {
+		soup_message_headers_set_content_type (response_headers, TRIG_TYPE, NULL);
+		*format = TRACKER_SERIALIZER_FORMAT_TRIG;
 		return TRUE;
 	} else {
 		return FALSE;

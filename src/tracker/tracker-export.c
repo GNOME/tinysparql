@@ -26,6 +26,7 @@
 
 #include <glib.h>
 #include <glib/gi18n.h>
+#include <gio/gunixoutputstream.h>
 
 #include "tracker-sparql.h"
 #include "tracker-color.h"
@@ -134,15 +135,6 @@ format_urn (GHashTable  *prefixes,
 	}
 
 	return urn_out;
-}
-
-/* print a URI prefix in Turtle format */
-static void
-print_prefix (gpointer key,
-              gpointer value,
-              gpointer user_data)
-{
-	g_print ("@prefix %s: <%s#> .\n", (gchar *) value, (gchar *) key);
 }
 
 /* Print triples in Turtle format */
@@ -291,14 +283,38 @@ print_keyfile (TrackerSparqlCursor *cursor)
 	g_print ("%s\n", data);
 }
 
+static void
+serialize_cb (GObject      *object,
+              GAsyncResult *res,
+              gpointer      user_data)
+{
+	GInputStream *istream;
+	GOutputStream *ostream;
+	GError *error = NULL;
+
+	istream = tracker_sparql_connection_serialize_finish (TRACKER_SPARQL_CONNECTION (object),
+	                                                      res, &error);
+	if (istream) {
+		ostream = g_unix_output_stream_new (STDOUT_FILENO, FALSE);
+		g_output_stream_splice (ostream, istream, G_OUTPUT_STREAM_SPLICE_NONE, NULL, &error);
+		g_output_stream_close (ostream, NULL, NULL);
+		g_object_unref (ostream);
+	}
+
+	if (error)
+		g_printerr ("%s\n", error ? error->message : _("No error given"));
+
+	g_object_unref (istream);
+	g_main_loop_quit (user_data);
+}
+
 static int
 export_run_default (void)
 {
 	g_autoptr(TrackerSparqlConnection) connection = NULL;
-	g_autoptr(TrackerSparqlCursor) cursor = NULL;
 	g_autoptr(GError) error = NULL;
-	g_autoptr(GHashTable) prefixes = NULL;
 	g_autoptr(GString) query = NULL;
+	g_autoptr(GMainLoop) loop = NULL;
 	guint i;
 
 	connection = create_connection (&error);
@@ -310,56 +326,33 @@ export_run_default (void)
 		return EXIT_FAILURE;
 	}
 
-	prefixes = tracker_sparql_get_prefixes (connection);
-
-	query = g_string_new (NULL);
-	g_string_append (query,
-	                 "SELECT ?g ?u ?p ?v "
-	                 "       (EXISTS { ?p rdfs:range [ rdfs:subClassOf rdfs:Resource ] }) AS ?is_resource "
-	                 "{ "
-	                 "    GRAPH ?g { "
-	                 "        ?u ?p ?v ");
+	query = g_string_new ("DESCRIBE ");
 
 	if (iris) {
-		g_string_append (query, "FILTER (?u IN (");
-
-		for (i = 0; iris[i]; i++) {
-			if (i != 0)
-				g_string_append_c (query, ',');
-			g_string_append_printf (query, "<%s>", iris[i]);
-		}
-
-		g_string_append (query, "))");
+		for (i = 0; iris[i] != NULL; i++)
+			g_string_append_printf (query, "<%s> ", iris[i]);
 	} else {
 		g_string_append (query,
-		                 "FILTER NOT EXISTS { ?u a rdf:Property } "
-		                 "FILTER NOT EXISTS { ?u a rdfs:Class } "
-		                 "FILTER NOT EXISTS { ?u a nrl:Namespace } ");
-	}
-
-	g_string_append (query,
-	                 "    } "
-	                 "} ORDER BY ?g ?u");
-
-	cursor = tracker_sparql_connection_query (connection, query->str, NULL, &error);
-
-	if (error) {
-		g_printerr ("%s, %s\n",
-		            _("Could not run query"),
-		            error->message);
-		return EXIT_FAILURE;
+		                 "?u {"
+		                 "  ?u a rdfs:Resource . "
+		                 "  FILTER NOT EXISTS { ?u a rdf:Property } "
+		                 "  FILTER NOT EXISTS { ?u a rdfs:Class } "
+		                 "  FILTER NOT EXISTS { ?u a nrl:Namespace } "
+		                 "}");
 	}
 
 	tracker_term_pipe_to_pager ();
 
-	g_hash_table_foreach (prefixes, (GHFunc) print_prefix, NULL);
-	g_print ("\n");
+	loop = g_main_loop_new (NULL, FALSE);
 
-	if (show_graphs) {
-		print_trig (cursor, prefixes, FALSE);
-	} else {
-		print_turtle (cursor, prefixes, FALSE);
-	}
+	tracker_sparql_connection_serialize_async (connection,
+	                                           TRACKER_SERIALIZE_FLAGS_NONE,
+	                                           show_graphs ?
+	                                           TRACKER_RDF_FORMAT_TRIG :
+	                                           TRACKER_RDF_FORMAT_TURTLE,
+	                                           query->str,
+	                                           NULL, serialize_cb, loop);
+	g_main_loop_run (loop);
 
 	tracker_term_pager_close ();
 

@@ -764,6 +764,9 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 	case G_TYPE_STRING:
 		tracker_db_statement_bind_text (stmt, (*idx)++, g_value_get_string (value));
 		break;
+	case G_TYPE_INT:
+		tracker_db_statement_bind_int (stmt, (*idx)++, g_value_get_int (value));
+		break;
 	case G_TYPE_INT64:
 		tracker_db_statement_bind_int (stmt, (*idx)++, g_value_get_int64 (value));
 		break;
@@ -806,6 +809,9 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 				/* String with langtag */
 				tracker_db_statement_bind_bytes (stmt, (*idx)++, bytes);
 			}
+		} else if (g_strcmp0 (g_type_name (type), "TrackerUri") == 0) {
+			/* FIXME: We can't access TrackerUri GType here */
+			tracker_db_statement_bind_text (stmt, (*idx)++, g_value_get_string (value));
 		} else {
 			g_warning ("Unknown type for binding: %s\n", G_VALUE_TYPE_NAME (value));
 		}
@@ -2511,11 +2517,11 @@ tracker_data_insert_statement_with_uri (TrackerData      *data,
 		return;
 
 	if (predicate == tracker_ontologies_get_rdf_type (ontologies)) {
-		gchar *object_str = NULL;
+		const gchar *object_str = NULL;
 		gint64 object_id;
 
 		object_id = g_value_get_int64 (object);
-		object_str = g_strdup (tracker_ontologies_get_uri_by_id (ontologies, object_id));
+		object_str = tracker_ontologies_get_uri_by_id (ontologies, object_id);
 
 		/* handle rdf:type statements specially to
 		   cope with inference and insert blank rows */
@@ -2889,6 +2895,13 @@ tracker_data_load_turtle_file (TrackerData  *data,
 			goto failed;
 		}
 
+		/* Skip nrl:added/nrl:modified when parsing */
+		if (g_strcmp0 (tracker_property_get_name (predicate),
+		               "nrl:modified") == 0 ||
+		    g_strcmp0 (tracker_property_get_name (predicate),
+		               "nrl:added") == 0)
+			continue;
+
 		if (!tracker_data_query_string_to_value (data->manager,
 		                                         object_str,
 		                                         langtag,
@@ -3096,6 +3109,7 @@ update_resource_property (TrackerData      *data,
 				break;
 			}
 
+			g_free (object_str);
 			value = &free_me;
 		} else {
 			value = v->data;

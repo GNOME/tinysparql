@@ -35,6 +35,8 @@ typedef enum
 {
 	TRACKER_SERIALIZER_FORMAT_JSON, /* application/sparql-results+json */
 	TRACKER_SERIALIZER_FORMAT_XML, /* application/sparql-results+xml */
+	TRACKER_SERIALIZER_FORMAT_TTL, /* text/turtle */
+	TRACKER_SERIALIZER_FORMAT_TRIG, /* application/trig */
 } TrackerSerializerFormat;
 
 GInputStream * tracker_serializer_new (TrackerSparqlCursor     *cursor,

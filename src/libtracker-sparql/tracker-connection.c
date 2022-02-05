@@ -60,6 +60,10 @@
 
 #include "tracker-connection.h"
 #include "tracker-private.h"
+#include "tracker-serializer-json.h"
+#include "tracker-serializer-trig.h"
+#include "tracker-serializer-turtle.h"
+#include "tracker-serializer-xml.h"
 
 G_DEFINE_ABSTRACT_TYPE (TrackerSparqlConnection, tracker_sparql_connection,
                         G_TYPE_OBJECT)
@@ -83,6 +87,14 @@ tracker_sparql_connection_class_init (TrackerSparqlConnectionClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->dispose = tracker_sparql_connection_dispose;
+
+	/* Ensure serializer types, we want all of these initialized before
+	 * the remote soup 2/3 modules gets to initialize them.
+	 */
+	g_type_ensure (TRACKER_TYPE_SERIALIZER_XML);
+	g_type_ensure (TRACKER_TYPE_SERIALIZER_JSON);
+	g_type_ensure (TRACKER_TYPE_SERIALIZER_TURTLE);
+	g_type_ensure (TRACKER_TYPE_SERIALIZER_TRIG);
 }
 
 gboolean
@@ -857,4 +869,78 @@ tracker_sparql_connection_load_statement_from_gresource (TrackerSparqlConnection
 	g_bytes_unref (query);
 
 	return stmt;
+}
+
+/**
+ * tracker_sparql_connection_serialize_async:
+ * @connection: a #TrackerSparqlConnection
+ * @flags: serialization flags
+ * @format: output RDF format
+ * @query: SPARQL query
+ * @cancellable: a #GCancellable
+ * @callback: the #GAsyncReadyCallback called when the operation completes
+ * @user_data: data passed to @callback
+ *
+ * Serializes data into the specified RDF format. @query must be either a
+ * `DESCRIBE` or `CONSTRUCT` query. This is an asynchronous operation,
+ * @callback will be invoked when the data is available for reading.
+ *
+ * The SPARQL endpoint may not support the specified format, in that case
+ * an error will be raised.
+ *
+ * The @flags argument is reserved for future expansions, currently
+ * %TRACKER_SERIALIZE_FLAGS_NONE must be passed.
+ *
+ * Since: 3.3
+ **/
+void
+tracker_sparql_connection_serialize_async (TrackerSparqlConnection *connection,
+                                           TrackerSerializeFlags    flags,
+                                           TrackerRdfFormat         format,
+                                           const gchar             *query,
+                                           GCancellable            *cancellable,
+                                           GAsyncReadyCallback      callback,
+                                           gpointer                 user_data)
+{
+	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
+	g_return_if_fail (flags == TRACKER_SERIALIZE_FLAGS_NONE);
+	g_return_if_fail (format < TRACKER_N_RDF_FORMATS);
+	g_return_if_fail (query != NULL);
+	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+	g_return_if_fail (callback != NULL);
+
+	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->serialize_async (connection,
+	                                                                   flags,
+	                                                                   format,
+	                                                                   query,
+	                                                                   cancellable,
+	                                                                   callback,
+	                                                                   user_data);
+}
+
+/**
+ * tracker_sparql_connection_serialize_finish:
+ * @connection: a #TrackerSparqlConnection
+ * @result: the #GAsyncResult
+ * @error: location for returned errors, or %NULL
+ *
+ * Finishes a tracker_sparql_connection_serialize_async() operation.
+ * In case of error, %NULL will be returned and @error will be set.
+ *
+ * Returns: (transfer full): a #GInputStream to read RDF content.
+ *
+ * Since: 3.3
+ **/
+GInputStream *
+tracker_sparql_connection_serialize_finish (TrackerSparqlConnection  *connection,
+                                            GAsyncResult             *result,
+                                            GError                  **error)
+{
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), NULL);
+	g_return_val_if_fail (G_IS_ASYNC_RESULT (result), NULL);
+	g_return_val_if_fail (!error || !*error, NULL);
+
+	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->serialize_finish (connection,
+	                                                                           result,
+	                                                                           error);
 }

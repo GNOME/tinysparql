@@ -143,10 +143,7 @@ void                    tracker_db_statement_execute                 (TrackerDBS
 TrackerDBCursor *       tracker_db_statement_start_cursor            (TrackerDBStatement         *stmt,
                                                                       GError                    **error);
 TrackerDBCursor *       tracker_db_statement_start_sparql_cursor     (TrackerDBStatement         *stmt,
-                                                                      TrackerPropertyType        *types,
-                                                                      guint                       n_types,
-                                                                      const gchar * const        *variable_names,
-                                                                      guint                       n_variable_names,
+                                                                      guint                       n_columns,
                                                                       GError                    **error);
 
 /* Functions to deal with a cursor */

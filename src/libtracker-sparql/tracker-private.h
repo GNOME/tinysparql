@@ -110,6 +110,17 @@ struct _TrackerSparqlConnectionClass
 	                                  const gchar              *dbus_path,
 	                                  gchar                   **name,
 	                                  gchar                   **path);
+
+	void (* serialize_async) (TrackerSparqlConnection  *connection,
+	                          TrackerSerializeFlags     flags,
+	                          TrackerRdfFormat          format,
+	                          const gchar              *query,
+	                          GCancellable             *cancellable,
+	                          GAsyncReadyCallback      callback,
+	                          gpointer                 user_data);
+	GInputStream * (* serialize_finish) (TrackerSparqlConnection  *connection,
+	                                     GAsyncResult             *res,
+	                                     GError                  **error);
 };
 
 struct _TrackerSparqlCursorClass
@@ -222,6 +233,16 @@ struct _TrackerSparqlStatementClass
                                                   GAsyncResult            *res,
                                                   GError                 **error);
 	void (* clear_bindings) (TrackerSparqlStatement *stmt);
+
+        void (* serialize_async) (TrackerSparqlStatement *stmt,
+                                  TrackerSerializeFlags   flags,
+                                  TrackerRdfFormat        format,
+                                  GCancellable           *cancellable,
+                                  GAsyncReadyCallback     callback,
+                                  gpointer                user_data);
+        GInputStream * (* serialize_finish) (TrackerSparqlStatement  *stmt,
+                                             GAsyncResult            *res,
+                                             GError                 **error);
 };
 
 struct _TrackerNotifierClass {
