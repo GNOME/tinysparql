@@ -1,8 +1,8 @@
 include:
-  - remote: "https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/290b79e0e78eab67a83766f4e9691be554fc4afd/templates/ci-fairy.yml"
-  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/290b79e0e78eab67a83766f4e9691be554fc4afd/templates/alpine.yml'
-  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/290b79e0e78eab67a83766f4e9691be554fc4afd/templates/fedora.yml'
-  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/290b79e0e78eab67a83766f4e9691be554fc4afd/templates/ubuntu.yml'
+  - remote: "https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/80f87b3058efb75a1faae11826211375fba77e7f/templates/ci-fairy.yml"
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/80f87b3058efb75a1faae11826211375fba77e7f/templates/alpine.yml'
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/80f87b3058efb75a1faae11826211375fba77e7f/templates/fedora.yml'
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/80f87b3058efb75a1faae11826211375fba77e7f/templates/ubuntu.yml'
 
 variables:
   MESON_TEST_TIMEOUT_MULTIPLIER: 3
