@@ -828,7 +828,7 @@ tracker_sparql_connection_create_batch (TrackerSparqlConnection *connection)
 }
 
 /**
- * tracker_sparql_connection_query_statement_from_gresource:
+ * tracker_sparql_connection_load_statement_from_gresource:
  * @connection: a #TrackerSparqlConnection
  * @resource_path: the resource path of the file to parse.
  * @cancellable: a #GCancellable, or %NULL
