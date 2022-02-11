@@ -117,6 +117,9 @@ gboolean             tracker_data_manager_expand_prefix (TrackerDataManager  *ma
 TrackerSparqlConnection * tracker_data_manager_get_remote_connection (TrackerDataManager  *data_manager,
                                                                       const gchar         *uri,
                                                                       GError             **error);
+void tracker_data_manager_map_connection (TrackerDataManager      *data_manager,
+                                          const gchar             *handle_name,
+                                          TrackerSparqlConnection *connection);
 
 G_END_DECLS
 

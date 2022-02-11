@@ -150,6 +150,9 @@ static void
 tracker_data_manager_init (TrackerDataManager *manager)
 {
 	manager->generation = 1;
+	manager->cached_connections =
+		g_hash_table_new_full (g_str_hash, g_str_equal,
+		                       g_free, g_object_unref);
 	g_mutex_init (&manager->connections_lock);
 	g_mutex_init (&manager->graphs_lock);
 }
@@ -5426,12 +5429,6 @@ tracker_data_manager_get_remote_connection (TrackerDataManager  *data_manager,
 
 	g_mutex_lock (&data_manager->connections_lock);
 
-	if (!data_manager->cached_connections) {
-		data_manager->cached_connections =
-			g_hash_table_new_full (g_str_hash, g_str_equal,
-			                       g_free, g_object_unref);
-	}
-
 	connection = g_hash_table_lookup (data_manager->cached_connections, uri);
 
 	if (!connection) {
@@ -5499,4 +5496,19 @@ fail:
 		g_propagate_error (error, inner_error);
 
 	return connection;
+}
+
+void
+tracker_data_manager_map_connection (TrackerDataManager      *data_manager,
+                                     const gchar             *handle_name,
+                                     TrackerSparqlConnection *connection)
+{
+	gchar *uri;
+
+	uri = g_strdup_printf ("private:%s", handle_name);
+
+	g_mutex_lock (&data_manager->connections_lock);
+	g_hash_table_insert (data_manager->cached_connections,
+	                     uri, g_object_ref (connection));
+	g_mutex_unlock (&data_manager->connections_lock);
 }

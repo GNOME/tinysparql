@@ -1370,6 +1370,22 @@ tracker_direct_connection_serialize_finish (TrackerSparqlConnection  *connection
 }
 
 static void
+tracker_direct_connection_map_connection (TrackerSparqlConnection *connection,
+					  const gchar             *handle_name,
+					  TrackerSparqlConnection *service_connection)
+{
+	TrackerDirectConnectionPrivate *priv;
+	TrackerDirectConnection *conn;
+
+	conn = TRACKER_DIRECT_CONNECTION (connection);
+	priv = tracker_direct_connection_get_instance_private (conn);
+
+	tracker_data_manager_map_connection (priv->data_manager,
+	                                     handle_name,
+	                                     service_connection);
+}
+
+static void
 tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 {
 	TrackerSparqlConnectionClass *sparql_connection_class;
@@ -1406,6 +1422,7 @@ tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 	sparql_connection_class->lookup_dbus_service = tracker_direct_connection_lookup_dbus_service;
 	sparql_connection_class->serialize_async = tracker_direct_connection_serialize_async;
 	sparql_connection_class->serialize_finish = tracker_direct_connection_serialize_finish;
+	sparql_connection_class->map_connection = tracker_direct_connection_map_connection;
 
 	props[PROP_FLAGS] =
 		g_param_spec_flags ("flags",
