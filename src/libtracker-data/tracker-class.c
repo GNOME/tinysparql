@@ -34,7 +34,7 @@ typedef struct _TrackerClassPrivate TrackerClassPrivate;
 struct _TrackerClassPrivate {
 	gchar *uri;
 	gchar *name;
-	gint id;
+	TrackerRowid id;
 	guint is_new : 1;
 	guint db_schema_changed : 1;
 	guint notify : 1;
@@ -189,7 +189,7 @@ tracker_class_get_name (TrackerClass *service)
 	return priv->name;
 }
 
-gint
+TrackerRowid
 tracker_class_get_id (TrackerClass *service)
 {
 	TrackerClassPrivate *priv;
@@ -367,7 +367,7 @@ tracker_class_set_uri (TrackerClass *service,
 
 void
 tracker_class_set_id (TrackerClass *service,
-                      gint          value)
+                      TrackerRowid  value)
 {
 	TrackerClassPrivate *priv;
 

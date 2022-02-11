@@ -22,6 +22,7 @@
 
 #include "tracker-ontologies.h"
 #include "tracker-vtab-triples.h"
+#include "tracker-rowid.h"
 
 /* Avoid casts everywhere. */
 #define sqlite3_value_text(x) ((const gchar *) sqlite3_value_text(x))
@@ -325,13 +326,16 @@ collect_graphs (TrackerTriplesCursor *cursor)
 	if (rc != SQLITE_OK)
 		return rc;
 
-	cursor->query_graphs = g_hash_table_new_full (NULL, NULL, NULL, g_free);
+	cursor->query_graphs = g_hash_table_new_full (tracker_rowid_hash,
+	                                              tracker_rowid_equal,
+	                                              (GDestroyNotify) tracker_rowid_free,
+	                                              g_free);
 
 	while ((rc = sqlite3_step (stmt)) == SQLITE_ROW) {
 		const gchar *uri;
-		gint id;
+		TrackerRowid id;
 
-		id = sqlite3_column_int (stmt, 0);
+		id = sqlite3_column_int64 (stmt, 0);
 		uri = sqlite3_column_text (stmt, 1);
 
 		if (cursor->match.graph) {
@@ -343,7 +347,7 @@ collect_graphs (TrackerTriplesCursor *cursor)
 		}
 
 		g_hash_table_insert (cursor->query_graphs,
-		                     GINT_TO_POINTER (id),
+		                     tracker_rowid_copy (&id),
 		                     g_strdup (uri));
 	}
 
@@ -428,9 +432,11 @@ bind_arg (sqlite3_stmt  *stmt,
 static gboolean
 iterate_next_stmt (TrackerTriplesCursor  *cursor,
                    const gchar          **graph,
-                   gint                  *graph_id,
+                   TrackerRowid          *graph_id,
                    TrackerProperty      **property)
 {
+	TrackerRowid *id;
+
 	while (cursor->properties && !cursor->graphs) {
 		/* Iterate to next property, and redo graph list */
 		cursor->properties = g_list_remove (cursor->properties,
@@ -442,9 +448,10 @@ iterate_next_stmt (TrackerTriplesCursor  *cursor,
 		return FALSE;
 
 	*property = cursor->properties->data;
-	*graph_id = GPOINTER_TO_INT (cursor->graphs->data);
-	*graph = g_hash_table_lookup (cursor->query_graphs,
-	                              cursor->graphs->data);
+
+	id = cursor->graphs->data;
+	*graph_id = *id;
+	*graph = g_hash_table_lookup (cursor->query_graphs, id);
 
 	cursor->graphs = g_list_remove (cursor->graphs, cursor->graphs->data);
 
@@ -456,7 +463,7 @@ init_stmt (TrackerTriplesCursor *cursor)
 {
 	TrackerProperty *property;
 	const gchar *graph;
-	gint graph_id;
+	TrackerRowid graph_id;
 	GString *sql;
 	int rc;
 
@@ -468,7 +475,7 @@ init_stmt (TrackerTriplesCursor *cursor)
 
 		sql = g_string_new (NULL);
 		g_string_append_printf (sql,
-		                        "SELECT %d, t.ID, "
+		                        "SELECT %" G_GINT64_FORMAT ", t.ID, "
 		                        "       (SELECT ID From Resource WHERE Uri = \"%s\"), "
 		                        "       %s, "
 		                        "       %d "

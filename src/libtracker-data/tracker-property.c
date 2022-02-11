@@ -71,7 +71,7 @@ struct _TrackerPropertyPrivate {
 	TrackerClass   *domain_index;
 	TrackerClass   *range;
 	gint           weight;
-	gint           id;
+	TrackerRowid   id;
 	guint          use_gvdb : 1;
 	guint          indexed : 1;
 	guint          orig_fulltext_indexed : 1;
@@ -469,7 +469,7 @@ tracker_property_get_weight (TrackerProperty *property)
 	return priv->weight;
 }
 
-gint
+TrackerRowid
 tracker_property_get_id (TrackerProperty *property)
 {
 	TrackerPropertyPrivate *priv;
@@ -879,7 +879,7 @@ tracker_property_set_weight (TrackerProperty *property,
 
 void
 tracker_property_set_id (TrackerProperty *property,
-                         gint             value)
+                         TrackerRowid     value)
 {
 	TrackerPropertyPrivate *priv;
 	g_return_if_fail (TRACKER_IS_PROPERTY (property));

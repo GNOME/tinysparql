@@ -37,6 +37,7 @@ typedef struct _TrackerDataManagerClass TrackerDataManagerClass;
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-sparql/tracker-ontologies.h>
 
+#include <libtracker-data/tracker-rowid.h>
 #include <libtracker-data/tracker-data-update.h>
 #include <libtracker-data/tracker-db-interface.h>
 #include <libtracker-data/tracker-db-manager.h>
@@ -98,7 +99,7 @@ gboolean             tracker_data_manager_copy_graph  (TrackerDataManager  *mana
 GHashTable *         tracker_data_manager_get_graphs       (TrackerDataManager *manager,
                                                             gboolean            in_transaction);
 
-gint                 tracker_data_manager_find_graph       (TrackerDataManager *manager,
+TrackerRowid         tracker_data_manager_find_graph       (TrackerDataManager *manager,
                                                             const gchar        *name,
                                                             gboolean            in_transaction);
 

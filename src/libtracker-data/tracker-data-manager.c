@@ -172,7 +172,7 @@ tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
 	graphs = g_hash_table_new_full (g_str_hash,
 					g_str_equal,
 					g_free,
-					NULL);
+	                                (GDestroyNotify) tracker_rowid_free);
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 						      "SELECT ID, Uri FROM Resource WHERE ID IN (SELECT ID FROM Graph)");
@@ -191,13 +191,13 @@ tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
 
 	while (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
 		const gchar *name;
-		gint id;
+		TrackerRowid id;
 
 		id = tracker_db_cursor_get_int (cursor, 0);
 		name = tracker_db_cursor_get_string (cursor, 1, NULL);
 
 		g_hash_table_insert (graphs, g_strdup (name),
-		                     GINT_TO_POINTER (id));
+		                     tracker_rowid_copy (&id));
 	}
 
 	g_object_unref (cursor);
@@ -575,7 +575,7 @@ update_property_value (TrackerDataManager  *manager,
 
 				if (!unsup_onto_err) {
 					GValue value = G_VALUE_INIT;
-					gint64 subject_id = 0;
+					TrackerRowid subject_id = 0;
 
 					tracker_data_query_string_to_value (manager,
 					                                    str, NULL,
@@ -614,7 +614,7 @@ update_property_value (TrackerDataManager  *manager,
 
 	if (!error && needed && object) {
 		GValue value = G_VALUE_INIT;
-		gint64 subject_id = 0;
+		TrackerRowid subject_id = 0;
 
 		tracker_data_query_string_to_value (manager,
 		                                    object, NULL,
@@ -858,7 +858,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
 			TrackerClass *class;
-			gint subject_id;
+			TrackerRowid subject_id;
 
 			class = tracker_ontologies_get_class_by_uri (manager->ontologies, subject);
 
@@ -903,7 +903,7 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 			g_object_unref (class);
 		} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
 			TrackerProperty *property;
-			gint subject_id;
+			TrackerRowid subject_id;
 
 			property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
 			if (property != NULL) {
@@ -1550,7 +1550,7 @@ check_for_deleted_domain_index (TrackerDataManager *manager,
 			TrackerProperty *prop = l->data;
 			const gchar *uri;
 			GValue value = G_VALUE_INIT;
-			gint64 class_id = 0;
+			TrackerRowid class_id = 0;
 
 			TRACKER_NOTE (ONTOLOGY_CHANGES,
 			              g_message ("Ontology change: deleting nrl:domainIndex: %s",
@@ -1741,7 +1741,7 @@ check_for_deleted_super_properties (TrackerDataManager  *manager,
 			const gchar *object = tracker_property_get_uri (prop_to_remove);
 			const gchar *subject = tracker_property_get_uri (property);
 			GValue value = G_VALUE_INIT;
-			gint64 subject_id;
+			TrackerRowid subject_id;
 
 			property = tracker_ontologies_get_property_by_uri (ontologies,
 			                                                   TRACKER_PREFIX_RDFS "subPropertyOf");
@@ -2220,7 +2220,7 @@ tracker_data_ontology_process_statement (TrackerDataManager *manager,
 {
 	TrackerProperty *property;
 	GValue value = G_VALUE_INIT;
-	gint64 subject_id = 0;
+	TrackerRowid subject_id = 0;
 
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
@@ -2599,7 +2599,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
 			TrackerClass *class;
 			const gchar  *uri;
-			gint          id;
+			TrackerRowid id;
 			GValue        value = { 0 };
 			gboolean      notify;
 
@@ -2668,7 +2668,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri;
 			gboolean         multi_valued, indexed, fulltext_indexed;
 			gboolean         is_inverse_functional_property;
-			gint             id;
+			TrackerRowid id;
 
 			property = tracker_property_new (FALSE);
 
@@ -2775,7 +2775,7 @@ static void
 insert_uri_in_resource_table (TrackerDataManager  *manager,
                               TrackerDBInterface  *iface,
                               const gchar         *uri,
-                              gint                 id,
+                              TrackerRowid         id,
                               GError             **error)
 {
 	TrackerDBStatement *stmt;
@@ -4057,14 +4057,17 @@ update_attached_databases (TrackerDBInterface  *iface,
 			g_hash_table_remove (data_manager->graphs, name);
 			*changed = TRUE;
 		} else if (tracker_db_cursor_get_int (cursor, 2)) {
+			TrackerRowid id;
+
 			if (!tracker_db_manager_attach_database (data_manager->db_manager,
 			                                         iface, name, FALSE, error)) {
 				retval = FALSE;
 				break;
 			}
 
+			id = tracker_db_cursor_get_int (cursor, 3);
 			g_hash_table_insert (data_manager->graphs, g_strdup (name),
-			                     GINT_TO_POINTER (tracker_db_cursor_get_int (cursor, 3)));
+			                     tracker_rowid_copy (&id));
 			*changed = TRUE;
 		}
 	}
@@ -5058,11 +5061,11 @@ copy_graphs (GHashTable *graphs)
 	copy = g_hash_table_new_full (g_str_hash,
 				      g_str_equal,
 				      g_free,
-				      NULL);
+	                              (GDestroyNotify) tracker_rowid_free);
 	g_hash_table_iter_init (&iter, graphs);
 
 	while (g_hash_table_iter_next (&iter, &key, &value))
-		g_hash_table_insert (copy, g_strdup (key), value);
+		g_hash_table_insert (copy, g_strdup (key), tracker_rowid_copy (value));
 
 	return copy;
 }
@@ -5073,8 +5076,7 @@ tracker_data_manager_create_graph (TrackerDataManager  *manager,
                                    GError             **error)
 {
 	TrackerDBInterface *iface;
-	gint id;
-
+	TrackerRowid id;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
@@ -5096,7 +5098,8 @@ tracker_data_manager_create_graph (TrackerDataManager  *manager,
 	if (!manager->transaction_graphs)
 		manager->transaction_graphs = copy_graphs (manager->graphs);
 
-	g_hash_table_insert (manager->transaction_graphs, g_strdup (name), GINT_TO_POINTER (id));
+	g_hash_table_insert (manager->transaction_graphs, g_strdup (name),
+	                     tracker_rowid_copy (&id));
 
 	return TRUE;
 
@@ -5137,13 +5140,13 @@ tracker_data_manager_drop_graph (TrackerDataManager  *manager,
 	return TRUE;
 }
 
-gint
+TrackerRowid
 tracker_data_manager_find_graph (TrackerDataManager *manager,
                                  const gchar        *name,
                                  gboolean            in_transaction)
 {
 	GHashTable *graphs;
-	gint graph_id;
+	TrackerRowid graph_id;
 
 	graphs = tracker_data_manager_get_graphs (manager, in_transaction);
 	graph_id = GPOINTER_TO_UINT (g_hash_table_lookup (graphs, name));
