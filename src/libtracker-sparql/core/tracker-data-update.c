@@ -27,6 +27,8 @@
 
 #include <libtracker-common/tracker-common.h>
 
+#include <libtracker-sparql/tracker-deserializer-rdf.h>
+
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
@@ -36,7 +38,6 @@
 #include "tracker-ontologies.h"
 #include "tracker-property.h"
 #include "tracker-sparql.h"
-#include "tracker-turtle-reader.h"
 #include "tracker-uuid.h"
 
 typedef struct _TrackerDataUpdateBuffer TrackerDataUpdateBuffer;
@@ -2856,32 +2857,37 @@ tracker_data_load_turtle_file (TrackerData  *data,
                                const gchar  *graph,
                                GError      **error)
 {
-	TrackerTurtleReader *reader = NULL;
+	TrackerSparqlCursor *deserializer;
 	TrackerOntologies *ontologies;
 	GError *inner_error = NULL;
-	const gchar *subject_str, *predicate_str, *object_str, *langtag;
-	gboolean object_is_uri;
-	goffset last_parsed_line_no, last_parsed_column_no;
+	const gchar *subject_str, *predicate_str, *object_str;
+	goffset last_parsed_line_no = 0, last_parsed_column_no = 0;
 	gchar *ontology_uri;
 
-	reader = tracker_turtle_reader_new_for_file (file, error);
-	if (!reader)
+	deserializer = tracker_deserializer_new_for_file (file, NULL, error);
+	if (!deserializer)
 		return;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 
-	while (tracker_turtle_reader_next (reader,
-	                                   &subject_str,
-	                                   &predicate_str,
-	                                   &object_str,
-	                                   &langtag,
-	                                   &object_is_uri,
-	                                   &last_parsed_line_no,
-	                                   &last_parsed_column_no,
-	                                   &inner_error)) {
+	while (tracker_sparql_cursor_next (deserializer, NULL, &inner_error)) {
 		TrackerProperty *predicate;
 		GValue object = G_VALUE_INIT;
 		TrackerRowid subject;
+
+		subject_str = tracker_sparql_cursor_get_string (deserializer,
+		                                                TRACKER_RDF_COL_SUBJECT,
+		                                                NULL);
+		predicate_str = tracker_sparql_cursor_get_string (deserializer,
+		                                                  TRACKER_RDF_COL_PREDICATE,
+		                                                  NULL);
+		object_str = tracker_sparql_cursor_get_string (deserializer,
+		                                               TRACKER_RDF_COL_OBJECT,
+		                                               NULL);
+
+		tracker_deserializer_get_parser_location (TRACKER_DESERIALIZER (deserializer),
+		                                          &last_parsed_line_no,
+		                                          &last_parsed_column_no);
 
 		predicate = tracker_ontologies_get_property_by_uri (ontologies, predicate_str);
 		if (predicate == NULL) {
@@ -2901,7 +2907,7 @@ tracker_data_load_turtle_file (TrackerData  *data,
 
 		if (!tracker_data_query_string_to_value (data->manager,
 		                                         object_str,
-		                                         langtag,
+		                                         NULL, /* FIXME: Missing langtag */
 		                                         tracker_property_get_data_type (predicate),
 		                                         &object,
 		                                         &inner_error))
@@ -2913,16 +2919,9 @@ tracker_data_load_turtle_file (TrackerData  *data,
 		if (inner_error)
 			goto failed;
 
-		if (object_is_uri) {
-			tracker_data_insert_statement_with_uri (data, graph,
-			                                        subject, predicate, &object,
-			                                        &inner_error);
-		} else {
-			tracker_data_insert_statement_with_string (data, graph,
-			                                           subject, predicate, &object,
-			                                           &inner_error);
-		}
-
+		tracker_data_insert_statement (data, graph,
+		                               subject, predicate, &object,
+		                               &inner_error);
 		g_value_unset (&object);
 
 		if (inner_error)
@@ -2934,12 +2933,12 @@ tracker_data_load_turtle_file (TrackerData  *data,
 			goto failed;
 	}
 
-	g_clear_object (&reader);
+	g_clear_object (&deserializer);
 
 	return;
 
 failed:
-	g_clear_object (&reader);
+	g_clear_object (&deserializer);
 
 	ontology_uri = g_file_get_uri (file);
 	g_propagate_prefixed_error (error, inner_error,

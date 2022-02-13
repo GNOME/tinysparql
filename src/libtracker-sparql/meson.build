@@ -27,6 +27,7 @@ libtracker_sparql_c_sources = files(
     'tracker-cursor.c',
     'tracker-deserializer.c',
     'tracker-deserializer-rdf.c',
+    'tracker-deserializer-turtle.c',
     'tracker-endpoint.c',
     'tracker-endpoint-dbus.c',
     'tracker-endpoint-http.c',

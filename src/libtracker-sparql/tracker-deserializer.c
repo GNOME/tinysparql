@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include "tracker-deserializer.h"
+#include "tracker-deserializer-turtle.h"
 
 #include "tracker-private.h"
 
@@ -169,6 +170,8 @@ tracker_deserializer_new (GInputStream            *stream,
 	g_return_val_if_fail (G_IS_INPUT_STREAM (stream), NULL);
 
 	switch (format) {
+	case TRACKER_SERIALIZER_FORMAT_TTL:
+		return tracker_deserializer_turtle_new (stream, namespaces);
 	default:
 		g_warn_if_reached ();
 		return NULL;
@@ -178,7 +181,7 @@ tracker_deserializer_new (GInputStream            *stream,
 static TrackerSerializerFormat
 pick_format_for_file (GFile *file)
 {
-	return TRACKER_RDF_FORMAT_TURTLE;
+	return TRACKER_SERIALIZER_FORMAT_TTL;
 }
 
 TrackerSparqlCursor *
