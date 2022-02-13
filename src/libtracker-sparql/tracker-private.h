@@ -24,6 +24,7 @@
 #include <libtracker-sparql/tracker-cursor.h>
 #include <libtracker-sparql/tracker-endpoint-dbus.h>
 #include <libtracker-sparql/tracker-enums-private.h>
+#include <libtracker-sparql/tracker-deserializer.h>
 
 struct _TrackerSparqlConnectionClass
 {
@@ -278,6 +279,14 @@ struct _TrackerBatchClass {
 
 struct _TrackerSerializerClass {
 	GInputStreamClass parent_class;
+};
+
+struct _TrackerDeserializerClass {
+	TrackerSparqlCursorClass parent_class;
+
+	gboolean (* get_parser_location) (TrackerDeserializer *deserializer,
+	                                  goffset             *line_no,
+	                                  goffset             *column_no);
 };
 
 gboolean
