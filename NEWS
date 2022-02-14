@@ -1,3 +1,14 @@
+NEW in 3.3.0.beta - 2022-02-14
+==============================
+  * Add API to serialize data into various RDF formats
+  * Add API to map a TrackerSparqlConnection as a SERVICE
+    of another TrackerSparqlConnection
+  * Fixed possible warnings and missed notifications in
+    TrackerNotifier
+  * Updated "tracker3 export" to use serialization API
+  * Documentation fixes
+  * Added internal TrackerRowid type to represent ROWIDs
+
 NEW in 3.3.0.alpha - 2022-01-09
 ===============================
   * Add more specific error codes for problems found updating
