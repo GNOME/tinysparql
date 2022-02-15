@@ -72,8 +72,7 @@ if not libsoup2.found() and not libsoup3.found()
 endif
 
 if get_option('man')
-  asciidoc = find_program('asciidoc')
-  xsltproc = find_program('xsltproc')
+  a2x = find_program('a2x')
 endif
 
 py_modules = ['gi']
