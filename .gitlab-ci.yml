@@ -32,6 +32,18 @@ stages:
     reports:
       junit: check-junit-report.xml
 
+repo-sanity:
+  stage: review
+  script:
+    - >
+      if [[ -z "$CI_REGISTRY_IMAGE" ]] ;
+      then
+        .gitlab-ci/simple-junit-report.sh check-junit-report.xml \
+          repo-sanity "The container registry should be enabled in the project general settings panel at $CI_PROJECT_URL/edit" ;
+        exit 1 ;
+      fi
+  <<: *check
+
 check-commit-log:
   variables:
     GIT_DEPTH: "100"
@@ -130,6 +142,7 @@ build-fedora-container@x86_64:
   variables:
     GIT_STRATEGY: none
   needs:
+    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -142,6 +155,7 @@ build-fedora-rawhide-container@x86_64:
     GIT_STRATEGY: none
   allow_failure: true
   needs:
+    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -153,6 +167,7 @@ build-fedora-container@aarch64:
   variables:
     GIT_STRATEGY: none
   needs:
+    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -164,6 +179,7 @@ build-ubuntu-container@x86_64:
   variables:
     GIT_STRATEGY: none
   needs:
+    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -175,6 +191,7 @@ build-alpine-container@x86_64:
   variables:
     GIT_STRATEGY: none
   needs:
+    - repo-sanity
     - check-commit-log
     - check-merge-request
 
