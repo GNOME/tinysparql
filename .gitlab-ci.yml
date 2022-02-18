@@ -5,6 +5,7 @@ include:
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/80f87b3058efb75a1faae11826211375fba77e7f/templates/ubuntu.yml'
 
 variables:
+  FDO_UPSTREAM_REPO: GNOME/tracker
   MESON_TEST_TIMEOUT_MULTIPLIER: 3
   # These can be used to see verbose log output from the functional-tests.
   # See HACKING.md for more information.
@@ -73,7 +74,6 @@ check-merge-request:
 .tracker.fedora@common:
   variables:
     BASE_TAG: '2022-02-10.0'
-    FDO_UPSTREAM_REPO: GNOME/tracker
     FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto uncrustify patch diffutils cmake python-devel'
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' 'dnf-command(download)' &&
@@ -88,7 +88,6 @@ check-merge-request:
 .tracker.ubuntu@common:
   variables:
     BASE_TAG: '2021-05-15.5'
-    FDO_UPSTREAM_REPO: GNOME/tracker
     FDO_DISTRIBUTION_PACKAGES: 'python3-tap umockdev libumockdev-dev upower asciidoc-base git'
     FDO_DISTRIBUTION_EXEC: |
       export DEBIAN_FRONTEND=noninteractive &&
@@ -99,7 +98,6 @@ check-merge-request:
 .tracker.alpine@common:
   variables:
     BASE_TAG: '2022-02-19.0'
-    FDO_UPSTREAM_REPO: GNOME/tracker
     FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala'
 
 .tracker.fedora:35@x86_64:
