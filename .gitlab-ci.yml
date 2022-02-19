@@ -50,12 +50,16 @@ check-commit-log:
     GIT_DEPTH: "100"
   stage: review
   script:
-    - if [[ x"$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" != "x" ]] ;
+    - ci-fairy check-commits --junit-xml=check-junit-report.xml && exit 0;
+      if [[ -z "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]] ;
       then
-        ci-fairy check-commits --junit-xml=check-junit-report.xml ;
-      else
-        echo "Not a merge request" ;
-      fi
+        echo "'ci-fairy check-commits' found commit messages with unexpected format, see https://wiki.gnome.org/Git/CommitMessages for the recommended guidelines. Please fix those before filing a merge request, this will be handled as a pipeline failure there." ;
+        exit 255 ;
+      fi ;
+      exit 1
+  allow_failure:
+    exit_codes:
+      - 255
   <<: *check
 
 check-merge-request:
