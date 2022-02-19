@@ -23,6 +23,11 @@ stages:
   - analysis
   - website
 
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_PIPELINE_SOURCE == 'push'
+
 .check-template: &check
   extends:
     - .fdo.ci-fairy
