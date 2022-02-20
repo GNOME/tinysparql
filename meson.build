@@ -75,9 +75,12 @@ if get_option('man')
   a2x = find_program('a2x')
 endif
 
-py_modules = ['gi']
-if get_option('tests_tap_protocol')
-  py_modules += 'tap'
+py_modules = []
+if get_option('tests')
+  py_modules += 'gi'
+  if get_option('tests_tap_protocol')
+    py_modules += 'tap'
+  endif
 endif
 python = import('python').find_installation('python3', modules: py_modules)
 
@@ -358,7 +361,9 @@ tracker_uninstalled_nepomuk_ontologies_dir = join_paths(meson.current_source_dir
 tracker_uninstalled_stop_words_dir = join_paths(meson.current_source_dir(), 'src', 'libtracker-common', 'stop-words')
 tracker_uninstalled_testutils_dir = join_paths(meson.current_source_dir(), 'utils')
 
-subdir('tests')
+if get_option('tests')
+  subdir('tests')
+endif
 subdir('examples')
 
 subdir('po')
