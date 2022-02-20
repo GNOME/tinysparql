@@ -86,7 +86,7 @@ check-merge-request:
 
 .tracker.alpine@common:
   variables:
-    BASE_TAG: '2021-05-15.5'
+    BASE_TAG: '2022-02-19.0'
     FDO_UPSTREAM_REPO: GNOME/tracker
     FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala'
 
@@ -116,10 +116,10 @@ check-merge-request:
     FDO_DISTRIBUTION_VERSION: rolling
     FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
 
-.tracker.alpine:edge@x86_64:
+.tracker.alpine:latest@x86_64:
   extends: .tracker.alpine@common
   variables:
-    FDO_DISTRIBUTION_VERSION: edge
+    FDO_DISTRIBUTION_VERSION: latest
     FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
 
 build-fedora-container@x86_64:
@@ -170,7 +170,7 @@ build-ubuntu-container@x86_64:
 build-alpine-container@x86_64:
   extends:
     - .fdo.container-build@alpine
-    - .tracker.alpine:edge@x86_64
+    - .tracker.alpine:latest@x86_64
   stage: prepare
   variables:
     GIT_STRATEGY: none
@@ -239,10 +239,10 @@ build-ubuntu-rolling@x86_64:
     NO_DOCS: "true"
   <<: *build
 
-build-alpine-edge@x86_64:
+build-alpine-latest@x86_64:
   extends:
     - .fdo.distribution-image@alpine
-    - .tracker.alpine:edge@x86_64
+    - .tracker.alpine:latest@x86_64
   needs:
     - build-alpine-container@x86_64
   variables:
@@ -320,9 +320,9 @@ test-ubuntu@x86_64:
 test-alpine@x86_64:
   extends:
     - .fdo.distribution-image@alpine
-    - .tracker.alpine:edge@x86_64
+    - .tracker.alpine:latest@x86_64
   needs:
-    - build-alpine-edge@x86_64
+    - build-alpine-latest@x86_64
   <<: *test
 
 test-website:
