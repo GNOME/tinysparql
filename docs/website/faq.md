@@ -117,8 +117,10 @@ to find out what the Tracker daemons are doing. You'll need to use a Terminal
 program to run these commands.
 
   * **Check Tracker daemon status**: You can view live status messages from
-    Tracker daemons by running: `tracker3 daemon status --follow`. This may
-    explain what the daemon is currently doing.
+    Tracker daemons by running: `tracker3 status`. This may explain the current
+    status of the daemon, and the problems it found. The command:
+    `tracker3 daemon status --follow` may also be useful to see what the
+    daemon is doing currently.
 
   * **Check the system log**: You can view error logs from Tracker daemons by
     running this command:
