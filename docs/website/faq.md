@@ -117,8 +117,10 @@ to find out what the Tracker daemons are doing. You'll need to use a Terminal
 program to run these commands.
 
   * **Check Tracker daemon status**: You can view live status messages from
-    Tracker daemons by running: `tracker3 daemon status --follow`. This may
-    explain what the daemon is currently doing.
+    Tracker daemons by running: `tracker3 status`. This may explain the current
+    status of the daemon, and the problems it found. The command:
+    `tracker3 daemon status --follow` may also be useful to see what the
+    daemon is doing currently.
 
   * **Check the system log**: You can view error logs from Tracker daemons by
     running this command:
@@ -143,3 +145,33 @@ program to run these commands.
 
 [Why does Tracker consume resources on my PC?]: #why-does-tracker-consume-resources-on-my-pc
 [control what Tracker indexes]: #how-can-i-control-what-tracker-indexes
+
+## Which versions of Tracker are supported upstream?
+
+Tracker developers advise all users and distributors to use the latest stable
+release of Tracker. The behavior of older stable releases staying correct and
+stable can not be guaranteed, thus they become unsupported.
+
+There are two main reasons for this:
+
+  * The seccomp jail set up in `tracker-extract-3` will catch non-observed syscalls
+    and make the process quit. However updates in any of the dependencies used for
+    metadata extraction (or any of their subdependencies) may introduce the usage
+    of different syscalls that might not be observed by the seccomp jail.
+
+    This may happen between micro release updates, or due to different compilation
+    flags.
+
+  * SQLite has a history of API/ABI breaks and other regressions. This may sound
+    anecdotal and unlikely, but Tracker uses SQLite API and logic much more
+    extensively than most other users, there is a close to 100% chance that these
+    will affect Tracker in some way.
+
+    This most often happens between major releases, but distributors also do have
+    a history to push these major version updates to stable/LTS distributions.
+
+The implications of both is the same, handling those situations do not just
+require incessant updates, but also require active attention. Tracker maintainers
+backport these fixes on a best effort basis, but do not have the bandwidth to
+test all combinations induced by different distributions/versions across
+multiple Tracker branches.
