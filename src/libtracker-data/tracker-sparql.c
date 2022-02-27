@@ -9513,7 +9513,7 @@ static gboolean
 translate_BlankNode (TrackerSparql  *sparql,
                      GError        **error)
 {
-	gint64 bnode_id = 0;
+	TrackerRowid bnode_id = 0;
 	TrackerVariable *var;
 
 	/* BlankNode ::= BLANK_NODE_LABEL | ANON
@@ -9531,11 +9531,12 @@ translate_BlankNode (TrackerSparql  *sparql,
 		        tracker_token_bnode_init (sparql->current_state->token, bnode_id);
 	        } else if (_accept (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_BLANK_NODE_LABEL)) {
 		        gchar *str;
-		        gint64 *value;
 
 		        str = _dup_last_string (sparql);
 
 		        if (sparql->current_state->blank_node_map) {
+			        TrackerRowid *value;
+
 			        value = g_hash_table_lookup (sparql->current_state->blank_node_map, str);
 
 			        if (value)
@@ -9548,10 +9549,9 @@ translate_BlankNode (TrackerSparql  *sparql,
 			        if (bnode_id == 0)
 				        return FALSE;
 
-			        value = g_new0 (gint64, 1);
-			        *value = bnode_id;
 			        g_hash_table_insert (sparql->current_state->blank_node_map,
-			                             g_strdup (str), value);
+			                             g_strdup (str),
+			                             tracker_rowid_copy (&bnode_id));
 		        }
 
 		        if (sparql->blank_nodes &&
