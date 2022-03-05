@@ -1,3 +1,4 @@
+subdir('benchmark')
 subdir('mtp')
 subdir('tracker-resdump')
 subdir('trackertestutils')
