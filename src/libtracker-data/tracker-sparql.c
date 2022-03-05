@@ -2968,7 +2968,9 @@ translate_SelectClause (TrackerSparql  *sparql,
 						return FALSE;
 					}
 				} else {
-					if (!found) {
+					if (sparql->current_state->select_context == sparql->context) {
+						_append_string_printf (sparql, "AS \"%s\" ", var->name);
+					} else if (!found) {
 						_append_string_printf (sparql, "AS %s ",
 						                       tracker_variable_get_sql_expression (var));
 					}
