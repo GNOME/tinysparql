@@ -1,3 +1,13 @@
+NEW in 3.3.0.rc - 2022-03-06
+============================
+  * Fix cursor column names for date and resource types
+  * Fix possible crasher
+  * Added non-installable benchmark utility
+  * Added build option to pick libsoup versions to build support
+    for
+  * Added build option to disable tests
+  * Fixed generation of man pages with newer asciidoc
+
 NEW in 3.3.0.beta - 2022-02-14
 ==============================
   * Add API to serialize data into various RDF formats
