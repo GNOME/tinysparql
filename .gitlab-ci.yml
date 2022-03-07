@@ -96,8 +96,8 @@ check-merge-request:
 
 .tracker.ubuntu@common:
   variables:
-    BASE_TAG: '2021-05-15.5'
-    FDO_DISTRIBUTION_PACKAGES: 'python3-tap umockdev libumockdev-dev upower asciidoc-base git'
+    BASE_TAG: '2022-03-07.0'
+    FDO_DISTRIBUTION_PACKAGES: 'python3-tap umockdev libumockdev-dev upower asciidoc-base git gcovr'
     FDO_DISTRIBUTION_EXEC: |
       export DEBIAN_FRONTEND=noninteractive &&
       sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list &&
@@ -106,8 +106,8 @@ check-merge-request:
 
 .tracker.alpine@common:
   variables:
-    BASE_TAG: '2022-02-19.0'
-    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala'
+    BASE_TAG: '2022-03-07.0'
+    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala gcovr'
 
 .tracker.fedora:35@x86_64:
   extends: .tracker.fedora@common
