@@ -218,7 +218,7 @@ check-code-style:
 .build-template: &build
   stage: build
   script:
-    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
+    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_coverage=true -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
     - ninja -C build
     - |
       if [ -z "$NO_DOCS" ]; then ninja -C build docs/reference/libtracker-sparql/Tracker-doc; fi
@@ -287,6 +287,13 @@ build-alpine-latest@x86_64:
       unset $(env|grep -o '^CI_[^=]*')
       env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
   after_script:
+    - pushd build
+    - gcovr --root=.. --filter='\.\./src/'
+        --exclude=../utils --exclude=../examples --exclude=../docs/reference
+        --exclude='\.\./build/.*\.[ch]$' --exclude='.*/tests/.*\.[ch]$'
+        --exclude='\.\./src/.*\.vala$'
+        --json --output=../coverage-${CI_JOB_NAME}.json 2>/dev/null
+    - popd
     - |
       echo "Distribution: "
       echo
@@ -304,6 +311,7 @@ build-alpine-latest@x86_64:
     when: always
     paths:
     - build
+    - coverage-*.json
     reports:
       junit: "build/meson-logs/testlog.junit.xml"
 
@@ -372,26 +380,26 @@ test-website:
   needs:
     - build-fedora-container@x86_64
 
-coverage-analysis:
+coverage:
   extends:
     - .fdo.distribution-image@fedora
     - .tracker.fedora:35@x86_64
   stage: analysis
   allow_failure: true
   script:
-    - meson build -Db_coverage=true -Ddocs=false -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
-    - cd build
-    - ninja
-    - env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
-    - mkdir -p coveragereport
-    - gcovr --html-details --print-summary --root=.. --exclude=../docs/reference --exclude=../tests --exclude=../utils --exclude=../examples --exclude=.*_gresources\.c --exclude=.*enum-types\.c --output coveragereport/index.html
+    - mkdir coveragereport
+    - gcovr --add-tracefile 'coverage-*.json'
+        --html-details --print-summary --output coveragereport/index.html
   coverage: '/^lines: (\d+\.\d+\%)/'
   artifacts:
     when: always
     paths:
-    - build/coveragereport
+    - coveragereport
   needs:
-    - build-fedora-container@x86_64
+    - test-fedora@x86_64
+    - test-fedora-rawhide@x86_64
+    - test-fedora@aarch64
+    - test-alpine@x86_64
 
 coverity:
   extends:
