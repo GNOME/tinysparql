@@ -22,11 +22,6 @@
 
 #include "config.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <inttypes.h>
-
 #include <glib/gstdio.h>
 
 #include <libtracker-fts/tracker-fts.h>

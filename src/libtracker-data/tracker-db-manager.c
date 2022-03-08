@@ -19,16 +19,7 @@
 
 #include "config.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <regex.h>
-#include <locale.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <stdio.h>
 #include <fcntl.h>
-#include <errno.h>
 
 #include <glib/gstdio.h>
 
