@@ -25,7 +25,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
-#include <zlib.h>
 #include <inttypes.h>
 
 #include <glib/gstdio.h>
@@ -61,8 +60,6 @@
 #define NRL_MAX_CARDINALITY             TRACKER_PREFIX_NRL "maxCardinality"
 
 #define NRL_LAST_MODIFIED           TRACKER_PREFIX_NRL "lastModified"
-
-#define ZLIBBUFSIZ 8192
 
 struct _TrackerDataManager {
 	GObject parent_instance;
