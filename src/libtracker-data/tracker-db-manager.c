@@ -19,17 +19,7 @@
 
 #include "config.h"
 
-#include <string.h>
-#include <stdlib.h>
-#include <regex.h>
-#include <zlib.h>
-#include <locale.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <stdio.h>
 #include <fcntl.h>
-#include <errno.h>
 
 #include <glib/gstdio.h>
 
@@ -43,9 +33,6 @@
 #include "tracker-uuid.h"
 
 #define UNKNOWN_STATUS 0.5
-
-/* ZLib buffer settings */
-#define ZLIB_BUF_SIZE                 8192
 
 #define MAX_INTERFACES_PER_CPU        16
 #define MAX_INTERFACES                (MAX_INTERFACES_PER_CPU * g_get_num_processors ())
