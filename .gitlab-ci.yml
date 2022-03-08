@@ -5,6 +5,7 @@ include:
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/80f87b3058efb75a1faae11826211375fba77e7f/templates/ubuntu.yml'
 
 variables:
+  FDO_UPSTREAM_REPO: GNOME/tracker
   MESON_TEST_TIMEOUT_MULTIPLIER: 3
   # These can be used to see verbose log output from the functional-tests.
   # See HACKING.md for more information.
@@ -22,6 +23,11 @@ stages:
   - analysis
   - website
 
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_PIPELINE_SOURCE == 'push'
+
 .check-template: &check
   extends:
     - .fdo.ci-fairy
@@ -32,17 +38,33 @@ stages:
     reports:
       junit: check-junit-report.xml
 
+repo-sanity:
+  stage: review
+  script:
+    - >
+      if [[ -z "$CI_REGISTRY_IMAGE" ]] ;
+      then
+        .gitlab-ci/simple-junit-report.sh check-junit-report.xml \
+          repo-sanity "The container registry should be enabled in the project general settings panel at $CI_PROJECT_URL/edit" ;
+        exit 1 ;
+      fi
+  <<: *check
+
 check-commit-log:
   variables:
     GIT_DEPTH: "100"
   stage: review
   script:
-    - if [[ x"$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" != "x" ]] ;
+    - ci-fairy check-commits --junit-xml=check-junit-report.xml && exit 0;
+      if [[ -z "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]] ;
       then
-        ci-fairy check-commits --junit-xml=check-junit-report.xml ;
-      else
-        echo "Not a merge request" ;
-      fi
+        echo "'ci-fairy check-commits' found commit messages with unexpected format, see https://wiki.gnome.org/Git/CommitMessages for the recommended guidelines. Please fix those before filing a merge request, this will be handled as a pipeline failure there." ;
+        exit 255 ;
+      fi ;
+      exit 1
+  allow_failure:
+    exit_codes:
+      - 255
   <<: *check
 
 check-merge-request:
@@ -61,7 +83,6 @@ check-merge-request:
 .tracker.fedora@common:
   variables:
     BASE_TAG: '2022-02-10.0'
-    FDO_UPSTREAM_REPO: GNOME/tracker
     FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto uncrustify patch diffutils cmake python-devel'
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' 'dnf-command(download)' &&
@@ -75,9 +96,8 @@ check-merge-request:
 
 .tracker.ubuntu@common:
   variables:
-    BASE_TAG: '2021-05-15.5'
-    FDO_UPSTREAM_REPO: GNOME/tracker
-    FDO_DISTRIBUTION_PACKAGES: 'python3-tap umockdev libumockdev-dev upower asciidoc-base git'
+    BASE_TAG: '2022-03-07.0'
+    FDO_DISTRIBUTION_PACKAGES: 'python3-tap umockdev libumockdev-dev upower asciidoc-base git gcovr'
     FDO_DISTRIBUTION_EXEC: |
       export DEBIAN_FRONTEND=noninteractive &&
       sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list &&
@@ -86,9 +106,8 @@ check-merge-request:
 
 .tracker.alpine@common:
   variables:
-    BASE_TAG: '2022-02-19.0'
-    FDO_UPSTREAM_REPO: GNOME/tracker
-    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala'
+    BASE_TAG: '2022-03-07.0'
+    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala gcovr'
 
 .tracker.fedora:35@x86_64:
   extends: .tracker.fedora@common
@@ -130,6 +149,7 @@ build-fedora-container@x86_64:
   variables:
     GIT_STRATEGY: none
   needs:
+    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -142,6 +162,7 @@ build-fedora-rawhide-container@x86_64:
     GIT_STRATEGY: none
   allow_failure: true
   needs:
+    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -153,6 +174,7 @@ build-fedora-container@aarch64:
   variables:
     GIT_STRATEGY: none
   needs:
+    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -164,6 +186,7 @@ build-ubuntu-container@x86_64:
   variables:
     GIT_STRATEGY: none
   needs:
+    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -175,6 +198,7 @@ build-alpine-container@x86_64:
   variables:
     GIT_STRATEGY: none
   needs:
+    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -194,7 +218,7 @@ check-code-style:
 .build-template: &build
   stage: build
   script:
-    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
+    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_coverage=true -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
     - ninja -C build
     - |
       if [ -z "$NO_DOCS" ]; then ninja -C build docs/reference/libtracker-sparql/Tracker-doc; fi
@@ -261,8 +285,15 @@ build-alpine-latest@x86_64:
       # whole environment for every failed test, and that gives a whole
       # screenful of junk each time unless we strip these.
       unset $(env|grep -o '^CI_[^=]*')
-      env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
+      env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test -t $MESON_TEST_TIMEOUT_MULTIPLIER --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
   after_script:
+    - pushd build
+    - gcovr --root=.. --filter='\.\./src/'
+        --exclude=../utils --exclude=../examples --exclude=../docs/reference
+        --exclude='\.\./build/.*\.[ch]$' --exclude='.*/tests/.*\.[ch]$'
+        --exclude='\.\./src/.*\.vala$'
+        --json --output=../coverage-${CI_JOB_NAME}.json 2>/dev/null
+    - popd
     - |
       echo "Distribution: "
       echo
@@ -280,6 +311,7 @@ build-alpine-latest@x86_64:
     when: always
     paths:
     - build
+    - coverage-*.json
     reports:
       junit: "build/meson-logs/testlog.junit.xml"
 
@@ -298,6 +330,11 @@ test-fedora-rawhide@x86_64:
   needs:
     - build-fedora-rawhide@x86_64
   allow_failure: true
+  tags:
+    # There is a mismatch between syscalls and seccomp rules in
+    # some runners, using `crun` is advised in the mean time, see
+    # https://gitlab.gnome.org/Infrastructure/GitLab/-/issues/545
+    - crun
   <<: *test
 
 test-fedora@aarch64:
@@ -348,26 +385,26 @@ test-website:
   needs:
     - build-fedora-container@x86_64
 
-coverage-analysis:
+coverage:
   extends:
     - .fdo.distribution-image@fedora
     - .tracker.fedora:35@x86_64
   stage: analysis
   allow_failure: true
   script:
-    - meson build -Db_coverage=true -Ddocs=false -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
-    - cd build
-    - ninja
-    - env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
-    - mkdir -p coveragereport
-    - gcovr --html-details --print-summary --root=.. --exclude=../docs/reference --exclude=../tests --exclude=../utils --exclude=../examples --exclude=.*_gresources\.c --exclude=.*enum-types\.c --output coveragereport/index.html
+    - mkdir coveragereport
+    - gcovr --add-tracefile 'coverage-*.json'
+        --html-details --print-summary --output coveragereport/index.html
   coverage: '/^lines: (\d+\.\d+\%)/'
   artifacts:
     when: always
     paths:
-    - build/coveragereport
+    - coveragereport
   needs:
-    - build-fedora-container@x86_64
+    - test-fedora@x86_64
+    - test-fedora-rawhide@x86_64
+    - test-fedora@aarch64
+    - test-alpine@x86_64
 
 coverity:
   extends:
