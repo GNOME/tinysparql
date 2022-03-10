@@ -1,0 +1,3 @@
+PREFIX : <http://example/>
+
+SELECT COUNT(?u) { [ :i2 ?u ] }
