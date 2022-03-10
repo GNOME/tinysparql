@@ -1,0 +1,1 @@
+SELECT xsd:string(1.0e3) xsd:double("1.0e3") {}

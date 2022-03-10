@@ -1,0 +1,1 @@
+SELECT "Don't change the h of hallo, it's a special one" fn:upper-case ("\u1E25ello") {}
