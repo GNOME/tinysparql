@@ -21,10 +21,17 @@ test:p a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain test:A ;
 	rdfs:range xsd:string ;
+	nrl:weight 20 ;
 	nrl:fulltextIndexed true .
 
 test:o a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain test:A ;
 	rdfs:range xsd:string ;
+	nrl:fulltextIndexed true .
+
+test:q a rdf:Property ;
+	rdfs:domain test:A ;
+	rdfs:range xsd:string ;
+	nrl:weight 2 ;
 	nrl:fulltextIndexed true .

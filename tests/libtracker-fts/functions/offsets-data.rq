@@ -1,0 +1,9 @@
+INSERT {
+	test:1 a test:A ; test:p "bananas lemons lemons" .
+	test:2 a test:A ; test:p "bananas bananas lemons" .
+	test:3 a test:A ; test:o "bananas" .
+	test:4 a test:A ; test:p "bananas" ; test:o "bananas lemons" .
+
+	test:5 a test:A ; test:p "oranges!" .
+	test:6 a test:A ; test:q "apples and oranges in a multivalued property" .
+}

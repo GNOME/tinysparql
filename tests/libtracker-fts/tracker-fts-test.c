@@ -41,6 +41,9 @@ const TestInfo tests[] = {
 	{ "prefix/fts3prefix", 3 },
 	{ "limits/fts3limits", 4 },
 	{ "input/fts3input", 3 },
+	{ "functions/rank", 2 },
+	{ "functions/offsets", 3 },
+	{ "functions/snippet", 5 },
 	{ NULL }
 };
 

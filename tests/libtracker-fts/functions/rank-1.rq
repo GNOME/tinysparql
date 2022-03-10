@@ -1,0 +1,1 @@
+SELECT ?u fts:rank(?u) { ?u fts:match 'bananas' } order by desc fts:rank(?u)
