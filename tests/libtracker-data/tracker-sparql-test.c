@@ -348,9 +348,7 @@ check_result (TrackerDBCursor *cursor,
 	gchar *results;
 	GError *nerror = NULL;
 
-	if (test_info->expect_query_error) {
-		g_assert_true (error != NULL);
-	} else {
+	if (!test_info->expect_query_error) {
 		g_assert_no_error (error);
 	}
 
@@ -400,8 +398,10 @@ check_result (TrackerDBCursor *cursor,
 				g_string_append (test_results, "\n");
 			}
 		}
-	} else if (test_info->expect_query_error) {
-		g_assert_true (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
+	}
+
+	if (test_info->expect_query_error) {
+		g_assert_true (error != NULL);
 		g_string_free (test_results, TRUE);
 		g_free (results);
 		return;
