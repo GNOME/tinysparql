@@ -1,0 +1,1 @@
+SELECT (IF (true, 'istrue', 'isfalse') AS ?b) (IF (false, 'istrue', 'isfalse') AS ?b) {}

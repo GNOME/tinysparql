@@ -1,0 +1,1 @@
+SELECT (SAMETERM (xsd:integer, xsd:boolean) AS ?a) (SAMETERM (xsd:boolean, xsd:boolean) AS ?b) (SAMETERM (<http://www.w3.org/2001/XMLSchema#boolean>, xsd:boolean) AS ?b) {}

@@ -1,0 +1,7 @@
+ASK {
+  BIND (RAND() AS ?r) .
+  # Not much we can check around a random
+  # number, so check it stays within the
+  # expected limits.
+  FILTER (?r >= 0 && ?r <= 1) .
+}

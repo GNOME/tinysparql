@@ -1,0 +1,1 @@
+SELECT (ABS(4.0) AS ?a) (ABS(-4.0) AS ?b) (ABS(4.999999999) AS ?c) (ABS(4.999999999) AS ?c) { FILTER (ABS (-40) > ABS(2)) }

@@ -1,0 +1,1 @@
+SELECT ENCODE_FOR_URI('a/b#c😃') ENCODE_FOR_URI('abc123') {}

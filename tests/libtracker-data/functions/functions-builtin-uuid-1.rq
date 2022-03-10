@@ -1,0 +1,11 @@
+ASK
+{
+  BIND (UUID () AS ?a) .
+  BIND (UUID () AS ?b) .
+  # Check prefix
+  FILTER (SUBSTR(STR(?a), 0, 10) = 'urn:uuid:') .
+  FILTER (SUBSTR(STR(?a), 0, 10) = SUBSTR(STR(?b), 0, 10)) .
+  # Check UUIDv4 version char, this is always 4
+  FILTER (SUBSTR(STR(?a), 24, 1) = '4') .
+  FILTER (SUBSTR(STR(?a), 24, 1) = SUBSTR(STR(?b), 24, 1)) .
+}

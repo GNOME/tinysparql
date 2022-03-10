@@ -1,0 +1,1 @@
+select strdt("2.2", xsd:integer) strdt("2.2", xsd:double) strdt(1, xsd:boolean) strdt(0, xsd:boolean) strdt(333, xsd:string) strdt("2022-03-10T01:01:01Z", xsd:date) {}

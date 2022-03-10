@@ -1,0 +1,2 @@
+# Expected to fail, empty regular expression
+SELECT (REPLACE('abc', '', 'd') AS ?a) {}
