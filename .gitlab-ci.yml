@@ -251,6 +251,8 @@ build-fedora@aarch64:
   needs:
     - build-fedora-container@aarch64
   allow_failure: true
+  variables:
+    NO_DOCS: "true"
   <<: *build
 
 build-ubuntu-rolling@x86_64:
