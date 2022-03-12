@@ -311,6 +311,7 @@ const TestInfo tests[] = {
 	{ "property-paths/recursive-path-3", "property-paths/data", FALSE },
 	{ "property-paths/alternative-path-1", "property-paths/data", FALSE },
 	{ "property-paths/alternative-path-2", "property-paths/data", FALSE },
+	{ "property-paths/alternative-path-3", "property-paths/data", FALSE },
 	{ "property-paths/mixed-inverse-and-sequence-1", "property-paths/data", FALSE },
 	{ "property-paths/mixed-inverse-and-sequence-2", "property-paths/data", FALSE },
 	{ "property-paths/mixed-inverse-and-sequence-3", "property-paths/data", FALSE },
