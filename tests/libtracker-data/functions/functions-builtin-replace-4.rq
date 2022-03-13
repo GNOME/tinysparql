@@ -1,0 +1,1 @@
+SELECT (REPLACE('abc', 'B', 'd', 'i') AS ?a) (REPLACE('abc', 'D', 'z', 'i') AS ?b) (REPLACE('abc', 'ABC' , 'z', 'i') AS ?c) (REPLACE ('abc', 'A', 'z', 'smix') AS ?d) {}

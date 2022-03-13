@@ -251,6 +251,8 @@ build-fedora@aarch64:
   needs:
     - build-fedora-container@aarch64
   allow_failure: true
+  variables:
+    NO_DOCS: "true"
   <<: *build
 
 build-ubuntu-rolling@x86_64:
@@ -292,7 +294,7 @@ build-alpine-latest@x86_64:
         --exclude=../utils --exclude=../examples --exclude=../docs/reference
         --exclude='\.\./build/.*\.[ch]$' --exclude='.*/tests/.*\.[ch]$'
         --exclude='\.\./src/.*\.vala$'
-        --json --output=../coverage-${CI_JOB_NAME}.json 2>/dev/null
+        --json --print-summary --output=../coverage-${CI_JOB_NAME}.json 2>/dev/null
     - popd
     - |
       echo "Distribution: "

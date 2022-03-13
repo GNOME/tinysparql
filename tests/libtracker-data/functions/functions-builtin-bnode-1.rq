@@ -1,0 +1,11 @@
+ASK
+{
+  BIND (BNODE () AS ?a) .
+  BIND (BNODE () AS ?b) .
+  # Check prefix
+  FILTER (SUBSTR(STR(?a), 0, 11) = 'urn:bnode:') .
+  FILTER (SUBSTR(STR(?a), 0, 11) = SUBSTR(STR(?b), 0, 11)) .
+  # Check UUIDv4 version char, this is always 4
+  FILTER (SUBSTR(STR(?a), 25, 1) = '4') .
+  FILTER (SUBSTR(STR(?a), 25, 1) = SUBSTR(STR(?b), 25, 1)) .
+}

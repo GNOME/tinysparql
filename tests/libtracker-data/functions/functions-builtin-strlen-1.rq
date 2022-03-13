@@ -1,0 +1,1 @@
+SELECT (STRLEN ('abc') AS ?a) (STRLEN ('') AS ?b) {}

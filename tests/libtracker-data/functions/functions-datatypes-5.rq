@@ -1,0 +1,3 @@
+PREFIX : <http://example/>
+
+SELECT DATATYPE("23"^^xsd:string) DATATYPE("23"^^xsd:double) DATATYPE("23"^^xsd:integer) DATATYPE (2 + 2) { }

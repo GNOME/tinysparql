@@ -1,0 +1,2 @@
+# Expected to fail, regular expression matches empty string
+SELECT (REPLACE('abc', '.*', 'd') AS ?a) {}

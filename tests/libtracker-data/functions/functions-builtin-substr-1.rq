@@ -1,0 +1,1 @@
+SELECT SUBSTR('abc', 2) SUBSTR('abc', 2, 1) SUBSTR('abc', 2, 0) SUBSTR ('abc', 4, 1) {}

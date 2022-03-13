@@ -1,0 +1,4 @@
+"http://www.example.org/test#1"	"test:p,0"
+"http://www.example.org/test#2"	"test:p,0,test:p,8"
+"http://www.example.org/test#4"	"test:o,0,test:p,0"
+"http://www.example.org/test#3"	"test:o,0"

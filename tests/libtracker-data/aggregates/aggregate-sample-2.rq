@@ -1,0 +1,8 @@
+PREFIX : <http://example/>
+
+# All samples have the same length
+SELECT ?a STRLEN(SAMPLE(DISTINCT ?s))
+{ ?a :b ?b .
+  ?b :sb ?s . }
+GROUP BY ?a
+ORDER BY ?a

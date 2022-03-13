@@ -1,0 +1,1 @@
+SELECT (REPLACE ('abc', 'A', 'z', 'this is not a regex flag') AS ?d) {}

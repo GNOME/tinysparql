@@ -1,0 +1,9 @@
+SELECT MINUTES(?d) {
+  VALUES ?d {
+    '2022-03-10T12:23:34Z'^^xsd:dateTime
+    '2022-01-01T01:00:00-0600'^^xsd:dateTime
+    '2022-12-31T23:00:00+0600'^^xsd:dateTime
+    '0001-01-02'^^xsd:date
+    '9998-12-31'^^xsd:date
+  }
+}

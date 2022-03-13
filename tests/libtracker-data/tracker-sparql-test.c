@@ -42,10 +42,17 @@ struct _TestInfo {
 
 const TestInfo tests[] = {
 	{ "aggregates/aggregate-1", "aggregates/data-1", FALSE },
+	{ "aggregates/aggregate-count-1", "aggregates/data-1", FALSE },
+	{ "aggregates/aggregate-count-2", "aggregates/data-1", FALSE },
+	{ "aggregates/aggregate-count-3", "aggregates/data-1", FALSE },
 	{ "aggregates/aggregate-distinct-1", "aggregates/data-1", FALSE },
 	{ "aggregates/aggregate-group-1", "aggregates/data-1", FALSE },
 	{ "aggregates/aggregate-group-2", "aggregates/data-1", FALSE },
+	{ "aggregates/aggregate-group-3", "aggregates/data-1", FALSE },
 	{ "aggregates/aggregate-group-as-1", "aggregates/data-1", FALSE },
+	{ "aggregates/aggregate-group-having-1", "aggregates/data-1", FALSE },
+	{ "aggregates/aggregate-sample-1", "aggregates/data-1", FALSE },
+	{ "aggregates/aggregate-sample-2", "aggregates/data-1", FALSE },
 	{ "algebra/two-nested-opt", "algebra/two-nested-opt", FALSE },
 	{ "algebra/two-nested-opt-alt", "algebra/two-nested-opt", FALSE },
 	{ "algebra/opt-filter-3", "algebra/opt-filter-3", FALSE },
@@ -122,6 +129,8 @@ const TestInfo tests[] = {
 	{ "expr-ops/query-unminus-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-unplus-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-res-1", "expr-ops/data", FALSE },
+	{ "functions/functions-cast-1", "functions/data-1", FALSE },
+	{ "functions/functions-cast-2", "functions/data-1", FALSE },
 	{ "functions/functions-property-1", "functions/data-1", FALSE },
 	{ "functions/functions-property-2", "functions/data-5", FALSE },
 	{ "functions/functions-tracker-1", "functions/data-1", FALSE },
@@ -148,18 +157,46 @@ const TestInfo tests[] = {
 	{ "functions/functions-xpath-12", "functions/data-4", FALSE },
 	{ "functions/functions-xpath-13", "functions/data-4", FALSE },
 	{ "functions/functions-xpath-14", "functions/data-4", FALSE },
+	{ "functions/functions-xpath-15", "functions/data-1", FALSE },
 	{ "functions/functions-coalesce-1", "functions/data-1", FALSE },
 	{ "functions/functions-datatypes-1", "functions/data-1", FALSE },
 	{ "functions/functions-datatypes-2", "functions/data-2", FALSE },
 	{ "functions/functions-datatypes-3", "functions/data-3", FALSE },
 	{ "functions/functions-datatypes-4", "functions/data-4", FALSE },
+	{ "functions/functions-datatypes-5", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-bnode-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-bnode-2", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-uuid-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-hash-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-ucase-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-lcase-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-strlen-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-strbefore-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-strafter-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-substr-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-replace-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-replace-2", "functions/data-1", TRUE },
+	{ "functions/functions-builtin-replace-3", "functions/data-1", TRUE },
+	{ "functions/functions-builtin-replace-4", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-replace-5", "functions/data-1", TRUE },
+	{ "functions/functions-builtin-contains-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-abs-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-ceil-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-floor-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-round-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-uri-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-year-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-month-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-day-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-hours-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-minutes-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-seconds-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-now-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-encode-for-uri-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-strdt-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-sameterm-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-if-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-rand-1", "functions/data-1", FALSE },
 	/* Graph semantics and operations */
 	{ "graph/graph-1", "graph/data-1", FALSE },
 	{ "graph/graph-2", "graph/data-2", FALSE },
@@ -274,6 +311,7 @@ const TestInfo tests[] = {
 	{ "property-paths/recursive-path-3", "property-paths/data", FALSE },
 	{ "property-paths/alternative-path-1", "property-paths/data", FALSE },
 	{ "property-paths/alternative-path-2", "property-paths/data", FALSE },
+	{ "property-paths/alternative-path-3", "property-paths/data", FALSE },
 	{ "property-paths/mixed-inverse-and-sequence-1", "property-paths/data", FALSE },
 	{ "property-paths/mixed-inverse-and-sequence-2", "property-paths/data", FALSE },
 	{ "property-paths/mixed-inverse-and-sequence-3", "property-paths/data", FALSE },
@@ -348,9 +386,7 @@ check_result (TrackerDBCursor *cursor,
 	gchar *results;
 	GError *nerror = NULL;
 
-	if (test_info->expect_query_error) {
-		g_assert_true (error != NULL);
-	} else {
+	if (!test_info->expect_query_error) {
 		g_assert_no_error (error);
 	}
 
@@ -400,8 +436,10 @@ check_result (TrackerDBCursor *cursor,
 				g_string_append (test_results, "\n");
 			}
 		}
-	} else if (test_info->expect_query_error) {
-		g_assert_true (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
+	}
+
+	if (test_info->expect_query_error) {
+		g_assert_true (error != NULL);
 		g_string_free (test_results, TRUE);
 		g_free (results);
 		return;

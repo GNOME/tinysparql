@@ -1,0 +1,1 @@
+select foaf:name(?u) ?a { ?u a foaf:Person . ?u rdf:type|foaf:mbox|foaf:name ?a } order by foaf:name(?u) STR(?a)
