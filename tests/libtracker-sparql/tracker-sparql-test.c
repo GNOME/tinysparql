@@ -212,6 +212,86 @@ test_tracker_sparql_cursor_next_async (void)
 	g_main_loop_run (main_loop);
 }
 
+static void
+test_tracker_sparql_cursor_get_variable_name (void)
+{
+	TrackerSparqlConnection *connection;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+
+	connection = create_local_connection (&error);
+	g_assert_no_error (error);
+	g_assert_true (connection != NULL);
+
+	cursor = tracker_sparql_connection_query (connection,
+						  "SELECT ?urn ?added ?label ?unbound { "
+						  "  ?urn nrl:added ?added ; "
+						  "       rdfs:label ?label . "
+						  "} LIMIT 1",
+						  NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (cursor != NULL);
+
+	tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+
+	g_assert_cmpstr (tracker_sparql_cursor_get_variable_name (cursor, 0),
+			 ==,
+			 "urn");
+	g_assert_cmpstr (tracker_sparql_cursor_get_variable_name (cursor, 1),
+			 ==,
+			 "added");
+	g_assert_cmpstr (tracker_sparql_cursor_get_variable_name (cursor, 2),
+			 ==,
+			 "label");
+	g_assert_cmpstr (tracker_sparql_cursor_get_variable_name (cursor, 3),
+			 ==,
+			 "unbound");
+
+	tracker_sparql_cursor_close (cursor);
+	tracker_sparql_connection_close (connection);
+}
+
+static void
+test_tracker_sparql_cursor_get_value_type (void)
+{
+	TrackerSparqlConnection *connection;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+
+	connection = create_local_connection (&error);
+	g_assert_no_error (error);
+	g_assert_true (connection != NULL);
+
+	cursor = tracker_sparql_connection_query (connection,
+						  "SELECT ?urn ?added ?label ?unbound { "
+						  "  ?urn nrl:added ?added ; "
+						  "       rdfs:label ?label . "
+						  "} LIMIT 1",
+						  NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (cursor != NULL);
+
+	tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+
+	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 0),
+			 ==,
+			 TRACKER_SPARQL_VALUE_TYPE_URI);
+	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 1),
+			 ==,
+			 TRACKER_SPARQL_VALUE_TYPE_DATETIME);
+	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 2),
+			 ==,
+			 TRACKER_SPARQL_VALUE_TYPE_STRING);
+	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 3),
+			 ==,
+			 TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
+
+	tracker_sparql_cursor_close (cursor);
+	tracker_sparql_connection_close (connection);
+}
+
 /* Test that we return an error if no ontology is passed. */
 static void
 test_tracker_sparql_connection_no_ontology (void)
@@ -291,6 +371,10 @@ main (gint argc, gchar **argv)
 	                 test_tracker_sparql_connection_interleaved);
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_cursor_next_async",
 	                 test_tracker_sparql_cursor_next_async);
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_cursor_get_variable_name",
+	                 test_tracker_sparql_cursor_get_variable_name);
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_cursor_get_value_type",
+	                 test_tracker_sparql_cursor_get_value_type);
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_check_version",
 	                 test_tracker_check_version);
 
