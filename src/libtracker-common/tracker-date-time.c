@@ -54,8 +54,17 @@ tracker_date_new_from_iso8601 (const gchar  *string,
 gchar *
 tracker_date_format_iso8601 (GDateTime *datetime)
 {
-	if (g_date_time_get_utc_offset (datetime) == 0)
-		return g_date_time_format (datetime, "%C%y-%m-%dT%TZ");
-	else
+	gboolean has_offset, has_subsecond;
+
+	has_offset = g_date_time_get_utc_offset (datetime) != 0;
+	has_subsecond = g_date_time_get_microsecond (datetime) != 0;
+
+	if (has_offset && has_subsecond)
+		return g_date_time_format (datetime, "%C%y-%m-%dT%H:%M:%S.%f%:z");
+	else if (has_offset)
 		return g_date_time_format (datetime, "%C%y-%m-%dT%T%:z");
+	else if (has_subsecond)
+		return g_date_time_format (datetime, "%C%y-%m-%dT%H:%M:%S.%fZ");
+	else
+		return g_date_time_format (datetime, "%C%y-%m-%dT%TZ");
 }
