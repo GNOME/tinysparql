@@ -189,7 +189,7 @@ tracker_batch_add_sparql (TrackerBatch *batch,
 /**
  * tracker_batch_add_resource:
  * @batch: a #TrackerBatch
- * @graph: RDF graph to insert the resource to
+ * @graph: (nullable): RDF graph to insert the resource to
  * @resource: a #TrackerResource
  *
  * Adds the RDF represented by @resource to @batch.

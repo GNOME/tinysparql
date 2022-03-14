@@ -34,7 +34,7 @@ main loop is not blocked while these operations are executed.
 Once you end up with the query, remember to call [](tracker_sparql_cursor_close).
 The same applies to [](tracker_sparql_connection_close) when no longer needed.
 
-<div class="gi-lang-c">
+<div class="gi-lang-c gi-lang-python gi-lang-javascript">
 
 {{ examples/connection-example.c }}
 
@@ -60,7 +60,7 @@ main loop is not blocked while these operations are executed.
 Once you no longer need the connection, remember to call
 [](tracker_sparql_connection_close) on the [](TrackerSparqlConnection).
 
-<div class="gi-lang-c">
+<div class="gi-lang-c gi-lang-python gi-lang-javascript">
 
 {{ examples/private-store-example.c }}
 
@@ -77,7 +77,7 @@ concretely the creation of a D-Bus endpoint, that other applications
 may query e.g. through a connection created with
 [](tracker_sparql_connection_bus_new).
 
-<div class="gi-lang-c">
+<div class="gi-lang-c gi-lang-python gi-lang-javascript">
 
 {{ examples/endpoint-example.c }}
 
@@ -94,7 +94,7 @@ on changes of certain RDF classes (Those with the
 This example demonstrates the use of [](TrackerNotifier) to receive
 notifications on database updates.
 
-<div class="gi-lang-c">
+<div class="gi-lang-c gi-lang-python gi-lang-javascript">
 
 {{ examples/notifier-example.c }}
 
