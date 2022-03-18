@@ -42,6 +42,7 @@ content = [
   'sparql-functions.md',
   'migrating-2to3.md',
   'tutorial.md',
+  'security.md',
 ]
 
 required_hotdoc_extensions = [
