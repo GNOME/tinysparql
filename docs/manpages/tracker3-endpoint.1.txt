@@ -31,6 +31,9 @@ _ontology_path_) must be provided in order to generate the database. If
 _ontology_name_ is used, the ontology must exist in
 _$datadir/tracker/ontologies_
 
+Users should be careful about the --http-port option, consider using
+it only combined with the --loopback option.
+
 The database itself will be stored according to _database_path_.
 
 == OPTIONS
