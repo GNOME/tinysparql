@@ -6,7 +6,7 @@
 #include <tracker-sparql.h>
 #include <dlfcn.h>
 
-#define LIBSOUP_2_SONAME "libsoup-2.4.so.1"
+#define LIBSOUP_2_SONAME "libsoup-2.4." G_MODULE_SUFFIX
 
 static gboolean initialized = FALSE;
 
@@ -34,12 +34,12 @@ tracker_init_remote (void)
 #ifdef HAVE_RTLD_NOLOAD
 	if ((handle = dlopen (LIBSOUP_2_SONAME, RTLD_NOW | RTLD_NOLOAD))) {
 		/* Force load of soup2 module */
-		modules[0] = "libtracker-remote-soup2.so";
+		modules[0] = "libtracker-remote-soup2." G_MODULE_SUFFIX;
 	} else
 #endif
 	{
-		modules[0] = "libtracker-remote-soup3.so";
-		modules[1] = "libtracker-remote-soup2.so";
+		modules[0] = "libtracker-remote-soup3." G_MODULE_SUFFIX;
+		modules[1] = "libtracker-remote-soup2." G_MODULE_SUFFIX;
 	}
 
 	g_clear_pointer (&handle, dlclose);
