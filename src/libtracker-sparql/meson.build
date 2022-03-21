@@ -122,6 +122,7 @@ if libsoup2.found()
         ],
         install: true,
         install_dir: tracker_internal_libs_dir,
+        name_suffix: 'so',
     )
 endif
 
@@ -141,6 +142,7 @@ if libsoup3.found()
         ],
         install: true,
         install_dir: tracker_internal_libs_dir,
+        name_suffix: 'so',
     )
 endif
 
