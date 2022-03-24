@@ -90,62 +90,6 @@ install_data(
 subdir('bus')
 subdir('direct')
 
-tracker_remote_dependencies = [json_glib, libxml2]
-
-libtracker_sparql_remote_c_sources = files (
-    'tracker-endpoint-http.c',
-    'remote/tracker-remote-statement.c',
-)
-
-remote_sources = [
-    libtracker_sparql_remote_c_sources,
-    'remote/tracker-remote.vapi',
-    'remote/tracker-json-cursor.vala',
-    'remote/tracker-xml-cursor.vala',
-    'remote/tracker-remote.vala',
-]
-
-if libsoup2.found()
-    libtracker_remote_soup2 = shared_module('tracker-remote-soup2', remote_sources,
-        dependencies: tracker_remote_dependencies + [tracker_common_dep, tracker_sparql_intermediate_dep, libsoup2],
-        c_args: tracker_c_args + [
-            '-include', 'config.h',
-            '-include', 'libtracker-sparql/tracker-private.h',
-        ],
-        vala_args: [
-            '--debug',
-            '--pkg', 'posix',
-            # FIXME: Meson has code to add --target-glib automatically, but it
-            # doesn't seem to work here.
-            '--target-glib', glib_required,
-            '--define=SOUP2',
-        ],
-        install: true,
-        install_dir: tracker_internal_libs_dir,
-        name_suffix: 'so',
-    )
-endif
-
-if libsoup3.found()
-    libtracker_remote_soup3 = shared_module('tracker-remote-soup3', remote_sources,
-        dependencies: tracker_remote_dependencies + [tracker_common_dep, tracker_sparql_intermediate_dep, libsoup3],
-        c_args: tracker_c_args + [
-            '-include', 'config.h',
-            '-include', 'libtracker-sparql/tracker-private.h',
-        ],
-        vala_args: [
-            '--debug',
-            '--pkg', 'posix',
-            # FIXME: Meson has code to add --target-glib automatically, but it
-            # doesn't seem to work here.
-            '--target-glib', glib_required,
-        ],
-        install: true,
-        install_dir: tracker_internal_libs_dir,
-        name_suffix: 'so',
-    )
-endif
-
 libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
     '../libtracker-common/libtracker-common.vapi',
     '../libtracker-data/libtracker-data.vapi',
@@ -180,6 +124,72 @@ tracker_sparql_dep = declare_dependency(
     dependencies: [glib, gio],
 )
 
+libtracker_sparql_remote_c_sources = files(
+    'tracker-endpoint-http.c',
+    'remote/tracker-remote-statement.c',
+    'tracker-serializer.c',
+    'tracker-serializer-json.c',
+    'tracker-serializer-trig.c',
+    'tracker-serializer-turtle.c',
+    'tracker-serializer-xml.c',
+)
+
+libtracker_sparql_remote_vala_sources = files(
+    'remote/tracker-remote.vapi',
+    'remote/tracker-json-cursor.vala',
+    'remote/tracker-xml-cursor.vala',
+    'remote/tracker-remote.vala',
+)
+
+libtracker_sparql_modules = []
+
+if libsoup2.found()
+    libtracker_remote_soup2 = shared_module('tracker-remote-soup2',
+        libtracker_sparql_remote_c_sources, libtracker_sparql_remote_vala_sources,
+        dependencies: [json_glib, libxml2, tracker_common_dep, tracker_sparql_dep,
+                       tracker_sparql_vapi_dep, tracker_data_dep, libsoup2],
+        c_args: tracker_c_args + [
+            '-include', 'config.h',
+            '-include', 'libtracker-sparql/tracker-private.h',
+        ],
+        vala_args: [
+            '--debug',
+            '--pkg', 'posix',
+            # FIXME: Meson has code to add --target-glib automatically, but it
+            # doesn't seem to work here.
+            '--target-glib', glib_required,
+            '--define=SOUP2',
+        ],
+        install: true,
+        install_dir: tracker_internal_libs_dir,
+        name_suffix: 'so',
+    )
+    libtracker_sparql_modules += libtracker_remote_soup2
+endif
+
+if libsoup3.found()
+    libtracker_remote_soup3 = shared_module('tracker-remote-soup3',
+        libtracker_sparql_remote_c_sources, libtracker_sparql_remote_vala_sources,
+        dependencies: [json_glib, libxml2, tracker_common_dep, tracker_sparql_dep,
+                       tracker_sparql_vapi_dep, tracker_data_dep, libsoup3],
+        c_args: tracker_c_args + [
+            '-include', 'config.h',
+            '-include', 'libtracker-sparql/tracker-private.h',
+        ],
+        vala_args: [
+            '--debug',
+            '--pkg', 'posix',
+            # FIXME: Meson has code to add --target-glib automatically, but it
+            # doesn't seem to work here.
+            '--target-glib', glib_required,
+        ],
+        install: true,
+        install_dir: tracker_internal_libs_dir,
+        name_suffix: 'so',
+    )
+    libtracker_sparql_modules += libtracker_remote_soup3
+endif
+
 pkg.generate(libtracker_sparql,
     description: 'Tracker : A SPARQL triple store library',
     requires: [glib, gio, gobject],
@@ -196,9 +206,19 @@ pkg.generate(libtracker_sparql,
     ],
 )
 
+# This custom target has the only purpose to inject a dependency from
+# the libtracker_sparql_modules into the tarcker_sparql_gir target to
+# force meson to build the loadable shared modules before attempting
+# to run g-ir-scanner.
+libtracker_sparql_modules_stamp = custom_target('libtracker-sparql-modules-stamp',
+    output: 'tracker-sparql-modules-stamp.c',
+    command: ['touch', '@OUTPUT@'],
+    depends: libtracker_sparql_modules,
+)
+
 if get_option('introspection').enabled()
     tracker_sparql_gir = gnome.generate_gir(libtracker_sparql,
-        sources: libtracker_sparql_c_sources + libtracker_sparql_c_public_headers,
+        sources: [libtracker_sparql_c_sources, libtracker_sparql_c_public_headers, libtracker_sparql_modules_stamp],
         nsversion: tracker_api_version,
         namespace: 'Tracker',
         identifier_prefix: 'Tracker',
@@ -213,4 +233,5 @@ if get_option('introspection').enabled()
         ],
         export_packages: 'tracker-sparql-3.0')
 endif
+
 tracker_sparql_uninstalled_dir = meson.current_build_dir()
