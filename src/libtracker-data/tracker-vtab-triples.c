@@ -44,6 +44,7 @@ enum {
 	COL_PREDICATE,
 	COL_OBJECT,
 	COL_OBJECT_TYPE,
+	COL_OBJECT_RAW,
 	N_COLS
 };
 
@@ -158,7 +159,8 @@ triples_connect (sqlite3            *db,
 	                           "    subject INTEGER, "
 	                           "    predicate INTEGER, "
 	                           "    object INTEGER, "
-	                           "    object_type INTEGER"
+	                           "    object_type INTEGER, "
+	                           "    object_raw INTEGER"
 	                           ")");
 
 	if (rc == SQLITE_OK) {
@@ -200,7 +202,8 @@ triples_best_index (sqlite3_vtab       *vtab,
 		 * translation to strings can be done.
 		 */
 		if (info->aConstraint[i].iColumn == COL_OBJECT ||
-		    info->aConstraint[i].iColumn == COL_OBJECT_TYPE)
+		    info->aConstraint[i].iColumn == COL_OBJECT_TYPE ||
+		    info->aConstraint[i].iColumn == COL_OBJECT_RAW)
 			continue;
 
 		if (info->aConstraint[i].iColumn == COL_ROWID) {
@@ -478,13 +481,15 @@ init_stmt (TrackerTriplesCursor *cursor)
 		                        "SELECT %" G_GINT64_FORMAT ", t.ID, "
 		                        "       (SELECT ID From Resource WHERE Uri = \"%s\"), "
 		                        "       %s, "
-		                        "       %d "
+		                        "       %d, "
+		                        "       t.\"%s\" "
 		                        "FROM \"%s\".\"%s\" AS t "
 		                        "WHERE 1 ",
 		                        graph_id,
 		                        tracker_property_get_uri (property),
 		                        string_expr,
 		                        tracker_property_get_data_type (property),
+		                        tracker_property_get_name (property),
 		                        graph,
 		                        tracker_property_get_table_name (property));
 
