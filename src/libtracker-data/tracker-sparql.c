@@ -1093,12 +1093,22 @@ _prepend_path_element (TrackerSparql      *sparql,
 				       path_elem->data.composite.child1->name);
 		break;
 	case TRACKER_PATH_OPERATOR_NEGATED:
-		_append_string_printf (sparql,
-		                       "\"%s\" (ID, value, graph, ID_type, value_type) AS "
-		                       "(SELECT subject AS ID, object AS value, graph, %d, object_type "
-		                       "FROM \"tracker_triples\" ",
-		                       path_elem->name,
-		                       TRACKER_PROPERTY_TYPE_RESOURCE);
+	case TRACKER_PATH_OPERATOR_NEGATED_INVERSE:
+		if (path_elem->op == TRACKER_PATH_OPERATOR_NEGATED) {
+			_append_string_printf (sparql,
+			                       "\"%s\" (ID, value, graph, ID_type, value_type) AS "
+			                       "(SELECT subject AS ID, object_raw AS value, graph, %d, object_type "
+			                       "FROM \"tracker_triples\" ",
+			                       path_elem->name,
+			                       TRACKER_PROPERTY_TYPE_RESOURCE);
+		} else {
+			_append_string_printf (sparql,
+			                       "\"%s\" (ID, value, graph, ID_type, value_type) AS "
+			                       "(SELECT object_raw AS ID, subject AS value, graph, object_type, %d "
+			                       "FROM \"tracker_triples\" ",
+			                       path_elem->name,
+			                       TRACKER_PROPERTY_TYPE_RESOURCE);
+		}
 
 		if (!tracker_token_is_empty (&sparql->current_state->graph) &&
 		    tracker_sparql_find_graph (sparql, tracker_token_get_idstring (&sparql->current_state->graph))) {
@@ -6928,6 +6938,45 @@ translate_PathPrimary (TrackerSparql  *sparql,
 	return TRUE;
 }
 
+static TrackerPathElement *
+intersect_path_elements (TrackerSparql *sparql,
+                         GPtrArray     *path_elems)
+{
+	TrackerPathElement *elem;
+
+	if (path_elems->len == 0)
+		return NULL;
+
+	if (path_elems->len == 1)
+		return g_ptr_array_index (path_elems, 0);
+
+	if (path_elems->len > 1) {
+		guint i;
+
+		elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_INTERSECTION,
+		                                          tracker_token_get_idstring (&sparql->current_state->graph),
+		                                          g_ptr_array_index (path_elems, 0),
+		                                          g_ptr_array_index (path_elems, 1));
+		tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+		                                         elem);
+		_prepend_path_element (sparql, elem);
+
+		for (i = 2; i < path_elems->len; i++) {
+			TrackerPathElement *child;
+
+			child = g_ptr_array_index (path_elems, i);
+			elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_INTERSECTION,
+			                                          tracker_token_get_idstring (&sparql->current_state->graph),
+			                                          child, elem);
+			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+			                                         elem);
+			_prepend_path_element (sparql, elem);
+		}
+	}
+
+	return elem;
+}
+
 static gboolean
 translate_PathNegatedPropertySet (TrackerSparql  *sparql,
                                   GError        **error)
@@ -6939,45 +6988,47 @@ translate_PathNegatedPropertySet (TrackerSparql  *sparql,
 	if (_check_in_rule (sparql, NAMED_RULE_PathOneInPropertySet))
 		_call_rule (sparql, NAMED_RULE_PathOneInPropertySet, error);
 	else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_PARENS)) {
-		GPtrArray *path_elems;
+		TrackerPathElement *negated, *negated_inverse;
+		GPtrArray *negated_elems, *negated_inverse_elems;
 
-		path_elems = g_ptr_array_new ();
+		negated_elems = g_ptr_array_new ();
+		negated_inverse_elems = g_ptr_array_new ();
 
-		_call_rule (sparql, NAMED_RULE_PathEltOrInverse, error);
-		g_ptr_array_add (path_elems, sparql->current_state->path);
+		_call_rule (sparql, NAMED_RULE_PathOneInPropertySet, error);
+		g_ptr_array_add (sparql->current_state->path->op == TRACKER_PATH_OPERATOR_NEGATED ?
+		                 negated_elems : negated_inverse_elems,
+		                 sparql->current_state->path);
 
-		while (_check_in_rule (sparql, NAMED_RULE_PathOneInPropertySet)) {
+		while (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_PATH_ALTERNATIVE)) {
 			_call_rule (sparql, NAMED_RULE_PathOneInPropertySet, error);
-			g_ptr_array_add (path_elems, sparql->current_state->path);
+			g_ptr_array_add (sparql->current_state->path->op == TRACKER_PATH_OPERATOR_NEGATED ?
+			                 negated_elems : negated_inverse_elems,
+			                 sparql->current_state->path);
 		}
 
-		if (path_elems->len > 1) {
-			guint i;
+		negated = intersect_path_elements (sparql, negated_elems);
+		negated_inverse = intersect_path_elements (sparql, negated_inverse_elems);
 
-			path_elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_INTERSECTION,
+		if (negated && negated_inverse) {
+			path_elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_ALTERNATIVE,
 			                                               tracker_token_get_idstring (&sparql->current_state->graph),
-			                                               g_ptr_array_index (path_elems, 0),
-			                                               g_ptr_array_index (path_elems, 1));
+			                                               negated, negated_inverse);
 			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
 			                                         path_elem);
 			_prepend_path_element (sparql, path_elem);
-
-			for (i = 2; i < path_elems->len; i++) {
-				TrackerPathElement *child;
-
-				child = g_ptr_array_index (path_elems, i);
-				path_elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_INTERSECTION,
-				                                               tracker_token_get_idstring (&sparql->current_state->graph),
-				                                               child, path_elem);
-				tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
-				                                         path_elem);
-				_prepend_path_element (sparql, path_elem);
-			}
-
-			sparql->current_state->path = path_elem;
+		} else if (negated) {
+			path_elem = negated;
+		} else if (negated_inverse) {
+			path_elem = negated_inverse;
+		} else {
+			g_assert_not_reached ();
 		}
 
+		sparql->current_state->path = path_elem;
+
 		_expect (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_PARENS);
+		g_ptr_array_unref (negated_elems);
+		g_ptr_array_unref (negated_inverse_elems);
 	} else {
 		g_assert_not_reached ();
 	}
@@ -7024,7 +7075,9 @@ translate_PathOneInPropertySet (TrackerSparql  *sparql,
 			                                                         prop);
 
 		if (!path_elem) {
-			path_elem = tracker_path_element_property_new (TRACKER_PATH_OPERATOR_NEGATED,
+			path_elem = tracker_path_element_property_new (inverse ?
+			                                               TRACKER_PATH_OPERATOR_NEGATED_INVERSE :
+			                                               TRACKER_PATH_OPERATOR_NEGATED,
 			                                               tracker_token_get_idstring (&sparql->current_state->graph),
 			                                               prop);
 			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
@@ -7036,17 +7089,6 @@ translate_PathOneInPropertySet (TrackerSparql  *sparql,
 		g_free (str);
 	} else {
 		g_assert_not_reached ();
-	}
-
-	if (inverse) {
-		path_elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_INVERSE,
-		                                               tracker_token_get_idstring (&sparql->current_state->graph),
-		                                               sparql->current_state->path,
-		                                               NULL);
-		tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
-		                                         path_elem);
-		_prepend_path_element (sparql, path_elem);
-		sparql->current_state->path = path_elem;
 	}
 
 	return TRUE;
