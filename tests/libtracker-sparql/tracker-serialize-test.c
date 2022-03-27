@@ -84,7 +84,7 @@ check_result (GInputStream *istream,
 
 	/* compare results with reference output */
 	quoted_results = g_shell_quote (output);
-	command_line = g_strdup_printf ("echo -n %s | grep -v -e nrl:modified -e nrl:added | diff -u %s -", quoted_results, results_filename);
+	command_line = g_strdup_printf ("printf %%s %s | grep -v -e nrl:modified -e nrl:added | diff -u %s -", quoted_results, results_filename);
 	quoted_command_line = g_shell_quote (command_line);
 	shell = g_strdup_printf ("sh -c %s", quoted_command_line);
 	g_spawn_command_line_sync (shell, &diff, NULL, NULL, &error);
