@@ -556,7 +556,7 @@ static const TrackerGrammarRule rule_iri[] = { OR(helper_iri_or), NIL };
  * TRACKER EXTENSION:
  * The terminal PARAMETERIZED_VAR is additionally accepted
  */
-static const TrackerGrammarRule helper_String_or[] = { T(STRING_LITERAL1), T(STRING_LITERAL2), T(STRING_LITERAL_LONG1), T(STRING_LITERAL_LONG2), T(PARAMETERIZED_VAR), NIL };
+static const TrackerGrammarRule helper_String_or[] = { T(STRING_LITERAL_LONG1), T(STRING_LITERAL_LONG2), T(STRING_LITERAL1), T(STRING_LITERAL2), T(PARAMETERIZED_VAR), NIL };
 static const TrackerGrammarRule rule_String[] = { OR(helper_String_or), NIL };
 
 /* BooleanLiteral ::= 'true' | 'false'

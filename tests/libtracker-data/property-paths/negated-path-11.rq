@@ -1,0 +1,2 @@
+# Only foaf:name is left
+select ?a { [ foaf:name "Bob" ] !(nrl:modified|nrl:added|foaf:knows|foaf:member|foaf:mbox|a) ?a } order by ?a

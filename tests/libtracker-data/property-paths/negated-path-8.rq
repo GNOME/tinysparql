@@ -1,0 +1,1 @@
+select foaf:name(?a) { ?a a foaf:Agent; !(^foaf:mbox|^foaf:member) [ foaf:name "Bob"] } order by foaf:name(?a)

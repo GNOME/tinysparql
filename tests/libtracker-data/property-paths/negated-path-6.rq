@@ -1,0 +1,2 @@
+# The existing inverse relation is '_:alice foaf:knows _:bob'
+select foaf:name(?a) { [ foaf:name "Bob" ] !(^foaf:member) ?a . ?a a foaf:Agent } order by foaf:name(?a)

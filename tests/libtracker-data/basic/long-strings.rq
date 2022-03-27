@@ -1,0 +1,1 @@
+SELECT ("""hello""" AS ?a) ("""This is a "quoted" string""" AS ?b) ('''hello''' AS ?b) ('''This is a 'quoted' string''' AS ?d) {}

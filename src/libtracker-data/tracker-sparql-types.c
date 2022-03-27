@@ -560,7 +560,8 @@ tracker_path_element_property_new (TrackerPathOperator  op,
 
 	g_return_val_if_fail (TRACKER_IS_PROPERTY (prop), NULL);
 	g_return_val_if_fail (op == TRACKER_PATH_OPERATOR_NONE ||
-	                      op == TRACKER_PATH_OPERATOR_NEGATED, NULL);
+	                      op == TRACKER_PATH_OPERATOR_NEGATED ||
+	                      op == TRACKER_PATH_OPERATOR_NEGATED_INVERSE, NULL);
 
 	elem = g_new0 (TrackerPathElement, 1);
 	elem->op = op;
@@ -630,6 +631,9 @@ tracker_path_element_set_unique_name (TrackerPathElement *elem,
 		break;
 	case TRACKER_PATH_OPERATOR_INTERSECTION:
 		name = "intersect";
+		break;
+	case TRACKER_PATH_OPERATOR_NEGATED_INVERSE:
+		name = "neg_inv";
 		break;
 	default:
 		g_assert_not_reached ();
