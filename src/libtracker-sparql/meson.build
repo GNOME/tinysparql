@@ -206,19 +206,29 @@ pkg.generate(libtracker_sparql,
     ],
 )
 
-# This custom target has the only purpose to inject a dependency from
-# the libtracker_sparql_modules into the tarcker_sparql_gir target to
-# force meson to build the loadable shared modules before attempting
-# to run g-ir-scanner.
-libtracker_sparql_modules_stamp = custom_target('libtracker-sparql-modules-stamp',
-    output: 'tracker-sparql-modules-stamp.c',
-    command: ['touch', '@OUTPUT@'],
-    depends: libtracker_sparql_modules,
-)
-
 if get_option('introspection').enabled()
+    # These are various hacks to ensure the GIR file depends on the
+    # remote connection modules as they are needed at g-ir-scanner
+    # runtime. Different meson versions need different hacks.
+    introspection_extra_sources = []
+    introspection_extra_deps = []
+
+    if meson.version().version_compare('>=0.59')
+        introspection_extra_sources += custom_target('libtracker-sparql-modules-stamp',
+            output: 'tracker-sparql-modules-stamp.c',
+            command: ['touch', '@OUTPUT@'],
+            depends: libtracker_sparql_modules)
+    else
+        introspection_extra_deps += libtracker_sparql_modules
+    endif
+
     tracker_sparql_gir = gnome.generate_gir(libtracker_sparql,
-        sources: [libtracker_sparql_c_sources, libtracker_sparql_c_public_headers, libtracker_sparql_modules_stamp],
+        sources: [
+            libtracker_sparql_c_sources,
+            libtracker_sparql_c_public_headers,
+            introspection_extra_sources,
+        ],
+        dependencies: introspection_extra_deps,
         nsversion: tracker_api_version,
         namespace: 'Tracker',
         identifier_prefix: 'Tracker',
