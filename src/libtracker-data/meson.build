@@ -8,8 +8,6 @@ tracker_data_dependencies = [
     tracker_common_dep, gvdb_dep, sqlite,
 ]
 
-tracker_data_dependencies += tracker_fts_dep
-
 libtracker_data = static_library('tracker-data',
     'tracker-class.c',
     'tracker-collation.c',
@@ -20,6 +18,8 @@ libtracker_data = static_library('tracker-data',
     'tracker-db-interface.c',
     'tracker-db-interface-sqlite.c',
     'tracker-db-manager.c',
+    'tracker-fts.c',
+    'tracker-fts-tokenizer.c',
     'tracker-namespace.c',
     'tracker-ontology.c',
     'tracker-ontologies.c',

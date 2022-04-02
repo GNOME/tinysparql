@@ -34,7 +34,7 @@
 #include <libtracker-sparql/tracker-cursor.h>
 #include <libtracker-sparql/tracker-private.h>
 
-#include <libtracker-fts/tracker-fts.h>
+#include "tracker-fts.h"
 
 
 #ifdef HAVE_LIBUNISTRING

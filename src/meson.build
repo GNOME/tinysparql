@@ -6,7 +6,6 @@ subdir('ontologies')
 
 # Internal database library
 subdir('gvdb')
-subdir('libtracker-fts')
 subdir('libtracker-data')
 
 # Intermediate library of RDF & SPARQL helper functions.

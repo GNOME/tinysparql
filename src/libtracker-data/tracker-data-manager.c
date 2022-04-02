@@ -24,8 +24,6 @@
 
 #include <glib/gstdio.h>
 
-#include <libtracker-fts/tracker-fts.h>
-
 #include <libtracker-common/tracker-debug.h>
 #include <libtracker-common/tracker-locale.h>
 
@@ -34,6 +32,7 @@
 #include "tracker-data-update.h"
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-manager.h"
+#include "tracker-fts.h"
 #include "tracker-namespace.h"
 #include "tracker-ontologies.h"
 #include "tracker-ontology.h"
