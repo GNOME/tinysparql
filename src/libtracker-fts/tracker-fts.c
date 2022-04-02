@@ -26,15 +26,6 @@
 #include "tracker-fts-tokenizer.h"
 #include "tracker-fts.h"
 
-#ifndef HAVE_BUILTIN_FTS
-
-#include "sqlite3.h"
-#include "fts5.h"
-
-int sqlite3_fts5_init ();
-
-#endif
-
 static gchar **
 get_fts_properties (GHashTable  *tables)
 {
@@ -73,17 +64,6 @@ tracker_fts_init_db (sqlite3                *db,
 {
 	gchar **property_names;
 	gboolean retval;
-#ifndef HAVE_BUILTIN_FTS
-	gchar *err;
-
-	if (sqlite3_load_extension (db, NULL, "sqlite3_fts5_init", &err) != SQLITE_OK) {
-		g_set_error (error,
-		             TRACKER_DB_INTERFACE_ERROR,
-		             TRACKER_DB_OPEN_ERROR,
-		             "Could not load fts5 module: %s", err);
-		return FALSE;
-	}
-#endif
 
 	property_names = get_fts_properties (tables);
 	retval = tracker_tokenizer_initialize (db, interface, flags, (const gchar **) property_names, error);
