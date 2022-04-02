@@ -39,7 +39,8 @@ glib_required = '2.52.0'
 # 3.7.15 for sqlite3_errstr() support
 # 3.8.3 for SQLITE_DETERMINISTIC
 # 3.15.0 for https://sqlite.org/rowvalue.html
-sqlite_required = '3.15.0'
+# 3.20.0 for builtin FTS5
+sqlite_required = '3.20.0'
 
 gio = dependency('gio-2.0', version: '>' + glib_required)
 gio_unix = dependency('gio-unix-2.0', version: '>' + glib_required)
