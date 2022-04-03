@@ -200,7 +200,7 @@ test_query (TestInfo      *test_info,
 
 	data_location = g_file_new_for_path (test_info->data_location);
 
-	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
+	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "core", NULL);
 	data_prefix = g_build_filename (prefix, test_info->data, NULL);
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	g_free (prefix);
@@ -296,12 +296,12 @@ main (int argc, char **argv)
 	g_test_init (&argc, &argv, NULL);
 
 	/* add test cases */
-	g_test_add ("/libtracker-data/ontology-init", TestInfo, &all_other_tests[0], setup, test_ontology_init, teardown);
+	g_test_add ("/core/ontology-init", TestInfo, &all_other_tests[0], setup, test_ontology_init, teardown);
 
 	for (i = 0; nie_tests[i].test_name; i++) {
 		gchar *testpath;
 
-		testpath = g_strconcat ("/libtracker-data/nie/", nie_tests[i].test_name, NULL);
+		testpath = g_strconcat ("/core/nie/", nie_tests[i].test_name, NULL);
 		g_test_add (testpath, TestInfo, &nie_tests[i], setup, test_query, teardown);
 		g_free (testpath);
 	}

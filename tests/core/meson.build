@@ -28,7 +28,7 @@ foreach base_name: libtracker_data_tests
     tests += {
       'name': base_name,
       'exe': binary,
-      'suite': ['data'],
+      'suite': ['core'],
     }
 endforeach
 
@@ -43,7 +43,7 @@ foreach base_name: libtracker_data_slow_tests
       tests += {
         'name': base_name,
         'exe': binary,
-        'suite': ['data', 'slow'],
+        'suite': ['core', 'slow'],
         'timeout': 100
     }
 endforeach

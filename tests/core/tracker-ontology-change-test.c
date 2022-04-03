@@ -174,8 +174,8 @@ test_ontology_change (void)
 	GFile *data_location, *test_schemas;
 	TrackerSparqlConnection *conn;
 
-	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
-	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "libtracker-data", NULL);
+	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "core", NULL);
+	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "core", NULL);
 	ontologies = g_build_filename (prefix, "ontologies", NULL);
 
 	ontology_file = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", "99-example.ontology", NULL);
@@ -300,7 +300,7 @@ main (int argc, char **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
-	g_test_add_func ("/libtracker-data/ontology-change", test_ontology_change);
+	g_test_add_func ("/core/ontology-change", test_ontology_change);
 	result = g_test_run ();
 
 	return result;

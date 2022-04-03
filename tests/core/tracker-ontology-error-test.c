@@ -186,8 +186,8 @@ test_ontology_error (void)
 	GFile *test_ontology_file;
 	GFile *test_schemas;
 
-	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
-	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "libtracker-data", NULL);
+	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "core", NULL);
+	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "core", NULL);
 
 	// Create a temporary directory inside the build directory to store in it the ontology that will be tested
 	test_ontology_dir = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "ontology-error", "ontologies", NULL);
@@ -259,7 +259,7 @@ main (int argc, char **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
-	g_test_add_func ("/libtracker-data/ontology-error", test_ontology_error);
+	g_test_add_func ("/core/ontology-error", test_ontology_error);
 	result = g_test_run ();
 
 	return result;

@@ -174,7 +174,7 @@ main (int argc, char *argv[])
 	g_object_unref (cache);
 	g_object_unref (ontology);
 
-	g_print ("ok 1 /libtracker-data/insert-or-replace\n");
+	g_print ("ok 1 /core/insert-or-replace\n");
 
 	return 0;
 }

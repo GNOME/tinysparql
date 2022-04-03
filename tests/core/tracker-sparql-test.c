@@ -499,7 +499,7 @@ test_sparql_query (TestInfo      *test_info,
 	TrackerSparqlConnection *conn;
 
 	/* initialization */
-	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
+	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "core", NULL);
 	data_prefix = g_build_filename (prefix, test_info->data, NULL);
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	g_free (prefix);
@@ -512,7 +512,7 @@ test_sparql_query (TestInfo      *test_info,
 	                                      NULL, test_schemas, NULL, &error);
 	g_assert_no_error (error);
 
-	/* data_path = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL); */
+	/* data_path = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "core", NULL); */
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
@@ -637,7 +637,7 @@ main (int argc, char **argv)
 		}
 #endif
 
-		testpath = g_strconcat ("/libtracker-data/sparql/", tests[i].test_name, NULL);
+		testpath = g_strconcat ("/core/sparql/", tests[i].test_name, NULL);
 		g_test_add (testpath, TestInfo, &tests[i], setup, test_sparql_query, teardown);
 		g_free (testpath);
 	}

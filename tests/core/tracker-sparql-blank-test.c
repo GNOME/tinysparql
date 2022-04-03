@@ -165,7 +165,7 @@ main (int argc, char **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
-	g_test_add ("/libtracker-data/sparql-blank", TestInfo, NULL, setup, test_blank, teardown);
+	g_test_add ("/core/sparql-blank", TestInfo, NULL, setup, test_blank, teardown);
 
 	/* run tests */
 	result = g_test_run ();

@@ -189,7 +189,7 @@ test_sparql_query (TestInfo      *test_info,
 	GThread *thread;
 
 	/* initialization */
-	prefix = g_build_filename (TOP_SRCDIR, "tests", "libtracker-data", NULL);
+	prefix = g_build_filename (TOP_SRCDIR, "tests", "core", NULL);
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	g_free (prefix);
 
@@ -290,7 +290,7 @@ main (int argc, char **argv)
 	for (i = 0; i < G_N_ELEMENTS (tests); i++) {
 		gchar *testpath;
 
-		testpath = g_strconcat ("/libtracker-data/dbus/", tests[i].test_name, NULL);
+		testpath = g_strconcat ("/core/dbus/", tests[i].test_name, NULL);
 		g_test_add (testpath, TestInfo, &tests[i], setup, test_sparql_query, teardown);
 		g_free (testpath);
 	}
@@ -299,7 +299,7 @@ main (int argc, char **argv)
 	for (i = 0; i < G_N_ELEMENTS (tests); i++) {
 		gchar *testpath;
 
-		testpath = g_strconcat ("/libtracker-data/local/", tests[i].test_name, NULL);
+		testpath = g_strconcat ("/core/local/", tests[i].test_name, NULL);
 		g_test_add (testpath, TestInfo, &tests[i], setup_local, test_sparql_query, teardown);
 		g_free (testpath);
 	}
