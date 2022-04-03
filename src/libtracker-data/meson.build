@@ -11,7 +11,6 @@ tracker_data_dependencies = [
 libtracker_data = static_library('tracker-data',
     'tracker-class.c',
     'tracker-collation.c',
-    'tracker-crc32.c',
     'tracker-data-manager.c',
     'tracker-data-query.c',
     'tracker-data-update.c',
