@@ -25,9 +25,7 @@
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-common.h>
-
-#include <libtracker-data/tracker-data.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 typedef struct _TestInfo TestInfo;
 
@@ -148,17 +146,16 @@ assert_same_output (gchar *output1, gchar* output2)
 static void
 ontology_error_helper (GFile *ontology_location, char *error_path)
 {
-	TrackerDataManager *manager;
+	TrackerSparqlConnection *conn;
 	gchar *error_msg = NULL;
 	GError* error = NULL;
 	GError* ontology_error = NULL;
 	GMatchInfo *matchInfo;
 	GRegex *regex;
 
-	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_IN_MEMORY,
-	                                    NULL, ontology_location,
-	                                    100, 100);
-	g_initable_init (G_INITABLE (manager), NULL, &ontology_error);
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      NULL, ontology_location,
+	                                      NULL, &ontology_error);
 	g_assert_true (ontology_error != NULL);
 
 	g_file_get_contents (error_path, &error_msg, NULL, &error);
@@ -175,7 +172,7 @@ ontology_error_helper (GFile *ontology_location, char *error_path)
 	g_match_info_unref (matchInfo);
 	g_error_free (ontology_error);
 	g_free (error_msg);
-	g_object_unref (manager);
+	g_clear_object (&conn);
 }
 
 static void

@@ -25,9 +25,7 @@
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-common.h>
-
-#include <libtracker-data/tracker-data.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 static gchar *tests_data_dir = NULL;
 
@@ -389,10 +387,10 @@ const TestInfo tests[] = {
 };
 
 static void
-check_result (TrackerDBCursor *cursor,
-              const TestInfo *test_info,
-              const gchar *results_filename,
-              GError *error)
+check_result (TrackerSparqlCursor *cursor,
+              const TestInfo      *test_info,
+              const gchar         *results_filename,
+              GError              *error)
 {
 	GString *test_results;
 	gchar *results;
@@ -411,19 +409,19 @@ check_result (TrackerDBCursor *cursor,
 	test_results = g_string_new ("");
 
 	if (cursor) {
-		guint col;
+		gint col;
 
-		while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
+		while (tracker_sparql_cursor_next (cursor, NULL, &error)) {
 			GString *row_str = g_string_new (NULL);
 
-			for (col = 0; col < tracker_db_cursor_get_n_columns (cursor); col++) {
+			for (col = 0; col < tracker_sparql_cursor_get_n_columns (cursor); col++) {
 				const gchar *str;
 
 				if (col > 0) {
 					g_string_append (row_str, "\t");
 				}
 
-				str = tracker_db_cursor_get_string (cursor, col, NULL);
+				str = tracker_sparql_cursor_get_string (cursor, col, NULL);
 
 				/* Hack to avoid misc properties that might tamper with
 				 * test reproduceability in DESCRIBE and other unrestricted
@@ -491,15 +489,14 @@ static void
 test_sparql_query (TestInfo      *test_info,
                    gconstpointer  context)
 {
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	gchar *data_filename;
 	gchar *query, *query_filename;
 	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix;
 	GFile *file, *test_schemas;
-	TrackerDataManager *manager;
-	TrackerData *data_update;
+	TrackerSparqlConnection *conn;
 
 	/* initialization */
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL);
@@ -511,13 +508,9 @@ test_sparql_query (TestInfo      *test_info,
 	test_schemas = g_file_get_parent (file);
 	g_object_unref (file);
 
-	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_IN_MEMORY,
-	                                    NULL, test_schemas, /* loc, domain and ontology_name */
-	                                    100, 100);
-	g_initable_init (G_INITABLE (manager), NULL, &error);
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      NULL, test_schemas, NULL, &error);
 	g_assert_no_error (error);
-
-	data_update = tracker_data_manager_get_data (manager);
 
 	/* data_path = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-data", NULL); */
 
@@ -525,13 +518,14 @@ test_sparql_query (TestInfo      *test_info,
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
 	if (g_file_test (data_filename, G_FILE_TEST_IS_REGULAR)) {
 		GFile *file = g_file_new_for_path (data_filename);
-		tracker_data_begin_transaction (data_update, &error);
-		g_assert_no_error (error);
-		tracker_data_load_turtle_file (data_update, file, NULL, &error);
-		g_assert_no_error (error);
-		tracker_data_commit_transaction (data_update, &error);
+		gchar *uri = g_file_get_uri (file);
+		gchar *query = g_strdup_printf ("LOAD <%s>", uri);
+
+		tracker_sparql_connection_update (conn, query, NULL, &error);
 		g_assert_no_error (error);
 		g_object_unref (file);
+		g_free (uri);
+		g_free (query);
 	} else {
 		/* no .ttl available, assume .rq with SPARQL Update */
 		gchar *data;
@@ -542,7 +536,7 @@ test_sparql_query (TestInfo      *test_info,
 		g_file_get_contents (data_filename, &data, NULL, &error);
 		g_assert_no_error (error);
 
-		tracker_data_update_sparql (data_update, data, &error);
+		tracker_sparql_connection_update (conn, data, NULL, &error);
 		if (test_info->expect_update_error) {
 			g_assert_true (error != NULL);
 			g_clear_error (&error);
@@ -561,7 +555,7 @@ test_sparql_query (TestInfo      *test_info,
 
 	/* perform actual query */
 
-	cursor = tracker_data_query_sparql_cursor (manager, query, &error);
+	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
 
 	check_result (cursor, test_info, results_filename, error);
 
@@ -571,7 +565,7 @@ test_sparql_query (TestInfo      *test_info,
 	query_filename = g_strconcat (test_prefix, ".extra.rq", NULL);
 	if (g_file_get_contents (query_filename, &query, NULL, NULL)) {
 		g_object_unref (cursor);
-		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
+		cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
 		g_assert_no_error (error);
 		g_free (results_filename);
 		results_filename = g_strconcat (test_prefix, ".extra.out", NULL);
@@ -593,8 +587,7 @@ test_sparql_query (TestInfo      *test_info,
 	g_free (results_filename);
 	g_object_unref (test_schemas);
 
-	tracker_data_manager_shutdown (manager);
-	g_object_unref (manager);
+	g_object_unref (conn);
 }
 
 static void

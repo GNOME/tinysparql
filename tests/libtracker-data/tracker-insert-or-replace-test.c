@@ -7,7 +7,7 @@
 #include <gio/gio.h>
 #include <glib/gstdio.h>
 
-#include <libtracker-data/tracker-data.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 static gchar *insert_query_replace = "\
 DELETE { ?r nao:hasTag ?tag . }\
@@ -128,7 +128,7 @@ INSERT { GRAPH <urn:uuid:08070f5c-a334-4d19-a8b0-12a3071bfab9> {\
 int
 main (int argc, char *argv[])
 {
-	TrackerDataManager *manager;
+	TrackerSparqlConnection *conn;
 	GError *error = NULL;
 	GFile *cache, *ontology;
 	gchar *test_data_dir;
@@ -144,16 +144,18 @@ main (int argc, char *argv[])
 	cache = g_file_new_for_path (test_data_dir);
 	ontology = g_file_new_for_path (TEST_ONTOLOGIES_DIR);
 
-	manager = tracker_data_manager_new (0, cache, ontology,
-	                                    100, 100);
-	g_initable_init (G_INITABLE (manager), NULL, &error);
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      cache,
+	                                      ontology,
+	                                      NULL, &error);
 	g_assert_no_error (error);
 
 	for (i = 0; i < N_QUERIES; i++) {
 		query = g_strdup_printf (insert_query_replace,
 		                         i, i, i, i, i, i, i, i, i , i, i, i, i);
-		tracker_data_update_sparql (tracker_data_manager_get_data (manager),
-		                            query, &error);
+		tracker_sparql_connection_update (conn,
+		                                  query,
+		                                  NULL, &error);
 		g_assert_no_error (error);
 		g_free (query);
 	}
@@ -161,13 +163,14 @@ main (int argc, char *argv[])
 	for (i = 0; i < N_QUERIES; i++) {
 		query = g_strdup_printf (insert_query_original,
 		                         i, i, i, i, i, i, i, i, i, i, i, i, i, i, i);
-		tracker_data_update_sparql (tracker_data_manager_get_data (manager),
-		                            query, &error);
+		tracker_sparql_connection_update (conn,
+		                                  query,
+		                                  NULL, &error);
 		g_assert_no_error (error);
 		g_free (query);
 	}
 
-	g_object_unref (manager);
+	g_object_unref (conn);
 	g_object_unref (cache);
 	g_object_unref (ontology);
 

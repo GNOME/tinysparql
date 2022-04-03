@@ -26,7 +26,7 @@
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 
-#include <libtracker-data/tracker-data.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 static gchar *tests_data_dir = NULL;
 
@@ -46,25 +46,24 @@ test_blank (TestInfo      *info,
 	guint len = 0;
 	gchar *solutions[3][3];
 	GFile *data_location;
-	TrackerDataManager *manager;
+	TrackerSparqlConnection *conn;
 
 	error = NULL;
 
 	data_location = g_file_new_for_path (info->data_location);
 
 	/* initialization */
-	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FLAGS_NONE,
-	                                    data_location, data_location, /* loc, domain and ontology_name */
-	                                    100, 100);
-	g_initable_init (G_INITABLE (manager), NULL, &error);
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      data_location, data_location,
+	                                      NULL, &error);
 	g_assert_no_error (error);
 
 	/* perform update in transaction */
 
-	updates = tracker_data_update_sparql_blank (tracker_data_manager_get_data (manager),
-	                                            "INSERT { _:foo a rdfs:Resource } "
-	                                            "INSERT { _:foo a rdfs:Resource . _:bar a rdfs:Resource } ",
-	                                            &error);
+	updates = tracker_sparql_connection_update_blank (conn,
+	                                                  "INSERT { _:foo a rdfs:Resource } "
+	                                                  "INSERT { _:foo a rdfs:Resource . _:bar a rdfs:Resource } ",
+	                                                  NULL, &error);
 	g_assert_no_error (error);
 	g_assert_true (updates != NULL);
 
@@ -121,7 +120,7 @@ test_blank (TestInfo      *info,
 
 	g_variant_unref (updates);
 	g_object_unref (data_location);
-	g_object_unref (manager);
+	g_object_unref (conn);
 }
 
 static void

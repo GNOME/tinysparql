@@ -26,7 +26,7 @@
 #include <gio/gio.h>
 #include <glib/gstdio.h>
 
-#include <libtracker-data/tracker-data.h>
+#include <libtracker-sparql/tracker-sparql.h>
 
 static gchar *tests_data_dir = NULL;
 
@@ -68,7 +68,9 @@ const TestInfo nie_tests[] = {
 };
 
 static void
-query_helper (TrackerDataManager *manager, const gchar *query_filename, const gchar *results_filename)
+query_helper (TrackerSparqlConnection *conn,
+              const gchar             *query_filename,
+              const gchar             *results_filename)
 {
 	GError *error = NULL;
 	gchar *queries = NULL, *query;
@@ -86,9 +88,9 @@ query_helper (TrackerDataManager *manager, const gchar *query_filename, const gc
 	query = strtok (queries, "~");
 
 	while (query) {
-		TrackerDBCursor *cursor;
+		TrackerSparqlCursor *cursor;
 
-		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
+		cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */
@@ -100,17 +102,17 @@ query_helper (TrackerDataManager *manager, const gchar *query_filename, const gc
 		}
 
 		if (cursor) {
-			guint col;
+			gint col;
 
-			while (tracker_db_cursor_iter_next (cursor, NULL, &error)) {
-				for (col = 0; col < tracker_db_cursor_get_n_columns (cursor); col++) {
+			while (tracker_sparql_cursor_next (cursor, NULL, &error)) {
+				for (col = 0; col < tracker_sparql_cursor_get_n_columns (cursor); col++) {
 					const gchar *str;
 
 					if (col > 0) {
 						g_string_append (test_results, "\t");
 					}
 
-					str = tracker_db_cursor_get_string (cursor, col, NULL);
+					str = tracker_sparql_cursor_get_string (cursor, col, NULL);
 					if (str != NULL) {
 						/* bound variable */
 						g_string_append_printf (test_results, "\"%s\"", str);
@@ -159,28 +161,27 @@ static void
 test_ontology_init (TestInfo      *test_info,
                     gconstpointer  context)
 {
-	TrackerDataManager *manager;
+	TrackerSparqlConnection *conn;
 	GError *error = NULL;
 	GFile *data_location;
 
 	data_location = g_file_new_for_path (test_info->data_location);
 
 	/* first-time initialization */
-	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FLAGS_NONE,
-	                                    data_location, data_location,
-	                                    100, 100);
-	g_initable_init (G_INITABLE (manager), NULL, &error);
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      data_location, data_location,
+	                                      NULL, &error);
 	g_assert_no_error (error);
 
-	g_object_unref (manager);
+	g_object_unref (conn);
 
 	/* initialization from existing database */
-	manager = tracker_data_manager_new (0, data_location, data_location,
-	                                    100, 100);
-	g_initable_init (G_INITABLE (manager), NULL, &error);
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      data_location, data_location,
+	                                      NULL, &error);
 	g_assert_no_error (error);
 
-	g_object_unref (manager);
+	g_object_unref (conn);
 	g_object_unref (data_location);
 }
 
@@ -193,9 +194,9 @@ test_query (TestInfo      *test_info,
 	gchar *query_filename;
 	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix, *ontology_path;
+	gchar *uri, *query;
 	GFile *file, *data_location, *ontology_location;
-	TrackerDataManager *manager;
-	TrackerData *data_update;
+	TrackerSparqlConnection *conn;
 
 	data_location = g_file_new_for_path (test_info->data_location);
 
@@ -209,23 +210,21 @@ test_query (TestInfo      *test_info,
 	g_free (ontology_path);
 
 	/* initialization */
-	manager = tracker_data_manager_new (TRACKER_DB_MANAGER_FLAGS_NONE,
-	                                    data_location, ontology_location,
-	                                    100, 100);
-	g_initable_init (G_INITABLE (manager), NULL, &error);
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      data_location, ontology_location,
+	                                      NULL, &error);
 	g_assert_no_error (error);
-
-	data_update = tracker_data_manager_get_data (manager);
 
 	/* load data set */
 	data_filename = g_strconcat (data_prefix, ".ttl", NULL);
 	file = g_file_new_for_path (data_filename);
-	data_update = tracker_data_manager_get_data (manager);
-	tracker_data_begin_transaction (data_update, &error);
-	g_assert_no_error (error);
-	tracker_data_load_turtle_file (data_update, file, NULL, &error);
-	g_assert_no_error (error);
-	tracker_data_commit_transaction (data_update, &error);
+
+	uri = g_file_get_uri (file);
+	query = g_strdup_printf ("LOAD <%s>", uri);
+	g_free (uri);
+
+	tracker_sparql_connection_update (conn, query, NULL, &error);
+	g_free (query);
 	g_assert_no_error (error);
 	g_object_unref (file);
 
@@ -235,7 +234,7 @@ test_query (TestInfo      *test_info,
 	g_free (data_prefix);
 	g_free (test_prefix);
 
-	query_helper (manager, query_filename, results_filename);
+	query_helper (conn, query_filename, results_filename);
 
 	/* cleanup */
 
@@ -245,7 +244,7 @@ test_query (TestInfo      *test_info,
 
 	g_object_unref (ontology_location);
 	g_object_unref (data_location);
-	g_object_unref (manager);
+	g_object_unref (conn);
 }
 
 static inline void

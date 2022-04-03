@@ -15,7 +15,7 @@ libtracker_data_slow_tests = [
     'sparql'
 ]
 
-libtracker_data_test_deps = [tracker_common_dep, tracker_data_dep, tracker_sparql_dep]
+libtracker_data_test_deps = [tracker_common_dep, tracker_sparql_dep]
 
 foreach base_name: libtracker_data_tests
     source = 'tracker-@0@-test.c'.format(base_name)
