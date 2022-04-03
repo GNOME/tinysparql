@@ -21,7 +21,8 @@
 
 #include <sqlite3.h>
 #include <glib.h>
-#include <libtracker-data/tracker-db-manager.h>
+
+#include "tracker-db-manager.h"
 
 #ifndef __TRACKER_FTS_TOKENIZER_H__
 #define __TRACKER_FTS_TOKENIZER_H__

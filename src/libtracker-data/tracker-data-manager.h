@@ -33,10 +33,10 @@ typedef struct _TrackerDataManagerClass TrackerDataManagerClass;
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-sparql/tracker-ontologies.h>
 
-#include <libtracker-data/tracker-rowid.h>
-#include <libtracker-data/tracker-data-update.h>
-#include <libtracker-data/tracker-db-interface.h>
-#include <libtracker-data/tracker-db-manager.h>
+#include "tracker-rowid.h"
+#include "tracker-data-update.h"
+#include "tracker-db-interface.h"
+#include "tracker-db-manager.h"
 
 #define TRACKER_DATA_ONTOLOGY_ERROR                  (tracker_data_ontology_error_quark ())
 

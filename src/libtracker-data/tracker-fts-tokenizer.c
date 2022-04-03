@@ -27,8 +27,9 @@
 #include <string.h>
 
 #include <libtracker-common/tracker-parser.h>
-#include <libtracker-data/tracker-data-manager.h>
-#include <libtracker-data/tracker-ontologies.h>
+
+#include "tracker-data-manager.h"
+#include "tracker-ontologies.h"
 
 #include "tracker-fts-tokenizer.h"
 

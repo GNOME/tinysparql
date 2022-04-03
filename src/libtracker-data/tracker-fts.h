@@ -25,7 +25,8 @@
 #include <sqlite3.h>
 
 #include <glib.h>
-#include <libtracker-data/tracker-db-manager.h>
+
+#include "tracker-db-manager.h"
 
 G_BEGIN_DECLS
 
