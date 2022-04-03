@@ -1,9 +1,13 @@
-libtracker_bus = static_library('tracker-bus',
+bus_files = files(
     'tracker-bus.vala',
     'tracker-namespace.vala',
     'tracker-bus-batch.vala',
     'tracker-bus-fd-cursor.vala',
     'tracker-bus-statement.vala',
+)
+
+libtracker_bus = static_library('tracker-bus',
+    bus_files,
     '../../libtracker-common/libtracker-common.vapi',
     c_args: tracker_c_args + [
         '-include', 'libtracker-sparql/tracker-private.h',

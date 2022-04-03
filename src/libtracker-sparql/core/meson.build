@@ -8,7 +8,7 @@ tracker_data_dependencies = [
     tracker_common_dep, gvdb_dep, sqlite,
 ]
 
-libtracker_data = static_library('tracker-data',
+core_files = files(
     'tracker-class.c',
     'tracker-collation.c',
     'tracker-data-manager.c',
@@ -32,8 +32,15 @@ libtracker_data = static_library('tracker-data',
     'tracker-uuid.c',
     'tracker-vtab-service.c',
     'tracker-vtab-triples.c',
+)
+
+core_files += [
     tracker_data_enums[0],
     tracker_data_enums[1],
+]
+
+libtracker_data = static_library('tracker-data',
+    core_files,
     c_args: tracker_c_args,
     gnu_symbol_visibility: 'hidden',
     # We do *not* want --no-undefined here, this library uses
