@@ -8,9 +8,9 @@ test_bus_conf_file = configure_file(
 subdir('common')
 
 subdir('gvdb')
+subdir('fts')
 subdir('libtracker-common')
 subdir('libtracker-data')
-subdir('libtracker-fts')
 subdir('libtracker-sparql')
 subdir('functional-tests')
 subdir('services')

@@ -17,15 +17,12 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#include "config.h"
-
 #include <string.h>
 
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <gio/gio.h>
 
-#include <libtracker-data/tracker-data.h>
 #include <libtracker-sparql/tracker-sparql.h>
 
 typedef struct _TestInfo TestInfo;
@@ -68,7 +65,7 @@ test_sparql_query (gconstpointer test_data)
 	test_info = test_data;
 
 	/* initialization */
-	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "libtracker-fts", NULL);
+	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "fts", NULL);
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	ontology = g_file_new_for_path (prefix);
 	g_free (prefix);
@@ -196,7 +193,7 @@ main (int argc, char **argv)
 	for (i = 0; tests[i].test_name; i++) {
 		gchar *testpath;
 
-		testpath = g_strconcat ("/libtracker-fts/", tests[i].test_name, NULL);
+		testpath = g_strconcat ("/fts/", tests[i].test_name, NULL);
 		g_test_add_data_func (testpath, &tests[i], test_sparql_query);
 		g_free (testpath);
 	}
@@ -204,7 +201,7 @@ main (int argc, char **argv)
 	/* run tests */
 	result = g_test_run ();
 
-	path = g_build_filename (TOP_BUILDDIR, "tests", "libtracker-fts", "dconf", "user", NULL);
+	path = g_build_filename (TOP_BUILDDIR, "tests", "fts", "dconf", "user", NULL);
 	g_unlink (path);
 	g_free (path);
 
