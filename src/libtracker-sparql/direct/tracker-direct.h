@@ -22,7 +22,7 @@
 #define __TRACKER_LOCAL_CONNECTION_H__
 
 #include <libtracker-sparql/tracker-sparql.h>
-#include <libtracker-data/tracker-data-manager.h>
+#include <libtracker-sparql/core/tracker-data.h>
 
 #include "tracker-direct-batch.h"
 

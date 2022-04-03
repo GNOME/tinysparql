@@ -1,3 +1,5 @@
+subdir('core')
+
 version_header = configure_file(
     input: 'tracker-version-generated.h.meson.in',
     output: 'tracker-version-generated.h',
@@ -92,7 +94,7 @@ subdir('direct')
 
 libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
     '../libtracker-common/libtracker-common.vapi',
-    '../libtracker-data/libtracker-data.vapi',
+    'core/libtracker-data.vapi',
     'direct/tracker-direct.vapi',
     'tracker-backend.vala',
     'tracker-remote-module.c',

@@ -23,10 +23,9 @@
 #include "tracker-direct.h"
 #include "tracker-direct-batch.h"
 #include "tracker-direct-statement.h"
-#include "libtracker-sparql/tracker-private.h"
+
 #include <libtracker-common/tracker-utils.h>
-#include <libtracker-data/tracker-data.h>
-#include <libtracker-data/tracker-sparql.h>
+#include <libtracker-sparql/core/tracker-data.h>
 #include <libtracker-sparql/tracker-notifier-private.h>
 #include <libtracker-sparql/tracker-private.h>
 #include <libtracker-sparql/tracker-serializer.h>

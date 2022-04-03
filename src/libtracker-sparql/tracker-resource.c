@@ -35,7 +35,7 @@
 #include "tracker-utils.h"
 
 /* For prefixed names parsing */
-#include "libtracker-data/tracker-sparql-grammar.h"
+#include <libtracker-sparql/core/tracker-sparql-grammar.h>
 
 #include <tracker-private.h>
 
