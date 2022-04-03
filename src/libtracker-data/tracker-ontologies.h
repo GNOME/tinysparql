@@ -30,10 +30,6 @@
 
 G_BEGIN_DECLS
 
-#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-data/tracker-data.h> must be included directly."
-#endif
-
 #define TRACKER_TYPE_ONTOLOGIES         (tracker_ontologies_get_type ())
 #define TRACKER_ONTOLOGIES(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_ONTOLOGIES, TrackerOntologies))
 #define TRACKER_ONTOLOGIES_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_ONTOLOGIES, TrackerOntologiesClass))

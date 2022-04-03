@@ -20,12 +20,6 @@
 #ifndef __LIBTRACKER_DATA_H__
 #define __LIBTRACKER_DATA_H__
 
-#if !defined (TRACKER_ENABLE_INTERNALS) && !defined (TRACKER_COMPILATION)
-#error "TRACKER_ENABLE_INTERNALS not defined, this must be defined to use tracker's internal functions"
-#endif
-
-#define __LIBTRACKER_DATA_INSIDE__
-
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-query.h"
@@ -39,7 +33,5 @@
 #include "tracker-property.h"
 #include "tracker-sparql.h"
 #include "tracker-uuid.h"
-
-#undef __LIBTRACKER_DATA_INSIDE__
 
 #endif /* __LIBTRACKER_DATA_H__ */

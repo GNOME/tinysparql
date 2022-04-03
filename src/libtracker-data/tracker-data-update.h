@@ -21,10 +21,6 @@
 #ifndef __LIBTRACKER_DATA_UPDATE_H__
 #define __LIBTRACKER_DATA_UPDATE_H__
 
-#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-data/tracker-data.h> must be included directly."
-#endif
-
 #include <glib.h>
 #include <gio/gio.h>
 

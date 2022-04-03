@@ -22,10 +22,6 @@
 
 G_BEGIN_DECLS
 
-#if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-common/tracker-common.h> must be included directly."
-#endif
-
 gpointer tracker_collation_init     (void);
 void     tracker_collation_shutdown (gpointer      collator);
 gint     tracker_collation_utf8     (gpointer      collator,

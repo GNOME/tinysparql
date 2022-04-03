@@ -26,10 +26,6 @@
 
 G_BEGIN_DECLS
 
-#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-data/tracker-data.h> must be included directly."
-#endif
-
 #define TRACKER_TYPE_DB_MANAGER (tracker_db_manager_get_type ())
 G_DECLARE_FINAL_TYPE (TrackerDBManager, tracker_db_manager,
                       TRACKER, DB_MANAGER, GObject)

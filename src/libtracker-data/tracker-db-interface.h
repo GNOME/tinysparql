@@ -29,10 +29,6 @@
 
 G_BEGIN_DECLS
 
-#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-data/tracker-data.h> must be included directly."
-#endif
-
 #define TRACKER_TYPE_DB_INTERFACE           (tracker_db_interface_get_type ())
 #define TRACKER_DB_INTERFACE(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), TRACKER_TYPE_DB_INTERFACE, TrackerDBInterface))
 #define TRACKER_DB_INTERFACE_CLASS(c)       (G_TYPE_CHECK_CLASS_CAST ((c),      TRACKER_TYPE_DB_INTERFACE, TrackerDBInterfaceClass))

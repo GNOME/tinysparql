@@ -26,10 +26,6 @@
 
 G_BEGIN_DECLS
 
-#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-data/tracker-data.h> must be included directly."
-#endif
-
 #define TRACKER_COLLATION_NAME "TRACKER"
 #define TRACKER_TITLE_COLLATION_NAME "TRACKER_TITLE"
 

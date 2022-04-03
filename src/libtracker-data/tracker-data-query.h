@@ -30,10 +30,6 @@
 
 G_BEGIN_DECLS
 
-#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-data/tracker-data.h> must be included directly."
-#endif
-
 gchar *              tracker_data_query_resource_urn  (TrackerDataManager  *manager,
                                                        TrackerDBInterface  *iface,
                                                        TrackerRowid         id);

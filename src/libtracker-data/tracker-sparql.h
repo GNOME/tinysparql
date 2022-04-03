@@ -21,10 +21,6 @@
 #ifndef __TRACKER_SPARQL_H__
 #define __TRACKER_SPARQL_H__
 
-#if !defined (__LIBTRACKER_DATA_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-data/tracker-data.h> must be included directly."
-#endif
-
 #include <glib.h>
 #include "tracker-data-manager.h"
 
