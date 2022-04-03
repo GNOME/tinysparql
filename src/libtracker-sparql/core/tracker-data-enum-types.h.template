@@ -4,7 +4,7 @@
 #define __TRACKER_DATA_ENUM_TYPES_H__
 
 #include <glib-object.h>
-#include "tracker-db-interface-sqlite.h"
+#include <libtracker-sparql/core/tracker-db-interface-sqlite.h>
 
 G_BEGIN_DECLS
 /*** END file-header ***/
