@@ -33,7 +33,17 @@
  * Access to these endpoints may be managed via the
  * #TrackerEndpointHttp::block-remote-address signal, the boolean
  * return value expressing whether the connection is blocked or not.
- * Inspection of the requester address is left up to the user.
+ * Inspection of the requester address is left up to the user. The
+ * default value allows all requests independently of their provenance,
+ * users are encouraged to add a handler.
+ *
+ * If the provided #GTlsCertificate is %NULL, the endpoint will allow
+ * plain HTTP connections. Users are encouraged to provide a certificate
+ * in order to use HTTPS.
+ *
+ * As a security measure, and in compliance with the SPARQL 1.1 specifications,
+ * the HTTP endpoint does not support database updates or modifications in any
+ * way. The database is completely owned by the host.
  *
  * A #TrackerEndpointHttp may be created on a different thread/main
  * context than the one creating the #TrackerSparqlConnection.

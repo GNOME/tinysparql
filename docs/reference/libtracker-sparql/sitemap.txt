@@ -26,4 +26,5 @@ index.md
 		limits.md
 		performance.md
 		sparql-and-tracker.md
+		security.md
 	migrating-2to3.md

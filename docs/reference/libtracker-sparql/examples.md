@@ -34,9 +34,21 @@ main loop is not blocked while these operations are executed.
 Once you end up with the query, remember to call [](tracker_sparql_cursor_close).
 The same applies to [](tracker_sparql_connection_close) when no longer needed.
 
-```c
-{{examples/connection-example.c}}
-```
+<div class="gi-lang-c">
+
+{{ examples/connection-example.c }}
+
+</div>
+<div class="gi-lang-python">
+
+{{ examples/connection-example.py }}
+
+</div>
+<div class="gi-lang-javascript">
+
+{{ examples/connection-example.js }}
+
+</div>
 
 ## Creating a private database
 
@@ -58,9 +70,21 @@ main loop is not blocked while these operations are executed.
 Once you no longer need the connection, remember to call
 [](tracker_sparql_connection_close) on the [](TrackerSparqlConnection).
 
-```c
-{{examples/private-store-example.c}}
-```
+<div class="gi-lang-c">
+
+{{ examples/private-store-example.c }}
+
+</div>
+<div class="gi-lang-python">
+
+{{ examples/private-store-example.py }}
+
+</div>
+<div class="gi-lang-javascript">
+
+{{ examples/private-store-example.js }}
+
+</div>
 
 ## Creating a SPARQL endpoint
 
@@ -73,9 +97,21 @@ concretely the creation of a D-Bus endpoint, that other applications
 may query e.g. through a connection created with
 [](tracker_sparql_connection_bus_new).
 
-```c
-{{examples/endpoint-example.c}}
-```
+<div class="gi-lang-c">
+
+{{ examples/endpoint-example.c }}
+
+</div>
+<div class="gi-lang-python">
+
+{{ examples/endpoint-example.py }}
+
+</div>
+<div class="gi-lang-javascript">
+
+{{ examples/endpoint-example.js }}
+
+</div>
 
 ## Receiving notification on changes
 
@@ -88,6 +124,18 @@ on changes of certain RDF classes (Those with the
 This example demonstrates the use of [](TrackerNotifier) to receive
 notifications on database updates.
 
-```c
-{{examples/notifier-example.c}}
-```
+<div class="gi-lang-c">
+
+{{ examples/notifier-example.c }}
+
+</div>
+<div class="gi-lang-python">
+
+{{ examples/notifier-example.py }}
+
+</div>
+<div class="gi-lang-javascript">
+
+{{ examples/notifier-example.js }}
+
+</div>

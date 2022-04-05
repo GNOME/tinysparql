@@ -9,25 +9,6 @@ endif
 
 hotdoc = import('hotdoc')
 
-documents_with_examples = [
-  [ 'examples.md.in', 'examples.md' ],
-]
-examples = []
-
-foreach doc : documents_with_examples
-  examples += custom_target(
-    'examples-generate',
-    input: doc[0],
-    output: doc[1],
-    command: [
-      'embed-files.py',
-      '@INPUT@',
-      '@OUTPUT@',
-    ],
-    depend_files: [ doc[0] ],
-    build_by_default: true)
-endforeach
-
 base_ontology_docs = custom_target('ontology-docgen',
     output: ['dc-ontology.md'],
     command: [tracker_docgen,
@@ -53,6 +34,7 @@ nepomuk_ontology_docs = custom_target('nepomuk-docgen',
 
 content = [
   'overview.md',
+  'examples.md',
   'ontologies.md',
   'limits.md',
   'performance.md',
@@ -60,6 +42,7 @@ content = [
   'sparql-functions.md',
   'migrating-2to3.md',
   'tutorial.md',
+  'security.md',
 ]
 
 required_hotdoc_extensions = [
