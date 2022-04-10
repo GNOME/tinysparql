@@ -21,6 +21,9 @@
 
 /* Deserialization to cursors for the turtle format defined at:
  *  https://www.w3.org/TR/turtle/
+ *
+ * And the related TRIG format defined at:
+ *  http://www.w3.org/TR/trig/
  */
 
 #include "config.h"
@@ -39,6 +42,7 @@
 typedef enum
 {
 	STATE_INITIAL,
+	STATE_GRAPH,
 	STATE_SUBJECT,
 	STATE_PREDICATE,
 	STATE_OBJECT,
@@ -52,11 +56,12 @@ typedef struct {
 } StateStack;
 
 struct _TrackerDeserializerTurtle {
-	GObject parent_instance;
+	TrackerDeserializerRdf parent_instance;
 	GBufferedInputStream *buffered_stream;
 	GHashTable *blank_nodes;
 	GArray *parser_state;
 	gchar *base;
+	gchar *graph;
 	gchar *subject;
 	gchar *predicate;
 	gchar *object;
@@ -65,6 +70,7 @@ struct _TrackerDeserializerTurtle {
 	ParserState state;
 	goffset line_no;
 	goffset column_no;
+	gboolean parse_trig;
 };
 
 G_DEFINE_TYPE (TrackerDeserializerTurtle,
@@ -103,6 +109,10 @@ tracker_deserializer_turtle_constructed (GObject *object)
 		G_BUFFERED_INPUT_STREAM (g_buffered_input_stream_new (stream));
 	deserializer_ttl->line_no = 1;
 	deserializer_ttl->column_no = 1;
+
+	g_object_get (object,
+	              "has-graph", &deserializer_ttl->parse_trig,
+	              NULL);
 }
 
 static void
@@ -482,7 +492,35 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 
 		switch (deserializer->state) {
 		case STATE_INITIAL:
-			deserializer->state = STATE_SUBJECT;
+			if (deserializer->parse_trig)
+				deserializer->state = STATE_GRAPH;
+			else
+				deserializer->state = STATE_SUBJECT;
+			break;
+		case STATE_GRAPH:
+			if (parse_token (deserializer, "graph")) {
+				advance_whitespace_and_comments (deserializer);
+
+				if (parse_terminal (deserializer, terminal_IRIREF, 1, &str)) {
+					deserializer->graph = expand_base (deserializer, str);
+				} else {
+					g_set_error (error,
+					             TRACKER_SPARQL_ERROR,
+					             TRACKER_SPARQL_ERROR_PARSE,
+					             "Wrong graph token");
+				}
+			} else {
+				g_clear_pointer (&deserializer->graph, g_free);
+			}
+
+			advance_whitespace_and_comments (deserializer);
+
+			if (!parse_token (deserializer, "{")) {
+				g_set_error (error,
+				             TRACKER_SPARQL_ERROR,
+				             TRACKER_SPARQL_ERROR_PARSE,
+				             "Expected graph block");
+			}
 			break;
 		case STATE_SUBJECT:
 			if (g_buffered_input_stream_get_available (deserializer->buffered_stream) == 0)
@@ -637,16 +675,28 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 
 			if (parse_token (deserializer, ",")) {
 				deserializer->state = STATE_OBJECT;
-			} else if (parse_token (deserializer, ";")) {
-				/* Dot is allowed after semicolon */
+				break;
+			}
+
+			if (parse_token (deserializer, ";")) {
 				advance_whitespace_and_comments (deserializer);
-				if (parse_token (deserializer, "."))
-					deserializer->state = STATE_SUBJECT;
-				else
-					deserializer->state = STATE_PREDICATE;
-			} else if (parse_token (deserializer, ".")) {
+				deserializer->state = STATE_PREDICATE;
+				/* Dot is allowed after semicolon, continue here */
+			}
+
+			if (parse_token (deserializer, ".")) {
+				advance_whitespace_and_comments (deserializer);
 				deserializer->state = STATE_SUBJECT;
-			} else {
+			}
+
+			if (deserializer->parse_trig &&
+			    parse_token (deserializer, "}")) {
+				advance_whitespace_and_comments (deserializer);
+				deserializer->state = STATE_GRAPH;
+			}
+
+			/* If we did not advance state, this is a parsing error */
+			if (deserializer->state == STATE_STEP) {
 				g_set_error (error,
 				             TRACKER_SPARQL_ERROR,
 				             TRACKER_SPARQL_ERROR_PARSE,
@@ -678,6 +728,11 @@ tracker_deserializer_turtle_get_value_type (TrackerSparqlCursor *cursor,
 			return TRACKER_SPARQL_VALUE_TYPE_URI;
 		else
 			return TRACKER_SPARQL_VALUE_TYPE_STRING;
+	case TRACKER_RDF_COL_GRAPH:
+		if (deserializer->parse_trig && deserializer->graph)
+			return TRACKER_SPARQL_VALUE_TYPE_URI;
+		else
+			return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
 	default:
 		return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
 	}
@@ -697,6 +752,8 @@ tracker_deserializer_turtle_get_string (TrackerSparqlCursor *cursor,
 		return deserializer->predicate;
 	case TRACKER_RDF_COL_OBJECT:
 		return deserializer->object;
+	case TRACKER_RDF_COL_GRAPH:
+		return deserializer->graph;
 	default:
 		return NULL;
 	}
@@ -789,5 +846,18 @@ tracker_deserializer_turtle_new (GInputStream            *istream,
 	                     "stream", istream,
 	                     "namespace-manager", namespaces,
 	                     "has-graph", FALSE,
+	                     NULL);
+}
+
+TrackerSparqlCursor *
+tracker_deserializer_trig_new (GInputStream            *istream,
+                               TrackerNamespaceManager *namespaces)
+{
+	g_return_val_if_fail (G_IS_INPUT_STREAM (istream), NULL);
+
+	return g_object_new (TRACKER_TYPE_DESERIALIZER_TURTLE,
+	                     "stream", istream,
+	                     "namespace-manager", namespaces,
+	                     "has-graph", TRUE,
 	                     NULL);
 }

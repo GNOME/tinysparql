@@ -35,4 +35,7 @@ G_DECLARE_FINAL_TYPE (TrackerDeserializerTurtle,
 TrackerSparqlCursor * tracker_deserializer_turtle_new (GInputStream            *stream,
                                                        TrackerNamespaceManager *manager);
 
+TrackerSparqlCursor * tracker_deserializer_trig_new (GInputStream            *stream,
+                                                     TrackerNamespaceManager *manager);
+
 #endif /* __TRACKER_DESERIALIZER_TURTLE_H__ */

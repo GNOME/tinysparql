@@ -172,6 +172,8 @@ tracker_deserializer_new (GInputStream            *stream,
 	switch (format) {
 	case TRACKER_SERIALIZER_FORMAT_TTL:
 		return tracker_deserializer_turtle_new (stream, namespaces);
+	case TRACKER_SERIALIZER_FORMAT_TRIG:
+		return tracker_deserializer_trig_new (stream, namespaces);
 	default:
 		g_warn_if_reached ();
 		return NULL;
@@ -181,7 +183,17 @@ tracker_deserializer_new (GInputStream            *stream,
 static TrackerSerializerFormat
 pick_format_for_file (GFile *file)
 {
-	return TRACKER_SERIALIZER_FORMAT_TTL;
+	TrackerSerializerFormat format = TRACKER_SERIALIZER_FORMAT_TTL;
+	gchar *uri;
+
+	uri = g_file_get_uri (file);
+
+	if (g_str_has_suffix (uri, ".trig"))
+		format = TRACKER_SERIALIZER_FORMAT_TRIG;
+
+	g_free (uri);
+
+	return format;
 }
 
 TrackerSparqlCursor *
