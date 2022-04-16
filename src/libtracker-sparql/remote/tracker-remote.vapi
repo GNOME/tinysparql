@@ -17,6 +17,11 @@ namespace Tracker {
 	        XML,
 	        TTL,
 	        TRIG,
+	}
+
+	[CCode (cheader_filename = "libtracker-sparql/remote/tracker-remote-namespaces.h")]
+	class Remote.NamespaceManager : Tracker.NamespaceManager, GLib.AsyncInitable {
+                public NamespaceManager (Sparql.Connection conn);
         }
 
 	class Deserializer : Sparql.Cursor {

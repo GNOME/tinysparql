@@ -289,6 +289,10 @@ struct _TrackerDeserializerClass {
 	                                  goffset             *column_no);
 };
 
+struct _TrackerNamespaceManager {
+	GObject parent;
+};
+
 gboolean
 tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connection,
                                                const gchar              *dbus_name,

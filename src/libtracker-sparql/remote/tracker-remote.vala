@@ -21,6 +21,7 @@
 public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 	internal HttpClient _client;
 	internal string _base_uri;
+	internal NamespaceManager _namespaces;
 
 	public Connection (string base_uri) {
 		Object ();
@@ -68,5 +69,12 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 
 		SerializerFormat unused;
 		return yield _client.send_message_async (_base_uri, sparql, formats, cancellable, out unused);
+	}
+
+	public override Tracker.NamespaceManager? get_namespace_manager () {
+		if (_namespaces == null)
+			_namespaces = new Tracker.Remote.NamespaceManager (this);
+
+		return _namespaces;
 	}
 }

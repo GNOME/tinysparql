@@ -30,10 +30,6 @@
 
 #define MAX_PREFIX_LENGTH 100
 
-struct _TrackerNamespaceManager {
-	GObject parent;
-};
-
 typedef struct {
 	GHashTable *prefix_to_namespace;
 	GHashTable *namespace_to_prefix;
