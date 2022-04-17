@@ -84,3 +84,14 @@ tests += {
   'exe': tracker_serialize_test,
   'suite': ['sparql'],
 }
+
+tracker_namespaces_test = executable('tracker-namespaces-test',
+  'tracker-namespaces-test.c',
+  dependencies: [tracker_common_dep, tracker_sparql_dep],
+  c_args: libtracker_sparql_test_c_args + test_c_args)
+
+tests += {
+  'name': 'namespaces',
+  'exe': tracker_namespaces_test,
+  'suite': ['sparql'],
+}
