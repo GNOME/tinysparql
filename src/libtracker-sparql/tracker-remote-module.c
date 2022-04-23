@@ -10,13 +10,6 @@
 
 static gboolean initialized = FALSE;
 
-GType (* remote_endpoint_get_type) (void) = NULL;
-
-TrackerEndpoint * (* remote_endpoint_new) (TrackerSparqlConnection  *sparql_connection,
-                                           guint                     port,
-                                           GTlsCertificate          *certificate,
-                                           GCancellable             *cancellable,
-                                           GError                  **error) = NULL;
 TrackerSparqlConnection * (* remote_connection_new) (const gchar *url_base) = NULL;
 
 static void
@@ -66,9 +59,7 @@ tracker_init_remote (void)
 		if (!remote_module)
 			continue;
 
-		if (!g_module_symbol (remote_module, "tracker_endpoint_http_get_type", (gpointer *) &remote_endpoint_get_type) ||
-		    !g_module_symbol (remote_module, "tracker_endpoint_http_new", (gpointer *) &remote_endpoint_new) ||
-		    !g_module_symbol (remote_module, "tracker_remote_connection_new", (gpointer *) &remote_connection_new)) {
+		if (!g_module_symbol (remote_module, "tracker_remote_connection_new", (gpointer *) &remote_connection_new)) {
 			g_clear_pointer (&remote_module, g_module_close);
 			continue;
 		}
@@ -80,30 +71,6 @@ tracker_init_remote (void)
 	}
 
 	g_assert_not_reached ();
-}
-
-GType
-tracker_endpoint_http_get_type (void)
-{
-	tracker_init_remote ();
-
-	return remote_endpoint_get_type ();
-}
-
-TrackerEndpointHttp *
-tracker_endpoint_http_new (TrackerSparqlConnection  *sparql_connection,
-                           guint                     port,
-                           GTlsCertificate          *certificate,
-                           GCancellable             *cancellable,
-                           GError                  **error)
-{
-	tracker_init_remote ();
-
-	return (TrackerEndpointHttp *) remote_endpoint_new (sparql_connection,
-	                                                    port,
-	                                                    certificate,
-	                                                    cancellable,
-	                                                    error);
 }
 
 TrackerSparqlConnection *

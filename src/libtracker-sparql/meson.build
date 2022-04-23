@@ -27,6 +27,7 @@ libtracker_sparql_c_sources = files(
     'tracker-cursor.c',
     'tracker-endpoint.c',
     'tracker-endpoint-dbus.c',
+    'tracker-endpoint-http.c',
     'tracker-error.c',
     'tracker-namespace-manager.c',
     'tracker-notifier.c',
@@ -151,7 +152,6 @@ tracker_sparql_dep = declare_dependency(
 )
 
 libtracker_sparql_remote_c_sources = files(
-    'tracker-endpoint-http.c',
     'remote/tracker-remote-statement.c',
     'tracker-serializer.c',
     'tracker-serializer-json.c',
