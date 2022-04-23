@@ -23,6 +23,7 @@
 #include <libtracker-sparql/tracker-version-generated.h>
 #include <libtracker-sparql/tracker-cursor.h>
 #include <libtracker-sparql/tracker-endpoint-dbus.h>
+#include <libtracker-sparql/tracker-enums-private.h>
 
 struct _TrackerSparqlConnectionClass
 {
