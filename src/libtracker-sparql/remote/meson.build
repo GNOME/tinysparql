@@ -1,5 +1,10 @@
 remote_files = files(
     'tracker-http.c',
+    'tracker-remote-statement.c',
+    'tracker-remote.vapi',
+    'tracker-json-cursor.vala',
+    'tracker-xml-cursor.vala',
+    'tracker-remote.vala',
 )
 
 module_sources = files('tracker-http-module.c')
