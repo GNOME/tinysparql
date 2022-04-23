@@ -1,6 +1,7 @@
 subdir('core')
 subdir('bus')
 subdir('direct')
+subdir('remote')
 
 version_header = configure_file(
     input: 'tracker-version-generated.h.meson.in',
@@ -93,6 +94,7 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
     core_files,
     bus_files,
     direct_files,
+    remote_files,
     '../libtracker-common/libtracker-common.vapi',
     'core/libtracker-data.vapi',
     'direct/tracker-direct.vapi',
