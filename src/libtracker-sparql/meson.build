@@ -1,3 +1,5 @@
+libtracker_sparql_modules = []
+
 subdir('core')
 subdir('bus')
 subdir('direct')
@@ -164,8 +166,6 @@ libtracker_sparql_remote_vala_sources = files(
     'remote/tracker-xml-cursor.vala',
     'remote/tracker-remote.vala',
 )
-
-libtracker_sparql_modules = []
 
 if libsoup2.found()
     libtracker_remote_soup2 = shared_module('tracker-remote-soup2',
