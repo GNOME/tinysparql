@@ -30,7 +30,7 @@
 
 #include "tracker-utils.h"
 
-#include "libtracker-data/tracker-uuid.h"
+#include <libtracker-sparql/core/tracker-uuid.h>
 
 /**
  * tracker_sparql_escape_string:

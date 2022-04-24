@@ -33,7 +33,7 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-common/tracker-common.h>
-#include <libtracker-data/tracker-data.h>
+#include <libtracker-sparql/core/tracker-data.h>
 
 static gchar *database_path;
 static gchar *dbus_service;

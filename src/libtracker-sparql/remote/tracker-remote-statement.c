@@ -24,8 +24,8 @@
 #include "tracker-remote-statement.h"
 
 #include <libtracker-common/tracker-common.h>
-#include <libtracker-data/tracker-sparql-grammar.h>
-#include <libtracker-data/tracker-sparql-parser.h>
+#include <libtracker-sparql/core/tracker-sparql-grammar.h>
+#include <libtracker-sparql/core/tracker-sparql-parser.h>
 #include <libtracker-sparql/tracker-private.h>
 
 struct _TrackerRemoteStatement

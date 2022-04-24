@@ -19,7 +19,8 @@
  */
 
 #include "tracker-error.h"
-#include <libtracker-data/tracker-data.h>
+
+#include <libtracker-sparql/core/tracker-data.h>
 
 static const GDBusErrorEntry tracker_sparql_error_entries[] =
 {
@@ -57,7 +58,7 @@ tracker_sparql_error_quark (void)
        return (GQuark) quark_volatile;
 }
 
-/* Converts internal error codes from libtracker-data into public
+/* Converts internal error codes into public
  * TrackerSparqlError codes. */
 GError *
 _translate_internal_error (GError *error)

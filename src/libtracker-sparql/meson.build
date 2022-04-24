@@ -1,3 +1,7 @@
+subdir('core')
+subdir('bus')
+subdir('direct')
+
 version_header = configure_file(
     input: 'tracker-version-generated.h.meson.in',
     output: 'tracker-version-generated.h',
@@ -52,21 +56,7 @@ libtracker_sparql_c_public_headers = files(
     'tracker-version.h',
 )
 
-libtracker_sparql_intermediate = static_library('tracker-sparql-intermediate',
-    enum_types,
-    libtracker_sparql_c_sources,
-    dependencies: [tracker_common_dep, json_glib, libxml2],
-    gnu_symbol_visibility: 'hidden',
-)
-
 sparqlinc = [include_directories('.'), meson.current_build_dir()]
-
-tracker_sparql_intermediate_dep = declare_dependency(
-    link_with: [libtracker_sparql_intermediate],
-    include_directories: [srcinc, include_directories('.')],
-    dependencies: [ tracker_sparql_vapi_dep, tracker_data_dep ],
-    sources: enum_types[1],
-)
 
 install_headers(
     libtracker_sparql_c_public_headers,
@@ -87,18 +77,59 @@ install_data(
     install_dir: vapi_dir,
 )
 
-subdir('bus')
-subdir('direct')
+libtracker_sparql_dependencies = [
+    tracker_common_dep,
+    tracker_sparql_vapi_dep,
+    gmodule,
+    libdl,
+    json_glib,
+    libxml2,
+    tracker_data_dependencies
+]
 
-libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
+libtracker_sparql_private = static_library('tracker-sparql-private',
+    enum_types,
+    libtracker_sparql_c_sources,
+    core_files,
+    bus_files,
+    direct_files,
     '../libtracker-common/libtracker-common.vapi',
-    '../libtracker-data/libtracker-data.vapi',
+    'core/libtracker-data.vapi',
     'direct/tracker-direct.vapi',
     'tracker-backend.vala',
     'tracker-remote-module.c',
     tracker_gresources,
 
+    c_args: [
+	'-include', 'libtracker-sparql/tracker-private.h',
+        '-DPRIVATE_LIBDIR="@0@"'.format(tracker_internal_libs_dir),
+        '-DBUILD_LIBDIR="@0@"'.format(meson.current_build_dir()),
+        '-DBUILDROOT="@0@"'.format(meson.build_root()),
+    ] + tracker_c_args,
+
+    vala_args: [
+        '--debug',
+        '--pkg', 'posix',
+        # FIXME: Meson has code to add --target-glib automatically, but it
+        # doesn't seem to work here.
+        '--target-glib', glib_required,
+    ],
+
+    dependencies: [libtracker_sparql_dependencies],
     gnu_symbol_visibility: 'hidden',
+)
+
+tracker_sparql_private_dep = declare_dependency(
+    link_with: [libtracker_sparql_private],
+    include_directories: [srcinc, include_directories('.')],
+    sources: enum_types[1],
+    dependencies: [glib, gio],
+)
+
+libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
+    gnu_symbol_visibility: 'hidden',
+
+    link_whole: [libtracker_sparql_private],
 
     soversion: soversion,
     version: libversion,
@@ -106,16 +137,7 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
     install: true,
     install_rpath: tracker_internal_libs_dir,
 
-    c_args: [
-	'-include', 'libtracker-sparql/tracker-private.h',
-        '-DPRIVATE_LIBDIR="@0@"'.format(tracker_internal_libs_dir),
-        '-DBUILD_LIBDIR="@0@"'.format(meson.current_build_dir()),
-        '-DBUILDROOT="@0@"'.format(meson.build_root()),
-    ],
-
-    link_whole: [libtracker_sparql_intermediate],
-
-    dependencies: [tracker_common_dep, tracker_sparql_bus_dep, tracker_sparql_direct_dep, tracker_sparql_vapi_dep, gmodule, libdl],
+    dependencies: [libtracker_sparql_dependencies],
 )
 
 tracker_sparql_dep = declare_dependency(

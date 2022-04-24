@@ -39,7 +39,8 @@ glib_required = '2.52.0'
 # 3.7.15 for sqlite3_errstr() support
 # 3.8.3 for SQLITE_DETERMINISTIC
 # 3.15.0 for https://sqlite.org/rowvalue.html
-sqlite_required = '3.15.0'
+# 3.20.0 for builtin FTS5
+sqlite_required = '3.20.0'
 
 gio = dependency('gio-2.0', version: '>' + glib_required)
 gio_unix = dependency('gio-unix-2.0', version: '>' + glib_required)
@@ -190,19 +191,9 @@ else
     error('Failed to compile SQLite FTS test.')
   endif
 
-  if result.returncode() == 0
-    sqlite3_has_builtin_fts5 = true
-  else
-    sqlite3_has_builtin_fts5 = false
+  if result.returncode() != 0
+    error('SQLite has no builtin FTS5.')
   endif
-endif
-
-if sqlite3_has_builtin_fts5
-  message('Using sqlite3 builtin FTS module')
-elif sqlite.version().version_compare('>= 3.20.0')
-  error('FTS support was enabled but SQLite doesn\'t have the FTS module built in')
-else
-  message('sqlite3 is older than version 3.20.0, using FTS module that is bundled with Tracker')
 endif
 
 ##################################################################
@@ -298,7 +289,6 @@ conf = configuration_data()
 
 # Config that goes in config.h
 
-conf.set('HAVE_BUILTIN_FTS', sqlite3_has_builtin_fts5)
 conf.set('HAVE_LIBICU', unicode_library_name == 'icu')
 conf.set('HAVE_LIBSTEMMER', have_libstemmer)
 conf.set('HAVE_LIBUNISTRING', unicode_library_name == 'unistring')
@@ -414,7 +404,6 @@ summary = [
   '    Compiler:                               ' + cc.get_id(),
   '\nFeature Support:',
   '    Unicode support library:                ' + unicode_library_name,
-  '    Use external FTS module:                ' + (not sqlite3_has_builtin_fts5).to_string(),
   '    Build with Stemming support:            ' + have_libstemmer.to_string(),
   '    API documentation:                      ' + get_option('docs').to_string(),
   '    CLI documentation (manpages):           ' + get_option('man').to_string(),
