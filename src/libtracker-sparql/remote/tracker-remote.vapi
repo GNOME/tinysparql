@@ -18,4 +18,8 @@ namespace Tracker {
 	        TTL,
 	        TRIG,
         }
+
+	class Deserializer : Sparql.Cursor {
+		public Deserializer (GLib.InputStream stream, NamespaceManager? namespaces, SerializerFormat format);
+	}
 }

@@ -28,20 +28,6 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 		_client = new HttpClient();
 	}
 
-	private Sparql.Cursor create_cursor (GLib.InputStream stream, SerializerFormat format) throws GLib.Error, Sparql.Error {
-		var buffer = new uchar[20 * 1024 * 1024];
-		size_t len;
-		stream.read_all (buffer, out len, null);
-
-		if (format == SerializerFormat.JSON) {
-			return new Tracker.Remote.JsonCursor ((string) buffer, (long) len);
-		} else if (format == SerializerFormat.XML) {
-			return new Tracker.Remote.XmlCursor ((string) buffer, (long) len);
-		} else {
-			throw new Sparql.Error.UNSUPPORTED ("Unparseable content type, document is: %s", (string) buffer);
-		}
-	}
-
 	public override Sparql.Cursor query (string sparql, Cancellable? cancellable) throws GLib.Error, Sparql.Error, IOError {
 		uint flags =
 			(1 << SerializerFormat.JSON) |
@@ -49,7 +35,7 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 		SerializerFormat format;
 		var istream = _client.send_message (_base_uri, sparql, flags, cancellable, out format);
 
-		return create_cursor (istream, format);
+		return new Tracker.Deserializer(istream, null, format);
 	}
 
 	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable) throws GLib.Error, Sparql.Error, IOError {
@@ -59,7 +45,7 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 		SerializerFormat format;
 		var istream = yield _client.send_message_async (_base_uri, sparql, flags, cancellable, out format);
 
-		return create_cursor (istream, format);
+		return new Tracker.Deserializer(istream, null, format);
 	}
 
 	public override Sparql.Statement? query_statement (string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error {
