@@ -236,6 +236,7 @@ query_statement (TestFixture   *test_fixture,
 		                         test_info->output_file, NULL);
 		check_result (cursor, path);
 		g_free (path);
+		g_object_unref (cursor);
 	} else {
 		g_assert_nonnull (error);
 	}
