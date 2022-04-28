@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020, Red Hat, Inc
+ * Copyright (C) 2022, Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,22 +19,21 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_SERIALIZER_H
-#define TRACKER_SERIALIZER_H
+#ifndef TRACKER_HTTP_MODULE_H
+#define TRACKER_HTTP_MODULE_H
 
-#include <libtracker-sparql/tracker-sparql.h>
-#include <libtracker-sparql/tracker-enums-private.h>
+#include "tracker-http.h"
 
-#define TRACKER_TYPE_SERIALIZER (tracker_serializer_get_type())
+#define TRACKER_TYPE_HTTP_SERVER_SOUP (tracker_http_server_soup_get_type ())
+G_DECLARE_FINAL_TYPE (TrackerHttpServerSoup,
+                      tracker_http_server_soup,
+                      TRACKER, HTTP_SERVER_SOUP,
+                      TrackerHttpServer)
 
-G_DECLARE_DERIVABLE_TYPE (TrackerSerializer,
-                          tracker_serializer,
-                          TRACKER, SERIALIZER,
-                          GInputStream)
+#define TRACKER_TYPE_HTTP_CLIENT_SOUP (tracker_http_client_soup_get_type ())
+G_DECLARE_FINAL_TYPE (TrackerHttpClientSoup,
+                      tracker_http_client_soup,
+                      TRACKER, HTTP_CLIENT_SOUP,
+                      TrackerHttpClient)
 
-GInputStream * tracker_serializer_new (TrackerSparqlCursor     *cursor,
-                                       TrackerSerializerFormat  format);
-
-TrackerSparqlCursor * tracker_serializer_get_cursor (TrackerSerializer *serializer);
-
-#endif /* TRACKER_SERIALIZER_H */
+#endif /* TRACKER_HTTP_MODULE_H */

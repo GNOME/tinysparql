@@ -18,117 +18,48 @@
  *
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
-[CCode (cname = "PACKAGE_VERSION")]
-extern const string PACKAGE_VERSION;
-
 public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
-
-	internal Soup.Session _session;
+	internal HttpClient _client;
 	internal string _base_uri;
-
-	const string XML_TYPE = "application/sparql-results+xml";
-	const string JSON_TYPE = "application/sparql-results+json";
-	const string TTL_TYPE = "text/turtle";
-	const string TRIG_TYPE = "application/trig";
-	const string USER_AGENT = "Tracker/" + PACKAGE_VERSION + " (https://gitlab.gnome.org/GNOME/tracker/issues/; tracker-list@lists.gnome.org) Tracker/" + PACKAGE_VERSION;
 
 	public Connection (string base_uri) {
 		Object ();
 		_base_uri = base_uri;
-		_session = new Soup.Session ();
+		_client = new HttpClient();
 	}
 
-	private Soup.Message create_describe_request (string sparql, RdfFormat format) {
-		var uri = _base_uri + "?query=" + GLib.Uri.escape_string (sparql, null, false);
-		var message = new Soup.Message ("GET", uri);
-#if SOUP2
-		var headers = message.request_headers;
-#else
-                var headers = message.get_request_headers();
-#endif
+	private Sparql.Cursor create_cursor (GLib.InputStream stream, SerializerFormat format) throws GLib.Error, Sparql.Error {
+		var buffer = new uchar[20 * 1024 * 1024];
+		size_t len;
+		stream.read_all (buffer, out len, null);
 
-		headers.append ("User-Agent", USER_AGENT);
-
-		if (format == RdfFormat.TURTLE)
-			headers.append ("Accept", TTL_TYPE);
-		else if (format == RdfFormat.TRIG)
-			headers.append ("Accept", TRIG_TYPE);
-
-		return message;
-	}
-
-	private Soup.Message create_request (string sparql) {
-		var uri = _base_uri + "?query=" + GLib.Uri.escape_string (sparql, null, false);
-		var message = new Soup.Message ("GET", uri);
-#if SOUP2
-		var headers = message.request_headers;
-#else
-                var headers = message.get_request_headers();
-#endif
-
-		headers.append ("User-Agent", USER_AGENT);
-		headers.append ("Accept", JSON_TYPE);
-		headers.append ("Accept", XML_TYPE);
-
-		return message;
-	}
-
-	private Sparql.Cursor create_cursor (Soup.Message message, string document) throws GLib.Error, Sparql.Error {
-#if SOUP2
-                var status_code = message.status_code;
-                var headers = message.response_headers;
-#else
-                var status_code = message.get_status();
-                var headers = message.get_response_headers();
-#endif
-
-		if (status_code != Soup.Status.OK) {
-			throw new Sparql.Error.UNSUPPORTED ("Unhandled status code %u, document is: %s",
-			                                    status_code, document);
-		}
-
-		var content_type = headers.get_content_type (null);
-		long length = document.length;
-
-		if (content_type == JSON_TYPE) {
-			return new Tracker.Remote.JsonCursor (document, length);
-		} else if (content_type == XML_TYPE) {
-			return new Tracker.Remote.XmlCursor (document, length);
+		if (format == SerializerFormat.JSON) {
+			return new Tracker.Remote.JsonCursor ((string) buffer, (long) len);
+		} else if (format == SerializerFormat.XML) {
+			return new Tracker.Remote.XmlCursor ((string) buffer, (long) len);
 		} else {
-			throw new Sparql.Error.UNSUPPORTED ("Unknown content type '%s', document is: %s", content_type, document);
+			throw new Sparql.Error.UNSUPPORTED ("Unparseable content type, document is: %s", (string) buffer);
 		}
 	}
 
 	public override Sparql.Cursor query (string sparql, Cancellable? cancellable) throws GLib.Error, Sparql.Error, IOError {
-		var message = create_request (sparql);
+		uint flags =
+			(1 << SerializerFormat.JSON) |
+			(1 << SerializerFormat.XML);
+		SerializerFormat format;
+		var istream = _client.send_message (_base_uri, sparql, flags, cancellable, out format);
 
-#if SOUP2
-		_session.send_message (message);
-		var data = (string) message.response_body.flatten ().data;
-#else
-		var body = _session.send_and_read (message);
-		var data = (string) body.get_data();
-#endif
-
-		if (data == null || data == "")
-			throw new Sparql.Error.UNSUPPORTED ("Empty response");
-
-		if (cancellable != null && cancellable.is_cancelled ())
-			throw new IOError.CANCELLED ("Operation was cancelled");
-
-                return create_cursor (message, (string) data);
+		return create_cursor (istream, format);
 	}
 
 	public async override Sparql.Cursor query_async (string sparql, Cancellable? cancellable) throws GLib.Error, Sparql.Error, IOError {
-		var message = create_request (sparql);
+		uint flags =
+			(1 << SerializerFormat.JSON) |
+			(1 << SerializerFormat.XML);
+		SerializerFormat format;
+		var istream = yield _client.send_message_async (_base_uri, sparql, flags, cancellable, out format);
 
-#if SOUP2
-		yield _session.send_async (message, cancellable);
-                return create_cursor (message, (string) message.response_body.flatten ().data);
-#else
-                var body = yield _session.send_and_read_async (message, GLib.Priority.DEFAULT, cancellable);
-                return create_cursor (message, (string) body.get_data());
-#endif
+		return create_cursor (istream, format);
 	}
 
 	public override Sparql.Statement? query_statement (string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error {
@@ -143,11 +74,13 @@ public class Tracker.Remote.Connection : Tracker.Sparql.Connection {
 	}
 
 	public async override GLib.InputStream serialize_async (SerializeFlags flags, RdfFormat format, string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
-		var message = create_describe_request (sparql, format);
-#if SOUP2
-		return yield _session.send_async (message, cancellable);
-#else
-		return yield _session.send_async (message, GLib.Priority.DEFAULT, cancellable);
-#endif
+		uint formats = 0;
+		if (format == RdfFormat.TURTLE)
+			formats = 1 << SerializerFormat.TTL;
+		else if (format == RdfFormat.TRIG)
+			formats = 1 << SerializerFormat.TRIG;
+
+		SerializerFormat unused;
+		return yield _client.send_message_async (_base_uri, sparql, formats, cancellable, out unused);
 	}
 }

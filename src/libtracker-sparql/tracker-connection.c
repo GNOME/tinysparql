@@ -60,10 +60,6 @@
 
 #include "tracker-connection.h"
 #include "tracker-private.h"
-#include "tracker-serializer-json.h"
-#include "tracker-serializer-trig.h"
-#include "tracker-serializer-turtle.h"
-#include "tracker-serializer-xml.h"
 
 G_DEFINE_ABSTRACT_TYPE (TrackerSparqlConnection, tracker_sparql_connection,
                         G_TYPE_OBJECT)
@@ -87,14 +83,6 @@ tracker_sparql_connection_class_init (TrackerSparqlConnectionClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->dispose = tracker_sparql_connection_dispose;
-
-	/* Ensure serializer types, we want all of these initialized before
-	 * the remote soup 2/3 modules gets to initialize them.
-	 */
-	g_type_ensure (TRACKER_TYPE_SERIALIZER_XML);
-	g_type_ensure (TRACKER_TYPE_SERIALIZER_JSON);
-	g_type_ensure (TRACKER_TYPE_SERIALIZER_TURTLE);
-	g_type_ensure (TRACKER_TYPE_SERIALIZER_TRIG);
 }
 
 gboolean

@@ -82,3 +82,8 @@ public static async Tracker.Sparql.Connection tracker_sparql_connection_new_asyn
 	yield conn.init_async (Priority.DEFAULT, cancellable);
 	return conn;
 }
+
+public static Tracker.Sparql.Connection tracker_sparql_connection_remote_new (string uri_base) {
+	Tracker.get_debug_flags ();
+	return new Tracker.Remote.Connection (uri_base);
+}

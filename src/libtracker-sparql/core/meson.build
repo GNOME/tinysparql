@@ -38,22 +38,3 @@ core_files += [
     tracker_data_enums[0],
     tracker_data_enums[1],
 ]
-
-libtracker_data = static_library('tracker-data',
-    core_files,
-    c_args: tracker_c_args,
-    gnu_symbol_visibility: 'hidden',
-    # We do *not* want --no-undefined here, this library uses
-    # symbols from libtracker-sparql, but does not mean it should
-    # be linked to it.
-    override_options: ['b_lundef=false'],
-    dependencies: tracker_data_dependencies + [unicode_library],
-    include_directories: [commoninc, configinc, srcinc],
-)
-
-tracker_data_dep = declare_dependency(
-    link_with: [libtracker_data],
-    dependencies: tracker_data_dependencies,
-    include_directories: include_directories('.'),
-    sources: enums[1],
-)
