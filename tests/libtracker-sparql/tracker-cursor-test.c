@@ -133,23 +133,23 @@ query_and_compare_results (const char *query)
 }
 
 static void
-test_tracker_sparql_query_iterate (gpointer      *fixture,
-                                   gconstpointer  user_data)
+test_tracker_sparql_query_iterate (gpointer      fixture,
+                                   gconstpointer user_data)
 {
 	query_and_compare_results ("SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}");
 }
 
 static void
-test_tracker_sparql_query_iterate_largerow (gpointer      *fixture,
-                                            gconstpointer  user_data)
+test_tracker_sparql_query_iterate_largerow (gpointer      fixture,
+                                            gconstpointer user_data)
 {
 	query_and_compare_results ("SELECT nao:identifier(?r) WHERE {?r a nmm:Photo}");
 }
 
 /* Runs an invalid query */
 static void
-test_tracker_sparql_query_iterate_error (gpointer      *fixture,
-                                         gconstpointer  user_data)
+test_tracker_sparql_query_iterate_error (gpointer      fixture,
+                                         gconstpointer user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -173,8 +173,8 @@ test_tracker_sparql_query_iterate_error (gpointer      *fixture,
 
 /* Runs a query returning an empty set */
 static void
-test_tracker_sparql_query_iterate_empty_subprocess (gpointer      *fixture,
-                                                    gconstpointer  user_data)
+test_tracker_sparql_query_iterate_empty_subprocess (gpointer      fixture,
+                                                    gconstpointer user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -194,8 +194,8 @@ test_tracker_sparql_query_iterate_empty_subprocess (gpointer      *fixture,
 }
 
 static void
-test_tracker_sparql_query_iterate_empty (gpointer      *fixture,
-                                         gconstpointer  user_data)
+test_tracker_sparql_query_iterate_empty (gpointer      fixture,
+                                         gconstpointer user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -219,8 +219,8 @@ test_tracker_sparql_query_iterate_empty (gpointer      *fixture,
 
 /* Closes the cursor before all results are read */
 static void
-test_tracker_sparql_query_iterate_sigpipe (gpointer      *fixture,
-                                           gconstpointer  user_data)
+test_tracker_sparql_query_iterate_sigpipe (gpointer      fixture,
+                                           gconstpointer user_data)
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
@@ -265,8 +265,8 @@ async_query_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_query_iterate_async (gpointer      *fixture,
-                                         gconstpointer  user_data)
+test_tracker_sparql_query_iterate_async (gpointer      fixture,
+                                         gconstpointer user_data)
 {
 	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
 	GMainLoop *main_loop;
@@ -307,8 +307,8 @@ cancel_query_cb (GObject      *source_object,
 }
 
 static void
-test_tracker_sparql_query_iterate_async_cancel (gpointer      *fixture,
-                                                gconstpointer  user_data)
+test_tracker_sparql_query_iterate_async_cancel (gpointer      fixture,
+                                                gconstpointer user_data)
 {
 	const gchar *query = "SELECT ?r nie:url(?r) WHERE {?r a nfo:FileDataObject}";
 	GMainLoop *main_loop;
@@ -492,8 +492,8 @@ test_tracker_sparql_cursor_next_async_query (TrackerSparqlConnection *connection
 }
 
 static void
-test_tracker_sparql_cursor_next_async (gpointer      *fixture,
-                                       gconstpointer  user_data)
+test_tracker_sparql_cursor_next_async (gpointer      fixture,
+                                       gconstpointer user_data)
 {
 	TrackerSparqlConnection *connection;
 	GError *error = NULL;
@@ -515,8 +515,8 @@ test_tracker_sparql_cursor_next_async (gpointer      *fixture,
 }
 
 static void
-test_tracker_sparql_cursor_get_variable_name (gpointer      *fixture,
-                                              gconstpointer  user_data)
+test_tracker_sparql_cursor_get_variable_name (gpointer      fixture,
+                                              gconstpointer user_data)
 {
 	TrackerSparqlConnection *connection;
 	TrackerSparqlCursor *cursor;
@@ -556,8 +556,8 @@ test_tracker_sparql_cursor_get_variable_name (gpointer      *fixture,
 }
 
 static void
-test_tracker_sparql_cursor_get_value_type (gpointer      *fixture,
-                                           gconstpointer  user_data)
+test_tracker_sparql_cursor_get_value_type (gpointer      fixture,
+                                           gconstpointer user_data)
 {
 	TrackerSparqlConnection *connection;
 	TrackerSparqlCursor *cursor;
@@ -596,6 +596,43 @@ test_tracker_sparql_cursor_get_value_type (gpointer      *fixture,
 	tracker_sparql_connection_close (connection);
 }
 
+typedef struct {
+	const gchar *name;
+	GTestFixtureFunc func;
+} TestInfo;
+
+TestInfo tests[] = {
+	{ "tracker_sparql_query_iterate", test_tracker_sparql_query_iterate },
+	{ "tracker_sparql_query_iterate_largerow", test_tracker_sparql_query_iterate_largerow },
+	{ "tracker_sparql_query_iterate_error", test_tracker_sparql_query_iterate_error },
+	{ "tracker_sparql_query_iterate_empty", test_tracker_sparql_query_iterate_empty },
+	{ "tracker_sparql_query_iterate_empty/subprocess", test_tracker_sparql_query_iterate_empty_subprocess },
+	{ "tracker_sparql_query_iterate_sigpipe", test_tracker_sparql_query_iterate_sigpipe },
+	{ "tracker_sparql_query_iterate_async", test_tracker_sparql_query_iterate_async },
+	{ "tracker_sparql_query_iterate_async_cancel", test_tracker_sparql_query_iterate_async_cancel },
+	{ "tracker_sparql_cursor_next_async", test_tracker_sparql_cursor_next_async },
+	{ "tracker_sparql_cursor_get_variable_name", test_tracker_sparql_cursor_get_variable_name },
+	{ "tracker_sparql_cursor_get_value_type", test_tracker_sparql_cursor_get_value_type },
+};
+
+static void
+add_tests (void)
+{
+	guint i;
+
+	for (i = 0; i < G_N_ELEMENTS (tests); i++) {
+		gchar *test_name;
+
+		test_name = g_strdup_printf ("/libtracker-sparql/cursor/%s", tests[i].name);
+		g_test_add (test_name,
+		            gpointer, NULL,
+		            insert_test_data,
+		            (void (*) (gpointer *, gconstpointer)) tests[i].func,
+		            delete_test_data);
+		g_free (test_name);
+	}
+}
+
 gint
 main (gint argc, gchar **argv)
 {
@@ -603,35 +640,7 @@ main (gint argc, gchar **argv)
 
 	connection = create_dbus_connection (NULL);
 
-	g_test_add ("/libtracker-sparql/cursor/tracker_sparql_query_iterate", gpointer, NULL, insert_test_data,
-	            test_tracker_sparql_query_iterate, delete_test_data);
-	g_test_add ("/libtracker-sparql/cursor/tracker_sparql_query_iterate_largerow", gpointer, NULL, insert_test_data,
-	            test_tracker_sparql_query_iterate_largerow, delete_test_data);
-	g_test_add ("/libtracker-sparql/cursor/tracker_sparql_query_iterate_error", gpointer, NULL, insert_test_data,
-	            test_tracker_sparql_query_iterate_error, delete_test_data);
-	g_test_add ("/libtracker-sparql/cursor/tracker_sparql_query_iterate_empty", gpointer, NULL, insert_test_data,
-	            test_tracker_sparql_query_iterate_empty, delete_test_data);
-	g_test_add ("/libtracker-sparql/cursor/tracker_sparql_query_iterate_empty/subprocess", gpointer, NULL,
-	            insert_test_data, test_tracker_sparql_query_iterate_empty_subprocess, delete_test_data);
-	g_test_add ("/libtracker-sparql/cursor/tracker_sparql_query_iterate_sigpipe", gpointer, NULL, insert_test_data,
-	            test_tracker_sparql_query_iterate_sigpipe, delete_test_data);
-	g_test_add ("/libtracker-sparql/cursor/tracker_sparql_query_iterate_async", gpointer, NULL, insert_test_data,
-	            test_tracker_sparql_query_iterate_async, delete_test_data);
-	g_test_add ("/libtracker-sparql/cursor/tracker_sparql_query_iterate_async_cancel", gpointer, NULL, insert_test_data,
-	            test_tracker_sparql_query_iterate_async_cancel, delete_test_data);
-
-	g_test_add ("/libtracker-sparql/cursor/tracker_sparql_cursor_next_async",
-	            gpointer, NULL, insert_test_data,
-	            test_tracker_sparql_cursor_next_async,
-	            delete_test_data);
-	g_test_add ("/libtracker-sparql/cursor/tracker_sparql_cursor_get_variable_name",
-	            gpointer, NULL, insert_test_data,
-	            test_tracker_sparql_cursor_get_variable_name,
-	            delete_test_data);
-	g_test_add ("/libtracker-sparql/cursor/tracker_sparql_cursor_get_value_type",
-	            gpointer, NULL, insert_test_data,
-	            test_tracker_sparql_cursor_get_value_type,
-	            delete_test_data);
+	add_tests ();
 
 	return g_test_run ();
 }
