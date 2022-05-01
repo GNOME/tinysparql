@@ -141,12 +141,12 @@ query_and_compare_results (TrackerSparqlConnection *conn,
 	GError *error = NULL;
 
 	cursor_check = tracker_sparql_connection_query (direct, query, NULL, &error);
-
 	g_assert_no_error (error);
+	g_assert_true (tracker_sparql_cursor_get_connection (cursor_check) == direct);
 
 	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
-
 	g_assert_no_error (error);
+	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
 
 	compare_cursors (cursor_check, cursor);
 
@@ -183,9 +183,8 @@ test_tracker_sparql_query_iterate_error (gpointer      fixture,
 	const gchar *query = "bork bork bork";
 
 	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
-
 	/* tracker_sparql_query_iterate should return null on error */
-	g_assert_true (!cursor);
+	g_assert_null (cursor);
 
 	/* error should be set, along with its message, note: we don't
 	 * use g_assert_error() because the code does not match the
@@ -209,9 +208,9 @@ test_tracker_sparql_query_iterate_empty (gpointer      fixture,
 	const gchar *query = "SELECT ?r WHERE {?r a nfo:FileDataObject; nao:identifier \"thisannotationdoesnotexist\"}";
 
 	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
-
 	g_assert_true (cursor);
 	g_assert_no_error (error);
+	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
 
 	g_assert_false (tracker_sparql_cursor_next (cursor, NULL, NULL));
 	g_assert_true (tracker_sparql_cursor_get_n_columns (cursor) == 1);
@@ -232,9 +231,9 @@ test_tracker_sparql_query_iterate_close_early (gpointer      fixture,
 	const gchar *query = "SELECT ?r WHERE {?r a nfo:FileDataObject}";
 
 	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
-
 	g_assert_true (cursor);
 	g_assert_no_error (error);
+	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
 
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, NULL));
 
@@ -254,14 +253,14 @@ async_query_cb (GObject      *source_object,
 	g_main_loop_quit (data->main_loop);
 
 	cursor = tracker_sparql_connection_query_finish (conn, result, &error);
-
 	g_assert_no_error (error);
 	g_assert_true (cursor != NULL);
+	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
 
 	cursor_check = tracker_sparql_connection_query (direct, data->query, NULL, &error);
-
 	g_assert_no_error (error);
 	g_assert_true (cursor_check != NULL);
+	g_assert_true (tracker_sparql_cursor_get_connection (cursor_check) == direct);
 
 	compare_cursors (cursor_check, cursor);
 
@@ -501,6 +500,7 @@ test_tracker_sparql_cursor_next_async_query (TrackerSparqlConnection *conn,
 	                                          &error);
 	g_assert_no_error (error);
 	g_assert_true (cursor != NULL);
+	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
 
 	tracker_sparql_cursor_next_async (cursor,
 	                                  cancellable,
@@ -543,6 +543,7 @@ test_tracker_sparql_cursor_get_variable_name (gpointer      fixture,
 						  NULL, &error);
 	g_assert_no_error (error);
 	g_assert_true (cursor != NULL);
+	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
 
 	tracker_sparql_cursor_next (cursor, NULL, &error);
 	g_assert_no_error (error);
@@ -581,6 +582,7 @@ test_tracker_sparql_cursor_get_value_type (gpointer      fixture,
 						  NULL, &error);
 	g_assert_no_error (error);
 	g_assert_true (cursor != NULL);
+	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
 
 	tracker_sparql_cursor_next (cursor, NULL, &error);
 	g_assert_no_error (error);
