@@ -28,7 +28,6 @@ core_files = files(
     'tracker-sparql-parser.c',
     'tracker-sparql-types.c',
     'tracker-sparql.c',
-    'tracker-turtle-reader.c',
     'tracker-uuid.c',
     'tracker-vtab-service.c',
     'tracker-vtab-triples.c',

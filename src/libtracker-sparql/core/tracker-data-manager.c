@@ -27,6 +27,8 @@
 #include <libtracker-common/tracker-debug.h>
 #include <libtracker-common/tracker-locale.h>
 
+#include <libtracker-sparql/tracker-deserializer-rdf.h>
+
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-update.h"
@@ -39,7 +41,6 @@
 #include "tracker-property.h"
 #include "tracker-data-query.h"
 #include "tracker-sparql-parser.h"
-#include "tracker-turtle-reader.h"
 
 #define RDF_PROPERTY                    TRACKER_PREFIX_RDF "Property"
 #define RDF_TYPE                        TRACKER_PREFIX_RDF "type"
@@ -2055,16 +2056,16 @@ load_ontology_file (TrackerDataManager  *manager,
                     guint               *num_parsing_errors,
                     GError             **error)
 {
-	TrackerTurtleReader *reader;
+	TrackerSparqlCursor *deserializer;
 	GError *ttl_error = NULL;
 	gchar *ontology_uri = g_file_get_uri (file);
 	const gchar *subject, *predicate, *object;
-	goffset object_line_no, object_column_no;
+	goffset object_line_no = 0, object_column_no = 0;
 
 	if (num_parsing_errors)
 		*num_parsing_errors = 0;
 
-	reader = tracker_turtle_reader_new_for_file (file, &ttl_error);
+	deserializer = tracker_deserializer_new_for_file (file, NULL, &ttl_error);
 
 	if (ttl_error) {
 		g_propagate_prefixed_error (error, ttl_error, "%s: ", ontology_uri);
@@ -2075,12 +2076,23 @@ load_ontology_file (TrackerDataManager  *manager,
 	/* Post checks are only needed for ontology updates, not the initial
 	 * ontology */
 
-	while (tracker_turtle_reader_next (reader,
-	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, &object_line_no,
-	                                   &object_column_no, &ttl_error)) {
+	while (tracker_sparql_cursor_next (deserializer, NULL, &ttl_error)) {
 		GError *ontology_error = NULL;
 		gboolean loaded_successfully;
+
+		subject = tracker_sparql_cursor_get_string (deserializer,
+		                                            TRACKER_RDF_COL_SUBJECT,
+		                                            NULL);
+		predicate = tracker_sparql_cursor_get_string (deserializer,
+		                                              TRACKER_RDF_COL_PREDICATE,
+		                                              NULL);
+		object = tracker_sparql_cursor_get_string (deserializer,
+		                                           TRACKER_RDF_COL_OBJECT,
+		                                           NULL);
+
+		tracker_deserializer_get_parser_location (TRACKER_DESERIALIZER (deserializer),
+		                                          &object_line_no,
+		                                          &object_column_no);
 
 		tracker_data_ontology_load_statement (manager, ontology_uri,
 		                                      subject, predicate, object,
@@ -2098,13 +2110,16 @@ load_ontology_file (TrackerDataManager  *manager,
 	}
 
 	if (ttl_error) {
+		tracker_deserializer_get_parser_location (TRACKER_DESERIALIZER (deserializer),
+		                                          &object_line_no,
+		                                          &object_column_no);
 		g_propagate_prefixed_error (error, ttl_error,
 		                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
 		                            ontology_uri, object_line_no, object_column_no);
 	}
 
 	g_free (ontology_uri);
-	g_object_unref (reader);
+	g_object_unref (deserializer);
 }
 
 
@@ -2114,14 +2129,14 @@ get_ontology_from_file (TrackerDataManager *manager,
                         GError            **error)
 {
 	const gchar *subject, *predicate, *object;
-	TrackerTurtleReader *reader;
+	TrackerSparqlCursor *deserializer;
 	GError *internal_error = NULL;
 	GHashTable *ontology_uris;
 	TrackerOntology *ret = NULL;
-	goffset object_line_no, object_column_no;
+	goffset object_line_no = 0, object_column_no = 0;
 	gchar *ontology_uri = g_file_get_uri (file);
 
-	reader = tracker_turtle_reader_new_for_file (file, &internal_error);
+	deserializer = tracker_deserializer_new_for_file (file, NULL, &internal_error);
 
 	if (internal_error) {
 		g_propagate_prefixed_error (error, internal_error, "%s: ", ontology_uri);
@@ -2133,10 +2148,21 @@ get_ontology_from_file (TrackerDataManager *manager,
 	                                       g_free,
 	                                       g_object_unref);
 
-	while (tracker_turtle_reader_next (reader,
-	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, &object_line_no,
-	                                   &object_column_no, &internal_error)) {
+	while (tracker_sparql_cursor_next (deserializer, NULL, &internal_error)) {
+		subject = tracker_sparql_cursor_get_string (deserializer,
+		                                            TRACKER_RDF_COL_SUBJECT,
+		                                            NULL);
+		predicate = tracker_sparql_cursor_get_string (deserializer,
+		                                              TRACKER_RDF_COL_PREDICATE,
+		                                              NULL);
+		object = tracker_sparql_cursor_get_string (deserializer,
+		                                           TRACKER_RDF_COL_OBJECT,
+		                                           NULL);
+
+		tracker_deserializer_get_parser_location (TRACKER_DESERIALIZER (deserializer),
+		                                          &object_line_no,
+		                                          &object_column_no);
+
 		if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 			if (g_strcmp0 (object, TRACKER_PREFIX_NRL "Ontology") == 0) {
 				TrackerOntology *ontology;
@@ -2182,7 +2208,7 @@ get_ontology_from_file (TrackerDataManager *manager,
 	}
 
 	g_hash_table_unref (ontology_uris);
-	g_object_unref (reader);
+	g_object_unref (deserializer);
 
 	if (internal_error) {
 		g_propagate_prefixed_error (error, internal_error,
@@ -2333,22 +2359,32 @@ import_ontology_file (TrackerDataManager  *manager,
                       GError             **error)
 {
 	const gchar *subject, *predicate, *object;
-	TrackerTurtleReader* reader;
-	goffset object_line_no, object_column_no;
+	TrackerSparqlCursor *deserializer;
+	goffset object_line_no = 0, object_column_no = 0;
 	gchar *ontology_uri = g_file_get_uri (file);
 
-	reader = tracker_turtle_reader_new_for_file (file, error);
+	deserializer = tracker_deserializer_new_for_file (file, NULL, error);
 
-	if (!reader) {
+	if (!deserializer) {
 		g_prefix_error (error, "%s:", ontology_uri);
 		goto out;
 	}
 
-	while (tracker_turtle_reader_next (reader,
-	                                   &subject, &predicate, &object,
-	                                   NULL, NULL, &object_line_no,
-	                                   &object_column_no, error)) {
+	while (tracker_sparql_cursor_next (deserializer, NULL, error)) {
 		GError *internal_error = NULL;
+		subject = tracker_sparql_cursor_get_string (deserializer,
+		                                            TRACKER_RDF_COL_SUBJECT,
+		                                            NULL);
+		predicate = tracker_sparql_cursor_get_string (deserializer,
+		                                              TRACKER_RDF_COL_PREDICATE,
+		                                              NULL);
+		object = tracker_sparql_cursor_get_string (deserializer,
+		                                           TRACKER_RDF_COL_OBJECT,
+		                                           NULL);
+
+		tracker_deserializer_get_parser_location (TRACKER_DESERIALIZER (deserializer),
+		                                          &object_line_no,
+		                                          &object_column_no);
 
 		tracker_data_ontology_process_statement (manager,
 		                                         subject, predicate, object,
@@ -2367,7 +2403,7 @@ import_ontology_file (TrackerDataManager  *manager,
 		                ontology_uri, object_line_no, object_column_no);
 	}
 
-	g_object_unref (reader);
+	g_object_unref (deserializer);
 
 out:
 	g_free (ontology_uri);
