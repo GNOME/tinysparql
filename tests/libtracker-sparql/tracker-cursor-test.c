@@ -98,10 +98,32 @@ static void
 compare_cursors (TrackerSparqlCursor *cursor_a,
                  TrackerSparqlCursor *cursor_b)
 {
+	gint col, n_cols;
+
+	g_assert_cmpint (tracker_sparql_cursor_get_n_columns (cursor_a),
+	                 ==,
+	                 tracker_sparql_cursor_get_n_columns (cursor_b));
+
+	n_cols = tracker_sparql_cursor_get_n_columns (cursor_a);
+
 	while (tracker_sparql_cursor_next (cursor_a, NULL, NULL) && tracker_sparql_cursor_next (cursor_b, NULL, NULL)) {
-		g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor_a, 0, NULL),
-				 ==,
-				 tracker_sparql_cursor_get_string (cursor_b, 0, NULL));
+		for (col = 0; col < n_cols; col++) {
+			g_assert_cmpstr (tracker_sparql_cursor_get_variable_name (cursor_a, col),
+			                 ==,
+			                 tracker_sparql_cursor_get_variable_name (cursor_b, col));
+
+			g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor_a, col, NULL),
+			                 ==,
+			                 tracker_sparql_cursor_get_string (cursor_b, col, NULL));
+
+			g_assert_cmpint (tracker_sparql_cursor_is_bound (cursor_a, col),
+			                 ==,
+			                 tracker_sparql_cursor_is_bound (cursor_b, col));
+
+			g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor_a, col),
+			                 ==,
+			                 tracker_sparql_cursor_get_value_type (cursor_b, col));
+		}
 	}
 
 	/* Check that both cursors are at the end (same number of rows) */
