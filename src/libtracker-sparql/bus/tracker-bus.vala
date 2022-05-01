@@ -191,7 +191,7 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	}
 
 	public override Sparql.Statement? query_statement (string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error {
-		return new Bus.Statement (bus, dbus_name, object_path, sparql);
+		return new Bus.Statement (this, bus, dbus_name, object_path, sparql);
 	}
 
 	static void send_update (DBusConnection bus, string dbus_name, string object_path, string method, UnixInputStream input, Cancellable? cancellable, AsyncReadyCallback? callback) throws GLib.Error, GLib.IOError {

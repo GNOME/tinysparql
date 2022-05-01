@@ -41,6 +41,25 @@ tests += {
   'suite': ['sparql'],
 }
 
+tracker_cursor_test = executable('tracker-cursor-test',
+  'tracker-cursor-test.c',
+  dependencies: [tracker_common_dep, tracker_sparql_dep],
+  c_args: libtracker_sparql_test_c_args)
+
+tests += {
+  'name': 'cursor+json',
+  'exe': tracker_cursor_test,
+  'suite': ['sparql'],
+  'env': { 'TRACKER_TEST_PREFERRED_CURSOR_FORMAT': '0' },
+}
+
+tests += {
+  'name': 'cursor+xml',
+  'exe': tracker_cursor_test,
+  'suite': ['sparql'],
+  'env': { 'TRACKER_TEST_PREFERRED_CURSOR_FORMAT': '1' },
+}
+
 test_gresources = gnome.compile_resources('test_gresources', 'statement-queries.gresource.xml')
 
 tracker_statement_test = executable('tracker-statement-test',

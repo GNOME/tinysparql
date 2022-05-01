@@ -212,6 +212,7 @@ query_statement (TestFixture   *test_fixture,
 		stmt = tracker_sparql_connection_query_statement (test_fixture->conn, query,
 		                                                  NULL, &error);
 		g_free (query);
+		g_assert_true (tracker_sparql_statement_get_connection (stmt) == test_fixture->conn);
 	}
 
 	g_assert_no_error (error);
@@ -227,18 +228,22 @@ query_statement (TestFixture   *test_fixture,
 	}
 
 	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
-	g_object_unref (stmt);
 
 	if (test_info->output_file) {
 		g_assert_no_error (error);
+		g_assert_true (tracker_sparql_cursor_get_connection (cursor) ==
+		               tracker_sparql_statement_get_connection (stmt));
 
 		path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
 		                         test_info->output_file, NULL);
 		check_result (cursor, path);
 		g_free (path);
+		g_object_unref (cursor);
 	} else {
 		g_assert_nonnull (error);
 	}
+
+	g_object_unref (stmt);
 }
 
 TrackerSparqlConnection *

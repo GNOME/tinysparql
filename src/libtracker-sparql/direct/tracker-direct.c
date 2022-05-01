@@ -813,9 +813,6 @@ tracker_direct_connection_query (TrackerSparqlConnection  *self,
 	cursor = tracker_sparql_execute_cursor (query, NULL, &inner_error);
 	tracker_direct_connection_update_timestamp (conn);
 	g_object_unref (query);
-
-	if (cursor)
-		tracker_sparql_cursor_set_connection (cursor, self);
 	g_mutex_unlock (&priv->mutex);
 
 	if (inner_error)

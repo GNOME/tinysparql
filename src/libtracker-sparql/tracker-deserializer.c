@@ -23,6 +23,8 @@
 
 #include "tracker-deserializer.h"
 #include "tracker-deserializer-turtle.h"
+#include "tracker-deserializer-json.h"
+#include "tracker-deserializer-xml.h"
 
 #include "tracker-private.h"
 
@@ -170,6 +172,10 @@ tracker_deserializer_new (GInputStream            *stream,
 	g_return_val_if_fail (G_IS_INPUT_STREAM (stream), NULL);
 
 	switch (format) {
+	case TRACKER_SERIALIZER_FORMAT_JSON:
+		return tracker_deserializer_json_new (stream, namespaces);
+	case TRACKER_SERIALIZER_FORMAT_XML:
+		return tracker_deserializer_xml_new (stream, namespaces);
 	case TRACKER_SERIALIZER_FORMAT_TTL:
 		return tracker_deserializer_turtle_new (stream, namespaces);
 	case TRACKER_SERIALIZER_FORMAT_TRIG:

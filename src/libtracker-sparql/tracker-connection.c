@@ -251,15 +251,21 @@ tracker_sparql_connection_query (TrackerSparqlConnection  *connection,
                                  GCancellable             *cancellable,
                                  GError                  **error)
 {
+	TrackerSparqlCursor *cursor;
+
 	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), NULL);
 	g_return_val_if_fail (sparql != NULL, NULL);
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
 
-	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->query (connection,
-	                                                                sparql,
-	                                                                cancellable,
-	                                                                error);
+	cursor = TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->query (connection,
+	                                                                  sparql,
+	                                                                  cancellable,
+	                                                                  error);
+	if (cursor)
+		tracker_sparql_cursor_set_connection (cursor, connection);
+
+	return cursor;
 }
 
 /**
@@ -308,13 +314,19 @@ tracker_sparql_connection_query_finish (TrackerSparqlConnection  *connection,
                                         GAsyncResult             *res,
                                         GError                  **error)
 {
+	TrackerSparqlCursor *cursor;
+
 	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), NULL);
 	g_return_val_if_fail (G_IS_ASYNC_RESULT (res), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
 
-	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->query_finish (connection,
-	                                                                       res,
-	                                                                       error);
+	cursor = TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->query_finish (connection,
+	                                                                         res,
+	                                                                         error);
+	if (cursor)
+		tracker_sparql_cursor_set_connection (cursor, connection);
+
+	return cursor;
 }
 
 /**
