@@ -138,6 +138,17 @@ pick_format (guint                    formats,
              TrackerSerializerFormat *format)
 {
 	TrackerSerializerFormat i;
+	const gchar *test_format;
+
+	test_format = g_getenv ("TRACKER_TEST_PREFERRED_CURSOR_FORMAT");
+	if (test_format && g_ascii_isdigit (*test_format)) {
+		int f = atoi (test_format);
+
+		if ((formats & (1 << f)) != 0) {
+			*format = f;
+			return TRUE;
+		}
+	}
 
 	for (i = 0; i < TRACKER_N_SERIALIZER_FORMATS; i++) {
 		if ((formats & (1 << i)) != 0) {

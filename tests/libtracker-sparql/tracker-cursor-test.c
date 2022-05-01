@@ -33,6 +33,8 @@ typedef struct {
 	const gchar *query;
 } AsyncData;
 
+static int http_port;
+
 static TrackerSparqlConnection *direct;
 static TrackerSparqlConnection *dbus;
 static TrackerSparqlConnection *http;
@@ -375,7 +377,7 @@ thread_func (gpointer user_data)
 	endpoint_bus = tracker_endpoint_dbus_new (direct, dbus_conn, NULL, NULL, &error);
 	g_assert_no_error (error);
 
-	endpoint_http = tracker_endpoint_http_new (direct, 54320, NULL, NULL, &error);
+	endpoint_http = tracker_endpoint_http_new (direct, http_port, NULL, NULL, &error);
 	g_assert_no_error (error);
 
 	started = TRUE;
@@ -390,6 +392,9 @@ create_connections (void)
 	GDBusConnection *dbus_conn;
 	GThread *thread;
 	GError *error = NULL;
+	gchar *host;
+
+	http_port = g_test_rand_int_range (30000, 60000);
 
 	dbus_conn = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
 	g_assert_no_error (error);
@@ -399,7 +404,10 @@ create_connections (void)
 	while (!started)
 		g_usleep (100);
 
-	http = tracker_sparql_connection_remote_new ("http://127.0.0.1:54320/sparql");
+	host = g_strdup_printf ("http://127.0.0.1:%d/sparql", http_port);
+	http = tracker_sparql_connection_remote_new (host);
+	g_free (host);
+
 	dbus = tracker_sparql_connection_bus_new (g_dbus_connection_get_unique_name (dbus_conn),
 						  NULL, dbus_conn, &error);
 	g_assert_no_error (error);
