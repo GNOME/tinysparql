@@ -40,8 +40,6 @@ static GMainLoop *main_loop;
 
 #define N_QUERIES 3
 
-static GCancellable *cancellables[N_QUERIES] = { NULL, };
-
 static const gchar *queries[N_QUERIES] = {
 	/* #1 */
 	"SELECT ?p WHERE { ?p nrl:indexed true }",
@@ -386,21 +384,22 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 {
 	TrackerSparqlConnection *connection;
 	TrackerSparqlCursor *cursor;
+	GCancellable *cancellable;
 	GError *error = NULL;
 	gboolean success;
-	static guint finished = 0;
 	static gint next = 0;
 	gint next_to_cancel = 1;
 	gint query;
 
 	query = GPOINTER_TO_INT(user_data);
+	cancellable = g_task_get_cancellable (G_TASK (result));
 
 	g_assert_true (result != NULL);
 	success = tracker_sparql_cursor_next_finish (TRACKER_SPARQL_CURSOR (source),
 	                                             result,
 	                                             &error);
 
-	if (finished == 1 && next == next_to_cancel) {
+	if (query == 1 && next == next_to_cancel) {
 		g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CANCELLED);
 		g_print ("# Got Cancellation GError\n");
 	} else {
@@ -412,13 +411,13 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 	connection = tracker_sparql_cursor_get_connection (cursor);
 
 	if (!success) {
-		finished++;
+		query++;
 		next = 0;
 
-		if (finished == 1 || finished == 2) {
+		if (query == 1 || query == 2) {
 			test_tracker_sparql_cursor_next_async_query (connection,
-			                                             finished);
-		} else if (finished == 3) {
+			                                             query);
+		} else if (query == 3) {
 			g_main_loop_quit (main_loop);
 		}
 	} else {
@@ -427,16 +426,16 @@ test_tracker_sparql_cursor_next_async_cb (GObject      *source,
 		/* Random number here for next_count_to_cancel is "2",
 		 * just want to do this mid-cursor iteration
 		 */
-		if (next == next_to_cancel && finished == 1) {
+		if (next == next_to_cancel && query == 1) {
 			/* Cancel */
 			g_print ("# Cancelling cancellable: at count:%d\n", next);
-			g_cancellable_cancel (cancellables[query]);
+			g_cancellable_cancel (cancellable);
 		}
 
 		tracker_sparql_cursor_next_async (cursor,
-		                                  cancellables[query],
+		                                  cancellable,
 		                                  test_tracker_sparql_cursor_next_async_cb,
-		                                  user_data);
+		                                  GINT_TO_POINTER (query));
 	}
 }
 
@@ -446,12 +445,13 @@ test_tracker_sparql_cursor_next_async_query (TrackerSparqlConnection *connection
 {
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
+	GCancellable *cancellable;
 
 	g_assert_true (query < G_N_ELEMENTS (queries));
 	g_print ("# ASYNC query %d starting:\n", query);
 
-	cancellables[query] = g_cancellable_new ();
-	g_assert_true (cancellables[query] != NULL);
+	cancellable = g_cancellable_new ();
+	g_assert_true (cancellable != NULL);
 
 	cursor = tracker_sparql_connection_query (connection,
 	                                          queries[query],
@@ -461,7 +461,7 @@ test_tracker_sparql_cursor_next_async_query (TrackerSparqlConnection *connection
 	g_assert_true (cursor != NULL);
 
 	tracker_sparql_cursor_next_async (cursor,
-	                                  cancellables[query],
+	                                  cancellable,
 	                                  test_tracker_sparql_cursor_next_async_cb,
 	                                  GINT_TO_POINTER(query));
 }
