@@ -221,8 +221,8 @@ test_tracker_sparql_query_iterate_empty (gpointer      fixture,
 
 /* Closes the cursor before all results are read */
 static void
-test_tracker_sparql_query_iterate_sigpipe (gpointer      fixture,
-                                           gconstpointer user_data)
+test_tracker_sparql_query_iterate_close_early (gpointer      fixture,
+                                               gconstpointer user_data)
 {
 	TrackerSparqlConnection *conn = (TrackerSparqlConnection *) user_data;
 	TrackerSparqlCursor *cursor;
@@ -603,7 +603,7 @@ TestInfo tests[] = {
 	{ "tracker_sparql_query_iterate_largerow", test_tracker_sparql_query_iterate_largerow },
 	{ "tracker_sparql_query_iterate_error", test_tracker_sparql_query_iterate_error },
 	{ "tracker_sparql_query_iterate_empty", test_tracker_sparql_query_iterate_empty },
-	{ "tracker_sparql_query_iterate_sigpipe", test_tracker_sparql_query_iterate_sigpipe },
+	{ "tracker_sparql_query_iterate_close_early", test_tracker_sparql_query_iterate_close_early },
 	{ "tracker_sparql_query_iterate_async", test_tracker_sparql_query_iterate_async },
 	{ "tracker_sparql_query_iterate_async_cancel", test_tracker_sparql_query_iterate_async_cancel },
 	{ "tracker_sparql_cursor_next_async", test_tracker_sparql_cursor_next_async },
