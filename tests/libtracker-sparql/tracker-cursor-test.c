@@ -171,28 +171,6 @@ test_tracker_sparql_query_iterate_error (gpointer      fixture,
 	g_error_free (error);
 }
 
-/* Runs a query returning an empty set */
-static void
-test_tracker_sparql_query_iterate_empty_subprocess (gpointer      fixture,
-                                                    gconstpointer user_data)
-{
-	TrackerSparqlCursor *cursor;
-	GError *error = NULL;
-	const gchar *query = "SELECT ?r WHERE {?r a nfo:FileDataObject; nao:identifier \"thisannotationdoesnotexist\"}";
-
-	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-
-	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, NULL));
-
-	/* Testing we fail with this error:
-	 *
-	 *   Tracker-CRITICAL **:
-	 *   tracker_bus_fd_cursor_real_get_string: assertion '(_tmp0_
-	 *   < _tmp2_) && (_tmp3_ != NULL)' failed
-	 */
-	tracker_sparql_cursor_get_string (cursor, 0, NULL);
-}
-
 static void
 test_tracker_sparql_query_iterate_empty (gpointer      fixture,
                                          gconstpointer user_data)
@@ -206,13 +184,10 @@ test_tracker_sparql_query_iterate_empty (gpointer      fixture,
 	g_assert_true (cursor);
 	g_assert_no_error (error);
 
-	g_assert_true (!tracker_sparql_cursor_next (cursor, NULL, NULL));
-	/* This should be 1, the original test had it wrong: there's one column,
-	 * no matter if there are no results*/
+	g_assert_false (tracker_sparql_cursor_next (cursor, NULL, NULL));
 	g_assert_true (tracker_sparql_cursor_get_n_columns (cursor) == 1);
 
-	g_test_trap_subprocess ("/libtracker-sparql/cursor/tracker_sparql_query_iterate_empty/subprocess", 0, 0);
-	g_test_trap_assert_failed ();
+	/* FIXME: test behavior of cursor getters after last value */
 
 	g_object_unref (cursor);
 }
@@ -606,7 +581,6 @@ TestInfo tests[] = {
 	{ "tracker_sparql_query_iterate_largerow", test_tracker_sparql_query_iterate_largerow },
 	{ "tracker_sparql_query_iterate_error", test_tracker_sparql_query_iterate_error },
 	{ "tracker_sparql_query_iterate_empty", test_tracker_sparql_query_iterate_empty },
-	{ "tracker_sparql_query_iterate_empty/subprocess", test_tracker_sparql_query_iterate_empty_subprocess },
 	{ "tracker_sparql_query_iterate_sigpipe", test_tracker_sparql_query_iterate_sigpipe },
 	{ "tracker_sparql_query_iterate_async", test_tracker_sparql_query_iterate_async },
 	{ "tracker_sparql_query_iterate_async_cancel", test_tracker_sparql_query_iterate_async_cancel },
