@@ -12,7 +12,7 @@ if libsoup2.found()
         module_sources,
         dependencies: [libsoup2],
         c_args: tracker_c_args + [
-            '-include', 'config.h',
+            '-include', join_paths(build_root, 'config.h'),
             '-include', '../tracker-enums-private.h',
             '-DMODULE',
         ],
@@ -28,7 +28,7 @@ if libsoup3.found()
         module_sources,
         dependencies: [libsoup3],
         c_args: tracker_c_args + [
-            '-include', 'config.h',
+            '-include', join_paths(build_root, 'config.h'),
             '-include', '../tracker-enums-private.h',
             '-DMODULE',
         ],
