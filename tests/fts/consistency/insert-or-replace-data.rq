@@ -1,0 +1,7 @@
+INSERT OR REPLACE {
+	test:1 a test:A ; test:p "one" .
+};
+
+INSERT OR REPLACE {
+	test:1 a test:A ; test:p "two" .
+};

@@ -1,0 +1,11 @@
+INSERT DATA {
+	test:1 a test:A ; test:p "one" ; test:q "two" .
+};
+
+DELETE DATA {
+	test:1 test:q "two" .
+}
+
+INSERT DATA {
+	test:1 test:q "three" .
+};
