@@ -1694,6 +1694,7 @@ get_old_property_values (TrackerData      *data,
 				g_ptr_array_unref (fts_text);
 
 				old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
+				data->resource_buffer->fts_updated = TRUE;
 			} else {
 				old_values = get_property_values (data, property, error);
 			}
