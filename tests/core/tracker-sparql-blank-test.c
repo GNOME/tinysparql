@@ -124,6 +124,267 @@ test_blank (TestInfo      *info,
 }
 
 static void
+check_bnode_default (TrackerSparqlConnection *conn)
+{
+	GError *error = NULL;
+	TrackerSparqlCursor *cursor;
+	gchar *bnode_name, *query;
+	gboolean next;
+
+	/* Query blank node name */
+	cursor = tracker_sparql_connection_query (conn,
+						  "SELECT ?u { ?u a rdfs:Resource. FILTER (isBlank (?u)) }",
+						  NULL, &error);
+	g_assert_no_error (error);
+	g_assert_nonnull (cursor);
+
+	next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (next);
+
+	bnode_name = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
+	g_assert_nonnull (bnode_name);
+
+	next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_false (next);
+
+	g_object_unref (cursor);
+
+	/* Query blank node by name */
+	query = g_strdup_printf ("SELECT (<%s> AS ?u) { }", bnode_name);
+	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
+	g_free (query);
+	g_assert_no_error (error);
+	g_assert_nonnull (cursor);
+	next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (next);
+	g_assert_cmpstr (bnode_name, ==, tracker_sparql_cursor_get_string (cursor, 0, NULL));
+	g_object_unref (cursor);
+
+	/* Query data around blank node */
+	query = g_strdup_printf ("SELECT ?t { <%s> a ?t } ORDER BY ?t", bnode_name);
+	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
+	g_free (query);
+	g_assert_no_error (error);
+	g_assert_nonnull (cursor);
+
+	next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (next);
+
+	g_assert_cmpstr (TRACKER_PREFIX_RDFS "Resource",
+			 ==,
+			 tracker_sparql_cursor_get_string (cursor, 0, NULL));
+
+	next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_false (next);
+
+	g_object_unref (cursor);
+	g_free (bnode_name);
+}
+
+static void
+check_bnode_anonymous (TrackerSparqlConnection *conn)
+{
+	GError *error = NULL;
+	TrackerSparqlCursor *cursor;
+	gchar *bnode_name, *query;
+	gboolean next;
+
+	/* Query blank node name */
+	cursor = tracker_sparql_connection_query (conn,
+						  "SELECT ?u { ?u a rdfs:Resource. FILTER (isBlank (?u)) }",
+						  NULL, &error);
+	g_assert_no_error (error);
+	g_assert_nonnull (cursor);
+
+	next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (next);
+
+	bnode_name = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
+	g_assert_nonnull (bnode_name);
+
+	next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_false (next);
+
+	g_object_unref (cursor);
+
+	/* Query blank node by name, this should return NULL */
+	query = g_strdup_printf ("SELECT (<%s> AS ?u) { }", bnode_name);
+	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
+	g_free (query);
+	g_assert_no_error (error);
+	g_assert_nonnull (cursor);
+	next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (next);
+	g_assert_null (tracker_sparql_cursor_get_string (cursor, 0, NULL));
+	g_object_unref (cursor);
+
+	/* Query data around blank node, this should return nothing */
+	query = g_strdup_printf ("SELECT ?t { <%s> a ?t } ORDER BY ?t", bnode_name);
+	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
+	g_free (query);
+	g_assert_no_error (error);
+	g_assert_nonnull (cursor);
+
+	next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_false (next);
+
+	g_object_unref (cursor);
+	g_free (bnode_name);
+}
+
+static void
+test_bnode_query_default (TestInfo      *info,
+			  gconstpointer  context)
+{
+	GError *error = NULL;
+	GFile *data_location;
+	TrackerSparqlConnection *conn;
+
+	data_location = g_file_new_for_path (info->data_location);
+
+	/* Test blank node behavior with default connection flags,
+         * concretely TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES
+	 * being disabled.
+	 */
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      data_location, data_location,
+	                                      NULL, &error);
+	g_assert_no_error (error);
+
+	/* Insert blank node */
+	tracker_sparql_connection_update (conn,
+					  "INSERT { _:foo a rdfs:Resource } ",
+					  NULL, &error);
+	g_assert_no_error (error);
+
+	check_bnode_default (conn);
+
+	g_object_unref (data_location);
+	g_object_unref (conn);
+}
+
+static void
+test_bnode_query_anonymous (TestInfo      *info,
+			    gconstpointer  context)
+{
+	GError *error = NULL;
+	GFile *data_location;
+	TrackerSparqlConnection *conn;
+
+	data_location = g_file_new_for_path (info->data_location);
+
+	/* Test blank node behavior with
+	 * TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES set.
+	 */
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES,
+	                                      data_location, data_location,
+	                                      NULL, &error);
+	g_assert_no_error (error);
+
+	/* Insert blank node */
+	tracker_sparql_connection_update (conn,
+					  "INSERT { _:foo a rdfs:Resource } ",
+					  NULL, &error);
+	g_assert_no_error (error);
+
+	check_bnode_anonymous (conn);
+
+	g_object_unref (data_location);
+	g_object_unref (conn);
+}
+
+static void
+test_bnode_default_to_anonymous (TestInfo      *info,
+				 gconstpointer  context)
+{
+	GError *error = NULL;
+	GFile *data_location;
+	TrackerSparqlConnection *conn;
+
+	data_location = g_file_new_for_path (info->data_location);
+
+	/* Test that a database created with default blank node behavior
+	 * behaves as expected if opened with
+	 * TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES.
+	 */
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      data_location, data_location,
+	                                      NULL, &error);
+	g_assert_no_error (error);
+
+	/* Insert blank node */
+	tracker_sparql_connection_update (conn,
+					  "INSERT { _:foo a rdfs:Resource } ",
+					  NULL, &error);
+	g_assert_no_error (error);
+
+	check_bnode_default (conn);
+
+	g_object_unref (conn);
+
+	/* Reopen database with anonymous blank nodes */
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES,
+	                                      data_location, data_location,
+	                                      NULL, &error);
+	g_assert_no_error (error);
+
+	check_bnode_anonymous (conn);
+
+	g_object_unref (conn);
+	g_object_unref (data_location);
+}
+
+static void
+test_bnode_anonymous_to_default (TestInfo      *info,
+				 gconstpointer  context)
+{
+	GError *error = NULL;
+	GFile *data_location;
+	TrackerSparqlConnection *conn;
+
+	data_location = g_file_new_for_path (info->data_location);
+
+	/* Test that a database and blank node created with
+	 * TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES behaves
+	 * correctly with default flags.
+	 */
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES,
+	                                      data_location, data_location,
+	                                      NULL, &error);
+	g_assert_no_error (error);
+
+	/* Insert blank node */
+	tracker_sparql_connection_update (conn,
+					  "INSERT { _:foo a rdfs:Resource } ",
+					  NULL, &error);
+	g_assert_no_error (error);
+
+	check_bnode_anonymous (conn);
+
+	g_object_unref (conn);
+
+	/* Reopen database with default flags */
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      data_location, data_location,
+	                                      NULL, &error);
+	g_assert_no_error (error);
+
+	check_bnode_default (conn);
+
+	g_object_unref (conn);
+	g_object_unref (data_location);
+}
+
+static void
 setup (TestInfo      *info,
        gconstpointer  context)
 {
@@ -166,6 +427,10 @@ main (int argc, char **argv)
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_add ("/core/sparql-blank", TestInfo, NULL, setup, test_blank, teardown);
+	g_test_add ("/core/bnode-query-default", TestInfo, NULL, setup, test_bnode_query_default, teardown);
+	g_test_add ("/core/bnode-query-anonymous", TestInfo, NULL, setup, test_bnode_query_anonymous, teardown);
+	g_test_add ("/core/bnode-default-to-anonymous", TestInfo, NULL, setup, test_bnode_default_to_anonymous, teardown);
+	g_test_add ("/core/bnode-anonymous-to-default", TestInfo, NULL, setup, test_bnode_anonymous_to_default, teardown);
 
 	/* run tests */
 	result = g_test_run ();
