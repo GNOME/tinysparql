@@ -589,11 +589,11 @@ _append_literal_sql (TrackerSparql         *sparql,
 		_append_string (sparql, "), ");
 
 		if ((flags & TRACKER_DB_MANAGER_ANONYMOUS_BNODES) == 0) {
-			_append_string (sparql, "NULLIF(REPLACE(");
+			_append_string (sparql, "CAST(NULLIF(REPLACE(");
 			_append_literal_binding (sparql, binding);
 			_append_string (sparql, ", 'urn:bnode:', ''), ");
 			_append_literal_binding (sparql, binding);
-			_append_string (sparql, "), ");
+			_append_string (sparql, ") AS INTEGER), ");
 		}
 
 		_append_string (sparql, "0) ");
