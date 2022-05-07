@@ -123,6 +123,17 @@ struct _TrackerSparqlConnectionClass
 	GInputStream * (* serialize_finish) (TrackerSparqlConnection  *connection,
 	                                     GAsyncResult             *res,
 	                                     GError                  **error);
+	void (* deserialize_async) (TrackerSparqlConnection *connection,
+	                            TrackerDeserializeFlags  flags,
+	                            TrackerRdfFormat         format,
+	                            const gchar             *default_graph,
+	                            GInputStream            *stream,
+	                            GCancellable            *cancellable,
+	                            GAsyncReadyCallback      callback,
+	                            gpointer                 user_data);
+	gboolean (* deserialize_finish) (TrackerSparqlConnection  *connection,
+	                                 GAsyncResult             *res,
+	                                 GError                  **error);
 	void (* map_connection) (TrackerSparqlConnection  *connection,
 	                         const gchar              *handle_name,
 	                         TrackerSparqlConnection  *service_connection);

@@ -941,6 +941,86 @@ tracker_sparql_connection_serialize_finish (TrackerSparqlConnection  *connection
 }
 
 /**
+ * tracker_sparql_connection_deserialize_async:
+ * @connection: a #TrackerSparqlConnection
+ * @flags: deserialization flags
+ * @format: RDF format of data in stream
+ * @default_graph: default graph that will receive the RDF data
+ * @stream: input stream with RDF data
+ * @cancellable: a #GCancellable
+ * @callback: the #GAsyncReadyCallback called when the operation completes
+ * @user_data: data passed to @callback
+ *
+ * Incorporates the contents of the RDF data contained in @stream into the
+ * data stored by @connection. This is an asynchronous operation,
+ * @callback will be invoked when the data has been fully inserted to
+ * @connection.
+ *
+ * RDF data will be inserted in the given @default_graph if one is provided,
+ * or the default graph if @default_graph is %NULL. Any RDF data that has a
+ * graph specified (e.g. using the `GRAPH` clause in the Trig format) will
+ * be inserted in the specified graph instead of @default_graph.
+ *
+ * The @flags argument is reserved for future expansions, currently
+ * %TRACKER_DESERIALIZE_FLAGS_NONE must be passed.
+ *
+ * Since: 3.4
+ **/
+void
+tracker_sparql_connection_deserialize_async (TrackerSparqlConnection *connection,
+                                             TrackerDeserializeFlags  flags,
+                                             TrackerRdfFormat         format,
+                                             const gchar             *default_graph,
+                                             GInputStream            *stream,
+                                             GCancellable            *cancellable,
+                                             GAsyncReadyCallback      callback,
+                                             gpointer                 user_data)
+{
+	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
+	g_return_if_fail (flags == TRACKER_DESERIALIZE_FLAGS_NONE);
+	g_return_if_fail (format < TRACKER_N_RDF_FORMATS);
+	g_return_if_fail (G_IS_INPUT_STREAM (stream));
+	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+	g_return_if_fail (callback != NULL);
+
+	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->deserialize_async (connection,
+	                                                                     flags,
+	                                                                     format,
+	                                                                     default_graph,
+	                                                                     stream,
+	                                                                     cancellable,
+	                                                                     callback,
+	                                                                     user_data);
+}
+
+/**
+ * tracker_sparql_connection_deserialize_finish:
+ * @connection: a #TrackerSparqlConnection
+ * @result: the #GAsyncResult
+ * @error: location for returned errors, or %NULL
+ *
+ * Finishes a tracker_sparql_connection_deserialize_async() operation.
+ * In case of error, %NULL will be returned and @error will be set.
+ *
+ * Returns: %TRUE if all data was inserted successfully.
+ *
+ * Since: 3.4
+ **/
+gboolean
+tracker_sparql_connection_deserialize_finish (TrackerSparqlConnection  *connection,
+                                              GAsyncResult             *result,
+                                              GError                  **error)
+{
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), FALSE);
+	g_return_val_if_fail (G_IS_ASYNC_RESULT (result), FALSE);
+	g_return_val_if_fail (!error || !*error, FALSE);
+
+	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->deserialize_finish (connection,
+	                                                                             result,
+	                                                                             error);
+}
+
+/**
  * tracker_sparql_connection_map_connection:
  * @connection: a #TrackerSparqlConnection
  * @handle_name: handle name for @service_connection
