@@ -32,6 +32,8 @@ typedef struct _TrackerDataClass TrackerDataClass;
 #include "tracker-db-interface.h"
 #include "tracker-data-manager.h"
 
+#include <libtracker-sparql/tracker-deserializer.h>
+
 #define TRACKER_TYPE_DATA         (tracker_data_get_type ())
 #define TRACKER_DATA(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DATA, TrackerData))
 #define TRACKER_DATA_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_DATA, TrackerDataClass))
@@ -88,6 +90,12 @@ GVariant *
 void     tracker_data_update_buffer_flush           (TrackerData               *data,
                                                      GError                   **error);
 void     tracker_data_update_buffer_might_flush     (TrackerData               *data,
+                                                     GError                   **error);
+
+gboolean tracker_data_load_from_deserializer        (TrackerData               *data,
+                                                     TrackerDeserializer       *deserializer,
+                                                     const gchar               *graph,
+                                                     const gchar               *location,
                                                      GError                   **error);
 void     tracker_data_load_turtle_file              (TrackerData               *data,
                                                      GFile                     *file,

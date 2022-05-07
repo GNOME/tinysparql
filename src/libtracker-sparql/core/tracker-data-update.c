@@ -2854,43 +2854,35 @@ tracker_data_update_sparql_blank (TrackerData  *data,
 	return update_sparql (data, update, TRUE, error);
 }
 
-void
-tracker_data_load_turtle_file (TrackerData  *data,
-                               GFile        *file,
-                               const gchar  *graph,
-                               GError      **error)
+gboolean
+tracker_data_load_from_deserializer (TrackerData          *data,
+                                     TrackerDeserializer  *deserializer,
+                                     const gchar          *graph,
+                                     const gchar          *location,
+                                     GError              **error)
 {
-	TrackerSparqlCursor *deserializer;
+	TrackerSparqlCursor *cursor = TRACKER_SPARQL_CURSOR (deserializer);
 	TrackerOntologies *ontologies;
 	GError *inner_error = NULL;
 	const gchar *subject_str, *predicate_str, *object_str;
 	goffset last_parsed_line_no = 0, last_parsed_column_no = 0;
-	gchar *ontology_uri;
-
-	deserializer = tracker_deserializer_new_for_file (file, NULL, error);
-	if (!deserializer)
-		return;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 
-	while (tracker_sparql_cursor_next (deserializer, NULL, &inner_error)) {
+	while (tracker_sparql_cursor_next (cursor, NULL, &inner_error)) {
 		TrackerProperty *predicate;
 		GValue object = G_VALUE_INIT;
 		TrackerRowid subject;
 
-		subject_str = tracker_sparql_cursor_get_string (deserializer,
+		subject_str = tracker_sparql_cursor_get_string (cursor,
 		                                                TRACKER_RDF_COL_SUBJECT,
 		                                                NULL);
-		predicate_str = tracker_sparql_cursor_get_string (deserializer,
+		predicate_str = tracker_sparql_cursor_get_string (cursor,
 		                                                  TRACKER_RDF_COL_PREDICATE,
 		                                                  NULL);
-		object_str = tracker_sparql_cursor_get_string (deserializer,
+		object_str = tracker_sparql_cursor_get_string (cursor,
 		                                               TRACKER_RDF_COL_OBJECT,
 		                                               NULL);
-
-		tracker_deserializer_get_parser_location (TRACKER_DESERIALIZER (deserializer),
-		                                          &last_parsed_line_no,
-		                                          &last_parsed_column_no);
 
 		predicate = tracker_ontologies_get_property_by_uri (ontologies, predicate_str);
 		if (predicate == NULL) {
@@ -2936,18 +2928,44 @@ tracker_data_load_turtle_file (TrackerData  *data,
 			goto failed;
 	}
 
-	g_clear_object (&deserializer);
+	if (inner_error)
+		goto failed;
 
-	return;
+	return TRUE;
 
 failed:
-	g_clear_object (&deserializer);
+	tracker_deserializer_get_parser_location (deserializer,
+						  &last_parsed_line_no,
+						  &last_parsed_column_no);
 
-	ontology_uri = g_file_get_uri (file);
 	g_propagate_prefixed_error (error, inner_error,
 	                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
-	                            ontology_uri, last_parsed_line_no, last_parsed_column_no);
-	g_free (ontology_uri);
+	                            location, last_parsed_line_no, last_parsed_column_no);
+
+	return FALSE;
+}
+
+void
+tracker_data_load_turtle_file (TrackerData  *data,
+                               GFile        *file,
+                               const gchar  *graph,
+                               GError      **error)
+{
+	TrackerSparqlCursor *deserializer;
+	gchar *uri;
+
+	deserializer = tracker_deserializer_new_for_file (file, NULL, error);
+	if (!deserializer)
+		return;
+
+	uri = g_file_get_uri (file);
+	tracker_data_load_from_deserializer (data,
+	                                     TRACKER_DESERIALIZER (deserializer),
+	                                     graph,
+	                                     uri,
+	                                     error);
+	g_object_unref (deserializer);
+	g_free (uri);
 }
 
 TrackerRowid
