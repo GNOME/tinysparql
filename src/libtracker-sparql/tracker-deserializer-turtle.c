@@ -509,19 +509,26 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 			}
 			break;
 		case STATE_GRAPH:
+			g_clear_pointer (&deserializer->graph, g_free);
+
 			if (parse_token (deserializer, "graph")) {
 				advance_whitespace_and_comments (deserializer);
 
 				if (parse_terminal (deserializer, terminal_IRIREF, 1, &str)) {
 					deserializer->graph = expand_base (deserializer, str);
+				} else if (parse_terminal (deserializer, terminal_PNAME_LN, 0, &str) ||
+				           parse_terminal (deserializer, terminal_PNAME_NS, 0, &str)) {
+					deserializer->graph = expand_prefix (deserializer, str, error);
+					g_free (str);
+					if (!deserializer->graph)
+						return FALSE;
 				} else {
 					g_set_error (error,
 					             TRACKER_SPARQL_ERROR,
 					             TRACKER_SPARQL_ERROR_PARSE,
 					             "Wrong graph token");
+					return FALSE;
 				}
-			} else {
-				g_clear_pointer (&deserializer->graph, g_free);
 			}
 
 			advance_whitespace_and_comments (deserializer);
