@@ -60,6 +60,9 @@
 
 #include "tracker-connection.h"
 #include "tracker-private.h"
+#include "tracker-debug.h"
+
+#include "remote/tracker-remote.h"
 
 G_DEFINE_ABSTRACT_TYPE (TrackerSparqlConnection, tracker_sparql_connection,
                         G_TYPE_OBJECT)
@@ -83,6 +86,9 @@ tracker_sparql_connection_class_init (TrackerSparqlConnectionClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->dispose = tracker_sparql_connection_dispose;
+
+	/* Initialize debug flags */
+	tracker_get_debug_flags ();
 }
 
 gboolean
@@ -214,17 +220,6 @@ tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
  * object when no longer used.
  *
  * Since: 3.1
- */
-
-/**
- * tracker_sparql_connection_remote_new:
- * @uri_base: Base URI of the remote connection
- *
- * Connects to a remote SPARQL endpoint. The connection is made using the libsoup
- * HTTP library. The connection will normally use the http:// or https:// protocol.
- *
- * Returns: (transfer full): a new remote #TrackerSparqlConnection. Call
- * g_object_unref() on the object when no longer used.
  */
 
 /**
@@ -987,4 +982,20 @@ tracker_sparql_connection_map_connection (TrackerSparqlConnection *connection,
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->map_connection (connection,
 	                                                                  handle_name,
 	                                                                  service_connection);
+}
+
+/**
+ * tracker_sparql_connection_remote_new:
+ * @uri_base: Base URI of the remote connection
+ *
+ * Connects to a remote SPARQL endpoint. The connection is made using the libsoup
+ * HTTP library. The connection will normally use the http:// or https:// protocol.
+ *
+ * Returns: (transfer full): a new remote #TrackerSparqlConnection. Call
+ * g_object_unref() on the object when no longer used.
+ */
+TrackerSparqlConnection *
+tracker_sparql_connection_remote_new (const gchar *uri_base)
+{
+	return TRACKER_SPARQL_CONNECTION (tracker_remote_connection_new (uri_base));
 }
