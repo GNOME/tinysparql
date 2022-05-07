@@ -2946,10 +2946,10 @@ failed:
 }
 
 void
-tracker_data_load_turtle_file (TrackerData  *data,
-                               GFile        *file,
-                               const gchar  *graph,
-                               GError      **error)
+tracker_data_load_rdf_file (TrackerData  *data,
+			    GFile        *file,
+			    const gchar  *graph,
+			    GError      **error)
 {
 	TrackerSparqlCursor *deserializer;
 	gchar *uri;

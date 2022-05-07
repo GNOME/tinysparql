@@ -97,7 +97,7 @@ gboolean tracker_data_load_from_deserializer        (TrackerData               *
                                                      const gchar               *graph,
                                                      const gchar               *location,
                                                      GError                   **error);
-void     tracker_data_load_turtle_file              (TrackerData               *data,
+void     tracker_data_load_rdf_file                 (TrackerData               *data,
                                                      GFile                     *file,
                                                      const gchar               *graph,
                                                      GError                   **error);

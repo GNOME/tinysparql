@@ -4145,8 +4145,8 @@ translate_Load (TrackerSparql  *sparql,
 	file = g_file_new_for_uri (tracker_token_get_idstring (&resource));
 	tracker_token_unset (&resource);
 
-	tracker_data_load_turtle_file (tracker_data_manager_get_data (sparql->data_manager),
-	                               file, graph, &inner_error);
+	tracker_data_load_rdf_file (tracker_data_manager_get_data (sparql->data_manager),
+				    file, graph, &inner_error);
 
 	if (inner_error) {
 		g_clear_object (&file);
