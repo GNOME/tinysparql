@@ -294,6 +294,8 @@ expand_prefix (TrackerDeserializerTurtle  *deserializer,
 	expanded = tracker_namespace_manager_expand_uri (namespaces, shortname);
 
 	if (g_strcmp0 (expanded, shortname) == 0) {
+		/* Point to beginning of term */
+		deserializer->column_no -= strlen(shortname);
 		g_free (expanded);
 		g_set_error (error,
 		             TRACKER_SPARQL_ERROR,
@@ -491,10 +493,20 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 
 		switch (deserializer->state) {
 		case STATE_INITIAL:
-			if (deserializer->parse_trig)
-				deserializer->state = STATE_GRAPH;
-			else
-				deserializer->state = STATE_SUBJECT;
+			if (parse_token (deserializer, "@prefix")) {
+				if (!handle_prefix (deserializer, error))
+					return FALSE;
+				break;
+			} else if (parse_token (deserializer, "@base")) {
+				if (!handle_base (deserializer, error))
+					return FALSE;
+				break;
+			} else {
+				if (deserializer->parse_trig)
+					deserializer->state = STATE_GRAPH;
+				else
+					deserializer->state = STATE_SUBJECT;
+			}
 			break;
 		case STATE_GRAPH:
 			if (parse_token (deserializer, "graph")) {
@@ -519,21 +531,14 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 				             TRACKER_SPARQL_ERROR,
 				             TRACKER_SPARQL_ERROR_PARSE,
 				             "Expected graph block");
+				return FALSE;
 			}
+
+			deserializer->state = STATE_SUBJECT;
 			break;
 		case STATE_SUBJECT:
 			if (g_buffered_input_stream_get_available (deserializer->buffered_stream) == 0)
 				return FALSE;
-
-			if (parse_token (deserializer, "@prefix")) {
-				if (!handle_prefix (deserializer, error))
-					return FALSE;
-				break;
-			} else if (parse_token (deserializer, "@base")) {
-				if (!handle_base (deserializer, error))
-					return FALSE;
-				break;
-			}
 
 			g_clear_pointer (&deserializer->subject, g_free);
 
@@ -685,13 +690,14 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 
 			if (parse_token (deserializer, ".")) {
 				advance_whitespace_and_comments (deserializer);
-				deserializer->state = STATE_SUBJECT;
+				deserializer->state = deserializer->parse_trig ?
+					STATE_SUBJECT : STATE_INITIAL;
 			}
 
 			if (deserializer->parse_trig &&
 			    parse_token (deserializer, "}")) {
 				advance_whitespace_and_comments (deserializer);
-				deserializer->state = STATE_GRAPH;
+				deserializer->state = STATE_INITIAL;
 			}
 
 			/* If we did not advance state, this is a parsing error */
@@ -796,12 +802,6 @@ tracker_deserializer_turtle_get_parser_location (TrackerDeserializer *deserializ
                                                  goffset             *column_no)
 {
 	TrackerDeserializerTurtle *deserializer_ttl = TRACKER_DESERIALIZER_TURTLE (deserializer);
-
-	if (deserializer_ttl->state == STATE_INITIAL) {
-		*line_no = 0;
-		*column_no = 0;
-		return FALSE;
-	}
 
 	*line_no = deserializer_ttl->line_no;
 	*column_no = deserializer_ttl->column_no;
