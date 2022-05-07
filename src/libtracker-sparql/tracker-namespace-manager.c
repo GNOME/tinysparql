@@ -30,10 +30,6 @@
 
 #define MAX_PREFIX_LENGTH 100
 
-struct _TrackerNamespaceManager {
-	GObject parent;
-};
-
 typedef struct {
 	GHashTable *prefix_to_namespace;
 	GHashTable *namespace_to_prefix;
@@ -148,6 +144,8 @@ tracker_namespace_manager_get_default ()
 		tracker_namespace_manager_add_prefix (manager, "nmm", TRACKER_PREFIX_NMM);
 		tracker_namespace_manager_add_prefix (manager, "mfo", TRACKER_PREFIX_MFO);
 		tracker_namespace_manager_add_prefix (manager, "osinfo", TRACKER_PREFIX_OSINFO);
+		tracker_namespace_manager_add_prefix (manager, "fts",
+		                                      "http://tracker.api.gnome.org/ontology/v3/fts#");
 
 		g_once_init_leave (&default_namespace_manager, manager);
 	}

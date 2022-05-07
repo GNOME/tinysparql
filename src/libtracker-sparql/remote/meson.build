@@ -1,6 +1,7 @@
 remote_files = files(
     'tracker-http.c',
     'tracker-remote-statement.c',
+    'tracker-remote-namespaces.c',
     'tracker-remote.vapi',
     'tracker-remote.vala',
 )

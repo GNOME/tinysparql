@@ -150,7 +150,7 @@ tracker_deserializer_class_init (TrackerDeserializerClass *klass)
 		g_param_spec_object ("namespace-manager",
 		                     "Namespace Manager",
 		                     "Namespace Manager",
-		                     G_TYPE_INPUT_STREAM,
+		                     TRACKER_TYPE_NAMESPACE_MANAGER,
 		                     G_PARAM_CONSTRUCT_ONLY |
 		                     G_PARAM_STATIC_STRINGS |
 		                     G_PARAM_READABLE |
