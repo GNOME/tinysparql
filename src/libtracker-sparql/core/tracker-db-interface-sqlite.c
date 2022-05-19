@@ -2339,38 +2339,40 @@ tracker_db_interface_sqlite_fts_create_update_query (TrackerDBInterface  *db_int
                                                      const gchar         *database,
                                                      const gchar        **properties)
 {
-	GString *insert_str, *values_str;
-	gint i;
+        GString *props_str;
+        gchar *query;
+        gint i;
 
-	insert_str = g_string_new (NULL);
-	g_string_append_printf (insert_str, "INSERT INTO \"%s\".fts5 (", database);
-	values_str = g_string_new (NULL);
+        props_str = g_string_new (NULL);
 
-	g_string_append (insert_str, "rowid");
-	g_string_append (values_str, "?");
+        for (i = 0; properties[i] != NULL; i++) {
+		if (i != 0)
+			g_string_append_c (props_str, ',');
 
-	for (i = 0; properties[i] != NULL; i++) {
-		g_string_append_printf (insert_str, ",\"%s\"", properties[i]);
-		g_string_append (values_str, ",?");
-	}
+                g_string_append_printf (props_str, "\"%s\"", properties[i]);
+        }
 
-	g_string_append_printf (insert_str, ") VALUES (%s)", values_str->str);
-	g_string_free (values_str, TRUE);
+        query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (ROWID, %s) "
+                                 "SELECT ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ? AND COALESCE(%s, NULL) IS NOT NULL",
+                                 database,
+                                 props_str->str,
+                                 props_str->str,
+                                 database,
+                                 props_str->str);
+        g_string_free (props_str, TRUE);
 
-	return g_string_free (insert_str, FALSE);
+        return query;
 }
 
 gboolean
 tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
                                              const gchar         *database,
                                              int                  id,
-                                             const gchar        **properties,
-                                             const gchar        **text)
+                                             const gchar        **properties)
 {
 	TrackerDBStatement *stmt;
 	GError *error = NULL;
 	gchar *query;
-	gint i;
 
 	query = tracker_db_interface_sqlite_fts_create_update_query (db_interface,
 	                                                             database,
@@ -2391,10 +2393,6 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
         }
 
         tracker_db_statement_bind_int (stmt, 0, id);
-        for (i = 0; text[i] != NULL; i++) {
-	        tracker_db_statement_bind_text (stmt, i + 1, text[i]);
-        }
-
         tracker_db_statement_execute (stmt, &error);
         g_object_unref (stmt);
 

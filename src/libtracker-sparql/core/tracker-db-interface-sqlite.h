@@ -70,8 +70,7 @@ gboolean            tracker_db_interface_sqlite_fts_alter_table        (TrackerD
 gboolean            tracker_db_interface_sqlite_fts_update_text        (TrackerDBInterface       *db_interface,
                                                                         const gchar              *database,
 	                                                                int                       id,
-                                                                        const gchar             **properties,
-                                                                        const gchar             **text);
+                                                                        const gchar             **properties);
 
 gboolean            tracker_db_interface_sqlite_fts_delete_text        (TrackerDBInterface       *interface,
                                                                         const gchar              *database,

@@ -1057,42 +1057,27 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 	if (resource->fts_updated) {
 		TrackerProperty *prop;
 		GArray *values;
-		GPtrArray *properties, *text;
+		GPtrArray *properties;
 
-		properties = text = NULL;
+		properties = NULL;
 		g_hash_table_iter_init (&iter, resource->predicates);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
 			if (tracker_property_get_fulltext_indexed (prop)) {
-				GString *fts;
-
-				fts = g_string_new ("");
-				for (i = 0; i < values->len; i++) {
-					GValue *v = &g_array_index (values, GValue, i);
-					g_string_append (fts, g_value_get_string (v));
-					g_string_append_c (fts, ' ');
-				}
-
-				if (!properties && !text) {
+				if (!properties)
 					properties = g_ptr_array_new ();
-					text = g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
-				}
 
 				g_ptr_array_add (properties, (gpointer) tracker_property_get_name (prop));
-				g_ptr_array_add (text, g_string_free (fts, FALSE));
 			}
 		}
 
-		if (properties && text) {
+		if (properties) {
 			g_ptr_array_add (properties, NULL);
-			g_ptr_array_add (text, NULL);
 
 			tracker_db_interface_sqlite_fts_update_text (iface,
 								     database,
 			                                             resource->id,
-			                                             (const gchar **) properties->pdata,
-			                                             (const gchar **) text->pdata);
+			                                             (const gchar **) properties->pdata);
 			g_ptr_array_free (properties, TRUE);
-			g_ptr_array_free (text, TRUE);
 		}
 	}
 }
