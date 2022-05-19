@@ -2367,7 +2367,7 @@ tracker_db_interface_sqlite_fts_create_update_query (TrackerDBInterface  *db_int
 gboolean
 tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
                                              const gchar         *database,
-                                             int                  id,
+                                             TrackerRowid         id,
                                              const gchar        **properties)
 {
 	TrackerDBStatement *stmt;
@@ -2438,7 +2438,7 @@ tracker_db_interface_sqlite_fts_create_delete_query (TrackerDBInterface  *db_int
 gboolean
 tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
                                              const gchar         *database,
-                                             int                  rowid,
+                                             TrackerRowid         rowid,
                                              const gchar        **properties)
 {
 	TrackerDBStatement *stmt;
