@@ -846,6 +846,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 		TrackerProperty *prop;
 		GArray *values;
 		GPtrArray *properties;
+		gboolean retval;
 
 		properties = NULL;
 		g_hash_table_iter_init (&iter, resource->predicates);
@@ -862,11 +863,15 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 		if (properties) {
 			g_ptr_array_add (properties, NULL);
 
-			tracker_db_interface_sqlite_fts_delete_text (iface,
-			                                             database,
-			                                             resource->id,
-			                                             (const gchar **) properties->pdata);
+			retval = tracker_db_interface_sqlite_fts_delete_text (iface,
+			                                                      database,
+			                                                      resource->id,
+			                                                      (const gchar **) properties->pdata,
+			                                                      error);
 			g_ptr_array_free (properties, TRUE);
+
+			if (!retval)
+				return;
 		}
 	}
 
@@ -1058,6 +1063,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 		TrackerProperty *prop;
 		GArray *values;
 		GPtrArray *properties;
+		gboolean retval;
 
 		properties = NULL;
 		g_hash_table_iter_init (&iter, resource->predicates);
@@ -1073,11 +1079,15 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 		if (properties) {
 			g_ptr_array_add (properties, NULL);
 
-			tracker_db_interface_sqlite_fts_update_text (iface,
-								     database,
-			                                             resource->id,
-			                                             (const gchar **) properties->pdata);
+			retval = tracker_db_interface_sqlite_fts_update_text (iface,
+			                                                      database,
+			                                                      resource->id,
+			                                                      (const gchar **) properties->pdata,
+			                                                      error);
 			g_ptr_array_free (properties, TRUE);
+
+			if (!retval)
+				return;
 		}
 	}
 }

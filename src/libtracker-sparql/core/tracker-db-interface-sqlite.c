@@ -2368,10 +2368,11 @@ gboolean
 tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
                                              const gchar         *database,
                                              TrackerRowid         id,
-                                             const gchar        **properties)
+                                             const gchar        **properties,
+                                             GError             **error)
 {
 	TrackerDBStatement *stmt;
-	GError *error = NULL;
+	GError *inner_error = NULL;
 	gchar *query;
 
 	query = tracker_db_interface_sqlite_fts_create_update_query (db_interface,
@@ -2379,26 +2380,19 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
 	                                                             properties);
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error,
+	                                              error,
 	                                              query);
 	g_free (query);
 
-        if (!stmt || error) {
-                if (error) {
-                        g_warning ("Could not create FTS insert statement: %s\n",
-                                   error->message);
-                        g_error_free (error);
-                }
+        if (!stmt)
                 return FALSE;
-        }
 
         tracker_db_statement_bind_int (stmt, 0, id);
-        tracker_db_statement_execute (stmt, &error);
+        tracker_db_statement_execute (stmt, &inner_error);
         g_object_unref (stmt);
 
-        if (error) {
-                g_warning ("Could not insert FTS text: %s", error->message);
-                g_error_free (error);
+        if (inner_error) {
+	        g_propagate_prefixed_error (error, inner_error, "Could not insert FTS text: ");
                 return FALSE;
         }
 
@@ -2439,10 +2433,11 @@ gboolean
 tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
                                              const gchar         *database,
                                              TrackerRowid         rowid,
-                                             const gchar        **properties)
+                                             const gchar        **properties,
+                                             GError             **error)
 {
 	TrackerDBStatement *stmt;
-	GError *error = NULL;
+	GError *inner_error = NULL;
 	gchar *query;
 
 	query = tracker_db_interface_sqlite_fts_create_delete_query (db_interface,
@@ -2450,25 +2445,20 @@ tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
 	                                                             properties);
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error,
+	                                              error,
 	                                              query);
 	g_free (query);
 
-	if (!stmt || error) {
-		g_warning ("Could not create FTS delete statement: %s",
-		           error ? error->message : "No error given");
-		g_clear_error (&error);
+	if (!stmt)
 		return FALSE;
-	}
 
 	tracker_db_statement_bind_int (stmt, 0, rowid);
-	tracker_db_statement_execute (stmt, &error);
+	tracker_db_statement_execute (stmt, &inner_error);
 	g_object_unref (stmt);
 
-	if (error) {
-		g_warning ("Could not delete FTS text: %s", error->message);
-		g_error_free (error);
-		return FALSE;
+	if (inner_error) {
+	        g_propagate_prefixed_error (error, inner_error, "Could not delete FTS text: ");
+                return FALSE;
 	}
 
 	return TRUE;
