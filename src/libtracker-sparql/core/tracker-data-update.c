@@ -628,17 +628,16 @@ cache_delete_row (TrackerData  *data,
 
 /* Use only for multi-valued properties */
 static void
-cache_delete_all_values (TrackerData *data,
-                         const gchar *table_name,
-                         const gchar *field_name)
+cache_delete_all_values (TrackerData     *data,
+                         TrackerProperty *prop)
 {
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty  property = { 0 };
 
-	property.name = field_name;
+	property.name = tracker_property_get_name (prop);
 	property.delete_all_values = TRUE;
 
-	table = cache_ensure_table (data, table_name, TRUE);
+	table = cache_ensure_table (data, tracker_property_get_table_name (prop), TRUE);
 	g_array_append_val (table->properties, property);
 }
 
@@ -2322,9 +2321,8 @@ delete_all_helper (TrackerData      *data,
 
 	if (subproperty == property) {
 		if (tracker_property_get_multiple_values (property)) {
-			cache_delete_all_values (data,
-			                         tracker_property_get_table_name (property),
-			                         tracker_property_get_name (property));
+			cache_delete_all_values (data, property);
+
 			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 				if (!tracker_data_resource_unref_all (data, property, error))
 					return FALSE;
@@ -2431,9 +2429,8 @@ delete_single_valued (TrackerData       *data,
 	multiple_values = tracker_property_get_multiple_values (predicate);
 
 	if (super_is_single_valued && multiple_values) {
-		cache_delete_all_values (data,
-		                         tracker_property_get_table_name (predicate),
-		                         tracker_property_get_name (predicate));
+		cache_delete_all_values (data, predicate);
+
 		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 			if (!tracker_data_resource_unref_all (data, predicate, error))
 				return FALSE;
@@ -2642,9 +2639,8 @@ tracker_data_update_statement (TrackerData      *data,
 		data->resource_buffer->fts_updated |=
 			tracker_property_get_fulltext_indexed (predicate);
 
-		cache_delete_all_values (data,
-		                         tracker_property_get_table_name (predicate),
-		                         tracker_property_get_name (predicate));
+		cache_delete_all_values (data, predicate);
+
 		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 			if (!tracker_data_resource_unref_all (data, predicate, error))
 				return;
