@@ -143,10 +143,9 @@ enum {
 G_DEFINE_TYPE (TrackerData, tracker_data, G_TYPE_OBJECT)
 
 static void         cache_insert_value         (TrackerData      *data,
-                                                const gchar      *table_name,
-                                                const gchar      *field_name,
-                                                const GValue     *value,
-                                                gboolean          multiple_values);
+                                                TrackerClass     *class,
+                                                TrackerProperty  *property,
+                                                const GValue     *value);
 static GArray      *get_property_values (TrackerData      *data,
                                          TrackerProperty  *property,
                                          GError          **error);
@@ -562,15 +561,18 @@ cache_ensure_table (TrackerData *data,
 
 	if (!data->resource_buffer->modified) {
 		/* first modification of this particular resource, update nrl:modified */
-
+		TrackerOntologies *ontologies;
+		TrackerProperty *modified;
 		GValue gvalue = { 0 };
 
 		data->resource_buffer->modified = TRUE;
+		ontologies = tracker_data_manager_get_ontologies (data->manager);
+		modified = tracker_ontologies_get_property_by_uri (ontologies,
+		                                                   TRACKER_PREFIX_NRL "modified");
 
 		g_value_init (&gvalue, G_TYPE_INT64);
 		g_value_set_int64 (&gvalue, get_transaction_modseq (data));
-		cache_insert_value (data, "rdfs:Resource", "nrl:modified",
-		                    &gvalue, FALSE);
+		cache_insert_value (data, NULL, modified, &gvalue);
 	}
 
 	table = g_hash_table_lookup (data->resource_buffer->tables, table_name);
@@ -595,23 +597,27 @@ cache_insert_row (TrackerData  *data,
 }
 
 static void
-cache_insert_value (TrackerData  *data,
-                    const gchar  *table_name,
-                    const gchar  *field_name,
-                    const GValue *value,
-                    gboolean      multiple_values)
+cache_insert_value (TrackerData     *data,
+                    TrackerClass    *class,
+                    TrackerProperty *prop,
+                    const GValue    *value)
 {
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty  property = { 0 };
+	const gchar *table_name;
 
-	/* No need to strdup here, the incoming string is either always static, or
-	 * long-standing as tracker_property_get_name return value. */
-	property.name = field_name;
+	property.name = tracker_property_get_name (prop);
 
 	g_value_init (&property.value, G_VALUE_TYPE (value));
 	g_value_copy (value, &property.value);
 
-	table = cache_ensure_table (data, table_name, multiple_values);
+	if (!class || tracker_property_get_multiple_values (prop))
+		table_name = tracker_property_get_table_name (prop);
+	else
+		table_name = tracker_class_get_name (class);
+
+	table = cache_ensure_table (data, table_name,
+	                            tracker_property_get_multiple_values (prop));
 	g_array_append_val (table->properties, property);
 }
 
@@ -642,22 +648,28 @@ cache_delete_all_values (TrackerData     *data,
 }
 
 static void
-cache_delete_value (TrackerData  *data,
-                    const gchar  *table_name,
-                    const gchar  *field_name,
-                    const GValue *value,
-                    gboolean      multiple_values)
+cache_delete_value (TrackerData     *data,
+                    TrackerClass    *class,
+                    TrackerProperty *prop,
+                    const GValue    *value)
 {
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty  property = { 0 };
+	const gchar *table_name;
 
-	property.name = field_name;
+	property.name = tracker_property_get_name (prop);
 	property.delete_value = TRUE;
 
 	g_value_init (&property.value, G_VALUE_TYPE (value));
 	g_value_copy (value, &property.value);
 
-	table = cache_ensure_table (data, table_name, multiple_values);
+	if (!class || tracker_property_get_multiple_values (prop))
+		table_name = tracker_property_get_table_name (prop);
+	else
+		table_name = tracker_class_get_name (class);
+
+	table = cache_ensure_table (data, table_name,
+	                            tracker_property_get_multiple_values (prop));
 	g_array_append_val (table->properties, property);
 }
 
@@ -1372,8 +1384,9 @@ cache_create_service_decomposed (TrackerData   *data,
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 
 	g_value_set_int64 (&gvalue, class_id);
-	cache_insert_value (data, "rdfs:Resource_rdf:type", "rdf:type",
-	                    &gvalue, TRUE);
+	cache_insert_value (data, NULL,
+	                    tracker_ontologies_get_rdf_type (ontologies),
+	                    &gvalue);
 	tracker_data_resource_ref (data, class_id, TRUE);
 
 	tracker_data_dispatch_insert_statement_callbacks (data,
@@ -1416,11 +1429,7 @@ cache_create_service_decomposed (TrackerData   *data,
 
 			v = &g_array_index (old_values, GValue, 0);
 
-			cache_insert_value (data,
-			                    tracker_class_get_name (cl),
-			                    tracker_property_get_name (*domain_indexes),
-			                    v,
-			                    tracker_property_get_multiple_values (*domain_indexes));
+			cache_insert_value (data, cl, *domain_indexes, v);
 		}
 
 		domain_indexes++;
@@ -1679,8 +1688,7 @@ resource_in_domain_index_class (TrackerData  *data,
 static void
 process_domain_indexes (TrackerData     *data,
                         TrackerProperty *property,
-                        const GValue    *gvalue,
-                        const gchar     *field_name)
+                        const GValue    *gvalue)
 {
 	TrackerClass **domain_index_classes;
 
@@ -1688,10 +1696,9 @@ process_domain_indexes (TrackerData     *data,
 	while (*domain_index_classes) {
 		if (resource_in_domain_index_class (data, *domain_index_classes)) {
 			cache_insert_value (data,
-			                    tracker_class_get_name (*domain_index_classes),
-			                    field_name,
-			                    gvalue,
-			                    FALSE);
+			                    *domain_index_classes,
+			                    property,
+			                    gvalue);
 		}
 		domain_index_classes++;
 	}
@@ -1734,8 +1741,6 @@ cache_insert_metadata_decomposed (TrackerData      *data,
                                   GError          **error)
 {
 	gboolean            multiple_values;
-	const gchar        *table_name;
-	const gchar        *field_name;
 	TrackerProperty   **super_properties;
 	GArray             *old_values;
 	GError             *new_error = NULL;
@@ -1820,9 +1825,6 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		super_properties++;
 	}
 
-	table_name = tracker_property_get_table_name (property);
-	field_name = tracker_property_get_name (property);
-
 	if (!value_set_add_value (old_values, object)) {
 		/* value already inserted */
 	} else if (!multiple_values && old_values->len > 1) {
@@ -1858,7 +1860,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
 		             "Unable to insert multiple values on single valued property `%s' for %s %s "
 		             "(old_value: '%s', new value: '%s')",
-		             field_name,
+		             tracker_property_get_name (property),
 		             resource ? "resource" : "blank node",
 		             resource ? resource : "",
 		             old_value_str ? old_value_str : "<untransformable>",
@@ -1870,15 +1872,16 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		g_value_unset (&old_value);
 		g_value_unset (&new_value);
 	} else {
-		cache_insert_value (data, table_name, field_name,
-		                    object,
-		                    multiple_values);
+		cache_insert_value (data,
+		                    NULL,
+		                    property,
+		                    object);
 
 		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
 			tracker_data_resource_ref (data, g_value_get_int64 (object), multiple_values);
 
 		if (!multiple_values) {
-			process_domain_indexes (data, property, object, field_name);
+			process_domain_indexes (data, property, object);
 		}
 
 		change = TRUE;
@@ -1894,16 +1897,12 @@ delete_metadata_decomposed (TrackerData      *data,
                             GError          **error)
 {
 	gboolean            multiple_values;
-	const gchar        *table_name;
-	const gchar        *field_name;
 	TrackerProperty   **super_properties;
 	GArray             *old_values;
 	GError             *new_error = NULL;
 	gboolean            change = FALSE;
 
 	multiple_values = tracker_property_get_multiple_values (property);
-	table_name = tracker_property_get_table_name (property);
-	field_name = tracker_property_get_name (property);
 
 	data->resource_buffer->fts_updated |=
 		tracker_property_get_fulltext_indexed (property);
@@ -1919,8 +1918,7 @@ delete_metadata_decomposed (TrackerData      *data,
 	if (!value_set_remove_value (old_values, object)) {
 		/* value not found */
 	} else {
-		cache_delete_value (data, table_name, field_name,
-		                    object, multiple_values);
+		cache_delete_value (data, NULL, property, object);
 		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
 			tracker_data_resource_unref (data, g_value_get_int64 (object), multiple_values);
 
@@ -1930,12 +1928,9 @@ delete_metadata_decomposed (TrackerData      *data,
 			domain_index_classes = tracker_property_get_domain_indexes (property);
 
 			while (*domain_index_classes) {
-				if (resource_in_domain_index_class (data, *domain_index_classes)) {
-					cache_delete_value (data,
-					                    tracker_class_get_name (*domain_index_classes),
-					                    field_name,
-					                    object, multiple_values);
-				}
+				if (resource_in_domain_index_class (data, *domain_index_classes))
+					cache_delete_value (data, *domain_index_classes, property, object);
+
 				domain_index_classes++;
 			}
 		}
@@ -2062,8 +2057,6 @@ cache_delete_resource_type_full (TrackerData   *data,
 
 	for (p = 0; p < n_props; p++) {
 		gboolean            multiple_values;
-		const gchar        *table_name;
-		const gchar        *field_name;
 		GArray *old_values;
 		gint                y;
 
@@ -2075,8 +2068,6 @@ cache_delete_resource_type_full (TrackerData   *data,
 			continue;
 
 		multiple_values = tracker_property_get_multiple_values (prop);
-		table_name = tracker_property_get_table_name (prop);
-		field_name = tracker_property_get_name (prop);
 
 		data->resource_buffer->fts_updated |=
 			tracker_property_get_fulltext_indexed (prop);
@@ -2093,8 +2084,8 @@ cache_delete_resource_type_full (TrackerData   *data,
 			g_value_copy (old_gvalue, &copy);
 
 			value_set_remove_value (old_values, old_gvalue);
-			cache_delete_value (data, table_name, field_name,
-			                    &copy, multiple_values);
+			cache_delete_value (data, NULL, prop, &copy);
+
 			if (tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_RESOURCE)
 				tracker_data_resource_unref (data, g_value_get_int64 (&copy), multiple_values);
 
@@ -2103,12 +2094,9 @@ cache_delete_resource_type_full (TrackerData   *data,
 
 				domain_index_classes = tracker_property_get_domain_indexes (prop);
 				while (*domain_index_classes) {
-					if (resource_in_domain_index_class (data, *domain_index_classes)) {
-						cache_delete_value (data,
-						                    tracker_class_get_name (*domain_index_classes),
-						                    field_name,
-						                    &copy, multiple_values);
-					}
+					if (resource_in_domain_index_class (data, *domain_index_classes))
+						cache_delete_value (data, *domain_index_classes, prop, &copy);
+
 					domain_index_classes++;
 				}
 			}
@@ -2119,8 +2107,9 @@ cache_delete_resource_type_full (TrackerData   *data,
 
 	g_value_init (&gvalue, G_TYPE_INT64);
 	g_value_set_int64 (&gvalue, tracker_class_get_id (class));
-	cache_delete_value (data, "rdfs:Resource_rdf:type", "rdf:type",
-	                    &gvalue, TRUE);
+	cache_delete_value (data, NULL,
+	                    tracker_ontologies_get_rdf_type (ontologies),
+	                    &gvalue);
 	tracker_data_resource_unref (data, tracker_class_get_id (class), TRUE);
 
 	cache_delete_row (data, class);
@@ -2329,11 +2318,8 @@ delete_all_helper (TrackerData      *data,
 			}
 		} else {
 			value = &g_array_index (old_values, GValue, 0);
-			cache_delete_value (data,
-			                    tracker_property_get_table_name (property),
-			                    tracker_property_get_name (property),
-			                    value,
-			                    FALSE);
+			cache_delete_value (data, NULL, property, value);
+
 			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
 				tracker_data_resource_unref (data, g_value_get_int64 (value), FALSE);
 		}
@@ -2348,11 +2334,8 @@ delete_all_helper (TrackerData      *data,
 			if (!value_set_remove_value (super_old_values, value))
 				continue;
 
-			cache_delete_value (data,
-			                    tracker_property_get_table_name (property),
-			                    tracker_property_get_name (property),
-			                    value,
-			                    tracker_property_get_multiple_values (property));
+			cache_delete_value (data, NULL, property, value);
+
 			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 				tracker_data_resource_unref (data, g_value_get_int64 (value),
 				                             tracker_property_get_multiple_values (property));
@@ -2445,11 +2428,8 @@ delete_single_valued (TrackerData       *data,
 			GValue *value;
 
 			value = &g_array_index (old_values, GValue, 0);
-			cache_delete_value (data,
-			                    tracker_property_get_table_name (predicate),
-			                    tracker_property_get_name (predicate),
-			                    value,
-			                    FALSE);
+			cache_delete_value (data, NULL, predicate, value);
+
 			if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE)
 				tracker_data_resource_unref (data, g_value_get_int64 (value), multiple_values);
 
