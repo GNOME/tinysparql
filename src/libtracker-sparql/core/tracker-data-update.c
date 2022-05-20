@@ -1686,9 +1686,9 @@ resource_in_domain_index_class (TrackerData  *data,
 }
 
 static void
-process_domain_indexes (TrackerData     *data,
-                        TrackerProperty *property,
-                        const GValue    *gvalue)
+insert_property_domain_indexes (TrackerData     *data,
+                                TrackerProperty *property,
+                                const GValue    *gvalue)
 {
 	TrackerClass **domain_index_classes;
 
@@ -1696,6 +1696,25 @@ process_domain_indexes (TrackerData     *data,
 	while (*domain_index_classes) {
 		if (resource_in_domain_index_class (data, *domain_index_classes)) {
 			cache_insert_value (data,
+			                    *domain_index_classes,
+			                    property,
+			                    gvalue);
+		}
+		domain_index_classes++;
+	}
+}
+
+static void
+delete_property_domain_indexes (TrackerData     *data,
+                                TrackerProperty *property,
+                                const GValue    *gvalue)
+{
+	TrackerClass **domain_index_classes;
+
+	domain_index_classes = tracker_property_get_domain_indexes (property);
+	while (*domain_index_classes) {
+		if (resource_in_domain_index_class (data, *domain_index_classes)) {
+			cache_delete_value (data,
 			                    *domain_index_classes,
 			                    property,
 			                    gvalue);
@@ -1880,9 +1899,8 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
 			tracker_data_resource_ref (data, g_value_get_int64 (object), multiple_values);
 
-		if (!multiple_values) {
-			process_domain_indexes (data, property, object);
-		}
+		if (!multiple_values)
+			insert_property_domain_indexes (data, property, object);
 
 		change = TRUE;
 	}
@@ -1922,18 +1940,8 @@ delete_metadata_decomposed (TrackerData      *data,
 		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
 			tracker_data_resource_unref (data, g_value_get_int64 (object), multiple_values);
 
-		if (!multiple_values) {
-			TrackerClass **domain_index_classes;
-
-			domain_index_classes = tracker_property_get_domain_indexes (property);
-
-			while (*domain_index_classes) {
-				if (resource_in_domain_index_class (data, *domain_index_classes))
-					cache_delete_value (data, *domain_index_classes, property, object);
-
-				domain_index_classes++;
-			}
-		}
+		if (!multiple_values)
+			delete_property_domain_indexes (data, property, object);
 
 		change = TRUE;
 	}
@@ -2089,17 +2097,8 @@ cache_delete_resource_type_full (TrackerData   *data,
 			if (tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_RESOURCE)
 				tracker_data_resource_unref (data, g_value_get_int64 (&copy), multiple_values);
 
-			if (!multiple_values) {
-				TrackerClass **domain_index_classes;
-
-				domain_index_classes = tracker_property_get_domain_indexes (prop);
-				while (*domain_index_classes) {
-					if (resource_in_domain_index_class (data, *domain_index_classes))
-						cache_delete_value (data, *domain_index_classes, prop, &copy);
-
-					domain_index_classes++;
-				}
-			}
+			if (!multiple_values)
+				delete_property_domain_indexes (data, prop, &copy);
 
 			g_value_unset (&copy);
 		}
