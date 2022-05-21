@@ -84,7 +84,7 @@ struct _TrackerDataUpdateBufferResource {
 };
 
 struct _TrackerDataUpdateBufferProperty {
-	const gchar *name;
+	TrackerProperty *property;
 	GValue value;
 	guint delete_all_values : 1;
 	guint delete_value : 1;
@@ -606,8 +606,7 @@ cache_insert_value (TrackerData     *data,
 	TrackerDataUpdateBufferProperty  property = { 0 };
 	const gchar *table_name;
 
-	property.name = tracker_property_get_name (prop);
-
+	property.property = prop;
 	g_value_init (&property.value, G_VALUE_TYPE (value));
 	g_value_copy (value, &property.value);
 
@@ -640,7 +639,7 @@ cache_delete_all_values (TrackerData     *data,
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty  property = { 0 };
 
-	property.name = tracker_property_get_name (prop);
+	property.property = prop;
 	property.delete_all_values = TRUE;
 
 	table = cache_ensure_table (data, tracker_property_get_table_name (prop), TRUE);
@@ -657,7 +656,7 @@ cache_delete_value (TrackerData     *data,
 	TrackerDataUpdateBufferProperty  property = { 0 };
 	const gchar *table_name;
 
-	property.name = tracker_property_get_name (prop);
+	property.property = prop;
 	property.delete_value = TRUE;
 
 	g_value_init (&property.value, G_VALUE_TYPE (value));
@@ -845,7 +844,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 	TrackerDataUpdateBufferTable    *table;
 	TrackerDataUpdateBufferProperty *property;
 	GHashTableIter                  iter;
-	const gchar                    *table_name, *database;
+	const gchar                    *table_name, *database, *property_name;
 	guint                           i;
         gint                            param;
 	GError                         *actual_error = NULL;
@@ -891,6 +890,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 		if (table->multiple_values) {
 			for (i = 0; i < table->properties->len; i++) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
+				property_name = tracker_property_get_name (property->property);
 
 				if (property->delete_all_values) {
 					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
@@ -903,13 +903,13 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 					                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ? AND \"%s\" = ?",
 					                                               database,
 					                                               table_name,
-					                                               property->name);
+					                                               property_name);
 				} else {
 					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
 					                                               "INSERT OR IGNORE INTO \"%s\".\"%s\" (ID, \"%s\") VALUES (?, ?)",
 					                                               database,
 					                                               table_name,
-					                                               property->name);
+					                                               property_name);
 				}
 
 				if (actual_error) {
@@ -983,20 +983,22 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 
 			for (n = table->properties->len - 1; n >= 0; n--) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, n);
-				if (g_hash_table_contains (visited_properties, property->name))
+				property_name = tracker_property_get_name (property->property);
+
+				if (g_hash_table_contains (visited_properties, property_name))
 					continue;
 
 				if (table->insert) {
-					g_string_append_printf (sql, ", \"%s\"", property->name);
+					g_string_append_printf (sql, ", \"%s\"", property_name);
 					g_string_append (values_sql, ", ?");
 				} else {
 					if (n < (int) table->properties->len - 1) {
 						g_string_append (sql, ", ");
 					}
-					g_string_append_printf (sql, "\"%s\" = ?", property->name);
+					g_string_append_printf (sql, "\"%s\" = ?", property_name);
 				}
 
-				g_hash_table_add (visited_properties, (gpointer) property->name);
+				g_hash_table_add (visited_properties, (gpointer) property_name);
 			}
 
 			g_hash_table_unref (visited_properties);
@@ -1041,7 +1043,9 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 
 			for (n = table->properties->len - 1; n >= 0; n--) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, n);
-				if (g_hash_table_contains (visited_properties, property->name))
+				property_name = tracker_property_get_name (property->property);
+
+				if (g_hash_table_contains (visited_properties, property_name))
 					continue;
 
 				if (property->delete_value) {
@@ -1051,7 +1055,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 					statement_bind_gvalue (stmt, &param, &property->value);
 				}
 
-				g_hash_table_add (visited_properties, (gpointer) property->name);
+				g_hash_table_add (visited_properties, (gpointer) property_name);
 			}
 
 			g_hash_table_unref (visited_properties);
