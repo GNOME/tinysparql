@@ -979,13 +979,13 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 				g_string_append (sql, " SET ");
 			}
 
-			visited_properties = g_hash_table_new (g_str_hash, g_str_equal);
+			visited_properties = g_hash_table_new (NULL, NULL);
 
 			for (n = table->properties->len - 1; n >= 0; n--) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, n);
 				property_name = tracker_property_get_name (property->property);
 
-				if (g_hash_table_contains (visited_properties, property_name))
+				if (g_hash_table_contains (visited_properties, property->property))
 					continue;
 
 				if (table->insert) {
@@ -998,7 +998,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 					g_string_append_printf (sql, "\"%s\" = ?", property_name);
 				}
 
-				g_hash_table_add (visited_properties, (gpointer) property_name);
+				g_hash_table_add (visited_properties, property->property);
 			}
 
 			g_hash_table_unref (visited_properties);
@@ -1039,13 +1039,12 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 				param = 0;
 			}
 
-			visited_properties = g_hash_table_new (g_str_hash, g_str_equal);
+			visited_properties = g_hash_table_new (NULL, NULL);
 
 			for (n = table->properties->len - 1; n >= 0; n--) {
 				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, n);
-				property_name = tracker_property_get_name (property->property);
 
-				if (g_hash_table_contains (visited_properties, property_name))
+				if (g_hash_table_contains (visited_properties, property->property))
 					continue;
 
 				if (property->delete_value) {
@@ -1055,7 +1054,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 					statement_bind_gvalue (stmt, &param, &property->value);
 				}
 
-				g_hash_table_add (visited_properties, (gpointer) property_name);
+				g_hash_table_add (visited_properties, property->property);
 			}
 
 			g_hash_table_unref (visited_properties);
