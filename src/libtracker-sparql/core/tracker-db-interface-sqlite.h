@@ -94,6 +94,10 @@ gssize              tracker_db_interface_sqlite_release_memory         (TrackerD
 void                tracker_db_interface_ref_use   (TrackerDBInterface *db_interface);
 gboolean            tracker_db_interface_unref_use (TrackerDBInterface *db_interface);
 
+GArray * tracker_db_statement_get_values (TrackerDBStatement   *stmt,
+                                          TrackerPropertyType   type,
+                                          GError              **error);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DB_INTERFACE_SQLITE_H__ */
