@@ -404,13 +404,13 @@ static gboolean
 tracker_data_update_initialize_modseq (TrackerData  *data,
                                        GError      **error)
 {
-	TrackerDBCursor    *cursor = NULL;
 	TrackerDBInterface *temp_iface;
 	TrackerDBStatement *stmt;
-	TrackerOntologies  *ontologies;
-	TrackerProperty    *property;
-	GError             *inner_error = NULL;
-	gint                max_modseq = 0;
+	TrackerOntologies *ontologies;
+	TrackerProperty *property;
+	GArray *res = NULL;
+	GError *inner_error = NULL;
+	gint max_modseq = 0;
 
 	/* Is it already initialized? */
 	if (data->transaction_modseq != 0)
@@ -426,17 +426,16 @@ tracker_data_update_initialize_modseq (TrackerData  *data,
 	                                               tracker_property_get_id (property));
 
 	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
+		res = tracker_db_statement_get_values (stmt,
+		                                       TRACKER_PROPERTY_TYPE_INTEGER,
+		                                       &inner_error);
 		g_object_unref (stmt);
 	}
 
-	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
-			max_modseq = tracker_db_cursor_get_int (cursor, 0);
-			data->transaction_modseq = max_modseq + 1;
-		}
-
-		g_object_unref (cursor);
+	if (res) {
+		max_modseq = g_value_get_int64 (&g_array_index (res, GValue, 0));
+		data->transaction_modseq = max_modseq + 1;
+		g_array_unref (res);
 	}
 
 	if (G_UNLIKELY (inner_error)) {
@@ -1552,7 +1551,6 @@ get_property_values (TrackerData      *data,
                      TrackerProperty  *property,
                      GError          **error)
 {
-	gboolean multiple_values;
 	const gchar *database;
 	GArray *old_values;
 
@@ -1560,82 +1558,41 @@ get_property_values (TrackerData      *data,
 	if (old_values != NULL)
 		return old_values;
 
-	multiple_values = tracker_property_get_multiple_values (property);
-
-	old_values = g_array_sized_new (FALSE, TRUE, sizeof (GValue), multiple_values ? 4 : 1);
-	g_array_set_clear_func (old_values, (GDestroyNotify) g_value_unset);
-	g_hash_table_insert (data->resource_buffer->predicates, g_object_ref (property), old_values);
-
 	database = data->resource_buffer->graph->graph ?
 		data->resource_buffer->graph->graph : "main";
 
 	if (!data->resource_buffer->create) {
 		TrackerDBInterface *iface;
 		TrackerDBStatement *stmt;
-		TrackerDBCursor    *cursor = NULL;
 		const gchar        *table_name;
 		const gchar        *field_name;
-		GError             *inner_error = NULL;
 
 		table_name = tracker_property_get_table_name (property);
 		field_name = tracker_property_get_name (property);
 
 		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
-		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
 		                                               "SELECT \"%s\" FROM \"%s\".\"%s\" WHERE ID = ?",
 		                                               field_name, database, table_name);
-
 		if (stmt) {
 			tracker_db_statement_bind_int (stmt, 0, data->resource_buffer->id);
-			cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
+			old_values = tracker_db_statement_get_values (stmt,
+			                                              tracker_property_get_data_type (property),
+			                                              error);
 			g_object_unref (stmt);
 		}
 
-		if (cursor) {
-			while (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
-				GValue gvalue = { 0 };
-
-				tracker_db_cursor_get_value (cursor, 0, &gvalue);
-
-				if (G_VALUE_TYPE (&gvalue)) {
-					if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME) {
-						GDateTime *datetime;
-
-						if (G_VALUE_TYPE (&gvalue) == G_TYPE_INT64) {
-							datetime = g_date_time_new_from_unix_utc (g_value_get_int64 (&gvalue));
-							g_value_unset (&gvalue);
-							g_value_init (&gvalue, G_TYPE_DATE_TIME);
-							g_value_take_boxed (&gvalue, datetime);
-						} else {
-							datetime = tracker_date_new_from_iso8601 (g_value_get_string (&gvalue),
-												  &inner_error);
-							g_value_unset (&gvalue);
-
-							if (inner_error) {
-								g_propagate_prefixed_error (error,
-								                            inner_error,
-											    "Error in date conversion:");
-								return NULL;
-							}
-
-							g_value_init (&gvalue, G_TYPE_DATE_TIME);
-							g_value_take_boxed (&gvalue, datetime);
-						}
-					}
-
-					g_array_append_val (old_values, gvalue);
-				}
-			}
-
-			g_object_unref (cursor);
-		}
-
-		if (inner_error) {
-			g_propagate_error (error, inner_error);
+		if (!old_values)
 			return NULL;
-		}
 	}
+
+	if (!old_values) {
+		old_values = g_array_new (FALSE, FALSE, sizeof (GValue));
+		g_array_set_clear_func (old_values, (GDestroyNotify) g_value_unset);
+	}
+
+	g_hash_table_insert (data->resource_buffer->predicates, g_object_ref (property), old_values);
 
 	return old_values;
 }
@@ -1980,13 +1937,13 @@ cache_delete_resource_type_full (TrackerData   *data,
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	TrackerDBCursor    *cursor = NULL;
 	TrackerProperty   **properties, *prop;
 	gboolean            found;
 	guint               i, p, n_props;
 	GError             *inner_error = NULL;
 	TrackerOntologies  *ontologies;
 	const gchar        *database;
+	GArray *res = NULL;
 	GValue gvalue = G_VALUE_INIT;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
@@ -2037,21 +1994,25 @@ cache_delete_resource_type_full (TrackerData   *data,
 		if (stmt) {
 			tracker_db_statement_bind_int (stmt, 0, data->resource_buffer->id);
 			tracker_db_statement_bind_text (stmt, 1, tracker_class_get_uri (class));
-			cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
+			res = tracker_db_statement_get_values (stmt,
+			                                       TRACKER_PROPERTY_TYPE_STRING,
+			                                       &inner_error);
 			g_object_unref (stmt);
 		}
 
-		if (cursor) {
-			while (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
+		if (res) {
+			for (i = 0; i < res->len; i++) {
 				const gchar *class_uri;
 
-				class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
+				class_uri = g_value_get_string (&g_array_index (res, GValue, i));
 				if (!cache_delete_resource_type_full (data, tracker_ontologies_get_class_by_uri (ontologies, class_uri),
-				                                      FALSE, error))
+				                                      FALSE, error)) {
+					g_array_unref (res);
 					return FALSE;
+				}
 			}
 
-			g_object_unref (cursor);
+			g_array_unref (res);
 		}
 
 		if (inner_error) {
