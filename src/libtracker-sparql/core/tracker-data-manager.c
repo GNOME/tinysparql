@@ -5471,7 +5471,7 @@ tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
 
 	if (expanded) {
 		if (sep) {
-			*expanded = g_strdup_printf ("%s%s", expanded_ns, sep);
+			*expanded = g_strconcat (expanded_ns, sep, NULL);
 		} else {
 			*expanded = g_strdup (expanded_ns);
 		}
