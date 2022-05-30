@@ -1693,6 +1693,7 @@ get_old_property_values (TrackerData      *data,
 				g_ptr_array_unref (fts_text);
 
 				old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
+				data->resource_buffer->fts_updated = TRUE;
 			} else {
 				old_values = get_property_values (data, property, error);
 			}
@@ -2442,6 +2443,8 @@ delete_single_valued (TrackerData       *data,
 			                    FALSE);
 			if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE)
 				tracker_data_resource_unref (data, g_value_get_int64 (value), multiple_values);
+
+			g_array_remove_index (old_values, 0);
 		} else {
 			/* no need to error out if statement does not exist for any reason */
 			g_clear_error (&inner_error);
