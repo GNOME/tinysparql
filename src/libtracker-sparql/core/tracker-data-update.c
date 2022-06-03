@@ -54,7 +54,7 @@ struct _TrackerDataUpdateBuffer {
 	GHashTable *resource_cache;
 	/* set of IDs, key is same pointer than resource_cache, and owned there */
 	GHashTable *new_resources;
-	/* string -> TrackerDataUpdateBufferGraph */
+	/* TrackerDataUpdateBufferGraph */
 	GPtrArray *graphs;
 };
 
@@ -62,7 +62,7 @@ struct _TrackerDataUpdateBufferGraph {
 	gchar *graph;
 	TrackerRowid id;
 
-	/* string -> TrackerDataUpdateBufferResource */
+	/* id -> TrackerDataUpdateBufferResource */
 	GHashTable *resources;
 	/* id -> integer */
 	GHashTable *refcounts;
