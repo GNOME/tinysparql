@@ -3866,20 +3866,34 @@ rebuild_fts_tokens (TrackerDataManager  *manager,
                     TrackerDBInterface  *iface,
                     GError             **error)
 {
+	TrackerProperty **properties;
 	GHashTableIter iter;
 	gchar *graph;
+	gboolean has_fts = FALSE;
+	guint len, i;
 
-	g_debug ("Rebuilding FTS tokens, this may take a moment...");
-	if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", error))
-		return FALSE;
+	properties = tracker_ontologies_get_properties (manager->ontologies, &len);
 
-	g_hash_table_iter_init (&iter, manager->graphs);
-	while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
-		if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph, error))
-			return FALSE;
+	for (i = 0; i < len; i++) {
+		has_fts |= tracker_property_get_fulltext_indexed (properties[i]);
+		if (has_fts)
+			break;
 	}
 
-	g_debug ("FTS tokens rebuilt");
+	if (has_fts) {
+		g_debug ("Rebuilding FTS tokens, this may take a moment...");
+		if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", error))
+			return FALSE;
+
+		g_hash_table_iter_init (&iter, manager->graphs);
+		while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
+			if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph, error))
+				return FALSE;
+		}
+
+		g_debug ("FTS tokens rebuilt");
+	}
+
 	/* Update the stamp file */
 	tracker_db_manager_tokenizer_update (manager->db_manager);
 
