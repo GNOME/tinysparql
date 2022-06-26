@@ -411,4 +411,34 @@ public class Tracker.Bus.Connection : Tracker.Sparql.Connection {
 	public async override GLib.InputStream serialize_async (SerializeFlags flags, RdfFormat format, string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError {
 		return yield perform_serialize (bus, dbus_name, object_path, flags, format, sparql, null, cancellable);
 	}
+
+	public static async bool perform_deserialize (DBusConnection bus, string dbus_name, string object_path, DeserializeFlags flags, RdfFormat format, string? default_graph, GLib.InputStream istream, VariantBuilder? arguments, Cancellable? cancellable) throws GLib.IOError, GLib.Error {
+		UnixInputStream input;
+		UnixOutputStream output;
+		pipe (out input, out output);
+
+		var message = new DBusMessage.method_call (dbus_name, object_path, ENDPOINT_IFACE, "Deserialize");
+		var fd_list = new UnixFDList ();
+		DBusMessage? reply = null;
+		message.set_body (new Variant ("(hiisa{sv})", fd_list.append (input.fd), flags, format, default_graph != null ? default_graph : "", arguments));
+		message.set_unix_fd_list (fd_list);
+
+		bus.send_message_with_reply.begin (message, DBusSendMessageFlags.NONE, int.MAX, null, cancellable, (o, res) => {
+			reply = bus.send_message_with_reply.end(res);
+			perform_deserialize.callback();
+		});
+
+		output.splice_async.begin (istream, OutputStreamSpliceFlags.CLOSE_SOURCE | OutputStreamSpliceFlags.CLOSE_TARGET, Priority.DEFAULT, cancellable);
+
+		yield;
+
+		if (reply != null)
+			handle_error_reply (reply);
+
+		return true;
+	}
+
+	public async override bool deserialize_async (DeserializeFlags flags, RdfFormat format, string? default_graph, GLib.InputStream istream, Cancellable? cancellable) throws GLib.IOError, GLib.Error {
+		return yield perform_deserialize (bus, dbus_name, object_path, flags, format, default_graph, istream, null, cancellable);
+	}
 }
