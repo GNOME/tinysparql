@@ -39,6 +39,7 @@ static gchar **filenames;
 static gchar *database_path;
 static gchar *dbus_service;
 static gchar *remote_service;
+static gboolean trig;
 
 static GOptionEntry entries[] = {
 	{ "database", 'd', 0, G_OPTION_ARG_FILENAME, &database_path,
@@ -52,6 +53,10 @@ static GOptionEntry entries[] = {
 	{ "remote-service", 'r', 0, G_OPTION_ARG_STRING, &remote_service,
 	  N_("Connects to a remote service"),
 	  N_("Remote service URI")
+	},
+	{ "trig", 'g', 0, G_OPTION_ARG_NONE, &trig,
+	  N_("Read TriG format which includes named graph information"),
+	  NULL
 	},
 	{ G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &filenames,
 	  N_("FILE"),
@@ -140,6 +145,8 @@ import_run (void)
 
 		tracker_sparql_connection_deserialize_async (connection,
 		                                             TRACKER_DESERIALIZE_FLAGS_NONE,
+		                                             trig ?
+		                                             TRACKER_RDF_FORMAT_TRIG :
 		                                             TRACKER_RDF_FORMAT_TURTLE,
 		                                             NULL,
 		                                             stream,
