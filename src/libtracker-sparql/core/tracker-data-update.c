@@ -2928,7 +2928,7 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 	TrackerSparqlCursor *cursor = TRACKER_SPARQL_CURSOR (deserializer);
 	TrackerOntologies *ontologies;
 	GError *inner_error = NULL;
-	const gchar *subject_str, *predicate_str, *object_str;
+	const gchar *subject_str, *predicate_str, *object_str, *graph_str;
 	goffset last_parsed_line_no = 0, last_parsed_column_no = 0;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
@@ -2948,6 +2948,9 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		object_str = tracker_sparql_cursor_get_string (cursor,
 		                                               TRACKER_RDF_COL_OBJECT,
 		                                               NULL);
+		graph_str = tracker_sparql_cursor_get_string (cursor,
+		                                              TRACKER_RDF_COL_GRAPH,
+		                                              NULL);
 
 		predicate = tracker_ontologies_get_property_by_uri (ontologies, predicate_str);
 		if (predicate == NULL) {
@@ -2979,7 +2982,8 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		if (inner_error)
 			goto failed;
 
-		tracker_data_insert_statement (data, graph,
+		tracker_data_insert_statement (data,
+		                               graph_str ? graph_str : graph,
 		                               subject, predicate, &object,
 		                               &inner_error);
 		g_value_unset (&object);
