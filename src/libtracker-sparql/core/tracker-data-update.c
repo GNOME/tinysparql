@@ -1785,6 +1785,36 @@ process_domain_indexes (TrackerData     *data,
 }
 
 static gboolean
+maybe_convert_value (TrackerData         *data,
+                     TrackerPropertyType  source,
+                     TrackerPropertyType  target,
+                     const GValue        *value,
+                     GValue              *value_out)
+{
+	if (source == TRACKER_PROPERTY_TYPE_RESOURCE &&
+	    target == TRACKER_PROPERTY_TYPE_STRING &&
+	    G_VALUE_HOLDS_INT64 (value)) {
+		TrackerDBInterface *iface;
+		gchar *str;
+
+		iface = tracker_data_manager_get_writable_db_interface (data->manager);
+		str = tracker_data_query_resource_urn (data->manager, iface,
+		                                       g_value_get_int64 (value));
+
+		if (!str) {
+			str = g_strdup_printf ("urn:bnode:%" G_GINT64_FORMAT,
+			                       g_value_get_int64 (value));
+		}
+
+		g_value_init (value_out, G_TYPE_STRING);
+		g_value_take_string (value_out, str);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gboolean
 cache_insert_metadata_decomposed (TrackerData      *data,
                                   TrackerProperty  *property,
                                   const GValue     *object,
@@ -1815,6 +1845,8 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 	while (*super_properties) {
 		gboolean super_is_multi;
 		GArray *super_old_values;
+		GValue converted = G_VALUE_INIT;
+		const GValue *val;
 
 		super_is_multi = tracker_property_get_multiple_values (*super_properties);
 		super_old_values = get_old_property_values (data, *super_properties, &new_error);
@@ -1826,14 +1858,25 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		data->resource_buffer->fts_updated |=
 			tracker_property_get_fulltext_indexed (*super_properties);
 
+		if (maybe_convert_value (data,
+		                         tracker_property_get_data_type (property),
+		                         tracker_property_get_data_type (*super_properties),
+		                         object,
+		                         &converted))
+			val = &converted;
+		else
+			val = object;
+
 		if (super_is_multi || super_old_values->len == 0) {
-			change |= cache_insert_metadata_decomposed (data, *super_properties, object,
+			change |= cache_insert_metadata_decomposed (data, *super_properties, val,
 			                                            &new_error);
 			if (new_error) {
+				g_value_unset (&converted);
 				g_propagate_error (error, new_error);
 				return FALSE;
 			}
 		}
+		g_value_unset (&converted);
 		super_properties++;
 	}
 
@@ -1960,8 +2003,21 @@ delete_metadata_decomposed (TrackerData      *data,
 	/* also delete super property values */
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
-		change |= delete_metadata_decomposed (data, *super_properties, object, error);
+		GValue converted = G_VALUE_INIT;
+		const GValue *val;
+
+		if (maybe_convert_value (data,
+		                         tracker_property_get_data_type (property),
+		                         tracker_property_get_data_type (*super_properties),
+		                         object,
+		                         &converted))
+			val = &converted;
+		else
+			val = object;
+
+		change |= delete_metadata_decomposed (data, *super_properties, val, error);
 		super_properties++;
+		g_value_unset (&converted);
 	}
 
 	return change;
