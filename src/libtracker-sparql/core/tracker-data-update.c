@@ -116,6 +116,7 @@ struct _TrackerData {
 
 	gboolean in_transaction;
 	gboolean in_ontology_transaction;
+	gboolean implicit_create;
 	TrackerDataUpdateBuffer update_buffer;
 
 	/* current resource */
@@ -1610,23 +1611,30 @@ get_old_property_values (TrackerData      *data,
 	old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
 	if (old_values == NULL) {
 		if (!check_property_domain (data, property)) {
-			TrackerDBInterface *iface;
-			gchar *resource;
+			if (data->implicit_create) {
+				if (!cache_create_service_decomposed (data,
+				                                      tracker_property_get_domain (property),
+				                                      error))
+					return NULL;
+			} else {
+				TrackerDBInterface *iface;
+				gchar *resource;
 
-			iface = tracker_data_manager_get_writable_db_interface (data->manager);
-			resource = tracker_data_query_resource_urn (data->manager,
-			                                            iface,
-			                                            data->resource_buffer->id);
+				iface = tracker_data_manager_get_writable_db_interface (data->manager);
+				resource = tracker_data_query_resource_urn (data->manager,
+				                                            iface,
+				                                            data->resource_buffer->id);
 
-			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
-			             "%s %s is not is not a %s, cannot have property `%s'",
-			             resource ? "Subject" : "Blank node",
-			             resource ? resource : "",
-			             tracker_class_get_name (tracker_property_get_domain (property)),
-			             tracker_property_get_name (property));
-			g_free (resource);
+				g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
+				             "%s %s is not is not a %s, cannot have property `%s'",
+				             resource ? "Subject" : "Blank node",
+				             resource ? resource : "",
+				             tracker_class_get_name (tracker_property_get_domain (property)),
+				             tracker_property_get_name (property));
+				g_free (resource);
 
-			return NULL;
+				return NULL;
+			}
 		}
 
 		if (tracker_property_get_fulltext_indexed (property)) {
@@ -2868,6 +2876,7 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 	goffset last_parsed_line_no = 0, last_parsed_column_no = 0;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	data->implicit_create = TRUE;
 
 	while (tracker_sparql_cursor_next (cursor, NULL, &inner_error)) {
 		TrackerProperty *predicate;
@@ -2931,9 +2940,13 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 	if (inner_error)
 		goto failed;
 
+	data->implicit_create = FALSE;
+
 	return TRUE;
 
 failed:
+	data->implicit_create = FALSE;
+
 	tracker_deserializer_get_parser_location (deserializer,
 						  &last_parsed_line_no,
 						  &last_parsed_column_no);
