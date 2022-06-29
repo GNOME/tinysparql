@@ -36,7 +36,7 @@
 
 #include <strings.h>
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 4096
 #define RDF_TYPE "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 typedef enum
@@ -480,16 +480,114 @@ advance_whitespace_and_comments (TrackerDeserializerTurtle *deserializer)
 }
 
 static gboolean
+find_needle (const gchar *buffer,
+             gsize        buffer_len,
+             gsize        start,
+             const gchar *needle)
+{
+	const gchar *ptr, *prev;
+
+ retry:
+	ptr = memmem (&buffer[start], buffer_len - start,
+	              needle, strlen (needle));
+	if (!ptr)
+		return FALSE;
+
+	/* Empty string */
+	if (ptr == &buffer[start])
+		return TRUE;
+
+	prev = ptr - 1;
+	g_assert (prev >= &buffer[start]);
+
+	if (*prev == '\\') {
+		start = ptr - buffer + 1;
+		goto retry;
+	}
+
+	return TRUE;
+}
+
+static gboolean
+maybe_expand_buffer (TrackerDeserializerTurtle  *deserializer,
+                     GError                    **error)
+{
+	const gchar *buffer, *needle;
+	gsize start, buffer_len;
+
+	/* Expand the buffer to be able to read string terminals fully,
+	 * this only applies if there is a string terminal to read right
+	 * now.
+	 */
+	buffer = g_buffered_input_stream_peek_buffer (deserializer->buffered_stream,
+	                                              &buffer_len);
+	if (strncmp (buffer, "\"\"\"", 3) == 0) {
+		needle = "\"\"\"";
+		start = 3;
+	} else if (strncmp (buffer, "'''", 3) == 0) {
+		needle = "'''";
+		start = 3;
+	} else if (strncmp (buffer, "\"", 1) == 0) {
+		needle = "\"";
+		start = 1;
+	} else if (strncmp (buffer, "'", 1) == 0) {
+		needle = "'";
+		start = 1;
+	} else {
+		return TRUE;
+	}
+
+	while (!find_needle (buffer, buffer_len, start, needle)) {
+		gsize size, available;
+
+		available = g_buffered_input_stream_get_available (deserializer->buffered_stream);
+		size = g_buffered_input_stream_get_buffer_size (deserializer->buffered_stream);
+
+		if (available == size) {
+			size *= 2;
+
+			/* We only allow strings up to 1GB */
+			if (size > 1024 * 1024 * 1024) {
+				g_set_error (error,
+				             TRACKER_SPARQL_ERROR,
+				             TRACKER_SPARQL_ERROR_PARSE,
+				             "String too big to parse");
+				return FALSE;
+			}
+
+			g_buffered_input_stream_set_buffer_size (deserializer->buffered_stream,
+			                                         size);
+		}
+
+		if (g_buffered_input_stream_fill (deserializer->buffered_stream, -1, NULL, error) < 0)
+			return FALSE;
+
+		buffer = g_buffered_input_stream_peek_buffer (deserializer->buffered_stream,
+		                                              &buffer_len);
+	}
+
+	return TRUE;
+}
+
+
+static gboolean
 tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializer,
                                           GError                    **error)
 {
 	while (TRUE) {
 		gchar *str, *lang;
+		gsize available;
+
+		available = g_buffered_input_stream_get_available (deserializer->buffered_stream);
+
+		if (available < BUF_SIZE) {
+			if (g_buffered_input_stream_fill (deserializer->buffered_stream,
+			                                  BUF_SIZE - available,
+			                                  NULL, error) < 0)
+				return FALSE;
+		}
 
 		advance_whitespace_and_comments (deserializer);
-
-		if (g_buffered_input_stream_fill (deserializer->buffered_stream, -1, NULL, error) < 0)
-			return FALSE;
 
 		switch (deserializer->state) {
 		case STATE_INITIAL:
@@ -509,6 +607,9 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 			}
 			break;
 		case STATE_GRAPH:
+			if (g_buffered_input_stream_get_available (deserializer->buffered_stream) == 0)
+				return FALSE;
+
 			g_clear_pointer (&deserializer->graph, g_free);
 
 			if (parse_token (deserializer, "graph")) {
@@ -617,6 +718,9 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 				deserializer->state = STATE_PREDICATE;
 				continue;
 			}
+
+			if (!maybe_expand_buffer (deserializer, error))
+				return FALSE;
 
 			if (parse_terminal (deserializer, terminal_IRIREF, 1, &str)) {
 				deserializer->object = expand_base (deserializer, str);
