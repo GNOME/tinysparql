@@ -652,7 +652,14 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 				} else if (!handle_type_cast (deserializer, error)) {
 					return FALSE;
 				}
-			} else if (parse_terminal (deserializer, terminal_DOUBLE, 0, &str) ||
+			} else if (parse_terminal (deserializer, terminal_DOUBLE_POSITIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_DECIMAL_POSITIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_INTEGER_POSITIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_DOUBLE_NEGATIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_DECIMAL_NEGATIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_INTEGER_NEGATIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_DOUBLE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_DECIMAL, 0, &str) ||
 			           parse_terminal (deserializer, terminal_INTEGER, 0, &str)) {
 				deserializer->object = str;
 			} else if (parse_token (deserializer, "true")) {
