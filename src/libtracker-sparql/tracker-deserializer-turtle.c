@@ -298,8 +298,7 @@ expand_prefix (TrackerDeserializerTurtle  *deserializer,
 		g_set_error (error,
 		             TRACKER_SPARQL_ERROR,
 		             TRACKER_SPARQL_ERROR_PARSE,
-		             "Unknown prefix %s at line %" G_GOFFSET_FORMAT ", column %" G_GOFFSET_FORMAT,
-		             shortname, deserializer->line_no, deserializer->column_no - strlen(shortname));
+		             "Unknown prefix %s", shortname);
 		return NULL;
 	}
 
