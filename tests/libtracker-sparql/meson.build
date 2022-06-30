@@ -85,6 +85,17 @@ tests += {
   'suite': ['sparql'],
 }
 
+tracker_deserialize_test = executable('tracker-deserialize-test',
+  'tracker-deserialize-test.c',
+  dependencies: [tracker_common_dep, tracker_sparql_dep],
+  c_args: libtracker_sparql_test_c_args + test_c_args)
+
+tests += {
+  'name': 'deserialize',
+  'exe': tracker_deserialize_test,
+  'suite': ['sparql'],
+}
+
 tracker_namespaces_test = executable('tracker-namespaces-test',
   'tracker-namespaces-test.c',
   dependencies: [tracker_common_dep, tracker_sparql_dep],
