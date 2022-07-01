@@ -116,6 +116,7 @@ struct _TrackerData {
 
 	gboolean in_transaction;
 	gboolean in_ontology_transaction;
+	gboolean implicit_create;
 	TrackerDataUpdateBuffer update_buffer;
 
 	/* current resource */
@@ -1610,23 +1611,30 @@ get_old_property_values (TrackerData      *data,
 	old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
 	if (old_values == NULL) {
 		if (!check_property_domain (data, property)) {
-			TrackerDBInterface *iface;
-			gchar *resource;
+			if (data->implicit_create) {
+				if (!cache_create_service_decomposed (data,
+				                                      tracker_property_get_domain (property),
+				                                      error))
+					return NULL;
+			} else {
+				TrackerDBInterface *iface;
+				gchar *resource;
 
-			iface = tracker_data_manager_get_writable_db_interface (data->manager);
-			resource = tracker_data_query_resource_urn (data->manager,
-			                                            iface,
-			                                            data->resource_buffer->id);
+				iface = tracker_data_manager_get_writable_db_interface (data->manager);
+				resource = tracker_data_query_resource_urn (data->manager,
+				                                            iface,
+				                                            data->resource_buffer->id);
 
-			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
-			             "%s %s is not is not a %s, cannot have property `%s'",
-			             resource ? "Subject" : "Blank node",
-			             resource ? resource : "",
-			             tracker_class_get_name (tracker_property_get_domain (property)),
-			             tracker_property_get_name (property));
-			g_free (resource);
+				g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
+				             "%s %s is not is not a %s, cannot have property `%s'",
+				             resource ? "Subject" : "Blank node",
+				             resource ? resource : "",
+				             tracker_class_get_name (tracker_property_get_domain (property)),
+				             tracker_property_get_name (property));
+				g_free (resource);
 
-			return NULL;
+				return NULL;
+			}
 		}
 
 		if (tracker_property_get_fulltext_indexed (property)) {
@@ -1777,6 +1785,36 @@ process_domain_indexes (TrackerData     *data,
 }
 
 static gboolean
+maybe_convert_value (TrackerData         *data,
+                     TrackerPropertyType  source,
+                     TrackerPropertyType  target,
+                     const GValue        *value,
+                     GValue              *value_out)
+{
+	if (source == TRACKER_PROPERTY_TYPE_RESOURCE &&
+	    target == TRACKER_PROPERTY_TYPE_STRING &&
+	    G_VALUE_HOLDS_INT64 (value)) {
+		TrackerDBInterface *iface;
+		gchar *str;
+
+		iface = tracker_data_manager_get_writable_db_interface (data->manager);
+		str = tracker_data_query_resource_urn (data->manager, iface,
+		                                       g_value_get_int64 (value));
+
+		if (!str) {
+			str = g_strdup_printf ("urn:bnode:%" G_GINT64_FORMAT,
+			                       g_value_get_int64 (value));
+		}
+
+		g_value_init (value_out, G_TYPE_STRING);
+		g_value_take_string (value_out, str);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gboolean
 cache_insert_metadata_decomposed (TrackerData      *data,
                                   TrackerProperty  *property,
                                   const GValue     *object,
@@ -1807,6 +1845,8 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 	while (*super_properties) {
 		gboolean super_is_multi;
 		GArray *super_old_values;
+		GValue converted = G_VALUE_INIT;
+		const GValue *val;
 
 		super_is_multi = tracker_property_get_multiple_values (*super_properties);
 		super_old_values = get_old_property_values (data, *super_properties, &new_error);
@@ -1818,14 +1858,25 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		data->resource_buffer->fts_updated |=
 			tracker_property_get_fulltext_indexed (*super_properties);
 
+		if (maybe_convert_value (data,
+		                         tracker_property_get_data_type (property),
+		                         tracker_property_get_data_type (*super_properties),
+		                         object,
+		                         &converted))
+			val = &converted;
+		else
+			val = object;
+
 		if (super_is_multi || super_old_values->len == 0) {
-			change |= cache_insert_metadata_decomposed (data, *super_properties, object,
+			change |= cache_insert_metadata_decomposed (data, *super_properties, val,
 			                                            &new_error);
 			if (new_error) {
+				g_value_unset (&converted);
 				g_propagate_error (error, new_error);
 				return FALSE;
 			}
 		}
+		g_value_unset (&converted);
 		super_properties++;
 	}
 
@@ -1952,8 +2003,21 @@ delete_metadata_decomposed (TrackerData      *data,
 	/* also delete super property values */
 	super_properties = tracker_property_get_super_properties (property);
 	while (*super_properties) {
-		change |= delete_metadata_decomposed (data, *super_properties, object, error);
+		GValue converted = G_VALUE_INIT;
+		const GValue *val;
+
+		if (maybe_convert_value (data,
+		                         tracker_property_get_data_type (property),
+		                         tracker_property_get_data_type (*super_properties),
+		                         object,
+		                         &converted))
+			val = &converted;
+		else
+			val = object;
+
+		change |= delete_metadata_decomposed (data, *super_properties, val, error);
 		super_properties++;
+		g_value_unset (&converted);
 	}
 
 	return change;
@@ -2854,43 +2918,39 @@ tracker_data_update_sparql_blank (TrackerData  *data,
 	return update_sparql (data, update, TRUE, error);
 }
 
-void
-tracker_data_load_turtle_file (TrackerData  *data,
-                               GFile        *file,
-                               const gchar  *graph,
-                               GError      **error)
+gboolean
+tracker_data_load_from_deserializer (TrackerData          *data,
+                                     TrackerDeserializer  *deserializer,
+                                     const gchar          *graph,
+                                     const gchar          *location,
+                                     GError              **error)
 {
-	TrackerSparqlCursor *deserializer;
+	TrackerSparqlCursor *cursor = TRACKER_SPARQL_CURSOR (deserializer);
 	TrackerOntologies *ontologies;
 	GError *inner_error = NULL;
-	const gchar *subject_str, *predicate_str, *object_str;
+	const gchar *subject_str, *predicate_str, *object_str, *graph_str;
 	goffset last_parsed_line_no = 0, last_parsed_column_no = 0;
-	gchar *ontology_uri;
-
-	deserializer = tracker_deserializer_new_for_file (file, NULL, error);
-	if (!deserializer)
-		return;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	data->implicit_create = TRUE;
 
-	while (tracker_sparql_cursor_next (deserializer, NULL, &inner_error)) {
+	while (tracker_sparql_cursor_next (cursor, NULL, &inner_error)) {
 		TrackerProperty *predicate;
 		GValue object = G_VALUE_INIT;
 		TrackerRowid subject;
 
-		subject_str = tracker_sparql_cursor_get_string (deserializer,
+		subject_str = tracker_sparql_cursor_get_string (cursor,
 		                                                TRACKER_RDF_COL_SUBJECT,
 		                                                NULL);
-		predicate_str = tracker_sparql_cursor_get_string (deserializer,
+		predicate_str = tracker_sparql_cursor_get_string (cursor,
 		                                                  TRACKER_RDF_COL_PREDICATE,
 		                                                  NULL);
-		object_str = tracker_sparql_cursor_get_string (deserializer,
+		object_str = tracker_sparql_cursor_get_string (cursor,
 		                                               TRACKER_RDF_COL_OBJECT,
 		                                               NULL);
-
-		tracker_deserializer_get_parser_location (TRACKER_DESERIALIZER (deserializer),
-		                                          &last_parsed_line_no,
-		                                          &last_parsed_column_no);
+		graph_str = tracker_sparql_cursor_get_string (cursor,
+		                                              TRACKER_RDF_COL_GRAPH,
+		                                              NULL);
 
 		predicate = tracker_ontologies_get_property_by_uri (ontologies, predicate_str);
 		if (predicate == NULL) {
@@ -2922,7 +2982,8 @@ tracker_data_load_turtle_file (TrackerData  *data,
 		if (inner_error)
 			goto failed;
 
-		tracker_data_insert_statement (data, graph,
+		tracker_data_insert_statement (data,
+		                               graph_str ? graph_str : graph,
 		                               subject, predicate, &object,
 		                               &inner_error);
 		g_value_unset (&object);
@@ -2936,18 +2997,48 @@ tracker_data_load_turtle_file (TrackerData  *data,
 			goto failed;
 	}
 
-	g_clear_object (&deserializer);
+	if (inner_error)
+		goto failed;
 
-	return;
+	data->implicit_create = FALSE;
+
+	return TRUE;
 
 failed:
-	g_clear_object (&deserializer);
+	data->implicit_create = FALSE;
 
-	ontology_uri = g_file_get_uri (file);
+	tracker_deserializer_get_parser_location (deserializer,
+						  &last_parsed_line_no,
+						  &last_parsed_column_no);
+
 	g_propagate_prefixed_error (error, inner_error,
 	                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
-	                            ontology_uri, last_parsed_line_no, last_parsed_column_no);
-	g_free (ontology_uri);
+	                            location, last_parsed_line_no, last_parsed_column_no);
+
+	return FALSE;
+}
+
+void
+tracker_data_load_rdf_file (TrackerData  *data,
+			    GFile        *file,
+			    const gchar  *graph,
+			    GError      **error)
+{
+	TrackerSparqlCursor *deserializer;
+	gchar *uri;
+
+	deserializer = tracker_deserializer_new_for_file (file, NULL, error);
+	if (!deserializer)
+		return;
+
+	uri = g_file_get_uri (file);
+	tracker_data_load_from_deserializer (data,
+	                                     TRACKER_DESERIALIZER (deserializer),
+	                                     graph,
+	                                     uri,
+	                                     error);
+	g_object_unref (deserializer);
+	g_free (uri);
 }
 
 TrackerRowid

@@ -39,6 +39,7 @@ static gchar **filenames;
 static gchar *database_path;
 static gchar *dbus_service;
 static gchar *remote_service;
+static gboolean trig;
 
 static GOptionEntry entries[] = {
 	{ "database", 'd', 0, G_OPTION_ARG_FILENAME, &database_path,
@@ -52,6 +53,10 @@ static GOptionEntry entries[] = {
 	{ "remote-service", 'r', 0, G_OPTION_ARG_STRING, &remote_service,
 	  N_("Connects to a remote service"),
 	  N_("Remote service URI")
+	},
+	{ "trig", 'g', 0, G_OPTION_ARG_NONE, &trig,
+	  N_("Read TriG format which includes named graph information"),
+	  NULL
 	},
 	{ G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &filenames,
 	  N_("FILE"),
@@ -85,11 +90,31 @@ create_connection (GError **error)
 	}
 }
 
+static void
+deserialize_cb (GObject      *source,
+                GAsyncResult *res,
+                gpointer      user_data)
+{
+	GError *error = NULL;
+
+	if (!tracker_sparql_connection_deserialize_finish (TRACKER_SPARQL_CONNECTION (source),
+	                                                   res, &error)) {
+		g_printerr ("%s, %s\n",
+		            _("Could not run import"),
+		            error->message);
+		exit (EXIT_FAILURE);
+	}
+
+	g_main_loop_quit (user_data);
+}
+
 static int
 import_run (void)
 {
 	g_autoptr(TrackerSparqlConnection) connection = NULL;
 	g_autoptr(GError) error = NULL;
+	g_autoptr(GMainLoop) main_loop = NULL;
+	g_autoptr(GInputStream) stream = NULL;
 	gchar **p;
 
 	connection = create_connection (&error);
@@ -101,23 +126,34 @@ import_run (void)
 		return EXIT_FAILURE;
 	}
 
+	main_loop = g_main_loop_new (NULL, FALSE);
+
 	for (p = filenames; *p; p++) {
 		g_autoptr(GFile) file = NULL;
 		g_autofree gchar *update = NULL;
 		g_autofree gchar *uri = NULL;
 
 		file = g_file_new_for_commandline_arg (*p);
-		uri = g_file_get_uri (file);
-		update = g_strdup_printf ("LOAD <%s>", uri);
 
-		tracker_sparql_connection_update (connection, update, NULL, &error);
-
+		stream = G_INPUT_STREAM (g_file_read (file, NULL, &error));
 		if (error) {
 			g_printerr ("%s, %s\n",
 			            _("Could not run import"),
 			            error->message);
 			return EXIT_FAILURE;
 		}
+
+		tracker_sparql_connection_deserialize_async (connection,
+		                                             TRACKER_DESERIALIZE_FLAGS_NONE,
+		                                             trig ?
+		                                             TRACKER_RDF_FORMAT_TRIG :
+		                                             TRACKER_RDF_FORMAT_TURTLE,
+		                                             NULL,
+		                                             stream,
+		                                             NULL,
+		                                             deserialize_cb,
+		                                             main_loop);
+		g_main_loop_run (main_loop);
 
 		g_print ("Successfully imported %s", g_file_peek_path (file));
 	}

@@ -78,6 +78,13 @@ static const gchar introspection_xml[] =
 	"      <arg type='h' name='input_stream' direction='in' />"
 	"      <arg type='aaa{ss}' name='result' direction='out' />"
 	"    </method>"
+	"    <method name='Deserialize'>"
+	"      <arg type='h' name='input_stream' direction='in' />"
+	"      <arg type='i' name='flags' direction='in' />"
+	"      <arg type='i' name='format' direction='in' />"
+	"      <arg type='s' name='default_graph' direction='in' />"
+	"      <arg type='a{sv}' name='arguments' direction='in' />"
+	"    </method>"
 	"    <signal name='GraphUpdated'>"
 	"      <arg type='sa{ii}' name='updates' />"
 	"    </signal>"
@@ -688,6 +695,25 @@ read_update_blank_cb (GObject      *object,
 	                                              request);
 }
 
+static void
+deserialize_cb (GObject      *object,
+                GAsyncResult *res,
+                gpointer      user_data)
+{
+	UpdateRequest *request = user_data;
+	GError *error = NULL;
+
+	if (!tracker_sparql_connection_deserialize_finish (TRACKER_SPARQL_CONNECTION (object),
+	                                                   res, &error)) {
+		g_dbus_method_invocation_return_gerror (request->invocation, error);
+		update_request_free (request);
+		return;
+	}
+
+	g_dbus_method_invocation_return_value (request->invocation, NULL);
+	update_request_free (request);
+}
+
 static TrackerSparqlStatement *
 create_statement (TrackerSparqlConnection  *conn,
                   const gchar              *query,
@@ -929,6 +955,49 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			request = update_request_new (endpoint_dbus, invocation, FALSE, fd);
 			update_request_read_next (request, read_update_blank_cb);
 		}
+	} else if (g_strcmp0 (method_name, "Deserialize") == 0) {
+		TrackerDeserializeFlags flags;
+		TrackerRdfFormat format;
+		gchar *graph;
+
+		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
+		                                            invocation,
+		                                            TRACKER_OPERATION_TYPE_UPDATE)) {
+			g_dbus_method_invocation_return_error (invocation,
+			                                       G_DBUS_ERROR,
+			                                       G_DBUS_ERROR_ACCESS_DENIED,
+			                                       "Operation not allowed");
+			return;
+		}
+
+		g_variant_get (parameters, "(hiisa{sv})", &handle, &flags, &format, &graph, &arguments);
+
+		if (fd_list)
+			fd = g_unix_fd_list_get (fd_list, handle, &error);
+
+		if (fd < 0) {
+			g_dbus_method_invocation_return_error (invocation,
+			                                       G_DBUS_ERROR,
+			                                       G_DBUS_ERROR_INVALID_ARGS,
+			                                       "Did not get a file descriptor");
+		} else {
+			TrackerSparqlConnection *conn;
+			UpdateRequest *request;
+
+			request = update_request_new (endpoint_dbus, invocation, FALSE, fd);
+			conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (request->endpoint));
+
+			tracker_sparql_connection_deserialize_async (conn,
+			                                             flags,
+			                                             format,
+			                                             graph && *graph ? graph : NULL,
+			                                             G_INPUT_STREAM (request->input_stream),
+			                                             request->endpoint->cancellable,
+			                                             deserialize_cb,
+			                                             request);
+		}
+
+		g_free (graph);
 	} else {
 		g_dbus_method_invocation_return_error (invocation,
 		                                       G_DBUS_ERROR,

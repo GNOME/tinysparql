@@ -36,7 +36,7 @@
 
 #include <strings.h>
 
-#define BUF_SIZE 1024
+#define BUF_SIZE 4096
 #define RDF_TYPE "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 typedef enum
@@ -294,12 +294,13 @@ expand_prefix (TrackerDeserializerTurtle  *deserializer,
 	expanded = tracker_namespace_manager_expand_uri (namespaces, shortname);
 
 	if (g_strcmp0 (expanded, shortname) == 0) {
+		/* Point to beginning of term */
+		deserializer->column_no -= strlen(shortname);
 		g_free (expanded);
 		g_set_error (error,
 		             TRACKER_SPARQL_ERROR,
 		             TRACKER_SPARQL_ERROR_PARSE,
-		             "Unknown prefix %s at line %" G_GOFFSET_FORMAT ", column %" G_GOFFSET_FORMAT,
-		             shortname, deserializer->line_no, deserializer->column_no - strlen(shortname));
+		             "Unknown prefix %s", shortname);
 		return NULL;
 	}
 
@@ -479,38 +480,156 @@ advance_whitespace_and_comments (TrackerDeserializerTurtle *deserializer)
 }
 
 static gboolean
+find_needle (const gchar *buffer,
+             gsize        buffer_len,
+             gsize        start,
+             const gchar *needle)
+{
+	const gchar *ptr, *prev;
+
+ retry:
+	ptr = memmem (&buffer[start], buffer_len - start,
+	              needle, strlen (needle));
+	if (!ptr)
+		return FALSE;
+
+	/* Empty string */
+	if (ptr == &buffer[start])
+		return TRUE;
+
+	prev = ptr - 1;
+	g_assert (prev >= &buffer[start]);
+
+	if (*prev == '\\') {
+		start = ptr - buffer + 1;
+		goto retry;
+	}
+
+	return TRUE;
+}
+
+static gboolean
+maybe_expand_buffer (TrackerDeserializerTurtle  *deserializer,
+                     GError                    **error)
+{
+	const gchar *buffer, *needle;
+	gsize start, buffer_len;
+
+	/* Expand the buffer to be able to read string terminals fully,
+	 * this only applies if there is a string terminal to read right
+	 * now.
+	 */
+	buffer = g_buffered_input_stream_peek_buffer (deserializer->buffered_stream,
+	                                              &buffer_len);
+	if (strncmp (buffer, "\"\"\"", 3) == 0) {
+		needle = "\"\"\"";
+		start = 3;
+	} else if (strncmp (buffer, "'''", 3) == 0) {
+		needle = "'''";
+		start = 3;
+	} else if (strncmp (buffer, "\"", 1) == 0) {
+		needle = "\"";
+		start = 1;
+	} else if (strncmp (buffer, "'", 1) == 0) {
+		needle = "'";
+		start = 1;
+	} else {
+		return TRUE;
+	}
+
+	while (!find_needle (buffer, buffer_len, start, needle)) {
+		gsize size, available;
+
+		available = g_buffered_input_stream_get_available (deserializer->buffered_stream);
+		size = g_buffered_input_stream_get_buffer_size (deserializer->buffered_stream);
+
+		if (available == size) {
+			size *= 2;
+
+			/* We only allow strings up to 1GB */
+			if (size > 1024 * 1024 * 1024) {
+				g_set_error (error,
+				             TRACKER_SPARQL_ERROR,
+				             TRACKER_SPARQL_ERROR_PARSE,
+				             "String too big to parse");
+				return FALSE;
+			}
+
+			g_buffered_input_stream_set_buffer_size (deserializer->buffered_stream,
+			                                         size);
+		}
+
+		if (g_buffered_input_stream_fill (deserializer->buffered_stream, -1, NULL, error) < 0)
+			return FALSE;
+
+		buffer = g_buffered_input_stream_peek_buffer (deserializer->buffered_stream,
+		                                              &buffer_len);
+	}
+
+	return TRUE;
+}
+
+
+static gboolean
 tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializer,
                                           GError                    **error)
 {
 	while (TRUE) {
 		gchar *str, *lang;
+		gsize available;
+
+		available = g_buffered_input_stream_get_available (deserializer->buffered_stream);
+
+		if (available < BUF_SIZE) {
+			if (g_buffered_input_stream_fill (deserializer->buffered_stream,
+			                                  BUF_SIZE - available,
+			                                  NULL, error) < 0)
+				return FALSE;
+		}
 
 		advance_whitespace_and_comments (deserializer);
 
-		if (g_buffered_input_stream_fill (deserializer->buffered_stream, -1, NULL, error) < 0)
-			return FALSE;
-
 		switch (deserializer->state) {
 		case STATE_INITIAL:
-			if (deserializer->parse_trig)
-				deserializer->state = STATE_GRAPH;
-			else
-				deserializer->state = STATE_SUBJECT;
+			if (parse_token (deserializer, "@prefix")) {
+				if (!handle_prefix (deserializer, error))
+					return FALSE;
+				break;
+			} else if (parse_token (deserializer, "@base")) {
+				if (!handle_base (deserializer, error))
+					return FALSE;
+				break;
+			} else {
+				if (deserializer->parse_trig)
+					deserializer->state = STATE_GRAPH;
+				else
+					deserializer->state = STATE_SUBJECT;
+			}
 			break;
 		case STATE_GRAPH:
+			if (g_buffered_input_stream_get_available (deserializer->buffered_stream) == 0)
+				return FALSE;
+
+			g_clear_pointer (&deserializer->graph, g_free);
+
 			if (parse_token (deserializer, "graph")) {
 				advance_whitespace_and_comments (deserializer);
 
 				if (parse_terminal (deserializer, terminal_IRIREF, 1, &str)) {
 					deserializer->graph = expand_base (deserializer, str);
+				} else if (parse_terminal (deserializer, terminal_PNAME_LN, 0, &str) ||
+				           parse_terminal (deserializer, terminal_PNAME_NS, 0, &str)) {
+					deserializer->graph = expand_prefix (deserializer, str, error);
+					g_free (str);
+					if (!deserializer->graph)
+						return FALSE;
 				} else {
 					g_set_error (error,
 					             TRACKER_SPARQL_ERROR,
 					             TRACKER_SPARQL_ERROR_PARSE,
 					             "Wrong graph token");
+					return FALSE;
 				}
-			} else {
-				g_clear_pointer (&deserializer->graph, g_free);
 			}
 
 			advance_whitespace_and_comments (deserializer);
@@ -520,21 +639,14 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 				             TRACKER_SPARQL_ERROR,
 				             TRACKER_SPARQL_ERROR_PARSE,
 				             "Expected graph block");
+				return FALSE;
 			}
+
+			deserializer->state = STATE_SUBJECT;
 			break;
 		case STATE_SUBJECT:
 			if (g_buffered_input_stream_get_available (deserializer->buffered_stream) == 0)
 				return FALSE;
-
-			if (parse_token (deserializer, "@prefix")) {
-				if (!handle_prefix (deserializer, error))
-					return FALSE;
-				break;
-			} else if (parse_token (deserializer, "@base")) {
-				if (!handle_base (deserializer, error))
-					return FALSE;
-				break;
-			}
 
 			g_clear_pointer (&deserializer->subject, g_free);
 
@@ -607,6 +719,9 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 				continue;
 			}
 
+			if (!maybe_expand_buffer (deserializer, error))
+				return FALSE;
+
 			if (parse_terminal (deserializer, terminal_IRIREF, 1, &str)) {
 				deserializer->object = expand_base (deserializer, str);
 				deserializer->object_is_uri = TRUE;
@@ -641,7 +756,14 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 				} else if (!handle_type_cast (deserializer, error)) {
 					return FALSE;
 				}
-			} else if (parse_terminal (deserializer, terminal_DOUBLE, 0, &str) ||
+			} else if (parse_terminal (deserializer, terminal_DOUBLE_POSITIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_DECIMAL_POSITIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_INTEGER_POSITIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_DOUBLE_NEGATIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_DECIMAL_NEGATIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_INTEGER_NEGATIVE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_DOUBLE, 0, &str) ||
+			           parse_terminal (deserializer, terminal_DECIMAL, 0, &str) ||
 			           parse_terminal (deserializer, terminal_INTEGER, 0, &str)) {
 				deserializer->object = str;
 			} else if (parse_token (deserializer, "true")) {
@@ -686,13 +808,14 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 
 			if (parse_token (deserializer, ".")) {
 				advance_whitespace_and_comments (deserializer);
-				deserializer->state = STATE_SUBJECT;
+				deserializer->state = deserializer->parse_trig ?
+					STATE_SUBJECT : STATE_INITIAL;
 			}
 
 			if (deserializer->parse_trig &&
 			    parse_token (deserializer, "}")) {
 				advance_whitespace_and_comments (deserializer);
-				deserializer->state = STATE_GRAPH;
+				deserializer->state = STATE_INITIAL;
 			}
 
 			/* If we did not advance state, this is a parsing error */
@@ -797,12 +920,6 @@ tracker_deserializer_turtle_get_parser_location (TrackerDeserializer *deserializ
                                                  goffset             *column_no)
 {
 	TrackerDeserializerTurtle *deserializer_ttl = TRACKER_DESERIALIZER_TURTLE (deserializer);
-
-	if (deserializer_ttl->state == STATE_INITIAL) {
-		*line_no = 0;
-		*column_no = 0;
-		return FALSE;
-	}
 
 	*line_no = deserializer_ttl->line_no;
 	*column_no = deserializer_ttl->column_no;

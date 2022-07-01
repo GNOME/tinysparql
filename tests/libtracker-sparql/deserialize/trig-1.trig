@@ -1,0 +1,605 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix nao: <http://tracker.api.gnome.org/ontology/v3/nao#> .
+@prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix fts: <http://tracker.api.gnome.org/ontology/v3/fts#> .
+@prefix nmm: <http://tracker.api.gnome.org/ontology/v3/nmm#> .
+@prefix slo: <http://tracker.api.gnome.org/ontology/v3/slo#> .
+@prefix tracker: <http://tracker.api.gnome.org/ontology/v3/tracker#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix nfo: <http://tracker.api.gnome.org/ontology/v3/nfo#> .
+@prefix osinfo: <http://tracker.api.gnome.org/ontology/v3/osinfo#> .
+@prefix nco: <http://tracker.api.gnome.org/ontology/v3/nco#> .
+@prefix nie: <http://tracker.api.gnome.org/ontology/v3/nie#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix mfo: <http://tracker.api.gnome.org/ontology/v3/mfo#> .
+
+GRAPH tracker:FileSystem {
+  <file:///home/carlos> tracker:extractorHash "bcfdf10209a8dd3c2031a00fc8d7e4aa8f13992f0eee7321b69311e024db3c07" .
+}
+
+GRAPH tracker:Audio {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> tracker:available true .
+}
+
+GRAPH tracker:Pictures {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> tracker:available true .
+}
+
+GRAPH tracker:Video {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> tracker:available true .
+}
+
+GRAPH tracker:Documents {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> tracker:available true .
+}
+
+GRAPH tracker:Software {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> tracker:available true .
+}
+
+GRAPH tracker:FileSystem {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> tracker:available true .
+
+  <file:///home/carlos> nfo:fileLastModified "2022-06-29T17:01:08Z" ;
+    nfo:fileName "carlos" ;
+    nfo:fileSize 28672 ;
+    nfo:fileCreated "2019-05-10T20:52:03Z" ;
+    nfo:fileLastAccessed "2022-06-29T17:01:09Z" .
+}
+
+GRAPH tracker:Audio {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:rootElementOf <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> .
+}
+
+GRAPH tracker:Pictures {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:rootElementOf <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> .
+}
+
+GRAPH tracker:Video {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:rootElementOf <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> .
+}
+
+GRAPH tracker:Documents {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:rootElementOf <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> .
+}
+
+GRAPH tracker:Software {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:rootElementOf <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> .
+}
+
+GRAPH tracker:FileSystem {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:rootElementOf <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> .
+
+  <file:///home/carlos> nie:created "2019-05-10T20:52:03Z" .
+}
+
+GRAPH tracker:Audio {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:isStoredAs <file:///home/carlos> .
+}
+
+GRAPH tracker:Pictures {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:isStoredAs <file:///home/carlos> .
+}
+
+GRAPH tracker:Video {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:isStoredAs <file:///home/carlos> .
+}
+
+GRAPH tracker:Documents {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:isStoredAs <file:///home/carlos> .
+}
+
+GRAPH tracker:Software {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:isStoredAs <file:///home/carlos> .
+}
+
+GRAPH tracker:FileSystem {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:isStoredAs <file:///home/carlos> .
+}
+
+GRAPH tracker:Audio {
+  <file:///home/carlos> nie:interpretedAs <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> .
+}
+
+GRAPH tracker:Pictures {
+  <file:///home/carlos> nie:interpretedAs <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> .
+}
+
+GRAPH tracker:Video {
+  <file:///home/carlos> nie:interpretedAs <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> .
+}
+
+GRAPH tracker:Documents {
+  <file:///home/carlos> nie:interpretedAs <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> .
+}
+
+GRAPH tracker:Software {
+  <file:///home/carlos> nie:interpretedAs <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> .
+}
+
+GRAPH tracker:FileSystem {
+  <file:///home/carlos> nie:interpretedAs <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> ;
+    nie:dataSource <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> ;
+    nie:byteSize 28672 .
+}
+
+GRAPH tracker:Audio {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:mimeType "inode/directory" .
+}
+
+GRAPH tracker:Pictures {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:mimeType "inode/directory" .
+}
+
+GRAPH tracker:Video {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:mimeType "inode/directory" .
+}
+
+GRAPH tracker:Documents {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:mimeType "inode/directory" .
+}
+
+GRAPH tracker:Software {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:mimeType "inode/directory" .
+}
+
+GRAPH tracker:FileSystem {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nie:mimeType "inode/directory" .
+
+  <file:///home/carlos> nie:url "file:///home/carlos" ;
+    dc:source <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> ;
+    dc:date "2022-06-29T17:01:08Z", "2022-06-29T17:01:09Z" .
+}
+
+GRAPH tracker:Audio {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:modified 2 .
+
+  <file:///home/carlos> nrl:modified 2 .
+}
+
+GRAPH tracker:Pictures {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:modified 2 .
+
+  <file:///home/carlos> nrl:modified 2 .
+}
+
+GRAPH tracker:Video {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:modified 2 .
+
+  <file:///home/carlos> nrl:modified 2 .
+}
+
+GRAPH tracker:Documents {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:modified 2 .
+
+  <file:///home/carlos> nrl:modified 2 .
+}
+
+GRAPH tracker:Software {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:modified 2 .
+
+  <file:///home/carlos> nrl:modified 2 .
+}
+
+{
+  rdf:nil nrl:modified 1 .
+
+  nco:default-contact-me nrl:modified 1 .
+
+  nco:gender-male nrl:modified 1 .
+
+  nco:gender-female nrl:modified 1 .
+
+  nco:gender-other nrl:modified 1 .
+
+  nco:presence-status-unset nrl:modified 1 .
+
+  nco:presence-status-offline nrl:modified 1 .
+
+  nco:presence-status-available nrl:modified 1 .
+
+  nco:presence-status-away nrl:modified 1 .
+
+  nco:presence-status-extended-away nrl:modified 1 .
+
+  nco:presence-status-hidden nrl:modified 1 .
+
+  nco:presence-status-busy nrl:modified 1 .
+
+  nco:presence-status-unknown nrl:modified 1 .
+
+  nco:presence-status-error nrl:modified 1 .
+
+  nco:im-capability-text-chat nrl:modified 1 .
+
+  nco:im-capability-media-calls nrl:modified 1 .
+
+  nco:im-capability-audio-calls nrl:modified 1 .
+
+  nco:im-capability-video-calls nrl:modified 1 .
+
+  nco:im-capability-upgrading-calls nrl:modified 1 .
+
+  nco:im-capability-file-transfers nrl:modified 1 .
+
+  nco:im-capability-stream-tubes nrl:modified 1 .
+
+  nco:im-capability-dbus-tubes nrl:modified 1 .
+
+  nco:predefined-auth-status-yes nrl:modified 1 .
+
+  nco:predefined-auth-status-no nrl:modified 1 .
+
+  nco:predefined-auth-status-requested nrl:modified 1 .
+
+  nfo:image-category-screenshot nrl:modified 1 .
+
+  nfo:orientation-top nrl:modified 1 .
+
+  nfo:orientation-top-mirror nrl:modified 1 .
+
+  nfo:orientation-bottom nrl:modified 1 .
+
+  nfo:orientation-bottom-mirror nrl:modified 1 .
+
+  nfo:orientation-left-mirror nrl:modified 1 .
+
+  nfo:orientation-right nrl:modified 1 .
+
+  nfo:orientation-right-mirror nrl:modified 1 .
+
+  nfo:orientation-left nrl:modified 1 .
+
+  nfo:roi-content-face nrl:modified 1 .
+
+  nfo:roi-content-pet nrl:modified 1 .
+
+  nfo:roi-content-focus nrl:modified 1 .
+
+  nfo:roi-content-barcode nrl:modified 1 .
+
+  nfo:roi-content-undefined nrl:modified 1 .
+
+  nmm:flash-on nrl:modified 1 .
+
+  nmm:flash-off nrl:modified 1 .
+
+  nmm:metering-mode-average nrl:modified 1 .
+
+  nmm:metering-mode-center-weighted-average nrl:modified 1 .
+
+  nmm:metering-mode-spot nrl:modified 1 .
+
+  nmm:metering-mode-multispot nrl:modified 1 .
+
+  nmm:metering-mode-pattern nrl:modified 1 .
+
+  nmm:metering-mode-partial nrl:modified 1 .
+
+  nmm:metering-mode-other nrl:modified 1 .
+
+  nmm:white-balance-auto nrl:modified 1 .
+
+  nmm:white-balance-manual nrl:modified 1 .
+
+  nmm:radio-modulation-am nrl:modified 1 .
+
+  nmm:radio-modulation-fm nrl:modified 1 .
+
+  mfo:refresh-now nrl:modified 1 .
+
+  tracker:extractor-data-source nrl:modified 1 .
+
+  nao:predefined-tag-favorite nrl:modified 1 .
+}
+
+GRAPH tracker:FileSystem {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:modified 2 .
+
+  <file:///home/carlos> nrl:modified 2 .
+}
+
+GRAPH tracker:Audio {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:added "2022-06-30T21:48:04Z" .
+
+  <file:///home/carlos> nrl:added "2022-06-30T21:48:04Z" .
+}
+
+GRAPH tracker:Pictures {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:added "2022-06-30T21:48:04Z" .
+
+  <file:///home/carlos> nrl:added "2022-06-30T21:48:04Z" .
+}
+
+GRAPH tracker:Video {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:added "2022-06-30T21:48:04Z" .
+
+  <file:///home/carlos> nrl:added "2022-06-30T21:48:04Z" .
+}
+
+GRAPH tracker:Documents {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:added "2022-06-30T21:48:04Z" .
+
+  <file:///home/carlos> nrl:added "2022-06-30T21:48:04Z" .
+}
+
+GRAPH tracker:Software {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:added "2022-06-30T21:48:04Z" .
+
+  <file:///home/carlos> nrl:added "2022-06-30T21:48:04Z" .
+}
+
+{
+  rdf:nil nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:default-contact-me nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:gender-male nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:gender-female nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:gender-other nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:presence-status-unset nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:presence-status-offline nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:presence-status-available nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:presence-status-away nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:presence-status-extended-away nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:presence-status-hidden nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:presence-status-busy nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:presence-status-unknown nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:presence-status-error nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:im-capability-text-chat nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:im-capability-media-calls nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:im-capability-audio-calls nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:im-capability-video-calls nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:im-capability-upgrading-calls nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:im-capability-file-transfers nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:im-capability-stream-tubes nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:im-capability-dbus-tubes nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:predefined-auth-status-yes nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:predefined-auth-status-no nrl:added "2022-06-30T21:47:50Z" .
+
+  nco:predefined-auth-status-requested nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:image-category-screenshot nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:orientation-top nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:orientation-top-mirror nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:orientation-bottom nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:orientation-bottom-mirror nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:orientation-left-mirror nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:orientation-right nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:orientation-right-mirror nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:orientation-left nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:roi-content-face nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:roi-content-pet nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:roi-content-focus nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:roi-content-barcode nrl:added "2022-06-30T21:47:50Z" .
+
+  nfo:roi-content-undefined nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:flash-on nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:flash-off nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:metering-mode-average nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:metering-mode-center-weighted-average nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:metering-mode-spot nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:metering-mode-multispot nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:metering-mode-pattern nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:metering-mode-partial nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:metering-mode-other nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:white-balance-auto nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:white-balance-manual nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:radio-modulation-am nrl:added "2022-06-30T21:47:50Z" .
+
+  nmm:radio-modulation-fm nrl:added "2022-06-30T21:47:50Z" .
+
+  mfo:refresh-now nrl:added "2022-06-30T21:47:50Z" .
+
+  tracker:extractor-data-source nrl:added "2022-06-30T21:47:50Z" .
+
+  nao:predefined-tag-favorite nrl:added "2022-06-30T21:47:50Z" .
+}
+
+GRAPH tracker:FileSystem {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> nrl:added "2022-06-30T21:48:04Z" .
+
+  <file:///home/carlos> nrl:added "2022-06-30T21:48:04Z" .
+}
+
+{
+  rdf:nil rdfs:label "nil" .
+
+  tracker:extractor-data-source rdfs:label "Tracker extractor data source" .
+
+  rdf:nil rdfs:comment "The empty list, with no items in it. If the rest of a list is nil then the list has no more items in it." .
+}
+
+GRAPH tracker:Audio {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> rdf:type rdfs:Resource, nie:InformationElement, nfo:DataContainer, nfo:Folder, nie:DataSource, tracker:IndexedFolder .
+
+  <file:///home/carlos> rdf:type rdfs:Resource, nie:DataObject, nfo:FileDataObject .
+}
+
+GRAPH tracker:Pictures {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> rdf:type rdfs:Resource, nie:InformationElement, nfo:DataContainer, nfo:Folder, nie:DataSource, tracker:IndexedFolder .
+
+  <file:///home/carlos> rdf:type rdfs:Resource, nie:DataObject, nfo:FileDataObject .
+}
+
+GRAPH tracker:Video {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> rdf:type rdfs:Resource, nie:InformationElement, nfo:DataContainer, nfo:Folder, nie:DataSource, tracker:IndexedFolder .
+
+  <file:///home/carlos> rdf:type rdfs:Resource, nie:DataObject, nfo:FileDataObject .
+}
+
+GRAPH tracker:Documents {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> rdf:type rdfs:Resource, nie:InformationElement, nfo:DataContainer, nfo:Folder, nie:DataSource, tracker:IndexedFolder .
+
+  <file:///home/carlos> rdf:type rdfs:Resource, nie:DataObject, nfo:FileDataObject .
+}
+
+GRAPH tracker:Software {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> rdf:type rdfs:Resource, nie:InformationElement, nfo:DataContainer, nfo:Folder, nie:DataSource, tracker:IndexedFolder .
+
+  <file:///home/carlos> rdf:type rdfs:Resource, nie:DataObject, nfo:FileDataObject .
+}
+
+{
+  rdf:nil rdf:type rdfs:Resource, rdf:List .
+
+  nco:default-contact-me rdf:type rdfs:Resource, nie:InformationElement, nco:Role, nco:Contact, nco:PersonContact .
+
+  nco:gender-female rdf:type rdfs:Resource, nco:Gender .
+
+  nco:gender-male rdf:type rdfs:Resource, nco:Gender .
+
+  nco:gender-other rdf:type rdfs:Resource, nco:Gender .
+
+  nco:presence-status-busy rdf:type rdfs:Resource, nco:PresenceStatus .
+
+  nco:presence-status-hidden rdf:type rdfs:Resource, nco:PresenceStatus .
+
+  nco:presence-status-extended-away rdf:type rdfs:Resource, nco:PresenceStatus .
+
+  nco:presence-status-away rdf:type rdfs:Resource, nco:PresenceStatus .
+
+  nco:presence-status-available rdf:type rdfs:Resource, nco:PresenceStatus .
+
+  nco:presence-status-error rdf:type rdfs:Resource, nco:PresenceStatus .
+
+  nco:presence-status-offline rdf:type rdfs:Resource, nco:PresenceStatus .
+
+  nco:presence-status-unset rdf:type rdfs:Resource, nco:PresenceStatus .
+
+  nco:presence-status-unknown rdf:type rdfs:Resource, nco:PresenceStatus .
+
+  nco:im-capability-video-calls rdf:type rdfs:Resource, nco:IMCapability .
+
+  nco:im-capability-audio-calls rdf:type rdfs:Resource, nco:IMCapability .
+
+  nco:im-capability-media-calls rdf:type rdfs:Resource, nco:IMCapability .
+
+  nco:im-capability-text-chat rdf:type rdfs:Resource, nco:IMCapability .
+
+  nco:im-capability-stream-tubes rdf:type rdfs:Resource, nco:IMCapability .
+
+  nco:im-capability-dbus-tubes rdf:type rdfs:Resource, nco:IMCapability .
+
+  nco:im-capability-file-transfers rdf:type rdfs:Resource, nco:IMCapability .
+
+  nco:im-capability-upgrading-calls rdf:type rdfs:Resource, nco:IMCapability .
+
+  nco:predefined-auth-status-requested rdf:type rdfs:Resource, nco:AuthorizationStatus .
+
+  nco:predefined-auth-status-no rdf:type rdfs:Resource, nco:AuthorizationStatus .
+
+  nco:predefined-auth-status-yes rdf:type rdfs:Resource, nco:AuthorizationStatus .
+
+  nfo:image-category-screenshot rdf:type rdfs:Resource, nie:InformationElement, nfo:DataContainer, nfo:ImageCategory .
+
+  nfo:orientation-bottom-mirror rdf:type rdfs:Resource, nfo:Orientation .
+
+  nfo:orientation-bottom rdf:type rdfs:Resource, nfo:Orientation .
+
+  nfo:orientation-top-mirror rdf:type rdfs:Resource, nfo:Orientation .
+
+  nfo:orientation-left rdf:type rdfs:Resource, nfo:Orientation .
+
+  nfo:orientation-top rdf:type rdfs:Resource, nfo:Orientation .
+
+  nfo:orientation-right-mirror rdf:type rdfs:Resource, nfo:Orientation .
+
+  nfo:orientation-right rdf:type rdfs:Resource, nfo:Orientation .
+
+  nfo:orientation-left-mirror rdf:type rdfs:Resource, nfo:Orientation .
+
+  nfo:roi-content-barcode rdf:type rdfs:Resource, nie:InformationElement, nfo:RegionOfInterestContent .
+
+  nfo:roi-content-face rdf:type rdfs:Resource, nie:InformationElement, nfo:RegionOfInterestContent .
+
+  nfo:roi-content-focus rdf:type rdfs:Resource, nie:InformationElement, nfo:RegionOfInterestContent .
+
+  nfo:roi-content-undefined rdf:type rdfs:Resource, nie:InformationElement, nfo:RegionOfInterestContent .
+
+  nfo:roi-content-pet rdf:type rdfs:Resource, nie:InformationElement, nfo:RegionOfInterestContent .
+
+  nmm:flash-off rdf:type rdfs:Resource, nmm:Flash .
+
+  nmm:flash-on rdf:type rdfs:Resource, nmm:Flash .
+
+  nmm:metering-mode-average rdf:type rdfs:Resource, nmm:MeteringMode .
+
+  nmm:metering-mode-other rdf:type rdfs:Resource, nmm:MeteringMode .
+
+  nmm:metering-mode-partial rdf:type rdfs:Resource, nmm:MeteringMode .
+
+  nmm:metering-mode-pattern rdf:type rdfs:Resource, nmm:MeteringMode .
+
+  nmm:metering-mode-multispot rdf:type rdfs:Resource, nmm:MeteringMode .
+
+  nmm:metering-mode-spot rdf:type rdfs:Resource, nmm:MeteringMode .
+
+  nmm:metering-mode-center-weighted-average rdf:type rdfs:Resource, nmm:MeteringMode .
+
+  nmm:white-balance-manual rdf:type rdfs:Resource, nmm:WhiteBalance .
+
+  nmm:white-balance-auto rdf:type rdfs:Resource, nmm:WhiteBalance .
+
+  nmm:radio-modulation-am rdf:type rdfs:Resource, nmm:RadioModulation .
+
+  nmm:radio-modulation-fm rdf:type rdfs:Resource, nmm:RadioModulation .
+
+  mfo:refresh-now rdf:type rdfs:Resource, mfo:Action .
+
+  tracker:extractor-data-source rdf:type rdfs:Resource, nie:DataSource .
+
+  nao:predefined-tag-favorite rdf:type rdfs:Resource, nao:Tag .
+}
+
+GRAPH tracker:FileSystem {
+  <urn:fileid:/dev/mapper/luks-6fbd7095-44f6-4829-9760-fa1380f37947:5373953> rdf:type rdfs:Resource, nie:InformationElement, nfo:DataContainer, nfo:Folder, nie:DataSource, tracker:IndexedFolder .
+
+  <file:///home/carlos> rdf:type rdfs:Resource, nie:DataObject, nfo:FileDataObject .
+}
