@@ -107,6 +107,7 @@ query_async_cb (GObject      *object,
 {
 	TrackerEndpointHttp *endpoint_http;
 	TrackerSparqlCursor *cursor;
+	TrackerSparqlConnection *conn;
 	Request *request = user_data;
 	GInputStream *stream;
 	GError *error = NULL;
@@ -124,7 +125,10 @@ query_async_cb (GObject      *object,
 		return;
 	}
 
-	stream = tracker_serializer_new (cursor, request->format);
+	conn = tracker_sparql_cursor_get_connection (cursor);
+	stream = tracker_serializer_new (cursor,
+	                                 tracker_sparql_connection_get_namespace_manager (conn),
+	                                 request->format);
 	/* Consumes the input stream */
 	tracker_http_server_response (endpoint_http->server,
 	                              request->request,

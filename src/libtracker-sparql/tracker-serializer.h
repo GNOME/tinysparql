@@ -33,8 +33,11 @@ G_DECLARE_DERIVABLE_TYPE (TrackerSerializer,
                           GInputStream)
 
 GInputStream * tracker_serializer_new (TrackerSparqlCursor     *cursor,
+                                       TrackerNamespaceManager *namespaces,
                                        TrackerSerializerFormat  format);
 
 TrackerSparqlCursor * tracker_serializer_get_cursor (TrackerSerializer *serializer);
+
+TrackerNamespaceManager * tracker_serializer_get_namespaces (TrackerSerializer *serializer);
 
 #endif /* TRACKER_SERIALIZER_H */

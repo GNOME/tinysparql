@@ -196,7 +196,6 @@ serialize_up_to_size (TrackerSerializerTrig  *serializer_trig,
 {
 	TrackerSparqlCursor *cursor;
 	TrackerNamespaceManager *namespaces;
-	TrackerSparqlConnection *conn;
 	GError *inner_error = NULL;
 	TrackerQuad *cur;
 
@@ -204,8 +203,7 @@ serialize_up_to_size (TrackerSerializerTrig  *serializer_trig,
 		serializer_trig->data = g_string_new (NULL);
 
 	cursor = tracker_serializer_get_cursor (TRACKER_SERIALIZER (serializer_trig));
-	conn = tracker_sparql_cursor_get_connection (cursor);
-	namespaces = tracker_sparql_connection_get_namespace_manager (conn);
+	namespaces = tracker_serializer_get_namespaces (TRACKER_SERIALIZER (serializer_trig));
 
 	if (!serializer_trig->head_printed) {
 		gchar *str;

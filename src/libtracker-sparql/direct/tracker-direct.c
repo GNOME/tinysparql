@@ -322,6 +322,7 @@ serialize_in_thread (GTask    *task,
 	TrackerDirectConnection *conn;
 	TrackerSparql *query = NULL;
 	TrackerSparqlCursor *cursor = NULL;
+	TrackerNamespaceManager *namespaces;
 	GInputStream *istream = NULL;
 	SerializeRdf *data = task_data->data;
 	GError *error = NULL;
@@ -345,7 +346,9 @@ serialize_in_thread (GTask    *task,
 		goto out;
 
 	tracker_sparql_cursor_set_connection (cursor, TRACKER_SPARQL_CONNECTION (conn));
-	istream = tracker_serializer_new (cursor, convert_format (data->format));
+	namespaces = tracker_sparql_connection_get_namespace_manager (TRACKER_SPARQL_CONNECTION (conn));
+	istream = tracker_serializer_new (cursor, namespaces,
+	                                  convert_format (data->format));
 
  out:
 	g_clear_object (&query);
