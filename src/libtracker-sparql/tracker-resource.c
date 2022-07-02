@@ -27,6 +27,7 @@
 
 #include <string.h>
 
+#include <tracker-deserializer-resource.h>
 #include <tracker-uri.h>
 #include <tracker-resource.h>
 #include <tracker-ontologies.h>
@@ -1768,6 +1769,87 @@ tracker_resource_print_jsonld (TrackerResource         *self,
 	g_object_unref (generator);
 
 	return result;
+}
+
+static TrackerSerializerFormat
+convert_format (TrackerRdfFormat format)
+{
+	switch (format) {
+	case TRACKER_RDF_FORMAT_TURTLE:
+		return TRACKER_SERIALIZER_FORMAT_TTL;
+	case TRACKER_RDF_FORMAT_TRIG:
+		return TRACKER_SERIALIZER_FORMAT_TRIG;
+	case TRACKER_N_RDF_FORMATS:
+		g_assert_not_reached ();
+	}
+
+	return -1;
+}
+
+/**
+ * tracker_resource_print_rdf:
+ * @self: a #TrackerResource
+ * @namespaces: a set of prefixed URLs
+ * @format: RDF format of the printed string
+ * @graph: target graph of the resource RDF, or %NULL for the default graph
+ *
+ * Serialize all the information in @resource into the selected RDF format.
+ *
+ * The @namespaces object is used to expand any compact URI values. In most
+ * cases you should pass the one returned by tracker_sparql_connection_get_namespace_manager()
+ * from the connection that is the intended recipient of this data.
+ *
+ * Returns: a newly-allocated string containing RDF data in the requested format.
+ *
+ * Since: 3.4
+ **/
+char *
+tracker_resource_print_rdf (TrackerResource         *self,
+                            TrackerNamespaceManager *namespaces,
+                            TrackerRdfFormat         format,
+                            const gchar             *graph)
+{
+	TrackerSparqlCursor *deserializer;
+	GInputStream *serializer;
+	GString *str;
+
+	g_return_val_if_fail (TRACKER_IS_RESOURCE (self), NULL);
+	g_return_val_if_fail (TRACKER_IS_NAMESPACE_MANAGER (namespaces), NULL);
+	g_return_val_if_fail (format < TRACKER_N_RDF_FORMATS, NULL);
+
+#define BUF_SIZE 4096
+	deserializer = tracker_deserializer_resource_new (self, namespaces, graph);
+	serializer = tracker_serializer_new (TRACKER_SPARQL_CURSOR (deserializer),
+	                                     namespaces,
+	                                     convert_format (format));
+	g_object_unref (deserializer);
+
+	str = g_string_new (NULL);
+
+	while (TRUE) {
+		GBytes *bytes;
+
+		bytes = g_input_stream_read_bytes (serializer, BUF_SIZE, NULL, NULL);
+		if (!bytes) {
+			g_string_free (str, TRUE);
+			return NULL;
+		}
+
+		if (g_bytes_get_size (bytes) == 0) {
+			g_bytes_unref (bytes);
+			break;
+		}
+
+		g_string_append_len (str,
+		                     g_bytes_get_data (bytes, NULL),
+		                     g_bytes_get_size (bytes));
+		g_bytes_unref (bytes);
+	}
+#undef BUF_SIZE
+
+	g_object_unref (serializer);
+
+	return g_string_free (str, FALSE);
 }
 
 static GVariant *
