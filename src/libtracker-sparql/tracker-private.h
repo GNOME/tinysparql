@@ -304,6 +304,14 @@ struct _TrackerNamespaceManager {
 	GObject parent;
 };
 
+typedef struct {
+	GHashTableIter prop_iter;
+	TrackerResource *cur_resource;
+	const gchar *cur_prop;
+	GPtrArray *cur_values;
+	guint idx;
+} TrackerResourceIterator;
+
 gboolean
 tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connection,
                                                const gchar              *dbus_name,
@@ -315,5 +323,11 @@ void tracker_sparql_cursor_set_connection (TrackerSparqlCursor     *cursor,
 GError * _translate_internal_error (GError *error);
 
 void tracker_namespace_manager_seal (TrackerNamespaceManager *namespaces);
+
+void tracker_resource_iterator_init (TrackerResourceIterator *iter,
+                                     TrackerResource         *resource);
+gboolean tracker_resource_iterator_next (TrackerResourceIterator  *iter,
+                                         const gchar             **property,
+                                         const GValue            **value);
 
 #endif /* __TRACKER_PRIVATE_H__ */

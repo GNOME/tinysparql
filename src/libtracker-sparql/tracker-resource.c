@@ -2016,3 +2016,50 @@ tracker_resource_get_property_overwrite (TrackerResource *resource,
 
 	return g_hash_table_contains (priv->overwrite, property_uri);
 }
+
+void
+tracker_resource_iterator_init (TrackerResourceIterator *iter,
+                                TrackerResource         *resource)
+{
+	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
+
+	bzero (iter, sizeof (TrackerResourceIterator));
+	g_hash_table_iter_init (&iter->prop_iter, priv->properties);
+}
+
+gboolean
+tracker_resource_iterator_next (TrackerResourceIterator  *iter,
+                                const gchar             **property,
+                                const GValue            **value)
+{
+	gpointer key, val;
+
+	if (iter->cur_values && iter->cur_prop) {
+		iter->idx++;
+
+		if (iter->idx < iter->cur_values->len) {
+			*property = iter->cur_prop;
+			*value = g_ptr_array_index (iter->cur_values, iter->idx);
+			return TRUE;
+		} else {
+			iter->cur_values = NULL;
+			iter->cur_prop = NULL;
+		}
+	}
+
+	if (!g_hash_table_iter_next (&iter->prop_iter, &key, &val))
+		return FALSE;
+
+	if (G_VALUE_HOLDS (val, G_TYPE_PTR_ARRAY)) {
+		iter->cur_prop = key;
+		iter->cur_values = g_value_get_boxed (val);
+		iter->idx = 0;
+		*property = iter->cur_prop;
+		*value = g_ptr_array_index (iter->cur_values, iter->idx);
+		return TRUE;
+	}
+
+	*property = key;
+	*value = val;
+	return TRUE;
+}
