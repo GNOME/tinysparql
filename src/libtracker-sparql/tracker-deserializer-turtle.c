@@ -832,7 +832,7 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 	}
 }
 
-TrackerSparqlValueType
+static TrackerSparqlValueType
 tracker_deserializer_turtle_get_value_type (TrackerSparqlCursor *cursor,
                                             gint                 column)
 {
@@ -861,7 +861,7 @@ tracker_deserializer_turtle_get_value_type (TrackerSparqlCursor *cursor,
 	}
 }
 
-const gchar *
+static const gchar *
 tracker_deserializer_turtle_get_string (TrackerSparqlCursor *cursor,
                                         gint                 column,
                                         glong               *length)
@@ -882,7 +882,7 @@ tracker_deserializer_turtle_get_string (TrackerSparqlCursor *cursor,
 	}
 }
 
-gboolean
+static gboolean
 tracker_deserializer_turtle_next (TrackerSparqlCursor  *cursor,
                                   GCancellable         *cancellable,
                                   GError              **error)
@@ -892,7 +892,7 @@ tracker_deserializer_turtle_next (TrackerSparqlCursor  *cursor,
 	return tracker_deserializer_turtle_iterate_next (deserializer, error);
 }
 
-void
+static void
 tracker_deserializer_turtle_rewind (TrackerSparqlCursor* cursor)
 {
 	TrackerDeserializerTurtle *deserializer = TRACKER_DESERIALIZER_TURTLE (cursor);
@@ -914,7 +914,7 @@ tracker_deserializer_turtle_close (TrackerSparqlCursor* cursor)
 	TRACKER_SPARQL_CURSOR_CLASS (tracker_deserializer_turtle_parent_class)->close (cursor);
 }
 
-gboolean
+static gboolean
 tracker_deserializer_turtle_get_parser_location (TrackerDeserializer *deserializer,
                                                  goffset             *line_no,
                                                  goffset             *column_no)
