@@ -106,7 +106,7 @@ gint tracker_resource_identifier_compare_func (TrackerResource *resource, const 
 TRACKER_AVAILABLE_IN_ALL
 GList *tracker_resource_get_properties (TrackerResource *resource);
 
-TRACKER_AVAILABLE_IN_ALL
+TRACKER_DEPRECATED_IN_3_4_FOR(tracker_resource_print_rdf)
 char *tracker_resource_print_turtle(TrackerResource *self, TrackerNamespaceManager *namespaces);
 
 TRACKER_AVAILABLE_IN_ALL
