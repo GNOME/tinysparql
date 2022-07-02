@@ -23,6 +23,7 @@
 #error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
 #endif
 
+#include <libtracker-sparql/tracker-enums.h>
 #include <libtracker-sparql/tracker-error.h>
 #include <libtracker-sparql/tracker-notifier.h>
 #include <libtracker-sparql/tracker-resource.h>
@@ -53,12 +54,6 @@ typedef enum {
 	TRACKER_SPARQL_CONNECTION_FLAGS_FTS_IGNORE_NUMBERS    = 1 << 4,
 	TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES      = 1 << 5,
 } TrackerSparqlConnectionFlags;
-
-typedef enum {
-	TRACKER_RDF_FORMAT_TURTLE,
-	TRACKER_RDF_FORMAT_TRIG,
-	TRACKER_N_RDF_FORMATS
-} TrackerRdfFormat;
 
 typedef enum {
 	TRACKER_SERIALIZE_FLAGS_NONE = 0,
