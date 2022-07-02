@@ -55,7 +55,7 @@ tracker_deserializer_finalize (GObject *object)
 	TrackerDeserializerPrivate *priv =
 		tracker_deserializer_get_instance_private (deserializer);
 
-	g_object_unref (priv->stream);
+	g_clear_object (&priv->stream);
 	g_clear_object (&priv->namespaces);
 
 	G_OBJECT_CLASS (tracker_deserializer_parent_class)->finalize (object);
@@ -121,7 +121,8 @@ tracker_deserializer_close (TrackerSparqlCursor *cursor)
 	TrackerDeserializerPrivate *priv =
 		tracker_deserializer_get_instance_private (deserializer);
 
-	g_input_stream_close (priv->stream, NULL, NULL);
+	if (priv->stream)
+		g_input_stream_close (priv->stream, NULL, NULL);
 }
 
 static void
