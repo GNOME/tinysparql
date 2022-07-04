@@ -27,7 +27,7 @@ executable(command_name, sources,
     ],
     install: true,
     install_rpath: tracker_internal_libs_dir,
-    dependencies: [tracker_sparql_dep, tracker_data_dep],
+    dependencies: [tracker_common_dep, tracker_sparql_dep, tracker_data_dep],
     include_directories: [commoninc, configinc, srcinc],
 )
 
