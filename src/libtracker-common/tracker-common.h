@@ -36,7 +36,6 @@
 #include "tracker-term-utils.h"
 #include "tracker-utils.h"
 #include "tracker-locale.h"
-#include "tracker-enum-types.h"
 
 #undef __LIBTRACKER_COMMON_INSIDE__
 
