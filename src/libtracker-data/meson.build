@@ -33,7 +33,6 @@ libtracker_data = static_library('tracker-data',
     'tracker-uuid.c',
     'tracker-vtab-service.c',
     'tracker-vtab-triples.c',
-    tracker_common_enum_header,
     tracker_data_enums[0],
     tracker_data_enums[1],
     c_args: tracker_c_args,
@@ -50,5 +49,4 @@ tracker_data_dep = declare_dependency(
     link_with: [libtracker_data],
     dependencies: tracker_data_dependencies,
     include_directories: include_directories('.'),
-    sources: enums[1],
 )

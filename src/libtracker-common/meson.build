@@ -1,15 +1,5 @@
 subdir('stop-words')
 
-tracker_common_enums_header = files('tracker-enums.h')
-
-enums = gnome.mkenums('tracker-enum-types',
-  sources: tracker_common_enums_header,
-  c_template: 'tracker-enum-types.c.template',
-  h_template: 'tracker-enum-types.h.template',
-)
-
-tracker_common_enum_header = enums[1]
-
 tracker_common_sources = [
   'tracker-date-time.c',
   'tracker-debug.c',
@@ -19,7 +9,6 @@ tracker_common_sources = [
   'tracker-locale.c',
   'tracker-parser-utils.c',
   'tracker-language.c',
-  enums[0], enums[1],
 ]
 
 if unicode_library_name == 'icu'
@@ -46,7 +35,6 @@ libtracker_common = static_library('tracker-common',
 commoninc = include_directories('.')
 
 tracker_common_dep = declare_dependency(
-  sources: [tracker_common_enum_header],
   link_with: libtracker_common,
   dependencies: tracker_common_dependencies,
   include_directories: [configinc, srcinc, commoninc],

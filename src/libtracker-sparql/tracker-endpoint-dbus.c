@@ -43,6 +43,7 @@
 
 #include "tracker-endpoint-dbus.h"
 #include "tracker-notifier.h"
+#include "tracker-notifier-private.h"
 #include "tracker-private.h"
 
 #include <gio/gio.h>
@@ -1008,6 +1009,7 @@ tracker_endpoint_dbus_initable_init (GInitable     *initable,
 
 	conn = tracker_endpoint_get_sparql_connection (endpoint);
 	endpoint_dbus->notifier = tracker_sparql_connection_create_notifier (conn);
+	tracker_notifier_disable_urn_query (endpoint_dbus->notifier);
 	g_signal_connect (endpoint_dbus->notifier, "events",
 	                  G_CALLBACK (notifier_events_cb), endpoint);
 
