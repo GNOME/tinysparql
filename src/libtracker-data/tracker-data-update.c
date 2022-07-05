@@ -406,6 +406,8 @@ tracker_data_update_initialize_modseq (TrackerData  *data,
 	TrackerDBCursor    *cursor = NULL;
 	TrackerDBInterface *temp_iface;
 	TrackerDBStatement *stmt;
+	TrackerOntologies  *ontologies;
+	TrackerProperty    *property;
 	GError             *inner_error = NULL;
 	gint                max_modseq = 0;
 
@@ -414,9 +416,13 @@ tracker_data_update_initialize_modseq (TrackerData  *data,
 		return TRUE;
 
 	temp_iface = tracker_data_manager_get_writable_db_interface (data->manager);
+	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	property = tracker_ontologies_get_property_by_uri (ontologies, TRACKER_PREFIX_NRL "modified");
 
-	stmt = tracker_db_interface_create_statement (temp_iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
-	                                              "SELECT MAX(\"nrl:modified\") AS A FROM \"rdfs:Resource\"");
+	stmt = tracker_db_interface_create_vstatement (temp_iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
+	                                               "SELECT MAX(object) FROM tracker_triples "
+	                                               "WHERE predicate = %" G_GINT64_FORMAT,
+	                                               tracker_property_get_id (property));
 
 	if (stmt) {
 		cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
