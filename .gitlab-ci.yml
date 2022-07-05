@@ -387,6 +387,8 @@ test-website:
       - website
   needs:
     - build-fedora-container@x86_64
+  only:
+    - master
 
 coverage:
   extends:
