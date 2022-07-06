@@ -1,3 +1,15 @@
+NEW in 3.3.2 - 2022-07-06
+=========================
+  * Avoid redundant queries in TrackerNotifiers proxied through
+    an D-Bus connection
+  * Do not attempt to rebuild non-existing FTS tables on parser
+    updates
+  * Convert values to the right type when propagating insertions
+    over superproperties
+  * Fix test to handle SQLite >= 3.39.0
+  * Fix handling of nrl:modified after opening existing databases
+  * Linking fixes to CLI executables
+
 NEW in 3.3.1 - 2022-05-31
 =========================
   * Fixed blank nodes to return the correct identifier in certain
