@@ -22,6 +22,16 @@
 #ifndef TRACKER_ENUMS_H
 #define TRACKER_ENUMS_H
 
+/**
+ * TrackerRdfFormat:
+ * @TRACKER_RDF_FORMAT_TURTLE: Turtle format
+ *   ([http://www.w3.org/ns/formats/Turtle](http://www.w3.org/ns/formats/Turtle))
+ * @TRACKER_RDF_FORMAT_TRIG: Trig format
+ *   ([http://www.w3.org/ns/formats/Trig](http://www.w3.org/ns/formats/Trig))
+ * @TRACKER_N_RDF_FORMATS: The total number of RDF formats
+ *
+ * Describes a RDF format to be used in data exchange.
+ */
 typedef enum {
 	TRACKER_RDF_FORMAT_TURTLE,
 	TRACKER_RDF_FORMAT_TRIG,
