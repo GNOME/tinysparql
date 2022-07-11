@@ -1725,7 +1725,6 @@ tracker_resource_print_rdf (TrackerResource         *self,
 	g_return_val_if_fail (TRACKER_IS_NAMESPACE_MANAGER (namespaces), NULL);
 	g_return_val_if_fail (format < TRACKER_N_RDF_FORMATS, NULL);
 
-#define BUF_SIZE 4096
 	deserializer = tracker_deserializer_resource_new (self, namespaces, graph);
 	serializer = tracker_serializer_new (TRACKER_SPARQL_CURSOR (deserializer),
 	                                     namespaces,
@@ -1734,6 +1733,34 @@ tracker_resource_print_rdf (TrackerResource         *self,
 
 	str = g_string_new (NULL);
 
+	if (format == TRACKER_RDF_FORMAT_JSON_LD) {
+		JsonParser *parser;
+		JsonGenerator *generator;
+		JsonNode *root;
+
+		/* Special case, ensure that json is pretty printed */
+		parser = json_parser_new ();
+
+		if (!json_parser_load_from_stream (parser,
+		                                   serializer,
+		                                   NULL,
+		                                   NULL)) {
+			g_object_unref (parser);
+			return g_string_free (str, FALSE);
+		}
+
+		generator = json_generator_new ();
+		root = json_parser_get_root (parser);
+		json_generator_set_root (generator, root);
+		json_generator_set_pretty (generator, TRUE);
+		json_generator_to_gstring (generator, str);
+		g_object_unref (generator);
+		g_object_unref (parser);
+
+		return g_string_free (str, FALSE);
+	}
+
+#define BUF_SIZE 4096
 	while (TRUE) {
 		GBytes *bytes;
 
