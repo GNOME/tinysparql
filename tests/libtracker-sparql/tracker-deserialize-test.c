@@ -153,8 +153,8 @@ deserialize_dbus_cb (GObject      *source,
 
 	retval = tracker_sparql_connection_deserialize_finish (TRACKER_SPARQL_CONNECTION (source),
 	                                                       res, &error);
-	g_assert_true (retval);
 	g_assert_no_error (error);
+	g_assert_true (retval);
 
 	g_main_loop_quit (test_fixture->loop);
 }
@@ -195,8 +195,8 @@ deserialize_direct_cb (GObject      *source,
 
 	retval = tracker_sparql_connection_deserialize_finish (TRACKER_SPARQL_CONNECTION (source),
 	                                                       res, &error);
-	g_assert_true (retval);
 	g_assert_no_error (error);
+	g_assert_true (retval);
 
 	/* Read RDF data back */
 	tracker_sparql_connection_serialize_async (test_fixture->direct,
