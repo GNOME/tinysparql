@@ -64,6 +64,7 @@ const gchar *supported_formats[] = {
 	"http://www.w3.org/ns/formats/SPARQL_Results_XML",
 	"http://www.w3.org/ns/formats/Turtle",
 	"http://www.w3.org/ns/formats/TriG",
+	"http://www.w3.org/ns/formats/JSON-LD",
 };
 
 G_STATIC_ASSERT (G_N_ELEMENTS (supported_formats) == TRACKER_N_SERIALIZER_FORMATS);

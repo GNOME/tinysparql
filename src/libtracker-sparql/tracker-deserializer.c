@@ -24,6 +24,7 @@
 #include "tracker-deserializer.h"
 #include "tracker-deserializer-turtle.h"
 #include "tracker-deserializer-json.h"
+#include "tracker-deserializer-json-ld.h"
 #include "tracker-deserializer-xml.h"
 
 #include "tracker-private.h"
@@ -181,6 +182,8 @@ tracker_deserializer_new (GInputStream            *stream,
 		return tracker_deserializer_turtle_new (stream, namespaces);
 	case TRACKER_SERIALIZER_FORMAT_TRIG:
 		return tracker_deserializer_trig_new (stream, namespaces);
+	case TRACKER_SERIALIZER_FORMAT_JSON_LD:
+		return tracker_deserializer_json_ld_new (stream, namespaces);
 	default:
 		g_warn_if_reached ();
 		return NULL;
@@ -197,6 +200,8 @@ pick_format_for_file (GFile *file)
 
 	if (g_str_has_suffix (uri, ".trig"))
 		format = TRACKER_SERIALIZER_FORMAT_TRIG;
+	if (g_str_has_suffix (uri, ".jsonld"))
+		format = TRACKER_SERIALIZER_FORMAT_JSON_LD;
 
 	g_free (uri);
 

@@ -28,6 +28,9 @@
  *   ([http://www.w3.org/ns/formats/Turtle](http://www.w3.org/ns/formats/Turtle))
  * @TRACKER_RDF_FORMAT_TRIG: Trig format
  *   ([http://www.w3.org/ns/formats/Trig](http://www.w3.org/ns/formats/Trig))
+ * @TRACKER_RDF_FORMAT_JSON_LD: JSON-LD format
+ *   ([http://www.w3.org/ns/formats/JSON-LD](http://www.w3.org/ns/formats/JSON-LD)).
+ *   This value was added in version 3.5.
  * @TRACKER_N_RDF_FORMATS: The total number of RDF formats
  *
  * Describes a RDF format to be used in data exchange.
@@ -35,6 +38,7 @@
 typedef enum {
 	TRACKER_RDF_FORMAT_TURTLE,
 	TRACKER_RDF_FORMAT_TRIG,
+	TRACKER_RDF_FORMAT_JSON_LD,
 	TRACKER_N_RDF_FORMATS
 } TrackerRdfFormat;
 

@@ -28,6 +28,7 @@ typedef enum
 	TRACKER_SERIALIZER_FORMAT_XML, /* application/sparql-results+xml */
 	TRACKER_SERIALIZER_FORMAT_TTL, /* text/turtle */
 	TRACKER_SERIALIZER_FORMAT_TRIG, /* application/trig */
+	TRACKER_SERIALIZER_FORMAT_JSON_LD, /* application/ld+json */
 	TRACKER_N_SERIALIZER_FORMATS
 } TrackerSerializerFormat;
 

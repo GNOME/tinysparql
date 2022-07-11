@@ -192,6 +192,8 @@ convert_format (TrackerRdfFormat format)
 		return TRACKER_SERIALIZER_FORMAT_TTL;
 	case TRACKER_RDF_FORMAT_TRIG:
 		return TRACKER_SERIALIZER_FORMAT_TRIG;
+	case TRACKER_RDF_FORMAT_JSON_LD:
+		return TRACKER_SERIALIZER_FORMAT_JSON_LD;
 	default:
 		g_assert_not_reached ();
 	}

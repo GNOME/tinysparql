@@ -40,6 +40,7 @@ static const gchar *mimetypes[] = {
 	"application/sparql-results+xml",
 	"text/turtle",
 	"application/trig",
+	"application/ld+json",
 };
 
 G_STATIC_ASSERT (G_N_ELEMENTS (mimetypes) == TRACKER_N_SERIALIZER_FORMATS);
