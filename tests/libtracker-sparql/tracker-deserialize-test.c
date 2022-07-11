@@ -36,6 +36,7 @@ typedef struct {
 TestInfo tests[] = {
 	{ "ttl/ttl-1", "deserialize/ttl-1.ttl", "deserialize/ttl-1.rq", "deserialize/ttl-1.out", TRACKER_RDF_FORMAT_TURTLE },
 	{ "trig/trig-1", "deserialize/trig-1.trig", "deserialize/trig-1.rq", "deserialize/trig-1.out", TRACKER_RDF_FORMAT_TRIG },
+	{ "json-ld/json-ld-1", "deserialize/json-ld-1.jsonld", "deserialize/json-ld-1.rq", "deserialize/json-ld-1.out", TRACKER_RDF_FORMAT_JSON_LD },
 };
 
 typedef struct {
