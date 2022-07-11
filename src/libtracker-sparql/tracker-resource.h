@@ -112,7 +112,7 @@ char *tracker_resource_print_turtle(TrackerResource *self, TrackerNamespaceManag
 TRACKER_AVAILABLE_IN_ALL
 char *tracker_resource_print_sparql_update (TrackerResource *self, TrackerNamespaceManager *namespaces, const char *graph_id);
 
-TRACKER_AVAILABLE_IN_ALL
+TRACKER_DEPRECATED_IN_3_5_FOR(tracker_resource_print_rdf)
 char *tracker_resource_print_jsonld (TrackerResource *self, TrackerNamespaceManager *namespaces);
 
 TRACKER_AVAILABLE_IN_3_4
