@@ -52,10 +52,21 @@
 #include "config.h"
 
 #include "tracker-endpoint-http.h"
+
+#include "tracker-deserializer-resource.h"
 #include "tracker-serializer.h"
 #include "tracker-private.h"
 
 #include "remote/tracker-http.h"
+
+const gchar *supported_formats[] = {
+	"http://www.w3.org/ns/formats/SPARQL_Results_JSON",
+	"http://www.w3.org/ns/formats/SPARQL_Results_XML",
+	"http://www.w3.org/ns/formats/Turtle",
+	"http://www.w3.org/ns/formats/TriG",
+};
+
+G_STATIC_ASSERT (G_N_ELEMENTS (supported_formats) == TRACKER_N_SERIALIZER_FORMATS);
 
 struct _TrackerEndpointHttp {
 	TrackerEndpoint parent_instance;
@@ -107,6 +118,7 @@ query_async_cb (GObject      *object,
 {
 	TrackerEndpointHttp *endpoint_http;
 	TrackerSparqlCursor *cursor;
+	TrackerSparqlConnection *conn;
 	Request *request = user_data;
 	GInputStream *stream;
 	GError *error = NULL;
@@ -124,7 +136,10 @@ query_async_cb (GObject      *object,
 		return;
 	}
 
-	stream = tracker_serializer_new (cursor, request->format);
+	conn = tracker_sparql_cursor_get_connection (cursor);
+	stream = tracker_serializer_new (cursor,
+	                                 tracker_sparql_connection_get_namespace_manager (conn),
+	                                 request->format);
 	/* Consumes the input stream */
 	tracker_http_server_response (endpoint_http->server,
 	                              request->request,
@@ -161,6 +176,45 @@ pick_format (guint                    formats,
 }
 
 static void
+add_supported_formats (TrackerResource *resource,
+                       const gchar     *property)
+{
+	gint i;
+
+	for (i = 0; i < TRACKER_N_SERIALIZER_FORMATS; i++)
+		tracker_resource_add_uri (resource, property, supported_formats[i]);
+}
+
+static TrackerResource *
+create_service_description (TrackerEndpointHttp      *endpoint,
+                            TrackerNamespaceManager **manager)
+{
+	TrackerResource *resource;
+
+	*manager = tracker_namespace_manager_new ();
+	tracker_namespace_manager_add_prefix (*manager, "rdf",
+	                                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+	tracker_namespace_manager_add_prefix (*manager, "sd",
+	                                      "http://www.w3.org/ns/sparql-service-description#");
+	tracker_namespace_manager_add_prefix (*manager, "format",
+	                                      "http://www.w3.org/ns/formats/");
+
+	resource = tracker_resource_new (NULL);
+	tracker_resource_set_uri (resource, "rdf:type", "sd:Service");
+	/* tracker_resource_set_uri (resource, "sd:endpoint", endpoint_uri); */
+	tracker_resource_set_uri (resource, "sd:supportedLanguage", "sd:SPARQL11Query");
+
+	tracker_resource_add_uri (resource, "sd:feature", "sd:EmptyGraphs");
+	tracker_resource_add_uri (resource, "sd:feature", "sd:BasicFederatedQuery");
+	tracker_resource_add_uri (resource, "sd:feature", "sd:UnionDefaultGraph");
+
+	add_supported_formats (resource, "sd:resultFormat");
+	add_supported_formats (resource, "sd:inputFormat");
+
+	return resource;
+}
+
+static void
 http_server_request_cb (TrackerHttpServer  *server,
                         GSocketAddress     *remote_address,
                         const gchar        *path,
@@ -173,7 +227,7 @@ http_server_request_cb (TrackerHttpServer  *server,
 	TrackerSparqlConnection *conn;
 	TrackerSerializerFormat format;
 	gboolean block = FALSE;
-	const gchar *sparql;
+	const gchar *sparql = NULL;
 	Request *data;
 
 	if (remote_address) {
@@ -187,30 +241,56 @@ http_server_request_cb (TrackerHttpServer  *server,
 		return;
 	}
 
-	sparql = g_hash_table_lookup (params, "query");
-	if (!sparql) {
-		tracker_http_server_error (server, request, 500,
-		                           "No query given");
-		return;
+	if (params)
+		sparql = g_hash_table_lookup (params, "query");
+
+	if (sparql) {
+		if (!pick_format (formats, &format)) {
+			tracker_http_server_error (server, request, 500,
+			                           "No recognized accepted formats");
+			return;
+		}
+
+		data = g_new0 (Request, 1);
+		data->endpoint = endpoint;
+		data->request = request;
+		data->format = format;
+
+		conn = tracker_endpoint_get_sparql_connection (endpoint);
+		tracker_sparql_connection_query_async (conn,
+		                                       sparql,
+		                                       NULL,
+		                                       query_async_cb,
+		                                       data);
+	} else {
+		TrackerNamespaceManager *namespaces;
+		TrackerResource *description;
+		TrackerSparqlCursor *deserializer;
+		GInputStream *serializer;
+
+		if (!pick_format (formats, &format))
+			format = TRACKER_SERIALIZER_FORMAT_TTL;
+
+		/* Requests to with no query return a RDF description
+		 * about the HTTP endpoint.
+		 */
+		description = create_service_description (TRACKER_ENDPOINT_HTTP (endpoint),
+		                                          &namespaces);
+
+		deserializer = tracker_deserializer_resource_new (description,
+		                                                  namespaces, NULL);
+		serializer = tracker_serializer_new (TRACKER_SPARQL_CURSOR (deserializer),
+		                                     namespaces, format);
+		g_object_unref (deserializer);
+		g_object_unref (description);
+		g_object_unref (namespaces);
+
+		/* Consumes the serializer */
+		tracker_http_server_response (server,
+		                              request,
+		                              format,
+		                              serializer);
 	}
-
-	if (!pick_format (formats, &format)) {
-		tracker_http_server_error (server, request, 500,
-		                           "No recognized accepted formats");
-		return;
-	}
-
-	data = g_new0 (Request, 1);
-	data->endpoint = endpoint;
-	data->request = request;
-	data->format = format;
-
-	conn = tracker_endpoint_get_sparql_connection (endpoint);
-	tracker_sparql_connection_query_async (conn,
-	                                       sparql,
-	                                       NULL,
-	                                       query_async_cb,
-	                                       data);
 }
 
 static gboolean

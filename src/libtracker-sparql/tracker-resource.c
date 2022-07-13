@@ -27,6 +27,7 @@
 
 #include <string.h>
 
+#include <tracker-deserializer-resource.h>
 #include <tracker-uri.h>
 #include <tracker-resource.h>
 #include <tracker-ontologies.h>
@@ -1027,14 +1028,6 @@ maybe_intern_prefix_of_compact_uri (TrackerNamespaceManager *all_namespaces,
 }
 
 
-typedef struct {
-	TrackerNamespaceManager *all_namespaces, *our_namespaces;
-	GString *string;
-	GList *done_list;
-} GenerateTurtleData;
-
-static void generate_turtle (TrackerResource *resource, GenerateTurtleData *data);
-
 static gboolean
 is_blank_node (const char *uri_or_curie_or_blank)
 {
@@ -1063,50 +1056,6 @@ is_builtin_class (const gchar             *uri_or_curie,
 	g_free (prefix);
 
 	return has_prefix;
-}
-
-static void
-generate_nested_turtle_resource (TrackerResource    *resource,
-                                 GenerateTurtleData *data)
-{
-	/* We don't need to produce turtle for builtin classes */
-	if (is_builtin_class (tracker_resource_get_identifier (resource),
-	                      data->all_namespaces))
-		return;
-
-	if (g_list_find (data->done_list, resource) == NULL) {
-		data->done_list = g_list_prepend (data->done_list, resource);
-		generate_turtle (resource, data);
-		g_string_append (data->string, "\n");
-	}
-}
-
-static void
-generate_turtle_resources_foreach (gpointer key,
-                                   gpointer value_ptr,
-                                   gpointer user_data)
-{
-	const GValue *value = value_ptr;
-	GenerateTurtleData *data = user_data;
-	TrackerResource *resource;
-	guint i;
-
-	if (G_VALUE_HOLDS (value, TRACKER_TYPE_RESOURCE)) {
-		resource = g_value_get_object (value);
-		generate_nested_turtle_resource (resource, data);
-	} else if (G_VALUE_HOLDS (value, G_TYPE_PTR_ARRAY)) {
-		GPtrArray *array = g_value_get_boxed (value);
-		const GValue *array_value;
-
-		for (i = 0; i < array->len; i++) {
-			array_value = g_ptr_array_index (array, i);
-
-			if (G_VALUE_HOLDS (array_value, TRACKER_TYPE_RESOURCE)) {
-				resource = g_value_get_object (array_value);
-				generate_nested_turtle_resource (resource, data);
-			}
-		}
-	}
 }
 
 static void
@@ -1232,39 +1181,6 @@ generate_turtle_property (const char              *property,
 	}
 }
 
-static void
-generate_turtle (TrackerResource    *resource,
-                 GenerateTurtleData *data)
-{
-	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
-	GHashTableIter iter;
-	const char *property;
-	const GValue *value;
-
-	/* First we recurse to any relations that aren't already in the done list */
-	g_hash_table_foreach (priv->properties, generate_turtle_resources_foreach, data);
-
-	generate_turtle_uri_value (tracker_resource_get_identifier(resource),
-	        data->string, data->all_namespaces, data->our_namespaces);
-	g_string_append (data->string, " ");
-
-	g_hash_table_iter_init (&iter, priv->properties);
-	if (g_hash_table_iter_next (&iter, (gpointer *)&property, (gpointer *)&value)) {
-		while (TRUE) {
-			generate_turtle_property (property, value, data->string, data->all_namespaces, data->our_namespaces);
-
-			maybe_intern_prefix_of_compact_uri (data->all_namespaces, data->our_namespaces, property);
-
-			if (g_hash_table_iter_next (&iter, (gpointer *)&property, (gpointer *)&value)) {
-				g_string_append (data->string, " ;\n  ");
-			} else {
-				g_string_append (data->string, " .\n");
-				break;
-			}
-		}
-	}
-}
-
 /**
  * tracker_resource_print_turtle:
  * @self: a #TrackerResource
@@ -1281,46 +1197,20 @@ generate_turtle (TrackerResource    *resource,
  * from the connection that is the intended recipient of this data.
  *
  * Returns: a newly-allocated string
+ *
+ * Deprecated: 3.4: Use tracker_resource_print_rdf() instead.
  */
 char *
 tracker_resource_print_turtle (TrackerResource         *self,
                                TrackerNamespaceManager *namespaces)
 {
-	TrackerResourcePrivate *priv;
-	GenerateTurtleData context;
-	char *prefixes;
-
 	g_return_val_if_fail (TRACKER_IS_RESOURCE (self), "");
-
-	priv = GET_PRIVATE (self);
 
 	if (namespaces == NULL) {
 		namespaces = tracker_namespace_manager_get_default ();
 	}
 
-	if (g_hash_table_size (priv->properties) == 0) {
-		return g_strdup("");
-	}
-
-	context.all_namespaces = namespaces;
-	context.our_namespaces = tracker_namespace_manager_new ();
-	context.string = g_string_new ("");
-	context.done_list = g_list_prepend (NULL, self);
-
-	maybe_intern_prefix_of_compact_uri (context.all_namespaces, context.our_namespaces, tracker_resource_get_identifier(self));
-
-	generate_turtle (self, &context);
-
-	prefixes = tracker_namespace_manager_print_turtle (context.our_namespaces);
-	g_string_prepend (context.string, "\n");
-	g_string_prepend (context.string, prefixes);
-
-	g_object_unref (context.our_namespaces);
-	g_free (prefixes);
-
-	g_list_free (context.done_list);
-
-	return g_string_free (context.string, FALSE);
+	return tracker_resource_print_rdf (self, namespaces, TRACKER_RDF_FORMAT_TURTLE, NULL);
 }
 
 typedef struct {
@@ -1770,6 +1660,87 @@ tracker_resource_print_jsonld (TrackerResource         *self,
 	return result;
 }
 
+static TrackerSerializerFormat
+convert_format (TrackerRdfFormat format)
+{
+	switch (format) {
+	case TRACKER_RDF_FORMAT_TURTLE:
+		return TRACKER_SERIALIZER_FORMAT_TTL;
+	case TRACKER_RDF_FORMAT_TRIG:
+		return TRACKER_SERIALIZER_FORMAT_TRIG;
+	case TRACKER_N_RDF_FORMATS:
+		g_assert_not_reached ();
+	}
+
+	return -1;
+}
+
+/**
+ * tracker_resource_print_rdf:
+ * @self: a #TrackerResource
+ * @namespaces: a set of prefixed URLs
+ * @format: RDF format of the printed string
+ * @graph: target graph of the resource RDF, or %NULL for the default graph
+ *
+ * Serialize all the information in @resource into the selected RDF format.
+ *
+ * The @namespaces object is used to expand any compact URI values. In most
+ * cases you should pass the one returned by tracker_sparql_connection_get_namespace_manager()
+ * from the connection that is the intended recipient of this data.
+ *
+ * Returns: a newly-allocated string containing RDF data in the requested format.
+ *
+ * Since: 3.4
+ **/
+char *
+tracker_resource_print_rdf (TrackerResource         *self,
+                            TrackerNamespaceManager *namespaces,
+                            TrackerRdfFormat         format,
+                            const gchar             *graph)
+{
+	TrackerSparqlCursor *deserializer;
+	GInputStream *serializer;
+	GString *str;
+
+	g_return_val_if_fail (TRACKER_IS_RESOURCE (self), NULL);
+	g_return_val_if_fail (TRACKER_IS_NAMESPACE_MANAGER (namespaces), NULL);
+	g_return_val_if_fail (format < TRACKER_N_RDF_FORMATS, NULL);
+
+#define BUF_SIZE 4096
+	deserializer = tracker_deserializer_resource_new (self, namespaces, graph);
+	serializer = tracker_serializer_new (TRACKER_SPARQL_CURSOR (deserializer),
+	                                     namespaces,
+	                                     convert_format (format));
+	g_object_unref (deserializer);
+
+	str = g_string_new (NULL);
+
+	while (TRUE) {
+		GBytes *bytes;
+
+		bytes = g_input_stream_read_bytes (serializer, BUF_SIZE, NULL, NULL);
+		if (!bytes) {
+			g_string_free (str, TRUE);
+			return NULL;
+		}
+
+		if (g_bytes_get_size (bytes) == 0) {
+			g_bytes_unref (bytes);
+			break;
+		}
+
+		g_string_append_len (str,
+		                     g_bytes_get_data (bytes, NULL),
+		                     g_bytes_get_size (bytes));
+		g_bytes_unref (bytes);
+	}
+#undef BUF_SIZE
+
+	g_object_unref (serializer);
+
+	return g_string_free (str, FALSE);
+}
+
 static GVariant *
 tracker_serialize_single_value (TrackerResource         *resource,
                                 const GValue            *value)
@@ -2015,4 +1986,51 @@ tracker_resource_get_property_overwrite (TrackerResource *resource,
 	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
 
 	return g_hash_table_contains (priv->overwrite, property_uri);
+}
+
+void
+tracker_resource_iterator_init (TrackerResourceIterator *iter,
+                                TrackerResource         *resource)
+{
+	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
+
+	bzero (iter, sizeof (TrackerResourceIterator));
+	g_hash_table_iter_init (&iter->prop_iter, priv->properties);
+}
+
+gboolean
+tracker_resource_iterator_next (TrackerResourceIterator  *iter,
+                                const gchar             **property,
+                                const GValue            **value)
+{
+	gpointer key, val;
+
+	if (iter->cur_values && iter->cur_prop) {
+		iter->idx++;
+
+		if (iter->idx < iter->cur_values->len) {
+			*property = iter->cur_prop;
+			*value = g_ptr_array_index (iter->cur_values, iter->idx);
+			return TRUE;
+		} else {
+			iter->cur_values = NULL;
+			iter->cur_prop = NULL;
+		}
+	}
+
+	if (!g_hash_table_iter_next (&iter->prop_iter, &key, &val))
+		return FALSE;
+
+	if (G_VALUE_HOLDS (val, G_TYPE_PTR_ARRAY)) {
+		iter->cur_prop = key;
+		iter->cur_values = g_value_get_boxed (val);
+		iter->idx = 0;
+		*property = iter->cur_prop;
+		*value = g_ptr_array_index (iter->cur_values, iter->idx);
+		return TRUE;
+	}
+
+	*property = key;
+	*value = val;
+	return TRUE;
 }

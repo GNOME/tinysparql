@@ -21,6 +21,7 @@
 #define __LIBTRACKER_RESOURCE_H__
 
 #include <glib-object.h>
+#include <libtracker-sparql/tracker-enums.h>
 #include <libtracker-sparql/tracker-version.h>
 #include <libtracker-sparql/tracker-namespace-manager.h>
 
@@ -105,7 +106,7 @@ gint tracker_resource_identifier_compare_func (TrackerResource *resource, const 
 TRACKER_AVAILABLE_IN_ALL
 GList *tracker_resource_get_properties (TrackerResource *resource);
 
-TRACKER_AVAILABLE_IN_ALL
+TRACKER_DEPRECATED_IN_3_4_FOR(tracker_resource_print_rdf)
 char *tracker_resource_print_turtle(TrackerResource *self, TrackerNamespaceManager *namespaces);
 
 TRACKER_AVAILABLE_IN_ALL
@@ -113,6 +114,12 @@ char *tracker_resource_print_sparql_update (TrackerResource *self, TrackerNamesp
 
 TRACKER_AVAILABLE_IN_ALL
 char *tracker_resource_print_jsonld (TrackerResource *self, TrackerNamespaceManager *namespaces);
+
+TRACKER_AVAILABLE_IN_3_4
+char * tracker_resource_print_rdf (TrackerResource         *self,
+                                   TrackerNamespaceManager *namespaces,
+                                   TrackerRdfFormat         format,
+                                   const gchar             *graph);
 
 TRACKER_AVAILABLE_IN_ALL
 GVariant * tracker_resource_serialize (TrackerResource *resource);

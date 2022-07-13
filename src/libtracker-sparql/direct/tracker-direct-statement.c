@@ -253,7 +253,9 @@ serialize_in_thread (GTask        *task,
 	conn = tracker_sparql_statement_get_connection (object);
 	tracker_direct_connection_update_timestamp (TRACKER_DIRECT_CONNECTION (conn));
 	tracker_sparql_cursor_set_connection (cursor, conn);
-	istream = tracker_serializer_new (cursor, convert_format (data->format));
+	istream = tracker_serializer_new (cursor,
+	                                  tracker_sparql_connection_get_namespace_manager (conn),
+	                                  convert_format (data->format));
 
  out:
 	g_clear_object (&cursor);

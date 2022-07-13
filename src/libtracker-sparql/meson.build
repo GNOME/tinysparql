@@ -11,7 +11,7 @@ version_header = configure_file(
     configuration: conf)
 
 enum_types = gnome.mkenums('tracker-sparql-enum-types',
-    sources: ['tracker-notifier.h', 'tracker-connection.h'],
+    sources: ['tracker-notifier.h', 'tracker-connection.h', 'tracker-enums.h'],
     c_template: 'tracker-sparql-enum-types.c.template',
     h_template: 'tracker-sparql-enum-types.h.template',
     install_dir: join_paths(get_option('prefix'), get_option('includedir'), 'tracker-@0@'.format(tracker_api_version), 'libtracker-sparql'),
@@ -29,6 +29,7 @@ libtracker_sparql_c_sources = files(
     'tracker-deserializer-rdf.c',
     'tracker-deserializer-turtle.c',
     'tracker-deserializer-json.c',
+    'tracker-deserializer-resource.c',
     'tracker-deserializer-xml.c',
     'tracker-endpoint.c',
     'tracker-endpoint-dbus.c',
@@ -55,6 +56,7 @@ libtracker_sparql_c_public_headers = files(
     'tracker-endpoint.h',
     'tracker-endpoint-dbus.h',
     'tracker-endpoint-http.h',
+    'tracker-enums.h',
     'tracker-error.h',
     'tracker-namespace-manager.h',
     'tracker-notifier.h',

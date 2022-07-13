@@ -24,6 +24,7 @@
 
 #include <libtracker-sparql/tracker-version-generated.h>
 #include <libtracker-sparql/tracker-version.h>
+#include <libtracker-sparql/tracker-enums.h>
 #include <libtracker-sparql/tracker-error.h>
 #include <libtracker-sparql/tracker-connection.h>
 #include <libtracker-sparql/tracker-batch.h>

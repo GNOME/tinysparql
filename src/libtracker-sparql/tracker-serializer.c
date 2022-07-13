@@ -32,6 +32,7 @@
 enum {
 	PROP_0,
 	PROP_CURSOR,
+	PROP_NAMESPACE_MANAGER,
 	N_PROPS
 };
 
@@ -42,6 +43,7 @@ typedef struct _TrackerSerializerPrivate TrackerSerializerPrivate;
 struct _TrackerSerializerPrivate
 {
 	TrackerSparqlCursor *cursor;
+	TrackerNamespaceManager *namespaces;
 };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (TrackerSerializer, tracker_serializer,
@@ -55,6 +57,7 @@ tracker_serializer_finalize (GObject *object)
 		tracker_serializer_get_instance_private (serializer);
 
 	g_object_unref (priv->cursor);
+	g_object_unref (priv->namespaces);
 
 	G_OBJECT_CLASS (tracker_serializer_parent_class)->finalize (object);
 }
@@ -71,6 +74,9 @@ tracker_serializer_set_property (GObject      *object,
 	switch (prop_id) {
 	case PROP_CURSOR:
 		priv->cursor = g_value_dup_object (value);
+		break;
+	case PROP_NAMESPACE_MANAGER:
+		priv->namespaces = g_value_dup_object (value);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -91,6 +97,9 @@ tracker_serializer_get_property (GObject    *object,
 	switch (prop_id) {
 	case PROP_CURSOR:
 		g_value_set_object (value, priv->cursor);
+		break;
+	case PROP_NAMESPACE_MANAGER:
+		g_value_set_object (value, priv->namespaces);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -116,6 +125,15 @@ tracker_serializer_class_init (TrackerSerializerClass *klass)
 		                     G_PARAM_STATIC_STRINGS |
 		                     G_PARAM_READABLE |
 		                     G_PARAM_WRITABLE);
+	props[PROP_NAMESPACE_MANAGER] =
+		g_param_spec_object ("namespace-manager",
+		                     "Namespace Manager",
+		                     "Namespace Manager",
+		                     TRACKER_TYPE_NAMESPACE_MANAGER,
+		                     G_PARAM_CONSTRUCT_ONLY |
+		                     G_PARAM_STATIC_STRINGS |
+		                     G_PARAM_READABLE |
+		                     G_PARAM_WRITABLE);
 
 	g_object_class_install_properties (object_class, N_PROPS, props);
 }
@@ -127,6 +145,7 @@ tracker_serializer_init (TrackerSerializer *serializer)
 
 GInputStream *
 tracker_serializer_new (TrackerSparqlCursor     *cursor,
+                        TrackerNamespaceManager *namespaces,
                         TrackerSerializerFormat  format)
 {
 	GType type;
@@ -151,7 +170,10 @@ tracker_serializer_new (TrackerSparqlCursor     *cursor,
 		return NULL;
 	}
 
-	return g_object_new (type, "cursor", cursor, NULL);
+	return g_object_new (type,
+	                     "cursor", cursor,
+	                     "namespace-manager", namespaces,
+	                     NULL);
 }
 
 TrackerSparqlCursor *
@@ -163,4 +185,15 @@ tracker_serializer_get_cursor (TrackerSerializer *serializer)
 	g_return_val_if_fail (TRACKER_IS_SERIALIZER (serializer), NULL);
 
 	return priv->cursor;
+}
+
+TrackerNamespaceManager *
+tracker_serializer_get_namespaces (TrackerSerializer *serializer)
+{
+	TrackerSerializerPrivate *priv =
+		tracker_serializer_get_instance_private (serializer);
+
+	g_return_val_if_fail (TRACKER_IS_SERIALIZER (serializer), NULL);
+
+	return priv->namespaces;
 }
