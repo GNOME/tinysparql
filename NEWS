@@ -1,3 +1,22 @@
+NEW in 3.4.0.alpha - 2022-07-13
+===============================
+  * Add tracker_sparql_connection_deserialize() API to
+    load RDF data.
+  * Add tracker_resource_print_rdf() to print RDF data.
+  * Implement TrackerNamespaceManager for remote connections
+  * SPARQL compliance fixes
+  * Ensure blank node ROWIDs are integer types
+  * Fixes for MacOS
+  * Reimplement libsoup 1/3 support to rely on minimal loadable modules
+  * Build libtracker-sparql as a monolithic library
+  * Fix handling of partial FTS deletions
+  * Fix handling of nrl:modified sequences
+  * Avoid redundant URN queries in TrackerNotifier for D-Bus
+    endpoints.
+  * Documentation improvements
+
+Translations: id, ka, pt, sv, ru, uk
+
 NEW in 3.3.0 - 2022-03-19
 =========================
   * Fix storage of subsecond information in date/time properties
