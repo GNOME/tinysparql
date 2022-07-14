@@ -68,17 +68,3 @@ public static async Tracker.Sparql.Connection tracker_sparql_connection_bus_new_
 
 	return yield new Tracker.Bus.Connection (service, path, dbus_conn, cancellable);
 }
-
-public static Tracker.Sparql.Connection tracker_sparql_connection_new (Tracker.Sparql.ConnectionFlags flags, File? store, File? ontology, Cancellable? cancellable = null) throws GLib.Error, Tracker.Sparql.Error, IOError {
-	Tracker.get_debug_flags ();
-	var conn = new Tracker.Direct.Connection (flags, store, ontology);
-	conn.init (cancellable);
-	return conn;
-}
-
-public static async Tracker.Sparql.Connection tracker_sparql_connection_new_async (Tracker.Sparql.ConnectionFlags flags, File? store, File ontology, Cancellable? cancellable = null) throws GLib.Error, Tracker.Sparql.Error, IOError {
-	Tracker.get_debug_flags ();
-	var conn = new Tracker.Direct.Connection (flags, store, ontology);
-	yield conn.init_async (Priority.DEFAULT, cancellable);
-	return conn;
-}

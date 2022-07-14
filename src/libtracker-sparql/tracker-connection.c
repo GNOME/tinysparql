@@ -62,6 +62,7 @@
 #include "tracker-private.h"
 #include "tracker-debug.h"
 
+#include "direct/tracker-direct.h"
 #include "remote/tracker-remote.h"
 
 G_DEFINE_ABSTRACT_TYPE (TrackerSparqlConnection, tracker_sparql_connection,
@@ -116,67 +117,6 @@ tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
 
 /* The constructor functions are defined in the libtracker-sparql-backend, but
  * documented here. */
-
-/**
- * tracker_sparql_connection_new:
- * @flags: values from #TrackerSparqlConnectionFlags
- * @store: (nullable): the directory that contains the database as a #GFile, or %NULL
- * @ontology: (nullable): the directory that contains the database schemas as a #GFile, or %NULL
- * @cancellable: (nullable): a #GCancellable, or %NULL
- * @error: pointer to a #GError
- *
- * Creates or opens a database.
- *
- * This method should only be used for databases owned by the current process.
- * To connect to databases managed by other processes, use
- * tracker_sparql_connection_bus_new().
- *
- * If @store is %NULL, the database will be created in memory.
- *
- * The @ontologies parameter must point to a location containing suitable
- * `.ontology` files in Turtle format. These control the database schema that
- * is used. You can use the default Nepomuk ontologies by calling
- * tracker_sparql_get_ontology_nepomuk ().
- *
- * If you open an existing database using a different @ontology to the one it
- * was created with, Tracker will attempt to migrate the existing data to the
- * new schema. This may raise an error. In particular, not all migrations are
- * possible without causing data loss and Tracker will refuse to delete data
- * during a migration.
- *
- * You can also pass %NULL for @ontologies to mean "use the ontologies that the
- * database was created with". This will fail if the database doesn't already
- * exist.
- *
- * Returns: (transfer full): a new #TrackerSparqlConnection. Call
- * g_object_unref() on the object when no longer used.
- *
- * Since: 3.0
- */
-
-/**
- * tracker_sparql_connection_new_async:
- * @flags: values from #TrackerSparqlConnectionFlags
- * @store: (nullable): the directory that contains the database as a #GFile, or %NULL
- * @ontology: (nullable): the directory that contains the database schemas as a #GFile, or %NULL
- * @cancellable: (nullable): a #GCancellable, or %NULL
- * @callback: the #GAsyncReadyCallback called when the operation completes
- * @user_data: data passed to @callback
- *
- * Asynchronous version of tracker_sparql_connection_new().
- *
- * Since: 3.0
- */
-
-/**
- * tracker_sparql_connection_new_finish:
- * @result: the #GAsyncResult
- * @error: pointer to a #GError
- *
- * Completion function for tracker_sparql_connection_new_async().
- *
- * Since: 3.0
- */
 
 /**
  * tracker_sparql_connection_bus_new:
@@ -1078,4 +1018,128 @@ TrackerSparqlConnection *
 tracker_sparql_connection_remote_new (const gchar *uri_base)
 {
 	return TRACKER_SPARQL_CONNECTION (tracker_remote_connection_new (uri_base));
+}
+
+/**
+ * tracker_sparql_connection_new:
+ * @flags: values from #TrackerSparqlConnectionFlags
+ * @store: (nullable): the directory that contains the database as a #GFile, or %NULL
+ * @ontology: (nullable): the directory that contains the database schemas as a #GFile, or %NULL
+ * @cancellable: (nullable): a #GCancellable, or %NULL
+ * @error: pointer to a #GError
+ *
+ * Creates or opens a database.
+ *
+ * This method should only be used for databases owned by the current process.
+ * To connect to databases managed by other processes, use
+ * tracker_sparql_connection_bus_new().
+ *
+ * If @store is %NULL, the database will be created in memory.
+ *
+ * The @ontologies parameter must point to a location containing suitable
+ * `.ontology` files in Turtle format. These control the database schema that
+ * is used. You can use the default Nepomuk ontologies by calling
+ * tracker_sparql_get_ontology_nepomuk ().
+ *
+ * If you open an existing database using a different @ontology to the one it
+ * was created with, Tracker will attempt to migrate the existing data to the
+ * new schema. This may raise an error. In particular, not all migrations are
+ * possible without causing data loss and Tracker will refuse to delete data
+ * during a migration.
+ *
+ * You can also pass %NULL for @ontologies to mean "use the ontologies that the
+ * database was created with". This will fail if the database doesn't already
+ * exist.
+ *
+ * Returns: (transfer full): a new #TrackerSparqlConnection. Call
+ * g_object_unref() on the object when no longer used.
+ *
+ * Since: 3.0
+ */
+TrackerSparqlConnection *
+tracker_sparql_connection_new (TrackerSparqlConnectionFlags   flags,
+                               GFile                         *store,
+                               GFile                         *ontology,
+                               GCancellable                  *cancellable,
+                               GError                       **error)
+{
+	g_return_val_if_fail (!store || G_IS_FILE (store), NULL);
+	g_return_val_if_fail (!ontology || G_IS_FILE (ontology), NULL);
+	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
+	g_return_val_if_fail (!error || !*error, NULL);
+
+	return tracker_direct_connection_new (flags, store, ontology, error);
+}
+
+static void
+new_async_cb (GObject      *source,
+              GAsyncResult *res,
+              gpointer      user_data)
+{
+	TrackerSparqlConnection *conn;
+	GTask *task = user_data;
+	GError *error = NULL;
+
+	conn = tracker_direct_connection_new_finish (res, &error);
+
+	if (conn)
+		g_task_return_pointer (task, conn, g_object_unref);
+	else
+		g_task_return_error (task, error);
+}
+
+/**
+ * tracker_sparql_connection_new_async:
+ * @flags: values from #TrackerSparqlConnectionFlags
+ * @store: (nullable): the directory that contains the database as a #GFile, or %NULL
+ * @ontology: (nullable): the directory that contains the database schemas as a #GFile, or %NULL
+ * @cancellable: (nullable): a #GCancellable, or %NULL
+ * @callback: the #GAsyncReadyCallback called when the operation completes
+ * @user_data: data passed to @callback
+ *
+ * Asynchronous version of tracker_sparql_connection_new().
+ *
+ * Since: 3.0
+ */
+
+void
+tracker_sparql_connection_new_async (TrackerSparqlConnectionFlags  flags,
+                                     GFile                        *store,
+                                     GFile                        *ontology,
+                                     GCancellable                 *cancellable,
+                                     GAsyncReadyCallback           callback,
+                                     gpointer                      user_data)
+{
+	GTask *task;
+
+	g_return_if_fail (!store || G_IS_FILE (store));
+	g_return_if_fail (!ontology || G_IS_FILE (ontology));
+	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+	task = g_task_new (NULL, cancellable, callback, user_data);
+	g_task_set_source_tag (task, tracker_sparql_connection_new_async);
+
+	tracker_direct_connection_new_async (flags, store, ontology, cancellable,
+	                                     new_async_cb, task);
+}
+
+/**
+ * tracker_sparql_connection_new_finish:
+ * @result: the #GAsyncResult
+ * @error: pointer to a #GError
+ *
+ * Completion function for tracker_sparql_connection_new_async().
+ *
+ * Since: 3.0
+ */
+TrackerSparqlConnection *
+tracker_sparql_connection_new_finish (GAsyncResult  *res,
+                                      GError       **error)
+{
+	g_return_val_if_fail (G_IS_TASK (res), NULL);
+	g_return_val_if_fail (g_task_get_source_tag (G_TASK (res)) ==
+	                      tracker_sparql_connection_new_async,
+	                      NULL);
+
+	return g_task_propagate_pointer (G_TASK (res), error);
 }
