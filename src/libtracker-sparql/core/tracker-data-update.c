@@ -3254,7 +3254,13 @@ update_resource_single (TrackerData      *data,
 		if (!subject)
 			return FALSE;
 	} else {
-		subject = tracker_data_update_ensure_resource (data, subject_str, error);
+		gchar *subject_uri;
+
+		tracker_data_manager_expand_prefix (data->manager,
+		                                    subject_str, NULL, NULL,
+		                                    &subject_uri);
+		subject = tracker_data_update_ensure_resource (data, subject_uri, error);
+		g_free (subject_uri);
 		if (subject == 0)
 			return FALSE;
 	}
