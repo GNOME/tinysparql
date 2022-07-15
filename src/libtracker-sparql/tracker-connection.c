@@ -62,6 +62,7 @@
 #include "tracker-private.h"
 #include "tracker-debug.h"
 
+#include "bus/tracker-bus.h"
 #include "direct/tracker-direct.h"
 #include "remote/tracker-remote.h"
 
@@ -114,53 +115,6 @@ tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
 	                                                                              name,
 	                                                                              path);
 }
-
-/* The constructor functions are defined in the libtracker-sparql-backend, but
- * documented here. */
-
-/**
- * tracker_sparql_connection_bus_new:
- * @service_name: The name of the D-Bus service to connect to.
- * @object_path: (nullable): The path to the object, or %NULL to use the default.
- * @dbus_connection: (nullable): The #GDBusConnection to use, or %NULL to use the session bus
- * @error: pointer to a #GError
- *
- * Connects to a database owned by another process on the
- * local machine.
- *
- * Returns: (transfer full): a new #TrackerSparqlConnection. Call g_object_unref() on the
- * object when no longer used.
- *
- * Since: 3.0
- */
-
-/**
- * tracker_sparql_connection_bus_new_async:
- * @service_name: The name of the D-Bus service to connect to.
- * @object_path: (nullable): The path to the object, or %NULL to use the default.
- * @dbus_connection: (nullable): The #GDBusConnection to use, or %NULL to use the session bus
- * @cancellable: (nullable): a #GCancellable, or %NULL
- * @callback: the #GAsyncReadyCallback called when the operation completes
- * @user_data: data passed to @callback
- *
- * Connects to a database owned by another process on the
- * local machine. This is an asynchronous operation.
- *
- * Since: 3.1
- */
-
-/**
- * tracker_sparql_connection_bus_new_finish:
- * @result: the #GAsyncResult
- * @error: pointer to a #GError
- *
- * Completion function for tracker_sparql_connection_bus_new_async().
- *
- * Returns: (transfer full): a new #TrackerSparqlConnection. Call g_object_unref() on the
- * object when no longer used.
- *
- * Since: 3.1
- */
 
 /**
  * tracker_sparql_connection_query:
@@ -1142,4 +1096,118 @@ tracker_sparql_connection_new_finish (GAsyncResult  *res,
 	                      NULL);
 
 	return g_task_propagate_pointer (G_TASK (res), error);
+}
+
+/**
+ * tracker_sparql_connection_bus_new:
+ * @service_name: The name of the D-Bus service to connect to.
+ * @object_path: (nullable): The path to the object, or %NULL to use the default.
+ * @dbus_connection: (nullable): The #GDBusConnection to use, or %NULL to use the session bus
+ * @error: pointer to a #GError
+ *
+ * Connects to a database owned by another process on the
+ * local machine.
+ *
+ * Returns: (transfer full): a new #TrackerSparqlConnection. Call g_object_unref() on the
+ * object when no longer used.
+ *
+ * Since: 3.0
+ */
+TrackerSparqlConnection *
+tracker_sparql_connection_bus_new (const gchar      *service,
+                                   const gchar      *object_path,
+                                   GDBusConnection  *conn,
+                                   GError          **error)
+{
+	g_return_val_if_fail (service != NULL, NULL);
+	g_return_val_if_fail (!conn || G_IS_DBUS_CONNECTION (conn), NULL);
+	g_return_val_if_fail (!error || !*error, NULL);
+
+	if (!object_path)
+		object_path = "/org/freedesktop/Tracker3/Endpoint";
+
+	return tracker_bus_connection_new (service, object_path, conn, error);
+}
+
+static void
+bus_new_cb (GObject      *source,
+            GAsyncResult *res,
+            gpointer      user_data)
+{
+	TrackerSparqlConnection *conn;
+	GTask *task = user_data;
+	GError *error = NULL;
+
+	conn = tracker_bus_connection_new_finish (res, &error);
+
+	if (conn)
+		g_task_return_pointer (task, conn, g_object_unref);
+	else
+		g_task_return_error (task, error);
+
+	g_object_unref (task);
+}
+
+/**
+ * tracker_sparql_connection_bus_new_async:
+ * @service_name: The name of the D-Bus service to connect to.
+ * @object_path: (nullable): The path to the object, or %NULL to use the default.
+ * @dbus_connection: (nullable): The #GDBusConnection to use, or %NULL to use the session bus
+ * @cancellable: (nullable): a #GCancellable, or %NULL
+ * @callback: the #GAsyncReadyCallback called when the operation completes
+ * @user_data: data passed to @callback
+ *
+ * Connects to a database owned by another process on the
+ * local machine. This is an asynchronous operation.
+ *
+ * Since: 3.1
+ */
+void
+tracker_sparql_connection_bus_new_async (const gchar         *service,
+                                         const gchar         *object_path,
+                                         GDBusConnection     *conn,
+                                         GCancellable        *cancellable,
+                                         GAsyncReadyCallback  callback,
+                                         gpointer             user_data)
+{
+	GTask *task;
+
+	g_return_if_fail (service != NULL);
+	g_return_if_fail (!conn || G_IS_DBUS_CONNECTION (conn));
+	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+	task = g_task_new (NULL, cancellable, callback, user_data);
+	g_task_set_source_tag (task, tracker_sparql_connection_bus_new_async);
+
+	if (!object_path)
+		object_path = "/org/freedesktop/Tracker3/Endpoint";
+
+	tracker_bus_connection_new_async (service, object_path, conn,
+	                                  cancellable, bus_new_cb,
+	                                  task);
+}
+
+/**
+ * tracker_sparql_connection_bus_new_finish:
+ * @result: the #GAsyncResult
+ * @error: pointer to a #GError
+ *
+ * Completion function for tracker_sparql_connection_bus_new_async().
+ *
+ * Returns: (transfer full): a new #TrackerSparqlConnection. Call g_object_unref() on the
+ * object when no longer used.
+ *
+ * Since: 3.1
+ */
+TrackerSparqlConnection *
+tracker_sparql_connection_bus_new_finish (GAsyncResult  *result,
+                                          GError       **error)
+{
+	g_return_val_if_fail (G_IS_TASK (result), NULL);
+	g_return_val_if_fail (!error || !*error, NULL);
+	g_return_val_if_fail (g_task_get_source_tag (G_TASK (result)) ==
+	                      tracker_sparql_connection_bus_new_async,
+	                      NULL);
+
+	return g_task_propagate_pointer (G_TASK (result), error);
 }

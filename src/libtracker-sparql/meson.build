@@ -105,8 +105,6 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
     bus_files,
     direct_files,
     remote_files,
-    '../libtracker-common/libtracker-common.vapi',
-    'tracker-backend.vala',
     tracker_gresources,
 
     c_args: [
