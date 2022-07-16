@@ -439,13 +439,10 @@ handle_cursor_reply (GTask        *task,
 	for (i = 0; i < n_columns; i++)
 		variable_names[i] = tracker_sparql_cursor_get_variable_name (cursor, i);
 
-	write_cursor (request, cursor, &write_error);
+	g_dbus_method_invocation_return_value (request->invocation, g_variant_new ("(^as)", variable_names));
 
-	if (write_error)
-		g_dbus_method_invocation_return_gerror (request->invocation, write_error);
-	else
-		g_dbus_method_invocation_return_value (request->invocation, g_variant_new ("(^as)", variable_names));
-
+	if (!write_cursor (request, cursor, &write_error))
+		g_warning ("Endpoint failed to fully write cursor: %s\n", write_error->message);
 	g_free (variable_names);
 	g_clear_error (&write_error);
 
