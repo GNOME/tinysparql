@@ -61,7 +61,7 @@ docs_name = 'Tracker'
 hotdoc.generate_doc(docs_name,
   project_version: tracker_version,
   languages: [ 'c', 'python', 'javascript' ],
-  gi_c_sources: [libtracker_sparql_c_sources, libtracker_sparql_c_public_headers],
+  gi_c_sources: [libtracker_sparql_sources, libtracker_sparql_public_headers],
   gi_sources: [tracker_sparql_gir[0].full_path()],
   sitemap: 'sitemap.txt',
   index: 'index.md',

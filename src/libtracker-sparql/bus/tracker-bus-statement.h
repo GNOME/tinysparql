@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 Collabora Ltd.
+ * Copyright (C) 2020, Red Hat Ltd.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,15 +15,24 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
+ *
+ * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-/*
- * This file serves as the representation for the Tracker namespace, mostly
- * so that we can set its namespace and version attributes for GIR.
- */
+#ifndef __TRACKER_BUS_STATEMENT_H__
+#define __TRACKER_BUS_STATEMENT_H__
 
-[CCode (cprefix = "TrackerBus", gir_namespace = "TrackerBus",
-        gir_version = "2.0", lower_case_cprefix = "tracker_bus_")]
-namespace Tracker
-{
-}
+#include "tracker-bus.h"
+
+#include <libtracker-sparql/tracker-private.h>
+
+#define TRACKER_TYPE_BUS_STATEMENT (tracker_bus_statement_get_type ())
+G_DECLARE_FINAL_TYPE (TrackerBusStatement,
+                      tracker_bus_statement,
+                      TRACKER, BUS_STATEMENT,
+                      TrackerSparqlStatement)
+
+TrackerSparqlStatement * tracker_bus_statement_new (TrackerBusConnection *conn,
+						    const gchar          *sparql);
+
+#endif /* __TRACKER_BUS_STATEMENT_H__ */

@@ -1544,21 +1544,50 @@ tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 	g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
-TrackerDirectConnection *
+TrackerSparqlConnection *
 tracker_direct_connection_new (TrackerSparqlConnectionFlags   flags,
                                GFile                         *store,
                                GFile                         *ontology,
                                GError                       **error)
 {
-	g_return_val_if_fail (!store || G_IS_FILE (store), NULL);
-	g_return_val_if_fail (!ontology || G_IS_FILE (ontology), NULL);
-	g_return_val_if_fail (!error || !*error, NULL);
+	return g_initable_new (TRACKER_TYPE_DIRECT_CONNECTION,
+	                       NULL, error,
+	                       "flags", flags,
+	                       "store-location", store,
+	                       "ontology-location", ontology,
+	                       NULL);
+}
 
-	return g_object_new (TRACKER_TYPE_DIRECT_CONNECTION,
-	                     "flags", flags,
-	                     "store-location", store,
-	                     "ontology-location", ontology,
-	                     NULL);
+void
+tracker_direct_connection_new_async (TrackerSparqlConnectionFlags  flags,
+                                     GFile                        *store,
+                                     GFile                        *ontology,
+                                     GCancellable                 *cancellable,
+                                     GAsyncReadyCallback           cb,
+                                     gpointer                      user_data)
+{
+	g_async_initable_new_async (TRACKER_TYPE_DIRECT_CONNECTION,
+	                            G_PRIORITY_DEFAULT,
+	                            cancellable,
+	                            cb,
+	                            user_data,
+	                            "flags", flags,
+	                            "store-location", store,
+	                            "ontology-location", ontology,
+	                            NULL);
+}
+
+TrackerSparqlConnection *
+tracker_direct_connection_new_finish (GAsyncResult  *res,
+                                      GError       **error)
+{
+	GAsyncInitable *initable;
+
+	initable = g_task_get_source_object (G_TASK (res));
+
+	return TRACKER_SPARQL_CONNECTION (g_async_initable_new_finish (initable,
+	                                                               res,
+	                                                               error));
 }
 
 TrackerDataManager *

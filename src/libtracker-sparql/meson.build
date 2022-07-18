@@ -19,9 +19,8 @@ enum_types = gnome.mkenums('tracker-sparql-enum-types',
 )
 
 tracker_sparql_vapi = files('tracker-sparql.vapi')
-tracker_sparql_vapi_dep = meson.get_compiler('vala').find_library('tracker-sparql', dirs: meson.current_source_dir())
 
-libtracker_sparql_c_sources = files(
+libtracker_sparql_sources = files(
     'tracker-batch.c',
     'tracker-connection.c',
     'tracker-cursor.c',
@@ -49,7 +48,7 @@ libtracker_sparql_c_sources = files(
     'tracker-version.c',
 )
 
-libtracker_sparql_c_public_headers = files(
+libtracker_sparql_public_headers = files(
     'tracker-batch.h',
     'tracker-connection.h',
     'tracker-cursor.h',
@@ -70,7 +69,7 @@ libtracker_sparql_c_public_headers = files(
 sparqlinc = [include_directories('.'), meson.current_build_dir()]
 
 install_headers(
-    libtracker_sparql_c_public_headers,
+    libtracker_sparql_public_headers,
     'tracker-ontologies.h',
     'tracker-sparql.h',
     version_header,
@@ -90,7 +89,6 @@ install_data(
 
 libtracker_sparql_dependencies = [
     tracker_common_dep,
-    tracker_sparql_vapi_dep,
     gmodule,
     libdl,
     json_glib,
@@ -100,15 +98,11 @@ libtracker_sparql_dependencies = [
 
 libtracker_sparql_private = static_library('tracker-sparql-private',
     enum_types,
-    libtracker_sparql_c_sources,
+    libtracker_sparql_sources,
     core_files,
     bus_files,
     direct_files,
     remote_files,
-    '../libtracker-common/libtracker-common.vapi',
-    'core/libtracker-data.vapi',
-    'direct/tracker-direct.vapi',
-    'tracker-backend.vala',
     tracker_gresources,
 
     c_args: [
@@ -117,14 +111,6 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
         '-DBUILD_LIBDIR="@0@"'.format(meson.current_build_dir()),
         '-DBUILDROOT="@0@"'.format(meson.build_root()),
     ] + tracker_c_args,
-
-    vala_args: [
-        '--debug',
-        '--pkg', 'posix',
-        # FIXME: Meson has code to add --target-glib automatically, but it
-        # doesn't seem to work here.
-        '--target-glib', glib_required,
-    ],
 
     dependencies: [libtracker_sparql_dependencies],
     gnu_symbol_visibility: 'hidden',
@@ -155,6 +141,7 @@ tracker_sparql_dep = declare_dependency(
     link_with: libtracker_sparql,
     include_directories: srcinc,
     dependencies: [glib, gio],
+    sources: enum_types[1],
 )
 
 pkg.generate(libtracker_sparql,
@@ -191,8 +178,8 @@ if get_option('introspection').enabled()
 
     tracker_sparql_gir = gnome.generate_gir(libtracker_sparql,
         sources: [
-            libtracker_sparql_c_sources,
-            libtracker_sparql_c_public_headers,
+            libtracker_sparql_sources,
+            libtracker_sparql_public_headers,
             introspection_extra_sources,
         ],
         dependencies: introspection_extra_deps,

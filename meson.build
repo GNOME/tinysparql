@@ -1,4 +1,4 @@
-project('tracker', 'c', 'vala',
+project('tracker', 'c',
         version: '3.4.0.alpha',
         meson_version: '>=0.51',
         default_options: [
@@ -122,10 +122,6 @@ add_project_arguments('-DTRACKER_COMPILATION',
                       '-DG_LOG_DOMAIN="Tracker"',
                       '-DG_LOG_STRUCTURED=1',
                       language: 'c')
-add_project_arguments(['-D', 'TRACKER_COMPILATION'],
-                      ['-D', 'G_LOG_DOMAIN="Tracker"'],
-                      ['-D', 'G_LOG_STRUCTURED=1'],
-                      language: 'vala')
 
 if get_option('buildtype') == 'plain'
   # Default case is to allow TRACKER_DEBUG which is very useful for

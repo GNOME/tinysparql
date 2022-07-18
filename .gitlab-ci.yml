@@ -107,7 +107,7 @@ check-merge-request:
 .tracker.alpine@common:
   variables:
     BASE_TAG: '2022-03-07.0'
-    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala gcovr'
+    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev gcovr'
 
 .tracker.fedora:35@x86_64:
   extends: .tracker.fedora@common
@@ -294,7 +294,6 @@ build-alpine-latest@x86_64:
     - gcovr --root=.. --filter='\.\./src/'
         --exclude=../utils --exclude=../examples --exclude=../docs/reference
         --exclude='\.\./build/.*\.[ch]$' --exclude='.*/tests/.*\.[ch]$'
-        --exclude='\.\./src/.*\.vala$'
         --json --print-summary --output=../coverage-${CI_JOB_NAME}.json 2>/dev/null
     - popd
     - |

@@ -48,10 +48,18 @@ struct _TrackerDirectConnection
 
 GType tracker_direct_connection_get_type (void) G_GNUC_CONST;
 
-TrackerDirectConnection *tracker_direct_connection_new (TrackerSparqlConnectionFlags   flags,
+TrackerSparqlConnection *tracker_direct_connection_new (TrackerSparqlConnectionFlags   flags,
                                                         GFile                         *store,
                                                         GFile                         *ontology,
                                                         GError                       **error);
+void tracker_direct_connection_new_async (TrackerSparqlConnectionFlags  flags,
+                                          GFile                        *store,
+                                          GFile                        *ontology,
+                                          GCancellable                 *cancellable,
+                                          GAsyncReadyCallback           cb,
+                                          gpointer                      user_data);
+TrackerSparqlConnection * tracker_direct_connection_new_finish (GAsyncResult  *res,
+                                                                GError       **error);
 
 TrackerDataManager *tracker_direct_connection_get_data_manager (TrackerDirectConnection *conn);
 

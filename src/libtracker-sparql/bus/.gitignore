@@ -1,5 +1,0 @@
-tracker-namespace.c
-tracker-bus.[ch]
-tracker-bus*.vapi
-tracker-array-cursor.c
-tracker-bus-fd-cursor.c
