@@ -1254,13 +1254,12 @@ deserialize_cb (GObject      *source,
 
 	reply = g_dbus_connection_send_message_with_reply_finish (G_DBUS_CONNECTION (source),
 	                                                          res, &error);
-	if (reply)
-		g_dbus_message_to_gerror (reply, &error);
+	if (!reply || g_dbus_message_to_gerror (reply, &error))
+		data->dbus.error = error;
 
 	g_clear_object (&reply);
 
 	data->dbus.finished = TRUE;
-	data->dbus.error = error;
 	check_finish_deserialize (task);
 }
 
