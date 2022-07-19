@@ -210,16 +210,19 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 
 	g_clear_pointer (&bus_cursor->types, g_free);
 	bus_cursor->types = g_new0 (TrackerSparqlValueType, n_columns);
-	g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
-				 bus_cursor->types,
-				 n_columns * sizeof (gint32),
-				 NULL, NULL, NULL);
+
+	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
+				      bus_cursor->types,
+				      n_columns * sizeof (gint32),
+				      NULL, NULL, error))
+		return FALSE;
 
 	offsets = g_new0 (gint32, n_columns);
-	g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
-				 offsets,
-				 n_columns * sizeof (gint32),
-				 NULL, NULL, NULL);
+	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
+				      offsets,
+				      n_columns * sizeof (gint32),
+				      NULL, NULL, error))
+		return FALSE;
 
 	/* The last offset says how long we have to go to read
 	 * the whole row data.
