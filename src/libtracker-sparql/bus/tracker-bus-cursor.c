@@ -182,6 +182,37 @@ tracker_bus_cursor_get_string (TrackerSparqlCursor *cursor,
 }
 
 static gboolean
+validate_offsets (gint32  *offsets,
+		  gint     n_columns,
+		  GError **error)
+{
+	gint i;
+
+	for (i = 0; i < n_columns - 1; i++) {
+		gint32 cur = offsets[i];
+		gint32 next = offsets[i + 1];
+
+		if (cur < 0 || cur >= next)
+			goto error;
+	}
+
+	/* Set a ridiculously high limit on the row size,
+	 * but a limit nonetheless. We can store up to 1GB
+	 * in a single column/row, so make room for 2GiB.
+	 */
+	if (offsets[n_columns - 1] > 2 * 1000 * 1000 * 1000)
+		goto error;
+
+	return TRUE;
+ error:
+	g_set_error (error,
+		     G_IO_ERROR,
+		     G_IO_ERROR_INVALID_DATA,
+		     "Corrupted cursor data");
+	return FALSE;
+}
+
+static gboolean
 tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
                          GCancellable         *cancellable,
                          GError              **error)
@@ -223,6 +254,11 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 				      n_columns * sizeof (gint32),
 				      NULL, NULL, error))
 		return FALSE;
+
+	if (!validate_offsets (offsets, n_columns, error)) {
+		g_free (offsets);
+		return FALSE;
+	}
 
 	/* The last offset says how long we have to go to read
 	 * the whole row data.
