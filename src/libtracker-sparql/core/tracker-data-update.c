@@ -1621,15 +1621,30 @@ get_bnode_id (GHashTable       *bnodes,
 
 static TrackerRowid
 get_bnode_for_resource (GHashTable       *bnodes,
+                        GHashTable       *visited,
                         TrackerData      *data,
                         TrackerResource  *resource,
                         GError          **error)
 {
 	const gchar *identifier;
+	TrackerRowid *bnode_id;
 
-	identifier = tracker_resource_get_identifier (resource);
+	bnode_id = g_hash_table_lookup (visited, resource);
+	if (bnode_id)
+		return *bnode_id;
 
-	return get_bnode_id (bnodes, data, identifier, error);
+	identifier = tracker_resource_get_identifier_internal (resource);
+
+	if (identifier) {
+		/* If the resource has a blank node identifier string already,
+		 * then it has been likely referenced in other user SPARQL.
+		 * Make sure this blank node label is cached for future
+		 * references.
+		 */
+		return get_bnode_id (bnodes, data, identifier, error);
+	} else {
+		return tracker_data_generate_bnode (data, error);
+	}
 }
 
 static gboolean
@@ -2995,13 +3010,11 @@ resource_maybe_reset_property (TrackerData      *data,
                                GError          **error)
 {
 	GError *inner_error = NULL;
-	const gchar *subject_name;
 
 	/* If the subject is a blank node, this is a whole new insertion.
 	 * We don't need deleting anything then.
 	 */
-	subject_name = tracker_resource_get_identifier (resource);
-	if (g_str_has_prefix (subject_name, "_:"))
+	if (tracker_resource_is_blank_node (resource))
 		return TRUE;
 
 	if (!tracker_data_delete_all (data,
@@ -3133,15 +3146,15 @@ update_resource_single (TrackerData      *data,
 	gchar *graph_uri = NULL;
 	gboolean is_bnode = FALSE;
 
-	subject_str = tracker_resource_get_identifier (resource);
-	if (!subject_str || g_str_has_prefix (subject_str, "_:")) {
+	if (tracker_resource_is_blank_node (resource)) {
 		is_bnode = TRUE;
-		subject = get_bnode_for_resource (bnodes, data, resource, error);
+		subject = get_bnode_for_resource (bnodes, visited, data, resource, error);
 		if (!subject)
 			return FALSE;
 	} else {
 		gchar *subject_uri;
 
+		subject_str = tracker_resource_get_identifier (resource);
 		tracker_data_manager_expand_prefix (data->manager,
 		                                    subject_str, NULL, NULL,
 		                                    &subject_uri);
@@ -3154,7 +3167,7 @@ update_resource_single (TrackerData      *data,
 	if (g_hash_table_lookup (visited, resource))
 		goto out;
 
-	g_hash_table_add (visited, resource);
+	g_hash_table_insert (visited, resource, tracker_rowid_copy (&subject));
 
 	properties = tracker_resource_get_properties (resource);
 
@@ -3244,7 +3257,7 @@ tracker_data_update_resource (TrackerData      *data,
 	GHashTable *visited;
 	gboolean retval;
 
-	visited = g_hash_table_new (NULL, NULL);
+	visited = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) tracker_rowid_free);
 
 	if (bnodes)
 		g_hash_table_ref (bnodes);
