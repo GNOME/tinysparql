@@ -159,6 +159,9 @@ tracker_bus_cursor_get_string (TrackerSparqlCursor *cursor,
 	TrackerBusCursor *bus_cursor = TRACKER_BUS_CURSOR (cursor);
 	const gchar *str;
 
+	if (len)
+		*len = 0;
+
 	if (bus_cursor->finished)
 		return NULL;
 	if (column < 0 || column >= bus_cursor->n_columns)
@@ -176,6 +179,37 @@ tracker_bus_cursor_get_string (TrackerSparqlCursor *cursor,
 		*len = strlen (str);
 
 	return str;
+}
+
+static gboolean
+validate_offsets (gint32  *offsets,
+		  gint     n_columns,
+		  GError **error)
+{
+	gint i;
+
+	for (i = 0; i < n_columns - 1; i++) {
+		gint32 cur = offsets[i];
+		gint32 next = offsets[i + 1];
+
+		if (cur < 0 || cur >= next)
+			goto error;
+	}
+
+	/* Set a ridiculously high limit on the row size,
+	 * but a limit nonetheless. We can store up to 1GB
+	 * in a single column/row, so make room for 2GiB.
+	 */
+	if (offsets[n_columns - 1] > 2 * 1000 * 1000 * 1000)
+		goto error;
+
+	return TRUE;
+ error:
+	g_set_error (error,
+		     G_IO_ERROR,
+		     G_IO_ERROR_INVALID_DATA,
+		     "Corrupted cursor data");
+	return FALSE;
 }
 
 static gboolean
@@ -207,16 +241,24 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 
 	g_clear_pointer (&bus_cursor->types, g_free);
 	bus_cursor->types = g_new0 (TrackerSparqlValueType, n_columns);
-	g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
-				 bus_cursor->types,
-				 n_columns * sizeof (gint32),
-				 NULL, NULL, NULL);
+
+	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
+				      bus_cursor->types,
+				      n_columns * sizeof (gint32),
+				      NULL, NULL, error))
+		return FALSE;
 
 	offsets = g_new0 (gint32, n_columns);
-	g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
-				 offsets,
-				 n_columns * sizeof (gint32),
-				 NULL, NULL, NULL);
+	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
+				      offsets,
+				      n_columns * sizeof (gint32),
+				      NULL, NULL, error))
+		return FALSE;
+
+	if (!validate_offsets (offsets, n_columns, error)) {
+		g_free (offsets);
+		return FALSE;
+	}
 
 	/* The last offset says how long we have to go to read
 	 * the whole row data.
