@@ -250,10 +250,12 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 
 	offsets = g_new0 (gint32, n_columns);
 	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
-				      offsets,
-				      n_columns * sizeof (gint32),
-				      NULL, NULL, error))
+	                              offsets,
+	                              n_columns * sizeof (gint32),
+	                              NULL, NULL, error)) {
+		g_free (offsets);
 		return FALSE;
+	}
 
 	if (!validate_offsets (offsets, n_columns, error)) {
 		g_free (offsets);
