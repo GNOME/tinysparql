@@ -18,8 +18,6 @@ enum_types = gnome.mkenums('tracker-sparql-enum-types',
     install_header: true,
 )
 
-tracker_sparql_vapi = files('tracker-sparql.vapi')
-
 libtracker_sparql_sources = files(
     'tracker-batch.c',
     'tracker-connection.c',
@@ -76,18 +74,6 @@ install_headers(
     'tracker-sparql.h',
     version_header,
     subdir: 'tracker-@0@/libtracker-sparql'.format(tracker_api_version))
-
-install_data(
-    tracker_sparql_vapi,
-    rename: ['tracker-sparql-' + tracker_api_version + '.vapi'],
-    install_dir: vapi_dir,
-)
-
-install_data(
-    'tracker-sparql.deps',
-    rename: ['tracker-sparql-' + tracker_api_version + '.deps'],
-    install_dir: vapi_dir,
-)
 
 libtracker_sparql_dependencies = [
     tracker_common_dep,
@@ -190,14 +176,23 @@ if get_option('introspection').enabled()
         identifier_prefix: 'Tracker',
         symbol_prefix: 'tracker',
         includes : ['GLib-2.0', 'GObject-2.0', 'Gio-2.0' ],
+        header: 'libtracker-sparql/tracker-sparql.h',
         link_with: libtracker_sparql,
         install: true,
         extra_args: [
-            '--c-include',
-            'libtracker-sparql/tracker-sparql.h',
             '-DTRACKER_COMPILATION',
         ],
-        export_packages: 'tracker-sparql-3.0')
+        export_packages: 'tracker-sparql-' + tracker_api_version
+    )
+
+    if get_option('vapi').enabled() or get_option('vapi').auto()
+        tracker_sparql_vapi = gnome.generate_vapi('tracker-sparql-' + tracker_api_version,
+            sources: tracker_sparql_gir[0],
+            install: true,
+            packages: ['glib-2.0', 'gio-2.0', 'gobject-2.0'],
+            metadata_dirs: meson.current_source_dir(),
+        )
+    endif
 endif
 
 tracker_sparql_uninstalled_dir = meson.current_build_dir()

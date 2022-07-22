@@ -100,6 +100,10 @@ if get_option('tests')
 endif
 python = import('python').find_installation('python3', modules: py_modules)
 
+if get_option('vapi').enabled() and get_option('introspection').disabled()
+  error('Vala binding generation requires the \'introspection\' to be enabled')
+endif
+
 cc_warning_flags = [
   '-Wformat',
   '-Wformat-security',
@@ -339,8 +343,6 @@ tracker_internal_libs_dir = join_paths(get_option('prefix'), get_option('libdir'
 # NOTE: We don't use ${TRACKER_API_VERSION} because other content like
 # the ontology is installed to the same location.
 tracker_ontologies_dir = join_paths(get_option('prefix'), get_option('datadir'), tracker_versioned_name, 'ontologies')
-
-vapi_dir = join_paths(get_option('prefix'), get_option('datadir'), 'vala', 'vapi')
 
 if gobject_introspection.found()
   typelib_dir = gobject_introspection.get_variable(pkgconfig: 'typelibdir',
