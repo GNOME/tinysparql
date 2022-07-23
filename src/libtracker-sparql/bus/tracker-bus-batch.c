@@ -37,6 +37,11 @@ typedef struct {
 
 G_DEFINE_TYPE (TrackerBusBatch, tracker_bus_batch, TRACKER_TYPE_BATCH)
 
+static void tracker_bus_batch_execute_async (TrackerBatch        *batch,
+                                             GCancellable        *cancellable,
+                                             GAsyncReadyCallback  callback,
+                                             gpointer             user_data);
+
 static void
 tracker_bus_batch_finalize (GObject *object)
 {
@@ -97,10 +102,10 @@ tracker_bus_batch_execute (TrackerBatch  *batch,
 	data.loop = g_main_loop_new (context, FALSE);
 	g_main_context_push_thread_default (context);
 
-	tracker_batch_execute_async (batch,
-				     cancellable,
-				     execute_cb,
-				     &data);
+	tracker_bus_batch_execute_async (batch,
+	                                 cancellable,
+	                                 execute_cb,
+	                                 &data);
 
 	g_main_loop_run (data.loop);
 
