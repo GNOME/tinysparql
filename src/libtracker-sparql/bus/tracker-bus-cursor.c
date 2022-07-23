@@ -196,13 +196,6 @@ validate_offsets (gint32  *offsets,
 			goto error;
 	}
 
-	/* Set a ridiculously high limit on the row size,
-	 * but a limit nonetheless. We can store up to 1GB
-	 * in a single column/row, so make room for 2GiB.
-	 */
-	if (offsets[n_columns - 1] > 2 * 1000 * 1000 * 1000)
-		goto error;
-
 	return TRUE;
  error:
 	g_set_error (error,
@@ -258,6 +251,19 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 	}
 
 	if (!validate_offsets (offsets, n_columns, error)) {
+		g_free (offsets);
+		return FALSE;
+	}
+
+	/* Set a ridiculously high limit on the row size,
+	 * but a limit nonetheless. We can store up to 1GB
+	 * in a single column/row, so make room for 2GiB.
+	 */
+	if (offsets[n_columns - 1] > 2 * 1000 * 1000 * 1000) {
+		g_set_error (error,
+		             G_IO_ERROR,
+		             G_IO_ERROR_INVALID_DATA,
+		             "Corrupted cursor data");
 		g_free (offsets);
 		return FALSE;
 	}
