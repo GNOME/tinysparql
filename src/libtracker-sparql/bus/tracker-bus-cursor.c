@@ -274,10 +274,14 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 	g_clear_pointer (&bus_cursor->row_data, g_free);
 	bus_cursor->row_data =
 		g_new0 (gchar, offsets[n_columns - 1] + 1);
-	g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
-				 bus_cursor->row_data,
-				 offsets[n_columns - 1] + 1,
-				 NULL, NULL, NULL);
+
+	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
+	                              bus_cursor->row_data,
+	                              offsets[n_columns - 1] + 1,
+	                              NULL, NULL, error)) {
+		g_free (offsets);
+		return FALSE;
+	}
 
 	g_clear_pointer (&bus_cursor->values, g_free);
 	bus_cursor->values = g_new0 (const gchar *, n_columns);
