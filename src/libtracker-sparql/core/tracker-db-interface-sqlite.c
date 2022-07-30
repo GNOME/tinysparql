@@ -96,8 +96,6 @@ struct TrackerDBInterface {
 	TrackerDBStatementLru select_stmt_lru;
 	TrackerDBStatementLru update_stmt_lru;
 
-	gchar *fts_properties;
-
 	/* Used if TRACKER_DB_INTERFACE_USE_MUTEX is set */
 	GMutex mutex;
 
@@ -2240,34 +2238,6 @@ close_database (TrackerDBInterface *db_interface)
 	}
 }
 
-static gchar **
-_fts_create_properties (GHashTable *properties)
-{
-	GHashTableIter iter;
-	GPtrArray *cols;
-	GList *columns;
-	gchar *table;
-
-	if (g_hash_table_size (properties) == 0) {
-		return NULL;
-	}
-
-	g_hash_table_iter_init (&iter, properties);
-	cols = g_ptr_array_new ();
-
-	while (g_hash_table_iter_next (&iter, (gpointer *) &table,
-				       (gpointer *) &columns)) {
-		while (columns) {
-			g_ptr_array_add (cols, g_strdup (columns->data));
-			columns = columns->next;
-		}
-	}
-
-	g_ptr_array_add (cols, NULL);
-
-	return (gchar **) g_ptr_array_free (cols, FALSE);
-}
-
 gboolean
 tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
                                       const gchar         *database,
@@ -2277,7 +2247,6 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
                                       GError             **error)
 {
 	GError *inner_error = NULL;
-	GStrv fts_columns;
 
 	if (!tracker_fts_init_db (db_interface->db, db_interface,
 	                          db_interface->flags, properties, error))
@@ -2291,25 +2260,6 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 		                            inner_error,
 		                            "FTS tables creation failed: ");
 		return FALSE;
-	}
-
-	fts_columns = _fts_create_properties (properties);
-
-	if (fts_columns) {
-		GString *fts_properties;
-		gint i;
-
-		fts_properties = g_string_new (NULL);
-
-		for (i = 0; fts_columns[i] != NULL; i++) {
-			g_string_append_printf (fts_properties, ", \"%s\"",
-			                        fts_columns[i]);
-		}
-
-		g_free (db_interface->fts_properties);
-		db_interface->fts_properties = g_string_free (fts_properties,
-		                                              FALSE);
-		g_strfreev (fts_columns);
 	}
 
 	return TRUE;
@@ -2533,7 +2483,6 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	db_interface = TRACKER_DB_INTERFACE (object);
 
 	close_database (db_interface);
-	g_free (db_interface->fts_properties);
 
 	TRACKER_NOTE (SQLITE, g_message ("Closed sqlite3 database:'%s'", db_interface->filename));
 
