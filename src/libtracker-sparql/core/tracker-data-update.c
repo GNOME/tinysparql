@@ -60,7 +60,6 @@ struct _TrackerDataUpdateBuffer {
 
 struct _TrackerDataUpdateBufferGraph {
 	gchar *graph;
-	TrackerRowid id;
 
 	/* id -> TrackerDataUpdateBufferResource */
 	GHashTable *resources;
@@ -2133,11 +2132,6 @@ ensure_graph_buffer (TrackerDataUpdateBuffer  *buffer,
 		g_hash_table_new_full (tracker_rowid_hash, tracker_rowid_equal,
 		                       (GDestroyNotify) tracker_rowid_free, NULL);
 	graph_buffer->graph = g_strdup (name);
-	if (graph_buffer->graph) {
-		graph_buffer->id = tracker_data_manager_find_graph (data->manager,
-		                                                    graph_buffer->graph,
-		                                                    TRUE);
-	}
 
 	graph_buffer->resources =
 		g_hash_table_new_full (tracker_rowid_hash, tracker_rowid_equal, NULL,
