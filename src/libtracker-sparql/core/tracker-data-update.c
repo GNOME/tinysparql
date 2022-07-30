@@ -328,8 +328,7 @@ tracker_data_dispatch_insert_statement_callbacks (TrackerData  *data,
 			TrackerStatementDelegate *delegate;
 
 			delegate = g_ptr_array_index (data->insert_callbacks, n);
-			delegate->callback (data->resource_buffer->graph->id,
-			                    data->resource_buffer->graph->graph,
+			delegate->callback (data->resource_buffer->graph->graph,
 			                    data->resource_buffer->id,
 			                    predicate_id,
 			                    class_id,
@@ -389,8 +388,7 @@ tracker_data_dispatch_delete_statement_callbacks (TrackerData  *data,
 			TrackerStatementDelegate *delegate;
 
 			delegate = g_ptr_array_index (data->delete_callbacks, n);
-			delegate->callback (data->resource_buffer->graph->id,
-			                    data->resource_buffer->graph->graph,
+			delegate->callback (data->resource_buffer->graph->graph,
 			                    data->resource_buffer->id,
 			                    predicate_id,
 			                    class_id,
