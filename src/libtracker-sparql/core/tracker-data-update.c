@@ -56,6 +56,8 @@ struct _TrackerDataUpdateBuffer {
 	GHashTable *new_resources;
 	/* TrackerDataUpdateBufferGraph */
 	GPtrArray *graphs;
+	/* Statement to insert in Resource table */
+	TrackerDBStatement *insert_resource;
 };
 
 struct _TrackerDataUpdateBufferGraph {
@@ -492,6 +494,7 @@ tracker_data_finalize (GObject *object)
 	g_clear_pointer (&data->update_buffer.graphs, g_ptr_array_unref);
 	g_clear_pointer (&data->update_buffer.new_resources, g_hash_table_unref);
 	g_clear_pointer (&data->update_buffer.resource_cache, g_hash_table_unref);
+	g_clear_object (&data->update_buffer.insert_resource);
 
 	g_clear_pointer (&data->insert_callbacks, g_ptr_array_unref);
 	g_clear_pointer (&data->delete_callbacks, g_ptr_array_unref);
@@ -711,6 +714,24 @@ query_resource_id (TrackerData  *data,
 	return *value;
 }
 
+static gboolean
+tracker_data_ensure_insert_resource_stmt (TrackerData  *data,
+                                          GError      **error)
+{
+	TrackerDBInterface *iface;
+
+	if (G_LIKELY (data->update_buffer.insert_resource))
+		return TRUE;
+
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
+
+	data->update_buffer.insert_resource =
+		tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
+		                                       "INSERT INTO Resource (Uri, BlankNode) VALUES (?, ?)");
+
+	return data->update_buffer.insert_resource != NULL;
+}
+
 TrackerRowid
 tracker_data_update_ensure_resource (TrackerData  *data,
                                      const gchar  *uri,
@@ -742,16 +763,11 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 			return id;
 	}
 
-	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &inner_error,
-	                                              "INSERT INTO Resource (Uri, BlankNode) VALUES (?, ?)");
-
-	if (stmt) {
+	if (tracker_data_ensure_insert_resource_stmt (data, &inner_error)) {
+		stmt = data->update_buffer.insert_resource;
 		tracker_db_statement_bind_text (stmt, 0, uri);
 		tracker_db_statement_bind_int (stmt, 1, FALSE);
 		tracker_db_statement_execute (stmt, &inner_error);
-		g_object_unref (stmt);
 	}
 
 	if (inner_error) {
@@ -770,6 +786,7 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 		return 0;
 	}
 
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	id = tracker_db_interface_sqlite_get_last_insert_id (iface);
 	key = g_strdup (uri);
 	g_hash_table_insert (data->update_buffer.resource_cache, key,
@@ -3291,26 +3308,20 @@ tracker_data_generate_bnode (TrackerData  *data,
 	GError *inner_error = NULL;
 	TrackerRowid id;
 
-	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &inner_error,
-	                                              "INSERT INTO Resource (Uri, BlankNode) VALUES (?, ?)");
-	if (!stmt) {
-		g_propagate_error (error, inner_error);
+	if (!tracker_data_ensure_insert_resource_stmt (data, error))
 		return 0;
-	}
 
+	stmt = data->update_buffer.insert_resource;
 	tracker_db_statement_bind_null (stmt, 0);
 	tracker_db_statement_bind_int (stmt, 1, TRUE);
 	tracker_db_statement_execute (stmt, &inner_error);
-	g_object_unref (stmt);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
 		return 0;
 	}
 
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	id = tracker_db_interface_sqlite_get_last_insert_id (iface);
 	g_hash_table_add (data->update_buffer.new_resources,
 	                  tracker_rowid_copy (&id));
