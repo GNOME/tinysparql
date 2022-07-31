@@ -485,12 +485,30 @@ tracker_data_get_property (GObject    *object,
 }
 
 static void
+tracker_data_finalize (GObject *object)
+{
+	TrackerData *data = TRACKER_DATA (object);
+
+	g_clear_pointer (&data->update_buffer.graphs, g_ptr_array_unref);
+	g_clear_pointer (&data->update_buffer.new_resources, g_hash_table_unref);
+	g_clear_pointer (&data->update_buffer.resource_cache, g_hash_table_unref);
+
+	g_clear_pointer (&data->insert_callbacks, g_ptr_array_unref);
+	g_clear_pointer (&data->delete_callbacks, g_ptr_array_unref);
+	g_clear_pointer (&data->commit_callbacks, g_ptr_array_unref);
+	g_clear_pointer (&data->rollback_callbacks, g_ptr_array_unref);
+
+	G_OBJECT_CLASS (tracker_data_parent_class)->finalize (object);
+}
+
+static void
 tracker_data_class_init (TrackerDataClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->set_property = tracker_data_set_property;
 	object_class->get_property = tracker_data_get_property;
+	object_class->finalize = tracker_data_finalize;
 
 	g_object_class_install_property (object_class,
 	                                 PROP_MANAGER,

@@ -4967,6 +4967,8 @@ tracker_data_manager_dispose (GObject *object)
 	GError *error = NULL;
 	gboolean readonly = TRUE;
 
+	g_clear_object (&manager->data_update);
+
 	if (manager->db_manager) {
 		readonly = (tracker_db_manager_get_flags (manager->db_manager, NULL, NULL) & TRACKER_DB_MANAGER_READONLY) != 0;
 
@@ -4999,7 +5001,6 @@ tracker_data_manager_finalize (GObject *object)
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (object);
 
 	g_clear_object (&manager->ontologies);
-	g_clear_object (&manager->data_update);
 	g_clear_object (&manager->ontology_location);
 	g_clear_object (&manager->cache_location);
 	g_clear_pointer (&manager->graphs, g_hash_table_unref);
