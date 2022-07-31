@@ -67,6 +67,10 @@ struct _TrackerDataUpdateBufferGraph {
 	GHashTable *resources;
 	/* id -> integer */
 	GHashTable *refcounts;
+
+	TrackerDBStatement *insert_ref;
+	TrackerDBStatement *update_ref;
+	TrackerDBStatement *delete_ref;
 };
 
 struct _TrackerDataUpdateBufferResource {
@@ -1208,26 +1212,16 @@ tracker_data_flush_graph_refcounts (TrackerData                   *data,
                                     GError                       **error)
 {
 	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
 	GHashTableIter iter;
 	gpointer key, value;
 	TrackerRowid id;
 	gint refcount;
 	GError *inner_error = NULL;
 	const gchar *database;
-	gchar *insert_query;
-	gchar *update_query;
-	gchar *delete_query;
+	gchar *query;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	database = graph->graph ? graph->graph : "main";
-
-	insert_query = g_strdup_printf ("INSERT OR IGNORE INTO \"%s\".Refcount (ROWID, Refcount) VALUES (?1, 0)",
-	                                database);
-	update_query = g_strdup_printf ("UPDATE \"%s\".Refcount SET Refcount = Refcount + ?2 WHERE Refcount.ROWID = ?1",
-	                                database);
-	delete_query = g_strdup_printf ("DELETE FROM \"%s\".Refcount WHERE Refcount.ROWID = ?1 AND Refcount.Refcount = 0",
-	                                database);
 
 	g_hash_table_iter_init (&iter, graph->refcounts);
 
@@ -1236,16 +1230,23 @@ tracker_data_flush_graph_refcounts (TrackerData                   *data,
 		refcount = GPOINTER_TO_INT (value);
 
 		if (refcount > 0) {
-			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-			                                              &inner_error, insert_query);
-			if (inner_error) {
-				g_propagate_error (error, inner_error);
-				break;
+			if (!graph->insert_ref) {
+				query = g_strdup_printf ("INSERT OR IGNORE INTO \"%s\".Refcount (ROWID, Refcount) VALUES (?1, 0)",
+				                         database);
+				graph->insert_ref =
+					tracker_db_interface_create_statement (iface,
+					                                       TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+					                                       &inner_error, query);
+				g_free (query);
+
+				if (inner_error) {
+					g_propagate_error (error, inner_error);
+					break;
+				}
 			}
 
-			tracker_db_statement_bind_int (stmt, 0, id);
-			tracker_db_statement_execute (stmt, &inner_error);
-			g_object_unref (stmt);
+			tracker_db_statement_bind_int (graph->insert_ref, 0, id);
+			tracker_db_statement_execute (graph->insert_ref, &inner_error);
 
 			if (inner_error) {
 				g_propagate_error (error, inner_error);
@@ -1254,17 +1255,24 @@ tracker_data_flush_graph_refcounts (TrackerData                   *data,
 		}
 
 		if (refcount != 0) {
-			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-			                                              &inner_error, update_query);
-			if (inner_error) {
-				g_propagate_error (error, inner_error);
-				break;
+			if (!graph->update_ref) {
+				query = g_strdup_printf ("UPDATE \"%s\".Refcount SET Refcount = Refcount + ?2 WHERE Refcount.ROWID = ?1",
+				                         database);
+				graph->update_ref =
+					tracker_db_interface_create_statement (iface,
+					                                       TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+					                                       &inner_error, query);
+				g_free (query);
+
+				if (inner_error) {
+					g_propagate_error (error, inner_error);
+					break;
+				}
 			}
 
-			tracker_db_statement_bind_int (stmt, 0, id);
-			tracker_db_statement_bind_int (stmt, 1, refcount);
-			tracker_db_statement_execute (stmt, &inner_error);
-			g_object_unref (stmt);
+			tracker_db_statement_bind_int (graph->update_ref, 0, id);
+			tracker_db_statement_bind_int (graph->update_ref, 1, refcount);
+			tracker_db_statement_execute (graph->update_ref, &inner_error);
 
 			if (inner_error) {
 				g_propagate_error (error, inner_error);
@@ -1273,16 +1281,22 @@ tracker_data_flush_graph_refcounts (TrackerData                   *data,
 		}
 
 		if (refcount < 0) {
-			stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-			                                              &inner_error, delete_query);
-			if (inner_error) {
-				g_propagate_error (error, inner_error);
-				break;
+			if (!graph->delete_ref) {
+				query = g_strdup_printf ("DELETE FROM \"%s\".Refcount WHERE Refcount.ROWID = ?1 AND Refcount.Refcount = 0",
+				                         database);
+				graph->delete_ref =
+					tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+					                                       &inner_error, query);
+				g_free (query);
+
+				if (inner_error) {
+					g_propagate_error (error, inner_error);
+					break;
+				}
 			}
 
-			tracker_db_statement_bind_int (stmt, 0, id);
-			tracker_db_statement_execute (stmt, &inner_error);
-			g_object_unref (stmt);
+			tracker_db_statement_bind_int (graph->delete_ref, 0, id);
+			tracker_db_statement_execute (graph->delete_ref, &inner_error);
 
 			if (inner_error) {
 				g_propagate_error (error, inner_error);
@@ -1292,15 +1306,14 @@ tracker_data_flush_graph_refcounts (TrackerData                   *data,
 
 		g_hash_table_iter_remove (&iter);
 	}
-
-	g_free (insert_query);
-	g_free (update_query);
-	g_free (delete_query);
 }
 
 static void
 graph_buffer_free (TrackerDataUpdateBufferGraph *graph)
 {
+	g_clear_object (&graph->insert_ref);
+	g_clear_object (&graph->update_ref);
+	g_clear_object (&graph->delete_ref);
 	g_hash_table_unref (graph->resources);
 	g_hash_table_unref (graph->refcounts);
 	g_free (graph->graph);
