@@ -166,18 +166,18 @@ static gboolean update_resource_single (TrackerData      *data,
                                         TrackerRowid     *id,
                                         GError          **error);
 
-void tracker_data_insert_statement_with_uri    (TrackerData      *data,
-                                                const gchar      *graph,
-                                                TrackerRowid      subject,
-                                                TrackerProperty  *predicate,
-                                                const GValue     *object,
-                                                GError          **error);
-void tracker_data_insert_statement_with_string (TrackerData      *data,
-                                                const gchar      *graph,
-                                                TrackerRowid      subject,
-                                                TrackerProperty  *predicate,
-                                                const GValue     *object,
-                                                GError          **error);
+static void tracker_data_insert_statement_with_uri    (TrackerData      *data,
+                                                       const gchar      *graph,
+                                                       TrackerRowid      subject,
+                                                       TrackerProperty  *predicate,
+                                                       const GValue     *object,
+                                                       GError          **error);
+static void tracker_data_insert_statement_with_string (TrackerData      *data,
+                                                       const gchar      *graph,
+                                                       TrackerRowid      subject,
+                                                       TrackerProperty  *predicate,
+                                                       const GValue     *object,
+                                                       GError          **error);
 
 
 void
@@ -2491,7 +2491,7 @@ tracker_data_insert_statement (TrackerData      *data,
 	}
 }
 
-void
+static void
 tracker_data_insert_statement_with_uri (TrackerData      *data,
                                         const gchar      *graph,
                                         TrackerRowid      subject,
@@ -2556,7 +2556,7 @@ tracker_data_insert_statement_with_uri (TrackerData      *data,
 	}
 }
 
-void
+static void
 tracker_data_insert_statement_with_string (TrackerData      *data,
                                            const gchar      *graph,
                                            TrackerRowid      subject,
