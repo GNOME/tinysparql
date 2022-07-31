@@ -28,6 +28,7 @@
 #include <libtracker-common/tracker-common.h>
 
 #include <libtracker-sparql/tracker-deserializer-rdf.h>
+#include <libtracker-sparql/tracker-uri.h>
 
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
@@ -859,8 +860,7 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 				/* String with langtag */
 				tracker_db_statement_bind_bytes (stmt, (*idx)++, bytes);
 			}
-		} else if (g_strcmp0 (g_type_name (type), "TrackerUri") == 0) {
-			/* FIXME: We can't access TrackerUri GType here */
+		} else if (type == TRACKER_TYPE_URI) {
 			tracker_db_statement_bind_text (stmt, (*idx)++, g_value_get_string (value));
 		} else {
 			g_warning ("Unknown type for binding: %s\n", G_VALUE_TYPE_NAME (value));
