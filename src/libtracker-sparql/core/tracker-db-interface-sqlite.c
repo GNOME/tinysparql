@@ -125,7 +125,7 @@ struct TrackerDBStatement {
 	TrackerDBInterface *db_interface;
 	sqlite3_stmt *stmt;
 	guint stmt_is_used : 1;
-	guint stmt_is_owned : 1;
+	guint stmt_is_borrowed : 1;
 	TrackerDBStatement *next;
 	TrackerDBStatement *prev;
 };
@@ -2618,7 +2618,7 @@ tracker_db_interface_lru_lookup (TrackerDBInterface          *db_interface,
 
 	/* a) Cached */
 
-	if (stmt && stmt->stmt_is_owned) {
+	if (stmt && stmt->stmt_is_borrowed) {
 		/* c) Forced non-cached
 		 * prepared statement is owned somewhere else, create new uncached one
 		 */
@@ -2777,7 +2777,7 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 		                                 stmt);
 	}
 
-	stmt->stmt_is_owned = TRUE;
+	stmt->stmt_is_borrowed = cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE;
 
 	tracker_db_interface_unlock (db_interface);
 
@@ -3021,7 +3021,6 @@ static TrackerDBStatement *
 tracker_db_statement_sqlite_grab (TrackerDBStatement *stmt)
 {
 	g_assert (!stmt->stmt_is_used);
-	g_assert (stmt->stmt_is_owned);
 	stmt->stmt_is_used = TRUE;
 	g_object_ref (stmt->db_interface);
 	return g_object_ref (stmt);
@@ -3032,13 +3031,12 @@ tracker_db_statement_sqlite_release (TrackerDBStatement *stmt)
 {
 	TrackerDBInterface *iface = stmt->db_interface;
 
-	g_assert (stmt->stmt_is_owned);
+	stmt->stmt_is_borrowed = FALSE;
 
-	stmt->stmt_is_owned = FALSE;
+	tracker_db_statement_sqlite_reset (stmt);
 
 	if (stmt->stmt_is_used) {
 		stmt->stmt_is_used = FALSE;
-		tracker_db_statement_sqlite_reset (stmt);
 		g_object_unref (stmt);
 		g_object_unref (iface);
 	}
@@ -3820,8 +3818,6 @@ tracker_db_cursor_init (TrackerDBCursor *cursor)
 static void
 tracker_db_statement_sqlite_reset (TrackerDBStatement *stmt)
 {
-	g_assert (!stmt->stmt_is_used);
-
 	sqlite3_reset (stmt->stmt);
 	sqlite3_clear_bindings (stmt->stmt);
 }
