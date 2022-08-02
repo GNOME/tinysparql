@@ -742,20 +742,20 @@ ensure_inverse_functional_property (TrackerDataManager  *manager,
 	gchar *query;
 
 	query = g_strdup_printf ("ASK { <%s> a nrl:InverseFunctionalProperty }", property_uri);
-	cursor = tracker_data_query_sparql_cursor (manager, query, NULL);
+	cursor = tracker_data_query_sparql_cursor (manager, query, error);
 	g_free (query);
 
-	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
-		if (!tracker_db_cursor_get_int (cursor, 0)) {
+	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, error)) {
+		if (!tracker_sparql_cursor_get_boolean (cursor, 0)) {
 			handle_unsupported_ontology_change (manager,
 			                                    NULL, -1, -1,
 			                                    property_uri,
 			                                    "nrl:InverseFunctionalProperty", "-", "-",
 			                                    error);
 		}
-
-		g_object_unref (cursor);
 	}
+
+	g_clear_object (&cursor);
 }
 
 static void
