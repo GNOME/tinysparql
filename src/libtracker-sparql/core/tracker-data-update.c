@@ -1005,11 +1005,6 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 
 			if (table->insert) {
 				g_string_append (sql, " (ID");
-
-				if (strcmp (table_name, "rdfs:Resource") == 0) {
-					g_string_append (sql, ", \"nrl:added\", \"nrl:modified\"");
-					g_string_append (values_sql, ", ?, ?");
-				}
 			} else {
 				g_string_append (sql, " SET ");
 			}
@@ -1061,15 +1056,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 
 			if (table->insert) {
 				tracker_db_statement_bind_int (stmt, 0, resource->id);
-
-				if (strcmp (table_name, "rdfs:Resource") == 0) {
-					g_warn_if_fail	(data->resource_time != 0);
-					tracker_db_statement_bind_int (stmt, 1, (gint64) data->resource_time);
-					tracker_db_statement_bind_int (stmt, 2, get_transaction_modseq (data));
-					param = 3;
-				} else {
-					param = 1;
-				}
+				param = 1;
 			} else {
 				param = 0;
 			}
@@ -1435,6 +1422,22 @@ cache_create_service_decomposed (TrackerData   *data,
 	                    tracker_ontologies_get_rdf_type (ontologies),
 	                    &gvalue);
 	tracker_data_resource_ref (data, class_id, TRUE);
+
+	if (data->resource_buffer->create &&
+	    strcmp (tracker_class_get_uri (cl), TRACKER_PREFIX_RDFS "Resource") == 0) {
+		/* Add nrl:added for the new rdfs:Resource */
+		TrackerOntologies *ontologies;
+		TrackerProperty *added;
+		GValue gvalue = { 0 };
+
+		ontologies = tracker_data_manager_get_ontologies (data->manager);
+		added = tracker_ontologies_get_property_by_uri (ontologies,
+								TRACKER_PREFIX_NRL "added");
+
+		g_value_init (&gvalue, G_TYPE_INT64);
+		g_value_set_int64 (&gvalue, data->resource_time);
+		cache_insert_value (data, NULL, added, &gvalue);
+	}
 
 	tracker_data_dispatch_insert_statement_callbacks (data,
 	                                                  tracker_property_get_id (tracker_ontologies_get_rdf_type (ontologies)),
