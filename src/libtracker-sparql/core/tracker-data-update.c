@@ -1345,10 +1345,12 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 			g_propagate_error (error, actual_error);
 			goto out;
 		}
+
+		g_hash_table_remove_all (graph->resources);
+		g_hash_table_remove_all (graph->refcounts);
 	}
 
 out:
-	g_ptr_array_set_size (data->update_buffer.graphs, 0);
 	g_hash_table_remove_all (data->update_buffer.new_resources);
 	data->resource_buffer = NULL;
 }
@@ -1374,7 +1376,15 @@ tracker_data_update_buffer_might_flush (TrackerData  *data,
 static void
 tracker_data_update_buffer_clear (TrackerData *data)
 {
-	g_ptr_array_set_size (data->update_buffer.graphs, 0);
+	TrackerDataUpdateBufferGraph *graph;
+	guint i;
+
+	for (i = 0; i < data->update_buffer.graphs->len; i++) {
+		graph = g_ptr_array_index (data->update_buffer.graphs, i);
+		g_hash_table_remove_all (graph->resources);
+		g_hash_table_remove_all (graph->refcounts);
+	}
+
 	g_hash_table_remove_all (data->update_buffer.new_resources);
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
 	data->resource_buffer = NULL;
@@ -2769,7 +2779,6 @@ tracker_data_commit_transaction (TrackerData  *data,
 
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 
-	g_ptr_array_set_size (data->update_buffer.graphs, 0);
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
 
 	tracker_data_dispatch_commit_statement_callbacks (data);
