@@ -1,3 +1,13 @@
+NEW in 3.4.0.beta - 2022-08-08
+==============================
+  * Fix issues with URI expansion inserting TrackerResource data
+  * Rewrite bus connection to use C and stream-based cursors, vala
+    dependency is no longer necessary.
+  * Fix handling of nrl:InverseFunctionalProperty during database
+    updates.
+
+Translations: ab, es, eu, fur, he, sr, tr, zh_CN
+
 NEW in 3.4.0.alpha - 2022-07-13
 ===============================
   * Add tracker_sparql_connection_deserialize() API to
