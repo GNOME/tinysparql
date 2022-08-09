@@ -1,5 +1,5 @@
 project('tracker', 'c', 'vala',
-        version: '3.3.2',
+        version: '3.3.3',
         meson_version: '>=0.51',
         default_options: [
           'c_std=c99',

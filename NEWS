@@ -1,3 +1,7 @@
+NEW in 3.3.3 - 2022-08-08
+=========================
+  * Prepare D-Bus endpoint for cursor streams
+
 NEW in 3.3.2 - 2022-07-06
 =========================
   * Avoid redundant queries in TrackerNotifiers proxied through
