@@ -44,11 +44,44 @@
 typedef struct _TrackerDataUpdateBuffer TrackerDataUpdateBuffer;
 typedef struct _TrackerDataUpdateBufferGraph TrackerDataUpdateBufferGraph;
 typedef struct _TrackerDataUpdateBufferResource TrackerDataUpdateBufferResource;
-typedef struct _TrackerDataUpdateBufferProperty TrackerDataUpdateBufferProperty;
-typedef struct _TrackerDataUpdateBufferTable TrackerDataUpdateBufferTable;
 typedef struct _TrackerDataBlankBuffer TrackerDataBlankBuffer;
 typedef struct _TrackerStatementDelegate TrackerStatementDelegate;
 typedef struct _TrackerCommitDelegate TrackerCommitDelegate;
+
+#define UPDATE_LOG_SIZE 64
+
+typedef enum {
+	TRACKER_LOG_CLASS_INSERT,
+	TRACKER_LOG_CLASS_UPDATE,
+	TRACKER_LOG_CLASS_DELETE,
+	TRACKER_LOG_MULTIVALUED_PROPERTY_INSERT,
+	TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
+	TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
+} TrackerDataLogEntryType;
+
+typedef struct {
+	gint prev;
+	TrackerProperty *property;
+	GValue value;
+} TrackerDataPropertyEntry;
+
+typedef struct {
+	TrackerDataLogEntryType type;
+	const TrackerDataUpdateBufferGraph *graph;
+	TrackerRowid id;
+	union {
+		struct {
+			TrackerClass *class;
+			gint last_property_idx; /* Index in properties_ptr array */
+		} class;
+		struct {
+			TrackerProperty *property;
+			gint change_idx; /* Index in properties_ptr array */
+		} multivalued;
+		GObject *any;
+	} table;
+	GArray *properties_ptr;
+} TrackerDataLogEntry;
 
 struct _TrackerDataUpdateBuffer {
 	/* string -> ID */
@@ -59,6 +92,15 @@ struct _TrackerDataUpdateBuffer {
 	GPtrArray *graphs;
 	/* Statement to insert in Resource table */
 	TrackerDBStatement *insert_resource;
+
+	/* Array of TrackerDataPropertyEntry */
+	GArray *properties;
+	/* Array of TrackerDataLogEntry */
+	GArray *update_log;
+	/* Set of TrackerDataLogEntry. Used for class events lookups in order to
+	 * coalesce single-valued property changes.
+	 */
+	GHashTable *class_updates;
 };
 
 struct _TrackerDataUpdateBufferGraph {
@@ -79,30 +121,12 @@ struct _TrackerDataUpdateBufferResource {
 	TrackerRowid id;
 	gboolean create;
 	gboolean modified;
-	/* TrackerProperty -> GArray */
+	/* TrackerProperty -> GArray of GValue */
 	GHashTable *predicates;
-	/* string -> TrackerDataUpdateBufferTable */
-	GHashTable *tables;
 	/* TrackerClass */
 	GPtrArray *types;
 
 	gboolean fts_updated;
-};
-
-struct _TrackerDataUpdateBufferProperty {
-	TrackerProperty *property;
-	GValue value;
-	guint delete_all_values : 1;
-	guint delete_value : 1;
-};
-
-struct _TrackerDataUpdateBufferTable {
-	gboolean insert;
-	gboolean delete_row;
-	gboolean multiple_values;
-	TrackerClass *class;
-	/* TrackerDataUpdateBufferProperty */
-	GArray *properties;
 };
 
 struct _TrackerStatementDelegate {
@@ -148,10 +172,6 @@ enum {
 
 G_DEFINE_TYPE (TrackerData, tracker_data, G_TYPE_OBJECT)
 
-static void         cache_insert_value         (TrackerData      *data,
-                                                TrackerClass     *class,
-                                                TrackerProperty  *property,
-                                                const GValue     *value);
 static GArray      *get_property_values (TrackerData      *data,
                                          TrackerProperty  *property,
                                          GError          **error);
@@ -180,6 +200,26 @@ static void tracker_data_insert_statement_with_string (TrackerData      *data,
                                                        const GValue     *object,
                                                        GError          **error);
 
+static guint
+tracker_data_log_entry_hash (gconstpointer value)
+{
+	const TrackerDataLogEntry *entry = value;
+
+	return (g_direct_hash (entry->graph) ^
+		tracker_rowid_hash (&entry->id) ^
+		g_direct_hash (entry->table.any));
+}
+
+static gboolean
+tracker_data_log_entry_equal (gconstpointer value1,
+			      gconstpointer value2)
+{
+	const TrackerDataLogEntry *entry1 = value1, *entry2 = value2;
+
+	return (entry1->graph == entry2->graph &&
+		entry1->id == entry2->id &&
+		entry1->table.any == entry2->table.any);
+}
 
 void
 tracker_data_add_commit_statement_callback (TrackerData             *data,
@@ -499,6 +539,9 @@ tracker_data_finalize (GObject *object)
 	g_clear_pointer (&data->update_buffer.graphs, g_ptr_array_unref);
 	g_clear_pointer (&data->update_buffer.new_resources, g_hash_table_unref);
 	g_clear_pointer (&data->update_buffer.resource_cache, g_hash_table_unref);
+	g_clear_pointer (&data->update_buffer.properties, g_array_unref);
+	g_clear_pointer (&data->update_buffer.update_log, g_array_unref);
+	g_clear_pointer (&data->update_buffer.class_updates, g_hash_table_unref);
 	g_clear_object (&data->update_buffer.insert_resource);
 
 	g_clear_pointer (&data->insert_callbacks, g_ptr_array_unref);
@@ -547,151 +590,105 @@ get_transaction_modseq (TrackerData *data)
 	return data->transaction_modseq;
 }
 
-static TrackerDataUpdateBufferTable *
-cache_table_new (gboolean multiple_values)
+static void
+log_entry_for_multi_value_property (TrackerData             *data,
+                                    TrackerDataLogEntryType  type,
+                                    TrackerProperty         *property,
+				    const GValue            *value)
 {
-	TrackerDataUpdateBufferTable *table;
+	TrackerDataLogEntry entry = { 0, };
+	TrackerDataPropertyEntry prop = { 0, };
+	guint prop_idx;
 
-	table = g_slice_new0 (TrackerDataUpdateBufferTable);
-	table->multiple_values = multiple_values;
-	table->properties = g_array_sized_new (FALSE, FALSE, sizeof (TrackerDataUpdateBufferProperty), 4);
+	prop.property = property;
+	prop.prev = -1;
 
-	return table;
+	if (type != TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR) {
+		g_value_init (&prop.value, G_VALUE_TYPE (value));
+		g_value_copy (value, &prop.value);
+	}
+
+	g_array_append_val (data->update_buffer.properties, prop);
+	prop_idx = data->update_buffer.properties->len - 1;
+
+	entry.type = type;
+	entry.graph = data->resource_buffer->graph;
+	entry.id = data->resource_buffer->id;
+	entry.table.multivalued.property = property;
+	entry.table.multivalued.change_idx = prop_idx;
+	entry.properties_ptr = data->update_buffer.properties;
+	g_array_append_val (data->update_buffer.update_log, entry);
 }
 
 static void
-cache_table_free (TrackerDataUpdateBufferTable *table)
+log_entry_for_single_value_property (TrackerData     *data,
+                                     TrackerClass    *class,
+                                     TrackerProperty *property,
+				     const GValue    *value)
 {
-	TrackerDataUpdateBufferProperty *property;
-	guint i;
+	TrackerDataLogEntry entry = { 0, }, *entry_ptr;
+	TrackerDataPropertyEntry prop = { 0, };
+	guint prop_idx;
 
-	for (i = 0; i < table->properties->len; i++) {
-		property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
-		g_value_unset (&property->value);
+	entry.type = TRACKER_LOG_CLASS_UPDATE;
+	entry.graph = data->resource_buffer->graph;
+	entry.id = data->resource_buffer->id;
+	entry.table.class.class = class;
+	entry.table.class.last_property_idx = -1;
+	entry.properties_ptr = data->update_buffer.properties;
+
+	entry_ptr = g_hash_table_lookup (data->update_buffer.class_updates, &entry);
+
+	if (!entry_ptr) {
+		g_array_append_val (data->update_buffer.update_log, entry);
+		entry_ptr = &g_array_index (data->update_buffer.update_log,
+		                            TrackerDataLogEntry,
+		                            data->update_buffer.update_log->len - 1);
+		g_hash_table_add (data->update_buffer.class_updates, entry_ptr);
 	}
 
-	g_array_free (table->properties, TRUE);
-	g_slice_free (TrackerDataUpdateBufferTable, table);
-}
-
-static TrackerDataUpdateBufferTable *
-cache_ensure_table (TrackerData *data,
-                    const gchar *table_name,
-                    gboolean     multiple_values)
-{
-	TrackerDataUpdateBufferTable *table;
-
-	if (!data->resource_buffer->modified) {
-		/* first modification of this particular resource, update nrl:modified */
-		TrackerOntologies *ontologies;
-		TrackerProperty *modified;
-		GValue gvalue = { 0 };
-
-		data->resource_buffer->modified = TRUE;
-		ontologies = tracker_data_manager_get_ontologies (data->manager);
-		modified = tracker_ontologies_get_property_by_uri (ontologies,
-		                                                   TRACKER_PREFIX_NRL "modified");
-
-		g_value_init (&gvalue, G_TYPE_INT64);
-		g_value_set_int64 (&gvalue, get_transaction_modseq (data));
-		cache_insert_value (data, NULL, modified, &gvalue);
+	prop.property = property;
+	prop.prev = entry_ptr->table.class.last_property_idx;
+	if (value) {
+		g_value_init (&prop.value, G_VALUE_TYPE (value));
+		g_value_copy (value, &prop.value);
 	}
+	g_array_append_val (data->update_buffer.properties, prop);
+	prop_idx = data->update_buffer.properties->len - 1;
 
-	table = g_hash_table_lookup (data->resource_buffer->tables, table_name);
-	if (table == NULL) {
-		table = cache_table_new (multiple_values);
-		g_hash_table_insert (data->resource_buffer->tables, g_strdup (table_name), table);
-		table->insert = multiple_values;
-	}
-
-	return table;
+	entry_ptr->table.class.last_property_idx = prop_idx;
 }
 
 static void
-cache_insert_row (TrackerData  *data,
-                  TrackerClass *class)
+log_entry_for_class (TrackerData             *data,
+                     TrackerDataLogEntryType  type,
+                     TrackerClass            *class)
 {
-	TrackerDataUpdateBufferTable *table;
+	TrackerDataLogEntry entry = { 0, }, *entry_ptr;
 
-	table = cache_ensure_table (data, tracker_class_get_name (class), FALSE);
-	table->class = class;
-	table->insert = TRUE;
-}
+	entry.type = type;
+	entry.graph = data->resource_buffer->graph;
+	entry.id = data->resource_buffer->id;
+	entry.table.class.class = class;
+	entry.table.class.last_property_idx = -1;
+	entry.properties_ptr = data->update_buffer.properties;
 
-static void
-cache_insert_value (TrackerData     *data,
-                    TrackerClass    *class,
-                    TrackerProperty *prop,
-                    const GValue    *value)
-{
-	TrackerDataUpdateBufferTable    *table;
-	TrackerDataUpdateBufferProperty  property = { 0 };
-	const gchar *table_name;
+	entry_ptr = g_hash_table_lookup (data->update_buffer.class_updates, &entry);
 
-	property.property = prop;
-	g_value_init (&property.value, G_VALUE_TYPE (value));
-	g_value_copy (value, &property.value);
+	if (entry_ptr && entry_ptr->type == type)
+		return;
 
-	if (!class || tracker_property_get_multiple_values (prop))
-		table_name = tracker_property_get_table_name (prop);
+	entry.properties_ptr = data->update_buffer.properties;
+	g_array_append_val (data->update_buffer.update_log, entry);
+
+	entry_ptr = &g_array_index (data->update_buffer.update_log,
+	                            TrackerDataLogEntry,
+	                            data->update_buffer.update_log->len - 1);
+
+	if (type == TRACKER_LOG_CLASS_DELETE)
+		g_hash_table_remove (data->update_buffer.class_updates, entry_ptr);
 	else
-		table_name = tracker_class_get_name (class);
-
-	table = cache_ensure_table (data, table_name,
-	                            tracker_property_get_multiple_values (prop));
-	g_array_append_val (table->properties, property);
-}
-
-static void
-cache_delete_row (TrackerData  *data,
-                  TrackerClass *class)
-{
-	TrackerDataUpdateBufferTable    *table;
-
-	table = cache_ensure_table (data, tracker_class_get_name (class), FALSE);
-	table->class = class;
-	table->delete_row = TRUE;
-}
-
-/* Use only for multi-valued properties */
-static void
-cache_delete_all_values (TrackerData     *data,
-                         TrackerProperty *prop)
-{
-	TrackerDataUpdateBufferTable    *table;
-	TrackerDataUpdateBufferProperty  property = { 0 };
-
-	property.property = prop;
-	property.delete_all_values = TRUE;
-
-	table = cache_ensure_table (data, tracker_property_get_table_name (prop), TRUE);
-	g_array_append_val (table->properties, property);
-}
-
-static void
-cache_delete_value (TrackerData     *data,
-                    TrackerClass    *class,
-                    TrackerProperty *prop,
-                    const GValue    *value)
-{
-	TrackerDataUpdateBufferTable    *table;
-	TrackerDataUpdateBufferProperty  property = { 0 };
-	const gchar *table_name;
-
-	property.property = prop;
-	property.delete_value = TRUE;
-
-	g_value_init (&property.value, G_VALUE_TYPE (value));
-	g_value_copy (value, &property.value);
-
-	if (!class || tracker_property_get_multiple_values (prop))
-		table_name = tracker_property_get_table_name (prop);
-	else
-		table_name = tracker_class_get_name (class);
-
-	table = cache_ensure_table (data, table_name,
-	                            tracker_property_get_multiple_values (prop));
-	g_array_append_val (table->properties, property);
+		g_hash_table_add (data->update_buffer.class_updates, entry_ptr);
 }
 
 static TrackerRowid
@@ -869,254 +866,193 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 	}
 }
 
-static void
-tracker_data_resource_buffer_flush (TrackerData                      *data,
-                                    TrackerDataUpdateBufferResource  *resource,
-                                    GError                          **error)
+static gboolean
+tracker_data_flush_log (TrackerData  *data,
+                        GError      **error)
 {
-	TrackerDBInterface             *iface;
-	TrackerDBStatement             *stmt;
-	TrackerDataUpdateBufferTable    *table;
-	TrackerDataUpdateBufferProperty *property;
-	GHashTableIter                  iter;
-	const gchar                    *table_name, *database, *property_name;
-	guint                           i;
-        gint                            param;
-	GError                         *actual_error = NULL;
+	TrackerDBInterface *iface;
+	TrackerDBStatement *stmt = NULL;
+	TrackerDataPropertyEntry *property_entry;
+	guint i;
+	GError *inner_error = NULL;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	database = resource->graph->graph ? resource->graph->graph : "main";
 
-	if (resource->fts_updated && !resource->create) {
-		TrackerProperty *prop;
-		GArray *values;
-		GPtrArray *properties;
-		gboolean retval;
+	for (i = 0; i < data->update_buffer.update_log->len; i++) {
+		TrackerDataLogEntry *entry;
+		const gchar *database;
 
-		properties = NULL;
-		g_hash_table_iter_init (&iter, resource->predicates);
+		entry = &g_array_index (data->update_buffer.update_log,
+		                        TrackerDataLogEntry, i);
+		database = entry->graph->graph ? entry->graph->graph : "main";
 
-		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
-			if (tracker_property_get_fulltext_indexed (prop)) {
-				if (!properties)
-					properties = g_ptr_array_new ();
+		if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR) {
+			stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
+			                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
+			                                               database,
+			                                               tracker_property_get_table_name (entry->table.multivalued.property));
+			if (!stmt)
+				return FALSE;
 
-				g_ptr_array_add (properties, (gpointer) tracker_property_get_name (prop));
-			}
-		}
+			tracker_db_statement_bind_int (stmt, 0, entry->id);
+		} else if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE) {
+			stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
+			                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ? AND \"%s\" = ?",
+			                                               database,
+			                                               tracker_property_get_table_name (entry->table.multivalued.property),
+			                                               tracker_property_get_name (entry->table.multivalued.property));
+			if (!stmt)
+				return FALSE;
 
-		if (properties) {
-			g_ptr_array_add (properties, NULL);
+			tracker_db_statement_bind_int (stmt, 0, entry->id);
 
-			retval = tracker_db_interface_sqlite_fts_delete_text (iface,
-			                                                      database,
-			                                                      resource->id,
-			                                                      (const gchar **) properties->pdata,
-			                                                      error);
-			g_ptr_array_free (properties, TRUE);
+			property_entry = &g_array_index (entry->properties_ptr,
+			                                 TrackerDataPropertyEntry,
+			                                 entry->table.multivalued.change_idx);
+			statement_bind_gvalue (stmt, 1, &property_entry->value);
+		} else if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_INSERT) {
+			stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
+			                                               "INSERT OR IGNORE INTO \"%s\".\"%s\" (ID, \"%s\") VALUES (?, ?)",
+			                                               database,
+			                                               tracker_property_get_table_name (entry->table.multivalued.property),
+			                                               tracker_property_get_name (entry->table.multivalued.property));
+			if (!stmt)
+				return FALSE;
 
-			if (!retval)
-				return;
-		}
-	}
+			tracker_db_statement_bind_int (stmt, 0, entry->id);
 
-	g_hash_table_iter_init (&iter, resource->tables);
-	while (g_hash_table_iter_next (&iter, (gpointer*) &table_name, (gpointer*) &table)) {
-		if (table->multiple_values) {
-			for (i = 0; i < table->properties->len; i++) {
-				property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, i);
-				property_name = tracker_property_get_name (property->property);
+			property_entry = &g_array_index (entry->properties_ptr,
+			                                 TrackerDataPropertyEntry,
+			                                 entry->table.multivalued.change_idx);
+			statement_bind_gvalue (stmt, 1, &property_entry->value);
+		} else if (entry->type == TRACKER_LOG_CLASS_DELETE) {
+			stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
+			                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
+			                                               database,
+			                                               tracker_class_get_name (entry->table.class.class));
+			if (!stmt)
+				return FALSE;
 
-				if (property->delete_all_values) {
-					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-					                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
-					                                               database,
-					                                               table_name);
-				} else if (property->delete_value) {
-					/* delete rows for multiple value properties */
-					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-					                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ? AND \"%s\" = ?",
-					                                               database,
-					                                               table_name,
-					                                               property_name);
-				} else {
-					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-					                                               "INSERT OR IGNORE INTO \"%s\".\"%s\" (ID, \"%s\") VALUES (?, ?)",
-					                                               database,
-					                                               table_name,
-					                                               property_name);
-				}
-
-				if (actual_error) {
-					g_propagate_error (error, actual_error);
-					return;
-				}
-
-				param = 0;
-
-				tracker_db_statement_bind_int (stmt, param++, resource->id);
-
-				if (!property->delete_all_values)
-					statement_bind_gvalue (stmt, param++, &property->value);
-
-				tracker_db_statement_execute (stmt, &actual_error);
-				g_object_unref (stmt);
-
-				if (actual_error) {
-					g_propagate_error (error, actual_error);
-					return;
-				}
-			}
+			tracker_db_statement_bind_int (stmt, 0, entry->id);
 		} else {
-			if (table->delete_row) {
-				/* remove row from class table */
-				stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-				                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
-				                                               database, table_name);
+			GHashTable *visited_properties;
+			gint param, property_idx;
+			GString *sql;
 
-				if (stmt) {
-					tracker_db_statement_bind_int (stmt, 0, resource->id);
-					tracker_db_statement_execute (stmt, &actual_error);
-					g_object_unref (stmt);
-				}
+			sql = g_string_new (NULL);
+			visited_properties = g_hash_table_new (NULL, NULL);
+			param = 2;
 
-				if (actual_error) {
-					g_propagate_error (error, actual_error);
-					return;
-				}
-			} else {
-				GHashTable *visited_properties;
-				GString *sql;
-				gint n;
+			if (entry->type == TRACKER_LOG_CLASS_INSERT) {
+				GString *values_sql;
 
-				sql = g_string_new (NULL);
-				visited_properties = g_hash_table_new (NULL, NULL);
-				param = 1;
+				g_string_append_printf (sql,
+				                        "INSERT INTO \"%s\".\"%s\" (ID",
+				                        database,
+				                        tracker_class_get_name (entry->table.class.class));
+				values_sql = g_string_new ("VALUES (?1");
 
-				if (table->insert) {
-					GString *values_sql;
+				property_idx = entry->table.class.last_property_idx;
 
-					g_string_append_printf (sql,
-					                        "INSERT INTO \"%s\".\"%s\" (ID",
-					                        database, table_name);
-					values_sql = g_string_new ("VALUES (?1");
+				while (property_idx >= 0) {
+					property_entry = &g_array_index (entry->properties_ptr,
+					                                 TrackerDataPropertyEntry,
+					                                 property_idx);
+					property_idx = property_entry->prev;
 
-					for (n = table->properties->len - 1; n >= 0; n--) {
-						property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, n);
-						property_name = tracker_property_get_name (property->property);
-
-						if (g_hash_table_contains (visited_properties, property->property))
-							continue;
-
-						g_string_append_printf (sql, ", \"%s\"", property_name);
-						g_string_append_printf (values_sql, ", ?%d", ++param);
-						g_hash_table_add (visited_properties, property->property);
-					}
-
-					g_string_append (sql, ")");
-					g_string_append (values_sql, ")");
-
-					stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-					                                               "%s %s", sql->str, values_sql->str);
-					g_string_free (sql, TRUE);
-					g_string_free (values_sql, TRUE);
-				} else {
-					g_string_append_printf (sql,
-					                        "UPDATE \"%s\".\"%s\" SET ",
-					                        database, table_name);
-
-					for (n = table->properties->len - 1; n >= 0; n--) {
-						property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, n);
-						property_name = tracker_property_get_name (property->property);
-
-						if (g_hash_table_contains (visited_properties, property->property))
-							continue;
-
-						if (n < (int) table->properties->len - 1) {
-							g_string_append (sql, ", ");
-						}
-
-						g_string_append_printf (sql, "\"%s\" = ?%d", property_name, ++param);
-						g_hash_table_add (visited_properties, property->property);
-					}
-
-					g_string_append (sql, " WHERE ID = ?1");
-
-					stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, &actual_error,
-					                                              sql->str);
-					g_string_free (sql, TRUE);
-				}
-
-				if (actual_error) {
-					g_propagate_error (error, actual_error);
-					return;
-				}
-
-				tracker_db_statement_bind_int (stmt, 0, resource->id);
-				param = 1;
-
-				g_hash_table_remove_all (visited_properties);
-
-				for (n = table->properties->len - 1; n >= 0; n--) {
-					property = &g_array_index (table->properties, TrackerDataUpdateBufferProperty, n);
-
-					if (g_hash_table_contains (visited_properties, property->property))
+					if (g_hash_table_contains (visited_properties, property_entry->property))
 						continue;
 
-					if (property->delete_value) {
-						/* just set value to NULL for single value properties */
-						tracker_db_statement_bind_null (stmt, param++);
-					} else {
-						statement_bind_gvalue (stmt, param++, &property->value);
-					}
-
-					g_hash_table_add (visited_properties, property->property);
+					g_string_append_printf (sql, ", \"%s\"", tracker_property_get_name (property_entry->property));
+					g_string_append_printf (values_sql, ", ?%d", param++);
+					g_hash_table_add (visited_properties, property_entry->property);
 				}
 
-				g_hash_table_unref (visited_properties);
+				g_string_append (sql, ")");
+				g_string_append (values_sql, ")");
 
-				tracker_db_statement_execute (stmt, &actual_error);
-				g_object_unref (stmt);
+				stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
+				                                               "%s %s", sql->str, values_sql->str);
+				g_string_free (sql, TRUE);
+				g_string_free (values_sql, TRUE);
+			} else if (entry->type == TRACKER_LOG_CLASS_UPDATE) {
+				g_string_append_printf (sql,
+				                        "UPDATE \"%s\".\"%s\" SET ",
+				                        database,
+				                        tracker_class_get_name (entry->table.class.class));
+				property_idx = entry->table.class.last_property_idx;
 
-				if (actual_error) {
-					g_propagate_error (error, actual_error);
-					return;
+				while (property_idx >= 0) {
+					TrackerDataPropertyEntry *property_entry;
+
+					property_entry = &g_array_index (entry->properties_ptr,
+					                                 TrackerDataPropertyEntry,
+					                                 property_idx);
+					property_idx = property_entry->prev;
+
+					if (g_hash_table_contains (visited_properties, property_entry->property))
+						continue;
+
+					if (param > 2)
+						g_string_append (sql, ", ");
+
+					g_string_append_printf (sql, "\"%s\" = ?%d",
+					                        tracker_property_get_name (property_entry->property),
+					                        param++);
+					g_hash_table_add (visited_properties, property_entry->property);
 				}
+
+				g_string_append (sql, " WHERE ID = ?1");
+
+				stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
+				                                              sql->str);
+				g_string_free (sql, TRUE);
 			}
+
+			if (!stmt)
+				return FALSE;
+
+			tracker_db_statement_bind_int (stmt, 0, entry->id);
+			param = 1;
+
+			g_hash_table_remove_all (visited_properties);
+
+			property_idx = entry->table.class.last_property_idx;
+
+			while (property_idx >= 0) {
+				TrackerDataPropertyEntry *property_entry;
+
+				property_entry = &g_array_index (entry->properties_ptr,
+				                                 TrackerDataPropertyEntry,
+				                                 property_idx);
+				property_idx = property_entry->prev;
+
+				if (g_hash_table_contains (visited_properties, property_entry->property))
+					continue;
+
+				if (G_VALUE_TYPE (&property_entry->value) == G_TYPE_INVALID) {
+					/* just set value to NULL for single value properties */
+					tracker_db_statement_bind_null (stmt, param++);
+				} else {
+					statement_bind_gvalue (stmt, param++, &property_entry->value);
+				}
+
+				g_hash_table_add (visited_properties, property_entry->property);
+			}
+
+			g_hash_table_unref (visited_properties);
+		}
+
+		tracker_db_statement_execute (stmt, &inner_error);
+		g_object_unref (stmt);
+
+		if (inner_error) {
+			g_propagate_error (error, inner_error);
+			return FALSE;
 		}
 	}
 
-	if (resource->fts_updated) {
-		TrackerProperty *prop;
-		GArray *values;
-		GPtrArray *properties;
-		gboolean retval;
-
-		properties = NULL;
-		g_hash_table_iter_init (&iter, resource->predicates);
-		while (g_hash_table_iter_next (&iter, (gpointer*) &prop, (gpointer*) &values)) {
-			if (tracker_property_get_fulltext_indexed (prop)) {
-				if (!properties)
-					properties = g_ptr_array_new ();
-
-				g_ptr_array_add (properties, (gpointer) tracker_property_get_name (prop));
-			}
-		}
-
-		if (properties) {
-			g_ptr_array_add (properties, NULL);
-
-			retval = tracker_db_interface_sqlite_fts_update_text (iface,
-			                                                      database,
-			                                                      resource->id,
-			                                                      (const gchar **) properties->pdata,
-			                                                      error);
-			g_ptr_array_free (properties, TRUE);
-
-			if (!retval)
-				return;
-		}
-	}
+	return TRUE;
 }
 
 static void
@@ -1301,7 +1237,6 @@ graph_buffer_free (TrackerDataUpdateBufferGraph *graph)
 static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 {
 	g_hash_table_unref (resource->predicates);
-	g_hash_table_unref (resource->tables);
 
 	g_ptr_array_free (resource->types, TRUE);
 	resource->types = NULL;
@@ -1315,19 +1250,98 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 {
 	TrackerDataUpdateBufferGraph *graph;
 	TrackerDataUpdateBufferResource *resource;
+	TrackerDBInterface *iface;
 	GHashTableIter iter;
 	GError *actual_error = NULL;
+	const gchar *database;
 	guint i;
+
+	if (data->update_buffer.update_log->len == 0)
+		return;
+
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	for (i = 0; i < data->update_buffer.graphs->len; i++) {
 		graph = g_ptr_array_index (data->update_buffer.graphs, i);
 		g_hash_table_iter_init (&iter, graph->resources);
 
 		while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource)) {
-			tracker_data_resource_buffer_flush (data, resource, &actual_error);
-			if (actual_error) {
-				g_propagate_error (error, actual_error);
-				goto out;
+			if (resource->fts_updated && !resource->create) {
+				TrackerProperty *prop;
+				GArray *values;
+				GHashTableIter prop_iter;
+				GPtrArray *properties;
+				gboolean retval;
+
+				properties = NULL;
+				database = resource->graph->graph ? resource->graph->graph : "main";
+				g_hash_table_iter_init (&prop_iter, resource->predicates);
+				while (g_hash_table_iter_next (&prop_iter, (gpointer*) &prop, (gpointer*) &values)) {
+					if (tracker_property_get_fulltext_indexed (prop)) {
+						if (!properties)
+							properties = g_ptr_array_new ();
+
+						g_ptr_array_add (properties, (gpointer) tracker_property_get_name (prop));
+					}
+				}
+
+				if (properties) {
+					g_ptr_array_add (properties, NULL);
+
+					retval = tracker_db_interface_sqlite_fts_delete_text (iface,
+					                                                      database,
+					                                                      resource->id,
+					                                                      (const gchar **) properties->pdata,
+					                                                      error);
+					g_ptr_array_free (properties, TRUE);
+
+					if (!retval)
+						goto out;
+				}
+			}
+		}
+	}
+
+	if (!tracker_data_flush_log (data, error))
+		goto out;
+
+	for (i = 0; i < data->update_buffer.graphs->len; i++) {
+		graph = g_ptr_array_index (data->update_buffer.graphs, i);
+		g_hash_table_iter_init (&iter, graph->resources);
+
+		while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource)) {
+			if (resource->fts_updated) {
+				TrackerProperty *prop;
+				GArray *values;
+				GHashTableIter prop_iter;
+				GPtrArray *properties;
+				gboolean retval;
+
+				properties = NULL;
+				database = resource->graph->graph ? resource->graph->graph : "main";
+				g_hash_table_iter_init (&prop_iter, resource->predicates);
+				while (g_hash_table_iter_next (&prop_iter, (gpointer*) &prop, (gpointer*) &values)) {
+					if (tracker_property_get_fulltext_indexed (prop)) {
+						if (!properties)
+							properties = g_ptr_array_new ();
+
+						g_ptr_array_add (properties, (gpointer) tracker_property_get_name (prop));
+					}
+				}
+
+				if (properties) {
+					g_ptr_array_add (properties, NULL);
+
+					retval = tracker_db_interface_sqlite_fts_update_text (iface,
+					                                                      database,
+					                                                      resource->id,
+					                                                      (const gchar **) properties->pdata,
+					                                                      error);
+					g_ptr_array_free (properties, TRUE);
+
+					if (!retval)
+						goto out;
+				}
 			}
 		}
 
@@ -1343,6 +1357,9 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 
 out:
 	g_hash_table_remove_all (data->update_buffer.new_resources);
+	g_hash_table_remove_all (data->update_buffer.class_updates);
+	g_array_set_size (data->update_buffer.properties, 0);
+	g_array_set_size (data->update_buffer.update_log, 0);
 	data->resource_buffer = NULL;
 }
 
@@ -1350,18 +1367,8 @@ void
 tracker_data_update_buffer_might_flush (TrackerData  *data,
                                         GError      **error)
 {
-	TrackerDataUpdateBufferGraph *graph;
-	guint i, count = 0;
-
-	for (i = 0; i < data->update_buffer.graphs->len; i++) {
-		graph = g_ptr_array_index (data->update_buffer.graphs, i);
-		count += g_hash_table_size (graph->resources);
-
-		if (count >= 50) {
-			tracker_data_update_buffer_flush (data, error);
-			break;
-		}
-	}
+	if (data->update_buffer.update_log->len > UPDATE_LOG_SIZE - 10)
+		tracker_data_update_buffer_flush (data, error);
 }
 
 static void
@@ -1378,6 +1385,9 @@ tracker_data_update_buffer_clear (TrackerData *data)
 
 	g_hash_table_remove_all (data->update_buffer.new_resources);
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
+	g_hash_table_remove_all (data->update_buffer.class_updates);
+	g_array_set_size (data->update_buffer.properties, 0);
+	g_array_set_size (data->update_buffer.update_log, 0);
 	data->resource_buffer = NULL;
 }
 
@@ -1410,19 +1420,38 @@ cache_create_service_decomposed (TrackerData   *data,
 
 	g_ptr_array_add (data->resource_buffer->types, cl);
 
-	g_value_init (&gvalue, G_TYPE_INT64);
-
-	cache_insert_row (data, cl);
+	log_entry_for_class (data, TRACKER_LOG_CLASS_INSERT, cl);
 	tracker_data_resource_ref (data, data->resource_buffer->id, FALSE);
 
 	class_id = tracker_class_get_id (cl);
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 
+	g_value_init (&gvalue, G_TYPE_INT64);
 	g_value_set_int64 (&gvalue, class_id);
-	cache_insert_value (data, NULL,
-	                    tracker_ontologies_get_rdf_type (ontologies),
-	                    &gvalue);
+	log_entry_for_multi_value_property (data,
+	                                    TRACKER_LOG_MULTIVALUED_PROPERTY_INSERT,
+	                                    tracker_ontologies_get_rdf_type (ontologies),
+	                                    &gvalue);
+
 	tracker_data_resource_ref (data, class_id, TRUE);
+
+	if (!data->resource_buffer->modified) {
+		/* first modification of this particular resource, update nrl:modified */
+		TrackerOntologies *ontologies;
+		TrackerProperty *modified;
+		GValue gvalue = { 0 };
+
+		data->resource_buffer->modified = TRUE;
+		ontologies = tracker_data_manager_get_ontologies (data->manager);
+		modified = tracker_ontologies_get_property_by_uri (ontologies,
+		                                                   TRACKER_PREFIX_NRL "modified");
+
+		g_value_init (&gvalue, G_TYPE_INT64);
+		g_value_set_int64 (&gvalue, get_transaction_modseq (data));
+		log_entry_for_single_value_property (data,
+		                                     tracker_property_get_domain (modified),
+		                                     modified, &gvalue);
+	}
 
 	if (data->resource_buffer->create &&
 	    strcmp (tracker_class_get_uri (cl), TRACKER_PREFIX_RDFS "Resource") == 0) {
@@ -1437,7 +1466,9 @@ cache_create_service_decomposed (TrackerData   *data,
 
 		g_value_init (&gvalue, G_TYPE_INT64);
 		g_value_set_int64 (&gvalue, data->resource_time);
-		cache_insert_value (data, NULL, added, &gvalue);
+		log_entry_for_single_value_property (data,
+		                                     tracker_property_get_domain (added),
+		                                     added, &gvalue);
 	}
 
 	tracker_data_dispatch_insert_statement_callbacks (data,
@@ -1479,8 +1510,7 @@ cache_create_service_decomposed (TrackerData   *data,
 			         tracker_class_get_name (cl));
 
 			v = &g_array_index (old_values, GValue, 0);
-
-			cache_insert_value (data, cl, *domain_indexes, v);
+			log_entry_for_single_value_property (data, cl, *domain_indexes, v);
 		}
 
 		domain_indexes++;
@@ -1719,10 +1749,10 @@ insert_property_domain_indexes (TrackerData     *data,
 	domain_index_classes = tracker_property_get_domain_indexes (property);
 	while (*domain_index_classes) {
 		if (resource_in_domain_index_class (data, *domain_index_classes)) {
-			cache_insert_value (data,
-			                    *domain_index_classes,
-			                    property,
-			                    gvalue);
+			log_entry_for_single_value_property (data,
+			                                     *domain_index_classes,
+			                                     property,
+			                                     gvalue);
 		}
 		domain_index_classes++;
 	}
@@ -1738,10 +1768,9 @@ delete_property_domain_indexes (TrackerData     *data,
 	domain_index_classes = tracker_property_get_domain_indexes (property);
 	while (*domain_index_classes) {
 		if (resource_in_domain_index_class (data, *domain_index_classes)) {
-			cache_delete_value (data,
-			                    *domain_index_classes,
-			                    property,
-			                    gvalue);
+			log_entry_for_single_value_property (data,
+			                                     *domain_index_classes,
+			                                     property, NULL);
 		}
 		domain_index_classes++;
 	}
@@ -1915,10 +1944,33 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		g_value_unset (&old_value);
 		g_value_unset (&new_value);
 	} else {
-		cache_insert_value (data,
-		                    NULL,
-		                    property,
-		                    object);
+		if (multiple_values) {
+			log_entry_for_multi_value_property (data,
+			                                    TRACKER_LOG_MULTIVALUED_PROPERTY_INSERT,
+			                                    property, object);
+		} else {
+			log_entry_for_single_value_property (data,
+			                                     tracker_property_get_domain (property),
+			                                     property, object);
+		}
+
+		if (!data->resource_buffer->modified) {
+			/* first modification of this particular resource, update nrl:modified */
+			TrackerOntologies *ontologies;
+			TrackerProperty *modified;
+			GValue gvalue = { 0 };
+
+			data->resource_buffer->modified = TRUE;
+			ontologies = tracker_data_manager_get_ontologies (data->manager);
+			modified = tracker_ontologies_get_property_by_uri (ontologies,
+			                                                   TRACKER_PREFIX_NRL "modified");
+
+			g_value_init (&gvalue, G_TYPE_INT64);
+			g_value_set_int64 (&gvalue, get_transaction_modseq (data));
+			log_entry_for_single_value_property (data,
+			                                     tracker_property_get_domain (modified),
+			                                     modified, &gvalue);
+		}
 
 		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
 			tracker_data_resource_ref (data, g_value_get_int64 (object), multiple_values);
@@ -1960,7 +2012,16 @@ delete_metadata_decomposed (TrackerData      *data,
 	if (!value_set_remove_value (old_values, object)) {
 		/* value not found */
 	} else {
-		cache_delete_value (data, NULL, property, object);
+		if (multiple_values) {
+			log_entry_for_multi_value_property (data,
+			                                    TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
+			                                    property, object);
+		} else {
+			log_entry_for_single_value_property (data,
+			                                     tracker_property_get_domain (property),
+			                                     property, NULL);
+		}
+
 		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
 			tracker_data_resource_unref (data, g_value_get_int64 (object), multiple_values);
 
@@ -2016,9 +2077,7 @@ cache_delete_resource_type_full (TrackerData   *data,
 		data->resource_buffer->graph->graph : "main";
 
 	if (!single_type) {
-		if (strcmp (tracker_class_get_uri (class), TRACKER_PREFIX_RDFS "Resource") == 0 &&
-		    g_hash_table_size (data->resource_buffer->tables) == 0) {
-
+		if (strcmp (tracker_class_get_uri (class), TRACKER_PREFIX_RDFS "Resource") == 0) {
 			/* skip subclass query when deleting whole resource
 			   to improve performance */
 
@@ -2120,7 +2179,16 @@ cache_delete_resource_type_full (TrackerData   *data,
 			g_value_copy (old_gvalue, &copy);
 
 			value_set_remove_value (old_values, old_gvalue);
-			cache_delete_value (data, NULL, prop, &copy);
+
+			if (multiple_values) {
+				log_entry_for_multi_value_property (data,
+				                                    TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
+				                                    prop, &copy);
+			} else {
+				log_entry_for_single_value_property (data,
+				                                     tracker_property_get_domain (prop),
+				                                     prop, NULL);
+			}
 
 			if (tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_RESOURCE)
 				tracker_data_resource_unref (data, g_value_get_int64 (&copy), multiple_values);
@@ -2134,12 +2202,12 @@ cache_delete_resource_type_full (TrackerData   *data,
 
 	g_value_init (&gvalue, G_TYPE_INT64);
 	g_value_set_int64 (&gvalue, tracker_class_get_id (class));
-	cache_delete_value (data, NULL,
-	                    tracker_ontologies_get_rdf_type (ontologies),
-	                    &gvalue);
+	log_entry_for_multi_value_property (data, TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
+	                                    tracker_ontologies_get_rdf_type (ontologies),
+	                                    &gvalue);
 	tracker_data_resource_unref (data, tracker_class_get_id (class), TRUE);
 
-	cache_delete_row (data, class);
+	log_entry_for_class (data, TRACKER_LOG_CLASS_DELETE, class);
 	tracker_data_resource_unref (data, data->resource_buffer->id, FALSE);
 
 	tracker_data_dispatch_delete_statement_callbacks (data,
@@ -2254,7 +2322,6 @@ resource_buffer_switch (TrackerData   *data,
 			resource_buffer->types = rdf_types;
 		}
 		resource_buffer->predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_array_unref);
-		resource_buffer->tables = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) cache_table_free);
 		resource_buffer->graph = graph_buffer;
 
 		g_hash_table_insert (graph_buffer->resources, &resource_buffer->id, resource_buffer);
@@ -2332,7 +2399,9 @@ delete_all_helper (TrackerData      *data,
 
 	if (subproperty == property) {
 		if (tracker_property_get_multiple_values (property)) {
-			cache_delete_all_values (data, property);
+			log_entry_for_multi_value_property (data,
+			                                    TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
+			                                    property, NULL);
 
 			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 				if (!tracker_data_resource_unref_all (data, property, error))
@@ -2340,7 +2409,9 @@ delete_all_helper (TrackerData      *data,
 			}
 		} else {
 			value = &g_array_index (old_values, GValue, 0);
-			cache_delete_value (data, NULL, property, value);
+			log_entry_for_single_value_property (data,
+			                                     tracker_property_get_domain (property),
+			                                     property, NULL);
 
 			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
 				tracker_data_resource_unref (data, g_value_get_int64 (value), FALSE);
@@ -2356,7 +2427,15 @@ delete_all_helper (TrackerData      *data,
 			if (!value_set_remove_value (super_old_values, value))
 				continue;
 
-			cache_delete_value (data, NULL, property, value);
+			if (tracker_property_get_multiple_values (property)) {
+				log_entry_for_multi_value_property (data,
+				                                    TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
+				                                    property, value);
+			} else {
+				log_entry_for_single_value_property (data,
+				                                     tracker_property_get_domain (property),
+				                                     property, NULL);
+			}
 
 			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 				tracker_data_resource_unref (data, g_value_get_int64 (value),
@@ -2434,7 +2513,9 @@ delete_single_valued (TrackerData       *data,
 	multiple_values = tracker_property_get_multiple_values (predicate);
 
 	if (super_is_single_valued && multiple_values) {
-		cache_delete_all_values (data, predicate);
+		log_entry_for_multi_value_property (data,
+		                                    TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
+		                                    predicate, NULL);
 
 		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 			if (!tracker_data_resource_unref_all (data, predicate, error))
@@ -2450,7 +2531,9 @@ delete_single_valued (TrackerData       *data,
 			GValue *value;
 
 			value = &g_array_index (old_values, GValue, 0);
-			cache_delete_value (data, NULL, predicate, value);
+			log_entry_for_single_value_property (data,
+			                                     tracker_property_get_domain (predicate),
+			                                     predicate, NULL);
 
 			if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE)
 				tracker_data_resource_unref (data, g_value_get_int64 (value), multiple_values);
@@ -2641,7 +2724,9 @@ tracker_data_update_statement (TrackerData      *data,
 		data->resource_buffer->fts_updated |=
 			tracker_property_get_fulltext_indexed (predicate);
 
-		cache_delete_all_values (data, predicate);
+		log_entry_for_multi_value_property (data,
+		                                    TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
+		                                    predicate, NULL);
 
 		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 			if (!tracker_data_resource_unref_all (data, predicate, error))
@@ -2678,6 +2763,14 @@ tracker_data_update_statement (TrackerData      *data,
 	}
 }
 
+static void
+clear_property (gpointer data)
+{
+	TrackerDataPropertyEntry *entry = data;
+
+	g_value_unset (&entry->value);
+}
+
 void
 tracker_data_begin_transaction (TrackerData  *data,
                                 GError      **error)
@@ -2710,6 +2803,12 @@ tracker_data_begin_transaction (TrackerData  *data,
 		                                                           (GDestroyNotify) tracker_rowid_free, NULL);
 		/* used for normal transactions */
 		data->update_buffer.graphs = g_ptr_array_new_with_free_func ((GDestroyNotify) graph_buffer_free);
+
+		data->update_buffer.properties = g_array_sized_new (FALSE, TRUE, sizeof (TrackerDataPropertyEntry), UPDATE_LOG_SIZE);
+		g_array_set_clear_func (data->update_buffer.properties, clear_property);
+		data->update_buffer.update_log = g_array_sized_new (FALSE, TRUE, sizeof (TrackerDataLogEntry), UPDATE_LOG_SIZE);
+		data->update_buffer.class_updates = g_hash_table_new (tracker_data_log_entry_hash,
+								      tracker_data_log_entry_equal);
 	}
 
 	data->resource_buffer = NULL;
