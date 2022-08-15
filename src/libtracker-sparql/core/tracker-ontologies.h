@@ -64,6 +64,8 @@ TrackerClass  **   tracker_ontologies_get_classes          (TrackerOntologies *o
 TrackerProperty ** tracker_ontologies_get_properties       (TrackerOntologies *ontologies,
                                                             guint             *length);
 TrackerProperty *  tracker_ontologies_get_rdf_type         (TrackerOntologies *ontologies);
+TrackerProperty *  tracker_ontologies_get_nrl_added        (TrackerOntologies *ontologies);
+TrackerProperty *  tracker_ontologies_get_nrl_modified     (TrackerOntologies *ontologies);
 
 /* Field mechanics */
 void               tracker_ontologies_add_property         (TrackerOntologies *ontologies,

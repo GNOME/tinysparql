@@ -65,8 +65,10 @@ struct _TrackerOntologiesPrivate {
 	/* Hash (int id, const gchar *uri) */
 	GHashTable *id_uri_pairs;
 
-	/* rdf:type */
+	/* Some fast paths for frequent properties */
 	TrackerProperty *rdf_type;
+	TrackerProperty *nrl_added;
+	TrackerProperty *nrl_modified;
 
 	GvdbTable *gvdb_table;
 	GvdbTable *gvdb_namespaces_table;
@@ -134,9 +136,9 @@ tracker_ontologies_finalize (GObject *object)
 	g_ptr_array_free (priv->properties, TRUE);
 	g_hash_table_unref (priv->property_uris);
 
-	if (priv->rdf_type) {
-		g_object_unref (priv->rdf_type);
-	}
+	g_clear_object (&priv->rdf_type);
+	g_clear_object (&priv->nrl_added);
+	g_clear_object (&priv->nrl_modified);
 
 	if (priv->gvdb_table) {
 		gvdb_table_unref (priv->gvdb_properties_table);
@@ -170,6 +172,26 @@ tracker_ontologies_get_rdf_type (TrackerOntologies *ontologies)
 	g_return_val_if_fail (priv->rdf_type != NULL, NULL);
 
 	return priv->rdf_type;
+}
+
+TrackerProperty *
+tracker_ontologies_get_nrl_added (TrackerOntologies *ontologies)
+{
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
+	g_return_val_if_fail (priv->nrl_added != NULL, NULL);
+
+	return priv->nrl_added;
+}
+
+TrackerProperty *
+tracker_ontologies_get_nrl_modified (TrackerOntologies *ontologies)
+{
+	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
+
+	g_return_val_if_fail (priv->nrl_modified != NULL, NULL);
+
+	return priv->nrl_modified;
 }
 
 const gchar*
@@ -350,6 +372,10 @@ tracker_ontologies_add_property (TrackerOntologies *ontologies,
 
 	if (g_strcmp0 (uri, TRACKER_PREFIX_RDF "type") == 0) {
 		g_set_object (&priv->rdf_type, field);
+	} else if (g_strcmp0 (uri, TRACKER_PREFIX_NRL "added") == 0) {
+		g_set_object (&priv->nrl_added, field);
+	} else if (g_strcmp0 (uri, TRACKER_PREFIX_NRL "modified") == 0) {
+		g_set_object (&priv->nrl_modified, field);
 	}
 
 	g_ptr_array_add (priv->properties, g_object_ref (field));

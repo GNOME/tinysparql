@@ -462,7 +462,7 @@ tracker_data_update_initialize_modseq (TrackerData  *data,
 
 	temp_iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	property = tracker_ontologies_get_property_by_uri (ontologies, TRACKER_PREFIX_NRL "modified");
+	property = tracker_ontologies_get_nrl_modified (ontologies);
 
 	stmt = tracker_db_interface_create_vstatement (temp_iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
 	                                               "SELECT MAX(object) FROM tracker_triples "
@@ -1443,8 +1443,7 @@ cache_create_service_decomposed (TrackerData   *data,
 
 		data->resource_buffer->modified = TRUE;
 		ontologies = tracker_data_manager_get_ontologies (data->manager);
-		modified = tracker_ontologies_get_property_by_uri (ontologies,
-		                                                   TRACKER_PREFIX_NRL "modified");
+		modified = tracker_ontologies_get_nrl_modified (ontologies);
 
 		g_value_init (&gvalue, G_TYPE_INT64);
 		g_value_set_int64 (&gvalue, get_transaction_modseq (data));
@@ -1461,8 +1460,7 @@ cache_create_service_decomposed (TrackerData   *data,
 		GValue gvalue = { 0 };
 
 		ontologies = tracker_data_manager_get_ontologies (data->manager);
-		added = tracker_ontologies_get_property_by_uri (ontologies,
-								TRACKER_PREFIX_NRL "added");
+		added = tracker_ontologies_get_nrl_added (ontologies);
 
 		g_value_init (&gvalue, G_TYPE_INT64);
 		g_value_set_int64 (&gvalue, data->resource_time);
@@ -1962,8 +1960,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 
 			data->resource_buffer->modified = TRUE;
 			ontologies = tracker_data_manager_get_ontologies (data->manager);
-			modified = tracker_ontologies_get_property_by_uri (ontologies,
-			                                                   TRACKER_PREFIX_NRL "modified");
+			modified = tracker_ontologies_get_nrl_modified (ontologies);
 
 			g_value_init (&gvalue, G_TYPE_INT64);
 			g_value_set_int64 (&gvalue, get_transaction_modseq (data));
