@@ -805,7 +805,7 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 
 static void
 statement_bind_gvalue (TrackerDBStatement *stmt,
-                       gint               *idx,
+                       gint                idx,
                        const GValue       *value)
 {
 	GType type;
@@ -813,19 +813,19 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 	type = G_VALUE_TYPE (value);
 	switch (type) {
 	case G_TYPE_STRING:
-		tracker_db_statement_bind_text (stmt, (*idx)++, g_value_get_string (value));
+		tracker_db_statement_bind_text (stmt, idx, g_value_get_string (value));
 		break;
 	case G_TYPE_INT:
-		tracker_db_statement_bind_int (stmt, (*idx)++, g_value_get_int (value));
+		tracker_db_statement_bind_int (stmt, idx, g_value_get_int (value));
 		break;
 	case G_TYPE_INT64:
-		tracker_db_statement_bind_int (stmt, (*idx)++, g_value_get_int64 (value));
+		tracker_db_statement_bind_int (stmt, idx, g_value_get_int64 (value));
 		break;
 	case G_TYPE_DOUBLE:
-		tracker_db_statement_bind_double (stmt, (*idx)++, g_value_get_double (value));
+		tracker_db_statement_bind_double (stmt, idx, g_value_get_double (value));
 		break;
 	case G_TYPE_BOOLEAN:
-		tracker_db_statement_bind_int (stmt, (*idx)++, g_value_get_boolean (value));
+		tracker_db_statement_bind_int (stmt, idx, g_value_get_boolean (value));
 		break;
 	default:
 		if (type == G_TYPE_DATE_TIME) {
@@ -839,10 +839,10 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 				gchar *str;
 
 				str = tracker_date_format_iso8601 (datetime);
-				tracker_db_statement_bind_text (stmt, (*idx)++, str);
+				tracker_db_statement_bind_text (stmt, idx, str);
 				g_free (str);
 			} else {
-				tracker_db_statement_bind_int (stmt, (*idx)++,
+				tracker_db_statement_bind_int (stmt, idx,
 				                               g_date_time_to_unix (datetime));
 			}
 		} else if (type == G_TYPE_BYTES) {
@@ -855,13 +855,13 @@ statement_bind_gvalue (TrackerDBStatement *stmt,
 
 			if (len == strlen (data) + 1) {
 				/* No ancillary data */
-				tracker_db_statement_bind_text (stmt, (*idx)++, data);
+				tracker_db_statement_bind_text (stmt, idx, data);
 			} else {
 				/* String with langtag */
-				tracker_db_statement_bind_bytes (stmt, (*idx)++, bytes);
+				tracker_db_statement_bind_bytes (stmt, idx, bytes);
 			}
 		} else if (type == TRACKER_TYPE_URI) {
-			tracker_db_statement_bind_text (stmt, (*idx)++, g_value_get_string (value));
+			tracker_db_statement_bind_text (stmt, idx, g_value_get_string (value));
 		} else {
 			g_warning ("Unknown type for binding: %s\n", G_VALUE_TYPE_NAME (value));
 		}
@@ -957,7 +957,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 				tracker_db_statement_bind_int (stmt, param++, resource->id);
 
 				if (!property->delete_all_values)
-					statement_bind_gvalue (stmt, &param, &property->value);
+					statement_bind_gvalue (stmt, param++, &property->value);
 
 				tracker_db_statement_execute (stmt, &actual_error);
 				g_object_unref (stmt);
@@ -1067,7 +1067,7 @@ tracker_data_resource_buffer_flush (TrackerData                      *data,
 						/* just set value to NULL for single value properties */
 						tracker_db_statement_bind_null (stmt, param++);
 					} else {
-						statement_bind_gvalue (stmt, &param, &property->value);
+						statement_bind_gvalue (stmt, param++, &property->value);
 					}
 
 					g_hash_table_add (visited_properties, property->property);
