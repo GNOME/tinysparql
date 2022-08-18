@@ -3340,22 +3340,17 @@ update_resource_property (TrackerData      *data,
 	TrackerOntologies *ontologies;
 	TrackerProperty *predicate;
 	GList *values, *v;
-	gchar *property_uri;
 	GError *inner_error = NULL;
 
 	values = tracker_resource_get_values (resource, property);
-	tracker_data_manager_expand_prefix (data->manager,
-	                                    property,
-	                                    NULL, NULL,
-	                                    &property_uri);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	predicate = tracker_ontologies_get_property_by_uri (ontologies, property_uri);
+	predicate = tracker_ontologies_get_property_by_uri (ontologies, property);
 	if (predicate == NULL) {
 		g_set_error (error, TRACKER_SPARQL_ERROR,
 		             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
 		             "Property '%s' not found in the ontology",
-		             property_uri);
+		             property);
 		return FALSE;
 	}
 
@@ -3418,7 +3413,6 @@ update_resource_property (TrackerData      *data,
 	}
 
 	g_list_free (values);
-	g_free (property_uri);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -3492,23 +3486,13 @@ update_resource_single (TrackerData      *data,
 			const gchar *property = l->data;
 
 			if (tracker_resource_get_property_overwrite (resource, property)) {
-				gchar *property_uri;
-
-				tracker_data_manager_expand_prefix (data->manager,
-				                                    property,
-				                                    NULL, NULL,
-				                                    &property_uri);
-
 				if (resource_maybe_reset_property (data, graph_uri, resource,
-				                                   subject, property_uri,
+				                                   subject, property,
 				                                   bnodes, &inner_error)) {
 					need_flush = TRUE;
 				} else if (inner_error) {
-					g_free (property_uri);
 					goto out;
 				}
-
-				g_free (property_uri);
 			}
 		}
 
