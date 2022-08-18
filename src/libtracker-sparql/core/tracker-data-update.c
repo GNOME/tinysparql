@@ -1143,13 +1143,11 @@ tracker_data_flush_log (TrackerData  *data,
 			                                 entry->table.multivalued.change_idx);
 			statement_bind_gvalue (stmt, 1, &property_entry->value);
 		} else {
-			GHashTable *visited_properties;
+			GList *visited_properties = NULL;
 			gint param, property_idx;
 
 			tracker_db_statement_bind_int (stmt, 0, entry->id);
 			param = 1;
-
-			visited_properties = g_hash_table_new (NULL, NULL);
 
 			property_idx = entry->table.class.last_property_idx;
 
@@ -1161,7 +1159,7 @@ tracker_data_flush_log (TrackerData  *data,
 				                                 property_idx);
 				property_idx = property_entry->prev;
 
-				if (g_hash_table_contains (visited_properties, property_entry->property))
+				if (g_list_find (visited_properties, property_entry->property))
 					continue;
 
 				if (G_VALUE_TYPE (&property_entry->value) == G_TYPE_INVALID) {
@@ -1171,10 +1169,10 @@ tracker_data_flush_log (TrackerData  *data,
 					statement_bind_gvalue (stmt, param++, &property_entry->value);
 				}
 
-				g_hash_table_add (visited_properties, property_entry->property);
+				visited_properties = g_list_prepend (visited_properties, property_entry->property);
 			}
 
-			g_hash_table_unref (visited_properties);
+			g_list_free (visited_properties);
 		}
 
 		tracker_db_statement_execute (stmt, &inner_error);
