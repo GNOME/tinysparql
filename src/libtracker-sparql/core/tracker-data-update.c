@@ -863,12 +863,35 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 	TrackerDBStatement *stmt = NULL;
 	GError *inner_error = NULL;
 	gchar *key;
-	TrackerRowid *value, id;
+	TrackerRowid *value, id = 0;
+	TrackerOntologies *ontologies;
+	TrackerClass *class;
 
 	value = g_hash_table_lookup (data->update_buffer.resource_cache, uri);
 
 	if (value != NULL) {
 		return *value;
+	}
+
+	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	class = tracker_ontologies_get_class_by_uri (ontologies, uri);
+
+	/* Fast path, look up classes/properties directly */
+	if (class) {
+		id = tracker_class_get_id (class);
+	} else {
+		TrackerProperty *property;
+
+		property = tracker_ontologies_get_property_by_uri (ontologies, uri);
+		if (property)
+			id = tracker_property_get_id (property);
+	}
+
+	if (id != 0) {
+		g_hash_table_insert (data->update_buffer.resource_cache,
+		                     g_strdup (uri),
+		                     tracker_rowid_copy (&id));
+		return id;
 	}
 
 	db_manager = tracker_data_manager_get_db_manager (data->manager);
