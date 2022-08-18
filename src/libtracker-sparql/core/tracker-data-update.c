@@ -3424,7 +3424,7 @@ update_resource_property (TrackerData      *data,
 
 static gboolean
 update_resource_single (TrackerData      *data,
-                        const gchar      *graph,
+                        const gchar      *graph_uri,
                         TrackerResource  *resource,
                         GHashTable       *visited,
                         GHashTable       *bnodes,
@@ -3435,7 +3435,6 @@ update_resource_single (TrackerData      *data,
 	GError *inner_error = NULL;
 	const gchar *subject_str;
 	TrackerRowid subject;
-	gchar *graph_uri = NULL;
 	gboolean is_bnode = FALSE;
 
 	if (tracker_resource_is_blank_node (resource)) {
@@ -3462,12 +3461,6 @@ update_resource_single (TrackerData      *data,
 	g_hash_table_insert (visited, resource, tracker_rowid_copy (&subject));
 
 	properties = tracker_resource_get_properties (resource);
-
-	if (graph) {
-		tracker_data_manager_expand_prefix (data->manager,
-		                                    graph, NULL, NULL,
-		                                    &graph_uri);
-	}
 
 	/* Handle rdf:type first */
 	if (g_list_find_custom (properties, "rdf:type", (GCompareFunc) g_strcmp0)) {
@@ -3516,7 +3509,6 @@ update_resource_single (TrackerData      *data,
 
 out:
 	g_list_free (properties);
-	g_free (graph_uri);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -3538,15 +3530,23 @@ tracker_data_update_resource (TrackerData      *data,
                               GError          **error)
 {
 	gboolean retval;
+	gchar *graph_uri = NULL;
 
 	if (bnodes)
 		g_hash_table_ref (bnodes);
 	else
 		bnodes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) tracker_rowid_free);
 
-	retval = update_resource_single (data, graph, resource, visited, bnodes, NULL, error);
+	if (graph) {
+		tracker_data_manager_expand_prefix (data->manager,
+		                                    graph, NULL, NULL,
+		                                    &graph_uri);
+	}
+
+	retval = update_resource_single (data, graph_uri, resource, visited, bnodes, NULL, error);
 
 	g_hash_table_unref (bnodes);
+	g_free (graph_uri);
 
 	return retval;
 }
