@@ -1391,7 +1391,7 @@ graph_buffer_free (TrackerDataUpdateBufferGraph *graph)
 
 static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 {
-	g_hash_table_unref (resource->predicates);
+	g_clear_pointer (&resource->predicates, g_hash_table_unref);
 
 	g_ptr_array_free (resource->types, TRUE);
 	resource->types = NULL;
@@ -1785,6 +1785,12 @@ get_property_values (TrackerData      *data,
 {
 	const gchar *database;
 	GArray *old_values;
+
+	if (!data->resource_buffer->predicates) {
+		data->resource_buffer->predicates =
+			g_hash_table_new_full (NULL, NULL, g_object_unref,
+			                       (GDestroyNotify) g_array_unref);
+	}
 
 	old_values = g_hash_table_lookup (data->resource_buffer->predicates, property);
 	if (old_values != NULL)
@@ -2473,7 +2479,6 @@ resource_buffer_switch (TrackerData   *data,
 		} else {
 			resource_buffer->types = rdf_types;
 		}
-		resource_buffer->predicates = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, (GDestroyNotify) g_array_unref);
 		resource_buffer->graph = graph_buffer;
 
 		g_hash_table_insert (graph_buffer->resources, &resource_buffer->id, resource_buffer);
