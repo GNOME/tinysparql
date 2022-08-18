@@ -172,16 +172,23 @@ update_resource (TrackerData      *data,
                  GError          **error)
 {
 	GError *inner_error = NULL;
+	GHashTable *visited;
 
 	tracker_data_begin_transaction (data, &inner_error);
 	if (inner_error)
 		goto error;
 
+	visited = g_hash_table_new_full (NULL, NULL, NULL,
+	                                 (GDestroyNotify) tracker_rowid_free);
+
 	tracker_data_update_resource (data,
 	                              graph,
 	                              resource,
 	                              NULL,
+	                              visited,
 	                              &inner_error);
+
+	g_hash_table_unref (visited);
 
 	if (inner_error) {
 		tracker_data_rollback_transaction (data);

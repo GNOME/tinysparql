@@ -3527,12 +3527,10 @@ tracker_data_update_resource (TrackerData      *data,
                               const gchar      *graph,
                               TrackerResource  *resource,
                               GHashTable       *bnodes,
+                              GHashTable       *visited,
                               GError          **error)
 {
-	GHashTable *visited;
 	gboolean retval;
-
-	visited = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) tracker_rowid_free);
 
 	if (bnodes)
 		g_hash_table_ref (bnodes);
@@ -3541,7 +3539,6 @@ tracker_data_update_resource (TrackerData      *data,
 
 	retval = update_resource_single (data, graph, resource, visited, bnodes, NULL, error);
 
-	g_hash_table_unref (visited);
 	g_hash_table_unref (bnodes);
 
 	return retval;

@@ -190,14 +190,16 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 {
 	TrackerDirectBatchPrivate *priv;
 	GError *inner_error = NULL;
-	GHashTable *bnodes;
+	GHashTable *bnodes, *visited;
 	TrackerData *data;
+	const gchar *last_graph = NULL;
 	guint i;
 
 	priv = tracker_direct_batch_get_instance_private (batch);
 	data = tracker_data_manager_get_data (data_manager);
 	bnodes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
 	                                (GDestroyNotify) tracker_rowid_free);
+	visited = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) tracker_rowid_free);
 
 	tracker_data_begin_transaction (data, &inner_error);
 	if (inner_error)
@@ -209,11 +211,20 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 		elem = &g_array_index (priv->array, TrackerBatchElem, i);
 
 		if (elem->type == TRACKER_DIRECT_BATCH_RESOURCE) {
+			/* Clear the visited resources set on graph changes, there
+			 * might be resources that are referenced from multiple
+			 * graphs.
+			 */
+			if (g_strcmp0 (last_graph, elem->d.resource.graph) != 0)
+				g_hash_table_remove_all (visited);
+
 			tracker_data_update_resource (data,
 			                              elem->d.resource.graph,
 			                              elem->d.resource.resource,
 			                              bnodes,
+			                              visited,
 			                              &inner_error);
+			last_graph = elem->d.resource.graph;
 		} else if (elem->type == TRACKER_DIRECT_BATCH_SPARQL) {
 			TrackerSparql *query;
 
@@ -244,11 +255,13 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 		goto error;
 
 	g_hash_table_unref (bnodes);
+	g_hash_table_unref (visited);
 
 	return TRUE;
 
 error:
 	g_hash_table_unref (bnodes);
+	g_hash_table_unref (visited);
 	g_propagate_error (error, inner_error);
 	return FALSE;
 }

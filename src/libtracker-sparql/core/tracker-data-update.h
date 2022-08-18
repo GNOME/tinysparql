@@ -138,6 +138,7 @@ gboolean tracker_data_update_resource (TrackerData      *data,
                                        const gchar      *graph,
                                        TrackerResource  *resource,
                                        GHashTable       *bnodes,
+                                       GHashTable       *visited,
                                        GError          **error);
 
 TrackerRowid tracker_data_update_ensure_resource (TrackerData  *data,
