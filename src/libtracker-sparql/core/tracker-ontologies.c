@@ -384,6 +384,9 @@ tracker_ontologies_add_property (TrackerOntologies *ontologies,
 	g_hash_table_insert (priv->property_uris,
 	                     g_strdup (uri),
 	                     g_object_ref (field));
+	g_hash_table_insert (priv->property_uris,
+	                     g_strdup (tracker_property_get_name (field)),
+	                     g_object_ref (field));
 }
 
 void
@@ -423,7 +426,12 @@ tracker_ontologies_get_property_by_uri (TrackerOntologies *ontologies,
 
 			g_hash_table_insert (priv->property_uris,
 				             g_strdup (uri),
-				             property);
+			                     g_object_ref (property));
+			g_hash_table_insert (priv->property_uris,
+			                     g_strdup (tracker_property_get_name (property)),
+			                     g_object_ref (property));
+
+			g_object_unref (property);
 		}
 	}
 
