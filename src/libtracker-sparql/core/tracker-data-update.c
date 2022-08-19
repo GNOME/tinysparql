@@ -2309,14 +2309,21 @@ cache_delete_resource_type_full (TrackerData   *data,
 		}
 	}
 
-	/* delete all property values */
-
+	/* Delete property values, only properties that:
+	 * - Have ?prop rdfs:range rdfs:Resource
+	 * - Are domain indexes in other classes
+	 *
+	 * Do need inspection of the previous content. All multivalued properties
+	 * can be cleared through TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR, and all
+	 * values for other single-valued properties will eventually disappear when
+	 * deleting the row from the table representing the given TrackerClass.
+	 */
 	properties = tracker_ontologies_get_properties (ontologies, &n_props);
 
 	for (p = 0; p < n_props; p++) {
-		gboolean            multiple_values;
+		gboolean multiple_values;
 		GArray *old_values;
-		gint                y;
+		gint y;
 
 		prop = properties[p];
 
@@ -2329,37 +2336,45 @@ cache_delete_resource_type_full (TrackerData   *data,
 
 		maybe_append_fts_property (data, prop);
 
-		old_values = get_property_values (data, prop, error);
-		if (!old_values)
-			return FALSE;
+		if (*tracker_property_get_domain_indexes (prop) ||
+		    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			old_values = get_property_values (data, prop, error);
+			if (!old_values)
+				return FALSE;
 
-		for (y = old_values->len - 1; y >= 0 ; y--) {
-			GValue *old_gvalue, copy = G_VALUE_INIT;
+			for (y = old_values->len - 1; y >= 0 ; y--) {
+				GValue *old_gvalue, copy = G_VALUE_INIT;
 
-			old_gvalue = &g_array_index (old_values, GValue, y);
-			g_value_init (&copy, G_VALUE_TYPE (old_gvalue));
-			g_value_copy (old_gvalue, &copy);
+				old_gvalue = &g_array_index (old_values, GValue, y);
+				g_value_init (&copy, G_VALUE_TYPE (old_gvalue));
+				g_value_copy (old_gvalue, &copy);
 
-			value_set_remove_value (old_values, old_gvalue);
+				value_set_remove_value (old_values, old_gvalue);
 
-			if (multiple_values) {
-				log_entry_for_multi_value_property (data,
-				                                    TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
-				                                    prop, &copy);
-			} else {
-				log_entry_for_single_value_property (data,
-				                                     tracker_property_get_domain (prop),
-				                                     prop, NULL);
+				if (!multiple_values) {
+					log_entry_for_single_value_property (data,
+					                                     tracker_property_get_domain (prop),
+					                                     prop, NULL);
+				}
+
+				if (tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_RESOURCE)
+					tracker_data_resource_unref (data, g_value_get_int64 (&copy), multiple_values);
+
+				if (!multiple_values)
+					delete_property_domain_indexes (data, prop, &copy);
+
+				g_value_unset (&copy);
 			}
-
-			if (tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_RESOURCE)
-				tracker_data_resource_unref (data, g_value_get_int64 (&copy), multiple_values);
-
-			if (!multiple_values)
-				delete_property_domain_indexes (data, prop, &copy);
-
-			g_value_unset (&copy);
 		}
+
+		if (multiple_values) {
+			log_entry_for_multi_value_property (data,
+			                                    TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
+			                                    prop, NULL);
+		}
+
+		if (data->resource_buffer->predicates)
+			g_hash_table_remove (data->resource_buffer->predicates, prop);
 	}
 
 	g_value_init (&gvalue, G_TYPE_INT64);
