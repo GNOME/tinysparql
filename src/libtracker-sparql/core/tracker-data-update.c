@@ -106,13 +106,18 @@ struct _TrackerDataUpdateBuffer {
 	TrackerDBStatementMru stmt_mru;
 };
 
+typedef struct {
+	TrackerRowid rowid;
+	gint refcount_change;
+} RefcountEntry;
+
 struct _TrackerDataUpdateBufferGraph {
 	gchar *graph;
 
 	/* id -> TrackerDataUpdateBufferResource */
 	GHashTable *resources;
 	/* id -> integer */
-	GHashTable *refcounts;
+	GArray *refcounts;
 
 	TrackerDBStatement *insert_ref;
 	TrackerDBStatement *update_ref;
@@ -1217,15 +1222,25 @@ tracker_data_update_refcount (TrackerData  *data,
                               gint          refcount)
 {
 	const TrackerDataUpdateBufferGraph *graph;
-	gint old_refcount;
+	RefcountEntry entry;
+	guint i;
 
 	g_assert (data->resource_buffer != NULL);
 	graph = data->resource_buffer->graph;
 
-	old_refcount = GPOINTER_TO_INT (g_hash_table_lookup (graph->refcounts, &id));
-	g_hash_table_insert (graph->refcounts,
-	                     tracker_rowid_copy (&id),
-	                     GINT_TO_POINTER (old_refcount + refcount));
+	for (i = 0; i < graph->refcounts->len; i++) {
+		RefcountEntry *ptr;
+
+		ptr = &g_array_index (graph->refcounts, RefcountEntry, i);
+		if (ptr->rowid == id) {
+			ptr->refcount_change += refcount;
+			return;
+		}
+	}
+
+	entry.rowid = id;
+	entry.refcount_change = refcount;
+	g_array_append_val (graph->refcounts, entry);
 }
 
 static void
@@ -1282,10 +1297,9 @@ tracker_data_flush_graph_refcounts (TrackerData                   *data,
                                     GError                       **error)
 {
 	TrackerDBInterface *iface;
-	GHashTableIter iter;
-	gpointer key, value;
 	TrackerRowid id;
 	gint refcount;
+	guint i;
 	GError *inner_error = NULL;
 	const gchar *database;
 	gchar *query;
@@ -1293,11 +1307,12 @@ tracker_data_flush_graph_refcounts (TrackerData                   *data,
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	database = graph->graph ? graph->graph : "main";
 
-	g_hash_table_iter_init (&iter, graph->refcounts);
+	for (i = 0; i < graph->refcounts->len; i++) {
+		RefcountEntry *entry;
 
-	while (g_hash_table_iter_next (&iter, &key, &value)) {
-		id = *(TrackerRowid *) key;
-		refcount = GPOINTER_TO_INT (value);
+		entry = &g_array_index (graph->refcounts, RefcountEntry, i);
+		id = entry->rowid;
+		refcount = entry->refcount_change;
 
 		if (refcount > 0) {
 			if (!graph->insert_ref) {
@@ -1373,8 +1388,6 @@ tracker_data_flush_graph_refcounts (TrackerData                   *data,
 				break;
 			}
 		}
-
-		g_hash_table_iter_remove (&iter);
 	}
 }
 
@@ -1385,7 +1398,7 @@ graph_buffer_free (TrackerDataUpdateBufferGraph *graph)
 	g_clear_object (&graph->update_ref);
 	g_clear_object (&graph->delete_ref);
 	g_hash_table_unref (graph->resources);
-	g_hash_table_unref (graph->refcounts);
+	g_array_unref (graph->refcounts);
 	g_free (graph->graph);
 	g_slice_free (TrackerDataUpdateBufferGraph, graph);
 }
@@ -1508,7 +1521,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 		}
 
 		g_hash_table_remove_all (graph->resources);
-		g_hash_table_remove_all (graph->refcounts);
+		g_array_set_size (graph->refcounts, 0);
 	}
 
 out:
@@ -1536,7 +1549,7 @@ tracker_data_update_buffer_clear (TrackerData *data)
 	for (i = 0; i < data->update_buffer.graphs->len; i++) {
 		graph = g_ptr_array_index (data->update_buffer.graphs, i);
 		g_hash_table_remove_all (graph->resources);
-		g_hash_table_remove_all (graph->refcounts);
+		g_array_set_size (graph->refcounts, 0);
 	}
 
 	g_hash_table_remove_all (data->update_buffer.new_resources);
@@ -2407,9 +2420,7 @@ ensure_graph_buffer (TrackerDataUpdateBuffer  *buffer,
 	}
 
 	graph_buffer = g_slice_new0 (TrackerDataUpdateBufferGraph);
-	graph_buffer->refcounts =
-		g_hash_table_new_full (tracker_rowid_hash, tracker_rowid_equal,
-		                       (GDestroyNotify) tracker_rowid_free, NULL);
+	graph_buffer->refcounts = g_array_sized_new (FALSE, FALSE, sizeof (RefcountEntry), UPDATE_LOG_SIZE);
 	graph_buffer->graph = g_strdup (name);
 
 	graph_buffer->resources =
