@@ -28,6 +28,7 @@
 #include <libtracker-common/tracker-common.h>
 
 #include <libtracker-sparql/tracker-deserializer-rdf.h>
+#include <libtracker-sparql/tracker-private.h>
 #include <libtracker-sparql/tracker-uri.h>
 
 #include "tracker-class.h"
@@ -3337,87 +3338,72 @@ update_resource_property (TrackerData      *data,
                           const gchar      *graph_uri,
                           TrackerResource  *resource,
                           TrackerRowid      subject,
-                          const gchar      *property,
+                          TrackerProperty  *property,
+                          const GValue     *val,
                           GHashTable       *visited,
                           GHashTable       *bnodes,
                           GError          **error)
 {
-	TrackerOntologies *ontologies;
-	TrackerProperty *predicate;
-	GList *values, *v;
 	GError *inner_error = NULL;
+	GValue free_me = G_VALUE_INIT;
+	const GValue *value;
+	TrackerRowid id;
 
-	values = tracker_resource_get_values (resource, property);
+	if (G_VALUE_HOLDS (val, TRACKER_TYPE_RESOURCE)) {
+		if (!update_resource_single (data,
+		                             graph_uri,
+		                             g_value_get_object (val),
+		                             visited,
+		                             bnodes,
+		                             &id,
+		                             error))
+			return FALSE;
 
-	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	predicate = tracker_ontologies_get_property_by_uri (ontologies, property);
-	if (predicate == NULL) {
-		g_set_error (error, TRACKER_SPARQL_ERROR,
-		             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
-		             "Property '%s' not found in the ontology",
-		             property);
-		return FALSE;
-	}
-
-	for (v = values; v && !inner_error; v = v->next) {
-		GValue *value, free_me = G_VALUE_INIT;
-		TrackerRowid id;
-
-		if (G_VALUE_HOLDS (v->data, TRACKER_TYPE_RESOURCE)) {
-
-			if (!update_resource_single (data,
-			                             graph_uri,
-			                             g_value_get_object (v->data),
-			                             visited,
-			                             bnodes,
-			                             &id,
-			                             &inner_error))
-				break;
+		g_value_init (&free_me, G_TYPE_INT64);
+		g_value_set_int64 (&free_me, id);
+		value = &free_me;
+	} else if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE &&
+	           g_type_is_a (G_VALUE_TYPE (val), G_TYPE_STRING)) {
+		if (g_str_has_prefix (g_value_get_string (val), "_:")) {
+			id = get_bnode_id (bnodes, data, g_value_get_string (val), error);
+			if (id == 0)
+				return FALSE;
 
 			g_value_init (&free_me, G_TYPE_INT64);
 			g_value_set_int64 (&free_me, id);
-			value = &free_me;
-		} else if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE &&
-		           g_type_is_a (G_VALUE_TYPE (v->data), G_TYPE_STRING)) {
+		} else {
 			gchar *object_str;
+			gboolean retval;
 
 			tracker_data_manager_expand_prefix (data->manager,
-			                                    g_value_get_string (v->data),
+			                                    g_value_get_string (val),
 			                                    NULL, NULL,
 			                                    &object_str);
 
-			if (g_str_has_prefix (object_str, "_:")) {
-				id = get_bnode_id (bnodes, data, object_str, error);
-				if (inner_error)
-					break;
-
-				g_value_init (&free_me, G_TYPE_INT64);
-				g_value_set_int64 (&free_me, id);
-			} else if (!tracker_data_query_string_to_value (data->manager,
-			                                                object_str,
-			                                                NULL,
-			                                                tracker_property_get_data_type (predicate),
-			                                                &free_me,
-			                                                &inner_error)) {
-				break;
-			}
-
+			retval = tracker_data_query_string_to_value (data->manager,
+			                                             object_str,
+			                                             NULL,
+			                                             tracker_property_get_data_type (property),
+			                                             &free_me,
+			                                             error);
 			g_free (object_str);
-			value = &free_me;
-		} else {
-			value = v->data;
+
+			if (!retval)
+				return FALSE;
 		}
 
-		tracker_data_insert_statement (data,
-		                               graph_uri,
-		                               subject,
-		                               predicate,
-		                               value,
-		                               &inner_error);
-		g_value_unset (&free_me);
+		value = &free_me;
+	} else {
+		value = val;
 	}
 
-	g_list_free (values);
+	tracker_data_insert_statement (data,
+	                               graph_uri,
+	                               subject,
+	                               property,
+	                               value,
+	                               &inner_error);
+	g_value_unset (&free_me);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -3436,10 +3422,13 @@ update_resource_single (TrackerData      *data,
                         TrackerRowid     *id,
                         GError          **error)
 {
-	GList *properties = NULL, *l;
+	TrackerOntologies *ontologies;
+	TrackerResourceIterator iter;
+	GList *types, *l;
 	GError *inner_error = NULL;
-	const gchar *subject_str;
+	const gchar *subject_str, *property;
 	TrackerRowid subject;
+	const GValue *value;
 	gboolean is_bnode = FALSE;
 
 	if (tracker_resource_is_blank_node (resource)) {
@@ -3460,68 +3449,65 @@ update_resource_single (TrackerData      *data,
 			return FALSE;
 	}
 
-	if (g_hash_table_lookup (visited, resource))
-		goto out;
-
-	g_hash_table_insert (visited, resource, tracker_rowid_copy (&subject));
-
-	properties = tracker_resource_get_properties (resource);
-
-	/* Handle rdf:type first */
-	if (g_list_find_custom (properties, "rdf:type", (GCompareFunc) g_strcmp0)) {
-		update_resource_property (data, graph_uri, resource,
-		                          subject, "rdf:type",
-		                          visited, bnodes,
-		                          &inner_error);
-		if (inner_error)
-			goto out;
-	}
-
-	if (!is_bnode) {
-		gboolean need_flush = FALSE;
-
-		for (l = properties; l; l = l->next) {
-			const gchar *property = l->data;
-
-			if (tracker_resource_get_property_overwrite (resource, property)) {
-				if (resource_maybe_reset_property (data, graph_uri, resource,
-				                                   subject, property,
-				                                   bnodes, &inner_error)) {
-					need_flush = TRUE;
-				} else if (inner_error) {
-					goto out;
-				}
-			}
-		}
-
-		if (need_flush) {
-			tracker_data_update_buffer_flush (data, &inner_error);
-			if (inner_error)
-				goto out;
-		}
-	}
-
-	for (l = properties; l; l = l->next) {
-		if (g_str_equal (l->data, "rdf:type"))
-			continue;
-
-		if (!update_resource_property (data, graph_uri, resource,
-		                               subject, l->data,
-		                               visited, bnodes,
-		                               &inner_error))
-			break;
-	}
-
-out:
-	g_list_free (properties);
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
-	}
-
 	if (id)
 		*id = subject;
+
+	if (g_hash_table_lookup (visited, resource))
+		return TRUE;
+
+	g_hash_table_insert (visited, resource, tracker_rowid_copy (&subject));
+	ontologies = tracker_data_manager_get_ontologies (data->manager);
+
+	/* Handle rdf:type first */
+	types = tracker_resource_get_values (resource, "rdf:type");
+
+	for (l = types; l; l = l->next) {
+		if (!update_resource_property (data, graph_uri, resource,
+		                               subject,
+		                               tracker_ontologies_get_rdf_type (ontologies),
+		                               l->data,
+		                               visited, bnodes,
+		                               error)) {
+			g_list_free (types);
+			return FALSE;
+		}
+	}
+
+	g_list_free (types);
+
+	tracker_resource_iterator_init (&iter, resource);
+
+	while (tracker_resource_iterator_next (&iter, &property, &value)) {
+		TrackerProperty *predicate;
+
+		if (g_str_equal (property, "rdf:type"))
+			continue;
+
+		predicate = tracker_ontologies_get_property_by_uri (ontologies, property);
+		if (predicate == NULL) {
+			g_set_error (error, TRACKER_SPARQL_ERROR,
+			             TRACKER_SPARQL_ERROR_UNKNOWN_PROPERTY,
+			             "Property '%s' not found in the ontology",
+			             property);
+			return FALSE;
+		}
+
+		if (!is_bnode && tracker_resource_get_property_overwrite (resource, property)) {
+			resource_maybe_reset_property (data, graph_uri, resource,
+			                               subject, property,
+			                               bnodes, &inner_error);
+
+			if (inner_error)
+				return FALSE;
+		}
+
+		if (!update_resource_property (data, graph_uri, resource,
+		                               subject, predicate, value,
+		                               visited, bnodes,
+		                               error))
+			return FALSE;
+	}
+
 
 	return TRUE;
 }
