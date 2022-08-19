@@ -452,6 +452,8 @@ run_benchmarks (TrackerSparqlConnection *conn)
 		double elapsed = 0, min = G_MAXDOUBLE, max = -G_MAXDOUBLE, adjusted, avg;
 		int elems = 0;
 
+		g_print ("%*s\t\t", max_len, benchmarks[i].desc);
+
 		benchmarks[i].func (conn, benchmarks[i].data_func,
 		                    &elapsed, &elems, &min, &max);
 
@@ -466,8 +468,7 @@ run_benchmarks (TrackerSparqlConnection *conn)
 		}
 
 		avg = elapsed / elems;
-		g_print ("%*s\t\t%.3f\t%.3f\t%.3f %s\t%.3f %s\t%3.3f %s\n",
-		         max_len, benchmarks[i].desc,
+		g_print ("%.3f\t%.3f\t%.3f %s\t%.3f %s\t%3.3f %s\n",
 		         adjusted,
 		         elems / elapsed,
 		         transform_unit (min), unit_string (min),
