@@ -2321,21 +2321,13 @@ cache_delete_resource_type_full (TrackerData   *data,
                                  gboolean       single_type,
                                  GError       **error)
 {
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	TrackerProperty   **properties, *prop;
-	gboolean            found;
-	guint               i, p, n_props;
-	GError             *inner_error = NULL;
-	TrackerOntologies  *ontologies;
-	const gchar        *database;
-	GArray *res = NULL;
+	TrackerProperty **properties, *prop;
+	gboolean found;
+	guint i, j, p, n_props;
+	TrackerOntologies *ontologies;
 	GValue gvalue = G_VALUE_INIT;
 
-	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	database = data->resource_buffer->graph->graph ?
-		data->resource_buffer->graph->graph : "main";
 
 	if (!single_type) {
 		if (strcmp (tracker_class_get_uri (class), TRACKER_PREFIX_RDFS "Resource") == 0) {
@@ -2369,42 +2361,22 @@ cache_delete_resource_type_full (TrackerData   *data,
 
 		/* retrieve all subclasses we need to remove from the subject
 		 * before we can remove the class specified as object of the statement */
-		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
-		                                               "SELECT (SELECT Uri FROM Resource WHERE ID = subclass.ID) "
-		                                               "FROM \"%s\".\"rdfs:Resource_rdf:type\" AS type INNER JOIN \"%s\".\"rdfs:Class_rdfs:subClassOf\" AS subclass ON (type.\"rdf:type\" = subclass.ID) "
-		                                               "WHERE type.ID = ? AND subclass.\"rdfs:subClassOf\" = (SELECT ID FROM Resource WHERE Uri = ?)",
-		                                               database, database);
+		for (i = 0; i < data->resource_buffer->types->len; i++) {
+			TrackerClass *type, **super_classes;
 
-		if (stmt) {
-			tracker_db_statement_bind_int (stmt, 0, data->resource_buffer->id);
-			tracker_db_statement_bind_text (stmt, 1, tracker_class_get_uri (class));
-			res = tracker_db_statement_get_values (stmt,
-			                                       TRACKER_PROPERTY_TYPE_STRING,
-			                                       &inner_error);
-			g_object_unref (stmt);
-		}
+			type = g_ptr_array_index (data->resource_buffer->types, i);
+			super_classes = tracker_class_get_super_classes (type);
 
-		if (res) {
-			for (i = 0; i < res->len; i++) {
-				const gchar *class_uri;
+			for (j = 0; super_classes[j]; j++) {
+				if (super_classes[j] != class)
+					continue;
 
-				class_uri = g_value_get_string (&g_array_index (res, GValue, i));
-				if (!cache_delete_resource_type_full (data, tracker_ontologies_get_class_by_uri (ontologies, class_uri),
-				                                      FALSE, error)) {
-					g_array_unref (res);
+				if (!cache_delete_resource_type_full (data, type, FALSE, error))
 					return FALSE;
-				}
 			}
-
-			g_array_unref (res);
 		}
 
-		if (inner_error) {
-			g_propagate_prefixed_error (error,
-			                            inner_error,
-			                            "Deleting resource:");
-			return FALSE;
-		}
+		/* Once done deleting subclasses, fall through */
 	}
 
 	/* Delete property values, only properties that:
