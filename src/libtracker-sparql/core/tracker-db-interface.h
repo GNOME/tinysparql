@@ -144,7 +144,7 @@ void                    tracker_db_statement_bind_bytes              (TrackerDBS
 void                    tracker_db_statement_bind_value              (TrackerDBStatement         *stmt,
                                                                       int                         index,
 								      const GValue               *value);
-void                    tracker_db_statement_execute                 (TrackerDBStatement         *stmt,
+gboolean                tracker_db_statement_execute                 (TrackerDBStatement         *stmt,
                                                                       GError                    **error);
 TrackerDBCursor *       tracker_db_statement_start_cursor            (TrackerDBStatement         *stmt,
                                                                       GError                    **error);

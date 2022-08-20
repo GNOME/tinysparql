@@ -2866,32 +2866,26 @@ execute_stmt (TrackerDBInterface  *interface,
 			return FALSE;
 		}
 
-		if (!error) {
-			g_warning ("Could not perform SQLite operation, error:%d->'%s'",
-			           sqlite3_errcode (interface->db),
-			           sqlite3_errmsg (interface->db));
+		if (result == SQLITE_INTERRUPT) {
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_INTERRUPTED,
+			             "Interrupted");
+		} else if (result == SQLITE_CONSTRAINT) {
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_CONSTRAINT,
+			             "Constraint would be broken: %s",
+			             sqlite3_errmsg (interface->db));
 		} else {
-			if (result == SQLITE_INTERRUPT) {
-				g_set_error (error,
-				             TRACKER_DB_INTERFACE_ERROR,
-				             TRACKER_DB_INTERRUPTED,
-				             "Interrupted");
-			} else if (result == SQLITE_CONSTRAINT) {
-				g_set_error (error,
-				             TRACKER_DB_INTERFACE_ERROR,
-				             TRACKER_DB_CONSTRAINT,
-				             "Constraint would be broken: %s",
-				             sqlite3_errmsg (interface->db));
-			} else {
-				g_set_error (error,
-				             TRACKER_DB_INTERFACE_ERROR,
-				             errno != ENOSPC ? TRACKER_DB_QUERY_ERROR : TRACKER_DB_NO_SPACE,
-				             "%s%s%s%s",
-				             sqlite3_errmsg (interface->db),
-				             errno != 0 ? " (strerror of errno (not necessarily related): " : "",
-				             errno != 0 ? g_strerror (errno) : "",
-				             errno != 0 ? ")" : "");
-			}
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             errno != ENOSPC ? TRACKER_DB_QUERY_ERROR : TRACKER_DB_NO_SPACE,
+			             "%s%s%s%s",
+			             sqlite3_errmsg (interface->db),
+			             errno != 0 ? " (strerror of errno (not necessarily related): " : "",
+			             errno != 0 ? g_strerror (errno) : "",
+			             errno != 0 ? ")" : "");
 		}
 	}
 
@@ -3640,15 +3634,19 @@ tracker_db_cursor_get_string (TrackerDBCursor *cursor,
 	return result;
 }
 
-void
+gboolean
 tracker_db_statement_execute (TrackerDBStatement  *stmt,
                               GError             **error)
 {
-	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
-	g_return_if_fail (!stmt->stmt_is_used);
+	gboolean retval;
 
-	execute_stmt (stmt->db_interface, stmt->stmt, NULL, error);
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), FALSE);
+	g_return_val_if_fail (!stmt->stmt_is_used, FALSE);
+
+	retval = execute_stmt (stmt->db_interface, stmt->stmt, NULL, error);
 	tracker_db_statement_sqlite_release (stmt);
+
+	return retval;
 }
 
 GArray *
