@@ -134,7 +134,7 @@ struct _TrackerDataUpdateBufferResource {
 	/* TrackerClass */
 	GPtrArray *types;
 
-	gboolean fts_updated;
+	GList *fts_properties;
 };
 
 struct _TrackerStatementDelegate {
@@ -1407,6 +1407,7 @@ static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 {
 	g_clear_pointer (&resource->predicates, g_hash_table_unref);
 
+	g_list_free (resource->fts_properties);
 	g_ptr_array_free (resource->types, TRUE);
 	resource->types = NULL;
 
@@ -1423,6 +1424,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 	GHashTableIter iter;
 	GError *actual_error = NULL;
 	const gchar *database;
+	GList *l;
 	guint i;
 
 	if (data->update_buffer.update_log->len == 0)
@@ -1435,38 +1437,27 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 		g_hash_table_iter_init (&iter, graph->resources);
 
 		while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource)) {
-			if (resource->fts_updated && !resource->create) {
-				TrackerProperty *prop;
-				GArray *values;
-				GHashTableIter prop_iter;
+			if (resource->fts_properties && !resource->create) {
 				GPtrArray *properties;
 				gboolean retval;
 
-				properties = NULL;
+				properties = g_ptr_array_sized_new (8);
 				database = resource->graph->graph ? resource->graph->graph : "main";
-				g_hash_table_iter_init (&prop_iter, resource->predicates);
-				while (g_hash_table_iter_next (&prop_iter, (gpointer*) &prop, (gpointer*) &values)) {
-					if (tracker_property_get_fulltext_indexed (prop)) {
-						if (!properties)
-							properties = g_ptr_array_new ();
 
-						g_ptr_array_add (properties, (gpointer) tracker_property_get_name (prop));
-					}
-				}
+				for (l = resource->fts_properties; l; l = l->next)
+					g_ptr_array_add (properties, (gpointer) tracker_property_get_name (l->data));
 
-				if (properties) {
-					g_ptr_array_add (properties, NULL);
+				g_ptr_array_add (properties, NULL);
 
-					retval = tracker_db_interface_sqlite_fts_delete_text (iface,
-					                                                      database,
-					                                                      resource->id,
-					                                                      (const gchar **) properties->pdata,
-					                                                      error);
-					g_ptr_array_free (properties, TRUE);
+				retval = tracker_db_interface_sqlite_fts_delete_text (iface,
+				                                                      database,
+				                                                      resource->id,
+				                                                      (const gchar **) properties->pdata,
+				                                                      error);
+				g_ptr_array_free (properties, TRUE);
 
-					if (!retval)
-						goto out;
-				}
+				if (!retval)
+					goto out;
 			}
 		}
 	}
@@ -1479,38 +1470,27 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 		g_hash_table_iter_init (&iter, graph->resources);
 
 		while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource)) {
-			if (resource->fts_updated) {
-				TrackerProperty *prop;
-				GArray *values;
-				GHashTableIter prop_iter;
+			if (resource->fts_properties) {
 				GPtrArray *properties;
 				gboolean retval;
 
-				properties = NULL;
+				properties = g_ptr_array_sized_new (8);
 				database = resource->graph->graph ? resource->graph->graph : "main";
-				g_hash_table_iter_init (&prop_iter, resource->predicates);
-				while (g_hash_table_iter_next (&prop_iter, (gpointer*) &prop, (gpointer*) &values)) {
-					if (tracker_property_get_fulltext_indexed (prop)) {
-						if (!properties)
-							properties = g_ptr_array_new ();
 
-						g_ptr_array_add (properties, (gpointer) tracker_property_get_name (prop));
-					}
-				}
+				for (l = resource->fts_properties; l; l = l->next)
+					g_ptr_array_add (properties, (gpointer) tracker_property_get_name (l->data));
 
-				if (properties) {
-					g_ptr_array_add (properties, NULL);
+				g_ptr_array_add (properties, NULL);
 
-					retval = tracker_db_interface_sqlite_fts_update_text (iface,
-					                                                      database,
-					                                                      resource->id,
-					                                                      (const gchar **) properties->pdata,
-					                                                      error);
-					g_ptr_array_free (properties, TRUE);
+				retval = tracker_db_interface_sqlite_fts_update_text (iface,
+				                                                      database,
+				                                                      resource->id,
+				                                                      (const gchar **) properties->pdata,
+				                                                      error);
+				g_ptr_array_free (properties, TRUE);
 
-					if (!retval)
-						goto out;
-				}
+				if (!retval)
+					goto out;
 			}
 		}
 
@@ -1979,6 +1959,20 @@ maybe_convert_value (TrackerData         *data,
 	return FALSE;
 }
 
+static void
+maybe_append_fts_property (TrackerData     *data,
+                           TrackerProperty *property)
+{
+	if (!tracker_property_get_fulltext_indexed (property))
+		return;
+
+	if (g_list_find (data->resource_buffer->fts_properties, property))
+		return;
+
+	data->resource_buffer->fts_properties =
+		g_list_prepend (data->resource_buffer->fts_properties, property);
+}
+
 static gboolean
 cache_insert_metadata_decomposed (TrackerData      *data,
                                   TrackerProperty  *property,
@@ -2029,8 +2023,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 	super_properties = tracker_property_get_super_properties (property);
 	multiple_values = tracker_property_get_multiple_values (property);
 
-	data->resource_buffer->fts_updated |=
-		tracker_property_get_fulltext_indexed (property);
+	maybe_append_fts_property (data, property);
 
 	while (*super_properties) {
 		gboolean super_is_multi;
@@ -2045,8 +2038,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 			return FALSE;
 		}
 
-		data->resource_buffer->fts_updated |=
-			tracker_property_get_fulltext_indexed (*super_properties);
+		maybe_append_fts_property (data, *super_properties);
 
 		if (maybe_convert_value (data,
 		                         tracker_property_get_data_type (property),
@@ -2170,8 +2162,7 @@ delete_metadata_decomposed (TrackerData      *data,
 
 	multiple_values = tracker_property_get_multiple_values (property);
 
-	data->resource_buffer->fts_updated |=
-		tracker_property_get_fulltext_indexed (property);
+	maybe_append_fts_property (data, property);
 
 	/* read existing property values */
 	old_values = get_property_values (data, property, &new_error);
@@ -2336,8 +2327,7 @@ cache_delete_resource_type_full (TrackerData   *data,
 
 		multiple_values = tracker_property_get_multiple_values (prop);
 
-		data->resource_buffer->fts_updated |=
-			tracker_property_get_fulltext_indexed (prop);
+		maybe_append_fts_property (data, prop);
 
 		old_values = get_property_values (data, prop, error);
 		if (!old_values)
@@ -2485,7 +2475,6 @@ resource_buffer_switch (TrackerData   *data,
 		resource_buffer->id = subject;
 		resource_buffer->create = create;
 
-		resource_buffer->fts_updated = FALSE;
 		if (resource_buffer->create) {
 			resource_buffer->types = g_ptr_array_new ();
 		} else {
@@ -2890,8 +2879,7 @@ tracker_data_update_statement (TrackerData      *data,
 		if (!resource_buffer_switch (data, graph, subject, error))
 			return;
 
-		data->resource_buffer->fts_updated |=
-			tracker_property_get_fulltext_indexed (predicate);
+		maybe_append_fts_property (data, predicate);
 
 		log_entry_for_multi_value_property (data,
 		                                    TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
@@ -2905,8 +2893,7 @@ tracker_data_update_statement (TrackerData      *data,
 		if (!resource_buffer_switch (data, graph, subject, error))
 			return;
 
-		data->resource_buffer->fts_updated |=
-			tracker_property_get_fulltext_indexed (predicate);
+		maybe_append_fts_property (data, predicate);
 
 		if (!delete_single_valued (data, graph, subject, predicate,
 		                           !tracker_property_get_multiple_values (predicate),
