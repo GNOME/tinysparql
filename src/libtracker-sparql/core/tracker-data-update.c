@@ -122,6 +122,7 @@ struct _TrackerDataUpdateBufferGraph {
 	TrackerDBStatement *insert_ref;
 	TrackerDBStatement *update_ref;
 	TrackerDBStatement *delete_ref;
+	TrackerDBStatement *query_rdf_types;
 	TrackerDBStatementMru values_mru;
 };
 
@@ -816,6 +817,70 @@ log_entry_for_class (TrackerData             *data,
 		g_hash_table_add (data->update_buffer.class_updates, entry_ptr);
 }
 
+static GPtrArray*
+tracker_data_query_rdf_type (TrackerData                   *data,
+                             TrackerDataUpdateBufferGraph  *graph,
+                             TrackerRowid                   id,
+                             GError                       **error)
+{
+	TrackerDBInterface *iface;
+	TrackerDBStatement *stmt;
+	GArray *classes = NULL;
+	GPtrArray *ret = NULL;
+	GError *inner_error = NULL;
+	TrackerOntologies *ontologies;
+	const gchar *class_uri;
+	guint i;
+
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
+	ontologies = tracker_data_manager_get_ontologies (data->manager);
+
+	stmt = graph->query_rdf_types;
+
+	if (!stmt) {
+		stmt = graph->query_rdf_types =
+			tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
+			                                        "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
+			                                        "FROM \"%s\".\"rdfs:Resource_rdf:type\" "
+			                                        "WHERE ID = ?",
+			                                        graph->graph ? graph->graph : "main");
+	}
+
+	if (stmt) {
+		tracker_db_statement_bind_int (stmt, 0, id);
+		classes = tracker_db_statement_get_values (stmt,
+		                                           TRACKER_PROPERTY_TYPE_STRING,
+		                                           &inner_error);
+	}
+
+	if (G_UNLIKELY (inner_error)) {
+		g_propagate_prefixed_error (error,
+		                            inner_error,
+		                            "Querying RDF type:");
+		return NULL;
+	}
+
+	if (classes) {
+		ret = g_ptr_array_sized_new (classes->len);
+
+		for (i = 0; i < classes->len; i++) {
+			TrackerClass *cl;
+
+			class_uri = g_value_get_string (&g_array_index (classes, GValue, i));
+			cl = tracker_ontologies_get_class_by_uri (ontologies, class_uri);
+			if (!cl) {
+				g_critical ("Unknown class %s", class_uri);
+				continue;
+			}
+			g_ptr_array_add (ret, cl);
+		}
+
+		g_array_unref (classes);
+	}
+
+	return ret;
+}
+
 static TrackerRowid
 query_resource_id (TrackerData  *data,
                    const gchar  *uri,
@@ -1398,6 +1463,7 @@ graph_buffer_free (TrackerDataUpdateBufferGraph *graph)
 	g_clear_object (&graph->insert_ref);
 	g_clear_object (&graph->update_ref);
 	g_clear_object (&graph->delete_ref);
+	g_clear_object (&graph->query_rdf_types);
 	g_hash_table_unref (graph->resources);
 	g_array_unref (graph->refcounts);
 	g_free (graph->graph);
@@ -2497,8 +2563,8 @@ resource_buffer_switch (TrackerData   *data,
 		create = g_hash_table_contains (data->update_buffer.new_resources,
 		                                &subject);
 		if (!create) {
-			rdf_types = tracker_data_query_rdf_type (data->manager,
-			                                         graph,
+			rdf_types = tracker_data_query_rdf_type (data,
+			                                         graph_buffer,
 			                                         subject,
 			                                         &inner_error);
 			if (!rdf_types) {

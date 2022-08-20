@@ -33,67 +33,6 @@
 #include "tracker-ontologies.h"
 #include "tracker-sparql.h"
 
-GPtrArray*
-tracker_data_query_rdf_type (TrackerDataManager  *manager,
-                             const gchar         *graph,
-                             TrackerRowid         id,
-                             GError             **error)
-{
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	GArray *classes = NULL;
-	GPtrArray *ret = NULL;
-	GError *inner_error = NULL;
-	TrackerOntologies *ontologies;
-	const gchar *class_uri;
-	guint i;
-
-	iface = tracker_data_manager_get_writable_db_interface (manager);
-	ontologies = tracker_data_manager_get_ontologies (manager);
-
-	stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
-	                                               "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
-	                                               "FROM \"%s\".\"rdfs:Resource_rdf:type\" "
-	                                               "WHERE ID = ?",
-	                                               graph ? graph : "main");
-
-	if (stmt) {
-		tracker_db_statement_bind_int (stmt, 0, id);
-		classes = tracker_db_statement_get_values (stmt,
-		                                           TRACKER_PROPERTY_TYPE_STRING,
-		                                           &inner_error);
-		g_object_unref (stmt);
-	}
-
-	if (classes) {
-		ret = g_ptr_array_sized_new (classes->len);
-
-		for (i = 0; i < classes->len; i++) {
-			TrackerClass *cl;
-
-			class_uri = g_value_get_string (&g_array_index (classes, GValue, i));
-			cl = tracker_ontologies_get_class_by_uri (ontologies, class_uri);
-			if (!cl) {
-				g_critical ("Unknown class %s", class_uri);
-				continue;
-			}
-			g_ptr_array_add (ret, cl);
-		}
-
-		g_array_unref (classes);
-	}
-
-	if (G_UNLIKELY (inner_error)) {
-		g_propagate_prefixed_error (error,
-		                            inner_error,
-		                            "Querying RDF type:");
-		g_clear_pointer (&ret, g_ptr_array_unref);
-		return NULL;
-	}
-
-	return ret;
-}
-
 gchar *
 tracker_data_query_resource_urn (TrackerDataManager  *manager,
                                  TrackerDBInterface  *iface,

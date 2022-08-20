@@ -41,11 +41,6 @@ TrackerDBCursor     *tracker_data_query_sparql_cursor (TrackerDataManager  *mana
                                                        const gchar         *query,
                                                        GError             **error);
 
-GPtrArray*           tracker_data_query_rdf_type      (TrackerDataManager  *manager,
-                                                       const gchar         *graph,
-                                                       TrackerRowid         id,
-                                                       GError             **error);
-
 gboolean             tracker_data_query_string_to_value (TrackerDataManager   *manager,
                                                          const gchar          *value,
                                                          const gchar          *langtag,
