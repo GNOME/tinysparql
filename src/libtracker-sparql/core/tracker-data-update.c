@@ -590,7 +590,7 @@ tracker_data_update_initialize_modseq (TrackerData  *data,
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 	property = tracker_ontologies_get_nrl_modified (ontologies);
 
-	stmt = tracker_db_interface_create_vstatement (temp_iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
+	stmt = tracker_db_interface_create_vstatement (temp_iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
 	                                               "SELECT MAX(object) FROM tracker_triples "
 	                                               "WHERE predicate = %" G_GINT64_FORMAT,
 	                                               tracker_property_get_id (property));
