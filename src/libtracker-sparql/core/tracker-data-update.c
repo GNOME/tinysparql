@@ -960,8 +960,7 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 	TrackerDBManagerFlags db_flags;
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt = NULL;
-	GError *inner_error = NULL;
-	gchar *key;
+	gboolean inserted;
 	TrackerRowid *value, id = 0;
 	TrackerOntologies *ontologies;
 	TrackerClass *class;
@@ -1005,37 +1004,28 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 			return id;
 	}
 
-	if (tracker_data_ensure_insert_resource_stmt (data, &inner_error)) {
-		stmt = data->update_buffer.insert_resource;
-		tracker_db_statement_bind_text (stmt, 0, uri);
-		tracker_db_statement_bind_int (stmt, 1, FALSE);
-		tracker_db_statement_execute (stmt, &inner_error);
-	}
-
-	if (inner_error) {
-		if (g_error_matches (inner_error,
-		                     TRACKER_DB_INTERFACE_ERROR,
-		                     TRACKER_DB_CONSTRAINT)) {
-			g_clear_error (&inner_error);
-			id = query_resource_id (data, uri, &inner_error);
-
-			if (id != 0)
-				return id;
-		}
-
-		g_propagate_error (error, inner_error);
-
+	if (!tracker_data_ensure_insert_resource_stmt (data, error))
 		return 0;
+
+	stmt = data->update_buffer.insert_resource;
+	tracker_db_statement_bind_text (stmt, 0, uri);
+	tracker_db_statement_bind_int (stmt, 1, FALSE);
+	inserted = tracker_db_statement_execute (stmt, NULL);
+
+	if (inserted) {
+		iface = tracker_data_manager_get_writable_db_interface (data->manager);
+		id = tracker_db_interface_sqlite_get_last_insert_id (iface);
+		g_hash_table_add (data->update_buffer.new_resources,
+		                  tracker_rowid_copy (&id));
+	} else {
+		id = query_resource_id (data, uri, error);
 	}
 
-	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	id = tracker_db_interface_sqlite_get_last_insert_id (iface);
-	key = g_strdup (uri);
-	g_hash_table_insert (data->update_buffer.resource_cache, key,
-	                     tracker_rowid_copy (&id));
-
-	g_hash_table_add (data->update_buffer.new_resources,
-	                  tracker_rowid_copy (&id));
+	if (id != 0) {
+		g_hash_table_insert (data->update_buffer.resource_cache,
+		                     g_strdup (uri),
+		                     tracker_rowid_copy (&id));
+	}
 
 	return id;
 }
