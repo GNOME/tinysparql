@@ -122,10 +122,11 @@ struct _TrackerDataUpdateBufferGraph {
 	TrackerDBStatement *insert_ref;
 	TrackerDBStatement *update_ref;
 	TrackerDBStatement *delete_ref;
+	TrackerDBStatementMru values_mru;
 };
 
 struct _TrackerDataUpdateBufferResource {
-	const TrackerDataUpdateBufferGraph *graph;
+	TrackerDataUpdateBufferGraph *graph;
 	TrackerRowid id;
 	gboolean create;
 	gboolean modified;
@@ -1400,6 +1401,7 @@ graph_buffer_free (TrackerDataUpdateBufferGraph *graph)
 	g_hash_table_unref (graph->resources);
 	g_array_unref (graph->refcounts);
 	g_free (graph->graph);
+	tracker_db_statement_mru_finish (&graph->values_mru);
 	g_slice_free (TrackerDataUpdateBufferGraph, graph);
 }
 
@@ -1777,6 +1779,7 @@ get_property_values (TrackerData      *data,
                      TrackerProperty  *property,
                      GError          **error)
 {
+	TrackerDataUpdateBufferGraph *graph;
 	const gchar *database;
 	GArray *old_values;
 
@@ -1790,23 +1793,35 @@ get_property_values (TrackerData      *data,
 	if (old_values != NULL)
 		return old_values;
 
-	database = data->resource_buffer->graph->graph ?
-		data->resource_buffer->graph->graph : "main";
+	graph = data->resource_buffer->graph;
+	database = graph->graph ? graph->graph : "main";
 
 	if (!data->resource_buffer->create) {
-		TrackerDBInterface *iface;
 		TrackerDBStatement *stmt;
-		const gchar        *table_name;
-		const gchar        *field_name;
 
-		table_name = tracker_property_get_table_name (property);
-		field_name = tracker_property_get_name (property);
+		stmt = tracker_db_statement_mru_lookup (&graph->values_mru, property);
 
-		iface = tracker_data_manager_get_writable_db_interface (data->manager);
+		if (stmt) {
+			tracker_db_statement_mru_update (&graph->values_mru, stmt);
+			g_object_ref (stmt);
+		} else {
+			TrackerDBInterface *iface;
+			const gchar *table_name;
+			const gchar *field_name;
 
-		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
-		                                               "SELECT \"%s\" FROM \"%s\".\"%s\" WHERE ID = ?",
-		                                               field_name, database, table_name);
+			table_name = tracker_property_get_table_name (property);
+			field_name = tracker_property_get_name (property);
+
+			iface = tracker_data_manager_get_writable_db_interface (data->manager);
+			stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
+			                                               "SELECT \"%s\" FROM \"%s\".\"%s\" WHERE ID = ?",
+			                                               field_name, database, table_name);
+			if (!stmt)
+				return NULL;
+
+			tracker_db_statement_mru_insert (&graph->values_mru, property, stmt);
+		}
+
 		if (stmt) {
 			tracker_db_statement_bind_int (stmt, 0, data->resource_buffer->id);
 			old_values = tracker_db_statement_get_values (stmt,
@@ -2431,6 +2446,12 @@ ensure_graph_buffer (TrackerDataUpdateBuffer  *buffer,
 	graph_buffer->resources =
 		g_hash_table_new_full (tracker_rowid_hash, tracker_rowid_equal, NULL,
 		                       (GDestroyNotify) resource_buffer_free);
+
+	tracker_db_statement_mru_init (&graph_buffer->values_mru, 20,
+	                               g_direct_hash,
+	                               g_direct_equal,
+	                               NULL);
+
 	g_ptr_array_add (buffer->graphs, graph_buffer);
 
 	return graph_buffer;
