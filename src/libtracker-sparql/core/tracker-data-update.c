@@ -3383,7 +3383,7 @@ tracker_data_ensure_graph (TrackerData  *data,
 		return 0;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 	                                              "INSERT OR IGNORE INTO Graph (ID) VALUES (?)");
 	if (!stmt)
 		return 0;
@@ -3409,7 +3409,7 @@ tracker_data_delete_graph (TrackerData  *data,
 		return FALSE;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 	                                              "DELETE FROM Graph WHERE ID = ?");
 	if (!stmt)
 		return FALSE;
