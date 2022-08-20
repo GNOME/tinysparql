@@ -2698,20 +2698,20 @@ delete_single_valued (TrackerData       *data,
 		GError *inner_error = NULL;
 		GArray *old_values;
 
-		old_values = get_property_values (data, predicate, &inner_error);
+		log_entry_for_single_value_property (data,
+		                                     tracker_property_get_domain (predicate),
+		                                     predicate, NULL);
 
-		if (old_values && old_values->len == 1) {
-			GValue *value;
+		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			old_values = get_property_values (data, predicate, &inner_error);
 
-			value = &g_array_index (old_values, GValue, 0);
-			log_entry_for_single_value_property (data,
-			                                     tracker_property_get_domain (predicate),
-			                                     predicate, NULL);
+			if (old_values && old_values->len == 1) {
+				GValue *value;
 
-			if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE)
+				value = &g_array_index (old_values, GValue, 0);
 				tracker_data_resource_unref (data, g_value_get_int64 (value), multiple_values);
-
-			g_array_remove_index (old_values, 0);
+				g_array_remove_index (old_values, 0);
+			}
 		} else {
 			/* no need to error out if statement does not exist for any reason */
 			g_clear_error (&inner_error);
