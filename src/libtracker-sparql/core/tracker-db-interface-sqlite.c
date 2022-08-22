@@ -3350,29 +3350,29 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 
 		tracker_db_interface_lock (iface);
 
-		if (g_cancellable_is_cancelled (cancellable)) {
-			result = SQLITE_INTERRUPT;
+		if (g_cancellable_set_error_if_cancelled (cancellable, error)) {
 			sqlite3_reset (cursor->stmt);
+			cursor->finished = TRUE;
 		} else {
 			/* only one statement can be active at the same time per interface */
 			iface->cancellable = cancellable;
 			result = stmt_step (cursor->stmt);
 			iface->cancellable = NULL;
-		}
 
-		if (result == SQLITE_INTERRUPT) {
-			g_set_error (error,
-			             TRACKER_DB_INTERFACE_ERROR,
-			             TRACKER_DB_INTERRUPTED,
-			             "Interrupted");
-		} else if (result != SQLITE_ROW && result != SQLITE_DONE) {
-			g_set_error (error,
-			             TRACKER_DB_INTERFACE_ERROR,
-			             TRACKER_DB_QUERY_ERROR,
-			             "%s", sqlite3_errmsg (iface->db));
-		}
+			if (result == SQLITE_INTERRUPT) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_INTERRUPTED,
+				             "Interrupted");
+			} else if (result != SQLITE_ROW && result != SQLITE_DONE) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_QUERY_ERROR,
+				             "%s", sqlite3_errmsg (iface->db));
+			}
 
-		cursor->finished = (result != SQLITE_ROW);
+			cursor->finished = (result != SQLITE_ROW);
+		}
 
 		tracker_db_interface_unlock (iface);
 	}
