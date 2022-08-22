@@ -91,8 +91,9 @@ tracker_fts_create_table (sqlite3      *db,
 	/* Create view on tables/columns marked as FTS-indexed */
 	str = g_string_new ("CREATE VIEW ");
 	g_string_append_printf (str, "\"%s\".fts_view AS SELECT \"rdfs:Resource\".ID as rowid ",
-				database);
-	from = g_string_new ("FROM \"rdfs:Resource\" ");
+	                        database);
+	from = g_string_new (NULL);
+	g_string_append_printf (from, "FROM \"%s\".\"rdfs:Resource\" ", database);
 
 	fts = g_string_new ("CREATE VIRTUAL TABLE ");
 	g_string_append_printf (fts, "\"%s\".%s USING fts5(content=\"fts_view\", ",
@@ -107,7 +108,7 @@ tracker_fts_create_table (sqlite3      *db,
 
 		while (columns) {
 			if (grouped_columns &&
-			    g_hash_table_lookup (grouped_columns, columns->data)) {
+			    g_hash_table_lookup (grouped_columns, index_table)) {
 				g_string_append_printf (str, ", group_concat(\"%s\".\"%s\")",
 							index_table,
 							(gchar *) columns->data);
@@ -132,6 +133,7 @@ tracker_fts_create_table (sqlite3      *db,
 
 	g_list_free (keys);
 
+	g_string_append (from, "GROUP BY ROWID");
 	g_string_append (str, from->str);
 	g_string_free (from, TRUE);
 
