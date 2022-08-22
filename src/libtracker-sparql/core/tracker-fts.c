@@ -179,7 +179,7 @@ tracker_fts_delete_table (sqlite3      *db,
 	gchar *query;
 	int rc;
 
-	query = g_strdup_printf ("DROP VIEW IF EXISTS fts_view");
+	query = g_strdup_printf ("DROP VIEW IF EXISTS \"%s\".fts_view", database);
 	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
 	g_free (query);
 

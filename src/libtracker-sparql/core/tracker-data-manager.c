@@ -4194,6 +4194,25 @@ tracker_data_manager_update_from_version (TrackerDataManager  *manager,
 			goto error;
 	}
 
+	if (version < TRACKER_DB_VERSION_3_4) {
+		GHashTableIter iter;
+		const gchar *graph;
+
+		if (!tracker_db_interface_sqlite_fts_delete_table (iface, "main", &internal_error))
+			goto error;
+		if (!tracker_data_manager_update_fts (manager, iface, "main", &internal_error))
+			goto error;
+
+		g_hash_table_iter_init (&iter, manager->graphs);
+
+		while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL)) {
+			if (!tracker_db_interface_sqlite_fts_delete_table (iface, graph, &internal_error))
+				goto error;
+			if (!tracker_data_manager_update_fts (manager, iface, graph, &internal_error))
+				goto error;
+		}
+	}
+
 	tracker_db_manager_update_version (manager->db_manager);
 	return TRUE;
 
