@@ -21,6 +21,8 @@
 
 #include "tracker-bus.h"
 
+#include <errno.h>
+
 #include <gio/gunixfdlist.h>
 #include <gio/gunixinputstream.h>
 #include <gio/gunixoutputstream.h>
