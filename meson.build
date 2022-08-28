@@ -236,8 +236,8 @@ endif
 ####################################################################
 
 if get_option('dbus_services_dir') == ''
-  dbus_services_dir = dbus.get_pkgconfig_variable('session_bus_services_dir',
-                                                  define_variable: [ 'datadir', datadir ])
+  dbus_services_dir = dbus.get_variable(pkgconfig: 'session_bus_services_dir',
+                                        pkgconfig_define: [ 'datadir', datadir ])
 else
   dbus_services_dir = get_option('dbus_services_dir')
 endif
@@ -253,8 +253,8 @@ if install_systemd_user_services
   if systemd_user_services_dir == ''
     systemd = dependency('systemd', version: '>= 242', required: false)
     if systemd.found()
-      systemd_user_services_dir = systemd.get_pkgconfig_variable('systemduserunitdir',
-                                                                 define_variable: ['prefix', get_option('prefix')])
+      systemd_user_services_dir = systemd.get_variable(pkgconfig: 'systemduserunitdir',
+                                                       pkgconfig_define: ['prefix', get_option('prefix')])
     else
       error('systemd user services were enabled, but systemd was not found. ' +
             'Please set the systemd_user_services_dir option if you want to ' +
@@ -273,8 +273,8 @@ if get_option('bash_completion')
   if bash_completion_dir == ''
     bash_completion_package = dependency('bash-completion', required: false)
     if bash_completion_package.found()
-      bash_completion_dir = bash_completion_package.get_pkgconfig_variable('completionsdir',
-                                                                           define_variable: [ 'prefix', get_option('prefix') ])
+      bash_completion_dir = bash_completion_package.get_variable(pkgconfig: 'completionsdir',
+                                                                 pkgconfig_define: [ 'prefix', get_option('prefix') ])
     else
       bash_completion_dir = join_paths(datadir, 'bash-completion', 'completions')
     endif
@@ -342,8 +342,8 @@ tracker_ontologies_dir = join_paths(get_option('prefix'), get_option('datadir'),
 vapi_dir = join_paths(get_option('prefix'), get_option('datadir'), 'vala', 'vapi')
 
 if gobject_introspection.found()
-  typelib_dir = gobject_introspection.get_pkgconfig_variable('typelibdir',
-                                                             define_variable: [ 'libdir', libdir ])
+  typelib_dir = gobject_introspection.get_variable(pkgconfig: 'typelibdir',
+                                                   pkgconfig_define: [ 'libdir', libdir ])
 endif
 
 subdir('src')
