@@ -19,9 +19,6 @@
 
 #include "config.h"
 
-/* Allow usage of tracker_namespace_manager_get_default() */
-#define TRACKER_VERSION_MIN_REQUIRED TRACKER_VERSION_3_2
-
 #include <glib.h>
 #include <json-glib/json-glib.h>
 
@@ -1169,7 +1166,9 @@ tracker_resource_print_turtle (TrackerResource         *self,
 	g_return_val_if_fail (TRACKER_IS_RESOURCE (self), "");
 
 	if (namespaces == NULL) {
+		G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 		namespaces = tracker_namespace_manager_get_default ();
+		G_GNUC_END_IGNORE_DEPRECATIONS
 	}
 
 	return tracker_resource_print_rdf (self, namespaces, TRACKER_RDF_FORMAT_TURTLE, NULL);
@@ -1403,7 +1402,9 @@ tracker_resource_print_sparql_update (TrackerResource         *resource,
 	priv = GET_PRIVATE(resource);
 
 	if (namespaces == NULL) {
+		G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 		namespaces = tracker_namespace_manager_get_default ();
+		G_GNUC_END_IGNORE_DEPRECATIONS
 	}
 
 	if (g_hash_table_size (priv->properties) == 0) {
@@ -1587,7 +1588,9 @@ tracker_resource_print_jsonld (TrackerResource         *self,
 	char *result;
 
 	if (namespaces == NULL) {
+		G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 		namespaces = tracker_namespace_manager_get_default ();
+		G_GNUC_END_IGNORE_DEPRECATIONS
 	}
 
 	context.all_namespaces = namespaces;
