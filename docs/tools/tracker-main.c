@@ -27,8 +27,9 @@
 #include "tracker-ontology-model.h"
 
 static gchar *ontology_dir = NULL;
+static gchar *ontology_desc_dir = NULL;
 static gchar *output_dir = NULL;
-static gchar *description_dir = NULL;
+static gchar *introduction_dir = NULL;
 static gboolean xml = FALSE;
 static gboolean markdown = FALSE;
 
@@ -37,12 +38,16 @@ static GOptionEntry   entries[] = {
 	  "Ontology directory",
 	  NULL
 	},
+	{ "ontology-description-dir", 'e', 0, G_OPTION_ARG_FILENAME, &ontology_desc_dir,
+	  "Ontology description directory",
+	  NULL
+	},
 	{ "output-dir", 'o', 0, G_OPTION_ARG_FILENAME, &output_dir,
 	  "File to write the output (default stdout)",
 	  NULL
 	},
-	{ "description-dir", 'e', 0, G_OPTION_ARG_FILENAME, &description_dir,
-	  "Directory to find ontology descriptions",
+	{ "introduction-dir", 'i', 0, G_OPTION_ARG_FILENAME, &introduction_dir,
+	  "Directory to find ontology introduction",
 	  NULL
 	},
 	{ "xml", 'x', 0, G_OPTION_ARG_NONE, &xml,
@@ -62,7 +67,7 @@ main (gint argc, gchar **argv)
 	GOptionContext *context;
 	TrackerOntologyDescription *description = NULL;
 	TrackerOntologyModel *model = NULL;
-	g_autoptr(GFile) ontology_file = NULL, output_file = NULL;
+	g_autoptr(GFile) ontology_file = NULL, output_file = NULL, ontology_desc_file = NULL;
 	gchar *path;
 	GStrv prefixes = NULL;
 	gint i;
@@ -75,7 +80,11 @@ main (gint argc, gchar **argv)
 	/* Translators: this message will appear after the usage string */
 	/* and before the list of options.                              */
 	g_option_context_add_main_entries (context, entries, NULL);
-	g_option_context_parse (context, &argc, &argv, NULL);
+
+	if (!g_option_context_parse (context, &argc, &argv, &error)) {
+		g_printerr ("%s\n", error->message);
+		return -1;
+	}
 
 	if (!!xml == !!markdown) {
 		g_printerr ("%s\n",
@@ -100,7 +109,12 @@ main (gint argc, gchar **argv)
 	ontology_file = g_file_new_for_commandline_arg (ontology_dir);
 	output_file = g_file_new_for_commandline_arg (output_dir);
 
-	model = tracker_ontology_model_new (ontology_file, &error);
+	if (ontology_desc_dir)
+		ontology_desc_file = g_file_new_for_commandline_arg (ontology_desc_dir);
+	else
+		ontology_desc_file = g_object_ref (ontology_file);
+
+	model = tracker_ontology_model_new (ontology_file, ontology_desc_file, &error);
 	if (error) {
 		g_printerr ("Error loading ontology: %s\n", error->message);
 		return -1;
@@ -118,9 +132,9 @@ main (gint argc, gchar **argv)
 			continue;
 
 		if (xml)
-			ttl_xml_print (description, model, prefixes[i], output_file, description_dir);
+			ttl_xml_print (description, model, prefixes[i], output_file, introduction_dir);
 		else if (markdown)
-			ttl_md_print (description, model, prefixes[i], output_file, description_dir);
+			ttl_md_print (description, model, prefixes[i], output_file, introduction_dir);
 	}
 
 	g_strfreev (prefixes);
