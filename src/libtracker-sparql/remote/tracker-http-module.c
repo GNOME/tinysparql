@@ -141,7 +141,12 @@ server_callback (SoupServer        *server,
 	request = g_new0 (TrackerHttpRequest, 1);
 	request->server = http_server;
 	request->message = message;
+
+#if SOUP_CHECK_VERSION (3, 1, 3)
+	soup_server_message_pause (message);
+#else
 	soup_server_pause_message (server, message);
+#endif
 
 	g_signal_emit_by_name (http_server, "request",
 	                       remote_address,
@@ -193,7 +198,7 @@ tracker_http_server_soup_error (TrackerHttpServer       *server,
                                 gint                     code,
                                 const gchar             *message)
 {
-	TrackerHttpServerSoup *server_soup =
+	G_GNUC_UNUSED TrackerHttpServerSoup *server_soup =
 		TRACKER_HTTP_SERVER_SOUP (server);
 
 	g_assert (request->server == server);
@@ -203,7 +208,12 @@ tracker_http_server_soup_error (TrackerHttpServer       *server,
 #else
 	soup_message_set_status_full (request->message, code, message);
 #endif
+
+#if SOUP_CHECK_VERSION (3, 1, 3)
+	soup_server_message_unpause (request->message);
+#else
 	soup_server_unpause_message (server_soup->server, request->message);
+#endif
 	g_free (request);
 }
 
@@ -256,7 +266,7 @@ write_finished_cb (GObject      *object,
                    gpointer      user_data)
 {
 	TrackerHttpRequest *request = user_data;
-	TrackerHttpServerSoup *server =
+	G_GNUC_UNUSED TrackerHttpServerSoup *server =
 		TRACKER_HTTP_SERVER_SOUP (request->server);
 	GError *error = NULL;
 
@@ -272,7 +282,13 @@ write_finished_cb (GObject      *object,
 #else
 		soup_message_set_status (request->message, 200);
 #endif
+
+#if SOUP_CHECK_VERSION (3, 1, 3)
+		soup_server_message_unpause (request->message);
+#else
 		soup_server_unpause_message (server->server, request->message);
+#endif
+
 		g_free (request);
 	}
 }
