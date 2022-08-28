@@ -19,9 +19,6 @@
 /* libunistring Unicode support library */
 #mesondefine HAVE_LIBUNISTRING
 
-/* Define to 1 if you have the `posix_fadvise' function. */
-#mesondefine HAVE_POSIX_FADVISE
-
 /* Define to 1 if you have the `statvfs64' function. */
 #mesondefine HAVE_STATVFS64
 
