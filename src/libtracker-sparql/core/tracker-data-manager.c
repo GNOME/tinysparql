@@ -4981,6 +4981,8 @@ tracker_data_manager_finalize (GObject *object)
 
 	g_clear_object (&manager->ontologies);
 	g_clear_object (&manager->data_update);
+	g_clear_object (&manager->ontology_location);
+	g_clear_object (&manager->cache_location);
 	g_clear_pointer (&manager->graphs, g_hash_table_unref);
 	g_free (manager->status);
 	g_mutex_clear (&manager->connections_lock);
