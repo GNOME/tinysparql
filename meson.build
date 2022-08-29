@@ -1,6 +1,6 @@
 project('tracker', 'c',
         version: '3.4.0.beta',
-        meson_version: '>=0.51',
+        meson_version: '>=0.53',
         default_options: [
           'c_std=c99',
           'warning_level=2'])
