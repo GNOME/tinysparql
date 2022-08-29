@@ -36,6 +36,6 @@ commoninc = include_directories('.')
 
 tracker_common_dep = declare_dependency(
   link_with: libtracker_common,
-  dependencies: tracker_common_dependencies,
+  dependencies: tracker_common_dependencies + [unicode_library],
   include_directories: [configinc, srcinc, commoninc],
 )
