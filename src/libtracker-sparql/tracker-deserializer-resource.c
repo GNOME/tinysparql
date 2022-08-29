@@ -203,6 +203,7 @@ value_type_from_gtype (const GValue *value)
 	} else if (G_VALUE_HOLDS (value, G_TYPE_BOOLEAN)) {
 		return TRACKER_SPARQL_VALUE_TYPE_BOOLEAN;
 	} else if (G_VALUE_HOLDS (value, G_TYPE_INT) ||
+	           G_VALUE_HOLDS (value, G_TYPE_UINT) ||
 	           G_VALUE_HOLDS (value, G_TYPE_INT64)) {
 		return TRACKER_SPARQL_VALUE_TYPE_INTEGER;
 	} else if (G_VALUE_HOLDS (value, G_TYPE_DOUBLE)) {
