@@ -43,14 +43,13 @@ typedef struct _TrackerDataClass TrackerDataClass;
 
 typedef struct _TrackerData TrackerDataUpdate;
 
-typedef void (*TrackerStatementCallback) (TrackerRowid          graph_id,
-                                          const gchar          *graph,
-                                          TrackerRowid          subject_id,
-                                          TrackerRowid          predicate_id,
-                                          TrackerRowid          object_id,
-                                          GPtrArray            *rdf_types,
-                                          gpointer              user_data);
-typedef void (*TrackerCommitCallback)    (gpointer              user_data);
+typedef void (*TrackerStatementCallback) (const gchar  *graph,
+                                          TrackerRowid  subject_id,
+                                          TrackerRowid  predicate_id,
+                                          TrackerRowid  object_id,
+                                          GPtrArray    *rdf_types,
+                                          gpointer      user_data);
+typedef void (*TrackerCommitCallback)    (gpointer      user_data);
 
 GQuark   tracker_data_error_quark                   (void);
 
@@ -139,6 +138,7 @@ gboolean tracker_data_update_resource (TrackerData      *data,
                                        const gchar      *graph,
                                        TrackerResource  *resource,
                                        GHashTable       *bnodes,
+                                       GHashTable       *visited,
                                        GError          **error);
 
 TrackerRowid tracker_data_update_ensure_resource (TrackerData  *data,

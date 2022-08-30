@@ -441,7 +441,8 @@ handle_cursor_reply (GTask        *task,
 
 	g_dbus_method_invocation_return_value (request->invocation, g_variant_new ("(^as)", variable_names));
 
-	if (!write_cursor (request, cursor, &write_error))
+	if (!write_cursor (request, cursor, &write_error) &&
+	    !g_error_matches (write_error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
 		g_warning ("Endpoint failed to fully write cursor: %s\n", write_error->message);
 	g_free (variable_names);
 	g_clear_error (&write_error);

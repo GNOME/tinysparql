@@ -468,13 +468,14 @@ check_result (TrackerSparqlCursor *cursor,
 		gchar *diff;
 
 		quoted_results = g_shell_quote (test_results->str);
-		command_line = g_strdup_printf ("echo -n %s | diff -u %s -", quoted_results, results_filename);
+		command_line = g_strdup_printf ("echo -n %s | diff -uZ %s -", quoted_results, results_filename);
 		quoted_command_line = g_shell_quote (command_line);
 		shell = g_strdup_printf ("sh -c %s", quoted_command_line);
 		g_spawn_command_line_sync (shell, &diff, NULL, NULL, &error);
 		g_assert_no_error (error);
 
-		g_error ("%s", diff);
+		if (diff && *diff)
+			g_error ("%s", diff);
 
 		g_free (quoted_results);
 		g_free (command_line);

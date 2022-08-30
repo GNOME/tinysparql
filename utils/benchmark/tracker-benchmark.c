@@ -117,6 +117,30 @@ create_resource (void)
 }
 
 static inline gpointer
+create_changing_resource (void)
+{
+	TrackerResource *resource;
+	gchar buf[2] = { 0, 0 };
+	static gint res = 0;
+	static gint counter = 0;
+	gchar *uri;
+
+	/* In order to keep large batches, and guaranteeing modifications
+	 * do not get coalesced, create one different URI per slot in the batch.
+	 */
+	uri = g_strdup_printf ("http://example.com/%d", res);
+	resource = tracker_resource_new (uri);
+	tracker_resource_set_uri (resource, "rdf:type", "rdfs:Resource");
+	buf[0] = '0' + counter;
+	tracker_resource_set_string (resource, "rdfs:label", (const gchar *) buf);
+	counter = (counter + 1) % 10;
+	res = (res + 1) % batch_size;
+	g_free (uri);
+
+	return resource;
+}
+
+static inline gpointer
 create_query (void)
 {
 	return g_strdup ("SELECT ?u { ?u a rdfs:Resource } limit 1");
@@ -149,6 +173,40 @@ create_batch (TrackerSparqlConnection *conn,
 		}
 
 		g_object_unref (resource);
+	}
+
+	return batch;
+}
+
+static inline TrackerBatch *
+create_batch_insert_delete (TrackerSparqlConnection *conn)
+{
+	TrackerBatch *batch;
+	int i;
+
+	batch = tracker_sparql_connection_create_batch (conn);
+
+	for (i = 0; i < batch_size; i++) {
+		gchar *uri;
+
+		uri = g_strdup_printf ("http://example.com/%d", i >> 1);
+
+		if (i % 2 == 0) {
+			TrackerResource *resource;
+
+			resource = tracker_resource_new (uri);
+			tracker_resource_set_uri (resource, "rdf:type", "rdfs:Resource");
+			tracker_batch_add_resource (batch, NULL, resource);
+			g_object_unref (resource);
+		} else {
+			gchar *query;
+
+			query = g_strdup_printf ("DELETE DATA { <%s> a rdfs:Resource }", uri);
+			tracker_batch_add_sparql (batch, query);
+			g_free (query);
+		}
+
+		g_free (uri);
 	}
 
 	return batch;
@@ -250,6 +308,44 @@ benchmark_update_sparql (TrackerSparqlConnection *conn,
 }
 
 static void
+benchmark_update_insert_delete (TrackerSparqlConnection *conn,
+                                DataCreateFunc           data_func,
+                                double                  *elapsed,
+                                int                     *elems,
+                                double                  *min,
+                                double                  *max)
+{
+	GTimer *timer;
+	GError *error = NULL;
+
+	timer = g_timer_new ();
+
+	while (*elapsed < duration) {
+		TrackerBatch *batch;
+		double batch_elapsed;
+
+		g_timer_reset (timer);
+		batch = create_batch_insert_delete (conn);
+		tracker_batch_execute (batch, NULL, &error);
+		g_assert_no_error (error);
+		g_object_unref (batch);
+
+		batch_elapsed = g_timer_elapsed (timer, NULL);
+		*min = MIN (*min, batch_elapsed);
+		*max = MAX (*max, batch_elapsed);
+		*elapsed += batch_elapsed;
+		*elems += 1;
+	}
+
+	/* We count things by resources, not batches */
+	*min /= batch_size;
+	*max /= batch_size;
+	*elems *= batch_size;
+
+	g_timer_destroy (timer);
+}
+
+static void
 benchmark_query_statement (TrackerSparqlConnection *conn,
                            DataCreateFunc           data_func,
                            double                  *elapsed,
@@ -334,6 +430,8 @@ struct {
 } benchmarks[] = {
 	{ "Resource batch update (sync)", benchmark_update_batch, create_resource },
 	{ "SPARQL batch update (sync)", benchmark_update_sparql, create_resource },
+	{ "Resource modification (sync)", benchmark_update_batch, create_changing_resource },
+	{ "Resource insert+delete (sync)", benchmark_update_insert_delete, NULL },
 	{ "Prepared statement query (sync)", benchmark_query_statement, create_query },
 	{ "SPARQL query (sync)", benchmark_query_sparql, create_query },
 };
@@ -354,6 +452,8 @@ run_benchmarks (TrackerSparqlConnection *conn)
 		double elapsed = 0, min = G_MAXDOUBLE, max = -G_MAXDOUBLE, adjusted, avg;
 		int elems = 0;
 
+		g_print ("%*s\t\t", max_len, benchmarks[i].desc);
+
 		benchmarks[i].func (conn, benchmarks[i].data_func,
 		                    &elapsed, &elems, &min, &max);
 
@@ -368,8 +468,7 @@ run_benchmarks (TrackerSparqlConnection *conn)
 		}
 
 		avg = elapsed / elems;
-		g_print ("%*s\t\t%.3f\t%.3f\t%.3f %s\t%.3f %s\t%3.3f %s\n",
-		         max_len, benchmarks[i].desc,
+		g_print ("%.3f\t%.3f\t%.3f %s\t%.3f %s\t%3.3f %s\n",
 		         adjusted,
 		         elems / elapsed,
 		         transform_unit (min), unit_string (min),

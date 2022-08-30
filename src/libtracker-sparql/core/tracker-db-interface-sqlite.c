@@ -63,13 +63,6 @@
 #define sqlite3_value_text(x) ((const gchar *) sqlite3_value_text(x))
 
 typedef struct {
-	TrackerDBStatement *head;
-	TrackerDBStatement *tail;
-	guint size;
-	guint max;
-} TrackerDBStatementLru;
-
-typedef struct {
 	GRegex *syntax_check;
 	GRegex *replacement;
 	GRegex *unescape;
@@ -82,8 +75,6 @@ struct TrackerDBInterface {
 	gchar *shared_cache_key;
 	sqlite3 *db;
 
-	GHashTable *dynamic_statements;
-
 	/* Compiled regular expressions */
 	TrackerDBReplaceFuncChecks replace_func_checks;
 
@@ -93,10 +84,8 @@ struct TrackerDBInterface {
 	guint flags;
 	GCancellable *cancellable;
 
-	TrackerDBStatementLru select_stmt_lru;
-	TrackerDBStatementLru update_stmt_lru;
-
-	gchar *fts_properties;
+	TrackerDBStatementMru select_stmt_mru;
+	TrackerDBStatementMru update_stmt_mru;
 
 	/* Used if TRACKER_DB_INTERFACE_USE_MUTEX is set */
 	GMutex mutex;
@@ -127,9 +116,10 @@ struct TrackerDBStatement {
 	TrackerDBInterface *db_interface;
 	sqlite3_stmt *stmt;
 	guint stmt_is_used : 1;
-	guint stmt_is_owned : 1;
+	guint stmt_is_borrowed : 1;
 	TrackerDBStatement *next;
 	TrackerDBStatement *prev;
+	gconstpointer mru_key;
 };
 
 struct TrackerDBStatementClass {
@@ -2219,10 +2209,8 @@ close_database (TrackerDBInterface *db_interface)
 {
 	gint rc;
 
-	if (db_interface->dynamic_statements) {
-		g_hash_table_unref (db_interface->dynamic_statements);
-		db_interface->dynamic_statements = NULL;
-	}
+	tracker_db_statement_mru_finish (&db_interface->select_stmt_mru);
+	tracker_db_statement_mru_finish (&db_interface->update_stmt_mru);
 
 	if (db_interface->replace_func_checks.syntax_check)
 		g_regex_unref (db_interface->replace_func_checks.syntax_check);
@@ -2240,34 +2228,6 @@ close_database (TrackerDBInterface *db_interface)
 	}
 }
 
-static gchar **
-_fts_create_properties (GHashTable *properties)
-{
-	GHashTableIter iter;
-	GPtrArray *cols;
-	GList *columns;
-	gchar *table;
-
-	if (g_hash_table_size (properties) == 0) {
-		return NULL;
-	}
-
-	g_hash_table_iter_init (&iter, properties);
-	cols = g_ptr_array_new ();
-
-	while (g_hash_table_iter_next (&iter, (gpointer *) &table,
-				       (gpointer *) &columns)) {
-		while (columns) {
-			g_ptr_array_add (cols, g_strdup (columns->data));
-			columns = columns->next;
-		}
-	}
-
-	g_ptr_array_add (cols, NULL);
-
-	return (gchar **) g_ptr_array_free (cols, FALSE);
-}
-
 gboolean
 tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
                                       const gchar         *database,
@@ -2277,7 +2237,6 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
                                       GError             **error)
 {
 	GError *inner_error = NULL;
-	GStrv fts_columns;
 
 	if (!tracker_fts_init_db (db_interface->db, db_interface,
 	                          db_interface->flags, properties, error))
@@ -2291,25 +2250,6 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
 		                            inner_error,
 		                            "FTS tables creation failed: ");
 		return FALSE;
-	}
-
-	fts_columns = _fts_create_properties (properties);
-
-	if (fts_columns) {
-		GString *fts_properties;
-		gint i;
-
-		fts_properties = g_string_new (NULL);
-
-		for (i = 0; fts_columns[i] != NULL; i++) {
-			g_string_append_printf (fts_properties, ", \"%s\"",
-			                        fts_columns[i]);
-		}
-
-		g_free (db_interface->fts_properties);
-		db_interface->fts_properties = g_string_free (fts_properties,
-		                                              FALSE);
-		g_strfreev (fts_columns);
 	}
 
 	return TRUE;
@@ -2335,130 +2275,130 @@ tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
 }
 
 static gchar *
-tracker_db_interface_sqlite_fts_create_query (TrackerDBInterface  *db_interface,
-                                              const gchar         *database,
-                                              gboolean             delete,
-                                              const gchar        **properties)
+tracker_db_interface_sqlite_fts_create_update_query (TrackerDBInterface  *db_interface,
+                                                     const gchar         *database,
+                                                     const gchar        **properties)
 {
-	GString *insert_str, *values_str;
-	gint i;
+        GString *props_str;
+        gchar *query;
+        gint i;
 
-	insert_str = g_string_new (NULL);
-	g_string_append_printf (insert_str, "INSERT INTO \"%s\".fts5 (", database);
-	values_str = g_string_new (NULL);
+        props_str = g_string_new (NULL);
 
-	if (delete) {
-		g_string_append (insert_str, "fts5,");
-		g_string_append (values_str, "'delete',");
-	}
+        for (i = 0; properties[i] != NULL; i++) {
+		if (i != 0)
+			g_string_append_c (props_str, ',');
 
-	g_string_append (insert_str, "rowid");
-	g_string_append (values_str, "?");
+                g_string_append_printf (props_str, "\"%s\"", properties[i]);
+        }
 
-	for (i = 0; properties[i] != NULL; i++) {
-		g_string_append_printf (insert_str, ",\"%s\"", properties[i]);
-		g_string_append (values_str, ",?");
-	}
+        query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (ROWID, %s) "
+                                 "SELECT ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ? AND COALESCE(%s, NULL) IS NOT NULL",
+                                 database,
+                                 props_str->str,
+                                 props_str->str,
+                                 database,
+                                 props_str->str);
+        g_string_free (props_str, TRUE);
 
-	g_string_append_printf (insert_str, ") VALUES (%s)", values_str->str);
-	g_string_free (values_str, TRUE);
-
-	return g_string_free (insert_str, FALSE);
+        return query;
 }
 
 gboolean
 tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
                                              const gchar         *database,
-                                             int                  id,
+                                             TrackerRowid         id,
                                              const gchar        **properties,
-                                             const gchar        **text)
+                                             GError             **error)
 {
 	TrackerDBStatement *stmt;
-	GError *error = NULL;
+	GError *inner_error = NULL;
 	gchar *query;
-	gint i;
 
-	query = tracker_db_interface_sqlite_fts_create_query (db_interface,
-							      database,
-	                                                      FALSE, properties);
+	query = tracker_db_interface_sqlite_fts_create_update_query (db_interface,
+	                                                             database,
+	                                                             properties);
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error,
+	                                              error,
 	                                              query);
 	g_free (query);
 
-        if (!stmt || error) {
-                if (error) {
-                        g_warning ("Could not create FTS insert statement: %s\n",
-                                   error->message);
-                        g_error_free (error);
-                }
+        if (!stmt)
                 return FALSE;
-        }
 
         tracker_db_statement_bind_int (stmt, 0, id);
-        for (i = 0; text[i] != NULL; i++) {
-	        tracker_db_statement_bind_text (stmt, i + 1, text[i]);
-        }
-
-        tracker_db_statement_execute (stmt, &error);
+        tracker_db_statement_execute (stmt, &inner_error);
         g_object_unref (stmt);
 
-        if (error) {
-                g_warning ("Could not insert FTS text: %s", error->message);
-                g_error_free (error);
+        if (inner_error) {
+	        g_propagate_prefixed_error (error, inner_error, "Could not insert FTS text: ");
                 return FALSE;
         }
 
         return TRUE;
 }
 
+static gchar *
+tracker_db_interface_sqlite_fts_create_delete_query (TrackerDBInterface  *db_interface,
+                                                     const gchar         *database,
+                                                     const gchar        **properties)
+{
+        GString *props_str;
+        gchar *query;
+        gint i;
+
+        props_str = g_string_new (NULL);
+
+        for (i = 0; properties[i] != NULL; i++) {
+		if (i != 0)
+			g_string_append_c (props_str, ',');
+
+                g_string_append_printf (props_str, "\"%s\"", properties[i]);
+        }
+
+        query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (fts5, ROWID, %s) "
+                                 "SELECT 'delete', ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ? AND COALESCE(%s, NULL) IS NOT NULL",
+                                 database,
+                                 props_str->str,
+                                 props_str->str,
+                                 database,
+                                 props_str->str);
+        g_string_free (props_str, TRUE);
+
+        return query;
+}
+
 gboolean
 tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
                                              const gchar         *database,
-                                             int                  rowid,
+                                             TrackerRowid         rowid,
                                              const gchar        **properties,
-                                             const gchar        **old_text)
+                                             GError             **error)
 {
 	TrackerDBStatement *stmt;
-	GError *error = NULL;
+	GError *inner_error = NULL;
 	gchar *query;
-	gboolean has_text = FALSE;
-	gint i;
 
-	for (i = 0; old_text[i] != NULL; i++)
-		has_text |= old_text[i] && *old_text[i];
-
-	if (!has_text)
-		return TRUE;
-
-	query = tracker_db_interface_sqlite_fts_create_query (db_interface,
-							      database,
-	                                                      TRUE, properties);
+	query = tracker_db_interface_sqlite_fts_create_delete_query (db_interface,
+	                                                             database,
+	                                                             properties);
 	stmt = tracker_db_interface_create_statement (db_interface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &error,
+	                                              error,
 	                                              query);
 	g_free (query);
 
-	if (!stmt || error) {
-		g_warning ("Could not create FTS delete statement: %s",
-		           error ? error->message : "No error given");
-		g_clear_error (&error);
+	if (!stmt)
 		return FALSE;
-	}
 
 	tracker_db_statement_bind_int (stmt, 0, rowid);
-	for (i = 0; old_text[i] != NULL; i++)
-		tracker_db_statement_bind_text (stmt, i + 1, old_text[i]);
-
-	tracker_db_statement_execute (stmt, &error);
+	tracker_db_statement_execute (stmt, &inner_error);
 	g_object_unref (stmt);
 
-	if (error) {
-		g_warning ("Could not delete FTS text: %s", error->message);
-		g_error_free (error);
-		return FALSE;
+	if (inner_error) {
+	        g_propagate_prefixed_error (error, inner_error, "Could not delete FTS text: ");
+                return FALSE;
 	}
 
 	return TRUE;
@@ -2533,7 +2473,6 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	db_interface = TRACKER_DB_INTERFACE (object);
 
 	close_database (db_interface);
-	g_free (db_interface->fts_properties);
 
 	TRACKER_NOTE (SQLITE, g_message ("Closed sqlite3 database:'%s'", db_interface->filename));
 
@@ -2583,9 +2522,10 @@ tracker_db_interface_class_init (TrackerDBInterfaceClass *class)
 static void
 tracker_db_interface_init (TrackerDBInterface *db_interface)
 {
-	db_interface->dynamic_statements = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                                          NULL,
-	                                                          (GDestroyNotify) g_object_unref);
+	tracker_db_statement_mru_init (&db_interface->select_stmt_mru, 100,
+	                               g_str_hash, g_str_equal, NULL);
+	tracker_db_statement_mru_init (&db_interface->update_stmt_mru, 100,
+	                               g_str_hash, g_str_equal, NULL);
 }
 
 void
@@ -2593,21 +2533,21 @@ tracker_db_interface_set_max_stmt_cache_size (TrackerDBInterface         *db_int
                                               TrackerDBStatementCacheType cache_type,
                                               guint                       max_size)
 {
-	TrackerDBStatementLru *stmt_lru;
+	TrackerDBStatementMru *stmt_mru;
 
 	if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE) {
-		stmt_lru = &db_interface->update_stmt_lru;
+		stmt_mru = &db_interface->update_stmt_mru;
 	} else if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT) {
-		stmt_lru = &db_interface->select_stmt_lru;
+		stmt_mru = &db_interface->select_stmt_mru;
 	} else {
 		return;
 	}
 
 	/* Must be larger than 2 to make sense (to have a tail and head) */
 	if (max_size > 2) {
-		stmt_lru->max = max_size;
+		stmt_mru->max = max_size;
 	} else {
-		stmt_lru->max = 3;
+		stmt_mru->max = 3;
 	}
 }
 
@@ -2641,69 +2581,55 @@ tracker_db_interface_prepare_stmt (TrackerDBInterface  *db_interface,
 	return sqlite_stmt;
 }
 
-static TrackerDBStatement *
-tracker_db_interface_lru_lookup (TrackerDBInterface          *db_interface,
-                                 TrackerDBStatementCacheType *cache_type,
-                                 const gchar                 *full_query)
+void
+tracker_db_statement_mru_init (TrackerDBStatementMru *mru,
+                               guint                  size,
+                               GHashFunc              hash_func,
+                               GEqualFunc             equal_func,
+                               GDestroyNotify         key_destroy)
 {
-	TrackerDBStatement *stmt;
-
-	g_return_val_if_fail (*cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE ||
-	                      *cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
-	                      NULL);
-
-	/* There are three kinds of queries:
-	 * a) Cached queries: SELECT and UPDATE ones (cache_type)
-	 * b) Non-Cached queries: NONE ones (cache_type)
-	 * c) Forced Non-Cached: in case of a stmt being already in use, we can't
-	 *    reuse it (you can't use two different loops on a sqlite3_stmt, of
-	 *    course). This happens with recursive uses of a cursor, for example.
-	 */
-
-	stmt = g_hash_table_lookup (db_interface->dynamic_statements,
-	                            full_query);
-	if (!stmt) {
-		/* Query not in LRU */
-		return NULL;
-	}
-
-	/* a) Cached */
-
-	if (stmt && stmt->stmt_is_owned) {
-		/* c) Forced non-cached
-		 * prepared statement is owned somewhere else, create new uncached one
-		 */
-		stmt = NULL;
-		/* Make sure to set cache_type here, to avoid replacing
-		 * the current statement.
-		 */
-		*cache_type = TRACKER_DB_STATEMENT_CACHE_TYPE_NONE;
-	}
-
-	return stmt;
+	mru->head = mru->tail = NULL;
+	mru->max = size;
+	mru->size = 0;
+	mru->stmts = g_hash_table_new_full (hash_func, equal_func,
+	                                    key_destroy, g_object_unref);
 }
 
-static void
-tracker_db_interface_lru_insert_unchecked (TrackerDBInterface          *db_interface,
-                                           TrackerDBStatementCacheType  cache_type,
-                                           TrackerDBStatement          *stmt)
+void
+tracker_db_statement_mru_finish (TrackerDBStatementMru *stmt_mru)
 {
-	TrackerDBStatementLru *stmt_lru;
+	stmt_mru->head = stmt_mru->tail = NULL;
+	stmt_mru->size = stmt_mru->max = 0;
+	g_clear_pointer (&stmt_mru->stmts, g_hash_table_unref);
+}
 
-	g_return_if_fail (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE ||
-	                  cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT);
+void
+tracker_db_statement_mru_clear (TrackerDBStatementMru *stmt_mru)
+{
+	stmt_mru->head = stmt_mru->tail = NULL;
+	stmt_mru->size = 0;
+	g_hash_table_remove_all (stmt_mru->stmts);
+}
 
-	/* LRU holds a reference to the stmt */
-	stmt_lru = cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE ?
-		&db_interface->update_stmt_lru : &db_interface->select_stmt_lru;
+TrackerDBStatement *
+tracker_db_statement_mru_lookup (TrackerDBStatementMru *stmt_mru,
+                                 gconstpointer          key)
+{
+	return g_hash_table_lookup (stmt_mru->stmts, key);
+}
 
-	/* use replace instead of insert to make sure we store the string that
-	 * belongs to the right sqlite statement to ensure the lifetime of the string
+void
+tracker_db_statement_mru_insert (TrackerDBStatementMru *stmt_mru,
+                                 gpointer               key,
+                                 TrackerDBStatement    *stmt)
+{
+	g_return_if_fail (stmt->mru_key == NULL);
+
+	/* use replace instead of insert to make sure we store the key that
+	 * belongs to the right sqlite statement to ensure the lifetime of the key
 	 * matches the statement
 	 */
-	g_hash_table_replace (db_interface->dynamic_statements,
-	                      (gpointer) sqlite3_sql (stmt->stmt),
-	                      g_object_ref_sink (stmt));
+	g_hash_table_replace (stmt_mru->stmts, key, g_object_ref_sink (stmt));
 
 	/* So the ring looks a bit like this: *
 	 *                                    *
@@ -2714,59 +2640,55 @@ tracker_db_interface_lru_insert_unchecked (TrackerDBInterface          *db_inter
 	 *    `- [n-p] <- [n-p] <--------'    *
 	 *                                    */
 
-	if (stmt_lru->size == 0) {
-		stmt_lru->head = stmt;
-		stmt_lru->tail = stmt;
-	} else if (stmt_lru->size >= stmt_lru->max) {
+	if (stmt_mru->size == 0) {
+		stmt_mru->head = stmt;
+		stmt_mru->tail = stmt;
+	} else if (stmt_mru->size >= stmt_mru->max) {
 		TrackerDBStatement *new_head;
 
-		/* We reached max-size of the LRU stmt cache. Destroy current
-		 * least recently used (stmt_lru.head) and fix the ring. For
+		/* We reached max-size of the MRU stmt cache. Destroy current
+		 * least recently used (stmt_mru.head) and fix the ring. For
 		 * that we take out the current head, and close the ring.
 		 * Then we assign head->next as new head.
 		 */
-		new_head = stmt_lru->head->next;
-		g_hash_table_remove (db_interface->dynamic_statements,
-		                     (gpointer) sqlite3_sql (stmt_lru->head->stmt));
-		stmt_lru->size--;
-		stmt_lru->head = new_head;
+		new_head = stmt_mru->head->next;
+		g_hash_table_remove (stmt_mru->stmts, (gpointer) stmt_mru->head->mru_key);
+		stmt_mru->head->mru_key = NULL;
+		stmt_mru->head->next = stmt_mru->head->prev = NULL;
+		stmt_mru->size--;
+		stmt_mru->head = new_head;
 	}
 
 	/* Set the current stmt (which is always new here) as the new tail
 	 * (new most recent used). We insert current stmt between head and
 	 * current tail, and we set tail to current stmt.
 	 */
-	stmt_lru->size++;
-	stmt->next = stmt_lru->head;
-	stmt_lru->head->prev = stmt;
+	stmt_mru->size++;
+	stmt->next = stmt_mru->head;
+	stmt_mru->head->prev = stmt;
 
-	stmt_lru->tail->next = stmt;
-	stmt->prev = stmt_lru->tail;
-	stmt_lru->tail = stmt;
+	stmt_mru->tail->next = stmt;
+	stmt->prev = stmt_mru->tail;
+	stmt_mru->tail = stmt;
+
+	stmt->mru_key = key;
 }
 
-static void
-tracker_db_interface_lru_update (TrackerDBInterface          *db_interface,
-                                 TrackerDBStatementCacheType  cache_type,
-                                 TrackerDBStatement          *stmt)
+void
+tracker_db_statement_mru_update (TrackerDBStatementMru *stmt_mru,
+                                 TrackerDBStatement    *stmt)
 {
-	TrackerDBStatementLru *stmt_lru;
-
-	g_return_if_fail (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE ||
-	                  cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT);
-
-	stmt_lru = cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE ?
-		&db_interface->update_stmt_lru : &db_interface->select_stmt_lru;
+	g_return_if_fail (stmt->mru_key != NULL);
 
 	tracker_db_statement_sqlite_reset (stmt);
 
-	if (stmt == stmt_lru->head) {
+	if (stmt == stmt_mru->head) {
 		/* Current stmt is least recently used, shift head and tail
 		 * of the ring to efficiently make it most recently used.
 		 */
-		stmt_lru->head = stmt_lru->head->next;
-		stmt_lru->tail = stmt_lru->tail->next;
-	} else if (stmt != stmt_lru->tail) {
+		stmt_mru->head = stmt_mru->head->next;
+		stmt_mru->tail = stmt_mru->tail->next;
+	} else if (stmt != stmt_mru->tail) {
 		/* Current statement isn't most recently used, make it most
 		 * recently used now (less efficient way than above).
 		 */
@@ -2776,11 +2698,11 @@ tracker_db_interface_lru_update (TrackerDBInterface          *db_interface,
 		stmt->next->prev = stmt->prev;
 
 		/* Put stmt as tail (most recent used) */
-		stmt->next = stmt_lru->head;
-		stmt_lru->head->prev = stmt;
-		stmt->prev = stmt_lru->tail;
-		stmt_lru->tail->next = stmt;
-		stmt_lru->tail = stmt;
+		stmt->next = stmt_mru->head;
+		stmt_mru->head->prev = stmt;
+		stmt->prev = stmt_mru->tail;
+		stmt_mru->tail->next = stmt;
+		stmt_mru->tail = stmt;
 	}
 
 	/* if (stmt == tail), it's already the most recently used in the
@@ -2794,14 +2716,25 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
                                        const gchar                  *query)
 {
 	TrackerDBStatement *stmt = NULL;
+	TrackerDBStatementMru *mru = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_DB_INTERFACE (db_interface), NULL);
 
 	tracker_db_interface_lock (db_interface);
 
-	if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
-		stmt = tracker_db_interface_lru_lookup (db_interface, &cache_type,
-		                                        query);
+	/* MRU holds a reference to the stmt */
+	if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT)
+		mru = &db_interface->select_stmt_mru;
+	else if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE)
+		mru = &db_interface->update_stmt_mru;
+
+	if (mru)
+		stmt = tracker_db_statement_mru_lookup (mru, query);
+
+	if (stmt && stmt->stmt_is_borrowed) {
+		/* prepared statement is owned somewhere else, create new uncached one */
+		stmt = NULL;
+		mru = NULL;
 	}
 
 	if (!stmt) {
@@ -2818,17 +2751,13 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 		stmt = tracker_db_statement_sqlite_new (db_interface,
 		                                        sqlite_stmt);
 
-		if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
-			tracker_db_interface_lru_insert_unchecked (db_interface,
-			                                           cache_type,
-			                                           stmt);
-		}
-	} else if (cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE) {
-		tracker_db_interface_lru_update (db_interface, cache_type,
-		                                 stmt);
+		if (mru)
+			tracker_db_statement_mru_insert (mru, (gpointer) sqlite3_sql (stmt->stmt), stmt);
+	} else if (mru) {
+		tracker_db_statement_mru_update (mru, stmt);
 	}
 
-	stmt->stmt_is_owned = TRUE;
+	stmt->stmt_is_borrowed = cache_type != TRACKER_DB_STATEMENT_CACHE_TYPE_NONE;
 
 	tracker_db_interface_unlock (db_interface);
 
@@ -2937,31 +2866,26 @@ execute_stmt (TrackerDBInterface  *interface,
 			return FALSE;
 		}
 
-		if (!error) {
-			g_warning ("Could not perform SQLite operation, error:%d->'%s'",
-			           sqlite3_errcode (interface->db),
-			           sqlite3_errmsg (interface->db));
+		if (result == SQLITE_INTERRUPT) {
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_INTERRUPTED,
+			             "Interrupted");
+		} else if (result == SQLITE_CONSTRAINT) {
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_CONSTRAINT,
+			             "Constraint would be broken: %s",
+			             sqlite3_errmsg (interface->db));
 		} else {
-			if (result == SQLITE_INTERRUPT) {
-				g_set_error (error,
-				             TRACKER_DB_INTERFACE_ERROR,
-				             TRACKER_DB_INTERRUPTED,
-				             "Interrupted");
-			} else if (result == SQLITE_CONSTRAINT) {
-				g_set_error (error,
-				             TRACKER_DB_INTERFACE_ERROR,
-				             TRACKER_DB_CONSTRAINT,
-				             "Constraint would be broken");
-			} else {
-				g_set_error (error,
-				             TRACKER_DB_INTERFACE_ERROR,
-				             errno != ENOSPC ? TRACKER_DB_QUERY_ERROR : TRACKER_DB_NO_SPACE,
-				             "%s%s%s%s",
-				             sqlite3_errmsg (interface->db),
-				             errno != 0 ? " (strerror of errno (not necessarily related): " : "",
-				             errno != 0 ? g_strerror (errno) : "",
-				             errno != 0 ? ")" : "");
-			}
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             errno != ENOSPC ? TRACKER_DB_QUERY_ERROR : TRACKER_DB_NO_SPACE,
+			             "%s%s%s%s",
+			             sqlite3_errmsg (interface->db),
+			             errno != 0 ? " (strerror of errno (not necessarily related): " : "",
+			             errno != 0 ? g_strerror (errno) : "",
+			             errno != 0 ? ")" : "");
 		}
 	}
 
@@ -3071,7 +2995,6 @@ static TrackerDBStatement *
 tracker_db_statement_sqlite_grab (TrackerDBStatement *stmt)
 {
 	g_assert (!stmt->stmt_is_used);
-	g_assert (stmt->stmt_is_owned);
 	stmt->stmt_is_used = TRUE;
 	g_object_ref (stmt->db_interface);
 	return g_object_ref (stmt);
@@ -3082,13 +3005,12 @@ tracker_db_statement_sqlite_release (TrackerDBStatement *stmt)
 {
 	TrackerDBInterface *iface = stmt->db_interface;
 
-	g_assert (stmt->stmt_is_owned);
+	stmt->stmt_is_borrowed = FALSE;
 
-	stmt->stmt_is_owned = FALSE;
+	tracker_db_statement_sqlite_reset (stmt);
 
 	if (stmt->stmt_is_used) {
 		stmt->stmt_is_used = FALSE;
-		tracker_db_statement_sqlite_reset (stmt);
 		g_object_unref (stmt);
 		g_object_unref (iface);
 	}
@@ -3428,29 +3350,29 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 
 		tracker_db_interface_lock (iface);
 
-		if (g_cancellable_is_cancelled (cancellable)) {
-			result = SQLITE_INTERRUPT;
+		if (g_cancellable_set_error_if_cancelled (cancellable, error)) {
 			sqlite3_reset (cursor->stmt);
+			cursor->finished = TRUE;
 		} else {
 			/* only one statement can be active at the same time per interface */
 			iface->cancellable = cancellable;
 			result = stmt_step (cursor->stmt);
 			iface->cancellable = NULL;
-		}
 
-		if (result == SQLITE_INTERRUPT) {
-			g_set_error (error,
-			             TRACKER_DB_INTERFACE_ERROR,
-			             TRACKER_DB_INTERRUPTED,
-			             "Interrupted");
-		} else if (result != SQLITE_ROW && result != SQLITE_DONE) {
-			g_set_error (error,
-			             TRACKER_DB_INTERFACE_ERROR,
-			             TRACKER_DB_QUERY_ERROR,
-			             "%s", sqlite3_errmsg (iface->db));
-		}
+			if (result == SQLITE_INTERRUPT) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_INTERRUPTED,
+				             "Interrupted");
+			} else if (result != SQLITE_ROW && result != SQLITE_DONE) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_QUERY_ERROR,
+				             "%s", sqlite3_errmsg (iface->db));
+			}
 
-		cursor->finished = (result != SQLITE_ROW);
+			cursor->finished = (result != SQLITE_ROW);
+		}
 
 		tracker_db_interface_unlock (iface);
 	}
@@ -3712,15 +3634,132 @@ tracker_db_cursor_get_string (TrackerDBCursor *cursor,
 	return result;
 }
 
-void
+gboolean
 tracker_db_statement_execute (TrackerDBStatement  *stmt,
                               GError             **error)
 {
-	g_return_if_fail (TRACKER_IS_DB_STATEMENT (stmt));
-	g_return_if_fail (!stmt->stmt_is_used);
+	gboolean retval;
 
-	execute_stmt (stmt->db_interface, stmt->stmt, NULL, error);
+	g_return_val_if_fail (TRACKER_IS_DB_STATEMENT (stmt), FALSE);
+	g_return_val_if_fail (!stmt->stmt_is_used, FALSE);
+
+	retval = execute_stmt (stmt->db_interface, stmt->stmt, NULL, error);
 	tracker_db_statement_sqlite_release (stmt);
+
+	return retval;
+}
+
+GArray *
+tracker_db_statement_get_values (TrackerDBStatement   *stmt,
+                                 TrackerPropertyType   type,
+                                 GError              **error)
+{
+	gint result = SQLITE_OK;
+	GArray *values;
+
+	tracker_db_interface_lock (stmt->db_interface);
+	tracker_db_interface_ref_use (stmt->db_interface);
+	tracker_db_statement_sqlite_grab (stmt);
+
+#ifdef G_ENABLE_DEBUG
+        if (TRACKER_DEBUG_CHECK (SQL_STATEMENTS)) {
+	        gchar *full_query;
+
+	        full_query = sqlite3_expanded_sql (stmt->stmt);
+
+	        if (full_query) {
+		        g_message ("Executing query: '%s'", full_query);
+		        sqlite3_free (full_query);
+	        } else {
+		        g_message ("Executing query: '%s'",
+		                   sqlite3_sql (stmt->stmt));
+	        }
+        }
+#endif
+
+	values = g_array_new (FALSE, TRUE, sizeof (GValue));
+	g_array_set_clear_func (values, (GDestroyNotify) g_value_unset);
+
+	while (TRUE) {
+		GError *inner_error = NULL;
+		GDateTime *datetime;
+		GValue gvalue = G_VALUE_INIT;
+
+		result = stmt_step (stmt->stmt);
+
+		if (result == SQLITE_DONE) {
+			break;
+		} else if (result != SQLITE_ROW) {
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_QUERY_ERROR,
+			             "%s", sqlite3_errmsg (stmt->db_interface->db));
+			g_clear_pointer (&values, g_array_unref);
+			break;
+		}
+
+		if (sqlite3_column_type (stmt->stmt, 0) == SQLITE_NULL)
+			continue;
+
+		switch (type) {
+		case TRACKER_PROPERTY_TYPE_UNKNOWN:
+		case TRACKER_PROPERTY_TYPE_STRING:
+			g_value_init (&gvalue, G_TYPE_STRING);
+			g_value_set_string (&gvalue, (gchar *) sqlite3_column_text (stmt->stmt, 0));
+			break;
+		case TRACKER_PROPERTY_TYPE_LANGSTRING: {
+			sqlite3_value *val = sqlite3_column_value (stmt->stmt, 0);
+			gchar *text;
+
+			text = g_strdup ((const gchar *) sqlite3_value_text (val));
+
+			g_value_init (&gvalue, G_TYPE_BYTES);
+			g_value_take_boxed (&gvalue,
+			                    g_bytes_new_with_free_func (text,
+			                                                sqlite3_value_bytes (val),
+			                                                g_free, text));
+			break;
+		}
+		case TRACKER_PROPERTY_TYPE_DOUBLE:
+			g_value_init (&gvalue, G_TYPE_DOUBLE);
+			g_value_set_double (&gvalue, sqlite3_column_double (stmt->stmt, 0));
+			break;
+		case TRACKER_PROPERTY_TYPE_BOOLEAN:
+		case TRACKER_PROPERTY_TYPE_INTEGER:
+		case TRACKER_PROPERTY_TYPE_RESOURCE:
+			g_value_init (&gvalue, G_TYPE_INT64);
+			g_value_set_int64 (&gvalue, sqlite3_column_int64 (stmt->stmt, 0));
+			break;
+		case TRACKER_PROPERTY_TYPE_DATE:
+		case TRACKER_PROPERTY_TYPE_DATETIME:
+			if (sqlite3_column_type (stmt->stmt, 0) == SQLITE_INTEGER) {
+				datetime = g_date_time_new_from_unix_utc (sqlite3_column_int64 (stmt->stmt, 0));
+			} else {
+				datetime = tracker_date_new_from_iso8601 ((const gchar *) sqlite3_column_text (stmt->stmt, 0),
+				                                          &inner_error);
+				if (!datetime)
+					break;
+			}
+
+			g_value_init (&gvalue, G_TYPE_DATE_TIME);
+			g_value_take_boxed (&gvalue, datetime);
+			break;
+		}
+
+		if (inner_error) {
+			g_propagate_error (error, inner_error);
+			g_clear_pointer (&values, g_array_unref);
+			break;
+		}
+
+		g_array_append_val (values, gvalue);
+	}
+
+	tracker_db_statement_sqlite_release (stmt);
+	tracker_db_interface_unref_use (stmt->db_interface);
+	tracker_db_interface_unlock (stmt->db_interface);
+
+	return values;
 }
 
 TrackerDBCursor *
@@ -3757,8 +3796,6 @@ tracker_db_cursor_init (TrackerDBCursor *cursor)
 static void
 tracker_db_statement_sqlite_reset (TrackerDBStatement *stmt)
 {
-	g_assert (!stmt->stmt_is_used);
-
 	sqlite3_reset (stmt->stmt);
 	sqlite3_clear_bindings (stmt->stmt);
 }
@@ -3871,11 +3908,8 @@ tracker_db_interface_detach_database (TrackerDBInterface  *db_interface,
 gssize
 tracker_db_interface_sqlite_release_memory (TrackerDBInterface *db_interface)
 {
-	db_interface->select_stmt_lru.head = db_interface->select_stmt_lru.tail = NULL;
-	db_interface->select_stmt_lru.size = 0;
-	db_interface->update_stmt_lru.head = db_interface->update_stmt_lru.tail = NULL;
-	db_interface->update_stmt_lru.size = 0;
-	g_hash_table_remove_all (db_interface->dynamic_statements);
+	tracker_db_statement_mru_clear (&db_interface->select_stmt_mru);
+	tracker_db_statement_mru_clear (&db_interface->update_stmt_mru);
 
 	return (gssize) sqlite3_db_release_memory (db_interface->db);
 }

@@ -76,6 +76,15 @@ typedef struct TrackerDBStatement      TrackerDBStatement;
 typedef struct TrackerDBStatementClass TrackerDBStatementClass;
 typedef struct TrackerDBCursor         TrackerDBCursor;
 typedef struct TrackerDBCursorClass    TrackerDBCursorClass;
+typedef struct TrackerDBStatementMru   TrackerDBStatementMru;
+
+struct TrackerDBStatementMru {
+	TrackerDBStatement *head;
+	TrackerDBStatement *tail;
+	GHashTable *stmts;
+	guint size;
+	guint max;
+};
 
 GQuark                  tracker_db_interface_error_quark             (void);
 
@@ -117,6 +126,7 @@ gboolean                tracker_db_interface_end_db_transaction      (TrackerDBI
                                                                       GError                    **error);
 gboolean                tracker_db_interface_get_is_used             (TrackerDBInterface         *interface);
 
+/* Statements */
 void                    tracker_db_statement_bind_double             (TrackerDBStatement         *stmt,
                                                                       int                         index,
                                                                       double                      value);
@@ -134,13 +144,34 @@ void                    tracker_db_statement_bind_bytes              (TrackerDBS
 void                    tracker_db_statement_bind_value              (TrackerDBStatement         *stmt,
                                                                       int                         index,
 								      const GValue               *value);
-void                    tracker_db_statement_execute                 (TrackerDBStatement         *stmt,
+gboolean                tracker_db_statement_execute                 (TrackerDBStatement         *stmt,
                                                                       GError                    **error);
 TrackerDBCursor *       tracker_db_statement_start_cursor            (TrackerDBStatement         *stmt,
                                                                       GError                    **error);
 TrackerDBCursor *       tracker_db_statement_start_sparql_cursor     (TrackerDBStatement         *stmt,
                                                                       guint                       n_columns,
                                                                       GError                    **error);
+
+/* Statement caches */
+void tracker_db_statement_mru_init (TrackerDBStatementMru *mru,
+                                    guint                  size,
+                                    GHashFunc              hash_func,
+                                    GEqualFunc             equal_func,
+                                    GDestroyNotify         key_destroy);
+
+void tracker_db_statement_mru_finish (TrackerDBStatementMru *mru);
+
+void tracker_db_statement_mru_clear (TrackerDBStatementMru *mru);
+
+TrackerDBStatement * tracker_db_statement_mru_lookup (TrackerDBStatementMru *mru,
+                                                      gconstpointer          key);
+
+void tracker_db_statement_mru_insert (TrackerDBStatementMru *mru,
+                                      gpointer               key,
+                                      TrackerDBStatement    *stmt);
+
+void tracker_db_statement_mru_update (TrackerDBStatementMru *mru,
+                                      TrackerDBStatement    *stmt);
 
 /* Functions to deal with a cursor */
 void                    tracker_db_cursor_rewind                     (TrackerDBCursor            *cursor);

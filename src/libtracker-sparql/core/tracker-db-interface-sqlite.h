@@ -69,15 +69,15 @@ gboolean            tracker_db_interface_sqlite_fts_alter_table        (TrackerD
                                                                         GError                  **error);
 gboolean            tracker_db_interface_sqlite_fts_update_text        (TrackerDBInterface       *db_interface,
                                                                         const gchar              *database,
-	                                                                int                       id,
+                                                                        TrackerRowid              id,
                                                                         const gchar             **properties,
-                                                                        const gchar             **text);
+                                                                        GError                  **error);
 
 gboolean            tracker_db_interface_sqlite_fts_delete_text        (TrackerDBInterface       *interface,
                                                                         const gchar              *database,
-                                                                        int                       rowid,
+                                                                        TrackerRowid              rowid,
                                                                         const gchar             **properties,
-                                                                        const gchar             **old_text);
+                                                                        GError                  **error);
 gboolean            tracker_db_interface_sqlite_fts_rebuild_tokens     (TrackerDBInterface       *interface,
                                                                         const gchar              *database,
                                                                         GError                  **error);
@@ -93,6 +93,10 @@ gssize              tracker_db_interface_sqlite_release_memory         (TrackerD
 
 void                tracker_db_interface_ref_use   (TrackerDBInterface *db_interface);
 gboolean            tracker_db_interface_unref_use (TrackerDBInterface *db_interface);
+
+GArray * tracker_db_statement_get_values (TrackerDBStatement   *stmt,
+                                          TrackerPropertyType   type,
+                                          GError              **error);
 
 G_END_DECLS
 

@@ -329,5 +329,7 @@ void tracker_resource_iterator_init (TrackerResourceIterator *iter,
 gboolean tracker_resource_iterator_next (TrackerResourceIterator  *iter,
                                          const gchar             **property,
                                          const GValue            **value);
+const gchar * tracker_resource_get_identifier_internal (TrackerResource *resource);
+gboolean tracker_resource_is_blank_node (TrackerResource *resource);
 
 #endif /* __TRACKER_PRIVATE_H__ */

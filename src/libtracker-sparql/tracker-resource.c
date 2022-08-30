@@ -82,7 +82,6 @@ enum {
 };
 
 static void dispose      (GObject *object);
-static void constructed  (GObject *object);
 static void finalize     (GObject *object);
 static void get_property (GObject    *object,
                           guint       param_id,
@@ -100,7 +99,6 @@ tracker_resource_class_init (TrackerResourceClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->dispose      = dispose;
-	object_class->constructed  = constructed;
 	object_class->finalize     = finalize;
 	object_class->get_property = get_property;
 	object_class->set_property = set_property;
@@ -162,29 +160,13 @@ dispose (GObject *object)
 }
 
 static void
-constructed (GObject *object)
-{
-	TrackerResourcePrivate *priv;
-
-	priv = GET_PRIVATE (TRACKER_RESOURCE (object));
-
-	if (! priv->identifier) {
-		priv->identifier = generate_blank_node_identifier ();
-	}
-
-	G_OBJECT_CLASS (tracker_resource_parent_class)->constructed (object);
-}
-
-static void
 finalize (GObject *object)
 {
 	TrackerResourcePrivate *priv;
 
 	priv = GET_PRIVATE (TRACKER_RESOURCE (object));
 
-	if (priv->identifier) {
-		g_free (priv->identifier);
-	}
+	g_clear_pointer (&priv->identifier, g_free);
 
 	(G_OBJECT_CLASS (tracker_resource_parent_class)->finalize)(object);
 }
@@ -195,13 +177,9 @@ get_property (GObject    *object,
               GValue     *value,
               GParamSpec *pspec)
 {
-	TrackerResourcePrivate *priv;
-
-	priv = GET_PRIVATE (TRACKER_RESOURCE (object));
-
 	switch (param_id) {
 	case PROP_IDENTIFIER:
-		g_value_set_string (value, priv->identifier);
+		g_value_set_string (value, tracker_resource_get_identifier (TRACKER_RESOURCE (object)));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -855,6 +833,9 @@ tracker_resource_get_identifier (TrackerResource *self)
 
 	priv = GET_PRIVATE (self);
 
+	if (!priv->identifier)
+		priv->identifier = generate_blank_node_identifier ();
+
 	return priv->identifier;
 }
 
@@ -881,19 +862,8 @@ tracker_resource_set_identifier (TrackerResource *self,
 
 	priv = GET_PRIVATE (self);
 
-	g_free (priv->identifier);
-
-	if (identifier == NULL) {
-		/* We take NULL to mean "this is a blank node", and generate a
-		 * unique blank node identifier right away. This is easier than
-		 * leaving it NULL and trying to generate a blank node ID at
-		 * serialization time, and it means that the serialization
-		 * output is stable when called multiple times.
-		 */
-		priv->identifier = generate_blank_node_identifier ();
-	} else {
-		priv->identifier = g_strdup (identifier);
-	}
+	g_clear_pointer (&priv->identifier, g_free);
+	priv->identifier = g_strdup (identifier);
 }
 
 /**
@@ -911,14 +881,10 @@ gint
 tracker_resource_identifier_compare_func (TrackerResource *resource,
                                           const char      *identifier)
 {
-	TrackerResourcePrivate *priv;
-
 	g_return_val_if_fail (TRACKER_IS_RESOURCE (resource), 0);
 	g_return_val_if_fail (identifier != NULL, 0);
 
-	priv = GET_PRIVATE (resource);
-
-	return strcmp (priv->identifier, identifier);
+	return strcmp (tracker_resource_get_identifier (resource), identifier);
 }
 
 /**
@@ -938,15 +904,11 @@ gint
 tracker_resource_compare (TrackerResource *a,
                           TrackerResource *b)
 {
-	TrackerResourcePrivate *a_priv, *b_priv;
-
 	g_return_val_if_fail (TRACKER_IS_RESOURCE (a), 0);
 	g_return_val_if_fail (TRACKER_IS_RESOURCE (b), 0);
 
-	a_priv = GET_PRIVATE (a);
-	b_priv = GET_PRIVATE (b);
-
-	return strcmp (a_priv->identifier, b_priv->identifier);
+	return strcmp (tracker_resource_get_identifier (a),
+		       tracker_resource_get_identifier (b));
 }
 
 /**
@@ -1324,7 +1286,8 @@ generate_sparql_delete_queries (TrackerResource     *resource,
 			}
 
 			g_string_append (data->string, "  ");
-			generate_turtle_uri_value (priv->identifier, data->string, data->namespaces, NULL);
+			generate_turtle_uri_value (tracker_resource_get_identifier (resource),
+						   data->string, data->namespaces, NULL);
 			g_string_append_printf (data->string, " %s ?%s }", property, variable_name);
 			g_free (variable_name);
 
@@ -1349,7 +1312,7 @@ generate_sparql_deletes (TrackerResource    *resource,
 
 	data->done_list = g_list_prepend (data->done_list, resource);
 
-	if (! is_blank_node (priv->identifier) && g_hash_table_size (priv->overwrite) > 0) {
+	if (!tracker_resource_is_blank_node (resource) && g_hash_table_size (priv->overwrite) > 0) {
 		generate_sparql_delete_queries (resource, priv->overwrite, data);
 	}
 
@@ -1377,7 +1340,8 @@ generate_sparql_insert_pattern (TrackerResource    *resource,
 	/* First, emit any sub-resources. */
 	g_hash_table_foreach (priv->properties, generate_sparql_relation_inserts_foreach, data);
 
-	generate_turtle_uri_value (priv->identifier, data->string, data->namespaces, NULL);
+	generate_turtle_uri_value (tracker_resource_get_identifier (resource),
+				   data->string, data->namespaces, NULL);
 	g_string_append_printf (data->string, " ");
 
 	/* rdf:type needs to be first, otherwise you'll see 'subject x is not in domain y'
@@ -1506,7 +1470,7 @@ tracker_resource_generate_jsonld (TrackerResource    *self,
 	 * (where the caller passed NULL as an identifier) than to emit something
 	 * SPARQL-specific like '_:123'.
 	 */
-	if (strncmp (priv->identifier, "_:", 2) != 0) {
+	if (!tracker_resource_is_blank_node (self)) {
 		json_builder_set_member_name (builder, "@id");
 		json_builder_add_string_value (builder, priv->identifier);
 	}
@@ -1794,8 +1758,7 @@ tracker_resource_serialize (TrackerResource *resource)
 
 	g_variant_builder_init (&builder, G_VARIANT_TYPE_ARRAY);
 
-	if (priv->identifier &&
-	    strncmp (priv->identifier, "_:", 2) != 0) {
+	if (!tracker_resource_is_blank_node (resource)) {
 		g_variant_builder_add (&builder, "{sv}", "@id",
 		                       g_variant_new_string (priv->identifier));
 	}
@@ -2033,4 +1996,23 @@ tracker_resource_iterator_next (TrackerResourceIterator  *iter,
 	*property = key;
 	*value = val;
 	return TRUE;
+}
+
+const gchar *
+tracker_resource_get_identifier_internal (TrackerResource *resource)
+{
+	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
+
+	return priv->identifier;
+}
+
+gboolean
+tracker_resource_is_blank_node (TrackerResource *resource)
+{
+	TrackerResourcePrivate *priv = GET_PRIVATE (resource);
+
+	if (!priv->identifier)
+		return TRUE;
+
+	return strncmp (priv->identifier, "_:", 2) == 0;
 }

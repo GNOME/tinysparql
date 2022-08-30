@@ -33,75 +33,14 @@
 #include "tracker-ontologies.h"
 #include "tracker-sparql.h"
 
-GPtrArray*
-tracker_data_query_rdf_type (TrackerDataManager  *manager,
-                             const gchar         *graph,
-                             TrackerRowid         id,
-                             GError             **error)
-{
-	TrackerDBCursor *cursor = NULL;
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	GPtrArray *ret = NULL;
-	GError *inner_error = NULL;
-	TrackerOntologies *ontologies;
-
-	iface = tracker_data_manager_get_writable_db_interface (manager);
-	ontologies = tracker_data_manager_get_ontologies (manager);
-
-	stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
-	                                               "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
-	                                               "FROM \"%s\".\"rdfs:Resource_rdf:type\" "
-	                                               "WHERE ID = ?",
-	                                               graph ? graph : "main");
-
-	if (stmt) {
-		tracker_db_statement_bind_int (stmt, 0, id);
-		cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
-		g_object_unref (stmt);
-	}
-
-	if (cursor) {
-
-		/* Query is usually a rather small result, but let's try to
-		 * avoid reallocs in gptrarray.c as much as possible (this
-		 * function is called fairly often) */
-
-		ret = g_ptr_array_sized_new (20);
-		while (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
-			const gchar *class_uri;
-			TrackerClass *cl;
-
-			class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
-			cl = tracker_ontologies_get_class_by_uri (ontologies, class_uri);
-			if (!cl) {
-				g_critical ("Unknown class %s", class_uri);
-				continue;
-			}
-			g_ptr_array_add (ret, cl);
-		}
-		g_object_unref (cursor);
-	}
-
-	if (G_UNLIKELY (inner_error)) {
-		g_propagate_prefixed_error (error,
-		                            inner_error,
-		                            "Querying RDF type:");
-		g_clear_pointer (&ret, g_ptr_array_unref);
-		return NULL;
-	}
-
-	return ret;
-}
-
 gchar *
 tracker_data_query_resource_urn (TrackerDataManager  *manager,
                                  TrackerDBInterface  *iface,
                                  TrackerRowid         id)
 {
-	TrackerDBCursor *cursor = NULL;
 	TrackerDBStatement *stmt;
 	gchar *uri = NULL;
+	GArray *res = NULL;
 
 	g_return_val_if_fail (id != 0, NULL);
 
@@ -111,16 +50,15 @@ tracker_data_query_resource_urn (TrackerDataManager  *manager,
 		return NULL;
 
 	tracker_db_statement_bind_int (stmt, 0, id);
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	res = tracker_db_statement_get_values (stmt,
+	                                       TRACKER_PROPERTY_TYPE_STRING,
+	                                       NULL);
 	g_object_unref (stmt);
 
-	if (!cursor)
-		return NULL;
+	if (res && res->len == 1)
+		uri = g_value_dup_string (&g_array_index (res, GValue, 0));
 
-	if (tracker_db_cursor_iter_next (cursor, NULL, NULL))
-		uri = g_strdup (tracker_db_cursor_get_string (cursor, 0, NULL));
-
-	g_object_unref (cursor);
+	g_clear_pointer (&res, g_array_unref);
 
 	return uri;
 }
@@ -131,10 +69,10 @@ tracker_data_query_resource_id (TrackerDataManager  *manager,
                                 const gchar         *uri,
                                 GError             **error)
 {
-	TrackerDBCursor *cursor = NULL;
 	TrackerDBStatement *stmt;
 	GError *inner_error = NULL;
 	TrackerRowid id = 0;
+	GArray *res = NULL;
 
 	g_return_val_if_fail (uri != NULL, 0);
 
@@ -143,17 +81,16 @@ tracker_data_query_resource_id (TrackerDataManager  *manager,
 
 	if (stmt) {
 		tracker_db_statement_bind_text (stmt, 0, uri);
-		cursor = tracker_db_statement_start_cursor (stmt, &inner_error);
+		res = tracker_db_statement_get_values (stmt,
+		                                       TRACKER_PROPERTY_TYPE_INTEGER,
+		                                       &inner_error);
 		g_object_unref (stmt);
 	}
 
-	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
-			id = tracker_db_cursor_get_int (cursor, 0);
-		}
+	if (res && res->len == 1)
+		id = g_value_get_int64 (&g_array_index (res, GValue, 0));
 
-		g_object_unref (cursor);
-	}
+	g_clear_pointer (&res, g_array_unref);
 
 	if (G_UNLIKELY (inner_error)) {
 		g_propagate_prefixed_error (error,

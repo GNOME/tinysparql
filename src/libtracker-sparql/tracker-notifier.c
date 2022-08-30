@@ -262,6 +262,12 @@ _tracker_notifier_event_cache_push_event (TrackerNotifierEventCache *cache,
 		event->type = event_type;
 }
 
+const gchar *
+tracker_notifier_event_cache_get_graph (TrackerNotifierEventCache *cache)
+{
+	return cache->graph ? cache->graph : "";
+}
+
 static void
 handle_events (TrackerNotifier           *notifier,
                TrackerNotifierEventCache *cache,
