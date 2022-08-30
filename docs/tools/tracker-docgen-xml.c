@@ -63,7 +63,7 @@ print_class_hierarchy (FILE                 *f,
 {
 	GPtrArray *strings;
 	const gchar *id;
-	gint i;
+	guint i;
 
 	strings = class_get_parent_hierarchy_strings (klass, model);
 

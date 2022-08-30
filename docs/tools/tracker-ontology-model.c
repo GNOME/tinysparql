@@ -299,7 +299,8 @@ tracker_ontology_model_init_properties (TrackerOntologyModel *model)
 
 TrackerOntologyModel *
 tracker_ontology_model_new (GFile   *ontology_location,
-			    GError **error)
+                            GFile   *description_location,
+                            GError **error)
 {
 	TrackerOntologyModel *model;
 	TrackerSparqlConnection *ontology_conn, *desc_conn = NULL;
@@ -325,7 +326,7 @@ tracker_ontology_model_new (GFile   *ontology_location,
 		goto error;
 
 	/* Load all .description files into desc_conn */
-	enumerator = g_file_enumerate_children (ontology_location,
+	enumerator = g_file_enumerate_children (description_location,
 						G_FILE_ATTRIBUTE_STANDARD_NAME,
 						G_FILE_QUERY_INFO_NONE,
 						NULL, error);
@@ -385,8 +386,8 @@ tracker_ontology_model_free (TrackerOntologyModel *model)
 {
 	g_object_unref (model->ontology_conn);
 	g_object_unref (model->desc_conn);
-	g_object_unref (model->classes_stmt);
-	g_object_unref (model->props_stmt);
+	g_clear_object (&model->classes_stmt);
+	g_clear_object (&model->props_stmt);
 	g_hash_table_unref (model->stmts);
 	g_hash_table_unref (model->classes);
 	g_hash_table_unref (model->properties);

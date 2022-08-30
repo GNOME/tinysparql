@@ -72,6 +72,7 @@ typedef struct {
 } TrackerOntologyDescription;
 
 TrackerOntologyModel * tracker_ontology_model_new (GFile   *ontology_location,
+                                                   GFile   *description_location,
                                                    GError **error);
 void tracker_ontology_model_free (TrackerOntologyModel *model);
 

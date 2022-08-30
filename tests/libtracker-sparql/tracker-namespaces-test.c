@@ -126,8 +126,6 @@ namespace_check_foreach (gpointer key,
                          gpointer user_data)
 {
 	TrackerNamespaceManager *spec = user_data;
-	gboolean found = FALSE;
-	int i;
 
 	g_assert_true (tracker_namespace_manager_has_prefix (spec, key));
 	g_assert_cmpstr (value, ==, tracker_namespace_manager_lookup_prefix (spec, key));

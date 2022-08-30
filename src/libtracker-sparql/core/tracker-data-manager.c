@@ -746,7 +746,7 @@ ensure_inverse_functional_property (TrackerDataManager  *manager,
 	g_free (query);
 
 	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, error)) {
-		if (!tracker_sparql_cursor_get_boolean (cursor, 0)) {
+		if (!tracker_sparql_cursor_get_boolean (TRACKER_SPARQL_CURSOR (cursor), 0)) {
 			handle_unsupported_ontology_change (manager,
 			                                    NULL, -1, -1,
 			                                    property_uri,
