@@ -220,6 +220,36 @@ test_resource_serialization (void)
 	g_object_unref (copy);
 }
 
+static void
+test_resource_iri_valid_chars (void)
+{
+	TrackerResource *resource;
+
+	resource = tracker_resource_new ("http://example.com/resource");
+	tracker_resource_set_uri (resource, "rdf:type", "http://example.com/resource");
+	g_assert_cmpstr (tracker_resource_get_identifier (resource), ==, "http://example.com/resource");
+	g_assert_cmpstr (tracker_resource_get_first_uri (resource, "rdf:type"), ==, "http://example.com/resource");
+	g_object_unref (resource);
+
+	resource = tracker_resource_new ("http://example.com/♥️");
+	tracker_resource_set_uri (resource, "rdf:type", "http://example.com/♥️");
+	g_assert_cmpstr (tracker_resource_get_identifier (resource), ==, "http://example.com/♥️");
+	g_assert_cmpstr (tracker_resource_get_first_uri (resource, "rdf:type"), ==, "http://example.com/♥️");
+	g_object_unref (resource);
+
+	resource = tracker_resource_new ("http://example.com/{}\\`\"^|");
+	tracker_resource_set_uri (resource, "rdf:type", "http://example.com/{}\\`\"^|");
+	g_assert_cmpstr (tracker_resource_get_identifier (resource), ==, "http://example.com/%7B%7D%5C%60%22%5E%7C");
+	g_assert_cmpstr (tracker_resource_get_first_uri (resource, "rdf:type"), ==, "http://example.com/%7B%7D%5C%60%22%5E%7C");
+	g_object_unref (resource);
+
+	resource = tracker_resource_new ("http://example.com/\x1f");
+	tracker_resource_set_uri (resource, "rdf:type", "http://example.com/\x1f");
+	g_assert_cmpstr (tracker_resource_get_identifier (resource), ==, "http://example.com/%1F");
+	g_assert_cmpstr (tracker_resource_get_first_uri (resource, "rdf:type"), ==, "http://example.com/%1F");
+	g_object_unref (resource);
+}
+
 int
 main (int    argc,
       char **argv)
@@ -240,6 +270,8 @@ main (int    argc,
 	                 test_resource_get_set_pointer_validation);
 	g_test_add_func ("/libtracker-sparql/tracker-resource/serialization",
 	                 test_resource_serialization);
+	g_test_add_func ("/libtracker-sparql/tracker-resource/iri-valid-chars",
+	                 test_resource_iri_valid_chars);
 
 	return g_test_run ();
 }

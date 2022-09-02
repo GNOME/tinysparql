@@ -89,6 +89,47 @@ static void set_property (GObject      *object,
                           const GValue *value,
                           GParamSpec   *pspec);
 
+static char *
+escape_iri (const gchar *str)
+{
+	GString *iri;
+
+	/* Escapes IRI references according to IRIREF in SPARQL grammar definition,
+	 * further validation on IRI validity may happen deeper down.
+	 */
+
+	if (!str)
+		return NULL;
+
+	/* Fast path, check whether there's no characters to escape */
+	if (!strpbrk (str,
+	              "<>\"{}|^`"
+	              "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
+	              "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f")) {
+		return g_strdup (str);
+	}
+
+	iri = g_string_new (NULL);
+
+	while (*str != '\0') {
+		gunichar unichar;
+
+		unichar = g_utf8_get_char (str);
+		str = g_utf8_next_char (str);
+
+		if (unichar <= 0x20 ||
+		    unichar == '<' || unichar == '>' ||
+		    unichar == '"' || unichar == '{' ||
+		    unichar == '}' || unichar == '|' ||
+		    unichar == '^' || unichar == '`' ||
+		    unichar == '\\')
+			g_string_append_printf (iri, "%%%X", unichar);
+		else
+			g_string_append_unichar (iri, unichar);
+	}
+
+	return g_string_free (iri, FALSE);
+}
 
 static void
 tracker_resource_class_init (TrackerResourceClass *klass)
@@ -302,6 +343,13 @@ validate_pointer (const void *pointer,
 	return TRUE;
 }
 
+static void
+value_set_uri (GValue      *value,
+               const gchar *uri)
+{
+	g_value_take_string (value, escape_iri (uri));
+}
+
 #define SET_PROPERTY_FOR_GTYPE(name, ctype, gtype, set_function, validate_function) \
 	void name (TrackerResource *self,                                           \
 	           const char *property_uri,                                        \
@@ -418,7 +466,7 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_string, const char *, G_TYPE_STRING
  * produces similar RDF to tracker_resource_set_relation(), although
  * it requires that the URI is previously known.
  */
-SET_PROPERTY_FOR_GTYPE (tracker_resource_set_uri, const char *, TRACKER_TYPE_URI, g_value_set_string, validate_pointer)
+SET_PROPERTY_FOR_GTYPE (tracker_resource_set_uri, const char *, TRACKER_TYPE_URI, value_set_uri, validate_pointer)
 
 /**
  * tracker_resource_set_datetime:
@@ -632,7 +680,7 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_string, const char *, G_TYPE_STRING
  * produces similar RDF to tracker_resource_add_relation(), although
  * it requires that the URI is previously known.
  */
-ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_uri, const char *, TRACKER_TYPE_URI, g_value_set_string, validate_pointer)
+ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_uri, const char *, TRACKER_TYPE_URI, value_set_uri, validate_pointer)
 
 /**
  * tracker_resource_add_datetime:
@@ -860,7 +908,7 @@ tracker_resource_set_identifier (TrackerResource *self,
 	priv = GET_PRIVATE (self);
 
 	g_clear_pointer (&priv->identifier, g_free);
-	priv->identifier = g_strdup (identifier);
+	priv->identifier = escape_iri (identifier);
 }
 
 /**
