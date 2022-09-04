@@ -231,6 +231,12 @@ test_resource_iri_valid_chars (void)
 	g_assert_cmpstr (tracker_resource_get_first_uri (resource, "rdf:type"), ==, "http://example.com/resource");
 	g_object_unref (resource);
 
+	resource = tracker_resource_new ("http://example.com/A B");
+	tracker_resource_set_uri (resource, "rdf:type", "http://example.com/A B");
+	g_assert_cmpstr (tracker_resource_get_identifier (resource), ==, "http://example.com/A%20B");
+	g_assert_cmpstr (tracker_resource_get_first_uri (resource, "rdf:type"), ==, "http://example.com/A%20B");
+	g_object_unref (resource);
+
 	resource = tracker_resource_new ("http://example.com/♥️");
 	tracker_resource_set_uri (resource, "rdf:type", "http://example.com/♥️");
 	g_assert_cmpstr (tracker_resource_get_identifier (resource), ==, "http://example.com/♥️");
