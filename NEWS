@@ -1,3 +1,13 @@
+NEW in 3.4.0 - 2022-09-17
+=========================
+Translations: fr
+
+  Highlighted changes since 3.3.0:
+  * Added tracker_sparql_connection_deserialize_async() API
+    to deserialize RDF content.
+  * Library is no built monolithically, Vala dependency is removed
+  * Improved performance of database updates
+
 NEW in 3.4.0.rc - 2022-09-05
 ============================
   * Big performance improvements to inserts, updates and deletes
