@@ -250,7 +250,7 @@ namespace Tracker {
 		}
 
 		public Sparql.Connection connection { get; construct set; }
-		public signal void events (string service, string graph, GenericArray<NotifierEvent> events);
+		public signal void events (string service, string graph, GLib.GenericArray<NotifierEvent> events);
 		public uint signal_subscribe (GLib.DBusConnection dbus_conn, string dbus_name, string? object_path, string? graph);
 		public void signal_unsubscribe (uint handler_id);
 	}
