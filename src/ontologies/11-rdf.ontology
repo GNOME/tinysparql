@@ -1,4 +1,5 @@
 @prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .
+@prefix fts: <http://tracker.api.gnome.org/ontology/v3/fts#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -6,13 +7,16 @@
 
 rdf: a nrl:Namespace, nrl:Ontology ;
 	nrl:prefix "rdf" ;
-	nrl:lastModified "2019-06-09T21:00:00Z" .
+	nrl:lastModified "2022-09-26T21:00:00Z" .
 
 rdfs: a nrl:Namespace ;
 	nrl:prefix "rdfs" .
 
 tracker: a nrl:Namespace ;
 	nrl:prefix "tracker" .
+
+fts: a nrl:Namespace ;
+	nrl:prefix "fts" .
 
 rdfs:Resource a rdfs:Class ;
 	rdfs:label "All Resources" ;
