@@ -1,4 +1,3 @@
-@prefix fts: <http://tracker.api.gnome.org/ontology/v3/fts#> .
 @prefix nao: <http://tracker.api.gnome.org/ontology/v3/nao#> .
 @prefix nie: <http://tracker.api.gnome.org/ontology/v3/nie#> .
 @prefix nfo: <http://tracker.api.gnome.org/ontology/v3/nfo#> .
@@ -10,7 +9,7 @@
 
 tracker: a nrl:Ontology ;
 	nrl:prefix "tracker" ;
-	nrl:lastModified "2019-07-15T09:41:00Z" .
+	nrl:lastModified "2022-09-26T09:41:00Z" .
 
 tracker:isDefaultTag a rdf:Property ;
 	rdfs:domain nao:Tag ;
@@ -45,9 +44,6 @@ tracker:available a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain tracker:IndexedFolder ;
 	rdfs:range xsd:boolean .
-
-fts: a nrl:Namespace ;
-	nrl:prefix "fts" .
 
 tracker:extractor-data-source a nie:DataSource ;
 	rdfs:label "Tracker extractor data source" .
