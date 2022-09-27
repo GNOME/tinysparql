@@ -242,6 +242,8 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			break;
 	}
 
+	g_array_set_size (priv->array, 0);
+
 	if (!inner_error)
 		tracker_data_update_buffer_flush (data, &inner_error);
 
