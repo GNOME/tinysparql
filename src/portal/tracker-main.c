@@ -53,6 +53,7 @@ static GOptionEntry entries[] = {
 	  N_("Version"),
 	  NULL
 	},
+	{ 0 },
 };
 
 static int
