@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2022-07-12 10:59+0000\n"
-"PO-Revision-Date: 2022-08-12 13:52+0200\n"
+"POT-Creation-Date: 2022-08-12 11:53+0000\n"
+"PO-Revision-Date: 2022-09-30 14:34+0200\n"
 "Last-Translator: gogo <trebelnik2@gmail.com>\n"
 "Language-Team: Croatian <hr@li.org>\n"
 "Language: hr\n"
@@ -174,7 +174,7 @@ msgstr "URI udaljene usluge"
 
 #: src/tracker/tracker-export.c:60
 msgid "Output TriG format which includes named graph information"
-msgstr "Izlazni TriG format koji uključuje informacije imenovanih grafikona"
+msgstr "Izlazni TriG format koji uključuje informacije navednih grafikona"
 
 #: src/tracker/tracker-export.c:72 src/tracker/tracker-export.c:73
 msgid "IRI"
@@ -211,7 +211,7 @@ msgstr "neuspjelo pokretanje “%s”: %s"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
-msgstr "Čitaj TriG format koji uključuje informacije imenovanih grafikona"
+msgstr "Čitaj TriG format koji uključuje informacije navednih grafikona"
 
 #: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
 msgid "Could not run import"
@@ -322,7 +322,7 @@ msgstr "SVOJSTVO"
 
 #: src/tracker/tracker-sparql.c:154
 msgid "Retrieve all named graphs"
-msgstr "Preuzmi sve imenovane grafikone"
+msgstr "Preuzmi sve navedene grafikone"
 
 #: src/tracker/tracker-sparql.c:158
 msgid ""
@@ -451,7 +451,7 @@ msgstr "Sadržaji"
 
 #: src/tracker/tracker-sparql.c:1324
 msgid "Could not list named graphs"
-msgstr "Nemoguć prikaz imenovanih grafikona"
+msgstr "Nemoguć prikaz navednih grafikona"
 
 #: src/tracker/tracker-sparql.c:1332
 msgid "No graphs were found"
@@ -459,7 +459,7 @@ msgstr "Nema pronađenih grafikona"
 
 #: src/tracker/tracker-sparql.c:1332
 msgid "Named graphs"
-msgstr "Imenovani grafikoni"
+msgstr "Navedni grafikoni"
 
 #: src/tracker/tracker-sparql.c:1355
 msgid "Could not search classes"
