@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
 "POT-Creation-Date: 2022-10-01 08:05+0000\n"
-"PO-Revision-Date: 2022-10-02 09:33+0200\n"
+"PO-Revision-Date: 2022-10-02 16:07+0200\n"
 "Last-Translator: Alexander Shopov <ash@kambanaria.org>\n"
 "Language-Team: Bulgarian <dict@fsa-bg.org>\n"
 "Language: bg\n"
@@ -45,7 +45,7 @@ msgstr "Местоположение на базата от данни"
 
 #: src/tracker/tracker-endpoint.c:51 src/tracker/tracker-endpoint.c:63
 msgid "DIR"
-msgstr "ДИРЕКТОРИЯ"
+msgstr "ПАПКА"
 
 #: src/tracker/tracker-endpoint.c:54
 msgid "Specify the DBus name of this endpoint"
@@ -175,7 +175,7 @@ msgstr "Извеждане във формат TriG, който съдържа �
 
 #: src/tracker/tracker-export.c:72 src/tracker/tracker-export.c:73
 msgid "IRI"
-msgstr "IRI"
+msgstr "IRI (интернационализиран идентификатор на ресурс)"
 
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:98 src/tracker/tracker-import.c:88
