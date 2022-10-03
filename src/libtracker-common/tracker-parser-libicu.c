@@ -439,7 +439,7 @@ parser_next (TrackerParser *parser,
 	gsize word_length_uchar = 0;
 	gsize word_length_utf8 = 0;
 	gchar *processed_word = NULL;
-	gsize current_word_offset_utf8;
+	gsize current_word_offset_utf8 = 0;
 
 	*byte_offset_start = 0;
 	*byte_offset_end = 0;

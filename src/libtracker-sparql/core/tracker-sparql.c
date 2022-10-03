@@ -3731,7 +3731,7 @@ translate_GroupClause (TrackerSparql  *sparql,
 {
 	GList *conditions = NULL, *expressions = NULL, *l;
 	gboolean variables_projected = FALSE;
-	TrackerStringBuilder *select, *old;
+	TrackerStringBuilder *select = NULL, *old = NULL;
 	gchar *str;
 
 	/* GroupClause ::= 'GROUP' 'BY' GroupCondition+
@@ -6942,7 +6942,7 @@ static TrackerPathElement *
 intersect_path_elements (TrackerSparql *sparql,
                          GPtrArray     *path_elems)
 {
-	TrackerPathElement *elem;
+	TrackerPathElement *elem = NULL;
 
 	if (path_elems->len == 0)
 		return NULL;

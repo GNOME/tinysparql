@@ -231,7 +231,7 @@ tracker_ontology_model_init_classes (TrackerOntologyModel *model)
 TrackerOntologyProperty *
 tracker_ontology_model_init_properties (TrackerOntologyModel *model)
 {
-	TrackerOntologyProperty *prop;
+	TrackerOntologyProperty *prop = NULL;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 

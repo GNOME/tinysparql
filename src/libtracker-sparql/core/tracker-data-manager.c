@@ -1736,7 +1736,7 @@ check_for_deleted_super_properties (TrackerDataManager  *manager,
 			const gchar *object = tracker_property_get_uri (prop_to_remove);
 			const gchar *subject = tracker_property_get_uri (property);
 			GValue value = G_VALUE_INIT;
-			TrackerRowid subject_id;
+			TrackerRowid subject_id = 0;
 
 			property = tracker_ontologies_get_property_by_uri (ontologies,
 			                                                   TRACKER_PREFIX_RDFS "subPropertyOf");
