@@ -740,6 +740,7 @@ tracker_db_manager_finalize (GObject *object)
 
 	g_free (db_manager->in_use_filename);
 	g_free (db_manager->shared_cache_key);
+	g_clear_object (&db_manager->cache_location);
 
 	G_OBJECT_CLASS (tracker_db_manager_parent_class)->finalize (object);
 }
