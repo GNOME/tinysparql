@@ -401,9 +401,11 @@ coverage:
         --html-details --print-summary --output coveragereport/index.html
   coverage: '/^lines: (\d+\.\d+\%)/'
   artifacts:
+    expose_as: 'Coverage'
     when: always
     paths:
     - coveragereport
+    - coveragereport/index.html
   needs:
     - test-fedora@x86_64
     - test-fedora-rawhide@x86_64
