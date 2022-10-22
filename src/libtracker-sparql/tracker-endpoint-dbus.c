@@ -431,7 +431,8 @@ handle_cursor_reply (GTask        *task,
 	TrackerSparqlCursor *cursor = source_object;
 	QueryRequest *request = task_data;
 	const gchar **variable_names = NULL;
-	GError *write_error = NULL;
+	GError *error = NULL;
+	gboolean retval;
 	gint i, n_columns;
 
 	n_columns = tracker_sparql_cursor_get_n_columns (cursor);
@@ -441,15 +442,15 @@ handle_cursor_reply (GTask        *task,
 
 	g_dbus_method_invocation_return_value (request->invocation, g_variant_new ("(^as)", variable_names));
 
-	if (!write_cursor (request, cursor, &write_error) &&
-	    !g_error_matches (write_error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-		g_warning ("Endpoint failed to fully write cursor: %s\n", write_error->message);
+	retval = write_cursor (request, cursor, &error);
 	g_free (variable_names);
-	g_clear_error (&write_error);
 
 	tracker_sparql_cursor_close (cursor);
 
-	g_task_return_boolean (task, TRUE);
+	if (error)
+		g_task_return_error (task, error);
+	else
+		g_task_return_boolean (task, retval);
 }
 
 static void
