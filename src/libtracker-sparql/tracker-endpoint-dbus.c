@@ -374,7 +374,8 @@ write_cursor (QueryRequest          *request,
 		glong cur_offset = -1;
 
 		if (!g_data_output_stream_put_int32 (request->data_stream, n_columns,
-		                                     NULL, &inner_error))
+		                                     request->cancellable,
+		                                     &inner_error))
 			break;
 
 		for (i = 0; i < n_columns; i++) {
@@ -382,7 +383,8 @@ write_cursor (QueryRequest          *request,
 
 			if (!g_data_output_stream_put_int32 (request->data_stream,
 			                                     tracker_sparql_cursor_get_value_type (cursor, i),
-			                                     NULL, &inner_error))
+			                                     request->cancellable,
+			                                     &inner_error))
 				goto out;
 
 			values[i] = tracker_sparql_cursor_get_string (cursor, i, &len);
@@ -393,17 +395,21 @@ write_cursor (QueryRequest          *request,
 
 		for (i = 0; i < n_columns; i++) {
 			if (!g_data_output_stream_put_int32 (request->data_stream,
-			                                     offsets[i], NULL, &inner_error))
+			                                     offsets[i],
+			                                     request->cancellable,
+			                                     &inner_error))
 				goto out;
 		}
 
 		for (i = 0; i < n_columns; i++) {
 			if (!g_data_output_stream_put_string (request->data_stream,
 			                                      values[i] ? values[i] : "",
-			                                      NULL, &inner_error))
+			                                      request->cancellable,
+			                                      &inner_error))
 				goto out;
 
-			if (!g_data_output_stream_put_byte (request->data_stream, 0, NULL,
+			if (!g_data_output_stream_put_byte (request->data_stream, 0,
+			                                    request->cancellable,
 			                                    &inner_error))
 				goto out;
 		}
