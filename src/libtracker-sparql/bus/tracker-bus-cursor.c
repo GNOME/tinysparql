@@ -325,6 +325,7 @@ tracker_bus_cursor_next_async (TrackerSparqlCursor  *cursor,
 
 	task = g_task_new (cursor, cancellable, cb, user_data);
 	g_task_run_in_thread (task, next_in_thread);
+	g_object_unref (task);
 }
 
 static gboolean
