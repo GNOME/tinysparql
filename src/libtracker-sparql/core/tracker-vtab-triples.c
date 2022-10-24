@@ -253,12 +253,6 @@ triples_best_index (sqlite3_vtab       *vtab,
 static int
 triples_disconnect (sqlite3_vtab *vtab)
 {
-	return SQLITE_OK;
-}
-
-static int
-triples_destroy (sqlite3_vtab *vtab)
-{
 	tracker_triples_vtab_free (vtab);
 	return SQLITE_OK;
 }
@@ -640,7 +634,7 @@ tracker_vtab_triples_init (sqlite3            *db,
 		triples_connect,
 		triples_best_index,
 		triples_disconnect,
-		triples_destroy,
+		triples_disconnect, /* destroy(), can be the same since no real tables are created */
 		triples_open,
 		triples_close,
 		triples_filter,
