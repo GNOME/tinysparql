@@ -1273,8 +1273,10 @@ _convert_terminal (TrackerSparql *sparql)
 	ht = is_parameter ? sparql->parameters : sparql->cached_bindings;
 
 	binding = g_hash_table_lookup (ht, str);
-	if (binding)
+	if (binding) {
+		g_free (str);
 		return g_object_ref (binding);
+	}
 
 	if (is_parameter) {
 		binding = tracker_parameter_binding_new (str, NULL);
