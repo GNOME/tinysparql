@@ -2521,19 +2521,19 @@ resource_buffer_switch (TrackerData   *data,
 	TrackerDataUpdateBufferGraph *graph_buffer;
 	GError *inner_error = NULL;
 
-	if (data->resource_buffer != NULL &&
-	    g_strcmp0 (data->resource_buffer->graph->graph, graph) == 0 &&
-	    data->resource_buffer->id == subject) {
-		/* Resource buffer stays the same */
-		return TRUE;
-	}
-
 	/* large INSERTs with thousands of resources could lead to
 	   high peak memory usage due to the update buffer
 	   flush the buffer if it already contains 1000 resources */
 	tracker_data_update_buffer_might_flush (data, &inner_error);
 	if (inner_error)
 		return FALSE;
+
+	if (data->resource_buffer != NULL &&
+	    g_strcmp0 (data->resource_buffer->graph->graph, graph) == 0 &&
+	    data->resource_buffer->id == subject) {
+		/* Resource buffer stays the same */
+		return TRUE;
+	}
 
 	data->resource_buffer = NULL;
 
