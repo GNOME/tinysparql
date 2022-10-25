@@ -69,6 +69,7 @@ cursor_cb (GObject      *object,
 			g_print ("Async cursor next took: %.6f (for all %d results)\n",
 			         g_timer_elapsed (md->timer, NULL), i);
 
+			tracker_sparql_cursor_close (cursor);
 			g_object_unref (cursor);
 			g_main_loop_quit (md->loop);
 		}
@@ -76,6 +77,8 @@ cursor_cb (GObject      *object,
 		g_critical ("Could not run cursor next: %s", error->message);
 
 		g_error_free (error);
+		tracker_sparql_cursor_close (cursor);
+		g_object_unref (cursor);
 		g_main_loop_quit (md->loop);
 	}
 }
