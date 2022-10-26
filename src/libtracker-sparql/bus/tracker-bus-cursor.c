@@ -225,7 +225,7 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 	 *              columns x 4 bytes for offsets]
 	 */
 	n_columns = g_data_input_stream_read_int32 (bus_cursor->data_stream,
-						    NULL, NULL);
+	                                            cancellable, NULL);
 
 	if (n_columns == 0) {
 		bus_cursor->finished = TRUE;
@@ -236,16 +236,16 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 	bus_cursor->types = g_new0 (TrackerSparqlValueType, n_columns);
 
 	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
-				      bus_cursor->types,
-				      n_columns * sizeof (gint32),
-				      NULL, NULL, error))
+	                              bus_cursor->types,
+	                              n_columns * sizeof (gint32),
+	                              NULL, cancellable, error))
 		return FALSE;
 
 	offsets = g_new0 (gint32, n_columns);
 	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
 	                              offsets,
 	                              n_columns * sizeof (gint32),
-	                              NULL, NULL, error)) {
+	                              NULL, cancellable, error)) {
 		g_free (offsets);
 		return FALSE;
 	}
@@ -278,7 +278,7 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
 	                              bus_cursor->row_data,
 	                              offsets[n_columns - 1] + 1,
-	                              NULL, NULL, error)) {
+	                              NULL, cancellable, error)) {
 		g_free (offsets);
 		return FALSE;
 	}
@@ -325,6 +325,7 @@ tracker_bus_cursor_next_async (TrackerSparqlCursor  *cursor,
 
 	task = g_task_new (cursor, cancellable, cb, user_data);
 	g_task_run_in_thread (task, next_in_thread);
+	g_object_unref (task);
 }
 
 static gboolean
