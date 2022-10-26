@@ -1,3 +1,17 @@
+NEW in 3.4.1 - 2022-10-26
+=========================
+  * Fixes to VAPI file
+  * Fixes to IRI escaping checks in TrackerResource
+  * Move fts: prefix definition to base ontology
+  * Improve memory usage of already executed TrackerBatch objects
+    for GC languages
+  * Replace deprecated egrep tool usage in bash completion script
+  * Fixes for memory leaks and invalid memory access
+  * Fix endpoint-side cancellation of client-side D-Bus cancelled
+    queries
+
+Translations: ab, bg, hr, sk, tr
+
 NEW in 3.4.0 - 2022-09-17
 =========================
 Translations: fr
