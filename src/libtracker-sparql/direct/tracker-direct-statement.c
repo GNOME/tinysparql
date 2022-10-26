@@ -197,8 +197,6 @@ execute_in_thread (GTask        *task,
 		g_task_return_error (task, error);
 	else
 		g_task_return_pointer (task, cursor, g_object_unref);
-
-	g_object_unref (task);
 }
 
 static void
@@ -264,8 +262,6 @@ serialize_in_thread (GTask        *task,
 		g_task_return_pointer (task, istream, g_object_unref);
 	else
 		g_task_return_error (task, error);
-
-	g_object_unref (task);
 }
 
 static void
@@ -322,6 +318,7 @@ tracker_direct_statement_execute_async (TrackerSparqlStatement *stmt,
 	task = g_task_new (stmt, cancellable, callback, user_data);
 	g_task_set_task_data (task, values, (GDestroyNotify) g_hash_table_unref);
 	g_task_run_in_thread (task, execute_in_thread);
+	g_object_unref (task);
 }
 
 static TrackerSparqlCursor *
@@ -365,6 +362,7 @@ tracker_direct_statement_serialize_async (TrackerSparqlStatement *stmt,
 	task = g_task_new (stmt, cancellable, callback, user_data);
 	g_task_set_task_data (task, data, (GDestroyNotify) rdf_serialization_data_free);
 	g_task_run_in_thread (task, serialize_in_thread);
+	g_object_unref (task);
 }
 
 static GInputStream *
