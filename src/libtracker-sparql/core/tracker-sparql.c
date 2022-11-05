@@ -147,6 +147,9 @@ typedef struct
 	GHashTable *cached_bindings;
 	GHashTable *parameters;
 
+	GPtrArray *anon_graphs;
+	GPtrArray *named_graphs;
+
 	GList *service_clauses;
 	GList *filter_clauses;
 
@@ -183,8 +186,6 @@ struct _TrackerSparql
 	gboolean cacheable;
 	guint generation;
 
-	GPtrArray *anon_graphs;
-	GPtrArray *named_graphs;
 	gchar *base;
 
 	GMutex mutex;
@@ -212,6 +213,9 @@ tracker_sparql_state_init (TrackerSparqlState *state)
 	state->prefix_map = g_hash_table_new_full (g_str_hash, g_str_equal,
 	                                           g_free, g_free);
 	g_hash_table_insert (state->prefix_map, g_strdup ("fn"), g_strdup (FN_NS));
+
+	state->anon_graphs = g_ptr_array_new_with_free_func (g_free);
+	state->named_graphs = g_ptr_array_new_with_free_func (g_free);
 }
 
 static void
@@ -232,6 +236,8 @@ tracker_sparql_state_clear (TrackerSparqlState *state)
 	g_clear_pointer (&state->prefix_map, g_hash_table_unref);
 	g_clear_pointer (&state->cached_bindings, g_hash_table_unref);
 	g_clear_pointer (&state->parameters, g_hash_table_unref);
+	g_clear_pointer (&state->anon_graphs, g_ptr_array_unref);
+	g_clear_pointer (&state->named_graphs, g_ptr_array_unref);
 }
 
 static void
@@ -250,8 +256,6 @@ tracker_sparql_finalize (GObject *object)
 
 	g_clear_object (&sparql->context);
 
-	g_ptr_array_unref (sparql->named_graphs);
-	g_ptr_array_unref (sparql->anon_graphs);
 	g_free (sparql->base);
 
 	g_clear_pointer (&sparql->policy.graphs, g_ptr_array_unref);
@@ -2543,17 +2547,17 @@ _end_triples_block (TrackerSparql  *sparql,
 			if (table->graph) {
 				_append_graph_checks (sparql, "graph", FALSE,
 						      &table->graph, 1);
-			} else if (sparql->anon_graphs->len > 0 &&
+			} else if (sparql->current_state->anon_graphs->len > 0 &&
 				   tracker_token_is_empty (&sparql->current_state->graph)) {
 				_append_graph_checks (sparql, "graph",
 				                      !sparql->policy.filter_unnamed_graph,
-						      (GStrv) sparql->anon_graphs->pdata,
-						      sparql->anon_graphs->len);
+						      (GStrv) sparql->current_state->anon_graphs->pdata,
+						      sparql->current_state->anon_graphs->len);
 			} else if (tracker_token_get_variable (&sparql->current_state->graph)) {
-				if (sparql->named_graphs->len > 0) {
+				if (sparql->current_state->named_graphs->len > 0) {
 					_append_graph_checks (sparql, "graph", FALSE,
-					                      (GStrv) sparql->named_graphs->pdata,
-					                      sparql->named_graphs->len);
+					                      (GStrv) sparql->current_state->named_graphs->pdata,
+					                      sparql->current_state->named_graphs->len);
 				} else if (sparql->policy.graphs) {
 					_append_graph_checks (sparql, "graph", FALSE,
 					                      (GStrv) sparql->policy.graphs->pdata,
@@ -2585,17 +2589,17 @@ _end_triples_block (TrackerSparql  *sparql,
 				if (table->graph) {
 					_append_graph_checks (sparql, "graph", FALSE,
 					                      &table->graph, 1);
-				} else if (sparql->anon_graphs->len > 0 &&
+				} else if (sparql->current_state->anon_graphs->len > 0 &&
 				           tracker_token_is_empty (&sparql->current_state->graph)) {
 					_append_graph_checks (sparql, "graph",
 					                      !sparql->policy.filter_unnamed_graph,
-					                      (GStrv) sparql->anon_graphs->pdata,
-					                      sparql->anon_graphs->len);
+					                      (GStrv) sparql->current_state->anon_graphs->pdata,
+					                      sparql->current_state->anon_graphs->len);
 				} else if (tracker_token_get_variable (&sparql->current_state->graph)) {
-					if (sparql->named_graphs->len > 0) {
+					if (sparql->current_state->named_graphs->len > 0) {
 						_append_graph_checks (sparql, "graph", FALSE,
-						                      (GStrv) sparql->named_graphs->pdata,
-						                      sparql->named_graphs->len);
+						                      (GStrv) sparql->current_state->named_graphs->pdata,
+						                      sparql->current_state->named_graphs->len);
 					} else if (sparql->policy.graphs) {
 						_append_graph_checks (sparql, "graph", FALSE,
 						                      (GStrv) sparql->policy.graphs->pdata,
@@ -3279,13 +3283,13 @@ translate_SelectQuery (TrackerSparql  *sparql,
 	/* Optimize single graph case, so it always resorts to querying
 	 * the specific database.
 	 */
-	if (sparql->named_graphs->len + sparql->anon_graphs->len == 1) {
+	if (sparql->current_state->named_graphs->len + sparql->current_state->anon_graphs->len == 1) {
 		const gchar *graph = NULL;
 
-		if (sparql->named_graphs->len > 0)
-			graph = g_ptr_array_index (sparql->named_graphs, 0);
-		else if (sparql->anon_graphs->len > 0)
-			graph = g_ptr_array_index (sparql->anon_graphs, 0);
+		if (sparql->current_state->named_graphs->len > 0)
+			graph = g_ptr_array_index (sparql->current_state->named_graphs, 0);
+		else if (sparql->current_state->anon_graphs->len > 0)
+			graph = g_ptr_array_index (sparql->current_state->anon_graphs, 0);
 
 		if (graph)
 			tracker_token_literal_init (&sparql->current_state->graph, graph, -1);
@@ -3654,7 +3658,7 @@ translate_DefaultGraphClause (TrackerSparql  *sparql,
 	_call_rule (sparql, NAMED_RULE_SourceSelector, error);
 
 	graph = g_strdup (tracker_token_get_idstring (&sparql->current_state->graph));
-	g_ptr_array_add (sparql->anon_graphs, graph);
+	g_ptr_array_add (sparql->current_state->anon_graphs, graph);
 	tracker_token_unset (&sparql->current_state->graph);
 
 	return TRUE;
@@ -3672,7 +3676,7 @@ translate_NamedGraphClause (TrackerSparql  *sparql,
 	_call_rule (sparql, NAMED_RULE_SourceSelector, error);
 
 	graph = g_strdup (tracker_token_get_idstring (&sparql->current_state->graph));
-	g_ptr_array_add (sparql->named_graphs, graph);
+	g_ptr_array_add (sparql->current_state->named_graphs, graph);
 	tracker_token_unset (&sparql->current_state->graph);
 
 	return TRUE;
@@ -5070,9 +5074,9 @@ translate_UsingClause (TrackerSparql  *sparql,
 	graph = g_strdup (tracker_token_get_idstring (&sparql->current_state->graph));
 
 	if (named)
-		g_ptr_array_add (sparql->named_graphs, graph);
+		g_ptr_array_add (sparql->current_state->named_graphs, graph);
 	else
-		g_ptr_array_add (sparql->anon_graphs, graph);
+		g_ptr_array_add (sparql->current_state->anon_graphs, graph);
 
 	tracker_token_unset (&sparql->current_state->graph);
 	g_free (graph);
@@ -9842,8 +9846,6 @@ tracker_sparql_class_init (TrackerSparqlClass *klass)
 static void
 tracker_sparql_init (TrackerSparql *sparql)
 {
-	sparql->anon_graphs = g_ptr_array_new_with_free_func (g_free);
-	sparql->named_graphs = g_ptr_array_new_with_free_func (g_free);
 	sparql->cacheable = TRUE;
 	g_mutex_init (&sparql->mutex);
 }
@@ -10033,8 +10035,6 @@ tracker_sparql_reset_state (TrackerSparql *sparql)
 	sparql->current_state->node = tracker_node_tree_get_root (sparql->tree);
 	tracker_sparql_init_string_builder (sparql);
 	g_clear_object (&sparql->context);
-	g_ptr_array_set_size (sparql->anon_graphs, 0);
-	g_ptr_array_set_size (sparql->named_graphs, 0);
 }
 
 TrackerSparqlCursor *
