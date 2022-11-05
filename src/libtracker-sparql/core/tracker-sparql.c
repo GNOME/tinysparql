@@ -144,6 +144,8 @@ typedef struct
 
 	GHashTable *prefix_map;
 	GHashTable *union_views;
+	GHashTable *cached_bindings;
+	GHashTable *parameters;
 
 	GList *service_clauses;
 	GList *filter_clauses;
@@ -173,8 +175,6 @@ struct _TrackerSparql
 	TrackerStringBuilder *sql;
 	gchar *sql_string;
 
-	GHashTable *cached_bindings;
-
 	GVariantBuilder *blank_nodes;
 	GHashTable *solution_var_map;
 
@@ -182,8 +182,6 @@ struct _TrackerSparql
 	gboolean silent;
 	gboolean cacheable;
 	guint generation;
-
-	GHashTable *parameters;
 
 	GPtrArray *anon_graphs;
 	GPtrArray *named_graphs;
@@ -206,6 +204,11 @@ G_DEFINE_TYPE (TrackerSparql, tracker_sparql, G_TYPE_OBJECT)
 static void
 tracker_sparql_state_init (TrackerSparqlState *state)
 {
+	state->cached_bindings = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                                g_free, g_object_unref);
+	state->parameters = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                           g_free, g_object_unref);
+
 	state->prefix_map = g_hash_table_new_full (g_str_hash, g_str_equal,
 	                                           g_free, g_free);
 	g_hash_table_insert (state->prefix_map, g_strdup ("fn"), g_strdup (FN_NS));
@@ -227,6 +230,8 @@ tracker_sparql_state_clear (TrackerSparqlState *state)
 	g_clear_pointer (&state->service_clauses, g_list_free);
 	g_clear_pointer (&state->filter_clauses, g_list_free);
 	g_clear_pointer (&state->prefix_map, g_hash_table_unref);
+	g_clear_pointer (&state->cached_bindings, g_hash_table_unref);
+	g_clear_pointer (&state->parameters, g_hash_table_unref);
 }
 
 static void
@@ -235,8 +240,6 @@ tracker_sparql_finalize (GObject *object)
 	TrackerSparql *sparql = TRACKER_SPARQL (object);
 
 	g_object_unref (sparql->data_manager);
-	g_hash_table_destroy (sparql->parameters);
-	g_hash_table_destroy (sparql->cached_bindings);
 
 	g_clear_pointer (&sparql->sql_string, g_free);
 
@@ -1278,7 +1281,7 @@ _convert_terminal (TrackerSparql *sparql)
 	rule = tracker_parser_node_get_rule (sparql->current_state->prev_node);
 	is_parameter = tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
 	                                          TERMINAL_TYPE_PARAMETERIZED_VAR);
-	ht = is_parameter ? sparql->parameters : sparql->cached_bindings;
+	ht = is_parameter ? sparql->current_state->parameters : sparql->current_state->cached_bindings;
 
 	binding = g_hash_table_lookup (ht, str);
 	if (binding) {
@@ -9839,10 +9842,6 @@ tracker_sparql_class_init (TrackerSparqlClass *klass)
 static void
 tracker_sparql_init (TrackerSparql *sparql)
 {
-	sparql->cached_bindings = g_hash_table_new_full (g_str_hash, g_str_equal,
-							 g_free, g_object_unref);
-	sparql->parameters = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                            g_free, g_object_unref);
 	sparql->anon_graphs = g_ptr_array_new_with_free_func (g_free);
 	sparql->named_graphs = g_ptr_array_new_with_free_func (g_free);
 	sparql->cacheable = TRUE;
@@ -10034,8 +10033,6 @@ tracker_sparql_reset_state (TrackerSparql *sparql)
 	sparql->current_state->node = tracker_node_tree_get_root (sparql->tree);
 	tracker_sparql_init_string_builder (sparql);
 	g_clear_object (&sparql->context);
-	g_hash_table_remove_all (sparql->cached_bindings);
-	g_hash_table_remove_all (sparql->parameters);
 	g_ptr_array_set_size (sparql->anon_graphs, 0);
 	g_ptr_array_set_size (sparql->named_graphs, 0);
 }
