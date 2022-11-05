@@ -711,8 +711,8 @@ build_properties_string (TrackerSparql   *sparql,
 }
 
 static gboolean
-tracker_sparql_graph_is_whitelisted (TrackerSparql *sparql,
-                                     const gchar   *graph)
+tracker_sparql_graph_is_allowed (TrackerSparql *sparql,
+                                 const gchar   *graph)
 {
 	guint i;
 
@@ -2214,7 +2214,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 	if ((tracker_token_is_empty (&sparql->current_state->graph) &&
 	     sparql->policy.filter_unnamed_graph) ||
 	    (tracker_token_get_literal (&sparql->current_state->graph) &&
-	     !tracker_sparql_graph_is_whitelisted (sparql, tracker_token_get_idstring (&sparql->current_state->graph)))) {
+	     !tracker_sparql_graph_is_allowed (sparql, tracker_token_get_idstring (&sparql->current_state->graph)))) {
 		_raise (CONSTRAINT, "Access to graph is disallowed",
 		        tracker_token_is_empty (&sparql->current_state->graph) ? "DEFAULT" :
 		        tracker_token_get_idstring (&sparql->current_state->graph));
@@ -4312,7 +4312,7 @@ translate_Drop (TrackerSparql  *sparql,
 	}
 
 	for (l = graphs; l; l = l->next) {
-		if (!tracker_sparql_graph_is_whitelisted (sparql, l->data)) {
+		if (!tracker_sparql_graph_is_allowed (sparql, l->data)) {
 			inner_error = g_error_new (TRACKER_SPARQL_ERROR,
 			                           TRACKER_SPARQL_ERROR_CONSTRAINT,
 			                           "Graph '%s' disallowed by policy",
@@ -4359,7 +4359,7 @@ translate_Create (TrackerSparql  *sparql,
 		goto error;
 	}
 
-	if (!tracker_sparql_graph_is_whitelisted (sparql, graph_name)) {
+	if (!tracker_sparql_graph_is_allowed (sparql, graph_name)) {
 		inner_error = g_error_new (TRACKER_SPARQL_ERROR,
 		                           TRACKER_SPARQL_ERROR_CONSTRAINT,
 		                           "Graph '%s' disallowed by policy",
@@ -4421,7 +4421,7 @@ translate_Add (TrackerSparql  *sparql,
 		goto error;
 	}
 
-	if (!tracker_sparql_graph_is_whitelisted (sparql, destination)) {
+	if (!tracker_sparql_graph_is_allowed (sparql, destination)) {
 		inner_error = g_error_new (TRACKER_SPARQL_ERROR,
 		                           TRACKER_SPARQL_ERROR_CONSTRAINT,
 		                           "Graph '%s' disallowed by policy",
@@ -4493,7 +4493,7 @@ translate_Move (TrackerSparql  *sparql,
 		goto error;
 	}
 
-	if (!tracker_sparql_graph_is_whitelisted (sparql, destination)) {
+	if (!tracker_sparql_graph_is_allowed (sparql, destination)) {
 		inner_error = g_error_new (TRACKER_SPARQL_ERROR,
 		                           TRACKER_SPARQL_ERROR_CONSTRAINT,
 		                           "Graph '%s' disallowed by policy",
@@ -4577,7 +4577,7 @@ translate_Copy (TrackerSparql  *sparql,
 		goto error;
 	}
 
-	if (!tracker_sparql_graph_is_whitelisted (sparql, destination)) {
+	if (!tracker_sparql_graph_is_allowed (sparql, destination)) {
 		inner_error = g_error_new (TRACKER_SPARQL_ERROR,
 		                           TRACKER_SPARQL_ERROR_CONSTRAINT,
 		                           "Graph '%s' disallowed by policy",
