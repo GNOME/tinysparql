@@ -153,6 +153,8 @@ typedef struct
 	GList *service_clauses;
 	GList *filter_clauses;
 
+	gchar *base;
+
 	const gchar *expression_list_separator;
 	TrackerPropertyType expression_type;
 	guint type;
@@ -185,8 +187,6 @@ struct _TrackerSparql
 	gboolean silent;
 	gboolean cacheable;
 	guint generation;
-
-	gchar *base;
 
 	GMutex mutex;
 
@@ -241,6 +241,7 @@ tracker_sparql_state_clear (TrackerSparqlState *state)
 	g_clear_pointer (&state->parameters, g_hash_table_unref);
 	g_clear_pointer (&state->anon_graphs, g_ptr_array_unref);
 	g_clear_pointer (&state->named_graphs, g_ptr_array_unref);
+	g_clear_pointer (&state->base, g_free);
 }
 
 static void
@@ -258,8 +259,6 @@ tracker_sparql_finalize (GObject *object)
 		tracker_node_tree_free (sparql->tree);
 
 	g_clear_object (&sparql->context);
-
-	g_free (sparql->base);
 
 	g_clear_pointer (&sparql->policy.graphs, g_ptr_array_unref);
 	g_clear_pointer (&sparql->policy.services, g_ptr_array_unref);
@@ -326,8 +325,8 @@ static inline gchar *
 tracker_sparql_expand_base (TrackerSparql *sparql,
                             const gchar   *term)
 {
-	if (sparql->base)
-		return tracker_resolve_relative_uri (sparql->base, term);
+	if (sparql->current_state->base)
+		return tracker_resolve_relative_uri (sparql->current_state->base, term);
 	else
 		return g_strdup (term);
 }
@@ -3095,8 +3094,8 @@ translate_BaseDecl (TrackerSparql  *sparql,
 	 * sense to keep one. Given that the sparql1.1-query recommendation
 	 * does not define the behavior, just pick the first one.
 	 */
-	if (!sparql->base)
-		sparql->base = _dup_last_string (sparql);
+	if (!sparql->current_state->base)
+		sparql->current_state->base = _dup_last_string (sparql);
 
 	return TRUE;
 }
