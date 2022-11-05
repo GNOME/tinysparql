@@ -145,6 +145,7 @@ typedef struct
 	GHashTable *union_views;
 
 	GList *service_clauses;
+	GList *filter_clauses;
 
 	const gchar *expression_list_separator;
 	TrackerPropertyType expression_type;
@@ -172,7 +173,6 @@ struct _TrackerSparql
 	gchar *sql_string;
 
 	GHashTable *prefix_map;
-	GList *filter_clauses;
 
 	GHashTable *cached_bindings;
 
@@ -218,6 +218,7 @@ tracker_sparql_state_clear (TrackerSparqlState *state)
 	                 tracker_string_builder_free);
 	g_clear_object (&state->as_in_group_by);
 	g_clear_pointer (&state->service_clauses, g_list_free);
+	g_clear_pointer (&state->filter_clauses, g_list_free);
 }
 
 static void
@@ -5311,8 +5312,8 @@ translate_GroupGraphPatternSub (TrackerSparql  *sparql,
 		return FALSE;
 
 	/* Handle filters last, they apply to the pattern as a whole */
-	if (sparql->filter_clauses) {
-		GList *filters = sparql->filter_clauses;
+	if (sparql->current_state->filter_clauses) {
+		GList *filters = sparql->current_state->filter_clauses;
 		gboolean first = TRUE;
 
 		while (filters) {
@@ -5341,8 +5342,8 @@ translate_GroupGraphPatternSub (TrackerSparql  *sparql,
 			                        NULL, error))
 				return FALSE;
 
-			sparql->filter_clauses =
-				g_list_delete_link (sparql->filter_clauses, elem);
+			sparql->current_state->filter_clauses =
+				g_list_delete_link (sparql->current_state->filter_clauses, elem);
 		}
 	}
 
@@ -6250,7 +6251,8 @@ translate_Filter (TrackerSparql  *sparql,
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_FILTER);
 	node = _skip_rule (sparql, NAMED_RULE_Constraint);
 	/* Add constraints to list for later processing */
-	sparql->filter_clauses = g_list_prepend (sparql->filter_clauses, node);
+	sparql->current_state->filter_clauses =
+		g_list_prepend (sparql->current_state->filter_clauses, node);
 
 	return TRUE;
 }
@@ -10027,8 +10029,6 @@ tracker_sparql_reset_state (TrackerSparql *sparql)
 	sparql->current_state->node = tracker_node_tree_get_root (sparql->tree);
 	tracker_sparql_init_string_builder (sparql);
 	g_clear_object (&sparql->context);
-	g_list_free (sparql->filter_clauses);
-	sparql->filter_clauses = NULL;
 	g_hash_table_remove_all (sparql->cached_bindings);
 	g_hash_table_remove_all (sparql->parameters);
 	g_ptr_array_set_size (sparql->anon_graphs, 0);
