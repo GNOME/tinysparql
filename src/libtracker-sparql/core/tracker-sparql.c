@@ -142,6 +142,7 @@ typedef struct
 	GHashTable *update_blank_nodes;
 	TrackerVariableBinding *as_in_group_by;
 
+	GHashTable *prefix_map;
 	GHashTable *union_views;
 
 	GList *service_clauses;
@@ -171,8 +172,6 @@ struct _TrackerSparql
 	TrackerContext *context;
 	TrackerStringBuilder *sql;
 	gchar *sql_string;
-
-	GHashTable *prefix_map;
 
 	GHashTable *cached_bindings;
 
@@ -205,6 +204,14 @@ struct _TrackerSparql
 G_DEFINE_TYPE (TrackerSparql, tracker_sparql, G_TYPE_OBJECT)
 
 static void
+tracker_sparql_state_init (TrackerSparqlState *state)
+{
+	state->prefix_map = g_hash_table_new_full (g_str_hash, g_str_equal,
+	                                           g_free, g_free);
+	g_hash_table_insert (state->prefix_map, g_strdup ("fn"), g_strdup (FN_NS));
+}
+
+static void
 tracker_sparql_state_clear (TrackerSparqlState *state)
 {
 	tracker_token_unset (&state->graph);
@@ -219,6 +226,7 @@ tracker_sparql_state_clear (TrackerSparqlState *state)
 	g_clear_object (&state->as_in_group_by);
 	g_clear_pointer (&state->service_clauses, g_list_free);
 	g_clear_pointer (&state->filter_clauses, g_list_free);
+	g_clear_pointer (&state->prefix_map, g_hash_table_unref);
 }
 
 static void
@@ -227,7 +235,6 @@ tracker_sparql_finalize (GObject *object)
 	TrackerSparql *sparql = TRACKER_SPARQL (object);
 
 	g_object_unref (sparql->data_manager);
-	g_hash_table_destroy (sparql->prefix_map);
 	g_hash_table_destroy (sparql->parameters);
 	g_hash_table_destroy (sparql->cached_bindings);
 
@@ -1221,7 +1228,7 @@ _extract_node_string (TrackerParserNode *node,
 						terminal_end - terminal_start - subtract_end);
 			tracker_data_manager_expand_prefix (sparql->data_manager,
 			                                    unexpanded,
-			                                    sparql->prefix_map,
+			                                    sparql->current_state->prefix_map,
 			                                    NULL, &str);
 			g_free (unexpanded);
 			break;
@@ -3100,7 +3107,7 @@ translate_PrefixDecl (TrackerSparql  *sparql,
 	_expect (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_IRIREF);
 	uri = _dup_last_string (sparql);
 
-	g_hash_table_insert (sparql->prefix_map, ns, uri);
+	g_hash_table_insert (sparql->current_state->prefix_map, ns, uri);
 
 	return TRUE;
 }
@@ -9832,10 +9839,6 @@ tracker_sparql_class_init (TrackerSparqlClass *klass)
 static void
 tracker_sparql_init (TrackerSparql *sparql)
 {
-	sparql->prefix_map = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                            g_free, g_free);
-	g_hash_table_insert (sparql->prefix_map, g_strdup ("fn"), g_strdup (FN_NS));
-
 	sparql->cached_bindings = g_hash_table_new_full (g_str_hash, g_str_equal,
 							 g_free, g_object_unref);
 	sparql->parameters = g_hash_table_new_full (g_str_hash, g_str_equal,
@@ -9886,6 +9889,8 @@ tracker_sparql_new (TrackerDataManager *manager,
 	if (tree) {
 		TrackerSparqlState state = { 0 };
 		GError *internal_error = NULL;
+
+		tracker_sparql_state_init (&state);
 
 		sparql->tree = tree;
 
@@ -10067,6 +10072,8 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 		TrackerSparqlState state = { 0 };
 		gboolean retval;
 
+		tracker_sparql_state_init (&state);
+
 		sparql->current_state = &state;
 		tracker_sparql_reset_state (sparql);
 		retval = _call_rule_func (sparql, NAMED_RULE_Query, error);
@@ -10162,6 +10169,7 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 	if (blank)
 		sparql->blank_nodes = g_variant_builder_new (G_VARIANT_TYPE ("aaa{ss}"));
 
+	tracker_sparql_state_init (&state);
 	sparql->current_state = &state;
 	sparql->current_state->node = tracker_node_tree_get_root (sparql->tree);
 	sparql->current_state->blank_node_map =
