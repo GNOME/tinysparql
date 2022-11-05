@@ -58,6 +58,12 @@ enum {
 static inline gboolean _call_rule_func (TrackerSparql            *sparql,
                                         TrackerGrammarNamedRule   rule,
                                         GError                  **error);
+static inline TrackerStringBuilder * _prepend_placeholder (TrackerSparql *sparql);
+static inline TrackerStringBuilder * _append_placeholder (TrackerSparql *sparql);
+
+static inline TrackerStringBuilder * tracker_sparql_swap_builder (TrackerSparql        *sparql,
+                                                                  TrackerStringBuilder *string);
+
 static gboolean handle_function_call (TrackerSparql  *sparql,
                                       GError        **error);
 static gboolean helper_translate_date (TrackerSparql  *sparql,
@@ -123,6 +129,7 @@ typedef struct
 {
 	TrackerContext *context;
 	TrackerContext *select_context;
+	TrackerStringBuilder *result;
 	TrackerStringBuilder *sql;
 	TrackerStringBuilder *with_clauses;
 	TrackerStringBuilder *construct_query;
@@ -177,7 +184,6 @@ struct _TrackerSparql
 	GError *parser_error;
 
 	TrackerContext *context;
-	TrackerStringBuilder *sql;
 	gchar *sql_string;
 
 	GVariantBuilder *blank_nodes;
@@ -206,6 +212,8 @@ static void
 tracker_sparql_state_init (TrackerSparqlState *state,
                            TrackerSparql      *sparql)
 {
+	TrackerStringBuilder *str;
+
 	state->cached_bindings = g_hash_table_new_full (g_str_hash, g_str_equal,
 	                                                g_free, g_object_unref);
 	state->parameters = g_hash_table_new_full (g_str_hash, g_str_equal,
@@ -219,6 +227,15 @@ tracker_sparql_state_init (TrackerSparqlState *state,
 	state->named_graphs = g_ptr_array_new_with_free_func (g_free);
 
 	state->node = tracker_node_tree_get_root (sparql->tree);
+
+	state->result = state->sql = tracker_string_builder_new ();
+	state->with_clauses = _prepend_placeholder (sparql);
+
+	/* Ensure the select clause goes to a different substring than the
+	 * WITH clauses, so _prepend_string() works as expected.
+	 */
+	str = _append_placeholder (sparql);
+	tracker_sparql_swap_builder (sparql, str);
 }
 
 static void
@@ -242,6 +259,7 @@ tracker_sparql_state_clear (TrackerSparqlState *state)
 	g_clear_pointer (&state->anon_graphs, g_ptr_array_unref);
 	g_clear_pointer (&state->named_graphs, g_ptr_array_unref);
 	g_clear_pointer (&state->base, g_free);
+	g_clear_pointer (&state->result, tracker_string_builder_free);
 }
 
 static void
@@ -253,8 +271,6 @@ tracker_sparql_finalize (GObject *object)
 
 	g_clear_pointer (&sparql->sql_string, g_free);
 
-	if (sparql->sql)
-		tracker_string_builder_free (sparql->sql);
 	if (sparql->tree)
 		tracker_node_tree_free (sparql->tree);
 
@@ -2293,13 +2309,13 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 }
 
 static void
-tracker_sparql_init_string_builder (TrackerSparql *sparql)
+tracker_sparql_reset_string_builder (TrackerSparql *sparql)
 {
 	TrackerStringBuilder *str;
 
-	g_clear_pointer (&sparql->sql, tracker_string_builder_free);
+	g_clear_pointer (&sparql->current_state->result, tracker_string_builder_free);
 	g_clear_pointer (&sparql->sql_string, g_free);
-	sparql->sql = sparql->current_state->sql = tracker_string_builder_new ();
+	sparql->current_state->result = sparql->current_state->sql = tracker_string_builder_new ();
 	sparql->current_state->with_clauses = _prepend_placeholder (sparql);
 
 	/* Ensure the select clause goes to a different substring than the
@@ -4715,7 +4731,7 @@ get_solution_for_pattern (TrackerSparql      *sparql,
 	sparql->current_state->select_context = sparql->context;
 	tracker_sparql_push_context (sparql, sparql->context);
 
-	tracker_sparql_init_string_builder (sparql);
+	tracker_sparql_reset_string_builder (sparql);
 
 	retval = prepare_solution_select (sparql, pattern, error);
 	tracker_sparql_pop_context (sparql, FALSE);
@@ -4724,6 +4740,8 @@ get_solution_for_pattern (TrackerSparql      *sparql,
 		g_clear_object (&sparql->context);
 		return NULL;
 	}
+
+	sparql->sql_string = tracker_string_builder_to_string (sparql->current_state->result);
 
 	iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
 	stmt = prepare_query (sparql, iface,
@@ -9897,11 +9915,11 @@ tracker_sparql_new (TrackerDataManager *manager,
 
 		sparql->current_state = &state;
 		tracker_sparql_state_init (&state, sparql);
-		tracker_sparql_init_string_builder (sparql);
 
 		if (!_call_rule_func (sparql, NAMED_RULE_Query, &internal_error))
 			g_propagate_error (&sparql->parser_error, internal_error);
 
+		sparql->sql_string = tracker_string_builder_to_string (state.result);
 		sparql->current_state = NULL;
 
 		tracker_sparql_state_clear (&state);
@@ -9920,11 +9938,6 @@ prepare_query (TrackerSparql         *sparql,
 {
 	TrackerDBStatement *stmt;
 	guint i;
-
-	if (!sparql->sql_string) {
-		sparql->sql_string = tracker_string_builder_to_string (sparql->sql);
-		g_clear_pointer (&sparql->sql, tracker_string_builder_free);
-	}
 
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              cached ?
@@ -10032,7 +10045,6 @@ prepare_query (TrackerSparql         *sparql,
 static void
 tracker_sparql_reset_state (TrackerSparql *sparql)
 {
-	tracker_sparql_init_string_builder (sparql);
 	g_clear_object (&sparql->context);
 }
 
@@ -10072,9 +10084,9 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 		tracker_sparql_state_init (&state, sparql);
 		tracker_sparql_reset_state (sparql);
 		retval = _call_rule_func (sparql, NAMED_RULE_Query, error);
+		sparql->sql_string = tracker_string_builder_to_string (state.result);
 		sparql->current_state = NULL;
 		tracker_sparql_state_clear (&state);
-
 
 		if (!retval)
 			goto error;
@@ -10168,7 +10180,6 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 	tracker_sparql_state_init (&state, sparql);
 	sparql->current_state->blank_node_map =
 		bnode_map ? g_hash_table_ref (bnode_map) : NULL;
-	tracker_sparql_init_string_builder (sparql);
 	retval = _call_rule_func (sparql, NAMED_RULE_Update, error);
 	sparql->current_state = NULL;
 	tracker_sparql_state_clear (&state);
