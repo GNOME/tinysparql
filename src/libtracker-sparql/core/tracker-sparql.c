@@ -203,7 +203,8 @@ struct _TrackerSparql
 G_DEFINE_TYPE (TrackerSparql, tracker_sparql, G_TYPE_OBJECT)
 
 static void
-tracker_sparql_state_init (TrackerSparqlState *state)
+tracker_sparql_state_init (TrackerSparqlState *state,
+                           TrackerSparql      *sparql)
 {
 	state->cached_bindings = g_hash_table_new_full (g_str_hash, g_str_equal,
 	                                                g_free, g_object_unref);
@@ -216,6 +217,8 @@ tracker_sparql_state_init (TrackerSparqlState *state)
 
 	state->anon_graphs = g_ptr_array_new_with_free_func (g_free);
 	state->named_graphs = g_ptr_array_new_with_free_func (g_free);
+
+	state->node = tracker_node_tree_get_root (sparql->tree);
 }
 
 static void
@@ -9891,12 +9894,10 @@ tracker_sparql_new (TrackerDataManager *manager,
 		TrackerSparqlState state = { 0 };
 		GError *internal_error = NULL;
 
-		tracker_sparql_state_init (&state);
-
 		sparql->tree = tree;
 
 		sparql->current_state = &state;
-		sparql->current_state->node = tracker_node_tree_get_root (sparql->tree);
+		tracker_sparql_state_init (&state, sparql);
 		tracker_sparql_init_string_builder (sparql);
 
 		if (!_call_rule_func (sparql, NAMED_RULE_Query, &internal_error))
@@ -10032,7 +10033,6 @@ prepare_query (TrackerSparql         *sparql,
 static void
 tracker_sparql_reset_state (TrackerSparql *sparql)
 {
-	sparql->current_state->node = tracker_node_tree_get_root (sparql->tree);
 	tracker_sparql_init_string_builder (sparql);
 	g_clear_object (&sparql->context);
 }
@@ -10069,9 +10069,8 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 		TrackerSparqlState state = { 0 };
 		gboolean retval;
 
-		tracker_sparql_state_init (&state);
-
 		sparql->current_state = &state;
+		tracker_sparql_state_init (&state, sparql);
 		tracker_sparql_reset_state (sparql);
 		retval = _call_rule_func (sparql, NAMED_RULE_Query, error);
 		sparql->current_state = NULL;
@@ -10166,9 +10165,8 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 	if (blank)
 		sparql->blank_nodes = g_variant_builder_new (G_VARIANT_TYPE ("aaa{ss}"));
 
-	tracker_sparql_state_init (&state);
 	sparql->current_state = &state;
-	sparql->current_state->node = tracker_node_tree_get_root (sparql->tree);
+	tracker_sparql_state_init (&state, sparql);
 	sparql->current_state->blank_node_map =
 		bnode_map ? g_hash_table_ref (bnode_map) : NULL;
 	tracker_sparql_init_string_builder (sparql);
