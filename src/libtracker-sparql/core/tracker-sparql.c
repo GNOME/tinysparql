@@ -9890,7 +9890,6 @@ TrackerSparql*
 tracker_sparql_new (TrackerDataManager *manager,
                     const gchar        *query)
 {
-	TrackerNodeTree *tree;
 	TrackerSparql *sparql;
 
 	g_return_val_if_fail (TRACKER_IS_DATA_MANAGER (manager), NULL);
@@ -9899,32 +9898,14 @@ tracker_sparql_new (TrackerDataManager *manager,
 	sparql = g_object_new (TRACKER_TYPE_SPARQL, NULL);
 	sparql->query_type = TRACKER_SPARQL_QUERY_SELECT;
 	sparql->data_manager = g_object_ref (manager);
-	sparql->generation = tracker_data_manager_get_generation (sparql->data_manager);
 
 	if (strcasestr (query, "\\u"))
 		sparql->sparql = tracker_unescape_unichars (query, -1);
 	else
 		sparql->sparql = g_strdup (query);
 
-	tree = tracker_sparql_parse_query (sparql->sparql, -1, NULL,
-					   &sparql->parser_error);
-	if (tree) {
-		TrackerSparqlState state = { 0 };
-		GError *internal_error = NULL;
-
-		sparql->tree = tree;
-
-		sparql->current_state = &state;
-		tracker_sparql_state_init (&state, sparql);
-
-		if (!_call_rule_func (sparql, NAMED_RULE_Query, &internal_error))
-			g_propagate_error (&sparql->parser_error, internal_error);
-
-		sparql->sql_string = tracker_string_builder_to_string (state.result);
-		sparql->current_state = NULL;
-
-		tracker_sparql_state_clear (&state);
-	}
+	sparql->tree = tracker_sparql_parse_query (sparql->sparql, -1, NULL,
+	                                           &sparql->parser_error);
 
 	return sparql;
 }
