@@ -2206,6 +2206,10 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 		TrackerOntologies *ontologies;
 		const gchar *property;
 
+		subject = tracker_sparql_get_subject_id (sparql, &inner_error);
+		if (inner_error)
+			return FALSE;
+
 		ontologies = tracker_data_manager_get_ontologies (sparql->data_manager);
 		property = tracker_token_get_idstring (&sparql->current_state->predicate);
 		predicate = tracker_ontologies_get_property_by_uri (ontologies,
@@ -2227,10 +2231,6 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 			g_propagate_error (error, inner_error);
 			return FALSE;
 		}
-
-		subject = tracker_sparql_get_subject_id (sparql, error);
-		if (subject == 0)
-			return FALSE;
 	}
 
 	switch (sparql->current_state->type) {
