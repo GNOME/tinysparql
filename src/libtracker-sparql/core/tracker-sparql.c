@@ -9624,12 +9624,10 @@ translate_BlankNode (TrackerSparql  *sparql,
         if (sparql->current_state->type != TRACKER_SPARQL_TYPE_SELECT &&
 	    sparql->current_state->type != TRACKER_SPARQL_TYPE_CONSTRUCT) {
 	        if (_accept (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_ANON)) {
-		        bnode_id = tracker_data_generate_bnode (tracker_data_manager_get_data (sparql->data_manager),
-		                                                error);
-		        if (bnode_id == 0)
+		        if (!tracker_sparql_generate_anon_bnode (sparql,
+		                                                 sparql->current_state->token,
+		                                                 error))
 			        return FALSE;
-
-		        tracker_token_bnode_init (sparql->current_state->token, bnode_id);
 	        } else if (_accept (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_BLANK_NODE_LABEL)) {
 		        gchar *str;
 
