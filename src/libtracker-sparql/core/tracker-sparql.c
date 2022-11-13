@@ -2177,9 +2177,21 @@ tracker_sparql_get_subject_id (TrackerSparql  *sparql,
 		return bnode_id;
 
 	subject_str = tracker_token_get_idstring (&sparql->current_state->subject);
-	return tracker_data_update_ensure_resource (tracker_data_manager_get_data (sparql->data_manager),
-	                                            subject_str,
-	                                            error);
+
+	if (sparql->current_state->type == TRACKER_SPARQL_TYPE_DELETE &&
+	    !g_str_has_prefix (subject_str, "urn:bnode:")) {
+		TrackerDBInterface *iface;
+
+		iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
+
+		return tracker_data_query_resource_id (sparql->data_manager,
+		                                       iface, subject_str,
+		                                       error);
+	} else {
+		return tracker_data_update_ensure_resource (tracker_data_manager_get_data (sparql->data_manager),
+		                                            subject_str,
+		                                            error);
+	}
 }
 
 static gboolean
@@ -2209,6 +2221,10 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 		subject = tracker_sparql_get_subject_id (sparql, &inner_error);
 		if (inner_error)
 			return FALSE;
+
+		if (subject == 0 &&
+		    sparql->current_state->type == TRACKER_SPARQL_TYPE_DELETE)
+			return TRUE;
 
 		ontologies = tracker_data_manager_get_ontologies (sparql->data_manager);
 		property = tracker_token_get_idstring (&sparql->current_state->predicate);
@@ -4850,67 +4866,6 @@ iterate_solution (TrackerSparql      *sparql,
 }
 
 static gboolean
-check_idempotent_delete (TrackerSparql     *sparql,
-                         TrackerParserNode *pattern,
-                         TrackerParserNode *end)
-{
-	TrackerDBInterface *iface;
-	TrackerParserNode *node, *subject;
-	gint n_triples = 0;
-	gboolean skip = FALSE;
-	gchar *subject_str;
-
-	/* Look for idempotent delete operations (those that don't change
-	 * the RDF graph) or the easy ones at least. If the quad pattern
-	 * consists of a single triple graph, the subject is an IRI, and
-	 * we know it does not exist yet, we can avoid the busywork.
-	 */
-	for (node = tracker_sparql_parser_tree_find_first (pattern, FALSE);
-	     node;
-	     node = tracker_sparql_parser_tree_find_next (node, FALSE)) {
-		const TrackerGrammarRule *rule;
-
-		if (node == end)
-			break;
-
-		rule = tracker_parser_node_get_rule (node);
-		if (tracker_grammar_rule_is_a (rule, RULE_TYPE_RULE,
-		                               NAMED_RULE_TriplesTemplate))
-			n_triples++;
-
-		if (n_triples > 1) {
-			skip = FALSE;
-			break;
-		}
-
-		if (!tracker_grammar_rule_is_a (rule, RULE_TYPE_RULE,
-		                                NAMED_RULE_TriplesSameSubject))
-			continue;
-
-		/* Find subject */
-		subject = tracker_sparql_parser_tree_find_first (node, TRUE);
-
-		/* If it's not an IRI, bail out */
-		rule = tracker_parser_node_get_rule (subject);
-		if (!tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
-		                                TERMINAL_TYPE_IRIREF))
-			continue;
-
-		subject_str = _extract_node_string (subject, sparql);
-		iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
-		skip = tracker_data_query_resource_id (sparql->data_manager,
-		                                       iface, subject_str,
-		                                       NULL) == 0;
-		g_free (subject_str);
-
-		if (!skip)
-			break;
-	}
-
-	return skip;
-}
-
-static gboolean
 translate_DeleteWhere (TrackerSparql  *sparql,
                        GError        **error)
 {
@@ -4924,10 +4879,6 @@ translate_DeleteWhere (TrackerSparql  *sparql,
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_WHERE);
 
 	quad_pattern = _skip_rule (sparql, NAMED_RULE_QuadPattern);
-
-	if (check_idempotent_delete (sparql, quad_pattern,
-	                             sparql->current_state->node))
-		return TRUE;
 
 	/* 'DELETE WHERE' uses the same pattern for both query and update */
 	solution = get_solution_for_pattern (sparql, quad_pattern, error);
