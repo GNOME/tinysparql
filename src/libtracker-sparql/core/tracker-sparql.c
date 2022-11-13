@@ -127,6 +127,7 @@ typedef enum
 
 typedef struct
 {
+	TrackerContext *top_context;
 	TrackerContext *context;
 	TrackerContext *select_context;
 	TrackerStringBuilder *result;
@@ -190,7 +191,6 @@ struct _TrackerSparql
 	TrackerNodeTree *tree;
 	GError *parser_error;
 
-	TrackerContext *context;
 	gchar *sql_string;
 
 	GPtrArray *literal_bindings;
@@ -266,6 +266,7 @@ tracker_sparql_state_clear (TrackerSparqlState *state)
 	g_clear_pointer (&state->policy.graphs, g_ptr_array_unref);
 	g_clear_pointer (&state->policy.services, g_ptr_array_unref);
 	g_clear_pointer (&state->policy.filtered_graphs, g_hash_table_unref);
+	g_clear_object (&state->top_context);
 }
 
 static void
@@ -279,8 +280,6 @@ tracker_sparql_finalize (GObject *object)
 
 	if (sparql->tree)
 		tracker_node_tree_free (sparql->tree);
-
-	g_clear_object (&sparql->context);
 
 	if (sparql->blank_nodes)
 		g_variant_builder_unref (sparql->blank_nodes);
@@ -548,7 +547,7 @@ _append_literal_binding (TrackerSparql         *sparql,
 {
 	guint idx;
 
-	idx = tracker_select_context_get_literal_binding_index (TRACKER_SELECT_CONTEXT (sparql->context),
+	idx = tracker_select_context_get_literal_binding_index (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 	                                                        binding);
 
 	if (idx >= MAX_VARIABLES) {
@@ -1343,7 +1342,7 @@ _add_binding (TrackerSparql  *sparql,
 							    TRACKER_LITERAL_BINDING (binding));
 
 		/* Also add on the root SelectContext right away */
-		tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->context),
+		tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 							    TRACKER_LITERAL_BINDING (binding));
 	} else if (TRACKER_IS_VARIABLE_BINDING (binding)) {
 		TrackerVariableBinding *variable_binding = TRACKER_VARIABLE_BINDING (binding);
@@ -1367,7 +1366,7 @@ _ensure_variable (TrackerSparql *sparql,
 {
 	TrackerVariable *var;
 
-	var = tracker_select_context_ensure_variable (TRACKER_SELECT_CONTEXT (sparql->context),
+	var = tracker_select_context_ensure_variable (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 	                                              name);
 	tracker_context_add_variable_ref (sparql->current_state->context, var);
 
@@ -1707,7 +1706,7 @@ lookup_subvariable (TrackerSparql   *sparql,
 	gchar *name;
 
 	name = g_strdup_printf ("%s:%s", var->name, suffix);
-	subvar = tracker_select_context_lookup_variable (TRACKER_SELECT_CONTEXT (sparql->context),
+	subvar = tracker_select_context_lookup_variable (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 	                                                 name);
 	g_free (name);
 
@@ -1775,7 +1774,7 @@ _add_quad (TrackerSparql  *sparql,
 			}
 
 			tracker_binding_set_db_column_name (binding, "fts5");
-			tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->context),
+			tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                            TRACKER_LITERAL_BINDING (binding));
 
 			fts_table = tracker_sparql_add_fts_subquery (sparql, graph, subject,
@@ -2750,9 +2749,10 @@ translate_Query (TrackerSparql  *sparql,
 {
 	TrackerGrammarNamedRule rule;
 
-	sparql->context = g_object_ref_sink (tracker_select_context_new ());
-	sparql->current_state->select_context = sparql->context;
-	tracker_sparql_push_context (sparql, sparql->context);
+	sparql->current_state->top_context =
+		g_object_ref_sink (tracker_select_context_new ());
+	sparql->current_state->select_context = sparql->current_state->top_context;
+	tracker_sparql_push_context (sparql, sparql->current_state->top_context);
 
 	sparql->current_state->union_views =
 		g_hash_table_new_full (g_str_hash, g_str_equal,
@@ -2843,7 +2843,7 @@ tracker_sparql_add_select_var (TrackerSparql       *sparql,
 			       const gchar         *name,
 			       TrackerPropertyType  type)
 {
-	if (sparql->current_state->select_context != sparql->context) {
+	if (sparql->current_state->select_context != sparql->current_state->top_context) {
 		TrackerContext *parent;
 		TrackerVariable *var;
 
@@ -2959,11 +2959,10 @@ translate_SelectClause (TrackerSparql  *sparql,
 			_append_string_printf (sparql, "%s ",
 			                       tracker_variable_get_sql_expression (var));
 
-			if (sparql->current_state->select_context == sparql->context) {
+			if (sparql->current_state->select_context ==
+			    sparql->current_state->top_context) {
 				convert_expression_to_string (sparql, prop_type);
-			}
 
-			if (sparql->current_state->select_context == sparql->context) {
 				tracker_sparql_swap_builder (sparql, types);
 				handle_value_type_column (sparql, prop_type, var);
 			}
@@ -3002,7 +3001,8 @@ translate_SelectClause (TrackerSparql  *sparql,
 					_append_string_printf (sparql, "%s ",
 					                       tracker_variable_get_sql_expression (var));
 
-					if (sparql->current_state->select_context == sparql->context)
+					if (sparql->current_state->select_context ==
+					    sparql->current_state->top_context)
 						convert_expression_to_string (sparql, prop_type);
 
 					select_context->type = prop_type;
@@ -3017,7 +3017,8 @@ translate_SelectClause (TrackerSparql  *sparql,
 						return FALSE;
 					}
 				} else {
-					if (sparql->current_state->select_context == sparql->context) {
+					if (sparql->current_state->select_context ==
+					    sparql->current_state->top_context) {
 						_append_string_printf (sparql, "AS \"%s\" ", var->name);
 					} else if (!found) {
 						_append_string_printf (sparql, "AS %s ",
@@ -3044,7 +3045,8 @@ translate_SelectClause (TrackerSparql  *sparql,
 				_call_rule (sparql, NAMED_RULE_Expression, error);
 				prop_type = sparql->current_state->expression_type;
 
-				if (sparql->current_state->select_context == sparql->context)
+				if (sparql->current_state->select_context ==
+				    sparql->current_state->top_context)
 					convert_expression_to_string (sparql, prop_type);
 
 				select_context->type = prop_type;
@@ -3052,7 +3054,8 @@ translate_SelectClause (TrackerSparql  *sparql,
 				if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_AS)) {
 					if (!handle_as (sparql, prop_type, error))
 						return FALSE;
-				} else if (sparql->current_state->select_context == sparql->context) {
+				} else if (sparql->current_state->select_context ==
+				           sparql->current_state->top_context) {
 					/* This is only allowed on the topmost context, an
 					 * expression without AS in a subselect is meaningless
 					 */
@@ -3063,7 +3066,8 @@ translate_SelectClause (TrackerSparql  *sparql,
 					_expect (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_PARENS);
 			}
 
-			if (sparql->current_state->select_context == sparql->context) {
+			if (sparql->current_state->select_context ==
+			    sparql->current_state->top_context) {
 				tracker_sparql_swap_builder (sparql, types);
 				handle_value_type_column (sparql, prop_type, var);
 			}
@@ -3555,10 +3559,10 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 		}
 	}
 
-	if (glob && TRACKER_SELECT_CONTEXT (sparql->context)->variables) {
+	if (glob && TRACKER_SELECT_CONTEXT (sparql->current_state->top_context)->variables) {
 		GHashTableIter iter;
 
-		g_hash_table_iter_init (&iter, TRACKER_SELECT_CONTEXT (sparql->context)->variables);
+		g_hash_table_iter_init (&iter, TRACKER_SELECT_CONTEXT (sparql->current_state->top_context)->variables);
 
 		while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &variable)) {
 			binding = tracker_variable_binding_new (variable, NULL, NULL);
@@ -3578,7 +3582,7 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 			_append_string (sparql, "UNION ALL ");
 
 		if (TRACKER_IS_LITERAL_BINDING (binding)) {
-			tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->context),
+			tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                            TRACKER_LITERAL_BINDING (binding));
 			_append_string (sparql, "SELECT ");
 			_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (binding));
@@ -4037,7 +4041,7 @@ translate_LimitOffsetClauses (TrackerSparql  *sparql,
 
 	if (limit) {
 		_append_string (sparql, "LIMIT ");
-		tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->context),
+		tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 		                                            TRACKER_LITERAL_BINDING (limit));
 		_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (limit));
 		g_object_unref (limit);
@@ -4047,7 +4051,7 @@ translate_LimitOffsetClauses (TrackerSparql  *sparql,
 
 	if (offset) {
 		_append_string (sparql, "OFFSET ");
-		tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->context),
+		tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 		                                            TRACKER_LITERAL_BINDING (offset));
 		_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (offset));
 		g_object_unref (offset);
@@ -4091,7 +4095,7 @@ translate_ValuesClause (TrackerSparql  *sparql,
 	/* ValuesClause ::= ( 'VALUES' DataBlock )?
 	 */
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_VALUES)) {
-		if (sparql->current_state->context == sparql->context) {
+		if (sparql->current_state->context == sparql->current_state->top_context) {
 			/* ValuesClause happens at the end of a select, if
 			 * this is the topmost one, we won't have further
 			 * SELECT clauses above us to clamp the result set,
@@ -4680,7 +4684,7 @@ prepare_solution_select (TrackerSparql      *sparql,
 	/* Surround by select to casts all variables to text */
 	_append_string (sparql, ")");
 
-	select_context = TRACKER_SELECT_CONTEXT (sparql->context);
+	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->top_context);
 
 	outer_select = _prepend_placeholder (sparql);
 	tracker_sparql_swap_builder (sparql, outer_select);
@@ -4731,28 +4735,26 @@ get_solution_for_pattern (TrackerSparql      *sparql,
 	gboolean retval;
 
 	sparql->current_state->type = TRACKER_SPARQL_TYPE_SELECT;
-	sparql->context = g_object_ref_sink (tracker_select_context_new ());
-	sparql->current_state->select_context = sparql->context;
-	tracker_sparql_push_context (sparql, sparql->context);
+	sparql->current_state->top_context =
+		g_object_ref_sink (tracker_select_context_new ());
+	sparql->current_state->select_context = sparql->current_state->top_context;
+	tracker_sparql_push_context (sparql, sparql->current_state->top_context);
 
 	tracker_sparql_reset_string_builder (sparql);
 
 	retval = prepare_solution_select (sparql, pattern, error);
 	tracker_sparql_pop_context (sparql, FALSE);
 
-	if (!retval) {
-		g_clear_object (&sparql->context);
+	if (!retval)
 		return NULL;
-	}
 
 	sparql->sql_string = tracker_string_builder_to_string (sparql->current_state->result);
 
 	iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
 	stmt = prepare_query (sparql, iface,
-			      TRACKER_SELECT_CONTEXT (sparql->context)->literal_bindings,
+			      TRACKER_SELECT_CONTEXT (sparql->current_state->top_context)->literal_bindings,
 	                      NULL, TRUE,
 	                      error);
-	g_clear_object (&sparql->context);
 
 	if (!stmt)
 		return NULL;
@@ -5662,7 +5664,7 @@ translate_ServiceGraphPattern (TrackerSparql  *sparql,
 			continue;
 
 		var_str = _extract_node_string (node, sparql);
-		var = tracker_select_context_ensure_variable (TRACKER_SELECT_CONTEXT (sparql->context),
+		var = tracker_select_context_ensure_variable (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 							      var_str);
 		referenced = tracker_context_lookup_variable_ref (parent, var);
 
@@ -6074,7 +6076,7 @@ translate_DataBlockValue (TrackerSparql  *sparql,
 		return TRUE;
 	}
 
-	select_context = TRACKER_SELECT_CONTEXT (sparql->context);
+	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->top_context);
 	rule = _current_rule (sparql);
 
 	switch (rule) {
@@ -6773,7 +6775,7 @@ translate_PathAlternative (TrackerSparql  *sparql,
 		                                               tracker_token_get_idstring (&sparql->current_state->graph),
 		                                               g_ptr_array_index (path_elems, 0),
 		                                               g_ptr_array_index (path_elems, 1));
-		tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+		tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 		                                         path_elem);
 		_prepend_path_element (sparql, path_elem);
 
@@ -6784,7 +6786,7 @@ translate_PathAlternative (TrackerSparql  *sparql,
 			path_elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_ALTERNATIVE,
 			                                               tracker_token_get_idstring (&sparql->current_state->graph),
 			                                               child, path_elem);
-			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                         path_elem);
 			_prepend_path_element (sparql, path_elem);
 		}
@@ -6826,7 +6828,7 @@ translate_PathSequence (TrackerSparql  *sparql,
 		                                               tracker_token_get_idstring (&sparql->current_state->graph),
 		                                               g_ptr_array_index (path_elems, path_elems->len - 2),
 		                                               g_ptr_array_index (path_elems, path_elems->len - 1));
-		tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+		tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 		                                         path_elem);
 		_prepend_path_element (sparql, path_elem);
 
@@ -6837,7 +6839,7 @@ translate_PathSequence (TrackerSparql  *sparql,
 			path_elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_SEQUENCE,
 			                                               tracker_token_get_idstring (&sparql->current_state->graph),
 			                                               child, path_elem);
-			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                         path_elem);
 			_prepend_path_element (sparql, path_elem);
 		}
@@ -6870,7 +6872,7 @@ translate_PathEltOrInverse (TrackerSparql  *sparql,
 		                                               tracker_token_get_idstring (&sparql->current_state->graph),
 		                                               sparql->current_state->path,
 		                                               NULL);
-		tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+		tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 		                                         path_elem);
 		_prepend_path_element (sparql, path_elem);
 		sparql->current_state->path = path_elem;
@@ -6916,7 +6918,7 @@ translate_PathMod (TrackerSparql  *sparql,
 	path_elem = tracker_path_element_operator_new (op,
 	                                               tracker_token_get_idstring (&sparql->current_state->graph),
 	                                               sparql->current_state->path, NULL);
-	tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+	tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 						 path_elem);
 	_prepend_path_element (sparql, path_elem);
 	sparql->current_state->path = path_elem;
@@ -6958,7 +6960,7 @@ translate_PathPrimary (TrackerSparql  *sparql,
 		}
 
 		path_elem =
-			tracker_select_context_lookup_path_element_for_property (TRACKER_SELECT_CONTEXT (sparql->context),
+			tracker_select_context_lookup_path_element_for_property (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                                         tracker_token_get_idstring (&sparql->current_state->graph),
 			                                                         prop);
 
@@ -6966,7 +6968,7 @@ translate_PathPrimary (TrackerSparql  *sparql,
 			path_elem = tracker_path_element_property_new (TRACKER_PATH_OPERATOR_NONE,
 			                                               tracker_token_get_idstring (&sparql->current_state->graph),
 			                                               prop);
-			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                         path_elem);
 			_prepend_path_element (sparql, path_elem);
 		}
@@ -6999,7 +7001,7 @@ intersect_path_elements (TrackerSparql *sparql,
 		                                          tracker_token_get_idstring (&sparql->current_state->graph),
 		                                          g_ptr_array_index (path_elems, 0),
 		                                          g_ptr_array_index (path_elems, 1));
-		tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+		tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 		                                         elem);
 		_prepend_path_element (sparql, elem);
 
@@ -7010,7 +7012,7 @@ intersect_path_elements (TrackerSparql *sparql,
 			elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_INTERSECTION,
 			                                          tracker_token_get_idstring (&sparql->current_state->graph),
 			                                          child, elem);
-			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                         elem);
 			_prepend_path_element (sparql, elem);
 		}
@@ -7055,7 +7057,7 @@ translate_PathNegatedPropertySet (TrackerSparql  *sparql,
 			path_elem = tracker_path_element_operator_new (TRACKER_PATH_OPERATOR_ALTERNATIVE,
 			                                               tracker_token_get_idstring (&sparql->current_state->graph),
 			                                               negated, negated_inverse);
-			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                         path_elem);
 			_prepend_path_element (sparql, path_elem);
 		} else if (negated) {
@@ -7112,7 +7114,7 @@ translate_PathOneInPropertySet (TrackerSparql  *sparql,
 		}
 
 		path_elem =
-			tracker_select_context_lookup_path_element_for_property (TRACKER_SELECT_CONTEXT (sparql->context),
+			tracker_select_context_lookup_path_element_for_property (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                                         tracker_token_get_idstring (&sparql->current_state->graph),
 			                                                         prop);
 
@@ -7122,7 +7124,7 @@ translate_PathOneInPropertySet (TrackerSparql  *sparql,
 			                                               TRACKER_PATH_OPERATOR_NEGATED,
 			                                               tracker_token_get_idstring (&sparql->current_state->graph),
 			                                               prop);
-			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->context),
+			tracker_select_context_add_path_element (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                         path_elem);
 			_prepend_path_element (sparql, path_elem);
 		}
@@ -7179,7 +7181,7 @@ tracker_sparql_generate_bnode (TrackerSparql  *sparql,
 	    sparql->current_state->type == TRACKER_SPARQL_TYPE_CONSTRUCT) {
 		TrackerVariable *var;
 
-		var = tracker_select_context_add_generated_variable (TRACKER_SELECT_CONTEXT (sparql->context));
+		var = tracker_select_context_add_generated_variable (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context));
 		tracker_token_variable_init (token, var);
 	} else {
 		gint64 bnode_id;
@@ -7258,7 +7260,7 @@ translate_BlankNodePropertyListPath (TrackerSparql  *sparql,
 	 */
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_BRACKET);
 
-	var = tracker_select_context_add_generated_variable (TRACKER_SELECT_CONTEXT (sparql->context));
+	var = tracker_select_context_add_generated_variable (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context));
 	tracker_token_variable_init (&sparql->current_state->subject, var);
 	_call_rule (sparql, NAMED_RULE_PropertyListPathNotEmpty, error);
 
@@ -7413,7 +7415,7 @@ translate_CollectionPath (TrackerSparql  *sparql,
 			cur = rest;
 			rest = NULL;
 		} else {
-			cur = tracker_select_context_add_generated_variable (TRACKER_SELECT_CONTEXT (sparql->context));
+			cur = tracker_select_context_add_generated_variable (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context));
 			first = cur;
 		}
 
@@ -7433,7 +7435,7 @@ translate_CollectionPath (TrackerSparql  *sparql,
 
 		if (_check_in_rule (sparql, NAMED_RULE_GraphNodePath)) {
 			/* Generate variable for next element */
-			rest = tracker_select_context_add_generated_variable (TRACKER_SELECT_CONTEXT (sparql->context));
+			rest = tracker_select_context_add_generated_variable (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context));
 			tracker_token_variable_init (&sparql->current_state->object, rest);
 		} else {
 			/* Make last element point to rdf:nil */
@@ -7638,7 +7640,7 @@ translate_Var (TrackerSparql  *sparql,
 
 			/* Ensure the variable is referenced in the context */
 			name = _dup_last_string (sparql);
-			var = tracker_select_context_lookup_variable (TRACKER_SELECT_CONTEXT (sparql->context),
+			var = tracker_select_context_lookup_variable (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                              name);
 			g_free (name);
 
@@ -7991,7 +7993,7 @@ translate_PrimaryExpression (TrackerSparql  *sparql,
 	/* PrimaryExpression ::= BrackettedExpression | BuiltInCall | iriOrFunction | RDFLiteral | NumericLiteral | BooleanLiteral | Var
 	 */
 	rule = _current_rule (sparql);
-	select_context = TRACKER_SELECT_CONTEXT (sparql->context);
+	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->top_context);
 
 	str = _append_placeholder (sparql);
 	old = tracker_sparql_swap_builder (sparql, str);
@@ -8512,7 +8514,7 @@ translate_iriOrFunction (TrackerSparql  *sparql,
 		TrackerBinding *binding;
 
 		binding = _convert_terminal (sparql);
-		tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->context),
+		tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 		                                            TRACKER_LITERAL_BINDING (binding));
 		_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (binding));
 		g_object_unref (binding);
@@ -9310,7 +9312,7 @@ translate_Aggregate (TrackerSparql  *sparql,
 			_call_rule (sparql, NAMED_RULE_String, error);
 
 			binding = _convert_terminal (sparql);
-			tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->context),
+			tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 								    TRACKER_LITERAL_BINDING (binding));
 			_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (binding));
 			g_object_unref (binding);
@@ -9398,7 +9400,7 @@ translate_RDFLiteral (TrackerSparql  *sparql,
 
 	if (sparql->current_state->type == TRACKER_SPARQL_TYPE_SELECT ||
 	    sparql->current_state->type == TRACKER_SPARQL_TYPE_CONSTRUCT) {
-		tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->context),
+		tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 		                                            TRACKER_LITERAL_BINDING (binding));
 	}
 
@@ -9658,7 +9660,7 @@ translate_BlankNode (TrackerSparql  *sparql,
 	        }
         } else {
 	        if (_accept (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_ANON)) {
-		        var = tracker_select_context_add_generated_variable (TRACKER_SELECT_CONTEXT (sparql->context));
+		        var = tracker_select_context_add_generated_variable (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context));
 	        } else if (_accept (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_BLANK_NODE_LABEL)) {
 		        gchar *str, *var_name;
 
@@ -10030,7 +10032,6 @@ prepare_query (TrackerSparql         *sparql,
 static void
 tracker_sparql_reset_state (TrackerSparql *sparql)
 {
-	g_clear_object (&sparql->context);
 }
 
 TrackerSparqlCursor *
@@ -10071,7 +10072,7 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 		retval = _call_rule_func (sparql, NAMED_RULE_Query, error);
 		sparql->sql_string = tracker_string_builder_to_string (state.result);
 
-		select_context = TRACKER_SELECT_CONTEXT (sparql->context);
+		select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->top_context);
 		sparql->n_columns = select_context->n_columns;
 		sparql->literal_bindings =
 			select_context->literal_bindings ?
