@@ -10029,11 +10029,6 @@ prepare_query (TrackerSparql         *sparql,
 	return stmt;
 }
 
-static void
-tracker_sparql_reset_state (TrackerSparql *sparql)
-{
-}
-
 TrackerSparqlCursor *
 tracker_sparql_execute_cursor (TrackerSparql  *sparql,
                                GHashTable     *parameters,
@@ -10068,7 +10063,6 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 
 		sparql->current_state = &state;
 		tracker_sparql_state_init (&state, sparql);
-		tracker_sparql_reset_state (sparql);
 		retval = _call_rule_func (sparql, NAMED_RULE_Query, error);
 		sparql->sql_string = tracker_string_builder_to_string (state.result);
 
