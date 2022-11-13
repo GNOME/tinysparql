@@ -193,6 +193,9 @@ struct _TrackerSparql
 	TrackerContext *context;
 	gchar *sql_string;
 
+	GPtrArray *literal_bindings;
+	guint n_columns;
+
 	GVariantBuilder *blank_nodes;
 	GHashTable *solution_var_map;
 
@@ -10038,7 +10041,6 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 	TrackerDBStatement *stmt;
 	TrackerDBInterface *iface = NULL;
 	TrackerDBCursor *cursor = NULL;
-	TrackerSelectContext *select_context;
 
 	g_mutex_lock (&sparql->mutex);
 
@@ -10060,6 +10062,7 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 
 	if (tracker_sparql_needs_update (sparql)) {
 		TrackerSparqlState state = { 0 };
+		TrackerSelectContext *select_context;
 		gboolean retval;
 
 		sparql->current_state = &state;
@@ -10067,6 +10070,13 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 		tracker_sparql_reset_state (sparql);
 		retval = _call_rule_func (sparql, NAMED_RULE_Query, error);
 		sparql->sql_string = tracker_string_builder_to_string (state.result);
+
+		select_context = TRACKER_SELECT_CONTEXT (sparql->context);
+		sparql->n_columns = select_context->n_columns;
+		sparql->literal_bindings =
+			select_context->literal_bindings ?
+			g_ptr_array_ref (select_context->literal_bindings) :
+			NULL;
 		sparql->current_state = NULL;
 		tracker_sparql_state_clear (&state);
 
@@ -10079,9 +10089,8 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 	if (!iface)
 		goto error;
 
-	select_context = TRACKER_SELECT_CONTEXT (sparql->context);
 	stmt = prepare_query (sparql, iface,
-	                      select_context->literal_bindings,
+	                      sparql->literal_bindings,
 			      parameters,
 	                      sparql->cacheable,
 	                      error);
@@ -10089,7 +10098,7 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 		goto error;
 
 	cursor = tracker_db_statement_start_sparql_cursor (stmt,
-	                                                   select_context->n_columns,
+	                                                   sparql->n_columns,
 							   error);
 	g_object_unref (stmt);
 
