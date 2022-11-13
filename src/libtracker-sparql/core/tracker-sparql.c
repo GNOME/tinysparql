@@ -7186,9 +7186,9 @@ translate_TriplesNode (TrackerSparql  *sparql,
 }
 
 static gboolean
-tracker_sparql_generate_bnode (TrackerSparql  *sparql,
-                               TrackerToken   *token,
-                               GError        **error)
+tracker_sparql_generate_anon_bnode (TrackerSparql  *sparql,
+                                    TrackerToken   *token,
+                                    GError        **error)
 {
 	if (sparql->current_state->type == TRACKER_SPARQL_TYPE_SELECT ||
 	    sparql->current_state->type == TRACKER_SPARQL_TYPE_CONSTRUCT) {
@@ -7220,9 +7220,9 @@ translate_BlankNodePropertyList (TrackerSparql  *sparql,
 	 */
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_BRACKET);
 
-	if (!tracker_sparql_generate_bnode (sparql,
-	                                    &sparql->current_state->subject,
-	                                    error))
+	if (!tracker_sparql_generate_anon_bnode (sparql,
+	                                         &sparql->current_state->subject,
+	                                         error))
 		return FALSE;
 
 	_call_rule (sparql, NAMED_RULE_PropertyListNotEmpty, error);
@@ -7316,7 +7316,7 @@ translate_Collection (TrackerSparql  *sparql,
 			g_array_set_size (elems, elems->len + 1);
 			cur = &g_array_index (elems, TrackerToken, 0);
 
-			if (!tracker_sparql_generate_bnode (sparql, cur, error))
+			if (!tracker_sparql_generate_anon_bnode (sparql, cur, error))
 				goto error;
 		}
 
@@ -7351,7 +7351,7 @@ translate_Collection (TrackerSparql  *sparql,
 			g_array_set_size (elems, elems->len + 1);
 			cur = &g_array_index (elems, TrackerToken, elems->len - 1);
 
-			if (!tracker_sparql_generate_bnode (sparql, cur, error))
+			if (!tracker_sparql_generate_anon_bnode (sparql, cur, error))
 				goto error;
 
 			sparql->current_state->object = *cur;
