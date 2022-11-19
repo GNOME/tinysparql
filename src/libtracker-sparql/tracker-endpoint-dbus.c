@@ -269,8 +269,9 @@ query_request_free (QueryRequest *request)
 	g_source_unref (request->source);
 	g_object_unref (request->cancellable);
 
-	g_output_stream_close (G_OUTPUT_STREAM (request->data_stream),
-	                       NULL, NULL);
+	g_output_stream_close_async (G_OUTPUT_STREAM (request->data_stream),
+				     G_PRIORITY_DEFAULT,
+				     NULL, NULL, NULL);
 
 	g_object_unref (request->invocation);
 	g_object_unref (request->data_stream);
@@ -346,8 +347,9 @@ update_request_read_next (UpdateRequest       *request,
 static void
 update_request_free (UpdateRequest *request)
 {
-	g_input_stream_close (G_INPUT_STREAM (request->input_stream),
-	                      NULL, NULL);
+	g_input_stream_close_async (G_INPUT_STREAM (request->input_stream),
+				    G_PRIORITY_DEFAULT,
+				    NULL, NULL, NULL);
 
 	g_ptr_array_unref (request->queries);
 	g_object_unref (request->invocation);
