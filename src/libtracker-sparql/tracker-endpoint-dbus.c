@@ -123,13 +123,6 @@ GParamSpec *props[N_PROPS] = { 0 };
 
 static void tracker_endpoint_dbus_initable_iface_init (GInitableIface *iface);
 
-static void read_update_cb       (GObject      *object,
-                                  GAsyncResult *res,
-                                  gpointer      user_data);
-static void read_update_blank_cb (GObject      *object,
-                                  GAsyncResult *res,
-                                  gpointer      user_data);
-
 G_DEFINE_TYPE_WITH_CODE (TrackerEndpointDBus, tracker_endpoint_dbus, TRACKER_TYPE_ENDPOINT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, tracker_endpoint_dbus_initable_iface_init))
 
@@ -311,37 +304,45 @@ update_request_new (TrackerEndpointDBus   *endpoint,
 	return request;
 }
 
-static gboolean
-update_request_read_next (UpdateRequest       *request,
-                          GAsyncReadyCallback  cb)
+static void
+handle_read_updates (GTask        *task,
+                     gpointer      source_object,
+                     gpointer      task_data,
+                     GCancellable *cancellable)
 {
+	UpdateRequest *request = task_data;
 	gchar *buffer;
 	gint buffer_size, prologue_size = 0;
+	GError *error = NULL;
 
-	if (request->cur_query >= request->num_queries)
-		return FALSE;
+	while (request->cur_query < request->num_queries) {
+		if (request->prologue)
+			prologue_size = strlen (request->prologue) + 1;
 
-	if (request->prologue)
-		prologue_size = strlen (request->prologue) + 1;
+		request->cur_query++;
+		buffer_size = g_data_input_stream_read_int32 (request->input_stream, NULL, NULL);
+		buffer = g_new0 (char, prologue_size + 1 + buffer_size + 1);
 
-	request->cur_query++;
-	buffer_size = g_data_input_stream_read_int32 (request->input_stream, NULL, NULL);
-	buffer = g_new0 (char, prologue_size + 1 + buffer_size + 1);
+		if (request->prologue) {
+			strncpy (buffer, request->prologue, prologue_size - 1);
+			buffer[prologue_size - 1] = ' ';
+		}
 
-	if (request->prologue) {
-		strncpy (buffer, request->prologue, prologue_size - 1);
-		buffer[prologue_size - 1] = ' ';
+		g_ptr_array_add (request->queries, buffer);
+
+		if (!g_input_stream_read_all (G_INPUT_STREAM (request->input_stream),
+					      &buffer[prologue_size],
+					      buffer_size,
+					      NULL,
+					      cancellable,
+					      &error))
+			goto error;
 	}
 
-	g_ptr_array_add (request->queries, buffer);
-
-	g_input_stream_read_all_async (G_INPUT_STREAM (request->input_stream),
-	                               &buffer[prologue_size],
-	                               buffer_size,
-	                               G_PRIORITY_DEFAULT,
-	                               request->endpoint->cancellable,
-	                               cb, request);
-	return TRUE;
+	g_task_return_boolean (task, TRUE);
+	return;
+ error:
+	g_task_return_error (task, error);
 }
 
 static void
@@ -635,22 +636,19 @@ read_update_cb (GObject      *object,
 	UpdateRequest *request = user_data;
 	GError *error = NULL;
 
-	if (!g_input_stream_read_all_finish (G_INPUT_STREAM (object),
-	                                     res, NULL, &error)) {
+	if (!g_task_propagate_boolean (G_TASK (res), &error)) {
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
 		update_request_free (request);
 		return;
 	}
 
-	if (!update_request_read_next (request, read_update_cb)) {
-		conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (request->endpoint));
-		tracker_sparql_connection_update_array_async (conn,
-		                                              (gchar **) request->queries->pdata,
-		                                              request->queries->len,
-		                                              request->endpoint->cancellable,
-		                                              update_cb,
-		                                              request);
-	}
+	conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (request->endpoint));
+	tracker_sparql_connection_update_array_async (conn,
+						      (gchar **) request->queries->pdata,
+						      request->queries->len,
+						      request->endpoint->cancellable,
+						      update_cb,
+						      request);
 }
 
 static void
@@ -687,8 +685,7 @@ read_update_blank_cb (GObject      *object,
 	UpdateRequest *request = user_data;
 	GError *error = NULL;
 
-	if (!g_input_stream_read_all_finish (G_INPUT_STREAM (object),
-	                                     res, NULL, &error)) {
+	if (!g_task_propagate_boolean (G_TASK (res), &error)) {
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
 		update_request_free (request);
 		return;
@@ -929,11 +926,17 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			                                       "Did not get a file descriptor");
 		} else {
 			UpdateRequest *request;
+			GTask *task;
 
 			request = update_request_new (endpoint_dbus, invocation,
 			                              g_strcmp0 (method_name, "UpdateArray") == 0,
 			                              fd);
-			update_request_read_next (request, read_update_cb);
+
+			task = g_task_new (NULL, request->endpoint->cancellable,
+					   read_update_cb, request);
+			g_task_set_task_data (task, request, NULL);
+			g_task_run_in_thread (task, handle_read_updates);
+			g_object_unref (task);
 		}
 	} else if (g_strcmp0 (method_name, "UpdateBlank") == 0) {
 		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
@@ -958,9 +961,15 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			                                       "Did not get a file descriptor");
 		} else {
 			UpdateRequest *request;
+			GTask *task;
 
 			request = update_request_new (endpoint_dbus, invocation, FALSE, fd);
-			update_request_read_next (request, read_update_blank_cb);
+
+			task = g_task_new (NULL, request->endpoint->cancellable,
+					   read_update_blank_cb, request);
+			g_task_set_task_data (task, request, NULL);
+			g_task_run_in_thread (task, handle_read_updates);
+			g_object_unref (task);
 		}
 	} else if (g_strcmp0 (method_name, "Deserialize") == 0) {
 		TrackerDeserializeFlags flags;
