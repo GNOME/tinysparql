@@ -1901,7 +1901,7 @@ function_sparql_print_iri (sqlite3_context *context,
 		return;
 	}
 
-	if (sqlite3_value_type (argv[0]) == SQLITE_INTEGER) {
+	if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
 		sqlite3_stmt *stmt;
 		gboolean store_auxdata = FALSE;
 		sqlite3 *db;
