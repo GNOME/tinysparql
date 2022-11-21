@@ -11,7 +11,7 @@
 :x3 :p "3"^^xsd:integer .
 :x4 :p "4"^^xsd:integer .
 
-<a> a :B .
-<b> a :B .
-<c> a :B .
+<http://example.org/a> a :B .
+<http://example.org/b> a :B .
+<http://example.org/c> a :B .
 
