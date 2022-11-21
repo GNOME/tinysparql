@@ -649,7 +649,7 @@ class TrackerStoreDeleteTests (fixtures.TrackerSparqlDirectTest):
                    <test://instance-test-delete-01> a nmm:MusicPiece, nfo:FileDataObject;
                             nfo:fileName '11_song_del.mp3';
                             nfo:genre 'Classic delete';
-                            nmm:musicAlbum '1_Album_delete';
+                            nmm:musicAlbum <test://1_Album_delete>;
                             nmm:performer <urn:uuid:7646001>.
                 }
                 """)
