@@ -1,3 +1,4 @@
+BASE <http://example/>
 INSERT {
 	GRAPH <A> {
 		<a> a example:A ;
