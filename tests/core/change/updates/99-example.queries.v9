@@ -1,1 +1,1 @@
-insert data { <nonFts> a example:A ; example:nonFts 42 }
+insert data { <http://example/nonFts> a example:A ; example:nonFts 42 }
