@@ -2394,6 +2394,7 @@ import_ontology_file (TrackerDataManager  *manager,
 			g_propagate_prefixed_error (error, internal_error,
 			                            "%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT ": ",
 			                            ontology_uri, object_line_no, object_column_no);
+			break;
 		}
 	}
 
