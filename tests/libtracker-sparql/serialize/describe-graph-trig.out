@@ -14,33 +14,33 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix mfo: <http://tracker.api.gnome.org/ontology/v3/mfo#> .
 
-GRAPH <B> {
-  <a> nmm:trackNumber 1 .
+GRAPH <http://example/B> {
+  <http://example/a> nmm:trackNumber 1 .
 
-  <b> nmm:beatsPerMinute 120 .
+  <http://example/b> nmm:beatsPerMinute 120 .
 }
 
-GRAPH <A> {
-  <a> nie:title "Aaa" ;
+GRAPH <http://example/A> {
+  <http://example/a> nie:title "Aaa" ;
     dc:title "Aaa" ;
 }
 
-GRAPH <B> {
+GRAPH <http://example/B> {
 
 }
 
-GRAPH <A> {
+GRAPH <http://example/A> {
 }
 
-GRAPH <B> {
+GRAPH <http://example/B> {
 }
 
-GRAPH <A> {
-  <a> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
+GRAPH <http://example/A> {
+  <http://example/a> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
 }
 
-GRAPH <B> {
-  <a> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
+GRAPH <http://example/B> {
+  <http://example/a> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
 
-  <b> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
+  <http://example/b> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
 }

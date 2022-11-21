@@ -204,24 +204,24 @@ populate_data (TrackerSparqlConnection *conn)
 	GError *error = NULL;
 
 	/* Add some test data in different graphs */
-	res = tracker_resource_new ("a");
+	res = tracker_resource_new ("http://example/a");
 	tracker_resource_set_uri (res, "rdf:type", "nmm:MusicPiece");
 	tracker_resource_set_uri (res, "nie:title", "Aaa");
-	tracker_sparql_connection_update_resource (conn, "A", res, NULL, &error);
+	tracker_sparql_connection_update_resource (conn, "http://example/A", res, NULL, &error);
 	g_assert_no_error (error);
 	g_object_unref (res);
 
-	res = tracker_resource_new ("a");
+	res = tracker_resource_new ("http://example/a");
 	tracker_resource_set_uri (res, "rdf:type", "nmm:MusicPiece");
 	tracker_resource_set_int (res, "nmm:trackNumber", 1);
-	tracker_sparql_connection_update_resource (conn, "B", res, NULL, &error);
+	tracker_sparql_connection_update_resource (conn, "http://example/B", res, NULL, &error);
 	g_assert_no_error (error);
 	g_object_unref (res);
 
-	res = tracker_resource_new ("b");
+	res = tracker_resource_new ("http://example/b");
 	tracker_resource_set_uri (res, "rdf:type", "nmm:MusicPiece");
 	tracker_resource_set_int (res, "nmm:beatsPerMinute", 120);
-	tracker_sparql_connection_update_resource (conn, "B", res, NULL, &error);
+	tracker_sparql_connection_update_resource (conn, "http://example/B", res, NULL, &error);
 	g_assert_no_error (error);
 	g_object_unref (res);
 }

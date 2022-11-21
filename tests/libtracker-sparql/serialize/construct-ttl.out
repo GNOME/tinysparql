@@ -14,6 +14,6 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix mfo: <http://tracker.api.gnome.org/ontology/v3/mfo#> .
 
-<a> <http://example.com/#prop> "Foo" .
+<http://example/a> <http://example.com/#prop> "Foo" .
 
-<b> <http://example.com/#prop> "Foo" .
+<http://example/b> <http://example.com/#prop> "Foo" .
