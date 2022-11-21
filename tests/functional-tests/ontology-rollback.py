@@ -265,31 +265,31 @@ class SimpleOntologyRollback (OntologyRollbackTestTemplate):
         # test:a_tmp_prop only appeared in the malformed ontology
         with self.assertRaises(GLib.GError):
             self.tracker.update(
-                "INSERT { <t1.1> a test:A ; test:a_tmp_prop 5. }")
+                "INSERT { <http://example/t1.1> a test:A ; test:a_tmp_prop 5. }")
 
         # The domain of test:b_a_domain should be test:A no test:B
         with self.assertRaises(GLib.GError):
             self.tracker.update(
-                "INSERT { <t1.2> a test:B ; test:b_a_domain 5. }")
+                "INSERT { <http://example/t1.2> a test:B ; test:b_a_domain 5. }")
 
         # The domain should be test:B and range be test:A
         with self.assertRaises(GLib.GError):
             self.tracker.update(
-                "INSERT { <t1.3> a test:B . <t1.4> a test:A ; test:a_b_domain_range <t1.3>. }")
+                "INSERT { <http://example/t1.3> a test:B . <t1.4> a test:A ; test:a_b_domain_range <http://example/t1.3>. }")
 
         # test2:C should be subclass of test:B not test:A
         with self.assertRaises(GLib.GError):
             self.tracker.update(
-                "INSERT { <t1.5> a test2:C ; test:b_a_domain 5. }")
+                "INSERT { <http://example/t1.5> a test2:C ; test:b_a_domain 5. }")
 
         self.tracker.update(
-            "INSERT { <t1.6> a test:A ; test:b_a_domain 5. }")
+            "INSERT { <http://example/t1.6> a test:A ; test:b_a_domain 5. }")
 
         self.tracker.update(
-            "INSERT { <t1.7> a test:B ; test:a_b_domain_range <t1.6>. }")
+            "INSERT { <http://example/t1.7> a test:B ; test:a_b_domain_range <http://example/t1.6>. }")
 
         self.tracker.update(
-            "INSERT { <t1.8> a test2:C ; test:b_range_boolean_string \"String\". }")
+            "INSERT { <http://example/t1.8> a test2:C ; test:b_range_boolean_string \"String\". }")
 
     def validate_first_ontology_status(self):
         result = self.tracker.query(
@@ -309,10 +309,10 @@ class SimpleOntologyRollback (OntologyRollbackTestTemplate):
         # and became test:A in the error-free ontology
         with self.assertRaises(GLib.GError):
             self.tracker.update(
-                "INSERT { <t2.1> a test:B ; test:a_b_domain 5. }")
+                "INSERT { <http://example/t2.1> a test:B ; test:a_b_domain 5. }")
 
         self.tracker.update(
-            "INSERT { <t2.2> a test:A ; test:a_b_domain 5. }")
+            "INSERT { <http://example/t2.2> a test:A ; test:a_b_domain 5. }")
 
     def validate_second_ontology_status(self):
         result = self.tracker.query(
@@ -321,7 +321,7 @@ class SimpleOntologyRollback (OntologyRollbackTestTemplate):
         self.assertEqual(result[0][1], XSD_INTEGER)
 
         result = self.tracker.query(
-            "SELECT ?v WHERE { <t2.2> test:a_b_domain ?v }")
+            "SELECT ?v WHERE { <http://example/t2.2> test:a_b_domain ?v }")
         self.assertEqual(result[0][0], "5")
 
 if __name__ == "__main__":
