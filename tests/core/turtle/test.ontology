@@ -7,7 +7,7 @@
 @prefix f: <http://example.org/ns3#> .
 @prefix b: <http://example.org/b2#> .
 @prefix bz: <http://example.org/b2> .
-@prefix bar: <bar#> .
+@prefix bar: <http://example.org/bar#> .
 
 foo: a nrl:Namespace ;
 	nrl:prefix "foo" .
@@ -63,8 +63,8 @@ bar:b5 a rdf:Property ;
 	rdfs:domain rdfs:Resource ;
 	rdfs:range rdfs:Resource .
 
-<c1> a rdfs:Resource .
-<c2> a rdfs:Resource .
-<c3> a rdfs:Resource .
+<http://example.org/c1> a rdfs:Resource .
+<http://example.org/c2> a rdfs:Resource .
+<http://example.org/c3> a rdfs:Resource .
 :c4 a rdfs:Resource .
 :c5 a rdfs:Resource .
