@@ -1,4 +1,4 @@
-"c"	"http://www.w3.org/1999/02/22-rdf-syntax-ns#type"	"http://xmlns.com/foaf/0.1/Person"
-"b"	"http://www.w3.org/1999/02/22-rdf-syntax-ns#type"	"http://xmlns.com/foaf/0.1/Person"
-"c"	"http://xmlns.com/foaf/0.1/name"	"nameC"
-"b"	"http://xmlns.com/foaf/0.1/name"	"nameB"
+"http://example/c"	"http://www.w3.org/1999/02/22-rdf-syntax-ns#type"	"http://xmlns.com/foaf/0.1/Person"
+"http://example/b"	"http://www.w3.org/1999/02/22-rdf-syntax-ns#type"	"http://xmlns.com/foaf/0.1/Person"
+"http://example/c"	"http://xmlns.com/foaf/0.1/name"	"nameC"
+"http://example/b"	"http://xmlns.com/foaf/0.1/name"	"nameB"

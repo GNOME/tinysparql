@@ -1,3 +1,3 @@
-CONSTRAINT GRAPH ALL,<A>
+CONSTRAINT GRAPH ALL,<http://example/A>
 SELECT ?u { ?u a example:A }
 ORDER BY ?u

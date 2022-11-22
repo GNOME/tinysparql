@@ -52,14 +52,14 @@ class TestPortal(fixtures.TrackerPortalTest):
         self.update(
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Disallowed;' +
-            'INSERT { GRAPH tracker:Disallowed { <a> a nfo:FileDataObject } };' +
+            'INSERT { GRAPH tracker:Disallowed { <http://example/a> a nfo:FileDataObject } };' +
             'CREATE GRAPH tracker:Allowed;' +
-            'INSERT { GRAPH tracker:Allowed { <b> a nfo:FileDataObject } }')
+            'INSERT { GRAPH tracker:Allowed { <http://example/b> a nfo:FileDataObject } }')
         res = self.query(
             'org.freedesktop.PortalTest',
             'select ?u { ?u a rdfs:Resource }')
         self.assertEqual(len(res), 1)
-        self.assertEqual(res[0][0], 'b')
+        self.assertEqual(res[0][0], 'http://example/b')
 
     def test_04_rows_cols(self):
         self.start_service('org.freedesktop.PortalTest')
@@ -116,10 +116,10 @@ class TestPortal(fixtures.TrackerPortalTest):
 
         self.update(
             'org.freedesktop.PortalTest',
-            'INSERT { GRAPH tracker:Disallowed { <a> a nmm:MusicPiece } }')
+            'INSERT { GRAPH tracker:Disallowed { <http://example/a> a nmm:MusicPiece } }')
         self.update(
             'org.freedesktop.PortalTest',
-            'INSERT { GRAPH tracker:Allowed { <b> a nmm:MusicPiece } }')
+            'INSERT { GRAPH tracker:Allowed { <http://example/b> a nmm:MusicPiece } }')
 
         self.__wait_for_notifier()
         notifier.signal_unsubscribe(signalId);
@@ -127,7 +127,7 @@ class TestPortal(fixtures.TrackerPortalTest):
 
         # Only one event is expected, from the allowed graph
         self.assertEqual(len(self.notifier_events), 1);
-        self.assertEqual(self.notifier_events[0].get_urn(), 'b')
+        self.assertEqual(self.notifier_events[0].get_urn(), 'http://example/b')
         conn.close()
 
     def test_06_id_access(self):
@@ -135,7 +135,7 @@ class TestPortal(fixtures.TrackerPortalTest):
         self.update(
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Allowed;' +
-            'INSERT { GRAPH tracker:Allowed { <b> a nfo:FileDataObject } }')
+            'INSERT { GRAPH tracker:Allowed { <http://example/b> a nfo:FileDataObject } }')
         res = self.query(
             'org.freedesktop.PortalTest',
             'select tracker:id(xsd:string) tracker:uri(1) { }')
@@ -145,10 +145,10 @@ class TestPortal(fixtures.TrackerPortalTest):
 
         res = self.query(
             'org.freedesktop.PortalTest',
-            'select tracker:id(<b>) tracker:uri(tracker:id(<b>)) { }')
+            'select tracker:id(<http://example/b>) tracker:uri(tracker:id(<http://example/b>)) { }')
         self.assertEqual(len(res), 1)
         self.assertNotEqual(res[0][0], '0')
-        self.assertEqual(res[0][1], 'b')
+        self.assertEqual(res[0][1], 'http://example/b')
 
     def test_07_id_access_disallowed(self):
         self.start_service('org.freedesktop.PortalTest')
@@ -157,10 +157,10 @@ class TestPortal(fixtures.TrackerPortalTest):
         self.update(
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Disallowed;' +
-            'INSERT { GRAPH tracker:Disallowed { <b> a nfo:FileDataObject } }')
+            'INSERT { GRAPH tracker:Disallowed { <http://example/b> a nfo:FileDataObject } }')
         res = self.query(
             'org.freedesktop.PortalTest',
-            'select tracker:id(<b>) tracker:uri(tracker:id(<b>)) { }')
+            'select tracker:id(<http://example/b>) tracker:uri(tracker:id(<http://example/b>)) { }')
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0][0], '0')
         self.assertIsNone(res[0][1])
@@ -169,22 +169,22 @@ class TestPortal(fixtures.TrackerPortalTest):
         self.update(
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Allowed;' +
-            'INSERT { GRAPH tracker:Allowed { <b> a nfo:FileDataObject } }')
+            'INSERT { GRAPH tracker:Allowed { <http://example/b> a nfo:FileDataObject } }')
         res = self.query(
             'org.freedesktop.PortalTest',
-            'select tracker:id(<b>) tracker:uri(tracker:id(<b>)) { }')
+            'select tracker:id(<http://example/b>) tracker:uri(tracker:id(<http://example/b>)) { }')
         self.assertEqual(len(res), 1)
         self.assertNotEqual(res[0][0], '0')
-        self.assertEqual(res[0][1], 'b')
+        self.assertEqual(res[0][1], 'http://example/b')
         resourceId = res[0][0];
 
         # Delete resource from allowed graph, ensure it is not visible again
         self.update(
             'org.freedesktop.PortalTest',
-            'DELETE { GRAPH tracker:Allowed { <b> a rdfs:Resource } }')
+            'DELETE { GRAPH tracker:Allowed { <http://example/b> a rdfs:Resource } }')
         res = self.query(
             'org.freedesktop.PortalTest',
-            'select tracker:id(<b>) tracker:uri(tracker:id(<b>)) tracker:uri(' + str(resourceId) + ') { }')
+            'select tracker:id(<http://example/b>) tracker:uri(tracker:id(<http://example/b>)) tracker:uri(' + str(resourceId) + ') { }')
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0][0], '0')
         self.assertIsNone(res[0][1])
@@ -197,15 +197,15 @@ class TestPortal(fixtures.TrackerPortalTest):
         conn = self.create_local_connection()
         self.update(
             'org.freedesktop.PortalTest',
-            'INSERT { GRAPH tracker:Disallowed { <a> a nmm:MusicPiece } }')
+            'INSERT { GRAPH tracker:Disallowed { <http://example/a> a nmm:MusicPiece } }')
         self.update(
             'org.freedesktop.PortalTest',
-            'INSERT { GRAPH tracker:Allowed { <b> a nmm:MusicPiece } }')
+            'INSERT { GRAPH tracker:Allowed { <http://example/b> a nmm:MusicPiece } }')
 
         # Only one resource is expected, from the allowed graph
         cursor = conn.query('select ?u { SERVICE <dbus:org.freedesktop.PortalTest> { ?u a nmm:MusicPiece } }')
         self.assertTrue(cursor.next())
-        self.assertEqual(cursor.get_string(0)[0], 'b')
+        self.assertEqual(cursor.get_string(0)[0], 'http://example/b')
         self.assertFalse(cursor.next())
         cursor.close()
         conn.close()
@@ -216,7 +216,7 @@ class TestPortal(fixtures.TrackerPortalTest):
         self.update(
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Disallowed;' +
-            'INSERT { GRAPH tracker:Disallowed { <a> a nfo:FileDataObject } }')
+            'INSERT { GRAPH tracker:Disallowed { <http://example/a> a nfo:FileDataObject } }')
 
         res = self.query(
             'org.freedesktop.PortalTest',
@@ -240,11 +240,11 @@ class TestPortal(fixtures.TrackerPortalTest):
         self.update(
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Allowed;' +
-            'INSERT { GRAPH tracker:Allowed { <a> a nfo:FileDataObject } }')
+            'INSERT { GRAPH tracker:Allowed { <http://example/a> a nfo:FileDataObject } }')
         self.update(
             'org.freedesktop.InaccessibleService',
             'CREATE GRAPH tracker:Allowed;' +
-            'INSERT { GRAPH tracker:Allowed { <b> a nfo:FileDataObject } }')
+            'INSERT { GRAPH tracker:Allowed { <http://example/b> a nfo:FileDataObject } }')
 
         try:
             exception = None
@@ -274,8 +274,8 @@ class TestPortal(fixtures.TrackerPortalTest):
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Disallowed;' +
             'INSERT { GRAPH tracker:Disallowed { ' +
-            '  <a> a nfo:FileDataObject ; nfo:fileName "A" ; nie:interpretedAs <b1> .' +
-            '  <b1> a nmm:MusicPiece ; nie:isStoredAs <a> ; nie:title "title2" } }')
+            '  <http://example/a> a nfo:FileDataObject ; nfo:fileName "A" ; nie:interpretedAs <http://example/b1> .' +
+            '  <http://example/b1> a nmm:MusicPiece ; nie:isStoredAs <http://example/a> ; nie:title "title2" } }')
 
         # Test property paths with allowed/disallowed graphs in both ends
         res = self.query(
@@ -293,22 +293,22 @@ class TestPortal(fixtures.TrackerPortalTest):
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Allowed;' +
             'INSERT { GRAPH tracker:Allowed { ' +
-            '  <a> a nfo:FileDataObject ; nfo:fileName "A" ; nie:interpretedAs <a1> .' +
-            '  <a1> a nmm:MusicPiece ; nie:isStoredAs <a> ; nie:title "title1" } }')
+            '  <http://example/a> a nfo:FileDataObject ; nfo:fileName "A" ; nie:interpretedAs <http://example/a1> .' +
+            '  <http://example/a1> a nmm:MusicPiece ; nie:isStoredAs <http://example/a> ; nie:title "title1" } }')
 
         # Try the queries again
         res = self.query(
             'org.freedesktop.PortalTest',
             'select ?u ?t { ?u nie:interpretedAs/nie:title ?t }')
         self.assertEqual(len(res), 1)
-        self.assertEqual(res[0][0], 'a')
+        self.assertEqual(res[0][0], 'http://example/a')
         self.assertEqual(res[0][1], 'title1')
 
         res = self.query(
             'org.freedesktop.PortalTest',
             'select ?u ?fn { ?u nie:isStoredAs/nfo:fileName ?fn }')
         self.assertEqual(len(res), 1)
-        self.assertEqual(res[0][0], 'a1')
+        self.assertEqual(res[0][0], 'http://example/a1')
         self.assertEqual(res[0][1], 'A')
 
         res = self.query(
@@ -340,8 +340,8 @@ class TestPortal(fixtures.TrackerPortalTest):
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Disallowed;' +
             'INSERT { GRAPH tracker:Disallowed { ' +
-            '  <a> a nfo:FileDataObject ; nie:interpretedAs <b1> .' +
-            '  <b1> a nmm:MusicPiece ; nie:isStoredAs <a> ; nie:title "apples and oranges" } }')
+            '  <http://example/a> a nfo:FileDataObject ; nie:interpretedAs <http://example/b1> .' +
+            '  <http://example/b1> a nmm:MusicPiece ; nie:isStoredAs <http://example/a> ; nie:title "apples and oranges" } }')
 
         # Query for both keywords, they are expected to be non-visible
         res = self.query(
@@ -359,15 +359,15 @@ class TestPortal(fixtures.TrackerPortalTest):
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Allowed;' +
             'INSERT { GRAPH tracker:Allowed { ' +
-            '  <a> a nfo:FileDataObject ; nfo:fileName "file name" ; nie:interpretedAs <a1> .' +
-            '  <a1> a nmm:MusicPiece ; nie:isStoredAs <a> ; nie:title "apples" } }')
+            '  <http://example/a> a nfo:FileDataObject ; nfo:fileName "file name" ; nie:interpretedAs <http://example/a1> .' +
+            '  <http://example/a1> a nmm:MusicPiece ; nie:isStoredAs <http://example/a> ; nie:title "apples" } }')
 
         # Try the queries again, we should get a match from the allowed graph for 'apples'
         res = self.query(
             'org.freedesktop.PortalTest',
             'select ?u { ?u fts:match "apples" }')
         self.assertEqual(len(res), 1)
-        self.assertEqual(res[0][0], 'a1')
+        self.assertEqual(res[0][0], 'http://example/a1')
 
         res = self.query(
             'org.freedesktop.PortalTest',
@@ -403,7 +403,7 @@ class TestPortal(fixtures.TrackerPortalTest):
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Disallowed;' +
             'INSERT { GRAPH tracker:Disallowed { ' +
-            '  <a> a nfo:FileDataObject ; nfo:fileName "A" . } }')
+            '  <http://example/a> a nfo:FileDataObject ; nfo:fileName "A" . } }')
 
         res = self.query(
             'org.freedesktop.PortalTest',
@@ -412,7 +412,7 @@ class TestPortal(fixtures.TrackerPortalTest):
 
         res = self.query(
             'org.freedesktop.PortalTest',
-            'ASK { <a> ?p "A" }')
+            'ASK { <http://example/a> ?p "A" }')
         self.assertEqual(len(res), 1)
         self.assertNotEqual(res[0][0], 'true')
 
@@ -421,18 +421,18 @@ class TestPortal(fixtures.TrackerPortalTest):
             'org.freedesktop.PortalTest',
             'CREATE GRAPH tracker:Allowed;' +
             'INSERT { GRAPH tracker:Allowed { ' +
-            '  <a> a nfo:FileDataObject ; nfo:fileName "A" . } }')
+            '  <http://example/a> a nfo:FileDataObject ; nfo:fileName "A" . } }')
 
         # Try the queries again
         res = self.query(
             'org.freedesktop.PortalTest',
             'select ?s { ?s ?p "A" }')
         self.assertEqual(len(res), 1)
-        self.assertEqual(res[0][0], 'a')
+        self.assertEqual(res[0][0], 'http://example/a')
 
         res = self.query(
             'org.freedesktop.PortalTest',
-            'ASK { <a> ?p "A" }')
+            'ASK { <http://example/a> ?p "A" }')
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0][0], 'true')
 
