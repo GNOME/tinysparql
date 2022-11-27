@@ -9596,12 +9596,15 @@ translate_BlankNode (TrackerSparql  *sparql,
 				        bnode_id = *value;
 		        }
 
-		        if (bnode_id == 0) {
-			        bnode_id = tracker_data_generate_bnode (tracker_data_manager_get_data (sparql->data_manager),
-				                                                error);
-			        if (bnode_id == 0)
-				        return FALSE;
+		        if (bnode_id != 0) {
+				tracker_token_bnode_init (sparql->current_state->token, bnode_id);
+			} else {
+				if (!tracker_sparql_generate_anon_bnode (sparql,
+									 sparql->current_state->token,
+									 error))
+					return FALSE;
 
+				bnode_id = tracker_token_get_bnode (sparql->current_state->token);
 			        g_hash_table_insert (sparql->current_state->blank_node_map,
 			                             g_strdup (str),
 			                             tracker_rowid_copy (&bnode_id));
@@ -9618,7 +9621,6 @@ translate_BlankNode (TrackerSparql  *sparql,
 			        g_free (urn);
 		        }
 
-		        tracker_token_bnode_init (sparql->current_state->token, bnode_id);
 		        g_free (str);
 	        } else {
 		        g_assert_not_reached ();
