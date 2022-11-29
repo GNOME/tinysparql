@@ -2195,6 +2195,9 @@ value_init_from_token (TrackerSparql    *sparql,
                        GValue           *value,
                        TrackerProperty  *property,
                        TrackerToken     *token,
+                       GHashTable       *bnode_labels,
+                       GHashTable       *bnode_rowids,
+                       GHashTable       *updated_bnode_labels,
                        GError          **error)
 {
 	GBytes *literal;
@@ -2205,9 +2208,9 @@ value_init_from_token (TrackerSparql    *sparql,
 
 		rowid = tracker_sparql_map_bnode_to_rowid (sparql,
 		                                           token,
-		                                           sparql->current_state->blank_node_map,
-		                                           sparql->current_state->blank_node_rowids,
-		                                           sparql->current_state->update_blank_nodes,
+		                                           bnode_labels,
+		                                           bnode_rowids,
+		                                           updated_bnode_labels,
 		                                           error);
 		if (rowid != 0) {
 			g_value_init (value, G_TYPE_INT64);
@@ -2241,6 +2244,9 @@ value_init_from_token (TrackerSparql    *sparql,
 
 static gint64
 tracker_sparql_get_subject_id (TrackerSparql  *sparql,
+                               GHashTable     *bnode_labels,
+                               GHashTable     *bnode_rowids,
+                               GHashTable     *updated_bnode_labels,
                                GError        **error)
 {
 	const gchar *subject_str;
@@ -2249,9 +2255,9 @@ tracker_sparql_get_subject_id (TrackerSparql  *sparql,
 	    tracker_token_get_bnode_label (&sparql->current_state->subject)) {
 		return tracker_sparql_map_bnode_to_rowid (sparql,
 		                                          &sparql->current_state->subject,
-		                                          sparql->current_state->blank_node_map,
-		                                          sparql->current_state->blank_node_rowids,
-		                                          sparql->current_state->update_blank_nodes,
+		                                          bnode_labels,
+		                                          bnode_rowids,
+		                                          updated_bnode_labels,
 		                                          error);
 	}
 
@@ -2297,7 +2303,11 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 		TrackerOntologies *ontologies;
 		const gchar *property;
 
-		subject = tracker_sparql_get_subject_id (sparql, &inner_error);
+		subject = tracker_sparql_get_subject_id (sparql,
+		                                         sparql->current_state->blank_node_map,
+		                                         sparql->current_state->blank_node_rowids,
+		                                         sparql->current_state->update_blank_nodes,
+		                                         &inner_error);
 		if (inner_error)
 			return FALSE;
 
@@ -2320,6 +2330,9 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 
 		value_init_from_token (sparql, &object, predicate,
 		                       &sparql->current_state->object,
+		                       sparql->current_state->blank_node_map,
+		                       sparql->current_state->blank_node_rowids,
+		                       sparql->current_state->update_blank_nodes,
 		                       &inner_error);
 
 		if (inner_error) {
