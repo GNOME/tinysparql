@@ -2243,25 +2243,26 @@ value_init_from_token (TrackerSparql    *sparql,
 }
 
 static gint64
-tracker_sparql_get_subject_id (TrackerSparql  *sparql,
-                               GHashTable     *bnode_labels,
-                               GHashTable     *bnode_rowids,
-                               GHashTable     *updated_bnode_labels,
-                               GError        **error)
+tracker_sparql_get_token_rowid (TrackerSparql  *sparql,
+                                TrackerToken   *token,
+                                GHashTable     *bnode_labels,
+                                GHashTable     *bnode_rowids,
+                                GHashTable     *updated_bnode_labels,
+                                GError        **error)
 {
 	const gchar *subject_str;
 
-	if (tracker_token_get_bnode (&sparql->current_state->subject) ||
-	    tracker_token_get_bnode_label (&sparql->current_state->subject)) {
+	if (tracker_token_get_bnode (token) ||
+	    tracker_token_get_bnode_label (token)) {
 		return tracker_sparql_map_bnode_to_rowid (sparql,
-		                                          &sparql->current_state->subject,
+		                                          token,
 		                                          bnode_labels,
 		                                          bnode_rowids,
 		                                          updated_bnode_labels,
 		                                          error);
 	}
 
-	subject_str = tracker_token_get_idstring (&sparql->current_state->subject);
+	subject_str = tracker_token_get_idstring (token);
 
 	if (sparql->current_state->type == TRACKER_SPARQL_TYPE_DELETE &&
 	    !g_str_has_prefix (subject_str, "urn:bnode:")) {
@@ -2303,11 +2304,12 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 		TrackerOntologies *ontologies;
 		const gchar *property;
 
-		subject = tracker_sparql_get_subject_id (sparql,
-		                                         sparql->current_state->blank_node_map,
-		                                         sparql->current_state->blank_node_rowids,
-		                                         sparql->current_state->update_blank_nodes,
-		                                         &inner_error);
+		subject = tracker_sparql_get_token_rowid (sparql,
+		                                          &sparql->current_state->subject,
+		                                          sparql->current_state->blank_node_map,
+		                                          sparql->current_state->blank_node_rowids,
+		                                          sparql->current_state->update_blank_nodes,
+		                                          &inner_error);
 		if (inner_error)
 			return FALSE;
 
