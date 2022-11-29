@@ -4199,6 +4199,9 @@ translate_Load (TrackerSparql  *sparql,
 	const gchar *graph = NULL;
 	GFile *file;
 
+	/* Load ::= 'LOAD' 'SILENT'? iri ( 'INTO' GraphRef )?
+	 */
+
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_LOAD);
 
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_SILENT))
@@ -4208,7 +4211,7 @@ translate_Load (TrackerSparql  *sparql,
 	_init_token (&resource, sparql->current_state->prev_node, sparql);
 
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_INTO)) {
-		_call_rule (sparql, NAMED_RULE_GraphRefAll, error);
+		_call_rule (sparql, NAMED_RULE_GraphRef, error);
 
 		if (!tracker_token_is_empty (&sparql->current_state->graph))
 			graph = tracker_token_get_idstring (&sparql->current_state->graph);
@@ -4218,7 +4221,7 @@ translate_Load (TrackerSparql  *sparql,
 	tracker_token_unset (&resource);
 
 	tracker_data_load_rdf_file (tracker_data_manager_get_data (sparql->data_manager),
-				    file, graph, &inner_error);
+	                            file, graph, &inner_error);
 
 	if (inner_error) {
 		g_clear_object (&file);
