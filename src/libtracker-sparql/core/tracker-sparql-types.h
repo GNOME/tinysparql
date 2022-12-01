@@ -316,6 +316,9 @@ void tracker_token_bnode_label_init (TrackerToken *token,
                                      const gchar  *label);
 void tracker_token_unset (TrackerToken *token);
 
+void tracker_token_copy (TrackerToken *source,
+                         TrackerToken *dest);
+
 gboolean           tracker_token_is_empty     (TrackerToken *token);
 GBytes           * tracker_token_get_literal  (TrackerToken *token);
 TrackerVariable  * tracker_token_get_variable (TrackerToken *token);

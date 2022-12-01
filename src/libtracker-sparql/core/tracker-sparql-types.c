@@ -211,6 +211,37 @@ tracker_token_unset (TrackerToken *token)
 	token->type = TOKEN_TYPE_NONE;
 }
 
+void
+tracker_token_copy (TrackerToken *source,
+                    TrackerToken *dest)
+{
+	dest->type = source->type;
+
+	switch (source->type) {
+	case TOKEN_TYPE_NONE:
+		break;
+	case TOKEN_TYPE_LITERAL:
+		dest->content.literal = source->content.literal ?
+			g_bytes_ref (source->content.literal) : NULL;
+		break;
+	case TOKEN_TYPE_VARIABLE:
+		dest->content.var = source->content.var;
+		break;
+	case TOKEN_TYPE_PARAMETER:
+		dest->content.parameter = g_strdup (source->content.parameter);
+		break;
+	case TOKEN_TYPE_PATH:
+		dest->content.path = source->content.path;
+		break;
+	case TOKEN_TYPE_BNODE:
+		dest->content.bnode = source->content.bnode;
+		break;
+	case TOKEN_TYPE_BNODE_LABEL:
+		dest->content.bnode_label = g_strdup (source->content.bnode_label);
+		break;
+	}
+}
+
 gboolean
 tracker_token_is_empty (TrackerToken *token)
 {
