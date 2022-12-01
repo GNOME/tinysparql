@@ -168,6 +168,14 @@ tracker_token_variable_init (TrackerToken    *token,
 }
 
 void
+tracker_token_variable_init_from_name (TrackerToken *token,
+                                       const gchar  *name)
+{
+	token->type = TOKEN_TYPE_VARIABLE;
+	token->content.var = tracker_variable_new ("v", name);
+}
+
+void
 tracker_token_parameter_init (TrackerToken *token,
 			      const gchar  *parameter)
 {
@@ -307,79 +315,6 @@ tracker_token_get_idstring (TrackerToken *token)
 		return token->content.path->name;
 	else
 		return NULL;
-}
-
-/* Solution */
-TrackerSolution *
-tracker_solution_new (guint n_cols)
-{
-	TrackerSolution *solution;
-
-	solution = g_new0 (TrackerSolution, 1);
-	solution->n_cols = n_cols;
-	solution->columns = g_ptr_array_new_with_free_func (g_free);
-	solution->values = g_ptr_array_new_with_free_func (g_free);
-	solution->solution_index = -1;
-
-	return solution;
-}
-
-void
-tracker_solution_add_column_name (TrackerSolution *solution,
-                                  const gchar     *name)
-{
-	g_ptr_array_add (solution->columns, g_strdup (name));
-}
-
-void
-tracker_solution_add_value (TrackerSolution *solution,
-                            const gchar     *str)
-{
-	g_ptr_array_add (solution->values, g_strdup (str));
-}
-
-gboolean
-tracker_solution_next (TrackerSolution *solution)
-{
-	solution->solution_index++;
-	return solution->solution_index * solution->n_cols < solution->values->len;
-}
-
-void
-tracker_solution_rewind (TrackerSolution *solution)
-{
-	solution->solution_index = -1;
-}
-
-void
-tracker_solution_free (TrackerSolution *solution)
-{
-	g_ptr_array_unref (solution->columns);
-	g_ptr_array_unref (solution->values);
-	g_free (solution);
-}
-
-GHashTable *
-tracker_solution_get_bindings (TrackerSolution *solution)
-{
-	GHashTable *ht;
-	guint i;
-
-	ht = g_hash_table_new (g_str_hash, g_str_equal);
-
-	for (i = 0; i < solution->columns->len; i++) {
-		guint values_pos = solution->solution_index * solution->n_cols + i;
-		gchar *name, *value;
-
-		if (values_pos >= solution->values->len)
-			break;
-
-		name = g_ptr_array_index (solution->columns, i);
-		value = g_ptr_array_index (solution->values, values_pos);
-		g_hash_table_insert (ht, name, value);
-	}
-
-	return ht;
 }
 
 /* Data binding */
