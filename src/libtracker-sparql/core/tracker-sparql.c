@@ -176,6 +176,7 @@ typedef struct
 	gboolean convert_to_string;
 	gboolean in_property_function;
 	gboolean in_relational_expression;
+	gboolean in_quad_data;
 
 	struct {
 		GPtrArray *graphs;
@@ -5242,9 +5243,11 @@ translate_QuadData (TrackerSparql  *sparql,
 {
 	/* QuadData ::= '{' Quads '}'
 	 */
+	sparql->current_state->in_quad_data = TRUE;
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_BRACE);
 	_call_rule (sparql, NAMED_RULE_Quads, error);
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_BRACE);
+	sparql->current_state->in_quad_data = FALSE;
 
 	return TRUE;
 }
@@ -7619,30 +7622,14 @@ translate_VarOrTerm (TrackerSparql  *sparql,
 
 	switch (rule) {
 	case NAMED_RULE_Var:
-		if (sparql->current_state->type != TRACKER_SPARQL_TYPE_SELECT &&
-		    sparql->current_state->type != TRACKER_SPARQL_TYPE_CONSTRUCT &&
-		    !sparql->solution_var_map) {
-			TrackerParserNode *node = sparql->current_state->node;
-			const gchar *str = "Unknown";
-
-			/* Find the insert/delete clause, a child of Update1 */
-			while (node) {
-				TrackerParserNode *parent;
-				const TrackerGrammarRule *rule;
-
-				parent = (TrackerParserNode *) ((GNode *)node)->parent;
-				rule = tracker_parser_node_get_rule (parent);
-
-				if (tracker_grammar_rule_is_a (rule, RULE_TYPE_RULE, NAMED_RULE_Update1)) {
-					rule = tracker_parser_node_get_rule (node);
-					str = rule->string;
-					break;
-				}
-
-				node = parent;
-			}
-
-			_raise (PARSE, "Variables are not allowed in update clause", str);
+		/* https://www.w3.org/TR/sparql11-query/#sparqlGrammar, point 8 in
+		 * the notes:
+		 *
+		 *   The rule QuadData, used in INSERT DATA and DELETE DATA, must
+		 *   not allow variables in the quad patterns.
+		 */
+		if (sparql->current_state->in_quad_data) {
+			_raise (PARSE, "Variables are not allowed in INSERT/DELETE DATA", "QuadData");
 		}
 
 		_call_rule (sparql, rule, error);
