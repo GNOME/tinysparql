@@ -9896,12 +9896,48 @@ find_column_for_variable (TrackerDBCursor *cursor,
 	return FALSE;
 }
 
+static void
+init_literal_token_from_gvalue (TrackerToken *resolved_out,
+                                const GValue *value)
+{
+	if (G_VALUE_TYPE (value) == G_TYPE_STRING) {
+		tracker_token_literal_init (resolved_out,
+		                            g_value_get_string (value),
+		                            -1);
+	} else if (G_VALUE_TYPE (value) == G_TYPE_INT64) {
+		gchar *str;
+		str = g_strdup_printf ("%" G_GINT64_FORMAT,
+		                       g_value_get_int64 (value));
+		tracker_token_literal_init (resolved_out, str, -1);
+		g_free (str);
+	} else if (G_VALUE_TYPE (value) == G_TYPE_BOOLEAN) {
+		tracker_token_literal_init (resolved_out,
+		                            g_value_get_boolean (value) ? "true" : "false",
+		                            -1);
+	} else if (G_VALUE_TYPE (value) == G_TYPE_DOUBLE) {
+		gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
+		g_ascii_dtostr (buf, sizeof (buf),
+		                g_value_get_double (value));
+		tracker_token_literal_init (resolved_out, buf, -1);
+	} else if (G_VALUE_TYPE (value) == G_TYPE_DATE_TIME) {
+		gchar *str;
+
+		str = tracker_date_format_iso8601 (g_value_get_boxed (value));
+		tracker_token_literal_init (resolved_out, str, -1);
+		g_free (str);
+	} else if (G_VALUE_TYPE (value) != G_TYPE_INVALID) {
+		g_assert_not_reached ();
+	}
+}
+
 static TrackerToken *
 resolve_token (TrackerToken    *orig,
                TrackerToken    *resolved_out,
+               GHashTable      *parameters,
                TrackerDBCursor *cursor)
 {
 	TrackerVariable *variable;
+	const gchar *parameter;
 
 	variable = tracker_token_get_variable (orig);
 	if (variable) {
@@ -9915,26 +9951,21 @@ resolve_token (TrackerToken    *orig,
 
 		tracker_db_cursor_get_value (cursor, col, &value);
 
-		if (G_VALUE_TYPE (&value) == G_TYPE_STRING) {
-			tracker_token_literal_init (resolved_out,
-			                            g_value_get_string (&value),
-			                            -1);
-		} else if (G_VALUE_TYPE (&value) == G_TYPE_INT64) {
-			gchar *str;
-			str = g_strdup_printf ("%" G_GINT64_FORMAT,
-			                       g_value_get_int64 (&value));
-			tracker_token_literal_init (resolved_out, str, -1);
-			g_free (str);
-		} else if (G_VALUE_TYPE (&value) == G_TYPE_DOUBLE) {
-			gchar buf[G_ASCII_DTOSTR_BUF_SIZE];
-			g_ascii_dtostr (buf, sizeof (buf),
-			                g_value_get_double (&value));
-			tracker_token_literal_init (resolved_out, buf, -1);
-		} else if (G_VALUE_TYPE (&value) != G_TYPE_INVALID) {
-			g_assert_not_reached ();
-		}
+		init_literal_token_from_gvalue (resolved_out, &value);
 
 		g_value_unset (&value);
+
+		return resolved_out;
+	}
+
+	parameter = tracker_token_get_parameter (orig);
+	if (parameter) {
+		const GValue *value = NULL;
+
+		if (parameters)
+			value = g_hash_table_lookup (parameters, parameter);
+		if (value)
+			init_literal_token_from_gvalue (resolved_out, value);
 
 		return resolved_out;
 	}
@@ -9945,6 +9976,7 @@ resolve_token (TrackerToken    *orig,
 static gboolean
 apply_update_op (TrackerSparql    *sparql,
                  TrackerUpdateOp  *op,
+                 GHashTable       *parameters,
                  GHashTable       *bnode_labels,
                  GHashTable       *bnode_rowids,
                  GHashTable       *updated_bnode_labels,
@@ -9980,10 +10012,10 @@ apply_update_op (TrackerSparql    *sparql,
 		TrackerProperty *property;
 		GValue object_value = G_VALUE_INIT;
 
-		graph = resolve_token (&op->d.triple.graph, &resolved_graph, cursor);
-		subject = resolve_token (&op->d.triple.subject, &resolved_subject, cursor);
-		predicate = resolve_token (&op->d.triple.predicate, &resolved_predicate, cursor);
-		object = resolve_token (&op->d.triple.object, &resolved_object, cursor);
+		graph = resolve_token (&op->d.triple.graph, &resolved_graph, parameters, cursor);
+		subject = resolve_token (&op->d.triple.subject, &resolved_subject, parameters, cursor);
+		predicate = resolve_token (&op->d.triple.predicate, &resolved_predicate, parameters, cursor);
+		object = resolve_token (&op->d.triple.object, &resolved_object, parameters, cursor);
 
 		/* Quoting sparql11-update:
 		 * If any solution produces a triple containing an unbound variable
@@ -10227,6 +10259,7 @@ apply_update_op (TrackerSparql    *sparql,
 
 static gboolean
 apply_update (TrackerSparql    *sparql,
+              GHashTable       *parameters,
               GHashTable       *bnode_labels,
               GVariantBuilder  *variant_builder,
               GError          **error)
@@ -10283,7 +10316,7 @@ apply_update (TrackerSparql    *sparql,
 			stmt = prepare_query (sparql, iface,
 			                      update_group->where_clause_sql,
 			                      update_group->literals,
-			                      NULL,
+			                      parameters,
 			                      TRUE,
 			                      &inner_error);
 			if (!stmt)
@@ -10305,6 +10338,7 @@ apply_update (TrackerSparql    *sparql,
 				op = &g_array_index (sparql->update_ops, TrackerUpdateOp, j);
 
 				if (!apply_update_op (sparql, op,
+				                      parameters,
 				                      bnode_labels,
 				                      bnode_rowids,
 				                      updated_bnode_labels,
@@ -10358,6 +10392,7 @@ apply_update (TrackerSparql    *sparql,
 
 gboolean
 tracker_sparql_execute_update (TrackerSparql  *sparql,
+                               GHashTable     *parameters,
                                GHashTable     *bnode_map,
                                GVariant      **update_bnodes,
                                GError        **error)
@@ -10383,7 +10418,7 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 	if (!retval)
 		goto out;
 
-	if (!apply_update (sparql, bnode_map,
+	if (!apply_update (sparql, parameters, bnode_map,
 	                   update_bnodes ? &variant_builder : NULL,
 	                   error)) {
 		retval = FALSE;

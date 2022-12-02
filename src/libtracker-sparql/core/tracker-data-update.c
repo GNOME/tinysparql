@@ -3192,7 +3192,7 @@ update_sparql (TrackerData  *data,
 	}
 
 	sparql_query = tracker_sparql_new_update (data->manager, update);
-	tracker_sparql_execute_update (sparql_query, NULL,
+	tracker_sparql_execute_update (sparql_query, NULL, NULL,
 	                               blank ? &blank_nodes : NULL,
 	                               &actual_error);
 	g_object_unref (sparql_query);

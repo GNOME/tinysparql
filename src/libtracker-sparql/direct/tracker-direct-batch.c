@@ -231,6 +231,7 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			query = tracker_sparql_new_update (data_manager,
 			                                   elem->d.sparql);
 			tracker_sparql_execute_update (query,
+			                               NULL,
 			                               bnodes,
 			                               NULL,
 			                               &inner_error);

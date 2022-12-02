@@ -40,6 +40,7 @@ TrackerSparqlCursor * tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 TrackerSparql * tracker_sparql_new_update (TrackerDataManager *manager,
                                            const gchar        *query);
 gboolean tracker_sparql_execute_update (TrackerSparql  *sparql,
+                                        GHashTable     *parameters,
                                         GHashTable     *bnode_map,
                                         GVariant      **bnodes_variant,
                                         GError        **error);
