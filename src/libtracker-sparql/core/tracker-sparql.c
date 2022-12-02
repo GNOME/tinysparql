@@ -74,6 +74,7 @@ static gboolean helper_translate_time (TrackerSparql  *sparql,
                                        GError        **error);
 static TrackerDBStatement * prepare_query (TrackerSparql         *sparql,
                                            TrackerDBInterface    *iface,
+                                           const gchar           *sql,
                                            GPtrArray             *literals,
                                            GHashTable            *parameters,
                                            gboolean               cached,
@@ -4880,7 +4881,8 @@ get_solution_for_pattern (TrackerSparql      *sparql,
 
 	iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
 	stmt = prepare_query (sparql, iface,
-			      TRACKER_SELECT_CONTEXT (sparql->current_state->top_context)->literal_bindings,
+	                      sparql->sql_string,
+	                      TRACKER_SELECT_CONTEXT (sparql->current_state->top_context)->literal_bindings,
 	                      NULL, TRUE,
 	                      error);
 
@@ -9930,6 +9932,7 @@ tracker_sparql_new (TrackerDataManager *manager,
 static TrackerDBStatement *
 prepare_query (TrackerSparql         *sparql,
                TrackerDBInterface    *iface,
+               const gchar           *sql,
                GPtrArray             *literals,
                GHashTable            *parameters,
                gboolean               cached,
@@ -9942,7 +9945,7 @@ prepare_query (TrackerSparql         *sparql,
 	                                              cached ?
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT :
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              error, sparql->sql_string);
+	                                              error, sql);
 
 	if (!stmt || !literals)
 		return stmt;
@@ -10097,6 +10100,7 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 		goto error;
 
 	stmt = prepare_query (sparql, iface,
+	                      sparql->sql_string,
 	                      sparql->literal_bindings,
 			      parameters,
 	                      sparql->cacheable,
