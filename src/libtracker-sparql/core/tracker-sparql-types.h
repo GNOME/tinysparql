@@ -129,6 +129,7 @@ struct _TrackerVariable {
 	gchar *name;
 	gchar *sql_expression;
 	TrackerVariableBinding *binding;
+	gint ref_count;
 };
 
 struct _TrackerToken {

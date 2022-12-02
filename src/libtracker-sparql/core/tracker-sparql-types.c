@@ -73,24 +73,34 @@ tracker_data_table_set_predicate_path (TrackerDataTable *table,
 
 static TrackerVariable *
 tracker_variable_new (const gchar *sql_prefix,
-		      const gchar *name)
+                      const gchar *name)
 {
 	TrackerVariable *variable;
 
 	variable = g_new0 (TrackerVariable, 1);
 	variable->name = g_strdup (name);
 	variable->sql_expression = g_strdup_printf ("\"%s_%s\"", sql_prefix, name);
+	variable->ref_count = 1;
 
 	return variable;
 }
 
-static void
-tracker_variable_free (TrackerVariable *variable)
+static TrackerVariable *
+tracker_variable_ref (TrackerVariable *variable)
 {
-	g_clear_object (&variable->binding);
-	g_free (variable->sql_expression);
-	g_free (variable->name);
-	g_free (variable);
+	g_atomic_int_inc (&variable->ref_count);
+	return variable;
+}
+
+static void
+tracker_variable_unref (TrackerVariable *variable)
+{
+	if (g_atomic_int_dec_and_test (&variable->ref_count)) {
+		g_clear_object (&variable->binding);
+		g_free (variable->sql_expression);
+		g_free (variable->name);
+		g_free (variable);
+	}
 }
 
 void
@@ -164,7 +174,7 @@ tracker_token_variable_init (TrackerToken    *token,
                              TrackerVariable *variable)
 {
 	token->type = TOKEN_TYPE_VARIABLE;
-	token->content.var = variable;
+	token->content.var = tracker_variable_ref (variable);
 }
 
 void
@@ -216,6 +226,8 @@ tracker_token_unset (TrackerToken *token)
 		g_clear_pointer (&token->content.parameter, g_free);
 	else if (token->type == TOKEN_TYPE_BNODE_LABEL)
 		g_clear_pointer (&token->content.bnode_label, g_free);
+	else if (token->type == TOKEN_TYPE_VARIABLE)
+		g_clear_pointer (&token->content.var, tracker_variable_unref);
 	token->type = TOKEN_TYPE_NONE;
 }
 
@@ -233,7 +245,7 @@ tracker_token_copy (TrackerToken *source,
 			g_bytes_ref (source->content.literal) : NULL;
 		break;
 	case TOKEN_TYPE_VARIABLE:
-		dest->content.var = source->content.var;
+		dest->content.var = tracker_variable_ref (source->content.var);
 		break;
 	case TOKEN_TYPE_PARAMETER:
 		dest->content.parameter = g_strdup (source->content.parameter);
@@ -775,7 +787,7 @@ tracker_select_context_ensure_variable (TrackerSelectContext *context,
 	if (!context->variables) {
 		context->variables =
 			g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
-					       (GDestroyNotify) tracker_variable_free);
+			                       (GDestroyNotify) tracker_variable_unref);
 	}
 
 	variable = g_hash_table_lookup (context->variables, name);
@@ -799,7 +811,7 @@ tracker_select_context_add_generated_variable (TrackerSelectContext *context)
 
 	if (!context->generated_variables) {
 		context->generated_variables =
-			g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_variable_free);
+			g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_variable_unref);
 	}
 
 	name = g_strdup_printf ("%d", context->generated_variables->len + 1);
