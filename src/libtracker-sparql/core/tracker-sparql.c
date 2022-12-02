@@ -248,8 +248,6 @@ struct _TrackerSparql
 	GArray *update_ops;
 	GArray *update_groups;
 
-	GVariantBuilder *blank_nodes;
-
 	TrackerSparqlQueryType query_type;
 	gboolean cacheable;
 	guint generation;
@@ -369,9 +367,6 @@ tracker_sparql_finalize (GObject *object)
 	g_clear_pointer (&sparql->policy.graphs, g_ptr_array_unref);
 	g_clear_pointer (&sparql->policy.services, g_ptr_array_unref);
 	g_clear_pointer (&sparql->policy.filtered_graphs, g_hash_table_unref);
-
-	if (sparql->blank_nodes)
-		g_variant_builder_unref (sparql->blank_nodes);
 
 	g_free (sparql->sparql);
 
@@ -2210,12 +2205,13 @@ _construct_clause (TrackerSparql  *sparql,
 }
 
 static gint64
-tracker_sparql_map_bnode_to_rowid (TrackerSparql  *sparql,
-                                   TrackerToken   *token,
-                                   GHashTable     *bnode_labels,
-                                   GHashTable     *bnode_rowids,
-                                   GHashTable     *updated_bnode_labels,
-                                   GError        **error)
+tracker_sparql_map_bnode_to_rowid (TrackerSparql    *sparql,
+                                   TrackerToken     *token,
+                                   GHashTable       *bnode_labels,
+                                   GHashTable       *bnode_rowids,
+                                   GHashTable       *updated_bnode_labels,
+                                   GVariantBuilder  *variant_builder,
+                                   GError          **error)
 {
 	TrackerRowid *value, rowid = 0;
 	const gchar *blank_node_label;
@@ -2248,14 +2244,14 @@ tracker_sparql_map_bnode_to_rowid (TrackerSparql  *sparql,
 		}
 	}
 
-	if (sparql->blank_nodes &&
+	if (variant_builder &&
 	    blank_node_label &&
 	    !g_hash_table_contains (updated_bnode_labels, blank_node_label)) {
 		gchar *urn;
 
 		urn = g_strdup_printf ("urn:bnode:%" G_GINT64_FORMAT, rowid);
 		g_hash_table_add (updated_bnode_labels, (gpointer) blank_node_label);
-		g_variant_builder_add (sparql->blank_nodes, "{ss}", blank_node_label, urn);
+		g_variant_builder_add (variant_builder, "{ss}", blank_node_label, urn);
 		g_free (urn);
 	} else if (bnode_local_id) {
 		g_hash_table_insert (bnode_rowids,
@@ -2274,6 +2270,7 @@ value_init_from_token (TrackerSparql    *sparql,
                        GHashTable       *bnode_labels,
                        GHashTable       *bnode_rowids,
                        GHashTable       *updated_bnode_labels,
+                       GVariantBuilder  *variant_builder,
                        GError          **error)
 {
 	GBytes *literal;
@@ -2287,6 +2284,7 @@ value_init_from_token (TrackerSparql    *sparql,
 		                                           bnode_labels,
 		                                           bnode_rowids,
 		                                           updated_bnode_labels,
+		                                           variant_builder,
 		                                           error);
 		if (rowid != 0) {
 			g_value_init (value, G_TYPE_INT64);
@@ -2325,6 +2323,7 @@ tracker_sparql_get_token_rowid (TrackerSparql        *sparql,
                                 GHashTable           *bnode_labels,
                                 GHashTable           *bnode_rowids,
                                 GHashTable           *updated_bnode_labels,
+                                GVariantBuilder      *variant_builder,
                                 GError              **error)
 {
 	const gchar *subject_str;
@@ -2336,6 +2335,7 @@ tracker_sparql_get_token_rowid (TrackerSparql        *sparql,
 		                                          bnode_labels,
 		                                          bnode_rowids,
 		                                          updated_bnode_labels,
+		                                          variant_builder,
 		                                          error);
 	}
 
@@ -9949,6 +9949,7 @@ apply_update_op (TrackerSparql    *sparql,
                  GHashTable       *bnode_rowids,
                  GHashTable       *updated_bnode_labels,
                  TrackerDBCursor  *cursor,
+                 GVariantBuilder  *variant_builder,
                  GError          **error)
 {
 	TrackerToken resolved_graph = { 0, }, resolved_subject = { 0, }, resolved_predicate = { 0, }, resolved_object = { 0, };
@@ -10005,6 +10006,7 @@ apply_update_op (TrackerSparql    *sparql,
 		                                                bnode_labels,
 		                                                bnode_rowids,
 		                                                updated_bnode_labels,
+		                                                variant_builder,
 		                                                &inner_error);
 		if (inner_error)
 			goto out;
@@ -10029,6 +10031,7 @@ apply_update_op (TrackerSparql    *sparql,
 		                       bnode_labels,
 		                       bnode_rowids,
 		                       updated_bnode_labels,
+		                       variant_builder,
 		                       &inner_error);
 		if (inner_error)
 			goto out;
@@ -10223,9 +10226,10 @@ apply_update_op (TrackerSparql    *sparql,
 }
 
 static gboolean
-apply_update (TrackerSparql  *sparql,
-              GHashTable     *bnode_labels,
-              GError        **error)
+apply_update (TrackerSparql    *sparql,
+              GHashTable       *bnode_labels,
+              GVariantBuilder  *variant_builder,
+              GError          **error)
 {
 	GHashTable *updated_bnode_labels, *bnode_rowids;
 	GError *inner_error = NULL;
@@ -10260,8 +10264,8 @@ apply_update (TrackerSparql  *sparql,
 		g_assert (update_group->start_idx == i);
 		g_assert (update_group->end_idx >= i);
 
-		if (sparql->blank_nodes)
-			g_variant_builder_open (sparql->blank_nodes, G_VARIANT_TYPE ("aa{ss}"));
+		if (variant_builder)
+			g_variant_builder_open (variant_builder, G_VARIANT_TYPE ("aa{ss}"));
 
 		g_hash_table_remove_all (updated_bnode_labels);
 
@@ -10290,8 +10294,8 @@ apply_update (TrackerSparql  *sparql,
 
 			if (!cursor)
 				goto out;
-		} else if (sparql->blank_nodes) {
-			g_variant_builder_open (sparql->blank_nodes, G_VARIANT_TYPE ("a{ss}"));
+		} else if (variant_builder) {
+			g_variant_builder_open (variant_builder, G_VARIANT_TYPE ("a{ss}"));
 		}
 
 		while (!cursor || tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
@@ -10305,6 +10309,7 @@ apply_update (TrackerSparql  *sparql,
 				                      bnode_rowids,
 				                      updated_bnode_labels,
 				                      cursor,
+				                      variant_builder,
 				                      &inner_error))
 					break;
 			}
@@ -10325,9 +10330,9 @@ apply_update (TrackerSparql  *sparql,
 		if (inner_error)
 			goto out;
 
-		if (sparql->blank_nodes) {
-			g_variant_builder_close (sparql->blank_nodes);
-			g_variant_builder_close (sparql->blank_nodes);
+		if (variant_builder) {
+			g_variant_builder_close (variant_builder);
+			g_variant_builder_close (variant_builder);
 		}
 
 		cur_update_group++;
@@ -10351,22 +10356,23 @@ apply_update (TrackerSparql  *sparql,
 	return TRUE;
 }
 
-GVariant *
+gboolean
 tracker_sparql_execute_update (TrackerSparql  *sparql,
-                               gboolean        blank,
                                GHashTable     *bnode_map,
+                               GVariant      **update_bnodes,
                                GError        **error)
 {
 	TrackerSparqlState state = { 0 };
-	gboolean retval;
+	GVariantBuilder variant_builder;
+	gboolean retval = TRUE;
 
 	if (sparql->parser_error) {
 		g_propagate_error (error, sparql->parser_error);
-		return NULL;
+		return FALSE;
 	}
 
-	if (blank)
-		sparql->blank_nodes = g_variant_builder_new (G_VARIANT_TYPE ("aaa{ss}"));
+	if (update_bnodes)
+		g_variant_builder_init (&variant_builder, G_VARIANT_TYPE ("aaa{ss}"));
 
 	sparql->current_state = &state;
 	tracker_sparql_state_init (&state, sparql);
@@ -10377,18 +10383,17 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 	if (!retval)
 		goto out;
 
-	if (!apply_update (sparql, bnode_map, error))
+	if (!apply_update (sparql, bnode_map,
+	                   update_bnodes ? &variant_builder : NULL,
+	                   error)) {
+		retval = FALSE;
 		goto out;
-
-	if (sparql->blank_nodes) {
-		GVariant *blank_nodes;
-
-		blank_nodes = g_variant_builder_end (sparql->blank_nodes);
-		return g_variant_ref_sink (blank_nodes);
 	}
 
+	if (update_bnodes)
+		*update_bnodes = g_variant_ref_sink (g_variant_builder_end (&variant_builder));
  out:
-	return NULL;
+	return retval;
 }
 
 GBytes *

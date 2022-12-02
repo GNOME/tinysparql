@@ -39,10 +39,10 @@ TrackerSparqlCursor * tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 
 TrackerSparql * tracker_sparql_new_update (TrackerDataManager *manager,
                                            const gchar        *query);
-GVariant *      tracker_sparql_execute_update (TrackerSparql  *sparql,
-					       gboolean        blank,
-                                               GHashTable     *bnode_map,
-					       GError        **error);
+gboolean tracker_sparql_execute_update (TrackerSparql  *sparql,
+                                        GHashTable     *bnode_map,
+                                        GVariant      **bnodes_variant,
+                                        GError        **error);
 
 GBytes * tracker_sparql_make_langstring (const gchar *str,
                                          const gchar *langtag);
