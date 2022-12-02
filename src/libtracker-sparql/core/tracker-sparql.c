@@ -218,6 +218,7 @@ typedef struct
 	gint fts_match_idx;
 
 	gboolean convert_to_string;
+	gboolean silent;
 	gboolean in_property_function;
 	gboolean in_relational_expression;
 	gboolean in_quad_data;
@@ -250,7 +251,6 @@ struct _TrackerSparql
 	GVariantBuilder *blank_nodes;
 
 	TrackerSparqlQueryType query_type;
-	gboolean silent;
 	gboolean cacheable;
 	guint generation;
 
@@ -2493,7 +2493,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 	case TRACKER_SPARQL_TYPE_INSERT:
 		tracker_sparql_append_triple_update_op (sparql,
 		                                        TRACKER_UPDATE_INSERT,
-		                                        sparql->silent,
+		                                        sparql->current_state->silent,
 		                                        &sparql->current_state->graph,
 		                                        &sparql->current_state->subject,
 		                                        &sparql->current_state->predicate,
@@ -2502,7 +2502,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 	case TRACKER_SPARQL_TYPE_DELETE:
 		tracker_sparql_append_triple_update_op (sparql,
 		                                        TRACKER_UPDATE_DELETE,
-		                                        sparql->silent,
+		                                        sparql->current_state->silent,
 		                                        &sparql->current_state->graph,
 		                                        &sparql->current_state->subject,
 		                                        &sparql->current_state->predicate,
@@ -2511,7 +2511,7 @@ tracker_sparql_apply_quad (TrackerSparql  *sparql,
 	case TRACKER_SPARQL_TYPE_UPDATE:
 		tracker_sparql_append_triple_update_op (sparql,
 		                                        TRACKER_UPDATE_UPDATE,
-		                                        sparql->silent,
+		                                        sparql->current_state->silent,
 		                                        &sparql->current_state->graph,
 		                                        &sparql->current_state->subject,
 		                                        &sparql->current_state->predicate,
@@ -4815,7 +4815,7 @@ translate_DeleteClause (TrackerSparql  *sparql,
 	 */
 	sparql->current_state->type = TRACKER_SPARQL_TYPE_DELETE;
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_DELETE);
-	sparql->silent = _accept (sparql, RULE_TYPE_LITERAL, LITERAL_SILENT);
+	sparql->current_state->silent = _accept (sparql, RULE_TYPE_LITERAL, LITERAL_SILENT);
 
 	_call_rule (sparql, NAMED_RULE_QuadPattern, error);
 
@@ -4845,7 +4845,7 @@ translate_InsertClause (TrackerSparql  *sparql,
 		sparql->current_state->type = TRACKER_SPARQL_TYPE_INSERT;
 	}
 
-	sparql->silent = _accept (sparql, RULE_TYPE_LITERAL, LITERAL_SILENT);
+	sparql->current_state->silent = _accept (sparql, RULE_TYPE_LITERAL, LITERAL_SILENT);
 
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_INTO)) {
 		old_graph = sparql->current_state->graph;
