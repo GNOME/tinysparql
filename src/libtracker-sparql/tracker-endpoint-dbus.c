@@ -112,7 +112,7 @@ typedef struct {
 	TrackerEndpointDBus *endpoint;
 	GDBusMethodInvocation *invocation;
 	GDataInputStream *input_stream;
-	GPtrArray *queries;
+	TrackerBatch *batch;
 	gboolean array_update;
 	gint num_queries;
 	gint cur_query;
@@ -285,6 +285,7 @@ update_request_new (TrackerEndpointDBus   *endpoint,
                     gboolean               array_update,
                     int                    input)
 {
+	TrackerSparqlConnection *conn;
 	UpdateRequest *request;
 	GInputStream *stream;
 
@@ -293,8 +294,10 @@ update_request_new (TrackerEndpointDBus   *endpoint,
 	request->endpoint = endpoint;
 	request->cur_query = 0;
 	request->array_update = array_update;
-	request->queries = g_ptr_array_new_with_free_func (g_free);
 	request->prologue = tracker_endpoint_dbus_add_prologue (endpoint, NULL);
+
+	conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (endpoint));
+	request->batch = tracker_sparql_connection_create_batch (conn);
 
 	stream = g_unix_input_stream_new (input, TRUE);
 	request->input_stream = g_data_input_stream_new (stream);
@@ -353,37 +356,24 @@ handle_read_updates (GTask        *task,
 {
 	UpdateRequest *request = task_data;
 	gchar *buffer;
-	gint buffer_size, prologue_size = 0;
 	GError *error = NULL;
 
 	while (request->cur_query < request->num_queries) {
-		if (request->prologue)
-			prologue_size = strlen (request->prologue) + 1;
+		buffer = read_query (request->input_stream, request->prologue,
+		                     cancellable, &error);
+		if (!buffer)
+			goto error;
 
 		request->cur_query++;
-		buffer_size = g_data_input_stream_read_int32 (request->input_stream, NULL, NULL);
-		buffer = g_new0 (char, prologue_size + 1 + buffer_size + 1);
-
-		if (request->prologue) {
-			strncpy (buffer, request->prologue, prologue_size - 1);
-			buffer[prologue_size - 1] = ' ';
-		}
-
-		g_ptr_array_add (request->queries, buffer);
-
-		if (!g_input_stream_read_all (G_INPUT_STREAM (request->input_stream),
-					      &buffer[prologue_size],
-					      buffer_size,
-					      NULL,
-					      cancellable,
-					      &error))
-			goto error;
+		tracker_batch_add_sparql (request->batch, buffer);
+		g_clear_pointer (&buffer, g_free);
 	}
 
 	g_task_return_boolean (task, TRUE);
 	return;
  error:
 	g_task_return_error (task, error);
+	g_clear_pointer (&buffer, g_free);
 }
 
 static void
@@ -407,10 +397,10 @@ static void
 update_request_free (UpdateRequest *request)
 {
 	g_input_stream_close_async (G_INPUT_STREAM (request->input_stream),
-				    G_PRIORITY_DEFAULT,
-				    NULL, NULL, NULL);
+	                            G_PRIORITY_DEFAULT,
+	                            NULL, NULL, NULL);
 
-	g_ptr_array_unref (request->queries);
+	g_object_unref (request->batch);
 	g_object_unref (request->invocation);
 	g_object_unref (request->input_stream);
 	g_free (request->prologue);
@@ -711,9 +701,7 @@ update_cb (GObject      *object,
 	UpdateRequest *request = user_data;
 	GError *error = NULL;
 
-	tracker_sparql_connection_update_array_finish (TRACKER_SPARQL_CONNECTION (object),
-	                                               res, &error);
-	if (error) {
+	if (!tracker_batch_execute_finish (TRACKER_BATCH (object), res, &error)) {
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
 		g_error_free (error);
 	} else {
@@ -728,7 +716,6 @@ read_update_cb (GObject      *object,
                 GAsyncResult *res,
                 gpointer      user_data)
 {
-	TrackerSparqlConnection *conn;
 	UpdateRequest *request = user_data;
 	GError *error = NULL;
 
@@ -738,13 +725,10 @@ read_update_cb (GObject      *object,
 		return;
 	}
 
-	conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (request->endpoint));
-	tracker_sparql_connection_update_array_async (conn,
-						      (gchar **) request->queries->pdata,
-						      request->queries->len,
-						      request->endpoint->cancellable,
-						      update_cb,
-						      request);
+	tracker_batch_execute_async (request->batch,
+	                             request->endpoint->cancellable,
+	                             update_cb,
+	                             request);
 }
 
 static void
