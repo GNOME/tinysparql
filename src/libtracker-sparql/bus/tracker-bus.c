@@ -866,37 +866,12 @@ tracker_bus_connection_update_array_async (TrackerSparqlConnection  *self,
                                            GAsyncReadyCallback       callback,
                                            gpointer                  user_data)
 {
-	GUnixFDList *fd_list;
-	GOutputStream *ostream;
-	GError *error = NULL;
-	GTask *task;
-	int fd_idx;
-
-	task = g_task_new (self, cancellable, callback, user_data);
-
-	if (n_updates == 0) {
-		g_task_return_pointer (task, NULL, NULL);
-		g_object_unref (task);
-		return;
-	}
-
-	if (!create_pipe_for_write (&ostream, &fd_list, &fd_idx, &error)) {
-		g_task_return_error (task, error);
-		g_object_unref (task);
-		return;
-	}
-
-	perform_update_async (TRACKER_BUS_CONNECTION (self),
-			      "UpdateArray",
-			      fd_list, fd_idx,
-			      cancellable,
-			      update_cb,
-			      task);
-
-	write_sparql_queries (ostream, (const gchar **) updates, n_updates, NULL);
-	g_output_stream_close (ostream, NULL, NULL);
-	g_object_unref (ostream);
-	g_object_unref (fd_list);
+	tracker_bus_connection_perform_update_array_async (TRACKER_BUS_CONNECTION (self),
+	                                                   updates,
+	                                                   n_updates,
+	                                                   cancellable,
+	                                                   callback,
+	                                                   user_data);
 }
 
 static gboolean
@@ -904,18 +879,8 @@ tracker_bus_connection_update_array_finish (TrackerSparqlConnection  *self,
                                             GAsyncResult             *res,
                                             GError                  **error)
 {
-	GError *inner_error = NULL;
-	GVariant *retval;
-
-	retval = g_task_propagate_pointer (G_TASK (res), &inner_error);
-	g_clear_pointer (&retval, g_variant_unref);
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
-	}
-
-	return TRUE;
+	return tracker_bus_connection_perform_update_array_finish (TRACKER_BUS_CONNECTION (self),
+	                                                           res, error);
 }
 
 static void
@@ -1701,4 +1666,64 @@ tracker_bus_connection_perform_serialize_finish (TrackerBusConnection  *conn,
 						 GError               **error)
 {
 	return g_task_propagate_pointer (G_TASK (res), error);
+}
+
+void
+tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
+                                                   gchar                **updates,
+                                                   gint                   n_updates,
+                                                   GCancellable          *cancellable,
+                                                   GAsyncReadyCallback    callback,
+                                                   gpointer               user_data)
+{
+	GUnixFDList *fd_list;
+	GOutputStream *ostream;
+	GError *error = NULL;
+	GTask *task;
+	int fd_idx;
+
+	task = g_task_new (self, cancellable, callback, user_data);
+
+	if (n_updates == 0) {
+		g_task_return_pointer (task, NULL, NULL);
+		g_object_unref (task);
+		return;
+	}
+
+	if (!create_pipe_for_write (&ostream, &fd_list, &fd_idx, &error)) {
+		g_task_return_error (task, error);
+		g_object_unref (task);
+		return;
+	}
+
+	perform_update_async (TRACKER_BUS_CONNECTION (self),
+	                      "UpdateArray",
+	                      fd_list, fd_idx,
+	                      cancellable,
+	                      update_cb,
+	                      task);
+
+	write_sparql_queries (ostream, (const gchar **) updates, n_updates, NULL);
+	g_output_stream_close (ostream, NULL, NULL);
+	g_object_unref (ostream);
+	g_object_unref (fd_list);
+}
+
+gboolean
+tracker_bus_connection_perform_update_array_finish (TrackerBusConnection  *self,
+                                                    GAsyncResult          *res,
+                                                    GError               **error)
+{
+	GError *inner_error = NULL;
+	GVariant *retval;
+
+	retval = g_task_propagate_pointer (G_TASK (res), &inner_error);
+	g_clear_pointer (&retval, g_variant_unref);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	return TRUE;
 }

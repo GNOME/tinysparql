@@ -150,12 +150,12 @@ tracker_bus_batch_execute_async (TrackerBatch        *batch,
 
 	task = g_task_new (batch, cancellable, callback, user_data);
 	conn = tracker_batch_get_connection (batch);
-	tracker_sparql_connection_update_array_async (conn,
-	                                              (gchar **) bus_batch->updates->pdata,
-	                                              bus_batch->updates->len,
-	                                              cancellable,
-	                                              update_array_cb,
-	                                              task);
+	tracker_bus_connection_perform_update_array_async (TRACKER_BUS_CONNECTION (conn),
+	                                                   (gchar **) bus_batch->updates->pdata,
+	                                                   bus_batch->updates->len,
+	                                                   cancellable,
+	                                                   update_array_cb,
+	                                                   task);
 }
 
 static gboolean

@@ -74,4 +74,15 @@ GInputStream * tracker_bus_connection_perform_serialize_finish (TrackerBusConnec
 								GAsyncResult          *res,
 								GError               **error);
 
+void tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
+                                                        gchar                **updates,
+                                                        gint                   n_updates,
+                                                        GCancellable          *cancellable,
+                                                        GAsyncReadyCallback    callback,
+                                                        gpointer               user_data);
+
+gboolean tracker_bus_connection_perform_update_array_finish (TrackerBusConnection  *self,
+                                                             GAsyncResult          *res,
+                                                             GError               **error);
+
 #endif /* __TRACKER_BUS_H__ */
