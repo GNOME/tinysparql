@@ -743,6 +743,15 @@ tracker_bus_connection_query_statement (TrackerSparqlConnection  *self,
 	return tracker_bus_statement_new (TRACKER_BUS_CONNECTION (self), query);
 }
 
+static TrackerSparqlStatement *
+tracker_bus_connection_update_statement (TrackerSparqlConnection  *self,
+                                         const gchar              *query,
+                                         GCancellable             *cancellable,
+                                         GError                  **error)
+{
+	return tracker_bus_statement_new_update (TRACKER_BUS_CONNECTION (self), query);
+}
+
 static void
 update_dbus_call_cb (GObject      *source,
 		     GAsyncResult *res,
@@ -1389,6 +1398,7 @@ tracker_bus_connection_class_init (TrackerBusConnectionClass *klass)
 	sparql_connection_class->query_async = tracker_bus_connection_query_async;
 	sparql_connection_class->query_finish = tracker_bus_connection_query_finish;
 	sparql_connection_class->query_statement = tracker_bus_connection_query_statement;
+	sparql_connection_class->update_statement = tracker_bus_connection_update_statement;
 	sparql_connection_class->update = tracker_bus_connection_update;
 	sparql_connection_class->update_async = tracker_bus_connection_update_async;
 	sparql_connection_class->update_finish = tracker_bus_connection_update_finish;
