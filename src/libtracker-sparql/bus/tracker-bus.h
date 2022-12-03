@@ -76,6 +76,7 @@ GInputStream * tracker_bus_connection_perform_serialize_finish (TrackerBusConnec
 
 void tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
                                                         gchar                **updates,
+                                                        GHashTable           **parameters,
                                                         gint                   n_updates,
                                                         GCancellable          *cancellable,
                                                         GAsyncReadyCallback    callback,

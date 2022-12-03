@@ -241,14 +241,37 @@ write_sparql_query (GOutputStream  *ostream,
 	return FALSE;
 }
 
+static GVariant *
+convert_params (GHashTable *parameters)
+{
+	GHashTableIter iter;
+	const gchar *name;
+	GVariant *value;
+	GVariantBuilder builder;
+
+	g_hash_table_iter_init (&iter, parameters);
+	g_variant_builder_init (&builder, G_VARIANT_TYPE ("a{sv}"));
+
+	while (g_hash_table_iter_next (&iter, (gpointer*) &name, (gpointer*) &value)) {
+		g_variant_builder_open (&builder, G_VARIANT_TYPE ("{sv}"));
+		g_variant_builder_add (&builder, "s", name);
+		g_variant_builder_add (&builder, "v", value);
+		g_variant_builder_close (&builder);
+	}
+
+	return g_variant_ref_sink (g_variant_builder_end (&builder));
+}
+
 static gboolean
 write_sparql_queries (GOutputStream  *ostream,
-		      const gchar   **queries,
-		      gint            n_queries,
-		      GError        **error)
+                      const gchar   **queries,
+                      GHashTable    **parameters,
+                      gint            n_queries,
+                      GError        **error)
 {
 	GDataOutputStream *data;
-	int len, i;
+	gchar *params_str = NULL;
+	int i;
 
 	data = g_data_output_stream_new (ostream);
 	g_data_output_stream_set_byte_order (data, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
@@ -257,18 +280,45 @@ write_sparql_queries (GOutputStream  *ostream,
 		goto error;
 
 	for (i = 0; i < n_queries; i++) {
+		int len, params_len = 0;
+
 		len = strlen (queries[i]);
-		if (!g_data_output_stream_put_int32 (data, len, NULL, error))
+
+		if (parameters && parameters[i]) {
+			GVariant *variant;
+
+			variant = convert_params (parameters[i]);
+			params_str = g_variant_print (variant, TRUE);
+			g_variant_unref (variant);
+
+			params_len = strlen (params_str);
+
+			/* Account for the intermediate \0 */
+			params_len++;
+		}
+
+		if (!g_data_output_stream_put_int32 (data, len + params_len, NULL, error))
 			goto error;
 		if (!g_data_output_stream_put_string (data, queries[i],
-						      NULL, error))
+		                                      NULL, error))
 			goto error;
+
+		if (params_str) {
+			if (!g_data_output_stream_put_byte (data, 0, NULL, error))
+				goto error;
+			if (!g_data_output_stream_put_string (data, params_str,
+			                                      NULL, error))
+				goto error;
+
+			g_clear_pointer (&params_str, g_free);
+		}
 	}
 
 	g_output_stream_close (G_OUTPUT_STREAM (data), NULL, NULL);
 	g_object_unref (data);
 	return TRUE;
  error:
+	g_clear_pointer (&params_str, g_free);
 	g_object_unref (data);
 	return FALSE;
 }
@@ -868,6 +918,7 @@ tracker_bus_connection_update_array_async (TrackerSparqlConnection  *self,
 {
 	tracker_bus_connection_perform_update_array_async (TRACKER_BUS_CONNECTION (self),
 	                                                   updates,
+	                                                   NULL,
 	                                                   n_updates,
 	                                                   cancellable,
 	                                                   callback,
@@ -1671,6 +1722,7 @@ tracker_bus_connection_perform_serialize_finish (TrackerBusConnection  *conn,
 void
 tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
                                                    gchar                **updates,
+                                                   GHashTable           **parameters,
                                                    gint                   n_updates,
                                                    GCancellable          *cancellable,
                                                    GAsyncReadyCallback    callback,
@@ -1703,7 +1755,7 @@ tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
 	                      update_cb,
 	                      task);
 
-	write_sparql_queries (ostream, (const gchar **) updates, n_updates, NULL);
+	write_sparql_queries (ostream, (const gchar **) updates, parameters, n_updates, NULL);
 	g_output_stream_close (ostream, NULL, NULL);
 	g_object_unref (ostream);
 	g_object_unref (fd_list);

@@ -152,6 +152,7 @@ tracker_bus_batch_execute_async (TrackerBatch        *batch,
 	conn = tracker_batch_get_connection (batch);
 	tracker_bus_connection_perform_update_array_async (TRACKER_BUS_CONNECTION (conn),
 	                                                   (gchar **) bus_batch->updates->pdata,
+	                                                   NULL,
 	                                                   bus_batch->updates->len,
 	                                                   cancellable,
 	                                                   update_array_cb,

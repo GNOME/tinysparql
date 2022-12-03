@@ -315,14 +315,51 @@ update_request_new (TrackerEndpointDBus   *endpoint,
 	return request;
 }
 
+static gboolean
+value_from_variant (GValue   *value,
+                    GVariant *variant)
+{
+	if (g_variant_is_of_type (variant, G_VARIANT_TYPE_STRING)) {
+		g_value_init (value, G_TYPE_STRING);
+		g_value_set_string (value, g_variant_get_string (variant, NULL));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_BOOLEAN)) {
+		g_value_init (value, G_TYPE_BOOLEAN);
+		g_value_set_boolean (value, g_variant_get_boolean (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_INT16)) {
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, (gint64) g_variant_get_int16 (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_INT32)) {
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, (gint64) g_variant_get_int32 (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_UINT16)) {
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, (gint64) g_variant_get_uint16 (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_UINT32)) {
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, (gint64) g_variant_get_uint32 (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_INT64)) {
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, g_variant_get_int64 (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_DOUBLE)) {
+		g_value_init (value, G_TYPE_DOUBLE);
+		g_value_set_double (value, g_variant_get_double (variant));
+	} else {
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 static gchar *
 read_query (GDataInputStream  *istream,
             const gchar       *prologue,
+            GPtrArray        **parameter_names,
+            GArray           **parameter_values,
             GCancellable      *cancellable,
             GError           **error)
 {
 	gchar *buffer;
-	gint buffer_size, prologue_size = 0;
+	gint buffer_size, len, prologue_size = 0;
 
 	if (prologue)
 		prologue_size = strlen (prologue) + 1;
@@ -345,6 +382,45 @@ read_query (GDataInputStream  *istream,
 		return NULL;
 	}
 
+	len = strlen (buffer);
+
+	if (buffer_size > prologue_size + 1 + len + 1) {
+		GVariant *variant, *value;
+		GVariantIter iter;
+		gchar *key;
+
+		variant = g_variant_parse (G_VARIANT_TYPE ("a{sv}"),
+		                           &buffer[prologue_size + 1 + len],
+		                           &buffer[prologue_size + 1 + buffer_size],
+		                           NULL,
+		                           error);
+		if (!variant) {
+			g_free (buffer);
+			return NULL;
+		}
+
+		g_assert (parameter_names);
+		g_assert (parameter_values);
+
+		*parameter_names = g_ptr_array_new ();
+		g_ptr_array_set_free_func (*parameter_names, g_free);
+		*parameter_values = g_array_new (FALSE, FALSE, sizeof (GValue));
+		g_array_set_clear_func (*parameter_values, (GDestroyNotify) g_value_unset);
+
+		g_variant_iter_init (&iter, variant);
+		while (g_variant_iter_next (&iter, "{sv}", &key, &value)) {
+			GValue gvalue = G_VALUE_INIT;
+
+			if (!value_from_variant (&gvalue, value))
+				continue;
+
+			g_ptr_array_add (*parameter_names, key);
+			g_array_append_val (*parameter_values, gvalue);
+		}
+
+		g_variant_unref (variant);
+	}
+
 	return buffer;
 }
 
@@ -357,16 +433,46 @@ handle_read_updates (GTask        *task,
 	UpdateRequest *request = task_data;
 	gchar *buffer;
 	GError *error = NULL;
+	GPtrArray *parameter_names = NULL;
+	GArray *parameter_values = NULL;
 
 	while (request->cur_query < request->num_queries) {
-		buffer = read_query (request->input_stream, request->prologue,
+		buffer = read_query (request->input_stream,
+		                     request->prologue,
+		                     &parameter_names,
+		                     &parameter_values,
 		                     cancellable, &error);
 		if (!buffer)
 			goto error;
 
 		request->cur_query++;
-		tracker_batch_add_sparql (request->batch, buffer);
+
+		if (parameter_names && parameter_names->len > 0) {
+			TrackerSparqlStatement *stmt;
+			TrackerSparqlConnection *conn;
+
+			g_assert (parameter_values);
+			g_assert (parameter_values->len == parameter_names->len);
+
+			conn = tracker_batch_get_connection (request->batch);
+			stmt = tracker_sparql_connection_update_statement (conn,
+			                                                   buffer,
+			                                                   cancellable,
+			                                                   &error);
+
+			tracker_batch_add_statementv (request->batch,
+			                              stmt,
+			                              parameter_names->len,
+			                              (const gchar **) parameter_names->pdata,
+			                              (const GValue *) parameter_values->data);
+			g_object_unref (stmt);
+		} else {
+			tracker_batch_add_sparql (request->batch, buffer);
+		}
+
 		g_clear_pointer (&buffer, g_free);
+		g_clear_pointer (&parameter_names, g_ptr_array_unref);
+		g_clear_pointer (&parameter_values, g_array_unref);
 	}
 
 	g_task_return_boolean (task, TRUE);
@@ -374,6 +480,8 @@ handle_read_updates (GTask        *task,
  error:
 	g_task_return_error (task, error);
 	g_clear_pointer (&buffer, g_free);
+	g_clear_pointer (&parameter_names, g_ptr_array_unref);
+	g_clear_pointer (&parameter_values, g_array_unref);
 }
 
 static void
@@ -386,6 +494,7 @@ handle_read_update_blank (GTask        *task,
 	GError *error = NULL;
 
 	request->query = read_query (request->input_stream, request->prologue,
+	                             NULL, NULL,
 	                             cancellable, &error);
 	if (request->query)
 		g_task_return_boolean (task, TRUE);
