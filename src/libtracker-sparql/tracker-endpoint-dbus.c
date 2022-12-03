@@ -119,6 +119,14 @@ typedef struct {
 	gchar *prologue;
 } UpdateRequest;
 
+typedef struct {
+	TrackerEndpointDBus *endpoint;
+	GDBusMethodInvocation *invocation;
+	GDataInputStream *input_stream;
+	gchar *query;
+	gchar *prologue;
+} UpdateBlankRequest;
+
 GParamSpec *props[N_PROPS] = { 0 };
 
 static void tracker_endpoint_dbus_initable_iface_init (GInitableIface *iface);
@@ -304,6 +312,39 @@ update_request_new (TrackerEndpointDBus   *endpoint,
 	return request;
 }
 
+static gchar *
+read_query (GDataInputStream  *istream,
+            const gchar       *prologue,
+            GCancellable      *cancellable,
+            GError           **error)
+{
+	gchar *buffer;
+	gint buffer_size, prologue_size = 0;
+
+	if (prologue)
+		prologue_size = strlen (prologue) + 1;
+
+	buffer_size = g_data_input_stream_read_int32 (istream, NULL, NULL);
+	buffer = g_new0 (char, prologue_size + 1 + buffer_size + 1);
+
+	if (prologue) {
+		strncpy (buffer, prologue, prologue_size - 1);
+		buffer[prologue_size - 1] = ' ';
+	}
+
+	if (!g_input_stream_read_all (G_INPUT_STREAM (istream),
+	                              &buffer[prologue_size],
+	                              buffer_size,
+	                              NULL,
+	                              cancellable,
+	                              error)) {
+		g_free (buffer);
+		return NULL;
+	}
+
+	return buffer;
+}
+
 static void
 handle_read_updates (GTask        *task,
                      gpointer      source_object,
@@ -346,6 +387,23 @@ handle_read_updates (GTask        *task,
 }
 
 static void
+handle_read_update_blank (GTask        *task,
+                          gpointer      source_object,
+                          gpointer      task_data,
+                          GCancellable *cancellable)
+{
+	UpdateBlankRequest *request = task_data;
+	GError *error = NULL;
+
+	request->query = read_query (request->input_stream, request->prologue,
+	                             cancellable, &error);
+	if (request->query)
+		g_task_return_boolean (task, TRUE);
+	else
+		g_task_return_error (task, error);
+}
+
+static void
 update_request_free (UpdateRequest *request)
 {
 	g_input_stream_close_async (G_INPUT_STREAM (request->input_stream),
@@ -355,6 +413,44 @@ update_request_free (UpdateRequest *request)
 	g_ptr_array_unref (request->queries);
 	g_object_unref (request->invocation);
 	g_object_unref (request->input_stream);
+	g_free (request->prologue);
+	g_free (request);
+}
+
+static UpdateBlankRequest *
+update_blank_request_new (TrackerEndpointDBus   *endpoint,
+                          GDBusMethodInvocation *invocation,
+                          int                    fd)
+{
+	UpdateBlankRequest *request;
+	GInputStream *stream;
+
+	request = g_new0 (UpdateBlankRequest, 1);
+	request->invocation = g_object_ref (invocation);
+	request->endpoint = endpoint;
+	request->prologue = tracker_endpoint_dbus_add_prologue (endpoint, NULL);
+
+	stream = g_unix_input_stream_new (fd, TRUE);
+	request->input_stream = g_data_input_stream_new (stream);
+	g_buffered_input_stream_set_buffer_size (G_BUFFERED_INPUT_STREAM (request->input_stream),
+	                                         sysconf (_SC_PAGE_SIZE));
+	g_data_input_stream_set_byte_order (request->input_stream,
+	                                    G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
+	g_object_unref (stream);
+
+	return request;
+}
+
+static void
+update_blank_request_free (UpdateBlankRequest *request)
+{
+	g_input_stream_close_async (G_INPUT_STREAM (request->input_stream),
+	                            G_PRIORITY_DEFAULT,
+	                            NULL, NULL, NULL);
+
+	g_object_unref (request->invocation);
+	g_object_unref (request->input_stream);
+	g_free (request->query);
 	g_free (request->prologue);
 	g_free (request);
 }
@@ -656,7 +752,7 @@ update_blank_cb (GObject      *object,
                  GAsyncResult *res,
                  gpointer      user_data)
 {
-	UpdateRequest *request = user_data;
+	UpdateBlankRequest *request = user_data;
 	GError *error = NULL;
 	GVariant *results;
 
@@ -673,7 +769,7 @@ update_blank_cb (GObject      *object,
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
 	}
 
-	update_request_free (request);
+	update_blank_request_free (request);
 }
 
 static void
@@ -682,18 +778,18 @@ read_update_blank_cb (GObject      *object,
                       gpointer      user_data)
 {
 	TrackerSparqlConnection *conn;
-	UpdateRequest *request = user_data;
+	UpdateBlankRequest *request = user_data;
 	GError *error = NULL;
 
 	if (!g_task_propagate_boolean (G_TASK (res), &error)) {
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
-		update_request_free (request);
+		update_blank_request_free (request);
 		return;
 	}
 
 	conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (request->endpoint));
 	tracker_sparql_connection_update_blank_async (conn,
-	                                              g_ptr_array_index (request->queries, 0),
+	                                              request->query,
 	                                              request->endpoint->cancellable,
 	                                              update_blank_cb,
 	                                              request);
@@ -960,15 +1056,15 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			                                       G_DBUS_ERROR_INVALID_ARGS,
 			                                       "Did not get a file descriptor");
 		} else {
-			UpdateRequest *request;
+			UpdateBlankRequest *request;
 			GTask *task;
 
-			request = update_request_new (endpoint_dbus, invocation, FALSE, fd);
+			request = update_blank_request_new (endpoint_dbus, invocation, fd);
 
 			task = g_task_new (NULL, request->endpoint->cancellable,
-					   read_update_blank_cb, request);
+			                   read_update_blank_cb, request);
 			g_task_set_task_data (task, request, NULL);
-			g_task_run_in_thread (task, handle_read_updates);
+			g_task_run_in_thread (task, handle_read_update_blank);
 			g_object_unref (task);
 		}
 	} else if (g_strcmp0 (method_name, "Deserialize") == 0) {
