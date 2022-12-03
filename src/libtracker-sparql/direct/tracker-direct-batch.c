@@ -24,6 +24,7 @@
 #include <libtracker-sparql/core/tracker-data.h>
 
 #include "tracker-direct-batch.h"
+#include "tracker-direct-statement.h"
 #include "tracker-direct.h"
 #include "tracker-private.h"
 
@@ -41,6 +42,11 @@ struct _TrackerBatchElem
 			gchar *graph;
 			TrackerResource *resource;
 		} resource;
+
+		struct {
+			TrackerSparqlStatement *stmt;
+			GHashTable *parameters;
+		} statement;
 	} d;
 };
 
@@ -52,6 +58,7 @@ struct _TrackerDirectBatchPrivate
 enum {
 	TRACKER_DIRECT_BATCH_RESOURCE,
 	TRACKER_DIRECT_BATCH_SPARQL,
+	TRACKER_DIRECT_BATCH_STATEMENT,
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (TrackerDirectBatch,
@@ -94,6 +101,52 @@ tracker_direct_batch_add_resource (TrackerBatch    *batch,
 	elem.type = TRACKER_DIRECT_BATCH_RESOURCE;
 	elem.d.resource.graph = g_strdup (graph);
 	elem.d.resource.resource = g_object_ref (resource);
+	g_array_append_val (priv->array, elem);
+}
+
+static void
+free_value (gpointer data)
+{
+	GValue *value = data;
+
+	g_value_unset (value);
+	g_free (value);
+}
+
+static void
+tracker_direct_batch_add_statement (TrackerBatch           *batch,
+                                    TrackerSparqlStatement *stmt,
+                                    guint                   n_values,
+                                    const gchar            *binding_names[],
+                                    const GValue            bindings[])
+{
+	TrackerDirectBatch *direct = TRACKER_DIRECT_BATCH (batch);
+	TrackerDirectBatchPrivate *priv = tracker_direct_batch_get_instance_private (direct);
+	TrackerBatchElem elem;
+	GHashTable *parameters = NULL;
+	guint i;
+
+	for (i = 0; i < n_values; i++) {
+		GValue *copy;
+
+		if (!parameters) {
+			parameters = g_hash_table_new_full (g_str_hash,
+			                                    g_str_equal,
+			                                    g_free,
+			                                    (GDestroyNotify) free_value);
+		}
+
+		copy = g_new0 (GValue, 1);
+		g_value_init (copy, G_VALUE_TYPE (&bindings[i]));
+		g_value_copy (&bindings[i], copy);
+		g_hash_table_insert (parameters,
+		                     g_strdup (binding_names[i]),
+		                     copy);
+	}
+
+	elem.type = TRACKER_DIRECT_BATCH_STATEMENT;
+	elem.d.statement.stmt = g_object_ref (stmt);
+	elem.d.statement.parameters = parameters;
 	g_array_append_val (priv->array, elem);
 }
 
@@ -147,6 +200,7 @@ tracker_direct_batch_class_init (TrackerDirectBatchClass *klass)
 
 	batch_class->add_sparql = tracker_direct_batch_add_sparql;
 	batch_class->add_resource = tracker_direct_batch_add_resource;
+	batch_class->add_statement = tracker_direct_batch_add_statement;
 	batch_class->execute = tracker_direct_batch_execute;
 	batch_class->execute_async = tracker_direct_batch_execute_async;
 	batch_class->execute_finish = tracker_direct_batch_execute_finish;
@@ -159,6 +213,10 @@ tracker_batch_elem_clear (TrackerBatchElem *elem)
 		g_object_run_dispose (G_OBJECT (elem->d.resource.resource));
 		g_object_unref (elem->d.resource.resource);
 		g_free (elem->d.resource.graph);
+	} else if (elem->type == TRACKER_DIRECT_BATCH_STATEMENT) {
+		g_object_unref (elem->d.statement.stmt);
+		g_clear_pointer (&elem->d.statement.parameters,
+		                 g_hash_table_unref);
 	} else if (elem->type == TRACKER_DIRECT_BATCH_SPARQL) {
 		g_free (elem->d.sparql);
 	}
@@ -236,6 +294,11 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			                               NULL,
 			                               &inner_error);
 			g_object_unref (query);
+		} else if (elem->type == TRACKER_DIRECT_BATCH_STATEMENT) {
+			tracker_direct_statement_execute_update (elem->d.statement.stmt,
+			                                         elem->d.statement.parameters,
+			                                         bnodes,
+			                                         &inner_error);
 		} else {
 			g_assert_not_reached ();
 		}
