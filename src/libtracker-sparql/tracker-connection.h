@@ -213,6 +213,13 @@ TrackerSparqlStatement * tracker_sparql_connection_query_statement (TrackerSparq
                                                                     const gchar              *sparql,
                                                                     GCancellable             *cancellable,
                                                                     GError                  **error);
+
+TRACKER_AVAILABLE_IN_3_5
+TrackerSparqlStatement * tracker_sparql_connection_update_statement (TrackerSparqlConnection  *connection,
+                                                                     const gchar              *sparql,
+                                                                     GCancellable             *cancellable,
+                                                                     GError                  **error);
+
 TRACKER_AVAILABLE_IN_ALL
 TrackerNotifier * tracker_sparql_connection_create_notifier (TrackerSparqlConnection *connection);
 

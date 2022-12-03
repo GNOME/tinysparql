@@ -107,6 +107,22 @@ GInputStream * tracker_sparql_statement_serialize_finish (TrackerSparqlStatement
 TRACKER_AVAILABLE_IN_ALL
 void tracker_sparql_statement_clear_bindings (TrackerSparqlStatement *stmt);
 
+TRACKER_AVAILABLE_IN_3_5
+gboolean tracker_sparql_statement_update (TrackerSparqlStatement  *stmt,
+                                          GCancellable            *cancellable,
+                                          GError                 **error);
+
+TRACKER_AVAILABLE_IN_3_5
+void tracker_sparql_statement_update_async (TrackerSparqlStatement  *stmt,
+                                            GCancellable            *cancellable,
+                                            GAsyncReadyCallback      callback,
+                                            gpointer                 user_data);
+
+TRACKER_AVAILABLE_IN_3_5
+gboolean tracker_sparql_statement_update_finish (TrackerSparqlStatement  *stmt,
+                                                 GAsyncResult            *result,
+                                                 GError                 **error);
+
 G_END_DECLS
 
 #endif /* __TRACKER_SPARQL_STATEMENT_H__ */
