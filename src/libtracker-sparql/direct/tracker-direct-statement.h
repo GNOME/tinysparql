@@ -49,4 +49,13 @@ TrackerDirectStatement * tracker_direct_statement_new (TrackerSparqlConnection  
                                                        const gchar              *sparql,
                                                        GError                  **error);
 
+TrackerDirectStatement * tracker_direct_statement_new_update (TrackerSparqlConnection  *conn,
+                                                              const gchar              *sparql,
+                                                              GError                  **error);
+
+gboolean tracker_direct_statement_execute_update (TrackerSparqlStatement  *stmt,
+                                                  GHashTable              *parameters,
+                                                  GHashTable              *bnode_labels,
+                                                  GError                 **error);
+
 #endif /* __TRACKER_DIRECT_STATEMENT_H__ */

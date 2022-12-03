@@ -25,6 +25,7 @@
 #include <libtracker-sparql/core/tracker-data.h>
 
 #include "tracker-direct-batch.h"
+#include "tracker-direct-statement.h"
 
 #define TRACKER_TYPE_DIRECT_CONNECTION         (tracker_direct_connection_get_type())
 #define TRACKER_DIRECT_CONNECTION(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DIRECT_CONNECTION, TrackerDirectConnection))
@@ -79,5 +80,19 @@ void tracker_direct_connection_update_batch_async (TrackerDirectConnection  *con
 gboolean tracker_direct_connection_update_batch_finish (TrackerDirectConnection  *conn,
                                                         GAsyncResult             *res,
                                                         GError                  **error);
+
+gboolean tracker_direct_connection_execute_update_statement (TrackerDirectConnection  *conn,
+                                                             TrackerSparqlStatement   *stmt,
+                                                             GHashTable               *parameters,
+                                                             GError                  **error);
+void tracker_direct_connection_execute_update_statement_async (TrackerDirectConnection  *conn,
+                                                               TrackerSparqlStatement   *stmt,
+                                                               GHashTable               *parameters,
+                                                               GCancellable             *cancellable,
+                                                               GAsyncReadyCallback       callback,
+                                                               gpointer                  user_data);
+gboolean tracker_direct_connection_execute_update_statement_finish (TrackerDirectConnection  *conn,
+                                                                    GAsyncResult             *res,
+                                                                    GError                  **error);
 
 #endif /* __TRACKER_LOCAL_CONNECTION_H__ */
