@@ -10405,7 +10405,6 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
                                GVariant      **update_bnodes,
                                GError        **error)
 {
-	TrackerSparqlState state = { 0 };
 	GVariantBuilder variant_builder;
 	gboolean retval = TRUE;
 
@@ -10425,11 +10424,24 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 	if (update_bnodes)
 		g_variant_builder_init (&variant_builder, G_VARIANT_TYPE ("aaa{ss}"));
 
-	sparql->current_state = &state;
-	tracker_sparql_state_init (&state, sparql);
-	retval = _call_rule_func (sparql, NAMED_RULE_Update, error);
-	sparql->current_state = NULL;
-	tracker_sparql_state_clear (&state);
+	if (tracker_sparql_needs_update (sparql)) {
+		TrackerSparqlState state = { 0 };
+
+		g_array_set_size (sparql->update_ops, 0);
+		g_array_set_size (sparql->update_groups, 0);
+		g_clear_pointer (&sparql->policy.graphs, g_ptr_array_unref);
+		g_clear_pointer (&sparql->policy.services, g_ptr_array_unref);
+		g_clear_pointer (&sparql->policy.filtered_graphs, g_hash_table_unref);
+
+		sparql->current_state = &state;
+		tracker_sparql_state_init (&state, sparql);
+		retval = _call_rule_func (sparql, NAMED_RULE_Update, error);
+		sparql->current_state = NULL;
+		tracker_sparql_state_clear (&state);
+
+		if (!retval)
+			goto out;
+	}
 
 	if (!retval)
 		goto out;
