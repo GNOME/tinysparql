@@ -28,6 +28,12 @@ static gchar *database_path = NULL;
 static gint batch_size = 5000;
 static gint duration = 30;
 
+enum {
+	BATCH_RESOURCE,
+	BATCH_SPARQL,
+	BATCH_SPARQL_STMT,
+};
+
 static GOptionEntry entries[] = {
 	{ "database", 'p', 0, G_OPTION_ARG_FILENAME, &database_path,
 	  "Location of the database",
@@ -149,39 +155,50 @@ create_query (void)
 static inline TrackerBatch *
 create_batch (TrackerSparqlConnection *conn,
               DataCreateFunc           data_func,
-              gboolean                 sparql)
+              guint                    type)
 {
 	TrackerBatch *batch;
-	TrackerResource *resource;
+	TrackerResource *resource = NULL;
+	TrackerSparqlStatement *stmt = NULL;
 	int i;
 
 	batch = tracker_sparql_connection_create_batch (conn);
 
 	for (i = 0; i < batch_size; i++) {
-		resource = data_func ();
-
-		if (sparql) {
+		if (type == BATCH_SPARQL) {
 			gchar *sparql;
 
+			resource = data_func ();
 			sparql = tracker_resource_print_sparql_update (resource,
 			                                               tracker_sparql_connection_get_namespace_manager (conn),
 			                                               NULL);
 			tracker_batch_add_sparql (batch, sparql);
 			g_free (sparql);
-		} else {
+		} else if (type == BATCH_SPARQL_STMT) {
+			if (!stmt) {
+				stmt = tracker_sparql_connection_update_statement (conn,
+				                                                   "INSERT { [] a rdfs:Resource }",
+				                                                   NULL, NULL);
+			}
+
+			tracker_batch_add_statement (batch, stmt, NULL);
+		} else if (type == BATCH_RESOURCE) {
+			resource = data_func ();
 			tracker_batch_add_resource (batch, NULL, resource);
 		}
 
-		g_object_unref (resource);
+		g_clear_object (&resource);
 	}
 
 	return batch;
 }
 
 static inline TrackerBatch *
-create_batch_insert_delete (TrackerSparqlConnection *conn)
+create_batch_insert_delete (TrackerSparqlConnection *conn,
+                            guint                    type)
 {
 	TrackerBatch *batch;
+	TrackerSparqlStatement *stmt = NULL;
 	int i;
 
 	batch = tracker_sparql_connection_create_batch (conn);
@@ -199,11 +216,25 @@ create_batch_insert_delete (TrackerSparqlConnection *conn)
 			tracker_batch_add_resource (batch, NULL, resource);
 			g_object_unref (resource);
 		} else {
-			gchar *query;
+			if (type == BATCH_SPARQL) {
+				gchar *query;
 
-			query = g_strdup_printf ("DELETE DATA { <%s> a rdfs:Resource }", uri);
-			tracker_batch_add_sparql (batch, query);
-			g_free (query);
+				query = g_strdup_printf ("DELETE DATA { <%s> a rdfs:Resource }", uri);
+				tracker_batch_add_sparql (batch, query);
+				g_free (query);
+			} else {
+				if (!stmt) {
+					stmt = tracker_sparql_connection_update_statement (conn,
+					                                                   "DELETE DATA { ~uri a rdfs:Resource }",
+					                                                   NULL,
+					                                                   NULL);
+				}
+
+				tracker_batch_add_statement (batch,
+				                             stmt,
+				                             "uri", G_TYPE_STRING, uri,
+				                             NULL);
+			}
 		}
 
 		g_free (uri);
@@ -249,7 +280,7 @@ benchmark_update_batch (TrackerSparqlConnection *conn,
 		double batch_elapsed;
 
 		g_timer_reset (timer);
-		batch = create_batch (conn, data_func, FALSE);
+		batch = create_batch (conn, data_func, BATCH_RESOURCE);
 		tracker_batch_execute (batch, NULL, &error);
 		g_assert_no_error (error);
 		g_object_unref (batch);
@@ -259,6 +290,44 @@ benchmark_update_batch (TrackerSparqlConnection *conn,
 		*max = MAX (*max, batch_elapsed);
 		*elapsed += batch_elapsed;
 		*elems += 1;
+	}
+
+	/* We count things by resources, not batches */
+	*min /= batch_size;
+	*max /= batch_size;
+	*elems *= batch_size;
+
+	g_timer_destroy (timer);
+}
+
+static void
+benchmark_update_batch_stmt (TrackerSparqlConnection *conn,
+                             DataCreateFunc           data_func,
+                             double                  *elapsed,
+                             int                     *elems,
+                             double                  *min,
+                             double                  *max)
+{
+	GTimer *timer;
+	GError *error = NULL;
+
+	timer = g_timer_new ();
+
+	while (*elapsed < duration) {
+		TrackerBatch *batch;
+		double batch_elapsed;
+
+		batch = create_batch (conn, data_func, BATCH_SPARQL_STMT);
+		tracker_batch_execute (batch, NULL, &error);
+		g_assert_no_error (error);
+		g_object_unref (batch);
+
+		batch_elapsed = g_timer_elapsed (timer, NULL);
+		*min = MIN (*min, batch_elapsed);
+		*max = MAX (*max, batch_elapsed);
+		*elapsed += batch_elapsed;
+		*elems += 1;
+		g_timer_reset (timer);
 	}
 
 	/* We count things by resources, not batches */
@@ -286,7 +355,7 @@ benchmark_update_sparql (TrackerSparqlConnection *conn,
 		TrackerBatch *batch;
 		double batch_elapsed;
 
-		batch = create_batch (conn, data_func, TRUE);
+		batch = create_batch (conn, data_func, BATCH_SPARQL);
 		tracker_batch_execute (batch, NULL, &error);
 		g_assert_no_error (error);
 		g_object_unref (batch);
@@ -325,7 +394,45 @@ benchmark_update_insert_delete (TrackerSparqlConnection *conn,
 		double batch_elapsed;
 
 		g_timer_reset (timer);
-		batch = create_batch_insert_delete (conn);
+		batch = create_batch_insert_delete (conn, BATCH_SPARQL);
+		tracker_batch_execute (batch, NULL, &error);
+		g_assert_no_error (error);
+		g_object_unref (batch);
+
+		batch_elapsed = g_timer_elapsed (timer, NULL);
+		*min = MIN (*min, batch_elapsed);
+		*max = MAX (*max, batch_elapsed);
+		*elapsed += batch_elapsed;
+		*elems += 1;
+	}
+
+	/* We count things by resources, not batches */
+	*min /= batch_size;
+	*max /= batch_size;
+	*elems *= batch_size;
+
+	g_timer_destroy (timer);
+}
+
+static void
+benchmark_update_insert_delete_stmt (TrackerSparqlConnection *conn,
+                                     DataCreateFunc           data_func,
+                                     double                  *elapsed,
+                                     int                     *elems,
+                                     double                  *min,
+                                     double                  *max)
+{
+	GTimer *timer;
+	GError *error = NULL;
+
+	timer = g_timer_new ();
+
+	while (*elapsed < duration) {
+		TrackerBatch *batch;
+		double batch_elapsed;
+
+		g_timer_reset (timer);
+		batch = create_batch_insert_delete (conn, BATCH_SPARQL_STMT);
 		tracker_batch_execute (batch, NULL, &error);
 		g_assert_no_error (error);
 		g_object_unref (batch);
@@ -429,9 +536,11 @@ struct {
 	DataCreateFunc data_func;
 } benchmarks[] = {
 	{ "Resource batch update (sync)", benchmark_update_batch, create_resource },
+	{ "Statement batch update (sync)", benchmark_update_batch_stmt, create_resource },
 	{ "SPARQL batch update (sync)", benchmark_update_sparql, create_resource },
 	{ "Resource modification (sync)", benchmark_update_batch, create_changing_resource },
-	{ "Resource insert+delete (sync)", benchmark_update_insert_delete, NULL },
+	{ "Resource insert + Statement delete (sync)", benchmark_update_insert_delete_stmt, NULL },
+	{ "Resource insert + SPARQL delete (sync)", benchmark_update_insert_delete, NULL },
 	{ "Prepared statement query (sync)", benchmark_query_statement, create_query },
 	{ "SPARQL query (sync)", benchmark_query_sparql, create_query },
 };
