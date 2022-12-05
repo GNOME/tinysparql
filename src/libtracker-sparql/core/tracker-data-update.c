@@ -1943,6 +1943,10 @@ get_bnode_id (GHashTable       *bnodes,
 {
 	TrackerRowid *value, bnode_id;
 
+	/* Skip blank node label prefixes */
+	if (g_str_has_prefix (str, "_:"))
+		str = &str[2];
+
 	value = g_hash_table_lookup (bnodes, str);
 	if (value)
 		return *value;
