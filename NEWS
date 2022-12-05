@@ -1,3 +1,13 @@
+NEW in 3.4.2 - 2022-12-05
+=========================
+  * Warn if IRIs are not absolute. This will turn into a query
+    error in future releases.
+  * Handle slight type affinity changes in SQLite 3.40.0 in some
+    operations that broke Tracker expectations.
+  * Close file descriptors asynchronously in TrackerEndpointDBus
+
+Translations: ab, nl
+
 NEW in 3.4.1 - 2022-10-26
 =========================
   * Fixes to VAPI file
