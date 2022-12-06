@@ -732,7 +732,7 @@ tracker_parser_state_propagate_error (TrackerGrammarParser  *parser,
 		state->error_len = state->current;
 	}
 
-	g_string_append_printf (str, "Parser error at byte %ld, expected ",
+	g_string_append_printf (str, "Parser error at byte %" G_GSIZE_FORMAT ", expected ",
 	                        state->error_len);
 
 	if (state->error_rules->len == 0) {
