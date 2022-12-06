@@ -9,6 +9,8 @@ option('stemmer', type: 'feature', value: 'auto',
        description: 'Stemming words while indexing')
 option('unicode_support', type: 'combo', choices: ['icu', 'unistring', 'auto'], value: 'auto',
        description: 'Unicode support library to use')
+option('avahi', type: 'feature', value: 'auto',
+       description: 'DNS-SD support on HTTP endpoints')
 
 option('bash_completion', type: 'boolean', value: true,
        description: 'Whether to install Bash completion files')

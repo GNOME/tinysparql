@@ -58,6 +58,8 @@ json_glib = dependency('json-glib-1.0', version: '>= 1.4', required: true)
 libxml2 = dependency('libxml-2.0', version: '> 2.6')
 sqlite = dependency('sqlite3', version: '>' + sqlite_required)
 dbus = dependency('dbus-1')
+avahi_glib = dependency('avahi-glib', required: get_option('avahi'))
+avahi_client = dependency('avahi-client', required: get_option('avahi'))
 
 gvdb_dep = dependency('gvdb')
 
@@ -87,6 +89,8 @@ endif
 if not libsoup2.found() and not libsoup3.found()
   error('At least one of libsoup2 or libsoup3 is required')
 endif
+
+have_avahi = avahi_glib.found() and avahi_client.found()
 
 libmath = cc.find_library('m', required: false)
 libdl = cc.find_library('dl')
@@ -331,6 +335,7 @@ conf = configuration_data()
 # Config that goes in config.h
 
 conf.set('HAVE_LIBSTEMMER', have_libstemmer)
+conf.set('HAVE_AVAHI', have_avahi)
 
 conf.set('HAVE_STATVFS64', cc.has_header_symbol('sys/statvfs.h', 'statvfs64', args: '-D_LARGEFILE64_SOURCE'))
 
@@ -440,6 +445,7 @@ summary = [
   '    API documentation:                      ' + get_option('docs').to_string(),
   '    CLI documentation (manpages):           ' + get_option('man').to_string(),
   '    Libsoup backends:                       ' + soup_backends,
+  '    Avahi DNS-SD on HTTP endpoints:         ' + have_avahi.to_string(),
 ]
 
 if get_option('bash_completion')

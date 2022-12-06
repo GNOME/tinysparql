@@ -19,9 +19,15 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
+#include "tracker-http-module.h"
+
 #include <libsoup/soup.h>
 
-#include "tracker-http-module.h"
+#ifdef HAVE_AVAHI
+#include <avahi-client/client.h>
+#include <avahi-client/publish.h>
+#include <avahi-glib/glib-watch.h>
+#endif
 
 GType
 tracker_http_client_get_type (void)
@@ -65,6 +71,12 @@ struct _TrackerHttpServerSoup
 	TrackerHttpServer parent_instance;
 	SoupServer *server;
 	GCancellable *cancellable;
+
+#ifdef HAVE_AVAHI
+	AvahiGLibPoll *avahi_glib_poll;
+	AvahiClient *avahi_client;
+	AvahiEntryGroup *avahi_entry_group;
+#endif
 };
 
 static void tracker_http_server_soup_initable_iface_init (GInitableIface *iface);
@@ -163,6 +175,148 @@ server_callback (SoupServer        *server,
 	                       request);
 }
 
+#ifdef HAVE_AVAHI
+static void
+avahi_entry_group_cb (AvahiEntryGroup      *entry_group,
+                      AvahiEntryGroupState  state,
+                      gpointer              user_data)
+{
+
+	TrackerHttpServerSoup *server = user_data;
+
+	switch (state) {
+	case AVAHI_ENTRY_GROUP_COLLISION:
+	case AVAHI_ENTRY_GROUP_FAILURE:
+		g_clear_pointer (&server->avahi_entry_group, avahi_entry_group_free);
+		break;
+	case AVAHI_ENTRY_GROUP_UNCOMMITED:
+	case AVAHI_ENTRY_GROUP_REGISTERING:
+	case AVAHI_ENTRY_GROUP_ESTABLISHED:
+		break;
+	}
+}
+
+static AvahiStringList *
+create_txt (TrackerHttpServerSoup *server,
+            AvahiClient           *client)
+{
+	AvahiStringList *txt = NULL;
+	gchar *metadata, *path;
+	GTlsCertificate *certificate;
+	guint port;
+
+	g_object_get (server,
+	              "http-certificate", &certificate,
+	              "http-port", &port,
+	              NULL);
+
+	metadata = g_strdup_printf ("%s://%s:%d/sparql",
+	                            certificate != NULL ? "https" : "http",
+	                            avahi_client_get_host_name_fqdn (client),
+	                            port);
+	if (certificate) {
+		/* Pass on full URI to express this is an HTTPS endpoint */
+		path = g_strdup (metadata);
+	} else {
+		path = g_strdup ("/sparql");
+	}
+
+	txt = avahi_string_list_add_pair (txt, "path", path);
+	txt = avahi_string_list_add_pair (txt, "metadata", metadata);
+	g_free (metadata);
+	g_free (path);
+
+	/* FIXME: The "vocabs" TXT record is supposed to contain the namespaces
+	 * used by the endpoint. However there is a size limit to these records,
+	 * obviously exceeded by the multiple Nepomuk namespaces.
+	 *
+	 * Perhaps we could just fill in this record in the cases that the
+	 * resulting string is short enough. Just leave an empty string for
+	 * everyone, for now.
+	 */
+	txt = avahi_string_list_add_pair (txt, "vocabs", "");
+
+	txt = avahi_string_list_add_pair (txt, "binding", "HTTP");
+	txt = avahi_string_list_add_pair (txt, "protovers", "1.1");
+	txt = avahi_string_list_add_pair (txt, "txtvers", "1");
+
+	g_clear_object (&certificate);
+
+	return txt;
+}
+
+static void
+publish_endpoint (TrackerHttpServerSoup *server,
+                  AvahiClient           *client)
+{
+	AvahiStringList *txt;
+	guint port;
+	gchar *name;
+
+	if (!server->avahi_entry_group) {
+		server->avahi_entry_group =
+			avahi_entry_group_new (client,
+			                       avahi_entry_group_cb,
+			                       server);
+		if (!server->avahi_entry_group)
+			goto error;
+	}
+
+	g_object_get (server,
+	              "http-port", &port,
+	              NULL);
+
+	name = g_strdup_printf ("Tracker SPARQL endpoint (port: %d)", port);
+	txt = create_txt (server, client);
+
+	if (avahi_entry_group_add_service_strlst (server->avahi_entry_group,
+	                                          AVAHI_IF_UNSPEC,
+	                                          AVAHI_PROTO_UNSPEC,
+	                                          0,
+	                                          name,
+	                                          "_sparql._tcp",
+	                                          NULL,
+	                                          NULL,
+	                                          port,
+	                                          txt) < 0)
+		goto error;
+
+	avahi_string_list_free (txt);
+	g_free (name);
+
+	if (server->avahi_entry_group &&
+	    avahi_entry_group_commit (server->avahi_entry_group) < 0)
+		goto error;
+
+	return;
+ error:
+	g_clear_pointer (&server->avahi_entry_group, avahi_entry_group_free);
+}
+
+static void
+avahi_client_cb (AvahiClient      *client,
+                 AvahiClientState  state,
+                 gpointer          user_data)
+{
+	TrackerHttpServerSoup *server = user_data;
+
+	switch (state) {
+	case AVAHI_CLIENT_S_RUNNING:
+		publish_endpoint (server, client);
+		break;
+	case AVAHI_CLIENT_S_COLLISION:
+	case AVAHI_CLIENT_FAILURE:
+		g_clear_pointer (&server->avahi_entry_group, avahi_entry_group_free);
+		g_clear_pointer (&server->avahi_client, avahi_client_free);
+		g_clear_pointer (&server->avahi_glib_poll, avahi_glib_poll_free);
+		break;
+	case AVAHI_CLIENT_S_REGISTERING:
+	case AVAHI_CLIENT_CONNECTING:
+		break;
+	}
+}
+#endif /* HAVE_AVAHI */
+
 static gboolean
 tracker_http_server_initable_init (GInitable     *initable,
                                    GCancellable  *cancellable,
@@ -187,6 +341,21 @@ tracker_http_server_initable_init (GInitable     *initable,
 	                         initable,
 	                         NULL);
 	g_clear_object (&certificate);
+
+#ifdef HAVE_AVAHI
+	server->avahi_glib_poll =
+		avahi_glib_poll_new (g_main_context_get_thread_default (),
+		                     G_PRIORITY_DEFAULT);
+	if (server->avahi_glib_poll) {
+		server->avahi_client =
+			avahi_client_new (avahi_glib_poll_get (server->avahi_glib_poll),
+			                  AVAHI_CLIENT_IGNORE_USER_CONFIG |
+			                  AVAHI_CLIENT_NO_FAIL,
+			                  avahi_client_cb,
+			                  initable,
+			                  NULL);
+	}
+#endif
 
 	return soup_server_listen_all (server->server,
 	                               port,
@@ -334,6 +503,12 @@ tracker_http_server_soup_finalize (GObject *object)
 	g_object_unref (server->cancellable);
 
 	g_clear_object (&server->server);
+
+#ifdef HAVE_AVAHI
+	g_clear_pointer (&server->avahi_entry_group, avahi_entry_group_free);
+	g_clear_pointer (&server->avahi_client, avahi_client_free);
+	g_clear_pointer (&server->avahi_glib_poll, avahi_glib_poll_free);
+#endif
 
 	G_OBJECT_CLASS (tracker_http_server_soup_parent_class)->finalize (object);
 }

@@ -7,10 +7,12 @@ remote_files = files(
 
 module_sources = files('tracker-http-module.c')
 
+http_common_deps = [avahi_glib, avahi_client]
+
 if libsoup2.found()
     libtracker_http_soup2 = shared_module('tracker-http-soup2',
         module_sources,
-        dependencies: [libsoup2],
+        dependencies: [libsoup2, http_common_deps],
         c_args: tracker_c_args + [
             '-include', join_paths(build_root, 'config.h'),
             '-include', '../tracker-enums-private.h',
@@ -26,7 +28,7 @@ endif
 if libsoup3.found()
     libtracker_http_soup3 = shared_module('tracker-http-soup3',
         module_sources,
-        dependencies: [libsoup3],
+        dependencies: [libsoup3, http_common_deps],
         c_args: tracker_c_args + [
             '-include', join_paths(build_root, 'config.h'),
             '-include', '../tracker-enums-private.h',
