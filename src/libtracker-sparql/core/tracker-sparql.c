@@ -10134,7 +10134,7 @@ tracker_sparql_new_update (TrackerDataManager *manager,
 		g_set_error (&sparql->parser_error,
 			     TRACKER_SPARQL_ERROR,
 			     TRACKER_SPARQL_ERROR_PARSE,
-			     "Parser error at byte %ld: Expected NIL character",
+			     "Parser error at byte %" G_GSIZE_FORMAT ": Expected NIL character",
 			     len);
 	}
 
