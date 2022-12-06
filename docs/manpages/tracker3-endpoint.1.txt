@@ -53,6 +53,8 @@ The database itself will be stored according to _database_path_.
   Use the system bus.
 *-l, --list*::
   List all SPARQL endpoints available in DBus
+*-L, --list-http*::
+  List network-local HTTP SPARQL endpoints
 *--http-port*::
   Creates a HTTP endpoint that listens in the specified port
 *--loopback*::

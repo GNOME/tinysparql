@@ -30,6 +30,13 @@
 #include <glib-unix.h>
 #include <glib/gi18n.h>
 
+#ifdef HAVE_AVAHI
+#include <avahi-common/malloc.h>
+#include <avahi-client/client.h>
+#include <avahi-client/lookup.h>
+#include <avahi-glib/glib-watch.h>
+#endif
+
 #include <libtracker-sparql/tracker-sparql.h>
 
 #include "tracker-endpoint.h"
@@ -42,6 +49,7 @@ static gboolean session_bus = FALSE;
 static gboolean system_bus = FALSE;
 static gboolean name_owned = FALSE;
 static gboolean list = FALSE;
+static gboolean list_http = FALSE;
 static gint http_port = -1;
 static gboolean http_loopback;
 
@@ -82,6 +90,10 @@ static GOptionEntry entries[] = {
 	  N_("List SPARQL endpoints available in DBus"),
 	  NULL
 	},
+	{ "list-http", 'L', 0, G_OPTION_ARG_NONE, &list_http,
+	  N_("List network-local HTTP SPARQL endpoints"),
+	  NULL
+	},
 	{ NULL }
 };
 
@@ -104,7 +116,7 @@ sanity_check (void)
 		return FALSE;
 	}
 
-	if (!list && !!ontology_path == !!ontology_name) {
+	if (!list && !list_http && !!ontology_path == !!ontology_name) {
 		/* TRANSLATORS: those are commandline arguments */
 		g_printerr ("%s\n", _("One “ontology” or “ontology-path” option should be provided"));
 		return FALSE;
@@ -370,6 +382,214 @@ run_list_endpoints (void)
 	return EXIT_SUCCESS;
 }
 
+#ifdef HAVE_AVAHI
+static GList *resolvers = NULL;
+static GList *services = NULL;
+
+static void
+check_quit (GMainLoop *main_loop)
+{
+	if (resolvers)
+		return;
+	g_main_loop_quit (main_loop);
+}
+
+static void
+add_service (const gchar *uri)
+{
+	if (g_list_find_custom (services, uri, (GCompareFunc) g_strcmp0))
+		return;
+
+	services = g_list_prepend (services, g_strdup (uri));
+}
+
+static gboolean
+validate_service (AvahiStringList  *list,
+                  gchar           **path_out)
+{
+	AvahiStringList *txtvers, *protovers, *binding, *path;
+	gchar *txtvers_value, *protovers_value, *binding_value, *path_value;
+	gboolean valid = FALSE;
+
+	txtvers = avahi_string_list_find (list, "txtvers");
+	protovers = avahi_string_list_find (list, "protovers");
+	binding = avahi_string_list_find (list, "binding");
+	path = avahi_string_list_find (list, "path");
+
+	if (txtvers && protovers && binding && path) {
+		avahi_string_list_get_pair (txtvers, NULL, &txtvers_value, NULL);
+		avahi_string_list_get_pair (protovers, NULL, &protovers_value, NULL);
+		avahi_string_list_get_pair (binding, NULL, &binding_value, NULL);
+		avahi_string_list_get_pair (path, NULL, &path_value, NULL);
+
+		valid = (g_strcmp0 (txtvers_value, "1") == 0 &&
+		         g_strcmp0 (protovers_value, "1.1") == 0 &&
+		         g_strcmp0 (binding_value, "HTTP") == 0);
+		if (path_out)
+			*path_out = g_strdup (path_value);
+	}
+
+	g_clear_pointer (&txtvers_value, avahi_free);
+	g_clear_pointer (&protovers_value, avahi_free);
+	g_clear_pointer (&binding_value, avahi_free);
+	g_clear_pointer (&path_value, avahi_free);
+
+	return valid;
+}
+
+static void
+service_resolver_cb (AvahiServiceResolver   *service_resolver,
+                     AvahiIfIndex            interface,
+                     AvahiProtocol           protocol,
+                     AvahiResolverEvent      event,
+                     const char             *name,
+                     const char             *type,
+                     const char             *domain,
+                     const char             *host_name,
+                     const AvahiAddress     *address,
+                     uint16_t                port,
+                     AvahiStringList        *txt,
+                     AvahiLookupResultFlags  flags,
+                     gpointer                user_data)
+{
+	GMainLoop *main_loop = user_data;
+	gchar *path = NULL;
+
+	switch (event) {
+	case AVAHI_RESOLVER_FOUND:
+		if (validate_service (txt, &path)) {
+			if (g_str_has_prefix (path, "http")) {
+				add_service (path);
+			} else {
+				char address_str[AVAHI_ADDRESS_STR_MAX];
+				gchar *full_uri;
+
+				/* Add the full URI, by IP address */
+				avahi_address_snprint ((char *) &address_str,
+				                       AVAHI_ADDRESS_STR_MAX,
+				                       address);
+				full_uri = g_strdup_printf ("http://%s%s%s:%d%s",
+				                            protocol == AVAHI_PROTO_INET6 ? "[" : "",
+				                            address_str,
+				                            protocol == AVAHI_PROTO_INET6 ? "]" : "",
+				                            port,
+				                            path ? path : "/");
+				add_service (full_uri);
+				g_free (full_uri);
+
+				/* Add the full URI, by host name */
+				full_uri = g_strdup_printf ("http://%s:%d%s",
+				                            host_name,
+				                            port,
+				                            path ? path : "/");
+				add_service (full_uri);
+				g_free (full_uri);
+			}
+
+			g_free (path);
+		}
+		break;
+	case AVAHI_RESOLVER_FAILURE:
+		break;
+	}
+
+	resolvers = g_list_remove (resolvers, service_resolver);
+	avahi_service_resolver_free (service_resolver);
+	check_quit (main_loop);
+}
+
+static void
+service_browser_cb (AvahiServiceBrowser    *service_browser,
+                    AvahiIfIndex            interface,
+                    AvahiProtocol           protocol,
+                    AvahiBrowserEvent       event,
+                    const char             *name,
+                    const char             *type,
+                    const char             *domain,
+                    AvahiLookupResultFlags  flags,
+                    gpointer                user_data)
+{
+	GMainLoop *main_loop = user_data;
+	AvahiServiceResolver *resolver;
+
+	switch (event) {
+	case AVAHI_BROWSER_NEW:
+		resolver = avahi_service_resolver_new (avahi_service_browser_get_client (service_browser),
+		                                       interface,
+		                                       protocol,
+		                                       name,
+		                                       type,
+		                                       domain,
+		                                       AVAHI_PROTO_UNSPEC,
+		                                       0,
+		                                       service_resolver_cb,
+		                                       main_loop);
+		resolvers = g_list_prepend (resolvers, resolver);
+		break;
+	case AVAHI_BROWSER_ALL_FOR_NOW:
+	case AVAHI_BROWSER_FAILURE:
+		check_quit (main_loop);
+		break;
+	case AVAHI_BROWSER_REMOVE:
+	case AVAHI_BROWSER_CACHE_EXHAUSTED:
+		break;
+	}
+}
+
+int
+run_list_http_endpoints (void)
+{
+	AvahiGLibPoll *avahi_glib_poll;
+	AvahiClient *avahi_client = NULL;
+	AvahiServiceBrowser *avahi_service_browser = NULL;
+	GMainLoop *main_loop;
+	GList *l;
+
+	main_loop = g_main_loop_new (NULL, FALSE);
+
+	/* Set up avahi service browser */
+	avahi_glib_poll =
+		avahi_glib_poll_new (NULL, G_PRIORITY_DEFAULT);
+	if (avahi_glib_poll) {
+		avahi_client =
+			avahi_client_new (avahi_glib_poll_get (avahi_glib_poll),
+			                  AVAHI_CLIENT_IGNORE_USER_CONFIG |
+			                  AVAHI_CLIENT_NO_FAIL,
+			                  NULL, NULL, NULL);
+	}
+
+	if (avahi_client) {
+		avahi_service_browser =
+			avahi_service_browser_new (avahi_client,
+			                           AVAHI_IF_UNSPEC,
+			                           AVAHI_PROTO_UNSPEC,
+			                           "_sparql._tcp",
+			                           NULL,
+			                           0,
+			                           service_browser_cb,
+			                           main_loop);
+	}
+
+	/* Collect running HTTP services */
+	if (avahi_service_browser)
+		g_main_loop_run (main_loop);
+
+	g_main_loop_unref (main_loop);
+
+	/* Sort and print the collected services */
+	services = g_list_sort (services, (GCompareFunc) g_strcmp0);
+	for (l = services; l; l = l->next)
+		g_print ("%s\n", (gchar *) l->data);
+
+	g_clear_pointer (&avahi_service_browser, avahi_service_browser_free);
+	g_clear_pointer (&avahi_client, avahi_client_free);
+	g_clear_pointer (&avahi_glib_poll, avahi_glib_poll_free);
+	g_list_free_full (services, g_free);
+
+	return EXIT_SUCCESS;
+}
+#endif /* HAVE_AVAHI */
+
 int
 main (int argc, const char **argv)
 {
@@ -402,6 +622,12 @@ main (int argc, const char **argv)
 
 	if (list) {
 		return run_list_endpoints ();
+	} else if (list_http) {
+#ifdef HAVE_AVAHI
+		return run_list_http_endpoints ();
+#else
+		return EXIT_FAILURE;
+#endif
 	}
 
 	if (database_path)
