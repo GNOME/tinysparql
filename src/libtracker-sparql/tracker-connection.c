@@ -381,6 +381,16 @@ tracker_sparql_connection_update_array_finish (TrackerSparqlConnection  *connect
  *
  * Returns: a #GVariant with the generated URNs, which should be freed with
  * g_variant_unref() when no longer used.
+ *
+ * Deprecated: 3.5: This function makes the expectation that blank nodes have
+ * a durable name that persist. The SPARQL and RDF specs define a much more
+ * reduced scope for blank node labels. This function advises a behavior that
+ * goes against that reduced scope, and will directly make the returned values
+ * meaningless if the %TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES flag
+ * is defined in the connection.
+ *
+ * Users that want names generated for them, should look for other methods
+ * (e.g. IRIs containing UUIDv4 strings).
  */
 GVariant *
 tracker_sparql_connection_update_blank (TrackerSparqlConnection  *connection,
@@ -411,6 +421,8 @@ tracker_sparql_connection_update_blank (TrackerSparqlConnection  *connection,
  * Executes asynchronously a SPARQL update with blank nodes. See
  * the tracker_sparql_connection_update_blank() documentation to
  * see the differences with tracker_sparql_connection_update().
+ *
+ * Deprecated: 3.5: See tracker_sparql_connection_update_blank().
  */
 void
 tracker_sparql_connection_update_blank_async (TrackerSparqlConnection *connection,
@@ -443,6 +455,8 @@ tracker_sparql_connection_update_blank_async (TrackerSparqlConnection *connectio
  *
  * Returns: a #GVariant with the generated URNs, which should be freed with
  * g_variant_unref() when no longer used.
+ *
+ * Deprecated: 3.5: See tracker_sparql_connection_update_blank().
  */
 GVariant *
 tracker_sparql_connection_update_blank_finish (TrackerSparqlConnection  *connection,

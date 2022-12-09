@@ -189,18 +189,18 @@ gboolean tracker_sparql_connection_update_resource_finish (TrackerSparqlConnecti
 TRACKER_AVAILABLE_IN_3_1
 TrackerBatch * tracker_sparql_connection_create_batch (TrackerSparqlConnection *connection);
 
-TRACKER_AVAILABLE_IN_ALL
+TRACKER_DEPRECATED_IN_3_5
 GVariant * tracker_sparql_connection_update_blank (TrackerSparqlConnection  *connection,
                                                    const gchar              *sparql,
                                                    GCancellable             *cancellable,
                                                    GError                  **error);
-TRACKER_AVAILABLE_IN_ALL
+TRACKER_DEPRECATED_IN_3_5
 void tracker_sparql_connection_update_blank_async (TrackerSparqlConnection *connection,
                                                    const gchar             *sparql,
                                                    GCancellable            *cancellable,
                                                    GAsyncReadyCallback      callback,
                                                    gpointer                 user_data);
-TRACKER_AVAILABLE_IN_ALL
+TRACKER_DEPRECATED_IN_3_5
 GVariant * tracker_sparql_connection_update_blank_finish (TrackerSparqlConnection  *connection,
                                                           GAsyncResult             *res,
                                                           GError                  **error);
