@@ -5,7 +5,7 @@ tracker_data_enums = gnome.mkenums('tracker-data-enum-types',
 )
 
 tracker_data_dependencies = [
-    tracker_common_dep, gvdb_dep, sqlite,
+    tracker_common_dep, sqlite,
 ]
 
 core_files = files(

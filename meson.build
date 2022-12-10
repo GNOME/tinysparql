@@ -55,6 +55,8 @@ libxml2 = dependency('libxml-2.0', version: '> 2.6')
 sqlite = dependency('sqlite3', version: '>' + sqlite_required)
 dbus = dependency('dbus-1')
 
+gvdb_dep = dependency('gvdb')
+
 soup = get_option('soup')
 if soup.contains('soup2') or soup.contains('auto')
   libsoup2 = dependency('libsoup-2.4', version: '> 2.40',
