@@ -950,9 +950,12 @@ update_blank_sync_cb (GObject      *source,
 {
 	AsyncData *data = user_data;
 
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	data->retval =
 		tracker_sparql_connection_update_blank_finish (TRACKER_SPARQL_CONNECTION (source),
 							       res, &data->error);
+	G_GNUC_END_IGNORE_DEPRECATIONS
+
 	g_main_loop_quit (data->loop);
 }
 
@@ -969,11 +972,13 @@ tracker_bus_connection_update_blank (TrackerSparqlConnection  *self,
 	data.loop = g_main_loop_new (context, FALSE);
 	g_main_context_push_thread_default (context);
 
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	tracker_sparql_connection_update_blank_async (self,
 						      sparql,
 						      cancellable,
 						      update_blank_sync_cb,
 						      &data);
+	G_GNUC_END_IGNORE_DEPRECATIONS
 	g_main_loop_run (data.loop);
 
 	g_main_context_pop_thread_default (context);
