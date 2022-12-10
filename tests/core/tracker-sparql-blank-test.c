@@ -59,11 +59,12 @@ test_blank (TestInfo      *info,
 	g_assert_no_error (error);
 
 	/* perform update in transaction */
-
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	updates = tracker_sparql_connection_update_blank (conn,
 	                                                  "INSERT { _:foo a rdfs:Resource } "
 	                                                  "INSERT { _:foo a rdfs:Resource . _:bar a rdfs:Resource } ",
 	                                                  NULL, &error);
+	G_GNUC_END_IGNORE_DEPRECATIONS
 	g_assert_no_error (error);
 	g_assert_true (updates != NULL);
 

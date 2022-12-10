@@ -230,7 +230,9 @@ test_tracker_sparql_update_blank_fast_small (gpointer      *fixture,
 	const gchar *query = "INSERT { _:x a nfo:Image }";
 	GVariant *results;
 
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	results = tracker_sparql_connection_update_blank (connection, query, NULL, &error);
+	G_GNUC_END_IGNORE_DEPRECATIONS
 
 	g_assert_no_error (error);
 	g_assert_true (results);
@@ -253,7 +255,9 @@ test_tracker_sparql_update_blank_fast_large (gpointer      *fixture,
 
 	query = g_strdup_printf ("INSERT { _:x a nfo:Image; nao:identifier \"%s\" }", lots);
 
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	results = tracker_sparql_connection_update_blank (connection, query, NULL, &error);
+	G_GNUC_END_IGNORE_DEPRECATIONS
 
 	g_free (lots);
 	g_free (query);
@@ -272,7 +276,9 @@ test_tracker_sparql_update_blank_fast_error (gpointer      *fixture,
 	const gchar *query = "blork blork blork";
 	GVariant *results;
 
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	results = tracker_sparql_connection_update_blank (connection, query, NULL, &error);
+	G_GNUC_END_IGNORE_DEPRECATIONS
 
 	g_assert_true (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
 	g_assert_true (!results);
@@ -288,7 +294,9 @@ test_tracker_sparql_update_blank_fast_no_blanks (gpointer      *fixture,
 	const gchar *query = "INSERT { <urn:not_blank> a nfo:Image }";
 	GVariant *results;
 
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	results = tracker_sparql_connection_update_blank (connection, query, NULL, &error);
+	G_GNUC_END_IGNORE_DEPRECATIONS
 
 	/* FIXME: Properly test once we get update_blank implemented */
 
@@ -398,7 +406,9 @@ async_update_blank_callback (GObject      *source_object,
 
 	g_main_loop_quit (data->main_loop);
 
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	results = tracker_sparql_connection_update_blank_finish (connection, result, &error);
+	G_GNUC_END_IGNORE_DEPRECATIONS
 
 	g_assert_no_error (error);
 	g_assert_true (results != NULL);
@@ -417,11 +427,13 @@ test_tracker_sparql_update_blank_async (gpointer      *fixture,
 	data = g_slice_new (AsyncData);
 	data->main_loop = main_loop;
 
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	tracker_sparql_connection_update_blank_async (connection,
 	                                              query,
 	                                              NULL,
 	                                              async_update_blank_callback,
 	                                              data);
+	G_GNUC_END_IGNORE_DEPRECATIONS
 
 	g_main_loop_run (main_loop);
 
