@@ -141,10 +141,10 @@ tracker_ontologies_finalize (GObject *object)
 	g_clear_object (&priv->nrl_modified);
 
 	if (priv->gvdb_table) {
-		gvdb_table_unref (priv->gvdb_properties_table);
-		gvdb_table_unref (priv->gvdb_classes_table);
-		gvdb_table_unref (priv->gvdb_namespaces_table);
-		gvdb_table_unref (priv->gvdb_table);
+		gvdb_table_free (priv->gvdb_properties_table);
+		gvdb_table_free (priv->gvdb_classes_table);
+		gvdb_table_free (priv->gvdb_namespaces_table);
+		gvdb_table_free (priv->gvdb_table);
 	}
 
 	G_OBJECT_CLASS (tracker_ontologies_parent_class)->finalize (object);
