@@ -9758,6 +9758,14 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 	TrackerDBInterface *iface = NULL;
 	TrackerDBCursor *cursor = NULL;
 
+	if (sparql->query_type != TRACKER_SPARQL_QUERY_SELECT) {
+		g_set_error (error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_QUERY_FAILED,
+		             "Not a select query");
+		return NULL;
+	}
+
 	g_mutex_lock (&sparql->mutex);
 
 #ifdef G_ENABLE_DEBUG
@@ -10400,6 +10408,14 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 	TrackerSparqlState state = { 0 };
 	GVariantBuilder variant_builder;
 	gboolean retval = TRUE;
+
+	if (sparql->query_type != TRACKER_SPARQL_QUERY_UPDATE) {
+		g_set_error (error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_QUERY_FAILED,
+		             "Not an update query");
+		return FALSE;
+	}
 
 	if (sparql->parser_error) {
 		g_propagate_error (error, sparql->parser_error);
