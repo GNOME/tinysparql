@@ -1954,40 +1954,7 @@ _add_quad (TrackerSparql  *sparql,
 		return TRUE;
 	}
 
-	if (tracker_token_get_variable (object)) {
-		variable = tracker_token_get_variable (object);
-		binding = tracker_variable_binding_new (variable,
-							property ? tracker_property_get_range (property) : NULL,
-							table);
-		if (!tracker_variable_has_bindings (variable))
-			tracker_variable_set_sample_binding (variable, TRACKER_VARIABLE_BINDING (binding));
-
-		if (tracker_token_get_variable (predicate)) {
-			tracker_binding_set_db_column_name (binding, "object");
-			tracker_variable_binding_set_nullable (TRACKER_VARIABLE_BINDING (binding), TRUE);
-		} else if (tracker_token_get_path (predicate)) {
-			TrackerPathElement *path;
-
-			path = tracker_token_get_path (predicate);
-			tracker_binding_set_data_type (binding, path->type);
-			tracker_binding_set_db_column_name (binding, "value");
-			tracker_variable_binding_set_nullable (TRACKER_VARIABLE_BINDING (binding), TRUE);
-		} else {
-			g_assert (property != NULL);
-			tracker_binding_set_data_type (binding, tracker_property_get_data_type (property));
-			tracker_binding_set_db_column_name (binding, tracker_property_get_name (property));
-
-			if (!tracker_property_get_multiple_values (property)) {
-				/* For single value properties, row may have NULL
-				 * in any column except the ID column
-				 */
-				tracker_variable_binding_set_nullable (TRACKER_VARIABLE_BINDING (binding), TRUE);
-			}
-		}
-
-		_add_binding (sparql, binding);
-		g_object_unref (binding);
-	} else if (is_fts) {
+	if (is_fts) {
 		if (tracker_token_get_variable (subject)) {
 			gchar *var_name;
 			TrackerVariable *fts_var;
@@ -2025,7 +1992,16 @@ _add_quad (TrackerSparql  *sparql,
 			g_object_unref (binding);
 		}
 	} else {
-		if (tracker_token_get_literal (object)) {
+		if (tracker_token_get_variable (object)) {
+			variable = tracker_token_get_variable (object);
+			binding = tracker_variable_binding_new (variable,
+			                                        property ? tracker_property_get_range (property) : NULL,
+			                                        table);
+			tracker_variable_binding_set_nullable (TRACKER_VARIABLE_BINDING (binding), TRUE);
+
+			if (!tracker_variable_has_bindings (variable))
+				tracker_variable_set_sample_binding (variable, TRACKER_VARIABLE_BINDING (binding));
+		} else if (tracker_token_get_literal (object)) {
 			binding = tracker_literal_binding_new (tracker_token_get_literal (object), table);
 		} else if (tracker_token_get_parameter (object)) {
 			binding = tracker_parameter_binding_new (tracker_token_get_parameter (object), table);
