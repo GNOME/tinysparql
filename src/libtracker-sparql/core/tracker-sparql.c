@@ -2365,6 +2365,8 @@ static void
 convert_expression_to_string (TrackerSparql       *sparql,
                               TrackerPropertyType  type)
 {
+	TrackerStringBuilder *str, *old;
+
 	switch (type) {
 	case TRACKER_PROPERTY_TYPE_STRING:
 	case TRACKER_PROPERTY_TYPE_INTEGER:
@@ -2375,37 +2377,29 @@ convert_expression_to_string (TrackerSparql       *sparql,
 		 */
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		/* ID (or string) => Uri */
+	case TRACKER_PROPERTY_TYPE_UNKNOWN:
+		str = _prepend_placeholder (sparql);
+		old = tracker_sparql_swap_builder (sparql, str);
+		_append_string_printf (sparql,
+				       "SparqlPrintValue((SELECT IIF(%d = %d AND value / value = 1,"
+				       "(SELECT COALESCE(Uri, ID) from Resource WHERE ID = value ",
+		                       type, TRACKER_PROPERTY_TYPE_RESOURCE);
+
 		if (sparql->current_state->policy.graphs ||
 		    sparql->current_state->policy.filter_unnamed_graph) {
-			_prepend_string (sparql, "SparqlPrintIRI((SELECT ");
-			_append_string (sparql, "AS ID WHERE ID IN (");
+			_append_string (sparql, "AND ID IN (");
 			_append_resource_rowid_access_check (sparql);
-			_append_string (sparql, "))) ");
-		} else {
-			_prepend_string (sparql, "SparqlPrintIRI(");
-			_append_string (sparql, ") ");
+			_append_string (sparql, ")");
 		}
+
+		_append_string (sparql, "), value) FROM (SELECT ");
+		tracker_sparql_swap_builder (sparql, old);
+
+		_append_string_printf (sparql, " AS value)), %d) ", type);
 		break;
-	case TRACKER_PROPERTY_TYPE_BOOLEAN:
-		_prepend_string (sparql, "CASE ");
-		_append_string (sparql, " WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END ");
-		break;
-	case TRACKER_PROPERTY_TYPE_DATE:
-		/* ISO 8601 format */
-		_prepend_string (sparql, "strftime (\"%Y-%m-%d\", SparqlTimestamp (");
-		_append_string (sparql, "), \"unixepoch\") ");
-		break;
-	case TRACKER_PROPERTY_TYPE_DATETIME:
-		/* ISO 8601 format */
-		_prepend_string (sparql, "SparqlFormatTime (");
-		_append_string (sparql, ") ");
-		break;
-	case TRACKER_PROPERTY_TYPE_LANGSTRING:
-        case TRACKER_PROPERTY_TYPE_UNKNOWN:
-		/* Let sqlite convert the expression to string */
-		_prepend_string (sparql, "CAST (");
-		_append_string (sparql, " AS TEXT) ");
+	default:
+		_prepend_string (sparql, "SparqlPrintValue (");
+		_append_string_printf (sparql, ", %d) ", type);
 		break;
 	}
 }
