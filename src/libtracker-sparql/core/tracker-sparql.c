@@ -81,7 +81,8 @@ static TrackerDBStatement * prepare_query (TrackerSparql         *sparql,
 static inline TrackerVariable * _ensure_variable (TrackerSparql *sparql,
                                                   const gchar   *name);
 static void convert_expression_to_string (TrackerSparql       *sparql,
-                                          TrackerPropertyType  type);
+                                          TrackerPropertyType  type,
+                                          TrackerVariable     *var);
 static void _append_graph_checks (TrackerSparql *sparql,
                                   const gchar   *column_name,
                                   gboolean       add_unnamed_graph,
@@ -2043,7 +2044,7 @@ add_construct_variable (TrackerSparql   *sparql,
 	_append_variable_sql (sparql, var);
 
 	prop_type = TRACKER_BINDING (tracker_variable_get_sample_binding (var))->data_type;
-	convert_expression_to_string (sparql, prop_type);
+	convert_expression_to_string (sparql, prop_type, var);
 
 	tracker_sparql_swap_builder (sparql, old);
 }
@@ -2363,27 +2364,44 @@ rdf_type_to_property_type (const gchar *type)
 
 static void
 convert_expression_to_string (TrackerSparql       *sparql,
-                              TrackerPropertyType  type)
+                              TrackerPropertyType  type,
+                              TrackerVariable     *var)
 {
 	TrackerStringBuilder *str, *old;
+	TrackerVariable *type_var = NULL;
 
-	switch (type) {
-	case TRACKER_PROPERTY_TYPE_STRING:
-	case TRACKER_PROPERTY_TYPE_INTEGER:
-	case TRACKER_PROPERTY_TYPE_DOUBLE:
+	if (var)
+		type_var = lookup_subvariable (sparql, var, "type");
+
+	if (!type_var &&
+	    (type == TRACKER_PROPERTY_TYPE_STRING ||
+	     type == TRACKER_PROPERTY_TYPE_INTEGER ||
+	     type == TRACKER_PROPERTY_TYPE_DOUBLE)) {
 		/* Nothing to convert. Do not use CAST to convert integer/double to
 		 * to string as this breaks use of index when sorting by variable
 		 * introduced in select expression
 		 */
-		break;
-	case TRACKER_PROPERTY_TYPE_RESOURCE:
-	case TRACKER_PROPERTY_TYPE_UNKNOWN:
+		return;
+	}
+
+	if (type_var ||
+	    type == TRACKER_PROPERTY_TYPE_RESOURCE) {
 		str = _prepend_placeholder (sparql);
 		old = tracker_sparql_swap_builder (sparql, str);
-		_append_string_printf (sparql,
-				       "SparqlPrintValue((SELECT IIF(%d = %d AND value / value = 1,"
-				       "(SELECT COALESCE(Uri, ID) from Resource WHERE ID = value ",
-		                       type, TRACKER_PROPERTY_TYPE_RESOURCE);
+		_append_string (sparql, "SparqlPrintValue((SELECT IIF(");
+
+		if (type_var) {
+			_append_string_printf (sparql, "%s = %d ",
+			                       tracker_variable_get_sql_expression (type_var),
+			                       TRACKER_PROPERTY_TYPE_RESOURCE);
+		} else {
+			_append_string_printf (sparql, "%d = %d ",
+			                       type, TRACKER_PROPERTY_TYPE_RESOURCE);
+		}
+
+		_append_string (sparql,
+		                "AND value / value = 1,"
+		                "(SELECT COALESCE(Uri, ID) from Resource WHERE ID = value ");
 
 		if (sparql->current_state->policy.graphs ||
 		    sparql->current_state->policy.filter_unnamed_graph) {
@@ -2395,12 +2413,16 @@ convert_expression_to_string (TrackerSparql       *sparql,
 		_append_string (sparql, "), value) FROM (SELECT ");
 		tracker_sparql_swap_builder (sparql, old);
 
-		_append_string_printf (sparql, " AS value)), %d) ", type);
-		break;
-	default:
+		_append_string (sparql, " AS value)) ");
+	} else {
 		_prepend_string (sparql, "SparqlPrintValue (");
+	}
+
+	if (type_var) {
+		_append_string_printf (sparql, ", %s) ",
+		                       tracker_variable_get_sql_expression (type_var));
+	} else {
 		_append_string_printf (sparql, ", %d) ", type);
-		break;
 	}
 }
 
@@ -2506,7 +2528,7 @@ _end_triples_block (TrackerSparql  *sparql,
 			_append_string_printf (sparql, "%s ",
 					       tracker_binding_get_sql_expression (binding));
 
-			convert_expression_to_string (sparql, binding->data_type);
+			convert_expression_to_string (sparql, binding->data_type, var);
 			_append_string_printf (sparql, "AS %s ", tracker_variable_get_sql_expression (var));
 
 			tracker_sparql_swap_builder (sparql, old);
@@ -2931,7 +2953,7 @@ translate_SelectClause (TrackerSparql  *sparql,
 
 			if (sparql->current_state->select_context ==
 			    sparql->current_state->top_context) {
-				convert_expression_to_string (sparql, prop_type);
+				convert_expression_to_string (sparql, prop_type, var);
 
 				tracker_sparql_swap_builder (sparql, types);
 				handle_value_type_column (sparql, prop_type, var);
@@ -2973,7 +2995,7 @@ translate_SelectClause (TrackerSparql  *sparql,
 
 					if (sparql->current_state->select_context ==
 					    sparql->current_state->top_context)
-						convert_expression_to_string (sparql, prop_type);
+						convert_expression_to_string (sparql, prop_type, var);
 
 					select_context->type = prop_type;
 				} else {
@@ -3017,7 +3039,7 @@ translate_SelectClause (TrackerSparql  *sparql,
 
 				if (sparql->current_state->select_context ==
 				    sparql->current_state->top_context)
-					convert_expression_to_string (sparql, prop_type);
+					convert_expression_to_string (sparql, prop_type, NULL);
 
 				select_context->type = prop_type;
 
@@ -3932,6 +3954,7 @@ translate_OrderCondition (TrackerSparql  *sparql,
 {
 	TrackerStringBuilder *str, *old;
 	const gchar *order_str = NULL;
+	TrackerVariable *variable = NULL;
 
 	str = _append_placeholder (sparql);
 	old = tracker_sparql_swap_builder (sparql, str);
@@ -3953,7 +3976,6 @@ translate_OrderCondition (TrackerSparql  *sparql,
 		_call_rule (sparql, NAMED_RULE_Constraint, error);
 	} else if (_check_in_rule (sparql, NAMED_RULE_Var)) {
 		TrackerVariableBinding *binding;
-		TrackerVariable *variable;
 
 		_call_rule (sparql, NAMED_RULE_Var, error);
 
@@ -3971,7 +3993,7 @@ translate_OrderCondition (TrackerSparql  *sparql,
 	    sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_LANGSTRING)
 		_append_string (sparql, "COLLATE " TRACKER_COLLATION_NAME " ");
 	else if (sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_RESOURCE)
-		convert_expression_to_string (sparql, sparql->current_state->expression_type);
+		convert_expression_to_string (sparql, sparql->current_state->expression_type, variable);
 
 	tracker_sparql_swap_builder (sparql, old);
 
@@ -4678,7 +4700,7 @@ prepare_solution_select (TrackerSparql      *sparql,
 			_append_string_printf (sparql, "%s ",
 			                       tracker_variable_get_sql_expression (var));
 			prop_type = TRACKER_BINDING (tracker_variable_get_sample_binding (var))->data_type;
-			convert_expression_to_string (sparql, prop_type);
+			convert_expression_to_string (sparql, prop_type, var);
 			tracker_sparql_swap_builder (sparql, old);
 
 			_append_string_printf (sparql, "AS \"%s\" ", var->name);
@@ -7685,7 +7707,7 @@ translate_Expression (TrackerSparql  *sparql,
 	_call_rule (sparql, NAMED_RULE_ConditionalOrExpression, error);
 
 	if (convert_to_string) {
-		convert_expression_to_string (sparql, sparql->current_state->expression_type);
+		convert_expression_to_string (sparql, sparql->current_state->expression_type, NULL);
 		tracker_sparql_swap_builder (sparql, old);
 	}
 
@@ -8054,7 +8076,7 @@ handle_property_function (TrackerSparql    *sparql,
 		str = _append_placeholder (sparql);
 		old = tracker_sparql_swap_builder (sparql, str);
 		_append_string_printf (sparql, "\"%s\"", tracker_property_get_name (property));
-		convert_expression_to_string (sparql, tracker_property_get_data_type (property));
+		convert_expression_to_string (sparql, tracker_property_get_data_type (property), NULL);
 		tracker_sparql_swap_builder (sparql, old);
 
 		_append_string (sparql, ", ',') ");
@@ -8643,7 +8665,7 @@ translate_BuiltInCall (TrackerSparql  *sparql,
 		_call_rule (sparql, NAMED_RULE_Expression, error);
 		_expect (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_PARENS);
 
-		convert_expression_to_string (sparql, sparql->current_state->expression_type);
+		convert_expression_to_string (sparql, sparql->current_state->expression_type, NULL);
 		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_STRING;
 		tracker_sparql_swap_builder (sparql, old);
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_DATATYPE)) {
@@ -9085,7 +9107,7 @@ translate_RegexExpression (TrackerSparql  *sparql,
 	str = _append_placeholder (sparql);
 	old = tracker_sparql_swap_builder (sparql, str);
 	_call_rule (sparql, NAMED_RULE_Expression, error);
-	convert_expression_to_string (sparql, sparql->current_state->expression_type);
+	convert_expression_to_string (sparql, sparql->current_state->expression_type, NULL);
 	tracker_sparql_swap_builder (sparql, old);
 
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_COMMA);
@@ -9263,7 +9285,7 @@ translate_Aggregate (TrackerSparql  *sparql,
 		_call_rule (sparql, NAMED_RULE_Expression, error);
 
 		if (sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_RESOURCE)
-			convert_expression_to_string (sparql, sparql->current_state->expression_type);
+			convert_expression_to_string (sparql, sparql->current_state->expression_type, NULL);
 
 		tracker_sparql_swap_builder (sparql, old);
 
