@@ -2012,6 +2012,7 @@ _add_quad (TrackerSparql  *sparql,
 
 		if (tracker_token_get_variable (predicate)) {
 			tracker_binding_set_db_column_name (binding, "object");
+			tracker_binding_set_data_type (binding, sparql->current_state->expression_type);
 		} else if (tracker_token_get_path (predicate)) {
 			TrackerPathElement *path;
 
