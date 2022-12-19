@@ -2364,11 +2364,44 @@ rdf_type_to_property_type (const gchar *type)
 }
 
 static void
+prepend_generic_print_value (TrackerSparql *sparql,
+                             const gchar   *type_str)
+{
+	TrackerStringBuilder *str, *old;
+
+	str = _prepend_placeholder (sparql);
+	old = tracker_sparql_swap_builder (sparql, str);
+
+	_append_string_printf (sparql, "SparqlPrintValue((SELECT IIF(");
+
+	if (type_str) {
+		_append_string_printf (sparql, "%s = %d AND ",
+		                       type_str,
+		                       TRACKER_PROPERTY_TYPE_RESOURCE);
+	}
+
+	_append_string (sparql,
+	                "value / value = 1,"
+	                "(SELECT COALESCE(Uri, ID) from Resource WHERE ID = value ");
+
+	if (sparql->current_state->policy.graphs ||
+	    sparql->current_state->policy.filter_unnamed_graph) {
+		_append_string (sparql, "AND ID IN (");
+		_append_resource_rowid_access_check (sparql);
+		_append_string (sparql, ")");
+	}
+
+	_append_string (sparql, "), value) FROM (SELECT ");
+	tracker_sparql_swap_builder (sparql, old);
+
+	_append_string (sparql, " AS value)) ");
+}
+
+static void
 convert_expression_to_string (TrackerSparql       *sparql,
                               TrackerPropertyType  type,
                               TrackerVariable     *var)
 {
-	TrackerStringBuilder *str, *old;
 	TrackerVariable *type_var = NULL;
 
 	if (var)
@@ -2387,34 +2420,12 @@ convert_expression_to_string (TrackerSparql       *sparql,
 
 	if (type_var ||
 	    type == TRACKER_PROPERTY_TYPE_RESOURCE) {
-		str = _prepend_placeholder (sparql);
-		old = tracker_sparql_swap_builder (sparql, str);
-		_append_string (sparql, "SparqlPrintValue((SELECT IIF(");
-
 		if (type_var) {
-			_append_string_printf (sparql, "%s = %d ",
-			                       tracker_variable_get_sql_expression (type_var),
-			                       TRACKER_PROPERTY_TYPE_RESOURCE);
+			prepend_generic_print_value (sparql,
+			                            tracker_variable_get_sql_expression (type_var));
 		} else {
-			_append_string_printf (sparql, "%d = %d ",
-			                       type, TRACKER_PROPERTY_TYPE_RESOURCE);
+			prepend_generic_print_value (sparql, NULL);
 		}
-
-		_append_string (sparql,
-		                "AND value / value = 1,"
-		                "(SELECT COALESCE(Uri, ID) from Resource WHERE ID = value ");
-
-		if (sparql->current_state->policy.graphs ||
-		    sparql->current_state->policy.filter_unnamed_graph) {
-			_append_string (sparql, "AND ID IN (");
-			_append_resource_rowid_access_check (sparql);
-			_append_string (sparql, ")");
-		}
-
-		_append_string (sparql, "), value) FROM (SELECT ");
-		tracker_sparql_swap_builder (sparql, old);
-
-		_append_string (sparql, " AS value)) ");
 	} else {
 		_prepend_string (sparql, "SparqlPrintValue (");
 	}
@@ -3447,6 +3458,7 @@ translate_DescribeQuery (TrackerSparql  *sparql,
                          GError        **error)
 {
 	TrackerStringBuilder *where_str = NULL;
+	TrackerStringBuilder *str, *old;
 	TrackerSelectContext *select_context;
 	TrackerVariable *variable;
 	TrackerBinding *binding;
@@ -3457,12 +3469,19 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 	/* DescribeQuery ::= 'DESCRIBE' ( VarOrIri+ | '*' ) DatasetClause* WhereClause? SolutionModifier
 	 */
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_DESCRIBE);
-	_append_string_printf (sparql,
-	                       "SELECT "
-	                       "  COALESCE((SELECT Uri FROM Resource WHERE ID = subject), 'urn:bnode:' || subject),"
-	                       "  (SELECT Uri FROM Resource WHERE ID = predicate),"
-	                       "  object, "
-	                       "  (SELECT Uri FROM Resource WHERE ID = graph) ");
+	_append_string (sparql,
+	                "SELECT "
+	                "  COALESCE((SELECT Uri FROM Resource WHERE ID = subject), 'urn:bnode:' || subject),"
+	                "  (SELECT Uri FROM Resource WHERE ID = predicate),");
+
+	str = _append_placeholder (sparql);
+	old = tracker_sparql_swap_builder (sparql, str);
+	_append_string (sparql, "object_raw");
+	prepend_generic_print_value (sparql, "object_type");
+	_append_string (sparql, ",object_type) ");
+	tracker_sparql_swap_builder (sparql, old);
+
+	_append_string (sparql, ", (SELECT Uri FROM Resource WHERE ID = graph) ");
 
 	handle_value_type_column (sparql, TRACKER_PROPERTY_TYPE_RESOURCE, NULL);
 	handle_value_type_column (sparql, TRACKER_PROPERTY_TYPE_RESOURCE, NULL);
@@ -3481,7 +3500,7 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 		_append_string (sparql, "WHERE ");
 	}
 	_append_string (sparql,
-	                "object IS NOT NULL ");
+	                "object_raw IS NOT NULL ");
 
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_GLOB)) {
 		glob = TRUE;
