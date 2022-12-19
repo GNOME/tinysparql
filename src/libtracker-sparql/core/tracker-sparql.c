@@ -8848,7 +8848,7 @@ translate_BuiltInCall (TrackerSparql  *sparql,
 		if (!_postprocess_rule (sparql, node, NULL, error))
 			return FALSE;
 
-		_append_string (sparql, ") ELSE NULL END ");
+		_append_string (sparql, ") ELSE 0 END ");
 		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_BOOLEAN;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_ISLITERAL)) {
 		_expect (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_PARENS);
