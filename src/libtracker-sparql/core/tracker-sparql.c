@@ -2556,7 +2556,7 @@ _end_triples_block (TrackerSparql  *sparql,
 		if (table->predicate_variable) {
 			_append_string (sparql,
 			                "(SELECT subject AS ID, predicate, "
-			                "object, object_type, graph FROM tracker_triples ");
+			                "object_raw AS object, object_type, graph FROM tracker_triples ");
 
 			if (table->graph) {
 				_append_graph_checks (sparql, "graph", FALSE,
@@ -3993,7 +3993,8 @@ translate_OrderCondition (TrackerSparql  *sparql,
 	if (sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_STRING ||
 	    sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_LANGSTRING)
 		_append_string (sparql, "COLLATE " TRACKER_COLLATION_NAME " ");
-	else if (sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_RESOURCE)
+	else if (sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_RESOURCE ||
+	         (variable && sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_UNKNOWN))
 		convert_expression_to_string (sparql, sparql->current_state->expression_type, variable);
 
 	tracker_sparql_swap_builder (sparql, old);
