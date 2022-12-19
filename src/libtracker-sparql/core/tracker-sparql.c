@@ -1133,14 +1133,14 @@ _prepend_path_element (TrackerSparql      *sparql,
 		if (path_elem->op == TRACKER_PATH_OPERATOR_NEGATED) {
 			_append_string_printf (sparql,
 			                       "\"%s\" (ID, value, graph, ID_type, value_type) AS "
-			                       "(SELECT subject AS ID, object_raw AS value, graph, %d, object_type "
+			                       "(SELECT subject AS ID, object AS value, graph, %d, object_type "
 			                       "FROM \"tracker_triples\" ",
 			                       path_elem->name,
 			                       TRACKER_PROPERTY_TYPE_RESOURCE);
 		} else {
 			_append_string_printf (sparql,
 			                       "\"%s\" (ID, value, graph, ID_type, value_type) AS "
-			                       "(SELECT object_raw AS ID, subject AS value, graph, object_type, %d "
+			                       "(SELECT object AS ID, subject AS value, graph, object_type, %d "
 			                       "FROM \"tracker_triples\" ",
 			                       path_elem->name,
 			                       TRACKER_PROPERTY_TYPE_RESOURCE);
@@ -2567,7 +2567,7 @@ _end_triples_block (TrackerSparql  *sparql,
 		if (table->predicate_variable) {
 			_append_string (sparql,
 			                "(SELECT subject AS ID, predicate, "
-			                "object_raw AS object, object_type, graph FROM tracker_triples ");
+			                "object, object_type, graph FROM tracker_triples ");
 
 			if (table->graph) {
 				_append_graph_checks (sparql, "graph", FALSE,
@@ -3476,7 +3476,7 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 
 	str = _append_placeholder (sparql);
 	old = tracker_sparql_swap_builder (sparql, str);
-	_append_string (sparql, "object_raw");
+	_append_string (sparql, "object");
 	prepend_generic_print_value (sparql, "object_type");
 	_append_string (sparql, ",object_type) ");
 	tracker_sparql_swap_builder (sparql, old);
@@ -3500,7 +3500,7 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 		_append_string (sparql, "WHERE ");
 	}
 	_append_string (sparql,
-	                "object_raw IS NOT NULL ");
+	                "object IS NOT NULL ");
 
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_GLOB)) {
 		glob = TRUE;
