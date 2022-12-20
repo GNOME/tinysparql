@@ -1890,69 +1890,6 @@ function_sparql_bnode (sqlite3_context *context,
 }
 
 static void
-function_sparql_print_iri (sqlite3_context *context,
-                           int              argc,
-                           sqlite3_value   *argv[])
-{
-	const gchar *fn = "PrintIRI helper";
-
-	if (argc > 1) {
-		result_context_function_error (context, fn, "Invalid argument count");
-		return;
-	}
-
-	if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
-		sqlite3_stmt *stmt;
-		gboolean store_auxdata = FALSE;
-		sqlite3 *db;
-		gint result;
-
-		stmt = sqlite3_get_auxdata (context, 1);
-
-		if (stmt == NULL) {
-			store_auxdata = TRUE;
-			db = sqlite3_context_db_handle (context);
-
-			result = sqlite3_prepare_v2 (db, "SELECT Uri FROM Resource WHERE ID = ?",
-			                             -1, &stmt, NULL);
-			if (result != SQLITE_OK) {
-				result_context_function_error (context, fn, sqlite3_errstr (result));
-				return;
-			}
-		}
-
-		sqlite3_reset (stmt);
-		sqlite3_bind_value (stmt, 1, argv[0]);
-		result = stmt_step (stmt);
-
-		if (result == SQLITE_DONE) {
-			sqlite3_result_null (context);
-		} else if (result == SQLITE_ROW) {
-			const gchar *value;
-
-			value = (const gchar *) sqlite3_column_text (stmt, 0);
-
-			if (value && *value) {
-				sqlite3_result_text (context, g_strdup (value), -1, g_free);
-			} else {
-				sqlite3_result_text (context,
-				                     g_strdup_printf ("urn:bnode:%" G_GINT64_FORMAT,
-				                                      (gint64) sqlite3_value_int64 (argv[0])),
-				                     -1, g_free);
-			}
-		} else {
-			result_context_function_error (context, fn, sqlite3_errstr (result));
-		}
-
-		if (store_auxdata) {
-			sqlite3_set_auxdata (context, 1, (void*) stmt, stmt_destroy);
-		}
-	} else {
-		sqlite3_result_value (context, argv[0]);
-	}
-}
-
-static void
 function_sparql_print_value (sqlite3_context *context,
                              int              argc,
                              sqlite3_value   *argv[])
@@ -2137,8 +2074,6 @@ initialize_functions (TrackerDBInterface *db_interface)
 		  function_sparql_langmatches },
 		{ "SparqlStrLang", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_strlang },
-		{ "SparqlPrintIRI", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
-		  function_sparql_print_iri },
 		{ "SparqlPrintValue", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_print_value },
 		/* Numbers */
