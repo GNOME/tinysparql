@@ -414,46 +414,6 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 }
 
 static void
-function_sparql_format_time (sqlite3_context *context,
-                             int              argc,
-                             sqlite3_value   *argv[])
-{
-	const gchar *fn = "SparqlFormatTime helper";
-
-	if (argc != 1) {
-		result_context_function_error (context, fn, "Invalid argument count");
-		return;
-	}
-
-	if (sqlite3_value_type (argv[0]) == SQLITE_NULL) {
-		sqlite3_result_null (context);
-		return;
-	} else if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
-		GDateTime *datetime;
-		gint64 timestamp;
-
-		timestamp = sqlite3_value_int64 (argv[0]);
-		datetime = g_date_time_new_from_unix_utc (timestamp);
-
-		if (datetime) {
-			sqlite3_result_text (context,
-					     tracker_date_format_iso8601 (datetime),
-					     -1, g_free);
-			g_date_time_unref (datetime);
-		} else {
-			sqlite3_result_null (context);
-		}
-	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
-		const gchar *str;
-
-		str = sqlite3_value_text (argv[0]);
-		sqlite3_result_text (context, g_strdup (str), -1, g_free);
-	} else {
-		result_context_function_error (context, fn, "Invalid argument type");
-	}
-}
-
-static void
 function_sparql_timestamp (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
@@ -2022,8 +1982,6 @@ initialize_functions (TrackerDBInterface *db_interface)
 		{ "SparqlCartesianDistance", 4, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_cartesian_distance },
 		/* Date/time */
-		{ "SparqlFormatTime", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
-		  function_sparql_format_time },
 		{ "SparqlTimestamp", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_timestamp },
 		{ "SparqlTimeSort", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
