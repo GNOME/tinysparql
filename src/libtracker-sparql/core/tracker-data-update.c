@@ -965,8 +965,13 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 	TrackerOntologies *ontologies;
 	TrackerClass *class;
 
-	if (strchr (uri, ':') == NULL)
-		g_warning ("«%s» is not an absolute IRI", uri);
+	if (strchr (uri, ':') == NULL) {
+		g_set_error (error,
+			     TRACKER_DB_INTERFACE_ERROR,
+			     TRACKER_DB_CONSTRAINT,
+			     "«%s» is not an absolute IRI", uri);
+		return 0;
+	}
 
 	value = g_hash_table_lookup (data->update_buffer.resource_cache, uri);
 
