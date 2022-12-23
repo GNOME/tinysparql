@@ -44,7 +44,6 @@ enum {
 	COL_PREDICATE,
 	COL_OBJECT,
 	COL_OBJECT_TYPE,
-	COL_OBJECT_RAW,
 	N_COLS
 };
 
@@ -159,8 +158,7 @@ triples_connect (sqlite3            *db,
 	                           "    subject INTEGER, "
 	                           "    predicate INTEGER, "
 	                           "    object INTEGER, "
-	                           "    object_type INTEGER, "
-	                           "    object_raw INTEGER"
+	                           "    object_type INTEGER "
 	                           ")");
 
 	if (rc == SQLITE_OK) {
@@ -202,8 +200,7 @@ triples_best_index (sqlite3_vtab       *vtab,
 		 * translation to strings can be done.
 		 */
 		if (info->aConstraint[i].iColumn == COL_OBJECT ||
-		    info->aConstraint[i].iColumn == COL_OBJECT_TYPE ||
-		    info->aConstraint[i].iColumn == COL_OBJECT_RAW)
+		    info->aConstraint[i].iColumn == COL_OBJECT_TYPE)
 			continue;
 
 		if (info->aConstraint[i].iColumn == COL_ROWID) {
@@ -356,40 +353,6 @@ collect_graphs (TrackerTriplesCursor *cursor)
 	return rc;
 }
 
-static gchar *
-convert_to_string (const gchar         *table_name,
-		   TrackerPropertyType  type)
-{
-	switch (type) {
-	case TRACKER_PROPERTY_TYPE_STRING:
-	case TRACKER_PROPERTY_TYPE_LANGSTRING:
-	case TRACKER_PROPERTY_TYPE_INTEGER:
-		return g_strdup_printf ("t.\"%s\"", table_name);
-	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		return g_strdup_printf ("(SELECT COALESCE(Uri, 'urn:bnode:' || ID) FROM Resource WHERE ID = t.\"%s\")",
-		                        table_name);
-	case TRACKER_PROPERTY_TYPE_BOOLEAN:
-		return g_strdup_printf ("CASE t.\"%s\" "
-		                        "WHEN 1 THEN 'true' "
-		                        "WHEN 0 THEN 'false' "
-		                        "ELSE NULL END",
-		                        table_name);
-	case TRACKER_PROPERTY_TYPE_DATE:
-		return g_strdup_printf ("strftime (\"%%Y-%%m-%%d\", t.\"%s\", \"unixepoch\")",
-		                        table_name);
-	case TRACKER_PROPERTY_TYPE_DATETIME:
-		return g_strdup_printf ("SparqlFormatTime (t.\"%s\")",
-		                        table_name);
-        case TRACKER_PROPERTY_TYPE_DOUBLE:
-	case TRACKER_PROPERTY_TYPE_UNKNOWN:
-		/* Let sqlite convert the expression to string */
-		return g_strdup_printf ("CAST (t.\"%s\" AS TEXT)",
-		                        table_name);
-	}
-
-	g_assert_not_reached();
-}
-
 static void
 add_arg_check (GString       *str,
 	       sqlite3_value *value,
@@ -465,25 +428,18 @@ init_stmt (TrackerTriplesCursor *cursor)
 	int rc;
 
 	while (iterate_next_stmt (cursor, &graph, &graph_id, &property)) {
-		gchar *string_expr;
-
-		string_expr = convert_to_string (tracker_property_get_name (property),
-						 tracker_property_get_data_type (property));
-
 		sql = g_string_new (NULL);
 		g_string_append_printf (sql,
 		                        "SELECT %" G_GINT64_FORMAT ", t.ID, "
 		                        "       (SELECT ID From Resource WHERE Uri = \"%s\"), "
-		                        "       %s, "
-		                        "       %d, "
-		                        "       t.\"%s\" "
+		                        "       t.\"%s\", "
+		                        "       %d "
 		                        "FROM \"%s\".\"%s\" AS t "
 		                        "WHERE 1 ",
 		                        graph_id,
 		                        tracker_property_get_uri (property),
-		                        string_expr,
-		                        tracker_property_get_data_type (property),
 		                        tracker_property_get_name (property),
+		                        tracker_property_get_data_type (property),
 		                        graph,
 		                        tracker_property_get_table_name (property));
 
@@ -497,7 +453,6 @@ init_stmt (TrackerTriplesCursor *cursor)
 		rc = sqlite3_prepare_v2 (cursor->vtab->module->db,
 					 sql->str, -1, &cursor->stmt, 0);
 		g_string_free (sql, TRUE);
-		g_free (string_expr);
 
 		if (rc == SQLITE_OK) {
 			if (cursor->match.graph)

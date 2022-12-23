@@ -414,46 +414,6 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 }
 
 static void
-function_sparql_format_time (sqlite3_context *context,
-                             int              argc,
-                             sqlite3_value   *argv[])
-{
-	const gchar *fn = "SparqlFormatTime helper";
-
-	if (argc != 1) {
-		result_context_function_error (context, fn, "Invalid argument count");
-		return;
-	}
-
-	if (sqlite3_value_type (argv[0]) == SQLITE_NULL) {
-		sqlite3_result_null (context);
-		return;
-	} else if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
-		GDateTime *datetime;
-		gint64 timestamp;
-
-		timestamp = sqlite3_value_int64 (argv[0]);
-		datetime = g_date_time_new_from_unix_utc (timestamp);
-
-		if (datetime) {
-			sqlite3_result_text (context,
-					     tracker_date_format_iso8601 (datetime),
-					     -1, g_free);
-			g_date_time_unref (datetime);
-		} else {
-			sqlite3_result_null (context);
-		}
-	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
-		const gchar *str;
-
-		str = sqlite3_value_text (argv[0]);
-		sqlite3_result_text (context, g_strdup (str), -1, g_free);
-	} else {
-		result_context_function_error (context, fn, "Invalid argument type");
-	}
-}
-
-static void
 function_sparql_timestamp (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
@@ -1890,65 +1850,111 @@ function_sparql_bnode (sqlite3_context *context,
 }
 
 static void
-function_sparql_print_iri (sqlite3_context *context,
-                           int              argc,
-                           sqlite3_value   *argv[])
+function_sparql_print_value (sqlite3_context *context,
+                             int              argc,
+                             sqlite3_value   *argv[])
 {
-	const gchar *fn = "PrintIRI helper";
+	const gchar *fn = "PrintValue helper";
+	TrackerPropertyType prop_type;
 
-	if (argc > 1) {
+	if (argc > 2) {
 		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
 
-	if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
-		sqlite3_stmt *stmt;
-		gboolean store_auxdata = FALSE;
-		sqlite3 *db;
-		gint result;
+	if (sqlite3_value_type (argv[0]) == SQLITE_NULL) {
+		sqlite3_result_null (context);
+		return;
+	}
 
-		stmt = sqlite3_get_auxdata (context, 1);
+	prop_type = sqlite3_value_int64 (argv[1]);
 
-		if (stmt == NULL) {
-			store_auxdata = TRUE;
-			db = sqlite3_context_db_handle (context);
-
-			result = sqlite3_prepare_v2 (db, "SELECT Uri FROM Resource WHERE ID = ?",
-			                             -1, &stmt, NULL);
-			if (result != SQLITE_OK) {
-				result_context_function_error (context, fn, sqlite3_errstr (result));
-				return;
-			}
-		}
-
-		sqlite3_reset (stmt);
-		sqlite3_bind_value (stmt, 1, argv[0]);
-		result = stmt_step (stmt);
-
-		if (result == SQLITE_DONE) {
-			sqlite3_result_null (context);
-		} else if (result == SQLITE_ROW) {
-			const gchar *value;
-
-			value = (const gchar *) sqlite3_column_text (stmt, 0);
-
-			if (value && *value) {
-				sqlite3_result_text (context, g_strdup (value), -1, g_free);
+	switch (prop_type) {
+	case TRACKER_PROPERTY_TYPE_RESOURCE:
+		if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
+			/* Raw rowids belong to blank nodes */
+			if (sqlite3_value_int64 (argv[0]) == 0) {
+				sqlite3_result_null (context);
 			} else {
 				sqlite3_result_text (context,
 				                     g_strdup_printf ("urn:bnode:%" G_GINT64_FORMAT,
 				                                      (gint64) sqlite3_value_int64 (argv[0])),
 				                     -1, g_free);
 			}
+		} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
+			sqlite3_result_value (context, argv[0]);
 		} else {
-			result_context_function_error (context, fn, sqlite3_errstr (result));
+			result_context_function_error (context, fn, "Invalid value type");
 		}
+		break;
+	case TRACKER_PROPERTY_TYPE_DATE:
+	case TRACKER_PROPERTY_TYPE_DATETIME:
+		if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
+			GDateTime *datetime;
+			gint64 timestamp;
 
-		if (store_auxdata) {
-			sqlite3_set_auxdata (context, 1, (void*) stmt, stmt_destroy);
+			timestamp = sqlite3_value_int64 (argv[0]);
+			datetime = g_date_time_new_from_unix_utc (timestamp);
+
+			if (datetime) {
+				gchar *str;
+
+				if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME)
+					str = tracker_date_format_iso8601 (datetime);
+				else if (prop_type == TRACKER_PROPERTY_TYPE_DATE)
+					str = g_date_time_format (datetime, "%Y-%m-%d");
+				else
+					g_assert_not_reached ();
+
+				sqlite3_result_text (context, str, -1, g_free);
+				g_date_time_unref (datetime);
+			} else {
+				sqlite3_result_null (context);
+			}
+		} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
+			if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME) {
+				sqlite3_result_value (context, argv[0]);
+			} else if (prop_type == TRACKER_PROPERTY_TYPE_DATE) {
+				const gchar *value, *end;
+				int len = -1;
+
+				value = sqlite3_value_text (argv[0]);
+				/* Drop time data if we are given a xsd:dateTime as a xsd:date */
+				end = strchr (value, 'T');
+				if (end)
+					len = end - value;
+
+				sqlite3_result_text (context,
+				                     g_strndup (value, len),
+				                     -1, g_free);
+			} else {
+				g_assert_not_reached ();
+			}
+		} else {
+			result_context_function_error (context, fn, "Invalid value type");
 		}
-	} else {
+		break;
+	case TRACKER_PROPERTY_TYPE_BOOLEAN:
+		if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER &&
+		    (sqlite3_value_int64 (argv[0]) == 0 ||
+		     sqlite3_value_int64 (argv[0]) == 1)) {
+			sqlite3_result_text (context,
+			                     sqlite3_value_int64 (argv[0]) == 1 ?
+			                     "true" : "false",
+			                     -1, NULL);
+		} else {
+			sqlite3_result_null (context);
+		}
+		break;
+	case TRACKER_PROPERTY_TYPE_STRING:
+	case TRACKER_PROPERTY_TYPE_LANGSTRING:
+	case TRACKER_PROPERTY_TYPE_INTEGER:
+	case TRACKER_PROPERTY_TYPE_DOUBLE:
+	case TRACKER_PROPERTY_TYPE_UNKNOWN:
 		sqlite3_result_value (context, argv[0]);
+		break;
+	default:
+		result_context_function_error (context, fn, "Invalid property type");
 	}
 }
 
@@ -1976,8 +1982,6 @@ initialize_functions (TrackerDBInterface *db_interface)
 		{ "SparqlCartesianDistance", 4, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_cartesian_distance },
 		/* Date/time */
-		{ "SparqlFormatTime", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
-		  function_sparql_format_time },
 		{ "SparqlTimestamp", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_timestamp },
 		{ "SparqlTimeSort", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
@@ -2028,8 +2032,8 @@ initialize_functions (TrackerDBInterface *db_interface)
 		  function_sparql_langmatches },
 		{ "SparqlStrLang", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_strlang },
-		{ "SparqlPrintIRI", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
-		  function_sparql_print_iri },
+		{ "SparqlPrintValue", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_print_value },
 		/* Numbers */
 		{ "SparqlCeil", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_ceil },
