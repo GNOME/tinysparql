@@ -646,24 +646,31 @@ static int
 triples_next (sqlite3_vtab_cursor *vtab_cursor)
 {
 	TrackerTriplesCursor *cursor = (TrackerTriplesCursor *) vtab_cursor;
-	int rc;
+	int rc, column_count;
 
-	cursor->column++;
 	cursor->rowid++;
+	column_count = sqlite3_column_count (cursor->stmt);
 
-	if ((cursor->match.idxFlags & IDX_MATCH_PREDICATE_NEG) != 0) {
-		TrackerProperty *property;
+	while (cursor->column < column_count) {
+		cursor->column++;
 
-		/* Single valued properties skip the "predicate != ..." here */
-		property = get_column_property (cursor, cursor->column);
+		if ((cursor->match.idxFlags & IDX_MATCH_PREDICATE_NEG) != 0) {
+			TrackerProperty *property;
 
-		if (property &&
-		    sqlite3_value_int64 (cursor->match.predicate) ==
-		    tracker_property_get_id (property))
-			cursor->column++;
+			/* Single valued properties skip the "predicate != ..." here */
+			property = get_column_property (cursor, cursor->column);
+
+			if (property &&
+			    sqlite3_value_int64 (cursor->match.predicate) ==
+			    tracker_property_get_id (property))
+				cursor->column++;
+		}
+
+		if (sqlite3_column_type (cursor->stmt, cursor->column) != SQLITE_NULL)
+			break;
 	}
 
-	if (cursor->column < sqlite3_column_count (cursor->stmt))
+	if (cursor->column < column_count)
 		return SQLITE_OK;
 
 	rc = sqlite3_step (cursor->stmt);
