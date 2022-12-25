@@ -15,6 +15,6 @@
 @prefix mfo: <http://tracker.api.gnome.org/ontology/v3/mfo#> .
 
 rdfs:Resource nrl:classSpecification "https://www.w3.org/TR/rdf-schema/#ch_resource" ;
-  rdfs:label "All Resources" ;
   rdfs:comment "All resources" ;
+  rdfs:label "All Resources" ;
   rdf:type rdfs:Resource, rdfs:Class .

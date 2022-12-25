@@ -22,8 +22,6 @@
   dc:title "Aaa" ;
 
 
-
-
 <http://example/a> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece, rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
 
 <http://example/b> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .

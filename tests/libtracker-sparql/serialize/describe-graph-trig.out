@@ -22,17 +22,11 @@ GRAPH <http://example/B> {
 
 GRAPH <http://example/A> {
   <http://example/a> nie:title "Aaa" ;
-    dc:title "Aaa" ;
+    dc:title "Aaa" .
 }
 
 GRAPH <http://example/B> {
 
-}
-
-GRAPH <http://example/A> {
-}
-
-GRAPH <http://example/B> {
 }
 
 GRAPH <http://example/A> {

@@ -37,6 +37,9 @@
 #define SQLITE_INDEX_CONSTRAINT_ISNULL    71
 #endif
 
+/* Properties are additional columns after graph and rowid */
+#define FIRST_PROPERTY_COLUMN 2
+
 enum {
 	COL_GRAPH,
 	COL_SUBJECT,
@@ -76,6 +79,8 @@ typedef struct {
 	struct sqlite3_vtab_cursor parent;
 	TrackerTriplesVTab *vtab;
 	struct sqlite3_stmt *stmt;
+	TrackerProperty **column_properties;
+	guint n_alloc_column_properties;
 
 	struct {
 		sqlite3_value *graph;
@@ -87,7 +92,9 @@ typedef struct {
 
 	GHashTable *query_graphs;
 	GList *properties;
+	GList *classes;
 	GList *graphs;
+	gint column;
 
 	guint64 rowid;
 	guint finished : 1;
@@ -119,6 +126,7 @@ tracker_triples_cursor_reset (TrackerTriplesCursor *cursor)
 	g_clear_pointer (&cursor->match.subject, sqlite3_value_free);
 	g_clear_pointer (&cursor->match.predicate, sqlite3_value_free);
 	g_clear_pointer (&cursor->properties, g_list_free);
+	g_clear_pointer (&cursor->classes, g_list_free);
 	g_clear_pointer (&cursor->graphs, g_list_free);
 	g_clear_pointer (&cursor->query_graphs, g_hash_table_unref);
 	cursor->match.idxFlags = 0;
@@ -132,6 +140,7 @@ tracker_triples_cursor_free (gpointer data)
 	TrackerTriplesCursor *cursor = data;
 
 	tracker_triples_cursor_reset (cursor);
+	g_clear_pointer (&cursor->column_properties, g_free);
 	g_free (cursor);
 }
 
@@ -274,26 +283,48 @@ triples_close (sqlite3_vtab_cursor *vtab_cursor)
 }
 
 static void
-collect_properties (TrackerTriplesCursor *cursor)
+collect_tables (TrackerTriplesCursor *cursor)
 {
-	TrackerProperty **properties;
-	guint n_properties, i;
+	TrackerProperty *property = NULL;
+	const gchar *uri = NULL;
+	gboolean pred_negated;
 
-	properties = tracker_ontologies_get_properties (cursor->vtab->module->ontologies,
-							&n_properties);
-	for (i = 0; i < n_properties; i++) {
-		if (cursor->match.predicate) {
-			gboolean negated = !!(cursor->match.idxFlags & IDX_MATCH_PREDICATE_NEG);
-			gboolean equals =
-				(sqlite3_value_int64 (cursor->match.predicate) ==
-				 tracker_property_get_id (properties[i]));
+	pred_negated = !!(cursor->match.idxFlags & IDX_MATCH_PREDICATE_NEG);
 
-			if (equals == negated)
-				continue;
+	if (cursor->match.predicate) {
+		uri = tracker_ontologies_get_uri_by_id (cursor->vtab->module->ontologies,
+		                                        sqlite3_value_int64 (cursor->match.predicate));
+	}
+
+	if (uri) {
+		property = tracker_ontologies_get_property_by_uri (cursor->vtab->module->ontologies,
+		                                                   uri);
+	}
+
+	if (property && !pred_negated) {
+		cursor->properties = g_list_prepend (cursor->properties, property);
+	} else {
+		TrackerProperty **properties;
+		guint n_properties, i;
+
+		properties = tracker_ontologies_get_properties (cursor->vtab->module->ontologies,
+		                                                &n_properties);
+		for (i = 0; i < n_properties; i++) {
+			if (tracker_property_get_multiple_values (properties[i])) {
+				if (pred_negated && property == properties[i])
+					continue;
+
+				cursor->properties = g_list_prepend (cursor->properties,
+				                                     properties[i]);
+			} else {
+				TrackerClass *class;
+
+				class = tracker_property_get_domain (properties[i]);
+
+				if (!g_list_find (cursor->classes, class))
+					cursor->classes = g_list_prepend (cursor->classes, class);
+			}
 		}
-
-		cursor->properties = g_list_prepend (cursor->properties,
-		                                     properties[i]);
 	}
 }
 
@@ -382,31 +413,78 @@ bind_arg (sqlite3_stmt  *stmt,
 	sqlite3_bind_value (stmt, idx, value);
 }
 
+static TrackerProperty *
+get_column_property (TrackerTriplesCursor *cursor,
+                     int                   n_col)
+{
+	TrackerProperty *property;
+	const gchar *col_name;
+	int n_cols;
+
+	n_cols = sqlite3_column_count (cursor->stmt);
+	g_assert ((guint) n_cols <= cursor->n_alloc_column_properties);
+
+	if (n_col < 0 || n_col >= n_cols)
+		return NULL;
+
+	property = cursor->column_properties[n_col];
+
+	if (!property) {
+		col_name = sqlite3_column_name (cursor->stmt, n_col);
+		property = tracker_ontologies_get_property_by_uri (cursor->vtab->module->ontologies,
+		                                                   col_name);
+		cursor->column_properties[n_col] = property;
+	}
+
+	return property;
+}
+
 static gboolean
 iterate_next_stmt (TrackerTriplesCursor  *cursor,
                    const gchar          **graph,
                    TrackerRowid          *graph_id,
+                   TrackerClass         **class,
                    TrackerProperty      **property)
 {
 	TrackerRowid *id;
 
-	while (cursor->properties && !cursor->graphs) {
-		/* Iterate to next property, and redo graph list */
-		cursor->properties = g_list_remove (cursor->properties,
-		                                    cursor->properties->data);
-		cursor->graphs = g_hash_table_get_keys (cursor->query_graphs);
+	*graph_id = 0;
+	*graph = NULL;
+	*class = NULL;
+	*property = NULL;
+
+	if (!cursor->graphs) {
+		if (cursor->classes) {
+			cursor->classes = g_list_remove (cursor->classes,
+			                                 cursor->classes->data);
+		} else if (cursor->properties) {
+			cursor->properties = g_list_remove (cursor->properties,
+			                                    cursor->properties->data);
+		}
+
+		if (!cursor->classes && !cursor->properties)
+			return FALSE;
+
+		if (cursor->classes || cursor->properties)
+			cursor->graphs = g_hash_table_get_keys (cursor->query_graphs);
 	}
 
-	if (!cursor->properties)
+	if (!cursor->graphs)
 		return FALSE;
-
-	*property = cursor->properties->data;
 
 	id = cursor->graphs->data;
 	*graph_id = *id;
 	*graph = g_hash_table_lookup (cursor->query_graphs, id);
 
-	cursor->graphs = g_list_remove (cursor->graphs, cursor->graphs->data);
+	if (cursor->classes)
+		*class = cursor->classes->data;
+	else if (cursor->properties)
+		*property = cursor->properties->data;
+
+	if (cursor->graphs) {
+		cursor->graphs = g_list_remove (cursor->graphs,
+		                                cursor->graphs->data);
+	}
 
 	return TRUE;
 }
@@ -415,41 +493,72 @@ static int
 init_stmt (TrackerTriplesCursor *cursor)
 {
 	TrackerProperty *property;
+	TrackerClass *class;
 	const gchar *graph;
 	TrackerRowid graph_id;
-	GString *sql;
-	int rc;
+	int rc = SQLITE_DONE;
 
-	while (iterate_next_stmt (cursor, &graph, &graph_id, &property)) {
+	while (iterate_next_stmt (cursor, &graph, &graph_id, &class, &property)) {
+		GString *sql;
+
 		sql = g_string_new (NULL);
-		g_string_append_printf (sql,
-		                        "SELECT %" G_GINT64_FORMAT ", t.ID, "
-		                        "       (SELECT ID From Resource WHERE Uri = \"%s\"), "
-		                        "       t.\"%s\", "
-		                        "       %d "
-		                        "FROM \"%s\".\"%s\" AS t "
-		                        "WHERE 1 ",
-		                        graph_id,
-		                        tracker_property_get_uri (property),
-		                        tracker_property_get_name (property),
-		                        tracker_property_get_data_type (property),
-		                        graph,
-		                        tracker_property_get_table_name (property));
+
+		if (class) {
+			TrackerProperty **properties;
+			guint n_properties, i;
+
+			g_string_append_printf (sql,
+			                        "SELECT %" G_GINT64_FORMAT ", ROWID ",
+			                        graph_id);
+
+
+			properties = tracker_ontologies_get_properties (cursor->vtab->module->ontologies,
+			                                                &n_properties);
+			for (i = 0; i < n_properties; i++) {
+				if (!tracker_property_get_multiple_values (properties[i]) &&
+				    tracker_property_get_domain (properties[i]) == class) {
+					g_string_append_printf (sql, ", \"%s\" ",
+					                        tracker_property_get_name (properties[i]));
+				}
+			}
+
+			g_string_append_printf (sql,
+			                        "FROM \"%s\".\"%s\" AS t ",
+			                        graph,
+			                        tracker_class_get_name (class));
+		} else if (property) {
+			sql = g_string_new (NULL);
+
+			if (tracker_property_get_multiple_values (property)) {
+				g_string_append_printf (sql,
+				                        "SELECT %" G_GINT64_FORMAT ", * "
+				                        "FROM \"%s\".\"%s\" AS t ",
+				                        graph_id,
+				                        graph,
+				                        tracker_property_get_table_name (property));
+			} else {
+				g_string_append_printf (sql,
+				                        "SELECT %" G_GINT64_FORMAT ", ROWID, \"%s\" "
+				                        "FROM \"%s\".\"%s\" AS t ",
+				                        graph_id,
+				                        tracker_property_get_name (property),
+				                        graph,
+				                        tracker_property_get_table_name (property));
+			}
+		}
 
 		if (cursor->match.subject) {
-			g_string_append (sql, "AND t.ID ");
+			g_string_append (sql, "WHERE t.ID ");
 			add_arg_check (sql, cursor->match.subject,
 			               !!(cursor->match.idxFlags & IDX_MATCH_SUBJECT_NEG),
 			               "@s");
 		}
 
 		rc = sqlite3_prepare_v2 (cursor->vtab->module->db,
-					 sql->str, -1, &cursor->stmt, 0);
+		                         sql->str, -1, &cursor->stmt, 0);
 		g_string_free (sql, TRUE);
 
 		if (rc == SQLITE_OK) {
-			if (cursor->match.graph)
-				bind_arg (cursor->stmt, cursor->match.graph, "@g");
 			if (cursor->match.subject)
 				bind_arg (cursor->stmt, cursor->match.subject, "@s");
 
@@ -457,12 +566,29 @@ init_stmt (TrackerTriplesCursor *cursor)
 		}
 
 		if (rc != SQLITE_DONE)
-			return rc;
+			break;
 
 		g_clear_pointer (&cursor->stmt, sqlite3_finalize);
 	}
 
-	return SQLITE_DONE;
+	if (rc == SQLITE_ROW) {
+		int columns;
+
+		columns = sqlite3_column_count (cursor->stmt);
+
+		if ((guint) columns > cursor->n_alloc_column_properties) {
+			g_free (cursor->column_properties);
+			cursor->column_properties =
+				g_new0 (TrackerProperty*, columns);
+			cursor->n_alloc_column_properties = columns;
+		} else {
+			bzero (cursor->column_properties,
+			       sizeof (TrackerProperty*) *
+			       cursor->n_alloc_column_properties);
+		}
+	}
+
+	return rc;
 }
 
 static int
@@ -497,8 +623,9 @@ triples_filter (sqlite3_vtab_cursor  *vtab_cursor,
 	if ((rc = collect_graphs (cursor)) != SQLITE_DONE)
 		return rc;
 
-	collect_properties (cursor);
+	collect_tables (cursor);
 	rc = init_stmt (cursor);
+	cursor->column = FIRST_PROPERTY_COLUMN;
 
 	if (rc == SQLITE_DONE)
 		cursor->finished = TRUE;
@@ -515,19 +642,34 @@ triples_next (sqlite3_vtab_cursor *vtab_cursor)
 	TrackerTriplesCursor *cursor = (TrackerTriplesCursor *) vtab_cursor;
 	int rc;
 
+	cursor->column++;
+	cursor->rowid++;
+
+	if ((cursor->match.idxFlags & IDX_MATCH_PREDICATE_NEG) != 0) {
+		TrackerProperty *property;
+
+		/* Single valued properties skip the "predicate != ..." here */
+		property = get_column_property (cursor, cursor->column);
+
+		if (property &&
+		    sqlite3_value_int64 (cursor->match.predicate) ==
+		    tracker_property_get_id (property))
+			cursor->column++;
+	}
+
+	if (cursor->column < sqlite3_column_count (cursor->stmt))
+		return SQLITE_OK;
+
 	rc = sqlite3_step (cursor->stmt);
+	cursor->column = FIRST_PROPERTY_COLUMN;
 
 	if (rc == SQLITE_DONE) {
 		g_clear_pointer (&cursor->stmt, sqlite3_finalize);
 		rc = init_stmt (cursor);
 	}
 
-	if (rc == SQLITE_ROW) {
-		cursor->rowid++;
-	} else {
+	if (rc != SQLITE_ROW)
 		cursor->finished = TRUE;
-	}
-
 	if (rc != SQLITE_ROW && rc != SQLITE_DONE)
 		return rc;
 
@@ -549,9 +691,35 @@ triples_column (sqlite3_vtab_cursor *vtab_cursor,
 {
 	TrackerTriplesCursor *cursor = (TrackerTriplesCursor *) vtab_cursor;
 	sqlite3_value *value;
+	TrackerProperty *property;
 
-	value = sqlite3_column_value (cursor->stmt, n_col);
-	sqlite3_result_value (context, value);
+	switch (n_col) {
+	case COL_GRAPH:
+		value = sqlite3_column_value (cursor->stmt, 0);
+		sqlite3_result_value (context, value);
+		break;
+	case COL_SUBJECT:
+		value = sqlite3_column_value (cursor->stmt, 1);
+		sqlite3_result_value (context, value);
+		break;
+	case COL_OBJECT:
+		value = sqlite3_column_value (cursor->stmt, cursor->column);
+		sqlite3_result_value (context, value);
+		break;
+	case COL_PREDICATE:
+	case COL_OBJECT_TYPE:
+		property = get_column_property (cursor, cursor->column);
+		if (!property) {
+			sqlite3_result_error_code (context, SQLITE_CORRUPT);
+			break;
+		}
+
+		if (n_col == COL_PREDICATE)
+			sqlite3_result_int64 (context, tracker_property_get_id (property));
+		else
+			sqlite3_result_int64 (context, tracker_property_get_data_type (property));
+		break;
+	}
 
 	return SQLITE_OK;
 }

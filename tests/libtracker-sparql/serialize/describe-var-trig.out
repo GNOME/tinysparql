@@ -16,8 +16,8 @@
 
 {
   rdfs:Class nrl:classSpecification "https://www.w3.org/TR/rdf-schema/#ch_class" ;
-    rdfs:label "Class" ;
     rdfs:comment "The class of classes" ;
+    rdfs:label "Class" ;
     rdfs:subClassOf rdfs:Resource ;
     rdf:type rdfs:Resource, rdfs:Class .
 }
