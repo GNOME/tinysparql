@@ -14,14 +14,15 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix mfo: <http://tracker.api.gnome.org/ontology/v3/mfo#> .
 
-<http://example/a> nmm:trackNumber 1 .
+<http://example/a> nie:title "Aaa" ;
+  dc:title "Aaa" ;
+  rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece ;
+  nmm:trackNumber 1 .
 
 <http://example/b> nmm:beatsPerMinute 120 .
 
-<http://example/a> nie:title "Aaa" ;
-  dc:title "Aaa" ;
 
 
-<http://example/a> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece, rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
+<http://example/a> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
 
 <http://example/b> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .

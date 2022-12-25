@@ -14,26 +14,19 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix mfo: <http://tracker.api.gnome.org/ontology/v3/mfo#> .
 
+GRAPH <http://example/A> {
+  <http://example/a> nie:title "Aaa" ;
+    dc:title "Aaa" ;
+    rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
+}
+
 GRAPH <http://example/B> {
   <http://example/a> nmm:trackNumber 1 .
 
   <http://example/b> nmm:beatsPerMinute 120 .
-}
 
-GRAPH <http://example/A> {
-  <http://example/a> nie:title "Aaa" ;
-    dc:title "Aaa" .
-}
 
-GRAPH <http://example/B> {
 
-}
-
-GRAPH <http://example/A> {
-  <http://example/a> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
-}
-
-GRAPH <http://example/B> {
   <http://example/a> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .
 
   <http://example/b> rdf:type rdfs:Resource, nie:InformationElement, nfo:Media, nmm:MusicPiece .

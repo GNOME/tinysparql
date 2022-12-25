@@ -94,6 +94,10 @@ typedef struct {
 	GList *properties;
 	GList *classes;
 	GList *graphs;
+
+	const GList *cur_property;
+	const GList *cur_class;
+	const GList *cur_graph;
 	gint column;
 
 	guint64 rowid;
@@ -453,38 +457,35 @@ iterate_next_stmt (TrackerTriplesCursor  *cursor,
 	*class = NULL;
 	*property = NULL;
 
-	if (!cursor->graphs) {
-		if (cursor->classes) {
-			cursor->classes = g_list_remove (cursor->classes,
-			                                 cursor->classes->data);
-		} else if (cursor->properties) {
-			cursor->properties = g_list_remove (cursor->properties,
-			                                    cursor->properties->data);
-		}
-
-		if (!cursor->classes && !cursor->properties)
-			return FALSE;
-
-		if (cursor->classes || cursor->properties)
-			cursor->graphs = g_hash_table_get_keys (cursor->query_graphs);
-	}
-
-	if (!cursor->graphs)
+	if (cursor->finished)
 		return FALSE;
 
-	id = cursor->graphs->data;
+	if (cursor->cur_class)
+		cursor->cur_class = cursor->cur_class->next;
+	else if (cursor->cur_property)
+		cursor->cur_property = cursor->cur_property->next;
+
+	if (!cursor->cur_class && !cursor->cur_property) {
+		if (cursor->cur_graph)
+			cursor->cur_graph = cursor->cur_graph->next;
+		else
+			cursor->cur_graph = cursor->graphs;
+
+		cursor->cur_class = cursor->classes;
+		cursor->cur_property = cursor->properties;
+	}
+
+	if (!cursor->cur_graph)
+		return FALSE;
+
+	id = cursor->cur_graph->data;
 	*graph_id = *id;
 	*graph = g_hash_table_lookup (cursor->query_graphs, id);
 
-	if (cursor->classes)
-		*class = cursor->classes->data;
-	else if (cursor->properties)
-		*property = cursor->properties->data;
-
-	if (cursor->graphs) {
-		cursor->graphs = g_list_remove (cursor->graphs,
-		                                cursor->graphs->data);
-	}
+	if (cursor->cur_class)
+		*class = cursor->cur_class->data;
+	else if (cursor->cur_property)
+		*property = cursor->cur_property->data;
 
 	return TRUE;
 }
@@ -624,6 +625,11 @@ triples_filter (sqlite3_vtab_cursor  *vtab_cursor,
 		return rc;
 
 	collect_tables (cursor);
+
+	cursor->cur_graph = NULL;
+	cursor->cur_class = NULL;
+	cursor->cur_property = NULL;
+
 	rc = init_stmt (cursor);
 	cursor->column = FIRST_PROPERTY_COLUMN;
 
