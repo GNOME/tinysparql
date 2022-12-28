@@ -66,7 +66,7 @@ libtracker_sparql_public_headers = files(
     'tracker-version.h',
 )
 
-sparqlinc = [include_directories('.'), meson.current_build_dir()]
+sparqlinc = [meson.current_source_dir(), meson.current_build_dir()]
 
 install_headers(
     libtracker_sparql_public_headers,
