@@ -38,7 +38,6 @@
 #endif
 
 enum {
-	COL_ROWID,
 	COL_GRAPH,
 	COL_SUBJECT,
 	COL_PREDICATE,
@@ -153,7 +152,6 @@ triples_connect (sqlite3            *db,
 
 	rc = sqlite3_declare_vtab (module->db,
 	                           "CREATE TABLE x("
-	                           "    ID INTEGER,"
 	                           "    graph INTEGER,"
 	                           "    subject INTEGER, "
 	                           "    predicate INTEGER, "
@@ -203,11 +201,6 @@ triples_best_index (sqlite3_vtab       *vtab,
 		    info->aConstraint[i].iColumn == COL_OBJECT_TYPE)
 			continue;
 
-		if (info->aConstraint[i].iColumn == COL_ROWID) {
-			sqlite3_free (idx_str);
-			return SQLITE_ERROR;
-		}
-
 		/* We can only check for (in)equality */
 		if (info->aConstraint[i].op != SQLITE_INDEX_CONSTRAINT_EQ &&
 		    info->aConstraint[i].op != SQLITE_INDEX_CONSTRAINT_NE &&
@@ -218,11 +211,11 @@ triples_best_index (sqlite3_vtab       *vtab,
 		}
 
 		/* idxNum encodes the used columns and their operators */
-		idx |= masks[info->aConstraint[i].iColumn - 1].mask;
+		idx |= masks[info->aConstraint[i].iColumn].mask;
 
 		if (info->aConstraint[i].op == SQLITE_INDEX_CONSTRAINT_NE ||
 		    info->aConstraint[i].op == SQLITE_INDEX_CONSTRAINT_ISNOTNULL)
-			idx |= masks[info->aConstraint[i].iColumn - 1].negated_mask;
+			idx |= masks[info->aConstraint[i].iColumn].negated_mask;
 
 		/* idxStr stores the mapping between columns and filter arguments */
 		idx_str[info->aConstraint[i].iColumn] = argv_idx - 1;
@@ -557,12 +550,8 @@ triples_column (sqlite3_vtab_cursor *vtab_cursor,
 	TrackerTriplesCursor *cursor = (TrackerTriplesCursor *) vtab_cursor;
 	sqlite3_value *value;
 
-	if (n_col == COL_ROWID) {
-		sqlite3_result_int64 (context, cursor->rowid);
-	} else {
-		value = sqlite3_column_value (cursor->stmt, n_col - 1);
-		sqlite3_result_value (context, value);
-	}
+	value = sqlite3_column_value (cursor->stmt, n_col);
+	sqlite3_result_value (context, value);
 
 	return SQLITE_OK;
 }
