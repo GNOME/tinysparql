@@ -139,9 +139,11 @@ print_value (GString                 *str,
 		shortname = tracker_namespace_manager_compress_uri (namespaces, value);
 
 		if (shortname) {
-			g_string_append_printf (str, "%s", shortname);
+			g_string_append (str, shortname);
 		} else {
-			g_string_append_printf (str, "<%s>", value);
+			g_string_append_c (str, '<');
+			g_string_append (str, value);
+			g_string_append_c (str, '>');
 		}
 
 		g_free (shortname);
@@ -151,7 +153,8 @@ print_value (GString                 *str,
 		gchar *bnode_label;
 
 		bnode_label = g_strdelimit (g_strdup (value), ":", '_');
-		g_string_append_printf (str, "_:%s", bnode_label);
+		g_string_append (str, "_:");
+		g_string_append (str, bnode_label);
 		g_free (bnode_label);
 		break;
 	}
@@ -160,8 +163,9 @@ print_value (GString                 *str,
 		gchar *escaped;
 
 		escaped = tracker_sparql_escape_string (value);
-		g_string_append_printf (str, "\"%s\"",
-					escaped);
+		g_string_append_c (str, '"');
+		g_string_append (str, escaped);
+		g_string_append_c (str, '"');
 		g_free (escaped);
 		break;
 	}
@@ -181,9 +185,9 @@ print_value (GString                 *str,
 
 static gboolean
 serialize_up_to_size (TrackerSerializerTurtle *serializer_ttl,
-		      gsize                    size,
-		      GCancellable            *cancellable,
-		      GError                 **error)
+                      gsize                    size,
+                      GCancellable            *cancellable,
+                      GError                 **error)
 {
 	TrackerSparqlCursor *cursor;
 	TrackerNamespaceManager *namespaces;
@@ -201,7 +205,8 @@ serialize_up_to_size (TrackerSerializerTurtle *serializer_ttl,
 
 		str = tracker_namespace_manager_print_turtle (namespaces);
 
-		g_string_append_printf (serializer_ttl->data, "%s\n", str);
+		g_string_append (serializer_ttl->data, str);
+		g_string_append_c (serializer_ttl->data, '\n');
 		g_free (str);
 		serializer_ttl->head_printed = TRUE;
 	}
