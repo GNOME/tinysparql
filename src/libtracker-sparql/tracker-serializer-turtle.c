@@ -41,7 +41,7 @@ struct _TrackerTriple
 struct _TrackerSerializerTurtle
 {
 	TrackerSerializer parent_instance;
-	TrackerTriple *last_triple;
+	TrackerTriple last_triple;
 	GString *data;
 	guint stream_closed : 1;
 	guint cursor_started : 1;
@@ -61,15 +61,10 @@ typedef enum
 	TRACKER_TRIPLE_BREAK_OBJECT,
 } TrackerTripleBreak;
 
-static TrackerTriple *
-tracker_triple_new_from_cursor (TrackerSparqlCursor *cursor)
+static void
+tracker_triple_init_from_cursor (TrackerTriple       *triple,
+                                 TrackerSparqlCursor *cursor)
 {
-	TrackerTriple *triple;
-
-	if (tracker_sparql_cursor_get_n_columns (cursor) < 3)
-		return NULL;
-
-	triple = g_new0 (TrackerTriple, 1);
 	triple->subject_type = tracker_sparql_cursor_get_value_type (cursor, 0);
 	triple->object_type = tracker_sparql_cursor_get_value_type (cursor, 2);
 	triple->subject = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
@@ -89,24 +84,21 @@ tracker_triple_new_from_cursor (TrackerSparqlCursor *cursor)
 			triple->object_type = TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE;
 		}
 	}
-
-	return triple;
 }
 
 static void
-tracker_triple_free (TrackerTriple *triple)
+tracker_triple_clear (TrackerTriple *triple)
 {
-	g_free (triple->subject);
-	g_free (triple->predicate);
-	g_free (triple->object);
-	g_free (triple);
+	g_clear_pointer (&triple->subject, g_free);
+	g_clear_pointer (&triple->predicate, g_free);
+	g_clear_pointer (&triple->object, g_free);
 }
 
 static TrackerTripleBreak
 tracker_triple_get_break (TrackerTriple *last,
                           TrackerTriple *cur)
 {
-	if (!last)
+	if (!last->subject)
 		return TRACKER_TRIPLE_BREAK_NONE;
 
 	if (g_strcmp0 (last->subject, cur->subject) != 0)
@@ -192,7 +184,7 @@ serialize_up_to_size (TrackerSerializerTurtle *serializer_ttl,
 	TrackerSparqlCursor *cursor;
 	TrackerNamespaceManager *namespaces;
 	GError *inner_error = NULL;
-	TrackerTriple *cur;
+	TrackerTriple cur;
 
 	if (!serializer_ttl->data)
 		serializer_ttl->data = g_string_new (NULL);
@@ -227,9 +219,9 @@ serialize_up_to_size (TrackerSerializerTurtle *serializer_ttl,
 			serializer_ttl->cursor_started = TRUE;
 		}
 
-		cur = tracker_triple_new_from_cursor (cursor);
+		tracker_triple_init_from_cursor (&cur, cursor);
 
-		if (!cur) {
+		if (!cur.subject || !cur.predicate || !cur.object) {
 			g_set_error (error,
 			             TRACKER_SPARQL_ERROR,
 			             TRACKER_SPARQL_ERROR_INTERNAL,
@@ -237,12 +229,12 @@ serialize_up_to_size (TrackerSerializerTurtle *serializer_ttl,
 			return FALSE;
 		}
 
-		br = tracker_triple_get_break (serializer_ttl->last_triple, cur);
+		br = tracker_triple_get_break (&serializer_ttl->last_triple, &cur);
 
 		if (br <= TRACKER_TRIPLE_BREAK_SUBJECT) {
 			if (br == TRACKER_TRIPLE_BREAK_SUBJECT)
 				g_string_append (serializer_ttl->data, " .\n\n");
-			print_value (serializer_ttl->data, cur->subject, cur->subject_type, namespaces);
+			print_value (serializer_ttl->data, cur.subject, cur.subject_type, namespaces);
 		}
 
 		if (br <= TRACKER_TRIPLE_BREAK_PREDICATE) {
@@ -251,7 +243,7 @@ serialize_up_to_size (TrackerSerializerTurtle *serializer_ttl,
 			else
 				g_string_append_c (serializer_ttl->data, ' ');
 
-			print_value (serializer_ttl->data, cur->predicate,
+			print_value (serializer_ttl->data, cur.predicate,
 			             TRACKER_SPARQL_VALUE_TYPE_URI, namespaces);
 		}
 
@@ -260,12 +252,12 @@ serialize_up_to_size (TrackerSerializerTurtle *serializer_ttl,
 				g_string_append (serializer_ttl->data, ",");
 
 			g_string_append_c (serializer_ttl->data, ' ');
-			print_value (serializer_ttl->data, cur->object, cur->object_type, namespaces);
+			print_value (serializer_ttl->data, cur.object, cur.object_type, namespaces);
 		}
 
 		serializer_ttl->has_triples = TRUE;
-		g_clear_pointer (&serializer_ttl->last_triple, tracker_triple_free);
-		serializer_ttl->last_triple = cur;
+		tracker_triple_clear (&serializer_ttl->last_triple);
+		memcpy (&serializer_ttl->last_triple, &cur, sizeof (TrackerTriple));
 	}
 
 	/* Print dot for the last triple */
@@ -314,7 +306,7 @@ tracker_serializer_turtle_close (GInputStream  *istream,
 {
 	TrackerSerializerTurtle *serializer_ttl = TRACKER_SERIALIZER_TURTLE (istream);
 
-	g_clear_pointer (&serializer_ttl->last_triple, tracker_triple_free);
+	tracker_triple_clear (&serializer_ttl->last_triple);
 
 	if (serializer_ttl->data) {
 		g_string_free (serializer_ttl->data, TRUE);
