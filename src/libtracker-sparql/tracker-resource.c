@@ -434,10 +434,10 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_int64, gint64, G_TYPE_INT64, g_valu
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_relation, TrackerResource *, TRACKER_TYPE_RESOURCE, g_value_set_object, validate_pointer)
 
 /**
- * tracker_resource_set_take_relation: (skip)
+ * tracker_resource_set_take_relation:
  * @self: the #TrackerResource
  * @property_uri: a string identifying the property to modify
- * @resource: the property object
+ * @resource: (transfer full): the property object
  *
  * Sets a single-valued resource object as a #TrackerResource. This
  * function produces similar RDF to tracker_resource_set_uri(),
@@ -647,10 +647,10 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_int64, gint64, G_TYPE_INT64, g_valu
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_relation, TrackerResource *, TRACKER_TYPE_RESOURCE, g_value_set_object, validate_pointer)
 
 /**
- * tracker_resource_add_take_relation: (skip)
+ * tracker_resource_add_take_relation:
  * @self: the #TrackerResource
  * @property_uri: a string identifying the property to modify
- * @resource: the property object
+ * @resource: (transfer full): the property object
  *
  * Adds a resource object to a multi-valued property. This
  * function produces similar RDF to tracker_resource_add_uri(),
@@ -700,8 +700,8 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_datetime, GDateTime *, G_TYPE_DATE_
  *
  * Returns the list of all known values of the given property.
  *
- * Returns: (transfer container) (element-type GValue): a #GList of #GValue
- * instances. The list should be freed with g_list_free()
+ * Returns: (transfer container) (element-type GValue) (nullable): a #GList of
+ * #GValue instances. The list should be freed with g_list_free()
  */
 GList *tracker_resource_get_values (TrackerResource *self,
                                     const char      *property_uri)
@@ -820,7 +820,7 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_int64, gint64, G_TYPE_INT64, 
  *
  * Returns the first resource object previously assigned to a property.
  *
- * Returns: (transfer none): the first resource object
+ * Returns: (transfer none) (nullable): the first resource object
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_relation, TrackerResource *, TRACKER_TYPE_RESOURCE, g_value_get_object, NULL)
 
@@ -831,7 +831,7 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_relation, TrackerResource *, 
  *
  * Returns the first string object previously assigned to a property.
  *
- * Returns: the first string object
+ * Returns: (nullable): the first string object
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_string, const char *, G_TYPE_STRING, g_value_get_string, NULL)
 
@@ -842,7 +842,7 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_string, const char *, G_TYPE_
  *
  * Returns the first resource object previously assigned to a property.
  *
- * Returns: the first resource object as an URI.
+ * Returns: (nullable): the first resource object as an URI.
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_uri, const char *, TRACKER_TYPE_URI, g_value_get_string, NULL)
 
@@ -853,7 +853,7 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_uri, const char *, TRACKER_TY
  *
  * Returns the first resource object previously assigned to a property.
  *
- * Returns: the first GDateTime object
+ * Returns: (transfer none) (nullable): the first GDateTime object
  * Since: 3.2
  */
 GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_datetime, GDateTime *, G_TYPE_DATE_TIME, g_value_get_boxed, NULL)
@@ -867,7 +867,7 @@ GET_PROPERTY_FOR_GTYPE (tracker_resource_get_first_datetime, GDateTime *, G_TYPE
  * If the identifier was set to NULL, the identifier returned will be a unique
  * SPARQL blank node identifier, such as "_:123".
  *
- * Returns: a string owned by the resource
+ * Returns: (nullable): a string owned by the resource
  */
 const char *
 tracker_resource_get_identifier (TrackerResource *self)
@@ -887,14 +887,14 @@ tracker_resource_get_identifier (TrackerResource *self)
 /**
  * tracker_resource_set_identifier:
  * @self: a #TrackerResource
- * @identifier: (allow-none): a string identifying the resource
+ * @identifier: (nullable): a string identifying the resource
  *
  * Changes the identifier of a #TrackerResource. The identifier should be a
  * URI or compact URI, but this is not necessarily enforced. Invalid
  * identifiers may cause errors when serializing the resource or trying to
  * insert the results in a database.
  *
- * If the identifier is set to NULL, a SPARQL blank node identifier such as
+ * If the identifier is set to %NULL, a SPARQL blank node identifier such as
  * "_:123" is assigned to the resource.
  */
 void
@@ -934,7 +934,8 @@ tracker_resource_identifier_compare_func (TrackerResource *resource,
 
 /**
  * tracker_resource_compare:
- * @self: A #TrackerResource
+ * @a: A #TrackerResource
+ * @b: A second #TrackerResource to compare
  *
  * Compare the identifiers of two TrackerResource instances. The resources
  * are considered identical if they have the same identifier.
@@ -1612,7 +1613,7 @@ generate_jsonld_namespace_mapping_foreach (gpointer key,
 /**
  * tracker_resource_print_jsonld:
  * @self: a #TrackerResource
- * @namespaces: (allow-none): a set of prefixed URLs, or %NULL to use the
+ * @namespaces: (nullable): a set of prefixed URLs, or %NULL to use the
  *     Nepomuk set
  *
  * Serialize all the information in @resource as a JSON-LD document.
@@ -1695,7 +1696,8 @@ convert_format (TrackerRdfFormat format)
  * @self: a #TrackerResource
  * @namespaces: a set of prefixed URLs
  * @format: RDF format of the printed string
- * @graph: target graph of the resource RDF, or %NULL for the default graph
+ * @graph: (nullable): target graph of the resource RDF, or %NULL for the
+ * default graph
  *
  * Serialize all the information in @resource into the selected RDF format.
  *
@@ -1792,7 +1794,7 @@ tracker_serialize_single_value (TrackerResource         *resource,
  * All child resources are subsequently serialized. It is implied
  * that both ends use a common #TrackerNamespaceManager.
  *
- * Returns: (transfer full): A variant describing the resource,
+ * Returns: (transfer floating) (nullable): A variant describing the resource,
  *          the reference is floating.
  **/
 GVariant *
@@ -1868,7 +1870,7 @@ tracker_resource_serialize (TrackerResource *resource)
  * tracker_resource_serialize(). It is implied that both ends
  * use a common #TrackerNamespaceManager.
  *
- * Returns: (transfer full): A TrackerResource, or %NULL if
+ * Returns: (transfer full) (nullable): A TrackerResource, or %NULL if
  *          deserialization fails.
  **/
 TrackerResource *
