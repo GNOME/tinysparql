@@ -1544,7 +1544,7 @@ convert_format (TrackerRdfFormat format)
 		return TRACKER_SERIALIZER_FORMAT_TRIG;
 	case TRACKER_RDF_FORMAT_JSON_LD:
 		return TRACKER_SERIALIZER_FORMAT_JSON_LD;
-	case TRACKER_N_RDF_FORMATS:
+	case TRACKER_RDF_FORMAT_LAST:
 		g_assert_not_reached ();
 	}
 
