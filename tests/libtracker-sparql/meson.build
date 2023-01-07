@@ -18,6 +18,17 @@ tests += {
   'suite': ['resource'],
 }
 
+tracker_batch_test = executable('tracker-batch-test',
+  'tracker-batch-test.c',
+  dependencies: libtracker_sparql_test_deps,
+  c_args: libtracker_sparql_test_c_args)
+
+tests += {
+  'name': 'batch',
+  'exe': tracker_batch_test,
+  'suite': ['sparql'],
+}
+
 tracker_sparql_test = executable('tracker-sparql-test',
   'tracker-sparql-test.c',
   dependencies: libtracker_sparql_test_deps,

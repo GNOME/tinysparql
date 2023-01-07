@@ -31,6 +31,12 @@ struct _TrackerBusStatement
 	GHashTable *arguments;
 };
 
+typedef struct {
+	GMainLoop *loop;
+	gboolean retval;
+	GError *error;
+} UpdateAsyncData;
+
 G_DEFINE_TYPE (TrackerBusStatement,
                tracker_bus_statement,
 	       TRACKER_TYPE_SPARQL_STATEMENT)
@@ -249,6 +255,110 @@ tracker_bus_statement_serialize_finish (TrackerSparqlStatement  *stmt,
 }
 
 static void
+update_cb (GObject      *source,
+           GAsyncResult *res,
+           gpointer      user_data)
+{
+	UpdateAsyncData *data = user_data;
+
+	data->retval =
+		tracker_bus_connection_perform_update_array_finish (TRACKER_BUS_CONNECTION (source),
+		                                                    res, &data->error);
+	g_main_loop_quit (data->loop);
+}
+
+
+static gboolean
+tracker_bus_statement_update (TrackerSparqlStatement  *stmt,
+                              GCancellable            *cancellable,
+                              GError                 **error)
+{
+	TrackerBusStatement *bus_stmt = TRACKER_BUS_STATEMENT (stmt);
+	TrackerSparqlConnection *conn;
+	GMainContext *context;
+	UpdateAsyncData data = { 0, };
+	const gchar *sparql;
+
+	conn = tracker_sparql_statement_get_connection (stmt);
+	sparql = tracker_sparql_statement_get_sparql (stmt);
+
+	context = g_main_context_new ();
+	data.loop = g_main_loop_new (context, FALSE);
+	g_main_context_push_thread_default (context);
+
+	tracker_bus_connection_perform_update_array_async (TRACKER_BUS_CONNECTION (conn),
+	                                                   (gchar **) &sparql,
+	                                                   &bus_stmt->arguments,
+	                                                   1,
+	                                                   cancellable,
+	                                                   update_cb,
+	                                                   &data);
+
+	g_main_loop_run (data.loop);
+
+	g_main_context_pop_thread_default (context);
+
+	g_main_loop_unref (data.loop);
+
+	if (data.error) {
+		g_propagate_error (error, data.error);
+		return FALSE;
+	}
+
+	return data.retval;
+}
+
+static void
+update_async_cb (GObject      *source,
+                 GAsyncResult *res,
+                 gpointer      user_data)
+{
+	GTask *task = user_data;
+	GError *error = NULL;
+
+	tracker_bus_connection_perform_update_array_finish (TRACKER_BUS_CONNECTION (source),
+	                                                    res, &error);
+	if (error)
+		g_task_return_error (task, error);
+	else
+		g_task_return_boolean (task, TRUE);
+
+	g_object_unref (task);
+}
+
+static void
+tracker_bus_statement_update_async (TrackerSparqlStatement *stmt,
+                                    GCancellable           *cancellable,
+                                    GAsyncReadyCallback     callback,
+                                    gpointer                user_data)
+{
+	TrackerBusStatement *bus_stmt = TRACKER_BUS_STATEMENT (stmt);
+	TrackerSparqlConnection *conn;
+	const gchar *sparql;
+	GTask *task;
+
+	conn = tracker_sparql_statement_get_connection (stmt);
+	sparql = tracker_sparql_statement_get_sparql (stmt);
+
+	task = g_task_new (stmt, cancellable, callback, user_data);
+	tracker_bus_connection_perform_update_array_async (TRACKER_BUS_CONNECTION (conn),
+	                                                   (gchar **) &sparql,
+	                                                   &bus_stmt->arguments,
+	                                                   1,
+	                                                   cancellable,
+	                                                   update_async_cb,
+	                                                   task);
+}
+
+static gboolean
+tracker_bus_statement_update_finish (TrackerSparqlStatement  *stmt,
+                                     GAsyncResult            *res,
+                                     GError                 **error)
+{
+	return g_task_propagate_boolean (G_TASK (res), error);
+}
+
+static void
 tracker_bus_statement_class_init (TrackerBusStatementClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -268,6 +378,9 @@ tracker_bus_statement_class_init (TrackerBusStatementClass *klass)
 	stmt_class->execute_finish = tracker_bus_statement_execute_finish;
 	stmt_class->serialize_async = tracker_bus_statement_serialize_async;
 	stmt_class->serialize_finish = tracker_bus_statement_serialize_finish;
+	stmt_class->update = tracker_bus_statement_update;
+	stmt_class->update_async = tracker_bus_statement_update_async;
+	stmt_class->update_finish = tracker_bus_statement_update_finish;
 }
 
 static void
@@ -281,6 +394,16 @@ tracker_bus_statement_init (TrackerBusStatement *stmt)
 TrackerSparqlStatement *
 tracker_bus_statement_new (TrackerBusConnection *conn,
                            const gchar          *query)
+{
+	return g_object_new (TRACKER_TYPE_BUS_STATEMENT,
+	                     "connection", conn,
+	                     "sparql", query,
+	                     NULL);
+}
+
+TrackerSparqlStatement *
+tracker_bus_statement_new_update (TrackerBusConnection *conn,
+                                  const gchar          *query)
 {
 	return g_object_new (TRACKER_TYPE_BUS_STATEMENT,
 	                     "connection", conn,

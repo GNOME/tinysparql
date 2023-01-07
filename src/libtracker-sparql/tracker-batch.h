@@ -40,6 +40,7 @@ G_DECLARE_DERIVABLE_TYPE (TrackerBatch,
                           GObject)
 
 #include "tracker-connection.h"
+#include "tracker-statement.h"
 
 TRACKER_AVAILABLE_IN_3_1
 TrackerSparqlConnection * tracker_batch_get_connection (TrackerBatch *batch);
@@ -52,6 +53,18 @@ TRACKER_AVAILABLE_IN_3_1
 void tracker_batch_add_resource (TrackerBatch    *batch,
                                  const gchar     *graph,
                                  TrackerResource *resource);
+
+TRACKER_AVAILABLE_IN_3_5
+void tracker_batch_add_statement (TrackerBatch           *batch,
+                                  TrackerSparqlStatement *stmt,
+                                  ...) G_GNUC_NULL_TERMINATED;
+
+TRACKER_AVAILABLE_IN_3_5
+void tracker_batch_add_statementv (TrackerBatch           *batch,
+                                   TrackerSparqlStatement *stmt,
+                                   guint                   n_values,
+                                   const gchar            *variable_names[],
+                                   const GValue            values[]);
 
 TRACKER_AVAILABLE_IN_3_1
 gboolean tracker_batch_execute (TrackerBatch  *batch,

@@ -69,7 +69,6 @@ typedef struct _TrackerTripleContextClass TrackerTripleContextClass;
 typedef struct _TrackerDataTable TrackerDataTable;
 typedef struct _TrackerVariable TrackerVariable;
 typedef struct _TrackerToken TrackerToken;
-typedef struct _TrackerSolution TrackerSolution;
 typedef struct _TrackerPathElement TrackerPathElement;
 
 struct _TrackerDataTable {
@@ -130,6 +129,7 @@ struct _TrackerVariable {
 	gchar *name;
 	gchar *sql_expression;
 	TrackerVariableBinding *binding;
+	gint ref_count;
 };
 
 struct _TrackerToken {
@@ -140,14 +140,8 @@ struct _TrackerToken {
 		TrackerVariable *var;
 		TrackerPathElement *path;
 		gint64 bnode;
+		gchar *bnode_label;
 	} content;
-};
-
-struct _TrackerSolution {
-	GPtrArray *columns;
-	GPtrArray *values;
-	guint solution_index;
-	guint n_cols;
 };
 
 typedef enum {
@@ -305,13 +299,20 @@ void tracker_token_literal_init  (TrackerToken    *token,
                                   gssize           len);
 void tracker_token_variable_init (TrackerToken    *token,
                                   TrackerVariable *variable);
+void tracker_token_variable_init_from_name (TrackerToken *token,
+                                            const gchar  *name);
 void tracker_token_parameter_init (TrackerToken   *token,
 				   const gchar    *parameter);
 void tracker_token_path_init      (TrackerToken       *token,
                                    TrackerPathElement *path_elem);
 void tracker_token_bnode_init     (TrackerToken *token,
                                    gint64        bnode_id);
+void tracker_token_bnode_label_init (TrackerToken *token,
+                                     const gchar  *label);
 void tracker_token_unset (TrackerToken *token);
+
+void tracker_token_copy (TrackerToken *source,
+                         TrackerToken *dest);
 
 gboolean           tracker_token_is_empty     (TrackerToken *token);
 GBytes           * tracker_token_get_literal  (TrackerToken *token);
@@ -320,18 +321,8 @@ const gchar      * tracker_token_get_idstring (TrackerToken *token);
 const gchar      * tracker_token_get_parameter (TrackerToken *token);
 TrackerPathElement * tracker_token_get_path   (TrackerToken *token);
 gint64             tracker_token_get_bnode    (TrackerToken *token);
+const gchar * tracker_token_get_bnode_label (TrackerToken *token);
 
-/* Solution */
-TrackerSolution * tracker_solution_new       (guint            n_cols);
-void              tracker_solution_free      (TrackerSolution *solution);
-gboolean          tracker_solution_next      (TrackerSolution *solution);
-void              tracker_solution_rewind    (TrackerSolution *solution);
-
-void              tracker_solution_add_column_name (TrackerSolution *solution,
-                                                    const gchar     *str);
-void              tracker_solution_add_value       (TrackerSolution *solution,
-                                                    const gchar     *str);
-GHashTable      * tracker_solution_get_bindings    (TrackerSolution *solution);
 
 /* Property path element */
 TrackerPathElement * tracker_path_element_property_new (TrackerPathOperator  op,

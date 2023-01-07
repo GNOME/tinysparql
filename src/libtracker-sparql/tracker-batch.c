@@ -50,6 +50,8 @@
 #include "tracker-connection.h"
 #include "tracker-private.h"
 
+#include <gobject/gvaluecollector.h>
+
 enum {
 	PROP_0,
 	PROP_CONNECTION,
@@ -208,6 +210,158 @@ tracker_batch_add_resource (TrackerBatch    *batch,
 	g_return_if_fail (!priv->already_executed);
 
 	TRACKER_BATCH_GET_CLASS (batch)->add_resource (batch, graph, resource);
+}
+
+/**
+ * tracker_batch_add_statement: (skip):
+ * @batch: a #TrackerBatch
+ * @stmt: a #TrackerSparqlStatement containing a SPARQL update
+ * @...: parameters bound to @stmt, in triples of name/type/value
+ *
+ * Adds a #TrackerSparqlStatement containing an SPARQL update. The statement will
+ * be executed once in the batch, with the parameters bound as specified in the
+ * variable arguments.
+ *
+ * The variable arguments are a NULL terminated set of variable name, value GType,
+ * and actual value. For example, for a statement that has a single `~name` parameter,
+ * it could be given a value for execution with the given code:
+ *
+ * ```c
+ * tracker_batch_add_statement (batch, stmt,
+ *                              "name", G_TYPE_STRING, "John Smith",
+ *                              NULL);
+ * ```
+ *
+ * The #TrackerSparqlStatement may be used on multiple tracker_batch_add_statement()
+ * calls with the same or different values, on the same or different #TrackerBatch
+ * objects.
+ *
+ * This function should only be called on #TrackerSparqlStatement objects
+ * obtained through tracker_sparql_connection_update_statement() or
+ * update statements loaded through tracker_sparql_connection_load_statement_from_gresource().
+ *
+ * Since: 3.5
+ **/
+void
+tracker_batch_add_statement (TrackerBatch           *batch,
+                             TrackerSparqlStatement *stmt,
+                             ...)
+{
+	GPtrArray *variable_names;
+	GArray *values;
+	va_list varargs;
+	const gchar *var_name;
+
+	variable_names = g_ptr_array_new ();
+	g_ptr_array_set_free_func (variable_names, g_free);
+
+	values = g_array_new (FALSE, TRUE, sizeof (GValue));
+	g_array_set_clear_func (values, (GDestroyNotify) g_value_unset);
+
+	va_start (varargs, stmt);
+
+	var_name = va_arg (varargs, const gchar*);
+
+	while (var_name) {
+		GType var_type;
+		GValue var_value = G_VALUE_INIT;
+		gchar *error = NULL;
+
+		var_type = va_arg (varargs, GType);
+
+		G_VALUE_COLLECT_INIT (&var_value, var_type, varargs, 0, &error);
+
+		if (error) {
+			g_warning ("%s: %s", G_STRFUNC, error);
+			g_free (error);
+			goto error;
+		}
+
+		g_ptr_array_add (variable_names, g_strdup (var_name));
+		g_array_append_val (values, var_value);
+
+		var_name = va_arg (varargs, const gchar *);
+	}
+
+	tracker_batch_add_statementv (batch, stmt,
+	                              variable_names->len,
+	                              (const gchar **) variable_names->pdata,
+	                              (const GValue *) values->data);
+ error:
+	va_end (varargs);
+	g_ptr_array_unref (variable_names);
+	g_array_unref (values);
+}
+
+/**
+ * tracker_batch_add_statementv: (rename-to tracker_batch_add_statement)
+ * @batch: a #TrackerBatch
+ * @stmt: a #TrackerSparqlStatement containing a SPARQL update
+ * @n_values: the number of bound parameters
+ * @variable_names: (array length=n_values): the names of each bound parameter
+ * @values: (array length=n_values): the values of each bound parameter
+ *
+ * Adds a #TrackerSparqlStatement containing an SPARQL update. The statement will
+ * be executed once in the batch, with the values bound as specified by @variable_names
+ * and @values.
+ *
+ * For example, for a statement that has a single `~name` parameter,
+ * it could be given a value for execution with the given code:
+ *
+ * <div class="gi-lang-c"><pre><code class="language-c">
+ *
+ * ```
+ * const char *names = { "name" };
+ * const GValue values[G_N_ELEMENTS (names)] = { 0, };
+ *
+ * g_value_init (&values[0], G_TYPE_STRING);
+ * g_value_set_string (&values[0], "John Smith");
+ * tracker_batch_add_statementv (batch, stmt,
+ *                               G_N_ELEMENTS (names),
+ *                               names, values);
+ * ```
+ * </code></pre></div>
+ *
+ * <div class="gi-lang-python"><pre><code class="language-python">
+ *
+ * ```
+ * batch.add_statement(stmt, ['name'], ['John Smith']);
+ * ```
+ * </code></pre></div>
+ *
+ * <div class="gi-lang-javascript"><pre><code class="language-javascript">
+ *
+ * ```
+ * batch.add_statement(stmt, ['name'], ['John Smith']);
+ * ```
+ * </code></pre></div>
+ *
+ * The #TrackerSparqlStatement may be used on multiple tracker_batch_add_statement()
+ * calls with the same or different values, on the same or different #TrackerBatch
+ * objects.
+ *
+ * This function should only be called on #TrackerSparqlStatement objects
+ * obtained through tracker_sparql_connection_update_statement() or
+ * update statements loaded through tracker_sparql_connection_load_statement_from_gresource().
+ *
+ * Since: 3.5
+ **/
+void
+tracker_batch_add_statementv (TrackerBatch           *batch,
+                              TrackerSparqlStatement *stmt,
+                              guint                   n_values,
+                              const gchar            *variable_names[],
+                              const GValue            values[])
+{
+	TrackerBatchPrivate *priv = tracker_batch_get_instance_private (batch);
+
+	g_return_if_fail (TRACKER_IS_BATCH (batch));
+	g_return_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt));
+	g_return_if_fail (!priv->already_executed);
+
+	TRACKER_BATCH_GET_CLASS (batch)->add_statement (batch, stmt,
+	                                                n_values,
+	                                                variable_names, values);
 }
 
 /**

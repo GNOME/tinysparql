@@ -35,4 +35,7 @@ G_DECLARE_FINAL_TYPE (TrackerBusStatement,
 TrackerSparqlStatement * tracker_bus_statement_new (TrackerBusConnection *conn,
 						    const gchar          *sparql);
 
+TrackerSparqlStatement * tracker_bus_statement_new_update (TrackerBusConnection *conn,
+                                                           const gchar          *query);
+
 #endif /* __TRACKER_BUS_STATEMENT_H__ */

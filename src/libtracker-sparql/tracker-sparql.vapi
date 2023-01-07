@@ -112,6 +112,7 @@ namespace Tracker {
 		public extern static GLib.DBusConnection? get_dbus_connection ();
 
 		public virtual Statement? query_statement (string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error;
+		public virtual Statement? update_statement (string sparql, GLib.Cancellable? cancellable = null) throws Sparql.Error;
 		public virtual Batch? create_batch ();
 
 		public virtual Notifier? create_notifier ();
@@ -138,6 +139,9 @@ namespace Tracker {
 		public abstract Cursor execute (GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 		public async abstract Cursor execute_async (GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 		public async abstract GLib.InputStream serialize_async (SerializeFlags flags, RdfFormat format, GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
+
+		public abstract bool update (GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
+		public async abstract bool update_async (GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 	}
 
 	[CCode (cheader_filename = "libtracker-sparql/tracker-sparql.h")]
@@ -261,6 +265,8 @@ namespace Tracker {
 
 		public abstract void add_sparql (string sparql);
 		public abstract void add_resource (string? graph, Resource resource);
+		[CCode (cname = "tracker_batch_add_statementv")]
+		public abstract void add_statement (Sparql.Statement stmt, [CCode (array_length_cname = "n_values", array_length_pos = 1.5, array_length_type = "guint")] string[] parameters, [CCode (array_length_cname = "n_values", array_length_pos = 1.5, array_length_type = "guint")] GLib.Value[] values);
 		public abstract bool execute (GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 		public async abstract bool execute_async (GLib.Cancellable? cancellable) throws Sparql.Error, GLib.Error, GLib.IOError, GLib.DBusError;
 	}

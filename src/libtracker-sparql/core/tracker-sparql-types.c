@@ -29,6 +29,7 @@ enum {
 	TOKEN_TYPE_PARAMETER,
 	TOKEN_TYPE_PATH,
 	TOKEN_TYPE_BNODE,
+	TOKEN_TYPE_BNODE_LABEL,
 };
 
 /* Helper structs */
@@ -72,24 +73,34 @@ tracker_data_table_set_predicate_path (TrackerDataTable *table,
 
 static TrackerVariable *
 tracker_variable_new (const gchar *sql_prefix,
-		      const gchar *name)
+                      const gchar *name)
 {
 	TrackerVariable *variable;
 
 	variable = g_new0 (TrackerVariable, 1);
 	variable->name = g_strdup (name);
 	variable->sql_expression = g_strdup_printf ("\"%s_%s\"", sql_prefix, name);
+	variable->ref_count = 1;
 
 	return variable;
 }
 
-static void
-tracker_variable_free (TrackerVariable *variable)
+static TrackerVariable *
+tracker_variable_ref (TrackerVariable *variable)
 {
-	g_clear_object (&variable->binding);
-	g_free (variable->sql_expression);
-	g_free (variable->name);
-	g_free (variable);
+	g_atomic_int_inc (&variable->ref_count);
+	return variable;
+}
+
+static void
+tracker_variable_unref (TrackerVariable *variable)
+{
+	if (g_atomic_int_dec_and_test (&variable->ref_count)) {
+		g_clear_object (&variable->binding);
+		g_free (variable->sql_expression);
+		g_free (variable->name);
+		g_free (variable);
+	}
 }
 
 void
@@ -163,7 +174,15 @@ tracker_token_variable_init (TrackerToken    *token,
                              TrackerVariable *variable)
 {
 	token->type = TOKEN_TYPE_VARIABLE;
-	token->content.var = variable;
+	token->content.var = tracker_variable_ref (variable);
+}
+
+void
+tracker_token_variable_init_from_name (TrackerToken *token,
+                                       const gchar  *name)
+{
+	token->type = TOKEN_TYPE_VARIABLE;
+	token->content.var = tracker_variable_new ("v", name);
 }
 
 void
@@ -191,13 +210,56 @@ tracker_token_bnode_init (TrackerToken *token,
 }
 
 void
+tracker_token_bnode_label_init (TrackerToken *token,
+                                const gchar  *label)
+{
+	token->type = TOKEN_TYPE_BNODE_LABEL;
+	token->content.bnode_label = g_strdup (label);
+}
+
+void
 tracker_token_unset (TrackerToken *token)
 {
 	if (token->type == TOKEN_TYPE_LITERAL)
 		g_clear_pointer (&token->content.literal, g_bytes_unref);
 	else if (token->type == TOKEN_TYPE_PARAMETER)
 		g_clear_pointer (&token->content.parameter, g_free);
+	else if (token->type == TOKEN_TYPE_BNODE_LABEL)
+		g_clear_pointer (&token->content.bnode_label, g_free);
+	else if (token->type == TOKEN_TYPE_VARIABLE)
+		g_clear_pointer (&token->content.var, tracker_variable_unref);
 	token->type = TOKEN_TYPE_NONE;
+}
+
+void
+tracker_token_copy (TrackerToken *source,
+                    TrackerToken *dest)
+{
+	dest->type = source->type;
+
+	switch (source->type) {
+	case TOKEN_TYPE_NONE:
+		break;
+	case TOKEN_TYPE_LITERAL:
+		dest->content.literal = source->content.literal ?
+			g_bytes_ref (source->content.literal) : NULL;
+		break;
+	case TOKEN_TYPE_VARIABLE:
+		dest->content.var = tracker_variable_ref (source->content.var);
+		break;
+	case TOKEN_TYPE_PARAMETER:
+		dest->content.parameter = g_strdup (source->content.parameter);
+		break;
+	case TOKEN_TYPE_PATH:
+		dest->content.path = source->content.path;
+		break;
+	case TOKEN_TYPE_BNODE:
+		dest->content.bnode = source->content.bnode;
+		break;
+	case TOKEN_TYPE_BNODE_LABEL:
+		dest->content.bnode_label = g_strdup (source->content.bnode_label);
+		break;
+	}
 }
 
 gboolean
@@ -247,6 +309,14 @@ tracker_token_get_bnode (TrackerToken *token)
 }
 
 const gchar *
+tracker_token_get_bnode_label (TrackerToken *token)
+{
+	if (token->type == TOKEN_TYPE_BNODE_LABEL)
+		return token->content.bnode_label;
+	return NULL;
+}
+
+const gchar *
 tracker_token_get_idstring (TrackerToken *token)
 {
 	if (token->type == TOKEN_TYPE_LITERAL)
@@ -257,79 +327,6 @@ tracker_token_get_idstring (TrackerToken *token)
 		return token->content.path->name;
 	else
 		return NULL;
-}
-
-/* Solution */
-TrackerSolution *
-tracker_solution_new (guint n_cols)
-{
-	TrackerSolution *solution;
-
-	solution = g_new0 (TrackerSolution, 1);
-	solution->n_cols = n_cols;
-	solution->columns = g_ptr_array_new_with_free_func (g_free);
-	solution->values = g_ptr_array_new_with_free_func (g_free);
-	solution->solution_index = -1;
-
-	return solution;
-}
-
-void
-tracker_solution_add_column_name (TrackerSolution *solution,
-                                  const gchar     *name)
-{
-	g_ptr_array_add (solution->columns, g_strdup (name));
-}
-
-void
-tracker_solution_add_value (TrackerSolution *solution,
-                            const gchar     *str)
-{
-	g_ptr_array_add (solution->values, g_strdup (str));
-}
-
-gboolean
-tracker_solution_next (TrackerSolution *solution)
-{
-	solution->solution_index++;
-	return solution->solution_index * solution->n_cols < solution->values->len;
-}
-
-void
-tracker_solution_rewind (TrackerSolution *solution)
-{
-	solution->solution_index = -1;
-}
-
-void
-tracker_solution_free (TrackerSolution *solution)
-{
-	g_ptr_array_unref (solution->columns);
-	g_ptr_array_unref (solution->values);
-	g_free (solution);
-}
-
-GHashTable *
-tracker_solution_get_bindings (TrackerSolution *solution)
-{
-	GHashTable *ht;
-	guint i;
-
-	ht = g_hash_table_new (g_str_hash, g_str_equal);
-
-	for (i = 0; i < solution->columns->len; i++) {
-		guint values_pos = solution->solution_index * solution->n_cols + i;
-		gchar *name, *value;
-
-		if (values_pos >= solution->values->len)
-			break;
-
-		name = g_ptr_array_index (solution->columns, i);
-		value = g_ptr_array_index (solution->values, values_pos);
-		g_hash_table_insert (ht, name, value);
-	}
-
-	return ht;
 }
 
 /* Data binding */
@@ -790,7 +787,7 @@ tracker_select_context_ensure_variable (TrackerSelectContext *context,
 	if (!context->variables) {
 		context->variables =
 			g_hash_table_new_full (g_str_hash, g_str_equal, NULL,
-					       (GDestroyNotify) tracker_variable_free);
+			                       (GDestroyNotify) tracker_variable_unref);
 	}
 
 	variable = g_hash_table_lookup (context->variables, name);
@@ -814,7 +811,7 @@ tracker_select_context_add_generated_variable (TrackerSelectContext *context)
 
 	if (!context->generated_variables) {
 		context->generated_variables =
-			g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_variable_free);
+			g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_variable_unref);
 	}
 
 	name = g_strdup_printf ("%d", context->generated_variables->len + 1);

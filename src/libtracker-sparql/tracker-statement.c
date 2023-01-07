@@ -317,6 +317,11 @@ tracker_sparql_statement_bind_datetime (TrackerSparqlStatement *stmt,
  *
  * Executes the SPARQL query with the currently bound values.
  *
+ * This function should only be called on #TrackerSparqlStatement objects
+ * obtained through tracker_sparql_connection_query_statement() or
+ * SELECT/CONSTRUCT/DESCRIBE statements loaded through
+ * tracker_sparql_connection_load_statement_from_gresource().
+ *
  * Returns: (transfer full): A #TrackerSparqlCursor
  */
 TrackerSparqlCursor *
@@ -350,6 +355,11 @@ tracker_sparql_statement_execute (TrackerSparqlStatement  *stmt,
  * @user_data: user-defined data to be passed to @callback
  *
  * Asynchronously executes the SPARQL query with the currently bound values.
+ *
+ * This function should only be called on #TrackerSparqlStatement objects
+ * obtained through tracker_sparql_connection_query_statement() or
+ * SELECT/CONSTRUCT/DESCRIBE statements loaded through
+ * tracker_sparql_connection_load_statement_from_gresource().
  */
 void
 tracker_sparql_statement_execute_async (TrackerSparqlStatement *stmt,
@@ -398,6 +408,95 @@ tracker_sparql_statement_execute_finish (TrackerSparqlStatement  *stmt,
 
 	return cursor;
 }
+
+/**
+ * tracker_sparql_statement_update:
+ * @stmt: a #TrackerSparqlStatement
+ * @cancellable: a #GCancellable used to cancel the operation
+ * @error: #GError for error reporting.
+ *
+ * Executes the SPARQL update with the currently bound values.
+ *
+ * This function should only be called on #TrackerSparqlStatement objects
+ * obtained through tracker_sparql_connection_update_statement() or
+ * update statements loaded through tracker_sparql_connection_load_statement_from_gresource().
+ *
+ * Returns: %TRUE if the update finished with no errors, %FALSE otherwise
+ *
+ * Since: 3.5
+ */
+gboolean
+tracker_sparql_statement_update (TrackerSparqlStatement  *stmt,
+                                 GCancellable            *cancellable,
+                                 GError                 **error)
+{
+	g_return_val_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt), FALSE);
+	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), FALSE);
+	g_return_val_if_fail (!error || !*error, FALSE);
+
+	return TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->update (stmt,
+	                                                          cancellable,
+	                                                          error);
+}
+
+/**
+ * tracker_sparql_statement_update_async:
+ * @stmt: a #TrackerSparqlStatement
+ * @cancellable: a #GCancellable used to cancel the operation
+ * @callback: user-defined #GAsyncReadyCallback to be called when
+ *            asynchronous operation is finished.
+ * @user_data: user-defined data to be passed to @callback
+ *
+ * Asynchronously executes the SPARQL update query with the currently bound values.
+ *
+ * This function should only be called on #TrackerSparqlStatement objects
+ * obtained through tracker_sparql_connection_update_statement() or
+ * update statements loaded through tracker_sparql_connection_load_statement_from_gresource().
+ *
+ * Since: 3.5
+ */
+void
+tracker_sparql_statement_update_async (TrackerSparqlStatement *stmt,
+                                       GCancellable           *cancellable,
+                                       GAsyncReadyCallback     callback,
+                                       gpointer                user_data)
+{
+	g_return_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt));
+	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->update_async (stmt,
+	                                                         cancellable,
+	                                                         callback,
+	                                                         user_data);
+}
+
+/**
+ * tracker_sparql_statement_update_finish:
+ * @stmt: a #TrackerSparqlStatement
+ * @result: The #GAsyncResult from the callback used to return the #TrackerSparqlCursor
+ * @error: The error which occurred or %NULL
+ *
+ * Finishes the asynchronous update started through
+ * tracker_sparql_statement_update_async().
+ *
+ * Returns: %TRUE if the update finished with no errors, %FALSE otherwise
+ *
+ * Since: 3.5
+ */
+gboolean
+tracker_sparql_statement_update_finish (TrackerSparqlStatement  *stmt,
+                                        GAsyncResult            *result,
+                                        GError                 **error)
+{
+	g_return_val_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt), FALSE);
+	g_return_val_if_fail (G_IS_ASYNC_RESULT (result), FALSE);
+	g_return_val_if_fail (!error || !*error, FALSE);
+
+	return TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->update_finish (stmt,
+	                                                                 result,
+	                                                                 error);
+}
+
 
 /**
  * tracker_sparql_statement_clear_bindings:

@@ -1943,6 +1943,10 @@ get_bnode_id (GHashTable       *bnodes,
 {
 	TrackerRowid *value, bnode_id;
 
+	/* Skip blank node label prefixes */
+	if (g_str_has_prefix (str, "_:"))
+		str = &str[2];
+
 	value = g_hash_table_lookup (bnodes, str);
 	if (value)
 		return *value;
@@ -3170,7 +3174,7 @@ update_sparql (TrackerData  *data,
 {
 	GError *actual_error = NULL;
 	TrackerSparql *sparql_query;
-	GVariant *blank_nodes;
+	GVariant *blank_nodes = NULL;
 
 	g_return_val_if_fail (update != NULL, NULL);
 
@@ -3192,7 +3196,9 @@ update_sparql (TrackerData  *data,
 	}
 
 	sparql_query = tracker_sparql_new_update (data->manager, update);
-	blank_nodes = tracker_sparql_execute_update (sparql_query, blank, NULL, &actual_error);
+	tracker_sparql_execute_update (sparql_query, NULL, NULL,
+	                               blank ? &blank_nodes : NULL,
+	                               &actual_error);
 	g_object_unref (sparql_query);
 
 	if (actual_error) {

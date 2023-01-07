@@ -241,14 +241,37 @@ write_sparql_query (GOutputStream  *ostream,
 	return FALSE;
 }
 
+static GVariant *
+convert_params (GHashTable *parameters)
+{
+	GHashTableIter iter;
+	const gchar *name;
+	GVariant *value;
+	GVariantBuilder builder;
+
+	g_hash_table_iter_init (&iter, parameters);
+	g_variant_builder_init (&builder, G_VARIANT_TYPE ("a{sv}"));
+
+	while (g_hash_table_iter_next (&iter, (gpointer*) &name, (gpointer*) &value)) {
+		g_variant_builder_open (&builder, G_VARIANT_TYPE ("{sv}"));
+		g_variant_builder_add (&builder, "s", name);
+		g_variant_builder_add (&builder, "v", value);
+		g_variant_builder_close (&builder);
+	}
+
+	return g_variant_ref_sink (g_variant_builder_end (&builder));
+}
+
 static gboolean
 write_sparql_queries (GOutputStream  *ostream,
-		      const gchar   **queries,
-		      gint            n_queries,
-		      GError        **error)
+                      const gchar   **queries,
+                      GHashTable    **parameters,
+                      gint            n_queries,
+                      GError        **error)
 {
 	GDataOutputStream *data;
-	int len, i;
+	gchar *params_str = NULL;
+	int i;
 
 	data = g_data_output_stream_new (ostream);
 	g_data_output_stream_set_byte_order (data, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
@@ -257,18 +280,45 @@ write_sparql_queries (GOutputStream  *ostream,
 		goto error;
 
 	for (i = 0; i < n_queries; i++) {
+		int len, params_len = 0;
+
 		len = strlen (queries[i]);
-		if (!g_data_output_stream_put_int32 (data, len, NULL, error))
+
+		if (parameters && parameters[i]) {
+			GVariant *variant;
+
+			variant = convert_params (parameters[i]);
+			params_str = g_variant_print (variant, TRUE);
+			g_variant_unref (variant);
+
+			params_len = strlen (params_str);
+
+			/* Account for the intermediate \0 */
+			params_len++;
+		}
+
+		if (!g_data_output_stream_put_int32 (data, len + params_len, NULL, error))
 			goto error;
 		if (!g_data_output_stream_put_string (data, queries[i],
-						      NULL, error))
+		                                      NULL, error))
 			goto error;
+
+		if (params_str) {
+			if (!g_data_output_stream_put_byte (data, 0, NULL, error))
+				goto error;
+			if (!g_data_output_stream_put_string (data, params_str,
+			                                      NULL, error))
+				goto error;
+
+			g_clear_pointer (&params_str, g_free);
+		}
 	}
 
 	g_output_stream_close (G_OUTPUT_STREAM (data), NULL, NULL);
 	g_object_unref (data);
 	return TRUE;
  error:
+	g_clear_pointer (&params_str, g_free);
 	g_object_unref (data);
 	return FALSE;
 }
@@ -693,6 +743,15 @@ tracker_bus_connection_query_statement (TrackerSparqlConnection  *self,
 	return tracker_bus_statement_new (TRACKER_BUS_CONNECTION (self), query);
 }
 
+static TrackerSparqlStatement *
+tracker_bus_connection_update_statement (TrackerSparqlConnection  *self,
+                                         const gchar              *query,
+                                         GCancellable             *cancellable,
+                                         GError                  **error)
+{
+	return tracker_bus_statement_new_update (TRACKER_BUS_CONNECTION (self), query);
+}
+
 static void
 update_dbus_call_cb (GObject      *source,
 		     GAsyncResult *res,
@@ -866,37 +925,13 @@ tracker_bus_connection_update_array_async (TrackerSparqlConnection  *self,
                                            GAsyncReadyCallback       callback,
                                            gpointer                  user_data)
 {
-	GUnixFDList *fd_list;
-	GOutputStream *ostream;
-	GError *error = NULL;
-	GTask *task;
-	int fd_idx;
-
-	task = g_task_new (self, cancellable, callback, user_data);
-
-	if (n_updates == 0) {
-		g_task_return_pointer (task, NULL, NULL);
-		g_object_unref (task);
-		return;
-	}
-
-	if (!create_pipe_for_write (&ostream, &fd_list, &fd_idx, &error)) {
-		g_task_return_error (task, error);
-		g_object_unref (task);
-		return;
-	}
-
-	perform_update_async (TRACKER_BUS_CONNECTION (self),
-			      "UpdateArray",
-			      fd_list, fd_idx,
-			      cancellable,
-			      update_cb,
-			      task);
-
-	write_sparql_queries (ostream, (const gchar **) updates, n_updates, NULL);
-	g_output_stream_close (ostream, NULL, NULL);
-	g_object_unref (ostream);
-	g_object_unref (fd_list);
+	tracker_bus_connection_perform_update_array_async (TRACKER_BUS_CONNECTION (self),
+	                                                   updates,
+	                                                   NULL,
+	                                                   n_updates,
+	                                                   cancellable,
+	                                                   callback,
+	                                                   user_data);
 }
 
 static gboolean
@@ -904,18 +939,8 @@ tracker_bus_connection_update_array_finish (TrackerSparqlConnection  *self,
                                             GAsyncResult             *res,
                                             GError                  **error)
 {
-	GError *inner_error = NULL;
-	GVariant *retval;
-
-	retval = g_task_propagate_pointer (G_TASK (res), &inner_error);
-	g_clear_pointer (&retval, g_variant_unref);
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
-	}
-
-	return TRUE;
+	return tracker_bus_connection_perform_update_array_finish (TRACKER_BUS_CONNECTION (self),
+	                                                           res, error);
 }
 
 static void
@@ -1373,6 +1398,7 @@ tracker_bus_connection_class_init (TrackerBusConnectionClass *klass)
 	sparql_connection_class->query_async = tracker_bus_connection_query_async;
 	sparql_connection_class->query_finish = tracker_bus_connection_query_finish;
 	sparql_connection_class->query_statement = tracker_bus_connection_query_statement;
+	sparql_connection_class->update_statement = tracker_bus_connection_update_statement;
 	sparql_connection_class->update = tracker_bus_connection_update;
 	sparql_connection_class->update_async = tracker_bus_connection_update_async;
 	sparql_connection_class->update_finish = tracker_bus_connection_update_finish;
@@ -1701,4 +1727,65 @@ tracker_bus_connection_perform_serialize_finish (TrackerBusConnection  *conn,
 						 GError               **error)
 {
 	return g_task_propagate_pointer (G_TASK (res), error);
+}
+
+void
+tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
+                                                   gchar                **updates,
+                                                   GHashTable           **parameters,
+                                                   gint                   n_updates,
+                                                   GCancellable          *cancellable,
+                                                   GAsyncReadyCallback    callback,
+                                                   gpointer               user_data)
+{
+	GUnixFDList *fd_list;
+	GOutputStream *ostream;
+	GError *error = NULL;
+	GTask *task;
+	int fd_idx;
+
+	task = g_task_new (self, cancellable, callback, user_data);
+
+	if (n_updates == 0) {
+		g_task_return_pointer (task, NULL, NULL);
+		g_object_unref (task);
+		return;
+	}
+
+	if (!create_pipe_for_write (&ostream, &fd_list, &fd_idx, &error)) {
+		g_task_return_error (task, error);
+		g_object_unref (task);
+		return;
+	}
+
+	perform_update_async (TRACKER_BUS_CONNECTION (self),
+	                      "UpdateArray",
+	                      fd_list, fd_idx,
+	                      cancellable,
+	                      update_cb,
+	                      task);
+
+	write_sparql_queries (ostream, (const gchar **) updates, parameters, n_updates, NULL);
+	g_output_stream_close (ostream, NULL, NULL);
+	g_object_unref (ostream);
+	g_object_unref (fd_list);
+}
+
+gboolean
+tracker_bus_connection_perform_update_array_finish (TrackerBusConnection  *self,
+                                                    GAsyncResult          *res,
+                                                    GError               **error)
+{
+	GError *inner_error = NULL;
+	GVariant *retval;
+
+	retval = g_task_propagate_pointer (G_TASK (res), &inner_error);
+	g_clear_pointer (&retval, g_variant_unref);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	return TRUE;
 }

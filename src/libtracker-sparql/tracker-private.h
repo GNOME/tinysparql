@@ -80,6 +80,10 @@ struct _TrackerSparqlConnectionClass
                                                       const gchar              *sparql,
                                                       GCancellable             *cancellable,
                                                       GError                  **error);
+        TrackerSparqlStatement * (* update_statement) (TrackerSparqlConnection  *connection,
+                                                       const gchar              *sparql,
+                                                       GCancellable             *cancellable,
+                                                       GError                  **error);
 	TrackerNotifier * (* create_notifier) (TrackerSparqlConnection *connection);
 
 	void (* close) (TrackerSparqlConnection *connection);
@@ -259,6 +263,17 @@ struct _TrackerSparqlStatementClass
         GInputStream * (* serialize_finish) (TrackerSparqlStatement  *stmt,
                                              GAsyncResult            *res,
                                              GError                 **error);
+
+        gboolean (* update) (TrackerSparqlStatement  *stmt,
+                             GCancellable            *cancellable,
+                             GError                 **error);
+        void (* update_async) (TrackerSparqlStatement *stmt,
+                               GCancellable           *cancellable,
+                               GAsyncReadyCallback     callback,
+                               gpointer                user_data);
+        gboolean (* update_finish) (TrackerSparqlStatement  *stmt,
+                                    GAsyncResult            *res,
+                                    GError                 **error);
 };
 
 struct _TrackerNotifierClass {
@@ -276,6 +291,11 @@ struct _TrackerBatchClass {
 	void (* add_resource) (TrackerBatch    *batch,
 			       const gchar     *graph,
 			       TrackerResource *resource);
+	void (* add_statement) (TrackerBatch           *batch,
+	                        TrackerSparqlStatement *stmt,
+	                        guint                   n_values,
+	                        const gchar            *variable_names[],
+	                        const GValue            values[]);
 	gboolean (* execute) (TrackerBatch  *batch,
 			      GCancellable  *cancellable,
 			      GError       **error);

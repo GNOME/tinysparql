@@ -584,7 +584,9 @@ tracker_sparql_connection_get_namespace_manager (TrackerSparqlConnection *connec
  * @cancellable: a #GCancellable used to cancel the operation, or %NULL
  * @error: a #TrackerSparqlError or %NULL if no error occured
  *
- * Prepares the given @sparql as a #TrackerSparqlStatement.
+ * Prepares the given SELECT/DESCRIBE/CONSTRUCT @sparql as a #TrackerSparqlStatement.
+ * This prepared statement can be executed through tracker_sparql_statement_execute()
+ * or tracker_sparql_statement_serialize_async() families of functions.
  *
  * Returns: (transfer full) (nullable): a prepared statement
  */
@@ -603,6 +605,38 @@ tracker_sparql_connection_query_statement (TrackerSparqlConnection  *connection,
 	                                                                          sparql,
 	                                                                          cancellable,
 	                                                                          error);
+}
+
+/**
+ * tracker_sparql_connection_update_statement:
+ * @connection: a #TrackerSparqlConnection
+ * @sparql: the SPARQL update
+ * @cancellable: a #GCancellable used to cancel the operation, or %NULL
+ * @error: a #TrackerSparqlError or %NULL if no error occured
+ *
+ * Prepares the given INSERT/DELETE/LOAD/CLEAR/DROP/ADD/MOVE/COPY/CREATE @sparql
+ * as a #TrackerSparqlStatement. This prepared statement can be executed through
+ * the tracker_sparql_statement_update() family of functions.
+ *
+ * Returns: (transfer full) (nullable): a prepared statement
+ *
+ * Since: 3.5
+ */
+TrackerSparqlStatement *
+tracker_sparql_connection_update_statement (TrackerSparqlConnection  *connection,
+                                            const gchar              *sparql,
+                                            GCancellable             *cancellable,
+                                            GError                  **error)
+{
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), NULL);
+	g_return_val_if_fail (sparql != NULL, NULL);
+	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
+	g_return_val_if_fail (!error || !*error, NULL);
+
+	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_statement (connection,
+	                                                                           sparql,
+	                                                                           cancellable,
+	                                                                           error);
 }
 
 /**
