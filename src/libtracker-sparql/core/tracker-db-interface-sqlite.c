@@ -1890,27 +1890,27 @@ function_sparql_print_value (sqlite3_context *context,
 	case TRACKER_PROPERTY_TYPE_DATE:
 	case TRACKER_PROPERTY_TYPE_DATETIME:
 		if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
-			GDateTime *datetime;
+			struct tm tm;
 			gint64 timestamp;
+			gchar buf[100];
+			int retval;
 
 			timestamp = sqlite3_value_int64 (argv[0]);
-			datetime = g_date_time_new_from_unix_utc (timestamp);
 
-			if (datetime) {
-				gchar *str;
+			if (gmtime_r ((time_t *) &timestamp, &tm) == NULL)
+				result_context_function_error (context, fn, "Invalid unix timestamp");
 
-				if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME)
-					str = tracker_date_format_iso8601 (datetime);
-				else if (prop_type == TRACKER_PROPERTY_TYPE_DATE)
-					str = g_date_time_format (datetime, "%Y-%m-%d");
-				else
-					g_assert_not_reached ();
+			if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME)
+				retval = strftime ((gchar *) &buf, sizeof (buf), "%2C%y-%m-%dT%TZ", &tm);
+			else if (prop_type == TRACKER_PROPERTY_TYPE_DATE)
+				retval = strftime ((gchar *) &buf, sizeof (buf), "%2C%y-%m-%d", &tm);
+			else
+				g_assert_not_reached ();
 
-				sqlite3_result_text (context, str, -1, g_free);
-				g_date_time_unref (datetime);
-			} else {
-				sqlite3_result_null (context);
-			}
+			if (retval != 0)
+				sqlite3_result_text (context, g_strdup (buf), -1, g_free);
+			else
+				result_context_function_error (context, fn, "Invalid unix timestamp");
 		} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 			if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME) {
 				sqlite3_result_value (context, argv[0]);
@@ -3489,26 +3489,20 @@ tracker_db_cursor_get_boolean (TrackerSparqlCursor *sparql_cursor,
 static gboolean
 tracker_db_cursor_get_annotated_value_type (TrackerDBCursor        *cursor,
                                             guint                   column,
+                                            int                     column_type,
                                             TrackerSparqlValueType *value_type)
 {
-	TrackerDBInterface *iface;
 	TrackerPropertyType property_type;
 	gboolean is_null;
 
 	if (cursor->n_columns == 0)
 		return FALSE;
 
-	iface = cursor->ref_stmt->db_interface;
-
-	tracker_db_interface_lock (iface);
-
 	/* The value type may be annotated in extra columns, one per
 	 * user-visible column.
 	 */
 	property_type = sqlite3_column_int64 (cursor->stmt, column + cursor->n_columns);
-	is_null = sqlite3_column_type (cursor->stmt, column) == SQLITE_NULL;
-
-	tracker_db_interface_unlock (iface);
+	is_null = column_type == SQLITE_NULL;
 
 	if (is_null) {
 		*value_type = TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
@@ -3536,7 +3530,7 @@ tracker_db_cursor_get_annotated_value_type (TrackerDBCursor        *cursor,
 		*value_type = TRACKER_SPARQL_VALUE_TYPE_DATETIME;
 		return TRUE;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
-		if (g_str_has_prefix (tracker_db_cursor_get_string (cursor, column, NULL),
+		if (g_str_has_prefix ((const gchar *) sqlite3_column_text (cursor->stmt, column),
 		                      "urn:bnode:"))
 			*value_type = TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE;
 		else
@@ -3554,13 +3548,7 @@ tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
 {
 	TrackerDBInterface *iface;
 	gint column_type;
-	guint n_columns = tracker_db_cursor_get_n_columns (cursor);
 	TrackerSparqlValueType value_type;
-
-	g_return_val_if_fail (column < n_columns, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
-
-	if (tracker_db_cursor_get_annotated_value_type (cursor, column, &value_type))
-		return value_type;
 
 	iface = cursor->ref_stmt->db_interface;
 
@@ -3568,20 +3556,27 @@ tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
 
 	column_type = sqlite3_column_type (cursor->stmt, column);
 
+	if (!tracker_db_cursor_get_annotated_value_type (cursor, column, column_type, &value_type)) {
+		if (column_type == SQLITE_NULL) {
+			value_type = TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
+		}
+
+		switch (column_type) {
+		case SQLITE_INTEGER:
+			value_type = TRACKER_SPARQL_VALUE_TYPE_INTEGER;
+			break;
+		case SQLITE_FLOAT:
+			value_type = TRACKER_SPARQL_VALUE_TYPE_DOUBLE;
+			break;
+		default:
+			value_type = TRACKER_SPARQL_VALUE_TYPE_STRING;
+			break;
+		}
+	}
+
 	tracker_db_interface_unlock (iface);
 
-	if (column_type == SQLITE_NULL) {
-		return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
-        }
-
-	switch (column_type) {
-	case SQLITE_INTEGER:
-		return TRACKER_SPARQL_VALUE_TYPE_INTEGER;
-	case SQLITE_FLOAT:
-		return TRACKER_SPARQL_VALUE_TYPE_DOUBLE;
-	default:
-		return TRACKER_SPARQL_VALUE_TYPE_STRING;
-	}
+	return value_type;
 }
 
 const gchar*

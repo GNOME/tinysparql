@@ -31,8 +31,15 @@
 #define MAX_PREFIX_LENGTH 100
 
 typedef struct {
+	const gchar *prefix;
+	const gchar *uri;
+	int uri_len;
+} PrefixMap;
+
+typedef struct {
 	GHashTable *prefix_to_namespace;
 	GHashTable *namespace_to_prefix;
+	GArray *prefix_map;
 	gboolean sealed;
 } TrackerNamespaceManagerPrivate;
 
@@ -74,6 +81,7 @@ tracker_namespace_manager_init (TrackerNamespaceManager *self)
 
 	priv->prefix_to_namespace = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
 	priv->namespace_to_prefix = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+	priv->prefix_map = g_array_new (FALSE, FALSE, sizeof (PrefixMap));
 }
 
 static void
@@ -85,6 +93,7 @@ finalize (GObject *object)
 
 	g_hash_table_unref (priv->prefix_to_namespace);
 	g_hash_table_unref (priv->namespace_to_prefix);
+	g_array_unref (priv->prefix_map);
 
 	(G_OBJECT_CLASS (tracker_namespace_manager_parent_class)->finalize)(object);
 }
@@ -220,6 +229,8 @@ tracker_namespace_manager_add_prefix (TrackerNamespaceManager *self,
 {
 	TrackerNamespaceManagerPrivate *priv;
 	const char *str;
+	gchar *prefix_copy, *ns_copy;
+	PrefixMap map;
 
 	g_return_if_fail (TRACKER_IS_NAMESPACE_MANAGER (self));
 	g_return_if_fail (prefix != NULL);
@@ -245,8 +256,16 @@ tracker_namespace_manager_add_prefix (TrackerNamespaceManager *self,
 		return;
 	}
 
-	g_hash_table_insert (priv->prefix_to_namespace, g_strdup (prefix), g_strdup (ns));
+	prefix_copy = g_strdup (prefix);
+	ns_copy = g_strdup (ns);
+
+	g_hash_table_insert (priv->prefix_to_namespace, prefix_copy, ns_copy);
 	g_hash_table_insert (priv->namespace_to_prefix, g_strdup (ns), g_strdup (prefix));
+
+	map.prefix = prefix_copy;
+	map.uri = ns_copy;
+	map.uri_len = strlen (map.uri);
+	g_array_append_val (priv->prefix_map, map);
 }
 
 /**
@@ -311,20 +330,28 @@ tracker_namespace_manager_compress_uri (TrackerNamespaceManager *self,
                                         const char              *uri)
 {
 	TrackerNamespaceManagerPrivate *priv;
-	GHashTableIter iter;
-	const char *prefix, *namespace, *suffix;
+	guint i;
+	int len;
 
 	g_return_val_if_fail (TRACKER_IS_NAMESPACE_MANAGER (self), NULL);
 	g_return_val_if_fail (uri != NULL, NULL);
 
 	priv = GET_PRIVATE (self);
 
-	g_hash_table_iter_init (&iter, priv->prefix_to_namespace);
+	len = strlen (uri);
 
-	while (g_hash_table_iter_next (&iter, (gpointer *) &prefix, (gpointer *) &namespace)) {
-		if (g_str_has_prefix (uri, namespace)) {
-			suffix = &uri[strlen(namespace)];
-			return g_strdup_printf ("%s:%s", prefix, suffix);
+	for (i = 0; i < priv->prefix_map->len; i++) {
+		PrefixMap *map;
+		const char *suffix;
+
+		map = &g_array_index (priv->prefix_map, PrefixMap, i);
+
+		if (map->uri_len <= len &&
+		    map->uri[0] == uri[0] &&
+		    map->uri[map->uri_len - 1] == uri[map->uri_len - 1] &&
+		    strncmp (uri, map->uri, map->uri_len) == 0) {
+			suffix = &uri[map->uri_len];
+			return g_strconcat (map->prefix, ":", suffix, NULL);
 		}
 	}
 
