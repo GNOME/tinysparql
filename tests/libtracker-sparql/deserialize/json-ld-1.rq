@@ -1,0 +1,1 @@
+SELECT ?u { GRAPH tracker:FileSystem { ?u a nfo:FileDataObject } }

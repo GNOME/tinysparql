@@ -120,7 +120,7 @@ tracker_remote_connection_query (TrackerSparqlConnection  *connection,
 	TrackerSparqlCursor *deserializer;
 	GInputStream *stream;
 	guint formats =
-		(1 << TRACKER_SERIALIZER_FORMAT_JSON) ||
+		(1 << TRACKER_SERIALIZER_FORMAT_JSON) |
 		(1 << TRACKER_SERIALIZER_FORMAT_XML);
 
 	stream = tracker_http_client_send_message (priv->client,
@@ -178,7 +178,7 @@ tracker_remote_connection_query_async (TrackerSparqlConnection *connection,
 		tracker_remote_connection_get_instance_private (remote);
 	GTask *task;
 	guint flags =
-		(1 << TRACKER_SERIALIZER_FORMAT_JSON) ||
+		(1 << TRACKER_SERIALIZER_FORMAT_JSON) |
 		(1 << TRACKER_SERIALIZER_FORMAT_XML);
 
 	task = g_task_new (connection, cancellable, callback, user_data);

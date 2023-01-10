@@ -20,15 +20,12 @@ tool such as rapper(1) to convert the data to different formats.
 
 == OPTIONS
 
-*-g, --show-graphs*::
-  Tracker can separate data into multiple graphs. This feature is used
-  by the filesystem miner to separate different types of content. This
-  flag causes the relevant GRAPH statements to be output along with
-  the data.
+*-o, --output-format=<__RDF_FORMAT__>*::
+  Choose which RDF format to use to output results. Supported formats are
+  _turtle_, _trig_ and _json-ld_.
 
-  In this mode the output is TriG syntax rather than Turtle, due to
-  the extra GRAPH statements. Some tools which understand Turtle do not
-  understand TriG.
+*-g, --show-graphs*::
+  Deprecated. Does the same than *--output-format trig*.
 
 *--2to3*::
   Helper for migrating data from Tracker 2.x databases. This option

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, Red Hat, Inc
+ * Copyright (C) 2022, Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,17 +19,20 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_ENUMS_PRIVATE_H
-#define TRACKER_ENUMS_PRIVATE_H
+#include "tracker-deserializer-rdf.h"
 
-typedef enum
-{
-	TRACKER_SERIALIZER_FORMAT_JSON, /* application/sparql-results+json */
-	TRACKER_SERIALIZER_FORMAT_XML, /* application/sparql-results+xml */
-	TRACKER_SERIALIZER_FORMAT_TTL, /* text/turtle */
-	TRACKER_SERIALIZER_FORMAT_TRIG, /* application/trig */
-	TRACKER_SERIALIZER_FORMAT_JSON_LD, /* application/ld+json */
-	TRACKER_N_SERIALIZER_FORMATS
-} TrackerSerializerFormat;
+#include <gio/gio.h>
 
-#endif /* TRACKER_ENUMS_PRIVATE_H */
+#ifndef __TRACKER_DESERIALIZER_JSON_LD_H__
+#define __TRACKER_DESERIALIZER_JSON_LD_H__
+
+#define TRACKER_TYPE_DESERIALIZER_JSON_LD (tracker_deserializer_json_ld_get_type ())
+G_DECLARE_FINAL_TYPE (TrackerDeserializerJsonLD,
+                      tracker_deserializer_json_ld,
+                      TRACKER, DESERIALIZER_JSON_LD,
+                      TrackerDeserializerRdf)
+
+TrackerSparqlCursor * tracker_deserializer_json_ld_new (GInputStream * stream,
+                                                        TrackerNamespaceManager * manager);
+
+#endif /* __TRACKER_DESERIALIZER_JSON_LD_H__ */

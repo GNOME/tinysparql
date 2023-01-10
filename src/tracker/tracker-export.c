@@ -38,6 +38,7 @@
 static gchar *database_path;
 static gchar *dbus_service;
 static gchar *remote_service;
+static gchar *output_format;
 static gboolean show_graphs;
 static gchar **iris;
 static gchar *data_type = NULL;
@@ -51,6 +52,10 @@ static GOptionEntry entries[] = {
 	{ "dbus-service", 'b', 0, G_OPTION_ARG_STRING, &dbus_service,
 	  N_("Connects to a DBus service"),
 	  N_("DBus service name")
+	},
+	{ "output", 'o', 0, G_OPTION_ARG_STRING, &output_format,
+	  N_("Output results format: “turtle”, “trig” or “json-ld”"),
+	  N_("RDF_FORMAT")
 	},
 	{ "remote-service", 'r', 0, G_OPTION_ARG_STRING, &remote_service,
 	  N_("Connects to a remote service"),
@@ -315,6 +320,7 @@ export_run_default (void)
 	g_autoptr(GError) error = NULL;
 	g_autoptr(GString) query = NULL;
 	g_autoptr(GMainLoop) loop = NULL;
+	TrackerRdfFormat format;
 	guint i;
 
 	connection = create_connection (&error);
@@ -341,15 +347,43 @@ export_run_default (void)
 		                 "}");
 	}
 
-	tracker_term_pipe_to_pager ();
-
 	loop = g_main_loop_new (NULL, FALSE);
+
+	if (output_format) {
+		/* Matches TrackerRdfFormat */
+		const gchar *formats[] = {
+			"turtle",
+			"trig",
+			"json-ld",
+		};
+		guint i;
+		gboolean found = FALSE;
+
+		G_STATIC_ASSERT (G_N_ELEMENTS (formats) == TRACKER_N_RDF_FORMATS);
+
+		for (i = 0; i < G_N_ELEMENTS (formats); i++) {
+			if (g_strcmp0 (formats[i], output_format) == 0) {
+				format = i;
+				found = TRUE;
+				break;
+			}
+		}
+
+		if (!found) {
+			g_printerr (_("Unsupported serialization format “%s”\n"), output_format);
+			return EXIT_FAILURE;
+		}
+	} else if (show_graphs) {
+		format = TRACKER_RDF_FORMAT_TRIG;
+	} else {
+		format = TRACKER_RDF_FORMAT_TURTLE;
+	}
+
+	tracker_term_pipe_to_pager ();
 
 	tracker_sparql_connection_serialize_async (connection,
 	                                           TRACKER_SERIALIZE_FLAGS_NONE,
-	                                           show_graphs ?
-	                                           TRACKER_RDF_FORMAT_TRIG :
-	                                           TRACKER_RDF_FORMAT_TURTLE,
+	                                           format,
 	                                           query->str,
 	                                           NULL, serialize_cb, loop);
 	g_main_loop_run (loop);
