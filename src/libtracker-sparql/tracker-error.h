@@ -42,7 +42,7 @@ G_BEGIN_DECLS
  * @TRACKER_SPARQL_ERROR_INTERNAL: Internal error.
  * @TRACKER_SPARQL_ERROR_NO_SPACE: There was no disk space available to perform the request.
  * @TRACKER_SPARQL_ERROR_ONTOLOGY_NOT_FOUND: The specified ontology wasn't found.
- * @TRACKER_SPARQL_ERROR_OPEN_ERROR: Problem encounted while opening the database.
+ * @TRACKER_SPARQL_ERROR_OPEN_ERROR: Problem encountered while opening the database.
  * @TRACKER_SPARQL_ERROR_PARSE: Error parsing the SPARQL string.
  * @TRACKER_SPARQL_ERROR_QUERY_FAILED: Problem while executing the query.
  * @TRACKER_SPARQL_ERROR_TYPE: Type constraint failed when trying to insert data.
@@ -52,7 +52,7 @@ G_BEGIN_DECLS
  * @TRACKER_SPARQL_ERROR_UNSUPPORTED: Unsupported feature or method.
  * @TRACKER_SPARQL_ERROR_MISSING_LAST_MODIFIED_HEADER: The ontology doesn't contain nrl:lastModified header
  * @TRACKER_SPARQL_ERROR_INCOMPLETE_PROPERTY_DEFINITION: The property is not completely defined.
- * @TRACKER_SPARQL_N_ERRORS: The total number of error codes.
+ * @TRACKER_SPARQL_ERROR_LAST: The total number of error codes.
  *
  * Error domain for Tracker Sparql. Errors in this domain will be from the
  * #TrackerSparqlError enumeration. See #GError for more information on error
@@ -73,9 +73,10 @@ typedef enum {
 	TRACKER_SPARQL_ERROR_UNSUPPORTED,
 	TRACKER_SPARQL_ERROR_MISSING_LAST_MODIFIED_HEADER,
 	TRACKER_SPARQL_ERROR_INCOMPLETE_PROPERTY_DEFINITION,
-	TRACKER_SPARQL_N_ERRORS,
+	TRACKER_SPARQL_ERROR_LAST
 } TrackerSparqlError;
 
+#define TRACKER_SPARQL_N_ERRORS TRACKER_SPARQL_ERROR_LAST
 #define TRACKER_SPARQL_ERROR tracker_sparql_error_quark ()
 
 TRACKER_AVAILABLE_IN_ALL
