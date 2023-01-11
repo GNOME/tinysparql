@@ -532,6 +532,11 @@ tracker_sparql_cursor_next_finish (TrackerSparqlCursor  *cursor,
  * @cursor: a #TrackerSparqlCursor
  *
  * Resets the iterator to point back to the first result.
+ *
+ * Deprecated: 3.5: This function only works on cursors
+ * from direct #TrackerSparqlConnection objects and cannot work
+ * reliably across all cursor types. Issue a different query to
+ * obtain a new cursor.
  */
 void
 tracker_sparql_cursor_rewind (TrackerSparqlCursor *cursor)

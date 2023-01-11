@@ -116,7 +116,7 @@ gboolean tracker_sparql_cursor_next_finish (TrackerSparqlCursor  *cursor,
                                             GAsyncResult         *res,
                                             GError              **error);
 
-TRACKER_AVAILABLE_IN_ALL
+TRACKER_DEPRECATED_IN_3_5
 void tracker_sparql_cursor_rewind (TrackerSparqlCursor *cursor);
 
 G_END_DECLS

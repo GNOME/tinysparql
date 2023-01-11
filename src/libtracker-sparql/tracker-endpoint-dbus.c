@@ -849,8 +849,11 @@ update_blank_cb (GObject      *object,
 	GError *error = NULL;
 	GVariant *results;
 
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	results = tracker_sparql_connection_update_blank_finish (TRACKER_SPARQL_CONNECTION (object),
 	                                                         res, &error);
+	G_GNUC_END_IGNORE_DEPRECATIONS
+
 	if (results) {
 		GVariantBuilder builder;
 
@@ -881,11 +884,13 @@ read_update_blank_cb (GObject      *object,
 	}
 
 	conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (request->endpoint));
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	tracker_sparql_connection_update_blank_async (conn,
 	                                              request->query,
 	                                              request->endpoint->cancellable,
 	                                              update_blank_cb,
 	                                              request);
+	G_GNUC_END_IGNORE_DEPRECATIONS
 }
 
 static void
