@@ -1,3 +1,16 @@
+NEW in 3.5.0.alpha - 2023-01-11
+===============================
+  * New auto-generated VAPI file. This file is not compatible
+    with the previous VAPI, updates may be necessary.
+  * TrackerSparqlStatement may now be used with SPARQL updates
+  * JSON-LD is now supported as a RDF format
+  * Improved gobject-introspection annotations
+  * Improved generic handling of RDF data types
+  * Build GVDB as a meson subproject
+  * Performance improvements
+  * Fix some printf format strings
+  * Build fixes
+
 NEW in 3.4.2 - 2022-12-05
 =========================
   * Warn if IRIs are not absolute. This will turn into a query
