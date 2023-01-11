@@ -307,6 +307,7 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 				                            res);
 
 				if (node &&
+				    serializer_json_ld->recent_resources->next != NULL &&
 				    serializer_json_ld->cur_resource != json_node_get_object (node) &&
 				    g_list_find (serializer_json_ld->recent_resources, node)) {
 					/* This is still a "root" node, make it part of this tree */
