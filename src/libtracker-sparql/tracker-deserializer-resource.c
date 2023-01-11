@@ -314,6 +314,11 @@ convert_gvalue_to_string (TrackerDeserializerResource *deserializer,
 
 		val = g_value_get_int (value);
 		return g_strdup_printf ("%d", val);
+	} else if (G_VALUE_HOLDS (value, G_TYPE_UINT)) {
+		guint val;
+
+		val = g_value_get_uint (value);
+		return g_strdup_printf ("%u", val);
 	} else if (G_VALUE_HOLDS (value, G_TYPE_INT64)) {
 		gint64 val;
 

@@ -102,6 +102,43 @@ finish_objects (TrackerSerializerJsonLD *serializer_json_ld)
 	g_clear_list (&serializer_json_ld->recent_resources, NULL);
 }
 
+static JsonNode *
+create_node (const gchar             *id,
+             TrackerSparqlValueType   type,
+             TrackerNamespaceManager *namespaces)
+{
+	JsonNode *node;
+	JsonObject *object;
+
+	node = json_node_new (JSON_NODE_OBJECT);
+	object = json_object_new ();
+
+	if (type == TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE) {
+		gchar *bnode_label;
+
+		bnode_label = g_strconcat ("_:", id, NULL);
+		g_strdelimit (&bnode_label[2], ":", '_');
+		json_object_set_string_member (object, "@id", bnode_label);
+		g_free (bnode_label);
+	} else {
+		gchar *compressed;
+
+		compressed = tracker_namespace_manager_compress_uri (namespaces, id);
+
+		if (compressed) {
+			json_object_set_string_member (object, "@id", compressed);
+			g_free (compressed);
+		} else {
+			json_object_set_string_member (object, "@id", id);
+		}
+	}
+
+	json_node_set_object (node, object);
+	json_object_unref (object);
+
+	return node;
+}
+
 static gboolean
 serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
                           gsize                     pos,
@@ -140,7 +177,7 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 	while (!serializer_json_ld->cursor_finished) {
 		const gchar *graph, *subject, *predicate;
 		gboolean graph_changed, subject_changed;
-		TrackerSparqlValueType object_type;
+		TrackerSparqlValueType subject_type, object_type;
 		JsonNode *value = NULL;
 		gchar *prop = NULL;
 
@@ -161,6 +198,7 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 		}
 
 		subject = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+		subject_type = tracker_sparql_cursor_get_value_type (cursor, 0);
 		predicate = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 		object_type = tracker_sparql_cursor_get_value_type (cursor, 2);
 		graph = tracker_sparql_cursor_get_string (cursor, 3, NULL);
@@ -215,7 +253,6 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 		}
 
 		if (subject_changed || graph_changed) {
-			JsonNode *node;
 			JsonObject *object;
 
 			/* New/different subject */
@@ -228,19 +265,14 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 			node = g_hash_table_lookup (serializer_json_ld->resources, subject);
 
 			if (!node) {
-				node = json_node_new (JSON_NODE_OBJECT);
-				object = json_object_new ();
-				json_object_set_string_member (object, "@id", subject);
-				json_node_set_object (node, object);
-				json_object_unref (object);
+				node = create_node (subject, subject_type, namespaces);
 
 				g_hash_table_insert (serializer_json_ld->resources, g_strdup (subject), node);
 				serializer_json_ld->recent_resources =
 					g_list_prepend (serializer_json_ld->recent_resources, node);
-			} else {
-				object = json_node_get_object (node);
 			}
 
+			object = json_node_get_object (node);
 			serializer_json_ld->cur_resource = object;
 
 			g_clear_pointer (&serializer_json_ld->cur_subject, g_free);
@@ -275,6 +307,7 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 				                            res);
 
 				if (node &&
+				    serializer_json_ld->recent_resources->next != NULL &&
 				    serializer_json_ld->cur_resource != json_node_get_object (node) &&
 				    g_list_find (serializer_json_ld->recent_resources, node)) {
 					/* This is still a "root" node, make it part of this tree */
@@ -282,14 +315,8 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 						g_list_remove (serializer_json_ld->recent_resources, node);
 					value = json_node_ref (node);
 				} else {
-					JsonObject *object;
-
 					/* Unknown object, or one already referenced elsewhere */
-					value = json_node_new (JSON_NODE_OBJECT);
-					object = json_object_new ();
-					json_object_set_string_member (object, "@id", res);
-					json_node_set_object (value, object);
-					json_object_unref (object);
+					value = create_node (res, object_type, namespaces);
 				}
 				break;
 			case TRACKER_SPARQL_VALUE_TYPE_STRING:
