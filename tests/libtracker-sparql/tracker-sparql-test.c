@@ -132,6 +132,14 @@ test_tracker_check_version (void)
 	g_assert_true(tracker_check_version(TRACKER_MAJOR_VERSION,
 	                                    TRACKER_MINOR_VERSION,
 	                                    TRACKER_MICRO_VERSION) == NULL);
+	g_assert_true(strstr (tracker_check_version(TRACKER_MAJOR_VERSION + 1, 0, 0),
+	                      "old") != NULL);
+	g_assert_true(strstr (tracker_check_version(TRACKER_MAJOR_VERSION - 1, 0, 0),
+	                      "new") != NULL);
+	g_assert_true(strstr (tracker_check_version(TRACKER_MAJOR_VERSION, -1, 0),
+	                      "new") != NULL);
+	g_assert_true(strstr (tracker_check_version(TRACKER_MAJOR_VERSION, 99, 0),
+	                      "old") != NULL);
 }
 
 gint
