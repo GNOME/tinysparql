@@ -3254,8 +3254,8 @@ tracker_db_statement_bind_bytes (TrackerDBStatement         *stmt,
 
 void
 tracker_db_statement_bind_value (TrackerDBStatement *stmt,
-				 int                 index,
-				 const GValue       *value)
+                                 int                 index,
+                                 const GValue       *value)
 {
 	GType type;
 
@@ -3278,6 +3278,10 @@ tracker_db_statement_bind_value (TrackerDBStatement *stmt,
 	} else if (type == G_TYPE_STRING) {
 		sqlite3_bind_text (stmt->stmt, index + 1,
 				   g_value_get_string (value), -1, SQLITE_TRANSIENT);
+	} else if (type == G_TYPE_BOOLEAN) {
+		sqlite3_bind_text (stmt->stmt, index + 1,
+		                   g_value_get_boolean (value) ? "true" : "false",
+		                   -1, 0);
 	} else if (type == G_TYPE_BYTES) {
 		GBytes *bytes;
 		gconstpointer data;
