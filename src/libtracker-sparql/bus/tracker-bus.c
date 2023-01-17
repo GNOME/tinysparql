@@ -255,7 +255,7 @@ convert_params (GHashTable *parameters)
 	while (g_hash_table_iter_next (&iter, (gpointer*) &name, (gpointer*) &value)) {
 		g_variant_builder_open (&builder, G_VARIANT_TYPE ("{sv}"));
 		g_variant_builder_add (&builder, "s", name);
-		g_variant_builder_add (&builder, "v", value);
+		g_variant_builder_add (&builder, "v", g_variant_ref (value));
 		g_variant_builder_close (&builder);
 	}
 
