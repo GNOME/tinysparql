@@ -294,10 +294,18 @@ update_thread_func (gpointer data,
 	case TASK_TYPE_UPDATE_STATEMENT: {
 		UpdateStatement *data = task_data->data;
 
-		tracker_direct_statement_execute_update (data->stmt,
-		                                         data->parameters,
-		                                         NULL,
-		                                         &error);
+		tracker_data_begin_transaction (tracker_data, &error);
+		if (error)
+			break;
+
+		if (tracker_direct_statement_execute_update (data->stmt,
+		                                             data->parameters,
+		                                             NULL,
+		                                             &error)) {
+			tracker_data_commit_transaction (tracker_data, &error);
+		} else {
+			tracker_data_rollback_transaction (tracker_data);
+		}
 		break;
 	}
 	case TASK_TYPE_RELEASE_MEMORY:
@@ -1732,13 +1740,27 @@ tracker_direct_connection_execute_update_statement (TrackerDirectConnection  *co
                                                     GError                  **error)
 {
 	TrackerDirectConnectionPrivate *priv;
+	TrackerData *tracker_data;
 	GError *inner_error = NULL;
 
 	priv = tracker_direct_connection_get_instance_private (conn);
 
 	g_mutex_lock (&priv->mutex);
-	tracker_direct_statement_execute_update (stmt, parameters, NULL, &inner_error);
-	tracker_direct_connection_update_timestamp (conn);
+
+	tracker_data = tracker_data_manager_get_data (priv->data_manager);
+	tracker_data_begin_transaction (tracker_data, &inner_error);
+	if (inner_error)
+		goto out;
+
+	if (tracker_direct_statement_execute_update (stmt, parameters, NULL, &inner_error)) {
+		tracker_data_commit_transaction (tracker_data, &inner_error);
+		if (!inner_error)
+			tracker_direct_connection_update_timestamp (conn);
+	} else {
+		tracker_data_rollback_transaction (tracker_data);
+	}
+
+ out:
 	g_mutex_unlock (&priv->mutex);
 
 	if (inner_error) {
