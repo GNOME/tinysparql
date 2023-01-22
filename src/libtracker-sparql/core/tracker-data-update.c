@@ -124,6 +124,8 @@ struct _TrackerDataUpdateBufferGraph {
 	TrackerDBStatement *update_ref;
 	TrackerDBStatement *delete_ref;
 	TrackerDBStatement *query_rdf_types;
+	TrackerDBStatement *fts_delete;
+	TrackerDBStatement *fts_insert;
 	TrackerDBStatementMru values_mru;
 };
 
@@ -1489,6 +1491,8 @@ graph_buffer_free (TrackerDataUpdateBufferGraph *graph)
 	g_clear_object (&graph->update_ref);
 	g_clear_object (&graph->delete_ref);
 	g_clear_object (&graph->query_rdf_types);
+	g_clear_object (&graph->fts_delete);
+	g_clear_object (&graph->fts_insert);
 	g_hash_table_unref (graph->resources);
 	g_array_unref (graph->refcounts);
 	g_free (graph->graph);
@@ -1529,22 +1533,55 @@ get_fts_properties (TrackerData *data)
 	return result;
 }
 
+static gboolean
+tracker_data_ensure_graph_fts_stmts (TrackerData                   *data,
+                                     TrackerDataUpdateBufferGraph  *graph,
+                                     GError                       **error)
+{
+	TrackerDBInterface *iface;
+	const gchar *database;
+	GPtrArray *properties;
+
+	if (G_LIKELY (graph->fts_insert && graph->fts_delete))
+		return TRUE;
+
+	database = graph->graph ? graph->graph : "main";
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
+	properties = get_fts_properties (data);
+
+	if (!graph->fts_delete) {
+		graph->fts_delete =
+			tracker_db_interface_sqlite_fts_delete_text_stmt (iface,
+			                                                  database,
+			                                                  (const gchar **) properties->pdata,
+			                                                  error);
+	}
+
+	if (graph->fts_delete && !graph->fts_insert) {
+		graph->fts_insert =
+			tracker_db_interface_sqlite_fts_insert_text_stmt (iface,
+			                                                  database,
+			                                                  (const gchar **) properties->pdata,
+			                                                  error);
+	}
+
+	g_ptr_array_free (properties, TRUE);
+
+	return graph->fts_insert && graph->fts_delete;
+}
+
 void
 tracker_data_update_buffer_flush (TrackerData  *data,
                                   GError      **error)
 {
 	TrackerDataUpdateBufferGraph *graph;
 	TrackerDataUpdateBufferResource *resource;
-	TrackerDBInterface *iface;
 	GHashTableIter iter;
 	GError *actual_error = NULL;
-	const gchar *database;
 	guint i;
 
 	if (data->update_buffer.update_log->len == 0)
 		return;
-
-	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 	for (i = 0; i < data->update_buffer.graphs->len; i++) {
 		graph = g_ptr_array_index (data->update_buffer.graphs, i);
@@ -1552,20 +1589,14 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 
 		while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource)) {
 			if (resource->fts_update && !resource->create) {
-				GPtrArray *properties;
-				gboolean retval;
+				if (!tracker_data_ensure_graph_fts_stmts (data,
+				                                          graph,
+				                                          error))
+					goto out;
 
-				database = resource->graph->graph ? resource->graph->graph : "main";
-				properties = get_fts_properties (data);
+				tracker_db_statement_bind_int (graph->fts_delete, 0, resource->id);
 
-				retval = tracker_db_interface_sqlite_fts_delete_text (iface,
-				                                                      database,
-				                                                      resource->id,
-				                                                      (const gchar **) properties->pdata,
-				                                                      error);
-				g_ptr_array_free (properties, TRUE);
-
-				if (!retval)
+				if (!tracker_db_statement_execute (graph->fts_delete, error))
 					goto out;
 			}
 		}
@@ -1580,20 +1611,14 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 
 		while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource)) {
 			if (resource->fts_update) {
-				GPtrArray *properties;
-				gboolean retval;
+				if (!tracker_data_ensure_graph_fts_stmts (data,
+				                                          graph,
+				                                          error))
+					goto out;
 
-				database = resource->graph->graph ? resource->graph->graph : "main";
-				properties = get_fts_properties (data);
+				tracker_db_statement_bind_int (graph->fts_insert, 0, resource->id);
 
-				retval = tracker_db_interface_sqlite_fts_update_text (iface,
-				                                                      database,
-				                                                      resource->id,
-				                                                      (const gchar **) properties->pdata,
-				                                                      error);
-				g_ptr_array_free (properties, TRUE);
-
-				if (!retval)
+				if (!tracker_db_statement_execute (graph->fts_insert, error))
 					goto out;
 			}
 		}

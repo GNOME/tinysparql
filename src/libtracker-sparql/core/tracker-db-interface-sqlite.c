@@ -2307,15 +2307,13 @@ tracker_db_interface_sqlite_fts_create_update_query (TrackerDBInterface  *db_int
         return query;
 }
 
-gboolean
-tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
-                                             const gchar         *database,
-                                             TrackerRowid         id,
-                                             const gchar        **properties,
-                                             GError             **error)
+TrackerDBStatement *
+tracker_db_interface_sqlite_fts_insert_text_stmt (TrackerDBInterface  *db_interface,
+                                                  const gchar         *database,
+                                                  const gchar        **properties,
+                                                  GError             **error)
 {
 	TrackerDBStatement *stmt;
-	GError *inner_error = NULL;
 	gchar *query;
 
 	query = tracker_db_interface_sqlite_fts_create_update_query (db_interface,
@@ -2327,19 +2325,7 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
 	                                              query);
 	g_free (query);
 
-        if (!stmt)
-                return FALSE;
-
-        tracker_db_statement_bind_int (stmt, 0, id);
-        tracker_db_statement_execute (stmt, &inner_error);
-        g_object_unref (stmt);
-
-        if (inner_error) {
-	        g_propagate_prefixed_error (error, inner_error, "Could not insert FTS text: ");
-                return FALSE;
-        }
-
-        return TRUE;
+	return stmt;
 }
 
 static gchar *
@@ -2371,39 +2357,25 @@ tracker_db_interface_sqlite_fts_create_delete_query (TrackerDBInterface  *db_int
         return query;
 }
 
-gboolean
-tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
-                                             const gchar         *database,
-                                             TrackerRowid         rowid,
-                                             const gchar        **properties,
-                                             GError             **error)
+TrackerDBStatement *
+tracker_db_interface_sqlite_fts_delete_text_stmt (TrackerDBInterface  *db_interface,
+                                                  const gchar         *database,
+                                                  const gchar        **properties,
+                                                  GError             **error)
 {
 	TrackerDBStatement *stmt;
-	GError *inner_error = NULL;
 	gchar *query;
 
 	query = tracker_db_interface_sqlite_fts_create_delete_query (db_interface,
 	                                                             database,
 	                                                             properties);
 	stmt = tracker_db_interface_create_statement (db_interface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              error,
 	                                              query);
 	g_free (query);
 
-	if (!stmt)
-		return FALSE;
-
-	tracker_db_statement_bind_int (stmt, 0, rowid);
-	tracker_db_statement_execute (stmt, &inner_error);
-	g_object_unref (stmt);
-
-	if (inner_error) {
-	        g_propagate_prefixed_error (error, inner_error, "Could not delete FTS text: ");
-                return FALSE;
-	}
-
-	return TRUE;
+	return stmt;
 }
 
 gboolean
