@@ -96,6 +96,7 @@ struct _TrackerDBManager {
 enum {
 	SETUP_INTERFACE,
 	UPDATE_INTERFACE,
+	INTEGRITY_CHECK,
 	N_SIGNALS
 };
 
@@ -448,6 +449,7 @@ db_check_integrity (TrackerDBManager *db_manager)
 	GError *internal_error = NULL;
 	TrackerDBStatement *stmt;
 	TrackerDBCursor *cursor = NULL;
+	gboolean handled = FALSE;
 
 	stmt = tracker_db_interface_create_statement (db_manager->db.iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              &internal_error,
@@ -478,21 +480,11 @@ db_check_integrity (TrackerDBManager *db_manager)
 		g_object_unref (cursor);
 	}
 
-	/* ensure that database has been initialized by an earlier tracker-store start
-	   by checking whether Resource table exists */
-	stmt = tracker_db_interface_create_statement (db_manager->db.iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              &internal_error,
-	                                              "SELECT 1 FROM Resource");
-	if (!stmt) {
-		if (internal_error) {
-			g_message ("Corrupt database: failed to create resource check statement: %s", internal_error->message);
-		}
+	g_signal_emit (db_manager, signals[INTEGRITY_CHECK], 0, db_manager->db.iface, &handled);
 
-		g_clear_error (&internal_error);
+	/* Someone raised an error */
+	if (handled)
 		return FALSE;
-	}
-
-	g_object_unref (stmt);
 
 	return TRUE;
 }
@@ -908,6 +900,14 @@ tracker_db_manager_class_init (TrackerDBManagerClass *klass)
                              NULL, NULL,
                              g_cclosure_marshal_VOID__OBJECT,
                              G_TYPE_NONE,
+                             1, TRACKER_TYPE_DB_INTERFACE);
+	signals[INTEGRITY_CHECK] =
+               g_signal_new ("integrity-check",
+                             G_TYPE_FROM_CLASS (klass),
+                             G_SIGNAL_RUN_LAST, 0,
+                             g_signal_accumulator_true_handled,
+                             NULL, NULL,
+                             G_TYPE_BOOLEAN,
                              1, TRACKER_TYPE_DB_INTERFACE);
 }
 

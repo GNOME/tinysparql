@@ -4160,6 +4160,35 @@ update_interface_cb (TrackerDBManager   *db_manager,
 }
 
 static gboolean
+integrity_check_cb (TrackerDBManager   *db_manager,
+                    TrackerDBInterface *iface,
+                    TrackerDataManager *data_manager)
+{
+	GError *internal_error = NULL;
+	TrackerDBStatement *stmt;
+
+	/* Ensure that database has been initialized earlier
+	 * by checking whether Resource table exists.
+	 */
+	stmt = tracker_db_interface_create_statement (iface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+	                                              &internal_error,
+	                                              "SELECT 1 FROM Resource");
+	if (!stmt) {
+		if (internal_error) {
+			g_message ("Corrupt database: failed to create resource check statement: %s", internal_error->message);
+		}
+
+		g_clear_error (&internal_error);
+		return TRUE;
+	}
+
+	g_clear_object (&stmt);
+
+	return FALSE;
+}
+
+static gboolean
 tracker_data_manager_update_from_version (TrackerDataManager  *manager,
                                           TrackerDBVersion     version,
                                           GError             **error)
@@ -4276,6 +4305,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                  G_CALLBACK (setup_interface_cb), manager);
 	g_signal_connect (manager->db_manager, "update-interface",
 	                  G_CALLBACK (update_interface_cb), manager);
+	g_signal_connect (manager->db_manager, "integrity-check",
+	                  G_CALLBACK (integrity_check_cb), manager);
 
 	tracker_data_manager_update_status (manager, "Initializing data manager");
 
