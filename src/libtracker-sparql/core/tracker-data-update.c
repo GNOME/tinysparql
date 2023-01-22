@@ -2568,7 +2568,9 @@ resource_buffer_switch (TrackerData   *data,
 
 		create = g_hash_table_contains (data->update_buffer.new_resources,
 		                                &subject);
-		if (!create) {
+		if (create) {
+			rdf_types = g_ptr_array_new ();
+		} else {
 			rdf_types = tracker_data_query_rdf_type (data,
 			                                         graph_buffer,
 			                                         subject,
@@ -2577,17 +2579,15 @@ resource_buffer_switch (TrackerData   *data,
 				g_propagate_error (error, inner_error);
 				return FALSE;
 			}
+
+			if (rdf_types->len == 0)
+				create = TRUE;
 		}
 
 		resource_buffer = g_slice_new0 (TrackerDataUpdateBufferResource);
 		resource_buffer->id = subject;
 		resource_buffer->create = create;
-
-		if (resource_buffer->create) {
-			resource_buffer->types = g_ptr_array_new ();
-		} else {
-			resource_buffer->types = rdf_types;
-		}
+		resource_buffer->types = rdf_types;
 		resource_buffer->graph = graph_buffer;
 
 		g_hash_table_insert (graph_buffer->resources, &resource_buffer->id, resource_buffer);
