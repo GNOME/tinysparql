@@ -1507,6 +1507,29 @@ static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 	g_slice_free (TrackerDataUpdateBufferResource, resource);
 }
 
+GPtrArray *
+get_fts_properties (TrackerData *data)
+{
+	TrackerOntologies *ontologies;
+	TrackerProperty **properties;
+	guint n_props, i;
+	GPtrArray *result;
+
+	ontologies = tracker_data_manager_get_ontologies (data->manager);
+	properties = tracker_ontologies_get_properties (ontologies, &n_props);
+
+	result = g_ptr_array_sized_new (8);
+
+	for (i = 0; i < n_props; i++) {
+		if (tracker_property_get_fulltext_indexed (properties[i]))
+			g_ptr_array_add (result, (gpointer) tracker_property_get_name (properties[i]));
+	}
+
+	g_ptr_array_add (result, NULL);
+
+	return result;
+}
+
 void
 tracker_data_update_buffer_flush (TrackerData  *data,
                                   GError      **error)
@@ -1517,7 +1540,6 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 	GHashTableIter iter;
 	GError *actual_error = NULL;
 	const gchar *database;
-	GList *l;
 	guint i;
 
 	if (data->update_buffer.update_log->len == 0)
@@ -1534,13 +1556,8 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 				GPtrArray *properties;
 				gboolean retval;
 
-				properties = g_ptr_array_sized_new (8);
 				database = resource->graph->graph ? resource->graph->graph : "main";
-
-				for (l = resource->fts_properties; l; l = l->next)
-					g_ptr_array_add (properties, (gpointer) tracker_property_get_name (l->data));
-
-				g_ptr_array_add (properties, NULL);
+				properties = get_fts_properties (data);
 
 				retval = tracker_db_interface_sqlite_fts_delete_text (iface,
 				                                                      database,
@@ -1567,13 +1584,8 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 				GPtrArray *properties;
 				gboolean retval;
 
-				properties = g_ptr_array_sized_new (8);
 				database = resource->graph->graph ? resource->graph->graph : "main";
-
-				for (l = resource->fts_properties; l; l = l->next)
-					g_ptr_array_add (properties, (gpointer) tracker_property_get_name (l->data));
-
-				g_ptr_array_add (properties, NULL);
+				properties = get_fts_properties (data);
 
 				retval = tracker_db_interface_sqlite_fts_update_text (iface,
 				                                                      database,

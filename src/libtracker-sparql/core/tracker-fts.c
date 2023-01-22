@@ -80,7 +80,7 @@ tracker_fts_create_table (sqlite3      *db,
                           GHashTable   *grouped_columns,
                           GError      **error)
 {
-	GString *str, *from, *fts;
+	GString *str, *from, *fts, *column_names;
 	gchar *index_table;
 	GList *columns, *keys, *l;
 	gint rc;
@@ -98,6 +98,8 @@ tracker_fts_create_table (sqlite3      *db,
 	fts = g_string_new ("CREATE VIRTUAL TABLE ");
 	g_string_append_printf (fts, "\"%s\".%s USING fts5(content=\"fts_view\", ",
 				database, table_name);
+
+	column_names = g_string_new (NULL);
 
 	keys = g_hash_table_get_keys (tables);
 	keys = g_list_sort (keys, (GCompareFunc) strcmp);
@@ -120,7 +122,7 @@ tracker_fts_create_table (sqlite3      *db,
 
 			g_string_append_printf (str, " AS \"%s\" ",
 						(gchar *) columns->data);
-			g_string_append_printf (fts, "\"%s\", ",
+			g_string_append_printf (column_names, "\"%s\", ",
 						(gchar *) columns->data);
 
 			columns = columns->next;
@@ -133,6 +135,8 @@ tracker_fts_create_table (sqlite3      *db,
 
 	g_list_free (keys);
 
+	g_string_append_printf (from, "WHERE COALESCE (%s NULL) IS NOT NULL ",
+	                        column_names->str);
 	g_string_append (from, "GROUP BY ROWID");
 	g_string_append (str, from->str);
 	g_string_free (from, TRUE);
@@ -143,6 +147,7 @@ tracker_fts_create_table (sqlite3      *db,
 	if (rc != SQLITE_OK)
 		goto error;
 
+	g_string_append (fts, column_names->str);
 	g_string_append (fts, "tokenize=TrackerTokenizer)");
 	rc = sqlite3_exec(db, fts->str, NULL, NULL, NULL);
 
@@ -158,6 +163,7 @@ tracker_fts_create_table (sqlite3      *db,
 
 error:
 	g_string_free (fts, TRUE);
+	g_string_free (column_names, TRUE);
 
 	if (rc != SQLITE_OK) {
 		g_set_error (error,

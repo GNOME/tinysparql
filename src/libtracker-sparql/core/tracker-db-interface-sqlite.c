@@ -2297,12 +2297,11 @@ tracker_db_interface_sqlite_fts_create_update_query (TrackerDBInterface  *db_int
         }
 
         query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (ROWID, %s) "
-                                 "SELECT ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ? AND COALESCE(%s, NULL) IS NOT NULL",
+                                 "SELECT ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
                                  database,
                                  props_str->str,
                                  props_str->str,
-                                 database,
-                                 props_str->str);
+                                 database);
         g_string_free (props_str, TRUE);
 
         return query;
@@ -2362,12 +2361,11 @@ tracker_db_interface_sqlite_fts_create_delete_query (TrackerDBInterface  *db_int
         }
 
         query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (fts5, ROWID, %s) "
-                                 "SELECT 'delete', ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ? AND COALESCE(%s, NULL) IS NOT NULL",
+                                 "SELECT 'delete', ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
                                  database,
                                  props_str->str,
                                  props_str->str,
-                                 database,
-                                 props_str->str);
+                                 database);
         g_string_free (props_str, TRUE);
 
         return query;
