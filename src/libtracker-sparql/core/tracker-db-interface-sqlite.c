@@ -2379,6 +2379,13 @@ tracker_db_interface_sqlite_fts_delete_text_stmt (TrackerDBInterface  *db_interf
 }
 
 gboolean
+tracker_db_interface_sqlite_fts_integrity_check (TrackerDBInterface  *interface,
+                                                 const gchar         *database)
+{
+	return tracker_fts_integrity_check (interface->db, database, "fts5");
+}
+
+gboolean
 tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface  *interface,
                                                 const gchar         *database,
                                                 GError             **error)

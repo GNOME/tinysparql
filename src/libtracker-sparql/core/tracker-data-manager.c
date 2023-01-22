@@ -4166,6 +4166,11 @@ integrity_check_cb (TrackerDBManager   *db_manager,
 {
 	GError *internal_error = NULL;
 	TrackerDBStatement *stmt;
+	GHashTableIter iter;
+	const gchar *graph;
+	TrackerProperty **properties;
+	guint len, i;
+	gboolean has_fts = FALSE;
 
 	/* Ensure that database has been initialized earlier
 	 * by checking whether Resource table exists.
@@ -4184,6 +4189,35 @@ integrity_check_cb (TrackerDBManager   *db_manager,
 	}
 
 	g_clear_object (&stmt);
+
+	properties = tracker_ontologies_get_properties (data_manager->ontologies, &len);
+
+	for (i = 0; i < len; i++) {
+		has_fts |= tracker_property_get_fulltext_indexed (properties[i]);
+		if (has_fts)
+			break;
+	}
+
+	if (has_fts) {
+		g_hash_table_iter_init (&iter, data_manager->graphs);
+		while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
+			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, graph)) {
+				tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph, NULL);
+				if (!tracker_db_interface_sqlite_fts_integrity_check (iface, graph)) {
+					g_message ("Corrupt database: FTS index on graph %s is corrupt", graph);
+					return TRUE;
+				}
+			}
+		}
+
+		if (!tracker_db_interface_sqlite_fts_integrity_check (iface, "main")) {
+			tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", NULL);
+			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, "main")) {
+				g_message ("Corrupt database: FTS index on main database is corrupt");
+				return TRUE;
+			}
+		}
+	}
 
 	return FALSE;
 }
