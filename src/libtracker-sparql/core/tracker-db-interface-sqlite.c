@@ -2836,18 +2836,6 @@ execute_stmt (TrackerDBInterface  *interface,
 	tracker_db_interface_unref_use (interface);
 
 	if (result != SQLITE_DONE) {
-		/* This is rather fatal */
-		if (errno != ENOSPC &&
-		    (sqlite3_errcode (interface->db) == SQLITE_IOERR ||
-		     sqlite3_errcode (interface->db) == SQLITE_CORRUPT ||
-		     sqlite3_errcode (interface->db) == SQLITE_NOTADB)) {
-
-			g_critical ("SQLite error: %s (errno: %s)",
-			            sqlite3_errmsg (interface->db),
-			            g_strerror (errno));
-			return FALSE;
-		}
-
 		if (result == SQLITE_INTERRUPT) {
 			g_set_error (error,
 			             TRACKER_DB_INTERFACE_ERROR,
@@ -2859,15 +2847,40 @@ execute_stmt (TrackerDBInterface  *interface,
 			             TRACKER_DB_CONSTRAINT,
 			             "Constraint would be broken: %s",
 			             sqlite3_errmsg (interface->db));
-		} else {
+		} else if (result == SQLITE_FULL) {
 			g_set_error (error,
 			             TRACKER_DB_INTERFACE_ERROR,
-			             errno != ENOSPC ? TRACKER_DB_QUERY_ERROR : TRACKER_DB_NO_SPACE,
-			             "%s%s%s%s",
-			             sqlite3_errmsg (interface->db),
-			             errno != 0 ? " (strerror of errno (not necessarily related): " : "",
-			             errno != 0 ? g_strerror (errno) : "",
-			             errno != 0 ? ")" : "");
+			             TRACKER_DB_NO_SPACE,
+			             "No space to write database");
+		} else {
+			int db_result;
+
+			db_result = sqlite3_errcode (interface->db);
+
+			if (db_result == SQLITE_CORRUPT ||
+			    db_result == SQLITE_NOTADB) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_CORRUPT,
+				             "Database corrupt: %s",
+				             sqlite3_errmsg (interface->db));
+			} else if (db_result == SQLITE_IOERR) {
+				int db_errno;
+
+				db_errno = sqlite3_system_errno (interface->db);
+
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_QUERY_ERROR,
+				             "I/O error (errno: %s)",
+				             g_strerror (db_errno));
+			} else {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_QUERY_ERROR,
+				             "%s",
+				             sqlite3_errmsg (interface->db));
+			}
 		}
 	}
 
