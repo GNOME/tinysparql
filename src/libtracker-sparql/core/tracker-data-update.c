@@ -137,7 +137,7 @@ struct _TrackerDataUpdateBufferResource {
 	/* TrackerClass */
 	GPtrArray *types;
 
-	GList *fts_properties;
+	guint fts_update : 1;
 };
 
 struct _TrackerStatementDelegate {
@@ -1500,7 +1500,6 @@ static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 {
 	g_clear_pointer (&resource->predicates, g_hash_table_unref);
 
-	g_list_free (resource->fts_properties);
 	g_ptr_array_free (resource->types, TRUE);
 	resource->types = NULL;
 
@@ -1552,7 +1551,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 		g_hash_table_iter_init (&iter, graph->resources);
 
 		while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource)) {
-			if (resource->fts_properties && !resource->create) {
+			if (resource->fts_update && !resource->create) {
 				GPtrArray *properties;
 				gboolean retval;
 
@@ -1580,7 +1579,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 		g_hash_table_iter_init (&iter, graph->resources);
 
 		while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource)) {
-			if (resource->fts_properties) {
+			if (resource->fts_update) {
 				GPtrArray *properties;
 				gboolean retval;
 
@@ -2081,18 +2080,12 @@ maybe_convert_value (TrackerData         *data,
 	return FALSE;
 }
 
-static void
-maybe_append_fts_property (TrackerData     *data,
-                           TrackerProperty *property)
+static inline void
+maybe_update_fts (TrackerData     *data,
+                  TrackerProperty *property)
 {
-	if (!tracker_property_get_fulltext_indexed (property))
-		return;
-
-	if (g_list_find (data->resource_buffer->fts_properties, property))
-		return;
-
-	data->resource_buffer->fts_properties =
-		g_list_prepend (data->resource_buffer->fts_properties, property);
+	data->resource_buffer->fts_update |=
+		tracker_property_get_fulltext_indexed (property);
 }
 
 static gboolean
@@ -2145,7 +2138,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 	super_properties = tracker_property_get_super_properties (property);
 	multiple_values = tracker_property_get_multiple_values (property);
 
-	maybe_append_fts_property (data, property);
+	maybe_update_fts (data, property);
 
 	while (*super_properties) {
 		gboolean super_is_multi;
@@ -2160,7 +2153,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 			return FALSE;
 		}
 
-		maybe_append_fts_property (data, *super_properties);
+		maybe_update_fts (data, *super_properties);
 
 		if (maybe_convert_value (data,
 		                         tracker_property_get_data_type (property),
@@ -2284,7 +2277,7 @@ delete_metadata_decomposed (TrackerData      *data,
 
 	multiple_values = tracker_property_get_multiple_values (property);
 
-	maybe_append_fts_property (data, property);
+	maybe_update_fts (data, property);
 
 	/* read existing property values */
 	old_values = get_property_values (data, property, &new_error);
@@ -2428,7 +2421,7 @@ cache_delete_resource_type_full (TrackerData   *data,
 
 		multiple_values = tracker_property_get_multiple_values (prop);
 
-		maybe_append_fts_property (data, prop);
+		maybe_update_fts (data, prop);
 
 		if (*tracker_property_get_domain_indexes (prop) ||
 		    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_RESOURCE) {
@@ -2994,7 +2987,7 @@ tracker_data_update_statement (TrackerData      *data,
 		if (!resource_buffer_switch (data, graph, subject, error))
 			return;
 
-		maybe_append_fts_property (data, predicate);
+		maybe_update_fts (data, predicate);
 
 		log_entry_for_multi_value_property (data,
 		                                    TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
@@ -3008,7 +3001,7 @@ tracker_data_update_statement (TrackerData      *data,
 		if (!resource_buffer_switch (data, graph, subject, error))
 			return;
 
-		maybe_append_fts_property (data, predicate);
+		maybe_update_fts (data, predicate);
 
 		if (!delete_single_valued (data, graph, subject, predicate,
 		                           !tracker_property_get_multiple_values (predicate),
