@@ -56,6 +56,10 @@ gboolean    tracker_fts_rebuild_tokens   (sqlite3      *db,
                                           const gchar  *table_name,
                                           GError      **error);
 
+gboolean tracker_fts_integrity_check (sqlite3      *db,
+                                      const gchar  *database,
+                                      const gchar  *table_name);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_FTS_FTS_H__ */

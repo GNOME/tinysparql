@@ -52,6 +52,7 @@ G_BEGIN_DECLS
  * @TRACKER_SPARQL_ERROR_UNSUPPORTED: Unsupported feature or method.
  * @TRACKER_SPARQL_ERROR_MISSING_LAST_MODIFIED_HEADER: The ontology doesn't contain nrl:lastModified header
  * @TRACKER_SPARQL_ERROR_INCOMPLETE_PROPERTY_DEFINITION: The property is not completely defined.
+ * @TRACKER_SPARQL_ERROR_CORRUPT: A soft/hard corruption was found in the database during operation.
  * @TRACKER_SPARQL_ERROR_LAST: The total number of error codes.
  *
  * Error domain for Tracker Sparql. Errors in this domain will be from the
@@ -73,6 +74,7 @@ typedef enum {
 	TRACKER_SPARQL_ERROR_UNSUPPORTED,
 	TRACKER_SPARQL_ERROR_MISSING_LAST_MODIFIED_HEADER,
 	TRACKER_SPARQL_ERROR_INCOMPLETE_PROPERTY_DEFINITION,
+	TRACKER_SPARQL_ERROR_CORRUPT,
 	TRACKER_SPARQL_ERROR_LAST
 } TrackerSparqlError;
 

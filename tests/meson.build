@@ -35,6 +35,7 @@ foreach t: tests
   env = environment()
   env.set('TRACKER_LANGUAGE_STOP_WORDS_DIR', join_paths(source_root, 'src', 'libtracker-common', 'stop-words'))
   env.set('LANG', 'en_US.UTF8')
+  env.set('TRACKER_DEBUG', 'fts-integrity')
 
   foreach envvar_name, envvar_val: test_env
     env.set(envvar_name, envvar_val)

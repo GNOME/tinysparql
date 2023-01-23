@@ -62,6 +62,7 @@ typedef enum {
 	TRACKER_DB_OPEN_ERROR,
 	TRACKER_DB_NO_SPACE,
 	TRACKER_DB_CONSTRAINT,
+	TRACKER_DB_CORRUPT,
 } TrackerDBInterfaceError;
 
 typedef enum {

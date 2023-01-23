@@ -2297,26 +2297,23 @@ tracker_db_interface_sqlite_fts_create_update_query (TrackerDBInterface  *db_int
         }
 
         query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (ROWID, %s) "
-                                 "SELECT ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ? AND COALESCE(%s, NULL) IS NOT NULL",
+                                 "SELECT ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
                                  database,
                                  props_str->str,
                                  props_str->str,
-                                 database,
-                                 props_str->str);
+                                 database);
         g_string_free (props_str, TRUE);
 
         return query;
 }
 
-gboolean
-tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
-                                             const gchar         *database,
-                                             TrackerRowid         id,
-                                             const gchar        **properties,
-                                             GError             **error)
+TrackerDBStatement *
+tracker_db_interface_sqlite_fts_insert_text_stmt (TrackerDBInterface  *db_interface,
+                                                  const gchar         *database,
+                                                  const gchar        **properties,
+                                                  GError             **error)
 {
 	TrackerDBStatement *stmt;
-	GError *inner_error = NULL;
 	gchar *query;
 
 	query = tracker_db_interface_sqlite_fts_create_update_query (db_interface,
@@ -2328,19 +2325,7 @@ tracker_db_interface_sqlite_fts_update_text (TrackerDBInterface  *db_interface,
 	                                              query);
 	g_free (query);
 
-        if (!stmt)
-                return FALSE;
-
-        tracker_db_statement_bind_int (stmt, 0, id);
-        tracker_db_statement_execute (stmt, &inner_error);
-        g_object_unref (stmt);
-
-        if (inner_error) {
-	        g_propagate_prefixed_error (error, inner_error, "Could not insert FTS text: ");
-                return FALSE;
-        }
-
-        return TRUE;
+	return stmt;
 }
 
 static gchar *
@@ -2362,50 +2347,42 @@ tracker_db_interface_sqlite_fts_create_delete_query (TrackerDBInterface  *db_int
         }
 
         query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (fts5, ROWID, %s) "
-                                 "SELECT 'delete', ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ? AND COALESCE(%s, NULL) IS NOT NULL",
+                                 "SELECT 'delete', ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
                                  database,
                                  props_str->str,
                                  props_str->str,
-                                 database,
-                                 props_str->str);
+                                 database);
         g_string_free (props_str, TRUE);
 
         return query;
 }
 
-gboolean
-tracker_db_interface_sqlite_fts_delete_text (TrackerDBInterface  *db_interface,
-                                             const gchar         *database,
-                                             TrackerRowid         rowid,
-                                             const gchar        **properties,
-                                             GError             **error)
+TrackerDBStatement *
+tracker_db_interface_sqlite_fts_delete_text_stmt (TrackerDBInterface  *db_interface,
+                                                  const gchar         *database,
+                                                  const gchar        **properties,
+                                                  GError             **error)
 {
 	TrackerDBStatement *stmt;
-	GError *inner_error = NULL;
 	gchar *query;
 
 	query = tracker_db_interface_sqlite_fts_create_delete_query (db_interface,
 	                                                             database,
 	                                                             properties);
 	stmt = tracker_db_interface_create_statement (db_interface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              error,
 	                                              query);
 	g_free (query);
 
-	if (!stmt)
-		return FALSE;
+	return stmt;
+}
 
-	tracker_db_statement_bind_int (stmt, 0, rowid);
-	tracker_db_statement_execute (stmt, &inner_error);
-	g_object_unref (stmt);
-
-	if (inner_error) {
-	        g_propagate_prefixed_error (error, inner_error, "Could not delete FTS text: ");
-                return FALSE;
-	}
-
-	return TRUE;
+gboolean
+tracker_db_interface_sqlite_fts_integrity_check (TrackerDBInterface  *interface,
+                                                 const gchar         *database)
+{
+	return tracker_fts_integrity_check (interface->db, database, "fts5");
 }
 
 gboolean
@@ -2859,18 +2836,6 @@ execute_stmt (TrackerDBInterface  *interface,
 	tracker_db_interface_unref_use (interface);
 
 	if (result != SQLITE_DONE) {
-		/* This is rather fatal */
-		if (errno != ENOSPC &&
-		    (sqlite3_errcode (interface->db) == SQLITE_IOERR ||
-		     sqlite3_errcode (interface->db) == SQLITE_CORRUPT ||
-		     sqlite3_errcode (interface->db) == SQLITE_NOTADB)) {
-
-			g_critical ("SQLite error: %s (errno: %s)",
-			            sqlite3_errmsg (interface->db),
-			            g_strerror (errno));
-			return FALSE;
-		}
-
 		if (result == SQLITE_INTERRUPT) {
 			g_set_error (error,
 			             TRACKER_DB_INTERFACE_ERROR,
@@ -2882,15 +2847,40 @@ execute_stmt (TrackerDBInterface  *interface,
 			             TRACKER_DB_CONSTRAINT,
 			             "Constraint would be broken: %s",
 			             sqlite3_errmsg (interface->db));
-		} else {
+		} else if (result == SQLITE_FULL) {
 			g_set_error (error,
 			             TRACKER_DB_INTERFACE_ERROR,
-			             errno != ENOSPC ? TRACKER_DB_QUERY_ERROR : TRACKER_DB_NO_SPACE,
-			             "%s%s%s%s",
-			             sqlite3_errmsg (interface->db),
-			             errno != 0 ? " (strerror of errno (not necessarily related): " : "",
-			             errno != 0 ? g_strerror (errno) : "",
-			             errno != 0 ? ")" : "");
+			             TRACKER_DB_NO_SPACE,
+			             "No space to write database");
+		} else {
+			int db_result;
+
+			db_result = sqlite3_errcode (interface->db);
+
+			if (db_result == SQLITE_CORRUPT ||
+			    db_result == SQLITE_NOTADB) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_CORRUPT,
+				             "Database corrupt: %s",
+				             sqlite3_errmsg (interface->db));
+			} else if (db_result == SQLITE_IOERR) {
+				int db_errno;
+
+				db_errno = sqlite3_system_errno (interface->db);
+
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_QUERY_ERROR,
+				             "I/O error (errno: %s)",
+				             g_strerror (db_errno));
+			} else {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_QUERY_ERROR,
+				             "%s",
+				             sqlite3_errmsg (interface->db));
+			}
 		}
 	}
 

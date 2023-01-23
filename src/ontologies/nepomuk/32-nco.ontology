@@ -9,7 +9,7 @@
 
 nco: a nrl:Namespace, nrl:Ontology ;
 	nrl:prefix "nco" ;
-	nrl:lastModified "2016-02-28T21:30:00Z" .
+	nrl:lastModified "2023-01-23T11:30:00Z" .
 
 nco:Role a rdfs:Class ;
 	rdfs:label "Role" ;
@@ -340,9 +340,7 @@ nco:phoneNumber a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:domain nco:PhoneNumber ;
 	rdfs:range xsd:string ;
-	nrl:indexed true ;
-	nrl:fulltextIndexed true ;
-	nrl:weight 5 .
+	nrl:indexed true .
 
 nco:nickname a rdf:Property ;
 	rdfs:label "nickname" ;

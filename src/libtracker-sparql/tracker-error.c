@@ -38,6 +38,7 @@ static const GDBusErrorEntry tracker_sparql_error_entries[] =
 	{TRACKER_SPARQL_ERROR_UNSUPPORTED, "org.freedesktop.Tracker.Error.Unsupported"},
 	{TRACKER_SPARQL_ERROR_MISSING_LAST_MODIFIED_HEADER, "org.freedesktop.Tracker.Error.MissingLastModifiedHeader"},
 	{TRACKER_SPARQL_ERROR_INCOMPLETE_PROPERTY_DEFINITION, "org.freedesktop.Tracker.Error.IncompleteProperty"},
+	{TRACKER_SPARQL_ERROR_CORRUPT, "org.freedesktop.Tracker.Error.Corrupt"},
 };
 
 G_STATIC_ASSERT (G_N_ELEMENTS (tracker_sparql_error_entries) == TRACKER_SPARQL_N_ERRORS);
@@ -94,6 +95,7 @@ _translate_internal_error (GError *error)
 			 * anywhere, so it doesn't get its own public error code. */
 			case TRACKER_DB_INTERRUPTED: new_code = TRACKER_SPARQL_ERROR_INTERNAL; break;
 			case TRACKER_DB_CONSTRAINT: new_code = TRACKER_SPARQL_ERROR_CONSTRAINT; break;
+			case TRACKER_DB_CORRUPT: new_code = TRACKER_SPARQL_ERROR_CORRUPT; break;
 			default: g_warn_if_reached ();
 		}
 

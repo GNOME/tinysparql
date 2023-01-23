@@ -4160,6 +4160,69 @@ update_interface_cb (TrackerDBManager   *db_manager,
 }
 
 static gboolean
+integrity_check_cb (TrackerDBManager   *db_manager,
+                    TrackerDBInterface *iface,
+                    TrackerDataManager *data_manager)
+{
+	GError *internal_error = NULL;
+	TrackerDBStatement *stmt;
+	GHashTableIter iter;
+	const gchar *graph;
+	TrackerProperty **properties;
+	guint len, i;
+	gboolean has_fts = FALSE;
+
+	/* Ensure that database has been initialized earlier
+	 * by checking whether Resource table exists.
+	 */
+	stmt = tracker_db_interface_create_statement (iface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+	                                              &internal_error,
+	                                              "SELECT 1 FROM Resource");
+	if (!stmt) {
+		if (internal_error) {
+			g_message ("Corrupt database: failed to create resource check statement: %s", internal_error->message);
+		}
+
+		g_clear_error (&internal_error);
+		return TRUE;
+	}
+
+	g_clear_object (&stmt);
+
+	properties = tracker_ontologies_get_properties (data_manager->ontologies, &len);
+
+	for (i = 0; i < len; i++) {
+		has_fts |= tracker_property_get_fulltext_indexed (properties[i]);
+		if (has_fts)
+			break;
+	}
+
+	if (has_fts) {
+		g_hash_table_iter_init (&iter, data_manager->graphs);
+		while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
+			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, graph)) {
+				tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph, NULL);
+				if (!tracker_db_interface_sqlite_fts_integrity_check (iface, graph)) {
+					g_message ("Corrupt database: FTS index on graph %s is corrupt", graph);
+					return TRUE;
+				}
+			}
+		}
+
+		if (!tracker_db_interface_sqlite_fts_integrity_check (iface, "main")) {
+			tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", NULL);
+			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, "main")) {
+				g_message ("Corrupt database: FTS index on main database is corrupt");
+				return TRUE;
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+static gboolean
 tracker_data_manager_update_from_version (TrackerDataManager  *manager,
                                           TrackerDBVersion     version,
                                           GError             **error)
@@ -4276,6 +4339,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                  G_CALLBACK (setup_interface_cb), manager);
 	g_signal_connect (manager->db_manager, "update-interface",
 	                  G_CALLBACK (update_interface_cb), manager);
+	g_signal_connect (manager->db_manager, "integrity-check",
+	                  G_CALLBACK (integrity_check_cb), manager);
 
 	tracker_data_manager_update_status (manager, "Initializing data manager");
 
