@@ -334,7 +334,7 @@ convert_gvalue_to_string (TrackerDeserializerResource *deserializer,
 	} else if (G_VALUE_HOLDS (value, G_TYPE_DATE_TIME)) {
 		GDateTime *val;
 
-		val = g_value_get_object (value);
+		val = g_value_get_boxed (value);
 		return tracker_date_format_iso8601 (val);
 	}
 

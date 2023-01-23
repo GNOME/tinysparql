@@ -246,6 +246,209 @@ query_statement (TestFixture   *test_fixture,
 	g_object_unref (stmt);
 }
 
+static void
+rdf_types (TestFixture   *test_fixture,
+           gconstpointer  context)
+{
+	TrackerSparqlStatement *stmt;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+	GDateTime *datetime;
+
+	datetime = g_date_time_new_utc (2020, 01, 01, 01, 01, 01);
+
+	stmt = tracker_sparql_connection_query_statement (test_fixture->conn,
+	                                                  "SELECT "
+	                                                  "  (~string AS ?string)"
+	                                                  "  (~int AS ?int)"
+	                                                  "  (~double AS ?double)"
+	                                                  "  (~bool AS ?bool)"
+	                                                  "  (~datetime AS ?datetime)"
+	                                                  "{ }",
+	                                                  NULL,
+	                                                  &error);
+	g_assert_no_error (error);
+
+	tracker_sparql_statement_bind_string (stmt, "string", "Hello");
+	tracker_sparql_statement_bind_int (stmt, "int", 42);
+	tracker_sparql_statement_bind_double (stmt, "double", 42.2);
+	tracker_sparql_statement_bind_boolean (stmt, "bool", TRUE);
+	tracker_sparql_statement_bind_datetime (stmt, "datetime", datetime);
+
+	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+	g_assert_no_error (error);
+
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_no_error (error);
+
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, "Hello");
+	g_assert_cmpint (tracker_sparql_cursor_get_integer (cursor, 1), ==, 42);
+	g_assert_cmpfloat (tracker_sparql_cursor_get_double (cursor, 2), ==, 42.2);
+	g_assert_cmpint (tracker_sparql_cursor_get_boolean (cursor, 3), ==, TRUE);
+	g_assert_true (g_date_time_equal (tracker_sparql_cursor_get_datetime (cursor, 4), datetime));
+
+	g_date_time_unref (datetime);
+	g_object_unref (stmt);
+	g_object_unref (cursor);
+}
+
+static void
+execute_async_cb (GObject      *source,
+                  GAsyncResult *res,
+                  gpointer      user_data)
+{
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+
+	cursor = tracker_sparql_statement_execute_finish (TRACKER_SPARQL_STATEMENT (source),
+	                                                  res, &error);
+	g_assert_no_error (error);
+
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_no_error (error);
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, "Hello");
+
+	g_main_loop_quit (user_data);
+}
+
+static void
+execute_async (TestFixture   *test_fixture,
+               gconstpointer  context)
+{
+	TrackerSparqlStatement *stmt;
+	GError *error = NULL;
+	GMainLoop *loop;
+
+	stmt = tracker_sparql_connection_query_statement (test_fixture->conn,
+	                                                  "SELECT "
+	                                                  "  (~string AS ?string)"
+	                                                  "{ }",
+	                                                  NULL,
+	                                                  &error);
+	g_assert_no_error (error);
+
+	tracker_sparql_statement_bind_string (stmt, "string", "Hello");
+
+	loop = g_main_loop_new (NULL, FALSE);
+
+	tracker_sparql_statement_execute_async (stmt, NULL, execute_async_cb, loop);
+
+	g_main_loop_run (loop);
+	g_main_loop_unref (loop);
+}
+
+static void
+stmt_update (TestFixture   *test_fixture,
+             gconstpointer  context)
+{
+	TrackerSparqlStatement *stmt;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+
+	stmt = tracker_sparql_connection_update_statement (test_fixture->conn,
+	                                                   "INSERT DATA { ~res a rdfs:Resource }",
+	                                                   NULL,
+	                                                   &error);
+	g_assert_no_error (error);
+
+	if (strstr (G_OBJECT_TYPE_NAME (test_fixture->conn), "Remote") != NULL) {
+		/* HTTP connections do not implement updates on purpose */
+		g_assert_null (stmt);
+		return;
+	}
+
+	g_assert_nonnull (stmt);
+
+	tracker_sparql_statement_bind_string (stmt, "res", "http://example.com/a");
+	tracker_sparql_statement_update (stmt, NULL, &error);
+	g_assert_no_error (error);
+
+	tracker_sparql_statement_bind_string (stmt, "res", "http://example.com/b");
+	tracker_sparql_statement_update (stmt, NULL, &error);
+	g_assert_no_error (error);
+
+	/* Check that data was inserted */
+	cursor = tracker_sparql_connection_query (test_fixture->conn,
+	                                          "ASK { <http://example.com/a> a rdfs:Resource ."
+	                                          "      <http://example.com/b> a rdfs:Resource ."
+	                                          "}",
+	                                          NULL,
+	                                          &error);
+	g_assert_no_error (error);
+
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_no_error (error);
+
+	g_assert_true (tracker_sparql_cursor_get_boolean (cursor, 0));
+	g_object_unref (cursor);
+	g_object_unref (stmt);
+}
+
+static void
+update_async_cb (GObject      *source,
+                 GAsyncResult *res,
+                 gpointer      user_data)
+{
+	TrackerSparqlConnection *conn;
+	TrackerSparqlCursor *cursor;
+	gboolean retval;
+	GError *error = FALSE;
+
+	retval = tracker_sparql_statement_update_finish (TRACKER_SPARQL_STATEMENT (source),
+	                                                 res, &error);
+	g_assert_no_error (error);
+	g_assert_true (retval);
+
+	conn = tracker_sparql_statement_get_connection (TRACKER_SPARQL_STATEMENT (source));
+
+	/* Check that data was inserted */
+	cursor = tracker_sparql_connection_query (conn,
+	                                          "ASK { <http://example.com/z> a rdfs:Resource }",
+	                                          NULL,
+	                                          &error);
+	g_assert_no_error (error);
+
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_no_error (error);
+
+	g_assert_true (tracker_sparql_cursor_get_boolean (cursor, 0));
+	g_object_unref (cursor);
+
+	g_main_loop_quit (user_data);
+}
+
+static void
+stmt_update_async (TestFixture   *test_fixture,
+                   gconstpointer  context)
+{
+	TrackerSparqlStatement *stmt;
+	GError *error = NULL;
+	GMainLoop *loop;
+
+	stmt = tracker_sparql_connection_update_statement (test_fixture->conn,
+	                                                   "INSERT DATA { ~res a rdfs:Resource }",
+	                                                   NULL,
+	                                                   &error);
+	g_assert_no_error (error);
+
+	if (strstr (G_OBJECT_TYPE_NAME (test_fixture->conn), "Remote") != NULL) {
+		/* HTTP connections do not implement updates on purpose */
+		g_assert_null (stmt);
+		return;
+	}
+
+	g_assert_nonnull (stmt);
+
+	loop = g_main_loop_new (NULL, FALSE);
+
+	tracker_sparql_statement_bind_string (stmt, "res", "http://example.com/z");
+	tracker_sparql_statement_update_async (stmt, NULL, update_async_cb, loop);
+
+	g_main_loop_run (loop);
+	g_main_loop_unref (loop);
+	g_object_unref (stmt);
+}
+
 TrackerSparqlConnection *
 create_local_connection (GError **error)
 {
@@ -319,16 +522,31 @@ create_connections (TrackerSparqlConnection **dbus,
 	return TRUE;
 }
 
+typedef void (*TestFunc) (TestFixture   *test_fixture,
+                          gconstpointer  context);
+
+typedef struct {
+	const gchar *name;
+	TestFunc func;
+} TestFuncData;
+
+TestFuncData test_funcs[] = {
+	{ "rdf_types", rdf_types },
+	{ "execute_async", execute_async },
+	{ "update", stmt_update },
+	{ "update_async", stmt_update_async },
+};
+
 static void
 add_tests (TrackerSparqlConnection *conn,
            const gchar             *name,
            gboolean                 run_service_tests)
 {
+	TestFixture *fixture;
+	gchar *testpath;
 	guint i;
 
 	for (i = 0; i < G_N_ELEMENTS (tests); i++) {
-		TestFixture *fixture;
-		gchar *testpath;
 
 		if (tests[i].service && !run_service_tests)
 			continue;
@@ -338,6 +556,14 @@ add_tests (TrackerSparqlConnection *conn,
 		fixture->test = &tests[i];
 		testpath = g_strconcat ("/libtracker-sparql/statement/", name, "/", tests[i].test_name, NULL);
 		g_test_add (testpath, TestFixture, fixture, setup, query_statement, NULL);
+		g_free (testpath);
+	}
+
+	for (i = 0; i < G_N_ELEMENTS (test_funcs); i++) {
+		fixture = g_new0 (TestFixture, 1);
+		fixture->conn = conn;
+		testpath = g_strconcat ("/libtracker-sparql/statement/", name, "/", test_funcs[i].name, NULL);
+		g_test_add (testpath, TestFixture, fixture, setup, test_funcs[i].func, NULL);
 		g_free (testpath);
 	}
 }

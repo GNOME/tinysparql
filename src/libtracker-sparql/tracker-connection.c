@@ -647,6 +647,9 @@ tracker_sparql_connection_update_statement (TrackerSparqlConnection  *connection
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
 
+	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_statement)
+		return NULL;
+
 	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_statement (connection,
 	                                                                           sparql,
 	                                                                           cancellable,

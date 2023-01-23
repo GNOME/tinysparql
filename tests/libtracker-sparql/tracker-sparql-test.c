@@ -127,11 +127,129 @@ test_tracker_sparql_connection_interleaved (void)
 }
 
 static void
+close_cb (GObject      *source,
+          GAsyncResult *res,
+          gpointer      user_data)
+{
+	GError *error = NULL;
+
+	tracker_sparql_connection_close_finish (TRACKER_SPARQL_CONNECTION (source),
+	                                        res, &error);
+	g_assert_no_error (error);
+
+	g_main_loop_quit (user_data);
+
+	g_object_unref (source);
+}
+
+static void
+new_async_cb (GObject      *source,
+              GAsyncResult *res,
+              gpointer      user_data)
+{
+	TrackerSparqlConnection *conn;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+
+	conn = tracker_sparql_connection_new_finish (res, &error);
+	g_assert_no_error (error);
+
+	cursor = tracker_sparql_connection_query (conn,
+	                                          "SELECT ((2 + 2) AS ?four) {}",
+	                                          NULL,
+	                                          &error);
+	g_assert_no_error (error);
+
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_no_error (error);
+
+	g_assert_cmpint (tracker_sparql_cursor_get_integer (cursor, 0), ==, 4);
+	tracker_sparql_cursor_close (cursor);
+	g_object_unref (cursor);
+
+	tracker_sparql_connection_close_async (conn, NULL, close_cb, user_data);
+}
+
+static void
+test_tracker_sparql_connection_new_async (void)
+{
+	GMainLoop *loop;
+	GFile *ontology;
+
+	loop = g_main_loop_new (NULL, FALSE);
+
+	ontology = g_file_new_for_path (TEST_ONTOLOGIES_DIR);
+
+	tracker_sparql_connection_new_async (0, NULL,
+	                                     ontology,
+	                                     NULL,
+	                                     new_async_cb,
+	                                     loop);
+	g_main_loop_run (loop);
+
+	g_object_unref (ontology);
+}
+
+static void
+test_tracker_sparql_connection_bus_new_unknown (void)
+{
+	TrackerSparqlConnection *conn;
+	GError *error = NULL;
+
+	conn = tracker_sparql_connection_bus_new ("com.example.Unknown",
+	                                          NULL,
+	                                          NULL,
+	                                          &error);
+	g_assert_error (error, G_DBUS_ERROR, G_DBUS_ERROR_SERVICE_UNKNOWN);
+	g_assert_null (conn);
+}
+
+static void
+bus_new_unknown_cb (GObject      *source,
+                    GAsyncResult *res,
+                    gpointer      user_data)
+{
+	TrackerSparqlConnection *conn;
+	GError *error = NULL;
+
+	conn = tracker_sparql_connection_bus_new_finish (res, &error);
+	g_assert_error (error, G_DBUS_ERROR, G_DBUS_ERROR_SERVICE_UNKNOWN);
+	g_assert_null (conn);
+
+	g_main_loop_quit (user_data);
+}
+
+static void
+test_tracker_sparql_connection_bus_new_async_unknown (void)
+{
+	GMainLoop *loop;
+
+	loop = g_main_loop_new (NULL, FALSE);
+
+	tracker_sparql_connection_bus_new_async ("com.example.Unknown",
+	                                         NULL,
+	                                         NULL,
+	                                         NULL,
+	                                         bus_new_unknown_cb,
+	                                         loop);
+
+	g_main_loop_run (loop);
+}
+
+static void
 test_tracker_check_version (void)
 {
 	g_assert_true(tracker_check_version(TRACKER_MAJOR_VERSION,
 	                                    TRACKER_MINOR_VERSION,
 	                                    TRACKER_MICRO_VERSION) == NULL);
+	g_assert_true(strstr (tracker_check_version(TRACKER_MAJOR_VERSION + 1, 0, 0),
+	                      "old") != NULL);
+	g_assert_true(strstr (tracker_check_version(TRACKER_MAJOR_VERSION - 1, 0, 0),
+	                      "new") != NULL);
+	g_assert_true(strstr (tracker_check_version(TRACKER_MAJOR_VERSION, -1, 0),
+	                      "new") != NULL);
+	g_assert_true(strstr (tracker_check_version(TRACKER_MAJOR_VERSION, 99, 0),
+	                      "old") != NULL);
 }
 
 gint
@@ -159,6 +277,12 @@ main (gint argc, gchar **argv)
 	                 test_tracker_sparql_connection_no_ontology);
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_interleaved",
 	                 test_tracker_sparql_connection_interleaved);
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_new_async",
+	                 test_tracker_sparql_connection_new_async);
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_bus_new_unknown",
+	                 test_tracker_sparql_connection_bus_new_unknown);
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_bus_new_async_unknown",
+	                 test_tracker_sparql_connection_bus_new_async_unknown);
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_check_version",
 	                 test_tracker_check_version);
 
