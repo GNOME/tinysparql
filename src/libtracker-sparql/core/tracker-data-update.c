@@ -1578,6 +1578,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 	TrackerDataUpdateBufferResource *resource;
 	GHashTableIter iter;
 	GError *actual_error = NULL;
+	G_GNUC_UNUSED gboolean fts_updated = FALSE;
 	guint i;
 
 	if (data->update_buffer.update_log->len == 0)
@@ -1589,6 +1590,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 
 		while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource)) {
 			if (resource->fts_update && !resource->create) {
+				fts_updated = TRUE;
 				if (!tracker_data_ensure_graph_fts_stmts (data,
 				                                          graph,
 				                                          error))
@@ -1611,6 +1613,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 
 		while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &resource)) {
 			if (resource->fts_update) {
+				fts_updated = TRUE;
 				if (!tracker_data_ensure_graph_fts_stmts (data,
 				                                          graph,
 				                                          error))
@@ -1632,6 +1635,30 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 		g_hash_table_remove_all (graph->resources);
 		g_array_set_size (graph->refcounts, 0);
 	}
+
+#ifdef G_ENABLE_DEBUG
+	if (fts_updated && TRACKER_DEBUG_CHECK (FTS_INTEGRITY)) {
+		TrackerDBInterface *iface;
+
+		iface = tracker_data_manager_get_writable_db_interface (data->manager);
+
+		for (i = 0; i < data->update_buffer.graphs->len; i++) {
+			const gchar *database;
+
+			graph = g_ptr_array_index (data->update_buffer.graphs, i);
+			database = graph->graph ? graph->graph : "main";
+
+			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, database)) {
+				g_set_error (error,
+					     TRACKER_DB_INTERFACE_ERROR,
+					     TRACKER_DB_CORRUPT,
+					     "FTS index is corrupt in %s",
+					     graph->graph ? graph->graph : "default graph");
+				goto out;
+			}
+		}
+	}
+#endif
 
 out:
 	g_hash_table_remove_all (data->update_buffer.new_resources);
