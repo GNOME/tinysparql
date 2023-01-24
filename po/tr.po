@@ -7,14 +7,14 @@
 # Kaan Özdinçer <kaanozdincer@gmail.com>, 2015.
 # İbrahim Aydın <brhm.1995@hotmail.com>, 2017.
 # Muhammet Kara <muhammetk@gmail.com>, 2014, 2015, 2017.
-# Emin Tufan Çetin <etcetin@gmail.com>, 2018-2022.
+# Emin Tufan Çetin <etcetin@gmail.com>, 2018-2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2022-08-12 11:53+0000\n"
-"PO-Revision-Date: 2022-07-22 18:01+0300\n"
+"POT-Creation-Date: 2023-01-20 15:13+0000\n"
+"PO-Revision-Date: 2023-01-25 02:31+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -39,13 +39,13 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "Sürüm"
 
-#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
-#: src/tracker/tracker-export.c:509 src/tracker/tracker-import.c:196
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:387
+#: src/tracker/tracker-export.c:543 src/tracker/tracker-import.c:196
 #: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:239
 msgid "Unrecognized options"
 msgstr "Tanınmayan seçenekler"
 
-#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:48
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:49
 #: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
@@ -150,61 +150,74 @@ msgstr ""
 "Yeni veri tabanı oluşturuldu. Bu veri tabanını, ileti veri yolunda paylaşmak "
 "için “--dbus-service” seçeneğini kullan."
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
 #: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "DOSYA"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "DBus hizmetine bağlanır"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
 #: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "DBus hizmet adı"
 
-#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:57
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr "Çıktı sonuçları biçimi: “turtle”, “trig” veya “json-ld”"
+
+#: src/tracker/tracker-export.c:58
+msgid "RDF_FORMAT"
+msgstr "RDF_FORMAT"
+
+#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "Uzak hizmete bağlanır"
 
-#: src/tracker/tracker-export.c:57 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "Uzak hizmet URI’si"
 
-#: src/tracker/tracker-export.c:60
+#: src/tracker/tracker-export.c:65
 msgid "Output TriG format which includes named graph information"
 msgstr "Adlandırılmış graf bilgisini içeren TriG biçiminde çıktıla"
 
-#: src/tracker/tracker-export.c:72 src/tracker/tracker-export.c:73
+#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:98 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
 #: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Şu seçeneklerden birini belirt: “--database”, “--dbus-service” veya “--"
 "remote-service”"
 
-#: src/tracker/tracker-export.c:305 src/tracker/tracker-export.c:325
+#: src/tracker/tracker-export.c:310 src/tracker/tracker-export.c:331
 #: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1124
 msgid "No error given"
 msgstr "Hata belirtilmedi"
 
-#: src/tracker/tracker-export.c:324 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-export.c:330 src/tracker/tracker-import.c:124
 #: src/tracker/tracker-sparql.c:1123
 msgid "Could not establish a connection to Tracker"
 msgstr "Tracker uygulamasına bağlantı kurulamıyor"
 
-#: src/tracker/tracker-export.c:391 src/tracker/tracker-export.c:404
-#: src/tracker/tracker-export.c:414 src/tracker/tracker-sparql.c:1502
+#: src/tracker/tracker-export.c:373
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "Desteklenmeyen serileştirme biçimi “%s”\n"
+
+#: src/tracker/tracker-export.c:425 src/tracker/tracker-export.c:438
+#: src/tracker/tracker-export.c:448 src/tracker/tracker-sparql.c:1502
 #: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
 msgid "Could not run query"
 msgstr "Sorgu çalıştırılamadı"
