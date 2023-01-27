@@ -1997,6 +1997,21 @@ tracker_data_ontology_process_changes_post_db (TrackerDataManager  *manager,
 				g_propagate_error (error, n_error);
 				return;
 			}
+
+			if (update_property_value (manager,
+			                           "nrl:fulltextIndexed",
+			                           subject,
+			                           TRACKER_PREFIX_NRL "fulltextIndexed",
+			                           tracker_property_get_fulltext_indexed (property) ?
+			                           "true" : NULL,
+			                           NULL, NULL, property, &n_error)) {
+				tracker_property_set_db_schema_changed (property, TRUE);
+			}
+
+			if (n_error) {
+				g_propagate_error (error, n_error);
+				return;
+			}
 		}
 	}
 }
