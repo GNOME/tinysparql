@@ -61,6 +61,38 @@ instances as functions. If the property has multiple values, it will
 propagate to the cursor as the `GROUP_CONCAT`
 (with comma separator) of the multiple values.
 
+## Entailment regime
+
+An entailment regime is a set of rules defining what is valid RDF data, and what
+other axiomatic RDF triples may be extrapolated from a RDF dataset. An example is
+[RDF Schema entailment](https://en.wikipedia.org/wiki/RDF_Schema#RDFS_entailment).
+
+For SPARQL queries, Tracker implements a subset of
+[RDF Schema entailment rules](https://www.w3.org/TR/rdf-mt/#RDFSRules).
+Rules *rdfs1*, *rdfs5*, *rdfs6*, *rdfs10*, *rdfs11*, *rdfs12* and *rdfs13* are
+not implemented.
+
+The [SPARQL documentation](https://www.w3.org/TR/sparql11-entailment/#Updates)
+says:
+
+```
+SPARQL endpoints that use an entailment regime other than simple entailment may
+support update queries, but the exact behavior of the system for such queries
+is not covered by this specification. SPARQL endpoints that use an entailment
+regime other than simple entailment and that do support update queries should
+describe the system behavior in the system's documentation.
+```
+
+Tracker implements the propagation of `rdfs:subPropertyOf` (*rdfs7*) and
+`rdfs:subClassOf`(*rdfs8*, *rdfs9*) at SPARQL update time. Other than this
+detail, SPARQL updates can be considered to follow simple entailment in
+practical effects. Rules *rdfs2*, *rdfs3*, *rdfs4a* and *rdfs4b* do not apply
+to SPARQL updates. The inserted RDF data must still conform to the ontology.
+
+Notably, resources must be given `rdf:type` properties explicitly in order to
+be able to receive properties belonging to these classes. The effect of
+`rdf:type` properties is local to the graph where it was defined.
+
 ## Syntax extensions
 
 Tracker offers some SPARQL syntax extensions. These predate the
