@@ -179,7 +179,9 @@ namespace Tracker {
 		public unowned Property[] get_properties ();
 	}
 
+	[CCode (cheader_filename = "libtracker-data/tracker-data-update.h")]
 	public delegate void StatementCallback (int graph_id, string? graph, int subject_id, string subject, int predicate_id, int object_id, string object, GLib.PtrArray rdf_types);
+	[CCode (cheader_filename = "libtracker-data/tracker-data-update.h")]
 	public delegate void CommitCallback ();
 
 	[CCode (lower_case_cprefix="tracker_data_", cname = "TrackerData", cheader_filename = "libtracker-data/tracker-data-query.h,libtracker-data/tracker-data-update.h")]
