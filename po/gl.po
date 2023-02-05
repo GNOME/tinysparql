@@ -10,16 +10,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2022-07-12 10:59+0000\n"
-"PO-Revision-Date: 2022-08-21 17:16+0200\n"
+"POT-Creation-Date: 2023-02-04 16:25+0000\n"
+"PO-Revision-Date: 2023-02-05 22:23+0100\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"X-Generator: Gtranslator 40.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.2.2\n"
 "X-Project-Style: gnome\n"
 "X-DL-Team: gl\n"
 "X-DL-Module: tracker\n"
@@ -41,13 +41,13 @@ msgstr "o|a|os|as|un|unha|uns|unhas|the|a|an"
 msgid "Version"
 msgstr "Versión"
 
-#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
-#: src/tracker/tracker-export.c:509 src/tracker/tracker-import.c:196
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:387
+#: src/tracker/tracker-export.c:543 src/tracker/tracker-import.c:196
 #: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:239
 msgid "Unrecognized options"
 msgstr "Non se recoñeceron as opcións"
 
-#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:48
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:49
 #: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
@@ -152,60 +152,73 @@ msgstr ""
 "Nova base de datos creada. Use a opción «--dbus-service» para compartir esta "
 "base de datos nun bus de mensaxes."
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
 #: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FICHEIRO"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "Conéctase a un servizo de DBus"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
 #: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "Nome do servizo de DBus"
 
-#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:57
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr "O formato dos resultados da saída: «turtle», «trig» ou «json-ld»"
+
+#: src/tracker/tracker-export.c:58
+msgid "RDF_FORMAT"
+msgstr "RDF_FORMAT"
+
+#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "Conéctase a un servizo remoto"
 
-#: src/tracker/tracker-export.c:57 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "URI do servizo remoto"
 
-#: src/tracker/tracker-export.c:60
+#: src/tracker/tracker-export.c:65
 msgid "Output TriG format which includes named graph information"
 msgstr "Mostra o formato TriG que inclúe información dos grafos con nome"
 
-#: src/tracker/tracker-export.c:72 src/tracker/tracker-export.c:73
+#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:98 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
 #: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Especifique unha opción «--database», «--dbus-service» ou «--remote-service»"
 
-#: src/tracker/tracker-export.c:305 src/tracker/tracker-export.c:325
+#: src/tracker/tracker-export.c:310 src/tracker/tracker-export.c:331
 #: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1124
 msgid "No error given"
 msgstr "Non se obtivo ningún erro"
 
-#: src/tracker/tracker-export.c:324 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-export.c:330 src/tracker/tracker-import.c:124
 #: src/tracker/tracker-sparql.c:1123
 msgid "Could not establish a connection to Tracker"
 msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
 
-#: src/tracker/tracker-export.c:391 src/tracker/tracker-export.c:404
-#: src/tracker/tracker-export.c:414 src/tracker/tracker-sparql.c:1502
+#: src/tracker/tracker-export.c:373
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr ""
+
+#: src/tracker/tracker-export.c:425 src/tracker/tracker-export.c:438
+#: src/tracker/tracker-export.c:448 src/tracker/tracker-sparql.c:1502
 #: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
 msgid "Could not run query"
 msgstr "Non foi posíbel executar a consulta"
@@ -216,7 +229,6 @@ msgid "failed to exec “%s”: %s"
 msgstr "fallo ao executar «%s»: %s"
 
 #: src/tracker/tracker-import.c:58
-#| msgid "Output TriG format which includes named graph information"
 msgid "Read TriG format which includes named graph information"
 msgstr "Ler o formato TriG que inclúe información dos grafos con nome"
 
@@ -1044,12 +1056,6 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 
 #~ msgid "Could not create D-Bus proxy to tracker-store"
 #~ msgstr "Non foi posíbel crear o proxy de D-Bus ao tracker-store"
-
-#~ msgid "Output results format: “sparql”, “turtle” or “json-ld”"
-#~ msgstr "O formato dos resultados da saída: «sparql», «turtle» ou «json-ld»"
-
-#~ msgid "FORMAT"
-#~ msgstr "FORMATO"
 
 #~ msgid "Could not run tracker-extract: "
 #~ msgstr "Non se puido executar tracker-extract:"
