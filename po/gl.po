@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2023-02-04 16:25+0000\n"
-"PO-Revision-Date: 2023-02-05 22:23+0100\n"
+"POT-Creation-Date: 2023-02-05 21:25+0000\n"
+"PO-Revision-Date: 2023-02-06 09:22+0100\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
@@ -215,7 +215,7 @@ msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
 #: src/tracker/tracker-export.c:373
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
-msgstr ""
+msgstr "Formato de serializado «%s» non compatíbel\n"
 
 #: src/tracker/tracker-export.c:425 src/tracker/tracker-export.c:438
 #: src/tracker/tracker-export.c:448 src/tracker/tracker-sparql.c:1502
