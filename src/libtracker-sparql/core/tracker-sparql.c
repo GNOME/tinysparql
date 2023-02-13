@@ -10363,7 +10363,7 @@ apply_update (TrackerSparql    *sparql,
 				                      cursor,
 				                      variant_builder,
 				                      &inner_error))
-					break;
+					goto out;
 			}
 
 			/* If there is no where clause, the op group needs
