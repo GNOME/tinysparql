@@ -31,7 +31,7 @@ import unittest as ut
 import fixtures
 
 
-class TrackerStoreCollationTests (fixtures.TrackerSparqlDirectTest):
+class TrackerStoreCollationTests(fixtures.TrackerSparqlDirectTest):
     """
     Insert few instances with a text field containing collation-problematic words.
     Ask for those instances order by the field and check the results.
@@ -52,26 +52,31 @@ class TrackerStoreCollationTests (fixtures.TrackerSparqlDirectTest):
     def __insert_text(self, text):
         uri = "test://collation-01-%d" % (random.randint(1, 1000))
         # There is a remote chance to get a duplicate int
-        while (uri in self.clean_up_instances):
+        while uri in self.clean_up_instances:
             uri = "test://collation-01-%d" % (random.randint(1, 1000))
         self.clean_up_instances.append(uri)
 
-        self.tracker.update ("""
+        self.tracker.update(
+            """
         INSERT {
             <%s> a nie:InformationElement ;
                 nie:title "%s" ;
                 nie:description "tracker-collation-test-instance" .
         }
-         """ % (uri, text))
+         """
+            % (uri, text)
+        )
 
     def get_text_sorted_by_collation(self):
-        return self.tracker.query ("""
+        return self.tracker.query(
+            """
          SELECT ?title WHERE {
             ?u a nie:InformationElement ;
                nie:title ?title ;
                nie:description 'tracker-collation-test-instance' .
          } ORDER BY ?title
-        """)
+        """
+        )
 
     def __collation_test(self, input_list, expected_list):
 
@@ -82,22 +87,28 @@ class TrackerStoreCollationTests (fixtures.TrackerSparqlDirectTest):
         self.assertEqual(len(results), len(expected_list))
 
         for r in range(0, len(results)):
-            self.assertEqual(results[r], expected_list[r],
-                             """Error:
+            self.assertEqual(
+                results[r],
+                expected_list[r],
+                """Error:
                                   Expected : *** %s
                                   Result   : *** %s
                                   Using locale (%s, %s)
-                               """ % (expected_list,
-                                      results,
-                                      locale.getdefaultlocale()[0],
-                                      locale.getdefaultlocale()[1]))
+                               """
+                % (
+                    expected_list,
+                    results,
+                    locale.getdefaultlocale()[0],
+                    locale.getdefaultlocale()[1],
+                ),
+            )
 
     def test_collation_01(self):
         """
         Behaves as case-insensitive
         """
-        input_dt = ["abb", "bb",  "Abc", "Ba"]
-        expected = ["abb", "Abc", "Ba",  "bb"]
+        input_dt = ["abb", "bb", "Abc", "Ba"]
+        expected = ["abb", "Abc", "Ba", "bb"]
         self.__collation_test(input_dt, expected)
 
     def test_collation_02(self):
@@ -127,9 +138,11 @@ class TrackerStoreCollationTests (fixtures.TrackerSparqlDirectTest):
 
 
 if __name__ == "__main__":
-    print("""
+    print(
+        """
 #    TODO:
 #      * Check what happens in non-english encoding
 #      * Dynamic change of collation
-    """)
+    """
+    )
     fixtures.tracker_test_main()

@@ -27,11 +27,10 @@ import unittest as ut
 import fixtures
 
 
-class TrackerStoreSparqlBugsTests (fixtures.TrackerSparqlDirectTest):
-
+class TrackerStoreSparqlBugsTests(fixtures.TrackerSparqlDirectTest):
     def test_01_NB217566_union_exists_filter(self):
         """
-        NB217566: Use of UNION in EXISTS in a FILTER breaks filtering 
+        NB217566: Use of UNION in EXISTS in a FILTER breaks filtering
         """
         content = """
                 INSERT {
@@ -146,12 +145,14 @@ class TrackerStoreSparqlBugsTests (fixtures.TrackerSparqlDirectTest):
                 """
         self.tracker.update(data)
 
-        results = self.tracker.query ("""
+        results = self.tracker.query(
+            """
                  SELECT ?u WHERE {
                     ?u a nco:PersonContact ;
                       nco:fullname 'Testing bug 217636' .
                       }
-                      """)
+                      """
+        )
         self.assertEqual(len(results), 1)
         self.assertEqual(len(results[0]), 1)
         self.assertEqual(results[0][0], "contact:test-nb217636")
@@ -162,12 +163,14 @@ class TrackerStoreSparqlBugsTests (fixtures.TrackerSparqlDirectTest):
                 """
         self.tracker.update(problematic_delete)
 
-        results_after = self.tracker.query ("""
+        results_after = self.tracker.query(
+            """
                  SELECT ?u WHERE {
                     ?u a nco:PersonContact ;
                       nco:fullname 'Testing bug 217636' .
                       }
-                      """)
+                      """
+        )
         self.assertEqual(len(results_after), 0)
 
         # Safe deletion
@@ -183,10 +186,10 @@ class TrackerStoreSparqlBugsTests (fixtures.TrackerSparqlDirectTest):
         query = "SELECT nrl:modified (?u) ?u  WHERE { ?u a nco:Contact }"
         original_data = self.tracker.query(query)
 
-        wrong_insert = "INSERT { <test://nb222645-wrong-class-contact> a nco:IMContact. } "
-        self.assertRaises(GLib.Error,
-                          self.tracker.update,
-                          wrong_insert)
+        wrong_insert = (
+            "INSERT { <test://nb222645-wrong-class-contact> a nco:IMContact. } "
+        )
+        self.assertRaises(GLib.Error, self.tracker.update, wrong_insert)
 
         new_data = self.tracker.query(query)
         self.assertEqual(len(original_data), len(new_data))

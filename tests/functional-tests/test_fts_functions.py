@@ -25,10 +25,11 @@ import unittest as ut
 import fixtures
 
 
-class TestFTSFunctions (fixtures.TrackerSparqlDirectTest):
+class TestFTSFunctions(fixtures.TrackerSparqlDirectTest):
     """
     Insert data with text and check the fts:xxxx functions are returning the expected results
     """
+
     @ut.skip("Test currently fails.")
     def test_fts_rank(self):
         """
@@ -111,10 +112,9 @@ class TestFTSFunctions (fixtures.TrackerSparqlDirectTest):
         results = self.tracker.query(query)
 
         self.assertEqual(len(results), 3)
-        self.assertEqual(results[0][0], 'nco:fullname,0,nco:nickname,0')
-        self.assertEqual(results[1][0], 'nco:fullname,0')
-        self.assertEqual(
-            results[2][0], 'nco:fullname,0,nco:nickname,0,nco:nickname,10')
+        self.assertEqual(results[0][0], "nco:fullname,0,nco:nickname,0")
+        self.assertEqual(results[1][0], "nco:fullname,0")
+        self.assertEqual(results[2][0], "nco:fullname,0,nco:nickname,0,nco:nickname,10")
 
         delete_sparql = """
         DELETE {
@@ -126,5 +126,5 @@ class TestFTSFunctions (fixtures.TrackerSparqlDirectTest):
         self.tracker.update(delete_sparql)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     fixtures.tracker_test_main()

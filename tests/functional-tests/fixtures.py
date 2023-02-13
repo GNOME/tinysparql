@@ -23,7 +23,8 @@ Fixtures used by the Tracker functional-tests.
 """
 
 import gi
-gi.require_version('Tracker', '3.0')
+
+gi.require_version("Tracker", "3.0")
 from gi.repository import Gio, GLib
 from gi.repository import Tracker
 
@@ -56,22 +57,25 @@ def tracker_test_main():
         # only errors and warnings should be output here unless the environment
         # contains G_MESSAGES_DEBUG=.
         handler_stderr = logging.StreamHandler(stream=sys.stderr)
-        handler_stderr.addFilter(logging.Filter('sandbox-session-bus.stderr'))
+        handler_stderr.addFilter(logging.Filter("sandbox-session-bus.stderr"))
         handler_stdout = logging.StreamHandler(stream=sys.stderr)
-        handler_stdout.addFilter(logging.Filter('sandbox-session-bus.stdout'))
-        logging.basicConfig(level=logging.INFO,
-                            handlers=[handler_stderr, handler_stdout],
-                            format='%(message)s')
+        handler_stdout.addFilter(logging.Filter("sandbox-session-bus.stdout"))
+        logging.basicConfig(
+            level=logging.INFO,
+            handlers=[handler_stderr, handler_stdout],
+            format="%(message)s",
+        )
 
     runner = None
 
     if cfg.tap_protocol_enabled():
         try:
             from tap import TAPTestRunner
+
             runner = TAPTestRunner()
             runner.set_stream(True)
         except ImportError as e:
-            log.error('No TAP test runner found: %s', e)
+            log.error("No TAP test runner found: %s", e)
             raise
 
     ut.main(testRunner=runner, verbosity=2)
@@ -84,14 +88,15 @@ class TrackerSparqlDirectTest(ut.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.tmpdir = tempfile.mkdtemp(prefix='tracker-test-')
+        self.tmpdir = tempfile.mkdtemp(prefix="tracker-test-")
 
         try:
             self.conn = Tracker.SparqlConnection.new(
                 Tracker.SparqlConnectionFlags.NONE,
                 Gio.File.new_for_path(self.tmpdir),
                 Gio.File.new_for_path(cfg.ontologies_dir()),
-                None)
+                None,
+            )
 
             self.tracker = trackertestutils.helpers.StoreHelper(self.conn)
         except Exception:
@@ -104,7 +109,7 @@ class TrackerSparqlDirectTest(ut.TestCase):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
 
-class TrackerSparqlBusTest (ut.TestCase):
+class TrackerSparqlBusTest(ut.TestCase):
     """
     Fixture for tests using a D-Bus connection to a Tracker database.
 
@@ -124,7 +129,8 @@ class TrackerSparqlBusTest (ut.TestCase):
             Tracker.SparqlConnectionFlags.NONE,
             Gio.File.new_for_path(tmpdir),
             Gio.File.new_for_path(cfg.ontologies_dir()),
-            None)
+            None,
+        )
 
         endpoint = Tracker.EndpointDBus.new(conn, bus, None, None)
 
@@ -135,11 +141,16 @@ class TrackerSparqlBusTest (ut.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.tmpdir = tempfile.mkdtemp(prefix='tracker-test-')
+        self.tmpdir = tempfile.mkdtemp(prefix="tracker-test-")
 
         message_queue = multiprocessing.Queue()
-        self.process = multiprocessing.Process(target=self.database_process_fn,
-                                               args=(self.tmpdir, message_queue,))
+        self.process = multiprocessing.Process(
+            target=self.database_process_fn,
+            args=(
+                self.tmpdir,
+                message_queue,
+            ),
+        )
         try:
             self.process.start()
             service_name = message_queue.get()
@@ -170,24 +181,32 @@ class TrackerPortalTest(ut.TestCase):
 
         bus = Gio.DBusConnection.new_for_address_sync(
             dbus_address,
-            Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT |
-            Gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION, None, None)
+            Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT
+            | Gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION,
+            None,
+            None,
+        )
 
         conn = Tracker.SparqlConnection.new(
             Tracker.SparqlConnectionFlags.NONE,
             None,
             Gio.File.new_for_path(cfg.ontologies_dir()),
-            None)
+            None,
+        )
 
         endpoint = Tracker.EndpointDBus.new(conn, bus, None, None)
 
         bus.call_sync(
-            'org.freedesktop.DBus',
-            '/org/freedesktop/DBus',
-            'org.freedesktop.DBus',
-            'RequestName',
-            GLib.Variant('(su)', (service_name, 0x4)),
-            None, 0, -1, None)
+            "org.freedesktop.DBus",
+            "/org/freedesktop/DBus",
+            "org.freedesktop.DBus",
+            "RequestName",
+            GLib.Variant("(su)", (service_name, 0x4)),
+            None,
+            0,
+            -1,
+            None,
+        )
 
         loop = GLib.MainLoop.new(None, False)
 
@@ -202,7 +221,7 @@ class TrackerPortalTest(ut.TestCase):
                 pass
             return GLib.SOURCE_CONTINUE
 
-        GLib.timeout_add (50, pop_update, in_queue)
+        GLib.timeout_add(50, pop_update, in_queue)
         out_queue.put(None)
         loop.run()
 
@@ -210,29 +229,33 @@ class TrackerPortalTest(ut.TestCase):
 
     def setUp(self):
         extra_env = {}
-        extra_env['TRACKER_TEST_PORTAL_FLATPAK_INFO'] = cfg.TEST_PORTAL_FLATPAK_INFO
+        extra_env["TRACKER_TEST_PORTAL_FLATPAK_INFO"] = cfg.TEST_PORTAL_FLATPAK_INFO
 
         self.loop = trackertestutils.mainloop.MainLoop()
         self.message_queues = {}
         self.connections = {}
         self.sandbox = trackertestutils.helpers.TrackerDBusSandbox(
-            session_bus_config_file=cfg.TEST_DBUS_DAEMON_CONFIG_FILE, extra_env=extra_env)
+            session_bus_config_file=cfg.TEST_DBUS_DAEMON_CONFIG_FILE,
+            extra_env=extra_env,
+        )
 
         self.sandbox.start()
 
         self.bus = self.sandbox.get_session_bus_connection()
         self.dbus_address = self.sandbox.get_session_bus_address()
-        os.environ['DBUS_SESSION_BUS_ADDRESS'] = self.dbus_address
+        os.environ["DBUS_SESSION_BUS_ADDRESS"] = self.dbus_address
 
         try:
             log.info("Starting portal")
             self._portal_proxy = Gio.DBusProxy.new_sync(
                 self.bus,
-                Gio.DBusProxyFlags.NONE, None,
-                'org.freedesktop.portal.Tracker',
-                '/org/freedesktop/portal/Tracker',
-                'org.freedesktop.portal.Tracker',
-                None)
+                Gio.DBusProxyFlags.NONE,
+                None,
+                "org.freedesktop.portal.Tracker",
+                "/org/freedesktop/portal/Tracker",
+                "org.freedesktop.portal.Tracker",
+                None,
+            )
 
         except Exception:
             self.sandbox.stop()
@@ -248,10 +271,11 @@ class TrackerPortalTest(ut.TestCase):
         out_queue = multiprocessing.Queue()
         thread = threading.Thread(
             target=self.database_process_fn,
-            args=(service_name, out_queue, in_queue, self.dbus_address))
+            args=(service_name, out_queue, in_queue, self.dbus_address),
+        )
         thread.start()
         in_queue.get()
-        self.message_queues[service_name] = [ in_queue, out_queue ]
+        self.message_queues[service_name] = [in_queue, out_queue]
 
     def stop_service(self, service_name):
         queues = self.message_queues[service_name]
@@ -281,7 +305,8 @@ class TrackerPortalTest(ut.TestCase):
             Tracker.SparqlConnectionFlags.NONE,
             None,
             Gio.File.new_for_path(cfg.ontologies_dir()),
-            None)
+            None,
+        )
 
 
 class CliError(Exception):
@@ -292,9 +317,11 @@ class TrackerCommandLineTestCase(ut.TestCase):
     def setUp(self):
         self.env = os.environ.copy()
 
-        path = self.env.get('PATH', []).split(':')
-        self.env['PATH'] = ':'.join([cfg.cli_dir()] + path)
-        self.env['TRACKER_CLI_SUBCOMMANDS_DIR'] = os.path.join(cfg.cli_dir(), 'subcommands')
+        path = self.env.get("PATH", []).split(":")
+        self.env["PATH"] = ":".join([cfg.cli_dir()] + path)
+        self.env["TRACKER_CLI_SUBCOMMANDS_DIR"] = os.path.join(
+            cfg.cli_dir(), "subcommands"
+        )
         self.bg_processes = []
 
     def tearDown(self):
@@ -311,14 +338,15 @@ class TrackerCommandLineTestCase(ut.TestCase):
             shutil.rmtree(dirpath, ignore_errors=True)
 
     def data_path(self, filename):
-        test_data = pathlib.Path(__file__).parent.joinpath('data')
+        test_data = pathlib.Path(__file__).parent.joinpath("data")
         return test_data.joinpath(filename)
 
     def run_cli(self, command):
         command = [str(c) for c in command]
-        log.info("Running: %s", ' '.join(command))
-        result = subprocess.run(command, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, env=self.env)
+        log.info("Running: %s", " ".join(command))
+        result = subprocess.run(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env
+        )
 
         if len(result.stdout) > 0:
             log.debug("stdout: %s", result.stdout)
@@ -326,32 +354,45 @@ class TrackerCommandLineTestCase(ut.TestCase):
             log.debug("stderr: %s", result.stderr)
 
         if result.returncode != 0:
-            raise CliError('\n'.join([
-                "CLI command failed.",
-                "Command: %s" % ' '.join(command),
-                "Error: %s" % result.stderr.decode('utf-8')]))
+            raise CliError(
+                "\n".join(
+                    [
+                        "CLI command failed.",
+                        "Command: %s" % " ".join(command),
+                        "Error: %s" % result.stderr.decode("utf-8"),
+                    ]
+                )
+            )
 
-        return result.stdout.decode('utf-8')
+        return result.stdout.decode("utf-8")
 
     def run_background(self, command, init_string=None):
         command = [str(c) for c in command]
-        log.info("Running in background: %s", ' '.join(command))
+        log.info("Running in background: %s", " ".join(command))
         result = subprocess.Popen(
-            command, stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL, env=self.env,
-            encoding='UTF-8')
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            env=self.env,
+            encoding="UTF-8",
+        )
         initialized = False
 
         if result.returncode != None:
-            raise CliError('\n'.join([
-                "CLI command failed.",
-                "Command: %s" % ' '.join(command),
-                "Error: %s" % result.stderr.decode('utf-8')]))
+            raise CliError(
+                "\n".join(
+                    [
+                        "CLI command failed.",
+                        "Command: %s" % " ".join(command),
+                        "Error: %s" % result.stderr.decode("utf-8"),
+                    ]
+                )
+            )
 
         # Wait for the specified output
         while init_string and not initialized:
-            txt = result.stdout.readline();
+            txt = result.stdout.readline()
             initialized = txt.find(init_string) >= 0
 
         result.stdout.close()
-        self.bg_processes.append(result);
+        self.bg_processes.append(result)

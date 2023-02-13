@@ -24,7 +24,7 @@ import unittest as ut
 import fixtures
 
 
-class TestGraphs (fixtures.TrackerSparqlDirectTest):
+class TestGraphs(fixtures.TrackerSparqlDirectTest):
     """
     Insert triplets in different graphs and check the query results asking in
     one specific graph, in all of them and so on.
@@ -145,5 +145,5 @@ class TestGraphs (fixtures.TrackerSparqlDirectTest):
         """
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     fixtures.tracker_test_main()
