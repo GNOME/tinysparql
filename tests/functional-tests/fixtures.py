@@ -311,7 +311,7 @@ class TrackerCommandLineTestCase(ut.TestCase):
             shutil.rmtree(dirpath, ignore_errors=True)
 
     def data_path(self, filename):
-        test_data = pathlib.Path(__file__).parent.joinpath('test-data')
+        test_data = pathlib.Path(__file__).parent.joinpath('data')
         return test_data.joinpath(filename)
 
     def run_cli(self, command):

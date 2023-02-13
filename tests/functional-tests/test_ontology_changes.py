@@ -71,7 +71,7 @@ class OntologyChangeTestTemplate (ut.TestCase):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def ontology_path(self, param):
-        return pathlib.Path(__file__).parent.joinpath('test-ontologies', param)
+        return pathlib.Path(__file__).parent.joinpath('data', 'ontologies', param)
 
     def template_test_ontology_change(self):
         self.set_ontology_dirs()

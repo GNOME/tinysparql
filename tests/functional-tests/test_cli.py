@@ -72,7 +72,7 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
     def test_import(self):
         """Import a Turtle file into a Tracker database."""
 
-        testdata = str(self.data_path('test-movie.ttl'))
+        testdata = str(self.data_path('serialized/test-movie.ttl'))
 
         with self.tmpdir() as tmpdir:
             ontology_path = configuration.ontologies_dir()
