@@ -3252,11 +3252,14 @@ update_sparql (TrackerData  *data,
 		return NULL;
 	}
 
-	sparql_query = tracker_sparql_new_update (data->manager, update);
-	tracker_sparql_execute_update (sparql_query, NULL, NULL,
-	                               blank ? &blank_nodes : NULL,
-	                               &actual_error);
-	g_object_unref (sparql_query);
+	sparql_query = tracker_sparql_new_update (data->manager, update, &actual_error);
+
+	if (sparql_query) {
+		tracker_sparql_execute_update (sparql_query, NULL, NULL,
+		                               blank ? &blank_nodes : NULL,
+		                               &actual_error);
+		g_object_unref (sparql_query);
+	}
 
 	if (actual_error) {
 		tracker_data_rollback_transaction (data);

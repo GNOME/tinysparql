@@ -287,13 +287,16 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			TrackerSparql *query;
 
 			query = tracker_sparql_new_update (data_manager,
-			                                   elem->d.sparql);
-			tracker_sparql_execute_update (query,
-			                               NULL,
-			                               bnodes,
-			                               NULL,
-			                               &inner_error);
-			g_object_unref (query);
+			                                   elem->d.sparql,
+			                                   &inner_error);
+			if (query) {
+				tracker_sparql_execute_update (query,
+				                               NULL,
+				                               bnodes,
+				                               NULL,
+				                               &inner_error);
+				g_object_unref (query);
+			}
 		} else if (elem->type == TRACKER_DIRECT_BATCH_STATEMENT) {
 			tracker_direct_statement_execute_update (elem->d.statement.stmt,
 			                                         elem->d.statement.parameters,

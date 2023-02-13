@@ -112,7 +112,9 @@ tracker_data_query_sparql_cursor (TrackerDataManager  *manager,
 
 	g_return_val_if_fail (query != NULL, NULL);
 
-	sparql_query = tracker_sparql_new (manager, query);
+	sparql_query = tracker_sparql_new (manager, query, error);
+	if (!sparql_query)
+		return NULL;
 
 	cursor = tracker_sparql_execute_cursor (sparql_query, NULL, error);
 

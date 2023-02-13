@@ -231,7 +231,6 @@ struct _TrackerSparql
 	gchar *sparql;
 
 	TrackerNodeTree *tree;
-	GError *parser_error;
 
 	struct {
 		GPtrArray *graphs;
@@ -9611,10 +9610,12 @@ tracker_sparql_needs_update (TrackerSparql *sparql)
 }
 
 TrackerSparql*
-tracker_sparql_new (TrackerDataManager *manager,
-                    const gchar        *query)
+tracker_sparql_new (TrackerDataManager  *manager,
+                    const gchar         *query,
+                    GError             **error)
 {
 	TrackerSparql *sparql;
+	GError *inner_error = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_DATA_MANAGER (manager), NULL);
 	g_return_val_if_fail (query != NULL, NULL);
@@ -9629,7 +9630,13 @@ tracker_sparql_new (TrackerDataManager *manager,
 		sparql->sparql = g_strdup (query);
 
 	sparql->tree = tracker_sparql_parse_query (sparql->sparql, -1, NULL,
-	                                           &sparql->parser_error);
+	                                           &inner_error);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		g_object_unref (sparql);
+		return NULL;
+	}
 
 	return sparql;
 }
@@ -9779,11 +9786,6 @@ tracker_sparql_execute_cursor (TrackerSparql  *sparql,
 	}
 #endif
 
-	if (sparql->parser_error) {
-		g_propagate_error (error, sparql->parser_error);
-		goto error;
-	}
-
 	if (tracker_sparql_needs_update (sparql)) {
 		TrackerSparqlState state = { 0 };
 		TrackerSelectContext *select_context;
@@ -9836,11 +9838,13 @@ error:
 }
 
 TrackerSparql *
-tracker_sparql_new_update (TrackerDataManager *manager,
-                           const gchar        *query)
+tracker_sparql_new_update (TrackerDataManager  *manager,
+                           const gchar         *query,
+                           GError             **error)
 {
 	TrackerNodeTree *tree;
 	TrackerSparql *sparql;
+	GError *inner_error = NULL;
 	gsize len;
 
 	g_return_val_if_fail (TRACKER_IS_DATA_MANAGER (manager), NULL);
@@ -9855,12 +9859,12 @@ tracker_sparql_new_update (TrackerDataManager *manager,
 		sparql->sparql = g_strdup (query);
 
 	tree = tracker_sparql_parse_update (sparql->sparql, -1, &len,
-	                                    &sparql->parser_error);
+	                                    &inner_error);
 
-	if (tree && !sparql->parser_error && query[len] != '\0') {
+	if (tree && !inner_error && query[len] != '\0') {
 		tracker_node_tree_free (tree);
 		tree = NULL;
-		g_set_error (&sparql->parser_error,
+		g_set_error (&inner_error,
 			     TRACKER_SPARQL_ERROR,
 			     TRACKER_SPARQL_ERROR_PARSE,
 			     "Parser error at byte %" G_GSIZE_FORMAT ": Expected NIL character",
@@ -9877,6 +9881,12 @@ tracker_sparql_new_update (TrackerDataManager *manager,
 		sparql->update_groups = g_array_new (FALSE, FALSE, sizeof (TrackerUpdateOpGroup));
 		g_array_set_clear_func (sparql->update_groups,
 		                        (GDestroyNotify) tracker_update_op_group_clear);
+	}
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		g_object_unref (sparql);
+		return NULL;
 	}
 
 	return sparql;
@@ -10413,11 +10423,6 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 		             TRACKER_SPARQL_ERROR,
 		             TRACKER_SPARQL_ERROR_QUERY_FAILED,
 		             "Not an update query");
-		return FALSE;
-	}
-
-	if (sparql->parser_error) {
-		g_propagate_error (error, sparql->parser_error);
 		return FALSE;
 	}
 

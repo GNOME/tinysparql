@@ -363,7 +363,11 @@ serialize_in_thread (GTask    *task,
 	priv = tracker_direct_connection_get_instance_private (conn);
 
 	g_mutex_lock (&priv->mutex);
-	query = tracker_sparql_new (priv->data_manager, data->query);
+
+	query = tracker_sparql_new (priv->data_manager, data->query, &error);
+	if (!query)
+		goto out;
+
 	if (!tracker_sparql_is_serializable (query)) {
 		g_set_error (&error,
 		             TRACKER_SPARQL_ERROR,
@@ -868,17 +872,21 @@ tracker_direct_connection_query (TrackerSparqlConnection  *self,
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
 	TrackerSparql *query;
-	TrackerSparqlCursor *cursor;
+	TrackerSparqlCursor *cursor = NULL;
 	GError *inner_error = NULL;
 
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
 	g_mutex_lock (&priv->mutex);
-	query = tracker_sparql_new (priv->data_manager, sparql);
-	cursor = tracker_sparql_execute_cursor (query, NULL, &inner_error);
-	tracker_direct_connection_update_timestamp (conn);
-	g_object_unref (query);
+
+	query = tracker_sparql_new (priv->data_manager, sparql, &inner_error);
+	if (query) {
+		cursor = tracker_sparql_execute_cursor (query, NULL, &inner_error);
+		tracker_direct_connection_update_timestamp (conn);
+		g_object_unref (query);
+	}
+
 	g_mutex_unlock (&priv->mutex);
 
 	if (inner_error)
