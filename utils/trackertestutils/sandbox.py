@@ -72,6 +72,8 @@ class TrackerSandbox:
         else:
             self.system_bus = None
 
+        self._dconf_client = None
+
     def get_environment(self):
         env = os.environ
         env.update(self.extra_env)
@@ -163,6 +165,13 @@ class TrackerSandbox:
     def get_session_bus_address(self):
         return self.session_bus.get_address()
 
+    def get_dconf_client(self):
+        if self._dconf_client is None:
+            self._dconf_client = dconf.DConfClient(
+                self.extra_env, self.get_session_bus_address()
+            )
+        return self._dconf_client
+
     def set_config(self, schema_config_dict):
         """Set config values in multiple GSettings schemas.
 
@@ -176,7 +185,7 @@ class TrackerSandbox:
 
         """
 
+        dconf_client = self.get_dconf_client()
         for schema_name, contents in schema_config_dict.items():
-            dconfclient = dconf.DConfClient(self)
             for key, value in contents.items():
-                dconfclient.write(schema_name, key, value)
+                dconf_client.write(schema_name, key, value)

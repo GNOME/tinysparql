@@ -142,7 +142,7 @@ def create_sandbox(store_location, prefix=None, use_session_dirs=False,
 
 def config_set(sandbox, content_locations_recursive=None,
                content_locations_single=None, applications=False):
-    dconfclient = dconf.DConfClient(sandbox)
+    dconfclient = sandbox.get_dconf_client()
 
     if content_locations_recursive:
         log.debug("Using content locations: %s" %
