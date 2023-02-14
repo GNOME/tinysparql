@@ -59,7 +59,7 @@ class DConfClient(object):
         return str(profile)
 
     def _remove_dconf_profile(self):
-        shutil.rmtree(self._tmpdir)
+        self._tmpdir.cleanup()
 
     def _check_using_correct_dconf_profile(self):
         profile = self.env.get("DCONF_PROFILE")
