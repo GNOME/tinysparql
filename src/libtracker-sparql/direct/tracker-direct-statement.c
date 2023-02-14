@@ -472,6 +472,13 @@ tracker_direct_statement_new (TrackerSparqlConnection  *conn,
 {
 	TrackerDirectStatement *direct;
 	TrackerDirectStatementPrivate *priv;
+	TrackerSparql *parser;
+
+	parser = tracker_sparql_new (tracker_direct_connection_get_data_manager (TRACKER_DIRECT_CONNECTION (conn)),
+	                             sparql,
+	                             error);
+	if (!parser)
+		return NULL;
 
 	direct = g_object_new (TRACKER_TYPE_DIRECT_STATEMENT,
 	                       "sparql", sparql,
@@ -479,8 +486,7 @@ tracker_direct_statement_new (TrackerSparqlConnection  *conn,
 	                       NULL);
 
 	priv = tracker_direct_statement_get_instance_private (direct);
-	priv->sparql = tracker_sparql_new (tracker_direct_connection_get_data_manager (TRACKER_DIRECT_CONNECTION (conn)),
-	                                   sparql);
+	priv->sparql = parser;
 
 	return direct;
 }
@@ -492,6 +498,13 @@ tracker_direct_statement_new_update (TrackerSparqlConnection  *conn,
 {
 	TrackerDirectStatement *direct;
 	TrackerDirectStatementPrivate *priv;
+	TrackerSparql *parser;
+
+	parser = tracker_sparql_new_update (tracker_direct_connection_get_data_manager (TRACKER_DIRECT_CONNECTION (conn)),
+	                                    sparql,
+	                                    error);
+	if (!parser)
+		return NULL;
 
 	direct = g_object_new (TRACKER_TYPE_DIRECT_STATEMENT,
 	                       "sparql", sparql,
@@ -499,8 +512,7 @@ tracker_direct_statement_new_update (TrackerSparqlConnection  *conn,
 	                       NULL);
 
 	priv = tracker_direct_statement_get_instance_private (direct);
-	priv->sparql = tracker_sparql_new_update (tracker_direct_connection_get_data_manager (TRACKER_DIRECT_CONNECTION (conn)),
-	                                          sparql);
+	priv->sparql = parser;
 
 	return direct;
 }

@@ -789,6 +789,7 @@ tracker_sparql_connection_load_statement_from_gresource (TrackerSparqlConnection
 {
 	TrackerSparqlStatement *stmt;
 	GBytes *query;
+	GError *inner_error1 = NULL, *inner_error2 = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), NULL);
 	g_return_val_if_fail (resource_path && *resource_path, NULL);
@@ -805,7 +806,21 @@ tracker_sparql_connection_load_statement_from_gresource (TrackerSparqlConnection
 	                                                                          g_bytes_get_data (query,
 	                                                                                            NULL),
 	                                                                          cancellable,
-	                                                                          error);
+	                                                                          &inner_error1);
+
+	if (inner_error1) {
+		stmt = TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_statement (connection,
+		                                                                           g_bytes_get_data (query,
+		                                                                                             NULL),
+		                                                                           cancellable,
+		                                                                           &inner_error2);
+		if (inner_error1 && inner_error2) {
+			/* Pick one */
+			g_propagate_error (error, inner_error1);
+			g_clear_error (&inner_error2);
+		}
+	}
+
 	g_bytes_unref (query);
 
 	return stmt;
