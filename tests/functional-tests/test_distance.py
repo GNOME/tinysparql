@@ -24,12 +24,10 @@ Test the distance-calculation functions in SPARQL.
 import unittest as ut
 import fixtures
 
-POINT_COORDS = [
-    (0, 0), (1, 1), (2, 2), (3, 3), (4, 4)
-]
+POINT_COORDS = [(0, 0), (1, 1), (2, 2), (3, 3), (4, 4)]
 
 
-class TestDistanceFunctions (fixtures.TrackerSparqlDirectTest):
+class TestDistanceFunctions(fixtures.TrackerSparqlDirectTest):
     """
     Insert some points and get the distance between them.
     """
@@ -43,7 +41,11 @@ class TestDistanceFunctions (fixtures.TrackerSparqlDirectTest):
                 slo:longitude %d ;
                 slo:latitude %d .
             }
-            """ % ("point://test/point/" + str(self.counter), log, lat)
+            """ % (
+                "point://test/point/" + str(self.counter),
+                log,
+                lat,
+            )
             self.tracker.update(insert)
             self.counter += 1
 
@@ -53,7 +55,9 @@ class TestDistanceFunctions (fixtures.TrackerSparqlDirectTest):
             DELETE {
             <%s> a rdfs:Resource.
             }
-            """ % ("point://test/point/" + str (i))
+            """ % (
+                "point://test/point/" + str(i)
+            )
             self.tracker.update(delete)
 
     def get_distance_between_points(self, sum_func, id1, id2):
@@ -73,7 +77,11 @@ class TestDistanceFunctions (fixtures.TrackerSparqlDirectTest):
              slo:latitude ?lat2 ;
              slo:longitude ?lon2 .
         }
-        """ % (sum_func, id1, id2)
+        """ % (
+            sum_func,
+            id1,
+            id2,
+        )
         result = self.tracker.query(query_1_to_2)
         return int(result[0][0])
 
@@ -125,5 +133,5 @@ class TestDistanceFunctions (fixtures.TrackerSparqlDirectTest):
         assert d_2_to_3h < d_2_to_3c
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     fixtures.tracker_test_main()

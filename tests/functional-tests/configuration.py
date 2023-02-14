@@ -30,39 +30,45 @@ import sys
 DEFAULT_TIMEOUT = 10
 
 
-if 'TRACKER_FUNCTIONAL_TEST_CONFIG' not in os.environ:
-    raise RuntimeError("The TRACKER_FUNCTIONAL_TEST_CONFIG environment "
-                       "variable must be set to point to the location of "
-                       "the generated configuration.json file.")
+if "TRACKER_FUNCTIONAL_TEST_CONFIG" not in os.environ:
+    raise RuntimeError(
+        "The TRACKER_FUNCTIONAL_TEST_CONFIG environment "
+        "variable must be set to point to the location of "
+        "the generated configuration.json file."
+    )
 
-with open(os.environ['TRACKER_FUNCTIONAL_TEST_CONFIG']) as f:
+with open(os.environ["TRACKER_FUNCTIONAL_TEST_CONFIG"]) as f:
     config = json.load(f)
 
-TEST_DBUS_DAEMON_CONFIG_FILE = config['TEST_DBUS_DAEMON_CONFIG_FILE']
-TEST_PORTAL_FLATPAK_INFO = config['TEST_PORTAL_FLATPAK_INFO']
+TEST_DBUS_DAEMON_CONFIG_FILE = config["TEST_DBUS_DAEMON_CONFIG_FILE"]
+TEST_PORTAL_FLATPAK_INFO = config["TEST_PORTAL_FLATPAK_INFO"]
+
 
 def cli_dir():
-    return config['TEST_CLI_DIR']
+    return config["TEST_CLI_DIR"]
 
 
 def ontologies_dir():
-    return config['TEST_ONTOLOGIES_DIR']
+    return config["TEST_ONTOLOGIES_DIR"]
 
 
 def tracker_version():
-    return config['TRACKER_VERSION']
+    return config["TRACKER_VERSION"]
 
 
 def tap_protocol_enabled():
-    return config['TEST_TAP_ENABLED']
+    return config["TEST_TAP_ENABLED"]
 
 
 TRACKER_DEBUG_TESTS = 1
+
 
 def tests_verbose():
     tracker_debug_tests = GLib.DebugKey()
     tracker_debug_tests.key = "tests"
     tracker_debug_tests.value = TRACKER_DEBUG_TESTS
 
-    flags = GLib.parse_debug_string (os.environ.get('TRACKER_DEBUG', ''), [tracker_debug_tests])
-    return (flags & TRACKER_DEBUG_TESTS)
+    flags = GLib.parse_debug_string(
+        os.environ.get("TRACKER_DEBUG", ""), [tracker_debug_tests]
+    )
+    return flags & TRACKER_DEBUG_TESTS

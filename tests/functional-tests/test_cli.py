@@ -30,11 +30,10 @@ import random
 class TestCli(fixtures.TrackerCommandLineTestCase):
     def test_version(self):
         """Check we're testing the correct version of the CLI"""
-        output = self.run_cli(
-            ['tracker3', '--version'])
+        output = self.run_cli(["tracker3", "--version"])
 
         version_line = output.splitlines()[0]
-        expected_version_line = 'Tracker %s' % configuration.tracker_version()
+        expected_version_line = "Tracker %s" % configuration.tracker_version()
         self.assertEqual(version_line, expected_version_line)
 
     def test_create_local_database(self):
@@ -45,13 +44,27 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
 
             # Create the database
             self.run_cli(
-                ['tracker3', 'endpoint', '--database', tmpdir,
-                 '--ontology-path', ontology_path])
+                [
+                    "tracker3",
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology-path",
+                    ontology_path,
+                ]
+            )
 
             # Sanity check that it works.
             self.run_cli(
-                ['tracker3', 'sparql', '--database', tmpdir,
-                 '--query', 'ASK { ?u a rdfs:Resource }'])
+                [
+                    "tracker3",
+                    "sparql",
+                    "--database",
+                    tmpdir,
+                    "--query",
+                    "ASK { ?u a rdfs:Resource }",
+                ]
+            )
 
     def test_export(self):
         """Export contents of a Tracker database."""
@@ -62,26 +75,37 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             # Create a database and export it as Turtle.
             # We don't validate the output in this test, but we should.
             self.run_cli(
-                ['tracker3', 'endpoint', '--database', tmpdir,
-                 '--ontology-path', ontology_path])
-            self.run_cli(
-                ['tracker3', 'export', '--database', tmpdir]);
-            self.run_cli(
-                ['tracker3', 'export', '--database', tmpdir, '--show-graphs']);
+                [
+                    "tracker3",
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology-path",
+                    ontology_path,
+                ]
+            )
+            self.run_cli(["tracker3", "export", "--database", tmpdir])
+            self.run_cli(["tracker3", "export", "--database", tmpdir, "--show-graphs"])
 
     def test_import(self):
         """Import a Turtle file into a Tracker database."""
 
-        testdata = str(self.data_path('test-movie.ttl'))
+        testdata = str(self.data_path("serialized/test-movie.ttl"))
 
         with self.tmpdir() as tmpdir:
             ontology_path = configuration.ontologies_dir()
 
             self.run_cli(
-                ['tracker3', 'endpoint', '--database', tmpdir,
-                 '--ontology-path', ontology_path])
-            self.run_cli(
-                ['tracker3', 'import', '--database', tmpdir, testdata]);
+                [
+                    "tracker3",
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology-path",
+                    ontology_path,
+                ]
+            )
+            self.run_cli(["tracker3", "import", "--database", tmpdir, testdata])
 
     def test_http_endpoint(self):
         """Create a HTTP endpoint for local testing"""
@@ -89,20 +113,35 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
         with self.tmpdir() as tmpdir:
             ontology_path = configuration.ontologies_dir()
             port = random.randint(32000, 65000)
-            address = 'http://127.0.0.1:%d/sparql' % port
+            address = "http://127.0.0.1:%d/sparql" % port
 
             # Create the database
             self.run_background(
-                ['tracker3', 'endpoint', '--database', tmpdir,
-                 '--ontology-path', ontology_path, '--http-port', port],
-		'Listening')
+                [
+                    "tracker3",
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology-path",
+                    ontology_path,
+                    "--http-port",
+                    port,
+                ],
+                "Listening",
+            )
 
             # Sanity check that it works.
             self.run_cli(
-                ['tracker3', 'sparql',
-                 '--remote-service', address,
-                 '--query', 'ASK { ?u a rdfs:Resource }'])
+                [
+                    "tracker3",
+                    "sparql",
+                    "--remote-service",
+                    address,
+                    "--query",
+                    "ASK { ?u a rdfs:Resource }",
+                ]
+            )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     fixtures.tracker_test_main()

@@ -22,7 +22,8 @@ Test change notifications using TrackerNotifier.
 """
 
 import gi
-gi.require_version('Tracker', '3.0')
+
+gi.require_version("Tracker", "3.0")
 from gi.repository import GLib
 from gi.repository import Tracker
 
@@ -34,7 +35,7 @@ import fixtures
 import trackertestutils.mainloop
 
 
-class TrackerNotifierTests():
+class TrackerNotifierTests:
     """
     Test cases for TrackerNotifier.
 
@@ -51,19 +52,23 @@ class TrackerNotifierTests():
         self.results_updates = []
 
         self.notifier = self.conn.create_notifier()
-        self.notifier.connect('events', self.__signal_received_cb)
+        self.notifier.connect("events", self.__signal_received_cb)
 
     def __wait_for_signal(self):
         """
         In the callback of the signals, there should be a self.loop.quit ()
         """
         self.timeout_id = GLib.timeout_add_seconds(
-            configuration.DEFAULT_TIMEOUT, self.__timeout_on_idle)
+            configuration.DEFAULT_TIMEOUT, self.__timeout_on_idle
+        )
         self.loop.run_checked()
 
     def __timeout_on_idle(self):
         self.loop.quit()
-        self.fail("Timeout, the signal never came after %i seconds!" % configuration.DEFAULT_TIMEOUT)
+        self.fail(
+            "Timeout, the signal never came after %i seconds!"
+            % configuration.DEFAULT_TIMEOUT
+        )
 
     def __signal_received_cb(self, notifier, service, graph, events):
         """
@@ -100,7 +105,7 @@ class TrackerNotifierTests():
         self.assertEqual(len(self.results_deletes), 0)
         self.assertEqual(len(self.results_inserts), 1)
         self.assertEqual(len(self.results_updates), 0)
-        assert self.results_inserts[0].get_urn() == 'test://signals-contact-add'
+        assert self.results_inserts[0].get_urn() == "test://signals-contact-add"
 
     def test_02_remove_contact(self):
         CONTACT = """
@@ -113,9 +118,11 @@ class TrackerNotifierTests():
         self.tracker.update(CONTACT)
         self.__wait_for_signal()
 
-        self.tracker.update ("""
+        self.tracker.update(
+            """
             DELETE { <test://signals-contact-remove> a rdfs:Resource }
-            """)
+            """
+        )
         self.__wait_for_signal()
 
         # Validate results:
@@ -125,11 +132,13 @@ class TrackerNotifierTests():
 
     def test_03_update_contact(self):
         self.tracker.update(
-            "INSERT { <test://signals-contact-update> a nco:PersonContact }")
+            "INSERT { <test://signals-contact-update> a nco:PersonContact }"
+        )
         self.__wait_for_signal()
 
         self.tracker.update(
-            "INSERT { <test://signals-contact-update> nco:fullname 'wohoo'}")
+            "INSERT { <test://signals-contact-update> nco:fullname 'wohoo'}"
+        )
         self.__wait_for_signal()
 
         self.assertEqual(len(self.results_updates), 1)
@@ -138,15 +147,18 @@ class TrackerNotifierTests():
 
     def test_04_fullupdate_contact(self):
         self.tracker.update(
-            "INSERT { <test://signals-contact-fullupdate> a nco:PersonContact; nco:fullname 'first value' }")
+            "INSERT { <test://signals-contact-fullupdate> a nco:PersonContact; nco:fullname 'first value' }"
+        )
         self.__wait_for_signal()
 
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                DELETE { <test://signals-contact-fullupdate> nco:fullname ?x }
                WHERE { <test://signals-contact-fullupdate> a nco:PersonContact; nco:fullname ?x }
 
                INSERT { <test://signals-contact-fullupdate> nco:fullname 'second value'}
-               """)
+               """
+        )
         self.__wait_for_signal()
 
         self.assertEqual(len(self.results_deletes), 0)
@@ -154,7 +166,7 @@ class TrackerNotifierTests():
         self.assertEqual(len(self.results_updates), 1)
 
 
-class TrackerLocalNotifierTest (fixtures.TrackerSparqlDirectTest, TrackerNotifierTests):
+class TrackerLocalNotifierTest(fixtures.TrackerSparqlDirectTest, TrackerNotifierTests):
     """
     Insert/update/remove instances from nco:PersonContact
     and check that the signals are emitted.
@@ -164,7 +176,7 @@ class TrackerLocalNotifierTest (fixtures.TrackerSparqlDirectTest, TrackerNotifie
         self.base_setup()
 
 
-class TrackerBusNotifierTest (fixtures.TrackerSparqlBusTest, TrackerNotifierTests):
+class TrackerBusNotifierTest(fixtures.TrackerSparqlBusTest, TrackerNotifierTests):
     """
     Insert/update/remove instances from nco:PersonContact
     and check that the signals are emitted.

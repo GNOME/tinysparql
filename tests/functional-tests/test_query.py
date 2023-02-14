@@ -21,19 +21,21 @@ Test queries using libtracker-sparql.
 """
 
 import gi
-gi.require_version('Tracker', '3.0')
+
+gi.require_version("Tracker", "3.0")
 from gi.repository import Tracker
 
 import unittest as ut
 
 import fixtures
+
 # We must import configuration to enable the default logging behaviour.
 import configuration
 
 import trackertestutils.helpers
 
 
-class TrackerQueryTests():
+class TrackerQueryTests:
     """
     Query test cases for TrackerSparqlConnection.
 
@@ -53,7 +55,9 @@ class TrackerQueryTests():
         """
         self.tracker.update(CONTACT)
 
-        cursor = self.conn.query('SELECT ?url ?filesize { ?url a nfo:FileDataObject ; nfo:fileSize ?filesize }')
+        cursor = self.conn.query(
+            "SELECT ?url ?filesize { ?url a nfo:FileDataObject ; nfo:fileSize ?filesize }"
+        )
 
         cursor.next()
         assert cursor.get_n_columns() == 2
@@ -61,11 +65,11 @@ class TrackerQueryTests():
         self.assertEqual(cursor.get_value_type(1), Tracker.SparqlValueType.INTEGER)
 
 
-class TrackerLocalQueryTest (fixtures.TrackerSparqlDirectTest, TrackerQueryTests):
+class TrackerLocalQueryTest(fixtures.TrackerSparqlDirectTest, TrackerQueryTests):
     pass
 
 
-class TrackerBusQueryTest (fixtures.TrackerSparqlBusTest, TrackerQueryTests):
+class TrackerBusQueryTest(fixtures.TrackerSparqlBusTest, TrackerQueryTests):
     pass
 
 

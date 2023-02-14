@@ -25,7 +25,7 @@ import unittest as ut
 import fixtures
 
 
-class TestGroupConcat (fixtures.TrackerSparqlDirectTest):
+class TestGroupConcat(fixtures.TrackerSparqlDirectTest):
     """
     Insert a multivalued property and request the results in GROUP_CONCAT
     """
@@ -47,7 +47,9 @@ class TestGroupConcat (fixtures.TrackerSparqlDirectTest):
                       nco:imCapability nco:im-capability-media-calls ;
                       nco:imCapability nco:im-capability-file-transfers .
          }
-        """ % (uri)
+        """ % (
+            uri
+        )
         self.tracker.update(insert)
 
         query = """
@@ -70,23 +72,31 @@ class TestGroupConcat (fixtures.TrackerSparqlDirectTest):
         results = self.tracker.query(group_concat_query)
         assert len(results) == 1
 
-        instances = results[0][1].split('|')
+        instances = results[0][1].split("|")
         assert len(instances) == 3
 
-        TEXT_CHAT = "http://tracker.api.gnome.org/ontology/v3/nco#im-capability-text-chat"
-        MEDIA_CALLS = "http://tracker.api.gnome.org/ontology/v3/nco#im-capability-media-calls"
-        FILE_TRANSFERS = "http://tracker.api.gnome.org/ontology/v3/nco#im-capability-file-transfers"
+        TEXT_CHAT = (
+            "http://tracker.api.gnome.org/ontology/v3/nco#im-capability-text-chat"
+        )
+        MEDIA_CALLS = (
+            "http://tracker.api.gnome.org/ontology/v3/nco#im-capability-media-calls"
+        )
+        FILE_TRANSFERS = (
+            "http://tracker.api.gnome.org/ontology/v3/nco#im-capability-file-transfers"
+        )
         assert TEXT_CHAT in instances
         assert MEDIA_CALLS in instances
         assert FILE_TRANSFERS in instances
 
-        #self.assertEquals (str(results[0][0]), "test_insertion_1")
+        # self.assertEquals (str(results[0][0]), "test_insertion_1")
 
         delete = """
         DELETE { <%s> a rdfs:Resource. }
-        """ % (uri)
+        """ % (
+            uri
+        )
         self.tracker.update(delete)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     fixtures.tracker_test_main()

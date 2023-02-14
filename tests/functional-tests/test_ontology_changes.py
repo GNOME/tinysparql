@@ -22,7 +22,8 @@ Test how the database handles various kinds of schema updates.
 """
 
 import gi
-gi.require_version('Tracker', '3.0')
+
+gi.require_version("Tracker", "3.0")
 from gi.repository import GLib
 from gi.repository import Gio
 from gi.repository import Tracker
@@ -50,7 +51,7 @@ XSD_INTEGER = "http://www.w3.org/2001/XMLSchema#integer"
 TEST_PREFIX = "http://example.org/ns#"
 
 
-class OntologyChangeTestTemplate (ut.TestCase):
+class OntologyChangeTestTemplate(ut.TestCase):
     """
     Template class for the ontology changes tests. The tests are subclasses
     of this, implementing these methods:
@@ -65,13 +66,13 @@ class OntologyChangeTestTemplate (ut.TestCase):
     """
 
     def setUp(self):
-        self.tmpdir = tempfile.mkdtemp(prefix='tracker-test-')
+        self.tmpdir = tempfile.mkdtemp(prefix="tracker-test-")
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def ontology_path(self, param):
-        return pathlib.Path(__file__).parent.joinpath('test-ontologies', param)
+        return pathlib.Path(__file__).parent.joinpath("data", "ontologies", param)
 
     def template_test_ontology_change(self):
         self.set_ontology_dirs()
@@ -83,7 +84,8 @@ class OntologyChangeTestTemplate (ut.TestCase):
             Tracker.SparqlConnectionFlags.NONE,
             Gio.File.new_for_path(self.tmpdir),
             Gio.File.new_for_path(str(self.ontology_path(self.FIRST_ONTOLOGY_DIR))),
-            None)
+            None,
+        )
 
         self.tracker = trackertestutils.helpers.StoreHelper(conn1)
         self.insert_data()
@@ -95,7 +97,8 @@ class OntologyChangeTestTemplate (ut.TestCase):
             Tracker.SparqlConnectionFlags.NONE,
             Gio.File.new_for_path(self.tmpdir),
             Gio.File.new_for_path(str(self.ontology_path(self.SECOND_ONTOLOGY_DIR))),
-            None)
+            None,
+        )
         self.tracker = trackertestutils.helpers.StoreHelper(conn2)
 
         self.validate_status()
@@ -141,8 +144,7 @@ class OntologyChangeTestTemplate (ut.TestCase):
         for row in dbus_result:
             if member == str(row[column]):
                 # This is going to fail with pretty printing
-                self.fail("'%s' wasn't supposed to be in '%s'" %
-                          (member, dbus_result))
+                self.fail("'%s' wasn't supposed to be in '%s'" % (member, dbus_result))
         return
 
     def __assert_ontology_dates(self, first, second):
@@ -153,14 +155,15 @@ class OntologyChangeTestTemplate (ut.TestCase):
         ISO9601_REGEX = "(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)"
 
         def get_ontology_date(ontology):
-            with open(ontology, 'r') as f:
+            with open(ontology, "r") as f:
                 for line in f:
                     if "nrl:lastModified" in line:
                         getmodtime = re.compile(
-                            'nrl:lastModified\ \"' + ISO9601_REGEX + '\"')
+                            'nrl:lastModified\ "' + ISO9601_REGEX + '"'
+                        )
                         modtime_match = getmodtime.search(line)
 
-                        if (modtime_match):
+                        if modtime_match:
                             nao_date = modtime_match.group(1)
                             return time.strptime(nao_date, "%Y-%m-%dT%H:%M:%SZ")
                         else:
@@ -168,15 +171,19 @@ class OntologyChangeTestTemplate (ut.TestCase):
                         break
 
         first_date = get_ontology_date(
-            self.ontology_path(first).joinpath("91-test.ontology"))
+            self.ontology_path(first).joinpath("91-test.ontology")
+        )
         second_date = get_ontology_date(
-            self.ontology_path(second).joinpath("91-test.ontology"))
+            self.ontology_path(second).joinpath("91-test.ontology")
+        )
         if first_date >= second_date:
-            self.fail("nrl:lastModified in '%s' is not more recent in the second ontology" % (
-                "91-test.ontology"))
+            self.fail(
+                "nrl:lastModified in '%s' is not more recent in the second ontology"
+                % ("91-test.ontology")
+            )
 
 
-class PropertyRangeStringToDate (OntologyChangeTestTemplate):
+class PropertyRangeStringToDate(OntologyChangeTestTemplate):
     """
     Change the range of a property from string to date. There shouldn't be any data loss.
     """
@@ -192,22 +199,24 @@ class PropertyRangeStringToDate (OntologyChangeTestTemplate):
 
     def insert_data(self):
         self.instance = "test://ontology-change/property-range/string-to-date"
-        self.tracker.update("INSERT { <%s> a test:A ; test:a_string '2010-10-12T13:30:00Z' }"
-                            % (self.instance))
+        self.tracker.update(
+            "INSERT { <%s> a test:A ; test:a_string '2010-10-12T13:30:00Z' }"
+            % (self.instance)
+        )
 
     def validate_status(self):
         # Query the ontology itself
-        result = self.tracker.query(
-            "SELECT ?o WHERE { test:a_string rdfs:range ?o }")
+        result = self.tracker.query("SELECT ?o WHERE { test:a_string rdfs:range ?o }")
         self.assertEqual(result[0][0], XSD_DATETIME)
 
         # Check the value is there
         result = self.tracker.query(
-            "SELECT ?o WHERE { <%s> test:a_string ?o . }" % (self.instance))
+            "SELECT ?o WHERE { <%s> test:a_string ?o . }" % (self.instance)
+        )
         self.assertEqual(result[0][0], "2010-10-12T13:30:00Z")
 
 
-class PropertyRangeDateToString (OntologyChangeTestTemplate):
+class PropertyRangeDateToString(OntologyChangeTestTemplate):
     """
     Change the range of a property from date to string. There shouldn't be any data loss.
     """
@@ -223,26 +232,28 @@ class PropertyRangeDateToString (OntologyChangeTestTemplate):
 
     def insert_data(self):
         self.instance = "test://ontology-change/property-range/date-to-string"
-        self.tracker.update("INSERT { <%s> a test:A ; test:a_string '2010-10-12T13:30:00Z' }"
-                            % (self.instance))
+        self.tracker.update(
+            "INSERT { <%s> a test:A ; test:a_string '2010-10-12T13:30:00Z' }"
+            % (self.instance)
+        )
 
     def validate_status(self):
         # Query the ontology itself
-        result = self.tracker.query(
-            "SELECT ?o WHERE { test:a_string rdfs:range ?o }")
+        result = self.tracker.query("SELECT ?o WHERE { test:a_string rdfs:range ?o }")
         self.assertEqual(result[0][0], XSD_STRING)
 
         # Check the value is there
         result = self.tracker.query(
-            "SELECT ?o WHERE { <%s> test:a_string ?o . }" % (self.instance))
+            "SELECT ?o WHERE { <%s> test:a_string ?o . }" % (self.instance)
+        )
         self.assertEqual(result[0][0], "2010-10-12T13:30:00Z")
 
 
-class PropertyRangeIntToString (OntologyChangeTestTemplate):
+class PropertyRangeIntToString(OntologyChangeTestTemplate):
     """
     Change the range of a property from int to string. There shouldn't be any data loss.
     """
-    
+
     def test_property_range_int_to_str(self):
         self.template_test_ontology_change()
 
@@ -253,20 +264,21 @@ class PropertyRangeIntToString (OntologyChangeTestTemplate):
     def insert_data(self):
         self.instance = "test://ontology-change/property-range/int-to-string"
         self.tracker.update(
-            "INSERT { <%s> a test:A; test:a_int 12. }" % (self.instance))
+            "INSERT { <%s> a test:A; test:a_int 12. }" % (self.instance)
+        )
 
     def validate_status(self):
-        result = self.tracker.query(
-            "SELECT ?o WHERE { test:a_int rdfs:range ?o. }")
+        result = self.tracker.query("SELECT ?o WHERE { test:a_int rdfs:range ?o. }")
         self.assertEqual(str(result[0][0]), XSD_STRING)
 
         # Check the value is there
         result = self.tracker.query(
-            "SELECT ?o WHERE { <%s> test:a_int ?o .}" % (self.instance))
+            "SELECT ?o WHERE { <%s> test:a_int ?o .}" % (self.instance)
+        )
         self.assertEqual(result[0][0], "12")
 
 
-class PropertyRangeStringToInt (OntologyChangeTestTemplate):
+class PropertyRangeStringToInt(OntologyChangeTestTemplate):
     """
     Change the range of a property from string to int. There shouldn't be any data loss.
     """
@@ -281,20 +293,21 @@ class PropertyRangeStringToInt (OntologyChangeTestTemplate):
     def insert_data(self):
         self.instance = "test://ontology-change/property-range/string-to-int"
         self.tracker.update(
-            "INSERT { <%s> a test:A; test:a_int '12'. }" % (self.instance))
+            "INSERT { <%s> a test:A; test:a_int '12'. }" % (self.instance)
+        )
 
     def validate_status(self):
-        result = self.tracker.query(
-            "SELECT ?o WHERE { test:a_int rdfs:range ?o. }")
+        result = self.tracker.query("SELECT ?o WHERE { test:a_int rdfs:range ?o. }")
         self.assertEqual(str(result[0][0]), XSD_INTEGER)
 
         # Check the value is there
         result = self.tracker.query(
-            "SELECT ?o WHERE { <%s> test:a_int ?o .}" % (self.instance))
+            "SELECT ?o WHERE { <%s> test:a_int ?o .}" % (self.instance)
+        )
         self.assertEqual(result[0][0], "12")
 
 
-class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
+class PropertyMaxCardinality1toN(OntologyChangeTestTemplate):
     """
     Change cardinality of a property from 1 to N. There shouldn't be any data loss
     """
@@ -303,8 +316,8 @@ class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
         self.template_test_ontology_change()
 
     def set_ontology_dirs(self):
-        #self.FIRST_ONTOLOGY_DIR = "basic"
-        #self.SECOND_ONTOLOGY_DIR = "cardinality"
+        # self.FIRST_ONTOLOGY_DIR = "basic"
+        # self.SECOND_ONTOLOGY_DIR = "cardinality"
 
         self.FIRST_ONTOLOGY_DIR = "cardinality"
         self.SECOND_ONTOLOGY_DIR = "basic-future"
@@ -312,24 +325,29 @@ class PropertyMaxCardinality1toN (OntologyChangeTestTemplate):
     def insert_data(self):
         self.instance = "test://ontology-change/cardinality/1-to-n"
         self.tracker.update(
-            "INSERT { <%s> a test:A; test:a_n_cardinality 'some text'. }" % (self.instance))
+            "INSERT { <%s> a test:A; test:a_n_cardinality 'some text'. }"
+            % (self.instance)
+        )
 
         result = self.tracker.query(
-            "SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
+            "SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}"
+        )
         self.assertEqual(int(result[0][0]), 1)
 
     def validate_status(self):
         result = self.tracker.query(
-            "SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
+            "SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}"
+        )
         self.assertEqual(len(result), 0, "Cardinality should be 0")
 
         # Check the value is there
         result = self.tracker.query(
-            "SELECT ?o WHERE { <%s> test:a_n_cardinality ?o .}" % (self.instance))
+            "SELECT ?o WHERE { <%s> test:a_n_cardinality ?o .}" % (self.instance)
+        )
         self.assertEqual(str(result[0][0]), "some text")
 
 
-class PropertyMaxCardinalityNto1 (OntologyChangeTestTemplate):
+class PropertyMaxCardinalityNto1(OntologyChangeTestTemplate):
     """
     Change the cardinality of a property for N to 1.
 
@@ -347,24 +365,29 @@ class PropertyMaxCardinalityNto1 (OntologyChangeTestTemplate):
     def insert_data(self):
         self.instance = "test://ontology-change/cardinality/1-to-n"
         self.tracker.update(
-            "INSERT { <%s> a test:A; test:a_n_cardinality 'some text'. }" % (self.instance))
+            "INSERT { <%s> a test:A; test:a_n_cardinality 'some text'. }"
+            % (self.instance)
+        )
 
         result = self.tracker.query(
-            "SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
+            "SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}"
+        )
         self.assertEqual(len(result), 0, "Cardinality should be 0")
 
     def validate_status(self):
         result = self.tracker.query(
-            "SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}")
+            "SELECT ?o WHERE { test:a_n_cardinality nrl:maxCardinality ?o}"
+        )
         self.assertEqual(int(result[0][0]), 1, "Cardinality should be 1")
 
         # Check the value is there
         result = self.tracker.query(
-            "SELECT ?o WHERE { <%s> test:a_n_cardinality ?o .}" % (self.instance))
+            "SELECT ?o WHERE { <%s> test:a_n_cardinality ?o .}" % (self.instance)
+        )
         self.assertEqual(str(result[0][0]), "some text")
 
 
-class ClassNotifySet (OntologyChangeTestTemplate):
+class ClassNotifySet(OntologyChangeTestTemplate):
     """
     Set nrl:notify to true in a class and check there is no data loss
     """
@@ -379,18 +402,18 @@ class ClassNotifySet (OntologyChangeTestTemplate):
     def insert_data(self):
         self.instance = "test://ontology-change/notify/true"
         self.tracker.update(
-            "INSERT { <%s> a test:A; test:a_string 'some text'. }" % (self.instance))
+            "INSERT { <%s> a test:A; test:a_string 'some text'. }" % (self.instance)
+        )
 
     def validate_status(self):
-        result = self.tracker.query(
-            "SELECT ?notify WHERE { test:A nrl:notify ?notify}")
+        result = self.tracker.query("SELECT ?notify WHERE { test:A nrl:notify ?notify}")
         self.assertEqual(str(result[0][0]), "true")
 
         result = self.tracker.query("SELECT ?u WHERE { ?u a test:A. }")
         self.assertEqual(str(result[0][0]), self.instance)
 
 
-class ClassNotifyUnset (OntologyChangeTestTemplate):
+class ClassNotifyUnset(OntologyChangeTestTemplate):
     """
     Set nrl:notify to true in a class and check there is no data loss
     """
@@ -405,12 +428,12 @@ class ClassNotifyUnset (OntologyChangeTestTemplate):
     def insert_data(self):
         self.instance = "test://ontology-change/notify/true"
         self.tracker.update(
-            "INSERT { <%s> a test:A; test:a_string 'some text'. }" % (self.instance))
+            "INSERT { <%s> a test:A; test:a_string 'some text'. }" % (self.instance)
+        )
 
     def validate_status(self):
-        result = self.tracker.query(
-            "SELECT ?notify WHERE { test:A nrl:notify ?notify}")
-        if (len(result) == 1):
+        result = self.tracker.query("SELECT ?notify WHERE { test:A nrl:notify ?notify}")
+        if len(result) == 1:
             # Usually is (none) but it was "true" before so now has value.
             self.assertEqual(result[0][0], "false")
         else:
@@ -420,7 +443,7 @@ class ClassNotifyUnset (OntologyChangeTestTemplate):
         self.assertEqual(str(result[0][0]), self.instance)
 
 
-class PropertyIndexedSet (OntologyChangeTestTemplate):
+class PropertyIndexedSet(OntologyChangeTestTemplate):
     """
     Set nrl:indexed true to single and multiple valued properties.
     Check that instances and content of the property are still in the DB
@@ -436,35 +459,45 @@ class PropertyIndexedSet (OntologyChangeTestTemplate):
     def insert_data(self):
         # Instance with value in the single valued property
         self.instance_single_valued = "test://ontology-change/indexed/single/true"
-        self.tracker.update("INSERT { <%s> a test:A ; test:a_string 'anything 1'. }"
-                            % (self.instance_single_valued))
+        self.tracker.update(
+            "INSERT { <%s> a test:A ; test:a_string 'anything 1'. }"
+            % (self.instance_single_valued)
+        )
 
         # Instance with value in the n valued property
         self.instance_n_valued = "test://ontology-change/indexed/multiple/true"
-        self.tracker.update("INSERT { <%s> a test:A ; test:a_n_cardinality 'anything n'. }"
-                            % (self.instance_n_valued))
+        self.tracker.update(
+            "INSERT { <%s> a test:A ; test:a_n_cardinality 'anything n'. }"
+            % (self.instance_n_valued)
+        )
 
     def validate_status(self):
         # Check ontology and instance for the single valued property
         result = self.tracker.query(
-            "SELECT ?indexed WHERE { test:a_string nrl:indexed ?indexed}")
+            "SELECT ?indexed WHERE { test:a_string nrl:indexed ?indexed}"
+        )
         self.assertEqual(str(result[0][0]), "true")
 
-        result = self.tracker.query("SELECT ?content WHERE { <%s> a test:A; test:a_string ?content. }"
-                                    % (self.instance_single_valued))
+        result = self.tracker.query(
+            "SELECT ?content WHERE { <%s> a test:A; test:a_string ?content. }"
+            % (self.instance_single_valued)
+        )
         self.assertEqual(str(result[0][0]), "anything 1")
 
         # Check ontology and instance for the multiple valued property
         result = self.tracker.query(
-            "SELECT ?indexed WHERE { test:a_n_cardinality nrl:indexed ?indexed}")
+            "SELECT ?indexed WHERE { test:a_n_cardinality nrl:indexed ?indexed}"
+        )
         self.assertEqual(str(result[0][0]), "true")
 
-        result = self.tracker.query("SELECT ?content WHERE { <%s> a test:A; test:a_n_cardinality ?content. }"
-                                    % (self.instance_n_valued))
+        result = self.tracker.query(
+            "SELECT ?content WHERE { <%s> a test:A; test:a_n_cardinality ?content. }"
+            % (self.instance_n_valued)
+        )
         self.assertEqual(str(result[0][0]), "anything n")
 
 
-class PropertyIndexedUnset (OntologyChangeTestTemplate):
+class PropertyIndexedUnset(OntologyChangeTestTemplate):
     """
     nrl:indexed property from true to false in single and multiple valued properties.
     Check that instances and content of the property are still in the DB.
@@ -480,13 +513,17 @@ class PropertyIndexedUnset (OntologyChangeTestTemplate):
     def insert_data(self):
         # Instance with value in the single valued property
         self.instance_single_valued = "test://ontology-change/indexed/single/true"
-        self.tracker.update("INSERT { <%s> a test:A ; test:a_string 'anything 1'. }"
-                            % (self.instance_single_valued))
+        self.tracker.update(
+            "INSERT { <%s> a test:A ; test:a_string 'anything 1'. }"
+            % (self.instance_single_valued)
+        )
 
         # Instance with value in the n valued property
         self.instance_n_valued = "test://ontology-change/indexed/multiple/true"
-        self.tracker.update("INSERT { <%s> a test:A ; test:a_n_cardinality 'anything n'. }"
-                            % (self.instance_n_valued))
+        self.tracker.update(
+            "INSERT { <%s> a test:A ; test:a_n_cardinality 'anything n'. }"
+            % (self.instance_n_valued)
+        )
 
     def validate_status(self):
         #
@@ -495,24 +532,30 @@ class PropertyIndexedUnset (OntologyChangeTestTemplate):
 
         # Check ontology and instance for the single valued property
         result = self.tracker.query(
-            "SELECT ?indexed WHERE { test:a_string nrl:indexed ?indexed}")
+            "SELECT ?indexed WHERE { test:a_string nrl:indexed ?indexed}"
+        )
         self.assertEqual(str(result[0][0]), "false")
 
-        result = self.tracker.query("SELECT ?content WHERE { <%s> a test:A; test:a_string ?content. }"
-                                    % (self.instance_single_valued))
+        result = self.tracker.query(
+            "SELECT ?content WHERE { <%s> a test:A; test:a_string ?content. }"
+            % (self.instance_single_valued)
+        )
         self.assertEqual(str(result[0][0]), "anything 1")
 
         # Check ontology and instance for the multiple valued property
         result = self.tracker.query(
-            "SELECT ?indexed WHERE { test:a_n_cardinality nrl:indexed ?indexed}")
+            "SELECT ?indexed WHERE { test:a_n_cardinality nrl:indexed ?indexed}"
+        )
         self.assertEqual(str(result[0][0]), "false")
 
-        result = self.tracker.query("SELECT ?content WHERE { <%s> a test:A; test:a_n_cardinality ?content. }"
-                                    % (self.instance_n_valued))
+        result = self.tracker.query(
+            "SELECT ?content WHERE { <%s> a test:A; test:a_n_cardinality ?content. }"
+            % (self.instance_n_valued)
+        )
         self.assertEqual(str(result[0][0]), "anything n")
 
 
-class OntologyAddClassTest (OntologyChangeTestTemplate):
+class OntologyAddClassTest(OntologyChangeTestTemplate):
     """
     Add a class in the ontology.
     """
@@ -537,7 +580,7 @@ class OntologyAddClassTest (OntologyChangeTestTemplate):
         self.assertInDbusResult(TEST_PREFIX + "E", result)
 
 
-class OntologyRemoveClassTest (OntologyChangeTestTemplate):
+class OntologyRemoveClassTest(OntologyChangeTestTemplate):
     """
     Remove a class from the ontology. With and without superclasses.
     """
@@ -561,20 +604,20 @@ class OntologyRemoveClassTest (OntologyChangeTestTemplate):
         # The classes are not actually removed... so this assertions are not valid (yet?)
         #
 
-        #result = self.tracker.query ("SELECT ?k WHERE { ?k a rdfs:Class. }")
-        #self.assertNotInDbusResult (TEST_PREFIX + "E", result)
-        #self.assertNotInDbusResult (TEST_PREFIX + "D", result)
+        # result = self.tracker.query ("SELECT ?k WHERE { ?k a rdfs:Class. }")
+        # self.assertNotInDbusResult (TEST_PREFIX + "E", result)
+        # self.assertNotInDbusResult (TEST_PREFIX + "D", result)
 
         # D is a subclass of A, removing D should keep the A instances
         result = self.tracker.query("SELECT ?i WHERE { ?i a test:A. }")
         self.assertEqual(result[0][0], self.instance_e)
 
 
-class OntologyAddPropertyTest (OntologyChangeTestTemplate):
+class OntologyAddPropertyTest(OntologyChangeTestTemplate):
     """
     Add new properties in the ontology, with/without super prop and different ranges and cardinalities
     """
-    
+
     def test_ontology_add_property(self):
         self.template_test_ontology_change()
 
@@ -598,7 +641,7 @@ class OntologyAddPropertyTest (OntologyChangeTestTemplate):
         self.assertInDbusResult(TEST_PREFIX + "new_subprop_string_n", result)
 
 
-class OntologyRemovePropertyTest (OntologyChangeTestTemplate):
+class OntologyRemovePropertyTest(OntologyChangeTestTemplate):
     """
     Remove properties from the ontology, with and without super props and different ranges and cardinalities
     """
@@ -612,7 +655,8 @@ class OntologyRemovePropertyTest (OntologyChangeTestTemplate):
 
     def insert_data(self):
         self.instance_a = "test://ontology-change/remove/properties/1"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
             INSERT { <%s> a   test:A;
                         test:a_string 'This is fine' ;
                         test:new_prop_int 7;
@@ -620,17 +664,24 @@ class OntologyRemovePropertyTest (OntologyChangeTestTemplate):
                         test:new_prop_string 'this is going to disappear' ;
                         test:new_prop_string_n 'same with this' .
                 }
-        """ % (self.instance_a))
+        """
+            % (self.instance_a)
+        )
 
         self.instance_b = "test://ontology-change/remove/properties/2"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
             INSERT { <%s> a   test:B;
                         test:new_subprop_string 'super-prop keeps this value';
                         test:new_subprop_string_n 'super-prop also keeps this value'.
                 }
-        """ % (self.instance_b))
-        self.assertTrue(self.tracker.ask("ASK { <%s> a test:A}" % (
-            self.instance_a)), "The instance is not there")
+        """
+            % (self.instance_b)
+        )
+        self.assertTrue(
+            self.tracker.ask("ASK { <%s> a test:A}" % (self.instance_a)),
+            "The instance is not there",
+        )
 
     def validate_status(self):
         #
@@ -651,25 +702,27 @@ class OntologyRemovePropertyTest (OntologyChangeTestTemplate):
         ## self.assertNotInDbusResult (TEST_PREFIX + "new_subprop_string_n", result)
 
         # The instances are still there
-        self.assertTrue(self.tracker.ask(
-            "ASK { <%s> a test:A}" % (self.instance_a)))
-        self.assertTrue(self.tracker.ask(
-            "ASK { <%s> a test:B}" % (self.instance_b)))
+        self.assertTrue(self.tracker.ask("ASK { <%s> a test:A}" % (self.instance_a)))
+        self.assertTrue(self.tracker.ask("ASK { <%s> a test:B}" % (self.instance_b)))
 
         check = self.tracker.ask(
-            "ASK { <%s> test:a_superprop 'super-prop keeps this value' }" % (self.instance_b))
+            "ASK { <%s> test:a_superprop 'super-prop keeps this value' }"
+            % (self.instance_b)
+        )
         self.assertTrue(check, "This property and value should exist")
 
         check = self.tracker.ask(
-            "ASK { <%s> test:a_superprop_n 'super-prop also keeps this value' }" % (self.instance_b))
+            "ASK { <%s> test:a_superprop_n 'super-prop also keeps this value' }"
+            % (self.instance_b)
+        )
         self.assertTrue(check, "This property and value should exist")
 
 
-class DomainIndexAddTest (OntologyChangeTestTemplate):
+class DomainIndexAddTest(OntologyChangeTestTemplate):
     """
     Add nrl:domainIndex to a class and check there is no data loss.
     """
-    
+
     def test_domain_index_add(self):
         self.template_test_ontology_change()
 
@@ -679,38 +732,44 @@ class DomainIndexAddTest (OntologyChangeTestTemplate):
 
     def insert_data(self):
         self.instance_a = "test://ontology-changes/properties/add-domain-index/a"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
             INSERT { <%s> a test:B ;
                         test:a_string 'test-value' ;
-                        test:a_int 5. }""" % (self.instance_a))
+                        test:a_int 5. }"""
+            % (self.instance_a)
+        )
 
         self.instance_b = "test://ontology-changes/properties/add-domain-index/b"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
             INSERT { <%s> a test:C ;
                         test:a_string 'test-value' ;
-                        test:a_int 6. }""" % (self.instance_b))
+                        test:a_int 6. }"""
+            % (self.instance_b)
+        )
 
     def validate_status(self):
         # Check the ontology
         has_domainIndex = self.tracker.ask(
-            "ASK { test:B nrl:domainIndex test:a_string }")
+            "ASK { test:B nrl:domainIndex test:a_string }"
+        )
         self.assertTrue(has_domainIndex)
 
-        has_domainIndex = self.tracker.ask(
-            "ASK { test:C nrl:domainIndex test:a_int }")
+        has_domainIndex = self.tracker.ask("ASK { test:C nrl:domainIndex test:a_int }")
         self.assertTrue(has_domainIndex)
 
         # Check the data
         dataok = self.tracker.ask(
-            "ASK { <%s> test:a_string 'test-value' }" % (self.instance_a))
+            "ASK { <%s> test:a_string 'test-value' }" % (self.instance_a)
+        )
         self.assertTrue(dataok)
 
-        dataok = self.tracker.ask(
-            "ASK { <%s> test:a_int 6 }" % (self.instance_b))
+        dataok = self.tracker.ask("ASK { <%s> test:a_int 6 }" % (self.instance_b))
         self.assertTrue(dataok)
 
 
-class DomainIndexRemoveTest (OntologyChangeTestTemplate):
+class DomainIndexRemoveTest(OntologyChangeTestTemplate):
     """
     Remove nrl:domainIndex to a class and check there is no data loss.
     """
@@ -724,38 +783,48 @@ class DomainIndexRemoveTest (OntologyChangeTestTemplate):
 
     def insert_data(self):
         self.instance_a = "test://ontology-changes/properties/add-domain-index/a"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
             INSERT { <%s> a test:B ;
                         test:a_string 'test-value' ;
-                        test:a_n_cardinality 'another-test-value'. }""" % (self.instance_a))
+                        test:a_n_cardinality 'another-test-value'. }"""
+            % (self.instance_a)
+        )
 
         self.instance_b = "test://ontology-changes/properties/add-domain-index/b"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
             INSERT { <%s> a test:C ;
                         test:a_string 'test-value' ;
-                        test:a_n_cardinality 'another-test-value'. }""" % (self.instance_b))
+                        test:a_n_cardinality 'another-test-value'. }"""
+            % (self.instance_b)
+        )
 
     def validate_status(self):
         # Check the ontology
         has_domainIndex = self.tracker.ask(
-            "ASK { test:B nrl:domainIndex test:a_string }")
+            "ASK { test:B nrl:domainIndex test:a_string }"
+        )
         self.assertFalse(has_domainIndex)
 
         has_domainIndex = self.tracker.ask(
-            "ASK { test:C nrl:domainIndex test:a_n_cardinality }")
+            "ASK { test:C nrl:domainIndex test:a_n_cardinality }"
+        )
         self.assertFalse(has_domainIndex)
 
         # Check the data
         dataok = self.tracker.ask(
-            "ASK { <%s> test:a_string 'test-value' }" % (self.instance_a))
+            "ASK { <%s> test:a_string 'test-value' }" % (self.instance_a)
+        )
         self.assertTrue(dataok)
 
         dataok = self.tracker.ask(
-            "ASK { <%s> test:a_n_cardinality 'another-test-value' }" % (self.instance_b))
+            "ASK { <%s> test:a_n_cardinality 'another-test-value' }" % (self.instance_b)
+        )
         self.assertTrue(dataok)
 
 
-class SuperclassRemovalTest (OntologyChangeTestTemplate):
+class SuperclassRemovalTest(OntologyChangeTestTemplate):
     """
     Remove the superclass relation between two classes
     """
@@ -774,14 +843,20 @@ class SuperclassRemovalTest (OntologyChangeTestTemplate):
         self.assertTrue(is_subclass)
 
         self.instance_a = "test://ontology-changes/superclasses/remove-superclass/a"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
         INSERT { <%s> a test:A . }
-        """ % (self.instance_a))
+        """
+            % (self.instance_a)
+        )
 
         self.instance_b = "test://ontology-changes/superclasses/remove-superclass/b"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
         INSERT { <%s> a test:B . }
-        """ % (self.instance_b))
+        """
+            % (self.instance_b)
+        )
 
         result = self.tracker.count_instances("test:B")
         self.assertEqual(result, 1)
@@ -800,7 +875,7 @@ class SuperclassRemovalTest (OntologyChangeTestTemplate):
         self.assertEqual(result, 1)
 
 
-class SuperclassAdditionTest (OntologyChangeTestTemplate):
+class SuperclassAdditionTest(OntologyChangeTestTemplate):
     """
     Add a superclass to a class with no superclass previously
     """
@@ -819,14 +894,20 @@ class SuperclassAdditionTest (OntologyChangeTestTemplate):
         self.assertFalse(is_subclass)
 
         self.instance_a = "test://ontology-changes/superclasses/remove-superclass/a"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
          INSERT { <%s> a test:A . }
-        """ % (self.instance_a))
+        """
+            % (self.instance_a)
+        )
 
         self.instance_b = "test://ontology-changes/superclasses/remove-superclass/b"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
          INSERT { <%s> a test:B . }
-        """ % (self.instance_b))
+        """
+            % (self.instance_b)
+        )
 
         result = self.tracker.count_instances("test:B")
         self.assertEqual(result, 1)
@@ -845,7 +926,7 @@ class SuperclassAdditionTest (OntologyChangeTestTemplate):
         self.assertEqual(result, 2)
 
 
-class PropertyPromotionTest (OntologyChangeTestTemplate):
+class PropertyPromotionTest(OntologyChangeTestTemplate):
     """
     Move a property to the superclass
     """
@@ -861,29 +942,40 @@ class PropertyPromotionTest (OntologyChangeTestTemplate):
 
     def insert_data(self):
         self.instance_b = "test://ontology-change/property/promotion-to-superclass/b"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
             INSERT { <%s> a test:B; test:b_property 'content-b-test'; test:b_property_n 'b-test-n'. }
-        """ % (self.instance_b))
+        """
+            % (self.instance_b)
+        )
 
         self.instance_a = "test://ontology-change/property/promotion-to-superclass/a"
-        self.assertRaises(GLib.Error,
-                          self.tracker.update,
-                          "INSERT { <%s> a test:A; test:b_property 'content-a-test'.}" % (self.instance_a))
+        self.assertRaises(
+            GLib.Error,
+            self.tracker.update,
+            "INSERT { <%s> a test:A; test:b_property 'content-a-test'.}"
+            % (self.instance_a),
+        )
 
     def validate_status(self):
         # This insertion should work now
-        self.tracker.update ("""
+        self.tracker.update(
+            """
         INSERT { <%s> a test:A; test:b_property 'content-a-test'.}
-        """ % (self.instance_a))
+        """
+            % (self.instance_a)
+        )
 
         # No data loss
-        result = self.tracker.query("SELECT ?v ?w WHERE { <%s> test:b_property ?v ; test:b_property_n ?w }"
-                                    % (self.instance_b))
+        result = self.tracker.query(
+            "SELECT ?v ?w WHERE { <%s> test:b_property ?v ; test:b_property_n ?w }"
+            % (self.instance_b)
+        )
         self.assertEqual(result[0][0], "content-b-test")
         self.assertEqual(result[0][1], "b-test-n")
 
 
-class PropertyRelegationTest (OntologyChangeTestTemplate):
+class PropertyRelegationTest(OntologyChangeTestTemplate):
     """
     Move a property to the subclass
     """
@@ -899,23 +991,34 @@ class PropertyRelegationTest (OntologyChangeTestTemplate):
 
     def insert_data(self):
         self.instance_b = "test://ontology-change/property/promotion-to-superclass/b"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
             INSERT { <%s> a test:B; test:b_property 'content-b-test'; test:b_property_n 'b-test-n'. }
-        """ % (self.instance_b))
+        """
+            % (self.instance_b)
+        )
 
         self.instance_a = "test://ontology-change/property/promotion-to-superclass/a"
-        self.tracker.update ("""
+        self.tracker.update(
+            """
         INSERT { <%s> a test:A; test:b_property 'content-a-test'.}
-        """ % (self.instance_a))
+        """
+            % (self.instance_a)
+        )
 
     def validate_status(self):
         # This insertion should fail now
-        self.assertRaises(GLib.Error,
-                          self.tracker.update,
-                          "INSERT { <%s> a test:A; test:b_property 'content-a-test'.}" % (self.instance_a))
+        self.assertRaises(
+            GLib.Error,
+            self.tracker.update,
+            "INSERT { <%s> a test:A; test:b_property 'content-a-test'.}"
+            % (self.instance_a),
+        )
         # No data loss
-        result = self.tracker.query("SELECT ?v ?w WHERE { <%s> test:b_property ?v; test:b_property_n ?w }"
-                                    % (self.instance_b))
+        result = self.tracker.query(
+            "SELECT ?v ?w WHERE { <%s> test:b_property ?v; test:b_property_n ?w }"
+            % (self.instance_b)
+        )
         self.assertEqual(result[0][0], "content-b-test")
         self.assertEqual(result[0][1], "b-test-n")
 

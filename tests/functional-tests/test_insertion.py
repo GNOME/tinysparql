@@ -27,7 +27,7 @@ import unittest as ut
 import fixtures
 
 
-class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
+class TrackerStoreInsertionTests(fixtures.TrackerSparqlDirectTest):
     """
     Insert single and multiple-valued properties, dates (ok and broken)
     and check the results
@@ -46,7 +46,9 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         insert = """
                 INSERT { <%s> a nie:InformationElement;
                         nie:title \"test_insert_01\". }
-                """ % (uri)
+                """ % (
+            uri
+        )
         self.tracker.update(insert)
 
         """ verify the inserted item """
@@ -55,7 +57,9 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
                 <%s> a nie:InformationElement ;
                 nie:title ?t .
                 }
-                """ % (uri)
+                """ % (
+            uri
+        )
         results = self.tracker.query(query)
 
         self.assertEqual(str(results[0][0]), "test_insert_01")
@@ -63,7 +67,9 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         """ delete the inserted item """
         delete = """
                 DELETE { <%s> a rdfs:Resource. }
-                """ % (uri)
+                """ % (
+            uri
+        )
         self.tracker.update(delete)
 
     def test_insert_02(self):
@@ -71,7 +77,8 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         Insert of a bigger set of triplets (linking two objects)
         """
 
-        self.tracker.update("""
+        self.tracker.update(
+            """
                 INSERT {
                 <urn:uuid:bob-dylan> a nmm:Artist;
                    nmm:artistName 'Bob Dylan'.
@@ -85,7 +92,8 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
                    nie:title 'Subterranean homesick blues';
                    nmm:performer <urn:uuid:bob-dylan>.
                    }
-                   """)
+                   """
+        )
 
         QUERY = """
                 SELECT ?uri ?title ?length  WHERE {
@@ -103,19 +111,22 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         self.assertEqual(result[0][1], "Subterranean homesick blues")
         self.assertEqual(result[0][2], "219252")
 
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 DELETE {
                    <urn:uuid:bob-dylan> a rdfs:Resource.
                    <file:///a/b/c/10_song3.mp3> a rdfs:Resource.
                 }
-                """)
+                """
+        )
 
     def test_insert_03(self):
         """
         Checking all the values are inserted
         """
 
-        self.tracker.update("""
+        self.tracker.update(
+            """
                 INSERT {
                 <urn:uuid:7646004> a nmm:Artist;
                     nmm:artistName 'John Lennon' .
@@ -134,7 +145,8 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
                     nmm:performer <urn:uuid:7646004>.
                     }
 
-                    """)
+                    """
+        )
 
         QUERY = """
                 SELECT ?artist ?length ?trackN ?album ?size ?flm ?fc ?filename  WHERE {
@@ -162,11 +174,12 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         self.assertEqual(result[0][3], "Imagine")
         self.assertEqual(result[0][4], "17630")
         # FIXME Tracker returns this translated to the current timezone
-        #self.assertEquals (result[0][5], "2008-12-23T11:47:02Z")
-        #self.assertEquals (result[0][6], "2008-12-16T10:41:20Z")
+        # self.assertEquals (result[0][5], "2008-12-23T11:47:02Z")
+        # self.assertEquals (result[0][6], "2008-12-16T10:41:20Z")
         self.assertEqual(result[0][7], "imagine.mp3")
 
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 DELETE {
                    <urn:uuid:123123123> a rdfs:Resource .
                 }
@@ -174,7 +187,8 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
                 DELETE {
                   <file:///a/b/c/imagine.mp3> a rdfs:Resource.
                 }
-                """)
+                """
+        )
 
     def test_insert_04(self):
         """
@@ -182,7 +196,8 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         """
         for i in range(0, 3):
             # Delete single valued properties of music file.
-            self.tracker.update("""
+            self.tracker.update(
+                """
                         DELETE {
                           <test://instance-1> nie:usageCounter ?v
                         } WHERE {
@@ -193,33 +208,41 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
                         } WHERE {
                           <test://instance-1> nie:contentAccessed ?w .
                         }
-                        """)
+                        """
+            )
 
             # Insert the same single valued properties of music file.
-            self.tracker.update("""
+            self.tracker.update(
+                """
                         INSERT {
                            <test://instance-1> a nmm:MusicPiece, nfo:FileDataObject;
                            nie:usageCounter '%d';
                            nie:contentAccessed '2000-01-01T00:4%d:47Z' .
-                        }""" % (i, i))
+                        }"""
+                % (i, i)
+            )
 
             # Query for the property values and verify whether the last change
             # is applied.
-            result = self.tracker.query ("""
+            result = self.tracker.query(
+                """
                           SELECT ?playcount ?date WHERE {
                              <test://instance-1> a nmm:MusicPiece ;
                                  nie:usageCounter ?playcount ;
                                  nie:contentAccessed ?date.
-                          }""")
+                          }"""
+            )
 
             self.assertEqual(len(result), 1)
             self.assertEqual(len(result[0]), 2)
             self.assertEqual(int(result[0][0]), i)
             self.assertEqual(result[0][1], "2000-01-01T00:4%d:47Z" % (i))
 
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 DELETE { <test://instance-1> a rdfs:Resource. }
-                """)
+                """
+        )
 
     def test_insert_05(self):
         """
@@ -227,30 +250,37 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         """
         for i in range(0, 3):
             # Insert the same single valued properties of music file.
-            self.tracker.update("""
+            self.tracker.update(
+                """
                         INSERT OR REPLACE {
                            <test://instance-1> a nmm:MusicPiece, nfo:FileDataObject;
                            nie:usageCounter '%d';
                            nie:contentAccessed '2000-01-01T00:4%d:47Z' .
-                        }""" % (i, i))
+                        }"""
+                % (i, i)
+            )
 
             # Query for the property values and verify whether the last change
             # is applied.
-            result = self.tracker.query ("""
+            result = self.tracker.query(
+                """
                           SELECT ?playcount ?date WHERE {
                              <test://instance-1> a nmm:MusicPiece ;
                                  nie:usageCounter ?playcount ;
                                  nie:contentAccessed ?date.
-                          }""")
+                          }"""
+            )
 
             self.assertEqual(len(result), 1)
             self.assertEqual(len(result[0]), 2)
             self.assertEqual(int(result[0][0]), i)
             self.assertEqual(result[0][1], "2000-01-01T00:4%d:47Z" % (i))
 
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 DELETE { <test://instance-1> a rdfs:Resource. }
-                """)
+                """
+        )
 
     def test_insert_06(self):
         """
@@ -259,20 +289,25 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         for i in range(0, 3):
             # Insert the same single valued properties and insert multi valued
             # properties at the same time
-            self.tracker.update("""
+            self.tracker.update(
+                """
                         INSERT OR REPLACE {
                            <test://instance-2> a nie:InformationElement;
                            nie:title '%d';
                            nie:keyword '%d'
-                        }""" % (i, i))
+                        }"""
+                % (i, i)
+            )
 
             # Query for the property values and verify whether the last change
             # is applied.
-            result = self.tracker.query ("""
+            result = self.tracker.query(
+                """
                           SELECT ?t ?k WHERE {
                              <test://instance-2> nie:title ?t ;
                                  nie:keyword ?k 
-                          }""")
+                          }"""
+            )
 
         self.assertEqual(len(result), 3)
         self.assertEqual(len(result[0]), 2)
@@ -285,9 +320,11 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         self.assertEqual(result[2][0], "%d" % i)
         self.assertEqual(result[2][1], "2")
 
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 DELETE { <test://instance-2> a rdfs:Resource. }
-                """)
+                """
+        )
 
     def test_insert_07(self):
         """
@@ -295,7 +332,9 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         """
 
         try:
-            INSERT_SPARQL = """INSERT OR REPLACE { <test://instance-3> nie:title 'test' }"""
+            INSERT_SPARQL = (
+                """INSERT OR REPLACE { <test://instance-3> nie:title 'test' }"""
+            )
             self.tracker.update(INSERT_SPARQL)
         except:
             pass
@@ -312,13 +351,17 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         INSERT_SPARQL = """INSERT OR REPLACE { <test://instance-5> a nie:InformationElement ; nie:rootElementOf <test://instance-4> }"""
         self.tracker.update(INSERT_SPARQL)
 
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 DELETE { <test://instance-4> a rdfs:Resource. }
-                """)
+                """
+        )
 
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 DELETE { <test://instance-5> a rdfs:Resource. }
-                """)
+                """
+        )
 
     def test_insert_08(self):
         """
@@ -331,10 +374,12 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         INSERT_SPARQL = """INSERT { GRAPH <test://graph-2> { <test://instance-6> a nie:InformationElement ; nie:title 'title 2' } }"""
         self.tracker.update(INSERT_SPARQL)
 
-        result = self.tracker.query ("""
+        result = self.tracker.query(
+            """
                           SELECT ?g ?t WHERE { GRAPH ?g {
                              <test://instance-6> nie:title ?t
-                           } } ORDER BY ?g""")
+                           } } ORDER BY ?g"""
+        )
 
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), 2)
@@ -346,10 +391,12 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         INSERT_SPARQL = """INSERT OR REPLACE { GRAPH <test://graph-2> { <test://instance-6> nie:title 'title 1' } }"""
         self.tracker.update(INSERT_SPARQL)
 
-        result = self.tracker.query ("""
+        result = self.tracker.query(
+            """
                           SELECT ?g ?t WHERE { GRAPH ?g {
                              <test://instance-6> nie:title ?t
-                           } } ORDER BY ?g""")
+                           } } ORDER BY ?g"""
+        )
 
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), 2)
@@ -361,10 +408,12 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         INSERT_SPARQL = """INSERT OR REPLACE { GRAPH <test://graph-3> { <test://instance-6> a nie:InformationElement ; nie:title 'title 2' } }"""
         self.tracker.update(INSERT_SPARQL)
 
-        result = self.tracker.query ("""
+        result = self.tracker.query(
+            """
                           SELECT ?g ?t WHERE { GRAPH ?g {
                              <test://instance-6> nie:title ?t
-                           } } ORDER BY ?g""")
+                           } } ORDER BY ?g"""
+        )
 
         self.assertEqual(len(result), 3)
         self.assertEqual(len(result[0]), 2)
@@ -375,24 +424,32 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         self.assertEqual(result[2][0], "test://graph-3")
         self.assertEqual(result[2][1], "title 2")
 
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 DELETE { <test://instance-6> a rdfs:Resource. }
-                """)
+                """
+        )
 
-    def __insert_valid_date_test(self, datestring, year, month, day, hours, minutes, seconds, timezone):
+    def __insert_valid_date_test(
+        self, datestring, year, month, day, hours, minutes, seconds, timezone
+    ):
         """
         Insert a property with datestring value, retrieve its components and validate against
         the expected results (all the other parameters)
         """
         testId = random.randint(10, 1000)
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 INSERT {
                    <test://instance-insert-date-%d> a nie:InformationElement;
                         nie:informationElementDate '%s'.
                 }
-                """ % (testId, datestring))
+                """
+            % (testId, datestring)
+        )
 
-        result = self.tracker.query ("""
+        result = self.tracker.query(
+            """
                 SELECT    fn:year-from-dateTime (?v)
                           fn:month-from-dateTime (?v)
                           fn:day-from-dateTime (?v)
@@ -404,7 +461,9 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
                   <test://instance-insert-date-%d> a nie:InformationElement;
                         nie:informationElementDate ?v .
                 }
-                 """ % (testId))
+                 """
+            % (testId)
+        )
         try:
             self.assertEqual(len(result), 1)
             self.assertEqual(len(result[0]), 7)
@@ -417,9 +476,12 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
             # FIXME To validate this we need to take into account the locale
             # self.assertEquals (result[0][7], timezone)
         finally:
-            self.tracker.update ("""
+            self.tracker.update(
+                """
                         DELETE { <test://instance-insert-date-%d> a rdfs:Resource. }
-                        """ % (testId))
+                        """
+                % (testId)
+            )
 
     """Date-Time storage testing """
 
@@ -428,53 +490,63 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         1. Insert a InformationElement with date having local timezone info.
         2. TEST: Query and verify the various componentes of date
         """
-        self.__insert_valid_date_test("2004-05-06T13:14:15+0400",
-                                      "2004", "05", "06", "13", "14", "15", "14400")
+        self.__insert_valid_date_test(
+            "2004-05-06T13:14:15+0400", "2004", "05", "06", "13", "14", "15", "14400"
+        )
 
     def test_insert_date_02(self):
         """
         1. Insert a InformationElement with date ending with "Z" in TZD.
         2. TEST: Query and verify the various componentes of date
         """
-        self.__insert_valid_date_test("2004-05-06T13:14:15Z",
-                                      "2004", "05", "06", "13", "14", "15", "0")
+        self.__insert_valid_date_test(
+            "2004-05-06T13:14:15Z", "2004", "05", "06", "13", "14", "15", "0"
+        )
 
     def test_insert_date_03(self):
         """
         1. Insert a InformationElement with date ending with no TZD.
         2. TEST: Query and verify the various componentes of date
         """
-        self.__insert_valid_date_test("2004-05-06T13:14:15",
-                                      "2004", "05", "06", "13", "14", "15", "10800")  # HEL timezone?
+        self.__insert_valid_date_test(
+            "2004-05-06T13:14:15", "2004", "05", "06", "13", "14", "15", "10800"
+        )  # HEL timezone?
 
-    #@ut.skipIf (1, "It times out in the daemon. Investigate")
+    # @ut.skipIf (1, "It times out in the daemon. Investigate")
     def test_insert_date_04(self):
         """
         1. Insert a InformationElement with date having local timezone info
            with some minutes in it.
         2. TEST: Query and verify the various componentes of date
         """
-        self.__insert_valid_date_test("2004-05-06T13:14:15+0230",
-                                      "2004", "05", "06", "13", "14", "15", "9000")
+        self.__insert_valid_date_test(
+            "2004-05-06T13:14:15+0230", "2004", "05", "06", "13", "14", "15", "9000"
+        )
 
-    #@ut.skipIf (1, "It times out in the daemon. Investigate")
+    # @ut.skipIf (1, "It times out in the daemon. Investigate")
     def __test_insert_date_05(self):
         """
-         1. Insert a InformationElement with date having local timezone info in negative.
-         2. TEST: Query and verify the various componentes of date
-         """
-        self.__insert_valid_date_test("2004-05-06T13:14:15-0230",
-                                      "2004", "05", "06", "13", "14", "15", "-9000")
+        1. Insert a InformationElement with date having local timezone info in negative.
+        2. TEST: Query and verify the various componentes of date
+        """
+        self.__insert_valid_date_test(
+            "2004-05-06T13:14:15-0230", "2004", "05", "06", "13", "14", "15", "-9000"
+        )
 
     def __insert_invalid_date_test(self, datestring):
-        self.assertRaises (Exception, self.tracker.update, """
+        self.assertRaises(
+            Exception,
+            self.tracker.update,
+            """
                         INSERT {
                            <test://instance-insert-invalid-date-01> a nie:InformationElement;
                               nie:informationElementDate '204-05-06T13:14:15+0400'.
                         }
-                        """)
+                        """,
+        )
 
-        result = self.tracker.query ("""
+        result = self.tracker.query(
+            """
                 SELECT    fn:year-from-dateTime (?v)
                           fn:month-from-dateTime (?v)
                           fn:day-from-dateTime (?v)
@@ -486,10 +558,12 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
                    <test://instances-insert-invalid-date-01> a nie:InformationElement ;
                         nie:informationElementDate ?v .
                 }
-                """)
+                """
+        )
         self.assertEqual(len(result), 0)
 
-        #@ut.skipIf (1, "It times out in the daemon. Investigate")
+        # @ut.skipIf (1, "It times out in the daemon. Investigate")
+
     def test_insert_invalid_date_01(self):
         """
         1. Insert a InformationElement with invalid year in date.
@@ -497,7 +571,8 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         """
         self.__insert_invalid_date_test("204-05-06T13:14:15+0400")
 
-        #@ut.skipIf (1, "It times out in the daemon. Investigate")
+        # @ut.skipIf (1, "It times out in the daemon. Investigate")
+
     def test_insert_invalid_date_02(self):
         """
         1. Insert a InformationElement with date without time.
@@ -505,14 +580,16 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         """
         self.__insert_invalid_date_test("2004-05-06")
 
-        #@ut.skipIf (1, "It times out in the daemon. Investigate")
+        # @ut.skipIf (1, "It times out in the daemon. Investigate")
+
     def test_insert_invalid_date_03(self):
         """
         1. Insert a InformationElement with date without time but only the "T" separator.
         """
         self.__insert_invalid_date_test("2004-05-06T")
 
-        #@ut.skipIf (1, "It times out in the daemon. Investigate")
+        # @ut.skipIf (1, "It times out in the daemon. Investigate")
+
     def test_insert_invalid_date_04(self):
         """
         1. Insert a InformationElement with date without time but only the "T" separator.
@@ -531,7 +608,9 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
                    _:tag a nfo:FileDataObject;
                          nie:url '%s'.
                 }
-                """ % (url)
+                """ % (
+            url
+        )
 
         # First insert should go ok
         self.tracker.update(insert)
@@ -544,13 +623,18 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         # Only 1 element must be available with the given nie:url
         select = """
                 SELECT ?u WHERE { ?u nie:url \"%s\" }
-                """ % (url)
+                """ % (
+            url
+        )
         self.assertEqual(len(self.tracker.query(select)), 1)
 
         # Cleanup
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 DELETE { ?u a rdfs:Resource } WHERE { ?u a rdfs:Resource ; nie:url '%s' }
-                """ % (url))
+                """
+            % (url)
+        )
 
     def test_insert_replace_null(self):
         """
@@ -558,21 +642,22 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
         """
 
         self.tracker.update(
-            """INSERT { <test://instance-null> a nie:DataObject, nie:InformationElement }""")
+            """INSERT { <test://instance-null> a nie:DataObject, nie:InformationElement }"""
+        )
+        self.tracker.update("""INSERT { <test://instance-ds1> a nie:DataSource  }""")
+        self.tracker.update("""INSERT { <test://instance-ds2> a nie:DataSource  }""")
+        self.tracker.update("""INSERT { <test://instance-ds3> a nie:DataSource  }""")
         self.tracker.update(
-            """INSERT { <test://instance-ds1> a nie:DataSource  }""")
-        self.tracker.update(
-            """INSERT { <test://instance-ds2> a nie:DataSource  }""")
-        self.tracker.update(
-            """INSERT { <test://instance-ds3> a nie:DataSource  }""")
-        self.tracker.update(
-            """INSERT { <test://instance-null> nie:dataSource <test://instance-ds1>, <test://instance-ds2>, <test://instance-ds3> }""")
+            """INSERT { <test://instance-null> nie:dataSource <test://instance-ds1>, <test://instance-ds2>, <test://instance-ds3> }"""
+        )
 
         # null upfront, reset of list, rewrite of new list
         self.tracker.update(
-            """INSERT OR REPLACE { <test://instance-null> nie:dataSource null, <test://instance-ds1>, <test://instance-ds2> }""")
+            """INSERT OR REPLACE { <test://instance-null> nie:dataSource null, <test://instance-ds1>, <test://instance-ds2> }"""
+        )
         result = self.tracker.query(
-            """SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")
+            """SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }"""
+        )
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), 1)
         self.assertEqual(len(result[1]), 1)
@@ -581,9 +666,11 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
 
         # null upfront, reset of list, rewrite of new list, second test
         self.tracker.update(
-            """INSERT OR REPLACE { <test://instance-null> nie:dataSource null, <test://instance-ds1>, <test://instance-ds2>, <test://instance-ds3> }""")
+            """INSERT OR REPLACE { <test://instance-null> nie:dataSource null, <test://instance-ds1>, <test://instance-ds2>, <test://instance-ds3> }"""
+        )
         result = self.tracker.query(
-            """SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")
+            """SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }"""
+        )
         self.assertEqual(len(result), 3)
         self.assertEqual(len(result[0]), 1)
         self.assertEqual(len(result[1]), 1)
@@ -594,9 +681,11 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
 
         # null in the middle, rewrite of new list
         self.tracker.update(
-            """INSERT OR REPLACE { <test://instance-null> nie:dataSource <test://instance-ds1>, null, <test://instance-ds2>, <test://instance-ds3> }""")
+            """INSERT OR REPLACE { <test://instance-null> nie:dataSource <test://instance-ds1>, null, <test://instance-ds2>, <test://instance-ds3> }"""
+        )
         result = self.tracker.query(
-            """SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")
+            """SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }"""
+        )
         self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), 1)
         self.assertEqual(len(result[1]), 1)
@@ -605,33 +694,33 @@ class TrackerStoreInsertionTests (fixtures.TrackerSparqlDirectTest):
 
         # null at the end
         self.tracker.update(
-            """INSERT OR REPLACE { <test://instance-null> nie:dataSource <test://instance-ds1>, <test://instance-ds2>, <test://instance-ds3>, null }""")
+            """INSERT OR REPLACE { <test://instance-null> nie:dataSource <test://instance-ds1>, <test://instance-ds2>, <test://instance-ds3>, null }"""
+        )
         result = self.tracker.query(
-            """SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")
+            """SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }"""
+        )
         self.assertEqual(len(result), 0)
 
         # Multiple nulls
         self.tracker.update(
-            """INSERT OR REPLACE { <test://instance-null> nie:dataSource null, <test://instance-ds1>, null, <test://instance-ds2>, <test://instance-ds3> }""")
+            """INSERT OR REPLACE { <test://instance-null> nie:dataSource null, <test://instance-ds1>, null, <test://instance-ds2>, <test://instance-ds3> }"""
+        )
         result = self.tracker.query(
-            """SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }""")
-        #self.assertEqual(len(result), 2)
+            """SELECT ?ds WHERE { <test://instance-null> nie:dataSource ?ds }"""
+        )
+        # self.assertEqual(len(result), 2)
         self.assertEqual(len(result[0]), 1)
         self.assertEqual(len(result[1]), 1)
         self.assertEqual(result[0][0], "test://instance-ds2")
         self.assertEqual(result[1][0], "test://instance-ds3")
 
-        self.tracker.update(
-            """DELETE { <test://instance-null> a rdfs:Resource. }""")
-        self.tracker.update(
-            """DELETE { <test://instance-ds1> a rdfs:Resource. }""")
-        self.tracker.update(
-            """DELETE { <test://instance-ds2> a rdfs:Resource. }""")
-        self.tracker.update(
-            """DELETE { <test://instance-ds3> a rdfs:Resource. }""")
+        self.tracker.update("""DELETE { <test://instance-null> a rdfs:Resource. }""")
+        self.tracker.update("""DELETE { <test://instance-ds1> a rdfs:Resource. }""")
+        self.tracker.update("""DELETE { <test://instance-ds2> a rdfs:Resource. }""")
+        self.tracker.update("""DELETE { <test://instance-ds3> a rdfs:Resource. }""")
 
 
-class TrackerStoreDeleteTests (fixtures.TrackerSparqlDirectTest):
+class TrackerStoreDeleteTests(fixtures.TrackerSparqlDirectTest):
     """
     Use DELETE in Sparql and check the information is actually removed
     """
@@ -642,7 +731,8 @@ class TrackerStoreDeleteTests (fixtures.TrackerSparqlDirectTest):
         """
 
         # first insert
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 INSERT {
                    <urn:uuid:7646001> a nco:Contact;
                             nco:fullname 'Artist_1_delete'.
@@ -652,33 +742,40 @@ class TrackerStoreDeleteTests (fixtures.TrackerSparqlDirectTest):
                             nmm:musicAlbum <test://1_Album_delete>;
                             nmm:performer <urn:uuid:7646001>.
                 }
-                """)
+                """
+        )
 
         # verify the insertion
-        result = self.tracker.query ("""
+        result = self.tracker.query(
+            """
                 SELECT ?u WHERE {
                     ?u a nmm:MusicPiece ;
                          nfo:genre 'Classic delete' .
                 }
-                """)
+                """
+        )
         self.assertEqual(len(result), 1)
         self.assertEqual(len(result[0]), 1)
         self.assertEqual(result[0][0], "test://instance-test-delete-01")
 
         # now delete
-        self.tracker.update("""
+        self.tracker.update(
+            """
                 DELETE {
                   <test://instance-test-delete-01> a rdfs:Resource.
                 }
-                """)
+                """
+        )
 
         # Check the instance is not there
-        result = self.tracker.query ("""
+        result = self.tracker.query(
+            """
                 SELECT ?u WHERE {
                     ?u a nmm:MusicPiece ;
                          nfo:genre 'Classic delete' .
                 }
-                """)
+                """
+        )
         self.assertEqual(len(result), 0)
 
     def test_delete_02(self):
@@ -694,22 +791,26 @@ class TrackerStoreDeleteTests (fixtures.TrackerSparqlDirectTest):
         initial = self.tracker.count_instances("nmm:MusicAlbum")
 
         """Add a music album """
-        self.tracker.update ("""
+        self.tracker.update(
+            """
                 INSERT {
                    <test://instance-delete-02> a nmm:MusicAlbum;
                            nie:title '06_Album_delete'.
                 }
-                """)
+                """
+        )
 
         after_insert = self.tracker.count_instances("nmm:MusicAlbum")
         self.assertEqual(initial + 1, after_insert)
 
         """Delete the added music album """
-        self.tracker.update("""
+        self.tracker.update(
+            """
                 DELETE {
                   <test://instance-delete-02> a nmm:MusicAlbum.
                 }
-                """)
+                """
+        )
 
         """get the count of music albums"""
         after_removal = self.tracker.count_instances("nmm:MusicAlbum")

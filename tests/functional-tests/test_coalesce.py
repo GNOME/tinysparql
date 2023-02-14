@@ -25,7 +25,7 @@ import unittest as ut
 import fixtures
 
 
-class TestCoalesce (fixtures.TrackerSparqlDirectTest):
+class TestCoalesce(fixtures.TrackerSparqlDirectTest):
     """
     Insert and instance with some values, and tracker coalesce of some of them
     with different combinations (first NULL, none NULL, all NULL...)
@@ -42,13 +42,17 @@ class TestCoalesce (fixtures.TrackerSparqlDirectTest):
                       nco:fullname \"full name\" ;
                       nco:nameFamily \"family name\" .
          }
-        """ % (self.resource_uri)
+        """ % (
+            self.resource_uri
+        )
         self.tracker.update(insert)
 
     def tearDown(self):
         delete = """
         DELETE { <%s> a rdfs:Resource. }
-        """ % (self.resource_uri)
+        """ % (
+            self.resource_uri
+        )
         self.tracker.update(delete)
 
     def test_coalesce_first_fine(self):
@@ -115,5 +119,5 @@ class TestCoalesce (fixtures.TrackerSparqlDirectTest):
         assert results[0][0] == "test_coalesce"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     fixtures.tracker_test_main()

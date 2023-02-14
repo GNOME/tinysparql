@@ -31,11 +31,12 @@ AMOUNT_OF_TEST_INSTANCES = 100
 AMOUNT_OF_QUERIES = 10
 
 
-class ConcurrentQueryTests():
+class ConcurrentQueryTests:
     """
     Send a bunch of queries to the daemon asynchronously, to test the queue
     holding those queries
     """
+
     def test_setup(self):
         self.main_loop = GLib.MainLoop()
 
@@ -45,8 +46,10 @@ class ConcurrentQueryTests():
     def mock_data_insert(self):
         query = "INSERT {\n"
         for i in range(0, AMOUNT_OF_TEST_INSTANCES):
-            query += "<test-09:instance-%d> a nco:PersonContact ; nco:fullname 'moe %d'.\n" % (
-                i, i)
+            query += (
+                "<test-09:instance-%d> a nco:PersonContact ; nco:fullname 'moe %d'.\n"
+                % (i, i)
+            )
         query += "}"
         self.tracker.update(query)
 
@@ -78,11 +81,12 @@ class ConcurrentQueryTests():
         cursor = self.conn.query_finish(result)
 
         rows = 0
-        while cursor.next(): rows += 1
+        while cursor.next():
+            rows += 1
         self.assertEqual(rows, AMOUNT_OF_TEST_INSTANCES)
 
         self.finish_counter += 1
-        if (self.finish_counter >= AMOUNT_OF_QUERIES):
+        if self.finish_counter >= AMOUNT_OF_QUERIES:
             self.timeout_cb()
 
     def update_cb(self, obj, result):
