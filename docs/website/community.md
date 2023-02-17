@@ -11,8 +11,7 @@ Forum discussion takes place at
 ['tracker' tag](https://discourse.gnome.org/tags/tracker) for Tracker related
 posts.
 
-Real time discussion can be found in the #tracker channel on the GIMPnet IRC
-network, also bridged to the Matrix channel #tracker:gnome.org.
+Real time discussion can be found in the #gnome-tracker channel on [Libera.chat](https://libera.chat/), bridged to the Matrix channel #tracker:gnome.org.
 [Click here to join the conversation in your browser](https://app.element.io/#/room/#tracker:gnome.org)
 using the Element webapp.
 
