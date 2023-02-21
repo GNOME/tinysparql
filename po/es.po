@@ -3,16 +3,15 @@
 # Copyright (C) 2007 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Jorge González <jorgegonz@svn.gnome.org>, 2007, 2008, 2009, 2010, 2011.
-# Daniel Mustieles <daniel.mustieles@gmail.com>, 2010-2020.
-# Daniel Mustieles García <daniel.mustieles@gmail.com>, 2022.
+# Daniel Mustieles <daniel.mustieles@gmail.com>, 2022-2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2022-07-12 10:59+0000\n"
-"PO-Revision-Date: 2022-07-27 11:34+0200\n"
-"Last-Translator: Daniel Mustieles García <daniel.mustieles@gmail.com>\n"
+"POT-Creation-Date: 2023-02-13 21:09+0000\n"
+"PO-Revision-Date: 2023-02-21 12:01+0100\n"
+"Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
 "Language: es_ES\n"
 "MIME-Version: 1.0\n"
@@ -35,13 +34,13 @@ msgstr "el|un|una"
 msgid "Version"
 msgstr "Versión"
 
-#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
-#: src/tracker/tracker-export.c:509 src/tracker/tracker-import.c:196
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:387
+#: src/tracker/tracker-export.c:543 src/tracker/tracker-import.c:196
 #: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:239
 msgid "Unrecognized options"
 msgstr "No se reconocieron las opciones"
 
-#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:48
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:49
 #: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
@@ -148,61 +147,74 @@ msgstr ""
 "Nueva base de datos creada. Use la opción «--dbus-service» del servicio para "
 "compartir esta base de datos en un bus de mensajes."
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
 #: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "ARCHIVO"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "Se conecta a un servicio de DBus"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
 #: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "Nombre del servicio de DBus"
 
-#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:57
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr "Formato de resultados de salida: «turtle», «trig» o «json-ld»"
+
+#: src/tracker/tracker-export.c:58
+msgid "RDF_FORMAT"
+msgstr "FORMATO_RDF"
+
+#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "Se conecta a un servicio remoto"
 
-#: src/tracker/tracker-export.c:57 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "URI del servicio remoto"
 
-#: src/tracker/tracker-export.c:60
+#: src/tracker/tracker-export.c:65
 msgid "Output TriG format which includes named graph information"
 msgstr "Formato TriG de salida que incluye información de grafos con nombre"
 
-#: src/tracker/tracker-export.c:72 src/tracker/tracker-export.c:73
+#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:98 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
 #: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Especifique una opción de «--database», «--dbus-service» o «--remote-"
 "service» option"
 
-#: src/tracker/tracker-export.c:305 src/tracker/tracker-export.c:325
+#: src/tracker/tracker-export.c:310 src/tracker/tracker-export.c:331
 #: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1124
 msgid "No error given"
 msgstr "No se proporcionó ningún error"
 
-#: src/tracker/tracker-export.c:324 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-export.c:330 src/tracker/tracker-import.c:124
 #: src/tracker/tracker-sparql.c:1123
 msgid "Could not establish a connection to Tracker"
 msgstr "No se pudo establecer una conexión con Tracker"
 
-#: src/tracker/tracker-export.c:391 src/tracker/tracker-export.c:404
-#: src/tracker/tracker-export.c:414 src/tracker/tracker-sparql.c:1502
+#: src/tracker/tracker-export.c:373
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "Formato «%s» de serialización no soportado\n"
+
+#: src/tracker/tracker-export.c:425 src/tracker/tracker-export.c:438
+#: src/tracker/tracker-export.c:448 src/tracker/tracker-sparql.c:1502
 #: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
 msgid "Could not run query"
 msgstr "No se pudo ejecutar la consulta"
@@ -1045,12 +1057,6 @@ msgstr "Se debe proporcionar una ruta a la base de datos"
 
 #~ msgid "Could not create D-Bus proxy to tracker-store"
 #~ msgstr "No se pudo crear un proxu de D-Bus a tracker-store"
-
-#~ msgid "Output results format: “sparql”, “turtle” or “json-ld”"
-#~ msgstr "Formato de resultados de salida: «sparql», «turtle» o «json-ld»"
-
-#~ msgid "FORMAT"
-#~ msgstr "FORMATO"
 
 #~ msgid "Could not run tracker-extract: "
 #~ msgstr "No se pudo ejecutar tracker-extract: "
@@ -1983,9 +1989,6 @@ msgstr "Se debe proporcionar una ruta a la base de datos"
 
 #~ msgid "MODULE"
 #~ msgstr "MÓDULO"
-
-#~ msgid "Unsupported serialization format “%s”\n"
-#~ msgstr "Formato «%s» de serialización no soportado\n"
 
 #~ msgid "— Extract file meta data"
 #~ msgstr "- Extraer los metadatos del archivo"
