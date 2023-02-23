@@ -60,7 +60,7 @@ tracker_bus_statement_bind_string (TrackerSparqlStatement *stmt,
 
 	g_hash_table_insert (bus_stmt->arguments,
 	                     g_strdup (name),
-	                     g_variant_new_string (value));
+	                     g_variant_ref_sink (g_variant_new_string (value)));
 }
 
 static void
@@ -72,7 +72,7 @@ tracker_bus_statement_bind_boolean (TrackerSparqlStatement *stmt,
 
 	g_hash_table_insert (bus_stmt->arguments,
 	                     g_strdup (name),
-	                     g_variant_new_boolean (value));
+	                     g_variant_ref_sink (g_variant_new_boolean (value)));
 }
 
 static void
@@ -84,7 +84,7 @@ tracker_bus_statement_bind_double (TrackerSparqlStatement *stmt,
 
 	g_hash_table_insert (bus_stmt->arguments,
 	                     g_strdup (name),
-	                     g_variant_new_double (value));
+	                     g_variant_ref_sink (g_variant_new_double (value)));
 }
 
 static void
@@ -96,7 +96,7 @@ tracker_bus_statement_bind_int (TrackerSparqlStatement *stmt,
 
 	g_hash_table_insert (bus_stmt->arguments,
 	                     g_strdup (name),
-	                     g_variant_new_int64 (value));
+	                     g_variant_ref_sink (g_variant_new_int64 (value)));
 }
 
 static void
@@ -110,7 +110,7 @@ tracker_bus_statement_bind_datetime (TrackerSparqlStatement *stmt,
 	date_str = tracker_date_format_iso8601 (value);
 	g_hash_table_insert (bus_stmt->arguments,
 	                     g_strdup (name),
-	                     g_variant_new_string (date_str));
+	                     g_variant_ref_sink (g_variant_new_string (date_str)));
 	g_free (date_str);
 }
 
