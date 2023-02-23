@@ -528,8 +528,6 @@ init_stmt (TrackerTriplesCursor *cursor)
 			                        graph,
 			                        tracker_class_get_name (class));
 		} else if (property) {
-			sql = g_string_new (NULL);
-
 			if (tracker_property_get_multiple_values (property)) {
 				g_string_append_printf (sql,
 				                        "SELECT %" G_GINT64_FORMAT ", * "
