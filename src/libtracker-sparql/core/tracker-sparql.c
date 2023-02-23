@@ -356,6 +356,7 @@ tracker_sparql_finalize (GObject *object)
 	g_object_unref (sparql->data_manager);
 
 	g_clear_pointer (&sparql->sql_string, g_free);
+	g_clear_pointer (&sparql->literal_bindings, g_ptr_array_unref);
 
 	if (sparql->tree)
 		tracker_node_tree_free (sparql->tree);
