@@ -39,20 +39,21 @@ typedef struct {
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (TrackerEndpoint, tracker_endpoint, G_TYPE_OBJECT)
 
 /**
- * SECTION: tracker-endpoint
- * @short_description: Expose a database outside the process
- * @title: TrackerEndpoint
- * @stability: Stable
- * @include: tracker-endpoint.h
+ * TrackerEndpoint:
  *
- * #TrackerEndpoint allows sharing data, either with other processes on the
- * system via a Tracker-specific D-Bus API, or remote peers via the HTTP
- * SPARQL protocol.
+ * `TrackerEndpoint` is a helper object to make RDF triple stores represented
+ * by a [class@Tracker.SparqlConnection] publicly available to other processes/hosts.
  *
- * When it is shared in this way, other peers can connect to your database using
- * tracker_sparql_connection_bus_new() or tracker_sparql_connection_remote_new(),
- * and can also fetch data directly from SPARQL queries using the
- * <userinput>SELECT { SERVICE ... }</userinput> syntax.
+ * This is a base abstract object, see [class@Tracker.EndpointDBus] to make
+ * RDF triple stores available to other processes in the same machine, and
+ * [class@Tracker.EndpointHttp] to make it available to other hosts in the
+ * network.
+ *
+ * When the RDF triple store represented by a [class@Tracker.SparqlConnection]
+ * is made public this way, other peers may connect to the database using
+ * [ctor@Tracker.SparqlConnection.bus_new] or [ctor@Tracker.SparqlConnection.remote_new]
+ * to access this endpoint exclusively, or they may use the `SERVICE <uri> { ... }` SPARQL
+ * syntax from their own [class@Tracker.SparqlConnection]s to expand their data set.
  */
 
 static void
@@ -113,6 +114,11 @@ tracker_endpoint_class_init (TrackerEndpointClass *klass)
 	object_class->set_property = tracker_endpoint_set_property;
 	object_class->get_property = tracker_endpoint_get_property;
 
+	/**
+	 * TrackerEndpoint:sparql-connection:
+	 *
+	 * The [class@Tracker.SparqlConnection] being proxied by this endpoint.
+	 */
 	props[PROP_SPARQL_CONNECTION] =
 		g_param_spec_object ("sparql-connection",
 		                     "Sparql connection",
@@ -129,9 +135,10 @@ tracker_endpoint_init (TrackerEndpoint *endpoint)
 
 /**
  * tracker_endpoint_get_sparql_connection:
- * @endpoint: a #TrackerEndpoint
+ * @endpoint: a `TrackerEndpoint`
  *
- * Returns the #TrackerSparqlConnection that this endpoint proxies.
+ * Returns the [class@Tracker.SparqlConnection] that this endpoint proxies
+ * to a wider audience.
  *
  * Returns: (transfer none): The proxied SPARQL connection
  **/

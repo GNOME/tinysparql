@@ -28,12 +28,6 @@
 
 G_BEGIN_DECLS
 
-/**
- * TrackerSparqlStatement:
- *
- * The <structname>TrackerSparqlStatement</structname> object represents
- * a prepared query statement.
- */
 #define TRACKER_TYPE_SPARQL_STATEMENT tracker_sparql_statement_get_type ()
 #define TRACKER_SPARQL_TYPE_STATEMENT TRACKER_TYPE_SPARQL_STATEMENT
 TRACKER_AVAILABLE_IN_ALL

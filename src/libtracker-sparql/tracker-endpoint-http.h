@@ -33,17 +33,8 @@ G_BEGIN_DECLS
 
 #define TRACKER_TYPE_ENDPOINT_HTTP         (tracker_endpoint_http_get_type())
 #define TRACKER_ENDPOINT_HTTP(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_ENDPOINT_HTTP, TrackerEndpointHttp))
-#define TRACKER_ENDPOINT_HTTP_CLASS(c)     (G_TYPE_CHECK_CLASS_CAST ((c), TRACKER_TYPE_ENDPOINT_HTTP, TrackerEndpointHttpClass))
 #define TRACKER_IS_ENDPOINT_HTTP(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_ENDPOINT_HTTP))
-#define TRACKER_IS_ENDPOINT_HTTP_CLASS(c)  (G_TYPE_CHECK_CLASS_TYPE ((c),  TRACKER_TYPE_ENDPOINT_HTTP))
-#define TRACKER_ENDPOINT_HTTP_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), TRACKER_TYPE_ENDPOINT_HTTP, TrackerEndpointHttpClass))
 
-/**
- * TrackerEndpointHttp:
- *
- * The <structname>TrackerEndpointHttp</structname> object represents a public
- * connection to a #TrackerSparqlConnection on a HTTP port.
- */
 typedef struct _TrackerEndpointHttp TrackerEndpointHttp;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (TrackerEndpointHttp, g_object_unref)

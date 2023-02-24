@@ -20,33 +20,49 @@
  */
 
 /**
- * SECTION: tracker-endpoint-http
- * @short_description: HTTP endpoint
- * @title: TrackerEndpointHttp
- * @stability: Stable
- * @include: libtracker-sparql/tracker-sparql.h
+ * TrackerEndpointHttp:
  *
- * #TrackerEndpointHttp is an endpoint implementation that exports
- * a local #TrackerSparqlConnection so it is accessible via HTTP
- * requests.
+ * `TrackerEndpointHttp` makes the RDF data in a [class@Tracker.SparqlConnection]
+ * accessible to other hosts via HTTP.
  *
- * Access to these endpoints may be managed via the
- * #TrackerEndpointHttp::block-remote-address signal, the boolean
+ * This object is a [class@Tracker.Endpoint] subclass that exports
+ * a [class@Tracker.SparqlConnection] so its RDF data is accessible via HTTP
+ * requests on the given port. This endpoint implementation is compliant
+ * with the [SPARQL protocol specifications](https://www.w3.org/TR/2013/REC-sparql11-protocol-20130321/)
+ * and may interoperate with other implementations.
+ *
+ * ```c
+ * // This host has "example.local" hostname
+ * endpoint = tracker_endpoint_http_new (sparql_connection,
+ *                                       8080,
+ *                                       tls_certificate,
+ *                                       NULL,
+ *                                       &error);
+ *
+ * // From another host
+ * connection = tracker_sparql_connection_remote_new ("http://example.local:8080/sparql");
+ * ```
+ *
+ * Access to HTTP endpoints may be managed via the
+ * [signal@Tracker.EndpointHttp::block-remote-address] signal, the boolean
  * return value expressing whether the connection is blocked or not.
  * Inspection of the requester address is left up to the user. The
  * default value allows all requests independently of their provenance,
  * users are encouraged to add a handler.
  *
- * If the provided #GTlsCertificate is %NULL, the endpoint will allow
+ * If the provided [class@Gio.TlsCertificate] is %NULL, the endpoint will allow
  * plain HTTP connections. Users are encouraged to provide a certificate
  * in order to use HTTPS.
  *
- * As a security measure, and in compliance with the SPARQL 1.1 specifications,
- * the HTTP endpoint does not support database updates or modifications in any
- * way. The database is completely owned by the host.
+ * As a security measure, and in compliance specifications,
+ * the HTTP endpoint does not handle database updates or modifications in any
+ * way. The database content is considered to be entirely managed by the
+ * process that creates the HTTP endpoint and owns the [class@Tracker.SparqlConnection].
  *
- * A #TrackerEndpointHttp may be created on a different thread/main
- * context than the one creating the #TrackerSparqlConnection.
+ * A `TrackerEndpointHttp` may be created on a different thread/main
+ * context from the one that created [class@Tracker.SparqlConnection].
+ *
+ * Since: 3.1
  */
 
 #include "config.h"
@@ -388,7 +404,7 @@ tracker_endpoint_http_class_init (TrackerEndpointHttpClass *klass)
 
 	/**
 	 * TrackerEndpointHttp::block-remote-address:
-	 * @self: The #TrackerNotifier
+	 * @self: The `TrackerEndpointHttp`
 	 * @address: The socket address of the remote connection
 	 *
 	 * Allows control over the connections stablished. The given
@@ -404,6 +420,11 @@ tracker_endpoint_http_class_init (TrackerEndpointHttpClass *klass)
 		              g_signal_accumulator_first_wins, NULL, NULL,
 		              G_TYPE_BOOLEAN, 1, G_TYPE_SOCKET_ADDRESS);
 
+	/**
+	 * TrackerEndpointHttp:http-port:
+	 *
+	 * HTTP port used to listen requests.
+	 */
 	props[PROP_HTTP_PORT] =
 		g_param_spec_uint ("http-port",
 		                   "HTTP Port",
@@ -411,6 +432,11 @@ tracker_endpoint_http_class_init (TrackerEndpointHttpClass *klass)
 		                   0, G_MAXUINT,
 		                   8080,
 		                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+	/**
+	 * TrackerEndpointHttp:http-certificate:
+	 *
+	 * [class@Gio.TlsCertificate] to encrypt the communication.
+	 */
 	props[PROP_HTTP_CERTIFICATE] =
 		g_param_spec_object ("http-certificate",
 		                     "HTTP certificate",
@@ -429,17 +455,17 @@ tracker_endpoint_http_init (TrackerEndpointHttp *endpoint)
 
 /**
  * tracker_endpoint_http_new:
- * @sparql_connection: a #TrackerSparqlConnection
- * @port: HTTP port to listen to
- * @certificate: (nullable): certificate to use for encription, or %NULL
- * @cancellable: (nullable): a #GCancellable, or %NULL
- * @error: pointer to a #GError
+ * @sparql_connection: The [class@Tracker.SparqlConnection] being made public
+ * @port: HTTP port to handle incoming requests
+ * @certificate: (nullable): Optional [type@Gio.TlsCertificate] to use for encription
+ * @cancellable: (nullable): Optional [type@Gio.Cancellable]
+ * @error: Error location
  *
  * Sets up a Tracker endpoint to listen via HTTP, in the given @port.
  * If @certificate is not %NULL, HTTPS may be used to connect to the
  * endpoint.
  *
- * Returns: (transfer full): a #TrackerEndpointDBus object.
+ * Returns: (transfer full): a `TrackerEndpointHttp` object.
  *
  * Since: 3.1
  **/

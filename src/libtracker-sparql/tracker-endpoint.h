@@ -32,12 +32,6 @@
 
 G_BEGIN_DECLS
 
-/**
- * TrackerEndpoint:
- *
- * The <structname>TrackerEndpoint</structname> object represents a public
- * connection to a #TrackerSparqlConnection.
- */
 #define TRACKER_TYPE_ENDPOINT tracker_endpoint_get_type()
 TRACKER_AVAILABLE_IN_ALL
 G_DECLARE_DERIVABLE_TYPE (TrackerEndpoint, tracker_endpoint, TRACKER, ENDPOINT, GObject)

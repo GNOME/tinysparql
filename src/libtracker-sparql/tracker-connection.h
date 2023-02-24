@@ -55,6 +55,12 @@ typedef enum {
 	TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES      = 1 << 5,
 } TrackerSparqlConnectionFlags;
 
+/**
+ * TrackerSerializeFlags:
+ * @TRACKER_SERIALIZE_FLAGS_NONE: No flags.
+ *
+ * Flags affecting serialization into a RDF data format.
+ */
 typedef enum {
 	TRACKER_SERIALIZE_FLAGS_NONE = 0,
 } TrackerSerializeFlags;
@@ -63,18 +69,12 @@ typedef enum {
  * TrackerDeserializeFlags:
  * @TRACKER_DESERIALIZE_FLAGS_NONE: No flags.
  *
- * Flags affecting deserialization of RDF.
+ * Flags affecting deserialization from a RDF data format.
  */
 typedef enum {
 	TRACKER_DESERIALIZE_FLAGS_NONE = 0,
 } TrackerDeserializeFlags;
 
-/**
- * TrackerSparqlConnection:
- *
- * The <structname>TrackerSparqlConnection</structname> object represents a
- * SPARQL connection.
- */
 #define TRACKER_TYPE_SPARQL_CONNECTION tracker_sparql_connection_get_type ()
 #define TRACKER_SPARQL_TYPE_CONNECTION TRACKER_TYPE_SPARQL_CONNECTION
 

@@ -28,12 +28,6 @@
 
 G_BEGIN_DECLS
 
-/**
- * TrackerSparqlCursor:
- *
- * The <structname>TrackerSparqlCursor</structname> object represents an
- * iterator of results.
- */
 #define TRACKER_TYPE_SPARQL_CURSOR tracker_sparql_cursor_get_type ()
 #define TRACKER_SPARQL_TYPE_CURSOR TRACKER_TYPE_SPARQL_CURSOR
 TRACKER_AVAILABLE_IN_ALL

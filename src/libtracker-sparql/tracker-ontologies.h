@@ -18,17 +18,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-/**
- * SECTION: tracker-ontologies
- * @short_description: Utility prefix definitions for common ontologies
- * @title: Utility Ontology Defines
- * @stability: Stable
- * @include: libtracker-sparql/tracker-sparql.h
- *
- * Utility defines for the common namespace prefixes.
- */
-
-
 #ifndef __LIBTRACKER_SPARQL_ONTOLOGIES_H__
 #define __LIBTRACKER_SPARQL_ONTOLOGIES_H__
 

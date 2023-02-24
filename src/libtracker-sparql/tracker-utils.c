@@ -16,15 +16,6 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-/**
- * SECTION: tracker-misc
- * @short_description: miscellaneous functionality
- * @title: Utility Functions
- * @stability: Stable
- * @include: tracker-sparql.h
- *
- * Collection of Tracker utility functions.
- */
 
 #include "config.h"
 
@@ -37,9 +28,10 @@
  * @literal: a string to escape
  *
  * Escapes @literal so it is suitable for insertion in
- * SPARQL queries as string literals. Manual construction
- * of query strings based user input is best avoided at
- * all cost, use of #TrackerSparqlStatement is recommended
+ * SPARQL queries as string literals.
+ *
+ * Manual construction of query strings based user input is best
+ * avoided at all cost, use of #TrackerSparqlStatement is recommended
  * instead.
  *
  * Returns: (transfer full): the escaped string

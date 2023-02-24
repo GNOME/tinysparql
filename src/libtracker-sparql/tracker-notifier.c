@@ -18,30 +18,36 @@
  */
 
 /**
- * SECTION: tracker-notifier
- * @title: TrackerNotifier
- * @short_description: Listen to changes in the Tracker database
- * @stability: Stable
- * @include: libtracker-sparql/tracker-sparql.h
+ * TrackerNotifier:
  *
- * #TrackerNotifier is an object that receives notifications about
- * changes to the Tracker database. A #TrackerNotifier is created
- * through tracker_sparql_connection_create_notifier(), after the notifier
- * is created, events can be listened for by connecting to the
- * #TrackerNotifier::events signal.
+ * `TrackerNotifier` allows receiving notification on changes
+ * in the data stored by a [class@Tracker.SparqlConnection].
  *
- * # Known caveats
+ * This object may be created through [method@Tracker.SparqlConnection.create_notifier],
+ * events can then be listened for by connecting to the
+ * [signal@Tracker.Notifier::events] signal.
  *
- * * The %TRACKER_NOTIFIER_EVENT_DELETE events will be received after the
- *   resource has been deleted. At that time queries on those elements will
- *   not bring any metadata. Only the ID/URN obtained through the event
- *   remain meaningful.
- * * Notifications of files being moved across indexed folders will
- *   appear as %TRACKER_NOTIFIER_EVENT_UPDATE events, containing
- *   the new location (if requested). The older location is no longer
- *   known to Tracker, this may make tracking of elements in specific
- *   folders hard using solely the #TrackerNotifier/Tracker data
- *   available at event notification time.
+ * Not every change is notified, only RDF resources with a
+ * class that has the [nrl:notify](nrl-ontology.html#nrl:notify)
+ * property defined by the ontology will be notified upon changes.
+ *
+ * Database changes are communicated through [struct@Tracker.NotifierEvent] events on
+ * individual graph/resource pairs. The event type obtained through
+ * [method@Tracker.NotifierEvent.get_event_type] will determine the type of event.
+ * Insertion of new resources is notified through
+ * %TRACKER_NOTIFIER_EVENT_CREATE events, deletion of
+ * resources is notified through %TRACKER_NOTIFIER_EVENT_DELETE
+ * events, and changes on any property of the resource is notified
+ * through %TRACKER_NOTIFIER_EVENT_UPDATE events.
+ *
+ * The events happen in reaction to database changes, after a `TrackerNotifier`
+ * received an event of type %TRACKER_NOTIFIER_EVENT_DELETE, the resource will
+ * not exist anymore and only the information in the [struct@Tracker.NotifierEvent]
+ * will remain.
+ *
+ * Similarly, when receiving an event of type %TRACKER_NOTIFIER_EVENT_UPDATE,
+ * the resource will have already changed, so the data previous to the update is
+ * no longer available.
  */
 
 #include "config.h"
@@ -745,10 +751,10 @@ tracker_notifier_class_init (TrackerNotifierClass *klass)
 
 	/**
 	 * TrackerNotifier::events:
-	 * @self: The #TrackerNotifier
+	 * @self: The `TrackerNotifier`
 	 * @service: The SPARQL service that originated the events, %NULL for the local store
 	 * @graph: The graph where the events happened on, %NULL for the default anonymous graph
-	 * @events: (element-type TrackerNotifierEvent): A #GPtrArray of #TrackerNotifierEvent
+	 * @events: (transfer none) (type GLib.PtrArray) (element-type TrackerNotifierEvent): A [type@GLib.PtrArray] of [struct@Tracker.NotifierEvent]
 	 *
 	 * Notifies of changes in the Tracker database.
 	 */
@@ -793,23 +799,26 @@ tracker_notifier_init (TrackerNotifier *notifier)
 
 /**
  * tracker_notifier_signal_subscribe:
- * @notifier: a #TrackerNotifier
- * @connection: a #GDBusConnection
+ * @notifier: A `TrackerNotifier`
+ * @connection: A [class@Gio.DBusConnection]
  * @service: DBus service name to subscribe to events for
  * @object_path: (nullable): DBus object path to subscribe to events for, or %NULL
- * @graph: (nullable): graph to listen events for, or %NULL
+ * @graph: (nullable): Graph to listen events for, or %NULL
  *
- * Listens to notification events from a remote SPARQL endpoint as a DBus
- * service (see #TrackerEndpointDBus). If the @object_path argument is
- * %NULL, the default "/org/freedesktop/Tracker3/Endpoint" path will be
+ * Listens to notification events from a remote DBus SPARQL endpoint.
+ *
+ * If the @object_path argument is %NULL, the default
+ * `/org/freedesktop/Tracker3/Endpoint` path will be
  * used. If @graph is %NULL, all graphs will be listened for.
  *
  * The signal subscription can be removed with
- * tracker_notifier_signal_unsubscribe().
+ * [method@Tracker.Notifier.signal_unsubscribe].
+ *
+ * Note that this call is not necessary to receive notifications on
+ * a connection obtained through [ctor@Tracker.SparqlConnection.bus_new],
+ * only to listen to update notifications from additional DBus endpoints.
  *
  * Returns: An ID for this subscription
- *
- * Since: 3.0
  **/
 guint
 tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
@@ -874,13 +883,12 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
 
 /**
  * tracker_notifier_signal_unsubscribe:
- * @notifier: a #TrackerNotifier
- * @handler_id: a handler ID obtained with tracker_notifier_signal_subscribe()
+ * @notifier: A `TrackerNotifier`
+ * @handler_id: A signal subscription handler ID
  *
- * Undoes a DBus signal subscription, the @handler_id argument was previously
- * obtained with a tracker_notifier_signal_subscribe() call.
+ * Undoes a signal subscription done through [method@Tracker.Notifier.signal_subscribe].
  *
- * Since: 3.0
+ * The @handler_id argument was previously obtained during signal subscription creation.
  **/
 void
 tracker_notifier_signal_unsubscribe (TrackerNotifier *notifier,
@@ -908,7 +916,7 @@ _tracker_notifier_get_connection (TrackerNotifier *notifier)
 
 /**
  * tracker_notifier_event_get_event_type:
- * @event: A #TrackerNotifierEvent
+ * @event: A `TrackerNotifierEvent`
  *
  * Returns the event type.
  *
@@ -923,7 +931,7 @@ tracker_notifier_event_get_event_type (TrackerNotifierEvent *event)
 
 /**
  * tracker_notifier_event_get_id:
- * @event: A #TrackerNotifierEvent
+ * @event: A `TrackerNotifierEvent`
  *
  * Returns the tracker:id of the element being notified upon. This is a #gint64
  * which is used as efficient internal identifier for the resource.
@@ -939,13 +947,13 @@ tracker_notifier_event_get_id (TrackerNotifierEvent *event)
 
 /**
  * tracker_notifier_event_get_urn:
- * @event: A #TrackerNotifierEvent
+ * @event: A `TrackerNotifierEvent`
  *
  * Returns the Uniform Resource Name of the element. This is Tracker's
  * public identifier for the resource.
  *
  * This URN is an unique string identifier for the resource being
- * notified upon, typically of the form "urn:uuid:...".
+ * notified upon, typically of the form `urn:uuid:...`.
  *
  * Returns: The element URN
  **/

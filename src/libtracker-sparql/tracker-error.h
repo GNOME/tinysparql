@@ -27,14 +27,6 @@
 G_BEGIN_DECLS
 
 /**
- * SECTION: tracker-sparql-error
- * @short_description: Error codes
- * @title: TrackerSparqlError
- * @stability: Stable
- * @include: tracker-sparql.h
- */
-
-/**
  * TrackerSparqlError:
  * @TRACKER_SPARQL_ERROR_CONSTRAINT: Subject is not in the domain of a property or
  *                             trying to set multiple values for a single valued
@@ -56,7 +48,7 @@ G_BEGIN_DECLS
  * @TRACKER_SPARQL_ERROR_LAST: The total number of error codes.
  *
  * Error domain for Tracker Sparql. Errors in this domain will be from the
- * #TrackerSparqlError enumeration. See #GError for more information on error
+ * [error@Tracker.SparqlError] enumeration. See [struct@GLib.Error] for more information on error
  * domains.
  */
 typedef enum {
@@ -79,7 +71,7 @@ typedef enum {
 } TrackerSparqlError;
 
 #define TRACKER_SPARQL_N_ERRORS TRACKER_SPARQL_ERROR_LAST
-#define TRACKER_SPARQL_ERROR tracker_sparql_error_quark ()
+#define TRACKER_SPARQL_ERROR (tracker_sparql_error_quark ())
 
 TRACKER_AVAILABLE_IN_ALL
 GQuark tracker_sparql_error_quark (void);
