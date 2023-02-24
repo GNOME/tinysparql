@@ -255,7 +255,7 @@ convert_params (GHashTable *parameters)
 	while (g_hash_table_iter_next (&iter, (gpointer*) &name, (gpointer*) &value)) {
 		g_variant_builder_open (&builder, G_VARIANT_TYPE ("{sv}"));
 		g_variant_builder_add (&builder, "s", name);
-		g_variant_builder_add (&builder, "v", g_variant_ref (value));
+		g_variant_builder_add (&builder, "v", value);
 		g_variant_builder_close (&builder);
 	}
 
@@ -1550,13 +1550,15 @@ query_dbus_call_cb (GObject      *source,
 	                                                          res, &error);
 	if (reply && !g_dbus_message_to_gerror (reply, &error)) {
 		TrackerSparqlCursor *cursor;
-		GVariant *body;
+		GVariant *body, *child;
 		GInputStream *istream;
 
 		body = g_dbus_message_get_body (reply);
 		istream = g_task_get_task_data (task);
-		cursor = tracker_bus_cursor_new (istream, g_variant_get_child_value (body, 0));
+		child = g_variant_get_child_value (body, 0);
+		cursor = tracker_bus_cursor_new (istream, child);
 		g_task_return_pointer (task, cursor, g_object_unref);
+		g_variant_unref (child);
 	} else {
 		g_dbus_error_strip_remote_error (error);
 		g_task_return_error (task, error);

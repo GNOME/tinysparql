@@ -793,6 +793,7 @@ tracker_grammar_parser_apply (TrackerGrammarParser      *parser,
 	if (!tracker_grammar_parser_read (parser, &state)) {
 		tracker_parser_state_propagate_error (parser, &state, error);
 		tracker_node_tree_free (state.node_tree);
+		g_ptr_array_unref (state.error_rules);
 		g_free (state.rule_states.rules);
 		return NULL;
 	}

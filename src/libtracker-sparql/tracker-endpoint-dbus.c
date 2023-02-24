@@ -416,6 +416,7 @@ read_query (GDataInputStream  *istream,
 
 			g_ptr_array_add (*parameter_names, key);
 			g_array_append_val (*parameter_values, gvalue);
+			g_variant_unref (value);
 		}
 
 		g_variant_unref (variant);

@@ -41,7 +41,13 @@ struct _TestFixture {
 typedef struct {
 	TrackerSparqlConnection *direct;
 	GDBusConnection *dbus_conn;
+	GMainLoop *thread_loop;
 } StartupData;
+
+typedef struct {
+	GThread *thread;
+	GMainLoop *loop;
+} EndpointData;
 
 static gboolean started = FALSE;
 static const gchar *bus_name = NULL;
@@ -63,7 +69,7 @@ static TrackerSparqlCursor *
 get_cursor (TestFixture *test_fixture,
             const gchar *iri)
 {
-	TrackerSparqlStatement *stmt;
+	g_autoptr (TrackerSparqlStatement) stmt = NULL;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
@@ -74,7 +80,6 @@ get_cursor (TestFixture *test_fixture,
 
 	tracker_sparql_statement_bind_string (stmt, "iri", iri);
 	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
-	g_object_unref (stmt);
 	g_assert_no_error (error);
 
 	return cursor;
@@ -84,7 +89,7 @@ static void
 assert_no_match (TestFixture *test_fixture,
                  const gchar *iri)
 {
-	TrackerSparqlCursor *cursor;
+	g_autoptr (TrackerSparqlCursor) cursor = NULL;
 	GError *error = NULL;
 
 	cursor = get_cursor (test_fixture, iri);
@@ -164,13 +169,16 @@ assert_photo (TestFixture *test_fixture,
               gdouble      exposure_time)
 {
 	TrackerSparqlCursor *cursor;
+	GDateTime *cursor_date;
 	GError *error = NULL;
 
 	cursor = get_cursor (test_fixture, iri);
 
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_DC "date");
-	g_assert_true (g_date_time_compare (tracker_sparql_cursor_get_datetime (cursor, 1), date) == 0);
+	cursor_date = tracker_sparql_cursor_get_datetime (cursor, 1);
+	g_assert_true (g_date_time_compare (cursor_date, date) == 0);
+	g_date_time_unref (cursor_date);
 
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_NFO "codec");
@@ -186,11 +194,15 @@ assert_photo (TestFixture *test_fixture,
 
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_NIE "contentCreated");
-	g_assert_true (g_date_time_compare (tracker_sparql_cursor_get_datetime (cursor, 1), date) == 0);
+	cursor_date = tracker_sparql_cursor_get_datetime (cursor, 1);
+	g_assert_true (g_date_time_compare (cursor_date, date) == 0);
+	g_date_time_unref (cursor_date);
 
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_NIE "informationElementDate");
-	g_assert_true (g_date_time_compare (tracker_sparql_cursor_get_datetime (cursor, 1), date) == 0);
+	cursor_date = tracker_sparql_cursor_get_datetime (cursor, 1);
+	g_assert_true (g_date_time_compare (cursor_date, date) == 0);
+	g_date_time_unref (cursor_date);
 
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_NMM "exposureTime");
@@ -474,9 +486,6 @@ batch_resource_bnodes_same_batch (TestFixture   *test_fixture,
 	/* Insert a bnode with the same label twice in the same
 	 *  batch, 1 blank node is expected
 	 */
-	resource = tracker_resource_new ("_:bnode");
-	tracker_resource_set_uri (resource, "rdf:type", "nmm:Photo");
-
 	batch = tracker_sparql_connection_create_batch (test_fixture->conn);
 
 	resource = tracker_resource_new ("_:bnode");
@@ -501,7 +510,7 @@ batch_statement_insert (TestFixture   *test_fixture,
                         gconstpointer  context)
 {
 	TrackerBatch *batch;
-	TrackerSparqlStatement *stmt;
+	g_autoptr (TrackerSparqlStatement) stmt = NULL;
 	GError *error = NULL;
 	GDateTime *date;
 
@@ -527,7 +536,6 @@ batch_statement_insert (TestFixture   *test_fixture,
 	assert_photo (test_fixture, "http://example.com/e", "png", date, FALSE, 123, 0.12345678901);
 
 	g_date_time_unref (date);
-	g_object_unref (stmt);
 }
 
 static void
@@ -535,7 +543,7 @@ batch_statement_update (TestFixture   *test_fixture,
                         gconstpointer  context)
 {
 	TrackerBatch *batch;
-	TrackerSparqlStatement *stmt;
+	g_autoptr (TrackerSparqlStatement) stmt = NULL;
 	GError *error = NULL;
 	GDateTime *date;
 
@@ -573,7 +581,6 @@ batch_statement_update (TestFixture   *test_fixture,
 	assert_photo (test_fixture, "http://example.com/f", "png", date, FALSE, 123, 0.12345678901);
 
 	g_date_time_unref (date);
-	g_object_unref (stmt);
 }
 
 static void
@@ -581,7 +588,7 @@ batch_statement_update_same_batch (TestFixture   *test_fixture,
                                    gconstpointer  context)
 {
 	TrackerBatch *batch;
-	TrackerSparqlStatement *stmt;
+	g_autoptr (TrackerSparqlStatement) stmt = NULL;
 	GError *error = NULL;
 	GDateTime *date;
 
@@ -612,7 +619,6 @@ batch_statement_update_same_batch (TestFixture   *test_fixture,
 	assert_photo (test_fixture, "http://example.com/g", "png", date, FALSE, 123, 0.12345678901);
 
 	g_date_time_unref (date);
-	g_object_unref (stmt);
 }
 
 static void
@@ -620,7 +626,8 @@ batch_statement_delete (TestFixture   *test_fixture,
                         gconstpointer  context)
 {
 	TrackerBatch *batch;
-	TrackerSparqlStatement *stmt, *del_stmt;
+	g_autoptr (TrackerSparqlStatement) stmt = NULL;
+	g_autoptr (TrackerSparqlStatement) del_stmt = NULL;
 	GError *error = NULL;
 	GDateTime *date;
 
@@ -654,8 +661,6 @@ batch_statement_delete (TestFixture   *test_fixture,
 	assert_no_match (test_fixture, "http://example.com/h");
 
 	g_date_time_unref (date);
-	g_object_unref (stmt);
-	g_object_unref (del_stmt);
 }
 
 static void
@@ -663,7 +668,8 @@ batch_statement_delete_same_batch (TestFixture   *test_fixture,
                                    gconstpointer  context)
 {
 	TrackerBatch *batch;
-	TrackerSparqlStatement *stmt, *del_stmt;
+	g_autoptr (TrackerSparqlStatement) stmt = NULL;
+	g_autoptr (TrackerSparqlStatement) del_stmt = NULL;
 	GError *error = NULL;
 	GDateTime *date;
 
@@ -690,15 +696,13 @@ batch_statement_delete_same_batch (TestFixture   *test_fixture,
 	assert_no_match (test_fixture, "http://example.com/i");
 
 	g_date_time_unref (date);
-	g_object_unref (stmt);
-	g_object_unref (del_stmt);
 }
 
 static void
 batch_statement_bnodes (TestFixture   *test_fixture,
                         gconstpointer  context)
 {
-	TrackerSparqlStatement *stmt;
+	g_autoptr (TrackerSparqlStatement) stmt = NULL;
 	TrackerBatch *batch;
 	GError *error = NULL;
 
@@ -730,7 +734,7 @@ static void
 batch_statement_bnodes_same_batch (TestFixture   *test_fixture,
                                    gconstpointer  context)
 {
-	TrackerSparqlStatement *stmt;
+	g_autoptr (TrackerSparqlStatement) stmt = NULL;
 	TrackerBatch *batch;
 	GError *error = NULL;
 
@@ -827,8 +831,8 @@ update_async_cb (GObject      *source,
 }
 
 static void
-batch_async_order (TestFixture   *test_fixture,
-                   gconstpointer  context)
+batch_async_simultaneous (TestFixture   *test_fixture,
+                          gconstpointer  context)
 {
 	TrackerBatch *batch1, *batch2;
 	TrackerResource *resource;
@@ -837,14 +841,14 @@ batch_async_order (TestFixture   *test_fixture,
 
 	date = g_date_time_new_from_iso8601 ("2022-12-04T01:01:01Z", NULL);
 
-	/* Ensure batches are still executed in the given order, despite asynchronously */
+	/* Ensure batches get both executed, despite asynchronously */
 	batch1 = tracker_sparql_connection_create_batch (test_fixture->conn);
 	resource = create_photo_resource (test_fixture, "http://example.com/j", "png", date, TRUE, 234, 1.23456789012);
 	tracker_batch_add_resource (batch1, NULL, resource);
 	g_object_unref (resource);
 
 	batch2 = tracker_sparql_connection_create_batch (test_fixture->conn);
-	resource = create_photo_resource (test_fixture, "http://example.com/j", "png", date, FALSE, 123, 0.12345678901);
+	resource = create_photo_resource (test_fixture, "http://example.com/j2", "png", date, FALSE, 123, 0.12345678901);
 	tracker_batch_add_resource (batch2, NULL, resource);
 	g_object_unref (resource);
 
@@ -856,8 +860,69 @@ batch_async_order (TestFixture   *test_fixture,
 
 	g_main_loop_run (data.loop);
 
-	assert_photo (test_fixture, "http://example.com/j", "png", date, FALSE, 123, 0.12345678901);
+	assert_photo (test_fixture, "http://example.com/j", "png", date, TRUE, 234, 1.23456789012);
+	assert_photo (test_fixture, "http://example.com/j2", "png", date, FALSE, 123, 0.12345678901);
 
+	g_main_loop_unref (data.loop);
+	g_object_unref (batch1);
+	g_object_unref (batch2);
+	g_date_time_unref (date);
+}
+
+static void
+batch_async_same_item (TestFixture   *test_fixture,
+                       gconstpointer  context)
+{
+	g_autoptr (TrackerSparqlCursor) cursor = NULL;
+	TrackerBatch *batch1, *batch2;
+	TrackerResource *resource;
+	GDateTime *date;
+	AsyncData data;
+	GError *error = NULL;
+
+	date = g_date_time_new_from_iso8601 ("2022-12-04T01:01:01Z", NULL);
+
+	/* Ensure changes from both batches get applied to
+	 * the same resource, despite asynchronously */
+	batch1 = tracker_sparql_connection_create_batch (test_fixture->conn);
+	resource = tracker_resource_new ("http://example.com/j3");
+	tracker_resource_add_uri (resource, "rdf:type", "nie:DataObject");
+	tracker_batch_add_resource (batch1, NULL, resource);
+	g_object_unref (resource);
+
+	batch2 = tracker_sparql_connection_create_batch (test_fixture->conn);
+	resource = tracker_resource_new ("http://example.com/j3");
+	tracker_resource_add_uri (resource, "rdf:type", "nie:InformationElement");
+	tracker_batch_add_resource (batch2, NULL, resource);
+	g_object_unref (resource);
+
+	data.count = 2;
+	data.loop = g_main_loop_new (NULL, FALSE);
+
+	tracker_batch_execute_async (batch1, NULL, update_async_cb, &data);
+	tracker_batch_execute_async (batch2, NULL, update_async_cb, &data);
+
+	g_main_loop_run (data.loop);
+
+	cursor = get_cursor (test_fixture, "http://example.com/j3");
+	/* nrl:added */
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	/* nrl:modified */
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	/* rdf:type */
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_RDF "type");
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 1, NULL), ==, TRACKER_PREFIX_NIE "DataObject");
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_RDF "type");
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 1, NULL), ==, TRACKER_PREFIX_NIE "InformationElement");
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_RDF "type");
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 1, NULL), ==, TRACKER_PREFIX_RDFS "Resource");
+	g_assert_false (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_no_error (error);
+
+	g_main_loop_unref (data.loop);
 	g_object_unref (batch1);
 	g_object_unref (batch2);
 	g_date_time_unref (date);
@@ -929,10 +994,23 @@ thread_func (gpointer user_data)
 	if (!endpoint)
 		return NULL;
 
+	data->thread_loop = main_loop;
 	started = TRUE;
 	g_main_loop_run (main_loop);
 
+	g_main_loop_unref (main_loop);
+
+	g_object_unref (endpoint);
+
 	return NULL;
+}
+
+static void
+finish_endpoint (EndpointData *endpoint_data)
+{
+	g_main_loop_quit (endpoint_data->loop);
+	g_thread_join (endpoint_data->thread);
+	g_free (endpoint_data);
 }
 
 static gboolean
@@ -941,6 +1019,7 @@ create_connections (TrackerSparqlConnection **dbus,
                     GError                  **error)
 {
 	StartupData data;
+	EndpointData *endpoint_data;
 	GThread *thread;
 
 	data.direct = create_local_connection (NULL);
@@ -955,11 +1034,22 @@ create_connections (TrackerSparqlConnection **dbus,
 	while (!started)
 		g_usleep (100);
 
+	endpoint_data = g_new0 (EndpointData, 1);
+	endpoint_data->thread = thread;
+	endpoint_data->loop = data.thread_loop;
+
 	bus_name = g_dbus_connection_get_unique_name (data.dbus_conn);
 	*dbus = tracker_sparql_connection_bus_new (bus_name,
 	                                           NULL, data.dbus_conn, error);
+	g_object_set_data_full (G_OBJECT (*dbus),
+	                        "endpoint-data",
+	                        endpoint_data,
+	                        (GDestroyNotify) finish_endpoint);
+
 	*direct = create_local_connection (error);
-	g_thread_unref (thread);
+
+	g_object_unref (data.direct);
+	g_object_unref (data.dbus_conn);
 
 	return TRUE;
 }
@@ -983,6 +1073,13 @@ setup (TestFixture   *fixture,
 	g_assert_no_error (error);
 }
 
+static void
+teardown (TestFixture   *fixture,
+          gconstpointer  context)
+{
+	g_object_unref (fixture->conn);
+}
+
 TestInfo tests[] = {
 	{ "sparql/insert", batch_sparql_insert },
 	{ "sparql/delete", batch_sparql_delete },
@@ -1002,7 +1099,8 @@ TestInfo tests[] = {
 	{ "statement/bnodes", batch_statement_bnodes },
 	{ "statement/bnodes-same-batch", batch_statement_bnodes_same_batch },
 	{ "mixed/bnodes", batch_bnodes },
-	{ "async/order", batch_async_order },
+	{ "async/simultaneous", batch_async_simultaneous },
+	{ "async/same-item", batch_async_same_item },
 	{ "error/transaction", batch_transaction_error },
 };
 
@@ -1018,10 +1116,10 @@ add_tests (TrackerSparqlConnection *conn,
 		gchar *testpath;
 
 		fixture = g_new0 (TestFixture, 1);
-		fixture->conn = conn;
+		fixture->conn = g_object_ref (conn);
 		fixture->test = &tests[i];
 		testpath = g_strconcat ("/libtracker-sparql/batch/", name, "/", tests[i].test_name, NULL);
-		g_test_add (testpath, TestFixture, fixture, setup, tests[i].func, NULL);
+		g_test_add (testpath, TestFixture, fixture, setup, tests[i].func, teardown);
 		g_free (testpath);
 	}
 }
@@ -1039,6 +1137,9 @@ main (gint argc, gchar **argv)
 
 	add_tests (direct, "direct", TRUE);
 	add_tests (dbus, "dbus", FALSE);
+
+	g_clear_object (&dbus);
+	g_clear_object (&direct);
 
 	return g_test_run ();
 }
