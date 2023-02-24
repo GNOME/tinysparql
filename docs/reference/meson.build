@@ -1,3 +1,3 @@
-docpath = join_paths(datadir, 'gtk-doc')
+docpath = join_paths(datadir)
 
 subdir('libtracker-sparql')

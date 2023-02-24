@@ -1,27 +1,18 @@
 #!/bin/sh
 
-cd ${MESON_BUILD_ROOT}/docs/reference/libtracker-sparql/
-
 docs_name=$1
-docs_path="${docs_name}-doc/devhelp/books/${docs_name}"
-devhelp_file="${docs_path}/*.devhelp2"
+docs_path=$2
+devhelp_file="${docs_name}/${docs_name}.devhelp2"
 
-# Step 1. Build devhelp documentation (we let meson do this)
-# hotdoc run --conf-file '${docs_name}-doc.json' --devhelp-activate
+pushd $docs_path >/dev/null
 
-# Step 2. Fix .devhelp2 file so it contains keywords from out ontologies
-cat $devhelp_file | sed "s/<\/functions>//" - | sed "s/<\/book>//" - >fixed.devhelp2
-
-for i in *-ontology.keywords
-do
-  cat $i >>fixed.devhelp2
-done
-
+# Fix .devhelp2 file so it contains keywords from out ontologies
+cat $devhelp_file | sed "s/<\/functions>//" - | sed "s/<\/book>//" - >fixed.devhelp2 2>/dev/null
+cat ../*-ontology.keywords >>fixed.devhelp2 2>/dev/null
+rm ../*-ontology.keywords 2>/dev/null
 echo -e "  </functions>\n</book>" >>fixed.devhelp2
+
+# Replace devhelp2 file
 mv fixed.devhelp2 $devhelp_file
 
-# Step 3. Trim unnecessary data
-rm ${docs_path}/assets/fonts/*.woff*
-rm ${docs_path}/assets/fonts/*.svg
-rm -rf ${docs_path}/assets/js/search
-find ${docs_path} -name "dumped.trie" -delete
+popd >/dev/null

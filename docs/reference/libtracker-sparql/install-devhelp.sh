@@ -1,12 +1,9 @@
 #!/bin/sh
 
 # Generate fixed .devhelp2 file
-${MESON_SOURCE_ROOT}/docs/reference/libtracker-sparql/generate-devhelp.sh $1
+. ${MESON_SOURCE_ROOT}/docs/reference/libtracker-sparql/generate-devhelp.sh $1 $2
 
 # Install all files
-docs_name=$1
-docs_path="${docs_name}-doc/devhelp/books/${docs_name}"
-
-cd ${MESON_BUILD_ROOT}/docs/reference/libtracker-sparql/
-mkdir -p ${MESON_INSTALL_DESTDIR_PREFIX}/share/devhelp/books
-cp -a $docs_path ${MESON_INSTALL_DESTDIR_PREFIX}/share/devhelp/books/
+docs_path=$2
+mkdir -p ${MESON_INSTALL_DESTDIR_PREFIX}/share/doc
+cp -a $docs_path/* ${MESON_INSTALL_DESTDIR_PREFIX}/share/doc/
