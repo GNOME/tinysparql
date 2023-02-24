@@ -831,8 +831,8 @@ update_async_cb (GObject      *source,
 }
 
 static void
-batch_async_order (TestFixture   *test_fixture,
-                   gconstpointer  context)
+batch_async_simultaneous (TestFixture   *test_fixture,
+                          gconstpointer  context)
 {
 	TrackerBatch *batch1, *batch2;
 	TrackerResource *resource;
@@ -841,14 +841,14 @@ batch_async_order (TestFixture   *test_fixture,
 
 	date = g_date_time_new_from_iso8601 ("2022-12-04T01:01:01Z", NULL);
 
-	/* Ensure batches are still executed in the given order, despite asynchronously */
+	/* Ensure batches get both executed, despite asynchronously */
 	batch1 = tracker_sparql_connection_create_batch (test_fixture->conn);
 	resource = create_photo_resource (test_fixture, "http://example.com/j", "png", date, TRUE, 234, 1.23456789012);
 	tracker_batch_add_resource (batch1, NULL, resource);
 	g_object_unref (resource);
 
 	batch2 = tracker_sparql_connection_create_batch (test_fixture->conn);
-	resource = create_photo_resource (test_fixture, "http://example.com/j", "png", date, FALSE, 123, 0.12345678901);
+	resource = create_photo_resource (test_fixture, "http://example.com/j2", "png", date, FALSE, 123, 0.12345678901);
 	tracker_batch_add_resource (batch2, NULL, resource);
 	g_object_unref (resource);
 
@@ -860,7 +860,67 @@ batch_async_order (TestFixture   *test_fixture,
 
 	g_main_loop_run (data.loop);
 
-	assert_photo (test_fixture, "http://example.com/j", "png", date, FALSE, 123, 0.12345678901);
+	assert_photo (test_fixture, "http://example.com/j", "png", date, TRUE, 234, 1.23456789012);
+	assert_photo (test_fixture, "http://example.com/j2", "png", date, FALSE, 123, 0.12345678901);
+
+	g_main_loop_unref (data.loop);
+	g_object_unref (batch1);
+	g_object_unref (batch2);
+	g_date_time_unref (date);
+}
+
+static void
+batch_async_same_item (TestFixture   *test_fixture,
+                       gconstpointer  context)
+{
+	g_autoptr (TrackerSparqlCursor) cursor = NULL;
+	TrackerBatch *batch1, *batch2;
+	TrackerResource *resource;
+	GDateTime *date;
+	AsyncData data;
+	GError *error = NULL;
+
+	date = g_date_time_new_from_iso8601 ("2022-12-04T01:01:01Z", NULL);
+
+	/* Ensure changes from both batches get applied to
+	 * the same resource, despite asynchronously */
+	batch1 = tracker_sparql_connection_create_batch (test_fixture->conn);
+	resource = tracker_resource_new ("http://example.com/j3");
+	tracker_resource_add_uri (resource, "rdf:type", "nie:DataObject");
+	tracker_batch_add_resource (batch1, NULL, resource);
+	g_object_unref (resource);
+
+	batch2 = tracker_sparql_connection_create_batch (test_fixture->conn);
+	resource = tracker_resource_new ("http://example.com/j3");
+	tracker_resource_add_uri (resource, "rdf:type", "nie:InformationElement");
+	tracker_batch_add_resource (batch2, NULL, resource);
+	g_object_unref (resource);
+
+	data.count = 2;
+	data.loop = g_main_loop_new (NULL, FALSE);
+
+	tracker_batch_execute_async (batch1, NULL, update_async_cb, &data);
+	tracker_batch_execute_async (batch2, NULL, update_async_cb, &data);
+
+	g_main_loop_run (data.loop);
+
+	cursor = get_cursor (test_fixture, "http://example.com/j3");
+	/* nrl:added */
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	/* nrl:modified */
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	/* rdf:type */
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_RDF "type");
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 1, NULL), ==, TRACKER_PREFIX_NIE "DataObject");
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_RDF "type");
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 1, NULL), ==, TRACKER_PREFIX_NIE "InformationElement");
+	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_RDF "type");
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 1, NULL), ==, TRACKER_PREFIX_RDFS "Resource");
+	g_assert_false (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_no_error (error);
 
 	g_main_loop_unref (data.loop);
 	g_object_unref (batch1);
@@ -1039,7 +1099,8 @@ TestInfo tests[] = {
 	{ "statement/bnodes", batch_statement_bnodes },
 	{ "statement/bnodes-same-batch", batch_statement_bnodes_same_batch },
 	{ "mixed/bnodes", batch_bnodes },
-	{ "async/order", batch_async_order },
+	{ "async/simultaneous", batch_async_simultaneous },
+	{ "async/same-item", batch_async_same_item },
 	{ "error/transaction", batch_transaction_error },
 };
 
