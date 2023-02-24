@@ -35,7 +35,7 @@ triple of the form:
 
 Or expressed visually:
 
-![Triple Graph](images/triple-graph-1.png)
+![Triple Graph](triple-graph-1.png)
 
 Subject and object are 2 graph vertices and the predicate is the edge,
 the accumulation of those triples form the full graph. For example,
@@ -65,7 +65,7 @@ the following triples:
 
 Would visually generate the following graph:
 
-![Triple Graph](images/triple-graph-2.png)
+![Triple Graph](triple-graph-2.png)
 
 The dot after each triple is not (just) there for legibility, but is
 part of the syntax. The RDF triples in full length are quite
@@ -282,7 +282,7 @@ SELECT ?song ?songTitle ?albumTitle {
 ```
 
 Stop a bit to think on the graph pattern expressed in the last query:
-![Graph Pattern](images/triple-graph-3.png)
+![Graph Pattern](triple-graph-3.png)
 
 This pattern on one hand consists of specified data (eg. `?song` must be
 a `nmm:MusicPiece`, it must have a `nmm:musicAlbum` and a `nie:title`,
@@ -547,7 +547,7 @@ sets of `subject predicate object`. A single predicate like that
 is the simplest property path there is, it relates subject and object
 directly via a labeled arrow.
 
-![](images/triple-graph-1.png)
+![](triple-graph-1.png)
 
 Property paths make it possible to define more complex connections
 between subject and object (literally, paths of properties). The `/`
