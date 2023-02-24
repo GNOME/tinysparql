@@ -499,11 +499,11 @@ print_toc_classes (FILE                 *f,
 }
 
 void
-generate_keywords (TrackerOntologyModel       *model,
-		   TrackerOntologyDescription *description,
-		   GFile                      *output_location,
-		   GList                      *classes,
-		   GList                      *properties)
+generate_devhelp_keywords (TrackerOntologyModel       *model,
+			   TrackerOntologyDescription *description,
+			   GFile                      *output_location,
+			   GList                      *classes,
+			   GList                      *properties)
 {
 	gchar *path, *filename;
 	GFile *file;
@@ -538,6 +538,74 @@ generate_keywords (TrackerOntologyModel       *model,
 			   description->localPrefix,
 			   prop->shortname);
 	}
+
+	g_object_unref (file);
+	fclose (f);
+}
+
+void
+generate_search_terms (TrackerOntologyModel       *model,
+		       TrackerOntologyDescription *description,
+		       GFile                      *output_location,
+		       GList                      *classes,
+		       GList                      *properties)
+{
+	gchar *path, *filename;
+	GFile *file;
+	GList *l;
+	FILE *f;
+	gboolean first = TRUE;
+
+	filename = g_strdup_printf ("%s-ontology.index.json", description->localPrefix);
+	file = g_file_get_child (output_location, filename);
+	g_free (filename);
+
+	path = g_file_get_path (file);
+	f = fopen (path, "w");
+	g_assert (f != NULL);
+	g_free (path);
+
+	g_fprintf (f, "{\"symbols\":[");
+
+	for (l = classes; l != NULL; l = l->next) {
+		TrackerOntologyClass *klass;
+		g_autofree gchar *desc = NULL;
+
+		if (!first)
+			g_fprintf (f, ",");
+
+		klass = tracker_ontology_model_get_class (model, l->data);
+		if (klass->description)
+			desc = g_strescape (klass->description, NULL);
+
+		g_fprintf (f, "{\"type\": \"content\", \"name\":\"%s\",\"href\":\"%s-ontology.html#%s\",\"summary\":\"%s\"}",
+			   klass->shortname,
+			   description->localPrefix,
+			   klass->shortname,
+		           desc ? desc : "");
+		first = FALSE;
+	}
+
+	for (l = properties; l != NULL; l = l->next) {
+		TrackerOntologyProperty *prop;
+		g_autofree gchar *desc = NULL;
+
+		if (!first)
+			g_fprintf (f, ",");
+
+		prop = tracker_ontology_model_get_property (model, l->data);
+		if (prop->description)
+			desc = g_strescape (prop->description, NULL);
+
+		g_fprintf (f, "{\"type\": \"content\", \"name\":\"%s\",\"href\":\"%s-ontology.html#%s\",\"summary\":\"%s\"}",
+			   prop->shortname,
+			   description->localPrefix,
+			   prop->shortname,
+		           desc ? desc : "");
+		first = FALSE;
+	}
+
+	g_fprintf (f, "]}");
 
 	g_object_unref (file);
 	fclose (f);
@@ -620,7 +688,8 @@ ttl_md_print (TrackerOntologyDescription *description,
 
 	print_md_footer (f, description);
 
-	generate_keywords (model, description, output_location, classes, properties);
+	generate_devhelp_keywords (model, description, output_location, classes, properties);
+	generate_search_terms (model, description, output_location, classes, properties);
 
 	g_free (upper_name);
 	g_free (introduction);
