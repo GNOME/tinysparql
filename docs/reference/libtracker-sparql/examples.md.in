@@ -29,21 +29,20 @@ main loop is not blocked while these operations are executed.
 Once you end up with the query, remember to call [method@Tracker.SparqlCursor.close].
 The same applies to [method@Tracker.SparqlConnection.close] when no longer needed.
 
-<div class="gi-lang-c">
-
+In C:
+```c
 {{ examples/connection-example.c }}
+```
 
-</div>
-<div class="gi-lang-python">
-
+In Python:
+```python
 {{ examples/connection-example.py }}
+```
 
-</div>
-<div class="gi-lang-javascript">
-
+In Javascript:
+```js
 {{ examples/connection-example.js }}
-
-</div>
+```
 
 ## Creating a private database
 
@@ -65,21 +64,20 @@ main loop is not blocked while these operations are executed.
 
 Once you no longer need the connection, remember to call [method@Tracker.SparqlConnection.close].
 
-<div class="gi-lang-c">
-
+In C:
+```c
 {{ examples/private-store-example.c }}
+```
 
-</div>
-<div class="gi-lang-python">
-
+In Python:
+```python
 {{ examples/private-store-example.py }}
+```
 
-</div>
-<div class="gi-lang-javascript">
-
+In Javascript:
+```js
 {{ examples/private-store-example.js }}
-
-</div>
+```
 
 ## Creating a SPARQL endpoint
 
@@ -92,21 +90,20 @@ concretely the creation of a D-Bus endpoint, that other applications
 may query e.g. through a connection created with
 [ctor@Tracker.SparqlConnection.bus_new].
 
-<div class="gi-lang-c">
-
+In C:
+```c
 {{ examples/endpoint-example.c }}
+```
 
-</div>
-<div class="gi-lang-python">
-
+In Python:
+``` python
 {{ examples/endpoint-example.py }}
+```
 
-</div>
-<div class="gi-lang-javascript">
-
+In Javascript:
+```js
 {{ examples/endpoint-example.js }}
-
-</div>
+```
 
 ## Receiving notification on changes
 
@@ -119,18 +116,17 @@ on changes of certain RDF classes (Those with the
 This example demonstrates the use of [class@Tracker.Notifier] to receive
 notifications on database updates.
 
-<div class="gi-lang-c">
-
+In C:
+```c
 {{ examples/notifier-example.c }}
+```
 
-</div>
-<div class="gi-lang-python">
-
+In Python:
+```python
 {{ examples/notifier-example.py }}
+```
 
-</div>
-<div class="gi-lang-javascript">
-
+In Javascript:
+```js
 {{ examples/notifier-example.js }}
-
-</div>
+```

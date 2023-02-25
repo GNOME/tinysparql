@@ -75,9 +75,18 @@ foreach doc : generated_files
     depends: [base_ontology_docs, nepomuk_ontology_docs])
 endforeach
 
+examples = custom_target(
+  'examples',
+  input: 'examples.md.in',
+  output: 'examples.md',
+  command: [
+    'embed-files.py',
+    '@INPUT@',
+    '@OUTPUT@',
+  ])
+
+overview = ['overview.md']
 content = [
-  'overview.md',
-  'examples.md',
   'tutorial.md',
   'ontologies.md',
   'sparql-functions.md',
@@ -90,7 +99,7 @@ content = [
 
 # The TOML gi-docgen configuration wants a list of quoted file names.
 content_quoted = []
-foreach c : content + generated_content
+foreach c : overview + fs.name(examples.full_path()) + content + generated_content
   content_quoted += '"@0@"'.format(c)
 endforeach
 
@@ -117,8 +126,8 @@ reference = custom_target(
     '--content-dir=@0@'.format(meson.current_build_dir()),
     '@INPUT1@',
   ],
-  depends: [tracker_sparql_gir[0], generated_targets],
-  depend_files: content)
+  depends: [tracker_sparql_gir[0], generated_targets, examples],
+  depend_files: [overview, content])
 
 docs_name = 'Tracker-3.0'
 meson.add_install_script('install-devhelp.sh', docs_name, reference)
