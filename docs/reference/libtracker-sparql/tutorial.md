@@ -1,32 +1,33 @@
----
-title: SPARQL Tutorial
-short-description: SPARQL Tutorial
+Title: SPARQL Tutorial
+Slug: sparql-tutorial
 ...
 
-# SPARQL Tutorial
+This document aims to introduce you to RDF and SPARQL from the ground
+up, up to a point where SPARQL queries will become familiar and approachable
+to reason about.
 
-This tutorial aims to introduce you to RDF and SPARQL from the ground
-up. All examples come from the Nepomuk ontology, and even though
+Different RDF triple stores may have different data layouts. All examples
+in this tutorial come from the Nepomuk ontology, and even though
 the tutorial aims to be generic enough, it mentions things
-specific to Tracker, those are clearly spelled out.
+specific to Tracker. Those are clearly spelled out.
 
 If you are reading this tutorial, you might also have Tracker installed
 in your system, if that is the case you can for example start a fresh
 empty SPARQL service for local testing:
 
 ```bash
-$ tracker3 endpoint --dbus-service a.b.c --ontology nepomuk
+$ tracker3 endpoint --dbus-service org.example.Endpoint --ontology nepomuk
 ```
 
 The queries can be run in this specific service with:
 
 ```bash
-$ tracker3 sparql --dbus-service a.b.c --query $SPARQL_QUERY
+$ tracker3 sparql --dbus-service org.example.Endpoint --query $SPARQL_QUERY
 ```
 
 ## RDF Triples
 
-RDF data define a graph, composed by vertices and edges. This graph is
+RDF data defines a graph, composed by vertices and edges. This graph is
 directed, because edges point from one vertex to another, and it is
 labeled, as those edges have a name. The unit of data in RDF is a
 triple of the form:
@@ -316,7 +317,7 @@ ASK {
 
 Sadly, not everything in the world can be trivially mapped to
 a URI, as an aide Tracker offers helpers to generate URIs based
-on UUIDv4 identifiers like [](tracker_sparql_get_uuid_urn),
+on UUIDv4 identifiers like [func@Tracker.sparql_get_uuid_urn],
 these generated strings are typically called URNs.
 
 The `BASE` keyword allows setting a common prefix for all URIs
@@ -701,8 +702,8 @@ SELECT ?song ?value {
 ```
 
 To learn more about how ontologies are done, read the documentation about
-[defining ontologies](ontologies.md). Tracker also provides a stock
-[Nepomuk](nepomuk.md) ontology, ready for use.
+[defining ontologies](ontologies.html#creating-custom-ontologies). Tracker also provides a stock
+[Nepomuk](ontologies.html#nepomuk) ontology, ready for use.
 
 ## Inserting data
 
@@ -856,8 +857,8 @@ Where any second insert would be redundantly attempting to add the same
 triple to the store.
 
 By default, Tracker deviates from the SPARQL standard in the handling
-of blank nodes, these are considered a generator of URIs. The
-[](TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES) flag may be used to
+of blank nodes, these are considered a generator of URIs.
+The #TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES flag may be used to
 make Tracker honor the SPARQL 1.1 standard with those. The standard
 defines blank nodes as truly anonymous, you can only use them to determine
 that there is something that matches the graph pattern you defined. The
@@ -871,7 +872,7 @@ SELECT ?u {
 ```
 
 Tracker by default will provide you with URNs that can be fed into other
-SPARQL queries as URIs. With [](TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES)
+SPARQL queries as URIs. With #TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES
 enabled, the returned elements will be temporary names that can only be used to
 determine the existence of a distinct match. There, blank nodes can match named
 nodes, but named nodes do not match with blank nodes.
@@ -1072,8 +1073,7 @@ to query information in RDF data graphs) very thoroughly, it also has some
 unusual features that make it able to scale from small private databases
 to large distributed ones.
 
-This is not all that there is, and perhaps the "everything is a graph" mindset
-takes a while to think intuitively about to anyone with a background in
-relational databases. The purpose that this tutorial hopefully achieved is
-that SPARQL queries will now look familiar, and became approachable to reason
-about.
+Perhaps the "everything is a graph" mindset takes a while to think intuitively
+about to anyone with a background in relational databases. As with any complex
+language, mastery requires dedication. This is probably just the beginning of a
+journey.

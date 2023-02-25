@@ -1,12 +1,9 @@
----
-title: SPARQL as understood by Tracker
-short-description: SPARQL as understood by Tracker
-...
+Title: SPARQL as understood by Tracker
+slug: sparql-and-tracker
 
-# SPARQL as understood by Tracker
-
-This section describes the choices made by Tracker in its interpretation
-of the SPARQL documents, as well as its extensions and divergences.
+This document describes the choices made by Tracker in its interpretation
+of the SPARQL documents, as well as the ways it diverges or extends on the
+specifications.
 
 ## The default graph
 
@@ -37,13 +34,13 @@ the RDF abstract syntax, a blank node is just a unique node that can
 be used in one or more RDF statements, but has no intrinsic name.
 ```
 
-By default Tracker treats blank nodes as an URI generator instead. The
+By default, Tracker does instead treat blank nodes as an URI generator. The
 string referencing a blank node (e.g. as returned by cursors) permanently
 identifies that blank node and can be used as an URI reference in
 future queries.
 
 The blank node behavior defined in the RDF/SPARQL specifications can
-be enabled with the [](TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES)
+be enabled with the #TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES
 flag.
 
 ## Property functions
@@ -277,7 +274,7 @@ are treated as parameters at query time, so it is possible
 to prepare a query statement once and reuse it many times
 assigning different values to those parameters at query time.
 
-See [](TrackerSparqlStatement) documentation for more information.
+See [class@Tracker.SparqlStatement] documentation for more information.
 
 ## Full-text search
 
@@ -305,5 +302,5 @@ The DESCRIBE form returns a single result RDF graph containing RDF data about re
 ```
 
 In order to allow serialization to RDF formats that allow expressing graph information
-(e.g. Trig), DESCRIBE resultsets have 4 columns for subject / predicate / object / graph
-information.
+(e.g. [Trig](https://www.w3.org/TR/trig/)), DESCRIBE resultsets have 4 columns for
+subject / predicate / object / graph information.

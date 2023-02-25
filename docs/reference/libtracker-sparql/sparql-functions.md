@@ -1,17 +1,14 @@
----
-title: Builtin SPARQL functions
-short-description: Builtin SPARQL functions
-...
-
-# Builtin SPARQL functions
+Title: Builtin SPARQL functions
+slug: sparql-functions
 
 Besides the functions built in the SPARQL 1.1 syntax, type casts
 and functional properties, Tracker supports a number of SPARQL
-functions. Some of these functions have correspondences in XPath.
+functions. Some of these functions have correspondences in
+[XPath](https://www.w3.org/TR/xpath-31/).
 
-## String functions
+# String functions
 
-### `fn:lower-case`
+## `fn:lower-case`
 
 ```SPARQL
 fn:lower-case (?string)
@@ -19,7 +16,7 @@ fn:lower-case (?string)
 
 Converts a string to lowercase, equivalent to `LCASE`.
 
-### `fn:upper-case`
+## `fn:upper-case`
 
 ```SPARQL
 fn:upper-case (?string)
@@ -27,7 +24,7 @@ fn:upper-case (?string)
 
 Converts a string to uppercase, equivalent to `UCASE`.
 
-### `fn:contains`
+## `fn:contains`
 
 ```SPARQL
 fn:contains (?haystack, ?needle)
@@ -36,7 +33,7 @@ fn:contains (?haystack, ?needle)
 Returns a boolean indicating whether `?needle` is
 found in `?haystack`. Equivalent to `CONTAINS`.
 
-### `fn:starts-with`
+## `fn:starts-with`
 
 ```SPARQL
 fn:starts-with (?string, ?prefix)
@@ -45,7 +42,7 @@ fn:starts-with (?string, ?prefix)
 Returns a boolean indicating whether `?string`
 starts with `?prefix`. Equivalent to `STRSTARTS`.
 
-### `fn:ends-with`
+## `fn:ends-with`
 
 ```SPARQL
 fn:ends-with (?string, ?suffix)
@@ -54,7 +51,7 @@ fn:ends-with (?string, ?suffix)
 Returns a boolean indicating whether `?string`
 ends with `?suffix`. Equivalent to `STRENDS`.
 
-### `fn:substring`
+## `fn:substring`
 
 ```SPARQL
 fn:substring (?string, ?startLoc)
@@ -65,7 +62,7 @@ Returns a substring delimited by the integer
 `?startLoc` and `?endLoc` arguments. If `?endLoc`
 is omitted, the end of the string is used.
 
-### `fn:concat`
+## `fn:concat`
 
 ```SPARQL
 fn:concat (?string1, ?string2, ..., ?stringN)
@@ -74,7 +71,7 @@ fn:concat (?string1, ?string2, ..., ?stringN)
 Takes a variable number of arguments and returns a string concatenation
 of all its returned values. Equivalent to `CONCAT`.
 
-### `fn:string-join`
+## `fn:string-join`
 
 ```SPARQL
 fn:string-join ((?string1, ?string2, ...), ?separator)
@@ -83,7 +80,7 @@ fn:string-join ((?string1, ?string2, ...), ?separator)
 Takes a variable number of arguments and returns a string concatenation
 using `?separator` to join all elements.
 
-### `fn:replace`
+## `fn:replace`
 
 ```SPARQL
 fn:replace (?string, ?regex, ?replacement)
@@ -111,7 +108,7 @@ If `?flags` contains the character `“i”`, search is caseless.
 If `?flags` contains the character `“x”`, `?regex` is
 interpreted to be an extended regular expression.
 
-### `tracker:case-fold`
+## `tracker:case-fold`
 
 ```SPARQL
 tracker:case-fold (?string)
@@ -119,7 +116,7 @@ tracker:case-fold (?string)
 
 Converts a string into a form that is independent of case.
 
-### `tracker:title-order`
+## `tracker:title-order`
 
 ```SPARQL
 tracker:title-order (?string)
@@ -128,7 +125,7 @@ tracker:title-order (?string)
 Manipulates a string to remove leading articles for sorting
 purposes, e.g. “Wall, The”. Best used in `ORDER BY` clauses.
 
-### `tracker:ascii-lower-case`
+## `tracker:ascii-lower-case`
 
 ```SPARQL
 tracker:ascii-lower-case (?string)
@@ -136,7 +133,7 @@ tracker:ascii-lower-case (?string)
 
 Converts an ASCII string to lowercase, equivalent to `LCASE`.
 
-### `tracker:normalize`
+## `tracker:normalize`
 
 ```SPARQL
 tracker:normalize (?string, ?option)
@@ -145,7 +142,7 @@ tracker:normalize (?string, ?option)
 Normalizes `?string`. The `?option` string must be one of
 `nfc`, `nfd`, `nfkc` or `nfkd`.
 
-### `tracker:unaccent`
+## `tracker:unaccent`
 
 ```SPARQL
 tracker:unaccent (?string)
@@ -153,7 +150,7 @@ tracker:unaccent (?string)
 
 Removes accents from a string.
 
-### `tracker:coalesce`
+## `tracker:coalesce`
 
 ```SPARQL
 tracker:coalesce (?value1, ?value2, ..., ?valueN)
@@ -161,7 +158,7 @@ tracker:coalesce (?value1, ?value2, ..., ?valueN)
 
 Picks the first non-null value. Equivalent to `COALESCE`.
 
-### `tracker:strip-punctuation`
+## `tracker:strip-punctuation`
 
 ``` SPARQL
 tracker:strip-punctuation (?string)
@@ -170,9 +167,9 @@ tracker:strip-punctuation (?string)
 Removes any Unicode character which has the General
 Category value of P (Punctuation) from the string.
 
-## DateTime functions
+# DateTime functions
 
-### `fn:year-from-dateTime`
+## `fn:year-from-dateTime`
 
 ```SPARQL
 fn:year-from-dateTime (?date)
@@ -182,7 +179,7 @@ Returns the year from a `xsd:date` type, a `xsd:dateTime`
 type, or a ISO8601 date string. This function is equivalent
 to `YEAR`.
 
-### `fn:month-from-dateTime`
+## `fn:month-from-dateTime`
 
 ```SPARQL
 fn:month-from-dateTime (?date)
@@ -191,7 +188,7 @@ fn:month-from-dateTime (?date)
 Returns the month from a `xsd:date` type, a `xsd:dateTime`
 type, or a ISO8601 date string. This function is equivalent to `MONTH`.
 
-### `fn:day-from-dateTime`
+## `fn:day-from-dateTime`
 
 ```SPARQL
 fn:day-from-dateTime (?date)
@@ -200,7 +197,7 @@ fn:day-from-dateTime (?date)
 Returns the day from a `xsd:date` type, a `xsd:dateTime`
 type, or a ISO8601 date string. This function is equivalent to `DAY`.
 
-### `fn:hours-from-dateTime`
+## `fn:hours-from-dateTime`
 
 ```SPARQL
 fn:hours-from-dateTime (?date)
@@ -209,7 +206,7 @@ fn:hours-from-dateTime (?date)
 Returns the hours from a `xsd:dateTime` type or a ISO8601
 datetime string. This function is equivalent to `HOURS`.
 
-### `fn:minutes-from-dateTime`
+## `fn:minutes-from-dateTime`
 
 ```SPARQL
 fn:minutes-from-dateTime (?date)
@@ -219,7 +216,7 @@ Returns the minutes from a `xsd:dateTime` type
 or a ISO8601 datetime string. This function is equivalent to
 `MINUTES`.
 
-### `fn:seconds-from-dateTime`
+## `fn:seconds-from-dateTime`
 
 ```SPARQL
 fn:seconds-from-dateTime (?date)
@@ -229,7 +226,7 @@ Returns the seconds from a `xsd:dateTime` type
 or a ISO8601 datetime string. This function is equivalent to
 `SECONDS`.
 
-### `fn:timezone-from-dateTime`
+## `fn:timezone-from-dateTime`
 
 ```SPARQL
 fn:timezone-from-dateTime (?date)
@@ -240,7 +237,7 @@ not equivalent to `TIMEZONE` or `TZ`.
 
 ## Full-text search functions
 
-### `fts:rank`
+## `fts:rank`
 
 ```SPARQL
 fts:rank (?match)
@@ -249,7 +246,7 @@ fts:rank (?match)
 Returns the rank of a full-text search match. Must be
 used in conjunction with `fts:match`.
 
-### `fts:offsets`
+## `fts:offsets`
 
 ```SPARQL
 fts:offsets (?match)
@@ -263,7 +260,7 @@ string has the format:
 prefix:property:offset prefix:property:offset prefix:property:offset
 ```
 
-### `fts:snippet`
+## `fts:snippet`
 
 ```SPARQL
 fts:snippet (?match)
@@ -284,9 +281,9 @@ the string used to separate distant matches in the snippet string.
 The `?numTokens` parameter specifies the number
 of tokens the returned string should containt at most.
 
-## URI functions
+# URI functions
 
-### `tracker:uri-is-parent`
+## `tracker:uri-is-parent`
 
 ```SPARQL
 tracker:uri-is-parent (?parent, ?uri)
@@ -295,7 +292,7 @@ tracker:uri-is-parent (?parent, ?uri)
 Returns a boolean value expressing whether
 `?parent` is a parent of `?uri`.
 
-### `tracker:uri-is-descendant`
+## `tracker:uri-is-descendant`
 
 ```SPARQL
 tracker:uri-is-descendant (?uri1, ?uri2, ..., ?uriN, ?child)
@@ -305,7 +302,7 @@ Returns a boolean value expressing whether one of the
 given URIs are a parent (direct or indirect) of
 `?child`.
 
-### `tracker:string-from-filename`
+## `tracker:string-from-filename`
 
 ```SPARQL
 tracker:string-from-filename (?filename)
@@ -313,9 +310,9 @@ tracker:string-from-filename (?filename)
 
 Returns a UTF-8 string from a filename.
 
-## Geolocation functions
+# Geolocation functions
 
-### `tracker:cartesian-distance`
+## `tracker:cartesian-distance`
 
 ```SPARQL
 tracker:cartesian-distance (?lat1, ?lat2, ?lon1, ?lon2)
@@ -324,7 +321,7 @@ tracker:cartesian-distance (?lat1, ?lat2, ?lon1, ?lon2)
 Calculates the cartesian distance between 2 points expressed
 by `?lat1 / ?lon1` and `?lat2 / ?lon2`.
 
-### `tracker:haversine-distance`
+## `tracker:haversine-distance`
 
 ```SPARQL
 tracker:haversine-distance (?lat1, ?lat2, ?lon1, ?lon2)
@@ -333,9 +330,9 @@ tracker:haversine-distance (?lat1, ?lat2, ?lon1, ?lon2)
 Calculates the haversine distance between 2 points expressed
 by `?lat1 / ?lon1` and `?lat2 / ?lon2`.
 
-## Identification functions
+# Identification functions
 
-### `tracker:id`
+## `tracker:id`
 
 ```SPARQL
 tracker:id (?urn)
@@ -344,7 +341,7 @@ tracker:id (?urn)
 Returns the internal ID corresponding to a URN.
 Its inverse operation is `tracker:uri`.
 
-### `tracker:uri`
+## `tracker:uri`
 
 ```SPARQL
 tracker:uri (?id)

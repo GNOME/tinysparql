@@ -45,6 +45,7 @@ nepomuk_ontology_docs = custom_target('nepomuk-docgen',
 generated_content = [
   'xsd-ontology.md',
   'rdf-ontology.md',
+  'rdfs-ontology.md',
   'nrl-ontology.md',
   'dc-ontology.md',
 

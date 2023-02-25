@@ -1,18 +1,16 @@
----
-title: Security
-short-description: Security considerations
-...
-
-# Security considerations
+Title: Security considerations
+Slug: security-considerations
 
 The SPARQL 1.1 specifications have a number of informative `Security
-considerations` sections. This section describes how those possibly
-apply to the implementation of Tracker.
+considerations` sections. This is an informative document describing how
+those may or may not apply to the implementation of Tracker.
 
 Note that most of these considerations derive from situations where
-a SPARQL store is exposed through a public endpoint, while Tracker
+a RDF triple store is exposed through a public endpoint, while Tracker
 does not do that by default. Users should be careful about creating
 endpoints. For D-Bus endpoints, access through the portal is encouraged.
+
+# SPARQL specifications
 
 ## Queries
 
@@ -81,7 +79,7 @@ sandboxed process have all SERVICE access restricted.
 
 Tracker developers encourage that all access to endpoints created on D-Bus
 happen through the portal, and that all HTTP endpoints validate the provenance
-of the requests through the [](TrackerEndpointHttp::block-remote-address)
+of the requests through the [signal@Tracker.EndpointHttp::block_remote_address]
 signal to limit access to resources.
 
 (From [https://www.w3.org/TR/sparql11-protocol/#policy-security](https://www.w3.org/TR/sparql11-protocol/#policy-security))
@@ -103,7 +101,7 @@ processing services.
 
 Tracker does not perform any time or frequency rate limits to queries. HTTP
 endpoints may perform the latter through the
-[](TrackerEndpointHttp::block-remote-address) signal.
+[signal@Tracker.EndpointHttp::block_remote_address] signal.
 
 ## Updates
 
@@ -155,6 +153,27 @@ all the way to the public API. As an additional layer of security, readonly
 queries happen on readonly database connections. It is essentially not possible
 to perform any data change from the query APIs.
 
+## IRIs
+
+IRIs are a cornerstone of RDF data, since individual RDF resources are typically
+named through them. Quoting [https://www.w3.org/TR/sparql11-protocol/#policy-security](https://www.w3.org/TR/sparql11-protocol/#policy-security):
+
+```
+Different IRIs may have the same appearance. Characters in different scripts
+may look similar (a Cyrillic "о" may appear similar to a Latin "o"). A
+character followed by combining characters may have the same visual
+representation as another character (LATIN SMALL LETTER E followed by
+COMBINING ACUTE ACCENT has the same visual representation as LATIN SMALL
+LETTER E WITH ACUTE). Users of SPARQL must take care to construct queries
+with IRIs that match the IRIs in the data. Further information about matching
+of similar characters can be found in Unicode Security Considerations
+[UNISEC] and Internationalized Resource Identifiers (IRIs) [RFC3987]
+Section 8.
+```
+
+The situations where this might be a source of confusion or mischief, or even
+be possible depends on how those IRIs are created, used, displayed or
+inserted.
 
 # API user considerations
 
@@ -165,27 +184,11 @@ considerations and take some precautions:
  * For local D-Bus endpoints, consider using a graph partitioning scheme that
    makes it easy to policy the access to the data when accessed through the
    portal.
- * Avoid the possibility of injection attacks. Use [](TrackerSparqlStatement)
+ * Avoid the possibility of injection attacks. Use [class@Tracker.SparqlStatement]
    and avoid string-based approaches to build SPARQL queries from user input.
- * Consider that IRIs are susceptible to homograph attacks. Quoting
-   https://www.w3.org/TR/sparql11-protocol/#policy-security:
-
-   ```
-   Different IRIs may have the same appearance. Characters in different scripts
-   may look similar (a Cyrillic "о" may appear similar to a Latin "o"). A
-   character followed by combining characters may have the same visual
-   representation as another character (LATIN SMALL LETTER E followed by
-   COMBINING ACUTE ACCENT has the same visual representation as LATIN SMALL
-   LETTER E WITH ACUTE). Users of SPARQL must take care to construct queries
-   with IRIs that match the IRIs in the data. Further information about matching
-   of similar characters can be found in Unicode Security Considerations
-   [UNISEC] and Internationalized Resource Identifiers (IRIs) [RFC3987]
-   Section 8.
-   ```
-
-   The situations where this might be a source of confusion or mischief, or even
-   be possible depends on how those IRIs are created, used, displayed or
-   inserted.
+ * Consider that IRIs describing RDF resources are susceptible to homograph
+   attacks as described above. Developers are not exempt of validating
+   external input that might end up stored as-is.
 
 
 # Feature grid
