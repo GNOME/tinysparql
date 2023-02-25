@@ -554,7 +554,7 @@ ttl_md_print (TrackerOntologyDescription *description,
 	GList *l;
 	FILE *f;
 
-	filename = g_strdup_printf ("%s-ontology.md", description->localPrefix);
+	filename = g_strdup_printf ("%s-ontology.md.in", description->localPrefix);
 	file = g_file_get_child (output_location, filename);
 	g_free (filename);
 
