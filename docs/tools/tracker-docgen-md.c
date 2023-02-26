@@ -368,6 +368,7 @@ print_md_header (FILE *f, TrackerOntologyDescription *desc)
 	g_fprintf (f, "Title: %s\n", desc->title);
 	g_fprintf (f, "Slug: %s-ontology\n\n", desc->localPrefix);
 	g_fprintf (f, "%s\n\n", desc->description);
+	g_fprintf (f, "<style>img { display: inline-block }</style>\n");
 }
 
 static void
