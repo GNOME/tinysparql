@@ -57,6 +57,12 @@ print_predefined_instances (FILE                 *f,
 
 	if (!klass->instances)
 		return;
+	if (g_str_equal (klass->shortname, "rdfs:Resource") ||
+	    g_str_equal (klass->shortname, "rdfs:DataType") ||
+	    g_str_equal (klass->shortname, "rdfs:Class") ||
+	    g_str_equal (klass->shortname, "rdf:Property") ||
+	    g_str_equal (klass->shortname, "nie:InformationElement"))
+		return;
 
 	id = klass->shortname;
 
