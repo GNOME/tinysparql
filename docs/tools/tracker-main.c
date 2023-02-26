@@ -135,6 +135,8 @@ main (gint argc, gchar **argv)
 			ttl_xml_print (description, model, prefixes[i], output_file, introduction_dir);
 		else if (markdown)
 			ttl_md_print (description, model, prefixes[i], output_file, introduction_dir);
+
+		ttl_generate_dot_files (description, model, prefixes[i], output_file);
 	}
 
 	g_strfreev (prefixes);

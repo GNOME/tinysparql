@@ -9,6 +9,7 @@ endif
 
 gidocgen_dep = dependency('gi-docgen', fallback: ['gi-docgen', 'dummy_dep'])
 gidocgen = find_program('gi-docgen')
+graphviz_dot = find_program('dot')
 
 ontology_introductions = [
   'nie-introduction.md',
@@ -58,6 +59,16 @@ generated_files = [
   'osinfo-ontology.md.in',
 ]
 
+generate_images = custom_target(
+  'doc-images',
+  output: 'rdfs:Resource-hierarchy.svg',
+  command: [
+    'generate-svgs.sh',
+    graphviz_dot,
+    meson.current_build_dir(),
+  ],
+  depends: [base_ontology_docs, nepomuk_ontology_docs])
+
 generated_targets = []
 generated_content = []
 
@@ -72,7 +83,7 @@ foreach doc : generated_files
       meson.current_build_dir() / doc,
       meson.current_build_dir() / output_file,
     ],
-    depends: [base_ontology_docs, nepomuk_ontology_docs])
+    depends: [base_ontology_docs, nepomuk_ontology_docs, generate_images])
 endforeach
 
 examples = custom_target(

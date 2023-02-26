@@ -81,31 +81,18 @@ print_class_hierarchy (FILE                 *f,
                        TrackerOntologyClass *klass,
                        TrackerOntologyModel *model)
 {
-	GPtrArray *strings;
 	const gchar *id;
-	guint i;
 
-	strings = class_get_parent_hierarchy_strings (klass, model);
-
-	if (!strings)
+	if (!klass->superclasses && !klass->subclasses)
+		return;
+	if (g_str_equal (klass->shortname, "nie:InformationElement"))
 		return;
 
 	id = klass->shortname;
-
 	g_fprintf (f, "#### <a name=\"%s.hierarchy\"></a>Class hierarchy\n\n", id);
-	g_fprintf (f, "```\n");
-
-	for (i = 0; i < strings->len; i++) {
-		HierarchyString *str = g_ptr_array_index (strings, i);
-
-		g_fprintf (f, "%s%s%s\n",
-			   str->before->str,
-			   str->class->shortname,
-			   str->after->str);
-	}
-
-	g_fprintf (f, "```\n\n");
-	g_ptr_array_unref (strings);
+	g_fprintf (f, "<div class=\"docblock\">\n");
+	g_fprintf (f, "{{ %s-hierarchy.svg }}\n", id);
+	g_fprintf (f, "</div>\n");
 }
 
 static void
