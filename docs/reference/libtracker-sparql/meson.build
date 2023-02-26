@@ -41,7 +41,17 @@ nepomuk_ontology_docs = custom_target('nepomuk-docgen',
     depend_files: [nepomuk, ontology_introductions],
 )
 
-generated_files = [
+generate_images = custom_target(
+  'doc-images',
+  output: 'rdfs:Resource-hierarchy.svg',
+  command: [
+    'generate-svgs.sh',
+    graphviz_dot,
+    meson.current_build_dir(),
+  ],
+  depends: [base_ontology_docs, nepomuk_ontology_docs])
+
+generated_ontology_files = [
   'xsd-ontology.md.in',
   'rdf-ontology.md.in',
   'rdfs-ontology.md.in',
@@ -59,22 +69,12 @@ generated_files = [
   'osinfo-ontology.md.in',
 ]
 
-generate_images = custom_target(
-  'doc-images',
-  output: 'rdfs:Resource-hierarchy.svg',
-  command: [
-    'generate-svgs.sh',
-    graphviz_dot,
-    meson.current_build_dir(),
-  ],
-  depends: [base_ontology_docs, nepomuk_ontology_docs])
-
 generated_targets = []
-generated_content = []
+generated_ontology_content = []
 
-foreach doc : generated_files
+foreach doc : generated_ontology_files
   output_file = doc.replace('.in', '')
-  generated_content += output_file
+  generated_ontology_content += output_file
   generated_targets += custom_target(
     output_file,
     output: output_file,
@@ -86,19 +86,29 @@ foreach doc : generated_files
     depends: [base_ontology_docs, nepomuk_ontology_docs, generate_images])
 endforeach
 
-examples = custom_target(
-  'examples',
-  input: 'examples.md.in',
-  output: 'examples.md',
-  command: [
-    'embed-files.py',
-    '@INPUT@',
-    '@OUTPUT@',
-  ])
+generated_content_files = [
+  'examples.md.in',
+  'tutorial.md.in',
+]
+
+generated_content = []
+
+foreach doc : generated_content_files
+  output_file = doc.replace('.in', '')
+  generated_content += output_file
+  generated_targets += custom_target(
+    output_file,
+    input: doc,
+    output: output_file,
+    command: [
+      'embed-files.py',
+      '@INPUT@',
+      '@OUTPUT@',
+    ])
+endforeach
 
 overview = ['overview.md']
 content = [
-  'tutorial.md',
   'ontologies.md',
   'sparql-functions.md',
   'sparql-and-tracker.md',
@@ -110,7 +120,7 @@ content = [
 
 # The TOML gi-docgen configuration wants a list of quoted file names.
 content_quoted = []
-foreach c : overview + fs.name(examples.full_path()) + content + generated_content
+foreach c : overview + generated_content + content + generated_ontology_content
   content_quoted += '"@0@"'.format(c)
 endforeach
 
@@ -137,7 +147,7 @@ reference = custom_target(
     '--content-dir=@0@'.format(meson.current_build_dir()),
     '@INPUT1@',
   ],
-  depends: [tracker_sparql_gir[0], generated_targets, examples],
+  depends: [tracker_sparql_gir[0], generated_targets],
   depend_files: [overview, content])
 
 docs_name = 'Tracker-3.0'
