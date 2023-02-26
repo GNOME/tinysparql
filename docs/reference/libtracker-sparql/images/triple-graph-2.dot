@@ -1,9 +1,9 @@
 digraph G {
   rankdir=LR;
-  graph [bgcolor="#00000000"];
-  node [fontname="Cantarell", style="filled", shape="ellipse", color="#000000", fillcolor="#d8e5e5"]; "http://example.com/Song", "nfo:FileDataObject", "nmm:MusicPiece", "http://example.com/Album", "http://example.com/Jason", "http://example.com/Marty", "http://example.com/Band";
-  node [shape="rectangle", color="#000000", fillcolor="#add8e6"]; Images, "Go Off!", "Marty Friedman", "Jason Becker", "Cacophony";
-  edge [fontname="Cantarell"];
+  bgcolor=transparent;
+  node [shape="box", border=0, fontname="sans-serif"]; Images, "Go Off!", "Marty Friedman", "Jason Becker", "Cacophony";
+  node [shape="box", style="rounded", border=0, fontname="sans-serif"];  "http://example.com/Song", "nfo:FileDataObject", "nmm:MusicPiece", "http://example.com/Album", "http://example.com/Jason", "http://example.com/Marty", "http://example.com/Band";
+  edge [fontname="sans-serif", fontsize=10];
 
   "http://example.com/Song" -> "nfo:FileDataObject" [label="rdf:type"];
   "http://example.com/Song" -> "nmm:MusicPiece" [label="rdf:type"];

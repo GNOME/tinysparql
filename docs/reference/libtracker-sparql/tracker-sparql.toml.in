@@ -41,9 +41,6 @@ content_images = [
     "images/icon-multivalue.svg",
     "images/icon-notify.svg",
     "images/icon-superproperty.svg",
-    "images/triple-graph-1.png",
-    "images/triple-graph-2.png",
-    "images/triple-graph-3.png",
 ]
 
 urlmap_file = "urlmap.js"

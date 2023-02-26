@@ -1,9 +1,10 @@
 digraph G {
   rankdir=LR;
-  graph [bgcolor="#00000000"];
-  node [fontname="Cantarell", style="filled", shape="ellipse", color="#000000", fillcolor="#d8e5e5"]; "nmm:MusicPiece";
-  node [style="filled,dotted", color="#000000", fillcolor="#ffffff"]; song, songTitle, album, albumTitle;
-  edge [fontname="Cantarell"];
+  bgcolor=transparent;
+
+  node [shape="box", style="rounded", border=0, fontname="sans-serif"]; "nmm:MusicPiece";
+  node [shape="ellipse", style="dashed", border=1, fillcolor="#000000"]; song, songTitle, album, albumTitle;
+  edge [fontname="sans-serif", fontsize=10];
 
   song -> "nmm:MusicPiece" [label="rdf:type"];
   song -> songTitle [label="nie:title"];
