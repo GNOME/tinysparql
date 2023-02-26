@@ -502,6 +502,93 @@ ttl_generate_class_hierarchy_dot (TrackerOntologyDescription *description,
 	fclose (f);
 }
 
+static void
+ttl_generate_rdf_diagram_dot (TrackerOntologyDescription *description,
+                              TrackerOntologyModel       *model,
+                              TrackerOntologyClass       *klass,
+                              GFile                      *output_location)
+{
+	gchar *path, *filename;
+	GFile *file;
+	g_autoptr(GHashTable) visited = NULL;
+	g_autofree gchar *link = NULL;
+	FILE *f;
+	GList *l;
+
+	if (!klass->subclasses && !klass->superclasses)
+		return;
+
+	filename = g_strdup_printf ("%s-diagram.dot", klass->shortname);
+	file = g_file_get_child (output_location, filename);
+	g_free (filename);
+
+	path = g_file_get_path (file);
+	f = fopen (path, "w");
+	g_assert (f != NULL);
+	g_free (path);
+
+	g_fprintf (f, "digraph G {\n");
+	g_fprintf (f, "bgcolor=\"transparent\";\n");
+	g_fprintf (f, "rankdir=LR;\n");
+
+	visited = g_hash_table_new (NULL, NULL);
+	describe_class (f, model, klass, FALSE);
+
+	for (l = klass->in_domain_of; l; l = l->next) {
+		TrackerOntologyProperty *prop;
+		TrackerOntologyClass *range;
+
+		prop = tracker_ontology_model_get_property (model, l->data);
+		range = tracker_ontology_model_get_class (model, prop->range->data);
+
+		if (g_hash_table_contains (visited, prop))
+			continue;
+
+		if (g_str_has_prefix (range->shortname, "xsd:") ||
+		    g_str_equal (range->shortname, "rdfs:Literal") ||
+		    g_str_equal (range->shortname, "rdf:langString"))
+			continue;
+
+		if (!g_hash_table_contains (visited, range)) {
+			describe_class (f, model, range, TRUE);
+			g_hash_table_add (visited, range);
+		}
+
+		link = link_from_shortname (prop->shortname);
+		g_fprintf (f, "\"%s\" -> \"%s\" [label=\"%s\", fontname=\"sans-serif\", fontsize=10, href=\"%s\"]\n",
+		           klass->shortname, range->shortname, prop->shortname,
+		           link);
+		g_hash_table_add (visited, prop);
+	}
+
+	for (l = klass->in_range_of; l; l = l->next) {
+		TrackerOntologyProperty *prop;
+		TrackerOntologyClass *domain;
+
+		prop = tracker_ontology_model_get_property (model, l->data);
+		domain = tracker_ontology_model_get_class (model, prop->domain->data);
+
+		if (g_hash_table_contains (visited, prop))
+			continue;
+
+		if (!g_hash_table_contains (visited, domain)) {
+			describe_class (f, model, domain, TRUE);
+			g_hash_table_add (visited, domain);
+		}
+
+		link = link_from_shortname (prop->shortname);
+		g_fprintf (f, "\"%s\" -> \"%s\" [label=\"%s\", fontname=\"sans-serif\", fontsize=10, href=\"%s\"]\n",
+		           domain->shortname, klass->shortname, prop->shortname,
+		           link);
+		g_hash_table_add (visited, prop);
+	}
+
+	g_fprintf (f, "}");
+
+	g_object_unref (file);
+	fclose (f);
+}
+
 void
 ttl_generate_dot_files (TrackerOntologyDescription *description,
                         TrackerOntologyModel       *model,
@@ -519,5 +606,6 @@ ttl_generate_dot_files (TrackerOntologyDescription *description,
 		klass = tracker_ontology_model_get_class (model, l->data);
 
 		ttl_generate_class_hierarchy_dot (description, model, klass, output_location);
+		ttl_generate_rdf_diagram_dot (description, model, klass, output_location);
 	}
 }

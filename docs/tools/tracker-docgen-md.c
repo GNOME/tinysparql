@@ -95,6 +95,54 @@ print_class_hierarchy (FILE                 *f,
 	g_fprintf (f, "</div>\n");
 }
 
+static gboolean
+check_range_non_literals (GList                *properties,
+                          TrackerOntologyModel *model)
+{
+	GList *l;
+
+	for (l = properties; l; l = l->next) {
+		TrackerOntologyProperty *prop;
+		TrackerOntologyClass *domain;
+
+		prop = tracker_ontology_model_get_property (model, l->data);
+		domain = tracker_ontology_model_get_class (model, prop->range->data);
+
+		if (g_str_has_prefix (domain->shortname, "xsd:") ||
+		    g_str_equal (domain->shortname, "rdfs:Literal") ||
+		    g_str_equal (domain->shortname, "rdf:langString"))
+			continue;
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static void
+print_rdf_diagram (FILE                 *f,
+                   TrackerOntologyClass *klass,
+                   TrackerOntologyModel *model)
+{
+	const gchar *id;
+
+	if (!klass->in_range_of &&
+	    !check_range_non_literals (klass->in_domain_of, model))
+		return;
+
+	id = klass->shortname;
+	g_fprintf (f, "#### <a name=\"%s.hierarchy\"></a>RDF Diagram\n\n", id);
+	g_fprintf (f, "<div class=\"docblock\">\n");
+	g_fprintf (f,
+	           "<style>"
+	           "svg .edge:hover a { text-decoration: none !important; fill: var(--primary); } "
+	           "svg .edge:hover path  { stroke: var(--primary); } "
+	           "svg .edge:hover polygon { fill: var(--primary); stroke: var(--primary); }"
+	           "</style>\n");
+	g_fprintf (f, "{{ %s-diagram.svg }}\n", id);
+	g_fprintf (f, "</div>\n");
+}
+
 static void
 print_flag (FILE        *f,
             const gchar *flag_property_link,
@@ -233,6 +281,7 @@ print_ontology_class (TrackerOntologyModel *model,
 	}
 
 	print_class_hierarchy (f, klass, model);
+	print_rdf_diagram (f, klass, model);
 
 	if (klass->in_domain_of) {
 		g_fprintf (f, "#### <a name=\"%s.properties\"></a>Properties\n\n", id);
