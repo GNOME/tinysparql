@@ -88,7 +88,6 @@ print_class_hierarchy (FILE                 *f,
 
 	g_fprintf (f, "#### <a name=\"%s.hierarchy\"></a>Class hierarchy\n\n", id);
 	g_fprintf (f, "```\n");
-	//g_fprintf (f, " <code>\n");
 
 	for (i = 0; i < strings->len; i++) {
 		HierarchyString *str = g_ptr_array_index (strings, i);
@@ -126,8 +125,6 @@ print_property_table (FILE                 *f,
 		return;
 
 	properties_sorted = g_list_sort (g_list_copy (properties), (GCompareFunc) strcmp);
-
-	g_fprintf (f, "#### <a name=\"%s.properties\"></a>Properties\n\n", id);
 
 	g_fprintf (f, "|Name|Type|Notes|Description|\n");
 	g_fprintf (f, "| --- | --- | --- | --- |\n");
@@ -220,11 +217,9 @@ print_ontology_class (TrackerOntologyModel *model,
 	id = klass->shortname;
 
 	/* Anchor for external links. */
-	g_fprintf (f, "### <a name=\"%s\"></a>%s\n\n", id, name);
+	g_fprintf (f, "## <a name=\"%s\"></a>%s\n\n", id, name);
 
 	if (klass->description || klass->deprecated || klass->notify) {
-		g_fprintf (f, "##### Description\n\n");
-
 		if (klass->description) {
 			g_fprintf (f, "%s\n\n", klass->description);
 		}
@@ -244,15 +239,20 @@ print_ontology_class (TrackerOntologyModel *model,
 		}
 	}
 
+	print_class_hierarchy (f, klass, model);
+
+	if (klass->in_domain_of) {
+		g_fprintf (f, "#### <a name=\"%s.properties\"></a>Properties\n\n", id);
+		print_property_table (f, model, id, klass->in_domain_of);
+	}
+
+	print_predefined_instances (f, klass, model);
+
 	if (klass->specification) {
-		g_fprintf (f, "### Specification\n");
+		g_fprintf (f, "#### Specification\n");
 		g_fprintf (f, "<%s>\n", klass->specification);
 	}
 
-	print_class_hierarchy (f, klass, model);
-	print_predefined_instances (f, klass, model);
-
-	print_property_table (f, model, id, klass->in_domain_of);
 }
 
 static void
@@ -272,10 +272,9 @@ print_ontology_extra_properties (TrackerOntologyModel *model,
 	short_classname = class_id = klass->shortname;
 	section_id = g_strconcat (ontology_prefix, ".", class_id, NULL);
 
-	g_fprintf (f, "### <a name=\"%s\"></a>Additional properties for %s\n", section_id, short_classname);
+	g_fprintf (f, "# <a name=\"%s\"></a>Additional properties for %s\n", section_id, short_classname);
 
-	g_fprintf (f, "#### Description\n");
-	g_fprintf (f, "Properties this ontology defines which can describe %s resources.\n",
+	g_fprintf (f, "Properties this ontology defines which can describe %s resources.\n\n",
 	           short_classname);
 
 	print_property_table (f, model, section_id, properties_for_class);
@@ -324,17 +323,15 @@ print_link (FILE *f,
 static void
 print_md_header (FILE *f, TrackerOntologyDescription *desc)
 {
-	g_fprintf (f, "---\n");
-	g_fprintf (f, "title: %s\n", desc->title);
-	g_fprintf (f, "short-description: %s\n", desc->description);
-	g_fprintf (f, "...\n\n");
-	g_fprintf (f, "# %s\n\n", desc->title);
+	g_fprintf (f, "Title: %s\n", desc->title);
+	g_fprintf (f, "Slug: %s-ontology\n\n", desc->localPrefix);
+	g_fprintf (f, "%s\n\n", desc->description);
 }
 
 static void
 print_md_footer (FILE *f, TrackerOntologyDescription *desc)
 {
-	g_fprintf (f, "## Credits and Copyright\n\n");
+	g_fprintf (f, "# Credits and Copyright\n\n");
 	print_people_list (f, "Authors:", desc->authors);
 	print_people_list (f, "Editors:", desc->editors);
 	print_people_list (f, "Contributors:", desc->contributors);
@@ -432,7 +429,7 @@ print_toc_classes (FILE                 *f,
 	if (!classes)
 		return;
 
-	g_fprintf (f, "## <a name=\"%s.classes\"></a>Classes\n\n", id);
+	g_fprintf (f, "The following classes are defined:\n\n");
 
 	for (l = classes; l; l = l->next) {
 		TrackerOntologyClass *klass;
@@ -446,49 +443,6 @@ print_toc_classes (FILE                 *f,
 			g_fprintf (f, ", ");
 		}
 		g_fprintf (f, "[%s](#%s)", basename, id);
-	}
-
-	g_fprintf (f, "\n\n");
-}
-
-static void
-print_toc_extra_properties (FILE                 *f,
-                            TrackerOntologyModel *model,
-                            const char           *id,
-                            GHashTable           *extra_properties)
-{
-	GList *props_for_class, *c, *l;
-	g_autoptr(GList) classes = NULL;
-	gboolean print_comma = FALSE;
-
-	if (g_hash_table_size (extra_properties) == 0)
-		return;
-
-	g_fprintf (f, "## <a name=\"%s.extra_properties\"></a>Additional Properties\n", id);
-
-	classes = g_hash_table_get_keys (extra_properties);
-	classes = g_list_sort (classes, (GCompareFunc)strcmp);
-	for (c = classes; c; c = c->next) {
-		gchar *classname;
-
-		classname = c->data;
-		props_for_class = g_hash_table_lookup (extra_properties, classname);
-		for (l = props_for_class; l; l = l->next) {
-			TrackerOntologyProperty *prop;
-			const char *basename = NULL, *prop_id = NULL;
-
-			prop = tracker_ontology_model_get_property (model, l->data);
-			basename = prop->basename;
-			prop_id = prop->shortname;
-
-			if (print_comma) {
-				g_fprintf (f, ", ");
-			} else {
-				print_comma = TRUE;
-			}
-
-			g_fprintf (f, "[%s](#%s)", basename, prop_id);
-		}
 	}
 
 	g_fprintf (f, "\n\n");
@@ -572,7 +526,6 @@ ttl_md_print (TrackerOntologyDescription *description,
 
 	print_synopsis (f, description);
 	print_toc_classes (f, model, description->localPrefix, classes);
-	print_toc_extra_properties (f, model, description->localPrefix, extra_properties);
 
 	basename = g_strdup_printf ("%s-introduction.md", description->localPrefix);
 	introduction = g_build_filename (description_dir, basename, NULL);
@@ -589,7 +542,7 @@ ttl_md_print (TrackerOntologyDescription *description,
 	}
 
 	if (classes != NULL) {
-		g_fprintf (f, "## <a name=\"%s-classes\"></a>Class Details\n\n", description->localPrefix);
+		g_fprintf (f, "# <a name=\"%s-classes\"></a>Classes\n\n", description->localPrefix);
 
 		for (l = classes; l; l = l->next) {
 			TrackerOntologyClass *klass;
@@ -600,8 +553,6 @@ ttl_md_print (TrackerOntologyDescription *description,
 	}
 
 	if (g_hash_table_size (extra_properties) > 0) {
-		g_fprintf (f, "## <a name=\"%s-extra-properties\"></a>Property Details\n\n", description->localPrefix);
-
 		extra_classes = g_hash_table_get_keys (extra_properties);
 		extra_classes = g_list_sort (extra_classes, (GCompareFunc)strcmp);
 		for (l = extra_classes; l; l = l->next) {
