@@ -5,14 +5,14 @@
 # Matic Žgur <mr.zgur@gmail.com>, 2007.
 # Andrej Žnidaršič <andrej.znidarsic@gmail.com>, 2009–2010.
 # Martin Srebotnjak <miles@filmsi.net>, 2011.
-# Matej Urbančič <mateju@src.gnome.org>, 2008–2021.
+# Matej Urbančič <mateju@src.gnome.org>, 2008–2023.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2022-08-30 21:35+0000\n"
-"PO-Revision-Date: 2022-08-31 20:45+0200\n"
+"POT-Creation-Date: 2023-02-26 07:18+0000\n"
+"PO-Revision-Date: 2023-02-27 21:32+0100\n"
 "Last-Translator: Matej Urbančič <mateju@src.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -38,13 +38,13 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "Različica"
 
-#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
-#: src/tracker/tracker-export.c:509 src/tracker/tracker-import.c:196
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:387
+#: src/tracker/tracker-export.c:543 src/tracker/tracker-import.c:196
 #: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:239
 msgid "Unrecognized options"
 msgstr "Nepoznane možnosti"
 
-#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:48
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:49
 #: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
@@ -152,61 +152,74 @@ msgstr ""
 "Ustvarjena je nova podatkovna zbirka. Uporabite zastavico »--dbus-service« "
 "za souporabo zbirke prek sporočilnega vodila."
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
 #: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "DATOTEKA"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "Vzpostavi povezavo z vodilom DBus"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
 #: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "IMe storitve DBus"
 
-#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:57
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr "Zapis odvoda zadetkov: »turtle«, »trig« ali »json-ld«"
+
+#: src/tracker/tracker-export.c:58
+msgid "RDF_FORMAT"
+msgstr "ZAPIS_RDF"
+
+#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "Vzpostavi povezavo z oddaljeno storitvijo"
 
-#: src/tracker/tracker-export.c:57 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "Naslov URI oddaljene storitve"
 
-#: src/tracker/tracker-export.c:60
+#: src/tracker/tracker-export.c:65
 msgid "Output TriG format which includes named graph information"
 msgstr "Odvodni zapis TriG, ki vključuje podatke o imenskih grafih"
 
-#: src/tracker/tracker-export.c:72 src/tracker/tracker-export.c:73
+#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:98 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
 #: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Določiti je traba možnost »--database« (zbirka), »--dbus-service« (storitev "
 "dbus), ali pa »--remote-service« (oddaljena storitev)"
 
-#: src/tracker/tracker-export.c:305 src/tracker/tracker-export.c:325
+#: src/tracker/tracker-export.c:310 src/tracker/tracker-export.c:331
 #: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1124
 msgid "No error given"
 msgstr "Ni dane napake"
 
-#: src/tracker/tracker-export.c:324 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-export.c:330 src/tracker/tracker-import.c:124
 #: src/tracker/tracker-sparql.c:1123
 msgid "Could not establish a connection to Tracker"
 msgstr "Povezave s Trackerjem ni mogoče vzpostaviti"
 
-#: src/tracker/tracker-export.c:391 src/tracker/tracker-export.c:404
-#: src/tracker/tracker-export.c:414 src/tracker/tracker-sparql.c:1502
+#: src/tracker/tracker-export.c:373
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "Nepodprt zapis zaporedja »%s«\n"
+
+#: src/tracker/tracker-export.c:425 src/tracker/tracker-export.c:438
+#: src/tracker/tracker-export.c:448 src/tracker/tracker-sparql.c:1502
 #: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
 msgid "Could not run query"
 msgstr "Poizvedbe ni mogoče zagnati"
@@ -1072,12 +1085,6 @@ msgstr "Določena mora biti pot podatkovne zbirke"
 
 #~ msgid "Could not create D-Bus proxy to tracker-store"
 #~ msgstr "Ni mogoče ustvariti posredniškega vodila D-Bus za tracker-store"
-
-#~ msgid "Output results format: “sparql”, “turtle” or “json-ld”"
-#~ msgstr "Zapis odvoda zadetkov: »sparql«, »turtle« ali »json-ld«"
-
-#~ msgid "FORMAT"
-#~ msgstr "ZAPIS"
 
 #~ msgid "Could not run tracker-extract: "
 #~ msgstr "Ni mogoče zagnati ukaza tracker-extract: "
@@ -2034,9 +2041,6 @@ msgstr "Določena mora biti pot podatkovne zbirke"
 
 #~ msgid "MODULE"
 #~ msgstr "MODUL"
-
-#~ msgid "Unsupported serialization format '%s'\n"
-#~ msgstr "Nepodprt zapis zaporedja »%s«\n"
 
 #~ msgid "- Extract file meta data"
 #~ msgstr "- Razširi metapodatke datoteke"
