@@ -82,13 +82,35 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2022-02-10.0'
-    FDO_DISTRIBUTION_PACKAGES: 'clang clang-analyzer gcovr git libasan libubsan python3-gobject python3-pip umockdev-devel xmlto uncrustify patch diffutils cmake python-devel'
+    BASE_TAG: '2023-02-27.1'
+    FDO_DISTRIBUTION_PACKAGES:
+      clang
+      clang-analyzer
+      cmake
+      diffutils
+      gcovr
+      git
+      libasan
+      libubsan
+      patch
+      python-devel
+      python3-gobject
+      python3-jinja2
+      python3-markdown
+      python3-markupsafe
+      python3-pip
+      python3-pygments
+      python3-typogrify
+      umockdev-devel
+      xmlto
+      uncrustify
+
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' 'dnf-command(download)' &&
       dnf builddep -y tracker tracker-miners --setopt=install_weak_deps=False &&
       dnf clean all &&
-      pip3 install beautifulsoup4 mkdocs mkdocs-cinder tap.py meson hotdoc &&
+
+      pip3 install beautifulsoup4 mkdocs mkdocs-cinder tap.py meson tomli &&
       # Installing gtk-doc docs with dnf does not end up with docs at
       # /usr/share/gtk-doc, https://gitlab.gnome.org/GNOME/tracker/-/issues/324
       dnf download glib2-doc &&
@@ -220,8 +242,6 @@ check-code-style:
   script:
     - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_coverage=true -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
     - ninja -C build
-    - |
-      if [ -z "$NO_DOCS" ]; then ninja -C build docs/reference/libtracker-sparql/Tracker-doc; fi
   artifacts:
     expire_in: 1 day
     paths:
@@ -380,14 +400,12 @@ test-website:
     - |
       export tracker_commit=$CI_COMMIT_SHA
       export tracker_miners_commit=$(git -C ./extra/tracker-miners rev-parse HEAD)
-      ./docs/website/build.py --output=website --api-docs="$install_prefix/share/doc/Tracker/html" --tracker-commit=${tracker_commit} --man-pages ./docs/manpages/*.txt ./extra/tracker-miners/docs/manpages/*.txt
+      ./docs/website/build.py --output=website --api-docs="$install_prefix/share/doc/Tracker-3.0" --tracker-commit=${tracker_commit} --man-pages ./docs/manpages/*.txt ./extra/tracker-miners/docs/manpages/*.txt
   artifacts:
     paths:
       - website
   needs:
     - build-fedora-container@x86_64
-  only:
-    - master
 
 coverage:
   extends:
