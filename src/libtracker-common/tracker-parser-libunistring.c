@@ -159,7 +159,7 @@ get_word_info (TrackerParser         *parser,
 /* The input word in this method MUST be normalized in NFKD form,
  * and given in UTF-8, where str_length is the byte-length
  * (note: there is no trailing NUL character!) */
-gboolean
+static gboolean
 tracker_parser_unaccent_nfkd_string (gpointer  str,
                                      gsize    *str_length)
 {
@@ -541,3 +541,66 @@ tracker_parser_next (TrackerParser *parser,
 	return str;
 }
 
+gunichar2 *
+tracker_parser_tolower (const gunichar2 *input,
+			gsize            len,
+			gsize           *len_out)
+{
+	return u16_tolower (input, len / 2, NULL, NULL, NULL, len_out);
+}
+
+gunichar2 *
+tracker_parser_toupper (const gunichar2 *input,
+                        gsize            len,
+                        gsize           *len_out)
+{
+	return u16_toupper (input, len / 2, NULL, NULL, NULL, len_out);
+}
+
+gunichar2 *
+tracker_parser_casefold (const gunichar2 *input,
+			 gsize            len,
+			 gsize           *len_out)
+{
+	return u16_casefold (input, len / 2, NULL, NULL, NULL, len_out);
+}
+
+gunichar2 *
+tracker_parser_normalize (const gunichar2 *input,
+			  GNormalizeMode   mode,
+			  gsize            len,
+			  gsize           *len_out)
+{
+	uninorm_t nf;
+
+	if (mode == G_NORMALIZE_NFC)
+		nf = UNINORM_NFC;
+	else if (mode == G_NORMALIZE_NFD)
+		nf = UNINORM_NFD;
+	else if (mode == G_NORMALIZE_NFKC)
+		nf = UNINORM_NFKC;
+	else if (mode == G_NORMALIZE_NFKD)
+		nf = UNINORM_NFKD;
+	else
+		g_assert_not_reached ();
+
+	return u16_normalize (nf, input, len / 2, NULL, len_out);
+}
+
+gunichar2 *
+tracker_parser_unaccent (const gunichar2 *input,
+			 gsize            len,
+			 gsize           *len_out)
+{
+	gunichar2 *zOutput;
+	gsize written = 0;
+
+	zOutput = u16_normalize (UNINORM_NFKD, input, len, NULL, &written);
+
+	/* Unaccenting is done in place */
+	tracker_parser_unaccent_nfkd_string (zOutput, &written);
+
+	*len_out = written;
+
+	return zOutput;
+}

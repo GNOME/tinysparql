@@ -144,7 +144,7 @@ get_word_info (const UChar           *word,
 /* The input word in this method MUST be normalized in NFKD form,
  * and given in UChars, where str_length is the number of UChars
  * (not the number of bytes) */
-gboolean
+static gboolean
 tracker_parser_unaccent_nfkd_string (gpointer  str,
                                      gsize    *str_length)
 {
@@ -754,3 +754,187 @@ tracker_parser_next (TrackerParser *parser,
 	return str;
 }
 
+gunichar2 *
+tracker_parser_tolower (const gunichar2 *input,
+			gsize            len,
+			gsize           *len_out)
+{
+	UChar *zOutput;
+	int nOutput;
+	UErrorCode status = U_ZERO_ERROR;
+
+	g_return_val_if_fail (input, NULL);
+
+	nOutput = len * 2 + 2;
+	zOutput = malloc (nOutput);
+
+	u_strToLower (zOutput, nOutput / 2,
+		      input, len / 2,
+		      NULL, &status);
+
+	if (!U_SUCCESS (status)) {
+		memcpy (zOutput, input, len);
+		zOutput[len] = '\0';
+		nOutput = len;
+	}
+
+	*len_out = nOutput;
+
+	return zOutput;
+}
+
+gunichar2 *
+tracker_parser_toupper (const gunichar2 *input,
+			gsize            len,
+			gsize           *len_out)
+{
+	UChar *zOutput;
+	int nOutput;
+	UErrorCode status = U_ZERO_ERROR;
+
+	nOutput = len * 2 + 2;
+	zOutput = malloc (nOutput);
+
+	u_strToUpper (zOutput, nOutput / 2,
+		      input, len / 2,
+		      NULL, &status);
+
+	if (!U_SUCCESS (status)) {
+		memcpy (zOutput, input, len);
+		zOutput[len] = '\0';
+		nOutput = len;
+	}
+
+	*len_out = nOutput;
+
+	return zOutput;
+}
+
+gunichar2 *
+tracker_parser_casefold (const gunichar2 *input,
+			 gsize            len,
+			 gsize           *len_out)
+{
+	UChar *zOutput;
+	int nOutput;
+	UErrorCode status = U_ZERO_ERROR;
+
+	nOutput = len * 2 + 2;
+	zOutput = malloc (nOutput);
+
+	u_strFoldCase (zOutput, nOutput / 2,
+		       input, len / 2,
+		       U_FOLD_CASE_DEFAULT, &status);
+
+	if (!U_SUCCESS (status)){
+		memcpy (zOutput, input, len);
+		zOutput[len] = '\0';
+		nOutput = len;
+	}
+
+	*len_out = nOutput;
+
+	return zOutput;
+}
+
+static gunichar2 *
+normalize_string (const gunichar2    *string,
+                  gsize               string_len, /* In gunichar2s */
+                  const UNormalizer2 *normalizer,
+                  gsize              *len_out,    /* In gunichar2s */
+                  UErrorCode         *status)
+{
+	int nOutput;
+	gunichar2 *zOutput;
+
+	nOutput = (string_len * 2) + 1;
+	zOutput = g_new0 (gunichar2, nOutput);
+
+	nOutput = unorm2_normalize (normalizer, string, string_len, zOutput, nOutput, status);
+
+	if (*status == U_BUFFER_OVERFLOW_ERROR) {
+		/* Try again after allocating enough space for the normalization */
+		*status = U_ZERO_ERROR;
+		zOutput = g_renew (gunichar2, zOutput, nOutput);
+		memset (zOutput, 0, nOutput * sizeof (gunichar2));
+		nOutput = unorm2_normalize (normalizer, string, string_len, zOutput, nOutput, status);
+	}
+
+	if (!U_SUCCESS (*status)) {
+		g_clear_pointer (&zOutput, g_free);
+		nOutput = 0;
+	}
+
+	if (len_out)
+		*len_out = nOutput;
+
+	return zOutput;
+}
+
+gunichar2 *
+tracker_parser_normalize (const gunichar2 *input,
+                          GNormalizeMode   mode,
+			  gsize            len,
+			  gsize           *len_out)
+{
+	uint16_t *zOutput = NULL;
+	gsize nOutput;
+	const UNormalizer2 *normalizer;
+	UErrorCode status = U_ZERO_ERROR;
+
+	if (mode == G_NORMALIZE_NFC)
+		normalizer = unorm2_getNFCInstance (&status);
+	else if (mode == G_NORMALIZE_NFD)
+		normalizer = unorm2_getNFDInstance (&status);
+	else if (mode == G_NORMALIZE_NFKC)
+		normalizer = unorm2_getNFKCInstance (&status);
+	else if (mode == G_NORMALIZE_NFKD)
+		normalizer = unorm2_getNFKDInstance (&status);
+	else
+		g_assert_not_reached ();
+
+	if (U_SUCCESS (status)) {
+		zOutput = normalize_string (input, len / 2,
+					    normalizer,
+					    &nOutput, &status);
+	}
+
+	if (!U_SUCCESS (status)) {
+		zOutput = g_memdup2 (input, len);
+		nOutput = len;
+	}
+
+	*len_out = nOutput;
+
+	return zOutput;
+}
+
+gunichar2 *
+tracker_parser_unaccent (const gunichar2 *input,
+			 gsize            len,
+			 gsize           *len_out)
+{
+	uint16_t *zOutput = NULL;
+	gsize nOutput;
+	const UNormalizer2 *normalizer;
+	UErrorCode status = U_ZERO_ERROR;
+
+	normalizer = unorm2_getNFKDInstance (&status);
+
+	if (U_SUCCESS (status)) {
+		zOutput = normalize_string (input, len / 2,
+					    normalizer,
+					    &nOutput, &status);
+	}
+
+	if (!U_SUCCESS (status)) {
+		zOutput = g_memdup2 (input, len);
+	}
+
+	/* Unaccenting is done in place */
+	tracker_parser_unaccent_nfkd_string (zOutput, &nOutput);
+
+	*len_out = nOutput;
+
+	return zOutput;
+}

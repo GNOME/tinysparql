@@ -59,8 +59,26 @@ void           tracker_parser_free            (TrackerParser   *parser);
 
 /* Other helper methods */
 
-gboolean       tracker_parser_unaccent_nfkd_string (gpointer  str,
-                                                    gsize    *str_length);
+gunichar2 * tracker_parser_tolower (const gunichar2 *input,
+                                    gsize            len,
+                                    gsize           *len_out);
+
+gunichar2 * tracker_parser_toupper (const gunichar2 *input,
+                                    gsize            len,
+                                    gsize           *len_out);
+
+gunichar2 * tracker_parser_casefold (const gunichar2 *input,
+                                     gsize            len,
+                                     gsize           *len_out);
+
+gunichar2 * tracker_parser_normalize (const gunichar2 *input,
+                                      GNormalizeMode   mode,
+                                      gsize            len,
+                                      gsize           *len_out);
+
+gunichar2 * tracker_parser_unaccent (const gunichar2 *input,
+                                     gsize            len,
+                                     gsize           *len_out);
 
 G_END_DECLS
 
