@@ -32,7 +32,6 @@
 #include <unicode/unorm.h>
 #include <unicode/ucol.h>
 
-#include "tracker-locale.h"
 #include "tracker-debug.h"
 #include "tracker-parser.h"
 #include "tracker-parser-utils.h"
@@ -764,10 +763,10 @@ tracker_collation_init (void)
 {
 	UCollator *collator = NULL;
 	UErrorCode status = U_ZERO_ERROR;
-	gchar *locale;
+	const gchar *locale;
 
 	/* Get locale! */
-	locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
+	locale = setlocale (LC_COLLATE, NULL);
 
 	TRACKER_NOTE (COLLATION, g_message ("[ICU collation] Initializing collator for locale '%s'", locale));
 	collator = ucol_open (locale, &status);
@@ -782,7 +781,6 @@ tracker_collation_init (void)
 			            u_errorName (status));
 		}
 	}
-	g_free (locale);
 
 	return collator;
 }
