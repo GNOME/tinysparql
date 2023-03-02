@@ -37,7 +37,7 @@ G_BEGIN_DECLS
 /* Parser */
 typedef struct TrackerParser TrackerParser;
 
-TrackerParser *tracker_parser_new             (TrackerLanguage *language);
+TrackerParser *tracker_parser_new             (void);
 
 void           tracker_parser_reset           (TrackerParser   *parser,
                                                const gchar     *txt,

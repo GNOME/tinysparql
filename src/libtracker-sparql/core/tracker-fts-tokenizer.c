@@ -38,7 +38,6 @@ typedef struct TrackerTokenizer TrackerTokenizer;
 typedef struct TrackerTokenizerFunctionData TrackerTokenizerFunctionData;
 
 struct TrackerTokenizerData {
-	TrackerLanguage *language;
 	TrackerDBManagerFlags flags;
 };
 
@@ -65,7 +64,7 @@ tracker_tokenizer_create (void           *data,
 
 	tokenizer = g_new0 (TrackerTokenizer, 1);
 	tokenizer->data = data;
-	tokenizer->parser = tracker_parser_new (tokenizer->data->language);
+	tokenizer->parser = tracker_parser_new ();
 
 	*tokenizer_out = (Fts5Tokenizer *) tokenizer;
 
@@ -159,7 +158,6 @@ tracker_tokenizer_data_new (TrackerDBManagerFlags flags)
 	TrackerTokenizerData *p;
 
 	p = g_new0 (TrackerTokenizerData, 1);
-	p->language = tracker_language_new (NULL);
 	p->flags = flags;
 
 	return p;
@@ -170,7 +168,6 @@ tracker_tokenizer_data_free (gpointer user_data)
 {
 	TrackerTokenizerData *data = user_data;
 
-	g_object_unref (data->language);
 	g_free (data);
 }
 

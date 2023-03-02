@@ -30,6 +30,7 @@
 #include <unictype.h>
 #include <unicase.h>
 
+#include "tracker-language.h"
 #include "tracker-parser.h"
 #include "tracker-parser-utils.h"
 
@@ -427,15 +428,12 @@ parser_next (TrackerParser *parser,
 }
 
 TrackerParser *
-tracker_parser_new (TrackerLanguage *language)
+tracker_parser_new (void)
 {
 	TrackerParser *parser;
 
-	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
-
 	parser = g_new0 (TrackerParser, 1);
-
-	parser->language = g_object_ref (language);
+	parser->language = tracker_language_new (NULL);
 
 	return parser;
 }
