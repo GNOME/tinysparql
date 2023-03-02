@@ -28,7 +28,6 @@
 #include <gio/gio.h>
 
 #include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-locale.h>
 
 #include <tracker-test-helpers.h>
 

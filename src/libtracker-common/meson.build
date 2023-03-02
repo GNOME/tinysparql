@@ -6,7 +6,6 @@ tracker_common_sources = [
   'tracker-file-utils.c',
   'tracker-term-utils.c',
   'tracker-utils.c',
-  'tracker-locale.c',
   'tracker-parser-utils.c',
   'tracker-language.c',
 ]

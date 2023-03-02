@@ -28,7 +28,6 @@
 
 #include <libtracker-common/tracker-date-time.h>
 #include <libtracker-common/tracker-debug.h>
-#include <libtracker-common/tracker-locale.h>
 #include <libtracker-common/tracker-parser.h>
 
 #include <libtracker-sparql/tracker-cursor.h>
