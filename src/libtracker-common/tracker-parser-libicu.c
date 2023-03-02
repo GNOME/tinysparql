@@ -766,7 +766,6 @@ tracker_collation_init (void)
 	/* Get locale! */
 	locale = setlocale (LC_COLLATE, NULL);
 
-	TRACKER_NOTE (COLLATION, g_message ("[ICU collation] Initializing collator for locale '%s'", locale));
 	collator = ucol_open (locale, &status);
 	if (!collator) {
 		g_warning ("[ICU collation] Collator for locale '%s' cannot be created: %s",
