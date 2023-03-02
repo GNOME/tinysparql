@@ -187,58 +187,6 @@ tracker_collation_utf8 (gpointer      collator,
 		return -1;
 	return 0;
 }
-
-#else /* ---- GLib based collation ---- */
-
-gpointer
-tracker_collation_init (void)
-{
-	gchar *locale;
-
-	/* Get locale! */
-	locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
-	TRACKER_NOTE (COLLATION, g_message ("[GLib collation] Initializing collator for locale '%s'", locale));
-	g_free (locale);
-	/* Nothing to do */
-	return NULL;
-}
-
-void
-tracker_collation_shutdown (gpointer collator)
-{
-	/* Nothing to do */
-}
-
-gint
-tracker_collation_utf8 (gpointer      collator,
-                        gint          len1,
-                        gconstpointer str1,
-                        gint          len2,
-                        gconstpointer str2)
-{
-	gint result;
-	gchar *aux1;
-	gchar *aux2;
-
-	/* Note: str1 and str2 are NOT NUL-terminated */
-	aux1 = (len1 < MAX_STACK_STR_SIZE) ? g_alloca (len1+1) : g_malloc (len1+1);
-	aux2 = (len2 < MAX_STACK_STR_SIZE) ? g_alloca (len2+1) : g_malloc (len2+1);
-
-	memcpy (aux1, str1, len1); aux1[len1] = '\0';
-	memcpy (aux2, str2, len2); aux2[len2] = '\0';
-
-	result = g_utf8_collate (aux1, aux2);
-
-	trace ("(GLib) Collating '%s' and '%s' (%d)",
-	       aux1, aux2, result);
-
-	if (len1 >= MAX_STACK_STR_SIZE)
-		g_free (aux1);
-	if (len2 >= MAX_STACK_STR_SIZE)
-		g_free (aux2);
-	return result;
-}
-
 #endif
 
 static gboolean
