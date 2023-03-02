@@ -34,6 +34,7 @@
 
 G_BEGIN_DECLS
 
+/* Parser */
 typedef struct TrackerParser TrackerParser;
 
 TrackerParser *tracker_parser_new             (TrackerLanguage *language);
@@ -56,6 +57,17 @@ const gchar *  tracker_parser_next            (TrackerParser   *parser,
                                                gint            *word_length);
 
 void           tracker_parser_free            (TrackerParser   *parser);
+
+/* Collation */
+gpointer tracker_collation_init (void);
+
+void tracker_collation_shutdown (gpointer collator);
+
+gint tracker_collation_utf8 (gpointer      collator,
+                             gint          len1,
+                             gconstpointer str1,
+                             gint          len2,
+                             gconstpointer str2);
 
 /* Other helper methods */
 

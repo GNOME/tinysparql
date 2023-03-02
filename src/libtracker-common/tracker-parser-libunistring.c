@@ -40,6 +40,9 @@ typedef enum {
 	TRACKER_PARSER_WORD_TYPE_OTHER_NO_UNAC,
 } TrackerParserWordType;
 
+/* If string lenth less than this value, allocating from the stack */
+#define MAX_STACK_STR_SIZE 8192
+
 /* Max possible length of a UTF-8 encoded string (just a safety limit) */
 #define WORD_BUFFER_LENGTH 512
 
@@ -539,6 +542,46 @@ tracker_parser_next (TrackerParser *parser,
 	*byte_offset_end = byte_end;
 
 	return str;
+}
+
+gpointer
+tracker_collation_init (void)
+{
+	/* Nothing to do */
+	return NULL;
+}
+
+void
+tracker_collation_shutdown (gpointer collator)
+{
+	/* Nothing to do */
+}
+
+gint
+tracker_collation_utf8 (gpointer      collator,
+                        gint          len1,
+                        gconstpointer str1,
+                        gint          len2,
+                        gconstpointer str2)
+{
+	gint result;
+	guchar *aux1;
+	guchar *aux2;
+
+	/* Note: str1 and str2 are NOT NUL-terminated */
+	aux1 = (len1 < MAX_STACK_STR_SIZE) ? g_alloca (len1+1) : g_malloc (len1+1);
+	aux2 = (len2 < MAX_STACK_STR_SIZE) ? g_alloca (len2+1) : g_malloc (len2+1);
+
+	memcpy (aux1, str1, len1); aux1[len1] = '\0';
+	memcpy (aux2, str2, len2); aux2[len2] = '\0';
+
+	result = u8_strcoll (aux1, aux2);
+
+	if (len1 >= MAX_STACK_STR_SIZE)
+		g_free (aux1);
+	if (len2 >= MAX_STACK_STR_SIZE)
+		g_free (aux2);
+	return result;
 }
 
 gunichar2 *

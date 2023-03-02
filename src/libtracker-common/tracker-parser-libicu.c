@@ -30,7 +30,10 @@
 #include <unicode/ustring.h>
 #include <unicode/uchar.h>
 #include <unicode/unorm.h>
+#include <unicode/ucol.h>
 
+#include "tracker-locale.h"
+#include "tracker-debug.h"
 #include "tracker-parser.h"
 #include "tracker-parser-utils.h"
 
@@ -40,6 +43,8 @@ typedef enum {
 	TRACKER_PARSER_WORD_TYPE_OTHER_UNAC,
 	TRACKER_PARSER_WORD_TYPE_OTHER_NO_UNAC,
 } TrackerParserWordType;
+
+typedef UCollator TrackerCollator;
 
 /* Max possible length of a UChar encoded string (just a safety limit) */
 #define WORD_BUFFER_LENGTH 512
@@ -752,6 +757,74 @@ tracker_parser_next (TrackerParser *parser,
 	*byte_offset_end = byte_end;
 
 	return str;
+}
+
+gpointer
+tracker_collation_init (void)
+{
+	UCollator *collator = NULL;
+	UErrorCode status = U_ZERO_ERROR;
+	gchar *locale;
+
+	/* Get locale! */
+	locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
+
+	TRACKER_NOTE (COLLATION, g_message ("[ICU collation] Initializing collator for locale '%s'", locale));
+	collator = ucol_open (locale, &status);
+	if (!collator) {
+		g_warning ("[ICU collation] Collator for locale '%s' cannot be created: %s",
+		           locale, u_errorName (status));
+		/* Try to get UCA collator then... */
+		status = U_ZERO_ERROR;
+		collator = ucol_open ("root", &status);
+		if (!collator) {
+			g_critical ("[ICU collation] UCA Collator cannot be created: %s",
+			            u_errorName (status));
+		}
+	}
+	g_free (locale);
+
+	return collator;
+}
+
+void
+tracker_collation_shutdown (gpointer collator)
+{
+	if (collator)
+		ucol_close ((UCollator *)collator);
+}
+
+gint
+tracker_collation_utf8 (gpointer      collator,
+                        gint          len1,
+                        gconstpointer str1,
+                        gint          len2,
+                        gconstpointer str2)
+{
+	UErrorCode status = U_ZERO_ERROR;
+	UCharIterator iter1;
+	UCharIterator iter2;
+	UCollationResult result;
+
+	/* Collator must be created before trying to collate */
+	g_return_val_if_fail (collator, -1);
+
+	/* Setup iterators */
+	uiter_setUTF8 (&iter1, str1, len1);
+	uiter_setUTF8 (&iter2, str2, len2);
+
+	result = ucol_strcollIter ((UCollator *)collator,
+	                           &iter1,
+	                           &iter2,
+	                           &status);
+	if (status != U_ZERO_ERROR)
+		g_critical ("Error collating: %s", u_errorName (status));
+
+	if (result == UCOL_GREATER)
+		return 1;
+	if (result == UCOL_LESS)
+		return -1;
+	return 0;
 }
 
 gunichar2 *
