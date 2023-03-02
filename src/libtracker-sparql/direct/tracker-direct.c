@@ -503,8 +503,6 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	conn = TRACKER_DIRECT_CONNECTION (initable);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	tracker_locale_sanity_check ();
-
 	if (!set_up_thread_pools (conn, error))
 		return FALSE;
 

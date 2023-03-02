@@ -38,8 +38,6 @@ typedef enum {
 	TRACKER_LOCALE_LAST
 } TrackerLocaleID;
 
-void         tracker_locale_sanity_check  (void);
-
 /* Get the current locale of the given type.
  * Note that it returns a newly-allocated string which should be g_free()-ed
  */

@@ -26,14 +26,6 @@
 
 #include "tracker-locale.h"
 
-static const gchar *locale_names[] = {
-	[TRACKER_LOCALE_LANGUAGE] = "LANG",
-	[TRACKER_LOCALE_TIME]     = "LC_TIME",
-	[TRACKER_LOCALE_COLLATE]  = "LC_COLLATE",
-	[TRACKER_LOCALE_NUMERIC]  = "LC_NUMERIC",
-	[TRACKER_LOCALE_MONETARY] = "LC_MONETARY"
-};
-
 static GRecMutex locales_mutex;
 
 static const gchar *
@@ -63,26 +55,6 @@ tracker_locale_get_unlocked (TrackerLocaleID id)
 	}
 
 	return env_locale;
-}
-
-void
-tracker_locale_sanity_check (void)
-{
-	guint i;
-
-	g_rec_mutex_lock (&locales_mutex);
-
-	for (i = 0; i < TRACKER_LOCALE_LAST; i++) {
-		const gchar *env_locale = NULL;
-
-		env_locale = tracker_locale_get_unlocked (i);
-
-		if (!env_locale) {
-			g_warning ("Locale '%s' is not set, defaulting to C locale", locale_names[i]);
-		}
-	}
-
-	g_rec_mutex_unlock (&locales_mutex);
 }
 
 gchar *
