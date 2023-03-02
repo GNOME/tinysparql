@@ -88,7 +88,7 @@ get_word_info (TrackerParser         *parser,
 
 	/* Get first character of the word as UCS4 */
 	first_unichar_len = u8_strmbtouc (&first_unichar,
-	                                  &(parser->txt[parser->cursor]));
+	                                  (const guchar *) &(parser->txt[parser->cursor]));
 	if (first_unichar_len <= 0) {
 		/* This should only happen if NIL was passed to u8_strmbtouc,
 		 *  so better just force stop here */
@@ -110,7 +110,7 @@ get_word_info (TrackerParser         *parser,
 		i = parser->cursor + first_unichar_len;
 		while (1) {
 			/* Text bounds reached? */
-			if (i >= parser->txt_size)
+			if (i >= (gsize) parser->txt_size)
 				break;
 			/* Proper unicode word break detected? */
 			if (parser->word_break_flags[i])
@@ -185,7 +185,7 @@ tracker_parser_unaccent_nfkd_string (gpointer  str,
 		gint utf8_len;
 
 		/* Get next character of the word as UCS4 */
-		utf8_len = u8_strmbtouc (&unichar, &word[i]);
+		utf8_len = u8_strmbtouc (&unichar, (const guchar *) &word[i]);
 
 		/* Invalid UTF-8 character or end of original string. */
 		if (utf8_len <= 0) {
@@ -253,12 +253,12 @@ process_word_utf8 (TrackerParser         *parser,
 		/* Casefold and NFKD normalization in output.
 		 * NOTE: if the output buffer is not big enough, u8_casefold will
 		 * return a newly-allocated buffer. */
-		normalized = u8_casefold ((const uint8_t *)word,
-		                          length,
-		                          uc_locale_language (),
-		                          UNINORM_NFKD,
-		                          word_buffer,
-		                          &new_word_length);
+		normalized = (gchar*) u8_casefold ((const uint8_t *)word,
+		                                   length,
+		                                   uc_locale_language (),
+		                                   UNINORM_NFKD,
+		                                   (guchar *) word_buffer,
+		                                   &new_word_length);
 
 		/* Case folding + Normalization failed, ignore this word */
 		g_return_val_if_fail (normalized != NULL, NULL);
@@ -279,7 +279,7 @@ process_word_utf8 (TrackerParser         *parser,
 
 		normalized = length > WORD_BUFFER_LENGTH ? g_malloc (length + 1) : word_buffer;
 
-		for (i = 0; i < length; i++) {
+		for (i = 0; i < (gsize) length; i++) {
 			normalized[i] = g_ascii_tolower (word[i]);
 		}
 
@@ -349,7 +349,7 @@ parser_next (TrackerParser *parser,
 
 	/* Loop to look for next valid word */
 	while (!processed_word &&
-	       parser->cursor < parser->txt_size) {
+	       parser->cursor < (gsize) parser->txt_size) {
 		TrackerParserWordType type;
 		gsize truncated_length;
 		gboolean is_allowed;
