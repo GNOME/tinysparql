@@ -43,20 +43,16 @@ static const GDBusErrorEntry tracker_sparql_error_entries[] =
 
 G_STATIC_ASSERT (G_N_ELEMENTS (tracker_sparql_error_entries) == TRACKER_SPARQL_N_ERRORS);
 
-/**
- * tracker_sparql_error_quark:
- *
- * Returns: The error domain quark used for Tracker errors.
- **/
 GQuark
 tracker_sparql_error_quark (void)
 {
-       static volatile gsize quark_volatile = 0;
-       g_dbus_error_register_error_domain ("tracker-sparql-error-quark",
-                                           &quark_volatile,
-                                           tracker_sparql_error_entries,
-                                           G_N_ELEMENTS (tracker_sparql_error_entries));
-       return (GQuark) quark_volatile;
+	static gsize quark = 0;
+
+	g_dbus_error_register_error_domain ("tracker-sparql-error-quark",
+	                                    &quark,
+	                                    tracker_sparql_error_entries,
+	                                    G_N_ELEMENTS (tracker_sparql_error_entries));
+	return (GQuark) quark;
 }
 
 /* Converts internal error codes into public

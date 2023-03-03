@@ -17,30 +17,38 @@
  * Boston, MA  02110-1301, USA.
  */
 /**
- * SECTION: tracker-sparql-statement
- * @short_description: Prepared statements
- * @title: TrackerSparqlStatement
- * @stability: Stable
- * @include: tracker-sparql.h
+ * TrackerSparqlStatement:
  *
- * The <structname>TrackerSparqlStatement</structname> object represents
- * a SPARQL query. This query may contain parameterized variables
- * (expressed as ~var in the syntax), which may be mapped to arbitrary
- * values prior to execution. This statement may be reused for future
+ * `TrackerSparqlStatement` represents a prepared statement for a SPARQL query.
+ *
+ * The SPARQL query will be internally compiled into the format that is most
+ * optimal to execute the query many times. For connections created
+ * through [ctor@Tracker.SparqlConnection.new] that will be a
+ * SQLite compiled statement.
+ *
+ * The SPARQL query may contain parameterized variables expressed via the
+ * `~` prefix in the SPARQL syntax (e.g. `~var`), these may happen anywhere
+ * in the SPARQL where a literal or variable would typically happen. These
+ * parameterized variables may be mapped to arbitrary values prior to
+ * execution. The `TrackerSparqlStatement` may be reused for future
  * queries with different values.
  *
- * The argument bindings may be changed through tracker_sparql_statement_bind_int(),
- * tracker_sparql_statement_bind_boolean(), tracker_sparql_statement_bind_double()
- * and tracker_sparql_statement_bind_string(). Those functions receive
- * a @name argument corresponding for the variable name in the SPARQL query
- * (eg. "var" for ~var) and a @value to map the variable to.
+ * The argument bindings may be changed through the [method@Tracker.SparqlStatement.bind_int],
+ * [method@Tracker.SparqlStatement.bind_int], etc... family of functions. Those functions
+ * receive a @name argument corresponding for the variable name in the SPARQL query
+ * (eg. `"var"` for `~var`) and a value to map the variable to.
  *
  * Once all arguments have a value, the query may be executed through
- * tracker_sparql_statement_execute() or tracker_sparql_statement_execute_async().
+ * [method@Tracker.SparqlStatement.execute_async] or [method@Tracker.SparqlStatement.execute].
  *
- * It is possible to use a given #TrackerSparqlStatement in other threads than
- * the one it was created from. It must be however used from just one thread
- * at any given time.
+ * It is possible to use any `TrackerSparqlStatement` from other threads than
+ * the one it was created from. However, binding values and executing the
+ * statement must only happen from one thread at a time. It is possible to reuse
+ * the `TrackerSparqlStatement` right after [method@Tracker.SparqlStatement.execute_async]
+ * was called, there is no need to wait for [method@Tracker.SparqlStatement.execute_finish].
+ *
+ * In some circumstances, it is possible that the query needs to be recompiled
+ * from the SPARQL source. This will happen transparently.
  */
 #include "config.h"
 
@@ -135,7 +143,7 @@ tracker_sparql_statement_class_init (TrackerSparqlStatementClass *klass)
 	/**
 	 * TrackerSparqlStatement:connection:
 	 *
-	 * The #TrackerSparqlConnection used to perform the query.
+	 * The [class@Tracker.SparqlConnection] the statement was created for.
 	 */
 	props[PROP_CONNECTION] =
 		g_param_spec_object ("connection",
@@ -166,9 +174,9 @@ tracker_sparql_statement_class_init (TrackerSparqlStatementClass *klass)
 
 /**
  * tracker_sparql_statement_get_connection:
- * @stmt: a #TrackerSparqlStatement
+ * @stmt: a `TrackerSparqlStatement`
  *
- * Returns the #TrackerSparqlConnection that this statement was created from.
+ * Returns the [class@Tracker.SparqlConnection] that this statement was created for.
  *
  * Returns: (transfer none): The SPARQL connection of this statement.
  **/
@@ -184,7 +192,7 @@ tracker_sparql_statement_get_connection (TrackerSparqlStatement *stmt)
 
 /**
  * tracker_sparql_statement_get_sparql:
- * @stmt: a #TrackerSparqlStatement
+ * @stmt: a `TrackerSparqlStatement`
  *
  * Returns the SPARQL string that this prepared statement holds.
  *
@@ -202,11 +210,11 @@ tracker_sparql_statement_get_sparql (TrackerSparqlStatement *stmt)
 
 /**
  * tracker_sparql_statement_bind_boolean:
- * @stmt: a #TrackerSparqlStatement
+ * @stmt: a `TrackerSparqlStatement`
  * @name: variable name
  * @value: value
  *
- * Binds the boolean @value to variable @name.
+ * Binds the boolean @value to the parameterized variable given by @name.
  */
 void
 tracker_sparql_statement_bind_boolean (TrackerSparqlStatement *stmt,
@@ -223,11 +231,11 @@ tracker_sparql_statement_bind_boolean (TrackerSparqlStatement *stmt,
 
 /**
  * tracker_sparql_statement_bind_int:
- * @stmt: a #TrackerSparqlStatement
+ * @stmt: a `TrackerSparqlStatement`
  * @name: variable name
  * @value: value
  *
- * Binds the integer @value to variable @name.
+ * Binds the integer @value to the parameterized variable given by @name.
  */
 void
 tracker_sparql_statement_bind_int (TrackerSparqlStatement *stmt,
@@ -244,11 +252,11 @@ tracker_sparql_statement_bind_int (TrackerSparqlStatement *stmt,
 
 /**
  * tracker_sparql_statement_bind_double:
- * @stmt: a #TrackerSparqlStatement
+ * @stmt: a `TrackerSparqlStatement`
  * @name: variable name
  * @value: value
  *
- * Binds the double @value to variable @name.
+ * Binds the double @value to the parameterized variable given by @name.
  */
 void
 tracker_sparql_statement_bind_double (TrackerSparqlStatement *stmt,
@@ -265,11 +273,11 @@ tracker_sparql_statement_bind_double (TrackerSparqlStatement *stmt,
 
 /**
  * tracker_sparql_statement_bind_string:
- * @stmt: a #TrackerSparqlStatement
+ * @stmt: a `TrackerSparqlStatement`
  * @name: variable name
  * @value: value
  *
- * Binds the string @value to variable @name.
+ * Binds the string @value to the parameterized variable given by @name.
  */
 void
 tracker_sparql_statement_bind_string (TrackerSparqlStatement *stmt,
@@ -287,11 +295,12 @@ tracker_sparql_statement_bind_string (TrackerSparqlStatement *stmt,
 
 /**
  * tracker_sparql_statement_bind_datetime:
- * @stmt: a #TrackerSparqlStatement
+ * @stmt: a `TrackerSparqlStatement`
  * @name: variable name
  * @value: value
  *
- * Binds the GDateTime @value to variable @name.
+ * Binds the [type@GLib.DateTime] @value to the parameterized variable given by @name.
+ *
  * Since: 3.2
  */
 
@@ -311,18 +320,24 @@ tracker_sparql_statement_bind_datetime (TrackerSparqlStatement *stmt,
 
 /**
  * tracker_sparql_statement_execute:
- * @stmt: a #TrackerSparqlStatement
- * @cancellable: a #GCancellable used to cancel the operation
- * @error: #GError for error reporting.
+ * @stmt: a `TrackerSparqlStatement`
+ * @cancellable: (nullable): Optional [type@Gio.Cancellable]
+ * @error: Error location
  *
- * Executes the SPARQL query with the currently bound values.
+ * Executes the `SELECT` or `ASK` SPARQL query with the currently bound values.
  *
- * This function should only be called on #TrackerSparqlStatement objects
- * obtained through tracker_sparql_connection_query_statement() or
+ * This function also works for `DESCRIBE` and `CONSTRUCT` queries that
+ * retrieve data from the triple store. These query forms that return
+ * RDF data are however more useful together with [method@Tracker.SparqlStatement.serialize_async].
+ *
+ * This function should only be called on `TrackerSparqlStatement` objects
+ * obtained through [method@Tracker.SparqlConnection.query_statement] or
  * SELECT/CONSTRUCT/DESCRIBE statements loaded through
- * tracker_sparql_connection_load_statement_from_gresource().
+ * [method@Tracker.SparqlConnection.load_statement_from_gresource].
+ * An error will be raised if this method is called on a `INSERT` or `DELETE`
+ * SPARQL query.
  *
- * Returns: (transfer full): A #TrackerSparqlCursor
+ * Returns: (transfer full): A `TrackerSparqlCursor` with the query results.
  */
 TrackerSparqlCursor *
 tracker_sparql_statement_execute (TrackerSparqlStatement  *stmt,
@@ -348,18 +363,24 @@ tracker_sparql_statement_execute (TrackerSparqlStatement  *stmt,
 
 /**
  * tracker_sparql_statement_execute_async:
- * @stmt: a #TrackerSparqlStatement
- * @cancellable: a #GCancellable used to cancel the operation
- * @callback: user-defined #GAsyncReadyCallback to be called when
- *            asynchronous operation is finished.
+ * @stmt: a `TrackerSparqlStatement`
+ * @cancellable: (nullable): Optional [type@Gio.Cancellable]
+ * @callback: user-defined [type@Gio.AsyncReadyCallback] to be called when
+ *            the asynchronous operation is finished.
  * @user_data: user-defined data to be passed to @callback
  *
- * Asynchronously executes the SPARQL query with the currently bound values.
+ * Executes asynchronously the `SELECT` or `ASK` SPARQL query with the currently bound values.
  *
- * This function should only be called on #TrackerSparqlStatement objects
- * obtained through tracker_sparql_connection_query_statement() or
+ * This function also works for `DESCRIBE` and `CONSTRUCT` queries that
+ * retrieve data from the triple store. These query forms that return
+ * RDF data are however more useful together with [method@Tracker.SparqlStatement.serialize_async].
+ *
+ * This function should only be called on `TrackerSparqlStatement` objects
+ * obtained through [method@Tracker.SparqlConnection.query_statement] or
  * SELECT/CONSTRUCT/DESCRIBE statements loaded through
- * tracker_sparql_connection_load_statement_from_gresource().
+ * [method@Tracker.SparqlConnection.load_statement_from_gresource].
+ * An error will be raised if this method is called on a `INSERT` or `DELETE`
+ * SPARQL query.
  */
 void
 tracker_sparql_statement_execute_async (TrackerSparqlStatement *stmt,
@@ -378,14 +399,14 @@ tracker_sparql_statement_execute_async (TrackerSparqlStatement *stmt,
 
 /**
  * tracker_sparql_statement_execute_finish:
- * @stmt: a #TrackerSparqlStatement
- * @res: The #GAsyncResult from the callback used to return the #TrackerSparqlCursor
- * @error: The error which occurred or %NULL
+ * @stmt: a `TrackerSparqlStatement`
+ * @res: a [type@Gio.AsyncResult] with the result of the operation
+ * @error: Error location
  *
  * Finishes the asynchronous operation started through
- * tracker_sparql_statement_execute_async().
+ * [method@Tracker.SparqlStatement.execute_async].
  *
- * Returns: (transfer full): A #TrackerSparqlCursor
+ * Returns: (transfer full): A `TrackerSparqlCursor` with the query results.
  */
 TrackerSparqlCursor *
 tracker_sparql_statement_execute_finish (TrackerSparqlStatement  *stmt,
@@ -411,15 +432,18 @@ tracker_sparql_statement_execute_finish (TrackerSparqlStatement  *stmt,
 
 /**
  * tracker_sparql_statement_update:
- * @stmt: a #TrackerSparqlStatement
- * @cancellable: a #GCancellable used to cancel the operation
- * @error: #GError for error reporting.
+ * @stmt: a `TrackerSparqlStatement`
+ * @cancellable: (nullable): Optional [type@Gio.Cancellable]
+ * @error: Error location
  *
- * Executes the SPARQL update with the currently bound values.
+ * Executes the `INSERT`/`DELETE` SPARQL query series with the currently bound values.
  *
- * This function should only be called on #TrackerSparqlStatement objects
- * obtained through tracker_sparql_connection_update_statement() or
- * update statements loaded through tracker_sparql_connection_load_statement_from_gresource().
+ * This function should only be called on `TrackerSparqlStatement` objects
+ * obtained through [method@Tracker.SparqlConnection.update_statement] or
+ * `INSERT`/`DELETE` statements loaded through
+ * [method@Tracker.SparqlConnection.load_statement_from_gresource].
+ * An error will be raised if this method is called on
+ * `SELECT`/`ASK`/`DESCRIBE`/`CONSTRUCT` SPARQL queries.
  *
  * Returns: %TRUE if the update finished with no errors, %FALSE otherwise
  *
@@ -441,17 +465,20 @@ tracker_sparql_statement_update (TrackerSparqlStatement  *stmt,
 
 /**
  * tracker_sparql_statement_update_async:
- * @stmt: a #TrackerSparqlStatement
- * @cancellable: a #GCancellable used to cancel the operation
- * @callback: user-defined #GAsyncReadyCallback to be called when
- *            asynchronous operation is finished.
+ * @stmt: a `TrackerSparqlStatement`
+ * @cancellable: (nullable): Optional [type@Gio.Cancellable]
+ * @callback: user-defined [type@Gio.AsyncReadyCallback] to be called when
+ *            the asynchronous operation is finished.
  * @user_data: user-defined data to be passed to @callback
  *
- * Asynchronously executes the SPARQL update query with the currently bound values.
+ * Executes asynchronously the `INSERT`/`DELETE` SPARQL query series with the currently bound values.
  *
- * This function should only be called on #TrackerSparqlStatement objects
- * obtained through tracker_sparql_connection_update_statement() or
- * update statements loaded through tracker_sparql_connection_load_statement_from_gresource().
+ * This function should only be called on `TrackerSparqlStatement` objects
+ * obtained through [method@Tracker.SparqlConnection.update_statement] or
+ * `INSERT`/`DELETE` statements loaded through
+ * [method@Tracker.SparqlConnection.load_statement_from_gresource].
+ * An error will be raised if this method is called on
+ * `SELECT`/`ASK`/`DESCRIBE`/`CONSTRUCT` SPARQL queries.
  *
  * Since: 3.5
  */
@@ -472,12 +499,12 @@ tracker_sparql_statement_update_async (TrackerSparqlStatement *stmt,
 
 /**
  * tracker_sparql_statement_update_finish:
- * @stmt: a #TrackerSparqlStatement
- * @result: The #GAsyncResult from the callback used to return the #TrackerSparqlCursor
- * @error: The error which occurred or %NULL
+ * @stmt: a `TrackerSparqlStatement`
+ * @result: a [type@Gio.AsyncResult] with the result of the operation
+ * @error: Error location
  *
  * Finishes the asynchronous update started through
- * tracker_sparql_statement_update_async().
+ * [method@Tracker.SparqlStatement.update_async].
  *
  * Returns: %TRUE if the update finished with no errors, %FALSE otherwise
  *
@@ -500,11 +527,9 @@ tracker_sparql_statement_update_finish (TrackerSparqlStatement  *stmt,
 
 /**
  * tracker_sparql_statement_clear_bindings:
- * @stmt: a #TrackerSparqlStatement
+ * @stmt: a `TrackerSparqlStatement`
  *
- * Clears all boolean/string/integer/double bindings.
- *
- * Since: 3.0
+ * Clears all bindings.
  */
 void
 tracker_sparql_statement_clear_bindings (TrackerSparqlStatement *stmt)
@@ -516,17 +541,18 @@ tracker_sparql_statement_clear_bindings (TrackerSparqlStatement *stmt)
 
 /**
  * tracker_sparql_statement_serialize_async:
- * @stmt: a #TrackerSparqlStatement
+ * @stmt: a `TrackerSparqlStatement`
  * @flags: serialization flags
  * @format: RDF format of the serialized data
- * @cancellable: (nullable): a #GCancellable used to cancel the operation
- * @callback: user-defined #GAsyncReadyCallback to be called when
- *            asynchronous operation is finished.
+ * @cancellable: (nullable): Optional [type@Gio.Cancellable]
+ * @callback: user-defined [type@Gio.AsyncReadyCallback] to be called when
+ *            the asynchronous operation is finished.
  * @user_data: user-defined data to be passed to @callback
  *
- * Serializes data into the specified RDF format. The query @stmt was
- * created from must be either a `DESCRIBE` or `CONSTRUCT` query, an
- * error will be raised otherwise.
+ * Serializes a `DESCRIBE` or `CONSTRUCT` query into the given RDF @format.
+ *
+ * The query @stmt was created from must be either a `DESCRIBE` or `CONSTRUCT`
+ * query, an error will be raised otherwise.
  *
  * This is an asynchronous operation, @callback will be invoked when the
  * data is available for reading.
@@ -535,7 +561,7 @@ tracker_sparql_statement_clear_bindings (TrackerSparqlStatement *stmt)
  * an error will be raised.
  *
  * The @flags argument is reserved for future expansions, currently
- * %TRACKER_SERIALIZE_FLAGS_NONE must be passed.
+ * #TRACKER_SERIALIZE_FLAGS_NONE must be passed.
  *
  * Since: 3.3
  **/
@@ -562,14 +588,14 @@ tracker_sparql_statement_serialize_async (TrackerSparqlStatement *stmt,
 
 /**
  * tracker_sparql_statement_serialize_finish:
- * @stmt: a #TrackerSparqlStatement
- * @result: the #GAsyncResult
- * @error: location for returned errors, or %NULL
+ * @stmt: a `TrackerSparqlStatement`
+ * @result: a [type@Gio.AsyncResult] with the result of the operation
+ * @error: Error location
  *
- * Finishes a tracker_sparql_statement_serialize_async() operation.
- * In case of error, %NULL will be returned and @error will be set.
+ * Finishes the asynchronous operation started through
+ * [method@Tracker.SparqlStatement.serialize_async].
  *
- * Returns: (transfer full): a #GInputStream to read RDF content.
+ * Returns: (transfer full): a [class@Gio.InputStream] to read RDF content.
  *
  * Since: 3.3
  **/

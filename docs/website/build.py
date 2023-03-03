@@ -58,42 +58,6 @@ def argument_parser():
     return parser
 
 
-def apidocs_header(tracker_commit):
-    return f"""<!-- Inserted by {__file__} -->
-    <div class="warning">
-        <p>This is a documentation preview for the next version of Tracker,
-           generated from <a href="https://gitlab.gnome.org/GNOME/tracker/commit/{tracker_commit}/">tracker.git commit {tracker_commit[:7]}</a>.</p>
-        <p>See the <a href="https://gnome.pages.gitlab.gnome.org/tracker/docs/developer/">Tracker website</a> for more documentation.</p>
-    </div>"""
-
-
-def add_apidocs_header(text, filename):
-    """Add a header to the documentation preview files."""
-
-    # We insert the header before any of these
-    markers = [
-        '<div class="book">',
-        '<div class="chapter">',
-        '<div class="index">',
-        '<div class="glossary">',
-        '<div class="part">',
-        '<div class="refentry">',
-        '<div class="section">',
-    ]
-
-    wrote_marker = False
-
-    with open(filename, encoding='utf8') as f_in:
-        with tempfile.NamedTemporaryFile(delete=False, mode='w', encoding='utf8') as f_out:
-            for line in f_in:
-                for marker in markers:
-                    if not wrote_marker and line.find(marker) != -1:
-                        f_out.write(text)
-                        wrote_marker = True
-                f_out.write(line)
-    shutil.move(f_out.name, filename)
-
-
 class Manpages():
     def run(self, command):
         command = [str(c) for c in command]
@@ -201,11 +165,6 @@ def main():
         raise RuntimeError("Expected path {} doesn't exist.".format(src))
     log.info("  - Copying %s to %s (%i files)", src, dest, len(list(src.iterdir())))
     shutil.copytree(src, dest)
-
-    log.info("Adding preview header to API reference documentation")
-    text = apidocs_header(args.tracker_commit)
-    for filename in apidocs_dest.rglob('*.html'):
-        add_apidocs_header(text, filename)
 
     log.info("Documentation available in %s/ directory.", args.output)
 

@@ -39,6 +39,11 @@ GPtrArray *
 class_get_parent_hierarchy_strings (TrackerOntologyClass *klass,
                                     TrackerOntologyModel *model);
 
+void ttl_generate_dot_files (TrackerOntologyDescription *description,
+                             TrackerOntologyModel       *model,
+                             const gchar                *prefix,
+                             GFile                      *output_location);
+
 G_END_DECLS
 
 #endif /* TRACKER_UTILS_H */

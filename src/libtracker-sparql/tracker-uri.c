@@ -19,16 +19,6 @@
  * Boston, MA  02110-1301, USA.
  */
 
-/**
- * SECTION: tracker-uri
- * @short_description: URI utility functions
- * @title: URI Utilities
- * @stability: Stable
- * @include: libtracker-sparql/tracker-sparql.h
- *
- * Tracker defines some utility functions to deal with URI strings.
- */
-
 #include "config.h"
 
 #include <string.h>
@@ -163,14 +153,13 @@ find_conversion (const char  *format,
  *     <link linkend="string-precision">string precision pitfalls</link> documented in g_strdup_printf()
  * @args: the list of parameters to insert into the format string
  *
+ * Formats and escapes a string for use as a URI. This function takes a `va_list`.
+ *
  * Similar to the standard C vsprintf() function but safer, since it
  * calculates the maximum space required and allocates memory to hold
  * the result.
  *
- * The result is escaped using g_uri_escape_string().
- *
- * Returns: (transfer full): a newly-allocated string holding the result. The returned string
- * should be freed with g_free() when no longer needed.
+ * Returns: (transfer full): a newly-allocated string holding the result.
  */
 gchar *
 tracker_sparql_escape_uri_vprintf (const gchar *format,
@@ -269,7 +258,7 @@ cleanup:
  *     <link linkend="string-precision">string precision pitfalls</link> documented in g_strdup_printf()
  * @...: the parameters to insert into the format string
  *
- * Calls tracker_sparql_escape_uri_vprintf() with the @... supplied.
+ * Formats and escapes a string for use as a URI. This function takes variadic arguments.
  *
  * Returns: (transfer full): a newly-allocated string holding the result.The returned string
  * should be freed with g_free() when no longer needed.
@@ -291,10 +280,9 @@ tracker_sparql_escape_uri_printf (const gchar *format, ...)
  * tracker_sparql_escape_uri:
  * @uri: a string to be escaped, following the tracker sparql rules
  *
- * Calls tracker_sparql_escape_uri_printf().
+ * Escapes a string for use as a URI.
  *
- * Returns: (transfer full): a newly-allocated string holding the result. The returned string
- * should be freed with g_free() when no longer needed.
+ * Returns: (transfer full): a newly-allocated string holding the result.
  */
 gchar *
 tracker_sparql_escape_uri (const gchar *uri)

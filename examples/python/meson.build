@@ -17,7 +17,7 @@ examples = [
 foreach example_name: examples
   file = meson.current_source_dir() / '@0@.py'.format(example_name)
   test(example_name, python,
-    args: sandbox_python_args + [python.path(), file],
+    args: sandbox_python_args + [python.full_path(), file],
     env: env,
     suite: 'examples')
 endforeach

@@ -1,9 +1,5 @@
----
-title: Migrating from 2.x to 3.0
-short-description: Migrating from libtracker-sparql 2.x to 3.0
-...
-
-# Migrating from libtracker-sparql 2.x to 3.0
+Title: Migrating from 2.x to 3.0
+Slug: migrating-2-to-3
 
 Tracker 3.0 is a new major version, containing some large
 syntax and conceptual changes.
@@ -21,8 +17,8 @@ in one graph at a time. In other words, this yields the wrong
 result:
 
 ```SPARQL
-INSERT { GRAPH <A> { <foo> nie:title 'Hello' } }
-INSERT { GRAPH <B> { <foo> nie:title 'Hola' } }
+INSERT { GRAPH <http://example.com/A> { <foo> nie:title 'Hello' } }
+INSERT { GRAPH <http://example.com/B> { <foo> nie:title 'Hola' } }
 
 # We expect 2 rows, 2.x returns 1.
 SELECT ?g ?t { GRAPH ?g { <foo> nie:title ?t } }
@@ -37,10 +33,10 @@ skipped if a GRAPH is requested or defined, e.g.:
 
 ```SPARQL
 # Inserts element into the unnamed graph
-INSERT { <foo> a nfo:FileDataObject }
+INSERT { <http://example.com/foo> a nfo:FileDataObject }
 
 # Inserts element into named graph A
-INSERT { GRAPH <A> { <bar> a nfo:FileDataObject } }
+INSERT { GRAPH <A> { <http://example.com/bar> a nfo:FileDataObject } }
 
 # Queries from all named graphs, A in this case
 SELECT ?g ?s { GRAPH ?g { ?s a nfo:FileDataObject } }
@@ -110,18 +106,18 @@ those elements in place. Other ontologies might have similar concepts.
 
 Notifiers are now created through tracker_sparql_connection_create_notifier().
 
-## Different signature of [](TrackerNotifier::events) signal
+## Different signature of [signal@Tracker.Notifier::events] signal
 
 A TrackerNotifier may hint changes across multiple endpoints (local or remote),
 in consequence the signal additionally contains 2 string arguments, notifying
 about the SPARQL endpoint the changes came from, and the SPARQL graph the changes
 apply to.
 
-## Return value change in `tracker_sparql_connection_update_array()`
+## Return value change in [method@Tracker.SparqlConnection.update_array_async]
 
 This function changed to handle all changes within a single transaction. Returning
 an array of errors for each individual update is no longer necessary, so it now
-simply returns a boolean return value.
+simply returns a boolean return value and a single error for the whole transaction.
 
 ## No `tracker_sparql_connection_get()/get_async()`
 
@@ -129,13 +125,13 @@ There is no longer a singleton SPARQL connection. If you are only interested in
 tracker-miner-fs data, you can create a dedicated DBus connection to it through:
 
 ```c
-conn = tracker_sparql_connection_bus_new ("org.freedesktop.Tracker3.Miner.Files", ...);
+conn = tracker_sparql_connection_bus_new ("org.freedesktop.Tracker3.Miner.Files", …);
 ```
 
 If you are interested in storing your own data, you can do it through:
 
 ```c
-conn = tracker_sparql_connection_new (...);
+conn = tracker_sparql_connection_new (…);
 ```
 
 Note that you still may access other endpoints in SELECT queries, eg. for

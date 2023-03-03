@@ -11,7 +11,7 @@ version_header = configure_file(
     configuration: conf)
 
 enum_types = gnome.mkenums('tracker-sparql-enum-types',
-    sources: ['tracker-notifier.h', 'tracker-connection.h', 'tracker-enums.h'],
+    sources: ['tracker-notifier.h', 'tracker-connection.h', 'tracker-enums.h', 'tracker-error.h'],
     c_template: 'tracker-sparql-enum-types.c.template',
     h_template: 'tracker-sparql-enum-types.h.template',
     install_dir: join_paths(get_option('prefix'), get_option('includedir'), 'tracker-@0@'.format(tracker_api_version), 'libtracker-sparql'),
@@ -169,6 +169,8 @@ if get_option('introspection').enabled()
             libtracker_sparql_sources,
             libtracker_sparql_public_headers,
             introspection_extra_sources,
+            version_header,
+            enum_types,
         ],
         dependencies: introspection_extra_deps,
         nsversion: tracker_api_version,

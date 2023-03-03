@@ -1,12 +1,8 @@
----
-title: Limits
-short-description: Implementation limits
-...
+Title: Implementation limits
+Slug: implementation-limits
 
-# Limits
-
-Tracker is implemented on top of SQLite, and all of its benefits and
-[limits](https://www.sqlite.org/limits.html) apply. This
+Tracker is implemented on top of [SQLite](https://sqlite.org), and all of its
+benefits and [limits](https://sqlite.org/limits.html) apply. This
 document will break down how those limits apply to Tracker. Depending on
 your distributor, the limits might be changed via SQLite build-time
 options.
@@ -65,7 +61,7 @@ SQLite has a limit on the number of databases that can be attached,
 defined by `SQLITE_MAX_LIMIT_ATTACHED` (defaults to 10, maximum 128).
 
 Tracker uses attached databases to implement its support for multiple
-graphs, so the maximum amount of graphs for a given [](TrackerSparqlConnection)
+graphs, so the maximum amount of graphs for a given [class@Tracker.SparqlConnection]
 is equally restricted.
 
 ## Limits on glob search
@@ -78,7 +74,7 @@ SPARQL syntax.
 
 SQLite defines a maximum of 999 parameters to be passed as arguments
 to a statement, controlled by `SQLITE_MAX_VARIABLE_NUMBER`.
-[](TrackerSparqlStatement) has the same limit.
+[class@Tracker.SparqlStatement] has the same limit.
 
 ## Maximum number of pages in a database
 
@@ -90,4 +86,4 @@ applies per graph.
 
 Integers are 64 bit wide. Floating point numbers have IEEE764
 double precision. Dates/times have microsecond precision, and may
-range between 0001-01-01 00:00:00 and 9999-12-31 23:59:59.
+range between `0001-01-01 00:00:00` and `9999-12-31 23:59:59`.

@@ -1,13 +1,9 @@
----
-title: Performance dos and donts
-short-description: Performance dos and donts
-...
-
-# Performance advise
+Title: Performance dos and donts
+slug: performance-advise
 
 SPARQL is a very powerful query language. As it should be
 suspected, this means there are areas where performance is
-sacrificed for versatility.
+inherently sacrificed for versatility.
 
 These are some tips to get the best of SPARQL as implemented
 by Tracker.
@@ -20,7 +16,7 @@ Queries with unrestricted predicates are those like:
 SELECT ?p { <a> ?p 42 }
 ```
 
-They involve lookups across all possible triples of
+These involve lookups across all possible triples of
 an object, which roughly translates to a traversal
 through all tables and columns.
 
@@ -30,7 +26,8 @@ The most pathological case is:
 SELECT ?s ?p ?o { ?s ?p ?o }
 ```
 
-Which does retrieve every triple existing in the store.
+Which does retrieve every triple existing in the RDF
+triple store.
 
 Queries with unrestricted predicates are most useful to
 introspect resources, or the triple store in its entirety.
@@ -76,11 +73,11 @@ The graph(s) may be specified through
 SPARQL syntax for graphs. For example:
 
 ```SPARQL
-WITH <G> SELECT ?u { ?u a rdfs:Resource }
-WITH <G> SELECT ?g ?u { GRAPH ?g { ?u a rdfs:Resource }}
+WITH <http://example.com/Graph> SELECT ?u { ?u a rdfs:Resource }
+SELECT ?g ?u FROM NAMED <http://example.com/Graph> { GRAPH ?g { ?u a rdfs:Resource }}
 ```
 
-## Avoid substring matching
+## Avoid globs and substring matching
 
 Matching for regexp/glob/substrings defeats any index text fields
 could have. For example:
@@ -88,7 +85,7 @@ could have. For example:
 ```SPARQL
 SELECT ?u {
   ?u nie:title ?title .
-  FILTER (CONTAINS (?title, "sideshow"))
+  FILTER (CONTAINS (?title, "banana"))
 }
 ```
 
@@ -97,11 +94,11 @@ encouraged to use fulltext search for finding matches within strings
 where possible, for example:
 
 ```SPARQL
-SELECT ?u { ?u fts:match "sideshow" }
+SELECT ?u { ?u fts:match "banana" }
 ```
 
 ## Use TrackerSparqlStatement
 
-Using [](TrackerSparqlStatement) allows to parse and compile
+Using [class@Tracker.SparqlStatement] allows to parse and compile
 a query once, and reuse it many times. Its usage
 is recommended wherever possible.

@@ -20,23 +20,42 @@
  */
 
 /**
- * SECTION: tracker-endpoint-dbus
- * @short_description: DBus endpoint
- * @title: TrackerEndpointDBus
- * @stability: Stable
- * @include: libtracker-sparql/tracker-sparql.h
+ * TrackerEndpointDBus:
  *
- * #TrackerEndpointDBus is an endpoint implementation that exports
- * a local #TrackerSparqlConnection so it is accessible in the given
- * bus connection.
+ * `TrackerEndpointDBus` makes the RDF data in a [class@Tracker.SparqlConnection]
+ * accessible to other processes via DBus.
+ *
+ * This object is a [class@Tracker.Endpoint] subclass that exports
+ * a [class@Tracker.SparqlConnection] so its RDF data is accessible to other
+ * processes through the given [class@Gio.DBusConnection].
+ *
+ * ```c
+ * // This process already has org.example.Endpoint bus name
+ * endpoint = tracker_endpoint_dbus_new (sparql_connection,
+ *                                       dbus_connection,
+ *                                       NULL,
+ *                                       NULL,
+ *                                       &error);
+ *
+ * // From another process
+ * connection = tracker_sparql_connection_bus_new ("org.example.Endpoint",
+ *                                                 NULL,
+ *                                                 dbus_connection,
+ *                                                 &error);
+ * ```
+ *
+ * The `TrackerEndpointDBus` will manage a DBus object at the given path
+ * with the `org.freedesktop.Tracker3.Endpoint` interface, if no path is
+ * given the object will be at the default `/org/freedesktop/Tracker3/Endpoint`
+ * location.
  *
  * Access to these endpoints may be transparently managed through
  * the Tracker portal service for applications sandboxed via Flatpak, and
  * access to data constrained to the graphs defined in the applications
  * manifest.
  *
- * A #TrackerEndpointDBus may be created on a different thread/main
- * context than the one creating the #TrackerSparqlConnection.
+ * A `TrackerEndpointDBus` may be created on a different thread/main
+ * context from the one that created [class@Tracker.SparqlConnection].
  */
 
 #include "config.h"
@@ -1376,12 +1395,22 @@ tracker_endpoint_dbus_class_init (TrackerEndpointDBusClass *klass)
 	object_class->set_property = tracker_endpoint_dbus_set_property;
 	object_class->get_property = tracker_endpoint_dbus_get_property;
 
+	/**
+	 * TrackerEndpointDBus:dbus-connection:
+	 *
+	 * The [class@Gio.DBusConnection] where the connection is proxied through.
+	 */
 	props[PROP_DBUS_CONNECTION] =
 		g_param_spec_object ("dbus-connection",
 		                     "DBus connection",
 		                     "DBus connection",
 		                     G_TYPE_DBUS_CONNECTION,
 		                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+	/**
+	 * TrackerEndpointDBus:object-path:
+	 *
+	 * The DBus object path that this endpoint manages.
+	 */
 	props[PROP_OBJECT_PATH] =
 		g_param_spec_string ("object-path",
 		                     "DBus object path",
@@ -1400,16 +1429,16 @@ tracker_endpoint_dbus_init (TrackerEndpointDBus *endpoint)
 
 /**
  * tracker_endpoint_dbus_new:
- * @sparql_connection: a #TrackerSparqlConnection
- * @dbus_connection: a #GDBusConnection
- * @object_path: (nullable): the object path to use, or %NULL for the default
- * @cancellable: (nullable): a #GCancellable, or %NULL
- * @error: pointer to a #GError
+ * @sparql_connection: The [class@Tracker.SparqlConnection] being made public
+ * @dbus_connection: #GDBusConnection to expose the DBus object over
+ * @object_path: (nullable): The object path to use, or %NULL to use the default
+ * @cancellable: (nullable): Optional [type@Gio.Cancellable]
+ * @error: Error location
  *
  * Registers a Tracker endpoint object at @object_path on @dbus_connection.
- * The default object path is "/org/freedesktop/Tracker3/Endpoint".
+ * The default object path is `/org/freedesktop/Tracker3/Endpoint`.
  *
- * Returns: (transfer full): a #TrackerEndpointDBus object.
+ * Returns: (transfer full): a `TrackerEndpointDBus` object.
  */
 TrackerEndpointDBus *
 tracker_endpoint_dbus_new (TrackerSparqlConnection  *sparql_connection,

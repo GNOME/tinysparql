@@ -4,7 +4,6 @@ doctool_gresources = gnome.compile_resources('tracker_doctool_gresources', 'dsc-
 
 doctool_files = [
     'tracker-docgen-md.c',
-    'tracker-docgen-xml.c',
     'tracker-main.c',
     'tracker-ontology-model.c',
     'tracker-utils.c',

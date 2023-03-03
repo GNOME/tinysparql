@@ -30,12 +30,6 @@ G_BEGIN_DECLS
 
 #include <libtracker-sparql/tracker-version.h>
 
-/**
- * TrackerNamespaceManager:
- *
- * The <structname>TrackerNamespaceManager</structname> object represents a
- * mapping of prefixes and namespaces.
- */
 #define TRACKER_TYPE_NAMESPACE_MANAGER (tracker_namespace_manager_get_type())
 TRACKER_AVAILABLE_IN_ALL
 G_DECLARE_FINAL_TYPE (TrackerNamespaceManager, tracker_namespace_manager, TRACKER, NAMESPACE_MANAGER, GObject)

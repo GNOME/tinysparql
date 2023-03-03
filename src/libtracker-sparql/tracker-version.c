@@ -16,17 +16,6 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-/**
- * SECTION: tracker-version
- * @short_description: variables and functions to check Tracker version
- * @title: Version Information
- * @stability: Stable
- * @include: tracker-sparql.h
- *
- * Tracker provides version information, primarily useful in configure checks
- * for builds that have a configure script. Applications will not typically use
- * the features described here.
- */
 
 #include "config.h"
 
@@ -47,9 +36,10 @@ const guint tracker_binary_age = TRACKER_BINARY_AGE;
  * @required_minor: the required minor version.
  * @required_micro: the required micro version.
  *
- * Checks that the Tracker library in use is compatible with the
- * given version. Generally you would pass in the constants
- * #TRACKER_MAJOR_VERSION, #TRACKER_MINOR_VERSION, #TRACKER_MICRO_VERSION
+ * Checks that the Tracker library in use is compatible with the given version.
+ *
+ * Generally you would pass in the constants
+ * [const@Tracker.MAJOR_VERSION], [const@Tracker.MINOR_VERSION], [const@Tracker.MICRO_VERSION]
  * as the three arguments to this function; that produces
  * a check that the library in use is compatible with
  * the version of Tracker the application or module was compiled
@@ -57,15 +47,13 @@ const guint tracker_binary_age = TRACKER_BINARY_AGE;
  *
  * Compatibility is defined by two things: first the version
  * of the running library is newer than the version
- * @required_major.required_minor.@required_micro. Second
+ * @required_major.@required_minor.@required_micro. Second
  * the running library must be binary compatible with the
- * version @required_major.required_minor.@required_micro
+ * version @required_major.@required_minor.@required_micro
  * (same major version.)
  *
  * Return value: %NULL if the Tracker library is compatible with the
  *   given version, or a string describing the version mismatch.
- *   The returned string is owned by Tracker and must not be modified
- *   or freed.
  **/
 const gchar *
 tracker_check_version (guint required_major,

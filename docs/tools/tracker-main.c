@@ -23,15 +23,14 @@
 #include <stdio.h>
 
 #include "tracker-docgen-md.h"
-#include "tracker-docgen-xml.h"
 #include "tracker-ontology-model.h"
+#include "tracker-utils.h"
 
 static gchar *ontology_dir = NULL;
 static gchar *ontology_desc_dir = NULL;
 static gchar *output_dir = NULL;
 static gchar *introduction_dir = NULL;
-static gboolean xml = FALSE;
-static gboolean markdown = FALSE;
+static gboolean markdown = TRUE;
 
 static GOptionEntry   entries[] = {
 	{ "ontology-dir", 'd', 0, G_OPTION_ARG_FILENAME, &ontology_dir,
@@ -48,10 +47,6 @@ static GOptionEntry   entries[] = {
 	},
 	{ "introduction-dir", 'i', 0, G_OPTION_ARG_FILENAME, &introduction_dir,
 	  "Directory to find ontology introduction",
-	  NULL
-	},
-	{ "xml", 'x', 0, G_OPTION_ARG_NONE, &xml,
-	  "Whether to produce docbook XML for gtk-doc",
 	  NULL
 	},
 	{ "md", 'm', 0, G_OPTION_ARG_NONE, &markdown,
@@ -83,12 +78,6 @@ main (gint argc, gchar **argv)
 
 	if (!g_option_context_parse (context, &argc, &argv, &error)) {
 		g_printerr ("%s\n", error->message);
-		return -1;
-	}
-
-	if (!!xml == !!markdown) {
-		g_printerr ("%s\n",
-		            "One of --xml or --md must be provided");
 		return -1;
 	}
 
@@ -131,10 +120,10 @@ main (gint argc, gchar **argv)
 		if (!description)
 			continue;
 
-		if (xml)
-			ttl_xml_print (description, model, prefixes[i], output_file, introduction_dir);
-		else if (markdown)
+		if (markdown)
 			ttl_md_print (description, model, prefixes[i], output_file, introduction_dir);
+
+		ttl_generate_dot_files (description, model, prefixes[i], output_file);
 	}
 
 	g_strfreev (prefixes);
