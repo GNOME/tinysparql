@@ -25,7 +25,6 @@
 #include <glib/gstdio.h>
 
 #include <libtracker-common/tracker-debug.h>
-#include <libtracker-common/tracker-locale.h>
 
 #include <libtracker-sparql/tracker-deserializer-rdf.h>
 

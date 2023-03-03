@@ -34,9 +34,10 @@
 
 G_BEGIN_DECLS
 
+/* Parser */
 typedef struct TrackerParser TrackerParser;
 
-TrackerParser *tracker_parser_new             (TrackerLanguage *language);
+TrackerParser *tracker_parser_new             (void);
 
 void           tracker_parser_reset           (TrackerParser   *parser,
                                                const gchar     *txt,
@@ -57,10 +58,39 @@ const gchar *  tracker_parser_next            (TrackerParser   *parser,
 
 void           tracker_parser_free            (TrackerParser   *parser);
 
+/* Collation */
+gpointer tracker_collation_init (void);
+
+void tracker_collation_shutdown (gpointer collator);
+
+gint tracker_collation_utf8 (gpointer      collator,
+                             gint          len1,
+                             gconstpointer str1,
+                             gint          len2,
+                             gconstpointer str2);
+
 /* Other helper methods */
 
-gboolean       tracker_parser_unaccent_nfkd_string (gpointer  str,
-                                                    gsize    *str_length);
+gunichar2 * tracker_parser_tolower (const gunichar2 *input,
+                                    gsize            len,
+                                    gsize           *len_out);
+
+gunichar2 * tracker_parser_toupper (const gunichar2 *input,
+                                    gsize            len,
+                                    gsize           *len_out);
+
+gunichar2 * tracker_parser_casefold (const gunichar2 *input,
+                                     gsize            len,
+                                     gsize           *len_out);
+
+gunichar2 * tracker_parser_normalize (const gunichar2 *input,
+                                      GNormalizeMode   mode,
+                                      gsize            len,
+                                      gsize           *len_out);
+
+gunichar2 * tracker_parser_unaccent (const gunichar2 *input,
+                                     gsize            len,
+                                     gsize           *len_out);
 
 G_END_DECLS
 

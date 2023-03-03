@@ -22,6 +22,7 @@
 #include <fcntl.h>
 
 #include <glib/gstdio.h>
+#include <locale.h>
 
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-common/tracker-parser.h>
@@ -335,11 +336,11 @@ tracker_db_manager_locale_changed (TrackerDBManager  *db_manager,
                                    GError           **error)
 {
 	gchar *db_locale;
-	gchar *current_locale;
+	const gchar *current_locale;
 	gboolean changed;
 
 	/* Get current collation locale */
-	current_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
+	current_locale = setlocale (LC_COLLATE, NULL);
 
 	/* Get db locale */
 	db_locale = db_get_locale (db_manager);
@@ -361,7 +362,6 @@ tracker_db_manager_locale_changed (TrackerDBManager  *db_manager,
 	}
 
 	g_free (db_locale);
-	g_free (current_locale);
 
 	return changed;
 }
@@ -369,13 +369,12 @@ tracker_db_manager_locale_changed (TrackerDBManager  *db_manager,
 void
 tracker_db_manager_set_current_locale (TrackerDBManager *db_manager)
 {
-	gchar *current_locale;
+	const gchar *current_locale;
 
 	/* Get current collation locale */
-	current_locale = tracker_locale_get (TRACKER_LOCALE_COLLATE);
+	current_locale = setlocale (LC_COLLATE, NULL);
 	g_debug ("Saving DB locale as: '%s'", current_locale);
 	db_set_locale (db_manager, current_locale);
-	g_free (current_locale);
 }
 
 static void

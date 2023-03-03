@@ -114,25 +114,16 @@ load_file_contents (void)
 static gboolean
 run_parsing (void)
 {
-	TrackerLanguage *language;
 	TrackerParser *parser;
 	GTimer *timer;
 
 	/* Initialize timing */
 	timer = g_timer_new ();
 
-	/* Setup language for parser */
-	language = tracker_language_new (NULL);
-	if (!language) {
-		g_printerr ("Language setup failed!\n");
-		return FALSE;
-	}
-
 	/* Create the parser */
-	parser = tracker_parser_new (language);
+	parser = tracker_parser_new ();
 	if (!parser) {
 		g_printerr ("Parser creation failed!\n");
-		g_object_unref (language);
 		return FALSE;
 	}
 
@@ -214,7 +205,6 @@ run_parsing (void)
 	g_timer_destroy (timer);
 
 	tracker_parser_free (parser);
-	g_object_unref (language);
 	return TRUE;
 }
 

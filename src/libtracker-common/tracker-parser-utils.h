@@ -24,10 +24,6 @@
 
 #include <glib.h>
 
-#ifdef HAVE_LIBICU
-#include <unicode/utypes.h>
-#endif
-
 G_BEGIN_DECLS
 
 /* ASCII-7 is in range [0x00,0x7F] */

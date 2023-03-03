@@ -30,7 +30,10 @@
 #include <unicode/ustring.h>
 #include <unicode/uchar.h>
 #include <unicode/unorm.h>
+#include <unicode/ucol.h>
 
+#include "tracker-language.h"
+#include "tracker-debug.h"
 #include "tracker-parser.h"
 #include "tracker-parser-utils.h"
 
@@ -40,6 +43,8 @@ typedef enum {
 	TRACKER_PARSER_WORD_TYPE_OTHER_UNAC,
 	TRACKER_PARSER_WORD_TYPE_OTHER_NO_UNAC,
 } TrackerParserWordType;
+
+typedef UCollator TrackerCollator;
 
 /* Max possible length of a UChar encoded string (just a safety limit) */
 #define WORD_BUFFER_LENGTH 512
@@ -144,7 +149,7 @@ get_word_info (const UChar           *word,
 /* The input word in this method MUST be normalized in NFKD form,
  * and given in UChars, where str_length is the number of UChars
  * (not the number of bytes) */
-gboolean
+static gboolean
 tracker_parser_unaccent_nfkd_string (gpointer  str,
                                      gsize    *str_length)
 {
@@ -571,15 +576,12 @@ parser_next (TrackerParser *parser,
 }
 
 TrackerParser *
-tracker_parser_new (TrackerLanguage *language)
+tracker_parser_new (void)
 {
 	TrackerParser *parser;
 
-	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
-
 	parser = g_new0 (TrackerParser, 1);
-
-	parser->language = g_object_ref (language);
+	parser->language = tracker_language_new (NULL);
 
 	return parser;
 }
@@ -754,3 +756,253 @@ tracker_parser_next (TrackerParser *parser,
 	return str;
 }
 
+gpointer
+tracker_collation_init (void)
+{
+	UCollator *collator = NULL;
+	UErrorCode status = U_ZERO_ERROR;
+	const gchar *locale;
+
+	/* Get locale! */
+	locale = setlocale (LC_COLLATE, NULL);
+
+	collator = ucol_open (locale, &status);
+	if (!collator) {
+		g_warning ("[ICU collation] Collator for locale '%s' cannot be created: %s",
+		           locale, u_errorName (status));
+		/* Try to get UCA collator then... */
+		status = U_ZERO_ERROR;
+		collator = ucol_open ("root", &status);
+		if (!collator) {
+			g_critical ("[ICU collation] UCA Collator cannot be created: %s",
+			            u_errorName (status));
+		}
+	}
+
+	return collator;
+}
+
+void
+tracker_collation_shutdown (gpointer collator)
+{
+	if (collator)
+		ucol_close ((UCollator *)collator);
+}
+
+gint
+tracker_collation_utf8 (gpointer      collator,
+                        gint          len1,
+                        gconstpointer str1,
+                        gint          len2,
+                        gconstpointer str2)
+{
+	UErrorCode status = U_ZERO_ERROR;
+	UCharIterator iter1;
+	UCharIterator iter2;
+	UCollationResult result;
+
+	/* Collator must be created before trying to collate */
+	g_return_val_if_fail (collator, -1);
+
+	/* Setup iterators */
+	uiter_setUTF8 (&iter1, str1, len1);
+	uiter_setUTF8 (&iter2, str2, len2);
+
+	result = ucol_strcollIter ((UCollator *)collator,
+	                           &iter1,
+	                           &iter2,
+	                           &status);
+	if (status != U_ZERO_ERROR)
+		g_critical ("Error collating: %s", u_errorName (status));
+
+	if (result == UCOL_GREATER)
+		return 1;
+	if (result == UCOL_LESS)
+		return -1;
+	return 0;
+}
+
+gunichar2 *
+tracker_parser_tolower (const gunichar2 *input,
+			gsize            len,
+			gsize           *len_out)
+{
+	UChar *zOutput;
+	int nOutput;
+	UErrorCode status = U_ZERO_ERROR;
+
+	g_return_val_if_fail (input, NULL);
+
+	nOutput = len * 2 + 2;
+	zOutput = malloc (nOutput);
+
+	u_strToLower (zOutput, nOutput / 2,
+		      input, len / 2,
+		      NULL, &status);
+
+	if (!U_SUCCESS (status)) {
+		memcpy (zOutput, input, len);
+		zOutput[len] = '\0';
+		nOutput = len;
+	}
+
+	*len_out = nOutput;
+
+	return zOutput;
+}
+
+gunichar2 *
+tracker_parser_toupper (const gunichar2 *input,
+			gsize            len,
+			gsize           *len_out)
+{
+	UChar *zOutput;
+	int nOutput;
+	UErrorCode status = U_ZERO_ERROR;
+
+	nOutput = len * 2 + 2;
+	zOutput = malloc (nOutput);
+
+	u_strToUpper (zOutput, nOutput / 2,
+		      input, len / 2,
+		      NULL, &status);
+
+	if (!U_SUCCESS (status)) {
+		memcpy (zOutput, input, len);
+		zOutput[len] = '\0';
+		nOutput = len;
+	}
+
+	*len_out = nOutput;
+
+	return zOutput;
+}
+
+gunichar2 *
+tracker_parser_casefold (const gunichar2 *input,
+			 gsize            len,
+			 gsize           *len_out)
+{
+	UChar *zOutput;
+	int nOutput;
+	UErrorCode status = U_ZERO_ERROR;
+
+	nOutput = len * 2 + 2;
+	zOutput = malloc (nOutput);
+
+	u_strFoldCase (zOutput, nOutput / 2,
+		       input, len / 2,
+		       U_FOLD_CASE_DEFAULT, &status);
+
+	if (!U_SUCCESS (status)){
+		memcpy (zOutput, input, len);
+		zOutput[len] = '\0';
+		nOutput = len;
+	}
+
+	*len_out = nOutput;
+
+	return zOutput;
+}
+
+static gunichar2 *
+normalize_string (const gunichar2    *string,
+                  gsize               string_len, /* In gunichar2s */
+                  const UNormalizer2 *normalizer,
+                  gsize              *len_out,    /* In gunichar2s */
+                  UErrorCode         *status)
+{
+	int nOutput;
+	gunichar2 *zOutput;
+
+	nOutput = (string_len * 2) + 1;
+	zOutput = g_new0 (gunichar2, nOutput);
+
+	nOutput = unorm2_normalize (normalizer, string, string_len, zOutput, nOutput, status);
+
+	if (*status == U_BUFFER_OVERFLOW_ERROR) {
+		/* Try again after allocating enough space for the normalization */
+		*status = U_ZERO_ERROR;
+		zOutput = g_renew (gunichar2, zOutput, nOutput);
+		memset (zOutput, 0, nOutput * sizeof (gunichar2));
+		nOutput = unorm2_normalize (normalizer, string, string_len, zOutput, nOutput, status);
+	}
+
+	if (!U_SUCCESS (*status)) {
+		g_clear_pointer (&zOutput, g_free);
+		nOutput = 0;
+	}
+
+	if (len_out)
+		*len_out = nOutput;
+
+	return zOutput;
+}
+
+gunichar2 *
+tracker_parser_normalize (const gunichar2 *input,
+                          GNormalizeMode   mode,
+			  gsize            len,
+			  gsize           *len_out)
+{
+	uint16_t *zOutput = NULL;
+	gsize nOutput;
+	const UNormalizer2 *normalizer;
+	UErrorCode status = U_ZERO_ERROR;
+
+	if (mode == G_NORMALIZE_NFC)
+		normalizer = unorm2_getNFCInstance (&status);
+	else if (mode == G_NORMALIZE_NFD)
+		normalizer = unorm2_getNFDInstance (&status);
+	else if (mode == G_NORMALIZE_NFKC)
+		normalizer = unorm2_getNFKCInstance (&status);
+	else if (mode == G_NORMALIZE_NFKD)
+		normalizer = unorm2_getNFKDInstance (&status);
+	else
+		g_assert_not_reached ();
+
+	if (U_SUCCESS (status)) {
+		zOutput = normalize_string (input, len / 2,
+					    normalizer,
+					    &nOutput, &status);
+	}
+
+	if (!U_SUCCESS (status)) {
+		zOutput = g_memdup2 (input, len);
+		nOutput = len;
+	}
+
+	*len_out = nOutput;
+
+	return zOutput;
+}
+
+gunichar2 *
+tracker_parser_unaccent (const gunichar2 *input,
+			 gsize            len,
+			 gsize           *len_out)
+{
+	uint16_t *zOutput = NULL;
+	gsize nOutput;
+	const UNormalizer2 *normalizer;
+	UErrorCode status = U_ZERO_ERROR;
+
+	normalizer = unorm2_getNFKDInstance (&status);
+
+	if (U_SUCCESS (status)) {
+		zOutput = normalize_string (input, len / 2,
+					    normalizer,
+					    &nOutput, &status);
+	}
+
+	if (!U_SUCCESS (status)) {
+		zOutput = g_memdup2 (input, len);
+	}
+
+	/* Unaccenting is done in place */
+	tracker_parser_unaccent_nfkd_string (zOutput, &nOutput);
+
+	*len_out = nOutput;
+
+	return zOutput;
+}

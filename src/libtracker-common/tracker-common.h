@@ -31,11 +31,9 @@
 #include "tracker-date-time.h"
 #include "tracker-debug.h"
 #include "tracker-file-utils.h"
-#include "tracker-language.h"
 #include "tracker-parser.h"
 #include "tracker-term-utils.h"
 #include "tracker-utils.h"
-#include "tracker-locale.h"
 
 #undef __LIBTRACKER_COMMON_INSIDE__
 
