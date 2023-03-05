@@ -53,6 +53,7 @@ libtracker_common = static_library('tracker-common',
   dependencies: [tracker_common_dependencies, gmodule],
   c_args: [
     '-DPRIVATE_LIBDIR="@0@"'.format(tracker_internal_libs_dir),
+    '-DBUILD_LIBDIR="@0@"'.format(meson.current_build_dir()),
     '-DBUILDROOT="@0@"'.format(meson.build_root()),
   ] + tracker_c_args,
   include_directories: [configinc, srcinc],
