@@ -903,6 +903,8 @@ tracker_sparql_connection_load_statement_from_gresource (TrackerSparqlConnection
 			/* Pick one */
 			g_propagate_error (error, inner_error1);
 			g_clear_error (&inner_error2);
+		} else {
+			g_clear_error (&inner_error1);
 		}
 	}
 
