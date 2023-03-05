@@ -1,5 +1,5 @@
 project('tracker', 'c',
-        version: '3.5.0.beta',
+        version: '3.5.0.rc',
         meson_version: '>=0.55',
         default_options: [
           'c_std=c99',

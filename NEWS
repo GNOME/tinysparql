@@ -1,3 +1,11 @@
+NEW in 3.5.0.rc - 2023-03-05
+============================
+  * Reworked documentation, based on gi-docgen
+  * Make unicode library runtime loadable as a module
+  * Memory leak fixes
+
+Translations: bg, de, es, eu, hu, ko, pl, sl, sr, sv, tr
+
 NEW in 3.5.0.beta - 2023-02-15
 ==============================
   * VAPI generation fixes
