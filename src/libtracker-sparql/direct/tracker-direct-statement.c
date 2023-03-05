@@ -397,6 +397,7 @@ tracker_direct_statement_update_async (TrackerSparqlStatement *stmt,
 	                                                          cancellable,
 	                                                          callback,
 	                                                          user_data);
+	g_hash_table_unref (values);
 }
 
 static gboolean
