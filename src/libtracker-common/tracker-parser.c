@@ -91,7 +91,7 @@ ensure_init_parser (void)
 				 * building introspection information or running tests.
 				 * We want the in-tree modules to be loaded then.
 				 */
-				module_path = g_strdup_printf (BUILDROOT "/src/libtracker-common/%s", modules[i]);
+				module_path = g_strdup_printf (BUILD_LIBDIR "/%s", modules[i]);
 			} else {
 				module_path = g_strdup_printf (PRIVATE_LIBDIR "/%s", modules[i]);
 			}
