@@ -89,6 +89,7 @@ endforeach
 generated_content_files = [
   'examples.md.in',
   'tutorial.md.in',
+  'sandboxing.md.in',
 ]
 
 generated_content = []
