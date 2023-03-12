@@ -2,6 +2,7 @@ graph {
   rankdir=LR;
   fontname="sans-serif";
   compound=true;
+  bgcolor=transparent;
   node [shape="box", style="rounded", border=0, fontname="sans-serif"];
 
   subgraph cluster_session {

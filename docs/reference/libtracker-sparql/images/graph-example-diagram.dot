@@ -1,5 +1,6 @@
 digraph {
   rankdir=LR;
+  bgcolor=transparent;
   fontname="sans-serif";
   compound=true;
   node [shape="box", style="rounded", border=0, fontname="sans-serif"];

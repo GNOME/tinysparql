@@ -1,5 +1,7 @@
 Title: Overview
 
+{{ style.xml }}
+
 Tracker is a light-weight RDF [triple store](https://en.wikipedia.org/wiki/Triplestore)
 implementation, with a [SPARQL 1.1](https://en.wikipedia.org/wiki/SPARQL) interface.
 Tracker is implemented as a library, and may be used to create private databases,

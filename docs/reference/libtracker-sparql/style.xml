@@ -1,0 +1,8 @@
+<style>
+  svg .cluster text { fill: var(--text-color-muted); }
+  svg .node ellipse { stroke: var(--text-color-muted) }
+  svg .node text { text-decoration: none !important; fill: var(--text-color); }
+  svg .edge text { text-decoration: none !important; fill: var(--text-color); }
+  svg .edge path { stroke: var(--text-color-muted); }
+  svg .edge polygon { fill: var(--text-color-muted); stroke: transparent; }
+</style>

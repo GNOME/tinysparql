@@ -1,6 +1,8 @@
 Title: Sandboxing and portals
 slug: sandboxing-and-portals
 
+{{ style.xml }}
+
 There are times when it does make sense to lend advanced querying
 capabilities around your data to other processes of the same machine,
 or even widely available to any application that might want to make
