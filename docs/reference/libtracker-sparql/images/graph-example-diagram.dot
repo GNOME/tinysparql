@@ -1,0 +1,29 @@
+digraph {
+  rankdir=LR;
+  bgcolor=transparent;
+  fontname="sans-serif";
+  compound=true;
+  node [shape="box", style="rounded", border=0, fontname="sans-serif"];
+
+  subgraph cluster_graph2 {
+    style="rounded";
+    color="lightgrey";
+    label = "example:B"
+    tooltip = "example:B"
+    fontsize=10;
+    item2[label="example:item2",tooltip="example:item2"];
+    type2[label="rdfs:Resource",tooltip="rdfs:Resource"];
+    item2 -> type2 [label="rdf:type",fontsize=10,fontname="sans-serif",tooltip="rdf:type",labeltooltip="rdf:type"];
+  }
+
+  subgraph cluster_graph1 {
+    style="rounded";
+    color="lightgrey";
+    label = "example:A"
+    tooltip = "example:A"
+    fontsize=10;
+    item1[label="example:item1",tooltip="example:item1"];
+    type1[label="rdfs:Resource",tooltip="rdfs:Resource"];
+    item1 -> type1 [label="rdf:type",fontsize=10,fontname="sans-serif",tooltip="rdf:type",labeltooltip="rdf:type"];
+  }
+}

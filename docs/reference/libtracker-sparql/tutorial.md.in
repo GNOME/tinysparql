@@ -2,6 +2,8 @@ Title: SPARQL Tutorial
 Slug: sparql-tutorial
 ...
 
+{{ style.xml }}
+
 This document aims to introduce you to RDF and SPARQL from the ground
 up, up to a point where SPARQL queries will become familiar and approachable
 to reason about.

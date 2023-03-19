@@ -87,8 +87,10 @@ foreach doc : generated_ontology_files
 endforeach
 
 generated_content_files = [
+  'overview.md.in',
   'examples.md.in',
   'tutorial.md.in',
+  'sandboxing.md.in',
 ]
 
 generated_content = []
@@ -107,7 +109,6 @@ foreach doc : generated_content_files
     ])
 endforeach
 
-overview = ['overview.md']
 content = [
   'ontologies.md',
   'sparql-functions.md',
@@ -120,7 +121,7 @@ content = [
 
 # The TOML gi-docgen configuration wants a list of quoted file names.
 content_quoted = []
-foreach c : overview + generated_content + content + generated_ontology_content
+foreach c : generated_content + content + generated_ontology_content
   content_quoted += '"@0@"'.format(c)
 endforeach
 
@@ -148,7 +149,7 @@ reference = custom_target(
     '@INPUT1@',
   ],
   depends: [tracker_sparql_gir[0], generated_targets],
-  depend_files: [overview, content])
+  depend_files: [content])
 
 docs_name = 'Tracker-3.0'
 meson.add_install_script('install-devhelp.sh', docs_name, reference)

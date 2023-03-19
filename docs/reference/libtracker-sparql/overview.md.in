@@ -1,0 +1,83 @@
+Title: Overview
+
+{{ style.xml }}
+
+Tracker is a light-weight RDF [triple store](https://en.wikipedia.org/wiki/Triplestore)
+implementation, with a [SPARQL 1.1](https://en.wikipedia.org/wiki/SPARQL) interface.
+Tracker is implemented as a library, and may be used to create private databases,
+in addition to connecting to remote endpoints for
+[federated queries](https://en.wikipedia.org/wiki/Federated_search) or creating such
+public endpoints.
+
+## Advantages
+
+Tracker offers the following advantages over other traditional databases:
+
+- It is based on open standards. [SPARQL](https://www.w3.org/TR/2013/REC-sparql11-overview-20130321/)
+  is a [W3C recommendation](https://www.w3.org/). So is the [RDF](https://www.w3.org/RDF/) data model
+  and the various file formats available for import/export ([Turtle](https://www.w3.org/TR/turtle/),
+  [Trig](https://www.w3.org/TR/trig/), [JSON-LD](https://www.w3.org/TR/json-ld11/)).
+- Database format and schema updates are automatically managed. The user
+  just needs to write and update the [ontology](ontologies.html) defining
+  the structure of the contained data. Databases will be created and
+  implicitly updated to format changes without the need to write supporting code.
+- It has versatile serialization capabilities. Tracker is able to export RDF data into the same
+  formats it can import and load into databases. It is possible to perform backups, data mirroring,
+  data synchronization…
+- A complete set of CLI tools is included. Tracker databases are fully introspectable
+  and can be opened with no additional supporting files, the command line tools can do
+  anything the library could do, and a number of utilities is provided.
+- Distributed data is a first class citizen. SPARQL has builtin capabilities to
+  operate in a distributed environment, which may make it desirable to manage data
+  that is naturally open to multiple users. Tracker may interoperate with other
+  SPARQL implementations.
+
+The Tracker library is written in C, but may be used from a number of languages
+through [GObject introspection](https://gi.readthedocs.io/en/latest/), including
+Rust, Python, or Javascript (through [GJS](https://gjs.guide/)).
+
+Tracker is designed to be small, fast, and scalable. It is also robust and
+fully [ACID](https://en.wikipedia.org/wiki/ACID). There are ready-made
+[examples](examples.html) on how the Tracker library is put to use.
+
+## Dependencies
+
+Tracker depends on the following libraries:
+
+- **GLib**: General-purpose utility library. GLib provides many useful data types,
+  macros, type conversions, string utilities, file utilities, a main loop abstraction,
+  and so on. More information available on the
+  [GLib API documentation](https://developer.gnome.org/glib/stable/).
+- **GObject**: A library that provides a type system, a collection of fundamental
+  types including an object type, and a signal system. More information available
+  on the [GObject API documentation](https://developer.gnome.org/gobject/stable/).
+- **GIO**: A modern, easy-to-use VFS API including abstractions for files, drives,
+  volumes, stream I/O, as well as network programming and IPC though D-Bus. More
+  information available on the [GIO API documentation](https://developer.gnome.org/gio/stable/).
+- **SQLite**: SQLite is a C-language library that implements a small, fast,
+  self-contained, high-reliability, full-featured, SQL database engine. SQLite
+  is the most used database engine in the world. More information available on the
+  [SQLite website](https://sqlite.org).
+- **Soup**: libsoup is an HTTP and HTTP/2 client/server library for GNOME. It uses
+  GObjects and the GLib main loop to integrate well with GNOME applications. More
+  information available on the [Soup API documentation](https://libsoup.org/libsoup-3.0/index.html)
+- **LibXML2**: Libxml2 is the XML C parser and toolkit developed for the GNOME project.
+  More information at the [libXML2 website](https://gitlab.gnome.org/GNOME/libxml2/-/wikis/home).
+- **JSON-GLib**: JSON-GLib is a library providing serialization and deserialization
+  support for the JavaScript Object Notation (JSON) format. More information at
+  the [API documentation](https://gnome.pages.gitlab.gnome.org/json-glib/).
+
+## Connection methods
+
+It is possible to create private databases in local storage, or to connect to
+remote HTTP or D-Bus SPARQL endpoints. See [class@Tracker.SparqlConnection]
+and its different constructors for each of these methods.
+
+<div class="docblock">
+{{ images/connections-diagram.svg }}
+</div>
+
+It is also possible to create public SPARQL endpoints, see [class@Tracker.Endpoint]
+and its subclasses. Tracker can interoperate with any other SPARQL endpoint over HTTP,
+such as [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page) or
+[DBpedia](https://wiki.dbpedia.org/about).

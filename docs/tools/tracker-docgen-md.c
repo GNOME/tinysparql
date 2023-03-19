@@ -135,8 +135,12 @@ print_rdf_diagram (FILE                 *f,
 	g_fprintf (f, "<div class=\"docblock\">\n");
 	g_fprintf (f,
 	           "<style>"
+	           "svg .node text { text-decoration: none !important; fill: var(--text-color); } "
+	           "svg .edge a { text-decoration: none !important; fill: var(--text-color); } "
 	           "svg .edge:hover a { text-decoration: none !important; fill: var(--primary); } "
+	           "svg .edge path  { stroke: var(--text-color-muted); } "
 	           "svg .edge:hover path  { stroke: var(--primary); } "
+	           "svg .edge polygon { fill: var(--text-color-muted); stroke: transparent; }"
 	           "svg .edge:hover polygon { fill: var(--primary); stroke: var(--primary); }"
 	           "</style>\n");
 	g_fprintf (f, "{{ %s-diagram.svg }}\n", id);

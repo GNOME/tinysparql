@@ -1,0 +1,46 @@
+graph {
+  rankdir=LR;
+  fontname="sans-serif";
+  compound=true;
+  bgcolor=transparent;
+  node [shape="box", style="rounded", border=0, fontname="sans-serif"];
+
+  subgraph cluster_session {
+    style="rounded";
+    color="lightgrey";
+    label = "User session"
+    tooltip = "User session"
+    fontsize=10;
+
+    Portal;
+    node [shape="cylinder"];"Provider #1"; "Provider #2";
+
+    "Provider #1" -- Portal;
+    "Provider #2" -- Portal;
+  }
+
+  subgraph cluster_client1 {
+    style="dashed";
+    color="lightgrey";
+    label = "Sandbox #1"
+    tooltip = "Sandbox #1"
+    fontsize=10;
+    "App A";
+    node [shape="cylinder"]; "Provider #3";
+    "App A" -- "Provider #3";
+  }
+
+  subgraph cluster_client2 {
+    style="dashed";
+    color="lightgrey";
+    label = "Sandbox #2"
+    tooltip = "Sandbox #2"
+    fontsize=10;
+    "App B";
+    node [shape="cylinder";style="invis"]; "Provider #4";
+    "App B" -- "Provider #4" [style="invis"];
+  }
+
+  Portal -- "App A" [lhead=cluster_client1];
+  Portal -- "App B" [lhead=cluster_client2];
+}

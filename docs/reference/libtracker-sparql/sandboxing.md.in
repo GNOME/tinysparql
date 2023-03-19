@@ -1,0 +1,122 @@
+Title: Sandboxing and portals
+slug: sandboxing-and-portals
+
+{{ style.xml }}
+
+There are times when it does make sense to lend advanced querying
+capabilities around your data to other processes of the same machine,
+or even widely available to any application that might want to make
+use of it. One real life example of this is [Tracker Miners](https://gitlab.gnome.org/GNOME/tracker-miners)
+used as the [GNOME Desktop](https://gnome.org) indexer.
+
+But in this day and age, it is naive to make this data available
+without constraints on what data can be accessed. Tracker provides a
+portal for the [Flatpak](https://flatpak.org/) application sandboxing
+system. This provides the mechanisms to filter the available data for
+sandboxed users.
+
+# How it works
+
+The portal acts as a single entry point for sandboxed applications
+to have read access to any D-Bus SPARQL endpoint.
+
+<div class="docblock">
+{{ images/sandbox-diagram.svg }}
+</div>
+
+The partitioning of the data is decided by the data provider at
+the time of inserting this data in the RDF triple store, and relies
+on graphs as the natural partitioning scheme of RDF data. As an
+example, consider the following updates:
+
+```SPARQL
+INSERT DATA {
+  GRAPH example:A {
+    example:item1 a rdfs:Resource ;
+  }
+
+  GRAPH example:B {
+    example:item2 a rdfs:Resource ;
+  }
+}
+```
+
+Resulting in the following simple diagram:
+
+<div class="docblock">
+{{ images/graph-example-diagram.svg }}
+</div>
+
+At that point, SPARQL queries may target either, both or any graph, e.g.:
+
+```SPARQL
+# This will return example:item1
+SELECT ?element
+FROM example:A
+{
+  ?element a rdfs:Resource
+}
+```
+
+Or perhaps even poke at non-existing graphs:
+
+```SPARQL
+# This will return no elements
+SELECT ?element
+FROM example:C
+{
+  ?element a rdfs:Resource
+}
+```
+
+Graphs may overlap with other graphs, or extend each other.
+
+The data filtering performed by the portal strongly relies on these RDF
+semantics for graphs, except that graph access is enforced through the
+[`CONSTRAINT` syntax](sparql-and-tracker.html#constraint-syntax). These
+policies prevail over any other SPARQL syntax to specify graphs, and
+will result in filtered graphs being replaced by an empty graph.
+
+Likewise, notification of changes through [class@Tracker.Notifier] will
+be filtered on the way to sandboxed applications, so that there are only
+notifications on changes from the allowed graphs.
+
+# Using it from data providers
+
+Data providers are free to decide the data partitioning scheme available
+to sandboxed applications, by creating graphs and inserting data to
+those. Access to those graphs will be policied by the portal on their
+behalf.
+
+Keep in mind that there are limits on the [number of graphs](limits.html#limits-on-the-number-of-graphs)
+that apply on graph creation.
+
+# Using it from applications
+
+The portal is transparently integrated in the Tracker library. Applications
+may write SPARQL queries so that they work the same while sandboxed or not.
+No code changes are needed in the app, as [ctor@Tracker.SparqlConnection.bus_new]
+will automatically try connect via the portal if it can not talk to the
+given D-Bus name directly.
+
+The policy on the accessed graphs is usually defined in the flatpak manifest
+at the time of bundling the software, e.g.:
+
+```json
+{
+  "finish-args" : [
+    "--add-policy=Tracker3.dbus:org.example.Endpoint=example:A",
+    "--add-policy=Tracker3.dbus:org.example.Endpoint=example:B"
+  ]
+}
+```
+
+The portal will pick the policy from the `/.flatpak-info` file created
+by Flatpak, and (with the example arguments) allow access to graphs `example:A`
+and `example:B` from the `org.example.Endpoint` D-Bus SPARQL endpoint.
+Access to other graphs, or other services will be disallowed.
+
+The Tracker library is included in the
+[GNOME Flatpak SDK and runtime](https://docs.flatpak.org/en/latest/available-runtimes.html#gnome).
+If the app uses a different runtime, you may need to build Tracker
+SPARQL in the app manifest.
