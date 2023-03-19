@@ -1,3 +1,17 @@
+NEW in 3.5.0 - 2023-03-19
+=========================
+  * Documentation improvements
+  * Dark theme fixes in documentation
+
+Translations: cz, da, fr
+
+  Highlighted changes since 3.4.0:
+  * It is now possible to use TrackerSparqlStatement for SPARQL
+    updates for massive performance improvements.
+  * JSON-LD is now supported as a RDF format
+  * New auto-generated VAPI file. Updates might be necessary.
+  * Reworked documentation, based on gi-docgen
+
 NEW in 3.5.0.rc - 2023-03-05
 ============================
   * Reworked documentation, based on gi-docgen
