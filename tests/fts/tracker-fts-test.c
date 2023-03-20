@@ -33,7 +33,7 @@ struct _TestInfo {
 };
 
 const TestInfo tests[] = {
-	{ "fts3aa", 3 },
+	{ "fts3aa", 9 },
 	{ "fts3ae", 1 },
 	{ "consistency/partial-update", 2 },
 	{ "consistency/insert-or-replace", 2 },
