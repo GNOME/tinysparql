@@ -1681,6 +1681,66 @@ function_sparql_print_value (sqlite3_context *context,
 	}
 }
 
+static void
+function_sparql_fts_tokenize (sqlite3_context *context,
+                              int              argc,
+                              sqlite3_value   *argv[])
+{
+	const gchar *fn = "SparqlFtsTokenizer helper";
+	gchar *text;
+	const gchar *p;
+	gboolean in_quote = FALSE;
+	gboolean in_space = FALSE;
+	gboolean started = FALSE;
+	int n_output_quotes = 0;
+	gunichar ch;
+	GString *str;
+	int len;
+	gchar *result;
+
+	if (argc > 1) {
+		result_context_function_error (context, fn, "Invalid argument count");
+		return;
+	}
+
+	text = g_strstrip (g_strdup (sqlite3_value_text (argv[0])));
+	str = g_string_new (NULL);
+	p = text;
+
+	while ((ch = g_utf8_get_char (p)) != 0) {
+		if (ch == '\"') {
+			n_output_quotes++;
+			in_quote = !in_quote;
+		} else if ((ch == ' ') != !!in_space) {
+			/* Ensure terms get independently quoted, unless
+			 * they are within a explicitly quoted part of the text.
+			 */
+			if (!in_quote && started) {
+				g_string_append_c (str, '"');
+				n_output_quotes++;
+			}
+
+			in_space = ch == ' ';
+		} else if (!started) {
+			/* Not a quote, nor a space at the first char. Add the starting quote */
+			g_string_append_c (str, '"');
+			n_output_quotes++;
+		}
+
+		g_string_append_unichar (str, ch);
+		started = TRUE;
+		p = g_utf8_next_char (p);
+	}
+
+	if (n_output_quotes % 2 != 0)
+		g_string_append_c (str, '"');
+
+	len = str->len;
+	result = g_string_free (str, FALSE);
+	sqlite3_result_text (context, result, len, g_free);
+	g_free (text);
+}
+
 static int
 check_interrupt (void *user_data)
 {
@@ -1757,6 +1817,8 @@ initialize_functions (TrackerDBInterface *db_interface)
 		  function_sparql_strlang },
 		{ "SparqlPrintValue", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_print_value },
+		{ "SparqlFtsTokenize", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_fts_tokenize },
 		/* Numbers */
 		{ "SparqlCeil", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_ceil },
