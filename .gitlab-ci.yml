@@ -345,6 +345,7 @@ build-alpine-latest@x86_64:
     - gcovr --root=.. --filter='\.\./src/'
         --exclude=../utils --exclude=../examples --exclude=../docs/reference
         --exclude='\.\./build/.*\.[ch]$' --exclude='.*/tests/.*\.[ch]$'
+        --merge-mode-functions=separate
         --json --print-summary --output=../coverage-${CI_JOB_NAME}.json
     - popd
     - |
@@ -456,8 +457,10 @@ coverage:
   script:
     - mkdir coveragereport
     - gcovr --add-tracefile 'coverage-*.json'
+        --merge-mode-functions=separate
         --html-details --print-summary --output coveragereport/index.html
     - gcovr --add-tracefile 'coverage-*.json'
+        --merge-mode-functions=separate
         --xml --output coveragereport/coverage.xml
   coverage: '/^lines: (\d+\.\d+\%)/'
   artifacts:
