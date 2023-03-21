@@ -448,6 +448,16 @@ test-website:
   needs:
     - build-fedora-container@x86_64
 
+test-soup2@x86_64:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:37@x86_64
+  needs:
+    - build-fedora@x86_64
+  before_script:
+    - meson configure -Dsoup=soup2 build
+  <<: *test
+
 coverage:
   extends:
     - .fdo.distribution-image@fedora
@@ -479,6 +489,7 @@ coverage:
     - test-fedora@aarch64
     - test-fedora-rawhide@aarch64
     - test-alpine@x86_64
+    - test-soup2@x86_64
 
 coverity:
   extends:
