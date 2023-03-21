@@ -151,6 +151,14 @@ check-merge-request:
   tags:
     - aarch64
 
+.tracker.fedora:rawhide@aarch64:
+  extends: .tracker.fedora@common
+  variables:
+    FDO_DISTRIBUTION_VERSION: rawhide
+    FDO_DISTRIBUTION_TAG: "aarch64-${BASE_TAG}"
+  tags:
+    - aarch64
+
 .tracker.ubuntu:rolling@x86_64:
   extends: .tracker.ubuntu@common
   variables:
@@ -192,6 +200,18 @@ build-fedora-container@aarch64:
   extends:
     - .fdo.container-build@fedora
     - .tracker.fedora:37@aarch64
+  stage: prepare
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - repo-sanity
+    - check-commit-log
+    - check-merge-request
+
+build-fedora-rawhide-container@aarch64:
+  extends:
+    - .fdo.container-build@fedora
+    - .tracker.fedora:rawhide@aarch64
   stage: prepare
   variables:
     GIT_STRATEGY: none
@@ -270,6 +290,17 @@ build-fedora@aarch64:
     - .tracker.fedora:37@aarch64
   needs:
     - build-fedora-container@aarch64
+  allow_failure: true
+  variables:
+    NO_DOCS: "true"
+  <<: *build
+
+build-fedora-rawhide@aarch64:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:rawhide@aarch64
+  needs:
+    - build-fedora-rawhide-container@aarch64
   allow_failure: true
   variables:
     NO_DOCS: "true"
@@ -368,6 +399,15 @@ test-fedora@aarch64:
   allow_failure: true
   <<: *test
 
+test-fedora-rawhide@aarch64:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:rawhide@aarch64
+  needs:
+    - build-fedora-rawhide@aarch64
+  allow_failure: true
+  <<: *test
+
 test-ubuntu@x86_64:
   extends:
     - .fdo.distribution-image@ubuntu
@@ -434,6 +474,7 @@ coverage:
     - test-fedora@x86_64
     - test-fedora-rawhide@x86_64
     - test-fedora@aarch64
+    - test-fedora-rawhide@aarch64
     - test-alpine@x86_64
 
 coverity:
