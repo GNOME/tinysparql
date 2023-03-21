@@ -131,10 +131,10 @@ check-merge-request:
     BASE_TAG: '2022-03-07.0'
     FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev gcovr'
 
-.tracker.fedora:35@x86_64:
+.tracker.fedora:37@x86_64:
   extends: .tracker.fedora@common
   variables:
-    FDO_DISTRIBUTION_VERSION: 35
+    FDO_DISTRIBUTION_VERSION: 37
     FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
 
 .tracker.fedora:rawhide@x86_64:
@@ -143,10 +143,10 @@ check-merge-request:
     FDO_DISTRIBUTION_VERSION: rawhide
     FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
 
-.tracker.fedora:35@aarch64:
+.tracker.fedora:37@aarch64:
   extends: .tracker.fedora@common
   variables:
-    FDO_DISTRIBUTION_VERSION: 35
+    FDO_DISTRIBUTION_VERSION: 37
     FDO_DISTRIBUTION_TAG: "aarch64-${BASE_TAG}"
   tags:
     - aarch64
@@ -166,7 +166,7 @@ check-merge-request:
 build-fedora-container@x86_64:
   extends:
     - .fdo.container-build@fedora
-    - .tracker.fedora:35@x86_64
+    - .tracker.fedora:37@x86_64
   stage: prepare
   variables:
     GIT_STRATEGY: none
@@ -191,7 +191,7 @@ build-fedora-rawhide-container@x86_64:
 build-fedora-container@aarch64:
   extends:
     - .fdo.container-build@fedora
-    - .tracker.fedora:35@aarch64
+    - .tracker.fedora:37@aarch64
   stage: prepare
   variables:
     GIT_STRATEGY: none
@@ -227,7 +227,7 @@ build-alpine-container@x86_64:
 check-code-style:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:35@x86_64
+    - .tracker.fedora:37@x86_64
   needs:
     - build-fedora-container@x86_64
   stage: code-review
@@ -250,7 +250,7 @@ check-code-style:
 build-fedora@x86_64:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:35@x86_64
+    - .tracker.fedora:37@x86_64
   needs:
     - build-fedora-container@x86_64
   <<: *build
@@ -267,7 +267,7 @@ build-fedora-rawhide@x86_64:
 build-fedora@aarch64:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:35@aarch64
+    - .tracker.fedora:37@aarch64
   needs:
     - build-fedora-container@aarch64
   allow_failure: true
@@ -340,7 +340,7 @@ build-alpine-latest@x86_64:
 test-fedora@x86_64:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:35@x86_64
+    - .tracker.fedora:37@x86_64
   needs:
     - build-fedora@x86_64
   <<: *test
@@ -362,7 +362,7 @@ test-fedora-rawhide@x86_64:
 test-fedora@aarch64:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:35@aarch64
+    - .tracker.fedora:37@aarch64
   needs:
     - build-fedora@aarch64
   allow_failure: true
@@ -387,7 +387,7 @@ test-alpine@x86_64:
 test-website:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:35@x86_64
+    - .tracker.fedora:37@x86_64
   stage: test
   script:
     - export install_prefix="$(pwd)/tracker-install"
@@ -410,7 +410,7 @@ test-website:
 coverage:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:35@x86_64
+    - .tracker.fedora:37@x86_64
   stage: analysis
   allow_failure: true
   script:
@@ -439,7 +439,7 @@ coverage:
 coverity:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:35@x86_64
+    - .tracker.fedora:37@x86_64
   stage: analysis
   allow_failure: true
   script:
@@ -465,7 +465,7 @@ coverity:
 static-scan:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:35@x86_64
+    - .tracker.fedora:37@x86_64
   stage: analysis
   needs:
     - build-fedora-container@x86_64
@@ -480,7 +480,7 @@ static-scan:
 pages:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:35@x86_64
+    - .tracker.fedora:37@x86_64
   stage: website
   script:
     - mv website public
