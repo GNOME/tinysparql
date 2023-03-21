@@ -525,7 +525,7 @@ batch_statement_insert (TestFixture   *test_fixture,
 	                             "codec", G_TYPE_STRING, "png",
 	                             "interlaced", G_TYPE_BOOLEAN, FALSE,
 	                             "exposure", G_TYPE_DOUBLE, 0.12345678901,
-	                             "resolution", G_TYPE_INT64, 123,
+	                             "resolution", G_TYPE_INT64, (gint64) 123,
 	                             "created", G_TYPE_DATE_TIME, date,
 	                             NULL);
 
@@ -556,7 +556,7 @@ batch_statement_update (TestFixture   *test_fixture,
 	                             "codec", G_TYPE_STRING, "jpeg",
 	                             "interlaced", G_TYPE_BOOLEAN, TRUE,
 	                             "exposure", G_TYPE_DOUBLE, 1.23456789012,
-	                             "resolution", G_TYPE_INT64, 234,
+	                             "resolution", G_TYPE_INT64, (gint64) 234,
 	                             "created", G_TYPE_DATE_TIME, date,
 	                             NULL);
 	tracker_batch_execute (batch, NULL, &error);
@@ -571,7 +571,7 @@ batch_statement_update (TestFixture   *test_fixture,
 	                             "codec", G_TYPE_STRING, "png",
 	                             "interlaced", G_TYPE_BOOLEAN, FALSE,
 	                             "exposure", G_TYPE_DOUBLE, 0.12345678901,
-	                             "resolution", G_TYPE_INT64, 123,
+	                             "resolution", G_TYPE_INT64, (gint64) 123,
 	                             "created", G_TYPE_DATE_TIME, date,
 	                             NULL);
 	tracker_batch_execute (batch, NULL, &error);
@@ -601,7 +601,7 @@ batch_statement_update_same_batch (TestFixture   *test_fixture,
 	                             "codec", G_TYPE_STRING, "jpeg",
 	                             "interlaced", G_TYPE_BOOLEAN, TRUE,
 	                             "exposure", G_TYPE_DOUBLE, 1.23456789012,
-	                             "resolution", G_TYPE_INT64, 234,
+	                             "resolution", G_TYPE_INT64, (gint64) 234,
 	                             "created", G_TYPE_DATE_TIME, date,
 	                             NULL);
 	tracker_batch_add_statement (batch, stmt,
@@ -609,7 +609,7 @@ batch_statement_update_same_batch (TestFixture   *test_fixture,
 	                             "codec", G_TYPE_STRING, "png",
 	                             "interlaced", G_TYPE_BOOLEAN, FALSE,
 	                             "exposure", G_TYPE_DOUBLE, 0.12345678901,
-	                             "resolution", G_TYPE_INT64, 123,
+	                             "resolution", G_TYPE_INT64, (gint64) 123,
 	                             "created", G_TYPE_DATE_TIME, date,
 	                             NULL);
 	tracker_batch_execute (batch, NULL, &error);
@@ -641,7 +641,7 @@ batch_statement_delete (TestFixture   *test_fixture,
 	                             "codec", G_TYPE_STRING, "png",
 	                             "interlaced", G_TYPE_BOOLEAN, FALSE,
 	                             "exposure", G_TYPE_DOUBLE, 0.12345678901,
-	                             "resolution", G_TYPE_INT64, 123,
+	                             "resolution", G_TYPE_INT64, (gint64) 123,
 	                             "created", G_TYPE_DATE_TIME, date,
 	                             NULL);
 	tracker_batch_execute (batch, NULL, &error);
@@ -683,7 +683,7 @@ batch_statement_delete_same_batch (TestFixture   *test_fixture,
 	                             "codec", G_TYPE_STRING, "png",
 	                             "interlaced", G_TYPE_BOOLEAN, FALSE,
 	                             "exposure", G_TYPE_DOUBLE, 0.12345678901,
-	                             "resolution", G_TYPE_INT64, 123,
+	                             "resolution", G_TYPE_INT64, (gint64) 123,
 	                             "created", G_TYPE_DATE_TIME, date,
 	                             NULL);
 	tracker_batch_add_statement (batch, del_stmt,
