@@ -345,7 +345,7 @@ build-alpine-latest@x86_64:
     - gcovr --root=.. --filter='\.\./src/'
         --exclude=../utils --exclude=../examples --exclude=../docs/reference
         --exclude='\.\./build/.*\.[ch]$' --exclude='.*/tests/.*\.[ch]$'
-        --json --print-summary --output=../coverage-${CI_JOB_NAME}.json 2>/dev/null
+        --json --print-summary --output=../coverage-${CI_JOB_NAME}.json
     - popd
     - |
       echo "Distribution: "
