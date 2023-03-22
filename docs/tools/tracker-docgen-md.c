@@ -91,6 +91,10 @@ print_class_hierarchy (FILE                 *f,
 	id = klass->shortname;
 	g_fprintf (f, "#### <a name=\"%s.hierarchy\"></a>Class hierarchy\n\n", id);
 	g_fprintf (f, "<div class=\"docblock\">\n");
+	g_fprintf (f,
+	           "<style>"
+	           "svg .node text { fill: var(--text-color); } "
+	           "</style>\n");
 	g_fprintf (f, "{{ %s-hierarchy.svg }}\n", id);
 	g_fprintf (f, "</div>\n");
 }
