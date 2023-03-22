@@ -17,7 +17,12 @@ for m in matches:
         f = open(os.path.join(dirname, m.strip()))
         embedded = f.read()
     except:
-        embedded = ''
+        if (len(sys.argv) > 2):
+            try:
+                f = open (os.path.join(sys.argv[3], m.strip()))
+                embedded = f.read()
+            except:
+                embedded = ''
 
     escaped = embedded.replace('\\', '\\\\')
     replace = re.compile('{{' + m + '}}')
