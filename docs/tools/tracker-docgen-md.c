@@ -157,8 +157,9 @@ print_flag (FILE        *f,
             const gchar *icon_name,
             const gchar *flag_description)
 {
-	g_fprintf (f, "[![%s](%s \"%s\")](%s)",
-	           flag_description, icon_name, flag_description, flag_property_link);
+	g_fprintf (f, "<svg width='16' height='16' style='display: inline-block;'>"
+	           "<a xlink:href='%s' xlink:title='%s'><use xlink:href='#%s'/></a></svg>",
+	           flag_property_link, flag_description, icon_name);
 }
 
 static void
@@ -204,7 +205,7 @@ print_property_table (FILE                 *f,
 		g_fprintf (f, "| ");
 
 		if (prop->deprecated) {
-			print_flag (f, "nrl-ontology.html#nrl:deprecated", "icon-deprecated.svg",
+			print_flag (f, "nrl-ontology.html#nrl:deprecated", "icon-deprecated",
 			            "This property is deprecated.");
 		}
 
@@ -220,7 +221,7 @@ print_property_table (FILE                 *f,
 
 				message = g_strdup_printf ("This property extends %s", shortname);
 
-				print_flag (f, link, "icon-superproperty.svg", message);
+				print_flag (f, link, "icon-superproperty", message);
 			}
 		}
 
@@ -234,12 +235,12 @@ print_property_table (FILE                 *f,
 			} else {
 				message = g_strdup_printf ("This property can have multiple values.");
 			}
-			print_flag (f, "nrl-ontology.html#nrl:maxCardinality", "icon-multivalue.svg", message);
+			print_flag (f, "nrl-ontology.html#nrl:maxCardinality", "icon-multivalue", message);
 		}
 
 		if (prop->fulltextIndexed) {
-			print_flag (f, "nrl-ontology.html#nrl:fulltextIndexed", "icon-fulltextindexed.svg",
-			            "This property is full-text-indexed, and can be looked up through `fts:match`");
+			print_flag (f, "nrl-ontology.html#nrl:fulltextIndexed", "icon-fulltextindexed",
+			            "This property is full-text-indexed, and can be looked up through fts:match");
 		}
 
 		/* Description column */
@@ -275,13 +276,14 @@ print_ontology_class (TrackerOntologyModel *model,
 
 		if (klass->deprecated) {
 			g_fprintf (f, "**Note:** ");
-			print_flag (f, "nrl-ontology.html#nrl:deprecated", "icon-deprecated.svg", "Deprecated icon");
+			print_flag (f, "nrl-ontology.html#nrl:deprecated", "icon-deprecated", "");
+			g_fprintf (f, "This class is deprecated.");
 			g_fprintf (f, "\n\n");
 		}
 
 		if (klass->notify) {
 			g_fprintf (f, "**Note:** ");
-			print_flag (f, "nrl-ontology.html#nrl:notify", "icon-notify.svg", "Notify icon");
+			print_flag (f, "nrl-ontology.html#nrl:notify", "icon-notify", "");
 			g_fprintf (f, "This class emits notifications about changes, and can "
 			             "be monitored using [class@Tracker.Notifier].");
 			g_fprintf (f, "\n\n");
@@ -378,7 +380,7 @@ print_md_header (FILE *f, TrackerOntologyDescription *desc)
 	g_fprintf (f, "%s\n\n", desc->description);
 	g_fprintf (f,
 	           "<style>"
-	           "img { display: inline-block } "
+	           "svg .icon { fill: var(--primary) }"
 	           "table { border-collapse: collapse; } "
 	           "tr { border: none !important; } "
 	           "tr:hover { background: var(--box-bg); } "
@@ -504,6 +506,23 @@ print_toc_classes (FILE                 *f,
 	}
 
 	g_fprintf (f, "\n\n");
+}
+
+static void
+print_stock_icons (FILE *f)
+{
+	/* In order to keep SVGs themeable, but avoid having
+	 * repeated icons all over the place, inline them once hidden, so
+	 * they can be put in place through <use xlink:href=.../>
+	 */
+	g_fprintf (f,
+	           "<div style='display:none'>\n"
+	           "{{ images/icon-deprecated.svg }}\n"
+	           "{{ images/icon-superproperty.svg }}\n"
+	           "{{ images/icon-multivalue.svg }}\n"
+	           "{{ images/icon-fulltextindexed.svg }}\n"
+	           "{{ images/icon-notify.svg }}\n"
+	           "</div>\n");
 }
 
 void
@@ -652,6 +671,7 @@ ttl_md_print (TrackerOntologyDescription *description,
 
 	print_synopsis (f, description);
 	print_toc_classes (f, model, description->localPrefix, classes);
+	print_stock_icons (f);
 
 	basename = g_strdup_printf ("%s-introduction.md", description->localPrefix);
 	introduction = g_build_filename (description_dir, basename, NULL);

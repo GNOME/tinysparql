@@ -82,6 +82,7 @@ foreach doc : generated_ontology_files
       'embed-files.py',
       meson.current_build_dir() / doc,
       meson.current_build_dir() / output_file,
+      meson.current_source_dir(),
     ],
     depends: [base_ontology_docs, nepomuk_ontology_docs, generate_images])
 endforeach

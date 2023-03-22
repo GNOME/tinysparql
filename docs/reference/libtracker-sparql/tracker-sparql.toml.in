@@ -36,11 +36,6 @@ content_files = [
 ]
 content_images = [
     "logo.svg",
-    "images/icon-deprecated.svg",
-    "images/icon-fulltextindexed.svg",
-    "images/icon-multivalue.svg",
-    "images/icon-notify.svg",
-    "images/icon-superproperty.svg",
 ]
 
 urlmap_file = "urlmap.js"
