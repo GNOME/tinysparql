@@ -1711,11 +1711,11 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 		if (tracker_sparql_find_graph (sparql, tracker_token_get_idstring (graph))) {
 			_append_string_printf (sparql,
 			                       "%s FROM \"%s\".\"fts5\" "
-			                       "WHERE fts5 = '\"' || REPLACE (",
+			                       "WHERE fts5 = SparqlFtsTokenize(",
 			                       select_items->str,
 			                       tracker_token_get_idstring (graph));
 			_append_literal_sql (sparql, binding);
-			_append_string (sparql, ", '\"', ' ') || '\"*'");
+			_append_string (sparql, ") || '*' ");
 		} else {
 			_append_empty_select (sparql, n_properties);
 		}
@@ -1727,10 +1727,10 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 		if (!sparql->policy.filter_unnamed_graph) {
 			_append_string_printf (sparql,
 			                       "%s, 0 FROM \"main\".\"fts5\" "
-			                       "WHERE fts5 = '\"' || REPLACE (",
+			                       "WHERE fts5 = SparqlFtsTokenize(",
 			                       select_items->str);
 			_append_literal_sql (sparql, binding);
-			_append_string (sparql, ", '\"', ' ') || '\"*'");
+			_append_string (sparql, ") || '*' ");
 		} else {
 			_append_empty_select (sparql, n_properties);
 		}
@@ -1744,12 +1744,12 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 			_append_string_printf (sparql,
 			                       "UNION ALL %s, %" G_GINT64_FORMAT " AS graph "
 			                       "FROM \"%s\".\"fts5\" "
-			                       "WHERE fts5 = '\"' || REPLACE (",
+			                       "WHERE fts5 = SparqlFtsTokenize(",
 			                       select_items->str,
 			                       *graph_id,
 			                       (gchar *) graph_name);
 			_append_literal_sql (sparql, binding);
-			_append_string (sparql, ", '\"', ' ') || '\"*'");
+			_append_string (sparql, ") || '*' ");
 		}
 
 		g_hash_table_unref (graphs);

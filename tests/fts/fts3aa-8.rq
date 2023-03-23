@@ -1,0 +1,2 @@
+# Match contains an unfinished quote
+SELECT ?o WHERE { ?o fts:match " \"two four " } order by ?o

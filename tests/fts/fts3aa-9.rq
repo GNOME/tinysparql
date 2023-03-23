@@ -1,0 +1,1 @@
+SELECT ?o WHERE { ?o fts:match "\"four five\" three \"one two\"" } order by ?o
