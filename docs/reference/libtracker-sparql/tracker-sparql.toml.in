@@ -36,6 +36,9 @@ content_files = [
 ]
 content_images = [
     "logo.svg",
+    "images/interpretation.svg",
+    "images/containment.svg",
+    "images/example-interpretation-containment.svg",
 ]
 
 urlmap_file = "urlmap.js"
