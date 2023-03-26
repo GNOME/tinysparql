@@ -1,0 +1,45 @@
+graph {
+  rankdir=LR;
+  bgcolor=transparent;
+  fontname="sans-serif";
+  compound=true;
+  node [shape="box", style="rounded", border=0, fontname="sans-serif"];
+
+  subgraph cluster_1 {
+    style="rounded";
+    color="lightgrey";
+    label = "Application"
+    tooltip = "Application"
+    fontsize=10;
+
+    node [shape="cylinder",label="Rdf data",tooltip="Rdf data"]; ts1;
+  }
+
+  subgraph cluster_2 {
+    style="rounded";
+    color="lightgrey";
+    label = "Http Sparql Endpoint"
+    tooltip = "Http Sparql Endpoint"
+    fontsize=10;
+
+    node [shape="cylinder",label="Rdf data", tooltip="Rdf data"]; ts2;
+  }
+
+  subgraph cluster_3 {
+    style="rounded";
+    color="lightgrey";
+    label = "D-Bus Sparql Endpoint"
+    tooltip = "D-Bus Sparql Endpoint"
+    fontsize=10;
+
+    node [shape="cylinder",label="Rdf data",tooltip="Rdf data"]; ts3;
+  }
+
+  node [shape="box", style="", border=0, fontname="sans-serif",fixedsize=true,height=1]; "Http"; "D-Bus";
+
+  ts1 -- "Http" [ltail=cluster_1];
+  ts1 -- "D-Bus" [ltail=cluster_1];
+
+  "Http" -- "ts2" [lhead=cluster_2]
+  "D-Bus" -- "ts3" [lhead=cluster_3]
+}
