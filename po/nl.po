@@ -11,23 +11,23 @@
 # Tino Meinen <a.t.meinen@chello.nl>, 2008.
 # Erwin Poeze <donnut@outlook.com>, 2013.
 # Reinout van Schouwen <reinouts@gnome.org>, 2013, 2014 (proeflezen).
-# Nathan Follens <nfollens@gnome.org>, 2015-2016, 2019-2022.
+# Nathan Follens <nfollens@gnome.org>, 2015-2016, 2019-2023.
 # Justin van Steijn <jvs@fsfe.org>, 2016.
 # Hannie Dumoleyn <hannie@ubuntu-nl.org>, 2017.
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2022-07-12 10:59+0000\n"
-"PO-Revision-Date: 2022-11-02 00:10+0100\n"
+"POT-Creation-Date: 2023-02-13 21:09+0000\n"
+"PO-Revision-Date: 2023-03-26 18:12+0200\n"
 "Last-Translator: Nathan Follens <nfollens@gnome.org>\n"
-"Language-Team: Dutch <gnome-nl-list@gnome.org>\n"
+"Language-Team: Dutch <https://matrix.to/#/#nl:gnome.org>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -37,19 +37,19 @@ msgstr ""
 #.
 #: src/libtracker-sparql/core/tracker-collation.c:333
 msgid "the|a|an"
-msgstr "the|a|an|de|het|een|'t|’t|‘t|`t|´t|'n|’n|‘n|`n|´n"
+msgstr "the|a|an|de|het|een|'t|’t|‘t|`t|´t|'n|’n|‘n|`n|´n|d'|d’|d‘|d`|d´"
 
 #: src/portal/tracker-main.c:53
 msgid "Version"
 msgstr "Versie"
 
-#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
-#: src/tracker/tracker-export.c:509 src/tracker/tracker-import.c:196
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:387
+#: src/tracker/tracker-export.c:543 src/tracker/tracker-import.c:196
 #: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:239
 msgid "Unrecognized options"
 msgstr "Opties zijn onbekend"
 
-#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:48
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:49
 #: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
@@ -154,61 +154,75 @@ msgstr ""
 "Nieuwe database aangemaakt. Gebruik de optie ‘--dbus-service’ om deze "
 "database op een berichtenbus te delen."
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
 #: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "BESTAND"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "Verbindt met een DBus-dienst"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
 #: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "DBus-dienstnaam"
 
-#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:57
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr "Opmaak resultaten: ‘turtle’, ‘trig’ of ‘json-ld’"
+
+#: src/tracker/tracker-export.c:58
+#| msgid "FORMAT"
+msgid "RDF_FORMAT"
+msgstr "RDF_FORMAT"
+
+#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "Verbindt met een externe dienst"
 
-#: src/tracker/tracker-export.c:57 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "Externe dienst-URI"
 
-#: src/tracker/tracker-export.c:60
+#: src/tracker/tracker-export.c:65
 msgid "Output TriG format which includes named graph information"
 msgstr "TriG-formaat met genaamdegrafiekinformatie uitvoeren"
 
-#: src/tracker/tracker-export.c:72 src/tracker/tracker-export.c:73
+#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:98 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
 #: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Geef één optie ‘--database’, ‘--dbus-service’ (DBus-dienst) of ‘--remote-"
 "service’ (externe dienst) op"
 
-#: src/tracker/tracker-export.c:305 src/tracker/tracker-export.c:325
+#: src/tracker/tracker-export.c:310 src/tracker/tracker-export.c:331
 #: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1124
 msgid "No error given"
 msgstr "Geen fout gemeld"
 
-#: src/tracker/tracker-export.c:324 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-export.c:330 src/tracker/tracker-import.c:124
 #: src/tracker/tracker-sparql.c:1123
 msgid "Could not establish a connection to Tracker"
 msgstr "Verbinding met Tracker maken is mislukt"
 
-#: src/tracker/tracker-export.c:391 src/tracker/tracker-export.c:404
-#: src/tracker/tracker-export.c:414 src/tracker/tracker-sparql.c:1502
+#: src/tracker/tracker-export.c:373
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "Serialisatieformaat ‘%s’ wordt niet ondersteund\n"
+
+#: src/tracker/tracker-export.c:425 src/tracker/tracker-export.c:438
+#: src/tracker/tracker-export.c:448 src/tracker/tracker-sparql.c:1502
 #: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
 msgid "Could not run query"
 msgstr "Uitvoeren zoekopdracht is mislukt"
@@ -1016,12 +1030,6 @@ msgstr "Er moet een databasepad opgegeven worden"
 
 #~ msgid "Could not create D-Bus proxy to tracker-store"
 #~ msgstr "Kon geen D-Bus-proxy naar tracker-store aanmaken"
-
-#~ msgid "Output results format: “sparql”, “turtle” or “json-ld”"
-#~ msgstr "Opmaak resultaten: ‘sparql’, ‘turtle’ of ‘json-ld’"
-
-#~ msgid "FORMAT"
-#~ msgstr "Formaat"
 
 #~ msgid "Could not run tracker-extract: "
 #~ msgstr "Uitvoeren van tracker-extract is mislukt: "
@@ -2481,8 +2489,8 @@ msgstr "Er moet een databasepad opgegeven worden"
 #~ "Globbing patterns can be used here, for example: \"*bar*\".\n"
 #~ "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 #~ msgstr ""
-#~ "Jokertekenpatronen kunnen hier worden gebruikt, bijvoorbeeld:  \"*bar*"
-#~ "\".\n"
+#~ "Jokertekenpatronen kunnen hier worden gebruikt, bijvoorbeeld:  "
+#~ "\"*bar*\".\n"
 #~ "Dit wordt meestal gebruikt om mappen uit te sluiten, zoals *~, *.o, *.la, "
 #~ "enz"
 
