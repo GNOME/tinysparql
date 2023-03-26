@@ -1,17 +1,23 @@
 manpages = [
-    ['tracker3-endpoint', 1],
-    ['tracker3-export', 1],
-    ['tracker3-import', 1],
-    ['tracker3-sparql', 1],
-    ['tracker3-sql', 1],
-    ['tracker-xdg-portal-3', 1],
+    ['tracker3-endpoint', 1, true],
+    ['tracker3-export', 1, true],
+    ['tracker3-import', 1, true],
+    ['tracker3-sparql', 1, true],
+    ['tracker3-sql', 1, true],
+    ['tracker-xdg-portal-3', 1, false],
 ]
+
+manpage_files = []
 
 foreach m : manpages
   name = m[0]
   section = m[1]
+  documentation = m[2]
 
   manpage = '@0@.@1@'.format(name, section)
+  if documentation
+    manpage_files += join_paths(meson.current_source_dir(), manpage + '.txt')
+  endif
 
   custom_target(manpage,
     command: [a2x,

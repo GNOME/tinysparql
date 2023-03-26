@@ -10,6 +10,7 @@ endif
 gidocgen_dep = dependency('gi-docgen', fallback: ['gi-docgen', 'dummy_dep'])
 gidocgen = find_program('gi-docgen')
 graphviz_dot = find_program('dot')
+xmlto = find_program('xmlto', required: false)
 
 ontology_introductions = [
   'nie-introduction.md',
@@ -123,8 +124,25 @@ content = [
 # The TOML gi-docgen configuration wants a list of quoted file names.
 content_quoted = []
 foreach c : generated_content + content + generated_ontology_content
-  content_quoted += '"@0@"'.format(c)
+  content_quoted += '"@0@"'.format(fs.name(c))
 endforeach
+
+if xmlto.found()
+  cli_reference = custom_target(
+    'commandline.md',
+    input: 'commandline.md.in',
+    output: 'commandline.md',
+    command: [
+      'generate-cli-reference.py',
+      '--template', '@INPUT@',
+      '--output', '@OUTPUT@',
+      '--man-pages', manpage_files,
+    ]
+  )
+
+  generated_targets += cli_reference
+  content_quoted += '"@0@"'.format(fs.name(cli_reference.full_path()))
+endif
 
 gidocgen_conf = configuration_data()
 gidocgen_conf.set('version', meson.project_version())
