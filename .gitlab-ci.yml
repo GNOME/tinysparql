@@ -443,8 +443,10 @@ test-website:
       export tracker_miners_commit=$(git -C ./extra/tracker-miners rev-parse HEAD)
       ./docs/website/build.py --output=website --api-docs="$install_prefix/share/doc/Tracker-3.0" --tracker-commit=${tracker_commit} --man-pages ./docs/manpages/*.txt ./extra/tracker-miners/docs/manpages/*.txt
   artifacts:
+    expose_as: 'Website'
     paths:
       - website
+      - website/index.html
   needs:
     - build-fedora-container@x86_64
 

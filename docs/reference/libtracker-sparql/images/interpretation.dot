@@ -1,0 +1,11 @@
+digraph {
+  rankdir=LR;
+  bgcolor=transparent;
+  node [shape="box", style="filled,rounded",fontname="sans-serif", fixedsize=true,width=2];
+
+  "DataObject" [fillcolor="#ff000077"];
+  "InformationElement" [fillcolor="#00ff0077"];
+
+  "DataObject":n -> "InformationElement":n [color="#777777ff",fontcolor="#777777ff",label="interpretedAs",fontsize=10,fontname="sans-serif"];
+  "InformationElement":s -> "DataObject":s [color="#777777ff",fontcolor="#777777ff",label="isStoredAs",fontsize=10,fontname="sans-serif"];
+}
