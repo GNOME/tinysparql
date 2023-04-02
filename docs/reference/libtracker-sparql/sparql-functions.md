@@ -349,3 +349,69 @@ tracker:uri (?id)
 
 Returns the URN that corresponds to an ID.
 Its inverse operation is `tracker:id`
+
+# Full-text search
+
+Full-text search (FTS) is a built-in feature of Tracker, it allows
+for efficient search of individual terms across large collections
+of text.
+
+String properties are not searchable through the full-text index
+by default, only properties with the [nrl:fulltextIndexed](nrl-ontology.md#nrl:fulltextIndexed)
+property enabled can be searched with FTS.
+
+```turtle
+# Enable FTS search on the example:title property
+example:title a rdf:Property;
+  rdfs:range xsd:string ;
+  nrl:fulltextIndexed true .
+```
+
+Multiple full-text indexed properties may be defined, either
+in the same or different classes.
+
+In order to tap into the full-text search index, the SPARQL
+query must use the `fts:match` pseudo-property, e.g.:
+
+```sparql
+SELECT ?res { ?res fts:match "term1 term2" }
+```
+
+This property will match the resources that match the search
+terms, independently of the order and separation between
+those terms in the searched text. Any full-text indexed
+property is candidate for these matches.
+
+In order to complement this pseudo-property, there are
+additional functions to extract more information from the
+full-text index:
+
+- [fts:rank](#ftsrank) to get a ranking order for the matched
+  element. To be used in `ORDER BY` clauses.
+- [fts:offsets](#ftsoffets) to get a list of offsets of the
+  lookup terms as found in the searched text.
+- [fts:snippet](#ftssnippet) to get a short string representation
+  of the lookup terms in the searched text.
+
+These functions work on each of the matches provided by `fts:match`,
+the following example puts all FTS features together at work:
+
+```sparql
+# Get resource IRI, snippet and match offsets of every
+# document matching "GNOME"
+SELECT
+  ?u
+  fts:snippet(?u)
+  fts:offsets(?u)
+{
+  ?u a nfo:Document ;
+    fts:match "GNOME" .
+}
+ORDER BY DESC (fts:rank(?u))
+```
+
+Full-text search is case insensitive, and the content of its
+index may be subject to [stemming](https://en.wikipedia.org/wiki/Stemming),
+[stop word lists](https://en.wikipedia.org/wiki/Stop_word) and other
+methods of pre-processing, these settings may changed via the
+[flags@Tracker.SparqlConnectionFlags] set on a local connection.
