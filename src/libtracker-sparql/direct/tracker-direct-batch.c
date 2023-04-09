@@ -310,8 +310,6 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			break;
 	}
 
-	g_array_set_size (priv->array, 0);
-
 	if (!inner_error)
 		tracker_data_update_buffer_flush (data, &inner_error);
 
@@ -324,6 +322,7 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 	if (inner_error)
 		goto error;
 
+	g_array_set_size (priv->array, 0);
 	g_hash_table_unref (bnodes);
 	g_hash_table_unref (visited);
 
