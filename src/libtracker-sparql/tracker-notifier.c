@@ -90,11 +90,11 @@ struct _TrackerNotifierPrivate {
 };
 
 struct _TrackerNotifierEventCache {
-	TrackerNotifierSubscription *subscription;
 	gchar *service;
 	gchar *graph;
 	TrackerNotifier *notifier;
 	GCancellable *cancellable;
+	TrackerSparqlStatement *stmt;
 	GSequence *sequence;
 	GSequenceIter *first;
 };
@@ -131,6 +131,9 @@ static void tracker_notifier_query_extra_info (TrackerNotifier           *notifi
 
 static gchar * get_service_name (TrackerNotifier             *notifier,
                                  TrackerNotifierSubscription *subscription);
+
+static TrackerSparqlStatement * ensure_extra_info_statement (TrackerNotifier             *notifier,
+                                                             TrackerNotifierSubscription *subscription);
 
 static TrackerNotifierSubscription *
 tracker_notifier_subscription_new (TrackerNotifier *notifier,
@@ -215,10 +218,10 @@ _tracker_notifier_event_cache_new_full (TrackerNotifier             *notifier,
 
 	event_cache = g_new0 (TrackerNotifierEventCache, 1);
 	event_cache->notifier = g_object_ref (notifier);
-	event_cache->subscription = subscription;
 	event_cache->graph = g_strdup (graph);
 	event_cache->cancellable = g_object_ref (priv->cancellable);
 	event_cache->sequence = g_sequence_new ((GDestroyNotify) tracker_notifier_event_unref);
+	event_cache->stmt = ensure_extra_info_statement (notifier, subscription);
 
 	if (subscription)
 		event_cache->service = get_service_name (notifier, subscription);
@@ -349,6 +352,9 @@ get_service_name (TrackerNotifier             *notifier,
 
 	priv = tracker_notifier_get_instance_private (notifier);
 
+	if (!subscription)
+		return NULL;
+
 	/* This is a hackish way to find out we are dealing with DBus connections,
 	 * without pulling its header.
 	 */
@@ -408,18 +414,21 @@ tracker_notifier_emit_events_in_idle (TrackerNotifierEventCache *cache)
 }
 
 static gchar *
-create_extra_info_query (TrackerNotifier           *notifier,
-                         TrackerNotifierEventCache *cache)
+create_extra_info_query (TrackerNotifier             *notifier,
+                         TrackerNotifierSubscription *subscription)
 {
 	GString *sparql;
+	gchar *service;
 	gint i;
 
 	sparql = g_string_new ("SELECT ?id ?uri ");
 
-	if (cache->service) {
+	service = get_service_name (notifier, subscription);
+
+	if (service) {
 		g_string_append_printf (sparql,
 		                        "{ SERVICE <%s> ",
-		                        cache->service);
+		                        service);
 	}
 
 	g_string_append (sparql, "{ VALUES ?id { ");
@@ -434,17 +443,19 @@ create_extra_info_query (TrackerNotifier           *notifier,
 	                 "  FILTER (?id > 0) ."
 	                 "} ");
 
-	if (cache->service)
+	if (service)
 		g_string_append (sparql, "} ");
 
 	g_string_append (sparql, "ORDER BY xsd:integer(?id)");
+
+	g_free (service);
 
 	return g_string_free (sparql, FALSE);
 }
 
 static TrackerSparqlStatement *
-ensure_extra_info_statement (TrackerNotifier           *notifier,
-                             TrackerNotifierEventCache *cache)
+ensure_extra_info_statement (TrackerNotifier             *notifier,
+                             TrackerNotifierSubscription *subscription)
 {
 	TrackerSparqlStatement **ptr;
 	TrackerNotifierPrivate *priv;
@@ -453,8 +464,8 @@ ensure_extra_info_statement (TrackerNotifier           *notifier,
 
 	priv = tracker_notifier_get_instance_private (notifier);
 
-	if (cache->subscription) {
-		ptr = &cache->subscription->statement;
+	if (subscription) {
+		ptr = &subscription->statement;
 	} else {
 		ptr = &priv->local_statement;
 	}
@@ -463,10 +474,10 @@ ensure_extra_info_statement (TrackerNotifier           *notifier,
 		return *ptr;
 	}
 
-	sparql = create_extra_info_query (notifier, cache);
+	sparql = create_extra_info_query (notifier, subscription);
 	*ptr = tracker_sparql_connection_query_statement (priv->connection,
 	                                                  sparql,
-	                                                  cache->cancellable,
+	                                                  priv->cancellable,
 	                                                  &error);
 	g_free (sparql);
 
@@ -631,23 +642,17 @@ tracker_notifier_query_extra_info (TrackerNotifier           *notifier,
                                    TrackerNotifierEventCache *cache)
 {
 	TrackerNotifierPrivate *priv;
-	TrackerSparqlStatement *statement;
 
 	priv = tracker_notifier_get_instance_private (notifier);
 
 	g_mutex_lock (&priv->mutex);
 
-	statement = ensure_extra_info_statement (notifier, cache);
-	if (!statement)
-		goto out;
-
-	bind_arguments (statement, cache);
-	tracker_sparql_statement_execute_async (statement,
+	bind_arguments (cache->stmt, cache);
+	tracker_sparql_statement_execute_async (cache->stmt,
 	                                        cache->cancellable,
 	                                        query_extra_info_cb,
 	                                        cache);
 
-out:
 	g_mutex_unlock (&priv->mutex);
 }
 
