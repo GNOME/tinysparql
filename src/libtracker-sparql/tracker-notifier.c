@@ -92,7 +92,7 @@ struct _TrackerNotifierPrivate {
 struct _TrackerNotifierEventCache {
 	gchar *service;
 	gchar *graph;
-	TrackerNotifier *notifier;
+	GWeakRef notifier;
 	GCancellable *cancellable;
 	TrackerSparqlStatement *stmt;
 	GSequence *sequence;
@@ -217,7 +217,7 @@ _tracker_notifier_event_cache_new_full (TrackerNotifier             *notifier,
 	priv = tracker_notifier_get_instance_private (notifier);
 
 	event_cache = g_new0 (TrackerNotifierEventCache, 1);
-	event_cache->notifier = g_object_ref (notifier);
+	g_weak_ref_init (&event_cache->notifier, notifier);
 	event_cache->graph = g_strdup (graph);
 	event_cache->cancellable = g_object_ref (priv->cancellable);
 	event_cache->sequence = g_sequence_new ((GDestroyNotify) tracker_notifier_event_unref);
@@ -240,7 +240,7 @@ void
 _tracker_notifier_event_cache_free (TrackerNotifierEventCache *event_cache)
 {
 	g_sequence_free (event_cache->sequence);
-	g_object_unref (event_cache->notifier);
+	g_weak_ref_clear (&event_cache->notifier);
 	g_object_unref (event_cache->cancellable);
 	g_free (event_cache->service);
 	g_free (event_cache->graph);
@@ -382,23 +382,30 @@ get_service_name (TrackerNotifier             *notifier,
 static gboolean
 tracker_notifier_emit_events (TrackerNotifierEventCache *cache)
 {
+	TrackerNotifier *notifier;
 	GPtrArray *events;
+
+	notifier = g_weak_ref_get (&cache->notifier);
+	if (!notifier)
+		return G_SOURCE_REMOVE;
 
 	events = tracker_notifier_event_cache_take_events (cache);
 
 	if (events) {
-		g_signal_emit (cache->notifier, signals[EVENTS], 0,
+		g_signal_emit (notifier, signals[EVENTS], 0,
 		               cache->service, cache->graph, events);
 		g_ptr_array_unref (events);
 	}
+
+	g_object_unref (notifier);
 
 	return G_SOURCE_REMOVE;
 }
 
 static void
-tracker_notifier_emit_events_in_idle (TrackerNotifierEventCache *cache)
+tracker_notifier_emit_events_in_idle (TrackerNotifier           *notifier,
+                                      TrackerNotifierEventCache *cache)
 {
-	TrackerNotifier *notifier = cache->notifier;
 	TrackerNotifierPrivate *priv;
 	GSource *source;
 
@@ -498,8 +505,8 @@ handle_cursor (GTask        *task,
 {
 	TrackerNotifierEventCache *cache = task_data;
 	TrackerSparqlCursor *cursor = source_object;
-	TrackerNotifier *notifier = cache->notifier;
-	TrackerNotifierPrivate *priv = tracker_notifier_get_instance_private (notifier);
+	TrackerNotifier *notifier;
+	TrackerNotifierPrivate *priv;
 	TrackerNotifierEvent *event;
 	GSequenceIter *iter;
 	gint64 id;
@@ -532,12 +539,19 @@ handle_cursor (GTask        *task,
 		return;
 	}
 
+	notifier = g_weak_ref_get (&cache->notifier);
+	if (!notifier) {
+		_tracker_notifier_event_cache_free (cache);
+		return;
+	}
+
+	priv = tracker_notifier_get_instance_private (notifier);
 	cache->first = iter;
 
 	if (g_sequence_iter_is_end (cache->first)) {
 		TrackerNotifierEventCache *next;
 
-		tracker_notifier_emit_events_in_idle (cache);
+		tracker_notifier_emit_events_in_idle (notifier, cache);
 
 		g_async_queue_lock (priv->queue);
 		next = g_async_queue_try_pop_unlocked (priv->queue);
@@ -551,6 +565,7 @@ handle_cursor (GTask        *task,
 	}
 
 	g_task_return_boolean (task, TRUE);
+	g_object_unref (notifier);
 }
 
 static void
@@ -671,7 +686,7 @@ _tracker_notifier_event_cache_flush_events (TrackerNotifier           *notifier,
 
 	g_async_queue_lock (priv->queue);
 	if (priv->urn_query_disabled) {
-		tracker_notifier_emit_events_in_idle (cache);
+		tracker_notifier_emit_events_in_idle (notifier, cache);
 	} else if (priv->querying) {
 		g_async_queue_push_unlocked (priv->queue, cache);
 	} else {
