@@ -48,6 +48,9 @@
  * Similarly, when receiving an event of type %TRACKER_NOTIFIER_EVENT_UPDATE,
  * the resource will have already changed, so the data previous to the update is
  * no longer available.
+ *
+ * The [signal@Tracker.Notifier::events] signal is emitted in the thread-default
+ * main context of the thread where the `TrackerNotifier` instance was created.
  */
 
 #include "config.h"
@@ -79,6 +82,7 @@ struct _TrackerNotifierPrivate {
 	GCancellable *cancellable;
 	TrackerSparqlStatement *local_statement;
 	GAsyncQueue *queue;
+	GMainContext *main_context;
 	gint n_local_statement_slots;
 	guint querying : 1;
 	guint urn_query_disabled : 1;
@@ -381,10 +385,19 @@ tracker_notifier_emit_events (TrackerNotifierEventCache *cache)
 static void
 tracker_notifier_emit_events_in_idle (TrackerNotifierEventCache *cache)
 {
-	g_idle_add_full (G_PRIORITY_DEFAULT,
-	                 (GSourceFunc) tracker_notifier_emit_events,
-	                 cache,
-	                 (GDestroyNotify) _tracker_notifier_event_cache_free);
+	TrackerNotifier *notifier = cache->notifier;
+	TrackerNotifierPrivate *priv;
+	GSource *source;
+
+	priv = tracker_notifier_get_instance_private (notifier);
+
+	source = g_idle_source_new ();
+	g_source_set_callback (source,
+			       (GSourceFunc) tracker_notifier_emit_events,
+			       cache,
+			       (GDestroyNotify) _tracker_notifier_event_cache_free);
+	g_source_attach (source, priv->main_context);
+	g_source_unref (source);
 }
 
 static gchar *
@@ -795,6 +808,7 @@ tracker_notifier_init (TrackerNotifier *notifier)
 	                                             (GDestroyNotify) tracker_notifier_subscription_free);
 	priv->cancellable = g_cancellable_new ();
 	priv->queue = g_async_queue_new ();
+	priv->main_context = g_main_context_get_thread_default ();
 }
 
 /**
