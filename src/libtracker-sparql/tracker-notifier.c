@@ -498,7 +498,7 @@ handle_cursor (GTask        *task,
 	 * extracted from the GSequence, the latter because of the ORDER BY
 	 * clause.
 	 */
-	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+	while (tracker_sparql_cursor_next (cursor, cancellable, NULL)) {
 		id = tracker_sparql_cursor_get_integer (cursor, 0);
 		event = g_sequence_get (iter);
 		iter = g_sequence_iter_next (iter);
@@ -513,6 +513,12 @@ handle_cursor (GTask        *task,
 	}
 
 	tracker_sparql_cursor_close (cursor);
+
+	if (g_task_return_error_if_cancelled (task)) {
+		_tracker_notifier_event_cache_free (cache);
+		return;
+	}
+
 	cache->first = iter;
 
 	if (g_sequence_iter_is_end (cache->first)) {
