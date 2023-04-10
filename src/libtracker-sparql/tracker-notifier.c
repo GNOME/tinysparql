@@ -93,6 +93,7 @@ struct _TrackerNotifierEventCache {
 	TrackerNotifierSubscription *subscription;
 	gchar *graph;
 	TrackerNotifier *notifier;
+	GCancellable *cancellable;
 	GSequence *sequence;
 	GSequenceIter *first;
 };
@@ -204,11 +205,15 @@ _tracker_notifier_event_cache_new_full (TrackerNotifier             *notifier,
                                         const gchar                 *graph)
 {
 	TrackerNotifierEventCache *event_cache;
+	TrackerNotifierPrivate *priv;
+
+	priv = tracker_notifier_get_instance_private (notifier);
 
 	event_cache = g_new0 (TrackerNotifierEventCache, 1);
 	event_cache->notifier = g_object_ref (notifier);
 	event_cache->subscription = subscription;
 	event_cache->graph = g_strdup (graph);
+	event_cache->cancellable = g_object_ref (priv->cancellable);
 	event_cache->sequence = g_sequence_new ((GDestroyNotify) tracker_notifier_event_unref);
 
 	return event_cache;
@@ -226,6 +231,7 @@ _tracker_notifier_event_cache_free (TrackerNotifierEventCache *event_cache)
 {
 	g_sequence_free (event_cache->sequence);
 	g_object_unref (event_cache->notifier);
+	g_object_unref (event_cache->cancellable);
 	g_free (event_cache->graph);
 	g_free (event_cache);
 }
@@ -464,7 +470,7 @@ ensure_extra_info_statement (TrackerNotifier           *notifier,
 	sparql = create_extra_info_query (notifier, cache);
 	*ptr = tracker_sparql_connection_query_statement (priv->connection,
 	                                                  sparql,
-	                                                  priv->cancellable,
+	                                                  cache->cancellable,
 	                                                  &error);
 	g_free (sparql);
 
@@ -567,14 +573,12 @@ query_extra_info_cb (GObject      *object,
 {
 	TrackerNotifierEventCache *cache = user_data;
 	TrackerSparqlStatement *statement;
-	TrackerNotifierPrivate *priv;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	GTask *task;
 
 	statement = TRACKER_SPARQL_STATEMENT (object);
 	cursor = tracker_sparql_statement_execute_finish (statement, res, &error);
-	priv = tracker_notifier_get_instance_private (cache->notifier);
 
 	if (!cursor) {
 		if (!g_error_matches (error,
@@ -588,7 +592,7 @@ query_extra_info_cb (GObject      *object,
 		return;
 	}
 
-	task = g_task_new (cursor, priv->cancellable, finish_query, NULL);
+	task = g_task_new (cursor, cache->cancellable, finish_query, NULL);
 	g_task_set_task_data (task, cache, NULL);
 	g_task_run_in_thread (task, handle_cursor);
 	g_object_unref (task);
@@ -643,7 +647,7 @@ tracker_notifier_query_extra_info (TrackerNotifier           *notifier,
 
 	bind_arguments (statement, cache);
 	tracker_sparql_statement_execute_async (statement,
-	                                        priv->cancellable,
+	                                        cache->cancellable,
 	                                        query_extra_info_cb,
 	                                        cache);
 
