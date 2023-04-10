@@ -652,9 +652,9 @@ out:
 }
 
 void
-_tracker_notifier_event_cache_flush_events (TrackerNotifierEventCache *cache)
+_tracker_notifier_event_cache_flush_events (TrackerNotifier           *notifier,
+                                            TrackerNotifierEventCache *cache)
 {
-	TrackerNotifier *notifier = cache->notifier;
 	TrackerNotifierPrivate *priv = tracker_notifier_get_instance_private (notifier);
 
 	if (g_sequence_is_empty (cache->sequence)) {
@@ -697,7 +697,7 @@ graph_updated_cb (GDBusConnection *connection,
 	handle_events (notifier, cache, events);
 	g_variant_iter_free (events);
 
-	_tracker_notifier_event_cache_flush_events (cache);
+	_tracker_notifier_event_cache_flush_events (notifier, cache);
 }
 
 static void
