@@ -91,6 +91,7 @@ struct _TrackerNotifierPrivate {
 
 struct _TrackerNotifierEventCache {
 	TrackerNotifierSubscription *subscription;
+	gchar *service;
 	gchar *graph;
 	TrackerNotifier *notifier;
 	GCancellable *cancellable;
@@ -127,6 +128,9 @@ G_DEFINE_TYPE_WITH_CODE (TrackerNotifier, tracker_notifier, G_TYPE_OBJECT,
 
 static void tracker_notifier_query_extra_info (TrackerNotifier           *notifier,
                                                TrackerNotifierEventCache *cache);
+
+static gchar * get_service_name (TrackerNotifier             *notifier,
+                                 TrackerNotifierSubscription *subscription);
 
 static TrackerNotifierSubscription *
 tracker_notifier_subscription_new (TrackerNotifier *notifier,
@@ -216,6 +220,9 @@ _tracker_notifier_event_cache_new_full (TrackerNotifier             *notifier,
 	event_cache->cancellable = g_object_ref (priv->cancellable);
 	event_cache->sequence = g_sequence_new ((GDestroyNotify) tracker_notifier_event_unref);
 
+	if (subscription)
+		event_cache->service = get_service_name (notifier, subscription);
+
 	return event_cache;
 }
 
@@ -232,6 +239,7 @@ _tracker_notifier_event_cache_free (TrackerNotifierEventCache *event_cache)
 	g_sequence_free (event_cache->sequence);
 	g_object_unref (event_cache->notifier);
 	g_object_unref (event_cache->cancellable);
+	g_free (event_cache->service);
 	g_free (event_cache->graph);
 	g_free (event_cache);
 }
@@ -334,17 +342,12 @@ compose_uri (const gchar *service,
 }
 
 static gchar *
-get_service_name (TrackerNotifier           *notifier,
-                  TrackerNotifierEventCache *cache)
+get_service_name (TrackerNotifier             *notifier,
+                  TrackerNotifierSubscription *subscription)
 {
-	TrackerNotifierSubscription *subscription;
 	TrackerNotifierPrivate *priv;
 
 	priv = tracker_notifier_get_instance_private (notifier);
-	subscription = cache->subscription;
-
-	if (!subscription)
-		return NULL;
 
 	/* This is a hackish way to find out we are dealing with DBus connections,
 	 * without pulling its header.
@@ -374,15 +377,13 @@ static gboolean
 tracker_notifier_emit_events (TrackerNotifierEventCache *cache)
 {
 	GPtrArray *events;
-	gchar *service;
 
 	events = tracker_notifier_event_cache_take_events (cache);
 
 	if (events) {
-		service = get_service_name (cache->notifier, cache);
-		g_signal_emit (cache->notifier, signals[EVENTS], 0, service, cache->graph, events);
+		g_signal_emit (cache->notifier, signals[EVENTS], 0,
+		               cache->service, cache->graph, events);
 		g_ptr_array_unref (events);
-		g_free (service);
 	}
 
 	return G_SOURCE_REMOVE;
@@ -411,17 +412,14 @@ create_extra_info_query (TrackerNotifier           *notifier,
                          TrackerNotifierEventCache *cache)
 {
 	GString *sparql;
-	gchar *service;
 	gint i;
 
 	sparql = g_string_new ("SELECT ?id ?uri ");
 
-	service = get_service_name (notifier, cache);
-
-	if (service) {
+	if (cache->service) {
 		g_string_append_printf (sparql,
 		                        "{ SERVICE <%s> ",
-		                        service);
+		                        cache->service);
 	}
 
 	g_string_append (sparql, "{ VALUES ?id { ");
@@ -436,12 +434,10 @@ create_extra_info_query (TrackerNotifier           *notifier,
 	                 "  FILTER (?id > 0) ."
 	                 "} ");
 
-	if (service)
+	if (cache->service)
 		g_string_append (sparql, "} ");
 
 	g_string_append (sparql, "ORDER BY xsd:integer(?id)");
-
-	g_free (service);
 
 	return g_string_free (sparql, FALSE);
 }
