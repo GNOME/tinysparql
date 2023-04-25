@@ -1,3 +1,11 @@
+NEW in 3.5.1 - 2023-04-25
+=========================
+  * Reintroduce order/distance independent handling of
+    FTS terms.
+  * Documentation improvements
+  * Do not prune too early content of failed batches for
+    error processing purposes
+
 NEW in 3.5.0 - 2023-03-19
 =========================
   * Documentation improvements
