@@ -289,13 +289,6 @@ main (int argc, char **argv)
 
 	g_test_init (&argc, &argv, NULL);
 
-	/* We want the tests to properly find the stopwords dictionaries, so we
-	 *  need to set the following envvar with the path where the
-	 *  dictionaries are. */
-	g_setenv ("TRACKER_LANGUAGE_STOP_WORDS_DIR",
-	          TOP_SRCDIR "/src/libtracker-common/stop-words",
-	          TRUE);
-
 	/* Add normalization checks */
 	for (i = 0; test_data_normalization[i].str != NULL; i++) {
 		gchar *testpath;

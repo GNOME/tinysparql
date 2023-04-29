@@ -33,7 +33,6 @@ foreach t: tests
   test_is_parallel = t.get('is_parallel', true)
 
   env = environment()
-  env.set('TRACKER_LANGUAGE_STOP_WORDS_DIR', join_paths(source_root, 'src', 'libtracker-common', 'stop-words'))
   env.set('LANG', 'en_US.UTF8')
   env.set('TRACKER_DEBUG', 'fts-integrity')
 
