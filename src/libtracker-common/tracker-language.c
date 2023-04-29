@@ -386,7 +386,7 @@ tracker_language_stem_word (TrackerLanguage *language,
 {
 #ifdef HAVE_LIBSTEMMER
 	TrackerLanguagePrivate *priv;
-	const gchar *stem_word;
+	const gchar *stem_word = NULL;
 #endif /* HAVE_LIBSTEMMER */
 
 	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
@@ -400,16 +400,19 @@ tracker_language_stem_word (TrackerLanguage *language,
 
 	g_mutex_lock (&priv->stemmer_mutex);
 
-	stem_word = (const gchar*) sb_stemmer_stem (priv->stemmer,
-	                                            (guchar*) word,
-	                                            word_length);
+	if (priv->stemmer) {
+		stem_word = (const gchar*) sb_stemmer_stem (priv->stemmer,
+							    (guchar*) word,
+							    word_length);
+	}
 
 	g_mutex_unlock (&priv->stemmer_mutex);
 
-	return g_strdup (stem_word);
-#else  /* HAVE_LIBSTEMMER */
-	return g_strndup (word, word_length);
+	if (stem_word)
+		return g_strdup (stem_word);
 #endif /* HAVE_LIBSTEMMER */
+
+	return g_strndup (word, word_length);
 }
 
 /**
