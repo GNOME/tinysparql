@@ -107,9 +107,6 @@ static void
 tracker_language_init (TrackerLanguage *language)
 {
 	TrackerLanguagePrivate *priv;
-#ifdef HAVE_LIBSTEMMER
-	const gchar *stem_language;
-#endif /* HAVE_LIBSTEMMER */
 
 	priv = tracker_language_get_instance_private (language);
 
@@ -117,12 +114,6 @@ tracker_language_init (TrackerLanguage *language)
 	                                          g_str_equal,
 	                                          g_free,
 	                                          NULL);
-#ifdef HAVE_LIBSTEMMER
-	g_mutex_init (&priv->stemmer_mutex);
-
-	stem_language = tracker_language_get_name_by_code (NULL);
-	priv->stemmer = sb_stemmer_new (stem_language, NULL);
-#endif /* HAVE_LIBSTEMMER */
 }
 
 static void
@@ -258,12 +249,6 @@ static void
 language_set_stopword_list (TrackerLanguage *language,
                             const gchar     *language_code)
 {
-#ifdef HAVE_LIBSTEMMER
-	TrackerLanguagePrivate *priv;
-	gchar *stem_language_lower;
-	const gchar *stem_language;
-#endif /* HAVE_LIBSTEMMER */
-
 	gchar *stopword_filename;
 
 	g_return_if_fail (TRACKER_IS_LANGUAGE (language));
@@ -280,31 +265,6 @@ language_set_stopword_list (TrackerLanguage *language,
 		language_add_stopwords (language, stopword_filename);
 		g_free (stopword_filename);
 	}
-
-#ifdef HAVE_LIBSTEMMER
-	priv = tracker_language_get_instance_private (language);
-
-	/* g_message ("Setting up stemmer for language code:'%s'", language_code); */
-
-	stem_language = tracker_language_get_name_by_code (language_code);
-	stem_language_lower = g_ascii_strdown (stem_language, -1);
-
-	g_mutex_lock (&priv->stemmer_mutex);
-
-	if (priv->stemmer) {
-		sb_stemmer_delete (priv->stemmer);
-	}
-
-	priv->stemmer = sb_stemmer_new (stem_language_lower, NULL);
-	if (!priv->stemmer) {
-		g_message ("No stemmer could be found for language:'%s'",
-		           stem_language_lower);
-	}
-
-	g_mutex_unlock (&priv->stemmer_mutex);
-
-	g_free (stem_language_lower);
-#endif /* HAVE_LIBSTEMMER */
 }
 
 static void
@@ -313,6 +273,10 @@ language_constructed (GObject *object)
 	TrackerLanguage *language = TRACKER_LANGUAGE (object);
 	TrackerLanguagePrivate *priv =
 		tracker_language_get_instance_private (language);
+#ifdef HAVE_LIBSTEMMER
+	gchar *stem_language_lower;
+	const gchar *stem_language;
+#endif /* HAVE_LIBSTEMMER */
 
 	G_OBJECT_CLASS (tracker_language_parent_class)->constructed (object);
 
@@ -321,6 +285,19 @@ language_constructed (GObject *object)
 	}
 
 	language_set_stopword_list (language, priv->language_code);
+
+#ifdef HAVE_LIBSTEMMER
+	stem_language = tracker_language_get_name_by_code (priv->language_code);
+	stem_language_lower = g_ascii_strdown (stem_language, -1);
+
+	priv->stemmer = sb_stemmer_new (stem_language_lower, NULL);
+	if (!priv->stemmer) {
+		g_message ("No stemmer could be found for language:'%s'",
+		           stem_language_lower);
+	}
+
+	g_free (stem_language_lower);
+#endif /* HAVE_LIBSTEMMER */
 }
 
 /**
