@@ -70,6 +70,7 @@ enum {
 	PROP_LANGUAGE_CODE,
 };
 
+static void         language_constructed       (GObject       *object);
 static void         language_finalize          (GObject       *object);
 static void         language_get_property      (GObject       *object,
                                                 guint          param_id,
@@ -87,7 +88,8 @@ tracker_language_class_init (TrackerLanguageClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->finalize     = language_finalize;
+	object_class->constructed = language_constructed;
+	object_class->finalize = language_finalize;
 	object_class->get_property = language_get_property;
 	object_class->set_property = language_set_property;
 
@@ -97,7 +99,8 @@ tracker_language_class_init (TrackerLanguageClass *klass)
 	                                                      "Language code",
 	                                                      "Language code",
 	                                                      "en",
-	                                                      G_PARAM_WRITABLE | G_PARAM_CONSTRUCT));
+	                                                      G_PARAM_WRITABLE |
+							      G_PARAM_CONSTRUCT_ONLY));
 }
 
 static void
@@ -174,10 +177,13 @@ language_set_property (GObject      *object,
                        const GValue *value,
                        GParamSpec   *pspec)
 {
+	TrackerLanguage *language = TRACKER_LANGUAGE (object);
+	TrackerLanguagePrivate *priv =
+		tracker_language_get_instance_private (language);
+
 	switch (param_id) {
 	case PROP_LANGUAGE_CODE:
-		tracker_language_set_language_code (TRACKER_LANGUAGE (object),
-		                                    g_value_get_string (value));
+		priv->language_code = g_value_dup_string (value);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -301,6 +307,22 @@ language_set_stopword_list (TrackerLanguage *language,
 #endif /* HAVE_LIBSTEMMER */
 }
 
+static void
+language_constructed (GObject *object)
+{
+	TrackerLanguage *language = TRACKER_LANGUAGE (object);
+	TrackerLanguagePrivate *priv =
+		tracker_language_get_instance_private (language);
+
+	G_OBJECT_CLASS (tracker_language_parent_class)->constructed (object);
+
+	if (!priv->language_code) {
+		priv->language_code = g_strdup ("en");
+	}
+
+	language_set_stopword_list (language, priv->language_code);
+}
+
 /**
  * tracker_language_new:
  * @language_code: language code in ISO 639-1 format
@@ -343,57 +365,6 @@ tracker_language_is_stop_word (TrackerLanguage *language,
 	priv = tracker_language_get_instance_private (language);
 
 	return g_hash_table_lookup (priv->stop_words, word) != NULL;
-}
-
-/**
- * tracker_language_get_language_code:
- * @language: a #TrackerLanguage
- *
- * Returns the language code in ISO 639-1 handled by @language.
- *
- * Returns: the language code.
- **/
-const gchar *
-tracker_language_get_language_code (TrackerLanguage *language)
-{
-	TrackerLanguagePrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
-
-	priv = tracker_language_get_instance_private (language);
-
-	return priv->language_code;
-}
-
-/**
- * tracker_language_set_language_code:
- * @language: a #TrackerLanguage
- * @language_code: an ISO 639-1 language code
- *
- * Sets the @language to @language_code, a %NULL value will reset this
- * to "en" (English).
- **/
-void
-tracker_language_set_language_code (TrackerLanguage *language,
-                                    const gchar     *language_code)
-{
-	TrackerLanguagePrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_LANGUAGE (language));
-
-	priv = tracker_language_get_instance_private (language);
-
-	g_free (priv->language_code);
-
-	priv->language_code = g_strdup (language_code);
-
-	if (!priv->language_code) {
-		priv->language_code = g_strdup ("en");
-	}
-
-	language_set_stopword_list (language, priv->language_code);
-
-	g_object_notify (G_OBJECT (language), "language-code");
 }
 
 /**

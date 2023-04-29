@@ -52,10 +52,6 @@ TrackerLanguage *tracker_language_new                (const gchar     *language_
 
 gboolean         tracker_language_is_stop_word       (TrackerLanguage *language,
                                                       const gchar     *word);
-const gchar *    tracker_language_get_language_code  (TrackerLanguage *language);
-
-void             tracker_language_set_language_code  (TrackerLanguage *language,
-                                                      const gchar     *language_code);
 
 gchar *          tracker_language_stem_word          (TrackerLanguage *language,
                                                       const gchar     *word,
