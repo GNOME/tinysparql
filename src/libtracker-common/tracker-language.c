@@ -35,7 +35,6 @@ typedef struct _Languages           Languages;
 
 struct _TrackerLanguagePrivate {
 	GHashTable    *stop_words;
-	gboolean       enable_stemmer;
 	gchar         *language_code;
 
 	GMutex         stemmer_mutex;
@@ -68,7 +67,6 @@ static Languages all_langs[] = {
 enum {
 	PROP_0,
 
-	PROP_ENABLE_STEMMER,
 	PROP_STOP_WORDS,
 	PROP_LANGUAGE_CODE,
 };
@@ -93,14 +91,6 @@ tracker_language_class_init (TrackerLanguageClass *klass)
 	object_class->finalize     = language_finalize;
 	object_class->get_property = language_get_property;
 	object_class->set_property = language_set_property;
-
-	g_object_class_install_property (object_class,
-	                                 PROP_ENABLE_STEMMER,
-	                                 g_param_spec_boolean ("enable-stemmer",
-	                                                       "Enable stemmer",
-	                                                       "Enable stemmer",
-	                                                       TRUE,
-	                                                       G_PARAM_WRITABLE | G_PARAM_CONSTRUCT));
 
 	g_object_class_install_property (object_class,
 	                                 PROP_STOP_WORDS,
@@ -177,9 +167,6 @@ language_get_property (GObject    *object,
 	priv = tracker_language_get_instance_private (TRACKER_LANGUAGE (object));
 
 	switch (param_id) {
-	case PROP_ENABLE_STEMMER:
-		g_value_set_boolean (value, priv->enable_stemmer);
-		break;
 	case PROP_STOP_WORDS:
 		g_value_set_boxed (value, priv->stop_words);
 		break;
@@ -200,10 +187,6 @@ language_set_property (GObject      *object,
                        GParamSpec   *pspec)
 {
 	switch (param_id) {
-	case PROP_ENABLE_STEMMER:
-		tracker_language_set_enable_stemmer (TRACKER_LANGUAGE (object),
-		                                     g_value_get_boolean (value));
-		break;
 	case PROP_LANGUAGE_CODE:
 		tracker_language_set_language_code (TRACKER_LANGUAGE (object),
 		                                    g_value_get_string (value));
@@ -351,26 +334,6 @@ tracker_language_new (const gchar *language_code)
 }
 
 /**
- * tracker_language_get_enable_stemmer:
- * @language: a #TrackerLanguage
- *
- * Returns whether words stemming is enabled for @language.
- *
- * Returns: %TRUE if word stemming is enabled.
- **/
-gboolean
-tracker_language_get_enable_stemmer (TrackerLanguage *language)
-{
-	TrackerLanguagePrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), TRUE);
-
-	priv = tracker_language_get_instance_private (language);
-
-	return priv->enable_stemmer;
-}
-
-/**
  * tracker_language_get_stop_words:
  * @language: a #TrackerLanguage
  *
@@ -437,28 +400,6 @@ tracker_language_get_language_code (TrackerLanguage *language)
 }
 
 /**
- * tracker_language_set_enable_stemmer:
- * @language: a #TrackerLanguage
- * @value: %TRUE to enable word stemming
- *
- * Enables or disables word stemming for @language.
- **/
-void
-tracker_language_set_enable_stemmer (TrackerLanguage *language,
-                                     gboolean         value)
-{
-	TrackerLanguagePrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_LANGUAGE (language));
-
-	priv = tracker_language_get_instance_private (language);
-
-	priv->enable_stemmer = value;
-
-	g_object_notify (G_OBJECT (language), "enable-stemmer");
-}
-
-/**
  * tracker_language_set_language_code:
  * @language: a #TrackerLanguage
  * @language_code: an ISO 639-1 language code
@@ -519,10 +460,6 @@ tracker_language_stem_word (TrackerLanguage *language,
 
 #ifdef HAVE_LIBSTEMMER
 	priv = tracker_language_get_instance_private (language);
-
-	if (!priv->enable_stemmer) {
-		return g_strndup (word, word_length);
-	}
 
 	g_mutex_lock (&priv->stemmer_mutex);
 
