@@ -67,7 +67,6 @@ static Languages all_langs[] = {
 enum {
 	PROP_0,
 
-	PROP_STOP_WORDS,
 	PROP_LANGUAGE_CODE,
 };
 
@@ -91,14 +90,6 @@ tracker_language_class_init (TrackerLanguageClass *klass)
 	object_class->finalize     = language_finalize;
 	object_class->get_property = language_get_property;
 	object_class->set_property = language_set_property;
-
-	g_object_class_install_property (object_class,
-	                                 PROP_STOP_WORDS,
-	                                 g_param_spec_boxed ("stop-words",
-	                                                     "Stop words",
-	                                                     "Stop words",
-	                                                     g_hash_table_get_type (),
-	                                                     G_PARAM_READABLE));
 
 	g_object_class_install_property (object_class,
 	                                 PROP_LANGUAGE_CODE,
@@ -167,9 +158,6 @@ language_get_property (GObject    *object,
 	priv = tracker_language_get_instance_private (TRACKER_LANGUAGE (object));
 
 	switch (param_id) {
-	case PROP_STOP_WORDS:
-		g_value_set_boxed (value, priv->stop_words);
-		break;
 	case PROP_LANGUAGE_CODE:
 		g_value_set_string (value, priv->language_code);
 		break;
@@ -331,28 +319,6 @@ tracker_language_new (const gchar *language_code)
 	                         NULL);
 
 	return language;
-}
-
-/**
- * tracker_language_get_stop_words:
- * @language: a #TrackerLanguage
- *
- * Returns the stop words for @language. Stop words are really common
- * words that are not worth to index for the language handled by @language.
- *
- * Returns: A #GHashTable with the stop words as the value, this memory
- *          is owned by @language and should not be modified nor freed.
- **/
-GHashTable *
-tracker_language_get_stop_words (TrackerLanguage *language)
-{
-	TrackerLanguagePrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
-
-	priv = tracker_language_get_instance_private (language);
-
-	return priv->stop_words;
 }
 
 /**
