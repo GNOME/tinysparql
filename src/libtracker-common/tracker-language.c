@@ -35,6 +35,7 @@ typedef struct _TrackerLanguagePrivate TrackerLanguagePrivate;
 struct _TrackerLanguagePrivate {
 	GHashTable    *stop_words;
 	gchar         *language_code;
+	gboolean       lang_has_english;
 
 	GMutex         stemmer_mutex;
 	gpointer       stemmer;
@@ -75,7 +76,7 @@ tracker_language_class_init (TrackerLanguageClass *klass)
 	                                 g_param_spec_string ("language-code",
 	                                                      "Language code",
 	                                                      "Language code",
-	                                                      "en",
+	                                                      NULL,
 	                                                      G_PARAM_WRITABLE |
 							      G_PARAM_CONSTRUCT_ONLY));
 }
@@ -226,6 +227,8 @@ static void
 language_set_stopword_list (TrackerLanguage *language,
                             const gchar     *language_code)
 {
+	TrackerLanguagePrivate *priv =
+		tracker_language_get_instance_private (language);
 	gchar *stopword_filename;
 
 	g_return_if_fail (TRACKER_IS_LANGUAGE (language));
@@ -237,11 +240,48 @@ language_set_stopword_list (TrackerLanguage *language,
 	language_add_stopwords (language, stopword_filename);
 	g_free (stopword_filename);
 
-	if (g_strcmp0 (language_code, "en") != 0) {
+	if (g_strcmp0 (language_code, "en") != 0 && priv->lang_has_english) {
 		stopword_filename = language_get_stopword_filename ("en");
 		language_add_stopwords (language, stopword_filename);
 		g_free (stopword_filename);
 	}
+}
+
+static void
+ensure_language (TrackerLanguage *language)
+{
+	TrackerLanguagePrivate *priv =
+		tracker_language_get_instance_private (language);
+	const gchar * const *langs;
+	gint i;
+
+	langs = g_get_language_names ();
+
+	for (i = 0; langs[i]; i++) {
+		const gchar *sep;
+		gchar *code;
+		int len;
+
+		if (strcmp (langs[i], "C") == 0 ||
+		    strncmp (langs[i], "C.", 2) == 0 ||
+		    strcmp (langs[i], "POSIX") == 0)
+			continue;
+
+		sep = strchr (langs[i], '_');
+		len = sep ? (int) (sep - langs[i]) : (int) strlen(langs[i]);
+		code = g_strndup (langs[i], len);
+
+		if (!priv->language_code)
+			priv->language_code = g_strdup (code);
+
+		if (strcmp (code, "en") == 0)
+			priv->lang_has_english = TRUE;
+
+		g_free (code);
+	}
+
+	if (!priv->language_code)
+		priv->language_code = g_strdup ("en");
 }
 
 static void
@@ -253,9 +293,8 @@ language_constructed (GObject *object)
 
 	G_OBJECT_CLASS (tracker_language_parent_class)->constructed (object);
 
-	if (!priv->language_code) {
-		priv->language_code = g_strdup ("en");
-	}
+	if (!priv->language_code)
+		ensure_language (language);
 
 	language_set_stopword_list (language, priv->language_code);
 
