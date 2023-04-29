@@ -31,7 +31,6 @@
 #include "tracker-language.h"
 
 typedef struct _TrackerLanguagePrivate TrackerLanguagePrivate;
-typedef struct _Languages           Languages;
 
 struct _TrackerLanguagePrivate {
 	GHashTable    *stop_words;
@@ -39,28 +38,6 @@ struct _TrackerLanguagePrivate {
 
 	GMutex         stemmer_mutex;
 	gpointer       stemmer;
-};
-
-struct _Languages {
-	const gchar *code;
-	const gchar *name;
-};
-
-static Languages all_langs[] = {
-	{ "da", "Danish" },
-	{ "nl", "Dutch" },
-	{ "en", "English" },
-	{ "fi", "Finnish" },
-	{ "fr", "French" },
-	{ "de", "German" },
-	{ "hu", "Hungarian" },
-	{ "it", "Italian" },
-	{ "nb", "Norwegian" },
-	{ "pt", "Portuguese" },
-	{ "ru", "Russian" },
-	{ "es", "Spanish" },
-	{ "sv", "Swedish" },
-	{ NULL, NULL },
 };
 
 /* GObject properties */
@@ -273,10 +250,6 @@ language_constructed (GObject *object)
 	TrackerLanguage *language = TRACKER_LANGUAGE (object);
 	TrackerLanguagePrivate *priv =
 		tracker_language_get_instance_private (language);
-#ifdef HAVE_LIBSTEMMER
-	gchar *stem_language_lower;
-	const gchar *stem_language;
-#endif /* HAVE_LIBSTEMMER */
 
 	G_OBJECT_CLASS (tracker_language_parent_class)->constructed (object);
 
@@ -287,16 +260,11 @@ language_constructed (GObject *object)
 	language_set_stopword_list (language, priv->language_code);
 
 #ifdef HAVE_LIBSTEMMER
-	stem_language = tracker_language_get_name_by_code (priv->language_code);
-	stem_language_lower = g_ascii_strdown (stem_language, -1);
-
-	priv->stemmer = sb_stemmer_new (stem_language_lower, NULL);
+	priv->stemmer = sb_stemmer_new (priv->language_code, NULL);
 	if (!priv->stemmer) {
-		g_message ("No stemmer could be found for language:'%s'",
-		           stem_language_lower);
+		g_debug ("No stemmer could be found for language:'%s'",
+		           priv->language_code);
 	}
-
-	g_free (stem_language_lower);
 #endif /* HAVE_LIBSTEMMER */
 }
 
@@ -390,31 +358,4 @@ tracker_language_stem_word (TrackerLanguage *language,
 #endif /* HAVE_LIBSTEMMER */
 
 	return g_strndup (word, word_length);
-}
-
-/**
- * tracker_language_get_name_by_code:
- * @language_code: a ISO 639-1 language code.
- *
- * Returns a human readable language name for the given
- * ISO 639-1 code, if supported by #TrackerLanguage
- *
- * Returns: the language name.
- **/
-const gchar *
-tracker_language_get_name_by_code (const gchar *language_code)
-{
-	gint i;
-
-	if (!language_code || language_code[0] == '\0') {
-		return "english";
-	}
-
-	for (i = 0; all_langs[i].code; i++) {
-		if (g_str_has_prefix (language_code, all_langs[i].code)) {
-			return all_langs[i].name;
-		}
-	}
-
-	return "";
 }

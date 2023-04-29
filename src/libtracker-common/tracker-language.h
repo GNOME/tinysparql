@@ -57,8 +57,6 @@ gchar *          tracker_language_stem_word          (TrackerLanguage *language,
                                                       const gchar     *word,
                                                       gint             word_length);
 
-/* Utility functions */
-const gchar *    tracker_language_get_name_by_code   (const gchar     *language_code);
 G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_LANGUAGE_H__ */
