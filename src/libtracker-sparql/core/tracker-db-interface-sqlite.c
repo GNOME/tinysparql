@@ -1624,9 +1624,9 @@ function_sparql_print_value (sqlite3_context *context,
 				result_context_function_error (context, fn, "Invalid unix timestamp");
 
 			if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME)
-				retval = strftime ((gchar *) &buf, sizeof (buf), "%2C%y-%m-%dT%TZ", &tm);
+				retval = strftime ((gchar *) &buf, sizeof (buf), STRFTIME_YEAR_MODIFIER "-%m-%dT%TZ", &tm);
 			else if (prop_type == TRACKER_PROPERTY_TYPE_DATE)
-				retval = strftime ((gchar *) &buf, sizeof (buf), "%2C%y-%m-%d", &tm);
+				retval = strftime ((gchar *) &buf, sizeof (buf), STRFTIME_YEAR_MODIFIER "-%m-%d", &tm);
 			else
 				g_assert_not_reached ();
 

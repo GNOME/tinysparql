@@ -51,3 +51,6 @@
 
 /* Whether RTLD_NOLOAD is defined */
 #mesondefine HAVE_RTLD_NOLOAD
+
+/* Appropriate 4-digit year modifier for strftime() */
+#mesondefine STRFTIME_YEAR_MODIFIER
