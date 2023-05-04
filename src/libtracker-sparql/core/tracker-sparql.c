@@ -9920,9 +9920,11 @@ init_literal_token_from_gvalue (TrackerToken *resolved_out,
                                 const GValue *value)
 {
 	if (G_VALUE_TYPE (value) == G_TYPE_STRING) {
-		tracker_token_literal_init (resolved_out,
-		                            g_value_get_string (value),
-		                            -1);
+		const gchar *str;
+
+		str = g_value_get_string (value);
+		if (str)
+			tracker_token_literal_init (resolved_out, str, -1);
 	} else if (G_VALUE_TYPE (value) == G_TYPE_INT64) {
 		gchar *str;
 		str = g_strdup_printf ("%" G_GINT64_FORMAT,
@@ -9942,8 +9944,10 @@ init_literal_token_from_gvalue (TrackerToken *resolved_out,
 		gchar *str;
 
 		str = tracker_date_format_iso8601 (g_value_get_boxed (value));
-		tracker_token_literal_init (resolved_out, str, -1);
-		g_free (str);
+		if (str) {
+			tracker_token_literal_init (resolved_out, str, -1);
+			g_free (str);
+		}
 	} else if (G_VALUE_TYPE (value) != G_TYPE_INVALID) {
 		g_assert_not_reached ();
 	}

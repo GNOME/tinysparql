@@ -1639,13 +1639,15 @@ function_sparql_print_value (sqlite3_context *context,
 				sqlite3_result_value (context, argv[0]);
 			} else if (prop_type == TRACKER_PROPERTY_TYPE_DATE) {
 				const gchar *value, *end;
-				int len = -1;
+				gsize len;
 
 				value = sqlite3_value_text (argv[0]);
 				/* Drop time data if we are given a xsd:dateTime as a xsd:date */
 				end = strchr (value, 'T');
 				if (end)
 					len = end - value;
+				else
+					len = strlen (value);
 
 				sqlite3_result_text (context,
 				                     g_strndup (value, len),
