@@ -240,11 +240,8 @@ handle_write_in_thread (GTask        *task,
 		count = g_input_stream_read (request->istream,
 		                             buffer, sizeof (buffer),
 		                             cancellable, &error);
-		if (count < 0) {
-			g_task_return_error (task, error);
-			g_object_unref (task);
+		if (count < 0)
 			break;
-		}
 
 		soup_message_body_append (message_body,
 		                          SOUP_MEMORY_COPY,
@@ -257,7 +254,12 @@ handle_write_in_thread (GTask        *task,
 
 	g_input_stream_close (request->istream, cancellable, NULL);
 	soup_message_body_complete (message_body);
-	g_task_return_boolean (task, TRUE);
+
+	if (error)
+		g_task_return_error (task, error);
+	else
+		g_task_return_boolean (task, TRUE);
+
 	g_object_unref (task);
 }
 
