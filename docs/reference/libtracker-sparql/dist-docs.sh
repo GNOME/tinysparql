@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 pushd $MESON_BUILD_ROOT
 
 # Ensure the build tree is compiled, we need generated files
