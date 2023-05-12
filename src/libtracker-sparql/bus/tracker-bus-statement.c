@@ -136,7 +136,7 @@ get_arguments (TrackerBusStatement *bus_stmt)
 	g_hash_table_iter_init (&iter, bus_stmt->arguments);
 
 	while (g_hash_table_iter_next (&iter, &key, &value))
-		g_variant_builder_add (&builder, "{sv}", key, g_variant_ref_sink (value));
+		g_variant_builder_add (&builder, "{sv}", key, value);
 
 	return g_variant_builder_end (&builder);
 }
