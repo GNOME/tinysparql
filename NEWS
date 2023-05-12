@@ -1,3 +1,10 @@
+NEW in 3.5.2 - 2023-05-12
+=========================
+  * Fix several possible crashers
+  * Fix bashisms in doc generation scripts
+  * Fix ISO8601 date strings in cursors on Darwin
+  * Plug leak
+
 NEW in 3.5.1 - 2023-04-25
 =========================
   * Reintroduce order/distance independent handling of
