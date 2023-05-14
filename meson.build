@@ -202,6 +202,7 @@ endif
 # Get an appropriate 4-digit year modifier for strftime
 ##################################################################
 result = cc.run('''
+  #define _GNU_SOURCE
   #include <stdio.h>
   #include <string.h>
   #include <time.h>
