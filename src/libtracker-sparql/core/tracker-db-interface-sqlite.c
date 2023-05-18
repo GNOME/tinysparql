@@ -19,6 +19,9 @@
 
 #include "config.h"
 
+/* 64-bit time on 32-bit platforms */
+#define _TIME_BITS 64
+
 #include <glib/gstdio.h>
 
 #include <sqlite3.h>
