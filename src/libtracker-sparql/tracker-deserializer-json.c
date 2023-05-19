@@ -166,15 +166,10 @@ parse_column_type (JsonObject              *column,
 	} else if (g_str_equal (type, "literal")) {
 		const gchar *datatype, *suffix;
 
-		if (!json_object_has_member (column, "datatype")) {
-			g_set_error (error,
-			             TRACKER_SPARQL_ERROR,
-			             TRACKER_SPARQL_ERROR_PARSE,
-			             "Column object does not have 'datatype' member");
-			return FALSE;
-		}
-
-		datatype = json_object_get_string_member (column, "datatype");
+		if (json_object_has_member (column, "datatype"))
+			datatype = json_object_get_string_member (column, "datatype");
+		else
+			datatype = TRACKER_PREFIX_XSD "string";
 
 		if (!g_str_has_prefix (datatype, TRACKER_PREFIX_XSD)) {
 			*value = TRACKER_SPARQL_VALUE_TYPE_STRING;
