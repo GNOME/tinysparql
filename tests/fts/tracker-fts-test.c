@@ -42,7 +42,7 @@ const TestInfo tests[] = {
 	{ "input/fts3input", 3 },
 	{ "functions/rank", 2 },
 	{ "functions/offsets", 3 },
-	{ "functions/snippet", 5 },
+	{ "functions/snippet", 4 },
 	{ NULL }
 };
 
