@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #
 # Copyright (C) 2012-2013 Martyn Russell <martyn@lanedo.com>
 # Copyright (C) 2012      Sam Thursfield <sam.thursfield@codethink.co.uk>
