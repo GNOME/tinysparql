@@ -37,4 +37,12 @@ if get_option('test_utils')
       'command=' + testutils_dir / 'trackertestutils' / 'tracker-sandbox',
     ]
   )
+
+  subdir('await_file')
+
+  configure_file(
+    input: 'tracker-await-file.in',
+    output: 'tracker-await-file',
+    configuration: script_conf,
+    install_dir: testutils_dir / 'trackertestutils')
 endif
