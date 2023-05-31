@@ -1,3 +1,10 @@
+NEW in 3.5.3 - 2023-05-31
+=========================
+  * Build fixes around strftime() bug workarounds
+    on some architectures/platforms.
+  * Improved compatibility of JSON cursor readers
+  * Leaks plugged
+
 NEW in 3.5.2 - 2023-05-12
 =========================
   * Fix several possible crashers
