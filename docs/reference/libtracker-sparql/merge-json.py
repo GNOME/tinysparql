@@ -1,4 +1,4 @@
-#!/bin/env python3
+#!/usr/bin/env python3
 import json, sys
 
 index = json.load(open(sys.argv[1]))
