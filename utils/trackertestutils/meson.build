@@ -11,11 +11,7 @@ sources = [
 ]
 
 if get_option('test_utils')
-  testutils_dir = get_option('test_utils_dir')
-
-  if testutils_dir == ''
-    testutils_dir = tracker_internal_libs_dir
-  endif
+  testutils_dir = tracker_internal_libs_dir / get_option('test_utils_dir')
 
   install_data(sources, install_dir: testutils_dir / 'trackertestutils')
 
@@ -33,8 +29,8 @@ if get_option('test_utils')
     name: 'tracker-testutils-' + tracker_api_version,
     description: 'tracker test utilities',
     variables: [
-      'python_path=' + testutils_dir,
-      'command=' + testutils_dir / 'trackertestutils' / 'tracker-sandbox',
+      'python_path=' + ( '${libdir}/tracker-' + tracker_api_version ) / get_option('test_utils_dir') / 'trackertestutils',
+      'command=${python_path}/tracker-sandbox',
     ]
   )
 
