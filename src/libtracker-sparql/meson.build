@@ -142,7 +142,6 @@ pkg.generate(libtracker_sparql,
     variables: [
         'exec_prefix=${prefix}',
         'libexecdir=' + '${prefix}' / get_option('libexecdir'),
-        'datadir=' + '${prefix}' / get_option('datadir'),
         'tracker_datadir=${datadir}/' + tracker_versioned_name,
         'ontologies_dir=${tracker_datadir}/ontologies',
     ],
