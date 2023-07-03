@@ -19,14 +19,35 @@
 #
 
 from pathlib import Path
+from tempfile import TemporaryDirectory
 import atexit
 import logging
 import os
 import shutil
 import subprocess
-import tempfile
 
 log = logging.getLogger(__name__)
+
+
+class TemporaryDConfProfile():
+    """
+    A DConf profile that is isolated from the rest of the system.
+
+    See https://help.gnome.org/admin/system-admin-guide/stable/dconf-profiles.html.en
+    """
+
+    def __init__(self):
+        self._tmpdir = TemporaryDirectory()
+        atexit.register(self.cleanup)
+
+        self._profile = Path(self._tmpdir.name).joinpath('trackertest')
+        self._profile.write_text('user-db:trackertest')
+
+    def get_path(self) -> str:
+        return str(self._profile)
+
+    def cleanup(self):
+        self._tmpdir.cleanup()
 
 
 class DConfClient(object):
@@ -47,19 +68,7 @@ class DConfClient(object):
         self.env = os.environ
         self.env.update(extra_env)
         self.env['DBUS_SESSION_BUS_ADDRESS'] = session_bus_address
-        self.env['DCONF_PROFILE'] = self._create_dconf_profile()
         self._check_using_correct_dconf_profile()
-
-    def _create_dconf_profile(self) -> str:
-        self._tmpdir = tempfile.TemporaryDirectory()
-        atexit.register(self._remove_dconf_profile)
-
-        profile = Path(self._tmpdir.name).joinpath('trackertest')
-        profile.write_text('user-db:trackertest')
-        return str(profile)
-
-    def _remove_dconf_profile(self):
-        self._tmpdir.cleanup()
 
     def _check_using_correct_dconf_profile(self):
         profile = self.env.get("DCONF_PROFILE")
