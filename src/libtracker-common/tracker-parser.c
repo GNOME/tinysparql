@@ -86,7 +86,10 @@ ensure_init_parser (void)
 		g_assert (g_module_supported ());
 
 		for (i = 0; i < G_N_ELEMENTS (modules); i++) {
-			if (g_strcmp0 (g_get_current_dir (), BUILDROOT) == 0) {
+			gchar *current_dir;
+
+			current_dir = g_get_current_dir ();
+			if (g_strcmp0 (current_dir, BUILDROOT) == 0) {
 				/* Detect in-build runtime of this code, this may happen
 				 * building introspection information or running tests.
 				 * We want the in-tree modules to be loaded then.
@@ -100,6 +103,7 @@ ensure_init_parser (void)
 			                               G_MODULE_BIND_LAZY |
 			                               G_MODULE_BIND_LOCAL);
 			g_free (module_path);
+			g_free (current_dir);
 
 			if (module)
 				break;
