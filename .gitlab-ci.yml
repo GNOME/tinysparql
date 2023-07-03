@@ -118,7 +118,7 @@ check-merge-request:
 
 .tracker.ubuntu@common:
   variables:
-    BASE_TAG: '2022-03-07.0'
+    BASE_TAG: '2023-07-03.0'
     FDO_DISTRIBUTION_PACKAGES: 'python3-tap umockdev libumockdev-dev upower asciidoc-base git gcovr'
     FDO_DISTRIBUTION_EXEC: |
       export DEBIAN_FRONTEND=noninteractive &&
