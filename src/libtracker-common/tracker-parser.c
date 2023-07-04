@@ -76,7 +76,6 @@ ensure_init_parser (void)
 
 	if (module == NULL) {
 		const gchar *modules[] = {
-
 			"libtracker-parser-libicu.so",
 			"libtracker-parser-libunistring.so"
 		};
@@ -89,6 +88,10 @@ ensure_init_parser (void)
 			gchar *current_dir;
 
 			current_dir = g_get_current_dir ();
+			g_printerr ("Current dir: %s Build root: %s Build libdir: %s, Private libdir: %s, Icu exists: %d, Unistring exists: %d\n",
+				    current_dir, BUILDROOT, BUILD_LIBDIR, PRIVATE_LIBDIR,
+				    g_file_test (BUILD_LIBDIR "/libtracker-parser-libicu.so", G_FILE_TEST_EXISTS),
+				    g_file_test (BUILD_LIBDIR "/libtracker-parser-libunistring.so", G_FILE_TEST_EXISTS));
 			if (g_strcmp0 (current_dir, BUILDROOT) == 0) {
 				/* Detect in-build runtime of this code, this may happen
 				 * building introspection information or running tests.
