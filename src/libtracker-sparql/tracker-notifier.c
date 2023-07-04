@@ -711,7 +711,7 @@ graph_updated_cb (GDBusConnection *connection,
 	GVariantIter *events;
 	const gchar *graph;
 
-	g_variant_get (parameters, "(sa{ii})", &graph, &events);
+	g_variant_get (parameters, "(&sa{ii})", &graph, &events);
 
 	cache = _tracker_notifier_event_cache_new_full (notifier, subscription, graph);
 	handle_events (notifier, cache, events);
