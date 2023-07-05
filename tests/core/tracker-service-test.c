@@ -172,6 +172,8 @@ thread_func (gpointer user_data)
 		return NULL;
 
 	g_main_loop_run (endpoint_loop);
+	g_main_context_pop_thread_default (context);
+	g_main_context_unref (context);
 
 	return NULL;
 }

@@ -999,6 +999,8 @@ thread_func (gpointer user_data)
 	g_main_loop_run (main_loop);
 
 	g_main_loop_unref (main_loop);
+	g_main_context_pop_thread_default (context);
+	g_main_context_unref (context);
 
 	g_object_unref (endpoint);
 
