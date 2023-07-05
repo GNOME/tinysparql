@@ -179,6 +179,8 @@ tracker_bus_batch_execute (TrackerBatch  *batch,
 
 	g_main_loop_unref (data.loop);
 
+	g_main_context_unref (context);
+
 	if (data.error) {
 		g_propagate_error (error, data.error);
 		return FALSE;
