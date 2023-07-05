@@ -99,7 +99,7 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
         '-DBUILD_LIBDIR="@0@"'.format(meson.current_build_dir()),
         # Global build root is required to detect noinst situations (tests/introspection),
         # event when built as a subproject
-        '-DBUILDROOT="@0@"'.format(meson.build_root()),
+        '-DBUILDROOT="@0@"'.format(meson.global_build_root()),
     ] + tracker_c_args,
 
     dependencies: [libtracker_sparql_dependencies, gvdb_dep],
