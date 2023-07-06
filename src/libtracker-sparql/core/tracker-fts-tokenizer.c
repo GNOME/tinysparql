@@ -98,15 +98,12 @@ tracker_tokenizer_tokenize (Fts5Tokenizer *fts5_tokenizer,
 	TrackerTokenizer *tokenizer = (TrackerTokenizer *) fts5_tokenizer;
 	TrackerTokenizerData *data = tokenizer->data;
 	const gchar *token;
-	gboolean stop_word, is_prefix_query;
+	gboolean stop_word;
 	int n_tokens = 0, pos, start, end, len;
 	int rc = SQLITE_OK;
 
 	if (length <= 0)
 		return rc;
-
-	is_prefix_query = ((flags & (FTS5_TOKENIZE_QUERY | FTS5_TOKENIZE_PREFIX)) ==
-	                   (FTS5_TOKENIZE_QUERY | FTS5_TOKENIZE_PREFIX));
 
 	tracker_parser_reset (tokenizer->parser, text, length,
 			      MAX_WORD_LENGTH,
@@ -125,14 +122,6 @@ tracker_tokenizer_tokenize (Fts5Tokenizer *fts5_tokenizer,
 
 		if (!token)
 			break;
-
-		/* When tokenizing prefix query tokens we don't want to
-		 * mistake incomplete words as stop words (eg. "onto" when
-		 * typing "ontology"), we thus let them go through
-		 * even if the parser marked it as a stop word.
-		 */
-		if (stop_word && !is_prefix_query)
-			continue;
 
 		rc = token_func (ctx, 0, token, len, start, end);
 
