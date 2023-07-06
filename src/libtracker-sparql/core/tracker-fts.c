@@ -90,7 +90,7 @@ tracker_fts_create_table (sqlite3            *db,
                           TrackerOntologies  *ontologies,
                           GError            **error)
 {
-	GString *str, *from, *fts, *column_names;
+	GString *str, *from, *fts, *column_names, *weights;
 	TrackerProperty **properties;
 	GHashTable *tables;
 	guint i, len;
@@ -111,6 +111,7 @@ tracker_fts_create_table (sqlite3            *db,
 				database, table_name);
 
 	column_names = g_string_new (NULL);
+	weights = g_string_new (NULL);
 
 	tables = g_hash_table_new (g_str_hash, g_str_equal);
 	properties = tracker_ontologies_get_properties (ontologies, &len);
@@ -134,6 +135,10 @@ tracker_fts_create_table (sqlite3            *db,
 
 		g_string_append_printf (str, " AS \"%s\" ", name);
 		g_string_append_printf (column_names, "\"%s\", ", name);
+
+		if (weights->len != 0)
+			g_string_append_c (weights, ',');
+		g_string_append_printf (weights, "%d", tracker_property_get_weight (properties[i]));
 
 		if (!g_hash_table_contains (tables, table_name)) {
 			g_string_append_printf (from, "LEFT OUTER JOIN \"%s\".\"%s\" ON "
@@ -166,14 +171,16 @@ tracker_fts_create_table (sqlite3            *db,
 
 	str = g_string_new (NULL);
 	g_string_append_printf (str,
-	                        "INSERT INTO %s(%s, rank) VALUES('rank', 'tracker_rank()')",
-	                        table_name, table_name);
+	                        "INSERT INTO %s(%s, rank) VALUES('rank', 'bm25(%s)')",
+	                        table_name, table_name,
+	                        weights->str);
 	rc = sqlite3_exec (db, str->str, NULL, NULL, NULL);
 	g_string_free (str, TRUE);
 
 error:
 	g_string_free (fts, TRUE);
 	g_string_free (column_names, TRUE);
+	g_string_free (weights, TRUE);
 
 	if (rc != SQLITE_OK) {
 		g_set_error (error,
