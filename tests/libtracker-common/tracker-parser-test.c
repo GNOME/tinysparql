@@ -37,7 +37,6 @@ typedef struct {
 	gint max_word_length;
 	gboolean enable_stemmer;
 	gboolean enable_unaccent;
-	gboolean ignore_stop_words;
 	gboolean ignore_reserved_words;
 	gboolean ignore_numbers;
 } TrackerParserTestFixture;
@@ -62,7 +61,6 @@ test_common_setup (TrackerParserTestFixture *fixture,
 	fixture->max_word_length = 50;
 	fixture->enable_stemmer = TRUE;
 	fixture->enable_unaccent = TRUE;
-	fixture->ignore_stop_words = TRUE;
 	fixture->ignore_reserved_words = TRUE;
 	fixture->ignore_numbers = TRUE;
 
@@ -106,7 +104,6 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 	gint position;
 	gint byte_offset_start;
 	gint byte_offset_end;
-	gboolean stop_word;
 	gint word_length;
 	guint nwords = 0;
 
@@ -117,7 +114,6 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 	                      fixture->max_word_length,
 	                      fixture->enable_stemmer,
 	                      fixture->enable_unaccent,
-	                      fixture->ignore_stop_words,
 	                      fixture->ignore_reserved_words,
 	                      testdata->ignore_numbers);
 
@@ -126,7 +122,6 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 				    &position,
 				    &byte_offset_start,
 				    &byte_offset_end,
-				    &stop_word,
 				    &word_length)) {
 		nwords++;
 	}
@@ -168,7 +163,6 @@ expected_word_check (TrackerParserTestFixture *fixture,
 	gint position;
 	gint byte_offset_start;
 	gint byte_offset_end;
-	gboolean stop_word;
 	gint word_length;
 
 	/* Reset the parser with our string */
@@ -178,7 +172,6 @@ expected_word_check (TrackerParserTestFixture *fixture,
 	                      fixture->max_word_length,
 	                      testdata->enable_stemmer,
 	                      testdata->enable_unaccent,
-	                      fixture->ignore_stop_words,
 	                      fixture->ignore_reserved_words,
 	                      fixture->ignore_numbers);
 
@@ -187,7 +180,6 @@ expected_word_check (TrackerParserTestFixture *fixture,
 	                            &position,
 	                            &byte_offset_start,
 	                            &byte_offset_end,
-	                            &stop_word,
 	                            &word_length);
 
 	/* Expected word MUST always be in NFKD normalization */
@@ -221,51 +213,6 @@ test_unac (TrackerParserTestFixture *fixture,
 #else
        g_test_skip ("Built without UNAC");
 #endif
-}
-
-/* -------------- STOP WORD TESTS ----------------- */
-
-/* Test struct for the stop-word tests */
-typedef struct TestDataStopWord TestDataStopWord;
-struct TestDataStopWord {
-	const gchar *str;
-	gboolean ignore_stop_words;
-	gboolean is_expected_stop_word;
-};
-
-/* Common stop__word test method */
-static void
-stop_word_check (TrackerParserTestFixture *fixture,
-                 gconstpointer             data)
-{
-	const TestDataStopWord *testdata = data;
-	gint position;
-	gint byte_offset_start;
-	gint byte_offset_end;
-	gboolean stop_word;
-	gint word_length;
-
-	/* Reset the parser with our string */
-	tracker_parser_reset (fixture->parser,
-	                      testdata->str,
-	                      strlen (testdata->str),
-	                      fixture->max_word_length,
-	                      fixture->enable_stemmer,
-	                      fixture->enable_unaccent,
-	                      testdata->ignore_stop_words,
-	                      fixture->ignore_reserved_words,
-	                      fixture->ignore_numbers);
-
-	/* Process next word */
-	tracker_parser_next (fixture->parser,
-			     &position,
-			     &byte_offset_start,
-			     &byte_offset_end,
-			     &stop_word,
-			     &word_length);
-
-	/* Check if input is same as stop_word */
-	g_assert_cmpuint (stop_word, == , testdata->is_expected_stop_word);
 }
 
 /* -------------- LIST OF TESTS ----------------- */
@@ -337,15 +284,6 @@ static const TestDataExpectedNWords test_data_nwords[] = {
 	{ "Bần chỉ là một anh nghèo xác",                            TRUE,   7, -1 }, /* vietnamese */
 	{ "ホモ・サピエンス 喂人类 katakana, chinese, english",          TRUE,   7, 8 }, /* mixed */
 	{ NULL,                                                     FALSE,  0, 0 }
-};
-
-/* Stop-word tests (for english only) */
-static const TestDataStopWord test_data_stop_words[] = {
-	{ "hello", TRUE,  TRUE  }, /* hello is stop word */
-	{ "hello", FALSE, FALSE },
-	{ "world", TRUE,  FALSE }, /* world is not stop word */
-	{ "world", FALSE, FALSE },
-	{ NULL,    FALSE, FALSE }
 };
 
 int
@@ -428,20 +366,6 @@ main (int argc, char **argv)
 		            &test_data_nwords[i],
 		            test_common_setup,
 		            expected_nwords_check,
-		            test_common_teardown);
-		g_free (testpath);
-	}
-
-	/* Add stop word checks */
-	for (i = 0; test_data_stop_words[i].str != NULL; i++) {
-		gchar *testpath;
-
-		testpath = g_strdup_printf ("/libtracker-fts/parser/stop_words_%d", i);
-		g_test_add (testpath,
-		            TrackerParserTestFixture,
-		            &test_data_stop_words[i],
-		            test_common_setup,
-		            stop_word_check,
 		            test_common_teardown);
 		g_free (testpath);
 	}

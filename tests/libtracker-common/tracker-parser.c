@@ -31,7 +31,6 @@
 #define DEFAULT_MAX_WORD_LENGTH   30
 #define DEFAULT_ENABLE_STEMMER    FALSE
 #define DEFAULT_ENABLE_UNACCENT   TRUE
-#define DEFAULT_IGNORE_STOP_WORDS TRUE
 #define DEFAULT_IGNORE_NUMBERS    TRUE
 
 static gchar    *text;
@@ -135,7 +134,6 @@ run_parsing (void)
 	                      DEFAULT_MAX_WORD_LENGTH,
 	                      DEFAULT_ENABLE_STEMMER,
 	                      DEFAULT_ENABLE_UNACCENT,
-	                      DEFAULT_IGNORE_STOP_WORDS,
 	                      TRUE,
 	                      DEFAULT_IGNORE_NUMBERS);
 
@@ -145,7 +143,6 @@ run_parsing (void)
 		gint position;
 		gint byte_offset_start;
 		gint byte_offset_end;
-		gboolean stop_word;
 		gint word_length;
 
 
@@ -154,7 +151,6 @@ run_parsing (void)
 		                            &position,
 		                            &byte_offset_start,
 		                            &byte_offset_end,
-		                            &stop_word,
 		                            &word_length);
 
 		/* Stop loop if no more words */
@@ -183,15 +179,14 @@ run_parsing (void)
 			                                    ':');
 
 			g_print ("WORD at %d [%d,%d] Original: '%s' (%s), "
-			         "Processed: '%s' (%s) (stop? %s)\n",
+			         "Processed: '%s' (%s)\n",
 			         position,
 			         byte_offset_start,
 			         byte_offset_end,
 			         original_word,
 			         original_word_hex,
 			         word,
-			         word_hex,
-			         stop_word ? "yes" : "no");
+			         word_hex);
 
 			g_free (word_hex);
 			g_free (original_word_hex);

@@ -98,7 +98,6 @@ tracker_tokenizer_tokenize (Fts5Tokenizer *fts5_tokenizer,
 	TrackerTokenizer *tokenizer = (TrackerTokenizer *) fts5_tokenizer;
 	TrackerTokenizerData *data = tokenizer->data;
 	const gchar *token;
-	gboolean stop_word;
 	int n_tokens = 0, pos, start, end, len;
 	int rc = SQLITE_OK;
 
@@ -109,7 +108,6 @@ tracker_tokenizer_tokenize (Fts5Tokenizer *fts5_tokenizer,
 			      MAX_WORD_LENGTH,
 			      !!(data->flags & TRACKER_DB_MANAGER_FTS_ENABLE_STEMMER),
 			      !!(data->flags & TRACKER_DB_MANAGER_FTS_ENABLE_UNACCENT),
-			      !!(data->flags & TRACKER_DB_MANAGER_FTS_ENABLE_STOP_WORDS),
 			      TRUE,
 			      !!(data->flags & TRACKER_DB_MANAGER_FTS_IGNORE_NUMBERS));
 
@@ -117,7 +115,6 @@ tracker_tokenizer_tokenize (Fts5Tokenizer *fts5_tokenizer,
 		token = tracker_parser_next (tokenizer->parser,
 		                             &pos,
 		                             &start, &end,
-		                             &stop_word,
 		                             &len);
 
 		if (!token)
