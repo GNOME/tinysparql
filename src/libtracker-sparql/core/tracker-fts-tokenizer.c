@@ -264,118 +264,6 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
 	}
 }
 
-static GHashTable *
-get_fts_weights (TrackerDBInterface *iface,
-                 sqlite3_context    *context)
-{
-	static GQuark iface_qdata = 0;
-	GHashTable *weights;
-	int rc = SQLITE_DONE;
-
-	if (G_UNLIKELY (iface_qdata == 0))
-		iface_qdata = g_quark_from_static_string ("tracker-fts-weights");
-
-	weights = g_object_get_qdata (G_OBJECT (iface), iface_qdata);
-
-	if (G_UNLIKELY (weights == NULL)) {
-		TrackerDataManager *manager;
-		TrackerOntologies *ontologies;
-		sqlite3_stmt *stmt;
-		sqlite3 *db;
-		const gchar *uri;
-
-		weights = g_hash_table_new (g_str_hash, g_str_equal);
-		db = sqlite3_context_db_handle (context);
-		rc = sqlite3_prepare_v2 (db,
-		                         "SELECT \"rdf:Property\".\"nrl:weight\", "
-		                         "(SELECT Uri FROM Resource where Resource.ID=\"rdf:Property\".ID) "
-		                         "FROM \"rdf:Property\" "
-		                         "WHERE \"rdf:Property\".\"nrl:fulltextIndexed\" = 1 ",
-		                         -1, &stmt, NULL);
-
-		manager = tracker_db_interface_get_user_data (iface);
-		ontologies = tracker_data_manager_get_ontologies (manager);
-
-		while ((rc = sqlite3_step (stmt)) != SQLITE_DONE) {
-			if (rc == SQLITE_ROW) {
-				TrackerProperty *property;
-				guint weight;
-
-				weight = sqlite3_column_int (stmt, 0);
-				uri = (gchar *)sqlite3_column_text (stmt, 1);
-
-				property = tracker_ontologies_get_property_by_uri (ontologies, uri);
-				g_hash_table_insert (weights,
-				                     (gpointer) tracker_property_get_name (property),
-				                     GUINT_TO_POINTER (weight));
-			} else if (rc != SQLITE_BUSY) {
-				break;
-			}
-		}
-
-		sqlite3_finalize (stmt);
-
-		if (rc != SQLITE_DONE) {
-			g_hash_table_destroy (weights);
-			weights = NULL;
-		}
-
-		g_object_set_qdata_full (G_OBJECT (iface), iface_qdata,
-		                         weights, (GDestroyNotify) g_hash_table_unref);
-	}
-
-	return weights;
-}
-
-static void
-tracker_rank_function (const Fts5ExtensionApi  *api,
-                       Fts5Context             *fts_ctx,
-                       sqlite3_context         *ctx,
-                       int                      n_args,
-                       sqlite3_value          **args)
-{
-	TrackerTokenizerFunctionData *data;
-	int i, rc = SQLITE_OK, n_columns, n_tokens;
-	GHashTable *weights;
-	gdouble rank = 0;
-
-	if (n_args != 0) {
-		sqlite3_result_error (ctx, "Invalid argument count", -1);
-		return;
-	}
-
-	n_columns = api->xColumnCount (fts_ctx);
-	data = api->xUserData (fts_ctx);
-	weights = get_fts_weights (data->interface, ctx);
-
-	if (!weights) {
-		sqlite3_result_error (ctx, "Could not read FTS weights", -1);
-		return;
-	}
-
-	for (i = 0; i < n_columns; i++) {
-		const gchar *property;
-		guint weight;
-
-		rc = api->xColumnSize (fts_ctx, i, &n_tokens);
-		if (rc != SQLITE_OK)
-			break;
-
-		if (n_tokens <= 0)
-			continue;
-
-		property = data->property_names[i];
-		weight = GPOINTER_TO_UINT (g_hash_table_lookup (weights, property));
-		rank += weight;
-	}
-
-	if (rc == SQLITE_OK) {
-		sqlite3_result_double (ctx, rank);
-	} else {
-		sqlite3_result_error_code (ctx, rc);
-	}
-}
-
 static fts5_api *
 get_fts5_api (sqlite3  *db,
               GError  **error)
@@ -466,12 +354,6 @@ tracker_tokenizer_initialize (sqlite3                *db,
 	func_data = tracker_tokenizer_function_data_new (interface, property_names);
 	api->xCreateFunction (api, "tracker_offsets", func_data,
 	                      &tracker_offsets_function,
-	                      (GDestroyNotify) tracker_tokenizer_function_data_free);
-
-	/* Rank */
-	func_data = tracker_tokenizer_function_data_new (interface, property_names);
-	api->xCreateFunction (api, "tracker_rank", func_data,
-	                      &tracker_rank_function,
 	                      (GDestroyNotify) tracker_tokenizer_function_data_free);
 
 	return TRUE;
