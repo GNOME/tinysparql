@@ -47,8 +47,7 @@ gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerD
 void                tracker_db_interface_sqlite_enable_shared_cache    (void);
 gboolean            tracker_db_interface_sqlite_fts_init               (TrackerDBInterface       *interface,
                                                                         const gchar              *database,
-                                                                        GHashTable               *properties,
-                                                                        GHashTable               *multivalued,
+                                                                        TrackerOntologies        *ontologies,
                                                                         gboolean                  create,
                                                                         GError                  **error);
 void                tracker_db_interface_sqlite_reset_collator         (TrackerDBInterface       *interface);
@@ -64,8 +63,7 @@ gboolean            tracker_db_interface_sqlite_fts_delete_table       (TrackerD
 
 gboolean            tracker_db_interface_sqlite_fts_alter_table        (TrackerDBInterface       *interface,
                                                                         const gchar              *database,
-                                                                        GHashTable               *properties,
-                                                                        GHashTable               *multivalued,
+                                                                        TrackerOntologies        *ontologies,
                                                                         GError                  **error);
 
 TrackerDBStatement * tracker_db_interface_sqlite_fts_insert_text_stmt (TrackerDBInterface  *db_interface,

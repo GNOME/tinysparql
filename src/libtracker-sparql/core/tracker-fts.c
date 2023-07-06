@@ -25,32 +25,43 @@
 
 #include "tracker-fts-tokenizer.h"
 #include "tracker-fts.h"
+#include "tracker-ontologies.h"
 
-static gchar **
-get_fts_properties (GHashTable  *tables)
+static gboolean
+has_fts_properties (TrackerOntologies *ontologies)
 {
-	GList *table_columns;
-	GArray *property_names;
-	GList *keys, *l;
+	TrackerProperty **properties;
+	guint i, len;
 
-	keys = g_hash_table_get_keys (tables);
-	keys = g_list_sort (keys, (GCompareFunc) strcmp);
+	properties = tracker_ontologies_get_properties (ontologies, &len);
 
-	property_names = g_array_new (TRUE, FALSE, sizeof (gchar *));
-
-	for (l = keys; l; l = l->next) {
-		table_columns = g_hash_table_lookup (tables, l->data);
-
-		while (table_columns) {
-			gchar *str;
-
-			str = g_strdup (table_columns->data);
-			g_array_append_val (property_names, str);
-			table_columns = table_columns->next;
-		}
+	for (i = 0; i < len; i++) {
+		if (tracker_property_get_fulltext_indexed (properties[i]))
+			return TRUE;
 	}
 
-	g_list_free (keys);
+	return FALSE;
+}
+
+static gchar **
+get_fts_properties (TrackerOntologies *ontologies)
+{
+	TrackerProperty **properties;
+	GArray *property_names;
+	guint i, len;
+
+	property_names = g_array_new (TRUE, FALSE, sizeof (gchar *));
+	properties = tracker_ontologies_get_properties (ontologies, &len);
+
+	for (i = 0; i < len; i++) {
+		gchar *column;
+
+		if (!tracker_property_get_fulltext_indexed (properties[i]))
+			continue;
+
+		column = g_strdup (tracker_property_get_name (properties[i]));
+		g_array_append_val (property_names, column);
+	}
 
 	return (gchar **) g_array_free (property_names, FALSE);
 }
@@ -59,13 +70,13 @@ gboolean
 tracker_fts_init_db (sqlite3                *db,
                      TrackerDBInterface     *interface,
                      TrackerDBManagerFlags   flags,
-                     GHashTable             *tables,
+                     TrackerOntologies      *ontologies,
                      GError                **error)
 {
 	gchar **property_names;
 	gboolean retval;
 
-	property_names = get_fts_properties (tables);
+	property_names = get_fts_properties (ontologies);
 	retval = tracker_tokenizer_initialize (db, interface, flags, (const gchar **) property_names, error);
 	g_strfreev (property_names);
 
@@ -73,19 +84,19 @@ tracker_fts_init_db (sqlite3                *db,
 }
 
 gboolean
-tracker_fts_create_table (sqlite3      *db,
-                          const gchar  *database,
-                          gchar        *table_name,
-                          GHashTable   *tables,
-                          GHashTable   *grouped_columns,
-                          GError      **error)
+tracker_fts_create_table (sqlite3            *db,
+                          const gchar        *database,
+                          gchar              *table_name,
+                          TrackerOntologies  *ontologies,
+                          GError            **error)
 {
 	GString *str, *from, *fts, *column_names;
-	gchar *index_table;
-	GList *columns, *keys, *l;
+	TrackerProperty **properties;
+	GHashTable *tables;
+	guint i, len;
 	gint rc;
 
-	if (g_hash_table_size (tables) == 0)
+	if (!has_fts_properties (ontologies))
 		return TRUE;
 
 	/* Create view on tables/columns marked as FTS-indexed */
@@ -101,39 +112,38 @@ tracker_fts_create_table (sqlite3      *db,
 
 	column_names = g_string_new (NULL);
 
-	keys = g_hash_table_get_keys (tables);
-	keys = g_list_sort (keys, (GCompareFunc) strcmp);
+	tables = g_hash_table_new (g_str_hash, g_str_equal);
+	properties = tracker_ontologies_get_properties (ontologies, &len);
 
-	for (l = keys; l; l = l->next) {
-		index_table = l->data;
-		columns = g_hash_table_lookup (tables, l->data);
+	for (i = 0; i < len; i++) {
+		const gchar *name, *table_name;
 
-		while (columns) {
-			if (grouped_columns &&
-			    g_hash_table_lookup (grouped_columns, index_table)) {
-				g_string_append_printf (str, ", group_concat(\"%s\".\"%s\")",
-							index_table,
-							(gchar *) columns->data);
-			} else {
-				g_string_append_printf (str, ", \"%s\".\"%s\"",
-							index_table,
-							(gchar *) columns->data);
-			}
+		if (!tracker_property_get_fulltext_indexed (properties[i]))
+			continue;
 
-			g_string_append_printf (str, " AS \"%s\" ",
-						(gchar *) columns->data);
-			g_string_append_printf (column_names, "\"%s\", ",
-						(gchar *) columns->data);
+		name = tracker_property_get_name (properties[i]);
+		table_name = tracker_property_get_table_name (properties[i]);
 
-			columns = columns->next;
+		if (tracker_property_get_multiple_values (properties[i])) {
+			g_string_append_printf (str, ", group_concat(\"%s\".\"%s\")",
+			                        table_name, name);
+		} else {
+			g_string_append_printf (str, ", \"%s\".\"%s\"",
+			                        table_name, name);
 		}
 
-		g_string_append_printf (from, "LEFT OUTER JOIN \"%s\".\"%s\" ON "
-					" \"rdfs:Resource\".ID = \"%s\".ID ",
-					database, index_table, index_table);
+		g_string_append_printf (str, " AS \"%s\" ", name);
+		g_string_append_printf (column_names, "\"%s\", ", name);
+
+		if (!g_hash_table_contains (tables, table_name)) {
+			g_string_append_printf (from, "LEFT OUTER JOIN \"%s\".\"%s\" ON "
+			                        " \"rdfs:Resource\".ID = \"%s\".ID ",
+			                        database, table_name, table_name);
+			g_hash_table_add (tables, (gpointer) tracker_property_get_table_name (properties[i]));
+		}
 	}
 
-	g_list_free (keys);
+	g_hash_table_unref (tables);
 
 	g_string_append_printf (from, "WHERE COALESCE (%s NULL) IS NOT NULL ",
 	                        column_names->str);
@@ -208,22 +218,21 @@ tracker_fts_delete_table (sqlite3      *db,
 }
 
 gboolean
-tracker_fts_alter_table (sqlite3      *db,
-                         const gchar  *database,
-                         gchar        *table_name,
-                         GHashTable   *tables,
-                         GHashTable   *grouped_columns,
-                         GError      **error)
+tracker_fts_alter_table (sqlite3            *db,
+                         const gchar        *database,
+                         gchar              *table_name,
+                         TrackerOntologies  *ontologies,
+                         GError            **error)
 {
 	gchar *query, *tmp_name;
 	int rc;
 
-	if (g_hash_table_size (tables) == 0)
+	if (!has_fts_properties (ontologies))
 		return TRUE;
 
 	tmp_name = g_strdup_printf ("%s_TMP", table_name);
 
-	if (!tracker_fts_create_table (db, database, tmp_name, tables, grouped_columns, error)) {
+	if (!tracker_fts_create_table (db, database, tmp_name, ontologies, error)) {
 		g_free (tmp_name);
 		return FALSE;
 	}

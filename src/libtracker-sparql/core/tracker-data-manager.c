@@ -3834,48 +3834,6 @@ tracker_data_manager_fts_changed (TrackerDataManager *manager)
 	return has_changed;
 }
 
-static void
-ontology_get_fts_properties (TrackerDataManager  *manager,
-                             GHashTable         **fts_properties,
-                             GHashTable         **multivalued)
-{
-	TrackerProperty **properties;
-	guint i, len;
-
-	properties = tracker_ontologies_get_properties (manager->ontologies, &len);
-	*multivalued = g_hash_table_new (g_str_hash, g_str_equal);
-	*fts_properties = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                         NULL, (GDestroyNotify) g_list_free);
-
-	for (i = 0; i < len; i++) {
-		const gchar *name, *table_name;
-		GList *list;
-
-		if (!tracker_property_get_fulltext_indexed (properties[i])) {
-			continue;
-		}
-
-		table_name = tracker_property_get_table_name (properties[i]);
-		name = tracker_property_get_name (properties[i]);
-		list = g_hash_table_lookup (*fts_properties, table_name);
-
-		if (tracker_property_get_multiple_values (properties[i])) {
-			g_hash_table_insert (*multivalued, (gpointer) table_name,
-			                     GUINT_TO_POINTER (TRUE));
-		}
-
-		if (!list) {
-			list = g_list_prepend (NULL, (gpointer) name);
-			g_hash_table_insert (*fts_properties, (gpointer) table_name, list);
-		} else {
-			g_hash_table_steal (*fts_properties, (gpointer) table_name);
-			list = g_list_insert_sorted (list, (gpointer) name,
-			                             (GCompareFunc) strcmp);
-			g_hash_table_insert (*fts_properties, (gpointer) table_name, list);
-		}
-	}
-}
-
 static gboolean
 rebuild_fts_tokens (TrackerDataManager  *manager,
                     TrackerDBInterface  *iface,
@@ -3922,19 +3880,11 @@ tracker_data_manager_init_fts (TrackerDataManager  *manager,
                                gboolean             create,
                                GError             **error)
 {
-	GHashTable *fts_props, *multivalued;
-	gboolean retval;
-
-	ontology_get_fts_properties (manager, &fts_props, &multivalued);
-	retval = tracker_db_interface_sqlite_fts_init (iface,
-	                                               database,
-	                                               fts_props,
-	                                               multivalued, create,
-	                                               error);
-	g_hash_table_unref (fts_props);
-	g_hash_table_unref (multivalued);
-
-	return retval;
+	return tracker_db_interface_sqlite_fts_init (iface,
+	                                             database,
+	                                             manager->ontologies,
+	                                             create,
+	                                             error);
 }
 
 static gboolean
@@ -3943,18 +3893,9 @@ tracker_data_manager_update_fts (TrackerDataManager  *manager,
                                  const gchar         *database,
                                  GError             **error)
 {
-	GHashTable *fts_properties, *multivalued;
-	gboolean retval;
-
-	ontology_get_fts_properties (manager, &fts_properties, &multivalued);
-	retval = tracker_db_interface_sqlite_fts_alter_table (iface, database,
-	                                                      fts_properties,
-	                                                      multivalued,
-	                                                      error);
-	g_hash_table_unref (fts_properties);
-	g_hash_table_unref (multivalued);
-
-	return retval;
+	return tracker_db_interface_sqlite_fts_alter_table (iface, database,
+	                                                    manager->ontologies,
+	                                                    error);
 }
 
 GFile *
