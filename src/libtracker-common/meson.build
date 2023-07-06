@@ -1,5 +1,3 @@
-subdir('stop-words')
-
 tracker_common_sources = [
   'tracker-date-time.c',
   'tracker-debug.c',

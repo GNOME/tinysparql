@@ -50,9 +50,6 @@ struct _TrackerLanguageClass {
 GType            tracker_language_get_type           (void) G_GNUC_CONST;
 TrackerLanguage *tracker_language_new                (const gchar     *language_code);
 
-gboolean         tracker_language_is_stop_word       (TrackerLanguage *language,
-                                                      const gchar     *word);
-
 gchar *          tracker_language_stem_word          (TrackerLanguage *language,
                                                       const gchar     *word,
                                                       gint             word_length);

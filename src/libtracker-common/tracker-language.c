@@ -33,7 +33,6 @@
 typedef struct _TrackerLanguagePrivate TrackerLanguagePrivate;
 
 struct _TrackerLanguagePrivate {
-	GHashTable    *stop_words;
 	gchar         *language_code;
 	gboolean       lang_has_english;
 
@@ -84,14 +83,6 @@ tracker_language_class_init (TrackerLanguageClass *klass)
 static void
 tracker_language_init (TrackerLanguage *language)
 {
-	TrackerLanguagePrivate *priv;
-
-	priv = tracker_language_get_instance_private (language);
-
-	priv->stop_words = g_hash_table_new_full (g_str_hash,
-	                                          g_str_equal,
-	                                          g_free,
-	                                          NULL);
 }
 
 static void
@@ -109,10 +100,6 @@ language_finalize (GObject *object)
 	}
 	g_mutex_clear (&priv->stemmer_mutex);
 #endif /* HAVE_LIBSTEMMER */
-
-	if (priv->stop_words) {
-		g_hash_table_unref (priv->stop_words);
-	}
 
 	g_free (priv->language_code);
 
@@ -158,93 +145,6 @@ language_set_property (GObject      *object,
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
 		break;
 	};
-}
-
-static gchar *
-language_get_stopword_filename (const gchar *language_code)
-{
-	gchar *str;
-	gchar *filename;
-	const gchar *testpath;
-
-	str = g_strconcat ("stopwords.", language_code, NULL);
-
-	/* Look if the testpath for stopwords dictionary was set
-	 *  (used during unit tests) */
-	testpath = g_getenv ("TRACKER_LANGUAGE_STOP_WORDS_DIR");
-	if (!testpath) {
-		filename = g_build_filename (SHAREDIR,
-		                             "tracker3",
-		                             "stop-words",
-		                             str,
-		                             NULL);
-	} else {
-		filename = g_build_filename (testpath,
-		                             str,
-		                             NULL);
-	}
-
-	g_free (str);
-	return filename;
-}
-
-static void
-language_add_stopwords (TrackerLanguage *language,
-                        const gchar     *filename)
-{
-	TrackerLanguagePrivate *priv;
-	GMappedFile          *mapped_file;
-	GError               *error = NULL;
-	gchar                *content;
-	gchar               **words, **p;
-
-	priv = tracker_language_get_instance_private (language);
-
-	mapped_file = g_mapped_file_new (filename, FALSE, &error);
-	if (error) {
-		g_message ("Tracker couldn't read stopword file:'%s', %s",
-		           filename, error->message);
-		g_clear_error (&error);
-		return;
-	}
-
-	content = g_mapped_file_get_contents (mapped_file);
-	words = g_strsplit_set (content, "\n" , -1);
-
-	g_mapped_file_unref (mapped_file);
-
-	/* FIXME: Shouldn't clear the hash table first? */
-	for (p = words; *p; p++) {
-		g_hash_table_insert (priv->stop_words,
-		                     g_strdup (g_strstrip (*p)),
-		                     GINT_TO_POINTER (1));
-	}
-
-	g_strfreev (words);
-}
-
-static void
-language_set_stopword_list (TrackerLanguage *language,
-                            const gchar     *language_code)
-{
-	TrackerLanguagePrivate *priv =
-		tracker_language_get_instance_private (language);
-	gchar *stopword_filename;
-
-	g_return_if_fail (TRACKER_IS_LANGUAGE (language));
-
-	/* Set up stopwords list */
-	/* g_message ("Setting up stopword list for language code:'%s'", language_code); */
-
-	stopword_filename = language_get_stopword_filename (language_code);
-	language_add_stopwords (language, stopword_filename);
-	g_free (stopword_filename);
-
-	if (g_strcmp0 (language_code, "en") != 0 && priv->lang_has_english) {
-		stopword_filename = language_get_stopword_filename ("en");
-		language_add_stopwords (language, stopword_filename);
-		g_free (stopword_filename);
-	}
 }
 
 static void
@@ -296,8 +196,6 @@ language_constructed (GObject *object)
 	if (!priv->language_code)
 		ensure_language (language);
 
-	language_set_stopword_list (language, priv->language_code);
-
 #ifdef HAVE_LIBSTEMMER
 	priv->stemmer = sb_stemmer_new (priv->language_code, NULL);
 	if (!priv->stemmer) {
@@ -325,30 +223,6 @@ tracker_language_new (const gchar *language_code)
 	                         NULL);
 
 	return language;
-}
-
-/**
- * tracker_language_is_stop_word:
- * @language: a #TrackerLanguage
- * @word: a string containing a word
- *
- * Returns %TRUE if the given @word is in the list of stop words of the
- *  given @language.
- *
- * Returns: %TRUE if @word is a stop word. %FALSE otherwise.
- */
-gboolean
-tracker_language_is_stop_word (TrackerLanguage *language,
-                               const gchar     *word)
-{
-	TrackerLanguagePrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), FALSE);
-	g_return_val_if_fail (word, FALSE);
-
-	priv = tracker_language_get_instance_private (language);
-
-	return g_hash_table_lookup (priv->stop_words, word) != NULL;
 }
 
 /**
