@@ -108,7 +108,6 @@ tracker_tokenizer_tokenize (Fts5Tokenizer *fts5_tokenizer,
 			      MAX_WORD_LENGTH,
 			      !!(data->flags & TRACKER_DB_MANAGER_FTS_ENABLE_STEMMER),
 			      !!(data->flags & TRACKER_DB_MANAGER_FTS_ENABLE_UNACCENT),
-			      TRUE,
 			      !!(data->flags & TRACKER_DB_MANAGER_FTS_IGNORE_NUMBERS));
 
 	while (n_tokens < MAX_WORDS) {

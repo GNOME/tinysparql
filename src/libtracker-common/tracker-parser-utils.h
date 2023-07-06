@@ -56,11 +56,6 @@ G_BEGIN_DECLS
  */
 #define IS_FORCED_WORDBREAK_UCS4(c) ((c) == 0x002E)
 
-
-gboolean tracker_parser_is_reserved_word_utf8 (const gchar *word,
-                                               gsize word_length);
-
-
 /* Define to 1 if you want to enable debugging logs showing HEX contents
  * of the words being parsed */
 #define TRACKER_PARSER_DEBUG_HEX 0

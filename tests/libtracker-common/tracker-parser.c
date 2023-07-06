@@ -134,7 +134,6 @@ run_parsing (void)
 	                      DEFAULT_MAX_WORD_LENGTH,
 	                      DEFAULT_ENABLE_STEMMER,
 	                      DEFAULT_ENABLE_UNACCENT,
-	                      TRUE,
 	                      DEFAULT_IGNORE_NUMBERS);
 
 	/* Loop through all words! */

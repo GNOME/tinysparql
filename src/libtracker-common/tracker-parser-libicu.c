@@ -57,7 +57,6 @@ struct TrackerParser {
 	guint                  max_word_length;
 	gboolean               enable_stemmer;
 	gboolean               enable_unaccent;
-	gboolean               ignore_reserved_words;
 	gboolean               ignore_numbers;
 	gboolean               enable_forced_wordbreaks;
 
@@ -514,15 +513,6 @@ parser_next (TrackerParser *parser,
 			continue;
 		}
 
-		/* check if word is reserved (looking at ORIGINAL UTF-8 buffer here! */
-		if (parser->ignore_reserved_words &&
-		    tracker_parser_is_reserved_word_utf8 (&parser->txt[current_word_offset_utf8],
-		                                          word_length_utf8)) {
-			/* Ignore this word and keep on looping */
-			parser->cursor = next_word_offset_uchar;
-			continue;
-		}
-
 		/* compute truncated word length (in UChar bytes) if needed (to
 		 * avoid extremely long words) */
 		truncated_length = (word_length_uchar < 2 * WORD_BUFFER_LENGTH ?
@@ -604,7 +594,6 @@ tracker_parser_reset (TrackerParser *parser,
                       guint          max_word_length,
                       gboolean       enable_stemmer,
                       gboolean       enable_unaccent,
-                      gboolean       ignore_reserved_words,
                       gboolean       ignore_numbers)
 {
 	UErrorCode error = U_ZERO_ERROR;
@@ -618,7 +607,6 @@ tracker_parser_reset (TrackerParser *parser,
 	parser->max_word_length = max_word_length;
 	parser->enable_stemmer = enable_stemmer;
 	parser->enable_unaccent = enable_unaccent;
-	parser->ignore_reserved_words = ignore_reserved_words;
 	parser->ignore_numbers = ignore_numbers;
 
 	/* Note: We're forcing some unicode characters to behave

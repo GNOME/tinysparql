@@ -36,7 +36,6 @@ static void (*parser_reset) (TrackerParser *parser,
                              guint          max_word_length,
                              gboolean       enable_stemmer,
                              gboolean       enable_unaccent,
-                             gboolean       ignore_reserved_words,
                              gboolean       ignore_numbers);
 static const gchar * (*parser_next) (TrackerParser *parser,
                                      gint          *position,
@@ -153,14 +152,12 @@ tracker_parser_reset (TrackerParser *parser,
                       guint          max_word_length,
                       gboolean       enable_stemmer,
                       gboolean       enable_unaccent,
-                      gboolean       ignore_reserved_words,
                       gboolean       ignore_numbers)
 {
 	parser_reset (parser, txt, txt_size,
 	              max_word_length,
 	              enable_stemmer,
 	              enable_unaccent,
-	              ignore_reserved_words,
 	              ignore_numbers);
 }
 

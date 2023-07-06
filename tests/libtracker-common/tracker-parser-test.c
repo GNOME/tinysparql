@@ -37,7 +37,6 @@ typedef struct {
 	gint max_word_length;
 	gboolean enable_stemmer;
 	gboolean enable_unaccent;
-	gboolean ignore_reserved_words;
 	gboolean ignore_numbers;
 } TrackerParserTestFixture;
 
@@ -61,7 +60,6 @@ test_common_setup (TrackerParserTestFixture *fixture,
 	fixture->max_word_length = 50;
 	fixture->enable_stemmer = TRUE;
 	fixture->enable_unaccent = TRUE;
-	fixture->ignore_reserved_words = TRUE;
 	fixture->ignore_numbers = TRUE;
 
 	/* Create the parser */
@@ -114,7 +112,6 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 	                      fixture->max_word_length,
 	                      fixture->enable_stemmer,
 	                      fixture->enable_unaccent,
-	                      fixture->ignore_reserved_words,
 	                      testdata->ignore_numbers);
 
 	/* Count number of output words */
@@ -172,7 +169,6 @@ expected_word_check (TrackerParserTestFixture *fixture,
 	                      fixture->max_word_length,
 	                      testdata->enable_stemmer,
 	                      testdata->enable_unaccent,
-	                      fixture->ignore_reserved_words,
 	                      fixture->ignore_numbers);
 
 	/* Process next word */

@@ -45,7 +45,6 @@ void           tracker_parser_reset           (TrackerParser   *parser,
                                                guint            max_word_length,
                                                gboolean         enable_stemmer,
                                                gboolean         enable_unaccent,
-                                               gboolean         ignore_reserved_words,
                                                gboolean         ignore_numbers);
 
 const gchar *  tracker_parser_next            (TrackerParser   *parser,
