@@ -4213,7 +4213,7 @@ tracker_data_manager_update_from_version (TrackerDataManager  *manager,
 			goto error;
 	}
 
-	if (version < TRACKER_DB_VERSION_3_4) {
+	if (version < TRACKER_DB_VERSION_3_6) {
 		GHashTableIter iter;
 		const gchar *graph;
 
