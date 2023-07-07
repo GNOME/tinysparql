@@ -1,5 +1,6 @@
 libtracker_common_tests = [
     'file-utils',
+    'parser',
     'utils',
 ]
 

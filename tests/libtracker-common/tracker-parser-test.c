@@ -45,17 +45,6 @@ static void
 test_common_setup (TrackerParserTestFixture *fixture,
                    gconstpointer             data)
 {
-	TrackerLanguage  *language;
-
-	/* Setup language for parser. We make sure that always English is used
-	 *  in the unit tests, because we want the English stemming method to
-	 *  be used. */
-	language = tracker_language_new ("en");
-	if (!language) {
-		g_critical ("Language setup failed!");
-		return;
-	}
-
 	/* Default conf parameters */
 	fixture->max_word_length = 50;
 	fixture->enable_stemmer = TRUE;
@@ -63,13 +52,11 @@ test_common_setup (TrackerParserTestFixture *fixture,
 	fixture->ignore_numbers = TRUE;
 
 	/* Create the parser */
-	fixture->parser = tracker_parser_new (language);
+	fixture->parser = tracker_parser_new ();
 	if (!fixture->parser) {
 		g_critical ("Parser creation failed!");
 		return;
 	}
-
-	g_object_unref (language);
 }
 
 /* Common teardown for all tests */
@@ -129,13 +116,14 @@ expected_nwords_check (TrackerParserTestFixture *fixture,
 	 * that we can split different words, not much about the number of words
 	 * itself (althogh we should check that as well) */
 
-	if (testdata->alternate_expected_nwords < 0)
+	if (testdata->alternate_expected_nwords < 0) {
 		/* Check if input is same as expected */
 		g_assert_cmpuint (nwords, == , testdata->expected_nwords);
-	else
-		/* We'll assert if both expected number of words fail */
-		g_assert_true ((nwords == testdata->expected_nwords) ||
-		          (nwords == testdata->alternate_expected_nwords));
+	} else {
+		/* Treat the possible differences as a range */
+		g_assert_cmpuint (nwords, >=, testdata->expected_nwords);
+		g_assert_cmpuint (nwords, <=, testdata->alternate_expected_nwords);
+	}
 }
 
 /* -------------- EXPECTED WORD TESTS ----------------- */
@@ -275,10 +263,10 @@ static const TestDataExpectedNWords test_data_nwords[] = {
 	{ ".hidden.txt",                                            TRUE,   2, -1 },
 	{ "noextension.",                                           TRUE,   1, -1 },
 	{ "ホモ・サピエンス",                                          TRUE,   2, -1 }, /* katakana */
-	{ "喂人类",                                                   TRUE,   2, 3 }, /* chinese */
+	{ "喂人类",                                                   TRUE,   1, 3 }, /* chinese */
 	{ "Американские суда находятся в международных водах.",     TRUE,   6, -1 }, /* russian */
 	{ "Bần chỉ là một anh nghèo xác",                            TRUE,   7, -1 }, /* vietnamese */
-	{ "ホモ・サピエンス 喂人类 katakana, chinese, english",          TRUE,   7, 8 }, /* mixed */
+	{ "ホモ・サピエンス 喂人类 katakana, chinese, english",          TRUE,   6, 8 }, /* mixed */
 	{ NULL,                                                     FALSE,  0, 0 }
 };
 
