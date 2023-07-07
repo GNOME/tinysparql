@@ -34,6 +34,7 @@ foreach t: tests
 
   env = environment()
   env.set('LANG', 'en_US.UTF8')
+  env.set('LANGUAGE', 'en_US:C:POSIX')
   env.set('TRACKER_DEBUG', 'fts-integrity')
 
   foreach envvar_name, envvar_val: test_env
