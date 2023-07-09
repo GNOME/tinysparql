@@ -229,9 +229,13 @@ write_sparql_query (GOutputStream  *ostream,
 	len = strlen (query);
 	data = g_data_output_stream_new (ostream);
 	g_data_output_stream_set_byte_order (data, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
+	if (!g_data_output_stream_put_uint32 (data, TRACKER_BUS_OP_SPARQL, NULL, error))
+		goto error;
 	if (!g_data_output_stream_put_int32 (data, len, NULL, error))
 		goto error;
 	if (!g_data_output_stream_put_string (data, query, NULL, error))
+		goto error;
+	if (!g_data_output_stream_put_int32 (data, 0, NULL, error))
 		goto error;
 
 	g_object_unref (data);
@@ -280,37 +284,39 @@ write_sparql_queries (GOutputStream  *ostream,
 
 	for (i = 0; i < n_ops; i++) {
 		TrackerBusOp *op = &ops[i];
-		int len, params_len = 0;
 
-		len = strlen (op->d.sparql.sparql);
-
-		if (op->d.sparql.parameters) {
-			GVariant *variant;
-
-			variant = convert_params (op->d.sparql.parameters);
-			params_str = g_variant_print (variant, TRUE);
-			g_variant_unref (variant);
-
-			params_len = strlen (params_str);
-
-			/* Account for the intermediate \0 */
-			params_len++;
-		}
-
-		if (!g_data_output_stream_put_int32 (data, len + params_len, NULL, error))
-			goto error;
-		if (!g_data_output_stream_put_string (data, op->d.sparql.sparql,
-		                                      NULL, error))
+		if (!g_data_output_stream_put_int32 (data, op->type, NULL, error))
 			goto error;
 
-		if (params_str) {
-			if (!g_data_output_stream_put_byte (data, 0, NULL, error))
+		if (op->type == TRACKER_BUS_OP_SPARQL) {
+			if (!g_data_output_stream_put_int32 (data,
+			                                     strlen (op->d.sparql.sparql),
+			                                     NULL, error))
 				goto error;
-			if (!g_data_output_stream_put_string (data, params_str,
+			if (!g_data_output_stream_put_string (data, op->d.sparql.sparql,
 			                                      NULL, error))
 				goto error;
 
-			g_clear_pointer (&params_str, g_free);
+			if (op->d.sparql.parameters) {
+				GVariant *variant;
+
+				variant = convert_params (op->d.sparql.parameters);
+				params_str = g_variant_print (variant, TRUE);
+				g_variant_unref (variant);
+
+				if (!g_data_output_stream_put_int32 (data,
+				                                     strlen (params_str),
+				                                     NULL, error))
+					goto error;
+				if (!g_data_output_stream_put_string (data, params_str,
+				                                      NULL, error))
+					goto error;
+
+				g_clear_pointer (&params_str, g_free);
+			} else {
+				if (!g_data_output_stream_put_int32 (data, 0, NULL, error))
+					goto error;
+			}
 		}
 	}
 

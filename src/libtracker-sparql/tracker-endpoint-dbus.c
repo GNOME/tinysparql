@@ -60,6 +60,8 @@
 
 #include "config.h"
 
+#include "bus/tracker-bus.h"
+
 #include "tracker-endpoint-dbus.h"
 #include "tracker-notifier.h"
 #include "tracker-notifier-private.h"
@@ -134,7 +136,6 @@ typedef struct {
 	TrackerBatch *batch;
 	gboolean array_update;
 	gint num_queries;
-	gint cur_query;
 	gchar *prologue;
 } UpdateRequest;
 
@@ -311,7 +312,6 @@ update_request_new (TrackerEndpointDBus   *endpoint,
 	request = g_new0 (UpdateRequest, 1);
 	request->invocation = g_object_ref (invocation);
 	request->endpoint = endpoint;
-	request->cur_query = 0;
 	request->array_update = array_update;
 	request->prologue = tracker_endpoint_dbus_add_prologue (endpoint, NULL);
 
@@ -369,79 +369,161 @@ value_from_variant (GValue   *value,
 	return TRUE;
 }
 
-static gchar *
-read_query (GDataInputStream  *istream,
-            const gchar       *prologue,
-            GPtrArray        **parameter_names,
-            GArray           **parameter_values,
-            GCancellable      *cancellable,
-            GError           **error)
+static gboolean
+extract_parameters (const gchar  *str,
+                    GPtrArray   **parameter_names,
+                    GArray      **parameter_values,
+                    GError      **error)
 {
-	gchar *buffer;
-	gint buffer_size, len, prologue_size = 0;
+	GVariant *variant, *value;
+	GVariantIter iter;
+	gchar *key;
 
-	if (prologue)
-		prologue_size = strlen (prologue) + 1;
+	variant = g_variant_parse (G_VARIANT_TYPE ("a{sv}"),
+	                           str, NULL,
+	                           NULL,
+	                           error);
+	if (!variant)
+		return FALSE;
 
-	buffer_size = g_data_input_stream_read_int32 (istream, NULL, NULL);
-	buffer = g_new0 (char, prologue_size + 1 + buffer_size + 1);
+	g_assert (parameter_names);
+	g_assert (parameter_values);
 
-	if (prologue) {
-		strncpy (buffer, prologue, prologue_size - 1);
-		buffer[prologue_size - 1] = ' ';
+	*parameter_names = g_ptr_array_new ();
+	g_ptr_array_set_free_func (*parameter_names, g_free);
+	*parameter_values = g_array_new (FALSE, FALSE, sizeof (GValue));
+	g_array_set_clear_func (*parameter_values, (GDestroyNotify) g_value_unset);
+
+	g_variant_iter_init (&iter, variant);
+	while (g_variant_iter_next (&iter, "{sv}", &key, &value)) {
+		GValue gvalue = G_VALUE_INIT;
+
+		if (!value_from_variant (&gvalue, value))
+			continue;
+
+		g_ptr_array_add (*parameter_names, key);
+		g_array_append_val (*parameter_values, gvalue);
+		g_variant_unref (value);
 	}
 
+	g_assert ((*parameter_names)->len == (*parameter_values)->len);
+	g_variant_unref (variant);
+
+	return TRUE;
+}
+
+static gchar *
+read_string (GDataInputStream  *istream,
+             gsize             *len_out,
+             GCancellable      *cancellable,
+             GError           **error)
+{
+	gchar *buf;
+	guint32 len;
+
+	len = g_data_input_stream_read_int32 (istream, NULL, error);
+	if (len == 0)
+		return NULL;
+
+	buf = g_new0 (gchar, len + 1);
+
 	if (!g_input_stream_read_all (G_INPUT_STREAM (istream),
-	                              &buffer[prologue_size],
-	                              buffer_size,
+	                              buf,
+	                              len,
 	                              NULL,
 	                              cancellable,
 	                              error)) {
-		g_free (buffer);
+		g_free (buf);
 		return NULL;
 	}
 
-	len = strlen (buffer);
+	if (len_out)
+		*len_out = len;
 
-	if (buffer_size > prologue_size + 1 + len + 1) {
-		GVariant *variant, *value;
-		GVariantIter iter;
-		gchar *key;
+	return buf;
+}
 
-		variant = g_variant_parse (G_VARIANT_TYPE ("a{sv}"),
-		                           &buffer[prologue_size + 1 + len],
-		                           &buffer[prologue_size + 1 + buffer_size],
-		                           NULL,
-		                           error);
-		if (!variant) {
-			g_free (buffer);
-			return NULL;
+static gchar *
+read_query (GDataInputStream  *istream,
+            const gchar       *prologue,
+            GCancellable      *cancellable,
+            GError           **error)
+{
+	gchar *sparql, *buffer;
+
+	sparql = read_string (istream, NULL, NULL, error);
+	if (!sparql)
+		return NULL;
+
+	if (prologue) {
+		buffer = g_strconcat (prologue, " ", sparql, NULL);
+		g_free (sparql);
+		return buffer;
+	} else {
+		return sparql;
+	}
+}
+
+static gboolean
+handle_update_sparql (UpdateRequest  *request,
+                      GCancellable   *cancellable,
+                      GError        **error)
+{
+	gchar *buffer = NULL, *parameters = NULL;
+	GError *inner_error = NULL;
+
+	buffer = read_query (request->input_stream, request->prologue, cancellable, error);
+	if (!buffer)
+		goto error;
+
+	parameters = read_string (request->input_stream, NULL, NULL, &inner_error);
+	if (inner_error)
+		goto error;
+
+	if (parameters) {
+		TrackerSparqlStatement *stmt;
+		TrackerSparqlConnection *conn;
+		GPtrArray *parameter_names;
+		GArray *parameter_values;
+
+		conn = tracker_batch_get_connection (request->batch);
+		stmt = tracker_sparql_connection_update_statement (conn,
+		                                                   buffer,
+		                                                   cancellable,
+		                                                   &inner_error);
+		if (!stmt)
+			goto error;
+
+		if (!extract_parameters (parameters,
+		                         &parameter_names, &parameter_values,
+		                         &inner_error)) {
+			g_object_unref (&stmt);
+			goto error;
 		}
 
-		g_assert (parameter_names);
-		g_assert (parameter_values);
+		tracker_batch_add_statementv (request->batch,
+		                              stmt,
+		                              parameter_names->len,
+		                              (const gchar **) parameter_names->pdata,
+		                              (const GValue *) parameter_values->data);
 
-		*parameter_names = g_ptr_array_new ();
-		g_ptr_array_set_free_func (*parameter_names, g_free);
-		*parameter_values = g_array_new (FALSE, FALSE, sizeof (GValue));
-		g_array_set_clear_func (*parameter_values, (GDestroyNotify) g_value_unset);
-
-		g_variant_iter_init (&iter, variant);
-		while (g_variant_iter_next (&iter, "{sv}", &key, &value)) {
-			GValue gvalue = G_VALUE_INIT;
-
-			if (!value_from_variant (&gvalue, value))
-				continue;
-
-			g_ptr_array_add (*parameter_names, key);
-			g_array_append_val (*parameter_values, gvalue);
-			g_variant_unref (value);
-		}
-
-		g_variant_unref (variant);
+		g_ptr_array_unref (parameter_names);
+		g_array_unref (parameter_values);
+		g_object_unref (stmt);
+	} else {
+		tracker_batch_add_sparql (request->batch, buffer);
 	}
 
-	return buffer;
+ error:
+	g_free (buffer);
+	g_free (parameters);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 static void
@@ -451,57 +533,26 @@ handle_read_updates (GTask        *task,
                      GCancellable *cancellable)
 {
 	UpdateRequest *request = task_data;
-	gchar *buffer;
 	GError *error = NULL;
-	GPtrArray *parameter_names = NULL;
-	GArray *parameter_values = NULL;
+	gint i;
 
-	while (request->cur_query < request->num_queries) {
-		buffer = read_query (request->input_stream,
-		                     request->prologue,
-		                     &parameter_names,
-		                     &parameter_values,
-		                     cancellable, &error);
-		if (!buffer)
-			goto error;
+	for (i = 0; i < request->num_queries; i++) {
+		TrackerBusOpType op_type;
 
-		request->cur_query++;
+		op_type = g_data_input_stream_read_uint32 (request->input_stream, NULL, NULL);
 
-		if (parameter_names && parameter_names->len > 0) {
-			TrackerSparqlStatement *stmt;
-			TrackerSparqlConnection *conn;
-
-			g_assert (parameter_values);
-			g_assert (parameter_values->len == parameter_names->len);
-
-			conn = tracker_batch_get_connection (request->batch);
-			stmt = tracker_sparql_connection_update_statement (conn,
-			                                                   buffer,
-			                                                   cancellable,
-			                                                   &error);
-
-			tracker_batch_add_statementv (request->batch,
-			                              stmt,
-			                              parameter_names->len,
-			                              (const gchar **) parameter_names->pdata,
-			                              (const GValue *) parameter_values->data);
-			g_object_unref (stmt);
+		if (op_type == TRACKER_BUS_OP_SPARQL) {
+			if (!handle_update_sparql (request, cancellable, &error))
+				break;
 		} else {
-			tracker_batch_add_sparql (request->batch, buffer);
+			g_assert_not_reached ();
 		}
-
-		g_clear_pointer (&buffer, g_free);
-		g_clear_pointer (&parameter_names, g_ptr_array_unref);
-		g_clear_pointer (&parameter_values, g_array_unref);
 	}
 
-	g_task_return_boolean (task, TRUE);
-	return;
- error:
-	g_task_return_error (task, error);
-	g_clear_pointer (&buffer, g_free);
-	g_clear_pointer (&parameter_names, g_ptr_array_unref);
-	g_clear_pointer (&parameter_values, g_array_unref);
+	if (error)
+		g_task_return_error (task, error);
+	else
+		g_task_return_boolean (task, TRUE);
 }
 
 static void
@@ -511,15 +562,26 @@ handle_read_update_blank (GTask        *task,
                           GCancellable *cancellable)
 {
 	UpdateBlankRequest *request = task_data;
+	TrackerBusOpType op_type;
 	GError *error = NULL;
 
+	op_type = g_data_input_stream_read_uint32 (request->input_stream, NULL, &error);
+	if (error)
+		goto end;
+
+	g_assert (op_type == TRACKER_BUS_OP_SPARQL);
 	request->query = read_query (request->input_stream, request->prologue,
-	                             NULL, NULL,
 	                             cancellable, &error);
-	if (request->query)
-		g_task_return_boolean (task, TRUE);
-	else
+	if (error)
+		goto end;
+
+	g_assert (g_data_input_stream_read_uint32 (request->input_stream, NULL, &error) == 0);
+
+ end:
+	if (error)
 		g_task_return_error (task, error);
+	else
+		g_task_return_boolean (task, TRUE);
 }
 
 static void
