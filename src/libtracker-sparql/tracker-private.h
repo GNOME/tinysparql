@@ -296,6 +296,11 @@ struct _TrackerBatchClass {
 	                        guint                   n_values,
 	                        const gchar            *variable_names[],
 	                        const GValue            values[]);
+	void (* add_rdf) (TrackerBatch            *batch,
+	                  TrackerDeserializeFlags  flags,
+	                  TrackerRdfFormat         format,
+	                  const gchar             *default_graph,
+	                  GInputStream            *stream);
 	gboolean (* execute) (TrackerBatch  *batch,
 			      GCancellable  *cancellable,
 			      GError       **error);
