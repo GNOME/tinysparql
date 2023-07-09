@@ -66,6 +66,13 @@ void tracker_batch_add_statementv (TrackerBatch           *batch,
                                    const gchar            *variable_names[],
                                    const GValue            values[]);
 
+TRACKER_AVAILABLE_IN_3_6
+void tracker_batch_add_rdf (TrackerBatch            *batch,
+                            TrackerDeserializeFlags  flags,
+                            TrackerRdfFormat         format,
+                            const gchar             *default_graph,
+                            GInputStream            *stream);
+
 TRACKER_AVAILABLE_IN_3_1
 gboolean tracker_batch_execute (TrackerBatch  *batch,
                                 GCancellable  *cancellable,
