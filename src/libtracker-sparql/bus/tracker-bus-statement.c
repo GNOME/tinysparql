@@ -277,6 +277,7 @@ tracker_bus_statement_update (TrackerSparqlStatement  *stmt,
 	TrackerSparqlConnection *conn;
 	GMainContext *context;
 	UpdateAsyncData data = { 0, };
+	TrackerBusOp op = { 0, };
 	const gchar *sparql;
 
 	conn = tracker_sparql_statement_get_connection (stmt);
@@ -286,10 +287,12 @@ tracker_bus_statement_update (TrackerSparqlStatement  *stmt,
 	data.loop = g_main_loop_new (context, FALSE);
 	g_main_context_push_thread_default (context);
 
+	op.type = TRACKER_BUS_OP_SPARQL;
+	op.d.sparql.sparql = (gchar *) sparql;
+	op.d.sparql.parameters = bus_stmt->arguments;
+
 	tracker_bus_connection_perform_update_async (TRACKER_BUS_CONNECTION (conn),
-	                                             (gchar **) &sparql,
-	                                             &bus_stmt->arguments,
-	                                             1,
+	                                             &op, 1,
 	                                             cancellable,
 	                                             update_cb,
 	                                             &data);
@@ -336,6 +339,7 @@ tracker_bus_statement_update_async (TrackerSparqlStatement *stmt,
 {
 	TrackerBusStatement *bus_stmt = TRACKER_BUS_STATEMENT (stmt);
 	TrackerSparqlConnection *conn;
+	TrackerBusOp op = { 0, };
 	const gchar *sparql;
 	GTask *task;
 
@@ -343,10 +347,13 @@ tracker_bus_statement_update_async (TrackerSparqlStatement *stmt,
 	sparql = tracker_sparql_statement_get_sparql (stmt);
 
 	task = g_task_new (stmt, cancellable, callback, user_data);
+
+	op.type = TRACKER_BUS_OP_SPARQL;
+	op.d.sparql.sparql = (gchar *) sparql;
+	op.d.sparql.parameters = bus_stmt->arguments;
+
 	tracker_bus_connection_perform_update_async (TRACKER_BUS_CONNECTION (conn),
-	                                             (gchar **) &sparql,
-	                                             &bus_stmt->arguments,
-	                                             1,
+	                                             &op, 1,
 	                                             cancellable,
 	                                             update_async_cb,
 	                                             task);

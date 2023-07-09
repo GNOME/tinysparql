@@ -264,9 +264,8 @@ convert_params (GHashTable *parameters)
 
 static gboolean
 write_sparql_queries (GOutputStream  *ostream,
-                      const gchar   **queries,
-                      GHashTable    **parameters,
-                      gint            n_queries,
+                      TrackerBusOp   *ops,
+                      gint            n_ops,
                       GError        **error)
 {
 	GDataOutputStream *data;
@@ -276,18 +275,19 @@ write_sparql_queries (GOutputStream  *ostream,
 	data = g_data_output_stream_new (ostream);
 	g_data_output_stream_set_byte_order (data, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 
-	if (!g_data_output_stream_put_int32 (data, n_queries, NULL, error))
+	if (!g_data_output_stream_put_int32 (data, n_ops, NULL, error))
 		goto error;
 
-	for (i = 0; i < n_queries; i++) {
+	for (i = 0; i < n_ops; i++) {
+		TrackerBusOp *op = &ops[i];
 		int len, params_len = 0;
 
-		len = strlen (queries[i]);
+		len = strlen (op->d.sparql.sparql);
 
-		if (parameters && parameters[i]) {
+		if (op->d.sparql.parameters) {
 			GVariant *variant;
 
-			variant = convert_params (parameters[i]);
+			variant = convert_params (op->d.sparql.parameters);
 			params_str = g_variant_print (variant, TRUE);
 			g_variant_unref (variant);
 
@@ -299,7 +299,7 @@ write_sparql_queries (GOutputStream  *ostream,
 
 		if (!g_data_output_stream_put_int32 (data, len + params_len, NULL, error))
 			goto error;
-		if (!g_data_output_stream_put_string (data, queries[i],
+		if (!g_data_output_stream_put_string (data, op->d.sparql.sparql,
 		                                      NULL, error))
 			goto error;
 
@@ -925,13 +925,23 @@ tracker_bus_connection_update_array_async (TrackerSparqlConnection  *self,
                                            GAsyncReadyCallback       callback,
                                            gpointer                  user_data)
 {
+	TrackerBusOp *ops;
+	gint i;
+
+	ops = g_new0 (TrackerBusOp, n_updates);
+
+	for (i = 0; i < n_updates; i++) {
+		ops[i].type = TRACKER_BUS_OP_SPARQL;
+		ops[i].d.sparql.sparql = updates[i];
+	}
+
 	tracker_bus_connection_perform_update_async (TRACKER_BUS_CONNECTION (self),
-	                                             updates,
-	                                             NULL,
+	                                             ops,
 	                                             n_updates,
 	                                             cancellable,
 	                                             callback,
 	                                             user_data);
+	g_free (ops);
 }
 
 static gboolean
@@ -1738,9 +1748,8 @@ tracker_bus_connection_perform_serialize_finish (TrackerBusConnection  *conn,
 
 void
 tracker_bus_connection_perform_update_async (TrackerBusConnection  *self,
-                                             gchar                **updates,
-                                             GHashTable           **parameters,
-                                             gint                   n_updates,
+                                             TrackerBusOp          *ops,
+                                             guint                  n_ops,
                                              GCancellable          *cancellable,
                                              GAsyncReadyCallback    callback,
                                              gpointer               user_data)
@@ -1753,7 +1762,7 @@ tracker_bus_connection_perform_update_async (TrackerBusConnection  *self,
 
 	task = g_task_new (self, cancellable, callback, user_data);
 
-	if (n_updates == 0) {
+	if (n_ops == 0) {
 		g_task_return_pointer (task, NULL, NULL);
 		g_object_unref (task);
 		return;
@@ -1772,7 +1781,7 @@ tracker_bus_connection_perform_update_async (TrackerBusConnection  *self,
 	                      update_cb,
 	                      task);
 
-	write_sparql_queries (ostream, (const gchar **) updates, parameters, n_updates, NULL);
+	write_sparql_queries (ostream, ops, n_ops, NULL);
 	g_output_stream_close (ostream, NULL, NULL);
 	g_object_unref (ostream);
 	g_object_unref (fd_list);

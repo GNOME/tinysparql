@@ -28,8 +28,7 @@
 struct _TrackerBusBatch
 {
 	TrackerBatch parent_instance;
-	GPtrArray *updates;
-	GPtrArray *parameters;
+	GArray *ops;
 };
 
 typedef struct {
@@ -50,8 +49,7 @@ tracker_bus_batch_finalize (GObject *object)
 {
 	TrackerBusBatch *bus_batch = TRACKER_BUS_BATCH (object);
 
-	g_ptr_array_unref (bus_batch->updates);
-	g_ptr_array_unref (bus_batch->parameters);
+	g_array_unref (bus_batch->ops);
 
 	G_OBJECT_CLASS (tracker_bus_batch_parent_class)->finalize (object);
 }
@@ -61,9 +59,11 @@ tracker_bus_batch_add_sparql (TrackerBatch *batch,
                               const gchar  *sparql)
 {
 	TrackerBusBatch *bus_batch = TRACKER_BUS_BATCH (batch);
+	TrackerBusOp op = { 0, };
 
-	g_ptr_array_add (bus_batch->updates, g_strdup (sparql));
-	g_ptr_array_add (bus_batch->parameters, NULL);
+	op.type = TRACKER_BUS_OP_SPARQL;
+	op.d.sparql.sparql = g_strdup (sparql);
+	g_array_append_val (bus_batch->ops, op);
 }
 
 static void
@@ -74,13 +74,16 @@ tracker_bus_batch_add_resource (TrackerBatch    *batch,
 	TrackerBusBatch *bus_batch = TRACKER_BUS_BATCH (batch);
 	TrackerSparqlConnection *conn;
 	TrackerNamespaceManager *namespaces;
+	TrackerBusOp op = { 0, };
 	gchar *sparql;
 
 	conn = tracker_batch_get_connection (batch);
 	namespaces = tracker_sparql_connection_get_namespace_manager (conn);
 	sparql = tracker_resource_print_sparql_update (resource, namespaces, graph);
-	g_ptr_array_add (bus_batch->updates, sparql);
-	g_ptr_array_add (bus_batch->parameters, NULL);
+
+	op.type = TRACKER_BUS_OP_SPARQL;
+	op.d.sparql.sparql = sparql;
+	g_array_append_val (bus_batch->ops, op);
 }
 
 static GVariant *
@@ -117,6 +120,7 @@ tracker_bus_batch_add_statement (TrackerBatch           *batch,
                                  const GValue            bindings[])
 {
 	TrackerBusBatch *bus_batch = TRACKER_BUS_BATCH (batch);
+	TrackerBusOp op = { 0, };
 	GHashTable *parameters;
 	const gchar *sparql;
 	guint i;
@@ -139,8 +143,10 @@ tracker_bus_batch_add_statement (TrackerBatch           *batch,
 	}
 
 	sparql = tracker_sparql_statement_get_sparql (stmt);
-	g_ptr_array_add (bus_batch->updates, g_strdup (sparql));
-	g_ptr_array_add (bus_batch->parameters, parameters);
+	op.type = TRACKER_BUS_OP_SPARQL;
+	op.d.sparql.sparql = g_strdup (sparql);
+	op.d.sparql.parameters = parameters;
+	g_array_append_val (bus_batch->ops, op);
 }
 
 static void
@@ -219,9 +225,8 @@ tracker_bus_batch_execute_async (TrackerBatch        *batch,
 	task = g_task_new (batch, cancellable, callback, user_data);
 	conn = tracker_batch_get_connection (batch);
 	tracker_bus_connection_perform_update_async (TRACKER_BUS_CONNECTION (conn),
-	                                             (gchar **) bus_batch->updates->pdata,
-	                                             (GHashTable **) bus_batch->parameters->pdata,
-	                                             bus_batch->updates->len,
+	                                             (TrackerBusOp *) bus_batch->ops->data,
+	                                             bus_batch->ops->len,
 	                                             cancellable,
 	                                             update_array_cb,
 	                                             task);
@@ -252,18 +257,20 @@ tracker_bus_batch_class_init (TrackerBusBatchClass *klass)
 }
 
 static void
-clear_hashtable (GHashTable *hashtable)
+batch_op_clear (TrackerBusOp *op)
 {
-	g_clear_pointer (&hashtable, g_hash_table_unref);
+	if (op->type == TRACKER_BUS_OP_SPARQL) {
+		g_free (op->d.sparql.sparql);
+		g_clear_pointer (&op->d.sparql.parameters, g_hash_table_unref);
+	}
 }
+
 
 static void
 tracker_bus_batch_init (TrackerBusBatch *batch)
 {
-	batch->updates = g_ptr_array_new ();
-	g_ptr_array_set_free_func (batch->updates, g_free);
-	batch->parameters = g_ptr_array_new ();
-	g_ptr_array_set_free_func (batch->parameters, (GDestroyNotify) clear_hashtable);
+	batch->ops = g_array_new (FALSE, TRUE, sizeof (TrackerBusOp));
+	g_array_set_clear_func (batch->ops, (GDestroyNotify) batch_op_clear);
 }
 
 TrackerBatch *

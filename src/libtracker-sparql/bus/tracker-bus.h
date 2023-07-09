@@ -23,6 +23,26 @@
 #include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-sparql/tracker-private.h>
 
+typedef enum
+{
+	TRACKER_BUS_OP_SPARQL,
+} TrackerBusOpType;
+
+typedef struct _TrackerBusOp TrackerBusOp;
+
+struct _TrackerBusOp
+{
+	TrackerBusOpType type;
+
+	union {
+		struct {
+			gchar *sparql;
+			GHashTable *parameters;
+		} sparql;
+	} d;
+};
+
+
 #define TRACKER_TYPE_BUS_CONNECTION (tracker_bus_connection_get_type ())
 G_DECLARE_FINAL_TYPE (TrackerBusConnection,
                       tracker_bus_connection,
@@ -75,9 +95,8 @@ GInputStream * tracker_bus_connection_perform_serialize_finish (TrackerBusConnec
 								GError               **error);
 
 void tracker_bus_connection_perform_update_async (TrackerBusConnection  *self,
-                                                  gchar                **updates,
-                                                  GHashTable           **parameters,
-                                                  gint                   n_updates,
+                                                  TrackerBusOp          *ops,
+                                                  guint                  n_ops,
                                                   GCancellable          *cancellable,
                                                   GAsyncReadyCallback    callback,
                                                   gpointer               user_data);
