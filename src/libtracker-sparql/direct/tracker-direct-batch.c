@@ -47,6 +47,13 @@ struct _TrackerBatchElem
 			TrackerSparqlStatement *stmt;
 			GHashTable *parameters;
 		} statement;
+
+		struct {
+			TrackerDeserializeFlags flags;
+			TrackerRdfFormat format;
+			gchar *default_graph;
+			GInputStream *stream;
+		} rdf;
 	} d;
 };
 
@@ -59,11 +66,27 @@ enum {
 	TRACKER_DIRECT_BATCH_RESOURCE,
 	TRACKER_DIRECT_BATCH_SPARQL,
 	TRACKER_DIRECT_BATCH_STATEMENT,
+	TRACKER_DIRECT_BATCH_RDF,
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (TrackerDirectBatch,
                             tracker_direct_batch,
                             TRACKER_TYPE_BATCH)
+
+static TrackerSerializerFormat
+convert_format (TrackerRdfFormat format)
+{
+	switch (format) {
+	case TRACKER_RDF_FORMAT_TURTLE:
+		return TRACKER_SERIALIZER_FORMAT_TTL;
+	case TRACKER_RDF_FORMAT_TRIG:
+		return TRACKER_SERIALIZER_FORMAT_TRIG;
+	case TRACKER_RDF_FORMAT_JSON_LD:
+		return TRACKER_SERIALIZER_FORMAT_JSON_LD;
+	default:
+		g_assert_not_reached ();
+	}
+}
 
 static void
 tracker_direct_batch_finalize (GObject *object)
@@ -150,6 +173,25 @@ tracker_direct_batch_add_statement (TrackerBatch           *batch,
 	g_array_append_val (priv->array, elem);
 }
 
+void
+tracker_direct_batch_add_rdf (TrackerBatch            *batch,
+                              TrackerDeserializeFlags  flags,
+                              TrackerRdfFormat         format,
+                              const gchar             *default_graph,
+                              GInputStream            *stream)
+{
+	TrackerDirectBatch *direct = TRACKER_DIRECT_BATCH (batch);
+	TrackerDirectBatchPrivate *priv = tracker_direct_batch_get_instance_private (direct);
+	TrackerBatchElem elem;
+
+	elem.type = TRACKER_DIRECT_BATCH_RDF;
+	elem.d.rdf.default_graph = g_strdup (default_graph);
+	elem.d.rdf.format = format;
+	elem.d.rdf.flags = flags;
+	elem.d.rdf.stream = g_object_ref (stream);
+	g_array_append_val (priv->array, elem);
+}
+
 static gboolean
 tracker_direct_batch_execute (TrackerBatch  *batch,
                               GCancellable  *cancellable,
@@ -201,6 +243,7 @@ tracker_direct_batch_class_init (TrackerDirectBatchClass *klass)
 	batch_class->add_sparql = tracker_direct_batch_add_sparql;
 	batch_class->add_resource = tracker_direct_batch_add_resource;
 	batch_class->add_statement = tracker_direct_batch_add_statement;
+	batch_class->add_rdf = tracker_direct_batch_add_rdf;
 	batch_class->execute = tracker_direct_batch_execute;
 	batch_class->execute_async = tracker_direct_batch_execute_async;
 	batch_class->execute_finish = tracker_direct_batch_execute_finish;
@@ -219,6 +262,9 @@ tracker_batch_elem_clear (TrackerBatchElem *elem)
 		                 g_hash_table_unref);
 	} else if (elem->type == TRACKER_DIRECT_BATCH_SPARQL) {
 		g_free (elem->d.sparql);
+	} else if (elem->type == TRACKER_DIRECT_BATCH_RDF) {
+		g_free (elem->d.rdf.default_graph);
+		g_clear_object (&elem->d.rdf.stream);
 	}
 }
 
@@ -302,6 +348,23 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			                                         elem->d.statement.parameters,
 			                                         bnodes,
 			                                         &inner_error);
+		} else if (elem->type == TRACKER_DIRECT_BATCH_RDF) {
+			TrackerSparqlConnection *conn;
+			TrackerSparqlCursor *deserializer;
+			TrackerNamespaceManager *namespaces;
+
+			conn = tracker_batch_get_connection (TRACKER_BATCH (batch));
+			namespaces = tracker_sparql_connection_get_namespace_manager (conn);
+
+			deserializer = tracker_deserializer_new (elem->d.rdf.stream,
+			                                         namespaces,
+			                                         convert_format (elem->d.rdf.format));
+
+			tracker_data_load_from_deserializer (data,
+			                                     TRACKER_DESERIALIZER (deserializer),
+			                                     elem->d.rdf.default_graph,
+			                                     "<stream>",
+			                                     &inner_error);
 		} else {
 			g_assert_not_reached ();
 		}
