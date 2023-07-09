@@ -197,8 +197,8 @@ update_array_cb (GObject      *source,
 	GTask *task = user_data;
 	GError *error = NULL;
 
-	if (!tracker_sparql_connection_update_array_finish (TRACKER_SPARQL_CONNECTION (source),
-	                                                    res, &error))
+	if (!tracker_bus_connection_perform_update_finish (TRACKER_BUS_CONNECTION (source),
+	                                                   res, &error))
 		g_task_return_error (task, error);
 	else
 		g_task_return_boolean (task, TRUE);
@@ -218,13 +218,13 @@ tracker_bus_batch_execute_async (TrackerBatch        *batch,
 
 	task = g_task_new (batch, cancellable, callback, user_data);
 	conn = tracker_batch_get_connection (batch);
-	tracker_bus_connection_perform_update_array_async (TRACKER_BUS_CONNECTION (conn),
-	                                                   (gchar **) bus_batch->updates->pdata,
-	                                                   (GHashTable **) bus_batch->parameters->pdata,
-	                                                   bus_batch->updates->len,
-	                                                   cancellable,
-	                                                   update_array_cb,
-	                                                   task);
+	tracker_bus_connection_perform_update_async (TRACKER_BUS_CONNECTION (conn),
+	                                             (gchar **) bus_batch->updates->pdata,
+	                                             (GHashTable **) bus_batch->parameters->pdata,
+	                                             bus_batch->updates->len,
+	                                             cancellable,
+	                                             update_array_cb,
+	                                             task);
 }
 
 static gboolean

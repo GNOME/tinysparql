@@ -925,13 +925,13 @@ tracker_bus_connection_update_array_async (TrackerSparqlConnection  *self,
                                            GAsyncReadyCallback       callback,
                                            gpointer                  user_data)
 {
-	tracker_bus_connection_perform_update_array_async (TRACKER_BUS_CONNECTION (self),
-	                                                   updates,
-	                                                   NULL,
-	                                                   n_updates,
-	                                                   cancellable,
-	                                                   callback,
-	                                                   user_data);
+	tracker_bus_connection_perform_update_async (TRACKER_BUS_CONNECTION (self),
+	                                             updates,
+	                                             NULL,
+	                                             n_updates,
+	                                             cancellable,
+	                                             callback,
+	                                             user_data);
 }
 
 static gboolean
@@ -939,8 +939,8 @@ tracker_bus_connection_update_array_finish (TrackerSparqlConnection  *self,
                                             GAsyncResult             *res,
                                             GError                  **error)
 {
-	return tracker_bus_connection_perform_update_array_finish (TRACKER_BUS_CONNECTION (self),
-	                                                           res, error);
+	return tracker_bus_connection_perform_update_finish (TRACKER_BUS_CONNECTION (self),
+	                                                     res, error);
 }
 
 static void
@@ -1737,13 +1737,13 @@ tracker_bus_connection_perform_serialize_finish (TrackerBusConnection  *conn,
 }
 
 void
-tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
-                                                   gchar                **updates,
-                                                   GHashTable           **parameters,
-                                                   gint                   n_updates,
-                                                   GCancellable          *cancellable,
-                                                   GAsyncReadyCallback    callback,
-                                                   gpointer               user_data)
+tracker_bus_connection_perform_update_async (TrackerBusConnection  *self,
+                                             gchar                **updates,
+                                             GHashTable           **parameters,
+                                             gint                   n_updates,
+                                             GCancellable          *cancellable,
+                                             GAsyncReadyCallback    callback,
+                                             gpointer               user_data)
 {
 	GUnixFDList *fd_list;
 	GOutputStream *ostream;
@@ -1779,9 +1779,9 @@ tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
 }
 
 gboolean
-tracker_bus_connection_perform_update_array_finish (TrackerBusConnection  *self,
-                                                    GAsyncResult          *res,
-                                                    GError               **error)
+tracker_bus_connection_perform_update_finish (TrackerBusConnection  *self,
+                                              GAsyncResult          *res,
+                                              GError               **error)
 {
 	GError *inner_error = NULL;
 	GVariant *retval;
