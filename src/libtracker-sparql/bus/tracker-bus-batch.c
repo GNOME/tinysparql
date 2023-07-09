@@ -149,6 +149,24 @@ tracker_bus_batch_add_statement (TrackerBatch           *batch,
 	g_array_append_val (bus_batch->ops, op);
 }
 
+void
+tracker_bus_batch_add_rdf (TrackerBatch            *batch,
+                           TrackerDeserializeFlags  flags,
+                           TrackerRdfFormat         format,
+                           const gchar             *default_graph,
+                           GInputStream            *stream)
+{
+	TrackerBusBatch *bus_batch = TRACKER_BUS_BATCH (batch);
+	TrackerBusOp op = { 0, };
+
+	op.type = TRACKER_BUS_OP_RDF;
+	op.d.rdf.flags = flags;
+	op.d.rdf.format = format;
+	op.d.rdf.default_graph = g_strdup (default_graph);
+	op.d.rdf.stream = g_object_ref (stream);
+	g_array_append_val (bus_batch->ops, op);
+}
+
 static void
 execute_cb (GObject      *source,
             GAsyncResult *res,
@@ -251,6 +269,7 @@ tracker_bus_batch_class_init (TrackerBusBatchClass *klass)
 	batch_class->add_sparql = tracker_bus_batch_add_sparql;
 	batch_class->add_resource = tracker_bus_batch_add_resource;
 	batch_class->add_statement = tracker_bus_batch_add_statement;
+	batch_class->add_rdf = tracker_bus_batch_add_rdf;
 	batch_class->execute = tracker_bus_batch_execute;
 	batch_class->execute_async = tracker_bus_batch_execute_async;
 	batch_class->execute_finish = tracker_bus_batch_execute_finish;
@@ -262,6 +281,9 @@ batch_op_clear (TrackerBusOp *op)
 	if (op->type == TRACKER_BUS_OP_SPARQL) {
 		g_free (op->d.sparql.sparql);
 		g_clear_pointer (&op->d.sparql.parameters, g_hash_table_unref);
+	} else if (op->type == TRACKER_BUS_OP_RDF) {
+		g_free (op->d.rdf.default_graph);
+		g_clear_object (&op->d.rdf.stream);
 	}
 }
 

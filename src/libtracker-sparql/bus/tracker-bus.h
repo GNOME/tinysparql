@@ -26,6 +26,7 @@
 typedef enum
 {
 	TRACKER_BUS_OP_SPARQL,
+	TRACKER_BUS_OP_RDF,
 } TrackerBusOpType;
 
 typedef struct _TrackerBusOp TrackerBusOp;
@@ -39,6 +40,13 @@ struct _TrackerBusOp
 			gchar *sparql;
 			GHashTable *parameters;
 		} sparql;
+
+		struct {
+			TrackerDeserializeFlags flags;
+			TrackerRdfFormat format;
+			gchar *default_graph;
+			GInputStream *stream;
+		} rdf;
 	} d;
 };
 

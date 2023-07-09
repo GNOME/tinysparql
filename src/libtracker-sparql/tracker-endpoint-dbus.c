@@ -526,6 +526,53 @@ handle_update_sparql (UpdateRequest  *request,
 	return TRUE;
 }
 
+static gboolean
+handle_update_rdf (UpdateRequest  *request,
+                   GCancellable   *cancellable,
+                   GError        **error)
+{
+	TrackerDeserializeFlags flags;
+	TrackerRdfFormat format;
+	gchar *default_graph = NULL, *rdf = NULL;
+	gsize rdf_len;
+	GInputStream *istream;
+	GError *inner_error = NULL;
+
+	flags = g_data_input_stream_read_uint32 (request->input_stream, NULL, &inner_error);
+	if (inner_error)
+		goto error;
+
+	format = g_data_input_stream_read_uint32 (request->input_stream, NULL, &inner_error);
+	if (inner_error)
+		goto error;
+
+	default_graph = read_string (request->input_stream, NULL, NULL, &inner_error);
+	if (inner_error)
+		goto error;
+
+	rdf = read_string (request->input_stream, &rdf_len, NULL, &inner_error);
+	if (inner_error)
+		goto error;
+
+	istream = g_memory_input_stream_new_from_data (rdf, rdf_len, g_free);
+	tracker_batch_add_rdf (request->batch,
+	                       flags,
+	                       format,
+	                       default_graph,
+	                       istream);
+	g_object_unref (istream);
+
+ error:
+	g_free (default_graph);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 static void
 handle_read_updates (GTask        *task,
                      gpointer      source_object,
@@ -543,6 +590,9 @@ handle_read_updates (GTask        *task,
 
 		if (op_type == TRACKER_BUS_OP_SPARQL) {
 			if (!handle_update_sparql (request, cancellable, &error))
+				break;
+		} else if (op_type == TRACKER_BUS_OP_RDF) {
+			if (!handle_update_rdf (request, cancellable, &error))
 				break;
 		} else {
 			g_assert_not_reached ();

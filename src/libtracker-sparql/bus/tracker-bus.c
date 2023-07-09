@@ -273,6 +273,8 @@ write_sparql_queries (GOutputStream  *ostream,
                       GError        **error)
 {
 	GDataOutputStream *data;
+	GOutputStream *rdf_stream = NULL;
+	GBytes *bytes = NULL;
 	gchar *params_str = NULL;
 	int i;
 
@@ -317,6 +319,44 @@ write_sparql_queries (GOutputStream  *ostream,
 				if (!g_data_output_stream_put_int32 (data, 0, NULL, error))
 					goto error;
 			}
+		} else if (op->type == TRACKER_BUS_OP_RDF) {
+			if (!g_data_output_stream_put_uint32 (data, op->d.rdf.flags, NULL, error))
+				goto error;
+			if (!g_data_output_stream_put_uint32 (data, op->d.rdf.format, NULL, error))
+				goto error;
+
+			if (op->d.rdf.default_graph) {
+				if (!g_data_output_stream_put_int32 (data,
+				                                     strlen (op->d.rdf.default_graph),
+				                                     NULL, error))
+					goto error;
+				if (!g_data_output_stream_put_string (data, op->d.rdf.default_graph,
+				                                      NULL, error))
+					goto error;
+			} else {
+				if (!g_data_output_stream_put_int32 (data, 0, NULL, error))
+					goto error;
+			}
+
+			rdf_stream = g_memory_output_stream_new_resizable ();
+			if (g_output_stream_splice (rdf_stream,
+			                            op->d.rdf.stream,
+			                            G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+			                            G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+			                            NULL,
+			                            error) < 0)
+				goto error;
+
+			bytes = g_memory_output_stream_steal_as_bytes (G_MEMORY_OUTPUT_STREAM (rdf_stream));
+			g_clear_object (&rdf_stream);
+
+			if (!g_data_output_stream_put_uint32 (data, g_bytes_get_size (bytes), NULL, error))
+				goto error;
+			if (!g_data_output_stream_put_string (data, g_bytes_get_data (bytes, NULL),
+			                                      NULL, error))
+				goto error;
+
+			g_clear_pointer (&bytes, g_bytes_unref);
 		}
 	}
 
@@ -324,6 +364,8 @@ write_sparql_queries (GOutputStream  *ostream,
 	g_object_unref (data);
 	return TRUE;
  error:
+	g_clear_object (&rdf_stream);
+	g_clear_pointer (&bytes, g_bytes_unref);
 	g_clear_pointer (&params_str, g_free);
 	g_object_unref (data);
 	return FALSE;
