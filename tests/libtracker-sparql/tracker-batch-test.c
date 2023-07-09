@@ -62,6 +62,50 @@ static const gchar *bus_name = NULL;
 	"    nie:contentCreated '2022-12-04T01:01:01Z' ;" \
 	"}"
 
+#define PHOTO_TURTLE \
+	"@prefix nmm: <" TRACKER_PREFIX_NMM "> ." \
+	"@prefix nfo: <" TRACKER_PREFIX_NFO "> ." \
+	"@prefix nie: <" TRACKER_PREFIX_NIE "> ." \
+	"<http://example.com/turtle> a nmm:Photo ;" \
+	"  nmm:exposureTime 3.456789012 ; " \
+	"  nfo:horizontalResolution 321 ; " \
+	"  nfo:codec 'png' ; " \
+	"  nfo:interlaceMode true ; " \
+	"  nie:contentCreated '2023-07-07T01:01:01Z' ."
+
+#define PHOTO_TRIG \
+	"@prefix nmm: <" TRACKER_PREFIX_NMM "> ." \
+	"@prefix nfo: <" TRACKER_PREFIX_NFO "> ." \
+	"@prefix nie: <" TRACKER_PREFIX_NIE "> ." \
+	"GRAPH <http://example.com/test> { " \
+	"  <http://example.com/trig> a nmm:Photo ;" \
+	"    nmm:exposureTime 3.456789012 ; " \
+	"    nfo:horizontalResolution 321 ; " \
+	"    nfo:codec 'png' ; " \
+	"    nfo:interlaceMode true ; " \
+	"    nie:contentCreated '2023-07-07T01:01:01Z' ." \
+	"}"
+
+#define PHOTO_JSONLD \
+	"{" \
+	"  \"@context\" : {" \
+	"    \"nmm\" : \"" TRACKER_PREFIX_NMM "\"," \
+	"    \"nfo\" : \"" TRACKER_PREFIX_NFO "\"," \
+	"    \"nie\" : \"" TRACKER_PREFIX_NIE "\"" \
+	"  }," \
+	"  \"@graph\" : [" \
+	"    {" \
+	"      \"@id\": \"http://example.com/jsonld\"," \
+	"      \"@type\": \"nmm:Photo\"," \
+	"      \"nmm:exposureTime\": 3.456789012," \
+	"      \"nfo:horizontalResolution\": 321," \
+	"      \"nfo:codec\": \"png\"," \
+	"      \"nfo:interlaceMode\": true," \
+	"      \"nie:contentCreated\": \"2023-07-07T01:01:01Z\"" \
+	"    }" \
+	"  ]" \
+	"}"
+
 #define PHOTO_DELETE_SPARQL \
 	"DELETE DATA { <http://example.com/a> a rdfs:Resource }"
 
@@ -347,6 +391,93 @@ batch_sparql_bnodes_same_batch (TestFixture   *test_fixture,
 	g_object_unref (batch);
 
 	assert_count_bnodes (test_fixture, 1);
+}
+
+static void
+batch_rdf_turtle (TestFixture   *test_fixture,
+                  gconstpointer  context)
+{
+	TrackerBatch *batch;
+	GInputStream *istream;
+	GError *error = NULL;
+	GDateTime *date;
+
+	batch = tracker_sparql_connection_create_batch (test_fixture->conn);
+
+	istream = g_memory_input_stream_new_from_data (PHOTO_TURTLE, -1, NULL);
+	g_assert_no_error (error);
+	g_assert_nonnull (istream);
+
+	tracker_batch_add_rdf (batch,
+	                       TRACKER_DESERIALIZE_FLAGS_NONE,
+	                       TRACKER_RDF_FORMAT_TURTLE,
+	                       NULL,
+	                       istream);
+	tracker_batch_execute (batch, NULL, &error);
+	g_assert_no_error (error);
+	g_object_unref (batch);
+
+	date = g_date_time_new_from_iso8601 ("2023-07-07T01:01:01Z", NULL);
+	assert_photo (test_fixture, "http://example.com/turtle", "png", date, TRUE, 321, 3.456789012);
+	g_date_time_unref (date);
+}
+
+static void
+batch_rdf_trig (TestFixture   *test_fixture,
+                gconstpointer  context)
+{
+	TrackerBatch *batch;
+	GInputStream *istream;
+	GError *error = NULL;
+	GDateTime *date;
+
+	batch = tracker_sparql_connection_create_batch (test_fixture->conn);
+
+	istream = g_memory_input_stream_new_from_data (PHOTO_TRIG, -1, NULL);
+	g_assert_no_error (error);
+	g_assert_nonnull (istream);
+
+	tracker_batch_add_rdf (batch,
+	                       TRACKER_DESERIALIZE_FLAGS_NONE,
+	                       TRACKER_RDF_FORMAT_TRIG,
+	                       NULL,
+	                       istream);
+	tracker_batch_execute (batch, NULL, &error);
+	g_assert_no_error (error);
+	g_object_unref (batch);
+
+	date = g_date_time_new_from_iso8601 ("2023-07-07T01:01:01Z", NULL);
+	assert_photo (test_fixture, "http://example.com/trig", "png", date, TRUE, 321, 3.456789012);
+	g_date_time_unref (date);
+}
+
+static void
+batch_rdf_jsonld (TestFixture   *test_fixture,
+                  gconstpointer  context)
+{
+	TrackerBatch *batch;
+	GInputStream *istream;
+	GError *error = NULL;
+	GDateTime *date;
+
+	batch = tracker_sparql_connection_create_batch (test_fixture->conn);
+
+	istream = g_memory_input_stream_new_from_data (PHOTO_JSONLD, -1, NULL);
+	g_assert_no_error (error);
+	g_assert_nonnull (istream);
+
+	tracker_batch_add_rdf (batch,
+	                       TRACKER_DESERIALIZE_FLAGS_NONE,
+	                       TRACKER_RDF_FORMAT_JSON_LD,
+	                       NULL,
+	                       istream);
+	tracker_batch_execute (batch, NULL, &error);
+	g_assert_no_error (error);
+	g_object_unref (batch);
+
+	date = g_date_time_new_from_iso8601 ("2023-07-07T01:01:01Z", NULL);
+	assert_photo (test_fixture, "http://example.com/jsonld", "png", date, TRUE, 321, 3.456789012);
+	g_date_time_unref (date);
 }
 
 static void
@@ -809,6 +940,61 @@ batch_bnodes (TestFixture   *test_fixture,
 	g_date_time_unref (date);
 }
 
+static void
+batch_mixed_rdf (TestFixture   *test_fixture,
+                 gconstpointer  context)
+{
+	TrackerBatch *batch;
+	GInputStream *istream;
+	GError *error = NULL;
+	GDateTime *date;
+
+	batch = tracker_sparql_connection_create_batch (test_fixture->conn);
+
+	istream = g_memory_input_stream_new_from_data (PHOTO_TURTLE, -1, NULL);
+	g_assert_no_error (error);
+	g_assert_nonnull (istream);
+
+	tracker_batch_add_rdf (batch,
+	                       TRACKER_DESERIALIZE_FLAGS_NONE,
+	                       TRACKER_RDF_FORMAT_TURTLE,
+	                       NULL,
+	                       istream);
+	g_object_unref (istream);
+
+	istream = g_memory_input_stream_new_from_data (PHOTO_TRIG, -1, NULL);
+	g_assert_no_error (error);
+	g_assert_nonnull (istream);
+
+	tracker_batch_add_rdf (batch,
+	                       TRACKER_DESERIALIZE_FLAGS_NONE,
+	                       TRACKER_RDF_FORMAT_TRIG,
+	                       NULL,
+	                       istream);
+	g_object_unref (istream);
+
+	istream = g_memory_input_stream_new_from_data (PHOTO_JSONLD, -1, NULL);
+	g_assert_no_error (error);
+	g_assert_nonnull (istream);
+
+	tracker_batch_add_rdf (batch,
+	                       TRACKER_DESERIALIZE_FLAGS_NONE,
+	                       TRACKER_RDF_FORMAT_JSON_LD,
+	                       NULL,
+	                       istream);
+	g_object_unref (istream);
+
+	tracker_batch_execute (batch, NULL, &error);
+	g_assert_no_error (error);
+	g_object_unref (batch);
+
+	date = g_date_time_new_from_iso8601 ("2023-07-07T01:01:01Z", NULL);
+	assert_photo (test_fixture, "http://example.com/turtle", "png", date, TRUE, 321, 3.456789012);
+	assert_photo (test_fixture, "http://example.com/trig", "png", date, TRUE, 321, 3.456789012);
+	assert_photo (test_fixture, "http://example.com/jsonld", "png", date, TRUE, 321, 3.456789012);
+	g_date_time_unref (date);
+}
+
 typedef struct {
 	gint count;
 	GMainLoop *loop;
@@ -1088,6 +1274,9 @@ TestInfo tests[] = {
 	{ "sparql/delete-same-batch", batch_sparql_delete_same_batch },
 	{ "sparql/bnodes", batch_sparql_bnodes },
 	{ "sparql/bnodes-same-batch", batch_sparql_bnodes_same_batch },
+	{ "rdf/turtle", batch_rdf_turtle },
+	{ "rdf/trig", batch_rdf_trig },
+	{ "rdf/json-ld", batch_rdf_jsonld },
 	{ "resource/insert", batch_resource_insert },
 	{ "resource/update", batch_resource_update },
 	{ "resource/update-same-batch", batch_resource_update_same_batch },
@@ -1101,6 +1290,7 @@ TestInfo tests[] = {
 	{ "statement/bnodes", batch_statement_bnodes },
 	{ "statement/bnodes-same-batch", batch_statement_bnodes_same_batch },
 	{ "mixed/bnodes", batch_bnodes },
+	{ "mixed/rdf", batch_mixed_rdf },
 	{ "async/simultaneous", batch_async_simultaneous },
 	{ "async/same-item", batch_async_same_item },
 	{ "error/transaction", batch_transaction_error },
