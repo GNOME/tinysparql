@@ -353,6 +353,46 @@ tracker_batch_add_statementv (TrackerBatch           *batch,
 }
 
 /**
+ * tracker_batch_add_rdf:
+ * @batch: A `TrackerBatch`
+ * @flags: Deserialization flags
+ * @format: RDF format of data in stream
+ * @default_graph: Default graph that will receive the RDF data
+ * @stream: Input stream with RDF data
+ *
+ * Inserts the RDF data contained in @stream as part of @batch.
+ *
+ * The RDF data will be inserted in the given @default_graph if one is provided,
+ * or the anonymous graph if @default_graph is %NULL. Any RDF data that has a
+ * graph specified (e.g. using the `GRAPH` clause in the Trig format) will
+ * be inserted in the specified graph instead of @default_graph.
+ *
+ * The @flags argument is reserved for future expansions, currently
+ * %TRACKER_DESERIALIZE_FLAGS_NONE must be passed.
+ *
+ * Since: 3.6
+ **/
+void
+tracker_batch_add_rdf (TrackerBatch            *batch,
+                       TrackerDeserializeFlags  flags,
+                       TrackerRdfFormat         format,
+                       const gchar             *default_graph,
+                       GInputStream            *stream)
+{
+	TrackerBatchPrivate *priv = tracker_batch_get_instance_private (batch);
+
+	g_return_if_fail (TRACKER_IS_BATCH (batch));
+	g_return_if_fail (G_IS_INPUT_STREAM (stream));
+	g_return_if_fail (!priv->already_executed);
+
+	TRACKER_BATCH_GET_CLASS (batch)->add_rdf (batch,
+	                                          flags,
+	                                          format,
+	                                          default_graph,
+	                                          stream);
+}
+
+/**
  * tracker_batch_execute:
  * @batch: a `TrackerBatch`
  * @cancellable: (nullable): Optional [type@Gio.Cancellable]

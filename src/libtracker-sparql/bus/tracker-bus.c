@@ -229,9 +229,13 @@ write_sparql_query (GOutputStream  *ostream,
 	len = strlen (query);
 	data = g_data_output_stream_new (ostream);
 	g_data_output_stream_set_byte_order (data, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
+	if (!g_data_output_stream_put_uint32 (data, TRACKER_BUS_OP_SPARQL, NULL, error))
+		goto error;
 	if (!g_data_output_stream_put_int32 (data, len, NULL, error))
 		goto error;
 	if (!g_data_output_stream_put_string (data, query, NULL, error))
+		goto error;
+	if (!g_data_output_stream_put_int32 (data, 0, NULL, error))
 		goto error;
 
 	g_object_unref (data);
@@ -264,53 +268,95 @@ convert_params (GHashTable *parameters)
 
 static gboolean
 write_sparql_queries (GOutputStream  *ostream,
-                      const gchar   **queries,
-                      GHashTable    **parameters,
-                      gint            n_queries,
+                      TrackerBusOp   *ops,
+                      gint            n_ops,
                       GError        **error)
 {
 	GDataOutputStream *data;
+	GOutputStream *rdf_stream = NULL;
+	GBytes *bytes = NULL;
 	gchar *params_str = NULL;
 	int i;
 
 	data = g_data_output_stream_new (ostream);
 	g_data_output_stream_set_byte_order (data, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 
-	if (!g_data_output_stream_put_int32 (data, n_queries, NULL, error))
+	if (!g_data_output_stream_put_int32 (data, n_ops, NULL, error))
 		goto error;
 
-	for (i = 0; i < n_queries; i++) {
-		int len, params_len = 0;
+	for (i = 0; i < n_ops; i++) {
+		TrackerBusOp *op = &ops[i];
 
-		len = strlen (queries[i]);
-
-		if (parameters && parameters[i]) {
-			GVariant *variant;
-
-			variant = convert_params (parameters[i]);
-			params_str = g_variant_print (variant, TRUE);
-			g_variant_unref (variant);
-
-			params_len = strlen (params_str);
-
-			/* Account for the intermediate \0 */
-			params_len++;
-		}
-
-		if (!g_data_output_stream_put_int32 (data, len + params_len, NULL, error))
-			goto error;
-		if (!g_data_output_stream_put_string (data, queries[i],
-		                                      NULL, error))
+		if (!g_data_output_stream_put_int32 (data, op->type, NULL, error))
 			goto error;
 
-		if (params_str) {
-			if (!g_data_output_stream_put_byte (data, 0, NULL, error))
+		if (op->type == TRACKER_BUS_OP_SPARQL) {
+			if (!g_data_output_stream_put_int32 (data,
+			                                     strlen (op->d.sparql.sparql),
+			                                     NULL, error))
 				goto error;
-			if (!g_data_output_stream_put_string (data, params_str,
+			if (!g_data_output_stream_put_string (data, op->d.sparql.sparql,
 			                                      NULL, error))
 				goto error;
 
-			g_clear_pointer (&params_str, g_free);
+			if (op->d.sparql.parameters) {
+				GVariant *variant;
+
+				variant = convert_params (op->d.sparql.parameters);
+				params_str = g_variant_print (variant, TRUE);
+				g_variant_unref (variant);
+
+				if (!g_data_output_stream_put_int32 (data,
+				                                     strlen (params_str),
+				                                     NULL, error))
+					goto error;
+				if (!g_data_output_stream_put_string (data, params_str,
+				                                      NULL, error))
+					goto error;
+
+				g_clear_pointer (&params_str, g_free);
+			} else {
+				if (!g_data_output_stream_put_int32 (data, 0, NULL, error))
+					goto error;
+			}
+		} else if (op->type == TRACKER_BUS_OP_RDF) {
+			if (!g_data_output_stream_put_uint32 (data, op->d.rdf.flags, NULL, error))
+				goto error;
+			if (!g_data_output_stream_put_uint32 (data, op->d.rdf.format, NULL, error))
+				goto error;
+
+			if (op->d.rdf.default_graph) {
+				if (!g_data_output_stream_put_int32 (data,
+				                                     strlen (op->d.rdf.default_graph),
+				                                     NULL, error))
+					goto error;
+				if (!g_data_output_stream_put_string (data, op->d.rdf.default_graph,
+				                                      NULL, error))
+					goto error;
+			} else {
+				if (!g_data_output_stream_put_int32 (data, 0, NULL, error))
+					goto error;
+			}
+
+			rdf_stream = g_memory_output_stream_new_resizable ();
+			if (g_output_stream_splice (rdf_stream,
+			                            op->d.rdf.stream,
+			                            G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+			                            G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+			                            NULL,
+			                            error) < 0)
+				goto error;
+
+			bytes = g_memory_output_stream_steal_as_bytes (G_MEMORY_OUTPUT_STREAM (rdf_stream));
+			g_clear_object (&rdf_stream);
+
+			if (!g_data_output_stream_put_uint32 (data, g_bytes_get_size (bytes), NULL, error))
+				goto error;
+			if (!g_data_output_stream_put_string (data, g_bytes_get_data (bytes, NULL),
+			                                      NULL, error))
+				goto error;
+
+			g_clear_pointer (&bytes, g_bytes_unref);
 		}
 	}
 
@@ -318,6 +364,8 @@ write_sparql_queries (GOutputStream  *ostream,
 	g_object_unref (data);
 	return TRUE;
  error:
+	g_clear_object (&rdf_stream);
+	g_clear_pointer (&bytes, g_bytes_unref);
 	g_clear_pointer (&params_str, g_free);
 	g_object_unref (data);
 	return FALSE;
@@ -925,13 +973,23 @@ tracker_bus_connection_update_array_async (TrackerSparqlConnection  *self,
                                            GAsyncReadyCallback       callback,
                                            gpointer                  user_data)
 {
-	tracker_bus_connection_perform_update_array_async (TRACKER_BUS_CONNECTION (self),
-	                                                   updates,
-	                                                   NULL,
-	                                                   n_updates,
-	                                                   cancellable,
-	                                                   callback,
-	                                                   user_data);
+	TrackerBusOp *ops;
+	gint i;
+
+	ops = g_new0 (TrackerBusOp, n_updates);
+
+	for (i = 0; i < n_updates; i++) {
+		ops[i].type = TRACKER_BUS_OP_SPARQL;
+		ops[i].d.sparql.sparql = updates[i];
+	}
+
+	tracker_bus_connection_perform_update_async (TRACKER_BUS_CONNECTION (self),
+	                                             ops,
+	                                             n_updates,
+	                                             cancellable,
+	                                             callback,
+	                                             user_data);
+	g_free (ops);
 }
 
 static gboolean
@@ -939,8 +997,8 @@ tracker_bus_connection_update_array_finish (TrackerSparqlConnection  *self,
                                             GAsyncResult             *res,
                                             GError                  **error)
 {
-	return tracker_bus_connection_perform_update_array_finish (TRACKER_BUS_CONNECTION (self),
-	                                                           res, error);
+	return tracker_bus_connection_perform_update_finish (TRACKER_BUS_CONNECTION (self),
+	                                                     res, error);
 }
 
 static void
@@ -1737,13 +1795,12 @@ tracker_bus_connection_perform_serialize_finish (TrackerBusConnection  *conn,
 }
 
 void
-tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
-                                                   gchar                **updates,
-                                                   GHashTable           **parameters,
-                                                   gint                   n_updates,
-                                                   GCancellable          *cancellable,
-                                                   GAsyncReadyCallback    callback,
-                                                   gpointer               user_data)
+tracker_bus_connection_perform_update_async (TrackerBusConnection  *self,
+                                             TrackerBusOp          *ops,
+                                             guint                  n_ops,
+                                             GCancellable          *cancellable,
+                                             GAsyncReadyCallback    callback,
+                                             gpointer               user_data)
 {
 	GUnixFDList *fd_list;
 	GOutputStream *ostream;
@@ -1753,7 +1810,7 @@ tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
 
 	task = g_task_new (self, cancellable, callback, user_data);
 
-	if (n_updates == 0) {
+	if (n_ops == 0) {
 		g_task_return_pointer (task, NULL, NULL);
 		g_object_unref (task);
 		return;
@@ -1772,16 +1829,16 @@ tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
 	                      update_cb,
 	                      task);
 
-	write_sparql_queries (ostream, (const gchar **) updates, parameters, n_updates, NULL);
+	write_sparql_queries (ostream, ops, n_ops, NULL);
 	g_output_stream_close (ostream, NULL, NULL);
 	g_object_unref (ostream);
 	g_object_unref (fd_list);
 }
 
 gboolean
-tracker_bus_connection_perform_update_array_finish (TrackerBusConnection  *self,
-                                                    GAsyncResult          *res,
-                                                    GError               **error)
+tracker_bus_connection_perform_update_finish (TrackerBusConnection  *self,
+                                              GAsyncResult          *res,
+                                              GError               **error)
 {
 	GError *inner_error = NULL;
 	GVariant *retval;

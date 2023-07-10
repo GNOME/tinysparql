@@ -23,6 +23,34 @@
 #include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-sparql/tracker-private.h>
 
+typedef enum
+{
+	TRACKER_BUS_OP_SPARQL,
+	TRACKER_BUS_OP_RDF,
+} TrackerBusOpType;
+
+typedef struct _TrackerBusOp TrackerBusOp;
+
+struct _TrackerBusOp
+{
+	TrackerBusOpType type;
+
+	union {
+		struct {
+			gchar *sparql;
+			GHashTable *parameters;
+		} sparql;
+
+		struct {
+			TrackerDeserializeFlags flags;
+			TrackerRdfFormat format;
+			gchar *default_graph;
+			GInputStream *stream;
+		} rdf;
+	} d;
+};
+
+
 #define TRACKER_TYPE_BUS_CONNECTION (tracker_bus_connection_get_type ())
 G_DECLARE_FINAL_TYPE (TrackerBusConnection,
                       tracker_bus_connection,
@@ -74,16 +102,15 @@ GInputStream * tracker_bus_connection_perform_serialize_finish (TrackerBusConnec
 								GAsyncResult          *res,
 								GError               **error);
 
-void tracker_bus_connection_perform_update_array_async (TrackerBusConnection  *self,
-                                                        gchar                **updates,
-                                                        GHashTable           **parameters,
-                                                        gint                   n_updates,
-                                                        GCancellable          *cancellable,
-                                                        GAsyncReadyCallback    callback,
-                                                        gpointer               user_data);
+void tracker_bus_connection_perform_update_async (TrackerBusConnection  *self,
+                                                  TrackerBusOp          *ops,
+                                                  guint                  n_ops,
+                                                  GCancellable          *cancellable,
+                                                  GAsyncReadyCallback    callback,
+                                                  gpointer               user_data);
 
-gboolean tracker_bus_connection_perform_update_array_finish (TrackerBusConnection  *self,
-                                                             GAsyncResult          *res,
-                                                             GError               **error);
+gboolean tracker_bus_connection_perform_update_finish (TrackerBusConnection  *self,
+                                                       GAsyncResult          *res,
+                                                       GError               **error);
 
 #endif /* __TRACKER_BUS_H__ */
