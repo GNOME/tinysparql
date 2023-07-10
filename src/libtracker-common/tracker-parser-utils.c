@@ -25,44 +25,6 @@
 
 #include "tracker-parser-utils.h"
 
-/*
- * Definition of the possible reserved words.
- *  Length of word is explicitly given to avoid strlen() calls
- */
-typedef struct {
-	const gchar *word;
-	gsize        word_length;
-} TrackerParserReservedWord;
-
-static const TrackerParserReservedWord reserved_words[] = {
-	{ "and", 3 },
-	{ "near", 4 },
-	{ "not", 3 },
-	{ "or", 2 },
-	{ NULL, 0 }
-};
-
-gboolean
-tracker_parser_is_reserved_word_utf8 (const gchar *word,
-                                      gsize word_length)
-{
-	gint i = 0;
-
-	/* Loop the array of predefined reserved words */
-	while (reserved_words[i].word != NULL) {
-		if (word_length == reserved_words[i].word_length &&
-		    strncmp (word,
-		             reserved_words[i].word,
-		             word_length) == 0) {
-			return TRUE;
-		}
-		i++;
-	}
-
-	return FALSE;
-}
-
-
 #if TRACKER_PARSER_DEBUG_HEX
 void
 tracker_parser_message_hex (const gchar  *message,

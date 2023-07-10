@@ -50,23 +50,10 @@ struct _TrackerLanguageClass {
 GType            tracker_language_get_type           (void) G_GNUC_CONST;
 TrackerLanguage *tracker_language_new                (const gchar     *language_code);
 
-gboolean         tracker_language_get_enable_stemmer (TrackerLanguage *language);
-GHashTable *     tracker_language_get_stop_words     (TrackerLanguage *language);
-gboolean         tracker_language_is_stop_word       (TrackerLanguage *language,
-                                                      const gchar     *word);
-const gchar *    tracker_language_get_language_code  (TrackerLanguage *language);
-
-void             tracker_language_set_enable_stemmer (TrackerLanguage *language,
-                                                      gboolean         value);
-void             tracker_language_set_language_code  (TrackerLanguage *language,
-                                                      const gchar     *language_code);
-
 gchar *          tracker_language_stem_word          (TrackerLanguage *language,
                                                       const gchar     *word,
                                                       gint             word_length);
 
-/* Utility functions */
-const gchar *    tracker_language_get_name_by_code   (const gchar     *language_code);
 G_END_DECLS
 
 #endif /* __LIBTRACKER_COMMON_LANGUAGE_H__ */

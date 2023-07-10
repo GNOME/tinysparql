@@ -1,1 +1,1 @@
-SELECT ?u fts:snippet(?u, '>>>', '<<<') { ?u fts:match 'ban' } order by desc fts:rank(?u)
+SELECT ?u fts:snippet(?u, '>>>', '<<<') { ?u fts:match 'ban' } order by asc ?u

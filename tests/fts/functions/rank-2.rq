@@ -1,1 +1,1 @@
-SELECT ?u fts:rank(?u) { ?u fts:match 'oranges' } order by desc fts:rank(?u)
+SELECT ?u (isNumeric(fts:rank(?u)) as ?n) { ?u fts:match 'oranges' } order by desc fts:rank(?u)

@@ -2025,20 +2025,19 @@ close_database (TrackerDBInterface *db_interface)
 gboolean
 tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
                                       const gchar         *database,
-                                      GHashTable          *properties,
-                                      GHashTable          *multivalued,
+                                      TrackerOntologies   *ontologies,
                                       gboolean             create,
                                       GError             **error)
 {
 	GError *inner_error = NULL;
 
 	if (!tracker_fts_init_db (db_interface->db, db_interface,
-	                          db_interface->flags, properties, error))
+	                          db_interface->flags, ontologies, error))
 		return FALSE;
 
 	if (create &&
 	    !tracker_fts_create_table (db_interface->db, database, "fts5",
-	                               properties, multivalued,
+	                               ontologies,
 	                               &inner_error)) {
 		g_propagate_prefixed_error (error,
 		                            inner_error,
@@ -2060,12 +2059,11 @@ tracker_db_interface_sqlite_fts_delete_table (TrackerDBInterface  *db_interface,
 gboolean
 tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
                                              const gchar         *database,
-                                             GHashTable          *properties,
-                                             GHashTable          *multivalued,
+                                             TrackerOntologies   *ontologies,
                                              GError             **error)
 {
 	return tracker_fts_alter_table (db_interface->db, database, "fts5",
-	                                properties, multivalued, error);
+	                                ontologies, error);
 }
 
 static gchar *

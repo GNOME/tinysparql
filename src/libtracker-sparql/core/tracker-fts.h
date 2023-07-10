@@ -33,24 +33,22 @@ G_BEGIN_DECLS
 gboolean    tracker_fts_init_db          (sqlite3                *db,
                                           TrackerDBInterface     *interface,
                                           TrackerDBManagerFlags   flags,
-                                          GHashTable             *tables,
+                                          TrackerOntologies      *ontologies,
                                           GError                **error);
-gboolean    tracker_fts_create_table     (sqlite3      *db,
-                                          const gchar  *database,
-                                          gchar        *table_name,
-                                          GHashTable   *tables,
-                                          GHashTable   *grouped_columns,
-                                          GError      **error);
+gboolean    tracker_fts_create_table     (sqlite3            *db,
+                                          const gchar        *database,
+                                          gchar              *table_name,
+                                          TrackerOntologies  *ontologies,
+                                          GError            **error);
 gboolean    tracker_fts_delete_table     (sqlite3      *db,
                                           const gchar  *database,
                                           gchar        *table_name,
                                           GError      **error);
-gboolean    tracker_fts_alter_table      (sqlite3      *db,
-                                          const gchar  *database,
-                                          gchar        *table_name,
-                                          GHashTable   *tables,
-                                          GHashTable   *grouped_columns,
-                                          GError      **error);
+gboolean    tracker_fts_alter_table      (sqlite3            *db,
+                                          const gchar        *database,
+                                          gchar              *table_name,
+                                          TrackerOntologies  *ontologies,
+                                          GError            **error);
 gboolean    tracker_fts_rebuild_tokens   (sqlite3      *db,
                                           const gchar  *database,
                                           const gchar  *table_name,

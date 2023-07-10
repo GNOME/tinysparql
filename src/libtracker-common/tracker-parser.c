@@ -36,14 +36,11 @@ static void (*parser_reset) (TrackerParser *parser,
                              guint          max_word_length,
                              gboolean       enable_stemmer,
                              gboolean       enable_unaccent,
-                             gboolean       ignore_stop_words,
-                             gboolean       ignore_reserved_words,
                              gboolean       ignore_numbers);
 static const gchar * (*parser_next) (TrackerParser *parser,
                                      gint          *position,
                                      gint          *byte_offset_start,
                                      gint          *byte_offset_end,
-                                     gboolean      *stop_word,
                                      gint          *word_length);
 static gpointer (*collation_init) (void);
 static void (*collation_shutdown) (gpointer collator);
@@ -155,16 +152,12 @@ tracker_parser_reset (TrackerParser *parser,
                       guint          max_word_length,
                       gboolean       enable_stemmer,
                       gboolean       enable_unaccent,
-                      gboolean       ignore_stop_words,
-                      gboolean       ignore_reserved_words,
                       gboolean       ignore_numbers)
 {
 	parser_reset (parser, txt, txt_size,
 	              max_word_length,
 	              enable_stemmer,
 	              enable_unaccent,
-	              ignore_stop_words,
-	              ignore_reserved_words,
 	              ignore_numbers);
 }
 
@@ -173,13 +166,11 @@ tracker_parser_next (TrackerParser *parser,
                      gint          *position,
                      gint          *byte_offset_start,
                      gint          *byte_offset_end,
-                     gboolean      *stop_word,
                      gint          *word_length)
 {
 	return parser_next (parser, position,
 	                    byte_offset_start,
 	                    byte_offset_end,
-	                    stop_word,
 	                    word_length);
 }
 
