@@ -29,8 +29,8 @@ if get_option('test_utils')
     name: 'tracker-testutils-' + tracker_api_version,
     description: 'tracker test utilities',
     variables: [
-      'python_path=' + ( '${libdir}/tracker-' + tracker_api_version ) / get_option('test_utils_dir') / 'trackertestutils',
-      'command=${python_path}/tracker-sandbox',
+      'python_path=' + ( '${libdir}/tracker-' + tracker_api_version ) / get_option('test_utils_dir'),
+      'command=${python_path}/trackertestutils/tracker-sandbox',
     ]
   )
 
