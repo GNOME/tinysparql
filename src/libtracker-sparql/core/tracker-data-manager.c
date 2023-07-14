@@ -1416,6 +1416,16 @@ tracker_data_ontology_load_statement (TrackerDataManager  *manager,
 
 		tracker_property_set_fulltext_indexed (property,
 		                                       strcmp (object, "true") == 0);
+	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_NRL "weight") == 0) {
+		TrackerProperty *property;
+
+		property = tracker_ontologies_get_property_by_uri (manager->ontologies, subject);
+		if (property == NULL) {
+			print_parsing_err ("%s: Unknown property %s", object_location, subject);
+			goto fail;
+		}
+
+		tracker_property_set_weight (property, atoi (object));
 	} else if (g_strcmp0 (predicate, TRACKER_PREFIX_NRL "prefix") == 0) {
 		TrackerNamespace *namespace;
 

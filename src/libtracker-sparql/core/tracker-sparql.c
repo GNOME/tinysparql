@@ -1685,7 +1685,7 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 
 	if (tracker_token_get_variable (subject)) {
 		_append_string (sparql, ",\"ftsRank\", \"ftsOffsets\" ");
-		g_string_append (select_items, ",rank, tracker_offsets(fts5) ");
+		g_string_append (select_items, ",-rank, tracker_offsets(fts5) ");
 
 		_append_string (sparql, ",\"ftsSnippet\" ");
 		n_properties += 3;

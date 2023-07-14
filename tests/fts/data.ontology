@@ -8,9 +8,6 @@
 test: a nrl:Ontology ;
 	nrl:lastModified "2018-09-30T13:00:00Z" .
 
-fts: a nrl:Namespace ;
-	nrl:prefix "fts" .
-
 test: a nrl:Namespace ;
 	nrl:prefix "test" .
 
