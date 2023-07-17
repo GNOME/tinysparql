@@ -1,8 +1,8 @@
 include:
-  - remote: "https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/80f87b3058efb75a1faae11826211375fba77e7f/templates/ci-fairy.yml"
-  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/80f87b3058efb75a1faae11826211375fba77e7f/templates/alpine.yml'
-  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/80f87b3058efb75a1faae11826211375fba77e7f/templates/fedora.yml'
-  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/80f87b3058efb75a1faae11826211375fba77e7f/templates/ubuntu.yml'
+  - remote: "https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/81a36b5c5349fd3222036bb3caa0166083a3fd44/templates/ci-fairy.yml"
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/81a36b5c5349fd3222036bb3caa0166083a3fd44/templates/alpine.yml'
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/81a36b5c5349fd3222036bb3caa0166083a3fd44/templates/fedora.yml'
+  - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/81a36b5c5349fd3222036bb3caa0166083a3fd44/templates/ubuntu.yml'
 
 variables:
   FDO_UPSTREAM_REPO: GNOME/tracker
