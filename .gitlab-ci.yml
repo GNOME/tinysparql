@@ -449,6 +449,12 @@ test-website:
       - website/index.html
   needs:
     - build-fedora-container@x86_64
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH
+      when: never
+    - if: $CI_PIPELINE_SOURCE != 'merge_request_event' && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      when: never
+    - when: always
 
 test-soup2@x86_64:
   extends:
