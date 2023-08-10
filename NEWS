@@ -1,3 +1,14 @@
+NEW in 3.6.beta - 2023-08-11
+============================
+  * Use BM25 as FTS ranking algorithm
+  * Add tracker_batch_add_rdf() call to add RDF as
+    a batch operation.
+  * Fix warnings with newer glib
+  * Adapt tests to SQLite >= 3.42
+  * Build improvements
+
+Translations: ro
+
 NEW in 3.6.alpha - 2023-07-04
 =============================
   * Improved threading guarantees of TrackerNotifier signal
