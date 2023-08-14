@@ -82,7 +82,7 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2023-02-27.1'
+    BASE_TAG: '2023-08-14.4'
     FDO_DISTRIBUTION_PACKAGES:
       clang
       clang-analyzer
@@ -90,6 +90,7 @@ check-merge-request:
       diffutils
       gcovr
       git
+      gi-docgen
       libasan
       libubsan
       patch
@@ -107,14 +108,12 @@ check-merge-request:
 
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' 'dnf-command(download)' &&
-      dnf builddep -y tracker tracker-miners --setopt=install_weak_deps=False &&
-      dnf clean all &&
-
-      pip3 install beautifulsoup4 mkdocs mkdocs-cinder tap.py meson tomli &&
-      # Installing gtk-doc docs with dnf does not end up with docs at
-      # /usr/share/gtk-doc, https://gitlab.gnome.org/GNOME/tracker/-/issues/324
-      dnf download glib2-doc &&
-      rpm -i ./glib2-doc*.rpm
+      dnf builddep -y tracker --setopt=install_weak_deps=False &&
+      # For tests, this isn't packaged in Fedora.
+      pip3 install tap.py &&
+      # Needed for verifying legacy libsoup2 support
+      dnf install -y libsoup-devel &&
+      dnf clean all
 
 .tracker.ubuntu@common:
   variables:
@@ -124,7 +123,7 @@ check-merge-request:
       export DEBIAN_FRONTEND=noninteractive &&
       sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list &&
       apt-get -yq update && apt-get -yq upgrade &&
-      apt-get -yq build-dep tracker tracker-miners
+      apt-get -yq build-dep tracker
 
 .tracker.alpine@common:
   variables:
@@ -433,15 +432,11 @@ test-website:
   script:
     - export install_prefix="$(pwd)/tracker-install"
     # Build tracker and install.
-    - mkdir website-build; pushd website-build; meson .. --prefix="$install_prefix"; ninja; ninja install; popd
-    # Build tracker-miners and install any documentation from there as well.
-    - .gitlab-ci/checkout-tracker-miners.sh
-    - pushd extra/tracker-miners; mkdir build; pushd build; env PKG_CONFIG_PATH="$install_prefix/lib64/pkgconfig" meson .. --prefix="$install_prefix"; ninja install; popd; popd
-    # Generate the website using mkdocs.
-    - |
-      export tracker_commit=$CI_COMMIT_SHA
-      export tracker_miners_commit=$(git -C ./extra/tracker-miners rev-parse HEAD)
-      ./docs/website/build.py --output=website --api-docs="$install_prefix/share/doc/Tracker-3.0" --tracker-commit=${tracker_commit} --man-pages ./docs/manpages/*.txt ./extra/tracker-miners/docs/manpages/*.txt
+    - mkdir website-build; pushd website-build; meson .. --prefix="$install_prefix" -Dsystemd_user_services=false; ninja; ninja install; popd
+    # Copy the gi-docgen website out of the install tree
+    - cp -a $install_prefix/share/doc/Tracker-3.0 ./website
+    # Add the redirects
+    - cp docs/website/_redirects ./website
   artifacts:
     expose_as: 'Website'
     paths:
