@@ -436,7 +436,7 @@ test-website:
     # Copy the gi-docgen website out of the install tree
     - cp -a $install_prefix/share/doc/Tracker-3.0 ./website
     # Add the redirects
-    - cp docs/website/_redirects ./website
+    - cp docs/website/redirect-to-website.html docs/website/_redirects ./website
   artifacts:
     expose_as: 'Website'
     paths:
