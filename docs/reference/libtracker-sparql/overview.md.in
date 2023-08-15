@@ -2,12 +2,18 @@ Title: Overview
 
 {{ style.xml }}
 
-Tracker is a light-weight RDF [triple store](https://en.wikipedia.org/wiki/Triplestore)
-implementation, with a [SPARQL 1.1](https://en.wikipedia.org/wiki/SPARQL) interface.
+Tracker SPARQL is a light-weight RDF [triple
+store](https://en.wikipedia.org/wiki/Triplestore) implementation, with a
+[SPARQL 1.1](https://en.wikipedia.org/wiki/SPARQL) interface.
 Tracker is implemented as a library, and may be used to create private databases,
-in addition to connecting to remote endpoints for
-[federated queries](https://en.wikipedia.org/wiki/Federated_search) or creating such
+in addition to connecting to remote endpoints for [federated
+queries](https://en.wikipedia.org/wiki/Federated_search) or creating such
 public endpoints.
+
+Tracker SPARQL is the data storage backend for the
+[Tracker Miner FS filesystem indexer](https://gnome.pages.gitlab.gnome.org/tracker-miners/),
+and is also used by apps that want to store, query and publish structured data
+using SPARQL.
 
 ## Advantages
 

@@ -6,18 +6,15 @@
 #
 # 1. https://www.w3.org/Provider/Style/URI
 
-/tracker/overview/ https://tracker.gnome.org/faq/ 301
-/tracker/overview/index.html https://tracker.gnome.org/faq/ 301
-
-/tracker/faq/ https://tracker.gnome.org/faq/ 301
-/tracker/faq/index.html https://tracker.gnome.org/faq/ 301
+/tracker/faq/ /tracker/redirect-to-website.html 301
+/tracker/faq/index.html /tracker/redirect-to-website.html 301
 
 # "Get involved" info is on the main page of tracker.gnome.org
-/tracker/community/ https://tracker.gnome.org/ 301
-/tracker/community/index.html https://tracker.gnome.org/ 301
+/tracker/community/ /tracker/redirect-to-website.html 301
+/tracker/community/index.html /tracker/redirect-to-website.html 301
 
-/tracker/docs/user/ https://tracker.gnome.org/ 301
-/tracker/docs/user/index.html https://tracker.gnome.org/ 301
+/tracker/docs/user/ /tracker/redirect-to-website.html 301
+/tracker/docs/user/index.html /tracker/redirect-to-website.html 301
 
 # This is not quite a one-to-one mapping because the new page only contains
 # the `tracker3` subcommands from tracker-miners.git, the subcommands from
