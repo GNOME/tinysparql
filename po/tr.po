@@ -1,6 +1,6 @@
 # Turkish translation for tracker.
 # Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
-# Copyright (C) 2014-2022 tracker's COPYRIGHT HOLDER
+# Copyright (C) 2014-2023 tracker's COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker package.
 #
 # Gökhan Gurbetoğlu <ggurbet@gmail.com>, 2014.
@@ -13,10 +13,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2023-02-13 21:09+0000\n"
+"POT-Creation-Date: 2023-05-14 12:32+0000\n"
 "PO-Revision-Date: 2023-02-20 22:20+0300\n"
 "Last-Translator: Sabri Ünal <libreajans@gmail.com>\n"
-"Language-Team: Türkçe <gnome-turk@gnome.org>\n"
+"Language-Team: Türkçe <takim@gnome.org.tr>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -31,7 +31,7 @@ msgstr ""
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-sparql/core/tracker-collation.c:333
+#: src/libtracker-sparql/core/tracker-collation.c:116
 msgid "the|a|an"
 msgstr "the|a|an"
 
