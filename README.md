@@ -15,10 +15,9 @@ The Tracker project is divided into two main repositories:
     the indexer daemon (*tracker-miner-fs-3*) and tools to extract metadata
     from many different filetypes.
 
-More information on Tracker can be found at:
+Documentation for Tracker SPARQL can be found at:
 
-  * <https://gnome.pages.gitlab.gnome.org/tracker/>
-  * <https://wiki.gnome.org/Projects/Tracker>
+  * <https://gnome.pages.gitlab.gnome.org/tracker>
 
 Source code and issue tracking:
 
