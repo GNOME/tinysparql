@@ -194,7 +194,8 @@ print_property_table (FILE                 *f,
 		type_class_id = range->shortname;
 
 		/* Property name column */
-		g_fprintf (f, "| <a name=\"%s\"></a>%s ", prop_id, basename);
+		g_fprintf (f, "| <a name=\"%s\" /><a name=\"%s\" />%s ",
+			   prop_id, basename, basename);
 
 		/* Type column */
 		link = link_from_shortname (type_class_id);
@@ -267,7 +268,8 @@ print_ontology_class (TrackerOntologyModel *model,
 	id = klass->shortname;
 
 	/* Anchor for external links. */
-	g_fprintf (f, "## <a name=\"%s\"></a>%s\n\n", id, name);
+	g_fprintf (f, "## <a name=\"%s\" /><a name=\"%s\" />%s\n\n",
+		   id, name, name);
 
 	if (klass->description || klass->deprecated || klass->notify) {
 		if (klass->description) {
