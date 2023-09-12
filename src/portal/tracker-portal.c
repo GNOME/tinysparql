@@ -232,7 +232,7 @@ load_client_configuration (TrackerPortal          *portal,
 
 		if (inner_error) {
 			g_warning ("Error reading .flatpak-info.");
-			g_propagate_error (error, inner_error);
+			g_propagate_error (error, g_steal_pointer (&inner_error));
 			return NULL;
 		}
 
