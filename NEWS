@@ -1,3 +1,13 @@
+NEW in 3.6.0 - 2023-09-16
+=========================
+Translations: eo
+
+  Highlighted changes since 3.5.0:
+  - Use BM25 as ranking algorithm
+  - Better and more cohesive documentation
+  - Add tracker_batch_add_rdf() API call to insert RDF data
+    as part of an update batch.
+
 NEW in 3.6.rc - 2023-09-05
 ==========================
   * Documentation updates
