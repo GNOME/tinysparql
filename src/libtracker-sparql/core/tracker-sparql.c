@@ -4251,11 +4251,14 @@ translate_OrderCondition (TrackerSparql  *sparql,
 		_call_rule (sparql, NAMED_RULE_Var, error);
 
 		variable = _last_node_variable (sparql);
-		_append_variable_sql (sparql, variable);
 
 		binding = tracker_variable_get_sample_binding (variable);
-		if (binding)
+		if (binding) {
+			_append_variable_sql (sparql, variable);
 			sparql->current_state->expression_type = TRACKER_BINDING (binding)->data_type;
+		} else {
+			_append_string (sparql, "NULL ");
+		}
 	} else {
 		g_assert_not_reached ();
 	}
