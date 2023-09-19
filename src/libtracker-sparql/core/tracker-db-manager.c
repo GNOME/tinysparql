@@ -792,12 +792,6 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
 	                                              db_manager->s_cache_size);
 
-	if (!readonly) {
-		tracker_db_interface_set_max_stmt_cache_size (connection,
-		                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-		                                              db_manager->u_cache_size);
-	}
-
 	return connection;
 }
 

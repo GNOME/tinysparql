@@ -72,7 +72,6 @@ struct TrackerDBInterface {
 	GCancellable *cancellable;
 
 	TrackerDBStatementMru select_stmt_mru;
-	TrackerDBStatementMru update_stmt_mru;
 
 	/* Used if TRACKER_DB_INTERFACE_USE_MUTEX is set */
 	GMutex mutex;
@@ -2035,7 +2034,6 @@ close_database (TrackerDBInterface *db_interface)
 	gint rc;
 
 	tracker_db_statement_mru_finish (&db_interface->select_stmt_mru);
-	tracker_db_statement_mru_finish (&db_interface->update_stmt_mru);
 
 	if (db_interface->replace_func_checks.syntax_check)
 		g_regex_unref (db_interface->replace_func_checks.syntax_check);
@@ -2330,8 +2328,6 @@ tracker_db_interface_init (TrackerDBInterface *db_interface)
 {
 	tracker_db_statement_mru_init (&db_interface->select_stmt_mru, 100,
 	                               g_str_hash, g_str_equal, NULL);
-	tracker_db_statement_mru_init (&db_interface->update_stmt_mru, 100,
-	                               g_str_hash, g_str_equal, NULL);
 }
 
 void
@@ -2341,9 +2337,7 @@ tracker_db_interface_set_max_stmt_cache_size (TrackerDBInterface         *db_int
 {
 	TrackerDBStatementMru *stmt_mru;
 
-	if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE) {
-		stmt_mru = &db_interface->update_stmt_mru;
-	} else if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT) {
+	if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT) {
 		stmt_mru = &db_interface->select_stmt_mru;
 	} else {
 		return;
@@ -2532,8 +2526,6 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 	/* MRU holds a reference to the stmt */
 	if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT)
 		mru = &db_interface->select_stmt_mru;
-	else if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE)
-		mru = &db_interface->update_stmt_mru;
 
 	if (mru)
 		stmt = tracker_db_statement_mru_lookup (mru, query);
@@ -3761,7 +3753,6 @@ gssize
 tracker_db_interface_sqlite_release_memory (TrackerDBInterface *db_interface)
 {
 	tracker_db_statement_mru_clear (&db_interface->select_stmt_mru);
-	tracker_db_statement_mru_clear (&db_interface->update_stmt_mru);
 
 	return (gssize) sqlite3_db_release_memory (db_interface->db);
 }
