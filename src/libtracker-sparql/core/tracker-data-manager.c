@@ -2827,41 +2827,6 @@ db_get_static_data (TrackerDBInterface  *iface,
 }
 
 static void
-insert_uri_in_resource_table (TrackerDataManager  *manager,
-                              TrackerDBInterface  *iface,
-                              const gchar         *uri,
-                              TrackerRowid         id,
-                              GError             **error)
-{
-	TrackerDBStatement *stmt;
-	GError *internal_error = NULL;
-
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &internal_error,
-	                                              "INSERT OR IGNORE "
-	                                              "INTO main.Resource "
-	                                              "(ID, Uri) "
-	                                              "VALUES (?, ?)");
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	tracker_db_statement_bind_int (stmt, 0, id);
-	tracker_db_statement_bind_text (stmt, 1, uri);
-	tracker_db_statement_execute (stmt, &internal_error);
-
-	if (internal_error) {
-		g_object_unref (stmt);
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	g_object_unref (stmt);
-
-}
-
-static void
 range_change_for (TrackerProperty *property,
                   GString         *in_col_sql,
                   GString         *sel_col_sql,
@@ -3576,55 +3541,6 @@ tracker_data_ontology_setup_db (TrackerDataManager  *manager,
 	}
 
 	return TRUE;
-}
-
-static void
-tracker_data_ontology_import_into_db (TrackerDataManager  *manager,
-                                      TrackerDBInterface  *iface,
-                                      gboolean             in_update,
-                                      GError             **error)
-{
-	TrackerClass **classes;
-	TrackerProperty **properties;
-	guint i, n_props, n_classes;
-
-	classes = tracker_ontologies_get_classes (manager->ontologies, &n_classes);
-	properties = tracker_ontologies_get_properties (manager->ontologies, &n_props);
-
-	/* insert classes into rdfs:Resource table */
-	for (i = 0; i < n_classes; i++) {
-		if (tracker_class_get_is_new (classes[i]) == in_update) {
-			GError *internal_error = NULL;
-
-			insert_uri_in_resource_table (manager, iface,
-			                              tracker_class_get_uri (classes[i]),
-			                              tracker_class_get_id (classes[i]),
-			                              &internal_error);
-
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
-				return;
-			}
-		}
-	}
-
-	/* insert properties into rdfs:Resource table */
-	for (i = 0; i < n_props; i++) {
-		if (tracker_property_get_is_new (properties[i]) == in_update) {
-			GError *internal_error = NULL;
-
-			insert_uri_in_resource_table (manager, iface,
-			                              tracker_property_get_uri (properties[i]),
-			                              tracker_property_get_id (properties[i]),
-			                              &internal_error);
-
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
-				return;
-			}
-		}
-	}
-
 }
 
 static gint
@@ -4346,12 +4262,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			                                &internal_error);
 		}
 
-		if (!internal_error) {
-			tracker_data_ontology_import_into_db (manager, iface,
-			                                      FALSE,
-			                                      &internal_error);
-		}
-
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			goto rollback_newly_created_db;
@@ -4713,11 +4623,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				if (!ontology_error) {
 					if (update_fts)
 						tracker_data_manager_update_fts (manager, iface, "main", &ontology_error);
-				}
-
-				if (!ontology_error) {
-					tracker_data_ontology_import_into_db (manager, iface, TRUE,
-					                                      &ontology_error);
 				}
 
 				if (!ontology_error) {
