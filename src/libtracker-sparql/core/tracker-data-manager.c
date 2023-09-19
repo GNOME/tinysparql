@@ -3923,7 +3923,7 @@ update_ontology_last_modified (TrackerDataManager  *manager,
 
 	ontology_uri = tracker_ontology_get_uri (ontology);
 	last_mod = tracker_ontology_get_last_modified (ontology);
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 	                                              "UPDATE \"nrl:Ontology\" SET \"nrl:lastModified\"= ? "
 	                                              "WHERE \"nrl:Ontology\".ID = "
 	                                              "(SELECT Resource.ID FROM Resource WHERE "
@@ -4863,7 +4863,7 @@ data_manager_perform_cleanup (TrackerDataManager  *manager,
 	g_hash_table_unref (graphs);
 
 	stmt = tracker_db_interface_create_statement (iface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              &internal_error,
 	                                              str->str);
 	g_string_free (str, TRUE);
