@@ -4225,7 +4225,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		g_set_error (error,
 		             TRACKER_DATA_ONTOLOGY_ERROR,
 		             TRACKER_DATA_UNSUPPORTED_LOCATION,
-		             "Cache and data locations must be local");
+		             "Database location must be local");
 		return FALSE;
 	}
 
