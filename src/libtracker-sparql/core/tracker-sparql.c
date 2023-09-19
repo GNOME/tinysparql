@@ -691,7 +691,7 @@ _append_literal_sql (TrackerSparql         *sparql,
 	TrackerDBManagerFlags flags;
 
 	db_manager = tracker_data_manager_get_db_manager (sparql->data_manager);
-	flags = tracker_db_manager_get_flags (db_manager, NULL, NULL);
+	flags = tracker_db_manager_get_flags (db_manager);
 
 	if (TRACKER_BINDING (binding)->data_type == TRACKER_PROPERTY_TYPE_RESOURCE) {
 		_append_string (sparql,

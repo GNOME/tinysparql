@@ -2799,7 +2799,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 			tracker_property_set_is_inverse_functional_property (property, is_inverse_functional_property);
 
 			/* super properties are only used in updates, never for queries */
-			if ((tracker_db_manager_get_flags (manager->db_manager, NULL, NULL) & TRACKER_DB_MANAGER_READONLY) == 0) {
+			if ((tracker_db_manager_get_flags (manager->db_manager) & TRACKER_DB_MANAGER_READONLY) == 0) {
 				property_add_super_properties_from_db (iface, manager, property);
 			}
 
@@ -3976,7 +3976,7 @@ update_interface_cb (TrackerDBManager   *db_manager,
 	guint iface_generation;
 	gboolean update = FALSE, changed, readonly;
 
-	readonly = (tracker_db_manager_get_flags (db_manager, NULL, NULL) & TRACKER_DB_MANAGER_READONLY) != 0;
+	readonly = (tracker_db_manager_get_flags (db_manager) & TRACKER_DB_MANAGER_READONLY) != 0;
 
 	if (readonly) {
 		update = TRUE;
@@ -4799,7 +4799,7 @@ tracker_data_manager_dispose (GObject *object)
 	g_clear_object (&manager->data_update);
 
 	if (manager->db_manager) {
-		readonly = (tracker_db_manager_get_flags (manager->db_manager, NULL, NULL) & TRACKER_DB_MANAGER_READONLY) != 0;
+		readonly = (tracker_db_manager_get_flags (manager->db_manager) & TRACKER_DB_MANAGER_READONLY) != 0;
 
 		if (!readonly) {
 			/* Delete stale URIs in the Resource table */

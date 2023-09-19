@@ -82,9 +82,7 @@ gboolean            tracker_db_manager_has_enough_space       (TrackerDBManager 
 gboolean            tracker_db_manager_is_first_time          (TrackerDBManager      *db_manager);
 
 TrackerDBManagerFlags
-                    tracker_db_manager_get_flags              (TrackerDBManager      *db_manager,
-							       guint                 *select_cache_size,
-                                                               guint                 *update_cache_size);
+                    tracker_db_manager_get_flags              (TrackerDBManager      *db_manager);
 
 gboolean            tracker_db_manager_locale_changed         (TrackerDBManager      *db_manager,
                                                                GError               **error);

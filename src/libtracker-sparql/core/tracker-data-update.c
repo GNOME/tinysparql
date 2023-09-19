@@ -1009,7 +1009,7 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 	}
 
 	db_manager = tracker_data_manager_get_db_manager (data->manager);
-	db_flags = tracker_db_manager_get_flags (db_manager, NULL, NULL);
+	db_flags = tracker_db_manager_get_flags (db_manager);
 
 	if ((db_flags & TRACKER_DB_MANAGER_ANONYMOUS_BNODES) == 0 &&
 	    g_str_has_prefix (uri, "urn:bnode:")) {

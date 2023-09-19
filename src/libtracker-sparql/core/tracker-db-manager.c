@@ -118,16 +118,8 @@ tracker_db_manager_is_first_time (TrackerDBManager *db_manager)
 }
 
 TrackerDBManagerFlags
-tracker_db_manager_get_flags (TrackerDBManager *db_manager,
-                              guint            *select_cache_size,
-                              guint            *update_cache_size)
+tracker_db_manager_get_flags (TrackerDBManager *db_manager)
 {
-	if (select_cache_size)
-		*select_cache_size = db_manager->s_cache_size;
-
-	if (update_cache_size)
-		*update_cache_size = db_manager->u_cache_size;
-
 	return db_manager->flags;
 }
 
