@@ -83,7 +83,6 @@ struct _TrackerDBManager {
 	gchar *shared_cache_key;
 	TrackerDBManagerFlags flags;
 	guint s_cache_size;
-	guint u_cache_size;
 	gboolean first_time;
 	gboolean needs_integrity_check;
 	TrackerDBVersion db_version;
@@ -485,7 +484,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
                         GFile                  *cache_location,
                         gboolean                shared_cache,
                         guint                   select_cache_size,
-                        guint                   update_cache_size,
                         TrackerBusyCallback     busy_callback,
                         gpointer                busy_user_data,
                         GObject                *iface_data,
@@ -507,7 +505,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	/* Set up locations */
 	db_manager->flags = flags;
 	db_manager->s_cache_size = select_cache_size;
-	db_manager->u_cache_size = update_cache_size;
 	db_manager->interfaces = g_async_queue_new_full (g_object_unref);
 
 	g_set_object (&db_manager->cache_location, cache_location);

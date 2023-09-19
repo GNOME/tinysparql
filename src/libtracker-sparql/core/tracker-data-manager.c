@@ -64,7 +64,6 @@ struct _TrackerDataManager {
 	guint flags;
 
 	gint select_cache_size;
-	gint update_cache_size;
 	guint generation;
 
 	TrackerDBManager *db_manager;
@@ -3805,8 +3804,7 @@ TrackerDataManager *
 tracker_data_manager_new (TrackerDBManagerFlags   flags,
                           GFile                  *cache_location,
                           GFile                  *ontology_location,
-                          guint                   select_cache_size,
-                          guint                   update_cache_size)
+                          guint                   select_cache_size)
 {
 	TrackerDataManager *manager;
 
@@ -3822,7 +3820,6 @@ tracker_data_manager_new (TrackerDBManagerFlags   flags,
 	g_set_object (&manager->ontology_location, ontology_location);
 	manager->flags = flags;
 	manager->select_cache_size = select_cache_size;
-	manager->update_cache_size = update_cache_size;
 
 	return manager;
 }
@@ -4155,7 +4152,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                                              manager->cache_location,
 	                                              FALSE,
 	                                              manager->select_cache_size,
-	                                              manager->update_cache_size,
 	                                              busy_callback, manager,
 	                                              G_OBJECT (manager),
 	                                              manager,

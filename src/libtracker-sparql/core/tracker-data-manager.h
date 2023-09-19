@@ -60,8 +60,7 @@ GQuark   tracker_data_ontology_error_quark           (void);
 TrackerDataManager * tracker_data_manager_new        (TrackerDBManagerFlags   flags,
                                                       GFile                  *cache_location,
                                                       GFile                  *ontology_location,
-                                                      guint                   select_cache_size,
-                                                      guint                   update_cache_size);
+                                                      guint                   select_cache_size);
 
 void                 tracker_data_manager_shutdown            (TrackerDataManager *manager);
 
