@@ -136,7 +136,7 @@ iface_set_params (TrackerDBInterface   *iface,
                   gboolean              readonly,
                   GError              **error)
 {
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = \"UTF-8\"");
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = 'UTF-8'");
 
 	if (readonly) {
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = MEMORY;");
