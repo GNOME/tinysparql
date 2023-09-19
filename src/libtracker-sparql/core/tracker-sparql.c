@@ -193,6 +193,9 @@ typedef struct
 	gint64 local_blank_node_ids;
 	TrackerVariableBinding *as_in_group_by;
 
+	TrackerStringBuilder *select_clause_str;
+	TrackerParserNode *select_clause_node;
+
 	GHashTable *prefix_map;
 	GHashTable *union_views;
 	GHashTable *cached_bindings;
@@ -3554,15 +3557,21 @@ translate_SelectQuery (TrackerSparql  *sparql,
 
 	_call_rule (sparql, NAMED_RULE_WhereClause, error);
 
-	_call_rule (sparql, NAMED_RULE_SolutionModifier, error);
+	if (_check_in_rule (sparql, NAMED_RULE_SolutionModifier)) {
+		sparql->current_state->select_clause_node = select_clause;
+		sparql->current_state->select_clause_str = select;
+		_call_rule (sparql, NAMED_RULE_SolutionModifier, error);
+		sparql->current_state->select_clause_node = NULL;
+		sparql->current_state->select_clause_str = NULL;
+	} else {
+		/* Now that we have all variable/binding information available,
+		 * process the select clause.
+		 */
+		if (!_postprocess_rule (sparql, select_clause, select, error))
+			return FALSE;
+	}
 
 	tracker_sparql_swap_builder (sparql, old);
-
-	/* Now that we have all variable/binding information available,
-	 * process the select clause.
-	 */
-	if (!_postprocess_rule (sparql, select_clause, select, error))
-		return FALSE;
 
 	return TRUE;
 }
@@ -3591,13 +3600,19 @@ translate_SubSelect (TrackerSparql  *sparql,
 
 	_call_rule (sparql, NAMED_RULE_WhereClause, error);
 
-	_call_rule (sparql, NAMED_RULE_SolutionModifier, error);
-
-	/* Now that we have all variable/binding information available,
-	 * process the select clause.
-	 */
-	if (!_postprocess_rule (sparql, select_clause, select, error))
-		return FALSE;
+	if (_check_in_rule (sparql, NAMED_RULE_SolutionModifier)) {
+		sparql->current_state->select_clause_node = select_clause;
+		sparql->current_state->select_clause_str = select;
+		_call_rule (sparql, NAMED_RULE_SolutionModifier, error);
+		sparql->current_state->select_clause_node = NULL;
+		sparql->current_state->select_clause_str = NULL;
+	} else {
+		/* Now that we have all variable/binding information available,
+		 * process the select clause.
+		 */
+		if (!_postprocess_rule (sparql, select_clause, select, error))
+			return FALSE;
+	}
 
 	tracker_sparql_swap_builder (sparql, old);
 
@@ -3994,6 +4009,15 @@ translate_SolutionModifier (TrackerSparql  *sparql,
 
 	if (_check_in_rule (sparql, NAMED_RULE_HavingClause)) {
 		_call_rule (sparql, NAMED_RULE_HavingClause, error);
+	}
+
+	if (sparql->current_state->select_clause_str &&
+	    sparql->current_state->select_clause_node) {
+		if (!_postprocess_rule (sparql,
+		                        sparql->current_state->select_clause_node,
+		                        sparql->current_state->select_clause_str,
+		                        error))
+			return FALSE;
 	}
 
 	if (_check_in_rule (sparql, NAMED_RULE_OrderClause)) {
