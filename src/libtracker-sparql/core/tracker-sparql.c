@@ -8189,7 +8189,7 @@ handle_custom_function (TrackerSparql  *sparql,
 	} else if (g_str_equal (function, FTS_NS "rank")) {
 		node = _skip_rule (sparql, NAMED_RULE_ArgList);
 		variable = find_fts_variable (sparql, node, "ftsRank");
-		if (!variable)
+		if (!variable || !tracker_variable_has_bindings (variable))
 			_raise (PARSE, "Function expects single variable argument", "fts:rank");
 
 		_append_variable_sql (sparql, variable);
