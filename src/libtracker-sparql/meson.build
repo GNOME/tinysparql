@@ -105,6 +105,7 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
 
     dependencies: [libtracker_sparql_dependencies, gvdb_dep],
     gnu_symbol_visibility: 'hidden',
+    include_directories: [core_incs],
 )
 
 tracker_sparql_private_dep = declare_dependency(
