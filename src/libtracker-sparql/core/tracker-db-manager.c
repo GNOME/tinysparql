@@ -73,7 +73,6 @@ static TrackerDBDefinition db_base = {
 struct _TrackerDBManager {
 	GObject parent_instance;
 	TrackerDBDefinition db;
-	gboolean locations_initialized;
 	gchar *data_dir;
 	gchar *in_use_filename;
 	GFile *cache_location;
@@ -373,11 +372,6 @@ tracker_db_manager_ensure_location (TrackerDBManager *db_manager,
 		return;
 	}
 
-	if (db_manager->locations_initialized) {
-		return;
-	}
-
-	db_manager->locations_initialized = TRUE;
 	db_manager->data_dir = g_file_get_path (cache_location);
 
 	db_manager->db = db_base;
@@ -564,8 +558,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 			return NULL;
 		}
 	}
-
-	db_manager->locations_initialized = TRUE;
 
 	if ((flags & TRACKER_DB_MANAGER_READONLY) != 0) {
 		GValue value = G_VALUE_INIT;
