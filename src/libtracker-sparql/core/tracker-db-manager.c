@@ -33,8 +33,6 @@
 #include "tracker-data-manager.h"
 #include "tracker-uuid.h"
 
-#define UNKNOWN_STATUS 0.5
-
 #define MAX_INTERFACES_PER_CPU        16
 #define MAX_INTERFACES                (MAX_INTERFACES_PER_CPU * g_get_num_processors ())
 
@@ -482,8 +480,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
                         GFile                  *cache_location,
                         gboolean                shared_cache,
                         guint                   select_cache_size,
-                        TrackerBusyCallback     busy_callback,
-                        gpointer                busy_user_data,
                         GObject                *iface_data,
                         GError                **error)
 {
@@ -648,8 +644,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 					g_object_unref (db_manager);
 					return NULL;
 				}
-
-				busy_callback ("Integrity checking", 0, busy_user_data);
 
 				if (db_check_integrity (db_manager) == FALSE) {
 					g_set_error (error,

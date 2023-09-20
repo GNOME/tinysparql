@@ -77,8 +77,6 @@ struct _TrackerDataManager {
 	/* Cached remote connections */
 	GMutex connections_lock;
 	GHashTable *cached_connections;
-
-	gchar *status;
 };
 
 struct _TrackerDataManagerClass {
@@ -115,12 +113,6 @@ static Conversion allowed_range_conversions[] = {
 	{ TRACKER_PREFIX_XSD "double", TRACKER_PREFIX_XSD "boolean" },
 
 	{ NULL, NULL }
-};
-
-enum {
-	PROP_0,
-	PROP_STATUS,
-	N_PROPS
 };
 
 static gboolean tracker_data_manager_fts_changed (TrackerDataManager *manager);
@@ -3607,24 +3599,6 @@ get_ontologies (TrackerDataManager  *manager,
 }
 
 static void
-tracker_data_manager_update_status (TrackerDataManager *manager,
-                                    const gchar        *status)
-{
-	g_free (manager->status);
-	manager->status = g_strdup (status);
-	g_object_notify (G_OBJECT (manager), "status");
-}
-
-static void
-busy_callback (const gchar *status,
-               gdouble      progress,
-               gpointer     user_data)
-{
-	tracker_data_manager_update_status (user_data, status);
-}
-
-
-static void
 tracker_data_manager_recreate_indexes (TrackerDataManager  *manager,
                                        GError             **error)
 {
@@ -3649,10 +3623,6 @@ tracker_data_manager_recreate_indexes (TrackerDataManager  *manager,
 			            internal_error->message);
 			g_clear_error (&internal_error);
 		}
-
-		busy_callback ("Recreating indexes",
-		               (gdouble) ((gdouble) i / (gdouble) n_properties),
-		               manager);
 	}
 	TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("  Finished index re-creation..."));
 }
@@ -4152,7 +4122,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                                              manager->cache_location,
 	                                              FALSE,
 	                                              manager->select_cache_size,
-	                                              busy_callback, manager,
 	                                              G_OBJECT (manager),
 	                                              &internal_error);
 	if (!manager->db_manager) {
@@ -4166,8 +4135,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                  G_CALLBACK (setup_interface_cb), manager);
 	g_signal_connect (manager->db_manager, "update-interface",
 	                  G_CALLBACK (update_interface_cb), manager);
-
-	tracker_data_manager_update_status (manager, "Initializing data manager");
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
@@ -4709,9 +4676,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 	manager->initialized = TRUE;
 
-	/* This is the only one which doesn't show the 'OPERATION' part */
-	tracker_data_manager_update_status (manager, "Idle");
-
 	return TRUE;
 
 rollback_db_changes:
@@ -4828,7 +4792,6 @@ tracker_data_manager_finalize (GObject *object)
 	g_clear_object (&manager->ontology_location);
 	g_clear_object (&manager->cache_location);
 	g_clear_pointer (&manager->graphs, g_hash_table_unref);
-	g_free (manager->status);
 	g_mutex_clear (&manager->connections_lock);
 	g_mutex_clear (&manager->graphs_lock);
 
@@ -4842,39 +4805,12 @@ tracker_data_manager_initable_iface_init (GInitableIface *iface)
 }
 
 static void
-tracker_data_manager_get_property (GObject    *object,
-                                   guint       prop_id,
-                                   GValue     *value,
-                                   GParamSpec *pspec)
-{
-	TrackerDataManager *manager = TRACKER_DATA_MANAGER (object);
-
-	switch (prop_id) {
-	case PROP_STATUS:
-		g_value_set_string (value, manager->status);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-	}
-}
-
-static void
 tracker_data_manager_class_init (TrackerDataManagerClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->get_property = tracker_data_manager_get_property;
 	object_class->dispose = tracker_data_manager_dispose;
 	object_class->finalize = tracker_data_manager_finalize;
-
-	g_object_class_install_property (object_class,
-	                                 PROP_STATUS,
-	                                 g_param_spec_string ("status",
-	                                                      "Status",
-	                                                      "Status",
-	                                                      NULL,
-	                                                      G_PARAM_READABLE));
 }
 
 TrackerOntologies *

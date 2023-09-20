@@ -67,8 +67,6 @@ TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerF
                                                                GFile                  *cache_location,
                                                                gboolean                shared_cache,
                                                                guint                   select_cache_size,
-                                                               TrackerBusyCallback     busy_callback,
-                                                               gpointer                busy_user_data,
                                                                GObject                *iface_data,
                                                                GError                **error);
 TrackerDBInterface *tracker_db_manager_get_db_interface       (TrackerDBManager      *db_manager,

@@ -52,10 +52,6 @@ G_BEGIN_DECLS
 
 #define TRACKER_DB_INTERFACE_ERROR          (tracker_db_interface_error_quark ())
 
-typedef void (*TrackerBusyCallback)      (const gchar *status,
-                                          gdouble      progress,
-                                          gpointer     user_data);
-
 typedef enum {
 	TRACKER_DB_QUERY_ERROR,
 	TRACKER_DB_INTERRUPTED,
