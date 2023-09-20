@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2023-05-14 12:32+0000\n"
-"PO-Revision-Date: 2023-09-14 23:51+0200\n"
+"POT-Creation-Date: 2023-09-14 21:52+0000\n"
+"PO-Revision-Date: 2023-09-20 22:43+0200\n"
 "Last-Translator: Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>\n"
 "Language-Team: Esperanto <gnome-eo-list@gnome.org>\n"
 "Language: eo\n"
@@ -104,7 +104,7 @@ msgstr "--http-port ne povas esti uzata kun --dbus-service"
 #: src/tracker/tracker-endpoint.c:186
 #, c-format
 msgid "Creating HTTP endpoint at %s…"
-msgstr "Kreante HTTP-finpunkton ĉe %s..."
+msgstr "Kreante HTTP-finpunkton ĉe %s…"
 
 #: src/tracker/tracker-endpoint.c:206 src/tracker/tracker-endpoint.c:269
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
@@ -118,7 +118,7 @@ msgstr "Fermante konekton…"
 #: src/tracker/tracker-endpoint.c:229
 #, c-format
 msgid "Creating endpoint at %s…"
-msgstr "Kreante finpunkton ĉe %s..."
+msgstr "Kreante finpunkton ĉe %s…"
 
 #: src/tracker/tracker-endpoint.c:265
 msgid "Could not own DBus name"
@@ -131,10 +131,9 @@ msgstr "DBus-nomo perdita"
 #: src/tracker/tracker-endpoint.c:421
 #, c-format
 msgid "Opening database at %s…"
-msgstr "Malfermi datumbazo ĉe %s..."
+msgstr "Malfermi datumbazo ĉe %s…"
 
 #: src/tracker/tracker-endpoint.c:424
-#, fuzzy
 msgid "Creating in-memory database"
 msgstr "Kreante en-memora datumbazo"
 
@@ -178,9 +177,8 @@ msgstr "Konektas al fora servo"
 
 #: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:119
-#, fuzzy
 msgid "Remote service URI"
-msgstr "Fora servo URI"
+msgstr "URI de fora servo"
 
 #: src/tracker/tracker-export.c:65
 msgid "Output TriG format which includes named graph information"
@@ -195,8 +193,7 @@ msgstr "IRI"
 #: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
-"Specifu unu opcion \"--database\", \"--dbus-service\" aŭ \"--remote-"
-"service\"."
+"Specifu unu opcion \"--database\", \"--dbus-service\" aŭ \"--remote-service\""
 
 #: src/tracker/tracker-export.c:310 src/tracker/tracker-export.c:331
 #: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1124
@@ -242,7 +239,7 @@ msgstr "Krei SPARQL-finpunkton"
 
 #: src/tracker/tracker-main.c:91
 msgid "Export data from a Tracker database"
-msgstr "Eksporti datumojn de Tracker-datumbazo"
+msgstr "Elporti datumojn de Tracker-datumbazo"
 
 #: src/tracker/tracker-main.c:92
 msgid "Import data into a Tracker database"
@@ -256,9 +253,8 @@ msgstr ""
 "la ontologion"
 
 #: src/tracker/tracker-main.c:94
-#, fuzzy
 msgid "Query the database at the lowest level using SQL"
-msgstr "Pridemandu la datumbazon ĉe la plej malalta nivelo uzante SQL"
+msgstr "Pridemandi la datumbazon ĉe la plej malalta nivelo uzante SQL"
 
 #: src/tracker/tracker-main.c:134
 #, c-format
@@ -296,18 +292,18 @@ msgstr "Ĉi tio estas uzata kun --query kaj nur por datumbazaj ĝisdatigoj."
 
 #: src/tracker/tracker-sparql.c:134
 msgid "Retrieve classes"
-msgstr "Reakiru klasojn"
+msgstr "Reakiri klasojn"
 
 #: src/tracker/tracker-sparql.c:138
 msgid "Retrieve class prefixes"
-msgstr "Reakiru klasprefiksojn"
+msgstr "Reakiri klasprefiksojn"
 
 #: src/tracker/tracker-sparql.c:142
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr ""
-"Prenu ecojn por klaso, ankaŭ prefiksoj povas esti uzataj (ekz. rdfs:Resource)"
+"Preni ecojn por klaso, ankaŭ prefiksoj povas esti uzataj (ekz. rdfs:Resource)"
 
 #: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
 #: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
@@ -319,14 +315,14 @@ msgstr "KLASO"
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
-"Prenu klasojn kiuj sciigas ŝanĝojn en la datumbazo (KLASO estas laŭvola)"
+"Preni klasojn kiuj sciigas ŝanĝojn en la datumbazo (KLASO estas laŭvola)"
 
 #: src/tracker/tracker-sparql.c:150
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
 msgstr ""
-"Prenu indeksojn uzitajn en datumbazo por plibonigi rendimenton (PROPERTO "
+"Preni indeksojn uzitajn en datumbazo por plibonigi rendimenton (PROPERTO "
 "estas laŭvola)"
 
 #: src/tracker/tracker-sparql.c:151
@@ -356,7 +352,6 @@ msgid "CLASS/PROPERTY"
 msgstr "KLASO/ATRIBUTO"
 
 #: src/tracker/tracker-sparql.c:166
-#, fuzzy
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Liveras la malongigon por klaso (ekz. nfo:FileDataObject)."
 
@@ -452,7 +447,6 @@ msgid "Notifies"
 msgstr "Sciigoj"
 
 #: src/tracker/tracker-sparql.c:1300
-#, fuzzy
 msgid "Could not find indexed properties"
 msgstr "Ne eblis trovi indeksitajn ecojn"
 
@@ -486,7 +480,6 @@ msgid "No classes were found to match search term"
 msgstr "Neniuj klasoj estis trovitaj kongruaj kun serĉtermino"
 
 #: src/tracker/tracker-sparql.c:1378
-#, fuzzy
 msgid "Could not search properties"
 msgstr "Ne eblis serĉi ecojn"
 
