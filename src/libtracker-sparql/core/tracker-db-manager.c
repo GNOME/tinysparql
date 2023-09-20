@@ -75,7 +75,6 @@ struct _TrackerDBManager {
 	TrackerDBDefinition db;
 	gboolean locations_initialized;
 	gchar *data_dir;
-	gchar *user_data_dir;
 	gchar *in_use_filename;
 	GFile *cache_location;
 	gchar *shared_cache_key;
