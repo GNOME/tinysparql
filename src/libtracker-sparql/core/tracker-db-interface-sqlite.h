@@ -57,8 +57,7 @@ void                tracker_db_interface_sqlite_reset_collator         (TrackerD
 gboolean            tracker_db_interface_sqlite_wal_checkpoint         (TrackerDBInterface       *interface,
                                                                         gboolean                  blocking,
                                                                         GError                  **error);
-gboolean            tracker_db_interface_init_vtabs                    (TrackerDBInterface       *interface,
-                                                                        gpointer                  vtab_data);
+void                tracker_db_interface_init_vtabs                    (TrackerDBInterface       *interface);
 
 gboolean            tracker_db_interface_sqlite_fts_delete_table       (TrackerDBInterface       *interface,
                                                                         const gchar              *database,

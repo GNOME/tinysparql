@@ -3681,13 +3681,11 @@ tracker_db_interface_get_is_used (TrackerDBInterface *db_interface)
 	return g_atomic_int_get (&db_interface->n_users) > 0;
 }
 
-gboolean
-tracker_db_interface_init_vtabs (TrackerDBInterface *db_interface,
-                                 gpointer            vtab_data)
+void
+tracker_db_interface_init_vtabs (TrackerDBInterface *db_interface)
 {
-	tracker_vtab_triples_init (db_interface->db, vtab_data);
-	tracker_vtab_service_init (db_interface->db, vtab_data);
-	return TRUE;
+	tracker_vtab_triples_init (db_interface->db, db_interface->user_data);
+	tracker_vtab_service_init (db_interface->db, db_interface->user_data);
 }
 
 gboolean
