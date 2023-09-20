@@ -707,9 +707,14 @@ graph_updated_cb (GDBusConnection *connection,
 {
 	TrackerNotifierSubscription *subscription = user_data;
 	TrackerNotifier *notifier = subscription->notifier;
+	TrackerNotifierPrivate *priv =
+		tracker_notifier_get_instance_private (notifier);
 	TrackerNotifierEventCache *cache;
 	GVariantIter *events;
 	const gchar *graph;
+
+	if (g_cancellable_is_cancelled (priv->cancellable))
+		return;
 
 	g_variant_get (parameters, "(&sa{ii})", &graph, &events);
 
