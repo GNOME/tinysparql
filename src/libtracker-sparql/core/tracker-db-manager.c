@@ -713,6 +713,7 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 	TrackerDBInterface *connection;
 	GError *internal_error = NULL;
 	TrackerDBInterfaceFlags flags = 0;
+	GObject *user_data;
 
 	if (readonly)
 		flags |= TRACKER_DB_INTERFACE_READONLY;
@@ -730,9 +731,9 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 		return NULL;
 	}
 
-	tracker_db_interface_set_user_data (connection,
-	                                    g_weak_ref_get (&db_manager->iface_data),
-	                                    g_object_unref);
+	user_data = g_weak_ref_get (&db_manager->iface_data);
+	tracker_db_interface_set_user_data (connection, user_data);
+	g_object_unref (user_data);
 
 	tracker_db_interface_init_vtabs (connection);
 

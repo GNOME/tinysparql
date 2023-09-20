@@ -77,8 +77,7 @@ struct TrackerDBInterface {
 	GMutex mutex;
 
 	/* User data */
-	gpointer user_data;
-	GDestroyNotify user_data_destroy_notify;
+	GObject *user_data;
 };
 
 struct TrackerDBInterfaceClass {
@@ -2059,7 +2058,7 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface     *db_interface,
 	return tracker_tokenizer_initialize (db_interface->db,
 	                                     db_interface,
 	                                     fts_flags,
-	                                     db_interface->user_data,
+	                                     TRACKER_DATA_MANAGER (db_interface->user_data),
 	                                     error);
 }
 
@@ -2283,8 +2282,7 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	g_free (db_interface->filename);
 	g_free (db_interface->shared_cache_key);
 
-	if (db_interface->user_data && db_interface->user_data_destroy_notify)
-		db_interface->user_data_destroy_notify (db_interface->user_data);
+	g_clear_object (&db_interface->user_data);
 
 	G_OBJECT_CLASS (tracker_db_interface_parent_class)->finalize (object);
 }
@@ -3647,20 +3645,9 @@ tracker_db_statement_sqlite_reset (TrackerDBStatement *stmt)
 
 void
 tracker_db_interface_set_user_data (TrackerDBInterface *db_interface,
-                                    gpointer            user_data,
-                                    GDestroyNotify      destroy_notify)
+                                    GObject            *user_data)
 {
-	if (db_interface->user_data && db_interface->user_data_destroy_notify)
-		db_interface->user_data_destroy_notify (db_interface->user_data);
-
-	db_interface->user_data = user_data;
-	db_interface->user_data_destroy_notify = destroy_notify;
-}
-
-gpointer
-tracker_db_interface_get_user_data (TrackerDBInterface *db_interface)
-{
-	return db_interface->user_data;
+	g_set_object (&db_interface->user_data, user_data);
 }
 
 void
@@ -3684,8 +3671,8 @@ tracker_db_interface_get_is_used (TrackerDBInterface *db_interface)
 void
 tracker_db_interface_init_vtabs (TrackerDBInterface *db_interface)
 {
-	tracker_vtab_triples_init (db_interface->db, db_interface->user_data);
-	tracker_vtab_service_init (db_interface->db, db_interface->user_data);
+	tracker_vtab_triples_init (db_interface->db, (gpointer) db_interface->user_data);
+	tracker_vtab_service_init (db_interface->db, (gpointer) db_interface->user_data);
 }
 
 gboolean
