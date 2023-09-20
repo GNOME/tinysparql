@@ -87,8 +87,6 @@ struct _TrackerDBManager {
 	gboolean needs_integrity_check;
 	TrackerDBVersion db_version;
 
-	gpointer vtab_data;
-
 	GWeakRef iface_data;
 
 	GAsyncQueue *interfaces;
@@ -487,7 +485,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
                         TrackerBusyCallback     busy_callback,
                         gpointer                busy_user_data,
                         GObject                *iface_data,
-                        gpointer                vtab_data,
                         GError                **error)
 {
 	TrackerDBManager *db_manager;
@@ -497,7 +494,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	gboolean need_to_create = FALSE;
 
 	db_manager = g_object_new (TRACKER_TYPE_DB_MANAGER, NULL);
-	db_manager->vtab_data = vtab_data;
 
 	/* Set default value for first_time */
 	db_manager->first_time = FALSE;

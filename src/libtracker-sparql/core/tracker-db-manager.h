@@ -70,7 +70,6 @@ TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerF
                                                                TrackerBusyCallback     busy_callback,
                                                                gpointer                busy_user_data,
                                                                GObject                *iface_data,
-                                                               gpointer                vtab_data,
                                                                GError                **error);
 TrackerDBInterface *tracker_db_manager_get_db_interface       (TrackerDBManager      *db_manager,
                                                                GError               **error);
