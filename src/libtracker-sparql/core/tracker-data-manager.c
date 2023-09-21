@@ -3514,7 +3514,7 @@ query_table_exists (TrackerDBInterface  *iface,
 	gboolean exists = FALSE;
 
 	stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
-	                                               "SELECT 1 FROM sqlite_master WHERE tbl_name=\"%s\" AND type=\"table\"",
+	                                               "SELECT 1 FROM sqlite_master WHERE tbl_name='%s' AND type='table'",
 	                                               table_name);
 	if (stmt) {
 		cursor = tracker_db_statement_start_cursor (stmt, error);

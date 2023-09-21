@@ -339,7 +339,7 @@ collect_graphs (TrackerTriplesCursor *cursor)
 	int rc;
 
 	rc = sqlite3_prepare_v2 (cursor->vtab->module->db,
-	                         "SELECT 0, \"main\" "
+	                         "SELECT 0, 'main' "
 	                         "UNION ALL "
 	                         "SELECT ID, "
 	                         "       (SELECT Uri from Resource where Resource.ID = Graph.ID) "

@@ -63,7 +63,7 @@ class TestGraphs(fixtures.TrackerSparqlDirectTest):
             GRAPH <graph://test/graph/1> {
                 ?contact a nco:PersonContact; nco:hasPhoneNumber ?number
             }
-        } ORDER BY DESC (fts:rank(?contact))
+        }
         """
         results = self.tracker.query(query)
 
