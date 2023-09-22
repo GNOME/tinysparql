@@ -28,9 +28,9 @@ All discussion related to Tracker happens on:
 
   * <https://discourse.gnome.org/tag/tracker>
 
-IRC channel #tracker on:
+IRC channel #gnome-tracker on:
 
-  * [irc.gimp.net](irc://irc.gimp.net)
+  * [irc.libera.chat](irc://irc.libera.chat)
 
 Related projects:
 
