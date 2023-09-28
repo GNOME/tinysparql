@@ -58,14 +58,16 @@ struct _TrackerDirectConnectionPrivate
 
 typedef enum {
 	TASK_TYPE_QUERY,
+	TASK_TYPE_QUERY_STATEMENT,
+	TASK_TYPE_SERIALIZE,
+	TASK_TYPE_SERIALIZE_STATEMENT,
 	TASK_TYPE_UPDATE,
 	TASK_TYPE_UPDATE_BLANK,
 	TASK_TYPE_UPDATE_RESOURCE,
 	TASK_TYPE_UPDATE_BATCH,
 	TASK_TYPE_UPDATE_STATEMENT,
-	TASK_TYPE_RELEASE_MEMORY,
-	TASK_TYPE_SERIALIZE,
 	TASK_TYPE_DESERIALIZE,
+	TASK_TYPE_RELEASE_MEMORY,
 } TaskType;
 
 typedef struct {
@@ -91,6 +93,13 @@ typedef struct {
 			TrackerRdfFormat format;
 			TrackerSerializeFlags flags;
 		} serialize;
+
+		struct {
+			TrackerSparqlStatement *stmt;
+			GHashTable *parameters;
+			TrackerRdfFormat format;
+			TrackerSerializeFlags flags;
+		} serialize_statement;
 
 		struct {
 			GInputStream *stream;
@@ -155,8 +164,14 @@ task_data_free (TaskData *task)
 		g_clear_object (&task->d.batch);
 		break;
 	case TASK_TYPE_UPDATE_STATEMENT:
+	case TASK_TYPE_QUERY_STATEMENT:
 		g_clear_object (&task->d.statement.stmt);
 		g_clear_pointer (&task->d.statement.parameters, g_hash_table_unref);
+		break;
+	case TASK_TYPE_SERIALIZE_STATEMENT:
+		g_clear_object (&task->d.serialize_statement.stmt);
+		g_clear_pointer (&task->d.serialize_statement.parameters,
+		                 g_hash_table_unref);
 		break;
 	case TASK_TYPE_RELEASE_MEMORY:
 		break;
@@ -276,7 +291,9 @@ update_thread_func (gpointer data,
 
 	switch (task_data->type) {
 	case TASK_TYPE_QUERY:
+	case TASK_TYPE_QUERY_STATEMENT:
 	case TASK_TYPE_SERIALIZE:
+	case TASK_TYPE_SERIALIZE_STATEMENT:
 		g_warning ("Queries don't go through this thread");
 		break;
 	case TASK_TYPE_UPDATE:
@@ -358,17 +375,37 @@ static void
 execute_query_in_thread (GTask    *task,
                          TaskData *task_data)
 {
+	TrackerSparqlConnection *conn;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
-	cursor = tracker_sparql_connection_query (TRACKER_SPARQL_CONNECTION (g_task_get_source_object (task)),
-	                                          task_data->d.sparql,
-	                                          g_task_get_cancellable (task),
-	                                          &error);
-	if (cursor)
+	if (g_task_return_error_if_cancelled (task))
+		return;
+
+	conn = g_task_get_source_object (task);
+
+	if (task_data->type == TASK_TYPE_QUERY) {
+		cursor = tracker_sparql_connection_query (conn,
+		                                          task_data->d.sparql,
+		                                          g_task_get_cancellable (task),
+		                                          &error);
+	} else if (task_data->type == TASK_TYPE_QUERY_STATEMENT) {
+		TrackerSparql *sparql;
+
+		sparql = tracker_direct_statement_get_sparql (task_data->d.statement.stmt);
+		cursor = tracker_sparql_execute_cursor (sparql,
+		                                        task_data->d.statement.parameters,
+		                                        &error);
+	} else {
+		g_assert_not_reached ();
+	}
+
+	if (cursor) {
+		tracker_direct_connection_update_timestamp (TRACKER_DIRECT_CONNECTION (conn));
 		g_task_return_pointer (task, cursor, g_object_unref);
-	else
+	} else {
 		g_task_return_error (task, error);
+	}
 }
 
 static void
@@ -380,7 +417,9 @@ serialize_in_thread (GTask    *task,
 	TrackerSparql *query = NULL;
 	TrackerSparqlCursor *cursor = NULL;
 	TrackerNamespaceManager *namespaces;
+	TrackerRdfFormat format;
 	GInputStream *istream = NULL;
+	GHashTable *parameters = NULL;
 	GError *error = NULL;
 
 	conn = g_task_get_source_object (task);
@@ -388,11 +427,23 @@ serialize_in_thread (GTask    *task,
 
 	g_mutex_lock (&priv->mutex);
 
-	query = tracker_sparql_new (priv->data_manager,
-	                            task_data->d.serialize.sparql,
-	                            &error);
-	if (!query)
-		goto out;
+	if (task_data->type == TASK_TYPE_SERIALIZE) {
+		format = task_data->d.serialize.format;
+		query = tracker_sparql_new (priv->data_manager,
+		                            task_data->d.serialize.sparql,
+		                            &error);
+		if (!query)
+			goto out;
+	} else if (task_data->type == TASK_TYPE_SERIALIZE_STATEMENT) {
+		TrackerSparqlStatement *stmt;
+
+		format = task_data->d.serialize_statement.format;
+		stmt = task_data->d.serialize_statement.stmt;
+		query = g_object_ref (tracker_direct_statement_get_sparql (stmt));
+		parameters = task_data->d.serialize_statement.parameters;
+	} else {
+		g_assert_not_reached ();
+	}
 
 	if (!tracker_sparql_is_serializable (query)) {
 		g_set_error (&error,
@@ -402,15 +453,14 @@ serialize_in_thread (GTask    *task,
 		goto out;
 	}
 
-	cursor = tracker_sparql_execute_cursor (query, NULL, &error);
-	tracker_direct_connection_update_timestamp (conn);
+	cursor = tracker_sparql_execute_cursor (query, parameters, &error);
 	if (!cursor)
 		goto out;
 
+	tracker_direct_connection_update_timestamp (conn);
 	tracker_sparql_cursor_set_connection (cursor, TRACKER_SPARQL_CONNECTION (conn));
 	namespaces = tracker_sparql_connection_get_namespace_manager (TRACKER_SPARQL_CONNECTION (conn));
-	istream = tracker_serializer_new (cursor, namespaces,
-	                                  convert_format (task_data->d.serialize.format));
+	istream = tracker_serializer_new (cursor, namespaces, convert_format (format));
 
  out:
 	g_clear_object (&query);
@@ -445,9 +495,11 @@ query_thread_pool_func (gpointer data,
 
 	switch (task_data->type) {
 	case TASK_TYPE_QUERY:
+	case TASK_TYPE_QUERY_STATEMENT:
 		execute_query_in_thread (task, task_data);
 		break;
 	case TASK_TYPE_SERIALIZE:
+	case TASK_TYPE_SERIALIZE_STATEMENT:
 		serialize_in_thread (task, task_data);
 		break;
 	default:
@@ -1708,6 +1760,85 @@ tracker_direct_connection_execute_update_statement (TrackerDirectConnection  *co
 
 	return TRUE;
 }
+
+void
+tracker_direct_connection_execute_query_statement_async (TrackerDirectConnection *conn,
+                                                         TrackerSparqlStatement  *stmt,
+                                                         GHashTable              *parameters,
+                                                         GCancellable            *cancellable,
+                                                         GAsyncReadyCallback      callback,
+                                                         gpointer                 user_data)
+{
+	TrackerDirectConnectionPrivate *priv =
+		tracker_direct_connection_get_instance_private (conn);
+	GError *error = NULL;
+	TaskData *task_data;
+	GTask *task;
+
+	task_data = task_data_new (TASK_TYPE_QUERY_STATEMENT);
+	task_data->d.statement.stmt = g_object_ref (stmt);
+	task_data->d.statement.parameters =
+		parameters ? g_hash_table_ref (parameters) : NULL;
+
+	task = g_task_new (conn, cancellable, callback, user_data);
+	g_task_set_task_data (task, task_data,
+	                      (GDestroyNotify) task_data_free);
+
+	if (!g_thread_pool_push (priv->select_pool, task, &error)) {
+		g_task_return_error (task, _translate_internal_error (error));
+		g_object_unref (task);
+	}
+}
+
+TrackerSparqlCursor *
+tracker_direct_connection_execute_query_statement_finish (TrackerDirectConnection  *conn,
+                                                          GAsyncResult             *res,
+                                                          GError                  **error)
+{
+	return g_task_propagate_pointer (G_TASK (res), error);
+}
+
+void
+tracker_direct_connection_execute_serialize_statement_async (TrackerDirectConnection *conn,
+                                                             TrackerSparqlStatement  *stmt,
+                                                             GHashTable              *parameters,
+                                                             TrackerSerializeFlags    flags,
+                                                             TrackerRdfFormat         format,
+                                                             GCancellable            *cancellable,
+                                                             GAsyncReadyCallback      callback,
+                                                             gpointer                 user_data)
+{
+	TrackerDirectConnectionPrivate *priv =
+		tracker_direct_connection_get_instance_private (conn);
+	GError *error = NULL;
+	TaskData *task_data;
+	GTask *task;
+
+	task_data = task_data_new (TASK_TYPE_SERIALIZE_STATEMENT);
+	task_data->d.serialize_statement.stmt = g_object_ref (stmt);
+	task_data->d.serialize_statement.parameters =
+		parameters ? g_hash_table_ref (parameters) : NULL;
+	task_data->d.serialize_statement.flags = flags;
+	task_data->d.serialize_statement.format = format;
+
+	task = g_task_new (conn, cancellable, callback, user_data);
+	g_task_set_task_data (task, task_data,
+	                      (GDestroyNotify) task_data_free);
+
+	if (!g_thread_pool_push (priv->select_pool, task, &error)) {
+		g_task_return_error (task, _translate_internal_error (error));
+		g_object_unref (task);
+	}
+}
+
+GInputStream *
+tracker_direct_connection_execute_serialize_statement_finish (TrackerDirectConnection  *conn,
+                                                              GAsyncResult             *res,
+                                                              GError                  **error)
+{
+	return g_task_propagate_pointer (G_TASK (res), error);
+}
+
 
 void
 tracker_direct_connection_execute_update_statement_async (TrackerDirectConnection  *conn,

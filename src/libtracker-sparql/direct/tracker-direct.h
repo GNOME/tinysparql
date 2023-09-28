@@ -95,4 +95,28 @@ gboolean tracker_direct_connection_execute_update_statement_finish (TrackerDirec
                                                                     GAsyncResult             *res,
                                                                     GError                  **error);
 
+void tracker_direct_connection_execute_query_statement_async (TrackerDirectConnection *conn,
+                                                              TrackerSparqlStatement  *stmt,
+                                                              GHashTable              *parameters,
+                                                              GCancellable            *cancellable,
+                                                              GAsyncReadyCallback      callback,
+                                                              gpointer                 user_data);
+
+TrackerSparqlCursor * tracker_direct_connection_execute_query_statement_finish (TrackerDirectConnection  *conn,
+                                                                                GAsyncResult             *res,
+                                                                                GError                  **error);
+
+void tracker_direct_connection_execute_serialize_statement_async (TrackerDirectConnection *conn,
+                                                                  TrackerSparqlStatement  *stmt,
+                                                                  GHashTable              *parameters,
+                                                                  TrackerSerializeFlags    flags,
+                                                                  TrackerRdfFormat         format,
+                                                                  GCancellable            *cancellable,
+                                                                  GAsyncReadyCallback      callback,
+                                                                  gpointer                 user_data);
+
+GInputStream * tracker_direct_connection_execute_serialize_statement_finish (TrackerDirectConnection  *conn,
+                                                                             GAsyncResult             *res,
+                                                                             GError                  **error);
+
 #endif /* __TRACKER_LOCAL_CONNECTION_H__ */
