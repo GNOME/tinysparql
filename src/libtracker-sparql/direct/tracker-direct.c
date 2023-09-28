@@ -40,7 +40,7 @@ struct _TrackerDirectConnectionPrivate
 
 	TrackerNamespaceManager *namespace_manager;
 	TrackerDataManager *data_manager;
-	GMutex mutex;
+	GMutex update_mutex;
 
 	GThreadPool *update_thread; /* Contains 1 exclusive thread */
 	GThreadPool *select_pool;
@@ -286,7 +286,7 @@ update_thread_func (gpointer data,
 	conn = user_data;
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 	tracker_data = tracker_data_manager_get_data (priv->data_manager);
 
 	switch (task_data->type) {
@@ -368,7 +368,7 @@ update_thread_func (gpointer data,
 	if (update_timestamp)
 		tracker_direct_connection_update_timestamp (conn);
 
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 }
 
 static void
@@ -425,8 +425,6 @@ serialize_in_thread (GTask    *task,
 	conn = g_task_get_source_object (task);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
-
 	if (task_data->type == TASK_TYPE_SERIALIZE) {
 		format = task_data->d.serialize.format;
 		query = tracker_sparql_new (priv->data_manager,
@@ -465,7 +463,6 @@ serialize_in_thread (GTask    *task,
  out:
 	g_clear_object (&query);
 	g_clear_object (&cursor);
-	g_mutex_unlock (&priv->mutex);
 
 	if (istream)
 		g_task_return_pointer (task, istream, g_object_unref);
@@ -940,16 +937,12 @@ tracker_direct_connection_query (TrackerSparqlConnection  *self,
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
-
 	query = tracker_sparql_new (priv->data_manager, sparql, &inner_error);
 	if (query) {
 		cursor = tracker_sparql_execute_cursor (query, NULL, &inner_error);
 		tracker_direct_connection_update_timestamp (conn);
 		g_object_unref (query);
 	}
-
-	g_mutex_unlock (&priv->mutex);
 
 	if (inner_error)
 		g_propagate_error (error, _translate_internal_error (inner_error));
@@ -1026,11 +1019,11 @@ tracker_direct_connection_update (TrackerSparqlConnection  *self,
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 	data = tracker_data_manager_get_data (priv->data_manager);
 	tracker_data_update_sparql (data, sparql, &inner_error);
 	tracker_direct_connection_update_timestamp (conn);
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 
 	if (inner_error)
 		g_propagate_error (error, inner_error);
@@ -1145,11 +1138,11 @@ tracker_direct_connection_update_blank (TrackerSparqlConnection  *self,
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 	data = tracker_data_manager_get_data (priv->data_manager);
 	blank_nodes = tracker_data_update_sparql_blank (data, sparql, &inner_error);
 	tracker_direct_connection_update_timestamp (conn);
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 
 	if (inner_error)
 		g_propagate_error (error, _translate_internal_error (inner_error));
@@ -1328,11 +1321,11 @@ tracker_direct_connection_update_resource (TrackerSparqlConnection  *self,
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 	data = tracker_data_manager_get_data (priv->data_manager);
 	update_resource (data, graph, resource, &inner_error);
 	tracker_direct_connection_update_timestamp (conn);
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -1670,11 +1663,11 @@ tracker_direct_connection_update_batch (TrackerDirectConnection  *conn,
 
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 	tracker_direct_batch_update (TRACKER_DIRECT_BATCH (batch),
 	                             priv->data_manager, &inner_error);
 	tracker_direct_connection_update_timestamp (conn);
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -1735,7 +1728,7 @@ tracker_direct_connection_execute_update_statement (TrackerDirectConnection  *co
 
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 
 	tracker_data = tracker_data_manager_get_data (priv->data_manager);
 	tracker_data_begin_transaction (tracker_data, &inner_error);
@@ -1751,7 +1744,7 @@ tracker_direct_connection_execute_update_statement (TrackerDirectConnection  *co
 	}
 
  out:
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
