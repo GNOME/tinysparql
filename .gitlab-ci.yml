@@ -528,7 +528,7 @@ static-scan:
   needs:
     - build-fedora-container@x86_64
   script:
-    - meson --buildtype=debug _scan_build
+    - meson --buildtype=debug _scan_build -Dsystemd_user_services=false
     - ninja -C _scan_build scan-build
   artifacts:
     paths:
