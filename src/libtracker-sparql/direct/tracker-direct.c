@@ -40,7 +40,7 @@ struct _TrackerDirectConnectionPrivate
 
 	TrackerNamespaceManager *namespace_manager;
 	TrackerDataManager *data_manager;
-	GMutex mutex;
+	GMutex update_mutex;
 
 	GThreadPool *update_thread; /* Contains 1 exclusive thread */
 	GThreadPool *select_pool;
@@ -56,26 +56,59 @@ struct _TrackerDirectConnectionPrivate
 	guint closing     : 1;
 };
 
-typedef struct {
-	gchar *graph;
-	TrackerResource *resource;
-} UpdateResource;
+typedef enum {
+	TASK_TYPE_QUERY,
+	TASK_TYPE_QUERY_STATEMENT,
+	TASK_TYPE_SERIALIZE,
+	TASK_TYPE_SERIALIZE_STATEMENT,
+	TASK_TYPE_UPDATE,
+	TASK_TYPE_UPDATE_BLANK,
+	TASK_TYPE_UPDATE_RESOURCE,
+	TASK_TYPE_UPDATE_BATCH,
+	TASK_TYPE_UPDATE_STATEMENT,
+	TASK_TYPE_DESERIALIZE,
+	TASK_TYPE_RELEASE_MEMORY,
+} TaskType;
 
 typedef struct {
-	TrackerSparqlStatement *stmt;
-	GHashTable *parameters;
-} UpdateStatement;
+	TaskType type;
 
-typedef struct {
-	gchar *query;
-	TrackerRdfFormat format;
-} SerializeRdf;
+	union {
+		gchar *sparql;
 
-typedef struct {
-	GInputStream *stream;
-	gchar *default_graph;
-	TrackerRdfFormat format;
-} DeserializeRdf;
+		TrackerBatch *batch;
+
+		struct {
+			TrackerSparqlStatement *stmt;
+			GHashTable *parameters;
+		} statement;
+
+		struct {
+			gchar *graph;
+			TrackerResource *resource;
+		} update_resource;
+
+		struct {
+			gchar *sparql;
+			TrackerRdfFormat format;
+			TrackerSerializeFlags flags;
+		} serialize;
+
+		struct {
+			TrackerSparqlStatement *stmt;
+			GHashTable *parameters;
+			TrackerRdfFormat format;
+			TrackerSerializeFlags flags;
+		} serialize_statement;
+
+		struct {
+			GInputStream *stream;
+			gchar *default_graph;
+			TrackerRdfFormat format;
+			TrackerDeserializeFlags flags;
+		} deserialize;
+	} d;
+} TaskData;
 
 enum {
 	PROP_0,
@@ -86,24 +119,6 @@ enum {
 };
 
 static GParamSpec *props[N_PROPS] = { NULL };
-
-typedef enum {
-	TASK_TYPE_QUERY,
-	TASK_TYPE_UPDATE,
-	TASK_TYPE_UPDATE_BLANK,
-	TASK_TYPE_UPDATE_RESOURCE,
-	TASK_TYPE_UPDATE_BATCH,
-	TASK_TYPE_UPDATE_STATEMENT,
-	TASK_TYPE_RELEASE_MEMORY,
-	TASK_TYPE_SERIALIZE,
-	TASK_TYPE_DESERIALIZE,
-} TaskType;
-
-typedef struct {
-	TaskType type;
-	gpointer data;
-	GDestroyNotify destroy;
-} TaskData;
 
 static void tracker_direct_connection_initable_iface_init (GInitableIface *iface);
 static void tracker_direct_connection_async_initable_iface_init (GAsyncInitableIface *iface);
@@ -119,16 +134,12 @@ G_DEFINE_TYPE_WITH_CODE (TrackerDirectConnection, tracker_direct_connection,
                                                 tracker_direct_connection_async_initable_iface_init))
 
 static TaskData *
-task_data_query_new (TaskType       type,
-                     gpointer       data,
-                     GDestroyNotify destroy)
+task_data_new (TaskType type)
 {
 	TaskData *task;
 
 	task = g_new0 (TaskData, 1);
 	task->type = type;
-	task->data = data;
-	task->destroy = destroy;
 
 	return task;
 }
@@ -136,8 +147,39 @@ task_data_query_new (TaskType       type,
 static void
 task_data_free (TaskData *task)
 {
-	if (task->destroy && task->data)
-		task->destroy (task->data);
+	switch (task->type) {
+	case TASK_TYPE_QUERY:
+	case TASK_TYPE_UPDATE:
+	case TASK_TYPE_UPDATE_BLANK:
+		g_free (task->d.sparql);
+		break;
+	case TASK_TYPE_SERIALIZE:
+		g_free (task->d.serialize.sparql);
+		break;
+	case TASK_TYPE_UPDATE_RESOURCE:
+		g_free (task->d.update_resource.graph);
+		g_object_unref (task->d.update_resource.resource);
+		break;
+	case TASK_TYPE_UPDATE_BATCH:
+		g_clear_object (&task->d.batch);
+		break;
+	case TASK_TYPE_UPDATE_STATEMENT:
+	case TASK_TYPE_QUERY_STATEMENT:
+		g_clear_object (&task->d.statement.stmt);
+		g_clear_pointer (&task->d.statement.parameters, g_hash_table_unref);
+		break;
+	case TASK_TYPE_SERIALIZE_STATEMENT:
+		g_clear_object (&task->d.serialize_statement.stmt);
+		g_clear_pointer (&task->d.serialize_statement.parameters,
+		                 g_hash_table_unref);
+		break;
+	case TASK_TYPE_RELEASE_MEMORY:
+		break;
+	case TASK_TYPE_DESERIALIZE:
+		g_clear_object (&task->d.deserialize.stream);
+		g_free (task->d.deserialize.default_graph);
+		break;
+	}
 	g_free (task);
 }
 
@@ -163,7 +205,7 @@ cleanup_timeout_cb (gpointer user_data)
 
 	task = g_task_new (conn, NULL, NULL, NULL);
 	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_RELEASE_MEMORY, NULL, NULL),
+	                      task_data_new (TASK_TYPE_RELEASE_MEMORY),
 	                      (GDestroyNotify) task_data_free);
 
 	g_thread_pool_push (priv->update_thread, task, NULL);
@@ -244,41 +286,43 @@ update_thread_func (gpointer data,
 	conn = user_data;
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 	tracker_data = tracker_data_manager_get_data (priv->data_manager);
 
 	switch (task_data->type) {
 	case TASK_TYPE_QUERY:
+	case TASK_TYPE_QUERY_STATEMENT:
 	case TASK_TYPE_SERIALIZE:
+	case TASK_TYPE_SERIALIZE_STATEMENT:
 		g_warning ("Queries don't go through this thread");
 		break;
 	case TASK_TYPE_UPDATE:
-		tracker_data_update_sparql (tracker_data, task_data->data, &error);
+		tracker_data_update_sparql (tracker_data, task_data->d.sparql, &error);
 		break;
 	case TASK_TYPE_UPDATE_BLANK:
-		retval = tracker_data_update_sparql_blank (tracker_data, task_data->data, &error);
+		retval = tracker_data_update_sparql_blank (tracker_data, task_data->d.sparql, &error);
 		destroy_notify = (GDestroyNotify) g_variant_unref;
 		break;
-	case TASK_TYPE_UPDATE_RESOURCE: {
-		UpdateResource *data = task_data->data;
-		update_resource (tracker_data, data->graph, data->resource, &error);
+	case TASK_TYPE_UPDATE_RESOURCE:
+		update_resource (tracker_data,
+		                 task_data->d.update_resource.graph,
+		                 task_data->d.update_resource.resource,
+		                 &error);
 		break;
-	}
 	case TASK_TYPE_DESERIALIZE: {
-		DeserializeRdf *data = task_data->data;
 		TrackerSparqlCursor *deserializer;
 
 		tracker_data_begin_transaction (tracker_data, &error);
 		if (error)
 			break;
 
-		deserializer = tracker_deserializer_new (data->stream,
+		deserializer = tracker_deserializer_new (task_data->d.deserialize.stream,
 		                                         priv->namespace_manager,
-		                                         convert_format (data->format));
+		                                         convert_format (task_data->d.deserialize.format));
 
 		if (tracker_data_load_from_deserializer (tracker_data,
 		                                         TRACKER_DESERIALIZER (deserializer),
-		                                         data->default_graph,
+		                                         task_data->d.deserialize.default_graph,
 		                                         "<stream>",
 		                                         &error)) {
 			tracker_data_commit_transaction (tracker_data, &error);
@@ -289,17 +333,16 @@ update_thread_func (gpointer data,
 		break;
 	}
 	case TASK_TYPE_UPDATE_BATCH:
-		tracker_direct_batch_update (task_data->data, priv->data_manager, &error);
+		tracker_direct_batch_update (TRACKER_DIRECT_BATCH (task_data->d.batch),
+					     priv->data_manager, &error);
 		break;
-	case TASK_TYPE_UPDATE_STATEMENT: {
-		UpdateStatement *data = task_data->data;
-
+	case TASK_TYPE_UPDATE_STATEMENT:
 		tracker_data_begin_transaction (tracker_data, &error);
 		if (error)
 			break;
 
-		if (tracker_direct_statement_execute_update (data->stmt,
-		                                             data->parameters,
+		if (tracker_direct_statement_execute_update (task_data->d.statement.stmt,
+		                                             task_data->d.statement.parameters,
 		                                             NULL,
 		                                             &error)) {
 			tracker_data_commit_transaction (tracker_data, &error);
@@ -307,7 +350,6 @@ update_thread_func (gpointer data,
 			tracker_data_rollback_transaction (tracker_data);
 		}
 		break;
-	}
 	case TASK_TYPE_RELEASE_MEMORY:
 		tracker_data_manager_release_memory (priv->data_manager);
 		update_timestamp = FALSE;
@@ -326,24 +368,44 @@ update_thread_func (gpointer data,
 	if (update_timestamp)
 		tracker_direct_connection_update_timestamp (conn);
 
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 }
 
 static void
 execute_query_in_thread (GTask    *task,
                          TaskData *task_data)
 {
+	TrackerSparqlConnection *conn;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
-	cursor = tracker_sparql_connection_query (TRACKER_SPARQL_CONNECTION (g_task_get_source_object (task)),
-	                                          task_data->data,
-	                                          g_task_get_cancellable (task),
-	                                          &error);
-	if (cursor)
+	if (g_task_return_error_if_cancelled (task))
+		return;
+
+	conn = g_task_get_source_object (task);
+
+	if (task_data->type == TASK_TYPE_QUERY) {
+		cursor = tracker_sparql_connection_query (conn,
+		                                          task_data->d.sparql,
+		                                          g_task_get_cancellable (task),
+		                                          &error);
+	} else if (task_data->type == TASK_TYPE_QUERY_STATEMENT) {
+		TrackerSparql *sparql;
+
+		sparql = tracker_direct_statement_get_sparql (task_data->d.statement.stmt);
+		cursor = tracker_sparql_execute_cursor (sparql,
+		                                        task_data->d.statement.parameters,
+		                                        &error);
+	} else {
+		g_assert_not_reached ();
+	}
+
+	if (cursor) {
+		tracker_direct_connection_update_timestamp (TRACKER_DIRECT_CONNECTION (conn));
 		g_task_return_pointer (task, cursor, g_object_unref);
-	else
+	} else {
 		g_task_return_error (task, error);
+	}
 }
 
 static void
@@ -355,18 +417,31 @@ serialize_in_thread (GTask    *task,
 	TrackerSparql *query = NULL;
 	TrackerSparqlCursor *cursor = NULL;
 	TrackerNamespaceManager *namespaces;
+	TrackerRdfFormat format;
 	GInputStream *istream = NULL;
-	SerializeRdf *data = task_data->data;
+	GHashTable *parameters = NULL;
 	GError *error = NULL;
 
 	conn = g_task_get_source_object (task);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	if (task_data->type == TASK_TYPE_SERIALIZE) {
+		format = task_data->d.serialize.format;
+		query = tracker_sparql_new (priv->data_manager,
+		                            task_data->d.serialize.sparql,
+		                            &error);
+		if (!query)
+			goto out;
+	} else if (task_data->type == TASK_TYPE_SERIALIZE_STATEMENT) {
+		TrackerSparqlStatement *stmt;
 
-	query = tracker_sparql_new (priv->data_manager, data->query, &error);
-	if (!query)
-		goto out;
+		format = task_data->d.serialize_statement.format;
+		stmt = task_data->d.serialize_statement.stmt;
+		query = g_object_ref (tracker_direct_statement_get_sparql (stmt));
+		parameters = task_data->d.serialize_statement.parameters;
+	} else {
+		g_assert_not_reached ();
+	}
 
 	if (!tracker_sparql_is_serializable (query)) {
 		g_set_error (&error,
@@ -376,20 +451,18 @@ serialize_in_thread (GTask    *task,
 		goto out;
 	}
 
-	cursor = tracker_sparql_execute_cursor (query, NULL, &error);
-	tracker_direct_connection_update_timestamp (conn);
+	cursor = tracker_sparql_execute_cursor (query, parameters, &error);
 	if (!cursor)
 		goto out;
 
+	tracker_direct_connection_update_timestamp (conn);
 	tracker_sparql_cursor_set_connection (cursor, TRACKER_SPARQL_CONNECTION (conn));
 	namespaces = tracker_sparql_connection_get_namespace_manager (TRACKER_SPARQL_CONNECTION (conn));
-	istream = tracker_serializer_new (cursor, namespaces,
-	                                  convert_format (data->format));
+	istream = tracker_serializer_new (cursor, namespaces, convert_format (format));
 
  out:
 	g_clear_object (&query);
 	g_clear_object (&cursor);
-	g_mutex_unlock (&priv->mutex);
 
 	if (istream)
 		g_task_return_pointer (task, istream, g_object_unref);
@@ -419,9 +492,11 @@ query_thread_pool_func (gpointer data,
 
 	switch (task_data->type) {
 	case TASK_TYPE_QUERY:
+	case TASK_TYPE_QUERY_STATEMENT:
 		execute_query_in_thread (task, task_data);
 		break;
 	case TASK_TYPE_SERIALIZE:
+	case TASK_TYPE_SERIALIZE_STATEMENT:
 		serialize_in_thread (task, task_data);
 		break;
 	default:
@@ -862,16 +937,12 @@ tracker_direct_connection_query (TrackerSparqlConnection  *self,
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
-
 	query = tracker_sparql_new (priv->data_manager, sparql, &inner_error);
 	if (query) {
 		cursor = tracker_sparql_execute_cursor (query, NULL, &inner_error);
 		tracker_direct_connection_update_timestamp (conn);
 		g_object_unref (query);
 	}
-
-	g_mutex_unlock (&priv->mutex);
 
 	if (inner_error)
 		g_propagate_error (error, _translate_internal_error (inner_error));
@@ -888,17 +959,18 @@ tracker_direct_connection_query_async (TrackerSparqlConnection *self,
 {
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
+	TaskData *task_data;
 	GError *error = NULL;
 	GTask *task;
 
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
+	task_data = task_data_new (TASK_TYPE_QUERY);
+	task_data->d.sparql = g_strdup (sparql);
+
 	task = g_task_new (self, cancellable, callback, user_data);
-	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_QUERY,
-	                                           g_strdup (sparql),
-	                                           g_free),
+	g_task_set_task_data (task, task_data,
 	                      (GDestroyNotify) task_data_free);
 
 	if (!g_thread_pool_push (priv->select_pool, task, &error)) {
@@ -947,11 +1019,11 @@ tracker_direct_connection_update (TrackerSparqlConnection  *self,
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 	data = tracker_data_manager_get_data (priv->data_manager);
 	tracker_data_update_sparql (data, sparql, &inner_error);
 	tracker_direct_connection_update_timestamp (conn);
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 
 	if (inner_error)
 		g_propagate_error (error, inner_error);
@@ -966,16 +1038,17 @@ tracker_direct_connection_update_async (TrackerSparqlConnection *self,
 {
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
+	TaskData *task_data;
 	GTask *task;
 
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
+	task_data = task_data_new (TASK_TYPE_UPDATE);
+	task_data->d.sparql = g_strdup (sparql);
+
 	task = g_task_new (self, cancellable, callback, user_data);
-	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_UPDATE,
-	                                           g_strdup (sparql),
-	                                           g_free),
+	g_task_set_task_data (task, task_data,
 	                      (GDestroyNotify) task_data_free);
 
 	g_thread_pool_push (priv->update_thread, task, NULL);
@@ -1065,11 +1138,11 @@ tracker_direct_connection_update_blank (TrackerSparqlConnection  *self,
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 	data = tracker_data_manager_get_data (priv->data_manager);
 	blank_nodes = tracker_data_update_sparql_blank (data, sparql, &inner_error);
 	tracker_direct_connection_update_timestamp (conn);
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 
 	if (inner_error)
 		g_propagate_error (error, _translate_internal_error (inner_error));
@@ -1085,16 +1158,17 @@ tracker_direct_connection_update_blank_async (TrackerSparqlConnection *self,
 {
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
+	TaskData *task_data;
 	GTask *task;
 
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
+	task_data = task_data_new (TASK_TYPE_UPDATE_BLANK);
+	task_data->d.sparql = g_strdup (sparql);
+
 	task = g_task_new (self, cancellable, callback, user_data);
-	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_UPDATE_BLANK,
-	                                           g_strdup (sparql),
-	                                           g_free),
+	g_task_set_task_data (task, task_data,
 	                      (GDestroyNotify) task_data_free);
 
 	g_thread_pool_push (priv->update_thread, task, NULL);
@@ -1232,27 +1306,6 @@ tracker_direct_connection_close_finish (TrackerSparqlConnection  *connection,
 	return g_task_propagate_boolean (G_TASK (res), error);
 }
 
-static UpdateResource *
-update_resource_data_new (const gchar     *graph,
-                          TrackerResource *resource)
-{
-	UpdateResource *data;
-
-	data = g_new0 (UpdateResource, 1);
-	data->graph = g_strdup (graph);
-	data->resource = g_object_ref (resource);
-
-	return data;
-}
-
-static void
-update_resource_data_free (UpdateResource *data)
-{
-	g_free (data->graph);
-	g_object_unref (data->resource);
-	g_free (data);
-}
-
 static gboolean
 tracker_direct_connection_update_resource (TrackerSparqlConnection  *self,
                                            const gchar              *graph,
@@ -1268,11 +1321,11 @@ tracker_direct_connection_update_resource (TrackerSparqlConnection  *self,
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 	data = tracker_data_manager_get_data (priv->data_manager);
 	update_resource (data, graph, resource, &inner_error);
 	tracker_direct_connection_update_timestamp (conn);
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -1298,9 +1351,9 @@ tracker_direct_connection_update_resource_async (TrackerSparqlConnection *self,
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	task_data = task_data_query_new (TASK_TYPE_UPDATE_RESOURCE,
-	                                 update_resource_data_new (graph, resource),
-	                                 (GDestroyNotify) update_resource_data_free);
+	task_data = task_data_new (TASK_TYPE_UPDATE_RESOURCE);
+	task_data->d.update_resource.graph = g_strdup (graph);
+	task_data->d.update_resource.resource = g_object_ref (resource);
 
 	task = g_task_new (self, cancellable, callback, user_data);
 	g_task_set_task_data (task, task_data,
@@ -1372,28 +1425,6 @@ tracker_direct_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
 	return TRUE;
 }
 
-static SerializeRdf *
-serialize_rdf_data_new (const gchar      *query,
-                        TrackerRdfFormat  format)
-{
-	SerializeRdf *data;
-
-	data = g_new0 (SerializeRdf, 1);
-	data->query = g_strdup (query);
-	data->format = format;
-
-	return data;
-}
-
-static void
-serialize_rdf_data_free (gpointer user_data)
-{
-	SerializeRdf *data = user_data;
-
-	g_free (data->query);
-	g_free (data);
-}
-
 static void
 tracker_direct_connection_serialize_async (TrackerSparqlConnection  *self,
                                            TrackerSerializeFlags     flags,
@@ -1406,16 +1437,19 @@ tracker_direct_connection_serialize_async (TrackerSparqlConnection  *self,
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
 	GError *error = NULL;
+	TaskData *task_data;
 	GTask *task;
 
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
+	task_data = task_data_new (TASK_TYPE_SERIALIZE);
+	task_data->d.serialize.sparql = g_strdup (query);
+	task_data->d.serialize.format = format;
+	task_data->d.serialize.flags = flags;
+
 	task = g_task_new (self, cancellable, callback, user_data);
-	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_SERIALIZE,
-	                                           serialize_rdf_data_new (query, format),
-	                                           serialize_rdf_data_free),
+	g_task_set_task_data (task, task_data,
 	                      (GDestroyNotify) task_data_free);
 
 	if (!g_thread_pool_push (priv->select_pool, task, &error)) {
@@ -1432,31 +1466,6 @@ tracker_direct_connection_serialize_finish (TrackerSparqlConnection  *connection
 	return g_task_propagate_pointer (G_TASK (res), error);
 }
 
-static DeserializeRdf *
-deserialize_rdf_data_new (GInputStream     *stream,
-                          const gchar      *default_graph,
-                          TrackerRdfFormat  format)
-{
-	DeserializeRdf *data;
-
-	data = g_new0 (DeserializeRdf, 1);
-	data->stream = g_object_ref (stream);
-	data->default_graph = g_strdup (default_graph);
-	data->format = format;
-
-	return data;
-}
-
-static void
-deserialize_rdf_data_free (gpointer user_data)
-{
-	DeserializeRdf *data = user_data;
-
-	g_object_unref (data->stream);
-	g_free (data->default_graph);
-	g_free (data);
-}
-
 static void
 tracker_direct_connection_deserialize_async (TrackerSparqlConnection *self,
                                              TrackerDeserializeFlags  flags,
@@ -1469,18 +1478,20 @@ tracker_direct_connection_deserialize_async (TrackerSparqlConnection *self,
 {
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
+	TaskData *task_data;
 	GTask *task;
 
 	conn = TRACKER_DIRECT_CONNECTION (self);
 	priv = tracker_direct_connection_get_instance_private (conn);
 
+	task_data = task_data_new (TASK_TYPE_DESERIALIZE);
+	task_data->d.deserialize.stream = g_object_ref (stream);
+	task_data->d.deserialize.default_graph = g_strdup (default_graph);
+	task_data->d.deserialize.format = format;
+	task_data->d.deserialize.flags = flags;
+
 	task = g_task_new (self, cancellable, callback, user_data);
-	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_DESERIALIZE,
-	                                           deserialize_rdf_data_new (stream,
-	                                                                     default_graph,
-	                                                                     format),
-	                                           deserialize_rdf_data_free),
+	g_task_set_task_data (task, task_data,
 	                      (GDestroyNotify) task_data_free);
 
 	g_thread_pool_push (priv->update_thread, task, NULL);
@@ -1652,11 +1663,11 @@ tracker_direct_connection_update_batch (TrackerDirectConnection  *conn,
 
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 	tracker_direct_batch_update (TRACKER_DIRECT_BATCH (batch),
 	                             priv->data_manager, &inner_error);
 	tracker_direct_connection_update_timestamp (conn);
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -1674,15 +1685,16 @@ tracker_direct_connection_update_batch_async (TrackerDirectConnection  *conn,
                                               gpointer                  user_data)
 {
 	TrackerDirectConnectionPrivate *priv;
+	TaskData *task_data;
 	GTask *task;
 
 	priv = tracker_direct_connection_get_instance_private (conn);
 
+	task_data = task_data_new (TASK_TYPE_UPDATE_BATCH);
+	task_data->d.batch = g_object_ref (batch);
+
 	task = g_task_new (batch, cancellable, callback, user_data);
-	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_UPDATE_BATCH,
-	                                           g_object_ref (batch),
-	                                           g_object_unref),
+	g_task_set_task_data (task, task_data,
 	                      (GDestroyNotify) task_data_free);
 
 	g_thread_pool_push (priv->update_thread, task, NULL);
@@ -1704,27 +1716,6 @@ tracker_direct_connection_update_batch_finish (TrackerDirectConnection  *conn,
 	return TRUE;
 }
 
-static UpdateStatement *
-update_statement_data_new (TrackerSparqlStatement *stmt,
-                           GHashTable             *parameters)
-{
-	UpdateStatement *data;
-
-	data = g_new0 (UpdateStatement, 1);
-	data->stmt = g_object_ref (stmt);
-	data->parameters = parameters ? g_hash_table_ref (parameters) : NULL;
-
-	return data;
-}
-
-static void
-update_statement_data_free (UpdateStatement *data)
-{
-	g_object_unref (data->stmt);
-	g_clear_pointer (&data->parameters, g_hash_table_unref);
-	g_free (data);
-}
-
 gboolean
 tracker_direct_connection_execute_update_statement (TrackerDirectConnection  *conn,
                                                     TrackerSparqlStatement   *stmt,
@@ -1737,7 +1728,7 @@ tracker_direct_connection_execute_update_statement (TrackerDirectConnection  *co
 
 	priv = tracker_direct_connection_get_instance_private (conn);
 
-	g_mutex_lock (&priv->mutex);
+	g_mutex_lock (&priv->update_mutex);
 
 	tracker_data = tracker_data_manager_get_data (priv->data_manager);
 	tracker_data_begin_transaction (tracker_data, &inner_error);
@@ -1753,7 +1744,7 @@ tracker_direct_connection_execute_update_statement (TrackerDirectConnection  *co
 	}
 
  out:
-	g_mutex_unlock (&priv->mutex);
+	g_mutex_unlock (&priv->update_mutex);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -1764,6 +1755,85 @@ tracker_direct_connection_execute_update_statement (TrackerDirectConnection  *co
 }
 
 void
+tracker_direct_connection_execute_query_statement_async (TrackerDirectConnection *conn,
+                                                         TrackerSparqlStatement  *stmt,
+                                                         GHashTable              *parameters,
+                                                         GCancellable            *cancellable,
+                                                         GAsyncReadyCallback      callback,
+                                                         gpointer                 user_data)
+{
+	TrackerDirectConnectionPrivate *priv =
+		tracker_direct_connection_get_instance_private (conn);
+	GError *error = NULL;
+	TaskData *task_data;
+	GTask *task;
+
+	task_data = task_data_new (TASK_TYPE_QUERY_STATEMENT);
+	task_data->d.statement.stmt = g_object_ref (stmt);
+	task_data->d.statement.parameters =
+		parameters ? g_hash_table_ref (parameters) : NULL;
+
+	task = g_task_new (conn, cancellable, callback, user_data);
+	g_task_set_task_data (task, task_data,
+	                      (GDestroyNotify) task_data_free);
+
+	if (!g_thread_pool_push (priv->select_pool, task, &error)) {
+		g_task_return_error (task, _translate_internal_error (error));
+		g_object_unref (task);
+	}
+}
+
+TrackerSparqlCursor *
+tracker_direct_connection_execute_query_statement_finish (TrackerDirectConnection  *conn,
+                                                          GAsyncResult             *res,
+                                                          GError                  **error)
+{
+	return g_task_propagate_pointer (G_TASK (res), error);
+}
+
+void
+tracker_direct_connection_execute_serialize_statement_async (TrackerDirectConnection *conn,
+                                                             TrackerSparqlStatement  *stmt,
+                                                             GHashTable              *parameters,
+                                                             TrackerSerializeFlags    flags,
+                                                             TrackerRdfFormat         format,
+                                                             GCancellable            *cancellable,
+                                                             GAsyncReadyCallback      callback,
+                                                             gpointer                 user_data)
+{
+	TrackerDirectConnectionPrivate *priv =
+		tracker_direct_connection_get_instance_private (conn);
+	GError *error = NULL;
+	TaskData *task_data;
+	GTask *task;
+
+	task_data = task_data_new (TASK_TYPE_SERIALIZE_STATEMENT);
+	task_data->d.serialize_statement.stmt = g_object_ref (stmt);
+	task_data->d.serialize_statement.parameters =
+		parameters ? g_hash_table_ref (parameters) : NULL;
+	task_data->d.serialize_statement.flags = flags;
+	task_data->d.serialize_statement.format = format;
+
+	task = g_task_new (conn, cancellable, callback, user_data);
+	g_task_set_task_data (task, task_data,
+	                      (GDestroyNotify) task_data_free);
+
+	if (!g_thread_pool_push (priv->select_pool, task, &error)) {
+		g_task_return_error (task, _translate_internal_error (error));
+		g_object_unref (task);
+	}
+}
+
+GInputStream *
+tracker_direct_connection_execute_serialize_statement_finish (TrackerDirectConnection  *conn,
+                                                              GAsyncResult             *res,
+                                                              GError                  **error)
+{
+	return g_task_propagate_pointer (G_TASK (res), error);
+}
+
+
+void
 tracker_direct_connection_execute_update_statement_async (TrackerDirectConnection  *conn,
                                                           TrackerSparqlStatement   *stmt,
                                                           GHashTable               *parameters,
@@ -1772,15 +1842,18 @@ tracker_direct_connection_execute_update_statement_async (TrackerDirectConnectio
                                                           gpointer                  user_data)
 {
 	TrackerDirectConnectionPrivate *priv;
+	TaskData *task_data;
 	GTask *task;
 
 	priv = tracker_direct_connection_get_instance_private (conn);
 
+	task_data = task_data_new (TASK_TYPE_UPDATE_STATEMENT);
+	task_data->d.statement.stmt = g_object_ref (stmt);
+	task_data->d.statement.parameters =
+		parameters ? g_hash_table_ref (parameters) : NULL;
+
 	task = g_task_new (stmt, cancellable, callback, user_data);
-	g_task_set_task_data (task,
-	                      task_data_query_new (TASK_TYPE_UPDATE_STATEMENT,
-	                                           update_statement_data_new (stmt, parameters),
-	                                           (GDestroyNotify) update_statement_data_free),
+	g_task_set_task_data (task, task_data,
 	                      (GDestroyNotify) task_data_free);
 
 	g_thread_pool_push (priv->update_thread, task, NULL);

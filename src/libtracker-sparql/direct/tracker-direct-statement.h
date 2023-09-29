@@ -58,4 +58,6 @@ gboolean tracker_direct_statement_execute_update (TrackerSparqlStatement  *stmt,
                                                   GHashTable              *bnode_labels,
                                                   GError                 **error);
 
+TrackerSparql * tracker_direct_statement_get_sparql (TrackerSparqlStatement *stmt);
+
 #endif /* __TRACKER_DIRECT_STATEMENT_H__ */
