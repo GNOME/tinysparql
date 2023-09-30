@@ -111,7 +111,6 @@ def main():
     if xmlto is None:
         raise RuntimeError("The 'xmlto' tool is required.")
 
-    log.info("Generating online man pages")
     with tmpdir() as workdir:
         manpages = Manpages()
 
@@ -129,8 +128,6 @@ def main():
             htmlfiles.append(htmlpath)
 
         manpages.generate_toplevel_markdown(template_file, output_file, htmlfiles)
-
-    log.info("Commandline reference available at %s .", args.output)
 
 
 try:
