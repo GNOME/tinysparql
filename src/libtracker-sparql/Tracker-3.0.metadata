@@ -10,8 +10,6 @@ SparqlConnection.bus_new_async symbol_type="function"
 SparqlConnection.bus_new_async.dbus_connection default=null
 SparqlConnection.bus_new_finish symbol_type="function"
 SparqlCursor.get_string.length default=null
-DeserializeFlags.deserialize_flags_none name="NONE"
-SerializeFlags.serialize_flags_none name="NONE"
 PREFIX_* name="PREFIX_(.*)" parent="Tracker.Prefix"
 sparql_escape_uri_printf skip=false
 sparql_escape_uri_vprintf skip=false
