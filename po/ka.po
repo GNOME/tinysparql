@@ -1,14 +1,14 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Georgian translation for tracker3.
+# Copyright (C) 2023 tracker3's COPYRIGHT HOLDER
+# This file is distributed under the same license as the tracker3 package.
+# Ekaterine Papava <papava.e@gtu.ge>, 2023.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: tracker3\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2022-06-06 08:49+0000\n"
-"PO-Revision-Date: 2022-07-01 07:29+0200\n"
+"POT-Creation-Date: 2023-05-14 12:32+0000\n"
+"PO-Revision-Date: 2023-10-01 12:48+0200\n"
 "Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
 "Language-Team: \n"
 "Language: ka\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1\n"
+"X-Generator: Poedit 3.3.2\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -24,7 +24,7 @@ msgstr ""
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-sparql/core/tracker-collation.c:333
+#: src/libtracker-sparql/core/tracker-collation.c:116
 msgid "the|a|an"
 msgstr "უფრო"
 
@@ -32,14 +32,14 @@ msgstr "უფრო"
 msgid "Version"
 msgstr "ვერსია"
 
-#: src/portal/tracker-main.c:109 src/tracker/tracker-endpoint.c:387
-#: src/tracker/tracker-export.c:509 src/tracker/tracker-import.c:160
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:387
+#: src/tracker/tracker-export.c:543 src/tracker/tracker-import.c:196
 #: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:239
 msgid "Unrecognized options"
 msgstr "უცნობი პარამეტრები"
 
-#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:48
-#: src/tracker/tracker-import.c:45 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:49
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:110
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "ბაზის მდებარეობა"
@@ -62,7 +62,7 @@ msgstr "მიუთითეთ ამ წერტილისთვის გ
 
 #: src/tracker/tracker-endpoint.c:62
 msgid "Specify a path to an ontology to be used in this endpoint"
-msgstr ""
+msgstr "მიუთითეთ ბილიკი ამ ბოლოწერტილში გამოყენებულ ონტოლოგიამდე"
 
 #: src/tracker/tracker-endpoint.c:66
 msgid "HTTP port"
@@ -70,7 +70,7 @@ msgstr "HTTP პროქსი"
 
 #: src/tracker/tracker-endpoint.c:70
 msgid "Whether to only allow HTTP connections in the loopback device"
-msgstr ""
+msgstr "HTTP მიერთებების დაშვება მარყუჟის მოწყობილობაზე"
 
 #: src/tracker/tracker-endpoint.c:74
 msgid "Use session bus"
@@ -92,7 +92,7 @@ msgstr "--list მხოლოდ --session და --system -თან ერთ
 #. TRANSLATORS: those are commandline arguments
 #: src/tracker/tracker-endpoint.c:109
 msgid "One “ontology” or “ontology-path” option should be provided"
-msgstr ""
+msgstr "მიუთითეთ \"ontology\" ან \"ontology-path\" პარამეტრი"
 
 #. TRANSLATORS: those are commandline arguments
 #: src/tracker/tracker-endpoint.c:115
@@ -140,60 +140,77 @@ msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
+"ახალი ბაზა შეიქმნა. ამ ბაზის შეტყობინებების მატარებელზე გასაზიარებლად "
+"გამოიყენეთ პარამეტრი \"--dbus-service\"."
 
-#: src/tracker/tracker-export.c:49 src/tracker/tracker-import.c:46
-#: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
 #: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FILE"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:49
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:114
 msgid "Connects to a DBus service"
 msgstr "უერთდება DBus-ის სერვისს"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
 #: src/tracker/tracker-sparql.c:115
 msgid "DBus service name"
 msgstr "D-Bus სერვისის სახელი"
 
-#: src/tracker/tracker-export.c:56 src/tracker/tracker-import.c:53
+#: src/tracker/tracker-export.c:57
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr "გამოტანის შედეგის ფორმატებია: “turtle”, “trig” ან “json-ld”"
+
+#: src/tracker/tracker-export.c:58
+msgid "RDF_FORMAT"
+msgstr "RDF_FORMAT"
+
+#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:118
 msgid "Connects to a remote service"
 msgstr "დაშორებულ სერვისთან მიერთება"
 
-#: src/tracker/tracker-export.c:57 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:119
 msgid "Remote service URI"
 msgstr "დაშორებული სერვისის URI"
 
-#: src/tracker/tracker-export.c:60
+#: src/tracker/tracker-export.c:65
 msgid "Output TriG format which includes named graph information"
 msgstr ""
+"TriG ფორმატის გამოტანა, რომელიც მითითებული სახელის მქონე გრაფიკის "
+"ინფორმაციას შეიცავს"
 
-#: src/tracker/tracker-export.c:72 src/tracker/tracker-export.c:73
+#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:98 src/tracker/tracker-import.c:83
+#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
 #: src/tracker/tracker-sparql.c:199
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr "უნდა მიუთითოთ ერთერთი: --database, --dbus-service ან --remote-service"
 
-#: src/tracker/tracker-export.c:305 src/tracker/tracker-export.c:325
-#: src/tracker/tracker-import.c:100 src/tracker/tracker-sparql.c:1124
+#: src/tracker/tracker-export.c:310 src/tracker/tracker-export.c:331
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1124
 msgid "No error given"
 msgstr "შეცდომის გარეშე"
 
-#: src/tracker/tracker-export.c:324 src/tracker/tracker-import.c:99
+#: src/tracker/tracker-export.c:330 src/tracker/tracker-import.c:124
 #: src/tracker/tracker-sparql.c:1123
 msgid "Could not establish a connection to Tracker"
 msgstr "Tracker-თან დაკავშირება შეუძლებელია"
 
-#: src/tracker/tracker-export.c:391 src/tracker/tracker-export.c:404
-#: src/tracker/tracker-export.c:414 src/tracker/tracker-sparql.c:1502
+#: src/tracker/tracker-export.c:373
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "მხარდაუჭერელი სერიალიზაციის ფორმატი \"%s\"\n"
+
+#: src/tracker/tracker-export.c:425 src/tracker/tracker-export.c:438
+#: src/tracker/tracker-export.c:448 src/tracker/tracker-sparql.c:1502
 #: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
 msgid "Could not run query"
 msgstr "მოთხოვნის გაშვების შეცდომა"
@@ -203,13 +220,20 @@ msgstr "მოთხოვნის გაშვების შეცდომ�
 msgid "failed to exec “%s”: %s"
 msgstr "\"%s\"-ის გაშვების შეცდომა: %s"
 
-#: src/tracker/tracker-import.c:117
+#: src/tracker/tracker-import.c:58
+msgid "Read TriG format which includes named graph information"
+msgstr ""
+"TriG ფორმატის წაკითხვა, რომელიც მითითებული სახელის მქონე გრაფიკის "
+"ინფორმაციას შეიცავს"
+
+#: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
 msgid "Could not run import"
 msgstr "შემოტანის შეცდომა"
 
 #: src/tracker/tracker-main.c:89
 msgid "Get help on how to use Tracker and any of these commands"
 msgstr ""
+"მიიღეთ დახმარება როგორ გამოიყენოთ Tracker და ნებისმიერი ამ ბრძანებებიდან"
 
 #: src/tracker/tracker-main.c:90
 msgid "Create a SPARQL endpoint"
@@ -227,15 +251,17 @@ msgstr "Tracker-ის ბაზაში მონაცემების შ�
 msgid ""
 "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
+"ინდექსის განახლება ან გამოთხოვა SPARSQL-ით ან მოძებნეთ, ჩამოთვალეთ და იხილეთ "
+"ხე ონტოლოგიისთვის"
 
 #: src/tracker/tracker-main.c:94
 msgid "Query the database at the lowest level using SQL"
-msgstr ""
+msgstr "ბაზიდან გამოთხოვა ყველაზე დაბალ დონეზე SQL-ის გამოყენებით"
 
 #: src/tracker/tracker-main.c:134
 #, c-format
 msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr ""
+msgstr "\"%s\" tracker3-ის ბრძანება არაა. იხილეთ 'tracker3 --help'"
 
 #: src/tracker/tracker-main.c:169
 msgid "Available tracker3 commands are:"
@@ -248,10 +274,12 @@ msgstr "დამატებითი / დამატებული ბრ�
 #: src/tracker/tracker-main.c:224
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
+"მითითებული ქვებრძანების შესახებ მეტი ინფორმაციისთვის იხილეთ 'tracker3 help "
+"<ბრძანება>."
 
 #: src/tracker/tracker-sparql.c:122
 msgid "Path to use to run a query or update from file"
-msgstr ""
+msgstr "ბილიკი მოთხოვნის გასაშვებად ან ფაილიდან გასაახლებლად"
 
 #: src/tracker/tracker-sparql.c:126
 msgid "SPARQL query"
@@ -263,7 +291,7 @@ msgstr "SPARQL"
 
 #: src/tracker/tracker-sparql.c:130
 msgid "This is used with --query and for database updates only."
-msgstr ""
+msgstr "ეს გამოიყენება --query-სთან ერთად და, მხოლოდ, ბაზის განახლებებისთვის."
 
 #: src/tracker/tracker-sparql.c:134
 msgid "Retrieve classes"
@@ -278,6 +306,8 @@ msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
 msgstr ""
+"კლასის თვისებების მიღება. შეგიძლიათ, ასევე, პრეფიქსებიც გამოიყენოთ (მაგ: "
+"rdfs: Resource)"
 
 #: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
 #: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
@@ -289,12 +319,16 @@ msgstr "კლასი"
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
+"კლასების მიღება, რომლებიც ბაზის ცვლილებებს აფრთხილებენ (CLASS "
+"არასავალდებულოა)"
 
 #: src/tracker/tracker-sparql.c:150
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
 msgstr ""
+"ბაზაში გამოყენებული ინდექსების მიღება წარმადობის გასაუმჯობესებლად (PROPERTY "
+"არასავალდებულოა)"
 
 #: src/tracker/tracker-sparql.c:151
 msgid "PROPERTY"
@@ -309,11 +343,14 @@ msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
 msgstr ""
+"აღწერეს ქვეკლასები და ზეკლასები (შეგიძლიათ, გამოიყენოთ -s-თან ერთად ხის "
+"ნაწილების გამოსაკვეთად და -p-თან ერთად, თვისებების საჩვენებლად)"
 
 #: src/tracker/tracker-sparql.c:162
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
+"კლასის ან თვისების მოძებნა და მეტი ინფორმაციის გამოტანა (მაგ: დოკუმენტი)"
 
 #: src/tracker/tracker-sparql.c:163
 msgid "CLASS/PROPERTY"
@@ -321,7 +358,7 @@ msgstr "კლასი/თვისება"
 
 #: src/tracker/tracker-sparql.c:166
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr ""
+msgstr "კლასის მოკლე სახელის გამოტანა (მაგ: nfo: FileDataObject)."
 
 #: src/tracker/tracker-sparql.c:170
 msgid "Returns the full namespace for a class."
@@ -357,7 +394,7 @@ msgstr "ხის შექმნის შეცდომა: ქვეკლ�
 
 #: src/tracker/tracker-sparql.c:1052
 msgid "Could not create tree: class properties query failed"
-msgstr ""
+msgstr "ხის შექმნის შეცდომა: ქვეკლასის გამოთხოვა შეუძლებელია"
 
 #: src/tracker/tracker-sparql.c:1139
 msgid "Could not list classes"
@@ -387,6 +424,7 @@ msgstr "პრეფიქსები"
 msgid ""
 "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
 msgstr ""
+"ვერ ვიპოვე თვისება კლასის პრეფიქსისთვის. მაგ: :Resource \"rdfs:Resource\"-ში"
 
 #: src/tracker/tracker-sparql.c:1230
 msgid "Could not list properties"
@@ -442,7 +480,7 @@ msgstr "კლასების მოძებნის შეცდომა"
 
 #: src/tracker/tracker-sparql.c:1363
 msgid "No classes were found to match search term"
-msgstr ""
+msgstr "თქვენს საძებნ ნიმუშს კლასები არ შეესაბამება"
 
 #: src/tracker/tracker-sparql.c:1378
 msgid "Could not search properties"
@@ -450,7 +488,7 @@ msgstr "თვისებების მოძებნის შეცდო�
 
 #: src/tracker/tracker-sparql.c:1386
 msgid "No properties were found to match search term"
-msgstr ""
+msgstr "თქვენს საძებნ ნიმუშს თვისებები არ შეესაბამება"
 
 #: src/tracker/tracker-sparql.c:1423 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
