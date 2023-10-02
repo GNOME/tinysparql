@@ -10503,6 +10503,7 @@ tracker_sparql_make_langstring (const gchar *str,
 {
 	GString *langstr;
 	GBytes *bytes;
+	gsize len;
 
 	langstr = g_string_new (str);
 
@@ -10511,9 +10512,9 @@ tracker_sparql_make_langstring (const gchar *str,
 		g_string_append_printf (langstr, "%s", langtag);
 	}
 
-	bytes = g_bytes_new_take (langstr->str,
-	                          langstr->len + 1);
-	g_string_free (langstr, FALSE);
+	/* Account for trailing \0 */
+	len = langstr->len + 1;
+	bytes = g_bytes_new_take (g_string_free (langstr, FALSE), len);
 
 	return bytes;
 }

@@ -8,7 +8,7 @@ f.close()
 
 dirname = os.path.dirname(sys.argv[1])
 
-regex = re.compile('{{([^\}\}]*)}}')
+regex = re.compile('{{(.+?)}}')
 matches = regex.findall(content)
 replacements = {}
 

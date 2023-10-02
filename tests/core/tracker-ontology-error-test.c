@@ -70,8 +70,7 @@ stop_error_recording (gchar **printed_error_msgs)
 {
 	g_set_printerr_handler (old_printerr_handler);
 
-	*printed_error_msgs = recorded_error_msgs->str;
-	g_string_free (recorded_error_msgs, FALSE);
+	*printed_error_msgs = g_string_free (recorded_error_msgs, FALSE);
 }
 
 static gchar*
@@ -101,9 +100,8 @@ load_error_msgs (gchar *errors_path, gchar *ontology_path)
 		error_msg = strtok (NULL, "~");
 	}
 
-	ret = prefixed_errors->str;
+	ret = prefixed_errors ? g_string_free (prefixed_errors, FALSE) : NULL;
 
-	g_string_free (prefixed_errors, FALSE);
 	g_free (raw_errors);
 	g_object_unref (ontology_file);
 	g_free (ontology_uri);

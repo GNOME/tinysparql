@@ -241,8 +241,10 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
 		g_array_free (offsets, TRUE);
 
 	if (rc == SQLITE_OK) {
-		sqlite3_result_text (ctx, str->str, str->len, g_free);
-		g_string_free (str, FALSE);
+		gsize len = str->len;
+		sqlite3_result_text (ctx,
+		                     g_string_free (str, FALSE),
+		                     len, g_free);
 	} else {
 		sqlite3_result_error_code (ctx, rc);
 		g_string_free (str, TRUE);

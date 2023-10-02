@@ -197,8 +197,10 @@ function_sparql_string_join (sqlite3_context *context,
 	}
 
 	if (str) {
-		sqlite3_result_text (context, str->str, str->len, g_free);
-		g_string_free (str, FALSE);
+		gsize len = str->len;
+		sqlite3_result_text (context,
+		                     g_string_free (str, FALSE),
+		                     len, g_free);
 	} else {
 		sqlite3_result_null (context);
 	}
@@ -1446,6 +1448,7 @@ function_sparql_strlang (sqlite3_context *context,
 	const gchar *fn = "strlang";
 	const gchar *str, *langtag;
 	GString *langstr;
+	gsize len;
 
 	if (argc != 2) {
 		result_context_function_error (context, fn, "Invalid argument count");
@@ -1459,9 +1462,10 @@ function_sparql_strlang (sqlite3_context *context,
 	g_string_append_c (langstr, '\0');
 	g_string_append (langstr, langtag);
 
-	sqlite3_result_blob64 (context, langstr->str,
-	                       langstr->len, g_free);
-	g_string_free (langstr, FALSE);
+	len = langstr->len;
+	sqlite3_result_blob64 (context,
+	                       g_string_free (langstr, FALSE),
+	                       len, g_free);
 }
 
 static inline int
