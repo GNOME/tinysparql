@@ -27,8 +27,6 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
-static gchar *tests_data_dir = NULL;
-
 typedef struct _TestInfo TestInfo;
 
 struct _TestInfo {
@@ -611,17 +609,10 @@ teardown (TestInfo      *info,
 int
 main (int argc, char **argv)
 {
-	gchar *current_dir;
 	gint result;
 	gint i;
 
 	setlocale (LC_ALL, "en_US.utf8");
-
-	current_dir = g_get_current_dir ();
-	tests_data_dir = g_build_filename (current_dir, "sparql-test-data-XXXXXX", NULL);
-	g_free (current_dir);
-
-	g_mkdtemp (tests_data_dir);
 
 	g_test_init (&argc, &argv, NULL);
 
@@ -636,9 +627,6 @@ main (int argc, char **argv)
 
 	/* run tests */
 	result = g_test_run ();
-
-	g_assert_cmpint (g_remove (tests_data_dir), ==, 0);
-	g_free (tests_data_dir);
 
 	return result;
 }
