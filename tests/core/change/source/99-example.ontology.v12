@@ -11,9 +11,7 @@ example: a nrl:Namespace, nrl:Ontology ;
 example:A a rdfs:Class ;
 	rdfs:subClassOf rdfs:Resource .
 
-# We remove a domainIndex
 example:DomA a rdfs:Class ;
-	nrl:domainIndex example:single2 ;
 	rdfs:subClassOf example:A .
 
 example:B a rdfs:Class ;

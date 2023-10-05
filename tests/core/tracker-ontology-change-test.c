@@ -30,46 +30,319 @@
 
 #include <libtracker-sparql/tracker-sparql.h>
 
-typedef struct _TestInfo TestInfo;
+typedef struct _Query Query;
+typedef struct _Update Update;
+typedef struct _ChangeInfo ChangeInfo;
+typedef struct _ChangeTest ChangeTest;
 
-struct _TestInfo {
-	const gchar *test_name;
-	const gchar *data;
+struct _Query {
+	const gchar *query;
 };
 
-typedef struct _ChangeInfo ChangeInfo;
+struct _Update {
+	const gchar *update;
+};
 
 struct _ChangeInfo {
 	const gchar *ontology;
-	const gchar *update;
+	const Update *updates;
+	const Query *checks;
+};
+
+struct _ChangeTest {
 	const gchar *test_name;
-	const gchar *ptr;
+	const ChangeInfo *changes;
 };
 
-const TestInfo change_tests[] = {
-	{ "change/test-1", "change/data-1" },
-	{ "change/test-2", "change/data-2" },
-	{ "change/test-3", "change/data-3" },
-	{ "change/test-4", "change/data-4" },
-	{ "change/test-5", "change/data-5" },
-	{ NULL }
-};
-
-const ChangeInfo changes[] = {
-	{ "99-example.ontology.v1", "99-example.queries.v1", NULL, NULL },
-	{ "99-example.ontology.v2", "99-example.queries.v2", NULL, NULL },
-	{ "99-example.ontology.v3", "99-example.queries.v3", NULL, NULL },
-	{ "99-example.ontology.v4", "99-example.queries.v4", NULL, NULL },
-	{ "99-example.ontology.v5", "99-example.queries.v5", "change/change-test-1", NULL },
-	{ "99-example.ontology.v6", "99-example.queries.v6", "change/change-test-2", NULL },
-	{ "99-example.ontology.v7", "99-example.queries.v7", "change/change-test-3", NULL },
-	{ "99-example.ontology.v8", "99-example.queries.v8", "change/change-test-4", NULL },
-	{ "99-example.ontology.v9", "99-example.queries.v9", NULL, NULL },
-	{ "99-example.ontology.v10", "99-example.queries.v10", NULL, NULL },
-	{ "99-example.ontology.v11", "99-example.queries.v11", "change/change-test-5", NULL },
-	{ "99-example.ontology.v12", "99-example.queries.v11", "change/change-test-5", NULL },
-	{ "99-example.ontology.v13", "99-example.queries.v11", "change/change-test-6", NULL },
-	{ NULL }
+const ChangeTest tests[] = {
+	{
+		.test_name = "/core/ontology-change/new-classes",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"99-example.ontology.v1"
+			},
+			{
+				"99-example.ontology.v2",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v2" },
+					{ NULL },
+				}
+			},
+			{ NULL },
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/new-properties",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"99-example.ontology.v2",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v2" },
+					{ NULL },
+				},
+			},
+			{
+				"99-example.ontology.v3",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v3" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/new-properties-2",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"99-example.ontology.v8",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v2" },
+					{ "updates/99-example.queries.v3" },
+					{ "updates/99-example.queries.v4" },
+					{ "updates/99-example.queries.v5" },
+					{ "updates/99-example.queries.v6" },
+					{ "updates/99-example.queries.v7" },
+					{ "updates/99-example.queries.v8" },
+					{ NULL },
+				},
+			},
+			{
+				"99-example.ontology.v9",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v9" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-index",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"99-example.ontology.v3",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v2" },
+					{ "updates/99-example.queries.v3" },
+					{ NULL },
+				},
+			},
+			{
+				"99-example.ontology.v4",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v4" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/add-domain-index",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"99-example.ontology.v4",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v2" },
+					{ "updates/99-example.queries.v3" },
+					{ "updates/99-example.queries.v4" },
+					{ NULL },
+				},
+			},
+			{
+				"99-example.ontology.v5",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v5" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "change-test-1" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-domain-index",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"99-example.ontology.v5",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v2" },
+					{ "updates/99-example.queries.v3" },
+					{ "updates/99-example.queries.v4" },
+					{ "updates/99-example.queries.v5" },
+					{ NULL },
+				},
+			},
+			{
+				"99-example.ontology.v6"
+			},
+			{
+				"99-example.ontology.v7",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v6" },
+					{ "updates/99-example.queries.v7" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "change-test-3" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/add-fts-property",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"99-example.ontology.v7",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v2" },
+					{ "updates/99-example.queries.v3" },
+					{ "updates/99-example.queries.v4" },
+					{ "updates/99-example.queries.v5" },
+					{ "updates/99-example.queries.v6" },
+					{ "updates/99-example.queries.v7" },
+					{ NULL },
+				},
+			},
+			{
+				"99-example.ontology.v8",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v8" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "change-test-4" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/fts-cardinality-change",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"99-example.ontology.v9",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v9" },
+					{ NULL },
+				},
+			},
+			{
+				"99-example.ontology.v10",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v10" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/make-non-fts",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"99-example.ontology.v10",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v2" },
+					{ "updates/99-example.queries.v3" },
+					{ "updates/99-example.queries.v4" },
+					{ "updates/99-example.queries.v5" },
+					{ "updates/99-example.queries.v6" },
+					{ "updates/99-example.queries.v7" },
+					{ "updates/99-example.queries.v8" },
+					{ "updates/99-example.queries.v9" },
+					{ "updates/99-example.queries.v10" },
+					{ NULL },
+				},
+			},
+			{
+				"99-example.ontology.v11",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v11" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "change-test-5" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/add-documented-property",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"99-example.ontology.v11",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v2" },
+					{ "updates/99-example.queries.v3" },
+					{ "updates/99-example.queries.v4" },
+					{ "updates/99-example.queries.v5" },
+					{ "updates/99-example.queries.v6" },
+					{ "updates/99-example.queries.v7" },
+					{ "updates/99-example.queries.v8" },
+					{ "updates/99-example.queries.v9" },
+					{ "updates/99-example.queries.v10" },
+					{ "updates/99-example.queries.v11" },
+					{ NULL },
+				},
+			},
+			{
+				"99-example.ontology.v12",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v12" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "change-test-5" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/change-property-documentation",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"99-example.ontology.v12",
+				(const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v2" },
+					{ "updates/99-example.queries.v3" },
+					{ "updates/99-example.queries.v4" },
+					{ "updates/99-example.queries.v5" },
+					{ "updates/99-example.queries.v6" },
+					{ "updates/99-example.queries.v7" },
+					{ "updates/99-example.queries.v8" },
+					{ "updates/99-example.queries.v9" },
+					{ "updates/99-example.queries.v10" },
+					{ "updates/99-example.queries.v11" },
+					{ "updates/99-example.queries.v12" },
+					{ NULL },
+				},
+			},
+			{
+				"99-example.ontology.v13",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/99-example.queries.v13" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "change-test-6" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
 };
 
 static void
@@ -163,7 +436,54 @@ query_helper (TrackerSparqlConnection *conn,
 }
 
 static void
-test_ontology_change (void)
+handle_queries (TrackerSparqlConnection *conn,
+                const gchar             *prefix,
+                const Query             *queries)
+{
+	while (queries->query) {
+		gchar *test_prefix, *query_filename, *results_filename;
+
+		test_prefix = g_build_filename (prefix, "change", queries->query, NULL);
+		query_filename = g_strconcat (test_prefix, ".rq", NULL);
+		results_filename = g_strconcat (test_prefix, ".out", NULL);
+		query_helper (conn, query_filename, results_filename);
+		queries++;
+	}
+}
+
+static void
+handle_updates (TrackerSparqlConnection *conn,
+                const gchar             *prefix,
+                const Update            *updates)
+{
+	while (updates->update) {
+		gchar *file = NULL, *queries;
+
+		file = g_build_filename (prefix, "change", updates->update, NULL);
+
+		if (g_file_get_contents (file, &queries, NULL, NULL)) {
+			gchar *query = strtok (queries, "\n");
+			GError *error = NULL;
+
+			while (query) {
+				tracker_sparql_connection_update (conn,
+				                                  query,
+				                                  NULL,
+				                                  &error);
+
+				g_assert_no_error (error);
+				query = strtok (NULL, "\n");
+			}
+			g_free (queries);
+		}
+
+		g_free (file);
+		updates++;
+	}
+}
+
+static void
+test_ontology_change (gconstpointer context)
 {
 	gchar *ontology_file;
 	GFile *file2;
@@ -173,6 +493,7 @@ test_ontology_change (void)
 	GError *error = NULL;
 	GFile *data_location, *test_schemas;
 	TrackerSparqlConnection *conn;
+	const ChangeTest *test = context;
 
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "core", NULL);
 	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "core", NULL);
@@ -194,11 +515,9 @@ test_ontology_change (void)
 	data_location = g_file_new_for_path (data_dir);
 	g_free (data_dir);
 
-	for (i = 0; changes[i].ontology; i++) {
+	for (i = 0; test->changes[i].ontology; i++) {
 		GFile *file1;
-		gchar *queries = NULL;
-		gchar *source = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "source", changes[i].ontology, NULL);
-		gchar *update = g_build_path (G_DIR_SEPARATOR_S, prefix, "change", "updates", changes[i].update, NULL);
+		gchar *source = g_build_filename (prefix, "change", "source", test->changes[i].ontology, NULL);
 		gchar *from, *to;
 
 		file1 = g_file_new_for_path (source);
@@ -220,65 +539,23 @@ test_ontology_change (void)
 		                                      NULL, &error);
 		g_assert_no_error (error);
 
-		if (g_file_get_contents (update, &queries, NULL, NULL)) {
-			gchar *query = strtok (queries, "\n");
-			while (query) {
-				tracker_sparql_connection_update (conn,
-				                                  query,
-				                                  NULL,
-				                                  &error);
+		if (test->changes[i].updates)
+			handle_updates (conn, prefix, test->changes[i].updates);
 
-				g_assert_no_error (error);
-				query = strtok (NULL, "\n");
-			}
-			g_free (queries);
-		}
+		if (test->changes[i].checks)
+			handle_queries (conn, prefix, test->changes[i].checks);
 
-		g_free (update);
 		g_free (source);
 		g_object_unref (file1);
-
-
-		if (changes[i].test_name) {
-			gchar *query_filename;
-			gchar *results_filename;
-			gchar *test_prefix;
-
-			test_prefix = g_build_filename (prefix, changes[i].test_name, NULL);
-			query_filename = g_strconcat (test_prefix, ".rq", NULL);
-			results_filename = g_strconcat (test_prefix, ".out", NULL);
-
-			query_helper (conn, query_filename, results_filename);
-
-			g_free (test_prefix);
-			g_free (query_filename);
-			g_free (results_filename);
-		}
-
 		g_object_unref (conn);
 	}
 
+	/* Test opening for a last time */
 	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
 	                                      data_location,
 	                                      test_schemas,
 	                                      NULL, &error);
 	g_assert_no_error (error);
-
-	for (i = 0; change_tests[i].test_name != NULL; i++) {
-		gchar *query_filename;
-		gchar *results_filename;
-		gchar *test_prefix;
-
-		test_prefix = g_build_filename (prefix, change_tests[i].test_name, NULL);
-		query_filename = g_strconcat (test_prefix, ".rq", NULL);
-		results_filename = g_strconcat (test_prefix, ".out", NULL);
-
-		query_helper (conn, query_filename, results_filename);
-
-		g_free (test_prefix);
-		g_free (query_filename);
-		g_free (results_filename);
-	}
 
 	g_object_unref (conn);
 
@@ -297,10 +574,13 @@ int
 main (int argc, char **argv)
 {
 	gint result;
+	guint i;
 
 	g_test_init (&argc, &argv, NULL);
 
-	g_test_add_func ("/core/ontology-change", test_ontology_change);
+	for (i = 0; i < G_N_ELEMENTS (tests); i++)
+		g_test_add_data_func (tests[i].test_name, &tests[i], test_ontology_change);
+
 	result = g_test_run ();
 
 	return result;

@@ -11,9 +11,7 @@ example: a nrl:Namespace, nrl:Ontology ;
 example:A a rdfs:Class ;
 	rdfs:subClassOf rdfs:Resource .
 
-# Adding two domainIndexes to a class
 example:DomA a rdfs:Class ;
-	nrl:domainIndex example:single1, example:single2 ;
 	rdfs:subClassOf example:A .
 
 example:B a rdfs:Class ;
@@ -51,3 +49,5 @@ example:sb a rdf:Property ;
 	rdfs:domain example:B ;
 	rdfs:range xsd:string .
 
+# Adding two domainIndexes to a class
+example:DomA nrl:domainIndex example:single1, example:single2 .
