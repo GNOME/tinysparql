@@ -1,0 +1,1 @@
+select ?s { <http://example/a01> example:single1 ?s } order by ?s

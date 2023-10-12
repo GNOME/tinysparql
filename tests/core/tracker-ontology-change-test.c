@@ -75,6 +75,22 @@ const ChangeTest tests[] = {
 		},
 	},
 	{
+		.test_name = "/core/ontology-change/remove-classes",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-classes-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-classes-1-pre.rq" },
+					{ NULL },
+				}
+			},
+			{
+				"remove-classes-1.ontology.v2",
+			},
+			{ NULL },
+		},
+	},
+	{
 		.test_name = "/core/ontology-change/add-properties-1",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
@@ -102,6 +118,302 @@ const ChangeTest tests[] = {
 					{ "updates/add-properties-2.rq" },
 					{ NULL },
 				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-properties-1",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-properties-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-properties-1-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"remove-properties-1.ontology.v2",
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/add-superclass-1",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"add-superclass-1.ontology.v1",
+			},
+			{
+				"add-superclass-1.ontology.v2",
+				.expect_error = TRUE,
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-superclass-1",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-superclass-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-superclass-1-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"remove-superclass-1.ontology.v2",
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/add-subclass-1",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"add-subclass-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/add-subclass-1-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"add-subclass-1.ontology.v2",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/add-subclass-1-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/add-subclass-1" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-subclass-1",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-subclass-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-subclass-1-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"remove-subclass-1.ontology.v2",
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/add-superproperty-1",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"add-superproperty-1.ontology.v1",
+			},
+			{
+				"add-superproperty-1.ontology.v2",
+				.expect_error = TRUE,
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-superproperty-1",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-superproperty-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-superproperty-1-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"remove-superproperty-1.ontology.v2",
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/add-subproperty-1",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"add-subproperty-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/add-subproperty-1-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"add-subproperty-1.ontology.v2",
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-subproperty-1",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-subproperty-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-subproperty-1-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"remove-subproperty-1.ontology.v2",
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/change-cardinality-1",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"change-cardinality-1.ontology.v1",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/change-cardinality-1-pre.rq" },
+					/* This should fail before the ontology change */
+					{ "updates/change-cardinality-1-post.rq", TRUE },
+					{ NULL },
+				},
+			},
+			{
+				"change-cardinality-1.ontology.v2",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/change-cardinality-1-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/change-cardinality-1" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/change-cardinality-invalid",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"change-cardinality-invalid-1.ontology.v1",
+			},
+			{
+				"change-cardinality-invalid-1.ontology.v2",
+				/* Limiting cardinality on a previously unlimited
+				 * property is expected to fail
+				 */
+				.expect_error = TRUE,
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/change-range",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"change-range-1.ontology.v1",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/change-range-1-pre.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/change-range-1-pre" },
+					{ NULL },
+				},
+			},
+			{
+				"change-range-1.ontology.v2",
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/change-range-1-post" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/change-range-invalid",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"change-range-invalid-1.ontology.v1",
+			},
+			{
+				"change-range-invalid-1.ontology.v2",
+				/* An invalid conversion is requested, this is expected to fail */
+				.expect_error = TRUE,
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/add-inverse-functional-property",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"add-inverse-functional-property-1.ontology.v1",
+			},
+			{
+				"add-inverse-functional-property-1.ontology.v2",
+				/* This is ATM expected to fail */
+				.expect_error = TRUE,
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/make-inverse-functional-property",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"make-inverse-functional-property-1.ontology.v1",
+			},
+			{
+				"make-inverse-functional-property-1.ontology.v2",
+				/* This is expected to fail */
+				.expect_error = TRUE,
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/unmake-inverse-functional-property",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"unmake-inverse-functional-property-1.ontology.v1",
+			},
+			{
+				"unmake-inverse-functional-property-1.ontology.v2",
+				/* This ATM is expected to fail */
+				.expect_error = TRUE,
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-inverse-functional-property",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-inverse-functional-property-1.ontology.v1",
+			},
+			{
+				"remove-inverse-functional-property-1.ontology.v2",
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/add-index",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"add-index-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/add-index-1-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"add-index-1.ontology.v2",
 			},
 			{ NULL }
 		},
@@ -178,6 +490,38 @@ const ChangeTest tests[] = {
 		},
 	},
 	{
+		.test_name = "/core/ontology-change/add-secondary-index",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"add-secondary-index-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/add-secondary-index-1-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"add-secondary-index-1.ontology.v2",
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-secondary-index",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-secondary-index-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-secondary-index-1-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"remove-secondary-index-1.ontology.v2",
+			},
+			{ NULL }
+		},
+	},
+	{
 		.test_name = "/core/ontology-change/add-fts-property",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
@@ -242,6 +586,26 @@ const ChangeTest tests[] = {
 		},
 	},
 	{
+		.test_name = "/core/ontology-change/make-non-fts-2",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"make-non-fts-2.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/make-non-fts-2-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"make-non-fts-2.ontology.v2",
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/make-non-fts-2", TRUE },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
 		.test_name = "/core/ontology-change/add-documented-property",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
@@ -269,6 +633,42 @@ const ChangeTest tests[] = {
 					{ "queries/change-property-documentation-1" },
 					{ NULL },
 				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/graphs",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"graphs-1.ontology.v1",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/graphs-1-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"graphs-1.ontology.v2",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/graphs-1-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/graphs-1" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/no-changes",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"no-changes-1.ontology.v1",
+			},
+			{
+				"no-changes-1.ontology.v2",
 			},
 			{ NULL }
 		},

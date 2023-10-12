@@ -1,0 +1,2 @@
+insert data { graph example:1 { <http://example/a01> a example:A } }
+insert data { graph example:1 { <http://example/b01> a example:B } }
