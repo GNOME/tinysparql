@@ -56,15 +56,15 @@ struct _ChangeTest {
 
 const ChangeTest tests[] = {
 	{
-		.test_name = "/core/ontology-change/new-classes",
+		.test_name = "/core/ontology-change/add-classes",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
-				"99-example.ontology.v1"
+				"add-classes-1.ontology.v1"
 			},
 			{
-				"99-example.ontology.v2",
+				"add-classes-1.ontology.v2",
 				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v2" },
+					{ "updates/add-classes-1.rq" },
 					{ NULL },
 				}
 			},
@@ -72,19 +72,15 @@ const ChangeTest tests[] = {
 		},
 	},
 	{
-		.test_name = "/core/ontology-change/new-properties",
+		.test_name = "/core/ontology-change/add-properties-1",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
-				"99-example.ontology.v2",
-				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v2" },
-					{ NULL },
-				},
+				"add-properties-1.ontology.v1"
 			},
 			{
-				"99-example.ontology.v3",
+				"add-properties-1.ontology.v2",
 				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v3" },
+					{ "updates/add-properties-1.rq" },
 					{ NULL },
 				},
 			},
@@ -92,25 +88,15 @@ const ChangeTest tests[] = {
 		},
 	},
 	{
-		.test_name = "/core/ontology-change/new-properties-2",
+		.test_name = "/core/ontology-change/add-properties-2",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
-				"99-example.ontology.v8",
-				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v2" },
-					{ "updates/99-example.queries.v3" },
-					{ "updates/99-example.queries.v4" },
-					{ "updates/99-example.queries.v5" },
-					{ "updates/99-example.queries.v6" },
-					{ "updates/99-example.queries.v7" },
-					{ "updates/99-example.queries.v8" },
-					{ NULL },
-				},
+				"add-properties-2.ontology.v1",
 			},
 			{
-				"99-example.ontology.v9",
+				"add-properties-2.ontology.v2",
 				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v9" },
+					{ "updates/add-properties-2.rq" },
 					{ NULL },
 				},
 			},
@@ -121,17 +107,16 @@ const ChangeTest tests[] = {
 		.test_name = "/core/ontology-change/remove-index",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
-				"99-example.ontology.v3",
+				"remove-index-1.ontology.v1",
 				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v2" },
-					{ "updates/99-example.queries.v3" },
+					{ "updates/remove-index-1-pre.rq" },
 					{ NULL },
 				},
 			},
 			{
-				"99-example.ontology.v4",
+				"remove-index-1.ontology.v2",
 				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v4" },
+					{ "updates/remove-index-1-post.rq" },
 					{ NULL },
 				},
 			},
@@ -142,22 +127,20 @@ const ChangeTest tests[] = {
 		.test_name = "/core/ontology-change/add-domain-index",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
-				"99-example.ontology.v4",
+				"add-domain-index-1.ontology.v1",
 				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v2" },
-					{ "updates/99-example.queries.v3" },
-					{ "updates/99-example.queries.v4" },
+					{ "updates/add-domain-index-1-pre.rq" },
 					{ NULL },
 				},
 			},
 			{
-				"99-example.ontology.v5",
+				"add-domain-index-1.ontology.v2",
 				.updates = (const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v5" },
+					{ "updates/add-domain-index-1-post.rq" },
 					{ NULL },
 				},
 				.checks = (const Query *) &(Query[]) {
-					{ "change-test-1" },
+					{ "queries/add-domain-index-1" },
 					{ NULL },
 				},
 			},
@@ -168,27 +151,23 @@ const ChangeTest tests[] = {
 		.test_name = "/core/ontology-change/remove-domain-index",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
-				"99-example.ontology.v5",
+				"remove-domain-index-1.ontology.v1",
 				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v2" },
-					{ "updates/99-example.queries.v3" },
-					{ "updates/99-example.queries.v4" },
-					{ "updates/99-example.queries.v5" },
+					{ "updates/remove-domain-index-1-pre.rq" },
 					{ NULL },
 				},
 			},
 			{
-				"99-example.ontology.v6"
+				"remove-domain-index-1.ontology.v2",
 			},
 			{
-				"99-example.ontology.v7",
+				"remove-domain-index-1.ontology.v3",
 				.updates = (const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v6" },
-					{ "updates/99-example.queries.v7" },
+					{ "updates/remove-domain-index-1-post.rq" },
 					{ NULL },
 				},
 				.checks = (const Query *) &(Query[]) {
-					{ "change-test-3" },
+					{ "queries/remove-domain-index-1" },
 					{ NULL },
 				},
 			},
@@ -199,25 +178,16 @@ const ChangeTest tests[] = {
 		.test_name = "/core/ontology-change/add-fts-property",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
-				"99-example.ontology.v7",
-				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v2" },
-					{ "updates/99-example.queries.v3" },
-					{ "updates/99-example.queries.v4" },
-					{ "updates/99-example.queries.v5" },
-					{ "updates/99-example.queries.v6" },
-					{ "updates/99-example.queries.v7" },
-					{ NULL },
-				},
+				"add-fts-property-1.ontology.v1",
 			},
 			{
-				"99-example.ontology.v8",
+				"add-fts-property-1.ontology.v2",
 				.updates = (const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v8" },
+					{ "updates/add-fts-property-1.rq" },
 					{ NULL },
 				},
 				.checks = (const Query *) &(Query[]) {
-					{ "change-test-4" },
+					{ "queries/add-fts-property-1-post" },
 					{ NULL },
 				},
 			},
@@ -228,16 +198,16 @@ const ChangeTest tests[] = {
 		.test_name = "/core/ontology-change/fts-cardinality-change",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
-				"99-example.ontology.v9",
+				"fts-cardinality-change-1.ontology.v1",
 				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v9" },
+					{ "updates/fts-cardinality-change-1-pre.rq" },
 					{ NULL },
 				},
 			},
 			{
-				"99-example.ontology.v10",
+				"fts-cardinality-change-1.ontology.v2",
 				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v10" },
+					{ "updates/fts-cardinality-change-1-post.rq" },
 					{ NULL },
 				},
 			},
@@ -248,28 +218,20 @@ const ChangeTest tests[] = {
 		.test_name = "/core/ontology-change/make-non-fts",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
-				"99-example.ontology.v10",
+				"make-non-fts-1.ontology.v1",
 				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v2" },
-					{ "updates/99-example.queries.v3" },
-					{ "updates/99-example.queries.v4" },
-					{ "updates/99-example.queries.v5" },
-					{ "updates/99-example.queries.v6" },
-					{ "updates/99-example.queries.v7" },
-					{ "updates/99-example.queries.v8" },
-					{ "updates/99-example.queries.v9" },
-					{ "updates/99-example.queries.v10" },
+					{ "updates/make-non-fts-1-pre.rq" },
 					{ NULL },
 				},
 			},
 			{
-				"99-example.ontology.v11",
+				"make-non-fts-1.ontology.v2",
 				.updates = (const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v11" },
+					{ "updates/make-non-fts-1-post.rq" },
 					{ NULL },
 				},
 				.checks = (const Query *) &(Query[]) {
-					{ "change-test-5" },
+					{ "queries/make-non-fts-1" },
 					{ NULL },
 				},
 			},
@@ -280,29 +242,12 @@ const ChangeTest tests[] = {
 		.test_name = "/core/ontology-change/add-documented-property",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
-				"99-example.ontology.v11",
-				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v2" },
-					{ "updates/99-example.queries.v3" },
-					{ "updates/99-example.queries.v4" },
-					{ "updates/99-example.queries.v5" },
-					{ "updates/99-example.queries.v6" },
-					{ "updates/99-example.queries.v7" },
-					{ "updates/99-example.queries.v8" },
-					{ "updates/99-example.queries.v9" },
-					{ "updates/99-example.queries.v10" },
-					{ "updates/99-example.queries.v11" },
-					{ NULL },
-				},
+				"add-documented-property-1.ontology.v1",
 			},
 			{
-				"99-example.ontology.v12",
-				.updates = (const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v12" },
-					{ NULL },
-				},
+				"add-documented-property-1.ontology.v2",
 				.checks = (const Query *) &(Query[]) {
-					{ "change-test-5" },
+					{ "queries/add-documented-property-1" },
 					{ NULL },
 				},
 			},
@@ -313,30 +258,12 @@ const ChangeTest tests[] = {
 		.test_name = "/core/ontology-change/change-property-documentation",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
-				"99-example.ontology.v12",
-				(const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v2" },
-					{ "updates/99-example.queries.v3" },
-					{ "updates/99-example.queries.v4" },
-					{ "updates/99-example.queries.v5" },
-					{ "updates/99-example.queries.v6" },
-					{ "updates/99-example.queries.v7" },
-					{ "updates/99-example.queries.v8" },
-					{ "updates/99-example.queries.v9" },
-					{ "updates/99-example.queries.v10" },
-					{ "updates/99-example.queries.v11" },
-					{ "updates/99-example.queries.v12" },
-					{ NULL },
-				},
+				"change-property-documentation-1.ontology.v1",
 			},
 			{
-				"99-example.ontology.v13",
-				.updates = (const Update *) &(Update[]) {
-					{ "updates/99-example.queries.v13" },
-					{ NULL },
-				},
+				"change-property-documentation-1.ontology.v2",
 				.checks = (const Query *) &(Query[]) {
-					{ "change-test-6" },
+					{ "queries/change-property-documentation-1" },
 					{ NULL },
 				},
 			},

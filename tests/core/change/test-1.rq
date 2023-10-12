@@ -1,1 +1,0 @@
-select ?b02 { <http://example/a01> example:b ?b02 }

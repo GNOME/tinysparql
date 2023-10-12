@@ -1,0 +1,1 @@
+insert { <http://example/a02> a example:DomA ; example:single2 '2' }
