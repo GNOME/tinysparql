@@ -278,59 +278,45 @@ query_helper (TrackerSparqlConnection *conn,
               const gchar             *results_filename)
 {
 	GError *error = NULL;
-	gchar *queries = NULL, *query;
+	gchar *query = NULL;
 	gchar *results = NULL;
 	GString *test_results = NULL;
+	TrackerSparqlCursor *cursor;
 
-	g_file_get_contents (query_filename, &queries, NULL, &error);
+	g_file_get_contents (query_filename, &query, NULL, &error);
 	g_assert_no_error (error);
 
 	g_file_get_contents (results_filename, &results, NULL, &error);
 	g_assert_no_error (error);
 
-	/* perform actual query */
+	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
+	g_assert_no_error (error);
 
-	query = strtok (queries, "~");
+	/* compare results with reference output */
+	test_results = g_string_new ("");
 
-	while (query) {
-		TrackerSparqlCursor *cursor;
+	if (cursor) {
+		gint col;
 
-		cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
-		g_assert_no_error (error);
+		while (tracker_sparql_cursor_next (cursor, NULL, &error)) {
+			for (col = 0; col < tracker_sparql_cursor_get_n_columns (cursor); col++) {
+				const gchar *str;
 
-		/* compare results with reference output */
-
-		if (!test_results) {
-			test_results = g_string_new ("");
-		} else {
-			g_string_append (test_results, "~\n");
-		}
-
-		if (cursor) {
-			gint col;
-
-			while (tracker_sparql_cursor_next (cursor, NULL, &error)) {
-				for (col = 0; col < tracker_sparql_cursor_get_n_columns (cursor); col++) {
-					const gchar *str;
-
-					if (col > 0) {
-						g_string_append (test_results, "\t");
-					}
-
-					str = tracker_sparql_cursor_get_string (cursor, col, NULL);
-					if (str != NULL) {
-						/* bound variable */
-						g_string_append_printf (test_results, "\"%s\"", str);
-					}
+				if (col > 0) {
+					g_string_append (test_results, "\t");
 				}
 
-				g_string_append (test_results, "\n");
+				str = tracker_sparql_cursor_get_string (cursor, col, NULL);
+				if (str != NULL) {
+					/* bound variable */
+					g_string_append_printf (test_results, "\"%s\"", str);
+				}
 			}
 
-			g_object_unref (cursor);
+			g_string_append (test_results, "\n");
 		}
 
-		query = strtok (NULL, "~");
+		g_object_unref (cursor);
 	}
 
 	if (strcmp (results, test_results->str)) {
@@ -359,7 +345,7 @@ query_helper (TrackerSparqlConnection *conn,
 
 	g_string_free (test_results, TRUE);
 	g_free (results);
-	g_free (queries);
+	g_free (query);
 }
 
 static void
