@@ -371,22 +371,17 @@ handle_updates (TrackerSparqlConnection *conn,
 {
 	while (updates->update) {
 		gchar *file = NULL, *queries;
+		GError *error = NULL;
 
 		file = g_build_filename (prefix, "change", updates->update, NULL);
 
 		if (g_file_get_contents (file, &queries, NULL, NULL)) {
-			gchar *query = strtok (queries, "\n");
-			GError *error = NULL;
+			tracker_sparql_connection_update (conn,
+			                                  queries,
+			                                  NULL,
+			                                  &error);
 
-			while (query) {
-				tracker_sparql_connection_update (conn,
-				                                  query,
-				                                  NULL,
-				                                  &error);
-
-				g_assert_no_error (error);
-				query = strtok (NULL, "\n");
-			}
+			g_assert_no_error (error);
 			g_free (queries);
 		}
 
