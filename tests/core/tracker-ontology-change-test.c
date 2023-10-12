@@ -37,16 +37,19 @@ typedef struct _ChangeTest ChangeTest;
 
 struct _Query {
 	const gchar *query;
+	gboolean expect_error;
 };
 
 struct _Update {
 	const gchar *update;
+	gboolean expect_error;
 };
 
 struct _ChangeInfo {
 	const gchar *ontology;
 	const Update *updates;
 	const Query *checks;
+	gboolean expect_error;
 };
 
 struct _ChangeTest {
@@ -275,7 +278,8 @@ const ChangeTest tests[] = {
 static void
 query_helper (TrackerSparqlConnection *conn,
               const gchar             *query_filename,
-              const gchar             *results_filename)
+              const gchar             *results_filename,
+              gboolean                 expect_error)
 {
 	GError *error = NULL;
 	gchar *query = NULL;
@@ -290,6 +294,12 @@ query_helper (TrackerSparqlConnection *conn,
 	g_assert_no_error (error);
 
 	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
+
+	if (expect_error) {
+		g_assert_nonnull (error);
+		return;
+	}
+
 	g_assert_no_error (error);
 
 	/* compare results with reference output */
@@ -359,7 +369,7 @@ handle_queries (TrackerSparqlConnection *conn,
 		test_prefix = g_build_filename (prefix, "change", queries->query, NULL);
 		query_filename = g_strconcat (test_prefix, ".rq", NULL);
 		results_filename = g_strconcat (test_prefix, ".out", NULL);
-		query_helper (conn, query_filename, results_filename);
+		query_helper (conn, query_filename, results_filename, queries->expect_error);
 		queries++;
 	}
 }
@@ -381,7 +391,11 @@ handle_updates (TrackerSparqlConnection *conn,
 			                                  NULL,
 			                                  &error);
 
-			g_assert_no_error (error);
+			if (updates->expect_error)
+				g_assert_nonnull (error);
+			else
+				g_assert_no_error (error);
+
 			g_free (queries);
 		}
 
@@ -425,10 +439,12 @@ test_ontology_change (gconstpointer context)
 
 	for (i = 0; test->changes[i].ontology; i++) {
 		GFile *file1;
-		gchar *source = g_build_filename (prefix, "change", "source", test->changes[i].ontology, NULL);
+		gchar *source;
 		gchar *from, *to;
 
+		source = g_build_filename (prefix, "change", "source", test->changes[i].ontology, NULL);
 		file1 = g_file_new_for_path (source);
+		g_free (source);
 
 		from = g_file_get_path (file1);
 		to = g_file_get_path (file2);
@@ -437,6 +453,7 @@ test_ontology_change (gconstpointer context)
 		g_free (to);
 
 		g_file_copy (file1, file2, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
+		g_object_unref (file1);
 
 		g_assert_no_error (error);
 		g_assert_cmpint (g_chmod (ontology_file, 0666), ==, 0);
@@ -445,7 +462,10 @@ test_ontology_change (gconstpointer context)
 		                                      data_location,
 		                                      test_schemas,
 		                                      NULL, &error);
-		g_assert_no_error (error);
+		if (test->changes[i].expect_error)
+			g_assert_nonnull (error);
+		else
+			g_assert_no_error (error);
 
 		if (test->changes[i].updates)
 			handle_updates (conn, prefix, test->changes[i].updates);
@@ -453,16 +473,14 @@ test_ontology_change (gconstpointer context)
 		if (test->changes[i].checks)
 			handle_queries (conn, prefix, test->changes[i].checks);
 
-		g_free (source);
-		g_object_unref (file1);
-		g_object_unref (conn);
+		g_clear_object (&conn);
+		g_clear_error (&error);
 	}
 
 	/* Test opening for a last time */
 	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
 	                                      data_location,
-	                                      test_schemas,
-	                                      NULL, &error);
+	                                      NULL, NULL, &error);
 	g_assert_no_error (error);
 
 	g_object_unref (conn);
