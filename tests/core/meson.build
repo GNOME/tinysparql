@@ -3,6 +3,7 @@ data_test_c_args = test_c_args + [
 ]
 
 libtracker_data_tests = [
+    'initialization',
     'ontology-change',
     'ontology-error',
     'sparql-blank',
