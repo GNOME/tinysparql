@@ -3505,33 +3505,6 @@ tracker_data_ontology_import_finished (TrackerDataManager *manager)
 }
 
 static gboolean
-query_table_exists (TrackerDBInterface  *iface,
-                    const gchar         *table_name,
-                    GError             **error)
-{
-	TrackerDBCursor *cursor = NULL;
-	TrackerDBStatement *stmt;
-	gboolean exists = FALSE;
-
-	stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
-	                                               "SELECT 1 FROM sqlite_master WHERE tbl_name='%s' AND type='table'",
-	                                               table_name);
-	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, error);
-		g_object_unref (stmt);
-	}
-
-	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, NULL, error)) {
-			exists = TRUE;
-		}
-		g_object_unref (cursor);
-	}
-
-	return exists;
-}
-
-static gboolean
 create_base_tables (TrackerDataManager  *manager,
                     TrackerDBInterface  *iface,
                     GError             **error)
@@ -4257,7 +4230,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 {
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (initable);
 	TrackerDBInterface *iface;
-	gboolean is_create, has_graph_table = FALSE;
+	gboolean is_create;
 	TrackerDBCursor *cursor;
 	TrackerDBStatement *stmt;
 	GHashTable *ontos_table;
@@ -4615,24 +4588,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			if (found) {
 				GError *ontology_error = NULL;
 				gint val = GPOINTER_TO_INT (value);
-
-				has_graph_table = query_table_exists (iface, "Graph", &internal_error);
-				if (!has_graph_table) {
-					/* No graph table and no resource triggers,
-					 * the table must be recreated.
-					 */
-					if (!transaction_started) {
-						tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);
-						if (internal_error) {
-							g_propagate_error (error, internal_error);
-							return FALSE;
-						}
-						transaction_started = TRUE;
-					}
-
-					to_reload = g_list_prepend (to_reload, ontology_file);
-					continue;
-				}
 
 				/* When the last-modified in our database isn't the same as the last
 				 * modified in the latest version of the file, deal with changes. */
