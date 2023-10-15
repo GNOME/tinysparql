@@ -4564,7 +4564,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			TrackerOntology *ontology;
 			GFile *ontology_file = l->data;
 			const gchar *ontology_uri;
-			gboolean found, update_nao = FALSE;
+			gboolean load = FALSE, update_nao = FALSE;
 			gpointer value;
 			gint last_mod;
 
@@ -4581,66 +4581,29 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			 * db. See above comment for more info. */
 			last_mod = (gint) tracker_ontology_get_last_modified (ontology);
 
-			found = g_hash_table_lookup_extended (ontos_table,
-			                                      ontology_uri,
-			                                      NULL, &value);
-
-			if (found) {
-				GError *ontology_error = NULL;
+			if (g_hash_table_lookup_extended (ontos_table,
+			                                  ontology_uri,
+			                                  NULL, &value)) {
 				gint val = GPOINTER_TO_INT (value);
 
 				/* When the last-modified in our database isn't the same as the last
 				 * modified in the latest version of the file, deal with changes. */
 				if (val != last_mod) {
 					gchar *uri = g_file_get_uri (ontology_file);
-					guint num_ontology_parsing_errors;
-
 					TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Ontology file '%s' needs update", uri));
 					g_free (uri);
-
-					if (!transaction_started) {
-						tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);
-						if (internal_error) {
-							g_propagate_error (error, internal_error);
-							return FALSE;
-						}
-						transaction_started = TRUE;
-					}
-
-					/* load ontology from files into memory, set all new's
-					 * is_new to TRUE */
-					load_ontology_file (manager, ontology_file,
-					                    TRUE,
-					                    seen_classes,
-					                    seen_properties,
-					                    &num_ontology_parsing_errors,
-					                    &ontology_error);
-
-					if (ontology_error) {
-						g_propagate_error (error, ontology_error);
-
-						g_clear_pointer (&seen_classes, g_ptr_array_unref);
-						g_clear_pointer (&seen_properties, g_ptr_array_unref);
-
-						if (ontos) {
-							g_list_free_full (ontos, g_object_unref);
-						}
-
-						goto rollback_db_changes;
-					}
-
-					num_parsing_errors += num_ontology_parsing_errors;
-
-					to_reload = g_list_prepend (to_reload, l->data);
-					update_nao = TRUE;
+					load = TRUE;
 				}
 			} else {
-				GError *ontology_error = NULL;
 				gchar *uri = g_file_get_uri (ontology_file);
-				guint num_ontology_parsing_errors;
-
-				g_debug ("Ontology file '%s' got added", uri);
+				TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Ontology file '%s' got added", uri));
 				g_free (uri);
+				load = TRUE;
+			}
+
+			if (load) {
+				GError *ontology_error = NULL;
+				guint num_ontology_parsing_errors;
 
 				if (!transaction_started) {
 					tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);
