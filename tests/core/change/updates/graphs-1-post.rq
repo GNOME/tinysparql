@@ -1,0 +1,2 @@
+insert data { graph example:1 { <http://example/a01> example:i1 1 ; example:rel1 <http://example/b01> } }
+insert data { graph example:1 { <http://example/b01> example:s2 """abc""" ; example:rel2 <http://example/a01> } }

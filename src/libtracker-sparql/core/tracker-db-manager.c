@@ -85,6 +85,7 @@ struct _TrackerDBManager {
 	guint s_cache_size;
 	guint u_cache_size;
 	gboolean first_time;
+	gboolean needs_integrity_check;
 	TrackerDBVersion db_version;
 
 	gpointer vtab_data;
@@ -97,7 +98,6 @@ struct _TrackerDBManager {
 enum {
 	SETUP_INTERFACE,
 	UPDATE_INTERFACE,
-	INTEGRITY_CHECK,
 	N_SIGNALS
 };
 
@@ -479,7 +479,7 @@ db_check_integrity (TrackerDBManager *db_manager)
 		g_object_unref (cursor);
 	}
 
-	g_signal_emit (db_manager, signals[INTEGRITY_CHECK], 0, db_manager->db.iface, &handled);
+	db_manager->needs_integrity_check = TRUE;
 
 	/* Someone raised an error */
 	if (handled)
@@ -900,14 +900,6 @@ tracker_db_manager_class_init (TrackerDBManagerClass *klass)
                              g_cclosure_marshal_VOID__OBJECT,
                              G_TYPE_NONE,
                              1, TRACKER_TYPE_DB_INTERFACE);
-	signals[INTEGRITY_CHECK] =
-               g_signal_new ("integrity-check",
-                             G_TYPE_FROM_CLASS (klass),
-                             G_SIGNAL_RUN_LAST, 0,
-                             g_signal_accumulator_true_handled,
-                             NULL, NULL,
-                             G_TYPE_BOOLEAN,
-                             1, TRACKER_TYPE_DB_INTERFACE);
 }
 
 static TrackerDBInterface *
@@ -1144,3 +1136,15 @@ tracker_db_manager_get_version (TrackerDBManager *db_manager)
 {
 	return db_manager->db_version;
 }
+
+gboolean
+tracker_db_manager_needs_integrity_check (TrackerDBManager *db_manager)
+{
+	gboolean needs_integrity_check;
+
+	needs_integrity_check = db_manager->needs_integrity_check;
+	db_manager->needs_integrity_check = FALSE;
+
+	return needs_integrity_check;
+}
+

@@ -3505,33 +3505,6 @@ tracker_data_ontology_import_finished (TrackerDataManager *manager)
 }
 
 static gboolean
-query_table_exists (TrackerDBInterface  *iface,
-                    const gchar         *table_name,
-                    GError             **error)
-{
-	TrackerDBCursor *cursor = NULL;
-	TrackerDBStatement *stmt;
-	gboolean exists = FALSE;
-
-	stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
-	                                               "SELECT 1 FROM sqlite_master WHERE tbl_name='%s' AND type='table'",
-	                                               table_name);
-	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, error);
-		g_object_unref (stmt);
-	}
-
-	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, NULL, error)) {
-			exists = TRUE;
-		}
-		g_object_unref (cursor);
-	}
-
-	return exists;
-}
-
-static gboolean
 create_base_tables (TrackerDataManager  *manager,
                     TrackerDBInterface  *iface,
                     GError             **error)
@@ -4125,11 +4098,10 @@ update_interface_cb (TrackerDBManager   *db_manager,
 }
 
 static gboolean
-integrity_check_cb (TrackerDBManager   *db_manager,
-                    TrackerDBInterface *iface,
-                    TrackerDataManager *data_manager)
+tracker_data_manager_integrity_check (TrackerDataManager  *data_manager,
+                                      TrackerDBInterface  *iface,
+                                      GError             **error)
 {
-	GError *internal_error = NULL;
 	TrackerDBStatement *stmt;
 	GHashTableIter iter;
 	const gchar *graph;
@@ -4142,16 +4114,10 @@ integrity_check_cb (TrackerDBManager   *db_manager,
 	 */
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              &internal_error,
+	                                              error,
 	                                              "SELECT 1 FROM Resource");
-	if (!stmt) {
-		if (internal_error) {
-			g_message ("Corrupt database: failed to create resource check statement: %s", internal_error->message);
-		}
-
-		g_clear_error (&internal_error);
-		return TRUE;
-	}
+	if (!stmt)
+		return FALSE;
 
 	g_clear_object (&stmt);
 
@@ -4167,24 +4133,18 @@ integrity_check_cb (TrackerDBManager   *db_manager,
 		g_hash_table_iter_init (&iter, data_manager->graphs);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
 			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, graph)) {
-				tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph, NULL);
-				if (!tracker_db_interface_sqlite_fts_integrity_check (iface, graph)) {
-					g_message ("Corrupt database: FTS index on graph %s is corrupt", graph);
-					return TRUE;
-				}
+				if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph, error))
+					return FALSE;
 			}
 		}
 
 		if (!tracker_db_interface_sqlite_fts_integrity_check (iface, "main")) {
-			tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", NULL);
-			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, "main")) {
-				g_message ("Corrupt database: FTS index on main database is corrupt");
-				return TRUE;
-			}
+			if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", error))
+				return FALSE;
 		}
 	}
 
-	return FALSE;
+	return TRUE;
 }
 
 static gboolean
@@ -4257,7 +4217,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 {
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (initable);
 	TrackerDBInterface *iface;
-	gboolean is_create, has_graph_table = FALSE;
+	gboolean is_create;
 	TrackerDBCursor *cursor;
 	TrackerDBStatement *stmt;
 	GHashTable *ontos_table;
@@ -4304,8 +4264,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                  G_CALLBACK (setup_interface_cb), manager);
 	g_signal_connect (manager->db_manager, "update-interface",
 	                  G_CALLBACK (update_interface_cb), manager);
-	g_signal_connect (manager->db_manager, "integrity-check",
-	                  G_CALLBACK (integrity_check_cb), manager);
 
 	tracker_data_manager_update_status (manager, "Initializing data manager");
 
@@ -4505,6 +4463,11 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			g_propagate_error (error, internal_error);
 			return FALSE;
 		}
+
+		if (!read_only && tracker_db_manager_needs_integrity_check (manager->db_manager)) {
+			if (!tracker_data_manager_integrity_check (manager, iface, error))
+				return FALSE;
+		}
 	}
 
 	if (!is_create && manager->ontology_location) {
@@ -4591,7 +4554,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			TrackerOntology *ontology;
 			GFile *ontology_file = l->data;
 			const gchar *ontology_uri;
-			gboolean found, update_nao = FALSE;
+			gboolean load = FALSE, update_nao = FALSE;
 			gpointer value;
 			gint last_mod;
 
@@ -4608,84 +4571,29 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			 * db. See above comment for more info. */
 			last_mod = (gint) tracker_ontology_get_last_modified (ontology);
 
-			found = g_hash_table_lookup_extended (ontos_table,
-			                                      ontology_uri,
-			                                      NULL, &value);
-
-			if (found) {
-				GError *ontology_error = NULL;
+			if (g_hash_table_lookup_extended (ontos_table,
+			                                  ontology_uri,
+			                                  NULL, &value)) {
 				gint val = GPOINTER_TO_INT (value);
-
-				has_graph_table = query_table_exists (iface, "Graph", &internal_error);
-				if (!has_graph_table) {
-					/* No graph table and no resource triggers,
-					 * the table must be recreated.
-					 */
-					if (!transaction_started) {
-						tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);
-						if (internal_error) {
-							g_propagate_error (error, internal_error);
-							return FALSE;
-						}
-						transaction_started = TRUE;
-					}
-
-					to_reload = g_list_prepend (to_reload, ontology_file);
-					continue;
-				}
 
 				/* When the last-modified in our database isn't the same as the last
 				 * modified in the latest version of the file, deal with changes. */
 				if (val != last_mod) {
 					gchar *uri = g_file_get_uri (ontology_file);
-					guint num_ontology_parsing_errors;
-
 					TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Ontology file '%s' needs update", uri));
 					g_free (uri);
-
-					if (!transaction_started) {
-						tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);
-						if (internal_error) {
-							g_propagate_error (error, internal_error);
-							return FALSE;
-						}
-						transaction_started = TRUE;
-					}
-
-					/* load ontology from files into memory, set all new's
-					 * is_new to TRUE */
-					load_ontology_file (manager, ontology_file,
-					                    TRUE,
-					                    seen_classes,
-					                    seen_properties,
-					                    &num_ontology_parsing_errors,
-					                    &ontology_error);
-
-					if (ontology_error) {
-						g_propagate_error (error, ontology_error);
-
-						g_clear_pointer (&seen_classes, g_ptr_array_unref);
-						g_clear_pointer (&seen_properties, g_ptr_array_unref);
-
-						if (ontos) {
-							g_list_free_full (ontos, g_object_unref);
-						}
-
-						goto rollback_db_changes;
-					}
-
-					num_parsing_errors += num_ontology_parsing_errors;
-
-					to_reload = g_list_prepend (to_reload, l->data);
-					update_nao = TRUE;
+					load = TRUE;
 				}
 			} else {
-				GError *ontology_error = NULL;
 				gchar *uri = g_file_get_uri (ontology_file);
-				guint num_ontology_parsing_errors;
-
-				g_debug ("Ontology file '%s' got added", uri);
+				TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Ontology file '%s' got added", uri));
 				g_free (uri);
+				load = TRUE;
+			}
+
+			if (load) {
+				GError *ontology_error = NULL;
+				guint num_ontology_parsing_errors;
 
 				if (!transaction_started) {
 					tracker_data_begin_ontology_transaction (manager->data_update, &internal_error);

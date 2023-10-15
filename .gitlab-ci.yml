@@ -345,6 +345,7 @@ build-alpine-latest@x86_64:
         --exclude=../utils --exclude=../examples --exclude=../docs/reference
         --exclude='\.\./build/.*\.[ch]$' --exclude='.*/tests/.*\.[ch]$'
         --merge-mode-functions=separate
+        --gcov-ignore-parse-errors=negative_hits.warn
         --json --print-summary --output=../coverage-${CI_JOB_NAME}.json
     - popd
     - |

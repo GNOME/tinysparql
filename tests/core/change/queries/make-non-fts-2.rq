@@ -1,0 +1,1 @@
+select ?u { ?u <http://tracker.api.gnome.org/ontology/v3/fts#match> 'resource' } order by ?u

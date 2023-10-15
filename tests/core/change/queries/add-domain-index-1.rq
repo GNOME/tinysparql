@@ -1,0 +1,1 @@
+select ?u ?s1 { ?u example:single1 ?s1 } order by ?u ?s1

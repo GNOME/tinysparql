@@ -1,0 +1,10 @@
+insert { <http://example/a01> a example:A };
+insert { <http://example/a01> example:i1 1 };
+delete { <http://example/a01> example:i1 1 };
+insert { <http://example/a01> example:i1 2 };
+insert { <http://example/a01> example:i2 1 };
+delete { <http://example/a01> example:i2 1 };
+insert { <http://example/a01> example:i2 2 };
+insert { <http://example/a01> example:single1 2 };
+delete { <http://example/a01> example:single1 1 };
+insert { <http://example/a01> example:single1 2 };

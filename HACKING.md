@@ -94,3 +94,25 @@ commandline is controlled by the D-Bus .service.in files stored in
 By default the run-uninstalled script and the functional-tests will only show
 output from Tracker code. For the functional-tests, set TRACKER_DEBUG=tests
 to see output from Valgrind. For tracker-sandbox use the `--debug-dbus` option.
+
+## Updating the database internal format
+
+Any code change affecting the internal format of the database, ancillary
+tables, indexes, triggers, etc... Should be accompanied by:
+
+ * An update to TrackerDBVersion enum and TRACKER_DB_VERSION_NOW define at
+   `src/libtracker-sparql/core/tracker-db-manager.h`
+ * Code to transparently update databases from the prior version at
+   `tracker_data_manager_update_from_version()`
+ * An additional set of version tests at
+   `tests/core/tracker-initialization-test.c` for the new old version. Created
+   with the nepomuk ontology, and the fts/non-fts ontologies available at
+   `tests/core/initialization`, e.g.:
+   ```
+   $ cd /tmp
+   $ tracker3 endpoint -p .../tests/core/initialization/fts -d .
+   $ xz -z meta.db
+   $ mv meta.db.xz .../fts.db.26.xz
+   ```
+
+This is not required for changes to the ontologies (core, nepomuk).

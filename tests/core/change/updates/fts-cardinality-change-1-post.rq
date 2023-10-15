@@ -1,0 +1,1 @@
+insert data { <http://example/fts> a example:A ; example:fts1 'def' }

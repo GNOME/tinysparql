@@ -1,0 +1,2 @@
+insert data { <http://example/fts1> a example:A ; example:fts1 'resource fts1' };
+insert data { <http://example/fts2> a example:B ; example:fts2 'resource fts2' }

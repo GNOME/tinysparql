@@ -109,6 +109,7 @@ void                tracker_db_manager_release_memory         (TrackerDBManager 
 TrackerDBVersion    tracker_db_manager_get_version            (TrackerDBManager      *db_manager);
 void                tracker_db_manager_update_version         (TrackerDBManager      *db_manager);
 
+gboolean tracker_db_manager_needs_integrity_check (TrackerDBManager *db_manager);
 
 G_END_DECLS
 

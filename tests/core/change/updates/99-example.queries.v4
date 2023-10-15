@@ -1,6 +1,0 @@
-insert { <http://example/b02> example:ib 1 }
-delete { <http://example/b02> example:ib 1 }
-insert { <http://example/b02> example:ib 2 }
-insert { <http://example/b02> example:sb "s1" }
-delete { <http://example/b02> example:sb "s1" }
-insert { <http://example/b02> example:sb "s2" }
