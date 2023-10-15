@@ -4098,11 +4098,10 @@ update_interface_cb (TrackerDBManager   *db_manager,
 }
 
 static gboolean
-integrity_check_cb (TrackerDBManager   *db_manager,
-                    TrackerDBInterface *iface,
-                    TrackerDataManager *data_manager)
+tracker_data_manager_integrity_check (TrackerDataManager  *data_manager,
+                                      TrackerDBInterface  *iface,
+                                      GError             **error)
 {
-	GError *internal_error = NULL;
 	TrackerDBStatement *stmt;
 	GHashTableIter iter;
 	const gchar *graph;
@@ -4115,16 +4114,10 @@ integrity_check_cb (TrackerDBManager   *db_manager,
 	 */
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              &internal_error,
+	                                              error,
 	                                              "SELECT 1 FROM Resource");
-	if (!stmt) {
-		if (internal_error) {
-			g_message ("Corrupt database: failed to create resource check statement: %s", internal_error->message);
-		}
-
-		g_clear_error (&internal_error);
-		return TRUE;
-	}
+	if (!stmt)
+		return FALSE;
 
 	g_clear_object (&stmt);
 
@@ -4140,24 +4133,18 @@ integrity_check_cb (TrackerDBManager   *db_manager,
 		g_hash_table_iter_init (&iter, data_manager->graphs);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
 			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, graph)) {
-				tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph, NULL);
-				if (!tracker_db_interface_sqlite_fts_integrity_check (iface, graph)) {
-					g_message ("Corrupt database: FTS index on graph %s is corrupt", graph);
-					return TRUE;
-				}
+				if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph, error))
+					return FALSE;
 			}
 		}
 
 		if (!tracker_db_interface_sqlite_fts_integrity_check (iface, "main")) {
-			tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", NULL);
-			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, "main")) {
-				g_message ("Corrupt database: FTS index on main database is corrupt");
-				return TRUE;
-			}
+			if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", error))
+				return FALSE;
 		}
 	}
 
-	return FALSE;
+	return TRUE;
 }
 
 static gboolean
@@ -4277,8 +4264,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                  G_CALLBACK (setup_interface_cb), manager);
 	g_signal_connect (manager->db_manager, "update-interface",
 	                  G_CALLBACK (update_interface_cb), manager);
-	g_signal_connect (manager->db_manager, "integrity-check",
-	                  G_CALLBACK (integrity_check_cb), manager);
 
 	tracker_data_manager_update_status (manager, "Initializing data manager");
 
@@ -4477,6 +4462,11 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			return FALSE;
+		}
+
+		if (!read_only && tracker_db_manager_needs_integrity_check (manager->db_manager)) {
+			if (!tracker_data_manager_integrity_check (manager, iface, error))
+				return FALSE;
 		}
 	}
 
