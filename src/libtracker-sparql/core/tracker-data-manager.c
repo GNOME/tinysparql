@@ -3764,12 +3764,6 @@ tracker_data_manager_update_fts (TrackerDataManager  *manager,
 	                                                    error);
 }
 
-GFile *
-tracker_data_manager_get_cache_location (TrackerDataManager *manager)
-{
-	return manager->cache_location ? g_object_ref (manager->cache_location) : NULL;
-}
-
 TrackerDataManager *
 tracker_data_manager_new (TrackerDBManagerFlags   flags,
                           GFile                  *cache_location,

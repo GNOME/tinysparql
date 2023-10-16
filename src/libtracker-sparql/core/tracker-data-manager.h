@@ -64,7 +64,6 @@ TrackerDataManager * tracker_data_manager_new        (TrackerDBManagerFlags   fl
 
 void                 tracker_data_manager_shutdown            (TrackerDataManager *manager);
 
-GFile *              tracker_data_manager_get_cache_location  (TrackerDataManager *manager);
 TrackerOntologies *  tracker_data_manager_get_ontologies      (TrackerDataManager *manager);
 
 TrackerDBManager *   tracker_data_manager_get_db_manager      (TrackerDataManager *manager);
