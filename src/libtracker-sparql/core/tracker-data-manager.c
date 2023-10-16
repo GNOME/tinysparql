@@ -5169,12 +5169,10 @@ tracker_data_manager_release_memory (TrackerDataManager *manager)
 	tracker_db_manager_release_memory (manager->db_manager);
 }
 
-gboolean
+gchar *
 tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
                                     const gchar         *term,
-                                    GHashTable          *prefix_map,
-                                    gchar              **prefix,
-                                    gchar              **expanded)
+                                    GHashTable          *prefix_map)
 {
 	const gchar *sep, *expanded_ns = NULL;
 	TrackerOntologies *ontologies;
@@ -5212,27 +5210,12 @@ tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
 
 	g_free (ns);
 
-	if (!expanded_ns) {
-		if (prefix)
-			*prefix = NULL;
-		if (expanded)
-			*expanded = g_strdup (term);
-
-		return FALSE;
-	}
-
-	if (prefix)
-		*prefix = g_strdup (expanded_ns);
-
-	if (expanded) {
-		if (sep) {
-			*expanded = g_strconcat (expanded_ns, sep, NULL);
-		} else {
-			*expanded = g_strdup (expanded_ns);
-		}
-	}
-
-	return TRUE;
+	if (!expanded_ns)
+		return g_strdup (term);
+	else if (sep)
+		return g_strconcat (expanded_ns, sep, NULL);
+	else
+		return g_strdup (expanded_ns);
 }
 
 TrackerSparqlConnection *

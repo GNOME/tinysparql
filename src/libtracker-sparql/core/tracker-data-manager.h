@@ -103,11 +103,10 @@ void                 tracker_data_manager_commit_graphs (TrackerDataManager *man
 
 void                 tracker_data_manager_release_memory (TrackerDataManager *manager);
 
-gboolean             tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
-                                                         const gchar         *term,
-                                                         GHashTable          *prefix_map,
-                                                         gchar              **prefix,
-                                                         gchar              **expanded);
+gchar * tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
+                                            const gchar         *term,
+                                            GHashTable          *prefix_map);
+
 TrackerSparqlConnection * tracker_data_manager_get_remote_connection (TrackerDataManager  *data_manager,
                                                                       const gchar         *uri,
                                                                       GError             **error);
