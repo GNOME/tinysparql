@@ -126,9 +126,6 @@ tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
 {
 	TrackerSparqlConnectionClass *connection_class;
 
-	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), FALSE);
-	g_return_val_if_fail (dbus_name != NULL, FALSE);
-
 	connection_class = TRACKER_SPARQL_CONNECTION_GET_CLASS (connection);
 	if (!connection_class->lookup_dbus_service)
 		return FALSE;
