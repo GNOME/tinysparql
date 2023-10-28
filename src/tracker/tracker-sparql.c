@@ -1459,35 +1459,6 @@ sparql_run (void)
 			}
 
 			g_print ("%s\n", _("Done"));
-
-#if 0
-			if (results) {
-				GPtrArray *insert;
-				GHashTable *solution;
-				GHashTableIter iter;
-				gpointer key, value;
-				gint i, s, n;
-
-				for (i = 0; i < results->len; i++) {
-					insert = results->pdata[i];
-
-					for (s = 0; s < insert->len; s++) {
-						solution = insert->pdata[s];
-
-						g_hash_table_iter_init (&iter, solution);
-						n = 0;
-						while (g_hash_table_iter_next (&iter, &key, &value)) {
-							g_print ("%s%s: %s",
-							         n > 0 ? ", " : "",
-							         (const gchar *) key,
-							         (const gchar *) value);
-							n++;
-						}
-						g_print ("\n");
-					}
-				}
-			}
-#endif
 		} else {
 			GHashTable *prefixes = NULL;
 
