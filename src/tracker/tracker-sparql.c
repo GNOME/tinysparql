@@ -1082,7 +1082,7 @@ sparql_run (void)
 		/* First list classes */
 		query = g_strdup_printf ("SELECT DISTINCT ?g "
 		                         "WHERE {"
-		                         "  GRAPH ?g { ?s ?p ?o }"
+		                         "  GRAPH ?g { }"
 		                         "}");
 
 		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
