@@ -846,6 +846,25 @@ tree_print (GNode                   *node,
 	                 &data);
 }
 
+static TrackerSparqlStatement *
+load_statement (TrackerSparqlConnection  *conn,
+                const gchar              *filename)
+{
+	TrackerSparqlStatement *stmt;
+	gchar *path;
+	GError *error = NULL;
+
+	path = g_strconcat ("/org/freedesktop/tracker/sparql/", filename, NULL);
+	stmt = tracker_sparql_connection_load_statement_from_gresource (conn,
+	                                                                path,
+	                                                                NULL, &error);
+	g_free (path);
+
+	g_assert_no_error (error);
+
+	return stmt;
+}
+
 static gint
 tree_get (TrackerSparqlConnection *connection,
           const gchar             *class_lookup,
@@ -853,9 +872,9 @@ tree_get (TrackerSparqlConnection *connection,
 {
 	TrackerSparqlCursor *cursor;
 	TrackerNamespaceManager *namespaces;
+	TrackerSparqlStatement *stmt;
 	GHashTable *filter_parents;
 	GError *error = NULL;
-	gchar *query;
 	gchar *class_lookup_longhand;
 	GNode *root, *found_node, *node;
 
@@ -866,9 +885,9 @@ tree_get (TrackerSparqlConnection *connection,
 	class_lookup_longhand = tracker_namespace_manager_expand_uri (namespaces,
 	                                                              class_lookup);
 
-	/* Get subclasses of classes, using longhand */
-	query = "SELECT ?p ?c WHERE { ?c a rdfs:Class . OPTIONAL { ?c rdfs:subClassOf ?p } }";
-	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+	stmt = load_statement (connection, "get-class-hierarchy.rq");
+	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+	g_object_unref (stmt);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
@@ -915,9 +934,9 @@ tree_get (TrackerSparqlConnection *connection,
 	if (list_properties) {
 		TrackerSparqlCursor *properties;
 
-		query = "SELECT ?c ?p WHERE { ?p rdf:type rdf:Property ; rdfs:domain ?c }";
-
-		properties = tracker_sparql_connection_query (connection, query, NULL, &error);
+		stmt = load_statement (connection, "get-properties.rq");
+		properties = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -982,6 +1001,7 @@ sparql_run (void)
 {
 	TrackerSparqlConnection *connection;
 	TrackerNamespaceManager *namespaces;
+	TrackerSparqlStatement *stmt;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	gint retval = EXIT_SUCCESS;
@@ -1001,10 +1021,9 @@ sparql_run (void)
 	tracker_term_pipe_to_pager ();
 
 	if (list_classes) {
-		const gchar *query;
-
-		query = "SELECT ?c WHERE { ?c a rdfs:Class }";
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+		stmt = load_statement (connection, "get-classes.rq");
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1026,21 +1045,15 @@ sparql_run (void)
 	}
 
 	if (list_properties && list_properties[0] != '\0') {
-		gchar *query;
 		gchar *class_name;
 
 		class_name = tracker_namespace_manager_expand_uri (namespaces,
 		                                                   list_properties);
 
-		query = g_strdup_printf ("SELECT ?p "
-		                         "WHERE {"
-		                         "  ?p a rdf:Property ;"
-		                         "  rdfs:domain <%s>"
-		                         "}",
-		                         class_name);
-
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-		g_free (query);
+		stmt = load_statement (connection, "get-properties-for-class.rq");
+		tracker_sparql_statement_bind_string (stmt, "class", class_name);
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 		g_free (class_name);
 
 		if (error) {
@@ -1057,27 +1070,15 @@ sparql_run (void)
 	}
 
 	if (list_notifies) {
-		gchar *query;
-
-		/* First list classes */
 		if (*list_notifies == '\0') {
-			query = g_strdup_printf ("SELECT ?c "
-			                         "WHERE {"
-			                         "  ?c a rdfs:Class ."
-			                         "  ?c nrl:notify true ."
-			                         "}");
+			stmt = load_statement (connection, "get-notify-properties.rq");
 		} else {
-			query = g_strdup_printf ("SELECT ?c "
-			                         "WHERE {"
-			                         "  ?c a rdfs:Class ."
-			                         "  ?c nrl:notify true "
-			                         "  FILTER regex (?c, \"%s\", \"i\") "
-			                         "}",
-			                         list_notifies);
+			stmt = load_statement (connection, "get-notify-properties-match.rq");
+			tracker_sparql_statement_bind_string (stmt, "match", list_notifies);
 		}
 
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-		g_free (query);
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1093,25 +1094,15 @@ sparql_run (void)
 	}
 
 	if (list_indexes) {
-		gchar *query;
-
-		/* First list classes */
 		if (*list_indexes == '\0') {
-			query = g_strdup_printf ("SELECT ?p "
-			                         "WHERE {"
-			                         "  ?p nrl:indexed true ."
-			                         "}");
+			stmt = load_statement (connection, "get-indexed-properties.rq");
 		} else {
-			query = g_strdup_printf ("SELECT ?p "
-			                         "WHERE {"
-			                         "  ?p nrl:indexed true "
-			                         "  FILTER regex (?p, \"%s\", \"i\") "
-			                         "}",
-			                         list_indexes);
+			stmt = load_statement (connection, "get-indexed-properties-match.rq");
+			tracker_sparql_statement_bind_string (stmt, "match", list_indexes);
 		}
 
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-		g_free (query);
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1127,15 +1118,9 @@ sparql_run (void)
 	}
 
 	if (list_graphs) {
-		const gchar *query;
-
-		/* First list classes */
-		query = g_strdup_printf ("SELECT DISTINCT ?g "
-		                         "WHERE {"
-		                         "  GRAPH ?g { }"
-		                         "}");
-
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+		stmt = load_statement (connection, "get-graphs.rq");
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1156,17 +1141,11 @@ sparql_run (void)
 	}
 
 	if (search) {
-		gchar *query;
-
 		/* First list classes */
-		query = g_strdup_printf ("SELECT ?c "
-		                         "WHERE {"
-		                         "  ?c a rdfs:Class"
-		                         "  FILTER regex (?c, \"%s\", \"i\") "
-		                         "}",
-		                         search);
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-		g_free (query);
+		stmt = load_statement (connection, "get-classes-match.rq");
+		tracker_sparql_statement_bind_string (stmt, "match", search);
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1181,15 +1160,10 @@ sparql_run (void)
 		print_cursor (cursor, _("No classes were found to match search term"), _("Classes"), TRUE);
 
 		/* Second list properties */
-		query = g_strdup_printf ("SELECT ?p "
-		                         "WHERE {"
-		                         "  ?p a rdf:Property"
-		                         "  FILTER regex (?p, \"%s\", \"i\") "
-		                         "}",
-		                         search);
-
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-		g_free (query);
+		stmt = load_statement (connection, "get-properties-match.rq");
+		tracker_sparql_statement_bind_string (stmt, "match", search);
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",

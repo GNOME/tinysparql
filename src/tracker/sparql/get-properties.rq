@@ -1,0 +1,4 @@
+SELECT ?c ?p {
+  ?p rdf:type rdf:Property ;
+     rdfs:domain ?c .
+}

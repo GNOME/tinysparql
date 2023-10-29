@@ -1,0 +1,4 @@
+SELECT ?p {
+  ?p nrl:indexed true .
+  FILTER regex (?p, ~match, 'i')
+}

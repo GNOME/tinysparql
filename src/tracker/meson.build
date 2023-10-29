@@ -2,13 +2,15 @@ commands_dir = get_option('bindir')
 command_metadata_dir = get_option('datadir') / 'commands'
 po_dir = join_paths(meson.project_source_root(), 'po')
 
+sparql_gresource = gnome.compile_resources('sparql_gresources', 'sparql-queries.gresource.xml')
+
 commands = [
     { 'name': 'endpoint', 'sources': 'tracker-endpoint.c', 'extra_deps': [] },
     # We link against the private tracker-sparql library for the `--2to3` export mode.
     { 'name': 'export', 'sources': 'tracker-export.c', 'extra_deps': [tracker_sparql_private_dep] },
     { 'name': 'help', 'sources': 'tracker-help.c', 'extra_deps': [] },
     { 'name': 'import', 'sources': 'tracker-import.c', 'extra_deps': [] },
-    { 'name': 'sparql', 'sources': 'tracker-sparql.c', 'extra_deps': [] },
+    { 'name': 'sparql', 'sources': ['tracker-sparql.c', sparql_gresource], 'extra_deps': [] },
     { 'name': 'sql', 'sources': 'tracker-sql.c', 'extra_deps': [tracker_sparql_private_dep] },
 ]
 

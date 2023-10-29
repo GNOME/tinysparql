@@ -1,0 +1,4 @@
+SELECT ?c {
+  ?c a rdfs:Class ;
+     nrl:notify true .
+}
