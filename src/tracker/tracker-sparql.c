@@ -687,11 +687,24 @@ highlight (const gchar *text,
 	return g_string_free (s, FALSE);
 }
 
+static GNode *
+get_nth_parent (GNode *node,
+                int    n)
+{
+	while (n && node) {
+		node = node->parent;
+		n--;
+	}
+
+	return node;
+}
+
 static inline void
-tree_print_properties (NodeData      *nd,
+tree_print_properties (GNode         *node,
                        NodePrintData *pd,
                        gint           depth)
 {
+	NodeData *nd = node->data;
 	GSList *l;
 
 	/* Sort first */
@@ -702,12 +715,31 @@ tree_print_properties (NodeData      *nd,
 		gchar *highlighted;
 		gint i;
 
-		for (i = 1; i < depth; i++) {
-			g_print ("  |");
+		for (i = 1; i <= depth; i++) {
+			gboolean has_next;
+
+			if (i == depth) {
+				has_next = node->children != NULL;
+			} else {
+				GNode *parent;
+
+				parent = get_nth_parent (node, depth - i - 1);
+				has_next = parent && parent->next;
+			}
+
+			if (has_next)
+				g_print ("  │");
+			else
+				g_print ("   ");
 		}
 
 		highlighted = highlight (l->data, pd->highlight_text);
-		g_print ("  --> %s (P)\n", (gchar*) highlighted);
+
+		if (l->next)
+			g_print ("  ┣");
+		else
+			g_print ("  ┗");
+		g_print ("━ %s\n", (gchar*) highlighted);
 		g_free (highlighted);
 	}
 }
@@ -727,10 +759,8 @@ tree_print_foreach (GNode    *node,
 	nd = node->data;
 	pd = user_data;
 
-	if (!nd) {
-		g_print ("ROOT\n");
+	if (!nd)
 		return FALSE;
-	}
 
 	/* Filter based on parent classes */
 	if (pd->filter_parents) {
@@ -747,27 +777,33 @@ tree_print_foreach (GNode    *node,
 
 	for (i = 1; i < depth; i++) {
 		if (i == depth - 1) {
-			const gchar *branch = "+";
+			const gchar *branch = "├";
 
 			if (!node->next) {
-				branch = "`";
+				branch = "╰";
 			} else if (G_NODE_IS_LEAF (node)) {
-				branch = "|";
+				branch = "├";
 			}
 
 			g_print ("  %s", branch);
 		} else {
-			g_print ("  |");
+			GNode *parent;
+
+			parent = get_nth_parent (node, depth - i - 1);
+			if (parent && parent->next)
+				g_print ("  │");
+			else
+				g_print ("   ");
 		}
 	}
 
 	text = shorthand ? shorthand : nd->class;
 	highlighted = highlight (text, pd->highlight_text);
-	g_print ("-- %s (C)\n", highlighted);
+	g_print ("─ %s\n", highlighted);
 	g_free (highlighted);
 	g_free (shorthand);
 
-	tree_print_properties (nd, pd, depth);
+	tree_print_properties (node, pd, depth);
 
 	return FALSE;
 }
