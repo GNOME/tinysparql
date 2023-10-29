@@ -35,6 +35,8 @@
 #include "tracker-sparql.h"
 #include "tracker-color.h"
 
+#define LINK_STR "[🡕]" /* NORTH EAST SANS-SERIF ARROW, in consistence with systemd */
+
 #define SPARQL_OPTIONS_ENABLED() \
 	(list_classes || \
 	 list_class_prefixes || \
@@ -687,6 +689,12 @@ highlight (const gchar *text,
 	return g_string_free (s, FALSE);
 }
 
+static void
+print_link (const gchar *url)
+{
+	g_print ("\x1B]8;;%s\a" LINK_STR "\x1B]8;;\a", url);
+}
+
 static GNode *
 get_nth_parent (GNode *node,
                 int    n)
@@ -712,8 +720,10 @@ tree_print_properties (GNode         *node,
 
 	/* Print properties */
 	for (l = nd->properties; l; l = l->next) {
-		gchar *highlighted;
+		gchar *compressed, *highlighted;
 		gint i;
+
+		compressed = tracker_namespace_manager_compress_uri (pd->namespaces, l->data);
 
 		for (i = 1; i <= depth; i++) {
 			gboolean has_next;
@@ -733,14 +743,19 @@ tree_print_properties (GNode         *node,
 				g_print ("   ");
 		}
 
-		highlighted = highlight (l->data, pd->highlight_text);
+		highlighted = highlight (compressed, pd->highlight_text);
 
 		if (l->next)
 			g_print ("  ┣");
 		else
 			g_print ("  ┗");
-		g_print ("━ %s\n", (gchar*) highlighted);
+
+		g_print ("━ %s", (gchar*) highlighted);
+		if (g_str_has_prefix (l->data, "http"))
+			print_link (l->data);
+		g_print ("\n");
 		g_free (highlighted);
+		g_free (compressed);
 	}
 }
 
@@ -799,7 +814,10 @@ tree_print_foreach (GNode    *node,
 
 	text = shorthand ? shorthand : nd->class;
 	highlighted = highlight (text, pd->highlight_text);
-	g_print ("─ %s\n", highlighted);
+	g_print ("─ %s", highlighted);
+	if (g_str_has_prefix (nd->class, "http"))
+		print_link (nd->class);
+	g_print ("\n");
 	g_free (highlighted);
 	g_free (shorthand);
 
@@ -924,12 +942,8 @@ tree_get (TrackerSparqlConnection *connection,
 		while (tracker_sparql_cursor_next (properties, NULL, NULL)) {
 			const gchar *class = tracker_sparql_cursor_get_string (properties, 0, NULL);
 			const gchar *property = tracker_sparql_cursor_get_string (properties, 1, NULL);
-			gchar *property_lookup_shorthand;
 
-			property_lookup_shorthand =
-				tracker_namespace_manager_compress_uri (namespaces, property);
-			tree_add_property (root, class, property_lookup_shorthand);
-			g_free (property_lookup_shorthand);
+			tree_add_property (root, class, property);
 		}
 
 		if (properties) {
