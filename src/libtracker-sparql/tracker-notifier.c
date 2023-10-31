@@ -846,11 +846,15 @@ tracker_notifier_init (TrackerNotifier *notifier)
  * tracker_notifier_signal_subscribe:
  * @notifier: A `TrackerNotifier`
  * @connection: A [class@Gio.DBusConnection]
- * @service: DBus service name to subscribe to events for
+ * @service: (nullable): DBus service name to subscribe to events for, or %NULL
  * @object_path: (nullable): DBus object path to subscribe to events for, or %NULL
  * @graph: (nullable): Graph to listen events for, or %NULL
  *
  * Listens to notification events from a remote DBus SPARQL endpoint.
+ *
+ * If @connection refers to a message bus (system/session), @service must refer
+ * to a D-Bus name (either unique or well-known). If @connection is a non-message
+ * bus (e.g. a peer-to-peer D-Bus connection) the @service argument may be %NULL.
  *
  * If the @object_path argument is %NULL, the default
  * `/org/freedesktop/Tracker3/Endpoint` path will be
@@ -878,7 +882,9 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
 
 	g_return_val_if_fail (TRACKER_IS_NOTIFIER (notifier), 0);
 	g_return_val_if_fail (G_IS_DBUS_CONNECTION (connection), 0);
-	g_return_val_if_fail (service != NULL, 0);
+	g_return_val_if_fail ((service == NULL &&
+	                       (g_dbus_connection_get_flags (connection) & G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION) == 0) ||
+	                      (service != NULL && g_dbus_is_name (service)), 0);
 
 	priv = tracker_notifier_get_instance_private (notifier);
 

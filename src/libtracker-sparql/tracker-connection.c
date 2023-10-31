@@ -126,9 +126,6 @@ tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
 {
 	TrackerSparqlConnectionClass *connection_class;
 
-	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), FALSE);
-	g_return_val_if_fail (dbus_name != NULL, FALSE);
-
 	connection_class = TRACKER_SPARQL_CONNECTION_GET_CLASS (connection);
 	if (!connection_class->lookup_dbus_service)
 		return FALSE;
@@ -1269,13 +1266,26 @@ tracker_sparql_connection_new_finish (GAsyncResult  *res,
 
 /**
  * tracker_sparql_connection_bus_new:
- * @service_name: The name of the D-Bus service to connect to.
+ * @service_name (nullable): The name of the D-Bus service to connect to, or %NULL if not using a message bus.
  * @object_path: (nullable): The path to the object, or %NULL to use the default.
  * @dbus_connection: (nullable): The [type@Gio.DBusConnection] to use, or %NULL to use the session bus
  * @error: Error location
  *
  * Connects to a database owned by another process on the
  * local machine via DBus.
+ *
+ * When using a message bus (session/system), the @service_name argument will
+ * be used to describe the remote endpoint, either by unique or well-known D-Bus
+ * names. If not using a message bus (e.g. peer-to-peer D-Bus connections) the
+ * @service_name may be %NULL.
+ *
+ * The D-Bus object path of the remote endpoint will be given through
+ * @object_path, %NULL may be used to use the default
+ * `/org/freedesktop/Tracker3/Endpoint` path.
+ *
+ * The D-Bus connection used to set up the connection may be given through
+ * the @dbus_connection argument. Using %NULL will resort to the default session
+ * bus.
  *
  * Returns: (transfer full): a new `TrackerSparqlConnection`.
  */
@@ -1285,9 +1295,11 @@ tracker_sparql_connection_bus_new (const gchar      *service,
                                    GDBusConnection  *conn,
                                    GError          **error)
 {
-	g_return_val_if_fail (service != NULL, NULL);
 	g_return_val_if_fail (!conn || G_IS_DBUS_CONNECTION (conn), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
+	g_return_val_if_fail ((service == NULL && conn &&
+	                       (g_dbus_connection_get_flags (conn) & G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION) == 0) ||
+	                      (service != NULL && g_dbus_is_name (service)), NULL);
 
 	if (!object_path)
 		object_path = "/org/freedesktop/Tracker3/Endpoint";
