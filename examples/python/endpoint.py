@@ -41,8 +41,6 @@ def main():
 
     # The database schemas.
     ontology_path = Tracker.sparql_get_ontology_nepomuk()
-    if 'TEST_ONTOLOGIES_DIR' in os.environ:
-        ontology_path = Gio.File.new_for_path(os.environ['TEST_ONTOLOGIES_DIR'])
 
     cancellable = None
 
