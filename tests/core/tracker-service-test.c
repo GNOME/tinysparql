@@ -195,7 +195,7 @@ test_sparql_query (TestInfo      *test_info,
 	test_prefix = g_build_filename (prefix, test_info->test_name, NULL);
 	g_free (prefix);
 
-	ontology = g_file_new_for_path (TEST_ONTOLOGIES_DIR);
+	ontology = tracker_sparql_get_ontology_nepomuk ();
 	local = tracker_sparql_connection_new (0, NULL, ontology, NULL, &error);
 	g_assert_no_error (error);
 	g_object_unref (ontology);
