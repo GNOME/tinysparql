@@ -92,6 +92,7 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
     direct_files,
     remote_files,
     tracker_gresources,
+    tracker_nepomuk_gresources,
 
     c_args: [
 	'-include', 'libtracker-sparql/tracker-private.h',

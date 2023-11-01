@@ -110,5 +110,5 @@ tracker_sparql_get_uuid_urn (void)
 GFile *
 tracker_sparql_get_ontology_nepomuk (void)
 {
-	return g_file_new_for_path (SHAREDIR "/tracker3/ontologies/nepomuk");
+	return g_file_new_for_uri ("resource://org/freedesktop/tracker/nepomuk");
 }
