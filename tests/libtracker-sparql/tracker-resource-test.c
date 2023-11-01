@@ -392,7 +392,7 @@ test_resource_load (void)
 	tracker_resource_add_take_relation (content, "nmm:artist", artist);
 
 	/* Create connection */
-	nepomuk = g_file_new_for_path (TEST_ONTOLOGIES_DIR);
+	nepomuk = tracker_sparql_get_ontology_nepomuk ();
 	connection = tracker_sparql_connection_new (0, NULL, nepomuk, NULL, &error);
 	g_assert_no_error (error);
 	namespaces = tracker_sparql_connection_get_namespace_manager (connection);

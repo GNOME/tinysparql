@@ -53,17 +53,17 @@ get_namespace (int namespace)
 TrackerSparqlConnection *
 create_local_connection (void)
 {
-        TrackerSparqlConnection *conn;
-        GFile *ontology;
-        GError *error = NULL;
+	TrackerSparqlConnection *conn;
+	GFile *ontology;
+	GError *error = NULL;
 
-        ontology = g_file_new_for_path (TEST_ONTOLOGIES_DIR);
+	ontology = tracker_sparql_get_ontology_nepomuk ();
 
-        conn = tracker_sparql_connection_new (0, NULL, ontology, NULL, &error);
-        g_object_unref (ontology);
-        g_assert_no_error (error);
+	conn = tracker_sparql_connection_new (0, NULL, ontology, NULL, &error);
+	g_object_unref (ontology);
+	g_assert_no_error (error);
 
-        return conn;
+	return conn;
 }
 
 static gpointer

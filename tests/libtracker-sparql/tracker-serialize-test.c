@@ -229,17 +229,17 @@ populate_data (TrackerSparqlConnection *conn)
 TrackerSparqlConnection *
 create_local_connection (GError **error)
 {
-        TrackerSparqlConnection *conn;
-        GFile *ontology;
+	TrackerSparqlConnection *conn;
+	GFile *ontology;
 
-        ontology = g_file_new_for_path (TEST_ONTOLOGIES_DIR);
+	ontology = tracker_sparql_get_ontology_nepomuk ();
 
-        conn = tracker_sparql_connection_new (0, NULL, ontology, NULL, error);
-        g_object_unref (ontology);
+	conn = tracker_sparql_connection_new (0, NULL, ontology, NULL, error);
+	g_object_unref (ontology);
 
-        populate_data (conn);
+	populate_data (conn);
 
-        return conn;
+	return conn;
 }
 
 static gpointer
