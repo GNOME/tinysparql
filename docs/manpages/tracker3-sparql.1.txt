@@ -8,10 +8,16 @@ tracker3-sparql - Use SparQL to query the Tracker databases.
 == SYNOPSIS
 
 ....
-tracker3 sparql -q <sparql> [-u] | -f <file> [-a <parameter>:<value>]
-tracker3 sparql -t [class] [-s <needle>] [-p]
-tracker3 sparql [-c] [-p] [-x] [-n [class]] [-i [property]] [-s <needle>]
-tracker3 sparql [--get-longhand <class>] [--get-shorthand <class>]
+tracker3 sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>]
+    [(-q | --query) <sparql> | (-f | --file) <file>] [(-u | --update)] [-a <parameter>:<value>]...
+tracker3 sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>]
+    [(-t | --tree)] [(-t | --tree) <class>] [(-p | --list-properties)] [(-s | --search) <needle>]
+tracker3 sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [(-c | --list-classes)]
+tracker3 sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [(-p | --list-properties)]
+tracker3 sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [(-i | --list-indexes)]
+tracker3 sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [(-n | --list-notifies)]
+tracker3 sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [(-g | --list-graphs)]
+tracker3 sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [--get-longhand <class>] [--get-shorthand <class>]
 ....
 
 == DESCRIPTION
@@ -32,7 +38,12 @@ The _file_ argument can be either a local path or a URI. It also does
 not have to be an absolute path.
 
 == OPTIONS
-
+*-b, --dbus-service=<__service_name__>*::
+  Connects to a SPARQL endpoint at a D-Bus name.
+*-d, --database-path=<__database_path__>*::
+  Connects to a database by location in the filesystem.
+*-r, --remote-service=<__url__>*::
+  Connects to a HTTP SPARQL endpoint.
 *-f, --file=<__file__>*::
   Use a _file_ with SPARQL content to query or update.
 *-q, --query=<__sparql__>*::
@@ -62,33 +73,13 @@ not have to be an absolute path.
   _http://www.w3.org/2000/01/rdf-schema#Resource_ is one of many classes
   which should be returned here.
 *-x, --list-class-prefixes*::
-  Returns a list of classes and their related prefixes. Prefixes are
-  used to make querying a lot simpler and are much like an alias. For
-  example, _http://www.w3.org/2000/01/rdf-schema#Resource_ has the
-  prefix _rdfs_ so queries can be cut down to:
-
-"SELECT ?u WHERE \{ ?u a rdfs:Resource }"
-
+  Returns a list of prefixes in shortened and long form. All RDF classes
+  and properties have such a prefix that may be expressed in either form.
 *-p, --list-properties=[_class_]*::
   Returns a list of properties which pertain to a _class_. You can use
   both formats here for the _class_, either the full name
   _http://tracker.api.gnome.org/ontology/v3/nfo#Video_ or
-  the shortened prefix name _nfo:Video_.
-
-This gives the following result:
-
-----
-$ tracker3 sparql -p nfo:Video
-
-Properties: 2
-  http://tracker.api.gnome.org/ontology/v3/nfo#frameRate
-  http://tracker.api.gnome.org/ontology/v3/nfo#frameCount
-----
-
-These properties _nfo:frameRate_ and _nfo:frameCount_ can then be used
-in queries.
-
-See also *--tree* and *--query*.
+  the shortened prefix name _nfo:Video_. See also *--tree* and *--query*.
 
 *-n, --list-notifies=[_class_]*::
   Returns a list of classes which are notified over D-Bus about any
@@ -102,26 +93,14 @@ See also *--tree* and *--query*.
   _property_ does not have to be supplied here. This is optional and
   filters the results according to any argument supplied. With no
   _property_, all properties are listed.
-* -g, --list-graphs::
+*-g, --list-graphs*::
   List all the named graphs in the database. These are used by the
   filesystem miner to separate metadata so that apps can only see
   the information relevant to them.
 *-t, --tree=[_class_]*::
   Prints a tree showing all parent classes of _class_ in the ontology.
   The _class_ can be provided in shorthand or longhand (see
-  *--get-shorthand* and *--get-longhand* for details). For example:
-
-----
-$ tracker3 sparql -t nmo:MMSMessage
-ROOT
-  +-- rdfs:Resource (C)
-  |  +-- nie:InformationElement (C)
-  |  |  +-- nfo:Document (C)
-  |  |  |  +-- nfo:TextDocument (C)
-  |  |  |  |  `-- nmo:Message (C)
-  |  |  |  |  |  +-- nmo:PhoneMessage (C)
-  |  |  |  |  |  |  `-- nmo:MMSMessage (C)
-----
+  *--get-shorthand* and *--get-longhand* for details).
 
 If no _class_ is given, the entire tree is shown.
 
@@ -129,194 +108,33 @@ The *--search* command line option can be used to highlight parts of the
 tree you're looking for. The search is case insensitive.
 
 The *--properties* command line option can be used to show properties
-for each class displayed, for example:
-
-----
-$ tracker3 sparql -t nfo:FileDataObject -p
-ROOT
-  +-- rdfs:Resource (C)
-  |  --> http://purl.org/dc/elements/1.1/contributor (P)
-  |  --> http://purl.org/dc/elements/1.1/coverage (P)
-  |  --> http://purl.org/dc/elements/1.1/creator (P)
-  |  --> http://purl.org/dc/elements/1.1/date (P)
-  |  --> http://purl.org/dc/elements/1.1/description (P)
-  |  --> http://purl.org/dc/elements/1.1/format (P)
-  |  --> http://purl.org/dc/elements/1.1/identifier (P)
-  |  --> http://purl.org/dc/elements/1.1/language (P)
-  |  --> http://purl.org/dc/elements/1.1/publisher (P)
-  |  --> http://purl.org/dc/elements/1.1/relation (P)
-  |  --> http://purl.org/dc/elements/1.1/rights (P)
-  |  --> http://purl.org/dc/elements/1.1/source (P)
-  |  --> http://purl.org/dc/elements/1.1/subject (P)
-  |  --> http://purl.org/dc/elements/1.1/title (P)
-  |  --> http://purl.org/dc/elements/1.1/type (P)
-  |  --> nao:deprecated (P)
-  |  --> nao:hasTag (P)
-  |  --> nao:identifier (P)
-  |  --> nao:isRelated (P)
-  |  --> nao:lastModified (P)
-  |  --> nao:numericRating (P)
-  |  --> rdf:type (P)
-  |  --> rdfs:comment (P)
-  |  --> rdfs:label (P)
-  |  --> nrl:added (P)
-  |  --> nrl:damaged (P)
-  |  --> nrl:modified (P)
-  |  +-- nie:DataObject (C)
-  |  |  --> nfo:belongsToContainer (P)
-  |  |  --> nie:byteSize (P)
-  |  |  --> nie:created (P)
-  |  |  --> nie:dataSource (P)
-  |  |  --> nie:interpretedAs (P)
-  |  |  --> nie:isPartOf (P)
-  |  |  --> nie:lastRefreshed (P)
-  |  |  --> nie:url (P)
-  |  |  --> tracker:available (P)
-  |  |  +-- nfo:FileDataObject (C)
-  |  |  |  --> nfo:fileCreated (P)
-  |  |  |  --> nfo:fileLastAccessed (P)
-  |  |  |  --> nfo:fileLastModified (P)
-  |  |  |  --> nfo:fileName (P)
-  |  |  |  --> nfo:fileOwner (P)
-  |  |  |  --> nfo:fileSize (P)
-  |  |  |  --> nfo:hasHash (P)
-  |  |  |  --> nfo:permissions (P)
-----
+for each class displayed
 
 *-s, --search=<__needle__>*::
   Returns a list of classes and properties which partially match
-  _needle_ in the ontology. This is a case insensitive match, for
-  example:
-
-----
-$ tracker3 sparql -s text
-
-Classes: 4
-  http://tracker.api.gnome.org/ontology/v3/nfo#TextDocument
-  http://tracker.api.gnome.org/ontology/v3/nfo#PlainTextDocument
-  http://tracker.api.gnome.org/ontology/v3/nfo#PaginatedTextDocument
-  http://tracker.api.gnome.org/ontology/v3/nmm#SynchronizedText
-
-Properties: 4
-  http://tracker.api.gnome.org/ontology/v3/tracker#fulltextIndexed
-  http://tracker.api.gnome.org/ontology/v3/nie#plainTextContent
-  http://tracker.api.gnome.org/ontology/v3/nmo#plainTextMessageContent
-  http://tracker.api.gnome.org/ontology/v3/scal#textLocation
-----
-
-See also *--tree*.
+  _needle_ in the ontology. Search is case insensitive. See also *--tree*.
 
 *--get-shorthand=<__class__>*::
-  Returns the shorthand for a class given by a URL. For example:
-
-----
-$ tracker3 sparql --get-shorthand http://tracker.api.gnome.org/ontology/v3/nmo#plainTextMessageContent
-nmo:plainTextMessageContent
-----
+  Returns the shorthand for a class given by a URL.
 
 *--get-longhand=<__class__>*::
   Returns the longhand for a class given in the form of CLASS:PROPERTY.
-  For example:
-
-----
-$ tracker3 sparql --get-longhand nmm:MusicPiece
-http://tracker.api.gnome.org/ontology/v3/nmm#MusicPiece
-----
 
 == EXAMPLES
 
-List all classes::
-+
-....
-$ tracker3 sparql -q "SELECT ?cl WHERE { ?cl a rdfs:Class }"
-....
-
-List all properties for the Resources class (see --list-properties)::
+Querying a D-Bus endpoint::
 +
 ----
-$ tracker3 sparql -q "SELECT ?prop WHERE {
-    ?prop a rdf:Property ;
-    rdfs:domain <http://www.w3.org/2000/01/rdf-schema#Resource>
-}"
+$ tracker3 sparql --dbus-service org.example.Endpoint -q "SELECT ('Hello World' AS ?str) {}"
 ----
 
-List all class namespace prefixes::
+Updating a database directly from a query in a file::
 +
 ----
-$ tracker3 sparql -q "SELECT ?prefix ?ns WHERE {
-    ?ns a nrl:Namespace ;
-    nrl:prefix ?prefix
-}"
+$ tracker3 sparql --database /tmp/db/ --update --file ./update.rq
 ----
 
-List all music files::
-+
-----
-$ tracker3 sparql -q "SELECT ?song WHERE { ?song a nmm:MusicPiece }"
-----
-
-List all music albums, showing title, track count, and length in seconds.::
-+
-----
-$ tracker3 sparql -q "SELECT ?title COUNT(?song)
-                      AS songs
-                      SUM(?length) AS totallength
-                      WHERE {
-    ?album a nmm:MusicAlbum ;
-    nie:title ?title .
-    ?song nmm:musicAlbum ?album ;
-    nfo:duration ?length
-} GROUP BY ?album"
-----
-
-List all music from a particular artist::
-+
-----
-$ tracker3 sparql -q "SELECT ?song ?title WHERE {
-    ?song nmm:performer [ nmm:artistName 'Artist Name' ] ;
-    nie:title ?title
-}"
-----
-
-Set the played count for a song::
-+
-----
-$ tracker3 sparql -u -q "DELETE {
-    <file:///home/user/Music/song.mp3> nie:usageCounter ?count
-} WHERE {
-    <file:///home/user/Music/song.mp3> nie:usageCounter ?count
-} INSERT {
-    <file:///home/user/Music/song.mp3> nie:usageCounter 42
-}"
-----
-
-List all image files::
-+
-----
-$ tracker3 sparql -q "SELECT ?image WHERE { ?image a nfo:Image }"
-----
-
-List all image files with a specific tag::
-+
-----
-$ tracker3 sparql -q "SELECT ?image WHERE {
-    ?image a nfo:Image ;
-    nao:hasTag [ nao:prefLabel 'tag' ]
-}"
-----
-
-List all image files created on a specific month and order by date::
-+
-----
-$ tracker3 sparql -q "SELECT ?image ?date WHERE {
-    ?image a nfo:Image ;
-    nie:contentCreated ?date .
-    FILTER (?date >= '2008-07-01T00:00:00' &&
-            ?date <  '2008-08-01T00:00:00')
-} ORDER BY ?date"
-----
-
-Using *--arg* to provide arguments to query parameters::
+Using *--arg* to provide a arguments to query parameters::
 +
 ----
 $ tracker3 sparql -b org.example.Endpoint \
@@ -324,9 +142,14 @@ $ tracker3 sparql -b org.example.Endpoint \
     -a name:s:"John" -a age:i:42 -a available:b:true
 ----
 
+Introspecting details of a D-Bus endpoint::
++
+----
+$ tracker3 sparql -b org.example.Endpoint -tree --list-properties
+----
+
 == SEE ALSO
 
-*tracker3-sql*(1), *tracker3-info*(1).
+*tracker3-endpoint*(1).
 
-*http://nepomuk.semanticdesktop.org/*
-*http://www.w3.org/TR/rdf-sparql-query/*
+<https://gnome.pages.gitlab.gnome.org/tracker/tutorial.html>.
