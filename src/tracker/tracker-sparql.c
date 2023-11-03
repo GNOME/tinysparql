@@ -106,6 +106,7 @@ static gchar *search;
 static gchar *database_path;
 static gchar *dbus_service;
 static gchar *remote_service;
+static gchar **args;
 
 static GOptionEntry entries[] = {
 	{ "database", 'd', 0, G_OPTION_ARG_FILENAME, &database_path,
@@ -171,6 +172,10 @@ static GOptionEntry entries[] = {
 	{ "get-longhand", 0, 0, G_OPTION_ARG_STRING, &get_longhand,
 	  N_("Returns the full namespace for a class."),
 	  N_("CLASS"),
+	},
+	{ "arg", 'a', 0, G_OPTION_ARG_STRING_ARRAY, &args,
+	  N_("Provides an argument for a query parameter."),
+	  N_("PARAMETER:TYPE:VALUE"),
 	},
 	{ NULL }
 };
@@ -996,13 +1001,73 @@ print_namespaces (gpointer key,
 	g_print ("%s: %s\n", (gchar*) key, (gchar*) value);
 }
 
+static gboolean
+bind_arguments (TrackerSparqlStatement  *stmt,
+                gchar                  **args)
+{
+	int i;
+
+	for (i = 0; args && args[i]; i++) {
+		gchar **pair;
+
+		pair = g_strsplit (args[i], ":", 3);
+		if (g_strv_length (pair) != 3) {
+			g_printerr (_("Invalid argument string %s"), args[i]);
+			g_printerr ("\n");
+			return FALSE;
+		}
+
+		if (strlen (pair[1]) != 1 ||
+		    (pair[1][0] != 'i' &&
+		     pair[1][0] != 'd' &&
+		     pair[1][0] != 'b' &&
+		     pair[1][0] != 's')) {
+			g_printerr (_("Invalid parameter type for argument %s"), pair[0]);
+			g_printerr ("\n");
+			g_strfreev (pair);
+			return FALSE;
+		}
+
+		switch (pair[1][0]) {
+		case 'i': {
+			gint64 val;
+
+			val = strtol (pair[2], NULL, 10);
+			tracker_sparql_statement_bind_int (stmt, pair[0], val);
+			break;
+		}
+		case 'd': {
+			gdouble val;
+
+			val = strtod (pair[2], NULL);
+			tracker_sparql_statement_bind_int (stmt, pair[0], val);
+			break;
+		}
+		case 'b': {
+			gboolean val;
+
+			val = pair[2][0] == 't' || pair[2][0] == 'T' || pair[2][0] == '1';
+			tracker_sparql_statement_bind_boolean (stmt, pair[0], val);
+			break;
+		}
+		case 's':
+			tracker_sparql_statement_bind_string (stmt, pair[0], pair[2]);
+			break;
+		}
+
+		g_strfreev (pair);
+	}
+
+	return TRUE;
+}
+
 static int
 sparql_run (void)
 {
 	TrackerSparqlConnection *connection;
 	TrackerNamespaceManager *namespaces;
 	TrackerSparqlStatement *stmt;
-	TrackerSparqlCursor *cursor;
+	TrackerSparqlCursor *cursor = NULL;
 	GError *error = NULL;
 	gint retval = EXIT_SUCCESS;
 
@@ -1231,7 +1296,19 @@ sparql_run (void)
 
 	if (query) {
 		if (G_UNLIKELY (update)) {
-			tracker_sparql_connection_update (connection, query, NULL, &error);
+			stmt = tracker_sparql_connection_update_statement (connection,
+			                                                   query,
+			                                                   NULL,
+			                                                   &error);
+
+			if (stmt) {
+				if (!bind_arguments (stmt, args)) {
+					retval = EXIT_FAILURE;
+					goto out;
+				}
+
+				tracker_sparql_statement_update (stmt, NULL, &error);
+			}
 
 			if (error) {
 				g_printerr ("%s, %s\n",
@@ -1244,7 +1321,19 @@ sparql_run (void)
 
 			g_print ("%s\n", _("Done"));
 		} else {
-			cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+			stmt = tracker_sparql_connection_query_statement (connection,
+			                                                  query,
+			                                                  NULL,
+			                                                  &error);
+
+			if (stmt) {
+				if (!bind_arguments (stmt, args)) {
+					retval = EXIT_FAILURE;
+					goto out;
+				}
+
+				cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+			}
 
 			if (error) {
 				g_printerr ("%s, %s\n",

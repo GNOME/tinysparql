@@ -8,7 +8,7 @@ tracker3-sparql - Use SparQL to query the Tracker databases.
 == SYNOPSIS
 
 ....
-tracker3 sparql -q <sparql> [-u] | -f <file>
+tracker3 sparql -q <sparql> [-u] | -f <file> [-a <parameter>:<value>]
 tracker3 sparql -t [class] [-s <needle>] [-p]
 tracker3 sparql [-c] [-p] [-x] [-n [class]] [-i [property]] [-s <needle>]
 tracker3 sparql [--get-longhand <class>] [--get-shorthand <class>]
@@ -42,6 +42,20 @@ not have to be an absolute path.
   the SPARQL update extensions so it knows it isn't a regular data
   lookup request. So if your query is intended to change data in the
   database, this option is needed.
+*-a, --arg=<__parameter__>:<__value__>*::
+  Provides an argument for a parameter declared in the SPARQL query string.
+  This may be used with *--file*, *--query* or *--update*. Multiple arguments
+  may be provided for multiple parameters.
+  Argument values are provided as a colon separated string containing 3
+  values: name, type and value. The name is the same as used in the query
+  string, the value is the desired value, and the type is a single-character
+  string defining the type:
+
+** *i*: The value will describe an integer
+** *d*: The value will describe a floating point number
+** *b*: The value will describe a boolean
+** *s*: The value will describe a plain string
+
 *-c, --list-classes*::
   Returns a list of classes which describe the ontology used for storing
   data. These classes are also used in queries. For example,
@@ -300,6 +314,14 @@ $ tracker3 sparql -q "SELECT ?image ?date WHERE {
     FILTER (?date >= '2008-07-01T00:00:00' &&
             ?date <  '2008-08-01T00:00:00')
 } ORDER BY ?date"
+----
+
+Using *--arg* to provide arguments to query parameters::
++
+----
+$ tracker3 sparql -b org.example.Endpoint \
+    -q "SELECT (~name AS ?name) (~age AS ?age) (~available AS ?avail) { }" \
+    -a name:s:"John" -a age:i:42 -a available:b:true
 ----
 
 == SEE ALSO
