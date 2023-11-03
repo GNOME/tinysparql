@@ -1,5 +1,5 @@
 project('tracker', 'c',
-        version: '3.6.0',
+        version: '3.7.alpha',
         meson_version: '>=0.62',
         default_options: [
           'c_std=c99',
@@ -18,7 +18,11 @@ tracker_versioned_name = 'tracker@0@'.format(tracker_api_major)
 tracker_version = meson.project_version().split('-')[0]
 tracker_major_version = tracker_version.split('.')[0].to_int()
 tracker_minor_version = tracker_version.split('.')[1].to_int()
-tracker_micro_version = 0
+version_micro = tracker_version.split('.')[2]
+if version_micro.to_upper() != version_micro.to_lower()
+    version_micro = '0'
+endif
+tracker_micro_version = version_micro.to_int()
 tracker_interface_age = 0
 tracker_binary_age = 100 * tracker_minor_version + tracker_micro_version - tracker_interface_age
 
