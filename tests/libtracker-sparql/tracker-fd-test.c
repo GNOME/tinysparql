@@ -444,22 +444,22 @@ test_tracker_sparql_update_blank_async (gpointer      *fixture,
 TrackerSparqlConnection *
 create_local_connection (GError **error)
 {
-        TrackerSparqlConnection *conn;
-        GFile *store, *ontology;
-        gchar *path;
+	TrackerSparqlConnection *conn;
+	GFile *store, *ontology;
+	gchar *path;
 
-        path = g_build_filename (g_get_tmp_dir (), "libtracker-sparql-test-XXXXXX", NULL);
-        g_mkdtemp_full (path, 0700);
-        store = g_file_new_for_path (path);
-        g_free (path);
+	path = g_build_filename (g_get_tmp_dir (), "libtracker-sparql-test-XXXXXX", NULL);
+	g_mkdtemp_full (path, 0700);
+	store = g_file_new_for_path (path);
+	g_free (path);
 
-        ontology = g_file_new_for_path (TEST_ONTOLOGIES_DIR);
+	ontology = tracker_sparql_get_ontology_nepomuk ();
 
-        conn = tracker_sparql_connection_new (0, store, ontology, NULL, error);
-        g_object_unref (store);
-        g_object_unref (ontology);
+	conn = tracker_sparql_connection_new (0, store, ontology, NULL, error);
+	g_object_unref (store);
+	g_object_unref (ontology);
 
-        return conn;
+	return conn;
 }
 
 static gpointer

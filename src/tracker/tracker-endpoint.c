@@ -410,9 +410,13 @@ tracker_endpoint (int argc, const char **argv)
 	if (ontology_path) {
 		ontology = g_file_new_for_commandline_arg (ontology_path);
 	} else if (ontology_name) {
-		gchar *path = g_build_filename (SHAREDIR, "tracker3", "ontologies", ontology_name, NULL);
-		ontology = g_file_new_for_path (path);
-		g_free (path);
+		if (g_strcmp0 (ontology_name, "nepomuk") == 0) {
+			ontology = tracker_sparql_get_ontology_nepomuk ();
+		} else {
+			gchar *path = g_build_filename (SHAREDIR, "tracker3", "ontologies", ontology_name, NULL);
+			ontology = g_file_new_for_path (path);
+			g_free (path);
+		}
 	}
 
 	g_assert (ontology != NULL);

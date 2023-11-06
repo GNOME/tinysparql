@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/freedesktop/tracker">
+    <file compressed="true">nepomuk/30-nie.ontology</file>
+    <file compressed="true">nepomuk/31-nao.ontology</file>
+    <file compressed="true">nepomuk/32-nco.ontology</file>
+    <file compressed="true">nepomuk/33-nfo.ontology</file>
+    <file compressed="true">nepomuk/38-nmm.ontology</file>
+    <file compressed="true">nepomuk/41-mfo.ontology</file>
+    <file compressed="true">nepomuk/90-tracker.ontology</file>
+    <file compressed="true">nepomuk/92-slo.ontology</file>
+    <file compressed="true">nepomuk/93-libosinfo.ontology</file>
+  </gresource>
+</gresources>

@@ -40,7 +40,7 @@ create_local_connection (GError **error)
         store = g_file_new_for_path (path);
         g_free (path);
 
-        ontology = g_file_new_for_path (TEST_ONTOLOGIES_DIR);
+        ontology = tracker_sparql_get_ontology_nepomuk ();
 
         conn = tracker_sparql_connection_new (0, store, ontology, NULL, error);
         g_object_unref (store);

@@ -40,8 +40,6 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
         """Create a database using `tracker3 endpoint` for local testing"""
 
         with self.tmpdir() as tmpdir:
-            ontology_path = configuration.ontologies_dir()
-
             # Create the database
             self.run_cli(
                 [
@@ -49,8 +47,8 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
                     "endpoint",
                     "--database",
                     tmpdir,
-                    "--ontology-path",
-                    ontology_path,
+                    "--ontology",
+                    "nepomuk",
                 ]
             )
 
@@ -70,8 +68,6 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
         """Export contents of a Tracker database."""
 
         with self.tmpdir() as tmpdir:
-            ontology_path = configuration.ontologies_dir()
-
             # Create a database and export it as Turtle.
             # We don't validate the output in this test, but we should.
             self.run_cli(
@@ -80,8 +76,8 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
                     "endpoint",
                     "--database",
                     tmpdir,
-                    "--ontology-path",
-                    ontology_path,
+                    "--ontology",
+                    "nepomuk",
                 ]
             )
             self.run_cli(["tracker3", "export", "--database", tmpdir])
@@ -93,16 +89,14 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
         testdata = str(self.data_path("serialized/test-movie.ttl"))
 
         with self.tmpdir() as tmpdir:
-            ontology_path = configuration.ontologies_dir()
-
             self.run_cli(
                 [
                     "tracker3",
                     "endpoint",
                     "--database",
                     tmpdir,
-                    "--ontology-path",
-                    ontology_path,
+                    "--ontology",
+                    "nepomuk",
                 ]
             )
             self.run_cli(["tracker3", "import", "--database", tmpdir, testdata])
@@ -111,7 +105,6 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
         """Create a HTTP endpoint for local testing"""
 
         with self.tmpdir() as tmpdir:
-            ontology_path = configuration.ontologies_dir()
             port = random.randint(32000, 65000)
             address = "http://127.0.0.1:%d/sparql" % port
 
@@ -122,8 +115,8 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
                     "endpoint",
                     "--database",
                     tmpdir,
-                    "--ontology-path",
-                    ontology_path,
+                    "--ontology",
+                    "nepomuk",
                     "--http-port",
                     port,
                 ],

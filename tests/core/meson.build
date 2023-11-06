@@ -1,7 +1,3 @@
-data_test_c_args = test_c_args + [
-  '-DTEST_ONTOLOGIES_DIR="@0@"'.format(tracker_uninstalled_nepomuk_ontologies_dir),
-]
-
 libtracker_data_tests = [
     'initialization',
     'ontology-change',
@@ -24,7 +20,7 @@ foreach base_name: libtracker_data_tests
 
     binary = executable(binary_name, source,
       dependencies: libtracker_data_test_deps,
-      c_args: data_test_c_args)
+      c_args: test_c_args)
 
     tests += {
       'name': base_name,
@@ -39,7 +35,7 @@ foreach base_name: libtracker_data_slow_tests
 
     binary = executable(binary_name, source,
       dependencies: libtracker_data_test_deps,
-      c_args: data_test_c_args)
+      c_args: test_c_args)
 
       tests += {
         'name': base_name,

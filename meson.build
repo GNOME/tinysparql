@@ -1,5 +1,5 @@
 project('tracker', 'c',
-        version: '3.6.0',
+        version: '3.7.alpha',
         meson_version: '>=0.62',
         default_options: [
           'c_std=c99',
@@ -18,7 +18,11 @@ tracker_versioned_name = 'tracker@0@'.format(tracker_api_major)
 tracker_version = meson.project_version().split('-')[0]
 tracker_major_version = tracker_version.split('.')[0].to_int()
 tracker_minor_version = tracker_version.split('.')[1].to_int()
-tracker_micro_version = 0
+version_micro = tracker_version.split('.')[2]
+if version_micro.to_upper() != version_micro.to_lower()
+    version_micro = '0'
+endif
+tracker_micro_version = version_micro.to_int()
 tracker_interface_age = 0
 tracker_binary_age = 100 * tracker_minor_version + tracker_micro_version - tracker_interface_age
 
@@ -374,10 +378,6 @@ po_subdir = join_paths(source_root, 'po')
 
 tracker_internal_libs_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tracker-' + tracker_api_version)
 
-# NOTE: We don't use ${TRACKER_API_VERSION} because other content like
-# the ontology is installed to the same location.
-tracker_ontologies_dir = join_paths(get_option('prefix'), get_option('datadir'), tracker_versioned_name, 'ontologies')
-
 if gobject_introspection.found()
   typelib_dir = gobject_introspection.get_variable(pkgconfig: 'typelibdir',
                                                    pkgconfig_define: [ 'libdir', libdir ])
@@ -393,7 +393,6 @@ test_c_args = tracker_c_args + [
 ]
 
 tracker_uninstalled_cli_dir = join_paths(meson.current_build_dir(), 'src', 'tracker')
-tracker_uninstalled_nepomuk_ontologies_dir = join_paths(meson.current_source_dir(), 'src', 'ontologies', 'nepomuk')
 tracker_uninstalled_testutils_dir = join_paths(meson.current_source_dir(), 'utils')
 
 if get_option('tests')

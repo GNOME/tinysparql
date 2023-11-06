@@ -142,7 +142,7 @@ main (int argc, char *argv[])
 	g_mkdtemp (test_data_dir);
 
 	cache = g_file_new_for_path (test_data_dir);
-	ontology = g_file_new_for_path (TEST_ONTOLOGIES_DIR);
+	ontology = tracker_sparql_get_ontology_nepomuk ();
 
 	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
 	                                      cache,

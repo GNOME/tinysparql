@@ -92,6 +92,7 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
     direct_files,
     remote_files,
     tracker_gresources,
+    tracker_nepomuk_gresources,
 
     c_args: [
 	'-include', 'libtracker-sparql/tracker-private.h',
@@ -144,7 +145,6 @@ pkg.generate(libtracker_sparql,
     variables: [
         'exec_prefix=${prefix}',
         'tracker_datadir=${datadir}/' + tracker_versioned_name,
-        'ontologies_dir=${tracker_datadir}/ontologies',
     ],
 )
 
