@@ -49,10 +49,17 @@
  * given the object will be at the default `/org/freedesktop/Tracker3/Endpoint`
  * location.
  *
- * Access to these endpoints may be transparently managed through
- * the Tracker portal service for applications sandboxed via Flatpak, and
- * access to data constrained to the graphs defined in the applications
- * manifest.
+ * Access to D-Bus endpoints may be managed via the
+ * [signal@Tracker.EndpointDBus::block-call] signal, the boolean
+ * return value expressing whether the request is blocked or not.
+ * Inspection of the requester address is left up to the user. The
+ * default value allows all requests independently of their provenance.
+ *
+ * However, moderating access to D-Bus interfaces is typically not necessary
+ * in user code, as access to public D-Bus endpoints will be transparently
+ * managed through the Tracker portal service for applications sandboxed
+ * via XDG portals. These already have access to D-Bus SPARQL endpoints and
+ * their data naturally filtered as defined in the application manifest.
  *
  * A `TrackerEndpointDBus` may be created on a different thread/main
  * context from the one that created [class@Tracker.SparqlConnection].
@@ -113,6 +120,11 @@ static const gchar introspection_xml[] =
 	"</node>";
 
 enum {
+	BLOCK_CALL,
+	N_SIGNALS
+};
+
+enum {
 	PROP_0,
 	PROP_DBUS_CONNECTION,
 	PROP_OBJECT_PATH,
@@ -147,12 +159,27 @@ typedef struct {
 	gchar *prologue;
 } UpdateBlankRequest;
 
-GParamSpec *props[N_PROPS] = { 0 };
+static GParamSpec *props[N_PROPS] = { 0, };
+
+static guint signals[N_SIGNALS] = { 0, };
 
 static void tracker_endpoint_dbus_initable_iface_init (GInitableIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (TrackerEndpointDBus, tracker_endpoint_dbus, TRACKER_TYPE_ENDPOINT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, tracker_endpoint_dbus_initable_iface_init))
+
+static gboolean
+tracker_endpoint_dbus_block_call (TrackerEndpointDBus   *endpoint_dbus,
+                                  GDBusMethodInvocation *invocation)
+{
+	gboolean block;
+
+	g_signal_emit (endpoint_dbus, signals[BLOCK_CALL], 0,
+	               g_dbus_method_invocation_get_sender (invocation),
+	               &block);
+
+	return block;
+}
 
 static gboolean
 tracker_endpoint_dbus_forbid_operation (TrackerEndpointDBus   *endpoint_dbus,
@@ -1103,6 +1130,14 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 	gchar *query;
 	gint handle, fd = -1;
 
+	if (tracker_endpoint_dbus_block_call (endpoint_dbus, invocation)) {
+		g_dbus_method_invocation_return_error (invocation,
+		                                       G_DBUS_ERROR,
+		                                       G_DBUS_ERROR_ACCESS_DENIED,
+		                                       "Operation not allowed");
+		return;
+	}
+
 	conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (endpoint_dbus));
 	fd_list = g_dbus_message_get_unix_fd_list (g_dbus_method_invocation_get_message (invocation));
 
@@ -1506,6 +1541,25 @@ tracker_endpoint_dbus_class_init (TrackerEndpointDBusClass *klass)
 	object_class->finalize = tracker_endpoint_dbus_finalize;
 	object_class->set_property = tracker_endpoint_dbus_set_property;
 	object_class->get_property = tracker_endpoint_dbus_get_property;
+
+	/**
+	 * TrackerEndpointHttp::block-call:
+	 * @self: The `TrackerEndpointDBus`
+	 * @address: The D-Bus unique name of the remote connection
+	 *
+	 * Allows control over the connections stablished. The given
+	 * address is that of the requesting peer.
+	 *
+	 * Returning %FALSE in this handler allows the connection,
+	 * returning %TRUE blocks it. The default with no signal
+	 * handlers connected is %FALSE.
+	 */
+	signals[BLOCK_CALL] =
+		g_signal_new ("block-call",
+		              TRACKER_TYPE_ENDPOINT_DBUS, 0, 0,
+		              g_signal_accumulator_first_wins, NULL, NULL,
+		              G_TYPE_BOOLEAN,
+		              1, G_TYPE_STRING);
 
 	/**
 	 * TrackerEndpointDBus:dbus-connection:

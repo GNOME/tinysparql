@@ -70,8 +70,6 @@ tracker_portal_endpoint_forbid_operation (TrackerEndpointDBus   *endpoint_dbus,
 
 	if (operation_type == TRACKER_OPERATION_TYPE_UPDATE)
 		return TRUE;
-	if (g_strcmp0 (endpoint->peer, g_dbus_method_invocation_get_sender (invocation)) != 0)
-		return TRUE;
 
 	return FALSE;
 }
@@ -198,6 +196,17 @@ peer_vanished_cb (GDBusConnection *connection,
 	g_signal_emit (endpoint, signals[CLOSED], 0);
 }
 
+static gboolean
+block_call_cb (TrackerEndpointDBus *endpoint_dbus,
+               const gchar         *sender,
+               gpointer             user_data)
+{
+	TrackerPortalEndpoint *endpoint =
+		TRACKER_PORTAL_ENDPOINT (endpoint_dbus);
+
+	return g_strcmp0 (endpoint->peer, sender) != 0;
+}
+
 static void
 tracker_portal_endpoint_constructed (GObject *object)
 {
@@ -216,6 +225,9 @@ tracker_portal_endpoint_constructed (GObject *object)
 
 	if (G_OBJECT_CLASS (tracker_portal_endpoint_parent_class)->constructed)
 		G_OBJECT_CLASS (tracker_portal_endpoint_parent_class)->constructed (object);
+
+	g_signal_connect (object, "block-call",
+	                  G_CALLBACK (block_call_cb), NULL);
 }
 
 static void
