@@ -349,4 +349,10 @@ gboolean tracker_resource_iterator_next (TrackerResourceIterator  *iter,
 const gchar * tracker_resource_get_identifier_internal (TrackerResource *resource);
 gboolean tracker_resource_is_blank_node (TrackerResource *resource);
 
+void tracker_endpoint_rewrite_query (TrackerEndpoint  *endpoint,
+                                     gchar           **query);
+
+gboolean tracker_endpoint_is_graph_filtered (TrackerEndpoint *endpoint,
+                                             const gchar     *graph);
+
 #endif /* __TRACKER_PRIVATE_H__ */

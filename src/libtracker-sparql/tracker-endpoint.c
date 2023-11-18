@@ -28,6 +28,8 @@ enum {
 	PROP_0,
 	PROP_SPARQL_CONNECTION,
 	PROP_READONLY,
+	PROP_ALLOWED_SERVICES,
+	PROP_ALLOWED_GRAPHS,
 	N_PROPS
 };
 
@@ -35,6 +37,9 @@ static GParamSpec *props[N_PROPS] = { 0 };
 
 typedef struct {
 	TrackerSparqlConnection *sparql_connection;
+	GStrv allowed_services;
+	GStrv allowed_graphs;
+	gchar *prologue;
 	gboolean readonly;
 } TrackerEndpointPrivate;
 
@@ -61,6 +66,15 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (TrackerEndpoint, tracker_endpoint, G_TYPE_O
  * allows SPARQL updates and RDF graph changes, endpoints will allow updates
  * and modifications to happen through them. Use [method@Tracker.Endpoint.set_readonly]
  * to change this behavior.
+ *
+ * By default, endpoints allow access to every RDF graph in the triple store
+ * and further external SPARQL endpoints to the queries performed on it. Use
+ * [method@Tracker.Endpoint.set_allowed_graphs] and
+ * [method@Tracker.Endpoint.set_allowed_services] to change this behavior. Users do
+ * not typically need to do this for D-Bus endpoints, as these do already have a layer
+ * of protection with the Tracker portal. This is the mechanism used by the portal
+ * itself. This access control API may not interoperate with other SPARQL endpoint
+ * implementations than Tracker.
  */
 
 static void
@@ -70,6 +84,9 @@ tracker_endpoint_finalize (GObject *object)
 	TrackerEndpointPrivate *priv = tracker_endpoint_get_instance_private (endpoint);
 
 	g_clear_object (&priv->sparql_connection);
+	g_clear_pointer (&priv->allowed_services, g_strfreev);
+	g_clear_pointer (&priv->allowed_graphs, g_strfreev);
+	g_clear_pointer (&priv->prologue, g_free);
 
 	G_OBJECT_CLASS (tracker_endpoint_parent_class)->finalize (object);
 }
@@ -90,6 +107,14 @@ tracker_endpoint_set_property (GObject      *object,
 	case PROP_READONLY:
 		tracker_endpoint_set_readonly (endpoint,
 		                               g_value_get_boolean (value));
+		break;
+	case PROP_ALLOWED_SERVICES:
+		tracker_endpoint_set_allowed_services (endpoint,
+		                                       g_value_get_boxed (value));
+		break;
+	case PROP_ALLOWED_GRAPHS:
+		tracker_endpoint_set_allowed_graphs (endpoint,
+		                                     g_value_get_boxed (value));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -112,6 +137,12 @@ tracker_endpoint_get_property (GObject    *object,
 		break;
 	case PROP_READONLY:
 		g_value_set_boolean (value, priv->readonly);
+		break;
+	case PROP_ALLOWED_SERVICES:
+		g_value_set_boxed (value, priv->allowed_services);
+		break;
+	case PROP_ALLOWED_GRAPHS:
+		g_value_set_boxed (value, priv->allowed_graphs);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -154,12 +185,155 @@ tracker_endpoint_class_init (TrackerEndpointClass *klass)
 		                      FALSE,
 		                      G_PARAM_READWRITE);
 
+	/**
+	 * TrackerEndpoint:allowed-services:
+	 *
+	 * External SPARQL endpoints that are allowed to be
+	 * accessed through queries to this endpint. See
+	 * tracker_endpoint_set_allowed_services().
+	 *
+	 * Since: 3.7
+	 */
+	props[PROP_ALLOWED_SERVICES] =
+		g_param_spec_boxed ("allowed-services",
+		                    NULL, NULL,
+		                    G_TYPE_STRV,
+		                    G_PARAM_READWRITE);
+
+	/**
+	 * TrackerEndpoint:allowed-graphs:
+	 *
+	 * RDF graphs that are allowed to be accessed
+	 * through queries to this endpoint. See
+	 * tracker_endpoint_set_allowed_graphs().
+	 *
+	 * Since: 3.7
+	 */
+	props[PROP_ALLOWED_GRAPHS] =
+		g_param_spec_boxed ("allowed-graphs",
+		                    NULL, NULL,
+		                    G_TYPE_STRV,
+		                    G_PARAM_READWRITE);
+
 	g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
 static void
 tracker_endpoint_init (TrackerEndpoint *endpoint)
 {
+}
+
+static void
+update_prologue (TrackerEndpoint *endpoint)
+{
+	TrackerEndpointPrivate *priv =
+		tracker_endpoint_get_instance_private (endpoint);
+	GString *str;
+	gint i;
+
+	g_clear_pointer (&priv->prologue, g_free);
+
+	if (priv->allowed_services == NULL && priv->allowed_graphs == NULL)
+		return;
+
+	str = g_string_new (NULL);
+
+	if (priv->allowed_services != NULL) {
+		g_string_append (str, "CONSTRAINT SERVICE ");
+
+		for (i = 0; priv->allowed_services[i]; i++) {
+			if (i != 0)
+				g_string_append (str, ", ");
+
+			g_string_append_printf (str, "<%s> ",
+			                        priv->allowed_services[i]);
+		}
+
+		g_string_append (str, "\n");
+	}
+
+	if (priv->allowed_graphs != NULL) {
+		g_string_append (str, "CONSTRAINT GRAPH ");
+
+		for (i = 0; priv->allowed_graphs[i]; i++) {
+			if (i != 0)
+				g_string_append (str, ", ");
+
+			if (!*priv->allowed_graphs[i]) {
+				g_string_append (str, "DEFAULT ");
+			} else {
+				TrackerNamespaceManager *namespaces;
+				TrackerSparqlConnection *conn;
+				gchar *expanded;
+
+				conn = tracker_endpoint_get_sparql_connection (endpoint);
+				namespaces = tracker_sparql_connection_get_namespace_manager (conn);
+				expanded = tracker_namespace_manager_expand_uri (namespaces,
+				                                                 priv->allowed_graphs[i]);
+				g_string_append_printf (str, "<%s> ", expanded);
+				g_free (expanded);
+			}
+		}
+	}
+
+	priv->prologue = g_string_free (str, FALSE);
+}
+
+void
+tracker_endpoint_rewrite_query (TrackerEndpoint  *endpoint,
+                                gchar           **query)
+{
+	TrackerEndpointPrivate *priv =
+		tracker_endpoint_get_instance_private (endpoint);
+	gchar *rewritten;
+
+	if (!priv->prologue)
+		return;
+
+	rewritten = g_strconcat (priv->prologue, " ", *query, NULL);
+	g_free (*query);
+	*query = rewritten;
+}
+
+gboolean
+tracker_endpoint_is_graph_filtered (TrackerEndpoint *endpoint,
+                                    const gchar     *graph)
+{
+	TrackerEndpointPrivate *priv =
+		tracker_endpoint_get_instance_private (endpoint);
+	gint i;
+
+	if (!priv->allowed_graphs)
+		return FALSE;
+
+	for (i = 0; priv->allowed_graphs[i]; i++) {
+		if (!graph && !*priv->allowed_graphs[i]) {
+			return FALSE;
+		} else if (graph) {
+			gboolean match = FALSE;
+
+			match = g_strcmp0 (graph, priv->allowed_graphs[i]) == 0;
+
+			if (!match) {
+				TrackerNamespaceManager *namespaces;
+				TrackerSparqlConnection *conn;
+				gchar *expanded;
+
+				conn = tracker_endpoint_get_sparql_connection (endpoint);
+				namespaces = tracker_sparql_connection_get_namespace_manager (conn);
+				expanded = tracker_namespace_manager_expand_uri (namespaces,
+				                                                 priv->allowed_graphs[i]);
+
+				match = g_strcmp0 (graph, expanded) == 0;
+				g_free (expanded);
+			}
+
+			if (match)
+				return FALSE;
+		}
+	}
+
+	return TRUE;
 }
 
 /**
@@ -227,4 +401,125 @@ tracker_endpoint_get_readonly (TrackerEndpoint *endpoint)
 	g_return_val_if_fail (TRACKER_IS_ENDPOINT (endpoint), FALSE);
 
 	return priv->readonly;
+}
+
+/**
+ * tracker_endpoint_set_allowed_services:
+ * @endpoint: The endpoint
+ * @services: List of allowed services, or %NULL to allow all services
+ *
+ * Sets the list of external SPARQL endpoints that this endpoint
+ * will allow access for. Access through the `SERVICE` SPARQL syntax
+ * will fail for services not specified in this list.
+ *
+ * If @services is %NULL, access will be allowed to every external endpoint,
+ * this is the default behavior. If you want to forbid access to all
+ * external SPARQL endpoints, use an empty list.
+ *
+ * This affects both remote SPARQL endpoints accessed through HTTP,
+ * and external SPARQL endpoints offered through D-Bus. For the latter,
+ * the following syntax is allowed to describe them as an URI:
+
+ * `DBUS_URI = 'dbus:' [ ('system' | 'session') ':' ]? dbus-name [ ':' object-path ]?`
+ *
+ * If the system/session part is omitted, it will default to the session
+ * bus. If the object path is omitted, the `/org/freedesktop/Tracker3/Endpoint`
+ * [class@Tracker.EndpointDBus] default will be assumed.
+ *
+ * Since: 3.7
+ **/
+void
+tracker_endpoint_set_allowed_services (TrackerEndpoint     *endpoint,
+                                       const gchar * const *services)
+{
+	TrackerEndpointPrivate *priv =
+		tracker_endpoint_get_instance_private (endpoint);
+
+	g_return_if_fail (TRACKER_IS_ENDPOINT (endpoint));
+
+	g_clear_pointer (&priv->allowed_services, g_strfreev);
+	priv->allowed_services = g_strdupv ((gchar **) services);
+	update_prologue (endpoint);
+	g_object_notify (G_OBJECT (endpoint), "allowed-services");
+}
+
+/**
+ * tracker_endpoint_get_allowed_services:
+ * @endpoint: The endpoint
+ *
+ * Returns the list of external SPARQL endpoints that are
+ * allowed to be accessed through this endpoint.
+ *
+ * Returns: (transfer full): The list of allowed services
+ *
+ * Since: 3.7
+ **/
+GStrv
+tracker_endpoint_get_allowed_services (TrackerEndpoint *endpoint)
+{
+	TrackerEndpointPrivate *priv =
+		tracker_endpoint_get_instance_private (endpoint);
+
+	g_return_val_if_fail (TRACKER_IS_ENDPOINT (endpoint), NULL);
+
+	return g_strdupv (priv->allowed_services);
+}
+
+/**
+ * tracker_endpoint_set_allowed_graphs:
+ * @endpoint: The endpoint
+ * @graphs: List of allowed graphs, or %NULL to allow all graphs
+ *
+ * Sets the list of RDF graphs that this endpoint will allow access
+ * for. Any explicit (e.g. `GRAPH` keyword) or implicit (e.g. through the
+ * default anonymous graph) access to RDF graphs unespecified in this
+ * list in SPARQL queries will be seen as if those graphs did not exist, or
+ * (equivalently) had an empty set. Changes to these graphs through SPARQL
+ * updates will also be disallowed.
+ *
+ * If @graphs is %NULL, access will be allowed to every RDF graph stored
+ * in the endpoint, this is the default behavior. If you want to forbid access
+ * to all RDF graphs, use an empty list.
+ *
+ * The empty string (`""`) is allowed as a special value, to allow access
+ * to the stock anonymous graph. All graph names are otherwise dependent
+ * on the endpoint and its contained data.
+ *
+ * Since: 3.7
+ **/
+void
+tracker_endpoint_set_allowed_graphs (TrackerEndpoint     *endpoint,
+                                     const gchar * const *graphs)
+{
+	TrackerEndpointPrivate *priv =
+		tracker_endpoint_get_instance_private (endpoint);
+
+	g_return_if_fail (TRACKER_IS_ENDPOINT (endpoint));
+
+	g_clear_pointer (&priv->allowed_graphs, g_strfreev);
+	priv->allowed_graphs = g_strdupv ((gchar **) graphs);
+	update_prologue (endpoint);
+	g_object_notify (G_OBJECT (endpoint), "allowed-graphs");
+}
+
+/**
+ * tracker_endpoint_get_allowed_graphs:
+ * @endpoint: The endpoint
+ *
+ * Returns the list of RDF graphs that the endpoint allows
+ * access for.
+ *
+ * Returns: (transfer full): The list of allowed RDF graphs
+ *
+ * Since: 3.7
+ **/
+GStrv
+tracker_endpoint_get_allowed_graphs (TrackerEndpoint *endpoint)
+{
+	TrackerEndpointPrivate *priv =
+		tracker_endpoint_get_instance_private (endpoint);
+
+	g_return_val_if_fail (TRACKER_IS_ENDPOINT (endpoint), NULL);
+
+	return g_strdupv (priv->allowed_graphs);
 }
