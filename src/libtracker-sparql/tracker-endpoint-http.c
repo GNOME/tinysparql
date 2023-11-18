@@ -482,6 +482,7 @@ tracker_endpoint_http_new (TrackerSparqlConnection  *sparql_connection,
 	g_return_val_if_fail (!error || !*error, NULL);
 
 	return g_initable_new (TRACKER_TYPE_ENDPOINT_HTTP, cancellable, error,
+	                       "readonly", TRUE,
 	                       "http-port", port,
 	                       "sparql-connection", sparql_connection,
 	                       "http-certificate", certificate,
