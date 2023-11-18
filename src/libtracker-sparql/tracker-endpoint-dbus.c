@@ -182,23 +182,6 @@ tracker_endpoint_dbus_block_call (TrackerEndpointDBus   *endpoint_dbus,
 }
 
 static gboolean
-tracker_endpoint_dbus_forbid_operation (TrackerEndpointDBus   *endpoint_dbus,
-                                        GDBusMethodInvocation *invocation,
-                                        TrackerOperationType   operation_type)
-{
-	TrackerEndpointDBusClass *endpoint_dbus_class;
-
-	endpoint_dbus_class = TRACKER_ENDPOINT_DBUS_GET_CLASS (endpoint_dbus);
-
-	if (!endpoint_dbus_class->forbid_operation)
-		return FALSE;
-
-	return endpoint_dbus_class->forbid_operation (endpoint_dbus,
-	                                              invocation,
-	                                              operation_type);
-}
-
-static gboolean
 tracker_endpoint_dbus_filter_graph (TrackerEndpointDBus *endpoint_dbus,
                                     const gchar         *graph_name)
 {
@@ -1142,16 +1125,6 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 	fd_list = g_dbus_message_get_unix_fd_list (g_dbus_method_invocation_get_message (invocation));
 
 	if (g_strcmp0 (method_name, "Query") == 0) {
-		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
-		                                            invocation,
-		                                            TRACKER_OPERATION_TYPE_SELECT)) {
-			g_dbus_method_invocation_return_error (invocation,
-			                                       G_DBUS_ERROR,
-			                                       G_DBUS_ERROR_ACCESS_DENIED,
-			                                       "Operation not allowed");
-			return;
-		}
-
 		g_variant_get (parameters, "(sha{sv})", &query, &handle, &arguments);
 
 		if (fd_list)
@@ -1202,16 +1175,6 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 	} else if (g_strcmp0 (method_name, "Serialize") == 0) {
 		TrackerSerializeFlags flags;
 		TrackerRdfFormat format;
-
-		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
-		                                            invocation,
-		                                            TRACKER_OPERATION_TYPE_SELECT)) {
-			g_dbus_method_invocation_return_error (invocation,
-			                                       G_DBUS_ERROR,
-			                                       G_DBUS_ERROR_ACCESS_DENIED,
-			                                       "Operation not allowed");
-			return;
-		}
 
 		g_variant_get (parameters, "(shiia{sv})", &query, &handle, &flags, &format, &arguments);
 
@@ -1265,9 +1228,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		g_free (query);
 	} else if (g_strcmp0 (method_name, "Update") == 0 ||
 	           g_strcmp0 (method_name, "UpdateArray") == 0) {
-		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
-		                                            invocation,
-		                                            TRACKER_OPERATION_TYPE_UPDATE)) {
+		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
 			g_dbus_method_invocation_return_error (invocation,
 			                                       G_DBUS_ERROR,
 			                                       G_DBUS_ERROR_ACCESS_DENIED,
@@ -1300,9 +1261,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			g_object_unref (task);
 		}
 	} else if (g_strcmp0 (method_name, "UpdateBlank") == 0) {
-		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
-		                                            invocation,
-		                                            TRACKER_OPERATION_TYPE_UPDATE)) {
+		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
 			g_dbus_method_invocation_return_error (invocation,
 			                                       G_DBUS_ERROR,
 			                                       G_DBUS_ERROR_ACCESS_DENIED,
@@ -1337,9 +1296,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		TrackerRdfFormat format;
 		gchar *graph;
 
-		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
-		                                            invocation,
-		                                            TRACKER_OPERATION_TYPE_UPDATE)) {
+		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
 			g_dbus_method_invocation_return_error (invocation,
 			                                       G_DBUS_ERROR,
 			                                       G_DBUS_ERROR_ACCESS_DENIED,

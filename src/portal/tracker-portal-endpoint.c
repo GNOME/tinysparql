@@ -62,19 +62,6 @@ static guint signals[N_SIGNALS] = { 0 };
 G_DEFINE_TYPE (TrackerPortalEndpoint, tracker_portal_endpoint, TRACKER_TYPE_ENDPOINT_DBUS)
 
 static gboolean
-tracker_portal_endpoint_forbid_operation (TrackerEndpointDBus   *endpoint_dbus,
-                                          GDBusMethodInvocation *invocation,
-                                          TrackerOperationType   operation_type)
-{
-	TrackerPortalEndpoint *endpoint = TRACKER_PORTAL_ENDPOINT (endpoint_dbus);
-
-	if (operation_type == TRACKER_OPERATION_TYPE_UPDATE)
-		return TRUE;
-
-	return FALSE;
-}
-
-static gboolean
 tracker_portal_endpoint_filter_graph (TrackerEndpointDBus *endpoint_dbus,
                                       const gchar         *graph_name)
 {
@@ -254,7 +241,6 @@ tracker_portal_endpoint_class_init (TrackerPortalEndpointClass *klass)
 	object_class->constructed = tracker_portal_endpoint_constructed;
 	object_class->finalize = tracker_portal_endpoint_finalize;
 
-	endpoint_dbus_class->forbid_operation = tracker_portal_endpoint_forbid_operation;
 	endpoint_dbus_class->filter_graph = tracker_portal_endpoint_filter_graph;
 	endpoint_dbus_class->add_prologue = tracker_portal_endpoint_add_prologue;
 
@@ -305,6 +291,7 @@ tracker_portal_endpoint_new (TrackerSparqlConnection  *sparql_connection,
 	                       "object-path", object_path,
 	                       "peer", peer,
 	                       "graphs", graphs,
+	                       "readonly", TRUE,
 	                       NULL);
 
 }
