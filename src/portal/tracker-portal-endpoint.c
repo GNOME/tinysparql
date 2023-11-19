@@ -26,9 +26,6 @@
 
 #include "tracker-portal-endpoint.h"
 
-#define GRAPH_ALL "*"
-#define GRAPH_DEFAULT "default"
-
 typedef struct _TrackerPortalEndpointClass TrackerPortalEndpointClass;
 
 struct _TrackerPortalEndpoint
@@ -46,8 +43,7 @@ struct _TrackerPortalEndpointClass
 };
 
 enum {
-	PROP_GRAPHS = 1,
-	PROP_PEER,
+	PROP_PEER = 1,
 	N_PROPS
 };
 
@@ -61,78 +57,6 @@ static guint signals[N_SIGNALS] = { 0 };
 
 G_DEFINE_TYPE (TrackerPortalEndpoint, tracker_portal_endpoint, TRACKER_TYPE_ENDPOINT_DBUS)
 
-static gboolean
-tracker_portal_endpoint_filter_graph (TrackerEndpointDBus *endpoint_dbus,
-                                      const gchar         *graph_name)
-{
-	TrackerPortalEndpoint *endpoint = TRACKER_PORTAL_ENDPOINT (endpoint_dbus);
-	gint i;
-
-	for (i = 0; endpoint->graphs[i]; i++) {
-		if (g_strcmp0 (endpoint->graphs[i], GRAPH_ALL) == 0) {
-			return FALSE;
-		} else if (!graph_name &&
-		           g_strcmp0 (endpoint->graphs[i], GRAPH_DEFAULT) == 0) {
-			return FALSE;
-		} else if (g_strcmp0 (graph_name, endpoint->graphs[i]) == 0) {
-			return FALSE;
-		} else {
-			TrackerSparqlConnection *connection;
-			TrackerNamespaceManager *namespaces;
-			gchar *expanded;
-
-			/* We may have been given a prefixed name instead of an
-			 * URI, expand it in order to check with the given graph.
-			 */
-			connection = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (endpoint));
-			namespaces = tracker_sparql_connection_get_namespace_manager (connection);
-			expanded = tracker_namespace_manager_expand_uri (namespaces,
-			                                                 endpoint->graphs[i]);
-
-			if (g_strcmp0 (graph_name, expanded) == 0) {
-				g_free (expanded);
-				return FALSE;
-			}
-
-			g_free (expanded);
-		}
-	}
-
-	return TRUE;
-}
-
-static gchar *
-tracker_portal_endpoint_add_prologue (TrackerEndpointDBus *endpoint_dbus)
-{
-	TrackerPortalEndpoint *endpoint = TRACKER_PORTAL_ENDPOINT (endpoint_dbus);
-
-	if (!endpoint->prologue) {
-		GString *str;
-		gint i;
-
-		str = g_string_new ("CONSTRAINT SERVICE \n"
-		                    "CONSTRAINT GRAPH ");
-
-		for (i = 0; endpoint->graphs[i]; i++) {
-			if (i != 0)
-				g_string_append (str, ", ");
-
-			if (g_strcmp0 (endpoint->graphs[i], GRAPH_ALL) == 0)
-				g_string_append (str, "ALL ");
-			else if (g_strcmp0 (endpoint->graphs[i], GRAPH_DEFAULT) == 0)
-				g_string_append (str, "DEFAULT ");
-			else if (strstr (endpoint->graphs[i], ":/"))
-				g_string_append_printf (str, "<%s> ", endpoint->graphs[i]);
-			else
-				g_string_append_printf (str, "%s ", endpoint->graphs[i]);
-		}
-
-		endpoint->prologue = g_string_free (str, FALSE);
-	}
-
-	return g_strdup (endpoint->prologue);
-}
-
 static void
 tracker_portal_endpoint_set_property (GObject      *object,
                                       guint         prop_id,
@@ -142,9 +66,6 @@ tracker_portal_endpoint_set_property (GObject      *object,
 	TrackerPortalEndpoint *endpoint = TRACKER_PORTAL_ENDPOINT (object);
 
 	switch (prop_id) {
-	case PROP_GRAPHS:
-		endpoint->graphs = g_value_dup_boxed (value);
-		break;
 	case PROP_PEER:
 		endpoint->peer = g_value_dup_string (value);
 		break;
@@ -162,9 +83,6 @@ tracker_portal_endpoint_get_property (GObject    *object,
 	TrackerPortalEndpoint *endpoint = TRACKER_PORTAL_ENDPOINT (object);
 
 	switch (prop_id) {
-	case PROP_GRAPHS:
-		g_value_set_boxed (value, endpoint->graphs);
-		break;
 	case PROP_PEER:
 		g_value_set_string (value, endpoint->peer);
 		break;
@@ -234,15 +152,11 @@ static void
 tracker_portal_endpoint_class_init (TrackerPortalEndpointClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
-	TrackerEndpointDBusClass *endpoint_dbus_class = TRACKER_ENDPOINT_DBUS_CLASS (klass);
 
 	object_class->set_property = tracker_portal_endpoint_set_property;
 	object_class->get_property = tracker_portal_endpoint_get_property;
 	object_class->constructed = tracker_portal_endpoint_constructed;
 	object_class->finalize = tracker_portal_endpoint_finalize;
-
-	endpoint_dbus_class->filter_graph = tracker_portal_endpoint_filter_graph;
-	endpoint_dbus_class->add_prologue = tracker_portal_endpoint_add_prologue;
 
 	signals[CLOSED] =
 		g_signal_new ("closed",
@@ -250,12 +164,6 @@ tracker_portal_endpoint_class_init (TrackerPortalEndpointClass *klass)
 		              0, NULL, NULL, NULL,
 		              G_TYPE_NONE, 0, G_TYPE_NONE);
 
-	props[PROP_GRAPHS] =
-		g_param_spec_boxed ("graphs",
-		                    "Graphs",
-		                    "Graphs",
-		                    G_TYPE_STRV,
-		                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 	props[PROP_PEER] =
 		g_param_spec_string ("peer",
 		                     "DBus peer",
@@ -290,7 +198,8 @@ tracker_portal_endpoint_new (TrackerSparqlConnection  *sparql_connection,
 	                       "sparql-connection", sparql_connection,
 	                       "object-path", object_path,
 	                       "peer", peer,
-	                       "graphs", graphs,
+	                       "allowed-services", (gchar *[]) { NULL, },
+	                       "allowed-graphs", graphs,
 	                       "readonly", TRUE,
 	                       NULL);
 

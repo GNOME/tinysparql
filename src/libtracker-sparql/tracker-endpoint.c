@@ -248,8 +248,6 @@ update_prologue (TrackerEndpoint *endpoint)
 			g_string_append_printf (str, "<%s> ",
 			                        priv->allowed_services[i]);
 		}
-
-		g_string_append (str, "\n");
 	}
 
 	if (priv->allowed_graphs != NULL) {

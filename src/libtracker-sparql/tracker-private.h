@@ -197,10 +197,6 @@ typedef struct _TrackerEndpointDBusClass TrackerEndpointDBusClass;
 
 struct _TrackerEndpointDBusClass {
 	struct _TrackerEndpointClass parent_class;
-
-	gboolean (* filter_graph) (TrackerEndpointDBus *endpoint_dbus,
-	                           const gchar         *graph_name);
-	gchar * (* add_prologue) (TrackerEndpointDBus *endpoint_dbus);
 };
 
 typedef struct _TrackerEndpointHttpClass TrackerEndpointHttpClass;
