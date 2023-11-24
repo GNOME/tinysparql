@@ -195,20 +195,8 @@ struct _TrackerEndpointDBus {
 
 typedef struct _TrackerEndpointDBusClass TrackerEndpointDBusClass;
 
-typedef enum {
-	TRACKER_OPERATION_TYPE_SELECT,
-	TRACKER_OPERATION_TYPE_UPDATE,
-} TrackerOperationType;
-
 struct _TrackerEndpointDBusClass {
 	struct _TrackerEndpointClass parent_class;
-
-	gboolean (* forbid_operation) (TrackerEndpointDBus   *endpoint_dbus,
-	                               GDBusMethodInvocation *invocation,
-	                               TrackerOperationType   operation_type);
-	gboolean (* filter_graph) (TrackerEndpointDBus *endpoint_dbus,
-	                           const gchar         *graph_name);
-	gchar * (* add_prologue) (TrackerEndpointDBus *endpoint_dbus);
 };
 
 typedef struct _TrackerEndpointHttpClass TrackerEndpointHttpClass;
@@ -356,5 +344,11 @@ gboolean tracker_resource_iterator_next (TrackerResourceIterator  *iter,
                                          const GValue            **value);
 const gchar * tracker_resource_get_identifier_internal (TrackerResource *resource);
 gboolean tracker_resource_is_blank_node (TrackerResource *resource);
+
+void tracker_endpoint_rewrite_query (TrackerEndpoint  *endpoint,
+                                     gchar           **query);
+
+gboolean tracker_endpoint_is_graph_filtered (TrackerEndpoint *endpoint,
+                                             const gchar     *graph);
 
 #endif /* __TRACKER_PRIVATE_H__ */

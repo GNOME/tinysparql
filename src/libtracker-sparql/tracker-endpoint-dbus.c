@@ -49,10 +49,17 @@
  * given the object will be at the default `/org/freedesktop/Tracker3/Endpoint`
  * location.
  *
- * Access to these endpoints may be transparently managed through
- * the Tracker portal service for applications sandboxed via Flatpak, and
- * access to data constrained to the graphs defined in the applications
- * manifest.
+ * Access to D-Bus endpoints may be managed via the
+ * [signal@Tracker.EndpointDBus::block-call] signal, the boolean
+ * return value expressing whether the request is blocked or not.
+ * Inspection of the requester address is left up to the user. The
+ * default value allows all requests independently of their provenance.
+ *
+ * However, moderating access to D-Bus interfaces is typically not necessary
+ * in user code, as access to public D-Bus endpoints will be transparently
+ * managed through the Tracker portal service for applications sandboxed
+ * via XDG portals. These already have access to D-Bus SPARQL endpoints and
+ * their data naturally filtered as defined in the application manifest.
  *
  * A `TrackerEndpointDBus` may be created on a different thread/main
  * context from the one that created [class@Tracker.SparqlConnection].
@@ -113,6 +120,11 @@ static const gchar introspection_xml[] =
 	"</node>";
 
 enum {
+	BLOCK_CALL,
+	N_SIGNALS
+};
+
+enum {
 	PROP_0,
 	PROP_DBUS_CONNECTION,
 	PROP_OBJECT_PATH,
@@ -136,7 +148,6 @@ typedef struct {
 	TrackerBatch *batch;
 	gboolean array_update;
 	gint num_queries;
-	gchar *prologue;
 } UpdateRequest;
 
 typedef struct {
@@ -144,10 +155,11 @@ typedef struct {
 	GDBusMethodInvocation *invocation;
 	GDataInputStream *input_stream;
 	gchar *query;
-	gchar *prologue;
 } UpdateBlankRequest;
 
-GParamSpec *props[N_PROPS] = { 0 };
+static GParamSpec *props[N_PROPS] = { 0, };
+
+static guint signals[N_SIGNALS] = { 0, };
 
 static void tracker_endpoint_dbus_initable_iface_init (GInitableIface *iface);
 
@@ -155,65 +167,16 @@ G_DEFINE_TYPE_WITH_CODE (TrackerEndpointDBus, tracker_endpoint_dbus, TRACKER_TYP
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, tracker_endpoint_dbus_initable_iface_init))
 
 static gboolean
-tracker_endpoint_dbus_forbid_operation (TrackerEndpointDBus   *endpoint_dbus,
-                                        GDBusMethodInvocation *invocation,
-                                        TrackerOperationType   operation_type)
+tracker_endpoint_dbus_block_call (TrackerEndpointDBus   *endpoint_dbus,
+                                  GDBusMethodInvocation *invocation)
 {
-	TrackerEndpointDBusClass *endpoint_dbus_class;
+	gboolean block;
 
-	endpoint_dbus_class = TRACKER_ENDPOINT_DBUS_GET_CLASS (endpoint_dbus);
+	g_signal_emit (endpoint_dbus, signals[BLOCK_CALL], 0,
+	               g_dbus_method_invocation_get_sender (invocation),
+	               &block);
 
-	if (!endpoint_dbus_class->forbid_operation)
-		return FALSE;
-
-	return endpoint_dbus_class->forbid_operation (endpoint_dbus,
-	                                              invocation,
-	                                              operation_type);
-}
-
-static gboolean
-tracker_endpoint_dbus_filter_graph (TrackerEndpointDBus *endpoint_dbus,
-                                    const gchar         *graph_name)
-{
-	TrackerEndpointDBusClass *endpoint_dbus_class;
-
-	endpoint_dbus_class = TRACKER_ENDPOINT_DBUS_GET_CLASS (endpoint_dbus);
-
-	if (!endpoint_dbus_class->filter_graph)
-		return FALSE;
-
-	return endpoint_dbus_class->filter_graph (endpoint_dbus, graph_name);
-}
-
-static gchar *
-tracker_endpoint_dbus_add_prologue (TrackerEndpointDBus *endpoint_dbus,
-                                    gchar               *query)
-{
-	TrackerEndpointDBusClass *endpoint_dbus_class;
-	gchar *prologue = NULL;
-
-	endpoint_dbus_class = TRACKER_ENDPOINT_DBUS_GET_CLASS (endpoint_dbus);
-
-	if (endpoint_dbus_class->add_prologue)
-		prologue = endpoint_dbus_class->add_prologue (endpoint_dbus);
-
-	if (prologue) {
-		if (query) {
-			gchar *result;
-
-			result = g_strdup_printf ("%s %s",
-			                          prologue,
-			                          query);
-			g_free (query);
-			g_free (prologue);
-
-			return result;
-		} else {
-			return prologue;
-		}
-	} else {
-		return query;
-	}
+	return block;
 }
 
 static gboolean
@@ -313,7 +276,6 @@ update_request_new (TrackerEndpointDBus   *endpoint,
 	request->invocation = g_object_ref (invocation);
 	request->endpoint = endpoint;
 	request->array_update = array_update;
-	request->prologue = tracker_endpoint_dbus_add_prologue (endpoint, NULL);
 
 	conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (endpoint));
 	request->batch = tracker_sparql_connection_create_batch (conn);
@@ -444,24 +406,20 @@ read_string (GDataInputStream  *istream,
 }
 
 static gchar *
-read_query (GDataInputStream  *istream,
-            const gchar       *prologue,
-            GCancellable      *cancellable,
-            GError           **error)
+read_query (GDataInputStream     *istream,
+            TrackerEndpointDBus  *endpoint,
+            GCancellable         *cancellable,
+            GError              **error)
 {
-	gchar *sparql, *buffer;
+	gchar *sparql;
 
 	sparql = read_string (istream, NULL, NULL, error);
 	if (!sparql)
 		return NULL;
 
-	if (prologue) {
-		buffer = g_strconcat (prologue, " ", sparql, NULL);
-		g_free (sparql);
-		return buffer;
-	} else {
-		return sparql;
-	}
+	tracker_endpoint_rewrite_query (TRACKER_ENDPOINT (endpoint), &sparql);
+
+	return sparql;
 }
 
 static gboolean
@@ -472,7 +430,7 @@ handle_update_sparql (UpdateRequest  *request,
 	gchar *buffer = NULL, *parameters = NULL;
 	GError *inner_error = NULL;
 
-	buffer = read_query (request->input_stream, request->prologue, cancellable, error);
+	buffer = read_query (request->input_stream, request->endpoint, cancellable, error);
 	if (!buffer)
 		goto error;
 
@@ -620,7 +578,7 @@ handle_read_update_blank (GTask        *task,
 		goto end;
 
 	g_assert (op_type == TRACKER_BUS_OP_SPARQL);
-	request->query = read_query (request->input_stream, request->prologue,
+	request->query = read_query (request->input_stream, request->endpoint,
 	                             cancellable, &error);
 	if (error)
 		goto end;
@@ -644,7 +602,6 @@ update_request_free (UpdateRequest *request)
 	g_object_unref (request->batch);
 	g_object_unref (request->invocation);
 	g_object_unref (request->input_stream);
-	g_free (request->prologue);
 	g_free (request);
 }
 
@@ -659,7 +616,6 @@ update_blank_request_new (TrackerEndpointDBus   *endpoint,
 	request = g_new0 (UpdateBlankRequest, 1);
 	request->invocation = g_object_ref (invocation);
 	request->endpoint = endpoint;
-	request->prologue = tracker_endpoint_dbus_add_prologue (endpoint, NULL);
 
 	stream = g_unix_input_stream_new (fd, TRUE);
 	request->input_stream = g_data_input_stream_new (stream);
@@ -682,7 +638,6 @@ update_blank_request_free (UpdateBlankRequest *request)
 	g_object_unref (request->invocation);
 	g_object_unref (request->input_stream);
 	g_free (request->query);
-	g_free (request->prologue);
 	g_free (request);
 }
 
@@ -1103,20 +1058,18 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 	gchar *query;
 	gint handle, fd = -1;
 
+	if (tracker_endpoint_dbus_block_call (endpoint_dbus, invocation)) {
+		g_dbus_method_invocation_return_error (invocation,
+		                                       G_DBUS_ERROR,
+		                                       G_DBUS_ERROR_ACCESS_DENIED,
+		                                       "Operation not allowed");
+		return;
+	}
+
 	conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (endpoint_dbus));
 	fd_list = g_dbus_message_get_unix_fd_list (g_dbus_method_invocation_get_message (invocation));
 
 	if (g_strcmp0 (method_name, "Query") == 0) {
-		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
-		                                            invocation,
-		                                            TRACKER_OPERATION_TYPE_SELECT)) {
-			g_dbus_method_invocation_return_error (invocation,
-			                                       G_DBUS_ERROR,
-			                                       G_DBUS_ERROR_ACCESS_DENIED,
-			                                       "Operation not allowed");
-			return;
-		}
-
 		g_variant_get (parameters, "(sha{sv})", &query, &handle, &arguments);
 
 		if (fd_list)
@@ -1130,8 +1083,8 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		} else {
 			QueryRequest *request;
 
-			query = tracker_endpoint_dbus_add_prologue (endpoint_dbus,
-			                                            query);
+			tracker_endpoint_rewrite_query (TRACKER_ENDPOINT (endpoint_dbus),
+			                                &query);
 
 			request = query_request_new (endpoint_dbus, invocation, fd);
 
@@ -1168,16 +1121,6 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		TrackerSerializeFlags flags;
 		TrackerRdfFormat format;
 
-		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
-		                                            invocation,
-		                                            TRACKER_OPERATION_TYPE_SELECT)) {
-			g_dbus_method_invocation_return_error (invocation,
-			                                       G_DBUS_ERROR,
-			                                       G_DBUS_ERROR_ACCESS_DENIED,
-			                                       "Operation not allowed");
-			return;
-		}
-
 		g_variant_get (parameters, "(shiia{sv})", &query, &handle, &flags, &format, &arguments);
 
 		if (fd_list)
@@ -1191,8 +1134,8 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		} else {
 			QueryRequest *request;
 
-			query = tracker_endpoint_dbus_add_prologue (endpoint_dbus,
-			                                            query);
+			tracker_endpoint_rewrite_query (TRACKER_ENDPOINT (endpoint_dbus),
+			                                &query);
 
 			request = query_request_new (endpoint_dbus, invocation, fd);
 
@@ -1230,9 +1173,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		g_free (query);
 	} else if (g_strcmp0 (method_name, "Update") == 0 ||
 	           g_strcmp0 (method_name, "UpdateArray") == 0) {
-		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
-		                                            invocation,
-		                                            TRACKER_OPERATION_TYPE_UPDATE)) {
+		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
 			g_dbus_method_invocation_return_error (invocation,
 			                                       G_DBUS_ERROR,
 			                                       G_DBUS_ERROR_ACCESS_DENIED,
@@ -1265,9 +1206,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			g_object_unref (task);
 		}
 	} else if (g_strcmp0 (method_name, "UpdateBlank") == 0) {
-		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
-		                                            invocation,
-		                                            TRACKER_OPERATION_TYPE_UPDATE)) {
+		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
 			g_dbus_method_invocation_return_error (invocation,
 			                                       G_DBUS_ERROR,
 			                                       G_DBUS_ERROR_ACCESS_DENIED,
@@ -1302,9 +1241,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		TrackerRdfFormat format;
 		gchar *graph;
 
-		if (tracker_endpoint_dbus_forbid_operation (endpoint_dbus,
-		                                            invocation,
-		                                            TRACKER_OPERATION_TYPE_UPDATE)) {
+		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
 			g_dbus_method_invocation_return_error (invocation,
 			                                       G_DBUS_ERROR,
 			                                       G_DBUS_ERROR_ACCESS_DENIED,
@@ -1360,7 +1297,7 @@ notifier_events_cb (TrackerNotifier *notifier,
 	GError *error = NULL;
 	guint i;
 
-	if (tracker_endpoint_dbus_filter_graph (endpoint_dbus, graph))
+	if (tracker_endpoint_is_graph_filtered (TRACKER_ENDPOINT (endpoint_dbus), graph))
 		return;
 
 	g_variant_builder_init (&builder, G_VARIANT_TYPE ("(sa{ii})"));
@@ -1506,6 +1443,25 @@ tracker_endpoint_dbus_class_init (TrackerEndpointDBusClass *klass)
 	object_class->finalize = tracker_endpoint_dbus_finalize;
 	object_class->set_property = tracker_endpoint_dbus_set_property;
 	object_class->get_property = tracker_endpoint_dbus_get_property;
+
+	/**
+	 * TrackerEndpointHttp::block-call:
+	 * @self: The `TrackerEndpointDBus`
+	 * @address: The D-Bus unique name of the remote connection
+	 *
+	 * Allows control over the connections stablished. The given
+	 * address is that of the requesting peer.
+	 *
+	 * Returning %FALSE in this handler allows the connection,
+	 * returning %TRUE blocks it. The default with no signal
+	 * handlers connected is %FALSE.
+	 */
+	signals[BLOCK_CALL] =
+		g_signal_new ("block-call",
+		              TRACKER_TYPE_ENDPOINT_DBUS, 0, 0,
+		              g_signal_accumulator_first_wins, NULL, NULL,
+		              G_TYPE_BOOLEAN,
+		              1, G_TYPE_STRING);
 
 	/**
 	 * TrackerEndpointDBus:dbus-connection:

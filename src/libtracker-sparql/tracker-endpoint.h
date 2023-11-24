@@ -39,6 +39,27 @@ G_DECLARE_DERIVABLE_TYPE (TrackerEndpoint, tracker_endpoint, TRACKER, ENDPOINT, 
 TRACKER_AVAILABLE_IN_ALL
 TrackerSparqlConnection * tracker_endpoint_get_sparql_connection (TrackerEndpoint *endpoint);
 
+TRACKER_AVAILABLE_IN_3_7
+void  tracker_endpoint_set_readonly (TrackerEndpoint *endpoint,
+                                     gboolean         readonly);
+
+TRACKER_AVAILABLE_IN_3_7
+gboolean  tracker_endpoint_get_readonly (TrackerEndpoint *endpoint);
+
+TRACKER_AVAILABLE_IN_3_7
+void tracker_endpoint_set_allowed_services (TrackerEndpoint     *endpoint,
+                                            const gchar * const *services);
+
+TRACKER_AVAILABLE_IN_3_7
+GStrv tracker_endpoint_get_allowed_services (TrackerEndpoint *endpoint);
+
+TRACKER_AVAILABLE_IN_3_7
+void tracker_endpoint_set_allowed_graphs (TrackerEndpoint     *endpoint,
+                                          const gchar * const *graphs);
+
+TRACKER_AVAILABLE_IN_3_7
+GStrv tracker_endpoint_get_allowed_graphs (TrackerEndpoint *endpoint);
+
 G_END_DECLS
 
 #endif /* __TRACKER_ENDPOINT_H__ */

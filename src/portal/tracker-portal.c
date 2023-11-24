@@ -65,6 +65,8 @@ G_DEFINE_TYPE_WITH_CODE (TrackerPortal, tracker_portal, G_TYPE_OBJECT,
 
 #define TRACKER_GROUP_NAME "Policy Tracker3"
 #define DEFAULT_URI_SUFFIX ":/org/freedesktop/Tracker3/Endpoint"
+#define GRAPH_ALL "*"
+#define GRAPH_DEFAULT "default"
 
 static const gchar portal_xml[] =
 	"<node>"
@@ -206,6 +208,37 @@ endpoint_closed_cb (TrackerPortalEndpoint *endpoint,
 }
 
 static GStrv
+convert_graphs (GStrv graphs)
+{
+	GPtrArray *array;
+	gint i;
+
+	array = g_ptr_array_new ();
+
+	/* Convert from the manifest keyfile graph format to something
+	 * suitable for the TrackerEndpoint:allowed-graphs property
+	 */
+	for (i = 0; graphs[i]; i++) {
+		/* Access to all graphs is allowed */
+		if (g_strcmp0 (graphs[i], GRAPH_ALL) == 0) {
+			g_ptr_array_free (array, TRUE);
+			return NULL;
+		}
+
+		if (g_strcmp0 (graphs[i], GRAPH_DEFAULT) == 0) {
+			/* Special case, add "" string */
+			g_ptr_array_add (array, g_strdup (""));
+		} else {
+			g_ptr_array_add (array, g_strdup (graphs[i]));
+		}
+	}
+
+	g_ptr_array_add (array, NULL);
+
+	return (GStrv) g_ptr_array_free (array, FALSE);
+}
+
+static GStrv
 load_client_configuration (TrackerPortal          *portal,
                            GDBusMethodInvocation  *invocation,
                            const gchar            *service_uri,
@@ -260,7 +293,13 @@ load_client_configuration (TrackerPortal          *portal,
 		g_free (default_service_uri);
 	}
 
-	if (!graphs) {
+	if (graphs) {
+		GStrv converted;
+
+		converted = convert_graphs (graphs);
+		g_strfreev (graphs);
+		graphs = converted;
+	} else {
 		g_debug ("Service '%s' not found in Tracker policy", service_uri);
 		g_set_error (error,
 			     G_IO_ERROR,
@@ -302,7 +341,7 @@ portal_iface_method_call (GDBusConnection       *connection,
 		g_debug ("Creating session for service URI '%s'", uri);
 
 		graphs = load_client_configuration (portal, invocation, uri, &error);
-		if (!graphs) {
+		if (error) {
 			g_debug ("Session rejected by policy");
 			g_dbus_method_invocation_return_gerror (invocation, error);
 			return;

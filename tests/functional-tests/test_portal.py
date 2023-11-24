@@ -485,5 +485,34 @@ class TestPortal(fixtures.TrackerPortalTest):
         self.assertEqual(len(res), 0)
 
 
+    # Test that updates are forbidden
+    def test_14_updates(self):
+        self.start_service("org.freedesktop.PortalTest")
+        self.update(
+            "org.freedesktop.PortalTest",
+            "CREATE GRAPH tracker:Allowed;"
+            + "INSERT { GRAPH tracker:Allowed { "
+            + "  <http://example/a> a nfo:FileDataObject ; nfo:fileName 'A' . } }",
+        )
+
+        res = self.query("org.freedesktop.PortalTest", 'select ?s { ?s ?p "A" }')
+        self.assertEqual(len(res), 1)
+
+        conn = Tracker.SparqlConnection.bus_new("org.freedesktop.PortalTest", None, self.bus)
+
+        with self.assertRaisesRegex(Exception, 'not allowed') as exception:
+            conn.update("INSERT { GRAPH tracker:Allowed { "
+                        + "  <http://example/b> a nfo:FileDataObject ; nfo:fileName 'A' . } }")
+        self.assertIsNotNone(exception)
+
+        with self.assertRaisesRegex(Exception, 'not allowed') as exception:
+            conn.update_blank("INSERT { GRAPH tracker:Allowed { "
+                              + "  <http://example/c> a nfo:FileDataObject ; nfo:fileName 'A' . } }")
+        self.assertIsNotNone(exception)
+
+        res = self.query("org.freedesktop.PortalTest", 'select ?s { ?s ?p "A" }')
+        self.assertEqual(len(res), 1)
+
+
 if __name__ == "__main__":
     fixtures.tracker_test_main()

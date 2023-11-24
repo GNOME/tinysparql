@@ -262,6 +262,8 @@ http_server_request_cb (TrackerHttpServer  *server,
 		sparql = g_hash_table_lookup (params, "query");
 
 	if (sparql) {
+		gchar *query;
+
 		if (!pick_format (formats, &format)) {
 			tracker_http_server_error (server, request, 500,
 			                           "No recognized accepted formats");
@@ -273,12 +275,16 @@ http_server_request_cb (TrackerHttpServer  *server,
 		data->request = request;
 		data->format = format;
 
+		query = g_strdup (sparql);
+		tracker_endpoint_rewrite_query (TRACKER_ENDPOINT (endpoint), &query);
+
 		conn = tracker_endpoint_get_sparql_connection (endpoint);
 		tracker_sparql_connection_query_async (conn,
-		                                       sparql,
+		                                       query,
 		                                       NULL,
 		                                       query_async_cb,
 		                                       data);
+		g_free (query);
 	} else {
 		TrackerNamespaceManager *namespaces;
 		TrackerResource *description;
@@ -482,6 +488,7 @@ tracker_endpoint_http_new (TrackerSparqlConnection  *sparql_connection,
 	g_return_val_if_fail (!error || !*error, NULL);
 
 	return g_initable_new (TRACKER_TYPE_ENDPOINT_HTTP, cancellable, error,
+	                       "readonly", TRUE,
 	                       "http-port", port,
 	                       "sparql-connection", sparql_connection,
 	                       "http-certificate", certificate,
