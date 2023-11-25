@@ -301,21 +301,14 @@ process_word_utf8 (TrackerParser         *parser,
 
 	/* Stemming needed? */
 	if (parser->enable_stemmer) {
-		stemmed = tracker_language_stem_word (parser->language,
-		                                      normalized,
-		                                      new_word_length);
+		tracker_language_stem_word (parser->language,
+		                            normalized,
+		                            &new_word_length,
+		                            new_word_length);
 
 		/* Log after stemming */
 		tracker_parser_message_hex ("   After stemming",
-		                            stemmed, strlen (stemmed));
-	}
-
-	/* If stemmed wanted and succeeded, free previous and return it */
-	if (stemmed) {
-		if (normalized != word_buffer) {
-			g_free (normalized);
-		}
-		return stemmed;
+		                            normalized, new_word_length);
 	}
 
 	/* It may be the case that no stripping and no stemming was needed, and

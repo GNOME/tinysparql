@@ -348,22 +348,16 @@ process_word_uchar (TrackerParser         *parser,
 
 	/* Stemming needed? */
 	if (parser->enable_stemmer) {
-		gchar *stemmed;
-
 		/* Input for stemmer ALWAYS in UTF-8, as well as output */
-		stemmed = tracker_language_stem_word (parser->language,
-		                                      (const gchar *) &parser->word,
-		                                      parser->word_length);
+		tracker_language_stem_word (parser->language,
+		                            (gchar *) &parser->word,
+		                            &parser->word_length,
+		                            WORD_BUFFER_LENGTH_UTF8);
 
 		/* Log after stemming */
 		tracker_parser_message_hex ("    After stemming",
-		                            stemmed, strlen (stemmed));
-
-		/* If stemmed wanted and succeeded, free previous and return it */
-		if (stemmed) {
-			memcpy (parser->word, stemmed, strlen (stemmed) + 1);
-			parser->word_length = strlen (stemmed);
-		}
+		                            &parser->word,
+		                            parser->word_length);
 	}
 
 	return TRUE;
