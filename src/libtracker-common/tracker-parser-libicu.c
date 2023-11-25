@@ -571,13 +571,8 @@ tracker_parser_free (TrackerParser *parser)
 {
 	g_return_if_fail (parser != NULL);
 
-	if (parser->language) {
-		g_object_unref (parser->language);
-	}
-
-	if (parser->bi) {
-		ubrk_close (parser->bi);
-	}
+	g_clear_object (&parser->language);
+	g_clear_pointer (&parser->bi, ubrk_close);
 
 	g_free (parser->utxt);
 	g_free (parser->offsets);
@@ -617,20 +612,12 @@ tracker_parser_reset (TrackerParser *parser,
 	parser->txt_size = txt_size;
 	parser->txt = txt;
 
-	g_free (parser->word);
-	parser->word = NULL;
-
-	if (parser->bi) {
-		ubrk_close (parser->bi);
-		parser->bi = NULL;
-	}
-	g_free (parser->utxt);
-	parser->utxt = NULL;
-	g_free (parser->offsets);
-	parser->offsets = NULL;
+	g_clear_pointer (&parser->word, g_free);
+	g_clear_pointer (&parser->bi, ubrk_close);
+	g_clear_pointer (&parser->utxt, g_free);
+	g_clear_pointer (&parser->offsets, g_free);
 
 	parser->word_position = 0;
-
 	parser->cursor = 0;
 
 	if (parser->txt_size == 0)
@@ -683,15 +670,10 @@ tracker_parser_reset (TrackerParser *parser,
 		g_warning ("Error initializing libicu support: '%s'",
 		           u_errorName (error));
 		/* Reset buffers */
-		g_free (parser->utxt);
-		parser->utxt = NULL;
-		g_free (parser->offsets);
-		parser->offsets = NULL;
+		g_clear_pointer (&parser->utxt, g_free);
+		g_clear_pointer (&parser->offsets, g_free);
+		g_clear_pointer (&parser->bi, ubrk_close);
 		parser->utxt_size = 0;
-		if (parser->bi) {
-			ubrk_close (parser->bi);
-			parser->bi = NULL;
-		}
 	}
 
 	/* Close converter */
