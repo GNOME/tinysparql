@@ -66,6 +66,7 @@ struct TrackerParser {
 	guint                  word_position;
 
 	/* Text as UChars */
+	UConverter *converter;
 	UChar                 *utxt;
 	gsize                  utxt_size;
 	/* Original offset of each UChar in the input txt string */
@@ -210,32 +211,24 @@ tracker_parser_unaccent_nfkd_string (gpointer  str,
 }
 
 static gchar *
-convert_UChar_to_utf8 (const UChar *word,
-                       gsize        uchar_len,
-                       gsize       *utf8_len)
+convert_UChar_to_utf8 (TrackerParser *parser,
+                       const UChar   *word,
+                       gsize          uchar_len,
+                       gsize         *utf8_len)
 {
 	gchar *utf8_str;
 	UErrorCode icu_error = U_ZERO_ERROR;
-	UConverter *converter;
 	gsize new_utf8_len;
 
 	g_return_val_if_fail (word, NULL);
 	g_return_val_if_fail (utf8_len, NULL);
-
-	/* Open converter UChar to UTF-16BE */
-	converter = ucnv_open ("UTF-8", &icu_error);
-	if (!converter) {
-		g_warning ("Cannot open UTF-8 converter: '%s'",
-		           U_FAILURE (icu_error) ? u_errorName (icu_error) : "none");
-		return NULL;
-	}
 
 	/* A character encoded in 2 bytes in UTF-16 may get expanded to 3 or 4 bytes
 	 *  in UTF-8. */
 	utf8_str = g_malloc (2 * uchar_len * sizeof (UChar) + 1);
 
 	/* Convert from UChar to UTF-8 (NIL-terminated) */
-	new_utf8_len = ucnv_fromUChars (converter,
+	new_utf8_len = ucnv_fromUChars (parser->converter,
 	                                utf8_str,
 	                                2 * uchar_len * sizeof (UChar) + 1,
 	                                word,
@@ -245,12 +238,10 @@ convert_UChar_to_utf8 (const UChar *word,
 		g_warning ("Cannot convert from UChar to UTF-8: '%s'",
 		           u_errorName (icu_error));
 		g_free (utf8_str);
-		ucnv_close (converter);
 		return NULL;
 	}
 
 	*utf8_len = new_utf8_len;
-	ucnv_close (converter);
 
 	return utf8_str;
 }
@@ -352,7 +343,8 @@ process_word_uchar (TrackerParser         *parser,
 	}
 
 	/* Finally, convert to UTF-8 */
-	utf8_str = convert_UChar_to_utf8 (normalized_buffer,
+	utf8_str = convert_UChar_to_utf8 (parser,
+	                                  normalized_buffer,
 	                                  new_word_length,
 	                                  &new_word_length);
 
@@ -572,6 +564,7 @@ tracker_parser_free (TrackerParser *parser)
 	g_return_if_fail (parser != NULL);
 
 	g_clear_object (&parser->language);
+	g_clear_pointer (&parser->converter, ucnv_close);
 	g_clear_pointer (&parser->bi, ubrk_close);
 
 	g_free (parser->utxt);
@@ -592,7 +585,6 @@ tracker_parser_reset (TrackerParser *parser,
                       gboolean       ignore_numbers)
 {
 	UErrorCode error = U_ZERO_ERROR;
-	UConverter *converter;
 	UChar *last_uchar;
 	const gchar *last_utf8;
 
@@ -624,11 +616,13 @@ tracker_parser_reset (TrackerParser *parser,
 		return;
 
 	/* Open converter UTF-8 to UChar */
-	converter = ucnv_open ("UTF-8", &error);
-	if (!converter) {
-		g_warning ("Cannot open UTF-8 converter: '%s'",
-		           U_FAILURE (error) ? u_errorName (error) : "none");
-		return;
+	if (!parser->converter) {
+		parser->converter = ucnv_open ("UTF-8", &error);
+		if (!parser->converter) {
+			g_warning ("Cannot open UTF-8 converter: '%s'",
+			           U_FAILURE (error) ? u_errorName (error) : "none");
+			return;
+		}
 	}
 
 	/* Allocate UChars and offsets buffers */
@@ -641,7 +635,7 @@ tracker_parser_reset (TrackerParser *parser,
 	last_utf8 = parser->txt;
 
 	/* Convert to UChars storing offsets */
-	ucnv_toUnicode (converter,
+	ucnv_toUnicode (parser->converter,
 	                &last_uchar,
 	                &parser->utxt[txt_size],
 	                &last_utf8,
@@ -675,9 +669,6 @@ tracker_parser_reset (TrackerParser *parser,
 		g_clear_pointer (&parser->bi, ubrk_close);
 		parser->utxt_size = 0;
 	}
-
-	/* Close converter */
-	ucnv_close (converter);
 }
 
 const gchar *
