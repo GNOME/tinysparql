@@ -215,15 +215,15 @@ result = cc.run('''
   int main (int argc, char *argv[]) {
     char *modifiers[] = { "%Y", "%C%y", "%4Y", "%2C%y", NULL };
     time_t timestamp = -58979923200; /* 0101-01-01T01:01:01Z */
-    char *buf[100];
+    char buf[100];
     struct tm tm;
     int i;
     gmtime_r (&timestamp, &tm);
     for (i = 0; modifiers[i]; i++) {
-      strftime (&buf, sizeof buf, modifiers[i], &tm);
-      if (strcmp (&buf, "0101") == 0) {
+      strftime (buf, sizeof buf, modifiers[i], &tm);
+      if (strcmp (buf, "0101") == 0) {
         printf ("%s", modifiers[i]);
-	return 0;
+        return 0;
       }
     }
     return -1;
