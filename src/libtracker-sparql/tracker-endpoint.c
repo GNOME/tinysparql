@@ -24,6 +24,8 @@
 #include "tracker-endpoint.h"
 #include "tracker-private.h"
 
+#define MAX_CACHED_STMTS 50
+
 enum {
 	PROP_0,
 	PROP_SPARQL_CONNECTION,
@@ -36,7 +38,13 @@ enum {
 static GParamSpec *props[N_PROPS] = { 0 };
 
 typedef struct {
+	GHashTable *stmts; /* char* -> GList* in mru */
+	GQueue mru;
+} CachedStmts;
+
+typedef struct {
 	TrackerSparqlConnection *sparql_connection;
+	CachedStmts select_stmts;
 	GStrv allowed_services;
 	GStrv allowed_graphs;
 	gchar *prologue;
@@ -87,6 +95,9 @@ tracker_endpoint_finalize (GObject *object)
 	g_clear_pointer (&priv->allowed_services, g_strfreev);
 	g_clear_pointer (&priv->allowed_graphs, g_strfreev);
 	g_clear_pointer (&priv->prologue, g_free);
+
+	g_queue_clear_full (&priv->select_stmts.mru, g_object_unref);
+	g_clear_pointer (&priv->select_stmts.stmts, g_hash_table_unref);
 
 	G_OBJECT_CLASS (tracker_endpoint_parent_class)->finalize (object);
 }
@@ -221,6 +232,11 @@ tracker_endpoint_class_init (TrackerEndpointClass *klass)
 static void
 tracker_endpoint_init (TrackerEndpoint *endpoint)
 {
+	TrackerEndpointPrivate *priv =
+		tracker_endpoint_get_instance_private (endpoint);
+
+	g_queue_init (&priv->select_stmts.mru);
+	priv->select_stmts.stmts = g_hash_table_new (g_str_hash, g_str_equal);
 }
 
 static void
@@ -332,6 +348,66 @@ tracker_endpoint_is_graph_filtered (TrackerEndpoint *endpoint,
 	}
 
 	return TRUE;
+}
+
+static void
+update_mru (CachedStmts *cached_stmts,
+            GList       *link)
+{
+	/* Put element first in the MRU */
+	g_queue_unlink (&cached_stmts->mru, link);
+	g_queue_push_head_link (&cached_stmts->mru, link);
+}
+
+static void
+insert_to_mru (CachedStmts            *cached_stmts,
+               TrackerSparqlStatement *stmt)
+{
+	GList *link;
+
+	/* Insert stmt to MRU/HT */
+	g_queue_push_head (&cached_stmts->mru, stmt);
+	link = cached_stmts->mru.head;
+	g_hash_table_insert (cached_stmts->stmts,
+	                     (gpointer) tracker_sparql_statement_get_sparql (stmt),
+	                     link);
+
+	/* Check for possibly evicted items */
+	while (cached_stmts->mru.length > MAX_CACHED_STMTS) {
+		stmt = g_queue_pop_tail (&cached_stmts->mru);
+		g_hash_table_remove (cached_stmts->stmts,
+		                     (gpointer) tracker_sparql_statement_get_sparql (stmt));
+		g_object_unref (stmt);
+	}
+}
+
+TrackerSparqlStatement *
+tracker_endpoint_cache_select_sparql (TrackerEndpoint  *endpoint,
+                                      const gchar      *sparql,
+                                      GCancellable     *cancellable,
+                                      GError          **error)
+{
+	TrackerEndpointPrivate *priv =
+		tracker_endpoint_get_instance_private (endpoint);
+	TrackerSparqlStatement *stmt;
+	GList *link;
+
+	link = g_hash_table_lookup (priv->select_stmts.stmts, sparql);
+
+	if (link) {
+		update_mru (&priv->select_stmts, link);
+		stmt = g_object_ref (link->data);
+		tracker_sparql_statement_clear_bindings (stmt);
+	} else {
+		stmt = tracker_sparql_connection_query_statement (priv->sparql_connection,
+		                                                  sparql,
+		                                                  cancellable,
+		                                                  error);
+		if (stmt)
+			insert_to_mru (&priv->select_stmts, g_object_ref (stmt));
+	}
+
+	return stmt;
 }
 
 /**
