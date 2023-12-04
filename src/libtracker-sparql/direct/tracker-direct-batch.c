@@ -365,6 +365,7 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			                                     elem->d.rdf.default_graph,
 			                                     "<stream>",
 			                                     &inner_error);
+			g_object_unref (deserializer);
 		} else {
 			g_assert_not_reached ();
 		}
