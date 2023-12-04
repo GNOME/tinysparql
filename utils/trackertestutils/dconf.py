@@ -64,11 +64,12 @@ class DConfClient(object):
     environment.
     """
 
-    def __init__(self, extra_env, session_bus_address):
+    def __init__(self, extra_env, session_bus_address, host_dbus=False):
         self.env = os.environ
         self.env.update(extra_env)
         self.env['DBUS_SESSION_BUS_ADDRESS'] = session_bus_address
-        self._check_using_correct_dconf_profile()
+        if not host_dbus:
+            self._check_using_correct_dconf_profile()
 
     def _check_using_correct_dconf_profile(self):
         profile = self.env.get("DCONF_PROFILE")

@@ -39,7 +39,7 @@ import time
 from gi.repository import Gio
 from gi.repository import GLib
 
-from . import dconf
+from .dconf import DConfClient
 from . import helpers
 
 # Script
@@ -89,6 +89,11 @@ class ExternalDBusSandbox():
 
     def get_session_bus_address(self):
         return self.session_bus_address
+
+    def get_dconf_client(self):
+        return DConfClient(
+            self.extra_env, self.get_session_bus_address(), host_dbus=True
+        )
 
     def stop(self):
         log.info("Not stopping D-Bus daemon managed by another process")
