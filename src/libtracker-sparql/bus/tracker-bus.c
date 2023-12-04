@@ -352,8 +352,12 @@ write_sparql_queries (GOutputStream  *ostream,
 
 			if (!g_data_output_stream_put_uint32 (data, g_bytes_get_size (bytes), NULL, error))
 				goto error;
-			if (!g_data_output_stream_put_string (data, g_bytes_get_data (bytes, NULL),
-			                                      NULL, error))
+			if (!g_output_stream_write_all (G_OUTPUT_STREAM (data),
+			                                g_bytes_get_data (bytes, NULL),
+			                                g_bytes_get_size (bytes),
+			                                NULL,
+			                                NULL,
+			                                error))
 				goto error;
 
 			g_clear_pointer (&bytes, g_bytes_unref);
