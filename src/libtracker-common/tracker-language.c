@@ -225,33 +225,20 @@ tracker_language_new (const gchar *language_code)
 	return language;
 }
 
-/**
- * tracker_language_stem_word:
- * @language: a #TrackerLanguage
- * @word: string pointing to a word
- * @word_length: word ascii length
- *
- * If the stemmer is enabled, it will return the stem word for @word.
- * If it's disabled, it will return the passed word.
- *
- * Returns: a string with the processed word. This string must be
- *          freed with g_free()
- **/
-gchar *
+void
 tracker_language_stem_word (TrackerLanguage *language,
-                            const gchar     *word,
-                            gint             word_length)
+                            gchar           *buffer,
+                            gint            *buffer_len,
+                            gint             buffer_size)
 {
 #ifdef HAVE_LIBSTEMMER
 	TrackerLanguagePrivate *priv;
 #endif /* HAVE_LIBSTEMMER */
-	gchar *stem_word = NULL;
 
-	g_return_val_if_fail (TRACKER_IS_LANGUAGE (language), NULL);
-
-	if (word_length < 0) {
-		word_length = strlen (word);
-	}
+	g_return_if_fail (TRACKER_IS_LANGUAGE (language));
+	g_return_if_fail (buffer != NULL);
+	g_return_if_fail (buffer_len != NULL);
+	g_return_if_fail (*buffer_len >= 0);
 
 #ifdef HAVE_LIBSTEMMER
 	priv = tracker_language_get_instance_private (language);
@@ -259,13 +246,20 @@ tracker_language_stem_word (TrackerLanguage *language,
 	g_mutex_lock (&priv->stemmer_mutex);
 
 	if (priv->stemmer) {
-		stem_word = g_strdup ((gchar *) sb_stemmer_stem (priv->stemmer,
-		                                                 (guchar*) word,
-		                                                 word_length));
+		const sb_symbol *symbol;
+		int len;
+
+		symbol = sb_stemmer_stem (priv->stemmer,
+		                          (const sb_symbol *) buffer,
+		                          *buffer_len);
+		len = sb_stemmer_length (priv->stemmer);
+
+		if (len < buffer_size) {
+			memcpy (buffer, symbol, len + 1);
+			*buffer_len = len;
+		}
 	}
 
 	g_mutex_unlock (&priv->stemmer_mutex);
 #endif /* HAVE_LIBSTEMMER */
-
-	return stem_word ? stem_word : g_strndup (word, word_length);
 }
