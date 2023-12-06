@@ -1138,6 +1138,8 @@ function_sparql_strip_punctuation (sqlite3_context *context,
 	output = g_regex_replace (regex, input, -1, 0, replacement, 0, &error);
 
 	sqlite3_result_text (context, output, -1, g_free);
+
+	g_regex_unref (regex);
 }
 
 static void
