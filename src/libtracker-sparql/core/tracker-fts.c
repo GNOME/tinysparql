@@ -191,21 +191,17 @@ tracker_fts_alter_table (sqlite3            *db,
                          TrackerOntologies  *ontologies,
                          GError            **error)
 {
-	gchar *query, *tmp_name;
+	gchar *query;
 	int rc;
 
 	if (!has_fts_properties (ontologies))
 		return TRUE;
 
-	tmp_name = g_strdup_printf ("%s_TMP", table_name);
-
-	if (!tracker_fts_create_table (db, database, tmp_name, ontologies, error)) {
-		g_free (tmp_name);
+	if (!tracker_fts_create_table (db, database, table_name, ontologies, error))
 		return FALSE;
-	}
 
 	query = g_strdup_printf ("INSERT INTO \"%s\".%s (rowid) SELECT rowid FROM fts_view",
-				 database, tmp_name);
+				 database, table_name);
 	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
 	g_free (query);
 
@@ -213,21 +209,14 @@ tracker_fts_alter_table (sqlite3            *db,
 		goto error;
 
 	query = g_strdup_printf ("INSERT INTO \"%s\".%s(%s) VALUES('rebuild')",
-				 database, tmp_name, tmp_name);
+				 database, table_name, table_name);
 	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
 	g_free (query);
 
 	if (rc != SQLITE_OK)
 		goto error;
 
-	query = g_strdup_printf ("ALTER TABLE \"%s\".%s RENAME TO %s",
-				 database, tmp_name, table_name);
-	rc = sqlite3_exec (db, query, NULL, NULL, NULL);
-	g_free (query);
-
 error:
-	g_free (tmp_name);
-
 	if (rc != SQLITE_OK) {
 		g_set_error (error,
 		             TRACKER_DB_INTERFACE_ERROR,
