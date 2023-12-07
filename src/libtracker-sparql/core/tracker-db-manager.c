@@ -783,6 +783,11 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 		return NULL;
 	}
 
+	if (!tracker_db_interface_sqlite_fts_init (connection,
+	                                           db_manager->flags,
+	                                           error))
+		return FALSE;
+
 	tracker_db_interface_set_max_stmt_cache_size (connection,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
 	                                              db_manager->s_cache_size);
