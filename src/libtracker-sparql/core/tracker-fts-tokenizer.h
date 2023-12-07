@@ -22,7 +22,7 @@
 #include <sqlite3.h>
 #include <glib.h>
 
-#include "tracker-db-manager.h"
+#include "tracker-data-manager.h"
 
 #ifndef __TRACKER_FTS_TOKENIZER_H__
 #define __TRACKER_FTS_TOKENIZER_H__
@@ -30,7 +30,7 @@
 gboolean tracker_tokenizer_initialize (sqlite3                *db,
                                        TrackerDBInterface     *interface,
                                        TrackerDBManagerFlags   flags,
-                                       const gchar           **property_names,
+                                       TrackerDataManager     *data_manager,
                                        GError                **error);
 
 #endif /* __TRACKER_FTS_TOKENIZER_H__ */

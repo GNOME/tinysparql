@@ -3863,11 +3863,14 @@ tracker_data_manager_init_fts (TrackerDataManager  *manager,
                                gboolean             create,
                                GError             **error)
 {
-	return tracker_db_interface_sqlite_fts_init (iface,
-	                                             database,
-	                                             manager->ontologies,
-	                                             create,
-	                                             error);
+	if (!tracker_db_interface_sqlite_fts_init (iface, manager->flags, error))
+		return FALSE;
+	if (!create)
+		return TRUE;
+	return tracker_db_interface_sqlite_fts_create_table (iface,
+	                                                     database,
+	                                                     manager->ontologies,
+	                                                     error);
 }
 
 static gboolean

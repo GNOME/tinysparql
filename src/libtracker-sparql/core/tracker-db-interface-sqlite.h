@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include "tracker-db-interface.h"
+#include "tracker-db-manager.h"
 
 G_BEGIN_DECLS
 
@@ -46,9 +47,11 @@ TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gc
 gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterface       *interface);
 void                tracker_db_interface_sqlite_enable_shared_cache    (void);
 gboolean            tracker_db_interface_sqlite_fts_init               (TrackerDBInterface       *interface,
+                                                                        TrackerDBManagerFlags     fts_flags,
+                                                                        GError                  **error);
+gboolean            tracker_db_interface_sqlite_fts_create_table       (TrackerDBInterface       *interface,
                                                                         const gchar              *database,
                                                                         TrackerOntologies        *ontologies,
-                                                                        gboolean                  create,
                                                                         GError                  **error);
 void                tracker_db_interface_sqlite_reset_collator         (TrackerDBInterface       *interface);
 gboolean            tracker_db_interface_sqlite_wal_checkpoint         (TrackerDBInterface       *interface,
