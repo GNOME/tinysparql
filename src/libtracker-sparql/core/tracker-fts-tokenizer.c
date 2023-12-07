@@ -48,6 +48,7 @@ struct TrackerTokenizer {
 
 struct TrackerTokenizerFunctionData {
 	TrackerDBInterface *interface;
+	TrackerDataManager *data_manager;
 	gchar **property_names;
 };
 
@@ -169,6 +170,37 @@ offsets_tokenizer_func (void       *data,
 	return SQLITE_OK;
 }
 
+static gboolean
+ensure_fts_properties (TrackerTokenizerFunctionData *data)
+{
+	TrackerOntologies *ontologies;
+	TrackerProperty **properties;
+	GArray *property_names;
+	guint i, len;
+
+	if (data->property_names)
+		return data->property_names[0] != NULL;
+
+	ontologies = tracker_data_manager_get_ontologies (data->data_manager);
+
+	property_names = g_array_new (TRUE, FALSE, sizeof (gchar *));
+	properties = tracker_ontologies_get_properties (ontologies, &len);
+
+	for (i = 0; i < len; i++) {
+		gchar *column;
+
+		if (!tracker_property_get_fulltext_indexed (properties[i]))
+			continue;
+
+		column = g_strdup (tracker_property_get_name (properties[i]));
+		g_array_append_val (property_names, column);
+	}
+
+	data->property_names = (gchar **) g_array_free (property_names, FALSE);
+
+	return data->property_names[0] != NULL;
+}
+
 static void
 tracker_offsets_function (const Fts5ExtensionApi  *api,
                           Fts5Context             *fts_ctx,
@@ -189,6 +221,12 @@ tracker_offsets_function (const Fts5ExtensionApi  *api,
 	}
 
 	data = api->xUserData (fts_ctx);
+
+	if (!ensure_fts_properties (data)) {
+		sqlite3_result_null (ctx);
+		return;
+	}
+
 	rc = api->xInstCount (fts_ctx, &n_hits);
 
 	if (rc != SQLITE_OK) {
@@ -296,14 +334,14 @@ error:
 }
 
 static TrackerTokenizerFunctionData *
-tracker_tokenizer_function_data_new (TrackerDBInterface  *interface,
-                                     const gchar        **property_names)
+tracker_tokenizer_function_data_new (TrackerDBInterface *interface,
+                                     TrackerDataManager *data_manager)
 {
 	TrackerTokenizerFunctionData *data;
 
 	data = g_new0 (TrackerTokenizerFunctionData, 1);
 	data->interface = interface;
-	data->property_names = g_strdupv ((gchar **) property_names);
+	data->data_manager = data_manager;
 
 	return data;
 }
@@ -319,7 +357,7 @@ gboolean
 tracker_tokenizer_initialize (sqlite3                *db,
                               TrackerDBInterface     *interface,
                               TrackerDBManagerFlags   flags,
-                              const gchar           **property_names,
+                              TrackerDataManager     *data_manager,
                               GError                **error)
 {
 	TrackerTokenizerData *data;
@@ -338,7 +376,7 @@ tracker_tokenizer_initialize (sqlite3                *db,
 	                       tracker_tokenizer_data_free);
 
 	/* Offsets */
-	func_data = tracker_tokenizer_function_data_new (interface, property_names);
+	func_data = tracker_tokenizer_function_data_new (interface, data_manager);
 	api->xCreateFunction (api, "tracker_offsets", func_data,
 	                      &tracker_offsets_function,
 	                      (GDestroyNotify) tracker_tokenizer_function_data_free);

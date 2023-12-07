@@ -37,6 +37,7 @@
 #include <libtracker-sparql/tracker-private.h>
 
 #include "tracker-fts.h"
+#include "tracker-fts-tokenizer.h"
 #include "tracker-collation.h"
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-manager.h"
@@ -2027,20 +2028,26 @@ close_database (TrackerDBInterface *db_interface)
 }
 
 gboolean
-tracker_db_interface_sqlite_fts_init (TrackerDBInterface  *db_interface,
-                                      const gchar         *database,
-                                      TrackerOntologies   *ontologies,
-                                      gboolean             create,
-                                      GError             **error)
+tracker_db_interface_sqlite_fts_init (TrackerDBInterface     *db_interface,
+                                      TrackerDBManagerFlags   fts_flags,
+                                      GError                **error)
+{
+	return tracker_tokenizer_initialize (db_interface->db,
+	                                     db_interface,
+	                                     fts_flags,
+	                                     db_interface->user_data,
+	                                     error);
+}
+
+gboolean
+tracker_db_interface_sqlite_fts_create_table (TrackerDBInterface  *db_interface,
+                                              const gchar         *database,
+                                              TrackerOntologies   *ontologies,
+                                              GError             **error)
 {
 	GError *inner_error = NULL;
 
-	if (!tracker_fts_init_db (db_interface->db, db_interface,
-	                          db_interface->flags, ontologies, error))
-		return FALSE;
-
-	if (create &&
-	    !tracker_fts_create_table (db_interface->db, database, "fts5",
+	if (!tracker_fts_create_table (db_interface->db, database, "fts5",
 	                               ontologies,
 	                               &inner_error)) {
 		g_propagate_prefixed_error (error,

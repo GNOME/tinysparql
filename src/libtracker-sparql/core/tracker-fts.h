@@ -30,11 +30,6 @@
 
 G_BEGIN_DECLS
 
-gboolean    tracker_fts_init_db          (sqlite3                *db,
-                                          TrackerDBInterface     *interface,
-                                          TrackerDBManagerFlags   flags,
-                                          TrackerOntologies      *ontologies,
-                                          GError                **error);
 gboolean    tracker_fts_create_table     (sqlite3            *db,
                                           const gchar        *database,
                                           gchar              *table_name,

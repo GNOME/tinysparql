@@ -43,46 +43,6 @@ has_fts_properties (TrackerOntologies *ontologies)
 	return FALSE;
 }
 
-static gchar **
-get_fts_properties (TrackerOntologies *ontologies)
-{
-	TrackerProperty **properties;
-	GArray *property_names;
-	guint i, len;
-
-	property_names = g_array_new (TRUE, FALSE, sizeof (gchar *));
-	properties = tracker_ontologies_get_properties (ontologies, &len);
-
-	for (i = 0; i < len; i++) {
-		gchar *column;
-
-		if (!tracker_property_get_fulltext_indexed (properties[i]))
-			continue;
-
-		column = g_strdup (tracker_property_get_name (properties[i]));
-		g_array_append_val (property_names, column);
-	}
-
-	return (gchar **) g_array_free (property_names, FALSE);
-}
-
-gboolean
-tracker_fts_init_db (sqlite3                *db,
-                     TrackerDBInterface     *interface,
-                     TrackerDBManagerFlags   flags,
-                     TrackerOntologies      *ontologies,
-                     GError                **error)
-{
-	gchar **property_names;
-	gboolean retval;
-
-	property_names = get_fts_properties (ontologies);
-	retval = tracker_tokenizer_initialize (db, interface, flags, (const gchar **) property_names, error);
-	g_strfreev (property_names);
-
-	return retval;
-}
-
 gboolean
 tracker_fts_create_table (sqlite3            *db,
                           const gchar        *database,
