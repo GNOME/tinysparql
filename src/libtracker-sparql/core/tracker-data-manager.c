@@ -3860,14 +3860,12 @@ static gboolean
 tracker_data_manager_init_fts (TrackerDataManager  *manager,
                                TrackerDBInterface  *iface,
                                const gchar         *database,
-                               gboolean             create,
                                GError             **error)
 {
-	return tracker_db_interface_sqlite_fts_init (iface,
-	                                             database,
-	                                             manager->ontologies,
-	                                             create,
-	                                             error);
+	return tracker_db_interface_sqlite_fts_create_table (iface,
+	                                                     database,
+	                                                     manager->ontologies,
+	                                                     error);
 }
 
 static gboolean
@@ -3958,17 +3956,10 @@ tracker_data_manager_initialize_iface (TrackerDataManager  *data_manager,
 			                                         iface, value, FALSE,
 			                                         error))
 				goto error;
-
-			if (!tracker_data_manager_init_fts (data_manager, iface,
-			                                    value, FALSE, error))
-				goto error;
 		}
 
 		g_hash_table_unref (graphs);
 	}
-
-	if (!tracker_data_manager_init_fts (data_manager, iface, "main", FALSE, error))
-		return FALSE;
 
 	return TRUE;
  error:
@@ -4366,7 +4357,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			goto rollback_newly_created_db;
 		}
 
-		if (!tracker_data_manager_init_fts (manager, iface, "main", TRUE, &internal_error)) {
+		if (!tracker_data_manager_init_fts (manager, iface, "main", &internal_error)) {
 			g_propagate_error (error, internal_error);
 			goto rollback_newly_created_db;
 		}
@@ -4709,11 +4700,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 						if (ontology_error)
 							break;
 
-						if (update_fts) {
+						if (update_fts)
 							tracker_data_manager_update_fts (manager, iface, value, &ontology_error);
-						} else {
-							tracker_data_manager_init_fts (manager, iface, value, FALSE, &ontology_error);
-						}
 
 						if (ontology_error)
 							break;
@@ -4723,11 +4711,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				}
 
 				if (!ontology_error) {
-					if (update_fts) {
+					if (update_fts)
 						tracker_data_manager_update_fts (manager, iface, "main", &ontology_error);
-					} else {
-						tracker_data_manager_init_fts (manager, iface, "main", FALSE, &ontology_error);
-					}
 				}
 
 				if (!ontology_error) {
@@ -5093,7 +5078,7 @@ tracker_data_manager_create_graph (TrackerDataManager  *manager,
 	                                     FALSE, error))
 		goto detach;
 
-	if (!tracker_data_manager_init_fts (manager, iface, name, TRUE, error))
+	if (!tracker_data_manager_init_fts (manager, iface, name, error))
 		goto detach;
 
 	id = tracker_data_ensure_graph (manager->data_update, name, error);
