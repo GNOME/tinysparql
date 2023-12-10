@@ -95,6 +95,7 @@ gboolean tracker_data_load_from_deserializer        (TrackerData               *
                                                      TrackerDeserializer       *deserializer,
                                                      const gchar               *graph,
                                                      const gchar               *location,
+                                                     GHashTable                *bnodes,
                                                      GError                   **error);
 void     tracker_data_load_rdf_file                 (TrackerData               *data,
                                                      GFile                     *file,

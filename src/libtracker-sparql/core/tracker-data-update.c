@@ -3297,6 +3297,7 @@ tracker_data_load_from_deserializer (TrackerData          *data,
                                      TrackerDeserializer  *deserializer,
                                      const gchar          *graph,
                                      const gchar          *location,
+                                     GHashTable           *bnodes,
                                      GError              **error)
 {
 	TrackerSparqlCursor *cursor = TRACKER_SPARQL_CURSOR (deserializer);
@@ -3304,6 +3305,11 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 	GError *inner_error = NULL;
 	const gchar *subject_str, *predicate_str, *object_str, *graph_str;
 	goffset last_parsed_line_no = 0, last_parsed_column_no = 0;
+
+	if (bnodes)
+		g_hash_table_ref (bnodes);
+	else
+		bnodes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) tracker_rowid_free);
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 	data->implicit_create = TRUE;
@@ -3342,19 +3348,37 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		               "nrl:added") == 0)
 			continue;
 
-		if (!tracker_data_query_string_to_value (data->manager,
-		                                         object_str,
-		                                         NULL, /* FIXME: Missing langtag */
-		                                         tracker_property_get_data_type (predicate),
-		                                         &object,
-		                                         &inner_error))
-			goto failed;
+		if (tracker_sparql_cursor_get_value_type (cursor, TRACKER_RDF_COL_SUBJECT) ==
+		    TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE) {
+			subject = get_bnode_id (bnodes, data, subject_str, &inner_error);
+		} else {
+			subject = tracker_data_update_ensure_resource (data,
+			                                               subject_str,
+			                                               &inner_error);
+		}
 
-		subject = tracker_data_update_ensure_resource (data,
-		                                               subject_str,
-		                                               &inner_error);
 		if (inner_error)
 			goto failed;
+
+		if (tracker_sparql_cursor_get_value_type (cursor, TRACKER_RDF_COL_OBJECT) ==
+		    TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE) {
+			TrackerRowid object_id;
+
+			object_id = get_bnode_id (bnodes, data, object_str, &inner_error);
+			if (inner_error)
+				goto failed;
+
+			g_value_init (&object, G_TYPE_INT64);
+			g_value_set_int64 (&object, object_id);
+		} else {
+			if (!tracker_data_query_string_to_value (data->manager,
+			                                         object_str,
+			                                         NULL, /* FIXME: Missing langtag */
+			                                         tracker_property_get_data_type (predicate),
+			                                         &object,
+			                                         &inner_error))
+				goto failed;
+		}
 
 		tracker_data_insert_statement (data,
 		                               graph_str ? graph_str : graph,
@@ -3375,11 +3399,13 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		goto failed;
 
 	data->implicit_create = FALSE;
+	g_hash_table_unref (bnodes);
 
 	return TRUE;
 
 failed:
 	data->implicit_create = FALSE;
+	g_hash_table_unref (bnodes);
 
 	tracker_deserializer_get_parser_location (deserializer,
 						  &last_parsed_line_no,
@@ -3410,6 +3436,7 @@ tracker_data_load_rdf_file (TrackerData  *data,
 	                                     TRACKER_DESERIALIZER (deserializer),
 	                                     graph,
 	                                     uri,
+	                                     NULL,
 	                                     error);
 	g_object_unref (deserializer);
 	g_free (uri);

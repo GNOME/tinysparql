@@ -364,6 +364,7 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			                                     TRACKER_DESERIALIZER (deserializer),
 			                                     elem->d.rdf.default_graph,
 			                                     "<stream>",
+			                                     bnodes,
 			                                     &inner_error);
 			g_object_unref (deserializer);
 		} else {
