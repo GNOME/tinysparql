@@ -291,8 +291,10 @@ serialize_up_to_size (TrackerSerializerTrig  *serializer_trig,
 
 	/* Close the last quad */
 	if (serializer_trig->cursor_finished &&
-	    serializer_trig->has_quads)
+	    serializer_trig->has_quads) {
 		g_string_append (serializer_trig->data, " .\n}\n");
+		serializer_trig->has_quads = FALSE;
+	}
 
 	return TRUE;
 }
