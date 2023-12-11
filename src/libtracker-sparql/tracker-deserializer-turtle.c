@@ -615,11 +615,17 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 			advance_whitespace_and_comments (deserializer);
 
 			if (!parse_token (deserializer, "{")) {
-				g_set_error (error,
-				             TRACKER_SPARQL_ERROR,
-				             TRACKER_SPARQL_ERROR_PARSE,
-				             "Expected graph block");
-				return FALSE;
+				if (deserializer->graph ||
+				    g_buffered_input_stream_get_available (deserializer->buffered_stream) > 0) {
+					g_set_error (error,
+					             TRACKER_SPARQL_ERROR,
+					             TRACKER_SPARQL_ERROR_PARSE,
+					             "Expected graph block");
+					return FALSE;
+				} else {
+					/* Empty RDF data */
+					return TRUE;
+				}
 			}
 
 			deserializer->state = STATE_SUBJECT;
