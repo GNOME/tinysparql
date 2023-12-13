@@ -97,6 +97,13 @@ gboolean tracker_data_load_from_deserializer        (TrackerData               *
                                                      const gchar               *location,
                                                      GHashTable                *bnodes,
                                                      GError                   **error);
+
+gboolean tracker_data_load_from_dbus_fd (TrackerData   *data,
+                                         GInputStream  *istream,
+                                         GHashTable    *bnodes,
+                                         GCancellable  *cancellable,
+                                         GError       **error);
+
 void     tracker_data_load_rdf_file                 (TrackerData               *data,
                                                      GFile                     *file,
                                                      const gchar               *graph,

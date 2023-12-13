@@ -60,6 +60,12 @@ typedef enum {
 	TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
 } TrackerDataLogEntryType;
 
+typedef enum
+{
+	TRACKER_BUS_OP_SPARQL,
+	TRACKER_BUS_OP_RDF,
+} TrackerBusOpType;
+
 typedef struct {
 	gint prev;
 	TrackerProperty *property;
@@ -3440,6 +3446,302 @@ tracker_data_load_rdf_file (TrackerData  *data,
 	                                     error);
 	g_object_unref (deserializer);
 	g_free (uri);
+}
+
+static TrackerSerializerFormat
+convert_format (TrackerRdfFormat format)
+{
+	switch (format) {
+	case TRACKER_RDF_FORMAT_TURTLE:
+		return TRACKER_SERIALIZER_FORMAT_TTL;
+	case TRACKER_RDF_FORMAT_TRIG:
+		return TRACKER_SERIALIZER_FORMAT_TRIG;
+	case TRACKER_RDF_FORMAT_JSON_LD:
+		return TRACKER_SERIALIZER_FORMAT_JSON_LD;
+	default:
+		g_assert_not_reached ();
+	}
+}
+
+static gchar *
+read_string (GDataInputStream  *istream,
+             gsize             *len_out,
+             GCancellable      *cancellable,
+             GError           **error)
+{
+	gchar *buf;
+	guint32 len;
+
+	len = g_data_input_stream_read_int32 (istream, NULL, error);
+	if (len == 0)
+		return NULL;
+
+	buf = g_new0 (gchar, len + 1);
+
+	if (!g_input_stream_read_all (G_INPUT_STREAM (istream),
+	                              buf,
+	                              len,
+	                              NULL,
+	                              cancellable,
+	                              error)) {
+		g_free (buf);
+		return NULL;
+	}
+
+	if (len_out)
+		*len_out = len;
+
+	return buf;
+}
+
+static gboolean
+value_from_variant (GValue   *value,
+                    GVariant *variant)
+{
+	if (g_variant_is_of_type (variant, G_VARIANT_TYPE_STRING)) {
+		g_value_init (value, G_TYPE_STRING);
+		g_value_set_string (value, g_variant_get_string (variant, NULL));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_BOOLEAN)) {
+		g_value_init (value, G_TYPE_BOOLEAN);
+		g_value_set_boolean (value, g_variant_get_boolean (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_INT16)) {
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, (gint64) g_variant_get_int16 (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_INT32)) {
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, (gint64) g_variant_get_int32 (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_UINT16)) {
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, (gint64) g_variant_get_uint16 (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_UINT32)) {
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, (gint64) g_variant_get_uint32 (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_INT64)) {
+		g_value_init (value, G_TYPE_INT64);
+		g_value_set_int64 (value, g_variant_get_int64 (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_DOUBLE)) {
+		g_value_init (value, G_TYPE_DOUBLE);
+		g_value_set_double (value, g_variant_get_double (variant));
+	} else {
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static void
+value_free (gpointer data)
+{
+	GValue *value = data;
+
+	g_value_unset (value);
+	g_free (value);
+}
+
+static GHashTable *
+extract_parameters (const gchar  *str,
+                    GError      **error)
+{
+	GHashTable *parameters;
+	GVariant *variant, *value;
+	GVariantIter iter;
+	gchar *key;
+
+	variant = g_variant_parse (G_VARIANT_TYPE ("a{sv}"),
+	                           str, NULL,
+	                           NULL,
+	                           error);
+	if (!variant)
+		return FALSE;
+
+	parameters = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, value_free);
+
+	g_variant_iter_init (&iter, variant);
+	while (g_variant_iter_next (&iter, "{sv}", &key, &value)) {
+		GValue *gvalue = g_new0 (GValue, 1);
+
+		if (!value_from_variant (gvalue, value)) {
+			g_free (gvalue);
+			continue;
+		}
+
+		g_hash_table_insert (parameters, key, gvalue);
+		g_variant_unref (value);
+	}
+
+	g_variant_unref (variant);
+
+	return parameters;
+}
+
+static gboolean
+handle_update_sparql (TrackerData       *data,
+                      GDataInputStream  *istream,
+                      GHashTable        *bnodes,
+                      GHashTable        *update_cache,
+                      GCancellable      *cancellable,
+                      GError           **error)
+{
+	TrackerSparql *update;
+	gchar *buffer = NULL, *parameters_str = NULL;
+	GHashTable *parameters = NULL;
+	GError *inner_error = NULL;
+
+	buffer = read_string (istream, NULL, cancellable, error);
+	if (!buffer)
+		goto error;
+
+	parameters_str = read_string (istream, NULL, cancellable, &inner_error);
+	if (inner_error)
+		goto error;
+
+	if (parameters_str) {
+		parameters = extract_parameters (parameters_str, &inner_error);
+		if (!parameters)
+			goto error;
+	}
+
+	update = g_hash_table_lookup (update_cache, buffer);
+	if (!update) {
+		update = tracker_sparql_new_update (data->manager, buffer, &inner_error);
+		if (!update)
+			goto error;
+
+		g_hash_table_insert (update_cache, g_steal_pointer (&buffer), update);
+	}
+
+	tracker_sparql_execute_update (update,
+	                               parameters,
+	                               bnodes,
+	                               NULL,
+	                               &inner_error);
+
+ error:
+	g_clear_pointer (&parameters, g_hash_table_unref);
+	g_free (buffer);
+	g_free (parameters_str);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+static gboolean
+handle_update_rdf (TrackerData       *data,
+                   GDataInputStream  *istream,
+                   GHashTable        *bnodes,
+                   GCancellable      *cancellable,
+                   GError           **error)
+{
+	TrackerDeserializer *deserializer;
+	G_GNUC_UNUSED TrackerDeserializeFlags flags;
+	TrackerRdfFormat format;
+	GInputStream *rdf_stream;
+	gchar *default_graph = NULL, *rdf = NULL;
+	gsize rdf_len;
+	GError *inner_error = NULL;
+
+	flags = g_data_input_stream_read_uint32 (istream, cancellable, &inner_error);
+	if (inner_error)
+		goto error;
+
+	format = g_data_input_stream_read_uint32 (istream, cancellable, &inner_error);
+	if (inner_error)
+		goto error;
+
+	default_graph = read_string (istream, NULL, cancellable, &inner_error);
+	if (inner_error)
+		goto error;
+
+	rdf = read_string (istream, &rdf_len, cancellable, &inner_error);
+	if (inner_error)
+		goto error;
+
+	rdf_stream = g_memory_input_stream_new_from_data (rdf, rdf_len, g_free);
+	deserializer = TRACKER_DESERIALIZER (tracker_deserializer_new (rdf_stream, NULL,
+	                                                               convert_format (format)));
+	g_object_unref (rdf_stream);
+	if (!deserializer)
+		goto error;
+
+	tracker_data_load_from_deserializer (data,
+	                                     deserializer,
+	                                     default_graph,
+	                                     "<stream>",
+	                                     bnodes,
+	                                     &inner_error);
+	g_object_unref (deserializer);
+
+ error:
+	g_free (default_graph);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+gboolean
+tracker_data_load_from_dbus_fd (TrackerData   *data,
+                                GInputStream  *istream,
+                                GHashTable    *bnodes,
+                                GCancellable  *cancellable,
+                                GError       **error)
+{
+	GDataInputStream *stream;
+	gint num_queries, i;
+	GError *inner_error = NULL;
+	GHashTable *update_cache;
+
+	stream = g_data_input_stream_new (istream);
+	g_buffered_input_stream_set_buffer_size (G_BUFFERED_INPUT_STREAM (stream),
+	                                         sysconf (_SC_PAGE_SIZE));
+	g_data_input_stream_set_byte_order (stream,
+	                                    G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
+
+	num_queries = g_data_input_stream_read_int32 (stream, cancellable, &inner_error);
+	if (inner_error)
+		goto error;
+
+	update_cache = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_object_unref);
+
+	for (i = 0; i < num_queries; i++) {
+		TrackerBusOpType op_type;
+
+		op_type = g_data_input_stream_read_uint32 (stream, cancellable, &inner_error);
+		if (inner_error)
+			break;
+
+		if (op_type == TRACKER_BUS_OP_SPARQL) {
+			if (!handle_update_sparql (data, stream,
+			                           bnodes, update_cache,
+			                           cancellable, &inner_error))
+				break;
+		} else if (op_type == TRACKER_BUS_OP_RDF) {
+			if (!handle_update_rdf (data, stream, bnodes,
+			                        cancellable, &inner_error))
+				break;
+		} else {
+			g_assert_not_reached ();
+		}
+	}
+
+	g_hash_table_unref (update_cache);
+
+ error:
+	g_clear_object (&stream);
+
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 TrackerRowid

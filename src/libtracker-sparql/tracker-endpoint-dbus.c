@@ -927,6 +927,23 @@ read_update_blank_cb (GObject      *object,
 }
 
 static void
+batch_execute_cb (GObject      *object,
+                  GAsyncResult *res,
+                  gpointer      user_data)
+{
+	GDBusMethodInvocation *invocation = user_data;
+	GError *error = NULL;
+
+	if (!tracker_batch_execute_finish (TRACKER_BATCH (object), res, &error))
+		g_dbus_method_invocation_return_gerror (invocation, error);
+	else
+		g_dbus_method_invocation_return_value (invocation, NULL);
+
+	g_clear_error (&error);
+	g_object_unref (object);
+}
+
+static void
 deserialize_cb (GObject      *object,
                 GAsyncResult *res,
                 gpointer      user_data)
@@ -1092,8 +1109,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		}
 
 		g_free (query);
-	} else if (g_strcmp0 (method_name, "Update") == 0 ||
-	           g_strcmp0 (method_name, "UpdateArray") == 0) {
+	} else if (g_strcmp0 (method_name, "Update") == 0) {
 		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
 			g_dbus_method_invocation_return_error (invocation,
 			                                       G_DBUS_ERROR,
@@ -1116,15 +1132,49 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			UpdateRequest *request;
 			GTask *task;
 
-			request = update_request_new (endpoint_dbus, invocation,
-			                              g_strcmp0 (method_name, "UpdateArray") == 0,
-			                              fd);
+			request = update_request_new (endpoint_dbus, invocation, FALSE, fd);
 
 			task = g_task_new (NULL, request->endpoint->cancellable,
 					   read_update_cb, request);
 			g_task_set_task_data (task, request, NULL);
 			g_task_run_in_thread (task, handle_read_updates);
 			g_object_unref (task);
+		}
+	} else if (g_strcmp0 (method_name, "UpdateArray") == 0) {
+		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
+			g_dbus_method_invocation_return_error (invocation,
+			                                       G_DBUS_ERROR,
+			                                       G_DBUS_ERROR_ACCESS_DENIED,
+			                                       "Operation not allowed");
+			return;
+		}
+
+		g_variant_get (parameters, "(h)", &handle);
+
+		if (fd_list)
+			fd = g_unix_fd_list_get (fd_list, handle, &error);
+
+		if (fd < 0) {
+			g_dbus_method_invocation_return_error (invocation,
+			                                       G_DBUS_ERROR,
+			                                       G_DBUS_ERROR_INVALID_ARGS,
+			                                       "Did not get a file descriptor");
+		} else {
+			TrackerSparqlConnection *conn;
+			TrackerBatch *batch;
+			GInputStream *istream;
+
+			conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (endpoint_dbus));
+			batch = tracker_sparql_connection_create_batch (conn);
+
+			istream = g_unix_input_stream_new (fd, TRUE);
+			tracker_batch_add_dbus_fd (batch, istream);
+			g_object_unref (istream);
+
+			tracker_batch_execute_async (batch,
+			                             endpoint_dbus->cancellable,
+			                             batch_execute_cb,
+			                             invocation);
 		}
 	} else if (g_strcmp0 (method_name, "UpdateBlank") == 0) {
 		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {

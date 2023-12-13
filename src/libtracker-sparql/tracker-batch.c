@@ -145,6 +145,19 @@ tracker_batch_class_init (TrackerBatchClass *klass)
 	g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
+void
+tracker_batch_add_dbus_fd (TrackerBatch *batch,
+                           GInputStream *istream)
+{
+	TrackerBatchPrivate *priv = tracker_batch_get_instance_private (batch);
+
+	g_return_if_fail (TRACKER_IS_BATCH (batch));
+	g_return_if_fail (G_IS_INPUT_STREAM (istream));
+	g_return_if_fail (!priv->already_executed);
+
+	TRACKER_BATCH_GET_CLASS (batch)->add_dbus_fd (batch, istream);
+}
+
 /**
  * tracker_batch_get_connection:
  * @batch: A `TrackerBatch`

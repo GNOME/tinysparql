@@ -289,6 +289,8 @@ struct _TrackerBatchClass {
 	                  TrackerRdfFormat         format,
 	                  const gchar             *default_graph,
 	                  GInputStream            *stream);
+	void (* add_dbus_fd) (TrackerBatch *batch,
+	                      GInputStream *istream);
 	gboolean (* execute) (TrackerBatch  *batch,
 			      GCancellable  *cancellable,
 			      GError       **error);
@@ -355,5 +357,8 @@ TrackerSparqlStatement * tracker_endpoint_cache_select_sparql (TrackerEndpoint  
                                                                const gchar      *sparql,
                                                                GCancellable     *cancellable,
                                                                GError          **error);
+
+void tracker_batch_add_dbus_fd (TrackerBatch *batch,
+                                GInputStream *istream);
 
 #endif /* __TRACKER_PRIVATE_H__ */
