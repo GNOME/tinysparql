@@ -984,7 +984,6 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
                                  gpointer               user_data)
 {
 	TrackerEndpointDBus *endpoint_dbus = user_data;
-	TrackerSparqlConnection *conn;
 	GUnixFDList *fd_list;
 	GError *error = NULL;
 	GVariantIter *arguments;
@@ -999,7 +998,6 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		return;
 	}
 
-	conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (endpoint_dbus));
 	fd_list = g_dbus_message_get_unix_fd_list (g_dbus_method_invocation_get_message (invocation));
 
 	if (g_strcmp0 (method_name, "Query") == 0) {
@@ -1022,10 +1020,10 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 
 			request = query_request_new (endpoint_dbus, invocation, fd);
 
-			stmt = tracker_sparql_connection_query_statement (conn,
-			                                                  query,
-			                                                  request->cancellable,
-			                                                  &error);
+			stmt = tracker_endpoint_cache_select_sparql (TRACKER_ENDPOINT (endpoint_dbus),
+			                                             query,
+			                                             request->cancellable,
+			                                             &error);
 
 			if (stmt && arguments)
 				bind_arguments (stmt, arguments);
@@ -1069,10 +1067,10 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 
 			request = query_request_new (endpoint_dbus, invocation, fd);
 
-			stmt = tracker_sparql_connection_query_statement (conn,
-			                                                  query,
-			                                                  request->cancellable,
-			                                                  &error);
+			stmt = tracker_endpoint_cache_select_sparql (TRACKER_ENDPOINT (endpoint_dbus),
+			                                             query,
+			                                             request->cancellable,
+			                                             &error);
 
 			if (stmt && arguments)
 				bind_arguments (stmt, arguments);
