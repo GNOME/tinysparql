@@ -351,4 +351,9 @@ void tracker_endpoint_rewrite_query (TrackerEndpoint  *endpoint,
 gboolean tracker_endpoint_is_graph_filtered (TrackerEndpoint *endpoint,
                                              const gchar     *graph);
 
+TrackerSparqlStatement * tracker_endpoint_cache_select_sparql (TrackerEndpoint  *endpoint,
+                                                               const gchar      *sparql,
+                                                               GCancellable     *cancellable,
+                                                               GError          **error);
+
 #endif /* __TRACKER_PRIVATE_H__ */
