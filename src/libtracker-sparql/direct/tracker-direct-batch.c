@@ -54,6 +54,8 @@ struct _TrackerBatchElem
 			gchar *default_graph;
 			GInputStream *stream;
 		} rdf;
+
+		GInputStream *dbus_fd;
 	} d;
 };
 
@@ -67,6 +69,7 @@ enum {
 	TRACKER_DIRECT_BATCH_SPARQL,
 	TRACKER_DIRECT_BATCH_STATEMENT,
 	TRACKER_DIRECT_BATCH_RDF,
+	TRACKER_DIRECT_BATCH_DBUS_FD,
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (TrackerDirectBatch,
@@ -192,6 +195,19 @@ tracker_direct_batch_add_rdf (TrackerBatch            *batch,
 	g_array_append_val (priv->array, elem);
 }
 
+void
+tracker_direct_batch_add_dbus_fd (TrackerBatch *batch,
+                                  GInputStream *istream)
+{
+	TrackerDirectBatch *direct = TRACKER_DIRECT_BATCH (batch);
+	TrackerDirectBatchPrivate *priv = tracker_direct_batch_get_instance_private (direct);
+	TrackerBatchElem elem;
+
+	elem.type = TRACKER_DIRECT_BATCH_DBUS_FD;
+	elem.d.dbus_fd = g_object_ref (istream);
+	g_array_append_val (priv->array, elem);
+}
+
 static gboolean
 tracker_direct_batch_execute (TrackerBatch  *batch,
                               GCancellable  *cancellable,
@@ -244,6 +260,7 @@ tracker_direct_batch_class_init (TrackerDirectBatchClass *klass)
 	batch_class->add_resource = tracker_direct_batch_add_resource;
 	batch_class->add_statement = tracker_direct_batch_add_statement;
 	batch_class->add_rdf = tracker_direct_batch_add_rdf;
+	batch_class->add_dbus_fd = tracker_direct_batch_add_dbus_fd;
 	batch_class->execute = tracker_direct_batch_execute;
 	batch_class->execute_async = tracker_direct_batch_execute_async;
 	batch_class->execute_finish = tracker_direct_batch_execute_finish;
@@ -364,7 +381,13 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			                                     TRACKER_DESERIALIZER (deserializer),
 			                                     elem->d.rdf.default_graph,
 			                                     "<stream>",
+			                                     bnodes,
 			                                     &inner_error);
+			g_object_unref (deserializer);
+		} else if (elem->type == TRACKER_DIRECT_BATCH_DBUS_FD) {
+			tracker_data_load_from_dbus_fd (data, elem->d.dbus_fd,
+			                                bnodes, NULL,
+			                                &inner_error);
 		} else {
 			g_assert_not_reached ();
 		}

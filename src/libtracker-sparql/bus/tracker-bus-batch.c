@@ -67,23 +67,115 @@ tracker_bus_batch_add_sparql (TrackerBatch *batch,
 }
 
 static void
+append_property_clear_foreach (TrackerBatch    *batch,
+                               const gchar     *graph,
+                               TrackerResource *resource,
+                               GQueue          *queue)
+{
+	TrackerSparqlConnection *conn;
+	TrackerResourceIterator iter;
+	const gchar *prop;
+	const GValue *value;
+
+	conn = tracker_batch_get_connection (batch);
+	tracker_resource_iterator_init (&iter, resource);
+
+	while (tracker_resource_iterator_next (&iter, &prop, &value)) {
+		if (!tracker_resource_is_blank_node (resource) &&
+		    tracker_resource_get_property_overwrite (resource, prop)) {
+			TrackerSparqlStatement *stmt;
+			gchar *query;
+
+			if (graph) {
+				query = g_strdup_printf ("DELETE WHERE { GRAPH <%s> { ~s %s ?p }}",
+							 graph,
+							 prop);
+			} else {
+				query = g_strdup_printf ("DELETE WHERE { ~s %s ?p }", prop);
+			}
+
+			stmt = tracker_sparql_connection_update_statement (conn,
+			                                                   query,
+			                                                   NULL,
+			                                                   NULL);
+			tracker_batch_add_statement (batch,
+			                             stmt,
+			                             "s", G_TYPE_STRING,
+			                             tracker_resource_get_identifier (resource),
+			                             NULL);
+			g_object_unref (stmt);
+			g_free (query);
+		}
+
+		if (G_VALUE_TYPE (value) == TRACKER_TYPE_RESOURCE)
+			g_queue_push_tail (queue, g_value_get_object (value));
+	}
+}
+
+static void
+append_property_clear_ops (TrackerBatch    *batch,
+                           const gchar     *graph,
+                           TrackerResource *resource)
+{
+	TrackerSparqlConnection *conn;
+	TrackerNamespaceManager *namespaces;
+	GQueue queue = G_QUEUE_INIT;
+	GList *done = NULL;
+	gchar *graph_expanded = NULL;
+
+	conn = tracker_batch_get_connection (batch);
+	namespaces = tracker_sparql_connection_get_namespace_manager (conn);
+	if (graph)
+		graph_expanded = tracker_namespace_manager_expand_uri (namespaces, graph);
+
+	g_queue_push_head (&queue, resource);
+
+	while (!g_queue_is_empty (&queue)) {
+		GList *link;
+
+		link = g_queue_pop_head_link (&queue);
+
+		if (!g_list_find (done, link->data)) {
+			append_property_clear_foreach (batch,
+			                               graph_expanded,
+			                               link->data,
+			                               &queue);
+			link->next = done;
+			done = link;
+		} else {
+			g_list_free (link);
+		}
+	}
+
+	g_list_free (done);
+	g_free (graph_expanded);
+}
+
+static void
 tracker_bus_batch_add_resource (TrackerBatch    *batch,
                                 const gchar     *graph,
                                 TrackerResource *resource)
 {
-	TrackerBusBatch *bus_batch = TRACKER_BUS_BATCH (batch);
 	TrackerSparqlConnection *conn;
 	TrackerNamespaceManager *namespaces;
-	TrackerBusOp op = { 0, };
-	gchar *sparql;
+	GInputStream *istream;
+	gchar *trig;
 
 	conn = tracker_batch_get_connection (batch);
 	namespaces = tracker_sparql_connection_get_namespace_manager (conn);
-	sparql = tracker_resource_print_sparql_update (resource, namespaces, graph);
 
-	op.type = TRACKER_BUS_OP_SPARQL;
-	op.d.sparql.sparql = sparql;
-	g_array_append_val (bus_batch->ops, op);
+	append_property_clear_ops (batch, graph, resource);
+
+	trig = tracker_resource_print_rdf (resource, namespaces,
+	                                   TRACKER_RDF_FORMAT_TRIG, graph);
+	istream = g_memory_input_stream_new_from_data (trig, -1, g_free);
+
+	tracker_batch_add_rdf (batch,
+	                       TRACKER_DESERIALIZE_FLAGS_NONE,
+	                       TRACKER_RDF_FORMAT_TRIG,
+	                       NULL,
+	                       istream);
+	g_object_unref (istream);
 }
 
 static GVariant *

@@ -58,7 +58,6 @@ typedef struct {
 struct _TrackerDeserializerTurtle {
 	TrackerDeserializerRdf parent_instance;
 	GBufferedInputStream *buffered_stream;
-	GHashTable *blank_nodes;
 	GArray *parser_state;
 	gchar *base;
 	gchar *graph;
@@ -85,7 +84,6 @@ tracker_deserializer_turtle_finalize (GObject *object)
 	TrackerDeserializerTurtle *deserializer = TRACKER_DESERIALIZER_TURTLE (object);
 
 	g_clear_object (&deserializer->buffered_stream);
-	g_clear_pointer (&deserializer->blank_nodes, g_hash_table_unref);
 	g_clear_pointer (&deserializer->parser_state, g_array_unref);
 	g_clear_pointer (&deserializer->subject, g_free);
 	g_clear_pointer (&deserializer->predicate, g_free);
@@ -262,25 +260,6 @@ parse_terminal (TrackerDeserializerTurtle  *deserializer,
 		g_free (str);
 
 	return TRUE;
-}
-
-static gchar *
-generate_bnode (TrackerDeserializerTurtle *deserializer,
-                const gchar               *label)
-{
-	gchar *bnode;
-
-	if (!label)
-		return tracker_generate_uuid ("urn:uuid");
-
-	bnode = g_hash_table_lookup (deserializer->blank_nodes, label);
-
-	if (!bnode) {
-		bnode = tracker_generate_uuid ("urn:uuid");
-		g_hash_table_insert (deserializer->blank_nodes, g_strdup (label), bnode);
-	}
-
-	return g_strdup (bnode);
 }
 
 static gchar *
@@ -636,11 +615,17 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 			advance_whitespace_and_comments (deserializer);
 
 			if (!parse_token (deserializer, "{")) {
-				g_set_error (error,
-				             TRACKER_SPARQL_ERROR,
-				             TRACKER_SPARQL_ERROR_PARSE,
-				             "Expected graph block");
-				return FALSE;
+				if (deserializer->graph ||
+				    g_buffered_input_stream_get_available (deserializer->buffered_stream) > 0) {
+					g_set_error (error,
+					             TRACKER_SPARQL_ERROR,
+					             TRACKER_SPARQL_ERROR_PARSE,
+					             "Expected graph block");
+					return FALSE;
+				} else {
+					/* Empty RDF data */
+					return TRUE;
+				}
 			}
 
 			deserializer->state = STATE_SUBJECT;
@@ -654,7 +639,7 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 			if (parse_token (deserializer, "[")) {
 				/* Anonymous blank node */
 				push_stack (deserializer);
-				deserializer->subject = generate_bnode (deserializer, NULL);
+				deserializer->subject = tracker_generate_uuid ("_:bnode");
 				deserializer->state = STATE_PREDICATE;
 				continue;
 			}
@@ -670,8 +655,7 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 					return FALSE;
 				}
 			} else if (parse_terminal (deserializer, terminal_BLANK_NODE_LABEL, 0, &str)) {
-				deserializer->subject = generate_bnode (deserializer, str);
-				g_free (str);
+				deserializer->subject = str;
 			} else {
 				g_set_error (error,
 				             TRACKER_SPARQL_ERROR,
@@ -715,7 +699,7 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 			if (parse_token (deserializer, "[")) {
 				/* Anonymous blank node */
 				push_stack (deserializer);
-				deserializer->subject = generate_bnode (deserializer, NULL);
+				deserializer->subject = tracker_generate_uuid ("_:bnode");
 				deserializer->state = STATE_PREDICATE;
 				continue;
 			}
@@ -736,9 +720,8 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 					return FALSE;
 				}
 			} else if (parse_terminal (deserializer, terminal_BLANK_NODE_LABEL, 0, &str)) {
-				deserializer->object = generate_bnode (deserializer, str);
+				deserializer->object = str;
 				deserializer->object_is_uri = TRUE;
-				g_free (str);
 			} else if (parse_terminal (deserializer, terminal_STRING_LITERAL_LONG1, 3, &str) ||
 			           parse_terminal (deserializer, terminal_STRING_LITERAL_LONG2, 3, &str)) {
 				deserializer->object = g_strcompress (str);
@@ -848,7 +831,10 @@ tracker_deserializer_turtle_get_value_type (TrackerSparqlCursor *cursor,
 	case TRACKER_RDF_COL_PREDICATE:
 		return TRACKER_SPARQL_VALUE_TYPE_URI;
 	case TRACKER_RDF_COL_OBJECT:
-		if (deserializer->object_is_uri)
+		if (deserializer->object_is_uri &&
+		    g_str_has_prefix (deserializer->object, "_:"))
+			return TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE;
+		else if (deserializer->object_is_uri)
 			return TRACKER_SPARQL_VALUE_TYPE_URI;
 		else
 			return TRACKER_SPARQL_VALUE_TYPE_STRING;
@@ -949,8 +935,6 @@ tracker_deserializer_turtle_class_init (TrackerDeserializerTurtleClass *klass)
 static void
 tracker_deserializer_turtle_init (TrackerDeserializerTurtle *deserializer)
 {
-	deserializer->blank_nodes = g_hash_table_new_full (g_str_hash, g_str_equal,
-	                                                   g_free, g_free);
 	deserializer->parser_state = g_array_new (FALSE, FALSE, sizeof (StateStack));
 }
 

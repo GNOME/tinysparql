@@ -145,17 +145,8 @@ typedef struct {
 	TrackerEndpointDBus *endpoint;
 	GDBusMethodInvocation *invocation;
 	GDataInputStream *input_stream;
-	TrackerBatch *batch;
-	gboolean array_update;
-	gint num_queries;
-} UpdateRequest;
-
-typedef struct {
-	TrackerEndpointDBus *endpoint;
-	GDBusMethodInvocation *invocation;
-	GDataInputStream *input_stream;
 	gchar *query;
-} UpdateBlankRequest;
+} UpdateRequest;
 
 static GParamSpec *props[N_PROPS] = { 0, };
 
@@ -265,22 +256,16 @@ query_request_free (QueryRequest *request)
 static UpdateRequest *
 update_request_new (TrackerEndpointDBus   *endpoint,
                     GDBusMethodInvocation *invocation,
-                    gboolean               array_update,
-                    int                    input)
+                    int                    fd)
 {
-	TrackerSparqlConnection *conn;
 	UpdateRequest *request;
 	GInputStream *stream;
 
 	request = g_new0 (UpdateRequest, 1);
 	request->invocation = g_object_ref (invocation);
 	request->endpoint = endpoint;
-	request->array_update = array_update;
 
-	conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (endpoint));
-	request->batch = tracker_sparql_connection_create_batch (conn);
-
-	stream = g_unix_input_stream_new (input, TRUE);
+	stream = g_unix_input_stream_new (fd, TRUE);
 	request->input_stream = g_data_input_stream_new (stream);
 	g_buffered_input_stream_set_buffer_size (G_BUFFERED_INPUT_STREAM (request->input_stream),
 	                                         sysconf (_SC_PAGE_SIZE));
@@ -288,90 +273,7 @@ update_request_new (TrackerEndpointDBus   *endpoint,
 	                                    G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 	g_object_unref (stream);
 
-	if (array_update)
-		request->num_queries = g_data_input_stream_read_int32 (request->input_stream, NULL, NULL);
-	else
-		request->num_queries = 1;
-
 	return request;
-}
-
-static gboolean
-value_from_variant (GValue   *value,
-                    GVariant *variant)
-{
-	if (g_variant_is_of_type (variant, G_VARIANT_TYPE_STRING)) {
-		g_value_init (value, G_TYPE_STRING);
-		g_value_set_string (value, g_variant_get_string (variant, NULL));
-	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_BOOLEAN)) {
-		g_value_init (value, G_TYPE_BOOLEAN);
-		g_value_set_boolean (value, g_variant_get_boolean (variant));
-	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_INT16)) {
-		g_value_init (value, G_TYPE_INT64);
-		g_value_set_int64 (value, (gint64) g_variant_get_int16 (variant));
-	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_INT32)) {
-		g_value_init (value, G_TYPE_INT64);
-		g_value_set_int64 (value, (gint64) g_variant_get_int32 (variant));
-	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_UINT16)) {
-		g_value_init (value, G_TYPE_INT64);
-		g_value_set_int64 (value, (gint64) g_variant_get_uint16 (variant));
-	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_UINT32)) {
-		g_value_init (value, G_TYPE_INT64);
-		g_value_set_int64 (value, (gint64) g_variant_get_uint32 (variant));
-	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_INT64)) {
-		g_value_init (value, G_TYPE_INT64);
-		g_value_set_int64 (value, g_variant_get_int64 (variant));
-	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_DOUBLE)) {
-		g_value_init (value, G_TYPE_DOUBLE);
-		g_value_set_double (value, g_variant_get_double (variant));
-	} else {
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-static gboolean
-extract_parameters (const gchar  *str,
-                    GPtrArray   **parameter_names,
-                    GArray      **parameter_values,
-                    GError      **error)
-{
-	GVariant *variant, *value;
-	GVariantIter iter;
-	gchar *key;
-
-	variant = g_variant_parse (G_VARIANT_TYPE ("a{sv}"),
-	                           str, NULL,
-	                           NULL,
-	                           error);
-	if (!variant)
-		return FALSE;
-
-	g_assert (parameter_names);
-	g_assert (parameter_values);
-
-	*parameter_names = g_ptr_array_new ();
-	g_ptr_array_set_free_func (*parameter_names, g_free);
-	*parameter_values = g_array_new (FALSE, FALSE, sizeof (GValue));
-	g_array_set_clear_func (*parameter_values, (GDestroyNotify) g_value_unset);
-
-	g_variant_iter_init (&iter, variant);
-	while (g_variant_iter_next (&iter, "{sv}", &key, &value)) {
-		GValue gvalue = G_VALUE_INIT;
-
-		if (!value_from_variant (&gvalue, value))
-			continue;
-
-		g_ptr_array_add (*parameter_names, key);
-		g_array_append_val (*parameter_values, gvalue);
-		g_variant_unref (value);
-	}
-
-	g_assert ((*parameter_names)->len == (*parameter_values)->len);
-	g_variant_unref (variant);
-
-	return TRUE;
 }
 
 static gchar *
@@ -422,154 +324,13 @@ read_query (GDataInputStream     *istream,
 	return sparql;
 }
 
-static gboolean
-handle_update_sparql (UpdateRequest  *request,
-                      GCancellable   *cancellable,
-                      GError        **error)
-{
-	gchar *buffer = NULL, *parameters = NULL;
-	GError *inner_error = NULL;
-
-	buffer = read_query (request->input_stream, request->endpoint, cancellable, error);
-	if (!buffer)
-		goto error;
-
-	parameters = read_string (request->input_stream, NULL, NULL, &inner_error);
-	if (inner_error)
-		goto error;
-
-	if (parameters) {
-		TrackerSparqlStatement *stmt;
-		TrackerSparqlConnection *conn;
-		GPtrArray *parameter_names;
-		GArray *parameter_values;
-
-		conn = tracker_batch_get_connection (request->batch);
-		stmt = tracker_sparql_connection_update_statement (conn,
-		                                                   buffer,
-		                                                   cancellable,
-		                                                   &inner_error);
-		if (!stmt)
-			goto error;
-
-		if (!extract_parameters (parameters,
-		                         &parameter_names, &parameter_values,
-		                         &inner_error)) {
-			g_object_unref (&stmt);
-			goto error;
-		}
-
-		tracker_batch_add_statementv (request->batch,
-		                              stmt,
-		                              parameter_names->len,
-		                              (const gchar **) parameter_names->pdata,
-		                              (const GValue *) parameter_values->data);
-
-		g_ptr_array_unref (parameter_names);
-		g_array_unref (parameter_values);
-		g_object_unref (stmt);
-	} else {
-		tracker_batch_add_sparql (request->batch, buffer);
-	}
-
- error:
-	g_free (buffer);
-	g_free (parameters);
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-static gboolean
-handle_update_rdf (UpdateRequest  *request,
-                   GCancellable   *cancellable,
-                   GError        **error)
-{
-	TrackerDeserializeFlags flags;
-	TrackerRdfFormat format;
-	gchar *default_graph = NULL, *rdf = NULL;
-	gsize rdf_len;
-	GInputStream *istream;
-	GError *inner_error = NULL;
-
-	flags = g_data_input_stream_read_uint32 (request->input_stream, NULL, &inner_error);
-	if (inner_error)
-		goto error;
-
-	format = g_data_input_stream_read_uint32 (request->input_stream, NULL, &inner_error);
-	if (inner_error)
-		goto error;
-
-	default_graph = read_string (request->input_stream, NULL, NULL, &inner_error);
-	if (inner_error)
-		goto error;
-
-	rdf = read_string (request->input_stream, &rdf_len, NULL, &inner_error);
-	if (inner_error)
-		goto error;
-
-	istream = g_memory_input_stream_new_from_data (rdf, rdf_len, g_free);
-	tracker_batch_add_rdf (request->batch,
-	                       flags,
-	                       format,
-	                       default_graph,
-	                       istream);
-	g_object_unref (istream);
-
- error:
-	g_free (default_graph);
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
 static void
-handle_read_updates (GTask        *task,
-                     gpointer      source_object,
-                     gpointer      task_data,
-                     GCancellable *cancellable)
+handle_read_update (GTask        *task,
+                    gpointer      source_object,
+                    gpointer      task_data,
+                    GCancellable *cancellable)
 {
 	UpdateRequest *request = task_data;
-	GError *error = NULL;
-	gint i;
-
-	for (i = 0; i < request->num_queries; i++) {
-		TrackerBusOpType op_type;
-
-		op_type = g_data_input_stream_read_uint32 (request->input_stream, NULL, NULL);
-
-		if (op_type == TRACKER_BUS_OP_SPARQL) {
-			if (!handle_update_sparql (request, cancellable, &error))
-				break;
-		} else if (op_type == TRACKER_BUS_OP_RDF) {
-			if (!handle_update_rdf (request, cancellable, &error))
-				break;
-		} else {
-			g_assert_not_reached ();
-		}
-	}
-
-	if (error)
-		g_task_return_error (task, error);
-	else
-		g_task_return_boolean (task, TRUE);
-}
-
-static void
-handle_read_update_blank (GTask        *task,
-                          gpointer      source_object,
-                          gpointer      task_data,
-                          GCancellable *cancellable)
-{
-	UpdateBlankRequest *request = task_data;
 	TrackerBusOpType op_type;
 	GError *error = NULL;
 
@@ -594,42 +355,6 @@ handle_read_update_blank (GTask        *task,
 
 static void
 update_request_free (UpdateRequest *request)
-{
-	g_input_stream_close_async (G_INPUT_STREAM (request->input_stream),
-	                            G_PRIORITY_DEFAULT,
-	                            NULL, NULL, NULL);
-
-	g_object_unref (request->batch);
-	g_object_unref (request->invocation);
-	g_object_unref (request->input_stream);
-	g_free (request);
-}
-
-static UpdateBlankRequest *
-update_blank_request_new (TrackerEndpointDBus   *endpoint,
-                          GDBusMethodInvocation *invocation,
-                          int                    fd)
-{
-	UpdateBlankRequest *request;
-	GInputStream *stream;
-
-	request = g_new0 (UpdateBlankRequest, 1);
-	request->invocation = g_object_ref (invocation);
-	request->endpoint = endpoint;
-
-	stream = g_unix_input_stream_new (fd, TRUE);
-	request->input_stream = g_data_input_stream_new (stream);
-	g_buffered_input_stream_set_buffer_size (G_BUFFERED_INPUT_STREAM (request->input_stream),
-	                                         sysconf (_SC_PAGE_SIZE));
-	g_data_input_stream_set_byte_order (request->input_stream,
-	                                    G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
-	g_object_unref (stream);
-
-	return request;
-}
-
-static void
-update_blank_request_free (UpdateBlankRequest *request)
 {
 	g_input_stream_close_async (G_INPUT_STREAM (request->input_stream),
 	                            G_PRIORITY_DEFAULT,
@@ -843,7 +568,10 @@ update_cb (GObject      *object,
 	UpdateRequest *request = user_data;
 	GError *error = NULL;
 
-	if (!tracker_batch_execute_finish (TRACKER_BATCH (object), res, &error)) {
+	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (object),
+	                                         res, &error);
+
+	if (error) {
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
 		g_error_free (error);
 	} else {
@@ -859,6 +587,7 @@ read_update_cb (GObject      *object,
                 gpointer      user_data)
 {
 	UpdateRequest *request = user_data;
+	TrackerSparqlConnection *conn;
 	GError *error = NULL;
 
 	if (!g_task_propagate_boolean (G_TASK (res), &error)) {
@@ -867,10 +596,12 @@ read_update_cb (GObject      *object,
 		return;
 	}
 
-	tracker_batch_execute_async (request->batch,
-	                             request->endpoint->cancellable,
-	                             update_cb,
-	                             request);
+	conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (request->endpoint));
+	tracker_sparql_connection_update_async (conn,
+	                                        request->query,
+	                                        request->endpoint->cancellable,
+	                                        update_cb,
+	                                        request);
 }
 
 static void
@@ -878,7 +609,7 @@ update_blank_cb (GObject      *object,
                  GAsyncResult *res,
                  gpointer      user_data)
 {
-	UpdateBlankRequest *request = user_data;
+	UpdateRequest *request = user_data;
 	GError *error = NULL;
 	GVariant *results;
 
@@ -898,7 +629,7 @@ update_blank_cb (GObject      *object,
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
 	}
 
-	update_blank_request_free (request);
+	update_request_free (request);
 }
 
 static void
@@ -907,12 +638,12 @@ read_update_blank_cb (GObject      *object,
                       gpointer      user_data)
 {
 	TrackerSparqlConnection *conn;
-	UpdateBlankRequest *request = user_data;
+	UpdateRequest *request = user_data;
 	GError *error = NULL;
 
 	if (!g_task_propagate_boolean (G_TASK (res), &error)) {
 		g_dbus_method_invocation_return_gerror (request->invocation, error);
-		update_blank_request_free (request);
+		update_request_free (request);
 		return;
 	}
 
@@ -927,22 +658,37 @@ read_update_blank_cb (GObject      *object,
 }
 
 static void
+batch_execute_cb (GObject      *object,
+                  GAsyncResult *res,
+                  gpointer      user_data)
+{
+	GDBusMethodInvocation *invocation = user_data;
+	GError *error = NULL;
+
+	if (!tracker_batch_execute_finish (TRACKER_BATCH (object), res, &error))
+		g_dbus_method_invocation_return_gerror (invocation, error);
+	else
+		g_dbus_method_invocation_return_value (invocation, NULL);
+
+	g_clear_error (&error);
+	g_object_unref (object);
+}
+
+static void
 deserialize_cb (GObject      *object,
                 GAsyncResult *res,
                 gpointer      user_data)
 {
-	UpdateRequest *request = user_data;
+	GDBusMethodInvocation *invocation = user_data;
 	GError *error = NULL;
 
 	if (!tracker_sparql_connection_deserialize_finish (TRACKER_SPARQL_CONNECTION (object),
 	                                                   res, &error)) {
-		g_dbus_method_invocation_return_gerror (request->invocation, error);
-		update_request_free (request);
+		g_dbus_method_invocation_return_gerror (invocation, error);
 		return;
 	}
 
-	g_dbus_method_invocation_return_value (request->invocation, NULL);
-	update_request_free (request);
+	g_dbus_method_invocation_return_value (invocation, NULL);
 }
 
 static void
@@ -1092,8 +838,44 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		}
 
 		g_free (query);
+	} else if (g_strcmp0 (method_name, "UpdateArray") == 0) {
+		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
+			g_dbus_method_invocation_return_error (invocation,
+			                                       G_DBUS_ERROR,
+			                                       G_DBUS_ERROR_ACCESS_DENIED,
+			                                       "Operation not allowed");
+			return;
+		}
+
+		g_variant_get (parameters, "(h)", &handle);
+
+		if (fd_list)
+			fd = g_unix_fd_list_get (fd_list, handle, &error);
+
+		if (fd < 0) {
+			g_dbus_method_invocation_return_error (invocation,
+			                                       G_DBUS_ERROR,
+			                                       G_DBUS_ERROR_INVALID_ARGS,
+			                                       "Did not get a file descriptor");
+		} else {
+			TrackerSparqlConnection *conn;
+			TrackerBatch *batch;
+			GInputStream *istream;
+
+			conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (endpoint_dbus));
+			batch = tracker_sparql_connection_create_batch (conn);
+
+			istream = g_unix_input_stream_new (fd, TRUE);
+			tracker_batch_add_dbus_fd (batch, istream);
+			g_object_unref (istream);
+
+			tracker_batch_execute_async (batch,
+			                             endpoint_dbus->cancellable,
+			                             batch_execute_cb,
+			                             invocation);
+		}
 	} else if (g_strcmp0 (method_name, "Update") == 0 ||
-	           g_strcmp0 (method_name, "UpdateArray") == 0) {
+	           g_strcmp0 (method_name, "UpdateBlank") == 0) {
 		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
 			g_dbus_method_invocation_return_error (invocation,
 			                                       G_DBUS_ERROR,
@@ -1116,45 +898,14 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			UpdateRequest *request;
 			GTask *task;
 
-			request = update_request_new (endpoint_dbus, invocation,
-			                              g_strcmp0 (method_name, "UpdateArray") == 0,
-			                              fd);
+			request = update_request_new (endpoint_dbus, invocation, fd);
 
 			task = g_task_new (NULL, request->endpoint->cancellable,
-					   read_update_cb, request);
+			                   g_strcmp0 (method_name, "Update") == 0 ?
+			                   read_update_cb : read_update_blank_cb,
+			                   request);
 			g_task_set_task_data (task, request, NULL);
-			g_task_run_in_thread (task, handle_read_updates);
-			g_object_unref (task);
-		}
-	} else if (g_strcmp0 (method_name, "UpdateBlank") == 0) {
-		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
-			g_dbus_method_invocation_return_error (invocation,
-			                                       G_DBUS_ERROR,
-			                                       G_DBUS_ERROR_ACCESS_DENIED,
-			                                       "Operation not allowed");
-			return;
-		}
-
-		g_variant_get (parameters, "(h)", &handle);
-
-		if (fd_list)
-			fd = g_unix_fd_list_get (fd_list, handle, &error);
-
-		if (fd < 0) {
-			g_dbus_method_invocation_return_error (invocation,
-			                                       G_DBUS_ERROR,
-			                                       G_DBUS_ERROR_INVALID_ARGS,
-			                                       "Did not get a file descriptor");
-		} else {
-			UpdateBlankRequest *request;
-			GTask *task;
-
-			request = update_blank_request_new (endpoint_dbus, invocation, fd);
-
-			task = g_task_new (NULL, request->endpoint->cancellable,
-			                   read_update_blank_cb, request);
-			g_task_set_task_data (task, request, NULL);
-			g_task_run_in_thread (task, handle_read_update_blank);
+			g_task_run_in_thread (task, handle_read_update);
 			g_object_unref (task);
 		}
 	} else if (g_strcmp0 (method_name, "Deserialize") == 0) {
@@ -1182,19 +933,21 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			                                       "Did not get a file descriptor");
 		} else {
 			TrackerSparqlConnection *conn;
-			UpdateRequest *request;
+			GInputStream *istream;
 
-			request = update_request_new (endpoint_dbus, invocation, FALSE, fd);
-			conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (request->endpoint));
+			conn = tracker_endpoint_get_sparql_connection (TRACKER_ENDPOINT (endpoint_dbus));
+
+			istream = g_unix_input_stream_new (fd, TRUE);
 
 			tracker_sparql_connection_deserialize_async (conn,
 			                                             flags,
 			                                             format,
 			                                             graph && *graph ? graph : NULL,
-			                                             G_INPUT_STREAM (request->input_stream),
-			                                             request->endpoint->cancellable,
+			                                             istream,
+			                                             endpoint_dbus->cancellable,
 			                                             deserialize_cb,
-			                                             request);
+			                                             invocation);
+			g_object_unref (istream);
 		}
 
 		g_free (graph);

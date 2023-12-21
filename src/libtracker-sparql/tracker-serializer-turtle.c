@@ -144,10 +144,14 @@ print_value (GString                 *str,
 	case TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE: {
 		gchar *bnode_label;
 
-		bnode_label = g_strdelimit (g_strdup (value), ":", '_');
-		g_string_append (str, "_:");
-		g_string_append (str, bnode_label);
-		g_free (bnode_label);
+		if (g_str_has_prefix (value, "_:")) {
+			g_string_append (str, value);
+		} else {
+			bnode_label = g_strdelimit (g_strdup (value), ":", '_');
+			g_string_append (str, "_:");
+			g_string_append (str, bnode_label);
+			g_free (bnode_label);
+		}
 		break;
 	}
 	case TRACKER_SPARQL_VALUE_TYPE_STRING:
