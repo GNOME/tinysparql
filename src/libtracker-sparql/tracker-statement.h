@@ -68,6 +68,11 @@ TRACKER_AVAILABLE_IN_3_2
 void tracker_sparql_statement_bind_datetime (TrackerSparqlStatement *stmt,
                                              const gchar            *name,
                                              GDateTime              *value);
+TRACKER_AVAILABLE_IN_3_7
+void tracker_sparql_statement_bind_langstring (TrackerSparqlStatement *stmt,
+                                               const gchar            *name,
+                                               const gchar            *value,
+                                               const gchar            *langtag);
 
 TRACKER_AVAILABLE_IN_ALL
 TrackerSparqlCursor * tracker_sparql_statement_execute (TrackerSparqlStatement  *stmt,

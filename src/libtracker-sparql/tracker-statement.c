@@ -319,6 +319,37 @@ tracker_sparql_statement_bind_datetime (TrackerSparqlStatement *stmt,
 }
 
 /**
+ * tracker_sparql_statement_bind_langstring:
+ * @stmt: a `TrackerSparqlStatement`
+ * @name: variable name
+ * @value: value
+ * @langtag: language tag
+ *
+ * Binds the @value to the parameterized variable given by @name, tagged
+ * with the language defined by @langtag. The language tag should follow
+ * [RFC 5646](https://www.rfc-editor.org/rfc/rfc5646.html). The parameter
+ * will be represented as a [`rdf:langString`](rdf-ontology.html#rdf:langString).
+ *
+ * Since: 3.7
+ **/
+void
+tracker_sparql_statement_bind_langstring (TrackerSparqlStatement *stmt,
+                                          const gchar            *name,
+                                          const gchar            *value,
+                                          const gchar            *langtag)
+{
+	g_return_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt));
+	g_return_if_fail (name != NULL);
+	g_return_if_fail (value != NULL);
+	g_return_if_fail (langtag != NULL);
+
+	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->bind_langstring (stmt,
+	                                                            name,
+	                                                            value,
+	                                                            langtag);
+}
+
+/**
  * tracker_sparql_statement_execute:
  * @stmt: a `TrackerSparqlStatement`
  * @cancellable: (nullable): Optional [type@Gio.Cancellable]
