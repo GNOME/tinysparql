@@ -229,6 +229,10 @@ struct _TrackerSparqlStatementClass
         void (* bind_datetime) (TrackerSparqlStatement *stmt,
                                 const gchar            *name,
                                 GDateTime              *value);
+	void (* bind_langstring) (TrackerSparqlStatement *stmt,
+	                          const gchar            *name,
+	                          const gchar            *value,
+	                          const gchar            *langtag);
 
         TrackerSparqlCursor * (* execute) (TrackerSparqlStatement  *stmt,
                                            GCancellable            *cancellable,
