@@ -25,6 +25,8 @@
 
 #include "tracker-bus-statement.h"
 
+#include "core/tracker-sparql.h"
+
 struct _TrackerBusStatement
 {
 	TrackerSparqlStatement parent_instance;
@@ -112,6 +114,28 @@ tracker_bus_statement_bind_datetime (TrackerSparqlStatement *stmt,
 	                     g_strdup (name),
 	                     g_variant_ref_sink (g_variant_new_string (date_str)));
 	g_free (date_str);
+}
+
+static void
+tracker_bus_statement_bind_langstring (TrackerSparqlStatement *stmt,
+                                       const gchar            *name,
+                                       const gchar            *value,
+                                       const gchar            *langtag)
+{
+	TrackerBusStatement *bus_stmt = TRACKER_BUS_STATEMENT (stmt);
+	GVariant *variant;
+	GBytes *bytes;
+
+	bytes = tracker_sparql_make_langstring (value, langtag);
+	variant = g_variant_new_fixed_array (G_VARIANT_TYPE_BYTE,
+	                                     g_bytes_get_data (bytes, NULL),
+	                                     g_bytes_get_size (bytes),
+	                                     sizeof (guint8));
+	g_bytes_unref (bytes);
+
+	g_hash_table_insert (bus_stmt->arguments,
+	                     g_strdup (name),
+	                     g_variant_ref_sink (variant));
 }
 
 static void
@@ -381,6 +405,7 @@ tracker_bus_statement_class_init (TrackerBusStatementClass *klass)
 	stmt_class->bind_int = tracker_bus_statement_bind_int;
 	stmt_class->bind_string = tracker_bus_statement_bind_string;
 	stmt_class->bind_datetime = tracker_bus_statement_bind_datetime;
+	stmt_class->bind_langstring = tracker_bus_statement_bind_langstring;
 	stmt_class->clear_bindings = tracker_bus_statement_clear_bindings;
 	stmt_class->execute = tracker_bus_statement_execute;
 	stmt_class->execute_async = tracker_bus_statement_execute_async;

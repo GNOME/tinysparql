@@ -3522,6 +3522,16 @@ value_from_variant (GValue   *value,
 	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_DOUBLE)) {
 		g_value_init (value, G_TYPE_DOUBLE);
 		g_value_set_double (value, g_variant_get_double (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_BYTESTRING)) {
+		gconstpointer data;
+		gsize n_elems;
+		GBytes *bytes;
+
+		data = g_variant_get_fixed_array (variant, &n_elems, sizeof (guint8));
+		bytes = g_bytes_new (data, n_elems * sizeof (guint8));
+
+		g_value_init (value, G_TYPE_BYTES);
+		g_value_take_boxed (value, bytes);
 	} else {
 		return FALSE;
 	}
