@@ -513,7 +513,7 @@ tracker_deserializer_json_ld_get_value_type (TrackerSparqlCursor  *cursor,
 	case TRACKER_RDF_COL_SUBJECT:
 		if (!deserializer->cur_subject)
 			return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
-		else if (strncmp (deserializer->cur_object, "_:", 2) == 0)
+		else if (strncmp (deserializer->cur_subject, "_:", 2) == 0)
 			return TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE;
 		else
 			return TRACKER_SPARQL_VALUE_TYPE_URI;
