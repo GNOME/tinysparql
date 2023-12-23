@@ -32,6 +32,7 @@
 typedef struct {
 	TrackerSparqlValueType type;
 	const gchar *str;
+	const gchar *langtag;
 } ColumnData;
 
 struct _TrackerDeserializerJson {
@@ -145,6 +146,11 @@ tracker_deserializer_json_get_string (TrackerSparqlCursor   *cursor,
 
 	col = &g_array_index (deserializer->columns, ColumnData, column);
 
+	if (length)
+		*length = strlen (col->str);
+	if (langtag)
+		*langtag = col->langtag;
+
 	return col->str;
 }
 
@@ -225,6 +231,15 @@ parse_column_string (JsonObject   *column,
 	return TRUE;
 }
 
+static const gchar *
+parse_column_langtag (JsonObject *column)
+{
+	if (!json_object_has_member (column, "xml:lang"))
+		return NULL;
+
+	return json_object_get_string_member (column, "xml:lang");
+}
+
 static gboolean
 parse_row (TrackerDeserializerJson  *deserializer,
            GError                  **error)
@@ -250,6 +265,7 @@ parse_row (TrackerDeserializerJson  *deserializer,
 				    !parse_column_type (column, &col.type, error))
 					return FALSE;
 
+				col.langtag = parse_column_langtag (column);
 				g_array_append_val (deserializer->columns, col);
 				continue;
 			}
