@@ -3434,7 +3434,9 @@ tracker_db_cursor_get_string (TrackerSparqlCursor  *sparql_cursor,
 {
 	TrackerDBCursor *cursor = TRACKER_DB_CURSOR (sparql_cursor);
 	TrackerDBInterface *iface;
-	const gchar *result;
+	const gchar *result = NULL;
+	sqlite3_value *val;
+	int type;
 
 	if (langtag)
 		*langtag = NULL;
@@ -3448,13 +3450,34 @@ tracker_db_cursor_get_string (TrackerSparqlCursor  *sparql_cursor,
 
 	tracker_db_interface_lock (iface);
 
-	if (length) {
-		sqlite3_value *val = sqlite3_column_value (cursor->stmt, column);
+	val = sqlite3_column_value (cursor->stmt, column);
+	type = sqlite3_value_type (val);
 
-		*length = sqlite3_value_bytes (val);
-		result = (const gchar *) sqlite3_value_text (val);
+	if (type == SQLITE_BLOB) {
+		gsize str_len, len;
+
+		result = (const gchar *) sqlite3_value_blob (val);
+
+		if (langtag || length) {
+			str_len = strlen (result);
+
+			if (length)
+				*length = str_len;
+
+			if (langtag) {
+				len = sqlite3_value_bytes (val);
+				if (str_len < len)
+					*langtag = &result[str_len + 1];
+			}
+		}
 	} else {
-		result = (const gchar *) sqlite3_column_text (cursor->stmt, column);
+		/* Columns without language information */
+		if (length) {
+			*length = sqlite3_value_bytes (val);
+			result = (const gchar *) sqlite3_value_text (val);
+		} else {
+			result = (const gchar *) sqlite3_column_text (cursor->stmt, column);
+		}
 	}
 
 	tracker_db_interface_unlock (iface);
