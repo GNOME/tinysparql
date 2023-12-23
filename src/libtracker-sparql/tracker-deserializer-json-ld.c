@@ -37,6 +37,7 @@ enum {
 	STATE_PROPERTIES,
 	STATE_VALUE_LIST,
 	STATE_VALUE,
+	STATE_VALUE_AS_OBJECT,
 	STATE_FINAL,
 };
 
@@ -310,9 +311,42 @@ current_graph (TrackerDeserializerJsonLD *deserializer)
 }
 
 static gchar *
-node_to_string (JsonNode                *node,
-                TrackerNamespaceManager *namespaces,
-                TrackerSparqlValueType  *value_type)
+object_to_value (TrackerDeserializerJsonLD *deserializer,
+                 TrackerNamespaceManager   *namespaces,
+                 TrackerSparqlValueType    *value_type)
+{
+	const gchar *value = NULL, *type = NULL;
+
+	if (json_reader_read_member (deserializer->reader, "@value"))
+		value = json_reader_get_string_value (deserializer->reader);
+	json_reader_end_member (deserializer->reader);
+
+	if (json_reader_read_member (deserializer->reader, "@type"))
+		type = json_reader_get_string_value (deserializer->reader);
+	json_reader_end_member (deserializer->reader);
+
+	if (g_strcmp0 (type, TRACKER_PREFIX_XSD "string") == 0 ||
+	    g_strcmp0 (type, TRACKER_PREFIX_RDF "langString") == 0)
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_STRING;
+	else if (g_strcmp0 (type, TRACKER_PREFIX_XSD "integer") == 0)
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_INTEGER;
+	else if (g_strcmp0 (type, TRACKER_PREFIX_XSD "boolean") == 0)
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_BOOLEAN;
+	else if (g_strcmp0 (type, TRACKER_PREFIX_XSD "double") == 0)
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_DOUBLE;
+	else if (g_strcmp0 (type, TRACKER_PREFIX_XSD "date") == 0 ||
+	         g_strcmp0 (type, TRACKER_PREFIX_XSD "dateTime") == 0)
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_DATETIME;
+	else
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_STRING;
+
+	return g_strdup (value);
+}
+
+static gchar *
+node_to_value (JsonNode                *node,
+               TrackerNamespaceManager *namespaces,
+               TrackerSparqlValueType  *value_type)
 {
 	GValue value = G_VALUE_INIT;
 	GType type;
@@ -372,6 +406,23 @@ load_context (TrackerDeserializerJsonLD *deserializer)
 	}
 
 	json_reader_end_member (deserializer->reader);
+}
+
+static void
+forward_state_for_value (TrackerDeserializerJsonLD *deserializer)
+{
+	if (json_reader_is_object (deserializer->reader)) {
+		if (json_reader_read_member (deserializer->reader, "@value")) {
+			json_reader_end_member (deserializer->reader);
+			deserializer->state = STATE_VALUE_AS_OBJECT;
+		} else {
+			json_reader_end_member (deserializer->reader);
+			push_stack (deserializer, STATE_PROPERTIES);
+			deserializer->state = STATE_MAYBE_GRAPH;
+		}
+	} else {
+		deserializer->state = STATE_VALUE;
+	}
 }
 
 static gboolean
@@ -464,14 +515,10 @@ forward_state (TrackerDeserializerJsonLD *deserializer)
 		else
 			break;
 
-		if (json_reader_is_array (deserializer->reader)) {
+		if (json_reader_is_array (deserializer->reader))
 			push_stack (deserializer, STATE_VALUE_LIST);
-		} else if (json_reader_is_object (deserializer->reader)) {
-			push_stack (deserializer, STATE_PROPERTIES);
-			deserializer->state = STATE_MAYBE_GRAPH;
-		} else {
-			deserializer->state = STATE_VALUE;
-		}
+		else
+			forward_state_for_value (deserializer);
 		break;
 	case STATE_VALUE_LIST:
 		if (!advance_stack (deserializer)) {
@@ -479,18 +526,22 @@ forward_state (TrackerDeserializerJsonLD *deserializer)
 			break;
 		}
 
-		if (json_reader_is_object (deserializer->reader)) {
-			push_stack (deserializer, STATE_PROPERTIES);
-			deserializer->state = STATE_MAYBE_GRAPH;
-		} else {
-			deserializer->state = STATE_VALUE;
-		}
+		forward_state_for_value (deserializer);
+		break;
+	case STATE_VALUE_AS_OBJECT:
+		g_clear_pointer (&deserializer->cur_object, g_free);
+		deserializer->cur_object = object_to_value (deserializer,
+		                                            namespaces,
+		                                            &deserializer->object_type);
+		deserializer->has_row = TRUE;
+
+		deserializer->state = stack_state (deserializer);
 		break;
 	case STATE_VALUE:
 		g_clear_pointer (&deserializer->cur_object, g_free);
-		deserializer->cur_object = node_to_string (json_reader_get_value (deserializer->reader),
-		                                           namespaces,
-		                                           &deserializer->object_type);
+		deserializer->cur_object = node_to_value (json_reader_get_value (deserializer->reader),
+		                                          namespaces,
+		                                          &deserializer->object_type);
 		deserializer->has_row = TRUE;
 
 		deserializer->state = stack_state (deserializer);
