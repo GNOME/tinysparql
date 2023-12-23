@@ -125,6 +125,33 @@ static gboolean            db_cursor_iter_next                      (TrackerDBCu
                                                                      GCancellable          *cancellable,
                                                                      GError               **error);
 
+void tracker_db_cursor_rewind (TrackerDBCursor *cursor);
+
+gboolean tracker_db_cursor_iter_next (TrackerDBCursor  *cursor,
+                                      GCancellable     *cancellable,
+                                      GError          **error);
+
+guint tracker_db_cursor_get_n_columns (TrackerDBCursor *cursor);
+
+const gchar* tracker_db_cursor_get_variable_name (TrackerDBCursor *cursor,
+                                                  guint            column);
+
+TrackerSparqlValueType tracker_db_cursor_get_value_type (TrackerDBCursor *cursor,
+                                                         guint            column);
+
+void tracker_db_cursor_get_value (TrackerDBCursor *cursor,
+                                  guint            column,
+                                  GValue          *value);
+const gchar* tracker_db_cursor_get_string (TrackerDBCursor *cursor,
+                                           guint            column,
+                                           glong           *length);
+
+gint64 tracker_db_cursor_get_int (TrackerDBCursor *cursor,
+                                  guint            column);
+
+gdouble tracker_db_cursor_get_double (TrackerDBCursor *cursor,
+                                      guint            column);
+
 enum {
 	PROP_0,
 	PROP_FILENAME,

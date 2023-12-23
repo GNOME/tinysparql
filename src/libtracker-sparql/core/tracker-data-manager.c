@@ -159,7 +159,7 @@ tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
                                         TrackerDBInterface  *iface,
                                         GError             **error)
 {
-	TrackerDBCursor *cursor = NULL;
+	TrackerSparqlCursor *cursor = NULL;
 	TrackerDBStatement *stmt;
 	GHashTable *graphs;
 
@@ -175,7 +175,7 @@ tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
 		return FALSE;
 	}
 
-	cursor = tracker_db_statement_start_cursor (stmt, error);
+	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, error));
 	g_object_unref (stmt);
 
 	if (!cursor) {
@@ -183,12 +183,12 @@ tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
 		return FALSE;
 	}
 
-	while (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *name;
 		TrackerRowid id;
 
-		id = tracker_db_cursor_get_int (cursor, 0);
-		name = tracker_db_cursor_get_string (cursor, 1, NULL);
+		id = tracker_sparql_cursor_get_integer (cursor, 0);
+		name = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 
 		g_hash_table_insert (graphs, g_strdup (name),
 		                     tracker_rowid_copy (&id));
@@ -535,18 +535,18 @@ update_property_value (TrackerDataManager  *manager,
 
 	if (!is_new) {
 		gchar *query = NULL;
-		TrackerDBCursor *cursor;
+		TrackerSparqlCursor *cursor;
 
 		query = g_strdup_printf ("SELECT ?old_value WHERE { "
 		                         "<%s> %s ?old_value "
 		                         "}", subject, kind);
 
-		cursor = tracker_data_query_sparql_cursor (manager, query, &error);
+		cursor = TRACKER_SPARQL_CURSOR (tracker_data_query_sparql_cursor (manager, query, &error));
 
-		if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+		if (cursor && tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			const gchar *str = NULL;
 
-			str = tracker_db_cursor_get_string (cursor, 0, NULL);
+			str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 
 			if (g_strcmp0 (object, str) == 0) {
 				needed = FALSE;
@@ -645,21 +645,21 @@ check_range_conversion_is_allowed (TrackerDataManager  *manager,
                                    const gchar         *object,
                                    GError             **error)
 {
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 	gchar *query;
 
 	query = g_strdup_printf ("SELECT ?old_value WHERE { "
 	                         "<%s> rdfs:range ?old_value "
 	                         "}", subject);
 
-	cursor = tracker_data_query_sparql_cursor (manager, query, NULL);
+	cursor = TRACKER_SPARQL_CURSOR (tracker_data_query_sparql_cursor (manager, query, NULL));
 
 	g_free (query);
 
-	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+	if (cursor && tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *str;
 
-		str = tracker_db_cursor_get_string (cursor, 0, NULL);
+		str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 
 		if (g_strcmp0 (object, str) != 0) {
 			if (!is_allowed_conversion (str, object, allowed_range_conversions)) {
@@ -688,7 +688,7 @@ check_max_cardinality_change_is_allowed (TrackerDataManager  *manager,
                                          const gchar         *object,
                                          GError             **error)
 {
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 	gchar *query;
 	gint new_max_cardinality = atoi (object);
 	gboolean unsupported = FALSE;
@@ -697,12 +697,12 @@ check_max_cardinality_change_is_allowed (TrackerDataManager  *manager,
 	                         "<%s> nrl:maxCardinality ?old_value "
 	                         "}", subject);
 
-	cursor = tracker_data_query_sparql_cursor (manager, query, NULL);
+	cursor = TRACKER_SPARQL_CURSOR (tracker_data_query_sparql_cursor (manager, query, NULL));
 
 	g_free (query);
 
-	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
-		const gchar *orig_object = tracker_db_cursor_get_string (cursor, 0, NULL);
+	if (cursor && tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		const gchar *orig_object = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 		gint orig_max_cardinality;
 
 		orig_max_cardinality = atoi (orig_object);
@@ -737,14 +737,14 @@ ensure_inverse_functional_property (TrackerDataManager  *manager,
                                     const gchar         *property_uri,
                                     GError             **error)
 {
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 	gchar *query;
 
 	query = g_strdup_printf ("ASK { <%s> a nrl:InverseFunctionalProperty }", property_uri);
-	cursor = tracker_data_query_sparql_cursor (manager, query, error);
+	cursor = TRACKER_SPARQL_CURSOR (tracker_data_query_sparql_cursor (manager, query, error));
 	g_free (query);
 
-	if (cursor && tracker_db_cursor_iter_next (cursor, NULL, error)) {
+	if (cursor && tracker_sparql_cursor_next (cursor, NULL, error)) {
 		if (!tracker_sparql_cursor_get_boolean (TRACKER_SPARQL_CURSOR (cursor), 0)) {
 			handle_unsupported_ontology_change (manager,
 			                                    NULL, -1, -1,
@@ -2440,7 +2440,7 @@ class_add_super_classes_from_db (TrackerDBInterface *iface,
                                  TrackerClass       *class)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
@@ -2455,15 +2455,15 @@ class_add_super_classes_from_db (TrackerDBInterface *iface,
 	}
 
 	tracker_db_statement_bind_text (stmt, 0, tracker_class_get_uri (class));
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, NULL));
 	g_object_unref (stmt);
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			TrackerClass *super_class;
 			const gchar *super_class_uri;
 
-			super_class_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
+			super_class_uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 			super_class = tracker_ontologies_get_class_by_uri (manager->ontologies, super_class_uri);
 			tracker_class_add_super_class (class, super_class);
 		}
@@ -2479,7 +2479,7 @@ class_add_domain_indexes_from_db (TrackerDBInterface *iface,
                                   TrackerClass       *class)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
@@ -2494,15 +2494,15 @@ class_add_domain_indexes_from_db (TrackerDBInterface *iface,
 	}
 
 	tracker_db_statement_bind_text (stmt, 0, tracker_class_get_uri (class));
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, NULL));
 	g_object_unref (stmt);
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			TrackerProperty *domain_index;
 			const gchar *domain_index_uri;
 
-			domain_index_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
+			domain_index_uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 			domain_index = tracker_ontologies_get_property_by_uri (manager->ontologies, domain_index_uri);
 			tracker_class_add_domain_index (class, domain_index);
 			tracker_property_add_domain_index (domain_index, class);
@@ -2518,7 +2518,7 @@ property_add_super_properties_from_db (TrackerDBInterface *iface,
                                        TrackerProperty    *property)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &error,
@@ -2533,15 +2533,15 @@ property_add_super_properties_from_db (TrackerDBInterface *iface,
 	}
 
 	tracker_db_statement_bind_text (stmt, 0, tracker_property_get_uri (property));
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, NULL));
 	g_object_unref (stmt);
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+		while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			TrackerProperty *super_property;
 			const gchar *super_property_uri;
 
-			super_property_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
+			super_property_uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 			super_property = tracker_ontologies_get_property_by_uri (manager->ontologies, super_property_uri);
 			tracker_property_add_super_property (property, super_property);
 		}
@@ -2556,7 +2556,7 @@ db_get_static_data (TrackerDBInterface  *iface,
                     GError             **error)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBCursor *cursor = NULL;
+	TrackerSparqlCursor *cursor = NULL;
 	TrackerClass **classes;
 	guint n_classes, i;
 	GError *internal_error = NULL;
@@ -2567,12 +2567,12 @@ db_get_static_data (TrackerDBInterface  *iface,
 	                                              "FROM \"nrl:Ontology\"");
 
 	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &internal_error);
+		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &internal_error));
 		g_object_unref (stmt);
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
+		while (tracker_sparql_cursor_next (cursor, NULL, &internal_error)) {
 			TrackerOntology *ontology;
 			const gchar     *uri;
 			time_t           last_mod;
@@ -2580,8 +2580,8 @@ db_get_static_data (TrackerDBInterface  *iface,
 			ontology = tracker_ontology_new ();
 			tracker_ontology_set_ontologies (ontology, manager->ontologies);
 
-			uri = tracker_db_cursor_get_string (cursor, 0, NULL);
-			last_mod = (time_t) tracker_db_cursor_get_int (cursor, 1);
+			uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+			last_mod = (time_t) tracker_sparql_cursor_get_integer (cursor, 1);
 
 			tracker_ontology_set_is_new (ontology, FALSE);
 			tracker_ontology_set_uri (ontology, uri);
@@ -2606,19 +2606,19 @@ db_get_static_data (TrackerDBInterface  *iface,
 	                                              "FROM \"nrl:Namespace\"");
 
 	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &internal_error);
+		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &internal_error));
 		g_object_unref (stmt);
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
+		while (tracker_sparql_cursor_next (cursor, NULL, &internal_error)) {
 			TrackerNamespace *namespace;
 			const gchar      *uri, *prefix;
 
 			namespace = tracker_namespace_new (FALSE);
 
-			uri = tracker_db_cursor_get_string (cursor, 0, NULL);
-			prefix = tracker_db_cursor_get_string (cursor, 1, NULL);
+			uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+			prefix = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 
 			tracker_namespace_set_ontologies (namespace, manager->ontologies);
 			tracker_namespace_set_is_new (namespace, FALSE);
@@ -2646,12 +2646,12 @@ db_get_static_data (TrackerDBInterface  *iface,
 	                                              "FROM \"rdfs:Class\" ORDER BY ID");
 
 	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &internal_error);
+		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &internal_error));
 		g_object_unref (stmt);
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
+		while (tracker_sparql_cursor_next (cursor, NULL, &internal_error)) {
 			TrackerClass *class;
 			const gchar  *uri;
 			TrackerRowid id;
@@ -2660,10 +2660,10 @@ db_get_static_data (TrackerDBInterface  *iface,
 
 			class = tracker_class_new (FALSE);
 
-			id = tracker_db_cursor_get_int (cursor, 0);
-			uri = tracker_db_cursor_get_string (cursor, 1, NULL);
+			id = tracker_sparql_cursor_get_integer (cursor, 0);
+			uri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 
-			tracker_db_cursor_get_value (cursor, 2, &value);
+			tracker_db_cursor_get_value (TRACKER_DB_CURSOR (cursor), 2, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				notify = (g_value_get_int64 (&value) == 1);
@@ -2712,12 +2712,12 @@ db_get_static_data (TrackerDBInterface  *iface,
 	                                              "FROM \"rdf:Property\" ORDER BY ID");
 
 	if (stmt) {
-		cursor = tracker_db_statement_start_cursor (stmt, &internal_error);
+		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &internal_error));
 		g_object_unref (stmt);
 	}
 
 	if (cursor) {
-		while (tracker_db_cursor_iter_next (cursor, NULL, &internal_error)) {
+		while (tracker_sparql_cursor_next (cursor, NULL, &internal_error)) {
 			GValue value = { 0 };
 			TrackerProperty *property;
 			const gchar     *uri, *domain_uri, *range_uri, *secondary_index_uri;
@@ -2727,12 +2727,12 @@ db_get_static_data (TrackerDBInterface  *iface,
 
 			property = tracker_property_new (FALSE);
 
-			id = tracker_db_cursor_get_int (cursor, 0);
-			uri = tracker_db_cursor_get_string (cursor, 1, NULL);
-			domain_uri = tracker_db_cursor_get_string (cursor, 2, NULL);
-			range_uri = tracker_db_cursor_get_string (cursor, 3, NULL);
+			id = tracker_sparql_cursor_get_integer (cursor, 0);
+			uri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+			domain_uri = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+			range_uri = tracker_sparql_cursor_get_string (cursor, 3, NULL);
 
-			tracker_db_cursor_get_value (cursor, 4, &value);
+			tracker_db_cursor_get_value (TRACKER_DB_CURSOR (cursor), 4, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				multi_valued = (g_value_get_int64 (&value) > 1);
@@ -2743,7 +2743,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 				multi_valued = TRUE;
 			}
 
-			tracker_db_cursor_get_value (cursor, 5, &value);
+			tracker_db_cursor_get_value (TRACKER_DB_CURSOR (cursor), 5, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				indexed = (g_value_get_int64 (&value) == 1);
@@ -2753,9 +2753,9 @@ db_get_static_data (TrackerDBInterface  *iface,
 				indexed = FALSE;
 			}
 
-			secondary_index_uri = tracker_db_cursor_get_string (cursor, 6, NULL);
+			secondary_index_uri = tracker_sparql_cursor_get_string (cursor, 6, NULL);
 
-			tracker_db_cursor_get_value (cursor, 7, &value);
+			tracker_db_cursor_get_value (TRACKER_DB_CURSOR (cursor), 7, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				fulltext_indexed = (g_value_get_int64 (&value) == 1);
@@ -2766,7 +2766,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 			}
 
 			/* NRL_INVERSE_FUNCTIONAL_PROPERTY column */
-			tracker_db_cursor_get_value (cursor, 8, &value);
+			tracker_db_cursor_get_value (TRACKER_DB_CURSOR (cursor), 8, &value);
 
 			if (G_VALUE_TYPE (&value) != 0) {
 				is_inverse_functional_property = TRUE;
@@ -3991,7 +3991,7 @@ update_attached_databases (TrackerDBInterface  *iface,
                            GError             **error)
 {
 	TrackerDBStatement *stmt;
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 	gboolean retval = TRUE;
 
 	*changed = FALSE;
@@ -4006,22 +4006,22 @@ update_attached_databases (TrackerDBInterface  *iface,
 	if (!stmt)
 		return FALSE;
 
-	cursor = tracker_db_statement_start_cursor (stmt, error);
+	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, error));
 	g_object_unref (stmt);
 
 	if (!cursor)
 		return FALSE;
 
-	while (retval && tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+	while (retval && tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		const gchar *name;
 
-		name = tracker_db_cursor_get_string (cursor, 0, NULL);
+		name = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 
 		/* Ignore the main and temp databases, they are always attached */
 		if (strcmp (name, "main") == 0 || strcmp (name, "temp") == 0)
 			continue;
 
-		if (tracker_db_cursor_get_int (cursor, 1)) {
+		if (tracker_sparql_cursor_get_integer (cursor, 1)) {
 			if (!tracker_db_manager_detach_database (data_manager->db_manager,
 			                                         iface, name, error)) {
 				retval = FALSE;
@@ -4030,7 +4030,7 @@ update_attached_databases (TrackerDBInterface  *iface,
 
 			g_hash_table_remove (data_manager->graphs, name);
 			*changed = TRUE;
-		} else if (tracker_db_cursor_get_int (cursor, 2)) {
+		} else if (tracker_sparql_cursor_get_integer (cursor, 2)) {
 			TrackerRowid id;
 
 			if (!tracker_db_manager_attach_database (data_manager->db_manager,
@@ -4039,7 +4039,7 @@ update_attached_databases (TrackerDBInterface  *iface,
 				break;
 			}
 
-			id = tracker_db_cursor_get_int (cursor, 3);
+			id = tracker_sparql_cursor_get_integer (cursor, 3);
 			g_hash_table_insert (data_manager->graphs, g_strdup (name),
 			                     tracker_rowid_copy (&id));
 			*changed = TRUE;
@@ -4209,7 +4209,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (initable);
 	TrackerDBInterface *iface;
 	gboolean is_create;
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 	TrackerDBStatement *stmt;
 	GHashTable *ontos_table;
 	GHashTable *graphs = NULL;
@@ -4511,7 +4511,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		                                              "INNER JOIN Resource ON Resource.ID = \"nrl:Ontology\".ID ");
 
 		if (stmt) {
-			cursor = tracker_db_statement_start_cursor (stmt, &n_error);
+			cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &n_error));
 			g_object_unref (stmt);
 		} else {
 			cursor = NULL;
@@ -4523,11 +4523,11 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		                                     NULL);
 
 		if (cursor) {
-			while (tracker_db_cursor_iter_next (cursor, NULL, &n_error)) {
-				const gchar *onto_uri = tracker_db_cursor_get_string (cursor, 0, NULL);
+			while (tracker_sparql_cursor_next (cursor, NULL, &n_error)) {
+				const gchar *onto_uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 				/* It's stored as an int in the db anyway. This is caused by
 				 * string_to_gvalue in tracker-data-update.c */
-				gint value = tracker_db_cursor_get_int (cursor, 1);
+				gint value = tracker_sparql_cursor_get_integer (cursor, 1);
 
 				g_hash_table_insert (ontos_table, g_strdup (onto_uri),
 				                     GINT_TO_POINTER (value));

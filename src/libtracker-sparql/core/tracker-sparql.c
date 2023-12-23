@@ -9922,18 +9922,18 @@ tracker_sparql_new_update (TrackerDataManager  *manager,
 }
 
 static gboolean
-find_column_for_variable (TrackerDBCursor *cursor,
-                          TrackerVariable *variable,
-                          guint           *col_out)
+find_column_for_variable (TrackerSparqlCursor *cursor,
+                          TrackerVariable     *variable,
+                          guint               *col_out)
 {
 	guint i, n_cols;
 
-	n_cols = tracker_db_cursor_get_n_columns (cursor);
+	n_cols = tracker_sparql_cursor_get_n_columns (cursor);
 
 	for (i = 0; i < n_cols; i++) {
 		const gchar *column_name;
 
-		column_name = tracker_db_cursor_get_variable_name (cursor, i);
+		column_name = tracker_sparql_cursor_get_variable_name (cursor, i);
 		if (g_strcmp0 (column_name, variable->name) == 0) {
 			*col_out = i;
 			return TRUE;
@@ -9997,7 +9997,7 @@ resolve_token (TrackerToken    *orig,
 
 		g_assert (cursor != NULL);
 
-		if (!find_column_for_variable (cursor, variable, &col))
+		if (!find_column_for_variable (TRACKER_SPARQL_CURSOR (cursor), variable, &col))
 			return resolved_out;
 
 		tracker_db_cursor_get_value (cursor, col, &value);
@@ -10337,7 +10337,7 @@ apply_update (TrackerSparql    *sparql,
 
 	while (i < sparql->update_ops->len) {
 		TrackerUpdateOpGroup *update_group;
-		TrackerDBCursor *cursor = NULL;
+		TrackerSparqlCursor *cursor = NULL;
 		guint j;
 
 		g_assert (cur_update_group < sparql->update_groups->len);
@@ -10373,7 +10373,7 @@ apply_update (TrackerSparql    *sparql,
 			if (!stmt)
 				goto out;
 
-			cursor = tracker_db_statement_start_sparql_cursor (stmt, 0, &inner_error);
+			cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_sparql_cursor (stmt, 0, &inner_error));
 			g_object_unref (stmt);
 
 			if (!cursor)
@@ -10382,7 +10382,7 @@ apply_update (TrackerSparql    *sparql,
 			g_variant_builder_open (variant_builder, G_VARIANT_TYPE ("a{ss}"));
 		}
 
-		while (!cursor || tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
+		while (!cursor || tracker_sparql_cursor_next (cursor, NULL, &inner_error)) {
 			for (j = update_group->start_idx; j <= update_group->end_idx; j++) {
 				TrackerUpdateOp *op;
 
@@ -10393,7 +10393,7 @@ apply_update (TrackerSparql    *sparql,
 				                      bnode_labels,
 				                      bnode_rowids,
 				                      updated_bnode_labels,
-				                      cursor,
+				                      TRACKER_DB_CURSOR (cursor),
 				                      variant_builder,
 				                      &inner_error))
 					goto out;

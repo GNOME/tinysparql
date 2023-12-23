@@ -172,11 +172,11 @@ db_set_params (TrackerDBInterface   *iface,
 			         internal_error->message);
 			g_propagate_error (error, internal_error);
 		} else {
-			TrackerDBCursor *cursor;
+			TrackerSparqlCursor *cursor;
 
-			cursor = tracker_db_statement_start_cursor (stmt, NULL);
-			if (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
-				if (g_ascii_strcasecmp (tracker_db_cursor_get_string (cursor, 0, NULL), "WAL") != 0) {
+			cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, NULL));
+			if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+				if (g_ascii_strcasecmp (tracker_sparql_cursor_get_string (cursor, 0, NULL), "WAL") != 0) {
 					g_set_error (error,
 					             TRACKER_DB_INTERFACE_ERROR,
 					             TRACKER_DB_OPEN_ERROR,
@@ -202,7 +202,7 @@ tracker_db_manager_get_metadata (TrackerDBManager   *db_manager,
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 
 	iface = tracker_db_manager_get_writable_db_interface (db_manager);
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
@@ -212,15 +212,15 @@ tracker_db_manager_get_metadata (TrackerDBManager   *db_manager,
 		return FALSE;
 
 	tracker_db_statement_bind_text (stmt, 0, key);
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, NULL));
 	g_object_unref (stmt);
 
-	if (!cursor || !tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+	if (!cursor || !tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		g_clear_object (&cursor);
 		return FALSE;
 	}
 
-	tracker_db_cursor_get_value (cursor, 0, value);
+	tracker_db_cursor_get_value (TRACKER_DB_CURSOR (cursor), 0, value);
 	g_object_unref (cursor);
 
 	return G_VALUE_TYPE (value) != G_TYPE_INVALID;
@@ -258,7 +258,7 @@ db_get_version (TrackerDBManager *db_manager)
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	TrackerDBCursor *cursor;
+	TrackerSparqlCursor *cursor;
 	TrackerDBVersion version;
 
 	iface = tracker_db_manager_get_writable_db_interface (db_manager);
@@ -267,15 +267,15 @@ db_get_version (TrackerDBManager *db_manager)
 	if (!stmt)
 		return TRACKER_DB_VERSION_UNKNOWN;
 
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, NULL));
 	g_object_unref (stmt);
 
-	if (!cursor || !tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+	if (!cursor || !tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 		g_clear_object (&cursor);
 		return TRACKER_DB_VERSION_UNKNOWN;
 	}
 
-	version = tracker_db_cursor_get_int (cursor, 0);
+	version = tracker_sparql_cursor_get_integer (cursor, 0);
 	g_object_unref (cursor);
 
 	return version;
@@ -447,7 +447,7 @@ db_check_integrity (TrackerDBManager *db_manager)
 {
 	GError *internal_error = NULL;
 	TrackerDBStatement *stmt;
-	TrackerDBCursor *cursor = NULL;
+	TrackerSparqlCursor *cursor = NULL;
 	gboolean handled = FALSE;
 
 	stmt = tracker_db_interface_create_statement (db_manager->db.iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
@@ -463,14 +463,14 @@ db_check_integrity (TrackerDBManager *db_manager)
 		return FALSE;
 	}
 
-	cursor = tracker_db_statement_start_cursor (stmt, NULL);
+	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, NULL));
 	g_object_unref (stmt);
 
 	if (cursor) {
-		if (tracker_db_cursor_iter_next (cursor, NULL, NULL)) {
+		if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
 			const gchar *check_result;
 
-			check_result = tracker_db_cursor_get_string (cursor, 0, NULL);
+			check_result = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 			if (g_strcmp0 (check_result, "ok") != 0) {
 				g_message ("Corrupt database: sqlite integrity check returned '%s'", check_result);
 				return FALSE;
