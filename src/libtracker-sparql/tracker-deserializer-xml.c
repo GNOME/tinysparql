@@ -247,11 +247,17 @@ tracker_deserializer_xml_get_variable_name (TrackerSparqlCursor  *cursor,
 static const gchar *
 tracker_deserializer_xml_get_string (TrackerSparqlCursor  *cursor,
                                      gint                  column,
+                                     const gchar         **langtag,
                                      glong                *length)
 {
 	TrackerDeserializerXml *deserializer =
 		TRACKER_DESERIALIZER_XML (cursor);
 	ColumnData *col;
+
+	if (length)
+		*length = 0;
+	if (langtag)
+		*langtag = NULL;
 
 	if (column > (gint) deserializer->columns->len)
 		return NULL;

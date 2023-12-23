@@ -544,6 +544,7 @@ tracker_deserializer_json_ld_get_value_type (TrackerSparqlCursor  *cursor,
 static const gchar *
 tracker_deserializer_json_ld_get_string (TrackerSparqlCursor  *cursor,
                                          gint                  column,
+                                         const gchar         **langtag,
                                          glong                *length)
 {
 	TrackerDeserializerJsonLD *deserializer =

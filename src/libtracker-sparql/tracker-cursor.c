@@ -306,6 +306,7 @@ tracker_sparql_cursor_get_string (TrackerSparqlCursor *cursor,
 
 	return TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->get_string (cursor,
 	                                                             column,
+	                                                             NULL,
 	                                                             length);
 }
 

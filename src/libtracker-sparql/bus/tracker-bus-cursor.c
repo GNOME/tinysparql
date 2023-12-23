@@ -152,15 +152,18 @@ tracker_bus_cursor_get_variable_name (TrackerSparqlCursor *cursor,
 }
 
 static const gchar *
-tracker_bus_cursor_get_string (TrackerSparqlCursor *cursor,
-                               gint                 column,
-			       glong               *len)
+tracker_bus_cursor_get_string (TrackerSparqlCursor  *cursor,
+                               gint                  column,
+                               const gchar         **langtag,
+			       glong                *len)
 {
 	TrackerBusCursor *bus_cursor = TRACKER_BUS_CURSOR (cursor);
 	const gchar *str;
 
 	if (len)
 		*len = 0;
+	if (langtag)
+		*langtag = NULL;
 
 	if (bus_cursor->finished)
 		return NULL;

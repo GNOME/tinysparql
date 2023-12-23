@@ -849,11 +849,17 @@ tracker_deserializer_turtle_get_value_type (TrackerSparqlCursor *cursor,
 }
 
 static const gchar *
-tracker_deserializer_turtle_get_string (TrackerSparqlCursor *cursor,
-                                        gint                 column,
-                                        glong               *length)
+tracker_deserializer_turtle_get_string (TrackerSparqlCursor  *cursor,
+                                        gint                  column,
+                                        const gchar         **langtag,
+                                        glong                *length)
 {
 	TrackerDeserializerTurtle *deserializer = TRACKER_DESERIALIZER_TURTLE (cursor);
+
+	if (length)
+		*length = 0;
+	if (langtag)
+		*langtag = NULL;
 
 	switch (column) {
 	case TRACKER_RDF_COL_SUBJECT:

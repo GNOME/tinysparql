@@ -126,13 +126,19 @@ tracker_deserializer_json_get_variable_name (TrackerSparqlCursor  *cursor,
 }
 
 static const gchar *
-tracker_deserializer_json_get_string (TrackerSparqlCursor  *cursor,
-                                      gint                  column,
-                                      glong                *length)
+tracker_deserializer_json_get_string (TrackerSparqlCursor   *cursor,
+                                      gint                   column,
+                                      const gchar          **langtag,
+                                      glong                 *length)
 {
 	TrackerDeserializerJson *deserializer =
 		TRACKER_DESERIALIZER_JSON (cursor);
 	ColumnData *col;
+
+	if (length)
+		*length = 0;
+	if (langtag)
+		*langtag = NULL;
 
 	if (column > (gint) deserializer->columns->len)
 		return NULL;

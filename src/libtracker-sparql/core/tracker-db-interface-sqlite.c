@@ -139,9 +139,10 @@ const gchar* tracker_db_cursor_get_variable_name (TrackerSparqlCursor *cursor,
 TrackerSparqlValueType tracker_db_cursor_get_value_type (TrackerSparqlCursor *cursor,
                                                          gint                 column);
 
-const gchar* tracker_db_cursor_get_string (TrackerSparqlCursor *cursor,
-                                           gint                 column,
-                                           glong               *length);
+const gchar* tracker_db_cursor_get_string (TrackerSparqlCursor  *cursor,
+                                           gint                  column,
+                                           const gchar         **langtag,
+                                           glong                *length);
 
 gint64 tracker_db_cursor_get_int (TrackerSparqlCursor *cursor,
                                   gint                 column);
@@ -3426,13 +3427,19 @@ tracker_db_cursor_get_variable_name (TrackerSparqlCursor *sparql_cursor,
 }
 
 const gchar*
-tracker_db_cursor_get_string (TrackerSparqlCursor *sparql_cursor,
-                              gint                 column,
-                              glong               *length)
+tracker_db_cursor_get_string (TrackerSparqlCursor  *sparql_cursor,
+                              gint                  column,
+                              const gchar         **langtag,
+                              glong                *length)
 {
 	TrackerDBCursor *cursor = TRACKER_DB_CURSOR (sparql_cursor);
 	TrackerDBInterface *iface;
 	const gchar *result;
+
+	if (langtag)
+		*langtag = NULL;
+	if (length)
+		*length = 0;
 
 	if (cursor->n_columns > 0 && column >= (gint) cursor->n_columns)
 		return NULL;

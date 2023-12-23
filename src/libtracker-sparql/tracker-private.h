@@ -151,9 +151,10 @@ struct _TrackerSparqlCursorClass
 	                                           gint                 column);
         const gchar* (* get_variable_name) (TrackerSparqlCursor *cursor,
                                             gint                 column);
-	const gchar* (* get_string) (TrackerSparqlCursor *cursor,
-	                             gint                 column,
-	                             glong               *length);
+	const gchar* (* get_string) (TrackerSparqlCursor  *cursor,
+	                             gint                  column,
+	                             const gchar         **langtag,
+	                             glong                *length);
         gboolean (* next) (TrackerSparqlCursor  *cursor,
                            GCancellable         *cancellable,
                            GError              **error);
