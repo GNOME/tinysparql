@@ -180,8 +180,15 @@ tracker_bus_cursor_get_string (TrackerSparqlCursor  *cursor,
 
 	str = bus_cursor->values[column];
 
-	if (len)
-		*len = strlen (str);
+	if (len || langtag) {
+		int str_len;
+
+		str_len = strlen (str);
+		if (len)
+			*len = str_len;
+		if (langtag && str_len < bus_cursor->offsets[column])
+			*langtag = &str[str_len + 1];
+	}
 
 	return str;
 }
