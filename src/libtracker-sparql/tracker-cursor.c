@@ -311,6 +311,42 @@ tracker_sparql_cursor_get_string (TrackerSparqlCursor *cursor,
 }
 
 /**
+ * tracker_sparql_cursor_get_langstring:
+ * @cursor: a `TrackerSparqlCursor`
+ * @column: column number to retrieve
+ * @langtag: (out): language tag of the returned string, or %NULL if the
+ *   string has no language tag
+ * @length: (out) (nullable): length of the returned string
+ *
+ * Retrieves a string representation of the data in the current
+ * row in @column. If the string has language information (i.e. it is
+ * a `rdf:langString`](rdf-ontology.html#rdf:langString)), the language
+ * tag will be returned in the location provided through @langtag. This
+ * language tag will typically be in a format conforming
+ * [RFC 5646](https://www.rfc-editor.org/rfc/rfc5646.html).
+ *
+ * Returns: (nullable): a string which must not be freed. %NULL is returned if
+ * the column is not in the `[0, n_columns]` range, or if the row/column
+ * refer to a nullable optional value in the result set.
+ *
+ * Since: 3.7
+ **/
+const gchar *
+tracker_sparql_cursor_get_langstring (TrackerSparqlCursor  *cursor,
+                                      gint                  column,
+                                      const gchar         **langtag,
+                                      glong                *length)
+{
+	g_return_val_if_fail (TRACKER_IS_SPARQL_CURSOR (cursor), NULL);
+	g_return_val_if_fail (langtag != NULL, NULL);
+
+	return TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->get_string (cursor,
+	                                                             column,
+	                                                             langtag,
+	                                                             length);
+}
+
+/**
  * tracker_sparql_cursor_get_boolean:
  * @cursor: a `TrackerSparqlCursor`
  * @column: column number to retrieve (first one is 0)
