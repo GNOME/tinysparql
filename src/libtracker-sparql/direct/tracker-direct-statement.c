@@ -122,6 +122,20 @@ tracker_direct_statement_bind_datetime (TrackerSparqlStatement *stmt,
 }
 
 static void
+tracker_direct_statement_bind_langstring (TrackerSparqlStatement *stmt,
+                                          const gchar            *name,
+                                          const gchar            *value,
+                                          const gchar            *langtag)
+{
+	GValue *gvalue;
+	GBytes *bytes;
+
+	bytes = tracker_sparql_make_langstring (value, langtag);
+	gvalue = insert_value (TRACKER_DIRECT_STATEMENT (stmt), name, G_TYPE_BYTES);
+	g_value_take_boxed (gvalue, bytes);
+}
+
+static void
 tracker_direct_statement_clear_bindings (TrackerSparqlStatement *stmt)
 {
 	TrackerDirectStatementPrivate *priv;
@@ -365,6 +379,7 @@ tracker_direct_statement_class_init (TrackerDirectStatementClass *klass)
 	stmt_class->bind_double = tracker_direct_statement_bind_double;
 	stmt_class->bind_string = tracker_direct_statement_bind_string;
 	stmt_class->bind_datetime = tracker_direct_statement_bind_datetime;
+	stmt_class->bind_langstring = tracker_direct_statement_bind_langstring;
 	stmt_class->clear_bindings = tracker_direct_statement_clear_bindings;
 	stmt_class->execute = tracker_direct_statement_execute;
 	stmt_class->execute_async = tracker_direct_statement_execute_async;
