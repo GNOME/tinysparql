@@ -1325,11 +1325,11 @@ function_sparql_data_type (sqlite3_context *context,
                            int              argc,
                            sqlite3_value   *argv[])
 {
-	const gchar *fn = "SparqlDateType helper";
+	const gchar *fn = "SparqlDataType helper";
 	TrackerPropertyType prop_type;
 	const gchar *type = NULL;
 
-	if (argc != 1) {
+	if (argc < 1 || argc > 2) {
 		result_context_function_error (context, fn, "Invalid argument count");
 		return;
 	}
@@ -1340,7 +1340,11 @@ function_sparql_data_type (sqlite3_context *context,
 	case TRACKER_PROPERTY_TYPE_UNKNOWN:
 		break;
 	case TRACKER_PROPERTY_TYPE_STRING:
-		type = "http://www.w3.org/2001/XMLSchema#string";
+	case TRACKER_PROPERTY_TYPE_LANGSTRING:
+		if (argc > 1 && sqlite3_value_type (argv[1]) == SQLITE_BLOB)
+			type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString";
+		else
+			type = "http://www.w3.org/2001/XMLSchema#string";
 		break;
 	case TRACKER_PROPERTY_TYPE_BOOLEAN:
 		type = "http://www.w3.org/2001/XMLSchema#boolean";
@@ -1359,9 +1363,6 @@ function_sparql_data_type (sqlite3_context *context,
 		break;
 	case TRACKER_PROPERTY_TYPE_RESOURCE:
 		type = "http://www.w3.org/2000/01/rdf-schema#Resource";
-		break;
-	case TRACKER_PROPERTY_TYPE_LANGSTRING:
-		type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString";
 		break;
 	}
 
@@ -1861,7 +1862,7 @@ initialize_functions (TrackerDBInterface *db_interface)
 		  function_sparql_floor },
 		{ "SparqlRand", 0, SQLITE_ANY, function_sparql_rand },
 		/* Types */
-		{ "SparqlDataType", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		{ "SparqlDataType", -1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_data_type },
 		/* UUID */
 		{ "SparqlUUID", 1, SQLITE_ANY, function_sparql_uuid },

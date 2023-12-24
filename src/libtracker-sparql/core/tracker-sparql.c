@@ -8384,7 +8384,7 @@ helper_datatype (TrackerSparql      *sparql,
                  TrackerParserNode  *node,
                  GError            **error)
 {
-	TrackerStringBuilder *dummy;
+	TrackerStringBuilder *substr;
 	gboolean retval;
 
 	_append_string (sparql, "SparqlDataType (");
@@ -8410,17 +8410,20 @@ helper_datatype (TrackerSparql      *sparql,
 		}
 	}
 
-	/* Redirect output to a dummy string, we just care of the parsed expression type */
-	dummy = tracker_string_builder_new ();
-	retval = _postprocess_rule (sparql, node, dummy, error);
-	tracker_string_builder_free (dummy);
+	substr = tracker_string_builder_new ();
+	retval = _postprocess_rule (sparql, node, substr, error);
 
-	if (!retval)
-		return retval;
+	if (retval) {
+		gchar *expr = tracker_string_builder_to_string (substr);
+		_append_string_printf (sparql, "%d, %s) ",
+		                       sparql->current_state->expression_type,
+		                       expr);
+		g_free (expr);
+	}
 
-	_append_string_printf (sparql, "%d) ", sparql->current_state->expression_type);
+	tracker_string_builder_free (substr);
 
-	return TRUE;
+	return retval;
 }
 
 static gboolean
