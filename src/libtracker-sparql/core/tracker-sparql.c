@@ -9777,8 +9777,7 @@ prepare_query (TrackerSparql         *sparql,
 			g_date_time_unref (datetime);
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_INTEGER) {
 			tracker_db_statement_bind_int (stmt, i, atoi (binding->literal));
-		} else if (prop_type == TRACKER_PROPERTY_TYPE_LANGSTRING &&
-			   g_bytes_get_size (binding->bytes) > strlen (binding->literal) + 1) {
+		} else if (g_bytes_get_size (binding->bytes) > strlen (binding->literal) + 1) {
 			tracker_db_statement_bind_bytes (stmt, i, binding->bytes);
 		} else {
 			tracker_db_statement_bind_text (stmt, i, binding->literal);
@@ -9979,6 +9978,12 @@ init_literal_token_from_gvalue (TrackerToken *resolved_out,
 			tracker_token_literal_init (resolved_out, str, -1);
 			g_free (str);
 		}
+	} else if (G_VALUE_TYPE (value) == G_TYPE_BYTES) {
+		const gchar *data;
+		gsize len;
+
+		data = g_bytes_get_data (g_value_get_boxed (value), &len);
+		tracker_token_literal_init (resolved_out, data, len);
 	} else if (G_VALUE_TYPE (value) != G_TYPE_INVALID) {
 		g_assert_not_reached ();
 	}

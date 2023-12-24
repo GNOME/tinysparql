@@ -1864,6 +1864,9 @@ value_equal (const GValue *value1,
 			 */
 			return g_date_time_compare (g_value_get_boxed (value1),
 			                            g_value_get_boxed (value2)) == 0;
+		} else if (type == G_TYPE_BYTES) {
+			return g_bytes_equal (g_value_get_boxed (value1),
+			                      g_value_get_boxed (value2));
 		}
 
 		g_critical ("No conversion for type %s", g_type_name (type));

@@ -3106,7 +3106,7 @@ tracker_db_statement_bind_value (TrackerDBStatement *stmt,
 
 		bytes = g_value_get_boxed (value);
 		data = g_bytes_get_data (bytes, &len);
-		sqlite3_bind_text (stmt->stmt, index + 1,
+		sqlite3_bind_blob (stmt->stmt, index + 1,
 		                   data, len, SQLITE_TRANSIENT);
 	} else if (type == G_TYPE_DATE_TIME) {
 		GDateTime *datetime;
