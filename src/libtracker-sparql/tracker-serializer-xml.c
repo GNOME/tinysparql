@@ -139,7 +139,7 @@ serialize_up_to_position (TrackerSerializerXml  *serializer_xml,
 			goto error;
 
 		for (i = 0; i < tracker_sparql_cursor_get_n_columns (cursor); i++) {
-			const gchar *var, *str, *type = NULL, *datatype = NULL;
+			const gchar *var, *str, *type = NULL, *datatype = NULL, *langtag = NULL;
 
 			switch (tracker_sparql_cursor_get_value_type (cursor, i)) {
 			case TRACKER_SPARQL_VALUE_TYPE_URI:
@@ -183,6 +183,18 @@ serialize_up_to_position (TrackerSerializerXml  *serializer_xml,
 			if (xmlTextWriterStartElement (serializer_xml->writer, XML (type)) < 0)
 				goto error;
 
+			str = tracker_sparql_cursor_get_langstring (cursor, i, &langtag, NULL);
+
+			if (langtag) {
+				datatype = TRACKER_PREFIX_RDF "langString";
+
+				if (xmlTextWriterWriteFormatAttribute (serializer_xml->writer,
+				                                       XML ("xml:lang"),
+				                                       "%s",
+				                                       langtag) < 0)
+					goto error;
+			}
+
 			if (datatype) {
 				if (xmlTextWriterWriteFormatAttribute (serializer_xml->writer,
 				                                       XML ("datatype"),
@@ -190,8 +202,6 @@ serialize_up_to_position (TrackerSerializerXml  *serializer_xml,
 				                                       datatype) < 0)
 					goto error;
 			}
-
-			str = tracker_sparql_cursor_get_string (cursor, i, NULL);
 
 			if (str) {
 				if (xmlTextWriterWriteRaw (serializer_xml->writer, XML (str)) < 0)
