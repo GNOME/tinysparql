@@ -1,0 +1,30 @@
+{
+  "@context" : {
+    "tracker" : "http://tracker.api.gnome.org/ontology/v3/tracker#",
+    "nie" : "http://tracker.api.gnome.org/ontology/v3/nie#",
+    "@language" : "es"
+  },
+
+  "@graph" : [
+    {
+      "@id" : "tracker:FileSystem",
+      "@graph" : [
+        {
+          "@id" : "file:///example1",
+          "@type" : "nie:InformationElement",
+          "nie:title": {
+            "@value" : "Ejemplo"
+          }
+        },
+        {
+          "@id" : "file:///example2",
+          "@type" : "nie:InformationElement",
+          "nie:title": {
+            "@value" : "Example",
+            "@language" : "en"
+          }
+        }
+      ]
+    }
+  ]
+}

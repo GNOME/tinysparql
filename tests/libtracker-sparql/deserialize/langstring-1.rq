@@ -1,0 +1,1 @@
+SELECT ?u ?t (datatype(?t) AS ?dt) { ?u nie:title ?t . FILTER (LANGMATCHES (?t, "es")) }
