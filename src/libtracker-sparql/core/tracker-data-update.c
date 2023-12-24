@@ -3327,6 +3327,7 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		TrackerProperty *predicate;
 		GValue object = G_VALUE_INIT;
 		TrackerRowid subject;
+		const gchar *object_langtag;
 
 		subject_str = tracker_sparql_cursor_get_string (cursor,
 		                                                TRACKER_RDF_COL_SUBJECT,
@@ -3334,9 +3335,10 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		predicate_str = tracker_sparql_cursor_get_string (cursor,
 		                                                  TRACKER_RDF_COL_PREDICATE,
 		                                                  NULL);
-		object_str = tracker_sparql_cursor_get_string (cursor,
-		                                               TRACKER_RDF_COL_OBJECT,
-		                                               NULL);
+		object_str = tracker_sparql_cursor_get_langstring (cursor,
+		                                                   TRACKER_RDF_COL_OBJECT,
+		                                                   &object_langtag,
+		                                                   NULL);
 		graph_str = tracker_sparql_cursor_get_string (cursor,
 		                                              TRACKER_RDF_COL_GRAPH,
 		                                              NULL);
@@ -3382,7 +3384,7 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		} else {
 			if (!tracker_data_query_string_to_value (data->manager,
 			                                         object_str,
-			                                         NULL, /* FIXME: Missing langtag */
+			                                         object_langtag,
 			                                         tracker_property_get_data_type (predicate),
 			                                         &object,
 			                                         &inner_error))
