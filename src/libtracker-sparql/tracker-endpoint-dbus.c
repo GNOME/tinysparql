@@ -711,6 +711,17 @@ bind_arguments (TrackerSparqlStatement *stmt,
 		} else if (g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN)) {
 			tracker_sparql_statement_bind_boolean (stmt, arg,
 			                                       g_variant_get_boolean (value));
+		} else if (g_variant_is_of_type (value, G_VARIANT_TYPE_BYTESTRING)) {
+			const gchar *data, *langtag;
+			gsize len, str_len;
+
+			data = g_variant_get_fixed_array (value, &len, sizeof (guint8));
+			str_len = strlen (data);
+
+			if (str_len < len)
+				langtag = &data[str_len + 1];
+
+			tracker_sparql_statement_bind_langstring (stmt, arg, data, langtag);
 		} else {
 			g_warning ("Unhandled type '%s' for argument %s",
 			           g_variant_get_type_string (value),
