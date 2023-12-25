@@ -137,6 +137,24 @@ tracker_remote_statement_bind_datetime (TrackerSparqlStatement *stmt,
 }
 
 static void
+tracker_remote_statement_bind_langstring (TrackerSparqlStatement *stmt,
+                                          const gchar            *name,
+                                          const gchar            *value,
+                                          const gchar            *langtag)
+{
+	TrackerRemoteStatement *remote_stmt = TRACKER_REMOTE_STATEMENT (stmt);
+	GValue *val;
+
+	val = g_new0 (GValue, 1);
+	g_value_init (val, G_TYPE_BYTES);
+	g_value_take_boxed (val, tracker_sparql_make_langstring (value, langtag));
+
+	g_hash_table_insert (remote_stmt->bindings,
+	                     g_strdup (name),
+	                     val);
+}
+
+static void
 append_gvalue (GString *str,
                const GValue  *value)
 {
@@ -160,6 +178,20 @@ append_gvalue (GString *str,
 		datetime_str = tracker_date_format_iso8601 (datetime);
 		g_string_append_printf (str, "\"%s\"", datetime_str);
 		g_free (datetime_str);
+	} else if (G_VALUE_TYPE (value) == G_TYPE_BYTES) {
+		GBytes *bytes;
+		const gchar *data;
+		gsize len, str_len;
+
+		bytes = g_value_get_boxed (value);
+		data = g_bytes_get_data (bytes, &len);
+		str_len = strlen (data);
+		g_string_append_printf (str, "\"%s\"", data);
+		if (str_len < len) {
+			const gchar *langtag;
+			langtag = &data[str_len + 1];
+			g_string_append_printf (str, "@%s", langtag);
+		}
 	} else if (G_VALUE_HOLDS_STRING (value)) {
 		const gchar *val = g_value_get_string (value);
 		int len = strlen (val);
@@ -446,6 +478,7 @@ tracker_remote_statement_class_init (TrackerRemoteStatementClass *klass)
 	stmt_class->bind_string = tracker_remote_statement_bind_string;
 	stmt_class->bind_double = tracker_remote_statement_bind_double;
 	stmt_class->bind_datetime = tracker_remote_statement_bind_datetime;
+	stmt_class->bind_langstring = tracker_remote_statement_bind_langstring;
 	stmt_class->execute = tracker_remote_statement_execute;
 	stmt_class->execute_async = tracker_remote_statement_execute_async;
 	stmt_class->execute_finish = tracker_remote_statement_execute_finish;
