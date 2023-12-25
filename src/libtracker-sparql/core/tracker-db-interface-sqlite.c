@@ -1425,14 +1425,15 @@ function_sparql_langmatches (sqlite3_context *context,
 		/* text arguments don't contain any language information */
 		sqlite3_result_int (context, FALSE);
 	} else if (type == SQLITE_BLOB) {
-		gsize str_len, len;
+		gsize str_len, langtag_len, len;
 
 		str = sqlite3_value_blob (argv[0]);
 		len = sqlite3_value_bytes (argv[0]);
 		langtag = sqlite3_value_text (argv[1]);
 		str_len = strlen (str) + 1;
+		langtag_len = strlen (langtag) + 1;
 
-		if (str_len + strlen (langtag) != len ||
+		if (str_len + langtag_len != len ||
 		    g_strcmp0 (&str[str_len], langtag) != 0) {
 			sqlite3_result_int (context, FALSE);
 		} else {
@@ -1450,7 +1451,8 @@ function_sparql_strlang (sqlite3_context *context,
 {
 	const gchar *fn = "strlang";
 	const gchar *str, *langtag;
-	GString *langstr;
+	GBytes *bytes;
+	gpointer data;
 	gsize len;
 
 	if (argc != 2) {
@@ -1461,14 +1463,10 @@ function_sparql_strlang (sqlite3_context *context,
 	str = sqlite3_value_text (argv[0]);
 	langtag = sqlite3_value_text (argv[1]);
 
-	langstr = g_string_new (str);
-	g_string_append_c (langstr, '\0');
-	g_string_append (langstr, langtag);
+	bytes = tracker_sparql_make_langstring (str, langtag);
+	data = g_bytes_unref_to_data (bytes, &len);
 
-	len = langstr->len;
-	sqlite3_result_blob64 (context,
-	                       g_string_free (langstr, FALSE),
-	                       len, g_free);
+	sqlite3_result_blob64 (context, data, len, g_free);
 }
 
 static inline int
@@ -3039,7 +3037,7 @@ tracker_db_statement_bind_bytes (TrackerDBStatement         *stmt,
 	data = g_bytes_get_data (value, &len);
 
 	tracker_db_interface_lock (stmt->db_interface);
-	sqlite3_bind_blob (stmt->stmt, index + 1, data, len - 1, SQLITE_TRANSIENT);
+	sqlite3_bind_blob (stmt->stmt, index + 1, data, len, SQLITE_TRANSIENT);
 	tracker_db_interface_unlock (stmt->db_interface);
 }
 
