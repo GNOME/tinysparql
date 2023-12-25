@@ -361,4 +361,7 @@ TrackerSparqlStatement * tracker_endpoint_cache_select_sparql (TrackerEndpoint  
 void tracker_batch_add_dbus_fd (TrackerBatch *batch,
                                 GInputStream *istream);
 
+GBytes * tracker_sparql_make_langstring (const gchar *str,
+                                         const gchar *langtag);
+
 #endif /* __TRACKER_PRIVATE_H__ */

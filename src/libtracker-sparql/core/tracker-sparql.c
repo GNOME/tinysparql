@@ -10497,28 +10497,6 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 	return retval;
 }
 
-GBytes *
-tracker_sparql_make_langstring (const gchar *str,
-                                const gchar *langtag)
-{
-	GString *langstr;
-	GBytes *bytes;
-	gsize len;
-
-	langstr = g_string_new (str);
-
-	if (langtag) {
-		g_string_append_c (langstr, '\0');
-		g_string_append_printf (langstr, "%s", langtag);
-	}
-
-	/* Account for trailing \0 */
-	len = langstr->len + 1;
-	bytes = g_bytes_new_take (g_string_free (langstr, FALSE), len);
-
-	return bytes;
-}
-
 gboolean
 tracker_sparql_is_serializable (TrackerSparql *sparql)
 {
