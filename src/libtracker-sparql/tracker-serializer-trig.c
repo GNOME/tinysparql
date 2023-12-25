@@ -35,6 +35,7 @@ struct _TrackerQuad
 	gchar *predicate;
 	gchar *object;
 	gchar *graph;
+	gchar *object_langtag;
 	TrackerSparqlValueType subject_type;
 	TrackerSparqlValueType object_type;
 };
@@ -67,11 +68,14 @@ static void
 tracker_quad_init_from_cursor (TrackerQuad         *quad,
                                TrackerSparqlCursor *cursor)
 {
+	const gchar *langtag;
+
 	quad->subject_type = tracker_sparql_cursor_get_value_type (cursor, 0);
 	quad->object_type = tracker_sparql_cursor_get_value_type (cursor, 2);
 	quad->subject = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 	quad->predicate = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
-	quad->object = g_strdup (tracker_sparql_cursor_get_string (cursor, 2, NULL));
+	quad->object = g_strdup (tracker_sparql_cursor_get_langstring (cursor, 2, &langtag, NULL));
+	quad->object_langtag = g_strdup (langtag);
 
 	if (tracker_sparql_cursor_get_n_columns (cursor) >= 4)
 		quad->graph = g_strdup (tracker_sparql_cursor_get_string (cursor, 3, NULL));
@@ -100,6 +104,7 @@ tracker_quad_clear (TrackerQuad *quad)
 	g_clear_pointer (&quad->predicate, g_free);
 	g_clear_pointer (&quad->object, g_free);
 	g_clear_pointer (&quad->graph, g_free);
+	g_clear_pointer (&quad->object_langtag, g_free);
 }
 
 static TrackerQuadBreak
@@ -282,6 +287,11 @@ serialize_up_to_size (TrackerSerializerTrig  *serializer_trig,
 
 			g_string_append_c (serializer_trig->data, ' ');
 			print_value (serializer_trig->data, cur.object, cur.object_type, namespaces);
+
+			if (cur.object_langtag) {
+				g_string_append_c (serializer_trig->data, '@');
+				g_string_append (serializer_trig->data, cur.object_langtag);
+			}
 		}
 
 		serializer_trig->has_quads = TRUE;
