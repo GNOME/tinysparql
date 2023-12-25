@@ -75,6 +75,12 @@ G_DEFINE_TYPE_WITH_CODE (TrackerHttpServerSoup,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 tracker_http_server_soup_initable_iface_init))
 
+static void
+request_free (TrackerHttpRequest *request)
+{
+	g_clear_object (&request->istream);
+	g_free (request);
+}
 
 static guint
 get_supported_formats (TrackerHttpRequest *request)
@@ -215,7 +221,7 @@ tracker_http_server_soup_error (TrackerHttpServer       *server,
 #else
 	soup_server_unpause_message (server_soup->server, request->message);
 #endif
-	g_free (request);
+	request_free (request);
 }
 
 static void
@@ -253,6 +259,7 @@ handle_write_in_thread (GTask        *task,
 	}
 
 	g_input_stream_close (request->istream, cancellable, NULL);
+	g_clear_object (&request->istream);
 	soup_message_body_complete (message_body);
 
 	if (error)
@@ -292,7 +299,7 @@ write_finished_cb (GObject      *object,
 		soup_server_unpause_message (server->server, request->message);
 #endif
 
-		g_free (request);
+		request_free (request);
 	}
 }
 
