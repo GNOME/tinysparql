@@ -371,13 +371,14 @@ write_cursor (QueryRequest          *request,
               TrackerSparqlCursor   *cursor,
               GError               **error)
 {
-	const gchar **values = NULL;
+	const gchar **values = NULL, **langtags = NULL;
 	glong *offsets = NULL;
 	gint i, n_columns = 0;
 	GError *inner_error = NULL;
 
 	n_columns = tracker_sparql_cursor_get_n_columns (cursor);
 	values = g_new0 (const char *, n_columns);
+	langtags = g_new0 (const gchar *, n_columns);
 	offsets = g_new0 (glong, n_columns);
 
 	while (tracker_sparql_cursor_next (cursor, request->cancellable, &inner_error)) {
@@ -397,7 +398,10 @@ write_cursor (QueryRequest          *request,
 			                                     &inner_error))
 				goto out;
 
-			values[i] = tracker_sparql_cursor_get_string (cursor, i, &len);
+			values[i] = tracker_sparql_cursor_get_langstring (cursor, i, &langtags[i], &len);
+
+			if (langtags[i])
+				len += strlen (langtags[i]) + 1;
 			len++;
 			cur_offset += len;
 			offsets[i] = cur_offset;
@@ -418,6 +422,19 @@ write_cursor (QueryRequest          *request,
 			                                      &inner_error))
 				goto out;
 
+			if (langtags[i]) {
+				if (!g_data_output_stream_put_byte (request->data_stream, 0,
+				                                    request->cancellable,
+				                                    &inner_error))
+					goto out;
+
+				if (!g_data_output_stream_put_string (request->data_stream,
+				                                      langtags[i],
+				                                      request->cancellable,
+				                                      &inner_error))
+					goto out;
+			}
+
 			if (!g_data_output_stream_put_byte (request->data_stream, 0,
 			                                    request->cancellable,
 			                                    &inner_error))
@@ -429,6 +446,7 @@ out:
 
 	g_free (values);
 	g_free (offsets);
+	g_free (langtags);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -711,6 +729,17 @@ bind_arguments (TrackerSparqlStatement *stmt,
 		} else if (g_variant_is_of_type (value, G_VARIANT_TYPE_BOOLEAN)) {
 			tracker_sparql_statement_bind_boolean (stmt, arg,
 			                                       g_variant_get_boolean (value));
+		} else if (g_variant_is_of_type (value, G_VARIANT_TYPE_BYTESTRING)) {
+			const gchar *data, *langtag;
+			gsize len, str_len;
+
+			data = g_variant_get_fixed_array (value, &len, sizeof (guint8));
+			str_len = strlen (data);
+
+			if (str_len < len)
+				langtag = &data[str_len + 1];
+
+			tracker_sparql_statement_bind_langstring (stmt, arg, data, langtag);
 		} else {
 			g_warning ("Unhandled type '%s' for argument %s",
 			           g_variant_get_type_string (value),

@@ -1,0 +1,7 @@
+@prefix nie: <http://tracker.api.gnome.org/ontology/v3/nie#> .
+
+<file:///example1> a nie:InformationElement ;
+  nie:title "Ejemplo"@es .
+
+<file:///example2> a nie:InformationElement ;
+  nie:title "Example"@en .

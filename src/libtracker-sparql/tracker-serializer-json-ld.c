@@ -139,6 +139,29 @@ create_node (const gchar             *id,
 	return node;
 }
 
+static JsonNode *
+create_value_object (const gchar *value,
+                     const gchar *langtag,
+                     const gchar *datatype)
+{
+	JsonNode *node;
+	JsonObject *object;
+
+	node = json_node_new (JSON_NODE_OBJECT);
+	object = json_object_new ();
+	json_object_set_string_member (object, "@value", value);
+
+	if (langtag)
+		json_object_set_string_member (object, "@language", langtag);
+	if (datatype)
+		json_object_set_string_member (object, "@type", datatype);
+
+	json_node_set_object (node, object);
+	json_object_unref (object);
+
+	return node;
+}
+
 static gboolean
 serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
                           gsize                     pos,
@@ -175,7 +198,7 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 		g_string_append (serializer_json_ld->data, "{");
 
 	while (!serializer_json_ld->cursor_finished) {
-		const gchar *graph, *subject, *predicate;
+		const gchar *graph, *subject, *predicate, *langtag;
 		gboolean graph_changed, subject_changed;
 		TrackerSparqlValueType subject_type, object_type;
 		JsonNode *value = NULL;
@@ -319,10 +342,18 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 					value = create_node (res, object_type, namespaces);
 				}
 				break;
-			case TRACKER_SPARQL_VALUE_TYPE_STRING:
 			case TRACKER_SPARQL_VALUE_TYPE_DATETIME:
-				value = json_node_alloc ();
-				json_node_init_string (value, tracker_sparql_cursor_get_string (cursor, 2, NULL));
+				res = tracker_sparql_cursor_get_string (cursor, 2, NULL);
+				value = create_value_object (res, NULL, TRACKER_PREFIX_XSD "dateTime");
+				break;
+			case TRACKER_SPARQL_VALUE_TYPE_STRING:
+				res = tracker_sparql_cursor_get_langstring (cursor, 2, &langtag, NULL);
+				if (langtag) {
+					value = create_value_object (res, langtag, TRACKER_PREFIX_RDF "langString");
+				} else {
+					value = json_node_alloc ();
+					json_node_init_string (value, res);
+				}
 				break;
 			case TRACKER_SPARQL_VALUE_TYPE_INTEGER:
 				value = json_node_alloc ();

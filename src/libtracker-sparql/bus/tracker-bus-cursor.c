@@ -30,6 +30,7 @@ struct _TrackerBusCursor
 	gint n_columns;
 	TrackerSparqlValueType *types;
 	gchar *row_data;
+	gint32 *offsets;
 	const gchar **values;
 	gboolean finished;
 };
@@ -57,6 +58,7 @@ tracker_bus_cursor_finalize (GObject *object)
 	g_clear_pointer (&bus_cursor->row_data, g_free);
 	g_clear_pointer (&bus_cursor->values, g_free);
 	g_clear_pointer (&bus_cursor->variable_names, g_free);
+	g_clear_pointer (&bus_cursor->offsets, g_free);
 
 	G_OBJECT_CLASS (tracker_bus_cursor_parent_class)->finalize (object);
 }
@@ -152,15 +154,18 @@ tracker_bus_cursor_get_variable_name (TrackerSparqlCursor *cursor,
 }
 
 static const gchar *
-tracker_bus_cursor_get_string (TrackerSparqlCursor *cursor,
-                               gint                 column,
-			       glong               *len)
+tracker_bus_cursor_get_string (TrackerSparqlCursor  *cursor,
+                               gint                  column,
+                               const gchar         **langtag,
+			       glong                *len)
 {
 	TrackerBusCursor *bus_cursor = TRACKER_BUS_CURSOR (cursor);
 	const gchar *str;
 
 	if (len)
 		*len = 0;
+	if (langtag)
+		*langtag = NULL;
 
 	if (bus_cursor->finished)
 		return NULL;
@@ -175,8 +180,15 @@ tracker_bus_cursor_get_string (TrackerSparqlCursor *cursor,
 
 	str = bus_cursor->values[column];
 
-	if (len)
-		*len = strlen (str);
+	if (len || langtag) {
+		int str_len;
+
+		str_len = strlen (str);
+		if (len)
+			*len = str_len;
+		if (langtag && str_len < bus_cursor->offsets[column])
+			*langtag = &str[str_len + 1];
+	}
 
 	return str;
 }
@@ -211,7 +223,7 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
                          GError              **error)
 {
 	TrackerBusCursor *bus_cursor = TRACKER_BUS_CURSOR (cursor);
-	gint32 *offsets, n_columns, i;
+	gint32 n_columns, i;
 
 	if (bus_cursor->finished)
 		return FALSE;
@@ -241,30 +253,25 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 	                              NULL, cancellable, error))
 		return FALSE;
 
-	offsets = g_new0 (gint32, n_columns);
+	bus_cursor->offsets = g_new0 (gint32, n_columns);
 	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
-	                              offsets,
+	                              bus_cursor->offsets,
 	                              n_columns * sizeof (gint32),
-	                              NULL, cancellable, error)) {
-		g_free (offsets);
+	                              NULL, cancellable, error))
 		return FALSE;
-	}
 
-	if (!validate_offsets (offsets, n_columns, error)) {
-		g_free (offsets);
+	if (!validate_offsets (bus_cursor->offsets, n_columns, error))
 		return FALSE;
-	}
 
 	/* Set a ridiculously high limit on the row size,
 	 * but a limit nonetheless. We can store up to 1GB
 	 * in a single column/row, so make room for 2GiB.
 	 */
-	if (offsets[n_columns - 1] > 2 * 1000 * 1000 * 1000) {
+	if (bus_cursor->offsets[n_columns - 1] > 2 * 1000 * 1000 * 1000) {
 		g_set_error (error,
 		             G_IO_ERROR,
 		             G_IO_ERROR_INVALID_DATA,
 		             "Corrupted cursor data");
-		g_free (offsets);
 		return FALSE;
 	}
 
@@ -273,15 +280,13 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 	 */
 	g_clear_pointer (&bus_cursor->row_data, g_free);
 	bus_cursor->row_data =
-		g_new0 (gchar, offsets[n_columns - 1] + 1);
+		g_new0 (gchar, bus_cursor->offsets[n_columns - 1] + 1);
 
 	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
 	                              bus_cursor->row_data,
-	                              offsets[n_columns - 1] + 1,
-	                              NULL, cancellable, error)) {
-		g_free (offsets);
+	                              bus_cursor->offsets[n_columns - 1] + 1,
+	                              NULL, cancellable, error))
 		return FALSE;
-	}
 
 	g_clear_pointer (&bus_cursor->values, g_free);
 	bus_cursor->values = g_new0 (const gchar *, n_columns);
@@ -290,10 +295,8 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 		if (i == 0)
 			bus_cursor->values[i] = bus_cursor->row_data;
 		else
-			bus_cursor->values[i] = &bus_cursor->row_data[offsets[i - 1]] + 1;
+			bus_cursor->values[i] = &bus_cursor->row_data[bus_cursor->offsets[i - 1]] + 1;
 	}
-
-	g_free (offsets);
 
 	return TRUE;
 }

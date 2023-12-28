@@ -1864,6 +1864,9 @@ value_equal (const GValue *value1,
 			 */
 			return g_date_time_compare (g_value_get_boxed (value1),
 			                            g_value_get_boxed (value2)) == 0;
+		} else if (type == G_TYPE_BYTES) {
+			return g_bytes_equal (g_value_get_boxed (value1),
+			                      g_value_get_boxed (value2));
 		}
 
 		g_critical ("No conversion for type %s", g_type_name (type));
@@ -3324,6 +3327,7 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		TrackerProperty *predicate;
 		GValue object = G_VALUE_INIT;
 		TrackerRowid subject;
+		const gchar *object_langtag;
 
 		subject_str = tracker_sparql_cursor_get_string (cursor,
 		                                                TRACKER_RDF_COL_SUBJECT,
@@ -3331,9 +3335,10 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		predicate_str = tracker_sparql_cursor_get_string (cursor,
 		                                                  TRACKER_RDF_COL_PREDICATE,
 		                                                  NULL);
-		object_str = tracker_sparql_cursor_get_string (cursor,
-		                                               TRACKER_RDF_COL_OBJECT,
-		                                               NULL);
+		object_str = tracker_sparql_cursor_get_langstring (cursor,
+		                                                   TRACKER_RDF_COL_OBJECT,
+		                                                   &object_langtag,
+		                                                   NULL);
 		graph_str = tracker_sparql_cursor_get_string (cursor,
 		                                              TRACKER_RDF_COL_GRAPH,
 		                                              NULL);
@@ -3379,7 +3384,7 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		} else {
 			if (!tracker_data_query_string_to_value (data->manager,
 			                                         object_str,
-			                                         NULL, /* FIXME: Missing langtag */
+			                                         object_langtag,
 			                                         tracker_property_get_data_type (predicate),
 			                                         &object,
 			                                         &inner_error))
@@ -3522,6 +3527,16 @@ value_from_variant (GValue   *value,
 	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_DOUBLE)) {
 		g_value_init (value, G_TYPE_DOUBLE);
 		g_value_set_double (value, g_variant_get_double (variant));
+	} else if (g_variant_is_of_type (variant, G_VARIANT_TYPE_BYTESTRING)) {
+		gconstpointer data;
+		gsize n_elems;
+		GBytes *bytes;
+
+		data = g_variant_get_fixed_array (variant, &n_elems, sizeof (guint8));
+		bytes = g_bytes_new (data, n_elems * sizeof (guint8));
+
+		g_value_init (value, G_TYPE_BYTES);
+		g_value_take_boxed (value, bytes);
 	} else {
 		return FALSE;
 	}

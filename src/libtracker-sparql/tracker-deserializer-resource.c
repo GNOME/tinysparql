@@ -256,14 +256,20 @@ tracker_deserializer_resource_get_value_type (TrackerSparqlCursor *cursor,
 }
 
 static const gchar *
-tracker_deserializer_resource_get_string (TrackerSparqlCursor *cursor,
-                                          gint                 col,
-                                          glong               *length)
+tracker_deserializer_resource_get_string (TrackerSparqlCursor  *cursor,
+                                          gint                  col,
+                                          const gchar         **langtag,
+                                          glong                *length)
 {
 	TrackerDeserializerResource *deserializer =
 		TRACKER_DESERIALIZER_RESOURCE (cursor);
 	const gchar *str = NULL;
 	ResourceStack *item;
+
+	if (length)
+		*length = 0;
+	if (langtag)
+		*langtag = NULL;
 
 	item = peek_stack (deserializer);
 	if (!item)

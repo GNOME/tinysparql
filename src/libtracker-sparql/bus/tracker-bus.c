@@ -1332,6 +1332,8 @@ check_finish_deserialize (GTask *task)
 	} else {
 		g_task_return_boolean (task, TRUE);
 	}
+
+	g_object_unref (task);
 }
 
 static void

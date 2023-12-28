@@ -138,12 +138,14 @@ tracker_data_query_string_to_value (TrackerDataManager   *manager,
 
 	switch (type) {
 	case TRACKER_PROPERTY_TYPE_STRING:
-		g_value_init (gvalue, G_TYPE_STRING);
-		g_value_set_string (gvalue, value);
-		break;
 	case TRACKER_PROPERTY_TYPE_LANGSTRING:
-		g_value_init (gvalue, G_TYPE_BYTES);
-		g_value_take_boxed (gvalue, tracker_sparql_make_langstring (value, langtag));
+		if (langtag) {
+			g_value_init (gvalue, G_TYPE_BYTES);
+			g_value_take_boxed (gvalue, tracker_sparql_make_langstring (value, langtag));
+		} else {
+			g_value_init (gvalue, G_TYPE_STRING);
+			g_value_set_string (gvalue, value);
+		}
 		break;
 	case TRACKER_PROPERTY_TYPE_INTEGER:
 		g_value_init (gvalue, G_TYPE_INT64);

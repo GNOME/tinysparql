@@ -8384,7 +8384,7 @@ helper_datatype (TrackerSparql      *sparql,
                  TrackerParserNode  *node,
                  GError            **error)
 {
-	TrackerStringBuilder *dummy;
+	TrackerStringBuilder *substr;
 	gboolean retval;
 
 	_append_string (sparql, "SparqlDataType (");
@@ -8410,17 +8410,20 @@ helper_datatype (TrackerSparql      *sparql,
 		}
 	}
 
-	/* Redirect output to a dummy string, we just care of the parsed expression type */
-	dummy = tracker_string_builder_new ();
-	retval = _postprocess_rule (sparql, node, dummy, error);
-	tracker_string_builder_free (dummy);
+	substr = tracker_string_builder_new ();
+	retval = _postprocess_rule (sparql, node, substr, error);
 
-	if (!retval)
-		return retval;
+	if (retval) {
+		gchar *expr = tracker_string_builder_to_string (substr);
+		_append_string_printf (sparql, "%d, %s) ",
+		                       sparql->current_state->expression_type,
+		                       expr);
+		g_free (expr);
+	}
 
-	_append_string_printf (sparql, "%d) ", sparql->current_state->expression_type);
+	tracker_string_builder_free (substr);
 
-	return TRUE;
+	return retval;
 }
 
 static gboolean
@@ -9774,8 +9777,7 @@ prepare_query (TrackerSparql         *sparql,
 			g_date_time_unref (datetime);
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_INTEGER) {
 			tracker_db_statement_bind_int (stmt, i, atoi (binding->literal));
-		} else if (prop_type == TRACKER_PROPERTY_TYPE_LANGSTRING &&
-			   g_bytes_get_size (binding->bytes) > strlen (binding->literal) + 1) {
+		} else if (g_bytes_get_size (binding->bytes) > strlen (binding->literal) + 1) {
 			tracker_db_statement_bind_bytes (stmt, i, binding->bytes);
 		} else {
 			tracker_db_statement_bind_text (stmt, i, binding->literal);
@@ -9922,18 +9924,18 @@ tracker_sparql_new_update (TrackerDataManager  *manager,
 }
 
 static gboolean
-find_column_for_variable (TrackerDBCursor *cursor,
-                          TrackerVariable *variable,
-                          guint           *col_out)
+find_column_for_variable (TrackerSparqlCursor *cursor,
+                          TrackerVariable     *variable,
+                          guint               *col_out)
 {
 	guint i, n_cols;
 
-	n_cols = tracker_db_cursor_get_n_columns (cursor);
+	n_cols = tracker_sparql_cursor_get_n_columns (cursor);
 
 	for (i = 0; i < n_cols; i++) {
 		const gchar *column_name;
 
-		column_name = tracker_db_cursor_get_variable_name (cursor, i);
+		column_name = tracker_sparql_cursor_get_variable_name (cursor, i);
 		if (g_strcmp0 (column_name, variable->name) == 0) {
 			*col_out = i;
 			return TRUE;
@@ -9976,6 +9978,12 @@ init_literal_token_from_gvalue (TrackerToken *resolved_out,
 			tracker_token_literal_init (resolved_out, str, -1);
 			g_free (str);
 		}
+	} else if (G_VALUE_TYPE (value) == G_TYPE_BYTES) {
+		const gchar *data;
+		gsize len;
+
+		data = g_bytes_get_data (g_value_get_boxed (value), &len);
+		tracker_token_literal_init (resolved_out, data, len);
 	} else if (G_VALUE_TYPE (value) != G_TYPE_INVALID) {
 		g_assert_not_reached ();
 	}
@@ -9997,7 +10005,7 @@ resolve_token (TrackerToken    *orig,
 
 		g_assert (cursor != NULL);
 
-		if (!find_column_for_variable (cursor, variable, &col))
+		if (!find_column_for_variable (TRACKER_SPARQL_CURSOR (cursor), variable, &col))
 			return resolved_out;
 
 		tracker_db_cursor_get_value (cursor, col, &value);
@@ -10337,7 +10345,7 @@ apply_update (TrackerSparql    *sparql,
 
 	while (i < sparql->update_ops->len) {
 		TrackerUpdateOpGroup *update_group;
-		TrackerDBCursor *cursor = NULL;
+		TrackerSparqlCursor *cursor = NULL;
 		guint j;
 
 		g_assert (cur_update_group < sparql->update_groups->len);
@@ -10373,7 +10381,7 @@ apply_update (TrackerSparql    *sparql,
 			if (!stmt)
 				goto out;
 
-			cursor = tracker_db_statement_start_sparql_cursor (stmt, 0, &inner_error);
+			cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_sparql_cursor (stmt, 0, &inner_error));
 			g_object_unref (stmt);
 
 			if (!cursor)
@@ -10382,7 +10390,7 @@ apply_update (TrackerSparql    *sparql,
 			g_variant_builder_open (variant_builder, G_VARIANT_TYPE ("a{ss}"));
 		}
 
-		while (!cursor || tracker_db_cursor_iter_next (cursor, NULL, &inner_error)) {
+		while (!cursor || tracker_sparql_cursor_next (cursor, NULL, &inner_error)) {
 			for (j = update_group->start_idx; j <= update_group->end_idx; j++) {
 				TrackerUpdateOp *op;
 
@@ -10393,7 +10401,7 @@ apply_update (TrackerSparql    *sparql,
 				                      bnode_labels,
 				                      bnode_rowids,
 				                      updated_bnode_labels,
-				                      cursor,
+				                      TRACKER_DB_CURSOR (cursor),
 				                      variant_builder,
 				                      &inner_error))
 					goto out;
@@ -10495,28 +10503,6 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 		*update_bnodes = g_variant_ref_sink (g_variant_builder_end (&variant_builder));
  out:
 	return retval;
-}
-
-GBytes *
-tracker_sparql_make_langstring (const gchar *str,
-                                const gchar *langtag)
-{
-	GString *langstr;
-	GBytes *bytes;
-	gsize len;
-
-	langstr = g_string_new (str);
-
-	if (langtag) {
-		g_string_append_c (langstr, '\0');
-		g_string_append_printf (langstr, "%s", langtag);
-	}
-
-	/* Account for trailing \0 */
-	len = langstr->len + 1;
-	bytes = g_bytes_new_take (g_string_free (langstr, FALSE), len);
-
-	return bytes;
 }
 
 gboolean

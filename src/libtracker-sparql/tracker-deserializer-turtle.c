@@ -849,24 +849,42 @@ tracker_deserializer_turtle_get_value_type (TrackerSparqlCursor *cursor,
 }
 
 static const gchar *
-tracker_deserializer_turtle_get_string (TrackerSparqlCursor *cursor,
-                                        gint                 column,
-                                        glong               *length)
+tracker_deserializer_turtle_get_string (TrackerSparqlCursor  *cursor,
+                                        gint                  column,
+                                        const gchar         **langtag,
+                                        glong                *length)
 {
 	TrackerDeserializerTurtle *deserializer = TRACKER_DESERIALIZER_TURTLE (cursor);
+	const gchar *str = NULL;
+
+	if (length)
+		*length = 0;
+	if (langtag)
+		*langtag = NULL;
 
 	switch (column) {
 	case TRACKER_RDF_COL_SUBJECT:
-		return deserializer->subject;
+		str = deserializer->subject;
+		break;
 	case TRACKER_RDF_COL_PREDICATE:
-		return deserializer->predicate;
+		str = deserializer->predicate;
+		break;
 	case TRACKER_RDF_COL_OBJECT:
-		return deserializer->object;
+		if (langtag && deserializer->object_lang) {
+			/* Skip '@' starting langtag */
+			*langtag = &deserializer->object_lang[1];
+		}
+		str = deserializer->object;
+		break;
 	case TRACKER_RDF_COL_GRAPH:
-		return deserializer->graph;
-	default:
-		return NULL;
+		str = deserializer->graph;
+		break;
 	}
+
+	if (length && str)
+		*length = strlen (str);
+
+	return str;
 }
 
 static gboolean

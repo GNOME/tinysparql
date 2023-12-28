@@ -137,7 +137,7 @@ serialize_up_to_position (TrackerSerializerJson  *serializer_json,
 		json_builder_begin_object (builder);
 
 		for (i = 0; i < tracker_sparql_cursor_get_n_columns (cursor); i++) {
-			const gchar *var, *str, *type = NULL, *datatype = NULL;
+			const gchar *var, *str, *type = NULL, *datatype = NULL, *langtag = NULL;
 
 			switch (tracker_sparql_cursor_get_value_type (cursor, i)) {
 			case TRACKER_SPARQL_VALUE_TYPE_URI:
@@ -175,12 +175,18 @@ serialize_up_to_position (TrackerSerializerJson  *serializer_json,
 			json_builder_set_member_name (builder, "type");
 			json_builder_add_string_value (builder, type);
 
+			str = tracker_sparql_cursor_get_langstring (cursor, i, &langtag, NULL);
+
+			if (langtag) {
+				datatype = TRACKER_PREFIX_RDF "langString";
+				json_builder_set_member_name (builder, "xml:lang");
+				json_builder_add_string_value (builder, langtag);
+			}
+
 			if (datatype) {
 				json_builder_set_member_name (builder, "datatype");
 				json_builder_add_string_value (builder, datatype);
 			}
-
-			str = tracker_sparql_cursor_get_string (cursor, i, NULL);
 
 			if (str) {
 				json_builder_set_member_name (builder, "value");

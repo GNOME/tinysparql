@@ -40,7 +40,7 @@ G_DECLARE_DERIVABLE_TYPE (TrackerSparqlCursor, tracker_sparql_cursor,
  * TrackerSparqlValueType:
  * @TRACKER_SPARQL_VALUE_TYPE_UNBOUND: Unbound value type
  * @TRACKER_SPARQL_VALUE_TYPE_URI: Uri value type, rdfs:Resource
- * @TRACKER_SPARQL_VALUE_TYPE_STRING: String value type, xsd:string
+ * @TRACKER_SPARQL_VALUE_TYPE_STRING: String value type, xsd:string or rdf:langString
  * @TRACKER_SPARQL_VALUE_TYPE_INTEGER: Integer value type, xsd:integer
  * @TRACKER_SPARQL_VALUE_TYPE_DOUBLE: Double value type, xsd:double
  * @TRACKER_SPARQL_VALUE_TYPE_DATETIME: Datetime value type, xsd:dateTime
@@ -69,6 +69,11 @@ TRACKER_AVAILABLE_IN_ALL
 const gchar * tracker_sparql_cursor_get_string (TrackerSparqlCursor *cursor,
                                                 gint                 column,
                                                 glong               *length);
+TRACKER_AVAILABLE_IN_3_7
+const gchar * tracker_sparql_cursor_get_langstring (TrackerSparqlCursor  *cursor,
+                                                    gint                  column,
+                                                    const gchar         **langtag,
+                                                    glong                *length);
 TRACKER_AVAILABLE_IN_ALL
 gboolean tracker_sparql_cursor_get_boolean (TrackerSparqlCursor *cursor,
                                             gint                 column);

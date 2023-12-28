@@ -32,6 +32,7 @@
 typedef struct {
 	TrackerSparqlValueType type;
 	xmlChar *str;
+	xmlChar *langtag;
 } ColumnData;
 
 struct _TrackerDeserializerXml {
@@ -49,13 +50,15 @@ G_DEFINE_TYPE (TrackerDeserializerXml,
 
 static ColumnData *
 column_new (TrackerSparqlValueType  type,
-            xmlChar                *str)
+            xmlChar                *str,
+            xmlChar                *langtag)
 {
 	ColumnData *col;
 
 	col = g_slice_new0 (ColumnData);
 	col->type = type;
 	col->str = str;
+	col->langtag = langtag;
 
 	return col;
 }
@@ -66,6 +69,7 @@ column_free (gpointer data)
 	ColumnData *col = data;
 
 	xmlFree (col->str);
+	xmlFree (col->langtag);
 	g_slice_free (ColumnData, col);
 }
 
@@ -247,16 +251,27 @@ tracker_deserializer_xml_get_variable_name (TrackerSparqlCursor  *cursor,
 static const gchar *
 tracker_deserializer_xml_get_string (TrackerSparqlCursor  *cursor,
                                      gint                  column,
+                                     const gchar         **langtag,
                                      glong                *length)
 {
 	TrackerDeserializerXml *deserializer =
 		TRACKER_DESERIALIZER_XML (cursor);
 	ColumnData *col;
 
+	if (length)
+		*length = 0;
+	if (langtag)
+		*langtag = NULL;
+
 	if (column > (gint) deserializer->columns->len)
 		return NULL;
 
 	col = g_ptr_array_index (deserializer->columns, column);
+
+	if (length)
+		*length = strlen ((const gchar *) col->str);
+	if (langtag)
+		*langtag = (const gchar *) col->langtag;
 
 	return (const gchar *) col->str;
 }
@@ -330,9 +345,10 @@ parse_binding (TrackerDeserializerXml  *deserializer,
                TrackerSparqlValueType  *type,
                xmlChar                **name,
                xmlChar                **value,
+               xmlChar                **langtag,
                GError                 **error)
 {
-	xmlChar *binding_name = NULL, *binding_value = NULL;
+	xmlChar *binding_name = NULL, *binding_value = NULL, *binding_langtag = NULL;
 
 	if (!reader_in_element (deserializer, "binding", 3))
 		goto error;
@@ -342,6 +358,9 @@ parse_binding (TrackerDeserializerXml  *deserializer,
 
 	if (xmlTextReaderRead(deserializer->reader) <= 0)
 		goto error;
+
+	binding_langtag = xmlTextReaderGetAttribute (deserializer->reader,
+	                                             (xmlChar *) "xml:lang");
 
 	if (!parse_binding_type (deserializer, type, error))
 		goto error_already_set;
@@ -363,6 +382,7 @@ parse_binding (TrackerDeserializerXml  *deserializer,
 
 	*name = binding_name;
 	*value = binding_value;
+	*langtag = binding_langtag;
 
 	return TRUE;
  error:
@@ -374,6 +394,7 @@ parse_binding (TrackerDeserializerXml  *deserializer,
  error_already_set:
 	g_clear_pointer (&binding_name, xmlFree);
 	g_clear_pointer (&binding_value, xmlFree);
+	g_clear_pointer (&binding_langtag, xmlFree);
 
 	return FALSE;
 }
@@ -395,16 +416,16 @@ parse_result (TrackerDeserializerXml  *deserializer,
 
 	while (xmlTextReaderRead (deserializer->reader) > 0) {
 		ColumnData *col;
-		xmlChar *name, *value;
+		xmlChar *name, *value, *langtag;
 		TrackerSparqlValueType type;
 
 		if (xmlTextReaderNodeType (deserializer->reader) == XML_READER_TYPE_END_ELEMENT)
 			break;
 
-		if (!parse_binding (deserializer, &type, &name, &value, error))
+		if (!parse_binding (deserializer, &type, &name, &value, &langtag, error))
 			goto error_already_set;
 
-		col = column_new (type, value);
+		col = column_new (type, value, langtag);
 		g_hash_table_insert (ht, name, col);
 	}
 
@@ -420,7 +441,7 @@ parse_result (TrackerDeserializerXml  *deserializer,
 		col = g_hash_table_lookup (ht, var_name);
 		g_hash_table_steal (ht, var_name);
 		if (!col)
-			col = column_new (TRACKER_SPARQL_VALUE_TYPE_UNBOUND, NULL);
+			col = column_new (TRACKER_SPARQL_VALUE_TYPE_UNBOUND, NULL, NULL);
 
 		g_ptr_array_add (deserializer->columns, col);
 	}
@@ -479,7 +500,7 @@ tracker_deserializer_xml_next (TrackerSparqlCursor  *cursor,
 			xmlChar *content;
 
 			content = xmlTextReaderValue (deserializer->reader);
-			col = column_new (TRACKER_SPARQL_VALUE_TYPE_BOOLEAN, content);
+			col = column_new (TRACKER_SPARQL_VALUE_TYPE_BOOLEAN, content, NULL);
 			g_ptr_array_add (deserializer->columns, col);
 		} else {
 			g_set_error (error,

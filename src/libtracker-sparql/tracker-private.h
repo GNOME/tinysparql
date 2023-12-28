@@ -151,9 +151,10 @@ struct _TrackerSparqlCursorClass
 	                                           gint                 column);
         const gchar* (* get_variable_name) (TrackerSparqlCursor *cursor,
                                             gint                 column);
-	const gchar* (* get_string) (TrackerSparqlCursor *cursor,
-	                             gint                 column,
-	                             glong               *length);
+	const gchar* (* get_string) (TrackerSparqlCursor  *cursor,
+	                             gint                  column,
+	                             const gchar         **langtag,
+	                             glong                *length);
         gboolean (* next) (TrackerSparqlCursor  *cursor,
                            GCancellable         *cancellable,
                            GError              **error);
@@ -229,6 +230,10 @@ struct _TrackerSparqlStatementClass
         void (* bind_datetime) (TrackerSparqlStatement *stmt,
                                 const gchar            *name,
                                 GDateTime              *value);
+	void (* bind_langstring) (TrackerSparqlStatement *stmt,
+	                          const gchar            *name,
+	                          const gchar            *value,
+	                          const gchar            *langtag);
 
         TrackerSparqlCursor * (* execute) (TrackerSparqlStatement  *stmt,
                                            GCancellable            *cancellable,
@@ -360,5 +365,8 @@ TrackerSparqlStatement * tracker_endpoint_cache_select_sparql (TrackerEndpoint  
 
 void tracker_batch_add_dbus_fd (TrackerBatch *batch,
                                 GInputStream *istream);
+
+GBytes * tracker_sparql_make_langstring (const gchar *str,
+                                         const gchar *langtag);
 
 #endif /* __TRACKER_PRIVATE_H__ */

@@ -35,8 +35,13 @@ typedef struct {
 
 TestInfo tests[] = {
 	{ "ttl/ttl-1", "deserialize/ttl-1.ttl", "deserialize/ttl-1.rq", "deserialize/ttl-1.out", TRACKER_RDF_FORMAT_TURTLE },
+	{ "ttl/ttl-langstring-1", "deserialize/ttl-langstring-1.ttl", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_TURTLE },
 	{ "trig/trig-1", "deserialize/trig-1.trig", "deserialize/trig-1.rq", "deserialize/trig-1.out", TRACKER_RDF_FORMAT_TRIG },
+	{ "trig/trig-langstring-1", "deserialize/trig-langstring-1.trig", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_TRIG },
 	{ "json-ld/json-ld-1", "deserialize/json-ld-1.jsonld", "deserialize/json-ld-1.rq", "deserialize/json-ld-1.out", TRACKER_RDF_FORMAT_JSON_LD },
+	{ "json-ld/json-ld-langstring-1", "deserialize/json-ld-langstring-1.jsonld", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_JSON_LD },
+	{ "json-ld/json-ld-langstring-2", "deserialize/json-ld-langstring-2.jsonld", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_JSON_LD },
+	{ "json-ld/json-ld-langstring-3", "deserialize/json-ld-langstring-3.jsonld", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_JSON_LD },
 };
 
 typedef struct {
@@ -49,10 +54,20 @@ typedef struct {
 typedef struct {
 	TrackerSparqlConnection *direct;
 	GDBusConnection *dbus_conn;
+	GMainLoop *thread_loop;
+	gboolean started;
 } StartupData;
 
-static gboolean started = FALSE;
+typedef struct {
+	GThread *thread;
+	GMainLoop *loop;
+} EndpointData;
+
 static const gchar *bus_name = NULL;
+
+static gboolean create_connections (TrackerSparqlConnection **dbus,
+                                    TrackerSparqlConnection **direct,
+                                    GError                  **error);
 
 static void
 check_result (TrackerSparqlCursor *cursor,
@@ -138,9 +153,27 @@ static void
 setup (TestFixture   *fixture,
        gconstpointer  context)
 {
+	TrackerSparqlConnection *dbus = NULL, *direct = NULL;
 	const TestFixture *test = context;
+	GError *error = NULL;
 
 	*fixture = *test;
+
+	g_assert_true (create_connections (&dbus, &direct, &error));
+	g_assert_no_error (error);
+
+	fixture->direct = direct;
+	fixture->dbus = dbus;
+}
+
+static void
+teardown (TestFixture   *fixture,
+          gconstpointer  context)
+{
+	tracker_sparql_connection_close (fixture->direct);
+	tracker_sparql_connection_close (fixture->dbus);
+	g_clear_object (&fixture->dbus);
+	g_clear_object (&fixture->direct);
 }
 
 static void
@@ -183,6 +216,7 @@ serialize_direct_cb (GObject      *source,
 	                                             NULL,
 	                                             deserialize_dbus_cb,
 	                                             test_fixture);
+	g_object_unref (istream);
 }
 
 static void
@@ -304,14 +338,25 @@ thread_func (gpointer user_data)
 	if (!endpoint)
 		return NULL;
 
-	started = TRUE;
+	data->thread_loop = main_loop;
+	data->started = TRUE;
 	g_main_loop_run (main_loop);
 
 	g_main_loop_unref (main_loop);
 	g_main_context_pop_thread_default (context);
 	g_main_context_unref (context);
 
+	g_object_unref (endpoint);
+
 	return NULL;
+}
+
+static void
+finish_endpoint (EndpointData *endpoint_data)
+{
+	g_main_loop_quit (endpoint_data->loop);
+	g_thread_join (endpoint_data->thread);
+	g_free (endpoint_data);
 }
 
 static gboolean
@@ -319,7 +364,8 @@ create_connections (TrackerSparqlConnection **dbus,
                     TrackerSparqlConnection **direct,
                     GError                  **error)
 {
-	StartupData data;
+	StartupData data = { 0, };
+	EndpointData *endpoint_data;
 	GThread *thread;
 
 	data.direct = create_local_connection (NULL);
@@ -331,14 +377,25 @@ create_connections (TrackerSparqlConnection **dbus,
 
 	thread = g_thread_new (NULL, thread_func, &data);
 
-	while (!started)
+	while (!data.started)
 		g_usleep (100);
+
+	endpoint_data = g_new0 (EndpointData, 1);
+	endpoint_data->thread = thread;
+	endpoint_data->loop = data.thread_loop;
 
 	bus_name = g_dbus_connection_get_unique_name (data.dbus_conn);
 	*dbus = tracker_sparql_connection_bus_new (bus_name,
 	                                           NULL, data.dbus_conn, error);
+	g_object_set_data_full (G_OBJECT (*dbus),
+	                        "endpoint-data",
+	                        endpoint_data,
+	                        (GDestroyNotify) finish_endpoint);
+
 	*direct = create_local_connection (error);
-	g_thread_unref (thread);
+
+	g_object_unref (data.direct);
+	g_object_unref (data.dbus_conn);
 
 	return TRUE;
 }
@@ -346,25 +403,18 @@ create_connections (TrackerSparqlConnection **dbus,
 gint
 main (gint argc, gchar **argv)
 {
-	TrackerSparqlConnection *dbus = NULL, *direct = NULL;
-	GError *error = NULL;
 	guint i;
 
 	g_test_init (&argc, &argv, NULL);
-
-	g_assert_true (create_connections (&dbus, &direct, &error));
-	g_assert_no_error (error);
 
 	for (i = 0; i < G_N_ELEMENTS (tests); i++) {
 		TestFixture *fixture;
 		gchar *testpath;
 
 		fixture = g_new0 (TestFixture, 1);
-		fixture->direct = direct;
-		fixture->dbus = dbus;
 		fixture->test = &tests[i];
 		testpath = g_strconcat ("/libtracker-sparql/deserialize/", tests[i].test_name, NULL);
-		g_test_add (testpath, TestFixture, fixture, setup, test, NULL);
+		g_test_add (testpath, TestFixture, fixture, setup, test, teardown);
 		g_free (testpath);
 	}
 

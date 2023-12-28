@@ -37,6 +37,7 @@ enum {
 	STATE_PROPERTIES,
 	STATE_VALUE_LIST,
 	STATE_VALUE,
+	STATE_VALUE_AS_OBJECT,
 	STATE_FINAL,
 };
 
@@ -67,10 +68,12 @@ struct _TrackerDeserializerJsonLD {
 	JsonParser *parser;
 	JsonReader *reader;
 	GArray *state_stack;
+	gchar *default_lang;
 	gchar *cur_graph;
 	gchar *cur_subject;
 	gchar *cur_predicate;
 	gchar *cur_object;
+	const gchar *cur_object_lang;
 	TrackerSparqlValueType object_type;
 	guint state;
 	gboolean has_row;
@@ -91,6 +94,7 @@ tracker_deserializer_json_ld_finalize (GObject *object)
 	g_clear_object (&deserializer->reader);
 	g_clear_object (&deserializer->parser);
 	g_array_unref (deserializer->state_stack);
+	g_clear_pointer (&deserializer->default_lang, g_free);
 	g_clear_pointer (&deserializer->cur_graph, g_free);
 	g_clear_pointer (&deserializer->cur_subject, g_free);
 	g_clear_pointer (&deserializer->cur_predicate, g_free);
@@ -310,9 +314,47 @@ current_graph (TrackerDeserializerJsonLD *deserializer)
 }
 
 static gchar *
-node_to_string (JsonNode                *node,
-                TrackerNamespaceManager *namespaces,
-                TrackerSparqlValueType  *value_type)
+object_to_value (TrackerDeserializerJsonLD  *deserializer,
+                 TrackerNamespaceManager    *namespaces,
+                 const gchar               **langtag,
+                 TrackerSparqlValueType     *value_type)
+{
+	const gchar *value = NULL, *type = NULL;
+
+	if (json_reader_read_member (deserializer->reader, "@value"))
+		value = json_reader_get_string_value (deserializer->reader);
+	json_reader_end_member (deserializer->reader);
+
+	if (json_reader_read_member (deserializer->reader, "@language"))
+		*langtag = g_strdup (json_reader_get_string_value (deserializer->reader));
+	json_reader_end_member (deserializer->reader);
+
+	if (json_reader_read_member (deserializer->reader, "@type"))
+		type = json_reader_get_string_value (deserializer->reader);
+	json_reader_end_member (deserializer->reader);
+
+	if (g_strcmp0 (type, TRACKER_PREFIX_XSD "string") == 0 ||
+	    g_strcmp0 (type, TRACKER_PREFIX_RDF "langString") == 0)
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_STRING;
+	else if (g_strcmp0 (type, TRACKER_PREFIX_XSD "integer") == 0)
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_INTEGER;
+	else if (g_strcmp0 (type, TRACKER_PREFIX_XSD "boolean") == 0)
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_BOOLEAN;
+	else if (g_strcmp0 (type, TRACKER_PREFIX_XSD "double") == 0)
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_DOUBLE;
+	else if (g_strcmp0 (type, TRACKER_PREFIX_XSD "date") == 0 ||
+	         g_strcmp0 (type, TRACKER_PREFIX_XSD "dateTime") == 0)
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_DATETIME;
+	else
+		*value_type = TRACKER_SPARQL_VALUE_TYPE_STRING;
+
+	return g_strdup (value);
+}
+
+static gchar *
+node_to_value (JsonNode                *node,
+               TrackerNamespaceManager *namespaces,
+               TrackerSparqlValueType  *value_type)
 {
 	GValue value = G_VALUE_INIT;
 	GType type;
@@ -346,6 +388,22 @@ node_to_string (JsonNode                *node,
 }
 
 static void
+load_special_key (TrackerDeserializerJsonLD *deserializer,
+                  const gchar               *key)
+{
+	const gchar *value;
+
+	if (json_reader_read_member (deserializer->reader, key)) {
+		value = json_reader_get_string_value (deserializer->reader);
+
+		if (g_strcmp0 (key, "@language") == 0)
+			deserializer->default_lang = g_strdup (value);
+	}
+
+	json_reader_end_member (deserializer->reader);
+}
+
+static void
 load_context (TrackerDeserializerJsonLD *deserializer)
 {
 	TrackerNamespaceManager *namespaces;
@@ -357,6 +415,11 @@ load_context (TrackerDeserializerJsonLD *deserializer)
 		guint i;
 
 		for (i = 0; members[i] != NULL; i++) {
+			if (members[i][0] == '@') {
+				load_special_key (deserializer, members[i]);
+				continue;
+			}
+
 			if (tracker_namespace_manager_lookup_prefix (namespaces, members[i]))
 				continue;
 
@@ -372,6 +435,23 @@ load_context (TrackerDeserializerJsonLD *deserializer)
 	}
 
 	json_reader_end_member (deserializer->reader);
+}
+
+static void
+forward_state_for_value (TrackerDeserializerJsonLD *deserializer)
+{
+	if (json_reader_is_object (deserializer->reader)) {
+		if (json_reader_read_member (deserializer->reader, "@value")) {
+			json_reader_end_member (deserializer->reader);
+			deserializer->state = STATE_VALUE_AS_OBJECT;
+		} else {
+			json_reader_end_member (deserializer->reader);
+			push_stack (deserializer, STATE_PROPERTIES);
+			deserializer->state = STATE_MAYBE_GRAPH;
+		}
+	} else {
+		deserializer->state = STATE_VALUE;
+	}
 }
 
 static gboolean
@@ -447,6 +527,7 @@ forward_state (TrackerDeserializerJsonLD *deserializer)
 					tracker_namespace_manager_expand_uri (namespaces, current_member (deserializer));
 				g_clear_pointer (&deserializer->cur_object, g_free);
 				deserializer->cur_object = nested_object_id;
+				deserializer->cur_object_lang = NULL;
 				deserializer->object_type = TRACKER_SPARQL_VALUE_TYPE_STRING;
 				deserializer->has_row = TRUE;
 			}
@@ -464,14 +545,10 @@ forward_state (TrackerDeserializerJsonLD *deserializer)
 		else
 			break;
 
-		if (json_reader_is_array (deserializer->reader)) {
+		if (json_reader_is_array (deserializer->reader))
 			push_stack (deserializer, STATE_VALUE_LIST);
-		} else if (json_reader_is_object (deserializer->reader)) {
-			push_stack (deserializer, STATE_PROPERTIES);
-			deserializer->state = STATE_MAYBE_GRAPH;
-		} else {
-			deserializer->state = STATE_VALUE;
-		}
+		else
+			forward_state_for_value (deserializer);
 		break;
 	case STATE_VALUE_LIST:
 		if (!advance_stack (deserializer)) {
@@ -479,18 +556,24 @@ forward_state (TrackerDeserializerJsonLD *deserializer)
 			break;
 		}
 
-		if (json_reader_is_object (deserializer->reader)) {
-			push_stack (deserializer, STATE_PROPERTIES);
-			deserializer->state = STATE_MAYBE_GRAPH;
-		} else {
-			deserializer->state = STATE_VALUE;
-		}
+		forward_state_for_value (deserializer);
+		break;
+	case STATE_VALUE_AS_OBJECT:
+		g_clear_pointer (&deserializer->cur_object, g_free);
+		deserializer->cur_object = object_to_value (deserializer,
+		                                            namespaces,
+		                                            &deserializer->cur_object_lang,
+		                                            &deserializer->object_type);
+		deserializer->has_row = TRUE;
+
+		deserializer->state = stack_state (deserializer);
 		break;
 	case STATE_VALUE:
 		g_clear_pointer (&deserializer->cur_object, g_free);
-		deserializer->cur_object = node_to_string (json_reader_get_value (deserializer->reader),
-		                                           namespaces,
-		                                           &deserializer->object_type);
+		deserializer->cur_object_lang = NULL;
+		deserializer->cur_object = node_to_value (json_reader_get_value (deserializer->reader),
+		                                          namespaces,
+		                                          &deserializer->object_type);
 		deserializer->has_row = TRUE;
 
 		deserializer->state = stack_state (deserializer);
@@ -513,7 +596,7 @@ tracker_deserializer_json_ld_get_value_type (TrackerSparqlCursor  *cursor,
 	case TRACKER_RDF_COL_SUBJECT:
 		if (!deserializer->cur_subject)
 			return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
-		else if (strncmp (deserializer->cur_object, "_:", 2) == 0)
+		else if (strncmp (deserializer->cur_subject, "_:", 2) == 0)
 			return TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE;
 		else
 			return TRACKER_SPARQL_VALUE_TYPE_URI;
@@ -544,11 +627,17 @@ tracker_deserializer_json_ld_get_value_type (TrackerSparqlCursor  *cursor,
 static const gchar *
 tracker_deserializer_json_ld_get_string (TrackerSparqlCursor  *cursor,
                                          gint                  column,
+                                         const gchar         **langtag,
                                          glong                *length)
 {
 	TrackerDeserializerJsonLD *deserializer =
 		TRACKER_DESERIALIZER_JSON_LD (cursor);
 	const gchar *str = NULL;
+
+	if (length)
+		*length = 0;
+	if (langtag)
+		*langtag = NULL;
 
 	switch (column) {
 	case TRACKER_RDF_COL_SUBJECT:
@@ -558,6 +647,13 @@ tracker_deserializer_json_ld_get_string (TrackerSparqlCursor  *cursor,
 		str = deserializer->cur_predicate;
 		break;
 	case TRACKER_RDF_COL_OBJECT:
+		if (langtag) {
+			if (deserializer->cur_object_lang)
+				*langtag = deserializer->cur_object_lang;
+			else
+				*langtag = deserializer->default_lang;
+		}
+
 		str = deserializer->cur_object;
 		break;
 	case TRACKER_RDF_COL_GRAPH:
@@ -566,6 +662,9 @@ tracker_deserializer_json_ld_get_string (TrackerSparqlCursor  *cursor,
 	default:
 		break;
 	}
+
+	if (length && str)
+		*length = strlen (str);
 
 	return str;
 }
