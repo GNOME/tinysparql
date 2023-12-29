@@ -248,9 +248,8 @@ set_secondary_index_for_single_value_property (TrackerDBInterface  *iface,
 	const gchar *secondary_name = tracker_property_get_name (secondary);
 
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
-	              g_message ("Dropping secondary index (single-value property):  "
-	                         "DROP INDEX IF EXISTS \"%s_%s\"",
-	                         class_name, property_name));
+	              g_message ("Dropping any secondary index on single-value property %s",
+	                         property_name));
 
 	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s\"",
@@ -265,9 +264,8 @@ set_secondary_index_for_single_value_property (TrackerDBInterface  *iface,
 
 	if (enabled) {
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
-		              g_message ("Creating secondary index (single-value property): "
-		                         "CREATE INDEX \"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
-		                         class_name, property_name, class_name, property_name, secondary_name));
+		              g_message ("Creating secondary index for single-value property pair %s / %s",
+		                         property_name, secondary_name));
 
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE INDEX \"%s\".\"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
@@ -293,13 +291,12 @@ set_index_for_single_value_property (TrackerDBInterface  *iface,
                                      GError             **error)
 {
 	GError *internal_error = NULL;
-        const gchar *class_name = tracker_class_get_name (class);
-        const gchar *property_name = tracker_property_get_name (property);
+	const gchar *class_name = tracker_class_get_name (class);
+	const gchar *property_name = tracker_property_get_name (property);
 
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
-	              g_message ("Dropping index (single-value property): "
-	                         "DROP INDEX IF EXISTS \"%s_%s\"",
-	                         class_name, property_name));
+	              g_message ("Dropping any index on single-value property %s",
+	                         property_name));
 
 	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s\"",
@@ -321,9 +318,8 @@ set_index_for_single_value_property (TrackerDBInterface  *iface,
 			expr = g_strdup_printf ("\"%s\"", property_name);
 
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
-		              g_message ("Creating index (single-value property): "
-		                         "CREATE INDEX \"%s_%s\" ON \"%s\" (%s)",
-		                         class_name, property_name, class_name, expr));
+		              g_message ("Creating index for single-value property %s",
+		                         property_name));
 
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE INDEX \"%s\".\"%s_%s\" ON \"%s\" (%s)",
@@ -353,9 +349,8 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
         const gchar *property_name = tracker_property_get_name (property);
 
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
-	              g_message ("Dropping index (multi-value property): "
-	                         "DROP INDEX IF EXISTS \"%s_%s_ID_ID\"",
-	                         class_name, property_name));
+	              g_message ("Dropping any index on multi-value property %s",
+	                         property_name));
 
 	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s_ID_ID\"",
@@ -372,9 +367,8 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 	 * re-create the indexes even without an ontology change (when locale
 	 * of the user changes) */
 	TRACKER_NOTE (ONTOLOGY_CHANGES,
-	              g_message ("Dropping index (multi-value property): "
-	                         "DROP INDEX IF EXISTS \"%s_%s_ID\"",
-	                         class_name, property_name));
+	              g_message ("Dropping any ID index from multi-value property %s",
+	                         property_name));
 	tracker_db_interface_execute_query (iface, &internal_error,
 	                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s_ID\"",
 	                                    database,
@@ -396,9 +390,8 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
                  * value should be indexed to minimize index size */
 
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
-		              g_message ("Creating index (multi-value property): "
-		                         "CREATE INDEX \"%s_%s_ID\" ON \"%s_%s\" (ID)",
-		                         class_name, property_name, class_name, property_name));
+		              g_message ("Creating ID index for multi-value property %s",
+		                         property_name));
 
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE INDEX \"%s\".\"%s_%s_ID\" ON \"%s_%s\" (ID)",
@@ -412,9 +405,8 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
 			goto out;
 
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
-		              g_message ("Creating index (multi-value property): "
-		                        "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (%s, ID)",
-		                        class_name, property_name, class_name, property_name, expr));
+		              g_message ("Creating index for multi-value property %s",
+		                         property_name));
 
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE UNIQUE INDEX \"%s\".\"%s_%s_ID_ID\" ON \"%s_%s\" (%s, ID)",
@@ -432,9 +424,8 @@ set_index_for_multi_value_property (TrackerDBInterface  *iface,
                  * the unique index for proper constraints */
 
 		TRACKER_NOTE (ONTOLOGY_CHANGES,
-		              g_message ("Creating index (multi-value property): "
-		                         "CREATE UNIQUE INDEX \"%s_%s_ID_ID\" ON \"%s_%s\" (ID, %s)",
-		                         class_name, property_name, class_name, property_name, expr));
+		              g_message ("Creating constraint index for multi-value property %s",
+		                         property_name));
 
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "CREATE UNIQUE INDEX \"%s\".\"%s_%s_ID_ID\" ON \"%s_%s\" (ID, %s)",
@@ -2885,7 +2876,7 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 	const char *field_name;
 	const char *sql_type;
 
-        property_get_sql_representation (property, &sql_type, NULL);
+	property_get_sql_representation (property, &sql_type, NULL);
 
 	field_name = tracker_property_get_name (property);
 
@@ -2898,16 +2889,9 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 		GString *in_col_sql = NULL;
 		GString *sel_col_sql = NULL;
 
-		if (in_update) {
-			TRACKER_NOTE (ONTOLOGY_CHANGES,
-			              g_message ("Altering database for class '%s' property '%s': multi value",
-			                         service_name, field_name));
-		}
-
 		if (in_change && !tracker_property_get_is_new (property) && !tracker_property_get_cardinality_changed (property)) {
 			TRACKER_NOTE (ONTOLOGY_CHANGES,
-			              g_message ("Drop index: DROP INDEX IF EXISTS \"%s_%s_ID\"\nRename: ALTER TABLE \"%s_%s\" RENAME TO \"%s_%s_TEMP\"",
-			                         service_name, field_name, service_name, field_name, service_name, field_name));
+			              g_message ("Preparing to replace existing table for multi-value property %s", field_name));
 
 			tracker_db_interface_execute_query (iface, &internal_error,
 			                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s_ID\"",
@@ -2956,6 +2940,9 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			range_change_for (property, in_col_sql, sel_col_sql, field_name);
 		}
 
+		TRACKER_NOTE (ONTOLOGY_CHANGES,
+		              g_message ("Creating table for multi-value property %s",
+		                         field_name));
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "%s)", sql->str);
 
@@ -2967,6 +2954,10 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 		if (in_change && !tracker_property_get_is_new (property) &&
 		    !tracker_property_get_cardinality_changed (property) && in_col_sql && sel_col_sql) {
 			gchar *query;
+
+			TRACKER_NOTE (ONTOLOGY_CHANGES,
+			              g_message ("Restoring data into new table for multi-value property %s",
+			                         field_name));
 
 			query = g_strdup_printf ("INSERT INTO \"%s\".\"%s_%s\"(%s) "
 			                         "SELECT %s FROM \"%s\".\"%s_%s_TEMP\"",
@@ -2991,11 +2982,11 @@ create_decomposed_metadata_property_table (TrackerDBInterface *iface,
 			}
 		}
 
-                set_index_for_multi_value_property (iface, database, service, property, &internal_error);
-                if (internal_error) {
-                        g_propagate_error (error, internal_error);
-                        goto error_out;
-                }
+		set_index_for_multi_value_property (iface, database, service, property, &internal_error);
+		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			goto error_out;
+		}
 
 		error_out:
 
@@ -3060,7 +3051,7 @@ copy_from_domain_to_domain_index (TrackerDBInterface  *iface,
 	                         source_name,
 	                         dest_name);
 
-	TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Copying: '%s'", query));
+	TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Copying data for domain index on property %s on class %s", column_name, dest_name));
 
 	tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
 
@@ -3124,7 +3115,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
         in_change = tracker_class_get_db_schema_changed (service);
 
 	if (in_change && !tracker_class_get_is_new (service)) {
-		TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Rename: ALTER TABLE \"%s\" RENAME TO \"%s_TEMP\"", service_name, service_name));
+		TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Preparing to replace existing table for class %s", service_name));
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "ALTER TABLE \"%s\".\"%s\" RENAME TO \"%s_TEMP\"",
 		                                    database, service_name, service_name);
@@ -3137,8 +3128,6 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 	}
 
 	if (in_change || !in_update || (in_update && tracker_class_get_is_new (service))) {
-		if (in_update)
-			TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Altering database with new class '%s' (create)", service_name));
 		in_alter = FALSE;
 		create_sql = g_string_new ("");
 		g_string_append_printf (create_sql, "CREATE TABLE \"%s\".\"%s\" (ID INTEGER NOT NULL PRIMARY KEY",
@@ -3183,15 +3172,6 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 
                 field_name = tracker_property_get_name (property);
                 property_get_sql_representation (property, &sql_type, &sql_collation);
-
-		if (in_update) {
-			TRACKER_NOTE (ONTOLOGY_CHANGES,
-			              g_message ("%sAltering database for class '%s' property '%s': single value (%s)",
-			                         in_alter ? "" : "  ",
-			                         service_name,
-			                         field_name,
-			                         in_alter ? "alter" : "create"));
-		}
 
 		if (!in_alter) {
 			put_change = TRUE;
@@ -3238,7 +3218,10 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 				g_string_append (alter_sql, " UNIQUE");
 			}
 
-			TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Altering: '%s'", alter_sql->str));
+			TRACKER_NOTE (ONTOLOGY_CHANGES,
+			              g_message ("Adding single-valued property %s to class table for %s",
+			                         field_name,
+			                         service_name));
 			tracker_db_interface_execute_query (iface, &internal_error, "%s", alter_sql->str);
 			if (internal_error) {
 				g_string_free (alter_sql, TRUE);
@@ -3277,8 +3260,11 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 	}
 
 	if (create_sql) {
+		TRACKER_NOTE (ONTOLOGY_CHANGES,
+		              g_message ("Creating table for class %s",
+		                         service_name));
+
 		g_string_append (create_sql, ")");
-		TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Creating: '%s'", create_sql->str));
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "%s", create_sql->str);
 		if (internal_error) {
@@ -3325,13 +3311,13 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 		guint i;
 		gchar *query;
 
+		TRACKER_NOTE (ONTOLOGY_CHANGES,
+		              g_message ("Restoring data into new table for class %s",
+		                         service_name));
 		query = g_strdup_printf ("INSERT INTO \"%s\".\"%s\"(%s) "
 		                         "SELECT %s FROM \"%s\".\"%s_TEMP\"",
 		                         database, service_name, in_col_sql->str,
 		                         sel_col_sql->str, database, service_name);
-
-		TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Copy: %s", query));
-
 		tracker_db_interface_execute_query (iface, &internal_error, "%s", query);
 		g_free (query);
 
@@ -3377,7 +3363,7 @@ create_decomposed_metadata_tables (TrackerDataManager  *manager,
 			}
 		}
 
-		TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Rename (drop): DROP TABLE \"%s_TEMP\"", service_name));
+		TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Dropping backup table for class %s", service_name));
 		tracker_db_interface_execute_query (iface, &internal_error,
 		                                    "DROP TABLE \"%s\".\"%s_TEMP\"",
 						    database, service_name);
