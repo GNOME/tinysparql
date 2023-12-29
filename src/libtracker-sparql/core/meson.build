@@ -16,7 +16,6 @@ core_files = files(
     'tracker-db-interface.c',
     'tracker-db-interface-sqlite.c',
     'tracker-db-manager.c',
-    'tracker-fts.c',
     'tracker-fts-tokenizer.c',
     'tracker-namespace.c',
     'tracker-ontology.c',

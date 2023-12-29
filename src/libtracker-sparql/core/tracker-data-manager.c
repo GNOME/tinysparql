@@ -33,7 +33,6 @@
 #include "tracker-data-update.h"
 #include "tracker-db-interface-sqlite.h"
 #include "tracker-db-manager.h"
-#include "tracker-fts.h"
 #include "tracker-namespace.h"
 #include "tracker-ontologies.h"
 #include "tracker-ontology.h"
@@ -114,12 +113,6 @@ static Conversion allowed_range_conversions[] = {
 
 	{ NULL, NULL }
 };
-
-static gboolean tracker_data_manager_fts_changed (TrackerDataManager *manager);
-static gboolean tracker_data_manager_update_fts (TrackerDataManager  *manager,
-                                                 TrackerDBInterface  *iface,
-                                                 const gchar         *database,
-                                                 GError             **error);
 
 static void tracker_data_manager_initable_iface_init (GInitableIface *iface);
 
@@ -3773,10 +3766,106 @@ tracker_data_manager_init_fts (TrackerDataManager  *manager,
                                const gchar         *database,
                                GError             **error)
 {
-	return tracker_db_interface_sqlite_fts_create_table (iface,
-	                                                     database,
-	                                                     manager->ontologies,
-	                                                     error);
+	GString *view, *fts, *rank;
+	GString *from, *column_names, *weights;
+	TrackerProperty **properties;
+	GError *internal_error = NULL;
+	GHashTable *tables;
+	guint i, len;
+
+	if (!has_fts_properties (manager->ontologies))
+		return TRUE;
+
+	/* Create view on tables/columns marked as FTS-indexed */
+	view = g_string_new ("CREATE VIEW ");
+	g_string_append_printf (view, "\"%s\".fts_view AS SELECT \"rdfs:Resource\".ID as rowid ",
+	                        database);
+	from = g_string_new (NULL);
+	g_string_append_printf (from, "FROM \"%s\".\"rdfs:Resource\" ", database);
+
+	fts = g_string_new ("CREATE VIRTUAL TABLE ");
+	g_string_append_printf (fts, "\"%s\".fts5 USING fts5(content=\"fts_view\", ",
+	                        database);
+
+	column_names = g_string_new (NULL);
+	weights = g_string_new (NULL);
+
+	tables = g_hash_table_new (g_str_hash, g_str_equal);
+	properties = tracker_ontologies_get_properties (manager->ontologies, &len);
+
+	for (i = 0; i < len; i++) {
+		const gchar *name, *table_name;
+
+		if (!tracker_property_get_fulltext_indexed (properties[i]))
+			continue;
+
+		name = tracker_property_get_name (properties[i]);
+		table_name = tracker_property_get_table_name (properties[i]);
+
+		if (tracker_property_get_multiple_values (properties[i])) {
+			g_string_append_printf (view, ", group_concat(\"%s\".\"%s\")",
+			                        table_name, name);
+		} else {
+			g_string_append_printf (view, ", \"%s\".\"%s\"",
+			                        table_name, name);
+		}
+
+		g_string_append_printf (view, " AS \"%s\" ", name);
+		g_string_append_printf (column_names, "\"%s\", ", name);
+
+		if (weights->len != 0)
+			g_string_append_c (weights, ',');
+		g_string_append_printf (weights, "%d", tracker_property_get_weight (properties[i]));
+
+		if (!g_hash_table_contains (tables, table_name)) {
+			g_string_append_printf (from, "LEFT OUTER JOIN \"%s\".\"%s\" ON "
+			                        " \"rdfs:Resource\".ID = \"%s\".ID ",
+			                        database, table_name, table_name);
+			g_hash_table_add (tables, (gpointer) tracker_property_get_table_name (properties[i]));
+		}
+	}
+
+	g_hash_table_unref (tables);
+
+	g_string_append_printf (from, "WHERE COALESCE (%s NULL) IS NOT NULL ",
+	                        column_names->str);
+	g_string_append (from, "GROUP BY \"rdfs:Resource\".ID");
+	g_string_append (view, from->str);
+	g_string_free (from, TRUE);
+
+	g_string_append (fts, column_names->str);
+	g_string_append (fts, "tokenize=TrackerTokenizer)");
+	g_string_free (column_names, TRUE);
+
+	rank = g_string_new (NULL);
+	g_string_append_printf (rank,
+	                        "INSERT INTO \"%s\".fts5(fts5, rank) VALUES('rank', 'bm25(%s)')",
+	                        database, weights->str);
+	g_string_free (weights, TRUE);
+
+	/* FTS view */
+	if (!tracker_db_interface_execute_query (iface, &internal_error, "%s", view->str))
+		goto error;
+
+	/* FTS table */
+	if (!tracker_db_interface_execute_query (iface, &internal_error, "%s", fts->str))
+		goto error;
+
+	/* FTS rank function */
+	if (!tracker_db_interface_execute_query (iface, &internal_error, "%s", rank->str))
+		goto error;
+
+error:
+	g_string_free (view, TRUE);
+	g_string_free (fts, TRUE);
+	g_string_free (rank, TRUE);
+
+	if (internal_error) {
+		g_propagate_error (error, internal_error);
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 static gboolean
@@ -3785,9 +3874,39 @@ tracker_data_manager_update_fts (TrackerDataManager  *manager,
                                  const gchar         *database,
                                  GError             **error)
 {
-	return tracker_db_interface_sqlite_fts_alter_table (iface, database,
-	                                                    manager->ontologies,
-	                                                    error);
+	if (!has_fts_properties (manager->ontologies))
+		return TRUE;
+
+	if (!tracker_data_manager_init_fts (manager, iface, database, error))
+		return FALSE;
+
+	/* Insert rowids */
+	if (!tracker_db_interface_execute_query (iface, error,
+	                                         "INSERT INTO \"%s\".fts5 (rowid) SELECT rowid FROM fts_view",
+	                                         database))
+		return FALSE;
+
+	/* Ask FTS to rebuild itself */
+	return tracker_data_manager_fts_rebuild (manager, iface, database, error);
+}
+
+static gboolean
+tracker_data_manager_delete_fts (TrackerDataManager  *manager,
+                                 TrackerDBInterface  *iface,
+                                 const gchar         *database,
+                                 GError             **error)
+{
+	if (!tracker_db_interface_execute_query (iface, error,
+	                                         "DROP VIEW IF EXISTS \"%s\".fts_view",
+	                                         database))
+		return FALSE;
+
+	if (!tracker_db_interface_execute_query (iface, error,
+	                                         "DROP TABLE IF EXISTS \"%s\".fts5",
+	                                         database))
+		return FALSE;
+
+	return TRUE;
 }
 
 TrackerDataManager *
@@ -4067,7 +4186,7 @@ tracker_data_manager_update_from_version (TrackerDataManager  *manager,
 		GHashTableIter iter;
 		const gchar *graph;
 
-		if (!tracker_db_interface_sqlite_fts_delete_table (iface, "main", &internal_error))
+		if (!tracker_data_manager_delete_fts (manager, iface, "main", &internal_error))
 			goto error;
 		if (!tracker_data_manager_update_fts (manager, iface, "main", &internal_error))
 			goto error;
@@ -4075,7 +4194,7 @@ tracker_data_manager_update_from_version (TrackerDataManager  *manager,
 		g_hash_table_iter_init (&iter, manager->graphs);
 
 		while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL)) {
-			if (!tracker_db_interface_sqlite_fts_delete_table (iface, graph, &internal_error))
+			if (!tracker_data_manager_delete_fts (manager, iface, graph, &internal_error))
 				goto error;
 			if (!tracker_data_manager_update_fts (manager, iface, graph, &internal_error))
 				goto error;
@@ -4551,7 +4670,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				update_fts = tracker_data_manager_fts_changed (manager);
 
 				if (update_fts)
-					tracker_db_interface_sqlite_fts_delete_table (iface, "main", &ontology_error);
+					tracker_data_manager_delete_fts (manager, iface, "main", &ontology_error);
 
 				if (!ontology_error)
 					tracker_data_ontology_setup_db (manager, iface, "main", TRUE, &ontology_error);
@@ -4567,7 +4686,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 					while (g_hash_table_iter_next (&iter, &value, NULL)) {
 						if (update_fts)
-							tracker_db_interface_sqlite_fts_delete_table (iface, value, &ontology_error);
+							tracker_data_manager_delete_fts (manager, iface, value, &ontology_error);
 
 						if (ontology_error)
 							break;

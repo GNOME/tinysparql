@@ -33,7 +33,6 @@
 #include <libtracker-sparql/tracker-cursor.h>
 #include <libtracker-sparql/tracker-private.h>
 
-#include "tracker-fts.h"
 #include "tracker-fts-tokenizer.h"
 #include "tracker-collation.h"
 #include "tracker-db-interface-sqlite.h"
@@ -1916,44 +1915,6 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface     *db_interface,
 	                                     fts_flags,
 	                                     TRACKER_DATA_MANAGER (db_interface->user_data),
 	                                     error);
-}
-
-gboolean
-tracker_db_interface_sqlite_fts_create_table (TrackerDBInterface  *db_interface,
-                                              const gchar         *database,
-                                              TrackerOntologies   *ontologies,
-                                              GError             **error)
-{
-	GError *inner_error = NULL;
-
-	if (!tracker_fts_create_table (db_interface->db, database, "fts5",
-	                               ontologies,
-	                               &inner_error)) {
-		g_propagate_prefixed_error (error,
-		                            inner_error,
-		                            "FTS tables creation failed: ");
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-gboolean
-tracker_db_interface_sqlite_fts_delete_table (TrackerDBInterface  *db_interface,
-                                              const gchar         *database,
-                                              GError             **error)
-{
-	return tracker_fts_delete_table (db_interface->db, database, "fts5", error);
-}
-
-gboolean
-tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
-                                             const gchar         *database,
-                                             TrackerOntologies   *ontologies,
-                                             GError             **error)
-{
-	return tracker_fts_alter_table (db_interface->db, database, "fts5",
-	                                ontologies, error);
 }
 
 static gchar *

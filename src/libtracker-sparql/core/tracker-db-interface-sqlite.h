@@ -44,24 +44,11 @@ gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerD
 gboolean            tracker_db_interface_sqlite_fts_init               (TrackerDBInterface       *interface,
                                                                         TrackerDBManagerFlags     fts_flags,
                                                                         GError                  **error);
-gboolean            tracker_db_interface_sqlite_fts_create_table       (TrackerDBInterface       *interface,
-                                                                        const gchar              *database,
-                                                                        TrackerOntologies        *ontologies,
-                                                                        GError                  **error);
 void                tracker_db_interface_sqlite_reset_collator         (TrackerDBInterface       *interface);
 gboolean            tracker_db_interface_sqlite_wal_checkpoint         (TrackerDBInterface       *interface,
                                                                         gboolean                  blocking,
                                                                         GError                  **error);
 void                tracker_db_interface_init_vtabs                    (TrackerDBInterface       *interface);
-
-gboolean            tracker_db_interface_sqlite_fts_delete_table       (TrackerDBInterface       *interface,
-                                                                        const gchar              *database,
-                                                                        GError                  **error);
-
-gboolean            tracker_db_interface_sqlite_fts_alter_table        (TrackerDBInterface       *interface,
-                                                                        const gchar              *database,
-                                                                        TrackerOntologies        *ontologies,
-                                                                        GError                  **error);
 
 TrackerDBStatement * tracker_db_interface_sqlite_fts_insert_text_stmt (TrackerDBInterface  *db_interface,
                                                                        const gchar         *database,
