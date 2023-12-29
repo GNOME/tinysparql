@@ -2571,7 +2571,7 @@ execute_stmt (TrackerDBInterface  *interface,
 	return result == SQLITE_DONE;
 }
 
-void
+gboolean
 tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
                                      GError             **error,
                                      const gchar         *query,
@@ -2579,6 +2579,7 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 {
 	gchar *full_query;
 	sqlite3_stmt *stmt;
+	gboolean retval;
 
 	tracker_db_interface_lock (db_interface);
 
@@ -2588,11 +2589,13 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 	                                          error);
 	g_free (full_query);
 	if (stmt) {
-		execute_stmt (db_interface, stmt, NULL, error);
+		retval = execute_stmt (db_interface, stmt, NULL, error);
 		sqlite3_finalize (stmt);
 	}
 
 	tracker_db_interface_unlock (db_interface);
+
+	return retval;
 }
 
 TrackerDBInterface *
