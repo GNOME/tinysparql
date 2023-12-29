@@ -1542,27 +1542,30 @@ static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 	g_slice_free (TrackerDataUpdateBufferResource, resource);
 }
 
-GPtrArray *
+gchar *
 get_fts_properties (TrackerData *data)
 {
 	TrackerOntologies *ontologies;
 	TrackerProperty **properties;
 	guint n_props, i;
-	GPtrArray *result;
+	GString *str = NULL;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 	properties = tracker_ontologies_get_properties (ontologies, &n_props);
 
-	result = g_ptr_array_sized_new (8);
-
 	for (i = 0; i < n_props; i++) {
-		if (tracker_property_get_fulltext_indexed (properties[i]))
-			g_ptr_array_add (result, (gpointer) tracker_property_get_name (properties[i]));
+		if (!tracker_property_get_fulltext_indexed (properties[i]))
+			continue;
+
+		if (!str)
+			str = g_string_new (NULL);
+		else
+			g_string_append_c (str, ',');
+
+		g_string_append_printf (str, "\"%s\"", tracker_property_get_name (properties[i]));
 	}
 
-	g_ptr_array_add (result, NULL);
-
-	return result;
+	return str ? g_string_free (str, FALSE) : NULL;
 }
 
 static gboolean
@@ -1572,32 +1575,42 @@ tracker_data_ensure_graph_fts_stmts (TrackerData                   *data,
 {
 	TrackerDBInterface *iface;
 	const gchar *database;
-	GPtrArray *properties;
+	gchar *fts_properties;
 
 	if (G_LIKELY (graph->fts_insert && graph->fts_delete))
 		return TRUE;
 
 	database = graph->graph ? graph->graph : "main";
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	properties = get_fts_properties (data);
+	fts_properties = get_fts_properties (data);
 
 	if (!graph->fts_delete) {
 		graph->fts_delete =
-			tracker_db_interface_sqlite_fts_delete_text_stmt (iface,
-			                                                  database,
-			                                                  (const gchar **) properties->pdata,
-			                                                  error);
+			tracker_db_interface_create_vstatement (iface,
+			                                        TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+			                                        error,
+			                                        "INSERT INTO \"%s\".fts5 (fts5, ROWID, %s) "
+			                                        "SELECT 'delete', ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
+			                                        database,
+			                                        fts_properties,
+			                                        fts_properties,
+			                                        database);
 	}
 
 	if (graph->fts_delete && !graph->fts_insert) {
 		graph->fts_insert =
-			tracker_db_interface_sqlite_fts_insert_text_stmt (iface,
-			                                                  database,
-			                                                  (const gchar **) properties->pdata,
-			                                                  error);
+			tracker_db_interface_create_vstatement (iface,
+			                                        TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+			                                        error,
+			                                        "INSERT INTO \"%s\".fts5 (ROWID, %s) "
+			                                        "SELECT ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
+			                                        database,
+			                                        fts_properties,
+			                                        fts_properties,
+			                                        database);
 	}
 
-	g_ptr_array_free (properties, TRUE);
+	g_free (fts_properties);
 
 	return graph->fts_insert && graph->fts_delete;
 }

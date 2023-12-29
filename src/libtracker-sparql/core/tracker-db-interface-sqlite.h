@@ -50,16 +50,6 @@ gboolean            tracker_db_interface_sqlite_wal_checkpoint         (TrackerD
                                                                         GError                  **error);
 void                tracker_db_interface_init_vtabs                    (TrackerDBInterface       *interface);
 
-TrackerDBStatement * tracker_db_interface_sqlite_fts_insert_text_stmt (TrackerDBInterface  *db_interface,
-                                                                       const gchar         *database,
-                                                                       const gchar        **properties,
-                                                                       GError             **error);
-
-TrackerDBStatement * tracker_db_interface_sqlite_fts_delete_text_stmt (TrackerDBInterface  *db_interface,
-                                                                       const gchar         *database,
-                                                                       const gchar        **properties,
-                                                                       GError             **error);
-
 gboolean            tracker_db_interface_attach_database               (TrackerDBInterface       *db_interface,
                                                                         GFile                    *file,
                                                                         const gchar              *name,
