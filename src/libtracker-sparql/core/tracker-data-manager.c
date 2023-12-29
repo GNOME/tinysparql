@@ -3703,25 +3703,30 @@ tracker_data_manager_fts_changed (TrackerDataManager *manager)
 }
 
 static gboolean
+has_fts_properties (TrackerOntologies *ontologies)
+{
+	TrackerProperty **properties;
+	guint i, len;
+
+	properties = tracker_ontologies_get_properties (ontologies, &len);
+
+	for (i = 0; i < len; i++) {
+		if (tracker_property_get_fulltext_indexed (properties[i]))
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+static gboolean
 rebuild_fts_tokens (TrackerDataManager  *manager,
                     TrackerDBInterface  *iface,
                     GError             **error)
 {
-	TrackerProperty **properties;
 	GHashTableIter iter;
 	gchar *graph;
-	gboolean has_fts = FALSE;
-	guint len, i;
 
-	properties = tracker_ontologies_get_properties (manager->ontologies, &len);
-
-	for (i = 0; i < len; i++) {
-		has_fts |= tracker_property_get_fulltext_indexed (properties[i]);
-		if (has_fts)
-			break;
-	}
-
-	if (has_fts) {
+	if (has_fts_properties (manager->ontologies)) {
 		g_debug ("Rebuilding FTS tokens, this may take a moment...");
 		if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", error))
 			return FALSE;
@@ -3967,9 +3972,6 @@ tracker_data_manager_attempt_repair (TrackerDataManager  *data_manager,
                                      TrackerDBInterface  *iface,
                                      GError             **error)
 {
-	TrackerProperty **properties;
-	guint len, i;
-	gboolean has_fts = FALSE;
 	GError *inner_error = NULL;
 
 	tracker_db_interface_execute_query (iface, &inner_error, "REINDEX");
@@ -3978,15 +3980,7 @@ tracker_data_manager_attempt_repair (TrackerDataManager  *data_manager,
 		return FALSE;
 	}
 
-	properties = tracker_ontologies_get_properties (data_manager->ontologies, &len);
-
-	for (i = 0; i < len; i++) {
-		has_fts |= tracker_property_get_fulltext_indexed (properties[i]);
-		if (has_fts)
-			break;
-	}
-
-	if (has_fts) {
+	if (has_fts_properties (data_manager->ontologies)) {
 		GHashTableIter iter;
 		const gchar *graph;
 
