@@ -43,14 +43,6 @@ gboolean    tracker_fts_alter_table      (sqlite3            *db,
                                           gchar              *table_name,
                                           TrackerOntologies  *ontologies,
                                           GError            **error);
-gboolean    tracker_fts_rebuild_tokens   (sqlite3      *db,
-                                          const gchar  *database,
-                                          const gchar  *table_name,
-                                          GError      **error);
-
-gboolean tracker_fts_integrity_check (sqlite3      *db,
-                                      const gchar  *database,
-                                      const gchar  *table_name);
 
 G_END_DECLS
 

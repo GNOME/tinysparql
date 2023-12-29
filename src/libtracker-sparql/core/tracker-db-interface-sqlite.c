@@ -2056,21 +2056,6 @@ tracker_db_interface_sqlite_fts_delete_text_stmt (TrackerDBInterface  *db_interf
 	return stmt;
 }
 
-gboolean
-tracker_db_interface_sqlite_fts_integrity_check (TrackerDBInterface  *interface,
-                                                 const gchar         *database)
-{
-	return tracker_fts_integrity_check (interface->db, database, "fts5");
-}
-
-gboolean
-tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface  *interface,
-                                                const gchar         *database,
-                                                GError             **error)
-{
-	return tracker_fts_rebuild_tokens (interface->db, database, "fts5", error);
-}
-
 void
 tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
 {

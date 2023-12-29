@@ -3719,6 +3719,27 @@ has_fts_properties (TrackerOntologies *ontologies)
 }
 
 static gboolean
+tracker_data_manager_fts_rebuild (TrackerDataManager  *data_manager,
+                                  TrackerDBInterface  *iface,
+                                  const gchar         *database,
+                                  GError             **error)
+{
+	return tracker_db_interface_execute_query (iface, error,
+	                                           "INSERT INTO \"%s\".fts5(fts5) VALUES('rebuild')",
+	                                           database);
+}
+
+gboolean
+tracker_data_manager_fts_integrity_check (TrackerDataManager  *data_manager,
+                                          TrackerDBInterface  *iface,
+                                          const gchar         *database)
+{
+	return tracker_db_interface_execute_query (iface, NULL,
+	                                           "INSERT INTO \"%s\".fts5(fts5, rank) VALUES('integrity-check', 1)",
+	                                           database);
+}
+
+static gboolean
 rebuild_fts_tokens (TrackerDataManager  *manager,
                     TrackerDBInterface  *iface,
                     GError             **error)
@@ -3728,12 +3749,12 @@ rebuild_fts_tokens (TrackerDataManager  *manager,
 
 	if (has_fts_properties (manager->ontologies)) {
 		g_debug ("Rebuilding FTS tokens, this may take a moment...");
-		if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", error))
+		if (!tracker_data_manager_fts_rebuild (manager, iface, "main", error))
 			return FALSE;
 
 		g_hash_table_iter_init (&iter, manager->graphs);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
-			if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph, error))
+			if (!tracker_data_manager_fts_rebuild (manager, iface, graph, error))
 				return FALSE;
 		}
 
@@ -3986,15 +4007,17 @@ tracker_data_manager_attempt_repair (TrackerDataManager  *data_manager,
 
 		g_hash_table_iter_init (&iter, data_manager->graphs);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
-			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, graph)) {
-				if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, graph, error))
+			if (!tracker_data_manager_fts_integrity_check (data_manager, iface, graph)) {
+				if (!tracker_data_manager_fts_rebuild (data_manager, iface, graph, error)) {
 					return FALSE;
+				}
 			}
 		}
 
-		if (!tracker_db_interface_sqlite_fts_integrity_check (iface, "main")) {
-			if (!tracker_db_interface_sqlite_fts_rebuild_tokens (iface, "main", error))
+		if (!tracker_data_manager_fts_integrity_check (data_manager, iface, "main")) {
+			if (!tracker_data_manager_fts_rebuild (data_manager, iface, "main", error)) {
 				return FALSE;
+			}
 		}
 	}
 

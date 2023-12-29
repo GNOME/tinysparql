@@ -113,4 +113,8 @@ void tracker_data_manager_map_connection (TrackerDataManager      *data_manager,
                                           const gchar             *handle_name,
                                           TrackerSparqlConnection *connection);
 
+gboolean tracker_data_manager_fts_integrity_check (TrackerDataManager  *data_manager,
+                                                   TrackerDBInterface  *iface,
+                                                   const gchar         *database);
+
 G_END_DECLS

@@ -1682,7 +1682,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 			graph = g_ptr_array_index (data->update_buffer.graphs, i);
 			database = graph->graph ? graph->graph : "main";
 
-			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, database)) {
+			if (!tracker_data_manager_fts_integrity_check (data->manager, iface, database)) {
 				g_set_error (error,
 					     TRACKER_DB_INTERFACE_ERROR,
 					     TRACKER_DB_CORRUPT,

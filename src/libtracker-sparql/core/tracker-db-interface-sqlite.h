@@ -73,13 +73,6 @@ TrackerDBStatement * tracker_db_interface_sqlite_fts_delete_text_stmt (TrackerDB
                                                                        const gchar        **properties,
                                                                        GError             **error);
 
-gboolean            tracker_db_interface_sqlite_fts_integrity_check (TrackerDBInterface  *interface,
-                                                                     const gchar         *database);
-
-gboolean            tracker_db_interface_sqlite_fts_rebuild_tokens     (TrackerDBInterface       *interface,
-                                                                        const gchar              *database,
-                                                                        GError                  **error);
-
 gboolean            tracker_db_interface_attach_database               (TrackerDBInterface       *db_interface,
                                                                         GFile                    *file,
                                                                         const gchar              *name,
