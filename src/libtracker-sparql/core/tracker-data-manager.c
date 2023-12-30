@@ -139,6 +139,37 @@ tracker_data_ontology_error_quark (void)
 }
 
 static gboolean
+tracker_data_manager_initialize_iface_graphs (TrackerDataManager  *data_manager,
+                                              TrackerDBInterface  *iface,
+                                              GError             **error)
+{
+	GHashTable *graphs;
+
+	graphs = tracker_data_manager_get_graphs (data_manager, FALSE);
+
+	if (graphs) {
+		GHashTableIter iter;
+		gpointer value;
+
+		g_hash_table_iter_init (&iter, graphs);
+
+		while (g_hash_table_iter_next (&iter, &value, NULL)) {
+			if (!tracker_db_manager_attach_database (data_manager->db_manager,
+			                                         iface, value, FALSE,
+			                                         error))
+				goto error;
+		}
+
+		g_hash_table_unref (graphs);
+	}
+
+	return TRUE;
+ error:
+	g_clear_pointer (&graphs, g_hash_table_unref);
+	return FALSE;
+}
+
+static gboolean
 tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
                                         TrackerDBInterface  *iface,
                                         GError             **error)
@@ -148,12 +179,12 @@ tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
 	GHashTable *graphs;
 
 	graphs = g_hash_table_new_full (g_str_hash,
-					g_str_equal,
-					g_free,
+	                                g_str_equal,
+	                                g_free,
 	                                (GDestroyNotify) tracker_rowid_free);
 
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-						      "SELECT ID, Uri FROM Resource WHERE ID IN (SELECT ID FROM Graph)");
+	                                              "SELECT ID, Uri FROM Resource WHERE ID IN (SELECT ID FROM Graph)");
 	if (!stmt) {
 		g_hash_table_unref (graphs);
 		return FALSE;
@@ -180,7 +211,9 @@ tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
 
 	g_object_unref (cursor);
 	manager->graphs = graphs;
-	return TRUE;
+
+	/* Attach databases on the given interface */
+	return tracker_data_manager_initialize_iface_graphs (manager, iface, error);
 }
 
 GHashTable *
@@ -3944,37 +3977,6 @@ update_ontology_last_modified (TrackerDataManager  *manager,
 	}
 }
 
-static gboolean
-tracker_data_manager_initialize_iface (TrackerDataManager  *data_manager,
-                                       TrackerDBInterface  *iface,
-                                       GError             **error)
-{
-	GHashTable *graphs;
-
-	graphs = tracker_data_manager_get_graphs (data_manager, FALSE);
-
-	if (graphs) {
-		GHashTableIter iter;
-		gpointer value;
-
-		g_hash_table_iter_init (&iter, graphs);
-
-		while (g_hash_table_iter_next (&iter, &value, NULL)) {
-			if (!tracker_db_manager_attach_database (data_manager->db_manager,
-			                                         iface, value, FALSE,
-			                                         error))
-				goto error;
-		}
-
-		g_hash_table_unref (graphs);
-	}
-
-	return TRUE;
- error:
-	g_clear_pointer (&graphs, g_hash_table_unref);
-	return FALSE;
-}
-
 static void
 setup_interface_cb (TrackerDBManager   *db_manager,
                     TrackerDBInterface *iface,
@@ -3982,7 +3984,7 @@ setup_interface_cb (TrackerDBManager   *db_manager,
 {
 	GError *error = NULL;
 
-	if (!tracker_data_manager_initialize_iface (data_manager, iface, &error)) {
+	if (!tracker_data_manager_initialize_iface_graphs (data_manager, iface, &error)) {
 		g_critical ("Could not set up interface : %s",
 		            error->message);
 		g_error_free (error);
@@ -4349,12 +4351,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			goto rollback_newly_created_db;
 		}
 
-		tracker_data_manager_initialize_iface (manager, iface, &internal_error);
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			goto rollback_newly_created_db;
-		}
-
 		/* store ontology in database */
 		for (l = sorted; l; l = l->next) {
 			import_ontology_file (manager, l->data, FALSE, &internal_error);
@@ -4427,12 +4423,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		}
 
 		if (!tracker_data_manager_initialize_graphs (manager, iface, &internal_error)) {
-			g_propagate_error (error, internal_error);
-			return FALSE;
-		}
-
-		tracker_data_manager_initialize_iface (manager, iface, &internal_error);
-		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			return FALSE;
 		}
