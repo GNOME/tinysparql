@@ -361,6 +361,34 @@ tracker_db_manager_set_current_locale (TrackerDBManager *db_manager)
 	db_set_locale (db_manager, current_locale);
 }
 
+gboolean
+tracker_db_manager_ontology_checksum_changed (TrackerDBManager *db_manager,
+                                              const gchar      *checksum)
+{
+	GValue value = G_VALUE_INIT;
+	gboolean equal;
+
+	if (!tracker_db_manager_get_metadata (db_manager, "ontology-checksum", &value))
+		return TRUE;
+
+	equal = g_str_equal (g_value_get_string (&value), checksum);
+	g_value_unset (&value);
+
+	return !equal;
+}
+
+void
+tracker_db_manager_set_ontology_checksum (TrackerDBManager *db_manager,
+                                          const gchar      *checksum)
+{
+	GValue value = G_VALUE_INIT;
+
+	g_value_init (&value, G_TYPE_STRING);
+	g_value_set_string (&value, checksum);
+	tracker_db_manager_set_metadata (db_manager, "ontology-checksum", &value);
+	g_value_unset (&value);
+}
+
 static void
 tracker_db_manager_ensure_location (TrackerDBManager *db_manager,
 				    GFile            *cache_location)

@@ -3628,6 +3628,47 @@ get_ontologies (TrackerDataManager  *manager,
 	return g_list_concat (stock, user);
 }
 
+static gchar *
+get_ontologies_checksum (GList   *ontologies,
+                         GError **error)
+{
+	GFileInputStream *stream;
+	GError *inner_error = NULL;
+	gchar *retval = NULL;
+	GChecksum *checksum;
+	guchar buf[4096];
+	gsize len;
+	GList *l;
+
+	checksum = g_checksum_new (G_CHECKSUM_MD5);
+
+	for (l = ontologies; l && !inner_error; l = l->next) {
+		stream = g_file_read (l->data, NULL, &inner_error);
+		if (!stream)
+			break;
+
+		while (g_input_stream_read_all (G_INPUT_STREAM (stream),
+		                                buf,
+		                                sizeof (buf),
+		                                &len,
+		                                NULL,
+		                                &inner_error)) {
+			g_checksum_update (checksum, buf, len);
+			if (len != sizeof (buf))
+				break;
+		}
+	}
+
+	if (!inner_error)
+		retval = g_strdup (g_checksum_get_string (checksum));
+	else
+		g_propagate_error (error, inner_error);
+
+	g_checksum_free (checksum);
+
+	return retval;
+}
+
 static void
 tracker_data_manager_recreate_indexes (TrackerDataManager  *manager,
                                        GError             **error)
@@ -4225,11 +4266,12 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	gboolean is_create;
 	TrackerSparqlCursor *cursor;
 	TrackerDBStatement *stmt;
-	GHashTable *ontos_table;
+	GHashTable *ontos_table = NULL;
 	GHashTable *graphs = NULL;
 	GList *sorted = NULL, *l;
 	gboolean read_only;
 	GError *internal_error = NULL;
+	gchar *checksum = NULL;
 
 	if (manager->initialized) {
 		return TRUE;
@@ -4298,6 +4340,12 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		sorted = get_ontologies (manager, manager->ontology_location, &internal_error);
 
 		if (internal_error) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
+
+		checksum = get_ontologies_checksum (sorted, &internal_error);
+		if (!checksum) {
 			g_propagate_error (error, internal_error);
 			return FALSE;
 		}
@@ -4396,6 +4444,9 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			}
 		}
 
+		tracker_db_manager_set_ontology_checksum (manager->db_manager, checksum);
+		g_free (checksum);
+
 		tracker_data_commit_transaction (manager->data_update, &internal_error);
 
 		if (internal_error) {
@@ -4460,6 +4511,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		gboolean transaction_started = FALSE;
 		guint num_parsing_errors = 0;
 		TrackerDBVersion cur_version;
+		gchar *checksum;
 
 		cur_version = tracker_db_manager_get_version (manager->db_manager);
 
@@ -4489,6 +4541,15 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			g_propagate_error (error, internal_error);
 			return FALSE;
 		}
+
+		checksum = get_ontologies_checksum (ontos, &internal_error);
+		if (!checksum) {
+			g_propagate_error (error, internal_error);
+			return FALSE;
+		}
+
+		if (!tracker_db_manager_ontology_checksum_changed (manager->db_manager, checksum))
+			goto unchanged;
 
 		/* check ontology against database */
 
@@ -4751,6 +4812,9 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		/* Reset the is_new flag for all classes and properties */
 		tracker_data_ontology_import_finished (manager);
 
+		tracker_db_manager_set_ontology_checksum (manager->db_manager, checksum);
+
+	unchanged:
 		if (transaction_started) {
 			tracker_data_commit_transaction (manager->data_update, &internal_error);
 			if (internal_error) {
@@ -4759,9 +4823,9 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			}
 		}
 
-		g_hash_table_unref (ontos_table);
+		g_clear_pointer (&ontos_table, g_hash_table_unref);
 		g_list_free_full (ontos, g_object_unref);
-
+		g_free (checksum);
 	}
 
 	if (!read_only && is_create) {
