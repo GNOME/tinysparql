@@ -3563,20 +3563,21 @@ compare_file_names (GFile *file_a,
 	return return_val;
 }
 
-static GList*
-get_ontologies (TrackerDataManager  *manager,
-                GFile               *ontologies,
-                GError             **error)
+static gboolean
+get_directory_ontologies (TrackerDataManager  *manager,
+                          GFile               *directory,
+                          GList              **ontologies,
+                          GError             **error)
 {
 	GFileEnumerator *enumerator;
 	GList *sorted = NULL;
 
-	enumerator = g_file_enumerate_children (ontologies,
+	enumerator = g_file_enumerate_children (directory,
 	                                        G_FILE_ATTRIBUTE_STANDARD_NAME,
 	                                        G_FILE_QUERY_INFO_NONE,
 	                                        NULL, error);
 	if (!enumerator)
-		return NULL;
+		return FALSE;
 
 	while (TRUE) {
 		GFileInfo *info;
@@ -3586,7 +3587,7 @@ get_ontologies (TrackerDataManager  *manager,
 		if (!g_file_enumerator_iterate (enumerator, &info, &child, NULL, error)) {
 			g_list_free_full (sorted, g_object_unref);
 			g_object_unref (enumerator);
-			return NULL;
+			return FALSE;
 		}
 
 		if (!info)
@@ -3597,17 +3598,34 @@ get_ontologies (TrackerDataManager  *manager,
 			sorted = g_list_prepend (sorted, g_object_ref (child));
 	}
 
-	sorted = g_list_sort (sorted, (GCompareFunc) compare_file_names);
-
-	/* Add our builtin ontologies so they are loaded first */
-	sorted = g_list_prepend (sorted, g_file_new_for_uri ("resource://org/freedesktop/tracker/ontology/20-dc.ontology"));
-	sorted = g_list_prepend (sorted, g_file_new_for_uri ("resource://org/freedesktop/tracker/ontology/12-nrl.ontology"));
-	sorted = g_list_prepend (sorted, g_file_new_for_uri ("resource://org/freedesktop/tracker/ontology/11-rdf.ontology"));
-	sorted = g_list_prepend (sorted, g_file_new_for_uri ("resource://org/freedesktop/tracker/ontology/10-xsd.ontology"));
-
+	*ontologies = g_list_sort (sorted, (GCompareFunc) compare_file_names);
 	g_object_unref (enumerator);
 
-	return sorted;
+	return TRUE;
+}
+
+static GList*
+get_ontologies (TrackerDataManager  *manager,
+                GFile               *ontologies,
+                GError             **error)
+{
+	GList *stock = NULL, *user = NULL;
+	GFile *stock_location;
+
+	stock_location = g_file_new_for_uri ("resource://org/freedesktop/tracker/ontology");
+	if (!get_directory_ontologies (manager, stock_location, &stock, error)) {
+		g_object_unref (stock_location);
+		return NULL;
+	}
+
+	g_object_unref (stock_location);
+
+	if (!get_directory_ontologies (manager, ontologies, &user, error)) {
+		g_list_free_full (stock, g_object_unref);
+		return NULL;
+	}
+
+	return g_list_concat (stock, user);
 }
 
 static void
