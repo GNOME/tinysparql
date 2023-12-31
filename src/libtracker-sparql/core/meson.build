@@ -20,6 +20,7 @@ core_files = files(
     'tracker-namespace.c',
     'tracker-ontology.c',
     'tracker-ontologies.c',
+    'tracker-ontologies-diff.c',
     'tracker-ontologies-introspect.c',
     'tracker-ontologies-rdf.c',
     'tracker-property.c',
