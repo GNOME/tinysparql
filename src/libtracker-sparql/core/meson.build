@@ -21,6 +21,7 @@ core_files = files(
     'tracker-ontology.c',
     'tracker-ontologies.c',
     'tracker-ontologies-introspect.c',
+    'tracker-ontologies-rdf.c',
     'tracker-property.c',
     'tracker-rowid.c',
     'tracker-string-builder.c',
