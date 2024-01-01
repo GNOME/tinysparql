@@ -3147,7 +3147,7 @@ clear_property (gpointer data)
 	g_value_unset (&entry->value);
 }
 
-void
+gboolean
 tracker_data_begin_transaction (TrackerData  *data,
                                 GError      **error)
 {
@@ -3160,13 +3160,13 @@ tracker_data_begin_transaction (TrackerData  *data,
 
 	if (!tracker_db_manager_has_enough_space (db_manager)) {
 		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_NO_SPACE,
-			"There is not enough space on the file system for update operations");
-		return;
+		             "There is not enough space on the file system for update operations");
+		return FALSE;
 	}
 
 	if (!data->in_ontology_transaction &&
 	    !tracker_data_update_initialize_modseq (data, error))
-		return;
+		return FALSE;
 
 	data->resource_time = time (NULL);
 
@@ -3185,7 +3185,7 @@ tracker_data_begin_transaction (TrackerData  *data,
 		data->update_buffer.update_log = g_ptr_array_sized_new (1);
 		g_ptr_array_set_free_func (data->update_buffer.update_log, (GDestroyNotify) g_array_unref);
 		data->update_buffer.class_updates = g_hash_table_new (tracker_data_log_entry_hash,
-								      tracker_data_log_entry_equal);
+		                                                      tracker_data_log_entry_equal);
 		tracker_db_statement_mru_init (&data->update_buffer.stmt_mru, 100,
 		                               tracker_data_log_entry_schema_hash,
 		                               tracker_data_log_entry_schema_equal,
@@ -3201,9 +3201,11 @@ tracker_data_begin_transaction (TrackerData  *data,
 	tracker_db_interface_start_transaction (iface);
 
 	data->in_transaction = TRUE;
+
+	return TRUE;
 }
 
-void
+gboolean
 tracker_data_begin_ontology_transaction (TrackerData  *data,
                                          GError      **error)
 {
@@ -3211,7 +3213,7 @@ tracker_data_begin_ontology_transaction (TrackerData  *data,
 	tracker_data_begin_transaction (data, error);
 }
 
-void
+gboolean
 tracker_data_commit_transaction (TrackerData  *data,
                                  GError      **error)
 {
@@ -3226,7 +3228,7 @@ tracker_data_commit_transaction (TrackerData  *data,
 	if (actual_error) {
 		tracker_data_rollback_transaction (data);
 		g_propagate_error (error, actual_error);
-		return;
+		return FALSE;
 	}
 
 	tracker_db_interface_end_db_transaction (iface,
@@ -3235,7 +3237,7 @@ tracker_data_commit_transaction (TrackerData  *data,
 	if (actual_error) {
 		tracker_data_rollback_transaction (data);
 		g_propagate_error (error, actual_error);
-		return;
+		return FALSE;
 	}
 
 	if (data->has_persistent && !data->in_ontology_transaction) {
@@ -3253,6 +3255,8 @@ tracker_data_commit_transaction (TrackerData  *data,
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
 
 	tracker_data_dispatch_commit_statement_callbacks (data);
+
+	return TRUE;
 }
 
 void
@@ -3307,11 +3311,8 @@ update_sparql (TrackerData  *data,
 	}
 #endif
 
-	tracker_data_begin_transaction (data, &actual_error);
-	if (actual_error) {
-		g_propagate_error (error, actual_error);
+	if (!tracker_data_begin_transaction (data, error))
 		return NULL;
-	}
 
 	sparql_query = tracker_sparql_new_update (data->manager, update, &actual_error);
 
@@ -3328,11 +3329,8 @@ update_sparql (TrackerData  *data,
 		return NULL;
 	}
 
-	tracker_data_commit_transaction (data, &actual_error);
-	if (actual_error) {
-		g_propagate_error (error, actual_error);
+	if (!tracker_data_commit_transaction (data, error))
 		return NULL;
-	}
 
 	return blank_nodes;
 }
