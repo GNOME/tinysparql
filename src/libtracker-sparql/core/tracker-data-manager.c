@@ -3669,7 +3669,7 @@ get_ontologies_checksum (GList   *ontologies,
 	return retval;
 }
 
-static void
+static gboolean
 tracker_data_manager_recreate_indexes (TrackerDataManager  *manager,
                                        GError             **error)
 {
@@ -3679,23 +3679,19 @@ tracker_data_manager_recreate_indexes (TrackerDataManager  *manager,
 	guint i;
 
 	properties = tracker_ontologies_get_properties (manager->ontologies, &n_properties);
-	if (!properties) {
-		g_critical ("Couldn't get all properties to recreate indexes");
-		return;
-	}
 
 	TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Starting index re-creation..."));
 	for (i = 0; i < n_properties; i++) {
 		fix_indexed (manager, properties [i], &internal_error);
 
 		if (internal_error) {
-			g_critical ("Unable to create index for %s: %s",
-			            tracker_property_get_name (properties[i]),
-			            internal_error->message);
-			g_clear_error (&internal_error);
+			g_propagate_error (error, internal_error);
+			return FALSE;
 		}
 	}
 	TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("  Finished index re-creation..."));
+
+	return TRUE;
 }
 
 static gboolean
