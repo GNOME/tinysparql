@@ -222,8 +222,7 @@ update_resource (TrackerData      *data,
 	GError *inner_error = NULL;
 	GHashTable *visited;
 
-	tracker_data_begin_transaction (data, &inner_error);
-	if (inner_error)
+	if (!tracker_data_begin_transaction (data, &inner_error))
 		goto error;
 
 	visited = g_hash_table_new_full (NULL, NULL, NULL,
@@ -243,8 +242,7 @@ update_resource (TrackerData      *data,
 		goto error;
 	}
 
-	tracker_data_commit_transaction (data, &inner_error);
-	if (inner_error)
+	if (!tracker_data_commit_transaction (data, &inner_error))
 		goto error;
 
 	return TRUE;
@@ -312,8 +310,7 @@ update_thread_func (gpointer data,
 	case TASK_TYPE_DESERIALIZE: {
 		TrackerSparqlCursor *deserializer;
 
-		tracker_data_begin_transaction (tracker_data, &error);
-		if (error)
+		if (!tracker_data_begin_transaction (tracker_data, &error))
 			break;
 
 		deserializer = tracker_deserializer_new (task_data->d.deserialize.stream,
@@ -335,11 +332,10 @@ update_thread_func (gpointer data,
 	}
 	case TASK_TYPE_UPDATE_BATCH:
 		tracker_direct_batch_update (TRACKER_DIRECT_BATCH (task_data->d.batch),
-					     priv->data_manager, &error);
+		                             priv->data_manager, &error);
 		break;
 	case TASK_TYPE_UPDATE_STATEMENT:
-		tracker_data_begin_transaction (tracker_data, &error);
-		if (error)
+		if (!tracker_data_begin_transaction (tracker_data, &error))
 			break;
 
 		if (tracker_direct_statement_execute_update (task_data->d.statement.stmt,
@@ -1732,13 +1728,11 @@ tracker_direct_connection_execute_update_statement (TrackerDirectConnection  *co
 	g_mutex_lock (&priv->update_mutex);
 
 	tracker_data = tracker_data_manager_get_data (priv->data_manager);
-	tracker_data_begin_transaction (tracker_data, &inner_error);
-	if (inner_error)
+	if (!tracker_data_begin_transaction (tracker_data, &inner_error))
 		goto out;
 
 	if (tracker_direct_statement_execute_update (stmt, parameters, NULL, &inner_error)) {
-		tracker_data_commit_transaction (tracker_data, &inner_error);
-		if (!inner_error)
+		if (tracker_data_commit_transaction (tracker_data, &inner_error))
 			tracker_direct_connection_update_timestamp (conn);
 	} else {
 		tracker_data_rollback_transaction (tracker_data);

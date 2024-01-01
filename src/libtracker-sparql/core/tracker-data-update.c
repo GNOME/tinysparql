@@ -3154,7 +3154,7 @@ tracker_data_begin_transaction (TrackerData  *data,
 	TrackerDBInterface *iface;
 	TrackerDBManager *db_manager;
 
-	g_return_if_fail (!data->in_transaction);
+	g_return_val_if_fail (!data->in_transaction, FALSE);
 
 	db_manager = tracker_data_manager_get_db_manager (data->manager);
 
@@ -3210,7 +3210,7 @@ tracker_data_begin_ontology_transaction (TrackerData  *data,
                                          GError      **error)
 {
 	data->in_ontology_transaction = TRUE;
-	tracker_data_begin_transaction (data, error);
+	return tracker_data_begin_transaction (data, error);
 }
 
 gboolean
@@ -3220,7 +3220,7 @@ tracker_data_commit_transaction (TrackerData  *data,
 	TrackerDBInterface *iface;
 	GError *actual_error = NULL;
 
-	g_return_if_fail (data->in_transaction);
+	g_return_val_if_fail (data->in_transaction, FALSE);
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 

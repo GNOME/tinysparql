@@ -324,8 +324,7 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 	                                (GDestroyNotify) tracker_rowid_free);
 	visited = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) tracker_rowid_free);
 
-	tracker_data_begin_transaction (data, &inner_error);
-	if (inner_error)
+	if (!tracker_data_begin_transaction (data, &inner_error))
 		goto error;
 
 	for (i = 0; i < priv->array->len; i++) {
@@ -406,8 +405,7 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 		goto error;
 	}
 
-	tracker_data_commit_transaction (data, &inner_error);
-	if (inner_error)
+	if (!tracker_data_commit_transaction (data, &inner_error))
 		goto error;
 
 	g_array_set_size (priv->array, 0);
