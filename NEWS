@@ -1,3 +1,20 @@
+NEW in 3.7.alpha - 2024-01-08
+=============================
+  * New TrackerEndpoint access control API
+  * New API to map language tagged strings to rdf:langString
+  * Embed Nepomuk ontology as a GResource
+  * Allow using TrackerEndpoint on private D-Bus connections
+  * Cache SPARQL statements in D-Bus endpoints
+  * Reduce heap memory usage in large transactions over D-Bus
+    endpoints
+  * Make internals future proof wrt handling of string literals
+    in SQLite
+  * Threading improvements for direct connection SELECT queries
+  * Performance improvements
+  * CI, build and test improvements
+
+Translations: el, eo, fa, ka
+
 NEW in 3.6.0 - 2023-09-16
 =========================
 Translations: eo
