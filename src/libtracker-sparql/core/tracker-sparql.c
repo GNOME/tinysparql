@@ -7854,6 +7854,7 @@ handle_property_function (TrackerSparql    *sparql,
 {
 	TrackerPropertyType type;
 	gboolean in_property_function;
+	TrackerStringBuilder *str, *old;
 
 	in_property_function = sparql->current_state->in_property_function;
 	sparql->current_state->in_property_function = TRUE;
@@ -7902,7 +7903,14 @@ handle_property_function (TrackerSparql    *sparql,
 	}
 
 	_append_string (sparql, "WHERE ID IN (");
+
+	str = _append_placeholder (sparql);
+	old = tracker_sparql_swap_builder (sparql, str);
 	_call_rule (sparql, NAMED_RULE_ArgList, error);
+	if (sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_STRING)
+		_prepend_string (sparql, "SELECT ID FROM Resource WHERE Uri = ");
+	tracker_sparql_swap_builder (sparql, old);
+
 	_append_string_printf (sparql, ") AND \"%s\" IS NOT NULL",
 	                       tracker_property_get_name (property));
 	_append_string (sparql, ") ");
