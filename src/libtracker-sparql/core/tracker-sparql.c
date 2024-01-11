@@ -1849,7 +1849,12 @@ _add_quad (TrackerSparql  *sparql,
 			db_table = tracker_class_get_name (subject_type);
 			share_table = !tracker_token_is_empty (graph);
 		} else if (g_strcmp0 (tracker_token_get_idstring (predicate), FTS_NS "match") == 0) {
-			if (tracker_token_get_literal (object)) {
+			if (tracker_token_get_variable (object)) {
+				g_set_error (error, TRACKER_SPARQL_ERROR,
+				             TRACKER_SPARQL_ERROR_TYPE,
+				             "Cannot use fts:match with a variable object");
+				return FALSE;
+			} else if (tracker_token_get_literal (object)) {
 				binding = tracker_literal_binding_new (tracker_token_get_literal (object), table);
 			} else if (tracker_token_get_parameter (object)) {
 				binding = tracker_parameter_binding_new (tracker_token_get_parameter (object), table);
