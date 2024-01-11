@@ -30,6 +30,7 @@ typedef struct _TestInfo TestInfo;
 struct _TestInfo {
 	const gchar *test_name;
 	gint number_of_queries;
+	gboolean expect_error;
 };
 
 const TestInfo tests[] = {
@@ -40,6 +41,7 @@ const TestInfo tests[] = {
 	{ "prefix/fts3prefix", 3 },
 	{ "limits/fts3limits", 4 },
 	{ "input/fts3input", 3 },
+	{ "input/object-variable", 2, TRUE },
 	{ "functions/rank", 5 },
 	{ "functions/offsets", 3 },
 	{ "functions/snippet", 4 },
@@ -104,11 +106,17 @@ test_sparql_query (gconstpointer test_data)
 		g_file_get_contents (query_filename, &query, NULL, &error);
 		g_assert_no_error (error);
 
+		cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
+		if (test_info->expect_error) {
+			g_assert_nonnull (error);
+			g_clear_error (&error);
+			continue;
+		} else {
+			g_assert_no_error (error);
+		}
+
 		results_filename = g_strdup_printf ("%s-%d.out", test_prefix, i);
 		g_file_get_contents (results_filename, &results, NULL, &error);
-		g_assert_no_error (error);
-
-		cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */

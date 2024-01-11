@@ -1,0 +1,4 @@
+INSERT {
+	test:1 a test:A ; test:p "abc.def" .
+	test:2 a test:A ; test:p "\"abc\" \"hij\"" .
+}
