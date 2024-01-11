@@ -1,0 +1,7 @@
+SELECT (nrl:indexed(?u) AS ?localIndexed) (rdfs:label(?u) AS ?localLabel) {
+  SERVICE <%s> {
+    ?u nrl:indexed true;
+       rdfs:label ?l
+  }
+  FILTER (STRSTARTS(?l, "Alb"))
+}

@@ -47,6 +47,7 @@ const TestInfo tests[] = {
 	{ "service/service-var-2", FALSE },
 	{ "service/service-empty-1", FALSE },
 	{ "service/service-empty-2", FALSE },
+	{ "service/property-function-1", FALSE },
 };
 
 static GDBusConnection *dbus_conn = NULL;
