@@ -1849,7 +1849,12 @@ _add_quad (TrackerSparql  *sparql,
 			db_table = tracker_class_get_name (subject_type);
 			share_table = !tracker_token_is_empty (graph);
 		} else if (g_strcmp0 (tracker_token_get_idstring (predicate), FTS_NS "match") == 0) {
-			if (tracker_token_get_literal (object)) {
+			if (tracker_token_get_variable (object)) {
+				g_set_error (error, TRACKER_SPARQL_ERROR,
+				             TRACKER_SPARQL_ERROR_TYPE,
+				             "Cannot use fts:match with a variable object");
+				return FALSE;
+			} else if (tracker_token_get_literal (object)) {
 				binding = tracker_literal_binding_new (tracker_token_get_literal (object), table);
 			} else if (tracker_token_get_parameter (object)) {
 				binding = tracker_parameter_binding_new (tracker_token_get_parameter (object), table);
@@ -7854,6 +7859,7 @@ handle_property_function (TrackerSparql    *sparql,
 {
 	TrackerPropertyType type;
 	gboolean in_property_function;
+	TrackerStringBuilder *str, *old;
 
 	in_property_function = sparql->current_state->in_property_function;
 	sparql->current_state->in_property_function = TRUE;
@@ -7902,7 +7908,14 @@ handle_property_function (TrackerSparql    *sparql,
 	}
 
 	_append_string (sparql, "WHERE ID IN (");
+
+	str = _append_placeholder (sparql);
+	old = tracker_sparql_swap_builder (sparql, str);
 	_call_rule (sparql, NAMED_RULE_ArgList, error);
+	if (sparql->current_state->expression_type == TRACKER_PROPERTY_TYPE_STRING)
+		_prepend_string (sparql, "SELECT ID FROM Resource WHERE Uri = ");
+	tracker_sparql_swap_builder (sparql, old);
+
 	_append_string_printf (sparql, ") AND \"%s\" IS NOT NULL",
 	                       tracker_property_get_name (property));
 	_append_string (sparql, ") ");

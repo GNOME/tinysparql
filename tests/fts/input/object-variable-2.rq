@@ -1,0 +1,1 @@
+SELECT ?u { BIND ("abc" AS ?text) . ?u fts:match ?text }

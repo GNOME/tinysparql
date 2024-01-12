@@ -468,6 +468,65 @@ stmt_update_async (TestFixture   *test_fixture,
 	g_object_unref (stmt);
 }
 
+static void
+stmt_fts (TestFixture   *test_fixture,
+          gconstpointer  context)
+{
+	TrackerSparqlStatement *stmt;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+	gboolean retval;
+
+	/* FIXME: We are relying on this insertion to happen in prior tests for the HTTP connection test */
+	if (strstr (G_OBJECT_TYPE_NAME (test_fixture->conn), "Remote") == NULL) {
+		tracker_sparql_connection_update (test_fixture->conn,
+		                                  "INSERT DATA { "
+		                                  "  <http://example.com/fts1> a nmm:MusicPiece ; nie:title '''abc''' ."
+		                                  "  <http://example.com/fts2> a nmm:MusicPiece ; nie:title '''def''' ."
+		                                  "}",
+		                                  NULL,
+		                                  &error);
+		g_assert_no_error (error);
+	}
+
+	stmt = tracker_sparql_connection_query_statement (test_fixture->conn,
+	                                                  "SELECT ?u { ?u fts:match ~arg }",
+	                                                  NULL,
+	                                                  &error);
+	g_assert_no_error (error);
+
+	/* Search one element */
+	tracker_sparql_statement_bind_string (stmt, "arg", "abc");
+	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+	g_assert_no_error (error);
+	retval = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (retval);
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, "http://example.com/fts1");
+	g_clear_object (&cursor);
+
+	/* Search another element */
+	tracker_sparql_statement_bind_string (stmt, "arg", "def");
+	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+	g_assert_no_error (error);
+	retval = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (retval);
+	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, "http://example.com/fts2");
+	g_clear_object (&cursor);
+
+	/* Search with mo matches */
+	tracker_sparql_statement_bind_string (stmt, "arg", "xyz");
+	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+	g_assert_no_error (error);
+	retval = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_false (retval);
+	g_clear_object (&cursor);
+
+	g_clear_object (&stmt);
+}
+
 TrackerSparqlConnection *
 create_local_connection (GError **error)
 {
@@ -558,6 +617,7 @@ TestFuncData test_funcs[] = {
 	{ "execute_async", execute_async },
 	{ "update", stmt_update },
 	{ "update_async", stmt_update_async },
+	{ "fts", stmt_fts },
 };
 
 static void
