@@ -2991,10 +2991,33 @@ tracker_db_cursor_get_double (TrackerSparqlCursor *sparql_cursor,
 }
 
 static gboolean
-tracker_db_cursor_get_boolean (TrackerSparqlCursor *cursor,
+tracker_db_cursor_get_boolean (TrackerSparqlCursor *sparql_cursor,
                                gint                 column)
 {
-	return (g_strcmp0 (tracker_sparql_cursor_get_string (cursor, column, NULL), "true") == 0);
+	TrackerDBCursor *cursor = TRACKER_DB_CURSOR (sparql_cursor);
+	TrackerDBInterface *iface;
+	gboolean result;
+	gint col_type;
+
+	if (cursor->n_columns > 0 && column >= (gint) cursor->n_columns)
+		return FALSE;
+
+	iface = cursor->ref_stmt->db_interface;
+
+	tracker_db_interface_lock (iface);
+
+	col_type = sqlite3_column_type (cursor->stmt, column);
+
+	if (col_type == SQLITE_INTEGER)
+		result = sqlite3_column_int64 (cursor->stmt, column) != 0;
+	else if (col_type == SQLITE_TEXT)
+		result = g_strcmp0 ((const gchar*) sqlite3_column_text (cursor->stmt, column), "true") == 0;
+	else
+		result = FALSE;
+
+	tracker_db_interface_unlock (iface);
+
+	return result;
 }
 
 static gboolean
