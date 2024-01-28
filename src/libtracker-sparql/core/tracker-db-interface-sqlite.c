@@ -2425,7 +2425,7 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 {
 	gchar *full_query;
 	sqlite3_stmt *stmt;
-	gboolean retval;
+	gboolean retval = FALSE;
 
 	tracker_db_interface_lock (db_interface);
 
