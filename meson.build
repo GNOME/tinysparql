@@ -60,9 +60,6 @@ sqlite = dependency('sqlite3', version: '>' + sqlite_required)
 dbus = dependency('dbus-1')
 avahi_glib = dependency('avahi-glib', required: get_option('avahi'))
 avahi_client = dependency('avahi-client', required: get_option('avahi'))
-
-gvdb_dep = dependency('gvdb')
-
 libsoup3 = dependency('libsoup-3.0', version: '>= 2.99.2',
                         required: true)
 

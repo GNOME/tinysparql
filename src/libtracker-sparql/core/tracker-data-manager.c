@@ -1198,52 +1198,6 @@ tracker_data_manager_recreate_indexes (TrackerDataManager  *manager,
 }
 
 static gboolean
-write_ontologies_gvdb (TrackerDataManager  *manager,
-                       gboolean             overwrite,
-                       GError             **error)
-{
-	gboolean retval = TRUE;
-	gchar *filename;
-	GFile *child;
-
-	if ((manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) != 0)
-		return TRUE;
-	if (!manager->cache_location)
-		return TRUE;
-
-	child = g_file_get_child (manager->cache_location, "ontologies.gvdb");
-	filename = g_file_get_path (child);
-	g_object_unref (child);
-
-	if (overwrite || !g_file_test (filename, G_FILE_TEST_EXISTS)) {
-		retval = tracker_ontologies_write_gvdb (manager->ontologies, filename, error);
-	}
-
-	g_free (filename);
-
-	return retval;
-}
-
-static TrackerOntologies *
-load_ontologies_gvdb (TrackerDataManager  *manager,
-                      GError             **error)
-{
-	TrackerOntologies *ontologies;
-	gchar *filename;
-	GFile *child;
-
-	child = g_file_get_child (manager->cache_location, "ontologies.gvdb");
-	filename = g_file_get_path (child);
-	g_object_unref (child);
-
-	ontologies = tracker_ontologies_new ();
-	tracker_ontologies_load_gvdb (ontologies, filename, error);
-	g_free (filename);
-
-	return ontologies;
-}
-
-static gboolean
 has_fts_properties (TrackerOntologies *ontologies)
 {
 	TrackerProperty **properties;
@@ -2363,8 +2317,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		apply_locale = tracker_db_manager_locale_changed (manager->db_manager, NULL);
 		apply_fts_tokenizer = tracker_db_manager_get_tokenizer_changed (manager->db_manager);
 	} else {
-		GError *gvdb_error = NULL;
-
 		/* Readonly connection */
 		g_assert (!create_db);
 		g_assert (read_only);
@@ -2378,19 +2330,9 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			goto error;
 		}
 
-		/* Not all ontology information is saved in the gvdb cache, so
-		 * it can only be used for read-only connections. */
-		g_debug ("Loading cached ontologies from gvdb cache");
-		current_ontology = load_ontologies_gvdb (manager, &gvdb_error);
-
-		if (!current_ontology) {
-			g_debug ("Error loading ontology cache: %s. ", gvdb_error->message);
-			g_clear_error (&gvdb_error);
-
-			current_ontology = tracker_ontologies_load_from_database (manager, error);
-			if (!current_ontology)
-				goto error;
-		}
+		current_ontology = tracker_ontologies_load_from_database (manager, error);
+		if (!current_ontology)
+			goto error;
 
 		g_set_object (&manager->ontologies, current_ontology);
 		goto no_updates;
@@ -2509,9 +2451,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			goto rollback;
 		tracker_db_manager_tokenizer_update (manager->db_manager);
 	}
-
-	if (!write_ontologies_gvdb (manager, TRUE /* overwrite */, error))
-		goto rollback;
 
 	if (!tracker_data_commit_transaction (manager->data_update, error))
 		goto rollback;

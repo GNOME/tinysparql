@@ -85,29 +85,4 @@ void               tracker_ontologies_add_id_uri_pair      (TrackerOntologies *o
                                                             TrackerRowid       id,
                                                             const gchar       *uri);
 
-gboolean           tracker_ontologies_write_gvdb           (TrackerOntologies  *ontologies,
-                                                            const gchar        *filename,
-                                                            GError            **error);
-gboolean           tracker_ontologies_load_gvdb            (TrackerOntologies  *ontologies,
-                                                            const gchar        *filename,
-                                                            GError            **error);
-GVariant *         tracker_ontologies_get_namespace_value_gvdb  (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
-const gchar *      tracker_ontologies_get_namespace_string_gvdb (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
-GVariant *         tracker_ontologies_get_class_value_gvdb      (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
-const gchar *      tracker_ontologies_get_class_string_gvdb     (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
-GVariant *         tracker_ontologies_get_property_value_gvdb   (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
-const gchar *      tracker_ontologies_get_property_string_gvdb  (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
-
 G_END_DECLS

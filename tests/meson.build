@@ -7,7 +7,6 @@ test_bus_conf_file = configure_file(
 
 subdir('common')
 
-subdir('gvdb')
 subdir('fts')
 subdir('core')
 subdir('libtracker-common')

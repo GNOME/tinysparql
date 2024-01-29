@@ -108,7 +108,7 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
         '-DBUILDROOT="@0@"'.format(meson.global_build_root()),
     ] + tracker_c_args,
 
-    dependencies: [libtracker_sparql_dependencies, gvdb_dep],
+    dependencies: [libtracker_sparql_dependencies],
     gnu_symbol_visibility: 'hidden',
     include_directories: [core_incs],
 )
