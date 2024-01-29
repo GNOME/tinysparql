@@ -204,221 +204,6 @@ tracker_data_manager_get_graphs (TrackerDataManager *manager,
 	return ht;
 }
 
-static void
-set_secondary_index_for_single_value_property (TrackerDBInterface  *iface,
-                                               const gchar         *database,
-                                               TrackerClass        *class,
-                                               TrackerProperty     *property,
-                                               TrackerProperty     *secondary,
-                                               gboolean             enabled,
-                                               GError             **error)
-{
-	GError *internal_error = NULL;
-	const gchar *class_name = tracker_class_get_name (class);
-	const gchar *property_name = tracker_property_get_name (property);
-	const gchar *secondary_name = tracker_property_get_name (secondary);
-
-	TRACKER_NOTE (ONTOLOGY_CHANGES,
-	              g_message ("Dropping any secondary index on single-value property %s",
-	                         property_name));
-
-	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s\"",
-	                                    database,
-	                                    class_name,
-	                                    property_name);
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	if (enabled) {
-		TRACKER_NOTE (ONTOLOGY_CHANGES,
-		              g_message ("Creating secondary index for single-value property pair %s / %s",
-		                         property_name, secondary_name));
-
-		tracker_db_interface_execute_query (iface, &internal_error,
-		                                    "CREATE INDEX \"%s\".\"%s_%s\" ON \"%s\" (\"%s\", \"%s\")",
-		                                    database,
-		                                    class_name,
-		                                    property_name,
-		                                    class_name,
-		                                    property_name,
-		                                    secondary_name);
-
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-		}
-	}
-}
-
-static void
-set_index_for_single_value_property (TrackerDBInterface  *iface,
-                                     const gchar         *database,
-                                     TrackerClass        *class,
-                                     TrackerProperty     *property,
-                                     gboolean             enabled,
-                                     GError             **error)
-{
-	GError *internal_error = NULL;
-	const gchar *class_name = tracker_class_get_name (class);
-	const gchar *property_name = tracker_property_get_name (property);
-
-	TRACKER_NOTE (ONTOLOGY_CHANGES,
-	              g_message ("Dropping any index on single-value property %s",
-	                         property_name));
-
-	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s\"",
-	                                    database,
-	                                    class_name,
-	                                    property_name);
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	if (enabled) {
-		gchar *expr;
-
-		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME)
-			expr = g_strdup_printf ("SparqlTimeSort(\"%s\")", property_name);
-		else
-			expr = g_strdup_printf ("\"%s\"", property_name);
-
-		TRACKER_NOTE (ONTOLOGY_CHANGES,
-		              g_message ("Creating index for single-value property %s",
-		                         property_name));
-
-		tracker_db_interface_execute_query (iface, &internal_error,
-		                                    "CREATE INDEX \"%s\".\"%s_%s\" ON \"%s\" (%s)",
-		                                    database,
-		                                    class_name,
-		                                    property_name,
-		                                    class_name,
-		                                    expr);
-		g_free (expr);
-
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-		}
-	}
-}
-
-static void
-set_index_for_multi_value_property (TrackerDBInterface  *iface,
-                                    const gchar         *database,
-                                    TrackerClass        *class,
-                                    TrackerProperty     *property,
-                                    GError             **error)
-{
-	GError *internal_error = NULL;
-	gchar *expr;
-        const gchar *class_name = tracker_class_get_name (class);
-        const gchar *property_name = tracker_property_get_name (property);
-
-	TRACKER_NOTE (ONTOLOGY_CHANGES,
-	              g_message ("Dropping any index on multi-value property %s",
-	                         property_name));
-
-	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s_ID_ID\"",
-	                                    database,
-	                                    class_name,
-	                                    property_name);
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	/* Useful to have this here for the cases where we want to fully
-	 * re-create the indexes even without an ontology change (when locale
-	 * of the user changes) */
-	TRACKER_NOTE (ONTOLOGY_CHANGES,
-	              g_message ("Dropping any ID index from multi-value property %s",
-	                         property_name));
-	tracker_db_interface_execute_query (iface, &internal_error,
-	                                    "DROP INDEX IF EXISTS \"%s\".\"%s_%s_ID\"",
-	                                    database,
-	                                    class_name,
-	                                    property_name);
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_DATETIME)
-		expr = g_strdup_printf ("SparqlTimeSort(\"%s\")", property_name);
-	else
-		expr = g_strdup_printf ("\"%s\"", property_name);
-
-	if (tracker_property_get_indexed (property)) {
-                /* use different UNIQUE index for properties whose
-                 * value should be indexed to minimize index size */
-
-		TRACKER_NOTE (ONTOLOGY_CHANGES,
-		              g_message ("Creating ID index for multi-value property %s",
-		                         property_name));
-
-		tracker_db_interface_execute_query (iface, &internal_error,
-		                                    "CREATE INDEX \"%s\".\"%s_%s_ID\" ON \"%s_%s\" (ID)",
-		                                    database,
-		                                    class_name,
-		                                    property_name,
-		                                    class_name,
-		                                    property_name);
-
-		if (internal_error)
-			goto out;
-
-		TRACKER_NOTE (ONTOLOGY_CHANGES,
-		              g_message ("Creating index for multi-value property %s",
-		                         property_name));
-
-		tracker_db_interface_execute_query (iface, &internal_error,
-		                                    "CREATE UNIQUE INDEX \"%s\".\"%s_%s_ID_ID\" ON \"%s_%s\" (%s, ID)",
-		                                    database,
-		                                    class_name,
-		                                    property_name,
-		                                    class_name,
-		                                    property_name,
-		                                    expr);
-
-		if (internal_error)
-			goto out;
-	} else {
-                /* we still have to include the property value in
-                 * the unique index for proper constraints */
-
-		TRACKER_NOTE (ONTOLOGY_CHANGES,
-		              g_message ("Creating constraint index for multi-value property %s",
-		                         property_name));
-
-		tracker_db_interface_execute_query (iface, &internal_error,
-		                                    "CREATE UNIQUE INDEX \"%s\".\"%s_%s_ID_ID\" ON \"%s_%s\" (ID, %s)",
-		                                    database,
-		                                    class_name,
-		                                    property_name,
-		                                    class_name,
-		                                    property_name,
-		                                    expr);
-
-		if (internal_error)
-			goto out;
-	}
-
-out:
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-	}
-
-	g_free (expr);
-}
-
 static gboolean
 is_allowed_conversion (const gchar *oldv,
                        const gchar *newv,
@@ -435,79 +220,6 @@ is_allowed_conversion (const gchar *oldv,
 	}
 
 	return FALSE;
-}
-
-static void
-fix_indexed_on_db (TrackerDataManager  *manager,
-                   const gchar         *database,
-                   TrackerProperty     *property,
-                   GError             **error)
-{
-	GError *internal_error = NULL;
-	TrackerDBInterface *iface;
-	TrackerClass *class;
-
-	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
-	class = tracker_property_get_domain (property);
-
-	if (tracker_property_get_multiple_values (property)) {
-		set_index_for_multi_value_property (iface, database, class, property, &internal_error);
-	} else {
-		TrackerProperty *secondary_index;
-		TrackerClass **domain_index_classes;
-
-		secondary_index = tracker_property_get_secondary_index (property);
-		if (secondary_index == NULL) {
-			set_index_for_single_value_property (iface, database, class, property,
-			                                     tracker_property_get_indexed (property),
-			                                     &internal_error);
-		} else {
-			set_secondary_index_for_single_value_property (iface, database, class, property,
-			                                               secondary_index,
-			                                               tracker_property_get_indexed (property),
-			                                               &internal_error);
-		}
-
-		/* single-valued properties may also have domain-specific indexes */
-		domain_index_classes = tracker_property_get_domain_indexes (property);
-		while (!internal_error && domain_index_classes && *domain_index_classes) {
-			set_index_for_single_value_property (iface,
-			                                     database,
-			                                     *domain_index_classes,
-			                                     property,
-			                                     TRUE,
-			                                     &internal_error);
-			domain_index_classes++;
-		}
-	}
-
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-	}
-}
-
-static void
-fix_indexed (TrackerDataManager  *manager,
-             TrackerProperty     *property,
-             GError             **error)
-{
-	GHashTable *graphs;
-	GHashTableIter iter;
-	GError *internal_error = NULL;
-	gpointer value;
-
-	graphs = tracker_data_manager_get_graphs (manager, FALSE);
-	g_hash_table_iter_init (&iter, graphs);
-
-	while (g_hash_table_iter_next (&iter, &value, NULL)) {
-		fix_indexed_on_db (manager, value, property, &internal_error);
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			break;
-		}
-	}
-
-	g_hash_table_unref (graphs);
 }
 
 static void property_get_sql_representation (TrackerProperty  *property,
@@ -1472,24 +1184,14 @@ get_ontologies_checksum (GList   *ontologies,
 
 static gboolean
 tracker_data_manager_recreate_indexes (TrackerDataManager  *manager,
+                                       TrackerDBInterface  *iface,
                                        GError             **error)
 {
-	GError *internal_error = NULL;
-	TrackerProperty **properties;
-	guint n_properties;
-	guint i;
-
-	properties = tracker_ontologies_get_properties (manager->ontologies, &n_properties);
-
 	TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("Starting index re-creation..."));
-	for (i = 0; i < n_properties; i++) {
-		fix_indexed (manager, properties [i], &internal_error);
 
-		if (internal_error) {
-			g_propagate_error (error, internal_error);
-			return FALSE;
-		}
-	}
+	if (!tracker_db_interface_execute_query (iface, error, "REINDEX"))
+		return FALSE;
+
 	TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("  Finished index re-creation..."));
 
 	return TRUE;
@@ -2797,7 +2499,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	if (apply_locale) {
 		tracker_db_manager_set_current_locale (manager->db_manager);
 
-		if (!create_db && !tracker_data_manager_recreate_indexes (manager, error))
+		if (!create_db && !tracker_data_manager_recreate_indexes (manager, iface, error))
 			goto rollback;
 	}
 
