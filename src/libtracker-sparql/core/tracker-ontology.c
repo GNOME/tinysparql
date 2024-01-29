@@ -32,7 +32,6 @@ typedef struct _TrackerOntologyPrivate TrackerOntologyPrivate;
 
 struct _TrackerOntologyPrivate {
 	gchar *uri;
-	gint64 last_modified;
 	gboolean is_new;
 	TrackerOntologies *ontologies;
 };
@@ -76,45 +75,6 @@ tracker_ontology_new (void)
 	return ontology;
 }
 
-gint64
-tracker_ontology_get_last_modified (TrackerOntology *ontology)
-{
-	TrackerOntologyPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_ONTOLOGY (ontology), 0);
-
-	priv = tracker_ontology_get_instance_private (ontology);
-
-	return priv->last_modified;
-}
-
-gboolean
-tracker_ontology_get_is_new (TrackerOntology *ontology)
-{
-	TrackerOntologyPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_ONTOLOGY (ontology), FALSE);
-
-	priv = tracker_ontology_get_instance_private (ontology);
-
-	return priv->is_new;
-}
-
-
-void
-tracker_ontology_set_last_modified (TrackerOntology *ontology,
-                                    gint64           value)
-{
-	TrackerOntologyPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
-
-	priv = tracker_ontology_get_instance_private (ontology);
-
-	priv->last_modified = value;
-}
-
-
 const gchar *
 tracker_ontology_get_uri (TrackerOntology *ontology)
 {
@@ -145,19 +105,6 @@ tracker_ontology_set_uri (TrackerOntology *ontology,
 	} else {
 		priv->uri = NULL;
 	}
-}
-
-void
-tracker_ontology_set_is_new (TrackerOntology *ontology,
-                             gboolean         value)
-{
-	TrackerOntologyPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_ONTOLOGY (ontology));
-
-	priv = tracker_ontology_get_instance_private (ontology);
-
-	priv->is_new = value;
 }
 
 void

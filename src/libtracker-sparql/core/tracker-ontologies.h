@@ -47,7 +47,6 @@ struct _TrackerOntologiesClass {
 };
 
 TrackerOntologies *tracker_ontologies_new                  (void);
-void               tracker_ontologies_sort                 (TrackerOntologies *ontologies);
 
 /* Service mechanics */
 void               tracker_ontologies_add_class            (TrackerOntologies *ontologies,
@@ -55,8 +54,6 @@ void               tracker_ontologies_add_class            (TrackerOntologies *o
 TrackerClass *     tracker_ontologies_get_class_by_uri     (TrackerOntologies *ontologies,
                                                             const gchar       *service_uri);
 TrackerNamespace **tracker_ontologies_get_namespaces       (TrackerOntologies *ontologies,
-                                                            guint             *length);
-TrackerOntology  **tracker_ontologies_get_ontologies       (TrackerOntologies *ontologies,
                                                             guint             *length);
 TrackerClass  **   tracker_ontologies_get_classes          (TrackerOntologies *ontologies,
                                                             guint             *length);

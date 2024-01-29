@@ -32,8 +32,6 @@ typedef struct _TrackerNamespacePrivate TrackerNamespacePrivate;
 struct _TrackerNamespacePrivate {
 	gchar *uri;
 
-	guint is_new : 1;
-
 	gchar *prefix;
 	TrackerOntologies *ontologies;
 };
@@ -98,18 +96,6 @@ tracker_namespace_get_prefix (TrackerNamespace *namespace)
 	return priv->prefix;
 }
 
-gboolean
-tracker_namespace_get_is_new (TrackerNamespace *namespace)
-{
-	TrackerNamespacePrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_NAMESPACE (namespace), FALSE);
-
-	priv = tracker_namespace_get_instance_private (namespace);
-
-	return priv->is_new;
-}
-
 void
 tracker_namespace_set_uri (TrackerNamespace *namespace,
                            const gchar    *value)
@@ -146,19 +132,6 @@ tracker_namespace_set_prefix (TrackerNamespace *namespace,
 	} else {
 		priv->prefix = NULL;
 	}
-}
-
-void
-tracker_namespace_set_is_new (TrackerNamespace *namespace,
-                              gboolean          value)
-{
-	TrackerNamespacePrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_NAMESPACE (namespace));
-
-	priv = tracker_namespace_get_instance_private (namespace);
-
-	priv->is_new = !!value;
 }
 
 void

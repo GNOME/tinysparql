@@ -226,21 +226,6 @@ tracker_ontologies_get_namespaces (TrackerOntologies *ontologies,
 	return (TrackerNamespace **) priv->namespaces->pdata;
 }
 
-TrackerOntology **
-tracker_ontologies_get_ontologies (TrackerOntologies *ontologies,
-                                   guint             *length)
-{
-	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
-
-	if (G_UNLIKELY (!priv->ontologies)) {
-		*length = 0;
-		return NULL;
-	}
-
-	*length = priv->ontologies->len;
-	return (TrackerOntology **) priv->ontologies->pdata;
-}
-
 TrackerClass **
 tracker_ontologies_get_classes (TrackerOntologies *ontologies,
                                 guint             *length)
@@ -374,23 +359,6 @@ tracker_ontologies_get_ontology_by_uri (TrackerOntologies *ontologies,
 	g_return_val_if_fail (uri != NULL, NULL);
 
 	return g_hash_table_lookup (priv->ontology_uris, uri);
-}
-
-static gint
-class_sort_func (gconstpointer a,
-                 gconstpointer b)
-{
-	return g_strcmp0 (tracker_class_get_name (*((TrackerClass **) a)),
-	                  tracker_class_get_name (*((TrackerClass **) b)));
-}
-
-void
-tracker_ontologies_sort (TrackerOntologies *ontologies)
-{
-	TrackerOntologiesPrivate *priv = tracker_ontologies_get_instance_private (ontologies);
-
-	/* Sort result so it is alphabetical */
-	g_ptr_array_sort (priv->classes, class_sort_func);
 }
 
 TrackerOntologies *
