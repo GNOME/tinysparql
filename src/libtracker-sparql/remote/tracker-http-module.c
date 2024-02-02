@@ -29,6 +29,11 @@
 #include <avahi-glib/glib-watch.h>
 #endif
 
+static void tracker_http_server_soup_error (TrackerHttpServer       *server,
+                                            TrackerHttpRequest      *request,
+                                            gint                     code,
+                                            const gchar             *message);
+
 GType
 tracker_http_client_get_type (void)
 {
@@ -51,19 +56,26 @@ static const gchar *mimetypes[] = {
 
 G_STATIC_ASSERT (G_N_ELEMENTS (mimetypes) == TRACKER_N_SERIALIZER_FORMATS);
 
+#define CONTENT_TYPE "application/sparql-query"
 #define USER_AGENT "Tracker " PACKAGE_VERSION " (https://gitlab.gnome.org/GNOME/tracker/issues/)"
+
+#if SOUP_CHECK_VERSION (2, 99, 2)
+typedef SoupServerMessage TrackerSoupMessage;
+#else
+typedef SoupMessage TrackerSoupMessage;
+#endif
 
 /* Server */
 struct _TrackerHttpRequest
 {
 	TrackerHttpServer *server;
-#if SOUP_CHECK_VERSION (2, 99, 2)
-        SoupServerMessage *message;
-#else
-	SoupMessage *message;
-#endif
+	TrackerSoupMessage *message;
 	GTask *task;
 	GInputStream *istream;
+
+	GSocketAddress *remote_address;
+	gchar *path;
+	GHashTable *params;
 };
 
 struct _TrackerHttpServerSoup
@@ -87,13 +99,42 @@ G_DEFINE_TYPE_WITH_CODE (TrackerHttpServerSoup,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 tracker_http_server_soup_initable_iface_init))
 
+static TrackerHttpRequest *
+request_new (TrackerHttpServer  *http_server,
+             TrackerSoupMessage *message,
+             GSocketAddress     *remote_address,
+             const gchar        *path,
+             GHashTable         *params)
+{
+	TrackerHttpRequest *request;
+
+	request = g_new0 (TrackerHttpRequest, 1);
+	request->server = http_server;
+	request->message = g_object_ref (message);
+	request->remote_address = g_object_ref (remote_address);
+	request->path = g_strdup (path);
+
+	if (params) {
+		request->params = g_hash_table_ref (params);
+	}
+
+	return request;
+}
+
 static void
 request_free (TrackerHttpRequest *request)
 {
 	g_clear_object (&request->istream);
+	g_clear_object (&request->message);
+	g_clear_object (&request->remote_address);
+	g_free (request->path);
+	g_clear_pointer (&request->params, g_hash_table_unref);
 	g_free (request);
 }
 
+/* Read the "Accept" header of the request, and return the possible
+ * serialization formats as a bitmask of TrackerSerializerFormat values.
+ */
 static guint
 get_supported_formats (TrackerHttpRequest *request)
 {
@@ -120,7 +161,7 @@ static void
 set_message_format (TrackerHttpRequest      *request,
                     TrackerSerializerFormat  format)
 {
-	SoupMessageHeaders *response_headers;
+        SoupMessageHeaders *response_headers;
 
 #if SOUP_CHECK_VERSION (2, 99, 2)
         response_headers = soup_server_message_get_response_headers (request->message);
@@ -128,6 +169,70 @@ set_message_format (TrackerHttpRequest      *request,
         response_headers = request->message->response_headers;
 #endif
         soup_message_headers_set_content_type (response_headers, mimetypes[format], NULL);
+}
+
+/* Get SPARQL query from message POST data, or NULL. */
+static gchar *
+get_sparql_from_message_body (TrackerSoupMessage *message)
+{
+	SoupMessageBody *body;
+	GBytes *body_bytes;
+	const gchar *body_data;
+	gsize body_size;
+#if SOUP_CHECK_VERSION (2, 99, 2)
+#else
+	SoupBuffer *buffer;
+#endif
+
+#if SOUP_CHECK_VERSION (2, 99, 2)
+	body = soup_server_message_get_request_body (message);
+	body_bytes = soup_message_body_flatten (body);
+#else
+	body = message->request_body;
+	buffer = soup_message_body_flatten (body);
+	body_bytes = soup_buffer_get_as_bytes (buffer);
+#endif
+
+	body_data = g_bytes_get_data (body_bytes, &body_size);
+
+	if (g_utf8_validate_len (body_data, body_size, NULL)) {
+		gchar *sparql = g_malloc (body_size + 1);
+
+		g_utf8_strncpy (sparql, body_data, body_size);
+		sparql[body_size] = 0;
+
+		return sparql;
+	}
+
+	return NULL;
+}
+
+/* Handle POST messages if the body wasn't immediately available. */
+static void
+server_callback_got_message_body (TrackerSoupMessage *message,
+                                  gpointer            user_data)
+{
+	TrackerHttpRequest *request = user_data;
+	gchar *sparql;
+
+	sparql = get_sparql_from_message_body (message);
+
+	if (sparql) {
+		if (!request->params) {
+			request->params = g_hash_table_new (g_str_hash, g_str_equal);
+		}
+
+		g_hash_table_insert (request->params, "query", sparql);
+
+		g_signal_emit_by_name (request->server, "request",
+		                       request->remote_address,
+		                       request->path,
+		                       request->params,
+		                       get_supported_formats (request),
+		                       request);
+	} else {
+		tracker_http_server_soup_error (request->server, request, 400, "Missing query or invalid UTF-8 in POST request");
+	}
 }
 
 #if SOUP_CHECK_VERSION (2, 99, 2)
@@ -150,16 +255,16 @@ server_callback (SoupServer        *server,
 	TrackerHttpServer *http_server = user_data;
 	GSocketAddress *remote_address;
 	TrackerHttpRequest *request;
+	const char *method;
+	SoupMessageBody *body;
 
 #if SOUP_CHECK_VERSION (2, 99, 2)
-        remote_address = soup_server_message_get_remote_address (message);
+	remote_address = soup_server_message_get_remote_address (message);
 #else
 	remote_address = soup_client_context_get_remote_address (client);
 #endif
 
-	request = g_new0 (TrackerHttpRequest, 1);
-	request->server = http_server;
-	request->message = message;
+	request = request_new (http_server, message, remote_address, path, query);
 
 #if SOUP_CHECK_VERSION (3, 1, 3)
 	soup_server_message_pause (message);
@@ -167,12 +272,33 @@ server_callback (SoupServer        *server,
 	soup_server_pause_message (server, message);
 #endif
 
-	g_signal_emit_by_name (http_server, "request",
-	                       remote_address,
-	                       path,
-	                       query,
-	                       get_supported_formats (request),
-	                       request);
+#if SOUP_CHECK_VERSION (3, 1, 3)
+	method = soup_server_message_get_method (message);
+#else
+	method = message->method;
+#endif
+
+	if (g_strcmp0 (method, SOUP_METHOD_POST) == 0) {
+#if SOUP_CHECK_VERSION (2, 99, 2)
+		body = soup_server_message_get_request_body (request->message);
+#else
+		body = request->message->request_body;
+#endif
+
+		if (body->data) {
+			server_callback_got_message_body (message, request);
+		} else {
+			g_debug ("Received HTTP POST for %s with no body, awaiting data", path);
+			g_signal_connect (message, "got-body", G_CALLBACK (server_callback_got_message_body), request);
+		}
+	} else {
+		g_signal_emit_by_name (http_server, "request",
+		                       remote_address,
+		                       path,
+		                       query,
+		                       get_supported_formats (request),
+		                       request);
+	}
 }
 
 #ifdef HAVE_AVAHI
