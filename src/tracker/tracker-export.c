@@ -105,6 +105,29 @@ create_connection (GError **error)
 	}
 }
 
+gchar *
+get_shorthand (GHashTable  *prefixes,
+               const gchar *longhand)
+{
+	gchar *hash;
+
+	hash = strrchr (longhand, '#');
+
+	if (hash) {
+		gchar *property;
+		const gchar *prefix;
+
+		property = hash + 1;
+		*hash = '\0';
+
+		prefix = g_hash_table_lookup (prefixes, longhand);
+
+		return g_strdup_printf ("%s:%s", prefix, property);
+	}
+
+	return g_strdup (longhand);
+}
+
 /* format a URI for Turtle; if it has a prefix, display uri
  * as prefix:rest_of_uri; if not, display as <uri>
  */
@@ -118,7 +141,7 @@ format_urn (GHashTable  *prefixes,
 	if (full_namespaces) {
 		urn_out = g_strdup_printf ("<%s>", urn);
 	} else {
-		gchar *shorthand = tracker_sparql_get_shorthand (prefixes, urn);
+		gchar *shorthand = get_shorthand (prefixes, urn);
 
 		/* If the shorthand is the same as the urn passed, we
 		 * assume it is a resource and pass it in as one,
@@ -529,7 +552,7 @@ export_2to3_run (void)
 }
 
 int
-tracker_export (int argc, const char **argv)
+main (int argc, const char **argv)
 {
 	GOptionContext *context;
 	GError *error = NULL;

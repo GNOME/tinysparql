@@ -371,7 +371,7 @@ run_list_endpoints (void)
 }
 
 int
-tracker_endpoint (int argc, const char **argv)
+main (int argc, const char **argv)
 {
 	TrackerSparqlConnection *connection;
 	GOptionContext *context;
