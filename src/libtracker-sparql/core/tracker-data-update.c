@@ -1009,7 +1009,7 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 	}
 
 	db_manager = tracker_data_manager_get_db_manager (data->manager);
-	db_flags = tracker_db_manager_get_flags (db_manager, NULL, NULL);
+	db_flags = tracker_db_manager_get_flags (db_manager);
 
 	if ((db_flags & TRACKER_DB_MANAGER_ANONYMOUS_BNODES) == 0 &&
 	    g_str_has_prefix (uri, "urn:bnode:")) {
@@ -3882,10 +3882,9 @@ update_resource_property (TrackerData      *data,
 			gchar *object_str;
 			gboolean retval;
 
-			tracker_data_manager_expand_prefix (data->manager,
-			                                    g_value_get_string (val),
-			                                    NULL, NULL,
-			                                    &object_str);
+			object_str = tracker_data_manager_expand_prefix (data->manager,
+			                                                 g_value_get_string (val),
+			                                                 NULL);
 
 			retval = tracker_data_query_string_to_value (data->manager,
 			                                             object_str,
@@ -3947,9 +3946,8 @@ update_resource_single (TrackerData      *data,
 		gchar *subject_uri;
 
 		subject_str = tracker_resource_get_identifier (resource);
-		tracker_data_manager_expand_prefix (data->manager,
-		                                    subject_str, NULL, NULL,
-		                                    &subject_uri);
+		subject_uri = tracker_data_manager_expand_prefix (data->manager,
+		                                                  subject_str, NULL);
 		subject = tracker_data_update_ensure_resource (data, subject_uri, error);
 		g_free (subject_uri);
 		if (subject == 0)
@@ -4036,9 +4034,8 @@ tracker_data_update_resource (TrackerData      *data,
 		bnodes = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (GDestroyNotify) tracker_rowid_free);
 
 	if (graph) {
-		tracker_data_manager_expand_prefix (data->manager,
-		                                    graph, NULL, NULL,
-		                                    &graph_uri);
+		graph_uri = tracker_data_manager_expand_prefix (data->manager,
+		                                                graph, NULL);
 	}
 
 	retval = update_resource_single (data, graph_uri, resource, visited, bnodes, NULL, error);

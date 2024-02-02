@@ -102,49 +102,6 @@ struct _TrackerPropertyPrivate {
 
 static void property_finalize     (GObject      *object);
 
-GType
-tracker_property_type_get_type (void)
-{
-	static GType etype = 0;
-
-	if (etype == 0) {
-		static const GEnumValue values[] = {
-			{ TRACKER_PROPERTY_TYPE_UNKNOWN,
-			  "TRACKER_PROPERTY_TYPE_UNKNOWN",
-			  "unknown" },
-			{ TRACKER_PROPERTY_TYPE_STRING,
-			  "TRACKER_PROPERTY_TYPE_STRING",
-			  "string" },
-			{ TRACKER_PROPERTY_TYPE_BOOLEAN,
-			  "TRACKER_PROPERTY_TYPE_BOOLEAN",
-			  "boolean" },
-			{ TRACKER_PROPERTY_TYPE_INTEGER,
-			  "TRACKER_PROPERTY_TYPE_INTEGER",
-			  "integer" },
-			{ TRACKER_PROPERTY_TYPE_DOUBLE,
-			  "TRACKER_PROPERTY_TYPE_DOUBLE",
-			  "double" },
-			{ TRACKER_PROPERTY_TYPE_DATE,
-			  "TRACKER_PROPERTY_TYPE_DATE",
-			  "date" },
-			{ TRACKER_PROPERTY_TYPE_DATETIME,
-			  "TRACKER_PROPERTY_TYPE_DATETIME",
-			  "datetime" },
-			{ TRACKER_PROPERTY_TYPE_RESOURCE,
-			  "TRACKER_PROPERTY_TYPE_RESOURCE",
-			  "resource" },
-			{ TRACKER_PROPERTY_TYPE_LANGSTRING,
-			  "TRACKER_PROPERTY_TYPE_LANGSTRING",
-			  "langString" },
-			{ 0, NULL, NULL }
-		};
-
-		etype = g_enum_register_static ("TrackerPropertyType", values);
-	}
-
-	return etype;
-}
-
 G_DEFINE_TYPE_WITH_PRIVATE (TrackerProperty, tracker_property, G_TYPE_OBJECT)
 
 static void

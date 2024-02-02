@@ -1,7 +1,6 @@
-tracker_data_enums = gnome.mkenums('tracker-data-enum-types',
+tracker_data_enums = gnome.mkenums_simple('tracker-data-enum-types',
     sources: 'tracker-db-interface-sqlite.h',
-    c_template: 'tracker-data-enum-types.c.template',
-    h_template: 'tracker-data-enum-types.h.template',
+    body_prefix: '#include "config.h"',
 )
 
 tracker_data_dependencies = [
@@ -37,3 +36,5 @@ core_files += [
     tracker_data_enums[0],
     tracker_data_enums[1],
 ]
+
+core_incs = include_directories('.')

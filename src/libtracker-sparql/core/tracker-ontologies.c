@@ -156,12 +156,6 @@ tracker_ontologies_class_init (TrackerOntologiesClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_ontologies_finalize;
-
-	/* We will need the class later in order to match strings to enum values
-	 * when inserting metadata types in the DB, so the enum class needs to be
-	 * created beforehand.
-	 */
-	g_type_ensure (TRACKER_TYPE_PROPERTY_TYPE);
 }
 
 TrackerProperty *

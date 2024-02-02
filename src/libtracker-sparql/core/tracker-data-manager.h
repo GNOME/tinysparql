@@ -60,12 +60,10 @@ GQuark   tracker_data_ontology_error_quark           (void);
 TrackerDataManager * tracker_data_manager_new        (TrackerDBManagerFlags   flags,
                                                       GFile                  *cache_location,
                                                       GFile                  *ontology_location,
-                                                      guint                   select_cache_size,
-                                                      guint                   update_cache_size);
+                                                      guint                   select_cache_size);
 
 void                 tracker_data_manager_shutdown            (TrackerDataManager *manager);
 
-GFile *              tracker_data_manager_get_cache_location  (TrackerDataManager *manager);
 TrackerOntologies *  tracker_data_manager_get_ontologies      (TrackerDataManager *manager);
 
 TrackerDBManager *   tracker_data_manager_get_db_manager      (TrackerDataManager *manager);
@@ -105,11 +103,10 @@ void                 tracker_data_manager_commit_graphs (TrackerDataManager *man
 
 void                 tracker_data_manager_release_memory (TrackerDataManager *manager);
 
-gboolean             tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
-                                                         const gchar         *term,
-                                                         GHashTable          *prefix_map,
-                                                         gchar              **prefix,
-                                                         gchar              **expanded);
+gchar * tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
+                                            const gchar         *term,
+                                            GHashTable          *prefix_map);
+
 TrackerSparqlConnection * tracker_data_manager_get_remote_connection (TrackerDataManager  *data_manager,
                                                                       const gchar         *uri,
                                                                       GError             **error);

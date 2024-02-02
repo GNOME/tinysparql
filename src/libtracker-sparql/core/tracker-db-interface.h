@@ -52,10 +52,6 @@ G_BEGIN_DECLS
 
 #define TRACKER_DB_INTERFACE_ERROR          (tracker_db_interface_error_quark ())
 
-typedef void (*TrackerBusyCallback)      (const gchar *status,
-                                          gdouble      progress,
-                                          gpointer     user_data);
-
 typedef enum {
 	TRACKER_DB_QUERY_ERROR,
 	TRACKER_DB_INTERRUPTED,
@@ -67,7 +63,6 @@ typedef enum {
 
 typedef enum {
 	TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT,
-	TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
 	TRACKER_DB_STATEMENT_CACHE_TYPE_NONE
 } TrackerDBStatementCacheType;
 
@@ -99,9 +94,7 @@ void                    tracker_db_interface_set_max_stmt_cache_size (TrackerDBI
 
 /* User data functions, mainly to attach the data manager */
 void                    tracker_db_interface_set_user_data           (TrackerDBInterface         *interface,
-                                                                      gpointer                    user_data,
-	                                                              GDestroyNotify              destroy_notify);
-gpointer                tracker_db_interface_get_user_data           (TrackerDBInterface         *interface);
+                                                                      GObject                    *user_data);
 
 /* Functions to create queries/procedures */
 TrackerDBStatement *    tracker_db_interface_create_statement        (TrackerDBInterface           *db_interface,

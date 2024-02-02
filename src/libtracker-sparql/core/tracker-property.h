@@ -26,11 +26,6 @@
 
 G_BEGIN_DECLS
 
-/*
- * TrackerPropertyType
- */
-#define TRACKER_TYPE_PROPERTY_TYPE (tracker_property_type_get_type ())
-
 typedef enum {
 	TRACKER_PROPERTY_TYPE_UNKNOWN,
 	TRACKER_PROPERTY_TYPE_STRING,
@@ -43,13 +38,10 @@ typedef enum {
 	TRACKER_PROPERTY_TYPE_LANGSTRING,
 } TrackerPropertyType;
 
-GType        tracker_property_type_get_type  (void) G_GNUC_CONST;
-
 /*
  * TrackerProperty
  */
 #define TRACKER_TYPE_PROPERTY         (tracker_property_get_type ())
-#define TRACKER_TYPE_PROPERTY_TYPE    (tracker_property_type_get_type ())
 #define TRACKER_PROPERTY(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_PROPERTY, TrackerProperty))
 #define TRACKER_PROPERTY_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST ((k), TRACKER_TYPE_PROPERTY, TrackerPropertyClass))
 #define TRACKER_IS_PROPERTY(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), TRACKER_TYPE_PROPERTY))

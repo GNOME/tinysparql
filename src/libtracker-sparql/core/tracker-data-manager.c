@@ -64,7 +64,6 @@ struct _TrackerDataManager {
 	guint flags;
 
 	gint select_cache_size;
-	gint update_cache_size;
 	guint generation;
 
 	TrackerDBManager *db_manager;
@@ -78,8 +77,6 @@ struct _TrackerDataManager {
 	/* Cached remote connections */
 	GMutex connections_lock;
 	GHashTable *cached_connections;
-
-	gchar *status;
 };
 
 struct _TrackerDataManagerClass {
@@ -116,12 +113,6 @@ static Conversion allowed_range_conversions[] = {
 	{ TRACKER_PREFIX_XSD "double", TRACKER_PREFIX_XSD "boolean" },
 
 	{ NULL, NULL }
-};
-
-enum {
-	PROP_0,
-	PROP_STATUS,
-	N_PROPS
 };
 
 static gboolean tracker_data_manager_fts_changed (TrackerDataManager *manager);
@@ -2799,7 +2790,7 @@ db_get_static_data (TrackerDBInterface  *iface,
 			tracker_property_set_is_inverse_functional_property (property, is_inverse_functional_property);
 
 			/* super properties are only used in updates, never for queries */
-			if ((tracker_db_manager_get_flags (manager->db_manager, NULL, NULL) & TRACKER_DB_MANAGER_READONLY) == 0) {
+			if ((tracker_db_manager_get_flags (manager->db_manager) & TRACKER_DB_MANAGER_READONLY) == 0) {
 				property_add_super_properties_from_db (iface, manager, property);
 			}
 
@@ -2824,41 +2815,6 @@ db_get_static_data (TrackerDBInterface  *iface,
 		g_propagate_error (error, internal_error);
 		return;
 	}
-}
-
-static void
-insert_uri_in_resource_table (TrackerDataManager  *manager,
-                              TrackerDBInterface  *iface,
-                              const gchar         *uri,
-                              TrackerRowid         id,
-                              GError             **error)
-{
-	TrackerDBStatement *stmt;
-	GError *internal_error = NULL;
-
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
-	                                              &internal_error,
-	                                              "INSERT OR IGNORE "
-	                                              "INTO main.Resource "
-	                                              "(ID, Uri) "
-	                                              "VALUES (?, ?)");
-	if (internal_error) {
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	tracker_db_statement_bind_int (stmt, 0, id);
-	tracker_db_statement_bind_text (stmt, 1, uri);
-	tracker_db_statement_execute (stmt, &internal_error);
-
-	if (internal_error) {
-		g_object_unref (stmt);
-		g_propagate_error (error, internal_error);
-		return;
-	}
-
-	g_object_unref (stmt);
-
 }
 
 static void
@@ -3578,55 +3534,6 @@ tracker_data_ontology_setup_db (TrackerDataManager  *manager,
 	return TRUE;
 }
 
-static void
-tracker_data_ontology_import_into_db (TrackerDataManager  *manager,
-                                      TrackerDBInterface  *iface,
-                                      gboolean             in_update,
-                                      GError             **error)
-{
-	TrackerClass **classes;
-	TrackerProperty **properties;
-	guint i, n_props, n_classes;
-
-	classes = tracker_ontologies_get_classes (manager->ontologies, &n_classes);
-	properties = tracker_ontologies_get_properties (manager->ontologies, &n_props);
-
-	/* insert classes into rdfs:Resource table */
-	for (i = 0; i < n_classes; i++) {
-		if (tracker_class_get_is_new (classes[i]) == in_update) {
-			GError *internal_error = NULL;
-
-			insert_uri_in_resource_table (manager, iface,
-			                              tracker_class_get_uri (classes[i]),
-			                              tracker_class_get_id (classes[i]),
-			                              &internal_error);
-
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
-				return;
-			}
-		}
-	}
-
-	/* insert properties into rdfs:Resource table */
-	for (i = 0; i < n_props; i++) {
-		if (tracker_property_get_is_new (properties[i]) == in_update) {
-			GError *internal_error = NULL;
-
-			insert_uri_in_resource_table (manager, iface,
-			                              tracker_property_get_uri (properties[i]),
-			                              tracker_property_get_id (properties[i]),
-			                              &internal_error);
-
-			if (internal_error) {
-				g_propagate_error (error, internal_error);
-				return;
-			}
-		}
-	}
-
-}
-
 static gint
 compare_file_names (GFile *file_a,
                     GFile *file_b)
@@ -3692,24 +3599,6 @@ get_ontologies (TrackerDataManager  *manager,
 }
 
 static void
-tracker_data_manager_update_status (TrackerDataManager *manager,
-                                    const gchar        *status)
-{
-	g_free (manager->status);
-	manager->status = g_strdup (status);
-	g_object_notify (G_OBJECT (manager), "status");
-}
-
-static void
-busy_callback (const gchar *status,
-               gdouble      progress,
-               gpointer     user_data)
-{
-	tracker_data_manager_update_status (user_data, status);
-}
-
-
-static void
 tracker_data_manager_recreate_indexes (TrackerDataManager  *manager,
                                        GError             **error)
 {
@@ -3734,10 +3623,6 @@ tracker_data_manager_recreate_indexes (TrackerDataManager  *manager,
 			            internal_error->message);
 			g_clear_error (&internal_error);
 		}
-
-		busy_callback ("Recreating indexes",
-		               (gdouble) ((gdouble) i / (gdouble) n_properties),
-		               manager);
 	}
 	TRACKER_NOTE (ONTOLOGY_CHANGES, g_message ("  Finished index re-creation..."));
 }
@@ -3879,18 +3764,11 @@ tracker_data_manager_update_fts (TrackerDataManager  *manager,
 	                                                    error);
 }
 
-GFile *
-tracker_data_manager_get_cache_location (TrackerDataManager *manager)
-{
-	return manager->cache_location ? g_object_ref (manager->cache_location) : NULL;
-}
-
 TrackerDataManager *
 tracker_data_manager_new (TrackerDBManagerFlags   flags,
                           GFile                  *cache_location,
                           GFile                  *ontology_location,
-                          guint                   select_cache_size,
-                          guint                   update_cache_size)
+                          guint                   select_cache_size)
 {
 	TrackerDataManager *manager;
 
@@ -3906,7 +3784,6 @@ tracker_data_manager_new (TrackerDBManagerFlags   flags,
 	g_set_object (&manager->ontology_location, ontology_location);
 	manager->flags = flags;
 	manager->select_cache_size = select_cache_size;
-	manager->update_cache_size = update_cache_size;
 
 	return manager;
 }
@@ -3923,7 +3800,7 @@ update_ontology_last_modified (TrackerDataManager  *manager,
 
 	ontology_uri = tracker_ontology_get_uri (ontology);
 	last_mod = tracker_ontology_get_last_modified (ontology);
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE, error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 	                                              "UPDATE \"nrl:Ontology\" SET \"nrl:lastModified\"= ? "
 	                                              "WHERE \"nrl:Ontology\".ID = "
 	                                              "(SELECT Resource.ID FROM Resource WHERE "
@@ -4060,7 +3937,7 @@ update_interface_cb (TrackerDBManager   *db_manager,
 	guint iface_generation;
 	gboolean update = FALSE, changed, readonly;
 
-	readonly = (tracker_db_manager_get_flags (db_manager, NULL, NULL) & TRACKER_DB_MANAGER_READONLY) != 0;
+	readonly = (tracker_db_manager_get_flags (db_manager) & TRACKER_DB_MANAGER_READONLY) != 0;
 
 	if (readonly) {
 		update = TRUE;
@@ -4225,7 +4102,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		g_set_error (error,
 		             TRACKER_DATA_ONTOLOGY_ERROR,
 		             TRACKER_DATA_UNSUPPORTED_LOCATION,
-		             "Cache and data locations must be local");
+		             "Database location must be local");
 		return FALSE;
 	}
 
@@ -4239,10 +4116,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                                              manager->cache_location,
 	                                              FALSE,
 	                                              manager->select_cache_size,
-	                                              manager->update_cache_size,
-	                                              busy_callback, manager,
 	                                              G_OBJECT (manager),
-	                                              manager,
 	                                              &internal_error);
 	if (!manager->db_manager) {
 		g_propagate_error (error, internal_error);
@@ -4255,8 +4129,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	                  G_CALLBACK (setup_interface_cb), manager);
 	g_signal_connect (manager->db_manager, "update-interface",
 	                  G_CALLBACK (update_interface_cb), manager);
-
-	tracker_data_manager_update_status (manager, "Initializing data manager");
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
@@ -4344,12 +4216,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		if (!internal_error) {
 			tracker_data_ontology_setup_db (manager, iface, "main", FALSE,
 			                                &internal_error);
-		}
-
-		if (!internal_error) {
-			tracker_data_ontology_import_into_db (manager, iface,
-			                                      FALSE,
-			                                      &internal_error);
 		}
 
 		if (internal_error) {
@@ -4716,11 +4582,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				}
 
 				if (!ontology_error) {
-					tracker_data_ontology_import_into_db (manager, iface, TRUE,
-					                                      &ontology_error);
-				}
-
-				if (!ontology_error) {
 					tracker_data_ontology_process_changes_post_db (manager,
 					                                               seen_classes,
 					                                               seen_properties,
@@ -4809,9 +4670,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 	manager->initialized = TRUE;
 
-	/* This is the only one which doesn't show the 'OPERATION' part */
-	tracker_data_manager_update_status (manager, "Idle");
-
 	return TRUE;
 
 rollback_db_changes:
@@ -4863,7 +4721,7 @@ data_manager_perform_cleanup (TrackerDataManager  *manager,
 	g_hash_table_unref (graphs);
 
 	stmt = tracker_db_interface_create_statement (iface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              &internal_error,
 	                                              str->str);
 	g_string_free (str, TRUE);
@@ -4894,7 +4752,7 @@ tracker_data_manager_dispose (GObject *object)
 	g_clear_object (&manager->data_update);
 
 	if (manager->db_manager) {
-		readonly = (tracker_db_manager_get_flags (manager->db_manager, NULL, NULL) & TRACKER_DB_MANAGER_READONLY) != 0;
+		readonly = (tracker_db_manager_get_flags (manager->db_manager) & TRACKER_DB_MANAGER_READONLY) != 0;
 
 		if (!readonly) {
 			/* Delete stale URIs in the Resource table */
@@ -4928,7 +4786,6 @@ tracker_data_manager_finalize (GObject *object)
 	g_clear_object (&manager->ontology_location);
 	g_clear_object (&manager->cache_location);
 	g_clear_pointer (&manager->graphs, g_hash_table_unref);
-	g_free (manager->status);
 	g_mutex_clear (&manager->connections_lock);
 	g_mutex_clear (&manager->graphs_lock);
 
@@ -4942,39 +4799,12 @@ tracker_data_manager_initable_iface_init (GInitableIface *iface)
 }
 
 static void
-tracker_data_manager_get_property (GObject    *object,
-                                   guint       prop_id,
-                                   GValue     *value,
-                                   GParamSpec *pspec)
-{
-	TrackerDataManager *manager = TRACKER_DATA_MANAGER (object);
-
-	switch (prop_id) {
-	case PROP_STATUS:
-		g_value_set_string (value, manager->status);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-	}
-}
-
-static void
 tracker_data_manager_class_init (TrackerDataManagerClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	object_class->get_property = tracker_data_manager_get_property;
 	object_class->dispose = tracker_data_manager_dispose;
 	object_class->finalize = tracker_data_manager_finalize;
-
-	g_object_class_install_property (object_class,
-	                                 PROP_STATUS,
-	                                 g_param_spec_string ("status",
-	                                                      "Status",
-	                                                      "Status",
-	                                                      NULL,
-	                                                      G_PARAM_READABLE));
 }
 
 TrackerOntologies *
@@ -5339,12 +5169,10 @@ tracker_data_manager_release_memory (TrackerDataManager *manager)
 	tracker_db_manager_release_memory (manager->db_manager);
 }
 
-gboolean
+gchar *
 tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
                                     const gchar         *term,
-                                    GHashTable          *prefix_map,
-                                    gchar              **prefix,
-                                    gchar              **expanded)
+                                    GHashTable          *prefix_map)
 {
 	const gchar *sep, *expanded_ns = NULL;
 	TrackerOntologies *ontologies;
@@ -5382,27 +5210,12 @@ tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
 
 	g_free (ns);
 
-	if (!expanded_ns) {
-		if (prefix)
-			*prefix = NULL;
-		if (expanded)
-			*expanded = g_strdup (term);
-
-		return FALSE;
-	}
-
-	if (prefix)
-		*prefix = g_strdup (expanded_ns);
-
-	if (expanded) {
-		if (sep) {
-			*expanded = g_strconcat (expanded_ns, sep, NULL);
-		} else {
-			*expanded = g_strdup (expanded_ns);
-		}
-	}
-
-	return TRUE;
+	if (!expanded_ns)
+		return g_strdup (term);
+	else if (sep)
+		return g_strconcat (expanded_ns, sep, NULL);
+	else
+		return g_strdup (expanded_ns);
 }
 
 TrackerSparqlConnection *

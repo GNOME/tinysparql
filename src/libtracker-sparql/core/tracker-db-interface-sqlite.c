@@ -72,14 +72,12 @@ struct TrackerDBInterface {
 	GCancellable *cancellable;
 
 	TrackerDBStatementMru select_stmt_mru;
-	TrackerDBStatementMru update_stmt_mru;
 
 	/* Used if TRACKER_DB_INTERFACE_USE_MUTEX is set */
 	GMutex mutex;
 
 	/* User data */
-	gpointer user_data;
-	GDestroyNotify user_data_destroy_notify;
+	GObject *user_data;
 };
 
 struct TrackerDBInterfaceClass {
@@ -2035,7 +2033,6 @@ close_database (TrackerDBInterface *db_interface)
 	gint rc;
 
 	tracker_db_statement_mru_finish (&db_interface->select_stmt_mru);
-	tracker_db_statement_mru_finish (&db_interface->update_stmt_mru);
 
 	if (db_interface->replace_func_checks.syntax_check)
 		g_regex_unref (db_interface->replace_func_checks.syntax_check);
@@ -2061,7 +2058,7 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface     *db_interface,
 	return tracker_tokenizer_initialize (db_interface->db,
 	                                     db_interface,
 	                                     fts_flags,
-	                                     db_interface->user_data,
+	                                     TRACKER_DATA_MANAGER (db_interface->user_data),
 	                                     error);
 }
 
@@ -2145,7 +2142,7 @@ tracker_db_interface_sqlite_fts_insert_text_stmt (TrackerDBInterface  *db_interf
 	                                                             database,
 	                                                             properties);
 	stmt = tracker_db_interface_create_statement (db_interface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              error,
 	                                              query);
 	g_free (query);
@@ -2285,8 +2282,7 @@ tracker_db_interface_sqlite_finalize (GObject *object)
 	g_free (db_interface->filename);
 	g_free (db_interface->shared_cache_key);
 
-	if (db_interface->user_data && db_interface->user_data_destroy_notify)
-		db_interface->user_data_destroy_notify (db_interface->user_data);
+	g_clear_object (&db_interface->user_data);
 
 	G_OBJECT_CLASS (tracker_db_interface_parent_class)->finalize (object);
 }
@@ -2330,8 +2326,6 @@ tracker_db_interface_init (TrackerDBInterface *db_interface)
 {
 	tracker_db_statement_mru_init (&db_interface->select_stmt_mru, 100,
 	                               g_str_hash, g_str_equal, NULL);
-	tracker_db_statement_mru_init (&db_interface->update_stmt_mru, 100,
-	                               g_str_hash, g_str_equal, NULL);
 }
 
 void
@@ -2341,9 +2335,7 @@ tracker_db_interface_set_max_stmt_cache_size (TrackerDBInterface         *db_int
 {
 	TrackerDBStatementMru *stmt_mru;
 
-	if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE) {
-		stmt_mru = &db_interface->update_stmt_mru;
-	} else if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT) {
+	if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT) {
 		stmt_mru = &db_interface->select_stmt_mru;
 	} else {
 		return;
@@ -2532,8 +2524,6 @@ tracker_db_interface_create_statement (TrackerDBInterface           *db_interfac
 	/* MRU holds a reference to the stmt */
 	if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT)
 		mru = &db_interface->select_stmt_mru;
-	else if (cache_type == TRACKER_DB_STATEMENT_CACHE_TYPE_UPDATE)
-		mru = &db_interface->update_stmt_mru;
 
 	if (mru)
 		stmt = tracker_db_statement_mru_lookup (mru, query);
@@ -3655,20 +3645,9 @@ tracker_db_statement_sqlite_reset (TrackerDBStatement *stmt)
 
 void
 tracker_db_interface_set_user_data (TrackerDBInterface *db_interface,
-                                    gpointer            user_data,
-                                    GDestroyNotify      destroy_notify)
+                                    GObject            *user_data)
 {
-	if (db_interface->user_data && db_interface->user_data_destroy_notify)
-		db_interface->user_data_destroy_notify (db_interface->user_data);
-
-	db_interface->user_data = user_data;
-	db_interface->user_data_destroy_notify = destroy_notify;
-}
-
-gpointer
-tracker_db_interface_get_user_data (TrackerDBInterface *db_interface)
-{
-	return db_interface->user_data;
+	g_set_object (&db_interface->user_data, user_data);
 }
 
 void
@@ -3689,13 +3668,11 @@ tracker_db_interface_get_is_used (TrackerDBInterface *db_interface)
 	return g_atomic_int_get (&db_interface->n_users) > 0;
 }
 
-gboolean
-tracker_db_interface_init_vtabs (TrackerDBInterface *db_interface,
-                                 gpointer            vtab_data)
+void
+tracker_db_interface_init_vtabs (TrackerDBInterface *db_interface)
 {
-	tracker_vtab_triples_init (db_interface->db, vtab_data);
-	tracker_vtab_service_init (db_interface->db, vtab_data);
-	return TRUE;
+	tracker_vtab_triples_init (db_interface->db, (gpointer) db_interface->user_data);
+	tracker_vtab_service_init (db_interface->db, (gpointer) db_interface->user_data);
 }
 
 gboolean
@@ -3761,7 +3738,6 @@ gssize
 tracker_db_interface_sqlite_release_memory (TrackerDBInterface *db_interface)
 {
 	tracker_db_statement_mru_clear (&db_interface->select_stmt_mru);
-	tracker_db_statement_mru_clear (&db_interface->update_stmt_mru);
 
 	return (gssize) sqlite3_db_release_memory (db_interface->db);
 }

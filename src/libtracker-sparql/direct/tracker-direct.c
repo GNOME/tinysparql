@@ -576,7 +576,7 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 
 	priv->data_manager = tracker_data_manager_new (db_flags, priv->store,
 	                                               priv->ontology,
-	                                               100, 100);
+	                                               100);
 	if (!g_initable_init (G_INITABLE (priv->data_manager), cancellable, &inner_error)) {
 		g_propagate_error (error, _translate_internal_error (inner_error));
 		g_clear_object (&priv->data_manager);

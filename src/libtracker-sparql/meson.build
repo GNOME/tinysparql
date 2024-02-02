@@ -10,12 +10,13 @@ version_header = configure_file(
     output: 'tracker-version-generated.h',
     configuration: conf)
 
-enum_types = gnome.mkenums('tracker-sparql-enum-types',
+enum_types = gnome.mkenums_simple('tracker-sparql-enum-types',
     sources: ['tracker-notifier.h', 'tracker-connection.h', 'tracker-enums.h', 'tracker-error.h'],
-    c_template: 'tracker-sparql-enum-types.c.template',
-    h_template: 'tracker-sparql-enum-types.h.template',
     install_dir: join_paths(get_option('prefix'), get_option('includedir'), 'tracker-@0@'.format(tracker_api_version), 'libtracker-sparql'),
     install_header: true,
+    decorator: 'TRACKER_AVAILABLE_IN_ALL',
+    body_prefix: '#include "config.h"',
+    header_prefix: '#include <libtracker-sparql/tracker-version.h>\n',
 )
 
 libtracker_sparql_sources = files(
@@ -105,6 +106,7 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
 
     dependencies: [libtracker_sparql_dependencies, gvdb_dep],
     gnu_symbol_visibility: 'hidden',
+    include_directories: [core_incs],
 )
 
 tracker_sparql_private_dep = declare_dependency(
