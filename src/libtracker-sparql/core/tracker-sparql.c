@@ -3899,7 +3899,7 @@ translate_AskQuery (TrackerSparql  *sparql,
 
 	tracker_sparql_swap_builder (sparql, old);
 
-	_append_string (sparql, ") WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END");
+	_append_string (sparql, ") WHEN 1 THEN 'true' WHEN 0 THEN 'false' ELSE NULL END AS result");
 	handle_value_type_column (sparql, TRACKER_PROPERTY_TYPE_BOOLEAN, NULL);
 
 	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->select_context);
