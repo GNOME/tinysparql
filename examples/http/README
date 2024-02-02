@@ -1,0 +1,13 @@
+This is a minimal example of opening a SPARQL endpoint in a web browser,
+for **local development and testing only**.
+
+To try this example, first start a Tracker HTTP endpoint:
+
+    tracker3 endpoint --http-port 1234 --ontology nepomuk --database /tmp/empty-database
+
+Then spin up a file server to serve the index.html:
+
+    caddy file-server --listen :8000 --browse .
+
+Now, load `http://localhost:8000` in a web browser and try running a query.
+You will see results printed to the dev console in the browser.

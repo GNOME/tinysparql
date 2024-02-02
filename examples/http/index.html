@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP POST Request Example</title>
+</head>
+<body>
+
+    <form id="myForm">
+        <label for="textInput">Enter Text:</label>
+        <textarea id="textInput" name="inputText" rows="4" cols="50"></textarea><br>
+        <button type="button" onclick="submitForm()">Submit</button>
+    </form>
+
+    <script>
+        function submitForm() {
+            // Get the text input value
+            var inputText = document.getElementById("textInput").value;
+
+            // Make an HTTP POST request using Fetch API
+            fetch('http://localhost:1234/sparql/', {
+                method: 'POST',
+                headers: {
+                    "Accept": "application/sparql-results+json"
+                },
+                body: inputText
+            })
+            .then(function(response) {
+                console.log(response);
+                json_data = response.json();
+                console.log(json_data);
+                return json_data
+            })
+            .then(function(data) {
+                console.log(data);
+            })
+            .catch(function(error) {
+                    console.log( error)
+            });
+        }
+    </script>
+
+</body>
+</html>
+
