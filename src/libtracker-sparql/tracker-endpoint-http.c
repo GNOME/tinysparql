@@ -146,7 +146,7 @@ query_async_cb (GObject      *object,
 	if (error) {
 		tracker_http_server_error (endpoint_http->server,
 		                           request->request,
-		                           500,
+		                           400,
 		                           error->message);
 		request_free (request);
 		g_error_free (error);
@@ -253,7 +253,7 @@ http_server_request_cb (TrackerHttpServer  *server,
 	}
 
 	if (block) {
-		tracker_http_server_error (server, request, 500,
+		tracker_http_server_error (server, request, 400,
 		                           "Remote address disallowed");
 		return;
 	}
@@ -265,7 +265,7 @@ http_server_request_cb (TrackerHttpServer  *server,
 		gchar *query;
 
 		if (!pick_format (formats, &format)) {
-			tracker_http_server_error (server, request, 500,
+			tracker_http_server_error (server, request, 400,
 			                           "No recognized accepted formats");
 			return;
 		}
