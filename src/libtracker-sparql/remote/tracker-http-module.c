@@ -158,17 +158,24 @@ get_supported_formats (TrackerHttpRequest *request)
 }
 
 static void
-set_message_format (TrackerHttpRequest      *request,
-                    TrackerSerializerFormat  format)
+set_response_headers (TrackerHttpRequest      *request,
+                      TrackerSerializerFormat  format)
 {
-        SoupMessageHeaders *response_headers;
+	SoupMessageHeaders *response_headers;
 
 #if SOUP_CHECK_VERSION (2, 99, 2)
-        response_headers = soup_server_message_get_response_headers (request->message);
+	response_headers = soup_server_message_get_response_headers (request->message);
 #else
-        response_headers = request->message->response_headers;
+	response_headers = request->message->response_headers;
 #endif
-        soup_message_headers_set_content_type (response_headers, mimetypes[format], NULL);
+
+	/* Content type of the serialized response. */
+	soup_message_headers_set_content_type (response_headers, mimetypes[format], NULL);
+
+	/* This is required for localhost requests, see:
+	 * <https://gitlab.gnome.org/GNOME/tracker/-/issues/421>.
+	 */
+	soup_message_headers_append (response_headers, "Access-Control-Allow-Origin", "*");
 }
 
 /* Get SPARQL query from message POST data, or NULL. */
@@ -609,7 +616,7 @@ tracker_http_server_soup_response (TrackerHttpServer       *server,
 
 	g_assert (request->server == server);
 
-	set_message_format (request, format);
+	set_response_headers (request, format);
 
 	request->istream = content;
 	request->task = g_task_new (server, server_soup->cancellable,
