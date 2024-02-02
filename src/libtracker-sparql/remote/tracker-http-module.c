@@ -761,14 +761,11 @@ create_message (const gchar *uri,
 {
 	SoupMessage *message;
 	SoupMessageHeaders *headers;
-	gchar *full_uri, *query_escaped;
+#if SOUP_CHECK_VERSION (2, 99, 2)
+	GBytes *query_encoded;
+#endif
 
-	query_escaped = g_uri_escape_string (query, NULL, FALSE);
-	full_uri = g_strconcat (uri, "?query=", query_escaped, NULL);
-	g_free (query_escaped);
-
-	message = soup_message_new ("GET", full_uri);
-	g_free (full_uri);
+	message = soup_message_new ("POST", uri);
 
 #if SOUP_CHECK_VERSION (2, 99, 2)
 	headers = soup_message_get_request_headers (message);
@@ -778,6 +775,13 @@ create_message (const gchar *uri,
 
 	soup_message_headers_append (headers, "User-Agent", USER_AGENT);
 	add_accepted_formats (headers, formats);
+
+#if SOUP_CHECK_VERSION (2, 99, 2)
+	query_encoded = g_bytes_new (query, strlen (query));
+	soup_message_set_request_body_from_bytes (message, "application/sparql-query", query_encoded);
+#else
+	soup_message_set_request (message, "application/sparql-query", SOUP_MEMORY_COPY, query, strlen (query));
+#endif
 
 	return message;
 }
