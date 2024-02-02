@@ -22,6 +22,7 @@ functional_tests = [
   'test_collation',
   'test_concurrent_query',
   'test_distance',
+  'test_endpoint_http',
   'test_fts_functions',
   'test_graph',
   'test_group_concat',

@@ -24,7 +24,6 @@ import unittest
 
 import configuration
 import fixtures
-import random
 
 
 class TestCli(fixtures.TrackerCommandLineTestCase):
@@ -100,40 +99,6 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
                 ]
             )
             self.run_cli(["tracker3", "import", "--database", tmpdir, testdata])
-
-    def test_http_endpoint(self):
-        """Create a HTTP endpoint for local testing"""
-
-        with self.tmpdir() as tmpdir:
-            port = random.randint(32000, 65000)
-            address = "http://127.0.0.1:%d/sparql" % port
-
-            # Create the database
-            self.run_background(
-                [
-                    "tracker3",
-                    "endpoint",
-                    "--database",
-                    tmpdir,
-                    "--ontology",
-                    "nepomuk",
-                    "--http-port",
-                    port,
-                ],
-                "Listening",
-            )
-
-            # Sanity check that it works.
-            self.run_cli(
-                [
-                    "tracker3",
-                    "sparql",
-                    "--remote-service",
-                    address,
-                    "--query",
-                    "ASK { ?u a rdfs:Resource }",
-                ]
-            )
 
 
 if __name__ == "__main__":
