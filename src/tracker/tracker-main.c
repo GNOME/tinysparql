@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014, Lanedo <martyn@lanedo.com>
+ * Copyright (C) 2024, Sam Thursfield <sam@afuera.me.uk>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,15 +26,9 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 #include <gio/gio.h>
+#include <gio/gdesktopappinfo.h>
 
 #include <libtracker-common/tracker-common.h>
-
-#include "tracker-endpoint.h"
-#include "tracker-export.h"
-#include "tracker-help.h"
-#include "tracker-import.h"
-#include "tracker-sparql.h"
-#include "tracker-sql.h"
 
 const char usage_string[] =
 	"tracker3 [--version] [--help]\n"
@@ -52,167 +47,103 @@ const char about[] =
 static void print_usage (void);
 
 static int
-tracker_help (int argc, const char **argv)
-{
-	if (!argv[0] || !argv[1]) {
-		print_usage ();
-		return 0;
-	}
-
-	tracker_help_show_man_page (argv[1]);
-
-	return 0;
-}
-
-static int
 print_version (void)
 {
 	puts (about);
 	return 0;
 }
 
-/*
- * require working tree to be present -- anything uses this needs
- * RUN_SETUP for reading from the configuration file.
- */
-#define NEED_NOTHING		(1<<0)
-#define NEED_WORK_TREE		(1<<1)
-
-struct cmd_struct {
-	const char *cmd;
-	int (*fn)(int, const char **);
-	int option;
-	const char *help;
-};
-
-static struct cmd_struct commands[] = {
-	{ "help", tracker_help, NEED_NOTHING, N_("Get help on how to use Tracker and any of these commands") },
-	{ "endpoint", tracker_endpoint, NEED_NOTHING, N_("Create a SPARQL endpoint") },
-	{ "export", tracker_export, NEED_WORK_TREE, N_("Export data from a Tracker database") },
-	{ "import", tracker_import, NEED_WORK_TREE, N_("Import data into a Tracker database") },
-	{ "sparql", tracker_sparql, NEED_WORK_TREE, N_("Query and update the index using SPARQL or search, list and tree the ontology") },
-	{ "sql", tracker_sql, NEED_WORK_TREE, N_("Query the database at the lowest level using SQL") },
-};
-
-static int
-run_builtin (struct cmd_struct *p, int argc, const char **argv)
-{
-	int status, help;
-
-	help = argc == 2 && !strcmp (argv[1], "-h");
-
-	if (!help && p->option & NEED_WORK_TREE) {
-		/* Check we have working tree */
-		/* FIXME: Finish */
-	}
-
-	status = p->fn (argc, argv);
-	if (status) {
-		return status;
-	}
-
-	return 0;
-}
-
-static void
-handle_command (int argc, const char **argv)
-{
-	char *cmd = g_path_get_basename (argv[0]);
-	guint i;
-
-	for (i = 0; i < G_N_ELEMENTS (commands); i++) {
-		struct cmd_struct *p = commands + i;
-
-		if (strcmp (p->cmd, cmd)) {
-			continue;
-		}
-
-		g_free (cmd);
-		exit (run_builtin (p, argc, argv));
-	}
-
-	g_printerr (_("“%s” is not a tracker3 command. See “tracker3 --help”"), argv[0]);
-	g_printerr ("\n");
-	g_free (cmd);
-	exit (EXIT_FAILURE);
-}
-
 static inline void
 mput_char (char c, unsigned int num)
 {
-	while (num--) {
-		putchar (c);
-	}
+      while (num--) {
+              putchar (c);
+      }
+}
+
+static int
+compare_app_info (GAppInfo *a,
+                  GAppInfo *b)
+{
+	return g_strcmp0 (g_app_info_get_name (a), g_app_info_get_name (b));
 }
 
 static void
 print_usage_list_cmds (void)
 {
-	guint i, longest = 0;
-	GList *extra_commands = NULL;
+	guint longest = 0;
+	GList *commands = NULL;
+	GList *c;
 	GFileEnumerator *enumerator;
 	GFileInfo *info;
 	GFile *dir;
 	GError *error = NULL;
-	const gchar *subcommands_dir;
+	const gchar *cli_metadata_dir;
 
-	subcommands_dir = g_getenv ("TRACKER_CLI_SUBCOMMANDS_DIR");
-	if (!subcommands_dir) {
-		subcommands_dir = SUBCOMMANDSDIR;
+	cli_metadata_dir = g_getenv ("TRACKER_CLI_DIR");
+
+	if (!cli_metadata_dir) {
+		cli_metadata_dir = CLI_METADATA_DIR;
 	}
 
-	for (i = 0; i < G_N_ELEMENTS(commands); i++) {
-		if (longest < strlen (commands[i].cmd))
-			longest = strlen(commands[i].cmd);
-	}
-
-	puts (_("Available tracker3 commands are:"));
-
-	for (i = 0; i < G_N_ELEMENTS(commands); i++) {
-		g_print ("   %s   ", commands[i].cmd);
-		mput_char (' ', longest - strlen (commands[i].cmd));
-		puts (_(commands[i].help));
-	}
-
-	dir = g_file_new_for_path (subcommands_dir);
+	dir = g_file_new_for_path (cli_metadata_dir);
 	enumerator = g_file_enumerate_children (dir,
-	                                        G_FILE_ATTRIBUTE_STANDARD_NAME ","
-	                                        G_FILE_ATTRIBUTE_STANDARD_IS_SYMLINK ","
-	                                        G_FILE_ATTRIBUTE_STANDARD_IS_HIDDEN ","
-	                                        G_FILE_ATTRIBUTE_STANDARD_SYMLINK_TARGET,
+	                                        G_FILE_ATTRIBUTE_STANDARD_NAME,
 	                                        G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
 	                                        NULL, &error);
 	g_object_unref (dir);
 
 	if (enumerator) {
 		while ((info = g_file_enumerator_next_file (enumerator, NULL, NULL)) != NULL) {
-			/* Filter builtin commands */
-			if (g_file_info_get_is_hidden (info) ||
-			    (g_file_info_get_is_symlink (info) &&
-			    g_strcmp0 (g_file_info_get_symlink_target (info), BINDIR "/tracker") == 0))
-				continue;
+			const gchar *filename;
 
-			extra_commands = g_list_prepend (extra_commands,
-			                                 g_strdup (g_file_info_get_name (info)));
+			filename = g_file_info_get_name (info);
+			if (g_str_has_suffix (filename, ".desktop")) {
+				gchar *path = NULL;
+				GDesktopAppInfo *desktop_info;
+
+				path = g_build_filename (cli_metadata_dir, filename, NULL);
+				desktop_info = g_desktop_app_info_new_from_filename (path);
+				if (desktop_info) {
+					commands = g_list_prepend (commands, desktop_info);
+				} else {
+					g_warning ("Unable to load command info: %s", path);
+				}
+
+				g_free (path);
+			}
 			g_object_unref (info);
 		}
 
 		g_object_unref (enumerator);
 	} else {
-		g_warning ("Failed to list extra commands: %s", error->message);
+		g_warning ("Failed to list commands: %s", error->message);
 	}
 
-	if (extra_commands) {
-		extra_commands = g_list_sort (extra_commands, (GCompareFunc) g_strcmp0);
+	puts (_("Available tracker3 commands are:"));
 
-		g_print ("\n");
-		puts (_("Additional / third party commands are:"));
+	if (commands) {
+		commands = g_list_sort (commands, (GCompareFunc) compare_app_info);
 
-		while (extra_commands) {
-			g_print ("   %s   \n", (gchar *) extra_commands->data);
-			g_free (extra_commands->data);
-			extra_commands = g_list_remove (extra_commands, extra_commands->data);
+		for (c = commands; c; c = c->next) {
+			GDesktopAppInfo *desktop_info = c->data;
+			const gchar *name = g_app_info_get_name (G_APP_INFO (desktop_info));
+
+			if (longest < strlen (name))
+				longest = strlen (name);
 		}
+
+		for (c = commands; c; c = c->next) {
+			GDesktopAppInfo *desktop_info = c->data;
+			const gchar *name = g_app_info_get_name (G_APP_INFO (desktop_info));
+			const gchar *help = g_app_info_get_description (G_APP_INFO (desktop_info));
+
+			g_print ("   %s   ", name);
+			mput_char (' ', longest - strlen (name));
+			puts (help);
+		}
+
+		g_list_free_full (commands, g_object_unref);
 	}
 }
 
@@ -227,9 +158,8 @@ print_usage (void)
 int
 main (int argc, char *argv[])
 {
-	gboolean basename_is_bin = FALSE;
-	gchar *command_basename;
-	const gchar *subcommands_dir;
+	const gchar *cli_metadata_dir;
+	const gchar *bin_dir;
 
 	setlocale (LC_ALL, "");
 
@@ -237,52 +167,55 @@ main (int argc, char *argv[])
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
-	command_basename = g_path_get_basename (argv[0]);
-	basename_is_bin = g_strcmp0 (command_basename, COMMANDNAME) == 0;
-	g_free (command_basename);
+	bin_dir = cli_metadata_dir = g_getenv ("TRACKER_CLI_DIR");
 
-	subcommands_dir = g_getenv ("TRACKER_CLI_SUBCOMMANDS_DIR");
-	if (!subcommands_dir) {
-		subcommands_dir = SUBCOMMANDSDIR;
+	if (!bin_dir) {
+		bin_dir = BINDIR;
 	}
 
-	if (g_path_is_absolute (argv[0]) &&
-	    g_str_has_prefix (argv[0], subcommands_dir)) {
-		/* This is a subcommand call */
-		handle_command (argc, (const gchar **) argv);
-		exit (EXIT_FAILURE);
-	} else if (basename_is_bin) {
-		/* This is a call to the main tracker executable,
-		 * look up and exec the subcommand if any.
-		 */
-		if (argc > 1) {
-			const gchar *subcommand = argv[1];
-			gchar *path;
-
-			if (g_strcmp0 (subcommand, "--version") == 0) {
-				print_version ();
-				exit (EXIT_SUCCESS);
-			} else if (g_strcmp0 (subcommand, "--help") == 0) {
-				subcommand = "help";
-			}
-
-			path = g_build_filename (subcommands_dir, subcommand, NULL);
-
-			if (g_file_test (path, G_FILE_TEST_EXISTS)) {
-				/* Manipulate argv in place, in order to launch subcommand */
-				argv[1] = path;
-				execv (path, &argv[1]);
-			} else {
-				print_usage ();
-			}
-
-			g_free (path);
-		} else {
-			/* The user didn't specify a command; give them help */
-			print_usage ();
-			exit (EXIT_SUCCESS);
-		}
+	if (!cli_metadata_dir) {
+		cli_metadata_dir = CLI_METADATA_DIR;
 	}
+
+	if (argc == 1) {
+		/* The user didn't specify a command; give them help */
+		print_usage ();
+		exit (EXIT_SUCCESS);
+	}
+
+	/* Look up and exec the subcommand. */
+	const gchar *subcommand = argv[1];
+	gchar *subcommand_binary = NULL;
+	gchar *path = NULL;
+
+	if (g_strcmp0 (subcommand, "--version") == 0) {
+		print_version ();
+		exit (EXIT_SUCCESS);
+	} else if (g_strcmp0 (subcommand, "--help") == 0) {
+		subcommand = "help";
+	}
+
+	if (g_strcmp0 (subcommand, "help") == 0 && argc == 2) {
+		/* Print usage here to avoid duplicating it in tracker-help.c */
+		print_usage ();
+		exit (EXIT_SUCCESS);
+	}
+
+	/* Execute subcommand binary */
+	subcommand_binary = g_strdup_printf("tracker3-%s", subcommand);
+	path = g_build_filename (bin_dir, subcommand_binary, NULL);
+
+	if (g_file_test (path, G_FILE_TEST_EXISTS)) {
+		/* Manipulate argv in place, in order to launch subcommand */
+		argv[1] = path;
+		execv (path, &argv[1]);
+	} else {
+		g_printerr (_("“%s” is not a tracker3 command. See “tracker3 --help”"), subcommand);
+		g_printerr ("\n");
+	}
+
+	g_free (path);
+	g_free (subcommand_binary);
 
 	return EXIT_FAILURE;
 }

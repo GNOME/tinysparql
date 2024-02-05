@@ -319,9 +319,7 @@ class TrackerCommandLineTestCase(ut.TestCase):
 
         path = self.env.get("PATH", []).split(":")
         self.env["PATH"] = ":".join([cfg.cli_dir()] + path)
-        self.env["TRACKER_CLI_SUBCOMMANDS_DIR"] = os.path.join(
-            cfg.cli_dir(), "subcommands"
-        )
+        self.env["TRACKER_CLI_DIR"] = cfg.cli_dir()
         self.bg_processes = []
 
     def tearDown(self):

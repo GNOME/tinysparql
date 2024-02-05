@@ -224,7 +224,7 @@ sql_options_enabled (void)
 }
 
 int
-tracker_sql (int argc, const char **argv)
+main (int argc, const char **argv)
 {
 	GOptionContext *context;
 	GError *error = NULL;

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type = Application
+NoDisplay = true
+# Translators: This is a CLI command name that should not be translated.
+Name = sparql
+Comment = Query and update the index using SPARQL or search, list and tree the ontology

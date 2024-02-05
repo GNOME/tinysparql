@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type = Application
+NoDisplay = true
+# Translators: This is a CLI command name that should not be translated.
+Name = sql
+Comment = Query the database at the lowest level using SQL

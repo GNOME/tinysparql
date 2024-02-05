@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type = Application
+NoDisplay = true
+# Translators: This is a CLI command name that should not be translated.
+Name = help
+Comment = Get help on how to use Tracker and any of these commands
