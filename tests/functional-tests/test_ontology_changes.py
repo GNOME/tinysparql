@@ -531,7 +531,7 @@ class PropertyIndexedUnset(OntologyChangeTestTemplate):
 
         # Check ontology and instance for the single valued property
         result = self.tracker.query(
-            "SELECT ?indexed WHERE { test:a_string nrl:indexed ?indexed}"
+            "ASK { test:a_string nrl:indexed true }"
         )
         self.assertEqual(str(result[0][0]), "false")
 
@@ -543,7 +543,7 @@ class PropertyIndexedUnset(OntologyChangeTestTemplate):
 
         # Check ontology and instance for the multiple valued property
         result = self.tracker.query(
-            "SELECT ?indexed WHERE { test:a_n_cardinality nrl:indexed ?indexed}"
+            "ASK { test:a_n_cardinality nrl:indexed true }"
         )
         self.assertEqual(str(result[0][0]), "false")
 
