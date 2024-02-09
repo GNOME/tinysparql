@@ -276,6 +276,18 @@ tracker_class_get_notify (TrackerClass *service)
 	return priv->notify;
 }
 
+TrackerOntologies *
+tracker_class_get_ontologies (TrackerClass *service)
+{
+	TrackerClassPrivate *priv;
+
+	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
+
+	priv = tracker_class_get_instance_private (service);
+
+	return priv->ontologies;
+}
+
 gboolean
 tracker_class_get_db_schema_changed (TrackerClass *service)
 {

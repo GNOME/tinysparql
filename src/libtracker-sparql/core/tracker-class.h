@@ -64,6 +64,8 @@ const gchar *     tracker_class_get_ontology_path        (TrackerClass      *ser
 goffset           tracker_class_get_definition_line_no   (TrackerClass      *service);
 goffset           tracker_class_get_definition_column_no (TrackerClass      *service);
 
+TrackerOntologies * tracker_class_get_ontologies (TrackerClass *service);
+
 void              tracker_class_set_uri                (TrackerClass        *service,
                                                         const gchar         *value);
 void              tracker_class_add_super_class        (TrackerClass        *service,
