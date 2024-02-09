@@ -102,27 +102,6 @@ tracker_data_query_resource_id (TrackerDataManager  *manager,
 	return id;
 }
 
-TrackerDBCursor *
-tracker_data_query_sparql_cursor (TrackerDataManager  *manager,
-                                  const gchar         *query,
-                                  GError             **error)
-{
-	TrackerSparql *sparql_query;
-	TrackerSparqlCursor *cursor;
-
-	g_return_val_if_fail (query != NULL, NULL);
-
-	sparql_query = tracker_sparql_new (manager, query, error);
-	if (!sparql_query)
-		return NULL;
-
-	cursor = tracker_sparql_execute_cursor (sparql_query, NULL, error);
-
-	g_object_unref (sparql_query);
-
-	return TRACKER_DB_CURSOR (cursor);
-}
-
 gboolean
 tracker_data_query_string_to_value (TrackerDataManager   *manager,
                                     const gchar          *value,
