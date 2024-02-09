@@ -177,8 +177,7 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              &internal_error,
-	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"nrl:Ontology\".ID), "
-	                                              "       \"nrl:lastModified\" "
+	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"nrl:Ontology\".ID) "
 	                                              "FROM \"nrl:Ontology\"");
 
 	if (stmt) {
@@ -190,16 +189,13 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 		while (tracker_sparql_cursor_next (cursor, NULL, &internal_error)) {
 			TrackerOntology *ontology;
 			const gchar *uri;
-			gint64 last_mod;
 
 			ontology = tracker_ontology_new ();
 			tracker_ontology_set_ontologies (ontology, ontologies);
 
 			uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-			last_mod = tracker_sparql_cursor_get_integer (cursor, 1);
 
 			tracker_ontology_set_uri (ontology, uri);
-			tracker_ontology_set_last_modified (ontology, last_mod);
 			tracker_ontologies_add_ontology (ontologies, ontology);
 
 			g_object_unref (ontology);

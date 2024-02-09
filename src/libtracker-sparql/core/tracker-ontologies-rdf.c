@@ -413,29 +413,6 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		                                           TRACKER_RDF_COL_OBJECT,
 		                                           NULL);
 		tracker_namespace_set_prefix (namespace, prefix);
-	} else if (g_strcmp0 (predicate, NRL_LAST_MODIFIED) == 0) {
-		TrackerOntology *ontology;
-		GDateTime *datetime;
-
-		ontology = tracker_ontologies_get_ontology_by_uri (ontologies, subject);
-		if (ontology == NULL) {
-			print_parsing_error (rdf, file, "Unknown ontology %s", subject);
-			return FALSE;
-		}
-
-		datetime = tracker_sparql_cursor_get_datetime (TRACKER_SPARQL_CURSOR (rdf),
-		                                               TRACKER_RDF_COL_OBJECT);
-
-		if (!datetime) {
-			print_parsing_error (rdf, file, "error parsing nrl:lastModified: %s",
-			                     tracker_sparql_cursor_get_string (TRACKER_SPARQL_CURSOR (rdf),
-			                                                       TRACKER_RDF_COL_OBJECT,
-			                                                       NULL));
-			return FALSE;
-		}
-
-		tracker_ontology_set_last_modified (ontology, g_date_time_to_unix (datetime));
-		g_date_time_unref (datetime);
 	}
 
 	return !had_error;
