@@ -2967,7 +2967,7 @@ tracker_data_insert_statement_with_uri (TrackerData      *data,
                                         GError          **error)
 {
 	GError          *actual_error = NULL;
-	TrackerClass    *class;
+	TrackerClass    *class = NULL;
 	TrackerRowid prop_id = 0;
 	gboolean change = FALSE;
 	TrackerOntologies *ontologies;
@@ -2995,15 +2995,23 @@ tracker_data_insert_statement_with_uri (TrackerData      *data,
 		object_id = g_value_get_int64 (object);
 		object_str = tracker_ontologies_get_uri_by_id (ontologies, object_id);
 
+		if (object_str)
+			class = tracker_ontologies_get_class_by_uri (ontologies, object_str);
+
 		/* handle rdf:type statements specially to
 		   cope with inference and insert blank rows */
-		class = tracker_ontologies_get_class_by_uri (ontologies, object_str);
 		if (class != NULL) {
 			if (!cache_create_service_decomposed (data, class, error))
 				return;
 		} else {
+			gchar *id;
+
+			id = tracker_data_query_resource_urn (data->manager,
+			                                      tracker_data_manager_get_writable_db_interface (data->manager),
+			                                      object_id);
 			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_CLASS,
-			             "Class '%s' not found in the ontology", object_str);
+			             "Class '%s' not found in the ontology", id);
+			g_free (id);
 			return;
 		}
 	} else {
