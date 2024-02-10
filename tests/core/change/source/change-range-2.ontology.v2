@@ -11,7 +11,7 @@ example: a nrl:Namespace, nrl:Ontology ;
 example:A a rdfs:Class ;
 	rdfs:subClassOf rdfs:Resource .
 
-example:unique1 a rdf:Property, nrl:InverseFunctionalProperty ;
-	nrl:maxCardinality 1 ;
+# Change range of multi-valued property
+example:int1 a rdf:Property ;
 	rdfs:domain example:A ;
-	rdfs:range xsd:integer .
+	rdfs:range xsd:string .

@@ -1,0 +1,3 @@
+"http://example/a01"	"http://www.w3.org/2001/XMLSchema#string"	"42"
+"http://example/a01"	"http://www.w3.org/2001/XMLSchema#string"	"foo"
+"http://example/a02"	"http://www.w3.org/2001/XMLSchema#string"	"44"

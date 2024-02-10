@@ -1,0 +1,1 @@
+insert data { example:b01 a example:B . example:a01 a example:A ; example:p1 example:b01 }

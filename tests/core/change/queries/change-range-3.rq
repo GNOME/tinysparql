@@ -1,0 +1,1 @@
+select ?u (DATATYPE(?b) AS ?d) ?b { ?u a example:DomA ; example:i1 ?b } order by ?u ?b
