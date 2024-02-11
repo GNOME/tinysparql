@@ -35,6 +35,8 @@
 #include "tracker-sparql.h"
 #include "tracker-color.h"
 
+#define LINK_STR "[🡕]" /* NORTH EAST SANS-SERIF ARROW, in consistence with systemd */
+
 #define SPARQL_OPTIONS_ENABLED() \
 	(list_classes || \
 	 list_class_prefixes || \
@@ -66,7 +68,7 @@ struct _NodeFindData {
 };
 
 struct _NodePrintData {
-	GHashTable *prefixes;
+	TrackerNamespaceManager *namespaces;
 	GHashTable  *filter_parents;
 	const gchar *highlight_text;
 };
@@ -104,6 +106,7 @@ static gchar *search;
 static gchar *database_path;
 static gchar *dbus_service;
 static gchar *remote_service;
+static gchar **args;
 
 static GOptionEntry entries[] = {
 	{ "database", 'd', 0, G_OPTION_ARG_FILENAME, &database_path,
@@ -170,6 +173,10 @@ static GOptionEntry entries[] = {
 	  N_("Returns the full namespace for a class."),
 	  N_("CLASS"),
 	},
+	{ "arg", 'a', 0, G_OPTION_ARG_STRING_ARRAY, &args,
+	  N_("Provides an argument for a query parameter."),
+	  N_("PARAMETER:TYPE:VALUE"),
+	},
 	{ NULL }
 };
 
@@ -199,118 +206,6 @@ create_connection (GError **error)
 		g_printerr ("%s\n", _("Specify one “--database”, “--dbus-service” or “--remote-service” option"));
 		exit (EXIT_FAILURE);
 	}
-}
-
-GHashTable *
-tracker_sparql_get_prefixes (TrackerSparqlConnection *connection)
-{
-	TrackerSparqlCursor *cursor;
-	GError *error = NULL;
-	GHashTable *retval;
-	const gchar *query;
-
-	retval = g_hash_table_new_full (g_str_hash,
-	                                g_str_equal,
-	                                g_free,
-	                                g_free);
-
-	/* FIXME: Would like to get this in the same SPARQL that we
-	 * use to get the info, but doesn't seem possible at the
-	 * moment with the limited string manipulation features we
-	 * support in SPARQL.
-	 */
-	query = "SELECT ?ns ?prefix "
-	        "WHERE {"
-	        "  ?ns a nrl:Namespace ;"
-	        "  nrl:prefix ?prefix "
-	        "}";
-
-	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-
-	if (error) {
-		g_printerr ("%s, %s\n",
-			    _("Unable to retrieve namespace prefixes"),
-			    error->message);
-
-		g_error_free (error);
-		return retval;
-	}
-
-	if (!cursor) {
-		g_printerr ("%s\n", _("No namespace prefixes were returned"));
-		return retval;
-	}
-
-	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		const gchar *key, *value;
-
-		key = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-		value = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-
-		if (!key || !value) {
-			continue;
-		}
-
-		g_hash_table_insert (retval,
-		                     g_strndup (key, strlen (key) - 1),
-		                     g_strdup (value));
-	}
-
-	if (cursor) {
-		g_object_unref (cursor);
-	}
-
-	return retval;
-}
-
-static gchar *
-get_class_from_prefix (TrackerSparqlConnection *connection,
-                       const gchar             *prefix)
-{
-	GError *error = NULL;
-	TrackerSparqlCursor *cursor;
-	const gchar *query;
-	gchar *found = NULL;
-
-	query = "SELECT ?prefix ?ns "
-		"WHERE {"
-		"  ?ns a nrl:Namespace ;"
-		"  nrl:prefix ?prefix "
-		"}";
-
-	/* We have namespace prefix, get full name */
-	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-
-	if (error) {
-		g_printerr ("%s, %s\n",
-		            _("Could not get namespace prefixes"),
-		            error->message);
-		g_error_free (error);
-
-		return NULL;
-	}
-
-	if (!cursor) {
-		g_printerr ("%s\n",
-		            _("No namespace prefixes were found"));
-
-		return NULL;
-	}
-
-	while (tracker_sparql_cursor_next (cursor, NULL, NULL) && !found) {
-		const gchar *class_prefix, *class_name;
-
-		class_prefix = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-		class_name = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-
-		if (strcmp (class_prefix, prefix) == 0) {
-			found = g_strdup (class_name);
-		}
-	}
-
-	g_object_unref (cursor);
-
-	return found;
 }
 
 static gboolean
@@ -373,71 +268,9 @@ parse_tree (const gchar  *option_name,
 	return TRUE;
 }
 
-gchar *
-tracker_sparql_get_longhand (GHashTable  *prefixes,
-                             const gchar *shorthand)
-{
-	gchar *colon, *namespace;
-
-	namespace = g_strdup (shorthand);
-	colon = strrchr (namespace, ':');
-
-	if (colon) {
-		GHashTableIter iter;
-		gpointer key, value;
-		gchar *property;
-		const gchar *prefix = NULL;
-
-		property = colon + 1;
-		*colon = '\0';
-
-		g_hash_table_iter_init (&iter, prefixes);
-		while (g_hash_table_iter_next (&iter, &key, &value)) {
-			if (strcmp (namespace, value) == 0) {
-				prefix = key;
-				break;
-			}
-		}
-
-		if (prefix) {
-			gchar *retval;
-
-			retval = g_strdup_printf ("%s#%s", prefix, property);
-			g_free (namespace);
-
-			return retval;
-		}
-	}
-
-	return namespace;
-}
-
-gchar *
-tracker_sparql_get_shorthand (GHashTable  *prefixes,
-                              const gchar *longhand)
-{
-	gchar *hash;
-
-	hash = strrchr (longhand, '#');
-
-	if (hash) {
-		gchar *property;
-		const gchar *prefix;
-
-		property = hash + 1;
-		*hash = '\0';
-
-		prefix = g_hash_table_lookup (prefixes, longhand);
-
-		return g_strdup_printf ("%s:%s", prefix, property);
-	}
-
-	return g_strdup (longhand);
-}
-
 static gchar *
-get_shorthand_str_for_offsets (GHashTable  *prefixes,
-                               const gchar *str)
+get_shorthand_str_for_offsets (TrackerNamespaceManager *namespaces,
+                               const gchar             *str)
 {
 	GString *result = NULL;
 	gchar **properties;
@@ -465,11 +298,8 @@ get_shorthand_str_for_offsets (GHashTable  *prefixes,
 			continue;
 		}
 
-		shorthand = tracker_sparql_get_shorthand (prefixes, property);
-
-		if (!shorthand) {
-			shorthand = g_strdup (property);
-		}
+		shorthand = tracker_namespace_manager_compress_uri (namespaces,
+		                                                    property);
 
 		if (!result) {
 			result = g_string_new ("");
@@ -488,7 +318,6 @@ get_shorthand_str_for_offsets (GHashTable  *prefixes,
 
 static void
 print_cursor_with_ftsoffsets (TrackerSparqlCursor *cursor,
-                              GHashTable          *prefixes,
                               const gchar         *none_found,
                               const gchar         *heading,
                               gboolean             only_first_col)
@@ -496,9 +325,14 @@ print_cursor_with_ftsoffsets (TrackerSparqlCursor *cursor,
 	if (!cursor) {
 		g_print ("%s\n", none_found);
 	} else {
+		TrackerSparqlConnection *conn;
+		TrackerNamespaceManager *namespaces;
 		gint count = 0;
 
 		g_print ("%s:\n", heading);
+
+		conn = tracker_sparql_cursor_get_connection (cursor);
+		namespaces = tracker_sparql_connection_get_namespace_manager (conn);
 
 		if (only_first_col) {
 			while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
@@ -506,7 +340,7 @@ print_cursor_with_ftsoffsets (TrackerSparqlCursor *cursor,
 				gchar *shorthand;
 
 				str = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-				shorthand = get_shorthand_str_for_offsets (prefixes, str);
+				shorthand = get_shorthand_str_for_offsets (namespaces, str);
 				g_print ("  %s\n", shorthand ? shorthand : str);
 				g_free (shorthand);
 				count++;
@@ -520,7 +354,7 @@ print_cursor_with_ftsoffsets (TrackerSparqlCursor *cursor,
 					gchar *shorthand;
 
 					str = tracker_sparql_cursor_get_string (cursor, col, NULL);
-					shorthand = get_shorthand_str_for_offsets (prefixes, str);
+					shorthand = get_shorthand_str_for_offsets (namespaces, str);
 					g_print ("%c %s",
 					         col == 0 ? ' ' : ',',
 					         shorthand ? shorthand : str);
@@ -860,11 +694,30 @@ highlight (const gchar *text,
 	return g_string_free (s, FALSE);
 }
 
+static void
+print_link (const gchar *url)
+{
+	g_print ("\x1B]8;;%s\a" LINK_STR "\x1B]8;;\a", url);
+}
+
+static GNode *
+get_nth_parent (GNode *node,
+                int    n)
+{
+	while (n && node) {
+		node = node->parent;
+		n--;
+	}
+
+	return node;
+}
+
 static inline void
-tree_print_properties (NodeData      *nd,
+tree_print_properties (GNode         *node,
                        NodePrintData *pd,
                        gint           depth)
 {
+	NodeData *nd = node->data;
 	GSList *l;
 
 	/* Sort first */
@@ -872,16 +725,42 @@ tree_print_properties (NodeData      *nd,
 
 	/* Print properties */
 	for (l = nd->properties; l; l = l->next) {
-		gchar *highlighted;
+		gchar *compressed, *highlighted;
 		gint i;
 
-		for (i = 1; i < depth; i++) {
-			g_print ("  |");
+		compressed = tracker_namespace_manager_compress_uri (pd->namespaces, l->data);
+
+		for (i = 1; i <= depth; i++) {
+			gboolean has_next;
+
+			if (i == depth) {
+				has_next = node->children != NULL;
+			} else {
+				GNode *parent;
+
+				parent = get_nth_parent (node, depth - i - 1);
+				has_next = parent && parent->next;
+			}
+
+			if (has_next)
+				g_print ("  │");
+			else
+				g_print ("   ");
 		}
 
-		highlighted = highlight (l->data, pd->highlight_text);
-		g_print ("  --> %s (P)\n", (gchar*) highlighted);
+		highlighted = highlight (compressed, pd->highlight_text);
+
+		if (l->next)
+			g_print ("  ┣");
+		else
+			g_print ("  ┗");
+
+		g_print ("━ %s", (gchar*) highlighted);
+		if (g_str_has_prefix (l->data, "http"))
+			print_link (l->data);
+		g_print ("\n");
 		g_free (highlighted);
+		g_free (compressed);
 	}
 }
 
@@ -900,10 +779,8 @@ tree_print_foreach (GNode    *node,
 	nd = node->data;
 	pd = user_data;
 
-	if (!nd) {
-		g_print ("ROOT\n");
+	if (!nd)
 		return FALSE;
-	}
 
 	/* Filter based on parent classes */
 	if (pd->filter_parents) {
@@ -914,50 +791,55 @@ tree_print_foreach (GNode    *node,
 		return FALSE;
 	}
 
-	shorthand = NULL;
-
-	if (pd->prefixes) {
-		shorthand = tracker_sparql_get_shorthand (pd->prefixes, nd->class);
-	}
+	shorthand = tracker_namespace_manager_compress_uri (pd->namespaces, nd->class);
 
 	depth = g_node_depth (node);
 
 	for (i = 1; i < depth; i++) {
 		if (i == depth - 1) {
-			const gchar *branch = "+";
+			const gchar *branch = "├";
 
 			if (!node->next) {
-				branch = "`";
+				branch = "╰";
 			} else if (G_NODE_IS_LEAF (node)) {
-				branch = "|";
+				branch = "├";
 			}
 
 			g_print ("  %s", branch);
 		} else {
-			g_print ("  |");
+			GNode *parent;
+
+			parent = get_nth_parent (node, depth - i - 1);
+			if (parent && parent->next)
+				g_print ("  │");
+			else
+				g_print ("   ");
 		}
 	}
 
 	text = shorthand ? shorthand : nd->class;
 	highlighted = highlight (text, pd->highlight_text);
-	g_print ("-- %s (C)\n", highlighted);
+	g_print ("─ %s", highlighted);
+	if (g_str_has_prefix (nd->class, "http"))
+		print_link (nd->class);
+	g_print ("\n");
 	g_free (highlighted);
 	g_free (shorthand);
 
-	tree_print_properties (nd, pd, depth);
+	tree_print_properties (node, pd, depth);
 
 	return FALSE;
 }
 
 static void
-tree_print (GNode       *node,
-            GHashTable  *prefixes,
-            GHashTable  *filter_parents,
-            const gchar *highlight_text)
+tree_print (GNode                   *node,
+            TrackerNamespaceManager *namespaces,
+            GHashTable              *filter_parents,
+            const gchar             *highlight_text)
 {
 	NodePrintData data;
 
-	data.prefixes = prefixes;
+	data.namespaces = namespaces;
 	data.filter_parents = filter_parents;
 	data.highlight_text = highlight_text;
 
@@ -969,34 +851,48 @@ tree_print (GNode       *node,
 	                 &data);
 }
 
+static TrackerSparqlStatement *
+load_statement (TrackerSparqlConnection  *conn,
+                const gchar              *filename)
+{
+	TrackerSparqlStatement *stmt;
+	gchar *path;
+	GError *error = NULL;
+
+	path = g_strconcat ("/org/freedesktop/tracker/sparql/", filename, NULL);
+	stmt = tracker_sparql_connection_load_statement_from_gresource (conn,
+	                                                                path,
+	                                                                NULL, &error);
+	g_free (path);
+
+	g_assert_no_error (error);
+
+	return stmt;
+}
+
 static gint
 tree_get (TrackerSparqlConnection *connection,
           const gchar             *class_lookup,
           const gchar             *highlight_text)
 {
 	TrackerSparqlCursor *cursor;
-	GHashTable *prefixes;
+	TrackerNamespaceManager *namespaces;
+	TrackerSparqlStatement *stmt;
 	GHashTable *filter_parents;
 	GError *error = NULL;
-	gchar *query;
 	gchar *class_lookup_longhand;
 	GNode *root, *found_node, *node;
 
 	root = tree_new ();
 
-	/* Get shorthand prefixes for printing / filtering */
-	prefixes = tracker_sparql_get_prefixes (connection);
+	namespaces = tracker_sparql_connection_get_namespace_manager (connection);
 
-	/* Is class_lookup a shothand string, e.g. nfo:FileDataObject? */
-	if (class_lookup && *class_lookup && strchr (class_lookup, ':')) {
-		class_lookup_longhand = tracker_sparql_get_longhand (prefixes, class_lookup);
-	} else {
-		class_lookup_longhand = g_strdup (class_lookup);
-	}
+	class_lookup_longhand = tracker_namespace_manager_expand_uri (namespaces,
+	                                                              class_lookup);
 
-	/* Get subclasses of classes, using longhand */
-	query = "SELECT ?p ?c WHERE { ?c a rdfs:Class . OPTIONAL { ?c rdfs:subClassOf ?p } }";
-	cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+	stmt = load_statement (connection, "get-class-hierarchy.rq");
+	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+	g_object_unref (stmt);
 
 	if (error) {
 		g_printerr ("%s, %s\n",
@@ -1043,9 +939,9 @@ tree_get (TrackerSparqlConnection *connection,
 	if (list_properties) {
 		TrackerSparqlCursor *properties;
 
-		query = "SELECT ?c ?p WHERE { ?p rdf:type rdf:Property ; rdfs:domain ?c }";
-
-		properties = tracker_sparql_connection_query (connection, query, NULL, &error);
+		stmt = load_statement (connection, "get-properties.rq");
+		properties = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1060,10 +956,6 @@ tree_get (TrackerSparqlConnection *connection,
 				g_hash_table_unref (filter_parents);
 			}
 
-			if (prefixes) {
-				g_hash_table_unref (prefixes);
-			}
-
 			if (cursor) {
 				g_object_unref (cursor);
 			}
@@ -1074,11 +966,8 @@ tree_get (TrackerSparqlConnection *connection,
 		while (tracker_sparql_cursor_next (properties, NULL, NULL)) {
 			const gchar *class = tracker_sparql_cursor_get_string (properties, 0, NULL);
 			const gchar *property = tracker_sparql_cursor_get_string (properties, 1, NULL);
-			gchar *property_lookup_shorthand;
 
-			property_lookup_shorthand = tracker_sparql_get_shorthand (prefixes, property);
-			tree_add_property (root, class, property_lookup_shorthand);
-			g_free (property_lookup_shorthand);
+			tree_add_property (root, class, property);
 		}
 
 		if (properties) {
@@ -1089,14 +978,10 @@ tree_get (TrackerSparqlConnection *connection,
 	g_free (class_lookup_longhand);
 
 	/* Print */
-	tree_print (root, prefixes, filter_parents, highlight_text);
+	tree_print (root, namespaces, filter_parents, highlight_text);
 
 	if (filter_parents) {
 		g_hash_table_unref (filter_parents);
-	}
-
-	if (prefixes) {
-		g_hash_table_unref (prefixes);
 	}
 
 	if (cursor) {
@@ -1108,11 +993,81 @@ tree_get (TrackerSparqlConnection *connection,
 	return EXIT_SUCCESS;
 }
 
+static void
+print_namespaces (gpointer key,
+                  gpointer value,
+                  gpointer user_data)
+{
+	g_print ("%s: %s\n", (gchar*) key, (gchar*) value);
+}
+
+static gboolean
+bind_arguments (TrackerSparqlStatement  *stmt,
+                gchar                  **args)
+{
+	int i;
+
+	for (i = 0; args && args[i]; i++) {
+		gchar **pair;
+
+		pair = g_strsplit (args[i], ":", 3);
+		if (g_strv_length (pair) != 3) {
+			g_printerr (_("Invalid argument string %s"), args[i]);
+			g_printerr ("\n");
+			return FALSE;
+		}
+
+		if (strlen (pair[1]) != 1 ||
+		    (pair[1][0] != 'i' &&
+		     pair[1][0] != 'd' &&
+		     pair[1][0] != 'b' &&
+		     pair[1][0] != 's')) {
+			g_printerr (_("Invalid parameter type for argument %s"), pair[0]);
+			g_printerr ("\n");
+			g_strfreev (pair);
+			return FALSE;
+		}
+
+		switch (pair[1][0]) {
+		case 'i': {
+			gint64 val;
+
+			val = strtol (pair[2], NULL, 10);
+			tracker_sparql_statement_bind_int (stmt, pair[0], val);
+			break;
+		}
+		case 'd': {
+			gdouble val;
+
+			val = strtod (pair[2], NULL);
+			tracker_sparql_statement_bind_int (stmt, pair[0], val);
+			break;
+		}
+		case 'b': {
+			gboolean val;
+
+			val = pair[2][0] == 't' || pair[2][0] == 'T' || pair[2][0] == '1';
+			tracker_sparql_statement_bind_boolean (stmt, pair[0], val);
+			break;
+		}
+		case 's':
+			tracker_sparql_statement_bind_string (stmt, pair[0], pair[2]);
+			break;
+		}
+
+		g_strfreev (pair);
+	}
+
+	return TRUE;
+}
+
 static int
 sparql_run (void)
 {
 	TrackerSparqlConnection *connection;
-	TrackerSparqlCursor *cursor;
+	TrackerNamespaceManager *namespaces;
+	TrackerSparqlStatement *stmt;
+	TrackerSparqlCursor *cursor = NULL;
 	GError *error = NULL;
 	gint retval = EXIT_SUCCESS;
 
@@ -1126,13 +1081,14 @@ sparql_run (void)
 		return EXIT_FAILURE;
 	}
 
+	namespaces = tracker_sparql_connection_get_namespace_manager (connection);
+
 	tracker_term_pipe_to_pager ();
 
 	if (list_classes) {
-		const gchar *query;
-
-		query = "SELECT ?c WHERE { ?c a rdfs:Class }";
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+		stmt = load_statement (connection, "get-classes.rq");
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1148,81 +1104,21 @@ sparql_run (void)
 	}
 
 	if (list_class_prefixes) {
-		const gchar *query;
-
-		query = "SELECT ?prefix ?ns "
-		        "WHERE {"
-		        "  ?ns a nrl:Namespace ;"
-		        "  nrl:prefix ?prefix "
-		        "}";
-
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-
-		if (error) {
-			g_printerr ("%s, %s\n",
-			            _("Could not list class prefixes"),
-			            error->message);
-			g_error_free (error);
-			g_object_unref (connection);
-			retval = EXIT_FAILURE;
-			goto out;
-		}
-
-		print_cursor (cursor, _("No class prefixes were found"), _("Prefixes"), FALSE);
+		tracker_namespace_manager_foreach (namespaces,
+		                                   print_namespaces,
+		                                   NULL);
 	}
 
 	if (list_properties && list_properties[0] != '\0') {
-		gchar *query;
 		gchar *class_name;
 
-		if (g_str_has_prefix (list_properties, "http://")) {
-			/* We have full class name */
-			class_name = g_strdup (list_properties);
-		} else {
-			gchar *p;
-			gchar *prefix, *property;
-			gchar *class_name_no_property;
+		class_name = tracker_namespace_manager_expand_uri (namespaces,
+		                                                   list_properties);
 
-			prefix = g_strdup (list_properties);
-			p = strchr (prefix, ':');
-
-			if (!p) {
-				g_printerr ("%s\n",
-				            _("Could not find property for class prefix, "
-				              "e.g. :Resource in “rdfs:Resource”"));
-				g_free (prefix);
-				g_object_unref (connection);
-
-				return EXIT_FAILURE;
-			}
-
-			property = g_strdup (p + 1);
-			*p = '\0';
-
-			class_name_no_property = get_class_from_prefix (connection, prefix);
-			g_free (prefix);
-
-			if (!class_name_no_property) {
-				g_free (property);
-				g_object_unref (connection);
-				retval = EXIT_FAILURE;
-				goto out;
-			}
-
-			class_name = g_strconcat (class_name_no_property, property, NULL);
-			g_free (class_name_no_property);
-			g_free (property);
-		}
-
-		query = g_strdup_printf ("SELECT ?p "
-		                         "WHERE {"
-		                         "  ?p a rdf:Property ;"
-		                         "  rdfs:domain <%s>"
-		                         "}",
-		                         class_name);
-
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-		g_free (query);
+		stmt = load_statement (connection, "get-properties-for-class.rq");
+		tracker_sparql_statement_bind_string (stmt, "class", class_name);
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 		g_free (class_name);
 
 		if (error) {
@@ -1239,27 +1135,15 @@ sparql_run (void)
 	}
 
 	if (list_notifies) {
-		gchar *query;
-
-		/* First list classes */
 		if (*list_notifies == '\0') {
-			query = g_strdup_printf ("SELECT ?c "
-			                         "WHERE {"
-			                         "  ?c a rdfs:Class ."
-			                         "  ?c nrl:notify true ."
-			                         "}");
+			stmt = load_statement (connection, "get-notify-properties.rq");
 		} else {
-			query = g_strdup_printf ("SELECT ?c "
-			                         "WHERE {"
-			                         "  ?c a rdfs:Class ."
-			                         "  ?c nrl:notify true "
-			                         "  FILTER regex (?c, \"%s\", \"i\") "
-			                         "}",
-			                         list_notifies);
+			stmt = load_statement (connection, "get-notify-properties-match.rq");
+			tracker_sparql_statement_bind_string (stmt, "match", list_notifies);
 		}
 
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-		g_free (query);
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1275,25 +1159,15 @@ sparql_run (void)
 	}
 
 	if (list_indexes) {
-		gchar *query;
-
-		/* First list classes */
 		if (*list_indexes == '\0') {
-			query = g_strdup_printf ("SELECT ?p "
-			                         "WHERE {"
-			                         "  ?p nrl:indexed true ."
-			                         "}");
+			stmt = load_statement (connection, "get-indexed-properties.rq");
 		} else {
-			query = g_strdup_printf ("SELECT ?p "
-			                         "WHERE {"
-			                         "  ?p nrl:indexed true "
-			                         "  FILTER regex (?p, \"%s\", \"i\") "
-			                         "}",
-			                         list_indexes);
+			stmt = load_statement (connection, "get-indexed-properties-match.rq");
+			tracker_sparql_statement_bind_string (stmt, "match", list_indexes);
 		}
 
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-		g_free (query);
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1309,15 +1183,9 @@ sparql_run (void)
 	}
 
 	if (list_graphs) {
-		const gchar *query;
-
-		/* First list classes */
-		query = g_strdup_printf ("SELECT DISTINCT ?g "
-		                         "WHERE {"
-		                         "  GRAPH ?g { ?s ?p ?o }"
-		                         "}");
-
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
+		stmt = load_statement (connection, "get-graphs.rq");
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1338,17 +1206,11 @@ sparql_run (void)
 	}
 
 	if (search) {
-		gchar *query;
-
 		/* First list classes */
-		query = g_strdup_printf ("SELECT ?c "
-		                         "WHERE {"
-		                         "  ?c a rdfs:Class"
-		                         "  FILTER regex (?c, \"%s\", \"i\") "
-		                         "}",
-		                         search);
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-		g_free (query);
+		stmt = load_statement (connection, "get-classes-match.rq");
+		tracker_sparql_statement_bind_string (stmt, "match", search);
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1363,15 +1225,10 @@ sparql_run (void)
 		print_cursor (cursor, _("No classes were found to match search term"), _("Classes"), TRUE);
 
 		/* Second list properties */
-		query = g_strdup_printf ("SELECT ?p "
-		                         "WHERE {"
-		                         "  ?p a rdf:Property"
-		                         "  FILTER regex (?p, \"%s\", \"i\") "
-		                         "}",
-		                         search);
-
-		cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
-		g_free (query);
+		stmt = load_statement (connection, "get-properties-match.rq");
+		tracker_sparql_statement_bind_string (stmt, "match", search);
+		cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
+		g_object_unref (stmt);
 
 		if (error) {
 			g_printerr ("%s, %s\n",
@@ -1387,29 +1244,21 @@ sparql_run (void)
 	}
 
 	if (get_shorthand) {
-		GHashTable *prefixes = tracker_sparql_get_prefixes (connection);
 		gchar *result;
 
-		result = tracker_sparql_get_shorthand (prefixes, get_shorthand);
+		result = tracker_namespace_manager_compress_uri (namespaces,
+		                                                 get_shorthand);
 		g_print ("%s\n", result);
 		g_free (result);
-
-		if (prefixes) {
-			g_hash_table_unref (prefixes);
-		}
 	}
 
 	if (get_longhand) {
-		GHashTable *prefixes = tracker_sparql_get_prefixes (connection);
 		gchar *result;
 
-		result = tracker_sparql_get_longhand (prefixes, get_longhand);
+		result = tracker_namespace_manager_expand_uri (namespaces,
+		                                               get_longhand);
 		g_print ("%s\n", result);
 		g_free (result);
-
-		if (prefixes) {
-			g_hash_table_unref (prefixes);
-		}
 	}
 
 	if (file) {
@@ -1447,7 +1296,19 @@ sparql_run (void)
 
 	if (query) {
 		if (G_UNLIKELY (update)) {
-			tracker_sparql_connection_update (connection, query, NULL, &error);
+			stmt = tracker_sparql_connection_update_statement (connection,
+			                                                   query,
+			                                                   NULL,
+			                                                   &error);
+
+			if (stmt) {
+				if (!bind_arguments (stmt, args)) {
+					retval = EXIT_FAILURE;
+					goto out;
+				}
+
+				tracker_sparql_statement_update (stmt, NULL, &error);
+			}
 
 			if (error) {
 				g_printerr ("%s, %s\n",
@@ -1459,43 +1320,20 @@ sparql_run (void)
 			}
 
 			g_print ("%s\n", _("Done"));
-
-#if 0
-			if (results) {
-				GPtrArray *insert;
-				GHashTable *solution;
-				GHashTableIter iter;
-				gpointer key, value;
-				gint i, s, n;
-
-				for (i = 0; i < results->len; i++) {
-					insert = results->pdata[i];
-
-					for (s = 0; s < insert->len; s++) {
-						solution = insert->pdata[s];
-
-						g_hash_table_iter_init (&iter, solution);
-						n = 0;
-						while (g_hash_table_iter_next (&iter, &key, &value)) {
-							g_print ("%s%s: %s",
-							         n > 0 ? ", " : "",
-							         (const gchar *) key,
-							         (const gchar *) value);
-							n++;
-						}
-						g_print ("\n");
-					}
-				}
-			}
-#endif
 		} else {
-			GHashTable *prefixes = NULL;
+			stmt = tracker_sparql_connection_query_statement (connection,
+			                                                  query,
+			                                                  NULL,
+			                                                  &error);
 
-			if (strstr (query, "fts:offsets")) {
-				prefixes = tracker_sparql_get_prefixes (connection);
+			if (stmt) {
+				if (!bind_arguments (stmt, args)) {
+					retval = EXIT_FAILURE;
+					goto out;
+				}
+
+				cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
 			}
-
-			cursor = tracker_sparql_connection_query (connection, query, NULL, &error);
 
 			if (error) {
 				g_printerr ("%s, %s\n",
@@ -1503,20 +1341,14 @@ sparql_run (void)
 				            error->message);
 				g_error_free (error);
 
-				if (prefixes) {
-					g_hash_table_unref (prefixes);
-				}
-
 				retval = EXIT_FAILURE;
 				goto out;
 			}
 
-			if (G_UNLIKELY (prefixes)) {
-				print_cursor_with_ftsoffsets (cursor, prefixes, _("No results found matching your query"), _("Results"), FALSE);
-				g_hash_table_unref (prefixes);
-			} else {
+			if (G_UNLIKELY (strstr (query, "fts:offsets")))
+				print_cursor_with_ftsoffsets (cursor, _("No results found matching your query"), _("Results"), FALSE);
+			else
 				print_cursor (cursor, _("No results found matching your query"), _("Results"), FALSE);
-			}
 		}
 	}
 

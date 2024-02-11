@@ -1,0 +1,5 @@
+SELECT ?c {
+  ?c a rdfs:Class ;
+     nrl:notify true .
+  FILTER regex (?c, ~match, 'i')
+}

@@ -1,0 +1,4 @@
+SELECT ?p {
+  ?p a rdf:Property .
+  FILTER regex (?p, ~match, 'i') .
+}

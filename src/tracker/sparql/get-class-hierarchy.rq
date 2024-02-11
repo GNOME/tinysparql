@@ -1,0 +1,4 @@
+SELECT ?p ?c {
+  ?c a rdfs:Class .
+  OPTIONAL { ?c rdfs:subClassOf ?p }
+}

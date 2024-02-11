@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/freedesktop/tracker">
+    <file>sparql/get-graphs.rq</file>
+    <file>sparql/get-class-hierarchy.rq</file>
+    <file>sparql/get-classes.rq</file>
+    <file>sparql/get-classes-match.rq</file>
+    <file>sparql/get-indexed-properties.rq</file>
+    <file>sparql/get-indexed-properties-match.rq</file>
+    <file>sparql/get-notify-properties.rq</file>
+    <file>sparql/get-notify-properties-match.rq</file>
+    <file>sparql/get-properties.rq</file>
+    <file>sparql/get-properties-match.rq</file>
+    <file>sparql/get-properties-for-class.rq</file>
+  </gresource>
+</gresources>

@@ -1,0 +1,3 @@
+SELECT DISTINCT ?g {
+  GRAPH ?g { }
+}

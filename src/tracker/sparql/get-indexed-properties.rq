@@ -1,0 +1,3 @@
+SELECT ?p {
+  ?p nrl:indexed true .
+}
