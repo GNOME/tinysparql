@@ -146,7 +146,6 @@ const ChangeTest tests[] = {
 			},
 			{
 				"add-superclass-1.ontology.v2",
-				.expect_error = TRUE,
 			},
 			{ NULL }
 		},
@@ -215,7 +214,6 @@ const ChangeTest tests[] = {
 			},
 			{
 				"add-superproperty-1.ontology.v2",
-				.expect_error = TRUE,
 			},
 			{ NULL }
 		},
@@ -356,8 +354,6 @@ const ChangeTest tests[] = {
 			},
 			{
 				"add-inverse-functional-property-1.ontology.v2",
-				/* This is ATM expected to fail */
-				.expect_error = TRUE,
 			},
 			{ NULL }
 		},
@@ -384,8 +380,6 @@ const ChangeTest tests[] = {
 			},
 			{
 				"unmake-inverse-functional-property-1.ontology.v2",
-				/* This ATM is expected to fail */
-				.expect_error = TRUE,
 			},
 			{ NULL }
 		},

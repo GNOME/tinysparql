@@ -43,7 +43,7 @@ test:a_superprop a rdf:Property ;
     rdfs:range xsd:string ;
     nrl:maxCardinality 1 .
 
-# Can't make n cardinality property as a domain index
+
 test:C a rdfs:Class ;
     nrl:domainIndex test:a_n_cardinality ;
     rdfs:subClassOf test:a . # not defined class

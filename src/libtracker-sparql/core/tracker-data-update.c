@@ -981,9 +981,9 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 
 	if (strchr (uri, ':') == NULL) {
 		g_set_error (error,
-			     TRACKER_DB_INTERFACE_ERROR,
-			     TRACKER_DB_CONSTRAINT,
-			     "«%s» is not an absolute IRI", uri);
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_CONSTRAINT,
+		             "«%s» is not an absolute IRI", uri);
 		return 0;
 	}
 
@@ -994,17 +994,19 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 	}
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	class = tracker_ontologies_get_class_by_uri (ontologies, uri);
+	if (ontologies) {
+		class = tracker_ontologies_get_class_by_uri (ontologies, uri);
 
-	/* Fast path, look up classes/properties directly */
-	if (class) {
-		id = tracker_class_get_id (class);
-	} else {
-		TrackerProperty *property;
+		/* Fast path, look up classes/properties directly */
+		if (class) {
+			id = tracker_class_get_id (class);
+		} else {
+			TrackerProperty *property;
 
-		property = tracker_ontologies_get_property_by_uri (ontologies, uri);
-		if (property)
-			id = tracker_property_get_id (property);
+			property = tracker_ontologies_get_property_by_uri (ontologies, uri);
+			if (property)
+				id = tracker_property_get_id (property);
+		}
 	}
 
 	if (id != 0) {

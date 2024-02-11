@@ -880,7 +880,6 @@ class SuperclassAdditionTest(OntologyChangeTestTemplate):
     """
 
     # Changes to rdfs:subClassOf are not allowed
-    @ut.expectedFailure
     def test_superclass_addition(self):
         self.template_test_ontology_change()
 
