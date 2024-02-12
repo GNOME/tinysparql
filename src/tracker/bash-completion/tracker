@@ -28,6 +28,11 @@ tracker3_cmds()
 	    COMPREPLY=( $(compgen -W "$possible" -- $cur) )
 	    return 0;
 	    ;;
+	-r|--remote-service)
+	    possible=`tracker3 endpoint --list-http`
+	    COMPREPLY=( $(compgen -W "$possible" -- $cur) )
+	    return 0;
+	    ;;
 	*)
 	    ;;
     esac

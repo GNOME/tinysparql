@@ -13,6 +13,9 @@
 /* Define if we have libstemmer */
 #mesondefine HAVE_LIBSTEMMER
 
+/* Define if we have avahi */
+#mesondefine HAVE_AVAHI
+
 /* Define to 1 if you have the `statvfs64' function. */
 #mesondefine HAVE_STATVFS64
 
