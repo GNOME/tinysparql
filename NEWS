@@ -1,3 +1,18 @@
+NEW in 3.7.beta - 2024-02-12
+============================
+  * Add Avahi support to the TrackerEndpointHttp API object. This only
+    announces endpoints explicitly exposed (i.e. via code) through an HTTP
+    port and does not happen out of the box. The only currently existing
+    user of this API is the `tracker3 endpoint --http-port` CLI subcommand.
+  * There is now an --arg argument in `tracker3 sparql` subcommand
+    to assign values to parameters in queries.
+  * CLI subcommands are now split into their own executables
+  * Improvements in SPARQL handling
+  * Code cleanups and refactors
+  * Build/CI improvements
+
+Translations: uk
+
 NEW in 3.7.alpha - 2024-01-08
 =============================
   * New TrackerEndpoint access control API
