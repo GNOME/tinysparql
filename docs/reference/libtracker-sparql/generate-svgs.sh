@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 command=$1
 docs_path=$2
 

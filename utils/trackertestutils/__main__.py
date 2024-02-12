@@ -42,9 +42,12 @@ from gi.repository import GLib
 from .dconf import DConfClient
 from . import helpers
 
-# Script
-script_name = 'tracker-sandbox'
+# Script synopsis
 script_about = "Tracker Sandbox developer tool."
+# Sets a more descriptive program name than __main__, permitting the
+# tracker-miners/run-uninstalled script to override it.
+prog = os.path.basename(getattr(sys, 'orig_argv', ['python'])[0])
+script_name = "tracker-sandbox" if prog.startswith("python") else prog
 
 default_store_location = '/tmp/tracker-sandbox'
 
@@ -202,7 +205,7 @@ def argument_parser():
         def __call__(self, parser, namespace, values, option_string=None):
             setattr(namespace, self.dest, os.path.abspath(os.path.expanduser(values)))
 
-    parser = argparse.ArgumentParser(description=script_about)
+    parser = argparse.ArgumentParser(prog=script_name, description=script_about)
     parser.add_argument('--dbus-config', metavar='FILE', action=expand_path,
                         help="use a custom D-Bus config file to locate the "
                              "Tracker daemons. This can be used to run Tracker "
@@ -365,7 +368,7 @@ def main():
     if args.debug_dbus and args.dbus_session_bus:
         log.warn("The --debug-dbus flag has no effect when --dbus-session-bus is used")
 
-    shell = os.environ.get('SHELL', '/bin/bash')
+    shell = os.environ.get('SHELL', 'bash')
 
     if args.prefix is None and args.dbus_config is None:
         parser.print_help()
