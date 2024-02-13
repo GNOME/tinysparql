@@ -14,3 +14,37 @@ example:A a rdfs:Class ;
 example:int a rdf:Property ;
 	nrl:maxCardinality 1 ;
 	rdfs:range xsd:integer . # Missing domain
+
+example:string a rdf:Property ;
+	nrl:maxCardinality 1 ;
+	rdfs:domain example:A . # Missing range
+
+example:B a rdfs:Class ;
+	rdfs:subClassOf rdfs:Resource .
+
+example:sub a rdf:Property ;
+	rdfs:subPropertyOf example:string ; # Subproperty of an unrelated class
+	nrl:maxCardinality 1 ;
+	rdfs:domain example:B ;
+	rdfs:range xsd:string .
+
+example:C1 a rdfs:Class .
+example:C2 a rdfs:Class .
+example:C1 rdfs:subClassOf example:C2 .
+example:C2 rdfs:subClassOf example:C1 . # Direct circular dependency
+
+example:D1 a rdfs:Class .
+example:D2 a rdfs:Class .
+example:D3 a rdfs:Class .
+example:D1 rdfs:subClassOf example:D2 . # Indirect circular dependency
+example:D2 rdfs:subClassOf example:D3 .
+example:D3 rdfs:subClassOf example:D1 .
+
+example:E1 a rdfs:Class .
+example:E2 a rdfs:Class .
+example:E3 a rdfs:Class .
+example:E1 rdfs:subClassOf example:E2 . # Circular dependency in parent class
+example:E2 rdfs:subClassOf example:E3 .
+example:E3 rdfs:subClassOf example:E2 .
+
+example:B nrl:domainIndex example:string . # Domain index on a property not in a superclass

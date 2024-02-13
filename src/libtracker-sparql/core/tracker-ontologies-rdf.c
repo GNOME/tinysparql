@@ -444,43 +444,174 @@ load_ontology_rdf (TrackerOntologies    *ontologies,
 	return TRUE;
 }
 
-static void
-check_properties_completeness (TrackerOntologies  *ontologies,
-                               GError            **error)
+static gboolean
+has_superclass (TrackerClass *class,
+                TrackerClass *superclass)
 {
-	guint i;
-	guint n_properties;
+	TrackerClass **super;
+
+	if (class == superclass)
+		return TRUE;
+
+	super = tracker_class_get_super_classes (class);
+	while (super && *super) {
+		if (superclass == *super || has_superclass (*super, superclass))
+			return TRUE;
+		super++;
+	}
+
+	return FALSE;
+}
+
+static gboolean
+check_property_inheritance (TrackerProperty *property,
+                            const gchar     *error_prefix)
+{
+	TrackerProperty **super;
+	TrackerClass *domain;
+	gboolean had_errors = FALSE;
+
+	super = tracker_property_get_super_properties (property);
+	domain = tracker_property_get_domain (property);
+
+	while (super && *super) {
+		TrackerClass *super_domain;
+
+		super_domain = tracker_property_get_domain (*super);
+
+		if (super_domain && !has_superclass (domain, super_domain)) {
+			g_printerr ("%s: Property %s is not in the domain of a subclass of %s, to be a subproperty of %s\n",
+			            error_prefix, tracker_property_get_name (property),
+			            tracker_class_get_name (super_domain),
+			            tracker_property_get_name (*super));
+			had_errors |= TRUE;
+		}
+
+		super++;
+	}
+
+	return had_errors;
+}
+
+static gboolean
+check_class_inheritance (TrackerClass *class,
+                         TrackerClass *cur,
+                         GPtrArray    *visited,
+                         const gchar  *error_prefix)
+{
+	TrackerClass **super;
+	gboolean had_errors = FALSE;
+
+	if (!cur)
+		cur = class;
+
+	super = tracker_class_get_super_classes (cur);
+	while (super && *super) {
+		if (!g_ptr_array_find (visited, *super, NULL)) {
+			g_ptr_array_add (visited, *super);
+
+			if (class == *super) {
+				g_printerr ("%s: Class %s has cycles in rdfs:subClassOf hierarchy\n",
+				            error_prefix, tracker_class_get_name (class));
+				had_errors |= TRUE;
+			} else {
+				had_errors |= check_class_inheritance (class, *super, visited, error_prefix);
+			}
+		}
+		super++;
+	}
+
+	return had_errors;
+}
+
+static gboolean
+check_class_domain_indexes (TrackerClass *class,
+                            const gchar  *error_prefix)
+{
+	TrackerProperty **domain_indexes;
+	gboolean had_errors = FALSE;
+
+	domain_indexes = tracker_class_get_domain_indexes (class);
+
+	while (domain_indexes && *domain_indexes) {
+		TrackerClass *domain;
+
+		domain = tracker_property_get_domain (*domain_indexes);
+		if (domain && !has_superclass (class, domain)) {
+			g_printerr ("%s: Class %s wants domain index on property %s, but is not a subclass of %s\n",
+			            error_prefix, tracker_class_get_name (class),
+			            tracker_property_get_name (*domain_indexes),
+			            tracker_class_get_name (domain));
+			had_errors |= TRUE;
+		}
+
+		domain_indexes++;
+	}
+
+	return had_errors;
+}
+
+static gboolean
+check_ontology_completeness (TrackerOntologies  *ontologies,
+                             GError            **error)
+{
+	guint i, n_properties, n_classes;
 	TrackerProperty **properties;
+	TrackerClass **classes;
+	gboolean had_errors = FALSE;
 
 	properties = tracker_ontologies_get_properties (ontologies, &n_properties);
 
 	for (i = 0; i < n_properties; i++) {
 		TrackerProperty *property = properties[i];
-		gchar *missing_definition = NULL;
+		const gchar *ontology_path = tracker_property_get_ontology_path (property);
+		goffset line_no = tracker_property_get_definition_line_no (property);
+		goffset column_no = tracker_property_get_definition_column_no (property);
+		gchar *error_prefix = g_strdup_printf ("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT,
+		                                       ontology_path, line_no, column_no);
 
-		if (!tracker_property_get_domain (property))
-			missing_definition = "domain";
-		else if (!tracker_property_get_range (property))
-			missing_definition = "range";
-
-		if (missing_definition) {
-			const gchar *ontology_path = tracker_property_get_ontology_path (property);
-			goffset line_no = tracker_property_get_definition_line_no (property);
-			goffset column_no = tracker_property_get_definition_column_no (property);
-			const gchar *property_name = tracker_property_get_name (property);
-			gchar *definition_location = g_strdup_printf ("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT,
-			                                              ontology_path, line_no, column_no);
-
-			g_set_error (error,
-			             TRACKER_SPARQL_ERROR,
-			             TRACKER_SPARQL_ERROR_INCOMPLETE_PROPERTY_DEFINITION,
-			             "%s: Property %s has no defined %s.",
-			             definition_location, property_name, missing_definition);
-
-			g_free (definition_location);
-			return;
+		if (!tracker_property_get_domain (property)) {
+			g_printerr ("%s: Property %s has no defined domain",
+			            error_prefix, tracker_property_get_name (property));
+			had_errors |= TRUE;
 		}
+
+		if (!tracker_property_get_range (property)) {
+			g_printerr ("%s: Property %s has no defined range",
+			            error_prefix, tracker_property_get_name (property));
+			had_errors |= TRUE;
+		}
+
+		had_errors |= check_property_inheritance (property, error_prefix);
+		g_free (error_prefix);
 	}
+
+	classes = tracker_ontologies_get_classes (ontologies, &n_classes);
+
+	for (i = 0; i < n_classes; i++) {
+		TrackerClass *class = classes[i];
+		const gchar *ontology_path = tracker_class_get_ontology_path (class);
+		goffset line_no = tracker_class_get_definition_line_no (class);
+		goffset column_no = tracker_class_get_definition_column_no (class);
+		gchar *error_prefix = g_strdup_printf ("%s:%" G_GOFFSET_FORMAT ":%" G_GOFFSET_FORMAT,
+		                                       ontology_path, line_no, column_no);
+		GPtrArray *visited = g_ptr_array_new ();
+
+		had_errors |= check_class_inheritance (class, NULL, visited, error_prefix);
+		had_errors |= check_class_domain_indexes (class, error_prefix);
+		g_ptr_array_unref (visited);
+		g_free (error_prefix);
+	}
+
+	if (had_errors) {
+		g_set_error (error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_INCOMPLETE_PROPERTY_DEFINITION,
+		             "Semantic errors found during ontology parsing");
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 TrackerOntologies *
@@ -509,7 +640,7 @@ tracker_ontologies_load_from_rdf (GList   *files,
 	}
 
 	if (!inner_error)
-		check_properties_completeness (ontologies, &inner_error);
+		check_ontology_completeness (ontologies, &inner_error);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
