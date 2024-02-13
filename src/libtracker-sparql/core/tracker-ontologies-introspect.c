@@ -27,149 +27,17 @@
 
 #define NRL_INVERSE_FUNCTIONAL_PROPERTY TRACKER_PREFIX_NRL "InverseFunctionalProperty"
 
-static gboolean
-class_add_super_classes_from_db (TrackerOntologies   *ontologies,
-                                 TrackerDBStatement  *stmt,
-                                 TrackerClass        *class,
-                                 GError             **error)
-{
-	TrackerSparqlCursor *cursor = NULL;
-	GError *inner_error = NULL;
-
-	tracker_db_statement_bind_text (stmt, 0, tracker_class_get_uri (class));
-	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &inner_error));
-
-	if (cursor) {
-		while (tracker_sparql_cursor_next (cursor, NULL, &inner_error)) {
-			TrackerClass *super_class;
-			const gchar *super_class_uri;
-
-			super_class_uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-			super_class = tracker_ontologies_get_class_by_uri (ontologies, super_class_uri);
-			tracker_class_add_super_class (class, super_class);
-		}
-
-		g_object_unref (cursor);
-	}
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-
-static gboolean
-class_add_domain_indexes_from_db (TrackerOntologies   *ontologies,
-                                  TrackerDBStatement  *stmt,
-                                  TrackerClass        *class,
-                                  GError             **error)
-{
-	TrackerSparqlCursor *cursor = NULL;
-	GError *inner_error = NULL;
-
-	tracker_db_statement_bind_text (stmt, 0, tracker_class_get_uri (class));
-	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &inner_error));
-
-	if (cursor) {
-		while (tracker_sparql_cursor_next (cursor, NULL, &inner_error)) {
-			TrackerProperty *domain_index;
-			const gchar *domain_index_uri;
-
-			domain_index_uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-			domain_index = tracker_ontologies_get_property_by_uri (ontologies, domain_index_uri);
-			tracker_class_add_domain_index (class, domain_index);
-			tracker_property_add_domain_index (domain_index, class);
-		}
-
-		g_object_unref (cursor);
-	}
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-static gboolean
-property_add_super_properties_from_db (TrackerOntologies   *ontologies,
-                                       TrackerDBStatement  *stmt,
-                                       TrackerProperty     *property,
-                                       GError             **error)
-{
-	TrackerSparqlCursor *cursor = NULL;
-	GError *inner_error = NULL;
-
-	tracker_db_statement_bind_text (stmt, 0, tracker_property_get_uri (property));
-	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &inner_error));
-
-	if (cursor) {
-		while (tracker_sparql_cursor_next (cursor, NULL, &inner_error)) {
-			TrackerProperty *super_property;
-			const gchar *super_property_uri;
-
-			super_property_uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-			super_property = tracker_ontologies_get_property_by_uri (ontologies, super_property_uri);
-			tracker_property_add_super_property (property, super_property);
-		}
-
-		g_object_unref (cursor);
-	}
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
 TrackerOntologies *
 tracker_ontologies_load_from_database (TrackerDataManager  *manager,
                                        GError             **error)
 {
 	TrackerOntologies *ontologies = NULL;
 	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt, *get_domain_indexes = NULL;
-	TrackerDBStatement *get_subclasses = NULL, *get_subproperties = NULL;
+	TrackerDBStatement *stmt;
 	TrackerSparqlCursor *cursor = NULL;
-	TrackerClass **classes;
-	TrackerProperty **properties;
-	guint n_classes, n_props, i;
 	GError *internal_error = NULL;
 
 	iface = tracker_data_manager_get_writable_db_interface (manager);
-
-	get_subclasses =
-		tracker_db_interface_create_statement (iface,
-		                                       TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &internal_error,
-		                                       "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdfs:subClassOf\") "
-		                                       "FROM \"rdfs:Class_rdfs:subClassOf\" "
-		                                       "WHERE ID = (SELECT ID FROM Resource WHERE Uri = ?)");
-	if (!get_subclasses)
-		goto error;
-
-	get_subproperties =
-		tracker_db_interface_create_statement (iface,
-		                                       TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &internal_error,
-		                                       "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdfs:subPropertyOf\") "
-		                                       "FROM \"rdf:Property_rdfs:subPropertyOf\" "
-		                                       "WHERE ID = (SELECT ID FROM Resource WHERE Uri = ?)");
-	if (!get_subproperties)
-		goto error;
-
-	get_domain_indexes =
-		tracker_db_interface_create_statement (iface,
-		                                       TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &internal_error,
-		                                       "SELECT (SELECT Uri FROM Resource WHERE ID = \"nrl:domainIndex\") "
-		                                       "FROM \"rdfs:Class_nrl:domainIndex\" "
-		                                       "WHERE ID = (SELECT ID FROM Resource WHERE Uri = ?)");
-	if (!get_domain_indexes)
-		goto error;
 
 	ontologies = tracker_ontologies_new ();
 
@@ -357,30 +225,92 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 	if (internal_error)
 		goto error;
 
-	/* Now that classes/properties are loaded we can do this foreach class */
-	classes = tracker_ontologies_get_classes (ontologies, &n_classes);
-	for (i = 0; i < n_classes; i++) {
-		if (!class_add_super_classes_from_db (ontologies, get_subclasses,
-		                                      classes[i], &internal_error))
-			break;
+	stmt = tracker_db_interface_create_statement (iface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &internal_error,
+	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = A.ID),"
+	                                              " (SELECT Uri FROM Resource WHERE ID = A.\"rdfs:subClassOf\") "
+	                                              "FROM \"rdfs:Class_rdfs:subClassOf\" AS A ");
 
-		if (!class_add_domain_indexes_from_db (ontologies, get_domain_indexes,
-		                                       classes[i], &internal_error))
-			break;
+	if (stmt) {
+		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &internal_error));
+		g_object_unref (stmt);
 	}
 
-	properties = tracker_ontologies_get_properties (ontologies, &n_props);
-	for (i = 0; i < n_props; i++) {
-		if (!property_add_super_properties_from_db (ontologies, get_subproperties,
-		                                            properties[i], &internal_error))
-			break;
+	if (cursor) {
+		while (tracker_sparql_cursor_next (cursor, NULL, &internal_error)) {
+			TrackerClass *class, *super_class;
+			const gchar *class_uri, *super_class_uri;
+
+			class_uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+			class = tracker_ontologies_get_class_by_uri (ontologies, class_uri);
+			super_class_uri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+			super_class = tracker_ontologies_get_class_by_uri (ontologies, super_class_uri);
+			tracker_class_add_super_class (class, super_class);
+		}
+
+		g_clear_object (&cursor);
+	}
+
+	if (internal_error)
+		goto error;
+
+	stmt = tracker_db_interface_create_statement (iface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &internal_error,
+	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = A.ID),"
+	                                              " (SELECT Uri FROM Resource WHERE ID = A.\"nrl:domainIndex\") "
+	                                              "FROM \"rdfs:Class_nrl:domainIndex\" AS A ");
+	if (stmt) {
+		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &internal_error));
+		g_object_unref (stmt);
+	}
+
+	if (cursor) {
+		while (tracker_sparql_cursor_next (cursor, NULL, &internal_error)) {
+			TrackerProperty *domain_index;
+			TrackerClass *class;
+			const gchar *class_uri, *domain_index_uri;
+
+			class_uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+			class = tracker_ontologies_get_class_by_uri (ontologies, class_uri);
+			domain_index_uri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+			domain_index = tracker_ontologies_get_property_by_uri (ontologies, domain_index_uri);
+
+			tracker_class_add_domain_index (class, domain_index);
+			tracker_property_add_domain_index (domain_index, class);
+		}
+
+		g_clear_object (&cursor);
+	}
+
+	if (internal_error)
+		goto error;
+
+	stmt = tracker_db_interface_create_statement (iface,
+	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &internal_error,
+	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = A.ID),"
+	                                              " (SELECT Uri FROM Resource WHERE ID = A.\"rdfs:subPropertyOf\") "
+	                                              "FROM \"rdf:Property_rdfs:subPropertyOf\" AS A ");
+	if (stmt) {
+		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &internal_error));
+		g_object_unref (stmt);
+	}
+
+	if (cursor) {
+		while (tracker_sparql_cursor_next (cursor, NULL, &internal_error)) {
+			TrackerProperty *property, *super_property;
+			const gchar *property_uri, *super_property_uri;
+
+			property_uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+			property = tracker_ontologies_get_property_by_uri (ontologies, property_uri);
+			super_property_uri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+			super_property = tracker_ontologies_get_property_by_uri (ontologies, super_property_uri);
+			tracker_property_add_super_property (property, super_property);
+		}
+
+		g_clear_object (&cursor);
 	}
 
  error:
-	g_clear_object (&get_subclasses);
-	g_clear_object (&get_subproperties);
-	g_clear_object (&get_domain_indexes);
-
 	if (internal_error) {
 		g_clear_object (&ontologies);
 		g_propagate_error (error, internal_error);
