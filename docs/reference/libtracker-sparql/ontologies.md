@@ -289,17 +289,48 @@ INSERT DATA { <melanogaster> a ex:Eukariote;
 
 It may be the case that SPARQL queries performed on the endpoint are
 known to match, sort, or filter on certain properties more often than others.
-In this case, the ontology may use nrl:domainIndex in the class definition:
+In this case, the ontology may use `nrl:indexed` in property definitions:
 
 ```turtle
-# Make queries on ex:dateOfBirth faster
+# Make matching/sorting on ex:name faster
+ex:name a rdf:Property ;
+        nrl:indexed true ;
+        rdfs:domain ex:Animal ;
+        rdfs:range xsd:string ,
+```
+
+Sometimes, it may be desirable to make a combined index on two properties
+at the same time, since they are often queried in combination. `nrl:secondaryIndex`
+may be used for this purpose:
+
+```turtle
+ex:latitude a rdf:Property ;
+            nrl:indexed true ;
+            rdfs:domain ex:Location ;
+            rdfs:range xsd:double .
+
+ex:longitude a rdf:Property ;
+             nrl:indexed true ;
+             nrl:secondaryIndex ex:latitude ;
+             rdfs:domain ex:Location ;
+             rdfs:range xsd:double .
+```
+
+Lastly, `nrl:domainIndex` may be used to speed up queries by narrowing
+down a property inherited from a superclass to the elements of the specific
+subclass. It is most useful with very generic and populated superclasses,
+and queries that only make sense to speed up for specific subclasses.
+
+```turtle
+# Make queries on ex:dateOfBirth faster for mammals, of all Animalia
 ex:Mammal a rdfs:Class;
           rdfs:subClassOf ex:Animal;
           rdfs:comment "A mammal";
           nrl:domainIndex ex:dateOfBirth.
 ```
 
-Classes may define multiple domain indexes.
+Classes may define multiple domain indexes. The domain indexes must be properties
+owned by superclasses
 
 **Note**: Be frugal with indexes, do not add these proactively. An index in the wrong
 place might not affect query performance positively, but all indexes come at
