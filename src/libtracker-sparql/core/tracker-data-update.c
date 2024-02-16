@@ -1042,7 +1042,25 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 		g_hash_table_add (data->update_buffer.new_resources,
 		                  tracker_rowid_copy (&id));
 	} else {
-		id = query_resource_id (data, uri, error);
+		GError *inner_error = NULL;
+
+		id = query_resource_id (data, uri, &inner_error);
+
+		if (id == 0) {
+			if (inner_error) {
+				g_propagate_error (error, inner_error);
+			} else {
+				/* Insert might have failed due to something else than
+				 * constraints (say, no space). In that case we might
+				 * fail look up here without further errors. Set one.
+				 */
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_QUERY_ERROR,
+				             "Failed to insert URI '%s' with unspecified error",
+				             uri);
+			}
+		}
 	}
 
 	if (id != 0) {
