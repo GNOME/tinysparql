@@ -1,15 +1,15 @@
 # Georgian translation for tracker3.
 # Copyright (C) 2023 tracker3's COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker3 package.
-# Ekaterine Papava <papava.e@gtu.ge>, 2023.
+# Ekaterine Papava <papava.e@gtu.ge>, 2023-2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker3\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2023-05-14 12:32+0000\n"
-"PO-Revision-Date: 2023-10-01 12:48+0200\n"
-"Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
+"POT-Creation-Date: 2024-02-12 11:01+0000\n"
+"PO-Revision-Date: 2024-02-17 22:36+0100\n"
+"Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: \n"
 "Language: ka\n"
 "MIME-Version: 1.0\n"
@@ -32,110 +32,114 @@ msgstr "უფრო"
 msgid "Version"
 msgstr "ვერსია"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:387
-#: src/tracker/tracker-export.c:543 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:239
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
+#: src/tracker/tracker-export.c:552 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-sparql.c:1398 src/tracker/tracker-sql.c:239
 msgid "Unrecognized options"
 msgstr "უცნობი პარამეტრები"
 
-#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:49
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "ბაზის მდებარეობა"
 
-#: src/tracker/tracker-endpoint.c:51 src/tracker/tracker-endpoint.c:63
+#: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
 msgid "DIR"
 msgstr "საქაღალდე"
 
-#: src/tracker/tracker-endpoint.c:54
+#: src/tracker/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
 msgstr "მიუთითეთ DBus-ის სახელი ამ წერტილისთვის"
 
-#: src/tracker/tracker-endpoint.c:55 src/tracker/tracker-endpoint.c:59
+#: src/tracker/tracker-endpoint.c:63 src/tracker/tracker-endpoint.c:67
 msgid "NAME"
 msgstr "სახელი"
 
-#: src/tracker/tracker-endpoint.c:58
+#: src/tracker/tracker-endpoint.c:66
 msgid "Specify the ontology name used in this endpoint"
 msgstr "მიუთითეთ ამ წერტილისთვის გამოყენებული ონტოლოგიის სახელი"
 
-#: src/tracker/tracker-endpoint.c:62
+#: src/tracker/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "მიუთითეთ ბილიკი ამ ბოლოწერტილში გამოყენებულ ონტოლოგიამდე"
 
-#: src/tracker/tracker-endpoint.c:66
+#: src/tracker/tracker-endpoint.c:74
 msgid "HTTP port"
 msgstr "HTTP პროქსი"
 
-#: src/tracker/tracker-endpoint.c:70
+#: src/tracker/tracker-endpoint.c:78
 msgid "Whether to only allow HTTP connections in the loopback device"
 msgstr "HTTP მიერთებების დაშვება მარყუჟის მოწყობილობაზე"
 
-#: src/tracker/tracker-endpoint.c:74
+#: src/tracker/tracker-endpoint.c:82
 msgid "Use session bus"
 msgstr "სესიების მატარებლის გამოყენება"
 
-#: src/tracker/tracker-endpoint.c:78
+#: src/tracker/tracker-endpoint.c:86
 msgid "Use system bus"
 msgstr "სისტემური მატარებლის გამოყენება"
 
-#: src/tracker/tracker-endpoint.c:82
+#: src/tracker/tracker-endpoint.c:90
 msgid "List SPARQL endpoints available in DBus"
 msgstr "DBus-სთვის ხელმისაწვდომი SPARQL წერტილების სია"
 
+#: src/tracker/tracker-endpoint.c:94
+msgid "List network-local HTTP SPARQL endpoints"
+msgstr "ლოკალური ქსელის HTTP SPARQL ბოლოწერტილების სია"
+
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:103
+#: src/tracker/tracker-endpoint.c:115
 msgid "--list can only be used with --session or --system"
 msgstr "--list მხოლოდ --session და --system -თან ერთად გამოიყენება"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:109
+#: src/tracker/tracker-endpoint.c:121
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "მიუთითეთ \"ontology\" ან \"ontology-path\" პარამეტრი"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:115
+#: src/tracker/tracker-endpoint.c:127
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "--http-port -ის და --dbus-service -ის ერთად გამოყენება შეუძლებელია"
 
-#: src/tracker/tracker-endpoint.c:186
+#: src/tracker/tracker-endpoint.c:198
 #, c-format
 msgid "Creating HTTP endpoint at %s…"
 msgstr "%s-სთან HTTP წერტილის შექმნა…"
 
-#: src/tracker/tracker-endpoint.c:206 src/tracker/tracker-endpoint.c:269
+#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "SPARQL ბრძანებების მოლოდნი. Ctrl-C შესაწყვეტად."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:214 src/tracker/tracker-endpoint.c:284
+#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
 msgid "Closing connection…"
 msgstr "შეერეთების დახურვა…"
 
-#: src/tracker/tracker-endpoint.c:229
+#: src/tracker/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "წერტილის შექმნა %s-თან…"
 
-#: src/tracker/tracker-endpoint.c:265
+#: src/tracker/tracker-endpoint.c:277
 msgid "Could not own DBus name"
 msgstr "DBus სახელის მიღების პრობლემა"
 
-#: src/tracker/tracker-endpoint.c:279
+#: src/tracker/tracker-endpoint.c:291
 msgid "DBus name lost"
 msgstr "DBus-ის სახელი დაკარგულია"
 
-#: src/tracker/tracker-endpoint.c:421
+#: src/tracker/tracker-endpoint.c:651
 #, c-format
 msgid "Opening database at %s…"
 msgstr "მონაცემთა ბაზის გახსნა (%s)…"
 
-#: src/tracker/tracker-endpoint.c:424
+#: src/tracker/tracker-endpoint.c:654
 msgid "Creating in-memory database"
 msgstr "მეხსიერების ბაზის შექმნა"
 
-#: src/tracker/tracker-endpoint.c:451
+#: src/tracker/tracker-endpoint.c:681
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -143,20 +147,29 @@ msgstr ""
 "ახალი ბაზა შეიქმნა. ამ ბაზის შეტყობინებების მატარებელზე გასაზიარებლად "
 "გამოიყენეთ პარამეტრი \"--dbus-service\"."
 
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-endpoint.desktop.in:6
+msgid "endpoint"
+msgstr "ბოლოწერტილი"
+
+#: src/tracker/tracker-endpoint.desktop.in:7
+msgid "Create a SPARQL endpoint"
+msgstr "SPARQL წერტილის შექმნა"
+
 #: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
+#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FILE"
 
 #: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:114
+#: src/tracker/tracker-sparql.c:117
 msgid "Connects to a DBus service"
 msgstr "უერთდება DBus-ის სერვისს"
 
 #: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:115
+#: src/tracker/tracker-sparql.c:118
 msgid "DBus service name"
 msgstr "D-Bus სერვისის სახელი"
 
@@ -169,12 +182,12 @@ msgid "RDF_FORMAT"
 msgstr "RDF_FORMAT"
 
 #: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-sparql.c:121
 msgid "Connects to a remote service"
 msgstr "დაშორებულ სერვისთან მიერთება"
 
 #: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:119
+#: src/tracker/tracker-sparql.c:122
 msgid "Remote service URI"
 msgstr "დაშორებული სერვისის URI"
 
@@ -190,35 +203,54 @@ msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:199
+#: src/tracker/tracker-sparql.c:206
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr "უნდა მიუთითოთ ერთერთი: --database, --dbus-service ან --remote-service"
 
-#: src/tracker/tracker-export.c:310 src/tracker/tracker-export.c:331
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1124
+#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1079
 msgid "No error given"
 msgstr "შეცდომის გარეშე"
 
-#: src/tracker/tracker-export.c:330 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1123
+#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-sparql.c:1078
 msgid "Could not establish a connection to Tracker"
 msgstr "Tracker-თან დაკავშირება შეუძლებელია"
 
-#: src/tracker/tracker-export.c:373
+#: src/tracker/tracker-export.c:382
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "მხარდაუჭერელი სერიალიზაციის ფორმატი \"%s\"\n"
 
-#: src/tracker/tracker-export.c:425 src/tracker/tracker-export.c:438
-#: src/tracker/tracker-export.c:448 src/tracker/tracker-sparql.c:1502
+#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:447
+#: src/tracker/tracker-export.c:457 src/tracker/tracker-sparql.c:1340
 #: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
 msgid "Could not run query"
 msgstr "მოთხოვნის გაშვების შეცდომა"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-export.desktop.in:6
+msgid "export"
+msgstr "გატანა"
+
+#: src/tracker/tracker-export.desktop.in:7
+msgid "Export data from a Tracker database"
+msgstr "Tracker-ის ბაზიდან მონაცემების გამოტანა"
 
 #: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "\"%s\"-ის გაშვების შეცდომა: %s"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-help.desktop.in:6
+msgid "help"
+msgstr "დახმარება"
+
+#: src/tracker/tracker-help.desktop.in:7
+msgid "Get help on how to use Tracker and any of these commands"
+msgstr ""
+"მიიღეთ დახმარება როგორ გამოიყენოთ Tracker და ნებისმიერი ამ ბრძანებებიდან"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -230,78 +262,55 @@ msgstr ""
 msgid "Could not run import"
 msgstr "შემოტანის შეცდომა"
 
-#: src/tracker/tracker-main.c:89
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr ""
-"მიიღეთ დახმარება როგორ გამოიყენოთ Tracker და ნებისმიერი ამ ბრძანებებიდან"
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-import.desktop.in:6
+msgid "import"
+msgstr "შემოტანა"
 
-#: src/tracker/tracker-main.c:90
-msgid "Create a SPARQL endpoint"
-msgstr "SPARQL წერტილის შექმნა"
-
-#: src/tracker/tracker-main.c:91
-msgid "Export data from a Tracker database"
-msgstr "Tracker-ის ბაზიდან მონაცემების გამოტანა"
-
-#: src/tracker/tracker-main.c:92
+#: src/tracker/tracker-import.desktop.in:7
 msgid "Import data into a Tracker database"
 msgstr "Tracker-ის ბაზაში მონაცემების შეტანა"
 
-#: src/tracker/tracker-main.c:93
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"ინდექსის განახლება ან გამოთხოვა SPARSQL-ით ან მოძებნეთ, ჩამოთვალეთ და იხილეთ "
-"ხე ონტოლოგიისთვის"
-
-#: src/tracker/tracker-main.c:94
-msgid "Query the database at the lowest level using SQL"
-msgstr "ბაზიდან გამოთხოვა ყველაზე დაბალ დონეზე SQL-ის გამოყენებით"
-
-#: src/tracker/tracker-main.c:134
-#, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "\"%s\" tracker3-ის ბრძანება არაა. იხილეთ 'tracker3 --help'"
-
-#: src/tracker/tracker-main.c:169
+#: src/tracker/tracker-main.c:123
 msgid "Available tracker3 commands are:"
 msgstr "Tracker3-ის ხელმისაწვდომი ბრძანებებია:"
 
-#: src/tracker/tracker-main.c:209
-msgid "Additional / third party commands are:"
-msgstr "დამატებითი / დამატებული ბრძანებებია:"
-
-#: src/tracker/tracker-main.c:224
+#: src/tracker/tracker-main.c:155
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
 "მითითებული ქვებრძანების შესახებ მეტი ინფორმაციისთვის იხილეთ 'tracker3 help "
 "<ბრძანება>."
 
-#: src/tracker/tracker-sparql.c:122
+#: src/tracker/tracker-main.c:213
+#, c-format
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "\"%s\" tracker3-ის ბრძანება არაა. იხილეთ 'tracker3 --help'"
+
+#: src/tracker/tracker-sparql.c:125
 msgid "Path to use to run a query or update from file"
 msgstr "ბილიკი მოთხოვნის გასაშვებად ან ფაილიდან გასაახლებლად"
 
-#: src/tracker/tracker-sparql.c:126
+#: src/tracker/tracker-sparql.c:129
 msgid "SPARQL query"
 msgstr "SPARQL მოთხოვნა"
 
-#: src/tracker/tracker-sparql.c:127
+#: src/tracker/tracker-sparql.c:130
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:130
+#: src/tracker/tracker-sparql.c:133
 msgid "This is used with --query and for database updates only."
 msgstr "ეს გამოიყენება --query-სთან ერთად და, მხოლოდ, ბაზის განახლებებისთვის."
 
-#: src/tracker/tracker-sparql.c:134
+#: src/tracker/tracker-sparql.c:137
 msgid "Retrieve classes"
 msgstr "კლასების მიღება"
 
-#: src/tracker/tracker-sparql.c:138
+#: src/tracker/tracker-sparql.c:141
 msgid "Retrieve class prefixes"
 msgstr "კლასის პრეფიქსების მიღება"
 
-#: src/tracker/tracker-sparql.c:142
+#: src/tracker/tracker-sparql.c:145
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -309,20 +318,20 @@ msgstr ""
 "კლასის თვისებების მიღება. შეგიძლიათ, ასევე, პრეფიქსებიც გამოიყენოთ (მაგ: "
 "rdfs: Resource)"
 
-#: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
-#: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
-#: src/tracker/tracker-sparql.c:171
+#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
+#: src/tracker/tracker-sparql.c:174
 msgid "CLASS"
 msgstr "კლასი"
 
-#: src/tracker/tracker-sparql.c:146
+#: src/tracker/tracker-sparql.c:149
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "კლასების მიღება, რომლებიც ბაზის ცვლილებებს აფრთხილებენ (CLASS "
 "არასავალდებულოა)"
 
-#: src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:153
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -330,15 +339,15 @@ msgstr ""
 "ბაზაში გამოყენებული ინდექსების მიღება წარმადობის გასაუმჯობესებლად (PROPERTY "
 "არასავალდებულოა)"
 
-#: src/tracker/tracker-sparql.c:151
+#: src/tracker/tracker-sparql.c:154
 msgid "PROPERTY"
 msgstr "თვისება"
 
-#: src/tracker/tracker-sparql.c:154
+#: src/tracker/tracker-sparql.c:157
 msgid "Retrieve all named graphs"
 msgstr "სახელიანი გრაფიკების სიის მიღება"
 
-#: src/tracker/tracker-sparql.c:158
+#: src/tracker/tracker-sparql.c:161
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -346,186 +355,182 @@ msgstr ""
 "აღწერეს ქვეკლასები და ზეკლასები (შეგიძლიათ, გამოიყენოთ -s-თან ერთად ხის "
 "ნაწილების გამოსაკვეთად და -p-თან ერთად, თვისებების საჩვენებლად)"
 
-#: src/tracker/tracker-sparql.c:162
+#: src/tracker/tracker-sparql.c:165
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "კლასის ან თვისების მოძებნა და მეტი ინფორმაციის გამოტანა (მაგ: დოკუმენტი)"
 
-#: src/tracker/tracker-sparql.c:163
+#: src/tracker/tracker-sparql.c:166
 msgid "CLASS/PROPERTY"
 msgstr "კლასი/თვისება"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-sparql.c:169
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "კლასის მოკლე სახელის გამოტანა (მაგ: nfo: FileDataObject)."
 
-#: src/tracker/tracker-sparql.c:170
+#: src/tracker/tracker-sparql.c:173
 msgid "Returns the full namespace for a class."
 msgstr "კლასისთვის სახელების სრული სივრცის დაბრუნება."
 
-#: src/tracker/tracker-sparql.c:232
-msgid "Unable to retrieve namespace prefixes"
-msgstr "სახელების სივრცის პრეფიქსების მიღების შეცდომა"
+#: src/tracker/tracker-sparql.c:177
+msgid "Provides an argument for a query parameter."
+msgstr "მოგაწოდებთ არგუმენტს მოთხოვნის პარამეტრისთვის."
 
-#: src/tracker/tracker-sparql.c:240
-msgid "No namespace prefixes were returned"
-msgstr "სახელების სივრცის პრეფიქსი ნაპოვნი არაა"
-
-#: src/tracker/tracker-sparql.c:286
-msgid "Could not get namespace prefixes"
-msgstr "სახელების სივრცის პრეფიქსების მიღების შეცდომა"
-
-#: src/tracker/tracker-sparql.c:295
-msgid "No namespace prefixes were found"
-msgstr "სახელების სივრცის პრეფიქსი ნაპოვნი არაა"
+#: src/tracker/tracker-sparql.c:178
+msgid "PARAMETER:TYPE:VALUE"
+msgstr "პარამეტრი:ტიპი:მნიშვნელობა"
 
 #. To translators: This is to say there are no
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:541 src/tracker/tracker-sparql.c:589
+#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
 msgid "None"
 msgstr "არცერთი"
 
-#: src/tracker/tracker-sparql.c:1003
+#: src/tracker/tracker-sparql.c:899
 msgid "Could not create tree: subclass query failed"
 msgstr "ხის შექმნის შეცდომა: ქვეკლასის გამოთხოვა შეუძლებელია"
 
-#: src/tracker/tracker-sparql.c:1052
+#: src/tracker/tracker-sparql.c:948
 msgid "Could not create tree: class properties query failed"
 msgstr "ხის შექმნის შეცდომა: ქვეკლასის გამოთხოვა შეუძლებელია"
 
-#: src/tracker/tracker-sparql.c:1139
+#: src/tracker/tracker-sparql.c:1015
+#, c-format
+msgid "Invalid argument string %s"
+msgstr "არასწორი არგუმენტი სტრიქონი %s"
+
+#: src/tracker/tracker-sparql.c:1025
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr "არასწორი პარამეტრის ტიპი არგუმენტისთვის %s"
+
+#: src/tracker/tracker-sparql.c:1095
 msgid "Could not list classes"
 msgstr "კლასების სიის შეცდომა"
 
-#: src/tracker/tracker-sparql.c:1147
+#: src/tracker/tracker-sparql.c:1103
 msgid "No classes were found"
 msgstr "კლასები ნაპოვნი არაა"
 
-#: src/tracker/tracker-sparql.c:1147 src/tracker/tracker-sparql.c:1363
+#: src/tracker/tracker-sparql.c:1103 src/tracker/tracker-sparql.c:1225
 msgid "Classes"
 msgstr "კლასები"
 
-#: src/tracker/tracker-sparql.c:1163
-msgid "Could not list class prefixes"
-msgstr "კლასის პრეფიქსების სიის მიღების შეცდომა"
-
-#: src/tracker/tracker-sparql.c:1171
-msgid "No class prefixes were found"
-msgstr "კლასის პრეფიქსები ნაპოვნი არაა"
-
-#: src/tracker/tracker-sparql.c:1171
-msgid "Prefixes"
-msgstr "პრეფიქსები"
-
-#: src/tracker/tracker-sparql.c:1191
-msgid ""
-"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
-msgstr ""
-"ვერ ვიპოვე თვისება კლასის პრეფიქსისთვის. მაგ: :Resource \"rdfs:Resource\"-ში"
-
-#: src/tracker/tracker-sparql.c:1230
+#: src/tracker/tracker-sparql.c:1126
 msgid "Could not list properties"
 msgstr "თვისებების სიის შეცდომა"
 
-#: src/tracker/tracker-sparql.c:1238
+#: src/tracker/tracker-sparql.c:1134
 msgid "No properties were found"
 msgstr "თვისებების გარეშე"
 
-#: src/tracker/tracker-sparql.c:1238 src/tracker/tracker-sparql.c:1386
+#: src/tracker/tracker-sparql.c:1134 src/tracker/tracker-sparql.c:1243
 msgid "Properties"
 msgstr "პარამეტრები"
 
-#: src/tracker/tracker-sparql.c:1266
+#: src/tracker/tracker-sparql.c:1150
 msgid "Could not find notify classes"
 msgstr "კლასების გაფრთხილების შეცდომა"
 
-#: src/tracker/tracker-sparql.c:1274
+#: src/tracker/tracker-sparql.c:1158
 msgid "No notifies were found"
 msgstr "გაფრთხილებები ნაპოვნი არაა"
 
-#: src/tracker/tracker-sparql.c:1274
+#: src/tracker/tracker-sparql.c:1158
 msgid "Notifies"
 msgstr "გაფრთხილებები"
 
-#: src/tracker/tracker-sparql.c:1300
+#: src/tracker/tracker-sparql.c:1174
 msgid "Could not find indexed properties"
 msgstr "დაინდექსებული თვისებების გარეშე"
 
-#: src/tracker/tracker-sparql.c:1308
+#: src/tracker/tracker-sparql.c:1182
 msgid "No indexes were found"
 msgstr "ინდექსების გარეშე"
 
-#: src/tracker/tracker-sparql.c:1308
+#: src/tracker/tracker-sparql.c:1182
 msgid "Indexes"
 msgstr "ინდექსები"
 
-#: src/tracker/tracker-sparql.c:1324
+#: src/tracker/tracker-sparql.c:1192
 msgid "Could not list named graphs"
 msgstr "სახელიანი გრაფიკების სიის შეცდომა"
 
-#: src/tracker/tracker-sparql.c:1332
+#: src/tracker/tracker-sparql.c:1200
 msgid "No graphs were found"
 msgstr "გრაფიკების გარეშე"
 
-#: src/tracker/tracker-sparql.c:1332
+#: src/tracker/tracker-sparql.c:1200
 msgid "Named graphs"
 msgstr "სახელიანი გრაფიკები"
 
-#: src/tracker/tracker-sparql.c:1355
+#: src/tracker/tracker-sparql.c:1217
 msgid "Could not search classes"
 msgstr "კლასების მოძებნის შეცდომა"
 
-#: src/tracker/tracker-sparql.c:1363
+#: src/tracker/tracker-sparql.c:1225
 msgid "No classes were found to match search term"
 msgstr "თქვენს საძებნ ნიმუშს კლასები არ შეესაბამება"
 
-#: src/tracker/tracker-sparql.c:1378
+#: src/tracker/tracker-sparql.c:1235
 msgid "Could not search properties"
 msgstr "თვისებების მოძებნის შეცდომა"
 
-#: src/tracker/tracker-sparql.c:1386
+#: src/tracker/tracker-sparql.c:1243
 msgid "No properties were found to match search term"
 msgstr "თქვენს საძებნ ნიმუშს თვისებები არ შეესაბამება"
 
-#: src/tracker/tracker-sparql.c:1423 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-sparql.c:1272 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "UTF-8 ბილიკის მიღების შეცდომა"
 
-#: src/tracker/tracker-sparql.c:1435 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-sparql.c:1284 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "ფაილის წაკითხვის შეცდომა"
 
-#: src/tracker/tracker-sparql.c:1454
+#: src/tracker/tracker-sparql.c:1315
 msgid "Could not run update"
 msgstr "განახლების შეცდომა"
 
-#: src/tracker/tracker-sparql.c:1461
+#: src/tracker/tracker-sparql.c:1322
 msgid "Done"
 msgstr "დასრულებულია"
 
-#: src/tracker/tracker-sparql.c:1515 src/tracker/tracker-sparql.c:1518
+#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
 msgid "No results found matching your query"
 msgstr "თქვენს მოთხოვნაზე შედეგები არ დაბრუნებულა"
 
-#: src/tracker/tracker-sparql.c:1515 src/tracker/tracker-sparql.c:1518
+#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
 #: src/tracker/tracker-sql.c:144
 msgid "Results"
 msgstr "შედეგები"
 
-#: src/tracker/tracker-sparql.c:1575 src/tracker/tracker-sql.c:250
+#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:250
 msgid "File and query can not be used together"
 msgstr "ფაილს და მოთხოვნას ერთდროუალდ ვერ გამოიყენებთ"
 
-#: src/tracker/tracker-sparql.c:1577
+#: src/tracker/tracker-sparql.c:1409
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
 msgstr ""
 "--list-properties პარამეტრი ცარიელი მხოლოდ --tree პარამეტრთან ერთად შეიძლება "
 "იყოს"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-sparql.desktop.in:6
+msgid "sparql"
+msgstr "sparql"
+
+#: src/tracker/tracker-sparql.desktop.in:7
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"ინდექსის განახლება ან გამოთხოვა SPARSQL-ით ან მოძებნეთ, ჩამოთვალეთ და იხილეთ "
+"ხე ონტოლოგიისთვის"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -550,3 +555,43 @@ msgstr "ცარიელი შედეგი"
 #: src/tracker/tracker-sql.c:248
 msgid "A database path must be specified"
 msgstr "მონაცემების ბაზის ბილიკის მითითება აუცილებელია"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-sql.desktop.in:6
+msgid "sql"
+msgstr "sql"
+
+#: src/tracker/tracker-sql.desktop.in:7
+msgid "Query the database at the lowest level using SQL"
+msgstr "ბაზიდან გამოთხოვა ყველაზე დაბალ დონეზე SQL-ის გამოყენებით"
+
+#~ msgid "Additional / third party commands are:"
+#~ msgstr "დამატებითი / დამატებული ბრძანებებია:"
+
+#~ msgid "Unable to retrieve namespace prefixes"
+#~ msgstr "სახელების სივრცის პრეფიქსების მიღების შეცდომა"
+
+#~ msgid "No namespace prefixes were returned"
+#~ msgstr "სახელების სივრცის პრეფიქსი ნაპოვნი არაა"
+
+#~ msgid "Could not get namespace prefixes"
+#~ msgstr "სახელების სივრცის პრეფიქსების მიღების შეცდომა"
+
+#~ msgid "No namespace prefixes were found"
+#~ msgstr "სახელების სივრცის პრეფიქსი ნაპოვნი არაა"
+
+#~ msgid "Could not list class prefixes"
+#~ msgstr "კლასის პრეფიქსების სიის მიღების შეცდომა"
+
+#~ msgid "No class prefixes were found"
+#~ msgstr "კლასის პრეფიქსები ნაპოვნი არაა"
+
+#~ msgid "Prefixes"
+#~ msgstr "პრეფიქსები"
+
+#~ msgid ""
+#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
+#~ "Resource”"
+#~ msgstr ""
+#~ "ვერ ვიპოვე თვისება კლასის პრეფიქსისთვის. მაგ: :Resource \"rdfs:Resource\"-"
+#~ "ში"
