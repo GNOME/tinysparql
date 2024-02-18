@@ -62,5 +62,5 @@ if get_option('bash_completion')
     install_data(
         sources: 'bash-completion/tracker',
         install_dir: bash_completion_dir,
-        rename: command_name)
+        rename: main_command_name)
 endif
