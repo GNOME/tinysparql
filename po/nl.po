@@ -19,7 +19,7 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
 "POT-Creation-Date: 2024-02-12 11:01+0000\n"
-"PO-Revision-Date: 2024-02-18 17:26+0100\n"
+"PO-Revision-Date: 2024-02-18 17:28+0100\n"
 "Last-Translator: Nathan Follens <nfollens@gnome.org>\n"
 "Language-Team: GNOME-NL https://matrix.to/#/#nl:gnome.org\n"
 "Language: nl\n"
@@ -161,7 +161,7 @@ msgstr ""
 #. Translators: This is a CLI command name that should not be translated.
 #: src/tracker/tracker-endpoint.desktop.in:6
 msgid "endpoint"
-msgstr "eindpunt"
+msgstr "endpoint"
 
 #: src/tracker/tracker-endpoint.desktop.in:7
 msgid "Create a SPARQL endpoint"
@@ -256,7 +256,7 @@ msgstr "kon ‘%s’ niet uitvoeren: %s"
 #. Translators: This is a CLI command name that should not be translated.
 #: src/tracker/tracker-help.desktop.in:6
 msgid "help"
-msgstr "hulp"
+msgstr "help"
 
 #: src/tracker/tracker-help.desktop.in:7
 msgid "Get help on how to use Tracker and any of these commands"
