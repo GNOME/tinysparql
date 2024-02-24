@@ -1642,27 +1642,27 @@ function_sparql_print_value (sqlite3_context *context,
 	case TRACKER_PROPERTY_TYPE_DATE:
 	case TRACKER_PROPERTY_TYPE_DATETIME:
 		if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
-			struct tm tm;
+			GDateTime *datetime;
 			gint64 timestamp;
-			gchar buf[100];
-			int retval;
 
 			timestamp = sqlite3_value_int64 (argv[0]);
+			datetime = g_date_time_new_from_unix_utc (timestamp);
 
-			if (gmtime_r ((time_t *) &timestamp, &tm) == NULL)
-				result_context_function_error (context, fn, "Invalid unix timestamp");
+			if (datetime) {
+				gchar *str;
 
-			if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME)
-				retval = strftime ((gchar *) &buf, sizeof (buf), "%2C%y-%m-%dT%TZ", &tm);
-			else if (prop_type == TRACKER_PROPERTY_TYPE_DATE)
-				retval = strftime ((gchar *) &buf, sizeof (buf), "%2C%y-%m-%d", &tm);
-			else
-				g_assert_not_reached ();
+				if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME)
+					str = tracker_date_format_iso8601 (datetime);
+				else if (prop_type == TRACKER_PROPERTY_TYPE_DATE)
+					str = g_date_time_format (datetime, "%Y-%m-%d");
+				else
+					g_assert_not_reached ();
 
-			if (retval != 0)
-				sqlite3_result_text (context, g_strdup (buf), -1, g_free);
-			else
-				result_context_function_error (context, fn, "Invalid unix timestamp");
+				sqlite3_result_text (context, str, -1, g_free);
+				g_date_time_unref (datetime);
+			} else {
+				sqlite3_result_null (context);
+			}
 		} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 			if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME) {
 				sqlite3_result_value (context, argv[0]);
