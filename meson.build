@@ -207,40 +207,6 @@ else
 endif
 
 ##################################################################
-# Get an appropriate 4-digit year modifier for strftime
-##################################################################
-result = cc.run('''
-  #define _GNU_SOURCE
-  #include <stdio.h>
-  #include <string.h>
-  #include <time.h>
-
-  int main (int argc, char *argv[]) {
-    char *modifiers[] = { "%Y", "%C%y", "%4Y", "%2C%y", NULL };
-    time_t timestamp = -58979923200; /* 0101-01-01T01:01:01Z */
-    char buf[100];
-    struct tm tm;
-    int i;
-    gmtime_r (&timestamp, &tm);
-    for (i = 0; modifiers[i]; i++) {
-      strftime (buf, sizeof buf, modifiers[i], &tm);
-      if (strcmp (buf, "0101") == 0) {
-        printf ("%s", modifiers[i]);
-        return 0;
-      }
-    }
-    return -1;
-  }
-  ''',
-  name: 'strftime 4-digit year modifier')
-
-if not result.compiled() or result.returncode() != 0
-  error('Libc implementation has broken 4-digit years implementation.')
-else
-  year_modifier = result.stdout()
-endif
-
-##################################################################
 # Check for libtracker-data and libtracker-fts: Unicode support
 #
 # By default, AUTO with this order of preference:
@@ -349,7 +315,6 @@ conf.set('TRACKER_MINOR_VERSION', tracker_minor_version)
 conf.set('TRACKER_MICRO_VERSION', tracker_micro_version)
 conf.set('TRACKER_INTERFACE_AGE', 0)
 conf.set('TRACKER_BINARY_AGE', 100 * tracker_minor_version + tracker_micro_version)
-conf.set('STRFTIME_YEAR_MODIFIER', '"@0@"'.format(year_modifier))
 
 # Check for RTLD_NOLOAD
 have_rtld_noload = cc.has_header_symbol('dlfcn.h', 'RTLD_NOLOAD')
@@ -437,7 +402,6 @@ summary = [
   '    Debug:                                  ' + get_option('debug').to_string(),
   '    Optimization:                           ' + get_option('optimization'),
   '    Compiler:                               ' + cc.get_id(),
-  '    4-digit strftime() year modifier:       ' + year_modifier,
   '\nFeature Support:',
   '    Unicode support library:                ' + unicode_library_name,
   '    Build with Stemming support:            ' + have_libstemmer.to_string(),
