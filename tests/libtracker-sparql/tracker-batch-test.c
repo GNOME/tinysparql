@@ -250,7 +250,7 @@ assert_photo (TestFixture *test_fixture,
 
 	g_assert_true (tracker_sparql_cursor_next (cursor, NULL, &error));
 	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, NULL), ==, TRACKER_PREFIX_NMM "exposureTime");
-	g_assert_cmpfloat (tracker_sparql_cursor_get_double (cursor, 1), ==, exposure_time);
+	g_assert_cmpfloat_with_epsilon (tracker_sparql_cursor_get_double (cursor, 1), exposure_time, DBL_EPSILON);
 
 	/* Skip over nrl:added, nrl:modified, rdf:type */
 
