@@ -5270,7 +5270,8 @@ tracker_data_manager_get_remote_connection (TrackerDataManager  *data_manager,
 
 			if (!connection)
 				goto fail;
-		} else if (g_strcmp0 (uri_scheme, "http") == 0) {
+		} else if (g_strcmp0 (uri_scheme, "https") == 0 ||
+			   g_strcmp0 (uri_scheme, "http") == 0) {
 			connection = tracker_sparql_connection_remote_new (uri);
 		}
 
