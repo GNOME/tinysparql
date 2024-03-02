@@ -290,7 +290,7 @@ rdf_types (TestFixture   *test_fixture,
 	g_assert_cmpstr (tracker_sparql_cursor_get_string (cursor, 0, &len), ==, "Hello");
 	g_assert_cmpint (len, ==, strlen ("Hello"));
 	g_assert_cmpint (tracker_sparql_cursor_get_integer (cursor, 1), ==, 42);
-	g_assert_cmpfloat (tracker_sparql_cursor_get_double (cursor, 2), ==, 42.2);
+	g_assert_cmpfloat_with_epsilon (tracker_sparql_cursor_get_double (cursor, 2), 42.2, DBL_EPSILON);
 	g_assert_cmpint (tracker_sparql_cursor_get_boolean (cursor, 3), ==, TRUE);
 	g_assert_true (g_date_time_equal (tracker_sparql_cursor_get_datetime (cursor, 4), datetime));
 	g_assert_cmpstr (tracker_sparql_cursor_get_langstring (cursor, 5, &langtag, &len), ==, "Hola");

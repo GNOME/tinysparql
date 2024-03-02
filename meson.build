@@ -372,6 +372,9 @@ tracker_c_args = [
 
   # Needed for statvfs64, and probably other stuff
   '-D_LARGEFILE64_SOURCE',
+
+  # Needed for 64-bit time_t handling in 32-bit platforms
+  '-D_TIME_BITS=64',
 ]
 
 configinc = include_directories('./')
