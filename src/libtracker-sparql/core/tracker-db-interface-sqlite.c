@@ -67,6 +67,7 @@ struct TrackerDBInterface {
 
 	guint flags;
 	GCancellable *cancellable;
+	gboolean corrupted;
 
 	TrackerDBStatementMru select_stmt_mru;
 
@@ -2669,8 +2670,14 @@ execute_stmt (TrackerDBInterface  *interface,
 
 			db_result = sqlite3_errcode (interface->db);
 
-			if (db_result == SQLITE_CORRUPT ||
-			    db_result == SQLITE_NOTADB) {
+			if (db_result == SQLITE_NOTADB) {
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_OPEN_ERROR,
+				             "Not a database: %s",
+				             sqlite3_errmsg (interface->db));
+			} else if (db_result == SQLITE_CORRUPT) {
+				interface->corrupted = TRUE;
 				g_set_error (error,
 				             TRACKER_DB_INTERFACE_ERROR,
 				             TRACKER_DB_CORRUPT,
@@ -3737,4 +3744,10 @@ tracker_db_interface_sqlite_release_memory (TrackerDBInterface *db_interface)
 	tracker_db_statement_mru_clear (&db_interface->select_stmt_mru);
 
 	return (gssize) sqlite3_db_release_memory (db_interface->db);
+}
+
+gboolean
+tracker_db_interface_found_corruption (TrackerDBInterface *db_interface)
+{
+	return db_interface->corrupted;
 }
