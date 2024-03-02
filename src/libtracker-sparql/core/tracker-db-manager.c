@@ -679,6 +679,8 @@ tracker_db_manager_finalize (GObject *object)
 	TrackerDBManager *db_manager = TRACKER_DB_MANAGER (object);
 	gboolean readonly = (db_manager->flags & TRACKER_DB_MANAGER_READONLY) != 0;
 
+	tracker_db_manager_release_memory (db_manager);
+
 	g_async_queue_unref (db_manager->interfaces);
 	g_free (db_manager->db.abs_filename);
 
