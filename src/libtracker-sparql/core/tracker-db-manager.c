@@ -41,7 +41,6 @@
 
 #define TRACKER_VACUUM_CHECK_SIZE     ((goffset) 4 * 1024 * 1024 * 1024) /* 4GB */
 
-#define IN_USE_FILENAME               ".meta.isrunning"
 #define CORRUPTED_FILENAME            ".meta.corrupted"
 
 #define TOSTRING1(x) #x
@@ -75,7 +74,6 @@ struct _TrackerDBManager {
 	GObject parent_instance;
 	TrackerDBDefinition db;
 	gchar *data_dir;
-	gchar *in_use_filename;
 	gchar *corrupted_filename;
 	GFile *cache_location;
 	gchar *shared_cache_key;
@@ -476,7 +474,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
                         GError                **error)
 {
 	TrackerDBManager *db_manager;
-	int in_use_file;
 	TrackerDBInterface *resources_iface;
 	GError *internal_error = NULL;
 	gboolean need_to_create = FALSE;
@@ -496,9 +493,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 
 	if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) == 0) {
 		tracker_db_manager_ensure_location (db_manager, cache_location);
-		db_manager->in_use_filename = g_build_filename (db_manager->data_dir,
-		                                                IN_USE_FILENAME,
-		                                                NULL);
 		db_manager->corrupted_filename = g_build_filename (db_manager->data_dir,
 		                                                   CORRUPTED_FILENAME,
 		                                                   NULL);
@@ -603,62 +597,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 		}
 
 		g_clear_object (&db_manager->db.iface);
-	} else {
-		TRACKER_NOTE (SQLITE, g_message ("Loading files for database %s...", db_manager->db.abs_filename));
-
-		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
-			/* Check that the database was closed cleanly and do a deeper integrity
-			 * check if it wasn't, raising an error if we detect corruption. */
-
-			if (g_file_test (db_manager->in_use_filename, G_FILE_TEST_EXISTS)) {
-				gsize size = 0;
-				struct stat st;
-
-				TRACKER_NOTE (SQLITE, g_message ("Didn't shut down cleanly last time, doing integrity checks"));
-
-				if (g_stat (db_manager->db.abs_filename, &st) == 0) {
-					size = st.st_size;
-				}
-
-				/* Size is 1 when using echo > file.db, none of our databases
-				 * are only one byte in size even initually. */
-				if (size <= 1) {
-					g_debug ("Database is corrupt: size is 1 byte or less.");
-					return FALSE;
-				}
-
-				db_manager->db.iface = tracker_db_manager_create_db_interface (db_manager, FALSE, &internal_error);
-
-				if (internal_error) {
-					/* If this already doesn't succeed, then surely the file is
-					 * corrupt. No need to check for integrity anymore. */
-					g_propagate_error (error, internal_error);
-					g_object_unref (db_manager);
-					return NULL;
-				}
-
-				if (!tracker_db_manager_check_integrity (db_manager, NULL)) {
-					g_set_error (error,
-					             TRACKER_DB_INTERFACE_ERROR,
-					             TRACKER_DB_OPEN_ERROR,
-					             "Corrupt db file");
-					g_object_unref (db_manager);
-					return NULL;
-				}
-			}
-		}
-	}
-
-	if ((flags & (TRACKER_DB_MANAGER_READONLY | TRACKER_DB_MANAGER_IN_MEMORY)) == 0) {
-		/* do not create in-use file for read-only mode (direct access) */
-		in_use_file = g_open (db_manager->in_use_filename,
-			              O_WRONLY | O_APPEND | O_CREAT | O_SYNC,
-			              S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-
-		if (in_use_file >= 0) {
-		        fsync (in_use_file);
-		        close (in_use_file);
-		}
 	}
 
 	resources_iface = tracker_db_manager_create_db_interface (db_manager,
@@ -696,13 +634,6 @@ tracker_db_manager_finalize (GObject *object)
 
 	g_free (db_manager->data_dir);
 
-	if (db_manager->in_use_filename && !readonly) {
-		/* do not delete in-use file for read-only mode (direct access) */
-		if (g_unlink (db_manager->in_use_filename) < 0)
-			g_warning ("Could not delete '" IN_USE_FILENAME "': %m");
-	}
-
-	g_free (db_manager->in_use_filename);
 	g_free (db_manager->corrupted_filename);
 	g_free (db_manager->shared_cache_key);
 	g_clear_object (&db_manager->cache_location);
