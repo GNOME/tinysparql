@@ -105,6 +105,11 @@ void                tracker_db_manager_update_version         (TrackerDBManager 
 
 gboolean tracker_db_manager_needs_integrity_check (TrackerDBManager *db_manager);
 
+gboolean tracker_db_manager_needs_repair (TrackerDBManager *db_manager);
+
+gboolean tracker_db_manager_check_integrity (TrackerDBManager  *db_manager,
+                                             GError           **error);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DB_MANAGER_H__ */

@@ -42,6 +42,7 @@
 #define TRACKER_VACUUM_CHECK_SIZE     ((goffset) 4 * 1024 * 1024 * 1024) /* 4GB */
 
 #define IN_USE_FILENAME               ".meta.isrunning"
+#define CORRUPTED_FILENAME            ".meta.corrupted"
 
 #define TOSTRING1(x) #x
 #define TOSTRING(x) TOSTRING1(x)
@@ -75,12 +76,12 @@ struct _TrackerDBManager {
 	TrackerDBDefinition db;
 	gchar *data_dir;
 	gchar *in_use_filename;
+	gchar *corrupted_filename;
 	GFile *cache_location;
 	gchar *shared_cache_key;
 	TrackerDBManagerFlags flags;
 	guint s_cache_size;
 	gboolean first_time;
-	gboolean needs_integrity_check;
 	TrackerDBVersion db_version;
 
 	GWeakRef iface_data;
@@ -422,48 +423,46 @@ tracker_db_manager_rollback_db_creation (TrackerDBManager *db_manager)
 	g_free (filename);
 }
 
-static gboolean
-db_check_integrity (TrackerDBManager *db_manager)
+gboolean
+tracker_db_manager_check_integrity (TrackerDBManager  *db_manager,
+                                    GError           **error)
 {
-	GError *internal_error = NULL;
 	TrackerDBStatement *stmt;
 	TrackerSparqlCursor *cursor = NULL;
-	gboolean handled = FALSE;
 
 	stmt = tracker_db_interface_create_statement (db_manager->db.iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              &internal_error,
+	                                              error,
 	                                              "PRAGMA integrity_check(1)");
-
-	if (!stmt) {
-		if (internal_error) {
-			g_message ("Corrupt database: failed to create integrity_check statement: %s", internal_error->message);
-		}
-
-		g_clear_error (&internal_error);
+	if (!stmt)
 		return FALSE;
-	}
 
-	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, NULL));
+	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, error));
 	g_object_unref (stmt);
 
-	if (cursor) {
-		if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-			const gchar *check_result;
+	if (!cursor)
+		return FALSE;
 
-			check_result = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-			if (g_strcmp0 (check_result, "ok") != 0) {
-				g_message ("Corrupt database: sqlite integrity check returned '%s'", check_result);
-				return FALSE;
-			}
+	if (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
+		const gchar *check_result;
+
+		check_result = tracker_sparql_cursor_get_string (cursor, 0, NULL);
+		if (g_strcmp0 (check_result, "ok") != 0) {
+			GError *inner_error = NULL;
+
+			if (!g_file_set_contents (db_manager->corrupted_filename, "", -1, &inner_error))
+				g_warning ("Could not save " CORRUPTED_FILENAME ": %s", inner_error->message);
+
+			g_clear_error (&inner_error);
+			g_clear_object (&cursor);
+			g_set_error (error,
+			             TRACKER_DB_INTERFACE_ERROR,
+			             TRACKER_DB_CORRUPT,
+			             "Integrity check failed: %s", check_result);
+			return FALSE;
 		}
-		g_object_unref (cursor);
 	}
 
-	db_manager->needs_integrity_check = TRUE;
-
-	/* Someone raised an error */
-	if (handled)
-		return FALSE;
+	g_object_unref (cursor);
 
 	return TRUE;
 }
@@ -500,6 +499,9 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 		db_manager->in_use_filename = g_build_filename (db_manager->data_dir,
 		                                                IN_USE_FILENAME,
 		                                                NULL);
+		db_manager->corrupted_filename = g_build_filename (db_manager->data_dir,
+		                                                   CORRUPTED_FILENAME,
+		                                                   NULL);
 
 		/* Don't do need_reindex checks for readonly (direct-access) */
 		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
@@ -635,7 +637,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 					return NULL;
 				}
 
-				if (db_check_integrity (db_manager) == FALSE) {
+				if (!tracker_db_manager_check_integrity (db_manager, NULL)) {
 					g_set_error (error,
 					             TRACKER_DB_INTERFACE_ERROR,
 					             TRACKER_DB_OPEN_ERROR,
@@ -701,6 +703,7 @@ tracker_db_manager_finalize (GObject *object)
 	}
 
 	g_free (db_manager->in_use_filename);
+	g_free (db_manager->corrupted_filename);
 	g_free (db_manager->shared_cache_key);
 	g_clear_object (&db_manager->cache_location);
 
@@ -1076,10 +1079,20 @@ tracker_db_manager_release_memory (TrackerDBManager *db_manager)
 		if (!iface)
 			break;
 
-		if (tracker_db_interface_get_is_used (iface))
+		if (tracker_db_interface_get_is_used (iface)) {
 			g_async_queue_push_unlocked (db_manager->interfaces, iface);
-		else
+		} else {
+			if (tracker_db_interface_found_corruption (iface)) {
+				GError *error = NULL;
+
+				if (!g_file_set_contents (db_manager->corrupted_filename, "", -1, &error))
+					g_warning ("Could not save " CORRUPTED_FILENAME ": %s", error->message);
+
+				g_clear_error (&error);
+			}
+
 			g_object_unref (iface);
+		}
 	}
 
 	if (g_async_queue_length_unlocked (db_manager->interfaces) < len) {
@@ -1108,13 +1121,14 @@ tracker_db_manager_get_version (TrackerDBManager *db_manager)
 }
 
 gboolean
-tracker_db_manager_needs_integrity_check (TrackerDBManager *db_manager)
+tracker_db_manager_needs_repair (TrackerDBManager *db_manager)
 {
-	gboolean needs_integrity_check;
+	if (g_file_test (db_manager->corrupted_filename, G_FILE_TEST_EXISTS)) {
+		if (g_unlink (db_manager->corrupted_filename) < 0)
+			g_warning ("Could not delete " CORRUPTED_FILENAME ": %m");
 
-	needs_integrity_check = db_manager->needs_integrity_check;
-	db_manager->needs_integrity_check = FALSE;
+		return TRUE;
+	}
 
-	return needs_integrity_check;
+	return FALSE;
 }
-
