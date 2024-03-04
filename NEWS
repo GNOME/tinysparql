@@ -1,3 +1,15 @@
+NEW in 3.7.rc - 2024-03-04
+==========================
+  * Improve database integrity checks so they don't necessarily
+    happen after unclean exit, and so there are greater guarantees to
+    repair the damage.
+  * Handle HTTPS in SERVICE syntax
+  * Fixes for 32-bit platforms
+  * Fixes to bash completion
+
+Translations: cs, en_GB, es, eu, fa, gl, he, hu, id, ka, ko, lt,
+  lv, nl, pl, ru, sl, sv, tr, zh_CN
+
 NEW in 3.7.beta - 2024-02-12
 ============================
   * Add Avahi support to the TrackerEndpointHttp API object. This only
