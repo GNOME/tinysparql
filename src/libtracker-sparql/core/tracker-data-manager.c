@@ -3966,28 +3966,20 @@ update_interface_cb (TrackerDBManager   *db_manager,
 }
 
 static gboolean
-tracker_data_manager_integrity_check (TrackerDataManager  *data_manager,
-                                      TrackerDBInterface  *iface,
-                                      GError             **error)
+tracker_data_manager_attempt_repair (TrackerDataManager  *data_manager,
+                                     TrackerDBInterface  *iface,
+                                     GError             **error)
 {
-	TrackerDBStatement *stmt;
-	GHashTableIter iter;
-	const gchar *graph;
 	TrackerProperty **properties;
 	guint len, i;
 	gboolean has_fts = FALSE;
+	GError *inner_error = NULL;
 
-	/* Ensure that database has been initialized earlier
-	 * by checking whether Resource table exists.
-	 */
-	stmt = tracker_db_interface_create_statement (iface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              error,
-	                                              "SELECT 1 FROM Resource");
-	if (!stmt)
+	tracker_db_interface_execute_query (iface, &inner_error, "REINDEX");
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
 		return FALSE;
-
-	g_clear_object (&stmt);
+	}
 
 	properties = tracker_ontologies_get_properties (data_manager->ontologies, &len);
 
@@ -3998,6 +3990,9 @@ tracker_data_manager_integrity_check (TrackerDataManager  *data_manager,
 	}
 
 	if (has_fts) {
+		GHashTableIter iter;
+		const gchar *graph;
+
 		g_hash_table_iter_init (&iter, data_manager->graphs);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
 			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, graph)) {
@@ -4011,6 +4006,9 @@ tracker_data_manager_integrity_check (TrackerDataManager  *data_manager,
 				return FALSE;
 		}
 	}
+
+	if (!tracker_db_manager_check_integrity (data_manager->db_manager, error))
+		return FALSE;
 
 	return TRUE;
 }
@@ -4321,8 +4319,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			return FALSE;
 		}
 
-		if (!read_only && tracker_db_manager_needs_integrity_check (manager->db_manager)) {
-			if (!tracker_data_manager_integrity_check (manager, iface, error))
+		if (!read_only && tracker_db_manager_needs_repair (manager->db_manager)) {
+			if (!tracker_data_manager_attempt_repair (manager, iface, error))
 				return FALSE;
 		}
 	}
