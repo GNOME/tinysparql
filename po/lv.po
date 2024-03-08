@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-02-12 11:01+0000\n"
-"PO-Revision-Date: 2024-02-25 21:42+0200\n"
+"POT-Creation-Date: 2024-02-27 16:38+0000\n"
+"PO-Revision-Date: 2024-03-08 23:28+0200\n"
 "Last-Translator: Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>\n"
 "Language-Team: Latvian <lata-l10n@googlegroups.com>\n"
 "Language: lv\n"
@@ -174,24 +174,22 @@ msgid "DBus service name"
 msgstr "DBus pakalpojuma nosaukums"
 
 #: src/tracker/tracker-export.c:57
-#| msgid "Output results format: “sparql”, “turtle” or “json-ld”"
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Izvadīt rezultātu formāts: “turtle”, “trig” vai “json-ld”"
 
 #: src/tracker/tracker-export.c:58
-#| msgid "FORMAT"
 msgid "RDF_FORMAT"
 msgstr "RDF_FORMĀTS"
 
 #: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:121
 msgid "Connects to a remote service"
-msgstr "Savienojas ar attālinātu pakalpojumu"
+msgstr "Savienojas ar attālu pakalpojumu"
 
 #: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:122
 msgid "Remote service URI"
-msgstr "Attālinātā pakalpojuma URI"
+msgstr "Attālā pakalpojuma URI"
 
 #: src/tracker/tracker-export.c:65
 msgid "Output TriG format which includes named graph information"
