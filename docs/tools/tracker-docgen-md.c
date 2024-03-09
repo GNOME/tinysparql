@@ -182,13 +182,13 @@ print_property_table (FILE                 *f,
 	for (l = properties_sorted; l; l = l->next) {
 		TrackerOntologyProperty *prop;
 		TrackerOntologyClass *range;
-		const gchar *shortname = NULL, *basename = NULL, *type_name = NULL, *type_class_id = NULL, *prop_id = NULL;
+		const gchar *basename = NULL, *type_name = NULL, *type_class_id = NULL, *prop_id = NULL;
 		gchar *link;
 
 		prop = tracker_ontology_model_get_property (model, l->data);
 		range = tracker_ontology_model_get_class (model, prop->range->data);
 
-		prop_id = shortname = prop->shortname;
+		prop_id = prop->shortname;
 		basename = prop->basename;
 		type_name = range->basename;
 		type_class_id = range->shortname;
