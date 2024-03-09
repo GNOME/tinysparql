@@ -506,7 +506,7 @@ coverity:
     - tar zxf /tmp/coverity_tool.tgz
     - mkdir coverity-build
     - cd coverity-build
-    - env CC=clang meson ..
+    - env CC=clang meson setup .. -Dsystemd_user_services=false
     - ../cov-analysis-linux64-*/bin/cov-build --dir cov-int ninja
     - tar czf cov-int.tar.gz cov-int
     - curl https://scan.coverity.com/builds?project=Tracker
