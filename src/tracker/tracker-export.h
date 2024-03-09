@@ -17,12 +17,9 @@
  * 02110-1301, USA.
  */
 
-#ifndef __TRACKER_EXPORT_H__
-#define __TRACKER_EXPORT_H__
+#pragma once
 
 #include <glib.h>
 
-int         tracker_export               (int                       argc,
-                                          const char              **argv);
-
-#endif /* __TRACKER_EXPORT_H__ */
+int tracker_export (int          argc,
+                    const char **argv);

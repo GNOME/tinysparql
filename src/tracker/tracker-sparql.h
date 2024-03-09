@@ -17,8 +17,7 @@
  * 02110-1301, USA.
  */
 
-#ifndef __TRACKER_SPARQL_H__
-#define __TRACKER_SPARQL_H__
+#pragma once
 
 #include <glib.h>
 
@@ -32,5 +31,3 @@ gchar *     tracker_sparql_get_longhand  (GHashTable               *prefixes,
                                           const gchar              *shorthand);
 gchar *     tracker_sparql_get_shorthand (GHashTable               *prefixes,
                                           const gchar              *longhand);
-
-#endif /* __TRACKER_SPARQL_H__ */

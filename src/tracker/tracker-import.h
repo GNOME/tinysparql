@@ -17,12 +17,9 @@
  * 02110-1301, USA.
  */
 
-#ifndef __TRACKER_IMPORT_H__
-#define __TRACKER_IMPORT_H__
+#pragma once
 
 #include <glib.h>
 
-int         tracker_import               (int                       argc,
-                                          const char              **argv);
-
-#endif /* __TRACKER_IMPORT_H__ */
+int tracker_import (int          argc,
+                    const char **argv);

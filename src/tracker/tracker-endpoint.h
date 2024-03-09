@@ -19,9 +19,6 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __TRACKER_ENDPOINT_H__
-#define __TRACKER_ENDPOINT_H__
+#pragma once
 
 int tracker_endpoint (int argc, const char **argv);
-
-#endif /* __TRACKER_ENDPOINT_H__ */
