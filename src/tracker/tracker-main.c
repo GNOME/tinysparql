@@ -158,7 +158,6 @@ print_usage (void)
 int
 main (int argc, char *argv[])
 {
-	const gchar *cli_metadata_dir;
 	const gchar *bin_dir;
 
 	setlocale (LC_ALL, "");
@@ -167,14 +166,10 @@ main (int argc, char *argv[])
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
 
-	bin_dir = cli_metadata_dir = g_getenv ("TRACKER_CLI_DIR");
+	bin_dir = g_getenv ("TRACKER_CLI_DIR");
 
 	if (!bin_dir) {
 		bin_dir = BINDIR;
-	}
-
-	if (!cli_metadata_dir) {
-		cli_metadata_dir = CLI_METADATA_DIR;
 	}
 
 	if (argc == 1) {
