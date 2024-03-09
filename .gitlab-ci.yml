@@ -15,6 +15,7 @@ variables:
   MESON_TEST_EXTRA_ARGS: ""
 
 stages:
+  - check
   - review
   - prepare
   - code-review
@@ -25,8 +26,31 @@ stages:
 
 workflow:
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_PIPELINE_SOURCE == 'push'
+    # Allow to switch from branch pipelines to MR pipelines seamlessly
+    # https://docs.gitlab.com/ee/ci/jobs/job_control.html#avoid-duplicate-pipelines
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Don't trigger a branch pipeline if there is an open MR
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+
+.manual-pipeline-guard:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ /^tracker-[0-9-]\.[0-9-]+$/'
+    # Avoid catchall `when: manual` rule which might
+    # cause duplicate pipelines to be triggered.
+    # https://docs.gitlab.com/ee/ci/jobs/job_control.html#avoid-duplicate-pipelines
+    #
+    # Also make it so pipelines without MR need to be started
+    # manually, since their state will most likely be WIP
+    - if: '$CI_COMMIT_BRANCH'
+      when: 'manual'
 
 .check-template: &check
   extends:
@@ -39,7 +63,7 @@ workflow:
       junit: check-junit-report.xml
 
 repo-sanity:
-  stage: review
+  stage: check
   script:
     - >
       if [[ -z "$CI_REGISTRY_IMAGE" ]] ;
@@ -48,6 +72,8 @@ repo-sanity:
           repo-sanity "The container registry should be enabled in the project general settings panel at $CI_PROJECT_URL/edit" ;
         exit 1 ;
       fi
+  rules:
+    - !reference [.manual-pipeline-guard, rules]
   <<: *check
 
 check-commit-log:
@@ -65,6 +91,8 @@ check-commit-log:
   allow_failure:
     exit_codes:
       - 255
+  needs:
+    - repo-sanity
   <<: *check
 
 check-merge-request:
@@ -78,6 +106,8 @@ check-merge-request:
       else
         echo "Not a merge request" ;
       fi
+  needs:
+    - repo-sanity
   <<: *check
 
 .tracker.fedora@common:
@@ -178,7 +208,6 @@ build-fedora-container@x86_64:
   variables:
     GIT_STRATEGY: none
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -191,7 +220,6 @@ build-fedora-rawhide-container@x86_64:
     GIT_STRATEGY: none
   allow_failure: true
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -203,7 +231,6 @@ build-fedora-container@aarch64:
   variables:
     GIT_STRATEGY: none
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -215,7 +242,6 @@ build-fedora-rawhide-container@aarch64:
   variables:
     GIT_STRATEGY: none
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -227,7 +253,6 @@ build-ubuntu-container@x86_64:
   variables:
     GIT_STRATEGY: none
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -239,7 +264,6 @@ build-alpine-container@x86_64:
   variables:
     GIT_STRATEGY: none
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
