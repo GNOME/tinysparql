@@ -122,6 +122,7 @@ check-merge-request:
       git
       gi-docgen
       libasan
+      libsoup-devel
       libubsan
       patch
       python-devel
@@ -141,8 +142,6 @@ check-merge-request:
       dnf builddep -y tracker --setopt=install_weak_deps=False &&
       # For tests, this isn't packaged in Fedora.
       pip3 install tap.py &&
-      # Needed for verifying legacy libsoup2 support
-      dnf install -y libsoup-devel &&
       dnf clean all
 
 .tracker.ubuntu@common:
