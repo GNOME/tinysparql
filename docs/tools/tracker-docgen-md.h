@@ -17,8 +17,7 @@
  * 02110-1301, USA.
  */
 
-#ifndef TRACKER_DOCGEN_MD_H
-#define TRACKER_DOCGEN_MD_H
+#pragma once
 
 #include <gio/gio.h>
 #include "tracker-ontology-model.h"
@@ -32,5 +31,3 @@ void ttl_md_print (TrackerOntologyDescription *description,
                    const gchar                *description_dir);
 
 G_END_DECLS
-
-#endif /* TRACKER_DOCGEN_MD_H */
