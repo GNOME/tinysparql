@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_SPARQL_H__
-#define __LIBTRACKER_SPARQL_H__
+#pragma once
 
 #define __LIBTRACKER_SPARQL_INSIDE__
 
@@ -41,5 +40,3 @@
 #include <libtracker-sparql/tracker-utils.h>
 
 #undef __LIBTRACKER_SPARQL_INSIDE__
-
-#endif /* __LIBTRACKER_SPARQL_H__ */

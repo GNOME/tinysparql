@@ -19,12 +19,11 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
+#pragma once
+
 #include "tracker-deserializer-rdf.h"
 
 #include <gio/gio.h>
-
-#ifndef __TRACKER_DESERIALIZER_TURTLE_H__
-#define __TRACKER_DESERIALIZER_TURTLE_H__
 
 #define TRACKER_TYPE_DESERIALIZER_TURTLE (tracker_deserializer_turtle_get_type ())
 G_DECLARE_FINAL_TYPE (TrackerDeserializerTurtle,
@@ -37,5 +36,3 @@ TrackerSparqlCursor * tracker_deserializer_turtle_new (GInputStream            *
 
 TrackerSparqlCursor * tracker_deserializer_trig_new (GInputStream            *stream,
                                                      TrackerNamespaceManager *manager);
-
-#endif /* __TRACKER_DESERIALIZER_TURTLE_H__ */

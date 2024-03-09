@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_RESOURCE_H__
-#define __LIBTRACKER_RESOURCE_H__
+#pragma once
 
 #include <glib-object.h>
 #include <libtracker-sparql/tracker-enums.h>
@@ -131,5 +130,3 @@ TRACKER_AVAILABLE_IN_3_1
 gboolean tracker_resource_get_property_overwrite (TrackerResource *resource, const gchar *property_uri);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_RESOURCE_H__ */

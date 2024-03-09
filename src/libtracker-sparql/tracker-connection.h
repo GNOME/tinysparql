@@ -16,8 +16,8 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#ifndef __TRACKER_SPARQL_CONNECTION_H__
-#define __TRACKER_SPARQL_CONNECTION_H__
+
+#pragma once
 
 #if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
@@ -276,5 +276,3 @@ void tracker_sparql_connection_map_connection (TrackerSparqlConnection *connecti
 					       TrackerSparqlConnection *service_connection);
 
 G_END_DECLS
-
-#endif /* __TRACKER_SPARQL_CONNECTION_H__ */

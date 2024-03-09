@@ -19,12 +19,11 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
+#pragma once
+
 #include "tracker-deserializer-rdf.h"
 
 #include <gio/gio.h>
-
-#ifndef __TRACKER_DESERIALIZER_JSON_LD_H__
-#define __TRACKER_DESERIALIZER_JSON_LD_H__
 
 #define TRACKER_TYPE_DESERIALIZER_JSON_LD (tracker_deserializer_json_ld_get_type ())
 G_DECLARE_FINAL_TYPE (TrackerDeserializerJsonLD,
@@ -34,5 +33,3 @@ G_DECLARE_FINAL_TYPE (TrackerDeserializerJsonLD,
 
 TrackerSparqlCursor * tracker_deserializer_json_ld_new (GInputStream * stream,
                                                         TrackerNamespaceManager * manager);
-
-#endif /* __TRACKER_DESERIALIZER_JSON_LD_H__ */

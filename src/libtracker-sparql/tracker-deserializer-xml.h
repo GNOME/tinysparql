@@ -19,12 +19,11 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
+#pragma once
+
 #include "tracker-deserializer.h"
 
 #include <gio/gio.h>
-
-#ifndef __TRACKER_DESERIALIZER_XML_H__
-#define __TRACKER_DESERIALIZER_XML_H__
 
 #define TRACKER_TYPE_DESERIALIZER_XML (tracker_deserializer_xml_get_type ())
 G_DECLARE_FINAL_TYPE (TrackerDeserializerXml,
@@ -34,5 +33,3 @@ G_DECLARE_FINAL_TYPE (TrackerDeserializerXml,
 
 TrackerSparqlCursor * tracker_deserializer_xml_new (GInputStream            *stream,
                                                     TrackerNamespaceManager *manager);
-
-#endif /* __TRACKER_DESERIALIZER_XML_H__ */

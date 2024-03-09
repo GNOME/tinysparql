@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __TRACKER_ENDPOINT_H__
-#define __TRACKER_ENDPOINT_H__
+#pragma once
 
 #if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
@@ -61,5 +60,3 @@ TRACKER_AVAILABLE_IN_3_7
 GStrv tracker_endpoint_get_allowed_graphs (TrackerEndpoint *endpoint);
 
 G_END_DECLS
-
-#endif /* __TRACKER_ENDPOINT_H__ */

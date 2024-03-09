@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_DIRECT_STATEMENT_H__
-#define __TRACKER_DIRECT_STATEMENT_H__
+#pragma once
 
 #include "tracker-direct.h"
 #include <libtracker-sparql/tracker-sparql.h>
@@ -59,5 +58,3 @@ gboolean tracker_direct_statement_execute_update (TrackerSparqlStatement  *stmt,
                                                   GError                 **error);
 
 TrackerSparql * tracker_direct_statement_get_sparql (TrackerSparqlStatement *stmt);
-
-#endif /* __TRACKER_DIRECT_STATEMENT_H__ */

@@ -19,8 +19,7 @@
  * 02110-1301  USA
  */
 
-#ifndef __LIBTRACKER_FTS_FTS_H__
-#define __LIBTRACKER_FTS_FTS_H__
+#pragma once
 
 #include <sqlite3.h>
 
@@ -54,6 +53,4 @@ gboolean tracker_fts_integrity_check (sqlite3      *db,
                                       const gchar  *table_name);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_FTS_FTS_H__ */
 

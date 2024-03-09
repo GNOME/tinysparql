@@ -19,6 +19,8 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
+#pragma once
+
 #include <libtracker-sparql/tracker-private.h>
 
 #define TRACKER_TYPE_REMOTE_STATEMENT (tracker_remote_statement_get_type ())

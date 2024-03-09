@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_HTTP_H
-#define TRACKER_HTTP_H
+#pragma once
 
 #include <gio/gio.h>
 
@@ -118,5 +117,3 @@ tracker_http_client_send_message_finish (TrackerHttpClient        *client,
                                          GAsyncResult             *res,
                                          TrackerSerializerFormat  *format,
                                          GError                  **error);
-
-#endif /* TRACKER_HTTP_H */

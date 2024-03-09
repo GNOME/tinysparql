@@ -19,8 +19,7 @@
  * Author: Philip Van Hoof <philip@codeminded.be>
  */
 
-#ifndef __LIBTRACKER_DATA_ONTOLOGY_H__
-#define __LIBTRACKER_DATA_ONTOLOGY_H__
+#pragma once
 
 #include <glib-object.h>
 #include "tracker-class.h"
@@ -61,6 +60,4 @@ void              tracker_ontology_set_ontologies    (TrackerOntology   *ontolog
                                                       TrackerOntologies *ontologies);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_DATA_ONTOLOGY_H__ */
 

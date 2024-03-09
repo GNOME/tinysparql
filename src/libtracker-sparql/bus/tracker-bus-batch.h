@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __TRACKER_BUS_BATCH_H__
-#define __TRACKER_BUS_BATCH_H__
+#pragma once
 
 #include "tracker-bus.h"
 
@@ -33,5 +32,3 @@ G_DECLARE_FINAL_TYPE (TrackerBusBatch,
                       TrackerBatch)
 
 TrackerBatch * tracker_bus_batch_new (TrackerBusConnection *connection);
-
-#endif /* __TRACKER_BUS_BATCH_H__ */

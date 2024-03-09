@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_DATA_H__
-#define __LIBTRACKER_DATA_H__
+#pragma once
 
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
@@ -33,5 +32,3 @@
 #include "tracker-property.h"
 #include "tracker-sparql.h"
 #include "tracker-uuid.h"
-
-#endif /* __LIBTRACKER_DATA_H__ */

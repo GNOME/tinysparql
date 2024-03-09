@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_ENUMS_H
-#define TRACKER_ENUMS_H
+#pragma once
 
 /**
  * TrackerRdfFormat:
@@ -43,5 +42,3 @@ typedef enum {
 } TrackerRdfFormat;
 
 #define TRACKER_N_RDF_FORMATS TRACKER_RDF_FORMAT_LAST
-
-#endif /* TRACKER_ENUMS_H */

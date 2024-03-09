@@ -17,8 +17,8 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#ifndef __TRACKER_PRIVATE_H__
-#define __TRACKER_PRIVATE_H__
+
+#pragma once
 
 #include <libtracker-sparql/tracker-version-generated.h>
 #include <libtracker-sparql/tracker-cursor.h>
@@ -206,6 +206,12 @@ struct _TrackerEndpointHttpClass {
 	struct _TrackerEndpointClass parent_class;
 };
 
+typedef struct _TrackerEndpointLocalClass TrackerEndpointLocalClass;
+
+struct _TrackerEndpointLocalClass {
+	struct _TrackerEndpointClass parent_class;
+};
+
 struct _TrackerResourceClass
 {
 	GObjectClass parent_class;
@@ -368,5 +374,3 @@ void tracker_batch_add_dbus_fd (TrackerBatch *batch,
 
 GBytes * tracker_sparql_make_langstring (const gchar *str,
                                          const gchar *langtag);
-
-#endif /* __TRACKER_PRIVATE_H__ */

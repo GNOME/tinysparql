@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_SERIALIZER_XML_H
-#define TRACKER_SERIALIZER_XML_H
+#pragma once
 
 #include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-sparql/tracker-private.h>
@@ -32,5 +31,3 @@ G_DECLARE_FINAL_TYPE (TrackerSerializerXml,
                       tracker_serializer_xml,
                       TRACKER, SERIALIZER_XML,
                       TrackerSerializer)
-
-#endif /* TRACKER_SERIALIZER_XML_H */

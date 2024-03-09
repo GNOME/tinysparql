@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __TRACKER_REMOTE_NAMESPACES_H__
-#define __TRACKER_REMOTE_NAMESPACES_H__
+#pragma once
 
 #include <libtracker-sparql/tracker-sparql.h>
 
@@ -38,5 +37,3 @@ void tracker_remote_namespace_manager_new_async (TrackerSparqlConnection *conn,
 
 TrackerNamespaceManager * tracker_remote_namespace_manager_new_finish (GAsyncResult  *res,
                                                                        GError       **error);
-
-#endif /* __TRACKER_REMOTE_NAMESPACES_H__ */

@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_BUS_H__
-#define __TRACKER_BUS_H__
+#pragma once
 
 #include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-sparql/tracker-private.h>
@@ -111,5 +110,3 @@ void tracker_bus_connection_perform_update_async (TrackerBusConnection  *self,
 gboolean tracker_bus_connection_perform_update_finish (TrackerBusConnection  *self,
                                                        GAsyncResult          *res,
                                                        GError               **error);
-
-#endif /* __TRACKER_BUS_H__ */

@@ -19,20 +19,14 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __TRACKER_REMOTE_H__
-#define __TRACKER_REMOTE_H__
+#pragma once
 
 #include <libtracker-sparql/tracker-sparql.h>
 
 #define TRACKER_TYPE_REMOTE_CONNECTION (tracker_remote_connection_get_type())
-
 G_DECLARE_FINAL_TYPE (TrackerRemoteConnection,
 		      tracker_remote_connection,
 		      TRACKER, REMOTE_CONNECTION,
 		      TrackerSparqlConnection)
 
-GType tracker_remote_connection_get_type (void) G_GNUC_CONST;
-
 TrackerRemoteConnection *tracker_remote_connection_new (const gchar *base_uri);
-
-#endif /* __TRACKER_REMOTE_H__ */

@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __TRACKER_ROWID_H__
-#define __TRACKER_ROWID_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -33,6 +32,5 @@ typedef gint64 TrackerRowid;
 GType tracker_rowid_get_type (void) G_GNUC_CONST;
 
 TrackerRowid * tracker_rowid_copy (TrackerRowid *rowid);
-void tracker_rowid_free (TrackerRowid *rowid);
 
-#endif /* __TRACKER_ROWID_H__ */
+void tracker_rowid_free (TrackerRowid *rowid);

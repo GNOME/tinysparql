@@ -18,11 +18,8 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_UUID_H__
-#define __TRACKER_UUID_H__
+#pragma once
 
 #include <glib.h>
 
 gchar * tracker_generate_uuid (const gchar *uri_prefix);
-
-#endif /* __TRACKER_UUID_H__ */

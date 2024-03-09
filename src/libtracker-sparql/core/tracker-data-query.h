@@ -20,8 +20,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_DATA_QUERY_H__
-#define __LIBTRACKER_DATA_QUERY_H__
+#pragma once
 
 #include <glib.h>
 
@@ -49,5 +48,3 @@ gboolean             tracker_data_query_string_to_value (TrackerDataManager   *m
                                                          GError              **error);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_DATA_QUERY_H__ */

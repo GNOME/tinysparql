@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_ENUMS_PRIVATE_H
-#define TRACKER_ENUMS_PRIVATE_H
+#pragma once
 
 typedef enum
 {
@@ -31,5 +30,3 @@ typedef enum
 	TRACKER_SERIALIZER_FORMAT_JSON_LD, /* application/ld+json */
 	TRACKER_N_SERIALIZER_FORMATS
 } TrackerSerializerFormat;
-
-#endif /* TRACKER_ENUMS_PRIVATE_H */

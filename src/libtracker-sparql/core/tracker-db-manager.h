@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_DB_MANAGER_H__
-#define __LIBTRACKER_DB_MANAGER_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -110,5 +109,3 @@ gboolean tracker_db_manager_check_integrity (TrackerDBManager  *db_manager,
                                              GError           **error);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_DB_MANAGER_H__ */

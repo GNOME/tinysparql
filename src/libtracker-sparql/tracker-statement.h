@@ -16,8 +16,8 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#ifndef __TRACKER_SPARQL_STATEMENT_H__
-#define __TRACKER_SPARQL_STATEMENT_H__
+
+#pragma once
 
 #if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
@@ -123,5 +123,3 @@ gboolean tracker_sparql_statement_update_finish (TrackerSparqlStatement  *stmt,
                                                  GError                 **error);
 
 G_END_DECLS
-
-#endif /* __TRACKER_SPARQL_STATEMENT_H__ */

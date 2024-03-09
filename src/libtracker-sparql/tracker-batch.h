@@ -18,8 +18,8 @@
  *
  * Author: Carlos Garnacho
  */
-#ifndef __TRACKER_BATCH_H__
-#define __TRACKER_BATCH_H__
+
+#pragma once
 
 #if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
@@ -90,5 +90,3 @@ gboolean tracker_batch_execute_finish (TrackerBatch  *batch,
                                        GError       **error);
 
 G_END_DECLS
-
-#endif /* __TRACKER_BATCH_H__ */
