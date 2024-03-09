@@ -83,6 +83,7 @@ def reformat_chunks(chunks, rewrite):
         proc = subprocess.run(
             ["uncrustify", "-c", uncrustify_cfg, "-f", tmp.name],
             stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
         )
         reindented = proc.stdout.splitlines(keepends=True)
         if proc.returncode != 0:
