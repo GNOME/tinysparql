@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_H__
-#define __LIBTRACKER_COMMON_H__
+#pragma once
 
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-common/tracker-common.h> must be included directly."
@@ -36,5 +35,3 @@
 #include "tracker-utils.h"
 
 #undef __LIBTRACKER_COMMON_INSIDE__
-
-#endif /* __LIBTRACKER_COMMON_H__ */

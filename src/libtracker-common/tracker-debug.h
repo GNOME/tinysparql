@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_DEBUG_H__
-#define __TRACKER_DEBUG_H__
+#pragma once
 
 #if !defined (__LIBTRACKER_COMMON_INSIDE__) && !defined (TRACKER_COMPILATION)
 #error "only <libtracker-common/tracker-common.h> must be included directly."
@@ -55,5 +54,3 @@ typedef enum {
 guint tracker_get_debug_flags (void);
 
 G_END_DECLS
-
-#endif /* __TRACKER_DEBUG_H__ */

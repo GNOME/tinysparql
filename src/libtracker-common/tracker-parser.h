@@ -18,8 +18,7 @@
  * 02110-1301  USA
  */
 
-#ifndef __LIBTRACKER_COMMON_PARSER_H__
-#define __LIBTRACKER_COMMON_PARSER_H__
+#pragma once
 
 #include <glib.h>
 
@@ -90,5 +89,3 @@ gunichar2 * tracker_parser_unaccent (const gunichar2 *input,
                                      gsize           *len_out);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_COMMON_PARSER_H__ */

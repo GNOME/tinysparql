@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __TRACKER_TERM_UTILS_H__
-#define __TRACKER_TERM_UTILS_H__
+#pragma once
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -41,5 +40,3 @@ gboolean tracker_term_is_tty (void);
 
 gboolean tracker_term_pipe_to_pager (void);
 gboolean tracker_term_pager_close (void);
-
-#endif /* __TRACKER_TERM_UTILS_H__ */

@@ -18,8 +18,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_UTILS_H__
-#define __LIBTRACKER_COMMON_UTILS_H__
+#pragma once
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -48,5 +47,3 @@ gchar * tracker_util_build_dbus_uri         (GBusType      bus_type,
                                              const gchar  *path);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_COMMON_UTILS_H__ */
