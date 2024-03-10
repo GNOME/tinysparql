@@ -199,10 +199,10 @@ test_sparql_query (TestInfo      *test_info,
 	ontology = tracker_sparql_get_ontology_nepomuk ();
 	local = tracker_sparql_connection_new (0, NULL, ontology, NULL, &error);
 	g_assert_no_error (error);
-	g_object_unref (ontology);
 
 	remote = tracker_sparql_connection_new (0, NULL, ontology, NULL, &error);
 	g_assert_no_error (error);
+	g_object_unref (ontology);
 
 	thread = g_thread_new (NULL, thread_func, remote);
 	while (!endpoint) {
