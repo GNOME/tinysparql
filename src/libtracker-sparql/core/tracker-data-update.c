@@ -3656,7 +3656,7 @@ handle_update_rdf (TrackerData       *data,
 	TrackerRdfFormat format;
 	GInputStream *rdf_stream;
 	gchar *default_graph = NULL, *rdf = NULL;
-	gsize rdf_len;
+	gsize rdf_len = 0;
 	GError *inner_error = NULL;
 
 	flags = g_data_input_stream_read_uint32 (istream, cancellable, &inner_error);
