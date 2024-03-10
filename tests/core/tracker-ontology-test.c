@@ -87,6 +87,8 @@ query_helper (TrackerSparqlConnection *conn,
 
 	query = strtok (queries, "~");
 
+	test_results = g_string_new (NULL);
+
 	while (query) {
 		TrackerSparqlCursor *cursor;
 
@@ -95,9 +97,7 @@ query_helper (TrackerSparqlConnection *conn,
 
 		/* compare results with reference output */
 
-		if (!test_results) {
-			test_results = g_string_new ("");
-		} else {
+		if (test_results->len != 0) {
 			g_string_append (test_results, "~\n");
 		}
 
