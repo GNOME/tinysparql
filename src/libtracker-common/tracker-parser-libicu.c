@@ -911,6 +911,7 @@ tracker_parser_unaccent (const gunichar2 *input,
 
 	if (!U_SUCCESS (status)) {
 		zOutput = g_memdup2 (input, len);
+		nOutput = len;
 	}
 
 	/* Unaccenting is done in place */
