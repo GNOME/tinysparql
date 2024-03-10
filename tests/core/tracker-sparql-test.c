@@ -583,8 +583,6 @@ test_sparql_query (TestInfo      *test_info,
 	/* cleanup */
 
 	g_free (data_filename);
-	g_free (query_filename);
-	g_free (query);
 	g_free (results_filename);
 	g_object_unref (test_schemas);
 
