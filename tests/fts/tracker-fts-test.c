@@ -199,7 +199,6 @@ main (int argc, char **argv)
 {
 	gint result;
 	gint i;
-	gchar *path;
 
 	g_test_init (&argc, &argv, NULL);
 
@@ -214,10 +213,6 @@ main (int argc, char **argv)
 
 	/* run tests */
 	result = g_test_run ();
-
-	path = g_build_filename (TOP_BUILDDIR, "tests", "fts", "dconf", "user", NULL);
-	g_unlink (path);
-	g_free (path);
 
 	return result;
 }
