@@ -71,7 +71,6 @@ struct TrackerDBInterface {
 
 	TrackerDBStatementMru select_stmt_mru;
 
-	/* Used if TRACKER_DB_INTERFACE_USE_MUTEX is set */
 	GMutex mutex;
 
 	/* User data */
@@ -1876,15 +1875,13 @@ initialize_functions (TrackerDBInterface *db_interface)
 static inline void
 tracker_db_interface_lock (TrackerDBInterface *iface)
 {
-	if (iface->flags & TRACKER_DB_INTERFACE_USE_MUTEX)
-		g_mutex_lock (&iface->mutex);
+	g_mutex_lock (&iface->mutex);
 }
 
 static inline void
 tracker_db_interface_unlock (TrackerDBInterface *iface)
 {
-	if (iface->flags & TRACKER_DB_INTERFACE_USE_MUTEX)
-		g_mutex_unlock (&iface->mutex);
+	g_mutex_unlock (&iface->mutex);
 }
 
 static void

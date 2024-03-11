@@ -653,8 +653,6 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 
 	if (readonly)
 		flags |= TRACKER_DB_INTERFACE_READONLY;
-	if (db_manager->flags & TRACKER_DB_MANAGER_ENABLE_MUTEXES)
-		flags |= TRACKER_DB_INTERFACE_USE_MUTEX;
 	if (db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY)
 		flags |= TRACKER_DB_INTERFACE_IN_MEMORY;
 
