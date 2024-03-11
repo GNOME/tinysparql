@@ -20,8 +20,8 @@ def run_diff(sha):
     return proc.stdout.strip().splitlines()
 
 def find_chunks(diff):
-    file_entry_re = re.compile('^\+\+\+ b/(.*)$')
-    diff_chunk_re = re.compile('^@@ -\d+,\d+ \+(\d+),(\d+)')
+    file_entry_re = re.compile(r'^\+\+\+ b/(.*)$')
+    diff_chunk_re = re.compile(r'^@@ -\d+,\d+ \+(\d+),(\d+)')
     file = None
     chunks = []
 
@@ -83,6 +83,7 @@ def reformat_chunks(chunks, rewrite):
         proc = subprocess.run(
             ["uncrustify", "-c", uncrustify_cfg, "-f", tmp.name],
             stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
         )
         reindented = proc.stdout.splitlines(keepends=True)
         if proc.returncode != 0:

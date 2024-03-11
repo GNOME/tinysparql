@@ -15,6 +15,7 @@ variables:
   MESON_TEST_EXTRA_ARGS: ""
 
 stages:
+  - check
   - review
   - prepare
   - code-review
@@ -25,8 +26,31 @@ stages:
 
 workflow:
   rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-    - if: $CI_PIPELINE_SOURCE == 'push'
+    # Allow to switch from branch pipelines to MR pipelines seamlessly
+    # https://docs.gitlab.com/ee/ci/jobs/job_control.html#avoid-duplicate-pipelines
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Don't trigger a branch pipeline if there is an open MR
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+
+.manual-pipeline-guard:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_COMMIT_BRANCH =~ /^tracker-[0-9-]\.[0-9-]+$/'
+    # Avoid catchall `when: manual` rule which might
+    # cause duplicate pipelines to be triggered.
+    # https://docs.gitlab.com/ee/ci/jobs/job_control.html#avoid-duplicate-pipelines
+    #
+    # Also make it so pipelines without MR need to be started
+    # manually, since their state will most likely be WIP
+    - if: '$CI_COMMIT_BRANCH'
+      when: 'manual'
 
 .check-template: &check
   extends:
@@ -39,7 +63,7 @@ workflow:
       junit: check-junit-report.xml
 
 repo-sanity:
-  stage: review
+  stage: check
   script:
     - >
       if [[ -z "$CI_REGISTRY_IMAGE" ]] ;
@@ -48,6 +72,8 @@ repo-sanity:
           repo-sanity "The container registry should be enabled in the project general settings panel at $CI_PROJECT_URL/edit" ;
         exit 1 ;
       fi
+  rules:
+    - !reference [.manual-pipeline-guard, rules]
   <<: *check
 
 check-commit-log:
@@ -65,6 +91,8 @@ check-commit-log:
   allow_failure:
     exit_codes:
       - 255
+  needs:
+    - repo-sanity
   <<: *check
 
 check-merge-request:
@@ -78,11 +106,13 @@ check-merge-request:
       else
         echo "Not a merge request" ;
       fi
+  needs:
+    - repo-sanity
   <<: *check
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2023-08-14.4'
+    BASE_TAG: '2024-03-09.0'
     FDO_DISTRIBUTION_PACKAGES:
       clang
       clang-analyzer
@@ -92,6 +122,7 @@ check-merge-request:
       git
       gi-docgen
       libasan
+      libsoup-devel
       libubsan
       patch
       python-devel
@@ -111,8 +142,6 @@ check-merge-request:
       dnf builddep -y tracker --setopt=install_weak_deps=False &&
       # For tests, this isn't packaged in Fedora.
       pip3 install tap.py &&
-      # Needed for verifying legacy libsoup2 support
-      dnf install -y libsoup-devel &&
       dnf clean all
 
 .tracker.ubuntu@common:
@@ -127,13 +156,13 @@ check-merge-request:
 
 .tracker.alpine@common:
   variables:
-    BASE_TAG: '2023-03-21.1'
+    BASE_TAG: '2024-03-09.0'
     FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev gcovr vala'
 
-.tracker.fedora:37@x86_64:
+.tracker.fedora:latest@x86_64:
   extends: .tracker.fedora@common
   variables:
-    FDO_DISTRIBUTION_VERSION: 37
+    FDO_DISTRIBUTION_VERSION: latest
     FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
 
 .tracker.fedora:rawhide@x86_64:
@@ -142,10 +171,10 @@ check-merge-request:
     FDO_DISTRIBUTION_VERSION: rawhide
     FDO_DISTRIBUTION_TAG: "x86_64-${BASE_TAG}"
 
-.tracker.fedora:37@aarch64:
+.tracker.fedora:latest@aarch64:
   extends: .tracker.fedora@common
   variables:
-    FDO_DISTRIBUTION_VERSION: 37
+    FDO_DISTRIBUTION_VERSION: latest
     FDO_DISTRIBUTION_TAG: "aarch64-${BASE_TAG}"
   tags:
     - aarch64
@@ -173,12 +202,11 @@ check-merge-request:
 build-fedora-container@x86_64:
   extends:
     - .fdo.container-build@fedora
-    - .tracker.fedora:37@x86_64
+    - .tracker.fedora:latest@x86_64
   stage: prepare
   variables:
     GIT_STRATEGY: none
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -191,19 +219,17 @@ build-fedora-rawhide-container@x86_64:
     GIT_STRATEGY: none
   allow_failure: true
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
 build-fedora-container@aarch64:
   extends:
     - .fdo.container-build@fedora
-    - .tracker.fedora:37@aarch64
+    - .tracker.fedora:latest@aarch64
   stage: prepare
   variables:
     GIT_STRATEGY: none
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -215,7 +241,6 @@ build-fedora-rawhide-container@aarch64:
   variables:
     GIT_STRATEGY: none
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -227,7 +252,6 @@ build-ubuntu-container@x86_64:
   variables:
     GIT_STRATEGY: none
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
@@ -239,14 +263,13 @@ build-alpine-container@x86_64:
   variables:
     GIT_STRATEGY: none
   needs:
-    - repo-sanity
     - check-commit-log
     - check-merge-request
 
 check-code-style:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:37@x86_64
+    - .tracker.fedora:latest@x86_64
   needs:
     - build-fedora-container@x86_64
   stage: code-review
@@ -259,7 +282,7 @@ check-code-style:
 .build-template: &build
   stage: build
   script:
-    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_coverage=true -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true --prefix /usr
+    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_coverage=true -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true -Davahi=disabled --prefix /usr
     - ninja -C build
   artifacts:
     expire_in: 1 day
@@ -269,7 +292,7 @@ check-code-style:
 build-fedora@x86_64:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:37@x86_64
+    - .tracker.fedora:latest@x86_64
   needs:
     - build-fedora-container@x86_64
   <<: *build
@@ -286,7 +309,7 @@ build-fedora-rawhide@x86_64:
 build-fedora@aarch64:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:37@aarch64
+    - .tracker.fedora:latest@aarch64
   needs:
     - build-fedora-container@aarch64
   allow_failure: true
@@ -372,7 +395,7 @@ build-alpine-latest@x86_64:
 test-fedora@x86_64:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:37@x86_64
+    - .tracker.fedora:latest@x86_64
   needs:
     - build-fedora@x86_64
   <<: *test
@@ -394,7 +417,7 @@ test-fedora-rawhide@x86_64:
 test-fedora@aarch64:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:37@aarch64
+    - .tracker.fedora:latest@aarch64
   needs:
     - build-fedora@aarch64
   allow_failure: true
@@ -428,7 +451,7 @@ test-alpine@x86_64:
 test-website:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:37@x86_64
+    - .tracker.fedora:latest@x86_64
   stage: test
   script:
     - export install_prefix="$(pwd)/tracker-install"
@@ -448,14 +471,12 @@ test-website:
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH
       when: never
-    - if: $CI_PIPELINE_SOURCE != 'merge_request_event' && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
-      when: never
     - when: always
 
 test-soup2@x86_64:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:37@x86_64
+    - .tracker.fedora:latest@x86_64
   needs:
     - build-fedora@x86_64
   before_script:
@@ -465,7 +486,7 @@ test-soup2@x86_64:
 coverage:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:37@x86_64
+    - .tracker.fedora:latest@x86_64
   stage: analysis
   allow_failure: true
   script:
@@ -498,7 +519,7 @@ coverage:
 coverity:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:37@x86_64
+    - .tracker.fedora:latest@x86_64
   stage: analysis
   allow_failure: true
   script:
@@ -506,7 +527,7 @@ coverity:
     - tar zxf /tmp/coverity_tool.tgz
     - mkdir coverity-build
     - cd coverity-build
-    - env CC=clang meson ..
+    - env CC=clang meson setup .. -Dsystemd_user_services=false
     - ../cov-analysis-linux64-*/bin/cov-build --dir cov-int ninja
     - tar czf cov-int.tar.gz cov-int
     - curl https://scan.coverity.com/builds?project=Tracker
@@ -524,7 +545,7 @@ coverity:
 static-scan:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:37@x86_64
+    - .tracker.fedora:latest@x86_64
   stage: analysis
   needs:
     - build-fedora-container@x86_64
@@ -539,7 +560,7 @@ static-scan:
 pages:
   extends:
     - .fdo.distribution-image@fedora
-    - .tracker.fedora:37@x86_64
+    - .tracker.fedora:latest@x86_64
   stage: website
   script:
     - mv website public
