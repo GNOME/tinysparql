@@ -103,8 +103,7 @@ query_urns_by_url (const gchar *uri)
 	                                          &error);
 	if (error) {
 		/* Some error happened performing the query, not good */
-		g_error ("Couldn't query the Tracker Store: '%s'",
-		         error ? error->message : "unknown error");
+		g_error ("Couldn't query the Tracker Store: '%s'", error->message);
 	}
 
 	/* Check results... */
@@ -155,8 +154,7 @@ update_store (const gchar *sparql)
 	if (error) {
 		/* Some error happened performing the query, not good */
 		g_error ("Couldn't update store for '%s': %s",
-		         sparql,
-		         error ? error->message : "unknown error");
+		         sparql, error->message);
 	}
 }
 
@@ -280,8 +278,7 @@ context_init (gint    argc,
 	                          &buffer_size,
 	                          &error)) {
 		g_error ("Couldn't load file '%s' contents: %s",
-		         file_uri,
-		         error ? error->message : "unknown error");
+		         file_uri, error->message);
 	}
 
 	/* Get connection */
@@ -289,8 +286,7 @@ context_init (gint    argc,
 	                                                NULL, NULL, &error);
 	if (!connection) {
 		/* Some error happened performing the query, not good */
-		g_error ("Couldn't get sparql connection: %s",
-		         error ? error->message : "unknown error");
+		g_error ("Couldn't get sparql connection: %s", error->message);
 	}
 
 	g_print ("\
@@ -397,8 +393,7 @@ task_run_cb (gpointer data)
 			                  NULL,
 			                  NULL,
 			                  &error)) {
-				g_error ("Couldn't copy file to the final destination: %s",
-				         error ? error->message : "unknown error");
+				g_error ("Couldn't copy file to the final destination: %s", error->message);
 			}
 		}
 
@@ -426,8 +421,7 @@ task_run_cb (gpointer data)
 				                  NULL,
 				                  NULL,
 				                  &error)) {
-					g_error ("Couldn't copy file to the final destination (batch): %s",
-					         error ? error->message : "unknown error");
+					g_error ("Couldn't copy file to the final destination (batch): %s", error->message);
 				}
 			}
 		}
