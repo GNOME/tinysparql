@@ -27,7 +27,7 @@ tracker_test_helpers_get_nonutf8 (void)
 
 	if (!nonutf8_str) {
 		file = g_mapped_file_new (TEST_TEXT, FALSE, NULL);
-		nonutf8_str = g_strdup (g_mapped_file_get_contents (file));
+		nonutf8_str = g_mapped_file_get_contents (file);
 		nonutf8_str [g_mapped_file_get_length (file) -1] = '\0';
 		g_mapped_file_unref (file);
 	}
@@ -38,8 +38,5 @@ tracker_test_helpers_get_nonutf8 (void)
 void
 tracker_test_helpers_free_nonutf8 (void)
 {
-	if (nonutf8_str) {
-		g_free (nonutf8_str);
-		nonutf8_str = NULL;
-	}
+	g_clear_pointer (&nonutf8_str, g_free);
 }
