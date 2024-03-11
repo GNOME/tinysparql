@@ -315,6 +315,8 @@ tracker_util_parse_dbus_uri (const gchar  *uri,
 {
 	const gchar *separator;
 
+	g_assert (uri != NULL);
+
 	if (!g_str_has_prefix (uri, "dbus:"))
 		return FALSE;
 

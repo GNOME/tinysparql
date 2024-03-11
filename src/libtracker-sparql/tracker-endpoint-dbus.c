@@ -730,7 +730,7 @@ bind_arguments (TrackerSparqlStatement *stmt,
 			tracker_sparql_statement_bind_boolean (stmt, arg,
 			                                       g_variant_get_boolean (value));
 		} else if (g_variant_is_of_type (value, G_VARIANT_TYPE_BYTESTRING)) {
-			const gchar *data, *langtag;
+			const gchar *data, *langtag = NULL;
 			gsize len, str_len;
 
 			data = g_variant_get_fixed_array (value, &len, sizeof (guint8));

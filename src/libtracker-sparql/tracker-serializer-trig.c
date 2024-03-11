@@ -140,6 +140,8 @@ print_value (GString                 *str,
              TrackerSparqlValueType   value_type,
              TrackerNamespaceManager *namespaces)
 {
+	g_assert (value != NULL);
+
 	switch (value_type) {
 	case TRACKER_SPARQL_VALUE_TYPE_URI: {
 		gchar *shortname;

@@ -1090,8 +1090,10 @@ parse_prefix (const gchar *prefixed_name)
 	if (!terminal_PNAME_NS (prefixed_name, end, &token_end))
 		return NULL;
 
+	g_assert (token_end != NULL);
+
 	/* We have read the ':', take a step back */
-	if (token_end && token_end > prefixed_name)
+	if (token_end > prefixed_name)
 		token_end--;
 
 	if (*token_end != ':')
