@@ -956,9 +956,7 @@ tree_get (TrackerSparqlConnection *connection,
 				g_hash_table_unref (filter_parents);
 			}
 
-			if (cursor) {
-				g_object_unref (cursor);
-			}
+			g_object_unref (cursor);
 
 			return EXIT_FAILURE;
 		}
@@ -970,9 +968,7 @@ tree_get (TrackerSparqlConnection *connection,
 			tree_add_property (root, class, property);
 		}
 
-		if (properties) {
-			g_object_unref (properties);
-		}
+		g_object_unref (properties);
 	}
 
 	g_free (class_lookup_longhand);
@@ -984,10 +980,7 @@ tree_get (TrackerSparqlConnection *connection,
 		g_hash_table_unref (filter_parents);
 	}
 
-	if (cursor) {
-		g_object_unref (cursor);
-	}
-
+	g_object_unref (cursor);
 	tree_free (root);
 
 	return EXIT_SUCCESS;
