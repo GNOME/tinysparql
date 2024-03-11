@@ -156,9 +156,8 @@ advance_stack (TrackerDeserializerJsonLD *deserializer)
 		if (elem->data.array.idx >= (gint) elem->data.array.elements)
 			return FALSE;
 
-		json_reader_read_element (deserializer->reader,
-		                          elem->data.array.idx);
-		return TRUE;
+		return json_reader_read_element (deserializer->reader,
+		                                 elem->data.array.idx);
 	} else if (elem->type == STACK_OBJECT) {
 		if (elem->data.object.idx >= 0)
 			json_reader_end_member (deserializer->reader);
@@ -168,9 +167,8 @@ advance_stack (TrackerDeserializerJsonLD *deserializer)
 		if (elem->data.object.members[elem->data.array.idx] == NULL)
 			return FALSE;
 
-		json_reader_read_member (deserializer->reader,
-		                         elem->data.object.members[elem->data.array.idx]);
-		return TRUE;
+		return json_reader_read_member (deserializer->reader,
+		                                elem->data.object.members[elem->data.array.idx]);
 	}
 
 	return FALSE;
