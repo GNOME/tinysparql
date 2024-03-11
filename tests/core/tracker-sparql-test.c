@@ -395,12 +395,14 @@ check_result (TrackerSparqlCursor *cursor,
 	GString *test_results;
 	gchar *results;
 	GError *nerror = NULL;
+	gboolean retval;
 
 	if (!test_info->expect_query_error) {
 		g_assert_no_error (error);
 	}
 
-	g_file_get_contents (results_filename, &results, NULL, &nerror);
+	retval = g_file_get_contents (results_filename, &results, NULL, &nerror);
+	g_assert_true (retval);
 	g_assert_no_error (nerror);
 	g_clear_error (&nerror);
 
@@ -498,6 +500,7 @@ test_sparql_query (TestInfo      *test_info,
 	gchar *prefix, *data_prefix, *test_prefix;
 	GFile *file, *test_schemas;
 	TrackerSparqlConnection *conn;
+	gboolean retval;
 
 	/* initialization */
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "core", NULL);
@@ -534,7 +537,8 @@ test_sparql_query (TestInfo      *test_info,
 		g_free (data_filename);
 
 		data_filename = g_strconcat (data_prefix, ".rq", NULL);
-		g_file_get_contents (data_filename, &data, NULL, &error);
+		retval = g_file_get_contents (data_filename, &data, NULL, &error);
+		g_assert_true (retval);
 		g_assert_no_error (error);
 
 		tracker_sparql_connection_update (conn, data, NULL, &error);
@@ -549,7 +553,8 @@ test_sparql_query (TestInfo      *test_info,
 	}
 
 	query_filename = g_strconcat (test_prefix, ".rq", NULL);
-	g_file_get_contents (query_filename, &query, NULL, &error);
+	retval = g_file_get_contents (query_filename, &query, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
 	results_filename = g_strconcat (test_prefix, ".out", NULL);

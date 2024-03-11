@@ -72,13 +72,15 @@ check_result (GInputStream *istream,
 	gchar *shell;
 	gchar *diff;
 	gchar output[8096] = { 0 };
+	gboolean retval;
 
 	g_input_stream_read_all (istream,
 	                         output, sizeof (output),
 	                         NULL, NULL, &error);
 	g_assert_no_error (error);
 
-	g_file_get_contents (results_filename, &results, NULL, &nerror);
+	retval = g_file_get_contents (results_filename, &results, NULL, &nerror);
+	g_assert_true (retval);
 	g_assert_no_error (nerror);
 	g_clear_error (&nerror);
 
@@ -150,12 +152,14 @@ serialize (TestFixture   *test_fixture,
 	GError *error = NULL;
 	gchar *path, *query;
 	TestInfo *test_info = test_fixture->test;
+	gboolean retval;
 
 	test_fixture->loop = g_main_loop_new (NULL, FALSE);
 
 	path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
 	                         test_info->query_file, NULL);
-	g_file_get_contents (path, &query, NULL, &error);
+	retval = g_file_get_contents (path, &query, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 	g_free (path);
 

@@ -87,8 +87,10 @@ check_result (TrackerSparqlCursor *cursor,
 	GError *nerror = NULL;
 	GError *error = NULL;
 	gint col;
+	gboolean retval;
 
-	g_file_get_contents (results_filename, &results, NULL, &nerror);
+	retval = g_file_get_contents (results_filename, &results, NULL, &nerror);
+	g_assert_true (retval);
 	g_assert_no_error (nerror);
 	g_clear_error (&nerror);
 
@@ -188,6 +190,7 @@ query_statement (TestFixture   *test_fixture,
 	gchar *path, *query;
 	GDateTime *date_time;
 	TestInfo *test_info = test_fixture->test;
+	gboolean retval;
 
 	if (test_info->query_file[0] == '/') {
 		/* Absolute paths refer to GResource paths here */
@@ -197,7 +200,8 @@ query_statement (TestFixture   *test_fixture,
 	} else {
 		path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
 		                         test_info->query_file, NULL);
-		g_file_get_contents (path, &query, NULL, &error);
+		retval = g_file_get_contents (path, &query, NULL, &error);
+		g_assert_true (retval);
 		g_assert_no_error (error);
 		g_free (path);
 

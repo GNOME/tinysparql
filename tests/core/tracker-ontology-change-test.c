@@ -686,11 +686,14 @@ query_helper (TrackerSparqlConnection *conn,
 	gchar *results = NULL;
 	GString *test_results = NULL;
 	TrackerSparqlCursor *cursor;
+	gboolean retval;
 
-	g_file_get_contents (query_filename, &query, NULL, &error);
+	retval = g_file_get_contents (query_filename, &query, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
-	g_file_get_contents (results_filename, &results, NULL, &error);
+	retval = g_file_get_contents (results_filename, &results, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
 	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);

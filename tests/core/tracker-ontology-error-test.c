@@ -82,8 +82,10 @@ load_error_msgs (gchar *errors_path, gchar *ontology_path)
 	gchar *ret;
 	GFile *ontology_file = g_file_new_for_path (ontology_path);
 	gchar *ontology_uri = g_file_get_uri (ontology_file);
+	gboolean retval;
 
-	g_file_get_contents (errors_path, &raw_errors, NULL, &error);
+	retval = g_file_get_contents (errors_path, &raw_errors, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
 	error_msg = strtok (raw_errors, "~");
@@ -150,13 +152,15 @@ ontology_error_helper (GFile *ontology_location, char *error_path)
 	GError* ontology_error = NULL;
 	GMatchInfo *matchInfo;
 	GRegex *regex;
+	gboolean retval;
 
 	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
 	                                      NULL, ontology_location,
 	                                      NULL, &ontology_error);
 	g_assert_true (ontology_error != NULL);
 
-	g_file_get_contents (error_path, &error_msg, NULL, &error);
+	retval = g_file_get_contents (error_path, &error_msg, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
 	regex = g_regex_new (error_msg, 0, 0, &error);

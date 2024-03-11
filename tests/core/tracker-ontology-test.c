@@ -76,11 +76,14 @@ query_helper (TrackerSparqlConnection *conn,
 	gchar *queries = NULL, *query;
 	gchar *results = NULL;
 	GString *test_results = NULL;
+	gboolean retval;
 
-	g_file_get_contents (query_filename, &queries, NULL, &error);
+	retval = g_file_get_contents (query_filename, &queries, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
-	g_file_get_contents (results_filename, &results, NULL, &error);
+	retval = g_file_get_contents (results_filename, &results, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
 	/* perform actual query */
