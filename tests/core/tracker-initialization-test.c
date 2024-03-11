@@ -55,9 +55,11 @@ static void
 fool_integrity_check (const gchar *data_dir)
 {
 	gchar *path = g_build_filename (data_dir, ".meta.corrupted", NULL);
+	gboolean retval;
 
 	/* Add the "corrupted" file, to fool next DB open */
-	g_file_set_contents (path, "", -1, NULL);
+	retval = g_file_set_contents (path, "", -1, NULL);
+	g_assert_true (retval);
 	g_free (path);
 }
 
