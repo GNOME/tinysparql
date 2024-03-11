@@ -224,7 +224,12 @@ context_init (gint    argc,
 	/* Setup context */
 	context = g_option_context_new ("- Simulate MTP daemon");
 	g_option_context_add_main_entries (context, entries, NULL);
-	g_option_context_parse (context, &argc, &argv, NULL);
+	if (!g_option_context_parse (context, &argc, &argv, &error)) {
+		g_printerr ("%s\n", error->message);
+		g_option_context_free (context);
+		return FALSE;
+	}
+
 	g_option_context_free (context);
 
 	/* Check input arguments */
