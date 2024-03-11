@@ -3158,11 +3158,12 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 {
 	TrackerDBStatement *stmt = cursor->ref_stmt;
 	TrackerDBInterface *iface = stmt->db_interface;
+	gboolean finished;
+
+	tracker_db_interface_lock (iface);
 
 	if (!cursor->finished) {
 		guint result;
-
-		tracker_db_interface_lock (iface);
 
 		if (g_cancellable_set_error_if_cancelled (cancellable, error)) {
 			sqlite3_reset (cursor->stmt);
@@ -3187,11 +3188,13 @@ db_cursor_iter_next (TrackerDBCursor *cursor,
 
 			cursor->finished = (result != SQLITE_ROW);
 		}
-
-		tracker_db_interface_unlock (iface);
 	}
 
-	return (!cursor->finished);
+	finished = cursor->finished;
+
+	tracker_db_interface_unlock (iface);
+
+	return !finished;
 }
 
 gint
