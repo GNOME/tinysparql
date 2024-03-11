@@ -531,7 +531,7 @@ set_up_thread_pools (TrackerDirectConnection  *conn,
 static TrackerDBManagerFlags
 translate_flags (TrackerSparqlConnectionFlags flags)
 {
-	TrackerDBManagerFlags db_flags = TRACKER_DB_MANAGER_ENABLE_MUTEXES;
+	TrackerDBManagerFlags db_flags = TRACKER_DB_MANAGER_FLAGS_NONE;
 
 	if ((flags & TRACKER_SPARQL_CONNECTION_FLAGS_READONLY) != 0)
 		db_flags |= TRACKER_DB_MANAGER_READONLY;
