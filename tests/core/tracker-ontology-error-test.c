@@ -187,13 +187,15 @@ test_ontology_error (void)
 	GError *error = NULL;
 	GFile *test_ontology_file;
 	GFile *test_schemas;
+	gint retval;
 
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "core", NULL);
 	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "core", NULL);
 
 	// Create a temporary directory inside the build directory to store in it the ontology that will be tested
 	test_ontology_dir = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "ontology-error", "ontologies", NULL);
-	g_mkdir_with_parents (test_ontology_dir, 0777);
+	retval = g_mkdir_with_parents (test_ontology_dir, 0777);
+	g_assert_cmpint (retval, ==, 0);
 	test_schemas = g_file_new_for_path (test_ontology_dir);
 
 	test_ontology_path = g_build_path (G_DIR_SEPARATOR_S, test_ontology_dir, "test.ontology", NULL);

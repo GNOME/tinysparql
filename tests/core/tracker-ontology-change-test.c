@@ -819,6 +819,7 @@ test_ontology_change (gconstpointer context)
 	GFile *data_location, *test_schemas;
 	TrackerSparqlConnection *conn;
 	const ChangeTest *test = context;
+	gint retval;
 
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "core", NULL);
 	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "core", NULL);
@@ -831,7 +832,8 @@ test_ontology_change (gconstpointer context)
 	g_file_delete (file2, NULL, NULL);
 
 	ontology_dir = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", NULL);
-	g_mkdir_with_parents (ontology_dir, 0777);
+	retval = g_mkdir_with_parents (ontology_dir, 0777);
+	g_assert_cmpint (retval , ==, 0);
 	test_schemas = g_file_new_for_path (ontology_dir);
 	g_free (ontology_dir);
 
