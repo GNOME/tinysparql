@@ -22,6 +22,7 @@ functional_tests = [
   'test_collation',
   'test_concurrent_query',
   'test_distance',
+  'test_endpoint_http',
   'test_fts_functions',
   'test_graph',
   'test_group_concat',
@@ -40,7 +41,7 @@ test_env.prepend('LD_LIBRARY_PATH', tracker_sparql_uninstalled_dir)
 test_env.prepend('PYTHONPATH', tracker_uninstalled_testutils_dir)
 test_env.set('TRACKER_FUNCTIONAL_TEST_CONFIG', config_json_full_path)
 test_env.set('GIO_USE_VFS', 'local')
-test_env.set('TRACKER_DEBUG', 'fts-integrity')
+test_env.append('TRACKER_DEBUG', 'fts-integrity', separator: ' ')
 
 foreach test_name: functional_tests
   file = meson.current_source_dir() / '@0@.py'.format(test_name)

@@ -323,9 +323,23 @@ class TrackerCommandLineTestCase(ut.TestCase):
         self.bg_processes = []
 
     def tearDown(self):
+        log.info("Teardown %s bg processes: %s", len(self.bg_processes), self.bg_processes)
+        failed_processes = []
         for bg_process in self.bg_processes:
             bg_process.terminate()
             bg_process.wait()
+            if bg_process.returncode != 0:
+                failed_processes.append(bg_process)
+
+        if failed_processes:
+            message = ""
+            for p in failed_processes:
+                message += (
+                    f"Failed background process: {p.args}\n"
+                    f"Exit code: {p.returncode}\n"
+                    f"stderr: {p.stderr.read()}"
+                )
+            self.fail(message)
 
     @contextlib.contextmanager
     def tmpdir(self):
@@ -370,7 +384,7 @@ class TrackerCommandLineTestCase(ut.TestCase):
         result = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
             env=self.env,
             encoding="UTF-8",
         )
