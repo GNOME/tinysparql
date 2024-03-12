@@ -432,7 +432,6 @@ export_2to3_with_query (const gchar  *query,
 	if (inner_error) {
 		g_propagate_prefixed_error (error, inner_error,
 		                            "%s: ", _("Could not run query"));
-		g_object_unref (db_manager);
 		return FALSE;
 	}
 
@@ -445,7 +444,6 @@ export_2to3_with_query (const gchar  *query,
 	if (!stmt) {
 		g_propagate_prefixed_error (error, inner_error,
 		                            "%s: ", _("Could not run query"));
-		g_object_unref (db_manager);
 		return FALSE;
 	}
 
@@ -455,7 +453,6 @@ export_2to3_with_query (const gchar  *query,
 	if (!cursor) {
 		g_propagate_prefixed_error (error, inner_error,
 		                            "%s: ", _("Could not run query"));
-		g_object_unref (db_manager);
 		return FALSE;
 	}
 

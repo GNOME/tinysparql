@@ -63,6 +63,7 @@ test_sparql_query (gconstpointer test_data)
 	TrackerSparqlConnection *conn;
 	gchar *rm_command, *path;
 	const gchar *datadir;
+	gboolean retval;
 	gint i;
 
 	error = NULL;
@@ -90,7 +91,8 @@ test_sparql_query (gconstpointer test_data)
 	/* load data / perform updates */
 
 	update_filename = g_strconcat (test_prefix, "-data.rq", NULL);
-	g_file_get_contents (update_filename, &update, NULL, &error);
+	retval = g_file_get_contents (update_filename, &update, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
 	tracker_sparql_connection_update (conn, update, NULL, &error);
@@ -103,7 +105,8 @@ test_sparql_query (gconstpointer test_data)
 
 	for (i = 1; i <= test_info->number_of_queries; i++) {
 		query_filename = g_strdup_printf ("%s-%d.rq", test_prefix, i);
-		g_file_get_contents (query_filename, &query, NULL, &error);
+		retval = g_file_get_contents (query_filename, &query, NULL, &error);
+		g_assert_true (retval);
 		g_assert_no_error (error);
 
 		cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
@@ -116,7 +119,8 @@ test_sparql_query (gconstpointer test_data)
 		}
 
 		results_filename = g_strdup_printf ("%s-%d.out", test_prefix, i);
-		g_file_get_contents (results_filename, &results, NULL, &error);
+		retval = g_file_get_contents (results_filename, &results, NULL, &error);
+		g_assert_true (retval);
 		g_assert_no_error (error);
 
 		/* compare results with reference output */
@@ -195,7 +199,6 @@ main (int argc, char **argv)
 {
 	gint result;
 	gint i;
-	gchar *path;
 
 	g_test_init (&argc, &argv, NULL);
 
@@ -210,10 +213,6 @@ main (int argc, char **argv)
 
 	/* run tests */
 	result = g_test_run ();
-
-	path = g_build_filename (TOP_BUILDDIR, "tests", "fts", "dconf", "user", NULL);
-	g_unlink (path);
-	g_free (path);
 
 	return result;
 }

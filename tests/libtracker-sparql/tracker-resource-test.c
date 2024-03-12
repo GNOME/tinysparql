@@ -305,9 +305,11 @@ deserialize_cb (GObject      *source,
                 gpointer      user_data)
 {
 	GError *error = NULL;
+	gboolean retval;
 
-	tracker_sparql_connection_deserialize_finish (TRACKER_SPARQL_CONNECTION (source),
-	                                              res, &error);
+	retval = tracker_sparql_connection_deserialize_finish (TRACKER_SPARQL_CONNECTION (source),
+	                                                       res, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
 	g_main_loop_quit (user_data);

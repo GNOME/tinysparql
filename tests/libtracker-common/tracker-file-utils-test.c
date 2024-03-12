@@ -37,8 +37,11 @@
 static void
 ensure_file_exists (const gchar *filename)
 {
+	gboolean retval;
+
         if (!g_file_test (filename, G_FILE_TEST_EXISTS)) {
-                g_file_set_contents (filename, "Just some stuff", -1, NULL);
+	        retval = g_file_set_contents (filename, "Just some stuff", -1, NULL);
+	        g_assert_true (retval);
         }
 }
 

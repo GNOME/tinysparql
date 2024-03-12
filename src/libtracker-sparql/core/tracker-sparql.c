@@ -10501,9 +10501,6 @@ tracker_sparql_execute_update (TrackerSparql  *sparql,
 			goto out;
 	}
 
-	if (!retval)
-		goto out;
-
 	if (!apply_update (sparql, parameters, bnode_map,
 	                   update_bnodes ? &variant_builder : NULL,
 	                   error)) {

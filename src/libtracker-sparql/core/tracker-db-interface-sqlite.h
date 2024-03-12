@@ -36,7 +36,6 @@ typedef void (*TrackerDBWalCallback) (TrackerDBInterface *iface,
 
 typedef enum {
 	TRACKER_DB_INTERFACE_READONLY  = 1 << 0,
-	TRACKER_DB_INTERFACE_USE_MUTEX = 1 << 1,
 	TRACKER_DB_INTERFACE_IN_MEMORY = 1 << 2,
 } TrackerDBInterfaceFlags;
 

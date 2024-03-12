@@ -535,6 +535,7 @@ test_tracker_sparql_cursor_get_variable_name (gpointer      fixture,
 	TrackerSparqlConnection *conn = (TrackerSparqlConnection *) user_data;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
+	gboolean has_next;
 
 	g_assert_no_error (error);
 
@@ -548,7 +549,8 @@ test_tracker_sparql_cursor_get_variable_name (gpointer      fixture,
 	g_assert_true (cursor != NULL);
 	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
 
-	tracker_sparql_cursor_next (cursor, NULL, &error);
+	has_next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_true (has_next);
 	g_assert_no_error (error);
 
 	g_assert_cmpstr (tracker_sparql_cursor_get_variable_name (cursor, 0),
@@ -574,6 +576,7 @@ test_tracker_sparql_cursor_get_value_type (gpointer      fixture,
 	TrackerSparqlConnection *conn = (TrackerSparqlConnection *) user_data;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
+	gboolean has_next;
 
 	g_assert_no_error (error);
 
@@ -587,7 +590,8 @@ test_tracker_sparql_cursor_get_value_type (gpointer      fixture,
 	g_assert_true (cursor != NULL);
 	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
 
-	tracker_sparql_cursor_next (cursor, NULL, &error);
+	has_next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_true (has_next);
 	g_assert_no_error (error);
 
 	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 0),
@@ -615,6 +619,7 @@ test_tracker_sparql_cursor_get_langstring (gpointer      fixture,
 	GError *error = NULL;
 	const gchar *str, *langtag;
 	glong len;
+	gboolean has_next;
 
 	cursor = tracker_sparql_connection_query (conn,
 	                                          "SELECT ('Hola'@es AS ?greeting) { }",
@@ -623,7 +628,8 @@ test_tracker_sparql_cursor_get_langstring (gpointer      fixture,
 	g_assert_true (cursor != NULL);
 	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
 
-	tracker_sparql_cursor_next (cursor, NULL, &error);
+	has_next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_true (has_next);
 	g_assert_no_error (error);
 
 	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 0),

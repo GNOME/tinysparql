@@ -82,8 +82,10 @@ load_error_msgs (gchar *errors_path, gchar *ontology_path)
 	gchar *ret;
 	GFile *ontology_file = g_file_new_for_path (ontology_path);
 	gchar *ontology_uri = g_file_get_uri (ontology_file);
+	gboolean retval;
 
-	g_file_get_contents (errors_path, &raw_errors, NULL, &error);
+	retval = g_file_get_contents (errors_path, &raw_errors, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
 	error_msg = strtok (raw_errors, "~");
@@ -150,13 +152,15 @@ ontology_error_helper (GFile *ontology_location, char *error_path)
 	GError* ontology_error = NULL;
 	GMatchInfo *matchInfo;
 	GRegex *regex;
+	gboolean retval;
 
 	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
 	                                      NULL, ontology_location,
 	                                      NULL, &ontology_error);
 	g_assert_true (ontology_error != NULL);
 
-	g_file_get_contents (error_path, &error_msg, NULL, &error);
+	retval = g_file_get_contents (error_path, &error_msg, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
 	regex = g_regex_new (error_msg, 0, 0, &error);
@@ -183,13 +187,15 @@ test_ontology_error (void)
 	GError *error = NULL;
 	GFile *test_ontology_file;
 	GFile *test_schemas;
+	gint retval;
 
 	prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_SRCDIR, "tests", "core", NULL);
 	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "core", NULL);
 
 	// Create a temporary directory inside the build directory to store in it the ontology that will be tested
 	test_ontology_dir = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "ontology-error", "ontologies", NULL);
-	g_mkdir_with_parents (test_ontology_dir, 0777);
+	retval = g_mkdir_with_parents (test_ontology_dir, 0777);
+	g_assert_cmpint (retval, ==, 0);
 	test_schemas = g_file_new_for_path (test_ontology_dir);
 
 	test_ontology_path = g_build_path (G_DIR_SEPARATOR_S, test_ontology_dir, "test.ontology", NULL);

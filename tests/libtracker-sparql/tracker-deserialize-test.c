@@ -77,8 +77,10 @@ check_result (TrackerSparqlCursor *cursor,
 	gchar *results;
 	GError *error = NULL;
 	gint col;
+	gboolean retval;
 
-	g_file_get_contents (results_filename, &results, NULL, &error);
+	retval = g_file_get_contents (results_filename, &results, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 
 	/* compare results with reference output */
@@ -253,6 +255,7 @@ test (TestFixture   *test_fixture,
 	TrackerSparqlCursor *cursor;
 	GInputStream *istream;
 	GFile *file;
+	gboolean retval;
 
 	test_fixture->loop = g_main_loop_new (NULL, FALSE);
 
@@ -281,7 +284,8 @@ test (TestFixture   *test_fixture,
 	path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
 	                         test_info->output_file, NULL);
 
-	g_file_get_contents (query_path, &query, NULL, &error);
+	retval = g_file_get_contents (query_path, &query, NULL, &error);
+	g_assert_true (retval);
 	g_assert_no_error (error);
 	g_free (query_path);
 

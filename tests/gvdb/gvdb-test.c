@@ -119,11 +119,13 @@ static void
 test_gvdb_corrupted_file (void)
 {
 	GError *error = NULL;
+	gboolean retval;
 
-	g_file_set_contents ("./test_invalid.gvdb",
-			     "Just a bunch of rubbish to fill a text file and try to open it"
-			     "as a gvdb and check the error is correctly reported",
-			     -1, NULL);
+	retval = g_file_set_contents ("./test_invalid.gvdb",
+	                              "Just a bunch of rubbish to fill a text file and try to open it"
+	                              "as a gvdb and check the error is correctly reported",
+	                              -1, NULL);
+	g_assert_true (retval);
 
 	gvdb_table_new ("./test_invalid.gvdb", TRUE, &error);
 	g_assert_true (error);
