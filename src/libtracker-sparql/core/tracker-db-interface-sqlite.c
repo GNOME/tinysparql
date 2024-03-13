@@ -165,12 +165,6 @@ G_DEFINE_TYPE (TrackerDBStatement, tracker_db_statement, G_TYPE_INITIALLY_UNOWNE
 
 G_DEFINE_TYPE (TrackerDBCursor, tracker_db_cursor, TRACKER_SPARQL_TYPE_CURSOR)
 
-void
-tracker_db_interface_sqlite_enable_shared_cache (void)
-{
-	sqlite3_enable_shared_cache (1);
-}
-
 static void
 result_context_function_error (sqlite3_context *context,
 			       const gchar     *sparql_function,

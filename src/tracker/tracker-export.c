@@ -426,7 +426,7 @@ export_2to3_with_query (const gchar  *query,
 
 	db_manager = tracker_db_manager_new (TRACKER_DB_MANAGER_READONLY |
 	                                     TRACKER_DB_MANAGER_SKIP_VERSION_CHECK,
-	                                     store, FALSE,
+	                                     store,
 	                                     1, NULL, &inner_error);
 
 	if (inner_error) {

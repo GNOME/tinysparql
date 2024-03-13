@@ -64,7 +64,6 @@ gboolean            tracker_db_manager_db_exists              (GFile *cache_loca
 
 TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerFlags   flags,
                                                                GFile                  *cache_location,
-                                                               gboolean                shared_cache,
                                                                guint                   select_cache_size,
                                                                GObject                *iface_data,
                                                                GError                **error);

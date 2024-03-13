@@ -468,7 +468,6 @@ tracker_db_manager_check_integrity (TrackerDBManager  *db_manager,
 TrackerDBManager *
 tracker_db_manager_new (TrackerDBManagerFlags   flags,
                         GFile                  *cache_location,
-                        gboolean                shared_cache,
                         guint                   select_cache_size,
                         GObject                *iface_data,
                         GError                **error)
@@ -568,12 +567,6 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 		 * in metadata.
 		 */
 		db_manager->flags = (db_manager->flags & ~(FTS_FLAGS)) | fts_flags;
-	}
-
-	/* Set general database options */
-	if (shared_cache) {
-		TRACKER_NOTE (SQLITE, g_message ("Enabling database shared cache"));
-		tracker_db_interface_sqlite_enable_shared_cache ();
 	}
 
 	if (need_to_create) {
