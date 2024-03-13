@@ -44,7 +44,6 @@ TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gc
                                                                         TrackerDBInterfaceFlags   flags,
                                                                         GError                  **error);
 gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterface       *interface);
-void                tracker_db_interface_sqlite_enable_shared_cache    (void);
 gboolean            tracker_db_interface_sqlite_fts_init               (TrackerDBInterface       *interface,
                                                                         TrackerDBManagerFlags     fts_flags,
                                                                         GError                  **error);

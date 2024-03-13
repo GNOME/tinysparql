@@ -4112,7 +4112,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 	manager->db_manager = tracker_db_manager_new (manager->flags,
 	                                              manager->cache_location,
-	                                              FALSE,
 	                                              manager->select_cache_size,
 	                                              G_OBJECT (manager),
 	                                              &internal_error);
