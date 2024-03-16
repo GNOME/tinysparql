@@ -1,3 +1,20 @@
+NEW in 3.7.0 - 2024-03-16
+=========================
+  * Handle POST requests in HTTP endpoints
+  * Fix a number of Coverity and static scan reports
+  * Drop deprecated SQLite API
+  * Test improvements
+
+Translations: da, de, fr, it, lv
+
+  Highlighted changes since 3.6.0:
+  * New TrackerEndpoint access control API
+  * New API to map language tagged strings to rdf:langString
+  * Better handling of corrupted databases
+  * Many HTTP endpoint improvements
+  * Better performance
+  * Improved test coverage
+
 NEW in 3.7.rc - 2024-03-04
 ==========================
   * Improve database integrity checks so they don't necessarily
