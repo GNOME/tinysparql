@@ -142,7 +142,11 @@ const TestInfo tests[] = {
 	{ "functions/functions-tracker-loc-1", "functions/data-3", FALSE },
 	{ "functions/functions-xpath-1", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-2", "functions/data-1", FALSE },
-	{ "functions/functions-xpath-3", "functions/data-1", FALSE },
+	{ "functions/functions-xpath-fn-string-join-1", "functions/data-1", FALSE },
+	{ "functions/functions-xpath-fn-string-join-2", "functions/data-1", TRUE },
+	{ "functions/functions-xpath-fn-string-join-3", "functions/data-1", TRUE },
+	{ "functions/functions-xpath-fn-string-join-4", "functions/data-1", TRUE },
+	{ "functions/functions-xpath-fn-string-join-5", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-4", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-5", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-6", "functions/data-1", FALSE },
@@ -393,18 +397,17 @@ check_result (TrackerSparqlCursor *cursor,
               GError              *error)
 {
 	GString *test_results;
-	gchar *results;
+	gchar *results = NULL;
 	GError *nerror = NULL;
 	gboolean retval;
 
 	if (!test_info->expect_query_error) {
 		g_assert_no_error (error);
+		retval = g_file_get_contents (results_filename, &results, NULL, &nerror);
+		g_assert_true (retval);
+		g_assert_no_error (nerror);
+		g_clear_error (&nerror);
 	}
-
-	retval = g_file_get_contents (results_filename, &results, NULL, &nerror);
-	g_assert_true (retval);
-	g_assert_no_error (nerror);
-	g_clear_error (&nerror);
 
 	/* compare results with reference output */
 

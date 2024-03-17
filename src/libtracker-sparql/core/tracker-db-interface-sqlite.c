@@ -190,6 +190,11 @@ function_sparql_string_join (sqlite3_context *context,
 
 	/* fn:string-join (str1, str2, ..., separator) */
 
+	if (argc < 1) {
+		result_context_function_error (context, fn, "Invalid number of parameters");
+		return;
+	}
+
 	if (sqlite3_value_type (argv[argc-1]) != SQLITE_TEXT) {
 		result_context_function_error (context, fn, "Invalid separator");
 		return;
