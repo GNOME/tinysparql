@@ -389,9 +389,6 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 			const gchar *parent = (gchar *)sqlite3_value_text (argv[i]);
 			guint parent_len = sqlite3_value_bytes (argv[i]);
 
-			if (!parent)
-				continue;
-
 			match = check_uri_is_descendant (parent, parent_len, child);
 		}
 	}
