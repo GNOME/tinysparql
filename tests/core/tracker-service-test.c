@@ -47,6 +47,12 @@ const TestInfo tests[] = {
 	{ "service/service-var-2", FALSE },
 	{ "service/service-empty-1", FALSE },
 	{ "service/service-empty-2", FALSE },
+	{ "service/service-nonexistent-1", TRUE },
+	{ "service/service-nonexistent-2", TRUE },
+	{ "service/service-nonexistent-3", TRUE },
+	{ "service/service-nonexistent-4", TRUE },
+	{ "service/service-nonexistent-5", TRUE },
+	{ "service/service-silent-1", FALSE },
 	{ "service/property-function-1", FALSE },
 };
 
@@ -63,20 +69,16 @@ check_result (TrackerSparqlCursor *cursor,
               GError              *error)
 {
 	GString *test_results;
-	gchar *results;
+	gchar *results = NULL;
 	GError *nerror = NULL;
 	gboolean retval;
 
-	if (test_info->expect_query_error) {
-		g_assert_true (error != NULL);
-	} else {
-		g_assert_no_error (error);
+	if (!test_info->expect_query_error) {
+		retval = g_file_get_contents (results_filename, &results, NULL, &nerror);
+		g_assert_true (retval);
+		g_assert_no_error (nerror);
+		g_clear_error (&nerror);
 	}
-
-	retval = g_file_get_contents (results_filename, &results, NULL, &nerror);
-	g_assert_true (retval);
-	g_assert_no_error (nerror);
-	g_clear_error (&nerror);
 
 	/* compare results with reference output */
 
@@ -120,7 +122,9 @@ check_result (TrackerSparqlCursor *cursor,
 				g_string_append (test_results, "\n");
 			}
 		}
-	} else if (test_info->expect_query_error) {
+	}
+
+	if (test_info->expect_query_error) {
 		g_assert_true (error != NULL && error->domain == TRACKER_SPARQL_ERROR);
 		g_string_free (test_results, TRUE);
 		g_free (results);

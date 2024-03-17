@@ -1,0 +1,5 @@
+SELECT ?u {
+  SERVICE <http://127.0.0.1:1/sparql> {
+    ?u a rdfs:Resource .
+  }
+}

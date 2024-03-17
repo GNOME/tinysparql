@@ -1,0 +1,5 @@
+SELECT ?u {
+  SERVICE SILENT <dbus:system:nonexistent> {
+    ?u a rdfs:Resource .
+  }
+}

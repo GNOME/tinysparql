@@ -1,0 +1,5 @@
+SELECT ?u {
+  SERVICE <abc> {
+    ?u a rdfs:Resource .
+  }
+}
