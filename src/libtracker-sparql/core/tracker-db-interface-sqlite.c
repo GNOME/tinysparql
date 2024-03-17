@@ -951,14 +951,13 @@ function_sparql_lower_case (sqlite3_context *context,
 
 	zInput = sqlite3_value_text16 (argv[0]);
 
-	if (!zInput) {
-		return;
+	if (zInput) {
+		nInput = sqlite3_value_bytes16 (argv[0]);
+		zOutput = tracker_parser_tolower (zInput, nInput, &nOutput);
+		sqlite3_result_text16 (context, zOutput, -1, free);
+	} else {
+		sqlite3_result_null (context);
 	}
-
-	nInput = sqlite3_value_bytes16 (argv[0]);
-
-	zOutput = tracker_parser_tolower (zInput, nInput, &nOutput);
-	sqlite3_result_text16 (context, zOutput, -1, free);
 }
 
 static void
@@ -976,14 +975,13 @@ function_sparql_upper_case (sqlite3_context *context,
 
 	zInput = sqlite3_value_text16 (argv[0]);
 
-	if (!zInput) {
-		return;
+	if (zInput) {
+		nInput = sqlite3_value_bytes16 (argv[0]);
+		zOutput = tracker_parser_toupper (zInput, nInput, &nOutput);
+		sqlite3_result_text16 (context, zOutput, -1, free);
+	} else {
+		sqlite3_result_null (context);
 	}
-
-	nInput = sqlite3_value_bytes16 (argv[0]);
-
-	zOutput = tracker_parser_toupper (zInput, nInput, &nOutput);
-	sqlite3_result_text16 (context, zOutput, -1, free);
 }
 
 static void
@@ -1001,14 +999,13 @@ function_sparql_case_fold (sqlite3_context *context,
 
 	zInput = sqlite3_value_text16 (argv[0]);
 
-	if (!zInput) {
-		return;
+	if (zInput) {
+		nInput = sqlite3_value_bytes16 (argv[0]);
+		zOutput = tracker_parser_casefold (zInput, nInput, &nOutput);
+		sqlite3_result_text16 (context, zOutput, -1, free);
+	} else {
+		sqlite3_result_null (context);
 	}
-
-	nInput = sqlite3_value_bytes16 (argv[0]);
-
-	zOutput = tracker_parser_casefold (zInput, nInput, &nOutput);
-	sqlite3_result_text16 (context, zOutput, -1, free);
 }
 
 static void
@@ -1029,6 +1026,7 @@ function_sparql_normalize (sqlite3_context *context,
 	zInput = sqlite3_value_text16 (argv[0]);
 
 	if (!zInput) {
+		sqlite3_result_null (context);
 		return;
 	}
 
@@ -1067,14 +1065,13 @@ function_sparql_unaccent (sqlite3_context *context,
 
 	zInput = sqlite3_value_text16 (argv[0]);
 
-	if (!zInput) {
-		return;
+	if (zInput) {
+		nInput = sqlite3_value_bytes16 (argv[0]);
+		zOutput = tracker_parser_unaccent (zInput, nInput, &nOutput);
+		sqlite3_result_text16 (context, zOutput, nOutput * sizeof (gunichar2), free);
+	} else {
+		sqlite3_result_null (context);
 	}
-
-	nInput = sqlite3_value_bytes16 (argv[0]);
-
-	zOutput = tracker_parser_unaccent (zInput, nInput, &nOutput);
-	sqlite3_result_text16 (context, zOutput, nOutput * sizeof (gunichar2), free);
 }
 
 static void
