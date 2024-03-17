@@ -413,10 +413,13 @@ function_sparql_timestamp (sqlite3_context *context,
 	const gchar *fn = "SparqlTimestamp helper";
 
 	TRACKER_RETURN_IF_FAIL (argc == 1, fn, "Invalid argument count");
+	TRACKER_RETURN_IF_FAIL (sqlite3_value_type (argv[0]) == SQLITE_INTEGER ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_TEXT ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_NULL,
+	                        fn, "Invalid argument type");
 
 	if (sqlite3_value_type (argv[0]) == SQLITE_NULL) {
 		sqlite3_result_null (context);
-		return;
 	} else if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
 		gdouble seconds;
 
@@ -439,8 +442,6 @@ function_sparql_timestamp (sqlite3_context *context,
 				      g_date_time_to_unix (datetime) +
 				      (g_date_time_get_utc_offset (datetime) / G_USEC_PER_SEC));
 		g_date_time_unref (datetime);
-	} else {
-		result_context_function_error (context, fn, "Invalid argument type");
 	}
 }
 
@@ -450,9 +451,14 @@ function_sparql_time_sort (sqlite3_context *context,
                            sqlite3_value   *argv[])
 {
 	const gchar *fn = "SparqlTimeSort helper";
-	gint64 sort_key;
+	gint64 sort_key = 0;
 
 	TRACKER_RETURN_IF_FAIL (argc == 1, fn, "Invalid argument count");
+	TRACKER_RETURN_IF_FAIL (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER ||
+	                        sqlite3_value_numeric_type (argv[0]) == SQLITE_FLOAT ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_TEXT ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_NULL,
+	                        fn, "Invalid argument type");
 
 	if (sqlite3_value_type (argv[0]) == SQLITE_NULL) {
 		sqlite3_result_null (context);
@@ -463,6 +469,7 @@ function_sparql_time_sort (sqlite3_context *context,
 
 		value = sqlite3_value_double (argv[0]);
 		sort_key = (gint64) (value * G_USEC_PER_SEC);
+		sqlite3_result_int64 (context, sort_key);
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 		GDateTime *datetime;
 		const gchar *value;
@@ -478,13 +485,9 @@ function_sparql_time_sort (sqlite3_context *context,
 
 		sort_key = ((g_date_time_to_unix (datetime) * G_USEC_PER_SEC) +
 			    g_date_time_get_microsecond (datetime));
+		sqlite3_result_int64 (context, sort_key);
 		g_date_time_unref (datetime);
-	} else {
-		result_context_function_error (context, fn, "Invalid argument type");
-		return;
 	}
-
-	sqlite3_result_int64 (context, sort_key);
 }
 
 static void
@@ -495,10 +498,13 @@ function_sparql_time_zone_duration (sqlite3_context *context,
 	const gchar *fn = "timezone-from-dateTime";
 
 	TRACKER_RETURN_IF_FAIL (argc == 1, fn, "Invalid argument count");
+	TRACKER_RETURN_IF_FAIL (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_TEXT ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_NULL,
+	                        fn, "Invalid argument type");
 
 	if (sqlite3_value_type (argv[0]) == SQLITE_NULL) {
 		sqlite3_result_null (context);
-		return;
 	} else if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
 		sqlite3_result_int (context, 0);
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
@@ -518,8 +524,6 @@ function_sparql_time_zone_duration (sqlite3_context *context,
 				      g_date_time_get_utc_offset (datetime) /
 				      G_USEC_PER_SEC);
 		g_date_time_unref (datetime);
-	} else {
-		result_context_function_error (context, fn, "Invalid argument type");
 	}
 }
 
@@ -529,10 +533,13 @@ function_sparql_time_zone_substr (sqlite3_context *context,
                                   sqlite3_value   *argv[])
 {
 	TRACKER_RETURN_IF_FAIL (argc == 1, "TZ", "Invalid argument count");
+	TRACKER_RETURN_IF_FAIL (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_TEXT ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_NULL,
+	                        "TZ", "Invalid argument type");
 
 	if (sqlite3_value_type (argv[0]) == SQLITE_NULL) {
 		sqlite3_result_null (context);
-		return;
 	} else if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
 		sqlite3_result_text (context, "", -1, NULL);
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
@@ -558,8 +565,6 @@ function_sparql_time_zone_substr (sqlite3_context *context,
 		} else {
 			sqlite3_result_text (context, "", -1, NULL);
 		}
-	} else {
-		sqlite3_result_error (context, "Invalid argument type converting timezone to string", -1);
 	}
 }
 
@@ -597,10 +602,13 @@ function_sparql_time_zone (sqlite3_context *context,
 	const gchar *fn = "SparqlTimezone helper";
 
 	TRACKER_RETURN_IF_FAIL (argc == 1, fn, "Invalid argument count");
+	TRACKER_RETURN_IF_FAIL (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_TEXT ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_NULL,
+	                        fn, "Invalid argument type");
 
 	if (sqlite3_value_type (argv[0]) == SQLITE_NULL) {
 		sqlite3_result_null (context);
-		return;
 	} else if (sqlite3_value_numeric_type (argv[0]) == SQLITE_INTEGER) {
 		sqlite3_result_text (context, "PT0S", -1, NULL);
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
@@ -621,8 +629,6 @@ function_sparql_time_zone (sqlite3_context *context,
 					       G_USEC_PER_SEC);
 		sqlite3_result_text (context, g_strdup (duration), -1, g_free);
 		g_date_time_unref (datetime);
-	} else {
-		result_context_function_error (context, fn, "Invalid argument type");
 	}
 }
 
@@ -1342,6 +1348,10 @@ function_sparql_langmatches (sqlite3_context *context,
 	gint type;
 
 	TRACKER_RETURN_IF_FAIL (argc == 2, fn, "Invalid argument count");
+	TRACKER_RETURN_IF_FAIL (sqlite3_value_type (argv[0]) == SQLITE_TEXT ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_BLOB ||
+	                        sqlite3_value_type (argv[0]) == SQLITE_NULL,
+	                        fn, "Invalid argument type");
 
 	type = sqlite3_value_type (argv[0]);
 
