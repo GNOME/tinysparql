@@ -49,10 +49,6 @@ enum {
 
 static void         language_constructed       (GObject       *object);
 static void         language_finalize          (GObject       *object);
-static void         language_get_property      (GObject       *object,
-                                                guint          param_id,
-                                                GValue        *value,
-                                                GParamSpec    *pspec);
 static void         language_set_property      (GObject       *object,
                                                 guint          param_id,
                                                 const GValue  *value,
@@ -67,7 +63,6 @@ tracker_language_class_init (TrackerLanguageClass *klass)
 
 	object_class->constructed = language_constructed;
 	object_class->finalize = language_finalize;
-	object_class->get_property = language_get_property;
 	object_class->set_property = language_set_property;
 
 	g_object_class_install_property (object_class,
@@ -77,7 +72,7 @@ tracker_language_class_init (TrackerLanguageClass *klass)
 	                                                      "Language code",
 	                                                      NULL,
 	                                                      G_PARAM_WRITABLE |
-							      G_PARAM_CONSTRUCT_ONLY));
+	                                                      G_PARAM_CONSTRUCT_ONLY));
 }
 
 static void
@@ -104,27 +99,6 @@ language_finalize (GObject *object)
 	g_free (priv->language_code);
 
 	(G_OBJECT_CLASS (tracker_language_parent_class)->finalize) (object);
-}
-
-static void
-language_get_property (GObject    *object,
-                       guint       param_id,
-                       GValue     *value,
-                       GParamSpec *pspec)
-{
-	TrackerLanguagePrivate *priv;
-
-	priv = tracker_language_get_instance_private (TRACKER_LANGUAGE (object));
-
-	switch (param_id) {
-	case PROP_LANGUAGE_CODE:
-		g_value_set_string (value, priv->language_code);
-		break;
-
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
-		break;
-	};
 }
 
 static void
