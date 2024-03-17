@@ -1,0 +1,5 @@
+# Use unbound parameters
+SELECT (tracker:uri-is-descendant (?a, ?b) AS ?c)
+{
+  VALUES ?v { 1 }
+}

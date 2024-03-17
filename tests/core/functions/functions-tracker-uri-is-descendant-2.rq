@@ -1,0 +1,4 @@
+SELECT
+  (tracker:uri-is-descendant ('abcdefg', 'file:///a') AS ?a)
+{
+}
