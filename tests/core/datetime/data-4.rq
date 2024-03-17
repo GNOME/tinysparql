@@ -1,4 +1,8 @@
 INSERT {
 	example:x a example:A ;
-	   example:p "0100-12-31T21:00:00-03:00"
+	   example:p "0100-12-31T21:00:00-03:00" .
+	example:y a example:A ;
+	   example:p "0100-12-31T21:00:00.123321-03:00" .
+	example:z a example:A ;
+	   example:p "0100-12-31T21:00:00.123321Z" .
 }

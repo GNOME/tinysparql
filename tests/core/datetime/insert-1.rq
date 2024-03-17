@@ -2,3 +2,4 @@ SELECT ?s ?v
 WHERE {
 	?s example:p ?v
 }
+ORDER BY ?x
