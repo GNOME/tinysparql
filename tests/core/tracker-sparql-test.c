@@ -147,6 +147,7 @@ const TestInfo tests[] = {
 	{ "functions/functions-xpath-fn-string-join-3", "functions/data-1", TRUE },
 	{ "functions/functions-xpath-fn-string-join-4", "functions/data-1", TRUE },
 	{ "functions/functions-xpath-fn-string-join-5", "functions/data-1", FALSE },
+	{ "functions/functions-xpath-fn-string-join-6", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-4", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-5", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-6", "functions/data-1", FALSE },

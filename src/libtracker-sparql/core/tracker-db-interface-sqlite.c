@@ -186,6 +186,7 @@ function_sparql_string_join (sqlite3_context *context,
 	const gchar *fn = "fn:string-join";
 	GString *str = NULL;
 	const gchar *separator;
+	gsize len;
 	gint i;
 
 	/* fn:string-join (str1, str2, ..., separator) */
@@ -202,13 +203,15 @@ function_sparql_string_join (sqlite3_context *context,
 
 	separator = (gchar *)sqlite3_value_text (argv[argc-1]);
 
-	for (i = 0;i < argc-1; i++) {
+	str = g_string_new ("");
+
+	for (i = 0; i < argc - 1; i++) {
 		if (sqlite3_value_type (argv[argc-1]) == SQLITE_TEXT) {
 			const gchar *text = (gchar *)sqlite3_value_text (argv[i]);
 
 			if (text != NULL) {
-				if (!str) {
-					str = g_string_new (text);
+				if (str->len == 0) {
+					g_string_append (str, text);
 				} else {
 					g_string_append_printf (str, "%s%s", separator, text);
 				}
@@ -216,16 +219,10 @@ function_sparql_string_join (sqlite3_context *context,
 		}
 	}
 
-	if (str) {
-		gsize len = str->len;
-		sqlite3_result_text (context,
-		                     g_string_free (str, FALSE),
-		                     len, g_free);
-	} else {
-		sqlite3_result_null (context);
-	}
-
-	return;
+	len = str->len;
+	sqlite3_result_text (context,
+	                     g_string_free (str, FALSE),
+	                     len, g_free);
 }
 
 /* Create a title-type string from the filename for replacing missing ones */

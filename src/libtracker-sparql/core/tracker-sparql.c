@@ -8043,6 +8043,9 @@ handle_xpath_function (TrackerSparql  *sparql,
 		tracker_sparql_swap_current_expression_list_separator (sparql, old_sep);
 		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_STRING;
 	} else if (g_str_equal (function, FN_NS "string-join")) {
+		TrackerStringBuilder *str, *old;
+		gboolean has_args;
+
 		sparql->current_state->convert_to_string = TRUE;
 		_append_string (sparql, "SparqlStringJoin (");
 		_step (sparql);
@@ -8051,10 +8054,15 @@ handle_xpath_function (TrackerSparql  *sparql,
 		if (!_check_in_rule (sparql, NAMED_RULE_ArgList))
 			_raise (PARSE, "List of strings to join must be surrounded by parentheses", "fn:string-join");
 
+		str = _append_placeholder (sparql);
+		old = tracker_sparql_swap_builder (sparql, str);
 		_call_rule (sparql, NAMED_RULE_ArgList, error);
+		has_args = !tracker_string_builder_is_empty (str);
+		tracker_sparql_swap_builder (sparql, old);
 
 		while (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_COMMA)) {
-			_append_string (sparql, ", ");
+			if (has_args)
+				_append_string (sparql, ", ");
 			_call_rule (sparql, NAMED_RULE_Expression, error);
 		}
 
