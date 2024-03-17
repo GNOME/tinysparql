@@ -231,7 +231,7 @@ function_sparql_string_from_filename (sqlite3_context *context,
                                       int              argc,
                                       sqlite3_value   *argv[])
 {
-	const gchar *fn = "fn:string-from-filename";
+	const gchar *fn = "tracker:string-from-filename";
 	gchar  *name = NULL;
 	gchar  *suffix = NULL;
 
@@ -241,12 +241,6 @@ function_sparql_string_from_filename (sqlite3_context *context,
 	 * Only for local files currently, do we need to change? */
 
 	name = g_filename_display_basename ((gchar *)sqlite3_value_text (argv[0]));
-
-	if (!name) {
-		sqlite3_result_null (context);
-		return;
-	}
-
 	suffix = g_strrstr (name, ".");
 
 	if (suffix) {
