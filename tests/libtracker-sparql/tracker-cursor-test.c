@@ -202,10 +202,11 @@ static void
 test_tracker_sparql_query_iterate_empty (gpointer      fixture,
                                          gconstpointer user_data)
 {
-	TrackerSparqlConnection *conn = (TrackerSparqlConnection *) user_data;
+	TrackerSparqlConnection *conn = (TrackerSparqlConnection *) user_data, *prop_conn;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
 	const gchar *query = "SELECT ?r WHERE {?r a nfo:FileDataObject; nao:identifier \"thisannotationdoesnotexist\"}";
+	gint prop_cols;
 
 	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
 	g_assert_true (cursor);
@@ -214,6 +215,14 @@ test_tracker_sparql_query_iterate_empty (gpointer      fixture,
 
 	g_assert_false (tracker_sparql_cursor_next (cursor, NULL, NULL));
 	g_assert_true (tracker_sparql_cursor_get_n_columns (cursor) == 1);
+
+	g_object_get (G_OBJECT (cursor),
+		      "n-columns", &prop_cols,
+		      "connection", &prop_conn,
+		      NULL);
+
+	g_assert_cmpint (prop_cols, ==, tracker_sparql_cursor_get_n_columns (cursor));
+	g_assert_true (prop_conn == conn);
 
 	/* FIXME: test behavior of cursor getters after last value */
 
