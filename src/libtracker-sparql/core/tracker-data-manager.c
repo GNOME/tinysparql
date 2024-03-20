@@ -3850,15 +3850,12 @@ setup_interface_cb (TrackerDBManager   *db_manager,
                     TrackerDataManager *data_manager)
 {
 	GError *error = NULL;
-	guint flags;
 
 	if (!tracker_data_manager_initialize_iface (data_manager, iface, &error)) {
 		g_critical ("Could not set up interface : %s",
 		            error->message);
 		g_error_free (error);
 	}
-
-	g_object_get (iface, "flags", &flags, NULL);
 }
 
 static gboolean
