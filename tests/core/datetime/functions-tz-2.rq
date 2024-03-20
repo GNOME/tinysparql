@@ -1,0 +1,5 @@
+SELECT TZ (?v)
+WHERE {
+	example:x a example:A ;
+	   example:p ?v
+}

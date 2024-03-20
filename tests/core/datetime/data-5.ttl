@@ -1,0 +1,5 @@
+@prefix : <http://example/> .
+@prefix xsd:        <http://www.w3.org/2001/XMLSchema#> .
+
+:x a :A .
+:x :p "2004-05-06T13:14:15-1234" .

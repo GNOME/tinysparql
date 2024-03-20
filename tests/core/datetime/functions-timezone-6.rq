@@ -1,0 +1,5 @@
+# Use unbound value
+SELECT TIMEZONE(?v)
+{
+  VALUES ?x { 1 }
+}
