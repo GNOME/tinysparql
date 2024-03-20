@@ -1,0 +1,4 @@
+# Match with unbound value
+SELECT YEAR(?d) {
+  VALUES ?x { 1 }
+}

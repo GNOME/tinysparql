@@ -1,0 +1,5 @@
+# Use unbound value
+SELECT (LCASE(?u) AS ?str1)
+{
+  VALUES ?x { 1 }
+}

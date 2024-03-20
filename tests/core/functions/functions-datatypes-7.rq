@@ -1,0 +1,9 @@
+SELECT
+  (DATATYPE(42) AS ?d1)
+  (DATATYPE(42.2) AS ?d2)
+  (DATATYPE("42.2") AS ?d3)
+  (DATATYPE(true) AS ?d4)
+  (DATATYPE("2024-01-01"^^xsd:date) AS ?d5)
+  (DATATYPE("2024-01-01T01:01:01Z"^^xsd:dateTime) AS ?d6)
+{
+}
