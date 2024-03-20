@@ -648,24 +648,6 @@ tracker_data_set_property (GObject      *object,
 }
 
 static void
-tracker_data_get_property (GObject    *object,
-                           guint       prop_id,
-                           GValue     *value,
-                           GParamSpec *pspec)
-{
-	TrackerData *data = TRACKER_DATA (object);
-
-	switch (prop_id) {
-	case PROP_MANAGER:
-		g_value_set_object (value, data->manager);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-	}
-}
-
-static void
 tracker_data_finalize (GObject *object)
 {
 	TrackerData *data = TRACKER_DATA (object);
@@ -694,7 +676,6 @@ tracker_data_class_init (TrackerDataClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->set_property = tracker_data_set_property;
-	object_class->get_property = tracker_data_get_property;
 	object_class->finalize = tracker_data_finalize;
 
 	g_object_class_install_property (object_class,
