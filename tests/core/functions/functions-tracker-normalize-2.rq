@@ -1,0 +1,5 @@
+# Use unbound value
+SELECT (tracker:normalize (?v, 'nfd') AS ?a)
+{
+  VALUES ?x { 1 }
+}
