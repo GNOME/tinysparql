@@ -1,0 +1,2 @@
+# Test 's' (dotall) flag
+SELECT (regex('abc\nefg', 'a.*g') AS ?r1) (regex('abc\nefg', 'a.*g', 's') AS ?r2) { }

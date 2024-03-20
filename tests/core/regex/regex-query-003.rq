@@ -1,0 +1,5 @@
+# Match unbound parameter
+SELECT (regex (?v, 'abc') AS ?r)
+{
+  VALUES ?x { 1 }
+}
