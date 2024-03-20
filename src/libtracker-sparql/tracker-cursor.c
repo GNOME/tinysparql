@@ -61,7 +61,6 @@ static GParamSpec *props[N_PROPS];
 
 typedef struct {
 	TrackerSparqlConnection *connection;
-	gint n_columns;
 } TrackerSparqlCursorPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (TrackerSparqlCursor, tracker_sparql_cursor,
@@ -155,9 +154,6 @@ tracker_sparql_cursor_set_property (GObject      *object,
 	case PROP_CONNECTION:
 		priv->connection = g_value_dup_object (value);
 		break;
-	case PROP_N_COLUMNS:
-		priv->n_columns = g_value_get_int (value);
-		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 	}
@@ -177,7 +173,7 @@ tracker_sparql_cursor_get_property (GObject    *object,
 		g_value_set_object (value, priv->connection);
 		break;
 	case PROP_N_COLUMNS:
-		g_value_set_int (value, priv->n_columns);
+		g_value_set_int (value, tracker_sparql_cursor_get_n_columns (cursor));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

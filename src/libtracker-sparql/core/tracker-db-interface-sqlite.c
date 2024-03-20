@@ -2726,23 +2726,6 @@ tracker_db_cursor_finalize (GObject *object)
 }
 
 static void
-tracker_db_cursor_get_property (GObject    *object,
-                                guint       prop_id,
-                                GValue     *value,
-                                GParamSpec *pspec)
-{
-	TrackerSparqlCursor *cursor = TRACKER_SPARQL_CURSOR (object);
-
-	switch (prop_id) {
-	case TRACKER_DB_CURSOR_PROP_N_COLUMNS:
-		g_value_set_int (value, tracker_db_cursor_get_n_columns (cursor));
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-	}
-}
-
-static void
 tracker_db_cursor_iter_next_thread (GTask        *task,
                                     gpointer      object,
                                     gpointer      task_data,
@@ -2790,7 +2773,6 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 	TrackerSparqlCursorClass *sparql_cursor_class = TRACKER_SPARQL_CURSOR_CLASS (class);
 
 	object_class->finalize = tracker_db_cursor_finalize;
-	object_class->get_property = tracker_db_cursor_get_property;
 
 	sparql_cursor_class->get_value_type = tracker_db_cursor_get_value_type;
 	sparql_cursor_class->get_variable_name = tracker_db_cursor_get_variable_name;
@@ -2805,8 +2787,6 @@ tracker_db_cursor_class_init (TrackerDBCursorClass *class)
 	sparql_cursor_class->get_integer = tracker_db_cursor_get_int;
 	sparql_cursor_class->get_double = tracker_db_cursor_get_double;
 	sparql_cursor_class->get_boolean = tracker_db_cursor_get_boolean;
-
-	g_object_class_override_property (object_class, TRACKER_DB_CURSOR_PROP_N_COLUMNS, "n-columns");
 }
 
 static TrackerDBCursor *
