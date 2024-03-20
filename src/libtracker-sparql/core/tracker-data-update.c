@@ -684,7 +684,7 @@ tracker_data_class_init (TrackerDataClass *klass)
 	                                                      "manager",
 	                                                      "manager",
 	                                                      TRACKER_TYPE_DATA_MANAGER,
-	                                                      G_PARAM_READWRITE |
+	                                                      G_PARAM_WRITABLE |
 	                                                      G_PARAM_CONSTRUCT_ONLY));
 }
 

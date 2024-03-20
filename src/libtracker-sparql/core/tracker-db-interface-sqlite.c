@@ -1884,31 +1884,6 @@ tracker_db_interface_sqlite_set_property (GObject       *object,
 }
 
 static void
-tracker_db_interface_sqlite_get_property (GObject    *object,
-                                          guint       prop_id,
-                                          GValue     *value,
-                                          GParamSpec *pspec)
-{
-	TrackerDBInterface *db_iface;
-
-	db_iface = TRACKER_DB_INTERFACE (object);
-
-	switch (prop_id) {
-	case PROP_FLAGS:
-		g_value_set_flags (value, db_iface->flags);
-		break;
-	case PROP_FILENAME:
-		g_value_set_string (value, db_iface->filename);
-		break;
-	case PROP_SHARED_CACHE_KEY:
-		g_value_set_string (value, db_iface->shared_cache_key);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-	}
-}
-
-static void
 close_database (TrackerDBInterface *db_interface)
 {
 	gint rc;
@@ -2174,7 +2149,6 @@ tracker_db_interface_class_init (TrackerDBInterfaceClass *class)
 	GObjectClass *object_class = G_OBJECT_CLASS (class);
 
 	object_class->set_property = tracker_db_interface_sqlite_set_property;
-	object_class->get_property = tracker_db_interface_sqlite_get_property;
 	object_class->finalize = tracker_db_interface_sqlite_finalize;
 
 	g_object_class_install_property (object_class,
@@ -2183,7 +2157,7 @@ tracker_db_interface_class_init (TrackerDBInterfaceClass *class)
 	                                                      "DB filename",
 	                                                      "DB filename",
 	                                                      NULL,
-	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+	                                                      G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
 
 	g_object_class_install_property (object_class,
 	                                 PROP_FLAGS,
@@ -2191,7 +2165,7 @@ tracker_db_interface_class_init (TrackerDBInterfaceClass *class)
 	                                                     "Flags",
 	                                                     "Interface flags",
 	                                                     TRACKER_TYPE_DB_INTERFACE_FLAGS, 0,
-	                                                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+	                                                     G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
 
 	g_object_class_install_property (object_class,
 	                                 PROP_SHARED_CACHE_KEY,
@@ -2199,7 +2173,7 @@ tracker_db_interface_class_init (TrackerDBInterfaceClass *class)
 	                                                      "Shared cache key",
 	                                                      "Shared cache key",
 	                                                      NULL,
-	                                                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY));
+	                                                      G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
 }
 
 static void
