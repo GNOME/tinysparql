@@ -1167,6 +1167,16 @@ tracker_sparql_connection_remote_new (const gchar *uri_base)
  * The database is always left in a consistent state, either prior or posterior
  * to migration.
  *
+ * Operations on a [class@Tracker.SparqlConnection] resulting on a
+ * [error@Tracker.SparqlError.CORRUPT] error will have the event recorded
+ * persistently through a `.meta.corrupted` file alongside the database files.
+ * If the database is opened without the [flags@Tracker.SparqlConnectionFlags.READONLY]
+ * flag and the file is found, this constructor will attempt to repair the
+ * database. In that situation, this constructor will either return a valid
+ * [class@Tracker.SparqlConnection] if the database was repaired successfully, or
+ * raise a [error@Tracker.SparqlError.CORRUPT] error if the database remains
+ * corrupted.
+ *
  * It is considered a developer error to ship ontologies that contain format
  * errors, or that fail at migrations.
  *
