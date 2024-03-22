@@ -1,0 +1,1 @@
+SELECT (STRAFTER('abcd', '') AS ?str) {}

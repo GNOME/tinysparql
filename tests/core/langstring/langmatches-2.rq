@@ -1,0 +1,5 @@
+# Match unbound value
+SELECT LANGMATCHES(?v, 'en')
+{
+  VALUES ?x { 1 }
+}

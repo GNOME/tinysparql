@@ -107,7 +107,13 @@ const TestInfo tests[] = {
 	{ "datetime/functions-timezone-1", "datetime/data-2", FALSE },
 	{ "datetime/functions-timezone-2", "datetime/data-2", FALSE },
 	{ "datetime/functions-timezone-3", "datetime/data-2", FALSE },
+	{ "datetime/functions-timezone-4", "datetime/data-2", FALSE },
+	{ "datetime/functions-timezone-5", "datetime/data-5", FALSE },
+	{ "datetime/functions-timezone-6", "datetime/data-2", FALSE },
 	{ "datetime/functions-tz-1", "datetime/data-2", FALSE },
+	{ "datetime/functions-tz-2", "datetime/data-2", FALSE },
+	{ "datetime/functions-tz-3", "datetime/data-2", FALSE },
+	{ "datetime/functions-tz-4", "datetime/data-2", FALSE },
 	{ "datetime/filter-1", "datetime/data-1", FALSE },
 	{ "datetime/filter-2", "datetime/data-1", FALSE },
 	{ "datetime/filter-3", "datetime/data-1", FALSE },
@@ -132,17 +138,31 @@ const TestInfo tests[] = {
 	{ "functions/functions-property-2", "functions/data-5", FALSE },
 	{ "functions/functions-tracker-1", "functions/data-1", FALSE },
 	{ "functions/functions-tracker-2", "functions/data-2", FALSE },
-	{ "functions/functions-tracker-3", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-case-fold-1", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-case-fold-2", "functions/data-2", FALSE },
 	{ "functions/functions-tracker-4", "functions/data-2", FALSE },
-	{ "functions/functions-tracker-5", "functions/data-2", FALSE },
-	{ "functions/functions-tracker-6", "functions/data-2", FALSE },
-	{ "functions/functions-tracker-7", "functions/data-2", FALSE },
-	{ "functions/functions-tracker-8", "functions/data-2", FALSE },
-	{ "functions/functions-tracker-9", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-unaccent-1", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-unaccent-2", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-uri-is-parent-1", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-uri-is-parent-2", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-uri-is-parent-3", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-uri-is-parent-4", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-uri-is-descendant-1", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-uri-is-descendant-2", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-uri-is-descendant-3", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-normalize-1", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-normalize-2", "functions/data-2", FALSE },
+	{ "functions/functions-tracker-normalize-3", "functions/data-2", TRUE },
+	{ "functions/functions-tracker-strip-punctuation-1", "functions/data-2", FALSE },
 	{ "functions/functions-tracker-loc-1", "functions/data-3", FALSE },
 	{ "functions/functions-xpath-1", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-2", "functions/data-1", FALSE },
-	{ "functions/functions-xpath-3", "functions/data-1", FALSE },
+	{ "functions/functions-xpath-fn-string-join-1", "functions/data-1", FALSE },
+	{ "functions/functions-xpath-fn-string-join-2", "functions/data-1", TRUE },
+	{ "functions/functions-xpath-fn-string-join-3", "functions/data-1", TRUE },
+	{ "functions/functions-xpath-fn-string-join-4", "functions/data-1", TRUE },
+	{ "functions/functions-xpath-fn-string-join-5", "functions/data-1", FALSE },
+	{ "functions/functions-xpath-fn-string-join-6", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-4", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-5", "functions/data-1", FALSE },
 	{ "functions/functions-xpath-6", "functions/data-1", FALSE },
@@ -161,21 +181,30 @@ const TestInfo tests[] = {
 	{ "functions/functions-datatypes-3", "functions/data-3", FALSE },
 	{ "functions/functions-datatypes-4", "functions/data-4", FALSE },
 	{ "functions/functions-datatypes-5", "functions/data-1", FALSE },
+	{ "functions/functions-datatypes-6", "functions/data-1", FALSE },
+	{ "functions/functions-datatypes-7", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-bnode-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-bnode-2", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-uuid-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-hash-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-ucase-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-ucase-2", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-lcase-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-lcase-2", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-strlen-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-strbefore-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-strbefore-2", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-strbefore-3", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-strafter-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-strafter-2", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-strafter-3", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-substr-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-replace-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-replace-2", "functions/data-1", TRUE },
 	{ "functions/functions-builtin-replace-3", "functions/data-1", TRUE },
 	{ "functions/functions-builtin-replace-4", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-replace-5", "functions/data-1", TRUE },
+	{ "functions/functions-builtin-replace-6", "functions/data-1", TRUE },
 	{ "functions/functions-builtin-contains-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-abs-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-ceil-1", "functions/data-1", FALSE },
@@ -183,6 +212,7 @@ const TestInfo tests[] = {
 	{ "functions/functions-builtin-round-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-uri-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-year-1", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-year-2", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-month-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-day-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-hours-1", "functions/data-1", FALSE },
@@ -242,7 +272,8 @@ const TestInfo tests[] = {
 	{ "langstring/match-with-non-langstring", "langstring/data", FALSE },
 	{ "langstring/match-with-langstring", "langstring/data", FALSE },
 	{ "langstring/match-non-langstring", "langstring/data", FALSE },
-	{ "langstring/langmatches", "langstring/data", FALSE },
+	{ "langstring/langmatches-1", "langstring/data", FALSE },
+	{ "langstring/langmatches-2", "langstring/data", FALSE },
 	{ "langstring/strlang", "langstring/data", FALSE },
 	{ "lists/list-in-object", "lists/data-list-in-object", FALSE },
 	{ "lists/list-in-subject", "lists/data-list-in-subject", FALSE },
@@ -252,6 +283,11 @@ const TestInfo tests[] = {
 	{ "optional/simple-optional-triple", "optional/simple-optional-triple", FALSE },
 	{ "regex/regex-query-001", "regex/regex-data-01", FALSE },
 	{ "regex/regex-query-002", "regex/regex-data-01", FALSE },
+	{ "regex/regex-query-003", "regex/regex-data-01", FALSE },
+	{ "regex/regex-query-004", "regex/regex-data-01", FALSE },
+	{ "regex/regex-query-005", "regex/regex-data-01", FALSE },
+	{ "regex/regex-query-006", "regex/regex-data-01", FALSE },
+	{ "regex/regex-query-007", "regex/regex-data-01", TRUE },
 	{ "sort/query-sort-1", "sort/data-sort-1", FALSE },
 	{ "sort/query-sort-2", "sort/data-sort-1", FALSE },
 	{ "sort/query-sort-3", "sort/data-sort-3", FALSE },
@@ -393,18 +429,17 @@ check_result (TrackerSparqlCursor *cursor,
               GError              *error)
 {
 	GString *test_results;
-	gchar *results;
+	gchar *results = NULL;
 	GError *nerror = NULL;
 	gboolean retval;
 
 	if (!test_info->expect_query_error) {
 		g_assert_no_error (error);
+		retval = g_file_get_contents (results_filename, &results, NULL, &nerror);
+		g_assert_true (retval);
+		g_assert_no_error (nerror);
+		g_clear_error (&nerror);
 	}
-
-	retval = g_file_get_contents (results_filename, &results, NULL, &nerror);
-	g_assert_true (retval);
-	g_assert_no_error (nerror);
-	g_clear_error (&nerror);
 
 	/* compare results with reference output */
 

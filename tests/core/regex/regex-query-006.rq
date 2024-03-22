@@ -1,0 +1,2 @@
+# Test 'x' (extended) flag
+SELECT (regex('a b c', 'a b') AS ?r1) (regex('a b c', 'a b', 'x') AS ?r2) (regex('abc', 'a b', 'x') AS ?r3 ){ }

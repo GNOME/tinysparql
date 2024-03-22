@@ -1,0 +1,5 @@
+# Handle unbound value
+SELECT TZ (?v)
+{
+  VALUES ?s { 1 }
+}

@@ -1,0 +1,5 @@
+SELECT ?u {
+  SERVICE <dbus:session:org.example.NotExistent> {
+    ?u a rdfs:Resource .
+  }
+}

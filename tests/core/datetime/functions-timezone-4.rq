@@ -1,0 +1,5 @@
+# Handle unbound value
+SELECT fn:timezone-from-dateTime (?v)
+{
+  VALUES ?x { 1 }
+}

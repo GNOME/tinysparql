@@ -1,0 +1,4 @@
+SELECT
+  (tracker:uri-is-parent ('abdcefg', 'file:///a') AS ?a)
+{
+}

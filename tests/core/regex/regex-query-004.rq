@@ -1,0 +1,2 @@
+# Test 'm' (multiline) flag
+SELECT (regex('abc\nefg', '^a.*c$') AS ?r1) (regex('abc\nefg', '^a.*c$', 'm') AS ?r2) { }

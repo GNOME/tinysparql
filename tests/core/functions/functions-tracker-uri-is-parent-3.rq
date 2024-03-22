@@ -1,0 +1,5 @@
+# Unbound values as parameters
+SELECT (tracker:uri-is-parent (?a, ?b) AS ?c)
+{
+  VALUES ?v { 1 }
+}

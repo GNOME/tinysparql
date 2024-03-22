@@ -1,0 +1,1 @@
+SELECT (STRBEFORE('abcd', '') AS ?str) {}

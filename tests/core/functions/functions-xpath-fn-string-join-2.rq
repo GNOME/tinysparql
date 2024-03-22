@@ -1,0 +1,1 @@
+SELECT (fn:string-join (('a', 'b'), 3) AS ?inval) {}

@@ -1,0 +1,2 @@
+# Attempt invalid flags
+SELECT (regex('a', 'a', '🍌') AS ?r1) { }
