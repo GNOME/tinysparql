@@ -335,8 +335,7 @@ tracker_bus_batch_execute_async (TrackerBatch        *batch,
 	task = g_task_new (batch, cancellable, callback, user_data);
 	conn = tracker_batch_get_connection (batch);
 	tracker_bus_connection_perform_update_async (TRACKER_BUS_CONNECTION (conn),
-	                                             (TrackerBusOp *) bus_batch->ops->data,
-	                                             bus_batch->ops->len,
+	                                             bus_batch->ops,
 	                                             cancellable,
 	                                             update_array_cb,
 	                                             task);

@@ -75,6 +75,14 @@ typedef struct {
 	} dbus, splice;
 } DeserializeTaskData;
 
+typedef struct {
+	struct {
+		GError *error;
+		gboolean finished;
+	} dbus, write;
+	GVariant *retval;
+} UpdateTaskData;
+
 static void tracker_bus_connection_async_initable_iface_init (GAsyncInitableIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (TrackerBusConnection, tracker_bus_connection,
@@ -218,31 +226,62 @@ create_deserialize_message (TrackerBusConnection    *conn,
 	return message;
 }
 
-static gboolean
-write_sparql_query (GOutputStream  *ostream,
-		    const gchar    *query,
-		    GError        **error)
+static void
+write_sparql_query_in_thread (GTask        *task,
+                              gpointer      source_object,
+                              gpointer      task_data,
+                              GCancellable *cancellable)
 {
+	GOutputStream *ostream = source_object;
 	GDataOutputStream *data;
+	const gchar *query;
+	GError *error = NULL;
 	int len;
 
+	query = g_task_get_task_data (task);
 	len = strlen (query);
 	data = g_data_output_stream_new (ostream);
 	g_data_output_stream_set_byte_order (data, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
-	if (!g_data_output_stream_put_uint32 (data, TRACKER_BUS_OP_SPARQL, NULL, error))
+
+	if (!g_data_output_stream_put_uint32 (data, TRACKER_BUS_OP_SPARQL, cancellable, &error))
 		goto error;
-	if (!g_data_output_stream_put_int32 (data, len, NULL, error))
+	if (!g_data_output_stream_put_int32 (data, len, cancellable, &error))
 		goto error;
-	if (!g_data_output_stream_put_string (data, query, NULL, error))
+	if (!g_data_output_stream_put_string (data, query, cancellable, &error))
 		goto error;
-	if (!g_data_output_stream_put_int32 (data, 0, NULL, error))
+	if (!g_data_output_stream_put_int32 (data, 0, cancellable, &error))
 		goto error;
 
-	g_object_unref (data);
-	return TRUE;
  error:
+	if (error)
+		g_task_return_error (task, error);
+	else
+		g_task_return_boolean (task, TRUE);
+
 	g_object_unref (data);
-	return FALSE;
+}
+
+static void
+write_sparql_query_async (GOutputStream       *ostream,
+                          const gchar         *query,
+                          GCancellable        *cancellable,
+                          GAsyncReadyCallback  cb,
+                          gpointer             user_data)
+{
+	GTask *task;
+
+	task = g_task_new (ostream, cancellable, cb, user_data);
+	g_task_set_task_data (task, g_strdup (query), g_free);
+	g_task_run_in_thread (task, write_sparql_query_in_thread);
+	g_object_unref (task);
+}
+
+static gboolean
+write_sparql_query_finish (GOutputStream  *stream,
+                           GAsyncResult   *res,
+                           GError        **error)
+{
+	return g_task_propagate_boolean (G_TASK (res), error);
 }
 
 static GVariant *
@@ -266,37 +305,41 @@ convert_params (GHashTable *parameters)
 	return g_variant_ref_sink (g_variant_builder_end (&builder));
 }
 
-static gboolean
-write_sparql_queries (GOutputStream  *ostream,
-                      TrackerBusOp   *ops,
-                      gint            n_ops,
-                      GError        **error)
+static void
+write_sparql_queries_in_thread (GTask        *task,
+                                gpointer      source_object,
+                                gpointer      task_data,
+                                GCancellable *cancellable)
 {
+	GOutputStream *ostream = source_object;
+	GArray *op_array;
 	GDataOutputStream *data;
 	GOutputStream *rdf_stream = NULL;
 	GBytes *bytes = NULL;
 	gchar *params_str = NULL;
-	int i;
+	GError *error = NULL;
+	guint i;
 
+	op_array = g_task_get_task_data (task);
 	data = g_data_output_stream_new (ostream);
 	g_data_output_stream_set_byte_order (data, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
 
-	if (!g_data_output_stream_put_int32 (data, n_ops, NULL, error))
+	if (!g_data_output_stream_put_int32 (data, op_array->len, cancellable, &error))
 		goto error;
 
-	for (i = 0; i < n_ops; i++) {
-		TrackerBusOp *op = &ops[i];
+	for (i = 0; i < op_array->len; i++) {
+		TrackerBusOp *op = &g_array_index (op_array, TrackerBusOp, i);
 
-		if (!g_data_output_stream_put_int32 (data, op->type, NULL, error))
+		if (!g_data_output_stream_put_int32 (data, op->type, cancellable, &error))
 			goto error;
 
 		if (op->type == TRACKER_BUS_OP_SPARQL) {
 			if (!g_data_output_stream_put_int32 (data,
 			                                     strlen (op->d.sparql.sparql),
-			                                     NULL, error))
+			                                     cancellable, &error))
 				goto error;
 			if (!g_data_output_stream_put_string (data, op->d.sparql.sparql,
-			                                      NULL, error))
+			                                      cancellable, &error))
 				goto error;
 
 			if (op->d.sparql.parameters) {
@@ -308,33 +351,33 @@ write_sparql_queries (GOutputStream  *ostream,
 
 				if (!g_data_output_stream_put_int32 (data,
 				                                     strlen (params_str),
-				                                     NULL, error))
+				                                     cancellable, &error))
 					goto error;
 				if (!g_data_output_stream_put_string (data, params_str,
-				                                      NULL, error))
+				                                      cancellable, &error))
 					goto error;
 
 				g_clear_pointer (&params_str, g_free);
 			} else {
-				if (!g_data_output_stream_put_int32 (data, 0, NULL, error))
+				if (!g_data_output_stream_put_int32 (data, 0, cancellable, &error))
 					goto error;
 			}
 		} else if (op->type == TRACKER_BUS_OP_RDF) {
-			if (!g_data_output_stream_put_uint32 (data, op->d.rdf.flags, NULL, error))
+			if (!g_data_output_stream_put_uint32 (data, op->d.rdf.flags, cancellable, &error))
 				goto error;
-			if (!g_data_output_stream_put_uint32 (data, op->d.rdf.format, NULL, error))
+			if (!g_data_output_stream_put_uint32 (data, op->d.rdf.format, cancellable, &error))
 				goto error;
 
 			if (op->d.rdf.default_graph) {
 				if (!g_data_output_stream_put_int32 (data,
 				                                     strlen (op->d.rdf.default_graph),
-				                                     NULL, error))
+				                                     cancellable, &error))
 					goto error;
 				if (!g_data_output_stream_put_string (data, op->d.rdf.default_graph,
-				                                      NULL, error))
+				                                      cancellable, &error))
 					goto error;
 			} else {
-				if (!g_data_output_stream_put_int32 (data, 0, NULL, error))
+				if (!g_data_output_stream_put_int32 (data, 0, cancellable, &error))
 					goto error;
 			}
 
@@ -343,36 +386,60 @@ write_sparql_queries (GOutputStream  *ostream,
 			                            op->d.rdf.stream,
 			                            G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
 			                            G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
-			                            NULL,
-			                            error) < 0)
+			                            cancellable,
+			                            &error) < 0)
 				goto error;
 
 			bytes = g_memory_output_stream_steal_as_bytes (G_MEMORY_OUTPUT_STREAM (rdf_stream));
 			g_clear_object (&rdf_stream);
 
-			if (!g_data_output_stream_put_uint32 (data, g_bytes_get_size (bytes), NULL, error))
+			if (!g_data_output_stream_put_uint32 (data, g_bytes_get_size (bytes), cancellable, &error))
 				goto error;
 			if (!g_output_stream_write_all (G_OUTPUT_STREAM (data),
 			                                g_bytes_get_data (bytes, NULL),
 			                                g_bytes_get_size (bytes),
 			                                NULL,
-			                                NULL,
-			                                error))
+			                                cancellable,
+			                                &error))
 				goto error;
 
 			g_clear_pointer (&bytes, g_bytes_unref);
 		}
 	}
 
-	g_output_stream_close (G_OUTPUT_STREAM (data), NULL, NULL);
-	g_object_unref (data);
-	return TRUE;
  error:
 	g_clear_object (&rdf_stream);
 	g_clear_pointer (&bytes, g_bytes_unref);
 	g_clear_pointer (&params_str, g_free);
 	g_object_unref (data);
-	return FALSE;
+
+	if (error)
+		g_task_return_error (task, error);
+	else
+		g_task_return_boolean (task, TRUE);
+}
+
+static void
+write_sparql_queries_async (GOutputStream       *ostream,
+                            GArray              *ops,
+                            GCancellable        *cancellable,
+                            GAsyncReadyCallback  cb,
+                            gpointer             user_data)
+{
+	GTask *task;
+
+	task = g_task_new (ostream, cancellable, cb, user_data);
+	g_task_set_task_data (task, g_array_ref (ops), (GDestroyNotify) g_array_unref);
+	g_task_run_in_thread (task, write_sparql_queries_in_thread);
+	g_object_unref (task);
+}
+
+static gboolean
+write_sparql_queries_finish (GOutputStream  *stream,
+                             GAsyncResult   *res,
+                             GError        **error)
+{
+	return g_task_propagate_boolean (G_TASK (res), error);
 }
 
 static void
@@ -906,22 +973,67 @@ tracker_bus_connection_update (TrackerSparqlConnection  *self,
 }
 
 static void
-update_cb (GObject      *object,
-	   GAsyncResult *res,
-	   gpointer      user_data)
+check_finish_update (GTask *task)
 {
-	GTask *task = user_data;
-	GError *error = NULL;
-	GVariant *retval;
+	UpdateTaskData *data;
 
-	retval = perform_update_finish (TRACKER_BUS_CONNECTION (object),
-					res, &error);
-	if (error)
-		g_task_return_error (task, error);
-	else
-		g_task_return_pointer (task, retval, (GDestroyNotify) g_variant_unref);
+	data = g_task_get_task_data (task);
+
+	if (!data->dbus.finished || !data->write.finished)
+		return;
+
+	if (data->dbus.error) {
+		g_dbus_error_strip_remote_error (data->dbus.error);
+		g_task_return_error (task, g_steal_pointer (&data->dbus.error));
+	} else if (data->write.error) {
+		g_task_return_error (task, g_steal_pointer (&data->write.error));
+	} else {
+		g_task_return_pointer (task, g_steal_pointer (&data->retval),
+		                       (GDestroyNotify) g_variant_unref);
+	}
 
 	g_object_unref (task);
+}
+
+static void
+update_cb (GObject      *object,
+           GAsyncResult *res,
+           gpointer      user_data)
+{
+	GTask *task = user_data;
+	UpdateTaskData *data;
+
+	data = g_task_get_task_data (task);
+	data->retval = perform_update_finish (TRACKER_BUS_CONNECTION (object),
+	                                      res, &data->dbus.error);
+	data->dbus.finished = TRUE;
+	check_finish_update (task);
+}
+
+static void
+write_query_cb (GObject      *object,
+                GAsyncResult *res,
+                gpointer      user_data)
+{
+	GTask *task = user_data;
+	UpdateTaskData *data;
+
+	data = g_task_get_task_data (task);
+	write_sparql_query_finish (G_OUTPUT_STREAM (object),
+	                           res, &data->write.error);
+	data->write.finished = TRUE;
+	check_finish_update (task);
+}
+
+static void
+update_task_data_free (gpointer data)
+{
+	UpdateTaskData *task_data = data;
+
+	g_clear_error (&task_data->dbus.error);
+	g_clear_error (&task_data->write.error);
+	g_clear_pointer (&task_data->retval, g_variant_unref);
+	g_free (task_data);
 }
 
 static void
@@ -931,6 +1043,7 @@ tracker_bus_connection_update_async (TrackerSparqlConnection *self,
                                      GAsyncReadyCallback      callback,
                                      gpointer                 user_data)
 {
+	UpdateTaskData *data;
 	GUnixFDList *fd_list;
 	GOutputStream *ostream;
 	GError *error = NULL;
@@ -939,6 +1052,9 @@ tracker_bus_connection_update_async (TrackerSparqlConnection *self,
 
 	task = g_task_new (self, cancellable, callback, user_data);
 
+	data = g_new0 (UpdateTaskData, 1);
+	g_task_set_task_data (task, data, update_task_data_free);
+
 	if (!create_pipe_for_write (&ostream, &fd_list, &fd_idx, &error)) {
 		g_task_return_error (task, error);
 		g_object_unref (task);
@@ -946,14 +1062,15 @@ tracker_bus_connection_update_async (TrackerSparqlConnection *self,
 	}
 
 	perform_update_async (TRACKER_BUS_CONNECTION (self),
-			      "Update",
-			      fd_list, fd_idx,
-			      cancellable,
-			      update_cb,
-			      task);
+	                      "Update",
+	                      fd_list, fd_idx,
+	                      cancellable,
+	                      update_cb,
+	                      task);
 
-	write_sparql_query (ostream, sparql, NULL);
-	g_output_stream_close (ostream, NULL, NULL);
+	write_sparql_query_async (ostream, sparql,
+	                          cancellable,
+	                          write_query_cb, task);
 	g_object_unref (ostream);
 	g_object_unref (fd_list);
 }
@@ -977,23 +1094,25 @@ tracker_bus_connection_update_array_async (TrackerSparqlConnection  *self,
                                            GAsyncReadyCallback       callback,
                                            gpointer                  user_data)
 {
-	TrackerBusOp *ops;
+	GArray *ops;
 	gint i;
 
-	ops = g_new0 (TrackerBusOp, n_updates);
+	ops = g_array_sized_new (FALSE, FALSE, sizeof (TrackerBusOp), n_updates);
 
 	for (i = 0; i < n_updates; i++) {
-		ops[i].type = TRACKER_BUS_OP_SPARQL;
-		ops[i].d.sparql.sparql = updates[i];
+		TrackerBusOp op = { 0, };
+
+		op.type = TRACKER_BUS_OP_SPARQL;
+		op.d.sparql.sparql = updates[i];
+		g_array_append_val (ops, op);
 	}
 
 	tracker_bus_connection_perform_update_async (TRACKER_BUS_CONNECTION (self),
 	                                             ops,
-	                                             n_updates,
 	                                             cancellable,
 	                                             callback,
 	                                             user_data);
-	g_free (ops);
+	g_array_unref (ops);
 }
 
 static gboolean
@@ -1063,6 +1182,7 @@ tracker_bus_connection_update_blank_async (TrackerSparqlConnection *self,
                                            GAsyncReadyCallback      callback,
                                            gpointer                 user_data)
 {
+	UpdateTaskData *data;
 	GUnixFDList *fd_list;
 	GOutputStream *ostream;
 	GError *error = NULL;
@@ -1071,6 +1191,9 @@ tracker_bus_connection_update_blank_async (TrackerSparqlConnection *self,
 
 	task = g_task_new (self, cancellable, callback, user_data);
 
+	data = g_new0 (UpdateTaskData, 1);
+	g_task_set_task_data (task, data, update_task_data_free);
+
 	if (!create_pipe_for_write (&ostream, &fd_list, &fd_idx, &error)) {
 		g_task_return_error (task, error);
 		g_object_unref (task);
@@ -1078,14 +1201,16 @@ tracker_bus_connection_update_blank_async (TrackerSparqlConnection *self,
 	}
 
 	perform_update_async (TRACKER_BUS_CONNECTION (self),
-			      "UpdateBlank",
-			      fd_list, fd_idx,
-			      cancellable,
-			      update_cb,
-			      task);
+	                      "UpdateBlank",
+	                      fd_list, fd_idx,
+	                      cancellable,
+	                      update_cb,
+	                      task);
 
-	write_sparql_query (ostream, sparql, NULL);
-	g_output_stream_close (ostream, NULL, NULL);
+	write_sparql_query_async (ostream, sparql,
+	                          cancellable, write_query_cb,
+	                          task);
+
 	g_object_unref (ostream);
 	g_object_unref (fd_list);
 }
@@ -1326,9 +1451,9 @@ check_finish_deserialize (GTask *task)
 
 	if (data->dbus.error) {
 		g_dbus_error_strip_remote_error (data->dbus.error);
-		g_task_return_error (task, data->dbus.error);
+		g_task_return_error (task, g_steal_pointer (&data->dbus.error));
 	} else if (data->splice.error) {
-		g_task_return_error (task, data->splice.error);
+		g_task_return_error (task, g_steal_pointer (&data->splice.error));
 	} else {
 		g_task_return_boolean (task, TRUE);
 	}
@@ -1800,14 +1925,29 @@ tracker_bus_connection_perform_serialize_finish (TrackerBusConnection  *conn,
 	return g_task_propagate_pointer (G_TASK (res), error);
 }
 
+static void
+write_queries_cb (GObject      *object,
+                  GAsyncResult *res,
+                  gpointer      user_data)
+{
+	GTask *task = user_data;
+	UpdateTaskData *data;
+
+	data = g_task_get_task_data (task);
+	write_sparql_queries_finish (G_OUTPUT_STREAM (object),
+	                             res, &data->write.error);
+	data->write.finished = TRUE;
+	check_finish_update (task);
+}
+
 void
 tracker_bus_connection_perform_update_async (TrackerBusConnection  *self,
-                                             TrackerBusOp          *ops,
-                                             guint                  n_ops,
+                                             GArray                *ops,
                                              GCancellable          *cancellable,
                                              GAsyncReadyCallback    callback,
                                              gpointer               user_data)
 {
+	UpdateTaskData *data;
 	GUnixFDList *fd_list;
 	GOutputStream *ostream;
 	GError *error = NULL;
@@ -1816,11 +1956,14 @@ tracker_bus_connection_perform_update_async (TrackerBusConnection  *self,
 
 	task = g_task_new (self, cancellable, callback, user_data);
 
-	if (n_ops == 0) {
+	if (ops->len == 0) {
 		g_task_return_pointer (task, NULL, NULL);
 		g_object_unref (task);
 		return;
 	}
+
+	data = g_new0 (UpdateTaskData, 1);
+	g_task_set_task_data (task, data, update_task_data_free);
 
 	if (!create_pipe_for_write (&ostream, &fd_list, &fd_idx, &error)) {
 		g_task_return_error (task, error);
@@ -1835,8 +1978,10 @@ tracker_bus_connection_perform_update_async (TrackerBusConnection  *self,
 	                      update_cb,
 	                      task);
 
-	write_sparql_queries (ostream, ops, n_ops, NULL);
-	g_output_stream_close (ostream, NULL, NULL);
+	write_sparql_queries_async (ostream, ops,
+	                            cancellable, write_queries_cb,
+	                            task);
+
 	g_object_unref (ostream);
 	g_object_unref (fd_list);
 }

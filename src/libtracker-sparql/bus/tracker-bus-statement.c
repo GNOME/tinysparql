@@ -302,6 +302,7 @@ tracker_bus_statement_update (TrackerSparqlStatement  *stmt,
 	GMainContext *context;
 	UpdateAsyncData data = { 0, };
 	TrackerBusOp op = { 0, };
+	GArray *ops;
 	const gchar *sparql;
 
 	conn = tracker_sparql_statement_get_connection (stmt);
@@ -311,12 +312,14 @@ tracker_bus_statement_update (TrackerSparqlStatement  *stmt,
 	data.loop = g_main_loop_new (context, FALSE);
 	g_main_context_push_thread_default (context);
 
+	ops = g_array_new (FALSE, FALSE, sizeof (TrackerBusOp));
 	op.type = TRACKER_BUS_OP_SPARQL;
 	op.d.sparql.sparql = (gchar *) sparql;
 	op.d.sparql.parameters = bus_stmt->arguments;
+	g_array_append_val (ops, op);
 
 	tracker_bus_connection_perform_update_async (TRACKER_BUS_CONNECTION (conn),
-	                                             &op, 1,
+	                                             ops,
 	                                             cancellable,
 	                                             update_cb,
 	                                             &data);
@@ -328,6 +331,8 @@ tracker_bus_statement_update (TrackerSparqlStatement  *stmt,
 	g_main_loop_unref (data.loop);
 
 	g_main_context_unref (context);
+
+	g_array_unref (ops);
 
 	if (data.error) {
 		g_propagate_error (error, data.error);
@@ -363,6 +368,7 @@ tracker_bus_statement_update_async (TrackerSparqlStatement *stmt,
 {
 	TrackerBusStatement *bus_stmt = TRACKER_BUS_STATEMENT (stmt);
 	TrackerSparqlConnection *conn;
+	GArray *ops;
 	TrackerBusOp op = { 0, };
 	const gchar *sparql;
 	GTask *task;
@@ -372,15 +378,18 @@ tracker_bus_statement_update_async (TrackerSparqlStatement *stmt,
 
 	task = g_task_new (stmt, cancellable, callback, user_data);
 
+	ops = g_array_new (FALSE, FALSE, sizeof (TrackerBusOp));
 	op.type = TRACKER_BUS_OP_SPARQL;
 	op.d.sparql.sparql = (gchar *) sparql;
 	op.d.sparql.parameters = bus_stmt->arguments;
+	g_array_append_val (ops, op);
 
 	tracker_bus_connection_perform_update_async (TRACKER_BUS_CONNECTION (conn),
-	                                             &op, 1,
+	                                             ops,
 	                                             cancellable,
 	                                             update_async_cb,
 	                                             task);
+	g_array_unref (ops);
 }
 
 static gboolean
