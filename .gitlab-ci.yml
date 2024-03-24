@@ -112,7 +112,7 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2024-03-09.0'
+    BASE_TAG: '2024-03-24.3'
     FDO_DISTRIBUTION_PACKAGES:
       clang
       clang-analyzer
@@ -120,7 +120,6 @@ check-merge-request:
       diffutils
       gcovr
       git
-      gi-docgen
       libasan
       libsoup-devel
       libubsan
@@ -142,7 +141,9 @@ check-merge-request:
       dnf builddep -y tracker --setopt=install_weak_deps=False &&
       # For tests, this isn't packaged in Fedora.
       pip3 install tap.py &&
-      dnf clean all
+      dnf clean all &&
+      # Prefer gi-docgen from the submodule
+      dnf remove -y gi-docgen --noautoremove
 
 .tracker.ubuntu@common:
   variables:
