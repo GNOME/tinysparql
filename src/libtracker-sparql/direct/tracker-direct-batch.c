@@ -282,6 +282,8 @@ tracker_batch_elem_clear (TrackerBatchElem *elem)
 	} else if (elem->type == TRACKER_DIRECT_BATCH_RDF) {
 		g_free (elem->d.rdf.default_graph);
 		g_clear_object (&elem->d.rdf.stream);
+	} else if (elem->type == TRACKER_DIRECT_BATCH_DBUS_FD) {
+		g_clear_object (&elem->d.dbus_fd);
 	}
 }
 
