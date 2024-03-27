@@ -1,3 +1,10 @@
+NEW in 3.7.1 - 2024-03-27
+=========================
+  * Fix possible stalls in D-Bus endpoint batch updates
+  * Better API documentation around handling of corrupted
+    databases
+  * Test improvements
+
 NEW in 3.7.0 - 2024-03-16
 =========================
   * Handle POST requests in HTTP endpoints
