@@ -158,6 +158,10 @@ TrackerRowid tracker_data_generate_bnode (TrackerData  *data,
 GType         tracker_data_get_type (void) G_GNUC_CONST;
 TrackerData * tracker_data_new      (TrackerDataManager *manager);
 
+void tracker_data_update_freeze_flush (TrackerData *data);
+
+void tracker_data_update_thaw_flush (TrackerData *data);
+
 G_END_DECLS
 
 #endif /* __LIBTRACKER_DATA_UPDATE_H__ */
