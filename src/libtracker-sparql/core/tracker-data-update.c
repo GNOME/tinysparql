@@ -103,8 +103,8 @@ struct _TrackerDataUpdateBuffer {
 
 	/* Array of TrackerDataPropertyEntry */
 	GArray *properties;
-	/* Array of TrackerDataLogEntry */
-	GArray *update_log;
+	/* Array of GArrays of TrackerDataLogEntry */
+	GPtrArray *update_log;
 	/* Set of TrackerDataLogEntry. Used for class events lookups in order to
 	 * coalesce single-valued property changes.
 	 */
@@ -656,7 +656,7 @@ tracker_data_finalize (GObject *object)
 	g_clear_pointer (&data->update_buffer.new_resources, g_hash_table_unref);
 	g_clear_pointer (&data->update_buffer.resource_cache, g_hash_table_unref);
 	g_clear_pointer (&data->update_buffer.properties, g_array_unref);
-	g_clear_pointer (&data->update_buffer.update_log, g_array_unref);
+	g_clear_pointer (&data->update_buffer.update_log, g_ptr_array_unref);
 	g_clear_pointer (&data->update_buffer.class_updates, g_hash_table_unref);
 	g_clear_object (&data->update_buffer.insert_resource);
 	g_clear_object (&data->update_buffer.query_resource);
@@ -707,6 +707,36 @@ get_transaction_modseq (TrackerData *data)
 	return data->transaction_modseq;
 }
 
+static TrackerDataLogEntry *
+append_to_update_log (TrackerData         *data,
+                      TrackerDataLogEntry  entry)
+{
+	TrackerDataLogEntry *entry_ptr;
+	GArray *array = NULL;
+
+	if (data->update_buffer.update_log->len > 0) {
+		array = g_ptr_array_index (data->update_buffer.update_log,
+		                           data->update_buffer.update_log->len - 1);
+
+		/* This chunk is full */
+		if (array->len == UPDATE_LOG_SIZE)
+			array = NULL;
+	}
+
+	if (!array) {
+		/* Reserve a new chunk */
+		array = g_array_sized_new (FALSE, FALSE, sizeof (TrackerDataLogEntry), UPDATE_LOG_SIZE);
+		g_ptr_array_add (data->update_buffer.update_log, array);
+	}
+
+	g_array_append_val (array, entry);
+	entry_ptr = &g_array_index (array,
+	                            TrackerDataLogEntry,
+	                            array->len - 1);
+
+	return entry_ptr;
+}
+
 static void
 log_entry_for_multi_value_property (TrackerData             *data,
                                     TrackerDataLogEntryType  type,
@@ -734,7 +764,8 @@ log_entry_for_multi_value_property (TrackerData             *data,
 	entry.table.multivalued.property = property;
 	entry.table.multivalued.change_idx = prop_idx;
 	entry.properties_ptr = data->update_buffer.properties;
-	g_array_append_val (data->update_buffer.update_log, entry);
+
+	append_to_update_log (data, entry);
 }
 
 static void
@@ -757,10 +788,7 @@ log_entry_for_single_value_property (TrackerData     *data,
 	entry_ptr = g_hash_table_lookup (data->update_buffer.class_updates, &entry);
 
 	if (!entry_ptr) {
-		g_array_append_val (data->update_buffer.update_log, entry);
-		entry_ptr = &g_array_index (data->update_buffer.update_log,
-		                            TrackerDataLogEntry,
-		                            data->update_buffer.update_log->len - 1);
+		entry_ptr = append_to_update_log (data, entry);
 		g_hash_table_add (data->update_buffer.class_updates, entry_ptr);
 	}
 
@@ -796,11 +824,7 @@ log_entry_for_class (TrackerData             *data,
 		return;
 
 	entry.properties_ptr = data->update_buffer.properties;
-	g_array_append_val (data->update_buffer.update_log, entry);
-
-	entry_ptr = &g_array_index (data->update_buffer.update_log,
-	                            TrackerDataLogEntry,
-	                            data->update_buffer.update_log->len - 1);
+	entry_ptr = append_to_update_log (data, entry);
 
 	if (type == TRACKER_LOG_CLASS_DELETE)
 		g_hash_table_remove (data->update_buffer.class_updates, entry_ptr);
@@ -1222,19 +1246,19 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 }
 
 static gboolean
-tracker_data_flush_log (TrackerData  *data,
-                        GError      **error)
+tracker_data_flush_log_chunk (TrackerData  *data,
+                              GArray       *chunk,
+                              GError      **error)
 {
 	TrackerDBStatement *stmt = NULL;
 	TrackerDataPropertyEntry *property_entry;
 	guint i;
 	GError *inner_error = NULL;
 
-	for (i = 0; i < data->update_buffer.update_log->len; i++) {
+	for (i = 0; i < chunk->len; i++) {
 		TrackerDataLogEntry *entry;
 
-		entry = &g_array_index (data->update_buffer.update_log,
-		                        TrackerDataLogEntry, i);
+		entry = &g_array_index (chunk, TrackerDataLogEntry, i);
 
 		stmt = tracker_data_ensure_update_statement (data, entry, error);
 		if (!stmt)
@@ -1291,6 +1315,26 @@ tracker_data_flush_log (TrackerData  *data,
 			g_propagate_error (error, inner_error);
 			return FALSE;
 		}
+	}
+
+	return TRUE;
+}
+
+static gboolean
+tracker_data_flush_log (TrackerData  *data,
+                        GError      **error)
+{
+	guint i;
+
+	for (i = 0; i < data->update_buffer.update_log->len; i++) {
+		GArray *chunk;
+
+		chunk = g_ptr_array_index (data->update_buffer.update_log, i);
+
+		if (!tracker_data_flush_log_chunk (data,
+		                                   chunk,
+		                                   error))
+			return FALSE;
 	}
 
 	return TRUE;
@@ -1651,7 +1695,7 @@ out:
 	g_hash_table_remove_all (data->update_buffer.new_resources);
 	g_hash_table_remove_all (data->update_buffer.class_updates);
 	g_array_set_size (data->update_buffer.properties, 0);
-	g_array_set_size (data->update_buffer.update_log, 0);
+	g_ptr_array_set_size (data->update_buffer.update_log, 0);
 	data->resource_buffer = NULL;
 }
 
@@ -1659,8 +1703,18 @@ void
 tracker_data_update_buffer_might_flush (TrackerData  *data,
                                         GError      **error)
 {
-	if (data->update_buffer.update_log->len > UPDATE_LOG_SIZE - 10)
-		tracker_data_update_buffer_flush (data, error);
+	if (data->update_buffer.update_log->len == 0) {
+		return;
+	} else if (data->update_buffer.update_log->len == 1) {
+		GArray *ops;
+
+		ops = g_ptr_array_index (data->update_buffer.update_log,
+		                         data->update_buffer.update_log->len - 1);
+		if (ops->len < UPDATE_LOG_SIZE)
+			return;
+	}
+
+	tracker_data_update_buffer_flush (data, error);
 }
 
 static void
@@ -1679,7 +1733,7 @@ tracker_data_update_buffer_clear (TrackerData *data)
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
 	g_hash_table_remove_all (data->update_buffer.class_updates);
 	g_array_set_size (data->update_buffer.properties, 0);
-	g_array_set_size (data->update_buffer.update_log, 0);
+	g_ptr_array_set_size (data->update_buffer.update_log, 0);
 	data->resource_buffer = NULL;
 }
 
@@ -3112,7 +3166,8 @@ tracker_data_begin_transaction (TrackerData  *data,
 
 		data->update_buffer.properties = g_array_sized_new (FALSE, TRUE, sizeof (TrackerDataPropertyEntry), UPDATE_LOG_SIZE);
 		g_array_set_clear_func (data->update_buffer.properties, clear_property);
-		data->update_buffer.update_log = g_array_sized_new (FALSE, TRUE, sizeof (TrackerDataLogEntry), UPDATE_LOG_SIZE);
+		data->update_buffer.update_log = g_ptr_array_sized_new (1);
+		g_ptr_array_set_free_func (data->update_buffer.update_log, (GDestroyNotify) g_array_unref);
 		data->update_buffer.class_updates = g_hash_table_new (tracker_data_log_entry_hash,
 								      tracker_data_log_entry_equal);
 		tracker_db_statement_mru_init (&data->update_buffer.stmt_mru, 100,
