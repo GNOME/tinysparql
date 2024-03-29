@@ -10344,6 +10344,7 @@ apply_update (TrackerSparql    *sparql,
               GError          **error)
 {
 	GHashTable *updated_bnode_labels, *bnode_rowids;
+	TrackerDBInterface *iface;
 	GError *inner_error = NULL;
 	guint cur_update_group = 0;
 	guint i = 0;
@@ -10356,6 +10357,8 @@ apply_update (TrackerSparql    *sparql,
 			                       g_free,
 			                       (GDestroyNotify) tracker_rowid_free);
 	}
+
+	iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
 
 	updated_bnode_labels = g_hash_table_new (g_str_hash, g_str_equal);
 	bnode_rowids = g_hash_table_new_full (tracker_rowid_hash,
@@ -10382,7 +10385,6 @@ apply_update (TrackerSparql    *sparql,
 		g_hash_table_remove_all (updated_bnode_labels);
 
 		if (update_group->where_clause_sql) {
-			TrackerDBInterface *iface;
 			TrackerDBStatement *stmt;
 
 			/* Flush to ensure the WHERE clause gets up-to-date results */
@@ -10391,7 +10393,8 @@ apply_update (TrackerSparql    *sparql,
 			if (inner_error)
 				goto out;
 
-			iface = tracker_data_manager_get_writable_db_interface (sparql->data_manager);
+			tracker_data_update_freeze_flush (tracker_data_manager_get_data (sparql->data_manager));
+
 			stmt = prepare_query (sparql, iface,
 			                      update_group->where_clause_sql,
 			                      update_group->literals,
@@ -10436,9 +10439,14 @@ apply_update (TrackerSparql    *sparql,
 
 		g_clear_object (&cursor);
 
-		if (!inner_error)
+		if (!inner_error && update_group->where_clause_sql) {
+			tracker_data_update_thaw_flush (tracker_data_manager_get_data (sparql->data_manager));
+		}
+
+		if (!inner_error) {
 			tracker_data_update_buffer_flush (tracker_data_manager_get_data (sparql->data_manager),
 			                                  &inner_error);
+		}
 
 		if (inner_error)
 			goto out;
