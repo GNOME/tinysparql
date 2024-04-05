@@ -1,0 +1,559 @@
+# Kabyle translation for tracker.
+# Copyright (C) 2024 tracker's COPYRIGHT HOLDER
+# This file is distributed under the same license as the tracker package.
+# Rachida SACI <rgebbid@gmail.com>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: tracker master\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
+"POT-Creation-Date: 2024-04-03 18:53+0000\n"
+"PO-Revision-Date: 2024-04-05 06:43+0200\n"
+"Last-Translator: sa\n"
+"Language-Team: Kabyle <kab@li.org>\n"
+"Language: kab\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtracker-sparql/core/tracker-collation.c:116
+msgid "the|a|an"
+msgstr ""
+
+#: src/portal/tracker-main.c:53
+msgid "Version"
+msgstr "Lqem"
+
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
+#: src/tracker/tracker-export.c:549 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:239
+msgid "Unrecognized options"
+msgstr "Tixtiṛiyin ur yettwaqbalen ara"
+
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
+#: src/tracker/tracker-sql.c:44
+msgid "Location of the database"
+msgstr "Adig n taffa n yisefka"
+
+#: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
+msgid "DIR"
+msgstr "DIR"
+
+#: src/tracker/tracker-endpoint.c:62
+msgid "Specify the DBus name of this endpoint"
+msgstr "Suzzeg isem n DBus n wagaz-a n uzgu"
+
+#: src/tracker/tracker-endpoint.c:63 src/tracker/tracker-endpoint.c:67
+msgid "NAME"
+msgstr "ISEM"
+
+#: src/tracker/tracker-endpoint.c:66
+msgid "Specify the ontology name used in this endpoint"
+msgstr "Suzzeg isem n tuntulujit yettwasqedcen deg wagaz-a n uzgu"
+
+#: src/tracker/tracker-endpoint.c:70
+msgid "Specify a path to an ontology to be used in this endpoint"
+msgstr "Suzzeg abrid ɣer tuntulujit ara yettwasqedcen deg wagaz-a n uzgu"
+
+#: src/tracker/tracker-endpoint.c:74
+msgid "HTTP port"
+msgstr "Tawwurt HTTP"
+
+#: src/tracker/tracker-endpoint.c:78
+msgid "Whether to only allow HTTP connections in the loopback device"
+msgstr "Ma yella ad ttwasirgent kan tuqqniwin HTTP deg yibenk uḥerri"
+
+#: src/tracker/tracker-endpoint.c:82
+msgid "Use session bus"
+msgstr "Seqdec azrug n tɣimit"
+
+#: src/tracker/tracker-endpoint.c:86
+msgid "Use system bus"
+msgstr "Seqdec azrug n unagraw"
+
+#: src/tracker/tracker-endpoint.c:90
+msgid "List SPARQL endpoints available in DBus"
+msgstr "Bder agazen n uzgu SPARQL i yellan deg DBus"
+
+#: src/tracker/tracker-endpoint.c:94
+msgid "List network-local HTTP SPARQL endpoints"
+msgstr "Bder agazen n uzgu HTTP SPARQL idiganen ɣef uzeṭṭa"
+
+#. TRANSLATORS: these are commandline arguments
+#: src/tracker/tracker-endpoint.c:115
+msgid "--list can only be used with --session or --system"
+msgstr "--list zemren kan ad ttwasqedcen akked --session neɣ --system"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:121
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr ""
+"Yiwet n textiṛt \"tuntulujit\" neɣ tutulujit-abrid\" ilaq ad tettwamudd"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:127
+msgid "--http-port cannot be used with --dbus-service"
+msgstr "--http-port ur yezmir ara ad yettwaseqdec akked --dbus-service"
+
+#: src/tracker/tracker-endpoint.c:198
+#, c-format
+msgid "Creating HTTP endpoint at %s…"
+msgstr "Timerna n wagaz n uzgu HTTP deg %s…"
+
+#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "Sell i tiludna SPARQL. Sit ɣef Ctrl-C i useḥbes."
+
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
+msgid "Closing connection…"
+msgstr "Amdal n tuqqna…"
+
+#: src/tracker/tracker-endpoint.c:241
+#, c-format
+msgid "Creating endpoint at %s…"
+msgstr "Timerna n wagaz n uzgu deg %s…"
+
+#: src/tracker/tracker-endpoint.c:277
+msgid "Could not own DBus name"
+msgstr "Ur yezmir ara ad yesεu isem DBus"
+
+#: src/tracker/tracker-endpoint.c:291
+msgid "DBus name lost"
+msgstr "Iruḥ yisem n DBus"
+
+#: src/tracker/tracker-endpoint.c:651
+#, c-format
+msgid "Opening database at %s…"
+msgstr "Alday n taffa n yisefka deg %s…"
+
+#: src/tracker/tracker-endpoint.c:654
+msgid "Creating in-memory database"
+msgstr "Timerna n taffa n yisefka deg tkatut"
+
+#: src/tracker/tracker-endpoint.c:681
+msgid ""
+"New database created. Use the “--dbus-service” option to share this database "
+"on a message bus."
+msgstr ""
+"Tettwarna taffa n yisefka tamaynut. Seqdec taxtiṛt “--dbus-service” i beṭṭu "
+"n taffa-a n yisefka ɣef uzrug n yizen."
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-endpoint.desktop.in:6
+msgid "endpoint"
+msgstr "agaz n uzgu"
+
+#: src/tracker/tracker-endpoint.desktop.in:7
+msgid "Create a SPARQL endpoint"
+msgstr "Rnu agaz n uzgu SPARQL"
+
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
+#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
+#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+msgid "FILE"
+msgstr "AFAYLU"
+
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-sparql.c:117
+msgid "Connects to a DBus service"
+msgstr "Itteqqen ɣer umeẓlu DBus"
+
+#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-sparql.c:118
+msgid "DBus service name"
+msgstr "Isem n umeẓlu DBus"
+
+#: src/tracker/tracker-export.c:57
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr "Amasal n yigmaḍ n tuffɣa: “turtle”, “trig” neɣ “json-ld”"
+
+#: src/tracker/tracker-export.c:58
+msgid "RDF_FORMAT"
+msgstr "AMASAL RDF (_F)"
+
+#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-sparql.c:121
+msgid "Connects to a remote service"
+msgstr "Itteqqen ɣer umeẓlu anmeggag"
+
+#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-sparql.c:122
+msgid "Remote service URI"
+msgstr "URI n umeẓlu anmeggag"
+
+#: src/tracker/tracker-export.c:65
+msgid "Output TriG format which includes named graph information"
+msgstr "Amasal TriG n tuffɣa ideg tella telɣut n udlif yettwasemman"
+
+#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+msgid "IRI"
+msgstr "IRI"
+
+#. TRANSLATORS: Those are commandline arguments
+#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-sparql.c:206
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr ""
+"Suzzeg yiwet n textiṛt “--database”, “--dbus-service” neɣ “--remote-service”"
+
+#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
+msgid "No error given"
+msgstr "Ulac tuccḍa i d-yettwamudden"
+
+#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-sparql.c:1072
+msgid "Could not establish a connection to Tracker"
+msgstr "Yegguma ad isserked tuqqna ɣer Tracker"
+
+#: src/tracker/tracker-export.c:382
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "Amasal n usmizrer \"%s\" ur yettwasefrak ara\n"
+
+#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:446
+#: src/tracker/tracker-export.c:455 src/tracker/tracker-sparql.c:1334
+#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
+msgid "Could not run query"
+msgstr "Yegguma ad isselkem tuttra"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-export.desktop.in:6
+msgid "export"
+msgstr "sifeḍ"
+
+#: src/tracker/tracker-export.desktop.in:7
+msgid "Export data from a Tracker database"
+msgstr "Sifeḍ isefka seg taffa n yisefka Tracker"
+
+#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
+#, c-format
+msgid "failed to exec “%s”: %s"
+msgstr "yecceḍ uselkem n “%s”: %s"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-help.desktop.in:6
+msgid "help"
+msgstr "tallelt"
+
+#: src/tracker/tracker-help.desktop.in:7
+msgid "Get help on how to use Tracker and any of these commands"
+msgstr ""
+"Awi tallalt ɣef wamek ara tesqedceḍ Tracker akked ɣef useqdec n tiludna-a"
+
+#: src/tracker/tracker-import.c:58
+msgid "Read TriG format which includes named graph information"
+msgstr "Γeṛ amasal TriG ideg tella telɣut n udlif yettwasemman"
+
+#: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
+msgid "Could not run import"
+msgstr "Yegguma ad isselkem aktar"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-import.desktop.in:6
+msgid "import"
+msgstr "kter"
+
+#: src/tracker/tracker-import.desktop.in:7
+msgid "Import data into a Tracker database"
+msgstr "Kter isefka deg taffa n yisefka Tracker"
+
+#: src/tracker/tracker-main.c:123
+msgid "Available tracker3 commands are:"
+msgstr "Tiludna tracker3 i yellan d:"
+
+#: src/tracker/tracker-main.c:155
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
+msgstr ""
+"Wali \"tallalt tracker3 <command>” i tɣuri ɣef tiludna tirnawin tuzzigin."
+
+#: src/tracker/tracker-main.c:208
+#, c-format
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "\"%s\" mačči d taladna n tracker3. Wali “tracker3 --help”"
+
+#: src/tracker/tracker-sparql.c:125
+msgid "Path to use to run a query or update from file"
+msgstr "Abrid ara yettwasqedcen i uselkem n tuttra neɣ uleqqem seg ufaylu"
+
+#: src/tracker/tracker-sparql.c:129
+msgid "SPARQL query"
+msgstr "Tuttra SPARQL"
+
+#: src/tracker/tracker-sparql.c:130
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/tracker/tracker-sparql.c:133
+msgid "This is used with --query and for database updates only."
+msgstr "Ayagi yettuseqdac s --query akked i yileqman kan n taffa yisefka."
+
+#: src/tracker/tracker-sparql.c:137
+msgid "Retrieve classes"
+msgstr "Tiririt n yismilen"
+
+#: src/tracker/tracker-sparql.c:141
+msgid "Retrieve class prefixes"
+msgstr "Err-d izwiren n usmil"
+
+#: src/tracker/tracker-sparql.c:145
+msgid ""
+"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+"Resource)"
+msgstr ""
+"Err-d araten i usmel, izwiren zemren daɣen ad ttwasqedcen (am. rdfs:Aɣbalu)"
+
+#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
+#: src/tracker/tracker-sparql.c:174
+msgid "CLASS"
+msgstr "ASMEL"
+
+#: src/tracker/tracker-sparql.c:149
+msgid ""
+"Retrieve classes which notify changes in the database (CLASS is optional)"
+msgstr ""
+"Err-d ismilen i yesselɣuyen isenfal deg taffa n yisefka (ASMIL d afrayan)"
+
+#: src/tracker/tracker-sparql.c:153
+msgid ""
+"Retrieve indexes used in database to improve performance (PROPERTY is "
+"optional)"
+msgstr ""
+"Err-d izwiren yettwasqedcen deg taffa n yisefka i usentem n tmellit (ARAT d "
+"afrayan)"
+
+#: src/tracker/tracker-sparql.c:154
+msgid "PROPERTY"
+msgstr "ARAT"
+
+#: src/tracker/tracker-sparql.c:157
+msgid "Retrieve all named graphs"
+msgstr "Err-d akk idfilen yettwasemman"
+
+#: src/tracker/tracker-sparql.c:161
+msgid ""
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
+msgstr ""
+"Glem ismilen irnawen, ismilen ifellayen (zemren ad ttwasqedcen akked -s i "
+"usebruraq n yiberdan n useklu akked -p i uskan n waraten)"
+
+#: src/tracker/tracker-sparql.c:165
+msgid ""
+"Search for a class or property and display more information (e.g. Document)"
+msgstr "Nadi asmil neɣ arat syen sken ugar n telɣut (am. Isemli)"
+
+#: src/tracker/tracker-sparql.c:166
+msgid "CLASS/PROPERTY"
+msgstr "ASMIL/ARAT"
+
+#: src/tracker/tracker-sparql.c:169
+msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+msgstr "Yettarra-d anegzum n usmil (am. nfo:FileDataObject)."
+
+#: src/tracker/tracker-sparql.c:173
+msgid "Returns the full namespace for a class."
+msgstr "Yettarra-d tallunt n yisem ummid i usmil."
+
+#: src/tracker/tracker-sparql.c:177
+msgid "Provides an argument for a query parameter."
+msgstr "Yettmuddu afakul i uɣewwar n tuttra."
+
+#: src/tracker/tracker-sparql.c:178
+msgid "PARAMETER:TYPE:VALUE"
+msgstr "AΓEWWAR:ANAW:AZAL"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
+msgid "None"
+msgstr "Ula d yiwen"
+
+#: src/tracker/tracker-sparql.c:899
+msgid "Could not create tree: subclass query failed"
+msgstr "Yegguma ad yernu aseklu: tuttra n usmil arnaw tecceḍ"
+
+#: src/tracker/tracker-sparql.c:949
+msgid "Could not create tree: class properties query failed"
+msgstr "Yegguma ad yernu aseklu: tuttra n waraten n usmil tecceḍ"
+
+#: src/tracker/tracker-sparql.c:1009
+#, c-format
+msgid "Invalid argument string %s"
+msgstr "Azrir n ufakul d arameɣtu %s"
+
+#: src/tracker/tracker-sparql.c:1019
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr "Anaw n uɣewwar i ufakul %s d arameɣtu"
+
+#: src/tracker/tracker-sparql.c:1089
+msgid "Could not list classes"
+msgstr "Yegguma ad d-yebder ismilen"
+
+#: src/tracker/tracker-sparql.c:1097
+msgid "No classes were found"
+msgstr "Ulac ismilen i yettwafen"
+
+#: src/tracker/tracker-sparql.c:1097 src/tracker/tracker-sparql.c:1219
+msgid "Classes"
+msgstr "Ismilen"
+
+#: src/tracker/tracker-sparql.c:1120
+msgid "Could not list properties"
+msgstr "Yegguma ad d-yebder araten"
+
+#: src/tracker/tracker-sparql.c:1128
+msgid "No properties were found"
+msgstr "Ulac araten yettwafen"
+
+#: src/tracker/tracker-sparql.c:1128 src/tracker/tracker-sparql.c:1237
+msgid "Properties"
+msgstr "Iraten"
+
+#: src/tracker/tracker-sparql.c:1144
+msgid "Could not find notify classes"
+msgstr "Yegguma ad d-yaf ismilen n uselɣu"
+
+#: src/tracker/tracker-sparql.c:1152
+msgid "No notifies were found"
+msgstr "Ulac ilɣuten i yettwafen"
+
+#: src/tracker/tracker-sparql.c:1152
+msgid "Notifies"
+msgstr "Ilɣuten"
+
+#: src/tracker/tracker-sparql.c:1168
+msgid "Could not find indexed properties"
+msgstr "Yegguma ad yaf araten s umatar"
+
+#: src/tracker/tracker-sparql.c:1176
+msgid "No indexes were found"
+msgstr "Ulac imataren i yettwafen"
+
+#: src/tracker/tracker-sparql.c:1176
+msgid "Indexes"
+msgstr "Imataren"
+
+#: src/tracker/tracker-sparql.c:1186
+msgid "Could not list named graphs"
+msgstr "Yegguma ad d-ibder idfilen yettwasemman"
+
+#: src/tracker/tracker-sparql.c:1194
+msgid "No graphs were found"
+msgstr "Ulac idfilen i yettwafen"
+
+#: src/tracker/tracker-sparql.c:1194
+msgid "Named graphs"
+msgstr "Idlifen i yettwasemman"
+
+#: src/tracker/tracker-sparql.c:1211
+msgid "Could not search classes"
+msgstr "Yegguma ad indai ismilen"
+
+#: src/tracker/tracker-sparql.c:1219
+msgid "No classes were found to match search term"
+msgstr "Ulac ismilen i yettwafen yemṣadan d uferdis n unadi"
+
+#: src/tracker/tracker-sparql.c:1229
+msgid "Could not search properties"
+msgstr "Ur yezmir ara ad inadi iraten"
+
+#: src/tracker/tracker-sparql.c:1237
+msgid "No properties were found to match search term"
+msgstr "Ulac araten yettwafen mṣadan d uferdis n unadi"
+
+#: src/tracker/tracker-sparql.c:1266 src/tracker/tracker-sql.c:70
+msgid "Could not get UTF-8 path from path"
+msgstr "Yegguma ad d-yawi abrid UTF-8 seg ubrid"
+
+#: src/tracker/tracker-sparql.c:1278 src/tracker/tracker-sql.c:81
+msgid "Could not read file"
+msgstr "Yegguma ad d-iɣeṛ afaylu"
+
+#: src/tracker/tracker-sparql.c:1309
+msgid "Could not run update"
+msgstr "Yegguma ad isselkem lqem"
+
+#: src/tracker/tracker-sparql.c:1316
+msgid "Done"
+msgstr "Immed"
+
+#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
+msgid "No results found matching your query"
+msgstr "Ulac igmaḍ i yettwafen mṣadan d tuttra-k"
+
+#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
+#: src/tracker/tracker-sql.c:144
+msgid "Results"
+msgstr "Igmaḍ"
+
+#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:250
+msgid "File and query can not be used together"
+msgstr "Afaylu akked tuttra ur zmiren ara ad ttwasqedcen akken"
+
+#: src/tracker/tracker-sparql.c:1403
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"Afakul --list-properties yezmer ad yili d ilem mi ara yettwaseqdec kan akked "
+"ufakul --tree"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-sparql.desktop.in:6
+msgid "sparql"
+msgstr "sparql"
+
+#: src/tracker/tracker-sparql.desktop.in:7
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"Ttar syen leqqem amatar s useqdec n SPARQL neɣ unadi, bder syen tmizwareḍ "
+"tantulujit"
+
+#: src/tracker/tracker-sql.c:48
+msgid "Path to use to run a query from file"
+msgstr "Abrid ara yettwsqedcen i uselkem n tuttra seg ufaylu"
+
+#: src/tracker/tracker-sql.c:52
+msgid "SQL query"
+msgstr "Asesten SQL"
+
+#: src/tracker/tracker-sql.c:53
+msgid "SQL"
+msgstr "SQL"
+
+#: src/tracker/tracker-sql.c:114
+msgid "Failed to initialize data manager"
+msgstr "Yecceḍ uwennez n umsefrak n yisefka"
+
+#: src/tracker/tracker-sql.c:178
+msgid "Empty result set"
+msgstr "Taggayt n yigmaḍ ilmawen"
+
+#: src/tracker/tracker-sql.c:248
+msgid "A database path must be specified"
+msgstr "Abrid n taffa n yisefka ilaq ad yettwasuzzeg"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-sql.desktop.in:6
+msgid "sql"
+msgstr "sql"
+
+#: src/tracker/tracker-sql.desktop.in:7
+msgid "Query the database at the lowest level using SQL"
+msgstr "Sesten taffa n yisefka ɣef uswir adday maḍi s useqdec n SQL"
