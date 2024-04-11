@@ -1,0 +1,22 @@
+INSERT DATA {
+  <test://root> a example:A .
+
+  <test://root/1> a example:A ; example:resource <test://root> .
+  <test://root/2> a example:A ; example:resource <test://root> .
+  <test://root/3> a example:A ; example:resource <test://root> .
+  <test://root/4> a example:A ; example:resource <test://root> .
+  <test://root/5> a example:A ; example:resource <test://root> .
+  <test://root/6> a example:A ; example:resource <test://root> .
+  <test://root/7> a example:A ; example:resource <test://root> .
+  <test://root/8> a example:A ; example:resource <test://root> .
+  <test://root/9> a example:A ; example:resource <test://root> .
+  <test://root/10> a example:A ; example:resource <test://root> .
+};
+DELETE {
+  ?a a rdfs:Resource .
+  ?b a rdfs:Resource .
+} WHERE {
+  # If this is correct, "<test://root> a example:A" will
+  # stay true for all the WHERE clause results.
+  ?a example:resource ?b . ?b a example:A . ?a a example:A .
+}
