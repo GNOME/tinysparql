@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-02-12 11:01+0000\n"
-"PO-Revision-Date: 2024-04-15 15:18+0200\n"
+"POT-Creation-Date: 2024-02-11 19:14+0000\n"
+"PO-Revision-Date: 2024-04-15 15:26+0200\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <f.t.public@gmail.com>\n"
 "Language: fur\n"
@@ -16,725 +16,1533 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Editor: HaiPO 1.2 RC4\n"
 "X-Generator: Poedit 3.4.2\n"
 
-#. Translators: this is a '|' (U+007C) separated list of common
-#. * title beginnings. Meant to be skipped for sorting purposes,
-#. * case doesn't matter. Given English media is quite common, it is
-#. * advised to leave the untranslated articles in addition to
-#. * the translated ones.
-#.
-#: src/libtracker-sparql/core/tracker-collation.c:116
-msgid "the|a|an"
-msgstr "the|a|an|il|la|i|lis|l'"
+#: data/org.freedesktop.Tracker.Extract.gschema.xml:23
+msgid "Max bytes to extract"
+msgstr "Numar massim di bytes di estrai"
 
-#: src/portal/tracker-main.c:53
-msgid "Version"
-msgstr "Version"
+#: data/org.freedesktop.Tracker.Extract.gschema.xml:24
+msgid "Maximum number of UTF-8 bytes to extract."
+msgstr "Numar massim di bytes UTF-8 di estrai."
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
-#: src/tracker/tracker-export.c:552 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1398 src/tracker/tracker-sql.c:239
-msgid "Unrecognized options"
-msgstr "Opzions no ricognossudis"
+#: data/org.freedesktop.Tracker.Extract.gschema.xml:30
+msgid "Text file allowlist"
+msgstr "File di test de liste-permetûts"
 
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
-#: src/tracker/tracker-sql.c:44
-msgid "Location of the database"
-msgstr "Ubicazion de base di dât"
-
-#: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
-msgid "DIR"
-msgstr "DIR"
-
-#: src/tracker/tracker-endpoint.c:62
-msgid "Specify the DBus name of this endpoint"
-msgstr "Specifiche il non DBus di chest pont finâl"
-
-#: src/tracker/tracker-endpoint.c:63 src/tracker/tracker-endpoint.c:67
-msgid "NAME"
-msgstr "NON"
-
-#: src/tracker/tracker-endpoint.c:66
-msgid "Specify the ontology name used in this endpoint"
-msgstr "Specifiche il non de ontologjie doprât in chest pont finâl"
-
-#: src/tracker/tracker-endpoint.c:70
-msgid "Specify a path to an ontology to be used in this endpoint"
+#: data/org.freedesktop.Tracker.Extract.gschema.xml:31
+msgid "Filename patterns for plain text documents that should be indexed"
 msgstr ""
-"Specifiche un percors a une ontologjie di jessi doprât in chest pont finâl"
+"Modei di nons di files pai documents di test sempliçs che a scugnin jessi "
+"metûts te tabele"
 
-#: src/tracker/tracker-endpoint.c:74
-msgid "HTTP port"
-msgstr "Puarte HTTP"
+#: data/org.freedesktop.Tracker.Extract.gschema.xml:37
+msgid "Wait for FS miner to be done before extracting"
+msgstr "Spiete che l'analizadôr dal file system al finissi prime di estrai"
 
-#: src/tracker/tracker-endpoint.c:78
-msgid "Whether to only allow HTTP connections in the loopback device"
-msgstr ""
-"Indiche se permeti dome lis conessions HTTP intal dispositîf di loopback"
-
-#: src/tracker/tracker-endpoint.c:82
-msgid "Use session bus"
-msgstr "Dopre il bus de session"
-
-#: src/tracker/tracker-endpoint.c:86
-msgid "Use system bus"
-msgstr "Dopre il bus dal sisteme"
-
-#: src/tracker/tracker-endpoint.c:90
-msgid "List SPARQL endpoints available in DBus"
-msgstr "Liste i ponts finâi SPARQL disponibii tal DBus"
-
-#: src/tracker/tracker-endpoint.c:94
-msgid "List network-local HTTP SPARQL endpoints"
-msgstr "Liste i ponts finâls SPARQL HTTP locâi de rêt"
-
-#. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:115
-msgid "--list can only be used with --session or --system"
-msgstr "Al è pussibil doprâ --list dome cun --session o --system"
-
-#. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:121
-msgid "One “ontology” or “ontology-path” option should be provided"
-msgstr "Une opzion tra “ontology” o “ontology-path” e scugne jessi indicade"
-
-#. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:127
-msgid "--http-port cannot be used with --dbus-service"
-msgstr "No si pues doprâ --http-port cun --dbus-service"
-
-#: src/tracker/tracker-endpoint.c:198
-#, c-format
-msgid "Creating HTTP endpoint at %s…"
-msgstr "Daûr a creâ il pont finâl HTTP su %s…"
-
-#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
-msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr "In scolte pai comants SPARQL. Frache Ctrl-c par fermâ."
-
-#. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
-msgid "Closing connection…"
-msgstr "Daûr a sierâ la conession…"
-
-#: src/tracker/tracker-endpoint.c:241
-#, c-format
-msgid "Creating endpoint at %s…"
-msgstr "Daûr a creâ il pont finâl su %s…"
-
-#: src/tracker/tracker-endpoint.c:277
-msgid "Could not own DBus name"
-msgstr "Impussibil apropriâsi dal non DBus"
-
-#: src/tracker/tracker-endpoint.c:291
-msgid "DBus name lost"
-msgstr "Non DBus pierdût"
-
-#: src/tracker/tracker-endpoint.c:651
-#, c-format
-msgid "Opening database at %s…"
-msgstr "Daûr a vierzi la base di dâts su %s…"
-
-#: src/tracker/tracker-endpoint.c:654
-msgid "Creating in-memory database"
-msgstr "Daûr a creâ la base di dâts in-memorie"
-
-#: src/tracker/tracker-endpoint.c:681
+#: data/org.freedesktop.Tracker.Extract.gschema.xml:38
 msgid ""
-"New database created. Use the “--dbus-service” option to share this database "
-"on a message bus."
+"When true, tracker-extract will wait for tracker-miner-fs to be done "
+"crawling before extracting meta-data. This option is useful on constrained "
+"environment where it is important to list files as fast as possible and can "
+"wait to get meta-data later."
 msgstr ""
-"Gnove base di dâts creade. Dopre la opzion “--dbus-service” par condividi "
-"cheste base di dâts suntun bus dai messaçs."
+"Se VÊR, tracker-extract al spietarà che tracker-miner-fs al finissi prime di "
+"estrai i meta-dâts. Cheste opzion e je utile sui sistemis limitâts dulà che "
+"al è impuartant listâ i files in maniere veloce e al è pussibil spietâ il "
+"recupar dai meta-dâts."
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-endpoint.desktop.in:6
-msgid "endpoint"
-msgstr "endpoint"
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:24
+msgid "Enable stemmer"
+msgstr "Abilite stemmer"
 
-#: src/tracker/tracker-endpoint.desktop.in:7
-msgid "Create a SPARQL endpoint"
-msgstr "Cree un pont finâl SPARQL"
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:25
+msgid ""
+"Simplify the words to their root to provide more results. E.g. “shelves” and "
+"“shelf” to “shel”"
+msgstr ""
+"Semplifiche la peraule te lôr lidrîs par vê plui risultâts. Par esempli: "
+"«cjacare», «cjacari», «cjacarai» in «cjacar»"
 
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
-#: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:30
+msgid "Enable unaccent"
+msgstr "Abilite letaris cence acent"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:31
+msgid ""
+"Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
+"“Idea” for improved matching."
+msgstr ""
+"Volte i caratars cun acent intai ecuivalents cence acent. Par esempli: "
+"«bruntulâ» in «bruntula»."
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:36
+msgid "Ignore numbers"
+msgstr "Ignore i numars"
+
+#: data/org.freedesktop.Tracker.FTS.gschema.xml:37
+msgid "If enabled, numbers will not be indexed."
+msgstr "Se abilitât, i numars no vegnaran metûts te tabele."
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:23
+msgid "Initial sleep"
+msgstr "Pause iniziâl"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:24
+msgid "Initial sleep time, in seconds."
+msgstr "Pause iniziâl, in seconts."
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:30
+msgid "Throttle"
+msgstr "Regoladôr"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:31
+msgid "Indexing speed, the higher the slower."
+msgstr "Velocitât di metude te tabele: plui alt il valôr, plui al sarà lent."
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:37
+msgid "Low disk space limit"
+msgstr "Limit dal spazi su disc bas"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:38
+msgid ""
+"Disk space threshold in percent at which to pause indexing, or -1 to disable."
+msgstr ""
+"Liminâr in percentuâl dal spazi su disc dulà meti in pause la metude te "
+"tabele o -1 par disabilitâle."
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:44
+msgid "Crawling interval"
+msgstr "Interval acuisizion dâts"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:45
+msgid ""
+"Interval in days to check whether the filesystem is up to date in the "
+"database. 0 forces crawling anytime, -1 forces it only after unclean "
+"shutdowns, and -2 disables it entirely."
+msgstr ""
+"Interval in dîs par controlâ se il file system al è inzornât te base di "
+"dâts. 0 al sfuarce la acuisizion in cualsisei moment, -1 nome dopo che il "
+"sisteme si è fermât in maniere no juste, -2 lu disabilite."
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:55
+msgid "Removable devices’ data permanence threshold"
+msgstr "Liminâr di permanence dai dâts tai dispositîfs estraibii"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:56
+msgid ""
+"Threshold in days after which files from removables devices will be removed "
+"from database if not mounted. 0 means never, maximum is 365."
+msgstr ""
+"Limit in dîs daspò di chei i files di dispositîfs estraibii no plui montâts "
+"a vignaran gjavâts de base di dâts. 0 al indiche mai, il massim al è 365."
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:66
+msgid "Enable monitors"
+msgstr "Abilite il monitorâ"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:67
+msgid "Set to false to completely disable any file monitoring"
+msgstr "Met a FALS par disabilitâ il monitorizâ dai files"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:72
+msgid "Index removable devices"
+msgstr "Met te tabele dispositîfs estraibii"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:73
+msgid ""
+"Set to true to enable indexing mounted directories for removable devices."
+msgstr ""
+"Met a VÊR par meti te tabele lis cartelis di dispositîfs estraibii montâts."
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:78
+msgid "Index optical discs"
+msgstr "Met te tabele discs otics"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:79
+msgid ""
+"Set to true to enable indexing CDs, DVDs, and generally optical media (if "
+"removable devices are not indexed, optical discs won’t be either)"
+msgstr ""
+"Met a VÊR par abilitâ la metude te tabele di CD, DVD e plui in gjenar di "
+"dispositîfs otics (se i dispositîfs estraibii no vegnin metûts te tabele "
+"alore nancje chei otics lu saran)"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:87
+msgid "Index when running on battery"
+msgstr "Met te tabele cuant che si va a batarie"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:88
+msgid "Set to true to index while running on battery"
+msgstr ""
+"Met a VÊR par meti te tabele cuant che si funzione alimentâts a batarie"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:93
+msgid "Perform initial indexing when running on battery"
+msgstr "Eseguìs la metude te tabele iniziâl cuant che si va a batarie"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:94
+msgid "Set to true to index while running on battery for the first time only"
+msgstr ""
+"Met a VÊR par meti te tabele nome pe prime volte cuant che si è alimentâts a "
+"batarie"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:99
+msgid "Directories to index recursively"
+msgstr "Cartelis di meti te tabele in maniere ricorsive"
+
+#. Translators: Do NOT translate the directories names in capital. Those
+#. are keys used by Tracker.
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:102
+msgid ""
+"List of directories to index recursively, Special values include: "
+"‘&DESKTOP’, ‘&DOCUMENTS’, ‘&DOWNLOAD’, ‘&MUSIC’, ‘&PICTURES’, "
+"‘&PUBLIC_SHARE’, ‘&TEMPLATES’, ‘&VIDEOS’. See /etc/xdg/user-dirs.defaults "
+"and $HOME/.config/user-dirs.default"
+msgstr ""
+"Liste di cartelis di meti te tabele in maniere ricorsive, i valôrs speciâi a "
+"son: ‘&DESKTOP’, ‘&DOCUMENTS’, ‘&DOWNLOAD’, ‘&MUSIC’, ‘&PICTURES’, "
+"‘&PUBLIC_SHARE’, ‘&TEMPLATES’, ‘&VIDEOS’. Consultâ /etc/xdg/user-dirs."
+"defaults e $HOME/.config/user-dirs.default"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:113
+msgid "Directories to index non-recursively"
+msgstr "Cartelis di meti te tabele in maniere no ricorsive"
+
+#. Translators: Do NOT translate the directories names in capital. Those
+#. are keys used by Tracker.
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:116
+msgid ""
+"List of directories to index without inspecting subfolders, Special values "
+"include: ‘&DESKTOP’, ‘&DOCUMENTS’, ‘&DOWNLOAD’, ‘&MUSIC’, ‘&PICTURES’, "
+"‘&PUBLIC_SHARE’, ‘&TEMPLATES’, ‘&VIDEOS’. See /etc/xdg/user-dirs.defaults "
+"and $HOME/.config/user-dirs.default"
+msgstr ""
+"Liste di cartelis di meti te tabele cence ispezionâ lis sotcartelis, i "
+"valôrs speciâi a son: ‘&DESKTOP’, ‘&DOCUMENTS’, ‘&DOWNLOAD’, ‘&MUSIC’, "
+"‘&PICTURES’, ‘&PUBLIC_SHARE’, ‘&TEMPLATES’, ‘&VIDEOS’. Consultâ /etc/xdg/"
+"user-dirs.defaults e $HOME/.config/user-dirs.default"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:127
+msgid "Ignored files"
+msgstr "Files ignorâts"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:128
+msgid "List of file patterns to avoid"
+msgstr "Liste di modei di files di ignorâ"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:133
+msgid "Ignored directories"
+msgstr "Cartelis ignoradis"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:134
+msgid "List of directories to avoid"
+msgstr "Liste di cartelis di ignorâ"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:139
+msgid "Ignored directories with content"
+msgstr "Cartelis cun contignût di ignorâ"
+
+#: data/org.freedesktop.Tracker.Miner.Files.gschema.xml:140
+msgid "Avoid any directory containing a file blocklisted here"
+msgstr ""
+"Evite cualsisei cartele che e conten un file listât te liste di bloc achì"
+
+#: src/libtracker-miners-common/tracker-miner-proxy.c:349
+msgid "Cookie not recognized to resume paused miner"
+msgstr "Cookie no ricognossût par continuâ l'estratôr di dâts"
+
+#: src/libtracker-miners-common/tracker-miner-proxy.c:406
+msgid "Pause application and reason match an already existing pause request"
+msgstr ""
+"La aplicazion in pause e la sô reson a corispuindin a une domande esistente"
+
+#: src/libtracker-miners-common/tracker-utils.c:101
+#: src/libtracker-miners-common/tracker-utils.c:152
+msgid "less than one second"
+msgstr "mancul di un secont"
+
+#. Translators: this is %d days
+#: src/libtracker-miners-common/tracker-utils.c:116
+#, c-format
+msgid " %dd"
+msgstr " %dd"
+
+#. Translators: this is %2.2d hours
+#: src/libtracker-miners-common/tracker-utils.c:120
+#, c-format
+msgid " %2.2dh"
+msgstr " %2.2dh"
+
+#. Translators: this is %2.2d minutes
+#: src/libtracker-miners-common/tracker-utils.c:124
+#, c-format
+msgid " %2.2dm"
+msgstr " %2.2dm"
+
+#. Translators: this is %2.2d seconds
+#: src/libtracker-miners-common/tracker-utils.c:128
+#, c-format
+msgid " %2.2ds"
+msgstr " %2.2ds"
+
+#: src/libtracker-miners-common/tracker-utils.c:132
+#, c-format
+msgid " %d day"
+msgid_plural " %d days"
+msgstr[0] " %d dì"
+msgstr[1] " %d dîs"
+
+#: src/libtracker-miners-common/tracker-utils.c:136
+#, c-format
+msgid " %2.2d hour"
+msgid_plural " %2.2d hours"
+msgstr[0] " %2.2d ore"
+msgstr[1] " %2.2d oris"
+
+#: src/libtracker-miners-common/tracker-utils.c:140
+#, c-format
+msgid " %2.2d minute"
+msgid_plural " %2.2d minutes"
+msgstr[0] " %2.2d minût"
+msgstr[1] " %2.2d minûts"
+
+#: src/libtracker-miners-common/tracker-utils.c:144
+#, c-format
+msgid " %2.2d second"
+msgid_plural " %2.2d seconds"
+msgstr[0] " %2.2d secont"
+msgstr[1] " %2.2d seconts"
+
+#: src/miners/fs/tracker-main.c:82
+msgid "Initial sleep time in seconds, 0->1000 (default=15)"
+msgstr "Pause iniziâl in seconts, 0→100 (predefinît=15)"
+
+#: src/miners/fs/tracker-main.c:87
+msgid "Runs until all configured locations are indexed and then exits"
+msgstr ""
+"Reste in esecuzion fintremai che dutis lis posizions configuradis no sedin "
+"metudis te tabele, daspò jes"
+
+#: src/miners/fs/tracker-main.c:91 src/tracker/tracker-info.c:91
+msgid "Checks if FILE is eligible for being mined based on configuration"
+msgstr ""
+"Verifiche che al sedi pussibil estrai dâts di FILE in base ae configurazion"
+
+#: src/miners/fs/tracker-main.c:92 src/tracker-extract/tracker-main.c:82
+#: src/tracker/tracker-extract.c:45 src/tracker/tracker-extract.c:46
+#: src/tracker/tracker-index.c:59 src/tracker/tracker-index.c:60
+#: src/tracker/tracker-info.c:94 src/tracker/tracker-info.c:95
+#: src/tracker/tracker-reset.c:56
 msgid "FILE"
 msgstr "FILE"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:117
-msgid "Connects to a DBus service"
-msgstr "Si conet a un servizi DBus"
+#: src/miners/fs/tracker-main.c:95 src/miners/rss/tracker-main.c:63
+#: src/tracker-extract/tracker-main.c:96
+msgid "Runs for a specific domain ontology"
+msgstr "Eseguìs par une specifiche ontologjie di domini"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:118
-msgid "DBus service name"
-msgstr "Non dal servizi DBus"
+#: src/miners/fs/tracker-main.c:99
+msgid "Avoids changes in the filesystem"
+msgstr "Al evite lis modifichis tal filesystem"
 
-#: src/tracker/tracker-export.c:57
-msgid "Output results format: “turtle”, “trig” or “json-ld”"
-msgstr "Formât dai risultâts di jessude: “turtle”, “trig” o “json-ld”"
+#: src/miners/fs/tracker-main.c:103 src/tracker-control/tracker-main.c:61
+#: src/tracker-extract/tracker-main.c:104
+#: src/tracker-writeback/tracker-main.c:50
+msgid "Displays version information"
+msgstr "Mostre informazions su la version"
 
-#: src/tracker/tracker-export.c:58
-msgid "RDF_FORMAT"
-msgstr "FORMÂT_RDF"
+#: src/miners/fs/tracker-main.c:483
+#, c-format
+msgid "Data object “%s” currently exists"
+msgstr "L'ogjet dâts «%s» al esist za"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:121
-msgid "Connects to a remote service"
-msgstr "Si conet a un servizi esterni"
+#: src/miners/fs/tracker-main.c:484
+#, c-format
+msgid "Data object “%s” currently does not exist"
+msgstr "L'ogjet dâts «%s» al moment nol esist"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:122
-msgid "Remote service URI"
-msgstr "URI dal servizi esterni"
+#: src/miners/fs/tracker-main.c:494
+msgid "Directory is NOT eligible to be indexed (based on filters)"
+msgstr "Nol è pussibil meti in tabele la cartele (in base ai filtris)"
 
-#: src/tracker/tracker-export.c:65
-msgid "Output TriG format which includes named graph information"
+#: src/miners/fs/tracker-main.c:498
+msgid "File is NOT eligible to be indexed (based on filters)"
+msgstr "Nol è pussibil meti in tabele il file (in base ai filtris)"
+
+#: src/miners/fs/tracker-main.c:501
+msgid "File is NOT eligible to be indexed (hidden file)"
+msgstr "Nol è pussibil meti in tabele il file (file platât)"
+
+#: src/miners/fs/tracker-main.c:503
+msgid "File is NOT eligible to be indexed (not an indexed folder)"
+msgstr "Nol è pussibil meti in tabele il file (cartele no metude in tabele)"
+
+#: src/miners/fs/tracker-main.c:527
+#, c-format
+msgid "Parent directory “%s” is NOT eligible to be indexed (based on filters)"
 msgstr ""
-"Formât TriG di jessude che al inclût lis informazions dai grafics cul non"
+"Nol è pussibil meti in tabele la cartele superiôr “%s” (in base ai filtris)"
 
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
-msgid "IRI"
-msgstr "IRI"
+#: src/miners/fs/tracker-main.c:533
+#, c-format
+msgid "Parent directory “%s” is NOT eligible to be indexed (hidden file)"
+msgstr "Nol è pussibil meti in tabele la cartele superiôr “%s” (file platât)"
 
-#. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:206
-msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
-msgstr ""
-"Specifiche une opzion tra “--database”, “--dbus-service” o “--remote-service”"
+#: src/miners/fs/tracker-main.c:539
+#, c-format
+msgid ""
+"Parent directory “%s” is NOT eligible to be indexed (based on content "
+"filters)"
+msgstr "Nol è pussibil meti in tabele la cartele superiôr “%s”"
 
-#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1079
-msgid "No error given"
-msgstr "Nissun erôr furnît"
+#: src/miners/fs/tracker-main.c:558
+msgid "Directory is eligible to be indexed"
+msgstr "Al è pussibil meti in tabele la cartele"
 
-#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1078
+#: src/miners/fs/tracker-main.c:559
+msgid "File is eligible to be indexed"
+msgstr "Al è pussibil meti in tabele il file"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: src/miners/fs/tracker-main.c:786
+msgid "— start the tracker indexer"
+msgstr "— fâs partî indicizadôr di tracker"
+
+#. Translators: this is a "feed" as in RSS
+#: src/miners/rss/tracker-main.c:45
+msgid "Add feed"
+msgstr "Zonte feed"
+
+#: src/miners/rss/tracker-main.c:46 src/miners/rss/tracker-main.c:60
+msgid "URL"
+msgstr "URL"
+
+#: src/miners/rss/tracker-main.c:49
+msgid "Title to use (must be used with --add-feed)"
+msgstr "Titul di doprâ (al scugne jessi doprât cun --add-feed)"
+
+#. Translators: this is a "feed" as in RSS
+#: src/miners/rss/tracker-main.c:54
+msgid "List feeds"
+msgstr "Liste i feeds"
+
+#. Translators: this is a "feed" as in RSS
+#: src/miners/rss/tracker-main.c:59
+msgid "Delete feed"
+msgstr "Elimine feed"
+
+#: src/miners/rss/tracker-main.c:162 src/miners/rss/tracker-main.c:214
+#: src/miners/rss/tracker-main.c:251 src/tracker/tracker-info.c:421
+#: src/tracker/tracker-search.c:1377 src/tracker/tracker-status.c:92
+#: src/tracker/tracker-status.c:205 src/tracker/tracker-tag.c:946
 msgid "Could not establish a connection to Tracker"
 msgstr "Impussibil stabilî une conession cun Tracker"
 
-#: src/tracker/tracker-export.c:382
+#: src/miners/rss/tracker-main.c:163 src/miners/rss/tracker-main.c:215
+#: src/miners/rss/tracker-main.c:252 src/tracker/tracker-daemon.c:448
+#: src/tracker/tracker-daemon.c:509 src/tracker/tracker-daemon.c:544
+#: src/tracker/tracker-daemon.c:613 src/tracker/tracker-daemon.c:712
+#: src/tracker/tracker-daemon.c:759 src/tracker/tracker-daemon.c:980
+#: src/tracker/tracker-dbus.c:45 src/tracker/tracker-dbus.c:63
+#: src/tracker/tracker-info.c:422 src/tracker/tracker-process.c:219
+#: src/tracker/tracker-search.c:1378 src/tracker/tracker-status.c:93
+#: src/tracker/tracker-status.c:206 src/tracker/tracker-status.c:252
+#: src/tracker/tracker-status.c:281 src/tracker/tracker-tag.c:947
+msgid "No error given"
+msgstr "Nissun erôr furnît"
+
+#: src/miners/rss/tracker-main.c:188
+msgid "Could not add feed"
+msgstr "Impussibil zontâ il feed"
+
+#: src/miners/rss/tracker-main.c:226
+msgid "Could not remove feed"
+msgstr "Impussibil gjavâ il feed"
+
+#: src/miners/rss/tracker-main.c:294
+msgid "Could not list feeds"
+msgstr "Impussibil listâ i feeds"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: src/miners/rss/tracker-main.c:422
+msgid "— start the feeds indexer"
+msgstr "— fâs partî indicizadôr dai feed"
+
+#. Translators: this messagge will apper immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: src/tracker-control/tracker-main.c:136
+msgid "— start the tracker index proxy"
+msgstr "— fâs partî il proxy de tabele dal tracker"
+
+#: src/tracker-extract/tracker-extract.c:712
+msgid "Metadata extraction failed"
+msgstr "Estrazion dai meta-dâts falide"
+
+#: src/tracker-extract/tracker-extract.c:794
+msgid "No metadata or extractor modules found to handle this file"
+msgstr ""
+"Nol è stât cjatât nissun modul par meta-dâts o di estrazion par gjestî chest "
+"file"
+
+#: src/tracker-extract/tracker-main.c:81
+msgid "File to extract metadata for"
+msgstr "File di dulà tirâ fûr i metadâts"
+
+#: src/tracker-extract/tracker-main.c:85
+msgid "MIME type for file (if not provided, this will be guessed)"
+msgstr "Gjenar di MIME pal file (se no indicât al ven intuît)"
+
+#: src/tracker-extract/tracker-main.c:86
+msgid "MIME"
+msgstr "MIME"
+
+#: src/tracker-extract/tracker-main.c:89
+msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
+msgstr ""
+"Sfuarce l'ûs di un modul pe estrazion (par esempli «cjossul» par «cjossul."
+"so»)"
+
+#: src/tracker-extract/tracker-main.c:90
+msgid "MODULE"
+msgstr "MODUL"
+
+#: src/tracker-extract/tracker-main.c:92 src/tracker/tracker-extract.c:42
+msgid "Output results format: “sparql”, “turtle” or “json-ld”"
+msgstr "Formât dai risultâts di jessude: “sparql”, “turtle” o “json-ld”"
+
+#: src/tracker-extract/tracker-main.c:93 src/tracker/tracker-extract.c:43
+msgid "FORMAT"
+msgstr "FORMÂT"
+
+#: src/tracker-extract/tracker-main.c:100
+msgid "Socket file descriptor for peer-to-peer communication"
+msgstr ""
+"Descritôr di file socket pe comunicazion peer-to-peer (di une bande a chê "
+"altre)"
+
+#: src/tracker-extract/tracker-main.c:101
+msgid "FD"
+msgstr "FD"
+
+#: src/tracker-extract/tracker-main.c:196
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Formât «%s» di serializazion no supuartât\n"
 
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:447
-#: src/tracker/tracker-export.c:457 src/tracker/tracker-sparql.c:1340
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "Impussibil eseguî la interogazion"
+#. Translators: this message will appear immediately after the
+#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
+#: src/tracker-extract/tracker-main.c:316
+msgid "— Extract file meta data"
+msgstr "— Al tire fûr i meta-dâts dai files"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-export.desktop.in:6
-msgid "export"
-msgstr "export"
+#: src/tracker-extract/tracker-main.c:331
+msgid "Filename and mime type must be provided together"
+msgstr "Il non file e il gjenar di mime a scugnin jessi indicâts adun"
 
-#: src/tracker/tracker-export.desktop.in:7
-msgid "Export data from a Tracker database"
-msgstr "Espuarte dâts di une base di dâts di Tracker"
+#: src/tracker-writeback/tracker-main.c:54
+msgid ""
+"Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default=0)"
+msgstr ""
+"Regjistrazion: 0 = nome erôrs, 1 = minimâl, 2 = detaiade, 3 = debug "
+"(predefinît=0)"
 
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
+#: src/tracker-writeback/tracker-main.c:61
+msgid "Disable shutting down after 30 seconds of inactivity"
+msgstr "Disabilite il distudâ dopo 30 seconts di no ativitât"
+
+#. Translators: this message will appear immediately after the
+#. * usage string - Usage: COMMAND <THIS_MESSAGE>
+#.
+#: src/tracker-writeback/tracker-main.c:93
+msgid "— start the tracker writeback service"
+msgstr "— tache il servizi di scriture rimandade di tracker"
+
+#: src/tracker/tracker-daemon.c:98
+msgid "Unavailable"
+msgstr "No disponibil"
+
+#. generic
+#: src/tracker/tracker-daemon.c:99
+msgid "Initializing"
+msgstr "Daûr a inizializâ"
+
+#: src/tracker/tracker-daemon.c:100
+msgid "Processing…"
+msgstr "Elaborazion…"
+
+#: src/tracker/tracker-daemon.c:101
+msgid "Fetching…"
+msgstr "Daûr a recuperâ…"
+
+#. miner/rss
+#: src/tracker/tracker-daemon.c:102
 #, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "no si è rivâts a eseguî «%s»: %s"
+msgid "Crawling single directory “%s”"
+msgstr "Daûr a cjapâ sù dâts nome pe cartele «%s»"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-help.desktop.in:6
-msgid "help"
-msgstr "help"
-
-#: src/tracker/tracker-help.desktop.in:7
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr "Oten informazions sul ûs di Tracker e cualsisei di chescj comants"
-
-#: src/tracker/tracker-import.c:58
-msgid "Read TriG format which includes named graph information"
-msgstr "Lei il formât TriG che al inclût lis informazions dai grafics cul non"
-
-#: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
-msgid "Could not run import"
-msgstr "Impussibil eseguî la importazion"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-import.desktop.in:6
-msgid "import"
-msgstr "import"
-
-#: src/tracker/tracker-import.desktop.in:7
-msgid "Import data into a Tracker database"
-msgstr "Impuarte i dâts intune base di dâts di Tracker"
-
-#: src/tracker/tracker-main.c:123
-msgid "Available tracker3 commands are:"
-msgstr "I comants tracker3 disponibii a son:"
-
-#: src/tracker/tracker-main.c:155
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
-msgstr ""
-"Consultâ «tracker3 help <command>» par informazions suntun specific sot-"
-"comant."
-
-#: src/tracker/tracker-main.c:213
+#: src/tracker/tracker-daemon.c:103
 #, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "“%s” nol è un comant tracker3. Consultâ “tracker3 --help”"
+msgid "Crawling recursively directory “%s”"
+msgstr "Daûr a cjapâ sù dâts in maniere ricorsive pe cartele «%s»"
 
-# equivocabile il "di un file"
-#: src/tracker/tracker-sparql.c:125
-msgid "Path to use to run a query or update from file"
-msgstr ""
-"Percors di doprâ par eseguî une interogazion o un inzornament furnint un file"
+#: src/tracker/tracker-daemon.c:104
+msgid "Paused"
+msgstr "Interot"
 
-#: src/tracker/tracker-sparql.c:129
-msgid "SPARQL query"
-msgstr "Interogazion SPARQL"
+#: src/tracker/tracker-daemon.c:105
+msgid "Idle"
+msgstr "Inatîf"
 
-#: src/tracker/tracker-sparql.c:130
-msgid "SPARQL"
-msgstr "SPARQL"
+#: src/tracker/tracker-daemon.c:111
+msgid "Follow status changes as they happen"
+msgstr "Seguìs i cambiaments di stât apene che a sucedin"
 
-#: src/tracker/tracker-sparql.c:133
-msgid "This is used with --query and for database updates only."
-msgstr "Chest al ven doprât cun --query e par inzornaments de base di dâts."
-
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve classes"
-msgstr "Recuperâ classis"
-
-#: src/tracker/tracker-sparql.c:141
-msgid "Retrieve class prefixes"
-msgstr "Recuperâ prefìs des classis"
-
-#: src/tracker/tracker-sparql.c:145
+#: src/tracker/tracker-daemon.c:115
 msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
+"Watch changes to the database in real time (e.g. resources or files being "
+"added)"
 msgstr ""
-"Al recupere lis proprietâts di une classe, a puedin jessi doprâts ancje i "
-"prefìs (p.e. rdfs:Resource)"
+"Ten di voli i cambiaments ae base di dâts in timp reâl (come risorsis o "
+"files zontâts)"
 
-#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
-#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
-#: src/tracker/tracker-sparql.c:174
-msgid "CLASS"
-msgstr "CLASSE"
+#: src/tracker/tracker-daemon.c:119
+msgid "List common statuses for miners"
+msgstr "Liste i stâts comuns pai estratôrs"
 
-#: src/tracker/tracker-sparql.c:149
+#: src/tracker/tracker-daemon.c:124
+msgid "Pause a miner (you must use this with --miner)"
+msgstr "Interomp un estratôr (al à di jessi doprât cun --miner)"
+
+#: src/tracker/tracker-daemon.c:125 src/tracker/tracker-daemon.c:129
+msgid "REASON"
+msgstr "RESON"
+
+#: src/tracker/tracker-daemon.c:128
 msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
+"Pause a miner while the calling process is alive or until resumed (you must "
+"use this with --miner)"
 msgstr ""
-"Al recupere lis classis che a notifichin modifichis te base di dâts (CLASSE "
-"al è opzionâl)"
+"Al interomp un estratôr intant che il procès clamant al è ancjemò atîf o "
+"fintremai che nol è stât ripristinât (al à di jessi doprât cun --miner)"
 
-#: src/tracker/tracker-sparql.c:153
+#: src/tracker/tracker-daemon.c:132
+msgid "Resume a miner (you must use this with --miner)"
+msgstr "Al torne a meti in vore un estratôr (al à di jessi doprât cun --miner)"
+
+#: src/tracker/tracker-daemon.c:133
+msgid "COOKIE"
+msgstr "COOKIE"
+
+#: src/tracker/tracker-daemon.c:136
 msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
+"Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
+"Applications)"
 msgstr ""
-"Al recupere i indiçs doprâts te base di dâts par miorâ lis prestazions "
-"(PROPRIETÂT al è opzionâl)"
+"Estratôr di doprâ cun --resume o --pause (al è pussibil doprâ sufìs come "
+"\"Files\" o \"Aplicazions\")"
 
-#: src/tracker/tracker-sparql.c:154
-msgid "PROPERTY"
-msgstr "PROPRIETÂT"
+#: src/tracker/tracker-daemon.c:137
+msgid "MINER"
+msgstr "ESTRATÔR"
 
-#: src/tracker/tracker-sparql.c:157
-msgid "Retrieve all named graphs"
-msgstr "Recupere ducj i grafics cul non"
+#: src/tracker/tracker-daemon.c:140
+msgid "List all miners currently running"
+msgstr "Liste ducj i estratôrs in esecuzion"
 
-#: src/tracker/tracker-sparql.c:161
-msgid ""
-"Describe subclasses, superclasses (can be used with -s to highlight parts of "
-"the tree and -p to show properties)"
-msgstr ""
-"Al descrîf lis sot-classis, super-classis (tu lu puedis doprâ cun -s par "
-"evidenziâ parts dal arbul e cun -p par mostrâ lis proprietâts)"
+#: src/tracker/tracker-daemon.c:144
+msgid "List all miners installed"
+msgstr "Liste ducj i estratôrs instalâts"
 
-#: src/tracker/tracker-sparql.c:165
-msgid ""
-"Search for a class or property and display more information (e.g. Document)"
-msgstr ""
-"Cîr une classe o une proprietât e mostre plui informazions (p.e. Document)"
+#: src/tracker/tracker-daemon.c:148
+msgid "List pause reasons"
+msgstr "Liste i motîfs di interuzion"
 
-#: src/tracker/tracker-sparql.c:166
-msgid "CLASS/PROPERTY"
-msgstr "CLASSE/PROPRIETÂT"
+#: src/tracker/tracker-daemon.c:153
+msgid "List all Tracker processes"
+msgstr "Liste ducj i procès di Tracker"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Torne il non sempliç di une classe (p.e. nfo:FileDataObject)."
+#: src/tracker/tracker-daemon.c:155
+msgid "Use SIGKILL to stop all miners"
+msgstr "Dopre SIGKILL par fermâ ducj i estratôrs"
 
-#: src/tracker/tracker-sparql.c:173
-msgid "Returns the full namespace for a class."
-msgstr "Al torne il spazi dai nons (namespace) complet di une classe."
+#: src/tracker/tracker-daemon.c:156 src/tracker/tracker-daemon.c:159
+msgid "APPS"
+msgstr "APLICAZIONS"
 
-#: src/tracker/tracker-sparql.c:177
-msgid "Provides an argument for a query parameter."
-msgstr "Al furnìs un argoment par un parametri di interogazion."
+#: src/tracker/tracker-daemon.c:158
+msgid "Use SIGTERM to stop all miners"
+msgstr "Dopre SIGTERM par fermâ ducj i estratôrs"
 
-#: src/tracker/tracker-sparql.c:178
-msgid "PARAMETER:TYPE:VALUE"
-msgstr "PARAMETRI:GJENAR:VALÔR"
+#: src/tracker/tracker-daemon.c:161
+msgid "Starts miners"
+msgstr "Al invie i estratôrs"
 
-#. To translators: This is to say there are no
-#. * search results found. We use a "foo: None"
-#. * with multiple print statements, where "foo"
-#. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
-msgid "None"
-msgstr "Nissun"
-
-#: src/tracker/tracker-sparql.c:899
-msgid "Could not create tree: subclass query failed"
-msgstr "Impussibil creâ l'arbul: interogazion sot-classe falide"
-
-#: src/tracker/tracker-sparql.c:948
-msgid "Could not create tree: class properties query failed"
-msgstr "Impussibil creâ l'arbul: interogazion proprietât classe falide"
-
-#: src/tracker/tracker-sparql.c:1015
+#: src/tracker/tracker-daemon.c:213
 #, c-format
-msgid "Invalid argument string %s"
-msgstr "Stringhe di argoment %s no valide"
+msgid "Could not get status from miner: %s"
+msgstr "Impussibil otignî il stât dal estratôr: %s"
 
-#: src/tracker/tracker-sparql.c:1025
+#. Translators: %s is a time string
+#: src/tracker/tracker-daemon.c:275
 #, c-format
-msgid "Invalid parameter type for argument %s"
-msgstr "Gjenar di parametri pal argoment %s no valit"
+msgid "%s remaining"
+msgstr "ancjemò %s"
 
-#: src/tracker/tracker-sparql.c:1095
-msgid "Could not list classes"
-msgstr "Impussibil listâ lis classis"
+#: src/tracker/tracker-daemon.c:278
+msgid "unknown time left"
+msgstr "timp restant no cognossût"
 
-#: src/tracker/tracker-sparql.c:1103
-msgid "No classes were found"
-msgstr "No je stade cjatade nissune classe"
+#. Work out lengths for output spacing
+#: src/tracker/tracker-daemon.c:291 src/tracker/tracker-daemon.c:769
+msgid "PAUSED"
+msgstr "INTEROT"
 
-#: src/tracker/tracker-sparql.c:1103 src/tracker/tracker-sparql.c:1225
-msgid "Classes"
-msgstr "Classis"
+#: src/tracker/tracker-daemon.c:308
+msgid "Not running or is a disabled plugin"
+msgstr "No in esecuzion o plugin disabilitât"
 
-#: src/tracker/tracker-sparql.c:1126
-msgid "Could not list properties"
-msgstr "Impussibil listâ lis proprietâts"
+#: src/tracker/tracker-daemon.c:447
+#, c-format
+msgid "Could not pause miner, manager could not be created, %s"
+msgstr "Impussibil interompi l'estratôr, impussibil creâ il gjestôr, %s"
 
-#: src/tracker/tracker-sparql.c:1134
-msgid "No properties were found"
-msgstr "No je stade cjatade nissune proprietât"
+#: src/tracker/tracker-daemon.c:454
+#, c-format
+msgid "Attempting to pause miner “%s” with reason “%s”"
+msgstr "Tentatîf di interompi l'estratôr «%s» cun la reson «%s»"
 
-#: src/tracker/tracker-sparql.c:1134 src/tracker/tracker-sparql.c:1243
-msgid "Properties"
-msgstr "Proprietâts"
+#: src/tracker/tracker-daemon.c:462 src/tracker/tracker-daemon.c:468
+#, c-format
+msgid "Could not pause miner: %s"
+msgstr "Impussibil interompi l'estratôr: %s"
 
-#: src/tracker/tracker-sparql.c:1150
-msgid "Could not find notify classes"
-msgstr "Impussibil cjatâ lis classis di notifiche"
+#: src/tracker/tracker-daemon.c:474
+#, c-format
+msgid "Cookie is %d"
+msgstr "Il cookie al è %d"
 
-#: src/tracker/tracker-sparql.c:1158
-msgid "No notifies were found"
-msgstr "No je stade cjatade nissune notifiche"
+#: src/tracker/tracker-daemon.c:481 src/tracker/tracker-daemon.c:724
+#: src/tracker/tracker-daemon.c:841
+msgid "Press Ctrl+C to stop"
+msgstr "Frache Ctrl+C par fermâ"
 
-#: src/tracker/tracker-sparql.c:1158
-msgid "Notifies"
-msgstr "Notifichis"
-
-#: src/tracker/tracker-sparql.c:1174
-msgid "Could not find indexed properties"
-msgstr "Impussibil cjatâ lis proprietâts metudis in indiç"
-
-#: src/tracker/tracker-sparql.c:1182
-msgid "No indexes were found"
-msgstr "Nol è stât cjatât nissun indiç"
-
-#: src/tracker/tracker-sparql.c:1182
-msgid "Indexes"
-msgstr "Indiçs"
-
-#: src/tracker/tracker-sparql.c:1192
-msgid "Could not list named graphs"
-msgstr "Impussibil listâ i grafics cul non"
-
-#: src/tracker/tracker-sparql.c:1200
-msgid "No graphs were found"
-msgstr "Nol è stât cjatât nissun grafic"
-
-#: src/tracker/tracker-sparql.c:1200
-msgid "Named graphs"
-msgstr "Grafics cul non"
-
-#: src/tracker/tracker-sparql.c:1217
-msgid "Could not search classes"
-msgstr "Impussibil cirî lis classis"
-
-#: src/tracker/tracker-sparql.c:1225
-msgid "No classes were found to match search term"
-msgstr "No je stade cjatade nissune classe che e corispuint al tiermin cirût"
-
-#: src/tracker/tracker-sparql.c:1235
-msgid "Could not search properties"
-msgstr "Impussibil cirî lis proprietâts"
-
-#: src/tracker/tracker-sparql.c:1243
-msgid "No properties were found to match search term"
+#: src/tracker/tracker-daemon.c:508
+#, c-format
+msgid "Could not resume miner, manager could not be created, %s"
 msgstr ""
-"No je stade cjatade nissune proprietât che e corispuint al tiermin cirût"
+"Impussibil tornâ a meti in vore l'estratôr, impussibil creâ il gjestôr, %s"
 
-#: src/tracker/tracker-sparql.c:1272 src/tracker/tracker-sql.c:70
-msgid "Could not get UTF-8 path from path"
-msgstr "Impussibil otignî un percors UTF-8 dal percors"
+#: src/tracker/tracker-daemon.c:515
+#, c-format
+msgid "Attempting to resume miner %s with cookie %d"
+msgstr "Tentatîf di tornâ a meti in vore l'estratôr %s cul cookie %d"
 
-#: src/tracker/tracker-sparql.c:1284 src/tracker/tracker-sql.c:81
-msgid "Could not read file"
-msgstr "Impussibil lei il file"
+#: src/tracker/tracker-daemon.c:522
+#, c-format
+msgid "Could not resume miner: %s"
+msgstr "Impussibil tornâ a meti in vore l'estratôr: %s"
 
-#: src/tracker/tracker-sparql.c:1315
-msgid "Could not run update"
-msgstr "Impussibil eseguî l'inzornament"
-
-#: src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-daemon.c:526
 msgid "Done"
 msgstr "Fat"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
-msgid "No results found matching your query"
+#: src/tracker/tracker-daemon.c:543
+#, c-format
+msgid "Could not list miners, manager could not be created, %s"
+msgstr "Impussibil elencâ i estratôrs, impussibil creâ il gjestôr, %s"
+
+#: src/tracker/tracker-daemon.c:557
+#, c-format
+msgid "Found %d miner installed"
+msgid_plural "Found %d miners installed"
+msgstr[0] "Cjatât %d estratôr dâts instalât"
+msgstr[1] "Cjatât %d estratôrs dâts instalâts"
+
+#: src/tracker/tracker-daemon.c:580
+#, c-format
+msgid "Found %d miner running"
+msgid_plural "Found %d miners running"
+msgstr[0] "Cjatât %d estratôr dâts in esecuzion"
+msgstr[1] "Cjatât %d estratôrs dâts in esecuzion"
+
+#: src/tracker/tracker-daemon.c:612
+#, c-format
+msgid "Could not get pause details, manager could not be created, %s"
+msgstr ""
+"Impussibil otignî i detais de interuzion, impussibil creâ il gjestôr, %s"
+
+#: src/tracker/tracker-daemon.c:622
+msgid "No miners are running"
+msgstr "Nissun estratôr in esecuzion"
+
+#. Display states
+#: src/tracker/tracker-daemon.c:662 src/tracker/tracker-daemon.c:779
+msgid "Miners"
+msgstr "Estratôrs dâts"
+
+#: src/tracker/tracker-daemon.c:669
+msgid "Application"
+msgstr "Aplicazion"
+
+#: src/tracker/tracker-daemon.c:671
+msgid "Reason"
+msgstr "Reson"
+
+#: src/tracker/tracker-daemon.c:680
+msgid "No miners are paused"
+msgstr "Nissun estratôr dâts interot"
+
+#: src/tracker/tracker-daemon.c:711
+msgid "Could not get SPARQL connection"
+msgstr "Impussibil otignî une conession SPARQL"
+
+#: src/tracker/tracker-daemon.c:722
+msgid "Now listening for resource updates to the database"
+msgstr "In scolte par inzornaments des risorsis su la base di dâts"
+
+#: src/tracker/tracker-daemon.c:723
+msgid "All nie:plainTextContent properties are omitted"
+msgstr "Dutis lis proprietâts nie:plainTextContent a son ometudis"
+
+#: src/tracker/tracker-daemon.c:740
+msgid "Common statuses include"
+msgstr "I stâts comuns a includin"
+
+#: src/tracker/tracker-daemon.c:758 src/tracker/tracker-status.c:280
+#, c-format
+msgid "Could not get status, manager could not be created, %s"
+msgstr "Impussibil otignî il stât, impussibil creâ il gjestôr, %s"
+
+#: src/tracker/tracker-daemon.c:787
+#, c-format
+msgid "Could not get display name for miner “%s”"
+msgstr "Impussibil otignî il non pal estratôr «%s»"
+
+#: src/tracker/tracker-daemon.c:881
+msgid "You can not use miner pause and resume switches together"
+msgstr ""
+"Nol è pussibil doprâ lis opzions di interuzion e di ripristinament parie"
+
+#: src/tracker/tracker-daemon.c:887
+msgid "You must provide the miner for pause or resume commands"
+msgstr ""
+"Si scugne furnî l'estratôr pai comants di interuzion o di ripristinament"
+
+#: src/tracker/tracker-daemon.c:893
+msgid "You must provide a pause or resume command for the miner"
+msgstr ""
+"Si scugne furnî un comant di interuzion o di ripristinament pal estratôr"
+
+#: src/tracker/tracker-daemon.c:927
+msgid "You can not use the --kill and --terminate arguments together"
+msgstr "Nol è pussibil doprâ adun i argoments --kill e --terminate"
+
+#: src/tracker/tracker-daemon.c:938 src/tracker/tracker-process.c:197
+#, c-format
+msgid "Found %d PID…"
+msgid_plural "Found %d PIDs…"
+msgstr[0] "Cjatât %d PID…"
+msgstr[1] "Cjatâts %d PID…"
+
+#: src/tracker/tracker-daemon.c:948
+#, c-format
+msgid "Found process ID %d for “%s”"
+msgstr "Cjatât ID di procès %d par «%s»"
+
+#: src/tracker/tracker-daemon.c:974
+msgid "Starting miners…"
+msgstr "Daûr a inviâ i estratôrs dâts…"
+
+#: src/tracker/tracker-daemon.c:979
+#, c-format
+msgid "Could not start miners, manager could not be created, %s"
+msgstr "Impussibil inviâ i estratôrs, impussibil creâ il gjestôr, %s"
+
+#: src/tracker/tracker-daemon.c:1004
+msgid "perhaps a disabled plugin?"
+msgstr "salacor un plugin disabilitât?"
+
+#: src/tracker/tracker-daemon.c:1054
+msgid "If no arguments are given, the status of the data miners is shown"
+msgstr ""
+"Se nol ven indicât nissun argoment, al ven mostrât il stât dai dâts dai "
+"estratôrs"
+
+#: src/tracker/tracker-daemon.c:1059 src/tracker/tracker-extract.c:152
+#: src/tracker/tracker-index.c:394 src/tracker/tracker-info.c:635
+#: src/tracker/tracker-reset.c:263 src/tracker/tracker-search.c:1568
+#: src/tracker/tracker-status.c:560 src/tracker/tracker-tag.c:1055
+msgid "Unrecognized options"
+msgstr "Opzions no ricognossudis"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-daemon.desktop.in:6
+msgid "daemon"
+msgstr "daemon"
+
+#: src/tracker/tracker-daemon.desktop.in:7
+msgid "Start, stop, restart and list daemons responsible for indexing content"
+msgstr ""
+"Tache, ferme, torne invie e liste i demonis responsabii pe metude in tabele "
+"dai contignûts"
+
+#: src/tracker/tracker-dbus.c:44
+msgid "Could not get D-Bus connection"
+msgstr "Impussibil otignî une conession D-Bus"
+
+#: src/tracker/tracker-dbus.c:62
+msgid "Could not create D-Bus proxy to tracker-store"
+msgstr "Impussibil creâ un proxy D-Bus viers tracker-store"
+
+#: src/tracker/tracker-extract.c:90
+msgid "Could not run tracker-extract: "
+msgstr "Impussibil eseguî tracker-extract: "
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-extract.desktop.in:6
+#| msgid "Extractor"
+msgid "extract"
+msgstr "extract"
+
+#: src/tracker/tracker-extract.desktop.in:7
+msgid "Extract metadata from a file"
+msgstr "Tire fûr i meta-dâts di un file"
+
+#: src/tracker/tracker-index.c:50
+msgid "Adds FILE as an indexed location"
+msgstr "Al zonte FILE come posizion metude in tabele"
+
+#: src/tracker/tracker-index.c:53
+msgid "Removes FILE from indexed locations"
+msgstr "Al gjave FILE des posizions metudis in tabele"
+
+#: src/tracker/tracker-index.c:56
+msgid "Makes indexing recursive"
+msgstr "Rint ricorsive la metude in tabele"
+
+#: src/tracker/tracker-index.c:192
+#, c-format
+msgid "“%s” is not a directory"
+msgstr "“%s” no je une cartele"
+
+#. TRANSLATORS: These are commandline options
+#: src/tracker/tracker-index.c:282
+msgid "Either --add or --remove must be provided"
+msgstr "Si scugne indicâ o --add o --remove"
+
+#. TRANSLATORS: These are commandline options
+#: src/tracker/tracker-index.c:286
+msgid "--add and --remove are mutually exclusive"
+msgstr "--add e --remove si escludin a vicende"
+
+#. TRANSLATORS: These are commandline options
+#: src/tracker/tracker-index.c:296
+msgid "--recursive requires --add"
+msgstr "--recursive al à bisugne di --add"
+
+#: src/tracker/tracker-index.c:356 src/tracker/tracker-status.c:331
+msgid "Path"
+msgstr "Percors"
+
+#: src/tracker/tracker-index.c:357
+msgid "Recursive"
+msgstr "Ricorsîf"
+
+#: src/tracker/tracker-index.c:407
+msgid "Please specify one or more locations to index."
+msgstr "Par plasê specifiche un o plui posizion par meti in tabele."
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-index.desktop.in:6
+#| msgid "Indexes"
+msgid "index"
+msgstr "index"
+
+# sostituire background con qualcosa di più consono
+#: src/tracker/tracker-index.desktop.in:7
+msgid "Index content using the Tracker filesystem miner"
+msgstr "Met te tabele il contignût doprant l'estratôr di filesystem Tracker"
+
+#: src/tracker/tracker-info.c:65
+msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+msgstr ""
+"Mostre il namespace complet (p.e. no doprâ nie:titul, doprâ i URL complets)"
+
+#: src/tracker/tracker-info.c:69
+msgid "Show plain text content if available for resources"
+msgstr "Mostre, se disponibii, i contignûts in test sempliç pes risorsis"
+
+#. To translators:
+#. * IRI (International Resource Identifier) is a generalization
+#. * of the URI. While URI supports only ASCI encoding, IRI
+#. * fully supports international characters. In practice, UTF-8
+#. * is the most popular encoding used for IRI.
+#.
+#: src/tracker/tracker-info.c:79
+msgid ""
+"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
+"(e.g. <file:///path/to/some/file.txt>)"
+msgstr ""
+"Al puest di cirî un non di file, dopre i argoments FILE come dai IRIs (p.e. "
+"<file:///percors/a/cualchi/file.txt>)"
+
+#: src/tracker/tracker-info.c:83
+msgid "Output results as RDF in Turtle format"
+msgstr "Da fûr i risultâts come RDF in formât Turtle"
+
+#: src/tracker/tracker-info.c:87
+msgid "RDF property to treat as URL (eg. “nie:url”)"
+msgstr "Proprietât RDF di tratâ come URL (p.e. ”nie:url”)"
+
+#: src/tracker/tracker-info.c:388
+msgid "Error message"
+msgstr "Messaç di erôr"
+
+#: src/tracker/tracker-info.c:471
+msgid "Unable to retrieve URN for URI"
+msgstr "Impussibil otignî il URN pal URI"
+
+#: src/tracker/tracker-info.c:505
+msgid "Unable to retrieve data for URI"
+msgstr "Impussibil otignî dâts pal URI"
+
+#: src/tracker/tracker-info.c:515
+msgid "No metadata available for that URI"
+msgstr "Nissun meta-dât disponibil par chel URI"
+
+#: src/tracker/tracker-info.c:520 src/tracker/tracker-info.c:581
+msgid "Could not get eligible status: "
+msgstr "Impussibil otignî stâts idonis: "
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-info.desktop.in:6
+msgid "info"
+msgstr "info"
+
+#: src/tracker/tracker-info.desktop.in:7
+msgid "Retrieve all information available for a certain file"
+msgstr "Recupere dutis lis informazions diponibilis par un ciert file"
+
+#: src/tracker/tracker-process.c:216
+#, c-format
+msgid "Could not kill process %d — “%s”"
+msgstr "Impussibil copâ procès %d — «%s»"
+
+#: src/tracker/tracker-process.c:222
+#, c-format
+msgid "Killed process %d — “%s”"
+msgstr "Copât procès %d — «%s»"
+
+#: src/tracker/tracker-reset.c:49
+msgid "Remove filesystem indexer database"
+msgstr "Gjave la base di dâts dal indicizadôr dal filesystem"
+
+#: src/tracker/tracker-reset.c:52
+msgid "Remove RSS indexer database"
+msgstr "Gjave la base di dâts dal indicizadôr RSS"
+
+#: src/tracker/tracker-reset.c:55
+msgid ""
+"Erase indexed information about a file, works recursively for directories"
+msgstr ""
+"Scancele la informazion metude te tabele in merit di un file, al funzione in "
+"maniere ricorsive pes cartelis"
+
+#. Now, delete the element recursively
+#: src/tracker/tracker-reset.c:95
+msgid "Deleting…"
+msgstr "Daûr a eliminâ…"
+
+#: src/tracker/tracker-reset.c:115
+msgid ""
+"The indexed data for this file has been deleted and will be reindexed again."
+msgstr ""
+"I dâts metûts te tabele par chest file a son stâts eliminâts e si tornarà a "
+"metiju te tabele di gnûf."
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-reset.desktop.in:6
+msgid "reset"
+msgstr "reset"
+
+#: src/tracker/tracker-reset.desktop.in:7
+msgid "Reset the index and configuration"
+msgstr "Ristabilìs la tabele e la configurazion"
+
+#: src/tracker/tracker-search.c:59
+msgid "Search for content matching TERMS, by type or across all types."
+msgstr ""
+"Cîr contignûts che a sodisfin i TIERMINS, par gjenar o su ducj i gjenars."
+
+#: src/tracker/tracker-search.c:76
+msgid "Search for files"
+msgstr "Cîr files"
+
+#: src/tracker/tracker-search.c:80
+msgid "Search for folders"
+msgstr "Cîr cartelis"
+
+#: src/tracker/tracker-search.c:84
+msgid "Search for music files"
+msgstr "Cîr files musicâi"
+
+#: src/tracker/tracker-search.c:88
+msgid "Search for music albums (--all has no effect on this)"
+msgstr "Cîr album musicâi (--all nol fâs nissun efiet chi)"
+
+#: src/tracker/tracker-search.c:92
+msgid "Search for music artists (--all has no effect on this)"
+msgstr "Cîr artiscj musicâi (--all nol fâs nissun efiet chi)"
+
+#: src/tracker/tracker-search.c:96
+msgid "Search for image files"
+msgstr "Cîr files imagjin"
+
+#: src/tracker/tracker-search.c:100
+msgid "Search for video files"
+msgstr "Cîr files di videos"
+
+#: src/tracker/tracker-search.c:104
+msgid "Search for document files"
+msgstr "Cîr files di document"
+
+#: src/tracker/tracker-search.c:108
+msgid "Search for software (--all has no effect on this)"
+msgstr "Cîr software (--all nol fâs nissun efiet chi)"
+
+#: src/tracker/tracker-search.c:112
+msgid "Search for software categories (--all has no effect on this)"
+msgstr "Cîr categoriis software (--all nol fâs nissun efiet chi)"
+
+#: src/tracker/tracker-search.c:116
+msgid "Search for feeds (--all has no effect on this)"
+msgstr "Cîr feed (--all nol fâs nissun efiet chi)"
+
+#: src/tracker/tracker-search.c:125 src/tracker/tracker-tag.c:71
+msgid "Limit the number of results shown"
+msgstr "Limitâ il numar di risultâts mostrâts"
+
+#: src/tracker/tracker-search.c:129 src/tracker/tracker-tag.c:75
+msgid "Offset the results"
+msgstr "Apliche un offset al risultât"
+
+#: src/tracker/tracker-search.c:133
+msgid "Use OR for search terms instead of AND (the default)"
+msgstr "Dopre OR al puest di AND (predefinît) pai tiermins cirûts"
+
+#: src/tracker/tracker-search.c:137
+msgid ""
+"Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
+"feeds, --software, --software-categories)"
+msgstr ""
+"Mostre i URN pai risultâts (no si apliche a --music-albums, --music-artists, "
+"--feeds, --software, --software-categories)"
+
+#: src/tracker/tracker-search.c:141
+msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
+msgstr ""
+"Torne ancje dutis lis corispondence no-esistentis (al inclût i volums no "
+"montâts)"
+
+#: src/tracker/tracker-search.c:145
+msgid ""
+"Disable showing snippets with results. This is only shown for some "
+"categories, e.g. Documents, Music…"
+msgstr ""
+"No sta mostrâ i tocs cui risultâts; chest al è mostrât nome par cualchi "
+"categorie come Documents, Musiche…"
+
+#: src/tracker/tracker-search.c:149
+msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
+msgstr ""
+"Disabilite la ricercje su dut il test (FTS). Al impliche --disable-snippets"
+
+#: src/tracker/tracker-search.c:153
+msgid "Disable color when printing snippets and results"
+msgstr "Disabilite i colôrs tal mostrâ i tocs e i risultâts"
+
+#: src/tracker/tracker-search.c:160 src/tracker/tracker-status.c:58
+msgid "search terms"
+msgstr "tiermins di cirî"
+
+#: src/tracker/tracker-search.c:161
+msgid "TERMS"
+msgstr "TIERMINS"
+
+#: src/tracker/tracker-search.c:251 src/tracker/tracker-search.c:641
+#: src/tracker/tracker-search.c:737 src/tracker/tracker-search.c:829
+#: src/tracker/tracker-search.c:918 src/tracker/tracker-search.c:1007
+#: src/tracker/tracker-search.c:1294
+msgid "Could not get search results"
+msgstr "Impussibil otignî i risultâts di ricercje"
+
+#: src/tracker/tracker-search.c:260
+msgid "No files were found"
+msgstr "Nol è stât cjatât nissun file"
+
+#: src/tracker/tracker-search.c:264 src/tracker/tracker-tag.c:426
+msgid "Files"
+msgstr "Files"
+
+#: src/tracker/tracker-search.c:650
+msgid "No artists were found"
+msgstr "Nol è stât cjatât nissun artist"
+
+#: src/tracker/tracker-search.c:654
+msgid "Artists"
+msgstr "Artiscj"
+
+#: src/tracker/tracker-search.c:746
+msgid "No music was found"
+msgstr "Nol è stât cjatât nissun toc musicâl"
+
+#: src/tracker/tracker-search.c:750
+msgid "Albums"
+msgstr "Album"
+
+#: src/tracker/tracker-search.c:838
+msgid "No feeds were found"
+msgstr "Nol è stât cjatât nissun feed"
+
+#: src/tracker/tracker-search.c:842
+msgid "Feeds"
+msgstr "Feed"
+
+#: src/tracker/tracker-search.c:927
+msgid "No software was found"
+msgstr "Nissun software cjatât"
+
+#: src/tracker/tracker-search.c:931
+msgid "Software"
+msgstr "Software"
+
+#: src/tracker/tracker-search.c:1016
+msgid "No software categories were found"
+msgstr "No je stade cjatade nissune categorie software"
+
+#: src/tracker/tracker-search.c:1020
+msgid "Software Categories"
+msgstr "Categoriis software"
+
+#: src/tracker/tracker-search.c:1303
+msgid "No results were found matching your query"
 msgstr "Nissun risultât cjatât che al corispuint ae interogazion"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
-#: src/tracker/tracker-sql.c:144
+#: src/tracker/tracker-search.c:1307
 msgid "Results"
 msgstr "Risultâts"
 
-#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:250
-msgid "File and query can not be used together"
-msgstr "File e interogazion no puedin jessi doprâts adun"
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-search.desktop.in:6
+#| msgid "_Search:"
+msgid "search"
+msgstr "search"
 
-#: src/tracker/tracker-sparql.c:1409
-msgid ""
-"The --list-properties argument can only be empty when used with the --tree "
-"argument"
-msgstr ""
-"L'argoment --list-properties al pues jessi vueit nome se doprât cul argoment "
-"--tree"
+#: src/tracker/tracker-search.desktop.in:7
+msgid "Search for content by type or across all types"
+msgstr "Cîr contignûts par gjenar o su ducj i gjenars"
+
+#: src/tracker/tracker-status.c:53
+msgid "Show statistics for current index / data set"
+msgstr "Mostre statistichis sui dâts/tabele atuâi"
+
+#: src/tracker/tracker-status.c:59
+msgid "EXPRESSION"
+msgstr "ESPRESSION"
+
+#: src/tracker/tracker-status.c:106
+msgid "Could not get Tracker statistics"
+msgstr "Impussibil otignî lis statistichis di Tracker"
+
+#: src/tracker/tracker-status.c:113
+msgid "No statistics available"
+msgstr "Nissune statistiche disponibile"
+
+#. To translators: This is to say there are no
+#. * statistics found. We use a "Statistics:
+#. * None" with multiple print statements
+#: src/tracker/tracker-status.c:154
+msgid "Statistics:"
+msgstr "Statistichis:"
+
+#. To translators: This is to say there are no
+#. * tags found with a particular unique ID.
+#. To translators: This is to say there are no
+#. * files found associated with multiple tags, e.g.:
+#. *
+#. *   Files:
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * resources found associated with this tag, e.g.:
+#. *
+#. *   Tags (shown by name):
+#. *     None
+#. *
+#.
+#. To translators: This is to say there are no
+#. * tags found for a particular file, e.g.:
+#. *
+#. *   /path/to/some/file:
+#. *     None
+#. *
+#.
+#: src/tracker/tracker-status.c:157 src/tracker/tracker-tag.c:310
+#: src/tracker/tracker-tag.c:442 src/tracker/tracker-tag.c:564
+#: src/tracker/tracker-tag.c:924
+msgid "None"
+msgstr "Nissun"
+
+#: src/tracker/tracker-status.c:226 src/tracker/tracker-status.c:251
+msgid "Could not get basic status for Tracker"
+msgstr "Impussibil otignî il stât di Tracker"
+
+#: src/tracker/tracker-status.c:332 src/tracker/tracker-status.c:499
+msgid "Message"
+msgstr "Messaç"
+
+#: src/tracker/tracker-status.c:391
+msgid "Currently indexed"
+msgstr "Za metût te tabele"
+
+#: src/tracker/tracker-status.c:394 src/tracker/tracker-tag.c:546
+#, c-format
+msgid "%d file"
+msgid_plural "%d files"
+msgstr[0] "%d file"
+msgstr[1] "%d files"
+
+#: src/tracker/tracker-status.c:400
+#, c-format
+msgid "%d folder"
+msgid_plural "%d folders"
+msgstr[0] "%d cartele"
+msgstr[1] "%d cartelis"
+
+#: src/tracker/tracker-status.c:414
+msgid "Remaining space on database partition"
+msgstr "Spazi restant su la partizion de base di dâts"
+
+#: src/tracker/tracker-status.c:426
+msgid "Data is still being indexed"
+msgstr "La metude te tabele dai dâts e je ancjemò in vore"
+
+#: src/tracker/tracker-status.c:427
+#, c-format
+msgid "Estimated %s left"
+msgstr "Si stime che a mancjin %s"
+
+#: src/tracker/tracker-status.c:431
+msgid "All data miners are idle, indexing complete"
+msgstr "Ducj i estratôrs a son inatîfs, metude te tabele completade"
+
+#: src/tracker/tracker-status.c:438
+#, c-format
+msgid "%d recorded failure"
+msgid_plural "%d recorded failures"
+msgstr[0] "%d faliment regjistrât"
+msgstr[1] "%d faliments regjistrâts"
+
+#: src/tracker/tracker-status.c:524
+msgid "No reports found"
+msgstr "Nissun rapuart cjatât"
 
 #. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sparql.desktop.in:6
-msgid "sparql"
-msgstr "sparql"
+#: src/tracker/tracker-status.desktop.in:6
+msgid "status"
+msgstr "status"
 
-#: src/tracker/tracker-sparql.desktop.in:7
+#: src/tracker/tracker-status.desktop.in:7
+msgid "Provide status and statistics on the data indexed"
+msgstr "Furnìs il stât e lis statistichis sui dâts metûts te tabele"
+
+#: src/tracker/tracker-tag.c:51
 msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
+"List all tags (using FILTER if specified; FILTER always uses logical OR)"
 msgstr ""
-"Interoghe e inzorne l'indiç doprant SPARQL opûr cîr, liste e met in scjale a "
-"arbul la ontologjie"
+"Liste dutis lis etichetis (doprant FILTRI se specificât, FILTRI al dopre "
+"simpri il OR logjic)"
 
-#: src/tracker/tracker-sql.c:48
-msgid "Path to use to run a query from file"
-msgstr "Percors di doprâ par eseguî une interogazion furnint un file"
+#: src/tracker/tracker-tag.c:52
+msgid "FILTER"
+msgstr "FILTRI"
 
-#: src/tracker/tracker-sql.c:52
-msgid "SQL query"
-msgstr "Interogazion SQL"
+#: src/tracker/tracker-tag.c:55
+msgid "Show files associated with each tag (this is only used with --list)"
+msgstr ""
+"Mostre i files associâts cun ognidune etichete (doprade nome cun --list)"
 
-#: src/tracker/tracker-sql.c:53
-msgid "SQL"
-msgstr "SQL"
+#: src/tracker/tracker-tag.c:59
+msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+msgstr ""
+"Zonte une etichete (se FILE al è ometût, ETICHETE no ven associade a nissun "
+"file)"
 
-#: src/tracker/tracker-sql.c:114
-msgid "Failed to initialize data manager"
-msgstr "No si è rivâts a inizializâ il gjestôr di dâts"
+#: src/tracker/tracker-tag.c:60 src/tracker/tracker-tag.c:64
+msgid "TAG"
+msgstr "ETICHETE"
 
-#: src/tracker/tracker-sql.c:178
-msgid "Empty result set"
-msgstr "Cumbinazion di risultâts vueide"
+#: src/tracker/tracker-tag.c:63
+msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
+msgstr ""
+"Elimine une etichete (Se FILE al è ometût, ETICHETE e je gjavade di ducj i "
+"files)"
 
-#: src/tracker/tracker-sql.c:248
-msgid "A database path must be specified"
-msgstr "Si scugne specificâ un percors pe base di dâts"
+#: src/tracker/tracker-tag.c:67
+msgid "Description for a tag (this is only used with --add)"
+msgstr "Descrizion par une etichete (doprade nome cun --add)"
+
+#: src/tracker/tracker-tag.c:68
+msgid "STRING"
+msgstr "STRINGHE"
+
+#: src/tracker/tracker-tag.c:79
+msgid "Use AND for search terms instead of OR (the default)"
+msgstr "Dopre AND invezit di OR (predefinît) pai tiermins cirûts"
+
+#: src/tracker/tracker-tag.c:84
+msgid "FILE…"
+msgstr "FILE…"
+
+#: src/tracker/tracker-tag.c:85
+msgid "FILE [FILE…]"
+msgstr "FILE [FILE…]"
+
+#: src/tracker/tracker-tag.c:101
+msgid ""
+"NOTE: Limit was reached, there are more items in the database not listed here"
+msgstr ""
+"NOTE: si è rivâts al limit, a son altris vôs te base di dâts no listadis chi"
+
+#: src/tracker/tracker-tag.c:247
+msgid "Could not get file URNs"
+msgstr "Impussibil otignî i URN dal file"
+
+#: src/tracker/tracker-tag.c:301
+msgid "Could not get files related to tag"
+msgstr "Impussibil otignî i files relatîfs ae etichete"
+
+#: src/tracker/tracker-tag.c:368
+msgid "Could not get all tags in the database"
+msgstr "Impussibil otignî dutis lis etichetis te base di dâts"
+
+#: src/tracker/tracker-tag.c:378
+msgid "No files have been tagged"
+msgstr "Nissun file al è stât etichetât"
+
+#: src/tracker/tracker-tag.c:413
+msgid "Could not get files for matching tags"
+msgstr "Impussibil otignî i files che a corispuindin aes etichetis"
+
+#: src/tracker/tracker-tag.c:422
+msgid "No files were found matching ALL of those tags"
+msgstr "Nissun file al è stât cjatât che al corispuindi a DUTIS chês etichetis"
+
+#: src/tracker/tracker-tag.c:501 src/tracker/tracker-tag.c:898
+msgid "Could not get all tags"
+msgstr "Impussibil otignî dutis lis etichetis"
+
+#: src/tracker/tracker-tag.c:510 src/tracker/tracker-tag.c:907
+msgid "No tags were found"
+msgstr "No je stade cjatade nissune etichete"
+
+#: src/tracker/tracker-tag.c:514
+msgid "Tags (shown by name)"
+msgstr "Etichetis (mostradis par non)"
+
+#: src/tracker/tracker-tag.c:589
+msgid "No files were modified"
+msgstr "Nissun file al è stât modificât"
+
+#: src/tracker/tracker-tag.c:633 src/tracker/tracker-tag.c:641
+msgid "Files do not exist or aren’t indexed"
+msgstr "I files no esistin o no son metûts te tabele"
+
+#: src/tracker/tracker-tag.c:682
+msgid "Could not add tag"
+msgstr "Impussibil zontâ la etichete"
+
+#: src/tracker/tracker-tag.c:694
+msgid "Tag was added successfully"
+msgstr "Zonte de etichete riessude"
+
+#: src/tracker/tracker-tag.c:724
+msgid "Could not add tag to files"
+msgstr "Impussibil zontâ la etichete ai files"
+
+#: src/tracker/tracker-tag.c:735
+msgid "Tagged"
+msgstr "Etichetât"
+
+#: src/tracker/tracker-tag.c:736
+msgid "Not tagged, file is not indexed"
+msgstr "No etichetât, il file nol è metût te tabele"
+
+#: src/tracker/tracker-tag.c:778
+msgid "Could not get tag by label"
+msgstr "Impussibil otignî la liste des etichetis"
+
+#: src/tracker/tracker-tag.c:789
+msgid "No tags were found by that name"
+msgstr "No je stade cjatade nissune etichete cun chel non"
+
+#: src/tracker/tracker-tag.c:807
+msgid "None of the files had this tag set"
+msgstr "Nissun dai files al veve stabilide cheste etichete"
+
+#: src/tracker/tracker-tag.c:854
+msgid "Could not remove tag"
+msgstr "Impussibil gjavâ la etichete"
+
+#: src/tracker/tracker-tag.c:862
+msgid "Tag was removed successfully"
+msgstr "Etichete gjavade cun sucès"
+
+#: src/tracker/tracker-tag.c:866
+msgid "Untagged"
+msgstr "Cence etichete"
+
+#: src/tracker/tracker-tag.c:867
+msgid "File not indexed or already untagged"
+msgstr "File no metût te tabele o etichete za gjavade"
+
+#: src/tracker/tracker-tag.c:1064
+msgid "The --list option is required for --show-files"
+msgstr "La opzion --list e covente par --show-files"
+
+#: src/tracker/tracker-tag.c:1066
+msgid ""
+"The --and-operator option can only be used with --list and tag label "
+"arguments"
+msgstr ""
+"Al è pussibil doprâ la opzion --and-operator nome cun --list e nons di "
+"etichetis"
+
+#: src/tracker/tracker-tag.c:1068
+msgid "Add and delete actions can not be used together"
+msgstr "Lis azions \"zonte\" e \"elimine\" no puedin jessi dopradis adun"
+
+#: src/tracker/tracker-tag.c:1070
+msgid "The --description option can only be used with --add"
+msgstr "Al è pussibil doprâ la opzion --description nome cun --add"
 
 #. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sql.desktop.in:6
-msgid "sql"
-msgstr "sql"
+#: src/tracker/tracker-tag.desktop.in:6
+#| msgid "Tag"
+#| msgid_plural "Tags"
+msgid "tag"
+msgstr "tag"
 
-#: src/tracker/tracker-sql.desktop.in:7
-msgid "Query the database at the lowest level using SQL"
-msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
-
-#~ msgid "Additional / third party commands are:"
-#~ msgstr "I comants adizionâi/di tiercis parts a son:"
-
-#~ msgid "Unable to retrieve namespace prefixes"
-#~ msgstr "Impussibil otignî i prefìs di namespace"
-
-#~ msgid "No namespace prefixes were returned"
-#~ msgstr "Nissun prefìs di namespace cjatât"
-
-#~ msgid "Could not get namespace prefixes"
-#~ msgstr "Impussibil otignî i prefìs dal spazi dai nons (namespace)"
-
-#~ msgid "No namespace prefixes were found"
-#~ msgstr "Nissun prefìs dal spazi dai nons (namespace) cjatât"
-
-#~ msgid "Could not list class prefixes"
-#~ msgstr "Impussibil listâi prefìs di classe"
-
-#~ msgid "No class prefixes were found"
-#~ msgstr "Nol è stât cjatât nissun prefìs di classe"
-
-#~ msgid "Prefixes"
-#~ msgstr "Prefìs"
-
-#~ msgid ""
-#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
-#~ "Resource”"
-#~ msgstr ""
-#~ "Impussibil cjatâ la proprietât pal prefìs de classe, p.e. :Risorse in "
-#~ "«rdfs:Resource»"
-
-#~ msgid "unknown time"
-#~ msgstr "timp no cognossût"
-
-#~ msgid "less than one second"
-#~ msgstr "mancul di un secont"
-
-#~ msgid " %dd"
-#~ msgstr " %dd"
-
-#~ msgid " %2.2dh"
-#~ msgstr " %2.2dh"
-
-#~ msgid " %2.2dm"
-#~ msgstr " %2.2dm"
-
-#~ msgid " %2.2ds"
-#~ msgstr " %2.2ds"
-
-#~ msgid " %d day"
-#~ msgid_plural " %d days"
-#~ msgstr[0] " %d dì"
-#~ msgstr[1] " %d dîs"
-
-#~ msgid " %2.2d hour"
-#~ msgid_plural " %2.2d hours"
-#~ msgstr[0] " %2.2d ore"
-#~ msgstr[1] " %2.2d oris"
-
-#~ msgid " %2.2d minute"
-#~ msgid_plural " %2.2d minutes"
-#~ msgstr[0] " %2.2d minût"
-#~ msgstr[1] " %2.2d minûts"
-
-#~ msgid " %2.2d second"
-#~ msgid_plural " %2.2d seconds"
-#~ msgstr[0] " %2.2d secont"
-#~ msgstr[1] " %2.2d seconts"
-
-#~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
-#~ msgstr ""
-#~ "Mostre il namespace complet (p.e. no doprâ nie:titul, doprâ i URL "
-#~ "complets)"
-
-#~ msgid "Show plain text content if available for resources"
-#~ msgstr "Mostre, se disponibii, i contignûts in test sempliç pes risorsis"
-
-#~ msgid ""
-#~ "Instead of looking up a file name, treat the FILE arguments as actual "
-#~ "IRIs (e.g. <file:///path/to/some/file.txt>)"
-#~ msgstr ""
-#~ "Al puest di cirî un non di file, dopre i argoments FILE come dai IRI (p."
-#~ "e. <file:///percors/a/cualchi/file.txt>)"
-
-#~ msgid "Output results as RDF in Turtle format"
-#~ msgstr "Da fûr i risultâts come RDF in formât Turtle"
-
-#~ msgid "RDF property to treat as URL (eg. “nie:url”)"
-#~ msgstr "Proprietât RDF di tratâ come URL (p.e. ”nie:url”)"
-
-#~ msgid "Querying information for entity"
-#~ msgstr "Daûr a consultâ la informazion pe entitât"
-
-#~ msgid "Unable to retrieve URN for URI"
-#~ msgstr "Impussibil otignî il URN pal URI"
-
-#~ msgid "Unable to retrieve data for URI"
-#~ msgstr "Impussibil otignî dâts pal URI"
-
-#~ msgid "No metadata available for that URI"
-#~ msgstr "Nissun meta-dât disponibil par chel URI"
-
-#~ msgid "Show information known about local files or items indexed"
-#~ msgstr ""
-#~ "Mostre informazions cognossudis in merit ai file locâi o ai elements "
-#~ "metûts in indiç"
-
-#~ msgid "Maximum size of journal"
-#~ msgstr "Dimension massime dal gjornâl"
-
-#~ msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-#~ msgstr ""
-#~ "Dimension dal gjornâl ae rotazion in MB. Doprâ -1 par disabilitâ la "
-#~ "rotazion."
-
-#~ msgid "Location of journal pieces"
-#~ msgstr "Posizion dai tocs di gjornâl"
-
-#~ msgid "Where to store a journal chunk when it hits the max size."
-#~ msgstr ""
-#~ "Dulà salvâ un toc di gjornâl cuant che al rive ae dimension massime."
-
-#~ msgid "Maximum length of a word to be indexed"
-#~ msgstr "Massime lungjece di une peraule di meti in indiç"
-
-#~ msgid ""
-#~ "Words with more characters than this length will be ignored by the "
-#~ "indexer."
-#~ msgstr ""
-#~ "Peraulis cun plui caratars di cheste lungjece no vegnaran metudis in "
-#~ "indiç."
-
-#~ msgid "Maximum number of words to index in a document"
-#~ msgstr "Massim numar di peraulis di meti in indiç intun document"
-
-#~ msgid ""
-#~ "Indexer will read only this maximum number of words from a single "
-#~ "document."
-#~ msgstr ""
-#~ "L'indicizadôr al learà nome chest numar massim di peraulis di un singul "
-#~ "document."
-
-#~ msgid "Enable stemmer"
-#~ msgstr "Abilite stemmer"
-
-#~ msgid ""
-#~ "Simplify the words to their root to provide more results. E.g. “shelves” "
-#~ "and “shelf” to “shel”"
-#~ msgstr ""
-#~ "Semplifiche la peraule te lôr lidrîs par vê plui risultâts. Par esempli: "
-#~ "«cjacare», «cjacari», «cjacarai» in «cjacar»"
-
-#~ msgid "Enable unaccent"
-#~ msgstr "Abilite letaris cence acent"
-
-#~ msgid ""
-#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” "
-#~ "to “Idea” for improved matching."
-#~ msgstr ""
-#~ "Volte i caratars cun acent intai ecuivalents cence acent. Par esempli: "
-#~ "«bruntulâ» in «bruntula»."
-
-#~ msgid "Ignore numbers"
-#~ msgstr "Ignore i numars"
-
-#~ msgid "If enabled, numbers will not be indexed."
-#~ msgstr "Se abilitât, i numars no vegnaran metûts in indiç."
+#: src/tracker/tracker-tag.desktop.in:7
+msgid "Add, remove and list tags"
+msgstr "Zonte, gjave e liste lis etichetis"
 
 #~ msgid "Ignore stop words"
 #~ msgstr "Ignore lis peraulis di ferme"
@@ -747,24 +1555,276 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ "vegnaran ignoradis. Par esempli peraulis come «sì», «no», «il» e vie "
 #~ "indenant."
 
+#~ msgid "Index applications installed on the system"
+#~ msgstr "Met te tabele lis aplicazions instaladis sul sisteme"
+
+#~ msgid ""
+#~ "If this option is enabled, the filesystem miner will look for .desktop "
+#~ "files in the standard XDG system and user data directories."
+#~ msgstr ""
+#~ "Se cheste opzion e je abilitade, l'analizadôr dal filesystem al cirarà i "
+#~ "file .desktop intes cartelis dal sisteme XDG standard e tes cartelis dai "
+#~ "dâts dal utent."
+
+#~ msgid "Operation not supported"
+#~ msgstr "Operazion no supuartade"
+
+#~ msgid "Unable to retrieve namespace prefixes"
+#~ msgstr "Impussibil otignî i prefìs di namespace"
+
+#~ msgid "No namespace prefixes were returned"
+#~ msgstr "Nissun prefìs di namespace cjatât"
+
+#~ msgid "Querying information for entity"
+#~ msgstr "Daûr a consultâ la informazion pe entitât"
+
+#~ msgid "unknown time"
+#~ msgstr "timp no cognossût"
+
+#~ msgid "Directory is eligible to be mined (based on contents)"
+#~ msgstr "Al è pussibil monitorâ la cartele (in base al contignût)"
+
+#~ msgid "Directory is eligible to be monitored (based on config)"
+#~ msgstr "Al è pussibil monitorâ la cartele (in base ae configurazion)"
+
+#~ msgid "Directory is NOT eligible to be monitored (based on config)"
+#~ msgstr "Nol è pussibil monitorâ la cartele (in base ae configurazion)"
+
+#~ msgid "File is eligible to be monitored (based on config)"
+#~ msgstr "Al è pussibil monitorâ il file (in base ae configurazion)"
+
+#~ msgid "File is NOT eligible to be monitored (based on config)"
+#~ msgstr "Nol è pussibil monitorâ il file (in base ae configurazion)"
+
+#~ msgid "File or Directory is eligible to be monitored (based on config)"
+#~ msgstr ""
+#~ "Al è pussibil monitorâ il file o la cartele (in base ae configurazion)"
+
+#~ msgid "File or Directory is NOT eligible to be monitored (based on config)"
+#~ msgstr ""
+#~ "Nol è pussibil monitorâ il file o la cartele (in base ae configurazion)"
+
+#~ msgid "Would be indexed"
+#~ msgstr "Al vegnarà metût te tabele"
+
+#~ msgid "Yes"
+#~ msgstr "Sì"
+
+#~ msgid "No"
+#~ msgstr "No"
+
+#~ msgid "Would be monitored"
+#~ msgstr "Al vegnarà monitorât"
+
+#~ msgid ""
+#~ "Tell miners to reindex files which match the mime type supplied (for new "
+#~ "extractors), use -m MIME1 -m MIME2"
+#~ msgstr ""
+#~ "Dîs ai estratôrs di tornâ a meti te tabele i file che a corispuindin al "
+#~ "gjenar mime furnît (pai gnûfs estratôrs), dopre -m MIME1 -m MIME2"
+
+#~ msgid "Tell miners to (re)index a given file"
+#~ msgstr "Dîs ai estratôrs di (torna a)meti te tabele un file furnît"
+
+#~ msgid "Backup current index / database to the file provided"
+#~ msgstr "Fâs il backup de base di dâts/tabele sul file furnît"
+
+#~ msgid "Restore a database from a previous backup (see --backup)"
+#~ msgstr "Torne met une base di dâts di un backup precedent (viôt --backup)"
+
+#~ msgid "Import a dataset from the provided file (in Turtle format)"
+#~ msgstr "Impuarte une base di dâts dal file furnît (in formât Turtle)"
+
+#~ msgid "Could not reindex mimetypes, manager could not be created, %s"
+#~ msgstr ""
+#~ "Impussibil tornâ a meti te tabele i gjenars MIME, il gjestôr nol pues "
+#~ "jessi creât, %s"
+
+#~ msgid "Could not reindex mimetypes"
+#~ msgstr "Impussibil tornâ a meti te tabele i gjenars MIME"
+
+#~ msgid "Reindexing mime types was successful"
+#~ msgstr "Il tornâ a meti te tabele dai gjenars di MIME al è lât a bon fin"
+
+#~ msgid "Could not (re)index file, manager could not be created, %s"
+#~ msgstr ""
+#~ "Impussibil (tornâ a)meti te tabele il file, il gjestôr nol pues jessi "
+#~ "creât, %s"
+
+#~ msgid "Could not (re)index file"
+#~ msgstr "Impussibil (tornâ a)meti te tabele il file"
+
+#~ msgid "(Re)indexing file was successful"
+#~ msgstr "Il (tornâ a)meti te tabele al è lât a bon fin"
+
+#~ msgid "Importing Turtle file"
+#~ msgstr "Daûr a impuartâ l'archivi Turtle"
+
+#~ msgid "Unable to import Turtle file"
+#~ msgstr "Impussibil impuartâ il file Turtle"
+
+#~ msgid "Backing up database"
+#~ msgstr "Daûr a fâ il backup de base di dâts"
+
+#~ msgid "Could not backup database"
+#~ msgstr "Impussibil fâ il backup de base di dâts"
+
+#~ msgid "Restoring database from backup"
+#~ msgstr "Daûr a tornâ a meti la base di dâts dal backup"
+
+#~ msgid ""
+#~ "Only one action (--backup, --restore, --index-file or --import) can be "
+#~ "used at a time"
+#~ msgstr ""
+#~ "A pues jessi doprade nome une azion ae volte (--backup, --restore, --"
+#~ "index-file o --import)"
+
+#~ msgid "Missing one or more files which are required"
+#~ msgstr "A mancjin un o plui file necessaris"
+
+#~ msgid "Only one file can be used with --backup and --restore"
+#~ msgstr "Nome un file al pues jessi doprât cun --backup e --restore"
+
+#~ msgid ""
+#~ "Actions (--backup, --restore, --index-file and --import) can not be used "
+#~ "with --reindex-mime-type"
+#~ msgstr ""
+#~ "Azions (--backup, --restore, --index-file e --import) no puedin jessi "
+#~ "dopradis cun --reindex-mime-type"
+
+#~ msgid "Could not open /proc"
+#~ msgstr "Impussibil vierzi /proc"
+
+#~ msgid "Could not stat() file"
+#~ msgstr "Impussibil eseguî stat() sul file"
+
+#~ msgid "Could not open “%s”"
+#~ msgstr "Impussibil vierzi «%s»"
+
+#~ msgid "Could not terminate process %d — “%s”"
+#~ msgstr "Impussibil terminâ procès %d — «%s»"
+
+#~ msgid "Terminated process %d — “%s”"
+#~ msgstr "Terminât procès %d — «%s»"
+
+#~ msgid "Search for emails"
+#~ msgstr "Cîr e-mail"
+
+#~ msgid "Search for contacts"
+#~ msgstr "Cîr contats"
+
+#~ msgid "Search for bookmarks (--all has no effect on this)"
+#~ msgstr "Cîr segnelibris (--all nol fâs nissun efiet chi)"
+
+#~ msgid "No contacts were found"
+#~ msgstr "Nol è stât cjatât nissun contat"
+
+#~ msgid "Contacts"
+#~ msgstr "Contats"
+
+#~ msgid "No name"
+#~ msgstr "Nissun non"
+
+#~ msgid "No E-mail address"
+#~ msgstr "Nissune direzion e-mail"
+
+#~ msgid "No emails were found"
+#~ msgstr "No je stade cjatade nissune e-mail"
+
+#~ msgid "Emails"
+#~ msgstr "E-mail"
+
+#~ msgid "No bookmarks were found"
+#~ msgstr "Nol è stât cjatât nissun segnelibri"
+
+#~ msgid "Bookmarks"
+#~ msgstr "Segnelibris"
+
+#~ msgid ""
+#~ "Collect debug information useful for problem reporting and investigation, "
+#~ "results are output to terminal"
+#~ msgstr ""
+#~ "Tire sù informazions di debug utilis pe segnalazion e risoluzion di "
+#~ "problemis, i risultâts a son stampâts sul terminâl"
+
+#~ msgid "Version"
+#~ msgstr "Version"
+
+#~ msgid "Disk Information"
+#~ msgstr "Informazions disc"
+
+#~ msgid "Data Set"
+#~ msgstr "Dimension dâts"
+
+#~ msgid "States"
+#~ msgstr "Stâts"
+
+#~ msgid "Data Statistics"
+#~ msgstr "Statistichis dâts"
+
+#~ msgid "No connection available"
+#~ msgstr "Nissune conession disponibile"
+
+#~ msgid "Could not get statistics"
+#~ msgstr "Impussibil otignî lis statistichis"
+
+#~ msgid "No statistics were available"
+#~ msgstr "Nissune statistiche disponibile"
+
+#~ msgid "Database is currently empty"
+#~ msgstr "La base di dâts e je vueide"
+
 #~ msgid "Log verbosity"
 #~ msgstr "Detais regjistri"
 
 #~ msgid "Log verbosity."
 #~ msgstr "Detais dal regjistri."
 
-#~ msgid "GraphUpdated delay"
-#~ msgstr "Ritart GraphUpdated"
+#~ msgid "Scheduler priority when idle"
+#~ msgstr "Prioritât dal planificadôr cuant che al sta inatîf"
 
 #~ msgid ""
-#~ "Period in milliseconds between GraphUpdated signals being emitted when "
-#~ "indexed data has changed inside the database."
+#~ "The scheduler is the kernel component that decides which runnable "
+#~ "application will be executed by the CPU next. Each application has an "
+#~ "associated scheduling policy and priority."
 #~ msgstr ""
-#~ "Periodi in miliseconts tra la emission di segnâi GraphUpdated cuant che i "
-#~ "dâts metûts in indiç a son stâts modificâts te base di dâts."
+#~ "Il planificadôr al è chel component dal kernel che al decît cuale "
+#~ "aplicazion e vegnarà eseguide subite dopo sul processôr. Ogni aplicazion "
+#~ "e à assegnât une politiche e une prioritât di planificazion."
 
-#~ msgid "Displays version information"
-#~ msgstr "Mostre informazions su la version"
+#~ msgid "Enable writeback"
+#~ msgstr "Abilite la scriture rimandade"
+
+#~ msgid "Set to false to completely disable any file writeback"
+#~ msgstr ""
+#~ "Met a FALS par disabilitâ dal dut cualsisei scriture rimandade (writeback)"
+
+#~ msgid "File System"
+#~ msgstr "File System"
+
+#~ msgid "File system data miner"
+#~ msgstr "Estratôr di dâts dal file system"
+
+#~ msgid "Tracker File System Miner"
+#~ msgstr "Estratôr di dâts dal file system Tracker"
+
+#~ msgid "RSS/ATOM Feeds"
+#~ msgstr "Feed RSS/ATOM"
+
+#~ msgid "Fetch RSS/ATOM Feeds"
+#~ msgstr "Scjarie feed RSS/ATOM"
+
+#~ msgid "Tracker RSS/ATOM Feeds Miner"
+#~ msgstr "Estratôr di feed RSS/ATOM Tracker"
+
+#~ msgid "Fetch RSS/ATOM feeds"
+#~ msgstr "Scjarie feed RSS/ATOM"
+
+#~ msgid "Metadata extractor"
+#~ msgstr "Estratôr di meta-dâts"
+
+#~ msgid "Tracker Metadata Extractor"
+#~ msgstr "Estratôr di meta-dâts Tracker"
 
 #~ msgid ""
 #~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
@@ -773,130 +1833,13 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ "Regjistrazion: 0 = nome erôrs, 1 = minimâl, 2 = detaiade, 3 = debug "
 #~ "(predefinît = 0)"
 
-#~ msgid "Disable automatic shutdown"
-#~ msgstr "Disabilite il distudâ automatic"
-
-#~ msgid "Force a re-index of all content"
-#~ msgstr "Sfuarce un tornâ a meti in indiç di ducj i contignûts"
-
-#~ msgid "Load a specified domain ontology"
-#~ msgstr "Cjarie une specifiche ontologjie di domini"
-
-#~ msgid "— start the tracker daemon"
-#~ msgstr "— invie il demoni di Tracker"
-
-#~ msgid "Tracker Store"
-#~ msgstr "Archivi di Tracker"
-
-#~ msgid "Metadata database store and lookup manager"
-#~ msgstr "Archivi de base di dâts dai meta-dâts e gjestôr des ricercjs"
-
-#~ msgid "BASE_URL"
-#~ msgstr "URL_BASE"
-
-#~ msgid "Error starting “tar” program"
-#~ msgstr "Erôr tal inviâ il program «tar»"
-
-#~ msgid "Unknown error, “tar” exited with status %d"
-#~ msgstr "Erôr no cognossût: «tar» al è jessut cul stât %d"
-
-#~ msgid "Operation not supported"
-#~ msgstr "Operazion no supuartade"
-
-#~ msgid "Cookie not recognized to resume paused miner"
-#~ msgstr "Cookie no ricognossût par continuâ l'estratôr di dâts"
-
-#~ msgid "Pause application and reason match an already existing pause request"
-#~ msgstr ""
-#~ "La aplicazion in pause e la sô reson a corispuindin a une domande "
-#~ "esistente"
-
 #~ msgid "Could not get GSettings for miners, manager could not be created, %s"
 #~ msgstr ""
 #~ "Impussibil otignî GSettings pai estratôrs, il gjestôr nol pues jessi "
 #~ "creât, %s"
 
-#~ msgid "Unavailable"
-#~ msgstr "No disponibil"
-
-#~ msgid "Initializing"
-#~ msgstr "Daûr a inizializâ"
-
-#~ msgid "Processing…"
-#~ msgstr "Elaborazion..."
-
-#~ msgid "Fetching…"
-#~ msgstr "Daûr a recuperâ..."
-
-#~ msgid "Crawling single directory “%s”"
-#~ msgstr "Daûr a cjapâ sù dâts nome pe cartele «%s»"
-
-#~ msgid "Crawling recursively directory “%s”"
-#~ msgstr "Daûr a cjapâ sù dâts in maniere ricorsive pe cartele «%s»"
-
-#~ msgid "Paused"
-#~ msgstr "Interot"
-
-#~ msgid "Idle"
-#~ msgstr "Inatîf"
-
-#~ msgid "Follow status changes as they happen"
-#~ msgstr "Seguìs i cambiaments di stât apene che a sucedin"
-
-#~ msgid ""
-#~ "Watch changes to the database in real time (e.g. resources or files being "
-#~ "added)"
-#~ msgstr ""
-#~ "Ten di voli i cambiaments ae base di dâts in timp reâl (come risorsis o "
-#~ "file zontâts)"
-
 #~ msgid "ONTOLOGY"
 #~ msgstr "ONTOLOGJIE"
-
-#~ msgid "List common statuses for miners and the store"
-#~ msgstr "Liste i stâts comuns pai estratôrs e l'archivi"
-
-#~ msgid "Pause a miner (you must use this with --miner)"
-#~ msgstr "Interomp un estratôr (al à di jessi doprât cun --miner)"
-
-#~ msgid "REASON"
-#~ msgstr "RESON"
-
-#~ msgid ""
-#~ "Pause a miner while the calling process is alive or until resumed (you "
-#~ "must use this with --miner)"
-#~ msgstr ""
-#~ "Al interomp un estratôr intant che il procès clamant al è ancjemò atîf o "
-#~ "fintremai che nol è stât ripristinât (al à di jessi doprât cun --miner)"
-
-#~ msgid "Resume a miner (you must use this with --miner)"
-#~ msgstr ""
-#~ "Al torne a meti in vore un estratôr (al à di jessi doprât cun --miner)"
-
-#~ msgid "COOKIE"
-#~ msgstr "COOKIE"
-
-#~ msgid ""
-#~ "Miner to use with --resume or --pause (you can use suffixes, e.g. Files "
-#~ "or Applications)"
-#~ msgstr ""
-#~ "Estratôr di doprâ cun --resume o --pause (al è pussibil doprâ sufìs come "
-#~ "\"File\" o \"Aplicazions\")"
-
-#~ msgid "MINER"
-#~ msgstr "ESTRATÔR"
-
-#~ msgid "List all miners currently running"
-#~ msgstr "Liste ducj i estratôrs in esecuzion"
-
-#~ msgid "List all miners installed"
-#~ msgstr "Liste ducj i estratôrs instalâts"
-
-#~ msgid "List pause reasons"
-#~ msgstr "Liste i motîfs di interuzion"
-
-#~ msgid "List all Tracker processes"
-#~ msgstr "Liste ducj i procès di Tracker"
 
 #~ msgid ""
 #~ "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
@@ -904,9 +1847,6 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ msgstr ""
 #~ "Dopre SIGKILL par fermâ ducj i procès corispuindints; a puedin jessi "
 #~ "doprâts «store», «miners» o «all», cence parametris al vûl dî «all»"
-
-#~ msgid "APPS"
-#~ msgstr "APLICAZIONS"
 
 #~ msgid ""
 #~ "Use SIGTERM to stop all matching processes, either “store”, “miners” or "
@@ -933,21 +1873,6 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ "Mostre i valôrs di regjistrazion in tiermins di regjistri detaiât par "
 #~ "ogni procès"
 
-#~ msgid "Could not get status from miner: %s"
-#~ msgstr "Impussibil otignî il stât dal estratôr: %s"
-
-#~ msgid "%s remaining"
-#~ msgstr "ancjemò %s"
-
-#~ msgid "unknown time left"
-#~ msgstr "timp restant no cognossût"
-
-#~ msgid "PAUSED"
-#~ msgstr "INTEROT"
-
-#~ msgid "Not running or is a disabled plugin"
-#~ msgstr "No in esecuzion o plugin disabilitât"
-
 #~ msgid "Could not retrieve tracker-store status"
 #~ msgstr "Impussibil otignî il stât di tracker-store"
 
@@ -961,104 +1886,11 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ msgstr ""
 #~ "Impussibil clamâ tracker_sparql_cursor_next() su la interogazion SPARQL"
 
-#~ msgid "Could not pause miner, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impussibil interompi l'estratôr, il gjestôr nol pues jessi creât, %s"
-
-#~ msgid "Attempting to pause miner “%s” with reason “%s”"
-#~ msgstr "Tentatîf di interompi l'estratôr «%s» cun la reson «%s»"
-
-#~ msgid "Could not pause miner: %s"
-#~ msgstr "Impussibil interompi l'estratôr: %s"
-
-#~ msgid "Cookie is %d"
-#~ msgstr "Il cookie al è %d"
-
-#~ msgid "Press Ctrl+C to stop"
-#~ msgstr "Frache Ctrl+C par fermâ"
-
-#~ msgid "Could not resume miner, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impussibil tornâ a meti in vore l'estratôr, il gjestôr nol pues jessi "
-#~ "creât, %s"
-
-#~ msgid "Attempting to resume miner %s with cookie %d"
-#~ msgstr "Tentatîf di tornâ a meti in vore l'estratôr %s cul cookie %d"
-
-#~ msgid "Could not resume miner: %s"
-#~ msgstr "Impussibil tornâ a meti in vore l'estratôr: %s"
-
-#~ msgid "Could not list miners, manager could not be created, %s"
-#~ msgstr "Impussibil elencâ i estratôrs, il gjestôr nol pues jessi creât, %s"
-
-#~ msgid "Found %d miner installed"
-#~ msgid_plural "Found %d miners installed"
-#~ msgstr[0] "Cjatât %d estratôr dâts instalât"
-#~ msgstr[1] "Cjatât %d estratôrs dâts instalâts"
-
-#~ msgid "Found %d miner running"
-#~ msgid_plural "Found %d miners running"
-#~ msgstr[0] "Cjatât %d estratôr dâts in esecuzion"
-#~ msgstr[1] "Cjatât %d estratôrs dâts in esecuzion"
-
-#~ msgid "Could not get pause details, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impussibil otignî i detais de interuzion, il gjestôr nol pues jessi "
-#~ "creât, %s"
-
-#~ msgid "No miners are running"
-#~ msgstr "Nissun estratôr in esecuzion"
-
-#~ msgid "Miners"
-#~ msgstr "Estratôrs dâts"
-
-#~ msgid "Application"
-#~ msgstr "Aplicazion"
-
-#~ msgid "Reason"
-#~ msgstr "Reson"
-
-#~ msgid "No miners are paused"
-#~ msgstr "Nissun estratôr dâts interot"
-
 #~ msgid "Only one of “all”, “store” and “miners” options are allowed"
 #~ msgstr "E je permetude nome une tra lis opzions «all», «store» e «miners»"
 
-#~ msgid "Could not get SPARQL connection"
-#~ msgstr "Impussibil otignî une conession SPARQL"
-
-#~ msgid "Now listening for resource updates to the database"
-#~ msgstr "In scolte par inzornaments des risorsis su la base di dâts"
-
-#~ msgid "All nie:plainTextContent properties are omitted"
-#~ msgstr "Dutis lis proprietâts nie:plainTextContent a son ometudis"
-
-#~ msgid "Common statuses include"
-#~ msgstr "I stâts comuns a includin"
-
-#~ msgid "Could not get status, manager could not be created, %s"
-#~ msgstr "Impussibil otignî il stât, il gjestôr nol pues jessi creât, %s"
-
 #~ msgid "Store"
 #~ msgstr "Archivi"
-
-#~ msgid "Could not get display name for miner “%s”"
-#~ msgstr "Impussibil otignî il non pal estratôr «%s»"
-
-#~ msgid "You can not use miner pause and resume switches together"
-#~ msgstr ""
-#~ "Nol è pussibil doprâ lis opzions di interuzion e di ripristinament parie"
-
-#~ msgid "You must provide the miner for pause or resume commands"
-#~ msgstr ""
-#~ "Si scugne furnî l'estratôr pai comants di interuzion o di ripristinament"
-
-#~ msgid "You must provide a pause or resume command for the miner"
-#~ msgstr ""
-#~ "Si scugne furnî un comant di interuzion o di ripristinament pal estratôr"
-
-#~ msgid "You can not use the --kill and --terminate arguments together"
-#~ msgstr "Nol è pussibil doprâ adun i argoments --kill e --terminate"
 
 #~ msgid ""
 #~ "You can not use the --get-logging and --set-logging arguments together"
@@ -1070,14 +1902,6 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ "Nivel di detais dal regjistri no valit, prove «debug», «detailed», "
 #~ "«minimal» o «errors»"
 
-#~ msgid "Found %d PID…"
-#~ msgid_plural "Found %d PIDs…"
-#~ msgstr[0] "Cjatât %d PID…"
-#~ msgstr[1] "Cjatâts %d PID…"
-
-#~ msgid "Found process ID %d for “%s”"
-#~ msgstr "Cjatât ID di procès %d par «%s»"
-
 #~ msgid "Components"
 #~ msgstr "Components"
 
@@ -1087,156 +1911,7 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ msgid "Setting log verbosity for all components to “%s”…"
 #~ msgstr ""
 #~ "Daûr a stabilî il nivel di detais dal regjistri par ducj i components a "
-#~ "«%s»..."
-
-#~ msgid "Starting miners…"
-#~ msgstr "Daûr a inviâ i estratôrs dâts..."
-
-#~ msgid "Could not start miners, manager could not be created, %s"
-#~ msgstr "Impussibil inviâ i estratôrs, il gjestôr nol pues jessi creât, %s"
-
-#~ msgid "perhaps a disabled plugin?"
-#~ msgstr "salacor un plugin disabilitât?"
-
-#~ msgid ""
-#~ "If no arguments are given, the status of the store and data miners is "
-#~ "shown"
-#~ msgstr "Cence argoments, al ven mostrât il stât dal archivi e dai estratôrs"
-
-#~ msgid "Could not get D-Bus connection"
-#~ msgstr "Impussibil otignî une conession D-Bus"
-
-#~ msgid "Could not create D-Bus proxy to tracker-store"
-#~ msgstr "Impussibil creâ un proxy D-Bus viers tracker-store"
-
-#~ msgid "Could not run tracker-extract: "
-#~ msgstr "Impussibil eseguî tracker-extract: "
-
-#~ msgid ""
-#~ "Tell miners to reindex files which match the mime type supplied (for new "
-#~ "extractors), use -m MIME1 -m MIME2"
-#~ msgstr ""
-#~ "Dîs ai estratôrs di tornâ a meti in indiç i file che a corispuindin al "
-#~ "gjenar mime furnît (pai gnûfs estratôrs), dopre -m MIME1 -m MIME2"
-
-#~ msgid "MIME"
-#~ msgstr "MIME"
-
-#~ msgid "Tell miners to (re)index a given file"
-#~ msgstr "Dîs ai estratôrs di (torna a)meti in indiç un file furnît"
-
-#~ msgid "Backup current index / database to the file provided"
-#~ msgstr "Fâs il backup de base di dâts/indiç sul file furnît"
-
-#~ msgid "Restore a database from a previous backup (see --backup)"
-#~ msgstr "Torne met une base di dâts di un backup precedent (viôt --backup)"
-
-#~ msgid "Import a dataset from the provided file (in Turtle format)"
-#~ msgstr "Impuarte une base di dâts dal file furnît (in formât Turtle)"
-
-#~ msgid "Could not reindex mimetypes, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impussibil tornâ a meti in indiç i gjenars MIME, il gjestôr nol pues "
-#~ "jessi creât, %s"
-
-#~ msgid "Could not reindex mimetypes"
-#~ msgstr "Impussibil tornâ a meti in indiç i gjenars MIME"
-
-#~ msgid "Reindexing mime types was successful"
-#~ msgstr "Il tornâ a meti in indiç dai gjenars di MIME al è lât a bon fin"
-
-#~ msgid "Could not (re)index file, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impussibil (tornâ a)meti in indiç il file, il gjestôr nol pues jessi "
-#~ "creât, %s"
-
-#~ msgid "Could not (re)index file"
-#~ msgstr "Impussibil (tornâ a)meti in indiç il file"
-
-#~ msgid "(Re)indexing file was successful"
-#~ msgstr "Il (tornâ a)meti in indiç al è lât a bon fin"
-
-#~ msgid "Importing Turtle file"
-#~ msgstr "Daûr a impuartâ l'archivi Turtle"
-
-#~ msgid "Unable to import Turtle file"
-#~ msgstr "Impussibil impuartâ il file Turtle"
-
-#~ msgid "Restoring database from backup"
-#~ msgstr "Daûr a tornâ a meti la base di dâts dal backup"
-
-#~ msgid ""
-#~ "Only one action (--backup, --restore, --index-file or --import) can be "
-#~ "used at a time"
-#~ msgstr ""
-#~ "A pues jessi doprade nome une azion ae volte (--backup, --restore, --"
-#~ "index-file o --import)"
-
-#~ msgid "Missing one or more files which are required"
-#~ msgstr "A mancjin un o plui file necessaris"
-
-#~ msgid "Only one file can be used with --backup and --restore"
-#~ msgstr "Nome un file al pues jessi doprât cun --backup e --restore"
-
-#~ msgid ""
-#~ "Actions (--backup, --restore, --index-file and --import) can not be used "
-#~ "with --reindex-mime-type"
-#~ msgstr ""
-#~ "Azions (--backup, --restore, --index-file e --import) no puedin jessi "
-#~ "dopradis cun --reindex-mime-type"
-
-#~ msgid ""
-#~ "Start, stop, pause and list processes responsible for indexing content"
-#~ msgstr ""
-#~ "Tache, ferme, met in pause e liste i procès responsabii pe metude in "
-#~ "indiç dai contignûts"
-
-#~ msgid "Extract information from a file"
-#~ msgstr "Tire fûr informazions di un file"
-
-#~ msgid "Backup, restore, import and (re)index by MIME type or file name"
-#~ msgstr ""
-#~ "Fâs il backup, ripristine, impuarte e (torne a meti)met in indiç par "
-#~ "gjenar di MIME o par non di file"
-
-#~ msgid "Reset or remove index and revert configurations to defaults"
-#~ msgstr ""
-#~ "Ripristine o gjave l'indiç e torne a lis configurazions predefinidis"
-
-#~ msgid "Search for content indexed or show content by type"
-#~ msgstr "Cîr contignûts metûts in indiç o mostre il contignût par gjenar"
-
-#~ msgid "Show the indexing progress, content statistics and index state"
-#~ msgstr ""
-#~ "Mostre l'avanzament de metude in indiç, lis statistichis e il stât dal "
-#~ "indiç"
-
-#~ msgid "Create, list or delete tags for indexed content"
-#~ msgstr "Cree, liste o elimine etichetis pai contignûts metûts in indiç"
-
-#~ msgid "Show the license and version in use"
-#~ msgstr "Mostre la licence e la version in ûs"
-
-#~ msgid "Could not open /proc"
-#~ msgstr "Impussibil vierzi /proc"
-
-#~ msgid "Could not stat() file"
-#~ msgstr "Impussibil eseguî stat() sul file"
-
-#~ msgid "Could not open “%s”"
-#~ msgstr "Impussibil vierzi «%s»"
-
-#~ msgid "Could not terminate process %d — “%s”"
-#~ msgstr "Impussibil terminâ procès %d — «%s»"
-
-#~ msgid "Terminated process %d — “%s”"
-#~ msgstr "Terminât procès %d — «%s»"
-
-#~ msgid "Could not kill process %d — “%s”"
-#~ msgstr "Impussibil copâ procès %d — «%s»"
-
-#~ msgid "Killed process %d — “%s”"
-#~ msgstr "Copât procès %d — «%s»"
+#~ "“%s”…"
 
 #~ msgid "Kill all Tracker processes and remove all databases"
 #~ msgstr "Cope ducj i procès Tracker e gjave dutis lis basis di dâts"
@@ -1251,22 +1926,6 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ msgstr ""
 #~ "Gjave ducj i file di configurazion cussì che al prossim inviament a sedin "
 #~ "gjenerâts di gnûf"
-
-#~ msgid ""
-#~ "Erase indexed information about a file, works recursively for directories"
-#~ msgstr ""
-#~ "Scancele la informazion metude in indiç in merit di un file, al funzione "
-#~ "in maniere ricorsive pes cartelis"
-
-#~ msgid "Deleting…"
-#~ msgstr "Daûr a eliminâ..."
-
-#~ msgid ""
-#~ "The indexed data for this file has been deleted and will be reindexed "
-#~ "again."
-#~ msgstr ""
-#~ "I dâts metûts in indiç par chest file a son stâts eliminâts e a vegnaran "
-#~ "tornâts a meti in indiç di gnûf."
 
 #~ msgid "You can not use the --hard and --soft arguments together"
 #~ msgstr "Nol è pussibil doprâ adun i argoments --hard e --soft"
@@ -1293,166 +1952,6 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ msgid "yes"
 #~ msgstr "sì"
 
-#~ msgid "Resetting existing configuration…"
-#~ msgstr "Si sta ristabilint la configurazion esistente..."
-
-#~ msgid "Search for files"
-#~ msgstr "Cîr file"
-
-#~ msgid "Search for folders"
-#~ msgstr "Cîr cartelis"
-
-#~ msgid "Search for music files"
-#~ msgstr "Cîr file musicâi"
-
-#~ msgid "Search for music albums (--all has no effect on this)"
-#~ msgstr "Cîr album musicâi (--all nol fâs nissun efiet chi)"
-
-#~ msgid "Search for music artists (--all has no effect on this)"
-#~ msgstr "Cîr artiscj musicâi (--all nol fâs nissun efiet chi)"
-
-#~ msgid "Search for image files"
-#~ msgstr "Cîr file inmagjin"
-
-#~ msgid "Search for video files"
-#~ msgstr "Cîr file Video"
-
-#~ msgid "Search for document files"
-#~ msgstr "Cîr file di document"
-
-#~ msgid "Search for emails"
-#~ msgstr "Cîr e-mail"
-
-#~ msgid "Search for contacts"
-#~ msgstr "Cîr contats"
-
-#~ msgid "Search for software (--all has no effect on this)"
-#~ msgstr "Cîr software (--all nol fâs nissun efiet chi)"
-
-#~ msgid "Search for software categories (--all has no effect on this)"
-#~ msgstr "Cîr categoriis software (--all nol fâs nissun efiet chi)"
-
-#~ msgid "Search for feeds (--all has no effect on this)"
-#~ msgstr "Cîr feed (--all nol fâs nissun efiet chi)"
-
-#~ msgid "Search for bookmarks (--all has no effect on this)"
-#~ msgstr "Cîr segnelibris (--all nol fâs nissun efiet chi)"
-
-#~ msgid "Limit the number of results shown"
-#~ msgstr "Limitâ il numar di risultâts mostrâts"
-
-#~ msgid "Offset the results"
-#~ msgstr "Apliche un offset al risultât"
-
-#~ msgid "Use OR for search terms instead of AND (the default)"
-#~ msgstr "Dopre OR al puest di AND (predefinît) pai tiermins cirûts"
-
-#~ msgid ""
-#~ "Show URNs for results (doesn’t apply to --music-albums, --music-artists, "
-#~ "--feeds, --software, --software-categories)"
-#~ msgstr ""
-#~ "Mostre i URN pai risultâts (no si apliche a --music-albums, --music-"
-#~ "artists, --feeds, --software, --software-categories)"
-
-#~ msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
-#~ msgstr ""
-#~ "Torne ancje dutis lis corispondence no-esistentis (al inclût i volums no "
-#~ "montâts)"
-
-#~ msgid ""
-#~ "Disable showing snippets with results. This is only shown for some "
-#~ "categories, e.g. Documents, Music…"
-#~ msgstr ""
-#~ "No sta mostrâ i tocs cui risultâts; chest al è mostrât nome par cualchi "
-#~ "categorie come Documents, Musiche..."
-
-#~ msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
-#~ msgstr ""
-#~ "Disabilite la ricercje su dut il test (FTS). Al impliche --disable-"
-#~ "snippets"
-
-#~ msgid "Disable color when printing snippets and results"
-#~ msgstr "Disabilite i colôrs tal mostrâ i tocs e i risultâts"
-
-#~ msgid "search terms"
-#~ msgstr "tiermins di cirî"
-
-#~ msgid "EXPRESSION"
-#~ msgstr "ESPRESSION"
-
-#~ msgid ""
-#~ "NOTE: Limit was reached, there are more items in the database not listed "
-#~ "here"
-#~ msgstr ""
-#~ "NOTE: si è rivâts al limit, a son altris vôs te base di dâts no listadis "
-#~ "chi"
-
-#~ msgid "Could not get search results"
-#~ msgstr "Impussibil otignî i risultâts di ricercje"
-
-#~ msgid "No contacts were found"
-#~ msgstr "Nol è stât cjatât nissun contat"
-
-#~ msgid "Contacts"
-#~ msgstr "Contats"
-
-#~ msgid "No name"
-#~ msgstr "Nissun non"
-
-#~ msgid "No E-mail address"
-#~ msgstr "Nissune direzion e-mail"
-
-#~ msgid "No emails were found"
-#~ msgstr "No je stade cjatade nissune e-mail"
-
-#~ msgid "Emails"
-#~ msgstr "E-mail"
-
-#~ msgid "No files were found"
-#~ msgstr "Nol è stât cjatât nissun file"
-
-#~ msgid "Files"
-#~ msgstr "File"
-
-#~ msgid "No artists were found"
-#~ msgstr "Nol è stât cjatât nissun artist"
-
-#~ msgid "Artists"
-#~ msgstr "Artiscj"
-
-#~ msgid "No music was found"
-#~ msgstr "Nol è stât cjatât nissun toc musicâl"
-
-#~ msgid "Albums"
-#~ msgstr "Album"
-
-#~ msgid "No bookmarks were found"
-#~ msgstr "Nol è stât cjatât nissun segnelibri"
-
-#~ msgid "Bookmarks"
-#~ msgstr "Segnelibris"
-
-#~ msgid "No feeds were found"
-#~ msgstr "Nol è stât cjatât nissun feed"
-
-#~ msgid "Feeds"
-#~ msgstr "Feed"
-
-#~ msgid "No software was found"
-#~ msgstr "Nissun software cjatât"
-
-#~ msgid "Software"
-#~ msgstr "Software"
-
-#~ msgid "No software categories were found"
-#~ msgstr "No je stade cjatade nissune categorie software"
-
-#~ msgid "Software Categories"
-#~ msgstr "Categoriis software"
-
-#~ msgid "No results were found matching your query"
-#~ msgstr "Nissun risultât cjatât che al corispuint ae interogazion"
-
 #~ msgid "Search term “%s” is a stop word."
 #~ msgstr "Il tiermin di ricercje «%s» al è une peraule di ferme."
 
@@ -1463,526 +1962,11 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ "Lis peraulis di ferme a son peraulis di ûs comun che a puedin jessi "
 #~ "ignoradis dilunc il procès de metude in indiç."
 
-#~ msgid "Show statistics for current index / data set"
-#~ msgstr "Mostre statistichis sui dâts/indiç atuâi"
-
-#~ msgid ""
-#~ "Collect debug information useful for problem reporting and investigation, "
-#~ "results are output to terminal"
-#~ msgstr ""
-#~ "Tire sù informazions di debug utilis pe segnalazion e risoluzion di "
-#~ "problemis, i risultâts a son stampâts sul terminâl"
-
-#~ msgid "Could not get Tracker statistics"
-#~ msgstr "Impussibil otignî lis statistichis di Tracker"
-
-#~ msgid "No statistics available"
-#~ msgstr "Nissune statistiche disponibile"
-
-#~ msgid "Statistics:"
-#~ msgstr "Statistichis:"
-
-#~ msgid "Disk Information"
-#~ msgstr "Informazions disc"
-
-#~ msgid "Remaining space on database partition"
-#~ msgstr "Spazi restant su la partizion de base di dâts"
-
-#~ msgid "Data Set"
-#~ msgstr "Dimension dâts"
-
 #~ msgid "Configuration"
 #~ msgstr "Configurazion"
 
 #~ msgid "No configuration was found"
 #~ msgstr "No je stade cjatade nissune configurazion"
-
-#~ msgid "States"
-#~ msgstr "Stâts"
-
-#~ msgid "Data Statistics"
-#~ msgstr "Statistichis dâts"
-
-#~ msgid "No connection available"
-#~ msgstr "Nissune conession disponibile"
-
-#~ msgid "Could not get statistics"
-#~ msgstr "Impussibil otignî lis statistichis"
-
-#~ msgid "No statistics were available"
-#~ msgstr "Nissune statistiche disponibile"
-
-#~ msgid "Database is currently empty"
-#~ msgstr "La base di dâts e je vueide"
-
-#~ msgid "Could not get basic status for Tracker"
-#~ msgstr "Impussibil otignî il stât di Tracker"
-
-#~ msgid "Currently indexed"
-#~ msgstr "Za metût in indiç"
-
-#~ msgid "%d file"
-#~ msgid_plural "%d files"
-#~ msgstr[0] "%d file"
-#~ msgstr[1] "%d file"
-
-#~ msgid "%d folder"
-#~ msgid_plural "%d folders"
-#~ msgstr[0] "%d cartele"
-#~ msgstr[1] "%d cartelis"
-
-#~ msgid "Data is still being indexed"
-#~ msgstr "La metude in indiç dai dâts e je ancjemò in vore"
-
-#~ msgid "Estimated %s left"
-#~ msgstr "Si stime che a mancjin %s"
-
-#~ msgid "All data miners are idle, indexing complete"
-#~ msgstr "Ducj i estratôrs a son inatîfs, metude in indiç completade"
-
-#~ msgid ""
-#~ "List all tags (using FILTER if specified; FILTER always uses logical OR)"
-#~ msgstr ""
-#~ "Liste dutis lis etichetis (doprant FILTRI se specificât, FILTRI al dopre "
-#~ "simpri il OR logjic)"
-
-#~ msgid "FILTER"
-#~ msgstr "FILTRI"
-
-#~ msgid "Show files associated with each tag (this is only used with --list)"
-#~ msgstr ""
-#~ "Mostre i file associâts cun ognidune etichete (doprade nome cun --list)"
-
-#~ msgid ""
-#~ "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
-#~ msgstr ""
-#~ "Zonte une etichete (se FILE al è ometût, ETICHETE no ven associade a "
-#~ "nissun file)"
-
-#~ msgid "TAG"
-#~ msgstr "ETICHETE"
-
-#~ msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
-#~ msgstr ""
-#~ "Elimine une etichete (Se FILE al è ometût, ETICHETE e je gjavade di ducj "
-#~ "i file)"
-
-#~ msgid "Description for a tag (this is only used with --add)"
-#~ msgstr "Descrizion par une etichete (doprade nome cun --add)"
-
-#~ msgid "STRING"
-#~ msgstr "STRINGHE"
-
-#~ msgid "Use AND for search terms instead of OR (the default)"
-#~ msgstr "Dopre AND invezit di OR (predefinît) pai tiermins cirûts"
-
-#~ msgid "FILE…"
-#~ msgstr "FILE…"
-
-#~ msgid "FILE [FILE…]"
-#~ msgstr "FILE [FILE…]"
-
-#~ msgid "Could not get file URNs"
-#~ msgstr "Impussibil otignî i URN dal file"
-
-#~ msgid "Could not get files related to tag"
-#~ msgstr "Impussibil otignî i file relatîfs ae etichete"
-
-#~ msgid "Could not get all tags in the database"
-#~ msgstr "Impussibil otignî dutis lis etichetis te base di dâts"
-
-#~ msgid "No files have been tagged"
-#~ msgstr "Nissun file al è stât etichetât"
-
-#~ msgid "Could not get files for matching tags"
-#~ msgstr "Impussibil otignî i file che a corispuindin a lis etichetis"
-
-#~ msgid "No files were found matching ALL of those tags"
-#~ msgstr ""
-#~ "Nissun file al è stât cjatât che al corispuindi a DUTIS chês etichetis"
-
-#~ msgid "Could not get all tags"
-#~ msgstr "Impussibil otignî dutis lis etichetis"
-
-#~ msgid "Tags (shown by name)"
-#~ msgstr "Etichetis (mostradis par non)"
-
-#~ msgid "No files were modified"
-#~ msgstr "Nissun file al è stât modificât"
-
-#~ msgid "Files do not exist or aren’t indexed"
-#~ msgstr "I file no esistin o no son metûts in indiç"
-
-#~ msgid "Could not add tag"
-#~ msgstr "Impussibil zontâ la etichete"
-
-#~ msgid "Tag was added successfully"
-#~ msgstr "Zonte de etichete riessude"
-
-#~ msgid "Could not add tag to files"
-#~ msgstr "Impussibil zontâ la etichete ai file"
-
-#~ msgid "Tagged"
-#~ msgstr "Etichetât"
-
-#~ msgid "Not tagged, file is not indexed"
-#~ msgstr "No etichetât, il file nol è metût in indiç"
-
-#~ msgid "Could not get tag by label"
-#~ msgstr "Impussibil otignî la liste des etichetis"
-
-#~ msgid "No tags were found by that name"
-#~ msgstr "No je stade cjatade nissune etichete cun chel non"
-
-#~ msgid "None of the files had this tag set"
-#~ msgstr "Nissun dai file al veve cheste etichete configurade"
-
-#~ msgid "Could not remove tag"
-#~ msgstr "Impussibil gjavâ la etichete"
-
-#~ msgid "Tag was removed successfully"
-#~ msgstr "Etichete gjavade cun sucès"
-
-#~ msgid "Untagged"
-#~ msgstr "Cence etichete"
-
-#~ msgid "File not indexed or already untagged"
-#~ msgstr "File no metût in indiç o etichete za gjavade"
-
-#~ msgid "The --list option is required for --show-files"
-#~ msgstr "La opzion --list e covente par --show-files"
-
-#~ msgid ""
-#~ "The --and-operator option can only be used with --list and tag label "
-#~ "arguments"
-#~ msgstr ""
-#~ "La opzion --and-operator e pues jessi doprade nome cun --list e nons di "
-#~ "etichetis"
-
-#~ msgid "Add and delete actions can not be used together"
-#~ msgstr "Lis azions \"zonte\" e \"elimine\" no puedin jessi dopradis adun"
-
-#~ msgid "The --description option can only be used with --add"
-#~ msgstr "La opzion --description e pues jessi doprade nome cun --add"
-
-#~ msgid "All posts"
-#~ msgstr "Ducj i articui"
-
-#~ msgid "By usage"
-#~ msgstr "Par ûs"
-
-#~ msgid "Data store is not available"
-#~ msgstr "L'archivi dâts nol è disponibil"
-
-#~ msgid "Removing configuration files…"
-#~ msgstr "Rimozion file di configurazion..."
-
-#~ msgid ""
-#~ "Show statistics about ALL RDF classes, not just common ones which is the "
-#~ "default (implied by search terms)"
-#~ msgstr ""
-#~ "Mostre statistichis su DUTIS lis classis RDF, no nome chês comuns come di "
-#~ "impostazion predefinide (implicit dai tiermins di ricercje)"
-
-#~ msgid "Applications"
-#~ msgstr "Aplicazions"
-
-#~ msgid "Applications data miner"
-#~ msgstr "Estratôr di dâts des aplicazions"
-
-#~ msgid ""
-#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
-#~ "(default=0)"
-#~ msgstr ""
-#~ "Regjistrazion: 0 = nome erôrs, 1 = minimâl, 2 = detaiade, 3 = debug "
-#~ "(predefinît=0)"
-
-#~ msgid "Runs until all applications are indexed and then exits"
-#~ msgstr ""
-#~ "Reste in esecuzion fintremai che dutis lis aplicazions a son metudis in "
-#~ "indiç, po dopo jes"
-
-#~ msgid "Runs for an specific domain ontology"
-#~ msgstr "Eseguìs par une specifiche ontologjie di domini"
-
-#~ msgid "— start the application data miner"
-#~ msgstr "— invie l'estratôr dâts des aplicazions"
-
-#~ msgid "Tracker Application Miner"
-#~ msgstr "Estratôr di dâts des aplicazions"
-
-#~ msgid "Indexes information about applications installed"
-#~ msgstr "Met in indiç informazions su aplicazions instaladis"
-
-#~ msgid "File System"
-#~ msgstr "File System"
-
-#~ msgid "File system data miner"
-#~ msgstr "Estratôr di dâts dal file system"
-
-#~ msgid "Initial sleep"
-#~ msgstr "Pause iniziâl"
-
-#~ msgid "Initial sleep time, in seconds."
-#~ msgstr "Pause iniziâl, in seconts."
-
-#~ msgid "Scheduler priority when idle"
-#~ msgstr "Prioritât dal planificadôr cuant che al sta inatîf"
-
-#~ msgid ""
-#~ "The scheduler is the kernel component that decides which runnable "
-#~ "application will be executed by the CPU next. Each application has an "
-#~ "associated scheduling policy and priority."
-#~ msgstr ""
-#~ "Il planificadôr al è chel component dal kernel che al decît cuale "
-#~ "aplicazion e vegnarà eseguide subite dopo sul processôr. Ogni aplicazion "
-#~ "e à assegnât une politiche e une prioritât di planificazion."
-
-#~ msgid "Throttle"
-#~ msgstr "Regoladôr"
-
-#~ msgid "Indexing speed, the higher the slower."
-#~ msgstr "Velocitât di metude in indiç: plui alt il valôr, plui al sarà lent."
-
-#~ msgid "Low disk space limit"
-#~ msgstr "Limit dal spazi su disc bas"
-
-#~ msgid ""
-#~ "Disk space threshold in percent at which to pause indexing, or -1 to "
-#~ "disable."
-#~ msgstr ""
-#~ "Liminâr in percentuâl dal spazi su disc dulà meti in pause la metude in "
-#~ "indiç o -1 par disabilitâlu."
-
-#~ msgid "Crawling interval"
-#~ msgstr "Interval acuisizion dâts"
-
-#~ msgid ""
-#~ "Interval in days to check whether the filesystem is up to date in the "
-#~ "database. 0 forces crawling anytime, -1 forces it only after unclean "
-#~ "shutdowns, and -2 disables it entirely."
-#~ msgstr ""
-#~ "Interval in dîs par controlâ se il file system al è inzornât te base di "
-#~ "dâts. 0 al sfuarce la acuisizion in cualsisei moment, -1 nome dopo che il "
-#~ "sisteme si è fermât in maniere no juste, -2 lu disabilite."
-
-#~ msgid "Removable devices’ data permanence threshold"
-#~ msgstr "Liminâr di permanence dai dâts tai dispositîfs estraibii"
-
-#~ msgid ""
-#~ "Threshold in days after which files from removables devices will be "
-#~ "removed from database if not mounted. 0 means never, maximum is 365."
-#~ msgstr ""
-#~ "Limit in dîs daspò i cuai i file di dispositîfs estraibii no plui montâts "
-#~ "a vegnin gjavâts de base di dâts. 0 al indiche mai, il massim al è 365."
-
-#~ msgid "Enable monitors"
-#~ msgstr "Abilite il monitorâ"
-
-#~ msgid "Set to false to completely disable any file monitoring"
-#~ msgstr "Met a FALS par disabilitâ il monitorizâ dai file"
-
-#~ msgid "Enable writeback"
-#~ msgstr "Abilite la scriture rimandade"
-
-#~ msgid "Set to false to completely disable any file writeback"
-#~ msgstr ""
-#~ "Met a FALS par disabilitâ dal dut cualsisei scriture rimandade (writeback)"
-
-#~ msgid "Index removable devices"
-#~ msgstr "Met in indiç dispositîfs estraibii"
-
-#~ msgid ""
-#~ "Set to true to enable indexing mounted directories for removable devices."
-#~ msgstr ""
-#~ "Met a VÊR par meti in indiç lis cartelis di dispositîfs estraibii montâts."
-
-#~ msgid "Index optical discs"
-#~ msgstr "Met in indiç discs otics"
-
-#~ msgid ""
-#~ "Set to true to enable indexing CDs, DVDs, and generally optical media (if "
-#~ "removable devices are not indexed, optical discs won’t be either)"
-#~ msgstr ""
-#~ "Met a VÊR par abilitâ la metude in indiç di CD, DVD e plui in gjenar di "
-#~ "dispositîfs otics (se i dispositîfs estraibii no vegnin metûts in indiç "
-#~ "alore nancje chei otics lu saran)"
-
-#~ msgid "Index when running on battery"
-#~ msgstr "Met in indiç cuant che si va a batarie"
-
-#~ msgid "Set to true to index while running on battery"
-#~ msgstr ""
-#~ "Met a VÊR par meti in indiç cuant che si funzione alimentâts a batarie"
-
-#~ msgid "Perform initial indexing when running on battery"
-#~ msgstr "Eseguìs la metude in indiç iniziâl cuant che si va a batarie"
-
-#~ msgid ""
-#~ "Set to true to index while running on battery for the first time only"
-#~ msgstr ""
-#~ "Met a VÊR par meti in indiç nome pe prime volte cuant che si è alimentâts "
-#~ "a batarie"
-
-#~ msgid "Directories to index recursively"
-#~ msgstr "Cartelis di meti in indiç in maniere ricorsive"
-
-#~ msgid ""
-#~ "List of directories to index recursively, Special values include: &amp;"
-#~ "DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
-#~ "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs."
-#~ "defaults and $HOME/.config/user-dirs.default"
-#~ msgstr ""
-#~ "Liste di cartelis di meti in indiç in maniere ricorsive, i valôrs speciâi "
-#~ "a son: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
-#~ "PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Consultâ /etc/"
-#~ "xdg/user-dirs.defaults e $HOME/.config/user-dirs.default"
-
-#~ msgid "Directories to index non-recursively"
-#~ msgstr "Cartelis di meti in indiç in maniere no ricorsive"
-
-#~ msgid ""
-#~ "List of directories to index without inspecting subfolders, Special "
-#~ "values include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, "
-#~ "&amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/"
-#~ "xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
-#~ msgstr ""
-#~ "Liste di cartelis di meti in indiç cence ispezionâ lis sotcartelis, i "
-#~ "valôrs speciâi a son: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;"
-#~ "MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. "
-#~ "Consultâ /etc/xdg/user-dirs.defaults e $HOME/.config/user-dirs.default"
-
-#~ msgid "List of file patterns to avoid"
-#~ msgstr "Liste di modei di file di ignorâ"
-
-#~ msgid "Ignored directories"
-#~ msgstr "Cartelis ignoradis"
-
-#~ msgid "List of directories to avoid"
-#~ msgstr "Liste di cartelis di ignorâ"
-
-#~ msgid "Ignored directories with content"
-#~ msgstr "Cartelis cun contignût di ignorâ"
-
-#~ msgid "Avoid any directory containing a file blacklisted here"
-#~ msgstr "Ignore cualsisei cartele che e conten un file chi listât"
-
-#~ msgid "Initial sleep time in seconds, 0->1000 (default=15)"
-#~ msgstr "Pause iniziâl in seconts, 0→100 (predefinît=15)"
-
-#~ msgid "Runs until all configured locations are indexed and then exits"
-#~ msgstr ""
-#~ "Reste in esecuzion fintremai che dutis lis posizions configuradis no "
-#~ "sedin metudis in indiç, daspò jes"
-
-#~ msgid "Checks if FILE is eligible for being mined based on configuration"
-#~ msgstr ""
-#~ "Verifiche che al sedi pussibil estrai dâts da FILE in base ae "
-#~ "configurazion"
-
-#~ msgid "Data object “%s” currently exists"
-#~ msgstr "L'ogjet dâts «%s» al esist za"
-
-#~ msgid "Data object “%s” currently does not exist"
-#~ msgstr "L'ogjet dâts «%s» al moment nol esist"
-
-#~ msgid "Directory is eligible to be mined (based on rules)"
-#~ msgstr "Al è pussibil analizâ la cartele (in base aes regulis)"
-
-#~ msgid "Directory is NOT eligible to be mined (based on rules)"
-#~ msgstr "Nol è pussibil analizâ la cartele (in base aes regulis)"
-
-#~ msgid "Directory is eligible to be mined (based on contents)"
-#~ msgstr "Al è pussibil monitorâ la cartele (in base al contignût)"
-
-#~ msgid "Directory is NOT eligible to be mined (based on contents)"
-#~ msgstr "Nol è pussibil monitorâ la cartele (in base al contignût)"
-
-#~ msgid "Directory is eligible to be monitored (based on config)"
-#~ msgstr "Al è pussibil monitorâ la cartele (in base ae configurazion)"
-
-#~ msgid "Directory is NOT eligible to be monitored (based on config)"
-#~ msgstr "Nol è pussibil monitorâ la cartele (in base ae configurazion)"
-
-#~ msgid "File is eligible to be monitored (based on config)"
-#~ msgstr "Al è pussibil monitorâ il file (in base ae configurazion)"
-
-#~ msgid "File is NOT eligible to be monitored (based on config)"
-#~ msgstr "Nol è pussibil monitorâ il file (in base ae configurazion)"
-
-#~ msgid "File or Directory is eligible to be monitored (based on config)"
-#~ msgstr ""
-#~ "Al è pussibil monitorâ il file o la cartele (in base ae configurazion)"
-
-#~ msgid "File or Directory is NOT eligible to be monitored (based on config)"
-#~ msgstr ""
-#~ "Nol è pussibil monitorâ il file o la cartele (in base ae configurazion)"
-
-#~ msgid "File is eligible to be mined (based on rules)"
-#~ msgstr "Al è pussibil analizâ il file (in base aes regulis)"
-
-#~ msgid "File is NOT eligible to be mined (based on rules)"
-#~ msgstr "Nol è pussibil analizâ il file (in base aes regulis)"
-
-#~ msgid "Would be indexed"
-#~ msgstr "Al vegnarà metût in indiç"
-
-#~ msgid "Yes"
-#~ msgstr "Sì"
-
-#~ msgid "No"
-#~ msgstr "No"
-
-#~ msgid "Would be monitored"
-#~ msgstr "Al vegnarà monitorât"
-
-#~ msgid "— start the tracker indexer"
-#~ msgstr "— tache tracker chel che al met in indiç"
-
-#~ msgid "Tracker File System Miner"
-#~ msgstr "Estratôr di dâts dal file system Tracker"
-
-#~ msgid "Crawls and processes files on the file system"
-#~ msgstr "Cjape sù dâts e elabore file sul file system"
-
-#~ msgid "RSS/ATOM Feeds"
-#~ msgstr "Feed RSS/ATOM"
-
-#~ msgid "Fetch RSS/ATOM Feeds"
-#~ msgstr "Scjarie feed RSS/ATOM"
-
-#~ msgid "Add feed"
-#~ msgstr "Zonte feed"
-
-#~ msgid "URL"
-#~ msgstr "URL"
-
-#~ msgid "Title to use (must be used with --add-feed)"
-#~ msgstr "Titul di doprâ (al scugne jessi doprât cun --add-feed)"
-
-#~ msgid "— start the feeds indexer"
-#~ msgstr "— tache chel che al met in indiç i feed"
-
-#~ msgid "Could not add feed"
-#~ msgstr "Impussibil zontâ il feed"
-
-#~ msgid "Tracker RSS/ATOM Feeds Miner"
-#~ msgstr "Estratôr di feed RSS/ATOM Tracker"
-
-#~ msgid "Fetch RSS/ATOM feeds"
-#~ msgstr "Scjarie feed RSS/ATOM"
-
-#~ msgid "Extractor"
-#~ msgstr "Estratôr"
-
-#~ msgid "Metadata extractor"
-#~ msgstr "Estratôr di meta-dâts"
-
-#~ msgid "Max bytes to extract"
-#~ msgstr "Numar massim di byte di estrai"
-
-#~ msgid "Maximum number of UTF-8 bytes to extract."
-#~ msgstr "Numar massim di byte UTF-8 di estrai."
 
 #~ msgid "Max media art width"
 #~ msgstr "Largjece massime des figuris"
@@ -1996,59 +1980,352 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ "al ven ridimensionât. Met a -1 par disabilitâ il salvament des figuris, "
 #~ "met a 0 par disabilitâ il limit su la largjece."
 
-#~ msgid "Wait for FS miner to be done before extracting"
-#~ msgstr "Spiete che l'analizadôr dal file system al finissi prime di estrai"
+#~ msgid "Applications"
+#~ msgstr "Aplicazions"
+
+#~ msgid "Applications data miner"
+#~ msgstr "Estratôr di dâts des aplicazions"
+
+#~ msgid "Runs until all applications are indexed and then exits"
+#~ msgstr ""
+#~ "Reste in esecuzion fintremai che dutis lis aplicazions a son metudis in "
+#~ "indiç, po dopo jes"
+
+#~ msgid "— start the application data miner"
+#~ msgstr "— invie l'estratôr dâts des aplicazions"
+
+#~ msgid "Tracker Application Miner"
+#~ msgstr "Estratôr di dâts des aplicazions"
+
+#~ msgid "All posts"
+#~ msgstr "Ducj i articui"
+
+#~ msgid "By usage"
+#~ msgstr "Par ûs"
+
+#~ msgid "Maximum length of a word to be indexed"
+#~ msgstr "Massime lungjece di une peraule di meti in indiç"
 
 #~ msgid ""
-#~ "When true, tracker-extract will wait for tracker-miner-fs to be done "
-#~ "crawling before extracting meta-data. This option is useful on "
-#~ "constrained environment where it is important to list files as fast as "
-#~ "possible and can wait to get meta-data later."
+#~ "Words with more characters than this length will be ignored by the "
+#~ "indexer."
 #~ msgstr ""
-#~ "Se VÊR, tracker-extract al spietarà che tracker-miner-fs al finissi prime "
-#~ "di estrai i meta-dâts. Cheste opzion e je utile sui sistemis limitâts "
-#~ "dulà che al è impuartant listâ i file in maniere veloce e al è pussibil "
-#~ "spietâ il recupar dai meta-dâts."
+#~ "Peraulis cun plui caratars di cheste lungjece no vegnaran metudis in "
+#~ "indiç."
 
-#~ msgid "Metadata extraction failed"
-#~ msgstr "Estrazion dai meta-dâts falide"
+#~ msgid "Maximum number of words to index in a document"
+#~ msgstr "Massim numar di peraulis di meti in indiç intun document"
 
-#~ msgid "No metadata or extractor modules found to handle this file"
+#~ msgid ""
+#~ "Indexer will read only this maximum number of words from a single "
+#~ "document."
 #~ msgstr ""
-#~ "Nol è stât cjatât nissun modul par meta-dâts o di estrazion par gjestî "
-#~ "chest file"
+#~ "L'indicizadôr al learà nome chest numar massim di peraulis di un singul "
+#~ "document."
 
-#~ msgid "File to extract metadata for"
-#~ msgstr "File di dulà tirâ fûr i metadâts"
+#~ msgid "Maximum size of journal"
+#~ msgstr "Dimension massime dal gjornâl"
 
-#~ msgid "MIME type for file (if not provided, this will be guessed)"
-#~ msgstr "Gjenar di MIME pal file (se no furnît al ven intuît)"
-
-#~ msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
+#~ msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
 #~ msgstr ""
-#~ "Sfuarce l'ûs di un modul pe estrazion (par esempli «cjossul» par «cjossul."
-#~ "so»)"
+#~ "Dimension dal gjornâl ae rotazion in MB. Doprâ -1 par disabilitâ la "
+#~ "rotazion."
 
-#~ msgid "MODULE"
-#~ msgstr "MODUL"
+#~ msgid "Location of journal pieces"
+#~ msgstr "Posizion dai tocs di gjornâl"
 
-#~ msgid "— Extract file meta data"
-#~ msgstr "— Al tire fûr i meta-dâts dai file"
+#~ msgid "Where to store a journal chunk when it hits the max size."
+#~ msgstr ""
+#~ "Dulà salvâ un toc di gjornâl cuant che al rive ae dimension massime."
 
-#~ msgid "Filename and mime type must be provided together"
-#~ msgstr "Il non file e il gjenar di mime a scugnin jessi furnîts adun"
+#~ msgid "Error starting “tar” program"
+#~ msgstr "Erôr tal inviâ il program «tar»"
 
-#~ msgid "Tracker Metadata Extractor"
-#~ msgstr "Estratôr di meta-dâts Tracker"
+#~ msgid "Unknown error, “tar” exited with status %d"
+#~ msgstr "Erôr no cognossût: «tar» al è jessut cul stât %d"
 
-#~ msgid "Extracts metadata from local files"
-#~ msgstr "Al tire fûr i meta-dâts dai file locâi"
+#~ msgid "Data store is not available"
+#~ msgstr "L'archivi dâts nol è disponibil"
 
-#~ msgid "Disable shutting down after 30 seconds of inactivity"
-#~ msgstr "Disabilite il distudâ dopo 30 seconts di no ativitât"
+#~ msgid "Force a re-index of all content"
+#~ msgstr "Sfuarce un tornâ a meti in indiç di ducj i contignûts"
 
-#~ msgid "— start the tracker writeback service"
-#~ msgstr "— tache il servizi di scriture rimandade di tracker"
+#~ msgid "Only allow read based actions on the database"
+#~ msgstr "Al permet nome operazions di leture su la base di dâts"
+
+#~ msgid "Load a specified domain ontology"
+#~ msgstr "Cjarie une specifiche ontologjie di domini"
+
+#~ msgid "— start the tracker daemon"
+#~ msgstr "— invie il demoni di Tracker"
+
+#~ msgid "Tracker Store"
+#~ msgstr "Archivi di Tracker"
+
+#~ msgid "Metadata database store and lookup manager"
+#~ msgstr "Archivi de base di dâts dai meta-dâts e gjestôr des ricercjs"
+
+#~ msgid "GraphUpdated delay"
+#~ msgstr "Ritart GraphUpdated"
+
+#~ msgid ""
+#~ "Period in milliseconds between GraphUpdated signals being emitted when "
+#~ "indexed data has changed inside the database."
+#~ msgstr ""
+#~ "Periodi in miliseconts tra la emission di segnâi GraphUpdated cuant che i "
+#~ "dâts metûts in indiç a son stâts modificâts te base di dâts."
+
+#~ msgid "failed to exec “%s”: %s"
+#~ msgstr "no si è rivâts a eseguî «%s»: %s"
+
+#~ msgid "See “tracker help <command>” to read about a specific subcommand."
+#~ msgstr ""
+#~ "Consultâ «tracker help <command>» par informazions su un specific sot-"
+#~ "comant."
+
+#~ msgid "Extract information from a file"
+#~ msgstr "Tire fûr informazions di un file"
+
+#~ msgid "Get help on how to use Tracker and any of these commands"
+#~ msgstr "Oten informazions sul ûs di Tracker e cualsisei di chescj comants"
+
+#~ msgid "Show information known about local files or items indexed"
+#~ msgstr ""
+#~ "Mostre informazions cognossudis in merit ai file locâi o ai elements "
+#~ "metûts in indiç"
+
+#~ msgid "Backup, restore, import and (re)index by MIME type or file name"
+#~ msgstr ""
+#~ "Fâs il backup, ripristine, impuarte e (torne a meti)met in indiç par "
+#~ "gjenar di MIME o par non di file"
+
+#~ msgid "Reset or remove index and revert configurations to defaults"
+#~ msgstr ""
+#~ "Ripristine o gjave l'indiç e torne a lis configurazions predefinidis"
+
+#~ msgid ""
+#~ "Query and update the index using SPARQL or search, list and tree the "
+#~ "ontology"
+#~ msgstr ""
+#~ "Interoghe e inzorne l'indiç doprant SPARQL opûr cîr, liste e met in "
+#~ "scjale a arbul la ontologjie"
+
+#~ msgid "Query the database at the lowest level using SQL"
+#~ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
+
+#~ msgid "Show the indexing progress, content statistics and index state"
+#~ msgstr ""
+#~ "Mostre l'avanzament de metude in indiç, lis statistichis e il stât dal "
+#~ "indiç"
+
+#~ msgid "Create, list or delete tags for indexed content"
+#~ msgstr "Cree, liste o elimine etichetis pai contignûts metûts in indiç"
+
+#~ msgid "Show the license and version in use"
+#~ msgstr "Mostre la licence e la version in ûs"
+
+#~ msgid "“%s” is not a tracker command. See “tracker --help”"
+#~ msgstr "«%s» nol è un comant tracker. Consultâ «tracker --help»"
+
+#~ msgid "Available tracker commands are:"
+#~ msgstr "I comants tracker disponibii a son:"
+
+#~ msgid "Removing configuration files…"
+#~ msgstr "Rimozion file di configurazion..."
+
+# equivocabile il "di un file"
+#~ msgid "Path to use to run a query or update from file"
+#~ msgstr ""
+#~ "Percors di doprâ par eseguî une interogazion o un inzornament furnint un "
+#~ "file"
+
+#~ msgid "SPARQL query"
+#~ msgstr "Interogazion SPARQL"
+
+#~ msgid "SPARQL"
+#~ msgstr "SPARQL"
+
+#~ msgid "This is used with --query and for database updates only."
+#~ msgstr "Chest al ven doprât cun --query e par inzornaments de base di dâts."
+
+#~ msgid "Retrieve classes"
+#~ msgstr "Recuperâ classis"
+
+#~ msgid "Retrieve class prefixes"
+#~ msgstr "Recuperâ prefìs des classis"
+
+#~ msgid ""
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+#~ "Resource)"
+#~ msgstr ""
+#~ "Al recupere lis proprietâts di une classe, a puedin jessi doprâts ancje i "
+#~ "prefìs (p.e. rdfs:Resource)"
+
+#~ msgid "CLASS"
+#~ msgstr "CLASSE"
+
+#~ msgid ""
+#~ "Retrieve classes which notify changes in the database (CLASS is optional)"
+#~ msgstr ""
+#~ "Al recupere lis classis che a notifichin modifichis te base di dâts "
+#~ "(CLASSE al è opzionâl)"
+
+#~ msgid ""
+#~ "Retrieve indexes used in database to improve performance (PROPERTY is "
+#~ "optional)"
+#~ msgstr ""
+#~ "Al recupere i indiçs doprâts te base di dâts par miorâ lis prestazions "
+#~ "(PROPRIETÂT al è opzionâl)"
+
+#~ msgid "PROPERTY"
+#~ msgstr "PROPRIETÂT"
+
+#~ msgid ""
+#~ "Describe subclasses, superclasses (can be used with -s to highlight parts "
+#~ "of the tree and -p to show properties)"
+#~ msgstr ""
+#~ "Al descrîf lis sot-classis, super-classis (al pues jessi doprât cun -s "
+#~ "par evidenziâ parts dal arbul e cun -p par mostrâ lis proprietâts)"
+
+#~ msgid ""
+#~ "Search for a class or property and display more information (e.g. "
+#~ "Document)"
+#~ msgstr ""
+#~ "Cîr une classe o une proprietât e mostre plui informazions (p.e. Document)"
+
+#~ msgid "CLASS/PROPERTY"
+#~ msgstr "CLASSE/PROPRIETÂT"
+
+#~ msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+#~ msgstr "Torne il non sempliç di une classe (p.e. nfo:FileDataObject)."
+
+#~ msgid "Returns the full namespace for a class."
+#~ msgstr "Al torne il spazi dai nons (namespace) complet di une classe."
+
+#~ msgid "Remote service to query to"
+#~ msgstr "Servizi rimot di interogâ"
+
+#~ msgid "BASE_URL"
+#~ msgstr "URL_BASE"
+
+#~ msgid "Could not get namespace prefixes"
+#~ msgstr "Impussibil otignî i prefìs dal spazi dai nons (namespace)"
+
+#~ msgid "No namespace prefixes were found"
+#~ msgstr "Nissun prefìs dal spazi dai nons (namespace) cjatât"
+
+#~ msgid "Could not create tree: subclass query failed"
+#~ msgstr "Impussibil creâ l'arbul: interogazion sot-classe falide"
+
+#~ msgid "Could not create tree: class properties query failed"
+#~ msgstr "Impussibil creâ l'arbul: interogazion proprietât classe falide"
+
+#~ msgid "No classes were found"
+#~ msgstr "No je stade cjatade nissune classe"
+
+#~ msgid "Classes"
+#~ msgstr "Classis"
+
+#~ msgid "Could not list class prefixes"
+#~ msgstr "Impussibil listâi prefìs di classe"
+
+#~ msgid "No class prefixes were found"
+#~ msgstr "Nol è stât cjatât nissun prefìs di classe"
+
+#~ msgid "Prefixes"
+#~ msgstr "Prefìs"
+
+#~ msgid ""
+#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
+#~ "Resource”"
+#~ msgstr ""
+#~ "Impussibil cjatâ la proprietât pal prefìs de classe, p.e. :Risorse in "
+#~ "«rdfs:Resource»"
+
+#~ msgid "Could not list properties"
+#~ msgstr "Impussibil listâ lis proprietâts"
+
+#~ msgid "Properties"
+#~ msgstr "Proprietâts"
+
+#~ msgid "Could not find notify classes"
+#~ msgstr "Impussibil cjatâ lis classis di notifiche"
+
+#~ msgid "No notifies were found"
+#~ msgstr "No je stade cjatade nissune notifiche"
+
+#~ msgid "Notifies"
+#~ msgstr "Notifichis"
+
+#~ msgid "Could not find indexed properties"
+#~ msgstr "Impussibil cjatâ lis proprietâts metudis in indiç"
+
+#~ msgid "No indexes were found"
+#~ msgstr "Nol è stât cjatât nissun indiç"
+
+#~ msgid "Could not search classes"
+#~ msgstr "Impussibil cirî lis classis"
+
+#~ msgid "No classes were found to match search term"
+#~ msgstr ""
+#~ "No je stade cjatade nissune classe che e corispuint al tiermin cirût"
+
+#~ msgid "Could not search properties"
+#~ msgstr "Impussibil cirî lis proprietâts"
+
+#~ msgid "No properties were found to match search term"
+#~ msgstr ""
+#~ "No je stade cjatade nissune proprietât che e corispuint al tiermin cirût"
+
+#~ msgid "Could not get UTF-8 path from path"
+#~ msgstr "Impussibil otignî un percors UTF-8 dal percors"
+
+#~ msgid "Could not read file"
+#~ msgstr "Impussibil lei il file"
+
+#~ msgid "Could not run update"
+#~ msgstr "Impussibil eseguî l'inzornament"
+
+#~ msgid "Could not run query"
+#~ msgstr "Impussibil eseguî la interogazion"
+
+#~ msgid "No results found matching your query"
+#~ msgstr "Nissun risultât cjatât che al corispuint ae interogazion"
+
+#~ msgid "File and query can not be used together"
+#~ msgstr "File e interogazion no puedin jessi doprâts adun"
+
+#~ msgid ""
+#~ "The --list-properties argument can only be empty when used with the --"
+#~ "tree argument"
+#~ msgstr ""
+#~ "L'argoment --list-properties al pues jessi vueit nome se doprât cul "
+#~ "argoment --tree"
+
+#~ msgid "Path to use to run a query from file"
+#~ msgstr "Percors di doprâ par eseguî une interogazion furnint un file"
+
+#~ msgid "SQL query"
+#~ msgstr "Interogazion SQL"
+
+#~ msgid "SQL"
+#~ msgstr "SQL"
+
+#~ msgid "Failed to initialize data manager"
+#~ msgstr "No si è rivâts a inizializâ il gjestôr di dâts"
+
+#~ msgid "Empty result set"
+#~ msgstr "Cumbinazion di risultâts vueide"
+
+#~ msgid ""
+#~ "Show statistics about ALL RDF classes, not just common ones which is the "
+#~ "default (implied by search terms)"
+#~ msgstr ""
+#~ "Mostre statistichis su DUTIS lis classis RDF, no nome chês comuns come di "
+#~ "impostazion predefinide (implicit dai tiermins di ricercje)"
+
+#~ msgid "No network connection"
+#~ msgstr "Nissune conession di rêt"
 
 #~ msgid "Indexing not recommended on this network connection"
 #~ msgstr "No si consee di meti in indiç su cheste conession"
@@ -2138,16 +2415,10 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ msgstr ""
 #~ "Cîr criteri di ricercje nome tes etichetis dai file (separadis di virgule)"
 
-#~ msgid "_Search:"
-#~ msgstr "_Cîr:"
-
 #~ msgid "Show tagging panel which allows editing tags of selected results"
 #~ msgstr ""
 #~ "Mostre il panel des etichetis che al permet di modificâ lis etichetis dai "
 #~ "risultâts selezionâts"
-
-#~ msgid "Show statistics about the data stored"
-#~ msgstr "Mostre statistichis sui dâts memorizâts"
 
 #~ msgid "_Set the tags you want to associate with the %d selected items:"
 #~ msgstr "_Met lis etichetis di associâ cui elements selezionâts:"
@@ -2180,11 +2451,6 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ "Lis statistichis mostradis chi no corispuindin ae reâl disponibilitât, ma "
 #~ "il totâl dai dâts archiviâts:"
 
-#~ msgid "Tag"
-#~ msgid_plural "Tags"
-#~ msgstr[0] "Etichete"
-#~ msgstr[1] "Etichetis"
-
 #~ msgid "Contact"
 #~ msgid_plural "Contacts"
 #~ msgstr[0] "Contat"
@@ -2204,11 +2470,6 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ msgid_plural "Files"
 #~ msgstr[0] "File"
 #~ msgstr[1] "File"
-
-#~ msgid "Folder"
-#~ msgid_plural "Folders"
-#~ msgstr[0] "Cartele"
-#~ msgstr[1] "Cartelis"
 
 #~ msgid "Image"
 #~ msgid_plural "Images"
@@ -2324,6 +2585,9 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ msgid "Mail"
 #~ msgstr "Pueste"
 
+#~ msgid "Folders"
+#~ msgstr "Cartelis"
+
 #~ msgid "Items"
 #~ msgstr "Elements"
 
@@ -2387,10 +2651,6 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 #~ "\n"
 #~ "Cheste opzion e fâs in mût che Tracker nol dopri masse la CPU in presince "
 #~ "di aplicazions che a'nd' àn plui dibisugne."
-
-# sostituire background con qualcosa di più consono
-#~ msgid "Index content in the background:"
-#~ msgstr "Met in indiç il contignût in background:"
 
 #~ msgid "O_nly when computer is not being used"
 #~ msgstr "Nome cuant che il computer _nol è doprât"
@@ -2573,9 +2833,6 @@ msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
 
 #~ msgid "That directory is already selected as a location to index"
 #~ msgstr "Chê cartele e je za selezionade come posizion di meti in indiç"
-
-#~ msgid "Recurse"
-#~ msgstr "Ricors"
 
 #~ msgid "Desktop Search preferences"
 #~ msgstr "Preferencis di ricercje scritori"
