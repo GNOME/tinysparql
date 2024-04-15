@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2023-02-13 21:09+0000\n"
-"PO-Revision-Date: 2023-04-05 17:47+0200\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
+"POT-Creation-Date: 2024-02-12 11:01+0000\n"
+"PO-Revision-Date: 2024-04-15 15:18+0200\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <f.t.public@gmail.com>\n"
 "Language: fur\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Editor: HaiPO 1.2 RC4\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -25,7 +25,7 @@ msgstr ""
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-sparql/core/tracker-collation.c:333
+#: src/libtracker-sparql/core/tracker-collation.c:116
 msgid "the|a|an"
 msgstr "the|a|an|il|la|i|lis|l'"
 
@@ -33,112 +33,116 @@ msgstr "the|a|an|il|la|i|lis|l'"
 msgid "Version"
 msgstr "Version"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:387
-#: src/tracker/tracker-export.c:543 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:239
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
+#: src/tracker/tracker-export.c:552 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-sparql.c:1398 src/tracker/tracker-sql.c:239
 msgid "Unrecognized options"
 msgstr "Opzions no ricognossudis"
 
-#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:49
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:110
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Ubicazion de base di dât"
 
-#: src/tracker/tracker-endpoint.c:51 src/tracker/tracker-endpoint.c:63
+#: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
 msgid "DIR"
 msgstr "DIR"
 
-#: src/tracker/tracker-endpoint.c:54
+#: src/tracker/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
 msgstr "Specifiche il non DBus di chest pont finâl"
 
-#: src/tracker/tracker-endpoint.c:55 src/tracker/tracker-endpoint.c:59
+#: src/tracker/tracker-endpoint.c:63 src/tracker/tracker-endpoint.c:67
 msgid "NAME"
 msgstr "NON"
 
-#: src/tracker/tracker-endpoint.c:58
+#: src/tracker/tracker-endpoint.c:66
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Specifiche il non de ontologjie doprât in chest pont finâl"
 
-#: src/tracker/tracker-endpoint.c:62
+#: src/tracker/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr ""
 "Specifiche un percors a une ontologjie di jessi doprât in chest pont finâl"
 
-#: src/tracker/tracker-endpoint.c:66
+#: src/tracker/tracker-endpoint.c:74
 msgid "HTTP port"
 msgstr "Puarte HTTP"
 
-#: src/tracker/tracker-endpoint.c:70
+#: src/tracker/tracker-endpoint.c:78
 msgid "Whether to only allow HTTP connections in the loopback device"
 msgstr ""
 "Indiche se permeti dome lis conessions HTTP intal dispositîf di loopback"
 
-#: src/tracker/tracker-endpoint.c:74
+#: src/tracker/tracker-endpoint.c:82
 msgid "Use session bus"
 msgstr "Dopre il bus de session"
 
-#: src/tracker/tracker-endpoint.c:78
+#: src/tracker/tracker-endpoint.c:86
 msgid "Use system bus"
 msgstr "Dopre il bus dal sisteme"
 
-#: src/tracker/tracker-endpoint.c:82
+#: src/tracker/tracker-endpoint.c:90
 msgid "List SPARQL endpoints available in DBus"
 msgstr "Liste i ponts finâi SPARQL disponibii tal DBus"
 
+#: src/tracker/tracker-endpoint.c:94
+msgid "List network-local HTTP SPARQL endpoints"
+msgstr "Liste i ponts finâls SPARQL HTTP locâi de rêt"
+
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:103
+#: src/tracker/tracker-endpoint.c:115
 msgid "--list can only be used with --session or --system"
 msgstr "Al è pussibil doprâ --list dome cun --session o --system"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:109
+#: src/tracker/tracker-endpoint.c:121
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Une opzion tra “ontology” o “ontology-path” e scugne jessi indicade"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:115
+#: src/tracker/tracker-endpoint.c:127
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "No si pues doprâ --http-port cun --dbus-service"
 
-#: src/tracker/tracker-endpoint.c:186
+#: src/tracker/tracker-endpoint.c:198
 #, c-format
 msgid "Creating HTTP endpoint at %s…"
 msgstr "Daûr a creâ il pont finâl HTTP su %s…"
 
-#: src/tracker/tracker-endpoint.c:206 src/tracker/tracker-endpoint.c:269
+#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "In scolte pai comants SPARQL. Frache Ctrl-c par fermâ."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:214 src/tracker/tracker-endpoint.c:284
+#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
 msgid "Closing connection…"
 msgstr "Daûr a sierâ la conession…"
 
-#: src/tracker/tracker-endpoint.c:229
+#: src/tracker/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Daûr a creâ il pont finâl su %s…"
 
-#: src/tracker/tracker-endpoint.c:265
+#: src/tracker/tracker-endpoint.c:277
 msgid "Could not own DBus name"
 msgstr "Impussibil apropriâsi dal non DBus"
 
-#: src/tracker/tracker-endpoint.c:279
+#: src/tracker/tracker-endpoint.c:291
 msgid "DBus name lost"
 msgstr "Non DBus pierdût"
 
-#: src/tracker/tracker-endpoint.c:421
+#: src/tracker/tracker-endpoint.c:651
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Daûr a vierzi la base di dâts su %s…"
 
-#: src/tracker/tracker-endpoint.c:424
+#: src/tracker/tracker-endpoint.c:654
 msgid "Creating in-memory database"
 msgstr "Daûr a creâ la base di dâts in-memorie"
 
-#: src/tracker/tracker-endpoint.c:451
+#: src/tracker/tracker-endpoint.c:681
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -146,20 +150,29 @@ msgstr ""
 "Gnove base di dâts creade. Dopre la opzion “--dbus-service” par condividi "
 "cheste base di dâts suntun bus dai messaçs."
 
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-endpoint.desktop.in:6
+msgid "endpoint"
+msgstr "endpoint"
+
+#: src/tracker/tracker-endpoint.desktop.in:7
+msgid "Create a SPARQL endpoint"
+msgstr "Cree un pont finâl SPARQL"
+
 #: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
+#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FILE"
 
 #: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:114
+#: src/tracker/tracker-sparql.c:117
 msgid "Connects to a DBus service"
 msgstr "Si conet a un servizi DBus"
 
 #: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:115
+#: src/tracker/tracker-sparql.c:118
 msgid "DBus service name"
 msgstr "Non dal servizi DBus"
 
@@ -172,12 +185,12 @@ msgid "RDF_FORMAT"
 msgstr "FORMÂT_RDF"
 
 #: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-sparql.c:121
 msgid "Connects to a remote service"
 msgstr "Si conet a un servizi esterni"
 
 #: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:119
+#: src/tracker/tracker-sparql.c:122
 msgid "Remote service URI"
 msgstr "URI dal servizi esterni"
 
@@ -192,36 +205,54 @@ msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:199
+#: src/tracker/tracker-sparql.c:206
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Specifiche une opzion tra “--database”, “--dbus-service” o “--remote-service”"
 
-#: src/tracker/tracker-export.c:310 src/tracker/tracker-export.c:331
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1124
+#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1079
 msgid "No error given"
 msgstr "Nissun erôr furnît"
 
-#: src/tracker/tracker-export.c:330 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1123
+#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-sparql.c:1078
 msgid "Could not establish a connection to Tracker"
 msgstr "Impussibil stabilî une conession cun Tracker"
 
-#: src/tracker/tracker-export.c:373
+#: src/tracker/tracker-export.c:382
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Formât «%s» di serializazion no supuartât\n"
 
-#: src/tracker/tracker-export.c:425 src/tracker/tracker-export.c:438
-#: src/tracker/tracker-export.c:448 src/tracker/tracker-sparql.c:1502
+#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:447
+#: src/tracker/tracker-export.c:457 src/tracker/tracker-sparql.c:1340
 #: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
 msgid "Could not run query"
 msgstr "Impussibil eseguî la interogazion"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-export.desktop.in:6
+msgid "export"
+msgstr "export"
+
+#: src/tracker/tracker-export.desktop.in:7
+msgid "Export data from a Tracker database"
+msgstr "Espuarte dâts di une base di dâts di Tracker"
 
 #: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "no si è rivâts a eseguî «%s»: %s"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-help.desktop.in:6
+msgid "help"
+msgstr "help"
+
+#: src/tracker/tracker-help.desktop.in:7
+msgid "Get help on how to use Tracker and any of these commands"
+msgstr "Oten informazions sul ûs di Tracker e cualsisei di chescj comants"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -231,79 +262,57 @@ msgstr "Lei il formât TriG che al inclût lis informazions dai grafics cul non"
 msgid "Could not run import"
 msgstr "Impussibil eseguî la importazion"
 
-#: src/tracker/tracker-main.c:89
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr "Oten informazions sul ûs di Tracker e cualsisei di chescj comants"
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-import.desktop.in:6
+msgid "import"
+msgstr "import"
 
-#: src/tracker/tracker-main.c:90
-msgid "Create a SPARQL endpoint"
-msgstr "Cree un pont finâl SPARQL"
-
-#: src/tracker/tracker-main.c:91
-msgid "Export data from a Tracker database"
-msgstr "Espuarte dâts di une base di dâts di Tracker"
-
-#: src/tracker/tracker-main.c:92
+#: src/tracker/tracker-import.desktop.in:7
 msgid "Import data into a Tracker database"
 msgstr "Impuarte i dâts intune base di dâts di Tracker"
 
-#: src/tracker/tracker-main.c:93
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"Interoghe e inzorne l'indiç doprant SPARQL opûr cîr, liste e met in scjale a "
-"arbul la ontologjie"
-
-#: src/tracker/tracker-main.c:94
-msgid "Query the database at the lowest level using SQL"
-msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
-
-#: src/tracker/tracker-main.c:134
-#, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "“%s” nol è un comant tracker3. Consultâ “tracker3 --help”"
-
-#: src/tracker/tracker-main.c:169
+#: src/tracker/tracker-main.c:123
 msgid "Available tracker3 commands are:"
 msgstr "I comants tracker3 disponibii a son:"
 
-#: src/tracker/tracker-main.c:209
-msgid "Additional / third party commands are:"
-msgstr "I comants adizionâi/di tiercis parts a son:"
-
-#: src/tracker/tracker-main.c:224
+#: src/tracker/tracker-main.c:155
 msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgstr ""
 "Consultâ «tracker3 help <command>» par informazions suntun specific sot-"
 "comant."
 
+#: src/tracker/tracker-main.c:213
+#, c-format
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "“%s” nol è un comant tracker3. Consultâ “tracker3 --help”"
+
 # equivocabile il "di un file"
-#: src/tracker/tracker-sparql.c:122
+#: src/tracker/tracker-sparql.c:125
 msgid "Path to use to run a query or update from file"
 msgstr ""
 "Percors di doprâ par eseguî une interogazion o un inzornament furnint un file"
 
-#: src/tracker/tracker-sparql.c:126
+#: src/tracker/tracker-sparql.c:129
 msgid "SPARQL query"
 msgstr "Interogazion SPARQL"
 
-#: src/tracker/tracker-sparql.c:127
+#: src/tracker/tracker-sparql.c:130
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-sparql.c:130
+#: src/tracker/tracker-sparql.c:133
 msgid "This is used with --query and for database updates only."
 msgstr "Chest al ven doprât cun --query e par inzornaments de base di dâts."
 
-#: src/tracker/tracker-sparql.c:134
+#: src/tracker/tracker-sparql.c:137
 msgid "Retrieve classes"
 msgstr "Recuperâ classis"
 
-#: src/tracker/tracker-sparql.c:138
+#: src/tracker/tracker-sparql.c:141
 msgid "Retrieve class prefixes"
 msgstr "Recuperâ prefìs des classis"
 
-#: src/tracker/tracker-sparql.c:142
+#: src/tracker/tracker-sparql.c:145
 msgid ""
 "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
 "Resource)"
@@ -311,20 +320,20 @@ msgstr ""
 "Al recupere lis proprietâts di une classe, a puedin jessi doprâts ancje i "
 "prefìs (p.e. rdfs:Resource)"
 
-#: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
-#: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
-#: src/tracker/tracker-sparql.c:171
+#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
+#: src/tracker/tracker-sparql.c:174
 msgid "CLASS"
 msgstr "CLASSE"
 
-#: src/tracker/tracker-sparql.c:146
+#: src/tracker/tracker-sparql.c:149
 msgid ""
 "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgstr ""
 "Al recupere lis classis che a notifichin modifichis te base di dâts (CLASSE "
 "al è opzionâl)"
 
-#: src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:153
 msgid ""
 "Retrieve indexes used in database to improve performance (PROPERTY is "
 "optional)"
@@ -332,15 +341,15 @@ msgstr ""
 "Al recupere i indiçs doprâts te base di dâts par miorâ lis prestazions "
 "(PROPRIETÂT al è opzionâl)"
 
-#: src/tracker/tracker-sparql.c:151
+#: src/tracker/tracker-sparql.c:154
 msgid "PROPERTY"
 msgstr "PROPRIETÂT"
 
-#: src/tracker/tracker-sparql.c:154
+#: src/tracker/tracker-sparql.c:157
 msgid "Retrieve all named graphs"
 msgstr "Recupere ducj i grafics cul non"
 
-#: src/tracker/tracker-sparql.c:158
+#: src/tracker/tracker-sparql.c:161
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -348,188 +357,183 @@ msgstr ""
 "Al descrîf lis sot-classis, super-classis (tu lu puedis doprâ cun -s par "
 "evidenziâ parts dal arbul e cun -p par mostrâ lis proprietâts)"
 
-#: src/tracker/tracker-sparql.c:162
+#: src/tracker/tracker-sparql.c:165
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Cîr une classe o une proprietât e mostre plui informazions (p.e. Document)"
 
-#: src/tracker/tracker-sparql.c:163
+#: src/tracker/tracker-sparql.c:166
 msgid "CLASS/PROPERTY"
 msgstr "CLASSE/PROPRIETÂT"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-sparql.c:169
 msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
 msgstr "Torne il non sempliç di une classe (p.e. nfo:FileDataObject)."
 
-#: src/tracker/tracker-sparql.c:170
+#: src/tracker/tracker-sparql.c:173
 msgid "Returns the full namespace for a class."
 msgstr "Al torne il spazi dai nons (namespace) complet di une classe."
 
-#: src/tracker/tracker-sparql.c:232
-msgid "Unable to retrieve namespace prefixes"
-msgstr "Impussibil otignî i prefìs di namespace"
+#: src/tracker/tracker-sparql.c:177
+msgid "Provides an argument for a query parameter."
+msgstr "Al furnìs un argoment par un parametri di interogazion."
 
-#: src/tracker/tracker-sparql.c:240
-msgid "No namespace prefixes were returned"
-msgstr "Nissun prefìs di namespace cjatât"
-
-#: src/tracker/tracker-sparql.c:286
-msgid "Could not get namespace prefixes"
-msgstr "Impussibil otignî i prefìs dal spazi dai nons (namespace)"
-
-#: src/tracker/tracker-sparql.c:295
-msgid "No namespace prefixes were found"
-msgstr "Nissun prefìs dal spazi dai nons (namespace) cjatât"
+#: src/tracker/tracker-sparql.c:178
+msgid "PARAMETER:TYPE:VALUE"
+msgstr "PARAMETRI:GJENAR:VALÔR"
 
 #. To translators: This is to say there are no
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:541 src/tracker/tracker-sparql.c:589
+#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
 msgid "None"
 msgstr "Nissun"
 
-#: src/tracker/tracker-sparql.c:1003
+#: src/tracker/tracker-sparql.c:899
 msgid "Could not create tree: subclass query failed"
 msgstr "Impussibil creâ l'arbul: interogazion sot-classe falide"
 
-#: src/tracker/tracker-sparql.c:1052
+#: src/tracker/tracker-sparql.c:948
 msgid "Could not create tree: class properties query failed"
 msgstr "Impussibil creâ l'arbul: interogazion proprietât classe falide"
 
-#: src/tracker/tracker-sparql.c:1139
+#: src/tracker/tracker-sparql.c:1015
+#, c-format
+msgid "Invalid argument string %s"
+msgstr "Stringhe di argoment %s no valide"
+
+#: src/tracker/tracker-sparql.c:1025
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr "Gjenar di parametri pal argoment %s no valit"
+
+#: src/tracker/tracker-sparql.c:1095
 msgid "Could not list classes"
 msgstr "Impussibil listâ lis classis"
 
-#: src/tracker/tracker-sparql.c:1147
+#: src/tracker/tracker-sparql.c:1103
 msgid "No classes were found"
 msgstr "No je stade cjatade nissune classe"
 
-#: src/tracker/tracker-sparql.c:1147 src/tracker/tracker-sparql.c:1363
+#: src/tracker/tracker-sparql.c:1103 src/tracker/tracker-sparql.c:1225
 msgid "Classes"
 msgstr "Classis"
 
-#: src/tracker/tracker-sparql.c:1163
-msgid "Could not list class prefixes"
-msgstr "Impussibil listâi prefìs di classe"
-
-#: src/tracker/tracker-sparql.c:1171
-msgid "No class prefixes were found"
-msgstr "Nol è stât cjatât nissun prefìs di classe"
-
-#: src/tracker/tracker-sparql.c:1171
-msgid "Prefixes"
-msgstr "Prefìs"
-
-#: src/tracker/tracker-sparql.c:1191
-msgid ""
-"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
-msgstr ""
-"Impussibil cjatâ la proprietât pal prefìs de classe, p.e. :Risorse in «rdfs:"
-"Resource»"
-
-#: src/tracker/tracker-sparql.c:1230
+#: src/tracker/tracker-sparql.c:1126
 msgid "Could not list properties"
 msgstr "Impussibil listâ lis proprietâts"
 
-#: src/tracker/tracker-sparql.c:1238
+#: src/tracker/tracker-sparql.c:1134
 msgid "No properties were found"
 msgstr "No je stade cjatade nissune proprietât"
 
-#: src/tracker/tracker-sparql.c:1238 src/tracker/tracker-sparql.c:1386
+#: src/tracker/tracker-sparql.c:1134 src/tracker/tracker-sparql.c:1243
 msgid "Properties"
 msgstr "Proprietâts"
 
-#: src/tracker/tracker-sparql.c:1266
+#: src/tracker/tracker-sparql.c:1150
 msgid "Could not find notify classes"
 msgstr "Impussibil cjatâ lis classis di notifiche"
 
-#: src/tracker/tracker-sparql.c:1274
+#: src/tracker/tracker-sparql.c:1158
 msgid "No notifies were found"
 msgstr "No je stade cjatade nissune notifiche"
 
-#: src/tracker/tracker-sparql.c:1274
+#: src/tracker/tracker-sparql.c:1158
 msgid "Notifies"
 msgstr "Notifichis"
 
-#: src/tracker/tracker-sparql.c:1300
+#: src/tracker/tracker-sparql.c:1174
 msgid "Could not find indexed properties"
 msgstr "Impussibil cjatâ lis proprietâts metudis in indiç"
 
-#: src/tracker/tracker-sparql.c:1308
+#: src/tracker/tracker-sparql.c:1182
 msgid "No indexes were found"
 msgstr "Nol è stât cjatât nissun indiç"
 
-#: src/tracker/tracker-sparql.c:1308
+#: src/tracker/tracker-sparql.c:1182
 msgid "Indexes"
 msgstr "Indiçs"
 
-#: src/tracker/tracker-sparql.c:1324
+#: src/tracker/tracker-sparql.c:1192
 msgid "Could not list named graphs"
 msgstr "Impussibil listâ i grafics cul non"
 
-#: src/tracker/tracker-sparql.c:1332
+#: src/tracker/tracker-sparql.c:1200
 msgid "No graphs were found"
 msgstr "Nol è stât cjatât nissun grafic"
 
-#: src/tracker/tracker-sparql.c:1332
+#: src/tracker/tracker-sparql.c:1200
 msgid "Named graphs"
 msgstr "Grafics cul non"
 
-#: src/tracker/tracker-sparql.c:1355
+#: src/tracker/tracker-sparql.c:1217
 msgid "Could not search classes"
 msgstr "Impussibil cirî lis classis"
 
-#: src/tracker/tracker-sparql.c:1363
+#: src/tracker/tracker-sparql.c:1225
 msgid "No classes were found to match search term"
 msgstr "No je stade cjatade nissune classe che e corispuint al tiermin cirût"
 
-#: src/tracker/tracker-sparql.c:1378
+#: src/tracker/tracker-sparql.c:1235
 msgid "Could not search properties"
 msgstr "Impussibil cirî lis proprietâts"
 
-#: src/tracker/tracker-sparql.c:1386
+#: src/tracker/tracker-sparql.c:1243
 msgid "No properties were found to match search term"
 msgstr ""
 "No je stade cjatade nissune proprietât che e corispuint al tiermin cirût"
 
-#: src/tracker/tracker-sparql.c:1423 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-sparql.c:1272 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Impussibil otignî un percors UTF-8 dal percors"
 
-#: src/tracker/tracker-sparql.c:1435 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-sparql.c:1284 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Impussibil lei il file"
 
-#: src/tracker/tracker-sparql.c:1454
+#: src/tracker/tracker-sparql.c:1315
 msgid "Could not run update"
 msgstr "Impussibil eseguî l'inzornament"
 
-#: src/tracker/tracker-sparql.c:1461
+#: src/tracker/tracker-sparql.c:1322
 msgid "Done"
 msgstr "Fat"
 
-#: src/tracker/tracker-sparql.c:1515 src/tracker/tracker-sparql.c:1518
+#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
 msgid "No results found matching your query"
 msgstr "Nissun risultât cjatât che al corispuint ae interogazion"
 
-#: src/tracker/tracker-sparql.c:1515 src/tracker/tracker-sparql.c:1518
+#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
 #: src/tracker/tracker-sql.c:144
 msgid "Results"
 msgstr "Risultâts"
 
-#: src/tracker/tracker-sparql.c:1575 src/tracker/tracker-sql.c:250
+#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:250
 msgid "File and query can not be used together"
 msgstr "File e interogazion no puedin jessi doprâts adun"
 
-#: src/tracker/tracker-sparql.c:1577
+#: src/tracker/tracker-sparql.c:1409
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
 msgstr ""
 "L'argoment --list-properties al pues jessi vueit nome se doprât cul argoment "
 "--tree"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-sparql.desktop.in:6
+msgid "sparql"
+msgstr "sparql"
+
+#: src/tracker/tracker-sparql.desktop.in:7
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"Interoghe e inzorne l'indiç doprant SPARQL opûr cîr, liste e met in scjale a "
+"arbul la ontologjie"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -554,6 +558,46 @@ msgstr "Cumbinazion di risultâts vueide"
 #: src/tracker/tracker-sql.c:248
 msgid "A database path must be specified"
 msgstr "Si scugne specificâ un percors pe base di dâts"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-sql.desktop.in:6
+msgid "sql"
+msgstr "sql"
+
+#: src/tracker/tracker-sql.desktop.in:7
+msgid "Query the database at the lowest level using SQL"
+msgstr "Interoghe la base di dâts (a bas nivel) doprant SQL"
+
+#~ msgid "Additional / third party commands are:"
+#~ msgstr "I comants adizionâi/di tiercis parts a son:"
+
+#~ msgid "Unable to retrieve namespace prefixes"
+#~ msgstr "Impussibil otignî i prefìs di namespace"
+
+#~ msgid "No namespace prefixes were returned"
+#~ msgstr "Nissun prefìs di namespace cjatât"
+
+#~ msgid "Could not get namespace prefixes"
+#~ msgstr "Impussibil otignî i prefìs dal spazi dai nons (namespace)"
+
+#~ msgid "No namespace prefixes were found"
+#~ msgstr "Nissun prefìs dal spazi dai nons (namespace) cjatât"
+
+#~ msgid "Could not list class prefixes"
+#~ msgstr "Impussibil listâi prefìs di classe"
+
+#~ msgid "No class prefixes were found"
+#~ msgstr "Nol è stât cjatât nissun prefìs di classe"
+
+#~ msgid "Prefixes"
+#~ msgstr "Prefìs"
+
+#~ msgid ""
+#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
+#~ "Resource”"
+#~ msgstr ""
+#~ "Impussibil cjatâ la proprietât pal prefìs de classe, p.e. :Risorse in "
+#~ "«rdfs:Resource»"
 
 #~ msgid "unknown time"
 #~ msgstr "timp no cognossût"
