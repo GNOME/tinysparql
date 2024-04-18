@@ -112,7 +112,7 @@ tracker_fts_create_table (sqlite3            *db,
 
 	g_string_append_printf (from, "WHERE COALESCE (%s NULL) IS NOT NULL ",
 	                        column_names->str);
-	g_string_append (from, "GROUP BY ROWID");
+	g_string_append (from, "GROUP BY \"rdfs:Resource\".ID");
 	g_string_append (str, from->str);
 	g_string_free (from, TRUE);
 
