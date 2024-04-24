@@ -1,3 +1,10 @@
+NEW in 3.7.2 - 2024-04-24
+=========================
+  * Fix runtime issue introduced by SQLite 3.45.3
+  * Fix possible inconsistency in the handling of DELETE WHERE queries.
+
+Translations: ca, fur, kab, pt_BR
+
 NEW in 3.7.1 - 2024-03-27
 =========================
   * Fix possible stalls in D-Bus endpoint batch updates
