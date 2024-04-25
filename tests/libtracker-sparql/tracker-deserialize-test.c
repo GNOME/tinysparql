@@ -31,11 +31,13 @@ typedef struct {
 	const gchar *query_file;
 	const gchar *output_file;
 	TrackerRdfFormat format;
+	gboolean expect_error;
 } TestInfo;
 
 TestInfo tests[] = {
 	{ "ttl/ttl-1", "deserialize/ttl-1.ttl", "deserialize/ttl-1.rq", "deserialize/ttl-1.out", TRACKER_RDF_FORMAT_TURTLE },
 	{ "ttl/ttl-langstring-1", "deserialize/ttl-langstring-1.ttl", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_TURTLE },
+	{ "ttl/ttl-unterminated-1", "deserialize/ttl-unterminated-1.ttl", "deserialize/unterminated-1.rq", "deserialize/unterminated-1.out", TRACKER_RDF_FORMAT_TURTLE, TRUE },
 	{ "trig/trig-1", "deserialize/trig-1.trig", "deserialize/trig-1.rq", "deserialize/trig-1.out", TRACKER_RDF_FORMAT_TRIG },
 	{ "trig/trig-langstring-1", "deserialize/trig-langstring-1.trig", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_TRIG },
 	{ "json-ld/json-ld-1", "deserialize/json-ld-1.jsonld", "deserialize/json-ld-1.rq", "deserialize/json-ld-1.out", TRACKER_RDF_FORMAT_JSON_LD },
@@ -232,8 +234,16 @@ deserialize_direct_cb (GObject      *source,
 
 	retval = tracker_sparql_connection_deserialize_finish (TRACKER_SPARQL_CONNECTION (source),
 	                                                       res, &error);
-	g_assert_no_error (error);
-	g_assert_true (retval);
+	if (test_fixture->test->expect_error) {
+		g_assert_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_PARSE);
+		g_assert_false (retval);
+		/* We can stop here */
+		g_main_loop_quit (test_fixture->loop);
+		return;
+	} else {
+		g_assert_no_error (error);
+		g_assert_true (retval);
+	}
 
 	/* Read RDF data back */
 	tracker_sparql_connection_serialize_async (test_fixture->direct,

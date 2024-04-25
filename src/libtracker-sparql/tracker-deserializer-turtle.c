@@ -542,6 +542,15 @@ maybe_expand_buffer (TrackerDeserializerTurtle  *deserializer,
 		if (g_buffered_input_stream_fill (deserializer->buffered_stream, -1, NULL, error) < 0)
 			return FALSE;
 
+		/* If we reached EOF already, the string is not terminated properly */
+		if (g_buffered_input_stream_get_available (deserializer->buffered_stream) == available) {
+			g_set_error (error,
+			             TRACKER_SPARQL_ERROR,
+			             TRACKER_SPARQL_ERROR_PARSE,
+			             "Unterminated string");
+			return FALSE;
+		}
+
 		buffer = g_buffered_input_stream_peek_buffer (deserializer->buffered_stream,
 		                                              &buffer_len);
 	}
