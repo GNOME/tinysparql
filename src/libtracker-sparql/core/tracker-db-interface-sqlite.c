@@ -2223,6 +2223,14 @@ tracker_db_interface_prepare_stmt (TrackerDBInterface  *db_interface,
 			             TRACKER_DB_INTERRUPTED,
 			             "Interrupted");
 		} else {
+#ifdef G_ENABLE_DEBUG
+			if (TRACKER_DEBUG_CHECK (SQL_STATEMENTS)) {
+				g_message ("Failure to prepare statement for SQL '%s', error: %s",
+					   full_query,
+					   sqlite3_errmsg (db_interface->db));
+			}
+#endif
+
 			g_set_error (error,
 			             TRACKER_DB_INTERFACE_ERROR,
 			             TRACKER_DB_QUERY_ERROR,
