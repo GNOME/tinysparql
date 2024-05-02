@@ -1,3 +1,10 @@
+NEW in 3.7.3 - 2024-05-02
+=========================
+  * Bump database version to fix SQLite 3.45.3 issues in existing
+    installs
+  * Fixed possible infinite loop on incomplete/unterminated Turtle/Trig
+    data.
+
 NEW in 3.7.2 - 2024-04-24
 =========================
   * Fix runtime issue introduced by SQLite 3.45.3
