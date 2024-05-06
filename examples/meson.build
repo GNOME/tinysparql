@@ -1,2 +1,5 @@
 subdir('libtracker-sparql')
-subdir('python')
+
+if get_option('introspection').enabled()
+    subdir('python')
+endif
