@@ -1,7 +1,7 @@
 Title: Examples
 
-This document shows some real examples of usage of the Tracker
-SPARQL Library.
+This document shows some real examples of usage of the TinySPARQL
+library.
 
 ## Querying a remote endpoint
 
@@ -107,7 +107,7 @@ In Javascript:
 
 ## Receiving notification on changes
 
-As an additional feature over SPARQL endpoints, Tracker allows for
+As an additional feature over SPARQL endpoints, TinySPARQL allows for
 users of private and D-Bus SPARQL connections to receive notifications
 on changes of certain RDF classes (Those with the
 [nrl:notify](nrl-ontology.html#nrl:notify) property, like

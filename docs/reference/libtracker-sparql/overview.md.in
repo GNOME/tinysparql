@@ -2,22 +2,22 @@ Title: Overview
 
 {{ style.xml }}
 
-Tracker SPARQL is a light-weight RDF [triple
+TinySPARQL is a light-weight RDF [triple
 store](https://en.wikipedia.org/wiki/Triplestore) implementation, with a
 [SPARQL 1.1](https://en.wikipedia.org/wiki/SPARQL) interface.
-Tracker is implemented as a library, and may be used to create private databases,
+TinySPARQL is implemented as a library, and may be used to create private databases,
 in addition to connecting to remote endpoints for [federated
 queries](https://en.wikipedia.org/wiki/Federated_search) or creating such
 public endpoints.
 
-Tracker SPARQL is the data storage backend for the
+TinySPARQL is the data storage backend for the
 [Tracker Miner FS filesystem indexer](https://gnome.pages.gitlab.gnome.org/tracker-miners/),
 and is also used by apps that want to store, query and publish structured data
 using SPARQL.
 
 ## Advantages
 
-Tracker offers the following advantages over other traditional databases:
+TinySPARQL offers the following advantages over other traditional databases:
 
 - It is based on open standards. [SPARQL](https://www.w3.org/TR/2013/REC-sparql11-overview-20130321/)
   is a [W3C recommendation](https://www.w3.org/). So is the [RDF](https://www.w3.org/RDF/) data model
@@ -27,28 +27,28 @@ Tracker offers the following advantages over other traditional databases:
   just needs to write and update the [ontology](ontologies.html) defining
   the structure of the contained data. Databases will be created and
   implicitly updated to format changes without the need to write supporting code.
-- It has versatile serialization capabilities. Tracker is able to export RDF data into the same
+- It has versatile serialization capabilities. TinySPARQL is able to export RDF data into the same
   formats it can import and load into databases. It is possible to perform backups, data mirroring,
   data synchronization…
-- A complete set of CLI tools is included. Tracker databases are fully introspectable
+- A complete set of CLI tools is included. TinySPARQL databases are fully introspectable
   and can be opened with no additional supporting files, the command line tools can do
   anything the library could do, and a number of utilities is provided.
 - Distributed data is a first class citizen. SPARQL has builtin capabilities to
   operate in a distributed environment, which may make it desirable to manage data
-  that is naturally open to multiple users. Tracker may interoperate with other
+  that is naturally open to multiple users. TinySPARQL may interoperate with other
   SPARQL implementations.
 
-The Tracker library is written in C, but may be used from a number of languages
+The TinySPARQL library is written in C, but may be used from a number of languages
 through [GObject introspection](https://gi.readthedocs.io/en/latest/), including
 Rust, Python, or Javascript (through [GJS](https://gjs.guide/)).
 
-Tracker is designed to be small, fast, and scalable. It is also robust and
+TinySPARQL is designed to be small, fast, and scalable. It is also robust and
 fully [ACID](https://en.wikipedia.org/wiki/ACID). There are ready-made
-[examples](examples.html) on how the Tracker library is put to use.
+[examples](examples.html) on how the TinySPARQL library is put to use.
 
 ## Dependencies
 
-Tracker depends on the following libraries:
+TinySPARQL depends on the following libraries:
 
 - **GLib**: General-purpose utility library. GLib provides many useful data types,
   macros, type conversions, string utilities, file utilities, a main loop abstraction,
@@ -84,6 +84,6 @@ and its different constructors for each of these methods.
 </div>
 
 It is also possible to create public SPARQL endpoints, see [class@Endpoint]
-and its subclasses. Tracker can interoperate with any other SPARQL endpoint over HTTP,
+and its subclasses. TinySPARQL can interoperate with any other SPARQL endpoint over HTTP,
 such as [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page) or
 [DBpedia](https://wiki.dbpedia.org/about).

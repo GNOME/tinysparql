@@ -1,15 +1,15 @@
 Title: Implementation limits
 Slug: implementation-limits
 
-Tracker is implemented on top of [SQLite](https://sqlite.org), and all of its
+TinySPARQL is implemented on top of [SQLite](https://sqlite.org), and all of its
 benefits and [limits](https://sqlite.org/limits.html) apply. This
-document will break down how those limits apply to Tracker. Depending on
+document will break down how those limits apply to TinySPARQL. Depending on
 your distributor, the limits might be changed via SQLite build-time
 options.
 
 ## Maximum string length
 
-Tracker can store by default up to 1 GiB in a text field by default. This
+TinySPARQL can store by default up to 1 GiB in a text field by default. This
 limit is controlled by `SQLITE_MAX_LENGTH`
 
 ## Maximum number of properties and select columns
@@ -41,7 +41,7 @@ is not affected in itself by these limits.
 ## Maximum number of tables in a `JOIN`
 
 SQLite does not allow Join operations containing more than 64 tables.
-This limit may impact complex Tracker queries in various ways, most
+This limit may impact complex TinySPARQL queries in various ways, most
 likely culprits are operations across the whole union graph, and
 access to multi-valued properties.
 
@@ -60,7 +60,7 @@ e.g. `coalesce`.
 SQLite has a limit on the number of databases that can be attached,
 defined by `SQLITE_MAX_LIMIT_ATTACHED` (defaults to 10, maximum 128).
 
-Tracker uses attached databases to implement its support for multiple
+TinySPARQL uses attached databases to implement its support for multiple
 graphs, so the maximum amount of graphs for a given [class@SparqlConnection]
 is equally restricted.
 
@@ -79,7 +79,7 @@ to a statement, controlled by `SQLITE_MAX_VARIABLE_NUMBER`.
 ## Maximum number of pages in a database
 
 SQLite sets a default restriction of 1073741823 pages to
-database file size (about 8 TB with Tracker settings). This limit
+database file size (about 8 TB with TinySPARQL settings). This limit
 applies per graph.
 
 ## Type formats and precision

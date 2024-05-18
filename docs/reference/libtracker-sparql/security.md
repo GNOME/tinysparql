@@ -3,10 +3,10 @@ Slug: security-considerations
 
 The SPARQL 1.1 specifications have a number of informative `Security
 considerations` sections. This is an informative document describing how
-those may or may not apply to the implementation of Tracker.
+those may or may not apply to the implementation of TinySPARQL.
 
 Note that most of these considerations derive from situations where
-a RDF triple store is exposed through a public endpoint, while Tracker
+a RDF triple store is exposed through a public endpoint, while TinySPARQL
 does not do that by default. Users should be careful about creating
 endpoints. For D-Bus endpoints, access through the portal is encouraged.
 
@@ -30,7 +30,7 @@ organisations firewall or DMZ, and so such queries may be a source of
 indirection attacks.
 ```
 
-Graph URIs are virtual in Tracker and do not cause any access outside of
+Graph URIs are virtual in TinySPARQL and do not cause any access outside of
 database resources. The only SPARQL syntax capable of dereferencing or accessing
 external resources are the `SERVICE <uri>` and `LOAD <rdf-file>` features.
 
@@ -41,7 +41,7 @@ The SPARQL language permits extensions, which will have their own security
 implications.
 ```
 
-Tracker SPARQL extensions have no special security considerations, other than
+TinySPARQL extensions have no special security considerations, other than
 being code that runs on silicon.
 
 ## Federated queries
@@ -69,7 +69,7 @@ to denial-of-service attacks. They also may refuse to process such query
 requests.
 ```
 
-Tracker offers 2 types of endpoint that are susceptible to this vector:
+TinySPARQL offers 2 types of endpoint that are susceptible to this vector:
 
 - D-Bus endpoints accessed outside a sandbox.
 - HTTP endpoints
@@ -77,7 +77,7 @@ Tracker offers 2 types of endpoint that are susceptible to this vector:
 Particularly, requests on a D-Bus endpoint happening through the portal from a
 sandboxed process have all SERVICE access restricted.
 
-Tracker developers encourage that all access to endpoints created on D-Bus
+TinySPARQL developers encourage that all access to endpoints created on D-Bus
 happen through the portal, and that all HTTP endpoints validate the provenance
 of the requests through the [signal@EndpointHttp::block_remote_address]
 signal to limit access to resources.
@@ -99,7 +99,7 @@ may be other sources of denial-of-service attacks against SPARQL query
 processing services.
 ```
 
-Tracker does not perform any time or frequency rate limits to queries. HTTP
+TinySPARQL does not perform any time or frequency rate limits to queries. HTTP
 endpoints may perform the latter through the
 [signal@EndpointHttp::block_remote_address] signal.
 
@@ -126,7 +126,7 @@ implementation-defined mechanisms to prevent unauthorized invocations of the
 update operation.
 ```
 
-Tracker HTTP endpoints do not implement any update mechanisms. D-Bus endpoints
+TinySPARQL HTTP endpoints do not implement any update mechanisms. D-Bus endpoints
 accessed through the portal from inside a sandbox are likewise read-only.
 
 
@@ -147,7 +147,7 @@ clause could be used to hide an Update Operation. Therefore, simple syntactic
 tests are inadequate to determine if a string describes a query or an update.
 ```
 
-Following the SPARQL 1.1 spec, Tracker implements updates and queries as two
+Following the SPARQL 1.1 spec, TinySPARQL implements updates and queries as two
 different languages with different parser entry points, this separation happens
 all the way to the public API. As an additional layer of security, readonly
 queries happen on readonly database connections. It is essentially not possible
@@ -177,7 +177,7 @@ inserted.
 
 # API user considerations
 
-Users of the Tracker API and SPARQL interface are encouraged to make some
+Users of the TinySPARQL API and query language are encouraged to make some
 considerations and take some precautions:
 
  * Do not expose any endpoints that does not need exposing.

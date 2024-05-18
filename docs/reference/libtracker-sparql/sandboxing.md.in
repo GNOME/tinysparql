@@ -10,7 +10,7 @@ use of it. One real life example of this is [Tracker Miners](https://gitlab.gnom
 used as the [GNOME Desktop](https://gnome.org) indexer.
 
 But in this day and age, it is naive to make this data available
-without constraints on what data can be accessed. Tracker provides a
+without constraints on what data can be accessed. TinySPARQL provides a
 portal for the [Flatpak](https://flatpak.org/) application sandboxing
 system. This provides the mechanisms to filter the available data for
 sandboxed users.
@@ -93,7 +93,7 @@ that apply on graph creation.
 
 # Using it from applications
 
-The portal is transparently integrated in the Tracker library. Applications
+The portal is transparently integrated in the TinySPARQL library. Applications
 may write SPARQL queries so that they work the same while sandboxed or not.
 No code changes are needed in the app, as [ctor@SparqlConnection.bus_new]
 will automatically try connect via the portal if it can not talk to the
@@ -116,7 +116,7 @@ by Flatpak, and (with the example arguments) allow access to graphs `example:A`
 and `example:B` from the `org.example.Endpoint` D-Bus SPARQL endpoint.
 Access to other graphs, or other services will be disallowed.
 
-The Tracker library is included in the
+The TinySPARQL library is included in the
 [GNOME Flatpak SDK and runtime](https://docs.flatpak.org/en/latest/available-runtimes.html#gnome).
-If the app uses a different runtime, you may need to build Tracker
-SPARQL in the app manifest.
+If the app uses a different runtime, you may need to build TinySPARQL
+in the app manifest.

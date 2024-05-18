@@ -2,7 +2,7 @@ Title: Builtin SPARQL functions
 slug: sparql-functions
 
 Besides the functions built in the SPARQL 1.1 syntax, type casts
-and functional properties, Tracker supports a number of SPARQL
+and functional properties, TinySPARQL supports a number of SPARQL
 functions. Some of these functions have correspondences in
 [XPath](https://www.w3.org/TR/xpath-31/).
 
@@ -352,7 +352,7 @@ Its inverse operation is `tracker:id`
 
 # Full-text search
 
-Full-text search (FTS) is a built-in feature of Tracker, it allows
+Full-text search (FTS) is a built-in feature of TinySPARQL, it allows
 for efficient search of individual terms across large collections
 of text.
 

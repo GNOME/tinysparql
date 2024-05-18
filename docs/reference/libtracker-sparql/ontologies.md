@@ -50,12 +50,12 @@ It is split into several domains:
   with geolocation tagging.
 - [Nepomuk Annotation Ontology (NAO)](nao-ontology.html) extends metadata
   with annotations.
-- Other [Tracker extensions](tracker-ontology.html) to further annotate
+- Other [TinySPARQL extensions](tracker-ontology.html) to further annotate
   data and link to external services.
 
 # Creating custom ontologies
 
-Tracker does also allow developers to define ontologies that are tailored
+TinySPARQL does also allow developers to define ontologies that are tailored
 for their use.
 
 Ontologies are made themselves of RDF data in the [Turtle](https://www.w3.org/TR/turtle/)
@@ -65,10 +65,10 @@ format with the `.ontology` extension. Custom-made ontologies will build upon th
 Ontologies may be split in multiple documents in a same directory. The individual
 ontology files do not need be self-consistent (e.g. they may use definitions from
 other files), but all the ontology files as a whole must be self-consistent.
-Tracker will not open or create a RDF triple store if the ontology is not
+TinySPARQL will not open or create a RDF triple store if the ontology is not
 consistent, and will roll back any change if necessary.
 
-Tracker loads the ontology files in alphanumeric order, it is advisable
+TinySPARQL loads the ontology files in alphanumeric order, it is advisable
 that those have a numbered prefix in order to load those at a consistent
 order despite future additions.
 
@@ -248,7 +248,7 @@ INSERT DATA { <donald> a ex:Mammal;
                        ex:cromosomes 47 }
 ```
 
-Tracker does not implement support for other maximum cardinalities
+TinySPARQL does not implement support for other maximum cardinalities
 than 1.
 
 <!---
@@ -306,7 +306,7 @@ a cost in disk size.
 
 ## Defining full-text search properties
 
-Tracker provides nonstandard full-text search capabilities, in order to use
+TinySPARQL provides nonstandard full-text search capabilities, in order to use
 these, the string properties can use nrl:fulltextIndexed:
 
 ```turtle
@@ -346,7 +346,7 @@ INSERT DATA { ex:self ex:pets <cat> .
 ## Updating an ontology
 
 As software evolves, sometimes changes in the ontology are unavoidable.
-Tracker can transparently handle certain ontology changes on existing
+TinySPARQL can transparently handle certain ontology changes on existing
 databases.
 
 1. Adding a class.
@@ -377,10 +377,10 @@ databases.
     remove intermediate superclasses
 --->
 
-However, there are certain ontology changes that Tracker will find
+However, there are certain ontology changes that TinySPARQL will find
 incompatible. Either because they are incoherent or resulting into
 situations where it can not deterministically satisfy the change
-in the stored data. Tracker will error out and refuse to do any data
+in the stored data. TinySPARQL will error out and refuse to do any data
 changes in these situations:
 
 - Properties with rdfs:range being `xsd:bool`, `xsd:date`, `xsd:dateTime`,
@@ -414,4 +414,4 @@ data migration has been completed, the old classes and properties
 can be dropped.
 
 Once changes are made, the `nrl:lastModified` value should be updated
-so Tracker knows to reprocess the ontology.
+so TinySPARQL knows to reprocess the ontology.
