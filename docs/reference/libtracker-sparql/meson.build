@@ -155,7 +155,7 @@ gidocgen_toml = configure_file(
 
 reference = custom_target(
   'docgen',
-  input: [ gidocgen_toml, tracker_sparql_gir[0] ],
+  input: [ gidocgen_toml, tsparql_gir[0] ],
   output: 'doc',
   command: [
     gidocgen,
@@ -170,6 +170,6 @@ reference = custom_target(
   depends: [tracker_sparql_gir[0], generated_targets],
   depend_files: [content])
 
-docs_name = 'Tracker-3.0'
+docs_name = 'Tsparql-3.0'
 meson.add_install_script('install-devhelp.sh', docs_name, reference)
 meson.add_dist_script('dist-docs.sh', docs_name, reference.full_path())
