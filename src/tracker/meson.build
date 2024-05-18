@@ -1,5 +1,5 @@
 commands_dir = get_option('bindir')
-command_metadata_dir = get_option('prefix') / get_option('datadir') / 'tracker3' / 'commands'
+command_metadata_dir = get_option('prefix') / get_option('datadir') / 'tinysparql-3.0' / 'commands'
 po_dir = join_paths(meson.project_source_root(), 'po')
 
 sparql_gresource = gnome.compile_resources('sparql_gresources', 'sparql-queries.gresource.xml')
