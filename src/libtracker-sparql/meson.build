@@ -229,6 +229,13 @@ if get_option('introspection').enabled()
             packages: ['glib-2.0', 'gio-2.0', 'gobject-2.0'],
             metadata_dirs: meson.current_source_dir(),
         )
+
+        tsparql_vapi = gnome.generate_vapi('tinysparql-' + tracker_api_version,
+            sources: tsparql_gir[0],
+            install: true,
+            packages: ['glib-2.0', 'gio-2.0', 'gobject-2.0'],
+            metadata_dirs: meson.current_source_dir(),
+        )
     endif
 endif
 
