@@ -384,7 +384,7 @@ source_root = meson.current_source_dir()
 build_root = meson.current_build_dir()
 po_subdir = join_paths(source_root, 'po')
 
-tracker_internal_libs_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tracker-' + tracker_api_version)
+tracker_internal_libs_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tinysparql-' + tracker_api_version)
 
 if gobject_introspection.found()
   typelib_dir = gobject_introspection.get_variable(pkgconfig: 'typelibdir',
