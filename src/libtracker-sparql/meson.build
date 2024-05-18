@@ -199,6 +199,29 @@ if get_option('introspection').enabled()
         export_packages: 'tracker-sparql-' + tracker_api_version
     )
 
+    tsparql_gir = gnome.generate_gir(libtracker_sparql,
+        sources: [
+            libtracker_sparql_sources,
+            libtracker_sparql_public_headers,
+            introspection_extra_sources,
+            version_header,
+            enum_types,
+        ],
+        dependencies: introspection_extra_deps,
+        nsversion: tracker_api_version,
+        namespace: 'Tsparql',
+        identifier_prefix: 'Tracker',
+        symbol_prefix: 'tracker',
+        includes : ['GLib-2.0', 'GObject-2.0', 'Gio-2.0' ],
+        header: 'libtracker-sparql/tracker-sparql.h',
+        link_with: libtracker_sparql,
+        install: true,
+        extra_args: [
+            '-DTRACKER_COMPILATION',
+        ],
+        export_packages: 'tinysparql-' + tracker_api_version
+    )
+
     if get_option('vapi').enabled() or get_option('vapi').auto()
         tracker_sparql_vapi = gnome.generate_vapi('tracker-sparql-' + tracker_api_version,
             sources: tracker_sparql_gir[0],
