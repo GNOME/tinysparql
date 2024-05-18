@@ -44,18 +44,18 @@ G_BEGIN_DECLS
  * @TRACKER_SPARQL_ERROR_MISSING_LAST_MODIFIED_HEADER: The ontology doesn't contain nrl:lastModified header
  * @TRACKER_SPARQL_ERROR_INCOMPLETE_PROPERTY_DEFINITION: The property is not completely defined.
  * @TRACKER_SPARQL_ERROR_CORRUPT: A soft/hard corruption was found in the database during operation.
- *   If this error is obtained during regular operations with an existing [class@Tracker.SparqlConnection],
+ *   If this error is obtained during regular operations with an existing [class@SparqlConnection],
  *   the corruption was newly found. This event will be persistently recorded so that the
- *   [func@Tracker.SparqlConnection.new_async] constructor (or its synchronous variant) will
+ *   [func@SparqlConnection.new_async] constructor (or its synchronous variant) will
  *   perform database repair attempts. If this error is obtained during one of those constructors, the
  *   database could not be repaired automatically and data loss is unavoidable. It is left to the discretion
  *   of the API user to set up the appropriate fallbacks in this situation, to replace the
- *   database and recover from the error. See [ctor@Tracker.SparqlConnection.new] documentation
+ *   database and recover from the error. See [ctor@SparqlConnection.new] documentation
  *   for more information on corruption handling.
  * @TRACKER_SPARQL_ERROR_LAST: The total number of error codes.
  *
  * Error domain for Tracker Sparql. Errors in this domain will be from the
- * [error@Tracker.SparqlError] enumeration. See [struct@GLib.Error] for more information on error
+ * [error@SparqlError] enumeration. See [struct@GLib.Error] for more information on error
  * domains.
  */
 typedef enum {

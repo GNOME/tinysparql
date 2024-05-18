@@ -414,4 +414,4 @@ Full-text search is case insensitive, and the content of its
 index may be subject to [stemming](https://en.wikipedia.org/wiki/Stemming),
 [stop word lists](https://en.wikipedia.org/wiki/Stop_word) and other
 methods of pre-processing, these settings may changed via the
-[flags@Tracker.SparqlConnectionFlags] set on a local connection.
+[flags@SparqlConnectionFlags] set on a local connection.

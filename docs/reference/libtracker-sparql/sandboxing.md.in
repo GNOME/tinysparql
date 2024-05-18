@@ -77,7 +77,7 @@ semantics for graphs, except that graph access is enforced through the
 policies prevail over any other SPARQL syntax to specify graphs, and
 will result in filtered graphs being replaced by an empty graph.
 
-Likewise, notification of changes through [class@Tracker.Notifier] will
+Likewise, notification of changes through [class@Notifier] will
 be filtered on the way to sandboxed applications, so that there are only
 notifications on changes from the allowed graphs.
 
@@ -95,7 +95,7 @@ that apply on graph creation.
 
 The portal is transparently integrated in the Tracker library. Applications
 may write SPARQL queries so that they work the same while sandboxed or not.
-No code changes are needed in the app, as [ctor@Tracker.SparqlConnection.bus_new]
+No code changes are needed in the app, as [ctor@SparqlConnection.bus_new]
 will automatically try connect via the portal if it can not talk to the
 given D-Bus name directly.
 

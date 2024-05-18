@@ -79,7 +79,7 @@ sandboxed process have all SERVICE access restricted.
 
 Tracker developers encourage that all access to endpoints created on D-Bus
 happen through the portal, and that all HTTP endpoints validate the provenance
-of the requests through the [signal@Tracker.EndpointHttp::block_remote_address]
+of the requests through the [signal@EndpointHttp::block_remote_address]
 signal to limit access to resources.
 
 (From [https://www.w3.org/TR/sparql11-protocol/#policy-security](https://www.w3.org/TR/sparql11-protocol/#policy-security))
@@ -101,7 +101,7 @@ processing services.
 
 Tracker does not perform any time or frequency rate limits to queries. HTTP
 endpoints may perform the latter through the
-[signal@Tracker.EndpointHttp::block_remote_address] signal.
+[signal@EndpointHttp::block_remote_address] signal.
 
 ## Updates
 
@@ -184,7 +184,7 @@ considerations and take some precautions:
  * For local D-Bus endpoints, consider using a graph partitioning scheme that
    makes it easy to policy the access to the data when accessed through the
    portal.
- * Avoid the possibility of injection attacks. Use [class@Tracker.SparqlStatement]
+ * Avoid the possibility of injection attacks. Use [class@SparqlStatement]
    and avoid string-based approaches to build SPARQL queries from user input.
  * Consider that IRIs describing RDF resources are susceptible to homograph
    attacks as described above. Developers are not exempt of validating

@@ -99,6 +99,6 @@ SELECT ?u { ?u fts:match "banana" }
 
 ## Use TrackerSparqlStatement
 
-Using [class@Tracker.SparqlStatement] allows to parse and compile
+Using [class@SparqlStatement] allows to parse and compile
 a query once, and reuse it many times. Its usage
 is recommended wherever possible.

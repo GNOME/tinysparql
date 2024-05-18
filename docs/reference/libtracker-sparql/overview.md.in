@@ -76,14 +76,14 @@ Tracker depends on the following libraries:
 ## Connection methods
 
 It is possible to create private databases in local storage, or to connect to
-remote HTTP or D-Bus SPARQL endpoints. See [class@Tracker.SparqlConnection]
+remote HTTP or D-Bus SPARQL endpoints. See [class@SparqlConnection]
 and its different constructors for each of these methods.
 
 <div class="docblock">
 {{ images/connections-diagram.svg }}
 </div>
 
-It is also possible to create public SPARQL endpoints, see [class@Tracker.Endpoint]
+It is also possible to create public SPARQL endpoints, see [class@Endpoint]
 and its subclasses. Tracker can interoperate with any other SPARQL endpoint over HTTP,
 such as [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page) or
 [DBpedia](https://wiki.dbpedia.org/about).

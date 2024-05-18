@@ -57,8 +57,8 @@ G_DEFINE_TYPE_WITH_PRIVATE (TrackerNamespaceManager, tracker_namespace_manager, 
  * used is that of [Compact URIs (CURIEs)](https://www.w3.org/TR/2010/NOTE-curie-20101216).
  *
  * Usually you will want to use a namespace manager obtained through
- * [method@Tracker.SparqlConnection.get_namespace_manager] from the
- * [class@Tracker.SparqlConnection] that manages the RDF data, as that will
+ * [method@SparqlConnection.get_namespace_manager] from the
+ * [class@SparqlConnection] that manages the RDF data, as that will
  * contain all prefixes and namespaces that are pre-defined by its ontology.
  */
 
@@ -125,7 +125,7 @@ tracker_namespace_manager_new ()
  *
  * Returns: (transfer none): a global, shared `TrackerNamespaceManager` instance
  *
- * Deprecated: 3.3: Use [method@Tracker.SparqlConnection.get_namespace_manager] instead.
+ * Deprecated: 3.3: Use [method@SparqlConnection.get_namespace_manager] instead.
  */
 TrackerNamespaceManager *
 tracker_namespace_manager_get_default ()
@@ -217,7 +217,7 @@ tracker_namespace_manager_lookup_prefix (TrackerNamespaceManager *self,
  * be unique.
  *
  * Since 3.3, The `TrackerNamespaceManager` instances obtained through
- * [method@Tracker.SparqlConnection.get_namespace_manager] are "sealed",
+ * [method@SparqlConnection.get_namespace_manager] are "sealed",
  * this API call should not performed on those.
  */
 void

@@ -57,28 +57,28 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (TrackerEndpoint, tracker_endpoint, G_TYPE_O
  * TrackerEndpoint:
  *
  * `TrackerEndpoint` is a helper object to make RDF triple stores represented
- * by a [class@Tracker.SparqlConnection] publicly available to other processes/hosts.
+ * by a [class@SparqlConnection] publicly available to other processes/hosts.
  *
- * This is a base abstract object, see [class@Tracker.EndpointDBus] to make
+ * This is a base abstract object, see [class@EndpointDBus] to make
  * RDF triple stores available to other processes in the same machine, and
- * [class@Tracker.EndpointHttp] to make it available to other hosts in the
+ * [class@EndpointHttp] to make it available to other hosts in the
  * network.
  *
- * When the RDF triple store represented by a [class@Tracker.SparqlConnection]
+ * When the RDF triple store represented by a [class@SparqlConnection]
  * is made public this way, other peers may connect to the database using
- * [ctor@Tracker.SparqlConnection.bus_new] or [ctor@Tracker.SparqlConnection.remote_new]
+ * [ctor@SparqlConnection.bus_new] or [ctor@SparqlConnection.remote_new]
  * to access this endpoint exclusively, or they may use the `SERVICE <uri> { ... }` SPARQL
- * syntax from their own [class@Tracker.SparqlConnection]s to expand their data set.
+ * syntax from their own [class@SparqlConnection]s to expand their data set.
  *
- * By default, and as long as the underlying [class@Tracker.SparqlConnection]
+ * By default, and as long as the underlying [class@SparqlConnection]
  * allows SPARQL updates and RDF graph changes, endpoints will allow updates
- * and modifications to happen through them. Use [method@Tracker.Endpoint.set_readonly]
+ * and modifications to happen through them. Use [method@Endpoint.set_readonly]
  * to change this behavior.
  *
  * By default, endpoints allow access to every RDF graph in the triple store
  * and further external SPARQL endpoints to the queries performed on it. Use
- * [method@Tracker.Endpoint.set_allowed_graphs] and
- * [method@Tracker.Endpoint.set_allowed_services] to change this behavior. Users do
+ * [method@Endpoint.set_allowed_graphs] and
+ * [method@Endpoint.set_allowed_services] to change this behavior. Users do
  * not typically need to do this for D-Bus endpoints, as these do already have a layer
  * of protection with the Tracker portal. This is the mechanism used by the portal
  * itself. This access control API may not interoperate with other SPARQL endpoint
@@ -173,7 +173,7 @@ tracker_endpoint_class_init (TrackerEndpointClass *klass)
 	/**
 	 * TrackerEndpoint:sparql-connection:
 	 *
-	 * The [class@Tracker.SparqlConnection] being proxied by this endpoint.
+	 * The [class@SparqlConnection] being proxied by this endpoint.
 	 */
 	props[PROP_SPARQL_CONNECTION] =
 		g_param_spec_object ("sparql-connection",
@@ -414,7 +414,7 @@ tracker_endpoint_cache_select_sparql (TrackerEndpoint  *endpoint,
  * tracker_endpoint_get_sparql_connection:
  * @endpoint: a `TrackerEndpoint`
  *
- * Returns the [class@Tracker.SparqlConnection] that this endpoint proxies
+ * Returns the [class@SparqlConnection] that this endpoint proxies
  * to a wider audience.
  *
  * Returns: (transfer none): The proxied SPARQL connection
@@ -434,7 +434,7 @@ tracker_endpoint_get_sparql_connection (TrackerEndpoint *endpoint)
  *
  * Sets whether the endpoint will be readonly. Readonly endpoints
  * will not allow SPARQL update queries. The underlying
- * [class@Tracker.SparqlConnection] may be readonly of its own, this
+ * [class@SparqlConnection] may be readonly of its own, this
  * method does not change its behavior in any way.
  *
  * Since: 3.7
@@ -498,7 +498,7 @@ tracker_endpoint_get_readonly (TrackerEndpoint *endpoint)
  *
  * If the system/session part is omitted, it will default to the session
  * bus. If the object path is omitted, the `/org/freedesktop/Tracker3/Endpoint`
- * [class@Tracker.EndpointDBus] default will be assumed.
+ * [class@EndpointDBus] default will be assumed.
  *
  * Since: 3.7
  **/
