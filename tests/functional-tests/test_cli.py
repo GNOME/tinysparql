@@ -25,11 +25,12 @@ import unittest
 import configuration
 import fixtures
 
+COMMAND_NAME = "tinysparql3"
 
 class TestCli(fixtures.TrackerCommandLineTestCase):
     def test_version(self):
         """Check we're testing the correct version of the CLI"""
-        output = self.run_cli(["tracker3", "--version"])
+        output = self.run_cli([COMMAND_NAME, "--version"])
 
         version_line = output.splitlines()[0]
         expected_version_line = "Tracker %s" % configuration.tracker_version()
@@ -42,7 +43,7 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             # Create the database
             self.run_cli(
                 [
-                    "tracker3",
+                    COMMAND_NAME,
                     "endpoint",
                     "--database",
                     tmpdir,
@@ -54,7 +55,7 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             # Sanity check that it works.
             self.run_cli(
                 [
-                    "tracker3",
+                    COMMAND_NAME,
                     "sparql",
                     "--database",
                     tmpdir,
@@ -71,7 +72,7 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             # We don't validate the output in this test, but we should.
             self.run_cli(
                 [
-                    "tracker3",
+                    COMMAND_NAME,
                     "endpoint",
                     "--database",
                     tmpdir,
@@ -79,8 +80,8 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
                     "nepomuk",
                 ]
             )
-            self.run_cli(["tracker3", "export", "--database", tmpdir])
-            self.run_cli(["tracker3", "export", "--database", tmpdir, "--show-graphs"])
+            self.run_cli([COMMAND_NAME, "export", "--database", tmpdir])
+            self.run_cli([COMMAND_NAME, "export", "--database", tmpdir, "--show-graphs"])
 
     def test_import(self):
         """Import a Turtle file into a Tracker database."""
@@ -90,7 +91,7 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
         with self.tmpdir() as tmpdir:
             self.run_cli(
                 [
-                    "tracker3",
+                    COMMAND_NAME,
                     "endpoint",
                     "--database",
                     tmpdir,
@@ -98,7 +99,7 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
                     "nepomuk",
                 ]
             )
-            self.run_cli(["tracker3", "import", "--database", tmpdir, testdata])
+            self.run_cli([COMMAND_NAME, "import", "--database", tmpdir, testdata])
 
 
 if __name__ == "__main__":

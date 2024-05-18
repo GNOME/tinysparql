@@ -14,7 +14,7 @@ commands = [
     { 'name': 'sql', 'sources': 'tracker-sql.c', 'extra_deps': [tracker_sparql_private_dep] },
 ]
 
-main_command_name = 'tracker@0@'.format(tracker_api_major)
+main_command_name = 'tinysparql@0@'.format(tracker_api_major)
 main_command_sources = [
     'tracker-main.c',
 ]
@@ -32,7 +32,7 @@ executable(main_command_name, main_command_sources,
 )
 
 foreach c: commands
-    command_name = 'tracker@0@-@1@'.format(tracker_api_major, c['name'])
+    command_name = 'tinysparql@0@-@1@'.format(tracker_api_major, c['name'])
     command_sources = c['sources']
 
     executable(command_name, command_sources,
