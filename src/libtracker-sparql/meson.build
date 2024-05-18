@@ -138,7 +138,17 @@ tracker_sparql_dep = declare_dependency(
 )
 
 pkg.generate(libtracker_sparql,
-    description: 'Tracker : A SPARQL triple store library',
+    name: 'tinysparql-3.0',
+    description: 'TinySPARQL : A SPARQL triple store library',
+    requires: [glib, gio, gobject],
+    subdirs: [
+        'tracker-' + tracker_api_version / 'libtracker-sparql',
+    ],
+)
+
+pkg.generate(libtracker_sparql,
+    name: 'tracker-sparql-3.0',
+    description: 'TinySPARQL : A SPARQL triple store library',
     requires: [glib, gio, gobject],
     subdirs: [
         'tracker-' + tracker_api_version,
