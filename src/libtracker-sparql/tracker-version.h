@@ -25,7 +25,7 @@
 G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
+#error "only <tinysparql.h> must be included directly."
 #endif
 
 #ifndef _TRACKER_EXTERN

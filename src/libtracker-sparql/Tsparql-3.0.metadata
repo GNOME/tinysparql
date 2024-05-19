@@ -1,4 +1,4 @@
-* parent="Tsparql" cheader_filename="libtracker-sparql/tracker-sparql.h"
+* parent="Tsparql" cheader_filename="tinysparql.h"
 Sparql* name="Sparql(.*)" parent="Tsparql"
 NotifierEvent* name="Notifier(.*)" parent="Tsparql.Notifier"
 PREFIX_* name="PREFIX_(.*)" parent="Tsparql.Prefix"

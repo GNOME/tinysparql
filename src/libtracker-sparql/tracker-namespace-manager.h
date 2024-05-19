@@ -24,10 +24,10 @@
 G_BEGIN_DECLS
 
 #if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
+#error "only <tinysparql.h> must be included directly."
 #endif
 
-#include <libtracker-sparql/tracker-version.h>
+#include <tracker-version.h>
 
 #define TRACKER_TYPE_NAMESPACE_MANAGER (tracker_namespace_manager_get_type())
 TRACKER_AVAILABLE_IN_ALL

@@ -12,11 +12,11 @@ version_header = configure_file(
 
 enum_types = gnome.mkenums_simple('tracker-sparql-enum-types',
     sources: ['tracker-notifier.h', 'tracker-connection.h', 'tracker-enums.h', 'tracker-error.h'],
-    install_dir: join_paths(get_option('prefix'), get_option('includedir'), 'tracker-@0@'.format(tracker_api_version), 'libtracker-sparql'),
+    install_dir: join_paths(get_option('prefix'), get_option('includedir'), 'tinysparql-@0@'.format(tracker_api_version)),
     install_header: true,
     decorator: 'TRACKER_AVAILABLE_IN_ALL',
     body_prefix: '#include "config.h"',
-    header_prefix: '#include <libtracker-sparql/tracker-version.h>\n',
+    header_prefix: '#include <tracker-version.h>\n',
 )
 
 libtracker_sparql_sources = files(
@@ -72,9 +72,13 @@ sparqlinc = [meson.current_source_dir(), meson.current_build_dir()]
 install_headers(
     libtracker_sparql_public_headers,
     'tracker-ontologies.h',
-    'tracker-sparql.h',
+    'tinysparql.h',
     version_header,
-    subdir: 'tracker-@0@/libtracker-sparql'.format(tracker_api_version))
+    subdir: 'tinysparql-@0@'.format(tracker_api_version))
+
+install_headers(
+    'tracker-sparql.h',
+    subdir: 'tinysparql-@0@/libtracker-sparql'.format(tracker_api_version))
 
 libtracker_sparql_dependencies = [
     tracker_common_dep,
@@ -132,7 +136,7 @@ libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
 
 tracker_sparql_dep = declare_dependency(
     link_with: libtracker_sparql,
-    include_directories: srcinc,
+    include_directories: [srcinc, include_directories('.')],
     dependencies: [glib, gio],
     sources: enum_types[1],
 )
@@ -142,7 +146,7 @@ pkg.generate(libtracker_sparql,
     description: 'TinySPARQL : A SPARQL triple store library',
     requires: [glib, gio, gobject],
     subdirs: [
-        'tracker-' + tracker_api_version / 'libtracker-sparql',
+        'tinysparql-' + tracker_api_version,
     ],
 )
 
@@ -150,9 +154,10 @@ pkg.generate(libtracker_sparql,
     name: 'tracker-sparql-3.0',
     description: 'TinySPARQL : A SPARQL triple store library',
     requires: [glib, gio, gobject],
+    libraries: [libtracker_sparql, libmath, libdl],
     subdirs: [
-        'tracker-' + tracker_api_version,
-        'tracker-' + tracker_api_version / 'libtracker-sparql',
+        'tinysparql-' + tracker_api_version,
+        'tinysparql-' + tracker_api_version / 'libtracker-sparql',
     ],
     variables: [
         'exec_prefix=${prefix}',
@@ -213,7 +218,7 @@ if get_option('introspection').enabled()
         identifier_prefix: 'Tracker',
         symbol_prefix: 'tracker',
         includes : ['GLib-2.0', 'GObject-2.0', 'Gio-2.0' ],
-        header: 'libtracker-sparql/tracker-sparql.h',
+        header: 'tinysparql.h',
         link_with: libtracker_sparql,
         install: true,
         extra_args: [

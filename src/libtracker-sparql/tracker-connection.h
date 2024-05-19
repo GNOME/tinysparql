@@ -20,15 +20,16 @@
 #pragma once
 
 #if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
-#error "only <libtracker-sparql/tracker-sparql.h> must be included directly."
+#error "only <tinysparql.h> must be included directly."
 #endif
 
-#include <libtracker-sparql/tracker-enums.h>
-#include <libtracker-sparql/tracker-error.h>
-#include <libtracker-sparql/tracker-notifier.h>
-#include <libtracker-sparql/tracker-resource.h>
-#include <libtracker-sparql/tracker-version.h>
 #include <gio/gio.h>
+
+#include "tracker-enums.h"
+#include "tracker-error.h"
+#include "tracker-notifier.h"
+#include "tracker-resource.h"
+#include "tracker-version.h"
 
 G_BEGIN_DECLS
 

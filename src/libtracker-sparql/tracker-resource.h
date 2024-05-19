@@ -19,10 +19,14 @@
 
 #pragma once
 
+#if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <tinysparql.h> must be included directly."
+#endif
+
 #include <glib-object.h>
-#include <libtracker-sparql/tracker-enums.h>
-#include <libtracker-sparql/tracker-version.h>
-#include <libtracker-sparql/tracker-namespace-manager.h>
+#include <tracker-enums.h>
+#include <tracker-version.h>
+#include <tracker-namespace-manager.h>
 
 G_BEGIN_DECLS
 
