@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import gi, sys
-from gi.repository import GLib, Gio, Tracker
+from gi.repository import GLib, Gio, Tsparql
 
 def callback(service, graph, events):
     for event in events:
@@ -9,7 +9,7 @@ def callback(service, graph, events):
             event.get_event_type(), event.get_urn()))
 
 try:
-    connection = Tracker.SparqlConnection.bus_new(
+    connection = Tsparql.SparqlConnection.bus_new(
         'org.freedesktop.Tracker3.Miner.Files',
         None, None)
 

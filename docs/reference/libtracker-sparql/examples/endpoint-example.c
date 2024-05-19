@@ -1,4 +1,4 @@
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 int main (int argc, const char **argv)
 {

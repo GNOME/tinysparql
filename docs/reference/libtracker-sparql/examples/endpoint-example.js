@@ -1,17 +1,17 @@
 #!/usr/bin/gjs
 
-const { GLib, Gio, Tracker } = imports.gi
+const { GLib, Gio, Tsparql } = imports.gi
 
 try {
-    let connection = Tracker.SparqlConnection.new(
-        Tracker.SparqlConnectionFlags.NONE,
+    let connection = Tsparql.SparqlConnection.new(
+        Tsparql.SparqlConnectionFlags.NONE,
         null, // Database location, None creates it in-memory
-        Tracker.sparql_get_ontology_nepomuk(), // Ontology location
+        Tsparql.sparql_get_ontology_nepomuk(), // Ontology location
         null);
 
     let bus = Gio.bus_get_sync(Gio.BusType.SESSION, null)
 
-    let endpoint = Tracker.EndpointDBus.new(
+    let endpoint = Tsparql.EndpointDBus.new(
         connection, bus, null, null);
 
     let loop = GLib.MainLoop.new(null, false);

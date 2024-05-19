@@ -1,18 +1,18 @@
 #!/usr/bin/python3
 
 import gi, sys
-from gi.repository import GLib, Gio, Tracker
+from gi.repository import GLib, Gio, Tsparql
 
 try:
-    connection = Tracker.SparqlConnection.new(
-        Tracker.SparqlConnectionFlags.NONE,
+    connection = Tsparql.SparqlConnection.new(
+        Tsparql.SparqlConnectionFlags.NONE,
         None, # Database location, None creates it in-memory
-        Tracker.sparql_get_ontology_nepomuk(), # Ontology location
+        Tsparql.sparql_get_ontology_nepomuk(), # Ontology location
         None)
 
     bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
 
-    endpoint = Tracker.EndpointDBus.new(
+    endpoint = Tsparql.EndpointDBus.new(
         connection, bus, None, None)
 
     loop = GLib.MainLoop.new(None, False)
