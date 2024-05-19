@@ -1,10 +1,10 @@
 manpages = [
-    ['tracker3-endpoint', 1, true],
-    ['tracker3-export', 1, true],
-    ['tracker3-import', 1, true],
-    ['tracker3-sparql', 1, true],
-    ['tracker3-sql', 1, true],
-    ['tracker-xdg-portal-3', 1, false],
+    ['tinysparql3-endpoint', 1, true],
+    ['tinysparql3-export', 1, true],
+    ['tinysparql3-import', 1, true],
+    ['tinysparql3-sparql', 1, true],
+    ['tinysparql3-sql', 1, true],
+    ['tinysparql-xdg-portal-3', 1, false],
 ]
 
 manpage_files = []
@@ -21,9 +21,9 @@ foreach m : manpages
 
   custom_target(manpage,
     command: [a2x,
-              '--attribute=author=The Tracker developers',
+              '--attribute=author=The TinySPARQL developers',
               '--attribute=manversion=@0@'.format(meson.project_version()),
-              '--attribute=manmanual=Tracker manual',
+              '--attribute=manmanual=TinySPARQL manual',
               '--doctype=manpage',
               '--format=manpage',
               '--no-xmllint',

@@ -1,13 +1,13 @@
-tracker3-endpoint(1)
-====================
+tinysparql3-endpoint(1)
+=======================
 
 == NAME
-tracker3-endpoint - Create a SPARQL endpoint
+tinysparql3-endpoint - Create a SPARQL endpoint
 
 == SYNOPSIS
 
 ....
-tracker3 endpoint [--dbus-service | -b] <service_name>
+tinysparql endpoint [--dbus-service | -b] <service_name>
                   [--database-path | -d] <database_path>
                   [[--ontology | -o] <ontology_name> |
                    [--ontology-path | -p] <ontology_path>]
@@ -65,11 +65,11 @@ The database itself will be stored according to _database_path_.
 
 Export a Nepomuk endpoint with the _org.example.Example1_ bus name.
 
-  $ tracker3 endpoint -b org.example.Example1 -o nepomuk -d /tmp/example1
+  $ tinysparql3 endpoint -b org.example.Example1 -o nepomuk -d /tmp/example1
 
-Access this endpoint with the *tracker3-sparql(1)* subcommand.
+Access this endpoint with the *tinysparql3-sparql(1)* subcommand.
 
-  $ tracker3 sparql --dbus-service org.example.Example1 -q "
+  $ tinysparql3 sparql --dbus-service org.example.Example1 -q "
     SELECT ?s ?o
     WHERE {
       ?u a ?o
@@ -77,17 +77,17 @@ Access this endpoint with the *tracker3-sparql(1)* subcommand.
 
 Export a Nepomuk endpoint via HTTP.
 
-  $ tracker3 endpoint --http-port 8080 -o nepomuk --loopback
+  $ tinysparql3 endpoint --http-port 8080 -o nepomuk --loopback
 
 Access this endpoint via HTTP.
 
-  $ tracker3 sparql --remote-service http://127.0.0.1:8080/sparql -q "
+  $ tinysparql3 sparql --remote-service http://127.0.0.1:8080/sparql -q "
     SELECT ?u {
       ?u a rdfs:Resource
     }"
 
 == SEE ALSO
 
-*tracker3-sparql*(1),
+*tinysparql3-sparql*(1),
 
 <https://www.w3.org/TR/sparql11-query/>

@@ -1,19 +1,19 @@
-tracker-xdg-portal-3(1)
-=======================
+tinysparql-xdg-portal-3(1)
+==========================
 
 == NAME
 
-tracker-xdg-portal-3 - Portal to Tracker endpoints
+tinysparql-xdg-portal-3 - Portal to Tracker endpoints
 
 == SYNOPSIS
 
 ....
-tracker-xdg-portal-3 [--version | -v]
+tinysparql-xdg-portal-3 [--version | -v]
 ....
 
 == DESCRIPTION
 
-This daemon allows access to Tracker endpoints in a controlled manner.
+This daemon allows access to TinySPARQL endpoints in a controlled manner.
 By default access to every service is disallowed, services may be whitelisted
 through additional policy in the _.flatpak-info_ file.
 
@@ -38,7 +38,7 @@ This policy can be set when building or running the sandboxed application throug
     --add-policy=Tracker3.dbus:org.example.SparqlEndpoint1=graphB \
     --add-policy=Tracker3.dbus:org.example.SparqlEndpoint1=default \
     --add-policy=Tracker3.dbus:org.example.SparqlEndpoint2=* \
-    org.freedesktop.TrackerSandbox
+    org.freedesktop.ExampleSandbox
 
 == SEE ALSO
 
