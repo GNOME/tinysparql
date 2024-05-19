@@ -120,7 +120,7 @@ tracker_sparql_private_dep = declare_dependency(
     dependencies: [glib, gio],
 )
 
-libtracker_sparql = library('tracker-sparql-' + tracker_api_version,
+libtracker_sparql = library('tinysparql-' + tracker_api_version,
     gnu_symbol_visibility: 'hidden',
 
     link_whole: [libtracker_sparql_private],
@@ -245,3 +245,5 @@ if get_option('introspection').enabled()
 endif
 
 tracker_sparql_uninstalled_dir = meson.current_build_dir()
+
+meson.add_install_script('symlink-libtracker-sparql.sh', get_option('libdir'))
