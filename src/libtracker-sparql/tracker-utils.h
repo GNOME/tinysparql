@@ -16,8 +16,8 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#ifndef __TRACKER_UTILS_H__
-#define __TRACKER_UTILS_H__
+
+#pragma once
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -44,5 +44,3 @@ GFile *
 tracker_sparql_get_ontology_nepomuk (void);
 
 G_END_DECLS
-
-#endif /* __TRACKER_UTILS_H__ */

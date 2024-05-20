@@ -17,8 +17,7 @@
  * 02110-1301, USA.
  */
 
-#ifndef TRACKER_ONTOLOGY_MODEL_H
-#define TRACKER_ONTOLOGY_MODEL_H
+#pragma once
 
 #include <glib.h>
 
@@ -92,5 +91,3 @@ TrackerOntologyProperty * tracker_ontology_model_get_property (TrackerOntologyMo
                                                                const gchar          *prop_name);
 
 G_END_DECLS
-
-#endif /* TRACKER_ONTOLOGY_MODEL_H */

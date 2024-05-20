@@ -18,8 +18,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_DATE_TIME_H__
-#define __LIBTRACKER_COMMON_DATE_TIME_H__
+#pragma once
 
 #include <glib.h>
 #include <glib-object.h>
@@ -46,5 +45,3 @@ GDateTime * tracker_date_new_from_iso8601 (const gchar  *string,
 gchar * tracker_date_format_iso8601 (GDateTime *datetime);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_COMMON_DATE_TIME_H__ */

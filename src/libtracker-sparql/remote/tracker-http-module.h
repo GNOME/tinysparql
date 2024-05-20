@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_HTTP_MODULE_H
-#define TRACKER_HTTP_MODULE_H
+#pragma once
 
 #include "tracker-http.h"
 
@@ -35,5 +34,3 @@ G_DECLARE_FINAL_TYPE (TrackerHttpClientSoup,
                       tracker_http_client_soup,
                       TRACKER, HTTP_CLIENT_SOUP,
                       TrackerHttpClient)
-
-#endif /* TRACKER_HTTP_MODULE_H */

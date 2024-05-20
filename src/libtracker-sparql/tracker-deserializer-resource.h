@@ -19,12 +19,11 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
+#pragma once
+
 #include "tracker-deserializer-rdf.h"
 
 #include <gio/gio.h>
-
-#ifndef __TRACKER_DESERIALIZER_RESOURCE_H__
-#define __TRACKER_DESERIALIZER_RESOURCE_H__
 
 #define TRACKER_TYPE_DESERIALIZER_RESOURCE (tracker_deserializer_resource_get_type ())
 G_DECLARE_FINAL_TYPE (TrackerDeserializerResource,
@@ -35,5 +34,3 @@ G_DECLARE_FINAL_TYPE (TrackerDeserializerResource,
 TrackerSparqlCursor * tracker_deserializer_resource_new (TrackerResource         *resource,
                                                          TrackerNamespaceManager *manager,
                                                          const gchar             *graph);
-
-#endif /* __TRACKER_DESERIALIZER_RESOURCE_H__ */

@@ -18,8 +18,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_SPARQL_ONTOLOGIES_H__
-#define __LIBTRACKER_SPARQL_ONTOLOGIES_H__
+#pragma once
 
 G_BEGIN_DECLS
 
@@ -132,5 +131,3 @@ G_BEGIN_DECLS
 #define TRACKER_PREFIX_OSINFO   "http://tracker.api.gnome.org/ontology/v3/osinfo#"
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_SPARQL_ONTOLOGY_H__ */

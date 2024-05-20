@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __TRACKER_NOTIFIER_PRIVATE_H__
-#define __TRACKER_NOTIFIER_PRIVATE_H__
+#pragma once
 
 #include "tracker-notifier.h"
 
@@ -43,5 +42,3 @@ void _tracker_notifier_event_cache_flush_events (TrackerNotifier           *noti
 const gchar * tracker_notifier_event_cache_get_graph (TrackerNotifierEventCache *cache);
 
 void tracker_notifier_disable_urn_query (TrackerNotifier *notifier);
-
-#endif /* __TRACKER_NOTIFIER_PRIVATE_H__ */

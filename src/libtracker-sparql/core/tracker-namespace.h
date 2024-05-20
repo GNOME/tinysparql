@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_DATA_NAMESPACE_H__
-#define __LIBTRACKER_DATA_NAMESPACE_H__
+#pragma once
 
 #include <glib-object.h>
 #include "tracker-class.h"
@@ -59,6 +58,3 @@ void              tracker_namespace_set_ontologies (TrackerNamespace  *namespace
                                                     TrackerOntologies *ontologies);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_DATA_NAMESPACE_H__ */
-

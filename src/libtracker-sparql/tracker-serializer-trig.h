@@ -19,18 +19,14 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_SERIALIZER_TRIG_H
-#define TRACKER_SERIALIZER_TRIG_H
+#pragma once
 
 #include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-sparql/tracker-private.h>
 #include <libtracker-sparql/tracker-serializer.h>
 
 #define TRACKER_TYPE_SERIALIZER_TRIG (tracker_serializer_trig_get_type())
-
 G_DECLARE_FINAL_TYPE (TrackerSerializerTrig,
                       tracker_serializer_trig,
                       TRACKER, SERIALIZER_TRIG,
                       TrackerSerializer)
-
-#endif /* TRACKER_SERIALIZER_TRIG_H */

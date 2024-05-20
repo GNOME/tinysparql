@@ -18,8 +18,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_DATA_ONTOLOGIES_H__
-#define __LIBTRACKER_DATA_ONTOLOGIES_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -112,5 +111,3 @@ const gchar *      tracker_ontologies_get_property_string_gvdb  (TrackerOntologi
                                                                  const gchar       *predicate);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_DATA_ONTOLOGY_H__ */

@@ -17,8 +17,8 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#ifndef __TRACKER_SPARQL_PARSER_H__
-#define __TRACKER_SPARQL_PARSER_H__
+
+#pragma once
 
 #include <glib.h>
 
@@ -48,5 +48,3 @@ const TrackerGrammarRule * tracker_parser_node_get_rule (TrackerParserNode *node
 gboolean tracker_parser_node_get_extents (TrackerParserNode *node,
                                           gssize            *start,
                                           gssize            *end);
-
-#endif /* __TRACKER_SPARQL_PARSER_H__ */

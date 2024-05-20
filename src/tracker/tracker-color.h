@@ -17,8 +17,7 @@
  * 02110-1301, USA.
  */
 
-#ifndef __TRACKER_COLOR_H__
-#define __TRACKER_COLOR_H__
+#pragma once
 
 #define TITLE_BEGIN   "\033[32m"   /* Green */
 #define TITLE_END     "\033[0m"
@@ -31,5 +30,3 @@
 
 #define CRIT_BEGIN "\033[1;31m" /* Red */
 #define CRIT_END   "\033[0m"
-
-#endif /* __TRACKER_COLOR_H__ */

@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_DATA_PROPERTY_H__
-#define __LIBTRACKER_DATA_PROPERTY_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -151,6 +150,3 @@ void                tracker_property_set_ontologies          (TrackerProperty   
                                                               TrackerOntologies    *ontologies);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_DATA_PROPERTY_H__ */
-

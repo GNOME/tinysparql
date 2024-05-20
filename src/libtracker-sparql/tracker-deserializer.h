@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_DESERIALIZER_H
-#define TRACKER_DESERIALIZER_H
+#pragma once
 
 #include <libtracker-sparql/tracker-serializer.h>
 #include <libtracker-sparql/tracker-sparql.h>
@@ -45,5 +44,3 @@ gboolean tracker_deserializer_get_parser_location (TrackerDeserializer *deserial
 GInputStream * tracker_deserializer_get_stream (TrackerDeserializer *deserializer);
 
 TrackerNamespaceManager * tracker_deserializer_get_namespaces (TrackerDeserializer *deserializer);
-
-#endif /* TRACKER_DESERIALIZER_H */

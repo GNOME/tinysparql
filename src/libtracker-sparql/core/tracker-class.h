@@ -18,8 +18,7 @@
  * 02110-1301  USA
  */
 
-#ifndef __LIBTRACKER_DATA_CLASS_H__
-#define __LIBTRACKER_DATA_CLASS_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -94,6 +93,3 @@ void              tracker_class_set_definition_line_no   (TrackerClass      *ser
 void              tracker_class_set_definition_column_no (TrackerClass      *service,
                                                           goffset            value);
 G_END_DECLS
-
-#endif /* __LIBTRACKER_DATA_CLASS_H__ */
-

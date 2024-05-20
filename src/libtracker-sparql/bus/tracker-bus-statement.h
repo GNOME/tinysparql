@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __TRACKER_BUS_STATEMENT_H__
-#define __TRACKER_BUS_STATEMENT_H__
+#pragma once
 
 #include "tracker-bus.h"
 
@@ -37,5 +36,3 @@ TrackerSparqlStatement * tracker_bus_statement_new (TrackerBusConnection *conn,
 
 TrackerSparqlStatement * tracker_bus_statement_new_update (TrackerBusConnection *conn,
                                                            const gchar          *query);
-
-#endif /* __TRACKER_BUS_STATEMENT_H__ */

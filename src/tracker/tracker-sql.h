@@ -17,9 +17,6 @@
  * 02110-1301, USA.
  */
 
-#ifndef __TRACKER_SQL_H__
-#define __TRACKER_SQL_H__
+#pragma once
 
 int tracker_sql (int argc, const char **argv);
-
-#endif /* __TRACKER_SQL_H__ */

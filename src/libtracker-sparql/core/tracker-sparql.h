@@ -18,8 +18,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_SPARQL_H__
-#define __TRACKER_SPARQL_H__
+#pragma once
 
 #include <glib.h>
 #include "tracker-data-manager.h"
@@ -46,5 +45,3 @@ gboolean tracker_sparql_execute_update (TrackerSparql  *sparql,
                                         GHashTable     *bnode_map,
                                         GVariant      **bnodes_variant,
                                         GError        **error);
-
-#endif /* __TRACKER_SPARQL_H__ */

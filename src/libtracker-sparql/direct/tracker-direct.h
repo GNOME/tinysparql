@@ -18,8 +18,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_LOCAL_CONNECTION_H__
-#define __TRACKER_LOCAL_CONNECTION_H__
+#pragma once
 
 #include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-sparql/core/tracker-data.h>
@@ -118,5 +117,3 @@ void tracker_direct_connection_execute_serialize_statement_async (TrackerDirectC
 GInputStream * tracker_direct_connection_execute_serialize_statement_finish (TrackerDirectConnection  *conn,
                                                                              GAsyncResult             *res,
                                                                              GError                  **error);
-
-#endif /* __TRACKER_LOCAL_CONNECTION_H__ */

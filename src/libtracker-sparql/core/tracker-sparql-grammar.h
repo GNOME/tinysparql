@@ -17,8 +17,8 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#ifndef __TRACKER_GRAMMAR_H__
-#define __TRACKER_GRAMMAR_H__
+
+#pragma once
 
 #include "string.h"
 
@@ -2381,5 +2381,3 @@ tracker_grammar_rule_is_a (const TrackerGrammarRule *rule,
 
 	return FALSE;
 }
-
-#endif /* __TRACKER_GRAMMAR_H__ */

@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_SPARQL_URI_H__
-#define __LIBTRACKER_SPARQL_URI_H__
+#pragma once
 
 G_BEGIN_DECLS
 
@@ -38,5 +37,3 @@ GType tracker_uri_get_type (void);
  */
 
 G_END_DECLS
-
-#endif

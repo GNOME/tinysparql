@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_DESERIALIZER_RDF_H
-#define TRACKER_DESERIALIZER_RDF_H
+#pragma once
 
 #include <libtracker-sparql/tracker-deserializer.h>
 
@@ -44,5 +43,3 @@ G_DECLARE_DERIVABLE_TYPE (TrackerDeserializerRdf,
                           tracker_deserializer_rdf,
                           TRACKER, DESERIALIZER_RDF,
                           TrackerDeserializer)
-
-#endif /* TRACKER_DESERIALIZER_RDF_H */

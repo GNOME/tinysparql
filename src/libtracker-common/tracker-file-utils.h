@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_FILE_UTILS_H__
-#define __LIBTRACKER_COMMON_FILE_UTILS_H__
+#pragma once
 
 #include <stdio.h>
 
@@ -40,5 +39,3 @@ gboolean tracker_file_system_has_enough_space               (const gchar *path,
                                                              gboolean     creating_db);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_COMMON_FILE_UTILS_H__ */

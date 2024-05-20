@@ -17,10 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_DB_INTERFACE_SQLITE_H__
-#define __LIBTRACKER_DB_INTERFACE_SQLITE_H__
-
-#include "config.h"
+#pragma once
 
 #include "tracker-db-interface.h"
 #include "tracker-db-manager.h"
@@ -102,5 +99,3 @@ GArray * tracker_db_statement_get_values (TrackerDBStatement   *stmt,
                                           GError              **error);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_DB_INTERFACE_SQLITE_H__ */

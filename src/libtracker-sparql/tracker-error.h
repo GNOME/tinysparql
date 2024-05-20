@@ -18,8 +18,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_ERROR_H__
-#define __TRACKER_ERROR_H__
+#pragma once
 
 #include <gio/gio.h>
 #include <libtracker-sparql/tracker-version.h>
@@ -85,5 +84,3 @@ TRACKER_AVAILABLE_IN_ALL
 GQuark tracker_sparql_error_quark (void);
 
 G_END_DECLS
-
-#endif

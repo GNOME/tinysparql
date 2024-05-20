@@ -18,8 +18,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_LANGUAGE_H__
-#define __LIBTRACKER_COMMON_LANGUAGE_H__
+#pragma once
 
 #include <glib-object.h>
 
@@ -56,5 +55,3 @@ void tracker_language_stem_word (TrackerLanguage *language,
                                  gint             buffer_size);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_COMMON_LANGUAGE_H__ */

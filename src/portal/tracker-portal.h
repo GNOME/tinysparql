@@ -18,8 +18,8 @@
  *
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
-#ifndef __TRACKER_PORTAL_H__
-#define __TRACKER_PORTAL_H__
+
+#pragma once
 
 #include <gio/gio.h>
 
@@ -29,5 +29,3 @@ G_DECLARE_FINAL_TYPE (TrackerPortal, tracker_portal, TRACKER, PORTAL, GObject)
 TrackerPortal * tracker_portal_new (GDBusConnection  *connection,
                                     GCancellable     *cancellable,
                                     GError          **error);
-
-#endif /* __TRACKER_PORTAL_H__ */

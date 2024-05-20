@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_COMMON_COLLATION_H__
-#define __LIBTRACKER_COMMON_COLLATION_H__
+#pragma once
 
 G_BEGIN_DECLS
 
@@ -33,5 +32,3 @@ gint     tracker_collation_utf8_title (gpointer      collator,
 #define TRACKER_COLLATION_LAST_CHAR ((gunichar) 0x10fffd)
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_COMMON_COLLATION_H__ */

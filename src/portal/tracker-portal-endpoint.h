@@ -18,8 +18,8 @@
  *
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
-#ifndef __TRACKER_PORTAL_ENDPOINT_H__
-#define __TRACKER_PORTAL_ENDPOINT_H__
+
+#pragma once
 
 #include <gio/gio.h>
 
@@ -39,5 +39,3 @@ TrackerEndpoint * tracker_portal_endpoint_new (TrackerSparqlConnection  *sparql_
                                                const gchar * const      *graphs,
                                                GCancellable             *cancellable,
                                                GError                  **error);
-
-#endif /* __TRACKER_PORTAL_ENDPOINT_H__ */

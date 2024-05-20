@@ -18,13 +18,11 @@
  *
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
+
+#pragma once
+
 #include <sqlite3.h>
 #include "tracker-data-manager.h"
 
-#ifndef __TRACKER_VTAB_TRIPLES_H__
-#define __TRACKER_VTAB_TRIPLES_H__
-
 void tracker_vtab_triples_init (sqlite3            *db,
                                 TrackerDataManager *data_manager);
-
-#endif /* __TRACKER_VTAB_TRIPLES_H__ */

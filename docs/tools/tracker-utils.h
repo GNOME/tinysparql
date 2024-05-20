@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_UTILS_H
-#define TRACKER_UTILS_H
+#pragma once
 
 #include <glib.h>
 #include "tracker-ontology-model.h"
@@ -45,5 +44,3 @@ void ttl_generate_dot_files (TrackerOntologyDescription *description,
                              GFile                      *output_location);
 
 G_END_DECLS
-
-#endif /* TRACKER_UTILS_H */

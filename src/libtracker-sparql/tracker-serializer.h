@@ -19,8 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef TRACKER_SERIALIZER_H
-#define TRACKER_SERIALIZER_H
+#pragma once
 
 #include <libtracker-sparql/tracker-sparql.h>
 #include <libtracker-sparql/tracker-enums-private.h>
@@ -39,5 +38,3 @@ GInputStream * tracker_serializer_new (TrackerSparqlCursor     *cursor,
 TrackerSparqlCursor * tracker_serializer_get_cursor (TrackerSerializer *serializer);
 
 TrackerNamespaceManager * tracker_serializer_get_namespaces (TrackerSerializer *serializer);
-
-#endif /* TRACKER_SERIALIZER_H */

@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_DIRECT_BATCH_H__
-#define __TRACKER_DIRECT_BATCH_H__
+#pragma once
 
 #include "tracker-direct.h"
 #include <libtracker-sparql/tracker-sparql.h>
@@ -41,5 +40,3 @@ TrackerBatch * tracker_direct_batch_new (TrackerSparqlConnection *conn);
 gboolean tracker_direct_batch_update (TrackerDirectBatch  *batch,
                                       TrackerDataManager  *data_manager,
                                       GError             **error);
-
-#endif /* __TRACKER_DIRECT_BATCH_H__ */

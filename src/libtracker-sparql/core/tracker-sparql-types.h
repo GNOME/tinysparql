@@ -18,8 +18,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __TRACKER_SPARQL_TYPES_H__
-#define __TRACKER_SPARQL_TYPES_H__
+#pragma once
 
 #include "tracker-ontologies.h"
 
@@ -387,5 +386,3 @@ GPtrArray * tracker_triple_context_lookup_variable_binding_list (TrackerTripleCo
 								 TrackerVariable      *variable);
 GPtrArray * tracker_triple_context_get_variable_binding_list (TrackerTripleContext *context,
 							      TrackerVariable      *variable);
-
-#endif /* __TRACKER_SPARQL_TYPES_H__ */

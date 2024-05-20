@@ -20,8 +20,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_DATA_MANAGER_H__
-#define __LIBTRACKER_DATA_MANAGER_H__
+#pragma once
 
 #include <glib.h>
 
@@ -115,5 +114,3 @@ void tracker_data_manager_map_connection (TrackerDataManager      *data_manager,
                                           TrackerSparqlConnection *connection);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_DATA_MANAGER_H__ */

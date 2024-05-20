@@ -19,18 +19,15 @@
  * 02110-1301  USA
  */
 
+#pragma once
+
 #include <sqlite3.h>
 #include <glib.h>
 
 #include "tracker-data-manager.h"
-
-#ifndef __TRACKER_FTS_TOKENIZER_H__
-#define __TRACKER_FTS_TOKENIZER_H__
 
 gboolean tracker_tokenizer_initialize (sqlite3                *db,
                                        TrackerDBInterface     *interface,
                                        TrackerDBManagerFlags   flags,
                                        TrackerDataManager     *data_manager,
                                        GError                **error);
-
-#endif /* __TRACKER_FTS_TOKENIZER_H__ */

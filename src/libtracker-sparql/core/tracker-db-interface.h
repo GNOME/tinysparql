@@ -17,8 +17,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_DB_INTERFACE_H__
-#define __LIBTRACKER_DB_INTERFACE_H__
+#pragma once
 
 #include <glib-object.h>
 #include <gio/gio.h>
@@ -172,5 +171,3 @@ void tracker_db_cursor_get_value (TrackerDBCursor            *cursor,
                                   GValue                     *value);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_DB_INTERFACE_H__ */

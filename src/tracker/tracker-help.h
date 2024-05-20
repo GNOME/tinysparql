@@ -19,9 +19,6 @@
 
 #include <glib.h>
 
-#ifndef __TRACKER_HELP_H__
-#define __TRACKER_HELP_H__
+#pragma once
 
 int tracker_help_show_man_page (const char  *cmd);
-
-#endif /* __TRACKER_HELP_H__ */

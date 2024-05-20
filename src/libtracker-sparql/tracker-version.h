@@ -18,8 +18,7 @@
  * Boston, MA  02110-1301, USA.
  */
 
-#ifndef __LIBTRACKER_SPARQL_VERSION_H__
-#define __LIBTRACKER_SPARQL_VERSION_H__
+#pragma once
 
 #include <glib.h>
 
@@ -245,5 +244,3 @@ const gchar * tracker_check_version (guint required_major,
                                      guint required_micro);
 
 G_END_DECLS
-
-#endif /* __LIBTRACKER_SPARQL_VERSION_H__ */

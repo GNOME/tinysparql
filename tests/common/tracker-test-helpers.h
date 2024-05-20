@@ -16,8 +16,8 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
  * Boston, MA  02110-1301, USA.
  */
-#ifndef __TRACKER_TEST_HELPERS_H__
-#define __TRACKER_TEST_HELPERS_H__
+
+#pragma once
 
 #include <glib.h>
 
@@ -27,5 +27,3 @@ const gchar *tracker_test_helpers_get_nonutf8  (void);
 void         tracker_test_helpers_free_nonutf8 (void);
 
 G_END_DECLS
-
-#endif /* __TRACKER_TEST_HELPERS_H__ */
