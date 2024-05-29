@@ -231,12 +231,12 @@ tracker_http_server_new (guint             port,
 void
 tracker_http_server_response (TrackerHttpServer       *server,
                               TrackerHttpRequest      *request,
-                              TrackerSerializerFormat  format,
+                              const gchar*             mimetype,
                               GInputStream            *content)
 {
 	TRACKER_HTTP_SERVER_GET_CLASS (server)->response (server,
 	                                                  request,
-	                                                  format,
+	                                                  mimetype,
 	                                                  content);
 }
 

@@ -148,12 +148,15 @@ get_supported_formats (TrackerHttpRequest *request)
 
 static void
 set_message_format (TrackerHttpRequest      *request,
-                    TrackerSerializerFormat  format)
+                    const gchar*			mimetype)
 {
 	SoupMessageHeaders *response_headers;
 
 	response_headers = soup_server_message_get_response_headers (request->message);
-	soup_message_headers_set_content_type (response_headers, mimetypes[format], NULL);
+	soup_message_headers_set_content_type (response_headers, mimetype, NULL);
+
+	// Required to run
+	soup_message_headers_append (response_headers, "Access-Control-Allow-Origin", "*");
 }
 
 /* Get SPARQL query from message POST data, or NULL. */
@@ -546,7 +549,7 @@ write_finished_cb (GObject      *object,
 static void
 tracker_http_server_soup_response (TrackerHttpServer       *server,
                                    TrackerHttpRequest      *request,
-                                   TrackerSerializerFormat  format,
+                                   const gchar*				mimetype,
                                    GInputStream            *content)
 {
 	TrackerHttpServerSoup *server_soup =
@@ -554,7 +557,7 @@ tracker_http_server_soup_response (TrackerHttpServer       *server,
 
 	g_assert (request->server == server);
 
-	set_message_format (request, format);
+	set_message_format (request, mimetype);
 
 	request->istream = content;
 	request->task = g_task_new (server, server_soup->cancellable,

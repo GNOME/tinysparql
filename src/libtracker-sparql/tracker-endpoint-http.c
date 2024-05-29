@@ -83,6 +83,14 @@ const gchar *supported_formats[] = {
 	"http://www.w3.org/ns/formats/JSON-LD",
 };
 
+static const gchar *mimetypes[] = {
+	"application/sparql-results+json",
+	"application/sparql-results+xml",
+	"text/turtle",
+	"application/trig",
+	"application/ld+json",
+};
+
 G_STATIC_ASSERT (G_N_ELEMENTS (supported_formats) == TRACKER_N_SERIALIZER_FORMATS);
 
 struct _TrackerEndpointHttp {
@@ -160,7 +168,7 @@ query_async_cb (GObject      *object,
 	/* Consumes the input stream */
 	tracker_http_server_response (endpoint_http->server,
 	                              request->request,
-	                              request->format,
+	                              mimetypes[request->format],
 	                              stream);
 	request_free (request);
 }
@@ -311,7 +319,7 @@ http_server_request_cb (TrackerHttpServer  *server,
 		/* Consumes the serializer */
 		tracker_http_server_response (server,
 		                              request,
-		                              format,
+		                              mimetypes[format],
 		                              serializer);
 	}
 }
