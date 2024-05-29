@@ -239,6 +239,12 @@ create_service_description (TrackerEndpointHttp      *endpoint,
 	return resource;
 }
 
+const char *get_filename_ext(const char *filename) {
+    const char *dot = strrchr(filename, '.');
+    if(!dot || dot == filename) return "";
+    return dot + 1;
+}
+
 static void
 http_server_request_cb (TrackerHttpServer  *server,
                         GSocketAddress     *remote_address,
@@ -257,28 +263,52 @@ http_server_request_cb (TrackerHttpServer  *server,
 	gboolean block = FALSE;
 	const gchar *sparql = NULL;
 	Request *data;
-	
+	gchar* public_path = "/home/demigod/new/tracker/public";
+	gchar* file_extension;
+	const gchar* mime_type;
+
+	path = path + 7;
 	g_debug ("Received %s request for path '%s'", method, path);
 	if(g_strcmp0(method, "GET") == 0) {
-		file = g_file_new_for_path("/home/demigod/new/tracker/public/index.html");
+		// file = g_file_new_for_path(g_strconcat(public_path, path, NULL));
+		// file = g_file_new_for_path("/home/demigod/new/tracker/public/index.html");
+		file_extension = get_filename_ext(path);
+		path = g_strconcat(public_path, path, NULL);
+		file = g_file_new_for_path(path);
     	in = g_file_read(file, NULL, NULL);
-		if(!in){
+		
+		if(!in || file_extension == ""){
 			g_debug("File not found");
 			tracker_http_server_response (server, request, "text/html", 
 				g_memory_input_stream_new_from_data("File not found", -1, NULL));
 			return;
 		} else {
-			g_debug("File found");
+			// g_debug("File found");
 			// g_debug("Size of file: %d", g_input_stream_read(in, NULL, NULL);
 			// char *html = "<html><head><title>Tracker</title></head><body><h1>Tracker</h1></body></html>";
-			tracker_http_server_response (server, request, "text/html", G_INPUT_STREAM (in));
+			if(g_strcmp0(file_extension, "html") == 0)
+				mime_type = "text/html";
+			else if(g_strcmp0(file_extension, "css") == 0)
+				mime_type = "text/css";
+			else if(g_strcmp0(file_extension, "js") == 0)
+				mime_type = "text/javascript";
+			else if(g_strcmp0(file_extension, "png") == 0)
+				mime_type = "image/png";
+			else if(g_strcmp0(file_extension, "jpg") == 0)
+				mime_type = "image/jpg";
+			else if(g_strcmp0(file_extension, "jpeg") == 0)
+				mime_type = "image/jpeg";
+			else if(g_strcmp0(file_extension, "gif") == 0)
+				mime_type = "image/gif";
+			else
+				mime_type = "text/html";
+
+			tracker_http_server_response (server, request, mime_type, G_INPUT_STREAM (in));
 			// tracker_http_server_response (server, request, "text/html", 
 			// 	g_memory_input_stream_new_from_data("File found", -1, NULL));
 		}
 			return;
 	}
-
-	g_debug("Here \n");
 
 	if (remote_address) {
 		g_signal_emit (endpoint, signals[BLOCK_REMOTE_ADDRESS], 0,
