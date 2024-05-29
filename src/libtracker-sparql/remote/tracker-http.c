@@ -182,9 +182,10 @@ tracker_http_server_class_init (TrackerHttpServerClass *klass)
 		g_signal_new ("request",
 		              TRACKER_TYPE_HTTP_SERVER, 0, 0,
 		              NULL, NULL, NULL,
-		              G_TYPE_NONE, 5,
+		              G_TYPE_NONE, 6,
 		              G_TYPE_SOCKET_ADDRESS,
 		              G_TYPE_STRING,
+					  G_TYPE_STRING,
 		              G_TYPE_HASH_TABLE,
 		              G_TYPE_UINT,
 		              G_TYPE_POINTER);

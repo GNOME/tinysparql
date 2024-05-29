@@ -243,6 +243,7 @@ static void
 http_server_request_cb (TrackerHttpServer  *server,
                         GSocketAddress     *remote_address,
                         const gchar        *path,
+						const gchar		   *method,
                         GHashTable         *params,
                         guint               formats,
                         TrackerHttpRequest *request,
@@ -251,9 +252,33 @@ http_server_request_cb (TrackerHttpServer  *server,
 	TrackerEndpoint *endpoint = user_data;
 	TrackerSparqlConnection *conn;
 	TrackerSerializerFormat format;
+	GFile *file;
+	GFileInputStream *in;
 	gboolean block = FALSE;
 	const gchar *sparql = NULL;
 	Request *data;
+	
+	g_debug ("Received %s request for path '%s'", method, path);
+	if(g_strcmp0(method, "GET") == 0) {
+		file = g_file_new_for_path("/home/demigod/new/tracker/public/index.html");
+    	in = g_file_read(file, NULL, NULL);
+		if(!in){
+			g_debug("File not found");
+			tracker_http_server_response (server, request, "text/html", 
+				g_memory_input_stream_new_from_data("File not found", -1, NULL));
+			return;
+		} else {
+			g_debug("File found");
+			// g_debug("Size of file: %d", g_input_stream_read(in, NULL, NULL);
+			// char *html = "<html><head><title>Tracker</title></head><body><h1>Tracker</h1></body></html>";
+			tracker_http_server_response (server, request, "text/html", G_INPUT_STREAM (in));
+			// tracker_http_server_response (server, request, "text/html", 
+			// 	g_memory_input_stream_new_from_data("File found", -1, NULL));
+		}
+			return;
+	}
+
+	g_debug("Here \n");
 
 	if (remote_address) {
 		g_signal_emit (endpoint, signals[BLOCK_REMOTE_ADDRESS], 0,

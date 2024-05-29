@@ -192,8 +192,15 @@ server_callback_got_message_body (SoupServerMessage *message,
 {
 	TrackerHttpRequest *request = user_data;
 	gchar *sparql;
+	const char *method;
 
 	sparql = get_sparql_from_message_body (message);
+
+	#if SOUP_CHECK_VERSION (3, 1, 3)
+		method = soup_server_message_get_method (message);
+	#else
+		method = message->method;
+	#endif
 
 	if (sparql) {
 		if (!request->params) {
@@ -205,6 +212,7 @@ server_callback_got_message_body (SoupServerMessage *message,
 		g_signal_emit_by_name (request->server, "request",
 		                       request->remote_address,
 		                       request->path,
+							   method,
 		                       request->params,
 		                       get_supported_formats (request),
 		                       request);
@@ -251,10 +259,13 @@ server_callback (SoupServer        *server,
 			g_debug ("Received HTTP POST for %s with no body, awaiting data", path);
 			g_signal_connect (message, "got-body", G_CALLBACK (server_callback_got_message_body), request);
 		}
+	// } else if (g_strcmp0 (method, SOUP_METHOD_GET) == 0){
+		// g_debug("Received HTTP GET for %s", path);
 	} else {
 		g_signal_emit_by_name (http_server, "request",
 		                       remote_address,
 		                       path,
+							   method,
 		                       query,
 		                       get_supported_formats (request),
 		                       request);
