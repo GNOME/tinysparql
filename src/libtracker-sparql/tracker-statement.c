@@ -23,7 +23,7 @@
  *
  * The SPARQL query will be internally compiled into the format that is most
  * optimal to execute the query many times. For connections created
- * through [ctor@Tracker.SparqlConnection.new] that will be a
+ * through [ctor@SparqlConnection.new] that will be a
  * SQLite compiled statement.
  *
  * The SPARQL query may contain parameterized variables expressed via the
@@ -33,19 +33,19 @@
  * execution. The `TrackerSparqlStatement` may be reused for future
  * queries with different values.
  *
- * The argument bindings may be changed through the [method@Tracker.SparqlStatement.bind_int],
- * [method@Tracker.SparqlStatement.bind_int], etc... family of functions. Those functions
+ * The argument bindings may be changed through the [method@SparqlStatement.bind_int],
+ * [method@SparqlStatement.bind_int], etc... family of functions. Those functions
  * receive a @name argument corresponding for the variable name in the SPARQL query
  * (eg. `"var"` for `~var`) and a value to map the variable to.
  *
  * Once all arguments have a value, the query may be executed through
- * [method@Tracker.SparqlStatement.execute_async] or [method@Tracker.SparqlStatement.execute].
+ * [method@SparqlStatement.execute_async] or [method@SparqlStatement.execute].
  *
  * It is possible to use any `TrackerSparqlStatement` from other threads than
  * the one it was created from. However, binding values and executing the
  * statement must only happen from one thread at a time. It is possible to reuse
- * the `TrackerSparqlStatement` right after [method@Tracker.SparqlStatement.execute_async]
- * was called, there is no need to wait for [method@Tracker.SparqlStatement.execute_finish].
+ * the `TrackerSparqlStatement` right after [method@SparqlStatement.execute_async]
+ * was called, there is no need to wait for [method@SparqlStatement.execute_finish].
  *
  * In some circumstances, it is possible that the query needs to be recompiled
  * from the SPARQL source. This will happen transparently.
@@ -143,7 +143,7 @@ tracker_sparql_statement_class_init (TrackerSparqlStatementClass *klass)
 	/**
 	 * TrackerSparqlStatement:connection:
 	 *
-	 * The [class@Tracker.SparqlConnection] the statement was created for.
+	 * The [class@SparqlConnection] the statement was created for.
 	 */
 	props[PROP_CONNECTION] =
 		g_param_spec_object ("connection",
@@ -176,7 +176,7 @@ tracker_sparql_statement_class_init (TrackerSparqlStatementClass *klass)
  * tracker_sparql_statement_get_connection:
  * @stmt: a `TrackerSparqlStatement`
  *
- * Returns the [class@Tracker.SparqlConnection] that this statement was created for.
+ * Returns the [class@SparqlConnection] that this statement was created for.
  *
  * Returns: (transfer none): The SPARQL connection of this statement.
  **/
@@ -359,12 +359,12 @@ tracker_sparql_statement_bind_langstring (TrackerSparqlStatement *stmt,
  *
  * This function also works for `DESCRIBE` and `CONSTRUCT` queries that
  * retrieve data from the triple store. These query forms that return
- * RDF data are however more useful together with [method@Tracker.SparqlStatement.serialize_async].
+ * RDF data are however more useful together with [method@SparqlStatement.serialize_async].
  *
  * This function should only be called on `TrackerSparqlStatement` objects
- * obtained through [method@Tracker.SparqlConnection.query_statement] or
+ * obtained through [method@SparqlConnection.query_statement] or
  * SELECT/CONSTRUCT/DESCRIBE statements loaded through
- * [method@Tracker.SparqlConnection.load_statement_from_gresource].
+ * [method@SparqlConnection.load_statement_from_gresource].
  * An error will be raised if this method is called on a `INSERT` or `DELETE`
  * SPARQL query.
  *
@@ -404,12 +404,12 @@ tracker_sparql_statement_execute (TrackerSparqlStatement  *stmt,
  *
  * This function also works for `DESCRIBE` and `CONSTRUCT` queries that
  * retrieve data from the triple store. These query forms that return
- * RDF data are however more useful together with [method@Tracker.SparqlStatement.serialize_async].
+ * RDF data are however more useful together with [method@SparqlStatement.serialize_async].
  *
  * This function should only be called on `TrackerSparqlStatement` objects
- * obtained through [method@Tracker.SparqlConnection.query_statement] or
+ * obtained through [method@SparqlConnection.query_statement] or
  * SELECT/CONSTRUCT/DESCRIBE statements loaded through
- * [method@Tracker.SparqlConnection.load_statement_from_gresource].
+ * [method@SparqlConnection.load_statement_from_gresource].
  * An error will be raised if this method is called on a `INSERT` or `DELETE`
  * SPARQL query.
  */
@@ -435,7 +435,7 @@ tracker_sparql_statement_execute_async (TrackerSparqlStatement *stmt,
  * @error: Error location
  *
  * Finishes the asynchronous operation started through
- * [method@Tracker.SparqlStatement.execute_async].
+ * [method@SparqlStatement.execute_async].
  *
  * Returns: (transfer full): A `TrackerSparqlCursor` with the query results.
  */
@@ -470,9 +470,9 @@ tracker_sparql_statement_execute_finish (TrackerSparqlStatement  *stmt,
  * Executes the `INSERT`/`DELETE` SPARQL query series with the currently bound values.
  *
  * This function should only be called on `TrackerSparqlStatement` objects
- * obtained through [method@Tracker.SparqlConnection.update_statement] or
+ * obtained through [method@SparqlConnection.update_statement] or
  * `INSERT`/`DELETE` statements loaded through
- * [method@Tracker.SparqlConnection.load_statement_from_gresource].
+ * [method@SparqlConnection.load_statement_from_gresource].
  * An error will be raised if this method is called on
  * `SELECT`/`ASK`/`DESCRIBE`/`CONSTRUCT` SPARQL queries.
  *
@@ -505,9 +505,9 @@ tracker_sparql_statement_update (TrackerSparqlStatement  *stmt,
  * Executes asynchronously the `INSERT`/`DELETE` SPARQL query series with the currently bound values.
  *
  * This function should only be called on `TrackerSparqlStatement` objects
- * obtained through [method@Tracker.SparqlConnection.update_statement] or
+ * obtained through [method@SparqlConnection.update_statement] or
  * `INSERT`/`DELETE` statements loaded through
- * [method@Tracker.SparqlConnection.load_statement_from_gresource].
+ * [method@SparqlConnection.load_statement_from_gresource].
  * An error will be raised if this method is called on
  * `SELECT`/`ASK`/`DESCRIBE`/`CONSTRUCT` SPARQL queries.
  *
@@ -535,7 +535,7 @@ tracker_sparql_statement_update_async (TrackerSparqlStatement *stmt,
  * @error: Error location
  *
  * Finishes the asynchronous update started through
- * [method@Tracker.SparqlStatement.update_async].
+ * [method@SparqlStatement.update_async].
  *
  * Returns: %TRUE if the update finished with no errors, %FALSE otherwise
  *
@@ -624,7 +624,7 @@ tracker_sparql_statement_serialize_async (TrackerSparqlStatement *stmt,
  * @error: Error location
  *
  * Finishes the asynchronous operation started through
- * [method@Tracker.SparqlStatement.serialize_async].
+ * [method@SparqlStatement.serialize_async].
  *
  * Returns: (transfer full): a [class@Gio.InputStream] to read RDF content.
  *

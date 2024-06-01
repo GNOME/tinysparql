@@ -1,4 +1,4 @@
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 #define REMOTE_NAME "org.freedesktop.Tracker3.Miner.Files"
 

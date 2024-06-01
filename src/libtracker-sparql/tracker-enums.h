@@ -21,6 +21,10 @@
 
 #pragma once
 
+#if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <tinysparql.h> must be included directly."
+#endif
+
 /**
  * TrackerRdfFormat:
  * @TRACKER_RDF_FORMAT_TURTLE: Turtle format

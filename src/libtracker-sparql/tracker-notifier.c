@@ -21,19 +21,19 @@
  * TrackerNotifier:
  *
  * `TrackerNotifier` allows receiving notification on changes
- * in the data stored by a [class@Tracker.SparqlConnection].
+ * in the data stored by a [class@SparqlConnection].
  *
- * This object may be created through [method@Tracker.SparqlConnection.create_notifier],
+ * This object may be created through [method@SparqlConnection.create_notifier],
  * events can then be listened for by connecting to the
- * [signal@Tracker.Notifier::events] signal.
+ * [signal@Notifier::events] signal.
  *
  * Not every change is notified, only RDF resources with a
  * class that has the [nrl:notify](nrl-ontology.html#nrl:notify)
  * property defined by the ontology will be notified upon changes.
  *
- * Database changes are communicated through [struct@Tracker.NotifierEvent] events on
+ * Database changes are communicated through [struct@NotifierEvent] events on
  * individual graph/resource pairs. The event type obtained through
- * [method@Tracker.NotifierEvent.get_event_type] will determine the type of event.
+ * [method@NotifierEvent.get_event_type] will determine the type of event.
  * Insertion of new resources is notified through
  * %TRACKER_NOTIFIER_EVENT_CREATE events, deletion of
  * resources is notified through %TRACKER_NOTIFIER_EVENT_DELETE
@@ -42,14 +42,14 @@
  *
  * The events happen in reaction to database changes, after a `TrackerNotifier`
  * received an event of type %TRACKER_NOTIFIER_EVENT_DELETE, the resource will
- * not exist anymore and only the information in the [struct@Tracker.NotifierEvent]
+ * not exist anymore and only the information in the [struct@NotifierEvent]
  * will remain.
  *
  * Similarly, when receiving an event of type %TRACKER_NOTIFIER_EVENT_UPDATE,
  * the resource will have already changed, so the data previous to the update is
  * no longer available.
  *
- * The [signal@Tracker.Notifier::events] signal is emitted in the thread-default
+ * The [signal@Notifier::events] signal is emitted in the thread-default
  * main context of the thread where the `TrackerNotifier` instance was created.
  */
 
@@ -798,7 +798,7 @@ tracker_notifier_class_init (TrackerNotifierClass *klass)
 	 * @self: The `TrackerNotifier`
 	 * @service: The SPARQL service that originated the events, %NULL for the local store
 	 * @graph: The graph where the events happened on, %NULL for the default anonymous graph
-	 * @events: (transfer none) (type GLib.PtrArray) (element-type TrackerNotifierEvent): A [type@GLib.PtrArray] of [struct@Tracker.NotifierEvent]
+	 * @events: (transfer none) (type GLib.PtrArray) (element-type TrackerNotifierEvent): A [type@GLib.PtrArray] of [struct@NotifierEvent]
 	 *
 	 * Notifies of changes in the Tracker database.
 	 */
@@ -861,10 +861,10 @@ tracker_notifier_init (TrackerNotifier *notifier)
  * used. If @graph is %NULL, all graphs will be listened for.
  *
  * The signal subscription can be removed with
- * [method@Tracker.Notifier.signal_unsubscribe].
+ * [method@Notifier.signal_unsubscribe].
  *
  * Note that this call is not necessary to receive notifications on
- * a connection obtained through [ctor@Tracker.SparqlConnection.bus_new],
+ * a connection obtained through [ctor@SparqlConnection.bus_new],
  * only to listen to update notifications from additional DBus endpoints.
  *
  * Returns: An ID for this subscription
@@ -937,7 +937,7 @@ tracker_notifier_signal_subscribe (TrackerNotifier *notifier,
  * @notifier: A `TrackerNotifier`
  * @handler_id: A signal subscription handler ID
  *
- * Undoes a signal subscription done through [method@Tracker.Notifier.signal_subscribe].
+ * Undoes a signal subscription done through [method@Notifier.signal_subscribe].
  *
  * The @handler_id argument was previously obtained during signal subscription creation.
  **/

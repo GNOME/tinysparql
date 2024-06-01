@@ -5,7 +5,7 @@ sources = [
     'tracker-portal-utils.c',
 ]
 
-executable('tracker-xdg-portal-@0@'.format(tracker_api_major), sources,
+executable('tinysparql-xdg-portal-@0@'.format(tracker_api_major), sources,
     c_args: tracker_c_args,
     install: true,
     install_dir: get_option('libexecdir'),
@@ -24,7 +24,7 @@ dbus_service_file = configure_file(
 if install_systemd_user_services
     configure_file(
         input: 'tracker-xdg-portal.service.in',
-        output: 'tracker-xdg-portal-@0@.service'.format(tracker_api_major),
+        output: 'tinysparql-xdg-portal-@0@.service'.format(tracker_api_major),
         configuration: conf,
         install: true,
         install_dir: systemd_user_services_dir

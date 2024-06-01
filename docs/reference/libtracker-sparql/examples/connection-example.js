@@ -1,9 +1,9 @@
 #!/usr/bin/gjs
 
-const { GLib, Gio, Tracker } = imports.gi
+const { GLib, Gio, Tsparql } = imports.gi
 
 try {
-    let connection = Tracker.SparqlConnection.bus_new(
+    let connection = Tsparql.SparqlConnection.bus_new(
         'org.freedesktop.Tracker3.Miner.Files',
         null, null);
 

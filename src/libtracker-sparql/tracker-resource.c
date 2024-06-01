@@ -53,20 +53,20 @@ G_DEFINE_TYPE_WITH_PRIVATE (TrackerResource, tracker_resource, G_TYPE_OBJECT)
  *
  * This object keeps track of a set of properties for a given resource, and can
  * also link to other `TrackerResource` objects to form trees or graphs of RDF
- * data. See [method@Tracker.Resource.set_relation] and [method@Tracker.Resource.set_uri]
+ * data. See [method@Resource.set_relation] and [method@Resource.set_uri]
  * on how to link a `TrackerResource` to other RDF data.
  *
  * `TrackerResource` may also hold data about literal values, added through
- * the specialized [method@Tracker.Resource.set_int64], [method@Tracker.Resource.set_string],
- * etc family of functions, or the generic [method@Tracker.Resource.set_gvalue] method.
+ * the specialized [method@Resource.set_int64], [method@Resource.set_string],
+ * etc family of functions, or the generic [method@Resource.set_gvalue] method.
  *
  * Since RDF properties may be multi-valued, for every `set` call there exists
- * another `add` call (e.g. [method@Tracker.Resource.add_int64], [method@Tracker.Resource.add_string]
+ * another `add` call (e.g. [method@Resource.add_int64], [method@Resource.add_string]
  * and so on). The `set` methods do also reset any previously value the
  * property might hold for the given resource.
  *
- * Resources may have an IRI set at creation through [ctor@Tracker.Resource.new],
- * or set afterwards through [method@Tracker.Resource.set_identifier]. Resources
+ * Resources may have an IRI set at creation through [ctor@Resource.new],
+ * or set afterwards through [method@Resource.set_identifier]. Resources
  * without a name will represent a blank node, and will be dealt with as such
  * during database insertions.
  *
@@ -75,9 +75,9 @@ G_DEFINE_TYPE_WITH_PRIVATE (TrackerResource, tracker_resource, G_TYPE_OBJECT)
  * for e.g. database updates.
  *
  * Once the RDF data is built in memory, the (tree of) `TrackerResource` may be
- * converted to a RDF format through [method@Tracker.Resource.print_rdf], or
- * directly inserted into a database through [method@Tracker.Batch.add_resource]
- * or [method@Tracker.SparqlConnection.update_resource].
+ * converted to a RDF format through [method@Resource.print_rdf], or
+ * directly inserted into a database through [method@Batch.add_resource]
+ * or [method@SparqlConnection.update_resource].
  */
 
 static char *
@@ -455,7 +455,7 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_int64, gint64, G_TYPE_INT64, g_valu
  * that points to a non-literal class (i.e. a subclass of
  * [rdfs:Resource](rdf-ontology.html#rdfs:Resource)).
  *
- * This function produces similar RDF to [method@Tracker.Resource.set_uri],
+ * This function produces similar RDF to [method@Resource.set_uri],
  * although in this function the URI will depend on the identifier
  * set on @resource.
  */
@@ -474,7 +474,7 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_relation, TrackerResource *, TRACKE
  * that points to a non-literal class (i.e. a subclass of
  * [rdfs:Resource](rdf-ontology.html#rdfs:Resource)).
  *
- * This function produces similar RDF to [method@Tracker.Resource.set_uri],
+ * This function produces similar RDF to [method@Resource.set_uri],
  * although in this function the URI will depend on the identifier
  * set on @resource.
  */
@@ -504,7 +504,7 @@ SET_PROPERTY_FOR_GTYPE (tracker_resource_set_string, const char *, G_TYPE_STRING
  * that points to a non-literal class (i.e. a subclass of
  * [rdfs:Resource](rdf-ontology.html#rdfs:Resource)).
  *
- * This function produces similar RDF to [method@Tracker.Resource.set_relation], although
+ * This function produces similar RDF to [method@Resource.set_relation], although
  * it requires that the URI is previously known.
  */
 SET_PROPERTY_FOR_GTYPE (tracker_resource_set_uri, const char *, TRACKER_TYPE_URI, value_set_uri, validate_pointer)
@@ -713,7 +713,7 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_int64, gint64, G_TYPE_INT64, g_valu
  * that points to a non-literal class (i.e. a subclass of
  * [rdfs:Resource](rdf-ontology.html#rdfs:Resource)).
  *
- * This method produces similar RDF to [method@Tracker.Resource.add_uri],
+ * This method produces similar RDF to [method@Resource.add_uri],
  * although in this function the URI will depend on the identifier
  * set on @resource.
  */
@@ -735,7 +735,7 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_relation, TrackerResource *, TRACKE
  * that points to a non-literal class (i.e. a subclass of
  * [rdfs:Resource](rdf-ontology.html#rdfs:Resource)).
  *
- * This function produces similar RDF to [method@Tracker.Resource.add_uri],
+ * This function produces similar RDF to [method@Resource.add_uri],
  * although in this function the URI will depend on the identifier
  * set on @resource. This function takes ownership of @resource.
  */
@@ -772,7 +772,7 @@ ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_string, const char *, G_TYPE_STRING
  * This method is meant for RDF properties allowing multiple values, see
  * [nrl:maxCardinality](nrl-ontology.html#nrl:maxCardinality).
  *
- * This function produces similar RDF to [method@Tracker.Resource.add_relation], although
+ * This function produces similar RDF to [method@Resource.add_relation], although
  * it requires that the URI is previously known.
  */
 ADD_PROPERTY_FOR_GTYPE (tracker_resource_add_uri, const char *, TRACKER_TYPE_URI, value_set_uri, validate_pointer)
@@ -1303,12 +1303,12 @@ generate_turtle_property (const char              *property,
  * <https://www.w3.org/TR/2014/REC-turtle-20140225/>
  *
  * The @namespaces object is used to expand any compact URI values. In most
- * cases you should pass the one returned by [method@Tracker.SparqlConnection.get_namespace_manager]
+ * cases you should pass the one returned by [method@SparqlConnection.get_namespace_manager]
  * from the connection that is the intended recipient of this data.
  *
  * Returns: a newly-allocated string
  *
- * Deprecated: 3.4: Use [method@Tracker.Resource.print_rdf] instead.
+ * Deprecated: 3.4: Use [method@Resource.print_rdf] instead.
  */
 char *
 tracker_resource_print_turtle (TrackerResource         *self,
@@ -1535,7 +1535,7 @@ generate_sparql_insert_pattern (TrackerResource    *resource,
  * stored in @resource.
  *
  * The @namespaces object is used to expand any compact URI values. In most
- * cases you should pass the one returned by [method@Tracker.SparqlConnection.get_namespace_manager]
+ * cases you should pass the one returned by [method@SparqlConnection.get_namespace_manager]
  * from the connection that is the intended recipient of this data.
  *
  * Returns: a newly-allocated string containing a SPARQL update command.
@@ -1614,12 +1614,12 @@ tracker_resource_print_sparql_update (TrackerResource         *resource,
  * serialization format.
  *
  * The @namespaces object is used to expand any compact URI values. In most
- * cases you should pass the one returned by [method@Tracker.SparqlConnection.get_namespace_manager]
+ * cases you should pass the one returned by [method@SparqlConnection.get_namespace_manager]
  * from the connection that is the intended recipient of this data.
  *
  * Returns: a newly-allocated string containing JSON-LD data.
  *
- * Deprecated: 3.5: Use [method@Tracker.Resource.print_rdf] instead.
+ * Deprecated: 3.5: Use [method@Resource.print_rdf] instead.
  */
 char *
 tracker_resource_print_jsonld (TrackerResource         *self,
@@ -1664,7 +1664,7 @@ convert_format (TrackerRdfFormat format)
  * Serialize all the information in @resource into the selected RDF format.
  *
  * The @namespaces object is used to expand any compact URI values. In most
- * cases you should pass the one returned by [method@Tracker.SparqlConnection.get_namespace_manager]
+ * cases you should pass the one returned by [method@SparqlConnection.get_namespace_manager]
  * from the connection that is the intended recipient of this data.
  *
  * Returns: a newly-allocated string containing RDF data in the requested format.
@@ -1781,7 +1781,7 @@ tracker_serialize_single_value (TrackerResource         *resource,
  *
  * Serializes a `TrackerResource` to a [type@GLib.Variant] in a lossless way.
  * All child resources are subsequently serialized. It is implied
- * that both ends use a common [class@Tracker.NamespaceManager].
+ * that both ends use a common [class@NamespaceManager].
  *
  * Returns: (transfer floating) (nullable): A variant describing the resource,
  *          the reference is floating.
@@ -1856,8 +1856,8 @@ tracker_resource_serialize (TrackerResource *resource)
  * @variant: a [type@GLib.Variant]
  *
  * Deserializes a `TrackerResource` previously serialized with
- * [method@Tracker.Resource.serialize]. It is implied that both ends
- * use a common [class@Tracker.NamespaceManager].
+ * [method@Resource.serialize]. It is implied that both ends
+ * use a common [class@NamespaceManager].
  *
  * Returns: (transfer full) (nullable): A TrackerResource, or %NULL if
  *          deserialization fails.

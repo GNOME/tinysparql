@@ -11,9 +11,9 @@ to reason about.
 Different RDF triple stores may have different data layouts. All examples
 in this tutorial come from the Nepomuk ontology, and even though
 the tutorial aims to be generic enough, it mentions things
-specific to Tracker. Those are clearly spelled out.
+specific to TinySPARQL. Those are clearly spelled out.
 
-If you are reading this tutorial, you might also have Tracker installed
+If you are reading this tutorial, you might also have TinySPARQL installed
 in your system, if that is the case you can for example start a fresh
 empty SPARQL service for local testing:
 
@@ -325,8 +325,8 @@ ASK {
 ```
 
 Sadly, not everything in the world can be trivially mapped to
-a URI, as an aide Tracker offers helpers to generate URIs based
-on UUIDv4 identifiers like [func@Tracker.sparql_get_uuid_urn],
+a URI, as an aide TinySPARQL offers helpers to generate URIs based
+on UUIDv4 identifiers like [func@sparql_get_uuid_urn],
 these generated strings are typically called URNs.
 
 The `BASE` keyword allows setting a common prefix for all URIs
@@ -649,7 +649,7 @@ INSERT DATA {
 }
 ```
 
-Tracker defines all its ontologies on top of the RDF Schema, which
+TinySPARQL defines all its ontologies on top of the RDF Schema, which
 provides the basic blocks to define classes (i.e. the types of
 the resources being stored) and the properties that each of these
 can have.
@@ -678,7 +678,7 @@ INSERT DATA {
 }
 ```
 
-The ontology is defined via RDF itself, and Tracker makes it part
+The ontology is defined via RDF itself, and TinySPARQL makes it part
 of the data set, there are thus full introspection capabilities
 builtin:
 
@@ -713,7 +713,7 @@ SELECT ?song ?value {
 ```
 
 To learn more about how ontologies are done, read the documentation about
-[defining ontologies](ontologies.html#creating-custom-ontologies). Tracker also provides a stock
+[defining ontologies](ontologies.html#creating-custom-ontologies). TinySPARQL also provides a stock
 [Nepomuk](ontologies.html#nepomuk) ontology, ready for use.
 
 ## Inserting data
@@ -867,10 +867,10 @@ INSERT DATA {
 Where any second insert would be redundantly attempting to add the same
 triple to the store.
 
-By default, Tracker deviates from the SPARQL standard in the handling
+By default, TinySPARQL deviates from the SPARQL standard in the handling
 of blank nodes, these are considered a generator of URIs.
 The #TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES flag may be used to
-make Tracker honor the SPARQL 1.1 standard with those. The standard
+make TinySPARQL honor the SPARQL 1.1 standard with those. The standard
 defines blank nodes as truly anonymous, you can only use them to determine
 that there is something that matches the graph pattern you defined. The
 practical difference could be seen with this query:
@@ -882,7 +882,7 @@ SELECT ?u {
 }
 ```
 
-Tracker by default will provide you with URNs that can be fed into other
+TinySPARQL by default will provide you with URNs that can be fed into other
 SPARQL queries as URIs. With #TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES
 enabled, the returned elements will be temporary names that can only be used to
 determine the existence of a distinct match. There, blank nodes can match named
@@ -960,7 +960,7 @@ SELECT ?song {
 
 So what have been doing all these queries up to this point in the tutorial?
 Without any specified graph, all insertions and deletes happen on an anonymous
-graph, while all queries happen on a "default" graph that Tracker defines as
+graph, while all queries happen on a "default" graph that TinySPARQL defines as
 the union of all graphs.
 
 These named graphs can exist independently of each other, and they can also
@@ -983,7 +983,7 @@ SELECT ?fileName ?title {
 }
 ```
 
-Tracker heavily relies on these named graph characteristics for its
+TinySPARQL heavily relies on these named graph characteristics for its
 sandboxing support, where the availability of graphs may be restricted.
 
 It is also possible to use the `GRAPH` clause with a variable, making it
@@ -1020,7 +1020,7 @@ SELECT ?album ?wikiPredicate ?wikiObject {
 }
 ```
 
-Tracker provides means to make RDF triple stores publicly available as SPARQL
+TinySPARQL provides means to make RDF triple stores publicly available as SPARQL
 endpoints both via HTTP(S) and D-Bus protocols. By default, triple stores
 are not exported as endpoints, and are considered private to a process.
 

@@ -459,7 +459,7 @@ test-website:
     # Build tracker and install.
     - mkdir website-build; pushd website-build; meson .. --prefix="$install_prefix" -Dsystemd_user_services=false; ninja; ninja install; popd
     # Copy the gi-docgen website out of the install tree
-    - cp -a $install_prefix/share/doc/Tracker-3.0 ./website
+    - cp -a $install_prefix/share/doc/Tsparql-3.0 ./website
     # Add the redirects
     - cp docs/website/redirect-to-website.html docs/website/_redirects ./website
   artifacts:

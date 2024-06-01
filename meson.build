@@ -1,5 +1,5 @@
-project('tracker', 'c',
-        version: '3.7.3',
+project('tinysparql', 'c',
+        version: '3.8.alpha',
         meson_version: '>=0.62',
         default_options: [
           'c_std=c99',
@@ -13,7 +13,7 @@ cc = meson.get_compiler('c')
 # This is the X.Y used in -llibtracker-FOO-X.Y
 tracker_api_version = '3.0'
 tracker_api_major = tracker_api_version.split('.')[0]
-tracker_versioned_name = 'tracker@0@'.format(tracker_api_major)
+tracker_versioned_name = 'tinysparql@0@'.format(tracker_api_major)
 
 tracker_version = meson.project_version().split('-')[0]
 tracker_major_version = tracker_version.split('.')[0].to_int()
@@ -384,7 +384,7 @@ source_root = meson.current_source_dir()
 build_root = meson.current_build_dir()
 po_subdir = join_paths(source_root, 'po')
 
-tracker_internal_libs_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tracker-' + tracker_api_version)
+tracker_internal_libs_dir = join_paths(get_option('prefix'), get_option('libdir'), 'tinysparql-' + tracker_api_version)
 
 if gobject_introspection.found()
   typelib_dir = gobject_introspection.get_variable(pkgconfig: 'typelibdir',

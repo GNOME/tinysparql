@@ -19,9 +19,13 @@
 
 #pragma once
 
+#if !defined (__LIBTRACKER_SPARQL_INSIDE__) && !defined (TRACKER_COMPILATION)
+#error "only <tinysparql.h> must be included directly."
+#endif
+
 #include <glib.h>
 #include <gio/gio.h>
-#include <libtracker-sparql/tracker-version.h>
+#include <tracker-version.h>
 
 G_BEGIN_DECLS
 

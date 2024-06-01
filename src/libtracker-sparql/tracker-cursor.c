@@ -21,23 +21,23 @@
  *
  * `TrackerSparqlCursor` provides the methods to iterate the results of a SPARQL query.
  *
- * Cursors are obtained through e.g. [method@Tracker.SparqlStatement.execute]
- * or [method@Tracker.SparqlConnection.query] after the SPARQL query has been
+ * Cursors are obtained through e.g. [method@SparqlStatement.execute]
+ * or [method@SparqlConnection.query] after the SPARQL query has been
  * executed.
  *
- * When created, a cursor does not point to any element, [method@Tracker.SparqlCursor.next]
+ * When created, a cursor does not point to any element, [method@SparqlCursor.next]
  * is necessary to iterate one by one to the first (and following) results.
- * When the cursor iterated across all rows in the result set, [method@Tracker.SparqlCursor.next]
+ * When the cursor iterated across all rows in the result set, [method@SparqlCursor.next]
  * will return %FALSE with no error set.
  *
  * On each row, it is possible to extract the result values through the
- * [method@Tracker.SparqlCursor.get_integer], [method@Tracker.SparqlCursor.get_string], etc... family
+ * [method@SparqlCursor.get_integer], [method@SparqlCursor.get_string], etc... family
  * of methods. The column index of those functions starts at 0. The number of columns is
  * dependent on the SPARQL query issued, but may be checked at runtime through the
- * [method@Tracker.SparqlCursor.get_n_columns] method.
+ * [method@SparqlCursor.get_n_columns] method.
  *
- * After a cursor is iterated, it is recommended to call [method@Tracker.SparqlCursor.close]
- * explicitly to free up resources for other users of the same [class@Tracker.SparqlConnection],
+ * After a cursor is iterated, it is recommended to call [method@SparqlCursor.close]
+ * explicitly to free up resources for other users of the same [class@SparqlConnection],
  * this is especially important in garbage collected languages. These resources
  * will be also implicitly freed on cursor object finalization.
  *
@@ -198,7 +198,7 @@ tracker_sparql_cursor_class_init (TrackerSparqlCursorClass *klass)
 	/**
 	 * TrackerSparqlCursor:connection:
 	 *
-	 * The [class@Tracker.SparqlConnection] used to retrieve the results.
+	 * The [class@SparqlConnection] used to retrieve the results.
 	 */
 	props[PROP_CONNECTION] =
 		g_param_spec_object ("connection",
@@ -229,10 +229,10 @@ tracker_sparql_cursor_class_init (TrackerSparqlCursorClass *klass)
  * tracker_sparql_cursor_get_connection:
  * @cursor: a `TrackerSparqlCursor`
  *
- * Returns the [class@Tracker.SparqlConnection] associated with this
+ * Returns the [class@SparqlConnection] associated with this
  * `TrackerSparqlCursor`.
  *
- * Returns: (transfer none): the cursor [class@Tracker.SparqlConnection]. The
+ * Returns: (transfer none): the cursor [class@SparqlConnection]. The
  * returned object must not be unreferenced by the caller.
  */
 TrackerSparqlConnection *
@@ -264,7 +264,7 @@ tracker_sparql_cursor_set_connection (TrackerSparqlCursor     *cursor,
  * Retrieves the number of columns available in the result set.
  *
  * This method should only be called after a successful
- * [method@Tracker.SparqlCursor.next], otherwise its return value
+ * [method@SparqlCursor.next], otherwise its return value
  * will be undefined.
  *
  * Returns: The number of columns returned in the result set.
@@ -287,7 +287,7 @@ tracker_sparql_cursor_get_n_columns (TrackerSparqlCursor *cursor)
  * row in @column.
  *
  * Any type may be converted to a string. If the value is not bound
- * (See [method@Tracker.SparqlCursor.is_bound]) this method will return %NULL.
+ * (See [method@SparqlCursor.is_bound]) this method will return %NULL.
  *
  * Returns: (nullable): a string which must not be freed. %NULL is returned if
  * the column is not in the `[0, n_columns]` range, or if the row/column
@@ -350,7 +350,7 @@ tracker_sparql_cursor_get_langstring (TrackerSparqlCursor  *cursor,
  * Retrieve a boolean for the current row in @column.
  *
  * If the row/column do not have a boolean value, the result is
- * undefined, see [method@Tracker.SparqlCursor.get_value_type].
+ * undefined, see [method@SparqlCursor.get_value_type].
  *
  * Returns: a boolean value.
  */
@@ -372,7 +372,7 @@ tracker_sparql_cursor_get_boolean (TrackerSparqlCursor *cursor,
  * Retrieve a double for the current row in @column.
  *
  * If the row/column do not have a integer or double value, the result is
- * undefined, see [method@Tracker.SparqlCursor.get_value_type].
+ * undefined, see [method@SparqlCursor.get_value_type].
  *
  * Returns: a double value.
  */
@@ -394,7 +394,7 @@ tracker_sparql_cursor_get_double (TrackerSparqlCursor *cursor,
  * Retrieve an integer for the current row in @column.
  *
  * If the row/column do not have an integer value, the result is
- * undefined, see [method@Tracker.SparqlCursor.get_value_type].
+ * undefined, see [method@SparqlCursor.get_value_type].
  *
  * Returns: a 64-bit integer value.
  */
@@ -416,16 +416,16 @@ tracker_sparql_cursor_get_integer (TrackerSparqlCursor *cursor,
  * Returns the data type bound to the current row and the given @column.
  *
  * If the column is unbound, the value will be %TRACKER_SPARQL_VALUE_TYPE_UNBOUND.
- * See also [method@Tracker.SparqlCursor.is_bound].
+ * See also [method@SparqlCursor.is_bound].
  *
  * Values of type #TRACKER_SPARQL_VALUE_TYPE_RESOURCE and
  * #TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE can be considered equivalent, the
  * difference is the resource being referenced as a named IRI or a blank
  * node.
  *
- * All other [enum@Tracker.SparqlValueType] value types refer to literal values.
+ * All other [enum@SparqlValueType] value types refer to literal values.
  *
- * Returns: a [enum@Tracker.SparqlValueType] expressing the content type of
+ * Returns: a [enum@SparqlValueType] expressing the content type of
  *   the given column for the current row.
  */
 TrackerSparqlValueType
@@ -529,7 +529,7 @@ tracker_sparql_cursor_is_bound (TrackerSparqlCursor *cursor,
  *
  * If the cursor was not started, it will point to the first result after
  * this call. This operation is completely synchronous and it may block,
- * see [method@Tracker.SparqlCursor.next_async] for an asynchronous variant.
+ * see [method@SparqlCursor.next_async] for an asynchronous variant.
  *
  * Returns: %FALSE if there are no more results or if an error is found, otherwise %TRUE.
  */
@@ -569,7 +569,7 @@ tracker_sparql_cursor_next (TrackerSparqlCursor  *cursor,
  * this operation completes.
  *
  * In the period between this call and the corresponding
- * [method@Tracker.SparqlCursor.next_finish] call, the other cursor methods
+ * [method@SparqlCursor.next_finish] call, the other cursor methods
  * should not be used, nor their results trusted. The cursor should only
  * be iterated once at a time.
  */
@@ -595,7 +595,7 @@ tracker_sparql_cursor_next_async (TrackerSparqlCursor  *cursor,
  * @error: Error location
  *
  * Finishes the asynchronous iteration to the next result started with
- * [method@Tracker.SparqlCursor.next_async].
+ * [method@SparqlCursor.next_async].
  *
  * Returns: %FALSE if there are no more results or if an error is found, otherwise %TRUE.
  */
@@ -628,7 +628,7 @@ tracker_sparql_cursor_next_finish (TrackerSparqlCursor  *cursor,
  * Resets the iterator to point back to the first result.
  *
  * Deprecated: 3.5: This function only works on cursors
- * from direct [class@Tracker.SparqlConnection] objects and cannot work
+ * from direct [class@SparqlConnection] objects and cannot work
  * reliably across all cursor types. Issue a different query to
  * obtain a new cursor.
  */

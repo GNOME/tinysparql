@@ -6,7 +6,7 @@ suspected, this means there are areas where performance is
 inherently sacrificed for versatility.
 
 These are some tips to get the best of SPARQL as implemented
-by Tracker.
+by TinySPARQL.
 
 ## Avoid queries with unrestricted predicates
 
@@ -97,8 +97,8 @@ where possible, for example:
 SELECT ?u { ?u fts:match "banana" }
 ```
 
-## Use TrackerSparqlStatement
+## Use prepared statements
 
-Using [class@Tracker.SparqlStatement] allows to parse and compile
+Using [class@SparqlStatement] allows to parse and compile
 a query once, and reuse it many times. Its usage
 is recommended wherever possible.

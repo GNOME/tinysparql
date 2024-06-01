@@ -22,11 +22,11 @@
 /**
  * TrackerEndpointHttp:
  *
- * `TrackerEndpointHttp` makes the RDF data in a [class@Tracker.SparqlConnection]
+ * `TrackerEndpointHttp` makes the RDF data in a [class@SparqlConnection]
  * accessible to other hosts via HTTP.
  *
- * This object is a [class@Tracker.Endpoint] subclass that exports
- * a [class@Tracker.SparqlConnection] so its RDF data is accessible via HTTP
+ * This object is a [class@Endpoint] subclass that exports
+ * a [class@SparqlConnection] so its RDF data is accessible via HTTP
  * requests on the given port. This endpoint implementation is compliant
  * with the [SPARQL protocol specifications](https://www.w3.org/TR/2013/REC-sparql11-protocol-20130321/)
  * and may interoperate with other implementations.
@@ -44,7 +44,7 @@
  * ```
  *
  * Access to HTTP endpoints may be managed via the
- * [signal@Tracker.EndpointHttp::block-remote-address] signal, the boolean
+ * [signal@EndpointHttp::block-remote-address] signal, the boolean
  * return value expressing whether the connection is blocked or not.
  * Inspection of the requester address is left up to the user. The
  * default value allows all requests independently of their provenance,
@@ -57,10 +57,10 @@
  * As a security measure, and in compliance specifications,
  * the HTTP endpoint does not handle database updates or modifications in any
  * way. The database content is considered to be entirely managed by the
- * process that creates the HTTP endpoint and owns the [class@Tracker.SparqlConnection].
+ * process that creates the HTTP endpoint and owns the [class@SparqlConnection].
  *
  * A `TrackerEndpointHttp` may be created on a different thread/main
- * context from the one that created [class@Tracker.SparqlConnection].
+ * context from the one that created [class@SparqlConnection].
  *
  * Since: 3.1
  */
@@ -461,7 +461,7 @@ tracker_endpoint_http_init (TrackerEndpointHttp *endpoint)
 
 /**
  * tracker_endpoint_http_new:
- * @sparql_connection: The [class@Tracker.SparqlConnection] being made public
+ * @sparql_connection: The [class@SparqlConnection] being made public
  * @port: HTTP port to handle incoming requests
  * @certificate: (nullable): Optional [type@Gio.TlsCertificate] to use for encription
  * @cancellable: (nullable): Optional [type@Gio.Cancellable]

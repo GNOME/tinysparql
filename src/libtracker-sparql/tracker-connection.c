@@ -24,11 +24,11 @@
  *
  * This triple store may be of three types:
  *
- *  - Local to the process, created through [ctor@Tracker.SparqlConnection.new].
+ *  - Local to the process, created through [ctor@SparqlConnection.new].
  *  - A HTTP SPARQL endpoint over the network, created through
- *    [ctor@Tracker.SparqlConnection.remote_new]
+ *    [ctor@SparqlConnection.remote_new]
  *  - A DBus SPARQL endpoint owned by another process in the same machine, created
- *    through [ctor@Tracker.SparqlConnection.bus_new]
+ *    through [ctor@SparqlConnection.bus_new]
  *
  * When creating a local triple store, it is required to give details about its
  * structure. This is done by passing a location to an ontology, see more
@@ -36,38 +36,38 @@
  * stored in a filesystem location, or it may reside in memory.
  *
  * A `TrackerSparqlConnection` is private to the calling process, it can be
- * exposed to other hosts/processes via a [class@Tracker.Endpoint], see
- * [ctor@Tracker.EndpointDBus.new] and [ctor@Tracker.EndpointHttp.new].
+ * exposed to other hosts/processes via a [class@Endpoint], see
+ * [ctor@EndpointDBus.new] and [ctor@EndpointHttp.new].
  *
  * When issuing SPARQL queries and updates, it is recommended that these are
- * created through [class@Tracker.SparqlStatement] to avoid the SPARQL
- * injection class of bugs, see [method@Tracker.SparqlConnection.query_statement]
- * and [method@Tracker.SparqlConnection.update_statement]. For SPARQL updates
+ * created through [class@SparqlStatement] to avoid the SPARQL
+ * injection class of bugs, see [method@SparqlConnection.query_statement]
+ * and [method@SparqlConnection.update_statement]. For SPARQL updates
  * it is also possible to use a "builder" approach to generate RDF data, see
- * [class@Tracker.Resource]. It is also possible to create [class@Tracker.SparqlStatement]
+ * [class@Resource]. It is also possible to create [class@SparqlStatement]
  * objects for SPARQL queries and updates from SPARQL strings embedded in a
- * [struct@Gio.Resource], see [method@Tracker.SparqlConnection.load_statement_from_gresource].
+ * [struct@Gio.Resource], see [method@SparqlConnection.load_statement_from_gresource].
  *
  * To get the best performance, it is recommended that SPARQL updates are clustered
- * through [class@Tracker.Batch].
+ * through [class@Batch].
  *
  * `TrackerSparqlConnection` also offers a number of methods for the simple cases,
- * [method@Tracker.SparqlConnection.query] may be used when there is a SPARQL
- * query string directly available, and the [method@Tracker.SparqlConnection.update]
+ * [method@SparqlConnection.query] may be used when there is a SPARQL
+ * query string directly available, and the [method@SparqlConnection.update]
  * family of functions may be used for one-off updates. All functions have asynchronous
  * variants.
  *
- * When a SPARQL query is executed, a [class@Tracker.SparqlCursor] will be obtained
+ * When a SPARQL query is executed, a [class@SparqlCursor] will be obtained
  * to iterate over the query results.
  *
  * Depending on the ontology definition, `TrackerSparqlConnection` may emit
  * notifications whenever resources of certain types get insert, modified or
  * deleted from the triple store (see [nrl:notify](nrl-ontology.html#nrl:notify).
- * These notifications can be handled via a [class@Tracker.Notifier] obtained with
- * [method@Tracker.SparqlConnection.create_notifier].
+ * These notifications can be handled via a [class@Notifier] obtained with
+ * [method@SparqlConnection.create_notifier].
  *
- * After done with a connection, it is recommended to call [method@Tracker.SparqlConnection.close]
- * or [method@Tracker.SparqlConnection.close_async] explicitly to cleanly close the
+ * After done with a connection, it is recommended to call [method@SparqlConnection.close]
+ * or [method@SparqlConnection.close_async] explicitly to cleanly close the
  * connection and prevent consistency checks on future runs. The triple store
  * connection will be implicitly closed when the `TrackerSparqlConnection` object
  * is disposed.
@@ -77,8 +77,8 @@
  * queries are dispatched in a thread pool.
  *
  * If you ever have the need to procedurally compose SPARQL query strings, consider
- * the use of [func@Tracker.sparql_escape_string] for literal strings and
- * the [func@Tracker.sparql_escape_uri] family of functions for URIs.
+ * the use of [func@sparql_escape_string] for literal strings and
+ * the [func@sparql_escape_uri] family of functions for URIs.
  */
 #include "config.h"
 
@@ -147,17 +147,17 @@ tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
  * Executes a SPARQL query on @connection.
  *
  * This method is synchronous and will block until the query
- * is executed. See [method@Tracker.SparqlConnection.query_async]
+ * is executed. See [method@SparqlConnection.query_async]
  * for an asynchronous variant.
  *
  * If the query is partially built from user input or other
  * untrusted sources, special care is required about possible
  * SPARQL injection. In order to avoid it entirely, it is recommended
- * to use [class@Tracker.SparqlStatement]. The function
- * [func@Tracker.sparql_escape_string] exists as a last resort,
+ * to use [class@SparqlStatement]. The function
+ * [func@sparql_escape_string] exists as a last resort,
  * but its use is not recommended.
  *
- * Returns: (transfer full): a [class@Tracker.SparqlCursor] with the results.
+ * Returns: (transfer full): a [class@SparqlCursor] with the results.
  */
 TrackerSparqlCursor *
 tracker_sparql_connection_query (TrackerSparqlConnection  *connection,
@@ -196,8 +196,8 @@ tracker_sparql_connection_query (TrackerSparqlConnection  *connection,
  * If the query is partially built from user input or other
  * untrusted sources, special care is required about possible
  * SPARQL injection. In order to avoid it entirely, it is recommended
- * to use [class@Tracker.SparqlStatement]. The function
- * [func@Tracker.sparql_escape_string] exists as a last resort,
+ * to use [class@SparqlStatement]. The function
+ * [func@sparql_escape_string] exists as a last resort,
  * but its use is not recommended.
  */
 void
@@ -224,9 +224,9 @@ tracker_sparql_connection_query_async (TrackerSparqlConnection *connection,
  * @res: A [type@Gio.AsyncResult] with the result of the operation
  * @error: Error location
  *
- * Finishes the operation started with [method@Tracker.SparqlConnection.query_async].
+ * Finishes the operation started with [method@SparqlConnection.query_async].
  *
- * Returns: (transfer full): a [class@Tracker.SparqlCursor] with the results.
+ * Returns: (transfer full): a [class@SparqlCursor] with the results.
  */
 TrackerSparqlCursor *
 tracker_sparql_connection_query_finish (TrackerSparqlConnection  *connection,
@@ -258,19 +258,19 @@ tracker_sparql_connection_query_finish (TrackerSparqlConnection  *connection,
  * Executes a SPARQL update on @connection.
  *
  * This method is synchronous and will block until the update
- * is finished. See [method@Tracker.SparqlConnection.update_async]
+ * is finished. See [method@SparqlConnection.update_async]
  * for an asynchronous variant.
  *
- * It is recommented to consider the usage of [class@Tracker.Batch]
+ * It is recommented to consider the usage of [class@Batch]
  * to cluster database updates. Frequent isolated SPARQL updates
  * through this method will have a degraded performance in comparison.
  *
  * If the query is partially built from user input or other
  * untrusted sources, special care is required about possible
  * SPARQL injection. In order to avoid it entirely, it is recommended
- * to use [class@Tracker.SparqlStatement], or to build the SPARQL
- * input through [class@Tracker.Resource]. The function
- * [func@Tracker.sparql_escape_string] exists as a last resort,
+ * to use [class@SparqlStatement], or to build the SPARQL
+ * input through [class@Resource]. The function
+ * [func@sparql_escape_string] exists as a last resort,
  * but its use is not recommended.
  */
 void
@@ -301,16 +301,16 @@ tracker_sparql_connection_update (TrackerSparqlConnection  *connection,
  *
  * Executes asynchronously a SPARQL update.
  *
- * It is recommented to consider the usage of [class@Tracker.Batch]
+ * It is recommented to consider the usage of [class@Batch]
  * to cluster database updates. Frequent isolated SPARQL updates
  * through this method will have a degraded performance in comparison.
  *
  * If the query is partially built from user input or other
  * untrusted sources, special care is required about possible
  * SPARQL injection. In order to avoid it entirely, it is recommended
- * to use [class@Tracker.SparqlStatement], or to build the SPARQL
- * input through [class@Tracker.Resource]. The function
- * [func@Tracker.sparql_escape_string] exists as a last resort,
+ * to use [class@SparqlStatement], or to build the SPARQL
+ * input through [class@Resource]. The function
+ * [func@sparql_escape_string] exists as a last resort,
  * but its use is not recommended.
  */
 void
@@ -337,7 +337,7 @@ tracker_sparql_connection_update_async (TrackerSparqlConnection *connection,
  * @res: A [type@Gio.AsyncResult] with the result of the operation
  * @error: Error location
  *
- * Finishes the operation started with [method@Tracker.SparqlConnection.update_async].
+ * Finishes the operation started with [method@SparqlConnection.update_async].
  */
 void
 tracker_sparql_connection_update_finish (TrackerSparqlConnection  *connection,
@@ -369,9 +369,9 @@ tracker_sparql_connection_update_finish (TrackerSparqlConnection  *connection,
  * If the query is partially built from user input or other
  * untrusted sources, special care is required about possible
  * SPARQL injection. In order to avoid it entirely, it is recommended
- * to use [class@Tracker.SparqlStatement], or to build the SPARQL
- * input through [class@Tracker.Resource]. The function
- * [func@Tracker.sparql_escape_string] exists as a last resort,
+ * to use [class@SparqlStatement], or to build the SPARQL
+ * input through [class@Resource]. The function
+ * [func@sparql_escape_string] exists as a last resort,
  * but its use is not recommended.
  */
 void
@@ -400,7 +400,7 @@ tracker_sparql_connection_update_array_async (TrackerSparqlConnection  *connecti
  * @res: A [type@Gio.AsyncResult] with the result of the operation
  * @error: Error location
  *
- * Finishes the operation started with [method@Tracker.SparqlConnection.update_array_async].
+ * Finishes the operation started with [method@SparqlConnection.update_array_async].
  *
  * Returns: #TRUE if there were no errors.
  */
@@ -429,11 +429,11 @@ tracker_sparql_connection_update_array_finish (TrackerSparqlConnection  *connect
  * Executes a SPARQL update and returns the names of the generated blank nodes.
  *
  * This method is synchronous and will block until the update
- * is finished. See [method@Tracker.SparqlConnection.update_blank_async]
+ * is finished. See [method@SparqlConnection.update_blank_async]
  * for an asynchronous variant.
  *
- * The @sparql query should be built with [class@Tracker.Resource], or
- * its parts correctly escaped using [func@Tracker.sparql_escape_string],
+ * The @sparql query should be built with [class@Resource], or
+ * its parts correctly escaped using [func@sparql_escape_string],
  * otherwise SPARQL injection is possible.
  *
  * The format string of the `GVariant` is `aaa{ss}` (an array of an array
@@ -484,10 +484,10 @@ tracker_sparql_connection_update_blank (TrackerSparqlConnection  *connection,
  *
  * Executes asynchronously a SPARQL update and returns the names of the generated blank nodes.
  *
- * See the [method@Tracker.SparqlConnection.update_blank] documentation to
- * learn the differences with [method@Tracker.SparqlConnection.update].
+ * See the [method@SparqlConnection.update_blank] documentation to
+ * learn the differences with [method@SparqlConnection.update].
  *
- * Deprecated: 3.5: See [method@Tracker.SparqlConnection.update_blank].
+ * Deprecated: 3.5: See [method@SparqlConnection.update_blank].
  */
 void
 tracker_sparql_connection_update_blank_async (TrackerSparqlConnection *connection,
@@ -513,15 +513,15 @@ tracker_sparql_connection_update_blank_async (TrackerSparqlConnection *connectio
  * @res: A [type@Gio.AsyncResult] with the result of the operation
  * @error: Error location
  *
- * Finishes the operation started with [method@Tracker.SparqlConnection.update_blank_async].
+ * Finishes the operation started with [method@SparqlConnection.update_blank_async].
  *
  * This method returns the URNs of the generated nodes, if any. See the
- * [method@Tracker.SparqlConnection.update_blank] documentation for the interpretation
+ * [method@SparqlConnection.update_blank] documentation for the interpretation
  * of the returned [type@GLib.Variant].
  *
  * Returns: a [type@GLib.Variant] with the generated URNs.
  *
- * Deprecated: 3.5: See [method@Tracker.SparqlConnection.update_blank].
+ * Deprecated: 3.5: See [method@SparqlConnection.update_blank].
  */
 GVariant *
 tracker_sparql_connection_update_blank_finish (TrackerSparqlConnection  *connection,
@@ -541,17 +541,17 @@ tracker_sparql_connection_update_blank_finish (TrackerSparqlConnection  *connect
  * tracker_sparql_connection_update_resource:
  * @connection: A `TrackerSparqlConnection`
  * @graph: (nullable): RDF graph where the resource should be inserted/updated, or %NULL for the default graph
- * @resource: A [class@Tracker.Resource]
+ * @resource: A [class@Resource]
  * @cancellable: (nullable): Optional [type@Gio.Cancellable]
  * @error: Error location
  *
  * Inserts a resource as described by @resource on the given @graph.
  *
  * This method is synchronous and will block until the update
- * is finished. See [method@Tracker.SparqlConnection.update_resource_async]
+ * is finished. See [method@SparqlConnection.update_resource_async]
  * for an asynchronous variant.
  *
- * It is recommented to consider the usage of [class@Tracker.Batch]
+ * It is recommented to consider the usage of [class@Batch]
  * to cluster database updates. Frequent isolated SPARQL updates
  * through this method will have a degraded performance in comparison.
  *
@@ -582,7 +582,7 @@ tracker_sparql_connection_update_resource (TrackerSparqlConnection  *connection,
  * tracker_sparql_connection_update_resource_async:
  * @connection: A `TrackerSparqlConnection`
  * @graph: (nullable): RDF graph where the resource should be inserted/updated, or %NULL for the default graph
- * @resource: A [class@Tracker.Resource]
+ * @resource: A [class@Resource]
  * @cancellable: (nullable): Optional [type@Gio.Cancellable]
  * @callback: User-defined [type@Gio.AsyncReadyCallback] to be called when
  *            the asynchronous operation is finished.
@@ -590,7 +590,7 @@ tracker_sparql_connection_update_resource (TrackerSparqlConnection  *connection,
  *
  * Inserts asynchronously a resource as described by @resource on the given @graph.
  *
- * It is recommented to consider the usage of [class@Tracker.Batch]
+ * It is recommented to consider the usage of [class@Batch]
  * to cluster database updates. Frequent isolated SPARQL updates
  * through this method will have a degraded performance in comparison.
  *
@@ -623,7 +623,7 @@ tracker_sparql_connection_update_resource_async (TrackerSparqlConnection *connec
  * @res: A [type@Gio.AsyncResult] with the result of the operation
  * @error: Error location
  *
- * Finishes the operation started with [method@Tracker.SparqlConnection.update_resource_async].
+ * Finishes the operation started with [method@SparqlConnection.update_resource_async].
  *
  * Returns: #TRUE if there were no errors.
  *
@@ -647,10 +647,10 @@ tracker_sparql_connection_update_resource_finish (TrackerSparqlConnection  *conn
  * tracker_sparql_connection_get_namespace_manager:
  * @connection: A `TrackerSparqlConnection`
  *
- * Returns a [class@Tracker.NamespaceManager] that contains all
+ * Returns a [class@NamespaceManager] that contains all
  * prefixes in the ontology of @connection.
  *
- * Returns: (transfer none): a [class@Tracker.NamespaceManager] with the prefixes of @connection.
+ * Returns: (transfer none): a [class@NamespaceManager] with the prefixes of @connection.
  */
 TrackerNamespaceManager *
 tracker_sparql_connection_get_namespace_manager (TrackerSparqlConnection *connection)
@@ -673,10 +673,10 @@ tracker_sparql_connection_get_namespace_manager (TrackerSparqlConnection *connec
  * @error: Error location
  *
  * Prepares the given `SELECT`/`ASK`/`DESCRIBE`/`CONSTRUCT` SPARQL query as a
- * [class@Tracker.SparqlStatement].
+ * [class@SparqlStatement].
  *
- * This prepared statement can be executed through [method@Tracker.SparqlStatement.execute]
- * or [method@Tracker.SparqlStatement.serialize_async] families of functions.
+ * This prepared statement can be executed through [method@SparqlStatement.execute]
+ * or [method@SparqlStatement.serialize_async] families of functions.
  *
  * Returns: (transfer full) (nullable): A prepared statement
  */
@@ -704,10 +704,10 @@ tracker_sparql_connection_query_statement (TrackerSparqlConnection  *connection,
  * @cancellable: (nullable): Optional [type@Gio.Cancellable]
  * @error: Error location
  *
- * Prepares the given `INSERT`/`DELETE` SPARQL as a [class@Tracker.SparqlStatement].
+ * Prepares the given `INSERT`/`DELETE` SPARQL as a [class@SparqlStatement].
  *
  * This prepared statement can be executed through
- * the [method@Tracker.SparqlStatement.update] family of functions.
+ * the [method@SparqlStatement.update] family of functions.
  *
  * Returns: (transfer full) (nullable): A prepared statement
  *
@@ -737,9 +737,9 @@ tracker_sparql_connection_update_statement (TrackerSparqlConnection  *connection
  * tracker_sparql_connection_create_notifier:
  * @connection: A `TrackerSparqlConnection`
  *
- * Creates a new [class@Tracker.Notifier] to receive notifications about changes in @connection.
+ * Creates a new [class@Notifier] to receive notifications about changes in @connection.
  *
- * See [class@Tracker.Notifier] documentation for information about how to use this
+ * See [class@Notifier] documentation for information about how to use this
  * object.
  *
  * Connections to HTTP endpoints will return %NULL.
@@ -809,7 +809,7 @@ tracker_sparql_connection_close_async (TrackerSparqlConnection *connection,
  * @res: A [type@Gio.AsyncResult] with the result of the operation
  * @error: Error location
  *
- * Finishes the operation started with [method@Tracker.SparqlConnection.close_async].
+ * Finishes the operation started with [method@SparqlConnection.close_async].
  *
  * Returns: %FALSE if some error occurred, %TRUE otherwise
  **/
@@ -828,11 +828,11 @@ tracker_sparql_connection_close_finish (TrackerSparqlConnection  *connection,
  * tracker_sparql_connection_create_batch:
  * @connection: a `TrackerSparqlConnection`
  *
- * Creates a new [class@Tracker.Batch] to store and execute SPARQL updates.
+ * Creates a new [class@Batch] to store and execute SPARQL updates.
  *
  * If the connection is readonly or cannot issue SPARQL updates, %NULL will be returned.
  *
- * Returns: (transfer full): (nullable): A new [class@Tracker.Batch]
+ * Returns: (transfer full): (nullable): A new [class@Batch]
  **/
 TrackerBatch *
 tracker_sparql_connection_create_batch (TrackerSparqlConnection *connection)
@@ -852,11 +852,11 @@ tracker_sparql_connection_create_batch (TrackerSparqlConnection *connection)
  * @cancellable: (nullable): Optional [type@Gio.Cancellable]
  * @error: Error location
  *
- * Prepares a [class@Tracker.SparqlStatement] for the SPARQL contained as a [struct@Gio.Resource]
+ * Prepares a [class@SparqlStatement] for the SPARQL contained as a [struct@Gio.Resource]
  * file at @resource_path.
  *
  * SPARQL Query files typically have the .rq extension. This will use
- * [method@Tracker.SparqlConnection.query_statement] or [method@Tracker.SparqlConnection.update_statement]
+ * [method@SparqlConnection.query_statement] or [method@SparqlConnection.update_statement]
  * underneath to indistinctly return SPARQL query or update statements.
  *
  * Returns: (transfer full) (nullable): A prepared statement
@@ -965,7 +965,7 @@ tracker_sparql_connection_serialize_async (TrackerSparqlConnection *connection,
  * @result: A [type@Gio.AsyncResult] with the result of the operation
  * @error: Error location
  *
- * Finishes the operation started with [method@Tracker.SparqlConnection.serialize_async].
+ * Finishes the operation started with [method@SparqlConnection.serialize_async].
  *
  * Returns: (transfer full): A [class@Gio.InputStream] to read RDF content.
  *
@@ -1045,7 +1045,7 @@ tracker_sparql_connection_deserialize_async (TrackerSparqlConnection *connection
  * @result: A [type@Gio.AsyncResult] with the result of the operation
  * @error: Error location
  *
- * Finishes the operation started with [method@Tracker.SparqlConnection.deserialize_async].
+ * Finishes the operation started with [method@SparqlConnection.deserialize_async].
  *
  * Returns: %TRUE if all data was inserted successfully.
  *
@@ -1095,7 +1095,7 @@ tracker_sparql_connection_deserialize_finish (TrackerSparqlConnection  *connecti
  * without creating a public endpoint for @service_connection.
  *
  * @connection may only be a `TrackerSparqlConnection` created via
- * [ctor@Tracker.SparqlConnection.new] and [func@Tracker.SparqlConnection.new_async].
+ * [ctor@SparqlConnection.new] and [func@SparqlConnection.new_async].
  *
  * Since: 3.3
  **/
@@ -1145,7 +1145,7 @@ tracker_sparql_connection_remote_new (const gchar *uri_base)
  *
  * This method should only be used for databases owned by the current process.
  * To connect to databases managed by other processes, use
- * [ctor@Tracker.SparqlConnection.bus_new].
+ * [ctor@SparqlConnection.bus_new].
  *
  * If @store is %NULL, the database will be created in memory.
  *
@@ -1153,7 +1153,7 @@ tracker_sparql_connection_remote_new (const gchar *uri_base)
  * suitable `.ontology` files in Turtle format. These define the structure of
  * the triple store. You can learn more about [ontologies](ontologies.html),
  * or you can use the stock Nepomuk ontologies by calling
- * [func@Tracker.sparql_get_ontology_nepomuk].
+ * [func@sparql_get_ontology_nepomuk].
  *
  * If opening an existing database, it is possible to pass %NULL as the
  * @ontology location, the ontology will be introspected from the database.
@@ -1167,14 +1167,14 @@ tracker_sparql_connection_remote_new (const gchar *uri_base)
  * The database is always left in a consistent state, either prior or posterior
  * to migration.
  *
- * Operations on a [class@Tracker.SparqlConnection] resulting on a
- * [error@Tracker.SparqlError.CORRUPT] error will have the event recorded
+ * Operations on a [class@SparqlConnection] resulting on a
+ * [error@SparqlError.CORRUPT] error will have the event recorded
  * persistently through a `.meta.corrupted` file alongside the database files.
- * If the database is opened without the [flags@Tracker.SparqlConnectionFlags.READONLY]
+ * If the database is opened without the [flags@SparqlConnectionFlags.READONLY]
  * flag and the file is found, this constructor will attempt to repair the
  * database. In that situation, this constructor will either return a valid
- * [class@Tracker.SparqlConnection] if the database was repaired successfully, or
- * raise a [error@Tracker.SparqlError.CORRUPT] error if the database remains
+ * [class@SparqlConnection] if the database was repaired successfully, or
+ * raise a [error@SparqlError.CORRUPT] error if the database remains
  * corrupted.
  *
  * It is considered a developer error to ship ontologies that contain format
@@ -1231,7 +1231,7 @@ new_async_cb (GObject      *source,
  *
  * Creates or opens a process-local database asynchronously.
  *
- * See [ctor@Tracker.SparqlConnection.new] for more information.
+ * See [ctor@SparqlConnection.new] for more information.
  */
 
 void
@@ -1260,7 +1260,7 @@ tracker_sparql_connection_new_async (TrackerSparqlConnectionFlags  flags,
  * @result: A [type@Gio.AsyncResult] with the result of the operation
  * @error: Error location
  *
- * Finishes the operation started with [func@Tracker.SparqlConnection.new_async].
+ * Finishes the operation started with [func@SparqlConnection.new_async].
  */
 TrackerSparqlConnection *
 tracker_sparql_connection_new_finish (GAsyncResult  *res,
@@ -1381,7 +1381,7 @@ tracker_sparql_connection_bus_new_async (const gchar         *service,
  * @result: A [type@Gio.AsyncResult] with the result of the operation
  * @error: Error location
  *
- * Finishes the operation started with [func@Tracker.SparqlConnection.bus_new_async].
+ * Finishes the operation started with [func@SparqlConnection.bus_new_async].
  *
  * Returns: (transfer full): a new `TrackerSparqlConnection`.
  *

@@ -287,7 +287,7 @@ print_ontology_class (TrackerOntologyModel *model,
 			g_fprintf (f, "**Note:** ");
 			print_flag (f, "nrl-ontology.html#nrl:notify", "icon-notify", "");
 			g_fprintf (f, "This class emits notifications about changes, and can "
-			             "be monitored using [class@Tracker.Notifier].");
+			             "be monitored using [class@Notifier].");
 			g_fprintf (f, "\n\n");
 		}
 	}

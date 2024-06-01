@@ -24,12 +24,12 @@
  * `TrackerBatch` executes a series of SPARQL updates and RDF data
  * insertions within a transaction.
  *
- * A batch is created with [method@Tracker.SparqlConnection.create_batch].
- * To add resources use [method@Tracker.Batch.add_resource],
- * [method@Tracker.Batch.add_sparql] or [method@Batch.add_statement].
+ * A batch is created with [method@SparqlConnection.create_batch].
+ * To add resources use [method@Batch.add_resource],
+ * [method@Batch.add_sparql] or [method@Batch.add_statement].
  *
- * When a batch is ready for execution, use [method@Tracker.Batch.execute]
- * or [method@Tracker.Batch.execute_async]. The batch is executed as a single
+ * When a batch is ready for execution, use [method@Batch.execute]
+ * or [method@Batch.execute_async]. The batch is executed as a single
  * transaction, it will succeed or fail entirely.
  *
  * This object has a single use, after the batch is executed it can
@@ -130,7 +130,7 @@ tracker_batch_class_init (TrackerBatchClass *klass)
 	/**
 	 * TrackerBatch:connection:
 	 *
-	 * The [class@Tracker.SparqlConnection] the batch belongs to.
+	 * The [class@SparqlConnection] the batch belongs to.
 	 */
 	props[PROP_CONNECTION] =
 		g_param_spec_object ("connection",
@@ -162,7 +162,7 @@ tracker_batch_add_dbus_fd (TrackerBatch *batch,
  * tracker_batch_get_connection:
  * @batch: A `TrackerBatch`
  *
- * Returns the [class@Tracker.SparqlConnection] that this batch was created
+ * Returns the [class@SparqlConnection] that this batch was created
  * from.
  *
  * Returns: (transfer none): The SPARQL connection of this batch.
@@ -203,7 +203,7 @@ tracker_batch_add_sparql (TrackerBatch *batch,
  * tracker_batch_add_resource:
  * @batch: A `TrackerBatch`
  * @graph: (nullable): RDF graph to insert the resource to
- * @resource: A [class@Tracker.Resource]
+ * @resource: A [class@Resource]
  *
  * Adds the RDF represented by @resource to @batch.
  *
@@ -226,10 +226,10 @@ tracker_batch_add_resource (TrackerBatch    *batch,
 /**
  * tracker_batch_add_statement: (skip):
  * @batch: a `TrackerBatch`
- * @stmt: a [class@Tracker.SparqlStatement] containing a SPARQL update
+ * @stmt: a [class@SparqlStatement] containing a SPARQL update
  * @...: NULL-terminated list of parameters bound to @stmt, in triplets of name, type and value.
  *
- * Adds a [class@Tracker.SparqlStatement] containing an SPARQL update. The statement will
+ * Adds a [class@SparqlStatement] containing an SPARQL update. The statement will
  * be executed once in the batch, with the parameters bound as specified in the
  * variable arguments.
  *
@@ -244,13 +244,13 @@ tracker_batch_add_resource (TrackerBatch    *batch,
  *                              NULL);
  * ```
  *
- * A [class@Tracker.SparqlStatement] may be used on multiple [method@Tracker.Batch.add_statement]
+ * A [class@SparqlStatement] may be used on multiple [method@Batch.add_statement]
  * calls with the same or different values, on the same or different `TrackerBatch`
  * objects.
  *
- * This function should only be called on [class@Tracker.SparqlStatement] objects
- * obtained through [method@Tracker.SparqlConnection.update_statement] or
- * update statements loaded through [method@Tracker.SparqlConnection.load_statement_from_gresource].
+ * This function should only be called on [class@SparqlStatement] objects
+ * obtained through [method@SparqlConnection.update_statement] or
+ * update statements loaded through [method@SparqlConnection.load_statement_from_gresource].
  *
  * Since: 3.5
  **/
@@ -308,12 +308,12 @@ tracker_batch_add_statement (TrackerBatch           *batch,
 /**
  * tracker_batch_add_statementv: (rename-to tracker_batch_add_statement)
  * @batch: A `TrackerBatch`
- * @stmt: A [class@Tracker.SparqlStatement] containing a SPARQL update
+ * @stmt: A [class@SparqlStatement] containing a SPARQL update
  * @n_values: The number of bound parameters
  * @variable_names: (array length=n_values): The names of each bound parameter
  * @values: (array length=n_values): The values of each bound parameter
  *
- * Adds a [class@Tracker.SparqlStatement] containing an SPARQL update. The statement will
+ * Adds a [class@SparqlStatement] containing an SPARQL update. The statement will
  * be executed once in the batch, with the values bound as specified by @variable_names
  * and @values.
  *
@@ -337,13 +337,13 @@ tracker_batch_add_statement (TrackerBatch           *batch,
  * batch.add_statement(stmt, ['name'], ['John Smith']);
  * ```
  *
- * A [class@Tracker.SparqlStatement] may be used on multiple [method@Tracker.Batch.add_statement]
+ * A [class@SparqlStatement] may be used on multiple [method@Batch.add_statement]
  * calls with the same or different values, on the same or different `TrackerBatch`
  * objects.
  *
- * This function should only be called on [class@Tracker.SparqlStatement] objects
- * obtained through [method@Tracker.SparqlConnection.update_statement] or
- * update statements loaded through [method@Tracker.SparqlConnection.load_statement_from_gresource].
+ * This function should only be called on [class@SparqlStatement] objects
+ * obtained through [method@SparqlConnection.update_statement] or
+ * update statements loaded through [method@SparqlConnection.load_statement_from_gresource].
  *
  * Since: 3.5
  **/
@@ -469,7 +469,7 @@ tracker_batch_execute_async (TrackerBatch        *batch,
  * @res: A [type@Gio.AsyncResult] with the result of the operation
  * @error: Error location
  *
- * Finishes the operation started with [method@Tracker.Batch.execute_async].
+ * Finishes the operation started with [method@Batch.execute_async].
  *
  * Returns: %TRUE of there were no errors, %FALSE otherwise
  *

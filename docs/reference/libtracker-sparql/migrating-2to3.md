@@ -106,14 +106,14 @@ those elements in place. Other ontologies might have similar concepts.
 
 Notifiers are now created through tracker_sparql_connection_create_notifier().
 
-## Different signature of [signal@Tracker.Notifier::events] signal
+## Different signature of [signal@Notifier::events] signal
 
 A TrackerNotifier may hint changes across multiple endpoints (local or remote),
 in consequence the signal additionally contains 2 string arguments, notifying
 about the SPARQL endpoint the changes came from, and the SPARQL graph the changes
 apply to.
 
-## Return value change in [method@Tracker.SparqlConnection.update_array_async]
+## Return value change in [method@SparqlConnection.update_array_async]
 
 This function changed to handle all changes within a single transaction. Returning
 an array of errors for each individual update is no longer necessary, so it now

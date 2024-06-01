@@ -197,7 +197,7 @@ main (int argc, char *argv[])
 	}
 
 	/* Execute subcommand binary */
-	subcommand_binary = g_strdup_printf("tracker3-%s", subcommand);
+	subcommand_binary = g_strdup_printf("tinysparql3-%s", subcommand);
 	path = g_build_filename (bin_dir, subcommand_binary, NULL);
 
 	if (g_file_test (path, G_FILE_TEST_EXISTS)) {

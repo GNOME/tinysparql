@@ -2,8 +2,8 @@ Title: Commandline reference
 Slug: commandline
 ...
 
-Tracker offers a number of commandline utilities to
+TinySPARQL offers a number of commandline utilities to
 manipulate, create, and access SPARQL endpoints and
-Tracker databases.
+TinySPARQL databases.
 
 {includes}

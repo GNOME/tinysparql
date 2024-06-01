@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 
 import gi, sys
-from gi.repository import GLib, Gio, Tracker
+from gi.repository import GLib, Gio, Tsparql
 
 try:
-    connection = Tracker.SparqlConnection.bus_new(
+    connection = Tsparql.SparqlConnection.bus_new(
         'org.freedesktop.Tracker3.Miner.Files',
         None, None)
 
