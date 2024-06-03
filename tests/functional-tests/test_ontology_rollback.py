@@ -36,7 +36,6 @@ import time
 import glob
 import unittest as ut
 
-import trackertestutils.dconf
 import trackertestutils.helpers
 
 import configuration as cfg

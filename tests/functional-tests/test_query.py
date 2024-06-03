@@ -32,8 +32,6 @@ import fixtures
 # We must import configuration to enable the default logging behaviour.
 import configuration
 
-import trackertestutils.helpers
-
 
 class TrackerQueryTests:
     """
