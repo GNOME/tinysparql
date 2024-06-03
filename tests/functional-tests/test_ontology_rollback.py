@@ -36,7 +36,7 @@ import time
 import glob
 import unittest as ut
 
-import trackertestutils.helpers
+import storehelper
 
 import configuration as cfg
 import fixtures
@@ -109,7 +109,7 @@ class OntologyRollbackTestTemplate(ut.TestCase):
             None,
         )
 
-        self.tracker = trackertestutils.helpers.StoreHelper(conn1)
+        self.tracker = storehelper.StoreHelper(conn1)
         self.insert_data_into_first_ontology()
         self.validate_first_ontology_status()
 
@@ -133,7 +133,7 @@ class OntologyRollbackTestTemplate(ut.TestCase):
             Gio.File.new_for_path(str(self.ontology_path(self.SECOND_ONTOLOGY_DIR))),
             None,
         )
-        self.tracker = trackertestutils.helpers.StoreHelper(conn2)
+        self.tracker = storehelper.StoreHelper(conn2)
 
         self.insert_data_into_second_ontology()
         self.validate_second_ontology_status()

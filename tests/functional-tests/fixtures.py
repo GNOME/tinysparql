@@ -40,7 +40,9 @@ import sys
 import tempfile
 import unittest as ut
 
-import trackertestutils.helpers
+import mainloop
+import sandbox
+import storehelper
 import configuration as cfg
 
 log = logging.getLogger(__name__)
@@ -98,7 +100,7 @@ class TrackerSparqlDirectTest(ut.TestCase):
                 None,
             )
 
-            self.tracker = trackertestutils.helpers.StoreHelper(self.conn)
+            self.tracker = storehelper.StoreHelper(self.conn)
         except Exception:
             shutil.rmtree(self.tmpdir, ignore_errors=True)
             raise
@@ -158,7 +160,7 @@ class TrackerSparqlBusTest(ut.TestCase):
 
             self.conn = Tracker.SparqlConnection.bus_new(service_name, None, None)
 
-            self.tracker = trackertestutils.helpers.StoreHelper(self.conn)
+            self.tracker = storehelper.StoreHelper(self.conn)
         except Exception as e:
             self.process.terminate()
             shutil.rmtree(self.tmpdir, ignore_errors=True)
@@ -231,10 +233,10 @@ class TrackerPortalTest(ut.TestCase):
         extra_env = {}
         extra_env["TRACKER_TEST_PORTAL_FLATPAK_INFO"] = cfg.TEST_PORTAL_FLATPAK_INFO
 
-        self.loop = trackertestutils.mainloop.MainLoop()
+        self.loop = mainloop.MainLoop()
         self.message_queues = {}
         self.connections = {}
-        self.sandbox = trackertestutils.helpers.TrackerDBusSandbox(
+        self.sandbox = sandbox.TrackerSandbox(
             session_bus_config_file=cfg.TEST_DBUS_DAEMON_CONFIG_FILE,
             extra_env=extra_env,
         )
@@ -293,7 +295,7 @@ class TrackerPortalTest(ut.TestCase):
     def query(self, service_name, sparql):
         if service_name not in self.connections:
             conn = Tracker.SparqlConnection.bus_new(service_name, None, self.bus)
-            store = trackertestutils.helpers.StoreHelper(conn)
+            store = storehelper.StoreHelper(conn)
             self.connections[service_name] = store
         else:
             store = self.connections[service_name]

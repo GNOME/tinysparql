@@ -32,7 +32,7 @@ import unittest as ut
 
 import configuration
 import fixtures
-import trackertestutils.mainloop
+import mainloop
 
 
 class TrackerNotifierTests:
@@ -44,7 +44,7 @@ class TrackerNotifierTests:
     """
 
     def base_setup(self):
-        self.loop = trackertestutils.mainloop.MainLoop()
+        self.loop = mainloop.MainLoop()
         self.timeout_id = 0
 
         self.results_deletes = []

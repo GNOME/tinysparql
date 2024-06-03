@@ -36,7 +36,7 @@ import tempfile
 import time
 import unittest as ut
 
-import trackertestutils.helpers
+import storehelper
 
 import configuration as cfg
 import fixtures
@@ -86,7 +86,7 @@ class OntologyChangeTestTemplate(ut.TestCase):
             None,
         )
 
-        self.tracker = trackertestutils.helpers.StoreHelper(conn1)
+        self.tracker = storehelper.StoreHelper(conn1)
         self.insert_data()
 
         conn1.close()
@@ -98,7 +98,7 @@ class OntologyChangeTestTemplate(ut.TestCase):
             Gio.File.new_for_path(str(self.ontology_path(self.SECOND_ONTOLOGY_DIR))),
             None,
         )
-        self.tracker = trackertestutils.helpers.StoreHelper(conn2)
+        self.tracker = storehelper.StoreHelper(conn2)
 
         self.validate_status()
 
