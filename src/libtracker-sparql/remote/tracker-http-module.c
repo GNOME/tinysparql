@@ -222,6 +222,44 @@ server_callback_got_message_body (SoupServerMessage *message,
 }
 
 static void
+root_server_callback (SoupServer        *server,
+	         		  SoupServerMessage *message,
+                 	  const char        *path,
+	         		  GHashTable        *query,
+                 	  gpointer           user_data)
+{
+	TrackerHttpServer *http_server = user_data;
+	GSocketAddress *remote_address;
+	TrackerHttpRequest *request;
+	const char *method;
+	SoupMessageBody *body;
+
+	remote_address = soup_server_message_get_remote_address (message);
+
+	request = request_new (http_server, message, remote_address, path, query);
+
+#if SOUP_CHECK_VERSION (3, 1, 3)
+	soup_server_message_pause (message);
+#else
+	soup_server_pause_message (server, message);
+#endif
+
+#if SOUP_CHECK_VERSION (3, 1, 3)
+	method = soup_server_message_get_method (message);
+#else
+	method = message->method;
+#endif
+
+	g_signal_emit_by_name (http_server, "request",
+							remote_address,
+							path,
+							method,
+							query,
+							get_supported_formats (request),
+							request);
+}
+
+static void
 server_callback (SoupServer        *server,
                  SoupServerMessage *message,
                  const char        *path,
@@ -435,6 +473,11 @@ tracker_http_server_initable_init (GInitable     *initable,
 	soup_server_add_handler (server->server,
 	                         "/sparql",
 	                         server_callback,
+	                         initable,
+	                         NULL);
+	soup_server_add_handler (server->server,
+	                         "/",
+	                         root_server_callback,
 	                         initable,
 	                         NULL);
 	g_clear_object (&certificate);
