@@ -91,7 +91,22 @@ static const gchar *mimetypes[] = {
 	"application/ld+json",
 };
 
+const gchar *get_request_mimetypes[] = {
+	"text/html",
+	"text/css",
+	"text/javascript",
+	"image/x-icon",
+};
+
+const gchar *get_request_file_extension[] = {
+	"html",
+	"css",
+	"js",
+	"ico",	
+};
+
 G_STATIC_ASSERT (G_N_ELEMENTS (supported_formats) == TRACKER_N_SERIALIZER_FORMATS);
+G_STATIC_ASSERT (G_N_ELEMENTS (get_request_mimetypes) == G_N_ELEMENTS (get_request_file_extension));
 
 struct _TrackerEndpointHttp {
 	TrackerEndpoint parent_instance;
@@ -239,10 +254,100 @@ create_service_description (TrackerEndpointHttp      *endpoint,
 	return resource;
 }
 
-const char *get_filename_ext(const char *filename) {
-    const char *dot = strrchr(filename, '.');
-    if(!dot || dot == filename) return "";
-    return dot + 1;
+static const gchar *
+get_mimetype_from_path(const gchar *path)
+{
+	gchar *extension;
+	guint i;
+
+	extension = strrchr(path, '.');
+	if(extension == NULL) return NULL;
+	extension++;
+
+	for (i = 0; i < G_N_ELEMENTS (get_request_file_extension); i++) {
+		if (g_strcmp0 (extension, get_request_file_extension[i]) == 0)
+			return get_request_mimetypes[i];
+	}
+
+	return NULL;
+}
+
+static gboolean
+tracker_get_request_validate_path(const gchar *path)
+{
+    const gchar *slash = g_strrstr(path + 1, "/");
+    if(slash != NULL) return FALSE;
+	const gchar *dot = g_strrstr(path, ".");
+	if(dot == NULL) return FALSE;
+	return TRUE;
+}
+
+static void
+tracker_get_input_stream_from_path(const gchar 	*path,
+								   GInputStream **in)
+{
+	GFile *file;
+	GFileInputStream *file_in;
+	gchar* public_path = "/home/demigod/new/tracker/public";
+	gchar* abs_path = g_strconcat(public_path, path, NULL);
+
+	file = g_file_new_for_path(abs_path);
+	file_in = g_file_read(file, NULL, NULL);
+	*in = G_INPUT_STREAM (file_in);
+	return;
+}
+
+static void
+tracker_response_error_page_not_found (TrackerHttpServer 	*server,
+									   TrackerHttpRequest 	*request)
+{
+	GInputStream *in;
+	tracker_get_input_stream_from_path("/404.html", &in);
+	if(!in){
+		tracker_http_server_error (server, request, 500, "Internal Server Error");
+		return;
+	}
+	tracker_http_server_response (server, request, "text/html", in);
+	return;
+}
+
+static void
+do_get (TrackerHttpServer 	*server,
+		TrackerHttpRequest 	*request,
+		const gchar 		*path)
+{
+	GFile *file;
+	GInputStream *in;
+	gchar* file_extension;
+	const gchar* mime_type;
+	const gchar* absolute_path;
+
+	if(strcmp(path, "/") == 0){
+		do_get(server, request, "/index.html");
+		return;
+	}
+
+	if(!tracker_get_request_validate_path(path)){
+		tracker_response_error_page_not_found(server, request);
+		return;
+	}
+
+	tracker_get_input_stream_from_path(path, &in);
+
+	if(!in){
+		g_debug("File not found");
+		tracker_response_error_page_not_found(server, request);
+		return;
+	} 
+
+	mime_type = get_mimetype_from_path(path);
+
+	if(!mime_type){
+		tracker_response_error_page_not_found(server, request);
+		return;
+	}
+
+	tracker_http_server_response (server, request, mime_type, G_INPUT_STREAM (in));
 }
 
 static void
@@ -258,57 +363,9 @@ http_server_request_cb (TrackerHttpServer  *server,
 	TrackerEndpoint *endpoint = user_data;
 	TrackerSparqlConnection *conn;
 	TrackerSerializerFormat format;
-	GFile *file;
-	GFileInputStream *in;
 	gboolean block = FALSE;
 	const gchar *sparql = NULL;
 	Request *data;
-	gchar* public_path = "/home/demigod/new/tracker/public";
-	gchar* file_extension;
-	const gchar* mime_type;
-
-	path = path + 7;
-	g_debug ("Received %s request for path '%s'", method, path);
-	if(g_strcmp0(method, "GET") == 0) {
-		// file = g_file_new_for_path(g_strconcat(public_path, path, NULL));
-		// file = g_file_new_for_path("/home/demigod/new/tracker/public/index.html");
-		file_extension = get_filename_ext(path);
-		path = g_strconcat(public_path, path, NULL);
-		file = g_file_new_for_path(path);
-    	in = g_file_read(file, NULL, NULL);
-		
-		if(!in || file_extension == ""){
-			g_debug("File not found");
-			tracker_http_server_response (server, request, "text/html", 
-				g_memory_input_stream_new_from_data("File not found", -1, NULL));
-			return;
-		} else {
-			// g_debug("File found");
-			// g_debug("Size of file: %d", g_input_stream_read(in, NULL, NULL);
-			// char *html = "<html><head><title>Tracker</title></head><body><h1>Tracker</h1></body></html>";
-			if(g_strcmp0(file_extension, "html") == 0)
-				mime_type = "text/html";
-			else if(g_strcmp0(file_extension, "css") == 0)
-				mime_type = "text/css";
-			else if(g_strcmp0(file_extension, "js") == 0)
-				mime_type = "text/javascript";
-			else if(g_strcmp0(file_extension, "png") == 0)
-				mime_type = "image/png";
-			else if(g_strcmp0(file_extension, "jpg") == 0)
-				mime_type = "image/jpg";
-			else if(g_strcmp0(file_extension, "jpeg") == 0)
-				mime_type = "image/jpeg";
-			else if(g_strcmp0(file_extension, "gif") == 0)
-				mime_type = "image/gif";
-			else
-				mime_type = "text/html";
-
-			tracker_http_server_response (server, request, mime_type, G_INPUT_STREAM (in));
-			// tracker_http_server_response (server, request, "text/html", 
-			// 	g_memory_input_stream_new_from_data("File found", -1, NULL));
-		}
-			return;
-	}
 
 	if (remote_address) {
 		g_signal_emit (endpoint, signals[BLOCK_REMOTE_ADDRESS], 0,
@@ -318,6 +375,11 @@ http_server_request_cb (TrackerHttpServer  *server,
 	if (block) {
 		tracker_http_server_error (server, request, 400,
 		                           "Remote address disallowed");
+		return;
+	}
+
+	if(g_strcmp0(method, "GET") == 0){
+		do_get(server,request, path);
 		return;
 	}
 
