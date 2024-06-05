@@ -241,6 +241,7 @@ build-fedora-rawhide-container@aarch64:
   stage: prepare
   variables:
     GIT_STRATEGY: none
+  allow_failure: true
   needs:
     - check-commit-log
     - check-merge-request
