@@ -158,7 +158,8 @@ check-merge-request:
       sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources &&
       apt-get -yq update && apt-get -yq upgrade &&
       apt-get -yq build-dep tracker &&
-      rm /home/ubuntu/.bash_logout
+      rm -f /etc/subgid /etc/subuid &&
+      rm -Rf /home/ubuntu
 
 .tracker.alpine@common:
   variables:
