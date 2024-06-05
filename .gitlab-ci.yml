@@ -112,7 +112,7 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2024-03-24.3'
+    BASE_TAG: '2024-06-05.2'
     FDO_DISTRIBUTION_PACKAGES:
       clang
       clang-analyzer
@@ -137,7 +137,11 @@ check-merge-request:
       uncrustify
 
     FDO_DISTRIBUTION_EXEC: |
-      dnf install -y 'dnf-command(builddep)' 'dnf-command(download)' &&
+      if [ -z $(command -v dnf5) ]; then
+        dnf install -y 'dnf-command(builddep)' 'dnf-command(download)';
+      else
+        dnf install -y 'dnf5-command(builddep)' 'dnf5-command(download)';
+      fi &&
       dnf builddep -y tracker --setopt=install_weak_deps=False &&
       # For tests, this isn't packaged in Fedora.
       pip3 install tap.py &&
