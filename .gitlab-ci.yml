@@ -147,11 +147,11 @@ check-merge-request:
 
 .tracker.ubuntu@common:
   variables:
-    BASE_TAG: '2024-06-05.0'
+    BASE_TAG: '2024-06-05.1'
     FDO_DISTRIBUTION_PACKAGES: 'python3-tap umockdev libumockdev-dev upower asciidoc-base git gcovr'
     FDO_DISTRIBUTION_EXEC: |
       export DEBIAN_FRONTEND=noninteractive &&
-      sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list &&
+      sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources &&
       apt-get -yq update && apt-get -yq upgrade &&
       apt-get -yq build-dep tracker
 
