@@ -518,11 +518,15 @@ coverage:
         path: coveragereport/coverage.xml
   needs:
     - test-fedora@x86_64
-    - test-fedora-rawhide@x86_64
     - test-fedora@aarch64
-    - test-fedora-rawhide@aarch64
     - test-alpine@x86_64
     - test-soup2@x86_64
+    # As of 2024-06-06, Fedora Rawhide has gcovr 7.2, other distros have
+    # 6.0. The "format_version" in the JSON output is "0.6" for gcovr 7.2,
+    # and "0.5" for older versions. This produces an incompatibility error
+    # when merging, so we temporarily exclude rawhide from coverage.
+    #- test-fedora-rawhide@x86_64
+    #- test-fedora-rawhide@aarch64
 
 coverity:
   extends:
