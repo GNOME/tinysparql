@@ -194,7 +194,7 @@ check-merge-request:
   tags:
     - aarch64
 
-.tracker.debian:rolling@x86_64:
+.tracker.debian:stable@x86_64:
   extends: .tracker.debian@common
   variables:
     FDO_DISTRIBUTION_VERSION: stable
@@ -255,7 +255,7 @@ build-fedora-rawhide-container@aarch64:
 build-debian-container@x86_64:
   extends:
     - .fdo.container-build@debian
-    - .tracker.debian:rolling@x86_64
+    - .tracker.debian:stable@x86_64
   stage: prepare
   variables:
     GIT_STRATEGY: none
@@ -336,10 +336,10 @@ build-fedora-rawhide@aarch64:
     NO_DOCS: "true"
   <<: *build
 
-build-debian-rolling@x86_64:
+build-debian-stable@x86_64:
   extends:
     - .fdo.distribution-image@debian
-    - .tracker.debian:rolling@x86_64
+    - .tracker.debian:stable@x86_64
   needs:
     - build-debian-container@x86_64
   variables:
@@ -443,9 +443,9 @@ test-fedora-rawhide@aarch64:
 test-debian@x86_64:
   extends:
     - .fdo.distribution-image@debian
-    - .tracker.debian:rolling@x86_64
+    - .tracker.debian:stable@x86_64
   needs:
-    - build-debian-rolling@x86_64
+    - build-debian-stable@x86_64
   <<: *test
 
 test-alpine@x86_64:
