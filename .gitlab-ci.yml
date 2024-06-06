@@ -151,8 +151,8 @@ check-merge-request:
 
 .tracker.debian@common:
   variables:
-    BASE_TAG: '2024-06-05.1'
-    FDO_DISTRIBUTION_PACKAGES: 'python3-tap umockdev libumockdev-dev upower asciidoc-base git gcovr'
+    BASE_TAG: '2024-06-06.1'
+    FDO_DISTRIBUTION_PACKAGES: 'ca-certificates python3-tap umockdev libumockdev-dev upower asciidoc-base git gcovr'
     FDO_DISTRIBUTION_EXEC: |
       export DEBIAN_FRONTEND=noninteractive &&
       sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources &&
