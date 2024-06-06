@@ -382,7 +382,7 @@ build-alpine-latest@x86_64:
     - |
       echo "Distribution: "
       echo
-      egrep '^NAME=|^VERSION=' /etc/os-release
+      grep -e '^NAME=' -e '^VERSION=' /etc/os-release
       echo
       echo "Test suite settings:"
       echo
