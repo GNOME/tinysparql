@@ -6,7 +6,7 @@ slug: sandboxing-and-portals
 There are times when it does make sense to lend advanced querying
 capabilities around your data to other processes of the same machine,
 or even widely available to any application that might want to make
-use of it. One real life example of this is [Tracker Miners](https://gitlab.gnome.org/GNOME/tracker-miners)
+use of it. One real life example of this is [LocalSearch](https://gitlab.gnome.org/GNOME/localsearch)
 used as the [GNOME Desktop](https://gnome.org) indexer.
 
 But in this day and age, it is naive to make this data available

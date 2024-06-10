@@ -57,7 +57,7 @@ static const gchar *mimetypes[] = {
 G_STATIC_ASSERT (G_N_ELEMENTS (mimetypes) == TRACKER_N_SERIALIZER_FORMATS);
 
 #define CONTENT_TYPE "application/sparql-query"
-#define USER_AGENT "Tracker " PACKAGE_VERSION " (https://gitlab.gnome.org/GNOME/tracker/issues/)"
+#define USER_AGENT "Tracker " PACKAGE_VERSION " (https://gitlab.gnome.org/GNOME/tinysparql/issues/)"
 
 #if SOUP_CHECK_VERSION (2, 99, 2)
 typedef SoupServerMessage TrackerSoupMessage;
