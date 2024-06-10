@@ -5,7 +5,7 @@ include:
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/b61a03cabbf308e81289f7aaaf0b5a80a34ffb99/templates/debian.yml'
 
 variables:
-  FDO_UPSTREAM_REPO: GNOME/tracker
+  FDO_UPSTREAM_REPO: GNOME/tinysparql
   MESON_TEST_TIMEOUT_MULTIPLIER: 3
   # These can be used to see verbose log output from the functional-tests.
   # See HACKING.md for more information.
@@ -282,7 +282,7 @@ check-code-style:
     - build-fedora-container@x86_64
   stage: code-review
   script:
-    - git fetch origin master;
+    - git fetch origin main;
       export common_parent_sha=$(diff --old-line-format='' --new-line-format='' <(git rev-list --first-parent "origin/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME:-${CI_DEFAULT_BRANCH}}") <(git rev-list --first-parent HEAD) | head -1) ;
       python3 -u ./check-style.py --dry-run --sha $common_parent_sha ;
   allow_failure: true
@@ -390,7 +390,7 @@ build-alpine-latest@x86_64:
       echo "TRACKER_DEBUG: ${TRACKER_DEBUG}"
       echo "MESON_TEST_EXTRA_ARGS: ${MESON_TEST_EXTRA_ARGS}"
       echo
-      echo "These values can be set at https://gitlab.gnome.org/GNOME/tracker/pipelines/new"
+      echo "These values can be set at https://gitlab.gnome.org/GNOME/tinysparql/pipelines/new"
   artifacts:
     expire_in: 1 day
     when: always
@@ -549,7 +549,7 @@ coverity:
   needs:
     - build-fedora-container@x86_64
   only:
-    - master
+    - main
   except:
     changes:
       - po/*.po
@@ -582,4 +582,4 @@ pages:
   needs:
     - test-website
   only:
-    - master
+    - main

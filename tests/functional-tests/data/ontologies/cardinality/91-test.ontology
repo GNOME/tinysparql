@@ -90,7 +90,7 @@ test:c_subprop_n a rdf:Property ;
 # ******** TEST CHANGE ****
 
 test:a_n_cardinality a rdf:Property ;
-    rdfs:comment "This property has cardinality N in master";
+    rdfs:comment "This property has cardinality N in main";
     nrl:maxCardinality 1 ;
     rdfs:domain test:A ;
     rdfs:range xsd:string .
