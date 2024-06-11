@@ -29,7 +29,7 @@ from gi.repository import Tracker
 import dataclasses
 import logging
 
-from . import mainloop
+import mainloop
 
 log = logging.getLogger(__name__)
 

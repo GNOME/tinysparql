@@ -26,7 +26,7 @@ import signal
 import subprocess
 import threading
 
-from . import mainloop
+import mainloop
 
 DEFAULT_TIMEOUT = 10
 

@@ -31,14 +31,12 @@ import os
 import signal
 import subprocess
 
-from . import dbusdaemon
-from .dconf import DConfClient, TemporaryDConfProfile
-from . import psutil_mini as psutil
+import dbusdaemon
+import psutil_mini as psutil
 
 log = logging.getLogger(__name__)
 
 TRACKER_DBUS_PREFIX = 'org.freedesktop.Tracker3'
-TRACKER_MINER_FS_BUSNAME = 'org.freedesktop.Tracker3.Miner.Files'
 
 _process_list = []
 
@@ -72,8 +70,6 @@ class TrackerSandbox:
         else:
             self.system_bus = None
 
-        self._dconf_profile = TemporaryDConfProfile()
-
     def get_environment(self):
         env = os.environ
         env.update(self.extra_env)
@@ -94,9 +90,6 @@ class TrackerSandbox:
         xdg_runtime_dir = env.get('XDG_RUNTIME_DIR')
         if xdg_runtime_dir:
             os.makedirs(xdg_runtime_dir, exist_ok=True)
-
-        # Separate DConf configuration from host in all cases.
-        env['DCONF_PROFILE'] = self._dconf_profile.get_path()
 
     def start(self, new_session=False):
         if self.system_bus:
@@ -167,26 +160,3 @@ class TrackerSandbox:
 
     def get_session_bus_address(self):
         return self.session_bus.get_address()
-
-    def get_dconf_client(self):
-        return DConfClient(
-            self.extra_env, self.get_session_bus_address()
-        )
-
-    def set_config(self, schema_config_dict):
-        """Set config values in multiple GSettings schemas.
-
-        Example input:
-
-            set_all({
-                'org.freedesktop.Tracker3.Miner.Files': {
-                    'enable-writeback': GLib.Variant.new_boolean(False),
-                }
-            })
-
-        """
-
-        dconf_client = self.get_dconf_client()
-        for schema_name, contents in schema_config_dict.items():
-            for key, value in contents.items():
-                dconf_client.write(schema_name, key, value)

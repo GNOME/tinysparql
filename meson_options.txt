@@ -24,10 +24,6 @@ option('systemd_user_services_dir', type: 'string', value: '', yield: true,
        description: 'Directory to install systemd user unit files (or empty to use default)')
 option('tests', type: 'boolean', value: true,
        description: 'Whether to build tests')
-option('test_utils', type: 'boolean', value: true,
-       description: 'Whether to install the trackertestutils Python package')
-option('test_utils_dir', type: 'string', value: '',
-       description: 'Directory to install trackertestutils Python package (or empty to use the default)')
 option('tests_tap_protocol', type: 'boolean', value: false,
        description: 'Whether to enable TAP protocol on tests')
 option('introspection', type: 'feature', value: 'enabled',
