@@ -288,8 +288,7 @@ tracker_get_input_stream_from_path(const gchar   *path,
 {
 	GFile *file;
 	GFileInputStream *file_in;
-	gchar* public_path = "/home/demigod/new/tracker/public";
-	gchar* abs_path = g_strconcat(public_path, path, NULL);
+	gchar* abs_path = g_strconcat(PUBLICDIR, path, NULL);
 
 	file = g_file_new_for_path(abs_path);
 	file_in = g_file_read(file, NULL, NULL);
