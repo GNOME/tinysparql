@@ -247,3 +247,5 @@ endif
 tracker_sparql_uninstalled_dir = meson.current_build_dir()
 
 meson.add_install_script('symlink-libtracker-sparql.sh', get_option('libdir'))
+
+meson.override_dependency('tinysparql-3.0', tracker_sparql_dep)
