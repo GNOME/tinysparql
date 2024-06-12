@@ -37,7 +37,6 @@ static void
 ensure_types (void)
 {
 	const char *modules[3] = { 0 };
-	gpointer handle = NULL;
 	gint i = 0;
 
 	if (client_type != G_TYPE_NONE)
@@ -45,18 +44,7 @@ ensure_types (void)
 
 	g_assert (g_module_supported ());
 
-#ifdef HAVE_RTLD_NOLOAD
-	if ((handle = dlopen (LIBSOUP_2_SONAME, RTLD_NOW | RTLD_NOLOAD))) {
-		/* Force load of soup2 module */
-		modules[0] = "libtracker-http-soup2.so";
-	} else
-#endif
-	{
-		modules[0] = "libtracker-http-soup3.so";
-		modules[1] = "libtracker-http-soup2.so";
-	}
-
-	g_clear_pointer (&handle, dlclose);
+	modules[0] = "libtracker-http-soup3.so";
 
 	for (i = 0; modules[i]; i++) {
 		GModule *remote_module;

@@ -59,17 +59,11 @@ G_STATIC_ASSERT (G_N_ELEMENTS (mimetypes) == TRACKER_N_SERIALIZER_FORMATS);
 #define CONTENT_TYPE "application/sparql-query"
 #define USER_AGENT "Tracker " PACKAGE_VERSION " (https://gitlab.gnome.org/GNOME/tinysparql/issues/)"
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
-typedef SoupServerMessage TrackerSoupMessage;
-#else
-typedef SoupMessage TrackerSoupMessage;
-#endif
-
 /* Server */
 struct _TrackerHttpRequest
 {
 	TrackerHttpServer *server;
-	TrackerSoupMessage *message;
+	SoupServerMessage *message;
 	GTask *task;
 	GInputStream *istream;
 
@@ -101,7 +95,7 @@ G_DEFINE_TYPE_WITH_CODE (TrackerHttpServerSoup,
 
 static TrackerHttpRequest *
 request_new (TrackerHttpServer  *http_server,
-             TrackerSoupMessage *message,
+             SoupServerMessage  *message,
              GSocketAddress     *remote_address,
              const gchar        *path,
              GHashTable         *params)
@@ -142,17 +136,12 @@ get_supported_formats (TrackerHttpRequest *request)
 	TrackerSerializerFormat i;
 	guint formats = 0;
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
-        request_headers = soup_server_message_get_request_headers (request->message);
-#else
-        request_headers = request->message->request_headers;
-#endif
+	request_headers = soup_server_message_get_request_headers (request->message);
 
-        for (i = 0; i < TRACKER_N_SERIALIZER_FORMATS; i++) {
-	        if (soup_message_headers_header_contains (request_headers, "Accept",
-	                                                  mimetypes[i]))
-		        formats |= 1 << i;
-        }
+	for (i = 0; i < TRACKER_N_SERIALIZER_FORMATS; i++) {
+		if (soup_message_headers_header_contains (request_headers, "Accept", mimetypes[i]))
+			formats |= 1 << i;
+	}
 
 	return formats;
 }
@@ -161,37 +150,23 @@ static void
 set_message_format (TrackerHttpRequest      *request,
                     TrackerSerializerFormat  format)
 {
-        SoupMessageHeaders *response_headers;
+	SoupMessageHeaders *response_headers;
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
-        response_headers = soup_server_message_get_response_headers (request->message);
-#else
-        response_headers = request->message->response_headers;
-#endif
-        soup_message_headers_set_content_type (response_headers, mimetypes[format], NULL);
+	response_headers = soup_server_message_get_response_headers (request->message);
+	soup_message_headers_set_content_type (response_headers, mimetypes[format], NULL);
 }
 
 /* Get SPARQL query from message POST data, or NULL. */
 static gchar *
-get_sparql_from_message_body (TrackerSoupMessage *message)
+get_sparql_from_message_body (SoupServerMessage *message)
 {
 	SoupMessageBody *body;
 	GBytes *body_bytes;
 	const gchar *body_data;
 	gsize body_size;
-#if SOUP_CHECK_VERSION (2, 99, 2)
-#else
-	SoupBuffer *buffer;
-#endif
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
 	body = soup_server_message_get_request_body (message);
 	body_bytes = soup_message_body_flatten (body);
-#else
-	body = message->request_body;
-	buffer = soup_message_body_flatten (body);
-	body_bytes = soup_buffer_get_as_bytes (buffer);
-#endif
 
 	body_data = g_bytes_get_data (body_bytes, &body_size);
 
@@ -209,8 +184,8 @@ get_sparql_from_message_body (TrackerSoupMessage *message)
 
 /* Handle POST messages if the body wasn't immediately available. */
 static void
-server_callback_got_message_body (TrackerSoupMessage *message,
-                                  gpointer            user_data)
+server_callback_got_message_body (SoupServerMessage *message,
+                                  gpointer           user_data)
 {
 	TrackerHttpRequest *request = user_data;
 	gchar *sparql;
@@ -235,22 +210,12 @@ server_callback_got_message_body (TrackerSoupMessage *message,
 	}
 }
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
 static void
 server_callback (SoupServer        *server,
-	         SoupServerMessage *message,
-                 const char        *path,
-	         GHashTable        *query,
-                 gpointer           user_data)
-#else
-static void
-server_callback (SoupServer        *server,
-                 SoupMessage       *message,
+                 SoupServerMessage *message,
                  const char        *path,
                  GHashTable        *query,
-                 SoupClientContext *client,
                  gpointer           user_data)
-#endif
 {
 	TrackerHttpServer *http_server = user_data;
 	GSocketAddress *remote_address;
@@ -258,11 +223,7 @@ server_callback (SoupServer        *server,
 	const char *method;
 	SoupMessageBody *body;
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
 	remote_address = soup_server_message_get_remote_address (message);
-#else
-	remote_address = soup_client_context_get_remote_address (client);
-#endif
 
 	request = request_new (http_server, message, remote_address, path, query);
 
@@ -279,11 +240,7 @@ server_callback (SoupServer        *server,
 #endif
 
 	if (g_strcmp0 (method, SOUP_METHOD_POST) == 0) {
-#if SOUP_CHECK_VERSION (2, 99, 2)
 		body = soup_server_message_get_request_body (request->message);
-#else
-		body = request->message->request_body;
-#endif
 
 		if (body->data) {
 			server_callback_got_message_body (message, request);
@@ -505,11 +462,7 @@ tracker_http_server_soup_error (TrackerHttpServer       *server,
 
 	g_assert (request->server == server);
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
 	soup_server_message_set_status (request->message, code, message);
-#else
-	soup_message_set_status_full (request->message, code, message);
-#endif
 
 #if SOUP_CHECK_VERSION (3, 1, 3)
 	soup_server_message_unpause (request->message);
@@ -531,11 +484,7 @@ handle_write_in_thread (GTask        *task,
 	GError *error = NULL;
 	gssize count;
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
-        message_body = soup_server_message_get_response_body (request->message);
-#else
-        message_body = request->message->response_body;
-#endif
+	message_body = soup_server_message_get_response_body (request->message);
 
 	for (;;) {
 		count = g_input_stream_read (request->istream,
@@ -582,11 +531,7 @@ write_finished_cb (GObject      *object,
 		                                error->message);
 		g_clear_error (&error);
 	} else {
-#if SOUP_CHECK_VERSION (2, 99, 2)
-                soup_server_message_set_status (request->message, 200, NULL);
-#else
-		soup_message_set_status (request->message, 200);
-#endif
+		soup_server_message_set_status (request->message, 200, NULL);
 
 #if SOUP_CHECK_VERSION (3, 1, 3)
 		soup_server_message_unpause (request->message);
@@ -677,13 +622,8 @@ get_content_type_format (SoupMessage              *message,
 	const gchar *content_type;
 	TrackerSerializerFormat i;
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
 	status_code = soup_message_get_status (message);
 	response_headers = soup_message_get_response_headers (message);
-#else
-	status_code = message->status_code;
-	response_headers = message->response_headers;
-#endif
 
 	if (status_code != SOUP_STATUS_OK) {
 		g_set_error (error,
@@ -761,27 +701,17 @@ create_message (const gchar *uri,
 {
 	SoupMessage *message;
 	SoupMessageHeaders *headers;
-#if SOUP_CHECK_VERSION (2, 99, 2)
 	GBytes *query_encoded;
-#endif
 
 	message = soup_message_new ("POST", uri);
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
 	headers = soup_message_get_request_headers (message);
-#else
-	headers = message->request_headers;
-#endif
 
 	soup_message_headers_append (headers, "User-Agent", USER_AGENT);
 	add_accepted_formats (headers, formats);
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
 	query_encoded = g_bytes_new (query, strlen (query));
 	soup_message_set_request_body_from_bytes (message, "application/sparql-query", query_encoded);
-#else
-	soup_message_set_request (message, "application/sparql-query", SOUP_MEMORY_COPY, query, strlen (query));
-#endif
 
 	return message;
 }
@@ -804,20 +734,12 @@ tracker_http_client_soup_send_message_async (TrackerHttpClient   *client,
 	message = create_message (uri, query, formats);
 	g_task_set_task_data (task, message, g_object_unref);
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
 	soup_session_send_async (client_soup->session,
 	                         message,
 	                         G_PRIORITY_DEFAULT,
 	                         cancellable,
 	                         send_message_cb,
 	                         task);
-#else
-	soup_session_send_async (client_soup->session,
-	                         message,
-	                         cancellable,
-	                         send_message_cb,
-	                         task);
-#endif
 }
 
 static GInputStream *
@@ -847,17 +769,10 @@ tracker_http_client_soup_send_message (TrackerHttpClient        *client,
 
 	message = create_message (uri, query, formats);
 
-#if SOUP_CHECK_VERSION (2, 99, 2)
 	stream = soup_session_send (client_soup->session,
 	                            message,
 	                            cancellable,
 	                            error);
-#else
-	stream = soup_session_send (client_soup->session,
-	                            message,
-	                            cancellable,
-	                            error);
-#endif
 	if (!stream)
 		return NULL;
 
