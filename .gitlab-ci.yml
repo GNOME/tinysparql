@@ -163,8 +163,8 @@ check-merge-request:
 
 .tracker.alpine@common:
   variables:
-    BASE_TAG: '2024-06-11.0'
-    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala py3-pip'
+    BASE_TAG: '2024-06-12.0'
+    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup3-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala py3-pip'
     FDO_DISTRIBUTION_EXEC: |
       pip3 install gcovr
 
@@ -483,16 +483,6 @@ test-website:
       when: never
     - when: always
 
-test-soup2@x86_64:
-  extends:
-    - .fdo.distribution-image@fedora
-    - .tracker.fedora:latest@x86_64
-  needs:
-    - build-fedora@x86_64
-  before_script:
-    - meson configure -Dsoup=soup2 build
-  <<: *test
-
 coverage:
   extends:
     - .fdo.distribution-image@fedora
@@ -522,7 +512,6 @@ coverage:
     - test-fedora@x86_64
     - test-fedora@aarch64
     - test-alpine@x86_64
-    - test-soup2@x86_64
     - test-fedora-rawhide@x86_64
     - test-fedora-rawhide@aarch64
     - test-debian@x86_64

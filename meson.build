@@ -63,32 +63,11 @@ avahi_client = dependency('avahi-client', required: get_option('avahi'))
 
 gvdb_dep = dependency('gvdb')
 
-soup = get_option('soup')
-if soup.contains('soup2') or soup.contains('auto')
-  libsoup2 = dependency('libsoup-2.4', version: '> 2.40',
-                        required: soup.contains('soup2'))
-else
-  libsoup2 = disabler()
-endif
+libsoup3 = dependency('libsoup-3.0', version: '>= 2.99.2',
+                        required: true)
 
-if soup.contains('soup3') or soup.contains('auto')
-  libsoup3 = dependency('libsoup-3.0', version: '>= 2.99.2',
-                        required: soup.contains('soup3'))
-else
-  libsoup3 = disabler()
-endif
+soup_backends = '3.x'
 
-soup_backends = ''
-if libsoup2.found()
-  soup_backends = soup_backends + '2.x '
-endif
-if libsoup3.found()
-  soup_backends = soup_backends + '3.x '
-endif
-
-if not libsoup2.found() and not libsoup3.found()
-  error('At least one of libsoup2 or libsoup3 is required')
-endif
 
 have_avahi = avahi_glib.found() and avahi_client.found()
 
