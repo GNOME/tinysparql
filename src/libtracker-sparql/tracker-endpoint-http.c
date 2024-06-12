@@ -275,16 +275,16 @@ get_mimetype_from_path(const gchar *path)
 static gboolean
 tracker_get_request_validate_path(const gchar *path)
 {
-    const gchar *slash = g_strrstr(path + 1, "/");
-    if(slash != NULL) return FALSE;
+	const gchar *slash = g_strrstr(path + 1, "/");
+	if(slash != NULL) return FALSE;
 	const gchar *dot = g_strrstr(path, ".");
 	if(dot == NULL) return FALSE;
 	return TRUE;
 }
 
 static void
-tracker_get_input_stream_from_path(const gchar 	*path,
-								   GInputStream **in)
+tracker_get_input_stream_from_path(const gchar   *path,
+                                   GInputStream **in)
 {
 	GFile *file;
 	GFileInputStream *file_in;
@@ -298,8 +298,8 @@ tracker_get_input_stream_from_path(const gchar 	*path,
 }
 
 static void
-tracker_response_error_page_not_found (TrackerHttpServer 	*server,
-									   TrackerHttpRequest 	*request)
+tracker_response_error_page_not_found (TrackerHttpServer    *server,
+                                       TrackerHttpRequest   *request)
 {
 	GInputStream *in;
 	tracker_get_input_stream_from_path("/404.html", &in);
@@ -312,9 +312,9 @@ tracker_response_error_page_not_found (TrackerHttpServer 	*server,
 }
 
 static void
-do_get (TrackerHttpServer 	*server,
-		TrackerHttpRequest 	*request,
-		const gchar 		*path)
+do_get (TrackerHttpServer   *server,
+        TrackerHttpRequest  *request,
+        const gchar         *path)
 {
 	GFile *file;
 	GInputStream *in;
@@ -338,7 +338,7 @@ do_get (TrackerHttpServer 	*server,
 		g_debug("File not found");
 		tracker_response_error_page_not_found(server, request);
 		return;
-	} 
+	}
 
 	mime_type = get_mimetype_from_path(path);
 
@@ -354,7 +354,7 @@ static void
 http_server_request_cb (TrackerHttpServer  *server,
                         GSocketAddress     *remote_address,
                         const gchar        *path,
-						const gchar		   *method,
+                        const gchar        *method,
                         GHashTable         *params,
                         guint               formats,
                         TrackerHttpRequest *request,

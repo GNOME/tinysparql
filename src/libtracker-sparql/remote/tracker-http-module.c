@@ -148,15 +148,12 @@ get_supported_formats (TrackerHttpRequest *request)
 
 static void
 set_message_format (TrackerHttpRequest      *request,
-                    const gchar*			mimetype)
+                    const gchar*             mimetype)
 {
 	SoupMessageHeaders *response_headers;
 
 	response_headers = soup_server_message_get_response_headers (request->message);
 	soup_message_headers_set_content_type (response_headers, mimetype, NULL);
-
-	// Required to run
-	soup_message_headers_append (response_headers, "Access-Control-Allow-Origin", "*");
 }
 
 /* Get SPARQL query from message POST data, or NULL. */
@@ -196,11 +193,11 @@ server_callback_got_message_body (SoupServerMessage *message,
 
 	sparql = get_sparql_from_message_body (message);
 
-	#if SOUP_CHECK_VERSION (3, 1, 3)
-		method = soup_server_message_get_method (message);
-	#else
-		method = message->method;
-	#endif
+#if SOUP_CHECK_VERSION (3, 1, 3)
+	method = soup_server_message_get_method (message);
+#else
+	method = message->method;
+#endif
 
 	if (sparql) {
 		if (!request->params) {
@@ -212,7 +209,7 @@ server_callback_got_message_body (SoupServerMessage *message,
 		g_signal_emit_by_name (request->server, "request",
 		                       request->remote_address,
 		                       request->path,
-							   method,
+		                       method,
 		                       request->params,
 		                       get_supported_formats (request),
 		                       request);
@@ -223,10 +220,10 @@ server_callback_got_message_body (SoupServerMessage *message,
 
 static void
 root_server_callback (SoupServer        *server,
-	         		  SoupServerMessage *message,
-                 	  const char        *path,
-	         		  GHashTable        *query,
-                 	  gpointer           user_data)
+                      SoupServerMessage *message,
+                      const char        *path,
+                      GHashTable        *query,
+                      gpointer           user_data)
 {
 	TrackerHttpServer *http_server = user_data;
 	GSocketAddress *remote_address;
@@ -251,12 +248,12 @@ root_server_callback (SoupServer        *server,
 #endif
 
 	g_signal_emit_by_name (http_server, "request",
-							remote_address,
-							path,
-							method,
-							query,
-							get_supported_formats (request),
-							request);
+	                       remote_address,
+	                       path,
+	                       method,
+	                       query,
+	                       get_supported_formats (request),
+	                       request);
 }
 
 static void
@@ -297,13 +294,11 @@ server_callback (SoupServer        *server,
 			g_debug ("Received HTTP POST for %s with no body, awaiting data", path);
 			g_signal_connect (message, "got-body", G_CALLBACK (server_callback_got_message_body), request);
 		}
-	// } else if (g_strcmp0 (method, SOUP_METHOD_GET) == 0){
-		// g_debug("Received HTTP GET for %s", path);
 	} else {
 		g_signal_emit_by_name (http_server, "request",
 		                       remote_address,
 		                       path,
-							   method,
+		                       method,
 		                       query,
 		                       get_supported_formats (request),
 		                       request);
@@ -603,7 +598,7 @@ write_finished_cb (GObject      *object,
 static void
 tracker_http_server_soup_response (TrackerHttpServer       *server,
                                    TrackerHttpRequest      *request,
-                                   const gchar*				mimetype,
+                                   const gchar*             mimetype,
                                    GInputStream            *content)
 {
 	TrackerHttpServerSoup *server_soup =
