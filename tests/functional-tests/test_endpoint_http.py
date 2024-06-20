@@ -32,7 +32,7 @@ from urllib.error import HTTPError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
-COMMAND_NAME = "tinysparql3"
+COMMAND_NAME = "tinysparql"
 
 class TestEndpointHttp(fixtures.TrackerCommandLineTestCase):
     def setUp(self):

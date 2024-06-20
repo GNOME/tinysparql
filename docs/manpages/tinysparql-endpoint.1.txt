@@ -1,8 +1,8 @@
-tinysparql3-endpoint(1)
-=======================
+tinysparql-endpoint(1)
+======================
 
 == NAME
-tinysparql3-endpoint - Create a SPARQL endpoint
+tinysparql-endpoint - Create a SPARQL endpoint
 
 == SYNOPSIS
 
@@ -65,11 +65,11 @@ The database itself will be stored according to _database_path_.
 
 Export a Nepomuk endpoint with the _org.example.Example1_ bus name.
 
-  $ tinysparql3 endpoint -b org.example.Example1 -o nepomuk -d /tmp/example1
+  $ tinysparql endpoint -b org.example.Example1 -o nepomuk -d /tmp/example1
 
-Access this endpoint with the *tinysparql3-sparql(1)* subcommand.
+Access this endpoint with the *tinysparql-sparql(1)* subcommand.
 
-  $ tinysparql3 sparql --dbus-service org.example.Example1 -q "
+  $ tinysparql sparql --dbus-service org.example.Example1 -q "
     SELECT ?s ?o
     WHERE {
       ?u a ?o
@@ -77,17 +77,17 @@ Access this endpoint with the *tinysparql3-sparql(1)* subcommand.
 
 Export a Nepomuk endpoint via HTTP.
 
-  $ tinysparql3 endpoint --http-port 8080 -o nepomuk --loopback
+  $ tinysparql endpoint --http-port 8080 -o nepomuk --loopback
 
 Access this endpoint via HTTP.
 
-  $ tinysparql3 sparql --remote-service http://127.0.0.1:8080/sparql -q "
+  $ tinysparql sparql --remote-service http://127.0.0.1:8080/sparql -q "
     SELECT ?u {
       ?u a rdfs:Resource
     }"
 
 == SEE ALSO
 
-*tinysparql3-sparql*(1),
+*tinysparql-sparql*(1),
 
 <https://www.w3.org/TR/sparql11-query/>

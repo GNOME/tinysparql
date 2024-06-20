@@ -1,17 +1,17 @@
-tinysparql3-export(1)
-=====================
+tinysparql-export(1)
+====================
 
 == NAME
 
-tinysparql3-export - Export all data from a TinySPARQL database.
+tinysparql-export - Export all data from a TinySPARQL database.
 
 == SYNOPSIS
 
-*tinysparql3 export* [_options_...] [*IRI*...]
+*tinysparql export* [_options_...] [*IRI*...]
 
 == DESCRIPTION
 
-*tinysparql3 export* exports data stored in a TinySPARQL database, in
+*tinysparql export* exports data stored in a TinySPARQL database, in
 Turtle format. By default all data is exported, if any *IRI*, only those
 resources will be printed.
 
@@ -41,9 +41,9 @@ Export all data from Tracker Index and prettify the output using
 rapper(1).::
 
 ....
-$ tinysparql3 export -b org.freedesktop.Tracker3.Miner.Files | rapper - -I . -i turtle -o turtle
+$ tinysparql export -b org.freedesktop.Tracker3.Miner.Files | rapper - -I . -i turtle -o turtle
 ....
 
 == SEE ALSO
 
-*tinysparql3-import*(1), *tinysparql3-sparql*(1).
+*tinysparql-import*(1), *tinysparql-sparql*(1).
