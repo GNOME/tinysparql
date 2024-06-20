@@ -1,20 +1,20 @@
-tinysparql3-sql(1)
-==================
+tinysparql-sql(1)
+=================
 
 == NAME
 
-tinysparql3-sql - Use SQL to query the TinySPARQL databases.
+tinysparql-sql - Use SQL to query the TinySPARQL databases.
 
 == SYNOPSIS
 
 ....
-tinysparql3 sql -q <sql> | -f <file>
+tinysparql sql -q <sql> | -f <file>
 ....
 
 == DESCRIPTION
 
 This command allows probing of the current database. When using commands
-like *tinysparql3 sparql*, the SPARQL used is translated into SQL before
+like *tinysparql sparql*, the SPARQL used is translated into SQL before
 being run on the database. This allows direct use of the database using
 SQL avoiding the SPARQL engine entirely.
 
@@ -40,11 +40,11 @@ not have to be an absolute path.
 Show first 10 "nfo:Document" entries where the TOC is not NULL::
 +
 ----
-$ tinysparql3 sql -q 'SELECT * FROM "nfo:Document" WHERE "nfo:tableOfContents" NOT NULL LIMIT 10;'
+$ tinysparql sql -q 'SELECT * FROM "nfo:Document" WHERE "nfo:tableOfContents" NOT NULL LIMIT 10;'
 ----
 
 == SEE ALSO
 
-*tinysparql3-sparql*(1), *tinysparql3-info*(1).
+*tinysparql-sparql*(1), *tinysparql-info*(1).
 
 *http://en.wikipedia.org/wiki/SQL*

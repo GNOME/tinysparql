@@ -1,9 +1,9 @@
 manpages = [
-    ['tinysparql3-endpoint', 1, true],
-    ['tinysparql3-export', 1, true],
-    ['tinysparql3-import', 1, true],
-    ['tinysparql3-sparql', 1, true],
-    ['tinysparql3-sql', 1, true],
+    ['tinysparql-endpoint', 1, true],
+    ['tinysparql-export', 1, true],
+    ['tinysparql-import', 1, true],
+    ['tinysparql-sparql', 1, true],
+    ['tinysparql-sql', 1, true],
     ['tinysparql-xdg-portal-3', 1, false],
 ]
 
