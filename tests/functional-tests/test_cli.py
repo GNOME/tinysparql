@@ -25,7 +25,7 @@ import unittest
 import configuration
 import fixtures
 
-COMMAND_NAME = "tinysparql3"
+COMMAND_NAME = "tinysparql"
 
 class TestCli(fixtures.TrackerCommandLineTestCase):
     def test_version(self):

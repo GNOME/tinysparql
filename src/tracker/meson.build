@@ -14,7 +14,7 @@ commands = [
     { 'name': 'sql', 'sources': 'tracker-sql.c', 'extra_deps': [tracker_sparql_private_dep] },
 ]
 
-main_command_name = 'tinysparql@0@'.format(tracker_api_major)
+main_command_name = 'tinysparql'
 main_command_sources = [
     'tracker-main.c',
 ]
