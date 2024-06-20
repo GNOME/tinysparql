@@ -17,3 +17,22 @@ npx webpack
 npm run build
 
 ```
+
+## Building with Meson
+The static frontend files generated here will be converted into GResource bundles during the meson build process. The bundling is automatic, but the file generation, since it is based on webpack, needs to be done manually. This can be done in the following 2 ways:
+
+```
+# option 1 - npm run build manually before running meson build scripts
+# from web-ide directory
+npm run build 
+cd ../..
+meson compile -C <builddir>
+
+# option 2 - enable meson option for automated webpack compilation
+# from root directory
+meson configure -Dwebpack=true <builddir>
+meson compile -C <builddir>
+
+```
+
+Note that the dist directory must be pushed to git to ensure non-web-ide-developers don't need to install all the npm stuff to build the project.

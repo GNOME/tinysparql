@@ -6,16 +6,12 @@ if (get_option('webpack'))
         command: ['./webpack.sh']
     )
 
-endif
-
-web_ide = files(
-    'dist/main.js',
-    'dist/index.html'
-)
-
-if (get_option('webpack'))
-    deps = [webpack, web_ide]
+    deps = [webpack]
 else
+    web_ide = files(
+        'dist/main.js',
+        'dist/index.html'
+    )
     deps = [web_ide]
 endif
 
