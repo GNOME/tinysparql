@@ -4,6 +4,9 @@ subdir('libtracker-common')
 # Public ontologies
 subdir('ontologies')
 
+# Web IDE 
+subdir('web-ide')
+
 # Intermediate library of RDF & SPARQL helper functions.
 # This gets used internally and also becomes part of the
 # public libtracker-sparql library.

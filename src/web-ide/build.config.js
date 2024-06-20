@@ -9,7 +9,7 @@ module.exports = {
   },
   output: {
     filename: 'main.js',
-    path: path.resolve(__dirname, '../../public'),
+    path: path.resolve(__dirname, 'dist'),
     clean: true
   },
   plugins: [

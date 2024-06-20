@@ -1,5 +1,5 @@
-# codemirror-demo
-Demo project to test out codemirror and webpack setup.
+# TinySPARQL web IDE
+Web IDE for testing SPARQL queries against arbitary TinySPARQL endpoints.
 
 ## Getting started
 
