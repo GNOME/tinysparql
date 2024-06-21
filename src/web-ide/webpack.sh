@@ -1,5 +1,5 @@
 #!/bin/sh
 
-cd ${MESON_SOURCE_ROOT}/src/web-ide
+cd $1
 npm i
 npm run build

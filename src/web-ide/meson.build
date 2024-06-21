@@ -3,7 +3,7 @@ if (get_option('webpack'))
     webpack = custom_target(
         'webpack',
         output: ['main.js', 'index.html'],
-        command: ['./webpack.sh']
+        command: ['./webpack.sh', meson.current_source_dir()]
     )
 
     deps = [webpack]

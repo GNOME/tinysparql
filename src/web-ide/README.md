@@ -2,7 +2,7 @@
 Web IDE for testing SPARQL queries against arbitary TinySPARQL endpoints.
 
 ## Getting started
-
+This website uses a few JS packages that we manage using npm, so please install that on your machine before you start developing. 
 ```
 # to install dependencies
 npm i
@@ -19,7 +19,7 @@ npm run build
 ```
 
 ## Building with Meson
-The static frontend files generated here will be converted into GResource bundles during the meson build process. The bundling is automatic, but the file generation, since it is based on webpack, needs to be done manually. This can be done in the following 2 ways:
+The static frontend files generated here will be converted into GResource bundles during the meson build process. The GResource bundling is automatic, but the file generation, since it is based on webpack, needs to be done manually. This can be done in the following 2 ways:
 
 ```
 # option 1 - npm run build manually before running meson build scripts
@@ -35,4 +35,4 @@ meson compile -C <builddir>
 
 ```
 
-Note that the dist directory must be pushed to git to ensure non-web-ide-developers don't need to install all the npm stuff to build the project.
+Note that the dist directory must be pushed to git to ensure developers who aren't involved with the web ide don't need to install all the npm stuff to build the project.
