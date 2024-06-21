@@ -4,15 +4,9 @@ src/libtracker-common/tracker-utils.c
 src/libtracker-sparql/core/tracker-collation.c
 src/portal/tracker-main.c
 src/tracker/tracker-endpoint.c
-src/tracker/tracker-endpoint.desktop.in
 src/tracker/tracker-export.c
-src/tracker/tracker-export.desktop.in
 src/tracker/tracker-help.c
-src/tracker/tracker-help.desktop.in
 src/tracker/tracker-import.c
-src/tracker/tracker-import.desktop.in
 src/tracker/tracker-main.c
 src/tracker/tracker-sparql.c
-src/tracker/tracker-sparql.desktop.in
 src/tracker/tracker-sql.c
-src/tracker/tracker-sql.desktop.in

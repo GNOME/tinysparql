@@ -22,3 +22,5 @@
 #pragma once
 
 int tracker_help_show_man_page (const char  *cmd);
+
+int tracker_help (int argc, const char *argv[]);

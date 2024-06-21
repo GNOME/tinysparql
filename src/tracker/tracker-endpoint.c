@@ -595,7 +595,7 @@ run_list_http_endpoints (void)
 #endif /* HAVE_AVAHI */
 
 int
-main (int argc, const char **argv)
+tracker_endpoint (int argc, const char **argv)
 {
 	TrackerSparqlConnection *connection;
 	GOptionContext *context;

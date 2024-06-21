@@ -1377,7 +1377,7 @@ sparql_options_enabled (void)
 }
 
 int
-main (int argc, const char **argv)
+tracker_sparql (int argc, const char **argv)
 {
 	GOptionContext *context;
 	GError *error = NULL;
