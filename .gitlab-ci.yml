@@ -122,7 +122,6 @@ check-merge-request:
       libasan
       libsoup-devel
       libubsan
-      nodejs
       patch
       python-devel
       python3-gobject
@@ -145,6 +144,8 @@ check-merge-request:
       dnf builddep -y tracker --setopt=install_weak_deps=False &&
       # For tests, this isn't packaged in Fedora.
       pip3 install tap.py gcovr &&
+      # For testing webpack bundling
+      dnf install nodejs &&
       dnf clean all &&
       # Prefer gi-docgen from the submodule
       dnf remove -y gi-docgen --noautoremove
@@ -152,7 +153,7 @@ check-merge-request:
 .tracker.debian@common:
   variables:
     BASE_TAG: '2024-06-11.0'
-    FDO_DISTRIBUTION_PACKAGES: 'ca-certificates python3-tap python3-pip umockdev libumockdev-dev upower asciidoc-base git npm'
+    FDO_DISTRIBUTION_PACKAGES: 'ca-certificates python3-tap python3-pip umockdev libumockdev-dev upower asciidoc-base git'
     FDO_DISTRIBUTION_EXEC: |
       export DEBIAN_FRONTEND=noninteractive &&
       sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources &&
@@ -165,7 +166,7 @@ check-merge-request:
 .tracker.alpine@common:
   variables:
     BASE_TAG: '2024-06-12.0'
-    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup3-dev libxml2-dev meson npm py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala py3-pip'
+    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup3-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala py3-pip'
     FDO_DISTRIBUTION_EXEC: |
       pip3 install gcovr
 
@@ -304,6 +305,9 @@ build-fedora@x86_64:
   extends:
     - .fdo.distribution-image@fedora
     - .tracker.fedora:latest@x86_64
+  script:
+    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_coverage=true -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true -Davahi=disabled -Dwebpack=true --prefix /usr
+    - ninja -C build
   needs:
     - build-fedora-container@x86_64
   <<: *build
