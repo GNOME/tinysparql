@@ -30,6 +30,3 @@ option('introspection', type: 'feature', value: 'enabled',
        description: 'Whether to enable introspection')
 option('vapi', type: 'feature', value: 'enabled',
        description: 'Whether to enable Vala binding generation')
-
-option('webpack', type:'boolean', value: false,
-       description: 'Whether to enable automatic webpack compilation')

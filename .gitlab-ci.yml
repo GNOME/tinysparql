@@ -144,8 +144,6 @@ check-merge-request:
       dnf builddep -y tracker --setopt=install_weak_deps=False &&
       # For tests, this isn't packaged in Fedora.
       pip3 install tap.py gcovr &&
-      # For testing webpack bundling
-      dnf install nodejs &&
       dnf clean all &&
       # Prefer gi-docgen from the submodule
       dnf remove -y gi-docgen --noautoremove
@@ -305,9 +303,6 @@ build-fedora@x86_64:
   extends:
     - .fdo.distribution-image@fedora
     - .tracker.fedora:latest@x86_64
-  script:
-    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_coverage=true -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true -Davahi=disabled -Dwebpack=true --prefix /usr
-    - ninja -C build
   needs:
     - build-fedora-container@x86_64
   <<: *build
