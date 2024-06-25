@@ -185,7 +185,7 @@ tracker_http_server_class_init (TrackerHttpServerClass *klass)
 		              G_TYPE_NONE, 6,
 		              G_TYPE_SOCKET_ADDRESS,
 		              G_TYPE_STRING,
-		              G_TYPE_STRING,
+		              G_TYPE_BOOLEAN,
 		              G_TYPE_HASH_TABLE,
 		              G_TYPE_UINT,
 		              G_TYPE_POINTER);

@@ -209,7 +209,7 @@ server_callback_got_message_body (SoupServerMessage *message,
 		g_signal_emit_by_name (request->server, "request",
 		                       request->remote_address,
 		                       request->path,
-		                       method,
+		                       FALSE,
 		                       request->params,
 		                       get_supported_formats (request),
 		                       request);
@@ -230,6 +230,7 @@ root_server_callback (SoupServer        *server,
 	TrackerHttpRequest *request;
 	const char *method;
 	SoupMessageBody *body;
+	gboolean serve_web_ide = FALSE;
 
 	remote_address = soup_server_message_get_remote_address (message);
 
@@ -247,10 +248,14 @@ root_server_callback (SoupServer        *server,
 	method = message->method;
 #endif
 
+	if(g_strcmp0(method, SOUP_METHOD_GET) == 0) {
+		serve_web_ide = TRUE;
+	}
+
 	g_signal_emit_by_name (http_server, "request",
 	                       remote_address,
 	                       path,
-	                       method,
+	                       serve_web_ide,
 	                       query,
 	                       get_supported_formats (request),
 	                       request);
@@ -298,7 +303,7 @@ server_callback (SoupServer        *server,
 		g_signal_emit_by_name (http_server, "request",
 		                       remote_address,
 		                       path,
-		                       method,
+		                       FALSE,
 		                       query,
 		                       get_supported_formats (request),
 		                       request);

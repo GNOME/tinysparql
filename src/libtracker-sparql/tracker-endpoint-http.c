@@ -311,9 +311,9 @@ tracker_response_error_page_not_found (TrackerHttpServer    *server,
 }
 
 static void
-do_get (TrackerHttpServer   *server,
-        TrackerHttpRequest  *request,
-        const gchar         *path)
+serve_web_ide (TrackerHttpServer   *server,
+               TrackerHttpRequest  *request,
+               const gchar         *path)
 {
 	GFile *file;
 	GInputStream *in;
@@ -322,7 +322,7 @@ do_get (TrackerHttpServer   *server,
 	const gchar* absolute_path;
 
 	if(strcmp(path, "/") == 0){
-		do_get(server, request, "/index.html");
+		serve_web_ide(server, request, "/index.html");
 		return;
 	}
 
@@ -353,7 +353,7 @@ static void
 http_server_request_cb (TrackerHttpServer  *server,
                         GSocketAddress     *remote_address,
                         const gchar        *path,
-                        const gchar        *method,
+                        const gboolean     *webide,
                         GHashTable         *params,
                         guint               formats,
                         TrackerHttpRequest *request,
@@ -374,11 +374,6 @@ http_server_request_cb (TrackerHttpServer  *server,
 	if (block) {
 		tracker_http_server_error (server, request, 400,
 		                           "Remote address disallowed");
-		return;
-	}
-
-	if(g_strcmp0(method, "GET") == 0){
-		do_get(server,request, path);
 		return;
 	}
 
@@ -414,6 +409,11 @@ http_server_request_cb (TrackerHttpServer  *server,
 		TrackerResource *description;
 		TrackerSparqlCursor *deserializer;
 		GInputStream *serializer;
+
+		if(webide){
+			serve_web_ide (server, request, path);
+			return;
+		}
 
 		if (!pick_format (formats, &format))
 			format = TRACKER_SERIALIZER_FORMAT_TTL;
