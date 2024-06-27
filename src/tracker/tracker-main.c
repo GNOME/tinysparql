@@ -31,11 +31,11 @@
 #include <libtracker-common/tracker-common.h>
 
 const char usage_string[] =
-	"tracker3 [--version] [--help]\n"
+	"tinysparql [--version] [--help]\n"
 	"                <command> [<args>]";
 
 const char about[] =
-	"Tracker " PACKAGE_VERSION "\n"
+	"TinySPARQL " PACKAGE_VERSION "\n"
 	"\n"
 	"This program is free software and comes without any warranty.\n"
 	"It is licensed under version 2 or later of the General Public "
@@ -120,7 +120,7 @@ print_usage_list_cmds (void)
 		g_warning ("Failed to list commands: %s", error->message);
 	}
 
-	puts (_("Available tracker3 commands are:"));
+	puts (_("Available tinysparql commands are:"));
 
 	if (commands) {
 		commands = g_list_sort (commands, (GCompareFunc) compare_app_info);
@@ -152,7 +152,7 @@ print_usage (void)
 {
 	g_print ("usage: %s\n\n", usage_string);
 	print_usage_list_cmds ();
-	g_print ("\n%s\n", _("See “tracker3 help <command>” to read about a specific subcommand."));
+	g_print ("\n%s\n", _("See “tinysparql help <command>” to read about a specific subcommand."));
 }
 
 int
@@ -205,7 +205,7 @@ main (int argc, char *argv[])
 		argv[1] = path;
 		execv (path, &argv[1]);
 	} else {
-		g_printerr (_("“%s” is not a tracker3 command. See “tracker3 --help”"), subcommand);
+		g_printerr (_("“%s” is not a tinysparql command. See “tinysparql --help”"), subcommand);
 		g_printerr ("\n");
 	}
 

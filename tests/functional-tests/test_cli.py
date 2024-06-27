@@ -33,7 +33,7 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
         output = self.run_cli([COMMAND_NAME, "--version"])
 
         version_line = output.splitlines()[0]
-        expected_version_line = "Tracker %s" % configuration.tracker_version()
+        expected_version_line = "TinySPARQL %s" % configuration.tracker_version()
         self.assertEqual(version_line, expected_version_line)
 
     def test_create_local_database(self):
