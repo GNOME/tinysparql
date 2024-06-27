@@ -229,7 +229,6 @@ root_server_callback (SoupServer        *server,
 	GSocketAddress *remote_address;
 	TrackerHttpRequest *request;
 	const char *method;
-	SoupMessageBody *body;
 	gboolean serve_web_ide = FALSE;
 
 	remote_address = soup_server_message_get_remote_address (message);
@@ -248,7 +247,7 @@ root_server_callback (SoupServer        *server,
 	method = message->method;
 #endif
 
-	if(g_strcmp0(method, SOUP_METHOD_GET) == 0) {
+	if (g_strcmp0 (method, SOUP_METHOD_GET) == 0) {
 		serve_web_ide = TRUE;
 	}
 

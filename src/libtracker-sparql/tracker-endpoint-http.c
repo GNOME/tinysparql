@@ -255,13 +255,15 @@ create_service_description (TrackerEndpointHttp      *endpoint,
 }
 
 static const gchar *
-get_mimetype_from_path(const gchar *path)
+get_mimetype_from_path (const gchar *path)
 {
 	gchar *extension;
 	guint i;
 
-	extension = strrchr(path, '.');
-	if(extension == NULL) return NULL;
+	extension = strrchr (path, '.');
+	if (extension == NULL)
+		return NULL;
+
 	extension++;
 
 	for (i = 0; i < G_N_ELEMENTS (get_request_file_extension); i++) {
@@ -273,25 +275,29 @@ get_mimetype_from_path(const gchar *path)
 }
 
 static gboolean
-tracker_get_request_validate_path(const gchar *path)
+tracker_get_request_validate_path (const gchar *path)
 {
-	const gchar *slash = g_strrstr(path + 1, "/");
-	if(slash != NULL) return FALSE;
-	const gchar *dot = g_strrstr(path, ".");
-	if(dot == NULL) return FALSE;
+	const gchar *slash = g_strrstr (path + 1, "/");
+	if (slash != NULL)
+		return FALSE;
+
+	const gchar *dot = g_strrstr (path, ".");
+	if (dot == NULL)
+		return FALSE;
+
 	return TRUE;
 }
 
 static void
-tracker_get_input_stream_from_path(const gchar   *path,
-                                   GInputStream **in)
+tracker_get_input_stream_from_path (const gchar   *path,
+                                    GInputStream **in)
 {
 	GFile *file;
 	GFileInputStream *file_in;
-	gchar* abs_path = g_strconcat(PUBLICDIR, path, NULL);
+	gchar *abs_path = g_build_filename (PUBLICDIR, path, NULL);
 
-	file = g_file_new_for_path(abs_path);
-	file_in = g_file_read(file, NULL, NULL);
+	file = g_file_new_for_path (abs_path);
+	file_in = g_file_read (file, NULL, NULL);
 	*in = G_INPUT_STREAM (file_in);
 	return;
 }
@@ -301,8 +307,8 @@ tracker_response_error_page_not_found (TrackerHttpServer    *server,
                                        TrackerHttpRequest   *request)
 {
 	GInputStream *in;
-	tracker_get_input_stream_from_path("/404.html", &in);
-	if(!in){
+	tracker_get_input_stream_from_path ("/404.html", &in);
+	if (!in) {
 		tracker_http_server_error (server, request, 500, "Internal Server Error");
 		return;
 	}
@@ -315,34 +321,31 @@ serve_web_ide (TrackerHttpServer   *server,
                TrackerHttpRequest  *request,
                const gchar         *path)
 {
-	GFile *file;
 	GInputStream *in;
-	gchar* file_extension;
 	const gchar* mime_type;
-	const gchar* absolute_path;
 
-	if(strcmp(path, "/") == 0){
-		serve_web_ide(server, request, "/index.html");
+	if (strcmp (path, "/") == 0) {
+		serve_web_ide (server, request, "/index.html");
 		return;
 	}
 
-	if(!tracker_get_request_validate_path(path)){
-		tracker_response_error_page_not_found(server, request);
+	if (!tracker_get_request_validate_path (path)) {
+		tracker_response_error_page_not_found (server, request);
 		return;
 	}
 
-	tracker_get_input_stream_from_path(path, &in);
+	tracker_get_input_stream_from_path (path, &in);
 
-	if(!in){
-		g_debug("File not found");
-		tracker_response_error_page_not_found(server, request);
+	if (!in) {
+		g_debug ("File not found");
+		tracker_response_error_page_not_found (server, request);
 		return;
 	}
 
-	mime_type = get_mimetype_from_path(path);
+	mime_type = get_mimetype_from_path (path);
 
-	if(!mime_type){
-		tracker_response_error_page_not_found(server, request);
+	if (!mime_type) {
+		tracker_response_error_page_not_found (server, request);
 		return;
 	}
 
@@ -353,7 +356,7 @@ static void
 http_server_request_cb (TrackerHttpServer  *server,
                         GSocketAddress     *remote_address,
                         const gchar        *path,
-                        const gboolean     *webide,
+                        const gboolean      webide,
                         GHashTable         *params,
                         guint               formats,
                         TrackerHttpRequest *request,
@@ -410,7 +413,7 @@ http_server_request_cb (TrackerHttpServer  *server,
 		TrackerSparqlCursor *deserializer;
 		GInputStream *serializer;
 
-		if(webide){
+		if (webide) {
 			serve_web_ide (server, request, path);
 			return;
 		}
