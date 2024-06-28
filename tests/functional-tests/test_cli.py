@@ -37,7 +37,7 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
         self.assertEqual(version_line, expected_version_line)
 
     def test_create_local_database(self):
-        """Create a database using `tracker3 endpoint` for local testing"""
+        """Create a database using `tinysparql endpoint` for local testing"""
 
         with self.tmpdir() as tmpdir:
             # Create the database
@@ -65,7 +65,7 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             )
 
     def test_export(self):
-        """Export contents of a Tracker database."""
+        """Export contents of a TinySPARQL database."""
 
         with self.tmpdir() as tmpdir:
             # Create a database and export it as Turtle.
@@ -84,7 +84,7 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             self.run_cli([COMMAND_NAME, "export", "--database", tmpdir, "--show-graphs"])
 
     def test_import(self):
-        """Import a Turtle file into a Tracker database."""
+        """Import a Turtle file into a TinySPARQL database."""
 
         testdata = str(self.data_path("serialized/test-movie.ttl"))
 
