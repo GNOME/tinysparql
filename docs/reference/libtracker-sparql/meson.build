@@ -127,7 +127,7 @@ foreach c : generated_content + content + generated_ontology_content
   content_quoted += '"@0@"'.format(fs.name(c))
 endforeach
 
-if xmlto.found()
+if xmlto.found() and get_option('man')
   cli_reference = custom_target(
     'commandline.md',
     input: 'commandline.md.in',
