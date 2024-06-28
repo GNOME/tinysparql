@@ -48,7 +48,6 @@ endif
 
 libtracker_common = static_library('tracker-common',
   tracker_common_sources,
-  libtracker_parser,
   dependencies: [tracker_common_dependencies, gmodule],
   c_args: [
     '-DPRIVATE_LIBDIR="@0@"'.format(tracker_internal_libs_dir),

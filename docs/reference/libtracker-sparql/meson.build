@@ -27,7 +27,7 @@ base_ontology_docs = custom_target('ontology-docgen',
               '--output-dir', meson.current_build_dir(),
               '--introduction-dir', meson.current_source_dir(),
               '--ontology-description-dir', join_paths(source_root, 'src/ontologies/')],
-    depends: tracker_docgen,
+    depends: [tracker_docgen, libtracker_parser],
     depend_files: [base_ontology, ontology_introductions],
 )
 
@@ -38,7 +38,7 @@ nepomuk_ontology_docs = custom_target('nepomuk-docgen',
               '--ontology-dir', join_paths(source_root, 'src/ontologies/nepomuk'),
               '--output-dir', meson.current_build_dir(),
               '--introduction-dir', meson.current_source_dir()],
-    depends: tracker_docgen,
+    depends: [tracker_docgen, libtracker_parser],
     depend_files: [nepomuk, ontology_introductions],
 )
 
