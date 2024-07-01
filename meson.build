@@ -413,28 +413,24 @@ if not get_option('override_sqlite_version_check')
     endif
 endif
 
-summary = [
-  '\nBuild Configuration:',
-  '    Prefix:                                 ' + get_option('prefix'),
-  '    Source code location:                   ' + meson.current_source_dir(),
-  '    Debug:                                  ' + get_option('debug').to_string(),
-  '    Optimization:                           ' + get_option('optimization'),
-  '    Compiler:                               ' + cc.get_id(),
-  '    4-digit strftime() year modifier:       ' + year_modifier,
-  '\nFeature Support:',
-  '    Unicode support library:                ' + unicode_library_name,
-  '    Build with Stemming support:            ' + have_libstemmer.to_string(),
-  '    API documentation:                      ' + get_option('docs').to_string(),
-  '    CLI documentation (manpages):           ' + get_option('man').to_string(),
-  '    Libsoup backends:                       ' + soup_backends,
-  '    Avahi DNS-SD on HTTP endpoints:         ' + have_avahi.to_string(),
-]
+summary({
+  'Prefix':                                 get_option('prefix'),
+  'Source code location':                   meson.current_source_dir(),
+  'Debug':                                  get_option('debug'),
+  'Optimization':                           get_option('optimization'),
+  'Compiler':                               cc.get_id(),
+  '4-digit strftime() year modifier':       year_modifier,
+}, section: 'Build Configuration')
+
+summary({
+  'Unicode support library':                unicode_library_name,
+  'Build with Stemming support':            have_libstemmer,
+  'API documentation':                      get_option('docs'),
+  'CLI documentation (manpages)':           get_option('man'),
+  'Libsoup backends':                       soup_backends,
+  'Avahi DNS-SD on HTTP endpoints':         have_avahi,
+}, section: 'Feature Support')
 
 if get_option('bash_completion')
-  summary += [
-    '    Bash completion support:                ' + bash_completion_dir,
-  ]
+  summary('Bash completion support', bash_completion_dir, section: 'Feature Support')
 endif
-
-
-message('\n'.join(summary))
