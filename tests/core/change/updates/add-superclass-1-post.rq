@@ -1,0 +1,2 @@
+INSERT DATA { example:2 a example:DomA };
+INSERT DATA { example:3 a example:A }

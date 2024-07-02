@@ -29,20 +29,23 @@ tracker_db_interface_error_quark (void)
 	return g_quark_from_static_string ("tracker-db-interface-error-quark");
 }
 
-void
+gboolean
 tracker_db_interface_execute_query (TrackerDBInterface  *interface,
                                     GError             **error,
                                     const gchar         *query,
                                     ...)
 {
+	gboolean retval;
 	va_list args;
 
 	va_start (args, query);
-	tracker_db_interface_execute_vquery (interface,
-					     error,
-					     query,
-					     args);
+	retval = tracker_db_interface_execute_vquery (interface,
+	                                              error,
+	                                              query,
+	                                              args);
 	va_end (args);
+
+	return retval;
 }
 
 gboolean

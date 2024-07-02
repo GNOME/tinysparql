@@ -33,7 +33,6 @@
 #include <libtracker-sparql/tracker-cursor.h>
 #include <libtracker-sparql/tracker-private.h>
 
-#include "tracker-fts.h"
 #include "tracker-fts-tokenizer.h"
 #include "tracker-collation.h"
 #include "tracker-db-interface-sqlite.h"
@@ -1918,159 +1917,6 @@ tracker_db_interface_sqlite_fts_init (TrackerDBInterface     *db_interface,
 	                                     error);
 }
 
-gboolean
-tracker_db_interface_sqlite_fts_create_table (TrackerDBInterface  *db_interface,
-                                              const gchar         *database,
-                                              TrackerOntologies   *ontologies,
-                                              GError             **error)
-{
-	GError *inner_error = NULL;
-
-	if (!tracker_fts_create_table (db_interface->db, database, "fts5",
-	                               ontologies,
-	                               &inner_error)) {
-		g_propagate_prefixed_error (error,
-		                            inner_error,
-		                            "FTS tables creation failed: ");
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-gboolean
-tracker_db_interface_sqlite_fts_delete_table (TrackerDBInterface  *db_interface,
-                                              const gchar         *database,
-                                              GError             **error)
-{
-	return tracker_fts_delete_table (db_interface->db, database, "fts5", error);
-}
-
-gboolean
-tracker_db_interface_sqlite_fts_alter_table (TrackerDBInterface  *db_interface,
-                                             const gchar         *database,
-                                             TrackerOntologies   *ontologies,
-                                             GError             **error)
-{
-	return tracker_fts_alter_table (db_interface->db, database, "fts5",
-	                                ontologies, error);
-}
-
-static gchar *
-tracker_db_interface_sqlite_fts_create_update_query (TrackerDBInterface  *db_interface,
-                                                     const gchar         *database,
-                                                     const gchar        **properties)
-{
-        GString *props_str;
-        gchar *query;
-        gint i;
-
-        props_str = g_string_new (NULL);
-
-        for (i = 0; properties[i] != NULL; i++) {
-		if (i != 0)
-			g_string_append_c (props_str, ',');
-
-                g_string_append_printf (props_str, "\"%s\"", properties[i]);
-        }
-
-        query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (ROWID, %s) "
-                                 "SELECT ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
-                                 database,
-                                 props_str->str,
-                                 props_str->str,
-                                 database);
-        g_string_free (props_str, TRUE);
-
-        return query;
-}
-
-TrackerDBStatement *
-tracker_db_interface_sqlite_fts_insert_text_stmt (TrackerDBInterface  *db_interface,
-                                                  const gchar         *database,
-                                                  const gchar        **properties,
-                                                  GError             **error)
-{
-	TrackerDBStatement *stmt;
-	gchar *query;
-
-	query = tracker_db_interface_sqlite_fts_create_update_query (db_interface,
-	                                                             database,
-	                                                             properties);
-	stmt = tracker_db_interface_create_statement (db_interface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              error,
-	                                              query);
-	g_free (query);
-
-	return stmt;
-}
-
-static gchar *
-tracker_db_interface_sqlite_fts_create_delete_query (TrackerDBInterface  *db_interface,
-                                                     const gchar         *database,
-                                                     const gchar        **properties)
-{
-        GString *props_str;
-        gchar *query;
-        gint i;
-
-        props_str = g_string_new (NULL);
-
-        for (i = 0; properties[i] != NULL; i++) {
-		if (i != 0)
-			g_string_append_c (props_str, ',');
-
-                g_string_append_printf (props_str, "\"%s\"", properties[i]);
-        }
-
-        query = g_strdup_printf ("INSERT INTO \"%s\".fts5 (fts5, ROWID, %s) "
-                                 "SELECT 'delete', ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
-                                 database,
-                                 props_str->str,
-                                 props_str->str,
-                                 database);
-        g_string_free (props_str, TRUE);
-
-        return query;
-}
-
-TrackerDBStatement *
-tracker_db_interface_sqlite_fts_delete_text_stmt (TrackerDBInterface  *db_interface,
-                                                  const gchar         *database,
-                                                  const gchar        **properties,
-                                                  GError             **error)
-{
-	TrackerDBStatement *stmt;
-	gchar *query;
-
-	query = tracker_db_interface_sqlite_fts_create_delete_query (db_interface,
-	                                                             database,
-	                                                             properties);
-	stmt = tracker_db_interface_create_statement (db_interface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              error,
-	                                              query);
-	g_free (query);
-
-	return stmt;
-}
-
-gboolean
-tracker_db_interface_sqlite_fts_integrity_check (TrackerDBInterface  *interface,
-                                                 const gchar         *database)
-{
-	return tracker_fts_integrity_check (interface->db, database, "fts5");
-}
-
-gboolean
-tracker_db_interface_sqlite_fts_rebuild_tokens (TrackerDBInterface  *interface,
-                                                const gchar         *database,
-                                                GError             **error)
-{
-	return tracker_fts_rebuild_tokens (interface->db, database, "fts5", error);
-}
-
 void
 tracker_db_interface_sqlite_reset_collator (TrackerDBInterface *db_interface)
 {
@@ -2571,7 +2417,7 @@ execute_stmt (TrackerDBInterface  *interface,
 	return result == SQLITE_DONE;
 }
 
-void
+gboolean
 tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
                                      GError             **error,
                                      const gchar         *query,
@@ -2579,6 +2425,7 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 {
 	gchar *full_query;
 	sqlite3_stmt *stmt;
+	gboolean retval = FALSE;
 
 	tracker_db_interface_lock (db_interface);
 
@@ -2588,11 +2435,13 @@ tracker_db_interface_execute_vquery (TrackerDBInterface  *db_interface,
 	                                          error);
 	g_free (full_query);
 	if (stmt) {
-		execute_stmt (db_interface, stmt, NULL, error);
+		retval = execute_stmt (db_interface, stmt, NULL, error);
 		sqlite3_finalize (stmt);
 	}
 
 	tracker_db_interface_unlock (db_interface);
+
+	return retval;
 }
 
 TrackerDBInterface *
@@ -3142,10 +2991,33 @@ tracker_db_cursor_get_double (TrackerSparqlCursor *sparql_cursor,
 }
 
 static gboolean
-tracker_db_cursor_get_boolean (TrackerSparqlCursor *cursor,
+tracker_db_cursor_get_boolean (TrackerSparqlCursor *sparql_cursor,
                                gint                 column)
 {
-	return (g_strcmp0 (tracker_sparql_cursor_get_string (cursor, column, NULL), "true") == 0);
+	TrackerDBCursor *cursor = TRACKER_DB_CURSOR (sparql_cursor);
+	TrackerDBInterface *iface;
+	gboolean result;
+	gint col_type;
+
+	if (cursor->n_columns > 0 && column >= (gint) cursor->n_columns)
+		return FALSE;
+
+	iface = cursor->ref_stmt->db_interface;
+
+	tracker_db_interface_lock (iface);
+
+	col_type = sqlite3_column_type (cursor->stmt, column);
+
+	if (col_type == SQLITE_INTEGER)
+		result = sqlite3_column_int64 (cursor->stmt, column) != 0;
+	else if (col_type == SQLITE_TEXT)
+		result = g_strcmp0 ((const gchar*) sqlite3_column_text (cursor->stmt, column), "true") == 0;
+	else
+		result = FALSE;
+
+	tracker_db_interface_unlock (iface);
+
+	return result;
 }
 
 static gboolean

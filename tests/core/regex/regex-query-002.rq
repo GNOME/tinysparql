@@ -6,3 +6,4 @@ WHERE {
 	ex:foo rdf:value ?val .
 	FILTER regex(?val, "DeFghI", "i")
 }
+ORDER BY DESC ?val

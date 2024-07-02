@@ -35,21 +35,14 @@ struct _TrackerClassPrivate {
 	gchar *uri;
 	gchar *name;
 	TrackerRowid id;
-	guint is_new : 1;
-	guint db_schema_changed : 1;
 	guint notify : 1;
-	guint use_gvdb : 1;
 
 	gchar *ontology_path;
 	goffset definition_line_no;
 	goffset definition_column_no;
 
-	GMutex mutex;
-
 	GArray *super_classes;
 	GArray *domain_indexes;
-	GArray *last_domain_indexes;
-	GArray *last_super_classes;
 
 	TrackerOntologies *ontologies;
 };
@@ -76,9 +69,6 @@ tracker_class_init (TrackerClass *service)
 	priv->id = 0;
 	priv->super_classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
 	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
-	priv->last_domain_indexes = NULL;
-	priv->last_super_classes = NULL;
-	g_mutex_init (&priv->mutex);
 }
 
 static void
@@ -98,71 +88,13 @@ class_finalize (GObject *object)
 		g_free (priv->ontology_path);
 	}
 
-	if (priv->last_domain_indexes) {
-		g_array_free (priv->last_domain_indexes, TRUE);
-	}
-
-	if (priv->last_super_classes) {
-		g_array_free (priv->last_super_classes, TRUE);
-	}
-
 	(G_OBJECT_CLASS (tracker_class_parent_class)->finalize) (object);
 }
 
 TrackerClass *
 tracker_class_new (gboolean use_gvdb)
 {
-	TrackerClass *service;
-	TrackerClassPrivate *priv;
-
-	service = g_object_new (TRACKER_TYPE_CLASS, NULL);
-
-	if (use_gvdb) {
-		priv = tracker_class_get_instance_private (service);
-		priv->use_gvdb = !!use_gvdb;
-	}
-
-	return service;
-}
-
-static void
-tracker_class_maybe_sync_from_gvdb (TrackerClass *service)
-{
-	TrackerClassPrivate *priv;
-	TrackerClass *super_class;
-	GVariant *variant;
-
-	priv = tracker_class_get_instance_private (service);
-
-	if (!priv->use_gvdb)
-		return;
-
-	g_mutex_lock (&priv->mutex);
-
-	/* In case the lock was contended, make the second lose */
-	if (!priv->use_gvdb)
-		goto out;
-
-	tracker_class_reset_super_classes (service);
-
-	variant = tracker_ontologies_get_class_value_gvdb (priv->ontologies, priv->uri, "super-classes");
-	if (variant) {
-		GVariantIter iter;
-		const gchar *uri;
-
-		g_variant_iter_init (&iter, variant);
-		while (g_variant_iter_loop (&iter, "&s", &uri)) {
-			super_class = tracker_ontologies_get_class_by_uri (priv->ontologies, uri);
-
-			tracker_class_add_super_class (service, super_class);
-		}
-
-		g_variant_unref (variant);
-	}
-
-	priv->use_gvdb = FALSE;
-out:
-	g_mutex_unlock (&priv->mutex);
+	return g_object_new (TRACKER_TYPE_CLASS, NULL);
 }
 
 const gchar *
@@ -210,8 +142,6 @@ tracker_class_get_super_classes (TrackerClass *service)
 
 	priv = tracker_class_get_instance_private (service);
 
-	tracker_class_maybe_sync_from_gvdb (service);
-
 	return (TrackerClass **) priv->super_classes->data;
 }
 
@@ -227,43 +157,6 @@ tracker_class_get_domain_indexes (TrackerClass *service)
 	return (TrackerProperty **) priv->domain_indexes->data;
 }
 
-
-TrackerProperty **
-tracker_class_get_last_domain_indexes (TrackerClass *service)
-{
-	TrackerClassPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
-
-	priv = tracker_class_get_instance_private (service);
-
-	return (TrackerProperty **) (priv->last_domain_indexes ? priv->last_domain_indexes->data : NULL);
-}
-
-TrackerClass **
-tracker_class_get_last_super_classes (TrackerClass *service)
-{
-	TrackerClassPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CLASS (service), NULL);
-
-	priv = tracker_class_get_instance_private (service);
-
-	return (TrackerClass **) (priv->last_super_classes ? priv->last_super_classes->data : NULL);
-}
-
-gboolean
-tracker_class_get_is_new (TrackerClass *service)
-{
-	TrackerClassPrivate *priv;
-
-	g_return_val_if_fail (TRACKER_IS_CLASS (service), FALSE);
-
-	priv = tracker_class_get_instance_private (service);
-
-	return priv->is_new;
-}
-
 gboolean
 tracker_class_get_notify (TrackerClass *service)
 {
@@ -276,8 +169,8 @@ tracker_class_get_notify (TrackerClass *service)
 	return priv->notify;
 }
 
-gboolean
-tracker_class_get_db_schema_changed (TrackerClass *service)
+TrackerOntologies *
+tracker_class_get_ontologies (TrackerClass *service)
 {
 	TrackerClassPrivate *priv;
 
@@ -285,7 +178,7 @@ tracker_class_get_db_schema_changed (TrackerClass *service)
 
 	priv = tracker_class_get_instance_private (service);
 
-	return priv->db_schema_changed;
+	return priv->ontologies;
 }
 
 const gchar *
@@ -393,23 +286,6 @@ tracker_class_add_super_class (TrackerClass *service,
 }
 
 void
-tracker_class_reset_super_classes (TrackerClass *service)
-{
-	TrackerClassPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CLASS (service));
-
-	priv = tracker_class_get_instance_private (service);
-
-	if (priv->last_super_classes) {
-		g_array_free (priv->last_super_classes, TRUE);
-	}
-
-	priv->last_super_classes = priv->super_classes;
-	priv->super_classes = g_array_new (TRUE, TRUE, sizeof (TrackerClass *));
-}
-
-void
 tracker_class_add_domain_index (TrackerClass *service,
                                 TrackerProperty *value)
 {
@@ -424,60 +300,6 @@ tracker_class_add_domain_index (TrackerClass *service,
 }
 
 void
-tracker_class_del_domain_index (TrackerClass    *service,
-                                TrackerProperty *value)
-{
-	TrackerClassPrivate *priv;
-	gint i = 0, found = -1;
-	TrackerProperty **properties;
-
-	g_return_if_fail (TRACKER_IS_CLASS (service));
-	g_return_if_fail (TRACKER_IS_PROPERTY (value));
-
-	priv = tracker_class_get_instance_private (service);
-
-	properties = (TrackerProperty **) priv->domain_indexes->data;
-	while (*properties) {
-		if (*properties == value) {
-			found = i;
-			break;
-		}
-		i++;
-		properties++;
-	}
-
-	if (found != -1) {
-		g_array_remove_index (priv->domain_indexes, found);
-	}
-}
-
-void
-tracker_class_reset_domain_indexes (TrackerClass *service)
-{
-	TrackerClassPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CLASS (service));
-
-	priv = tracker_class_get_instance_private (service);
-	priv->last_domain_indexes = priv->domain_indexes;
-	priv->domain_indexes = g_array_new (TRUE, TRUE, sizeof (TrackerProperty *));
-}
-
-void
-tracker_class_set_is_new (TrackerClass *service,
-                          gboolean      value)
-{
-	TrackerClassPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CLASS (service));
-
-	priv = tracker_class_get_instance_private (service);
-
-	priv->is_new = !!value;
-}
-
-
-void
 tracker_class_set_notify (TrackerClass *service,
                           gboolean      value)
 {
@@ -488,19 +310,6 @@ tracker_class_set_notify (TrackerClass *service,
 	priv = tracker_class_get_instance_private (service);
 
 	priv->notify = !!value;
-}
-
-void
-tracker_class_set_db_schema_changed (TrackerClass *service,
-                                     gboolean      value)
-{
-	TrackerClassPrivate *priv;
-
-	g_return_if_fail (TRACKER_IS_CLASS (service));
-
-	priv = tracker_class_get_instance_private (service);
-
-	priv->db_schema_changed = !!value;
 }
 
 void

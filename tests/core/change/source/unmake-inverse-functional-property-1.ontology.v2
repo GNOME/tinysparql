@@ -13,5 +13,6 @@ example:A a rdfs:Class ;
 
 # Drop nrl:InverseFunctionalProperty from this property
 example:unique1 a rdf:Property ;
+	nrl:maxCardinality 1 ;
 	rdfs:domain example:A ;
 	rdfs:range xsd:integer .

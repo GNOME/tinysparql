@@ -1,0 +1,2 @@
+insert data { example:a01 a example:A ; example:int1 42 };
+insert data { example:a02 a example:A ; example:int1 44 }

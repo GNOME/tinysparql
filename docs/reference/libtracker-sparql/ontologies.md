@@ -199,7 +199,8 @@ ex:dna a rdf:Property;
 ```
 
 SPARQL queries are expected to provide the same result when queried
-for a property or one of its superproperties.
+for a property or one of its superproperties. Superproperties must
+belong to a superclass of the class owning this property.
 
 ```SPARQL
 # These two queries should provide the exact same result(s)
@@ -288,17 +289,48 @@ INSERT DATA { <melanogaster> a ex:Eukariote;
 
 It may be the case that SPARQL queries performed on the endpoint are
 known to match, sort, or filter on certain properties more often than others.
-In this case, the ontology may use nrl:domainIndex in the class definition:
+In this case, the ontology may use `nrl:indexed` in property definitions:
 
 ```turtle
-# Make queries on ex:dateOfBirth faster
+# Make matching/sorting on ex:name faster
+ex:name a rdf:Property ;
+        nrl:indexed true ;
+        rdfs:domain ex:Animal ;
+        rdfs:range xsd:string ,
+```
+
+Sometimes, it may be desirable to make a combined index on two properties
+at the same time, since they are often queried in combination. `nrl:secondaryIndex`
+may be used for this purpose:
+
+```turtle
+ex:latitude a rdf:Property ;
+            nrl:indexed true ;
+            rdfs:domain ex:Location ;
+            rdfs:range xsd:double .
+
+ex:longitude a rdf:Property ;
+             nrl:indexed true ;
+             nrl:secondaryIndex ex:latitude ;
+             rdfs:domain ex:Location ;
+             rdfs:range xsd:double .
+```
+
+Lastly, `nrl:domainIndex` may be used to speed up queries by narrowing
+down a property inherited from a superclass to the elements of the specific
+subclass. It is most useful with very generic and populated superclasses,
+and queries that only make sense to speed up for specific subclasses.
+
+```turtle
+# Make queries on ex:dateOfBirth faster for mammals, of all Animalia
 ex:Mammal a rdfs:Class;
           rdfs:subClassOf ex:Animal;
           rdfs:comment "A mammal";
           nrl:domainIndex ex:dateOfBirth.
 ```
 
-Classes may define multiple domain indexes.
+Classes may define multiple domain indexes. The domain indexes must be properties
+owned by superclasses
 
 **Note**: Be frugal with indexes, do not add these proactively. An index in the wrong
 place might not affect query performance positively, but all indexes come at
@@ -349,33 +381,33 @@ As software evolves, sometimes changes in the ontology are unavoidable.
 TinySPARQL can transparently handle certain ontology changes on existing
 databases.
 
-1. Adding a class.
+1. Adding a new class.
 2. Removing a class.
    All resources will be removed from this class, and all related
    properties will disappear.
-3. Adding a property.
-4. Removing a property.
+3. Changing the rdfs:subClassOf relationship of a class
+   All existing resources of this class will satisfy the
+   `{ ?resource a ?superclass }` graph pattern for the updated superclasses.
+4. Adding a new property.
+5. Removing a property.
    The property will disappear from all elements pertaining to the
    class in domain of the property.
-5. Changing rdfs:range of a property.
+6. Changing the rdfs:subPropertyOf relationship of a property.
+   All existing values of the property will satisfy the
+   `{ ?resource ?superproperty ?value }` graph pattern for the new
+   superproperties.
+7. Changing rdfs:range of a property.
    The following conversions are allowed:
 
     - `xsd:integer` to `xsd:bool`, `xsd:double` and `xsd:string`</listitem></varlistentry>
     - `xsd:double` to `xsd:bool`, `xsd:integer` and `xsd:string`</listitem></varlistentry>
     - `xsd:string` to `xsd:bool`, `xsd:integer` and `xsd:double`</listitem></varlistentry>
 
-6. Adding and removing `nrl:domainIndex` from a class.
-7. Adding and removing `nrl:fulltextIndexed` from a property.
-8. Changing the `nrl:weight` on a property.
-9. Removing `nrl:maxCardinality` from a property.
-
-<!---
-    XXX: these need documenting too
-    add intermediate superproperties
-    add intermediate superclasses
-    remove intermediate superproperties
-    remove intermediate superclasses
---->
+8. Adding and removing `nrl:domainIndex` from a class.
+9. Adding and removing any kind of index from a property, this
+   includes `nrl:indexed`, `nrl:fulltextIndexed` and `nrl:secondaryIndex`.
+10. Changing the `nrl:weight` on a full-text indexed property.
+11. Removing `nrl:maxCardinality` restrictions from a property.
 
 However, there are certain ontology changes that TinySPARQL will find
 incompatible. Either because they are incoherent or resulting into
@@ -386,22 +418,12 @@ changes in these situations:
 - Properties with rdfs:range being `xsd:bool`, `xsd:date`, `xsd:dateTime`,
   or any other custom class are not convertible. Only conversions
   covered in the list above are accepted.
-- You can not add `rdfs:subClassOf` in classes that are not being
-  newly added. You can not remove `rdfs:subClassOf` from classes.
-  The only allowed change to `rdfs:subClassOf` is to correct
-  subclasses when deleting a class, so they point a common
-  superclass.
-- You can not add `rdfs:subPropertyOf` to properties that are not
-  being newly added. You can not change an existing
-  `rdfs:subPropertyOf` unless it is made to point to a common
-  superproperty. You can however remove `rdfs:subPropertyOf` from
-  non-new properties.
 - Properties can not move across classes, thus any change in
   `rdfs:domain` is forbidden.
 - You can not add `nrl:maxCardinality` restrictions on properties that
   are not being newly added.
-- You can not add nor remove `nrl:InverseFunctionalProperty` from a
-  property that is not being newly added.
+- You can not add `nrl:InverseFunctionalProperty` restrictions on
+  properties that are not being newly added.
 
 The recommendation to bypass these situations is the same for all,
 use different property and class names and use SPARQL to manually
@@ -412,6 +434,3 @@ possible incoherences (e.g. picking a single value if a property
 changes from multiple values to single value). After the manual
 data migration has been completed, the old classes and properties
 can be dropped.
-
-Once changes are made, the `nrl:lastModified` value should be updated
-so TinySPARQL knows to reprocess the ontology.

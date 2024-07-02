@@ -981,9 +981,9 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 
 	if (strchr (uri, ':') == NULL) {
 		g_set_error (error,
-			     TRACKER_DB_INTERFACE_ERROR,
-			     TRACKER_DB_CONSTRAINT,
-			     "«%s» is not an absolute IRI", uri);
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_CONSTRAINT,
+		             "«%s» is not an absolute IRI", uri);
 		return 0;
 	}
 
@@ -994,17 +994,19 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 	}
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
-	class = tracker_ontologies_get_class_by_uri (ontologies, uri);
+	if (ontologies) {
+		class = tracker_ontologies_get_class_by_uri (ontologies, uri);
 
-	/* Fast path, look up classes/properties directly */
-	if (class) {
-		id = tracker_class_get_id (class);
-	} else {
-		TrackerProperty *property;
+		/* Fast path, look up classes/properties directly */
+		if (class) {
+			id = tracker_class_get_id (class);
+		} else {
+			TrackerProperty *property;
 
-		property = tracker_ontologies_get_property_by_uri (ontologies, uri);
-		if (property)
-			id = tracker_property_get_id (property);
+			property = tracker_ontologies_get_property_by_uri (ontologies, uri);
+			if (property)
+				id = tracker_property_get_id (property);
+		}
 	}
 
 	if (id != 0) {
@@ -1040,7 +1042,25 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 		g_hash_table_add (data->update_buffer.new_resources,
 		                  tracker_rowid_copy (&id));
 	} else {
-		id = query_resource_id (data, uri, error);
+		GError *inner_error = NULL;
+
+		id = query_resource_id (data, uri, &inner_error);
+
+		if (id == 0) {
+			if (inner_error) {
+				g_propagate_error (error, inner_error);
+			} else {
+				/* Insert might have failed due to something else than
+				 * constraints (say, no space). In that case we might
+				 * fail look up here without further errors. Set one.
+				 */
+				g_set_error (error,
+				             TRACKER_DB_INTERFACE_ERROR,
+				             TRACKER_DB_QUERY_ERROR,
+				             "Failed to insert URI '%s' with unspecified error",
+				             uri);
+			}
+		}
 	}
 
 	if (id != 0) {
@@ -1542,27 +1562,30 @@ static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 	g_slice_free (TrackerDataUpdateBufferResource, resource);
 }
 
-GPtrArray *
+gchar *
 get_fts_properties (TrackerData *data)
 {
 	TrackerOntologies *ontologies;
 	TrackerProperty **properties;
 	guint n_props, i;
-	GPtrArray *result;
+	GString *str = NULL;
 
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 	properties = tracker_ontologies_get_properties (ontologies, &n_props);
 
-	result = g_ptr_array_sized_new (8);
-
 	for (i = 0; i < n_props; i++) {
-		if (tracker_property_get_fulltext_indexed (properties[i]))
-			g_ptr_array_add (result, (gpointer) tracker_property_get_name (properties[i]));
+		if (!tracker_property_get_fulltext_indexed (properties[i]))
+			continue;
+
+		if (!str)
+			str = g_string_new (NULL);
+		else
+			g_string_append_c (str, ',');
+
+		g_string_append_printf (str, "\"%s\"", tracker_property_get_name (properties[i]));
 	}
 
-	g_ptr_array_add (result, NULL);
-
-	return result;
+	return str ? g_string_free (str, FALSE) : NULL;
 }
 
 static gboolean
@@ -1572,32 +1595,42 @@ tracker_data_ensure_graph_fts_stmts (TrackerData                   *data,
 {
 	TrackerDBInterface *iface;
 	const gchar *database;
-	GPtrArray *properties;
+	gchar *fts_properties;
 
 	if (G_LIKELY (graph->fts_insert && graph->fts_delete))
 		return TRUE;
 
 	database = graph->graph ? graph->graph : "main";
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	properties = get_fts_properties (data);
+	fts_properties = get_fts_properties (data);
 
 	if (!graph->fts_delete) {
 		graph->fts_delete =
-			tracker_db_interface_sqlite_fts_delete_text_stmt (iface,
-			                                                  database,
-			                                                  (const gchar **) properties->pdata,
-			                                                  error);
+			tracker_db_interface_create_vstatement (iface,
+			                                        TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+			                                        error,
+			                                        "INSERT INTO \"%s\".fts5 (fts5, ROWID, %s) "
+			                                        "SELECT 'delete', ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
+			                                        database,
+			                                        fts_properties,
+			                                        fts_properties,
+			                                        database);
 	}
 
 	if (graph->fts_delete && !graph->fts_insert) {
 		graph->fts_insert =
-			tracker_db_interface_sqlite_fts_insert_text_stmt (iface,
-			                                                  database,
-			                                                  (const gchar **) properties->pdata,
-			                                                  error);
+			tracker_db_interface_create_vstatement (iface,
+			                                        TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+			                                        error,
+			                                        "INSERT INTO \"%s\".fts5 (ROWID, %s) "
+			                                        "SELECT ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
+			                                        database,
+			                                        fts_properties,
+			                                        fts_properties,
+			                                        database);
 	}
 
-	g_ptr_array_free (properties, TRUE);
+	g_free (fts_properties);
 
 	return graph->fts_insert && graph->fts_delete;
 }
@@ -1682,7 +1715,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 			graph = g_ptr_array_index (data->update_buffer.graphs, i);
 			database = graph->graph ? graph->graph : "main";
 
-			if (!tracker_db_interface_sqlite_fts_integrity_check (iface, database)) {
+			if (!tracker_data_manager_fts_integrity_check (data->manager, iface, database)) {
 				g_set_error (error,
 					     TRACKER_DB_INTERFACE_ERROR,
 					     TRACKER_DB_CORRUPT,
@@ -2952,7 +2985,7 @@ tracker_data_insert_statement_with_uri (TrackerData      *data,
                                         GError          **error)
 {
 	GError          *actual_error = NULL;
-	TrackerClass    *class;
+	TrackerClass    *class = NULL;
 	TrackerRowid prop_id = 0;
 	gboolean change = FALSE;
 	TrackerOntologies *ontologies;
@@ -2980,15 +3013,23 @@ tracker_data_insert_statement_with_uri (TrackerData      *data,
 		object_id = g_value_get_int64 (object);
 		object_str = tracker_ontologies_get_uri_by_id (ontologies, object_id);
 
+		if (object_str)
+			class = tracker_ontologies_get_class_by_uri (ontologies, object_str);
+
 		/* handle rdf:type statements specially to
 		   cope with inference and insert blank rows */
-		class = tracker_ontologies_get_class_by_uri (ontologies, object_str);
 		if (class != NULL) {
 			if (!cache_create_service_decomposed (data, class, error))
 				return;
 		} else {
+			gchar *id;
+
+			id = tracker_data_query_resource_urn (data->manager,
+			                                      tracker_data_manager_get_writable_db_interface (data->manager),
+			                                      object_id);
 			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNKNOWN_CLASS,
-			             "Class '%s' not found in the ontology", object_str);
+			             "Class '%s' not found in the ontology", id);
+			g_free (id);
 			return;
 		}
 	} else {
@@ -3134,26 +3175,26 @@ clear_property (gpointer data)
 	g_value_unset (&entry->value);
 }
 
-void
+gboolean
 tracker_data_begin_transaction (TrackerData  *data,
                                 GError      **error)
 {
 	TrackerDBInterface *iface;
 	TrackerDBManager *db_manager;
 
-	g_return_if_fail (!data->in_transaction);
+	g_return_val_if_fail (!data->in_transaction, FALSE);
 
 	db_manager = tracker_data_manager_get_db_manager (data->manager);
 
 	if (!tracker_db_manager_has_enough_space (db_manager)) {
 		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_NO_SPACE,
-			"There is not enough space on the file system for update operations");
-		return;
+		             "There is not enough space on the file system for update operations");
+		return FALSE;
 	}
 
 	if (!data->in_ontology_transaction &&
 	    !tracker_data_update_initialize_modseq (data, error))
-		return;
+		return FALSE;
 
 	data->resource_time = time (NULL);
 
@@ -3172,7 +3213,7 @@ tracker_data_begin_transaction (TrackerData  *data,
 		data->update_buffer.update_log = g_ptr_array_sized_new (1);
 		g_ptr_array_set_free_func (data->update_buffer.update_log, (GDestroyNotify) g_array_unref);
 		data->update_buffer.class_updates = g_hash_table_new (tracker_data_log_entry_hash,
-								      tracker_data_log_entry_equal);
+		                                                      tracker_data_log_entry_equal);
 		tracker_db_statement_mru_init (&data->update_buffer.stmt_mru, 100,
 		                               tracker_data_log_entry_schema_hash,
 		                               tracker_data_log_entry_schema_equal,
@@ -3188,24 +3229,26 @@ tracker_data_begin_transaction (TrackerData  *data,
 	tracker_db_interface_start_transaction (iface);
 
 	data->in_transaction = TRUE;
+
+	return TRUE;
 }
 
-void
+gboolean
 tracker_data_begin_ontology_transaction (TrackerData  *data,
                                          GError      **error)
 {
 	data->in_ontology_transaction = TRUE;
-	tracker_data_begin_transaction (data, error);
+	return tracker_data_begin_transaction (data, error);
 }
 
-void
+gboolean
 tracker_data_commit_transaction (TrackerData  *data,
                                  GError      **error)
 {
 	TrackerDBInterface *iface;
 	GError *actual_error = NULL;
 
-	g_return_if_fail (data->in_transaction);
+	g_return_val_if_fail (data->in_transaction, FALSE);
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
@@ -3213,7 +3256,7 @@ tracker_data_commit_transaction (TrackerData  *data,
 	if (actual_error) {
 		tracker_data_rollback_transaction (data);
 		g_propagate_error (error, actual_error);
-		return;
+		return FALSE;
 	}
 
 	tracker_db_interface_end_db_transaction (iface,
@@ -3222,7 +3265,7 @@ tracker_data_commit_transaction (TrackerData  *data,
 	if (actual_error) {
 		tracker_data_rollback_transaction (data);
 		g_propagate_error (error, actual_error);
-		return;
+		return FALSE;
 	}
 
 	if (data->has_persistent && !data->in_ontology_transaction) {
@@ -3240,6 +3283,8 @@ tracker_data_commit_transaction (TrackerData  *data,
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
 
 	tracker_data_dispatch_commit_statement_callbacks (data);
+
+	return TRUE;
 }
 
 void
@@ -3294,11 +3339,8 @@ update_sparql (TrackerData  *data,
 	}
 #endif
 
-	tracker_data_begin_transaction (data, &actual_error);
-	if (actual_error) {
-		g_propagate_error (error, actual_error);
+	if (!tracker_data_begin_transaction (data, error))
 		return NULL;
-	}
 
 	sparql_query = tracker_sparql_new_update (data->manager, update, &actual_error);
 
@@ -3315,11 +3357,8 @@ update_sparql (TrackerData  *data,
 		return NULL;
 	}
 
-	tracker_data_commit_transaction (data, &actual_error);
-	if (actual_error) {
-		g_propagate_error (error, actual_error);
+	if (!tracker_data_commit_transaction (data, error))
 		return NULL;
-	}
 
 	return blank_nodes;
 }

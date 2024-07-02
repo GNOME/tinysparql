@@ -82,6 +82,12 @@ gboolean            tracker_db_manager_locale_changed         (TrackerDBManager 
                                                                GError               **error);
 void                tracker_db_manager_set_current_locale     (TrackerDBManager      *db_manager);
 
+gboolean tracker_db_manager_ontology_checksum_changed (TrackerDBManager *db_manager,
+                                                       const gchar      *checksum);
+
+void tracker_db_manager_set_ontology_checksum (TrackerDBManager *db_manager,
+                                               const gchar      *checksum);
+
 gboolean            tracker_db_manager_get_tokenizer_changed  (TrackerDBManager      *db_manager);
 void                tracker_db_manager_tokenizer_update       (TrackerDBManager      *db_manager);
 

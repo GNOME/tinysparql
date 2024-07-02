@@ -51,18 +51,16 @@ TrackerClass *    tracker_class_new                    (gboolean             use
 const gchar *     tracker_class_get_uri                (TrackerClass        *service);
 const gchar *     tracker_class_get_name               (TrackerClass        *service);
 TrackerRowid      tracker_class_get_id                 (TrackerClass        *service);
-gboolean          tracker_class_get_is_new             (TrackerClass        *service);
-gboolean          tracker_class_get_db_schema_changed  (TrackerClass        *service);
 gboolean          tracker_class_get_notify             (TrackerClass        *service);
 
 TrackerClass    **tracker_class_get_super_classes      (TrackerClass        *service);
 TrackerProperty **tracker_class_get_domain_indexes     (TrackerClass        *service);
-TrackerProperty **tracker_class_get_last_domain_indexes(TrackerClass        *service);
-TrackerClass    **tracker_class_get_last_super_classes (TrackerClass        *service);
 
 const gchar *     tracker_class_get_ontology_path        (TrackerClass      *service);
 goffset           tracker_class_get_definition_line_no   (TrackerClass      *service);
 goffset           tracker_class_get_definition_column_no (TrackerClass      *service);
+
+TrackerOntologies * tracker_class_get_ontologies (TrackerClass *service);
 
 void              tracker_class_set_uri                (TrackerClass        *service,
                                                         const gchar         *value);
@@ -70,16 +68,8 @@ void              tracker_class_add_super_class        (TrackerClass        *ser
                                                         TrackerClass        *value);
 void              tracker_class_add_domain_index       (TrackerClass        *service,
                                                         TrackerProperty     *value);
-void              tracker_class_del_domain_index       (TrackerClass        *service,
-                                                        TrackerProperty     *value);
-void              tracker_class_reset_domain_indexes   (TrackerClass        *service);
-void              tracker_class_reset_super_classes   (TrackerClass        *service);
 void              tracker_class_set_id                 (TrackerClass        *service,
                                                         TrackerRowid         id);
-void              tracker_class_set_is_new             (TrackerClass        *service,
-                                                        gboolean             value);
-void              tracker_class_set_db_schema_changed  (TrackerClass        *service,
-                                                        gboolean             value);
 void              tracker_class_set_notify             (TrackerClass        *service,
                                                         gboolean             value);
 

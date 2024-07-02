@@ -47,7 +47,6 @@ struct _TrackerOntologiesClass {
 };
 
 TrackerOntologies *tracker_ontologies_new                  (void);
-void               tracker_ontologies_sort                 (TrackerOntologies *ontologies);
 
 /* Service mechanics */
 void               tracker_ontologies_add_class            (TrackerOntologies *ontologies,
@@ -55,8 +54,6 @@ void               tracker_ontologies_add_class            (TrackerOntologies *o
 TrackerClass *     tracker_ontologies_get_class_by_uri     (TrackerOntologies *ontologies,
                                                             const gchar       *service_uri);
 TrackerNamespace **tracker_ontologies_get_namespaces       (TrackerOntologies *ontologies,
-                                                            guint             *length);
-TrackerOntology  **tracker_ontologies_get_ontologies       (TrackerOntologies *ontologies,
                                                             guint             *length);
 TrackerClass  **   tracker_ontologies_get_classes          (TrackerOntologies *ontologies,
                                                             guint             *length);
@@ -84,30 +81,5 @@ const gchar*       tracker_ontologies_get_uri_by_id        (TrackerOntologies *o
 void               tracker_ontologies_add_id_uri_pair      (TrackerOntologies *ontologies,
                                                             TrackerRowid       id,
                                                             const gchar       *uri);
-
-gboolean           tracker_ontologies_write_gvdb           (TrackerOntologies  *ontologies,
-                                                            const gchar        *filename,
-                                                            GError            **error);
-gboolean           tracker_ontologies_load_gvdb            (TrackerOntologies  *ontologies,
-                                                            const gchar        *filename,
-                                                            GError            **error);
-GVariant *         tracker_ontologies_get_namespace_value_gvdb  (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
-const gchar *      tracker_ontologies_get_namespace_string_gvdb (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
-GVariant *         tracker_ontologies_get_class_value_gvdb      (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
-const gchar *      tracker_ontologies_get_class_string_gvdb     (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
-GVariant *         tracker_ontologies_get_property_value_gvdb   (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
-const gchar *      tracker_ontologies_get_property_string_gvdb  (TrackerOntologies *ontologies,
-                                                                 const gchar       *uri,
-                                                                 const gchar       *predicate);
 
 G_END_DECLS

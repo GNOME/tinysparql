@@ -105,14 +105,14 @@ TrackerDBStatement *    tracker_db_interface_create_vstatement       (TrackerDBI
                                                                       GError                     **error,
                                                                       const gchar                 *query,
                                                                       ...) G_GNUC_PRINTF (4, 5);
-void                    tracker_db_interface_execute_vquery          (TrackerDBInterface          *interface,
+gboolean                tracker_db_interface_execute_vquery          (TrackerDBInterface          *interface,
                                                                       GError                     **error,
                                                                       const gchar                 *query,
                                                                       va_list                      args);
-void                    tracker_db_interface_execute_query           (TrackerDBInterface          *interface,
+gboolean                tracker_db_interface_execute_query           (TrackerDBInterface          *interface,
                                                                       GError                     **error,
                                                                       const gchar                 *query,
-                                                                       ...) G_GNUC_PRINTF (3, 4);
+                                                                      ...) G_GNUC_PRINTF (3, 4);
 
 gboolean                tracker_db_interface_start_transaction       (TrackerDBInterface         *interface);
 gboolean                tracker_db_interface_end_db_transaction      (TrackerDBInterface         *interface,

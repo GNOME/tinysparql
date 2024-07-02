@@ -36,9 +36,6 @@ TrackerRowid         tracker_data_query_resource_id   (TrackerDataManager  *mana
                                                        TrackerDBInterface  *iface,
                                                        const gchar         *uri,
                                                        GError             **error);
-TrackerDBCursor     *tracker_data_query_sparql_cursor (TrackerDataManager  *manager,
-                                                       const gchar         *query,
-                                                       GError             **error);
 
 gboolean             tracker_data_query_string_to_value (TrackerDataManager   *manager,
                                                          const gchar          *value,

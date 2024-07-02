@@ -1,0 +1,1 @@
+select ?u (DATATYPE(?b) AS ?d) ?b { ?u example:int1 ?b } ORDER BY ?u ?b

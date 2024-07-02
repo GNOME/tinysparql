@@ -1,0 +1,1 @@
+insert { <http://example/a02> a example:A ; example:b <http://example/b01> }

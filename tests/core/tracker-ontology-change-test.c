@@ -75,7 +75,7 @@ const ChangeTest tests[] = {
 		},
 	},
 	{
-		.test_name = "/core/ontology-change/remove-classes",
+		.test_name = "/core/ontology-change/remove-classes-1",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
 				"remove-classes-1.ontology.v1",
@@ -86,6 +86,40 @@ const ChangeTest tests[] = {
 			},
 			{
 				"remove-classes-1.ontology.v2",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-classes-1-post.rq", TRUE },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-classes-1", TRUE },
+					{ "queries/remove-classes-1-2" },
+					{ NULL },
+				},
+			},
+			{ NULL },
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-classes-2",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-classes-2.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-classes-2-pre.rq" },
+					{ NULL },
+				}
+			},
+			{
+				"remove-classes-2.ontology.v2",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-classes-2-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-classes-2" },
+					{ "queries/remove-classes-2-2", TRUE },
+					{ NULL },
+				},
 			},
 			{ NULL },
 		},
@@ -134,6 +168,59 @@ const ChangeTest tests[] = {
 			},
 			{
 				"remove-properties-1.ontology.v2",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-properties-1-post.rq", TRUE },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-properties-1", TRUE },
+					{ "queries/remove-properties-1-2" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-properties-2",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-properties-2.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-properties-2-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"remove-properties-2.ontology.v2",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-properties-2-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-properties-2", TRUE },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-properties-3",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-properties-3.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-properties-3-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"remove-properties-3.ontology.v2",
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-properties-3", TRUE },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -143,10 +230,22 @@ const ChangeTest tests[] = {
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
 				"add-superclass-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/add-superclass-1-pre.rq" },
+					{ NULL },
+				},
 			},
 			{
 				"add-superclass-1.ontology.v2",
-				.expect_error = TRUE,
+				(const Update *) &(Update[]) {
+					{ "updates/add-superclass-1-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/add-superclass-1" },
+					{ "queries/add-superclass-2" },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -163,6 +262,15 @@ const ChangeTest tests[] = {
 			},
 			{
 				"remove-superclass-1.ontology.v2",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-superclass-1-post.rq", TRUE },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-superclass-1", TRUE},
+					{ "queries/remove-superclass-2" },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -203,6 +311,10 @@ const ChangeTest tests[] = {
 			},
 			{
 				"remove-subclass-1.ontology.v2",
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-subclass-1" },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -212,10 +324,21 @@ const ChangeTest tests[] = {
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
 				"add-superproperty-1.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/add-superproperty-1-pre.rq" },
+					{ NULL },
+				},
 			},
 			{
 				"add-superproperty-1.ontology.v2",
-				.expect_error = TRUE,
+				(const Update *) &(Update[]) {
+					{ "updates/add-superproperty-1-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/add-superproperty-1" },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -232,6 +355,10 @@ const ChangeTest tests[] = {
 			},
 			{
 				"remove-superproperty-1.ontology.v2",
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-superproperty-1" },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -248,6 +375,14 @@ const ChangeTest tests[] = {
 			},
 			{
 				"add-subproperty-1.ontology.v2",
+				(const Update *) &(Update[]) {
+					{ "updates/add-subproperty-1-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/add-subproperty-1" },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -264,6 +399,10 @@ const ChangeTest tests[] = {
 			},
 			{
 				"remove-subproperty-1.ontology.v2",
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-subproperty-1", TRUE },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -311,7 +450,7 @@ const ChangeTest tests[] = {
 		},
 	},
 	{
-		.test_name = "/core/ontology-change/change-range",
+		.test_name = "/core/ontology-change/change-range-1",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
 				"change-range-1.ontology.v1",
@@ -328,6 +467,78 @@ const ChangeTest tests[] = {
 				"change-range-1.ontology.v2",
 				.checks = (const Query *) &(Query[]) {
 					{ "queries/change-range-1-post" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/change-range-2",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"change-range-2.ontology.v1",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/change-range-2-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"change-range-2.ontology.v2",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/change-range-2-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/change-range-2" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/change-range-3",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"change-range-3.ontology.v1",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/change-range-3-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"change-range-3.ontology.v2",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/change-range-3-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/change-range-3" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/change-range-4",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"change-range-4.ontology.v1",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/change-range-4-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"change-range-4.ontology.v2",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/change-range-4-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/change-range-4" },
 					{ NULL },
 				},
 			},
@@ -356,8 +567,11 @@ const ChangeTest tests[] = {
 			},
 			{
 				"add-inverse-functional-property-1.ontology.v2",
-				/* This is ATM expected to fail */
-				.expect_error = TRUE,
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/add-inverse-functional-property-1-post.rq" },
+					{ "updates/add-inverse-functional-property-2-post.rq", TRUE },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -381,11 +595,18 @@ const ChangeTest tests[] = {
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
 				"unmake-inverse-functional-property-1.ontology.v1",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/add-inverse-functional-property-1-post.rq" },
+					{ "updates/add-inverse-functional-property-2-post.rq", TRUE },
+					{ NULL },
+				},
 			},
 			{
 				"unmake-inverse-functional-property-1.ontology.v2",
-				/* This ATM is expected to fail */
-				.expect_error = TRUE,
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/add-inverse-functional-property-2-post.rq" },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -395,9 +616,17 @@ const ChangeTest tests[] = {
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
 				"remove-inverse-functional-property-1.ontology.v1",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/remove-inverse-functional-property-1-pre.rq" },
+					{ NULL },
+				},
 			},
 			{
 				"remove-inverse-functional-property-1.ontology.v2",
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-inverse-functional-property-1" },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -414,6 +643,14 @@ const ChangeTest tests[] = {
 			},
 			{
 				"add-index-1.ontology.v2",
+				(const Update *) &(Update[]) {
+					{ "updates/add-index-1-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/add-index-1" },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -439,7 +676,7 @@ const ChangeTest tests[] = {
 		},
 	},
 	{
-		.test_name = "/core/ontology-change/add-domain-index",
+		.test_name = "/core/ontology-change/add-domain-index-1",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
 				"add-domain-index-1.ontology.v1",
@@ -463,7 +700,31 @@ const ChangeTest tests[] = {
 		},
 	},
 	{
-		.test_name = "/core/ontology-change/remove-domain-index",
+		.test_name = "/core/ontology-change/add-domain-index-2",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"add-domain-index-2.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/add-domain-index-2-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"add-domain-index-2.ontology.v2",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/add-domain-index-2-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/add-domain-index-2" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
+		.test_name = "/core/ontology-change/remove-domain-index-1",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
 				"remove-domain-index-1.ontology.v1",
@@ -490,6 +751,30 @@ const ChangeTest tests[] = {
 		},
 	},
 	{
+		.test_name = "/core/ontology-change/remove-domain-index-2",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"remove-domain-index-2.ontology.v1",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-domain-index-2-pre.rq" },
+					{ NULL },
+				},
+			},
+			{
+				"remove-domain-index-2.ontology.v2",
+				.updates = (const Update *) &(Update[]) {
+					{ "updates/remove-domain-index-2-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-domain-index-2" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
+	{
 		.test_name = "/core/ontology-change/add-secondary-index",
 		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
 			{
@@ -501,6 +786,14 @@ const ChangeTest tests[] = {
 			},
 			{
 				"add-secondary-index-1.ontology.v2",
+				(const Update *) &(Update[]) {
+					{ "updates/add-secondary-index-1-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/add-secondary-index-1" },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},
@@ -517,6 +810,14 @@ const ChangeTest tests[] = {
 			},
 			{
 				"remove-secondary-index-1.ontology.v2",
+				(const Update *) &(Update[]) {
+					{ "updates/remove-secondary-index-1-post.rq" },
+					{ NULL },
+				},
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/remove-secondary-index-1" },
+					{ NULL },
+				},
 			},
 			{ NULL }
 		},

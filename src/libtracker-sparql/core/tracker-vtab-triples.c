@@ -66,7 +66,7 @@ enum {
 
 typedef struct {
 	sqlite3 *db;
-	TrackerOntologies *ontologies;
+	TrackerDataManager *data_manager;
 } TrackerTriplesModule;
 
 typedef struct {
@@ -109,7 +109,6 @@ tracker_triples_module_free (gpointer data)
 {
 	TrackerTriplesModule *module = data;
 
-	g_clear_object (&module->ontologies);
 	g_free (module);
 }
 
@@ -289,20 +288,21 @@ triples_close (sqlite3_vtab_cursor *vtab_cursor)
 static void
 collect_tables (TrackerTriplesCursor *cursor)
 {
+	TrackerOntologies *ontologies;
 	TrackerProperty *property = NULL;
 	const gchar *uri = NULL;
 	gboolean pred_negated;
 
+	ontologies = tracker_data_manager_get_ontologies (cursor->vtab->module->data_manager);
 	pred_negated = !!(cursor->match.idxFlags & IDX_MATCH_PREDICATE_NEG);
 
 	if (cursor->match.predicate) {
-		uri = tracker_ontologies_get_uri_by_id (cursor->vtab->module->ontologies,
+		uri = tracker_ontologies_get_uri_by_id (ontologies,
 		                                        sqlite3_value_int64 (cursor->match.predicate));
 	}
 
 	if (uri) {
-		property = tracker_ontologies_get_property_by_uri (cursor->vtab->module->ontologies,
-		                                                   uri);
+		property = tracker_ontologies_get_property_by_uri (ontologies, uri);
 	}
 
 	if (property && !pred_negated) {
@@ -311,8 +311,7 @@ collect_tables (TrackerTriplesCursor *cursor)
 		TrackerProperty **properties;
 		guint n_properties, i;
 
-		properties = tracker_ontologies_get_properties (cursor->vtab->module->ontologies,
-		                                                &n_properties);
+		properties = tracker_ontologies_get_properties (ontologies, &n_properties);
 		for (i = 0; i < n_properties; i++) {
 			if (tracker_property_get_multiple_values (properties[i])) {
 				if (pred_negated && property == properties[i])
@@ -421,6 +420,7 @@ static TrackerProperty *
 get_column_property (TrackerTriplesCursor *cursor,
                      int                   n_col)
 {
+	TrackerOntologies *ontologies;
 	TrackerProperty *property;
 	const gchar *col_name;
 	int n_cols;
@@ -434,9 +434,9 @@ get_column_property (TrackerTriplesCursor *cursor,
 	property = cursor->column_properties[n_col];
 
 	if (!property) {
+		ontologies = tracker_data_manager_get_ontologies (cursor->vtab->module->data_manager);
 		col_name = sqlite3_column_name (cursor->stmt, n_col);
-		property = tracker_ontologies_get_property_by_uri (cursor->vtab->module->ontologies,
-		                                                   col_name);
+		property = tracker_ontologies_get_property_by_uri (ontologies, col_name);
 		cursor->column_properties[n_col] = property;
 	}
 
@@ -493,11 +493,14 @@ iterate_next_stmt (TrackerTriplesCursor  *cursor,
 static int
 init_stmt (TrackerTriplesCursor *cursor)
 {
+	TrackerOntologies *ontologies;
 	TrackerProperty *property;
 	TrackerClass *class;
 	const gchar *graph;
 	TrackerRowid graph_id;
 	int rc = SQLITE_DONE;
+
+	ontologies = tracker_data_manager_get_ontologies (cursor->vtab->module->data_manager);
 
 	while (iterate_next_stmt (cursor, &graph, &graph_id, &class, &property)) {
 		GString *sql;
@@ -513,8 +516,7 @@ init_stmt (TrackerTriplesCursor *cursor)
 			                        graph_id);
 
 
-			properties = tracker_ontologies_get_properties (cursor->vtab->module->ontologies,
-			                                                &n_properties);
+			properties = tracker_ontologies_get_properties (ontologies, &n_properties);
 			for (i = 0; i < n_properties; i++) {
 				if (!tracker_property_get_multiple_values (properties[i]) &&
 				    tracker_property_get_domain (properties[i]) == class) {
@@ -750,7 +752,6 @@ tracker_vtab_triples_init (sqlite3            *db,
                            TrackerDataManager *data_manager)
 {
 	TrackerTriplesModule *module;
-	TrackerOntologies *ontologies;
 	static const sqlite3_module triples_module = {
 		2, /* version */
 		NULL, /* create(), null because this is an eponymous-only table */
@@ -779,8 +780,7 @@ tracker_vtab_triples_init (sqlite3            *db,
 
 	module = g_new0 (TrackerTriplesModule, 1);
 	module->db = db;
-	ontologies = tracker_data_manager_get_ontologies (data_manager);
-	g_set_object (&module->ontologies, ontologies);
+	module->data_manager = data_manager;
 	sqlite3_create_module_v2 (db, "tracker_triples", &triples_module,
 	                          module, tracker_triples_module_free);
 }
