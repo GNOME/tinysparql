@@ -64,3 +64,7 @@ if get_option('bash_completion')
         install_dir: bash_completion_dir,
         rename: main_command_name)
 endif
+
+cli_devenv = environment()
+cli_devenv.set('TRACKER_CLI_DIR', meson.current_build_dir())
+meson.add_devenv(cli_devenv)
