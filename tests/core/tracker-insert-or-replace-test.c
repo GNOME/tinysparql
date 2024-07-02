@@ -125,8 +125,8 @@ INSERT { GRAPH <urn:uuid:08070f5c-a334-4d19-a8b0-12a3071bfab9> {\
 
 #define N_QUERIES 10
 
-int
-main (int argc, char *argv[])
+void
+test_insert_or_replace (void)
 {
 	TrackerSparqlConnection *conn;
 	GError *error = NULL;
@@ -135,7 +135,6 @@ main (int argc, char *argv[])
 	gchar *query;
 	gint i;
 
-	g_print ("1..1\n");
 	test_data_dir = g_build_filename (g_get_tmp_dir (),
 	                                  "insert-or-replace-test-data-XXXXXX",
 	                                  NULL);
@@ -173,8 +172,53 @@ main (int argc, char *argv[])
 	g_object_unref (conn);
 	g_object_unref (cache);
 	g_object_unref (ontology);
+}
 
-	g_print ("ok 1 /core/insert-or-replace\n");
+static void
+test_insert_or_replace_where (void)
+{
+	TrackerSparqlConnection *conn;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+	GFile *ontology;
+	gboolean next;
 
-	return 0;
+	ontology = tracker_sparql_get_ontology_nepomuk ();
+
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      NULL,
+	                                      ontology,
+	                                      NULL, &error);
+	g_assert_no_error (error);
+
+	tracker_sparql_connection_update (conn,
+	                                  "INSERT { <playlist:/a> a nmm:Playlist ; nie:title 'foo'; nfo:entryCounter 0 } ;"
+	                                  "INSERT OR REPLACE { _:entry a nfo:MediaFileListEntry ; nfo:entryUrl 'file:///' ; nfo:listPosition ?position . ?playlist nfo:entryCounter ?position ; nfo:hasMediaFileListEntry _:entry } "
+	                                  "WHERE { SELECT ?playlist ((?counter + 1) AS ?position) { ?playlist a nmm:Playlist ; a nfo:MediaList ; nfo:entryCounter ?counter . FILTER (?playlist = <playlist:/a>) } }",
+	                                  NULL, &error);
+	g_assert_no_error (error);
+
+	cursor = tracker_sparql_connection_query (conn, "ASK { <playlist:/a> nfo:entryCounter 1 }", NULL, &error);
+	g_assert_no_error (error);
+
+	next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_true (next);
+	g_assert_no_error (error);
+
+	g_assert_true (tracker_sparql_cursor_get_boolean (cursor, 0));
+
+	g_object_unref (conn);
+	g_object_unref (ontology);
+	g_object_unref (cursor);
+}
+
+int
+main (int argc, char *argv[])
+{
+	g_test_init (&argc, &argv, NULL);
+
+	g_test_add_func ("/core/insert-replace", test_insert_or_replace);
+	g_test_add_func ("/core/insert-replace-where", test_insert_or_replace_where);
+
+	return g_test_run ();
 }

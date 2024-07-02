@@ -10369,6 +10369,7 @@ apply_update (TrackerSparql    *sparql,
 	while (i < sparql->update_ops->len) {
 		TrackerUpdateOpGroup *update_group;
 		TrackerSparqlCursor *cursor = NULL;
+		gboolean freeze_flush = FALSE;
 		guint j;
 
 		g_assert (cur_update_group < sparql->update_groups->len);
@@ -10386,6 +10387,7 @@ apply_update (TrackerSparql    *sparql,
 
 		if (update_group->where_clause_sql) {
 			TrackerDBStatement *stmt;
+			TrackerUpdateOp  *op;
 
 			/* Flush to ensure the WHERE clause gets up-to-date results */
 			tracker_data_update_buffer_flush (tracker_data_manager_get_data (sparql->data_manager),
@@ -10393,7 +10395,13 @@ apply_update (TrackerSparql    *sparql,
 			if (inner_error)
 				goto out;
 
-			tracker_data_update_freeze_flush (tracker_data_manager_get_data (sparql->data_manager));
+			op = &g_array_index (sparql->update_ops,
+			                     TrackerUpdateOp,
+			                     update_group->start_idx);
+			freeze_flush = (op->update_type != TRACKER_UPDATE_UPDATE);
+
+			if (freeze_flush)
+				tracker_data_update_freeze_flush (tracker_data_manager_get_data (sparql->data_manager));
 
 			stmt = prepare_query (sparql, iface,
 			                      update_group->where_clause_sql,
@@ -10439,7 +10447,7 @@ apply_update (TrackerSparql    *sparql,
 
 		g_clear_object (&cursor);
 
-		if (!inner_error && update_group->where_clause_sql) {
+		if (!inner_error && freeze_flush) {
 			tracker_data_update_thaw_flush (tracker_data_manager_get_data (sparql->data_manager));
 		}
 
