@@ -125,8 +125,8 @@ INSERT { GRAPH <urn:uuid:08070f5c-a334-4d19-a8b0-12a3071bfab9> {\
 
 #define N_QUERIES 10
 
-int
-main (int argc, char *argv[])
+void
+test_insert_or_replace (void)
 {
 	TrackerSparqlConnection *conn;
 	GError *error = NULL;
@@ -135,7 +135,6 @@ main (int argc, char *argv[])
 	gchar *query;
 	gint i;
 
-	g_print ("1..1\n");
 	test_data_dir = g_build_filename (g_get_tmp_dir (),
 	                                  "insert-or-replace-test-data-XXXXXX",
 	                                  NULL);
@@ -173,8 +172,14 @@ main (int argc, char *argv[])
 	g_object_unref (conn);
 	g_object_unref (cache);
 	g_object_unref (ontology);
+}
 
-	g_print ("ok 1 /core/insert-or-replace\n");
+int
+main (int argc, char *argv[])
+{
+	g_test_init (&argc, &argv, NULL);
 
-	return 0;
+	g_test_add_func ("/core/insert-replace", test_insert_or_replace);
+
+	return g_test_run ();
 }
