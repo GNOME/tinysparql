@@ -174,12 +174,51 @@ test_insert_or_replace (void)
 	g_object_unref (ontology);
 }
 
+static void
+test_insert_or_replace_where (void)
+{
+	TrackerSparqlConnection *conn;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+	GFile *ontology;
+	gboolean next;
+
+	ontology = tracker_sparql_get_ontology_nepomuk ();
+
+	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+	                                      NULL,
+	                                      ontology,
+	                                      NULL, &error);
+	g_assert_no_error (error);
+
+	tracker_sparql_connection_update (conn,
+	                                  "INSERT { <playlist:/a> a nmm:Playlist ; nie:title 'foo'; nfo:entryCounter 0 } ;"
+	                                  "INSERT OR REPLACE { _:entry a nfo:MediaFileListEntry ; nfo:entryUrl 'file:///' ; nfo:listPosition ?position . ?playlist nfo:entryCounter ?position ; nfo:hasMediaFileListEntry _:entry } "
+	                                  "WHERE { SELECT ?playlist ((?counter + 1) AS ?position) { ?playlist a nmm:Playlist ; a nfo:MediaList ; nfo:entryCounter ?counter . FILTER (?playlist = <playlist:/a>) } }",
+	                                  NULL, &error);
+	g_assert_no_error (error);
+
+	cursor = tracker_sparql_connection_query (conn, "ASK { <playlist:/a> nfo:entryCounter 1 }", NULL, &error);
+	g_assert_no_error (error);
+
+	next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_true (next);
+	g_assert_no_error (error);
+
+	g_assert_true (tracker_sparql_cursor_get_boolean (cursor, 0));
+
+	g_object_unref (conn);
+	g_object_unref (ontology);
+	g_object_unref (cursor);
+}
+
 int
 main (int argc, char *argv[])
 {
 	g_test_init (&argc, &argv, NULL);
 
 	g_test_add_func ("/core/insert-replace", test_insert_or_replace);
+	g_test_add_func ("/core/insert-replace-where", test_insert_or_replace_where);
 
 	return g_test_run ();
 }
