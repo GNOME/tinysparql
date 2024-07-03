@@ -34,6 +34,7 @@ typedef enum {
   TRACKER_DEBUG_SQLITE           = 1 <<  4,
   TRACKER_DEBUG_SQL_STATEMENTS   = 1 <<  5,
   TRACKER_DEBUG_FTS_INTEGRITY    = 1 <<  6,
+  TRACKER_DEBUG_HTTP             = 1 <<  7,
 } TrackerDebugFlag;
 
 #ifdef G_ENABLE_DEBUG

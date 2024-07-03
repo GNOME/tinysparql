@@ -29,6 +29,7 @@ static const GDebugKey tracker_debug_keys[] = {
   { "sparql", TRACKER_DEBUG_SPARQL },
   { "sql-statements", TRACKER_DEBUG_SQL_STATEMENTS },
   { "fts-integrity", TRACKER_DEBUG_FTS_INTEGRITY },
+  { "http", TRACKER_DEBUG_HTTP },
 };
 #endif /* G_ENABLE_DEBUG */
 

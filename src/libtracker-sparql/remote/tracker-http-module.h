@@ -22,6 +22,7 @@
 #pragma once
 
 #include "tracker-http.h"
+#include "tracker-debug.h"
 
 #define TRACKER_TYPE_HTTP_SERVER_SOUP (tracker_http_server_soup_get_type ())
 G_DECLARE_FINAL_TYPE (TrackerHttpServerSoup,
