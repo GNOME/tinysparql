@@ -306,14 +306,7 @@ static void
 tracker_response_error_page_not_found (TrackerHttpServer    *server,
                                        TrackerHttpRequest   *request)
 {
-	GInputStream *in;
-	tracker_get_input_stream_from_path ("/404.html", &in);
-	if (!in) {
-		tracker_http_server_error (server, request, 500, "Internal Server Error");
-		return;
-	}
-	tracker_http_server_response (server, request, "text/html", in);
-	return;
+	tracker_http_server_error (server, request, 404, "Page Not Found");
 }
 
 static void
