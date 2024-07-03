@@ -34,7 +34,7 @@ libdir = join_paths(get_option('prefix'), get_option('libdir'))
 datadir = join_paths(get_option('prefix'), get_option('datadir'))
 
 pubdir = join_paths(datadir, 'tinysparql-' + tracker_api_version, 'public')
-install_subdir('public', install_dir: pubdir, strip_directory : true)
+install_subdir('src/web-ide/dist', install_dir: pubdir, strip_directory : true)
 
 glib_required = '2.52.0'
 

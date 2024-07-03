@@ -14,7 +14,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-        title: "CodeMirror Demo",
+        title: "TinySPARQL web-IDE",
         template: "./src/index.html"
     })
   ],
@@ -23,6 +23,10 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
+        type: 'asset/resource',
       },
     ],
   },
