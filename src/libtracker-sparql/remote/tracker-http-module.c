@@ -148,12 +148,12 @@ get_supported_formats (TrackerHttpRequest *request)
 
 static void
 set_message_format (TrackerHttpRequest      *request,
-                    TrackerSerializerFormat  format)
+                    const gchar*             mimetype)
 {
 	SoupMessageHeaders *response_headers;
 
 	response_headers = soup_server_message_get_response_headers (request->message);
-	soup_message_headers_set_content_type (response_headers, mimetypes[format], NULL);
+	soup_message_headers_set_content_type (response_headers, mimetype, NULL);
 }
 
 /* Get SPARQL query from message POST data, or NULL. */
@@ -189,8 +189,15 @@ server_callback_got_message_body (SoupServerMessage *message,
 {
 	TrackerHttpRequest *request = user_data;
 	gchar *sparql;
+	const char *method;
 
 	sparql = get_sparql_from_message_body (message);
+
+#if SOUP_CHECK_VERSION (3, 1, 3)
+	method = soup_server_message_get_method (message);
+#else
+	method = message->method;
+#endif
 
 	if (sparql) {
 		if (!request->params) {
@@ -202,12 +209,50 @@ server_callback_got_message_body (SoupServerMessage *message,
 		g_signal_emit_by_name (request->server, "request",
 		                       request->remote_address,
 		                       request->path,
+		                       method,
 		                       request->params,
 		                       get_supported_formats (request),
 		                       request);
 	} else {
 		tracker_http_server_soup_error (request->server, request, 400, "Missing query or invalid UTF-8 in POST request");
 	}
+}
+
+static void
+root_server_callback (SoupServer        *server,
+                      SoupServerMessage *message,
+                      const char        *path,
+                      GHashTable        *query,
+                      gpointer           user_data)
+{
+	TrackerHttpServer *http_server = user_data;
+	GSocketAddress *remote_address;
+	TrackerHttpRequest *request;
+	const char *method;
+
+	remote_address = soup_server_message_get_remote_address (message);
+
+	request = request_new (http_server, message, remote_address, path, query);
+
+#if SOUP_CHECK_VERSION (3, 1, 3)
+	soup_server_message_pause (message);
+#else
+	soup_server_pause_message (server, message);
+#endif
+
+#if SOUP_CHECK_VERSION (3, 1, 3)
+	method = soup_server_message_get_method (message);
+#else
+	method = message->method;
+#endif
+
+	g_signal_emit_by_name (http_server, "request",
+	                       remote_address,
+	                       path,
+	                       method,
+	                       query,
+	                       get_supported_formats (request),
+	                       request);
 }
 
 static void
@@ -252,6 +297,7 @@ server_callback (SoupServer        *server,
 		g_signal_emit_by_name (http_server, "request",
 		                       remote_address,
 		                       path,
+		                       method,
 		                       query,
 		                       get_supported_formats (request),
 		                       request);
@@ -423,6 +469,11 @@ tracker_http_server_initable_init (GInitable     *initable,
 	                         server_callback,
 	                         initable,
 	                         NULL);
+	soup_server_add_handler (server->server,
+	                         "/",
+	                         root_server_callback,
+	                         initable,
+	                         NULL);
 	g_clear_object (&certificate);
 
 #ifdef HAVE_AVAHI
@@ -546,7 +597,7 @@ write_finished_cb (GObject      *object,
 static void
 tracker_http_server_soup_response (TrackerHttpServer       *server,
                                    TrackerHttpRequest      *request,
-                                   TrackerSerializerFormat  format,
+                                   const gchar*             mimetype,
                                    GInputStream            *content)
 {
 	TrackerHttpServerSoup *server_soup =
@@ -554,7 +605,7 @@ tracker_http_server_soup_response (TrackerHttpServer       *server,
 
 	g_assert (request->server == server);
 
-	set_message_format (request, format);
+	set_message_format (request, mimetype);
 
 	request->istream = content;
 	request->task = g_task_new (server, server_soup->cancellable,

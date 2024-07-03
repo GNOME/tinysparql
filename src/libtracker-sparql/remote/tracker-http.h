@@ -40,7 +40,7 @@ struct _TrackerHttpServerClass {
 
 	void (* response) (TrackerHttpServer       *server,
 	                   TrackerHttpRequest      *request,
-	                   TrackerSerializerFormat  format,
+	                   const gchar*             mimetype,
 	                   GInputStream            *content);
 	void (* error) (TrackerHttpServer  *server,
 	                TrackerHttpRequest *request,
@@ -55,7 +55,7 @@ TrackerHttpServer * tracker_http_server_new (guint             port,
 
 void tracker_http_server_response (TrackerHttpServer       *server,
                                    TrackerHttpRequest      *request,
-                                   TrackerSerializerFormat  format,
+                                   const gchar*             mimetype,
                                    GInputStream            *content);
 
 void tracker_http_server_error (TrackerHttpServer       *server,

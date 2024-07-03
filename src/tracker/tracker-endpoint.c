@@ -187,18 +187,22 @@ run_http_endpoint (TrackerSparqlConnection  *connection,
 	g_autoptr(GMainLoop) main_loop = NULL;
 	GError *inner_error = NULL;
 	GInetAddress *loopback;
-	gchar *loopback_str, *address;
+	gchar *loopback_str, *address, *web_ide_address;
 
 	loopback = g_inet_address_new_loopback (G_SOCKET_FAMILY_IPV4);
 	loopback_str = g_inet_address_to_string (loopback);
 	address = g_strdup_printf ("http://%s:%d/sparql/",
 				   loopback_str,
 				   http_port);
+	web_ide_address = g_strdup_printf ("http://%s:%d/",
+				   loopback_str,
+				   http_port);
 
-	g_print (_("Creating HTTP endpoint at %s…"), address);
-	g_print ("\n");
+	g_print (_("Creating HTTP endpoint at %s…\n"), address);
+	g_print (_("Web IDE available at %s\n"), web_ide_address);
 	g_free (address);
 	g_free (loopback_str);
+	g_free (web_ide_address);
 	g_object_unref (loopback);
 
 	endpoint = TRACKER_ENDPOINT (tracker_endpoint_http_new (connection,

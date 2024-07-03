@@ -83,7 +83,30 @@ const gchar *supported_formats[] = {
 	"http://www.w3.org/ns/formats/JSON-LD",
 };
 
+static const gchar *mimetypes[] = {
+	"application/sparql-results+json",
+	"application/sparql-results+xml",
+	"text/turtle",
+	"application/trig",
+	"application/ld+json",
+};
+
+const gchar *get_request_mimetypes[] = {
+	"text/html",
+	"text/css",
+	"text/javascript",
+	"image/x-icon",
+};
+
+const gchar *get_request_file_extension[] = {
+	"html",
+	"css",
+	"js",
+	"ico",	
+};
+
 G_STATIC_ASSERT (G_N_ELEMENTS (supported_formats) == TRACKER_N_SERIALIZER_FORMATS);
+G_STATIC_ASSERT (G_N_ELEMENTS (get_request_mimetypes) == G_N_ELEMENTS (get_request_file_extension));
 
 struct _TrackerEndpointHttp {
 	TrackerEndpoint parent_instance;
@@ -160,7 +183,7 @@ query_async_cb (GObject      *object,
 	/* Consumes the input stream */
 	tracker_http_server_response (endpoint_http->server,
 	                              request->request,
-	                              request->format,
+	                              mimetypes[request->format],
 	                              stream);
 	request_free (request);
 }
@@ -231,32 +254,110 @@ create_service_description (TrackerEndpointHttp      *endpoint,
 	return resource;
 }
 
+static const gchar *
+get_mimetype_from_path (const gchar *path)
+{
+	gchar *extension;
+	guint i;
+
+	extension = strrchr (path, '.');
+	if (extension == NULL)
+		return NULL;
+
+	extension++;
+
+	for (i = 0; i < G_N_ELEMENTS (get_request_file_extension); i++) {
+		if (g_strcmp0 (extension, get_request_file_extension[i]) == 0)
+			return get_request_mimetypes[i];
+	}
+
+	return NULL;
+}
+
+static gboolean
+tracker_get_request_validate_path (const gchar *path)
+{
+	const gchar *slash = g_strrstr (path + 1, "/");
+	if (slash != NULL)
+		return FALSE;
+
+	const gchar *dot = g_strrstr (path, ".");
+	if (dot == NULL)
+		return FALSE;
+
+	return TRUE;
+}
+
 static void
-http_server_request_cb (TrackerHttpServer  *server,
-                        GSocketAddress     *remote_address,
-                        const gchar        *path,
-                        GHashTable         *params,
-                        guint               formats,
-                        TrackerHttpRequest *request,
-                        gpointer            user_data)
+tracker_get_input_stream_from_path (const gchar   *path,
+                                    GInputStream **in)
+{
+	GFile *file;
+	GFileInputStream *file_in;
+	gchar *abs_path = g_build_filename (PUBLICDIR, path, NULL);
+
+	file = g_file_new_for_path (abs_path);
+	file_in = g_file_read (file, NULL, NULL);
+	*in = G_INPUT_STREAM (file_in);
+	return;
+}
+
+static void
+tracker_response_error_page_not_found (TrackerHttpServer    *server,
+                                       TrackerHttpRequest   *request)
+{
+	tracker_http_server_error (server, request, 404, "Page Not Found");
+}
+
+static void
+webide_server_request_cb (TrackerHttpServer   *server,
+                          TrackerHttpRequest  *request,
+                          const gchar         *path)
+{
+	GInputStream *in;
+	const gchar* mime_type;
+
+	if (g_strcmp0 (path, "/") == 0) {
+		webide_server_request_cb (server, request, "/index.html");
+		return;
+	}
+
+	if (!tracker_get_request_validate_path (path)) {
+		tracker_response_error_page_not_found (server, request);
+		return;
+	}
+
+	tracker_get_input_stream_from_path (path, &in);
+
+	if (!in) {
+		g_debug ("File not found");
+		tracker_response_error_page_not_found (server, request);
+		return;
+	}
+
+	mime_type = get_mimetype_from_path (path);
+
+	if (!mime_type) {
+		tracker_response_error_page_not_found (server, request);
+		return;
+	}
+
+	tracker_http_server_response (server, request, mime_type, G_INPUT_STREAM (in));
+}
+
+static void
+sparql_server_request_cb (TrackerHttpServer  *server,
+                          const gchar        *path,
+                          GHashTable         *params,
+                          guint               formats,
+                          TrackerHttpRequest *request,
+                          gpointer            user_data)
 {
 	TrackerEndpoint *endpoint = user_data;
 	TrackerSparqlConnection *conn;
 	TrackerSerializerFormat format;
-	gboolean block = FALSE;
 	const gchar *sparql = NULL;
 	Request *data;
-
-	if (remote_address) {
-		g_signal_emit (endpoint, signals[BLOCK_REMOTE_ADDRESS], 0,
-		               remote_address, &block);
-	}
-
-	if (block) {
-		tracker_http_server_error (server, request, 400,
-		                           "Remote address disallowed");
-		return;
-	}
 
 	if (params)
 		sparql = g_hash_table_lookup (params, "query");
@@ -311,8 +412,51 @@ http_server_request_cb (TrackerHttpServer  *server,
 		/* Consumes the serializer */
 		tracker_http_server_response (server,
 		                              request,
-		                              format,
+		                              mimetypes[format],
 		                              serializer);
+	}
+}
+
+static void
+http_server_request_cb (TrackerHttpServer  *server,
+                        GSocketAddress     *remote_address,
+                        const gchar        *path,
+                        const gchar        *method,
+                        GHashTable         *params,
+                        guint               formats,
+                        TrackerHttpRequest *request,
+                        gpointer            user_data)
+{
+	TrackerEndpoint *endpoint = user_data;
+	gboolean block = FALSE;
+
+	if (remote_address) {
+		g_signal_emit (endpoint, signals[BLOCK_REMOTE_ADDRESS], 0,
+		               remote_address, &block);
+	}
+
+	if (block) {
+		tracker_http_server_error (server, request, 400,
+		                           "Remote address disallowed");
+		return;
+	}
+
+	if (g_str_equal (path, "/sparql") || g_str_has_prefix (path, "/sparql/")) {
+		sparql_server_request_cb (server,
+		                          path,
+		                          params,
+		                          formats,
+		                          request,
+		                          user_data);
+		return;
+	}
+
+	if (g_strcmp0 (method, "GET") == 0) {
+		webide_server_request_cb (server,
+		                          request,
+		                          path);
+	} else {
+		tracker_http_server_error (server, request, 405, "Method Not Allowed");
 	}
 }
 

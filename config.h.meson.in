@@ -3,6 +3,7 @@
 /* Extras added manually */
 #mesondefine LOCALEDIR
 #mesondefine SHAREDIR
+#mesondefine PUBLICDIR
 
 /* Define the gettext package to be used */
 #mesondefine GETTEXT_PACKAGE
