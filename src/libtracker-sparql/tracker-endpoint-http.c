@@ -317,15 +317,15 @@ tracker_response_error_page_not_found (TrackerHttpServer    *server,
 }
 
 static void
-serve_web_ide (TrackerHttpServer   *server,
-               TrackerHttpRequest  *request,
-               const gchar         *path)
+webide_server_request_cb (TrackerHttpServer   *server,
+                          TrackerHttpRequest  *request,
+                          const gchar         *path)
 {
 	GInputStream *in;
 	const gchar* mime_type;
 
-	if (strcmp (path, "/") == 0) {
-		serve_web_ide (server, request, "/index.html");
+	if (g_strcmp0 (path, "/") == 0) {
+		webide_server_request_cb (server, request, "/index.html");
 		return;
 	}
 
@@ -353,32 +353,18 @@ serve_web_ide (TrackerHttpServer   *server,
 }
 
 static void
-http_server_request_cb (TrackerHttpServer  *server,
-                        GSocketAddress     *remote_address,
-                        const gchar        *path,
-                        const gboolean      webide,
-                        GHashTable         *params,
-                        guint               formats,
-                        TrackerHttpRequest *request,
-                        gpointer            user_data)
+sparql_server_request_cb (TrackerHttpServer  *server,
+                          const gchar        *path,
+                          GHashTable         *params,
+                          guint               formats,
+                          TrackerHttpRequest *request,
+                          gpointer            user_data)
 {
 	TrackerEndpoint *endpoint = user_data;
 	TrackerSparqlConnection *conn;
 	TrackerSerializerFormat format;
-	gboolean block = FALSE;
 	const gchar *sparql = NULL;
 	Request *data;
-
-	if (remote_address) {
-		g_signal_emit (endpoint, signals[BLOCK_REMOTE_ADDRESS], 0,
-		               remote_address, &block);
-	}
-
-	if (block) {
-		tracker_http_server_error (server, request, 400,
-		                           "Remote address disallowed");
-		return;
-	}
 
 	if (params)
 		sparql = g_hash_table_lookup (params, "query");
@@ -413,11 +399,6 @@ http_server_request_cb (TrackerHttpServer  *server,
 		TrackerSparqlCursor *deserializer;
 		GInputStream *serializer;
 
-		if (webide) {
-			serve_web_ide (server, request, path);
-			return;
-		}
-
 		if (!pick_format (formats, &format))
 			format = TRACKER_SERIALIZER_FORMAT_TTL;
 
@@ -440,6 +421,49 @@ http_server_request_cb (TrackerHttpServer  *server,
 		                              request,
 		                              mimetypes[format],
 		                              serializer);
+	}
+}
+
+static void
+http_server_request_cb (TrackerHttpServer  *server,
+                        GSocketAddress     *remote_address,
+                        const gchar        *path,
+                        const gchar        *method,
+                        GHashTable         *params,
+                        guint               formats,
+                        TrackerHttpRequest *request,
+                        gpointer            user_data)
+{
+	TrackerEndpoint *endpoint = user_data;
+	gboolean block = FALSE;
+
+	if (remote_address) {
+		g_signal_emit (endpoint, signals[BLOCK_REMOTE_ADDRESS], 0,
+		               remote_address, &block);
+	}
+
+	if (block) {
+		tracker_http_server_error (server, request, 400,
+		                           "Remote address disallowed");
+		return;
+	}
+
+	if (g_str_has_prefix (path, "/sparql/")) {
+		sparql_server_request_cb (server,
+		                          path,
+		                          params,
+		                          formats,
+		                          request,
+		                          user_data);
+		return;
+	}
+
+	if (g_strcmp0 (method, "GET") == 0) {
+		webide_server_request_cb (server,
+		                          request,
+		                          path);
+	} else {
+		tracker_http_server_error (server, request, 405, "Method Not Allowed");
 	}
 }
 
