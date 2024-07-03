@@ -441,7 +441,7 @@ http_server_request_cb (TrackerHttpServer  *server,
 		return;
 	}
 
-	if (g_str_has_prefix (path, "/sparql/")) {
+	if (g_str_equal (path, "/sparql") || g_str_has_prefix (path, "/sparql/")) {
 		sparql_server_request_cb (server,
 		                          path,
 		                          params,
