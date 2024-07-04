@@ -374,3 +374,6 @@ void tracker_batch_add_dbus_fd (TrackerBatch *batch,
 
 GBytes * tracker_sparql_make_langstring (const gchar *str,
                                          const gchar *langtag);
+
+gboolean tracker_rdf_format_pick_for_file (GFile            *file,
+                                           TrackerRdfFormat *format_out);

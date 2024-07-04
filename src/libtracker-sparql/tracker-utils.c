@@ -21,7 +21,17 @@
 
 #include "tracker-utils.h"
 
+#include "tracker-enums.h"
+
 #include <libtracker-sparql/core/tracker-uuid.h>
+
+static const char *extensions[] = {
+	".turtle",
+	".trig",
+	".jsonld",
+};
+
+G_STATIC_ASSERT (G_N_ELEMENTS (extensions) == TRACKER_N_RDF_FORMATS);
 
 /**
  * tracker_sparql_escape_string:
@@ -133,4 +143,31 @@ tracker_sparql_make_langstring (const gchar *str,
 	bytes = g_bytes_new_take (g_string_free (langstr, FALSE), len);
 
 	return bytes;
+}
+
+gboolean
+tracker_rdf_format_pick_for_file (GFile            *file,
+                                  TrackerRdfFormat *format_out)
+{
+	TrackerRdfFormat format;
+	gchar *uri;
+
+	uri = g_file_get_uri (file);
+
+	if (g_str_has_suffix (uri, extensions[TRACKER_RDF_FORMAT_TRIG])) {
+		format = TRACKER_RDF_FORMAT_TRIG;
+	} else if (g_str_has_suffix (uri, extensions[TRACKER_RDF_FORMAT_JSON_LD])) {
+		format = TRACKER_RDF_FORMAT_JSON_LD;
+	} else if (g_str_has_suffix (uri, extensions[TRACKER_RDF_FORMAT_TURTLE])) {
+		format = TRACKER_RDF_FORMAT_TURTLE;
+	} else {
+		g_free (uri);
+		return FALSE;
+	}
+
+	if (format_out)
+		*format_out = format;
+
+	g_free (uri);
+	return TRUE;
 }
