@@ -1,0 +1,5 @@
+SELECT ?u {
+  ?u a rdfs:Class .
+  FILTER (STRSTARTS (?u, example:)) .
+}
+ORDER BY ?u

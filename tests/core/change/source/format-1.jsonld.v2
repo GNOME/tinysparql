@@ -1,0 +1,27 @@
+{
+  "@context" : {
+    "rdf" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "nrl" : "http://tracker.api.gnome.org/ontology/v3/nrl#",
+    "rdfs" : "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd" : "http://www.w3.org/2001/XMLSchema#",
+    "example": "http://example/"
+  },
+  "@graph" : [
+    {
+      "@id" : "example:",
+      "@type" : ["nrl:Namespace", "nrl:Ontology"],
+      "nrl:lastModified" : "2010-03-23T11:00:04Z",
+      "nrl:prefix" : "example"
+    },
+    {
+      "@id" : "example:A",
+      "@type" : "rdfs:Class",
+      "rdfs:subClassOf" : "rdfs:Resource"
+    },
+    {
+      "@id" : "example:B",
+      "@type" : "rdfs:Class",
+      "rdfs:subClassOf" : "rdfs:Resource"
+    }
+  ]
+}

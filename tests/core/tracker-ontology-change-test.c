@@ -974,6 +974,22 @@ const ChangeTest tests[] = {
 			{ NULL }
 		},
 	},
+	{
+		.test_name = "/core/ontology-change/format-1",
+		.changes = (const ChangeInfo *) &(ChangeInfo[]) {
+			{
+				"format-1.trig.v1",
+			},
+			{
+				"format-1.jsonld.v2",
+				.checks = (const Query *) &(Query[]) {
+					{ "queries/format-1" },
+					{ NULL },
+				},
+			},
+			{ NULL }
+		},
+	},
 };
 
 static void
