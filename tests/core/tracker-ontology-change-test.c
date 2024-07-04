@@ -1111,8 +1111,6 @@ handle_updates (TrackerSparqlConnection *conn,
 static void
 test_ontology_change (gconstpointer context)
 {
-	gchar *ontology_file;
-	GFile *file2;
 	gchar *prefix, *build_prefix, *ontologies;
 	gchar *data_dir, *ontology_dir;
 	guint i;
@@ -1126,12 +1124,6 @@ test_ontology_change (gconstpointer context)
 	build_prefix = g_build_path (G_DIR_SEPARATOR_S, TOP_BUILDDIR, "tests", "core", NULL);
 	ontologies = g_build_filename (prefix, "ontologies", NULL);
 
-	ontology_file = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", "99-example.ontology", NULL);
-
-	file2 = g_file_new_for_path (ontology_file);
-
-	g_file_delete (file2, NULL, NULL);
-
 	ontology_dir = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", NULL);
 	retval = g_mkdir_with_parents (ontology_dir, 0777);
 	g_assert_cmpint (retval , ==, 0);
@@ -1144,13 +1136,22 @@ test_ontology_change (gconstpointer context)
 	g_free (data_dir);
 
 	for (i = 0; test->changes[i].ontology; i++) {
-		GFile *file1;
-		gchar *source;
+		GFile *file1, *file2;
+		gchar *source, *ontology_file;
 		gchar *from, *to;
+		gchar *filename, *dot;
 
 		source = g_build_filename (prefix, "change", "source", test->changes[i].ontology, NULL);
 		file1 = g_file_new_for_path (source);
+		filename = g_path_get_basename (source);
+		dot = g_strrstr (filename, ".v");
+		g_assert_nonnull (dot);
+		dot[0] = '\0';
 		g_free (source);
+
+		ontology_file = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", filename, NULL);
+		file2 = g_file_new_for_path (ontology_file);
+		g_file_delete (file2, NULL, NULL);
 
 		from = g_file_get_path (file1);
 		to = g_file_get_path (file2);
@@ -1168,6 +1169,11 @@ test_ontology_change (gconstpointer context)
 		                                      data_location,
 		                                      test_schemas,
 		                                      NULL, &error);
+
+		g_file_delete (file2, NULL, NULL);
+		g_object_unref (file2);
+		g_free (ontology_file);
+
 		if (test->changes[i].expect_error)
 			g_assert_nonnull (error);
 		else
@@ -1191,15 +1197,11 @@ test_ontology_change (gconstpointer context)
 
 	g_object_unref (conn);
 
-	g_file_delete (file2, NULL, NULL);
-
-	g_object_unref (file2);
 	g_object_unref (test_schemas);
 	g_object_unref (data_location);
 	g_free (ontologies);
 	g_free (build_prefix);
 	g_free (prefix);
-	g_free (ontology_file);
 }
 
 int
