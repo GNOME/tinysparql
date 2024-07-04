@@ -58,9 +58,17 @@ It is split into several domains:
 TinySPARQL does also allow developers to define ontologies that are tailored
 for their use.
 
-Ontologies are made themselves of RDF data in the [Turtle](https://www.w3.org/TR/turtle/)
-format with the `.ontology` extension. Custom-made ontologies will build upon the
-[base ontology](#base-ontology) provided for this purpose.
+Ontologies are made themselves of RDF data in any of the formats supported by
+the TinySPARQL library:
+
+- [Turtle](https://www.w3.org/TR/turtle/) with `.turtle` or `.ontology` file
+  extension.
+- [Trig](https://www.w3.org/TR/trig/) with `.trig` file extension
+- [JSON-LD](https://www.w3.org/TR/json-ld11/) with `.jsonld` file extension.
+
+Custom-made ontologies will build upon the [base ontology](#base-ontology)
+provided for this purpose. The following examples will use the Turtle format
+for simplicity.
 
 Ontologies may be split in multiple documents in a same directory. The individual
 ontology files do not need be self-consistent (e.g. they may use definitions from
