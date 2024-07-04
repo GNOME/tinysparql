@@ -1,3 +1,15 @@
+NEW in 3.8.alpha - 2024-07-04
+=============================
+  * Rename project to TinySPARQL
+  * Incipient implementation of a web-based IDE
+  * Drop libsoup2 support
+  * Improved database creation and schema updates
+  * Fix possible missed updates on INSERT OR REPLACE syntax
+  * Fix build with `-Dman=false`
+  * Use "#pragma once" in headers
+  * Check introspection for python examples
+  * Use meson summary()
+
 NEW in 3.7.3 - 2024-05-02
 =========================
   * Bump database version to fix SQLite 3.45.3 issues in existing
