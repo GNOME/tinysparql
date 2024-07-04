@@ -1107,8 +1107,10 @@ get_directory_ontologies (TrackerDataManager  *manager,
 			break;
 
 		name = g_file_info_get_name (info);
-		if (g_str_has_suffix (name, ".ontology"))
+		if (g_str_has_suffix (name, ".ontology") ||
+		    tracker_rdf_format_pick_for_file (child, NULL)) {
 			sorted = g_list_prepend (sorted, g_object_ref (child));
+		}
 	}
 
 	*ontologies = g_list_sort (sorted, (GCompareFunc) compare_file_names);
