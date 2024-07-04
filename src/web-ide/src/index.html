@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="cf931f8d6f928f83280b.ico">
+    <link rel="stylesheet" href="css/styles.css">
     <title><%= htmlWebpackPlugin.options.title %></title>
 </head>
 <body>
-    <div style="display: flex; flex-direction: row;">
-        <div id="wrapper" style="width: 50%">
+    <div class="columns">
+        <div id="wrapper" class="column">
             <h1>TinySPARQL web-IDE</h1>
             <button id="runBtn">Run</button>
             <div id = "error"></div>
         </div>
-        <div>
+        <div class="column">
             <table id="table">
                 <thead>
                 </thead>
