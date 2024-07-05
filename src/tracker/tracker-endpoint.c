@@ -605,7 +605,7 @@ tracker_endpoint (int argc, const char **argv)
 	context = g_option_context_new (NULL);
 	g_option_context_add_main_entries (context, entries, NULL);
 
-	argv[0] = "tracker endpoint";
+	argv[0] = "tinysparql endpoint";
 
 	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
 		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
