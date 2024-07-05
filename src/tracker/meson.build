@@ -43,7 +43,7 @@ executable('tinysparql-sql', 'tracker-sql.c',
 
 if get_option('bash_completion')
     install_data(
-        sources: 'bash-completion/tracker',
+        sources: 'bash-completion/tinysparql',
         install_dir: bash_completion_dir,
         rename: main_command_name)
 endif
