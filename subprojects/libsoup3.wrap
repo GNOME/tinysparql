@@ -1,0 +1,8 @@
+[wrap-git]
+directory=libsoup3
+url=https://gitlab.gnome.org/GNOME/libsoup.git
+revision=3.4.4
+depth=1
+
+[provide]
+libsoup-3.0 = libsoup_dep
