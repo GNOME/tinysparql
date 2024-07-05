@@ -1,8 +1,4 @@
-* parent="Tsparql" cheader_filename="tinysparql.h"
-Sparql* name="Sparql(.*)" parent="Tsparql"
-NotifierEvent* name="Notifier(.*)" parent="Tsparql.Notifier"
-PREFIX_* name="PREFIX_(.*)" parent="Tsparql.Prefix"
-sparql_* name="sparql_(.*)"
+Tsparql name="Tsparql"
 
 *.*.cancellable default=null
 SparqlConnection.new symbol_type="function"
@@ -15,5 +11,6 @@ SparqlConnection.bus_new_async symbol_type="function"
 SparqlConnection.bus_new_async.dbus_connection default=null
 SparqlConnection.bus_new_finish symbol_type="function"
 SparqlCursor.get_string.length default=null
+PREFIX_* name="PREFIX_(.*)" parent="Tsparql.Prefix"
 sparql_escape_uri_printf skip=false
 sparql_escape_uri_vprintf skip=false
