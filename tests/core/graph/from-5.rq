@@ -1,0 +1,6 @@
+SELECT ?s
+FROM NAMED example:graphA
+FROM example:graphB
+WHERE {
+	?s example:p 42
+}
