@@ -418,6 +418,12 @@ class TestPortal(fixtures.TrackerPortalTest):
         )
         self.assertEqual(len(res), 0)
 
+        res = self.query(
+            "org.freedesktop.PortalTest",
+            'select ?u { GRAPH tracker:Allowed { ?u fts:match "apples" } }',
+        )
+        self.assertEqual(len(res), 1)
+
         # Delete the allowed resource again
         self.update("org.freedesktop.PortalTest", "DROP GRAPH tracker:Allowed")
 
