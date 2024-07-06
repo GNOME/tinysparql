@@ -1,0 +1,4 @@
+CREATE GRAPH <http://example/B>;
+
+CONSTRAINT GRAPH <http://example/B>
+DROP ALL

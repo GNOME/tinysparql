@@ -1,0 +1,4 @@
+CONSTRAINT GRAPH
+DELETE WHERE {
+  ?u a rdfs:Resource
+}

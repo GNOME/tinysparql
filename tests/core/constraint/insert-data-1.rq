@@ -1,0 +1,7 @@
+CONSTRAINT GRAPH
+INSERT DATA {
+  example:a a example:A ;
+            example:p 1 .
+  example:b a example:A ;
+            example:p 2 .
+}
