@@ -414,6 +414,8 @@ const TestInfo tests[] = {
 	{ "constraint/property-path-optional-3", "constraint/property-paths-1", FALSE, FALSE },
 	{ "constraint/property-path-inverse-1", "constraint/property-paths-1", FALSE, FALSE },
 	{ "constraint/property-path-inverse-2", "constraint/property-paths-1", FALSE, FALSE },
+	{ "constraint/describe-1", "constraint/data", FALSE, FALSE },
+	{ "constraint/describe-2", "constraint/data", FALSE, FALSE },
 	{ "constraint/insert-1", "constraint/insert-data-1", FALSE, TRUE },
 	{ "constraint/insert-2", "constraint/insert-data-2", FALSE, TRUE },
 	{ "constraint/insert-3", "constraint/insert-data-3", FALSE, TRUE },
