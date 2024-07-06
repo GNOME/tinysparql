@@ -548,7 +548,7 @@ handle_write_in_thread (GTask        *task,
 		                          SOUP_MEMORY_COPY,
 		                          buffer, count);
 
-		if ((gsize) count < sizeof (buffer)) {
+		if (count == 0) {
 			break;
 		}
 	}
