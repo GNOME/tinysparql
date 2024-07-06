@@ -1,0 +1,5 @@
+CONSTRAINT GRAPH <http://example.com/A>
+SELECT ?s {
+  ?s rdf:type? example:A
+}
+ORDER BY ?s

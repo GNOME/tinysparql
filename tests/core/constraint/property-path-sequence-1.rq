@@ -1,0 +1,4 @@
+CONSTRAINT GRAPH <http://example.com/A>
+SELECT ?s ?o {
+  ?s rdf:type/rdfs:subClassOf ?o
+}
