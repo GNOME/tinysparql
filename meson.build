@@ -33,9 +33,6 @@ libversion = '@0@.@1@.@2@'.format(soversion, tracker_binary_age - tracker_interf
 libdir = join_paths(get_option('prefix'), get_option('libdir'))
 datadir = join_paths(get_option('prefix'), get_option('datadir'))
 
-pubdir = join_paths(datadir, 'tinysparql-' + tracker_api_version, 'public')
-install_subdir('src/web-ide/dist', install_dir: pubdir, strip_directory : true)
-
 glib_required = '2.52.0'
 
 # 3.6.11 for sqlite_backup API
@@ -320,7 +317,6 @@ conf.set('HAVE_STATVFS64', cc.has_header_symbol('sys/statvfs.h', 'statvfs64', ar
 
 conf.set_quoted('LOCALEDIR', get_option('prefix') / get_option('localedir'))
 conf.set_quoted('SHAREDIR', get_option('prefix') / get_option('datadir'))
-conf.set_quoted('PUBLICDIR', pubdir)
 
 conf.set('GETTEXT_PACKAGE', '"@0@"'.format(tracker_versioned_name))
 conf.set('PACKAGE_VERSION', '"@0@"'.format(meson.project_version()))
