@@ -34,3 +34,22 @@ G_DECLARE_FINAL_TYPE (TrackerHttpClientSoup,
                       tracker_http_client_soup,
                       TRACKER, HTTP_CLIENT_SOUP,
                       TrackerHttpClient)
+
+typedef enum {
+  TRACKER_DEBUG_HTTP = 1 <<  1,
+} TrackerDebugFlag;
+
+#ifdef G_ENABLE_DEBUG
+
+#define TRACKER_DEBUG_CHECK(type) G_UNLIKELY (tracker_get_debug_flags () & TRACKER_DEBUG_##type)
+
+#define TRACKER_NOTE(type,action)                G_STMT_START {     \
+    if (TRACKER_DEBUG_CHECK (type))                                 \
+       { action; };                              } G_STMT_END
+
+#else /* !G_ENABLE_DEBUG */
+
+#define TRACKER_DEBUG_CHECK(type) 0
+#define TRACKER_NOTE(type, action)
+
+#endif /* G_ENABLE_DEBUG */

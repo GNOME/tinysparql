@@ -29,6 +29,41 @@
 #include <avahi-glib/glib-watch.h>
 #endif
 
+#ifdef G_ENABLE_DEBUG
+static const GDebugKey tracker_debug_keys[] = {
+  { "http", TRACKER_DEBUG_HTTP },
+};
+#endif /* G_ENABLE_DEBUG */
+
+static gpointer
+parse_debug_flags ()
+{
+	const gchar *env_string;
+	guint flags = 0;
+
+	env_string = g_getenv ("TRACKER_DEBUG");
+	if (env_string != NULL) {
+#ifdef G_ENABLE_DEBUG
+		flags = g_parse_debug_string (env_string, tracker_debug_keys, G_N_ELEMENTS (tracker_debug_keys));
+#else
+		g_warning ("TRACKER_DEBUG set but ignored because tracker isn't built with G_ENABLE_DEBUG");
+#endif  /* G_ENABLE_DEBUG */
+		env_string = NULL;
+	}
+
+	return GINT_TO_POINTER (flags);
+}
+
+guint
+tracker_get_debug_flags (void)
+{
+	static GOnce once = G_ONCE_INIT;
+
+	g_once (&once, parse_debug_flags, NULL);
+
+	return GPOINTER_TO_INT (once.retval);
+}
+
 static void tracker_http_server_soup_error (TrackerHttpServer       *server,
                                             TrackerHttpRequest      *request,
                                             gint                     code,
@@ -219,6 +254,64 @@ server_callback_got_message_body (SoupServerMessage *message,
 }
 
 static void
+debug_http_reponse_response ()
+{
+	g_message ("Response sent successfully\n");
+	g_print ("--------------------------------------------------------------------------\n");
+}
+
+static void
+debug_http_response_error (gint         code,
+                           const gchar *message)
+{
+	g_message ("Response error %d: %s\n", code, message);
+	g_print ("--------------------------------------------------------------------------\n");
+}
+
+void print_parameter_entry (gpointer key,
+                            gpointer value,
+                            gpointer user_data)
+{
+	g_print ("%s : %s\n", (char *)key, (char *)value);
+}
+
+static void
+debug_http_request (SoupServerMessage *message,
+                    const char        *path,
+                    GHashTable        *query)
+{
+	SoupMessageHeadersIter iter;
+	SoupMessageBody *request_body;
+	const char *name, *value;
+
+	g_print ("--------------------------------------------------------------------------\n");
+
+	g_message ("%s %s HTTP/1.%d\n", soup_server_message_get_method (message), path,
+		soup_server_message_get_http_version (message));
+
+	if (query != NULL && g_hash_table_size(query)) {
+		g_message ("Query Parameters:\n");
+		g_hash_table_foreach (query, print_parameter_entry, NULL);
+	} else {
+		g_message ("Query Parameters: (empty)\n");
+	}
+
+	soup_message_headers_iter_init (&iter, soup_server_message_get_request_headers (message));
+	g_message ("Request Headers:\n");
+	while (soup_message_headers_iter_next (&iter, &name, &value))
+		g_print ("%s: %s\n", name, value);
+
+	request_body = soup_server_message_get_request_body (message);
+	if (request_body->length) {
+		g_message ("Request Body:\n");
+		g_print ("%s\n", request_body->data);
+	} else {
+		g_message ("Request Body: (empty)\n");
+	}
+}
+
+
+static void
 root_server_callback (SoupServer        *server,
                       SoupServerMessage *message,
                       const char        *path,
@@ -229,6 +322,8 @@ root_server_callback (SoupServer        *server,
 	GSocketAddress *remote_address;
 	TrackerHttpRequest *request;
 	const char *method;
+
+	TRACKER_NOTE (HTTP, debug_http_request (message, path, query));
 
 	remote_address = soup_server_message_get_remote_address (message);
 
@@ -267,6 +362,8 @@ server_callback (SoupServer        *server,
 	TrackerHttpRequest *request;
 	const char *method;
 	SoupMessageBody *body;
+
+	TRACKER_NOTE (HTTP, debug_http_request (message, path, query));
 
 	remote_address = soup_server_message_get_remote_address (message);
 
@@ -513,6 +610,8 @@ tracker_http_server_soup_error (TrackerHttpServer       *server,
 
 	g_assert (request->server == server);
 
+	TRACKER_NOTE (HTTP, debug_http_response_error (code, message));
+
 	soup_server_message_set_status (request->message, code, message);
 
 #if SOUP_CHECK_VERSION (3, 1, 3)
@@ -604,6 +703,8 @@ tracker_http_server_soup_response (TrackerHttpServer       *server,
 		TRACKER_HTTP_SERVER_SOUP (server);
 
 	g_assert (request->server == server);
+
+	TRACKER_NOTE (HTTP, debug_http_reponse_response ());
 
 	set_message_format (request, mimetype);
 
