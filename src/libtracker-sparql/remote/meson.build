@@ -12,7 +12,7 @@ http_common_deps = [avahi_glib, avahi_client]
 
 libtracker_http_soup3 = shared_module('tracker-http-soup3',
     module_sources,
-    dependencies: [libsoup3, http_common_deps, tracker_common_dep],
+    dependencies: [libsoup3, http_common_deps],
     c_args: tracker_c_args + [
         '-include', join_paths(build_root, 'config.h'),
         '-include', '../tracker-enums-private.h',

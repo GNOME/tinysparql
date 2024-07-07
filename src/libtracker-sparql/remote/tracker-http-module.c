@@ -29,6 +29,41 @@
 #include <avahi-glib/glib-watch.h>
 #endif
 
+#ifdef G_ENABLE_DEBUG
+static const GDebugKey tracker_debug_keys[] = {
+  { "http", TRACKER_DEBUG_HTTP },
+};
+#endif /* G_ENABLE_DEBUG */
+
+static gpointer
+parse_debug_flags ()
+{
+	const gchar *env_string;
+	guint flags = 0;
+
+	env_string = g_getenv ("TRACKER_DEBUG");
+	if (env_string != NULL) {
+#ifdef G_ENABLE_DEBUG
+		flags = g_parse_debug_string (env_string, tracker_debug_keys, G_N_ELEMENTS (tracker_debug_keys));
+#else
+		g_warning ("TRACKER_DEBUG set but ignored because tracker isn't built with G_ENABLE_DEBUG");
+#endif  /* G_ENABLE_DEBUG */
+		env_string = NULL;
+	}
+
+	return GINT_TO_POINTER (flags);
+}
+
+guint
+tracker_get_debug_flags (void)
+{
+	static GOnce once = G_ONCE_INIT;
+
+	g_once (&once, parse_debug_flags, NULL);
+
+	return GPOINTER_TO_INT (once.retval);
+}
+
 static void tracker_http_server_soup_error (TrackerHttpServer       *server,
                                             TrackerHttpRequest      *request,
                                             gint                     code,
@@ -252,7 +287,7 @@ debug_http_request (SoupServerMessage *message,
 	g_print ("--------------------------------------------------------------------------\n");
 
 	g_message ("%s %s HTTP/1.%d\n", soup_server_message_get_method (message), path,
-	                                soup_server_message_get_http_version (message));
+		soup_server_message_get_http_version (message));
 
 	if (query != NULL && g_hash_table_size(query)) {
 		g_message ("Query Parameters:\n");
