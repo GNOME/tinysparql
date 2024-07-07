@@ -53,10 +53,11 @@ typedef enum {
 	TRACKER_DB_VERSION_3_4,      /* Fixed FTS view */
 	TRACKER_DB_VERSION_3_6,      /* BM25 for FTS ranking */
 	TRACKER_DB_VERSION_3_7,      /* SQLite 3.45.3 being a moron for changing syntax in views */
+	TRACKER_DB_VERSION_3_8,      /* Default graph gets a name */
 } TrackerDBVersion;
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_3_7
+#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_3_8
 
 void                tracker_db_manager_rollback_db_creation   (TrackerDBManager *db_manager);
 

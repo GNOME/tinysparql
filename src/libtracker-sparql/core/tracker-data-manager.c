@@ -61,6 +61,7 @@ struct _TrackerDataManager {
 	GHashTable *transaction_graphs;
 	GHashTable *graphs;
 	GMutex graphs_lock;
+	TrackerRowid main_graph_id;
 
 	/* Cached remote connections */
 	GMutex connections_lock;
@@ -175,6 +176,9 @@ tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
 
 		id = tracker_sparql_cursor_get_integer (cursor, 0);
 		name = tracker_sparql_cursor_get_string (cursor, 1, NULL);
+
+		if (g_strcmp0 (name, TRACKER_DEFAULT_GRAPH) == 0)
+			continue;
 
 		g_hash_table_insert (manager->graphs, g_strdup (name),
 		                     tracker_rowid_copy (&id));
@@ -1486,6 +1490,9 @@ update_attached_databases (TrackerDBInterface  *iface,
 
 		name = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 
+		if (g_strcmp0 (name, TRACKER_DEFAULT_GRAPH) == 0)
+			continue;
+
 		/* Ignore the main and temp databases, they are always attached */
 		if (strcmp (name, "main") == 0 || strcmp (name, "temp") == 0)
 			continue;
@@ -2367,17 +2374,17 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		g_list_free_full (ontologies, g_object_unref);
 	}
 
-	if (!apply_ontology && !apply_base_tables && !apply_locale &&
-	    !apply_fts_tokenizer && cur_version == TRACKER_DB_VERSION_NOW) {
-		g_set_object (&manager->ontologies, db_ontology);
-		goto no_updates;
-	}
-
 	/* Apply all database changes */
 	if (!tracker_data_begin_ontology_transaction (manager->data_update, error))
 		goto rollback;
 
 	if (apply_base_tables && !create_base_tables (manager, iface, error))
+		goto rollback;
+
+	manager->main_graph_id = tracker_data_ensure_graph (manager->data_update,
+	                                                    TRACKER_DEFAULT_GRAPH,
+	                                                    error);
+	if (manager->main_graph_id == 0)
 		goto rollback;
 
 	if (cur_version != TRACKER_DB_VERSION_NOW &&
@@ -3104,4 +3111,10 @@ tracker_data_manager_map_connection (TrackerDataManager      *data_manager,
 	g_hash_table_insert (data_manager->cached_connections,
 	                     uri, g_object_ref (connection));
 	g_mutex_unlock (&data_manager->connections_lock);
+}
+
+TrackerRowid
+tracker_data_manager_get_main_graph_id (TrackerDataManager *data_manager)
+{
+	return data_manager->main_graph_id;
 }

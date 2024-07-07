@@ -37,6 +37,8 @@ typedef struct _TrackerDataManagerClass TrackerDataManagerClass;
 #include "tracker-db-interface.h"
 #include "tracker-db-manager.h"
 
+#define TRACKER_DEFAULT_GRAPH TRACKER_PREFIX_NRL "DefaultGraph"
+
 #define TRACKER_DATA_ONTOLOGY_ERROR                  (tracker_data_ontology_error_quark ())
 
 #define TRACKER_TYPE_DATA_MANAGER         (tracker_data_manager_get_type ())
@@ -116,5 +118,7 @@ void tracker_data_manager_map_connection (TrackerDataManager      *data_manager,
 gboolean tracker_data_manager_fts_integrity_check (TrackerDataManager  *data_manager,
                                                    TrackerDBInterface  *iface,
                                                    const gchar         *database);
+
+TrackerRowid tracker_data_manager_get_main_graph_id (TrackerDataManager *data_manager);
 
 G_END_DECLS

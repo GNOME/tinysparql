@@ -366,6 +366,9 @@ collect_graphs (TrackerTriplesCursor *cursor)
 		id = sqlite3_column_int64 (stmt, 0);
 		uri = sqlite3_column_text (stmt, 1);
 
+		if (g_strcmp0 (uri, TRACKER_DEFAULT_GRAPH) == 0)
+			continue;
+
 		if (cursor->match.graph) {
 			gboolean negated = !!(cursor->match.idxFlags & IDX_MATCH_GRAPH_NEG);
 			gboolean equals = (sqlite3_value_int64 (cursor->match.graph) == id);
