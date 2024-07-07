@@ -189,6 +189,7 @@ set_message_format (TrackerHttpRequest      *request,
 
 	response_headers = soup_server_message_get_response_headers (request->message);
 	soup_message_headers_set_content_type (response_headers, mimetype, NULL);
+	soup_message_headers_append (response_headers, "Access-Control-Allow-Origin", "http://localhost:8080");
 }
 
 /* Get SPARQL query from message POST data, or NULL. */
@@ -613,6 +614,8 @@ tracker_http_server_soup_error (TrackerHttpServer       *server,
 	TRACKER_NOTE (HTTP, debug_http_response_error (code, message));
 
 	soup_server_message_set_status (request->message, code, message);
+	SoupMessageHeaders *response_headers = soup_server_message_get_response_headers (request->message);
+	soup_message_headers_append (response_headers, "Access-Control-Allow-Origin", "http://localhost:8080");
 
 #if SOUP_CHECK_VERSION (3, 1, 3)
 	soup_server_message_unpause (request->message);

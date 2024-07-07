@@ -14,7 +14,7 @@ export default async function run(s: string) {
 
     let resultHTML: HTMLElement[];
     try {
-        let res = await fetch("/sparql/", reqOptions);
+        let res = await fetch("http://127.0.0.1:1234/sparql/", reqOptions);
         let parsedResults = JSON.parse(await res.text());
         
         resultHTML = [generateResultsTable(parsedResults)]
