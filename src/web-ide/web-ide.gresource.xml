@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/freedesktop/tracker/web-ide">
+    <file compressed="true">dist/main.js</file>
+    <file compressed="true">dist/index.html</file>
+  </gresource>
+</gresources>
