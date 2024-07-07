@@ -296,13 +296,14 @@ tracker_get_input_stream_from_path (const gchar   *path,
 	GFile *base;
 	GFileInputStream *file_in;
 
-	gchar* basename = g_strsplit(path, "/", 2)[1];
 	base = g_file_new_for_uri ("resource:///org/freedesktop/tracker/web-ide/dist");
-	file = g_file_get_child(base, basename);
-	
+	file = g_file_get_child (base, &path[1]);
+
 	file_in = g_file_read (file, NULL, NULL);
 	*in = G_INPUT_STREAM (file_in);
-	return;
+
+	g_clear_object (&file);
+	g_clear_object (&base);
 }
 
 static void
