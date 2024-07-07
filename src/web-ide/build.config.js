@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
   entry: './src/index.ts',
@@ -16,6 +17,9 @@ module.exports = {
     new HtmlWebpackPlugin({
         title: "TinySPARQL web-IDE",
         template: "./src/index.html"
+    }),
+    new MiniCssExtractPlugin({
+      filename: 'styles.css'
     })
   ],
   module: {
@@ -28,6 +32,21 @@ module.exports = {
         test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
         type: 'asset/resource',
       },
+      {
+        test: /\.scss$/,
+        use: [
+            MiniCssExtractPlugin.loader,
+            {
+              loader: 'css-loader'
+            },
+            {
+              loader: 'sass-loader',
+              options: {
+                sourceMap: true
+              }
+            }
+          ]
+      }
     ],
   },
   resolve: {

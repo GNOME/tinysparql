@@ -12,15 +12,22 @@ export default async function run(s: string) {
         redirect: 'follow'
     };
 
+    let resultHTML: HTMLElement[];
     try {
         let res = await fetch("/sparql/", reqOptions);
         let parsedResults = JSON.parse(await res.text());
-    
-        fillTable(parsedResults);
+        
+        resultHTML = [generateResultsTable(parsedResults)]
     } catch (error) {
-        console.error(error)
-        document.getElementById("error").innerHTML = error; //todo: better error reporting mechanism
+        console.error(error);
+        if (typeof error == 'string') {
+            resultHTML = [generateErrorMessage(error)];
+        } else if (error instanceof Error) {
+            resultHTML = [generateErrorMessage(error.message)];
+        }
     }
+
+    document.querySelector("#right").replaceChildren(...resultHTML);
 }
 
 type sparqlRes = {
@@ -32,30 +39,49 @@ type sparqlRes = {
     }
 }
 
-function fillTable(data: sparqlRes){
-    let table = document.getElementById("table");
+function generateResultsTable(data: sparqlRes) {
+    const tablediv = document.createElement("div");
+    tablediv.classList.add("table-container");
 
-    if (!(table instanceof HTMLTableElement)) {
-        document.getElementById("error").innerHTML = "Table element not found.";
-        return;
-    }
+    const table = document.createElement("table");
+    const thead = table.createTHead();
+    const tbody = table.createTBody();
+    thead.insertRow(0);
+    table.classList.add("table")
 
-    table.innerHTML = "";
-    let HeaderRow = table.createTHead().insertRow(0);
     const vars = data.head.vars;
-
-    for (let i = 0; i < vars.length; i++){
+    vars.forEach(v => {
         let th = document.createElement("th");
-        th.innerHTML = vars[i];
-        HeaderRow.appendChild(th);
-    }
+        th.innerHTML = v;
+        thead.appendChild(th);
+    });
 
     const bindings = data.results.bindings;
-    for (let i = 0; i < bindings.length; i++){
-        let row = table.insertRow(i+1);
-        for (let j = 0; j < vars.length; j++){
+    bindings.forEach((b, i) => {
+        let row = tbody.insertRow(i);
+        vars.forEach((v, j) => {
             let cell = row.insertCell(j);
-            cell.innerHTML = bindings[i][vars[j]].value;
-        }
-    }
+            cell.innerHTML = b[v].value;
+        })
+    })
+
+    tablediv.appendChild(table);
+    return tablediv;
+}
+
+function generateErrorMessage(error:string) {
+    const div = document.createElement("div");
+    div.classList.add("is-flex", "is-flex-direction-column", "is-flex-grow-1", "is-align-items-center", "is-justify-content-center", "is-background-warning-dark");
+
+    const title = document.createElement("p");
+    title.innerText = "Query failed!";
+    title.classList.add("has-text-weight-bold");
+
+    const p = document.createElement("p");
+    p.innerText = error;
+    p.classList.add("subtitle");
+
+    div.appendChild(title);
+    div.appendChild(p);
+    return div;
 }

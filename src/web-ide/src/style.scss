@@ -1,5 +1,8 @@
 @charset "utf-8";
-@use "~bulma/sass/utilities";
 @use "~bulma/sass/base";
-@use "~bulma/sass/elements";
+@use "~bulma/sass/themes";
+@use "~bulma/sass/layout";
+@use "~bulma/sass/helpers";
 @use "~bulma/sass/grid";
+@use "~bulma/sass/elements/button";
+@use "~bulma/sass/components/card";

@@ -3,23 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="cf931f8d6f928f83280b.ico">
+    <link rel="stylesheet" href="styles.css">
     <title>TinySPARQL web-IDE</title>
-<script defer src="main.js"></script></head>
+<script defer src="main.js"></script><link href="styles.css" rel="stylesheet"></head>
 <body>
-    <div style="display: flex; flex-direction: row;">
-        <div id="wrapper" style="width: 50%">
-            <h1>TinySPARQL web-IDE</h1>
-            <button id="runBtn">Run</button>
-            <div id = "error"></div>
+    <section class="section">
+        <div class="columns">
+            <div id="left" class="column is-flex is-flex-direction-column">
+                <div class="is-flex is-flex-direction-row is-justify-content-space-between is-align-items-center">
+                    <h1 class="title">TinySPARQL web-IDE</h1>
+                    <button id="runBtn" class="button is-primary">Run</button>
+                </div>
+                <div id="wrapper"></div>
+                <div class="card mt-4 is-flex-grow-1">
+                    <div class="card-content">
+                      <div class="content">
+                        Lorem ipsum leo risus, porta ac consectetur ac, vestibulum at eros. Donec
+                        id elit non mi porta gravida at eget metus. Cum sociis natoque penatibus
+                        et magnis dis parturient montes, nascetur ridiculus mus. Cras mattis
+                        consectetur purus sit amet fermentum.
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-flex" id="right">
+                <div class="is-flex is-flex-grow-1 is-align-items-center is-justify-content-center is-background-primary-dark">
+                    <p class="subtitle">No results yet, run a query to start!</p>
+                </div>
+            </div>
         </div>
-        <div>
-            <table id="table">
-                <thead>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    </section>
 </body>
 </html>
