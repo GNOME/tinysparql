@@ -332,6 +332,13 @@ collect_tables (TrackerTriplesCursor *cursor)
 }
 
 static int
+compare_graphs (TrackerRowid *graph1,
+                TrackerRowid *graph2)
+{
+	return (int) (*graph1 - *graph2);
+}
+
+static int
 collect_graphs (TrackerTriplesCursor *cursor)
 {
 	sqlite3_stmt *stmt;
@@ -372,8 +379,10 @@ collect_graphs (TrackerTriplesCursor *cursor)
 		                     g_strdup (uri));
 	}
 
-	if (rc == SQLITE_DONE)
+	if (rc == SQLITE_DONE) {
 		cursor->graphs = g_hash_table_get_keys (cursor->query_graphs);
+		cursor->graphs = g_list_sort (cursor->graphs, (GCompareFunc) compare_graphs);
+	}
 
 	sqlite3_finalize (stmt);
 
