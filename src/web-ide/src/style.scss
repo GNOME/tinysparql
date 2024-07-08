@@ -5,4 +5,44 @@
 @use "~bulma/sass/helpers";
 @use "~bulma/sass/grid";
 @use "~bulma/sass/elements/button";
+@use "~bulma/sass/elements/table";
+@use "~bulma/sass/elements/title";
 @use "~bulma/sass/components/card";
+
+#right {
+    height:90vh;
+}
+
+section {
+    height: 100vh;
+}
+
+.table-container {
+    height:100%;
+    width:100%;
+    overflow-y: scroll;
+}
+
+#left {
+    max-height:90vh;
+}
+
+#left-bottom {
+    overflow-y: hidden;
+}
+
+div.card {
+    height:100%
+}
+
+div.card-content {
+    height: 100%;
+}
+
+div.content {
+    overflow-y: scroll;
+}
+
+#variable-selects {
+    overflow-y: scroll;
+}

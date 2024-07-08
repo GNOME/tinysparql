@@ -24,6 +24,11 @@ module.exports = {
     }),
     new MiniCssExtractPlugin({
       filename: 'styles.css'
+    }),
+    new HtmlWebpackPlugin({
+      title: 'TinySPARQL web-IDE',
+      template: './src/404.html',
+      filename: '404.html'
     })
   ],
   module: {
