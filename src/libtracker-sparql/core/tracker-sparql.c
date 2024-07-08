@@ -608,24 +608,37 @@ _escape_sql_string (const gchar *str,
 static inline void
 _append_resource_rowid_access_check (TrackerSparql *sparql)
 {
+	TrackerStringBuilder *str;
+	GHashTableIter iter;
 	GHashTable *graphs;
-	GList *names, *l;
+	const gchar *name;
+	TrackerRowid *rowid;
+	gboolean first = TRUE;
 
 	graphs = tracker_sparql_get_effective_graphs (sparql);
-	names = g_hash_table_get_keys (graphs);
 
-	_append_string (sparql, "SELECT ID FROM Graph ");
+	str = _append_placeholder (sparql);
 
-	if (!sparql->policy.filter_unnamed_graph)
-		names = g_list_prepend (names, "main");
+	if (!sparql->policy.filter_unnamed_graph) {
+		if (g_hash_table_size (graphs) > 0)
+			_append_string (sparql, "UNION ");
+		_append_string_printf (sparql, "SELECT ID FROM \"main\".Refcount ");
+	}
 
-	for (l = names; l; l = l->next) {
+	g_hash_table_iter_init (&iter, graphs);
+	while (g_hash_table_iter_next (&iter, (gpointer *) &name, (gpointer *) &rowid)) {
+		if (first)
+			tracker_string_builder_append (str, "VALUES ", -1);
+		else
+			tracker_string_builder_append (str, ", ", -1);
+
+		tracker_string_builder_append_printf (str, "(%" G_GUINT64_FORMAT ") ", *rowid);
 		_append_string_printf (sparql, "UNION SELECT ID FROM \"%s\".Refcount ",
-				       l->data);
+				       name);
+		first = FALSE;
 	}
 
 	g_hash_table_unref (graphs);
-	g_list_free (names);
 }
 
 static inline void
