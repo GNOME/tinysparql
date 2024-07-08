@@ -619,24 +619,34 @@ _append_resource_rowid_access_check (TrackerSparql *sparql)
 
 	str = _append_placeholder (sparql);
 
-	if (!sparql->policy.filter_unnamed_graph) {
-		if (g_hash_table_size (graphs) > 0)
-			_append_string (sparql, "UNION ");
-		_append_string_printf (sparql, "SELECT ID FROM \"main\".Refcount ");
-	}
-
 	g_hash_table_iter_init (&iter, graphs);
 	while (g_hash_table_iter_next (&iter, (gpointer *) &name, (gpointer *) &rowid)) {
-		if (first)
+		const gchar *database;
+
+		if (g_strcmp0 (name, TRACKER_DEFAULT_GRAPH) == 0) {
+			if (sparql->policy.filter_unnamed_graph)
+				continue;
+
+			database = "main";
+		} else {
+			database = name;
+		}
+
+		if (first) {
 			tracker_string_builder_append (str, "VALUES ", -1);
-		else
+		} else {
 			tracker_string_builder_append (str, ", ", -1);
+			_append_string (sparql, "UNION ");
+		}
 
 		tracker_string_builder_append_printf (str, "(%" G_GUINT64_FORMAT ") ", *rowid);
-		_append_string_printf (sparql, "UNION SELECT ID FROM \"%s\".Refcount ",
-				       name);
+		_append_string_printf (sparql, "SELECT ID FROM \"%s\".Refcount ",
+				       database);
 		first = FALSE;
 	}
+
+	if (!first)
+		tracker_string_builder_append (str, "UNION ", -1);
 
 	g_hash_table_unref (graphs);
 }
@@ -864,6 +874,15 @@ tracker_sparql_get_effective_graphs (TrackerSparql *sparql)
 					                     tracker_rowid_copy (value));
 				}
 			}
+
+			if (!sparql->policy.filter_unnamed_graph) {
+				TrackerRowid main_graph_id;
+
+				main_graph_id = tracker_data_manager_get_main_graph_id (sparql->data_manager);
+				g_hash_table_insert (sparql->policy.filtered_graphs,
+				                     g_strdup (TRACKER_DEFAULT_GRAPH),
+				                     tracker_rowid_copy (&main_graph_id));
+			}
 		}
 
 		g_hash_table_unref (graphs);
@@ -900,31 +919,41 @@ _append_union_graph_with_clause (TrackerSparql *sparql,
 	gpointer graph_name, value;
 	GHashTable *graphs;
 	GHashTableIter iter;
+	gboolean first = TRUE;
 
 	graphs = tracker_sparql_get_effective_graphs (sparql);
 
 	_append_string_printf (sparql, "\"unionGraph_%s\"(ID, %s graph) AS (",
 	                       table_name, properties);
 
-	if (!sparql->policy.filter_unnamed_graph) {
-		_append_string_printf (sparql,
-		                       "SELECT ID, %s 0 AS graph FROM \"main\".\"%s\" ",
-		                       properties, table_name);
-	} else {
-		_append_empty_select (sparql, n_properties + 2);
-	}
-
 	g_hash_table_iter_init (&iter, graphs);
 	while (g_hash_table_iter_next (&iter, &graph_name, &value)) {
 		TrackerRowid *graph_id = value;
+		const gchar *database;
+
+		if (g_strcmp0 (graph_name, TRACKER_DEFAULT_GRAPH) == 0) {
+			if (sparql->policy.filter_unnamed_graph)
+				continue;
+
+			database = "main";
+		} else {
+			database = (const char *) graph_name;
+		}
+
+		if (!first)
+			_append_string (sparql, "UNION ALL ");
 
 		_append_string_printf (sparql,
-		                       "UNION ALL SELECT ID, %s %" G_GINT64_FORMAT " AS graph FROM \"%s\".\"%s\" ",
+		                       "SELECT ID, %s %" G_GINT64_FORMAT " AS graph FROM \"%s\".\"%s\" ",
 		                       properties,
 		                       *graph_id,
-		                       (gchar *) graph_name,
+		                       database,
 		                       table_name);
+		first = FALSE;
 	}
+
+	if (first)
+		_append_empty_select (sparql, n_properties + 2);
 
 	_append_string (sparql, ") ");
 	g_hash_table_unref (graphs);
@@ -1016,6 +1045,9 @@ tracker_sparql_add_union_graph_subquery_for_named_graphs (TrackerSparql *sparql)
 	while (g_hash_table_iter_next (&iter, NULL, &value)) {
 		TrackerRowid *graph_id = value;
 
+		if (*graph_id == tracker_data_manager_get_main_graph_id (sparql->data_manager))
+			continue;
+
 		if (first)
 			_append_string (sparql, "VALUES ");
 		else
@@ -1025,7 +1057,7 @@ tracker_sparql_add_union_graph_subquery_for_named_graphs (TrackerSparql *sparql)
 		first = FALSE;
 	}
 
-	if (g_hash_table_size (graphs) == 0)
+	if (first)
 		_append_string (sparql, "SELECT NULL WHERE FALSE");
 
 	_append_string (sparql, ") ");
@@ -1040,6 +1072,9 @@ tracker_sparql_find_graph (TrackerSparql *sparql,
 {
 	GHashTable *effective_graphs;
 	gboolean in_transaction;
+
+	if (g_strcmp0 (name, TRACKER_DEFAULT_GRAPH) == 0)
+		return 0;
 
 	effective_graphs = tracker_sparql_get_effective_graphs (sparql);
 	if (!effective_graphs ||
@@ -1739,34 +1774,41 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 		gpointer graph_name, value;
 		GHashTable *graphs;
 		GHashTableIter iter;
-
-		if (!sparql->policy.filter_unnamed_graph) {
-			_append_string_printf (sparql,
-			                       "%s, 0 FROM \"main\".\"fts5\" "
-			                       "WHERE fts5 = SparqlFtsTokenize(",
-			                       select_items->str);
-			_append_literal_sql (sparql, binding);
-			_append_string (sparql, ") || '*' ");
-		} else {
-			_append_empty_select (sparql, n_properties);
-		}
+		gboolean first = TRUE;
 
 		graphs = tracker_sparql_get_effective_graphs (sparql);
 		g_hash_table_iter_init (&iter, graphs);
 
 		while (g_hash_table_iter_next (&iter, &graph_name, &value)) {
 			TrackerRowid *graph_id = value;
+			const gchar *database;
+
+			if (g_strcmp0 (graph_name, TRACKER_DEFAULT_GRAPH) == 0) {
+				if (sparql->policy.filter_unnamed_graph)
+					continue;
+
+				database = "main";
+			} else {
+				database = (const char *) graph_name;
+			}
+
+			if (!first)
+				_append_string (sparql, "UNION ALL ");
 
 			_append_string_printf (sparql,
-			                       "UNION ALL %s, %" G_GINT64_FORMAT " AS graph "
+			                       "%s, %" G_GINT64_FORMAT " AS graph "
 			                       "FROM \"%s\".\"fts5\" "
 			                       "WHERE fts5 = SparqlFtsTokenize(",
 			                       select_items->str,
 			                       *graph_id,
-			                       (gchar *) graph_name);
+			                       database);
 			_append_literal_sql (sparql, binding);
 			_append_string (sparql, ") || '*' ");
+			first = FALSE;
 		}
+
+		if (first)
+			_append_empty_select (sparql, n_properties);
 
 		g_hash_table_unref (graphs);
 	}
@@ -2713,7 +2755,8 @@ _append_graph_checks (TrackerSparql *sparql,
 	_append_string (sparql, "WHERE ");
 
 	if (add_unnamed_graph) {
-		_append_string_printf (sparql, "%s = %d OR ", column_name, 0);
+		_append_string_printf (sparql, "%s = %" G_GUINT64_FORMAT " OR ", column_name,
+		                       tracker_data_manager_get_main_graph_id (sparql->data_manager));
 	}
 
 	_append_string_printf (sparql,
@@ -2850,7 +2893,8 @@ _end_triples_block (TrackerSparql  *sparql,
 					                      (GStrv) sparql->policy.graphs->pdata,
 					                      sparql->policy.graphs->len);
 				} else {
-					_append_string (sparql, "WHERE \"graph\" != 0 ");
+					_append_string_printf (sparql, "WHERE \"graph\" != %" G_GUINT64_FORMAT " ",
+					                       tracker_data_manager_get_main_graph_id (sparql->data_manager));
 				}
 			} else if (sparql->policy.graphs) {
 				_append_graph_checks (sparql, "graph",
@@ -2892,7 +2936,8 @@ _end_triples_block (TrackerSparql  *sparql,
 						                      (GStrv) sparql->policy.graphs->pdata,
 						                      sparql->policy.graphs->len);
 					} else {
-						_append_string (sparql, "WHERE \"graph\" != 0 ");
+						_append_string_printf (sparql, "WHERE \"graph\" != %" G_GUINT64_FORMAT " ",
+						                       tracker_data_manager_get_main_graph_id (sparql->data_manager));
 					}
 				} else if (sparql->policy.graphs) {
 					_append_graph_checks (sparql, "graph",
@@ -10218,7 +10263,7 @@ apply_update_op (TrackerSparql    *sparql,
 		if (tracker_token_is_empty (&op->d.graph.graph)) {
 			if (op->d.graph.graph_op == GRAPH_OP_DEFAULT ||
 			    op->d.graph.graph_op == GRAPH_OP_ALL) {
-				graphs = g_list_prepend (graphs, NULL);
+				graphs = g_list_prepend (graphs, g_strdup (TRACKER_DEFAULT_GRAPH));
 			}
 
 			if (op->d.graph.graph_op == GRAPH_OP_ALL ||
@@ -10229,8 +10274,12 @@ apply_update_op (TrackerSparql    *sparql,
 				ht = tracker_sparql_get_effective_graphs (sparql);
 				g_hash_table_iter_init (&iter, ht);
 
-				while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL))
+				while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL)) {
+					if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
+						continue;
+
 					graphs = g_list_prepend (graphs, g_strdup (graph));
+				}
 
 				g_hash_table_unref (ht);
 			}
@@ -10240,6 +10289,8 @@ apply_update_op (TrackerSparql    *sparql,
 		}
 
 		for (l = graphs; l; l = l->next) {
+			const gchar *database;
+
 			if (!tracker_sparql_graph_is_allowed (sparql, l->data)) {
 				inner_error = g_error_new (TRACKER_SPARQL_ERROR,
 				                           TRACKER_SPARQL_ERROR_CONSTRAINT,
@@ -10248,13 +10299,15 @@ apply_update_op (TrackerSparql    *sparql,
 				goto out;
 			}
 
+			database = (g_strcmp0 (l->data, TRACKER_DEFAULT_GRAPH) == 0) ? "main" : l->data;
+
 			if (op->update_type == TRACKER_UPDATE_GRAPH_DROP) {
 				if (!tracker_data_manager_drop_graph (sparql->data_manager,
-				                                      l->data, &inner_error))
+				                                      database, &inner_error))
 					goto out;
 			} else if (op->update_type == TRACKER_UPDATE_GRAPH_CLEAR) {
 				if (!tracker_data_manager_clear_graph (sparql->data_manager,
-				                                       l->data, &inner_error))
+				                                       database, &inner_error))
 					goto out;
 			}
 		}

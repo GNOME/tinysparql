@@ -136,6 +136,9 @@ tracker_data_manager_initialize_iface_graphs (TrackerDataManager  *data_manager,
 		g_hash_table_iter_init (&iter, graphs);
 
 		while (g_hash_table_iter_next (&iter, &value, NULL)) {
+			if (g_strcmp0 (value, TRACKER_DEFAULT_GRAPH) == 0)
+				continue;
+
 			if (!tracker_db_manager_attach_database (data_manager->db_manager,
 			                                         iface, value, FALSE,
 			                                         error))
@@ -176,9 +179,6 @@ tracker_data_manager_initialize_graphs (TrackerDataManager  *manager,
 
 		id = tracker_sparql_cursor_get_integer (cursor, 0);
 		name = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-
-		if (g_strcmp0 (name, TRACKER_DEFAULT_GRAPH) == 0)
-			continue;
 
 		g_hash_table_insert (manager->graphs, g_strdup (name),
 		                     tracker_rowid_copy (&id));
@@ -1250,12 +1250,12 @@ rebuild_fts_tokens (TrackerDataManager  *manager,
 
 	if (has_fts_properties (manager->ontologies)) {
 		g_debug ("Rebuilding FTS tokens, this may take a moment...");
-		if (!tracker_data_manager_fts_rebuild (manager, iface, "main", error))
-			return FALSE;
-
 		g_hash_table_iter_init (&iter, manager->graphs);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
-			if (!tracker_data_manager_fts_rebuild (manager, iface, graph, error))
+			const gchar *database;
+
+			database = (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0) ? "main" : graph;
+			if (!tracker_data_manager_fts_rebuild (manager, iface, database, error))
 				return FALSE;
 		}
 
@@ -1584,16 +1584,14 @@ tracker_data_manager_attempt_repair (TrackerDataManager  *data_manager,
 
 		g_hash_table_iter_init (&iter, data_manager->graphs);
 		while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
-			if (!tracker_data_manager_fts_integrity_check (data_manager, iface, graph)) {
-				if (!tracker_data_manager_fts_rebuild (data_manager, iface, graph, error)) {
+			const gchar *database;
+
+			database = (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0) ? "main" : graph;
+
+			if (!tracker_data_manager_fts_integrity_check (data_manager, iface, database)) {
+				if (!tracker_data_manager_fts_rebuild (data_manager, iface, database, error)) {
 					return FALSE;
 				}
-			}
-		}
-
-		if (!tracker_data_manager_fts_integrity_check (data_manager, iface, "main")) {
-			if (!tracker_data_manager_fts_rebuild (data_manager, iface, "main", error)) {
-				return FALSE;
 			}
 		}
 	}
@@ -1645,17 +1643,16 @@ tracker_data_manager_update_from_version (TrackerDataManager  *manager,
 		GHashTableIter iter;
 		const gchar *graph;
 
-		if (!tracker_data_manager_delete_fts (manager, iface, "main", &internal_error))
-			goto error;
-		if (!tracker_data_manager_update_fts (manager, iface, "main", ontologies, &internal_error))
-			goto error;
-
 		g_hash_table_iter_init (&iter, manager->graphs);
 
 		while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL)) {
-			if (!tracker_data_manager_delete_fts (manager, iface, graph, &internal_error))
+			const gchar *database;
+
+			database = (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0) ? "main" : graph;
+
+			if (!tracker_data_manager_delete_fts (manager, iface, database, &internal_error))
 				goto error;
-			if (!tracker_data_manager_update_fts (manager, iface, graph, ontologies, &internal_error))
+			if (!tracker_data_manager_update_fts (manager, iface, database, ontologies, &internal_error))
 				goto error;
 		}
 	}
@@ -2387,6 +2384,9 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	if (manager->main_graph_id == 0)
 		goto rollback;
 
+	g_hash_table_insert (manager->graphs, g_strdup (TRACKER_DEFAULT_GRAPH),
+	                     tracker_rowid_copy (&manager->main_graph_id));
+
 	if (cur_version != TRACKER_DB_VERSION_NOW &&
 	    !tracker_data_manager_update_from_version (manager, cur_version, db_ontology, error))
 		goto rollback;
@@ -2403,22 +2403,17 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 		tracker_ontologies_diff (db_ontology, current_ontology, &changes, &n_changes);
 
-		if (!tracker_data_manager_apply_db_changes (manager,
-		                                            iface, "main",
-		                                            db_ontology, current_ontology,
-		                                            changes, n_changes,
-		                                            error)) {
-			g_free (changes);
-			goto rollback;
-		}
-
 		graphs = tracker_data_manager_get_graphs (manager, FALSE);
 		if (graphs) {
 			g_hash_table_iter_init (&iter, graphs);
 
 			while (g_hash_table_iter_next (&iter, &graph, NULL)) {
+				const gchar *database;
+
+				database = (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0) ? "main" : graph;
+
 				if (!tracker_data_manager_apply_db_changes (manager,
-				                                            iface, graph,
+				                                            iface, database,
 				                                            db_ontology, current_ontology,
 				                                            changes, n_changes,
 				                                            error)) {
@@ -2494,18 +2489,26 @@ data_manager_perform_cleanup (TrackerDataManager  *manager,
 	GHashTableIter iter;
 	const gchar *graph;
 	GString *str;
+	gboolean first = TRUE;
 
 	graphs = tracker_data_manager_get_graphs (manager, FALSE);
 
-	str = g_string_new ("WITH referencedElements(ID) AS ("
-	                    "SELECT ID FROM \"main\".Refcount ");
+	str = g_string_new ("WITH referencedElements(ID) AS (");
 
 	g_hash_table_iter_init (&iter, graphs);
 
 	while (g_hash_table_iter_next (&iter, (gpointer*) &graph, NULL)) {
+		const gchar *database;
+
+		database = (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0) ? "main" : graph;
+
+		if (!first)
+			g_string_append (str, "UNION ALL ");
+
 		g_string_append_printf (str,
-		                        "UNION ALL SELECT ID FROM \"%s\".Refcount ",
-		                        graph);
+		                        "SELECT ID FROM \"%s\".Refcount ",
+		                        database);
+		first = FALSE;
 	}
 
 	g_string_append (str, ") ");
@@ -2737,7 +2740,7 @@ tracker_data_manager_drop_graph (TrackerDataManager  *manager,
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
 	/* Silently refuse to drop the main graph, clear it instead */
-	if (!name)
+	if (!name || g_strcmp0 (name, "main") == 0)
 		return tracker_data_manager_clear_graph (manager, name, error);
 
 	/* Ensure the current transaction doesn't keep tables in this database locked */
@@ -2787,7 +2790,7 @@ tracker_data_manager_clear_graph (TrackerDataManager  *manager,
 	GError *inner_error = NULL;
 	TrackerDBInterface *iface;
 
-	if (!graph)
+	if (!graph || g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
 		graph = "main";
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
@@ -2856,9 +2859,9 @@ tracker_data_manager_copy_graph (TrackerDataManager  *manager,
 	GError *inner_error = NULL;
 	TrackerDBInterface *iface;
 
-	if (!source)
+	if (!source || g_strcmp0 (source, TRACKER_DEFAULT_GRAPH) == 0)
 		source = "main";
-	if (!destination)
+	if (!destination || g_strcmp0 (destination, TRACKER_DEFAULT_GRAPH) == 0)
 		destination = "main";
 
 	if (strcmp (source, destination) == 0)
