@@ -11,8 +11,10 @@
   "license": "LGPL-2.1-or-later",
   "devDependencies": {
     "@codemirror/commands": "^6.6.0",
+    "@codemirror/language": "^6.10.2",
     "@codemirror/state": "^6.4.1",
     "@codemirror/view": "^6.28.1",
+    "@lezer/highlight": "^1.2.0",
     "bulma": "^1.0.1",
     "codemirror": "^6.0.1",
     "codemirror-lang-sparql": "^1.0.0",
