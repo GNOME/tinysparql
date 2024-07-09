@@ -140,6 +140,10 @@ static GParamSpec *props[N_PROPS];
 static guint signals[N_SIGNALS];
 
 static void tracker_endpoint_http_initable_iface_init (GInitableIface *iface);
+static void
+webide_server_request_cb (TrackerHttpServer   *server,
+                          TrackerHttpRequest  *request,
+                          const gchar         *path);
 
 G_DEFINE_TYPE_WITH_CODE (TrackerEndpointHttp, tracker_endpoint_http, TRACKER_TYPE_ENDPOINT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, tracker_endpoint_http_initable_iface_init))
@@ -310,7 +314,10 @@ static void
 tracker_response_error_page_not_found (TrackerHttpServer    *server,
                                        TrackerHttpRequest   *request)
 {
-	tracker_http_server_error (server, request, 404, "Page Not Found");
+	GInputStream *in;
+
+	tracker_get_input_stream_from_path ("/404.html", &in);
+	tracker_http_server_error_content(server, request, 404, "text/html", G_INPUT_STREAM (in));
 }
 
 static void

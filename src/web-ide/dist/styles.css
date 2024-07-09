@@ -3153,7 +3153,8 @@ table th {
   --bulma-control-focus-shadow-l: 50%;
 }
 
-.card:not(:last-child), .buttons:not(:last-child), .fixed-grid:not(:last-child), .grid:not(:last-child), .media:not(:last-child), .level:not(:last-child) {
+.card:not(:last-child), .title:not(:last-child),
+.subtitle:not(:last-child), .table:not(:last-child), .table-container:not(:last-child), .buttons:not(:last-child), .fixed-grid:not(:last-child), .grid:not(:last-child), .media:not(:last-child), .level:not(:last-child) {
   margin-bottom: var(--bulma-block-spacing);
 }
 
@@ -17685,6 +17686,396 @@ has-background-danger.is-hoverable:active {
     font-size: var(--bulma-size-medium);
   }
 }
+.table {
+  --bulma-table-color: var(--bulma-text-strong);
+  --bulma-table-background-color: var(--bulma-scheme-main);
+  --bulma-table-cell-border-color: var(--bulma-border);
+  --bulma-table-cell-border-style: solid;
+  --bulma-table-cell-border-width: 0 0 1px;
+  --bulma-table-cell-padding: 0.5em 0.75em;
+  --bulma-table-cell-heading-color: var(--bulma-text-strong);
+  --bulma-table-cell-text-align: left;
+  --bulma-table-head-cell-border-width: 0 0 2px;
+  --bulma-table-head-cell-color: var(--bulma-text-strong);
+  --bulma-table-foot-cell-border-width: 2px 0 0;
+  --bulma-table-foot-cell-color: var(--bulma-text-strong);
+  --bulma-table-head-background-color: transparent;
+  --bulma-table-body-background-color: transparent;
+  --bulma-table-foot-background-color: transparent;
+  --bulma-table-row-hover-background-color: var(--bulma-scheme-main-bis);
+  --bulma-table-row-active-background-color: var(--bulma-primary);
+  --bulma-table-row-active-color: var(--bulma-primary-invert);
+  --bulma-table-striped-row-even-background-color: var(--bulma-scheme-main-bis);
+  --bulma-table-striped-row-even-hover-background-color: var(--bulma-scheme-main-ter);
+}
+
+.table {
+  background-color: var(--bulma-table-background-color);
+  color: var(--bulma-table-color);
+}
+.table td,
+.table th {
+  background-color: var(--bulma-table-cell-background-color);
+  border-color: var(--bulma-table-cell-border-color);
+  border-style: var(--bulma-table-cell-border-style);
+  border-width: var(--bulma-table-cell-border-width);
+  color: var(--bulma-table-color);
+  padding: var(--bulma-table-cell-padding);
+  vertical-align: top;
+}
+.table td.is-white,
+.table th.is-white {
+  --bulma-table-color: var(--bulma-white-invert);
+  --bulma-table-cell-heading-color: var(--bulma-white-invert);
+  --bulma-table-cell-background-color: var(--bulma-white);
+  --bulma-table-cell-border-color: var(--bulma-white);
+}
+.table td.is-black,
+.table th.is-black {
+  --bulma-table-color: var(--bulma-black-invert);
+  --bulma-table-cell-heading-color: var(--bulma-black-invert);
+  --bulma-table-cell-background-color: var(--bulma-black);
+  --bulma-table-cell-border-color: var(--bulma-black);
+}
+.table td.is-light,
+.table th.is-light {
+  --bulma-table-color: var(--bulma-light-invert);
+  --bulma-table-cell-heading-color: var(--bulma-light-invert);
+  --bulma-table-cell-background-color: var(--bulma-light);
+  --bulma-table-cell-border-color: var(--bulma-light);
+}
+.table td.is-dark,
+.table th.is-dark {
+  --bulma-table-color: var(--bulma-dark-invert);
+  --bulma-table-cell-heading-color: var(--bulma-dark-invert);
+  --bulma-table-cell-background-color: var(--bulma-dark);
+  --bulma-table-cell-border-color: var(--bulma-dark);
+}
+.table td.is-text,
+.table th.is-text {
+  --bulma-table-color: var(--bulma-text-invert);
+  --bulma-table-cell-heading-color: var(--bulma-text-invert);
+  --bulma-table-cell-background-color: var(--bulma-text);
+  --bulma-table-cell-border-color: var(--bulma-text);
+}
+.table td.is-primary,
+.table th.is-primary {
+  --bulma-table-color: var(--bulma-primary-invert);
+  --bulma-table-cell-heading-color: var(--bulma-primary-invert);
+  --bulma-table-cell-background-color: var(--bulma-primary);
+  --bulma-table-cell-border-color: var(--bulma-primary);
+}
+.table td.is-link,
+.table th.is-link {
+  --bulma-table-color: var(--bulma-link-invert);
+  --bulma-table-cell-heading-color: var(--bulma-link-invert);
+  --bulma-table-cell-background-color: var(--bulma-link);
+  --bulma-table-cell-border-color: var(--bulma-link);
+}
+.table td.is-info,
+.table th.is-info {
+  --bulma-table-color: var(--bulma-info-invert);
+  --bulma-table-cell-heading-color: var(--bulma-info-invert);
+  --bulma-table-cell-background-color: var(--bulma-info);
+  --bulma-table-cell-border-color: var(--bulma-info);
+}
+.table td.is-success,
+.table th.is-success {
+  --bulma-table-color: var(--bulma-success-invert);
+  --bulma-table-cell-heading-color: var(--bulma-success-invert);
+  --bulma-table-cell-background-color: var(--bulma-success);
+  --bulma-table-cell-border-color: var(--bulma-success);
+}
+.table td.is-warning,
+.table th.is-warning {
+  --bulma-table-color: var(--bulma-warning-invert);
+  --bulma-table-cell-heading-color: var(--bulma-warning-invert);
+  --bulma-table-cell-background-color: var(--bulma-warning);
+  --bulma-table-cell-border-color: var(--bulma-warning);
+}
+.table td.is-danger,
+.table th.is-danger {
+  --bulma-table-color: var(--bulma-danger-invert);
+  --bulma-table-cell-heading-color: var(--bulma-danger-invert);
+  --bulma-table-cell-background-color: var(--bulma-danger);
+  --bulma-table-cell-border-color: var(--bulma-danger);
+}
+.table td.is-narrow,
+.table th.is-narrow {
+  white-space: nowrap;
+  width: 1%;
+}
+.table td.is-selected,
+.table th.is-selected {
+  background-color: var(--bulma-table-row-active-background-color);
+  color: var(--bulma-table-row-active-color);
+}
+.table td.is-selected a,
+.table td.is-selected strong,
+.table th.is-selected a,
+.table th.is-selected strong {
+  color: currentColor;
+}
+.table td.is-vcentered,
+.table th.is-vcentered {
+  vertical-align: middle;
+}
+.table th {
+  color: var(--bulma-table-cell-heading-color);
+}
+.table th:not([align]) {
+  text-align: var(--bulma-table-cell-text-align);
+}
+.table tr.is-selected {
+  background-color: var(--bulma-table-row-active-background-color);
+  color: var(--bulma-table-row-active-color);
+}
+.table tr.is-selected a,
+.table tr.is-selected strong {
+  color: currentColor;
+}
+.table tr.is-selected td,
+.table tr.is-selected th {
+  border-color: var(--bulma-table-row-active-color);
+  color: currentColor;
+}
+.table tr.is-white {
+  --bulma-table-color: var(--bulma-white-invert);
+  --bulma-table-cell-heading-color: var(--bulma-white-invert);
+  --bulma-table-cell-background-color: var(--bulma-white);
+  --bulma-table-cell-border-color: var(--bulma-white);
+}
+.table tr.is-black {
+  --bulma-table-color: var(--bulma-black-invert);
+  --bulma-table-cell-heading-color: var(--bulma-black-invert);
+  --bulma-table-cell-background-color: var(--bulma-black);
+  --bulma-table-cell-border-color: var(--bulma-black);
+}
+.table tr.is-light {
+  --bulma-table-color: var(--bulma-light-invert);
+  --bulma-table-cell-heading-color: var(--bulma-light-invert);
+  --bulma-table-cell-background-color: var(--bulma-light);
+  --bulma-table-cell-border-color: var(--bulma-light);
+}
+.table tr.is-dark {
+  --bulma-table-color: var(--bulma-dark-invert);
+  --bulma-table-cell-heading-color: var(--bulma-dark-invert);
+  --bulma-table-cell-background-color: var(--bulma-dark);
+  --bulma-table-cell-border-color: var(--bulma-dark);
+}
+.table tr.is-text {
+  --bulma-table-color: var(--bulma-text-invert);
+  --bulma-table-cell-heading-color: var(--bulma-text-invert);
+  --bulma-table-cell-background-color: var(--bulma-text);
+  --bulma-table-cell-border-color: var(--bulma-text);
+}
+.table tr.is-primary {
+  --bulma-table-color: var(--bulma-primary-invert);
+  --bulma-table-cell-heading-color: var(--bulma-primary-invert);
+  --bulma-table-cell-background-color: var(--bulma-primary);
+  --bulma-table-cell-border-color: var(--bulma-primary);
+}
+.table tr.is-link {
+  --bulma-table-color: var(--bulma-link-invert);
+  --bulma-table-cell-heading-color: var(--bulma-link-invert);
+  --bulma-table-cell-background-color: var(--bulma-link);
+  --bulma-table-cell-border-color: var(--bulma-link);
+}
+.table tr.is-info {
+  --bulma-table-color: var(--bulma-info-invert);
+  --bulma-table-cell-heading-color: var(--bulma-info-invert);
+  --bulma-table-cell-background-color: var(--bulma-info);
+  --bulma-table-cell-border-color: var(--bulma-info);
+}
+.table tr.is-success {
+  --bulma-table-color: var(--bulma-success-invert);
+  --bulma-table-cell-heading-color: var(--bulma-success-invert);
+  --bulma-table-cell-background-color: var(--bulma-success);
+  --bulma-table-cell-border-color: var(--bulma-success);
+}
+.table tr.is-warning {
+  --bulma-table-color: var(--bulma-warning-invert);
+  --bulma-table-cell-heading-color: var(--bulma-warning-invert);
+  --bulma-table-cell-background-color: var(--bulma-warning);
+  --bulma-table-cell-border-color: var(--bulma-warning);
+}
+.table tr.is-danger {
+  --bulma-table-color: var(--bulma-danger-invert);
+  --bulma-table-cell-heading-color: var(--bulma-danger-invert);
+  --bulma-table-cell-background-color: var(--bulma-danger);
+  --bulma-table-cell-border-color: var(--bulma-danger);
+}
+.table thead {
+  background-color: var(--bulma-table-head-background-color);
+}
+.table thead td,
+.table thead th {
+  border-width: var(--bulma-table-head-cell-border-width);
+  color: var(--bulma-table-head-cell-color);
+}
+.table tfoot {
+  background-color: var(--bulma-table-foot-background-color);
+}
+.table tfoot td,
+.table tfoot th {
+  border-width: var(--bulma-table-foot-cell-border-width);
+  color: var(--bulma-table-foot-cell-color);
+}
+.table tbody {
+  background-color: var(--bulma-table-body-background-color);
+}
+.table tbody tr:last-child td,
+.table tbody tr:last-child th {
+  border-bottom-width: 0;
+}
+.table.is-bordered td,
+.table.is-bordered th {
+  border-width: 1px;
+}
+.table.is-bordered tr:last-child td,
+.table.is-bordered tr:last-child th {
+  border-bottom-width: 1px;
+}
+.table.is-fullwidth {
+  width: 100%;
+}
+.table.is-hoverable tbody tr:not(.is-selected):hover {
+  background-color: var(--bulma-table-row-hover-background-color);
+}
+.table.is-hoverable.is-striped tbody tr:not(.is-selected):hover {
+  background-color: var(--bulma-table-row-hover-background-color);
+}
+.table.is-hoverable.is-striped tbody tr:not(.is-selected):hover:nth-child(even) {
+  background-color: var(--bulma-table-striped-row-even-hover-background-color);
+}
+.table.is-narrow td,
+.table.is-narrow th {
+  padding: 0.25em 0.5em;
+}
+.table.is-striped tbody tr:not(.is-selected):nth-child(even) {
+  background-color: var(--bulma-table-striped-row-even-background-color);
+}
+
+.table-container {
+  -webkit-overflow-scrolling: touch;
+  overflow: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+.title,
+.subtitle {
+  --bulma-title-color: var(--bulma-text-strong);
+  --bulma-title-family: false;
+  --bulma-title-size: var(--bulma-size-3);
+  --bulma-title-weight: var(--bulma-weight-extrabold);
+  --bulma-title-line-height: 1.125;
+  --bulma-title-strong-color: inherit;
+  --bulma-title-strong-weight: inherit;
+  --bulma-title-sub-size: 0.75em;
+  --bulma-title-sup-size: 0.75em;
+  --bulma-subtitle-color: var(--bulma-text);
+  --bulma-subtitle-family: false;
+  --bulma-subtitle-size: var(--bulma-size-5);
+  --bulma-subtitle-weight: var(--bulma-weight-normal);
+  --bulma-subtitle-line-height: 1.25;
+  --bulma-subtitle-strong-color: var(--bulma-text-strong);
+  --bulma-subtitle-strong-weight: var(--bulma-weight-semibold);
+}
+
+.title,
+.subtitle {
+  word-break: break-word;
+}
+.title em,
+.title span,
+.subtitle em,
+.subtitle span {
+  font-weight: inherit;
+}
+.title sub,
+.subtitle sub {
+  font-size: var(--bulma-title-sub-size);
+}
+.title sup,
+.subtitle sup {
+  font-size: var(--bulma-title-sup-size);
+}
+.title .tag,
+.subtitle .tag {
+  vertical-align: middle;
+}
+
+.title {
+  color: var(--bulma-title-color);
+  font-size: var(--bulma-title-size);
+  font-weight: var(--bulma-title-weight);
+  line-height: var(--bulma-title-line-height);
+}
+.title strong {
+  color: var(--bulma-title-strong-color);
+  font-weight: var(--bulma-title-strong-weight);
+}
+.title:not(.is-spaced):has(+ .subtitle) {
+  margin-bottom: 0;
+}
+.title.is-1 {
+  font-size: 3rem;
+}
+.title.is-2 {
+  font-size: 2.5rem;
+}
+.title.is-3 {
+  font-size: 2rem;
+}
+.title.is-4 {
+  font-size: 1.5rem;
+}
+.title.is-5 {
+  font-size: 1.25rem;
+}
+.title.is-6 {
+  font-size: 1rem;
+}
+.title.is-7 {
+  font-size: 0.75rem;
+}
+
+.subtitle {
+  color: var(--bulma-subtitle-color);
+  font-size: var(--bulma-subtitle-size);
+  font-weight: var(--bulma-subtitle-weight);
+  line-height: var(--bulma-subtitle-line-height);
+}
+.subtitle strong {
+  color: var(--bulma-subtitle-strong-color);
+  font-weight: var(--bulma-subtitle-strong-weight);
+}
+.subtitle:not(.is-spaced):has(+ .title) {
+  margin-bottom: 0;
+}
+.subtitle.is-1 {
+  font-size: 3rem;
+}
+.subtitle.is-2 {
+  font-size: 2.5rem;
+}
+.subtitle.is-3 {
+  font-size: 2rem;
+}
+.subtitle.is-4 {
+  font-size: 1.5rem;
+}
+.subtitle.is-5 {
+  font-size: 1.25rem;
+}
+.subtitle.is-6 {
+  font-size: 1rem;
+}
+.subtitle.is-7 {
+  font-size: 0.75rem;
+}
+
 .card {
   --bulma-card-color: var(--bulma-text);
   --bulma-card-background-color: var(--bulma-scheme-main);
@@ -17796,4 +18187,42 @@ has-background-danger.is-hoverable:active {
 
 .card .media:not(:last-child) {
   margin-bottom: var(--bulma-card-media-margin);
+}
+
+#right {
+  height: 90vh;
+}
+
+section {
+  height: 100vh;
+}
+
+.table-container {
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+}
+
+#left {
+  max-height: 90vh;
+}
+
+#left-bottom {
+  overflow-y: hidden;
+}
+
+div.card {
+  height: 100%;
+}
+
+div.card-content {
+  height: 100%;
+}
+
+div.content {
+  overflow-y: scroll;
+}
+
+#variable-selects {
+  overflow-y: scroll;
 }

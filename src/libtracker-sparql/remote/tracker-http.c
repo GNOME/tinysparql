@@ -253,6 +253,20 @@ tracker_http_server_error (TrackerHttpServer  *server,
 	                                               message);
 }
 
+void 
+tracker_http_server_error_content (TrackerHttpServer  *server,
+                                  TrackerHttpRequest  *request,
+                                  gint                 code,
+                                  const gchar*         mimetype,
+                                  GInputStream        *content)
+{
+	TRACKER_HTTP_SERVER_GET_CLASS (server)->error_content (server,
+	                                                       request,
+	                                                       code,
+	                                                       mimetype,
+	                                                       content);
+}
+
 /* HTTP client */
 G_DEFINE_ABSTRACT_TYPE (TrackerHttpClient, tracker_http_client, G_TYPE_OBJECT)
 
