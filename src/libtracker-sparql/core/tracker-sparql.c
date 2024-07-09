@@ -55,6 +55,11 @@ typedef enum {
 	GRAPH_OP_ALL
 } GraphOp;
 
+typedef enum {
+	GRAPH_SET_DEFAULT,
+	GRAPH_SET_NAMED,
+} GraphSet;
+
 static inline gboolean _call_rule_func (TrackerSparql            *sparql,
                                         TrackerGrammarNamedRule   rule,
                                         GError                  **error);
@@ -439,6 +444,62 @@ tracker_sparql_iter_next (TrackerSparql *sparql)
 	sparql->current_state->prev_node = sparql->current_state->node;
 	sparql->current_state->node =
 		tracker_sparql_parser_tree_find_next (sparql->current_state->node, FALSE);
+}
+
+static GHashTable *
+tracker_sparql_get_graphs (TrackerSparql *sparql,
+                           GraphSet       graph_set)
+{
+	GHashTableIter iter;
+	GHashTable *all_graphs, *graphs;
+	gboolean in_transaction;
+	const gchar *graph;
+	TrackerRowid *rowid;
+
+	in_transaction = sparql->query_type == TRACKER_SPARQL_QUERY_UPDATE;
+	all_graphs = tracker_data_manager_get_graphs (sparql->data_manager,
+	                                              in_transaction);
+	g_hash_table_iter_init (&iter, all_graphs);
+
+	graphs = g_hash_table_new_full (g_str_hash,
+	                                g_str_equal,
+	                                g_free,
+	                                (GDestroyNotify) tracker_rowid_free);
+
+	while (g_hash_table_iter_next (&iter, (gpointer *) &graph, (gpointer *) &rowid)) {
+		if (sparql->policy.graphs &&
+		    !g_ptr_array_find_with_equal_func (sparql->policy.graphs,
+		                                       graph,
+		                                       g_str_equal, NULL))
+			continue;
+
+		if (graph_set == GRAPH_SET_DEFAULT) {
+			if (sparql->current_state->anon_graphs &&
+			    sparql->current_state->anon_graphs->len > 0 &&
+			    !g_ptr_array_find_with_equal_func (sparql->current_state->anon_graphs,
+			                                       graph,
+			                                       g_str_equal, NULL))
+				continue;
+		} else if (graph_set == GRAPH_SET_NAMED) {
+			if (sparql->current_state->named_graphs &&
+			    sparql->current_state->named_graphs->len > 0) {
+				if (!g_ptr_array_find_with_equal_func (sparql->current_state->named_graphs,
+				                                       graph,
+				                                       g_str_equal, NULL))
+					continue;
+			} else {
+				/* By default, the set of named graphs don't contain
+				 * the nrl:DefaultGraph graph.
+				 */
+				if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
+					continue;
+			}
+		}
+
+		g_hash_table_insert (graphs, g_strdup (graph), tracker_rowid_copy (rowid));
+	}
+
+	return graphs;
 }
 
 static inline gboolean
