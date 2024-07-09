@@ -1073,16 +1073,13 @@ tracker_sparql_add_union_graph_subquery_for_named_graphs (TrackerSparql *sparql)
 	else
 		_append_string (sparql, ", ");
 
-	graphs = tracker_sparql_get_effective_graphs (sparql);
+	graphs = tracker_sparql_get_graphs (sparql, GRAPH_SET_NAMED);
 
 	_append_string (sparql, "\"unionGraph_graphs\"(graph) AS (");
 
 	g_hash_table_iter_init (&iter, graphs);
 	while (g_hash_table_iter_next (&iter, NULL, &value)) {
 		TrackerRowid *graph_id = value;
-
-		if (*graph_id == tracker_data_manager_get_main_graph_id (sparql->data_manager))
-			continue;
 
 		if (first)
 			_append_string (sparql, "VALUES ");
