@@ -41,8 +41,6 @@ static gchar *remote_service;
 static gchar *output_format;
 static gboolean show_graphs;
 static gchar **iris;
-static gchar *data_type = NULL;
-static gboolean keyfile = FALSE;
 
 static GOptionEntry entries[] = {
 	{ "database", 'd', 0, G_OPTION_ARG_FILENAME, &database_path,
@@ -65,14 +63,6 @@ static GOptionEntry entries[] = {
 	  N_("Output TriG format which includes named graph information"),
 	  NULL
 	},
-        { "2to3", 0, 0, G_OPTION_ARG_STRING, &data_type,
-          NULL,
-          NULL
-        },
-        { "keyfile", 0, 0, G_OPTION_ARG_NONE, &keyfile,
-          NULL,
-          NULL
-        },
 	{ G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_STRING_ARRAY, &iris,
 	  N_("IRI"),
 	  N_("IRI")},
@@ -103,198 +93,6 @@ create_connection (GError **error)
 		g_printerr (_("Specify one “--database”, “--dbus-service” or “--remote-service” option"));
 		exit (EXIT_FAILURE);
 	}
-}
-
-/* format a URI for Turtle; if it has a prefix, display uri
- * as prefix:rest_of_uri; if not, display as <uri>
- */
-inline static gchar *
-format_urn (TrackerNamespaceManager *namespaces,
-            const gchar             *urn,
-            gboolean                 full_namespaces)
-{
-	gchar *urn_out;
-
-	if (full_namespaces) {
-		urn_out = g_strdup_printf ("<%s>", urn);
-	} else {
-		gchar *shorthand =
-			tracker_namespace_manager_compress_uri (namespaces, urn);
-
-		/* If the shorthand is the same as the urn passed, we
-		 * assume it is a resource and pass it in as one,
-		 *
-		 *   e.g.: http://purl.org/dc/elements/1.1/date
-		 *     to: http://purl.org/dc/elements/1.1/date
-		 *
-		 * Otherwise, we use the shorthand version instead.
-		 *
-		 *   e.g.: http://www.w3.org/1999/02/22-rdf-syntax-ns
-		 *     to: rdf
-		 */
-		if (g_strcmp0 (shorthand, urn) == 0) {
-			urn_out = g_strdup_printf ("<%s>", urn);
-			g_free (shorthand);
-		} else {
-			urn_out = shorthand;
-		}
-	}
-
-	return urn_out;
-}
-
-/* Print triples in Turtle format */
-static void
-print_turtle (TrackerSparqlCursor *cursor,
-              gboolean             full_namespaces)
-{
-	TrackerSparqlConnection *conn;
-	TrackerNamespaceManager *namespaces;
-	gchar *predicate;
-	gchar *object;
-
-	conn = tracker_sparql_cursor_get_connection (cursor);
-	namespaces = tracker_sparql_connection_get_namespace_manager (conn);
-
-	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		const gchar *resource = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-		const gchar *key = tracker_sparql_cursor_get_string (cursor, 2, NULL);
-		const gchar *value = tracker_sparql_cursor_get_string (cursor, 3, NULL);
-		const gchar *value_is_resource = tracker_sparql_cursor_get_string (cursor, 4, NULL);
-
-		if (!resource || !key || !value || !value_is_resource) {
-			continue;
-		}
-
-		/* Don't display nie:plainTextContent */
-		//if (!plain_text_content && strcmp (key, "http://tracker.api.gnome.org/ontology/v3/nie#plainTextContent") == 0) {
-		//	continue;
-		//}
-
-		predicate = format_urn (namespaces, key, full_namespaces);
-
-		if (g_ascii_strcasecmp (value_is_resource, "true") == 0) {
-			object = g_strdup_printf ("<%s>", value);
-		} else {
-			gchar *escaped_value;
-
-			/* Escape value and make sure it is encapsulated properly */
-			escaped_value = tracker_sparql_escape_string (value);
-			object = g_strdup_printf ("\"%s\"", escaped_value);
-			g_free (escaped_value);
-		}
-
-		/* Print final statement */
-		g_print ("<%s> %s %s .\n", resource, predicate, object);
-
-		g_free (predicate);
-		g_free (object);
-	}
-}
-
-/* Print graphs and triples in TriG format */
-static void
-print_trig (TrackerSparqlCursor *cursor,
-            gboolean             full_namespaces)
-{
-	TrackerSparqlConnection *conn;
-	TrackerNamespaceManager *namespaces;
-	gchar *predicate;
-	gchar *object;
-	gchar *previous_graph = NULL;
-	const gchar *graph = NULL;
-
-	conn = tracker_sparql_cursor_get_connection (cursor);
-	namespaces = tracker_sparql_connection_get_namespace_manager (conn);
-
-	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		graph = tracker_sparql_cursor_get_string (cursor, 0, NULL);
-		const gchar *resource = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-		const gchar *key = tracker_sparql_cursor_get_string (cursor, 2, NULL);
-		const gchar *value = tracker_sparql_cursor_get_string (cursor, 3, NULL);
-		const gchar *value_is_resource = tracker_sparql_cursor_get_string (cursor, 4, NULL);
-
-		if (!resource || !key || !value || !value_is_resource) {
-			continue;
-		}
-
-		if (g_strcmp0 (previous_graph, graph) != 0) {
-			if (previous_graph != NULL) {
-				/* Close previous graph */
-				g_print ("}\n");
-				g_free (previous_graph);
-			}
-			previous_graph = g_strdup (graph);
-			g_print ("GRAPH <%s>\n{\n", graph);
-		}
-
-		/* Don't display nie:plainTextContent */
-		//if (!plain_text_content && strcmp (key, "http://tracker.api.gnome.org/ontology/v3/nie#plainTextContent") == 0) {
-		//	continue;
-		//}
-
-		predicate = format_urn (namespaces, key, full_namespaces);
-
-		if (g_ascii_strcasecmp (value_is_resource, "true") == 0) {
-			object = g_strdup_printf ("<%s>", value);
-		} else {
-			gchar *escaped_value;
-
-			/* Escape value and make sure it is encapsulated properly */
-			escaped_value = tracker_sparql_escape_string (value);
-			object = g_strdup_printf ("\"%s\"", escaped_value);
-			g_free (escaped_value);
-		}
-
-		/* Print final statement */
-		g_print ("  <%s> %s %s .\n", resource, predicate, object);
-
-		g_free (predicate);
-		g_free (object);
-	}
-
-	if (graph != NULL) {
-		g_print ("}\n");
-	}
-	g_free (previous_graph);
-}
-
-static void
-print_keyfile (TrackerSparqlCursor *cursor)
-{
-	GKeyFile *key_file;
-	gchar *data;
-
-	key_file = g_key_file_new ();
-
-	while (tracker_sparql_cursor_next (cursor, NULL, NULL)) {
-		const gchar *resource = tracker_sparql_cursor_get_string (cursor, 1, NULL);
-		const gchar *key = tracker_sparql_cursor_get_string (cursor, 2, NULL);
-		const gchar *value = tracker_sparql_cursor_get_string (cursor, 3, NULL);
-		GStrv values;
-		gsize n_items;
-
-		values = g_key_file_get_string_list (key_file, resource, key, &n_items, NULL);
-
-		if (values) {
-			GArray *array;
-
-			array = g_array_new (TRUE, TRUE, sizeof (char*));
-			g_array_append_vals (array, values, n_items);
-			g_array_append_val (array, value);
-
-			g_key_file_set_string_list (key_file, resource, key,
-			                            (const gchar * const *) array->data,
-			                            array->len);
-		} else {
-			g_key_file_set_string (key_file, resource, key, value);
-		}
-
-		g_strfreev (values);
-	}
-
-	data = g_key_file_to_data (key_file, NULL, NULL);
-	g_print ("%s\n", data);
 }
 
 static void
@@ -402,140 +200,8 @@ export_run_default (void)
 	return EXIT_SUCCESS;
 }
 
-/* Execute a query and export the resulting triples or quads to stdout.
- *
- * The query should return quads (graph, subject, predicate, object) plus an extra
- * boolean column that is false when the 'object' value is a simple type or a resource.
- */
-static gboolean
-export_2to3_with_query (const gchar  *query,
-                        gboolean      show_graphs,
-                        GError      **error)
-{
-	g_autoptr(TrackerDBManager) db_manager = NULL;
-	TrackerDBInterface *iface = NULL;
-	TrackerDBStatement *stmt = NULL;
-	TrackerSparqlCursor *cursor = NULL;
-	GError *inner_error = NULL;
-	g_autoptr(GFile) store = NULL;
-	g_autofree char *path = NULL;
-
-	path = g_build_filename (g_get_user_cache_dir (),
-	                         "tracker", NULL);
-	store = g_file_new_for_path (path);
-
-	db_manager = tracker_db_manager_new (TRACKER_DB_MANAGER_READONLY |
-	                                     TRACKER_DB_MANAGER_SKIP_VERSION_CHECK,
-	                                     store,
-	                                     1, NULL, &inner_error);
-
-	if (inner_error) {
-		g_propagate_prefixed_error (error, inner_error,
-		                            "%s: ", _("Could not run query"));
-		return FALSE;
-	}
-
-	iface = tracker_db_manager_get_writable_db_interface (db_manager);
-
-	stmt = tracker_db_interface_create_statement (iface,
-	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              &inner_error,
-	                                              query);
-	if (!stmt) {
-		g_propagate_prefixed_error (error, inner_error,
-		                            "%s: ", _("Could not run query"));
-		return FALSE;
-	}
-
-	cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &inner_error));
-	g_object_unref (stmt);
-
-	if (!cursor) {
-		g_propagate_prefixed_error (error, inner_error,
-		                            "%s: ", _("Could not run query"));
-		return FALSE;
-	}
-
-	if (keyfile) {
-		print_keyfile (cursor);
-	} if (show_graphs) {
-		print_trig (cursor, FALSE);
-	} else {
-		print_turtle (cursor, FALSE);
-	}
-
-	g_object_unref (cursor);
-
-	return TRUE;
-}
-
-static int
-export_2to3_run_files_starred (void)
-{
-	const gchar *query;
-	g_autoptr(GError) error = NULL;
-
-	query = "SELECT "
-		"  \"\" ,"
-		"  COALESCE ((SELECT \"nie:url\" FROM \"nie:DataObject\" WHERE ID = \"v_u\" ) ,"
-		"            (SELECT Uri FROM Resource WHERE ID = \"v_u\" ) ) ,"
-		"  \"v_p\","
-		"  \"v_v\","
-		"  'true' "
-		"FROM ("
-		"  SELECT * "
-		"  FROM (("
-		"    SELECT "
-		"      \"v_u\" ,"
-		"      'rdf:type' AS \"v_p\" ,"
-		"      'nfo:FileDataObject' AS \"v_v\""
-		"    FROM ("
-		"      SELECT"
-		"        \"nfo:FileDataObject1\".\"ID\" AS \"v_u\""
-		"      FROM \"nfo:FileDataObject\" AS \"nfo:FileDataObject1\" ,"
-		"           \"rdfs:Resource_nao:hasTag\" AS \"rdfs:Resource_nao:hasTag2\""
-		"      WHERE \"nfo:FileDataObject1\".\"ID\" = \"rdfs:Resource_nao:hasTag2\".\"ID\""
-		"        AND \"rdfs:Resource_nao:hasTag2\".\"nao:hasTag\" ="
-		"            COALESCE ((SELECT ID FROM Resource WHERE Uri = 'urn:gnome:nautilus:starred' ), 0) ) ) )"
-		"  UNION ALL"
-		"  SELECT *"
-		"  FROM (("
-		"    SELECT"
-		"      \"v_u\" ,"
-		"      \"nao:hasTag\" AS \"v_p\" ,"
-		"      \"urn:gnome:nautilus:starred\" AS \"v_v\""
-		"    FROM (SELECT \"nfo:FileDataObject1\".\"ID\" AS \"v_u\""
-		"          FROM \"nfo:FileDataObject\" AS \"nfo:FileDataObject1\" ,"
-		"               \"rdfs:Resource_nao:hasTag\" AS \"rdfs:Resource_nao:hasTag2\""
-		"          WHERE \"nfo:FileDataObject1\".\"ID\" = \"rdfs:Resource_nao:hasTag2\".\"ID\""
-		"            AND \"rdfs:Resource_nao:hasTag2\".\"nao:hasTag\" ="
-		"                COALESCE ((SELECT ID FROM Resource WHERE Uri = 'urn:gnome:nautilus:starred' ), 0) ) ) ) )"
-		"ORDER BY (SELECT Uri FROM Resource WHERE ID = \"v_u\" )";
-
-	export_2to3_with_query (query, FALSE, &error);
-
-	if (error) {
-		g_printerr ("%s\n", error->message);
-		return EXIT_FAILURE;
-	} else {
-		return EXIT_SUCCESS;
-	}
-}
-
-static gint
-export_2to3_run (void)
-{
-	if (strcmp (data_type, "files-starred") == 0) {
-		return export_2to3_run_files_starred ();
-	}
-
-	g_print ("Options: files-starred\n");
-
-	return EXIT_FAILURE;
-}
-
 int
-main (int argc, const char **argv)
+tracker_export (int argc, const char **argv)
 {
 	GOptionContext *context;
 	GError *error = NULL;
@@ -543,7 +209,7 @@ main (int argc, const char **argv)
 	context = g_option_context_new (NULL);
 	g_option_context_add_main_entries (context, entries, NULL);
 
-	argv[0] = "tracker export";
+	argv[0] = "tinysparql export";
 
 	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
 		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
@@ -553,10 +219,6 @@ main (int argc, const char **argv)
 	}
 
 	g_option_context_free (context);
-
-        if (data_type) {
-		return export_2to3_run ();
-        }
 
 	return export_run_default ();
 }

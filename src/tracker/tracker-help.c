@@ -106,7 +106,7 @@ tracker_help_show_man_page (const char *cmd)
 }
 
 int
-main (int argc, const char **argv)
+tracker_help (int argc, const char **argv)
 {
        tracker_help_show_man_page (argv[1]);
 

@@ -1,6 +1,6 @@
 #-*- mode: shell-script;-*-
 
-tracker3_cmds()
+tinysparql_cmds()
 {
     local cur prev words cword
     _init_completion -s || return
@@ -8,7 +8,7 @@ tracker3_cmds()
     cur=${COMP_WORDS[COMP_CWORD]}
 
     if [[ $cword == 1 ]]; then
-	possible=`tracker3 | grep -E "   [a-z].*   " | awk '{ print ($1) }' | sort | uniq`
+	possible=`tinysparql | grep -E "   [a-z].*   " | awk '{ print ($1) }' | sort | uniq`
 	COMPREPLY=( $(compgen -W "$possible" -- $cur) )
 	return 0;
     fi
@@ -24,12 +24,12 @@ tracker3_cmds()
 	    fi
 	    ;;
 	-b|--dbus-service)
-	    possible=`tracker3 endpoint --list`
+	    possible=`tinysparql endpoint --list`
 	    COMPREPLY=( $(compgen -W "$possible" -- $cur) )
 	    return 0;
 	    ;;
 	-r|--remote-service)
-	    possible=`tracker3 endpoint --list-http`
+	    possible=`tinysparql endpoint --list-http`
 	    COMPREPLY=( $(compgen -W "$possible" -- $cur) )
 	    return 0;
 	    ;;
@@ -47,4 +47,4 @@ tracker3_cmds()
     fi
 }
 
-complete -F tracker3_cmds tracker3
+complete -F tinysparql_cmds tinysparql
