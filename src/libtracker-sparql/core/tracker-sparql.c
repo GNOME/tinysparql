@@ -1808,7 +1808,7 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 		GHashTableIter iter;
 		gboolean first = TRUE;
 
-		graphs = tracker_sparql_get_effective_graphs (sparql);
+		graphs = tracker_sparql_get_graphs (sparql, GRAPH_SET_DEFAULT);
 		g_hash_table_iter_init (&iter, graphs);
 
 		while (g_hash_table_iter_next (&iter, &graph_name, &value)) {
