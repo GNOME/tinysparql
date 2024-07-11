@@ -10158,6 +10158,7 @@ apply_update_op (TrackerSparql    *sparql,
 	TrackerToken resolved_graph = { 0, }, resolved_subject = { 0, }, resolved_predicate = { 0, }, resolved_object = { 0, };
 	TrackerToken *graph, *subject, *predicate, *object;
 	GList *op_graphs = NULL;
+	GHashTable *graphs = NULL;
 	GError *inner_error = NULL;
 
 	if (op->update_type == TRACKER_UPDATE_GRAPH_CREATE ||
@@ -10267,8 +10268,9 @@ apply_update_op (TrackerSparql    *sparql,
 		const gchar *graph_name;
 
 		graph_name = tracker_token_get_idstring (&op->d.graph.graph);
+		graphs = tracker_data_manager_get_graphs (sparql->data_manager, TRUE);
 
-		if (tracker_sparql_find_graph (sparql, graph_name) != 0) {
+		if (g_hash_table_contains (graphs, graph_name)) {
 			inner_error = g_error_new (TRACKER_SPARQL_ERROR,
 			                           TRACKER_SPARQL_ERROR_CONSTRAINT,
 			                           "Graph '%s' already exists",
@@ -10294,11 +10296,10 @@ apply_update_op (TrackerSparql    *sparql,
 		GList *l;
 
 		if (tracker_token_is_empty (&op->d.graph.graph)) {
-			GHashTable *ht;
 			GHashTableIter iter;
 
-			ht = tracker_data_manager_get_graphs (sparql->data_manager, TRUE);
-			g_hash_table_iter_init (&iter, ht);
+			graphs = tracker_data_manager_get_graphs (sparql->data_manager, TRUE);
+			g_hash_table_iter_init (&iter, graphs);
 
 			while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL)) {
 				if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0) {
@@ -10311,8 +10312,6 @@ apply_update_op (TrackerSparql    *sparql,
 
 				op_graphs = g_list_prepend (op_graphs, g_strdup (graph));
 			}
-
-			g_hash_table_unref (ht);
 		} else {
 			graph = tracker_token_get_idstring (&op->d.graph.graph);
 			op_graphs = g_list_prepend (op_graphs, g_strdup (graph));
@@ -10356,8 +10355,9 @@ apply_update_op (TrackerSparql    *sparql,
 		if (g_strcmp0 (source, destination) == 0)
 			goto out;
 
-		if (source &&
-		    !tracker_sparql_find_graph (sparql, source)) {
+		graphs = tracker_data_manager_get_graphs (sparql->data_manager, TRUE);
+
+		if (source && !g_hash_table_contains (graphs, source)) {
 			inner_error = g_error_new (TRACKER_SPARQL_ERROR,
 			                           TRACKER_SPARQL_ERROR_UNKNOWN_GRAPH,
 			                           "Unknown graph '%s'", source);
@@ -10372,8 +10372,7 @@ apply_update_op (TrackerSparql    *sparql,
 			goto out;
 		}
 
-		if (destination &&
-		    !tracker_sparql_find_graph (sparql, destination)) {
+		if (destination && !g_hash_table_contains (graphs, destination)) {
 			if (!tracker_data_manager_create_graph (sparql->data_manager,
 			                                        destination, &inner_error))
 				goto out;
@@ -10421,6 +10420,7 @@ apply_update_op (TrackerSparql    *sparql,
 	tracker_token_unset (&resolved_predicate);
 	tracker_token_unset (&resolved_object);
 	g_list_free_full (op_graphs, g_free);
+	g_clear_pointer (&graphs, g_hash_table_unref);
 
 	if (!inner_error && op->silent) {
 		/* Flush to ensure the resulting errors go silent */
