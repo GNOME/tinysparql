@@ -958,6 +958,7 @@ _append_empty_select (TrackerSparql *sparql,
 
 static void
 _append_union_graph_with_clause (TrackerSparql *sparql,
+                                 GraphSet       graph_set,
                                  const gchar   *table_name,
                                  const gchar   *properties,
                                  gint           n_properties)
@@ -967,7 +968,7 @@ _append_union_graph_with_clause (TrackerSparql *sparql,
 	GHashTableIter iter;
 	gboolean first = TRUE;
 
-	graphs = tracker_sparql_get_effective_graphs (sparql);
+	graphs = tracker_sparql_get_graphs (sparql, graph_set);
 
 	_append_string_printf (sparql, "\"unionGraph_%s\"(ID, %s graph) AS (",
 	                       table_name, properties);
@@ -1001,7 +1002,8 @@ _append_union_graph_with_clause (TrackerSparql *sparql,
 
 static void
 tracker_sparql_add_union_graph_subquery (TrackerSparql   *sparql,
-                                         TrackerProperty *property)
+                                         TrackerProperty *property,
+                                         GraphSet         graph_set)
 {
 	TrackerStringBuilder *old;
 	const gchar *table_name;
@@ -1022,7 +1024,8 @@ tracker_sparql_add_union_graph_subquery (TrackerSparql   *sparql,
 		_append_string (sparql, ", ");
 
 	properties = build_properties_string (sparql, property, &n_properties);
-	_append_union_graph_with_clause (sparql, table_name, properties, n_properties);
+	_append_union_graph_with_clause (sparql, graph_set,
+	                                 table_name, properties, n_properties);
 	g_free (properties);
 
 	tracker_sparql_swap_builder (sparql, old);
@@ -1030,7 +1033,8 @@ tracker_sparql_add_union_graph_subquery (TrackerSparql   *sparql,
 
 static void
 tracker_sparql_add_union_graph_subquery_for_class (TrackerSparql *sparql,
-                                                   TrackerClass  *class)
+                                                   TrackerClass  *class,
+                                                   GraphSet       graph_set)
 {
 	TrackerStringBuilder *old;
 	const gchar *table_name;
@@ -1051,7 +1055,8 @@ tracker_sparql_add_union_graph_subquery_for_class (TrackerSparql *sparql,
 		_append_string (sparql, ", ");
 
 	properties = build_properties_string_for_class (sparql, class, &n_properties);
-	_append_union_graph_with_clause (sparql, table_name, properties, n_properties);
+	_append_union_graph_with_clause (sparql, graph_set,
+	                                 table_name, properties, n_properties);
 	g_free (properties);
 
 	tracker_sparql_swap_builder (sparql, old);
@@ -1137,7 +1142,7 @@ _prepend_path_element (TrackerSparql      *sparql,
 
 	if (path_elem->op == TRACKER_PATH_OPERATOR_NONE &&
 	    tracker_token_is_empty (&sparql->current_state->graph)) {
-		tracker_sparql_add_union_graph_subquery (sparql, path_elem->data.property);
+		tracker_sparql_add_union_graph_subquery (sparql, path_elem->data.property, GRAPH_SET_DEFAULT);
 	} else if (path_elem->op == TRACKER_PATH_OPERATOR_ZEROORONE ||
 	           path_elem->op == TRACKER_PATH_OPERATOR_ZEROORMORE) {
 		const gchar *graph;
@@ -1152,7 +1157,9 @@ _prepend_path_element (TrackerSparql      *sparql,
 			ontologies = tracker_data_manager_get_ontologies (sparql->data_manager);
 			rdfs_resource = tracker_ontologies_get_class_by_uri (ontologies, RDFS_NS "Resource");
 			tracker_sparql_add_union_graph_subquery_for_class (sparql,
-			                                                   rdfs_resource);
+			                                                   rdfs_resource,
+			                                                   tracker_token_is_empty (&sparql->current_state->graph) ?
+			                                                   GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
 
 			zero_length_match = g_strdup_printf ("SELECT ID, ID, graph, %d, %d "
 			                                     "FROM \"unionGraph_rdfs:Resource\"",
@@ -1926,8 +1933,11 @@ _add_quad (TrackerSparql  *sparql,
 				return FALSE;
 			}
 
-			if (!graph_db || !tracker_sparql_find_graph (sparql, graph_db))
-				tracker_sparql_add_union_graph_subquery_for_class (sparql, subject_type);
+			if (!graph_db || !tracker_sparql_find_graph (sparql, graph_db)) {
+				tracker_sparql_add_union_graph_subquery_for_class (sparql, subject_type,
+				                                                   tracker_token_is_empty (&sparql->current_state->graph) ?
+				                                                   GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
+			}
 
 			is_rdf_type = TRUE;
 			db_table = tracker_class_get_name (subject_type);
@@ -1990,15 +2000,22 @@ _add_quad (TrackerSparql  *sparql,
 					}
 
 					if (domain_index) {
-						if (!graph_db || !tracker_sparql_find_graph (sparql, graph_db))
-							tracker_sparql_add_union_graph_subquery_for_class (sparql, domain_index);
+						if (!graph_db || !tracker_sparql_find_graph (sparql, graph_db)) {
+							tracker_sparql_add_union_graph_subquery_for_class (sparql, domain_index,
+							                                                   tracker_token_is_empty (&sparql->current_state->graph) ?
+							                                                   GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
+						}
+
 						db_table = tracker_class_get_name (domain_index);
 					}
 				}
 			}
 
-			if (!graph_db || !tracker_sparql_find_graph (sparql, graph_db))
-				tracker_sparql_add_union_graph_subquery (sparql, property);
+			if (!graph_db || !tracker_sparql_find_graph (sparql, graph_db)) {
+				tracker_sparql_add_union_graph_subquery (sparql, property,
+				                                         tracker_token_is_empty (&sparql->current_state->graph) ?
+				                                         GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
+			}
 
 			/* We can never share the table with multiple triples for
 			 * multi value properties as a property may consist of multiple rows.
@@ -7961,7 +7978,7 @@ handle_property_function (TrackerSparql    *sparql,
 	}
 
 	if (tracker_token_is_empty (&sparql->current_state->graph)) {
-		tracker_sparql_add_union_graph_subquery (sparql, property);
+		tracker_sparql_add_union_graph_subquery (sparql, property, GRAPH_SET_DEFAULT);
 
 		_append_string_printf (sparql, "FROM \"unionGraph_%s\" ",
 		                       tracker_property_get_table_name (property));
