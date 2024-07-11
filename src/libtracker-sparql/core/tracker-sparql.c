@@ -665,7 +665,8 @@ _escape_sql_string (const gchar *str,
 }
 
 static inline void
-_append_resource_rowid_access_check (TrackerSparql *sparql)
+_append_resource_rowid_access_check (TrackerSparql *sparql,
+                                     GraphSet       graph_set)
 {
 	TrackerStringBuilder *str;
 	GHashTableIter iter;
@@ -674,7 +675,7 @@ _append_resource_rowid_access_check (TrackerSparql *sparql)
 	TrackerRowid *rowid;
 	gboolean first = TRUE;
 
-	graphs = tracker_sparql_get_effective_graphs (sparql);
+	graphs = tracker_sparql_get_graphs (sparql, graph_set);
 
 	str = _append_placeholder (sparql);
 
@@ -778,7 +779,10 @@ _append_literal_sql (TrackerSparql         *sparql,
 	if (TRACKER_BINDING (binding)->data_type == TRACKER_PROPERTY_TYPE_RESOURCE) {
 		if (sparql->policy.graphs) {
 			_append_string_printf (sparql, "AND ID IN (");
-			_append_resource_rowid_access_check (sparql);
+			_append_resource_rowid_access_check (sparql,
+			                                     tracker_token_is_empty (&sparql->current_state->graph) ?
+			                                     GRAPH_SET_DEFAULT :
+			                                     GRAPH_SET_NAMED);
 			_append_string (sparql, ") ");
 		}
 
@@ -2716,7 +2720,10 @@ prepend_generic_print_value (TrackerSparql *sparql,
 
 	if (sparql->policy.graphs) {
 		_append_string (sparql, "AND ID IN (");
-		_append_resource_rowid_access_check (sparql);
+		_append_resource_rowid_access_check (sparql,
+		                                     tracker_token_is_empty (&sparql->current_state->graph) ?
+		                                     GRAPH_SET_DEFAULT :
+		                                     GRAPH_SET_NAMED);
 		_append_string (sparql, ")");
 	}
 
