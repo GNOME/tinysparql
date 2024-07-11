@@ -7,7 +7,7 @@
 #include <gio/gio.h>
 #include <glib/gstdio.h>
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 static gchar *insert_query_replace = "\
 DELETE { ?r nao:hasTag ?tag . }\

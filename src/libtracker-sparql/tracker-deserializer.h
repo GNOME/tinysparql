@@ -22,7 +22,7 @@
 #pragma once
 
 #include <libtracker-sparql/tracker-serializer.h>
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 #define TRACKER_TYPE_DESERIALIZER (tracker_deserializer_get_type())
 

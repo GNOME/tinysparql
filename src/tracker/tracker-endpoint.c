@@ -37,7 +37,7 @@
 #include <avahi-glib/glib-watch.h>
 #endif
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 #include "tracker-endpoint.h"
 

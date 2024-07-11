@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 #define TRACKER_TYPE_BUS_CURSOR (tracker_bus_cursor_get_type ())
 G_DECLARE_FINAL_TYPE (TrackerBusCursor,

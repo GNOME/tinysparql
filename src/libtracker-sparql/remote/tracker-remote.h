@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 #define TRACKER_TYPE_REMOTE_CONNECTION (tracker_remote_connection_get_type())
 G_DECLARE_FINAL_TYPE (TrackerRemoteConnection,

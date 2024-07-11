@@ -20,7 +20,7 @@
 #pragma once
 
 #include "tracker-direct.h"
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 #define TRACKER_TYPE_DIRECT_STATEMENT         (tracker_direct_statement_get_type ())
 #define TRACKER_DIRECT_STATEMENT(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DIRECT_STATEMENT, TrackerDirectStatement))

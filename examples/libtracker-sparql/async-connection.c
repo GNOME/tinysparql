@@ -19,7 +19,7 @@
 
 #include <stdlib.h>
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 typedef struct {
 	TrackerSparqlConnection *connection;

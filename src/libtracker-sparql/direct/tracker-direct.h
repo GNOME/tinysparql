@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 #include <libtracker-sparql/core/tracker-data.h>
 
 #include "tracker-direct-batch.h"
