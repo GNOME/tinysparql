@@ -10270,28 +10270,25 @@ apply_update_op (TrackerSparql    *sparql,
 		GList *l;
 
 		if (tracker_token_is_empty (&op->d.graph.graph)) {
-			if (op->d.graph.graph_op == GRAPH_OP_DEFAULT ||
-			    op->d.graph.graph_op == GRAPH_OP_ALL) {
-				graphs = g_list_prepend (graphs, g_strdup (TRACKER_DEFAULT_GRAPH));
-			}
+			GHashTable *ht;
+			GHashTableIter iter;
 
-			if (op->d.graph.graph_op == GRAPH_OP_ALL ||
-			    op->d.graph.graph_op == GRAPH_OP_NAMED) {
-				GHashTable *ht;
-				GHashTableIter iter;
+			ht = tracker_data_manager_get_graphs (sparql->data_manager, TRUE);
+			g_hash_table_iter_init (&iter, ht);
 
-				ht = tracker_sparql_get_effective_graphs (sparql);
-				g_hash_table_iter_init (&iter, ht);
-
-				while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL)) {
-					if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
+			while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL)) {
+				if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0) {
+					if (op->d.graph.graph_op == GRAPH_OP_NAMED)
 						continue;
-
-					graphs = g_list_prepend (graphs, g_strdup (graph));
+				} else {
+					if (op->d.graph.graph_op == GRAPH_OP_DEFAULT)
+						continue;
 				}
 
-				g_hash_table_unref (ht);
+				graphs = g_list_prepend (graphs, g_strdup (graph));
 			}
+
+			g_hash_table_unref (ht);
 		} else {
 			graph = tracker_token_get_idstring (&op->d.graph.graph);
 			graphs = g_list_prepend (graphs, g_strdup (graph));
