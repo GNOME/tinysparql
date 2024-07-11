@@ -10157,7 +10157,7 @@ apply_update_op (TrackerSparql    *sparql,
 {
 	TrackerToken resolved_graph = { 0, }, resolved_subject = { 0, }, resolved_predicate = { 0, }, resolved_object = { 0, };
 	TrackerToken *graph, *subject, *predicate, *object;
-	GList *graphs = NULL;
+	GList *op_graphs = NULL;
 	GError *inner_error = NULL;
 
 	if (op->update_type == TRACKER_UPDATE_GRAPH_CREATE ||
@@ -10309,16 +10309,16 @@ apply_update_op (TrackerSparql    *sparql,
 						continue;
 				}
 
-				graphs = g_list_prepend (graphs, g_strdup (graph));
+				op_graphs = g_list_prepend (op_graphs, g_strdup (graph));
 			}
 
 			g_hash_table_unref (ht);
 		} else {
 			graph = tracker_token_get_idstring (&op->d.graph.graph);
-			graphs = g_list_prepend (graphs, g_strdup (graph));
+			op_graphs = g_list_prepend (op_graphs, g_strdup (graph));
 		}
 
-		for (l = graphs; l; l = l->next) {
+		for (l = op_graphs; l; l = l->next) {
 			const gchar *database;
 
 			/* Ensure the current transaction doesn't keep tables in this database locked */
@@ -10420,7 +10420,7 @@ apply_update_op (TrackerSparql    *sparql,
 	tracker_token_unset (&resolved_subject);
 	tracker_token_unset (&resolved_predicate);
 	tracker_token_unset (&resolved_object);
-	g_list_free_full (graphs, g_free);
+	g_list_free_full (op_graphs, g_free);
 
 	if (!inner_error && op->silent) {
 		/* Flush to ensure the resulting errors go silent */
