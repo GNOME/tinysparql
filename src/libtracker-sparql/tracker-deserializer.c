@@ -194,16 +194,25 @@ static TrackerSerializerFormat
 pick_format_for_file (GFile *file)
 {
 	TrackerSerializerFormat format = TRACKER_SERIALIZER_FORMAT_TTL;
-	gchar *uri;
+	TrackerRdfFormat rdf_format = 0;
 
-	uri = g_file_get_uri (file);
+	if (!tracker_rdf_format_pick_for_file (file, &rdf_format))
+		return format;
 
-	if (g_str_has_suffix (uri, ".trig"))
+	switch (rdf_format) {
+	case TRACKER_RDF_FORMAT_TURTLE:
+		format = TRACKER_SERIALIZER_FORMAT_TTL;
+		break;
+	case TRACKER_RDF_FORMAT_TRIG:
 		format = TRACKER_SERIALIZER_FORMAT_TRIG;
-	if (g_str_has_suffix (uri, ".jsonld"))
+		break;
+	case TRACKER_RDF_FORMAT_JSON_LD:
 		format = TRACKER_SERIALIZER_FORMAT_JSON_LD;
-
-	g_free (uri);
+		break;
+	default:
+		g_assert_not_reached ();
+		break;
+	}
 
 	return format;
 }
