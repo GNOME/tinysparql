@@ -10300,6 +10300,10 @@ apply_update_op (TrackerSparql    *sparql,
 		for (l = graphs; l; l = l->next) {
 			const gchar *database;
 
+			/* Ensure the current transaction doesn't keep tables in this database locked */
+			tracker_data_commit_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
+			tracker_data_begin_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
+
 			if (!tracker_sparql_graph_is_allowed (sparql, l->data)) {
 				inner_error = g_error_new (TRACKER_SPARQL_ERROR,
 				                           TRACKER_SPARQL_ERROR_CONSTRAINT,
@@ -10365,6 +10369,10 @@ apply_update_op (TrackerSparql    *sparql,
 			goto out;
 
 		if (op->update_type == TRACKER_UPDATE_GRAPH_MOVE) {
+			/* Ensure the current transaction doesn't keep tables in this database locked */
+			tracker_data_commit_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
+			tracker_data_begin_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
+
 			if (!tracker_data_manager_drop_graph (sparql->data_manager,
 			                                      source,
 			                                      &inner_error))
