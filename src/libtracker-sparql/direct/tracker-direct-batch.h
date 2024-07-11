@@ -20,7 +20,7 @@
 #pragma once
 
 #include "tracker-direct.h"
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 #include <libtracker-sparql/tracker-private.h>
 
 #define TRACKER_TYPE_DIRECT_BATCH (tracker_direct_batch_get_type ())

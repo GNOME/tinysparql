@@ -19,7 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 #include <locale.h>
 #include <glib.h>
 #include <stdio.h>

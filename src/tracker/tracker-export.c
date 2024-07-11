@@ -31,7 +31,7 @@
 #include "tracker-sparql.h"
 #include "tracker-color.h"
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 #include <libtracker-common/tracker-common.h>
 #include <libtracker-sparql/core/tracker-data.h>
 

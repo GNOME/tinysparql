@@ -23,7 +23,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 typedef struct {
 	const gchar *test_name;

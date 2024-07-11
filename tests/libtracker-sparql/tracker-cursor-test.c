@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 /* This MUST be larger than TRACKER_STEROIDS_BUFFER_SIZE */
 #define LONG_NAME_SIZE 128 * 1024 * sizeof(char)

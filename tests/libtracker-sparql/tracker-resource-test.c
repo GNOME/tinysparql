@@ -21,7 +21,7 @@
 
 #include <locale.h>
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 static void
 test_resource_get_empty (void)

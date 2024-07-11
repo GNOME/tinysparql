@@ -21,7 +21,7 @@
 
 #include <gio/gio.h>
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 #define MAX_TRIES 100
 

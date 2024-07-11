@@ -1,4 +1,4 @@
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 enum {
 	NAMESPACE_DEFAULT,

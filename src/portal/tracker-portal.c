@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 #include <libtracker-common/tracker-common.h>
 
 #include "tracker-portal.h"

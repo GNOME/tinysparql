@@ -21,7 +21,7 @@
 
 #include <glib.h>
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 int         tracker_sparql               (int                       argc,
                                           const char              **argv);

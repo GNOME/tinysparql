@@ -23,7 +23,7 @@
 
 #include <glib-object.h>
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 #include <libtracker-sparql/tracker-version.h>
 
 typedef struct {

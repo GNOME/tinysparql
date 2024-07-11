@@ -29,7 +29,7 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 #include <libtracker-common/tracker-common.h>
 
 #include "tracker-sparql.h"

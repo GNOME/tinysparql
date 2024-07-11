@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 #include <libtracker-sparql/tracker-private.h>
 #include <libtracker-sparql/tracker-serializer.h>
 

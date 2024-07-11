@@ -26,7 +26,7 @@
 #include <gio/gio.h>
 #include <glib/gstdio.h>
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 static gchar *tests_data_dir = NULL;
 

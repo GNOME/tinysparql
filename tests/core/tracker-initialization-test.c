@@ -19,7 +19,7 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 #include <locale.h>
 
 typedef void (*InitTestFunc) (const gchar *data_dir);

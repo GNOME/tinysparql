@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 #define TRACKER_TYPE_REMOTE_NAMESPACE_MANAGER (tracker_remote_namespace_manager_get_type ())
 G_DECLARE_FINAL_TYPE (TrackerRemoteNamespaceManager,

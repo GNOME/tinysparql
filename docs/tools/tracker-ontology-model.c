@@ -17,7 +17,7 @@
  * 02110-1301, USA.
  */
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 #include "tracker-ontology-model.h"
 

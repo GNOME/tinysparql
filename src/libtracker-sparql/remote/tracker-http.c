@@ -22,7 +22,7 @@
 #include "config.h"
 
 #include <gio/gio.h>
-#include <tracker-sparql.h>
+#include <tinysparql.h>
 #include <dlfcn.h>
 
 #include "tracker-http.h"

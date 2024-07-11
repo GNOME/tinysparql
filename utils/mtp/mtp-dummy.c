@@ -23,7 +23,7 @@
 
 #include <glib.h>
 
-#include <libtracker-sparql/tracker-sparql.h>
+#include <tinysparql.h>
 
 #define COPY_TIMEOUT_MS 100
 
