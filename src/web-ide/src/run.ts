@@ -106,8 +106,7 @@ function generateErrorMessage(error:string) {
     div.classList.add("is-flex", "is-flex-direction-column", "is-flex-grow-1", "is-align-items-start", "is-justify-content-center", "is-background-danger-dark", "px-6", "py-4");
 
     const title = document.createElement("p");
-    title.innerText = "Query failed!";
-    title.classList.add("has-text-weight-bold");
+    title.innerHTML = "<strong>Query failed!</strong>";
 
     const p = document.createElement("p");
     p.innerText = error;

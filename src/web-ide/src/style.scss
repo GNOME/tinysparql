@@ -1,9 +1,13 @@
 @charset "utf-8";
 @use "~bulma/sass/base";
 @use "~bulma/sass/themes";
-@use "~bulma/sass/layout";
-@use "~bulma/sass/helpers";
-@use "~bulma/sass/grid";
+@use "~bulma/sass/layout/container";
+@use "~bulma/sass/layout/section";
+@use "~bulma/sass/helpers/flexbox";
+@use "~bulma/sass/helpers/spacing";
+@use "~bulma/sass/helpers/color";
+@use "~bulma/sass/helpers/visibility";
+@use "~bulma/sass/grid/columns-v2";
 @use "~bulma/sass/elements/button";
 @use "~bulma/sass/elements/table";
 @use "~bulma/sass/elements/title";
