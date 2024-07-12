@@ -3153,7 +3153,7 @@ table th {
   --bulma-control-focus-shadow-l: 50%;
 }
 
-.card:not(:last-child), .title:not(:last-child),
+.message:not(:last-child), .card:not(:last-child), .title:not(:last-child),
 .subtitle:not(:last-child), .table:not(:last-child), .table-container:not(:last-child), .buttons:not(:last-child), .fixed-grid:not(:last-child), .grid:not(:last-child), .media:not(:last-child), .level:not(:last-child) {
   margin-bottom: var(--bulma-block-spacing);
 }
@@ -18187,6 +18187,180 @@ has-background-danger.is-hoverable:active {
 
 .card .media:not(:last-child) {
   margin-bottom: var(--bulma-card-media-margin);
+}
+
+.message {
+  --bulma-message-border-l-delta: -20%;
+  --bulma-message-radius: var(--bulma-radius);
+  --bulma-message-header-weight: var(--bulma-weight-semibold);
+  --bulma-message-header-padding: 1em 1.25em;
+  --bulma-message-header-radius: var(--bulma-radius);
+  --bulma-message-body-border-width: 0 0 0 4px;
+  --bulma-message-body-color: var(--bulma-text);
+  --bulma-message-body-padding: 1.25em 1.5em;
+  --bulma-message-body-radius: var(--bulma-radius-small);
+  --bulma-message-body-pre-code-background-color: transparent;
+  --bulma-message-header-body-border-width: 0;
+  --bulma-message-h: var(--bulma-scheme-h);
+  --bulma-message-s: var(--bulma-scheme-s);
+  --bulma-message-background-l: var(--bulma-background-l);
+  --bulma-message-border-l: var(--bulma-border-l);
+  --bulma-message-border-style: solid;
+  --bulma-message-border-width: 0.25em;
+  --bulma-message-color-l: var(--bulma-text-l);
+  --bulma-message-header-background-l: var(--bulma-dark-l);
+  --bulma-message-header-color-l: var(--bulma-text-dark-invert-l);
+}
+
+.message {
+  border-radius: var(--bulma-message-radius);
+  color: hsl(var(--bulma-message-h), var(--bulma-message-s), var(--bulma-message-color-l));
+  font-size: var(--bulma-size-normal);
+}
+.message strong {
+  color: currentColor;
+}
+.message a:not(.button):not(.tag):not(.dropdown-item) {
+  color: currentColor;
+  text-decoration: underline;
+}
+.message.is-small {
+  font-size: var(--bulma-size-small);
+}
+.message.is-medium {
+  font-size: var(--bulma-size-medium);
+}
+.message.is-large {
+  font-size: var(--bulma-size-large);
+}
+.message.is-white {
+  --bulma-message-h: var(--bulma-white-h);
+  --bulma-message-s: var(--bulma-white-s);
+  --bulma-message-border-l: calc(var(--bulma-white-l) + var(--bulma-message-border-l-delta));
+  --bulma-message-color-l: var(--bulma-white-on-scheme-l);
+  --bulma-message-header-background-l: var(--bulma-white-l);
+  --bulma-message-header-color-l: var(--bulma-white-invert-l);
+}
+.message.is-black {
+  --bulma-message-h: var(--bulma-black-h);
+  --bulma-message-s: var(--bulma-black-s);
+  --bulma-message-border-l: calc(var(--bulma-black-l) + var(--bulma-message-border-l-delta));
+  --bulma-message-color-l: var(--bulma-black-on-scheme-l);
+  --bulma-message-header-background-l: var(--bulma-black-l);
+  --bulma-message-header-color-l: var(--bulma-black-invert-l);
+}
+.message.is-light {
+  --bulma-message-h: var(--bulma-light-h);
+  --bulma-message-s: var(--bulma-light-s);
+  --bulma-message-border-l: calc(var(--bulma-light-l) + var(--bulma-message-border-l-delta));
+  --bulma-message-color-l: var(--bulma-light-on-scheme-l);
+  --bulma-message-header-background-l: var(--bulma-light-l);
+  --bulma-message-header-color-l: var(--bulma-light-invert-l);
+}
+.message.is-dark {
+  --bulma-message-h: var(--bulma-dark-h);
+  --bulma-message-s: var(--bulma-dark-s);
+  --bulma-message-border-l: calc(var(--bulma-dark-l) + var(--bulma-message-border-l-delta));
+  --bulma-message-color-l: var(--bulma-dark-on-scheme-l);
+  --bulma-message-header-background-l: var(--bulma-dark-l);
+  --bulma-message-header-color-l: var(--bulma-dark-invert-l);
+}
+.message.is-text {
+  --bulma-message-h: var(--bulma-text-h);
+  --bulma-message-s: var(--bulma-text-s);
+  --bulma-message-border-l: calc(var(--bulma-text-l) + var(--bulma-message-border-l-delta));
+  --bulma-message-color-l: var(--bulma-text-on-scheme-l);
+  --bulma-message-header-background-l: var(--bulma-text-l);
+  --bulma-message-header-color-l: var(--bulma-text-invert-l);
+}
+.message.is-primary {
+  --bulma-message-h: var(--bulma-primary-h);
+  --bulma-message-s: var(--bulma-primary-s);
+  --bulma-message-border-l: calc(var(--bulma-primary-l) + var(--bulma-message-border-l-delta));
+  --bulma-message-color-l: var(--bulma-primary-on-scheme-l);
+  --bulma-message-header-background-l: var(--bulma-primary-l);
+  --bulma-message-header-color-l: var(--bulma-primary-invert-l);
+}
+.message.is-link {
+  --bulma-message-h: var(--bulma-link-h);
+  --bulma-message-s: var(--bulma-link-s);
+  --bulma-message-border-l: calc(var(--bulma-link-l) + var(--bulma-message-border-l-delta));
+  --bulma-message-color-l: var(--bulma-link-on-scheme-l);
+  --bulma-message-header-background-l: var(--bulma-link-l);
+  --bulma-message-header-color-l: var(--bulma-link-invert-l);
+}
+.message.is-info {
+  --bulma-message-h: var(--bulma-info-h);
+  --bulma-message-s: var(--bulma-info-s);
+  --bulma-message-border-l: calc(var(--bulma-info-l) + var(--bulma-message-border-l-delta));
+  --bulma-message-color-l: var(--bulma-info-on-scheme-l);
+  --bulma-message-header-background-l: var(--bulma-info-l);
+  --bulma-message-header-color-l: var(--bulma-info-invert-l);
+}
+.message.is-success {
+  --bulma-message-h: var(--bulma-success-h);
+  --bulma-message-s: var(--bulma-success-s);
+  --bulma-message-border-l: calc(var(--bulma-success-l) + var(--bulma-message-border-l-delta));
+  --bulma-message-color-l: var(--bulma-success-on-scheme-l);
+  --bulma-message-header-background-l: var(--bulma-success-l);
+  --bulma-message-header-color-l: var(--bulma-success-invert-l);
+}
+.message.is-warning {
+  --bulma-message-h: var(--bulma-warning-h);
+  --bulma-message-s: var(--bulma-warning-s);
+  --bulma-message-border-l: calc(var(--bulma-warning-l) + var(--bulma-message-border-l-delta));
+  --bulma-message-color-l: var(--bulma-warning-on-scheme-l);
+  --bulma-message-header-background-l: var(--bulma-warning-l);
+  --bulma-message-header-color-l: var(--bulma-warning-invert-l);
+}
+.message.is-danger {
+  --bulma-message-h: var(--bulma-danger-h);
+  --bulma-message-s: var(--bulma-danger-s);
+  --bulma-message-border-l: calc(var(--bulma-danger-l) + var(--bulma-message-border-l-delta));
+  --bulma-message-color-l: var(--bulma-danger-on-scheme-l);
+  --bulma-message-header-background-l: var(--bulma-danger-l);
+  --bulma-message-header-color-l: var(--bulma-danger-invert-l);
+}
+
+.message-header {
+  align-items: center;
+  background-color: hsl(var(--bulma-message-h), var(--bulma-message-s), var(--bulma-message-header-background-l));
+  border-start-start-radius: var(--bulma-message-header-radius);
+  border-start-end-radius: var(--bulma-message-header-radius);
+  color: hsl(var(--bulma-message-h), var(--bulma-message-s), var(--bulma-message-header-color-l));
+  display: flex;
+  font-weight: var(--bulma-message-header-weight);
+  justify-content: space-between;
+  line-height: 1.25;
+  padding: var(--bulma-message-header-padding);
+  position: relative;
+}
+.message-header .delete {
+  flex-grow: 0;
+  flex-shrink: 0;
+  margin-inline-start: 0.75em;
+}
+.message-header + .message-body {
+  border-width: var(--bulma-message-header-body-border-width);
+  border-start-start-radius: 0;
+  border-start-end-radius: 0;
+}
+
+.message-body {
+  background-color: hsl(var(--bulma-message-h), var(--bulma-message-s), var(--bulma-message-background-l));
+  border-inline-start-color: hsl(var(--bulma-message-h), var(--bulma-message-s), var(--bulma-message-border-l));
+  border-inline-start-style: var(--bulma-message-border-style);
+  border-inline-start-width: var(--bulma-message-border-width);
+  border-radius: var(--bulma-message-body-radius);
+  padding: var(--bulma-message-body-padding);
+}
+.message-body code,
+.message-body pre {
+  background-color: hsl(var(--bulma-message-h), var(--bulma-message-s), var(--bulma-message-header-color-l));
+  color: hsl(var(--bulma-message-h), var(--bulma-message-s), var(--bulma-message-header-background-l));
+}
+.message-body pre code {
+  background-color: var(--bulma-message-body-pre-code-background-color);
 }
 
 #right {

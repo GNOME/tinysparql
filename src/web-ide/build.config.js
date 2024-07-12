@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-  entry: './src/index.ts',
+  entry: './src/index.prod.ts',
   mode: 'development',
   optimization: {
     usedExports: true
@@ -22,7 +22,7 @@ module.exports = {
       filename: 'styles.css'
     }),
     new HtmlWebpackPlugin({
-      title: 'TinySPARQL web-IDE',
+      title: '404 Not Found',
       template: './src/404.html',
       filename: '404.html'
     })

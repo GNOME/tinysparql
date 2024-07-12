@@ -3,7 +3,7 @@ type runRes = {
     vars?: HTMLElement[]
 };
 
-export default async function run(s: string):Promise<runRes> {
+export default async function run(s: string, endpoint: string):Promise<runRes> {
     if(!s) {
         return {
             result :[generateErrorMessage("Empty query. Enter your query into the editor space and try again.")]
@@ -25,7 +25,7 @@ export default async function run(s: string):Promise<runRes> {
 
     
     try {
-        let res = await fetch("http://127.0.0.1:1234/sparql/", reqOptions);
+        let res = await fetch(endpoint, reqOptions);
         if (res.ok) {
             let parsedResults = JSON.parse(await res.text());
             return {
