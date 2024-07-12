@@ -14,7 +14,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix mfo: <http://tracker.api.gnome.org/ontology/v3/mfo#> .
 
-{
+GRAPH nrl:DefaultGraph {
   rdfs:Resource nrl:classSpecification "https://www.w3.org/TR/rdf-schema/#ch_resource" ;
     rdfs:comment "All resources" ;
     rdfs:label "All Resources" ;

@@ -345,8 +345,6 @@ collect_graphs (TrackerTriplesCursor *cursor)
 	int rc;
 
 	rc = sqlite3_prepare_v2 (cursor->vtab->module->db,
-	                         "SELECT 0, 'main' "
-	                         "UNION ALL "
 	                         "SELECT ID, "
 	                         "       (SELECT Uri from Resource where Resource.ID = Graph.ID) "
 	                         "FROM Graph",
@@ -367,7 +365,7 @@ collect_graphs (TrackerTriplesCursor *cursor)
 		uri = sqlite3_column_text (stmt, 1);
 
 		if (g_strcmp0 (uri, TRACKER_DEFAULT_GRAPH) == 0)
-			continue;
+			uri = "main";
 
 		if (cursor->match.graph) {
 			gboolean negated = !!(cursor->match.idxFlags & IDX_MATCH_GRAPH_NEG);

@@ -14,7 +14,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix mfo: <http://tracker.api.gnome.org/ontology/v3/mfo#> .
 
-{
+GRAPH nrl:DefaultGraph {
   rdfs:Class nrl:classSpecification "https://www.w3.org/TR/rdf-schema/#ch_class" ;
     rdfs:comment "The class of classes" ;
     rdfs:label "Class" ;
