@@ -10235,8 +10235,6 @@ apply_update_op (TrackerSparql    *sparql,
 		}
 
 		for (l = op_graphs; l; l = l->next) {
-			const gchar *database;
-
 			/* Ensure the current transaction doesn't keep tables in this database locked */
 			tracker_data_commit_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
 			tracker_data_begin_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
@@ -10249,15 +10247,13 @@ apply_update_op (TrackerSparql    *sparql,
 				goto out;
 			}
 
-			database = (g_strcmp0 (l->data, TRACKER_DEFAULT_GRAPH) == 0) ? "main" : l->data;
-
 			if (op->update_type == TRACKER_UPDATE_GRAPH_DROP) {
 				if (!tracker_data_manager_drop_graph (sparql->data_manager,
-				                                      database, &inner_error))
+				                                      l->data, &inner_error))
 					goto out;
 			} else if (op->update_type == TRACKER_UPDATE_GRAPH_CLEAR) {
 				if (!tracker_data_manager_clear_graph (sparql->data_manager,
-				                                       database, &inner_error))
+				                                       l->data, &inner_error))
 					goto out;
 			}
 		}

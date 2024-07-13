@@ -2732,7 +2732,7 @@ detach:
 
 gboolean
 tracker_data_manager_drop_graph (TrackerDataManager  *manager,
-                                 const gchar         *name,
+                                 const gchar         *graph,
                                  GError             **error)
 {
 	TrackerDBInterface *iface;
@@ -2740,20 +2740,20 @@ tracker_data_manager_drop_graph (TrackerDataManager  *manager,
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
 	/* Silently refuse to drop the main graph, clear it instead */
-	if (!name || g_strcmp0 (name, "main") == 0)
-		return tracker_data_manager_clear_graph (manager, name, error);
+	if (!graph || g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
+		return tracker_data_manager_clear_graph (manager, graph, error);
 
 	if (!tracker_db_manager_detach_database (manager->db_manager, iface,
-	                                         name, error))
+	                                         graph, error))
 		return FALSE;
 
-	if (!tracker_data_delete_graph (manager->data_update, name, error))
+	if (!tracker_data_delete_graph (manager->data_update, graph, error))
 		return FALSE;
 
 	if (!manager->transaction_graphs)
 		manager->transaction_graphs = copy_graphs (manager->graphs);
 
-	g_hash_table_remove (manager->transaction_graphs, name);
+	g_hash_table_remove (manager->transaction_graphs, graph);
 
 	return TRUE;
 }
