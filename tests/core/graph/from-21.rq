@@ -1,0 +1,6 @@
+SELECT ?u ?l
+FROM example:graphA
+WHERE {
+  ?u a rdfs:Class .
+  BIND (rdfs:label(?u) AS ?l)
+}

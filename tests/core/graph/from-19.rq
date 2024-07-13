@@ -1,0 +1,6 @@
+SELECT ?g ?s ?l
+FROM NAMED example:nonExistent
+WHERE {
+  GRAPH ?g { ?s rdf:type/rdfs:label ?l }
+}
+ORDER BY ?l

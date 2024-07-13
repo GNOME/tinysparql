@@ -1,0 +1,6 @@
+SELECT ?s ?l
+FROM example:nonExistent
+WHERE {
+  ?s rdf:type/rdfs:label ?l
+}
+ORDER BY ?l

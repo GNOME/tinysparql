@@ -1,0 +1,7 @@
+SELECT DISTINCT ?s ?l
+FROM example:graphA
+FROM example:graphB
+WHERE {
+  ?s rdf:type/rdfs:label ?l
+}
+ORDER BY ?l

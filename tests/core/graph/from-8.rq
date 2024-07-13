@@ -1,0 +1,7 @@
+SELECT ?s
+FROM NAMED example:nonExistent
+WHERE {
+  GRAPH example:graphB {
+    ?s example:p 42
+  }
+}

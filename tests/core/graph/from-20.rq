@@ -1,0 +1,5 @@
+SELECT ?u
+FROM example:nonExistent
+WHERE {
+  ?u a rdfs:Resource
+}
