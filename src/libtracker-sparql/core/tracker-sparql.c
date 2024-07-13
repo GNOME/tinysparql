@@ -83,8 +83,6 @@ static void convert_expression_to_string (TrackerSparql       *sparql,
                                           TrackerPropertyType  type,
                                           TrackerVariable     *var);
 
-static GHashTable * tracker_sparql_get_effective_graphs (TrackerSparql *sparql);
-
 #define _raise(v,s,sub)   \
 	G_STMT_START { \
 	g_set_error (error, TRACKER_SPARQL_ERROR, \
@@ -894,47 +892,6 @@ tracker_sparql_graph_is_allowed (TrackerSparql *sparql,
 	return FALSE;
 }
 
-static GHashTable *
-tracker_sparql_get_effective_graphs (TrackerSparql *sparql)
-{
-	GHashTable *graphs;
-	gboolean in_transaction;
-
-	in_transaction = sparql->query_type == TRACKER_SPARQL_QUERY_UPDATE;
-	graphs = tracker_data_manager_get_graphs (sparql->data_manager,
-						  in_transaction);
-
-	if (graphs && sparql->policy.graphs) {
-		if (!sparql->policy.filtered_graphs) {
-			guint i;
-
-			sparql->policy.filtered_graphs =
-				g_hash_table_new_full (g_str_hash,
-				                       g_str_equal,
-				                       g_free,
-				                       (GDestroyNotify) tracker_rowid_free);
-
-			for (i = 0; i < sparql->policy.graphs->len; i++) {
-				gpointer key, value;
-
-				if (g_hash_table_lookup_extended (graphs,
-				                                  g_ptr_array_index (sparql->policy.graphs, i),
-				                                  &key, &value)) {
-					g_hash_table_insert (sparql->policy.filtered_graphs,
-					                     g_strdup (key),
-					                     tracker_rowid_copy (value));
-				}
-			}
-		}
-
-		g_hash_table_unref (graphs);
-
-		return g_hash_table_ref (sparql->policy.filtered_graphs);
-	} else {
-		return graphs;
-	}
-}
-
 static void
 _append_empty_select (TrackerSparql *sparql,
                       gint           n_elems)
@@ -1108,24 +1065,18 @@ static TrackerRowid
 tracker_sparql_find_graph (TrackerSparql *sparql,
                            const gchar   *name)
 {
-	GHashTable *effective_graphs;
-	gboolean in_transaction;
+	GHashTable *graphs;
+	gpointer value;
+	TrackerRowid rowid = 0;
 
-	if (g_strcmp0 (name, TRACKER_DEFAULT_GRAPH) == 0)
-		return 0;
+	graphs = tracker_sparql_get_graphs (sparql, GRAPH_SET_NAMED);
+	value = g_hash_table_lookup (graphs, name);
+	if (value)
+		rowid = *((TrackerRowid *) value);
 
-	effective_graphs = tracker_sparql_get_effective_graphs (sparql);
-	if (!effective_graphs ||
-	    !g_hash_table_contains (effective_graphs, name)) {
-		g_hash_table_unref (effective_graphs);
-		return 0;
-	}
+	g_hash_table_unref (graphs);
 
-	g_hash_table_unref (effective_graphs);
-	in_transaction = sparql->query_type == TRACKER_SPARQL_QUERY_UPDATE;
-
-	return tracker_data_manager_find_graph (sparql->data_manager, name,
-	                                        in_transaction);
+	return rowid;
 }
 
 static void
