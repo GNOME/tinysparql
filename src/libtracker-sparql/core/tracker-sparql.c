@@ -1175,8 +1175,11 @@ _prepend_path_element (TrackerSparql      *sparql,
 	gchar *zero_length_match = NULL;
 
 	if (path_elem->op == TRACKER_PATH_OPERATOR_NONE &&
-	    tracker_token_is_empty (&sparql->current_state->graph)) {
-		tracker_sparql_add_union_graph_subquery (sparql, path_elem->data.property, GRAPH_SET_DEFAULT);
+	    (tracker_token_is_empty (&sparql->current_state->graph) ||
+	     tracker_token_get_variable (&sparql->current_state->graph))) {
+		tracker_sparql_add_union_graph_subquery (sparql, path_elem->data.property,
+		                                         tracker_token_is_empty (&sparql->current_state->graph) ?
+		                                         GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
 	} else if (path_elem->op == TRACKER_PATH_OPERATOR_ZEROORONE ||
 	           path_elem->op == TRACKER_PATH_OPERATOR_ZEROORMORE) {
 		const gchar *graph;
@@ -1222,26 +1225,24 @@ _prepend_path_element (TrackerSparql      *sparql,
 	switch (path_elem->op) {
 	case TRACKER_PATH_OPERATOR_NONE:
 		/* A simple property */
-		if (tracker_token_is_empty (&sparql->current_state->graph)) {
+		if (tracker_token_is_empty (&sparql->current_state->graph) ||
+		    tracker_token_get_variable (&sparql->current_state->graph)) {
 			table_name = g_strdup_printf ("\"unionGraph_%s\"",
 			                              tracker_property_get_table_name (path_elem->data.property));
 			graph_column = g_strdup ("graph");
+		} else if (tracker_token_get_literal (&sparql->current_state->graph) &&
+		           tracker_sparql_find_graph (sparql, tracker_token_get_idstring (&sparql->current_state->graph))) {
+			table_name = g_strdup_printf ("\"%s\".\"%s\"",
+			                              tracker_token_get_idstring (&sparql->current_state->graph),
+			                              tracker_property_get_table_name (path_elem->data.property));
+			graph_column = g_strdup_printf ("%" G_GINT64_FORMAT,
+			                                tracker_sparql_find_graph (sparql,
+			                                                           tracker_token_get_idstring (&sparql->current_state->graph)));
 		} else {
-			const gchar *graph;
-
-			graph = tracker_token_get_idstring (&sparql->current_state->graph);
-
-			if (tracker_sparql_find_graph (sparql, graph)) {
-				table_name = g_strdup_printf ("\"%s\".\"%s\"", graph,
-				                              tracker_property_get_table_name (path_elem->data.property));
-				graph_column = g_strdup_printf ("%" G_GINT64_FORMAT,
-				                                tracker_sparql_find_graph (sparql, graph));
-			} else {
-				/* Graph does not exist, ensure to come back empty */
-				table_name = g_strdup_printf ("(SELECT 0 AS ID, NULL AS \"%s\", NULL, 0, 0 LIMIT 0)",
-							      tracker_property_get_name (path_elem->data.property));
-				graph_column = g_strdup ("0");
-			}
+			/* Graph does not exist, ensure to come back empty */
+			table_name = g_strdup_printf ("(SELECT 0 AS ID, NULL AS \"%s\", NULL, 0, 0 LIMIT 0)",
+			                              tracker_property_get_name (path_elem->data.property));
+			graph_column = g_strdup ("0");
 		}
 
 		_append_string_printf (sparql,
