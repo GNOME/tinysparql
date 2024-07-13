@@ -1360,21 +1360,22 @@ _prepend_path_element (TrackerSparql      *sparql,
 			                       TRACKER_PROPERTY_TYPE_RESOURCE);
 		}
 
-		if (!tracker_token_is_empty (&sparql->current_state->graph) &&
-		    tracker_sparql_find_graph (sparql, tracker_token_get_idstring (&sparql->current_state->graph))) {
+		if (tracker_token_is_empty (&sparql->current_state->graph) ||
+		    tracker_token_get_variable (&sparql->current_state->graph)) {
+			_append_graph_set_checks (sparql, "graph",
+			                          tracker_token_is_empty (&sparql->current_state->graph) ?
+			                          GRAPH_SET_DEFAULT : GRAPH_SET_NAMED,
+			                          NULL);
+		} else if (tracker_token_get_literal (&sparql->current_state->graph)) {
 			const gchar *graph;
 
 			graph = tracker_token_get_idstring (&sparql->current_state->graph);
 			_append_graph_set_checks (sparql, "graph", GRAPH_SET_NAMED, graph);
-			_append_string (sparql, "AND ");
-		} else if (sparql->policy.graphs) {
-			_append_graph_set_checks (sparql, "graph", GRAPH_SET_NAMED, NULL);
-			_append_string (sparql, "AND ");
 		} else {
-			_append_string (sparql, "WHERE ");
+			g_assert_not_reached ();
 		}
 
-		_append_string_printf (sparql, "predicate != %" G_GINT64_FORMAT " ",
+		_append_string_printf (sparql, "AND predicate != %" G_GINT64_FORMAT " ",
 		                       tracker_property_get_id (path_elem->data.property));
 		_append_string (sparql, ") ");
 		break;
