@@ -1835,25 +1835,25 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 
 	_append_string (sparql, ") AS (");
 
-	if (tracker_token_get_literal (graph)) {
-		if (tracker_sparql_find_graph (sparql, tracker_token_get_idstring (graph))) {
-			_append_string_printf (sparql,
-			                       "%s FROM \"%s\".\"fts5\" "
-			                       "WHERE fts5 = SparqlFtsTokenize(",
-			                       select_items->str,
-			                       tracker_token_get_idstring (graph));
-			_append_literal_sql (sparql, binding);
-			_append_string (sparql, ") || '*' ");
-		} else {
-			_append_empty_select (sparql, n_properties);
-		}
-	} else {
+	if (tracker_token_get_literal (graph) &&
+	    tracker_sparql_find_graph (sparql, tracker_token_get_idstring (graph))) {
+		_append_string_printf (sparql,
+		                       "%s FROM \"%s\".\"fts5\" "
+		                       "WHERE fts5 = SparqlFtsTokenize(",
+		                       select_items->str,
+		                       tracker_token_get_idstring (graph));
+		_append_literal_sql (sparql, binding);
+		_append_string (sparql, ") || '*' ");
+	} else if (tracker_token_is_empty (graph) ||
+	           tracker_token_get_variable (graph)) {
 		gpointer graph_name, value;
 		GHashTable *graphs;
 		GHashTableIter iter;
 		gboolean first = TRUE;
 
-		graphs = tracker_sparql_get_graphs (sparql, GRAPH_SET_DEFAULT);
+		graphs = tracker_sparql_get_graphs (sparql,
+		                                    tracker_token_is_empty (graph) ?
+		                                    GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
 		g_hash_table_iter_init (&iter, graphs);
 
 		while (g_hash_table_iter_next (&iter, &graph_name, &value)) {
@@ -1882,6 +1882,8 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 			_append_empty_select (sparql, n_properties);
 
 		g_hash_table_unref (graphs);
+	} else {
+		_append_empty_select (sparql, n_properties);
 	}
 
 	_append_string (sparql, ") ");
