@@ -1182,10 +1182,6 @@ _prepend_path_element (TrackerSparql      *sparql,
 		                                         GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
 	} else if (path_elem->op == TRACKER_PATH_OPERATOR_ZEROORONE ||
 	           path_elem->op == TRACKER_PATH_OPERATOR_ZEROORMORE) {
-		const gchar *graph;
-
-		graph = tracker_token_get_idstring (&sparql->current_state->graph);
-
 		if (tracker_token_is_empty (&sparql->current_state->graph) ||
 		    tracker_token_get_variable (&sparql->current_state->graph)) {
 			TrackerOntologies *ontologies;
@@ -1202,7 +1198,11 @@ _prepend_path_element (TrackerSparql      *sparql,
 			                                     "FROM \"unionGraph_rdfs:Resource\"",
 			                                     TRACKER_PROPERTY_TYPE_RESOURCE,
 			                                     TRACKER_PROPERTY_TYPE_RESOURCE);
-		} else if (tracker_sparql_find_graph (sparql, graph)) {
+		} else if (tracker_token_get_literal (&sparql->current_state->graph) &&
+		           tracker_sparql_find_graph (sparql, tracker_token_get_idstring (&sparql->current_state->graph))) {
+			const gchar *graph;
+
+			graph = tracker_token_get_idstring (&sparql->current_state->graph);
 			zero_length_match = g_strdup_printf ("SELECT ID, ID, %" G_GINT64_FORMAT ", %d, %d "
 			                                     "FROM \"%s\".\"rdfs:Resource\"",
 			                                     tracker_sparql_find_graph (sparql, graph),
