@@ -1,0 +1,22 @@
+INSERT {
+  GRAPH example:1 {
+    example:a a example:A ;
+      example:name 'nameA' ;
+      example:date '2000-01-01T00:00:01Z' ;
+      example:number 42 .
+
+  }
+
+  GRAPH example:2 {
+    example:a a example:A .
+
+    example:b a example:A ;
+      example:name 'nameB' ;
+      example:date '2001-01-01T00:00:01Z' ;
+      example:number 73 ;
+      example:relation example:z .
+
+    example:z a example:B ;
+      example:title 'titleZ' .
+  }
+}

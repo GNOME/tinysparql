@@ -124,6 +124,8 @@ const TestInfo tests[] = {
 	{ "describe/describe-pattern", "describe/data", FALSE },
 	{ "describe/describe-limit", "describe/data", FALSE },
 	{ "describe/describe-multiple", "describe/data", FALSE },
+	{ "describe/describe-from", "describe/data-graph", FALSE },
+	{ "describe/describe-from-named", "describe/data-graph", FALSE },
 	{ "expr-ops/query-ge-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-le-1", "expr-ops/data", FALSE },
 	{ "expr-ops/query-minus-1", "expr-ops/data", FALSE },
