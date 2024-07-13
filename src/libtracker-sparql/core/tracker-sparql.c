@@ -2920,38 +2920,39 @@ _end_triples_block (TrackerSparql  *sparql,
 			                "(SELECT subject AS ID, predicate, "
 			                "object, object_type, graph FROM tracker_triples ");
 
-			if (table->graph) {
-				_append_graph_set_checks (sparql, "graph", GRAPH_SET_NAMED, table->graph);
-			} else if (sparql->current_state->anon_graphs->len > 0 &&
-			           tracker_token_is_empty (&sparql->current_state->graph)) {
+			if (tracker_token_is_empty (&sparql->current_state->graph))
 				_append_graph_set_checks (sparql, "graph", GRAPH_SET_DEFAULT, NULL);
-			} else if (tracker_token_get_variable (&sparql->current_state->graph)) {
+			else if (tracker_token_get_variable (&sparql->current_state->graph))
 				_append_graph_set_checks (sparql, "graph", GRAPH_SET_NAMED, NULL);
-			} else if (sparql->policy.graphs) {
-				_append_graph_set_checks (sparql, "graph", GRAPH_SET_NAMED, NULL);
-			}
+			else if (tracker_token_get_literal (&sparql->current_state->graph))
+				_append_graph_set_checks (sparql, "graph", GRAPH_SET_NAMED,
+				                          tracker_token_get_idstring (&sparql->current_state->graph));
+			else
+				g_assert_not_reached ();
 
 			_append_string (sparql, ") ");
 		} else if (table->predicate_path || table->fts) {
 			_append_string_printf (sparql, "\"%s\" ", table->sql_db_tablename);
 		} else {
-			if (table->graph &&
-			    tracker_sparql_find_graph (sparql, table->graph)) {
+			if (tracker_token_get_literal (&sparql->current_state->graph) &&
+			    tracker_sparql_find_graph (sparql, tracker_token_get_idstring (&sparql->current_state->graph))) {
 				_append_string_printf (sparql, "\"%s\".\"%s\" ",
-				                       table->graph,
+				                       tracker_token_get_idstring (&sparql->current_state->graph),
 				                       table->sql_db_tablename);
 			} else {
 				_append_string_printf (sparql,
 				                       "(SELECT * FROM \"unionGraph_%s\" ",
 				                       table->sql_db_tablename);
 
-				if (table->graph) {
-					_append_graph_set_checks (sparql, "graph", GRAPH_SET_NAMED, table->graph);
-				} else if (tracker_token_is_empty (&sparql->current_state->graph)) {
+				if (tracker_token_is_empty (&sparql->current_state->graph))
 					_append_graph_set_checks (sparql, "graph", GRAPH_SET_DEFAULT, NULL);
-				} else {
+				else if (tracker_token_get_variable (&sparql->current_state->graph))
 					_append_graph_set_checks (sparql, "graph", GRAPH_SET_NAMED, NULL);
-				}
+				else if (tracker_token_get_literal (&sparql->current_state->graph))
+					_append_graph_set_checks (sparql, "graph", GRAPH_SET_NAMED,
+					                          tracker_token_get_idstring (&sparql->current_state->graph));
+				else
+					g_assert_not_reached ();
 
 				_append_string (sparql, ") ");
 			}
