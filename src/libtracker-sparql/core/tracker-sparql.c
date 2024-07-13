@@ -1969,11 +1969,9 @@ _add_quad (TrackerSparql  *sparql,
 				return FALSE;
 			}
 
-			if (!graph_db || !tracker_sparql_find_graph (sparql, graph_db)) {
-				tracker_sparql_add_union_graph_subquery_for_class (sparql, subject_type,
-				                                                   tracker_token_is_empty (&sparql->current_state->graph) ?
-				                                                   GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
-			}
+			tracker_sparql_add_union_graph_subquery_for_class (sparql, subject_type,
+			                                                   tracker_token_is_empty (&sparql->current_state->graph) ?
+			                                                   GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
 
 			is_rdf_type = TRUE;
 			db_table = tracker_class_get_name (subject_type);
@@ -2036,22 +2034,17 @@ _add_quad (TrackerSparql  *sparql,
 					}
 
 					if (domain_index) {
-						if (!graph_db || !tracker_sparql_find_graph (sparql, graph_db)) {
-							tracker_sparql_add_union_graph_subquery_for_class (sparql, domain_index,
-							                                                   tracker_token_is_empty (&sparql->current_state->graph) ?
-							                                                   GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
-						}
-
+						tracker_sparql_add_union_graph_subquery_for_class (sparql, domain_index,
+						                                                   tracker_token_is_empty (&sparql->current_state->graph) ?
+						                                                   GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
 						db_table = tracker_class_get_name (domain_index);
 					}
 				}
 			}
 
-			if (!graph_db || !tracker_sparql_find_graph (sparql, graph_db)) {
-				tracker_sparql_add_union_graph_subquery (sparql, property,
-				                                         tracker_token_is_empty (&sparql->current_state->graph) ?
-				                                         GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
-			}
+			tracker_sparql_add_union_graph_subquery (sparql, property,
+			                                         tracker_token_is_empty (&sparql->current_state->graph) ?
+			                                         GRAPH_SET_DEFAULT : GRAPH_SET_NAMED);
 
 			/* We can never share the table with multiple triples for
 			 * multi value properties as a property may consist of multiple rows.
