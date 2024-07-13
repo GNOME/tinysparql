@@ -3762,14 +3762,8 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 
 	_append_string_printf (sparql, "FROM tracker_triples ");
 
-	if (sparql->policy.graphs) {
-		_append_graph_set_checks (sparql, "graph", GRAPH_SET_DEFAULT, NULL);
-		_append_string (sparql, "AND ");
-	} else {
-		_append_string (sparql, "WHERE ");
-	}
-	_append_string (sparql,
-	                "object IS NOT NULL ");
+	_append_graph_set_checks (sparql, "graph", GRAPH_SET_DEFAULT, NULL);
+	_append_string (sparql, "AND object IS NOT NULL ");
 
 	if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_GLOB)) {
 		glob = TRUE;
