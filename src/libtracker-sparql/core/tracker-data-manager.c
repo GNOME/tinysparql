@@ -2758,19 +2758,19 @@ tracker_data_manager_drop_graph (TrackerDataManager  *manager,
 	return TRUE;
 }
 
-TrackerRowid
+gboolean
 tracker_data_manager_find_graph (TrackerDataManager *manager,
                                  const gchar        *name,
                                  gboolean            in_transaction)
 {
 	GHashTable *graphs;
-	TrackerRowid graph_id;
+	gboolean exists;
 
 	graphs = tracker_data_manager_get_graphs (manager, in_transaction);
-	graph_id = GPOINTER_TO_UINT (g_hash_table_lookup (graphs, name));
+	exists = g_hash_table_contains (graphs, name);
 	g_hash_table_unref (graphs);
 
-	return graph_id;
+	return exists;
 }
 
 gboolean
