@@ -4918,7 +4918,7 @@ translate_UsingClause (TrackerSparql  *sparql,
                        GError        **error)
 {
 	gboolean named = FALSE;
-	gchar *graph;
+	const char *graph;
 
 	/* UsingClause ::= 'USING' ( iri | 'NAMED' iri )
 	 */
@@ -4930,15 +4930,14 @@ translate_UsingClause (TrackerSparql  *sparql,
 	_call_rule (sparql, NAMED_RULE_iri, error);
 	_init_token (&sparql->current_state->graph,
 		     sparql->current_state->prev_node, sparql);
-	graph = g_strdup (tracker_token_get_idstring (&sparql->current_state->graph));
+	graph = tracker_token_get_idstring (&sparql->current_state->graph);
 
 	if (named)
-		g_ptr_array_add (sparql->current_state->named_graphs, graph);
+		g_ptr_array_add (sparql->current_state->named_graphs, g_strdup (graph));
 	else
-		g_ptr_array_add (sparql->current_state->anon_graphs, graph);
+		g_ptr_array_add (sparql->current_state->anon_graphs, g_strdup (graph));
 
 	tracker_token_unset (&sparql->current_state->graph);
-	g_free (graph);
 
 	return TRUE;
 }
