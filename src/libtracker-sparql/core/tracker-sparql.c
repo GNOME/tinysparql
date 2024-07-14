@@ -1151,15 +1151,16 @@ _prepend_path_element (TrackerSparql      *sparql,
 			                                     TRACKER_PROPERTY_TYPE_RESOURCE);
 		} else if (tracker_token_get_literal (&sparql->current_state->graph) &&
 		           tracker_sparql_find_graph (sparql, tracker_token_get_idstring (&sparql->current_state->graph))) {
-			const gchar *graph;
+			const gchar *graph, *database;
 
 			graph = tracker_token_get_idstring (&sparql->current_state->graph);
+			database = (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0) ? "main" : graph;
 			zero_length_match = g_strdup_printf ("SELECT ID, ID, %" G_GINT64_FORMAT ", %d, %d "
 			                                     "FROM \"%s\".\"rdfs:Resource\"",
 			                                     tracker_sparql_find_graph (sparql, graph),
 			                                     TRACKER_PROPERTY_TYPE_RESOURCE,
 			                                     TRACKER_PROPERTY_TYPE_RESOURCE,
-			                                     graph);
+			                                     database);
 		} else {
 			/* Graph does not exist, ensure to come back empty */
 			zero_length_match = g_strdup ("SELECT * FROM (SELECT 0 AS ID, NULL, NULL, 0, 0 LIMIT 0)");
@@ -1183,8 +1184,14 @@ _prepend_path_element (TrackerSparql      *sparql,
 			graph_column = g_strdup ("graph");
 		} else if (tracker_token_get_literal (&sparql->current_state->graph) &&
 		           tracker_sparql_find_graph (sparql, tracker_token_get_idstring (&sparql->current_state->graph))) {
+			const char *database;
+
+			database = tracker_token_get_idstring (&sparql->current_state->graph);
+			if (g_strcmp0 (database, TRACKER_DEFAULT_GRAPH) == 0)
+				database = "main";
+
 			table_name = g_strdup_printf ("\"%s\".\"%s\"",
-			                              tracker_token_get_idstring (&sparql->current_state->graph),
+			                              database,
 			                              tracker_property_get_table_name (path_elem->data.property));
 			graph_column = g_strdup_printf ("%" G_GINT64_FORMAT,
 			                                tracker_sparql_find_graph (sparql,
@@ -1788,11 +1795,16 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 
 	if (tracker_token_get_literal (graph) &&
 	    tracker_sparql_find_graph (sparql, tracker_token_get_idstring (graph))) {
+		const char *database;
+
+		database = tracker_token_get_idstring (graph);
+		if (g_strcmp0 (database, TRACKER_DEFAULT_GRAPH) == 0)
+			database = "main";
+
 		_append_string_printf (sparql,
 		                       "%s FROM \"%s\".\"fts5\" "
 		                       "WHERE fts5 = SparqlFtsTokenize(",
-		                       select_items->str,
-		                       tracker_token_get_idstring (graph));
+		                       select_items->str, database);
 		_append_literal_sql (sparql, binding);
 		_append_string (sparql, ") || '*' ");
 	} else if (tracker_token_is_empty (graph) ||
@@ -2880,8 +2892,14 @@ _end_triples_block (TrackerSparql  *sparql,
 		} else {
 			if (tracker_token_get_literal (&sparql->current_state->graph) &&
 			    tracker_sparql_find_graph (sparql, tracker_token_get_idstring (&sparql->current_state->graph))) {
+				const char *database;
+
+				database = tracker_token_get_idstring (&sparql->current_state->graph);
+				if (g_strcmp0 (database, TRACKER_DEFAULT_GRAPH) == 0)
+					database = "main";
+
 				_append_string_printf (sparql, "\"%s\".\"%s\" ",
-				                       tracker_token_get_idstring (&sparql->current_state->graph),
+				                       database,
 				                       table->sql_db_tablename);
 			} else {
 				_append_string_printf (sparql,
@@ -7903,8 +7921,11 @@ handle_property_function (TrackerSparql    *sparql,
 		graph = tracker_token_get_idstring (&sparql->current_state->graph);
 
 		if (tracker_sparql_find_graph (sparql, graph)) {
+			const char *database;
+
+			database = g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0 ? "main" : graph;
 			_append_string_printf (sparql, "FROM \"%s\".\"%s\" ",
-			                       graph,
+			                       database,
 			                       tracker_property_get_table_name (property));
 		} else {
 			/* Graph does not exist, ensure to come back empty */
