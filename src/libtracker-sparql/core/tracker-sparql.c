@@ -3962,6 +3962,15 @@ translate_NamedGraphClause (TrackerSparql  *sparql,
 	if (!sparql->current_state->named_graphs)
 		sparql->current_state->named_graphs = g_ptr_array_new_with_free_func (g_free);
 
+	/* Quoting https://www.w3.org/TR/sparql11-query/#specifyingDataset:
+	 *
+	 * If there is no FROM clause, but there is one or more FROM NAMED
+	 * clauses, then the dataset includes an empty graph for the default
+	 * graph.
+	 */
+	if (!sparql->current_state->anon_graphs)
+		sparql->current_state->anon_graphs = g_ptr_array_new_with_free_func (g_free);
+
 	graph = g_strdup (tracker_token_get_idstring (&sparql->current_state->graph));
 	g_ptr_array_add (sparql->current_state->named_graphs, graph);
 	tracker_token_unset (&sparql->current_state->graph);
