@@ -1,0 +1,11 @@
+WITH example:1
+INSERT {
+  GRAPH example:2 {
+    example:a a example:A ;
+              example:string 'foo' .
+  }
+
+  example:b a example:A ;
+            example:string 'bar' .
+}
+WHERE { }

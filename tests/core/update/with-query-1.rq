@@ -1,0 +1,4 @@
+SELECT ?g ?u ?l {
+  GRAPH ?g { ?u example:string ?l }
+}
+ORDER BY ?l

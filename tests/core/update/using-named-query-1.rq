@@ -1,0 +1,4 @@
+SELECT ?u ?l {
+  ?u example:string ?l
+}
+ORDER BY ?l

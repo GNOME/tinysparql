@@ -417,6 +417,12 @@ const TestInfo tests[] = {
 	{ "update/delete-insert-where-query-5", "update/delete-insert-where-5", FALSE, FALSE },
 	{ "update/delete-insert-where-query-6", "update/delete-insert-where-6", FALSE, FALSE },
 	{ "update/select-date-with-offset-1", "update/insert-date-with-offset-1", FALSE, FALSE },
+	{ "update/using-query-1", "update/using-1", FALSE, FALSE },
+	{ "update/using-query-2", "update/using-2", FALSE, FALSE },
+	{ "update/using-named-query-1", "update/using-named-1", FALSE, FALSE },
+	{ "update/using-named-query-2", "update/using-named-2", FALSE, FALSE },
+	{ "update/with-query-1", "update/with-1", FALSE, FALSE },
+	{ "update/with-query-2", "update/with-2", FALSE, FALSE },
 	/* Constraint declarations */
 	{ "constraint/empty-graph-1", "constraint/data", FALSE, FALSE },
 	{ "constraint/empty-graph-2", "constraint/data", FALSE, FALSE },

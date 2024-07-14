@@ -1,0 +1,17 @@
+INSERT {
+  example:a a example:A ;
+            example:string 'foo' .
+  example:b a example:A ;
+            example:string 'bar' .
+};
+
+DELETE {
+  example:b example:string ?s
+}
+INSERT {
+  example:b example:string 'baz'
+}
+USING nrl:DefaultGraph
+WHERE {
+  example:b example:string ?s
+}
