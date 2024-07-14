@@ -310,9 +310,6 @@ tracker_sparql_state_init (TrackerSparqlState *state,
 	                                           g_free, g_free);
 	g_hash_table_insert (state->prefix_map, g_strdup ("fn"), g_strdup (FN_NS));
 
-	state->anon_graphs = g_ptr_array_new_with_free_func (g_free);
-	state->named_graphs = g_ptr_array_new_with_free_func (g_free);
-
 	state->node = tracker_node_tree_get_root (sparql->tree);
 
 	state->result = state->sql = tracker_string_builder_new ();
@@ -469,14 +466,12 @@ tracker_sparql_get_graphs (TrackerSparql *sparql,
 
 		if (graph_set == GRAPH_SET_DEFAULT) {
 			if (sparql->current_state->anon_graphs &&
-			    sparql->current_state->anon_graphs->len > 0 &&
 			    !g_ptr_array_find_with_equal_func (sparql->current_state->anon_graphs,
 			                                       graph,
 			                                       g_str_equal, NULL))
 				continue;
 		} else if (graph_set == GRAPH_SET_NAMED) {
-			if (sparql->current_state->named_graphs &&
-			    sparql->current_state->named_graphs->len > 0) {
+			if (sparql->current_state->named_graphs) {
 				if (!g_ptr_array_find_with_equal_func (sparql->current_state->named_graphs,
 				                                       graph,
 				                                       g_str_equal, NULL))
@@ -3943,6 +3938,9 @@ translate_DefaultGraphClause (TrackerSparql  *sparql,
 	 */
 	_call_rule (sparql, NAMED_RULE_SourceSelector, error);
 
+	if (!sparql->current_state->anon_graphs)
+		sparql->current_state->anon_graphs = g_ptr_array_new_with_free_func (g_free);
+
 	graph = g_strdup (tracker_token_get_idstring (&sparql->current_state->graph));
 	g_ptr_array_add (sparql->current_state->anon_graphs, graph);
 	tracker_token_unset (&sparql->current_state->graph);
@@ -3960,6 +3958,9 @@ translate_NamedGraphClause (TrackerSparql  *sparql,
 	 */
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_NAMED);
 	_call_rule (sparql, NAMED_RULE_SourceSelector, error);
+
+	if (!sparql->current_state->named_graphs)
+		sparql->current_state->named_graphs = g_ptr_array_new_with_free_func (g_free);
 
 	graph = g_strdup (tracker_token_get_idstring (&sparql->current_state->graph));
 	g_ptr_array_add (sparql->current_state->named_graphs, graph);
@@ -4917,10 +4918,15 @@ translate_UsingClause (TrackerSparql  *sparql,
 	_init_token (&token, sparql->current_state->prev_node, sparql);
 	graph = tracker_token_get_idstring (&token);
 
-	if (named)
+	if (named) {
+		if (!sparql->current_state->named_graphs)
+			sparql->current_state->named_graphs = g_ptr_array_new_with_free_func (g_free);
 		g_ptr_array_add (sparql->current_state->named_graphs, g_strdup (graph));
-	else
+	} else {
+		if (!sparql->current_state->anon_graphs)
+			sparql->current_state->anon_graphs = g_ptr_array_new_with_free_func (g_free);
 		g_ptr_array_add (sparql->current_state->anon_graphs, g_strdup (graph));
+	}
 
 	tracker_token_unset (&token);
 
