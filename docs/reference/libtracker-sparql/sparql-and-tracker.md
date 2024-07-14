@@ -5,7 +5,7 @@ This document describes the choices made by TinySPARQL in its interpretation
 of the SPARQL documents, as well as the ways it diverges or extends on the
 specifications.
 
-## The default graph
+## The default graph sets
 
 The [SPARQL documentation](https://www.w3.org/TR/sparql11-update/#graphStore)
 says:
@@ -19,9 +19,42 @@ graph describing the named graphs, a representation of a union of
 other graphs, etc.
 ```
 
-TinySPARQL defines the default graph to be the union of the unnamed graph
-and all known named graphs. Updates without specified graph are still
-performed only on the unnamed graph.
+By default, TinySPARQL declares a named graph called `nrl:DefaultGraph`, this
+graph is implicitly part of the default graph used for solution matching, but
+not to the pool of named graphs. Every other graph created by user data will be
+added both to the default graph and the pool of named graphs.
+
+The default graph is defined this way as the RDF union of the `nrl:DefaultGraph`
+graph with every other known named graph. The default pool of named graphs
+comprises all known graphs, with the exception of the default `nrl:DefaultGraph`
+graph.
+
+```SPARQL
+SELECT *
+WHERE {
+  # Implicitly accesses the RDF union of all graphs
+  ?a a rdfs:Resource
+  GRAPH ?g {
+    # Implicitly accesses every individual graph except nrl:DefaultGraph
+    ?b a rdfs:Resource
+  }
+}
+```
+
+This behavior can be altered with `FROM` / `USING` and
+`FROM NAMED` / `USING NAMED` syntax. The default graph is to all effects
+anonymous, unless it is explicitly brought to the set of named graphs.
+
+```SPARQL
+# Access the default graph as a named graph
+SELECT *
+FROM NAMED nrl:DefaultGraph
+WHERE {
+  GRAPH ?g {
+    ?u a rdfs:Resource .
+  }
+}
+```
 
 ## Blank nodes
 
