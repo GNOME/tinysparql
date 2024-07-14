@@ -4917,6 +4917,7 @@ static gboolean
 translate_UsingClause (TrackerSparql  *sparql,
                        GError        **error)
 {
+	TrackerToken token = { 0 };
 	gboolean named = FALSE;
 	const char *graph;
 
@@ -4928,16 +4929,15 @@ translate_UsingClause (TrackerSparql  *sparql,
 		named = TRUE;
 
 	_call_rule (sparql, NAMED_RULE_iri, error);
-	_init_token (&sparql->current_state->graph,
-		     sparql->current_state->prev_node, sparql);
-	graph = tracker_token_get_idstring (&sparql->current_state->graph);
+	_init_token (&token, sparql->current_state->prev_node, sparql);
+	graph = tracker_token_get_idstring (&token);
 
 	if (named)
 		g_ptr_array_add (sparql->current_state->named_graphs, g_strdup (graph));
 	else
 		g_ptr_array_add (sparql->current_state->anon_graphs, g_strdup (graph));
 
-	tracker_token_unset (&sparql->current_state->graph);
+	tracker_token_unset (&token);
 
 	return TRUE;
 }
