@@ -119,6 +119,4 @@ gboolean tracker_data_manager_fts_integrity_check (TrackerDataManager  *data_man
                                                    TrackerDBInterface  *iface,
                                                    const gchar         *database);
 
-TrackerRowid tracker_data_manager_get_main_graph_id (TrackerDataManager *data_manager);
-
 G_END_DECLS

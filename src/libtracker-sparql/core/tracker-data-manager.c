@@ -3111,9 +3111,3 @@ tracker_data_manager_map_connection (TrackerDataManager      *data_manager,
 	                     uri, g_object_ref (connection));
 	g_mutex_unlock (&data_manager->connections_lock);
 }
-
-TrackerRowid
-tracker_data_manager_get_main_graph_id (TrackerDataManager *data_manager)
-{
-	return data_manager->main_graph_id;
-}
