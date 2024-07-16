@@ -3201,6 +3201,7 @@ translate_SelectClause (TrackerSparql  *sparql,
 			if (sparql->current_state->select_context ==
 			    sparql->current_state->top_context) {
 				convert_expression_to_string (sparql, prop_type, var);
+				_append_string_printf (sparql, "AS %s ", var->name);
 
 				tracker_sparql_swap_builder (sparql, types);
 				handle_value_type_column (sparql, prop_type, var);
