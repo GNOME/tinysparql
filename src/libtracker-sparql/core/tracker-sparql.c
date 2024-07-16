@@ -3719,17 +3719,17 @@ translate_DescribeQuery (TrackerSparql  *sparql,
 	_expect (sparql, RULE_TYPE_LITERAL, LITERAL_DESCRIBE);
 	_append_string (sparql,
 	                "SELECT "
-	                "  COALESCE((SELECT Uri FROM Resource WHERE ID = subject), 'urn:bnode:' || subject),"
-	                "  (SELECT Uri FROM Resource WHERE ID = predicate),");
+	                "  COALESCE((SELECT Uri FROM Resource WHERE ID = subject), 'urn:bnode:' || subject) AS subject,"
+	                "  (SELECT Uri FROM Resource WHERE ID = predicate) AS predicate,");
 
 	str = _append_placeholder (sparql);
 	old = tracker_sparql_swap_builder (sparql, str);
 	_append_string (sparql, "object");
 	prepend_generic_print_value (sparql, "object_type");
-	_append_string (sparql, ",object_type) ");
+	_append_string (sparql, ",object_type) AS object ");
 	tracker_sparql_swap_builder (sparql, old);
 
-	_append_string (sparql, ", (SELECT Uri FROM Resource WHERE ID = graph) ");
+	_append_string (sparql, ", (SELECT Uri FROM Resource WHERE ID = graph) AS graph ");
 
 	handle_value_type_column (sparql, TRACKER_PROPERTY_TYPE_RESOURCE, NULL);
 	handle_value_type_column (sparql, TRACKER_PROPERTY_TYPE_RESOURCE, NULL);
