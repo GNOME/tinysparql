@@ -116,6 +116,7 @@ function generateErrorMessage(error:string) {
     return div;
 }
 
+// generate checkboxes to hide/show ? variables
 function generateVarSelects(data:sparqlRes) {
     if (!data.head.vars) {
         const s = document.createElement("span");
@@ -143,6 +144,7 @@ function generateVarSelects(data:sparqlRes) {
     });
 }
 
+// toggles variables shown on results table
 function changeDisplayVars(data:sparqlRes) {
     const checked = document.getElementById("variable-selects").querySelectorAll("input");
     const showVars = Array.from(checked)

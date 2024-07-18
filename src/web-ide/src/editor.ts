@@ -1,7 +1,12 @@
+// this files sets up codemirror related stuff
+// exports view vairable so the editor content can be accessed by other files
+
 import {EditorView, basicSetup} from 'codemirror';
 import { sparql } from 'codemirror-lang-sparql';
 import {tags} from "@lezer/highlight";
 import {HighlightStyle, syntaxHighlighting} from "@codemirror/language";
+
+import { createQueryLink, notify } from './util';
 
 const fixedHeightEditor = EditorView.theme({
     "&": {height: "40vh"},
@@ -25,10 +30,20 @@ const myHighlightStyle = HighlightStyle.define([
   
 ])
 
+const urlParams = new URLSearchParams(window.location.search);
+const query = urlParams.get("query"); // queries saved as links will have this param
+
+// initialise editor
 let view = new EditorView({
-    doc: "# Enter your query here\n",
+    doc: query ?? "# Enter your query here\n",
     extensions:  [basicSetup, fixedHeightEditor, sparql(), syntaxHighlighting(myHighlightStyle)],
     parent: document.getElementById("wrapper") ?? undefined
+});
+
+// set up bookmarking functionality
+document.getElementById("saveBtn").addEventListener("click", async () => {
+  await navigator.clipboard.writeText(createQueryLink(view.state.doc));
+  notify("Copied to clipboard");
 });
 
 export default view;

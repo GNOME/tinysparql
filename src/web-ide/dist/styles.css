@@ -11342,7 +11342,7 @@ has-background-danger.is-hoverable:active {
 }
 
 .message:not(:last-child), .card:not(:last-child), .title:not(:last-child),
-.subtitle:not(:last-child), .table:not(:last-child), .table-container:not(:last-child), .buttons:not(:last-child), .columns:not(:last-child) {
+.subtitle:not(:last-child), .table:not(:last-child), .table-container:not(:last-child), .buttons:not(:last-child), .box:not(:last-child), .columns:not(:last-child) {
   margin-bottom: var(--bulma-block-spacing);
 }
 
@@ -13014,6 +13014,32 @@ has-background-danger.is-hoverable:active {
   }
 }
 
+.box {
+  --bulma-box-background-color: var(--bulma-scheme-main);
+  --bulma-box-color: var(--bulma-text);
+  --bulma-box-radius: var(--bulma-radius-large);
+  --bulma-box-shadow: var(--bulma-shadow);
+  --bulma-box-padding: 1.25rem;
+  --bulma-box-link-hover-shadow: 0 0.5em 1em -0.125em hsla(var(--bulma-scheme-h), var(--bulma-scheme-s), var(--bulma-scheme-invert-l), 0.1), 0 0 0 1px var(--bulma-link);
+  --bulma-box-link-active-shadow: inset 0 1px 2px hsla(var(--bulma-scheme-h), var(--bulma-scheme-s), var(--bulma-scheme-invert-l), 0.2), 0 0 0 1px var(--bulma-link);
+}
+
+.box {
+  background-color: var(--bulma-box-background-color);
+  border-radius: var(--bulma-box-radius);
+  box-shadow: var(--bulma-box-shadow);
+  color: var(--bulma-box-color);
+  display: block;
+  padding: var(--bulma-box-padding);
+}
+
+a.box:hover, a.box:focus {
+  box-shadow: var(--bulma-box-link-hover-shadow);
+}
+a.box:active {
+  box-shadow: var(--bulma-box-link-active-shadow);
+}
+
 .button {
   --bulma-button-family: false;
   --bulma-button-weight: var(--bulma-weight-medium);
@@ -14344,4 +14370,13 @@ div.content {
 
 #variable-selects {
   overflow-y: scroll;
+}
+
+#saveMsg {
+  position: absolute;
+  top: -10rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  transition: ease-in-out 0.25s;
 }

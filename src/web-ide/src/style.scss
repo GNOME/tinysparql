@@ -8,6 +8,7 @@
 @use "~bulma/sass/helpers/color";
 @use "~bulma/sass/helpers/visibility";
 @use "~bulma/sass/grid/columns-v2";
+@use "~bulma/sass/elements/box";
 @use "~bulma/sass/elements/button";
 @use "~bulma/sass/elements/table";
 @use "~bulma/sass/elements/title";
@@ -50,4 +51,13 @@ div.content {
 
 #variable-selects {
     overflow-y: scroll;
+}
+
+#notif-msg {
+    position:absolute;
+    top: -10rem;
+    left:50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    transition: ease-in-out 0.25s;
 }
