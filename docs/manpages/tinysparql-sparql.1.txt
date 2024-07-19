@@ -10,28 +10,14 @@ tinysparql-sparql - Query to SPARQL endpoints.
 ....
 tinysparql sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>]
     [(-q | --query) <sparql> | (-f | --file) <file>] [(-u | --update)] [-a <parameter>:<value>]...
-tinysparql sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>]
-    [(-t | --tree)] [(-t | --tree) <class>] [(-p | --list-properties)] [(-s | --search) <needle>]t
-tinysparql sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [(-c | --list-classes)]
-tinysparql sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [(-p | --list-properties)]
-tinysparql sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [(-i | --list-indexes)]
-tinysparql sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [(-n | --list-notifies)]
-tinysparql sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [(-g | --list-graphs)]
-tinysparql sparql [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>] [--get-longhand <class>] [--get-shorthand <class>]
 ....
 
 == DESCRIPTION
 
-This command allows probing of the current database schema (also known
-as ontology) and running low level queries or updates on the data set.
-In terms of the database ontology, it's easy to find out what properties
-are indexed for speed, or notified on changes, what classes are
-available and the properties belonging to those classes. There are also
-visual tools to display an ascii tree layout of the classes and their
-relationships to each other.
+This command allows running queries or updates on a SPARQL endpoint.
 
-When the caller runs a query, the query is in RDF and SPARQL. This can
-be done two ways. Either by providing a _file_ with the query or by
+When the caller runs a query, the query is in the SPARQL language. This
+can be done two ways. Either by providing a _file_ with the query or by
 providing a string with the _sparql_ query.
 
 The _file_ argument can be either a local path or a URI. It also does
@@ -67,59 +53,6 @@ not have to be an absolute path.
 ** *b*: The value will describe a boolean
 ** *s*: The value will describe a plain string
 
-*-c, --list-classes*::
-  Returns a list of classes which describe the ontology used for storing
-  data. These classes are also used in queries. For example,
-  _http://www.w3.org/2000/01/rdf-schema#Resource_ is one of many classes
-  which should be returned here.
-*-x, --list-class-prefixes*::
-  Returns a list of prefixes in shortened and long form. All RDF classes
-  and properties have such a prefix that may be expressed in either form.
-*-p, --list-properties=[_class_]*::
-  Returns a list of properties which pertain to a _class_. You can use
-  both formats here for the _class_, either the full name
-  _http://tracker.api.gnome.org/ontology/v3/nfo#Video_ or
-  the shortened prefix name _nfo:Video_. See also *--tree* and *--query*.
-
-*-n, --list-notifies=[_class_]*::
-  Returns a list of classes which are notified over D-Bus about any
-  changes that occur in the database. The _class_ does not have to be
-  supplied here. This is optional and filters the results according to
-  any argument supplied. With no _class_, all classes are listed.
-
-*-i, --list-indexes=[_property_]*::
-  Returns a list of properties which are indexed in the database.
-  Indexes improves query speed but also add an indexing penalty. The
-  _property_ does not have to be supplied here. This is optional and
-  filters the results according to any argument supplied. With no
-  _property_, all properties are listed.
-*-g, --list-graphs*::
-  List all the named graphs in the database. These are used by the
-  filesystem miner to separate metadata so that apps can only see
-  the information relevant to them.
-*-t, --tree=[_class_]*::
-  Prints a tree showing all parent classes of _class_ in the ontology.
-  The _class_ can be provided in shorthand or longhand (see
-  *--get-shorthand* and *--get-longhand* for details).
-
-If no _class_ is given, the entire tree is shown.
-
-The *--search* command line option can be used to highlight parts of the
-tree you're looking for. The search is case insensitive.
-
-The *--properties* command line option can be used to show properties
-for each class displayed
-
-*-s, --search=<__needle__>*::
-  Returns a list of classes and properties which partially match
-  _needle_ in the ontology. Search is case insensitive. See also *--tree*.
-
-*--get-shorthand=<__class__>*::
-  Returns the shorthand for a class given by a URL.
-
-*--get-longhand=<__class__>*::
-  Returns the longhand for a class given in the form of CLASS:PROPERTY.
-
 == EXAMPLES
 
 Querying a D-Bus endpoint::
@@ -142,14 +75,8 @@ $ tinysparql sparql -b org.example.Endpoint \
     -a name:s:"John" -a age:i:42 -a available:b:true
 ----
 
-Introspecting details of a D-Bus endpoint::
-+
-----
-$ tinysparql sparql -b org.example.Endpoint -tree --list-properties
-----
-
 == SEE ALSO
 
 *tinysparql-endpoint*(1).
 
-<https://gnome.pages.gitlab.gnome.org/tracker/tutorial.html>.
+<https://gnome.pages.gitlab.gnome.org/tinysparql/tutorial.html>.

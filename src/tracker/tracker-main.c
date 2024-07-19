@@ -32,6 +32,7 @@
 #include "tracker-endpoint.h"
 #include "tracker-export.h"
 #include "tracker-import.h"
+#include "tracker-introspect.h"
 #include "tracker-sparql.h"
 #include "tracker-common.h"
 #include "tracker-webide.h"
@@ -72,6 +73,7 @@ static struct cmd_struct commands[] = {
        { "endpoint", tracker_endpoint, N_("Create a SPARQL endpoint") },
        { "export", tracker_export, N_("Export data from a TinySPARQL database") },
        { "import", tracker_import, N_("Import data into a TinySPARQL database") },
+       { "introspect", tracker_introspect, N_("Introspect a SPARQL endpoint") },
        { "sparql", tracker_sparql, N_("Query and update the index using SPARQL or search, list and tree the ontology") },
        { "webide", tracker_webide, N_("Create a Web IDE to query local databases") },
 };

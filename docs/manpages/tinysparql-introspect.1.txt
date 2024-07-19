@@ -1,0 +1,88 @@
+tinysparql-introspect(1)
+========================
+
+== NAME
+
+tinysparql-introspect - Introspect SPARQL endpoints.
+
+== SYNOPSIS
+
+....
+tinysparql introspect [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>]
+    [(-t | --tree)] [(-t | --tree) <class>] [(-s | --search) <needle>]t
+tinysparql introspect [(-d |--database) <file> | (-b | --dbus-service) <busname> | (-r | --remote-service) <url>]
+    [(-c | --list-classes)] [(-p | --list-properties)] [(-i | --list-indexes)] [(-n | --list-notifies)] [(-g | --list-graphs)]
+....
+
+== DESCRIPTION
+
+This command allows probing of the current database schema (also known
+as ontology) and endpoint capabilities. If called with no additional
+arguments to the one specifying the database connection, all information
+is extracted.
+
+In terms of the database ontology, it's easy to find out what properties
+are indexed for speed, or notified on changes, what classes are
+available and the properties belonging to those classes. There are also
+visual tools to display an ascii tree layout of the classes and their
+relationships to each other.
+
+== OPTIONS
+*-b, --dbus-service=<__service_name__>*::
+  Connects to a SPARQL endpoint at a D-Bus name.
+*-d, --database-path=<__database_path__>*::
+  Connects to a database by location in the filesystem.
+*-r, --remote-service=<__url__>*::
+  Connects to a HTTP SPARQL endpoint.
+
+*-c, --list-classes*::
+  Returns a list of classes which describe the ontology used for storing
+  data. These classes are also used in queries. For example,
+  _http://www.w3.org/2000/01/rdf-schema#Resource_ is one of many classes
+  which should be returned here.
+*-x, --list-class-prefixes*::
+  Returns a list of prefixes in shortened and long form. All RDF classes
+  and properties have such a prefix that may be expressed in either form.
+*-p, --list-properties=[_class_]*::
+  Returns a list of properties which pertain to a _class_. You can use
+  both formats here for the _class_, either the full name
+  _http://tracker.api.gnome.org/ontology/v3/nfo#Video_ or
+  the shortened prefix name _nfo:Video_. See also *--tree* and *--query*.
+
+*-n, --list-notifies=[_class_]*::
+  Returns a list of classes which are notified over D-Bus about any
+  changes that occur in the database. The _class_ does not have to be
+  supplied here. This is optional and filters the results according to
+  any argument supplied. With no _class_, all classes are listed.
+
+*-i, --list-indexes=[_property_]*::
+  Returns a list of properties which are indexed in the database.
+  Indexes improves query speed but also add an indexing penalty. The
+  _property_ does not have to be supplied here. This is optional and
+  filters the results according to any argument supplied. With no
+  _property_, all properties are listed.
+*-g, --list-graphs*::
+  List all the named graphs in the database. These are used by the
+  filesystem miner to separate metadata so that apps can only see
+  the information relevant to them.
+*-t, --tree=[_class_]*::
+  Prints a tree showing all parent classes of _class_ in the ontology.
+  The _class_ can be provided in shorthand or longhand (see
+  *--get-shorthand* and *--get-longhand* for details).
+
+If no _class_ is given, the entire tree is shown.
+
+The *--search* command line option can be used to highlight parts of the
+tree you're looking for. The search is case insensitive.
+
+The *--properties* command line option can be used to show properties
+for each class displayed
+
+*-s, --search=<__needle__>*::
+  Returns a list of classes and properties which partially match
+  _needle_ in the ontology. Search is case insensitive. See also *--tree*.
+
+== SEE ALSO
+
+*tinysparql-endpoint*(1).
+

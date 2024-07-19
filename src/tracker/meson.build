@@ -10,9 +10,11 @@ main_command_sources = [
     'tracker-endpoint.c',
     'tracker-export.c',
     'tracker-import.c',
+    'tracker-introspect.c',
     'tracker-main.c',
     'tracker-sparql.c',
     'tracker-webide.c',
+    sparql_gresource,
 ]
 
 executable(main_command_name, main_command_sources, web_ide_gresources,
