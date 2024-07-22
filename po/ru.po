@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-02-12 11:01+0000\n"
-"PO-Revision-Date: 2024-02-12 16:57+0300\n"
+"POT-Creation-Date: 2024-07-10 10:15+0000\n"
+"PO-Revision-Date: 2024-07-13 19:05+0300\n"
 "Last-Translator: Artur So <arturios2005@mail.ru>\n"
 "Language-Team: Русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.4.4\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -38,9 +38,9 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "Версия"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
-#: src/tracker/tracker-export.c:552 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1398 src/tracker/tracker-sql.c:239
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
+#: src/tracker/tracker-export.c:549 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:239
 msgid "Unrecognized options"
 msgstr "Неизвестный параметр"
 
@@ -109,43 +109,48 @@ msgstr "Должна быть указана одна опция «ontology» и
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "--http-port cannot не может использоваться с --dbus-service"
 
-#: src/tracker/tracker-endpoint.c:198
+#: src/tracker/tracker-endpoint.c:201
 #, c-format
-msgid "Creating HTTP endpoint at %s…"
-msgstr "Создание конечной точки HTTP в %s…"
+msgid "Creating HTTP endpoint at %s…\n"
+msgstr "Создание конечной точки HTTP в %s…\n"
 
-#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:202
+#, c-format
+msgid "Web IDE available at %s\n"
+msgstr "Web IDE доступен в %s\n"
+
+#: src/tracker/tracker-endpoint.c:222 src/tracker/tracker-endpoint.c:285
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr "Слушаю команды SPARQL. Нажмите Ctrl-C, чтобы остановить."
+msgstr "Прослушивание команд SPARQL. Нажмите Ctrl-C, чтобы остановить."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
+#: src/tracker/tracker-endpoint.c:230 src/tracker/tracker-endpoint.c:300
 msgid "Closing connection…"
-msgstr "Закрываю соединение…"
+msgstr "Закрытие соединения…"
 
-#: src/tracker/tracker-endpoint.c:241
+#: src/tracker/tracker-endpoint.c:245
 #, c-format
 msgid "Creating endpoint at %s…"
-msgstr "Создаю конечную точку в %s…"
+msgstr "Создание конечной точки в %s…"
 
-#: src/tracker/tracker-endpoint.c:277
+#: src/tracker/tracker-endpoint.c:281
 msgid "Could not own DBus name"
 msgstr "Не удалось захватить имя DBus"
 
-#: src/tracker/tracker-endpoint.c:291
+#: src/tracker/tracker-endpoint.c:295
 msgid "DBus name lost"
 msgstr "Потеряно имя DBus"
 
-#: src/tracker/tracker-endpoint.c:651
+#: src/tracker/tracker-endpoint.c:655
 #, c-format
 msgid "Opening database at %s…"
-msgstr "Открываю базу данных в %s…"
+msgstr "Открытие базы данных в %s…"
 
-#: src/tracker/tracker-endpoint.c:654
+#: src/tracker/tracker-endpoint.c:658
 msgid "Creating in-memory database"
 msgstr "Создание базы данных в памяти"
 
-#: src/tracker/tracker-endpoint.c:681
+#: src/tracker/tracker-endpoint.c:685
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -213,12 +218,12 @@ msgid "Specify one “--database”, “--dbus-service” or “--remote-service
 msgstr "Укажите одну опцию «—database», «—dbus-service» или «—remote-service»"
 
 #: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1079
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
 msgid "No error given"
 msgstr "Сообщение об ошибке не указано"
 
 #: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1078
+#: src/tracker/tracker-sparql.c:1072
 msgid "Could not establish a connection to Tracker"
 msgstr "Не удалось установить соединение с Tracker"
 
@@ -227,8 +232,8 @@ msgstr "Не удалось установить соединение с Tracker
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Неподдерживаемый формат сериализации «%s»\n"
 
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:447
-#: src/tracker/tracker-export.c:457 src/tracker/tracker-sparql.c:1340
+#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:446
+#: src/tracker/tracker-export.c:455 src/tracker/tracker-sparql.c:1334
 #: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
 msgid "Could not run query"
 msgstr "Не удалось выполнить запрос"
@@ -274,18 +279,18 @@ msgid "Import data into a Tracker database"
 msgstr "Импортировать данные в базу данных Tracker"
 
 #: src/tracker/tracker-main.c:123
-msgid "Available tracker3 commands are:"
-msgstr "Доступные команды tracker3:"
+msgid "Available tinysparql commands are:"
+msgstr "Доступные команды tinysparql:"
 
 #: src/tracker/tracker-main.c:155
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
-"Введите «tracker3 help <команда>» для информации о специфичных подкомандах."
+"Введите «tinysparql help <команда>» для информации о специфичных подкомандах."
 
-#: src/tracker/tracker-main.c:213
+#: src/tracker/tracker-main.c:208
 #, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "«%s» не является командой tracker3. Смотрите справку «tracker3 --help»"
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "«%s» не является командой tinysparql. Смотрите справку «tinysparql --help»"
 
 #: src/tracker/tracker-sparql.c:125
 msgid "Path to use to run a query or update from file"
@@ -395,127 +400,127 @@ msgstr "Нет"
 msgid "Could not create tree: subclass query failed"
 msgstr "Не удалось создать дерево: ошибка запроса подкласса"
 
-#: src/tracker/tracker-sparql.c:948
+#: src/tracker/tracker-sparql.c:949
 msgid "Could not create tree: class properties query failed"
 msgstr "Не удалось создать дерево: ошибка запроса свойств класса"
 
-#: src/tracker/tracker-sparql.c:1015
+#: src/tracker/tracker-sparql.c:1009
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "Недопустимая строка аргумента %s"
 
-#: src/tracker/tracker-sparql.c:1025
+#: src/tracker/tracker-sparql.c:1019
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "Недопустимый тип параметра для аргумента %s"
 
-#: src/tracker/tracker-sparql.c:1095
+#: src/tracker/tracker-sparql.c:1089
 msgid "Could not list classes"
 msgstr "Не удалось показать список классов"
 
-#: src/tracker/tracker-sparql.c:1103
+#: src/tracker/tracker-sparql.c:1097
 msgid "No classes were found"
 msgstr "Классы не найдены"
 
-#: src/tracker/tracker-sparql.c:1103 src/tracker/tracker-sparql.c:1225
+#: src/tracker/tracker-sparql.c:1097 src/tracker/tracker-sparql.c:1219
 msgid "Classes"
 msgstr "Классы"
 
-#: src/tracker/tracker-sparql.c:1126
+#: src/tracker/tracker-sparql.c:1120
 msgid "Could not list properties"
 msgstr "Не удалось показать список свойств"
 
-#: src/tracker/tracker-sparql.c:1134
+#: src/tracker/tracker-sparql.c:1128
 msgid "No properties were found"
 msgstr "Свойства не найдены"
 
-#: src/tracker/tracker-sparql.c:1134 src/tracker/tracker-sparql.c:1243
+#: src/tracker/tracker-sparql.c:1128 src/tracker/tracker-sparql.c:1237
 msgid "Properties"
 msgstr "Свойства"
 
-#: src/tracker/tracker-sparql.c:1150
+#: src/tracker/tracker-sparql.c:1144
 msgid "Could not find notify classes"
 msgstr "Не удалось найти классы уведомлений"
 
-#: src/tracker/tracker-sparql.c:1158
+#: src/tracker/tracker-sparql.c:1152
 msgid "No notifies were found"
 msgstr "Уведомления не найдены"
 
-#: src/tracker/tracker-sparql.c:1158
+#: src/tracker/tracker-sparql.c:1152
 msgid "Notifies"
 msgstr "Уведомления"
 
-#: src/tracker/tracker-sparql.c:1174
+#: src/tracker/tracker-sparql.c:1168
 msgid "Could not find indexed properties"
 msgstr "Не удалось найти проиндексированные свойства"
 
-#: src/tracker/tracker-sparql.c:1182
+#: src/tracker/tracker-sparql.c:1176
 msgid "No indexes were found"
 msgstr "Индексы не найдены"
 
-#: src/tracker/tracker-sparql.c:1182
+#: src/tracker/tracker-sparql.c:1176
 msgid "Indexes"
 msgstr "Индексы"
 
-#: src/tracker/tracker-sparql.c:1192
+#: src/tracker/tracker-sparql.c:1186
 msgid "Could not list named graphs"
 msgstr "Не удалось перечислить именованные графы"
 
-#: src/tracker/tracker-sparql.c:1200
+#: src/tracker/tracker-sparql.c:1194
 msgid "No graphs were found"
 msgstr "Графы не найдены"
 
-#: src/tracker/tracker-sparql.c:1200
+#: src/tracker/tracker-sparql.c:1194
 msgid "Named graphs"
 msgstr "Именованные графы"
 
-#: src/tracker/tracker-sparql.c:1217
+#: src/tracker/tracker-sparql.c:1211
 msgid "Could not search classes"
 msgstr "Не удалось выполнить поиск классов"
 
-#: src/tracker/tracker-sparql.c:1225
+#: src/tracker/tracker-sparql.c:1219
 msgid "No classes were found to match search term"
 msgstr "Не найдено ни одного класса, соответствующего параметрам поиска"
 
 #  У нас вместо "Search results:" просто " "
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1229
 msgid "Could not search properties"
 msgstr "Не удалось выполнить поиск свойств"
 
-#: src/tracker/tracker-sparql.c:1243
+#: src/tracker/tracker-sparql.c:1237
 msgid "No properties were found to match search term"
 msgstr "Не найдено ни одного свойства, соответствующего параметрам поиска"
 
-#: src/tracker/tracker-sparql.c:1272 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-sparql.c:1266 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "Не удалось получить путь в кодировке UTF-8"
 
-#: src/tracker/tracker-sparql.c:1284 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-sparql.c:1278 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "Не удалось прочитать файл"
 
-#: src/tracker/tracker-sparql.c:1315
+#: src/tracker/tracker-sparql.c:1309
 msgid "Could not run update"
 msgstr "Не удалось выполнить обновление"
 
-#: src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1316
 msgid "Done"
 msgstr "Выполнено"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
+#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
 msgid "No results found matching your query"
 msgstr "Не найдено ничего, соответствующего вашему запросу"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
+#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
 #: src/tracker/tracker-sql.c:144
 msgid "Results"
 msgstr "Результаты"
 
-#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:250
+#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:250
 msgid "File and query can not be used together"
 msgstr "Нельзя одновременно использовать файл и запрос"
 
-#: src/tracker/tracker-sparql.c:1409
+#: src/tracker/tracker-sparql.c:1403
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
