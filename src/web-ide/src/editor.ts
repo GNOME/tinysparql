@@ -5,6 +5,8 @@ import {EditorView, basicSetup} from 'codemirror';
 import { sparql } from 'codemirror-lang-sparql';
 import {tags} from "@lezer/highlight";
 import {HighlightStyle, syntaxHighlighting} from "@codemirror/language";
+import { Decoration, DecorationSet } from '@codemirror/view';
+import { StateEffect, StateField } from '@codemirror/state';
 
 import { createQueryLink, notify } from './util';
 
@@ -13,6 +15,7 @@ const fixedHeightEditor = EditorView.theme({
     ".cm-scroller": {overflow: "auto"},
     "&.cm-focused .cm-cursor": { borderLeftColor: "#ddd" },
     "&.cm-focused .cm-selectionBackground, ::selection": { backgroundColor: "#353a44" },
+    ".error-line": { backgroundColor: "#54000099" }
 }, {dark: true});
 
 const myHighlightStyle = HighlightStyle.define([
@@ -45,5 +48,46 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
   await navigator.clipboard.writeText(createQueryLink(view.state.doc));
   notify("Copied to clipboard");
 });
+
+const errorLine = Decoration.line({ class: "error-line" });
+const errorLineEffect = StateEffect.define<{ from: number }>({
+  map: ({ from }, change) => ({ from: change.mapPos(from) })
+ });
+const clearEffect = StateEffect.define();
+const errorLineField = StateField.define<DecorationSet>({
+  create() {
+    return Decoration.none;
+  },
+  update(field, tr) {
+    field = field.map(tr.changes);
+
+    for (let e of tr.effects) if (e.is(errorLineEffect)) {
+      field = field.update({
+        add: [errorLine.range(e.value.from)]
+      });
+    } else if (e.is(clearEffect)) {
+      field = field.update({
+        filter: (f, t, value) => !value.eq(errorLine)
+      })
+    }
+    return field;
+  },
+  provide: f => EditorView.decorations.from(f)
+})
+
+export function setErrorLine (pos: number) {
+  const line = view.lineBlockAt(pos);
+
+  let effects: StateEffect<unknown>[] = [ errorLineEffect.of({ from: line.from }) ];
+
+  if (!view.state.field(errorLineField, false))
+    effects.push(StateEffect.appendConfig.of([errorLineField]))
+
+  view.dispatch({ effects });
+}
+
+export function clearErrorLines () {
+  view.dispatch({ effects: [ clearEffect.of(null) ]});
+}
 
 export default view;
