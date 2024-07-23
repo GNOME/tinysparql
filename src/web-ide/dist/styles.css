@@ -14372,7 +14372,7 @@ div.content {
   overflow-y: scroll;
 }
 
-#saveMsg {
+#notif-msg {
   position: absolute;
   top: -10rem;
   left: 50%;
