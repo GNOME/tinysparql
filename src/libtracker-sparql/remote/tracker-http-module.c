@@ -189,6 +189,7 @@ set_message_format (TrackerHttpRequest      *request,
 
 	response_headers = soup_server_message_get_response_headers (request->message);
 	soup_message_headers_set_content_type (response_headers, mimetype, NULL);
+	soup_message_headers_append (response_headers, "Access-Control-Allow-Origin", "http://localhost:8080");
 }
 
 /* Get SPARQL query from message POST data, or NULL. */
@@ -613,6 +614,8 @@ tracker_http_server_soup_error (TrackerHttpServer       *server,
 	TRACKER_NOTE (HTTP, debug_http_response_error (code, message));
 
 	soup_server_message_set_status (request->message, code, message);
+	SoupMessageHeaders *response_headers = soup_server_message_get_response_headers (request->message);
+	soup_message_headers_append (response_headers, "Access-Control-Allow-Origin", "http://localhost:8080");
 
 #if SOUP_CHECK_VERSION (3, 1, 3)
 	soup_server_message_unpause (request->message);
@@ -681,7 +684,6 @@ write_finished_cb (GObject      *object,
 		                                error->message);
 		g_clear_error (&error);
 	} else {
-		soup_server_message_set_status (request->message, 200, NULL);
 
 #if SOUP_CHECK_VERSION (3, 1, 3)
 		soup_server_message_unpause (request->message);
@@ -707,6 +709,7 @@ tracker_http_server_soup_response (TrackerHttpServer       *server,
 	TRACKER_NOTE (HTTP, debug_http_reponse_response ());
 
 	set_message_format (request, mimetype);
+	soup_server_message_set_status (request->message, 200, NULL);
 
 	request->istream = content;
 	request->task = g_task_new (server, server_soup->cancellable,
@@ -715,6 +718,31 @@ tracker_http_server_soup_response (TrackerHttpServer       *server,
 	g_task_set_task_data (request->task, request, NULL);
 	g_task_run_in_thread (request->task, handle_write_in_thread);
 }
+
+
+static void
+tracker_http_server_soup_error_content (TrackerHttpServer       *server,
+                                        TrackerHttpRequest      *request,
+                                        gint                    code,
+                                        const gchar*            mimetype,
+                                        GInputStream            *content)
+{
+	TrackerHttpServerSoup *server_soup =
+		TRACKER_HTTP_SERVER_SOUP (server);
+
+	g_assert (request->server == server);
+
+	set_message_format (request, mimetype);
+	soup_server_message_set_status (request->message, code, NULL);
+
+	request->istream = content;
+	request->task = g_task_new (server, server_soup->cancellable,
+	                            write_finished_cb, request);
+
+	g_task_set_task_data (request->task, request, NULL);
+	g_task_run_in_thread (request->task, handle_write_in_thread);
+}
+
 
 static void
 tracker_http_server_soup_finalize (GObject *object)
@@ -746,6 +774,7 @@ tracker_http_server_soup_class_init (TrackerHttpServerSoupClass *klass)
 
 	server_class->response = tracker_http_server_soup_response;
 	server_class->error = tracker_http_server_soup_error;
+	server_class->error_content = tracker_http_server_soup_error_content;
 }
 
 static void

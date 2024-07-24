@@ -3,5 +3,8 @@
   <gresource prefix="/org/freedesktop/tracker/web-ide">
     <file compressed="true">dist/main.js</file>
     <file compressed="true">dist/index.html</file>
+    <file compressed="true">dist/cf931f8d6f928f83280b.ico</file>
+    <file compressed="true">dist/styles.css</file>
+    <file compressed="true">dist/404.html</file>
   </gresource>
 </gresources>

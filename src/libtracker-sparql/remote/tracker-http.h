@@ -46,6 +46,11 @@ struct _TrackerHttpServerClass {
 	                TrackerHttpRequest *request,
 	                gint                code,
 	                const gchar        *message);
+	void (* error_content) (TrackerHttpServer       *server,
+	                        TrackerHttpRequest      *request,
+	                        gint                     code,
+	                        const gchar*             mimetype,
+	                        GInputStream            *content);
 };
 
 TrackerHttpServer * tracker_http_server_new (guint             port,
@@ -62,6 +67,12 @@ void tracker_http_server_error (TrackerHttpServer       *server,
                                 TrackerHttpRequest      *request,
                                 gint                     code,
                                 const gchar             *message);
+
+void tracker_http_server_error_content (TrackerHttpServer   *server,
+                                        TrackerHttpRequest  *request,
+                                        gint                 code,
+                                        const gchar*         mimetype,
+                                        GInputStream        *content);
 
 #define TRACKER_TYPE_HTTP_CLIENT (tracker_http_client_get_type ())
 G_DECLARE_DERIVABLE_TYPE (TrackerHttpClient,

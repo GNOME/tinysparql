@@ -4,7 +4,7 @@ import './style.scss';
 import './assets/favicon.ico';
 
 document.getElementById("runBtn")?.addEventListener("click", async () => {
-    let { result, vars } = await run(String(view.state.doc), "http://127.0.0.1:1234/sparql"); // address of separate backend server in development mode
+    let { result, vars } = await run(String(view.state.doc), "/sparql");
 
     // fill results section with error/results table etc.
     document.getElementById("right").replaceChildren(...result);

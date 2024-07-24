@@ -9,6 +9,7 @@ npm i
 
 # run dev server with hot module replacement
 npm run dev
+# in another window/in the background turn on backend server when testing full functionalities
 
 # run bundler to see pretty version of bundled files (in dev directory)
 npx webpack
