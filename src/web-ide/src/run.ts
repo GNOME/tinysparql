@@ -1,4 +1,4 @@
-import { setErrorLine, clearErrorLines } from "./editor";
+import { setErrorLine } from "./editor";
 
 type runRes = {
     result: HTMLElement[],
@@ -6,7 +6,6 @@ type runRes = {
 };
 
 export default async function run(s: string, endpoint: string):Promise<runRes> {
-    clearErrorLines();
 
     if(!s) {
         return {

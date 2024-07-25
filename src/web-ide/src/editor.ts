@@ -15,7 +15,7 @@ const fixedHeightEditor = EditorView.theme({
     ".cm-scroller": {overflow: "auto"},
     "&.cm-focused .cm-cursor": { borderLeftColor: "#ddd" },
     "&.cm-focused .cm-selectionBackground, ::selection": { backgroundColor: "#353a44" },
-    ".error-line": { backgroundColor: "#54000099" }
+    ".error-line": { borderBottom : "3px red solid" }
 }, {dark: true});
 
 const myHighlightStyle = HighlightStyle.define([
@@ -49,23 +49,42 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
   notify("Copied to clipboard");
 });
 
-const errorLine = Decoration.line({ class: "error-line" });
-const errorLineEffect = StateEffect.define<{ from: number }>({
-  map: ({ from }, change) => ({ from: change.mapPos(from) })
+const errorLine = Decoration.mark({ 
+  class: "error-line",
+  inclusiveEnd: true
  });
-const clearEffect = StateEffect.define();
+const errorLineEffect = StateEffect.define<{ pos: number }>();
 const errorLineField = StateField.define<DecorationSet>({
   create() {
     return Decoration.none;
   },
   update(field, tr) {
     field = field.map(tr.changes);
+    let errorLineTriggered = false;
 
     for (let e of tr.effects) if (e.is(errorLineEffect)) {
-      field = field.update({
-        add: [errorLine.range(e.value.from)]
-      });
-    } else if (e.is(clearEffect)) {
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+      const query = view.state.doc.toString();
+      const queryBytesUpToError = encoder.encode(query).slice(0, e.value.pos + 1);
+      const realErrorPos =  decoder.decode(queryBytesUpToError).length - 1;
+      const charAtErrorLine = query[realErrorPos];
+
+
+      if (charAtErrorLine == "\n") {
+        field = field.update({
+          add: [errorLine.range(realErrorPos - 1, realErrorPos)]
+        });
+      } else {
+        field = field.update({
+          add: [errorLine.range(realErrorPos, realErrorPos + 1)]
+        });
+      }
+      errorLineTriggered = true;
+    }
+
+    if (tr.docChanged && !errorLineTriggered)
+    {
       field = field.update({
         filter: (f, t, value) => !value.eq(errorLine)
       })
@@ -76,18 +95,12 @@ const errorLineField = StateField.define<DecorationSet>({
 })
 
 export function setErrorLine (pos: number) {
-  const line = view.lineBlockAt(pos);
+  let effects: StateEffect<unknown>[] = [ errorLineEffect.of({ pos }) ];
 
-  let effects: StateEffect<unknown>[] = [ errorLineEffect.of({ from: line.from }) ];
-
-  if (!view.state.field(errorLineField, false))
+  if (!view.state.field(errorLineField, false)) 
     effects.push(StateEffect.appendConfig.of([errorLineField]))
-
+    
   view.dispatch({ effects });
-}
-
-export function clearErrorLines () {
-  view.dispatch({ effects: [ clearEffect.of(null) ]});
 }
 
 export default view;
