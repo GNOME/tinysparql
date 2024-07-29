@@ -5,18 +5,18 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker master\n"
+"Project-Id-Version: tracker main\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-04-18 16:54+0000\n"
-"PO-Revision-Date: 2024-04-19 12:38+0530\n"
+"POT-Creation-Date: 2024-07-10 10:15+0000\n"
+"PO-Revision-Date: 2024-07-15 19:18+0530\n"
 "Last-Translator: Scrambled777 <weblate.scrambled777@simplelogin.com>\n"
-"Language-Team: Hindi\n"
+"Language-Team: Hindi <indlinux-hindi@lists.sourceforge.net>\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Gtranslator 46.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 46.1\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -32,7 +32,7 @@ msgstr "the|a|an|वह|एक|कोई"
 msgid "Version"
 msgstr "संस्करण"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
 #: src/tracker/tracker-export.c:549 src/tracker/tracker-import.c:196
 #: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:239
 msgid "Unrecognized options"
@@ -46,7 +46,7 @@ msgstr "डेटाबेस का स्थान"
 
 #: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
 msgid "DIR"
-msgstr "DIR"
+msgstr "निर्देशिका"
 
 #: src/tracker/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
@@ -103,43 +103,48 @@ msgstr "एक “ontology” या “ontology-path” विकल्प प�
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "--http-port का उपयोग --dbus-service के साथ नहीं किया जा सकता"
 
-#: src/tracker/tracker-endpoint.c:198
+#: src/tracker/tracker-endpoint.c:201
 #, c-format
-msgid "Creating HTTP endpoint at %s…"
-msgstr "%s पर HTTP समापन बिंदु बनाया जा रहा है…"
+msgid "Creating HTTP endpoint at %s…\n"
+msgstr "%s पर HTTP समापन बिंदु बनाया जा रहा है…\n"
 
-#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:202
+#, c-format
+msgid "Web IDE available at %s\n"
+msgstr "वेब IDE %s पर उपलब्ध है\n"
+
+#: src/tracker/tracker-endpoint.c:222 src/tracker/tracker-endpoint.c:285
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "SPARQL कमांड को सुना जा रहा है। रोकने के लिए Ctrl-C दबाएं।"
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
+#: src/tracker/tracker-endpoint.c:230 src/tracker/tracker-endpoint.c:300
 msgid "Closing connection…"
 msgstr "कनेक्शन बंद हो रहा है…"
 
-#: src/tracker/tracker-endpoint.c:241
+#: src/tracker/tracker-endpoint.c:245
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "%s पर समापनबिंदु बनाया जा रहा है…"
 
-#: src/tracker/tracker-endpoint.c:277
+#: src/tracker/tracker-endpoint.c:281
 msgid "Could not own DBus name"
 msgstr "DBus नाम का स्वामी नहीं बन सका"
 
-#: src/tracker/tracker-endpoint.c:291
+#: src/tracker/tracker-endpoint.c:295
 msgid "DBus name lost"
 msgstr "DBus नाम खो गया"
 
-#: src/tracker/tracker-endpoint.c:651
+#: src/tracker/tracker-endpoint.c:655
 #, c-format
 msgid "Opening database at %s…"
 msgstr "%s पर डेटाबेस खोला जा रहा है…"
 
-#: src/tracker/tracker-endpoint.c:654
+#: src/tracker/tracker-endpoint.c:658
 msgid "Creating in-memory database"
 msgstr "इन-मेमोरी डेटाबेस बनाया जा रहा है"
 
-#: src/tracker/tracker-endpoint.c:681
+#: src/tracker/tracker-endpoint.c:685
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -268,17 +273,17 @@ msgid "Import data into a Tracker database"
 msgstr "ट्रैकर डेटाबेस में डेटा आयात करें"
 
 #: src/tracker/tracker-main.c:123
-msgid "Available tracker3 commands are:"
-msgstr "उपलब्ध tracker3 कमांड हैं:"
+msgid "Available tinysparql commands are:"
+msgstr "उपलब्ध tinysparql कमांड हैं:"
 
 #: src/tracker/tracker-main.c:155
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
-msgstr "किसी विशिष्ट उपकमांड के बारे में पढ़ने के लिए “tracker3 सहायता <command>” देखें।"
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr "किसी विशिष्ट उपकमांड के बारे में पढ़ने के लिए “tinysparql सहायता <command>” देखें।"
 
 #: src/tracker/tracker-main.c:208
 #, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "“%s” एक ट्रैकर3 कमांड नहीं है। “tracker3 --help” देखें"
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "“%s” एक tinysparql कमांड नहीं है। “tinysparql --help” देखें"
 
 #: src/tracker/tracker-sparql.c:125
 msgid "Path to use to run a query or update from file"
