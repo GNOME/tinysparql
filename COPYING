@@ -1,4 +1,4 @@
-libtracker, tracker-extract, tracker-utils and gvdb are licensed under the LGPLv2.1+.  See the file COPYING.LGPL.
+libtracker-common and libtracker-sparql are licensed under the LGPLv2.1+.  See the file COPYING.LGPL.
 
 libstemmer is licensed under BSD-3-clause.
 
