@@ -147,7 +147,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 
 			uri = g_file_get_uri (file);
 
-			class = tracker_class_new (FALSE);
+			class = tracker_class_new ();
 			tracker_class_set_ontologies (class, ontologies);
 			tracker_class_set_uri (class, subject);
 			tracker_class_set_ontology_path (class, uri);
@@ -168,7 +168,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 
 			uri = g_file_get_uri (file);
 
-			property = tracker_property_new (FALSE);
+			property = tracker_property_new ();
 			tracker_property_set_ontologies (property, ontologies);
 			tracker_property_set_uri (property, subject);
 			tracker_property_set_multiple_values (property, TRUE);
@@ -194,7 +194,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 				return TRUE;
 			}
 
-			namespace = tracker_namespace_new (FALSE);
+			namespace = tracker_namespace_new ();
 			tracker_namespace_set_ontologies (namespace, ontologies);
 			tracker_namespace_set_uri (namespace, subject);
 			tracker_ontologies_add_namespace (ontologies, namespace);
