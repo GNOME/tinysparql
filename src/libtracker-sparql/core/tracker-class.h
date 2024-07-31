@@ -47,7 +47,7 @@ struct _TrackerClassClass {
 };
 
 GType             tracker_class_get_type               (void) G_GNUC_CONST;
-TrackerClass *    tracker_class_new                    (gboolean             use_gvdb);
+TrackerClass *    tracker_class_new                    (void);
 const gchar *     tracker_class_get_uri                (TrackerClass        *service);
 const gchar *     tracker_class_get_name               (TrackerClass        *service);
 TrackerRowid      tracker_class_get_id                 (TrackerClass        *service);

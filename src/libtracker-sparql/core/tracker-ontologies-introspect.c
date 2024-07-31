@@ -93,7 +93,7 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 			TrackerNamespace *namespace;
 			const gchar *uri, *prefix;
 
-			namespace = tracker_namespace_new (FALSE);
+			namespace = tracker_namespace_new ();
 
 			uri = tracker_sparql_cursor_get_string (cursor, 0, NULL);
 			prefix = tracker_sparql_cursor_get_string (cursor, 1, NULL);
@@ -134,7 +134,7 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 			const gchar  *uri;
 			gboolean notify;
 
-			class = tracker_class_new (FALSE);
+			class = tracker_class_new ();
 
 			id = tracker_sparql_cursor_get_integer (cursor, 0);
 			uri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
@@ -187,7 +187,7 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 			gint64 max_cardinality;
 			TrackerRowid id;
 
-			property = tracker_property_new (FALSE);
+			property = tracker_property_new ();
 
 			id = tracker_sparql_cursor_get_integer (cursor, 0);
 			uri = tracker_sparql_cursor_get_string (cursor, 1, NULL);

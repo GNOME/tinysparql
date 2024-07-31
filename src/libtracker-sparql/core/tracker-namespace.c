@@ -67,7 +67,7 @@ namespace_finalize (GObject *object)
 }
 
 TrackerNamespace *
-tracker_namespace_new (gboolean use_gvdb)
+tracker_namespace_new (void)
 {
 	return g_object_new (TRACKER_TYPE_NAMESPACE, NULL);
 }

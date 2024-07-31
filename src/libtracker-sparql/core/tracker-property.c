@@ -155,7 +155,7 @@ property_finalize (GObject *object)
  * Returns: The newly created #TrackerProperty
  **/
 TrackerProperty *
-tracker_property_new (gboolean use_gvdb)
+tracker_property_new (void)
 {
 	return g_object_new (TRACKER_TYPE_PROPERTY, NULL);
 }

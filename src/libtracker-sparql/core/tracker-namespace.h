@@ -43,7 +43,7 @@ struct _TrackerNamespaceClass {
 };
 
 GType             tracker_namespace_get_type      (void) G_GNUC_CONST;
-TrackerNamespace *tracker_namespace_new           (gboolean          use_gvdb);
+TrackerNamespace *tracker_namespace_new           (void);
 const gchar *     tracker_namespace_get_uri       (TrackerNamespace *namespace_);
 const gchar *     tracker_namespace_get_prefix    (TrackerNamespace *namespace_);
 

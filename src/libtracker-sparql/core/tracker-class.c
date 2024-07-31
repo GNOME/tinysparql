@@ -92,7 +92,7 @@ class_finalize (GObject *object)
 }
 
 TrackerClass *
-tracker_class_new (gboolean use_gvdb)
+tracker_class_new (void)
 {
 	return g_object_new (TRACKER_TYPE_CLASS, NULL);
 }
