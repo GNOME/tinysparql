@@ -3570,21 +3570,6 @@ translate_SelectQuery (TrackerSparql  *sparql,
 		_call_rule (sparql, NAMED_RULE_DatasetClause, error);
 	}
 
-	/* Optimize single graph case, so it always resorts to querying
-	 * the specific database.
-	 */
-	if (sparql->current_state->named_graphs->len + sparql->current_state->anon_graphs->len == 1) {
-		const gchar *graph = NULL;
-
-		if (sparql->current_state->named_graphs->len > 0)
-			graph = g_ptr_array_index (sparql->current_state->named_graphs, 0);
-		else if (sparql->current_state->anon_graphs->len > 0)
-			graph = g_ptr_array_index (sparql->current_state->anon_graphs, 0);
-
-		if (graph)
-			tracker_token_literal_init (&sparql->current_state->graph, graph, -1);
-	}
-
 	_call_rule (sparql, NAMED_RULE_WhereClause, error);
 
 	if (_check_in_rule (sparql, NAMED_RULE_SolutionModifier)) {
