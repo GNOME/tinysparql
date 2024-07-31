@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-07-10 10:15+0000\n"
-"PO-Revision-Date: 2024-07-10 23:10+0200\n"
+"POT-Creation-Date: 2024-07-30 23:14+0000\n"
+"PO-Revision-Date: 2024-07-31 17:17+0200\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -39,16 +39,16 @@ msgid "Version"
 msgstr "Različica"
 
 #: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
-#: src/tracker/tracker-export.c:549 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:239
+#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:245
 msgid "Unrecognized options"
 msgstr "Nepoznane možnosti"
 
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
 #: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
-msgstr "Mesto podatkovne zbirke"
+msgstr "Mesto zbirke podatkov"
 
 #: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
 msgid "DIR"
@@ -161,109 +161,76 @@ msgstr ""
 "Ustvarjena je nova podatkovna zbirka. Uporabite zastavico »--dbus-service« "
 "za souporabo zbirke prek sporočilnega vodila."
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-endpoint.desktop.in:6
-msgid "endpoint"
-msgstr "končna točka"
-
-#: src/tracker/tracker-endpoint.desktop.in:7
-msgid "Create a SPARQL endpoint"
-msgstr "Ustvari končno točko SPARQL"
-
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
 #: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "DATOTEKA"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:117
 msgid "Connects to a DBus service"
 msgstr "Vzpostavi povezavo z vodilom DBus"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
 #: src/tracker/tracker-sparql.c:118
 msgid "DBus service name"
 msgstr "IMe storitve DBus"
 
-#: src/tracker/tracker-export.c:57
+#: src/tracker/tracker-export.c:55
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Zapis odvoda zadetkov: »turtle«, »trig« ali »json-ld«"
 
-#: src/tracker/tracker-export.c:58
+#: src/tracker/tracker-export.c:56
 msgid "RDF_FORMAT"
 msgstr "ZAPIS_RDF"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:121
 msgid "Connects to a remote service"
 msgstr "Vzpostavi povezavo z oddaljeno storitvijo"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:122
 msgid "Remote service URI"
 msgstr "Naslov URI oddaljene storitve"
 
-#: src/tracker/tracker-export.c:65
+#: src/tracker/tracker-export.c:63
 msgid "Output TriG format which includes named graph information"
 msgstr "Odvodni zapis TriG, ki vključuje podatke o imenskih grafih"
 
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
 #: src/tracker/tracker-sparql.c:206
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Določiti je traba možnost »--database« (zbirka), »--dbus-service« (storitev "
 "dbus), ali pa »--remote-service« (oddaljena storitev)"
 
-#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
+#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
 #: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
 msgid "No error given"
 msgstr "Ni dane napake"
 
-#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
 #: src/tracker/tracker-sparql.c:1072
 msgid "Could not establish a connection to Tracker"
 msgstr "Povezave s Trackerjem ni mogoče vzpostaviti"
 
-#: src/tracker/tracker-export.c:382
+#: src/tracker/tracker-export.c:180
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Nepodprt zapis zaporedja »%s«\n"
-
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:446
-#: src/tracker/tracker-export.c:455 src/tracker/tracker-sparql.c:1334
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "Poizvedbe ni mogoče zagnati"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-export.desktop.in:6
-msgid "export"
-msgstr "izvoz"
-
-#: src/tracker/tracker-export.desktop.in:7
-msgid "Export data from a Tracker database"
-msgstr "Izvoz podatkov iz podatkovne zbirke Tracker"
 
 #: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "izvajanje »%s« je spodletelo: %s"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-help.desktop.in:6
-msgid "help"
-msgstr "pomoč"
-
-#: src/tracker/tracker-help.desktop.in:7
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr "Pridobi pomoč za uporabo programa Tracker in njegovih ukazov"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -273,26 +240,40 @@ msgstr "Zapis TriG, ki vključuje podatke o imenskih grafih"
 msgid "Could not run import"
 msgstr "Ni mogoče zagnati posodobitve"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-import.desktop.in:6
-msgid "import"
-msgstr "unoz"
+#: src/tracker/tracker-main.c:70
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "Pridobi pomoč za uporabo programa TinySPARQL in njegovih ukazov"
 
-#: src/tracker/tracker-import.desktop.in:7
-msgid "Import data into a Tracker database"
-msgstr "Uvozi podatke v podatkovno zbirko Tracker"
+#: src/tracker/tracker-main.c:71
+msgid "Create a SPARQL endpoint"
+msgstr "Ustvari končno točko SPARQL"
 
-#: src/tracker/tracker-main.c:123
+#: src/tracker/tracker-main.c:72
+msgid "Export data from a TinySPARQL database"
+msgstr "Izvozi podatke iz zbirke podatkov TinySPARQL"
+
+#: src/tracker/tracker-main.c:73
+msgid "Import data into a TinySPARQL database"
+msgstr "Uvozi podatke v zbirko podatkov TinySPARQL"
+
+#: src/tracker/tracker-main.c:74
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"Izvajanje poizvedb in posodobitev kazal s SPARQL oziroma iskanje, "
+"izpisovanje in prikaz drevesne strukture ontoloških predmetov"
+
+#: src/tracker/tracker-main.c:91
 msgid "Available tinysparql commands are:"
 msgstr "Na voljo so ukazi programa tinysparql:"
 
-#: src/tracker/tracker-main.c:155
+#: src/tracker/tracker-main.c:110
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
 "Oglejte si ukaz »tinysparql help <ukaz>«, kjer so zabeležene podrobnosti o "
 "posameznem pod-ukazu."
 
-#: src/tracker/tracker-main.c:208
+#: src/tracker/tracker-main.c:153
 #, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
 msgstr ""
@@ -513,6 +494,11 @@ msgstr "Posodobitve ni mogoče zagnati"
 msgid "Done"
 msgstr "Končano"
 
+#: src/tracker/tracker-sparql.c:1334 src/tracker/tracker-sql.c:137
+#: src/tracker/tracker-sql.c:170
+msgid "Could not run query"
+msgstr "Poizvedbe ni mogoče zagnati"
+
 #: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
 msgid "No results found matching your query"
 msgstr "Ni zadetkov skladnih s poizvedbo"
@@ -522,7 +508,7 @@ msgstr "Ni zadetkov skladnih s poizvedbo"
 msgid "Results"
 msgstr "Rezultati"
 
-#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:250
+#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:256
 msgid "File and query can not be used together"
 msgstr "Datoteke in poizvedbe ni mogoče uporabiti skupaj"
 
@@ -533,18 +519,6 @@ msgid ""
 msgstr ""
 "Argument --list-properties je lahko prazen le, kadar je uporabljen skupaj z "
 "argumentom --tree"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sparql.desktop.in:6
-msgid "sparql"
-msgstr "sparql"
-
-#: src/tracker/tracker-sparql.desktop.in:7
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"Izvajanje poizvedb in posodobitev kazal s SPARQL oziroma iskanje, "
-"izpisovanje in prikaz drevesne strukture ontoloških predmetov"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -566,15 +540,6 @@ msgstr "Začenjanje upravljalnika podatkov je spodletelo"
 msgid "Empty result set"
 msgstr "Prazen niz rezultatov"
 
-#: src/tracker/tracker-sql.c:248
+#: src/tracker/tracker-sql.c:254
 msgid "A database path must be specified"
 msgstr "Določena mora biti pot podatkovne zbirke"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sql.desktop.in:6
-msgid "sql"
-msgstr "sql"
-
-#: src/tracker/tracker-sql.desktop.in:7
-msgid "Query the database at the lowest level using SQL"
-msgstr "Poizveduj po zbirki podatkov na najnižji ravni s SQL"
