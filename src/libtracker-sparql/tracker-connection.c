@@ -1159,7 +1159,7 @@ tracker_sparql_connection_remote_new (const gchar *uri_base)
  * @ontology location, the ontology will be introspected from the database.
  * Passing a %NULL @ontology will raise an error if the database does not exist.
  *
- * If a database is opened without the #TRACKER_SPARQL_CONNECTION_FLAG_READONLY
+ * If a database is opened without the `READONLY` [flags@SparqlConnectionFlags]
  * flag enabled, and the given @ontology holds differences with the current
  * data layout, migration to the new structure will be attempted. This operation
  * may raise an error. In particular, not all migrations are possible without
@@ -1168,13 +1168,13 @@ tracker_sparql_connection_remote_new (const gchar *uri_base)
  * to migration.
  *
  * Operations on a [class@SparqlConnection] resulting on a
- * [error@SparqlError.CORRUPT] error will have the event recorded
+ * `CORRUPT` [error@SparqlError] will have the event recorded
  * persistently through a `.meta.corrupted` file alongside the database files.
- * If the database is opened without the [flags@SparqlConnectionFlags.READONLY]
- * flag and the file is found, this constructor will attempt to repair the
+ * If the database is opened without the `READONLY` [flags@SparqlConnectionFlags]
+ * flag enabled and the file is found, this constructor will attempt to repair the
  * database. In that situation, this constructor will either return a valid
  * [class@SparqlConnection] if the database was repaired successfully, or
- * raise a [error@SparqlError.CORRUPT] error if the database remains
+ * raise a `CORRUPT` [error@SparqlError] error if the database remains
  * corrupted.
  *
  * It is considered a developer error to ship ontologies that contain format
