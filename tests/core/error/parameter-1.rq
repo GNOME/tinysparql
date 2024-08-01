@@ -1,0 +1,2 @@
+# Mix langtag with parameters
+SELECT (~a@es AS ?str) { }

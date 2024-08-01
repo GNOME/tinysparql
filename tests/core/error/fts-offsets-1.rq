@@ -1,0 +1,1 @@
+SELECT (fts:offsets(?u, 1) AS ?off) { ?u a rdfs:Resource }

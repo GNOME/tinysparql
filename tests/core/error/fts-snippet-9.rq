@@ -1,0 +1,1 @@
+SELECT (fts:snippet(?u, '>') AS ?snippet) { ?u fts:match "a" }

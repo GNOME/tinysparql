@@ -1,0 +1,2 @@
+# Add some unparseable garbage at the end of the query
+SELECT ?u { } values ?u { } asdfqwertyuiop

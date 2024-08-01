@@ -1,0 +1,2 @@
+# Use unknown xpath function
+SELECT (fn:asdfqwertyuiop (?u) AS ?m) { }

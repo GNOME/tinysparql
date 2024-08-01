@@ -1,0 +1,2 @@
+# Use variable without WHERE clause
+DESCRIBE ?u

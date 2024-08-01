@@ -1,0 +1,2 @@
+# Use unknown class
+SELECT ?u { ?u a nrl:asdfqwertyuiop }

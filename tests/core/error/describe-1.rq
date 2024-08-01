@@ -1,0 +1,2 @@
+# Use glob with no variables
+DESCRIBE * { }

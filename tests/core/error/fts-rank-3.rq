@@ -1,0 +1,1 @@
+SELECT (fts:rank(?u) AS ?rank) { }
