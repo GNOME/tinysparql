@@ -1,0 +1,7 @@
+SELECT DISTINCT ?s
+FROM example:graphA
+FROM example:graphB
+FROM NAMED example:nonExistent
+WHERE {
+	?s example:p 42
+}

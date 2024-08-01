@@ -1,0 +1,5 @@
+SELECT ?s
+FROM example:nonExistent
+WHERE {
+  ?s example:p 42
+}

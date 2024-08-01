@@ -1,0 +1,7 @@
+DESCRIBE ?u
+FROM NAMED example:1
+{
+  GRAPH ?g {
+    ?u a example:A
+  }
+}

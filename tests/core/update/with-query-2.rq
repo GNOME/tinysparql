@@ -1,0 +1,9 @@
+SELECT ?g ?u ?l
+FROM NAMED nrl:DefaultGraph
+FROM NAMED example:1
+WHERE {
+  GRAPH ?g {
+    ?u example:string ?l
+  }
+}
+ORDER BY ?l ?g

@@ -1,0 +1,13 @@
+INSERT {
+  GRAPH <http://example.com/A> {
+    example:a a example:A .
+    example:A a rdfs:Class ;
+      rdfs:subClassOf rdfs:Resource .
+  }
+
+  GRAPH <http://example.com/B> {
+    example:b a example:A .
+    example:A a rdfs:Class ;
+      rdfs:subClassOf rdfs:Resource .
+  }
+}

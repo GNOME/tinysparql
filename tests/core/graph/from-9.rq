@@ -1,0 +1,8 @@
+SELECT (example:p(?s) AS ?v)
+FROM NAMED example:graphB
+FROM example:graphB
+WHERE {
+  GRAPH example:graphB {
+    ?s a example:A .
+  }
+}

@@ -1,0 +1,18 @@
+INSERT {
+	GRAPH example:graphA {
+		example:graphA a example:Graph ;
+			example:graphTitle "Graph Foo" .
+		example:A a rdfs:Class ;
+			rdfs:label 'Foo' .
+		example:resource a example:A ;
+			example:p 42
+	} .
+	GRAPH example:graphB {
+		example:graphB a example:Graph ;
+			example:graphTitle "Graph Bar" .
+		example:A a rdfs:Class ;
+			rdfs:label 'Bar' .
+		example:resource a example:A ;
+			example:p 26
+	} .
+}

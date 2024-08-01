@@ -1,0 +1,5 @@
+DESCRIBE *
+FROM example:1
+{
+  ?u a example:A
+}

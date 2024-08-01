@@ -37,6 +37,8 @@ typedef struct _TrackerDataManagerClass TrackerDataManagerClass;
 #include "tracker-db-interface.h"
 #include "tracker-db-manager.h"
 
+#define TRACKER_DEFAULT_GRAPH TRACKER_PREFIX_NRL "DefaultGraph"
+
 #define TRACKER_DATA_ONTOLOGY_ERROR                  (tracker_data_ontology_error_quark ())
 
 #define TRACKER_TYPE_DATA_MANAGER         (tracker_data_manager_get_type ())
@@ -92,7 +94,7 @@ gboolean             tracker_data_manager_copy_graph  (TrackerDataManager  *mana
 GHashTable *         tracker_data_manager_get_graphs       (TrackerDataManager *manager,
                                                             gboolean            in_transaction);
 
-TrackerRowid         tracker_data_manager_find_graph       (TrackerDataManager *manager,
+gboolean             tracker_data_manager_find_graph       (TrackerDataManager *manager,
                                                             const gchar        *name,
                                                             gboolean            in_transaction);
 

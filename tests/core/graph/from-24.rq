@@ -1,0 +1,8 @@
+SELECT ?g ?u ?l
+FROM NAMED example:graphB
+WHERE {
+  GRAPH ?g {
+    ?u a rdfs:Class .
+    BIND (rdfs:label(?u) AS ?l)
+  }
+}

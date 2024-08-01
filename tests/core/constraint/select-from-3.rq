@@ -1,0 +1,9 @@
+CONSTRAINT GRAPH
+SELECT ?u
+FROM <http://example/A>
+FROM <http://example/B>
+{
+  GRAPH <http://example/A> {
+    ?u a example:A .
+  }
+}

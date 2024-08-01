@@ -1,0 +1,6 @@
+CONSTRAINT GRAPH <http://example.com/A>
+SELECT ?s {
+  GRAPH <http://example.com/A> {
+    ?s rdf:type? example:A
+  }
+}

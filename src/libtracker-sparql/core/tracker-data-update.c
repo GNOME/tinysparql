@@ -2670,6 +2670,9 @@ resource_buffer_switch (TrackerData   *data,
 	TrackerDataUpdateBufferGraph *graph_buffer;
 	GError *inner_error = NULL;
 
+	if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
+		graph = NULL;
+
 	/* large INSERTs with thousands of resources could lead to
 	   high peak memory usage due to the update buffer
 	   flush the buffer if it already contains 1000 resources */

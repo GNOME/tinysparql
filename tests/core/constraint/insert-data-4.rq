@@ -1,0 +1,7 @@
+CONSTRAINT GRAPH
+INSERT INTO <http://example.com/A> {
+  example:a a example:A ;
+            example:p 1 .
+  example:b a example:A ;
+            example:p 2 .
+}

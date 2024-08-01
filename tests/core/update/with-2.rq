@@ -1,0 +1,16 @@
+INSERT {
+  example:a a example:A ;
+            example:string 'foo' .
+};
+
+WITH example:1
+INSERT {
+  example:b a example:A ;
+            example:string ?l .
+}
+USING NAMED nrl:DefaultGraph
+WHERE {
+  GRAPH nrl:DefaultGraph {
+    ?u example:string ?l
+  }
+}

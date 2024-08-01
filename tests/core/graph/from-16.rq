@@ -1,0 +1,5 @@
+SELECT ?g ?s ?l
+FROM NAMED example:graphA
+WHERE {
+  GRAPH ?g { ?s rdf:type/rdfs:label ?l }
+}

@@ -332,14 +332,19 @@ collect_tables (TrackerTriplesCursor *cursor)
 }
 
 static int
+compare_graphs (TrackerRowid *graph1,
+                TrackerRowid *graph2)
+{
+	return (int) (*graph1 - *graph2);
+}
+
+static int
 collect_graphs (TrackerTriplesCursor *cursor)
 {
 	sqlite3_stmt *stmt;
 	int rc;
 
 	rc = sqlite3_prepare_v2 (cursor->vtab->module->db,
-	                         "SELECT 0, 'main' "
-	                         "UNION ALL "
 	                         "SELECT ID, "
 	                         "       (SELECT Uri from Resource where Resource.ID = Graph.ID) "
 	                         "FROM Graph",
@@ -359,6 +364,9 @@ collect_graphs (TrackerTriplesCursor *cursor)
 		id = sqlite3_column_int64 (stmt, 0);
 		uri = sqlite3_column_text (stmt, 1);
 
+		if (g_strcmp0 (uri, TRACKER_DEFAULT_GRAPH) == 0)
+			uri = "main";
+
 		if (cursor->match.graph) {
 			gboolean negated = !!(cursor->match.idxFlags & IDX_MATCH_GRAPH_NEG);
 			gboolean equals = (sqlite3_value_int64 (cursor->match.graph) == id);
@@ -372,8 +380,10 @@ collect_graphs (TrackerTriplesCursor *cursor)
 		                     g_strdup (uri));
 	}
 
-	if (rc == SQLITE_DONE)
+	if (rc == SQLITE_DONE) {
 		cursor->graphs = g_hash_table_get_keys (cursor->query_graphs);
+		cursor->graphs = g_list_sort (cursor->graphs, (GCompareFunc) compare_graphs);
+	}
 
 	sqlite3_finalize (stmt);
 

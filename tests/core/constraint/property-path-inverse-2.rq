@@ -1,0 +1,8 @@
+CONSTRAINT GRAPH <http://example.com/A>
+SELECT ?s ?o {
+  GRAPH <http://example.com/A> {
+    ?s !(nrl:modified|nrl:added|rdfs:subClassOf) ?o .
+    FILTER (?o != rdfs:Class && ?o != rdfs:Resource) .
+  }
+}
+ORDER BY ?s ?o
