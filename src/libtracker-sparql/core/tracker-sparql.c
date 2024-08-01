@@ -7747,14 +7747,26 @@ translate_MultiplicativeExpression (TrackerSparql  *sparql,
 
 	do {
 		if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_ARITH_MULT)) {
+			if (!maybe_numeric (sparql->current_state->expression_type))
+				_raise (PARSE, "Expected numeric operand", "*");
+
 			_append_string (sparql, " * ");
+			_call_rule (sparql, NAMED_RULE_UnaryExpression, error);
+
+			if (!maybe_numeric (sparql->current_state->expression_type))
+				_raise (PARSE, "Expected numeric operand", "*");
 		} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_ARITH_DIV)) {
+			if (!maybe_numeric (sparql->current_state->expression_type))
+				_raise (PARSE, "Expected numeric operand", "/");
+
 			_append_string (sparql, " / ");
+			_call_rule (sparql, NAMED_RULE_UnaryExpression, error);
+
+			if (!maybe_numeric (sparql->current_state->expression_type))
+				_raise (PARSE, "Expected numeric operand", "*");
 		} else {
 			break;
 		}
-
-		_call_rule (sparql, NAMED_RULE_UnaryExpression, error);
 	} while (TRUE);
 
 	return TRUE;
