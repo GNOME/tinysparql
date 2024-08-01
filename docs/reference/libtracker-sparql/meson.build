@@ -171,5 +171,5 @@ reference = custom_target(
   depend_files: [content])
 
 docs_name = 'Tsparql-3.0'
-meson.add_install_script('install-devhelp.sh', docs_name, reference)
-meson.add_dist_script('dist-docs.sh', docs_name, reference.full_path())
+meson.add_install_script('install-devhelp.sh', docs_name, meson.current_source_dir(), reference)
+meson.add_dist_script('dist-docs.sh', docs_name, meson.current_source_dir(), reference.full_path())
