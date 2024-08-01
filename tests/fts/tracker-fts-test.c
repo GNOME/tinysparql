@@ -44,7 +44,7 @@ const TestInfo tests[] = {
 	{ "input/object-variable", 2, TRUE },
 	{ "functions/rank", 5 },
 	{ "functions/offsets", 3 },
-	{ "functions/snippet", 4 },
+	{ "functions/snippet", 3 },
 	{ NULL }
 };
 
