@@ -1472,11 +1472,13 @@ function_sparql_uuid (sqlite3_context *context,
                       sqlite3_value   *argv[])
 {
 	const gchar *fn = "SparqlUUID helper";
-	const gchar *prefix;
+	const gchar *prefix = NULL;
 
 	TRACKER_RETURN_IF_FAIL (argc <= 1, fn, "Invalid argument count");
 
-	prefix = sqlite3_value_text (argv[0]);
+	if (argc == 1)
+		prefix = sqlite3_value_text (argv[0]);
+
 	generate_uuid (context, fn, prefix);
 }
 
@@ -1745,7 +1747,7 @@ initialize_functions (TrackerDBInterface *db_interface)
 		{ "SparqlDataType", -1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_data_type },
 		/* UUID */
-		{ "SparqlUUID", 1, SQLITE_ANY, function_sparql_uuid },
+		{ "SparqlUUID", -1, SQLITE_ANY, function_sparql_uuid },
 		{ "SparqlBNODE", -1, SQLITE_ANY | SQLITE_DETERMINISTIC, function_sparql_bnode },
 	};
 
