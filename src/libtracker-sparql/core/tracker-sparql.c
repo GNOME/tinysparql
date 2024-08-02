@@ -3509,28 +3509,6 @@ translate_ConstraintDecl (TrackerSparql  *sparql,
 }
 
 static gboolean
-_check_undefined_variables (TrackerSparql         *sparql,
-                            TrackerSelectContext  *context,
-                            GError               **error)
-{
-	TrackerVariable *variable;
-	GHashTableIter iter;
-
-	if (!context->variables)
-		return TRUE;
-
-	g_hash_table_iter_init (&iter, context->variables);
-
-	while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &variable)) {
-		if (!tracker_variable_has_bindings (variable)) {
-			_raise (PARSE, "Use of undefined variable", variable->name);
-		}
-	}
-
-	return TRUE;
-}
-
-static gboolean
 _postprocess_rule (TrackerSparql         *sparql,
                    TrackerParserNode     *node,
                    TrackerStringBuilder  *str,
@@ -9052,7 +9030,7 @@ translate_StrReplaceExpression (TrackerSparql  *sparql,
 
 static gboolean
 translate_ExistsFunc (TrackerSparql  *sparql,
-		      GError        **error)
+                      GError        **error)
 {
 	TrackerContext *context;
 
@@ -9067,9 +9045,6 @@ translate_ExistsFunc (TrackerSparql  *sparql,
 	_call_rule (sparql, NAMED_RULE_GroupGraphPattern, error);
 
 	tracker_sparql_pop_context (sparql, FALSE);
-
-	if (!_check_undefined_variables (sparql, TRACKER_SELECT_CONTEXT (context), error))
-		return FALSE;
 
 	_append_string (sparql, ") ");
 
