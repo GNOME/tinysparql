@@ -1,7 +1,7 @@
 #!/bin/sh
 
 libdir=$1
-srcdir=${MESON_BUILD_ROOT}/src/libtracker-sparql/
+srcdir=$2
 
 case $OSTYPE in
   darwin*) lib_ext="dylib" ;;
