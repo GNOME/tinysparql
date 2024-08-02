@@ -24,6 +24,9 @@
 
 #include <gio/gio.h>
 
+#include "tracker-portal.h"
+
 GKeyFile * tracker_invocation_lookup_app_info_sync (GDBusMethodInvocation *invocation,
+                                                    TrackerPortal         *portal,
                                                     GCancellable          *cancellable,
                                                     GError               **error);

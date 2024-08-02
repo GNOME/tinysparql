@@ -36,7 +36,9 @@
 #define DBUS_PATH_DBUS "/org/freedesktop/DBus"
 
 static GKeyFile *
-parse_app_info_from_flatpak_info (int pid, GError **error)
+parse_app_info_from_flatpak_info (TrackerPortal  *portal,
+                                  int             pid,
+                                  GError        **error)
 {
 	g_autofree char *root_path = NULL;
 	int root_fd = -1;
@@ -45,6 +47,7 @@ parse_app_info_from_flatpak_info (int pid, GError **error)
 	g_autoptr(GError) local_error = NULL;
 	g_autoptr(GMappedFile) mapped = NULL;
 	g_autoptr(GKeyFile) metadata = NULL;
+	const char *test_flatpak_info;
 
 	root_path = g_strdup_printf ("/proc/%u/root", pid);
 	root_fd = openat (AT_FDCWD, root_path, O_RDONLY | O_NONBLOCK | O_DIRECTORY | O_CLOEXEC | O_NOCTTY);
@@ -59,8 +62,12 @@ parse_app_info_from_flatpak_info (int pid, GError **error)
 
 	metadata = g_key_file_new ();
 
-	info_fd = openat (root_fd, ".flatpak-info", O_RDONLY | O_CLOEXEC | O_NOCTTY);
+	test_flatpak_info = tracker_portal_get_test_flatpak_info (portal);
+	info_fd = openat (root_fd,
+	                  test_flatpak_info ? test_flatpak_info : ".flatpak-info",
+	                  O_RDONLY | O_CLOEXEC | O_NOCTTY);
 	close (root_fd);
+
 	if (info_fd == -1) {
 		if (errno == ENOENT) {
 			/* No file => on the host, return NULL with no error */
@@ -107,6 +114,7 @@ parse_app_info_from_flatpak_info (int pid, GError **error)
 static GKeyFile *
 tracker_connection_lookup_app_info_sync (GDBusConnection       *connection,
                                          const char            *sender,
+                                         TrackerPortal         *portal,
                                          GCancellable          *cancellable,
                                          GError               **error)
 {
@@ -153,7 +161,7 @@ tracker_connection_lookup_app_info_sync (GDBusConnection       *connection,
 		return NULL;
 	}
 
-	app_info = parse_app_info_from_flatpak_info (pid, &local_error);
+	app_info = parse_app_info_from_flatpak_info (portal, pid, &local_error);
 
 	if (app_info == NULL && local_error) {
 		g_propagate_error (error, g_steal_pointer (&local_error));
@@ -165,11 +173,12 @@ tracker_connection_lookup_app_info_sync (GDBusConnection       *connection,
 
 GKeyFile *
 tracker_invocation_lookup_app_info_sync (GDBusMethodInvocation *invocation,
-					 GCancellable          *cancellable,
-					 GError               **error)
+                                         TrackerPortal         *portal,
+                                         GCancellable          *cancellable,
+                                         GError               **error)
 {
 	GDBusConnection *connection = g_dbus_method_invocation_get_connection (invocation);
 	const gchar *sender = g_dbus_method_invocation_get_sender (invocation);
 
-	return tracker_connection_lookup_app_info_sync (connection, sender, cancellable, error);
+	return tracker_connection_lookup_app_info_sync (connection, sender, portal, cancellable, error);
 }

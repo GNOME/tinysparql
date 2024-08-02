@@ -248,17 +248,10 @@ load_client_configuration (TrackerPortal          *portal,
 	g_autoptr(GError) inner_error = NULL;
 	GStrv graphs;
 
-	if (portal->test_flatpak_info) {
-		flatpak_info = g_key_file_new ();
-		if (!g_key_file_load_from_file (flatpak_info,
-						portal->test_flatpak_info,
-						G_KEY_FILE_NONE,
-						&inner_error))
-			g_clear_pointer (&flatpak_info, g_key_file_unref);
-	} else {
-		flatpak_info = tracker_invocation_lookup_app_info_sync (invocation,
-		                                                        NULL, &inner_error);
-	}
+	flatpak_info = tracker_invocation_lookup_app_info_sync (invocation,
+	                                                        portal,
+	                                                        NULL,
+	                                                        &inner_error);
 
 	if (!flatpak_info) {
 		gchar *default_graphs[] = { NULL };
@@ -494,4 +487,10 @@ tracker_portal_new (GDBusConnection  *connection,
 	return g_initable_new (TRACKER_TYPE_PORTAL, cancellable, error,
 	                       "dbus-connection", connection,
 	                       NULL);
+}
+
+const gchar *
+tracker_portal_get_test_flatpak_info (TrackerPortal *portal)
+{
+	return portal->test_flatpak_info;
 }
