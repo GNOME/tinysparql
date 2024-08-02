@@ -1,0 +1,1 @@
+CONSTRUCT { example:1 a rdfs:Resource } WHERE { }
