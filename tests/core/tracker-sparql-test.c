@@ -204,6 +204,7 @@ const TestInfo tests[] = {
 	{ "functions/functions-builtin-strafter-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-strafter-2", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-strafter-3", "functions/data-1", FALSE },
+	{ "functions/functions-builtin-struuid-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-substr-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-replace-1", "functions/data-1", FALSE },
 	{ "functions/functions-builtin-replace-2", "functions/data-1", TRUE },
