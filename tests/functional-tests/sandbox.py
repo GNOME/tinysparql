@@ -37,6 +37,7 @@ import psutil_mini as psutil
 log = logging.getLogger(__name__)
 
 TRACKER_DBUS_PREFIX = 'org.freedesktop.Tracker3'
+TRACKER_PORTAL_NAME = 'org.freedesktop.portal.Tracker'
 
 _process_list = []
 
@@ -108,7 +109,7 @@ class TrackerSandbox:
 
         log.info("Looking for active Tracker processes on the session bus")
         for busname in self.session_bus.list_names_sync():
-            if busname.startswith(TRACKER_DBUS_PREFIX):
+            if busname.startswith(TRACKER_DBUS_PREFIX) or busname == TRACKER_PORTAL_NAME:
                 pid = self.session_bus.get_connection_unix_process_id_sync(busname)
                 if pid is not None:
                     tracker_processes.append(pid)
