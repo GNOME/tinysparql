@@ -240,6 +240,54 @@ class TrackerStoreSparqlBugsTests(fixtures.TrackerSparqlDirectTest):
         self.assertEqual(result[0][0], result[0][1])
         self.assertEqual(result[0][1], result[0][2])
 
+    def test_06_too_long_filter_datetime(self):
+        """
+        Datetimes exceeding the number of available variables
+        """
+        query = "SELECT tracker:id (?m) ?m WHERE { ?m a rdfs:Resource. FILTER (tracker:id (?m) in (%s)) }"
+        dates = ",".join(['"' + str(i) + '-01-01T01:01:01Z"' for i in range(1000, 2200)])
+        results = self.tracker.query(query % (dates))
+
+        # The query will raise an exception is the bug is there
+        # If we are here, everything is fine.
+        self.assertIsNotNone(results)
+
+    def test_07_too_long_filter_date(self):
+        """
+        Datetimes exceeding the number of available variables
+        """
+        query = "SELECT tracker:id (?m) ?m WHERE { ?m a rdfs:Resource. FILTER (tracker:id (?m) in (%s)) }"
+        dates = ",".join(['"' + str(i) + '-01-01"^^xsd:date' for i in range(1000, 2200)])
+        results = self.tracker.query(query % (dates))
+
+        # The query will raise an exception is the bug is there
+        # If we are here, everything is fine.
+        self.assertIsNotNone(results)
+
+    def test_08_too_long_filter_string(self):
+        """
+        Strings exceeding the number of available variables
+        """
+        query = "SELECT tracker:id (?m) ?m WHERE { ?m a rdfs:Resource. FILTER (tracker:id (?m) in (%s)) }"
+        dates = ",".join(['"' + str(i) + '"' for i in range(1000, 2200)])
+        results = self.tracker.query(query % (dates))
+
+        # The query will raise an exception is the bug is there
+        # If we are here, everything is fine.
+        self.assertIsNotNone(results)
+
+    def test_09_too_long_filter_boolean(self):
+        """
+        Strings exceeding the number of available variables
+        """
+        query = "SELECT tracker:id (?m) ?m WHERE { ?m a rdfs:Resource. FILTER (tracker:id (?m) in (%s)) }"
+        dates = ",".join(['"true"^^xsd:boolean' if i % 2 == 0 else '"false"^^xsd:boolean' for i in range(1000, 2200)])
+        results = self.tracker.query(query % (dates))
+
+        # The query will raise an exception is the bug is there
+        # If we are here, everything is fine.
+        self.assertIsNotNone(results)
+
 
 if __name__ == "__main__":
     fixtures.tracker_test_main()
