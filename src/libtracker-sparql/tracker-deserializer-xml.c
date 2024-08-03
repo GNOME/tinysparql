@@ -479,6 +479,8 @@ tracker_deserializer_xml_next (TrackerSparqlCursor  *cursor,
 	if (g_cancellable_set_error_if_cancelled (cancellable, error))
 		return FALSE;
 
+	g_ptr_array_set_size (deserializer->columns, 0);
+
  again:
 	if (xmlTextReaderRead(deserializer->reader) <= 0) {
 		if (!maybe_propagate_error (deserializer, error)) {
