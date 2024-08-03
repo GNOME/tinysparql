@@ -86,36 +86,12 @@ tracker_serializer_set_property (GObject      *object,
 }
 
 static void
-tracker_serializer_get_property (GObject    *object,
-                                 guint       prop_id,
-                                 GValue     *value,
-                                 GParamSpec *pspec)
-{
-	TrackerSerializer *serializer = TRACKER_SERIALIZER (object);
-	TrackerSerializerPrivate *priv =
-		tracker_serializer_get_instance_private (serializer);
-
-	switch (prop_id) {
-	case PROP_CURSOR:
-		g_value_set_object (value, priv->cursor);
-		break;
-	case PROP_NAMESPACE_MANAGER:
-		g_value_set_object (value, priv->namespaces);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-	}
-}
-
-static void
 tracker_serializer_class_init (TrackerSerializerClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_serializer_finalize;
 	object_class->set_property = tracker_serializer_set_property;
-	object_class->get_property = tracker_serializer_get_property;
 
 	props[PROP_CURSOR] =
 		g_param_spec_object ("cursor",
@@ -124,7 +100,6 @@ tracker_serializer_class_init (TrackerSerializerClass *klass)
 		                     TRACKER_TYPE_SPARQL_CURSOR,
 		                     G_PARAM_CONSTRUCT_ONLY |
 		                     G_PARAM_STATIC_STRINGS |
-		                     G_PARAM_READABLE |
 		                     G_PARAM_WRITABLE);
 	props[PROP_NAMESPACE_MANAGER] =
 		g_param_spec_object ("namespace-manager",
@@ -133,7 +108,6 @@ tracker_serializer_class_init (TrackerSerializerClass *klass)
 		                     TRACKER_TYPE_NAMESPACE_MANAGER,
 		                     G_PARAM_CONSTRUCT_ONLY |
 		                     G_PARAM_STATIC_STRINGS |
-		                     G_PARAM_READABLE |
 		                     G_PARAM_WRITABLE);
 
 	g_object_class_install_properties (object_class, N_PROPS, props);
