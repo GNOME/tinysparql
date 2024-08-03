@@ -283,12 +283,18 @@ batch_sparql_insert (TestFixture   *test_fixture,
                      gconstpointer  context)
 {
 	TrackerBatch *batch;
+	TrackerSparqlConnection *c;
 	GError *error = NULL;
 	GDateTime *date;
 
 	date = g_date_time_new_from_iso8601 ("2022-12-04T01:01:01Z", NULL);
 
 	batch = tracker_sparql_connection_create_batch (test_fixture->conn);
+
+	g_assert_true (test_fixture->conn == tracker_batch_get_connection (batch));
+	g_object_get (batch, "connection", &c, NULL);
+	g_assert_true (test_fixture->conn == c);
+	g_object_unref (c);
 
 	tracker_batch_add_sparql (batch, PHOTO_INSERT_SPARQL);
 	tracker_batch_execute (batch, NULL, &error);
