@@ -197,6 +197,8 @@ query_statement (TestFixture   *test_fixture,
 		stmt = tracker_sparql_connection_load_statement_from_gresource (test_fixture->conn,
 		                                                                test_info->query_file,
 		                                                                NULL, &error);
+		g_assert_true (tracker_sparql_statement_get_connection (stmt) == test_fixture->conn);
+		g_assert_nonnull (tracker_sparql_statement_get_sparql (stmt));
 	} else {
 		path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
 		                         test_info->query_file, NULL);
@@ -215,8 +217,9 @@ query_statement (TestFixture   *test_fixture,
 
 		stmt = tracker_sparql_connection_query_statement (test_fixture->conn, query,
 		                                                  NULL, &error);
-		g_free (query);
 		g_assert_true (tracker_sparql_statement_get_connection (stmt) == test_fixture->conn);
+		g_assert_cmpstr (tracker_sparql_statement_get_sparql (stmt), ==, query);
+		g_free (query);
 	}
 
 	g_assert_no_error (error);
@@ -256,26 +259,37 @@ rdf_types (TestFixture   *test_fixture,
 {
 	TrackerSparqlStatement *stmt;
 	TrackerSparqlCursor *cursor;
+	TrackerSparqlConnection *c;
 	GError *error = NULL;
 	GDateTime *datetime;
-	const gchar *langtag;
+	const gchar *langtag, *query;
 	gboolean retval;
 	glong len;
+	gchar *s;
 
 	datetime = g_date_time_new_utc (2020, 01, 01, 01, 01, 01);
 
+	query = "SELECT "
+	        "  (~string AS ?string)"
+	        "  (~int AS ?int)"
+	        "  (~double AS ?double)"
+	        "  (~bool AS ?bool)"
+	        "  (~datetime AS ?datetime)"
+	        "  (~langString AS ?langString)"
+	        "{ }";
 	stmt = tracker_sparql_connection_query_statement (test_fixture->conn,
-	                                                  "SELECT "
-	                                                  "  (~string AS ?string)"
-	                                                  "  (~int AS ?int)"
-	                                                  "  (~double AS ?double)"
-	                                                  "  (~bool AS ?bool)"
-	                                                  "  (~datetime AS ?datetime)"
-	                                                  "  (~langString AS ?langString)"
-	                                                  "{ }",
+	                                                  query,
 	                                                  NULL,
 	                                                  &error);
 	g_assert_no_error (error);
+
+	g_object_get (stmt, "connection", &c, NULL);
+	g_assert_true (c == test_fixture->conn);
+	g_object_unref (c);
+
+	g_object_get (stmt, "sparql", &s, NULL);
+	g_assert_cmpstr (s, ==, query);
+	g_free (s);
 
 	tracker_sparql_statement_bind_string (stmt, "string", "Hello");
 	tracker_sparql_statement_bind_int (stmt, "int", 42);
@@ -365,9 +379,11 @@ stmt_update (TestFixture   *test_fixture,
 	TrackerSparqlStatement *stmt;
 	TrackerSparqlCursor *cursor;
 	GError *error = NULL;
+	const char *query;
 
+	query = "INSERT DATA { ~res a rdfs:Resource ; rdfs:label ~label }";
 	stmt = tracker_sparql_connection_update_statement (test_fixture->conn,
-	                                                   "INSERT DATA { ~res a rdfs:Resource ; rdfs:label ~label }",
+	                                                   query,
 	                                                   NULL,
 	                                                   &error);
 	g_assert_no_error (error);
@@ -379,6 +395,8 @@ stmt_update (TestFixture   *test_fixture,
 	}
 
 	g_assert_nonnull (stmt);
+	g_assert_true (tracker_sparql_statement_get_connection (stmt) == test_fixture->conn);
+	g_assert_cmpstr (tracker_sparql_statement_get_sparql (stmt), ==, query);
 
 	tracker_sparql_statement_bind_string (stmt, "res", "http://example.com/a");
 	tracker_sparql_statement_bind_string (stmt, "label", "Label");
