@@ -227,7 +227,7 @@ tracker_deserializer_xml_get_value_type (TrackerSparqlCursor  *cursor,
 		TRACKER_DESERIALIZER_XML (cursor);
 	ColumnData *col;
 
-	if (column > (gint) deserializer->columns->len)
+	if (column < 0 || column >= (gint) deserializer->columns->len)
 		return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
 
 	col = g_ptr_array_index (deserializer->columns, column);
@@ -242,7 +242,7 @@ tracker_deserializer_xml_get_variable_name (TrackerSparqlCursor  *cursor,
 	TrackerDeserializerXml *deserializer =
 		TRACKER_DESERIALIZER_XML (cursor);
 
-	if (column > (gint) deserializer->column_names->len)
+	if (column < 0 || column >= (gint) deserializer->column_names->len)
 		return NULL;
 
 	return g_ptr_array_index (deserializer->column_names, column);
@@ -263,7 +263,7 @@ tracker_deserializer_xml_get_string (TrackerSparqlCursor  *cursor,
 	if (langtag)
 		*langtag = NULL;
 
-	if (column > (gint) deserializer->columns->len)
+	if (column < 0 || column >= (gint) deserializer->columns->len)
 		return NULL;
 
 	col = g_ptr_array_index (deserializer->columns, column);
