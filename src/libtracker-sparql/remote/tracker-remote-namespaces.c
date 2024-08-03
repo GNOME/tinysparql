@@ -217,38 +217,18 @@ tracker_remote_namespace_manager_set_property (GObject      *object,
 }
 
 static void
-tracker_remote_namespace_manager_get_property (GObject    *object,
-                                               guint       prop_id,
-                                               GValue     *value,
-                                               GParamSpec *pspec)
-{
-	TrackerRemoteNamespaceManager *manager =
-		TRACKER_REMOTE_NAMESPACE_MANAGER (object);
-
-	switch (prop_id) {
-	case PROP_CONNECTION:
-		g_value_set_object (value, manager->conn);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-	}
-}
-
-static void
 tracker_remote_namespace_manager_class_init (TrackerRemoteNamespaceManagerClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->set_property = tracker_remote_namespace_manager_set_property;
-	object_class->get_property = tracker_remote_namespace_manager_get_property;
 
 	props[PROP_CONNECTION] =
 		g_param_spec_object ("connection",
 		                     "Connection",
 		                     "Connection",
 		                     TRACKER_TYPE_SPARQL_CONNECTION,
-		                     G_PARAM_READWRITE |
+		                     G_PARAM_WRITABLE |
 		                     G_PARAM_CONSTRUCT_ONLY);
 
 	g_object_class_install_properties (object_class, N_PROPS, props);
