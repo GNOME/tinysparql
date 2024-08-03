@@ -145,8 +145,6 @@ tracker_bus_cursor_get_variable_name (TrackerSparqlCursor *cursor,
 {
 	TrackerBusCursor *bus_cursor = TRACKER_BUS_CURSOR (cursor);
 
-	if (bus_cursor->finished)
-		return NULL;
 	if (column < 0 || column >= bus_cursor->n_columns)
 		return NULL;
 
