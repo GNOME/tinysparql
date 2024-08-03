@@ -217,14 +217,12 @@ test_tracker_sparql_query_iterate_empty (gpointer      fixture,
 	g_assert_true (tracker_sparql_cursor_get_n_columns (cursor) == 1);
 
 	g_object_get (G_OBJECT (cursor),
-		      "n-columns", &prop_cols,
-		      "connection", &prop_conn,
-		      NULL);
+	              "n-columns", &prop_cols,
+	              "connection", &prop_conn,
+	              NULL);
 
 	g_assert_cmpint (prop_cols, ==, tracker_sparql_cursor_get_n_columns (cursor));
 	g_assert_true (prop_conn == conn);
-
-	/* FIXME: test behavior of cursor getters after last value */
 
 	g_object_unref (cursor);
 }
@@ -658,6 +656,76 @@ test_tracker_sparql_cursor_get_langstring (gpointer      fixture,
 	tracker_sparql_cursor_close (cursor);
 }
 
+static void
+test_tracker_sparql_cursor_after_last_row (gpointer      fixture,
+                                           gconstpointer user_data)
+{
+	TrackerSparqlConnection *conn = (TrackerSparqlConnection *) user_data;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+	gboolean has_next;
+
+	cursor = tracker_sparql_connection_query (conn,
+	                                          "SELECT ('Hola' AS ?greeting) { }",
+	                                          NULL, &error);
+	g_assert_no_error (error);
+	g_assert_nonnull (cursor);
+	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
+
+	has_next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (has_next);
+
+	/* Check that iterating multiple times after the last cursor does return FALSE, but no error */
+	has_next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_false (has_next);
+	g_assert_no_error (error);
+
+	has_next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_false (has_next);
+	g_assert_no_error (error);
+
+	/* Check cursor API after last next() */
+	g_assert_null (tracker_sparql_cursor_get_string (cursor, 0, NULL));
+	g_assert_cmpstr (tracker_sparql_cursor_get_variable_name (cursor, 0), ==, "greeting");
+	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 0), ==, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
+	g_assert_cmpint (tracker_sparql_cursor_is_bound (cursor, 0), ==, FALSE);
+	g_assert_cmpint (tracker_sparql_cursor_get_n_columns (cursor), ==, 1);
+
+	tracker_sparql_cursor_close (cursor);
+	g_clear_object (&cursor);
+}
+
+static void
+test_tracker_sparql_cursor_after_last_column (gpointer      fixture,
+                                              gconstpointer user_data)
+{
+	TrackerSparqlConnection *conn = (TrackerSparqlConnection *) user_data;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+	gboolean has_next;
+
+	cursor = tracker_sparql_connection_query (conn,
+	                                          "SELECT ('Hola' AS ?greeting) { }",
+	                                          NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (cursor != NULL);
+	g_assert_true (tracker_sparql_cursor_get_connection (cursor) == conn);
+
+	has_next = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (has_next);
+
+	/* Check cursor API after last column */
+	g_assert_null (tracker_sparql_cursor_get_string (cursor, 1, NULL));
+	g_assert_null (tracker_sparql_cursor_get_variable_name (cursor, 1));
+	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 1), ==, TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
+	g_assert_cmpint (tracker_sparql_cursor_is_bound (cursor, 1), ==, FALSE);
+
+	tracker_sparql_cursor_close (cursor);
+	g_clear_object (&cursor);
+}
+
 typedef struct {
 	const gchar *name;
 	GTestFixtureFunc func;
@@ -675,6 +743,8 @@ TestInfo tests[] = {
 	{ "tracker_sparql_cursor_get_variable_name", test_tracker_sparql_cursor_get_variable_name },
 	{ "tracker_sparql_cursor_get_value_type", test_tracker_sparql_cursor_get_value_type },
 	{ "tracker_sparql_cursor_get_langstring", test_tracker_sparql_cursor_get_langstring },
+	{ "tracker_sparql_cursor_after_last_row", test_tracker_sparql_cursor_after_last_row },
+	{ "tracker_sparql_cursor_after_last_column", test_tracker_sparql_cursor_after_last_column },
 };
 
 static void
