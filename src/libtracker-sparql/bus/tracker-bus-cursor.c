@@ -320,22 +320,6 @@ tracker_bus_cursor_next_finish (TrackerSparqlCursor  *cursor,
 }
 
 static void
-tracker_bus_cursor_rewind (TrackerSparqlCursor *cursor)
-{
-	TrackerBusCursor *bus_cursor = TRACKER_BUS_CURSOR (cursor);
-
-	g_clear_pointer (&bus_cursor->types, g_free);
-	g_clear_pointer (&bus_cursor->row_data, g_free);
-
-	if (g_seekable_can_seek (G_SEEKABLE (bus_cursor->data_stream))) {
-		g_seekable_seek (G_SEEKABLE (bus_cursor->data_stream),
-				 0, G_SEEK_SET, NULL, NULL);
-	}
-
-	bus_cursor->finished = FALSE;
-}
-
-static void
 tracker_bus_cursor_close (TrackerSparqlCursor *cursor)
 {
 	TrackerBusCursor *bus_cursor = TRACKER_BUS_CURSOR (cursor);
@@ -364,7 +348,6 @@ tracker_bus_cursor_class_init (TrackerBusCursorClass *klass)
 	cursor_class->next = tracker_bus_cursor_next;
 	cursor_class->next_async = tracker_bus_cursor_next_async;
 	cursor_class->next_finish = tracker_bus_cursor_next_finish;
-	cursor_class->rewind = tracker_bus_cursor_rewind;
 	cursor_class->close = tracker_bus_cursor_close;
 
 	props[PROP_VARIABLES] =

@@ -345,16 +345,6 @@ tracker_deserializer_json_next_finish (TrackerSparqlCursor  *cursor,
 	return g_task_propagate_boolean (G_TASK (res), error);
 }
 
-static void
-tracker_deserializer_json_rewind (TrackerSparqlCursor *cursor)
-{
-	TrackerDeserializerJson *deserializer =
-		TRACKER_DESERIALIZER_JSON (cursor);
-
-	deserializer->started = FALSE;
-	deserializer->idx = 0;
-}
-
 gboolean
 tracker_deserializer_json_get_parser_location (TrackerDeserializer *deserializer,
                                                goffset             *line_no,
@@ -382,7 +372,6 @@ tracker_deserializer_json_class_init (TrackerDeserializerJsonClass *klass)
 	cursor_class->next = tracker_deserializer_json_next;
 	cursor_class->next_async = tracker_deserializer_json_next_async;
 	cursor_class->next_finish = tracker_deserializer_json_next_finish;
-	cursor_class->rewind = tracker_deserializer_json_rewind;
 
 	deserializer_class->get_parser_location =
 		tracker_deserializer_json_get_parser_location;

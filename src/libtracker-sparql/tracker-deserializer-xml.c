@@ -551,15 +551,6 @@ tracker_deserializer_xml_next_finish (TrackerSparqlCursor  *cursor,
 }
 
 static void
-tracker_deserializer_xml_rewind (TrackerSparqlCursor *cursor)
-{
-	TrackerDeserializerXml *deserializer =
-		TRACKER_DESERIALIZER_XML (cursor);
-
-	deserializer->started = FALSE;
-}
-
-static void
 tracker_deserializer_xml_close (TrackerSparqlCursor *cursor)
 {
 	TrackerDeserializerXml *deserializer =
@@ -603,7 +594,6 @@ tracker_deserializer_xml_class_init (TrackerDeserializerXmlClass *klass)
 	cursor_class->next = tracker_deserializer_xml_next;
 	cursor_class->next_async = tracker_deserializer_xml_next_async;
 	cursor_class->next_finish = tracker_deserializer_xml_next_finish;
-	cursor_class->rewind = tracker_deserializer_xml_rewind;
 	cursor_class->close = tracker_deserializer_xml_close;
 
 	deserializer_class->get_parser_location =

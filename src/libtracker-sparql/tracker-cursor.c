@@ -637,5 +637,8 @@ tracker_sparql_cursor_rewind (TrackerSparqlCursor *cursor)
 {
 	g_return_if_fail (TRACKER_IS_SPARQL_CURSOR (cursor));
 
-	TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->rewind (cursor);
+	if (TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->rewind)
+		TRACKER_SPARQL_CURSOR_GET_CLASS (cursor)->rewind (cursor);
+	else
+		g_warning ("Rewind not implemented for cursor type %s", G_OBJECT_TYPE_NAME (cursor));
 }
