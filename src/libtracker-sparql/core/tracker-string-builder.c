@@ -237,21 +237,6 @@ tracker_string_builder_append_valist (TrackerStringBuilder *builder,
 }
 
 void
-tracker_string_builder_prepend_valist (TrackerStringBuilder *builder,
-                                       const gchar          *format,
-                                       va_list               args)
-{
-	TrackerStringChunk *chunk;
-	gchar *str;
-
-	str = g_strdup_vprintf (format, args);
-
-	chunk = ensure_first_chunk (builder);
-	string_chunk_append (chunk, str, -1);
-	g_free (str);
-}
-
-void
 tracker_string_builder_append_printf (TrackerStringBuilder *builder,
                                       const gchar          *format,
                                       ...)
@@ -260,18 +245,6 @@ tracker_string_builder_append_printf (TrackerStringBuilder *builder,
 
 	va_start (varargs, format);
 	tracker_string_builder_append_valist (builder, format, varargs);
-	va_end (varargs);
-}
-
-void
-tracker_string_builder_prepend_printf (TrackerStringBuilder *builder,
-                                       const gchar          *format,
-                                       ...)
-{
-	va_list varargs;
-
-	va_start (varargs, format);
-	tracker_string_builder_prepend_valist (builder, format, varargs);
 	va_end (varargs);
 }
 
