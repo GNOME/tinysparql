@@ -97,24 +97,6 @@ tracker_bus_cursor_set_property (GObject      *object,
 	}
 }
 
-static void
-tracker_bus_cursor_get_property (GObject    *object,
-				 guint       prop_id,
-				 GValue     *value,
-				 GParamSpec *pspec)
-{
-	TrackerBusCursor *cursor = TRACKER_BUS_CURSOR (object);
-
-	switch (prop_id) {
-	case PROP_VARIABLES:
-		g_value_set_variant (value, cursor->variables);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-	}
-}
-
 static gint
 tracker_bus_cursor_get_n_columns (TrackerSparqlCursor *cursor)
 {
@@ -374,7 +356,6 @@ tracker_bus_cursor_class_init (TrackerBusCursorClass *klass)
 	object_class->finalize = tracker_bus_cursor_finalize;
 	object_class->constructed = tracker_bus_cursor_constructed;
 	object_class->set_property = tracker_bus_cursor_set_property;
-	object_class->get_property = tracker_bus_cursor_get_property;
 
 	cursor_class->get_n_columns = tracker_bus_cursor_get_n_columns;
 	cursor_class->get_value_type = tracker_bus_cursor_get_value_type;
@@ -388,13 +369,13 @@ tracker_bus_cursor_class_init (TrackerBusCursorClass *klass)
 
 	props[PROP_VARIABLES] =
 		g_param_spec_variant ("variables",
-				      "Variables",
-				      "Variables",
-				      G_VARIANT_TYPE ("as"),
-				      NULL,
-				      G_PARAM_READWRITE |
-				      G_PARAM_STATIC_STRINGS |
-				      G_PARAM_CONSTRUCT_ONLY);
+		                      "Variables",
+		                      "Variables",
+		                      G_VARIANT_TYPE ("as"),
+		                      NULL,
+		                      G_PARAM_WRITABLE |
+		                      G_PARAM_STATIC_STRINGS |
+		                      G_PARAM_CONSTRUCT_ONLY);
 
 	g_object_class_install_properties (object_class, N_PROPS, props);
 
