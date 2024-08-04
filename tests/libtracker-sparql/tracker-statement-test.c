@@ -386,7 +386,6 @@ stmt_update (TestFixture   *test_fixture,
 	                                                   query,
 	                                                   NULL,
 	                                                   &error);
-	g_assert_no_error (error);
 
 	if (strstr (G_OBJECT_TYPE_NAME (test_fixture->conn), "Remote") != NULL) {
 		/* HTTP connections do not implement updates on purpose */
@@ -394,6 +393,7 @@ stmt_update (TestFixture   *test_fixture,
 		return;
 	}
 
+	g_assert_no_error (error);
 	g_assert_nonnull (stmt);
 	g_assert_true (tracker_sparql_statement_get_connection (stmt) == test_fixture->conn);
 	g_assert_cmpstr (tracker_sparql_statement_get_sparql (stmt), ==, query);
@@ -470,7 +470,6 @@ stmt_update_async (TestFixture   *test_fixture,
 	                                                   "INSERT DATA { ~res a rdfs:Resource }",
 	                                                   NULL,
 	                                                   &error);
-	g_assert_no_error (error);
 
 	if (strstr (G_OBJECT_TYPE_NAME (test_fixture->conn), "Remote") != NULL) {
 		/* HTTP connections do not implement updates on purpose */
@@ -478,6 +477,7 @@ stmt_update_async (TestFixture   *test_fixture,
 		return;
 	}
 
+	g_assert_no_error (error);
 	g_assert_nonnull (stmt);
 
 	loop = g_main_loop_new (NULL, FALSE);
