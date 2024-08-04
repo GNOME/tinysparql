@@ -28,6 +28,17 @@ tests += {
   'suite': ['sparql'],
 }
 
+tracker_connection_test = executable('tracker-connection-test',
+  'tracker-connection-test.c',
+  dependencies: libtracker_sparql_test_deps,
+  c_args: libtracker_sparql_test_c_args)
+
+tests += {
+  'name': 'connection',
+  'exe': tracker_connection_test,
+  'suite': ['sparql']
+}
+
 tracker_sparql_test = executable('tracker-sparql-test',
   'tracker-sparql-test.c',
   dependencies: libtracker_sparql_test_deps,
