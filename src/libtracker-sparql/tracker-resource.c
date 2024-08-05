@@ -1102,42 +1102,6 @@ parse_prefix (const gchar *prefixed_name)
 	return g_strndup (prefixed_name, token_end - prefixed_name);
 }
 
-/* Helper function for serialization code. This allows you to selectively
- * populate 'interned_namespaces' from 'all_namespaces' based on when a
- * particular prefix is actually used. This is quite inefficient compared
- * to just dumping all known namespaces, but it makes the serializated
- * output more readable.
- */
-static void
-maybe_intern_prefix_of_compact_uri (TrackerNamespaceManager *all_namespaces,
-                                    TrackerNamespaceManager *interned_namespaces,
-                                    const char              *uri)
-{
-	/* The TrackerResource API doesn't distinguish between compact URIs and full
-	 * URIs. This is fine as long as users don't add prefixes that can be
-	 * confused with URIs. Both URIs and CURIEs can have anything following
-	 * the ':', so without hardcoding knowledge of well-known protocols here,
-	 * we can't really tell if the user has done something dumb like defining a
-	 * "urn" prefix.
-	 */
-	char *prefix = parse_prefix (uri);
-
-	if (prefix == NULL) {
-		g_warning ("Invalid URI or compact URI: %s", uri);
-		return;
-	}
-
-	if (tracker_namespace_manager_has_prefix (all_namespaces, prefix)) {
-		if (!tracker_namespace_manager_has_prefix (interned_namespaces, prefix)) {
-			const char *namespace = tracker_namespace_manager_lookup_prefix (all_namespaces, prefix);
-			tracker_namespace_manager_add_prefix (interned_namespaces, prefix, namespace);
-		}
-	}
-
-	g_free (prefix);
-}
-
-
 static gboolean
 is_blank_node (const char *uri_or_curie_or_blank)
 {
@@ -1171,8 +1135,7 @@ is_builtin_class (const gchar             *uri_or_curie,
 static void
 generate_turtle_uri_value (const char              *uri_or_curie_or_blank,
                            GString                 *string,
-                           TrackerNamespaceManager *all_namespaces,
-                           TrackerNamespaceManager *our_namespaces)
+                           TrackerNamespaceManager *all_namespaces)
 {
 	/* The tracker_resource_set_uri() function accepts URIs
 	 * (such as http://example.com/) and compact URIs (such as nie:DataObject),
@@ -1189,11 +1152,6 @@ generate_turtle_uri_value (const char              *uri_or_curie_or_blank,
 		char *prefix = parse_prefix (uri_or_curie_or_blank);
 
 		if (prefix && tracker_namespace_manager_has_prefix (all_namespaces, prefix)) {
-			/* It's a compact URI and we know the prefix */
-			if (our_namespaces != NULL) {
-				maybe_intern_prefix_of_compact_uri (all_namespaces, our_namespaces, uri_or_curie_or_blank);
-			};
-
 			g_string_append (string, uri_or_curie_or_blank);
 		} else {
 			/* It's a full URI (or something invalid, but we can't really tell that here) */
@@ -1213,12 +1171,12 @@ generate_turtle_value (const GValue            *value,
 	if (type == TRACKER_TYPE_URI) {
 		generate_turtle_uri_value (g_value_get_string (value),
 		                           string,
-		                           all_namespaces, NULL);
+		                           all_namespaces);
 	} else if (type == TRACKER_TYPE_RESOURCE) {
 		TrackerResource *relation = TRACKER_RESOURCE (g_value_get_object (value));
 		generate_turtle_uri_value (tracker_resource_get_identifier (relation),
 		                           string,
-		                           all_namespaces, NULL);
+		                           all_namespaces);
 	} else if (type == G_TYPE_STRING) {
 		char *escaped = tracker_sparql_escape_string (g_value_get_string (value));
 		g_string_append_printf(string, "\"%s\"", escaped);
@@ -1431,7 +1389,7 @@ generate_sparql_delete_queries (TrackerResource     *resource,
 
 			g_string_append (data->string, "  ");
 			generate_turtle_uri_value (tracker_resource_get_identifier (resource),
-						   data->string, data->namespaces, NULL);
+			                           data->string, data->namespaces);
 			g_string_append_printf (data->string, " %s ?%s }", property, variable_name);
 			g_free (variable_name);
 
@@ -1485,7 +1443,7 @@ generate_sparql_insert_pattern (TrackerResource    *resource,
 	g_hash_table_foreach (priv->properties, generate_sparql_relation_inserts_foreach, data);
 
 	generate_turtle_uri_value (tracker_resource_get_identifier (resource),
-	                           data->string, data->namespaces, NULL);
+	                           data->string, data->namespaces);
 	g_string_append_printf (data->string, " ");
 
 	/* rdf:type needs to be first, otherwise you'll see 'subject x is not in domain y'
