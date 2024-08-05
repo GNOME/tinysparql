@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker main\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-07-10 10:15+0000\n"
-"PO-Revision-Date: 2024-07-15 19:18+0530\n"
+"POT-Creation-Date: 2024-07-30 23:14+0000\n"
+"PO-Revision-Date: 2024-08-03 23:05+0530\n"
 "Last-Translator: Scrambled777 <weblate.scrambled777@simplelogin.com>\n"
 "Language-Team: Hindi <indlinux-hindi@lists.sourceforge.net>\n"
 "Language: hi\n"
@@ -33,12 +33,12 @@ msgid "Version"
 msgstr "संस्करण"
 
 #: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
-#: src/tracker/tracker-export.c:549 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:239
+#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:245
 msgid "Unrecognized options"
 msgstr "अपरिचित विकल्प"
 
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
 #: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
@@ -152,108 +152,75 @@ msgstr ""
 "नया डाटाबेस बनाया गया। इस डेटाबेस को संदेश बस पर साझा करने के लिए “--dbus-service” "
 "विकल्प का उपयोग करें।"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-endpoint.desktop.in:6
-msgid "endpoint"
-msgstr "समापनबिंदु"
-
-#: src/tracker/tracker-endpoint.desktop.in:7
-msgid "Create a SPARQL endpoint"
-msgstr "एक SPARQL एंडपॉइंट बनाएं"
-
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
 #: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "फाइल"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:117
 msgid "Connects to a DBus service"
 msgstr "एक DBus सेवा से जुड़ता है"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
 #: src/tracker/tracker-sparql.c:118
 msgid "DBus service name"
 msgstr "DBus सेवा का नाम"
 
-#: src/tracker/tracker-export.c:57
+#: src/tracker/tracker-export.c:55
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "आउटपुट परिणाम प्रारूप: “turtle”, “trig” या “json-ld”"
 
-#: src/tracker/tracker-export.c:58
+#: src/tracker/tracker-export.c:56
 msgid "RDF_FORMAT"
 msgstr "RDF_FORMAT"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:121
 msgid "Connects to a remote service"
 msgstr "किसी दूरस्थ सेवा से जुड़ता है"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:122
 msgid "Remote service URI"
 msgstr "दूरस्थ सेवा URI"
 
-#: src/tracker/tracker-export.c:65
+#: src/tracker/tracker-export.c:63
 msgid "Output TriG format which includes named graph information"
 msgstr "आउटपुट TriG प्रारूप जिसमें नामांकित ग्राफ जानकारी शामिल है"
 
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
 #: src/tracker/tracker-sparql.c:206
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "एक “--database”, “--dbus-service” या “--remote-service” विकल्प निर्दिष्ट करें"
 
-#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
+#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
 #: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
 msgid "No error given"
 msgstr "कोई त्रुटि नहीं दी गई"
 
-#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
 #: src/tracker/tracker-sparql.c:1072
 msgid "Could not establish a connection to Tracker"
 msgstr "ट्रैकर से कनेक्शन स्थापित नहीं किया जा सका"
 
-#: src/tracker/tracker-export.c:382
+#: src/tracker/tracker-export.c:180
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "असमर्थित क्रमांकन प्रारूप “%s”\n"
-
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:446
-#: src/tracker/tracker-export.c:455 src/tracker/tracker-sparql.c:1334
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "क्वेरी नहीं चल सकी"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-export.desktop.in:6
-msgid "export"
-msgstr "निर्यात"
-
-#: src/tracker/tracker-export.desktop.in:7
-msgid "Export data from a Tracker database"
-msgstr "ट्रैकर डेटाबेस से डेटा निर्यात करें"
 
 #: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "“%s” निष्पादित करने में विफल: %s"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-help.desktop.in:6
-msgid "help"
-msgstr "सहायता"
-
-#: src/tracker/tracker-help.desktop.in:7
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr "ट्रैकर और इनमें से किसी भी कमांड का उपयोग कैसे करें, इस पर सहायता प्राप्त करें"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -263,24 +230,38 @@ msgstr "TriG प्रारूप पढ़ें जिसमें नाम�
 msgid "Could not run import"
 msgstr "आयात नहीं चल सका"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-import.desktop.in:6
-msgid "import"
-msgstr "आयात"
+#: src/tracker/tracker-main.c:70
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "TinySPARQL और इनमें से किसी भी कमांड का उपयोग कैसे करें, इस पर सहायता प्राप्त करें"
 
-#: src/tracker/tracker-import.desktop.in:7
-msgid "Import data into a Tracker database"
-msgstr "ट्रैकर डेटाबेस में डेटा आयात करें"
+#: src/tracker/tracker-main.c:71
+msgid "Create a SPARQL endpoint"
+msgstr "एक SPARQL एंडपॉइंट बनाएं"
 
-#: src/tracker/tracker-main.c:123
+#: src/tracker/tracker-main.c:72
+msgid "Export data from a TinySPARQL database"
+msgstr "TinySPARQL डेटाबेस से डेटा निर्यात करें"
+
+#: src/tracker/tracker-main.c:73
+msgid "Import data into a TinySPARQL database"
+msgstr "TinySPARQL डेटाबेस में डेटा आयात करें"
+
+#: src/tracker/tracker-main.c:74
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"SPARQL का उपयोग करके अनुक्रमणिका को क्वेरी और अद्यतन करें या सत्तामीमांसा को खोजें, "
+"सूचीबद्ध और ट्री करें"
+
+#: src/tracker/tracker-main.c:91
 msgid "Available tinysparql commands are:"
 msgstr "उपलब्ध tinysparql कमांड हैं:"
 
-#: src/tracker/tracker-main.c:155
+#: src/tracker/tracker-main.c:110
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr "किसी विशिष्ट उपकमांड के बारे में पढ़ने के लिए “tinysparql सहायता <command>” देखें।"
 
-#: src/tracker/tracker-main.c:208
+#: src/tracker/tracker-main.c:153
 #, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
 msgstr "“%s” एक tinysparql कमांड नहीं है। “tinysparql --help” देखें"
@@ -495,6 +476,11 @@ msgstr "अद्यतन नहीं चला सका"
 msgid "Done"
 msgstr "संपन्न"
 
+#: src/tracker/tracker-sparql.c:1334 src/tracker/tracker-sql.c:137
+#: src/tracker/tracker-sql.c:170
+msgid "Could not run query"
+msgstr "क्वेरी नहीं चल सकी"
+
 #: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
 msgid "No results found matching your query"
 msgstr "आपकी क्वेरी से मेल खाता कोई परिणाम नहीं मिला"
@@ -504,7 +490,7 @@ msgstr "आपकी क्वेरी से मेल खाता कोई 
 msgid "Results"
 msgstr "परिणाम"
 
-#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:250
+#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:256
 msgid "File and query can not be used together"
 msgstr "फाइल और क्वेरी का एक साथ उपयोग नहीं किया जा सकता"
 
@@ -515,18 +501,6 @@ msgid ""
 msgstr ""
 "--list-properties तर्क केवल तब खाली हो सकता है जब --tree तर्क के साथ प्रयोग किया "
 "जाता है"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sparql.desktop.in:6
-msgid "sparql"
-msgstr "sparql"
-
-#: src/tracker/tracker-sparql.desktop.in:7
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"SPARQL का उपयोग करके अनुक्रमणिका को क्वेरी और अद्यतन करें या सत्तामीमांसा को खोजें, "
-"सूचीबद्ध और ट्री करें"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -548,15 +522,6 @@ msgstr "डेटा प्रबंधक प्रारंभ करने �
 msgid "Empty result set"
 msgstr "रिक्त परिणाम समूह"
 
-#: src/tracker/tracker-sql.c:248
+#: src/tracker/tracker-sql.c:254
 msgid "A database path must be specified"
 msgstr "एक डेटाबेस पथ निर्दिष्ट किया जाना चाहिए"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sql.desktop.in:6
-msgid "sql"
-msgstr "sql"
-
-#: src/tracker/tracker-sql.desktop.in:7
-msgid "Query the database at the lowest level using SQL"
-msgstr "SQL का उपयोग करके डेटाबेस को निम्नतम स्तर पर क्वेरी करें"
