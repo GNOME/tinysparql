@@ -1260,8 +1260,7 @@ void
 generate_turtle_property (const char              *property,
                           const GValue            *value,
                           GString                 *string,
-                          TrackerNamespaceManager *all_namespaces,
-                          TrackerNamespaceManager *our_namespaces)
+                          TrackerNamespaceManager *all_namespaces)
 {
 	if (strcmp (property, TRACKER_PREFIX_RDF "type") == 0 || strcmp (property, "rdf:type") == 0) {
 		g_string_append (string, "a");
@@ -1276,18 +1275,16 @@ generate_turtle_property (const char              *property,
 		if (array->len > 0) {
 			generate_turtle_value (g_ptr_array_index (array, 0),
 			                       string,
-			                       all_namespaces,
-			                       our_namespaces);
+			                       all_namespaces, NULL);
 			for (i = 1; i < array->len; i++) {
 				g_string_append (string, " , ");
 				generate_turtle_value (g_ptr_array_index (array, i),
 				                       string,
-				                       all_namespaces,
-				                       our_namespaces);
+				                       all_namespaces, NULL);
 			}
 		}
 	} else {
-		generate_turtle_value (value, string, all_namespaces, our_namespaces);
+		generate_turtle_value (value, string, all_namespaces, NULL);
 	}
 }
 
@@ -1491,7 +1488,7 @@ generate_sparql_insert_pattern (TrackerResource    *resource,
 	g_hash_table_foreach (priv->properties, generate_sparql_relation_inserts_foreach, data);
 
 	generate_turtle_uri_value (tracker_resource_get_identifier (resource),
-				   data->string, data->namespaces, NULL);
+	                           data->string, data->namespaces, NULL);
 	g_string_append_printf (data->string, " ");
 
 	/* rdf:type needs to be first, otherwise you'll see 'subject x is not in domain y'
@@ -1499,7 +1496,7 @@ generate_sparql_insert_pattern (TrackerResource    *resource,
 	 */
 	value = g_hash_table_lookup (priv->properties, "rdf:type");
 	if (value != NULL) {
-		generate_turtle_property ("a", value, data->string, data->namespaces, NULL);
+		generate_turtle_property ("a", value, data->string, data->namespaces);
 		had_property = TRUE;
 	}
 
@@ -1512,7 +1509,7 @@ generate_sparql_insert_pattern (TrackerResource    *resource,
 				g_string_append (data->string, " ; \n  ");
 			}
 
-			generate_turtle_property (property, value, data->string, data->namespaces, NULL);
+			generate_turtle_property (property, value, data->string, data->namespaces);
 
 			had_property = TRUE;
 		}
