@@ -23,9 +23,6 @@
 
 #include "tracker-rowid.h"
 
-G_DEFINE_BOXED_TYPE (TrackerRowid, tracker_rowid,
-                     tracker_rowid_copy, tracker_rowid_free)
-
 TrackerRowid *
 tracker_rowid_copy (TrackerRowid *rowid)
 {
