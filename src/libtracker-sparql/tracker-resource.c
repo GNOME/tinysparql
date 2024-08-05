@@ -1207,21 +1207,18 @@ generate_turtle_uri_value (const char              *uri_or_curie_or_blank,
 static void
 generate_turtle_value (const GValue            *value,
                        GString                 *string,
-                       TrackerNamespaceManager *all_namespaces,
-                       TrackerNamespaceManager *our_namespaces)
+                       TrackerNamespaceManager *all_namespaces)
 {
 	GType type = G_VALUE_TYPE (value);
 	if (type == TRACKER_TYPE_URI) {
 		generate_turtle_uri_value (g_value_get_string (value),
 		                           string,
-		                           all_namespaces,
-		                           our_namespaces);
+		                           all_namespaces, NULL);
 	} else if (type == TRACKER_TYPE_RESOURCE) {
 		TrackerResource *relation = TRACKER_RESOURCE (g_value_get_object (value));
 		generate_turtle_uri_value (tracker_resource_get_identifier (relation),
 		                           string,
-		                           all_namespaces,
-		                           our_namespaces);
+		                           all_namespaces, NULL);
 	} else if (type == G_TYPE_STRING) {
 		char *escaped = tracker_sparql_escape_string (g_value_get_string (value));
 		g_string_append_printf(string, "\"%s\"", escaped);
@@ -1250,7 +1247,7 @@ generate_turtle_value (const GValue            *value,
 			g_string_append (string, g_value_get_string (&str_value));
 		} else {
 			g_warning ("Cannot serialize value of type %s to Turtle/SPARQL",
-			            G_VALUE_TYPE_NAME (value));
+			           G_VALUE_TYPE_NAME (value));
 		}
 		g_value_unset (&str_value);
 	}
@@ -1275,16 +1272,16 @@ generate_turtle_property (const char              *property,
 		if (array->len > 0) {
 			generate_turtle_value (g_ptr_array_index (array, 0),
 			                       string,
-			                       all_namespaces, NULL);
+			                       all_namespaces);
 			for (i = 1; i < array->len; i++) {
 				g_string_append (string, " , ");
 				generate_turtle_value (g_ptr_array_index (array, i),
 				                       string,
-				                       all_namespaces, NULL);
+				                       all_namespaces);
 			}
 		}
 	} else {
-		generate_turtle_value (value, string, all_namespaces, NULL);
+		generate_turtle_value (value, string, all_namespaces);
 	}
 }
 
