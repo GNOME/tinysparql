@@ -211,7 +211,7 @@ run_http_endpoint (TrackerSparqlConnection  *connection,
 	                                                        NULL, NULL, &inner_error));
 
 	g_object_set (G_OBJECT (endpoint),
-	              "endpoint-name",
+	              "name",
 	              endpoint_description,
 	              NULL);
 
