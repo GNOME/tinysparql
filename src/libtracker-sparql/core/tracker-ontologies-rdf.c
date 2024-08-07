@@ -620,13 +620,12 @@ tracker_ontologies_load_from_rdf (GList   *files,
 {
 	TrackerOntologies *ontologies;
 	GError *inner_error = NULL;
+	TrackerSparqlCursor *rdf = NULL;
 	GList *l;
 
 	ontologies = tracker_ontologies_new ();
 
 	for (l = files; l; l = l->next) {
-		TrackerSparqlCursor *rdf;
-
 		rdf = tracker_deserializer_new_for_file (l->data,
 		                                         NULL,
 		                                         &inner_error);
@@ -637,7 +636,11 @@ tracker_ontologies_load_from_rdf (GList   *files,
 		                        TRACKER_DESERIALIZER (rdf),
 		                        l->data, &inner_error))
 			break;
+
+		g_clear_object (&rdf);
 	}
+
+	g_clear_object (&rdf);
 
 	if (!inner_error)
 		check_ontology_completeness (ontologies, &inner_error);
