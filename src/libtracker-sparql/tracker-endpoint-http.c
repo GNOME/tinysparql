@@ -105,6 +105,8 @@ const gchar *get_request_file_extension[] = {
 	"ico",	
 };
 
+const gchar *default_endpoint_name = "Unnamed TinySPARQL HTTP endpoint";
+
 G_STATIC_ASSERT (G_N_ELEMENTS (supported_formats) == TRACKER_N_SERIALIZER_FORMATS);
 G_STATIC_ASSERT (G_N_ELEMENTS (get_request_mimetypes) == G_N_ELEMENTS (get_request_file_extension));
 
@@ -114,6 +116,8 @@ struct _TrackerEndpointHttp {
 	GTlsCertificate *certificate;
 	guint port;
 	GCancellable *cancellable;
+
+	gchar *endpoint_name;
 };
 
 typedef struct {
@@ -133,6 +137,7 @@ enum {
 	PROP_0,
 	PROP_HTTP_PORT,
 	PROP_HTTP_CERTIFICATE,
+	PROP_ENDPOINT_NAME,
 	N_PROPS
 };
 
@@ -242,6 +247,8 @@ create_service_description (TrackerEndpointHttp      *endpoint,
 	                                      "http://www.w3.org/ns/sparql-service-description#");
 	tracker_namespace_manager_add_prefix (*manager, "format",
 	                                      "http://www.w3.org/ns/formats/");
+	tracker_namespace_manager_add_prefix (*manager, "dc",
+	                                      "http://purl.org/dc/terms/");
 
 	resource = tracker_resource_new (NULL);
 	tracker_resource_set_uri (resource, "rdf:type", "sd:Service");
@@ -254,6 +261,8 @@ create_service_description (TrackerEndpointHttp      *endpoint,
 
 	add_supported_formats (resource, "sd:resultFormat");
 	add_supported_formats (resource, "sd:inputFormat");
+
+	tracker_resource_set_string (resource, "dc:title", endpoint->endpoint_name);
 
 	return resource;
 }
@@ -527,6 +536,9 @@ tracker_endpoint_http_set_property (GObject      *object,
 	case PROP_HTTP_CERTIFICATE:
 		endpoint_http->certificate = g_value_dup_object (value);
 		break;
+	case PROP_ENDPOINT_NAME:
+		endpoint_http->endpoint_name = g_value_dup_string (value);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -547,6 +559,9 @@ tracker_endpoint_http_get_property (GObject    *object,
 		break;
 	case PROP_HTTP_CERTIFICATE:
 		g_value_set_object (value, endpoint_http->certificate);
+		break;
+	case PROP_ENDPOINT_NAME:
+		g_value_set_string (value, endpoint_http->endpoint_name);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -604,6 +619,17 @@ tracker_endpoint_http_class_init (TrackerEndpointHttpClass *klass)
 		                     "HTTP certificate",
 		                     G_TYPE_TLS_CERTIFICATE,
 		                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+	/**
+	 * TrackerEndpointHttp:endpoint-name:
+	 *
+	 * User-facing name of this endpoint.
+	 */
+	props[PROP_ENDPOINT_NAME] =
+		g_param_spec_string ("endpoint-name",
+		                     "endpoint-name",
+		                     "endpoint-name",
+		                     default_endpoint_name,
+		                     G_PARAM_READWRITE);
 
 	g_object_class_install_properties (object_class, N_PROPS, props);
 }
@@ -647,5 +673,6 @@ tracker_endpoint_http_new (TrackerSparqlConnection  *sparql_connection,
 	                       "http-port", port,
 	                       "sparql-connection", sparql_connection,
 	                       "http-certificate", certificate,
+	                       "endpoint-name", default_endpoint_name,
 	                       NULL);
 }

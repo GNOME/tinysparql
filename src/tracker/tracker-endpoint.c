@@ -181,6 +181,7 @@ block_http_handler (TrackerEndpointHttp *endpoint_http,
 
 static gboolean
 run_http_endpoint (TrackerSparqlConnection  *connection,
+                   const gchar              *endpoint_description,
                    GError                  **error)
 {
 	TrackerEndpoint *endpoint = NULL;
@@ -208,6 +209,11 @@ run_http_endpoint (TrackerSparqlConnection  *connection,
 	endpoint = TRACKER_ENDPOINT (tracker_endpoint_http_new (connection,
 	                                                        http_port,
 	                                                        NULL, NULL, &inner_error));
+
+	g_object_set (G_OBJECT (endpoint),
+	              "endpoint-name",
+	              endpoint_description,
+	              NULL);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -601,6 +607,7 @@ tracker_endpoint (int argc, const char **argv)
 	GOptionContext *context;
 	GError *error = NULL;
 	GFile *database = NULL, *ontology = NULL;
+	gchar *endpoint_description = NULL;
 
 	context = g_option_context_new (NULL);
 	g_option_context_add_main_entries (context, entries, NULL);
@@ -652,9 +659,11 @@ tracker_endpoint (int argc, const char **argv)
 	g_assert (ontology != NULL);
 
 	if (database_path) {
+		endpoint_description = g_strdup_printf("TinySPARQL database at %s", database_path);
 		g_print (_("Opening database at %s…"), database_path);
 		g_print ("\n");
 	} else {
+		endpoint_description = g_strdup("TinySPARQL in-memory database");
 		g_print (_("Creating in-memory database"));
 		g_print ("\n");
 	}
@@ -668,7 +677,7 @@ tracker_endpoint (int argc, const char **argv)
 	}
 
 	if (http_port > 0) {
-		run_http_endpoint (connection, &error);
+		run_http_endpoint (connection, endpoint_description, &error);
 
 		if (error) {
 			g_printerr ("%s\n", error->message);
@@ -693,6 +702,7 @@ tracker_endpoint (int argc, const char **argv)
 	}
 
 	g_option_context_free (context);
+	g_clear_pointer (&endpoint_description, g_free);
 
 	return EXIT_SUCCESS;
 }
