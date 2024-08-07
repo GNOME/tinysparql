@@ -1,10 +1,10 @@
 import view from './editor';
-import run from './run';
+import { executeSparql } from './run';
 import './style.scss';
 import './assets/favicon.ico';
 
 document.getElementById("runBtn")?.addEventListener("click", async () => {
-    let { result, vars } = await run(String(view.state.doc), "/sparql");
+    let { result, vars } = await executeSparql(String(view.state.doc), "/sparql");
 
     // fill results section with error/results table etc.
     document.getElementById("right").replaceChildren(...result);

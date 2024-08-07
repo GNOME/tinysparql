@@ -5,10 +5,23 @@ type runRes = {
     vars?: HTMLElement[]
 };
 
-export default async function run(s: string, endpoint: string):Promise<runRes> {
+/**
+ * Execute a SPARQL query on the given the HTTP endpoint.
+ *
+ * Results are returned to the caller via a runRes instance.
+ *
+ * In case of success, this will update the DOM with results.
+ *
+ * In case of error, this will apply an error marking to the global editor object.
+ *
+ * @param query - The SPARQL query to execute.
+ * @param endpoint - URL of the HTTP endpoint.
+ * @returns Result object.
+ */
+export async function executeSparql(query: string, endpoint: string):Promise<runRes> {
 
-    if(!s) {
-        return {
+    if(!query) {
+      return {
             result :[generateErrorMessage("Empty query. Enter your query into the editor space and try again.")]
         };
     }
@@ -22,11 +35,10 @@ export default async function run(s: string, endpoint: string):Promise<runRes> {
         mode: 'cors',
         method: 'POST',
         headers: reqHead,
-        body: s,
+        body: query,
         redirect: 'follow'
     };
 
-    
     try {
         let res = await fetch(endpoint, reqOptions);
         if (res.ok) {
