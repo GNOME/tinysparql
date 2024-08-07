@@ -1858,8 +1858,7 @@ tracker_sparql_add_fts_subquery (TrackerSparql          *sparql,
 	tracker_sparql_swap_builder (sparql, old);
 	g_string_free (select_items, TRUE);
 
-	if (table)
-		*table = table_name;
+	*table = table_name;
 
 	return TRUE;
 }
