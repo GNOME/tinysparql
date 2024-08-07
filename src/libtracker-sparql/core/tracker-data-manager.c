@@ -1151,7 +1151,7 @@ static gchar *
 get_ontologies_checksum (GList   *ontologies,
                          GError **error)
 {
-	GFileInputStream *stream;
+	GFileInputStream *stream = NULL;
 	GError *inner_error = NULL;
 	gchar *retval = NULL;
 	GChecksum *checksum;
@@ -1176,7 +1176,11 @@ get_ontologies_checksum (GList   *ontologies,
 			if (len != sizeof (buf))
 				break;
 		}
+
+		g_clear_object (&stream);
 	}
+
+	g_clear_object (&stream);
 
 	if (!inner_error)
 		retval = g_strdup (g_checksum_get_string (checksum));
@@ -2204,14 +2208,14 @@ tracker_data_manager_import_ontology (TrackerDataManager     *manager,
 
 	g_value_unset (&resource_value);
 	g_clear_object (&deserializer);
-	g_list_free (ontology_files);
+	g_list_free_full (ontology_files, g_object_unref);
 	return TRUE;
 
  error:
 	g_propagate_error (error, inner_error);
 	g_value_unset (&resource_value);
 	g_clear_object (&deserializer);
-	g_list_free (ontology_files);
+	g_list_free_full (ontology_files, g_object_unref);
 	return FALSE;
 }
 
