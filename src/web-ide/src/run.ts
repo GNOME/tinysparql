@@ -79,6 +79,40 @@ export async function executeSparql(query: string, endpoint: string):Promise<run
     }
 }
 
+type EndpointDescriptor = {[key: string]: any};
+
+/**
+ * Get the endpoint descriptor.
+ *
+ * This is an RDF document describing the endpoint.
+ *
+ * In case of error, this raises an exception to the caller.
+ *
+ * @param endpoint - URL of the HTTP endpoint.
+ * @returns The JSON-LD response deserialized to a JavaScript object.
+ */
+export async function getEndpointDescriptor(endpoint: string): Promise<EndpointDescriptor> {
+    let reqHead: Headers = new Headers({
+        "Content-Type": "text/plain",
+        "Accept": "application/ld+json"
+    });
+
+    let reqOptions: RequestInit = {
+        mode: 'cors',
+        method: 'GET',
+        headers: reqHead,
+        redirect: 'follow'
+    };
+
+    let res = await fetch(endpoint, reqOptions);
+    if (res.ok) {
+        let descriptor = JSON.parse(await res.text());
+        return descriptor;
+    } else {
+        throw(`Error ${res.status} ${res.statusText}`);
+    }
+}
+
 type sparqlRes = {
     head: {
         vars: string[]
