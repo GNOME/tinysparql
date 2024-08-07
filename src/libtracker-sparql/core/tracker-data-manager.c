@@ -2204,14 +2204,14 @@ tracker_data_manager_import_ontology (TrackerDataManager     *manager,
 
 	g_value_unset (&resource_value);
 	g_clear_object (&deserializer);
-	g_list_free (ontology_files);
+	g_list_free_full (ontology_files, g_object_unref);
 	return TRUE;
 
  error:
 	g_propagate_error (error, inner_error);
 	g_value_unset (&resource_value);
 	g_clear_object (&deserializer);
-	g_list_free (ontology_files);
+	g_list_free_full (ontology_files, g_object_unref);
 	return FALSE;
 }
 
