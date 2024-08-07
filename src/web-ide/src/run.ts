@@ -5,7 +5,39 @@ type runRes = {
     vars?: HTMLElement[]
 };
 
-export default async function run(s: string, endpoint: string):Promise<runRes> {
+let prefixes: Record<string, string> = {}; // maps url to prefix
+
+export async function getPrefixes(endpoint: string) {
+
+    let reqHead: Headers = new Headers({
+        "Content-Type": "text/plain",
+        "Accept": "text/turtle"
+    });
+    
+    let reqOptions: RequestInit = {
+        mode: 'cors',
+        method: 'POST',
+        headers: reqHead,
+        body: "DESCRIBE <>",
+        redirect: 'follow'
+    };
+    
+    
+    let res = await fetch(endpoint, reqOptions);
+    const raw = await res.text();
+
+    // extract every line describing a prefix
+    Array.from(raw.matchAll(/@prefix ([a-z]+): <(https?:\/\/[A-Za-z.\/0-9-_]+#?)>/g))
+        .forEach(m => {
+            const prefix = m[1];
+            const url = m[2];
+            prefixes[url] = prefix;
+        });
+
+    console.log(prefixes);
+}
+
+export async function run(s: string, endpoint: string):Promise<runRes> {
 
     if(!s) {
         return {
@@ -31,6 +63,7 @@ export default async function run(s: string, endpoint: string):Promise<runRes> {
         let res = await fetch(endpoint, reqOptions);
         if (res.ok) {
             let parsedResults = JSON.parse(await res.text());
+            console.log(parsedResults);
             return {
                 result: [generateResultsTable(parsedResults)],
                 vars: generateVarSelects(parsedResults)
@@ -103,7 +136,21 @@ function generateResultsTable(data: sparqlRes, show: string[]|null = null) {
         id.innerText = String(i + 1);
         vars.forEach((v, j) => {
             let cell = row.insertCell(j + 1);
-            cell.innerText = b[v].value;
+            const value = b[v].value;
+            
+            // if value is a url, shorten with a prefix if one exists, otherwise use value as is
+            const urlMatch = value.match(/^(https?:\/\/[A-Za-z.\/0-9-_]+#?)[a-zA-z]*$/);
+            if (urlMatch) {
+                const url = urlMatch[1];
+                const prefix = prefixes[url];
+                const valueWithPrefix = prefix ? value.replace(url, `${ prefix }: `) : value;
+                cell.innerHTML = 
+                // links to relevant docs
+                `<a href=${ urlMatch[0] } target="_blank" rel="noopener noreferrer">
+                    ${ valueWithPrefix }
+                </a>`;
+            }
+            else cell.innerText = value;
         })
     })
 
