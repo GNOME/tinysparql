@@ -8,7 +8,7 @@ import {HighlightStyle, syntaxHighlighting} from "@codemirror/language";
 import { Decoration, DecorationSet } from '@codemirror/view';
 import { StateEffect, StateField } from '@codemirror/state';
 
-import { createQueryLink, notify } from './util';
+import { createQueryLink, getColorScheme, notify } from './util';
 
 const fixedHeightEditor = EditorView.theme({
     "&": {height: "40vh"},
@@ -16,21 +16,20 @@ const fixedHeightEditor = EditorView.theme({
     "&.cm-focused .cm-cursor": { borderLeftColor: "#ddd" },
     "&.cm-focused .cm-selectionBackground, ::selection": { backgroundColor: "#353a44" },
     ".error-line": { borderBottom : "3px red solid" }
-}, {dark: true});
+}, { dark: getColorScheme() == "dark" });
 
 const myHighlightStyle = HighlightStyle.define([
-  {tag: tags.keyword, color: "#B4B4FD"},
-  {tag: tags.variableName, color: "#70CFFF"},
-  {tag: tags.namespace, color: "#78D454"},
-  {tag: tags.integer, color: "#32bd8f"},
-  {tag: tags.float, color: "#32bd8f"},
-  {tag: tags.bool, color: "#FB7478"},
-  {tag: tags.string, color: "#32bd8f"},
-  {tag: tags.comment, color: "#7ea2b4", fontStyle: "italic"},
-  {tag: tags.annotation, color: "#B4B4FD"},
-  {tag: tags.url, color: "#78D454"},
-  {tag: tags.typeName, color: "#FB7478"},
-  
+  {tag: tags.keyword, color: "#3584e4"}, // blue
+  {tag: tags.variableName, color: "#3a944a"}, // green
+  {tag: tags.namespace, color: "#d56199"}, // pink
+  {tag: tags.integer, color: "#c88800"}, // yellow
+  {tag: tags.float, color: "#c88800"}, // yellow
+  {tag: tags.bool, color: "#e62d42"}, // red
+  {tag: tags.string, color: "#c88800"}, // yellow
+  {tag: tags.comment, color: "#6f8396", fontStyle: "italic"}, // slate grey
+  {tag: tags.annotation, color: "#ed5b00"}, // orange
+  {tag: tags.url, color: "#2190a4"}, // teal
+  {tag: tags.typeName, color: "#ed5b00"}, // orange
 ])
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -69,7 +68,6 @@ const errorLineField = StateField.define<DecorationSet>({
       const queryBytesUpToError = encoder.encode(query).slice(0, e.value.pos + 1);
       const realErrorPos =  decoder.decode(queryBytesUpToError).length - 1;
       const charAtErrorLine = query[realErrorPos];
-
 
       if (charAtErrorLine == "\n") {
         field = field.update({

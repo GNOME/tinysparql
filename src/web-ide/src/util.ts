@@ -15,3 +15,10 @@ export function createQueryLink(query: Text) {
 
     return `${ currentUrl.origin }?query=${ q }`;
 }
+
+export function getColorScheme() {
+  return window
+    .getComputedStyle(document.documentElement)
+    .getPropertyValue('content')
+    .replace(/"/g, '');
+}

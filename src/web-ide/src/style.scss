@@ -17,6 +17,18 @@
 
 $breakpoint: 835px;
 
+@media (prefers-color-scheme: light) {
+    html {
+        content: "light";
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    html {
+        content: "dark";
+    }
+}
+
 #main {
     display: flex;
     @include mixins.until($breakpoint) {
