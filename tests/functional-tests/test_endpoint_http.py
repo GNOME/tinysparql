@@ -27,6 +27,7 @@ import json
 from pathlib import Path
 import random
 import shutil
+import sys
 from tempfile import mkdtemp
 from urllib.error import HTTPError
 from urllib.parse import quote
@@ -91,14 +92,26 @@ class TestEndpointHttp(fixtures.TrackerCommandLineTestCase):
         self.assertEqual(row[var_name]["type"], "literal")
         self.assertEqual(row[var_name]["value"], "true")
 
-    def test_http_get_without_query(self):
+    def test_endpoint_descriptor_turtle(self):
         """Get the endpoint descriptor, returned when there's no query."""
         with urlopen(self.address) as response:
-            data = response.read().decode()
+            descriptor_turtle = response.read().decode()
 
         # Don't check the entire output, just make sure it's got some of the
         # expected info.
-        self.assertIn("format:JSON-LD", data)
+        self.assertIn("format:JSON-LD", descriptor_turtle)
+
+    def test_endpoint_descriptor_jsonld(self):
+        """Get the endpoint descriptor, returned when there's no query."""
+        request = Request(self.address, headers={
+            "Accept": "application/ld+json"
+        })
+
+        with urlopen(request) as response:
+            descriptor_jsonld = json.loads(response.read().decode())
+
+        sd_service = descriptor_jsonld["@graph"][0]
+        self.assertEqual(sd_service["@type"], "sd:Service")
 
     def test_http_get_query(self):
         query = quote(self.example_ask_query())
