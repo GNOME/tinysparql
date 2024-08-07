@@ -1,0 +1,13 @@
+ASK
+{
+  BIND (STRUUID () AS ?a) .
+  BIND (STRUUID () AS ?b) .
+  # Check that these differ
+  FILTER (?a != ?b) .
+  # Check that lens match
+  FILTER (STRLEN(?a) = 36) .
+  FILTER (STRLEN(?a) = STRLEN(?b)) .
+  # Check UUIDv4 version char, this is always 4
+  FILTER (SUBSTR(?a, 15, 1) = '4') .
+  FILTER (SUBSTR(?a, 15, 1) = SUBSTR(?b, 15, 1)) .
+}

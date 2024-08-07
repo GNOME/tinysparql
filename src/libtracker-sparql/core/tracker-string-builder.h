@@ -38,16 +38,10 @@ void tracker_string_builder_append  (TrackerStringBuilder *builder,
 void tracker_string_builder_prepend (TrackerStringBuilder *builder,
                                      const gchar          *string,
                                      gssize                len);
-void tracker_string_builder_prepend_valist (TrackerStringBuilder *builder,
-                                            const gchar          *format,
-                                            va_list               args);
 void tracker_string_builder_append_valist  (TrackerStringBuilder *builder,
                                             const gchar          *format,
                                             va_list               args);
 void tracker_string_builder_append_printf  (TrackerStringBuilder *builder,
-                                            const gchar          *format,
-                                            ...);
-void tracker_string_builder_prepend_printf (TrackerStringBuilder *builder,
                                             const gchar          *format,
                                             ...);
 

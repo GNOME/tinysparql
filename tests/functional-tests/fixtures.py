@@ -264,6 +264,8 @@ class TrackerPortalTest(ut.TestCase):
             raise
 
     def tearDown(self):
+        for name in self.connections:
+            self.connections[name].conn.close()
         for service in self.message_queues:
             self.stop_service(service)
         self.sandbox.stop()

@@ -1,0 +1,2 @@
+# Use unknown property in negated path
+SELECT ?u { ?u rdf:value / ! nrl:asdfqwertyuiop 42 }

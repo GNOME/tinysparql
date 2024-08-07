@@ -25,7 +25,6 @@
 
 typedef gint64 TrackerRowid;
 
-#define TRACKER_ROWID_TYPE (tracker_rowid_get_type ());
 #define tracker_rowid_equal g_int64_equal
 #define tracker_rowid_hash g_int64_hash
 

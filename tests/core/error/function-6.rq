@@ -1,0 +1,2 @@
+# Use unknown function in our custom function namespaces
+SELECT (tracker:asdfqwertyuiop(false) AS ?u) { }

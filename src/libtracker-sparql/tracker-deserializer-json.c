@@ -108,7 +108,7 @@ tracker_deserializer_json_get_value_type (TrackerSparqlCursor  *cursor,
 		TRACKER_DESERIALIZER_JSON (cursor);
 	ColumnData *col;
 
-	if (column > (gint) deserializer->columns->len)
+	if (column < 0 || column >= (gint) deserializer->columns->len)
 		return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
 
 	col = &g_array_index (deserializer->columns, ColumnData, column);
@@ -122,6 +122,9 @@ tracker_deserializer_json_get_variable_name (TrackerSparqlCursor  *cursor,
 {
 	TrackerDeserializerJson *deserializer =
 		TRACKER_DESERIALIZER_JSON (cursor);
+
+	if (column < 0 || (guint) column >= json_array_get_length (deserializer->vars))
+		return NULL;
 
 	return json_array_get_string_element (deserializer->vars, column);
 }
@@ -141,7 +144,7 @@ tracker_deserializer_json_get_string (TrackerSparqlCursor   *cursor,
 	if (langtag)
 		*langtag = NULL;
 
-	if (column > (gint) deserializer->columns->len)
+	if (column < 0 || column >= (gint) deserializer->columns->len)
 		return NULL;
 
 	col = &g_array_index (deserializer->columns, ColumnData, column);
@@ -342,16 +345,6 @@ tracker_deserializer_json_next_finish (TrackerSparqlCursor  *cursor,
 	return g_task_propagate_boolean (G_TASK (res), error);
 }
 
-static void
-tracker_deserializer_json_rewind (TrackerSparqlCursor *cursor)
-{
-	TrackerDeserializerJson *deserializer =
-		TRACKER_DESERIALIZER_JSON (cursor);
-
-	deserializer->started = FALSE;
-	deserializer->idx = 0;
-}
-
 gboolean
 tracker_deserializer_json_get_parser_location (TrackerDeserializer *deserializer,
                                                goffset             *line_no,
@@ -379,7 +372,6 @@ tracker_deserializer_json_class_init (TrackerDeserializerJsonClass *klass)
 	cursor_class->next = tracker_deserializer_json_next;
 	cursor_class->next_async = tracker_deserializer_json_next_async;
 	cursor_class->next_finish = tracker_deserializer_json_next_finish;
-	cursor_class->rewind = tracker_deserializer_json_rewind;
 
 	deserializer_class->get_parser_location =
 		tracker_deserializer_json_get_parser_location;

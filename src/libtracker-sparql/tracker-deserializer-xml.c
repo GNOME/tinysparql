@@ -227,7 +227,7 @@ tracker_deserializer_xml_get_value_type (TrackerSparqlCursor  *cursor,
 		TRACKER_DESERIALIZER_XML (cursor);
 	ColumnData *col;
 
-	if (column > (gint) deserializer->columns->len)
+	if (column < 0 || column >= (gint) deserializer->columns->len)
 		return TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
 
 	col = g_ptr_array_index (deserializer->columns, column);
@@ -242,7 +242,7 @@ tracker_deserializer_xml_get_variable_name (TrackerSparqlCursor  *cursor,
 	TrackerDeserializerXml *deserializer =
 		TRACKER_DESERIALIZER_XML (cursor);
 
-	if (column > (gint) deserializer->column_names->len)
+	if (column < 0 || column >= (gint) deserializer->column_names->len)
 		return NULL;
 
 	return g_ptr_array_index (deserializer->column_names, column);
@@ -263,7 +263,7 @@ tracker_deserializer_xml_get_string (TrackerSparqlCursor  *cursor,
 	if (langtag)
 		*langtag = NULL;
 
-	if (column > (gint) deserializer->columns->len)
+	if (column < 0 || column >= (gint) deserializer->columns->len)
 		return NULL;
 
 	col = g_ptr_array_index (deserializer->columns, column);
@@ -479,6 +479,8 @@ tracker_deserializer_xml_next (TrackerSparqlCursor  *cursor,
 	if (g_cancellable_set_error_if_cancelled (cancellable, error))
 		return FALSE;
 
+	g_ptr_array_set_size (deserializer->columns, 0);
+
  again:
 	if (xmlTextReaderRead(deserializer->reader) <= 0) {
 		if (!maybe_propagate_error (deserializer, error)) {
@@ -549,15 +551,6 @@ tracker_deserializer_xml_next_finish (TrackerSparqlCursor  *cursor,
 }
 
 static void
-tracker_deserializer_xml_rewind (TrackerSparqlCursor *cursor)
-{
-	TrackerDeserializerXml *deserializer =
-		TRACKER_DESERIALIZER_XML (cursor);
-
-	deserializer->started = FALSE;
-}
-
-static void
 tracker_deserializer_xml_close (TrackerSparqlCursor *cursor)
 {
 	TrackerDeserializerXml *deserializer =
@@ -601,7 +594,6 @@ tracker_deserializer_xml_class_init (TrackerDeserializerXmlClass *klass)
 	cursor_class->next = tracker_deserializer_xml_next;
 	cursor_class->next_async = tracker_deserializer_xml_next_async;
 	cursor_class->next_finish = tracker_deserializer_xml_next_finish;
-	cursor_class->rewind = tracker_deserializer_xml_rewind;
 	cursor_class->close = tracker_deserializer_xml_close;
 
 	deserializer_class->get_parser_location =

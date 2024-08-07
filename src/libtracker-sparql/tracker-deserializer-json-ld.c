@@ -706,16 +706,6 @@ tracker_deserializer_json_ld_next (TrackerSparqlCursor  *cursor,
 }
 
 static void
-tracker_deserializer_json_ld_rewind (TrackerSparqlCursor *cursor)
-{
-	TrackerDeserializerJsonLD *deserializer =
-		TRACKER_DESERIALIZER_JSON_LD (cursor);
-
-	g_array_set_size (deserializer->state_stack, 0);
-	deserializer->state = STATE_INITIAL;
-}
-
-static void
 tracker_deserializer_json_ld_close (TrackerSparqlCursor *cursor)
 {
 }
@@ -743,7 +733,6 @@ tracker_deserializer_json_ld_class_init (TrackerDeserializerJsonLDClass *klass)
 	cursor_class->get_value_type = tracker_deserializer_json_ld_get_value_type;
 	cursor_class->get_string = tracker_deserializer_json_ld_get_string;
 	cursor_class->next = tracker_deserializer_json_ld_next;
-	cursor_class->rewind = tracker_deserializer_json_ld_rewind;
 	cursor_class->close = tracker_deserializer_json_ld_close;
 
 	deserializer_class->get_parser_location =

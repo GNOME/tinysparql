@@ -1,0 +1,2 @@
+# Use DISTINCT, disallowed in non-aggregate functions
+SELECT (fn:upper-case (DISTINCT ?u) AS ?m) { }

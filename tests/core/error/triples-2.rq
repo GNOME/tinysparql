@@ -1,0 +1,2 @@
+# Use unknown property
+SELECT ?u { ?u nrl:asdfqwertyuiop 42 }

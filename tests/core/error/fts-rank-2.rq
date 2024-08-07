@@ -1,0 +1,1 @@
+SELECT (fts:rank(2) AS ?rank) { ?u fts:match "a" }

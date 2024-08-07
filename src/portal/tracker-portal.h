@@ -29,3 +29,5 @@ G_DECLARE_FINAL_TYPE (TrackerPortal, tracker_portal, TRACKER, PORTAL, GObject)
 TrackerPortal * tracker_portal_new (GDBusConnection  *connection,
                                     GCancellable     *cancellable,
                                     GError          **error);
+
+const gchar * tracker_portal_get_test_flatpak_info (TrackerPortal *portal);

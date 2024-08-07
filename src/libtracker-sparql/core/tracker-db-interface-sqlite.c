@@ -1472,11 +1472,13 @@ function_sparql_uuid (sqlite3_context *context,
                       sqlite3_value   *argv[])
 {
 	const gchar *fn = "SparqlUUID helper";
-	const gchar *prefix;
+	const gchar *prefix = NULL;
 
 	TRACKER_RETURN_IF_FAIL (argc <= 1, fn, "Invalid argument count");
 
-	prefix = sqlite3_value_text (argv[0]);
+	if (argc == 1)
+		prefix = sqlite3_value_text (argv[0]);
+
 	generate_uuid (context, fn, prefix);
 }
 
@@ -1745,7 +1747,7 @@ initialize_functions (TrackerDBInterface *db_interface)
 		{ "SparqlDataType", -1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_data_type },
 		/* UUID */
-		{ "SparqlUUID", 1, SQLITE_ANY, function_sparql_uuid },
+		{ "SparqlUUID", -1, SQLITE_ANY, function_sparql_uuid },
 		{ "SparqlBNODE", -1, SQLITE_ANY | SQLITE_DETERMINISTIC, function_sparql_bnode },
 	};
 
@@ -3083,11 +3085,15 @@ tracker_db_cursor_get_value_type (TrackerSparqlCursor *sparql_cursor,
 	TrackerDBCursor *cursor = TRACKER_DB_CURSOR (sparql_cursor);
 	TrackerDBInterface *iface;
 	gint column_type;
-	TrackerSparqlValueType value_type;
+	TrackerSparqlValueType value_type = TRACKER_SPARQL_VALUE_TYPE_UNBOUND;
 
 	iface = cursor->ref_stmt->db_interface;
 
 	tracker_db_interface_lock (iface);
+
+	if (cursor->n_columns > 0 &&
+	    column >= (int) cursor->n_columns)
+		goto out;
 
 	column_type = sqlite3_column_type (cursor->stmt, column);
 
@@ -3109,6 +3115,7 @@ tracker_db_cursor_get_value_type (TrackerSparqlCursor *sparql_cursor,
 		}
 	}
 
+ out:
 	tracker_db_interface_unlock (iface);
 
 	return value_type;

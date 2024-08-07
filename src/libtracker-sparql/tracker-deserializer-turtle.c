@@ -906,18 +906,6 @@ tracker_deserializer_turtle_next (TrackerSparqlCursor  *cursor,
 	return tracker_deserializer_turtle_iterate_next (deserializer, error);
 }
 
-static void
-tracker_deserializer_turtle_rewind (TrackerSparqlCursor* cursor)
-{
-	TrackerDeserializerTurtle *deserializer = TRACKER_DESERIALIZER_TURTLE (cursor);
-
-	g_seekable_seek (G_SEEKABLE (deserializer->buffered_stream),
-	                 0, G_SEEK_SET, NULL, NULL);
-	deserializer->state = STATE_INITIAL;
-	deserializer->line_no = 0;
-	deserializer->column_no = 0;
-}
-
 void
 tracker_deserializer_turtle_close (TrackerSparqlCursor* cursor)
 {
@@ -953,7 +941,6 @@ tracker_deserializer_turtle_class_init (TrackerDeserializerTurtleClass *klass)
 	cursor_class->get_value_type = tracker_deserializer_turtle_get_value_type;
 	cursor_class->get_string = tracker_deserializer_turtle_get_string;
 	cursor_class->next = tracker_deserializer_turtle_next;
-	cursor_class->rewind = tracker_deserializer_turtle_rewind;
 	cursor_class->close = tracker_deserializer_turtle_close;
 
 	deserializer_class->get_parser_location = tracker_deserializer_turtle_get_parser_location;

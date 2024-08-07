@@ -386,6 +386,15 @@ tracker_sparql_connection_update_array_async (TrackerSparqlConnection  *connecti
 	g_return_if_fail (sparql != NULL || sparql_length == 0);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 
+	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_array_async) {
+		g_task_report_new_error (G_OBJECT (connection), callback, user_data,
+		                         connection,
+		                         TRACKER_SPARQL_ERROR,
+		                         TRACKER_SPARQL_ERROR_UNSUPPORTED,
+		                         "Updates unsupported by this connection");
+		return;
+	}
+
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_array_async (connection,
 	                                                                      sparql,
 	                                                                      sparql_length,
@@ -412,6 +421,9 @@ tracker_sparql_connection_update_array_finish (TrackerSparqlConnection  *connect
 	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), FALSE);
 	g_return_val_if_fail (G_IS_ASYNC_RESULT (res), FALSE);
 	g_return_val_if_fail (!error || !*error, FALSE);
+
+	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_array_finish)
+		return g_task_propagate_boolean (G_TASK (res), error);
 
 	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_array_finish (connection,
 	                                                                              res,
@@ -571,6 +583,14 @@ tracker_sparql_connection_update_resource (TrackerSparqlConnection  *connection,
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), FALSE);
 	g_return_val_if_fail (!error || !*error, FALSE);
 
+	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_resource) {
+		g_set_error (error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_UNSUPPORTED,
+		             "Updates unsupported by this connection");
+		return FALSE;
+	}
+
 	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_resource (connection,
 	                                                                          graph,
 	                                                                          resource,
@@ -609,6 +629,15 @@ tracker_sparql_connection_update_resource_async (TrackerSparqlConnection *connec
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 	g_return_if_fail (callback != NULL);
 
+	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_resource_async) {
+		g_task_report_new_error (G_OBJECT (connection), callback, user_data,
+		                         connection,
+		                         TRACKER_SPARQL_ERROR,
+		                         TRACKER_SPARQL_ERROR_UNSUPPORTED,
+		                         "Updates unsupported by this connection");
+		return;
+	}
+
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_resource_async (connection,
 	                                                                         graph,
 	                                                                         resource,
@@ -637,6 +666,9 @@ tracker_sparql_connection_update_resource_finish (TrackerSparqlConnection  *conn
 	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), FALSE);
 	g_return_val_if_fail (G_IS_ASYNC_RESULT (res), FALSE);
 	g_return_val_if_fail (!error || !*error, FALSE);
+
+	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->deserialize_finish)
+		return g_task_propagate_boolean (G_TASK (res), error);
 
 	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_resource_finish (connection,
 	                                                                                 res,
@@ -724,8 +756,13 @@ tracker_sparql_connection_update_statement (TrackerSparqlConnection  *connection
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
 
-	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_statement)
+	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_statement) {
+		g_set_error (error,
+		             TRACKER_SPARQL_ERROR,
+		             TRACKER_SPARQL_ERROR_UNSUPPORTED,
+		             "Updates unsupported by this connection");
 		return NULL;
+	}
 
 	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_statement (connection,
 	                                                                           sparql,
@@ -890,7 +927,7 @@ tracker_sparql_connection_load_statement_from_gresource (TrackerSparqlConnection
 	                                                                          cancellable,
 	                                                                          &inner_error1);
 
-	if (inner_error1) {
+	if (inner_error1 && TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_statement) {
 		stmt = TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_statement (connection,
 		                                                                           g_bytes_get_data (query,
 		                                                                                             NULL),
@@ -1029,6 +1066,15 @@ tracker_sparql_connection_deserialize_async (TrackerSparqlConnection *connection
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 	g_return_if_fail (callback != NULL);
 
+	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->deserialize_async) {
+		g_task_report_new_error (G_OBJECT (connection), callback, user_data,
+		                         connection,
+		                         TRACKER_SPARQL_ERROR,
+		                         TRACKER_SPARQL_ERROR_UNSUPPORTED,
+		                         "Updates unsupported by this connection");
+		return;
+	}
+
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->deserialize_async (connection,
 	                                                                     flags,
 	                                                                     format,
@@ -1059,6 +1105,9 @@ tracker_sparql_connection_deserialize_finish (TrackerSparqlConnection  *connecti
 	g_return_val_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection), FALSE);
 	g_return_val_if_fail (G_IS_ASYNC_RESULT (result), FALSE);
 	g_return_val_if_fail (!error || !*error, FALSE);
+
+	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->deserialize_finish)
+		return g_task_propagate_boolean (G_TASK (result), error);
 
 	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->deserialize_finish (connection,
 	                                                                             result,

@@ -1,0 +1,2 @@
+# Use unknown xsd type for type cast
+SELECT (xsd:asdfqwertyuiop(42) AS ?u) { }

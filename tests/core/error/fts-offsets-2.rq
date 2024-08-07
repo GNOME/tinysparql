@@ -1,0 +1,2 @@
+# Use multiple arguments in fts:offsets
+SELECT (fts:offsets() AS ?off) { ?u fts:match 'a' }

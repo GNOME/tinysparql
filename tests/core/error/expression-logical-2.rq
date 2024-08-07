@@ -1,0 +1,1 @@
+SELECT (false || 'a' AS ?op) { }

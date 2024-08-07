@@ -1,0 +1,2 @@
+# Use an ArgList in an ArgList, which we do not allow
+SELECT (fn:replace (('foo', 'f'), 'b') AS ?m) { }

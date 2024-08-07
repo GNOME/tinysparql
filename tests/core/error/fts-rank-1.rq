@@ -1,0 +1,1 @@
+SELECT (fts:rank(?u) AS ?rank) { ?u a rdfs:Resource }

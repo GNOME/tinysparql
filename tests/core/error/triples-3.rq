@@ -1,0 +1,2 @@
+# Use unknown property
+SELECT ?u { ?u rdf:value / nrl:asdfqwertyuiop 42 }

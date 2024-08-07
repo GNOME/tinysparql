@@ -1,1 +1,0 @@
-SELECT ?u fts:snippet(?u, '>>>', '<<<', '...', -1) { ?u fts:match 'bananas' } order by asc ?u

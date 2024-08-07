@@ -1736,14 +1736,16 @@ introspect_fts_snippet (TrackerSparql         *sparql,
 		return TRUE;
 	}
 
-	return FALSE;
+	return TRUE;
 }
 
-static gchar *
-tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
-                                 TrackerToken          *graph,
-                                 TrackerToken          *subject,
-                                 TrackerLiteralBinding *binding)
+static gboolean
+tracker_sparql_add_fts_subquery (TrackerSparql          *sparql,
+                                 TrackerToken           *graph,
+                                 TrackerToken           *subject,
+                                 TrackerLiteralBinding  *binding,
+                                 gchar                 **table,
+                                 GError                **error)
 {
 	TrackerStringBuilder *old;
 	gchar *snippet_expression = NULL;
@@ -1772,12 +1774,15 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 		n_properties += 3;
 
 		if (introspect_fts_snippet (sparql, tracker_token_get_variable (subject),
-		                            &snippet_expression, NULL)) {
-			g_string_append_printf (select_items, ", %s ",
-			                        snippet_expression ? snippet_expression : "");
-			g_free (snippet_expression);
+		                            &snippet_expression, error)) {
+			if (snippet_expression) {
+				g_string_append_printf (select_items, ", %s ", snippet_expression);
+				g_free (snippet_expression);
+			} else {
+				g_string_append (select_items, ", NULL ");
+			}
 		} else {
-			g_string_append (select_items, ", NULL ");
+			return FALSE;
 		}
 	}
 
@@ -1819,7 +1824,7 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 			const gchar *database;
 
 			database = (g_strcmp0 (graph_name, TRACKER_DEFAULT_GRAPH) == 0) ?
-				"main" : (const char *) graph_name;
+			           "main" : (const char *) graph_name;
 
 			if (!first)
 				_append_string (sparql, "UNION ALL ");
@@ -1848,7 +1853,10 @@ tracker_sparql_add_fts_subquery (TrackerSparql         *sparql,
 	tracker_sparql_swap_builder (sparql, old);
 	g_string_free (select_items, TRUE);
 
-	return table_name;
+	if (table)
+		*table = table_name;
+
+	return TRUE;
 }
 
 static TrackerVariable *
@@ -1952,8 +1960,11 @@ _add_quad (TrackerSparql  *sparql,
 			tracker_select_context_add_literal_binding (TRACKER_SELECT_CONTEXT (sparql->current_state->top_context),
 			                                            TRACKER_LITERAL_BINDING (binding));
 
-			fts_table = tracker_sparql_add_fts_subquery (sparql, graph, subject,
-			                                             TRACKER_LITERAL_BINDING (binding));
+			if (!tracker_sparql_add_fts_subquery (sparql, graph, subject,
+			                                      TRACKER_LITERAL_BINDING (binding),
+			                                      &fts_table,
+			                                      error))
+				return FALSE;
 
 			db_table = fts_table;
 			share_table = FALSE;
@@ -3492,28 +3503,6 @@ translate_ConstraintDecl (TrackerSparql  *sparql,
 	if (graph) {
 		g_clear_pointer (&sparql->policy.filtered_graphs,
 		                 g_hash_table_unref);
-	}
-
-	return TRUE;
-}
-
-static gboolean
-_check_undefined_variables (TrackerSparql         *sparql,
-                            TrackerSelectContext  *context,
-                            GError               **error)
-{
-	TrackerVariable *variable;
-	GHashTableIter iter;
-
-	if (!context->variables)
-		return TRUE;
-
-	g_hash_table_iter_init (&iter, context->variables);
-
-	while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &variable)) {
-		if (!tracker_variable_has_bindings (variable)) {
-			_raise (PARSE, "Use of undefined variable", variable->name);
-		}
 	}
 
 	return TRUE;
@@ -7736,14 +7725,26 @@ translate_MultiplicativeExpression (TrackerSparql  *sparql,
 
 	do {
 		if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_ARITH_MULT)) {
+			if (!maybe_numeric (sparql->current_state->expression_type))
+				_raise (PARSE, "Expected numeric operand", "*");
+
 			_append_string (sparql, " * ");
+			_call_rule (sparql, NAMED_RULE_UnaryExpression, error);
+
+			if (!maybe_numeric (sparql->current_state->expression_type))
+				_raise (PARSE, "Expected numeric operand", "*");
 		} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_ARITH_DIV)) {
+			if (!maybe_numeric (sparql->current_state->expression_type))
+				_raise (PARSE, "Expected numeric operand", "/");
+
 			_append_string (sparql, " / ");
+			_call_rule (sparql, NAMED_RULE_UnaryExpression, error);
+
+			if (!maybe_numeric (sparql->current_state->expression_type))
+				_raise (PARSE, "Expected numeric operand", "*");
 		} else {
 			break;
 		}
-
-		_call_rule (sparql, NAMED_RULE_UnaryExpression, error);
 	} while (TRUE);
 
 	return TRUE;
@@ -9029,7 +9030,7 @@ translate_StrReplaceExpression (TrackerSparql  *sparql,
 
 static gboolean
 translate_ExistsFunc (TrackerSparql  *sparql,
-		      GError        **error)
+                      GError        **error)
 {
 	TrackerContext *context;
 
@@ -9044,9 +9045,6 @@ translate_ExistsFunc (TrackerSparql  *sparql,
 	_call_rule (sparql, NAMED_RULE_GroupGraphPattern, error);
 
 	tracker_sparql_pop_context (sparql, FALSE);
-
-	if (!_check_undefined_variables (sparql, TRACKER_SELECT_CONTEXT (context), error))
-		return FALSE;
 
 	_append_string (sparql, ") ");
 
