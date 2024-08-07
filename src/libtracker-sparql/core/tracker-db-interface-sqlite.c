@@ -287,7 +287,7 @@ function_sparql_uri_is_parent (sqlite3_context *context,
 	/* Remove trailing '/', will
 	 * be checked later on uri.
 	 */
-	while (parent[parent_len - 1] == '/') {
+	while (parent_len > 0 && parent[parent_len - 1] == '/') {
 		parent_len--;
 	}
 
@@ -342,7 +342,7 @@ check_uri_is_descendant (const gchar *parent,
 	/* Remove trailing '/', will
 	 * be checked later on uri.
 	 */
-	while (parent[parent_len - 1] == '/') {
+	while (parent_len > 0 && parent[parent_len - 1] == '/') {
 		parent_len--;
 	}
 
