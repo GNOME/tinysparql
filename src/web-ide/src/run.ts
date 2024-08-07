@@ -1,9 +1,12 @@
+import { setErrorLine } from "./editor";
+
 type runRes = {
     result: HTMLElement[],
     vars?: HTMLElement[]
 };
 
 export default async function run(s: string, endpoint: string):Promise<runRes> {
+
     if(!s) {
         return {
             result :[generateErrorMessage("Empty query. Enter your query into the editor space and try again.")]
@@ -35,7 +38,14 @@ export default async function run(s: string, endpoint: string):Promise<runRes> {
         }
 
         let m = "Something went wrong! Please try again."; // default error text
-        if (res.status == 400) m = res.statusText;
+        if (res.status == 400) {
+            m = res.statusText;
+            const parseErr = /Parser error at byte [0-9]+/g.exec(m);
+            if (parseErr !== null) {
+                const pos = parseErr[0].split(" ")[4];
+                setErrorLine(Number(pos));
+            }
+        }
         else if (res.status == 500) "Internal server error!";
 
         return {
