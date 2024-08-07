@@ -1151,7 +1151,7 @@ static gchar *
 get_ontologies_checksum (GList   *ontologies,
                          GError **error)
 {
-	GFileInputStream *stream;
+	GFileInputStream *stream = NULL;
 	GError *inner_error = NULL;
 	gchar *retval = NULL;
 	GChecksum *checksum;
@@ -1176,7 +1176,11 @@ get_ontologies_checksum (GList   *ontologies,
 			if (len != sizeof (buf))
 				break;
 		}
+
+		g_clear_object (&stream);
 	}
+
+	g_clear_object (&stream);
 
 	if (!inner_error)
 		retval = g_strdup (g_checksum_get_string (checksum));
