@@ -1,12 +1,12 @@
 # The tracker.api.gnome.org domain points to our Gitlab Pages site,
 # these are redirections to make ontology URIs work.
-/tinysparql/ontology/v3/nrl /nrl-ontology.html 301
-/tinysparql/ontology/v3/nie /nie-ontology.html 301
-/tinysparql/ontology/v3/nao /nao-ontology.html 301
-/tinysparql/ontology/v3/nco /nco-ontology.html 301
-/tinysparql/ontology/v3/nfo /nfo-ontology.html 301
-/tinysparql/ontology/v3/nmm /nmm-ontology.html 301
-/tinysparql/ontology/v3/mfo /mfo-ontology.html 301
-/tinysparql/ontology/v3/tracker /tracker-ontology.html 301
-/tinysparql/ontology/v3/slo /slo-ontology.html 301
-/tinysparql/ontology/v3/osinfo /osinfo-ontology.html 301
+/tinysparql/ontology/v3/nrl /tinysparql/nrl-ontology.html 301
+/tinysparql/ontology/v3/nie /tinysparql/nie-ontology.html 301
+/tinysparql/ontology/v3/nao /tinysparql/nao-ontology.html 301
+/tinysparql/ontology/v3/nco /tinysparql/nco-ontology.html 301
+/tinysparql/ontology/v3/nfo /tinysparql/nfo-ontology.html 301
+/tinysparql/ontology/v3/nmm /tinysparql/nmm-ontology.html 301
+/tinysparql/ontology/v3/mfo /tinysparql/mfo-ontology.html 301
+/tinysparql/ontology/v3/tracker /tinysparql/tracker-ontology.html 301
+/tinysparql/ontology/v3/slo /tinysparql/slo-ontology.html 301
+/tinysparql/ontology/v3/osinfo /tinysparql/osinfo-ontology.html 301
