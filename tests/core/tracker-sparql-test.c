@@ -607,6 +607,7 @@ check_result (TrackerSparqlCursor *cursor,
 	if (test_info->expect_query_error) {
 		g_assert_true (error != NULL);
 		g_string_free (test_results, TRUE);
+		g_clear_error (&error);
 		g_free (results);
 		return;
 	}
@@ -730,8 +731,10 @@ test_sparql_query (TestInfo      *test_info,
 		g_free (results_filename);
 		results_filename = g_strconcat (test_prefix, ".extra.out", NULL);
 		check_result (cursor, test_info, results_filename, error);
+		g_free (query);
 	}
 
+	g_free (query_filename);
 	g_free (data_prefix);
 	g_free (test_prefix);
 
