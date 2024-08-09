@@ -2421,10 +2421,13 @@ tracker_data_manager_initable_init (GInitable     *initable,
 				                                            db_ontology, current_ontology,
 				                                            changes, n_changes,
 				                                            error)) {
+					g_hash_table_unref (graphs);
 					g_free (changes);
 					goto rollback;
 				}
 			}
+
+			g_hash_table_unref (graphs);
 		}
 
 		g_set_object (&manager->ontologies, current_ontology);

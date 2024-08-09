@@ -488,6 +488,8 @@ tracker_sparql_get_graphs (TrackerSparql *sparql,
 		g_hash_table_insert (graphs, g_strdup (graph), tracker_rowid_copy (rowid));
 	}
 
+	g_hash_table_unref (all_graphs);
+
 	return graphs;
 }
 
@@ -1110,6 +1112,7 @@ _append_graph_set_checks (TrackerSparql *sparql,
 	}
 
 	_append_string (sparql, ")");
+	g_hash_table_unref (graphs);
 }
 
 static void
