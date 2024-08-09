@@ -6591,11 +6591,15 @@ translate_PathAlternative (TrackerSparql  *sparql,
 
 	/* PathAlternative ::= PathSequence ( '|' PathSequence )*
 	 */
-	_call_rule (sparql, NAMED_RULE_PathSequence, error);
+	if (!_call_rule_func (sparql, NAMED_RULE_PathSequence, error))
+		goto error;
+
 	g_ptr_array_add (path_elems, sparql->current_state->path);
 
 	while (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_PATH_ALTERNATIVE)) {
-		_call_rule (sparql, NAMED_RULE_PathSequence, error);
+		if (!_call_rule_func (sparql, NAMED_RULE_PathSequence, error))
+			goto error;
+
 		g_ptr_array_add (path_elems, sparql->current_state->path);
 	}
 
@@ -6627,8 +6631,10 @@ translate_PathAlternative (TrackerSparql  *sparql,
 	}
 
 	g_ptr_array_unref (path_elems);
-
 	return TRUE;
+ error:
+	g_ptr_array_unref (path_elems);
+	return FALSE;
 }
 
 static gboolean
@@ -6641,11 +6647,15 @@ translate_PathSequence (TrackerSparql  *sparql,
 
 	/* PathSequence ::= PathEltOrInverse ( '/' PathEltOrInverse )*
 	 */
-	_call_rule (sparql, NAMED_RULE_PathEltOrInverse, error);
+	if (!_call_rule_func (sparql, NAMED_RULE_PathEltOrInverse, error))
+		goto error;
+
 	g_ptr_array_add (path_elems, sparql->current_state->path);
 
 	while (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_PATH_SEQUENCE)) {
-		_call_rule (sparql, NAMED_RULE_PathEltOrInverse, error);
+		if (!_call_rule_func (sparql, NAMED_RULE_PathEltOrInverse, error))
+			goto error;
+
 		g_ptr_array_add (path_elems, sparql->current_state->path);
 	}
 
@@ -6680,8 +6690,10 @@ translate_PathSequence (TrackerSparql  *sparql,
 	}
 
 	g_ptr_array_unref (path_elems);
-
 	return TRUE;
+ error:
+	g_ptr_array_unref (path_elems);
+	return FALSE;
 }
 
 static gboolean
