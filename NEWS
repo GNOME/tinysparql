@@ -1,3 +1,18 @@
+NEW in 3.8.beta - 2024-08-09
+============================
+  * New frontend code for web IDE, featuring error highlighting
+    and other improvements.
+  * Allow reading ontology files in all supported formats
+    besides Turtle (Trig, JSON-LD)
+  * Made the default graph have a nrl:DefaultGraph name
+  * Command line was reunited into a single executable
+  * Code consistence improvements and other cleanups
+  * Added debugging for HTTP responses
+  * Build warning fixes
+  * Testing improvements
+
+Translations: he, hi, ru, sl, zh_TW
+
 NEW in 3.8.alpha - 2024-07-04
 =============================
   * Rename project to TinySPARQL
