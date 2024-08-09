@@ -1785,6 +1785,8 @@ tracker_sparql_add_fts_subquery (TrackerSparql          *sparql,
 				g_string_append (select_items, ", NULL ");
 			}
 		} else {
+			g_string_free (select_items, TRUE);
+			g_free (table_name);
 			return FALSE;
 		}
 	}
@@ -1966,8 +1968,10 @@ _add_quad (TrackerSparql  *sparql,
 			if (!tracker_sparql_add_fts_subquery (sparql, graph, subject,
 			                                      TRACKER_LITERAL_BINDING (binding),
 			                                      &fts_table,
-			                                      error))
+			                                      error)) {
+				g_object_unref (binding);
 				return FALSE;
+			}
 
 			db_table = fts_table;
 			share_table = FALSE;
