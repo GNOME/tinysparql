@@ -4460,6 +4460,8 @@ translate_Load (TrackerSparql  *sparql,
 	                                      silent,
 	                                      &sparql->current_state->graph,
 	                                      &resource);
+	tracker_token_unset (&resource);
+
 	return TRUE;
 }
 
