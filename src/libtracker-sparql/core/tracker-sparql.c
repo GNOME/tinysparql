@@ -7157,21 +7157,20 @@ translate_Collection (TrackerSparql  *sparql,
 		tracker_token_literal_init (&sparql->current_state->object,
 		                            RDF_NS "List", -1);
 
-		if (!tracker_sparql_apply_quad (sparql, error)) {
-			tracker_token_unset (&sparql->current_state->predicate);
-			tracker_token_unset (&sparql->current_state->object);
+		if (!tracker_sparql_apply_quad (sparql, error))
 			goto error;
-		}
 
 		/* rdf:first */
+		tracker_token_unset (&sparql->current_state->predicate);
 		tracker_token_literal_init (&sparql->current_state->predicate,
 		                            RDF_NS "first", -1);
+		tracker_token_unset (&sparql->current_state->object);
 		sparql->current_state->token = &sparql->current_state->object;
 		_call_rule (sparql, NAMED_RULE_GraphNode, error);
 		sparql->current_state->token = NULL;
-		tracker_token_unset (&sparql->current_state->predicate);
 
 		/* rdf:rest */
+		tracker_token_unset (&sparql->current_state->predicate);
 		tracker_token_literal_init (&sparql->current_state->predicate,
 		                            RDF_NS "rest", -1);
 
@@ -7183,30 +7182,32 @@ translate_Collection (TrackerSparql  *sparql,
 			if (!tracker_sparql_generate_anon_bnode (sparql, cur, error))
 				goto error;
 
+			tracker_token_unset (&sparql->current_state->object);
 			sparql->current_state->object = *cur;
 
-			if (!tracker_sparql_apply_quad (sparql, error)) {
-				tracker_token_unset (&sparql->current_state->predicate);
+			if (!tracker_sparql_apply_quad (sparql, error))
 				goto error;
-			}
 		} else {
 			/* Make last element point to rdf:nil */
+			tracker_token_unset (&sparql->current_state->object);
 			tracker_token_literal_init (&sparql->current_state->object,
 			                            RDF_NS "nil", -1);
 
-			if (!tracker_sparql_apply_quad (sparql, error)) {
-				tracker_token_unset (&sparql->current_state->predicate);
-				tracker_token_unset (&sparql->current_state->object);
+			if (!tracker_sparql_apply_quad (sparql, error))
 				goto error;
-			}
 		}
 
 		tracker_token_unset (&sparql->current_state->predicate);
+		tracker_token_unset (&sparql->current_state->object);
 	}
 
+	tracker_token_unset (&sparql->current_state->subject);
 	sparql->current_state->subject = old_subject;
+	tracker_token_unset (&sparql->current_state->predicate);
 	sparql->current_state->predicate = old_predicate;
+	tracker_token_unset (&sparql->current_state->object);
 	sparql->current_state->object = old_object;
+
 	sparql->current_state->token = old_token;
 
 	*sparql->current_state->token = g_array_index (elems, TrackerToken, 0);
@@ -7222,9 +7223,13 @@ translate_Collection (TrackerSparql  *sparql,
 	return TRUE;
 
 error:
+	tracker_token_unset (&sparql->current_state->subject);
 	sparql->current_state->subject = old_subject;
+	tracker_token_unset (&sparql->current_state->predicate);
 	sparql->current_state->predicate = old_predicate;
+	tracker_token_unset (&sparql->current_state->object);
 	sparql->current_state->object = old_object;
+
 	sparql->current_state->token = old_token;
 
 	for (i = 0; i < elems->len; i++) {
