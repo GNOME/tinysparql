@@ -617,7 +617,7 @@ function_sparql_time_zone (sqlite3_context *context,
 
 		duration = offset_to_duration (g_date_time_get_utc_offset (datetime) /
 					       G_USEC_PER_SEC);
-		sqlite3_result_text (context, g_strdup (duration), -1, g_free);
+		sqlite3_result_text (context, duration, -1, g_free);
 		g_date_time_unref (datetime);
 	}
 }
