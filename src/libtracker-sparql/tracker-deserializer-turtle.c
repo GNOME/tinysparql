@@ -648,6 +648,7 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 			if (parse_token (deserializer, "[")) {
 				/* Anonymous blank node */
 				push_stack (deserializer);
+				g_clear_pointer (&deserializer->subject, g_free);
 				deserializer->subject = tracker_generate_uuid ("_:bnode");
 				deserializer->state = STATE_PREDICATE;
 				continue;
@@ -708,6 +709,7 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 			if (parse_token (deserializer, "[")) {
 				/* Anonymous blank node */
 				push_stack (deserializer);
+				g_clear_pointer (&deserializer->subject, g_free);
 				deserializer->subject = tracker_generate_uuid ("_:bnode");
 				deserializer->state = STATE_PREDICATE;
 				continue;

@@ -488,6 +488,8 @@ tracker_sparql_get_graphs (TrackerSparql *sparql,
 		g_hash_table_insert (graphs, g_strdup (graph), tracker_rowid_copy (rowid));
 	}
 
+	g_hash_table_unref (all_graphs);
+
 	return graphs;
 }
 
@@ -1110,6 +1112,7 @@ _append_graph_set_checks (TrackerSparql *sparql,
 	}
 
 	_append_string (sparql, ")");
+	g_hash_table_unref (graphs);
 }
 
 static void
@@ -1782,6 +1785,8 @@ tracker_sparql_add_fts_subquery (TrackerSparql          *sparql,
 				g_string_append (select_items, ", NULL ");
 			}
 		} else {
+			g_string_free (select_items, TRUE);
+			g_free (table_name);
 			return FALSE;
 		}
 	}
@@ -1963,8 +1968,10 @@ _add_quad (TrackerSparql  *sparql,
 			if (!tracker_sparql_add_fts_subquery (sparql, graph, subject,
 			                                      TRACKER_LITERAL_BINDING (binding),
 			                                      &fts_table,
-			                                      error))
+			                                      error)) {
+				g_object_unref (binding);
 				return FALSE;
+			}
 
 			db_table = fts_table;
 			share_table = FALSE;
@@ -4453,6 +4460,8 @@ translate_Load (TrackerSparql  *sparql,
 	                                      silent,
 	                                      &sparql->current_state->graph,
 	                                      &resource);
+	tracker_token_unset (&resource);
+
 	return TRUE;
 }
 
@@ -6582,11 +6591,15 @@ translate_PathAlternative (TrackerSparql  *sparql,
 
 	/* PathAlternative ::= PathSequence ( '|' PathSequence )*
 	 */
-	_call_rule (sparql, NAMED_RULE_PathSequence, error);
+	if (!_call_rule_func (sparql, NAMED_RULE_PathSequence, error))
+		goto error;
+
 	g_ptr_array_add (path_elems, sparql->current_state->path);
 
 	while (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_PATH_ALTERNATIVE)) {
-		_call_rule (sparql, NAMED_RULE_PathSequence, error);
+		if (!_call_rule_func (sparql, NAMED_RULE_PathSequence, error))
+			goto error;
+
 		g_ptr_array_add (path_elems, sparql->current_state->path);
 	}
 
@@ -6618,8 +6631,10 @@ translate_PathAlternative (TrackerSparql  *sparql,
 	}
 
 	g_ptr_array_unref (path_elems);
-
 	return TRUE;
+ error:
+	g_ptr_array_unref (path_elems);
+	return FALSE;
 }
 
 static gboolean
@@ -6632,11 +6647,15 @@ translate_PathSequence (TrackerSparql  *sparql,
 
 	/* PathSequence ::= PathEltOrInverse ( '/' PathEltOrInverse )*
 	 */
-	_call_rule (sparql, NAMED_RULE_PathEltOrInverse, error);
+	if (!_call_rule_func (sparql, NAMED_RULE_PathEltOrInverse, error))
+		goto error;
+
 	g_ptr_array_add (path_elems, sparql->current_state->path);
 
 	while (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_PATH_SEQUENCE)) {
-		_call_rule (sparql, NAMED_RULE_PathEltOrInverse, error);
+		if (!_call_rule_func (sparql, NAMED_RULE_PathEltOrInverse, error))
+			goto error;
+
 		g_ptr_array_add (path_elems, sparql->current_state->path);
 	}
 
@@ -6671,8 +6690,10 @@ translate_PathSequence (TrackerSparql  *sparql,
 	}
 
 	g_ptr_array_unref (path_elems);
-
 	return TRUE;
+ error:
+	g_ptr_array_unref (path_elems);
+	return FALSE;
 }
 
 static gboolean
@@ -7136,21 +7157,20 @@ translate_Collection (TrackerSparql  *sparql,
 		tracker_token_literal_init (&sparql->current_state->object,
 		                            RDF_NS "List", -1);
 
-		if (!tracker_sparql_apply_quad (sparql, error)) {
-			tracker_token_unset (&sparql->current_state->predicate);
-			tracker_token_unset (&sparql->current_state->object);
+		if (!tracker_sparql_apply_quad (sparql, error))
 			goto error;
-		}
 
 		/* rdf:first */
+		tracker_token_unset (&sparql->current_state->predicate);
 		tracker_token_literal_init (&sparql->current_state->predicate,
 		                            RDF_NS "first", -1);
+		tracker_token_unset (&sparql->current_state->object);
 		sparql->current_state->token = &sparql->current_state->object;
 		_call_rule (sparql, NAMED_RULE_GraphNode, error);
 		sparql->current_state->token = NULL;
-		tracker_token_unset (&sparql->current_state->predicate);
 
 		/* rdf:rest */
+		tracker_token_unset (&sparql->current_state->predicate);
 		tracker_token_literal_init (&sparql->current_state->predicate,
 		                            RDF_NS "rest", -1);
 
@@ -7162,30 +7182,32 @@ translate_Collection (TrackerSparql  *sparql,
 			if (!tracker_sparql_generate_anon_bnode (sparql, cur, error))
 				goto error;
 
+			tracker_token_unset (&sparql->current_state->object);
 			sparql->current_state->object = *cur;
 
-			if (!tracker_sparql_apply_quad (sparql, error)) {
-				tracker_token_unset (&sparql->current_state->predicate);
+			if (!tracker_sparql_apply_quad (sparql, error))
 				goto error;
-			}
 		} else {
 			/* Make last element point to rdf:nil */
+			tracker_token_unset (&sparql->current_state->object);
 			tracker_token_literal_init (&sparql->current_state->object,
 			                            RDF_NS "nil", -1);
 
-			if (!tracker_sparql_apply_quad (sparql, error)) {
-				tracker_token_unset (&sparql->current_state->predicate);
-				tracker_token_unset (&sparql->current_state->object);
+			if (!tracker_sparql_apply_quad (sparql, error))
 				goto error;
-			}
 		}
 
 		tracker_token_unset (&sparql->current_state->predicate);
+		tracker_token_unset (&sparql->current_state->object);
 	}
 
+	tracker_token_unset (&sparql->current_state->subject);
 	sparql->current_state->subject = old_subject;
+	tracker_token_unset (&sparql->current_state->predicate);
 	sparql->current_state->predicate = old_predicate;
+	tracker_token_unset (&sparql->current_state->object);
 	sparql->current_state->object = old_object;
+
 	sparql->current_state->token = old_token;
 
 	*sparql->current_state->token = g_array_index (elems, TrackerToken, 0);
@@ -7201,9 +7223,13 @@ translate_Collection (TrackerSparql  *sparql,
 	return TRUE;
 
 error:
+	tracker_token_unset (&sparql->current_state->subject);
 	sparql->current_state->subject = old_subject;
+	tracker_token_unset (&sparql->current_state->predicate);
 	sparql->current_state->predicate = old_predicate;
+	tracker_token_unset (&sparql->current_state->object);
 	sparql->current_state->object = old_object;
+
 	sparql->current_state->token = old_token;
 
 	for (i = 0; i < elems->len; i++) {

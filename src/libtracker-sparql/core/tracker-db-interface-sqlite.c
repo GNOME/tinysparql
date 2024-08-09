@@ -617,7 +617,7 @@ function_sparql_time_zone (sqlite3_context *context,
 
 		duration = offset_to_duration (g_date_time_get_utc_offset (datetime) /
 					       G_USEC_PER_SEC);
-		sqlite3_result_text (context, g_strdup (duration), -1, g_free);
+		sqlite3_result_text (context, duration, -1, g_free);
 		g_date_time_unref (datetime);
 	}
 }
@@ -784,7 +784,6 @@ function_sparql_replace (sqlite3_context *context,
 	const gchar *fn = "fn:replace";
 	TrackerDBInterface *db_interface = sqlite3_user_data (context);
 	TrackerDBReplaceFuncChecks *checks = &db_interface->replace_func_checks;
-	gboolean store_regex = FALSE, store_replace_regex = FALSE;
 	const gchar *input, *pattern, *replacement, *flags = "";
 	gchar *err_str, *output = NULL, *replaced = NULL, *unescaped = NULL;
 	GError *error = NULL;
@@ -848,7 +847,7 @@ function_sparql_replace (sqlite3_context *context,
 			return;
 		}
 
-		store_regex = TRUE;
+		sqlite3_set_auxdata (context, 1, regex, (GDestroyNotify) g_regex_unref);
 	}
 
 	/* According to the XPath 2.0 standard, an error shall be raised, if all dollar
@@ -897,7 +896,7 @@ function_sparql_replace (sqlite3_context *context,
 		g_string_free (backref_range, TRUE);
 		g_free (regex_interpret);
 
-		store_replace_regex = TRUE;
+		sqlite3_set_auxdata (context, 2, replace_regex, (GDestroyNotify) g_regex_unref);
 	} else if (capture_count <= 9) {
 		replace_regex = checks->replacement;
 	}
@@ -922,11 +921,6 @@ function_sparql_replace (sqlite3_context *context,
 	}
 
 	sqlite3_result_text (context, output, -1, g_free);
-
-	if (store_replace_regex)
-		sqlite3_set_auxdata (context, 2, replace_regex, (GDestroyNotify) g_regex_unref);
-	if (store_regex)
-		sqlite3_set_auxdata (context, 1, regex, (GDestroyNotify) g_regex_unref);
 
 	g_free (replaced);
 	g_free (unescaped);
