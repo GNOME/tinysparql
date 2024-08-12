@@ -5,6 +5,7 @@ import { SparqlData } from './xhr';
 
 import './style.scss';
 import './assets/favicon.ico';
+import { generateCheckbox } from './util';
 
 // initialise ontology prefix mapping
 let prefixes: Record<string, string> = {};
@@ -51,7 +52,7 @@ document.getElementById("runBtn")?.addEventListener("click", async () => {
  * @param show - List of variables to show in result table
  * @returns Div element containing formatted results table
  */
-function generateResultsTable(data: SparqlData, show: string[]|null = null):HTMLDivElement {
+function generateResultsTable(data: SparqlData, show: string[]|null = null, showRowNum: boolean = true):HTMLDivElement {
     const tablediv = document.createElement("div");
     tablediv.classList.add("table-container");
 
@@ -62,9 +63,11 @@ function generateResultsTable(data: SparqlData, show: string[]|null = null):HTML
     table.classList.add("table", "is-striped", "is-hoverable");
 
     const vars = show ?? data.head.vars;
-    let thvar = document.createElement("th");
-    thvar.innerText = "row";
-    thead.appendChild(thvar);
+    if (showRowNum) {
+        let thvar = document.createElement("th");
+        thvar.innerText = "row";
+        thead.appendChild(thvar);
+    } 
     vars.forEach(v => {
         let th = document.createElement("th");
         th.innerText = v;
@@ -74,10 +77,14 @@ function generateResultsTable(data: SparqlData, show: string[]|null = null):HTML
     const bindings = data.results.bindings;
     bindings.forEach((b, i) => {
         let row = tbody.insertRow(i);
-        let id = row.insertCell(0);
-        id.innerText = String(i + 1);
+        let offset = 0;
+        if (showRowNum) {
+            let id = row.insertCell(0);
+            id.innerText = String(i + 1);
+            offset = 1;
+        }
         vars.forEach((v, j) => {
-            let cell = row.insertCell(j + 1);
+            let cell = row.insertCell(j + offset);
             const value = b[v].value;
             
             // if value is a url, shorten with a prefix if one exists, otherwise use value as is
@@ -135,24 +142,13 @@ function generateVarSelects(data:SparqlData):HTMLElement[] {
         return [s];
     }
 
-    return data.head.vars.map(v => {
-        const label = document.createElement("label");
-        const checkbox = document.createElement("input");
-        const text = document.createElement("span");
+    const varCheckboxes = data.head.vars.map(v =>
+        generateCheckbox(v, ["var-checkbox"], changeDisplayVars, data)
+    );
 
-        label.classList.add("checkbox");
-        checkbox.setAttribute("type", "checkbox");
-        checkbox.setAttribute("checked", "true");
-        text.innerText = v;
-        text.classList.add("ml-2");
-        label.appendChild(checkbox);
-        label.appendChild(text);
+    const rowNumToggle = generateCheckbox("row number", ["rownum-checkbox"], changeDisplayVars, data);
 
-        checkbox.addEventListener("change", () => {
-            changeDisplayVars(data);
-        });
-        return label;
-    });
+    return [rowNumToggle, ...varCheckboxes];
 }
 
 /**
@@ -163,11 +159,13 @@ function generateVarSelects(data:SparqlData):HTMLElement[] {
  * @param data - Parsed JSON result object from sparql endpoint
  */
 function changeDisplayVars(data:SparqlData) {
-    const checked = document.getElementById("variable-selects").querySelectorAll("input");
-    const showVars = Array.from(checked)
-        .filter(c => c.checked)
+    const checkboxes = document.getElementById("variable-selects").querySelectorAll("input");
+    const showVars = Array.from(checkboxes)
+        .filter(c => c.checked && c.classList.contains("var-checkbox"))
         .map(c => c.parentNode.querySelector("span").innerText );
-    document.getElementById("right").replaceChildren(generateResultsTable(data, showVars));
+        
+    const showRowNum: HTMLInputElement = document.getElementById("variable-selects").querySelector("input.rownum-checkbox");
+    document.getElementById("right").replaceChildren(generateResultsTable(data, showVars, showRowNum.checked));
 }
 
 /**

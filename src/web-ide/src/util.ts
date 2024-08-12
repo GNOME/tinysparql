@@ -27,3 +27,36 @@ export function getColorScheme() {
     .getPropertyValue('content')
     .replace(/"/g, '');
 }
+
+/**
+ * Generates labelled checkboxes wrapped up nicely
+ * 
+ * Attaches change listener based on arguments given
+ * 
+ * Classes can also be added via the arguments
+ * 
+ * @param label - the label text attached to the checkbox
+ * @param classes - classes to be added to the input element
+ * @param toggleFunction - function to be called in change listener
+ * @param ...args - rest of arguments to be passed to toggleFunction
+ * @returns "dark"/"light"
+ */
+export function generateCheckbox(label:string, classes: string[], toggleFunction:Function, ...args:any[]) {
+  const wrapper = document.createElement("label");
+  const checkbox = document.createElement("input");
+  const text = document.createElement("span");
+
+  wrapper.classList.add("checkbox");
+  checkbox.setAttribute("type", "checkbox");
+  checkbox.setAttribute("checked", "true");
+  classes.forEach(v => checkbox.classList.add(v));
+  text.innerText = label;
+  text.classList.add("ml-2");
+  wrapper.appendChild(checkbox);
+  wrapper.appendChild(text);
+
+  checkbox.addEventListener("change", () => {
+      toggleFunction(...args);
+  });
+  return wrapper;
+}
