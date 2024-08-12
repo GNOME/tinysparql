@@ -5,7 +5,7 @@ import {EditorView, basicSetup} from 'codemirror';
 import { sparql } from 'codemirror-lang-sparql';
 import {tags} from "@lezer/highlight";
 import {HighlightStyle, syntaxHighlighting} from "@codemirror/language";
-import { Decoration, DecorationSet } from '@codemirror/view';
+import { Decoration, DecorationSet, keymap } from '@codemirror/view';
 import { StateEffect, StateField } from '@codemirror/state';
 
 import { getColorScheme, notify } from './util';
@@ -35,10 +35,25 @@ const myHighlightStyle = HighlightStyle.define([
 const urlParams = new URLSearchParams(window.location.search);
 const query = urlParams.get("query"); // queries saved as links will have this param
 
+const runQueryKeymap = keymap.of([{
+  key: "Shift-Enter",
+  preventDefault: true,
+  run: () => {
+    document.getElementById("runBtn").click();
+    return true;
+  }
+}]);
+
 // initialise editor
 let view = new EditorView({
     doc: query ?? "# Enter your query here\n",
-    extensions:  [basicSetup, fixedHeightEditor, sparql(), syntaxHighlighting(myHighlightStyle)],
+    extensions:  [
+      basicSetup, 
+      fixedHeightEditor, 
+      sparql(), 
+      syntaxHighlighting(myHighlightStyle),
+      runQueryKeymap
+    ],
     parent: document.getElementById("wrapper") ?? undefined
 });
 
