@@ -1,6 +1,6 @@
-/*!*************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/style.scss ***!
-  \*************************************************************************************************************************************/
+/*!*********************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./src/style.scss ***!
+  \*********************************************************************************************************/
 /* Bulma Base */
 /*! minireset.css v0.0.6 | MIT License | github.com/jgthms/minireset.css */
 html,
@@ -11341,7 +11341,7 @@ has-background-danger.is-hoverable:active {
   --bulma-control-focus-shadow-l: 50%;
 }
 
-.message:not(:last-child), .card:not(:last-child), .title:not(:last-child),
+.message:not(:last-child), .title:not(:last-child),
 .subtitle:not(:last-child), .table:not(:last-child), .table-container:not(:last-child), .buttons:not(:last-child), .box:not(:last-child), .columns:not(:last-child) {
   margin-bottom: var(--bulma-block-spacing);
 }
@@ -14047,119 +14047,6 @@ a.box:active {
   font-size: 0.75rem;
 }
 
-.card {
-  --bulma-card-color: var(--bulma-text);
-  --bulma-card-background-color: var(--bulma-scheme-main);
-  --bulma-card-shadow: var(--bulma-shadow);
-  --bulma-card-radius: 0.75rem;
-  --bulma-card-header-background-color: transparent;
-  --bulma-card-header-color: var(--bulma-text-strong);
-  --bulma-card-header-padding: 0.75rem 1rem;
-  --bulma-card-header-shadow: 0 0.125em 0.25em hsla(var(--bulma-scheme-h), var(--bulma-scheme-s), var(--bulma-scheme-invert-l), 0.1);
-  --bulma-card-header-weight: var(--bulma-weight-bold);
-  --bulma-card-content-background-color: transparent;
-  --bulma-card-content-padding: 1.5rem;
-  --bulma-card-footer-background-color: transparent;
-  --bulma-card-footer-border-top: 1px solid var(--bulma-border-weak);
-  --bulma-card-footer-padding: 0.75rem;
-  --bulma-card-media-margin: var(--bulma-block-spacing);
-}
-
-.card {
-  background-color: var(--bulma-card-background-color);
-  border-radius: var(--bulma-card-radius);
-  box-shadow: var(--bulma-card-shadow);
-  color: var(--bulma-card-color);
-  max-width: 100%;
-  position: relative;
-}
-
-.card-footer:first-child, .card-content:first-child, .card-header:first-child {
-  border-start-start-radius: var(--bulma-card-radius);
-  border-start-end-radius: var(--bulma-card-radius);
-}
-.card-footer:last-child, .card-content:last-child, .card-header:last-child {
-  border-end-start-radius: var(--bulma-card-radius);
-  border-end-end-radius: var(--bulma-card-radius);
-}
-
-.card-header {
-  background-color: var(--bulma-card-header-background-color);
-  align-items: stretch;
-  box-shadow: var(--bulma-card-header-shadow);
-  display: flex;
-}
-
-.card-header-title {
-  align-items: center;
-  color: var(--bulma-card-header-color);
-  display: flex;
-  flex-grow: 1;
-  font-weight: var(--bulma-card-header-weight);
-  padding: var(--bulma-card-header-padding);
-}
-.card-header-title.is-centered {
-  justify-content: center;
-}
-
-.card-header-icon {
-  appearance: none;
-  background: none;
-  border: none;
-  color: inherit;
-  font-family: inherit;
-  font-size: 1em;
-  margin: 0;
-  padding: 0;
-  align-items: center;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  padding: var(--bulma-card-header-padding);
-}
-
-.card-image {
-  display: block;
-  position: relative;
-}
-.card-image:first-child img {
-  border-start-start-radius: var(--bulma-card-radius);
-  border-start-end-radius: var(--bulma-card-radius);
-}
-.card-image:last-child img {
-  border-end-start-radius: var(--bulma-card-radius);
-  border-end-end-radius: var(--bulma-card-radius);
-}
-
-.card-content {
-  background-color: var(--bulma-card-content-background-color);
-  padding: var(--bulma-card-content-padding);
-}
-
-.card-footer {
-  background-color: var(--bulma-card-footer-background-color);
-  border-top: var(--bulma-card-footer-border-top);
-  align-items: stretch;
-  display: flex;
-}
-
-.card-footer-item {
-  align-items: center;
-  display: flex;
-  flex-basis: 0;
-  flex-grow: 1;
-  flex-shrink: 0;
-  justify-content: center;
-  padding: var(--bulma-card-footer-padding);
-}
-.card-footer-item:not(:last-child) {
-  border-inline-end: var(--bulma-card-footer-border-top);
-}
-
-.card .media:not(:last-child) {
-  margin-bottom: var(--bulma-card-media-margin);
-}
-
 .message {
   --bulma-message-border-l-delta: -20%;
   --bulma-message-radius: var(--bulma-radius);
@@ -14334,8 +14221,40 @@ a.box:active {
   background-color: var(--bulma-message-body-pre-code-background-color);
 }
 
+@media (prefers-color-scheme: light) {
+  html {
+    content: "light";
+  }
+}
+@media (prefers-color-scheme: dark) {
+  html {
+    content: "dark";
+  }
+}
+#main {
+  display: flex;
+}
+@media screen and (max-width: 834px) {
+  #main {
+    display: block;
+  }
+}
+
 #right {
   height: 90vh;
+  width: 50%;
+}
+@media screen and (max-width: 834px) {
+  #right {
+    width: 100%;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    height: 60vh;
+  }
+}
+
+#right > div {
+  height: 100%;
 }
 
 section {
@@ -14349,18 +14268,27 @@ section {
 }
 
 #left {
+  width: 50%;
   max-height: 90vh;
+  padding-right: 30px;
+}
+@media screen and (max-width: 834px) {
+  #left {
+    width: 100%;
+    max-height: fit-content;
+    padding-right: 0px;
+  }
 }
 
-#left-bottom {
-  overflow-y: hidden;
-}
-
-div.card {
+#left > div {
   height: 100%;
 }
 
-div.card-content {
+div.info-box {
+  height: 100%;
+}
+
+div.info-box > div {
   height: 100%;
 }
 

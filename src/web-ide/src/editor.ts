@@ -8,7 +8,7 @@ import {HighlightStyle, syntaxHighlighting} from "@codemirror/language";
 import { Decoration, DecorationSet } from '@codemirror/view';
 import { StateEffect, StateField } from '@codemirror/state';
 
-import { createQueryLink, getColorScheme, notify } from './util';
+import { getColorScheme, notify } from './util';
 
 const fixedHeightEditor = EditorView.theme({
     "&": {height: "40vh"},
@@ -44,9 +44,15 @@ let view = new EditorView({
 
 // set up bookmarking functionality
 document.getElementById("saveBtn").addEventListener("click", async () => {
-  await navigator.clipboard.writeText(createQueryLink(view.state.doc));
+  await navigator.clipboard.writeText(createQueryLink());
   notify("Copied to clipboard");
 });
+
+
+
+
+
+// helper functions
 
 const errorLine = Decoration.mark({ 
   class: "error-line",
@@ -92,6 +98,11 @@ const errorLineField = StateField.define<DecorationSet>({
   provide: f => EditorView.decorations.from(f)
 })
 
+/**
+ * Creates red underline where error is detected
+ *
+ * @param pos - Byte number associated with error position
+ */
 export function setErrorLine (pos: number) {
   let effects: StateEffect<unknown>[] = [ errorLineEffect.of({ pos }) ];
 
@@ -99,6 +110,19 @@ export function setErrorLine (pos: number) {
     effects.push(StateEffect.appendConfig.of([errorLineField]))
     
   view.dispatch({ effects });
+}
+
+/**
+ * Generates bookmark link for current content of editor
+ *
+ * @param query - current content of the editor
+ * @returns Bookmark URL 
+ */
+function createQueryLink() {
+  const q = encodeURIComponent(String(view.state.doc));
+  const currentUrl = new URL(window.location.href);
+
+  return `${ currentUrl.origin }?query=${ q }`;
 }
 
 export default view;
