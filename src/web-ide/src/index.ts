@@ -1,3 +1,5 @@
+// contains all initialisation and main view update functions
+
 import view from './editor';
 import { executeQuery, getPrefixes } from './xhr';
 import { setErrorLine } from "./editor";
@@ -5,7 +7,7 @@ import { SparqlData } from './xhr';
 
 import './style.scss';
 import './assets/favicon.ico';
-import { generateCheckbox } from './util';
+import { generateCheckbox, setLoading } from './util';
 
 // initialise ontology prefix mapping
 let prefixes: Record<string, string> = {};
@@ -15,11 +17,11 @@ window.addEventListener("load", async () => {
 
 // main execution lifecycle
 document.getElementById("runBtn")?.addEventListener("click", async () => {
+   
+    setLoading(document.querySelector("#right>div"));
+    setLoading(document.getElementById("variable-selects"))
     const execRes = await executeQuery(String(view.state.doc));
-    if (!execRes) {
-        document.getElementById("right").replaceChildren(generateErrorMessage("Empty query. Enter your query into the editor space and try again."));
-    }
-    
+
     let resultsDisplayElements:HTMLElement[] = [];
     if (execRes.kind == "data") {
         const vars = generateVarSelects(execRes.data);
@@ -33,7 +35,7 @@ document.getElementById("runBtn")?.addEventListener("click", async () => {
     }
 
     // fill results section with error/results table etc.
-    document.getElementById("right").replaceChildren(...resultsDisplayElements);
+    document.querySelector("#right>div").replaceChildren(...resultsDisplayElements);
 });
 
 
@@ -159,13 +161,17 @@ function generateVarSelects(data:SparqlData):HTMLElement[] {
  * @param data - Parsed JSON result object from sparql endpoint
  */
 function changeDisplayVars(data:SparqlData) {
+    setLoading(document.querySelector("#right>div"));
     const checkboxes = document.getElementById("variable-selects").querySelectorAll("input");
     const showVars = Array.from(checkboxes)
         .filter(c => c.checked && c.classList.contains("var-checkbox"))
         .map(c => c.parentNode.querySelector("span").innerText );
         
     const showRowNum: HTMLInputElement = document.getElementById("variable-selects").querySelector("input.rownum-checkbox");
-    document.getElementById("right").replaceChildren(generateResultsTable(data, showVars, showRowNum.checked));
+    const newTable = generateResultsTable(data, showVars, showRowNum.checked);
+    setTimeout(() => {
+        document.querySelector("#right>div").replaceChildren(newTable);
+    }, 50);
 }
 
 /**

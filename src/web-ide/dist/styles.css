@@ -291,6 +291,169 @@ table th {
     opacity: 0.5;
   }
 }
+:root {
+  --bulma-control-radius: var(--bulma-radius);
+  --bulma-control-radius-small: var(--bulma-radius-small);
+  --bulma-control-border-width: 1px;
+  --bulma-control-height: 2.5em;
+  --bulma-control-line-height: 1.5;
+  --bulma-control-padding-vertical: calc(0.5em - 1px);
+  --bulma-control-padding-horizontal: calc(0.75em - 1px);
+  --bulma-control-size: var(--bulma-size-normal);
+  --bulma-control-focus-shadow-l: 50%;
+}
+
+.message:not(:last-child), .title:not(:last-child),
+.subtitle:not(:last-child), .table:not(:last-child), .table-container:not(:last-child), .buttons:not(:last-child), .box:not(:last-child), .columns:not(:last-child), .skeleton-block:not(:last-child) {
+  margin-bottom: var(--bulma-block-spacing);
+}
+
+.button {
+  align-items: center;
+  appearance: none;
+  border-color: transparent;
+  border-style: solid;
+  border-width: var(--bulma-control-border-width);
+  border-radius: var(--bulma-control-radius);
+  box-shadow: none;
+  display: inline-flex;
+  font-size: var(--bulma-control-size);
+  height: var(--bulma-control-height);
+  justify-content: flex-start;
+  line-height: var(--bulma-control-line-height);
+  padding-bottom: var(--bulma-control-padding-vertical);
+  padding-left: var(--bulma-control-padding-horizontal);
+  padding-right: var(--bulma-control-padding-horizontal);
+  padding-top: var(--bulma-control-padding-vertical);
+  position: relative;
+  transition-duration: var(--bulma-duration);
+  transition-property: background-color, border-color, box-shadow, color;
+  vertical-align: top;
+}
+.button:focus, .button:focus-visible, .button:focus-within, .is-focused.button, .button:active, .is-active.button {
+  outline: none;
+}
+[disabled].button, fieldset[disabled] .button {
+  cursor: not-allowed;
+}
+
+.button.is-loading::after {
+  animation: spinAround 500ms infinite linear;
+  border: 2px solid var(--bulma-loading-color);
+  border-radius: var(--bulma-radius-rounded);
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 1em;
+  position: relative;
+  width: 1em;
+}
+
+.button {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+:root {
+  --bulma-skeleton-background: var(--bulma-border);
+  --bulma-skeleton-radius: var(--bulma-radius-small);
+  --bulma-skeleton-block-min-height: 4.5em;
+  --bulma-skeleton-lines-gap: 0.75em;
+  --bulma-skeleton-line-height: 0.75em;
+}
+
+.skeleton-lines > div, .skeleton-block, .has-skeleton::after, .is-skeleton {
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-name: pulsate;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+  background-color: var(--bulma-skeleton-background);
+  border-radius: var(--bulma-skeleton-radius);
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.is-skeleton {
+  color: transparent !important;
+}
+.is-skeleton em,
+.is-skeleton strong {
+  color: inherit;
+}
+.is-skeleton img {
+  visibility: hidden;
+}
+.is-skeleton.checkbox input {
+  opacity: 0;
+}
+.is-skeleton.delete {
+  border-radius: var(--bulma-radius-rounded);
+}
+.is-skeleton.delete::before, .is-skeleton.delete::after {
+  display: none;
+}
+
+input.is-skeleton,
+textarea.is-skeleton {
+  resize: none;
+}
+input.is-skeleton::-moz-placeholder,
+textarea.is-skeleton::-moz-placeholder {
+  color: transparent !important;
+}
+input.is-skeleton::-webkit-input-placeholder,
+textarea.is-skeleton::-webkit-input-placeholder {
+  color: transparent !important;
+}
+input.is-skeleton:-moz-placeholder,
+textarea.is-skeleton:-moz-placeholder {
+  color: transparent !important;
+}
+input.is-skeleton:-ms-input-placeholder,
+textarea.is-skeleton:-ms-input-placeholder {
+  color: transparent !important;
+}
+
+.has-skeleton {
+  color: transparent !important;
+  position: relative;
+}
+.has-skeleton::after {
+  content: "";
+  display: block;
+  height: 100%;
+  left: 0;
+  max-width: 100%;
+  min-width: 10%;
+  position: absolute;
+  top: 0;
+  width: 7em;
+}
+
+.skeleton-block {
+  color: transparent !important;
+  min-height: var(--bulma-skeleton-block-min-height);
+}
+
+.skeleton-lines {
+  color: transparent !important;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bulma-skeleton-lines-gap);
+  position: relative;
+}
+.skeleton-lines > div {
+  height: var(--bulma-skeleton-line-height);
+}
+.skeleton-lines > div:last-child {
+  min-width: 4em;
+  width: 30%;
+}
+
 /* Bulma Themes */
 :root {
   --bulma-scheme-h: 221;
@@ -11329,73 +11492,6 @@ has-background-danger.is-hoverable:active {
     visibility: hidden !important;
   }
 }
-:root {
-  --bulma-control-radius: var(--bulma-radius);
-  --bulma-control-radius-small: var(--bulma-radius-small);
-  --bulma-control-border-width: 1px;
-  --bulma-control-height: 2.5em;
-  --bulma-control-line-height: 1.5;
-  --bulma-control-padding-vertical: calc(0.5em - 1px);
-  --bulma-control-padding-horizontal: calc(0.75em - 1px);
-  --bulma-control-size: var(--bulma-size-normal);
-  --bulma-control-focus-shadow-l: 50%;
-}
-
-.message:not(:last-child), .title:not(:last-child),
-.subtitle:not(:last-child), .table:not(:last-child), .table-container:not(:last-child), .buttons:not(:last-child), .box:not(:last-child), .columns:not(:last-child) {
-  margin-bottom: var(--bulma-block-spacing);
-}
-
-.button {
-  align-items: center;
-  appearance: none;
-  border-color: transparent;
-  border-style: solid;
-  border-width: var(--bulma-control-border-width);
-  border-radius: var(--bulma-control-radius);
-  box-shadow: none;
-  display: inline-flex;
-  font-size: var(--bulma-control-size);
-  height: var(--bulma-control-height);
-  justify-content: flex-start;
-  line-height: var(--bulma-control-line-height);
-  padding-bottom: var(--bulma-control-padding-vertical);
-  padding-left: var(--bulma-control-padding-horizontal);
-  padding-right: var(--bulma-control-padding-horizontal);
-  padding-top: var(--bulma-control-padding-vertical);
-  position: relative;
-  transition-duration: var(--bulma-duration);
-  transition-property: background-color, border-color, box-shadow, color;
-  vertical-align: top;
-}
-.button:focus, .button:focus-visible, .button:focus-within, .is-focused.button, .button:active, .is-active.button {
-  outline: none;
-}
-[disabled].button, fieldset[disabled] .button {
-  cursor: not-allowed;
-}
-
-.button.is-loading::after {
-  animation: spinAround 500ms infinite linear;
-  border: 2px solid var(--bulma-loading-color);
-  border-radius: var(--bulma-radius-rounded);
-  border-right-color: transparent;
-  border-top-color: transparent;
-  content: "";
-  display: block;
-  height: 1em;
-  position: relative;
-  width: 1em;
-}
-
-.button {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
 :root {
   --bulma-column-gap: 1.5rem;
 }

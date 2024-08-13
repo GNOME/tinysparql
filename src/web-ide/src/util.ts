@@ -60,3 +60,10 @@ export function generateCheckbox(label:string, classes: string[], toggleFunction
   });
   return wrapper;
 }
+
+
+export function setLoading(parent: HTMLElement) {
+  const div = document.createElement("div");
+  div.classList.add("is-flex-grow-1", "skeleton-block");
+  parent.replaceChildren(div);
+}

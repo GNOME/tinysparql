@@ -82,28 +82,37 @@ export async function getPrefixes(): Promise<Record<string,string>> {
  *
  * @param query {string} - The SPARQL query to execute.
  * @returns {Promise<formattedExecRes>} Result object promise.
+ * @throws Connection Timeout error
  */
 
 export async function executeQuery(query:string): Promise<SparqlRes> {
-    if(!query) {
-        return null;
-    }
-
-    let reqHead: Headers = new Headers({
-        "Content-Type": "text/plain",
-        "Accept": "application/sparql-results+json"
-    });
-
-    let reqOptions: RequestInit = {
-        mode: 'cors',
-        method: 'POST',
-        headers: reqHead,
-        body: query,
-        redirect: 'follow'
-    };
-
     try {
-        let res = await fetch(endpoint, reqOptions);
+        if(!query) {
+            throw "Empty query. Enter your query into the editor space and try again.";
+        }
+
+        let reqHead: Headers = new Headers({
+            "Content-Type": "text/plain",
+            "Accept": "application/sparql-results+json"
+        });
+
+        let reqOptions: RequestInit = {
+            mode: 'cors',
+            method: 'POST',
+            headers: reqHead,
+            body: query,
+            redirect: 'follow'
+        };
+
+        const res = await new Promise<Response>(async (resolve, reject) => {
+            const connTimeout = setTimeout(() => {
+                reject("Connection Timeout: Cannot reach SPARQL endpoint");
+            }, 3000)
+            const r = await fetch(endpoint, reqOptions);
+            clearTimeout(connTimeout);
+            resolve(r);
+        });
+        
         if (res.ok) {
             let parsedResults = JSON.parse(await res.text());
             return {
