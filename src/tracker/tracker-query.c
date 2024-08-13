@@ -471,7 +471,7 @@ sparql_options_enabled (void)
 }
 
 int
-tracker_sparql (int argc, const char **argv)
+tracker_query (int argc, const char **argv)
 {
 	GOptionContext *context;
 	GError *error = NULL;
@@ -480,7 +480,7 @@ tracker_sparql (int argc, const char **argv)
 	context = g_option_context_new (NULL);
 	g_option_context_add_main_entries (context, entries, NULL);
 
-	argv[0] = "tinysparql sparql";
+	argv[0] = "tinysparql query";
 
 	if (!g_option_context_parse (context, &argc, (char***) &argv, &error)) {
 		g_printerr ("%s, %s\n", _("Unrecognized options"), error->message);
@@ -488,6 +488,9 @@ tracker_sparql (int argc, const char **argv)
 		g_option_context_free (context);
 		return EXIT_FAILURE;
 	}
+
+	if (argc > 1)
+		query = g_strdup (argv[1]);
 
 	g_option_context_free (context);
 

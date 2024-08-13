@@ -9,6 +9,6 @@ src/tracker/tracker-help.c
 src/tracker/tracker-import.c
 src/tracker/tracker-introspect.c
 src/tracker/tracker-main.c
-src/tracker/tracker-sparql.c
+src/tracker/tracker-query.c
 src/tracker/tracker-sql.c
 src/tracker/tracker-webide.c

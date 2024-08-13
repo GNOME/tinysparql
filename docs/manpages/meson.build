@@ -3,7 +3,7 @@ manpages = [
     ['tinysparql-export', 1, true],
     ['tinysparql-import', 1, true],
     ['tinysparql-introspect', 1, true],
-    ['tinysparql-sparql', 1, true],
+    ['tinysparql-query', 1, true],
     ['tinysparql-sql', 1, true],
     ['tinysparql-xdg-portal-3', 1, false],
 ]

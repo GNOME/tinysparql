@@ -12,7 +12,7 @@ main_command_sources = [
     'tracker-import.c',
     'tracker-introspect.c',
     'tracker-main.c',
-    'tracker-sparql.c',
+    'tracker-query.c',
     'tracker-webide.c',
     sparql_gresource,
 ]

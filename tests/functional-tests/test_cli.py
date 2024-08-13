@@ -56,10 +56,9 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             self.run_cli(
                 [
                     COMMAND_NAME,
-                    "sparql",
+                    "query",
                     "--database",
                     tmpdir,
-                    "--query",
                     "ASK { ?u a rdfs:Resource }",
                 ]
             )

@@ -68,10 +68,9 @@ class TestEndpointHttp(fixtures.TrackerCommandLineTestCase):
         stdout = self.run_cli(
             [
                 COMMAND_NAME,
-                "sparql",
+                "query",
                 "--remote-service",
                 self.address,
-                "--query",
                 "ASK { ?u a rdfs:Resource }",
             ]
         )
