@@ -90,7 +90,8 @@ function generateResultsTable(data: SparqlData, show: string[]|null = null, show
             const value = b[v].value;
             
             // if value is a url, shorten with a prefix if one exists, otherwise use value as is
-            const urlMatch = value.match(/^(https?:\/\/[A-Za-z.\/0-9-_]+#?)[a-zA-z]*$/);
+            const urlMatch = value.match(/^(https?:\/\/[A-Za-z.\/0-9-_%]+#?)[a-zA-z]*$/);
+            const fileUriMatch = value.match(/^file:\/\/[A-Za-z.\/0-9-_%]+$/);
             if (urlMatch) {
                 const url = urlMatch[1];
                 const prefix = prefixes[url];
@@ -100,6 +101,12 @@ function generateResultsTable(data: SparqlData, show: string[]|null = null, show
                 `<a href=${ urlMatch[0] } target="_blank" rel="noopener noreferrer">
                     ${ valueWithPrefix }
                 </a>`;
+            }
+            else if (fileUriMatch) {
+                cell.innerHTML = 
+                `<a href${ value } target="_blank" rel="noopener noreferrer">
+                    ${ value } 
+                </a>`
             }
             else cell.innerText = value;
         })
@@ -192,6 +199,7 @@ function processError(errorRes:Response): string {
             setErrorLine(Number(pos));
         }
     }
+    else if (errorRes.status == 404) m = "SPARQL endpoint not found";
     else if (errorRes.status == 500) m = "Internal server error!";
     return m;
   }

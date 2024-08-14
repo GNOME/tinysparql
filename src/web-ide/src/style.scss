@@ -3,7 +3,7 @@
 @use "~bulma/sass/base/skeleton";
 @use "~bulma/sass/themes";
 @use "~bulma/sass/layout/container";
-@use "~bulma/sass/layout/section";
+@use "~bulma/sass/layout/level";
 @use "~bulma/sass/helpers/flexbox";
 @use "~bulma/sass/helpers/spacing";
 @use "~bulma/sass/helpers/color";
@@ -38,8 +38,8 @@ $breakpoint: 835px;
 }
 
 #right {
-    height:90vh;
-    width: 50%;
+    height:85vh;
+    width: 60%;
 
     @include mixins.until($breakpoint) {
         width: 100%;
@@ -64,8 +64,8 @@ section {
 }
 
 #left {
-    width: 50%;
-    max-height: 90vh;
+    width: 40%;
+    max-height: 85vh;
     padding-right: 30px;
 
     @include mixins.until($breakpoint) {
@@ -79,13 +79,21 @@ section {
     height: 100%;
 }
 
+#left-bottom {
+    height: 50vh;
+    padding-top: 1rem;
+
+    @include mixins.until($breakpoint) {
+       height: auto
+    }
+}
+
+#left-bottom > div {
+    height: 100%
+}
 
 div.info-box {
     height:100%
-}
-
-div.info-box > div {
-    height: 100%;
 }
 
 div.content {
@@ -103,4 +111,8 @@ div.content {
     transform: translateX(-50%);
     z-index: 2;
     transition: ease-in-out 0.25s;
+}
+
+td {
+    max-width: 15rem;
 }

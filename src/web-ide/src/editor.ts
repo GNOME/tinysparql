@@ -11,7 +11,7 @@ import { StateEffect, StateField } from '@codemirror/state';
 import { getColorScheme, notify } from './util';
 
 const fixedHeightEditor = EditorView.theme({
-    "&": {height: "40vh"},
+    "&": {height: "35vh"},
     ".cm-scroller": {overflow: "auto"},
     "&.cm-focused .cm-cursor": { borderLeftColor: "#ddd" },
     "&.cm-focused .cm-selectionBackground, ::selection": { backgroundColor: "#353a44" },
