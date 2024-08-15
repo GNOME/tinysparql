@@ -588,5 +588,113 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             finally:
                 self.assertIn("Unknown option", str(ex), "Output not found")
 
+    def test_introspect(self):
+        """Call introspect command"""
+        with self.tmpdir() as tmpdir:
+            # Create the database
+            self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology",
+                    "nepomuk",
+                ]
+            )
+
+            output = self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "introspect",
+                    "--database",
+                    tmpdir,
+                ]
+            )
+            self.assertIn("rdfs:Class", output, "Output not found")
+
+    def test_introspect_properties(self):
+        """Call introspect command"""
+        with self.tmpdir() as tmpdir:
+            # Create the database
+            self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology",
+                    "nepomuk",
+                ]
+            )
+
+            output = self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "introspect",
+                    "--database",
+                    tmpdir,
+                    "--list-properties",
+                    "rdfs:Class",
+                ]
+            )
+            self.assertIn("rdfs:subClassOf", output, "Output not found")
+
+    def test_introspect_tree_print(self):
+        """Call introspect command"""
+        with self.tmpdir() as tmpdir:
+            # Create the database
+            self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology",
+                    "nepomuk",
+                ]
+            )
+
+            output = self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "introspect",
+                    "--database",
+                    tmpdir,
+                    "--list-properties",
+                    "--tree",
+                    "nmm:MusicPiece",
+                ]
+            )
+            self.assertIn("nie:InformationElement", output, "Output not found")
+
+    def test_introspect_search(self):
+        """Call introspect command"""
+        with self.tmpdir() as tmpdir:
+            # Create the database
+            self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology",
+                    "nepomuk",
+                ]
+            )
+
+            output = self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "introspect",
+                    "--database",
+                    tmpdir,
+                    "--search",
+                    "Class",
+                ]
+            )
+            self.assertIn("rdfs:Class", output, "Output not found")
+            self.assertIn("rdfs:subClassOf", output, "Output not found")
+
 if __name__ == "__main__":
     fixtures.tracker_test_main()
