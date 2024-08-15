@@ -20,6 +20,7 @@
 Test `tracker` commandline tool
 """
 
+import random
 import unittest
 
 import configuration
@@ -159,6 +160,32 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
                 ex = e
             finally:
                 self.assertIn("is not a tinysparql command", str(ex), "Mismatched output")
+
+    def test_list_dbus_endpoint(self):
+        """List D-Bus endpoints"""
+
+        with self.tmpdir() as tmpdir:
+            nr = random.randint(0, 65000)
+            bus_name = "org.example.BusName%d" % nr
+
+            self.run_background(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--ontology", "nepomuk",
+                    "--dbus-service", bus_name,
+                ],
+                "Listening",
+            )
+
+            output = self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--list"
+                ]
+            )
+            self.assertIn(bus_name, output, "Mismatched output")
 
 if __name__ == "__main__":
     fixtures.tracker_test_main()
