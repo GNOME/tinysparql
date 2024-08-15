@@ -100,6 +100,36 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             )
             self.run_cli([COMMAND_NAME, "import", "--database", tmpdir, testdata])
 
+    def test_help(self):
+        """Get help for a command."""
+
+        with self.tmpdir() as tmpdir:
+            output = self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "help",
+                    "import",
+                ]
+            )
+            self.assertIn("TINYSPARQL-IMPORT(1)", output, "Manpage not found")
+
+    def test_help_unknown(self):
+        """Fail to get help for an unknown command."""
+        ex = None
+
+        with self.tmpdir() as tmpdir:
+            try:
+                output = self.run_cli(
+                    [
+                        COMMAND_NAME,
+                        "help",
+                        "banana",
+                    ]
+                )
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("CLI command failed", str(ex), "Failed to get an error")
 
 if __name__ == "__main__":
     fixtures.tracker_test_main()
