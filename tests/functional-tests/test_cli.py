@@ -149,6 +149,76 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             )
             self.run_cli([COMMAND_NAME, "import", "--database", tmpdir, testdata])
 
+    def test_import_dbus(self):
+        """Import contents to a D-Bus endpoint."""
+
+        with self.tmpdir() as tmpdir:
+            nr = random.randint(0, 65000)
+            bus_name = "org.example.ImportOverDBus%d" % nr
+
+            testdata = str(self.data_path("serialized/test-movie.ttl"))
+
+            self.run_background(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--ontology", "nepomuk",
+                    "--dbus-service", bus_name,
+                ],
+                "Listening",
+            )
+
+            self.run_cli([COMMAND_NAME, "import", "--dbus-service", bus_name, testdata])
+
+    def test_import_noargs(self):
+        """Call import command with no arguments."""
+
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "import"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Usage:", str(ex), "Output not found")
+
+    def test_import_wrongarg(self):
+        """Call import command with wrong arguments."""
+
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "import", "--banana"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Unknown option", str(ex), "Output not found")
+
+    def test_import_failure(self):
+        """Import a Turtle file into a TinySPARQL database."""
+
+        testdata = str(self.data_path("serialized/nonexistent.ttl"))
+
+        with self.tmpdir() as tmpdir:
+            self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology",
+                    "nepomuk",
+                ]
+            )
+
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "import", "--database", tmpdir, testdata])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Could not run import", str(ex), "Output not found")
+
     def test_help(self):
         """Get help for a command."""
 
