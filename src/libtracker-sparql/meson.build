@@ -110,6 +110,7 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
     ] + tracker_c_args,
 
     dependencies: [libtracker_sparql_dependencies],
+    link_with: [tsparql_http_lib],
     gnu_symbol_visibility: 'hidden',
     include_directories: [core_incs],
 )

@@ -23,7 +23,7 @@
 
 #include "tracker-remote.h"
 
-#include "tracker-http.h"
+#include <libtracker-http/tracker-http.h>
 #include "tracker-remote-namespaces.h"
 #include "tracker-remote-statement.h"
 

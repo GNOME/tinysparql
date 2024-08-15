@@ -22,7 +22,6 @@
 #include "config.h"
 
 #include <gio/gio.h>
-#include <tinysparql.h>
 #include <dlfcn.h>
 
 #include "tracker-http.h"
@@ -56,7 +55,7 @@ ensure_types (void)
 			 * building introspection information or running tests.
 			 * We want the in-tree modules to be loaded then.
 			 */
-			module_path = g_strdup_printf (BUILD_LIBDIR "/remote/%s", modules[i]);
+			module_path = g_strdup_printf (BUILD_LIBDIR "/%s", modules[i]);
 		} else {
 			module_path = g_strdup_printf (PRIVATE_LIBDIR "/%s", modules[i]);
 		}
