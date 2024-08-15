@@ -82,6 +82,54 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             )
             self.run_cli([COMMAND_NAME, "export", "--database", tmpdir])
             self.run_cli([COMMAND_NAME, "export", "--database", tmpdir, "--show-graphs"])
+            self.run_cli([COMMAND_NAME, "export", "--database", tmpdir, "rdfs:Class", "rdf:Property"])
+
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "export", "--database", tmpdir, "--output", "banana"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Unsupported serialization format", str(ex), "Output not matched")
+
+    def test_export_dbus(self):
+        """Export contents of a D-Bus endpoint."""
+
+        with self.tmpdir() as tmpdir:
+            nr = random.randint(0, 65000)
+            bus_name = "org.example.ExportOverDBus%d" % nr
+
+            self.run_background(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--ontology", "nepomuk",
+                    "--dbus-service", bus_name,
+                ],
+                "Listening",
+            )
+
+            self.run_cli([COMMAND_NAME, "export", "--output", "trig", "--dbus-service", bus_name])
+
+    def test_export_http(self):
+        """Export contents of a D-Bus endpoint."""
+
+        with self.tmpdir() as tmpdir:
+            port = random.randint(32000, 65000)
+            address = "http://127.0.0.1:%d/sparql" % port
+
+            self.run_background(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--ontology", "nepomuk",
+                    "--http-port", port,
+                    "--loopback",
+                ],
+                "Listening",
+            )
+
+            self.run_cli([COMMAND_NAME, "export", "--output", "trig", "--remote-service", address])
 
     def test_import(self):
         """Import a Turtle file into a TinySPARQL database."""
@@ -166,7 +214,7 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
 
         with self.tmpdir() as tmpdir:
             nr = random.randint(0, 65000)
-            bus_name = "org.example.BusName%d" % nr
+            bus_name = "org.example.ListEndpoints%d" % nr
 
             self.run_background(
                 [
