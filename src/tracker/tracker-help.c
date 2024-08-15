@@ -70,19 +70,6 @@ exec_man_man (const char *path, const char *page)
 	return (!retval || !g_spawn_check_wait_status (status, NULL)) ? -1 : 0;
 }
 
-static int
-exec_man_cmd (const char *cmd, const char *page)
-{
-	gchar *shell_cmd;
-
-	shell_cmd = g_strdup_printf ("%s %s", cmd, page);
-	execl ("/bin/sh", "sh", "-c", shell_cmd, (char *) NULL);
-	g_warning (_("failed to exec “%s”: %s"), cmd, strerror (errno));
-	g_free (shell_cmd);
-
-	return -1;
-}
-
 static char *
 cmd_to_page (const char *cmd)
 {
@@ -102,10 +89,6 @@ tracker_help_show_man_page (const char *cmd)
 	int retval;
 
 	setup_man_path ();
-
-	if (0) {
-		exec_man_cmd ("man", page);
-	}
 
 	retval = exec_man_man ("man", page);
 	g_free (page);
