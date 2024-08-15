@@ -131,5 +131,34 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             finally:
                 self.assertIn("CLI command failed", str(ex), "Failed to get an error")
 
+    def test_noargs(self):
+        """Call tinysparql with no args."""
+
+        with self.tmpdir() as tmpdir:
+            output = self.run_cli(
+                [
+                    COMMAND_NAME,
+                ]
+            )
+            self.assertIn("usage:", output, "Mismatched output")
+            self.assertIn("Available tinysparql commands are", output, "Mismatched output")
+
+    def test_wrong_subcommand(self):
+        """Call wrong subcommand."""
+        ex = None
+
+        with self.tmpdir() as tmpdir:
+            try:
+                output = self.run_cli(
+                    [
+                        COMMAND_NAME,
+                        "banana",
+                    ]
+                )
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("is not a tinysparql command", str(ex), "Mismatched output")
+
 if __name__ == "__main__":
     fixtures.tracker_test_main()
