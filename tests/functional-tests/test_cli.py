@@ -696,5 +696,143 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             self.assertIn("rdfs:Class", output, "Output not found")
             self.assertIn("rdfs:subClassOf", output, "Output not found")
 
+    def test_sql(self):
+        """Call sql command"""
+        with self.tmpdir() as tmpdir:
+            # Create the database
+            self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology",
+                    "nepomuk",
+                ]
+            )
+
+            output = self.run_cli(
+                [
+                    "tinysparql-sql",
+                    "--database",
+                    tmpdir,
+                    "--query",
+                    "SELECT 42",
+                ]
+            )
+            self.assertIn("42", output, "Output not found")
+
+    def test_sql_file(self):
+        """Call sql command from file"""
+        with self.tmpdir() as tmpdir:
+            # Create the database
+            self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology",
+                    "nepomuk",
+                ]
+            )
+
+            testdata = str(self.data_path("sql/query.sql"))
+            output = self.run_cli(
+                [
+                    "tinysparql-sql",
+                    "--database",
+                    tmpdir,
+                    "--file",
+                    testdata,
+                ]
+            )
+            self.assertIn("42", output, "Output not found")
+
+    def test_sql_bad_file(self):
+        """Call sql command from file"""
+        with self.tmpdir() as tmpdir:
+            # Create the database
+            self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology",
+                    "nepomuk",
+                ]
+            )
+
+            testdata = str(self.data_path("sql/nonexistent.sql"))
+            ex = None
+            try:
+                output = self.run_cli(
+                    [
+                        "tinysparql-sql",
+                        "--database",
+                        tmpdir,
+                        "--file",
+                        testdata,
+                    ]
+                )
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Failed to open file", str(ex), "Output not found")
+
+    def test_sql_noargs(self):
+        """Call sql command with no arguments."""
+
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli(["tinysparql-sql", "sql"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("A database path must be specified", str(ex), "Output not found")
+
+    def test_sql_noargs2(self):
+        """Call sql command with no query"""
+        with self.tmpdir() as tmpdir:
+            # Create the database
+            self.run_cli(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--database",
+                    tmpdir,
+                    "--ontology",
+                    "nepomuk",
+                ]
+            )
+
+            ex = None
+            try:
+                output = self.run_cli(
+                    [
+                        "tinysparql-sql",
+                        "--database",
+                        tmpdir,
+                    ]
+                )
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Usage:", str(ex), "Output not found")
+
+    def test_sql_wrongarg(self):
+        """Call sql command with wrong arguments."""
+
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli(["tinysparql-sql", "sql", "--banana"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Unknown option", str(ex), "Output not found")
+
 if __name__ == "__main__":
     fixtures.tracker_test_main()
