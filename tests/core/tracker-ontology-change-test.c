@@ -1159,6 +1159,7 @@ test_ontology_change (gconstpointer context)
 		gchar *source, *ontology_file;
 		gchar *from, *to;
 		gchar *filename, *dot;
+		gboolean copy_retval;
 
 		source = g_build_filename (prefix, "change", "source", test->changes[i].ontology, NULL);
 		file1 = g_file_new_for_path (source);
@@ -1178,10 +1179,11 @@ test_ontology_change (gconstpointer context)
 		g_free (from);
 		g_free (to);
 
-		g_file_copy (file1, file2, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
+		copy_retval = g_file_copy (file1, file2, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
 		g_object_unref (file1);
 
 		g_assert_no_error (error);
+		g_assert_true (copy_retval);
 		g_assert_cmpint (g_chmod (ontology_file, 0666), ==, 0);
 
 		conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
