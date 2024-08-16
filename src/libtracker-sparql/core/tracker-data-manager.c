@@ -1933,18 +1933,20 @@ tracker_data_manager_apply_db_change (TrackerDataManager     *manager,
 			if (domain_indexes) {
 				while (*domain_indexes) {
 					if (tracker_property_get_multiple_values (change->d.property)) {
-						return alter_multivalue_property_table_for_type_change (manager, iface, database,
-						                                                        *domain_indexes,
-						                                                        change->d.property,
-						                                                        error);
+						if (!alter_multivalue_property_table_for_type_change (manager, iface, database,
+						                                                      *domain_indexes,
+						                                                      change->d.property,
+						                                                      error))
+							return FALSE;
 					} else {
-						return alter_class_table_for_type_change (manager, iface, database,
-						                                          *domain_indexes,
-						                                          change->d.property,
-						                                          error);
+						if (!alter_class_table_for_type_change (manager, iface, database,
+						                                        *domain_indexes,
+						                                        change->d.property,
+						                                        error))
+							return FALSE;
 					}
 
-					(*domain_indexes)++;
+					domain_indexes++;
 				}
 			}
 
