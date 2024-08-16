@@ -429,7 +429,7 @@ validate_service (AvahiStringList  *list,
 		valid = (g_strcmp0 (txtvers_value, "1") == 0 &&
 		         g_strcmp0 (protovers_value, "1.1") == 0 &&
 		         g_strcmp0 (binding_value, "HTTP") == 0);
-		if (path_out)
+		if (valid && path_out)
 			*path_out = g_strdup (path_value);
 	}
 
