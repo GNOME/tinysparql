@@ -1017,6 +1017,7 @@ query_helper (TrackerSparqlConnection *conn,
 
 	if (expect_error) {
 		g_assert_nonnull (error);
+		g_free (results);
 		return;
 	}
 
@@ -1090,6 +1091,8 @@ handle_queries (TrackerSparqlConnection *conn,
 		query_filename = g_strconcat (test_prefix, ".rq", NULL);
 		results_filename = g_strconcat (test_prefix, ".out", NULL);
 		query_helper (conn, query_filename, results_filename, queries->expect_error);
+		g_free (query_filename);
+		g_free (results_filename);
 		queries++;
 	}
 }
