@@ -112,7 +112,7 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2024-06-11.0'
+    BASE_TAG: '2024-08-16.0'
     FDO_DISTRIBUTION_PACKAGES:
       clang
       clang-analyzer
@@ -122,6 +122,7 @@ check-merge-request:
       libasan
       libsoup-devel
       libubsan
+      man-db
       patch
       python-devel
       python3-gobject
@@ -150,8 +151,8 @@ check-merge-request:
 
 .tracker.debian@common:
   variables:
-    BASE_TAG: '2024-08-20.0'
-    FDO_DISTRIBUTION_PACKAGES: 'ca-certificates python3-tap python3-pip umockdev libumockdev-dev upower asciidoc-base git'
+    BASE_TAG: '2024-08-20.1'
+    FDO_DISTRIBUTION_PACKAGES: 'ca-certificates python3-tap python3-pip umockdev libumockdev-dev upower asciidoc-base git man-db'
     FDO_DISTRIBUTION_EXEC: |
       export DEBIAN_FRONTEND=noninteractive &&
       sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources &&
@@ -163,8 +164,8 @@ check-merge-request:
 
 .tracker.alpine@common:
   variables:
-    BASE_TAG: '2024-06-12.0'
-    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup3-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala py3-pip'
+    BASE_TAG: '2024-08-16.0'
+    FDO_DISTRIBUTION_PACKAGES: 'alpine-sdk asciidoc bash-completion dbus dbus-dev git glib-dev gobject-introspection-dev gtk-doc icu-dev json-glib-dev libsoup3-dev libxml2-dev meson py3-gobject3 py3-setuptools py3-tappy sqlite-dev vala py3-pip mandoc'
     FDO_DISTRIBUTION_EXEC: |
       pip3 install gcovr
 
