@@ -7174,9 +7174,11 @@ translate_Collection (TrackerSparql  *sparql,
 		                            RDF_NS "rest", -1);
 
 		if (_check_in_rule (sparql, NAMED_RULE_GraphNode)) {
-			/* Generate variable for next element */
-			g_array_set_size (elems, elems->len + 1);
-			cur = &g_array_index (elems, TrackerToken, elems->len - 1);
+			guint last_pos = elems->len;
+
+			/* Grow array and generate variable for next element */
+			g_array_set_size (elems, last_pos + 1);
+			cur = &g_array_index (elems, TrackerToken, last_pos);
 
 			if (!tracker_sparql_generate_anon_bnode (sparql, cur, error))
 				goto error;
