@@ -38,7 +38,7 @@ export function getColorScheme() {
  * @param label - the label text attached to the checkbox
  * @param classes - classes to be added to the input element
  * @param toggleFunction - function to be called in change listener
- * @param ...args - rest of arguments to be passed to toggleFunction
+ * @param ...args - rest of arguments to be passed to toggleFunction (note that current checkbox state will be passed before these)
  * @returns "dark"/"light"
  */
 export function generateCheckbox(label:string, classes: string[], toggleFunction:Function, ...args:any[]) {
@@ -56,7 +56,7 @@ export function generateCheckbox(label:string, classes: string[], toggleFunction
   wrapper.appendChild(text);
 
   checkbox.addEventListener("change", () => {
-      toggleFunction(...args);
+      toggleFunction(checkbox.checked, ...args);
   });
   return wrapper;
 }

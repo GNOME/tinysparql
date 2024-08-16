@@ -18,7 +18,7 @@ window.addEventListener("load", async () => {
 // main execution lifecycle
 document.getElementById("runBtn")?.addEventListener("click", async () => {
    
-    setLoading(document.querySelector("#right>div"));
+    setLoading(document.querySelector("#results-pane>div"));
     setLoading(document.getElementById("variable-selects"))
     const execRes = await executeQuery(String(view.state.doc));
 
@@ -29,13 +29,13 @@ document.getElementById("runBtn")?.addEventListener("click", async () => {
         resultsDisplayElements.push(generateResultsTable(execRes.data));
         document.getElementById("variable-selects").replaceChildren(...vars);
     } else {
-        const msg = execRes.kind == "error" ? processError(execRes.error) : execRes.error;
+        const msg = typeof execRes.error == "string" ? execRes.error :  processError(execRes.error);
         resultsDisplayElements.push(generateErrorMessage(msg))
         document.getElementById("variable-selects").innerHTML = "No variables in current query, use this to show or hide variables when there are.";
     }
 
     // fill results section with error/results table etc.
-    document.querySelector("#right>div").replaceChildren(...resultsDisplayElements);
+    document.querySelector("#results-pane>div").replaceChildren(...resultsDisplayElements);
 });
 
 
@@ -54,7 +54,7 @@ document.getElementById("runBtn")?.addEventListener("click", async () => {
  * @param show - List of variables to show in result table
  * @returns Div element containing formatted results table
  */
-function generateResultsTable(data: SparqlData, show: string[]|null = null, showRowNum: boolean = true):HTMLDivElement {
+function generateResultsTable(data: SparqlData):HTMLDivElement {
     const tablediv = document.createElement("div");
     tablediv.classList.add("table-container");
 
@@ -64,15 +64,16 @@ function generateResultsTable(data: SparqlData, show: string[]|null = null, show
     thead.insertRow(0);
     table.classList.add("table", "is-striped", "is-hoverable");
 
-    const vars = show ?? data.head.vars;
-    if (showRowNum) {
-        let thvar = document.createElement("th");
-        thvar.innerText = "row";
-        thead.appendChild(thvar);
-    } 
+    const vars = data.head.vars;
+    
+    let thvar = document.createElement("th");
+    thvar.innerText = "row";
+    thvar.classList.add("row-num")
+    thead.appendChild(thvar);
     vars.forEach(v => {
         let th = document.createElement("th");
         th.innerText = v;
+        th.classList.add(`${ v }-column`)
         thead.appendChild(th);
     });
 
@@ -80,13 +81,15 @@ function generateResultsTable(data: SparqlData, show: string[]|null = null, show
     bindings.forEach((b, i) => {
         let row = tbody.insertRow(i);
         let offset = 0;
-        if (showRowNum) {
-            let id = row.insertCell(0);
-            id.innerText = String(i + 1);
-            offset = 1;
-        }
+
+        let id = row.insertCell(0);
+        id.innerText = String(i + 1);
+        id.classList.add("row-num")
+        offset = 1;
+
         vars.forEach((v, j) => {
             let cell = row.insertCell(j + offset);
+            cell.classList.add(`${ v }-column`)
             const value = b[v].value;
             
             // if value is a url, shorten with a prefix if one exists, otherwise use value as is
@@ -95,16 +98,16 @@ function generateResultsTable(data: SparqlData, show: string[]|null = null, show
             if (urlMatch) {
                 const url = urlMatch[1];
                 const prefix = prefixes[url];
-                const valueWithPrefix = prefix ? value.replace(url, `${ prefix }: `) : value;
+                const valueWithPrefix = prefix ? value.replace(url, `${ prefix }:`) : value;
                 cell.innerHTML = 
                 // links to relevant docs
-                `<a href=${ urlMatch[0] } target="_blank" rel="noopener noreferrer">
+                `<a href="${ urlMatch[0] }" target="_blank" rel="noopener noreferrer">
                     ${ valueWithPrefix }
                 </a>`;
             }
             else if (fileUriMatch) {
                 cell.innerHTML = 
-                `<a href${ value } target="_blank" rel="noopener noreferrer">
+                `<a href="${ value }" target="_blank" rel="noopener noreferrer">
                     ${ value } 
                 </a>`
             }
@@ -124,7 +127,7 @@ function generateResultsTable(data: SparqlData, show: string[]|null = null, show
  */
 function generateErrorMessage(error:string): HTMLDivElement {
     const div = document.createElement("div");
-    div.classList.add("is-flex", "is-flex-direction-column", "is-flex-grow-1", "is-align-items-start", "is-justify-content-center", "is-background-danger-dark", "px-6", "py-4");
+    div.classList.add("is-flex", "is-flex-direction-column", "is-flex-grow-1", "is-align-items-start", "is-justify-content-center", "is-background-danger-soft", "px-6", "py-4");
 
     const title = document.createElement("p");
     title.innerHTML = "<strong>Query failed!</strong>";
@@ -152,10 +155,10 @@ function generateVarSelects(data:SparqlData):HTMLElement[] {
     }
 
     const varCheckboxes = data.head.vars.map(v =>
-        generateCheckbox(v, ["var-checkbox"], changeDisplayVars, data)
+        generateCheckbox(v, ["var-checkbox"], changeDisplayVars, `${ v }-column`)
     );
 
-    const rowNumToggle = generateCheckbox("row number", ["rownum-checkbox"], changeDisplayVars, data);
+    const rowNumToggle = generateCheckbox("row number", ["rownum-checkbox"], changeDisplayVars, "row-num");
 
     return [rowNumToggle, ...varCheckboxes];
 }
@@ -165,20 +168,15 @@ function generateVarSelects(data:SparqlData):HTMLElement[] {
  * 
  * Calls generateResultsTable with current checked variables as "show" argument
  *
- * @param data - Parsed JSON result object from sparql endpoint
+ * @param show - whether to show or hide the column
+ * @param className - class name of the column to toggle
  */
-function changeDisplayVars(data:SparqlData) {
-    setLoading(document.querySelector("#right>div"));
-    const checkboxes = document.getElementById("variable-selects").querySelectorAll("input");
-    const showVars = Array.from(checkboxes)
-        .filter(c => c.checked && c.classList.contains("var-checkbox"))
-        .map(c => c.parentNode.querySelector("span").innerText );
-        
-    const showRowNum: HTMLInputElement = document.getElementById("variable-selects").querySelector("input.rownum-checkbox");
-    const newTable = generateResultsTable(data, showVars, showRowNum.checked);
-    setTimeout(() => {
-        document.querySelector("#right>div").replaceChildren(newTable);
-    }, 50);
+function changeDisplayVars(show:boolean, className:string) {
+
+    document.querySelectorAll(`.${ className }`).forEach( e => {
+        if (!show) e.setAttribute("hidden", "true");
+        else e.removeAttribute("hidden");
+    })
 }
 
 /**

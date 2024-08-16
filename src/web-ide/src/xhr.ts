@@ -1,9 +1,9 @@
 // this file contains all functions related to XHR requests
 
 // comment line below when using dev server
-import { ENDPOINT_URL as endpoint } from './const.prod';
+//import { ENDPOINT_URL as endpoint } from './const.prod';
 // uncomment line below to use dev server
-//import { ENDPOINT_URL as endpoint } from './const';
+import { ENDPOINT_URL as endpoint } from './const';
 
 export interface SparqlData {
     head: {
@@ -21,15 +21,10 @@ interface DataRes {
 
 interface ErrorRes {
     kind: "error",
-    error: Response
+    error: Response | string
 }
 
-interface MiscError {
-    kind: "misc",
-    error: string
-}
-
-type SparqlRes = DataRes | ErrorRes | MiscError;
+type SparqlRes = DataRes | ErrorRes;
 
 /**
  * Fetches prefix descriptions from current endpoint
@@ -39,6 +34,7 @@ type SparqlRes = DataRes | ErrorRes | MiscError;
 export async function getPrefixes(): Promise<Record<string,string>> {
     let prefixes: Record<string, string> = {}; // maps url to prefix
     
+    // using turtle here because of issue #468, JSON-LD would be more intuitive otherwise
     let reqHead: Headers = new Headers({
         "Content-Type": "text/plain",
         "Accept": "text/turtle"
@@ -70,7 +66,7 @@ export async function getPrefixes(): Promise<Record<string,string>> {
 /**
  * Execute a SPARQL query on the given the HTTP endpoint.
  *
- * Results are returned to the caller via a formattedExecRes instance.
+ * Results are returned to the caller via a SparqlRres instance.
  *
  * This will provide the caller with either one of the following:
  * 
@@ -80,8 +76,8 @@ export async function getPrefixes(): Promise<Record<string,string>> {
  * 
  * 3. Error message from any other errors raised (not from response)
  *
- * @param query {string} - The SPARQL query to execute.
- * @returns {Promise<formattedExecRes>} Result object promise.
+ * @param query - The SPARQL query to execute.
+ * @returns Result object promise.
  * @throws Connection Timeout error
  */
 
@@ -134,7 +130,7 @@ export async function executeQuery(query:string): Promise<SparqlRes> {
         }
 
         return {
-            kind: "misc",
+            kind: "error",
             error: m
         }
     }

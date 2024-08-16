@@ -37,7 +37,7 @@ $breakpoint: 835px;
     }
 }
 
-#right {
+#results-pane {
     height:85vh;
     width: 60%;
 
@@ -49,7 +49,7 @@ $breakpoint: 835px;
     }
 }
 
-#right > div {
+#results-pane > div {
     height: 100%;    
 }
 
@@ -63,7 +63,7 @@ section {
     overflow-y: scroll;
 }
 
-#left {
+#query-pane {
     width: 40%;
     max-height: 85vh;
     padding-right: 30px;
@@ -75,11 +75,11 @@ section {
     }
 }
 
-#left > div {
+#query-pane > div {
     height: 100%;
 }
 
-#left-bottom {
+#query-help-space {
     height: 50vh;
     padding-top: 1rem;
 
@@ -88,7 +88,7 @@ section {
     }
 }
 
-#left-bottom > div {
+#query-help-space > div {
     height: 100%
 }
 
@@ -102,6 +102,12 @@ div.content {
 
 #variable-selects {
     overflow-y: scroll;
+}
+
+#variable-selects-wrapper {
+    @include mixins.until($breakpoint) {
+       margin-top: 1rem;
+    }
 }
 
 #notif-msg {

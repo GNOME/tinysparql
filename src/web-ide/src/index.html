@@ -19,10 +19,10 @@
         </div>
     </nav>
     <div id="main" class="px-6">
-        <div id="left">
+        <div id="query-pane">
             <div class="is-flex is-flex-direction-column">
                 <div id="wrapper"></div>
-                <div class="columns" id="left-bottom">
+                <div class="columns" id="query-help-space">
                     <div class="column is-two-thirds is-flex-grow-1">
                         <div class="box info-box is-flex is-flex-direction-column">
                             <p><strong>Notes, examples, ontologies, etc.</strong></p>
@@ -34,7 +34,7 @@
                         </div>
                     </div>
                     <div class="column is-one-third is-flex-grow-1">
-                        <div class="box info-box is-flex is-flex-direction-column">
+                        <div id="variable-selects-wrapper" class="box info-box is-flex is-flex-direction-column">
                             <p><strong>Show variables</strong></p>
                             <div id="variable-selects" class="pt-3 content is-flex-grow-1 is-flex is-flex-direction-column">
                                 No variables in current query, use this to show or hide variables when there are.
@@ -44,10 +44,10 @@
             </div>
             </div>
         </div>
-        <div id="right">
+        <div id="results-pane">
             <div class="is-flex">
-                <div class="is-flex is-flex-grow-1 is-align-items-center is-justify-content-center is-background-primary-dark py-4 px-6">
-                    <p class="subtitle">No results yet, run a query to start!</p>
+                <div class="is-flex is-flex-grow-1 is-align-items-center is-justify-content-center is-background-primary-soft py-4 px-6">
+                    <p class="subtitle has-text-primary-bold">No results yet, run a query to start!</p>
                 </div>
             </div>
         </div>

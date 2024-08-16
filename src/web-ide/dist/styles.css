@@ -14402,12 +14402,12 @@ a.box:active {
   }
 }
 
-#right {
+#results-pane {
   height: 85vh;
   width: 60%;
 }
 @media screen and (max-width: 834px) {
-  #right {
+  #results-pane {
     width: 100%;
     margin-top: 40px;
     margin-bottom: 40px;
@@ -14415,7 +14415,7 @@ a.box:active {
   }
 }
 
-#right > div {
+#results-pane > div {
   height: 100%;
 }
 
@@ -14429,34 +14429,34 @@ section {
   overflow-y: scroll;
 }
 
-#left {
+#query-pane {
   width: 40%;
   max-height: 85vh;
   padding-right: 30px;
 }
 @media screen and (max-width: 834px) {
-  #left {
+  #query-pane {
     width: 100%;
     max-height: fit-content;
     padding-right: 0px;
   }
 }
 
-#left > div {
+#query-pane > div {
   height: 100%;
 }
 
-#left-bottom {
+#query-help-space {
   height: 50vh;
   padding-top: 1rem;
 }
 @media screen and (max-width: 834px) {
-  #left-bottom {
+  #query-help-space {
     height: auto;
   }
 }
 
-#left-bottom > div {
+#query-help-space > div {
   height: 100%;
 }
 
