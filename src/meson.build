@@ -1,6 +1,9 @@
 # Shared common code
 subdir('libtracker-common')
 
+# TinySPARQL HTTP library
+subdir('libtracker-http')
+
 # Public ontologies
 subdir('ontologies')
 

@@ -73,7 +73,7 @@
 #include "tracker-serializer.h"
 #include "tracker-private.h"
 
-#include "remote/tracker-http.h"
+#include <libtracker-http/tracker-http.h>
 
 const gchar *supported_formats[] = {
 	"http://www.w3.org/ns/formats/SPARQL_Results_JSON",
