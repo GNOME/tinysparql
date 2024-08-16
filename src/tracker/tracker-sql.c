@@ -61,33 +61,23 @@ static int
 sql_by_file (void)
 {
 	GError *error = NULL;
-	gchar *path_in_utf8;
+	gchar *path_in_utf8 = NULL;
 	gsize size;
 
 	path_in_utf8 = g_filename_to_utf8 (file, -1, NULL, NULL, &error);
+	if (path_in_utf8)
+		g_file_get_contents (path_in_utf8, &query, &size, &error);
+	g_free (path_in_utf8);
+
 	if (error) {
-		g_printerr ("%s:'%s', %s\n",
-		            _("Could not get UTF-8 path from path"),
-		            file,
-		            error->message);
-		g_error_free (error);
-
-		return EXIT_FAILURE;
-	}
-
-	if (!g_file_get_contents (path_in_utf8, &query, &size, &error)) {
-		g_assert (error != NULL);
 		g_printerr ("%s:'%s', %s\n",
 		            _("Could not read file"),
 		            path_in_utf8,
 		            error->message);
 		g_error_free (error);
-		g_free (path_in_utf8);
 
 		return EXIT_FAILURE;
 	}
-
-	g_free (path_in_utf8);
 
 	return sql_by_query ();
 }
