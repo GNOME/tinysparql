@@ -3574,6 +3574,8 @@ read_string (GDataInputStream  *istream,
 		return NULL;
 	}
 
+	g_assert (buf[len] == '\0');
+
 	if (len_out)
 		*len_out = len;
 
