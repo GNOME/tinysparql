@@ -67,6 +67,7 @@ main (gint argc, gchar **argv)
 	GStrv prefixes = NULL;
 	gint i;
 	g_autoptr(GError) error = NULL;
+	gboolean retval;
 
 	/* Translators: this messagge will apper immediately after the  */
 	/* usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>     */
@@ -109,11 +110,16 @@ main (gint argc, gchar **argv)
 		return -1;
 	}
 
-	prefixes = tracker_ontology_model_get_prefixes (model);
-
 	path = g_file_get_path (output_file);
-	g_mkdir_with_parents (path, 0755);
+	retval = g_mkdir_with_parents (path, 0755);
 	g_free (path);
+
+	if (!retval && errno != EEXIST) {
+		g_printerr ("Could not create output directory: %m\n");
+		return -1;
+	}
+
+	prefixes = tracker_ontology_model_get_prefixes (model);
 
 	for (i = 0; prefixes[i]; i++) {
 		description = tracker_ontology_model_get_description (model, prefixes[i]);
