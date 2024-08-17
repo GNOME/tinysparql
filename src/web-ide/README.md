@@ -35,5 +35,21 @@ meson configure -Dwebpack=true <builddir>
 meson compile -C <builddir>
 
 ```
-
 Note that the dist directory must be pushed to git to ensure developers who aren't involved with the web ide don't need to install all the npm stuff to build the project.
+
+## Best practice
+1. When using development server to work with the frontend, change the endpoint constants used in xhr.ts to connect to the right SPARQL endpoint without affecting production code.
+
+```ts
+// comment line below when using dev server
+import { ENDPOINT_URL as endpoint } from "./const.prod";
+// uncomment line below to use dev server
+//import { ENDPOINT_URL as endpoint } from "./const";
+```
+This change should not be pushed to main.
+
+2. Linting and prettifying scripts are available so please use them! 
+```
+npm run lint
+npm run format
+```

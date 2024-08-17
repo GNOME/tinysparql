@@ -1,19 +1,19 @@
 /**
  * Set notification box text to message given
- * 
+ *
  * then animates the box to show it sliding down from the top
- * 
+ *
  * Sends the box back after 1.5s
  *
  * @param message - Notification message to show
  */
 export function notify(message: string) {
-    const notifMsg = document.getElementById("notif-msg");
-    notifMsg.innerText = message;
-    notifMsg.style.top = "3rem";
-    setTimeout(() => {
-      notifMsg.style.top = "-10rem";
-    }, 1500);
+  const notifMsg = document.getElementById("notif-msg");
+  notifMsg.innerText = message;
+  notifMsg.style.top = "3rem";
+  setTimeout(() => {
+    notifMsg.style.top = "-10rem";
+  }, 1500);
 }
 
 /**
@@ -24,24 +24,27 @@ export function notify(message: string) {
 export function getColorScheme() {
   return window
     .getComputedStyle(document.documentElement)
-    .getPropertyValue('content')
-    .replace(/"/g, '');
+    .getPropertyValue("content")
+    .replace(/"/g, "");
 }
 
 /**
  * Generates labelled checkboxes wrapped up nicely
- * 
+ *
  * Attaches change listener based on arguments given
- * 
+ *
  * Classes can also be added via the arguments
- * 
+ *
  * @param label - the label text attached to the checkbox
  * @param classes - classes to be added to the input element
  * @param toggleFunction - function to be called in change listener
- * @param ...args - rest of arguments to be passed to toggleFunction (note that current checkbox state will be passed before these)
  * @returns "dark"/"light"
  */
-export function generateCheckbox(label:string, classes: string[], toggleFunction:Function, ...args:any[]) {
+export function generateCheckbox(
+  label: string,
+  classes: string[],
+  toggleFunction: (a: boolean) => void,
+) {
   const wrapper = document.createElement("label");
   const checkbox = document.createElement("input");
   const text = document.createElement("span");
@@ -49,18 +52,17 @@ export function generateCheckbox(label:string, classes: string[], toggleFunction
   wrapper.classList.add("checkbox");
   checkbox.setAttribute("type", "checkbox");
   checkbox.setAttribute("checked", "true");
-  classes.forEach(v => checkbox.classList.add(v));
+  classes.forEach((v) => checkbox.classList.add(v));
   text.innerText = label;
   text.classList.add("ml-2");
   wrapper.appendChild(checkbox);
   wrapper.appendChild(text);
 
   checkbox.addEventListener("change", () => {
-      toggleFunction(checkbox.checked, ...args);
+    toggleFunction(checkbox.checked);
   });
   return wrapper;
 }
-
 
 export function setLoading(parent: HTMLElement) {
   const div = document.createElement("div");

@@ -14472,6 +14472,12 @@ div.content {
   overflow-y: scroll;
 }
 
+@media screen and (max-width: 834px) {
+  #variable-selects-wrapper {
+    margin-top: 1rem;
+  }
+}
+
 #notif-msg {
   position: absolute;
   top: -10rem;
