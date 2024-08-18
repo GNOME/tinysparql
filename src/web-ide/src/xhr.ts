@@ -1,9 +1,9 @@
 // this file contains all functions related to XHR requests
 
 // comment line below when using dev server
-// import { ENDPOINT_URL as endpoint } from "./const.prod";
+import { ENDPOINT_URL as endpoint } from "./const.prod";
 // uncomment line below to use dev server
-import { ENDPOINT_URL as endpoint } from "./const";
+// import { ENDPOINT_URL as endpoint } from "./const";
 
 export interface SparqlData {
   head: {
@@ -103,7 +103,7 @@ export async function executeQuery(query: string): Promise<SparqlRes> {
     const res = await new Promise<Response>((resolve, reject) => {
       const connTimeout = setTimeout(() => {
         reject("Connection Timeout: Cannot reach SPARQL endpoint");
-      }, 3000);
+      }, 30000);
       fetch(endpoint, reqOptions).then((r) => {
         clearTimeout(connTimeout);
         resolve(r);

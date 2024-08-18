@@ -16,7 +16,7 @@ window.addEventListener("load", async () => {
 });
 
 // main execution lifecycle
-document.getElementById("runBtn")?.addEventListener("click", async () => {
+document.getElementById("run-button")?.addEventListener("click", async () => {
   setLoading(document.querySelector("#results-pane>div"));
   setLoading(document.getElementById("variable-selects"));
   const execRes = await executeQuery(String(view.state.doc));
@@ -206,7 +206,7 @@ function changeDisplayVars(show: boolean, className: string) {
  * @returns Relevant error message
  */
 function processError(errorRes: Response): string {
-  let m = "Something went wrong! Please try again."; // default error text
+  let m: string;
   if (errorRes.status == 400) {
     m = errorRes.statusText;
     const parseErr = /Parser error at byte [0-9]+/g.exec(m);
@@ -214,7 +214,13 @@ function processError(errorRes: Response): string {
       const pos = parseErr[0].split(" ")[4];
       setErrorLine(Number(pos));
     }
-  } else if (errorRes.status == 404) m = "SPARQL endpoint not found";
-  else if (errorRes.status == 500) m = "Internal server error!";
+  } else if (errorRes.status == 404) {
+    m = "SPARQL endpoint not found";
+  } else if (errorRes.status == 500) {
+    m = "Internal server error!";
+  } else {
+    m = errorRes.statusText;
+  }
+
   return m;
 }

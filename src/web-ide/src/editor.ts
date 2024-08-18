@@ -45,7 +45,7 @@ const runQueryKeymap = keymap.of([
     key: "Shift-Enter",
     preventDefault: true,
     run: () => {
-      document.getElementById("runBtn").click();
+      document.getElementById("run-button").click();
       return true;
     },
   },
@@ -65,7 +65,7 @@ const view = new EditorView({
 });
 
 // set up bookmarking functionality
-document.getElementById("saveBtn").addEventListener("click", async () => {
+document.getElementById("save-button").addEventListener("click", async () => {
   await navigator.clipboard.writeText(createQueryLink());
   notify("Copied to clipboard");
 });
@@ -76,7 +76,10 @@ const errorLine = Decoration.mark({
   class: "error-line",
   inclusiveEnd: true,
 });
-const errorLineEffect = StateEffect.define<{ pos: number }>();
+const errorLineEffect = StateEffect.define<{
+  start: number;
+  end: number | null;
+}>();
 const errorLineField = StateField.define<DecorationSet>({
   create() {
     return Decoration.none;
@@ -92,11 +95,15 @@ const errorLineField = StateField.define<DecorationSet>({
         const query = view.state.doc.toString();
         const queryBytesUpToError = encoder
           .encode(query)
-          .slice(0, e.value.pos + 1);
+          .slice(0, e.value.start + 1);
         const realErrorPos = decoder.decode(queryBytesUpToError).length - 1;
         const charAtErrorLine = query[realErrorPos];
 
-        if (charAtErrorLine == "\n") {
+        if (e.value.end) {
+          field = field.update({
+            add: [errorLine.range(realErrorPos - 1, e.value.end)],
+          });
+        } else if (charAtErrorLine == "\n") {
           field = field.update({
             add: [errorLine.range(realErrorPos - 1, realErrorPos)],
           });
@@ -123,8 +130,8 @@ const errorLineField = StateField.define<DecorationSet>({
  *
  * @param pos - Byte number associated with error position
  */
-export function setErrorLine(pos: number) {
-  const effects: StateEffect<unknown>[] = [errorLineEffect.of({ pos })];
+export function setErrorLine(start: number, end: number | null = null) {
+  const effects: StateEffect<unknown>[] = [errorLineEffect.of({ start, end })];
 
   if (!view.state.field(errorLineField, false))
     effects.push(StateEffect.appendConfig.of([errorLineField]));

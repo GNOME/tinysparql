@@ -10,7 +10,7 @@
 export function notify(message: string) {
   const notifMsg = document.getElementById("notif-msg");
   notifMsg.innerText = message;
-  notifMsg.style.top = "3rem";
+  notifMsg.style.top = "2rem";
   setTimeout(() => {
     notifMsg.style.top = "-10rem";
   }, 1500);
