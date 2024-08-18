@@ -29,6 +29,8 @@
 #include <avahi-glib/glib-watch.h>
 #endif
 
+#define BUFFER_SIZE 4096
+
 #ifdef G_ENABLE_DEBUG
 static const GDebugKey tracker_debug_keys[] = {
   { "http", TRACKER_DEBUG_HTTP },
@@ -99,12 +101,12 @@ struct _TrackerHttpRequest
 {
 	TrackerHttpServer *server;
 	SoupServerMessage *message;
-	GTask *task;
 	GInputStream *istream;
 
 	GSocketAddress *remote_address;
 	gchar *path;
 	GHashTable *params;
+	GCancellable *cancellable;
 };
 
 struct _TrackerHttpServerSoup
@@ -142,6 +144,7 @@ request_new (TrackerHttpServer  *http_server,
 	request->message = g_object_ref (message);
 	request->remote_address = g_object_ref (remote_address);
 	request->path = g_strdup (path);
+	request->cancellable = g_cancellable_new ();
 
 	if (params) {
 		request->params = g_hash_table_ref (params);
@@ -153,9 +156,12 @@ request_new (TrackerHttpServer  *http_server,
 static void
 request_free (TrackerHttpRequest *request)
 {
+	g_signal_handlers_disconnect_by_data (request->message, request);
+
 	g_clear_object (&request->istream);
 	g_clear_object (&request->message);
 	g_clear_object (&request->remote_address);
+	g_object_unref (request->cancellable);
 	g_free (request->path);
 	g_clear_pointer (&request->params, g_hash_table_unref);
 	g_free (request);
@@ -323,12 +329,20 @@ webide_server_callback (SoupServer        *server,
 	GSocketAddress *remote_address;
 	TrackerHttpRequest *request;
 	const char *method;
+	SoupMessageHeaders *response_headers;
+	SoupMessageBody *body;
 
 	TRACKER_NOTE (HTTP, debug_http_request (message, path, query));
 
 	remote_address = soup_server_message_get_remote_address (message);
 
 	request = request_new (http_server, message, remote_address, path, query);
+
+	response_headers = soup_server_message_get_response_headers (request->message);
+	soup_message_headers_set_encoding (response_headers, SOUP_ENCODING_CHUNKED);
+
+	body = soup_server_message_get_response_body (request->message);
+	soup_message_body_set_accumulate (body, FALSE);
 
 #if SOUP_CHECK_VERSION (3, 1, 3)
 	soup_server_message_pause (message);
@@ -362,6 +376,7 @@ sparql_server_callback (SoupServer        *server,
 	GSocketAddress *remote_address;
 	TrackerHttpRequest *request;
 	const char *method;
+	SoupMessageHeaders *response_headers;
 	SoupMessageBody *body;
 
 	TRACKER_NOTE (HTTP, debug_http_request (message, path, query));
@@ -369,6 +384,12 @@ sparql_server_callback (SoupServer        *server,
 	remote_address = soup_server_message_get_remote_address (message);
 
 	request = request_new (http_server, message, remote_address, path, query);
+
+	response_headers = soup_server_message_get_response_headers (request->message);
+	soup_message_headers_set_encoding (response_headers, SOUP_ENCODING_CHUNKED);
+
+	body = soup_server_message_get_response_body (request->message);
+	soup_message_body_set_accumulate (body, FALSE);
 
 #if SOUP_CHECK_VERSION (3, 1, 3)
 	soup_server_message_pause (message);
@@ -640,64 +661,40 @@ tracker_http_server_soup_error (TrackerHttpServer       *server,
 }
 
 static void
-handle_write_in_thread (GTask        *task,
-                        gpointer      source_object,
-                        gpointer      task_data,
-                        GCancellable *cancellable)
-{
-	TrackerHttpRequest *request = task_data;
-	gchar buffer[1000];
-	SoupMessageBody *message_body;
-	GError *error = NULL;
-	gssize count;
-
-	message_body = soup_server_message_get_response_body (request->message);
-
-	for (;;) {
-		count = g_input_stream_read (request->istream,
-		                             buffer, sizeof (buffer),
-		                             cancellable, &error);
-		if (count < 0)
-			break;
-
-		soup_message_body_append (message_body,
-		                          SOUP_MEMORY_COPY,
-		                          buffer, count);
-
-		if (count == 0) {
-			break;
-		}
-	}
-
-	g_input_stream_close (request->istream, cancellable, NULL);
-	g_clear_object (&request->istream);
-	soup_message_body_complete (message_body);
-
-	if (error)
-		g_task_return_error (task, error);
-	else
-		g_task_return_boolean (task, TRUE);
-
-	g_object_unref (task);
-}
-
-static void
-write_finished_cb (GObject      *object,
-                   GAsyncResult *result,
-                   gpointer      user_data)
+on_bytes_read (GObject      *source,
+               GAsyncResult *res,
+               gpointer      user_data)
 {
 	TrackerHttpRequest *request = user_data;
-	G_GNUC_UNUSED TrackerHttpServerSoup *server =
-		TRACKER_HTTP_SERVER_SOUP (request->server);
+	SoupMessageBody *message_body;
+	GBytes *bytes;
 	GError *error = NULL;
 
-	if (!g_task_propagate_boolean (G_TASK (result), &error)) {
+	bytes = g_input_stream_read_bytes_finish (G_INPUT_STREAM (source),
+	                                          res, &error);
+	if (error) {
 		tracker_http_server_soup_error (request->server,
 		                                request,
 		                                500,
 		                                error->message);
-		g_clear_error (&error);
+		g_error_free (error);
+		request_free (request);
+		return;
+	}
+
+	message_body = soup_server_message_get_response_body (request->message);
+
+	if (g_bytes_get_size (bytes) > 0) {
+		soup_message_body_append_bytes (message_body, bytes);
+
+#if SOUP_CHECK_VERSION (3, 1, 3)
+		soup_server_message_unpause (request->message);
+#else
+		soup_server_unpause_message (server->server, request->message);
+#endif
 	} else {
+		g_input_stream_close (request->istream, request->cancellable, NULL);
+		soup_message_body_complete (message_body);
 
 #if SOUP_CHECK_VERSION (3, 1, 3)
 		soup_server_message_unpause (request->message);
@@ -707,6 +704,33 @@ write_finished_cb (GObject      *object,
 
 		request_free (request);
 	}
+
+	g_bytes_unref (bytes);
+}
+
+static void
+next_write (TrackerHttpRequest *request)
+{
+	g_input_stream_read_bytes_async (request->istream,
+	                                 BUFFER_SIZE,
+	                                 G_PRIORITY_DEFAULT,
+	                                 request->cancellable,
+	                                 on_bytes_read,
+	                                 request);
+}
+
+static void
+on_message_finished (SoupServerMessage  *message,
+                     TrackerHttpRequest *request)
+{
+	g_cancellable_cancel (request->cancellable);
+}
+
+static void
+on_chunk_written (SoupServerMessage  *message,
+                  TrackerHttpRequest *request)
+{
+	next_write (request);
 }
 
 static void
@@ -715,24 +739,18 @@ tracker_http_server_soup_response (TrackerHttpServer       *server,
                                    const gchar*             mimetype,
                                    GInputStream            *content)
 {
-	TrackerHttpServerSoup *server_soup =
-		TRACKER_HTTP_SERVER_SOUP (server);
-
 	g_assert (request->server == server);
 
 	TRACKER_NOTE (HTTP, debug_http_reponse_response ());
 
 	set_message_format (request, mimetype);
 	soup_server_message_set_status (request->message, 200, NULL);
-
 	request->istream = content;
-	request->task = g_task_new (server, server_soup->cancellable,
-	                            write_finished_cb, request);
 
-	g_task_set_task_data (request->task, request, NULL);
-	g_task_run_in_thread (request->task, handle_write_in_thread);
+	g_signal_connect (request->message, "finished", G_CALLBACK (on_message_finished), request);
+	g_signal_connect (request->message, "wrote-chunk", G_CALLBACK (on_chunk_written), request);
+	next_write (request);
 }
-
 
 static void
 tracker_http_server_soup_error_content (TrackerHttpServer       *server,
@@ -741,22 +759,16 @@ tracker_http_server_soup_error_content (TrackerHttpServer       *server,
                                         const gchar*            mimetype,
                                         GInputStream            *content)
 {
-	TrackerHttpServerSoup *server_soup =
-		TRACKER_HTTP_SERVER_SOUP (server);
-
 	g_assert (request->server == server);
 
 	set_message_format (request, mimetype);
 	soup_server_message_set_status (request->message, code, NULL);
-
 	request->istream = content;
-	request->task = g_task_new (server, server_soup->cancellable,
-	                            write_finished_cb, request);
 
-	g_task_set_task_data (request->task, request, NULL);
-	g_task_run_in_thread (request->task, handle_write_in_thread);
+	g_signal_connect (request->message, "finished", G_CALLBACK (on_message_finished), request);
+	g_signal_connect (request->message, "wrote-chunk", G_CALLBACK (on_chunk_written), request);
+	next_write (request);
 }
-
 
 static void
 tracker_http_server_soup_finalize (GObject *object)
