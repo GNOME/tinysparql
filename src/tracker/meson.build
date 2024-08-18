@@ -12,9 +12,10 @@ main_command_sources = [
     'tracker-import.c',
     'tracker-main.c',
     'tracker-sparql.c',
+    'tracker-webide.c',
 ]
 
-executable(main_command_name, main_command_sources,
+executable(main_command_name, main_command_sources, web_ide_gresources,
     c_args: tracker_c_args + [
         '-DCLI_METADATA_DIR="@0@"'.format(command_metadata_dir),
         '-DMANDIR="@0@"'.format(join_paths(get_option('prefix'), get_option('datadir'), 'man')),
@@ -25,7 +26,7 @@ executable(main_command_name, main_command_sources,
     ],
     install: true,
     install_rpath: tracker_internal_libs_dir,
-    dependencies: [tracker_common_dep, tracker_sparql_dep, gio_unix, avahi_glib, avahi_client],
+    dependencies: [tracker_common_dep, tracker_sparql_dep, web_ide_dep, gio_unix, avahi_glib, avahi_client],
     include_directories: [commoninc, configinc, srcinc],
 )
 

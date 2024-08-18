@@ -27,6 +27,13 @@
 #include <libtracker-sparql/tracker-enums-private.h>
 #endif
 
+typedef enum
+{
+	TRACKER_HTTP_SERVER_MODE_SPARQL_ENDPOINT,
+	TRACKER_HTTP_SERVER_MODE_WEB_IDE,
+	TRACKER_N_HTTP_SERVER_MODES
+} TrackerHttpServerMode;
+
 typedef struct _TrackerHttpRequest TrackerHttpRequest;
 
 #define TRACKER_TYPE_HTTP_SERVER (tracker_http_server_get_type ())
@@ -53,10 +60,11 @@ struct _TrackerHttpServerClass {
 	                        GInputStream            *content);
 };
 
-TrackerHttpServer * tracker_http_server_new (guint             port,
-                                             GTlsCertificate  *certificate,
-                                             GCancellable     *cancellable,
-                                             GError          **error);
+TrackerHttpServer * tracker_http_server_new (guint                   port,
+                                             GTlsCertificate        *certificate,
+                                             TrackerHttpServerMode   server_mode,
+                                             GCancellable           *cancellable,
+                                             GError                **error);
 
 void tracker_http_server_response (TrackerHttpServer       *server,
                                    TrackerHttpRequest      *request,

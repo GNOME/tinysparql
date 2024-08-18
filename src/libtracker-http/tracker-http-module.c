@@ -189,7 +189,7 @@ set_message_format (TrackerHttpRequest      *request,
 
 	response_headers = soup_server_message_get_response_headers (request->message);
 	soup_message_headers_set_content_type (response_headers, mimetype, NULL);
-	soup_message_headers_append (response_headers, "Access-Control-Allow-Origin", "http://localhost:8080");
+	soup_message_headers_append (response_headers, "Access-Control-Allow-Origin", "*");
 }
 
 /* Get SPARQL query from message POST data, or NULL. */
@@ -313,11 +313,11 @@ debug_http_request (SoupServerMessage *message,
 
 
 static void
-root_server_callback (SoupServer        *server,
-                      SoupServerMessage *message,
-                      const char        *path,
-                      GHashTable        *query,
-                      gpointer           user_data)
+webide_server_callback (SoupServer        *server,
+                        SoupServerMessage *message,
+                        const char        *path,
+                        GHashTable        *query,
+                        gpointer           user_data)
 {
 	TrackerHttpServer *http_server = user_data;
 	GSocketAddress *remote_address;
@@ -352,11 +352,11 @@ root_server_callback (SoupServer        *server,
 }
 
 static void
-server_callback (SoupServer        *server,
-                 SoupServerMessage *message,
-                 const char        *path,
-                 GHashTable        *query,
-                 gpointer           user_data)
+sparql_server_callback (SoupServer        *server,
+                        SoupServerMessage *message,
+                        const char        *path,
+                        GHashTable        *query,
+                        gpointer           user_data)
 {
 	TrackerHttpServer *http_server = user_data;
 	GSocketAddress *remote_address;
@@ -552,26 +552,40 @@ tracker_http_server_initable_init (GInitable     *initable,
 	TrackerHttpServerSoup *server = TRACKER_HTTP_SERVER_SOUP (initable);
 	GTlsCertificate *certificate;
 	guint port;
+	TrackerHttpServerMode server_mode;
 
 	g_object_get (initable,
 	              "http-certificate", &certificate,
 	              "http-port", &port,
+	              "server-mode", &server_mode,
 	              NULL);
 
 	server->server =
 		soup_server_new ("tls-certificate", certificate,
 		                 "server-header", USER_AGENT,
 		                 NULL);
-	soup_server_add_handler (server->server,
-	                         "/sparql",
-	                         server_callback,
-	                         initable,
-	                         NULL);
-	soup_server_add_handler (server->server,
-	                         "/",
-	                         root_server_callback,
-	                         initable,
-	                         NULL);
+
+	if (server_mode == TRACKER_HTTP_SERVER_MODE_SPARQL_ENDPOINT) {
+		soup_server_add_handler (server->server,
+		                         "/sparql",
+		                         sparql_server_callback,
+		                         initable,
+		                         NULL);
+	} else if (server_mode == TRACKER_HTTP_SERVER_MODE_WEB_IDE) {
+		soup_server_add_handler (server->server,
+		                         "/",
+		                         webide_server_callback,
+		                         initable,
+		                         NULL);
+	} else {
+		g_set_error (error,
+		             G_IO_ERROR,
+		             G_IO_ERROR_FAILED,
+		             "Unhandled server mode %d",
+		             server_mode);
+		return FALSE;
+	}
+
 	g_clear_object (&certificate);
 
 #ifdef HAVE_AVAHI

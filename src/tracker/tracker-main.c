@@ -34,6 +34,7 @@
 #include "tracker-import.h"
 #include "tracker-sparql.h"
 #include "tracker-common.h"
+#include "tracker-webide.h"
 
 #include <libtracker-common/tracker-common.h>
 
@@ -72,6 +73,7 @@ static struct cmd_struct commands[] = {
        { "export", tracker_export, N_("Export data from a TinySPARQL database") },
        { "import", tracker_import, N_("Import data into a TinySPARQL database") },
        { "sparql", tracker_sparql, N_("Query and update the index using SPARQL or search, list and tree the ontology") },
+       { "webide", tracker_webide, N_("Create a Web IDE to query local databases") },
 };
 
 static inline void

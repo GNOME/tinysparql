@@ -91,22 +91,8 @@ static const gchar *mimetypes[] = {
 	"application/ld+json",
 };
 
-const gchar *get_request_mimetypes[] = {
-	"text/html",
-	"text/css",
-	"text/javascript",
-	"image/x-icon",
-};
-
-const gchar *get_request_file_extension[] = {
-	"html",
-	"css",
-	"js",
-	"ico",	
-};
 
 G_STATIC_ASSERT (G_N_ELEMENTS (supported_formats) == TRACKER_N_SERIALIZER_FORMATS);
-G_STATIC_ASSERT (G_N_ELEMENTS (get_request_mimetypes) == G_N_ELEMENTS (get_request_file_extension));
 
 struct _TrackerEndpointHttp {
 	TrackerEndpoint parent_instance;
@@ -140,10 +126,6 @@ static GParamSpec *props[N_PROPS];
 static guint signals[N_SIGNALS];
 
 static void tracker_endpoint_http_initable_iface_init (GInitableIface *iface);
-static void
-webide_server_request_cb (TrackerHttpServer   *server,
-                          TrackerHttpRequest  *request,
-                          const gchar         *path);
 
 G_DEFINE_TYPE_WITH_CODE (TrackerEndpointHttp, tracker_endpoint_http, TRACKER_TYPE_ENDPOINT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE, tracker_endpoint_http_initable_iface_init))
@@ -258,107 +240,11 @@ create_service_description (TrackerEndpointHttp      *endpoint,
 	return resource;
 }
 
-static const gchar *
-get_mimetype_from_path (const gchar *path)
-{
-	gchar *extension;
-	guint i;
-
-	extension = strrchr (path, '.');
-	if (extension == NULL)
-		return NULL;
-
-	extension++;
-
-	for (i = 0; i < G_N_ELEMENTS (get_request_file_extension); i++) {
-		if (g_strcmp0 (extension, get_request_file_extension[i]) == 0)
-			return get_request_mimetypes[i];
-	}
-
-	return NULL;
-}
-
-static gboolean
-tracker_get_request_validate_path (const gchar *path)
-{
-	const gchar *slash = g_strrstr (path + 1, "/");
-	if (slash != NULL)
-		return FALSE;
-
-	const gchar *dot = g_strrstr (path, ".");
-	if (dot == NULL)
-		return FALSE;
-
-	return TRUE;
-}
-
-static void
-tracker_get_input_stream_from_path (const gchar   *path,
-                                    GInputStream **in)
-{
-	GFile *file;
-	GFile *base;
-	GFileInputStream *file_in;
-
-	base = g_file_new_for_uri ("resource:///org/freedesktop/tracker/web-ide/dist");
-	file = g_file_get_child (base, &path[1]);
-
-	file_in = g_file_read (file, NULL, NULL);
-	*in = G_INPUT_STREAM (file_in);
-
-	g_clear_object (&file);
-	g_clear_object (&base);
-}
-
-static void
-tracker_response_error_page_not_found (TrackerHttpServer    *server,
-                                       TrackerHttpRequest   *request)
-{
-	GInputStream *in;
-
-	tracker_get_input_stream_from_path ("/404.html", &in);
-	tracker_http_server_error_content(server, request, 404, "text/html", G_INPUT_STREAM (in));
-}
-
-static void
-webide_server_request_cb (TrackerHttpServer   *server,
-                          TrackerHttpRequest  *request,
-                          const gchar         *path)
-{
-	GInputStream *in;
-	const gchar* mime_type;
-
-	if (g_strcmp0 (path, "/") == 0) {
-		webide_server_request_cb (server, request, "/index.html");
-		return;
-	}
-
-	if (!tracker_get_request_validate_path (path)) {
-		tracker_response_error_page_not_found (server, request);
-		return;
-	}
-
-	tracker_get_input_stream_from_path (path, &in);
-
-	if (!in) {
-		g_debug ("File not found");
-		tracker_response_error_page_not_found (server, request);
-		return;
-	}
-
-	mime_type = get_mimetype_from_path (path);
-
-	if (!mime_type) {
-		tracker_response_error_page_not_found (server, request);
-		return;
-	}
-
-	tracker_http_server_response (server, request, mime_type, G_INPUT_STREAM (in));
-}
-
 static void
 sparql_server_request_cb (TrackerHttpServer  *server,
+                          GSocketAddress     *remote_address,
                           const gchar        *path,
+                          const gchar        *method,
                           GHashTable         *params,
                           guint               formats,
                           TrackerHttpRequest *request,
@@ -369,6 +255,18 @@ sparql_server_request_cb (TrackerHttpServer  *server,
 	TrackerSerializerFormat format;
 	const gchar *sparql = NULL;
 	Request *data;
+	gboolean block = FALSE;
+
+	if (remote_address) {
+		g_signal_emit (endpoint, signals[BLOCK_REMOTE_ADDRESS], 0,
+		               remote_address, &block);
+	}
+
+	if (block) {
+		tracker_http_server_error (server, request, 400,
+		                           "Remote address disallowed");
+		return;
+	}
 
 	if (params)
 		sparql = g_hash_table_lookup (params, "query");
@@ -428,49 +326,6 @@ sparql_server_request_cb (TrackerHttpServer  *server,
 	}
 }
 
-static void
-http_server_request_cb (TrackerHttpServer  *server,
-                        GSocketAddress     *remote_address,
-                        const gchar        *path,
-                        const gchar        *method,
-                        GHashTable         *params,
-                        guint               formats,
-                        TrackerHttpRequest *request,
-                        gpointer            user_data)
-{
-	TrackerEndpoint *endpoint = user_data;
-	gboolean block = FALSE;
-
-	if (remote_address) {
-		g_signal_emit (endpoint, signals[BLOCK_REMOTE_ADDRESS], 0,
-		               remote_address, &block);
-	}
-
-	if (block) {
-		tracker_http_server_error (server, request, 400,
-		                           "Remote address disallowed");
-		return;
-	}
-
-	if (g_str_equal (path, "/sparql") || g_str_has_prefix (path, "/sparql/")) {
-		sparql_server_request_cb (server,
-		                          path,
-		                          params,
-		                          formats,
-		                          request,
-		                          user_data);
-		return;
-	}
-
-	if (g_strcmp0 (method, "GET") == 0) {
-		webide_server_request_cb (server,
-		                          request,
-		                          path);
-	} else {
-		tracker_http_server_error (server, request, 405, "Method Not Allowed");
-	}
-}
-
 static gboolean
 tracker_endpoint_http_initable_init (GInitable     *initable,
                                      GCancellable  *cancellable,
@@ -482,13 +337,14 @@ tracker_endpoint_http_initable_init (GInitable     *initable,
 	endpoint_http->server =
 		tracker_http_server_new (endpoint_http->port,
 		                         endpoint_http->certificate,
+		                         TRACKER_HTTP_SERVER_MODE_SPARQL_ENDPOINT,
 		                         cancellable,
 		                         error);
 	if (!endpoint_http->server)
 		return FALSE;
 
 	g_signal_connect (endpoint_http->server, "request",
-	                  G_CALLBACK (http_server_request_cb), initable);
+	                  G_CALLBACK (sparql_server_request_cb), initable);
 	return TRUE;
 }
 
