@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-07-10 10:15+0000\n"
-"PO-Revision-Date: 2024-07-13 19:05+0300\n"
+"POT-Creation-Date: 2024-07-30 23:14+0000\n"
+"PO-Revision-Date: 2024-07-31 21:18+0300\n"
 "Last-Translator: Artur So <arturios2005@mail.ru>\n"
 "Language-Team: Русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
@@ -39,12 +39,12 @@ msgid "Version"
 msgstr "Версия"
 
 #: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
-#: src/tracker/tracker-export.c:549 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:239
+#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:245
 msgid "Unrecognized options"
 msgstr "Неизвестный параметр"
 
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
 #: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
@@ -158,108 +158,75 @@ msgstr ""
 "Новая база данных создана. Используйте опцию «—dbus-service» чтобы "
 "подключить шину сообщений к ней."
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-endpoint.desktop.in:6
-msgid "endpoint"
-msgstr "endpoint"
-
-#: src/tracker/tracker-endpoint.desktop.in:7
-msgid "Create a SPARQL endpoint"
-msgstr "Создать конечную точку SPARQL"
-
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
 #: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "ФАЙЛ"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:117
 msgid "Connects to a DBus service"
 msgstr "Соединяется с сервисом DBus"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
 #: src/tracker/tracker-sparql.c:118
 msgid "DBus service name"
 msgstr "Имя сервиса DBus"
 
-#: src/tracker/tracker-export.c:57
+#: src/tracker/tracker-export.c:55
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Формат вывода результатов: “turtle”, “trig” или “json-ld”"
 
-#: src/tracker/tracker-export.c:58
+#: src/tracker/tracker-export.c:56
 msgid "RDF_FORMAT"
 msgstr "RDF_ФОРМАТ"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:121
 msgid "Connects to a remote service"
 msgstr "Подключается к удалённому сервису"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:122
 msgid "Remote service URI"
 msgstr "URI удалённого сервиса"
 
-#: src/tracker/tracker-export.c:65
+#: src/tracker/tracker-export.c:63
 msgid "Output TriG format which includes named graph information"
 msgstr "Вывести формат TriG, содержащий информацию именованного графа"
 
 # Internationalized Resource Identifier
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
 msgid "IRI"
 msgstr "ИИР"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
 #: src/tracker/tracker-sparql.c:206
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr "Укажите одну опцию «—database», «—dbus-service» или «—remote-service»"
 
-#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
+#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
 #: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
 msgid "No error given"
 msgstr "Сообщение об ошибке не указано"
 
-#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
 #: src/tracker/tracker-sparql.c:1072
 msgid "Could not establish a connection to Tracker"
 msgstr "Не удалось установить соединение с Tracker"
 
-#: src/tracker/tracker-export.c:382
+#: src/tracker/tracker-export.c:180
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Неподдерживаемый формат сериализации «%s»\n"
-
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:446
-#: src/tracker/tracker-export.c:455 src/tracker/tracker-sparql.c:1334
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "Не удалось выполнить запрос"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-export.desktop.in:6
-msgid "export"
-msgstr "export"
-
-#: src/tracker/tracker-export.desktop.in:7
-msgid "Export data from a Tracker database"
-msgstr "Экспортировать данные из базы данных Tracker"
 
 #: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "не удалось запустить «%s»: %s"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-help.desktop.in:6
-msgid "help"
-msgstr "help"
-
-#: src/tracker/tracker-help.desktop.in:7
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr "Справка по использованию Tracker и любых его команд"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -269,28 +236,43 @@ msgstr "Прочитать формат TriG, содержащий информ�
 msgid "Could not run import"
 msgstr "Не удалось запустить импорт"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-import.desktop.in:6
-msgid "import"
-msgstr "import"
+#: src/tracker/tracker-main.c:70
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "Справка по использованию TinySPARQL и любых его команд"
 
-#: src/tracker/tracker-import.desktop.in:7
-msgid "Import data into a Tracker database"
-msgstr "Импортировать данные в базу данных Tracker"
+#: src/tracker/tracker-main.c:71
+msgid "Create a SPARQL endpoint"
+msgstr "Создать конечную точку SPARQL"
 
-#: src/tracker/tracker-main.c:123
+#: src/tracker/tracker-main.c:72
+msgid "Export data from a TinySPARQL database"
+msgstr "Экспортировать данные из базы данных TinySPARQL"
+
+#: src/tracker/tracker-main.c:73
+msgid "Import data into a TinySPARQL database"
+msgstr "Импортировать данные в базу данных TinySPARQL"
+
+#: src/tracker/tracker-main.c:74
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"Запрашивать и обновлять индекс, используя SPARQL или искать, перечислять и "
+"создавать дерево онтологии"
+
+#: src/tracker/tracker-main.c:91
 msgid "Available tinysparql commands are:"
 msgstr "Доступные команды tinysparql:"
 
-#: src/tracker/tracker-main.c:155
+#: src/tracker/tracker-main.c:110
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
 "Введите «tinysparql help <команда>» для информации о специфичных подкомандах."
 
-#: src/tracker/tracker-main.c:208
+#: src/tracker/tracker-main.c:153
 #, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
-msgstr "«%s» не является командой tinysparql. Смотрите справку «tinysparql --help»"
+msgstr ""
+"«%s» не является командой tinysparql. Смотрите справку «tinysparql --help»"
 
 #: src/tracker/tracker-sparql.c:125
 msgid "Path to use to run a query or update from file"
@@ -507,6 +489,11 @@ msgstr "Не удалось выполнить обновление"
 msgid "Done"
 msgstr "Выполнено"
 
+#: src/tracker/tracker-sparql.c:1334 src/tracker/tracker-sql.c:137
+#: src/tracker/tracker-sql.c:170
+msgid "Could not run query"
+msgstr "Не удалось выполнить запрос"
+
 #: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
 msgid "No results found matching your query"
 msgstr "Не найдено ничего, соответствующего вашему запросу"
@@ -516,7 +503,7 @@ msgstr "Не найдено ничего, соответствующего ва�
 msgid "Results"
 msgstr "Результаты"
 
-#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:250
+#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:256
 msgid "File and query can not be used together"
 msgstr "Нельзя одновременно использовать файл и запрос"
 
@@ -527,18 +514,6 @@ msgid ""
 msgstr ""
 "Аргумент --list-properties может быть пустым только при использовании "
 "аргумента --tree"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sparql.desktop.in:6
-msgid "sparql"
-msgstr "sparql"
-
-#: src/tracker/tracker-sparql.desktop.in:7
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"Запрашивать и обновлять индекс, используя SPARQL или искать, перечислять и "
-"создавать дерево онтологии"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -560,18 +535,30 @@ msgstr "Не удалось инициализировать диспетчер 
 msgid "Empty result set"
 msgstr "Пустой набор результатов"
 
-#: src/tracker/tracker-sql.c:248
+#: src/tracker/tracker-sql.c:254
 msgid "A database path must be specified"
 msgstr "Должен быть указан путь к базе данных"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sql.desktop.in:6
-msgid "sql"
-msgstr "sql"
+#~ msgid "endpoint"
+#~ msgstr "endpoint"
 
-#: src/tracker/tracker-sql.desktop.in:7
-msgid "Query the database at the lowest level using SQL"
-msgstr "Запрос к базе данных на самом низком уровне с использованием SQL"
+#~ msgid "export"
+#~ msgstr "export"
+
+#~ msgid "help"
+#~ msgstr "help"
+
+#~ msgid "import"
+#~ msgstr "import"
+
+#~ msgid "sparql"
+#~ msgstr "sparql"
+
+#~ msgid "sql"
+#~ msgstr "sql"
+
+#~ msgid "Query the database at the lowest level using SQL"
+#~ msgstr "Запрос к базе данных на самом низком уровне с использованием SQL"
 
 #~ msgid "Additional / third party commands are:"
 #~ msgstr "Дополнительные / сторонние команды:"
