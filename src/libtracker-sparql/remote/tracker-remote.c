@@ -274,6 +274,8 @@ tracker_remote_connection_serialize_async (TrackerSparqlConnection  *connection,
 		formats = 1 << TRACKER_SERIALIZER_FORMAT_TTL;
 	else if (format == TRACKER_RDF_FORMAT_TRIG)
 		formats = 1 << TRACKER_SERIALIZER_FORMAT_TRIG;
+	else if (format == TRACKER_RDF_FORMAT_JSON_LD)
+		formats = 1 << TRACKER_SERIALIZER_FORMAT_JSON_LD;
 
 	task = g_task_new (connection, cancellable, callback, user_data);
 	tracker_http_client_send_message_async (priv->client,

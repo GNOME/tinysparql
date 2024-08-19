@@ -194,8 +194,32 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 	cursor = tracker_serializer_get_cursor (TRACKER_SERIALIZER (serializer_json_ld));
 	namespaces = tracker_serializer_get_namespaces (TRACKER_SERIALIZER (serializer_json_ld));
 
-	if (!serializer_json_ld->cursor_started)
+	if (!serializer_json_ld->context_printed) {
+		JsonBuilder *builder;
+
 		g_string_append (serializer_json_ld->data, "{");
+
+		builder = json_builder_new ();
+		json_builder_begin_object (builder);
+		tracker_namespace_manager_foreach (namespaces,
+		                                   generate_namespace_foreach,
+		                                   builder);
+		json_builder_end_object (builder);
+
+		node = json_builder_get_root (builder);
+		json_generator_set_root (serializer_json_ld->generator, node);
+		g_object_unref (builder);
+		json_node_unref (node);
+
+		g_string_append (serializer_json_ld->data, "\"@context\":");
+		json_generator_to_gstring (serializer_json_ld->generator,
+		                           serializer_json_ld->data);
+
+		g_string_append (serializer_json_ld->data,
+		                 ",\"@graph\":[");
+
+		serializer_json_ld->context_printed = TRUE;
+	}
 
 	while (!serializer_json_ld->cursor_finished) {
 		const gchar *graph, *subject, *predicate, *langtag;
@@ -228,31 +252,6 @@ serialize_up_to_position (TrackerSerializerJsonLD  *serializer_json_ld,
 
 		graph_changed = g_strcmp0 (graph, serializer_json_ld->cur_graph) != 0;
 		subject_changed = g_strcmp0 (subject, serializer_json_ld->cur_subject) != 0;
-
-		if (!serializer_json_ld->cursor_started) {
-			JsonBuilder *builder;
-
-			builder = json_builder_new ();
-			json_builder_begin_object (builder);
-			tracker_namespace_manager_foreach (namespaces,
-			                                   generate_namespace_foreach,
-			                                   builder);
-			json_builder_end_object (builder);
-
-			node = json_builder_get_root (builder);
-			json_generator_set_root (serializer_json_ld->generator, node);
-			g_object_unref (builder);
-			json_node_unref (node);
-
-			g_string_append (serializer_json_ld->data, "\"@context\":");
-			json_generator_to_gstring (serializer_json_ld->generator,
-			                           serializer_json_ld->data);
-
-			g_string_append (serializer_json_ld->data,
-			                 ",\"@graph\":[");
-
-			graph_changed = subject_changed = TRUE;
-		}
 
 		if (graph_changed) {
 			/* New/different graph */
