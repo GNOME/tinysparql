@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,49 +8,49 @@
     <title>TinySPARQL web-IDE</title>
 <script defer src="main.js"></script><link href="styles.css" rel="stylesheet"></head>
 <body>
-    <section class="section">
-        <div id="notif-msg" class="box"></div>
-        <div class="columns">
-            <div id="left" class="column is-flex is-flex-direction-column">
-                <div class="is-flex is-flex-direction-row is-justify-content-space-between is-align-items-center">
-                    <h1 class="title">TinySPARQL web-IDE</h1>
-                    <div>
-                        <button id="saveBtn" class="button is-info">Save</button>
-                        <button id="runBtn" class="button is-primary">Run</button>
-                    </div>
-                </div>
+    <div id="notif-msg" class="box"></div>
+    <nav id="top" class="level pt-4 px-6">
+        <div class="level-left">
+            <h1 class="title is-4">TinySPARQL Web-IDE</h1>
+        </div>
+        <div class="level-right level is-mobile">
+            <button id="save-button" class="button is-info">Save</button>
+            <button id="run-button" class="button is-primary">Run</button>
+        </div>
+    </nav>
+    <div id="main" class="px-6">
+        <div id="query-pane">
+            <div class="is-flex is-flex-direction-column">
                 <div id="wrapper"></div>
-                <div class="columns is-flex-grow-1" id="left-bottom">
-                    <div class="column is-two-thirds mt-4 is-flex is-flex-direction-column">
-                        <div class="card is-flex-grow-1">
-                            <div class="card-content is-flex is-flex-direction-column">
-                                <p><strong>Notes, examples, ontologies, etc.</strong></p>
-                                <div class="content pt-3">
-                                    Lorem ipsum leo risus, porta ac consectetur ac, vestibulum at eros. Donec
-                                    id elit non mi porta gravida at eget metus. Cum sociis natoque penatibus
-                                    et magnis dis parturient montes, nascetur ridiculus mus.
-                                </div>
+                <div class="columns" id="query-help-space">
+                    <div class="column is-two-thirds is-flex-grow-1">
+                        <div class="box info-box is-flex is-flex-direction-column">
+                            <p><strong>Notes, examples, ontologies, etc.</strong></p>
+                            <div class="content pt-3 is-flex-grow-1">
+                                Lorem ipsum leo risus, porta ac consectetur ac, vestibulum at eros. Donec
+                                id elit non mi porta gravida at eget metus. Cum sociis natoque penatibus
+                                et magnis dis parturient montes, nascetur ridiculus mus.
                             </div>
                         </div>
                     </div>
-                    <div class="column is-one-third mt-4 is-flex is-flex-direction-column">
-                        <div class="card is-flex-grow-1">
-                            <div class="card-content is-flex is-flex-direction-column">
-                                <p><strong>Show variables</strong></p>
-                                <div id="variable-selects" class="pt-3">
-                                    No variables in current query, use this to show or hide variables when there are.
-                                </div>
+                    <div class="column is-one-third is-flex-grow-1">
+                        <div id="variable-selects-wrapper" class="box info-box is-flex is-flex-direction-column">
+                            <p><strong>Show variables</strong></p>
+                            <div id="variable-selects" class="pt-3 content is-flex-grow-1 is-flex is-flex-direction-column">
+                                No variables in current query, use this to show or hide variables when there are.
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
-            <div class="column is-flex" id="right">
-                <div class="is-flex is-flex-grow-1 is-align-items-center is-justify-content-center is-background-primary-dark py-4 px-6">
-                    <p class="subtitle">No results yet, run a query to start!</p>
+            </div>
+        </div>
+        <div id="results-pane">
+            <div class="is-flex">
+                <div class="is-flex is-flex-grow-1 is-align-items-center is-justify-content-center is-background-primary-soft py-4 px-6">
+                    <p class="subtitle has-text-primary-bold">No results yet, run a query to start!</p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 </body>
 </html>
