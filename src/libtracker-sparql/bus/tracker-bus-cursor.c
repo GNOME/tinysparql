@@ -41,6 +41,12 @@ enum {
 	N_PROPS
 };
 
+/* Set a ridiculously high limit on the row size,
+ * but a limit nonetheless. We can store up to 1GB
+ * in a single column/row, so make room for 2GiB.
+ */
+#define MAX_ROW_SIZE (2 * 1000 * 1000 * 1000)
+
 static GParamSpec *props[N_PROPS] = { 0, };
 
 G_DEFINE_TYPE (TrackerBusCursor,
@@ -174,36 +180,13 @@ tracker_bus_cursor_get_string (TrackerSparqlCursor  *cursor,
 }
 
 static gboolean
-validate_offsets (gint32  *offsets,
-		  gint     n_columns,
-		  GError **error)
-{
-	gint i;
-
-	for (i = 0; i < n_columns - 1; i++) {
-		gint32 cur = offsets[i];
-		gint32 next = offsets[i + 1];
-
-		if (cur < 0 || cur >= next)
-			goto error;
-	}
-
-	return TRUE;
- error:
-	g_set_error (error,
-		     G_IO_ERROR,
-		     G_IO_ERROR_INVALID_DATA,
-		     "Corrupted cursor data");
-	return FALSE;
-}
-
-static gboolean
 tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
                          GCancellable         *cancellable,
                          GError              **error)
 {
 	TrackerBusCursor *bus_cursor = TRACKER_BUS_CURSOR (cursor);
 	gint32 n_columns, i;
+	gssize data_size;
 
 	if (bus_cursor->finished)
 		return FALSE;
@@ -240,27 +223,27 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 	                              NULL, cancellable, error))
 		return FALSE;
 
-	if (!validate_offsets (bus_cursor->offsets, n_columns, error))
-		return FALSE;
+	for (i = 0; i < n_columns - 1; i++) {
+		gint32 cur = bus_cursor->offsets[i];
 
-	/* Set a ridiculously high limit on the row size,
-	 * but a limit nonetheless. We can store up to 1GB
-	 * in a single column/row, so make room for 2GiB.
-	 */
-	if (bus_cursor->offsets[n_columns - 1] > 2 * 1000 * 1000 * 1000) {
-		g_set_error (error,
-		             G_IO_ERROR,
-		             G_IO_ERROR_INVALID_DATA,
-		             "Corrupted cursor data");
-		return FALSE;
+		if (cur < 0 ||
+		    cur > MAX_ROW_SIZE ||
+		    (i > 0 && cur <= bus_cursor->offsets[i - 1])) {
+			g_set_error (error,
+			             G_IO_ERROR,
+			             G_IO_ERROR_INVALID_DATA,
+			             "Corrupted cursor data");
+			return FALSE;
+		}
 	}
 
 	/* The last offset says how long we have to go to read
 	 * the whole row data.
 	 */
 	g_clear_pointer (&bus_cursor->row_data, g_free);
-	bus_cursor->row_data =
-		g_new0 (gchar, bus_cursor->offsets[n_columns - 1] + 1);
+	data_size = bus_cursor->offsets[n_columns - 1] + 1;
+	g_assert (data_size >= 0 && data_size <= MAX_ROW_SIZE);
+	bus_cursor->row_data = g_new0 (gchar, data_size);
 
 	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
 	                              bus_cursor->row_data,
@@ -272,10 +255,11 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 	bus_cursor->values = g_new0 (const gchar *, n_columns);
 
 	for (i = 0; i < n_columns; i++) {
-		if (i == 0)
-			bus_cursor->values[i] = bus_cursor->row_data;
-		else
-			bus_cursor->values[i] = &bus_cursor->row_data[bus_cursor->offsets[i - 1]] + 1;
+		gint32 offset;
+
+		offset = (i == 0) ? 0 : bus_cursor->offsets[i - 1] + 1;
+		g_assert (offset >= 0 && offset <= MAX_ROW_SIZE);
+		bus_cursor->values[i] = &bus_cursor->row_data[offset];
 	}
 
 	return TRUE;

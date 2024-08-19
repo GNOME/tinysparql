@@ -140,7 +140,6 @@ ttl_generate_rdf_diagram_dot (TrackerOntologyDescription *description,
 	gchar *path, *filename;
 	GFile *file;
 	g_autoptr(GHashTable) visited = NULL;
-	g_autofree gchar *link = NULL;
 	FILE *f;
 	GList *l;
 
@@ -166,6 +165,7 @@ ttl_generate_rdf_diagram_dot (TrackerOntologyDescription *description,
 	for (l = klass->in_domain_of; l; l = l->next) {
 		TrackerOntologyProperty *prop;
 		TrackerOntologyClass *range;
+		g_autofree gchar *link = NULL;
 
 		prop = tracker_ontology_model_get_property (model, l->data);
 		range = tracker_ontology_model_get_class (model, prop->range->data);
@@ -193,6 +193,7 @@ ttl_generate_rdf_diagram_dot (TrackerOntologyDescription *description,
 	for (l = klass->in_range_of; l; l = l->next) {
 		TrackerOntologyProperty *prop;
 		TrackerOntologyClass *domain;
+		g_autofree gchar *link = NULL;
 
 		prop = tracker_ontology_model_get_property (model, l->data);
 		domain = tracker_ontology_model_get_class (model, prop->domain->data);

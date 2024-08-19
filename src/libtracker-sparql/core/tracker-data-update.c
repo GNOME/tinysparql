@@ -3574,6 +3574,8 @@ read_string (GDataInputStream  *istream,
 		return NULL;
 	}
 
+	g_assert (buf[len] == '\0');
+
 	if (len_out)
 		*len_out = len;
 
@@ -3756,7 +3758,7 @@ handle_update_rdf (TrackerData       *data,
 	if (inner_error)
 		goto error;
 
-	rdf_stream = g_memory_input_stream_new_from_data (rdf, rdf_len, g_free);
+	rdf_stream = g_memory_input_stream_new_from_data (g_steal_pointer (&rdf), rdf_len, g_free);
 	deserializer = TRACKER_DESERIALIZER (tracker_deserializer_new (rdf_stream, NULL,
 	                                                               convert_format (format)));
 	g_object_unref (rdf_stream);
@@ -3773,6 +3775,7 @@ handle_update_rdf (TrackerData       *data,
 
  error:
 	g_free (default_graph);
+	g_free (rdf);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);

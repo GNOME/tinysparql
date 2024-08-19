@@ -412,7 +412,7 @@ validate_service (AvahiStringList  *list,
                   gchar           **path_out)
 {
 	AvahiStringList *txtvers, *protovers, *binding, *path;
-	gchar *txtvers_value, *protovers_value, *binding_value, *path_value;
+	gchar *txtvers_value = NULL, *protovers_value = NULL, *binding_value = NULL, *path_value = NULL;
 	gboolean valid = FALSE;
 
 	txtvers = avahi_string_list_find (list, "txtvers");
@@ -429,7 +429,7 @@ validate_service (AvahiStringList  *list,
 		valid = (g_strcmp0 (txtvers_value, "1") == 0 &&
 		         g_strcmp0 (protovers_value, "1.1") == 0 &&
 		         g_strcmp0 (binding_value, "HTTP") == 0);
-		if (path_out)
+		if (valid && path_out)
 			*path_out = g_strdup (path_value);
 	}
 

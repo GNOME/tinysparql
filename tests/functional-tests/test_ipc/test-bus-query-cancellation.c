@@ -27,6 +27,8 @@
 
 static int counter = 0;
 static gboolean started = FALSE;
+static GMainLoop *thread_main_loop = NULL;
+static GThread *thread = NULL;
 
 TrackerSparqlConnection *
 create_local_connection (GError **error)
@@ -56,12 +58,11 @@ thread_func (gpointer user_data)
 	TrackerSparqlConnection *direct;
 	TrackerEndpointDBus *endpoint;
 	GMainContext *context;
-	GMainLoop *main_loop;
 
 	context = g_main_context_new ();
 	g_main_context_push_thread_default (context);
 
-	main_loop = g_main_loop_new (context, FALSE);
+	thread_main_loop = g_main_loop_new (context, FALSE);
 
 	direct = create_local_connection (NULL);
 	if (!direct)
@@ -72,9 +73,9 @@ thread_func (gpointer user_data)
 		return NULL;
 
 	started = TRUE;
-	g_main_loop_run (main_loop);
+	g_main_loop_run (thread_main_loop);
 
-	g_main_loop_unref (main_loop);
+	g_main_loop_unref (thread_main_loop);
 	g_main_context_pop_thread_default (context);
 	g_main_context_unref (context);
 
@@ -91,7 +92,7 @@ create_dbus_connection (GError **error)
 	if (!dbus_conn)
 		return NULL;
 
-	g_thread_new (NULL, thread_func, dbus_conn);
+	thread = g_thread_new (NULL, thread_func, dbus_conn);
 
 	while (!started)
 		g_usleep (100);
@@ -171,6 +172,8 @@ test_tracker_sparql_gb737023 (void)
 
 	g_object_unref (cancellable);
 	g_object_unref (conn);
+	g_main_loop_quit (thread_main_loop);
+	g_thread_join (thread);
 }
 
 gint
