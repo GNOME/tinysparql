@@ -206,6 +206,7 @@ get_sparql_from_message_body (SoupServerMessage *message)
 	GBytes *body_bytes;
 	const gchar *body_data;
 	gsize body_size;
+	gchar *sparql = NULL;
 
 	body = soup_server_message_get_request_body (message);
 	body_bytes = soup_message_body_flatten (body);
@@ -213,15 +214,14 @@ get_sparql_from_message_body (SoupServerMessage *message)
 	body_data = g_bytes_get_data (body_bytes, &body_size);
 
 	if (g_utf8_validate_len (body_data, body_size, NULL)) {
-		gchar *sparql = g_malloc (body_size + 1);
-
+		sparql = g_malloc (body_size + 1);
 		g_utf8_strncpy (sparql, body_data, body_size);
 		sparql[body_size] = 0;
-
-		return sparql;
 	}
 
-	return NULL;
+	g_bytes_unref (body_bytes);
+
+	return sparql;
 }
 
 /* Handle POST messages if the body wasn't immediately available. */
@@ -258,6 +258,8 @@ server_callback_got_message_body (SoupServerMessage *message,
 	} else {
 		tracker_http_server_soup_error (request->server, request, 400, "Missing query or invalid UTF-8 in POST request");
 	}
+
+	g_free (sparql);
 }
 
 static void

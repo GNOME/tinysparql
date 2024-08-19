@@ -49,8 +49,11 @@ ensure_types (void)
 		GModule *remote_module;
 		gchar *module_path;
 		void (* init_func) (GType *client, GType *server);
+		gchar *current_dir;
 
-		if (g_strcmp0 (g_get_current_dir (), BUILDROOT) == 0) {
+		current_dir = g_get_current_dir ();
+
+		if (g_strcmp0 (current_dir, BUILDROOT) == 0) {
 			/* Detect in-build runtime of this code, this may happen
 			 * building introspection information or running tests.
 			 * We want the in-tree modules to be loaded then.
@@ -59,6 +62,8 @@ ensure_types (void)
 		} else {
 			module_path = g_strdup_printf (PRIVATE_LIBDIR "/%s", modules[i]);
 		}
+
+		g_free (current_dir);
 
 		if (!g_file_test (module_path, G_FILE_TEST_EXISTS)) {
 			g_free (module_path);
