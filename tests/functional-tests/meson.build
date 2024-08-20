@@ -42,6 +42,7 @@ test_env.prepend('PYTHONPATH', tracker_uninstalled_testutils_dir)
 test_env.set('TRACKER_FUNCTIONAL_TEST_CONFIG', config_json_full_path)
 test_env.set('GIO_USE_VFS', 'local')
 test_env.append('TRACKER_DEBUG', 'fts-integrity', separator: ' ')
+test_env.prepend('MANPATH', uninstalled_manpath)
 
 foreach test_name: functional_tests
   file = meson.current_source_dir() / '@0@.py'.format(test_name)

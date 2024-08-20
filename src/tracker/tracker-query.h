@@ -19,17 +19,9 @@
 
 #pragma once
 
-#define TITLE_BEGIN   "\033[32m"   /* Green */
-#define TITLE_END     "\033[0m"
+#include <glib.h>
 
-#define SNIPPET_BEGIN "\033[1;31m" /* Red */
-#define SNIPPET_END   "\033[0m"
+#include <tinysparql.h>
 
-#define WARN_BEGIN    "\033[33m"   /* Yellow */
-#define WARN_END      "\033[0m"
-
-#define CRIT_BEGIN "\033[1;31m" /* Red */
-#define CRIT_END   "\033[0m"
-
-#define BOLD_BEGIN "\033[0;1;39m"
-#define BOLD_END   "\033[0m"
+int tracker_query (int          argc,
+		   const char **argv);

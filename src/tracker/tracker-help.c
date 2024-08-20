@@ -52,27 +52,22 @@ setup_man_path (void)
 static int
 exec_man_man (const char *path, const char *page)
 {
+	const gchar *argv[3] = { 0, };
+	gboolean retval;
+	int status;
+
 	if (!path) {
 		path = "man";
 	}
 
-	execlp (path, "man", page, (char *) NULL);
-	g_warning(_("failed to exec “%s”: %s"), path, strerror (errno));
+	argv[0] = path;
+	argv[1] = page;
+	retval = g_spawn_sync (NULL, (gchar**) argv, NULL,
+	                       G_SPAWN_SEARCH_PATH,
+	                       NULL, NULL, NULL, NULL,
+	                       &status, NULL);
 
-	return -1;
-}
-
-static int
-exec_man_cmd (const char *cmd, const char *page)
-{
-	gchar *shell_cmd;
-
-	shell_cmd = g_strdup_printf ("%s %s", cmd, page);
-	execl ("/bin/sh", "sh", "-c", shell_cmd, (char *) NULL);
-	g_warning (_("failed to exec “%s”: %s"), cmd, strerror (errno));
-	g_free (shell_cmd);
-
-	return -1;
+	return (!retval || !g_spawn_check_wait_status (status, NULL)) ? -1 : 0;
 }
 
 static char *
@@ -95,10 +90,6 @@ tracker_help_show_man_page (const char *cmd)
 
 	setup_man_path ();
 
-	if (0) {
-		exec_man_cmd ("man", page);
-	}
-
 	retval = exec_man_man ("man", page);
 	g_free (page);
 
@@ -108,7 +99,5 @@ tracker_help_show_man_page (const char *cmd)
 int
 tracker_help (int argc, const char **argv)
 {
-       tracker_help_show_man_page (argv[1]);
-
-       return 0;
+	return tracker_help_show_man_page (argv[1]);
 }
