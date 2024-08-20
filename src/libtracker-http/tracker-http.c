@@ -104,6 +104,7 @@ enum {
 	PROP_0,
 	PROP_HTTP_PORT,
 	PROP_HTTP_CERTIFICATE,
+	PROP_SERVER_MODE,
 	N_SERVER_PROPS
 };
 
@@ -116,6 +117,7 @@ typedef struct
 {
 	guint port;
 	GTlsCertificate *certificate;
+	TrackerHttpServerMode server_mode;
 } TrackerHttpServerPrivate;
 
 static GParamSpec *server_props[N_SERVER_PROPS] = { 0 };
@@ -142,6 +144,9 @@ tracker_http_server_set_property (GObject      *object,
 	case PROP_HTTP_CERTIFICATE:
 		priv->certificate = g_value_dup_object (value);
 		break;
+	case PROP_SERVER_MODE:
+		priv->server_mode = g_value_get_uint (value);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 	}
@@ -163,6 +168,9 @@ tracker_http_server_get_property (GObject    *object,
 		break;
 	case PROP_HTTP_CERTIFICATE:
 		g_value_set_object (value, priv->certificate);
+		break;
+	case PROP_SERVER_MODE:
+		g_value_set_uint (value, priv->server_mode);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -202,7 +210,14 @@ tracker_http_server_class_init (TrackerHttpServerClass *klass)
 		                     "HTTP certificate",
 		                     G_TYPE_TLS_CERTIFICATE,
 		                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
-
+	server_props[PROP_SERVER_MODE] =
+		g_param_spec_uint ("server-mode",
+		                   "Server Mode",
+		                   "Server Mode",
+		                   TRACKER_HTTP_SERVER_MODE_SPARQL_ENDPOINT,
+		                   TRACKER_N_HTTP_SERVER_MODES,
+		                   TRACKER_HTTP_SERVER_MODE_SPARQL_ENDPOINT,
+		                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 	g_object_class_install_properties (object_class,
 	                                   N_SERVER_PROPS,
 	                                   server_props);
@@ -214,10 +229,11 @@ tracker_http_server_init (TrackerHttpServer *server)
 }
 
 TrackerHttpServer *
-tracker_http_server_new (guint             port,
-                         GTlsCertificate  *certificate,
-                         GCancellable     *cancellable,
-                         GError          **error)
+tracker_http_server_new (guint                   port,
+                         GTlsCertificate        *certificate,
+                         TrackerHttpServerMode   server_mode,
+                         GCancellable           *cancellable,
+                         GError                **error)
 {
 	ensure_types ();
 
@@ -225,6 +241,7 @@ tracker_http_server_new (guint             port,
 	                       cancellable, error,
 	                       "http-port", port,
 	                       "http-certificate", certificate,
+	                       "server-mode", server_mode,
 	                       NULL);
 }
 
