@@ -6,10 +6,10 @@
 SELECT
     ?artist_name
     ?album_name
-    ?file AS ?first_file
-    COUNT(?track) AS ?track_count
-    SUM(nie:byteSize(?file)) / (1024.0 * 1024.0) AS ?size_mb
-    SUM(nfo:duration(?track)) AS ?duration
+    (?file AS ?first_file)
+    (COUNT(?track) AS ?track_count)
+    (SUM(nie:byteSize(?file)) / (1024.0 * 1024.0) AS ?size_mb)
+    (SUM(nfo:duration(?track)) AS ?duration)
 FROM tracker:Audio
 FROM tracker:FileSystem
 {
