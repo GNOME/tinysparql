@@ -62,22 +62,25 @@ sql_by_file (void)
 {
 	GError *error = NULL;
 	gchar *path_in_utf8 = NULL;
+	gboolean retval;
 	gsize size;
 
 	path_in_utf8 = g_filename_to_utf8 (file, -1, NULL, NULL, &error);
 	if (path_in_utf8)
-		g_file_get_contents (path_in_utf8, &query, &size, &error);
-	g_free (path_in_utf8);
+		retval = g_file_get_contents (path_in_utf8, &query, &size, &error);
 
-	if (error) {
+	if (!path_in_utf8 || !retval) {
 		g_printerr ("%s:'%s', %s\n",
 		            _("Could not read file"),
 		            path_in_utf8,
 		            error->message);
 		g_error_free (error);
+		g_free (path_in_utf8);
 
 		return EXIT_FAILURE;
 	}
+
+	g_free (path_in_utf8);
 
 	return sql_by_query ();
 }
