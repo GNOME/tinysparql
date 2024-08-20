@@ -1,0 +1,23 @@
+# List music albums which are indexed in LocalSearch including all tracks.
+#
+# See https://gnome.pages.gitlab.gnome.org/tinysparql/nmm-ontology.html for details on the
+# Nepomuk MultiMedia properties.
+SELECT
+    ?album_name
+    ?track_url
+    ?track_name
+    ?track_number
+    ?artist_name
+FROM tracker:Audio
+{
+    ?album a nmm:MusicAlbum ;
+        nie:title ?album_name .
+    ?track a nmm:MusicPiece ;
+        nie:isStoredAs ?track_url ;
+        nie:title ?track_name ;
+        nmm:artist ?artist ;
+        nmm:musicAlbum ?album ;
+        nmm:trackNumber ?track_number .
+    ?artist nmm:artistName ?artist_name .
+}
+ORDER BY ?album_title ?track_number

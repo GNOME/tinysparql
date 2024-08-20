@@ -1,0 +1,23 @@
+# Search all known documents for the string "GNOME".
+#
+# See <https://gnome.pages.gitlab.gnome.org/tinysparql/sparql-and-tracker.html#full-text-search> for documentation.
+#
+# See source code for the `localsearch` CLI and the Nautilus file manager for real world examples.
+
+SELECT ?url ?rank ?mtime ?snippet
+{
+    GRAPH tracker:Documents
+    {
+        ?file a nfo:FileDataObject .
+        ?content nie:isStoredAs ?file .
+        ?content fts:match "GNOME" .
+        BIND(fts:rank(?content) AS ?rank) .
+        BIND(fts:snippet(?content, ">", "<", "...", 20) AS ?snippet)
+    }
+    GRAPH tracker:FileSystem
+    {
+        ?file a nfo:FileDataObject ;
+            nfo:fileLastModified ?mtime ;
+            nie:url ?url .
+    }
+}

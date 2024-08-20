@@ -1,0 +1,7 @@
+# Fetch all known files for the current user in the GNOME search index.
+SELECT ?file ?content
+{
+    ?file a nfo:FileDataObject .
+    ?content nie:isStoredAs ?file .
+}
+ORDER BY ?file
