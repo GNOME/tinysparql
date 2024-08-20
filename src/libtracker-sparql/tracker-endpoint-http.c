@@ -172,6 +172,7 @@ query_async_cb (GObject      *object,
 	                              mimetypes[request->format],
 	                              stream);
 	request_free (request);
+	g_object_unref (cursor);
 }
 
 static gboolean

@@ -150,16 +150,16 @@ check-merge-request:
 
 .tracker.debian@common:
   variables:
-    BASE_TAG: '2024-06-11.0'
+    BASE_TAG: '2024-08-20.0'
     FDO_DISTRIBUTION_PACKAGES: 'ca-certificates python3-tap python3-pip umockdev libumockdev-dev upower asciidoc-base git'
     FDO_DISTRIBUTION_EXEC: |
       export DEBIAN_FRONTEND=noninteractive &&
       sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources &&
       apt-get -yq update && apt-get -yq upgrade &&
       apt-get -yq build-dep tracker &&
-      pip3 install gcovr &&
-      rm -f /etc/subgid /etc/subuid &&
-      rm -Rf /home/debian
+      # Prefer libsoup submodule, until we get libsoup >= 3.3.1
+      apt-get -yq remove libsoup-3.0.dev &&
+      pip3 install gcovr
 
 .tracker.alpine@common:
   variables:
@@ -371,11 +371,12 @@ build-alpine-latest@x86_64:
       # screenful of junk each time unless we strip these.
       unset $(env|grep -o '^CI_[^=]*')
       ninja clean; ninja
-      env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test -t $MESON_TEST_TIMEOUT_MULTIPLIER --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
+      env LANG=C.UTF-8 LC_ALL=C.UTF-8 dbus-run-session meson test --suite tinysparql -t $MESON_TEST_TIMEOUT_MULTIPLIER --print-errorlogs ${MESON_TEST_EXTRA_ARGS}
   after_script:
     - pushd build
     - gcovr --root=.. --filter='\.\./src/'
         --exclude=../utils --exclude=../examples --exclude=../docs/reference
+        --exclude=../subprojects
         --exclude='\.\./build/.*\.[ch]$' --exclude='.*/tests/.*\.[ch]$'
         --merge-mode-functions=separate
         --gcov-ignore-parse-errors=negative_hits.warn
