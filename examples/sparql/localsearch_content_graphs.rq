@@ -1,0 +1,14 @@
+# LocalSearch separates data into different graphs by type.
+# This query shows indexed files by graph.
+#
+# TinySPARQL has sandboxing features based around these graphs.
+# See <https://gnome.pages.gitlab.gnome.org/tinysparql/sandboxing.html>.
+
+SELECT ?graph ?file ?content 
+{
+    GRAPH ?graph {
+        ?file a nfo:FileDataObject .
+        ?content nie:isStoredAs ?file .
+    }
+}
+ORDER BY ?graph ?file
