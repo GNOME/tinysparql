@@ -1313,6 +1313,7 @@ create_local_connection (GError **error)
 	ontology = tracker_sparql_get_ontology_nepomuk ();
 
 	conn = tracker_sparql_connection_new (0, NULL, ontology, NULL, error);
+
 	g_object_unref (ontology);
 
 	return conn;
@@ -1384,6 +1385,7 @@ create_connections (TrackerSparqlConnection **dbus,
 	bus_name = g_dbus_connection_get_unique_name (data.dbus_conn);
 	*dbus = tracker_sparql_connection_bus_new (bus_name,
 	                                           NULL, data.dbus_conn, error);
+
 	g_object_set_data_full (G_OBJECT (*dbus),
 	                        "endpoint-data",
 	                        endpoint_data,

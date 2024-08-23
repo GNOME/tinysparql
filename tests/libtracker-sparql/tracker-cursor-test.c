@@ -358,6 +358,23 @@ create_local_connection (GError **error)
 	ontology = tracker_sparql_get_ontology_nepomuk ();
 
 	conn = tracker_sparql_connection_new (0, store, ontology, NULL, error);
+
+	{
+		TrackerSparqlConnectionFlags object_flags;
+		GFile *object_store, *object_ontology;
+
+		g_object_get (conn,
+		              "flags", &object_flags,
+		              "store-location", &object_store,
+		              "ontology-location", &object_ontology,
+		              NULL);
+		g_assert_cmpint (object_flags, ==, 0);
+		g_assert_true (object_store == store);
+		g_assert_true (object_ontology == ontology);
+		g_clear_object (&object_store);
+		g_clear_object (&object_ontology);
+	}
+
 	g_object_unref (store);
 	g_object_unref (ontology);
 
@@ -415,11 +432,41 @@ create_connections (void)
 
 	host = g_strdup_printf ("http://127.0.0.1:%d/sparql", http_port);
 	http = tracker_sparql_connection_remote_new (host);
+
+	{
+		gchar *object_base_uri;
+
+		g_object_get (http,
+		              "base-uri", &object_base_uri,
+		              NULL);
+		g_assert_cmpstr (object_base_uri, ==, host);
+		g_clear_pointer (&object_base_uri, g_free);
+	}
+
 	g_free (host);
 
 	dbus = tracker_sparql_connection_bus_new (g_dbus_connection_get_unique_name (dbus_conn),
 						  NULL, dbus_conn, &error);
 	g_assert_no_error (error);
+
+	{
+		GDBusConnection *object_dbus_connection;
+		gchar *object_bus_name, *object_dbus_path;
+
+		g_object_get (dbus,
+		              "bus-name", &object_bus_name,
+		              "bus-object-path", &object_dbus_path,
+		              "bus-connection", &object_dbus_connection,
+		              NULL);
+
+		g_assert_cmpstr (object_bus_name, ==, g_dbus_connection_get_unique_name (dbus_conn));
+		/* Expect the default object path */
+		g_assert_cmpstr ("/org/freedesktop/Tracker3/Endpoint", ==, object_dbus_path);
+		g_assert_true (object_dbus_connection == dbus_conn);
+		g_clear_object (&object_dbus_connection);
+		g_clear_pointer (&object_bus_name, g_free);
+		g_clear_pointer (&object_dbus_path, g_free);
+	}
 
 	g_thread_unref (thread);
 }
