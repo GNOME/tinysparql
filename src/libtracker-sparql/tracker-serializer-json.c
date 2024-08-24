@@ -148,9 +148,12 @@ serialize_up_to_position (TrackerSerializerJson  *serializer_json,
 				datatype = TRACKER_PREFIX_XSD "string";
 				break;
 			case TRACKER_SPARQL_VALUE_TYPE_INTEGER:
-			case TRACKER_SPARQL_VALUE_TYPE_BOOLEAN:
 				type = "literal";
 				datatype = TRACKER_PREFIX_XSD "integer";
+				break;
+			case TRACKER_SPARQL_VALUE_TYPE_BOOLEAN:
+				type = "literal";
+				datatype = TRACKER_PREFIX_XSD "boolean";
 				break;
 			case TRACKER_SPARQL_VALUE_TYPE_DOUBLE:
 				type = "literal";
