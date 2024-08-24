@@ -1,0 +1,3 @@
+"http://example.org/ns/a1"	"http://example.org/ns/c1"
+"http://example.org/ns/foo/a2"	"http://example.org/ns/foo/c1"
+"http://example.org/ns/foo/bar#a3"	"http://example.org/ns/foo/bar#c3"

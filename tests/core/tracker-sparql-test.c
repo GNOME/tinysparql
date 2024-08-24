@@ -394,11 +394,9 @@ const TestInfo tests[] = {
 	{ "error/describe-1", "error/query-error-1", TRUE, FALSE },
 	{ "error/describe-2", "error/query-error-1", TRUE, FALSE },
 	{ "error/garbage-1", "error/query-error-1", TRUE, FALSE },
-
+	/* Turtle data */
 	{ "turtle/turtle-query-001", "turtle/turtle-data-001", FALSE },
-#if 0
 	{ "turtle/turtle-query-002", "turtle/turtle-data-002", FALSE },
-#endif
 	{ "turtle-comments/turtle-query-001", "turtle-comments/turtle-data-001", FALSE },
 	/* Mixed cardinality tests */
 	{ "mixed-cardinality/insert-mixed-cardinality-query-1", "mixed-cardinality/insert-mixed-cardinality-1", FALSE, FALSE },

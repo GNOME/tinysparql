@@ -1,5 +1,7 @@
-SELECT ?c3 ?c4 ?c5 WHERE {
-  <a3> :b3 ?c3 .
-  :a4 :b4 ?c4 .
-  :a5 :b5 ?c5 .
+SELECT ?a ?b WHERE {
+  {
+    ?a :b4 ?b .
+  } UNION {
+    ?a bar:b4 ?b .
+  }
 }
