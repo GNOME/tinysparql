@@ -400,8 +400,75 @@ thread_func (gpointer user_data)
 	endpoint_bus = tracker_endpoint_dbus_new (direct, dbus_conn, NULL, NULL, &error);
 	g_assert_no_error (error);
 
+	{
+		GDBusConnection *object_dbus_conn;
+		gchar *object_dbus_path;
+		TrackerSparqlConnection *object_sparql_conn;
+		gboolean object_readonly;
+		gchar **object_allowed_services, **object_allowed_graphs;
+
+		g_object_get (endpoint_bus,
+		              "dbus-connection", &object_dbus_conn,
+		              "object-path", &object_dbus_path,
+		              "sparql-connection", &object_sparql_conn,
+		              "readonly", &object_readonly,
+		              "allowed-services", &object_allowed_services,
+		              "allowed-graphs", &object_allowed_graphs,
+		              NULL);
+		g_assert_true (object_dbus_conn == dbus_conn);
+		/* Check that NULL gets us the default object path */
+		g_assert_cmpstr (object_dbus_path, ==, "/org/freedesktop/Tracker3/Endpoint");
+		g_assert_true (object_sparql_conn == direct);
+		g_assert_false (object_readonly);
+		g_assert_null (object_allowed_services);
+		g_assert_null (object_allowed_graphs);
+
+		g_clear_object (&object_dbus_conn);
+		g_clear_object (&object_sparql_conn);
+		g_clear_pointer (&object_dbus_path, g_free);
+		g_clear_pointer (&object_allowed_services, g_strfreev);
+		g_clear_pointer (&object_allowed_graphs, g_strfreev);
+
+		g_assert_false (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_bus)));
+		g_assert_null (tracker_endpoint_get_allowed_services (TRACKER_ENDPOINT (endpoint_bus)));
+		g_assert_null (tracker_endpoint_get_allowed_graphs (TRACKER_ENDPOINT (endpoint_bus)));
+	}
+
 	endpoint_http = tracker_endpoint_http_new (direct, http_port, NULL, NULL, &error);
 	g_assert_no_error (error);
+
+	{
+		int object_http_port;
+		GTlsCertificate *object_certificate;
+		TrackerSparqlConnection *object_sparql_conn;
+		gboolean object_readonly;
+		gchar **object_allowed_services, **object_allowed_graphs;
+
+		g_object_get (endpoint_http,
+		              "http-port", &object_http_port,
+		              "http-certificate", &object_certificate,
+		              "sparql-connection", &object_sparql_conn,
+		              "readonly", &object_readonly,
+		              "allowed-services", &object_allowed_services,
+		              "allowed-graphs", &object_allowed_graphs,
+		              NULL);
+		g_assert_true (object_http_port == http_port);
+		g_assert_null (object_certificate);
+		g_assert_true (object_sparql_conn == direct);
+		/* Http endpoints are readonly */
+		g_assert_true (object_readonly);
+		g_assert_null (object_allowed_services);
+		g_assert_null (object_allowed_graphs);
+
+		g_clear_object (&object_certificate);
+		g_clear_object (&object_sparql_conn);
+		g_clear_pointer (&object_allowed_services, g_strfreev);
+		g_clear_pointer (&object_allowed_graphs, g_strfreev);
+
+		g_assert_true (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_http)));
+		g_assert_null (tracker_endpoint_get_allowed_services (TRACKER_ENDPOINT (endpoint_http)));
+		g_assert_null (tracker_endpoint_get_allowed_graphs (TRACKER_ENDPOINT (endpoint_http)));
+	}
 
 	started = TRUE;
 	g_main_loop_run (main_loop);
