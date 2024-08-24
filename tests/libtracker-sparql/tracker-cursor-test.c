@@ -702,7 +702,7 @@ test_tracker_sparql_cursor_get_value_type (gpointer      fixture,
 	g_assert_no_error (error);
 
 	cursor = tracker_sparql_connection_query (conn,
-						  "SELECT ?urn ?added ?label ?unbound { "
+						  "SELECT ?urn ?added ?label ?unbound (42 AS ?int) (true AS ?bool) (42.2 AS ?double) (BNODE() AS ?bnode) { "
 						  "  ?urn nrl:added ?added ; "
 						  "       rdfs:label ?label . "
 						  "} LIMIT 1",
@@ -727,6 +727,18 @@ test_tracker_sparql_cursor_get_value_type (gpointer      fixture,
 	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 3),
 			 ==,
 			 TRACKER_SPARQL_VALUE_TYPE_UNBOUND);
+	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 4),
+			 ==,
+			 TRACKER_SPARQL_VALUE_TYPE_INTEGER);
+	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 5),
+			 ==,
+			 TRACKER_SPARQL_VALUE_TYPE_BOOLEAN);
+	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 6),
+			 ==,
+			 TRACKER_SPARQL_VALUE_TYPE_DOUBLE);
+	g_assert_cmpint (tracker_sparql_cursor_get_value_type (cursor, 7),
+			 ==,
+			 TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE);
 
 	tracker_sparql_cursor_close (cursor);
 }
