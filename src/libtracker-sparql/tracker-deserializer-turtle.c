@@ -293,7 +293,7 @@ static gchar *
 expand_base (TrackerDeserializerTurtle *deserializer,
              const gchar               *suffix)
 {
-	if (deserializer->base) {
+	if (deserializer->base && !strstr (suffix, ":/")) {
 		gchar *str;
 
 		str = g_strdup_printf ("%s%s", deserializer->base, suffix);
@@ -356,7 +356,7 @@ static gboolean
 handle_prefix (TrackerDeserializerTurtle  *deserializer,
                GError                    **error)
 {
-	gchar *prefix = NULL, *uri = NULL;
+	gchar *prefix = NULL, *uri = NULL, *expanded;
 	gboolean retval;
 
 	advance_whitespace_and_comments (deserializer);
@@ -374,9 +374,11 @@ handle_prefix (TrackerDeserializerTurtle  *deserializer,
 	/* Remove the trailing ':' in prefix */
 	prefix[strlen(prefix) - 1] = '\0';
 
-	retval = maybe_add_prefix (deserializer, prefix, uri, error);
+	expanded = expand_base (deserializer, uri);
+	retval = maybe_add_prefix (deserializer, prefix, expanded, error);
 	g_free (prefix);
 	g_free (uri);
+	g_free (expanded);
 
 	return retval;
 error:
@@ -393,18 +395,20 @@ static gboolean
 handle_base (TrackerDeserializerTurtle  *deserializer,
              GError                    **error)
 {
-	gchar *base = NULL;
+	gchar *base = NULL, *expanded;
 
 	advance_whitespace_and_comments (deserializer);
-	if (!parse_terminal (deserializer, terminal_IRIREF, 0, &base))
+	if (!parse_terminal (deserializer, terminal_IRIREF, 1, &base))
 		goto error;
 
 	advance_whitespace_and_comments (deserializer);
 	if (!parse_token (deserializer, "."))
 		goto error;
 
+	expanded = expand_base (deserializer, base);
 	g_clear_pointer (&deserializer->base, g_free);
-	deserializer->base = base;
+	deserializer->base = expanded;
+	g_free (base);
 	return TRUE;
 error:
 	g_free (base);
