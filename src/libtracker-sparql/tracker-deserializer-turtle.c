@@ -291,16 +291,15 @@ expand_prefix (TrackerDeserializerTurtle  *deserializer,
 
 static gchar *
 expand_base (TrackerDeserializerTurtle *deserializer,
-             gchar                     *suffix)
+             const gchar               *suffix)
 {
 	if (deserializer->base) {
 		gchar *str;
 
 		str = g_strdup_printf ("%s%s", deserializer->base, suffix);
-		g_free (suffix);
 		return str;
 	} else {
-		return suffix;
+		return g_strdup (suffix);
 	}
 }
 
@@ -608,6 +607,7 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 
 				if (parse_terminal (deserializer, terminal_IRIREF, 1, &str)) {
 					deserializer->graph = expand_base (deserializer, str);
+					g_free (str);
 				} else if (parse_terminal (deserializer, terminal_PNAME_LN, 0, &str) ||
 				           parse_terminal (deserializer, terminal_PNAME_NS, 0, &str)) {
 					deserializer->graph = expand_prefix (deserializer, str, error);
@@ -658,6 +658,7 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 
 			if (parse_terminal (deserializer, terminal_IRIREF, 1, &str)) {
 				deserializer->subject = expand_base (deserializer, str);
+				g_free (str);
 			} else if (parse_terminal (deserializer, terminal_PNAME_LN, 0, &str) ||
 			           parse_terminal (deserializer, terminal_PNAME_NS, 0, &str)) {
 				deserializer->subject = expand_prefix (deserializer, str, error);
@@ -723,6 +724,7 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 			if (parse_terminal (deserializer, terminal_IRIREF, 1, &str)) {
 				deserializer->object = expand_base (deserializer, str);
 				deserializer->object_is_uri = TRUE;
+				g_free (str);
 			} else if (parse_terminal (deserializer, terminal_PNAME_LN, 0, &str) ||
 			           parse_terminal (deserializer, terminal_PNAME_NS, 0, &str)) {
 				deserializer->object = expand_prefix (deserializer, str, error);
