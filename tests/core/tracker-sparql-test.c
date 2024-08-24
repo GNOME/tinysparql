@@ -104,6 +104,8 @@ const TestInfo tests[] = {
 	{ "construct/construct-pattern-2", "construct/data", FALSE },
 	{ "construct/construct-pattern-3", "construct/data", FALSE },
 	{ "construct/construct-with-modifiers", "construct/data", FALSE },
+	{ "date/direct-1", "date/data-1", FALSE },
+	{ "date/insert-1", "date/data-1", FALSE },
 	{ "datetime/direct-1", "datetime/data-1", FALSE },
 	{ "datetime/delete-1", "datetime/data-3", FALSE },
 	{ "datetime/insert-1", "datetime/data-4", FALSE },
