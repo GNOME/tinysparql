@@ -41,6 +41,27 @@ static const GDBusErrorEntry tracker_sparql_error_entries[] =
 	{TRACKER_SPARQL_ERROR_CORRUPT, "org.freedesktop.Tracker.Error.Corrupt"},
 };
 
+typedef struct
+{
+	int obtained_error_code;
+	int mapped_error_code;
+} TrackerErrorMap;
+
+static const TrackerErrorMap ontology_error_map[] = {
+	{ TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE, TRACKER_SPARQL_ERROR_UNSUPPORTED },
+	{ TRACKER_DATA_ONTOLOGY_NOT_FOUND, TRACKER_SPARQL_ERROR_ONTOLOGY_NOT_FOUND },
+	{ TRACKER_DATA_UNSUPPORTED_LOCATION, TRACKER_SPARQL_ERROR_UNSUPPORTED },
+};
+
+static const TrackerErrorMap db_interface_error_map[] = {
+	{ TRACKER_DB_QUERY_ERROR, TRACKER_SPARQL_ERROR_QUERY_FAILED },
+	{ TRACKER_DB_INTERRUPTED, TRACKER_SPARQL_ERROR_INTERNAL },
+	{ TRACKER_DB_OPEN_ERROR, TRACKER_SPARQL_ERROR_OPEN_ERROR },
+	{ TRACKER_DB_NO_SPACE, TRACKER_SPARQL_ERROR_NO_SPACE },
+	{ TRACKER_DB_CONSTRAINT, TRACKER_SPARQL_ERROR_CONSTRAINT },
+	{ TRACKER_DB_CORRUPT, TRACKER_SPARQL_ERROR_CORRUPT },
+};
+
 G_STATIC_ASSERT (G_N_ELEMENTS (tracker_sparql_error_entries) == TRACKER_SPARQL_N_ERRORS);
 
 GQuark
@@ -60,42 +81,26 @@ tracker_sparql_error_quark (void)
 GError *
 _translate_internal_error (GError *error)
 {
+	const TrackerErrorMap *map = NULL;
 	GError *new_error = NULL;
+	int i, n_elems;
 
 	if (error->domain == TRACKER_DATA_ONTOLOGY_ERROR) {
-		switch (error->code) {
-			case TRACKER_DATA_ONTOLOGY_NOT_FOUND:
-				new_error = g_error_new_literal (TRACKER_SPARQL_ERROR,
-				                                 TRACKER_SPARQL_ERROR_ONTOLOGY_NOT_FOUND,
-				                                 error->message);
-				break;
-			case TRACKER_DATA_UNSUPPORTED_LOCATION:
-			case TRACKER_DATA_UNSUPPORTED_ONTOLOGY_CHANGE:
-				new_error = g_error_new_literal (TRACKER_SPARQL_ERROR,
-				                                 TRACKER_SPARQL_ERROR_UNSUPPORTED,
-				                                 error->message);
-				break;
-			default:
-				new_error = g_error_new_literal (TRACKER_SPARQL_ERROR,
-				                                 TRACKER_SPARQL_ERROR_INTERNAL,
-				                                 error->message);
-		}
+		map = ontology_error_map;
+		n_elems = G_N_ELEMENTS (ontology_error_map);
 	} else if (error->domain == TRACKER_DB_INTERFACE_ERROR) {
-		TrackerSparqlError new_code = TRACKER_SPARQL_ERROR_INTERNAL;
+		map = db_interface_error_map;
+		n_elems = G_N_ELEMENTS (db_interface_error_map);
+	}
 
-		switch (error->code) {
-			case TRACKER_DB_QUERY_ERROR: new_code = TRACKER_SPARQL_ERROR_QUERY_FAILED; break;
-			case TRACKER_DB_OPEN_ERROR: new_code = TRACKER_SPARQL_ERROR_OPEN_ERROR; break;
-			case TRACKER_DB_NO_SPACE: new_code = TRACKER_SPARQL_ERROR_NO_SPACE; break;
-			/* This should never happen as we don't call sqlite3_interrupt()
-			 * anywhere, so it doesn't get its own public error code. */
-			case TRACKER_DB_INTERRUPTED: new_code = TRACKER_SPARQL_ERROR_INTERNAL; break;
-			case TRACKER_DB_CONSTRAINT: new_code = TRACKER_SPARQL_ERROR_CONSTRAINT; break;
-			case TRACKER_DB_CORRUPT: new_code = TRACKER_SPARQL_ERROR_CORRUPT; break;
-			default: g_warn_if_reached ();
+	if (map) {
+		for (i = 0; i < n_elems; i++) {
+			if (map[i].obtained_error_code == error->code) {
+				new_error = g_error_new_literal (TRACKER_SPARQL_ERROR,
+				                                 map[i].mapped_error_code,
+				                                 error->message);
+			}
 		}
-
-		new_error = g_error_new_literal (TRACKER_SPARQL_ERROR, new_code, error->message);
 	}
 
 	if (new_error) {
