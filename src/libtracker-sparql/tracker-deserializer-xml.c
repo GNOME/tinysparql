@@ -324,6 +324,8 @@ parse_binding_type (TrackerDeserializerXml  *deserializer,
 		else if (g_str_equal (suffix, "date") ||
 		         g_str_equal (suffix, "dateTime"))
 			*type = TRACKER_SPARQL_VALUE_TYPE_DATETIME;
+		else if (g_str_equal (suffix, "boolean"))
+			*type = TRACKER_SPARQL_VALUE_TYPE_BOOLEAN;
 		else
 			*type = TRACKER_SPARQL_VALUE_TYPE_STRING;
 
