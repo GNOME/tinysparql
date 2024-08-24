@@ -115,6 +115,8 @@ find_conversion (const char  *format,
 	if (*cp == '.') {
 		cp++;
 		if (*cp == '*') {
+			cp++;
+
 			/* Test for positional argument.  */
 			if (*cp >= '0' && *cp <= '9') {
 				const char *np;
