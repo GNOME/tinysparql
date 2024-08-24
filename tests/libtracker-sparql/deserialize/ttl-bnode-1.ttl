@@ -1,0 +1,19 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix nao: <http://tracker.api.gnome.org/ontology/v3/nao#> .
+@prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix fts: <http://tracker.api.gnome.org/ontology/v3/fts#> .
+@prefix nmm: <http://tracker.api.gnome.org/ontology/v3/nmm#> .
+@prefix slo: <http://tracker.api.gnome.org/ontology/v3/slo#> .
+@prefix tracker: <http://tracker.api.gnome.org/ontology/v3/tracker#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix nfo: <http://tracker.api.gnome.org/ontology/v3/nfo#> .
+@prefix osinfo: <http://tracker.api.gnome.org/ontology/v3/osinfo#> .
+@prefix nco: <http://tracker.api.gnome.org/ontology/v3/nco#> .
+@prefix nie: <http://tracker.api.gnome.org/ontology/v3/nie#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix mfo: <http://tracker.api.gnome.org/ontology/v3/mfo#> .
+
+[ a nfo:FileDataObject ;
+  nfo:fileName "carlos" ] nfo:fileCreated "2019-05-10T20:52:03Z"^^xsd:dateTime ;
+                          nie:interpretedAs [ a nfo:Folder ; nie:byteSize 28672 ] .

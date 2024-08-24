@@ -36,9 +36,11 @@ typedef struct {
 
 TestInfo tests[] = {
 	{ "ttl/ttl-1", "deserialize/ttl-1.ttl", "deserialize/ttl-1.rq", "deserialize/ttl-1.out", TRACKER_RDF_FORMAT_TURTLE },
+	{ "ttl/ttl-bnode-1", "deserialize/ttl-bnode-1.ttl", "deserialize/ttl-bnode-1.rq", "deserialize/ttl-bnode-1.out", TRACKER_RDF_FORMAT_TURTLE },
 	{ "ttl/ttl-langstring-1", "deserialize/ttl-langstring-1.ttl", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_TURTLE },
 	{ "ttl/ttl-unterminated-1", "deserialize/ttl-unterminated-1.ttl", "deserialize/unterminated-1.rq", "deserialize/unterminated-1.out", TRACKER_RDF_FORMAT_TURTLE, TRUE },
 	{ "trig/trig-1", "deserialize/trig-1.trig", "deserialize/trig-1.rq", "deserialize/trig-1.out", TRACKER_RDF_FORMAT_TRIG },
+	{ "trig/trig-bnode-1", "deserialize/trig-bnode-1.trig", "deserialize/trig-bnode-1.rq", "deserialize/trig-bnode-1.out", TRACKER_RDF_FORMAT_TRIG },
 	{ "trig/trig-langstring-1", "deserialize/trig-langstring-1.trig", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_TRIG },
 	{ "json-ld/json-ld-1", "deserialize/json-ld-1.jsonld", "deserialize/json-ld-1.rq", "deserialize/json-ld-1.out", TRACKER_RDF_FORMAT_JSON_LD },
 	{ "json-ld/json-ld-langstring-1", "deserialize/json-ld-langstring-1.jsonld", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_JSON_LD },
