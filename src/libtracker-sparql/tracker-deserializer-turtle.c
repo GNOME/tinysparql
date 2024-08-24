@@ -83,6 +83,8 @@ tracker_deserializer_turtle_finalize (GObject *object)
 {
 	TrackerDeserializerTurtle *deserializer = TRACKER_DESERIALIZER_TURTLE (object);
 
+	tracker_sparql_cursor_close (TRACKER_SPARQL_CURSOR (deserializer));
+
 	g_clear_object (&deserializer->buffered_stream);
 	g_clear_pointer (&deserializer->parser_state, g_array_unref);
 	g_clear_pointer (&deserializer->subject, g_free);

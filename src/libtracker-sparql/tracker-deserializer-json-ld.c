@@ -91,6 +91,8 @@ tracker_deserializer_json_ld_finalize (GObject *object)
 	TrackerDeserializerJsonLD *deserializer =
 		TRACKER_DESERIALIZER_JSON_LD (object);
 
+	tracker_sparql_cursor_close (TRACKER_SPARQL_CURSOR (deserializer));
+
 	g_clear_object (&deserializer->reader);
 	g_clear_object (&deserializer->parser);
 	g_array_unref (deserializer->state_stack);
