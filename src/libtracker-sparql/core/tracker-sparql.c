@@ -8919,7 +8919,7 @@ translate_BuiltInCall (TrackerSparql  *sparql,
 			_append_string (sparql, ") ");
 		}
 
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_STRING;
+		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_RESOURCE;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_RAND)) {
 		_expect (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_NIL);
 		_append_string (sparql, "SparqlRand() ");
