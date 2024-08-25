@@ -1,0 +1,11 @@
+SELECT ?u ?i {
+  SERVICE <%s> {
+    ?u a rdf:Property ;
+       rdfs:range xsd:dateTime .
+  }
+  OPTIONAL {
+    ?u nrl:indexed ?i
+  }
+}
+ORDER BY ?u
+LIMIT 10

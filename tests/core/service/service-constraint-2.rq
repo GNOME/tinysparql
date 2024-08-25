@@ -1,0 +1,7 @@
+# Specify a different service in the constraint
+CONSTRAINT SERVICE <%1$s/other/sparql>
+SELECT ?c {
+  SERVICE <%1$s> {
+    dc:title nrl:maxCardinality ?c
+  }
+}

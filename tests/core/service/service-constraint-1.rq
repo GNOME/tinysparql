@@ -1,0 +1,6 @@
+CONSTRAINT SERVICE <%1$s>
+SELECT ?c {
+  SERVICE <%1$s> {
+    dc:title nrl:maxCardinality ?c
+  }
+}
