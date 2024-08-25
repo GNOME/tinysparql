@@ -21,8 +21,7 @@
 #include "config.h"
 
 #include <glib-object.h>
-#include <libtracker-common/tracker-file-utils.h>
-#include <libtracker-common/tracker-utils.h>
+#include <libtracker-common/tracker-common.h>
 #include <locale.h>
 
 static void
@@ -48,6 +47,36 @@ test_strhex (void)
 
 }
 
+static void
+test_term_ellipsize (void)
+{
+	gchar *result;
+
+	result = tracker_term_ellipsize ("ab", 3, TRACKER_ELLIPSIZE_START);
+	g_assert_cmpstr (result, ==, "ab");
+	g_free (result);
+
+	result = tracker_term_ellipsize ("ab", 3, TRACKER_ELLIPSIZE_END);
+	g_assert_cmpstr (result, ==, "ab");
+	g_free (result);
+
+	result = tracker_term_ellipsize ("abc", 3, TRACKER_ELLIPSIZE_START);
+	g_assert_cmpstr (result, ==, "…bc");
+	g_free (result);
+
+	result = tracker_term_ellipsize ("abc", 3, TRACKER_ELLIPSIZE_END);
+	g_assert_cmpstr (result, ==, "ab…");
+	g_free (result);
+
+	result = tracker_term_ellipsize ("😄😄😥😥", 3, TRACKER_ELLIPSIZE_START);
+	g_assert_cmpstr (result, ==, "…😥😥");
+	g_free (result);
+
+	result = tracker_term_ellipsize ("😄😄😥😥", 3, TRACKER_ELLIPSIZE_END);
+	g_assert_cmpstr (result, ==, "😄😄…");
+	g_free (result);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -59,6 +88,8 @@ main (int argc, char **argv)
 
         g_test_add_func ("/libtracker-common/tracker-utils/strhex",
                          test_strhex);
+        g_test_add_func ("/libtracker-common/tracker-utils/term_ellipsize",
+                         test_term_ellipsize);
 
 	ret = g_test_run ();
 
