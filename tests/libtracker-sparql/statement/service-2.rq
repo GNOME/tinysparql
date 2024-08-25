@@ -1,0 +1,8 @@
+SELECT ?u {
+  SERVICE <dbus:%s> {
+    BIND (xsd:integer(~arg4) AS ?c)
+    ?u nrl:maxCardinality ?c .
+  }
+}
+ORDER BY ?u
+LIMIT 1

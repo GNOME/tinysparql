@@ -32,6 +32,7 @@ typedef struct {
 	const gchar *arg1;
 	const gchar *arg2;
 	const gchar *arg3;
+	const gchar *arg4;
 	gboolean service;
 } TestInfo;
 
@@ -50,7 +51,8 @@ TestInfo tests[] = {
 	{ "subject-4", "/test/sparql/statement/subject.rq", "statement/subject-2.out", "urn:nonexistent" },
 	{ "filter", "statement/filter.rq", "statement/filter.out", "http://tracker.api.gnome.org/ontology/v3/nmm#MusicAlbum", "Music album" },
 	{ "filter-2", "/test/sparql/statement/filter.rq", "statement/filter.out", "http://tracker.api.gnome.org/ontology/v3/nmm#MusicAlbum", "Music album" },
-	{ "service", "statement/service.rq", "statement/service.out", "Music album", NULL, NULL, TRUE },
+	{ "service", "statement/service.rq", "statement/service.out", "Music album", NULL, NULL, NULL, TRUE },
+	{ "service-2", "statement/service-2.rq", "statement/service-2.out", NULL, NULL, NULL, "1.1", TRUE },
 	{ "limit", "statement/limit.rq", "statement/limit.out", "1" },
 	{ "limit-2", "statement/limit.rq", "statement/limit-2.out", "2" },
 	{ "limit-3", "/test/sparql/statement/limit.rq", "statement/limit.out", "1" },
@@ -232,6 +234,10 @@ query_statement (TestFixture   *test_fixture,
 		date_time = g_date_time_new_from_iso8601 (test_info->arg3, NULL);
 		tracker_sparql_statement_bind_datetime (stmt, "arg3", date_time);
 		g_date_time_unref (date_time);
+	}
+	if (test_info->arg4) {
+		double d = g_strtod (test_info->arg4, NULL);
+		tracker_sparql_statement_bind_double (stmt, "arg4", d);
 	}
 
 	cursor = tracker_sparql_statement_execute (stmt, NULL, &error);
