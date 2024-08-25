@@ -675,12 +675,14 @@ on_bytes_read (GObject      *source,
 	bytes = g_input_stream_read_bytes_finish (G_INPUT_STREAM (source),
 	                                          res, &error);
 	if (error) {
-		tracker_http_server_soup_error (request->server,
-		                                request,
-		                                500,
-		                                error->message);
+		if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED)) {
+			tracker_http_server_soup_error (request->server,
+			                                request,
+			                                500,
+			                                error->message);
+		}
+
 		g_error_free (error);
-		request_free (request);
 		return;
 	}
 
@@ -726,6 +728,7 @@ on_message_finished (SoupServerMessage  *message,
                      TrackerHttpRequest *request)
 {
 	g_cancellable_cancel (request->cancellable);
+	request_free (request);
 }
 
 static void
