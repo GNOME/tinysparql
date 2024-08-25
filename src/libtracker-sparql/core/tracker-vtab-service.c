@@ -454,9 +454,12 @@ cursor_column_to_result (TrackerSparqlCursor *cursor,
 		sqlite3_result_text (context, g_strdup (str), -1, g_free);
 		break;
 	case TRACKER_SPARQL_VALUE_TYPE_INTEGER:
-	case TRACKER_SPARQL_VALUE_TYPE_BOOLEAN:
 		sqlite3_result_int64 (context,
 		                      tracker_sparql_cursor_get_integer (cursor, column));
+		break;
+	case TRACKER_SPARQL_VALUE_TYPE_BOOLEAN:
+		sqlite3_result_int64 (context,
+		                      tracker_sparql_cursor_get_boolean (cursor, column));
 		break;
 	case TRACKER_SPARQL_VALUE_TYPE_DOUBLE:
 		sqlite3_result_double (context,
