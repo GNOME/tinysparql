@@ -7165,7 +7165,9 @@ translate_Collection (TrackerSparql  *sparql,
 		                            RDF_NS "first", -1);
 		tracker_token_unset (&sparql->current_state->object);
 		sparql->current_state->token = &sparql->current_state->object;
-		_call_rule (sparql, NAMED_RULE_GraphNode, error);
+		if (!_call_rule_func (sparql, NAMED_RULE_GraphNode, error))
+			goto error;
+
 		sparql->current_state->token = NULL;
 
 		/* rdf:rest */
