@@ -1,0 +1,9 @@
+INSERT {
+  example:a a example:A ;
+    example:label "root" ;
+    example:list ( [ a example:A ; example:label "elem1" ]
+                   [ a example:A ; example:label "elem2" ]
+                   [ a example:A ; example:label "elem3" ]
+                   # This will raise a an error within collection handling
+                   [ a example:A ; example:label ~arg@en ] ) .
+}

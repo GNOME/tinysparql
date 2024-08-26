@@ -312,6 +312,7 @@ const TestInfo tests[] = {
 	{ "lists/list-in-subject", "lists/data-list-in-subject", FALSE },
 	{ "lists/list-in-select", "lists/data-list-in-select", FALSE },
 	{ "lists/list-nested", "lists/data-list-nested", FALSE },
+	{ "lists/insert-error-1", "lists/data-insert-error-1", FALSE, TRUE },
 	{ "optional/q-opt-complex-1", "optional/complex-data-1", FALSE },
 	{ "optional/simple-optional-triple", "optional/simple-optional-triple", FALSE },
 	{ "regex/regex-query-001", "regex/regex-data-01", FALSE },
