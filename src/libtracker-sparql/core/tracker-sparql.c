@@ -6352,26 +6352,41 @@ translate_PropertyListNotEmpty (TrackerSparql  *sparql,
 	_init_token (&sparql->current_state->predicate,
 	             sparql->current_state->prev_node, sparql);
 
-	_call_rule (sparql, NAMED_RULE_ObjectList, error);
+	if (!_call_rule_func (sparql, NAMED_RULE_ObjectList, error))
+		goto error_object;
+
 	tracker_token_unset (&sparql->current_state->predicate);
+	sparql->current_state->predicate = old_pred;
+	sparql->current_state->token = prev_token;
 
 	while (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_SEMICOLON)) {
 		if (!_check_in_rule (sparql, NAMED_RULE_Verb))
 			break;
 
+		old_pred = sparql->current_state->predicate;
+		prev_token = sparql->current_state->token;
+		sparql->current_state->token = &sparql->current_state->object;
+
 		_call_rule (sparql, NAMED_RULE_Verb, error);
 		_init_token (&sparql->current_state->predicate,
 		             sparql->current_state->prev_node, sparql);
 
-		_call_rule (sparql, NAMED_RULE_ObjectList, error);
+		if (!_call_rule_func (sparql, NAMED_RULE_ObjectList, error))
+			goto error_object;
 
 		tracker_token_unset (&sparql->current_state->predicate);
+		sparql->current_state->predicate = old_pred;
+		sparql->current_state->token = prev_token;
 	}
 
+	return TRUE;
+
+ error_object:
+	tracker_token_unset (&sparql->current_state->predicate);
 	sparql->current_state->predicate = old_pred;
 	sparql->current_state->token = prev_token;
 
-	return TRUE;
+	return FALSE;
 }
 
 static gboolean
