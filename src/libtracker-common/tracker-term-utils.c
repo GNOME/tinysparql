@@ -75,6 +75,7 @@ tracker_term_ellipsize (const gchar          *str,
 	return retval;
 }
 
+//LCOV_EXCL_START
 static void
 fd_term_dimensions (gint   fd,
                     guint *cols,
@@ -113,12 +114,6 @@ tracker_term_dimensions (guint *columns,
 		*rows = n_rows;
 }
 
-gboolean
-tracker_term_is_tty (void)
-{
-	return isatty (STDOUT_FILENO) > 0;
-}
-
 static gboolean
 ignore_signal_cb (gpointer user_data)
 {
@@ -145,6 +140,13 @@ best_pager (void)
 
 	return NULL;
 }
+//LCOV_EXCL_STOP
+
+gboolean
+tracker_term_is_tty (void)
+{
+	return isatty (STDOUT_FILENO) > 0;
+}
 
 gboolean
 tracker_term_pipe_to_pager (void)
@@ -156,6 +158,7 @@ tracker_term_pipe_to_pager (void)
 	if (!tracker_term_is_tty ())
 		return FALSE;
 
+//LCOV_EXCL_START
 	if (g_unix_open_pipe (fds, FD_CLOEXEC, NULL) < 0)
 		return FALSE;
 
@@ -183,6 +186,7 @@ tracker_term_pipe_to_pager (void)
 	signal_handler_id = g_unix_signal_add (SIGINT, ignore_signal_cb, NULL);
 
 	return TRUE;
+//LCOV_EXCL_STOP
 }
 
 gboolean
@@ -191,6 +195,7 @@ tracker_term_pager_close (void)
 	if (!pager)
 		return FALSE;
 
+//LCOV_EXCL_START
 	fflush (stdout);
 
 	/* Restore stdout */
@@ -202,4 +207,5 @@ tracker_term_pager_close (void)
 	g_source_remove (signal_handler_id);
 
 	return TRUE;
+//LCOV_EXCL_STOP
 }

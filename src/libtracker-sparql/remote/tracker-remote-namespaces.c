@@ -98,19 +98,14 @@ serialize_cb (GObject      *source,
 	istream = tracker_sparql_connection_serialize_finish (remote_manager->conn,
 	                                                      res,
 	                                                      &error);
-	if (!istream) {
-		g_task_return_error (task, error);
-		g_object_unref (task);
-		return;
-	}
+	if (istream)
+		initialize_namespaces_from_rdf (manager, istream, &error);
 
-	if (!initialize_namespaces_from_rdf (manager, istream, &error)) {
+	if (error)
 		g_task_return_error (task, error);
-		g_object_unref (task);
-		return;
-	}
+	else
+		g_task_return_boolean (task, TRUE);
 
-	g_task_return_boolean (task, TRUE);
 	g_object_unref (task);
 }
 

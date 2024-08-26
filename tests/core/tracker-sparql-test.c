@@ -104,6 +104,8 @@ const TestInfo tests[] = {
 	{ "construct/construct-pattern-2", "construct/data", FALSE },
 	{ "construct/construct-pattern-3", "construct/data", FALSE },
 	{ "construct/construct-with-modifiers", "construct/data", FALSE },
+	{ "date/direct-1", "date/data-1", FALSE },
+	{ "date/insert-1", "date/data-1", FALSE },
 	{ "datetime/direct-1", "datetime/data-1", FALSE },
 	{ "datetime/delete-1", "datetime/data-3", FALSE },
 	{ "datetime/insert-1", "datetime/data-4", FALSE },
@@ -310,6 +312,7 @@ const TestInfo tests[] = {
 	{ "lists/list-in-subject", "lists/data-list-in-subject", FALSE },
 	{ "lists/list-in-select", "lists/data-list-in-select", FALSE },
 	{ "lists/list-nested", "lists/data-list-nested", FALSE },
+	{ "lists/insert-error-1", "lists/data-insert-error-1", FALSE, TRUE },
 	{ "optional/q-opt-complex-1", "optional/complex-data-1", FALSE },
 	{ "optional/simple-optional-triple", "optional/simple-optional-triple", FALSE },
 	{ "regex/regex-query-001", "regex/regex-data-01", FALSE },
@@ -394,11 +397,9 @@ const TestInfo tests[] = {
 	{ "error/describe-1", "error/query-error-1", TRUE, FALSE },
 	{ "error/describe-2", "error/query-error-1", TRUE, FALSE },
 	{ "error/garbage-1", "error/query-error-1", TRUE, FALSE },
-
+	/* Turtle data */
 	{ "turtle/turtle-query-001", "turtle/turtle-data-001", FALSE },
-#if 0
 	{ "turtle/turtle-query-002", "turtle/turtle-data-002", FALSE },
-#endif
 	{ "turtle-comments/turtle-query-001", "turtle-comments/turtle-data-001", FALSE },
 	/* Mixed cardinality tests */
 	{ "mixed-cardinality/insert-mixed-cardinality-query-1", "mixed-cardinality/insert-mixed-cardinality-1", FALSE, FALSE },

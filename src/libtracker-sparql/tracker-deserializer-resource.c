@@ -86,27 +86,6 @@ tracker_deserializer_resource_set_property (GObject      *object,
 }
 
 static void
-tracker_deserializer_resource_get_property (GObject    *object,
-                                            guint       prop_id,
-                                            GValue     *value,
-                                            GParamSpec *pspec)
-{
-	TrackerDeserializerResource *deserializer =
-		TRACKER_DESERIALIZER_RESOURCE (object);
-
-	switch (prop_id) {
-	case PROP_RESOURCE:
-		g_value_set_object (value, deserializer->resource);
-		break;
-	case PROP_GRAPH:
-		g_value_set_string (value, deserializer->graph);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-	}
-}
-
-static void
 tracker_deserializer_resource_finalize (GObject *object)
 {
 	TrackerDeserializerResource *deserializer =
@@ -400,17 +379,6 @@ tracker_deserializer_resource_next (TrackerSparqlCursor  *cursor,
 }
 
 static void
-tracker_deserializer_resource_rewind (TrackerSparqlCursor* cursor)
-{
-	TrackerDeserializerResource *deserializer =
-		TRACKER_DESERIALIZER_RESOURCE (cursor);
-
-	g_array_set_size (deserializer->iterators, 0);
-	g_hash_table_remove_all (deserializer->visited);
-	push_stack (deserializer, deserializer->resource);
-}
-
-static void
 tracker_deserializer_resource_class_init (TrackerDeserializerResourceClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -418,14 +386,12 @@ tracker_deserializer_resource_class_init (TrackerDeserializerResourceClass *klas
 		TRACKER_SPARQL_CURSOR_CLASS (klass);
 
 	object_class->set_property = tracker_deserializer_resource_set_property;
-	object_class->get_property = tracker_deserializer_resource_get_property;
 	object_class->finalize = tracker_deserializer_resource_finalize;
 	object_class->constructed = tracker_deserializer_resource_constructed;
 
 	cursor_class->get_value_type = tracker_deserializer_resource_get_value_type;
 	cursor_class->get_string = tracker_deserializer_resource_get_string;
 	cursor_class->next = tracker_deserializer_resource_next;
-	cursor_class->rewind = tracker_deserializer_resource_rewind;
 
 	props[PROP_RESOURCE] =
 		g_param_spec_object ("resource",
@@ -434,7 +400,6 @@ tracker_deserializer_resource_class_init (TrackerDeserializerResourceClass *klas
 		                     TRACKER_TYPE_RESOURCE,
 		                     G_PARAM_CONSTRUCT_ONLY |
 		                     G_PARAM_STATIC_STRINGS |
-		                     G_PARAM_READABLE |
 		                     G_PARAM_WRITABLE);
 	props[PROP_GRAPH] =
 		g_param_spec_string ("graph",
@@ -443,7 +408,6 @@ tracker_deserializer_resource_class_init (TrackerDeserializerResourceClass *klas
 		                     NULL,
 		                     G_PARAM_CONSTRUCT_ONLY |
 		                     G_PARAM_STATIC_STRINGS |
-		                     G_PARAM_READABLE |
 		                     G_PARAM_WRITABLE);
 
 	g_object_class_install_properties (object_class, N_PROPS, props);

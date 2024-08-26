@@ -828,12 +828,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		if (fd_list)
 			fd = g_unix_fd_list_get (fd_list, handle, &error);
 
-		if (fd < 0) {
-			g_dbus_method_invocation_return_error (invocation,
-			                                       G_DBUS_ERROR,
-			                                       G_DBUS_ERROR_INVALID_ARGS,
-			                                       "Did not get a file descriptor");
-		} else {
+		if (fd >= 0) {
 			TrackerSparqlStatement *stmt;
 			QueryRequest *request;
 
@@ -881,12 +876,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		if (fd_list)
 			fd = g_unix_fd_list_get (fd_list, handle, &error);
 
-		if (fd < 0) {
-			g_dbus_method_invocation_return_error (invocation,
-			                                       G_DBUS_ERROR,
-			                                       G_DBUS_ERROR_INVALID_ARGS,
-			                                       "Did not get a file descriptor");
-		} else {
+		if (fd >= 0) {
 			TrackerSparqlConnection *conn;
 			TrackerBatch *batch;
 			GInputStream *istream;
@@ -918,12 +908,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		if (fd_list)
 			fd = g_unix_fd_list_get (fd_list, handle, &error);
 
-		if (fd < 0) {
-			g_dbus_method_invocation_return_error (invocation,
-			                                       G_DBUS_ERROR,
-			                                       G_DBUS_ERROR_INVALID_ARGS,
-			                                       "Did not get a file descriptor");
-		} else {
+		if (fd >= 0) {
 			UpdateRequest *request;
 			GTask *task;
 
@@ -955,12 +940,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		if (fd_list)
 			fd = g_unix_fd_list_get (fd_list, handle, &error);
 
-		if (fd < 0) {
-			g_dbus_method_invocation_return_error (invocation,
-			                                       G_DBUS_ERROR,
-			                                       G_DBUS_ERROR_INVALID_ARGS,
-			                                       "Did not get a file descriptor");
-		} else {
+		if (fd >= 0) {
 			TrackerSparqlConnection *conn;
 			GInputStream *istream;
 
@@ -985,6 +965,13 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 		                                       G_DBUS_ERROR,
 		                                       G_DBUS_ERROR_UNKNOWN_METHOD,
 		                                       "Unknown method '%s'", method_name);
+	}
+
+	if (fd < 0) {
+		g_dbus_method_invocation_return_error (invocation,
+		                                       G_DBUS_ERROR,
+		                                       G_DBUS_ERROR_INVALID_ARGS,
+		                                       "Did not get a file descriptor");
 	}
 }
 

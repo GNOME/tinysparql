@@ -552,6 +552,7 @@ _expect (TrackerSparql          *sparql,
          guint                   value)
 {
 	if (!_accept (sparql, type, value)) {
+		//LCOV_EXCL_START
 		TrackerParserNode *parser_node = sparql->current_state->node;
 		const TrackerGrammarRule *rule = NULL;
 
@@ -573,6 +574,7 @@ _expect (TrackerSparql          *sparql,
 				g_error ("Parser expects rule %d (%d). Got EOF", type, value);
 			}
 		}
+		//LCOV_EXCL_STOP
 	}
 }
 
@@ -6352,26 +6354,41 @@ translate_PropertyListNotEmpty (TrackerSparql  *sparql,
 	_init_token (&sparql->current_state->predicate,
 	             sparql->current_state->prev_node, sparql);
 
-	_call_rule (sparql, NAMED_RULE_ObjectList, error);
+	if (!_call_rule_func (sparql, NAMED_RULE_ObjectList, error))
+		goto error_object;
+
 	tracker_token_unset (&sparql->current_state->predicate);
+	sparql->current_state->predicate = old_pred;
+	sparql->current_state->token = prev_token;
 
 	while (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_SEMICOLON)) {
 		if (!_check_in_rule (sparql, NAMED_RULE_Verb))
 			break;
 
+		old_pred = sparql->current_state->predicate;
+		prev_token = sparql->current_state->token;
+		sparql->current_state->token = &sparql->current_state->object;
+
 		_call_rule (sparql, NAMED_RULE_Verb, error);
 		_init_token (&sparql->current_state->predicate,
 		             sparql->current_state->prev_node, sparql);
 
-		_call_rule (sparql, NAMED_RULE_ObjectList, error);
+		if (!_call_rule_func (sparql, NAMED_RULE_ObjectList, error))
+			goto error_object;
 
 		tracker_token_unset (&sparql->current_state->predicate);
+		sparql->current_state->predicate = old_pred;
+		sparql->current_state->token = prev_token;
 	}
 
+	return TRUE;
+
+ error_object:
+	tracker_token_unset (&sparql->current_state->predicate);
 	sparql->current_state->predicate = old_pred;
 	sparql->current_state->token = prev_token;
 
-	return TRUE;
+	return FALSE;
 }
 
 static gboolean
@@ -7165,7 +7182,9 @@ translate_Collection (TrackerSparql  *sparql,
 		                            RDF_NS "first", -1);
 		tracker_token_unset (&sparql->current_state->object);
 		sparql->current_state->token = &sparql->current_state->object;
-		_call_rule (sparql, NAMED_RULE_GraphNode, error);
+		if (!_call_rule_func (sparql, NAMED_RULE_GraphNode, error))
+			goto error;
+
 		sparql->current_state->token = NULL;
 
 		/* rdf:rest */
@@ -8919,7 +8938,7 @@ translate_BuiltInCall (TrackerSparql  *sparql,
 			_append_string (sparql, ") ");
 		}
 
-		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_STRING;
+		sparql->current_state->expression_type = TRACKER_PROPERTY_TYPE_RESOURCE;
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_RAND)) {
 		_expect (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_NIL);
 		_append_string (sparql, "SparqlRand() ");
@@ -9668,8 +9687,10 @@ _call_rule_func (TrackerSparql            *sparql,
 
 	if (!retval) {
 		if (!inner_error) {
+			//LCOV_EXCL_START
 			g_error ("Translation rule '%s' returns FALSE, but no error",
 			         rule->string);
+			//LCOV_EXCL_STOP
 		}
 
 		g_assert (inner_error != NULL);

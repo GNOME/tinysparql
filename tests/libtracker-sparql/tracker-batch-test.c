@@ -130,6 +130,31 @@ get_cursor (TestFixture *test_fixture,
 }
 
 static void
+assert_in_graph (TestFixture *test_fixture,
+		 const gchar *graph,
+		 const gchar *iri)
+{
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+	gchar *query;
+	gboolean retval;
+
+	query = g_strdup_printf ("ASK { GRAPH <%s> { <%s> a rdfs:Resource } }",
+				 graph, iri);
+	cursor = tracker_sparql_connection_query (test_fixture->conn, query, NULL, &error);
+	g_assert_no_error (error);
+	g_free (query);
+
+	retval = tracker_sparql_cursor_next (cursor, NULL, &error);
+	g_assert_no_error (error);
+	g_assert_true (retval);
+
+	g_assert_true (tracker_sparql_cursor_get_boolean (cursor, 0));
+
+	g_object_unref (cursor);
+}
+
+static void
 assert_no_match (TestFixture *test_fixture,
                  const gchar *iri)
 {
@@ -429,6 +454,37 @@ batch_rdf_turtle (TestFixture   *test_fixture,
 }
 
 static void
+batch_rdf_turtle_graph (TestFixture   *test_fixture,
+                        gconstpointer  context)
+{
+	TrackerBatch *batch;
+	GInputStream *istream;
+	GError *error = NULL;
+	GDateTime *date;
+
+	batch = tracker_sparql_connection_create_batch (test_fixture->conn);
+
+	istream = g_memory_input_stream_new_from_data (PHOTO_TURTLE, -1, NULL);
+	g_assert_no_error (error);
+	g_assert_nonnull (istream);
+
+	/* Specify a graph in the batch call, and check that Turtle data gets added there */
+	tracker_batch_add_rdf (batch,
+	                       TRACKER_DESERIALIZE_FLAGS_NONE,
+	                       TRACKER_RDF_FORMAT_TURTLE,
+	                       TRACKER_PREFIX_NRL "TestGraph",
+	                       istream);
+	tracker_batch_execute (batch, NULL, &error);
+	g_assert_no_error (error);
+	g_object_unref (batch);
+
+	date = g_date_time_new_from_iso8601 ("2023-07-07T01:01:01Z", NULL);
+	assert_photo (test_fixture, "http://example.com/turtle", "png", date, TRUE, 321, 3.456789012);
+	assert_in_graph (test_fixture, TRACKER_PREFIX_NRL "TestGraph", "http://example.com/turtle");
+	g_date_time_unref (date);
+}
+
+static void
 batch_rdf_trig (TestFixture   *test_fixture,
                 gconstpointer  context)
 {
@@ -454,6 +510,40 @@ batch_rdf_trig (TestFixture   *test_fixture,
 
 	date = g_date_time_new_from_iso8601 ("2023-07-07T01:01:01Z", NULL);
 	assert_photo (test_fixture, "http://example.com/trig", "png", date, TRUE, 321, 3.456789012);
+	assert_in_graph (test_fixture, "http://example.com/test", "http://example.com/trig");
+	g_date_time_unref (date);
+}
+
+static void
+batch_rdf_trig_graph (TestFixture   *test_fixture,
+                      gconstpointer  context)
+{
+	TrackerBatch *batch;
+	GInputStream *istream;
+	GError *error = NULL;
+	GDateTime *date;
+
+	batch = tracker_sparql_connection_create_batch (test_fixture->conn);
+
+	istream = g_memory_input_stream_new_from_data (PHOTO_TRIG, -1, NULL);
+	g_assert_no_error (error);
+	g_assert_nonnull (istream);
+
+	/* Specify a graph in the batch call, and check that Trig graph shall
+	 * get honored anyways. This is our documented behavior.
+	 */
+	tracker_batch_add_rdf (batch,
+	                       TRACKER_DESERIALIZE_FLAGS_NONE,
+	                       TRACKER_RDF_FORMAT_TRIG,
+	                       TRACKER_PREFIX_NRL "TestGraph",
+	                       istream);
+	tracker_batch_execute (batch, NULL, &error);
+	g_assert_no_error (error);
+	g_object_unref (batch);
+
+	date = g_date_time_new_from_iso8601 ("2023-07-07T01:01:01Z", NULL);
+	assert_photo (test_fixture, "http://example.com/trig", "png", date, TRUE, 321, 3.456789012);
+	assert_in_graph (test_fixture, "http://example.com/test", "http://example.com/trig");
 	g_date_time_unref (date);
 }
 
@@ -483,6 +573,37 @@ batch_rdf_jsonld (TestFixture   *test_fixture,
 
 	date = g_date_time_new_from_iso8601 ("2023-07-07T01:01:01Z", NULL);
 	assert_photo (test_fixture, "http://example.com/jsonld", "png", date, TRUE, 321, 3.456789012);
+	g_date_time_unref (date);
+}
+
+static void
+batch_rdf_jsonld_graph (TestFixture   *test_fixture,
+                        gconstpointer  context)
+{
+	TrackerBatch *batch;
+	GInputStream *istream;
+	GError *error = NULL;
+	GDateTime *date;
+
+	batch = tracker_sparql_connection_create_batch (test_fixture->conn);
+
+	istream = g_memory_input_stream_new_from_data (PHOTO_JSONLD, -1, NULL);
+	g_assert_no_error (error);
+	g_assert_nonnull (istream);
+
+	/* Specify a graph in the batch call, and check that Turtle data gets added there */
+	tracker_batch_add_rdf (batch,
+	                       TRACKER_DESERIALIZE_FLAGS_NONE,
+	                       TRACKER_RDF_FORMAT_JSON_LD,
+	                       TRACKER_PREFIX_NRL "TestGraph",
+	                       istream);
+	tracker_batch_execute (batch, NULL, &error);
+	g_assert_no_error (error);
+	g_object_unref (batch);
+
+	date = g_date_time_new_from_iso8601 ("2023-07-07T01:01:01Z", NULL);
+	assert_photo (test_fixture, "http://example.com/jsonld", "png", date, TRUE, 321, 3.456789012);
+	assert_in_graph (test_fixture, TRACKER_PREFIX_NRL "TestGraph", "http://example.com/jsonld");
 	g_date_time_unref (date);
 }
 
@@ -640,6 +761,34 @@ batch_resource_bnodes_same_batch (TestFixture   *test_fixture,
 	g_object_unref (batch);
 
 	assert_count_bnodes (test_fixture, 1);
+}
+
+static void
+batch_resource_graph (TestFixture   *test_fixture,
+		      gconstpointer  context)
+{
+	TrackerBatch *batch;
+	TrackerResource *resource;
+	GError *error = NULL;
+	GDateTime *date;
+
+	date = g_date_time_new_from_iso8601 ("2023-12-04T01:01:01Z", NULL);
+
+	batch = tracker_sparql_connection_create_batch (test_fixture->conn);
+
+	resource = create_photo_resource (test_fixture, "http://example.com/resource_graph", "png", date, FALSE, 123, 0.12345678901);
+
+	tracker_batch_add_resource (batch, TRACKER_PREFIX_NRL "TestGraph", resource);
+
+	tracker_batch_execute (batch, NULL, &error);
+	g_assert_no_error (error);
+
+	assert_photo (test_fixture, "http://example.com/resource_graph", "png", date, FALSE, 123, 0.12345678901);
+	assert_in_graph (test_fixture, TRACKER_PREFIX_NRL "TestGraph", "http://example.com/resource_graph");
+
+	g_object_unref (batch);
+	g_date_time_unref (date);
+	g_object_unref (resource);
 }
 
 static void
@@ -1164,6 +1313,7 @@ create_local_connection (GError **error)
 	ontology = tracker_sparql_get_ontology_nepomuk ();
 
 	conn = tracker_sparql_connection_new (0, NULL, ontology, NULL, error);
+
 	g_object_unref (ontology);
 
 	return conn;
@@ -1235,6 +1385,7 @@ create_connections (TrackerSparqlConnection **dbus,
 	bus_name = g_dbus_connection_get_unique_name (data.dbus_conn);
 	*dbus = tracker_sparql_connection_bus_new (bus_name,
 	                                           NULL, data.dbus_conn, error);
+
 	g_object_set_data_full (G_OBJECT (*dbus),
 	                        "endpoint-data",
 	                        endpoint_data,
@@ -1262,7 +1413,9 @@ setup (TestFixture   *fixture,
 	                                  "  ?u a rdfs:Resource ."
 	                                  "} WHERE {"
 	                                  "  ?u a nmm:Photo ."
-	                                  "}",
+	                                  "};"
+	                                  "CLEAR SILENT GRAPH nrl:TestGraph;"
+	                                  "CLEAR SILENT GRAPH <http://example.com/test>",
 	                                  NULL, &error);
 	g_assert_no_error (error);
 }
@@ -1281,13 +1434,17 @@ TestInfo tests[] = {
 	{ "sparql/bnodes", batch_sparql_bnodes },
 	{ "sparql/bnodes-same-batch", batch_sparql_bnodes_same_batch },
 	{ "rdf/turtle", batch_rdf_turtle },
+	{ "rdf/turtle-graph", batch_rdf_turtle_graph },
 	{ "rdf/trig", batch_rdf_trig },
+	{ "rdf/trig-graph", batch_rdf_trig_graph },
 	{ "rdf/json-ld", batch_rdf_jsonld },
+	{ "rdf/json-ld-graph", batch_rdf_jsonld_graph },
 	{ "resource/insert", batch_resource_insert },
 	{ "resource/update", batch_resource_update },
 	{ "resource/update-same-batch", batch_resource_update_same_batch },
 	{ "resource/bnodes", batch_resource_bnodes },
 	{ "resource/bnodes-same-batch", batch_resource_bnodes_same_batch },
+	{ "resource/graph", batch_resource_graph },
 	{ "statement/insert", batch_statement_insert },
 	{ "statement/update", batch_statement_update },
 	{ "statement/update-same-batch", batch_statement_update_same_batch },

@@ -1,0 +1,1 @@
+SELECT ("0001-01-01"^^xsd:date AS ?d1) ("2020-01-01"^^xsd:date AS ?d2) ("9999-01-01"^^xsd:date AS ?d3) {}

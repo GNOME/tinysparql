@@ -1,0 +1,7 @@
+ASK {
+  ?a nie:interpretedAs ?b ;
+     nfo:fileName "carlos" ;
+     nfo:fileCreated "2019-05-10T20:52:03Z" .
+  ?b nie:byteSize 28672 .
+  FILTER (IsBlank(?a) && IsBlank(?b)) .
+}

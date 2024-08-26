@@ -1,0 +1,4 @@
+SELECT ?u
+{
+  ?u a rdf:List .
+}

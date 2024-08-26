@@ -37,8 +37,11 @@ struct _TestInfo {
 
 const TestInfo tests[] = {
 	{ "service/service-query-1", FALSE },
+	{ "service/service-query-2", FALSE },
 	{ "service/service-after-triples-1", FALSE },
+	{ "service/service-after-triples-2", FALSE },
 	{ "service/service-before-triples-1", FALSE },
+	{ "service/service-with-optional-1", FALSE },
 	{ "service/service-local-filter-1", FALSE },
 	{ "service/service-union-with-local-1", FALSE },
 	{ "service/service-union-with-local-2", FALSE },
@@ -53,6 +56,8 @@ const TestInfo tests[] = {
 	{ "service/service-nonexistent-4", TRUE },
 	{ "service/service-nonexistent-5", TRUE },
 	{ "service/service-silent-1", FALSE },
+	{ "service/service-constraint-1", FALSE },
+	{ "service/service-constraint-2", TRUE },
 	{ "service/property-function-1", FALSE },
 };
 

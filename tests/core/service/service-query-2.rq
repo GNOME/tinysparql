@@ -1,0 +1,5 @@
+SELECT ?unbound ?a ?b ?c {
+  SERVICE <%s> {
+    SELECT (42 AS ?a) (42.2 AS ?b) (true AS ?c) ?unbound { }
+  }
+}

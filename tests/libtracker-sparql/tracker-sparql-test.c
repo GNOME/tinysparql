@@ -73,12 +73,31 @@ test_tracker_sparql_escape_string (void)
 }
 
 static void
+test_tracker_sparql_escape_uri (void)
+{
+	gchar *result;
+
+	result = tracker_sparql_escape_uri ("test:uri:🍌");
+	g_assert_cmpstr (result, ==, "test:uri:%F0%9F%8D%8C");
+	g_free (result);
+}
+
+static void
 test_tracker_sparql_escape_uri_vprintf (void)
 {
 	gchar *result;
 
-	result = tracker_sparql_escape_uri_printf ("test:uri:contact-%d", 14, NULL);
-	g_assert_cmpstr (result, ==, "test:uri:contact-14");
+	result = tracker_sparql_escape_uri_printf ("test:uri:%s-%d-%0.3f-%%-%hd-%1.*f", "🍌", 14, 1.23403, (short) 8, 1.23403, 2);
+	g_assert_cmpstr (result, ==, "test:uri:%F0%9F%8D%8C-14-1.234-%25-8-1.23");
+	g_free (result);
+
+	/* Test positional arguments and flags */
+	result = tracker_sparql_escape_uri_printf ("test:uri:%2$0*1$d-%3$+d-%5$-*4$s-%7$1.*6$f", 3, 1, 42, 4, "+42", 2, 1.23403);
+	g_assert_cmpstr (result, ==, "test:uri:001-+42-+42%20-1.23");
+	g_free (result);
+
+	result = tracker_sparql_escape_uri_printf ("test:uri:%");
+	g_assert_cmpstr (result, ==, "test:uri:%");
 	g_free (result);
 }
 
@@ -271,6 +290,8 @@ main (gint argc, gchar **argv)
 
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_escape_string",
 	                 test_tracker_sparql_escape_string);
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_escape_uri",
+	                 test_tracker_sparql_escape_uri);
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_escape_uri_vprintf",
 	                 test_tracker_sparql_escape_uri_vprintf);
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_no_ontology",

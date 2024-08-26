@@ -525,6 +525,31 @@ class TestPortal(fixtures.TrackerPortalTest):
         res = self.query("org.freedesktop.PortalTest", 'select ?s { ?s ?p "A" }')
         self.assertEqual(len(res), 1)
 
+    # Test that closing asynchronously the connection works
+    def test_15_close_async(self):
+        self.start_service("org.freedesktop.PortalTest")
+
+        conn = Tracker.SparqlConnection.bus_new("org.freedesktop.PortalTest", None, self.bus)
+
+        with self.assertRaisesRegex(Exception, 'not allowed') as exception:
+            conn.update("INSERT { GRAPH tracker:Allowed { "
+                        + "  <http://example/b> a nfo:FileDataObject ; nfo:fileName 'A' . } }")
+        self.assertIsNotNone(exception)
+
+        context = GLib.MainContext.new()
+        context.push_thread_default()
+        loop = GLib.MainLoop.new(context, False)
+        self._connIsClosed = False
+
+        def close_async_cb(conn, res):
+            self._connIsClosed = conn.close_finish(res)
+            loop.quit()
+
+        conn.close_async(None, close_async_cb)
+        loop.run()
+        context.pop_thread_default()
+        self.assertEqual(self._connIsClosed, True)
+
 
 if __name__ == "__main__":
     fixtures.tracker_test_main()

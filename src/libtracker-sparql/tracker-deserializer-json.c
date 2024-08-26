@@ -204,6 +204,8 @@ parse_column_type (JsonObject              *column,
 		else if (g_str_equal (suffix, "date") ||
 		         g_str_equal (suffix, "dateTime"))
 			*value = TRACKER_SPARQL_VALUE_TYPE_DATETIME;
+		else if (g_str_equal (suffix, "boolean"))
+			*value = TRACKER_SPARQL_VALUE_TYPE_BOOLEAN;
 		else
 			*value = TRACKER_SPARQL_VALUE_TYPE_STRING;
 	} else {

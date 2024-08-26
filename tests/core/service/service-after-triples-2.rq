@@ -1,0 +1,10 @@
+SELECT ?u {
+  ?u a rdfs:Resource ;
+     nrl:maxCardinality ?c .
+  FILTER (?c = 1)
+  SERVICE <%s> {
+    ?u nrl:maxCardinality ?c .
+  }
+}
+ORDER BY ?u
+LIMIT 5
