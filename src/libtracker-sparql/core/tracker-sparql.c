@@ -552,6 +552,7 @@ _expect (TrackerSparql          *sparql,
          guint                   value)
 {
 	if (!_accept (sparql, type, value)) {
+		//LCOV_EXCL_START
 		TrackerParserNode *parser_node = sparql->current_state->node;
 		const TrackerGrammarRule *rule = NULL;
 
@@ -573,6 +574,7 @@ _expect (TrackerSparql          *sparql,
 				g_error ("Parser expects rule %d (%d). Got EOF", type, value);
 			}
 		}
+		//LCOV_EXCL_STOP
 	}
 }
 
@@ -9685,8 +9687,10 @@ _call_rule_func (TrackerSparql            *sparql,
 
 	if (!retval) {
 		if (!inner_error) {
+			//LCOV_EXCL_START
 			g_error ("Translation rule '%s' returns FALSE, but no error",
 			         rule->string);
+			//LCOV_EXCL_STOP
 		}
 
 		g_assert (inner_error != NULL);
