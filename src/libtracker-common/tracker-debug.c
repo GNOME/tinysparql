@@ -27,7 +27,7 @@ static const GDebugKey tracker_debug_keys[] = {
   { "ontology-changes", TRACKER_DEBUG_ONTOLOGY_CHANGES },
   { "sqlite", TRACKER_DEBUG_SQLITE },
   { "sparql", TRACKER_DEBUG_SPARQL },
-  { "sql-statements", TRACKER_DEBUG_SQL_STATEMENTS },
+  { "sql", TRACKER_DEBUG_SQL },
   { "fts-integrity", TRACKER_DEBUG_FTS_INTEGRITY },
 };
 #endif /* G_ENABLE_DEBUG */
