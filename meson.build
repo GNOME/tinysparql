@@ -114,7 +114,7 @@ add_project_arguments('-DTRACKER_COMPILATION',
                       language: 'c')
 
 if get_option('buildtype') == 'plain'
-  # Default case is to allow TRACKER_DEBUG which is very useful for
+  # Default case is to allow TINYSPARQL_DEBUG which is very useful for
   # triaging user-reported issues.
   # Use --buildtype=release to disable debug completely.
   debug = true

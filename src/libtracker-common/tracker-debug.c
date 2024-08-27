@@ -38,12 +38,15 @@ parse_debug_flags ()
 	const gchar *env_string;
 	guint flags = 0;
 
-	env_string = g_getenv ("TRACKER_DEBUG");
+	env_string = g_getenv ("TINYSPARQL_DEBUG");
+	if (env_string == NULL)
+		env_string = g_getenv ("TRACKER_DEBUG");
+
 	if (env_string != NULL) {
 #ifdef G_ENABLE_DEBUG
 		flags = g_parse_debug_string (env_string, tracker_debug_keys, G_N_ELEMENTS (tracker_debug_keys));
 #else
-		g_warning ("TRACKER_DEBUG set but ignored because tracker isn't built with G_ENABLE_DEBUG");
+		g_warning ("TINYSPARQL_DEBUG set but ignored because tracker isn't built with G_ENABLE_DEBUG");
 #endif  /* G_ENABLE_DEBUG */
 		env_string = NULL;
 	}

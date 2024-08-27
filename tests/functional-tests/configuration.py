@@ -64,7 +64,9 @@ def tests_verbose():
     tracker_debug_tests.key = "tests"
     tracker_debug_tests.value = TRACKER_DEBUG_TESTS
 
+    envvar = os.environ.get("TINYSPARQL_DEBUG", "") or os.environ.get("TRACKER_DEBUG", "")
+
     flags = GLib.parse_debug_string(
-        os.environ.get("TRACKER_DEBUG", ""), [tracker_debug_tests]
+        envvar, [tracker_debug_tests]
     )
     return flags & TRACKER_DEBUG_TESTS
