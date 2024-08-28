@@ -259,7 +259,7 @@ function_sparql_uri_is_parent (sqlite3_context *context,
 	const gchar *fn = "tracker:uri-is-parent";
 	const gchar *uri, *parent, *remaining;
 	gboolean match = FALSE;
-	guint parent_len;
+	gssize parent_len;
 
 	TRACKER_RETURN_IF_FAIL (argc == 2, fn, "Invalid argument count");
 
@@ -323,7 +323,7 @@ function_sparql_uri_is_parent (sqlite3_context *context,
 
 static gboolean
 check_uri_is_descendant (const gchar *parent,
-                         guint        parent_len,
+                         gssize       parent_len,
                          const gchar *uri)
 {
 	const gchar *remaining;
@@ -386,7 +386,7 @@ function_sparql_uri_is_descendant (sqlite3_context *context,
 	for (i = 0; i < argc - 1 && !match; i++) {
 		if (sqlite3_value_type (argv[i]) == SQLITE_TEXT) {
 			const gchar *parent = (gchar *)sqlite3_value_text (argv[i]);
-			guint parent_len = sqlite3_value_bytes (argv[i]);
+			gssize parent_len = sqlite3_value_bytes (argv[i]);
 
 			match = check_uri_is_descendant (parent, parent_len, child);
 		}
