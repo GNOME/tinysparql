@@ -1,0 +1,46 @@
+project('libstemmer', 'c', version: '3.0.1')
+
+sources = [
+  'src_c/stem_UTF_8_arabic.c',
+  'src_c/stem_UTF_8_armenian.c',
+  'src_c/stem_UTF_8_basque.c',
+  'src_c/stem_UTF_8_catalan.c',
+  'src_c/stem_UTF_8_danish.c',
+  'src_c/stem_UTF_8_dutch.c',
+  'src_c/stem_UTF_8_dutch_porter.c',
+  'src_c/stem_UTF_8_english.c',
+  'src_c/stem_UTF_8_esperanto.c',
+  'src_c/stem_UTF_8_estonian.c',
+  'src_c/stem_UTF_8_finnish.c',
+  'src_c/stem_UTF_8_french.c',
+  'src_c/stem_UTF_8_german.c',
+  'src_c/stem_UTF_8_greek.c',
+  'src_c/stem_UTF_8_hindi.c',
+  'src_c/stem_UTF_8_hungarian.c',
+  'src_c/stem_UTF_8_indonesian.c',
+  'src_c/stem_UTF_8_irish.c',
+  'src_c/stem_UTF_8_italian.c',
+  'src_c/stem_UTF_8_lithuanian.c',
+  'src_c/stem_UTF_8_nepali.c',
+  'src_c/stem_UTF_8_norwegian.c',
+  'src_c/stem_UTF_8_porter.c',
+  'src_c/stem_UTF_8_portuguese.c',
+  'src_c/stem_UTF_8_romanian.c',
+  'src_c/stem_UTF_8_russian.c',
+  'src_c/stem_UTF_8_serbian.c',
+  'src_c/stem_UTF_8_spanish.c',
+  'src_c/stem_UTF_8_swedish.c',
+  'src_c/stem_UTF_8_tamil.c',
+  'src_c/stem_UTF_8_turkish.c',
+  'src_c/stem_UTF_8_yiddish.c',
+  'runtime/api.c',
+  'runtime/utilities.c',
+  'libstemmer/libstemmer_utf8.c',
+]
+
+libstemmer = static_library('libstemmer', sources)
+
+libstemmer_dep = declare_dependency(
+  link_with: libstemmer,
+  include_directories: [include_directories('./include')],
+)

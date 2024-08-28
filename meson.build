@@ -149,6 +149,9 @@ add_project_arguments(debug_cflags, language: 'c')
 ##################################################################
 
 libstemmer = cc.find_library('stemmer', required: get_option('stemmer'))
+if not libstemmer.found()
+  libstemmer = dependency('libstemmer', required: true)
+endif
 have_libstemmer = libstemmer.found()
 
 if meson.is_cross_build() and not meson.has_exe_wrapper()

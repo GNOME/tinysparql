@@ -1,0 +1,9 @@
+[wrap-file]
+directory = libstemmer_c-3.0.1
+source_url = https://snowballstem.org/dist/libstemmer_c-3.0.1.tar.gz
+source_filename = libstemmer_c-3.0.1.tar.gz
+source_hash = 419db89961cf2e30e6417265a4f3c903632d47d6917e7f8c6ae0e4d998743aad
+patch_directory = libstemmer
+
+[provide]
+libstemmer = libstemmer_dep
