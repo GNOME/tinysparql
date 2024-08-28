@@ -32,7 +32,7 @@ typedef enum {
   TRACKER_DEBUG_ONTOLOGY_CHANGES = 1 <<  2,
   TRACKER_DEBUG_SPARQL           = 1 <<  3,
   TRACKER_DEBUG_SQLITE           = 1 <<  4,
-  TRACKER_DEBUG_SQL_STATEMENTS   = 1 <<  5,
+  TRACKER_DEBUG_SQL              = 1 <<  5,
   TRACKER_DEBUG_FTS_INTEGRITY    = 1 <<  6,
 } TrackerDebugFlag;
 

@@ -22,7 +22,7 @@ TinySPARQL library:
   * `G_MESSAGES_DEBUG`: controls log output from all GLib-based libraries
     in the current process. Use `G_MESSAGES_DEBUG=Tracker` to see TinySPARQL
     related messages, or `G_MESSAGES_DEBUG=all` to see everything.
-  * `TRACKER_DEBUG`: takes a comma-separated list of keywords to enable
+  * `TINYSPARQL_DEBUG`: takes a comma-separated list of keywords to enable
     extra debugging output. Use the keyword 'help' for a list of keywords.
 
     The options include:
@@ -32,12 +32,12 @@ TinySPARQL library:
       - `sql-statements`
       - `fts-integrity`
 
-You can use `TRACKER_DEBUG=tests` to see logging from the test harness,
+You can use `TINYSPARQL_DEBUG=tests` to see logging from the test harness,
 including full log output from the internal D-Bus daemon for functional-tests.
 Note that by default, functional tests filter output from the D-Bus daemon to
 only show log messages from the test processes. Anything written directly to
 stdout, for example by `g_print()` or by the dbus-daemon itself, will not be
-displayed unless `TRACKER_DEBUG=tests` is set.
+displayed unless `TINYSPARQL_DEBUG=tests` is set.
 
 When working with GitLab CI, you can use the
 [Run Pipeline dialog](https://gitlab.gnome.org/GNOME/tinysparql/pipelines/new)

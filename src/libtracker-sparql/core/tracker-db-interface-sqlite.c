@@ -2066,7 +2066,7 @@ tracker_db_interface_prepare_stmt (TrackerDBInterface  *db_interface,
 			             "Interrupted");
 		} else {
 #ifdef G_ENABLE_DEBUG
-			if (TRACKER_DEBUG_CHECK (SQL_STATEMENTS)) {
+			if (TRACKER_DEBUG_CHECK (SQL)) {
 				g_message ("Failure to prepare statement for SQL '%s', error: %s",
 					   full_query,
 					   sqlite3_errmsg (db_interface->db));
@@ -2303,7 +2303,7 @@ execute_stmt (TrackerDBInterface  *interface,
 	tracker_db_interface_ref_use (interface);
 
 #ifdef G_ENABLE_DEBUG
-        if (TRACKER_DEBUG_CHECK (SQL_STATEMENTS)) {
+        if (TRACKER_DEBUG_CHECK (SQL)) {
 	        gchar *full_query;
 
 	        full_query = sqlite3_expanded_sql (stmt);
@@ -2653,7 +2653,7 @@ tracker_db_cursor_sqlite_new (TrackerDBStatement  *ref_stmt,
 	tracker_db_interface_ref_use (iface);
 
 #ifdef G_ENABLE_DEBUG
-        if (TRACKER_DEBUG_CHECK (SQL_STATEMENTS)) {
+        if (TRACKER_DEBUG_CHECK (SQL)) {
 	        gchar *full_query;
 
 	        full_query = sqlite3_expanded_sql (ref_stmt->stmt);
@@ -3230,7 +3230,7 @@ tracker_db_statement_get_values (TrackerDBStatement   *stmt,
 	tracker_db_statement_sqlite_grab (stmt);
 
 #ifdef G_ENABLE_DEBUG
-        if (TRACKER_DEBUG_CHECK (SQL_STATEMENTS)) {
+        if (TRACKER_DEBUG_CHECK (SQL)) {
 	        gchar *full_query;
 
 	        full_query = sqlite3_expanded_sql (stmt->stmt);

@@ -9,7 +9,7 @@ variables:
   MESON_TEST_TIMEOUT_MULTIPLIER: 3
   # These can be used to see verbose log output from the functional-tests.
   # See HACKING.md for more information.
-  TRACKER_DEBUG: ""
+  TINYSPARQL_DEBUG: ""
 
   # This can be used when debugging test failures that only occur within GitLab CI.
   MESON_TEST_EXTRA_ARGS: ""
@@ -391,7 +391,7 @@ build-alpine-latest@x86_64:
       echo "Test suite settings:"
       echo
       echo "G_MESSAGES_DEBUG: ${G_MESSAGES_DEBUG}"
-      echo "TRACKER_DEBUG: ${TRACKER_DEBUG}"
+      echo "TINYSPARQL_DEBUG: ${TINYSPARQL_DEBUG}"
       echo "MESON_TEST_EXTRA_ARGS: ${MESON_TEST_EXTRA_ARGS}"
       echo
       echo "These values can be set at https://gitlab.gnome.org/GNOME/tinysparql/pipelines/new"
