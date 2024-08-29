@@ -213,6 +213,7 @@ test_ontology_error (void)
 		gchar *errors_path = g_build_path (G_DIR_SEPARATOR_S, prefix, errors_filename, NULL);
 		gchar *from, *to;
 		gchar *expected_error_msgs = "", *printed_error_msgs;
+		gboolean copy_result;
 
 		source_ontology_file = g_file_new_for_path (source_ontology_path);
 
@@ -221,10 +222,10 @@ test_ontology_error (void)
 		g_debug ("copy %s to %s", from, to);
 		g_free (from);
 
-		// Copy the ontology to the temporary ontologies directory
-		g_file_copy (source_ontology_file, test_ontology_file, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
-
+		/* Copy the ontology to the temporary ontologies directory */
+		copy_result = g_file_copy (source_ontology_file, test_ontology_file, G_FILE_COPY_OVERWRITE, NULL, NULL, NULL, &error);
 		g_assert_no_error (error);
+		g_assert_true (copy_result);
 		g_assert_cmpint (g_chmod (test_ontology_path, 0666), ==, 0);
 
 		/* The error messages are prefixed with the ontology path which contain the error

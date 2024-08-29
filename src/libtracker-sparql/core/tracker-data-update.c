@@ -3738,8 +3738,8 @@ handle_update_rdf (TrackerData       *data,
 	G_GNUC_UNUSED TrackerDeserializeFlags flags;
 	TrackerRdfFormat format;
 	GInputStream *rdf_stream;
-	gchar *default_graph = NULL, *rdf = NULL;
-	gsize rdf_len = 0;
+	gchar *graph = NULL, *rdf = NULL;
+	gsize graph_len = 0, rdf_len = 0;
 	GError *inner_error = NULL;
 
 	flags = g_data_input_stream_read_uint32 (istream, cancellable, &inner_error);
@@ -3750,9 +3750,16 @@ handle_update_rdf (TrackerData       *data,
 	if (inner_error)
 		goto error;
 
-	default_graph = read_string (istream, NULL, cancellable, &inner_error);
+	graph = read_string (istream, &graph_len, cancellable, &inner_error);
 	if (inner_error)
 		goto error;
+
+	if (!g_utf8_validate (graph, graph_len, NULL)) {
+		inner_error = g_error_new (TRACKER_SPARQL_ERROR,
+					   TRACKER_SPARQL_ERROR_PARSE,
+					   "Graph is invalid");
+		goto error;
+	}
 
 	rdf = read_string (istream, &rdf_len, cancellable, &inner_error);
 	if (inner_error)
@@ -3767,14 +3774,14 @@ handle_update_rdf (TrackerData       *data,
 
 	tracker_data_load_from_deserializer (data,
 	                                     deserializer,
-	                                     default_graph,
+	                                     graph,
 	                                     "<stream>",
 	                                     bnodes,
 	                                     &inner_error);
 	g_object_unref (deserializer);
 
  error:
-	g_free (default_graph);
+	g_free (graph);
 	g_free (rdf);
 
 	if (inner_error) {

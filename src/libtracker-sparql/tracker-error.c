@@ -99,6 +99,7 @@ _translate_internal_error (GError *error)
 				new_error = g_error_new_literal (TRACKER_SPARQL_ERROR,
 				                                 map[i].mapped_error_code,
 				                                 error->message);
+				break;
 			}
 		}
 	}

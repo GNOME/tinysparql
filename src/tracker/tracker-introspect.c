@@ -850,7 +850,6 @@ introspect_run (void)
 			            _("Could not search classes"),
 			            error->message);
 			g_error_free (error);
-			g_object_unref (connection);
 			retval = EXIT_FAILURE;
 			goto out;
 		}
@@ -871,7 +870,6 @@ introspect_run (void)
 			            _("Could not search properties"),
 			            error->message);
 			g_error_free (error);
-			g_object_unref (connection);
 			retval = EXIT_FAILURE;
 			goto out;
 		}
@@ -906,7 +904,6 @@ introspect_run (void)
 			            _("Could not list properties"),
 			            error->message);
 			g_error_free (error);
-			g_object_unref (connection);
 			retval = EXIT_FAILURE;
 			goto out;
 		}
@@ -937,7 +934,6 @@ introspect_run (void)
 			            _("Could not list classes"),
 			            error->message);
 			g_error_free (error);
-			g_object_unref (connection);
 			retval = EXIT_FAILURE;
 			goto out;
 		}
@@ -958,7 +954,6 @@ introspect_run (void)
 			            _("Could not find notify classes"),
 			            error->message);
 			g_error_free (error);
-			g_object_unref (connection);
 			retval = EXIT_FAILURE;
 			goto out;
 		}
@@ -979,7 +974,6 @@ introspect_run (void)
 			            _("Could not find indexed properties"),
 			            error->message);
 			g_error_free (error);
-			g_object_unref (connection);
 			retval = EXIT_FAILURE;
 			goto out;
 		}
@@ -1000,7 +994,6 @@ introspect_run (void)
 			            _("Could not list named graphs"),
 			            error->message);
 			g_error_free (error);
-			g_object_unref (connection);
 			retval = EXIT_FAILURE;
 			goto out;
 		}
