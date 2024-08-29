@@ -8,16 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-02-12 11:01+0000\n"
-"PO-Revision-Date: 2024-03-02 03:22+0900\n"
-"Last-Translator: Seong-ho Cho <darkcircle.0426@gmail.com>\n"
+"POT-Creation-Date: 2024-07-30 23:14+0000\n"
+"PO-Revision-Date: 2024-08-24 23:58+0900\n"
+"Last-Translator: Seong-ho Cho <shcho@gnome.org>\n"
 "Language-Team: Gnome Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.4.4\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
@@ -34,13 +34,13 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "버전"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
-#: src/tracker/tracker-export.c:552 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1398 src/tracker/tracker-sql.c:239
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
+#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:245
 msgid "Unrecognized options"
 msgstr "인식할 수 없는 옵션"
 
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
 #: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
@@ -105,43 +105,48 @@ msgstr "단일 “ontology” 또는 “ontology-path” 옵션을 지정해야�
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "--http-port 옵션은 --dbus-service 옵션과 사용할 수 없습니다"
 
-#: src/tracker/tracker-endpoint.c:198
+#: src/tracker/tracker-endpoint.c:201
 #, c-format
-msgid "Creating HTTP endpoint at %s…"
-msgstr "%s에 HTTP 종단점 만드는 중…"
+msgid "Creating HTTP endpoint at %s…\n"
+msgstr "%s에 HTTP 종단점 만드는 중…\n"
 
-#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:202
+#, c-format
+msgid "Web IDE available at %s\n"
+msgstr "%s에 웹 IDE가 있습니다\n"
+
+#: src/tracker/tracker-endpoint.c:222 src/tracker/tracker-endpoint.c:285
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "SPARQL 명령으로 조회중입니다. 멈추려면 Ctrl-C를 누르십시오."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
+#: src/tracker/tracker-endpoint.c:230 src/tracker/tracker-endpoint.c:300
 msgid "Closing connection…"
 msgstr "연결 끊는중…"
 
-#: src/tracker/tracker-endpoint.c:241
+#: src/tracker/tracker-endpoint.c:245
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "%s에 종단점 만드는 중…"
 
-#: src/tracker/tracker-endpoint.c:277
+#: src/tracker/tracker-endpoint.c:281
 msgid "Could not own DBus name"
 msgstr "DBus 명칭을 부여할 수 없습니다"
 
-#: src/tracker/tracker-endpoint.c:291
+#: src/tracker/tracker-endpoint.c:295
 msgid "DBus name lost"
 msgstr "DBus 명칭을 분실했습니다"
 
-#: src/tracker/tracker-endpoint.c:651
+#: src/tracker/tracker-endpoint.c:655
 #, c-format
 msgid "Opening database at %s…"
 msgstr "%s 데이터베이스 여는 중…"
 
-#: src/tracker/tracker-endpoint.c:654
+#: src/tracker/tracker-endpoint.c:658
 msgid "Creating in-memory database"
 msgstr "메모리 내징 데이터베이스 만드는 중"
 
-#: src/tracker/tracker-endpoint.c:681
+#: src/tracker/tracker-endpoint.c:685
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -149,109 +154,76 @@ msgstr ""
 "새 데이터베이스를 만들었습니다. 메시지 버스에서 이 데이터베이스를 공유하려면 "
 "“--dbus-service” 옵션을 사용하십시오."
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-endpoint.desktop.in:6
-msgid "endpoint"
-msgstr "endpoint"
-
-#: src/tracker/tracker-endpoint.desktop.in:7
-msgid "Create a SPARQL endpoint"
-msgstr "SPARQL 종단점을 만듭니다"
-
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
 #: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "<파일>"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:117
 msgid "Connects to a DBus service"
 msgstr "DBus 서비스로 연결합니다"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
 #: src/tracker/tracker-sparql.c:118
 msgid "DBus service name"
 msgstr "DBus 서비스 명칭"
 
-#: src/tracker/tracker-export.c:57
+#: src/tracker/tracker-export.c:55
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "출력 결과 형식: “turtle”, “trig”, “json-ld”"
 
-#: src/tracker/tracker-export.c:58
+#: src/tracker/tracker-export.c:56
 msgid "RDF_FORMAT"
 msgstr "<RDF_형식>"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:121
 msgid "Connects to a remote service"
 msgstr "원격 서비스로 연결합니다"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:122
 msgid "Remote service URI"
 msgstr "원격 서비스 URI"
 
-#: src/tracker/tracker-export.c:65
+#: src/tracker/tracker-export.c:63
 msgid "Output TriG format which includes named graph information"
 msgstr "이름을 부여한 그래프 정보가 들어간 TriG 형식으로 출력"
 
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
 msgid "IRI"
 msgstr "<IRI>"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
 #: src/tracker/tracker-sparql.c:206
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "“--database”, “--dbus-service”, “--remote-service” 옵션 중 하나를 지정하십시"
 "오"
 
-#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1079
+#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
 msgid "No error given"
 msgstr "발생한 오류가 없습니다"
 
-#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1078
+#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-sparql.c:1072
 msgid "Could not establish a connection to Tracker"
 msgstr "트래커로 연결을 수립할 수 없습니다"
 
-#: src/tracker/tracker-export.c:382
+#: src/tracker/tracker-export.c:180
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "지원하지 않는 “%s” 직렬화 형식\n"
-
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:447
-#: src/tracker/tracker-export.c:457 src/tracker/tracker-sparql.c:1340
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "질의문을 실행할 수 없습니다"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-export.desktop.in:6
-msgid "export"
-msgstr "export"
-
-#: src/tracker/tracker-export.desktop.in:7
-msgid "Export data from a Tracker database"
-msgstr "트래커 데이터베이스에서 데이터를 내보냅니다"
 
 #: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "“%s” 실행 실패: %s"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-help.desktop.in:6
-msgid "help"
-msgstr "help"
-
-#: src/tracker/tracker-help.desktop.in:7
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr "트래커 사용 방법과 명령 사용법에 대한 도움말을 봅니다"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -261,28 +233,44 @@ msgstr "이름을 부여한 그래프 정보가 들어간 TriG 형식으로 읽�
 msgid "Could not run import"
 msgstr "가져오기를 실행할 수 없습니다"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-import.desktop.in:6
-msgid "import"
-msgstr "import"
+#: src/tracker/tracker-main.c:70
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "TinySPARQL 사용법과 명령 사용법 도움말을 봅니다"
 
-#: src/tracker/tracker-import.desktop.in:7
-msgid "Import data into a Tracker database"
-msgstr "트래커 데이터베이스로 데이터를 가져옵니다"
+#: src/tracker/tracker-main.c:71
+msgid "Create a SPARQL endpoint"
+msgstr "SPARQL 종단점을 만듭니다"
 
-#: src/tracker/tracker-main.c:123
-msgid "Available tracker3 commands are:"
-msgstr "사용할 수 있는 트래커 3 명령:"
+#: src/tracker/tracker-main.c:72
+msgid "Export data from a TinySPARQL database"
+msgstr "TinySPARQL 데이터베이스에서 데이터를 내보냅니다"
 
-#: src/tracker/tracker-main.c:155
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
+#: src/tracker/tracker-main.c:73
+msgid "Import data into a TinySPARQL database"
+msgstr "TinySPARQL 데이터베이스로 데이터를 가져옵니다"
+
+#: src/tracker/tracker-main.c:74
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
-"지정 하위 명령 정보를 읽어보려면 “tracker4 help <명령>” 결과를 살펴보십시오."
+"SPARQL로 색인을 질의하고 업데이트하거나, 온톨로지를 검색하고, 조회하고, 트리 "
+"형식으로 봅니다"
 
-#: src/tracker/tracker-main.c:213
+#: src/tracker/tracker-main.c:91
+msgid "Available tinysparql commands are:"
+msgstr "사용할 수 있는 TinySPARQL 명령:"
+
+#: src/tracker/tracker-main.c:110
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+"지정 하위 명령 정보를 읽어보려면 “tinysparql help <명령>” 결과를 살펴보십시"
+"오."
+
+#: src/tracker/tracker-main.c:153
 #, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "“%s”은(는) 트래커 3 명령이 아닙니다. “tracker3 --help”를 참고하십시오"
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr ""
+"“%s”은(는) tinysparql 명령이 아닙니다. “tinysparql --help”를 참고하십시오"
 
 #: src/tracker/tracker-sparql.c:125
 msgid "Path to use to run a query or update from file"
@@ -388,143 +376,136 @@ msgstr "없음"
 msgid "Could not create tree: subclass query failed"
 msgstr "트리를 만들 수 없습니다: 하위클래스 질의에 실패했습니다"
 
-#: src/tracker/tracker-sparql.c:948
+#: src/tracker/tracker-sparql.c:949
 msgid "Could not create tree: class properties query failed"
 msgstr "트리를 만들 수 없습니다: 클래스 속성 질의에 실패했습니다"
 
-#: src/tracker/tracker-sparql.c:1015
+#: src/tracker/tracker-sparql.c:1009
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "잘못된 %s 인자 값 문자열"
 
-#: src/tracker/tracker-sparql.c:1025
+#: src/tracker/tracker-sparql.c:1019
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "%s 인자 값에 대한 잘못된 매개변수 형식"
 
-#: src/tracker/tracker-sparql.c:1095
+#: src/tracker/tracker-sparql.c:1089
 msgid "Could not list classes"
 msgstr "클래스를 조회할 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1103
+#: src/tracker/tracker-sparql.c:1097
 msgid "No classes were found"
 msgstr "클래스를 찾지 못했습니다"
 
-#: src/tracker/tracker-sparql.c:1103 src/tracker/tracker-sparql.c:1225
+#: src/tracker/tracker-sparql.c:1097 src/tracker/tracker-sparql.c:1219
 msgid "Classes"
 msgstr "클래스"
 
-#: src/tracker/tracker-sparql.c:1126
+#: src/tracker/tracker-sparql.c:1120
 msgid "Could not list properties"
 msgstr "속성을 조회할 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1134
+#: src/tracker/tracker-sparql.c:1128
 msgid "No properties were found"
 msgstr "속성을 찾지 못했습니다"
 
-#: src/tracker/tracker-sparql.c:1134 src/tracker/tracker-sparql.c:1243
+#: src/tracker/tracker-sparql.c:1128 src/tracker/tracker-sparql.c:1237
 msgid "Properties"
 msgstr "속성"
 
-#: src/tracker/tracker-sparql.c:1150
+#: src/tracker/tracker-sparql.c:1144
 msgid "Could not find notify classes"
 msgstr "알림 클래스를 찾을 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1158
+#: src/tracker/tracker-sparql.c:1152
 msgid "No notifies were found"
 msgstr "알림을 찾지 못했습니다"
 
-#: src/tracker/tracker-sparql.c:1158
+#: src/tracker/tracker-sparql.c:1152
 msgid "Notifies"
 msgstr "알림"
 
-#: src/tracker/tracker-sparql.c:1174
+#: src/tracker/tracker-sparql.c:1168
 msgid "Could not find indexed properties"
 msgstr "색인 기록한 속성을 찾을 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1182
+#: src/tracker/tracker-sparql.c:1176
 msgid "No indexes were found"
 msgstr "색인을 찾지 못했습니다"
 
-#: src/tracker/tracker-sparql.c:1182
+#: src/tracker/tracker-sparql.c:1176
 msgid "Indexes"
 msgstr "색인"
 
-#: src/tracker/tracker-sparql.c:1192
+#: src/tracker/tracker-sparql.c:1186
 msgid "Could not list named graphs"
 msgstr "이름 있는 그래프를 조회할 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1200
+#: src/tracker/tracker-sparql.c:1194
 msgid "No graphs were found"
 msgstr "찾은 그래프가 없습니다"
 
-#: src/tracker/tracker-sparql.c:1200
+#: src/tracker/tracker-sparql.c:1194
 msgid "Named graphs"
 msgstr "이름 있는 그래프"
 
-#: src/tracker/tracker-sparql.c:1217
+#: src/tracker/tracker-sparql.c:1211
 msgid "Could not search classes"
 msgstr "클래스를 검색할 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1225
+#: src/tracker/tracker-sparql.c:1219
 msgid "No classes were found to match search term"
 msgstr "검색 단어에 일치하는 클래스를 찾을 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-sparql.c:1229
 msgid "Could not search properties"
 msgstr "속성을 검색할 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1243
+#: src/tracker/tracker-sparql.c:1237
 msgid "No properties were found to match search term"
 msgstr "검색 단어에 일치하는 속성을 찾을 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1272 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-sparql.c:1266 src/tracker/tracker-sql.c:70
 msgid "Could not get UTF-8 path from path"
 msgstr "경로로부터 UTF-8 경로를 가져올 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1284 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-sparql.c:1278 src/tracker/tracker-sql.c:81
 msgid "Could not read file"
 msgstr "파일을 읽을 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1315
+#: src/tracker/tracker-sparql.c:1309
 msgid "Could not run update"
 msgstr "업데이트를 실행할 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1322
+#: src/tracker/tracker-sparql.c:1316
 msgid "Done"
 msgstr "완료"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
+#: src/tracker/tracker-sparql.c:1334 src/tracker/tracker-sql.c:137
+#: src/tracker/tracker-sql.c:170
+msgid "Could not run query"
+msgstr "질의문을 실행할 수 없습니다"
+
+#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
 msgid "No results found matching your query"
 msgstr "질의에 일치하는 결과를 찾지 못했습니다"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
+#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
 #: src/tracker/tracker-sql.c:144
 msgid "Results"
 msgstr "결과"
 
-#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:250
+#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:256
 msgid "File and query can not be used together"
 msgstr "파일과 질의문을 함께 사용할 수 없습니다"
 
-#: src/tracker/tracker-sparql.c:1409
+#: src/tracker/tracker-sparql.c:1403
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
 msgstr ""
 "--list-properties 인자는 --tree 인자를 함께 사용할 때만 비울 수 있습니다"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sparql.desktop.in:6
-msgid "sparql"
-msgstr "sparql"
-
-#: src/tracker/tracker-sparql.desktop.in:7
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"SPARQL로 색인을 질의하고 업데이트하거나, 온톨로지를 검색하고, 조회하고, 트리 "
-"형식으로 봅니다"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -546,18 +527,30 @@ msgstr "데이터 관리자를 초기화 하는데 실패했습니다"
 msgid "Empty result set"
 msgstr "빈 결과 세트"
 
-#: src/tracker/tracker-sql.c:248
+#: src/tracker/tracker-sql.c:254
 msgid "A database path must be specified"
 msgstr "데이터베이스 경로를 지정해야합니다"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sql.desktop.in:6
-msgid "sql"
-msgstr "sql"
+#~ msgid "endpoint"
+#~ msgstr "endpoint"
 
-#: src/tracker/tracker-sql.desktop.in:7
-msgid "Query the database at the lowest level using SQL"
-msgstr "SQL을 사용하여 최저 수준으로 데이터베이스에 질의합니다"
+#~ msgid "export"
+#~ msgstr "export"
+
+#~ msgid "help"
+#~ msgstr "help"
+
+#~ msgid "import"
+#~ msgstr "import"
+
+#~ msgid "sparql"
+#~ msgstr "sparql"
+
+#~ msgid "sql"
+#~ msgstr "sql"
+
+#~ msgid "Query the database at the lowest level using SQL"
+#~ msgstr "SQL을 사용하여 최저 수준으로 데이터베이스에 질의합니다"
 
 #~ msgid "Additional / third party commands are:"
 #~ msgstr "추가/제 3자 제공 명령은:"
