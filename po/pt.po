@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 3.12\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-05-03 13:04+0000\n"
-"PO-Revision-Date: 2024-05-04 23:25+0100\n"
+"POT-Creation-Date: 2024-07-30 23:14+0000\n"
+"PO-Revision-Date: 2024-08-30 09:44+0100\n"
 "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
 "Language-Team: Portuguese <>\n"
 "Language: pt\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.4.4\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -33,19 +33,19 @@ msgstr ""
 #.
 #: src/libtracker-sparql/core/tracker-collation.c:116
 msgid "the|a|an"
-msgstr "the|a|an"
+msgstr "the|a|an|o|um|uma"
 
 #: src/portal/tracker-main.c:53
 msgid "Version"
 msgstr "Versão"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
-#: src/tracker/tracker-export.c:549 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:239
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
+#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:245
 msgid "Unrecognized options"
 msgstr "Opções não reconhecidas"
 
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
 #: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
 #: src/tracker/tracker-sql.c:44
 msgid "Location of the database"
@@ -110,43 +110,48 @@ msgstr "Uma opção de “ontologia” ou “caminho ontológico” devia ser fo
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "--http-port não pode ser utilizado com --dbus-service"
 
-#: src/tracker/tracker-endpoint.c:198
+#: src/tracker/tracker-endpoint.c:201
 #, c-format
-msgid "Creating HTTP endpoint at %s…"
-msgstr "A criar ponta de rede em %s…"
+msgid "Creating HTTP endpoint at %s…\n"
+msgstr "Criação de endpoint HTTP em %s…\n"
 
-#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:202
+#, c-format
+msgid "Web IDE available at %s\n"
+msgstr "IDE Web disponível em %s\n"
+
+#: src/tracker/tracker-endpoint.c:222 src/tracker/tracker-endpoint.c:285
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "A receber comandos SPARQL. Premir Ctrl-C para terminar."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
+#: src/tracker/tracker-endpoint.c:230 src/tracker/tracker-endpoint.c:300
 msgid "Closing connection…"
 msgstr "A fechar ligação…"
 
-#: src/tracker/tracker-endpoint.c:241
+#: src/tracker/tracker-endpoint.c:245
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "A criar ponta de rede em %s…"
 
-#: src/tracker/tracker-endpoint.c:277
+#: src/tracker/tracker-endpoint.c:281
 msgid "Could not own DBus name"
 msgstr "Impossível apropriar nome DBus"
 
-#: src/tracker/tracker-endpoint.c:291
+#: src/tracker/tracker-endpoint.c:295
 msgid "DBus name lost"
 msgstr "Nome DBus perdido"
 
-#: src/tracker/tracker-endpoint.c:651
+#: src/tracker/tracker-endpoint.c:655
 #, c-format
 msgid "Opening database at %s…"
 msgstr "A abrir base de dados em %s…"
 
-#: src/tracker/tracker-endpoint.c:654
+#: src/tracker/tracker-endpoint.c:658
 msgid "Creating in-memory database"
 msgstr "A criar memória de transição da base de dados"
 
-#: src/tracker/tracker-endpoint.c:681
+#: src/tracker/tracker-endpoint.c:685
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -154,110 +159,76 @@ msgstr ""
 "Nova base de dados criada. Use a opção “--dbus-service para partilhar esta "
 "base de dados num bus de mensagens."
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-endpoint.desktop.in:6
-msgid "endpoint"
-msgstr "endpoint"
-
-#: src/tracker/tracker-endpoint.desktop.in:7
-msgid "Create a SPARQL endpoint"
-msgstr "Criar uma ponta de rede SPARQL"
-
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
 #: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
 #: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FICHEIRO"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
 #: src/tracker/tracker-sparql.c:117
 msgid "Connects to a DBus service"
 msgstr "Ligar ao serviço DBus"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
 #: src/tracker/tracker-sparql.c:118
 msgid "DBus service name"
 msgstr "Nome do serviço DBus"
 
-#: src/tracker/tracker-export.c:57
+#: src/tracker/tracker-export.c:55
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Formato dos resultados de saída: “turtle”, “trig” or “json-ld”"
 
-#: src/tracker/tracker-export.c:58
+#: src/tracker/tracker-export.c:56
 msgid "RDF_FORMAT"
 msgstr "RDF_FORMAT"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
 #: src/tracker/tracker-sparql.c:121
 msgid "Connects to a remote service"
 msgstr "Ligar ao serviço remoto"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
 #: src/tracker/tracker-sparql.c:122
 msgid "Remote service URI"
 msgstr "Serviço remoto URI"
 
-#: src/tracker/tracker-export.c:65
+#: src/tracker/tracker-export.c:63
 msgid "Output TriG format which includes named graph information"
 msgstr "Formato TriG de saída que inclui informação em gráfico nomeado"
 
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
 #: src/tracker/tracker-sparql.c:206
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Especifique uma das opções “--database”, “--dbus-service” ou “--remote-"
 "service”"
 
-#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
+#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
 #: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
 msgid "No error given"
 msgstr "Nenhum erro indicado"
 
-#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
 #: src/tracker/tracker-sparql.c:1072
 msgid "Could not establish a connection to Tracker"
 msgstr "Não foi possível estabelecer uma ligação ao Tracker"
 
-#: src/tracker/tracker-export.c:382
+#: src/tracker/tracker-export.c:180
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Formato de serialização não suportado \"%s\"\n"
-
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:446
-#: src/tracker/tracker-export.c:455 src/tracker/tracker-sparql.c:1334
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "Não foi possível executar a análise"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-export.desktop.in:6
-msgid "export"
-msgstr "export"
-
-#: src/tracker/tracker-export.desktop.in:7
-msgid "Export data from a Tracker database"
-msgstr "Exportar dados da base de dados do Tracker"
 
 #: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
 #, c-format
 msgid "failed to exec “%s”: %s"
 msgstr "falha ao executar “%s”: %s"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-help.desktop.in:6
-msgid "help"
-msgstr "help"
-
-#: src/tracker/tracker-help.desktop.in:7
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr ""
-"Obtenha ajuda sobre a utilização do Tracker e qualquer um destes comandos"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -267,29 +238,44 @@ msgstr "Ler formato TriG que inclui informação em gráfico nomeado"
 msgid "Could not run import"
 msgstr "Impossível executar a importação"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-import.desktop.in:6
-msgid "import"
-msgstr "import"
-
-#: src/tracker/tracker-import.desktop.in:7
-msgid "Import data into a Tracker database"
-msgstr "Importar dados na base de dados do Tracker"
-
-#: src/tracker/tracker-main.c:123
-msgid "Available tracker3 commands are:"
-msgstr "Os comandos do tracker3 disponíveis são:"
-
-#: src/tracker/tracker-main.c:155
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
+#: src/tracker/tracker-main.c:70
+msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr ""
-"Veja “tracker3 help <command>” para informação acerca de subcomandos "
-"específicos."
+"Obtenha ajuda sobre a utilização de TinySPARQL e qualquer um destes comandos"
 
-#: src/tracker/tracker-main.c:208
+#: src/tracker/tracker-main.c:71
+msgid "Create a SPARQL endpoint"
+msgstr "Criar uma ponta de rede SPARQL"
+
+#: src/tracker/tracker-main.c:72
+msgid "Export data from a TinySPARQL database"
+msgstr "Exportar dados de uma base de dados TinySPARQL"
+
+#: src/tracker/tracker-main.c:73
+msgid "Import data into a TinySPARQL database"
+msgstr "Importar dados para uma base de dados TinySPARQL"
+
+#: src/tracker/tracker-main.c:74
+msgid ""
+"Query and update the index using SPARQL or search, list and tree the ontology"
+msgstr ""
+"Consulte e atualize o índice usando SPARQL ou procura, lista e árvore da "
+"ontologia"
+
+#: src/tracker/tracker-main.c:91
+msgid "Available tinysparql commands are:"
+msgstr "Os comandos tinysparql disponíveis são:"
+
+#: src/tracker/tracker-main.c:110
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+"Consultar “tinysparql help <command>” para obter informação sobre um "
+"subcomando específico."
+
+#: src/tracker/tracker-main.c:153
 #, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "“%s” não é um comando do tracker3. Veja “tracker3 --help”"
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "“%s” não é um comando tinysparql. Consultar “tracker3 --help”"
 
 #: src/tracker/tracker-sparql.c:125
 msgid "Path to use to run a query or update from file"
@@ -507,6 +493,11 @@ msgstr "Impossível realizar actualização"
 msgid "Done"
 msgstr "Terminado"
 
+#: src/tracker/tracker-sparql.c:1334 src/tracker/tracker-sql.c:137
+#: src/tracker/tracker-sql.c:170
+msgid "Could not run query"
+msgstr "Não foi possível executar a análise"
+
 #: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
 msgid "No results found matching your query"
 msgstr "Não foram encontrados resultados para a sua consulta"
@@ -516,7 +507,7 @@ msgstr "Não foram encontrados resultados para a sua consulta"
 msgid "Results"
 msgstr "Resultados"
 
-#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:250
+#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:256
 msgid "File and query can not be used together"
 msgstr "Ficheiro e consulta não podem ser usados ao mesmo tempo"
 
@@ -527,18 +518,6 @@ msgid ""
 msgstr ""
 "O argumento --list-properties só pode estar vazio quando usado em conjunto "
 "com --tree"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sparql.desktop.in:6
-msgid "sparql"
-msgstr "sparql"
-
-#: src/tracker/tracker-sparql.desktop.in:7
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"Consulte e atualize o índice usando SPARQL ou procura, lista e árvore da "
-"ontologia"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -560,18 +539,30 @@ msgstr "Falha ao iniciar o gestor de dados"
 msgid "Empty result set"
 msgstr "Conjunto de resultados vazio"
 
-#: src/tracker/tracker-sql.c:248
+#: src/tracker/tracker-sql.c:254
 msgid "A database path must be specified"
 msgstr "Tem de ser fornecido um caminho para a base de dados"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sql.desktop.in:6
-msgid "sql"
-msgstr "sql"
+#~ msgid "endpoint"
+#~ msgstr "endpoint"
 
-#: src/tracker/tracker-sql.desktop.in:7
-msgid "Query the database at the lowest level using SQL"
-msgstr "Consulte a base de dados ao mais baixo nível usando SQL"
+#~ msgid "export"
+#~ msgstr "export"
+
+#~ msgid "help"
+#~ msgstr "help"
+
+#~ msgid "import"
+#~ msgstr "import"
+
+#~ msgid "sparql"
+#~ msgstr "sparql"
+
+#~ msgid "sql"
+#~ msgstr "sql"
+
+#~ msgid "Query the database at the lowest level using SQL"
+#~ msgstr "Consulte a base de dados ao mais baixo nível usando SQL"
 
 #~ msgid "Additional / third party commands are:"
 #~ msgstr "Os comandos adicionais/terceiros são:"
