@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
 "POT-Creation-Date: 2024-07-30 23:14+0000\n"
-"PO-Revision-Date: 2024-08-31 00:16+0300\n"
+"PO-Revision-Date: 2024-08-31 00:21+0300\n"
 "Last-Translator: Yuras Shumovich <shumovichy@gmail.com>\n"
 "Language-Team: Belarusian <i18n-bel-gnome@googlegroups.com>\n"
 "Language: be\n"
@@ -363,7 +363,7 @@ msgstr "Вяртае поўную прастору назваў для клас�
 
 #: src/tracker/tracker-sparql.c:177
 msgid "Provides an argument for a query parameter."
-msgstr "Падае аргумент для параметра запыту"
+msgstr "Падае аргумент для параметра запыту."
 
 #: src/tracker/tracker-sparql.c:178
 msgid "PARAMETER:TYPE:VALUE"
@@ -388,7 +388,7 @@ msgstr "Не ўдалося стварыць дрэва: памылка запы
 #: src/tracker/tracker-sparql.c:1009
 #, c-format
 msgid "Invalid argument string %s"
-msgstr "Памылковы радок аргумента %s"
+msgstr "Памылковы радок аргументаў %s"
 
 #: src/tracker/tracker-sparql.c:1019
 #, c-format
