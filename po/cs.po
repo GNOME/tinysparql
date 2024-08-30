@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
 "POT-Creation-Date: 2024-07-30 23:14+0000\n"
-"PO-Revision-Date: 2024-08-30 11:56+0200\n"
+"PO-Revision-Date: 2024-08-30 12:14+0200\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -265,7 +265,7 @@ msgstr "Dostupné příkazy aplikace tinysparql jsou:"
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
 "Informace ke konkrétnímu příkazu si můžete přečíst pomocí „tinysparql help "
-"<command>“."
+"<příkaz>“."
 
 #: src/tracker/tracker-main.c:153
 #, c-format
