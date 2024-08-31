@@ -8,9 +8,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Tracker\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-13 03:54+0100\n"
-"PO-Revision-Date: 2008-09-28 10:08+0700\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
+"POT-Creation-Date: 2024-05-03 13:03+0000\n"
+"PO-Revision-Date: 2024-06-17 19:25+0700\n"
 "Last-Translator: Manatsawin Hanmongkolchai <manatsawin@gmail.com>\n"
 "Language-Team: Thai <thai-l10n@googlegroups.com>\n"
 "Language: th\n"
@@ -18,1450 +18,1559 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.4.4\n"
 
-#: ../python/deskbar-handler/tracker-handler.py:36
-#: ../python/deskbar-handler/tracker-module.py:100
-#, python-format
-msgid "Launch %s (%s)"
-msgstr "เรียก %s (%s)"
-
-#: ../python/deskbar-handler/tracker-handler.py:41
-#: ../python/deskbar-handler/tracker-module.py:105
-#, python-format
-msgid ""
-"See %s conversation\n"
-"%s %s\n"
-"from %s"
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtracker-sparql/core/tracker-collation.c:116
+msgid "the|a|an"
 msgstr ""
-"ดูการสนทนา %s\n"
-"%s %s\n"
-"จาก %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:47
-#: ../python/deskbar-handler/tracker-module.py:110
-#, python-format
-msgid "Email from %s"
-msgstr "อีเมลจาก %s"
+#: src/portal/tracker-main.c:53
+msgid "Version"
+msgstr "รุ่น"
 
-#: ../python/deskbar-handler/tracker-handler.py:60
-#: ../python/deskbar-handler/tracker-module.py:122
-#, python-format
-msgid ""
-"Listen to music %s\n"
-"in %s"
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
+#: src/tracker/tracker-export.c:549 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:239
+msgid "Unrecognized options"
+msgstr "ไม่รู้จักตัวเลือก"
+
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113 src/tracker/tracker-sql.c:44
+msgid "Location of the database"
+msgstr "ตำแหน่งที่ตั้งของฐานข้อมูล"
+
+#: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
+msgid "DIR"
 msgstr ""
-"ฟังเพลง %s\n"
-"ใน %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:65
-#: ../python/deskbar-handler/tracker-module.py:128
-#, python-format
-msgid ""
-"See document %s\n"
-"in %s"
+#: src/tracker/tracker-endpoint.c:62
+msgid "Specify the DBus name of this endpoint"
 msgstr ""
-"ดูเอกสาร %s\n"
-"ใน %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:70
-#: ../python/deskbar-handler/tracker-handler.py:87
-#: ../python/deskbar-handler/tracker-handler.py:124
-#: ../python/deskbar-handler/tracker-module.py:133
-#: ../python/deskbar-handler/tracker-module.py:155
-#: ../python/deskbar-handler/tracker-module.py:207
-#: ../python/deskbar-handler/tracker-module.py:243
-#, python-format
-msgid ""
-"Open file %s\n"
-"in %s"
+#: src/tracker/tracker-endpoint.c:63 src/tracker/tracker-endpoint.c:67
+msgid "NAME"
 msgstr ""
-"เปิดแฟ้ม %s\n"
-"ใน %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:75
-#: ../python/deskbar-handler/tracker-module.py:138
-#, python-format
-msgid ""
-"View image %s\n"
-"in %s"
+#: src/tracker/tracker-endpoint.c:66
+msgid "Specify the ontology name used in this endpoint"
 msgstr ""
-"ดูรูปภาพ %s\n"
-"ใน %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:81
-#: ../python/deskbar-handler/tracker-module.py:144
-#, python-format
-msgid ""
-"Watch video  %s\n"
-"in %s"
+#: src/tracker/tracker-endpoint.c:70
+msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr ""
-"ดูวีดิทัศน์  %s\n"
-"ใน %s"
 
-#: ../python/deskbar-handler/tracker-handler.py:92
-#: ../python/deskbar-handler/tracker-module.py:150
-#, python-format
-msgid ""
-"Open folder %s\n"
-"%s"
+#: src/tracker/tracker-endpoint.c:74
+msgid "HTTP port"
 msgstr ""
-"เปิดโฟลเดอร์ %s\n"
-"%s"
 
-#: ../python/deskbar-handler/tracker-handler.py:210
-#: ../python/deskbar-handler/tracker-module.py:351
-msgid "with"
-msgstr "ด้วย"
-
-#: ../python/deskbar-handler/tracker-handler.py:218
-#: ../python/deskbar-handler/tracker-module.py:359
-msgid "in channel"
-msgstr "ในห้อง"
-
-#: ../python/deskbar-handler/tracker-handler.py:385
-msgid "Search all of your documents, <b>as you type</b>"
-msgstr "ค้นหาเอกสารทั้งหมดของคุณ<b>ไปพร้อมกับการพิมพ์</b>"
-
-#: ../python/deskbar-handler/tracker-handler.py:389
-#: ../python/deskbar-handler/tracker-module.py:295
-msgid "Development Files"
-msgstr "แฟ้มพัฒนาโปรแกรม"
-
-#: ../python/deskbar-handler/tracker-handler.py:392
-#: ../python/deskbar-handler/tracker-module.py:298
-#: ../src/tracker-search-tool/tracker-search-tool.c:141
-msgid "Music"
-msgstr "เพลง"
-
-#: ../python/deskbar-handler/tracker-handler.py:395
-#: ../python/deskbar-handler/tracker-module.py:301
-#: ../src/tracker-search-tool/tracker-search-tool.c:140
-msgid "Images"
-msgstr "ภาพ"
-
-#: ../python/deskbar-handler/tracker-handler.py:398
-#: ../python/deskbar-handler/tracker-module.py:304
-#: ../src/tracker-search-tool/tracker-search-tool.c:142
-msgid "Videos"
-msgstr "วิดีโอ"
-
-#: ../python/deskbar-handler/tracker-handler-static.py:37
-#: ../python/deskbar-handler/tracker-module.py:65
-#: ../python/deskbar-handler/tracker-module.py:160
-#, python-format
-msgid "Search for %s with Tracker Search Tool"
-msgstr "ค้นหา %s โดยใช้เครื่องมือสืบค้น Tracker"
-
-#: ../python/deskbar-handler/tracker-handler-static.py:68
-msgid "Search all of your documents with Tracker Search Tool"
-msgstr "ค้นหาเอกสารทั้งหมดของคุณโดยใช้เครื่องมือสืบค้น Tracker"
-
-#: ../python/deskbar-handler/tracker-module.py:79
-msgid "Tracker Search"
-msgstr "การค้น Tracker"
-
-#: ../python/deskbar-handler/tracker-module.py:80
-msgid "Search with Tracker Search Tool"
-msgstr "ค้นหาโดยใช้เครื่องมือสืบค้น Tracker "
-
-#: ../python/deskbar-handler/tracker-module.py:290
-msgid "Tracker Live Search"
-msgstr "การค้น Tracker Live"
-
-#: ../python/deskbar-handler/tracker-module.py:291
-msgid "Search with Tracker, as you type"
-msgstr "ค้นหาโดยใช้ Tracker ไปพร้อมกับการป้อนคำค้น"
-
-#. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:472
-#, c-format
-msgid "Path : <b>%s</b>"
-msgstr "พาธ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:473
-#, c-format
-msgid "Modified : <b>%s</b>"
-msgstr "แก้ไขล่าสุด : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:474
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:660
-#, c-format
-msgid "Size : <b>%s</b>"
-msgstr "ขนาด : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:475
-#, c-format
-msgid "Accessed : <b>%s</b>"
-msgstr "ใช้งานล่าสุด : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:476
-#, c-format
-msgid "Mime : <b>%s</b>"
-msgstr "ชนิด : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:528
-#, c-format
-msgid "Sender : <b>%s</b>"
-msgstr "ผู้ส่ง : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:529
-#, c-format
-msgid "Date : <b>%s</b>"
-msgstr "วันที่ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:569
-#, c-format
-msgid "Comment : <b>%s</b>"
-msgstr "หมายเหตุ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:570
-#, c-format
-msgid "Categories : <b>%s</b>"
-msgstr "หมวดหมู่ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:656
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:761
-#, c-format
-msgid "Duration : <b>%s</b>"
-msgstr "ความยาว : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:657
-#, c-format
-msgid "Genre : <b>%s</b>"
-msgstr "แนวเพลง : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:658
-#, c-format
-msgid "Bitrate : <b>%s Kbs</b>"
-msgstr "บิตเรท : <b>%s Kbs</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:659
-#, c-format
-msgid "Year : <b>%s</b>"
-msgstr "ปี : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:661
-#, c-format
-msgid "Codec : <b>%s</b>"
-msgstr "Codec : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:702
-#, c-format
-msgid " taken with a <span size='large'><i>%s</i></span>"
-msgstr " ถ่ายด้วย <span size='large'><i>%s</i></span>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:707
-#, c-format
-msgid " <span size='large'><i>%s</i></span>"
-msgstr "<span size='large'><i>%s</i></span>"
-
-#. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:727
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:759
-#, c-format
-msgid "Dimensions : <b>%d x %d</b>"
-msgstr "ขนาดภาพ : <b>%d x %d</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:728
-#, c-format
-msgid "Date Taken : <b>%s</b>"
-msgstr "ถ่ายเมื่อ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:729
-#, c-format
-msgid "Orientation : <b>%s</b>"
-msgstr "แนววางภาพ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:730
-#, c-format
-msgid "Flash : <b>%s</b>"
-msgstr "แฟลช : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:731
-#, c-format
-msgid "Focal Length : <b>%s</b>"
-msgstr "ระยะโฟกัส : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:732
-#, c-format
-msgid "Exposure Time : <b>%s</b>"
-msgstr "ความเร็วชัตเตอร์ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:760
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:793
-#, c-format
-msgid "Author : <b>%s</b>"
-msgstr "ผู้สร้าง : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:762
-#, c-format
-msgid "Bitrate : <b>%s</b>"
-msgstr "บิตเรท : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:763
-#, c-format
-msgid "Encoded In : <b>%s</b>"
-msgstr "เข้ารหัสแบบ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:764
-#, c-format
-msgid "Framerate : <b>%s</b>"
-msgstr "เฟรมเรท : <b>%s</b>"
-
-#. then set the remaining properties
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:792
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:824
-#, c-format
-msgid "Subject : <b>%s</b>"
-msgstr "เรื่อง : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:794
-#, c-format
-msgid "Page Count : <b>%s</b>"
-msgstr "จำนวนหน้า : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:795
-#, c-format
-msgid "Word Count : <b>%s</b>"
-msgstr "จำนวนคำ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:796
-#, c-format
-msgid "Created : <b>%s</b>"
-msgstr "สร้างเมื่อ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:797
-#, c-format
-msgid "Comments : <b>%s</b>"
-msgstr "หมายเหตุ : <b>%s</b>"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:917
-#, c-format
-msgid "%.1f KB"
-msgstr "%.1f KB"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:921
-#, c-format
-msgid "%.1f MB"
-msgstr "%.1f MB"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:925
-#, c-format
-msgid "%.1f GB"
-msgstr "%.1f GB"
-
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:964
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1004
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1027
-#: ../src/libtracker-gtk/tracker-metadata-tile.c:1049
-msgid "Unknown"
-msgstr "ไม่มีข้อมูล"
-
-#: ../src/libtracker-gtk/tracker-tag-bar.c:250
-msgid "Type tags you want to add here, separated by commas"
-msgstr "ใส่แท็กที่ต้องการ แยกด้วยจุลภาค"
-
-#: ../src/libtracker-gtk/tracker-tag-bar.c:365
-msgid "Tags :"
-msgstr "แท็ก :"
-
-#. Search For Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:392
-msgid "_Search For Tag"
-msgstr "_ค้นหาตามแท็ก"
-
-#. Remove Tag
-#: ../src/libtracker-gtk/tracker-tag-bar.c:404
-msgid "_Remove Tag"
-msgstr "_ลบแท็ก"
-
-#: ../src/libtracker/tracker-search.c:34
-msgid "Limit the number of results showed to N"
-msgstr "จำกัดผลการค้นหาที่ N รายการ"
-
-#: ../src/libtracker/tracker-search.c:34
-msgid "N"
-msgstr "N"
-
-#: ../src/libtracker/tracker-search.c:35
-msgid "Search for a specific service"
-msgstr "ค้นหาบริการที่ระบุ"
-
-#: ../src/libtracker/tracker-search.c:35
-#: ../src/tracker-search-tool/tracker-search-tool.c:65
-msgid "SERVICE"
-msgstr "SERVICE"
-
-#: ../src/libtracker/tracker-search.c:36
-msgid "Show more detailed results with service and mime type as well"
-msgstr "แสดงผลลัพธ์ที่ละเอียดขึ้นพร้อมด้วยบริการและชนิด mime"
-
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-search.c:89
-msgid "TERM... - search files for certain terms"
-msgstr "คำค้น... - ค้นหาคำที่กำหนดในแฟ้มต่างๆ"
-
-#. Translators: this message will appear after the usage string
-#. and before the list of options.
-#: ../src/libtracker/tracker-search.c:93
-msgid ""
-"Specifying more then one term, will be showed items containing ALL the "
-"specified terms (term1 AND term2 - logical conjunction)"
+#: src/tracker/tracker-endpoint.c:78
+msgid "Whether to only allow HTTP connections in the loopback device"
 msgstr ""
-"การระบุคำค้นมากกว่าหนึ่งคำ จะแสดงเฉพาะรายการที่มีคำค้นที่ระบุทั้งหมด (เป็นการเชื่อมตรรกะแบบ "
-"\"คำค้น1 และ คำค้น2\")"
 
-#: ../src/libtracker/tracker-search.c:97
-msgid "The list of recognized services is:"
-msgstr "รายชื่อบริการที่รู้จักได้แก่:"
+#: src/tracker/tracker-endpoint.c:82
+msgid "Use session bus"
+msgstr ""
 
-#: ../src/libtracker/tracker-search.c:114
-#: ../src/libtracker/tracker-search.c:122 ../src/libtracker/tracker-stats.c:82
-#: ../src/libtracker/tracker-tag.c:115 ../src/libtracker/tracker-tag.c:123
+#: src/tracker/tracker-endpoint.c:86
+msgid "Use system bus"
+msgstr ""
+
+#: src/tracker/tracker-endpoint.c:90
+msgid "List SPARQL endpoints available in DBus"
+msgstr ""
+
+#: src/tracker/tracker-endpoint.c:94
+msgid "List network-local HTTP SPARQL endpoints"
+msgstr ""
+
+#. TRANSLATORS: these are commandline arguments
+#: src/tracker/tracker-endpoint.c:115
+msgid "--list can only be used with --session or --system"
+msgstr ""
+
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:121
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr ""
+
+#. TRANSLATORS: those are commandline arguments
+#: src/tracker/tracker-endpoint.c:127
+msgid "--http-port cannot be used with --dbus-service"
+msgstr ""
+
+#: src/tracker/tracker-endpoint.c:198
 #, c-format
-msgid "Try \"%s --help\" for more information."
-msgstr "ลอง \"%s --help\" เพื่อดูข้อมูลเพิ่มเติม"
+msgid "Creating HTTP endpoint at %s…"
+msgstr ""
 
-#: ../src/libtracker/tracker-search.c:120
-#, c-format
-msgid "%s: missing search terms"
-msgstr "%s: ขาดคำค้น"
+#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr ""
 
-#: ../src/libtracker/tracker-search.c:133 ../src/libtracker/tracker-stats.c:90
-#: ../src/libtracker/tracker-status.c:46 ../src/libtracker/tracker-tag.c:132
+#. Carriage return, so we paper over the ^C
+#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
+msgid "Closing connection…"
+msgstr ""
+
+#: src/tracker/tracker-endpoint.c:241
 #, c-format
-msgid "%s: no connection to tracker daemon"
+msgid "Creating endpoint at %s…"
+msgstr ""
+
+#: src/tracker/tracker-endpoint.c:277
+#, fuzzy
+#| msgid "Could not open help document."
+msgid "Could not own DBus name"
+msgstr "ไม่สามารถเปิดเอกสารวิธีใช้"
+
+#: src/tracker/tracker-endpoint.c:291
+msgid "DBus name lost"
+msgstr ""
+
+#: src/tracker/tracker-endpoint.c:651
+#, c-format
+msgid "Opening database at %s…"
+msgstr ""
+
+#: src/tracker/tracker-endpoint.c:654
+msgid "Creating in-memory database"
+msgstr ""
+
+#: src/tracker/tracker-endpoint.c:681
+msgid ""
+"New database created. Use the “--dbus-service” option to share this database on a message bus."
+msgstr ""
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-endpoint.desktop.in:6
+msgid "endpoint"
+msgstr ""
+
+#: src/tracker/tracker-endpoint.desktop.in:7
+msgid "Create a SPARQL endpoint"
+msgstr ""
+
+#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
+#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
+#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+msgid "FILE"
+msgstr "FILE"
+
+#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-sparql.c:117
+msgid "Connects to a DBus service"
+msgstr ""
+
+#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-sparql.c:118
+msgid "DBus service name"
+msgstr ""
+
+#: src/tracker/tracker-export.c:57
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr ""
+
+#: src/tracker/tracker-export.c:58
+msgid "RDF_FORMAT"
+msgstr ""
+
+#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-sparql.c:121
+msgid "Connects to a remote service"
+msgstr ""
+
+#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-sparql.c:122
+msgid "Remote service URI"
+msgstr ""
+
+#: src/tracker/tracker-export.c:65
+msgid "Output TriG format which includes named graph information"
+msgstr ""
+
+#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+msgid "IRI"
+msgstr ""
+
+#. TRANSLATORS: Those are commandline arguments
+#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-sparql.c:206
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr ""
+
+#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
+msgid "No error given"
+msgstr ""
+
+#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-sparql.c:1072
+#, fuzzy
+#| msgid "%s: no connection to tracker daemon"
+msgid "Could not establish a connection to Tracker"
 msgstr "%s: ไม่มีการเชื่อมต่อไปยังดีมอน tracker"
 
-#: ../src/libtracker/tracker-search.c:135 ../src/libtracker/tracker-stats.c:92
-#: ../src/libtracker/tracker-status.c:48 ../src/libtracker/tracker-tag.c:134
+#: src/tracker/tracker-export.c:382
 #, c-format
-msgid "Ensure \"tracker-store\" is running before launch this command."
-msgstr "ตรวจสอบให้แน่ชัดว่า \"tracker-store\" ทำงานอยู่ ก่อนเรียกใช้คำสั่งนี้"
+msgid "Unsupported serialization format “%s”\n"
+msgstr ""
 
-#: ../src/libtracker/tracker-search.c:147
-#, c-format
-msgid "Service not recognized, searching in Other Files...\n"
-msgstr "ไม่รู้จักบริการ กำลังค้นในแฟ้มอื่นๆ...\n"
+#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:446
+#: src/tracker/tracker-export.c:455 src/tracker/tracker-sparql.c:1334
+#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
+msgid "Could not run query"
+msgstr "ไม่สามารถเรียกทำงานข้อคำถามได้"
 
-#: ../src/libtracker/tracker-search.c:164
-#: ../src/libtracker/tracker-status.c:56 ../src/libtracker/tracker-tag.c:180
-#: ../src/libtracker/tracker-tag.c:189 ../src/libtracker/tracker-tag.c:198
-#: ../src/libtracker/tracker-tag.c:233 ../src/libtracker/tracker-tag.c:283
-#, c-format
-msgid "%s: internal tracker error: %s"
-msgstr "%s: ข้อผิดพลาดภายในของ tracker: %s"
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-export.desktop.in:6
+msgid "export"
+msgstr ""
 
-#. FIXME!! coreutilus don't print anything on no-results
-#: ../src/libtracker/tracker-search.c:173 ../src/libtracker/tracker-tag.c:268
+#: src/tracker/tracker-export.desktop.in:7
+msgid "Export data from a Tracker database"
+msgstr ""
+
+#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
 #, c-format
+msgid "failed to exec “%s”: %s"
+msgstr "ไม่สามารถเรียกทำงาน “%s”: %s"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-help.desktop.in:6
+msgid "help"
+msgstr "help"
+
+#: src/tracker/tracker-help.desktop.in:7
+msgid "Get help on how to use Tracker and any of these commands"
+msgstr "ดูวิธีการใช้ Tracker และชุดคำสั่งต่างๆ"
+
+#: src/tracker/tracker-import.c:58
+msgid "Read TriG format which includes named graph information"
+msgstr ""
+
+#: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
+#, fuzzy
+#| msgid "Could not open help document."
+msgid "Could not run import"
+msgstr "ไม่สามารถเปิดเอกสารวิธีใช้"
+
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-import.desktop.in:6
+msgid "import"
+msgstr ""
+
+#: src/tracker/tracker-import.desktop.in:7
+msgid "Import data into a Tracker database"
+msgstr ""
+
+#: src/tracker/tracker-main.c:123
+msgid "Available tracker3 commands are:"
+msgstr "คำสั่ง tracker3 ที่ใช้ได้คือ:"
+
+#: src/tracker/tracker-main.c:155
+msgid "See “tracker3 help <command>” to read about a specific subcommand."
+msgstr "ดู “tracker3 help <command>” เพื่ออ่านข้อมูลเกี่ยวกับคำสั่งย่อยที่เฉพาะเจาะจง"
+
+#: src/tracker/tracker-main.c:208
+#, c-format
+msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgstr "“%s” ไม่ใช่คำสั่ง tracker3 โปรดดู “tracker3 —help”"
+
+#: src/tracker/tracker-sparql.c:125
+msgid "Path to use to run a query or update from file"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:129
+msgid "SPARQL query"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:130
+msgid "SPARQL"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:133
+msgid "This is used with --query and for database updates only."
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:137
+msgid "Retrieve classes"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:141
+msgid "Retrieve class prefixes"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:145
+msgid "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
+#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
+#: src/tracker/tracker-sparql.c:174
+msgid "CLASS"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:149
+msgid "Retrieve classes which notify changes in the database (CLASS is optional)"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:153
+msgid "Retrieve indexes used in database to improve performance (PROPERTY is optional)"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:154
+msgid "PROPERTY"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:157
+msgid "Retrieve all named graphs"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:161
+msgid ""
+"Describe subclasses, superclasses (can be used with -s to highlight parts of the tree and -p "
+"to show properties)"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:165
+msgid "Search for a class or property and display more information (e.g. Document)"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:166
+msgid "CLASS/PROPERTY"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:169
+msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:173
+msgid "Returns the full namespace for a class."
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:177
+msgid "Provides an argument for a query parameter."
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:178
+msgid "PARAMETER:TYPE:VALUE"
+msgstr ""
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
+msgid "None"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:899
+msgid "Could not create tree: subclass query failed"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:949
+msgid "Could not create tree: class properties query failed"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1009
+#, fuzzy, c-format
+#| msgid "%s: invalid arguments"
+msgid "Invalid argument string %s"
+msgstr "%s: อากิวเมนต์ไม่ถูกต้อง"
+
+#: src/tracker/tracker-sparql.c:1019
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1089
+#, fuzzy
+#| msgid "Could not delete \"%s\"."
+msgid "Could not list classes"
+msgstr "ไม่สามารถลบ  \"%s\""
+
+#: src/tracker/tracker-sparql.c:1097
+msgid "No classes were found"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1097 src/tracker/tracker-sparql.c:1219
+msgid "Classes"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1120
+#, fuzzy
+#| msgid "Could not delete \"%s\"."
+msgid "Could not list properties"
+msgstr "ไม่สามารถลบ  \"%s\""
+
+#: src/tracker/tracker-sparql.c:1128
+msgid "No properties were found"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1128 src/tracker/tracker-sparql.c:1237
+msgid "Properties"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1144
+msgid "Could not find notify classes"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1152
+msgid "No notifies were found"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1152
+msgid "Notifies"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1168
+msgid "Could not find indexed properties"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1176
+msgid "No indexes were found"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1176
+#, fuzzy
+#| msgid "Indexing"
+msgid "Indexes"
+msgstr "กำลังทำดัชนี"
+
+#: src/tracker/tracker-sparql.c:1186
+#, fuzzy
+#| msgid "Could not delete \"%s\"."
+msgid "Could not list named graphs"
+msgstr "ไม่สามารถลบ  \"%s\""
+
+#: src/tracker/tracker-sparql.c:1194
+msgid "No graphs were found"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1194
+msgid "Named graphs"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1211
+#, fuzzy
+#| msgid "Could not save document."
+msgid "Could not search classes"
+msgstr "ไม่สามารถบันทึกเอกสาร"
+
+#: src/tracker/tracker-sparql.c:1219
+msgid "No classes were found to match search term"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1229
+#, fuzzy
+#| msgid "no search performed"
+msgid "Could not search properties"
+msgstr "ยังไม่ได้เริ่มค้นหา"
+
+#: src/tracker/tracker-sparql.c:1237
+msgid "No properties were found to match search term"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1266 src/tracker/tracker-sql.c:70
+msgid "Could not get UTF-8 path from path"
+msgstr "ไม่สามารถอ่านชื่อพาธแบบ UTF-8 จากพาธได้"
+
+#: src/tracker/tracker-sparql.c:1278 src/tracker/tracker-sql.c:81
+msgid "Could not read file"
+msgstr "ไม่สามารถอ่านแฟ้มได้"
+
+#: src/tracker/tracker-sparql.c:1309
+#, fuzzy
+#| msgid "Could not delete \"%s\"."
+msgid "Could not run update"
+msgstr "ไม่สามารถลบ  \"%s\""
+
+#: src/tracker/tracker-sparql.c:1316
+msgid "Done"
+msgstr ""
+
+#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
 msgid "No results found matching your query"
 msgstr "ไม่มีผลลัพธ์ตรงกับคำค้นของคุณ"
 
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-stats.c:73
-msgid " - show number of indexed files for each service"
-msgstr " - แสดงจำนวนแฟ้มที่ทำดัชนีไว้สำหรับแต่ละบริการ"
+#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
+#: src/tracker/tracker-sql.c:144
+msgid "Results"
+msgstr "ผลลัพธ์"
 
-#: ../src/libtracker/tracker-stats.c:108
-msgid "fetching index stats"
-msgstr "กำลังดึงสถิติดัชนี"
+#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:250
+msgid "File and query can not be used together"
+msgstr "ไม่สามารถใช้แฟ้มกับข้อคำถามด้วยกันได้"
 
-#: ../src/libtracker/tracker-tag.c:41
-msgid "Add specified tag to a file"
-msgstr "ใส่แท็กให้กับแฟ้ม"
-
-#: ../src/libtracker/tracker-tag.c:41 ../src/libtracker/tracker-tag.c:42
-#: ../src/libtracker/tracker-tag.c:45 ../src/libtracker/tracker-tag.c:92
-msgid "TAG"
-msgstr "TAG"
-
-#: ../src/libtracker/tracker-tag.c:42
-msgid "Remove specified tag from a file"
-msgstr "ลบแท็กที่ระบุออกจากแฟ้ม"
-
-#: ../src/libtracker/tracker-tag.c:43
-msgid "Remove all tags from a file"
-msgstr "ลบแท็กทั้งหมดออกจากแฟ้ม"
-
-#: ../src/libtracker/tracker-tag.c:44
-msgid "List all defined tags"
-msgstr "ดูรายชื่อแท็กทั้งหมดที่กำหนดไว้"
-
-#: ../src/libtracker/tracker-tag.c:45
-msgid "Search for files with specified tag"
-msgstr "ค้นหาแฟ้มที่มีแท็กที่ระบุ"
-
-#: ../src/libtracker/tracker-tag.c:46
-msgid "FILE..."
-msgstr "FILE..."
-
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND [OPTION]... <THIS_MESSAGE>
-#: ../src/libtracker/tracker-tag.c:90
-msgid "FILE... - manipulate tags on files"
-msgstr "FILE... - แก้ไขแท็กในแฟ้ม"
-
-#: ../src/libtracker/tracker-tag.c:99
-msgid ""
-"To add, remove, or search for multiple tags at the same time, join multiple "
-"options like:"
-msgstr "การเพิ่ม, ลบ หรือค้นหาแท็กหลายแท็กพร้อมกัน ทำได้โดยใช้ตัวเลือกหลายตัวประกอบกัน เช่น:"
-
-#: ../src/libtracker/tracker-tag.c:121
-#, c-format
-msgid "%s: invalid arguments"
-msgstr "%s: อากิวเมนต์ไม่ถูกต้อง"
-
-#: ../src/libtracker/tracker-tag.c:148
-#, c-format
-msgid "%s: file %s not found"
-msgstr "%s: ไม่พบแฟ้ม %s"
-
-#: ../src/tracker-store/tracker-store.c:120
-msgid "Directory to exclude from indexing"
-msgstr "ไดเรกทอรีที่จะไม่ทำดัชนี"
-
-#: ../src/tracker-store/tracker-store.c:120 ../src/tracker-store/tracker-store.c:121
-#: ../src/tracker-store/tracker-store.c:122
-msgid "/PATH/DIR"
-msgstr "/PATH/DIR"
-
-#: ../src/tracker-store/tracker-store.c:121
-msgid "Directory to include in indexing"
-msgstr "ไดเรกทอรีที่จะนับรวมในการทำดัชนี"
-
-#: ../src/tracker-store/tracker-store.c:122
-msgid "Directory to crawl for indexing at start up only"
-msgstr "ไดเรกทอรีที่จะทำดัชนีเมื่อเริ่มต้นเท่านั้น"
-
-#: ../src/tracker-store/tracker-store.c:123
-msgid "Disable any indexing or watching taking place"
-msgstr "ปิดการทำดัชนีหรือการเฝ้าสังเกตใดๆ"
-
-#: ../src/tracker-store/tracker-store.c:124
-msgid ""
-"Value that controls the level of logging. Valid values are 0 (displays/logs "
-"only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
+#: src/tracker/tracker-sparql.c:1403
+msgid "The --list-properties argument can only be empty when used with the --tree argument"
 msgstr ""
-"ค่าระดับการบันทึกปูม ค่าที่ใช้ได้คือ 0(แสดง/บันทึกเฉพาะข้อผิดพลาด), 1 (น้อยที่สุด), 2 (ละเอียด) "
-"และ 3 (ดีบั๊ก)"
 
-#: ../src/tracker-store/tracker-store.c:124 ../src/tracker-store/tracker-store.c:125
-msgid "VALUE"
-msgstr "VALUE"
-
-#: ../src/tracker-store/tracker-store.c:125
-msgid ""
-"Value to use for throttling indexing. Value must be in range 0-99 (default "
-"0) with lower values increasing indexing speed"
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-sparql.desktop.in:6
+msgid "sparql"
 msgstr ""
-"ค่าที่ใช้ในการผ่อนเครื่องการทำดัชนี ค่าต้องอยู่ในช่วง 0-99 (ค่าปริยายคือ 0) "
-"โดยค่าที่ต่ำจะเพิ่มความเร็วการทำดัชนีั"
 
-#: ../src/tracker-store/tracker-store.c:126
-msgid "Minimizes the use of memory but may slow indexing down"
-msgstr "ลดการใช้หน่วยความจำ แต่อาจทำให้ทำดัชนีช้าลง"
-
-#: ../src/tracker-store/tracker-store.c:127
-msgid "Initial sleep time, just before indexing, in seconds"
-msgstr "เวลาพักเริ่มต้นก่อนการทำดัชนี (เป็นวินาที)"
-
-#: ../src/tracker-store/tracker-store.c:128
-msgid ""
-"Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
-msgstr "ภาษาที่จะโหลดรายการคำสำหรับแยกคำ (เป็นรหัส ISO 639-1 แบบ 2 อักขระ)"
-
-#: ../src/tracker-store/tracker-store.c:128
-msgid "LANG"
-msgstr "LANG"
-
-#: ../src/tracker-store/tracker-store.c:129
-msgid "Force a re-index of all content"
-msgstr "บังคับให้ทำดัชนีเนื้อหาใหม่ทั้งหมด"
-
-#: ../src/tracker-store/tracker-store.c:130
-msgid "Make tracker errors fatal"
-msgstr "ให้ถือข้อผิดพลาดของ tracker เป็นความเรื่องร้ายแรง"
-
-#. Translators: this messagge will apper immediately after the
-#. usage string - Usage: COMMAND <THIS_MESSAGE>
-#: ../src/tracker-store/tracker-store.c:664
-msgid "- start the tracker daemon"
-msgstr "- เริ่มดีมอน tracker"
-
-#: ../src/tracker-store/tracker-store.c:665 ../src/tracker-store/tracker-store.c:666
-msgid "DIRECTORY"
-msgstr "DIRECTORY"
-
-#: ../src/tracker-store/tracker-store.c:673
-msgid ""
-"To include or exclude multiple directories at the same time, join multiple "
-"options like:"
+#: src/tracker/tracker-sparql.desktop.in:7
+msgid "Query and update the index using SPARQL or search, list and tree the ontology"
 msgstr ""
-"การรวมหรือไม่รวมไดเรกทอรีหลายไดเรกทอรีในเวลาเดียวกัน ทำได้โดยใช้ตัวเลือกหลายตัวประกอบกัน "
-"เช่น:"
 
-#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:1
-msgid "Control and monitor the Tracker search and indexing service"
-msgstr "ควบคุมและเฝ้าสังเกตบริการค้นหาและทำดัชนี Tracker"
+#: src/tracker/tracker-sql.c:48
+msgid "Path to use to run a query from file"
+msgstr "พาธที่ต้องการใช้ในการเรียกทำงานข้อคำถามจากแฟ้ม"
 
-#: ../src/tracker-applet/tracker-applet.desktop.in.in.h:2
-#: ../src/tracker-applet/tracker-applet.c:54
-msgid "Tracker Applet"
-msgstr "แอพเพล็ต Tracker"
+#: src/tracker/tracker-sql.c:52
+msgid "SQL query"
+msgstr "ข้อคำถาม SQL"
 
-#. Translators: this will appear like "Tracker : Idle"
-#: ../src/tracker-applet/tracker-applet.c:238
-msgid "Tracker : "
-msgstr "Tracker :"
+#: src/tracker/tracker-sql.c:53
+msgid "SQL"
+msgstr "SQL"
 
-#: ../src/tracker-applet/tracker-applet.c:243
-msgid "Idle"
-msgstr "ไม่ได้ทำงาน"
+#: src/tracker/tracker-sql.c:114
+msgid "Failed to initialize data manager"
+msgstr "ไม่สามารถกำหนดเริ่มต้นตัวจัดการข้อมูลได้"
 
-#: ../src/tracker-applet/tracker-applet.c:247
-msgid "Indexing"
-msgstr "กำลังทำดัชนี"
+#: src/tracker/tracker-sql.c:178
+msgid "Empty result set"
+msgstr "ชุดผลลัพธ์ว่างเปล่า"
 
-#: ../src/tracker-applet/tracker-applet.c:251
-msgid "Merging"
-msgstr "กำลังรวมดัชนี"
+#: src/tracker/tracker-sql.c:248
+msgid "A database path must be specified"
+msgstr "ต้องระบุพาธฐานข้อมูลด้วย"
 
-#: ../src/tracker-applet/tracker-applet.c:261
-msgid " (paused by user)"
-msgstr " (ผู้ใช้สั่งพัก)"
-
-#: ../src/tracker-applet/tracker-applet.c:263
-#: ../src/tracker-applet/tracker-applet.c:274
-msgid " (paused by system)"
-msgstr " (พักโดยระบบ)"
-
-#: ../src/tracker-applet/tracker-applet.c:278
-msgid " (paused by battery)"
-msgstr " (พักเพราะใช้แบตเตอรี่)"
-
-#: ../src/tracker-applet/tracker-applet.c:291
-msgid "folders"
-msgstr "โฟลเดอร์"
-
-#: ../src/tracker-applet/tracker-applet.c:293
-msgid "mailboxes"
-msgstr "กล่องจดหมาย"
-
-#: ../src/tracker-applet/tracker-applet.c:1021
-msgid "Re-index your system?"
-msgstr "เริ่มทำดัชนีข้อมูลใหม่หมดหรือไม่?"
-
-#: ../src/tracker-applet/tracker-applet.c:1024
-msgid "Indexing can take a long time. Are you sure you want to re-index?"
-msgstr "การทำดัชนีอาจกินเวลามาก คุณแน่ใจว่าต้องการทำดัชนีใหม่หมดหรือไม่?"
-
-#: ../src/tracker-applet/tracker-applet.c:1162
-msgid "Statistics"
-msgstr "สถิติ"
-
-#: ../src/tracker-applet/tracker-applet.c:1188
-msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
-msgstr "<span weight=\"bold\" size=\"larger\">สถิติการทำดัชนี</span>"
-
-#: ../src/tracker-applet/tracker-applet.c:1313
-msgid ""
-"Tracker is free software; you can redistribute it and/or modify it under the "
-"terms of the GNU General Public License as published by the Free Software "
-"Foundation; either version 2 of the License, or (at your option) any later "
-"version."
+#. Translators: This is a CLI command name that should not be translated.
+#: src/tracker/tracker-sql.desktop.in:6
+msgid "sql"
 msgstr ""
-"Tracker เป็นซอฟต์แวร์เสรี คุณสามารถแจกจ่ายต่อ และ/หรือ แก้ไขโปรแกรมได้ ภายใต้เงื่อนไขของ "
-"GNU General Public License ที่เผยแพร่โดยมูลนิธิซอฟต์แวร์เสรี ไม่ว่าจะเป็นสัญญาอนุญาตรุ่นที่ 2 "
-"หรือรุ่นถัดมา (ตามแต่คุณจะเลือก)"
 
-#: ../src/tracker-applet/tracker-applet.c:1314
-msgid ""
-"Tracker is distributed in the hope that it will be useful, but WITHOUT ANY "
-"WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS "
-"FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more "
-"details."
+#: src/tracker/tracker-sql.desktop.in:7
+msgid "Query the database at the lowest level using SQL"
 msgstr ""
-"Tracker เผยแพร่ด้วยความหวังว่าโปรแกรมจะมีประโยชน์ แต่ *ไม่มีการรับประกันใดๆ* "
-"ไม่มีแม้การรับประกัน *อรรถประโยชน์เชิงพาณิชย์* หรือ "
-"*ความเหมาะสมสำหรับวัตถุประสงค์เฉพาะกิจใดๆ* กรุณาอ่าน GNU General Public License "
-"เพื่อดูรายละเอียดเพิ่มเติม"
 
-#: ../src/tracker-applet/tracker-applet.c:1315
-msgid ""
-"You should have received a copy of the GNU General Public License along with "
-"Tracker; if not, write to the Free Software Foundation, Inc., 59 Temple "
-"Place, Suite 330, Boston, MA  02111-1307  USA"
-msgstr ""
-"คุณควรจะได้รับสำเนาของ GNU General Public License มาพร้อมกับ Tracker ถ้าคุณไม่ได้รับ "
-"กรุณาติดต่อไปที่ Free Software Foundation, Inc., 59 Temple Place, Suite 330, "
-"Boston, MA  02111-1307  USA"
+#, python-format
+#~ msgid "Launch %s (%s)"
+#~ msgstr "เรียก %s (%s)"
 
-#: ../src/tracker-applet/tracker-applet.c:1330
-msgid ""
-"Tracker is a tool designed to extract info and metadata about your personal "
-"data so that it can be searched easily and quickly"
-msgstr ""
-"Tracker เป็นเครื่องมือที่ออกแบบมาสำหรับดึงรายละเอียดเกี่ยวกับข้อมูลต่างๆ ในเครื่องของคุณ "
-"เพื่อการค้นหาข้อมูลที่ง่ายและรวดเร็ว"
+#, python-format
+#~ msgid ""
+#~ "See %s conversation\n"
+#~ "%s %s\n"
+#~ "from %s"
+#~ msgstr ""
+#~ "ดูการสนทนา %s\n"
+#~ "%s %s\n"
+#~ "จาก %s"
 
-#: ../src/tracker-applet/tracker-applet.c:1332
-msgid "Copyright © 2005-2008 The Tracker authors"
-msgstr "สงวนลิขสิทธิ์ © 2005-2008 กลุ่มผู้พัฒนา Tracker"
+#, python-format
+#~ msgid "Email from %s"
+#~ msgstr "อีเมลจาก %s"
 
-#. Translators should localize the following string
-#. * which will be displayed at the bottom of the about
-#. * box to give credit to the translator(s).
-#.
-#: ../src/tracker-applet/tracker-applet.c:1340
-msgid "translator-credits"
-msgstr "Isriya Paireepairit <markpeak@gmail.com>"
+#, python-format
+#~ msgid ""
+#~ "Listen to music %s\n"
+#~ "in %s"
+#~ msgstr ""
+#~ "ฟังเพลง %s\n"
+#~ "ใน %s"
 
-#: ../src/tracker-applet/tracker-applet.c:1343
-msgid "Tracker Web Site"
-msgstr "เว็บไซต์ Tracker"
+#, python-format
+#~ msgid ""
+#~ "See document %s\n"
+#~ "in %s"
+#~ msgstr ""
+#~ "ดูเอกสาร %s\n"
+#~ "ใน %s"
 
-#: ../src/tracker-applet/tracker-applet.c:1363
-msgid "_Pause All Indexing"
-msgstr "_หยุดพักการทำดัชนีทั้งหมด"
+#, python-format
+#~ msgid ""
+#~ "Open file %s\n"
+#~ "in %s"
+#~ msgstr ""
+#~ "เปิดแฟ้ม %s\n"
+#~ "ใน %s"
 
-#: ../src/tracker-applet/tracker-applet.c:1374
-msgid "_Search"
-msgstr "_ค้นหา"
+#, python-format
+#~ msgid ""
+#~ "View image %s\n"
+#~ "in %s"
+#~ msgstr ""
+#~ "ดูรูปภาพ %s\n"
+#~ "ใน %s"
 
-#: ../src/tracker-applet/tracker-applet.c:1384
-msgid "_Re-index"
-msgstr "_ทำดัชนีใหม่"
+#, python-format
+#~ msgid ""
+#~ "Watch video  %s\n"
+#~ "in %s"
+#~ msgstr ""
+#~ "ดูวีดิทัศน์  %s\n"
+#~ "ใน %s"
 
-#: ../src/tracker-applet/tracker-applet.c:1393
-msgid "_Preferences"
-msgstr "_ปรับแต่ง"
+#, python-format
+#~ msgid ""
+#~ "Open folder %s\n"
+#~ "%s"
+#~ msgstr ""
+#~ "เปิดโฟลเดอร์ %s\n"
+#~ "%s"
 
-#: ../src/tracker-applet/tracker-applet.c:1404
-msgid "_Indexer Preferences"
-msgstr "ปรับแต่งตัวทำ_ดัชนี"
+#~ msgid "with"
+#~ msgstr "ด้วย"
 
-#: ../src/tracker-applet/tracker-applet.c:1413
-msgid "S_tatistics"
-msgstr "_สถิติ"
+#~ msgid "in channel"
+#~ msgstr "ในห้อง"
 
-#: ../src/tracker-applet/tracker-applet.c:1422
-msgid "_About"
-msgstr "เ_กี่ยวกับ"
+#~ msgid "Search all of your documents, <b>as you type</b>"
+#~ msgstr "ค้นหาเอกสารทั้งหมดของคุณ<b>ไปพร้อมกับการพิมพ์</b>"
 
-#: ../src/tracker-applet/tracker-applet.c:1434
-msgid "_Quit"
-msgstr "_ออก"
+#~ msgid "Development Files"
+#~ msgstr "แฟ้มพัฒนาโปรแกรม"
 
-#: ../src/tracker-applet/tracker-applet.c:1997 ../tracker-store.desktop.in.in.h:1
-msgid "Tracker"
-msgstr "Tracker"
+#~ msgid "Music"
+#~ msgstr "เพลง"
 
-#: ../src/tracker-applet/tracker-applet.c:2004
-msgid ""
-"Your computer is about to be indexed so you can perform fast searches of "
-"your files and emails"
-msgstr ""
-"โปรแกรมกำลังจะเริ่มทำดัชนีข้อมูลในคอมพิวเตอร์ของคุณ "
-"เพื่อว่าคุณจะสามารถค้นหาแฟ้มและอีเมลได้รวดเร็วขึ้น"
+#~ msgid "Images"
+#~ msgstr "ภาพ"
 
-#: ../src/tracker-applet/tracker-applet.c:2007
-msgid ""
-"You can pause indexing at any time and configure index settings by right "
-"clicking here"
-msgstr "คุณสามารถหยุดพักการทำดัชนีได้ตลอดเวลา และตั้งค่าการทำดัชนีอื่นๆ โดยคลิกขวาที่นี่"
+#~ msgid "Videos"
+#~ msgstr "วิดีโอ"
 
-#: ../src/tracker-applet/tracker-applet.c:2010
-msgid "Tracker has finished indexing your system"
-msgstr "Tracker ทำดัชนีระบบของคุณเสร็จแล้ว"
+#, python-format
+#~ msgid "Search for %s with Tracker Search Tool"
+#~ msgstr "ค้นหา %s โดยใช้เครื่องมือสืบค้น Tracker"
 
-#: ../src/tracker-applet/tracker-applet.c:2011
+#~ msgid "Search all of your documents with Tracker Search Tool"
+#~ msgstr "ค้นหาเอกสารทั้งหมดของคุณโดยใช้เครื่องมือสืบค้น Tracker"
+
+#~ msgid "Tracker Search"
+#~ msgstr "การค้น Tracker"
+
+#~ msgid "Search with Tracker Search Tool"
+#~ msgstr "ค้นหาโดยใช้เครื่องมือสืบค้น Tracker "
+
+#~ msgid "Tracker Live Search"
+#~ msgstr "การค้น Tracker Live"
+
+#~ msgid "Search with Tracker, as you type"
+#~ msgstr "ค้นหาโดยใช้ Tracker ไปพร้อมกับการป้อนคำค้น"
+
 #, c-format
-msgid " in %d hours and %d minutes"
-msgstr " ใช้เวลา %d ชั่วโมง %d นาที"
+#~ msgid "Path : <b>%s</b>"
+#~ msgstr "พาธ : <b>%s</b>"
 
-#: ../src/tracker-applet/tracker-applet.c:2012
 #, c-format
-msgid " in %d minutes and %d seconds"
-msgstr " ใช้เวลา %d นาที %d วินาที"
+#~ msgid "Modified : <b>%s</b>"
+#~ msgstr "แก้ไขล่าสุด : <b>%s</b>"
 
-#: ../src/tracker-applet/tracker-applet.c:2013
 #, c-format
-msgid " in %d seconds"
-msgstr " ใช้เวลา %d วินาที"
+#~ msgid "Size : <b>%s</b>"
+#~ msgstr "ขนาด : <b>%s</b>"
 
-#: ../src/tracker-applet/tracker-applet.c:2015
-msgid "You can now perform searches by clicking here"
-msgstr "คุณสามารถค้นหาได้แล้ว โดยคลิกที่นี่"
-
-#: ../src/tracker-applet/tracker-applet.c:2018
-msgid "Files:"
-msgstr "แฟ้ม:"
-
-#: ../src/tracker-applet/tracker-applet.c:2019
-msgid "    Folders:"
-msgstr "    โฟลเดอร์:"
-
-#: ../src/tracker-applet/tracker-applet.c:2020
-msgid "    Documents:"
-msgstr "    เอกสาร:"
-
-#: ../src/tracker-applet/tracker-applet.c:2021
-msgid "    Images:"
-msgstr "    ภาพ:"
-
-#: ../src/tracker-applet/tracker-applet.c:2022
-msgid "    Music:"
-msgstr "    เพลง:"
-
-#: ../src/tracker-applet/tracker-applet.c:2023
-msgid "    Videos:"
-msgstr "    วิดีโอ:"
-
-#: ../src/tracker-applet/tracker-applet.c:2024
-msgid "    Text:"
-msgstr "    แฟ้มข้อความ:"
-
-#: ../src/tracker-applet/tracker-applet.c:2025
-msgid "    Development:"
-msgstr "    แฟ้มพัฒนาโปรแกรม:"
-
-#: ../src/tracker-applet/tracker-applet.c:2026
-msgid "    Other:"
-msgstr "    อื่นๆ:"
-
-#: ../src/tracker-applet/tracker-applet.c:2027
-msgid "Applications:"
-msgstr "โปรแกรม:"
-
-#: ../src/tracker-applet/tracker-applet.c:2028
-msgid "Conversations:"
-msgstr "บันทึกการสนทนา:"
-
-#: ../src/tracker-applet/tracker-applet.c:2029
-msgid "Emails:"
-msgstr "อีเมล:"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:1
-msgid "<b>Animation</b>"
-msgstr "<b>ภาพเคลื่อนไหว</b>"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:2
-msgid "<b>Smart Pausing</b>"
-msgstr "<b>พักการทำดัชนีอัตโนมัติ</b>"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:3
-msgid "<b>Visibility</b>"
-msgstr "<b>การแสดงผล</b>"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:4
-msgid "Animate _icon when indexing"
-msgstr "แสดงไ_อคอนเป็นภาพเคลื่อนไหวขณะทำดัชนี"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:5
-msgid "Applet Preferences"
-msgstr "ปรับแต่งแอพเพล็ต"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:6
-msgid ""
-"Automatically _pause if indexing may degrade performance of other "
-"applications in active use"
-msgstr "พักถ้าการทำดัชนีทำให้โปรแกรมอื่น_ช้าลง"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:7
-msgid "_Automatically pause all indexing when computer is in active use"
-msgstr "_พักเมื่อคอมพิวเตอร์ถูกใช้งาน"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:8
-msgid "_Hide Icon (except when displaying messages to user)"
-msgstr "_ซ่อนไอคอน (ยกเว้นเมื่อแสดงข้อความให้ผู้ใช้เห็น)"
-
-#: ../src/tracker-applet/tracker-applet-prefs.glade.h:9
-msgid "_Off"
-msgstr "_ปิด"
-
-#: ../src/tracker-preferences/tracker-preferences.c:833
-msgid "Data must be reindexed"
-msgstr "ข้อมูลต้องทำดัชนีใหม่"
-
-#: ../src/tracker-preferences/tracker-preferences.c:834
-msgid ""
-"In order for your changes to take effect, Tracker must reindex your files. "
-"Click the Reindex button to start reindexing now, otherwise this action will "
-"be performed the next time the Tracker daemon is restarted."
-msgstr ""
-"เพื่อให้การเปลี่ยนแปลงเกิดผล Tracker ต้องทำดัชนีแฟ้มของคุณใหม่ ถ้าต้องการเริ่มทำดัชนีทันที "
-"ให้คลิกที่ปุ่ม 'ทำดัชนีใหม่' หรือมิฉะนั้น ระบบจะเริ่มทำดัชนีโดยอัตโนมัติเมื่อดีมอน Tracker "
-"เริ่มทำงานในครั้งต่อไป"
-
-#: ../src/tracker-preferences/tracker-preferences.c:841
-msgid "_Reindex"
-msgstr "_ทำดัชนีใหม่"
-
-#: ../src/tracker-preferences/tracker-preferences.c:844
-msgid "Tracker daemon must be restarted"
-msgstr "ต้องเริ่มการทำงานของดีมอน Tracker ใหม่"
-
-#: ../src/tracker-preferences/tracker-preferences.c:846
-msgid ""
-"In order for your changes to take effect, the Tracker daemon has to be "
-"restarted. Click the Restart button to restart the daemon now."
-msgstr ""
-"เพื่อให้การเปลี่ยนแปลงเกิดผล คุณต้องเริ่มการทำงานของดีมอน Tracker ใหม่ "
-"ถ้าต้องการเริ่มการทำงานของดีมอนทันที ให้คลิกที่ปุ่ม 'เริ่มทำงานใหม่'"
-
-#: ../src/tracker-preferences/tracker-preferences.c:851
-msgid "_Restart"
-msgstr "เ_ริ่มทำงานใหม่"
-
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:1
-msgid "Configure file indexing with Tracker"
-msgstr "ตั้งค่าการทำดัชนีแฟ้มของ Tracker"
-
-#: ../src/tracker-preferences/tracker-preferences.desktop.in.in.h:2
-msgid "Search and Indexing"
-msgstr "การค้นหาและการทำดัชนี"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:1
-msgid "<b>Crawled Directories</b>"
-msgstr "<b>ไดเรกทอรีที่ทำดัชนีอย่างเดียว</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:2
-msgid "<b>Ignored File Patterns</b>"
-msgstr "<b>แพตเทิร์นของแฟ้มที่ไม่ทำดัชนี</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:3
-msgid "<b>Ignored Paths</b>"
-msgstr "<b>พาธที่ไม่ทำดัชนี</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:4
-msgid "<b>Index Merging</b>"
-msgstr "<b>การรวมดัชนี</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:5
-msgid "<b>Indexing Limits (per file)</b>"
-msgstr "<b>ขีดจำกัดการทำดัชนี (ต่อหนึ่งแฟ้ม)</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:6
-msgid "<b>Indexing Options</b>"
-msgstr "<b>ตัวเลือกการทำดัชนี</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:7
-msgid "<b>Indexing</b>"
-msgstr "<b>การทำดัชนี</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:8
-msgid "<b>Power management</b>"
-msgstr "<b>การจัดการพลังงาน</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:9
-msgid "<b>Resource Usage</b>"
-msgstr "<b>การใช้ทรัพยากร</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:10
-msgid "<b>Startup</b>"
-msgstr "<b>เมื่อเริ่มทำงาน</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:11
-msgid "<b>Stemming</b>"
-msgstr "<b>วิธีแบ่งคำ</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:12
-msgid "<b>Throttling</b>"
-msgstr "<b>การผ่อนเครื่อง</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:13
-msgid "<b>Watch Directories</b>"
-msgstr "<b>ไดเรกทอรีที่เฝ้าสังเกต</b>"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:14
-msgid "Additional mbox style mailboxes to index:"
-msgstr "กล่องเมลแบบ mbox อื่นๆ ที่จะทำดัชนี:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:15
-msgid "Additional paths to index and watch:"
-msgstr "พาธอื่นๆ ที่จะทำดัชนีและเฝ้าสังเกต:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:16
-msgid "Additional paths to index on startup (but not watch for updates):"
-msgstr "พาธอื่นๆ ที่จะทำดัชนีเมื่อเริ่มโปรแกรม (แต่ไม่ต้องเฝ้าสังเกต):"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:17
-msgid ""
-"Danish\n"
-"Dutch\n"
-"English\n"
-"Finnish\n"
-"French\n"
-"German\n"
-"Italian\n"
-"Norwegian\n"
-"Portuguese\n"
-"Russian\n"
-"Spanish\n"
-"Swedish"
-msgstr ""
-"เดนมาร์ก\n"
-"ดัตช์\n"
-"อังกฤษ\n"
-"ฟินแลนด์\n"
-"ฝรั่งเศส\n"
-"เยอรมัน\n"
-"อิตาลี\n"
-"นอร์เวย์\n"
-"โปรตุเกส\n"
-"รัสเซีย\n"
-"สเปน\n"
-"สวีเดน"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:29
-msgid "Disable all Indexing when on battery"
-msgstr "ปิดการทำดัชนีทุกชนิด เมื่อใช้แบตเตอรี่"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:30
-msgid "Disable initial index sweep when on battery"
-msgstr "ปิดการล้างข้อมูลดัชนีตอนเริ่มต้น เมื่อใช้แบตเตอรี่"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:31
-msgid "Email"
-msgstr "อีเมล"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:32
-msgid "Enable _Evolution email indexing"
-msgstr "ทำดัชนีอีเมลของ _Evolution"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:33
-msgid "Enable _KMail email indexing"
-msgstr "ทำดัชนีอีเมลของ _KMail"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:34
-msgid "Enable _Modest email indexing"
-msgstr "ทำดัชนีอีเมลของ _Modest"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:35
-msgid "Enable _Thunderbird email indexing"
-msgstr "ทำดัชนีอีเมลของ _Thunderbird"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:36
-msgid "Enable _watching"
-msgstr "เ_ฝ้าสังเกตแฟ้ม"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:37
-msgid "Enable i_ndexing"
-msgstr "_ทำดัชนี"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:38
-msgid "Faster"
-msgstr "เร็วขึ้น"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:39
-msgid "File patterns to ignore during indexing:"
-msgstr "แพตเทิร์นของแฟ้มที่ไม่ต้องทำดัชนี:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:40
-msgid "Files"
-msgstr "แฟ้ม"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:41
-msgid "General"
-msgstr "ทั่วไป"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:42
-msgid "Generate thum_bnails"
-msgstr "สร้าง_ภาพย่อ"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:43
-msgid "Ignored Files"
-msgstr "แฟ้มที่ไม่ทำดัชนี"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:44
-msgid "Index _delay: "
-msgstr "เ_ริ่มทำดัชนีเมื่อเวลาผ่านไป:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:45
-msgid "Index _file contents"
-msgstr "ทำดัชนีเ_นื้อหาของแฟ้ม"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:46
-msgid "Index _mounted directories"
-msgstr "ทำดัชนีไ_ดเรกทอรีที่เมาทน์"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:47
-msgid "Index and watch my home _directory"
-msgstr "ทำดัชนีและเฝ้าสังเกตไดเรกทอรี_บ้านของฉัน"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:48
-msgid "Indexing speed:"
-msgstr "ความเร็วการทำดัชนี:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:49
-msgid "Maximum _amount of text to index:"
-msgstr "_ขนาดข้อความยาวที่สุดที่ทำดัชนี:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:50
-msgid "Maximum number of unique _words to index:"
-msgstr "จำนวน_คำสูงสุดที่ทำดัชนี:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:51
-msgid "Path roots to be ignored during indexing:"
-msgstr "พาธที่ไม่ต้องการทำดัชนี:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:52
-msgid "Perform fast index merges (may affect system performance)"
-msgstr "รวมดัชนีแบบเร็ว (อาจมีผลต่อประสิทธิภาพของระบบ)"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:53
-msgid "Performance"
-msgstr "ประสิทธิภาพ"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:54
-msgid "Slower"
-msgstr "ช้าลง"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:55
-msgid "Tracker Preferences"
-msgstr "ปรับแต่ง Tracker"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:56
-msgid "_Language:"
-msgstr "_ภาษา:"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:57
-msgid "_Minimize memory usage (slower indexing)"
-msgstr "ใช้หน่วยความจำให้_น้อยที่สุด (ทำดัชนีได้ช้า)"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:58
-msgid "_Use additional memory for faster indexing"
-msgstr "ใ_ช้หน่วยความจำเพิ่มเติมเพื่อทำดัชนีให้เร็วขึ้น"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:59
-msgid "kB"
-msgstr "kB"
-
-#: ../src/tracker-preferences/tracker-preferences.glade.h:60
-msgid "seconds"
-msgstr "วินาที"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:65
-msgid "Search from a specific service"
-msgstr "ค้นหาบริการที่ระบุ"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:136
-msgid "Emails"
-msgstr "อีเมล"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:137
-msgid "All Files"
-msgstr "แฟ้มทั้งหมด"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:138
-msgid "Folders"
-msgstr "โฟลเดอร์"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:139
-msgid "Documents"
-msgstr "เอกสาร"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:143
-#: ../src/tracker-search-tool/tracker-search-tool.c:1213
-msgid "Text"
-msgstr "แฟ้มข้อความ"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:144
-msgid "Development"
-msgstr "แฟ้มพัฒนาโปรแกรม"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:145
-msgid "Chat Logs"
-msgstr "บันทึกการสนทนา"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:146
-msgid "Applications"
-msgstr "โปรแกรม"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:147
-msgid "WebHistory"
-msgstr "ประวัติการท่องเว็บ"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:207
-msgid "_Open"
-msgstr "_เปิด"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:208
-msgid "O_pen Folder"
-msgstr "เ_ปิดโฟลเดอร์"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:209
-msgid "Mo_ve to Trash"
-msgstr "_ทิ้งลงถังขยะ"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:210
-msgid "_Save Results As..."
-msgstr "บันทึกผลการค้นหาเป็_น..."
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:238
 #, c-format
-msgid "Character set conversion failed for \"%s\""
-msgstr "ไม่สามารถแปลงรหัสอักขระสำหรับ \"%s\""
+#~ msgid "Accessed : <b>%s</b>"
+#~ msgstr "ใช้งานล่าสุด : <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:265
-msgid "The following error has occurred :"
-msgstr "เกิดข้อผิดพลาดต่อไปนี้ :"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:269
-msgid "Error"
-msgstr "ผิดพลาด"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:644
-msgid "Did you mean"
-msgstr "คุณหมายถึง"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:675
-msgid "Your search returned no results."
-msgstr "ไม่พบข้อมูลที่ค้นหา"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:690
-msgid "Tracker Search Tool-"
-msgstr "เครื่องมือสืบค้น Tracker - "
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:851
-#: ../src/tracker-search-tool/tracker-search-tool.c:2221
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:2
-msgid "Tracker Search Tool"
-msgstr "เครื่องมือสืบค้น Tracker"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1041
-msgid "Search _results: "
-msgstr "_ผลการค้นหา:"
-
-#. Translators: this will appears as "Search results: no search performed"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1047
-msgid "no search performed"
-msgstr "ยังไม่ได้เริ่มค้นหา"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1107
-#: ../src/tracker-search-tool/tracker-search-tool.c:1267
-msgid "List View"
-msgstr "รายการ"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1179
-msgid "Icon"
-msgstr "ไอคอน"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1191
-msgid "Name"
-msgstr "ชื่อ"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:1285
-msgid "_Categories"
-msgstr "_หมวดหมู่"
-
-#. Translators: this will appear like "Search results: 5 - 10 of 30 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1565
 #, c-format
-msgid "%d - %d of %d items"
-msgstr "%d - %d จากทั้งหมด %d รายการ"
+#~ msgid "Mime : <b>%s</b>"
+#~ msgstr "ชนิด : <b>%s</b>"
 
-#. Translators: this will appear like "Search results: 7 items"
-#: ../src/tracker-search-tool/tracker-search-tool.c:1568
 #, c-format
-msgid "%d item"
-msgid_plural "%d items"
-msgstr[0] "%d รายการ"
+#~ msgid "Sender : <b>%s</b>"
+#~ msgstr "ผู้ส่ง : <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool.c:1616
-#: ../src/tracker-search-tool/tracker-search-tool.c:1811
-msgid "Could not connect to search service as it may be busy"
-msgstr "ไม่สามารถเชื่อมต่อกับบริการค้นหา บริการอาจทำงานอื่นอยู่"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2012
-msgid "_Search:"
-msgstr "_ค้นหา:"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2026
-msgid "Tracker is still indexing so not all search results are available yet"
-msgstr "Tracker กำลังทำดัชนีอยู่ ยังไม่สามารถเริ่มการค้นหาได้"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2040
-#: ../src/tracker-search-tool/tracker-search-tool.c:2041
-msgid "Enter a search term with multiple words seperated with spaces."
-msgstr "ป้อนคำที่ต้องการค้นหา (แยกคำด้วยช่องว่าง)"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2041
-msgid "search_entry"
-msgstr "search_entry"
-
-#: ../src/tracker-search-tool/tracker-search-tool.c:2087
-msgid "Click to perform a search."
-msgstr "คลิกเพื่อเริ่มค้นหา"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:131
-msgid "Could not open help document."
-msgstr "ไม่สามารถเปิดเอกสารวิธีใช้"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:326
 #, c-format
-msgid "Are you sure you want to open %d document?"
-msgid_plural "Are you sure you want to open %d documents?"
-msgstr[0] "ยืนยันที่จะเปิดเอกสาร %d รายการหรือไม่?"
+#~ msgid "Date : <b>%s</b>"
+#~ msgstr "วันที่ : <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:331
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:689
 #, c-format
-msgid "This will open %d separate window."
-msgid_plural "This will open %d separate windows."
-msgstr[0] "จะเปิดเป็น %d หน้าต่างแยกกัน"
+#~ msgid "Comment : <b>%s</b>"
+#~ msgstr "หมายเหตุ : <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:371
 #, c-format
-msgid "Could not open document \"%s\"."
-msgstr "ไม่สามารเปิดแฟ้ม \"%s\""
+#~ msgid "Categories : <b>%s</b>"
+#~ msgstr "หมวดหมู่ : <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:400
 #, c-format
-msgid "Could not open folder \"%s\"."
-msgstr "ไม่สามารเปิดโฟลเดอร์ \"%s\""
+#~ msgid "Duration : <b>%s</b>"
+#~ msgstr "ความยาว : <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:408
-msgid "The nautilus file manager is not running."
-msgstr "โปรแกรมจัดการแฟ้ม nautilus ไม่ได้ทำงานอยู่"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:628
-msgid "Application could not be opened"
-msgstr "ไม่สามารถเปิดโปรแกรมได้"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:643
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:963
-msgid "The document does not exist."
-msgstr "ไม่มีเอกสารนี้อยู่"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:659
-msgid "There is no installed viewer capable of displaying the document."
-msgstr "ไม่ได้ติดตั้งโปรแกรมสำหรับดูเอกสารชนิดนี้"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:684
 #, c-format
-msgid "Are you sure you want to open %d folder?"
-msgid_plural "Are you sure you want to open %d folders?"
-msgstr[0] "ยืนยันที่จะเปิด %d โฟลเดอร์หรือไม่?"
+#~ msgid "Genre : <b>%s</b>"
+#~ msgstr "แนวเพลง : <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:788
 #, c-format
-msgid "Could not move \"%s\" to trash."
-msgstr "ไม่สามารถทิ้ง \"%s\" ลงถังขยะ"
+#~ msgid "Bitrate : <b>%s Kbs</b>"
+#~ msgstr "บิตเรท : <b>%s Kbs</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:819
 #, c-format
-msgid "Do you want to delete \"%s\" permanently?"
-msgstr "คุณต้องการลบ \"%s\" อย่างถาวรหรือไม่?"
+#~ msgid "Year : <b>%s</b>"
+#~ msgstr "ปี : <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:822
 #, c-format
-msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
-msgstr "ไม่มีถังขยะในระบบ ไม่สามารถทิ้ง \"%s\" ลงถังขยะได้"
+#~ msgid "Codec : <b>%s</b>"
+#~ msgstr "Codec : <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:861
 #, c-format
-msgid "Could not delete \"%s\"."
-msgstr "ไม่สามารถลบ  \"%s\""
+#~ msgid " taken with a <span size='large'><i>%s</i></span>"
+#~ msgstr " ถ่ายด้วย <span size='large'><i>%s</i></span>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:985
 #, c-format
-msgid "Moving \"%s\" failed: %s."
-msgstr "ไม่สามารถย้าย \"%s\": %s"
+#~ msgid " <span size='large'><i>%s</i></span>"
+#~ msgstr "<span size='large'><i>%s</i></span>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1019
 #, c-format
-msgid "Deleting \"%s\" failed: %s."
-msgstr "ไม่สามารถลบ \"%s\": %s"
+#~ msgid "Dimensions : <b>%d x %d</b>"
+#~ msgstr "ขนาดภาพ : <b>%d x %d</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1305
-msgid "Activate to view this email"
-msgstr "เรียกใช้งานเพื่อดูอีเมลนี้"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1481
-msgid "Save Search Results As..."
-msgstr "บันทึกผลการค้นหาเป็น..."
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1516
-msgid "Could not save document."
-msgstr "ไม่สามารถบันทึกเอกสาร"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1517
-msgid "You did not select a document name."
-msgstr "คุณไม่ได้ตั้งชื่อเอกสาร"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1547
 #, c-format
-msgid "Could not save \"%s\" document to \"%s\"."
-msgstr "ไม่สามารถบันทึกเอกสาร \"%s\" ใน \"%s\" "
+#~ msgid "Date Taken : <b>%s</b>"
+#~ msgstr "ถ่ายเมื่อ : <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1581
 #, c-format
-msgid "The document \"%s\" already exists.  Would you like to replace it?"
-msgstr "มีเอกสาร \"%s\" อยู่แล้ว คุณต้องการบันทึกทับหรือไม่?"
+#~ msgid "Orientation : <b>%s</b>"
+#~ msgstr "แนววางภาพ : <b>%s</b>"
 
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1585
-msgid "If you replace an existing file, its contents will be overwritten."
-msgstr "ถ้าคุณบันทึกทับแฟ้มเก่า ข้อมูลจะถูกเขียนทับ"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1600
-msgid "_Replace"
-msgstr "_บันทึกทับ"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1650
-msgid "The document name you selected is a folder."
-msgstr "เอกสารที่คุณเลือกเป็นโฟลเดอร์"
-
-#: ../src/tracker-search-tool/tracker-search-tool-callbacks.c:1699
-msgid "You may not have write permissions to the document."
-msgstr "คุณไม่มีสิทธิ์เขียนเอกสารนี้"
-
-#: ../src/tracker-search-tool/tracker-search-tool.desktop.in.in.h:1
-msgid ""
-"Locate documents and folders on this computer by name or content using "
-"Tracker"
-msgstr "ค้นหาเอกสารและโฟลเดอร์ในคอมพิวเตอร์นี้จากชื่อหรือเนื้อหาโดยใช้ Tracker"
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:72
 #, c-format
-msgid ""
-"GConf error:\n"
-"  %s"
-msgstr ""
-"GConf ผิดพลาด:\n"
-"  %s"
+#~ msgid "Flash : <b>%s</b>"
+#~ msgstr "แฟลช : <b>%s</b>"
 
-#. Translators:  Below are the strings displayed in the 'Date Modified'
-#. column of the list view.  The format of this string can vary depending
-#. on age of a file.  Please modify the format of the timestamp to match
-#. your locale.  For example, to display 24 hour time replace the '%-I'
-#. with '%-H' and remove the '%p'.  (See bugzilla report #120434.)
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:674
-msgid "today at %-I:%M %p"
-msgstr "วันนี้ เวลา %-H:%M น."
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:676
-msgid "yesterday at %-I:%M %p"
-msgstr "เมื่อวาน เวลา %-H:%M น."
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:678
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:680
-msgid "%A, %B %-d %Y at %-I:%M:%S %p"
-msgstr "%Aที่ %-d %B %Ey เวลา %-H:%M:%S น."
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:860
-msgid "link (broken)"
-msgstr "ลิงก์ (เสีย)"
-
-#: ../src/tracker-search-tool/tracker-search-tool-support.c:864
 #, c-format
-msgid "link to %s"
-msgstr "ลิงก์ไปยัง %s"
+#~ msgid "Focal Length : <b>%s</b>"
+#~ msgstr "ระยะโฟกัส : <b>%s</b>"
 
-#: ../tracker-store.desktop.in.in.h:2
-msgid "Tracker search and indexing service"
-msgstr "บริการสืบค้นและทำดัชนี Tracker"
+#, c-format
+#~ msgid "Exposure Time : <b>%s</b>"
+#~ msgstr "ความเร็วชัตเตอร์ : <b>%s</b>"
+
+#, c-format
+#~ msgid "Author : <b>%s</b>"
+#~ msgstr "ผู้สร้าง : <b>%s</b>"
+
+#, c-format
+#~ msgid "Bitrate : <b>%s</b>"
+#~ msgstr "บิตเรท : <b>%s</b>"
+
+#, c-format
+#~ msgid "Encoded In : <b>%s</b>"
+#~ msgstr "เข้ารหัสแบบ : <b>%s</b>"
+
+#, c-format
+#~ msgid "Framerate : <b>%s</b>"
+#~ msgstr "เฟรมเรท : <b>%s</b>"
+
+#, c-format
+#~ msgid "Subject : <b>%s</b>"
+#~ msgstr "เรื่อง : <b>%s</b>"
+
+#, c-format
+#~ msgid "Page Count : <b>%s</b>"
+#~ msgstr "จำนวนหน้า : <b>%s</b>"
+
+#, c-format
+#~ msgid "Word Count : <b>%s</b>"
+#~ msgstr "จำนวนคำ : <b>%s</b>"
+
+#, c-format
+#~ msgid "Created : <b>%s</b>"
+#~ msgstr "สร้างเมื่อ : <b>%s</b>"
+
+#, c-format
+#~ msgid "Comments : <b>%s</b>"
+#~ msgstr "หมายเหตุ : <b>%s</b>"
+
+#, c-format
+#~ msgid "%.1f KB"
+#~ msgstr "%.1f KB"
+
+#, c-format
+#~ msgid "%.1f MB"
+#~ msgstr "%.1f MB"
+
+#, c-format
+#~ msgid "%.1f GB"
+#~ msgstr "%.1f GB"
+
+#~ msgid "Unknown"
+#~ msgstr "ไม่มีข้อมูล"
+
+#~ msgid "Type tags you want to add here, separated by commas"
+#~ msgstr "ใส่แท็กที่ต้องการ แยกด้วยจุลภาค"
+
+#~ msgid "Tags :"
+#~ msgstr "แท็ก :"
+
+#~ msgid "_Search For Tag"
+#~ msgstr "_ค้นหาตามแท็ก"
+
+#~ msgid "_Remove Tag"
+#~ msgstr "_ลบแท็ก"
+
+#~ msgid "Limit the number of results showed to N"
+#~ msgstr "จำกัดผลการค้นหาที่ N รายการ"
+
+#~ msgid "N"
+#~ msgstr "N"
+
+#~ msgid "Search for a specific service"
+#~ msgstr "ค้นหาบริการที่ระบุ"
+
+#~ msgid "SERVICE"
+#~ msgstr "SERVICE"
+
+#~ msgid "Show more detailed results with service and mime type as well"
+#~ msgstr "แสดงผลลัพธ์ที่ละเอียดขึ้นพร้อมด้วยบริการและชนิด mime"
+
+#~ msgid "TERM... - search files for certain terms"
+#~ msgstr "คำค้น... - ค้นหาคำที่กำหนดในแฟ้มต่างๆ"
+
+#~ msgid ""
+#~ "Specifying more then one term, will be showed items containing ALL the specified terms "
+#~ "(term1 AND term2 - logical conjunction)"
+#~ msgstr ""
+#~ "การระบุคำค้นมากกว่าหนึ่งคำ จะแสดงเฉพาะรายการที่มีคำค้นที่ระบุทั้งหมด (เป็นการเชื่อมตรรกะแบบ \"คำค้น1 และ "
+#~ "คำค้น2\")"
+
+#~ msgid "The list of recognized services is:"
+#~ msgstr "รายชื่อบริการที่รู้จักได้แก่:"
+
+#, c-format
+#~ msgid "Try \"%s --help\" for more information."
+#~ msgstr "ลอง \"%s --help\" เพื่อดูข้อมูลเพิ่มเติม"
+
+#, c-format
+#~ msgid "%s: missing search terms"
+#~ msgstr "%s: ขาดคำค้น"
+
+#, c-format
+#~ msgid "Ensure \"tracker-store\" is running before launch this command."
+#~ msgstr "ตรวจสอบให้แน่ชัดว่า \"tracker-store\" ทำงานอยู่ ก่อนเรียกใช้คำสั่งนี้"
+
+#, c-format
+#~ msgid "Service not recognized, searching in Other Files...\n"
+#~ msgstr "ไม่รู้จักบริการ กำลังค้นในแฟ้มอื่นๆ...\n"
+
+#, c-format
+#~ msgid "%s: internal tracker error: %s"
+#~ msgstr "%s: ข้อผิดพลาดภายในของ tracker: %s"
+
+#~ msgid " - show number of indexed files for each service"
+#~ msgstr " - แสดงจำนวนแฟ้มที่ทำดัชนีไว้สำหรับแต่ละบริการ"
+
+#~ msgid "fetching index stats"
+#~ msgstr "กำลังดึงสถิติดัชนี"
+
+#~ msgid "Add specified tag to a file"
+#~ msgstr "ใส่แท็กให้กับแฟ้ม"
+
+#~ msgid "TAG"
+#~ msgstr "TAG"
+
+#~ msgid "Remove specified tag from a file"
+#~ msgstr "ลบแท็กที่ระบุออกจากแฟ้ม"
+
+#~ msgid "Remove all tags from a file"
+#~ msgstr "ลบแท็กทั้งหมดออกจากแฟ้ม"
+
+#~ msgid "List all defined tags"
+#~ msgstr "ดูรายชื่อแท็กทั้งหมดที่กำหนดไว้"
+
+#~ msgid "Search for files with specified tag"
+#~ msgstr "ค้นหาแฟ้มที่มีแท็กที่ระบุ"
+
+#~ msgid "FILE... - manipulate tags on files"
+#~ msgstr "FILE... - แก้ไขแท็กในแฟ้ม"
+
+#~ msgid ""
+#~ "To add, remove, or search for multiple tags at the same time, join multiple options like:"
+#~ msgstr "การเพิ่ม, ลบ หรือค้นหาแท็กหลายแท็กพร้อมกัน ทำได้โดยใช้ตัวเลือกหลายตัวประกอบกัน เช่น:"
+
+#, c-format
+#~ msgid "%s: file %s not found"
+#~ msgstr "%s: ไม่พบแฟ้ม %s"
+
+#~ msgid "Directory to exclude from indexing"
+#~ msgstr "ไดเรกทอรีที่จะไม่ทำดัชนี"
+
+#~ msgid "/PATH/DIR"
+#~ msgstr "/PATH/DIR"
+
+#~ msgid "Directory to include in indexing"
+#~ msgstr "ไดเรกทอรีที่จะนับรวมในการทำดัชนี"
+
+#~ msgid "Directory to crawl for indexing at start up only"
+#~ msgstr "ไดเรกทอรีที่จะทำดัชนีเมื่อเริ่มต้นเท่านั้น"
+
+#~ msgid "Disable any indexing or watching taking place"
+#~ msgstr "ปิดการทำดัชนีหรือการเฝ้าสังเกตใดๆ"
+
+#~ msgid ""
+#~ "Value that controls the level of logging. Valid values are 0 (displays/logs only errors), "
+#~ "1 (minimal), 2 (detailed), and 3 (debug)"
+#~ msgstr ""
+#~ "ค่าระดับการบันทึกปูม ค่าที่ใช้ได้คือ 0(แสดง/บันทึกเฉพาะข้อผิดพลาด), 1 (น้อยที่สุด), 2 (ละเอียด) และ 3 (ดีบั๊ก)"
+
+#~ msgid "VALUE"
+#~ msgstr "VALUE"
+
+#~ msgid ""
+#~ "Value to use for throttling indexing. Value must be in range 0-99 (default 0) with lower "
+#~ "values increasing indexing speed"
+#~ msgstr ""
+#~ "ค่าที่ใช้ในการผ่อนเครื่องการทำดัชนี ค่าต้องอยู่ในช่วง 0-99 (ค่าปริยายคือ 0) โดยค่าที่ต่ำจะเพิ่มความเร็วการทำดัชนีั"
+
+#~ msgid "Minimizes the use of memory but may slow indexing down"
+#~ msgstr "ลดการใช้หน่วยความจำ แต่อาจทำให้ทำดัชนีช้าลง"
+
+#~ msgid "Initial sleep time, just before indexing, in seconds"
+#~ msgstr "เวลาพักเริ่มต้นก่อนการทำดัชนี (เป็นวินาที)"
+
+#~ msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+#~ msgstr "ภาษาที่จะโหลดรายการคำสำหรับแยกคำ (เป็นรหัส ISO 639-1 แบบ 2 อักขระ)"
+
+#~ msgid "LANG"
+#~ msgstr "LANG"
+
+#~ msgid "Force a re-index of all content"
+#~ msgstr "บังคับให้ทำดัชนีเนื้อหาใหม่ทั้งหมด"
+
+#~ msgid "Make tracker errors fatal"
+#~ msgstr "ให้ถือข้อผิดพลาดของ tracker เป็นความเรื่องร้ายแรง"
+
+#~ msgid "- start the tracker daemon"
+#~ msgstr "- เริ่มดีมอน tracker"
+
+#~ msgid "DIRECTORY"
+#~ msgstr "DIRECTORY"
+
+#~ msgid ""
+#~ "To include or exclude multiple directories at the same time, join multiple options like:"
+#~ msgstr "การรวมหรือไม่รวมไดเรกทอรีหลายไดเรกทอรีในเวลาเดียวกัน ทำได้โดยใช้ตัวเลือกหลายตัวประกอบกัน เช่น:"
+
+#~ msgid "Control and monitor the Tracker search and indexing service"
+#~ msgstr "ควบคุมและเฝ้าสังเกตบริการค้นหาและทำดัชนี Tracker"
+
+#~ msgid "Tracker Applet"
+#~ msgstr "แอพเพล็ต Tracker"
+
+#~ msgid "Tracker : "
+#~ msgstr "Tracker :"
+
+#~ msgid "Idle"
+#~ msgstr "ไม่ได้ทำงาน"
+
+#~ msgid "Merging"
+#~ msgstr "กำลังรวมดัชนี"
+
+#~ msgid " (paused by user)"
+#~ msgstr " (ผู้ใช้สั่งพัก)"
+
+#~ msgid " (paused by system)"
+#~ msgstr " (พักโดยระบบ)"
+
+#~ msgid " (paused by battery)"
+#~ msgstr " (พักเพราะใช้แบตเตอรี่)"
+
+#~ msgid "folders"
+#~ msgstr "โฟลเดอร์"
+
+#~ msgid "mailboxes"
+#~ msgstr "กล่องจดหมาย"
+
+#~ msgid "Re-index your system?"
+#~ msgstr "เริ่มทำดัชนีข้อมูลใหม่หมดหรือไม่?"
+
+#~ msgid "Indexing can take a long time. Are you sure you want to re-index?"
+#~ msgstr "การทำดัชนีอาจกินเวลามาก คุณแน่ใจว่าต้องการทำดัชนีใหม่หมดหรือไม่?"
+
+#~ msgid "Statistics"
+#~ msgstr "สถิติ"
+
+#~ msgid "<span weight=\"bold\" size=\"larger\">Index statistics</span>"
+#~ msgstr "<span weight=\"bold\" size=\"larger\">สถิติการทำดัชนี</span>"
+
+#~ msgid ""
+#~ "Tracker is free software; you can redistribute it and/or modify it under the terms of the "
+#~ "GNU General Public License as published by the Free Software Foundation; either version 2 "
+#~ "of the License, or (at your option) any later version."
+#~ msgstr ""
+#~ "Tracker เป็นซอฟต์แวร์เสรี คุณสามารถแจกจ่ายต่อ และ/หรือ แก้ไขโปรแกรมได้ ภายใต้เงื่อนไขของ GNU General "
+#~ "Public License ที่เผยแพร่โดยมูลนิธิซอฟต์แวร์เสรี ไม่ว่าจะเป็นสัญญาอนุญาตรุ่นที่ 2 หรือรุ่นถัดมา (ตามแต่คุณจะเลือก)"
+
+#~ msgid ""
+#~ "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "
+#~ "without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  "
+#~ "See the GNU General Public License for more details."
+#~ msgstr ""
+#~ "Tracker เผยแพร่ด้วยความหวังว่าโปรแกรมจะมีประโยชน์ แต่ *ไม่มีการรับประกันใดๆ* ไม่มีแม้การรับประกัน "
+#~ "*อรรถประโยชน์เชิงพาณิชย์* หรือ *ความเหมาะสมสำหรับวัตถุประสงค์เฉพาะกิจใดๆ* กรุณาอ่าน GNU General Public "
+#~ "License เพื่อดูรายละเอียดเพิ่มเติม"
+
+#~ msgid ""
+#~ "You should have received a copy of the GNU General Public License along with Tracker; if "
+#~ "not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  "
+#~ "02111-1307  USA"
+#~ msgstr ""
+#~ "คุณควรจะได้รับสำเนาของ GNU General Public License มาพร้อมกับ Tracker ถ้าคุณไม่ได้รับ กรุณาติดต่อไปที่ "
+#~ "Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA"
+
+#~ msgid ""
+#~ "Tracker is a tool designed to extract info and metadata about your personal data so that "
+#~ "it can be searched easily and quickly"
+#~ msgstr ""
+#~ "Tracker เป็นเครื่องมือที่ออกแบบมาสำหรับดึงรายละเอียดเกี่ยวกับข้อมูลต่างๆ ในเครื่องของคุณ "
+#~ "เพื่อการค้นหาข้อมูลที่ง่ายและรวดเร็ว"
+
+#~ msgid "Copyright © 2005-2008 The Tracker authors"
+#~ msgstr "สงวนลิขสิทธิ์ © 2005-2008 กลุ่มผู้พัฒนา Tracker"
+
+#~ msgid "translator-credits"
+#~ msgstr "Isriya Paireepairit <markpeak@gmail.com>"
+
+#~ msgid "Tracker Web Site"
+#~ msgstr "เว็บไซต์ Tracker"
+
+#~ msgid "_Pause All Indexing"
+#~ msgstr "_หยุดพักการทำดัชนีทั้งหมด"
+
+#~ msgid "_Search"
+#~ msgstr "_ค้นหา"
+
+#~ msgid "_Re-index"
+#~ msgstr "_ทำดัชนีใหม่"
+
+#~ msgid "_Preferences"
+#~ msgstr "_ปรับแต่ง"
+
+#~ msgid "_Indexer Preferences"
+#~ msgstr "ปรับแต่งตัวทำ_ดัชนี"
+
+#~ msgid "S_tatistics"
+#~ msgstr "_สถิติ"
+
+#~ msgid "_About"
+#~ msgstr "เ_กี่ยวกับ"
+
+#~ msgid "_Quit"
+#~ msgstr "_ออก"
+
+#~ msgid "Tracker"
+#~ msgstr "Tracker"
+
+#~ msgid ""
+#~ "Your computer is about to be indexed so you can perform fast searches of your files and "
+#~ "emails"
+#~ msgstr "โปรแกรมกำลังจะเริ่มทำดัชนีข้อมูลในคอมพิวเตอร์ของคุณ เพื่อว่าคุณจะสามารถค้นหาแฟ้มและอีเมลได้รวดเร็วขึ้น"
+
+#~ msgid ""
+#~ "You can pause indexing at any time and configure index settings by right clicking here"
+#~ msgstr "คุณสามารถหยุดพักการทำดัชนีได้ตลอดเวลา และตั้งค่าการทำดัชนีอื่นๆ โดยคลิกขวาที่นี่"
+
+#~ msgid "Tracker has finished indexing your system"
+#~ msgstr "Tracker ทำดัชนีระบบของคุณเสร็จแล้ว"
+
+#, c-format
+#~ msgid " in %d hours and %d minutes"
+#~ msgstr " ใช้เวลา %d ชั่วโมง %d นาที"
+
+#, c-format
+#~ msgid " in %d minutes and %d seconds"
+#~ msgstr " ใช้เวลา %d นาที %d วินาที"
+
+#, c-format
+#~ msgid " in %d seconds"
+#~ msgstr " ใช้เวลา %d วินาที"
+
+#~ msgid "You can now perform searches by clicking here"
+#~ msgstr "คุณสามารถค้นหาได้แล้ว โดยคลิกที่นี่"
+
+#~ msgid "Files:"
+#~ msgstr "แฟ้ม:"
+
+#~ msgid "    Folders:"
+#~ msgstr "    โฟลเดอร์:"
+
+#~ msgid "    Documents:"
+#~ msgstr "    เอกสาร:"
+
+#~ msgid "    Images:"
+#~ msgstr "    ภาพ:"
+
+#~ msgid "    Music:"
+#~ msgstr "    เพลง:"
+
+#~ msgid "    Videos:"
+#~ msgstr "    วิดีโอ:"
+
+#~ msgid "    Text:"
+#~ msgstr "    แฟ้มข้อความ:"
+
+#~ msgid "    Development:"
+#~ msgstr "    แฟ้มพัฒนาโปรแกรม:"
+
+#~ msgid "    Other:"
+#~ msgstr "    อื่นๆ:"
+
+#~ msgid "Applications:"
+#~ msgstr "โปรแกรม:"
+
+#~ msgid "Conversations:"
+#~ msgstr "บันทึกการสนทนา:"
+
+#~ msgid "Emails:"
+#~ msgstr "อีเมล:"
+
+#~ msgid "<b>Animation</b>"
+#~ msgstr "<b>ภาพเคลื่อนไหว</b>"
+
+#~ msgid "<b>Smart Pausing</b>"
+#~ msgstr "<b>พักการทำดัชนีอัตโนมัติ</b>"
+
+#~ msgid "<b>Visibility</b>"
+#~ msgstr "<b>การแสดงผล</b>"
+
+#~ msgid "Animate _icon when indexing"
+#~ msgstr "แสดงไ_อคอนเป็นภาพเคลื่อนไหวขณะทำดัชนี"
+
+#~ msgid "Applet Preferences"
+#~ msgstr "ปรับแต่งแอพเพล็ต"
+
+#~ msgid ""
+#~ "Automatically _pause if indexing may degrade performance of other applications in active "
+#~ "use"
+#~ msgstr "พักถ้าการทำดัชนีทำให้โปรแกรมอื่น_ช้าลง"
+
+#~ msgid "_Automatically pause all indexing when computer is in active use"
+#~ msgstr "_พักเมื่อคอมพิวเตอร์ถูกใช้งาน"
+
+#~ msgid "_Hide Icon (except when displaying messages to user)"
+#~ msgstr "_ซ่อนไอคอน (ยกเว้นเมื่อแสดงข้อความให้ผู้ใช้เห็น)"
+
+#~ msgid "_Off"
+#~ msgstr "_ปิด"
+
+#~ msgid "Data must be reindexed"
+#~ msgstr "ข้อมูลต้องทำดัชนีใหม่"
+
+#~ msgid ""
+#~ "In order for your changes to take effect, Tracker must reindex your files. Click the "
+#~ "Reindex button to start reindexing now, otherwise this action will be performed the next "
+#~ "time the Tracker daemon is restarted."
+#~ msgstr ""
+#~ "เพื่อให้การเปลี่ยนแปลงเกิดผล Tracker ต้องทำดัชนีแฟ้มของคุณใหม่ ถ้าต้องการเริ่มทำดัชนีทันที ให้คลิกที่ปุ่ม 'ทำดัชนีใหม่' "
+#~ "หรือมิฉะนั้น ระบบจะเริ่มทำดัชนีโดยอัตโนมัติเมื่อดีมอน Tracker เริ่มทำงานในครั้งต่อไป"
+
+#~ msgid "_Reindex"
+#~ msgstr "_ทำดัชนีใหม่"
+
+#~ msgid "Tracker daemon must be restarted"
+#~ msgstr "ต้องเริ่มการทำงานของดีมอน Tracker ใหม่"
+
+#~ msgid ""
+#~ "In order for your changes to take effect, the Tracker daemon has to be restarted. Click "
+#~ "the Restart button to restart the daemon now."
+#~ msgstr ""
+#~ "เพื่อให้การเปลี่ยนแปลงเกิดผล คุณต้องเริ่มการทำงานของดีมอน Tracker ใหม่ ถ้าต้องการเริ่มการทำงานของดีมอนทันที "
+#~ "ให้คลิกที่ปุ่ม 'เริ่มทำงานใหม่'"
+
+#~ msgid "_Restart"
+#~ msgstr "เ_ริ่มทำงานใหม่"
+
+#~ msgid "Configure file indexing with Tracker"
+#~ msgstr "ตั้งค่าการทำดัชนีแฟ้มของ Tracker"
+
+#~ msgid "Search and Indexing"
+#~ msgstr "การค้นหาและการทำดัชนี"
+
+#~ msgid "<b>Crawled Directories</b>"
+#~ msgstr "<b>ไดเรกทอรีที่ทำดัชนีอย่างเดียว</b>"
+
+#~ msgid "<b>Ignored File Patterns</b>"
+#~ msgstr "<b>แพตเทิร์นของแฟ้มที่ไม่ทำดัชนี</b>"
+
+#~ msgid "<b>Ignored Paths</b>"
+#~ msgstr "<b>พาธที่ไม่ทำดัชนี</b>"
+
+#~ msgid "<b>Index Merging</b>"
+#~ msgstr "<b>การรวมดัชนี</b>"
+
+#~ msgid "<b>Indexing Limits (per file)</b>"
+#~ msgstr "<b>ขีดจำกัดการทำดัชนี (ต่อหนึ่งแฟ้ม)</b>"
+
+#~ msgid "<b>Indexing Options</b>"
+#~ msgstr "<b>ตัวเลือกการทำดัชนี</b>"
+
+#~ msgid "<b>Indexing</b>"
+#~ msgstr "<b>การทำดัชนี</b>"
+
+#~ msgid "<b>Power management</b>"
+#~ msgstr "<b>การจัดการพลังงาน</b>"
+
+#~ msgid "<b>Resource Usage</b>"
+#~ msgstr "<b>การใช้ทรัพยากร</b>"
+
+#~ msgid "<b>Startup</b>"
+#~ msgstr "<b>เมื่อเริ่มทำงาน</b>"
+
+#~ msgid "<b>Stemming</b>"
+#~ msgstr "<b>วิธีแบ่งคำ</b>"
+
+#~ msgid "<b>Throttling</b>"
+#~ msgstr "<b>การผ่อนเครื่อง</b>"
+
+#~ msgid "<b>Watch Directories</b>"
+#~ msgstr "<b>ไดเรกทอรีที่เฝ้าสังเกต</b>"
+
+#~ msgid "Additional mbox style mailboxes to index:"
+#~ msgstr "กล่องเมลแบบ mbox อื่นๆ ที่จะทำดัชนี:"
+
+#~ msgid "Additional paths to index and watch:"
+#~ msgstr "พาธอื่นๆ ที่จะทำดัชนีและเฝ้าสังเกต:"
+
+#~ msgid "Additional paths to index on startup (but not watch for updates):"
+#~ msgstr "พาธอื่นๆ ที่จะทำดัชนีเมื่อเริ่มโปรแกรม (แต่ไม่ต้องเฝ้าสังเกต):"
+
+#~ msgid ""
+#~ "Danish\n"
+#~ "Dutch\n"
+#~ "English\n"
+#~ "Finnish\n"
+#~ "French\n"
+#~ "German\n"
+#~ "Italian\n"
+#~ "Norwegian\n"
+#~ "Portuguese\n"
+#~ "Russian\n"
+#~ "Spanish\n"
+#~ "Swedish"
+#~ msgstr ""
+#~ "เดนมาร์ก\n"
+#~ "ดัตช์\n"
+#~ "อังกฤษ\n"
+#~ "ฟินแลนด์\n"
+#~ "ฝรั่งเศส\n"
+#~ "เยอรมัน\n"
+#~ "อิตาลี\n"
+#~ "นอร์เวย์\n"
+#~ "โปรตุเกส\n"
+#~ "รัสเซีย\n"
+#~ "สเปน\n"
+#~ "สวีเดน"
+
+#~ msgid "Disable all Indexing when on battery"
+#~ msgstr "ปิดการทำดัชนีทุกชนิด เมื่อใช้แบตเตอรี่"
+
+#~ msgid "Disable initial index sweep when on battery"
+#~ msgstr "ปิดการล้างข้อมูลดัชนีตอนเริ่มต้น เมื่อใช้แบตเตอรี่"
+
+#~ msgid "Email"
+#~ msgstr "อีเมล"
+
+#~ msgid "Enable _Evolution email indexing"
+#~ msgstr "ทำดัชนีอีเมลของ _Evolution"
+
+#~ msgid "Enable _KMail email indexing"
+#~ msgstr "ทำดัชนีอีเมลของ _KMail"
+
+#~ msgid "Enable _Modest email indexing"
+#~ msgstr "ทำดัชนีอีเมลของ _Modest"
+
+#~ msgid "Enable _Thunderbird email indexing"
+#~ msgstr "ทำดัชนีอีเมลของ _Thunderbird"
+
+#~ msgid "Enable _watching"
+#~ msgstr "เ_ฝ้าสังเกตแฟ้ม"
+
+#~ msgid "Enable i_ndexing"
+#~ msgstr "_ทำดัชนี"
+
+#~ msgid "Faster"
+#~ msgstr "เร็วขึ้น"
+
+#~ msgid "File patterns to ignore during indexing:"
+#~ msgstr "แพตเทิร์นของแฟ้มที่ไม่ต้องทำดัชนี:"
+
+#~ msgid "Files"
+#~ msgstr "แฟ้ม"
+
+#~ msgid "General"
+#~ msgstr "ทั่วไป"
+
+#~ msgid "Generate thum_bnails"
+#~ msgstr "สร้าง_ภาพย่อ"
+
+#~ msgid "Ignored Files"
+#~ msgstr "แฟ้มที่ไม่ทำดัชนี"
+
+#~ msgid "Index _delay: "
+#~ msgstr "เ_ริ่มทำดัชนีเมื่อเวลาผ่านไป:"
+
+#~ msgid "Index _file contents"
+#~ msgstr "ทำดัชนีเ_นื้อหาของแฟ้ม"
+
+#~ msgid "Index _mounted directories"
+#~ msgstr "ทำดัชนีไ_ดเรกทอรีที่เมาทน์"
+
+#~ msgid "Index and watch my home _directory"
+#~ msgstr "ทำดัชนีและเฝ้าสังเกตไดเรกทอรี_บ้านของฉัน"
+
+#~ msgid "Indexing speed:"
+#~ msgstr "ความเร็วการทำดัชนี:"
+
+#~ msgid "Maximum _amount of text to index:"
+#~ msgstr "_ขนาดข้อความยาวที่สุดที่ทำดัชนี:"
+
+#~ msgid "Maximum number of unique _words to index:"
+#~ msgstr "จำนวน_คำสูงสุดที่ทำดัชนี:"
+
+#~ msgid "Path roots to be ignored during indexing:"
+#~ msgstr "พาธที่ไม่ต้องการทำดัชนี:"
+
+#~ msgid "Perform fast index merges (may affect system performance)"
+#~ msgstr "รวมดัชนีแบบเร็ว (อาจมีผลต่อประสิทธิภาพของระบบ)"
+
+#~ msgid "Performance"
+#~ msgstr "ประสิทธิภาพ"
+
+#~ msgid "Slower"
+#~ msgstr "ช้าลง"
+
+#~ msgid "Tracker Preferences"
+#~ msgstr "ปรับแต่ง Tracker"
+
+#~ msgid "_Language:"
+#~ msgstr "_ภาษา:"
+
+#~ msgid "_Minimize memory usage (slower indexing)"
+#~ msgstr "ใช้หน่วยความจำให้_น้อยที่สุด (ทำดัชนีได้ช้า)"
+
+#~ msgid "_Use additional memory for faster indexing"
+#~ msgstr "ใ_ช้หน่วยความจำเพิ่มเติมเพื่อทำดัชนีให้เร็วขึ้น"
+
+#~ msgid "kB"
+#~ msgstr "kB"
+
+#~ msgid "seconds"
+#~ msgstr "วินาที"
+
+#~ msgid "Search from a specific service"
+#~ msgstr "ค้นหาบริการที่ระบุ"
+
+#~ msgid "Emails"
+#~ msgstr "อีเมล"
+
+#~ msgid "All Files"
+#~ msgstr "แฟ้มทั้งหมด"
+
+#~ msgid "Folders"
+#~ msgstr "โฟลเดอร์"
+
+#~ msgid "Documents"
+#~ msgstr "เอกสาร"
+
+#~ msgid "Text"
+#~ msgstr "แฟ้มข้อความ"
+
+#~ msgid "Development"
+#~ msgstr "แฟ้มพัฒนาโปรแกรม"
+
+#~ msgid "Chat Logs"
+#~ msgstr "บันทึกการสนทนา"
+
+#~ msgid "Applications"
+#~ msgstr "โปรแกรม"
+
+#~ msgid "WebHistory"
+#~ msgstr "ประวัติการท่องเว็บ"
+
+#~ msgid "_Open"
+#~ msgstr "_เปิด"
+
+#~ msgid "O_pen Folder"
+#~ msgstr "เ_ปิดโฟลเดอร์"
+
+#~ msgid "Mo_ve to Trash"
+#~ msgstr "_ทิ้งลงถังขยะ"
+
+#~ msgid "_Save Results As..."
+#~ msgstr "บันทึกผลการค้นหาเป็_น..."
+
+#, c-format
+#~ msgid "Character set conversion failed for \"%s\""
+#~ msgstr "ไม่สามารถแปลงรหัสอักขระสำหรับ \"%s\""
+
+#~ msgid "The following error has occurred :"
+#~ msgstr "เกิดข้อผิดพลาดต่อไปนี้ :"
+
+#~ msgid "Error"
+#~ msgstr "ผิดพลาด"
+
+#~ msgid "Did you mean"
+#~ msgstr "คุณหมายถึง"
+
+#~ msgid "Your search returned no results."
+#~ msgstr "ไม่พบข้อมูลที่ค้นหา"
+
+#~ msgid "Tracker Search Tool-"
+#~ msgstr "เครื่องมือสืบค้น Tracker - "
+
+#~ msgid "Tracker Search Tool"
+#~ msgstr "เครื่องมือสืบค้น Tracker"
+
+#~ msgid "Search _results: "
+#~ msgstr "_ผลการค้นหา:"
+
+#~ msgid "List View"
+#~ msgstr "รายการ"
+
+#~ msgid "Icon"
+#~ msgstr "ไอคอน"
+
+#~ msgid "Name"
+#~ msgstr "ชื่อ"
+
+#~ msgid "_Categories"
+#~ msgstr "_หมวดหมู่"
+
+#, c-format
+#~ msgid "%d - %d of %d items"
+#~ msgstr "%d - %d จากทั้งหมด %d รายการ"
+
+#, c-format
+#~ msgid "%d item"
+#~ msgid_plural "%d items"
+#~ msgstr[0] "%d รายการ"
+
+#~ msgid "Could not connect to search service as it may be busy"
+#~ msgstr "ไม่สามารถเชื่อมต่อกับบริการค้นหา บริการอาจทำงานอื่นอยู่"
+
+#~ msgid "_Search:"
+#~ msgstr "_ค้นหา:"
+
+#~ msgid "Tracker is still indexing so not all search results are available yet"
+#~ msgstr "Tracker กำลังทำดัชนีอยู่ ยังไม่สามารถเริ่มการค้นหาได้"
+
+#~ msgid "Enter a search term with multiple words seperated with spaces."
+#~ msgstr "ป้อนคำที่ต้องการค้นหา (แยกคำด้วยช่องว่าง)"
+
+#~ msgid "search_entry"
+#~ msgstr "search_entry"
+
+#~ msgid "Click to perform a search."
+#~ msgstr "คลิกเพื่อเริ่มค้นหา"
+
+#, c-format
+#~ msgid "Are you sure you want to open %d document?"
+#~ msgid_plural "Are you sure you want to open %d documents?"
+#~ msgstr[0] "ยืนยันที่จะเปิดเอกสาร %d รายการหรือไม่?"
+
+#, c-format
+#~ msgid "This will open %d separate window."
+#~ msgid_plural "This will open %d separate windows."
+#~ msgstr[0] "จะเปิดเป็น %d หน้าต่างแยกกัน"
+
+#, c-format
+#~ msgid "Could not open document \"%s\"."
+#~ msgstr "ไม่สามารเปิดแฟ้ม \"%s\""
+
+#~ msgid "The nautilus file manager is not running."
+#~ msgstr "โปรแกรมจัดการแฟ้ม nautilus ไม่ได้ทำงานอยู่"
+
+#~ msgid "Application could not be opened"
+#~ msgstr "ไม่สามารถเปิดโปรแกรมได้"
+
+#~ msgid "The document does not exist."
+#~ msgstr "ไม่มีเอกสารนี้อยู่"
+
+#~ msgid "There is no installed viewer capable of displaying the document."
+#~ msgstr "ไม่ได้ติดตั้งโปรแกรมสำหรับดูเอกสารชนิดนี้"
+
+#, c-format
+#~ msgid "Are you sure you want to open %d folder?"
+#~ msgid_plural "Are you sure you want to open %d folders?"
+#~ msgstr[0] "ยืนยันที่จะเปิด %d โฟลเดอร์หรือไม่?"
+
+#, c-format
+#~ msgid "Could not move \"%s\" to trash."
+#~ msgstr "ไม่สามารถทิ้ง \"%s\" ลงถังขยะ"
+
+#, c-format
+#~ msgid "Do you want to delete \"%s\" permanently?"
+#~ msgstr "คุณต้องการลบ \"%s\" อย่างถาวรหรือไม่?"
+
+#, c-format
+#~ msgid "Trash is unavailable.  Could not move \"%s\" to the trash."
+#~ msgstr "ไม่มีถังขยะในระบบ ไม่สามารถทิ้ง \"%s\" ลงถังขยะได้"
+
+#, c-format
+#~ msgid "Moving \"%s\" failed: %s."
+#~ msgstr "ไม่สามารถย้าย \"%s\": %s"
+
+#, c-format
+#~ msgid "Deleting \"%s\" failed: %s."
+#~ msgstr "ไม่สามารถลบ \"%s\": %s"
+
+#~ msgid "Activate to view this email"
+#~ msgstr "เรียกใช้งานเพื่อดูอีเมลนี้"
+
+#~ msgid "Save Search Results As..."
+#~ msgstr "บันทึกผลการค้นหาเป็น..."
+
+#~ msgid "You did not select a document name."
+#~ msgstr "คุณไม่ได้ตั้งชื่อเอกสาร"
+
+#, c-format
+#~ msgid "Could not save \"%s\" document to \"%s\"."
+#~ msgstr "ไม่สามารถบันทึกเอกสาร \"%s\" ใน \"%s\" "
+
+#, c-format
+#~ msgid "The document \"%s\" already exists.  Would you like to replace it?"
+#~ msgstr "มีเอกสาร \"%s\" อยู่แล้ว คุณต้องการบันทึกทับหรือไม่?"
+
+#~ msgid "If you replace an existing file, its contents will be overwritten."
+#~ msgstr "ถ้าคุณบันทึกทับแฟ้มเก่า ข้อมูลจะถูกเขียนทับ"
+
+#~ msgid "_Replace"
+#~ msgstr "_บันทึกทับ"
+
+#~ msgid "The document name you selected is a folder."
+#~ msgstr "เอกสารที่คุณเลือกเป็นโฟลเดอร์"
+
+#~ msgid "You may not have write permissions to the document."
+#~ msgstr "คุณไม่มีสิทธิ์เขียนเอกสารนี้"
+
+#~ msgid "Locate documents and folders on this computer by name or content using Tracker"
+#~ msgstr "ค้นหาเอกสารและโฟลเดอร์ในคอมพิวเตอร์นี้จากชื่อหรือเนื้อหาโดยใช้ Tracker"
+
+#, c-format
+#~ msgid ""
+#~ "GConf error:\n"
+#~ "  %s"
+#~ msgstr ""
+#~ "GConf ผิดพลาด:\n"
+#~ "  %s"
+
+#~ msgid "today at %-I:%M %p"
+#~ msgstr "วันนี้ เวลา %-H:%M น."
+
+#~ msgid "yesterday at %-I:%M %p"
+#~ msgstr "เมื่อวาน เวลา %-H:%M น."
+
+#~ msgid "%A, %B %-d %Y at %-I:%M:%S %p"
+#~ msgstr "%Aที่ %-d %B %Ey เวลา %-H:%M:%S น."
+
+#~ msgid "link (broken)"
+#~ msgstr "ลิงก์ (เสีย)"
+
+#, c-format
+#~ msgid "link to %s"
+#~ msgstr "ลิงก์ไปยัง %s"
+
+#~ msgid "Tracker search and indexing service"
+#~ msgstr "บริการสืบค้นและทำดัชนี Tracker"
