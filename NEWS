@@ -1,3 +1,24 @@
+NEW in 3.8.rc - 2024-09-01
+==========================
+  * UI/UX improvements to the web IDE
+  * Turned the web IDE into a "tinysparql webide" CLI command
+  * Separate HTTP code to an internal static library
+  * Handle chunked encoding in HTTP responses
+  * Added a new "tinysparql introspect" subcommand to introspect
+    ontology and data structure details from SPARQL endpoints
+  * Renamed the "tinysparql sparql" subcommand into "tinysparql query",
+    and substantially clean up its options (many of them moved to the
+    "introspect" subcommand)
+  * Provide RDF namespaces at a minimum on empty JSON-LD data
+  * Memory leak fixes
+  * Fixes to issues reported by Coverity
+  * Clean up traces of GVDB
+  * Improved test coverage, above 90% now
+  * Handle TINYSPARQL_DEBUG environment variable for debugging
+
+Translations: be, ca, cs, el, eu, fa, he, hu, ka, ko, lt, pt,
+  pt_BR, ro, ru, th, tr, uk, zh_CN
+
 NEW in 3.8.beta - 2024-08-09
 ============================
   * New frontend code for web IDE, featuring error highlighting
