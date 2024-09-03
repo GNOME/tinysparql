@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker.HEAD.gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-07-30 23:14+0000\n"
-"PO-Revision-Date: 2024-09-02 20:10+0200\n"
+"POT-Creation-Date: 2024-09-03 20:08+0000\n"
+"PO-Revision-Date: 2024-09-03 23:09+0200\n"
 "Last-Translator: Fran Dieguez <fran.dieguez@gnome.org>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
@@ -32,6 +32,7 @@ msgstr ""
 #. * case doesn't matter. Given English media is quite common, it is
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
+#.
 #: src/libtracker-sparql/core/tracker-collation.c:116
 msgid "the|a|an"
 msgstr "o|a|un|unha"
@@ -40,15 +41,16 @@ msgstr "o|a|un|unha"
 msgid "Version"
 msgstr "Versión"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
 #: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:245
+#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
 msgid "Unrecognized options"
 msgstr "Non se recoñeceron as opcións"
 
 #: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
-#: src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
+#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Localización da base de datos"
 
@@ -111,48 +113,44 @@ msgstr "Debe fornecer unha opción «ontology» ou unha «ontology-path»"
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "--http-port non pode usarse xunto con --dbus-service"
 
-#: src/tracker/tracker-endpoint.c:201
+#: src/tracker/tracker-endpoint.c:198
 #, c-format
 msgid "Creating HTTP endpoint at %s…\n"
 msgstr "Creando «endpoint» HTTP en %s…\n"
 
-#: src/tracker/tracker-endpoint.c:202
-#, c-format
-msgid "Web IDE available at %s\n"
-msgstr "Web IDE dispoñible en %s\n"
-
-#: src/tracker/tracker-endpoint.c:222 src/tracker/tracker-endpoint.c:285
+#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Escoitando por ordes de SPARQL. Prema Ctrl-C para deter."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:230 src/tracker/tracker-endpoint.c:300
+#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-webide.c:101
 msgid "Closing connection…"
 msgstr "Pechando a conexión…"
 
-#: src/tracker/tracker-endpoint.c:245
+#: src/tracker/tracker-endpoint.c:240
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Creando «endpoint» en %s…"
 
-#: src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:276
 msgid "Could not own DBus name"
 msgstr "Non é posíbel posuír un nome de DBus"
 
-#: src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-endpoint.c:290
 msgid "DBus name lost"
 msgstr "Nome de DBus perdido"
 
-#: src/tracker/tracker-endpoint.c:655
+#: src/tracker/tracker-endpoint.c:650
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Abrindo a base de datos en %s…"
 
-#: src/tracker/tracker-endpoint.c:658
+#: src/tracker/tracker-endpoint.c:653
 msgid "Creating in-memory database"
 msgstr "Creando unha base de datos en memoria"
 
-#: src/tracker/tracker-endpoint.c:685
+#: src/tracker/tracker-endpoint.c:680
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -162,18 +160,19 @@ msgstr ""
 
 #: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
+#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FICHEIRO"
 
 #: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "Conéctase a un servizo de DBus"
 
 #: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
 msgid "DBus service name"
 msgstr "Nome do servizo de DBus"
 
@@ -186,12 +185,12 @@ msgid "RDF_FORMAT"
 msgstr "RDF_FORMAT"
 
 #: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Conéctase a un servizo remoto"
 
 #: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:122
+#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "URI do servizo remoto"
 
@@ -205,18 +204,19 @@ msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:206
+#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Especifique unha opción «--database», «--dbus-service» ou «--remote-service»"
 
 #: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
+#: src/tracker/tracker-query.c:345
 msgid "No error given"
 msgstr "Non se obtivo ningún erro"
 
 #: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1072
+#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
 
@@ -224,11 +224,6 @@ msgstr "Non foi posíbel estabelecer unha conexión con Tracker"
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Formato de serializado «%s» non compatíbel\n"
-
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "fallo ao executar «%s»: %s"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -238,131 +233,184 @@ msgstr "Ler o formato TriG que inclúe información dos grafos con nome"
 msgid "Could not run import"
 msgstr "Non foi posíbel executar a importación"
 
-#: src/tracker/tracker-main.c:70
-msgid "Get help on how to use TinySPARQL and any of these commands"
-msgstr "Obter axuda sobre como usar TinySPARQL e calquera destas ordes"
+#: src/tracker/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "Lista todas as clases dispoñíbeis"
 
-#: src/tracker/tracker-main.c:71
-msgid "Create a SPARQL endpoint"
-msgstr "Crear «endpoint» de SPARQL"
+#: src/tracker/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "Lista todos os prefixos dispoñíbeis"
 
-#: src/tracker/tracker-main.c:72
-msgid "Export data from a TinySPARQL database"
-msgstr "Exportar datos desde unha base de datos TinySPARQL"
+#: src/tracker/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr "Lista todas as clases que notifican cambios na base de datos"
 
-#: src/tracker/tracker-main.c:73
-msgid "Import data into a TinySPARQL database"
-msgstr "Importar datos na base de datos de TinySPARQL"
+#: src/tracker/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr "Lista os índices usados na base de datos para mellorar o rendemento"
 
-#: src/tracker/tracker-main.c:74
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"Consultar e actualizar o índice usando SPARQL ou busque, liste ou mostre un "
-"árbore a ontoloxía"
-
-#: src/tracker/tracker-main.c:91
-msgid "Available tinysparql commands are:"
-msgstr "As ordes de tinysparql dispoñíbeis son:"
-
-#: src/tracker/tracker-main.c:110
-msgid "See “tinysparql help <command>” to read about a specific subcommand."
-msgstr "Vexa «tinysparql help <orde>» para ler sobre unha suborde específica."
-
-#: src/tracker/tracker-main.c:153
-#, c-format
-msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
-msgstr "«%s» non é unha orde de tinysparql. Vexa «tinysparql --help»"
-
-#: src/tracker/tracker-sparql.c:125
-msgid "Path to use to run a query or update from file"
-msgstr ""
-"Ruta que usar para executar unha consulta ou actualizar desde un ficheiro"
-
-#: src/tracker/tracker-sparql.c:129
-msgid "SPARQL query"
-msgstr "Consulta SPARQL"
-
-#: src/tracker/tracker-sparql.c:130
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:133
-msgid "This is used with --query and for database updates only."
-msgstr "Úsase con «--query» e só para actualizacións da base de datos."
-
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve classes"
-msgstr "Obter clases"
-
-#: src/tracker/tracker-sparql.c:141
-msgid "Retrieve class prefixes"
-msgstr "Obter prefixos de clases"
-
-#: src/tracker/tracker-sparql.c:145
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
-msgstr ""
-"Obter as propiedades para unha clase, tamén se poden usar prefixos (ex. rdfs:"
-"Recurso)"
-
-#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
-#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
-#: src/tracker/tracker-sparql.c:174
-msgid "CLASS"
-msgstr "CLASE"
-
-#: src/tracker/tracker-sparql.c:149
-msgid "Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-"Obter as chaves que notifican cambios na base de datos (CLASE é opcional)"
-
-#: src/tracker/tracker-sparql.c:153
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is optional)"
-msgstr ""
-"Obter os índices usados na base de datos para mellorar o rendemento "
-"(PROPIEDADE é opcional)"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "PROPERTY"
-msgstr "PROPIEDADE"
-
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Obter todos os grafos con nome"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
 msgstr ""
-"Describe as subclases, superclases (pode usarse con -s para realzar partes do "
-"árbore e -p para mostrar as propiedades)"
+"Describe as subclases, superclases (pode usarse con -s para realzar partes "
+"do árbore e -p para mostrar as propiedades)"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "CLASE"
+
+#: src/tracker/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "Lista tódolas propiedades dispoñíbeis"
+
+#: src/tracker/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Buscar unha clase ou propiedade e buscar máis información (ex. documento)"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "CLASE/PROPIEDADE"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Devolve o atallo para a clase (p.ex. nfo:FileDataObject)."
+#: src/tracker/tracker-introspect.c:716
+msgid "Could not create tree: subclass query failed"
+msgstr "Non foi posíbel crear o árbore: fallou a consulta da subclase"
 
-#: src/tracker/tracker-sparql.c:173
-msgid "Returns the full namespace for a class."
-msgstr "Devolve o espazo de nomes completo para a clase."
+#: src/tracker/tracker-introspect.c:766
+msgid "Could not create tree: class properties query failed"
+msgstr ""
+"Non foi posíbel crear o árbore: fallou a consulta das propiedades da clase"
 
-#: src/tracker/tracker-sparql.c:177
+#: src/tracker/tracker-introspect.c:850
+msgid "Could not search classes"
+msgstr "Non é posíbel buscar chaves"
+
+#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+msgid "Classes"
+msgstr "Clases"
+
+#: src/tracker/tracker-introspect.c:870
+msgid "Could not search properties"
+msgstr "Non se puideron buscar propiedades"
+
+#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+msgid "Properties"
+msgstr "Propiedades"
+
+#: src/tracker/tracker-introspect.c:904
+msgid "Could not list properties"
+msgstr "Non foi posíbel listar as propiedades"
+
+#: src/tracker/tracker-introspect.c:920
+msgid "Namespaces"
+msgstr "Espazos de nomes"
+
+#: src/tracker/tracker-introspect.c:934
+msgid "Could not list classes"
+msgstr "Non foi posíbel listar as chaves"
+
+#: src/tracker/tracker-introspect.c:954
+msgid "Could not find notify classes"
+msgstr "Non foi posíbel atopar as clases de notificación"
+
+#: src/tracker/tracker-introspect.c:962
+msgid "Notifies"
+msgstr "Notifica"
+
+#: src/tracker/tracker-introspect.c:974
+msgid "Could not find indexed properties"
+msgstr "Non foi posíbel atopar as propiedades dos índices"
+
+#: src/tracker/tracker-introspect.c:982
+msgid "Indexes"
+msgstr "Índices"
+
+#: src/tracker/tracker-introspect.c:994
+msgid "Could not list named graphs"
+msgstr "Non foi posíbel listar os grafos con nome"
+
+#: src/tracker/tracker-introspect.c:1002
+msgid "Named graphs"
+msgstr "Grafos con nome"
+
+#: src/tracker/tracker-introspect.c:1036
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"O argumento --list-properties só pode estar baleiro cando se usa co "
+"argumento --tree"
+
+#: src/tracker/tracker-main.c:72
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "Obter axuda sobre como usar TinySPARQL e calquera destas ordes"
+
+#: src/tracker/tracker-main.c:73
+msgid "Create a SPARQL endpoint"
+msgstr "Crear «endpoint» de SPARQL"
+
+#: src/tracker/tracker-main.c:74
+msgid "Export data from a TinySPARQL database"
+msgstr "Exportar datos desde unha base de datos TinySPARQL"
+
+#: src/tracker/tracker-main.c:75
+msgid "Import data into a TinySPARQL database"
+msgstr "Importar datos na base de datos de TinySPARQL"
+
+#: src/tracker/tracker-main.c:76
+msgid "Introspect a SPARQL endpoint"
+msgstr "Introspeccionar o «endpoint» de SPARQL"
+
+#: src/tracker/tracker-main.c:77
+msgid "Query and update the index using SPARQL"
+msgstr "Consultar e actualizar o índice usando SPARQL"
+
+#: src/tracker/tracker-main.c:78
+msgid "Create a Web IDE to query local databases"
+msgstr "Crear un IDE Web para consultar bases de datos locais"
+
+#: src/tracker/tracker-main.c:95
+msgid "Available tinysparql commands are:"
+msgstr "As ordes de tinysparql dispoñíbeis son:"
+
+#: src/tracker/tracker-main.c:114
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr "Vexa «tinysparql help <orde>» para ler sobre unha suborde específica."
+
+#: src/tracker/tracker-main.c:157
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "«%s» non é unha orde de tinysparql. Vexa «tinysparql --help»"
+
+#: src/tracker/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr ""
+"Ruta que usar para executar unha consulta ou actualizar desde un ficheiro"
+
+#: src/tracker/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "Consulta SPARQL"
+
+#: src/tracker/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/tracker/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr "Úsase con «--query» e só para actualizacións da base de datos."
+
+#: src/tracker/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
 msgstr "Fornece un argumento para o parámetro de busc."
 
-#: src/tracker/tracker-sparql.c:178
+#: src/tracker/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
 msgstr "PARAMETRO:TIPO:VALOR"
 
@@ -370,147 +418,53 @@ msgstr "PARAMETRO:TIPO:VALOR"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
+#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
 msgid "None"
 msgstr "Ningún"
 
-#: src/tracker/tracker-sparql.c:899
-msgid "Could not create tree: subclass query failed"
-msgstr "Non foi posíbel crear o árbore: fallou a consulta da subclase"
-
-#: src/tracker/tracker-sparql.c:949
-msgid "Could not create tree: class properties query failed"
-msgstr ""
-"Non foi posíbel crear o árbore: fallou a consulta das propiedades da clase"
-
-#: src/tracker/tracker-sparql.c:1009
+#: src/tracker/tracker-query.c:282
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "Tipo de cadea de argumento non válida %s"
 
-#: src/tracker/tracker-sparql.c:1019
+#: src/tracker/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "Tipo de parámetro para o argumento non válida %s"
 
-#: src/tracker/tracker-sparql.c:1089
-msgid "Could not list classes"
-msgstr "Non foi posíbel listar as chaves"
-
-#: src/tracker/tracker-sparql.c:1097
-msgid "No classes were found"
-msgstr "Non foi posíbel atopar ningunha clase"
-
-#: src/tracker/tracker-sparql.c:1097 src/tracker/tracker-sparql.c:1219
-msgid "Classes"
-msgstr "Clases"
-
-#: src/tracker/tracker-sparql.c:1120
-msgid "Could not list properties"
-msgstr "Non foi posíbel listar as propiedades"
-
-#: src/tracker/tracker-sparql.c:1128
-msgid "No properties were found"
-msgstr "Non foi posíbel ningunha propiedade"
-
-#: src/tracker/tracker-sparql.c:1128 src/tracker/tracker-sparql.c:1237
-msgid "Properties"
-msgstr "Propiedades"
-
-#: src/tracker/tracker-sparql.c:1144
-msgid "Could not find notify classes"
-msgstr "Non foi posíbel atopar as clases de notificación"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "No notifies were found"
-msgstr "Non foi posíbel atopar ningunha notificación"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "Notifies"
-msgstr "Notifica"
-
-#: src/tracker/tracker-sparql.c:1168
-msgid "Could not find indexed properties"
-msgstr "Non foi posíbel atopar as propiedades dos índices"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "No indexes were found"
-msgstr "Non se atopou ningún índice"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "Indexes"
-msgstr "Índices"
-
-#: src/tracker/tracker-sparql.c:1186
-msgid "Could not list named graphs"
-msgstr "Non foi posíbel listar os grafos con nome"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "No graphs were found"
-msgstr "Non se atoparon grafos"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "Named graphs"
-msgstr "Grafos con nome"
-
-#: src/tracker/tracker-sparql.c:1211
-msgid "Could not search classes"
-msgstr "Non é posíbel buscar chaves"
-
-#: src/tracker/tracker-sparql.c:1219
-msgid "No classes were found to match search term"
-msgstr "Non se atopou ningunha chave que coincidira co termo de busca"
-
-#: src/tracker/tracker-sparql.c:1229
-msgid "Could not search properties"
-msgstr "Non se puideron buscar propiedades"
-
-#: src/tracker/tracker-sparql.c:1237
-msgid "No properties were found to match search term"
-msgstr ""
-"Non foi posíbel atopar ningunha propiedade que coincidira co termo de busca"
-
-#: src/tracker/tracker-sparql.c:1266 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
 msgstr "Non se puido obter o camiño UTF-8 do camiño"
 
-#: src/tracker/tracker-sparql.c:1278 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
 msgid "Could not read file"
 msgstr "Non se puido ler o ficheiro"
 
-#: src/tracker/tracker-sparql.c:1309
+#: src/tracker/tracker-query.c:403
 msgid "Could not run update"
 msgstr "Non foi posíbel executar a actualización"
 
-#: src/tracker/tracker-sparql.c:1316
+#: src/tracker/tracker-query.c:410
 msgid "Done"
 msgstr "Feito"
 
-#: src/tracker/tracker-sparql.c:1334 src/tracker/tracker-sql.c:137
-#: src/tracker/tracker-sql.c:170
+#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
+#: src/tracker/tracker-sql.c:163
 msgid "Could not run query"
 msgstr "Non foi posíbel executar a consulta"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
 msgid "No results found matching your query"
 msgstr "Non se encontraron resultados coincidentes coa súa consulta"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
-#: src/tracker/tracker-sql.c:144
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/tracker/tracker-sql.c:137
 msgid "Results"
 msgstr "Resultados"
 
-#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:256
+#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
 msgid "File and query can not be used together"
 msgstr "Non foi posíbel usar conxuntamente o ficheiro e a consulta"
-
-#: src/tracker/tracker-sparql.c:1403
-msgid ""
-"The --list-properties argument can only be empty when used with the --tree "
-"argument"
-msgstr ""
-"O argumento --list-properties só pode estar baleiro cando se usa co argumento "
-"--tree"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -524,17 +478,89 @@ msgstr "Consulta SQL"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:114
+#: src/tracker/tracker-sql.c:107
 msgid "Failed to initialize data manager"
 msgstr "Produciuse un fallo ao iniciar o administrador de datos"
 
-#: src/tracker/tracker-sql.c:178
+#: src/tracker/tracker-sql.c:171
 msgid "Empty result set"
 msgstr "Conxunto de resultados baleiro"
 
-#: src/tracker/tracker-sql.c:254
+#: src/tracker/tracker-sql.c:247
 msgid "A database path must be specified"
 msgstr "Debe especificar unha ruta a unha base de datos"
+
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "Porto no que escoitar"
+
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "Porto non especificado"
+
+#: src/tracker/tracker-webide.c:80
+#, c-format
+msgid "%s %s…\n"
+msgstr "%s %s…\n"
+
+#: src/tracker/tracker-webide.c:80
+msgid "Creating Web IDE at"
+msgstr "Creando un IDE de Web en"
+
+#, c-format
+#~ msgid "Web IDE available at %s\n"
+#~ msgstr "Web IDE dispoñible en %s\n"
+
+#, c-format
+#~ msgid "failed to exec “%s”: %s"
+#~ msgstr "fallo ao executar «%s»: %s"
+
+#~ msgid "Retrieve classes"
+#~ msgstr "Obter clases"
+
+#~ msgid "Retrieve class prefixes"
+#~ msgstr "Obter prefixos de clases"
+
+#~ msgid ""
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+#~ "Resource)"
+#~ msgstr ""
+#~ "Obter as propiedades para unha clase, tamén se poden usar prefixos (ex. "
+#~ "rdfs:Recurso)"
+
+#~ msgid "PROPERTY"
+#~ msgstr "PROPIEDADE"
+
+#~ msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+#~ msgstr "Devolve o atallo para a clase (p.ex. nfo:FileDataObject)."
+
+#~ msgid "Returns the full namespace for a class."
+#~ msgstr "Devolve o espazo de nomes completo para a clase."
+
+#~ msgid "No classes were found"
+#~ msgstr "Non foi posíbel atopar ningunha clase"
+
+#~ msgid "No properties were found"
+#~ msgstr "Non foi posíbel ningunha propiedade"
+
+#~ msgid "No notifies were found"
+#~ msgstr "Non foi posíbel atopar ningunha notificación"
+
+#~ msgid "No indexes were found"
+#~ msgstr "Non se atopou ningún índice"
+
+#~ msgid "No graphs were found"
+#~ msgstr "Non se atoparon grafos"
+
+#~ msgid "No classes were found to match search term"
+#~ msgstr "Non se atopou ningunha chave que coincidira co termo de busca"
+
+#~ msgid "No properties were found to match search term"
+#~ msgstr ""
+#~ "Non foi posíbel atopar ningunha propiedade que coincidira co termo de "
+#~ "busca"
 
 #~ msgid "endpoint"
 #~ msgstr "endpoint"
@@ -582,7 +608,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "Prefixos"
 
 #~ msgid ""
-#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
+#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
+#~ "Resource”"
 #~ msgstr ""
 #~ "Non foi posíbel atopar a propiedade para a clase do prefixo, ex. :Recurso "
 #~ "en «rdfs:Recurso»"
@@ -634,11 +661,11 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "Mostra o contido en texto plano se está dispoñíbel para os recursos"
 
 #~ msgid ""
-#~ "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-#~ "(e.g. <file:///path/to/some/file.txt>)"
+#~ "Instead of looking up a file name, treat the FILE arguments as actual "
+#~ "IRIs (e.g. <file:///path/to/some/file.txt>)"
 #~ msgstr ""
-#~ "No lugar de buscar por un nome de ficheiro, tratar os argumentos FILE como "
-#~ "IRIs reais (p.ex. <file:///ruta/a/algun/ficheiro.txt>)"
+#~ "No lugar de buscar por un nome de ficheiro, tratar os argumentos FILE "
+#~ "como IRIs reais (p.ex. <file:///ruta/a/algun/ficheiro.txt>)"
 
 #~ msgid "Output results as RDF in Turtle format"
 #~ msgstr "Mostrar os resultados como RDF en formato Turtle"
@@ -682,14 +709,16 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "Lonxitude máxima dunha palabra que indexar"
 
 #~ msgid ""
-#~ "Words with more characters than this length will be ignored by the indexer."
+#~ "Words with more characters than this length will be ignored by the "
+#~ "indexer."
 #~ msgstr "O indexador ignorará as palabras con máis caracteres destos."
 
 #~ msgid "Maximum number of words to index in a document"
 #~ msgstr "Número máximo de números nun documento que indexar"
 
 #~ msgid ""
-#~ "Indexer will read only this maximum number of words from a single document."
+#~ "Indexer will read only this maximum number of words from a single "
+#~ "document."
 #~ msgstr ""
 #~ "O indexadore leerá só este número máximo de palabras dun único documento."
 
@@ -707,11 +736,11 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "Activar unaccent"
 
 #~ msgid ""
-#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-#~ "“Idea” for improved matching."
+#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” "
+#~ "to “Idea” for improved matching."
 #~ msgstr ""
-#~ "Traducir caracteres acentuados ao seu equivalente sen acentuar. Ex. «Idéa» "
-#~ "a «Idea» para mellorar a coincidencia."
+#~ "Traducir caracteres acentuados ao seu equivalente sen acentuar. Ex. "
+#~ "«Idéa» a «Idea» para mellorar a coincidencia."
 
 #~ msgid "Ignore numbers"
 #~ msgstr "Ignorar números"
@@ -726,8 +755,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ "If enabled, the words listed in the stop-words list are ignored. E.g. "
 #~ "common words like “the”, “yes”, “no”, etc."
 #~ msgstr ""
-#~ "Se está activada, ignoraranse as palabras mostradas na lista de palabras de "
-#~ "parada. Ex. palabras comúns como «si», «non», etc."
+#~ "Se está activada, ignoraranse as palabras mostradas na lista de palabras "
+#~ "de parada. Ex. palabras comúns como «si», «non», etc."
 
 #~ msgid "Log verbosity"
 #~ msgstr "Rexistro detallado"
@@ -742,18 +771,18 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ "Period in milliseconds between GraphUpdated signals being emitted when "
 #~ "indexed data has changed inside the database."
 #~ msgstr ""
-#~ "Período en milisegundos entre que os sinais GraphUpdated emitidos cando os "
-#~ "datos indexados foron cambiados na base de datos."
+#~ "Período en milisegundos entre que os sinais GraphUpdated emitidos cando "
+#~ "os datos indexados foron cambiados na base de datos."
 
 #~ msgid "Displays version information"
 #~ msgstr "Mostra a información da versión"
 
 #~ msgid ""
-#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default "
-#~ "= 0)"
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default = 0)"
 #~ msgstr ""
-#~ "Inicio de sesión, 0 = só erros, 1 = mínimo, 2 = detallado e 3 = depuración "
-#~ "(predeterminado = 0)"
+#~ "Inicio de sesión, 0 = só erros, 1 = mínimo, 2 = detallado e 3 = "
+#~ "depuración (predeterminado = 0)"
 
 #~ msgid "Disable automatic shutdown"
 #~ msgstr "Desactivar o apagado automático"
@@ -839,8 +868,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "RAZÓN"
 
 #~ msgid ""
-#~ "Pause a miner while the calling process is alive or until resumed (you must "
-#~ "use this with --miner)"
+#~ "Pause a miner while the calling process is alive or until resumed (you "
+#~ "must use this with --miner)"
 #~ msgstr ""
 #~ "Pausar un mineiro mentres o proceso de chamada estea activo ou até que se "
 #~ "reanude (debe usalo con «--miner»)"
@@ -852,8 +881,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "COOKIE"
 
 #~ msgid ""
-#~ "Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
-#~ "Applications)"
+#~ "Miner to use with --resume or --pause (you can use suffixes, e.g. Files "
+#~ "or Applications)"
 #~ msgstr ""
 #~ "Mineiro que usar con --resume ou --pause (pode usar sufixos, ex. "
 #~ "«Ficheiros» ou «Aplicacións»)"
@@ -869,9 +898,6 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 
 #~ msgid "List pause reasons"
 #~ msgstr "Listar os motivos de pausa"
-
-#~ msgid "List all Tracker processes"
-#~ msgstr "Listar tódolos procesos de Tracker"
 
 #~ msgid ""
 #~ "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
@@ -937,7 +963,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ "Non foi posíbel chamar a tracker_sparql_cursor_next() na consulta SPARQL"
 
 #~ msgid "Could not pause miner, manager could not be created, %s"
-#~ msgstr "Non foi posíbel pausar o mineiro, non foi posíbel crear o xestor, %s"
+#~ msgstr ""
+#~ "Non foi posíbel pausar o mineiro, non foi posíbel crear o xestor, %s"
 
 #~ msgid "Attempting to pause miner “%s” with reason “%s”"
 #~ msgstr "Tentando pausar o mineiro «%s» coa razón «%s»"
@@ -977,8 +1004,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 
 #~ msgid "Could not get pause details, manager could not be created, %s"
 #~ msgstr ""
-#~ "Non foi posíbel obter os detalles de pausa, non foi posíbel crear o xestor, "
-#~ "%s"
+#~ "Non foi posíbel obter os detalles de pausa, non foi posíbel crear o "
+#~ "xestor, %s"
 
 #~ msgid "No miners are running"
 #~ msgstr "Non hai ningún mineiro en execución"
@@ -1032,14 +1059,16 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr ""
 #~ "Non se poden empregar os argumentos --kill e --terminate de forma conxunta"
 
-#~ msgid "You can not use the --get-logging and --set-logging arguments together"
+#~ msgid ""
+#~ "You can not use the --get-logging and --set-logging arguments together"
 #~ msgstr ""
 #~ "Non é posíbel usar os argumentos «--get-logging» e «--set-logging» á vez"
 
-#~ msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
+#~ msgid ""
+#~ "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 #~ msgstr ""
-#~ "Rexistro detallado non válido, probe con «debug», «detailed», «minimal» ou "
-#~ "«errors»"
+#~ "Rexistro detallado non válido, probe con «debug», «detailed», «minimal» "
+#~ "ou «errors»"
 
 #~ msgid "Found %d PID…"
 #~ msgid_plural "Found %d PIDs…"
@@ -1056,7 +1085,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "Só aqueles coa configuración listada"
 
 #~ msgid "Setting log verbosity for all components to “%s”…"
-#~ msgstr "Estabelecendo o rexistro detallado para tódolos compoñentens a «%s»…"
+#~ msgstr ""
+#~ "Estabelecendo o rexistro detallado para tódolos compoñentens a «%s»…"
 
 #~ msgid "Starting miners…"
 #~ msgstr "Inciando mineiros…"
@@ -1069,7 +1099,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "quizáis é un engadido desactivado?"
 
 #~ msgid ""
-#~ "If no arguments are given, the status of the store and data miners is shown"
+#~ "If no arguments are given, the status of the store and data miners is "
+#~ "shown"
 #~ msgstr ""
 #~ "Se non se fornecen argumentos, mostrarase o estado do almacenamento e dos "
 #~ "mineiros de datos"
@@ -1100,7 +1131,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "Respaldar o índice actual / bases de datos ao ficheiro fornecido"
 
 #~ msgid "Restore a database from a previous backup (see --backup)"
-#~ msgstr "Restaura unha base de datos desde o respaldo anterior (vexa --backup)"
+#~ msgstr ""
+#~ "Restaura unha base de datos desde o respaldo anterior (vexa --backup)"
 
 #~ msgid "Import a dataset from the provided file (in Turtle format)"
 #~ msgstr ""
@@ -1109,7 +1141,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 
 #~ msgid "Could not reindex mimetypes, manager could not be created, %s"
 #~ msgstr ""
-#~ "Non foi posíbel reindexar os tipos MIME, non foi posíbel crear o xestor, %s"
+#~ "Non foi posíbel reindexar os tipos MIME, non foi posíbel crear o xestor, "
+#~ "%s"
 
 #~ msgid "Could not reindex mimetypes"
 #~ msgstr "Non foi posíbel reindexar os tipos MIME"
@@ -1137,8 +1170,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "Restaurando base de datos desde o respaldo"
 
 #~ msgid ""
-#~ "Only one action (--backup, --restore, --index-file or --import) can be used "
-#~ "at a time"
+#~ "Only one action (--backup, --restore, --index-file or --import) can be "
+#~ "used at a time"
 #~ msgstr ""
 #~ "Só pode usar á vez unha acción (--backup, --restore, --index-file ou --"
 #~ "import)"
@@ -1156,7 +1189,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ "As accións (--backup, --restore, --index-file and --import) non poden "
 #~ "usarse con --reindex-mime-type"
 
-#~ msgid "Start, stop, pause and list processes responsible for indexing content"
+#~ msgid ""
+#~ "Start, stop, pause and list processes responsible for indexing content"
 #~ msgstr ""
 #~ "Iniciar, deter, pausar e listar os procesos responsábeis para indexar "
 #~ "contido"
@@ -1178,7 +1212,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 
 #~ msgid "Show the indexing progress, content statistics and index state"
 #~ msgstr ""
-#~ "Mostrar o progreso de indexado, estatísticas de contido ou estado do índice"
+#~ "Mostrar o progreso de indexado, estatísticas de contido ou estado do "
+#~ "índice"
 
 #~ msgid "Create, list or delete tags for indexed content"
 #~ msgstr "Crear, listar ou eliminar etiquetas para o contido indexado"
@@ -1212,9 +1247,11 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 
 #~ msgid "Same as --hard but the backup & journal are restored after restart"
 #~ msgstr ""
-#~ "Igual que --hard pero o respaldo e o diario restáuranse despois de reiniciar"
+#~ "Igual que --hard pero o respaldo e o diario restáuranse despois de "
+#~ "reiniciar"
 
-#~ msgid "Remove all configuration files so they are re-generated on next start"
+#~ msgid ""
+#~ "Remove all configuration files so they are re-generated on next start"
 #~ msgstr ""
 #~ "Quitar todos os ficheiros de configuración para que se rexeneren no "
 #~ "seguinte inicio"
@@ -1229,7 +1266,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "Eliminando…"
 
 #~ msgid ""
-#~ "The indexed data for this file has been deleted and will be reindexed again."
+#~ "The indexed data for this file has been deleted and will be reindexed "
+#~ "again."
 #~ msgstr ""
 #~ "Os datos indexados para este ficheiro foi eliminado e volverá a indexarse "
 #~ "de novo."
@@ -1241,14 +1279,14 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "PERIGO: Este proceso pode eliminar datos de forma irreversíbel."
 
 #~ msgid ""
-#~ "Although most content indexed by Tracker can be safely reindexed, it can’t "
-#~ "be assured that this is the case for all data. Be aware that you may be "
-#~ "incurring in a data loss situation, proceed at your own risk."
+#~ "Although most content indexed by Tracker can be safely reindexed, it "
+#~ "can’t be assured that this is the case for all data. Be aware that you "
+#~ "may be incurring in a data loss situation, proceed at your own risk."
 #~ msgstr ""
-#~ "Aínda que a maioría dos contidos indexados por Tracker poden reindexarse de "
-#~ "forma segura, non pode asegurarse que este sexa o caso para todos os datos. "
-#~ "Teña en conta que pode chegarse a unha situación de perda de datos, proceda "
-#~ "baixo o seu risco."
+#~ "Aínda que a maioría dos contidos indexados por Tracker poden reindexarse "
+#~ "de forma segura, non pode asegurarse que este sexa o caso para todos os "
+#~ "datos. Teña en conta que pode chegarse a unha situación de perda de "
+#~ "datos, proceda baixo o seu risco."
 
 #~ msgid "Are you sure you want to proceed?"
 #~ msgstr "Está seguro de que quere seguir?"
@@ -1314,16 +1352,16 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr "Use OR para buscar termos en lugar de AND (o predeterminado)"
 
 #~ msgid ""
-#~ "Show URNs for results (doesn’t apply to --music-albums, --music-artists, --"
-#~ "feeds, --software, --software-categories)"
+#~ "Show URNs for results (doesn’t apply to --music-albums, --music-artists, "
+#~ "--feeds, --software, --software-categories)"
 #~ msgstr ""
 #~ "Mostrar a URN para os resultados (non se aplica para «--music-albums», «--"
 #~ "music-artists», «--feeds», «--software», «--software-categories»)"
 
 #~ msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 #~ msgstr ""
-#~ "Devolver tamén todas as coincidencias non existentes (ex. incluir volúmenes "
-#~ "sen montar)"
+#~ "Devolver tamén todas as coincidencias non existentes (ex. incluir "
+#~ "volúmenes sen montar)"
 
 #~ msgid ""
 #~ "Disable showing snippets with results. This is only shown for some "
@@ -1425,8 +1463,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ "Stop words are common words which may be ignored during the indexing "
 #~ "process."
 #~ msgstr ""
-#~ "As palabras de parada son palabras que poden ignorarse durante o proceso de "
-#~ "indexado."
+#~ "As palabras de parada son palabras que poden ignorarse durante o proceso "
+#~ "de indexado."
 
 #~ msgid "Show statistics for current index / data set"
 #~ msgstr "Mostrar estatísticas do índice / conxunto de datos actuais"
@@ -1508,8 +1546,8 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgid ""
 #~ "List all tags (using FILTER if specified; FILTER always uses logical OR)"
 #~ msgstr ""
-#~ "Listar tódalas etiquetas (usando FILTRO se se especifica; FILTRO sempre usa "
-#~ "o OR lóxico)"
+#~ "Listar tódalas etiquetas (usando FILTRO se se especifica; FILTRO sempre "
+#~ "usa o OR lóxico)"
 
 #~ msgid "FILTER"
 #~ msgstr "FILTRO"
@@ -1518,10 +1556,11 @@ msgstr "Debe especificar unha ruta a unha base de datos"
 #~ msgstr ""
 #~ "Mostrar os ficheiros asociados con cada etiqueta (só se usa con «--list»)"
 
-#~ msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+#~ msgid ""
+#~ "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
 #~ msgstr ""
-#~ "Engadir unha etiqueta (se se omiten os FICHEIROS, A ETIQUETA non se asocia "
-#~ "con ningún ficheiro)"
+#~ "Engadir unha etiqueta (se se omiten os FICHEIROS, A ETIQUETA non se "
+#~ "asocia con ningún ficheiro)"
 
 #~ msgid "TAG"
 #~ msgstr "ETIQUETA"
