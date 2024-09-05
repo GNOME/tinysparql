@@ -8,15 +8,15 @@
 # Kaan Özdinçer <kaanozdincer@gmail.com>, 2015.
 # İbrahim Aydın <brhm.1995@hotmail.com>, 2017.
 # Muhammet Kara <muhammetk@gmail.com>, 2014, 2015, 2017.
-# Emin Tufan Çetin <etcetin@gmail.com>, 2018-2024.
 # Sabri Ünal <yakushabb@gmail.com>, 2024.
+# Emin Tufan Çetin <etcetin@gmail.com>, 2018-2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: TinySPARQL master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-08-20 01:33+0000\n"
-"PO-Revision-Date: 2024-08-24 08:00+0300\n"
+"POT-Creation-Date: 2024-09-03 20:08+0000\n"
+"PO-Revision-Date: 2024-09-05 08:00+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <takim@gnome.org.tr>\n"
 "Language: tr\n"
@@ -41,15 +41,16 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "Sürüm"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
 #: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:235
+#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
 msgid "Unrecognized options"
 msgstr "Tanınmayan seçenekler"
 
 #: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
-#: src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
+#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Veri tabanının konumu"
 
@@ -112,48 +113,44 @@ msgstr "Bir “ontology” veya “ontology-path” seçeneği sağlanmalıdır"
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "--http-port ve --dbus-service birlikte kullanılamaz"
 
-#: src/tracker/tracker-endpoint.c:201
+#: src/tracker/tracker-endpoint.c:198
 #, c-format
 msgid "Creating HTTP endpoint at %s…\n"
 msgstr "%s konumunda HTTP uç noktası oluşturuluyor…\n"
 
-#: src/tracker/tracker-endpoint.c:202
-#, c-format
-msgid "Web IDE available at %s\n"
-msgstr "%s adresinde Web IDE kullanılabilir\n"
-
-#: src/tracker/tracker-endpoint.c:222 src/tracker/tracker-endpoint.c:285
+#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "SPARQL komutları dinleniyor. Durdurmak için Ctrl-C’ye bas."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:230 src/tracker/tracker-endpoint.c:300
+#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-webide.c:101
 msgid "Closing connection…"
 msgstr "Bağlantı kapatılıyor…"
 
-#: src/tracker/tracker-endpoint.c:245
+#: src/tracker/tracker-endpoint.c:240
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "%s konumunda uç nokta oluşturuluyor…"
 
-#: src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:276
 msgid "Could not own DBus name"
 msgstr "DBus adı edinilemedi"
 
-#: src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-endpoint.c:290
 msgid "DBus name lost"
 msgstr "DBus adı kaybedildi"
 
-#: src/tracker/tracker-endpoint.c:655
+#: src/tracker/tracker-endpoint.c:650
 #, c-format
 msgid "Opening database at %s…"
 msgstr "%s konumundaki veri tabanı açılıyor…"
 
-#: src/tracker/tracker-endpoint.c:658
+#: src/tracker/tracker-endpoint.c:653
 msgid "Creating in-memory database"
 msgstr "Bellek içi veri tabanı oluşturuluyor"
 
-#: src/tracker/tracker-endpoint.c:685
+#: src/tracker/tracker-endpoint.c:680
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -163,18 +160,19 @@ msgstr ""
 
 #: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
+#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "DOSYA"
 
 #: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "DBus hizmetine bağlanır"
 
 #: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
 msgid "DBus service name"
 msgstr "DBus hizmet adı"
 
@@ -187,12 +185,12 @@ msgid "RDF_FORMAT"
 msgstr "RDF_FORMAT"
 
 #: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Uzak hizmete bağlanır"
 
 #: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:122
+#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "Uzak hizmet URI’si"
 
@@ -206,19 +204,20 @@ msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:206
+#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Şu seçeneklerden birini belirt: “--database”, “--dbus-service” veya “--"
 "remote-service”"
 
 #: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
+#: src/tracker/tracker-query.c:345
 msgid "No error given"
 msgstr "Hata belirtilmedi"
 
 #: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1072
+#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Tracker uygulamasına bağlantı kurulamıyor"
 
@@ -226,11 +225,6 @@ msgstr "Tracker uygulamasına bağlantı kurulamıyor"
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Desteklenmeyen serileştirme biçimi “%s”\n"
-
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "“%s” çalıştırılamadı: %s"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -240,106 +234,27 @@ msgstr "Adlandırılmış graf bilgisini içeren TriG biçimini oku"
 msgid "Could not run import"
 msgstr "İçe aktarım çalıştırılamadı"
 
-#: src/tracker/tracker-main.c:70
-msgid "Get help on how to use TinySPARQL and any of these commands"
-msgstr "TinySPARQL kullanımı ve bu komutlar için yardım al"
+#: src/tracker/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "Tüm kullanılabilir sınıfları listeler"
 
-#: src/tracker/tracker-main.c:71
-msgid "Create a SPARQL endpoint"
-msgstr "SPARQL uç noktası oluştur"
+#: src/tracker/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "Tüm kullanılabilir ön ekleri listeler"
 
-#: src/tracker/tracker-main.c:72
-msgid "Export data from a TinySPARQL database"
-msgstr "Verileri TinySPARQL veri tabanından dışa aktar"
+#: src/tracker/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr "Veri tabanında değişiklik bildiren tüm sınıfları listeler"
 
-#: src/tracker/tracker-main.c:73
-msgid "Import data into a TinySPARQL database"
-msgstr "Verileri TinySPARQL veri tabanına içe aktar"
+#: src/tracker/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr "Veri tabanında başarımı iyileştirmede kullanılan dizinlemeleri listele"
 
-#: src/tracker/tracker-main.c:74
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"SPARQL kullanarak veya arayarak dizinlemeyi sorgula ve güncelle, ontolojiyi "
-"listele ve ağaç yapısında göster"
-
-#: src/tracker/tracker-main.c:91
-msgid "Available tinysparql commands are:"
-msgstr "Kullanılabilir tinysparql komutları:"
-
-#: src/tracker/tracker-main.c:110
-msgid "See “tinysparql help <command>” to read about a specific subcommand."
-msgstr ""
-"Belirli alt komutla ilgili bilgi almak için “tinysparql help <komut>” "
-"komutuna göz at."
-
-#: src/tracker/tracker-main.c:153
-#, c-format
-msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
-msgstr "“%s”, tinysparql komutu değil. Göz at: “tinysparql --help”"
-
-#: src/tracker/tracker-sparql.c:125
-msgid "Path to use to run a query or update from file"
-msgstr "Sorgunun çalışacağı veya dosyadan güncelleneceği yol"
-
-#: src/tracker/tracker-sparql.c:129
-msgid "SPARQL query"
-msgstr "SPARQL sorgusu"
-
-#: src/tracker/tracker-sparql.c:130
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:133
-msgid "This is used with --query and for database updates only."
-msgstr ""
-"--query ile birlikte kullanılır ve yalnızca veri tabanı güncellemeleri "
-"içindir."
-
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve classes"
-msgstr "Sınıfları getir"
-
-#: src/tracker/tracker-sparql.c:141
-msgid "Retrieve class prefixes"
-msgstr "Sınıf ön eklerini getir"
-
-#: src/tracker/tracker-sparql.c:145
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
-msgstr ""
-"Sınıf için özellikleri getir, ön ekler de kullanılabilir (örn. rdfs:Resource)"
-
-#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
-#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
-#: src/tracker/tracker-sparql.c:174
-msgid "CLASS"
-msgstr "SINIF"
-
-#: src/tracker/tracker-sparql.c:149
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-"Değişiklikleri veri tabanına bildiren sınıfları getir (SINIF isteğe bağlıdır)"
-
-#: src/tracker/tracker-sparql.c:153
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
-msgstr ""
-"Veri tabanının verimliliğini arttırmak için kullanılan dizinlemeleri getir "
-"(ÖZELLİK isteğe bağlıdır)"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "PROPERTY"
-msgstr "ÖZELLİK"
-
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Tüm adlandırılmış grafları getir"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -347,29 +262,159 @@ msgstr ""
 "Alt sınıflar, süper sınıfları tanımla (ağacın bölümlerini vurgulamak için -s "
 "ve özellikleri göstermek için -p ile birlikte kullanılabilir)"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "SINIF"
+
+#: src/tracker/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "Tüm kullanılabilir özellikleri listeler"
+
+#: src/tracker/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
-"Bir sınıf veya özellik için ara ve daha fazla bilgi göster (örn. Belge)"
+"Bir sınıf veya özellik için ara ve daha çok bilgi göster (örn. Belge)"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "SINIF/ÖZELLİK"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Bir sınıfın kısaltılmış halini döndürür (örn. nfo:FileDataObject)."
+#: src/tracker/tracker-introspect.c:716
+msgid "Could not create tree: subclass query failed"
+msgstr "Ağaç oluşturulamadı: alt sınıf sorgulanamadı"
 
-#: src/tracker/tracker-sparql.c:173
-msgid "Returns the full namespace for a class."
-msgstr "Bir sınıfın tam ad alanını döndürür."
+#: src/tracker/tracker-introspect.c:766
+msgid "Could not create tree: class properties query failed"
+msgstr "Ağaç oluşturulamadı: sınıf özellikleri sorgulanamadı"
 
-#: src/tracker/tracker-sparql.c:177
+#: src/tracker/tracker-introspect.c:850
+msgid "Could not search classes"
+msgstr "Sınıflar aranamadı"
+
+#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+msgid "Classes"
+msgstr "Sınıflar"
+
+#: src/tracker/tracker-introspect.c:870
+msgid "Could not search properties"
+msgstr "Özellikler aranamadı"
+
+#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+msgid "Properties"
+msgstr "Özellikler"
+
+#: src/tracker/tracker-introspect.c:904
+msgid "Could not list properties"
+msgstr "Özellikler listelenemedi"
+
+#: src/tracker/tracker-introspect.c:920
+msgid "Namespaces"
+msgstr "Ad alanları"
+
+#: src/tracker/tracker-introspect.c:934
+msgid "Could not list classes"
+msgstr "Sınıflar listelenemedi"
+
+#: src/tracker/tracker-introspect.c:954
+msgid "Could not find notify classes"
+msgstr "Bildirim sınıfları bulunamadı"
+
+#: src/tracker/tracker-introspect.c:962
+msgid "Notifies"
+msgstr "Bildirimler"
+
+#: src/tracker/tracker-introspect.c:974
+msgid "Could not find indexed properties"
+msgstr "Dizinlenmiş özellikler bulunamadı"
+
+#: src/tracker/tracker-introspect.c:982
+msgid "Indexes"
+msgstr "Dizinlemeler"
+
+# https://tr.wikipedia.org/wiki/Graf_(matematik)
+#: src/tracker/tracker-introspect.c:994
+msgid "Could not list named graphs"
+msgstr "Adlandırılmış graflar listelenemedi"
+
+#: src/tracker/tracker-introspect.c:1002
+msgid "Named graphs"
+msgstr "Adlandırılmış graflar"
+
+#: src/tracker/tracker-introspect.c:1036
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"--list-properties argümanı yalnızca --tree argümanı ile birlikte "
+"kullanıldığında boş olabilir"
+
+#: src/tracker/tracker-main.c:72
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "TinySPARQL kullanımı ve bu komutlar için yardım al"
+
+#: src/tracker/tracker-main.c:73
+msgid "Create a SPARQL endpoint"
+msgstr "SPARQL uç noktası oluştur"
+
+#: src/tracker/tracker-main.c:74
+msgid "Export data from a TinySPARQL database"
+msgstr "Verileri TinySPARQL veri tabanından dışa aktar"
+
+#: src/tracker/tracker-main.c:75
+msgid "Import data into a TinySPARQL database"
+msgstr "Verileri TinySPARQL veri tabanına içe aktar"
+
+#: src/tracker/tracker-main.c:76
+msgid "Introspect a SPARQL endpoint"
+msgstr "SPARQL uç noktasını içgözlemle"
+
+#: src/tracker/tracker-main.c:77
+msgid "Query and update the index using SPARQL"
+msgstr "SPARQL kullanarak dizinlemeyi sorgula ve güncelle"
+
+#: src/tracker/tracker-main.c:78
+msgid "Create a Web IDE to query local databases"
+msgstr "Yerel veri tabanlarını sorgulamak için Web IDE oluştur"
+
+#: src/tracker/tracker-main.c:95
+msgid "Available tinysparql commands are:"
+msgstr "Kullanılabilir tinysparql komutları:"
+
+#: src/tracker/tracker-main.c:114
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+"Belirli alt komutla ilgili bilgi almak için “tinysparql help <komut>” "
+"komutuna göz at."
+
+#: src/tracker/tracker-main.c:157
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "“%s”, tinysparql komutu değil. Göz at: “tinysparql --help”"
+
+#: src/tracker/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr "Sorgunun çalışacağı veya dosyadan güncelleneceği yol"
+
+#: src/tracker/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "SPARQL sorgusu"
+
+#: src/tracker/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/tracker/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr ""
+"--query ile birlikte kullanılır ve yalnızca veri tabanı güncellemeleri "
+"içindir."
+
+#: src/tracker/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
 msgstr "Sorgu parametreleri için argüman sağlar."
 
-#: src/tracker/tracker-sparql.c:178
+#: src/tracker/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
 msgstr "PARAMETRE:TÜR:DEĞER"
 
@@ -377,146 +422,53 @@ msgstr "PARAMETRE:TÜR:DEĞER"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
+#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
 msgid "None"
 msgstr "Hiçbiri"
 
-#: src/tracker/tracker-sparql.c:899
-msgid "Could not create tree: subclass query failed"
-msgstr "Ağaç oluşturulamadı: alt sınıf sorgulanamadı"
-
-#: src/tracker/tracker-sparql.c:949
-msgid "Could not create tree: class properties query failed"
-msgstr "Ağaç oluşturulamadı: sınıf özellikleri sorgulanamadı"
-
-#: src/tracker/tracker-sparql.c:1009
+#: src/tracker/tracker-query.c:282
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "Geçersiz argüman dizgesi %s"
 
-#: src/tracker/tracker-sparql.c:1019
+#: src/tracker/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "%s argümanı için geçersiz parametre türü"
 
-#: src/tracker/tracker-sparql.c:1089
-msgid "Could not list classes"
-msgstr "Sınıflar listelenemedi"
-
-#: src/tracker/tracker-sparql.c:1097
-msgid "No classes were found"
-msgstr "Herhangi bir sınıf bulunamadı"
-
-#: src/tracker/tracker-sparql.c:1097 src/tracker/tracker-sparql.c:1219
-msgid "Classes"
-msgstr "Sınıflar"
-
-#: src/tracker/tracker-sparql.c:1120
-msgid "Could not list properties"
-msgstr "Özellikler listelenemedi"
-
-#: src/tracker/tracker-sparql.c:1128
-msgid "No properties were found"
-msgstr "Herhangi bir özellik bulunamadı"
-
-#: src/tracker/tracker-sparql.c:1128 src/tracker/tracker-sparql.c:1237
-msgid "Properties"
-msgstr "Özellikler"
-
-#: src/tracker/tracker-sparql.c:1144
-msgid "Could not find notify classes"
-msgstr "Bildirim sınıfları bulunamadı"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "No notifies were found"
-msgstr "Herhangi bir bildirim bulunamadı"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "Notifies"
-msgstr "Bildirimler"
-
-#: src/tracker/tracker-sparql.c:1168
-msgid "Could not find indexed properties"
-msgstr "Dizinlenmiş özellikler bulunamadı"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "No indexes were found"
-msgstr "Herhangi bir dizinleme bulunamadı"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "Indexes"
-msgstr "Dizinlemeler"
-
-# https://tr.wikipedia.org/wiki/Graf_(matematik)
-#: src/tracker/tracker-sparql.c:1186
-msgid "Could not list named graphs"
-msgstr "Adlandırılmış graflar listelenemedi"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "No graphs were found"
-msgstr "Herhangi bir graf bulunamadı"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "Named graphs"
-msgstr "Adlandırılmış graflar"
-
-#: src/tracker/tracker-sparql.c:1211
-msgid "Could not search classes"
-msgstr "Sınıflar aranamadı"
-
-#: src/tracker/tracker-sparql.c:1219
-msgid "No classes were found to match search term"
-msgstr "Arama terimleriyle eşleşen sınıf bulunamadı"
-
-#: src/tracker/tracker-sparql.c:1229
-msgid "Could not search properties"
-msgstr "Özellikler aranamadı"
-
-#: src/tracker/tracker-sparql.c:1237
-msgid "No properties were found to match search term"
-msgstr "Arama terimleriyle eşleşen özellik bulunamadı"
-
-#: src/tracker/tracker-sparql.c:1266
+#: src/tracker/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
 msgstr "Yoldan UTF-8 yolu alınamadı"
 
-#: src/tracker/tracker-sparql.c:1278 src/tracker/tracker-sql.c:74
+#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
 msgid "Could not read file"
 msgstr "Dosya okunamadı"
 
-#: src/tracker/tracker-sparql.c:1309
+#: src/tracker/tracker-query.c:403
 msgid "Could not run update"
 msgstr "Güncelleme çalıştırılamadı"
 
-#: src/tracker/tracker-sparql.c:1316
+#: src/tracker/tracker-query.c:410
 msgid "Done"
 msgstr "Tamamlandı"
 
-#: src/tracker/tracker-sparql.c:1334 src/tracker/tracker-sql.c:127
-#: src/tracker/tracker-sql.c:160
+#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
+#: src/tracker/tracker-sql.c:163
 msgid "Could not run query"
 msgstr "Sorgu çalıştırılamadı"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
 msgid "No results found matching your query"
 msgstr "Sorgunuzla eşleşen sonuç bulunamadı"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
-#: src/tracker/tracker-sql.c:134
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/tracker/tracker-sql.c:137
 msgid "Results"
 msgstr "Sonuçlar"
 
-#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:246
+#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
 msgid "File and query can not be used together"
 msgstr "Dosya ve sorgu birlikte kullanılamaz"
-
-#: src/tracker/tracker-sparql.c:1403
-msgid ""
-"The --list-properties argument can only be empty when used with the --tree "
-"argument"
-msgstr ""
-"--list-properties argümanı yalnızca --tree argümanı ile birlikte "
-"kullanıldığında boş olabilir"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -530,14 +482,33 @@ msgstr "SQL sorgusu"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:104
+#: src/tracker/tracker-sql.c:107
 msgid "Failed to initialize data manager"
 msgstr "Veri yöneticisi başlatılamadı"
 
-#: src/tracker/tracker-sql.c:168
+#: src/tracker/tracker-sql.c:171
 msgid "Empty result set"
 msgstr "Boş sonuç kümesi"
 
-#: src/tracker/tracker-sql.c:244
+#: src/tracker/tracker-sql.c:247
 msgid "A database path must be specified"
 msgstr "Veri tabanı yolu belirtilmelidir"
+
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "Dinlenecek bağlantı noktası"
+
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "Bağlantı noktası belirtilmedi"
+
+#: src/tracker/tracker-webide.c:80
+#, c-format
+msgid "%s %s…\n"
+msgstr "%s %s…\n"
+
+#: src/tracker/tracker-webide.c:80
+msgid "Creating Web IDE at"
+msgstr "Şurada WEB IDE oluşturuluyor:"
