@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-07-30 23:14+0000\n"
-"PO-Revision-Date: 2024-08-27 14:36+0330\n"
+"POT-Creation-Date: 2024-09-03 20:08+0000\n"
+"PO-Revision-Date: 2024-09-06 03:21+0330\n"
 "Last-Translator: Danial Behzadi <dani.behzi@ubuntu.com>\n"
 "Language-Team: Persian <fa@li.org>\n"
 "Language: fa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.4.4\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -31,15 +31,16 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "نگارش"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
 #: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:245
+#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
 msgid "Unrecognized options"
 msgstr "گزینه‌های شناخته نشده"
 
 #: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
-#: src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
+#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "مکان پایگاه داده"
 
@@ -102,48 +103,44 @@ msgstr "باید یکی از گزینه‌های ontology یا ontology-path ف�
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "گزینهٔ ‪--http-port‬ نمی‌تواند با ‪--dbus-service‬ استفاده شود"
 
-#: src/tracker/tracker-endpoint.c:201
+#: src/tracker/tracker-endpoint.c:198
 #, c-format
 msgid "Creating HTTP endpoint at %s…\n"
 msgstr "ایجاد کردن نقطهٔ پایانی HTTP در %s…\n"
 
-#: src/tracker/tracker-endpoint.c:202
-#, c-format
-msgid "Web IDE available at %s\n"
-msgstr "محیط توسعهٔ وبی در %s موجود است\n"
-
-#: src/tracker/tracker-endpoint.c:222 src/tracker/tracker-endpoint.c:285
+#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "شنود کردن فرمان‌های SPARQL. برای توقّف مهار-C را بزنید."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:230 src/tracker/tracker-endpoint.c:300
+#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-webide.c:101
 msgid "Closing connection…"
 msgstr "بستن اتّصال…"
 
-#: src/tracker/tracker-endpoint.c:245
+#: src/tracker/tracker-endpoint.c:240
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "ایجاد نقطهٔ پایانی در %s…"
 
-#: src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:276
 msgid "Could not own DBus name"
 msgstr "نتوانست مالک نام DBus شود"
 
-#: src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-endpoint.c:290
 msgid "DBus name lost"
 msgstr "نام DBus از دست رفت"
 
-#: src/tracker/tracker-endpoint.c:655
+#: src/tracker/tracker-endpoint.c:650
 #, c-format
 msgid "Opening database at %s…"
 msgstr "گشودن پایگاه داده در %s…"
 
-#: src/tracker/tracker-endpoint.c:658
+#: src/tracker/tracker-endpoint.c:653
 msgid "Creating in-memory database"
 msgstr "ایجاد کردن پایگاه دادهٔ در حافظه"
 
-#: src/tracker/tracker-endpoint.c:685
+#: src/tracker/tracker-endpoint.c:680
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database on a "
 "message bus."
@@ -153,18 +150,19 @@ msgstr ""
 
 #: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
+#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FILE"
 
 #: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "به یک خدمت DBus وصل می‌شود"
 
 #: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
 msgid "DBus service name"
 msgstr "نام خدمت DBus"
 
@@ -177,12 +175,12 @@ msgid "RDF_FORMAT"
 msgstr "RDF_FORMAT"
 
 #: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "به خدمتی دوردست وصل می‌شود"
 
 #: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:122
+#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "نشانی خدت دوردست"
 
@@ -196,17 +194,18 @@ msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:206
+#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr "یکی از گزینه‌های ‪--database‬، ‪--dbus-service‬ یا ‪--remote-service‬ را مشخّص کنید"
 
 #: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
+#: src/tracker/tracker-query.c:345
 msgid "No error given"
 msgstr "خطایی داده نشده"
 
 #: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1072
+#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "نتوانست اتّصالی با ردیاب برقرار کند"
 
@@ -214,11 +213,6 @@ msgstr "نتوانست اتّصالی با ردیاب برقرار کند"
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "قابل دنباله‌سازی پشتیبانی نشده «%s»\n"
-
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "شکست در اجرای «%s»: ‏%s"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -228,98 +222,27 @@ msgstr "خواندن قالب TriG که دارای اطّلاعات نمودار
 msgid "Could not run import"
 msgstr "نتوانست درون‌ریزی را اجرا کند"
 
-#: src/tracker/tracker-main.c:70
-msgid "Get help on how to use TinySPARQL and any of these commands"
-msgstr "گرفتن کمک در چگونگی استفاده از TinySPARQL و هریک از فرمان‌هایش"
+#: src/tracker/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "سیاهه کردن همهٔ کلاس‌های موجود"
 
-#: src/tracker/tracker-main.c:71
-msgid "Create a SPARQL endpoint"
-msgstr "ایجاد نقطهٔ پایانی SPARQL"
+#: src/tracker/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "سیاهه کردن همهٔ پیشوندهای موجود"
 
-#: src/tracker/tracker-main.c:72
-msgid "Export data from a TinySPARQL database"
-msgstr "برون‌ریزی داده‌ها از پایگاه دادهٔ TinySPARQL"
+#: src/tracker/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr "سیاهه کردن همهٔ کلاس‌هایی که از دگرگونی‌ها در پایگاه داده آگاهی می‌دهند"
 
-#: src/tracker/tracker-main.c:73
-msgid "Import data into a TinySPARQL database"
-msgstr "درون‌ریزی داده‌ها به پایگاه دادهٔ TinySPARQL"
+#: src/tracker/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr "سیاهه کردن اندیس‌های استفاده‌شده در پایگاه داده برای بهبود کارایی"
 
-#: src/tracker/tracker-main.c:74
-msgid "Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"پرس‌وجو و به‌روز رسانی نمایه با استفاده از SPARQL یا جست‌وجو،‌سیاهه و درخت کردن "
-"هستی‌شناسی"
-
-#: src/tracker/tracker-main.c:91
-msgid "Available tinysparql commands are:"
-msgstr "فرمان‌های موجود tinysparql:"
-
-#: src/tracker/tracker-main.c:110
-msgid "See “tinysparql help <command>” to read about a specific subcommand."
-msgstr "برای خواندن دربارهٔ زیرفرمانی خاص «‪tinysparql help <command>‬» را ببینید."
-
-#: src/tracker/tracker-main.c:153
-#, c-format
-msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
-msgstr "فرمان «%s» برای tracker3 نیست. ‪tinysparql --help‬ را ببینید"
-
-#: src/tracker/tracker-sparql.c:125
-msgid "Path to use to run a query or update from file"
-msgstr "مسیر برای اجرای پرس‌وجو یا به‌روز کردن از پرونده"
-
-#: src/tracker/tracker-sparql.c:129
-msgid "SPARQL query"
-msgstr "پرس‌وجوی SPARQL"
-
-#: src/tracker/tracker-sparql.c:130
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:133
-msgid "This is used with --query and for database updates only."
-msgstr "فقط با ‪--query‬ و برای به روز رسانیس پایگه داده استفاده می‌شود."
-
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve classes"
-msgstr "بازیابی کلاس‌ها"
-
-#: src/tracker/tracker-sparql.c:141
-msgid "Retrieve class prefixes"
-msgstr "بازیابی پیشوند کلاس‌ها"
-
-#: src/tracker/tracker-sparql.c:145
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
-msgstr ""
-"بازیابی ویژگی‌ها برای یک کلاس. پیشوندها نیز می‌توانند استفاده شوند (نمونه rdfs:"
-"Resource)"
-
-#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
-#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
-#: src/tracker/tracker-sparql.c:174
-msgid "CLASS"
-msgstr "CLASS"
-
-#: src/tracker/tracker-sparql.c:149
-msgid "Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-"بازیابی کلاس‌هایی که از دگرگونی‌ها در پایگاه داده آگاهی می‌دهند (CLASS اختیاری است)"
-
-#: src/tracker/tracker-sparql.c:153
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is optional)"
-msgstr ""
-"بازیابی اندیس‌های استفاده‌شده در پایگاه داده برای بهبود کارایی (PROPERTY اختیاری است)"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "PROPERTY"
-msgstr "PROPERTY"
-
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "بازیابی همهٔ نمودارهای نام‌دار"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of the "
 "tree and -p to show properties)"
@@ -327,27 +250,150 @@ msgstr ""
 "توصیف زیرکلاس‌ها و فراکلاس‌ها (می‌تواند برای برجسته سازی بخش‌های درخت با ‪-s‬ و برای "
 "نمایش ویژگی‌ها با ‪-p‬ استفاده شود)"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "CLASS"
+
+#: src/tracker/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "سیاهه کردن همهٔ ویژگی‌های موجود"
+
+#: src/tracker/tracker-introspect.c:137
 msgid "Search for a class or property and display more information (e.g. Document)"
 msgstr "جست‌وجو برای کلاس با ویژگی و نمایش اطّلاعات بیش‌تر (نمونه Document)"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "CLASS/PROPERTY"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "کوتاه‌نویسی کلاس را برمی‌گرداند (نمونه nfo:FileDataObject)."
+#: src/tracker/tracker-introspect.c:716
+msgid "Could not create tree: subclass query failed"
+msgstr "نتوانست درخت را ایجاد کند: پرس‌وجوی زیرکلاس شکست خورد"
 
-#: src/tracker/tracker-sparql.c:173
-msgid "Returns the full namespace for a class."
-msgstr "فضانام کامل را برای کلاس برمی‌گرداند."
+#: src/tracker/tracker-introspect.c:766
+msgid "Could not create tree: class properties query failed"
+msgstr "نتوانست درخت را ایجاد کند: پرس‌وجوی ویژگی کلاس شکست خورد"
 
-#: src/tracker/tracker-sparql.c:177
+#: src/tracker/tracker-introspect.c:850
+msgid "Could not search classes"
+msgstr "نتوانست کلاس‌ها را جست‌وجو کند"
+
+#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+msgid "Classes"
+msgstr "کلاس‌ها"
+
+#: src/tracker/tracker-introspect.c:870
+msgid "Could not search properties"
+msgstr "نتوانست ویژگی‌ها را جست‌وجو کند"
+
+#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+msgid "Properties"
+msgstr "ترجیحات"
+
+#: src/tracker/tracker-introspect.c:904
+msgid "Could not list properties"
+msgstr "نتوانست ویژگی‌ها را سیاهه کند"
+
+#: src/tracker/tracker-introspect.c:920
+msgid "Namespaces"
+msgstr "فضانام‌ها"
+
+#: src/tracker/tracker-introspect.c:934
+msgid "Could not list classes"
+msgstr "نتوانست کلاس‌ها را سیاهه کند"
+
+#: src/tracker/tracker-introspect.c:954
+msgid "Could not find notify classes"
+msgstr "نتوانست کلاس‌های آگاهی را بیابد"
+
+#: src/tracker/tracker-introspect.c:962
+msgid "Notifies"
+msgstr "آگاهی‌ها"
+
+#: src/tracker/tracker-introspect.c:974
+msgid "Could not find indexed properties"
+msgstr "نتوانست ویژگی‌های شاخص‌دار را بیابد"
+
+#: src/tracker/tracker-introspect.c:982
+msgid "Indexes"
+msgstr "شاخص‌ها"
+
+#: src/tracker/tracker-introspect.c:994
+msgid "Could not list named graphs"
+msgstr "نتوانست نمودارهای نام‌دار را سیاهه کند"
+
+#: src/tracker/tracker-introspect.c:1002
+msgid "Named graphs"
+msgstr "نمودارهای نام‌دار"
+
+#: src/tracker/tracker-introspect.c:1036
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree argument"
+msgstr ""
+"آرگومان ‪--list-properties‬ تنها می‌تواند هنگام استفاده با آرگومان ‪--tree‬ خالی باشد"
+
+#: src/tracker/tracker-main.c:72
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "گرفتن کمک در چگونگی استفاده از TinySPARQL و هریک از فرمان‌هایش"
+
+#: src/tracker/tracker-main.c:73
+msgid "Create a SPARQL endpoint"
+msgstr "ایجاد نقطهٔ پایانی SPARQL"
+
+#: src/tracker/tracker-main.c:74
+msgid "Export data from a TinySPARQL database"
+msgstr "برون‌ریزی داده‌ها از پایگاه دادهٔ TinySPARQL"
+
+#: src/tracker/tracker-main.c:75
+msgid "Import data into a TinySPARQL database"
+msgstr "درون‌ریزی داده‌ها به پایگاه دادهٔ TinySPARQL"
+
+#: src/tracker/tracker-main.c:76
+msgid "Introspect a SPARQL endpoint"
+msgstr "بازرسی نقطهٔ پایانی SPARQL"
+
+#: src/tracker/tracker-main.c:77
+msgid "Query and update the index using SPARQL"
+msgstr "پرس‌وجو و به‌روز رسانی نمایه با استفاده از SPARQL"
+
+#: src/tracker/tracker-main.c:78
+msgid "Create a Web IDE to query local databases"
+msgstr "ایجاد محیط توسعهٔ بوی برای پرس‌وجوی پایگاه داده‌ّای محلی"
+
+#: src/tracker/tracker-main.c:95
+msgid "Available tinysparql commands are:"
+msgstr "فرمان‌های موجود tinysparql:"
+
+#: src/tracker/tracker-main.c:114
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr "برای خواندن دربارهٔ زیرفرمانی خاص «‪tinysparql help <command>‬» را ببینید."
+
+#: src/tracker/tracker-main.c:157
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "فرمان «%s» برای tracker3 نیست. ‪tinysparql --help‬ را ببینید"
+
+#: src/tracker/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr "مسیر برای اجرای پرس‌وجو یا به‌روز کردن از پرونده"
+
+#: src/tracker/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "پرس‌وجوی SPARQL"
+
+#: src/tracker/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/tracker/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr "فقط با ‪--query‬ و برای به روز رسانیس پایگه داده استفاده می‌شود."
+
+#: src/tracker/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
 msgstr "آرگومانی برای پارامتر پرس‌وجو فراهم می‌کند."
 
-#: src/tracker/tracker-sparql.c:178
+#: src/tracker/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
 msgstr "PARAMETER:TYPE:VALUE"
 
@@ -355,143 +401,53 @@ msgstr "PARAMETER:TYPE:VALUE"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
+#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
 msgid "None"
 msgstr "هیچ‌کدام"
 
-#: src/tracker/tracker-sparql.c:899
-msgid "Could not create tree: subclass query failed"
-msgstr "نتوانست درخت را ایجاد کند: پرس‌وجوی زیرکلاس شکست خورد"
-
-#: src/tracker/tracker-sparql.c:949
-msgid "Could not create tree: class properties query failed"
-msgstr "نتوانست درخت را ایجاد کند: پرس‌وجوی ویژگی کلاس شکست خورد"
-
-#: src/tracker/tracker-sparql.c:1009
+#: src/tracker/tracker-query.c:282
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "رشتهٔ آرگومان نامعتبر %s"
 
-#: src/tracker/tracker-sparql.c:1019
+#: src/tracker/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "گونهٔ پارامتر نامعتبر برای آرگومان %s"
 
-#: src/tracker/tracker-sparql.c:1089
-msgid "Could not list classes"
-msgstr "نتوانست کلاس‌ها را سیاهه کند"
-
-#: src/tracker/tracker-sparql.c:1097
-msgid "No classes were found"
-msgstr "هیچ کلاسی پیدا نشد"
-
-#: src/tracker/tracker-sparql.c:1097 src/tracker/tracker-sparql.c:1219
-msgid "Classes"
-msgstr "کلاس‌ها"
-
-#: src/tracker/tracker-sparql.c:1120
-msgid "Could not list properties"
-msgstr "نتوانست ویژگی‌ها را سیاهه کند"
-
-#: src/tracker/tracker-sparql.c:1128
-msgid "No properties were found"
-msgstr "هیچ ویژگی‌ای پیدا نشد"
-
-#: src/tracker/tracker-sparql.c:1128 src/tracker/tracker-sparql.c:1237
-msgid "Properties"
-msgstr "ترجیحات"
-
-#: src/tracker/tracker-sparql.c:1144
-msgid "Could not find notify classes"
-msgstr "نتوانست کلاس‌های آگاهی را بیابد"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "No notifies were found"
-msgstr "هیچ آگاهی‌ای پیدا نشد"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "Notifies"
-msgstr "آگاهی‌ها"
-
-#: src/tracker/tracker-sparql.c:1168
-msgid "Could not find indexed properties"
-msgstr "نتوانست ویژگی‌های شاخص‌دار را بیابد"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "No indexes were found"
-msgstr "هیچ شاخصی پیدا نشد"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "Indexes"
-msgstr "شاخص‌ها"
-
-#: src/tracker/tracker-sparql.c:1186
-msgid "Could not list named graphs"
-msgstr "نتوانست نمودارهای نام‌دار را سیاهه کند"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "No graphs were found"
-msgstr "هیچ نموداری پیدا نشد"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "Named graphs"
-msgstr "نمودارهای نام‌دار"
-
-#: src/tracker/tracker-sparql.c:1211
-msgid "Could not search classes"
-msgstr "نتوانست کلاس‌ها را جست‌وجو کند"
-
-#: src/tracker/tracker-sparql.c:1219
-msgid "No classes were found to match search term"
-msgstr "هیچ کلاسی که مطابق با عبارت جست‌وجو باشد پیدا نشد"
-
-#: src/tracker/tracker-sparql.c:1229
-msgid "Could not search properties"
-msgstr "نتوانست ویژگی‌ها را جست‌وجو کند"
-
-#: src/tracker/tracker-sparql.c:1237
-msgid "No properties were found to match search term"
-msgstr "هیچ ویژگی‌ای که مطابق با عبارت جست‌وجو باشد پیدا نشد"
-
-#: src/tracker/tracker-sparql.c:1266 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
 msgstr "نتوانست مسیر UTF-8 را از مسیر بگیرد"
 
-#: src/tracker/tracker-sparql.c:1278 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
 msgid "Could not read file"
 msgstr "نتوانست پرونده را بخواند"
 
-#: src/tracker/tracker-sparql.c:1309
+#: src/tracker/tracker-query.c:403
 msgid "Could not run update"
 msgstr "نتوانست به‌روز رسانی را اجرا کند"
 
-#: src/tracker/tracker-sparql.c:1316
+#: src/tracker/tracker-query.c:410
 msgid "Done"
 msgstr "انجام شد"
 
-#: src/tracker/tracker-sparql.c:1334 src/tracker/tracker-sql.c:137
-#: src/tracker/tracker-sql.c:170
+#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
+#: src/tracker/tracker-sql.c:163
 msgid "Could not run query"
 msgstr "نتوانست پرس‌وجو را اجرا کند"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
 msgid "No results found matching your query"
 msgstr "نتیجهٔ مطابقی با پرسش‌وجویتان پیدا نشد"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
-#: src/tracker/tracker-sql.c:144
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/tracker/tracker-sql.c:137
 msgid "Results"
 msgstr "نتیجه‌ها"
 
-#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:256
+#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
 msgid "File and query can not be used together"
 msgstr "پرونده و پرس‌وجو نمی‌توانند با هم استفاده شوند"
-
-#: src/tracker/tracker-sparql.c:1403
-msgid ""
-"The --list-properties argument can only be empty when used with the --tree argument"
-msgstr ""
-"آرگومان ‪--list-properties‬ تنها می‌تواند هنگام استفاده با آرگومان ‪--tree‬ خالی باشد"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -505,17 +461,86 @@ msgstr "پرس‌وجوی SQL"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:114
+#: src/tracker/tracker-sql.c:107
 msgid "Failed to initialize data manager"
 msgstr "شکست در مقداردهی نخستین مدیر داده"
 
-#: src/tracker/tracker-sql.c:178
+#: src/tracker/tracker-sql.c:171
 msgid "Empty result set"
 msgstr "مجموعهٔ نتیجهٔ خالی"
 
-#: src/tracker/tracker-sql.c:254
+#: src/tracker/tracker-sql.c:247
 msgid "A database path must be specified"
 msgstr "باید یک مسیر پایگاه داده مشخّص شود"
+
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "درگاه برای شنود"
+
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "درگاه مشخّص نشده"
+
+#: src/tracker/tracker-webide.c:80
+#, c-format
+msgid "%s %s…\n"
+msgstr "%s %s…\n"
+
+#: src/tracker/tracker-webide.c:80
+msgid "Creating Web IDE at"
+msgstr "ایجاد کردن محیط توسعه در"
+
+#, c-format
+#~ msgid "Web IDE available at %s\n"
+#~ msgstr "محیط توسعهٔ وبی در %s موجود است\n"
+
+#, c-format
+#~ msgid "failed to exec “%s”: %s"
+#~ msgstr "شکست در اجرای «%s»: ‏%s"
+
+#~ msgid "Retrieve classes"
+#~ msgstr "بازیابی کلاس‌ها"
+
+#~ msgid "Retrieve class prefixes"
+#~ msgstr "بازیابی پیشوند کلاس‌ها"
+
+#~ msgid ""
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
+#~ msgstr ""
+#~ "بازیابی ویژگی‌ها برای یک کلاس. پیشوندها نیز می‌توانند استفاده شوند (نمونه rdfs:"
+#~ "Resource)"
+
+#~ msgid "PROPERTY"
+#~ msgstr "PROPERTY"
+
+#~ msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+#~ msgstr "کوتاه‌نویسی کلاس را برمی‌گرداند (نمونه nfo:FileDataObject)."
+
+#~ msgid "Returns the full namespace for a class."
+#~ msgstr "فضانام کامل را برای کلاس برمی‌گرداند."
+
+#~ msgid "No classes were found"
+#~ msgstr "هیچ کلاسی پیدا نشد"
+
+#~ msgid "No properties were found"
+#~ msgstr "هیچ ویژگی‌ای پیدا نشد"
+
+#~ msgid "No notifies were found"
+#~ msgstr "هیچ آگاهی‌ای پیدا نشد"
+
+#~ msgid "No indexes were found"
+#~ msgstr "هیچ شاخصی پیدا نشد"
+
+#~ msgid "No graphs were found"
+#~ msgstr "هیچ نموداری پیدا نشد"
+
+#~ msgid "No classes were found to match search term"
+#~ msgstr "هیچ کلاسی که مطابق با عبارت جست‌وجو باشد پیدا نشد"
+
+#~ msgid "No properties were found to match search term"
+#~ msgstr "هیچ ویژگی‌ای که مطابق با عبارت جست‌وجو باشد پیدا نشد"
 
 #~ msgid "endpoint"
 #~ msgstr "نقطهٔ پایانی"
