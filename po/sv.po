@@ -1,6 +1,6 @@
-# Swedish translation for tracker.
+# Swedish translation for tinysparql.
 # Copyright © 2006-2024 Free Software Foundation
-# This file is distributed under the same license as the tracker package.
+# This file is distributed under the same license as the tinysparql package.
 # Daniel Nylander <po@danielnylander.se>, 2007, 2008, 2009, 2010, 2011.
 # Josef Andersson <josef.andersson@fripost.org>, 2015.
 # Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024.
@@ -8,10 +8,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker\n"
+"Project-Id-Version: tinysparql\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-02-12 11:01+0000\n"
-"PO-Revision-Date: 2024-02-12 13:22+0100\n"
+"POT-Creation-Date: 2024-09-03 20:08+0000\n"
+"PO-Revision-Date: 2024-09-06 22:45+0200\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.4.4\n"
 "X-Project-Style: gnome\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
@@ -36,15 +36,16 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "Version"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
-#: src/tracker/tracker-export.c:552 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1398 src/tracker/tracker-sql.c:239
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
+#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
 msgid "Unrecognized options"
 msgstr "Okända flaggor"
 
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
-#: src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
+#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Plats för databasen"
 
@@ -109,41 +110,42 @@ msgstr "--http-port kan inte användas tillsammans med --dbus-service"
 
 #: src/tracker/tracker-endpoint.c:198
 #, c-format
-msgid "Creating HTTP endpoint at %s…"
-msgstr "Skapar HTTP-ändpunkt på %s…"
+msgid "Creating HTTP endpoint at %s…\n"
+msgstr "Skapar HTTP-ändpunkt på %s…\n"
 
-#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Lyssnar efter SPARQL-kommandon. Tryck Ctrl-C för att stoppa."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
+#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-webide.c:101
 msgid "Closing connection…"
 msgstr "Stänger anslutning…"
 
-#: src/tracker/tracker-endpoint.c:241
+#: src/tracker/tracker-endpoint.c:240
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Skapar ändpunkt på %s…"
 
-#: src/tracker/tracker-endpoint.c:277
+#: src/tracker/tracker-endpoint.c:276
 msgid "Could not own DBus name"
 msgstr "Kunde inte äga DBus-namn"
 
-#: src/tracker/tracker-endpoint.c:291
+#: src/tracker/tracker-endpoint.c:290
 msgid "DBus name lost"
 msgstr "DBus-namn förlorat"
 
-#: src/tracker/tracker-endpoint.c:651
+#: src/tracker/tracker-endpoint.c:650
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Öppnar databas på %s…"
 
-#: src/tracker/tracker-endpoint.c:654
+#: src/tracker/tracker-endpoint.c:653
 msgid "Creating in-memory database"
 msgstr "Skapar databas i minne"
 
-#: src/tracker/tracker-endpoint.c:681
+#: src/tracker/tracker-endpoint.c:680
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -151,107 +153,71 @@ msgstr ""
 "Ny databas skapad. Använd flaggan ”--dbus-service” för att dela denna "
 "databas på en meddelandebuss."
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-endpoint.desktop.in:6
-msgid "endpoint"
-msgstr "endpoint"
-
-#: src/tracker/tracker-endpoint.desktop.in:7
-msgid "Create a SPARQL endpoint"
-msgstr "Skapa en SPARQL-ändpunkt"
-
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
+#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FIL"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "Ansluter till en DBus-tjänst"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
 msgid "DBus service name"
 msgstr "DBus-tjänstenamn"
 
-#: src/tracker/tracker-export.c:57
+#: src/tracker/tracker-export.c:55
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Format för utdataresultat: ”turtle”, ”trig” eller ”json-ld”"
 
-#: src/tracker/tracker-export.c:58
+#: src/tracker/tracker-export.c:56
 msgid "RDF_FORMAT"
 msgstr "RDF-FORMAT"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Ansluter till en fjärrtjänst"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:122
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "URI till fjärrtjänst"
 
-#: src/tracker/tracker-export.c:65
+#: src/tracker/tracker-export.c:63
 msgid "Output TriG format which includes named graph information"
 msgstr "Skriv ut TriG-format som inkluderar information om namngivna grafer"
 
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:206
+#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr "Ange en flagga ”--database”, ”--dbus-service” eller ”--remote-service”"
 
-#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1079
+#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
+#: src/tracker/tracker-query.c:345
 msgid "No error given"
 msgstr "Inget fel gavs"
 
-#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1078
+#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Kunde inte etablera en anslutning till Tracker"
 
-#: src/tracker/tracker-export.c:382
+#: src/tracker/tracker-export.c:180
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Serialiseringsformatet ”%s” stöds inte\n"
-
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:447
-#: src/tracker/tracker-export.c:457 src/tracker/tracker-sparql.c:1340
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "Kunde inte köra sökfråga"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-export.desktop.in:6
-msgid "export"
-msgstr "export"
-
-#: src/tracker/tracker-export.desktop.in:7
-msgid "Export data from a Tracker database"
-msgstr "Exportera data från en Tracker-databas"
-
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "misslyckades med att exekvera ”%s”: %s"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-help.desktop.in:6
-msgid "help"
-msgstr "help"
-
-#: src/tracker/tracker-help.desktop.in:7
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr "Få hjälp med om hur man använder Tracker och dessa kommandon"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -261,88 +227,27 @@ msgstr "Läs TriG-format som inkluderar information om namngivna grafer"
 msgid "Could not run import"
 msgstr "Kunde inte köra import"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-import.desktop.in:6
-msgid "import"
-msgstr "import"
+#: src/tracker/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "Listar alla tillgängliga klasser"
 
-#: src/tracker/tracker-import.desktop.in:7
-msgid "Import data into a Tracker database"
-msgstr "Importera data till en Tracker-databas"
+#: src/tracker/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "Listar alla tillgängliga prefix"
 
-#: src/tracker/tracker-main.c:123
-msgid "Available tracker3 commands are:"
-msgstr "Tillgängliga tracker3-kommandon är:"
+#: src/tracker/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr "Listar alla klasser som aviserar ändringar i databasen"
 
-#: src/tracker/tracker-main.c:155
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
-msgstr ""
-"Se ”tracker3 help <kommando>” för att läsa om ett specifikt underkommando."
+#: src/tracker/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr "Listar index som används i databasen för att förbättra prestandan"
 
-#: src/tracker/tracker-main.c:213
-#, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "”%s” är inte ett tracker3-kommando. Se ”tracker3 --help”"
-
-#: src/tracker/tracker-sparql.c:125
-msgid "Path to use to run a query or update from file"
-msgstr "Sökväg att använda för att köra en sökfråga eller uppdatera från fil"
-
-#: src/tracker/tracker-sparql.c:129
-msgid "SPARQL query"
-msgstr "SPARQL-fråga"
-
-#: src/tracker/tracker-sparql.c:130
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:133
-msgid "This is used with --query and for database updates only."
-msgstr "Detta används endast med --query och för databasuppdateringar."
-
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve classes"
-msgstr "Hämta klasser"
-
-#: src/tracker/tracker-sparql.c:141
-msgid "Retrieve class prefixes"
-msgstr "Hämta klassprefix"
-
-#: src/tracker/tracker-sparql.c:145
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
-msgstr ""
-"Hämta egenskaper för en klass, prefix kan även användas (t.ex. rdfs:Resource)"
-
-#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
-#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
-#: src/tracker/tracker-sparql.c:174
-msgid "CLASS"
-msgstr "KLASS"
-
-#: src/tracker/tracker-sparql.c:149
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr "Hämta klasser som aviserar ändringar i databasen (KLASS är valfritt)"
-
-#: src/tracker/tracker-sparql.c:153
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
-msgstr ""
-"Hämta index som används i databasen för att förbättra prestandan (EGENSKAP "
-"är valfri)"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "PROPERTY"
-msgstr "EGENSKAP"
-
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Hämta alla namngivna grafer"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -350,164 +255,85 @@ msgstr ""
 "Beskriv subklasser, superklasser (kan användas med -s för att markera delar "
 "av trädet och -p för att visa egenskaper)"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "KLASS"
+
+#: src/tracker/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "Listar alla tillgängliga egenskaper"
+
+#: src/tracker/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Sök efter en klass eller egenskap och visa mer information (t.ex. dokument)"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "KLASS/EGENSKAP"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Returnera genvägen för en klass (t.ex. nfo:FileDataObject)."
-
-#: src/tracker/tracker-sparql.c:173
-msgid "Returns the full namespace for a class."
-msgstr "Returnera hela namnrymden för en klass."
-
-#: src/tracker/tracker-sparql.c:177
-msgid "Provides an argument for a query parameter."
-msgstr "Tillhandahåller ett argument för en frågeparameter."
-
-#: src/tracker/tracker-sparql.c:178
-msgid "PARAMETER:TYPE:VALUE"
-msgstr "PARAMETER:TYP:VÄRDE"
-
-#. To translators: This is to say there are no
-#. * search results found. We use a "foo: None"
-#. * with multiple print statements, where "foo"
-#. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
-msgid "None"
-msgstr "Inga"
-
-#: src/tracker/tracker-sparql.c:899
+#: src/tracker/tracker-introspect.c:716
 msgid "Could not create tree: subclass query failed"
 msgstr "Kunde inte skapa träd: subklassfråga misslyckades"
 
-#: src/tracker/tracker-sparql.c:948
+#: src/tracker/tracker-introspect.c:766
 msgid "Could not create tree: class properties query failed"
 msgstr "Kunde inte skapa träd: fråga för klassegenskaper misslyckades"
 
-#: src/tracker/tracker-sparql.c:1015
-#, c-format
-msgid "Invalid argument string %s"
-msgstr "Ogiltig argumentsträng %s"
-
-#: src/tracker/tracker-sparql.c:1025
-#, c-format
-msgid "Invalid parameter type for argument %s"
-msgstr "Ogiltig parametertyp för argument %s"
-
-#: src/tracker/tracker-sparql.c:1095
-msgid "Could not list classes"
-msgstr "Kunde inte lista klasser"
-
-#: src/tracker/tracker-sparql.c:1103
-msgid "No classes were found"
-msgstr "Inga klasser hittades"
-
-#: src/tracker/tracker-sparql.c:1103 src/tracker/tracker-sparql.c:1225
-msgid "Classes"
-msgstr "Klasser"
-
-#: src/tracker/tracker-sparql.c:1126
-msgid "Could not list properties"
-msgstr "Kunde inte lista egenskaper"
-
-#: src/tracker/tracker-sparql.c:1134
-msgid "No properties were found"
-msgstr "Inga egenskaper hittades"
-
-#: src/tracker/tracker-sparql.c:1134 src/tracker/tracker-sparql.c:1243
-msgid "Properties"
-msgstr "Egenskaper"
-
-#: src/tracker/tracker-sparql.c:1150
-msgid "Could not find notify classes"
-msgstr "Kunde inte hitta aviseringsklasser"
-
-#: src/tracker/tracker-sparql.c:1158
-msgid "No notifies were found"
-msgstr "Inga aviseringar hittades"
-
-#: src/tracker/tracker-sparql.c:1158
-msgid "Notifies"
-msgstr "Aviserar"
-
-#: src/tracker/tracker-sparql.c:1174
-msgid "Could not find indexed properties"
-msgstr "Kunde inte hitta indexerade egenskaper"
-
-#: src/tracker/tracker-sparql.c:1182
-msgid "No indexes were found"
-msgstr "Inga index hittades"
-
-#: src/tracker/tracker-sparql.c:1182
-msgid "Indexes"
-msgstr "Index"
-
-#: src/tracker/tracker-sparql.c:1192
-msgid "Could not list named graphs"
-msgstr "Kunde inte lista namngivna grafer"
-
-#: src/tracker/tracker-sparql.c:1200
-msgid "No graphs were found"
-msgstr "Inga grafer hittades"
-
-#: src/tracker/tracker-sparql.c:1200
-msgid "Named graphs"
-msgstr "Namngivna grafer"
-
-#: src/tracker/tracker-sparql.c:1217
+#: src/tracker/tracker-introspect.c:850
 msgid "Could not search classes"
 msgstr "Kunde inte söka efter klasser"
 
-#: src/tracker/tracker-sparql.c:1225
-msgid "No classes were found to match search term"
-msgstr "Inga klasser hittades som matchade sökvillkoret"
+#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+msgid "Classes"
+msgstr "Klasser"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-introspect.c:870
 msgid "Could not search properties"
 msgstr "Kunde inte söka efter egenskaper"
 
-#: src/tracker/tracker-sparql.c:1243
-msgid "No properties were found to match search term"
-msgstr "Inga egenskaper hittades som matchade sökvillkoret"
+#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+msgid "Properties"
+msgstr "Egenskaper"
 
-#: src/tracker/tracker-sparql.c:1272 src/tracker/tracker-sql.c:70
-msgid "Could not get UTF-8 path from path"
-msgstr "Kunde inte få tag på UTF-8-sökväg från sökvägen"
+#: src/tracker/tracker-introspect.c:904
+msgid "Could not list properties"
+msgstr "Kunde inte lista egenskaper"
 
-#: src/tracker/tracker-sparql.c:1284 src/tracker/tracker-sql.c:81
-msgid "Could not read file"
-msgstr "Kunde inte läsa filen"
+#: src/tracker/tracker-introspect.c:920
+msgid "Namespaces"
+msgstr "Namnrymder"
 
-#: src/tracker/tracker-sparql.c:1315
-msgid "Could not run update"
-msgstr "Kunde inte köra uppdatering"
+#: src/tracker/tracker-introspect.c:934
+msgid "Could not list classes"
+msgstr "Kunde inte lista klasser"
 
-#: src/tracker/tracker-sparql.c:1322
-msgid "Done"
-msgstr "Klar"
+#: src/tracker/tracker-introspect.c:954
+msgid "Could not find notify classes"
+msgstr "Kunde inte hitta aviseringsklasser"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
-msgid "No results found matching your query"
-msgstr "Inga resultat hittades som matchade din sökfråga"
+#: src/tracker/tracker-introspect.c:962
+msgid "Notifies"
+msgstr "Aviserar"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
-#: src/tracker/tracker-sql.c:144
-msgid "Results"
-msgstr "Resultat"
+#: src/tracker/tracker-introspect.c:974
+msgid "Could not find indexed properties"
+msgstr "Kunde inte hitta indexerade egenskaper"
 
-#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:250
-msgid "File and query can not be used together"
-msgstr "Fil och fråga kan inte användas samtidigt"
+#: src/tracker/tracker-introspect.c:982
+msgid "Indexes"
+msgstr "Index"
 
-#: src/tracker/tracker-sparql.c:1409
+#: src/tracker/tracker-introspect.c:994
+msgid "Could not list named graphs"
+msgstr "Kunde inte lista namngivna grafer"
+
+#: src/tracker/tracker-introspect.c:1002
+msgid "Named graphs"
+msgstr "Namngivna grafer"
+
+#: src/tracker/tracker-introspect.c:1036
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -515,17 +341,124 @@ msgstr ""
 "--list-properties-egenskapen kan endast vara tom om den används med --tree-"
 "argumentet"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sparql.desktop.in:6
-msgid "sparql"
-msgstr "sparql"
+#: src/tracker/tracker-main.c:72
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "Få hjälp med hur du använder TinySPARQL och dessa kommandon"
 
-#: src/tracker/tracker-sparql.desktop.in:7
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
+#: src/tracker/tracker-main.c:73
+msgid "Create a SPARQL endpoint"
+msgstr "Skapa en SPARQL-ändpunkt"
+
+#: src/tracker/tracker-main.c:74
+msgid "Export data from a TinySPARQL database"
+msgstr "Exportera data från en TinySPARQL-databas"
+
+#: src/tracker/tracker-main.c:75
+msgid "Import data into a TinySPARQL database"
+msgstr "Importera data till en TinySPARQL-databas"
+
+#: src/tracker/tracker-main.c:76
+msgid "Introspect a SPARQL endpoint"
+msgstr "Introspektera en SPARQL-ändpunkt"
+
+#: src/tracker/tracker-main.c:77
+msgid "Query and update the index using SPARQL"
+msgstr "Fråga och uppdatera indexet med SPARQL"
+
+#: src/tracker/tracker-main.c:78
+msgid "Create a Web IDE to query local databases"
 msgstr ""
-"Fråga och uppdatera indexet med SPARQL eller sök, lista och visa ontologin "
-"som ett träd"
+"Skapa en integrerad utvecklingsmiljö på nätet för att fråga lokala databaser"
+
+#: src/tracker/tracker-main.c:95
+msgid "Available tinysparql commands are:"
+msgstr "Tillgängliga tinysparql-kommandon är:"
+
+#: src/tracker/tracker-main.c:114
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+"Se ”tinysparql help <kommando>” för att läsa om ett specifikt underkommando."
+
+#: src/tracker/tracker-main.c:157
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "”%s” är inte ett tinysparql-kommando. Se ”tinysparql --help”"
+
+#: src/tracker/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr "Sökväg att använda för att köra en sökfråga eller uppdatera från fil"
+
+#: src/tracker/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "SPARQL-fråga"
+
+#: src/tracker/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/tracker/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr "Detta används endast med --query och för databasuppdateringar."
+
+#: src/tracker/tracker-query.c:76
+msgid "Provides an argument for a query parameter."
+msgstr "Tillhandahåller ett argument för en frågeparameter."
+
+#: src/tracker/tracker-query.c:77
+msgid "PARAMETER:TYPE:VALUE"
+msgstr "PARAMETER:TYP:VÄRDE"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
+msgid "None"
+msgstr "Inga"
+
+#: src/tracker/tracker-query.c:282
+#, c-format
+msgid "Invalid argument string %s"
+msgstr "Ogiltig argumentsträng %s"
+
+#: src/tracker/tracker-query.c:292
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr "Ogiltig parametertyp för argument %s"
+
+#: src/tracker/tracker-query.c:360
+msgid "Could not get UTF-8 path from path"
+msgstr "Kunde inte få tag på UTF-8-sökväg från sökvägen"
+
+#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
+msgid "Could not read file"
+msgstr "Kunde inte läsa filen"
+
+#: src/tracker/tracker-query.c:403
+msgid "Could not run update"
+msgstr "Kunde inte köra uppdatering"
+
+#: src/tracker/tracker-query.c:410
+msgid "Done"
+msgstr "Klar"
+
+#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
+#: src/tracker/tracker-sql.c:163
+msgid "Could not run query"
+msgstr "Kunde inte köra sökfråga"
+
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+msgid "No results found matching your query"
+msgstr "Inga resultat hittades som matchade din sökfråga"
+
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/tracker/tracker-sql.c:137
+msgid "Results"
+msgstr "Resultat"
+
+#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
+msgid "File and query can not be used together"
+msgstr "Fil och fråga kan inte användas samtidigt"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -539,26 +472,108 @@ msgstr "SQL-fråga"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:114
+#: src/tracker/tracker-sql.c:107
 msgid "Failed to initialize data manager"
 msgstr "Misslyckades med att initiera datahanterare"
 
-#: src/tracker/tracker-sql.c:178
+#: src/tracker/tracker-sql.c:171
 msgid "Empty result set"
 msgstr "Inga resultat"
 
-#: src/tracker/tracker-sql.c:248
+#: src/tracker/tracker-sql.c:247
 msgid "A database path must be specified"
 msgstr "En databassökväg måste anges"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sql.desktop.in:6
-msgid "sql"
-msgstr "sql"
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "Port att lyssna på"
 
-#: src/tracker/tracker-sql.desktop.in:7
-msgid "Query the database at the lowest level using SQL"
-msgstr "Fråga databasen vid den lägsta nivån med SQL"
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "Port inte angiven"
+
+#: src/tracker/tracker-webide.c:80
+#, c-format
+msgid "%s %s…\n"
+msgstr "%s %s…\n"
+
+#: src/tracker/tracker-webide.c:80
+msgid "Creating Web IDE at"
+msgstr "Skapar integrerad utvecklingsmiljö på nätet på"
+
+#, c-format
+#~ msgid "Web IDE available at %s\n"
+#~ msgstr "Integrerad utvecklingsmiljö på nätet tillgänglig på %s\n"
+
+#, c-format
+#~ msgid "failed to exec “%s”: %s"
+#~ msgstr "misslyckades med att exekvera ”%s”: %s"
+
+#~ msgid "Retrieve classes"
+#~ msgstr "Hämta klasser"
+
+#~ msgid "Retrieve class prefixes"
+#~ msgstr "Hämta klassprefix"
+
+#~ msgid ""
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+#~ "Resource)"
+#~ msgstr ""
+#~ "Hämta egenskaper för en klass, prefix kan även användas (t.ex. rdfs:"
+#~ "Resource)"
+
+#~ msgid "PROPERTY"
+#~ msgstr "EGENSKAP"
+
+#~ msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+#~ msgstr "Returnera genvägen för en klass (t.ex. nfo:FileDataObject)."
+
+#~ msgid "Returns the full namespace for a class."
+#~ msgstr "Returnera hela namnrymden för en klass."
+
+#~ msgid "No classes were found"
+#~ msgstr "Inga klasser hittades"
+
+#~ msgid "No properties were found"
+#~ msgstr "Inga egenskaper hittades"
+
+#~ msgid "No notifies were found"
+#~ msgstr "Inga aviseringar hittades"
+
+#~ msgid "No indexes were found"
+#~ msgstr "Inga index hittades"
+
+#~ msgid "No graphs were found"
+#~ msgstr "Inga grafer hittades"
+
+#~ msgid "No classes were found to match search term"
+#~ msgstr "Inga klasser hittades som matchade sökvillkoret"
+
+#~ msgid "No properties were found to match search term"
+#~ msgstr "Inga egenskaper hittades som matchade sökvillkoret"
+
+#~ msgid "endpoint"
+#~ msgstr "endpoint"
+
+#~ msgid "export"
+#~ msgstr "export"
+
+#~ msgid "help"
+#~ msgstr "help"
+
+#~ msgid "import"
+#~ msgstr "import"
+
+#~ msgid "sparql"
+#~ msgstr "sparql"
+
+#~ msgid "sql"
+#~ msgstr "sql"
+
+#~ msgid "Query the database at the lowest level using SQL"
+#~ msgstr "Fråga databasen vid den lägsta nivån med SQL"
 
 #~ msgid "Unable to retrieve namespace prefixes"
 #~ msgstr "Kunde inte hämta namnrymdsprefix"
@@ -731,12 +746,6 @@ msgstr "Fråga databasen vid den lägsta nivån med SQL"
 #~ msgid "Load a specified domain ontology"
 #~ msgstr "Läs in en angiven domänontologi"
 
-#~ msgid "— start the tracker daemon"
-#~ msgstr "— starta tracker-demonen"
-
-#~ msgid "Tracker Store"
-#~ msgstr "Tracker-lagring"
-
 #~ msgid "Metadata database store and lookup manager"
 #~ msgstr "Lagrings- och uppslagshanterare för metadatabas"
 
@@ -878,9 +887,6 @@ msgstr "Fråga databasen vid den lägsta nivån med SQL"
 #~ msgid "List pause reasons"
 #~ msgstr "Lista pausanledningar"
 
-#~ msgid "List all Tracker processes"
-#~ msgstr "Lista alla Tracker-processer"
-
 #~ msgid ""
 #~ "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
 #~ "“all” may be used, no parameter equals “all”"
@@ -897,9 +903,6 @@ msgstr "Fråga databasen vid den lägsta nivån med SQL"
 #~ msgstr ""
 #~ "Använd SIGTERM för att stoppa alla matchande processer, antingen ”store”, "
 #~ "”miners” eller ”all” kan användas, ingen parameter är lika med ”all”"
-
-#~ msgid "Starts miners (which indirectly starts tracker-store too)"
-#~ msgstr "Startar insamlare (som indirekt även startar tracker-store)"
 
 #~ msgid ""
 #~ "Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
@@ -929,17 +932,8 @@ msgstr "Fråga databasen vid den lägsta nivån med SQL"
 #~ msgid "Not running or is a disabled plugin"
 #~ msgstr "Inte igång eller är en inaktiverad insticksmodul"
 
-#~ msgid "Could not retrieve tracker-store status"
-#~ msgstr "Kunde inte få tag på tracker-store-status"
-
-#~ msgid "Could not retrieve tracker-store progress"
-#~ msgstr "Kunde inte få tag på förlopp för tracker-store"
-
 #~ msgid "Could not run SPARQL query"
 #~ msgstr "Kunde inte köra SPARQL-fråga"
-
-#~ msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
-#~ msgstr "Kunde inte anropa tracker_sparql_cursor_next() för SPARQL-fråga"
 
 #~ msgid "Could not pause miner, manager could not be created, %s"
 #~ msgstr "Kunde inte pausa insamlare, hanterare kunde inte skapas, %s"
@@ -1077,12 +1071,6 @@ msgstr "Fråga databasen vid den lägsta nivån med SQL"
 #~ msgid "Could not get D-Bus connection"
 #~ msgstr "Kunde inte etablera en D-Bus-anslutning"
 
-#~ msgid "Could not create D-Bus proxy to tracker-store"
-#~ msgstr "Kunde inte etablera en D-Bus-proxy till tracker-store"
-
-#~ msgid "Could not run tracker-extract: "
-#~ msgstr "Kunde inte köra tracker-extract: "
-
 #~ msgid ""
 #~ "Tell miners to reindex files which match the mime type supplied (for new "
 #~ "extractors), use -m MIME1 -m MIME2"
@@ -1204,9 +1192,6 @@ msgstr "Fråga databasen vid den lägsta nivån med SQL"
 #~ msgid "Killed process %d — “%s”"
 #~ msgstr "Dödade process %d — ”%s”"
 
-#~ msgid "Kill all Tracker processes and remove all databases"
-#~ msgstr "Döda alla Tracker-processer och ta bort alla databaser"
-
 #~ msgid "Same as --hard but the backup & journal are restored after restart"
 #~ msgstr ""
 #~ "Samma som --hard men säkerhetskopian och journalen återställs efter "
@@ -1236,16 +1221,6 @@ msgstr "Fråga databasen vid den lägsta nivån med SQL"
 
 #~ msgid "CAUTION: This process may irreversibly delete data."
 #~ msgstr "VARNING: Denna process kan oåterkalleligt ta bort data."
-
-#~ msgid ""
-#~ "Although most content indexed by Tracker can be safely reindexed, it "
-#~ "can’t be assured that this is the case for all data. Be aware that you "
-#~ "may be incurring in a data loss situation, proceed at your own risk."
-#~ msgstr ""
-#~ "Även om det mesta innehållet som indexerats av Tracker utan risk kan "
-#~ "indexeras om, så är det inte säkert att detta är fallet för alla data. "
-#~ "Var medveten om att du kan hamna i en situation där data förloras, "
-#~ "fortsätt på egen risk."
 
 #~ msgid "Are you sure you want to proceed?"
 #~ msgstr "Är du säker på att du vill fortsätta?"
@@ -1433,9 +1408,6 @@ msgstr "Fråga databasen vid den lägsta nivån med SQL"
 #~ "Samla in felsökningsinformation användbar för felrapportering och "
 #~ "undersökning, resultat matas ut till terminal"
 
-#~ msgid "Could not get Tracker statistics"
-#~ msgstr "Kunde inte få tag på Tracker-statistik"
-
 #~ msgid "No statistics available"
 #~ msgstr "Ingen statistik tillgänglig"
 
@@ -1474,9 +1446,6 @@ msgstr "Fråga databasen vid den lägsta nivån med SQL"
 
 #~ msgid "Database is currently empty"
 #~ msgstr "Databasen är tom för tillfället"
-
-#~ msgid "Could not get basic status for Tracker"
-#~ msgstr "Kunde inte hämta grundläggande statistik för Tracker"
 
 #~ msgid "Currently indexed"
 #~ msgstr "Indexerade just nu"
@@ -1662,9 +1631,6 @@ msgstr "Fråga databasen vid den lägsta nivån med SQL"
 
 #~ msgid "— start the application data miner"
 #~ msgstr "— starta programdatainsamlaren"
-
-#~ msgid "Tracker Application Miner"
-#~ msgstr "Tracker programdatainsamlare"
 
 #~ msgid "Indexes information about applications installed"
 #~ msgstr "Indexera information om installerade program"
