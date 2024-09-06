@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-07-30 23:14+0000\n"
-"PO-Revision-Date: 2024-08-30 12:14+0200\n"
+"POT-Creation-Date: 2024-09-03 20:08+0000\n"
+"PO-Revision-Date: 2024-09-06 15:18+0200\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -35,15 +35,16 @@ msgstr "-"
 msgid "Version"
 msgstr "verze"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
 #: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:245
+#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
 msgid "Unrecognized options"
 msgstr "Nerozpoznaný přepínač"
 
 #: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
-#: src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
+#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Umístění databáze"
 
@@ -106,48 +107,44 @@ msgstr "Mělo by být zadáno je jedno z „--ontology“ nebo „ontology-path�
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "--http-port nelze použít naráz s --dbus-service"
 
-#: src/tracker/tracker-endpoint.c:201
+#: src/tracker/tracker-endpoint.c:198
 #, c-format
 msgid "Creating HTTP endpoint at %s…\n"
 msgstr "Vytváří se koncový bod HTTP v %s…\n"
 
-#: src/tracker/tracker-endpoint.c:202
-#, c-format
-msgid "Web IDE available at %s\n"
-msgstr "Webové IDE je dostupné na %s\n"
-
-#: src/tracker/tracker-endpoint.c:222 src/tracker/tracker-endpoint.c:285
+#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Naslouchá se příkazům SPARQL. Ukončíte zmáčknutím Ctrl+c."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:230 src/tracker/tracker-endpoint.c:300
+#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-webide.c:101
 msgid "Closing connection…"
 msgstr "Zavírá se připojení…"
 
-#: src/tracker/tracker-endpoint.c:245
+#: src/tracker/tracker-endpoint.c:240
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Vytváří se koncový bod v %s…"
 
-#: src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:276
 msgid "Could not own DBus name"
 msgstr "Nezdařilo se přivlastnit název DBus"
 
-#: src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-endpoint.c:290
 msgid "DBus name lost"
 msgstr "Název DBus zmizel"
 
-#: src/tracker/tracker-endpoint.c:655
+#: src/tracker/tracker-endpoint.c:650
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Otevírá se databáze v %s…"
 
-#: src/tracker/tracker-endpoint.c:658
+#: src/tracker/tracker-endpoint.c:653
 msgid "Creating in-memory database"
 msgstr "Vytváří se databáze v paměti"
 
-#: src/tracker/tracker-endpoint.c:685
+#: src/tracker/tracker-endpoint.c:680
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -157,18 +154,19 @@ msgstr ""
 
 #: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
+#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "SOUBOR"
 
 #: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "Připojit ke službě DBus"
 
 #: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
 msgid "DBus service name"
 msgstr "Název služby DBus"
 
@@ -181,12 +179,12 @@ msgid "RDF_FORMAT"
 msgstr "RDF_FORMAT"
 
 #: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Připojit ke vzdálené službě"
 
 #: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:122
+#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "Adresa URI vzdálené služby"
 
@@ -200,18 +198,19 @@ msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:206
+#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Zadejte jednu z voleb „--database“, „--dbus-service“ nebo „--remote-service“"
 
 #: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
+#: src/tracker/tracker-query.c:345
 msgid "No error given"
 msgstr "Není uvedena žádná chyba"
 
 #: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1072
+#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Nelze vytvořit spojení k prohledávači Tracker"
 
@@ -219,11 +218,6 @@ msgstr "Nelze vytvořit spojení k prohledávači Tracker"
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Nepodporovaný serializační formát „%s“\n"
-
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "selhalo spuštění „%s“: %s"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -233,105 +227,27 @@ msgstr "Číst formát TriG, který obsahuje informace o pojmenovaných grafech"
 msgid "Could not run import"
 msgstr "Nezdařilo se spustit import"
 
-#: src/tracker/tracker-main.c:70
-msgid "Get help on how to use TinySPARQL and any of these commands"
-msgstr ""
-"Získat nápovědu k používání aplikace TinySPARQL a některého z těchto příkazů"
+#: src/tracker/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "Vypíše všechny dostupné třídy"
 
-#: src/tracker/tracker-main.c:71
-msgid "Create a SPARQL endpoint"
-msgstr "Vytvořit koncový bod SPARQL"
+#: src/tracker/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "Vypíše všechny dostupné předpony"
 
-#: src/tracker/tracker-main.c:72
-msgid "Export data from a TinySPARQL database"
-msgstr "Vyexportovat data z databáze TinySPARQL"
+#: src/tracker/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr "Vypíše všechny třídy, které oznamují změny v databázi"
 
-#: src/tracker/tracker-main.c:73
-msgid "Import data into a TinySPARQL database"
-msgstr "Naimportovat data do databáze TinySPARQL"
+#: src/tracker/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr "Vypsat indexy, které jsou v databázi použity ke zvýšení výkonu"
 
-#: src/tracker/tracker-main.c:74
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"Pomocí SPARQL položit dotaz nebo aktulizovat index, nebo vyhledat v "
-"ontologii nebo ji vypsat jako seznam nebo strom"
-
-#: src/tracker/tracker-main.c:91
-msgid "Available tinysparql commands are:"
-msgstr "Dostupné příkazy aplikace tinysparql jsou:"
-
-#: src/tracker/tracker-main.c:110
-msgid "See “tinysparql help <command>” to read about a specific subcommand."
-msgstr ""
-"Informace ke konkrétnímu příkazu si můžete přečíst pomocí „tinysparql help "
-"<příkaz>“."
-
-#: src/tracker/tracker-main.c:153
-#, c-format
-msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
-msgstr "„%s“ není příkaz aplikace tinysparql. Viz „tinysparql --help“"
-
-#: src/tracker/tracker-sparql.c:125
-msgid "Path to use to run a query or update from file"
-msgstr ""
-"Cesta, která se použije pro spuštění dotazu nebo aktualizace ze souboru"
-
-#: src/tracker/tracker-sparql.c:129
-msgid "SPARQL query"
-msgstr "Dotaz SPARQL"
-
-#: src/tracker/tracker-sparql.c:130
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:133
-msgid "This is used with --query and for database updates only."
-msgstr "Toto se používá s --query a pouze pro aktualizaci databáze."
-
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve classes"
-msgstr "Získat třídy"
-
-#: src/tracker/tracker-sparql.c:141
-msgid "Retrieve class prefixes"
-msgstr "Získat předpony tříd"
-
-#: src/tracker/tracker-sparql.c:145
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
-msgstr ""
-"Získat vlastnosti pro třídu, lze rovněž použít předponu (např. rdfs:Resource)"
-
-#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
-#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
-#: src/tracker/tracker-sparql.c:174
-msgid "CLASS"
-msgstr "TŘÍDA"
-
-#: src/tracker/tracker-sparql.c:149
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr "Získat třídy, které oznamují změny v databázi (CLASS je volitelné)"
-
-#: src/tracker/tracker-sparql.c:153
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
-msgstr ""
-"Získat indexy, které jsou v databázi použity ke zvýšení výkonu (VLASTNOST je "
-"volitelná)"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "PROPERTY"
-msgstr "VLASTNOST"
-
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Získat všechny pojmenované grafy"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -339,29 +255,158 @@ msgstr ""
 "Popsat podtřídu, supertřídu (lze použít spolu se -s ke zvýraznění částí "
 "stromu a s -p k zobrazení vlastností)"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "TŘÍDA"
+
+#: src/tracker/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "Vypíše všechny dostupné vlastnosti"
+
+#: src/tracker/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Vyhledat třídy nebo vlastnosti a zobrazit více informací (např. Dokument)"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "TŘÍDA/VLASTNOST"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Vrací zkratku pro třídu (např. nfo:FileDataObject)."
+#: src/tracker/tracker-introspect.c:716
+msgid "Could not create tree: subclass query failed"
+msgstr "Nelze vytvořit strom: dotaz na podtřídu selhal"
 
-#: src/tracker/tracker-sparql.c:173
-msgid "Returns the full namespace for a class."
-msgstr "Vrací úplný jmenný prostor pro třídu."
+#: src/tracker/tracker-introspect.c:766
+msgid "Could not create tree: class properties query failed"
+msgstr "Nelze vytvořit strom: dotaz na vlastnosti třídy selhal"
 
-#: src/tracker/tracker-sparql.c:177
+#: src/tracker/tracker-introspect.c:850
+msgid "Could not search classes"
+msgstr "Nelze vyhledat třídy"
+
+#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+msgid "Classes"
+msgstr "Třídy"
+
+#: src/tracker/tracker-introspect.c:870
+msgid "Could not search properties"
+msgstr "Nelze vyhledat vlastnosti"
+
+#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+msgid "Properties"
+msgstr "Vlastnosti"
+
+#: src/tracker/tracker-introspect.c:904
+msgid "Could not list properties"
+msgstr "Nelze vytvořit seznam vlastností"
+
+#: src/tracker/tracker-introspect.c:920
+msgid "Namespaces"
+msgstr "Jmenné prostory"
+
+#: src/tracker/tracker-introspect.c:934
+msgid "Could not list classes"
+msgstr "Nelze vytvořit seznam tříd"
+
+#: src/tracker/tracker-introspect.c:954
+msgid "Could not find notify classes"
+msgstr "Nelze najít žádné oznamovací třídy"
+
+#: src/tracker/tracker-introspect.c:962
+msgid "Notifies"
+msgstr "Oznámení"
+
+#: src/tracker/tracker-introspect.c:974
+msgid "Could not find indexed properties"
+msgstr "Nelze najít indexované vlastnosti"
+
+#: src/tracker/tracker-introspect.c:982
+msgid "Indexes"
+msgstr "Indexy"
+
+#: src/tracker/tracker-introspect.c:994
+msgid "Could not list named graphs"
+msgstr "Nezdařilo se vypsat pojmenované grafy"
+
+#: src/tracker/tracker-introspect.c:1002
+msgid "Named graphs"
+msgstr "Pojmenované grafy"
+
+#: src/tracker/tracker-introspect.c:1036
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"Argument --list-properties může být prázdný jen ve spojení s argumentem --"
+"tree"
+
+#: src/tracker/tracker-main.c:72
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr ""
+"Získat nápovědu k používání aplikace TinySPARQL a některého z těchto příkazů"
+
+#: src/tracker/tracker-main.c:73
+msgid "Create a SPARQL endpoint"
+msgstr "Vytvořit koncový bod SPARQL"
+
+#: src/tracker/tracker-main.c:74
+msgid "Export data from a TinySPARQL database"
+msgstr "Vyexportovat data z databáze TinySPARQL"
+
+#: src/tracker/tracker-main.c:75
+msgid "Import data into a TinySPARQL database"
+msgstr "Naimportovat data do databáze TinySPARQL"
+
+#: src/tracker/tracker-main.c:76
+msgid "Introspect a SPARQL endpoint"
+msgstr "Provést introspection koncového bodu SPARQL"
+
+#: src/tracker/tracker-main.c:77
+msgid "Query and update the index using SPARQL"
+msgstr "Pomocí SPARQL položit dotaz a aktualizovat index"
+
+#: src/tracker/tracker-main.c:78
+msgid "Create a Web IDE to query local databases"
+msgstr "Vytvořit webové IDE pro dotazování na místní databáze"
+
+#: src/tracker/tracker-main.c:95
+msgid "Available tinysparql commands are:"
+msgstr "Dostupné příkazy aplikace tinysparql jsou:"
+
+#: src/tracker/tracker-main.c:114
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+"Informace ke konkrétnímu příkazu si můžete přečíst pomocí „tinysparql help "
+"<příkaz>“."
+
+#: src/tracker/tracker-main.c:157
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "„%s“ není příkaz aplikace tinysparql. Viz „tinysparql --help“"
+
+#: src/tracker/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr ""
+"Cesta, která se použije pro spuštění dotazu nebo aktualizace ze souboru"
+
+#: src/tracker/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "Dotaz SPARQL"
+
+#: src/tracker/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/tracker/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr "Toto se používá s --query a pouze pro aktualizaci databáze."
+
+#: src/tracker/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
 msgstr "Poskytuje argument pro parametr dotazu."
 
-#: src/tracker/tracker-sparql.c:178
+#: src/tracker/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
 msgstr "PARAMETR:TYP:HODNOTA"
 
@@ -369,145 +414,53 @@ msgstr "PARAMETR:TYP:HODNOTA"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
+#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
 msgid "None"
 msgstr "Nic"
 
-#: src/tracker/tracker-sparql.c:899
-msgid "Could not create tree: subclass query failed"
-msgstr "Nelze vytvořit strom: dotaz na podtřídu selhal"
-
-#: src/tracker/tracker-sparql.c:949
-msgid "Could not create tree: class properties query failed"
-msgstr "Nelze vytvořit strom: dotaz na vlastnosti třídy selhal"
-
-#: src/tracker/tracker-sparql.c:1009
+#: src/tracker/tracker-query.c:282
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "Neplatný řetězec argumentu %s"
 
-#: src/tracker/tracker-sparql.c:1019
+#: src/tracker/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "Neplatný typ parametru pro argument %s"
 
-#: src/tracker/tracker-sparql.c:1089
-msgid "Could not list classes"
-msgstr "Nelze vytvořit seznam tříd"
-
-#: src/tracker/tracker-sparql.c:1097
-msgid "No classes were found"
-msgstr "Nebyla nalezena žádná třída"
-
-#: src/tracker/tracker-sparql.c:1097 src/tracker/tracker-sparql.c:1219
-msgid "Classes"
-msgstr "Třídy"
-
-#: src/tracker/tracker-sparql.c:1120
-msgid "Could not list properties"
-msgstr "Nelze vytvořit seznam vlastností"
-
-#: src/tracker/tracker-sparql.c:1128
-msgid "No properties were found"
-msgstr "Nebyla nalezena žádná vlastnost"
-
-#: src/tracker/tracker-sparql.c:1128 src/tracker/tracker-sparql.c:1237
-msgid "Properties"
-msgstr "Vlastnosti"
-
-#: src/tracker/tracker-sparql.c:1144
-msgid "Could not find notify classes"
-msgstr "Nelze najít žádné oznamovací třídy"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "No notifies were found"
-msgstr "Nebyla nalezena žádná oznámení"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "Notifies"
-msgstr "Oznámení"
-
-#: src/tracker/tracker-sparql.c:1168
-msgid "Could not find indexed properties"
-msgstr "Nelze najít indexované vlastnosti"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "No indexes were found"
-msgstr "Nebyl nalezen žádný index"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "Indexes"
-msgstr "Indexy"
-
-#: src/tracker/tracker-sparql.c:1186
-msgid "Could not list named graphs"
-msgstr "Nezdařilo se vypsat pojmenované grafy"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "No graphs were found"
-msgstr "Nebyl nalezen žádný graf"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "Named graphs"
-msgstr "Pojmenované grafy"
-
-#: src/tracker/tracker-sparql.c:1211
-msgid "Could not search classes"
-msgstr "Nelze vyhledat třídy"
-
-#: src/tracker/tracker-sparql.c:1219
-msgid "No classes were found to match search term"
-msgstr "Nebyla nalezena žádná třída odpovídající hledanému termínu"
-
-#: src/tracker/tracker-sparql.c:1229
-msgid "Could not search properties"
-msgstr "Nelze vyhledat vlastnosti"
-
-#: src/tracker/tracker-sparql.c:1237
-msgid "No properties were found to match search term"
-msgstr "Nebyla nalezena žádná vlastnost odpovídající hledanému termínu"
-
-#: src/tracker/tracker-sparql.c:1266 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
 msgstr "Nelze získat cestu v UTF-8 z cesty"
 
-#: src/tracker/tracker-sparql.c:1278 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
 msgid "Could not read file"
 msgstr "Nelze číst soubor"
 
-#: src/tracker/tracker-sparql.c:1309
+#: src/tracker/tracker-query.c:403
 msgid "Could not run update"
 msgstr "Nelze spustit aktualizaci"
 
-#: src/tracker/tracker-sparql.c:1316
+#: src/tracker/tracker-query.c:410
 msgid "Done"
 msgstr "Dokončeno"
 
-#: src/tracker/tracker-sparql.c:1334 src/tracker/tracker-sql.c:137
-#: src/tracker/tracker-sql.c:170
+#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
+#: src/tracker/tracker-sql.c:163
 msgid "Could not run query"
 msgstr "Nelze spustit dotaz"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
 msgid "No results found matching your query"
 msgstr "Nebyly nalezeny žádné výsledky odpovídající vašemu dotazu"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
-#: src/tracker/tracker-sql.c:144
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/tracker/tracker-sql.c:137
 msgid "Results"
 msgstr "Výsledky"
 
-#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:256
+#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
 msgid "File and query can not be used together"
 msgstr "Nelze použít naráz soubor a dotaz"
-
-#: src/tracker/tracker-sparql.c:1403
-msgid ""
-"The --list-properties argument can only be empty when used with the --tree "
-"argument"
-msgstr ""
-"Argument --list-properties může být prázdný jen ve spojení s argumentem --"
-"tree"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -521,17 +474,87 @@ msgstr "Dotaz SQL"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:114
+#: src/tracker/tracker-sql.c:107
 msgid "Failed to initialize data manager"
 msgstr "Selhala inicializace správce dat"
 
-#: src/tracker/tracker-sql.c:178
+#: src/tracker/tracker-sql.c:171
 msgid "Empty result set"
 msgstr "Prázdná sada výsledků"
 
-#: src/tracker/tracker-sql.c:254
+#: src/tracker/tracker-sql.c:247
 msgid "A database path must be specified"
 msgstr "Musí bý zadána cesta k databázi"
+
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "Port pro naslouchání"
+
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "Port není určen"
+
+#: src/tracker/tracker-webide.c:80
+#, c-format
+msgid "%s %s…\n"
+msgstr "%s %s…\n"
+
+#: src/tracker/tracker-webide.c:80
+msgid "Creating Web IDE at"
+msgstr "Vytváření webového IDE na"
+
+#, c-format
+#~ msgid "Web IDE available at %s\n"
+#~ msgstr "Webové IDE je dostupné na %s\n"
+
+#, c-format
+#~ msgid "failed to exec “%s”: %s"
+#~ msgstr "selhalo spuštění „%s“: %s"
+
+#~ msgid "Retrieve classes"
+#~ msgstr "Získat třídy"
+
+#~ msgid "Retrieve class prefixes"
+#~ msgstr "Získat předpony tříd"
+
+#~ msgid ""
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+#~ "Resource)"
+#~ msgstr ""
+#~ "Získat vlastnosti pro třídu, lze rovněž použít předponu (např. rdfs:"
+#~ "Resource)"
+
+#~ msgid "PROPERTY"
+#~ msgstr "VLASTNOST"
+
+#~ msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+#~ msgstr "Vrací zkratku pro třídu (např. nfo:FileDataObject)."
+
+#~ msgid "Returns the full namespace for a class."
+#~ msgstr "Vrací úplný jmenný prostor pro třídu."
+
+#~ msgid "No classes were found"
+#~ msgstr "Nebyla nalezena žádná třída"
+
+#~ msgid "No properties were found"
+#~ msgstr "Nebyla nalezena žádná vlastnost"
+
+#~ msgid "No notifies were found"
+#~ msgstr "Nebyla nalezena žádná oznámení"
+
+#~ msgid "No indexes were found"
+#~ msgstr "Nebyl nalezen žádný index"
+
+#~ msgid "No graphs were found"
+#~ msgstr "Nebyl nalezen žádný graf"
+
+#~ msgid "No classes were found to match search term"
+#~ msgstr "Nebyla nalezena žádná třída odpovídající hledanému termínu"
+
+#~ msgid "No properties were found to match search term"
+#~ msgstr "Nebyla nalezena žádná vlastnost odpovídající hledanému termínu"
 
 #~ msgid "Query the database at the lowest level using SQL"
 #~ msgstr "Položit dotaz do databáze na nejnižší úrovni pomocí SQL"
