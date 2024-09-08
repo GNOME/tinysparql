@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-07-30 23:14+0000\n"
-"PO-Revision-Date: 2024-08-30 16:33+0200\n"
+"POT-Creation-Date: 2024-09-03 20:08+0000\n"
+"PO-Revision-Date: 2024-09-08 09:14+0200\n"
 "Last-Translator: Balázs Úr <ur.balazs at fsf dot hu>\n"
 "Language-Team: Hungarian <openscope at fsf dot hu>\n"
 "Language: hu\n"
@@ -33,15 +33,16 @@ msgstr "the|a|an|az|egy"
 msgid "Version"
 msgstr "Verzió"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:611
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
 #: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:245
+#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
 msgid "Unrecognized options"
 msgstr "Azonosítatlan kapcsolók"
 
 #: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
-#: src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
+#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Az adatbázis helye"
 
@@ -105,49 +106,44 @@ msgstr "Egy „ontology” vagy „ontology-path” kapcsolót meg kell adni"
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "A --http-port nem használható a --dbus-service kapcsolóval"
 
-#: src/tracker/tracker-endpoint.c:201
+#: src/tracker/tracker-endpoint.c:198
 #, c-format
-#| msgid "Creating HTTP endpoint at %s…"
 msgid "Creating HTTP endpoint at %s…\n"
 msgstr "HTTP végpont létrehozása itt: %s…\n"
 
-#: src/tracker/tracker-endpoint.c:202
-#, c-format
-msgid "Web IDE available at %s\n"
-msgstr "Web IDE elérhető itt: %s\n"
-
-#: src/tracker/tracker-endpoint.c:222 src/tracker/tracker-endpoint.c:285
+#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Figyelés a SPARQL parancsokra. Nyomjon Ctrl-C-t a leállításhoz."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:230 src/tracker/tracker-endpoint.c:300
+#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-webide.c:101
 msgid "Closing connection…"
 msgstr "Kapcsolat lezárása…"
 
-#: src/tracker/tracker-endpoint.c:245
+#: src/tracker/tracker-endpoint.c:240
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Végpont létrehozása itt: %s…"
 
-#: src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:276
 msgid "Could not own DBus name"
 msgstr "A DBus név nem birtokolható"
 
-#: src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-endpoint.c:290
 msgid "DBus name lost"
 msgstr "A DBus név elveszett"
 
-#: src/tracker/tracker-endpoint.c:655
+#: src/tracker/tracker-endpoint.c:650
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Adatbázis megnyitása itt: %s…"
 
-#: src/tracker/tracker-endpoint.c:658
+#: src/tracker/tracker-endpoint.c:653
 msgid "Creating in-memory database"
 msgstr "Memóriában tárolt adatbázis létrehozása"
 
-#: src/tracker/tracker-endpoint.c:685
+#: src/tracker/tracker-endpoint.c:680
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -157,18 +153,19 @@ msgstr ""
 
 #: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
+#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FÁJL"
 
 #: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "Kapcsolódik egy DBus szolgáltatáshoz"
 
 #: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
 msgid "DBus service name"
 msgstr "DBus szolgáltatásnév"
 
@@ -181,12 +178,12 @@ msgid "RDF_FORMAT"
 msgstr "RDF_FORMÁTUM"
 
 #: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Kapcsolódik egy távoli szolgáltatáshoz"
 
 #: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:122
+#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "Távoli szolgáltatás URI-ja"
 
@@ -201,19 +198,20 @@ msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
 #: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:206
+#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Adja meg a „--database”, „--dbus-service” vagy „--remote-service” kapcsolók "
 "egyikét"
 
 #: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
+#: src/tracker/tracker-query.c:345
 msgid "No error given"
 msgstr "Nincs megadva hiba"
 
 #: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1072
+#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Nem hozható létre kapcsolat a Trackerhez"
 
@@ -221,11 +219,6 @@ msgstr "Nem hozható létre kapcsolat a Trackerhez"
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Nem támogatott sorosítási formátum: „%s”\n"
-
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "nem sikerült végrehajtani: „%s”: %s"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -236,113 +229,34 @@ msgstr ""
 msgid "Could not run import"
 msgstr "Az importálás nem futtatható"
 
-#: src/tracker/tracker-main.c:70
-#| msgid "Get help on how to use Tracker and any of these commands"
-msgid "Get help on how to use TinySPARQL and any of these commands"
+#: src/tracker/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "Felsorolja az összes elérhető osztályt"
+
+#: src/tracker/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "Felsorolja az összes elérhető előtagot"
+
+#: src/tracker/tracker-introspect.c:118
+#| msgid ""
+#| "Retrieve classes which notify changes in the database (CLASS is optional)"
+msgid "Lists all classes which notify changes in the database"
 msgstr ""
-"Segítség kérése a TinySPARQL és ezen parancsok használatával kapcsolatban"
+"Felsorolja az összes olyan osztályt, amely értesít az adatbázisban történt"
+" változtatásokról"
 
-#: src/tracker/tracker-main.c:71
-msgid "Create a SPARQL endpoint"
-msgstr "SPARQL végpont létrehozása"
+#: src/tracker/tracker-introspect.c:122
+#| msgid ""
+#| "Retrieve indexes used in database to improve performance (PROPERTY is "
+#| "optional)"
+msgid "List indexes used in database to improve performance"
+msgstr "Az adatbázisban a teljesítmény javításához használt indexek listája"
 
-#: src/tracker/tracker-main.c:72
-#| msgid "Export data from a Tracker database"
-msgid "Export data from a TinySPARQL database"
-msgstr "Adatok exportálása a TinySPARQL adatbázisból"
-
-#: src/tracker/tracker-main.c:73
-#| msgid "Import data into a Tracker database"
-msgid "Import data into a TinySPARQL database"
-msgstr "Adatok importálása a TinySPARQL adatbázisba"
-
-#: src/tracker/tracker-main.c:74
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"Index lekérdezése vagy frissítése SPARQL használatával, vagy az ontológia "
-"keresése, listázása és fa nézete"
-
-#: src/tracker/tracker-main.c:91
-#| msgid "Available tracker3 commands are:"
-msgid "Available tinysparql commands are:"
-msgstr "Az elérhető tinysparql parancsok:"
-
-#: src/tracker/tracker-main.c:110
-#| msgid "See “tracker3 help <command>” to read about a specific subcommand."
-msgid "See “tinysparql help <command>” to read about a specific subcommand."
-msgstr ""
-"Az egyes alparancsokkal kapcsolatban olvassa el a „tinysparql help <parancs>”"
-" kimenetét."
-
-#: src/tracker/tracker-main.c:153
-#, c-format
-#| msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
-msgstr "A(z) „%s” nem tinysparql parancs. Lásd: „tinysparql --help”"
-
-#: src/tracker/tracker-sparql.c:125
-msgid "Path to use to run a query or update from file"
-msgstr "Lekérdezés futtatására vagy fájlból frissítésre használandó útvonal"
-
-#: src/tracker/tracker-sparql.c:129
-msgid "SPARQL query"
-msgstr "SPARQL lekérdezés"
-
-#: src/tracker/tracker-sparql.c:130
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:133
-msgid "This is used with --query and for database updates only."
-msgstr "Ez a --query kapcsolóval és csak adatbázis-frissítésekre használatos."
-
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve classes"
-msgstr "Osztályok lekérése"
-
-#: src/tracker/tracker-sparql.c:141
-msgid "Retrieve class prefixes"
-msgstr "Osztályelőtagok lekérése"
-
-#: src/tracker/tracker-sparql.c:145
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
-msgstr ""
-"Osztály tulajdonságainak lekérése, előtagok is használhatók (például: rdfs:"
-"Resource)"
-
-#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
-#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
-#: src/tracker/tracker-sparql.c:174
-msgid "CLASS"
-msgstr "OSZTÁLY"
-
-#: src/tracker/tracker-sparql.c:149
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-"Osztályok visszaadása, amelyek az adatbázis változásaira figyelmeztetnek (az "
-"OSZTÁLY elhagyható)"
-
-#: src/tracker/tracker-sparql.c:153
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
-msgstr ""
-"Az adatbázisban használt indexek lekérése a teljesítmény javítása érdekében "
-"(a TULAJDONSÁG elhagyható)"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "PROPERTY"
-msgstr "TULAJDONSÁG"
-
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Az összes nevesített gráf lekérése"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -350,30 +264,163 @@ msgstr ""
 "Alosztályok, ősosztályok leírása (használható a -s-sel a fa részeinek "
 "kiemeléséhez és a -p-vel a tulajdonságok megjelenítéséhez)"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "OSZTÁLY"
+
+#: src/tracker/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "Felsorolja az összes elérhető tulajdonságot"
+
+#: src/tracker/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Osztály vagy tulajdonság keresése, és további információk megjelenítése "
 "(például dokumentum)"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "OSZTÁLY/TULAJDONSÁG"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Visszaadja egy osztály rövid nevét (például: nfo:FileDataObject)."
+#: src/tracker/tracker-introspect.c:716
+msgid "Could not create tree: subclass query failed"
+msgstr "Nem lehet fát létrehozni: az alosztály-lekérdezés sikertelen"
 
-#: src/tracker/tracker-sparql.c:173
-msgid "Returns the full namespace for a class."
-msgstr "Visszaadja egy osztály teljes névterét."
+#: src/tracker/tracker-introspect.c:766
+msgid "Could not create tree: class properties query failed"
+msgstr ""
+"Nem lehet fát létrehozni: az osztálytulajdonságok lekérdezése sikertelen"
 
-#: src/tracker/tracker-sparql.c:177
+#: src/tracker/tracker-introspect.c:850
+msgid "Could not search classes"
+msgstr "Nem kereshetők az osztályok"
+
+#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+msgid "Classes"
+msgstr "Osztályok"
+
+#: src/tracker/tracker-introspect.c:870
+msgid "Could not search properties"
+msgstr "Nem kereshetők a tulajdonságok"
+
+#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+msgid "Properties"
+msgstr "Tulajdonságok"
+
+#: src/tracker/tracker-introspect.c:904
+msgid "Could not list properties"
+msgstr "A tulajdonságok nem sorolhatók fel"
+
+#: src/tracker/tracker-introspect.c:920
+msgid "Namespaces"
+msgstr "Névterek"
+
+#: src/tracker/tracker-introspect.c:934
+msgid "Could not list classes"
+msgstr "Az osztályok nem sorolhatók fel"
+
+#: src/tracker/tracker-introspect.c:954
+msgid "Could not find notify classes"
+msgstr "Az értesítő osztályok nem találhatók"
+
+#: src/tracker/tracker-introspect.c:962
+msgid "Notifies"
+msgstr "Értesítések"
+
+#: src/tracker/tracker-introspect.c:974
+msgid "Could not find indexed properties"
+msgstr "Az indexelt tulajdonságok nem találhatók"
+
+#: src/tracker/tracker-introspect.c:982
+msgid "Indexes"
+msgstr "Indexek"
+
+#: src/tracker/tracker-introspect.c:994
+msgid "Could not list named graphs"
+msgstr "A nevesített gráfok nem sorolhatók fel"
+
+#: src/tracker/tracker-introspect.c:1002
+msgid "Named graphs"
+msgstr "Nevesített gráfok"
+
+#: src/tracker/tracker-introspect.c:1036
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"A --list-properties argumentum csak akkor lehet üres, ha a --tree "
+"argumentummal együtt használják"
+
+#: src/tracker/tracker-main.c:72
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr ""
+"Segítség kérése a TinySPARQL és ezen parancsok használatával kapcsolatban"
+
+#: src/tracker/tracker-main.c:73
+msgid "Create a SPARQL endpoint"
+msgstr "SPARQL végpont létrehozása"
+
+#: src/tracker/tracker-main.c:74
+msgid "Export data from a TinySPARQL database"
+msgstr "Adatok exportálása a TinySPARQL adatbázisból"
+
+#: src/tracker/tracker-main.c:75
+msgid "Import data into a TinySPARQL database"
+msgstr "Adatok importálása a TinySPARQL adatbázisba"
+
+#: src/tracker/tracker-main.c:76
+#| msgid "Create a SPARQL endpoint"
+msgid "Introspect a SPARQL endpoint"
+msgstr "SPARQL végpont áttekintése"
+
+#: src/tracker/tracker-main.c:77
+#| msgid ""
+#| "Query and update the index using SPARQL or search, list and tree the "
+#| "ontology"
+msgid "Query and update the index using SPARQL"
+msgstr "Index lekérdezése és frissítése SPARQL használatával"
+
+#: src/tracker/tracker-main.c:78
+msgid "Create a Web IDE to query local databases"
+msgstr "Webes IDE létrehozása a helyi adatbázisok lekérdezéséhez"
+
+#: src/tracker/tracker-main.c:95
+msgid "Available tinysparql commands are:"
+msgstr "Az elérhető tinysparql parancsok:"
+
+#: src/tracker/tracker-main.c:114
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+"Az egyes alparancsokkal kapcsolatban olvassa el a „tinysparql help "
+"<parancs>” kimenetét."
+
+#: src/tracker/tracker-main.c:157
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "A(z) „%s” nem tinysparql parancs. Lásd: „tinysparql --help”"
+
+#: src/tracker/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr "Lekérdezés futtatására vagy fájlból frissítésre használandó útvonal"
+
+#: src/tracker/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "SPARQL lekérdezés"
+
+#: src/tracker/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/tracker/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr "Ez a --query kapcsolóval és csak adatbázis-frissítésekre használatos."
+
+#: src/tracker/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
 msgstr "Argumentumot ad egy lekérdezési paraméterhez."
 
-#: src/tracker/tracker-sparql.c:178
+#: src/tracker/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
 msgstr "PARAMÉTER:TÍPUS:ÉRTÉK"
 
@@ -381,146 +428,53 @@ msgstr "PARAMÉTER:TÍPUS:ÉRTÉK"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
+#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
 msgid "None"
 msgstr "Nincs"
 
-#: src/tracker/tracker-sparql.c:899
-msgid "Could not create tree: subclass query failed"
-msgstr "Nem lehet fát létrehozni: az alosztály-lekérdezés sikertelen"
-
-#: src/tracker/tracker-sparql.c:949
-msgid "Could not create tree: class properties query failed"
-msgstr ""
-"Nem lehet fát létrehozni: az osztálytulajdonságok lekérdezése sikertelen"
-
-#: src/tracker/tracker-sparql.c:1009
+#: src/tracker/tracker-query.c:282
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "Érvénytelen argumentum-karakterlánc: %s"
 
-#: src/tracker/tracker-sparql.c:1019
+#: src/tracker/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "Érvénytelen paramétertípus a következő argumentumhoz: %s"
 
-#: src/tracker/tracker-sparql.c:1089
-msgid "Could not list classes"
-msgstr "Az osztályok nem sorolhatók fel"
-
-#: src/tracker/tracker-sparql.c:1097
-msgid "No classes were found"
-msgstr "Nem találhatók osztályok"
-
-#: src/tracker/tracker-sparql.c:1097 src/tracker/tracker-sparql.c:1219
-msgid "Classes"
-msgstr "Osztályok"
-
-#: src/tracker/tracker-sparql.c:1120
-msgid "Could not list properties"
-msgstr "A tulajdonságok nem sorolhatók fel"
-
-#: src/tracker/tracker-sparql.c:1128
-msgid "No properties were found"
-msgstr "Nem találhatók tulajdonságok"
-
-#: src/tracker/tracker-sparql.c:1128 src/tracker/tracker-sparql.c:1237
-msgid "Properties"
-msgstr "Tulajdonságok"
-
-#: src/tracker/tracker-sparql.c:1144
-msgid "Could not find notify classes"
-msgstr "Az értesítő osztályok nem találhatók"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "No notifies were found"
-msgstr "Nem találhatók értesítők"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "Notifies"
-msgstr "Értesítések"
-
-#: src/tracker/tracker-sparql.c:1168
-msgid "Could not find indexed properties"
-msgstr "Az indexelt tulajdonságok nem találhatók"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "No indexes were found"
-msgstr "Nem találhatók indexek"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "Indexes"
-msgstr "Indexek"
-
-#: src/tracker/tracker-sparql.c:1186
-msgid "Could not list named graphs"
-msgstr "A nevesített gráfok nem sorolhatók fel"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "No graphs were found"
-msgstr "Nem találhatók gráfok"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "Named graphs"
-msgstr "Nevesített gráfok"
-
-#: src/tracker/tracker-sparql.c:1211
-msgid "Could not search classes"
-msgstr "Nem kereshetők az osztályok"
-
-#: src/tracker/tracker-sparql.c:1219
-msgid "No classes were found to match search term"
-msgstr "Nem találhatók a keresőkifejezésre illeszkedő osztályok"
-
-#: src/tracker/tracker-sparql.c:1229
-msgid "Could not search properties"
-msgstr "Nem kereshetők a tulajdonságok"
-
-#: src/tracker/tracker-sparql.c:1237
-msgid "No properties were found to match search term"
-msgstr "Nem találhatók a keresőkifejezésre illeszkedő tulajdonságok"
-
-#: src/tracker/tracker-sparql.c:1266 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
 msgstr "Nem szerezhető be az UTF-8 útvonal az útvonalból"
 
-#: src/tracker/tracker-sparql.c:1278 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
 msgid "Could not read file"
 msgstr "A fájl nem olvasható"
 
-#: src/tracker/tracker-sparql.c:1309
+#: src/tracker/tracker-query.c:403
 msgid "Could not run update"
 msgstr "A frissítés nem futtatható"
 
-#: src/tracker/tracker-sparql.c:1316
+#: src/tracker/tracker-query.c:410
 msgid "Done"
 msgstr "Kész"
 
-#: src/tracker/tracker-sparql.c:1334 src/tracker/tracker-sql.c:137
-#: src/tracker/tracker-sql.c:170
+#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
+#: src/tracker/tracker-sql.c:163
 msgid "Could not run query"
 msgstr "A lekérdezés nem futtatható"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
 msgid "No results found matching your query"
 msgstr "Nincs a lekérdezésnek megfelelő találat"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
-#: src/tracker/tracker-sql.c:144
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/tracker/tracker-sql.c:137
 msgid "Results"
 msgstr "Eredmények"
 
-#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:256
+#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
 msgid "File and query can not be used together"
 msgstr "A tárolás és lekérdezés műveletek nem használhatók egyszerre"
-
-#: src/tracker/tracker-sparql.c:1403
-msgid ""
-"The --list-properties argument can only be empty when used with the --tree "
-"argument"
-msgstr ""
-"A --list-properties argumentum csak akkor lehet üres, ha a --tree "
-"argumentummal együtt használják"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -534,14 +488,33 @@ msgstr "SQL lekérdezés"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:114
+#: src/tracker/tracker-sql.c:107
 msgid "Failed to initialize data manager"
 msgstr "Az adatkezelő előkészítése meghiúsult"
 
-#: src/tracker/tracker-sql.c:178
+#: src/tracker/tracker-sql.c:171
 msgid "Empty result set"
 msgstr "Üres eredményhalmaz"
 
-#: src/tracker/tracker-sql.c:254
+#: src/tracker/tracker-sql.c:247
 msgid "A database path must be specified"
 msgstr "Meg kell adni egy adatbázis-útvonalat"
+
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "A port, amelyen figyelni kell"
+
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "A port nincs megadva"
+
+#: src/tracker/tracker-webide.c:80
+#, c-format
+msgid "%s %s…\n"
+msgstr "%s %s…\n"
+
+#: src/tracker/tracker-webide.c:80
+msgid "Creating Web IDE at"
+msgstr "Webes IDE létrehozása itt:"
