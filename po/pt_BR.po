@@ -1,5 +1,5 @@
 # Brazilian Portuguese translation of Tracker.
-# Copyright (C) 2024 Tracker's COPYRIGHT HOLDER
+# Copyright (C) 2022 Tracker's COPYRIGHT HOLDER
 # This file is distributed under the same license as the tracker package.
 # Luiz Armesto <luiz.armesto@gmail.com>, 2007, 2008.
 # Leonardo Ferreira Fontenelle <leo.fontenelle@gmail.com>, 2008.
@@ -12,22 +12,22 @@
 # Felipe Braga <fbobraga@gmail.com>, 2015.
 # Bruno Lopes da Silva <brunolopesbldsb@gmail.com>, 2018.
 # Leônidas Araújo <leorusvellt@hotmail.com>, 2022.
+# Rafael Fontenelle <rafaelff@gnome.org>, 2013-2023.
 # Juliano de Souza Camargo <julianosc@pm.me>, 2024.
-# Rafael Fontenelle <rafaelff@gnome.org>, 2013-2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
 "POT-Creation-Date: 2024-09-08 15:11+0000\n"
-"PO-Revision-Date: 2024-09-10 13:05-0300\n"
-"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
+"PO-Revision-Date: 2024-08-24 09:59-0300\n"
+"Last-Translator: Juliano de Souza Camargo <julianosc@pm.me>\n"
 "Language-Team: Brazilian Portuguese <https://br.gnome.org/traducao>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Gtranslator 46.1\n"
 "X-Project-Style: gnome\n"
 "X-DL-Team: pt_BR\n"
@@ -77,12 +77,12 @@ msgstr "NOME"
 
 #: src/tracker/tracker-endpoint.c:66
 msgid "Specify the ontology name used in this endpoint"
-msgstr "Especifica o nome da ontologia usada para este ponto de extremidade"
+msgstr "Especifique o nome da ontologia usada para este ponto de extremidade"
 
 #: src/tracker/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr ""
-"Especifica um caminho para uma ontologia a ser usada neste ponto de "
+"Especifique um caminho para uma ontologia a ser usada neste ponto de "
 "extremidade"
 
 #: src/tracker/tracker-endpoint.c:74
@@ -107,7 +107,7 @@ msgstr "Lista os pontos de extremidade SPARQL disponíveis no DBus"
 
 #: src/tracker/tracker-endpoint.c:94
 msgid "List network-local HTTP SPARQL endpoints"
-msgstr "Lista os pontos de extremidade HTTP SPARQL da rede local"
+msgstr "Listar endpoints HTTP SPARQL da rede local"
 
 #. TRANSLATORS: these are commandline arguments
 #: src/tracker/tracker-endpoint.c:115
@@ -189,7 +189,7 @@ msgstr "Nome do serviço DBus"
 
 #: src/tracker/tracker-export.c:55
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
-msgstr "Formato de saída dos resultados: “turtle”, “trig” ou “json-ld”"
+msgstr "Exibe resultados nos formatos: “turtle”, “trig” ou “json-ld”"
 
 #: src/tracker/tracker-export.c:56
 msgid "RDF_FORMAT"
@@ -207,7 +207,7 @@ msgstr "URI de serviço remoto"
 
 #: src/tracker/tracker-export.c:63
 msgid "Output TriG format which includes named graph information"
-msgstr "Mostra o formato TriG que inclui informações de grafo nomeado"
+msgstr "Mostra formato TriG que inclui informações de grafo nomeado"
 
 #: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
 msgid "IRI"
@@ -239,27 +239,42 @@ msgstr "Sem suporte ao formato de serialização “%s”\n"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
-msgstr "Lê o formato TriG, que inclui informações de gráficos nomeados"
+msgstr "Leia o formato TriG, que inclui informações de gráficos nomeados"
 
 #: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
 msgid "Could not run import"
 msgstr "Não foi possível executar a importação"
 
 #: src/tracker/tracker-introspect.c:110
+#, fuzzy
+#| msgid "List all Tracker processes"
 msgid "Lists all available classes"
-msgstr "Lista todas as classes disponíveis"
+msgstr "Lista todos os processos do Tracker"
 
 #: src/tracker/tracker-introspect.c:114
+#, fuzzy
+#| msgid "List all Tracker processes"
 msgid "Lists all available prefixes"
-msgstr "Lista todos os prefixos disponíveis"
+msgstr "Lista todos os processos do Tracker"
 
 #: src/tracker/tracker-introspect.c:118
+#, fuzzy
+#| msgid ""
+#| "Retrieve classes which notify changes in the database (CLASS is optional)"
 msgid "Lists all classes which notify changes in the database"
-msgstr "Lista todas as classes que notificam de alterações no banco de dados"
+msgstr ""
+"Classes de recuperação que notificam de alterações no banco de dados (CLASS "
+"é opcional)"
 
 #: src/tracker/tracker-introspect.c:122
+#, fuzzy
+#| msgid ""
+#| "Retrieve indexes used in database to improve performance (PROPERTY is "
+#| "optional)"
 msgid "List indexes used in database to improve performance"
-msgstr "Lista índices usados no banco de dados para melhorar o desempenho"
+msgstr ""
+"Recupera índices usados no banco de dados para melhorar a performance "
+"(PROPRIEDADE é opcional)"
 
 #: src/tracker/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
@@ -278,8 +293,10 @@ msgid "CLASS"
 msgstr "CLASSE"
 
 #: src/tracker/tracker-introspect.c:133
+#, fuzzy
+#| msgid "List all Tracker processes"
 msgid "Lists all available properties"
-msgstr "Lista todas as propriedades disponíveis"
+msgstr "Lista todos os processos do Tracker"
 
 #: src/tracker/tracker-introspect.c:137
 msgid ""
@@ -323,7 +340,7 @@ msgstr "Não foi possível listar as propriedades"
 
 #: src/tracker/tracker-introspect.c:920
 msgid "Namespaces"
-msgstr "Espaços de nomes"
+msgstr ""
 
 #: src/tracker/tracker-introspect.c:934
 msgid "Could not list classes"
@@ -378,16 +395,20 @@ msgid "Import data into a TinySPARQL database"
 msgstr "Importa dados em um banco de dados TinySPARQL"
 
 #: src/tracker/tracker-main.c:76
+#, fuzzy
+#| msgid "Create a SPARQL endpoint"
 msgid "Introspect a SPARQL endpoint"
-msgstr "Faz introspecção de um ponto de extremidade SPARQL"
+msgstr "Cria um ponto de extremidade SPARQL"
 
 #: src/tracker/tracker-main.c:77
+#, fuzzy
+#| msgid "- Query or update using SPARQL"
 msgid "Query and update the index using SPARQL"
-msgstr "Consulta ou atualiza o índice usando SPARQL"
+msgstr "- Consulta ou atualização usando SPARQL"
 
 #: src/tracker/tracker-main.c:78
 msgid "Create a Web IDE to query local databases"
-msgstr "Cria uma Web IDE para consultar bancos de dados locais"
+msgstr ""
 
 #: src/tracker/tracker-main.c:95
 msgid "Available tinysparql commands are:"
@@ -426,7 +447,7 @@ msgstr "Fornece um argumento para um parâmetro de pesquisa."
 
 #: src/tracker/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
-msgstr "PARÂMETRO:TIPO:VALOR"
+msgstr "PARAMETER:TYPE:VALUE"
 
 #. To translators: This is to say there are no
 #. * search results found. We use a "foo: None"
@@ -507,21 +528,23 @@ msgstr "Um caminho de banco de dados deve ser especificado"
 #. Translators: this is a HTTP port
 #: src/tracker/tracker-webide.c:40
 msgid "Port to listen on"
-msgstr "Porta para escutar"
+msgstr ""
 
 #. Translators: this is a HTTP port
 #: src/tracker/tracker-webide.c:50
+#, fuzzy
+#| msgid "No options specified"
 msgid "Port not specified"
-msgstr "Porta não especificada"
+msgstr "Sem opções especificadas"
 
 #: src/tracker/tracker-webide.c:80
 #, c-format
 msgid "%s %s…\n"
-msgstr "%s %s…\n"
+msgstr ""
 
 #: src/tracker/tracker-webide.c:80
 msgid "Creating Web IDE at"
-msgstr "Criando Web IDE em"
+msgstr ""
 
 #, c-format
 #~ msgid "Web IDE available at %s\n"
