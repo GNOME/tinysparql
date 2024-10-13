@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-02-27 16:38+0000\n"
-"PO-Revision-Date: 2024-03-08 23:28+0200\n"
+"POT-Creation-Date: 2024-09-08 15:11+0000\n"
+"PO-Revision-Date: 2024-10-13 11:21+0300\n"
 "Last-Translator: Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>\n"
 "Language-Team: Latvian <lata-l10n@googlegroups.com>\n"
 "Language: lv\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 :"
 " 2);\n"
-"X-Generator: Lokalize 23.08.1\n"
+"X-Generator: Lokalize 23.08.5\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -32,15 +32,16 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "Versija"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
-#: src/tracker/tracker-export.c:552 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1398 src/tracker/tracker-sql.c:239
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
+#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
 msgid "Unrecognized options"
 msgstr "Neatpazītas opcijas"
 
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
-#: src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
+#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Datubāzes atrašanās vieta"
 
@@ -105,41 +106,43 @@ msgstr "--http-port nevar lietot kopā ar --dbus-service"
 
 #: src/tracker/tracker-endpoint.c:198
 #, c-format
-msgid "Creating HTTP endpoint at %s…"
-msgstr "Izveidot HTTP galapunktu vietā %s…"
+#| msgid "Creating HTTP endpoint at %s…"
+msgid "Creating HTTP endpoint at %s…\n"
+msgstr "Izveidot HTTP galapunktu vietā %s…\n"
 
-#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Klausās SPARQL komandas. Spiediet Ctrl-C, lai apturētu."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
+#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-webide.c:101
 msgid "Closing connection…"
 msgstr "Aizver savienojumu…"
 
-#: src/tracker/tracker-endpoint.c:241
+#: src/tracker/tracker-endpoint.c:240
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Izveidot galapunktu vietā %s…"
 
-#: src/tracker/tracker-endpoint.c:277
+#: src/tracker/tracker-endpoint.c:276
 msgid "Could not own DBus name"
 msgstr "Nevarēja piesavināties DBus nosaukumu"
 
-#: src/tracker/tracker-endpoint.c:291
+#: src/tracker/tracker-endpoint.c:290
 msgid "DBus name lost"
 msgstr "DBus nosaukums ir pazudis"
 
-#: src/tracker/tracker-endpoint.c:651
+#: src/tracker/tracker-endpoint.c:650
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Atver datubāzi %s…"
 
-#: src/tracker/tracker-endpoint.c:654
+#: src/tracker/tracker-endpoint.c:653
 msgid "Creating in-memory database"
 msgstr "Izveido datubāzi atmiņā"
 
-#: src/tracker/tracker-endpoint.c:681
+#: src/tracker/tracker-endpoint.c:680
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -147,110 +150,73 @@ msgstr ""
 "Ir izveidota jauna datubāze. Izmantojiet opciju “--dbus-service”, lai "
 "koplietotu šo datubāzi ziņojumu kopnē."
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-endpoint.desktop.in:6
-msgid "endpoint"
-msgstr "endpoint"
-
-#: src/tracker/tracker-endpoint.desktop.in:7
-msgid "Create a SPARQL endpoint"
-msgstr "Izveidot SPARQL galapunktu"
-
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
+#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "DATNE"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "Savienojas ar DBus pakalpojumu"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
 msgid "DBus service name"
 msgstr "DBus pakalpojuma nosaukums"
 
-#: src/tracker/tracker-export.c:57
+#: src/tracker/tracker-export.c:55
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Izvadīt rezultātu formāts: “turtle”, “trig” vai “json-ld”"
 
-#: src/tracker/tracker-export.c:58
+#: src/tracker/tracker-export.c:56
 msgid "RDF_FORMAT"
 msgstr "RDF_FORMĀTS"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Savienojas ar attālu pakalpojumu"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:122
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "Attālā pakalpojuma URI"
 
-#: src/tracker/tracker-export.c:65
+#: src/tracker/tracker-export.c:63
 msgid "Output TriG format which includes named graph information"
 msgstr "Izvades TriG formāts, kurā tiek iekļauta nosauktu grafu informācija"
 
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:206
+#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Norādiet vienu no opcijām “--database”, “--dbus-service” vai “--remote-"
 "service”"
 
-#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1079
+#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
+#: src/tracker/tracker-query.c:345
 msgid "No error given"
 msgstr "Nav dota kļūda"
 
-#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1078
+#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Nevarēja izveidot savienojumu ar Tracker"
 
-#: src/tracker/tracker-export.c:382
+#: src/tracker/tracker-export.c:180
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Neatbalstīts serializēšanas formāts “%s”\n"
-
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:447
-#: src/tracker/tracker-export.c:457 src/tracker/tracker-sparql.c:1340
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "Nevarēja palaist vaicājumu"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-export.desktop.in:6
-msgid "export"
-msgstr "export"
-
-#: src/tracker/tracker-export.desktop.in:7
-msgid "Export data from a Tracker database"
-msgstr "Eksportēt datus no Tracker datubāzes"
-
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "neizdevās izpildīt “%s” — %s"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-help.desktop.in:6
-msgid "help"
-msgstr "help"
-
-#: src/tracker/tracker-help.desktop.in:7
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr ""
-"Saņemiet palīdzību par to, kā izmantot Tracker un jebkuru no šīm komandām"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -260,88 +226,34 @@ msgstr "Lasīšanas TriG formāts, kurā tiek iekļauta nosauktu grafu informāc
 msgid "Could not run import"
 msgstr "Nevarēja palaist importēšanu"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-import.desktop.in:6
-msgid "import"
-msgstr "import"
+#: src/tracker/tracker-introspect.c:110
+#| msgid "List all Tracker processes"
+msgid "Lists all available classes"
+msgstr "Uzskaita visas pieejamās klases"
 
-#: src/tracker/tracker-import.desktop.in:7
-msgid "Import data into a Tracker database"
-msgstr "Importēt datus Tracker datubāzē"
+#: src/tracker/tracker-introspect.c:114
+#| msgid "List all Tracker processes"
+msgid "Lists all available prefixes"
+msgstr "Uzskaita visus pieejamos prefiksus"
 
-#: src/tracker/tracker-main.c:123
-msgid "Available tracker3 commands are:"
-msgstr "Pieejamās tracker3 komandas:"
+#: src/tracker/tracker-introspect.c:118
+#| msgid ""
+#| "Retrieve classes which notify changes in the database (CLASS is optional)"
+msgid "Lists all classes which notify changes in the database"
+msgstr "Uzskaita visas klases, kas paziņo par izmaiņām datubāzē"
 
-#: src/tracker/tracker-main.c:155
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
-msgstr ""
-"Skatiet “tracker3 help <komanda>”, lai izlasītu par noteikto apakškomandu."
+#: src/tracker/tracker-introspect.c:122
+#| msgid ""
+#| "Retrieve indexes used in database to improve performance (PROPERTY is "
+#| "optional)"
+msgid "List indexes used in database to improve performance"
+msgstr "Uzskaitīt indeksus, ko izmanto datubāzē, lai uzlabotu veiktspēju"
 
-#: src/tracker/tracker-main.c:213
-#, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "“%s” nav tracker3 komanda, skatiet “tracker3 --help”"
-
-#: src/tracker/tracker-sparql.c:125
-msgid "Path to use to run a query or update from file"
-msgstr "Ceļš, ko izmanto, lai palaistu vaicājumu vai atjauninātu no datnes"
-
-#: src/tracker/tracker-sparql.c:129
-msgid "SPARQL query"
-msgstr "SPARQL vaicājums"
-
-#: src/tracker/tracker-sparql.c:130
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:133
-msgid "This is used with --query and for database updates only."
-msgstr "Šo izmanto ar --query tikai datubāžu atjaunināšanai."
-
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve classes"
-msgstr "Saņemt klases"
-
-#: src/tracker/tracker-sparql.c:141
-msgid "Retrieve class prefixes"
-msgstr "Saņemt klašu prefiksus"
-
-#: src/tracker/tracker-sparql.c:145
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
-msgstr ""
-"Saņemt klases īpašības, var izmantot arī prefiksus (piemēram, rdfs:Resource)"
-
-#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
-#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
-#: src/tracker/tracker-sparql.c:174
-msgid "CLASS"
-msgstr "KLASE"
-
-#: src/tracker/tracker-sparql.c:149
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr "Saņemt klases, kas paziņo par izmaiņām datubāzē (KLASE ir neobligāts)"
-
-#: src/tracker/tracker-sparql.c:153
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
-msgstr ""
-"Saņem indeksus, ko izmanto datubāzē, lai uzlabotu veiktspēju (ĪPAŠĪBA ir "
-"neobligāts)"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "PROPERTY"
-msgstr "ĪPAŠĪBA"
-
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Saņemt visus nosauktos grafus"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -349,164 +261,86 @@ msgstr ""
 "Apraksta apakšklases, superklases (var izmantot ar -s, lai izceltu koka "
 "daļas, un -p, lai parādītu īpašības)"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "KLASE"
+
+#: src/tracker/tracker-introspect.c:133
+#| msgid "List all Tracker processes"
+msgid "Lists all available properties"
+msgstr "Uzskaita visas īpašības"
+
+#: src/tracker/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Meklēt klasi vai īpašību un attēlot vairāk informācijas (piemēram, dokuments)"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "KLASE/ĪPAŠĪBA"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Atgriež klases saīsinājumu (piemēram, nfo:FileDataObject)."
-
-#: src/tracker/tracker-sparql.c:173
-msgid "Returns the full namespace for a class."
-msgstr "Atgriež klases pilnu vārdtelpu."
-
-#: src/tracker/tracker-sparql.c:177
-msgid "Provides an argument for a query parameter."
-msgstr "Sniedz argumentu vaicājuma parametram."
-
-#: src/tracker/tracker-sparql.c:178
-msgid "PARAMETER:TYPE:VALUE"
-msgstr "PARAMETRS:TIPS:VĒRTĪBA"
-
-#. To translators: This is to say there are no
-#. * search results found. We use a "foo: None"
-#. * with multiple print statements, where "foo"
-#. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
-msgid "None"
-msgstr "Nekas"
-
-#: src/tracker/tracker-sparql.c:899
+#: src/tracker/tracker-introspect.c:716
 msgid "Could not create tree: subclass query failed"
 msgstr "Nevarēja izveidot koku — neizdevās apakšklases vaicājums"
 
-#: src/tracker/tracker-sparql.c:948
+#: src/tracker/tracker-introspect.c:766
 msgid "Could not create tree: class properties query failed"
 msgstr "Nevarēja izveidot koku — neizdevās klases īpašību vaicājums"
 
-#: src/tracker/tracker-sparql.c:1015
-#, c-format
-msgid "Invalid argument string %s"
-msgstr "Nederīga argumenta virkne %s"
-
-#: src/tracker/tracker-sparql.c:1025
-#, c-format
-msgid "Invalid parameter type for argument %s"
-msgstr "Nederīgs parametra tips argumentam %s"
-
-#: src/tracker/tracker-sparql.c:1095
-msgid "Could not list classes"
-msgstr "Nevarēja uzskaitīt klases"
-
-#: src/tracker/tracker-sparql.c:1103
-msgid "No classes were found"
-msgstr "Netika atrastas klases"
-
-#: src/tracker/tracker-sparql.c:1103 src/tracker/tracker-sparql.c:1225
-msgid "Classes"
-msgstr "Klases"
-
-#: src/tracker/tracker-sparql.c:1126
-msgid "Could not list properties"
-msgstr "Nevarēja uzskaitīt īpašības"
-
-#: src/tracker/tracker-sparql.c:1134
-msgid "No properties were found"
-msgstr "Netika atrastas īpašības"
-
-#: src/tracker/tracker-sparql.c:1134 src/tracker/tracker-sparql.c:1243
-msgid "Properties"
-msgstr "Īpašības"
-
-#: src/tracker/tracker-sparql.c:1150
-msgid "Could not find notify classes"
-msgstr "Nevarēja atrast paziņojumu klases"
-
-#: src/tracker/tracker-sparql.c:1158
-msgid "No notifies were found"
-msgstr "Nav atrastu paziņojumu"
-
-#: src/tracker/tracker-sparql.c:1158
-msgid "Notifies"
-msgstr "Paziņojumi"
-
-#: src/tracker/tracker-sparql.c:1174
-msgid "Could not find indexed properties"
-msgstr "Nevarēja atrast indeksētu īpašību"
-
-#: src/tracker/tracker-sparql.c:1182
-msgid "No indexes were found"
-msgstr "Nav atrastu indeksu"
-
-#: src/tracker/tracker-sparql.c:1182
-msgid "Indexes"
-msgstr "Indeksi"
-
-#: src/tracker/tracker-sparql.c:1192
-msgid "Could not list named graphs"
-msgstr "Nevarēja uzskaitīt nosauktos grafus"
-
-#: src/tracker/tracker-sparql.c:1200
-msgid "No graphs were found"
-msgstr "Nav atrastu grafu"
-
-#: src/tracker/tracker-sparql.c:1200
-msgid "Named graphs"
-msgstr "Nosauktie grafi"
-
-#: src/tracker/tracker-sparql.c:1217
+#: src/tracker/tracker-introspect.c:850
 msgid "Could not search classes"
 msgstr "Nevarēja meklēt klases"
 
-#: src/tracker/tracker-sparql.c:1225
-msgid "No classes were found to match search term"
-msgstr "Netika atrastas kritērijam atbilstošas klases"
+#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+msgid "Classes"
+msgstr "Klases"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-introspect.c:870
 msgid "Could not search properties"
 msgstr "Nevar meklēt īpašības"
 
-#: src/tracker/tracker-sparql.c:1243
-msgid "No properties were found to match search term"
-msgstr "Netika atrastas īpašības, kas atbilstu meklēšanas kritērijam"
+#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+msgid "Properties"
+msgstr "Īpašības"
 
-#: src/tracker/tracker-sparql.c:1272 src/tracker/tracker-sql.c:70
-msgid "Could not get UTF-8 path from path"
-msgstr "No ceļa nevarēja saņemt UTF-8 ceļu"
+#: src/tracker/tracker-introspect.c:904
+msgid "Could not list properties"
+msgstr "Nevarēja uzskaitīt īpašības"
 
-#: src/tracker/tracker-sparql.c:1284 src/tracker/tracker-sql.c:81
-msgid "Could not read file"
-msgstr "Nevarēja nolasīt datni"
+#: src/tracker/tracker-introspect.c:920
+msgid "Namespaces"
+msgstr "Nosa kumu telpas"
 
-#: src/tracker/tracker-sparql.c:1315
-msgid "Could not run update"
-msgstr "Nevarēja palaist atjauninājumu"
+#: src/tracker/tracker-introspect.c:934
+msgid "Could not list classes"
+msgstr "Nevarēja uzskaitīt klases"
 
-#: src/tracker/tracker-sparql.c:1322
-msgid "Done"
-msgstr "Pabeigts"
+#: src/tracker/tracker-introspect.c:954
+msgid "Could not find notify classes"
+msgstr "Nevarēja atrast paziņojumu klases"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
-msgid "No results found matching your query"
-msgstr "Vaicājumam nav atbilstošu rezultātu"
+#: src/tracker/tracker-introspect.c:962
+msgid "Notifies"
+msgstr "Paziņojumi"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
-#: src/tracker/tracker-sql.c:144
-msgid "Results"
-msgstr "Rezultāti"
+#: src/tracker/tracker-introspect.c:974
+msgid "Could not find indexed properties"
+msgstr "Nevarēja atrast indeksētu īpašību"
 
-#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:250
-msgid "File and query can not be used together"
-msgstr "Nevar vienlaicīgi izmantot datni un vaicājumu"
+#: src/tracker/tracker-introspect.c:982
+msgid "Indexes"
+msgstr "Indeksi"
 
-#: src/tracker/tracker-sparql.c:1409
+#: src/tracker/tracker-introspect.c:994
+msgid "Could not list named graphs"
+msgstr "Nevarēja uzskaitīt nosauktos grafus"
+
+#: src/tracker/tracker-introspect.c:1002
+msgid "Named graphs"
+msgstr "Nosauktie grafi"
+
+#: src/tracker/tracker-introspect.c:1036
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -514,17 +348,134 @@ msgstr ""
 "--list-properties parametrs var būt tukšs tikai tad, ja tiek izmantots kopā "
 "ar --tree parametru"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sparql.desktop.in:6
-msgid "sparql"
-msgstr "sparql"
-
-#: src/tracker/tracker-sparql.desktop.in:7
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
+#: src/tracker/tracker-main.c:72
+#| msgid "Get help on how to use Tracker and any of these commands"
+msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr ""
-"Vaicāt un atjaunināt indeksu, izmantojot SPARQL vai meklēt, uzskaitīt un "
-"veidot koka ontoloģiju"
+"Saņemiet palīdzību par to, kā izmantot TinySPARQL un jebkuru no šīm komandām"
+
+#: src/tracker/tracker-main.c:73
+msgid "Create a SPARQL endpoint"
+msgstr "Izveidot SPARQL galapunktu"
+
+#: src/tracker/tracker-main.c:74
+#| msgid "Export data from a Tracker database"
+msgid "Export data from a TinySPARQL database"
+msgstr "Eksportēt datus no TinySPARQL datubāzes"
+
+#: src/tracker/tracker-main.c:75
+#| msgid "Import data into a Tracker database"
+msgid "Import data into a TinySPARQL database"
+msgstr "Importēt datus TinySPARQL datubāzē"
+
+#: src/tracker/tracker-main.c:76
+#| msgid "Create a SPARQL endpoint"
+msgid "Introspect a SPARQL endpoint"
+msgstr "Izpētīt SPARQL galapunktu"
+
+#: src/tracker/tracker-main.c:77
+#| msgid ""
+#| "Query and update the index using SPARQL or search, list and tree the "
+#| "ontology"
+msgid "Query and update the index using SPARQL"
+msgstr "Vaicāt un atjaunināt indeksu, izmantojot SPARQL"
+
+#: src/tracker/tracker-main.c:78
+msgid "Create a Web IDE to query local databases"
+msgstr "Izveidot Web IDE, lai vaicātu lokālās datubāzes"
+
+#: src/tracker/tracker-main.c:95
+#| msgid "Available tracker3 commands are:"
+msgid "Available tinysparql commands are:"
+msgstr "Pieejamās tinysparql komandas:"
+
+#: src/tracker/tracker-main.c:114
+#| msgid "See “tracker3 help <command>” to read about a specific subcommand."
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+"Skatiet “tinysparql help <komanda>”, lai izlasītu par noteikto apakškomandu."
+
+#: src/tracker/tracker-main.c:157
+#, c-format
+#| msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "“%s” nav tinysparql komanda, skatiet “tinysparql --help”"
+
+#: src/tracker/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr "Ceļš, ko izmanto, lai palaistu vaicājumu vai atjauninātu no datnes"
+
+#: src/tracker/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "SPARQL vaicājums"
+
+#: src/tracker/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/tracker/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr "Šo izmanto ar --query tikai datubāžu atjaunināšanai."
+
+#: src/tracker/tracker-query.c:76
+msgid "Provides an argument for a query parameter."
+msgstr "Sniedz argumentu vaicājuma parametram."
+
+#: src/tracker/tracker-query.c:77
+msgid "PARAMETER:TYPE:VALUE"
+msgstr "PARAMETRS:TIPS:VĒRTĪBA"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
+msgid "None"
+msgstr "Nekas"
+
+#: src/tracker/tracker-query.c:282
+#, c-format
+msgid "Invalid argument string %s"
+msgstr "Nederīga argumenta virkne %s"
+
+#: src/tracker/tracker-query.c:292
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr "Nederīgs parametra tips argumentam %s"
+
+#: src/tracker/tracker-query.c:360
+msgid "Could not get UTF-8 path from path"
+msgstr "No ceļa nevarēja saņemt UTF-8 ceļu"
+
+#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
+msgid "Could not read file"
+msgstr "Nevarēja nolasīt datni"
+
+#: src/tracker/tracker-query.c:403
+msgid "Could not run update"
+msgstr "Nevarēja palaist atjauninājumu"
+
+#: src/tracker/tracker-query.c:410
+msgid "Done"
+msgstr "Pabeigts"
+
+#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
+#: src/tracker/tracker-sql.c:163
+msgid "Could not run query"
+msgstr "Nevarēja palaist vaicājumu"
+
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+msgid "No results found matching your query"
+msgstr "Vaicājumam nav atbilstošu rezultātu"
+
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/tracker/tracker-sql.c:137
+msgid "Results"
+msgstr "Rezultāti"
+
+#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
+msgid "File and query can not be used together"
+msgstr "Nevar vienlaicīgi izmantot datni un vaicājumu"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -538,26 +489,104 @@ msgstr "SQL vaicājums"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:114
+#: src/tracker/tracker-sql.c:107
 msgid "Failed to initialize data manager"
 msgstr "Neizdevās inicializēt datu pārvaldnieku"
 
-#: src/tracker/tracker-sql.c:178
+#: src/tracker/tracker-sql.c:171
 msgid "Empty result set"
 msgstr "Tukša rezultātu kopa"
 
-#: src/tracker/tracker-sql.c:248
+#: src/tracker/tracker-sql.c:247
 msgid "A database path must be specified"
 msgstr "Ir jānorāda datubāzes ceļš"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sql.desktop.in:6
-msgid "sql"
-msgstr "sql"
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "Ports, kuru klausīties"
 
-#: src/tracker/tracker-sql.desktop.in:7
-msgid "Query the database at the lowest level using SQL"
-msgstr "Vaicāt datubāzi un zemāko līmeni, izmantojot SQL"
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "Ports nav norādīts"
+
+#: src/tracker/tracker-webide.c:80
+#, c-format
+msgid "%s %s…\n"
+msgstr "%s %s…\n"
+
+#: src/tracker/tracker-webide.c:80
+msgid "Creating Web IDE at"
+msgstr "Izveido Web IDE pie"
+
+#~ msgid "endpoint"
+#~ msgstr "endpoint"
+
+#~ msgid "export"
+#~ msgstr "export"
+
+#, c-format
+#~ msgid "failed to exec “%s”: %s"
+#~ msgstr "neizdevās izpildīt “%s” — %s"
+
+#~ msgid "help"
+#~ msgstr "help"
+
+#~ msgid "import"
+#~ msgstr "import"
+
+#~ msgid "Retrieve classes"
+#~ msgstr "Saņemt klases"
+
+#~ msgid "Retrieve class prefixes"
+#~ msgstr "Saņemt klašu prefiksus"
+
+#~ msgid ""
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+#~ "Resource)"
+#~ msgstr ""
+#~ "Saņemt klases īpašības, var izmantot arī prefiksus (piemēram, rdfs:"
+#~ "Resource)"
+
+#~ msgid "PROPERTY"
+#~ msgstr "ĪPAŠĪBA"
+
+#~ msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+#~ msgstr "Atgriež klases saīsinājumu (piemēram, nfo:FileDataObject)."
+
+#~ msgid "Returns the full namespace for a class."
+#~ msgstr "Atgriež klases pilnu vārdtelpu."
+
+#~ msgid "No classes were found"
+#~ msgstr "Netika atrastas klases"
+
+#~ msgid "No properties were found"
+#~ msgstr "Netika atrastas īpašības"
+
+#~ msgid "No notifies were found"
+#~ msgstr "Nav atrastu paziņojumu"
+
+#~ msgid "No indexes were found"
+#~ msgstr "Nav atrastu indeksu"
+
+#~ msgid "No graphs were found"
+#~ msgstr "Nav atrastu grafu"
+
+#~ msgid "No classes were found to match search term"
+#~ msgstr "Netika atrastas kritērijam atbilstošas klases"
+
+#~ msgid "No properties were found to match search term"
+#~ msgstr "Netika atrastas īpašības, kas atbilstu meklēšanas kritērijam"
+
+#~ msgid "sparql"
+#~ msgstr "sparql"
+
+#~ msgid "sql"
+#~ msgstr "sql"
+
+#~ msgid "Query the database at the lowest level using SQL"
+#~ msgstr "Vaicāt datubāzi un zemāko līmeni, izmantojot SQL"
 
 #~ msgid "Additional / third party commands are:"
 #~ msgstr "Papildu un trešās puses komandas:"
@@ -840,9 +869,6 @@ msgstr "Vaicāt datubāzi un zemāko līmeni, izmantojot SQL"
 
 #~ msgid "List pause reasons"
 #~ msgstr "Uzskaitīt pauzēšanas iemeslus"
-
-#~ msgid "List all Tracker processes"
-#~ msgstr "Uzskaitīt visus Tracker procesus"
 
 #~ msgid ""
 #~ "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
