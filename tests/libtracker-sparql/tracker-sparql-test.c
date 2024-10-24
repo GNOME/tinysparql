@@ -87,7 +87,7 @@ test_tracker_sparql_escape_uri_vprintf (void)
 {
 	gchar *result;
 
-	result = tracker_sparql_escape_uri_printf ("test:uri:%s-%d-%0.3f-%%-%hd-%1.*f", "🍌", 14, 1.23403, (short) 8, 1.23403, 2);
+	result = tracker_sparql_escape_uri_printf ("test:uri:%s-%d-%0.3f-%%-%hd-%1.*f", "🍌", 14, 1.23403, (short) 8, 2, 1.23403);
 	g_assert_cmpstr (result, ==, "test:uri:%F0%9F%8D%8C-14-1.234-%25-8-1.23");
 	g_free (result);
 
