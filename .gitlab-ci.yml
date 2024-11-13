@@ -513,10 +513,11 @@ coverage:
   needs:
     - test-fedora@x86_64
     - test-fedora@aarch64
-    - test-alpine@x86_64
     - test-fedora-rawhide@x86_64
     - test-fedora-rawhide@aarch64
-    - test-debian@x86_64
+    # These currently break gcovr
+    #- test-debian@x86_64
+    #- test-alpine@x86_64
 
 coverity:
   extends:
