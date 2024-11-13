@@ -216,6 +216,7 @@ tracker_bus_cursor_next (TrackerSparqlCursor  *cursor,
 	                              NULL, cancellable, error))
 		return FALSE;
 
+	g_clear_pointer (&bus_cursor->offsets, g_free);
 	bus_cursor->offsets = g_new0 (gint32, n_columns);
 	if (!g_input_stream_read_all (G_INPUT_STREAM (bus_cursor->data_stream),
 	                              bus_cursor->offsets,
