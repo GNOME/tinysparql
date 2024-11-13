@@ -654,7 +654,7 @@ test_sparql_query (TestInfo      *test_info,
 	gchar *query, *query_filename;
 	gchar *results_filename;
 	gchar *prefix, *data_prefix, *test_prefix;
-	GFile *file, *test_schemas;
+	GFile *file, *test_schemas, *parent;
 	TrackerSparqlConnection *conn;
 	gboolean retval;
 
@@ -665,8 +665,10 @@ test_sparql_query (TestInfo      *test_info,
 	g_free (prefix);
 
 	file = g_file_new_for_path (data_prefix);
-	test_schemas = g_file_get_parent (file);
+	parent = g_file_get_parent (file);
+	test_schemas = g_file_get_child (parent, "ontology");
 	g_object_unref (file);
+	g_object_unref (parent);
 
 	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
 	                                      NULL, test_schemas, NULL, &error);

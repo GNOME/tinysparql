@@ -61,7 +61,7 @@ for their use.
 Ontologies are made themselves of RDF data in any of the formats supported by
 the TinySPARQL library:
 
-- [Turtle](https://www.w3.org/TR/turtle/) with `.turtle` or `.ontology` file
+- [Turtle](https://www.w3.org/TR/turtle/) with `.ttl` or `.ontology` file
   extension.
 - [Trig](https://www.w3.org/TR/trig/) with `.trig` file extension
 - [JSON-LD](https://www.w3.org/TR/json-ld11/) with `.jsonld` file extension.

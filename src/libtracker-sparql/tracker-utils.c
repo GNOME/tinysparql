@@ -26,7 +26,7 @@
 #include <libtracker-sparql/core/tracker-uuid.h>
 
 static const char *extensions[] = {
-	".turtle",
+	".ttl",
 	".trig",
 	".jsonld",
 };
