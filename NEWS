@@ -1,3 +1,11 @@
+NEW in 3.8.1 - 2024-11-21
+=========================
+  * Fix leak iterating bus-based cursors
+  * Fix allowed extension for Turtle files in ontology definitions
+  * Test fixes
+
+Translations: ca, fur, nl, lv, pt_BR, ro
+
 NEW in 3.8.0 - 2024-09-16
 =========================
 
