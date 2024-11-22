@@ -2,7 +2,7 @@
 subdir('common')
 
 # TinySPARQL HTTP library
-subdir('libtracker-http')
+subdir('http')
 
 # Public ontologies
 subdir('ontologies')
