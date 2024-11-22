@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include <glib-object.h>
-#include <libtracker-common/tracker-common.h>
+#include <tracker-common.h>
 #include <locale.h>
 
 static void

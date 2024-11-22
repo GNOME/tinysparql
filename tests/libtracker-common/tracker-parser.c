@@ -25,7 +25,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-common.h>
+#include <tracker-common.h>
 
 /* Normally this would be in the libtracker-fts config */
 #define DEFAULT_MAX_WORD_LENGTH   30
