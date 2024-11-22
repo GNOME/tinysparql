@@ -20,6 +20,7 @@
 
 #include "config.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
 
@@ -34,10 +35,7 @@
 #include "tracker-import.h"
 #include "tracker-introspect.h"
 #include "tracker-query.h"
-#include "tracker-common.h"
 #include "tracker-webide.h"
-
-#include <libtracker-common/tracker-common.h>
 
 const char usage_string[] =
 	"tinysparql [--version] [--help]\n"

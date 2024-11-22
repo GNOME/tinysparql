@@ -26,7 +26,7 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#include <libtracker-common/tracker-common.h>
+#include <tracker-common.h>
 #include <libtracker-sparql/core/tracker-data.h>
 
 #include "tracker-sql.h"
