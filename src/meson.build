@@ -16,7 +16,7 @@ subdir('web-ide')
 subdir('libtracker-sparql')
 
 # Public commandline control tool
-subdir('tracker')
+subdir('cli')
 
 # XDG Portal
 subdir('portal')

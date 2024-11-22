@@ -1,3 +1,5 @@
+tracker_uninstalled_cli_dir = meson.current_build_dir()
+
 commands_dir = get_option('bindir')
 command_metadata_dir = get_option('prefix') / get_option('datadir') / 'tinysparql-3.0' / 'commands'
 po_dir = join_paths(meson.project_source_root(), 'po')
