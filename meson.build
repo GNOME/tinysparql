@@ -113,6 +113,8 @@ add_project_arguments('-DTRACKER_COMPILATION',
                       '-DG_LOG_STRUCTURED=1',
                       language: 'c')
 
+have_cxx = add_languages('cpp', native: false, required: get_option('oss_fuzz').enabled())
+
 if get_option('buildtype') == 'plain'
   # Default case is to allow TINYSPARQL_DEBUG which is very useful for
   # triaging user-reported issues.
@@ -370,6 +372,7 @@ endif
 subdir('src')
 subdir('docs')
 subdir('utils')
+subdir('fuzzing')
 
 test_c_args = tracker_c_args + [
     '-DTOP_BUILDDIR="@0@"'.format(build_root),

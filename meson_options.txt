@@ -22,11 +22,14 @@ option('systemd_user_services', type: 'boolean', value: true, yield: true,
        description: 'Whether to install systemd user .service files')
 option('systemd_user_services_dir', type: 'string', value: '', yield: true,
        description: 'Directory to install systemd user unit files (or empty to use default)')
-option('tests', type: 'boolean', value: true,
-       description: 'Whether to build tests')
-option('tests_tap_protocol', type: 'boolean', value: false,
-       description: 'Whether to enable TAP protocol on tests')
 option('introspection', type: 'feature', value: 'enabled',
        description: 'Whether to enable introspection')
 option('vapi', type: 'feature', value: 'enabled',
        description: 'Whether to enable Vala binding generation')
+
+option('tests', type: 'boolean', value: true,
+       description: 'Whether to build tests')
+option('tests_tap_protocol', type: 'boolean', value: false,
+       description: 'Whether to enable TAP protocol on tests')
+option('oss_fuzz', type: 'feature', value: 'disabled',
+       description: 'Use oss-fuzz build environment')
