@@ -29,8 +29,6 @@
 
 #include <tracker-common.h>
 
-#include <tracker-test-helpers.h>
-
 #define TEST_FILENAME "./file-utils-test.txt"
 #define TEST_HIDDEN_FILENAME "./.hidden-file.txt"
 

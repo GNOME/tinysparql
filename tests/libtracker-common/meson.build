@@ -5,7 +5,7 @@ libtracker_common_tests = [
 ]
 
 libtracker_common_test_deps = [
-    tracker_common_dep, tracker_testcommon_dep
+    tracker_common_dep,
 ]
 
 foreach base_name: libtracker_common_tests

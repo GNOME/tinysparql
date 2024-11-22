@@ -5,8 +5,6 @@ test_bus_conf_file = configure_file(
   output: 'test-bus.conf',
   configuration: conf)
 
-subdir('common')
-
 subdir('fts')
 subdir('core')
 subdir('libtracker-common')
