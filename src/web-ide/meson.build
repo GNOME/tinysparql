@@ -25,7 +25,7 @@ web_ide_lib = static_library('tracker-webide',
 
     dependencies: [gobject, gmodule],
     link_with: [tsparql_http_lib],
-    include_directories: [configinc, srcinc],
+    include_directories: [configinc, httpinc, srcinc],
 )
 
 web_ide_dep = declare_dependency(
