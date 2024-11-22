@@ -9,6 +9,6 @@ src/cli/tracker-main.c
 src/cli/tracker-query.c
 src/cli/tracker-sql.c
 src/cli/tracker-webide.c
-src/libtracker-common/tracker-utils.c
+src/common/tracker-utils.c
 src/libtracker-sparql/core/tracker-collation.c
 src/portal/tracker-main.c

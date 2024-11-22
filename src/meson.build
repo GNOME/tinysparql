@@ -1,5 +1,5 @@
 # Shared common code
-subdir('libtracker-common')
+subdir('common')
 
 # TinySPARQL HTTP library
 subdir('libtracker-http')
