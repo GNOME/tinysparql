@@ -21,7 +21,7 @@
 
 G_BEGIN_DECLS
 
-#include <libtracker-common/tracker-parser.h>
+#include <tracker-common.h>
 
 gint     tracker_collation_utf8_title (gpointer      collator,
                                        gint          len1,

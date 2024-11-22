@@ -25,6 +25,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <tracker-common.h>
+
 #include "tracker-class.h"
 #include "tracker-data-manager.h"
 #include "tracker-data-query.h"

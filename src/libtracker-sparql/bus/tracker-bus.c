@@ -26,7 +26,7 @@
 #include <gio/gunixfdlist.h>
 #include <gio/gunixinputstream.h>
 #include <gio/gunixoutputstream.h>
-#include <libtracker-common/tracker-common.h>
+#include <tracker-common.h>
 
 #include "tracker-bus-batch.h"
 #include "tracker-bus-cursor.h"

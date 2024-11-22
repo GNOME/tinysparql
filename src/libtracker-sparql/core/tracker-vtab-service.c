@@ -20,8 +20,10 @@
  */
 #include "config.h"
 
-#include "libtracker-common/tracker-utils.h"
 #include "tracker-vtab-service.h"
+
+#include <tracker-common.h>
+
 #include <libtracker-sparql/tracker-connection.h>
 
 #define N_VARIABLES 100

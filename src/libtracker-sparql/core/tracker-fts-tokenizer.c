@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include <libtracker-common/tracker-parser.h>
+#include <tracker-common.h>
 
 #include "tracker-data-manager.h"
 #include "tracker-ontologies.h"

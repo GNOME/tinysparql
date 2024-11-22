@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-common.h>
+#include <tracker-common.h>
 
 #include "tracker-bus-statement.h"
 

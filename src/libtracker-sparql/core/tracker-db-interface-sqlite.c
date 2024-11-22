@@ -26,9 +26,7 @@
 #include <math.h>
 #include <errno.h>
 
-#include <libtracker-common/tracker-date-time.h>
-#include <libtracker-common/tracker-debug.h>
-#include <libtracker-common/tracker-parser.h>
+#include <tracker-common.h>
 
 #include <libtracker-sparql/tracker-cursor.h>
 #include <libtracker-sparql/tracker-private.h>

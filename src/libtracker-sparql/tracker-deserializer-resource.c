@@ -23,7 +23,7 @@
 
 #include "config.h"
 
-#include <libtracker-common/tracker-common.h>
+#include <tracker-common.h>
 
 #include "tracker-deserializer-resource.h"
 

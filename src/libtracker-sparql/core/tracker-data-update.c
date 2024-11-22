@@ -25,7 +25,7 @@
 #include <math.h>
 #include <time.h>
 
-#include <libtracker-common/tracker-common.h>
+#include <tracker-common.h>
 
 #include <libtracker-sparql/tracker-deserializer-rdf.h>
 #include <libtracker-sparql/tracker-private.h>

@@ -24,8 +24,7 @@
 #include <glib/gstdio.h>
 #include <locale.h>
 
-#include <libtracker-common/tracker-common.h>
-#include <libtracker-common/tracker-parser.h>
+#include <tracker-common.h>
 
 #include "tracker-db-manager.h"
 #include "tracker-db-interface-sqlite.h"

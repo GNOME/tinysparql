@@ -29,7 +29,6 @@ G_BEGIN_DECLS
 typedef struct _TrackerDataManager TrackerDataManager;
 typedef struct _TrackerDataManagerClass TrackerDataManagerClass;
 
-#include <libtracker-common/tracker-common.h>
 #include <libtracker-sparql/tracker-ontologies.h>
 
 #include "tracker-rowid.h"
