@@ -1,5 +1,7 @@
 module_sources = files('tracker-http-module.c')
 
+httpinc = include_directories('.')
+
 http_common_deps = [avahi_glib, avahi_client]
 
 tsparql_http_lib = static_library('libtracker-http',
