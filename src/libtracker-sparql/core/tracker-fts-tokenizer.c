@@ -297,34 +297,23 @@ get_fts5_api (sqlite3  *db,
 	sqlite3_stmt *stmt;
 	fts5_api *api = NULL;
 
-#if SQLITE_VERSION_NUMBER >= 3020000
-	/* Sqlite >= 3.20.0 mandates sqlite3_bind_pointer() to fetch fts5 */
-	if (sqlite3_libversion_number () >= 3020000) {
-		rc = sqlite3_prepare_v2(db, "SELECT fts5(?1)",
-		                        -1, &stmt, 0);
-		if (rc != SQLITE_OK)
-			goto error;
+	rc = sqlite3_prepare_v2(db, "SELECT fts5(?1)",
+	                        -1, &stmt, 0);
+	if (rc != SQLITE_OK)
+		goto error;
 
-		sqlite3_bind_pointer (stmt, 1, (void*) &api, "fts5_api_ptr", NULL);
-		sqlite3_step (stmt);
-	} else
-#endif
-	{
-		rc = sqlite3_prepare_v2(db, "SELECT fts5()",
-		                        -1, &stmt, 0);
+	sqlite3_bind_pointer (stmt, 1, (void*) &api, "fts5_api_ptr", NULL);
 
-		if (rc != SQLITE_OK)
-			goto error;
-
-		if (sqlite3_step (stmt) == SQLITE_ROW)
-			memcpy (&api, sqlite3_column_blob (stmt, 0), sizeof (api));
-	}
+	rc = sqlite3_step (stmt);
+	if (rc != SQLITE_ROW)
+		goto error;
 
 	sqlite3_finalize (stmt);
 
 	return api;
 
 error:
+	g_clear_pointer (&stmt, sqlite3_finalize);
 	g_set_error (error,
 	             TRACKER_DB_INTERFACE_ERROR,
 	             TRACKER_DB_OPEN_ERROR,
