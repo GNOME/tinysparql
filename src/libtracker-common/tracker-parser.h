@@ -22,7 +22,7 @@
 
 #include <glib.h>
 
-#include <libtracker-common/tracker-language.h>
+#include "tracker-language.h"
 
 /* This version MUST be bumped on any change to any tracker-parser-*
  * file. Given the parser output gets both stored in disk and performed
