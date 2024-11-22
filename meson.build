@@ -56,12 +56,18 @@ icu_i18n = dependency('icu-i18n', version: '> 4.8.1.1', required: false)
 icu_uc = dependency('icu-uc', version: '> 4.8.1.1', required: false)
 json_glib = dependency('json-glib-1.0', version: '>= 1.4', required: true)
 libxml2 = dependency('libxml-2.0', version: '> 2.6')
-sqlite = dependency('sqlite3', version: '>' + sqlite_required)
+sqlite = dependency('sqlite3', version: '>' + sqlite_required, required: false)
 dbus = dependency('dbus-1')
 avahi_glib = dependency('avahi-glib', required: get_option('avahi'))
 avahi_client = dependency('avahi-client', required: get_option('avahi'))
 libsoup3 = dependency('libsoup-3.0', version: '>= 2.99.2',
                         required: true)
+
+sqlite_is_subproject = false
+if not sqlite.found()
+    sqlite_is_subproject = true
+    sqlite = dependency('sqlite3', version: '>' + sqlite_required)
+endif
 
 soup_backends = '3.x'
 
@@ -155,7 +161,7 @@ if meson.is_cross_build() and not meson.has_exe_wrapper()
   else
     error('Invalid value of sqlite3_has_fts5 property, use \'true\' or \'false\'')
   endif
-else
+elif not sqlite_is_subproject
   sqlite3_builtin_fts5_test = '''
     #include <sqlite3.h>
 
