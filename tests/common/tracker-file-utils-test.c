@@ -90,9 +90,9 @@ main (int argc, char **argv)
         ensure_file_exists (TEST_FILENAME);
         ensure_file_exists (TEST_HIDDEN_FILENAME);
 
-        g_test_add_func ("/libtracker-common/file-utils/get_size",
+        g_test_add_func ("/common/file-utils/get_size",
                          test_file_utils_get_size);
-        g_test_add_func ("/libtracker-common/file-utils/has_enough_space",
+        g_test_add_func ("/common/file-utils/has_enough_space",
                          test_file_system_has_enough_space);
 
 	result = g_test_run ();
