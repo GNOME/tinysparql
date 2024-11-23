@@ -4,42 +4,61 @@ tracker_common_sources = [
   'tracker-file-utils.c',
   'tracker-term-utils.c',
   'tracker-utils.c',
-  'tracker-parser.c',
 ]
 
-if unicode_library_name == 'icu'
-  libtracker_parser = shared_module('tracker-parser-libicu',
-    'tracker-parser-libicu.c',
-    'tracker-parser-utils.c',
+parser_deps = []
+
+if get_option('builtin_modules')
+  libtracker_parser = []
+  tracker_common_sources += [
     'tracker-language.c',
-    dependencies: [gio, libstemmer, icu_uc, icu_i18n],
-    c_args: tracker_c_args + [
-      '-include', join_paths(build_root, 'config.h'),
-      '-DMODULE',
-    ],
-    include_directories: [configinc, srcinc],
-    install: true,
-    install_dir: tracker_internal_libs_dir,
-    name_suffix: 'so',
-  )
+    'tracker-parser-utils.c'
+  ]
+
+  if unicode_library_name == 'icu'
+    parser_deps = [libstemmer, icu_uc, icu_i18n]
+    tracker_common_sources += 'tracker-parser-libicu.c'
+  else
+    parser_deps = [libstemmer, libunistring]
+    tracker_common_sources += 'tracker-parser-libunistring.c'
+  endif
 else
-  libtracker_parser = shared_module('tracker-parser-libunistring',
-    'tracker-parser-libunistring.c',
-    'tracker-parser-utils.c',
-    'tracker-language.c',
-    dependencies: [gio, libstemmer, libunistring],
-    c_args: tracker_c_args + [
-      '-include', join_paths(build_root, 'config.h'),
-      '-DMODULE',
-    ],
-    include_directories: [configinc, srcinc],
-    install: true,
-    install_dir: tracker_internal_libs_dir,
-    name_suffix: 'so',
-  )
+  tracker_common_sources += 'tracker-parser.c'
+
+  if unicode_library_name == 'icu'
+    libtracker_parser = shared_module('tracker-parser-libicu',
+      'tracker-parser-libicu.c',
+      'tracker-parser-utils.c',
+      'tracker-language.c',
+      dependencies: [gio, libstemmer, icu_uc, icu_i18n],
+      c_args: tracker_c_args + [
+        '-include', join_paths(build_root, 'config.h'),
+        '-DMODULE',
+      ],
+      include_directories: [configinc, srcinc],
+      install: true,
+      install_dir: tracker_internal_libs_dir,
+      name_suffix: 'so',
+    )
+  else
+    libtracker_parser = shared_module('tracker-parser-libunistring',
+      'tracker-parser-libunistring.c',
+      'tracker-parser-utils.c',
+      'tracker-language.c',
+      dependencies: [gio, libstemmer, libunistring],
+      c_args: tracker_c_args + [
+        '-include', join_paths(build_root, 'config.h'),
+        '-DMODULE',
+      ],
+      include_directories: [configinc, srcinc],
+      install: true,
+      install_dir: tracker_internal_libs_dir,
+      name_suffix: 'so',
+    )
+  endif
 endif
 
-tracker_common_dependencies = [glib, gio, gio_unix, libmath]
+tracker_common_dependencies = [glib, gio, gio_unix, libmath, parser_deps]
 
 if build_machine.system() == 'openbsd'
   libkvm = meson.get_compiler('c').find_library('kvm')

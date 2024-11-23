@@ -26,6 +26,8 @@ option('introspection', type: 'feature', value: 'enabled',
        description: 'Whether to enable introspection')
 option('vapi', type: 'feature', value: 'enabled',
        description: 'Whether to enable Vala binding generation')
+option('builtin_modules', type: 'boolean', value: false,
+       description: 'Whether modules are compiled into the library')
 
 option('tests', type: 'boolean', value: true,
        description: 'Whether to build tests')
