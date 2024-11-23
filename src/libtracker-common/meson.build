@@ -12,7 +12,7 @@ if unicode_library_name == 'icu'
     'tracker-parser-libicu.c',
     'tracker-parser-utils.c',
     'tracker-language.c',
-    dependencies: [gobject,libstemmer, icu_uc, icu_i18n],
+    dependencies: [gio, libstemmer, icu_uc, icu_i18n],
     c_args: tracker_c_args + [
       '-include', join_paths(build_root, 'config.h'),
       '-DMODULE',
@@ -27,7 +27,7 @@ else
     'tracker-parser-libunistring.c',
     'tracker-parser-utils.c',
     'tracker-language.c',
-    dependencies: [gobject,libstemmer, libunistring],
+    dependencies: [gio, libstemmer, libunistring],
     c_args: tracker_c_args + [
       '-include', join_paths(build_root, 'config.h'),
       '-DMODULE',
