@@ -19,6 +19,7 @@
 
 #include <gio/gio.h>
 #include <glib.h>
+#include <sqlite3.h>
 #include "tinysparql.h"
 
 int LLVMFuzzerTestOneInput (const unsigned char *data, size_t size);
