@@ -5,7 +5,7 @@ fuzz_targets = [
     'fuzz_rdf_turtle',
 ]
 
-deps = [gio, glib, tracker_sparql_dep]
+deps = [gio, glib, tracker_sparql_dep, sqlite]
 extra_sources = []
 extra_c_args = cc.get_supported_arguments('-Werror=unused-function')
 

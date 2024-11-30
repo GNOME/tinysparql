@@ -29,6 +29,8 @@ LLVMFuzzerTestOneInput (const unsigned char *data, size_t size)
 	GInputStream *istream;
 	GFile *nepomuk;
 
+	sqlite3_config (SQLITE_CONFIG_LOOKASIDE, 0, 0);
+
 	fuzz_set_logging_func ();
 
 	nepomuk = tracker_sparql_get_ontology_nepomuk ();
@@ -48,6 +50,8 @@ LLVMFuzzerTestOneInput (const unsigned char *data, size_t size)
 	                       istream);
 
 	tracker_batch_execute (batch, NULL, NULL);
+
+	tracker_sparql_connection_close (conn);
 
 	g_clear_object (&batch);
 	g_clear_object (&conn);
