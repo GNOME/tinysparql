@@ -483,6 +483,22 @@ test-website:
       when: never
     - when: always
 
+test-dist:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:latest@x86_64
+  stage: test
+  needs:
+    - build-fedora@x86_64
+  script:
+    - |
+      meson compile -C build
+      dbus-run-session meson dist -C build --include-subprojects
+  artifacts:
+    expose_as: 'Tarball'
+    paths:
+      - build/meson-dist/
+
 coverage:
   extends:
     - .fdo.distribution-image@fedora
