@@ -112,7 +112,7 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2024-08-16.0'
+    BASE_TAG: '2024-12-10.0'
     FDO_DISTRIBUTION_PACKAGES:
       clang
       clang-analyzer
@@ -145,9 +145,7 @@ check-merge-request:
       dnf builddep -y tracker --setopt=install_weak_deps=False &&
       # For tests, this isn't packaged in Fedora.
       pip3 install tap.py gcovr &&
-      dnf clean all &&
-      # Prefer gi-docgen from the submodule
-      dnf remove -y gi-docgen --noautoremove
+      dnf clean all
 
 .tracker.debian@common:
   variables:
