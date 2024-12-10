@@ -22,7 +22,7 @@ stages:
   - build
   - test
   - analysis
-  - website
+  - deploy
 
 workflow:
   rules:
@@ -562,7 +562,7 @@ pages:
   extends:
     - .fdo.distribution-image@fedora
     - .tracker.fedora:latest@x86_64
-  stage: website
+  stage: deploy
   script:
     - mv website public
   artifacts:
