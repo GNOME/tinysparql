@@ -422,11 +422,6 @@ test-fedora-rawhide@x86_64:
   needs:
     - build-fedora-rawhide@x86_64
   allow_failure: true
-  tags:
-    # There is a mismatch between syscalls and seccomp rules in
-    # some runners, using `crun` is advised in the mean time, see
-    # https://gitlab.gnome.org/Infrastructure/GitLab/-/issues/545
-    - crun
   <<: *test
 
 test-fedora@aarch64:
