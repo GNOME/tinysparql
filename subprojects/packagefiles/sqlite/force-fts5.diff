@@ -1,0 +1,7 @@
+--- sqlite-amalgamation-3470000.old/sqlite3.c	2024-12-10 20:09:00.177092374 +0100
++++ sqlite-amalgamation-3470000/sqlite3.c	2024-12-10 20:05:35.950365004 +0100
+@@ -1,2 +1,4 @@
++#define SQLITE_ENABLE_FTS5
++
+ /******************************************************************************
+ ** This file is an amalgamation of many separate C source files from SQLite
