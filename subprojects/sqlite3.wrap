@@ -8,6 +8,7 @@ patch_url = https://wrapdb.mesonbuild.com/v2/sqlite3_3.47.0-1/get_patch
 patch_hash = 7f112ea0432874d5972de4d5b7dc33cf5a935d34a3100a8ea1fc8b355ca9d4f7
 source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/sqlite3_3.47.0-1/sqlite-amalgamation-3470000.zip
 wrapdb_version = 3.47.0-1
+diff_files = sqlite/force-fts5.diff
 
 [provide]
 sqlite3 = sqlite3_dep
