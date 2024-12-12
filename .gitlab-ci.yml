@@ -3,6 +3,11 @@ include:
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/b61a03cabbf308e81289f7aaaf0b5a80a34ffb99/templates/alpine.yml'
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/b61a03cabbf308e81289f7aaaf0b5a80a34ffb99/templates/fedora.yml'
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/b61a03cabbf308e81289f7aaaf0b5a80a34ffb99/templates/debian.yml'
+  - component: gitlab.gnome.org/GNOME/citemplates/release-service@master
+    inputs:
+      job-stage: "deploy"
+      dist-job-name: "test-dist"
+      tarball-artifact-path: "build/meson-dist/$CI_PROJECT_NAME-$CI_COMMIT_TAG.tar.xz"
 
 variables:
   FDO_UPSTREAM_REPO: GNOME/tinysparql
@@ -22,7 +27,7 @@ stages:
   - build
   - test
   - analysis
-  - website
+  - deploy
 
 workflow:
   rules:
@@ -112,7 +117,7 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2024-08-16.0'
+    BASE_TAG: '2024-12-10.0'
     FDO_DISTRIBUTION_PACKAGES:
       clang
       clang-analyzer
@@ -145,9 +150,7 @@ check-merge-request:
       dnf builddep -y tracker --setopt=install_weak_deps=False &&
       # For tests, this isn't packaged in Fedora.
       pip3 install tap.py gcovr &&
-      dnf clean all &&
-      # Prefer gi-docgen from the submodule
-      dnf remove -y gi-docgen --noautoremove
+      dnf clean all
 
 .tracker.debian@common:
   variables:
@@ -419,11 +422,6 @@ test-fedora-rawhide@x86_64:
   needs:
     - build-fedora-rawhide@x86_64
   allow_failure: true
-  tags:
-    # There is a mismatch between syscalls and seccomp rules in
-    # some runners, using `crun` is advised in the mean time, see
-    # https://gitlab.gnome.org/Infrastructure/GitLab/-/issues/545
-    - crun
   <<: *test
 
 test-fedora@aarch64:
@@ -484,6 +482,22 @@ test-website:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH
       when: never
     - when: always
+
+test-dist:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .tracker.fedora:latest@x86_64
+  stage: test
+  needs:
+    - build-fedora@x86_64
+  script:
+    - |
+      meson compile -C build
+      dbus-run-session meson dist -C build --include-subprojects
+  artifacts:
+    expose_as: 'Tarball'
+    paths:
+      - build/meson-dist/
 
 coverage:
   extends:
@@ -564,7 +578,7 @@ pages:
   extends:
     - .fdo.distribution-image@fedora
     - .tracker.fedora:latest@x86_64
-  stage: website
+  stage: deploy
   script:
     - mv website public
   artifacts:
