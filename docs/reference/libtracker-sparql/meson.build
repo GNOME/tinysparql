@@ -158,6 +158,8 @@ reference = custom_target(
   input: [ gidocgen_toml, tsparql_gir[0] ],
   output: 'doc',
   command: [
+    'docgen-wrapper.sh',
+    '@OUTPUT@',
     gidocgen,
     'generate',
     '--quiet',
@@ -168,8 +170,9 @@ reference = custom_target(
     '@INPUT1@',
   ],
   depends: [tracker_sparql_gir[0], generated_targets],
-  depend_files: [content])
+  depend_files: [content],
+  install: true,
+  install_dir: datadir,
+  install_tag: 'doc')
 
-docs_name = 'Tsparql-3.0'
-meson.add_install_script('install-devhelp.sh', docs_name, meson.current_source_dir(), reference)
-meson.add_dist_script('dist-docs.sh', docs_name, meson.current_source_dir(), reference.full_path())
+meson.add_dist_script('dist-docs.sh', reference.full_path())
