@@ -13,8 +13,8 @@ tsparql_http_lib = static_library('libtracker-http',
     '-DBUILDROOT="@0@"'.format(meson.global_build_root()),
   ] + tracker_c_args,
   include_directories: [configinc, srcinc],
+  gnu_symbol_visibility: 'hidden',
 )
-
 
 libtracker_http_soup3 = shared_module('tracker-http-soup3',
     module_sources,
@@ -27,4 +27,10 @@ libtracker_http_soup3 = shared_module('tracker-http-soup3',
     install: true,
     install_dir: tracker_internal_libs_dir,
     name_suffix: 'so',
+)
+
+tsparql_http_dep = declare_dependency(
+  link_with: tsparql_http_lib,
+  dependencies: [http_common_deps, gmodule],
+  include_directories: [configinc],
 )
