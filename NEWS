@@ -1,3 +1,8 @@
+NEW in 3.8.2 - 2024-12-13
+=========================
+  * Hide again unintentionally leaked tracker_http_* symbols
+  * Doc building improvements
+
 NEW in 3.8.1 - 2024-11-21
 =========================
   * Fix leak iterating bus-based cursors
