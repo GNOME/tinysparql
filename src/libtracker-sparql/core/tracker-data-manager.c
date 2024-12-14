@@ -2481,6 +2481,8 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	if (create_db)
 		tracker_db_manager_rollback_db_creation (manager->db_manager);
 
+	g_clear_object (&manager->data_update);
+	g_clear_object (&manager->db_manager);
 	g_clear_object (&current_ontology);
 	g_clear_object (&db_ontology);
 	g_free (checksum);
