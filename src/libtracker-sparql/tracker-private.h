@@ -377,3 +377,5 @@ GBytes * tracker_sparql_make_langstring (const gchar *str,
 
 gboolean tracker_rdf_format_pick_for_file (GFile            *file,
                                            TrackerRdfFormat *format_out);
+
+void tracker_ensure_resources (void);

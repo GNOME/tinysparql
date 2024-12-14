@@ -31,5 +31,14 @@ nepomuk = files(
     'nepomuk/93-libosinfo.ontology',
 )
 
-tracker_gresources = gnome.compile_resources('tracker_gresources', 'builtin-ontology.gresource.xml')
-tracker_nepomuk_gresources = gnome.compile_resources('tracker_nepomuk_gresources', 'nepomuk-ontology.gresource.xml')
+ontology_incs = include_directories('.')
+
+tracker_gresources = gnome.compile_resources(
+    'tracker-gresources',
+    'builtin-ontology.gresource.xml',
+    extra_args: ['--manual-register'])
+
+tracker_nepomuk_gresources = gnome.compile_resources(
+    'tracker-nepomuk-gresources',
+    'nepomuk-ontology.gresource.xml',
+    extra_args: ['--manual-register'])
