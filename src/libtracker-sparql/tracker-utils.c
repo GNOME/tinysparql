@@ -23,6 +23,9 @@
 
 #include "tracker-enums.h"
 
+#include "tracker-gresources.h"
+#include "tracker-nepomuk-gresources.h"
+
 #include <libtracker-sparql/core/tracker-uuid.h>
 
 static const char *extensions[] = {
@@ -120,6 +123,8 @@ tracker_sparql_get_uuid_urn (void)
 GFile *
 tracker_sparql_get_ontology_nepomuk (void)
 {
+	tracker_ensure_resources ();
+
 	return g_file_new_for_uri ("resource://org/freedesktop/tracker/nepomuk");
 }
 
@@ -170,4 +175,20 @@ tracker_rdf_format_pick_for_file (GFile            *file,
 
 	g_free (uri);
 	return TRUE;
+}
+
+static gpointer
+register_resources (gpointer data)
+{
+	builtin_ontology_register_resource ();
+	nepomuk_ontology_register_resource ();
+	return NULL;
+}
+
+void
+tracker_ensure_resources (void)
+{
+	static GOnce register_resources_once = G_ONCE_INIT;
+
+	g_once (&register_resources_once, register_resources, NULL);
 }

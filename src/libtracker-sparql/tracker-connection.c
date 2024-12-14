@@ -115,6 +115,9 @@ tracker_sparql_connection_class_init (TrackerSparqlConnectionClass *klass)
 
 	/* Initialize debug flags */
 	tracker_get_debug_flags ();
+
+	/* Initialize GResources */
+	tracker_ensure_resources ();
 }
 
 gboolean
