@@ -1,5 +1,5 @@
 project('tinysparql', 'c',
-        version: '3.8.1',
+        version: '3.9.alpha',
         meson_version: '>=0.62',
         default_options: [
           'c_std=c99',
