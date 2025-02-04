@@ -3685,7 +3685,7 @@ handle_update_sparql (TrackerData       *data,
 	GHashTable *parameters = NULL;
 	GError *inner_error = NULL;
 
-	buffer = read_string (istream, NULL, cancellable, error);
+	buffer = read_string (istream, NULL, cancellable, &inner_error);
 	if (!buffer)
 		goto error;
 
