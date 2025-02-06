@@ -22,7 +22,7 @@
 
 #include <tinysparql.h>
 
-#include "libtracker-sparql/tracker-private.h"
+#include "tracker-private.h"
 
 #include "tracker-portal-endpoint.h"
 
