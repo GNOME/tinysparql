@@ -23,7 +23,7 @@ libtracker_http_soup3 = shared_module('tracker-http-soup3',
     dependencies: [libsoup3, http_common_deps],
     c_args: tracker_c_args + [
         '-include', join_paths(build_root, 'config.h'),
-        '-include', '../libtracker-sparql/tracker-enums-private.h',
+        '-include', '../libtinysparql/tracker-enums-private.h',
         '-DMODULE',
     ],
     install: true,

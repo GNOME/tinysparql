@@ -101,7 +101,7 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
     tracker_nepomuk_gresources,
 
     c_args: [
-	'-include', 'libtracker-sparql/tracker-private.h',
+	'-include', 'tracker-private.h',
         '-DPRIVATE_LIBDIR="@0@"'.format(tracker_internal_libs_dir),
         '-DBUILD_LIBDIR="@0@"'.format(meson.current_build_dir()),
         # Global build root is required to detect noinst situations (tests/introspection),

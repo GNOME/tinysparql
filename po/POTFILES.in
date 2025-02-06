@@ -10,5 +10,5 @@ src/cli/tracker-query.c
 src/cli/tracker-sql.c
 src/cli/tracker-webide.c
 src/common/tracker-utils.c
-src/libtracker-sparql/core/tracker-collation.c
+src/libtinysparql/core/tracker-collation.c
 src/portal/tracker-main.c
