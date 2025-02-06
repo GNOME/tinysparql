@@ -22,9 +22,9 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include <libtracker-sparql/tracker-cursor.h>
+#include "tracker-cursor.h"
 
-#include "tracker-property.h"
+#include "core/tracker-property.h"
 
 G_BEGIN_DECLS
 

@@ -25,10 +25,11 @@
 #include "tracker-direct-statement.h"
 
 #include <tracker-common.h>
-#include <libtracker-sparql/core/tracker-data.h>
-#include <libtracker-sparql/tracker-notifier-private.h>
-#include <libtracker-sparql/tracker-private.h>
-#include <libtracker-sparql/tracker-serializer.h>
+
+#include "core/tracker-data.h"
+#include "tracker-notifier-private.h"
+#include "tracker-private.h"
+#include "tracker-serializer.h"
 
 typedef struct _TrackerDirectConnectionPrivate TrackerDirectConnectionPrivate;
 

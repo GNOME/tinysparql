@@ -25,9 +25,9 @@
 
 #include <glib.h>
 
-#include <libtracker-sparql/tracker-ontologies.h>
-
 #include "tracker-ontologies.h"
+
+#include "core/tracker-ontologies.h"
 
 typedef struct _TrackerOntologiesPrivate TrackerOntologiesPrivate;
 

@@ -21,10 +21,10 @@
 
 #include "config.h"
 
-#include "tracker-remote-namespaces.h"
-#include "tracker-private.h"
+#include "remote/tracker-remote-namespaces.h"
 
-#include <libtracker-sparql/tracker-deserializer.h>
+#include "tracker-deserializer.h"
+#include "tracker-private.h"
 
 struct _TrackerRemoteNamespaceManager {
 	TrackerNamespaceManager parent_instance;

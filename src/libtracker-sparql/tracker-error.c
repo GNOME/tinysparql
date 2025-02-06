@@ -20,7 +20,7 @@
 
 #include "tracker-error.h"
 
-#include <libtracker-sparql/core/tracker-data.h>
+#include "core/tracker-data.h"
 
 static const GDBusErrorEntry tracker_sparql_error_entries[] =
 {

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <libtracker-sparql/tracker-deserializer.h>
+#include "tracker-deserializer.h"
 
 #include "tracker-private.h"
 

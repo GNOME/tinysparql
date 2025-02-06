@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "tracker-bus.h"
+#include "bus/tracker-bus.h"
 
-#include <libtracker-sparql/tracker-private.h>
+#include "tracker-private.h"
 
 #define TRACKER_TYPE_BUS_BATCH (tracker_bus_batch_get_type ())
 G_DECLARE_FINAL_TYPE (TrackerBusBatch,

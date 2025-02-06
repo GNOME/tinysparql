@@ -22,8 +22,8 @@
 #include "tracker-direct-statement.h"
 #include "tracker-private.h"
 
-#include <libtracker-sparql/core/tracker-data.h>
-#include <libtracker-sparql/tracker-serializer.h>
+#include "core/tracker-data.h"
+#include "tracker-serializer.h"
 
 typedef struct _TrackerDirectStatementPrivate TrackerDirectStatementPrivate;
 

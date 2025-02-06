@@ -27,20 +27,20 @@
 
 #include <tracker-common.h>
 
-#include <libtracker-sparql/tracker-deserializer-rdf.h>
-#include <libtracker-sparql/tracker-private.h>
-#include <libtracker-sparql/tracker-uri.h>
+#include "tracker-deserializer-rdf.h"
+#include "tracker-private.h"
+#include "tracker-uri.h"
 
-#include "tracker-class.h"
-#include "tracker-data-manager.h"
-#include "tracker-data-update.h"
-#include "tracker-data-query.h"
-#include "tracker-db-interface-sqlite.h"
-#include "tracker-db-manager.h"
-#include "tracker-ontologies.h"
-#include "tracker-property.h"
-#include "tracker-sparql.h"
-#include "tracker-uuid.h"
+#include "core/tracker-class.h"
+#include "core/tracker-data-manager.h"
+#include "core/tracker-data-update.h"
+#include "core/tracker-data-query.h"
+#include "core/tracker-db-interface-sqlite.h"
+#include "core/tracker-db-manager.h"
+#include "core/tracker-ontologies.h"
+#include "core/tracker-property.h"
+#include "core/tracker-sparql.h"
+#include "core/tracker-uuid.h"
 
 typedef struct _TrackerDataUpdateBuffer TrackerDataUpdateBuffer;
 typedef struct _TrackerDataUpdateBufferGraph TrackerDataUpdateBufferGraph;

@@ -22,8 +22,8 @@
 #pragma once
 
 #include <tinysparql.h>
-#include <libtracker-sparql/tracker-private.h>
-#include <libtracker-sparql/tracker-serializer.h>
+
+#include "tracker-serializer.h"
 
 #define TRACKER_TYPE_SERIALIZER_XML (tracker_serializer_xml_get_type())
 

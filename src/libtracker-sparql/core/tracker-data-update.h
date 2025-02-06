@@ -28,10 +28,10 @@ G_BEGIN_DECLS
 typedef struct _TrackerData TrackerData;
 typedef struct _TrackerDataClass TrackerDataClass;
 
-#include "tracker-db-interface.h"
-#include "tracker-data-manager.h"
+#include "core/tracker-db-interface.h"
+#include "core/tracker-data-manager.h"
 
-#include <libtracker-sparql/tracker-deserializer.h>
+#include "tracker-deserializer.h"
 
 #define TRACKER_TYPE_DATA         (tracker_data_get_type ())
 #define TRACKER_DATA(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DATA, TrackerData))

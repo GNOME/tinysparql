@@ -20,7 +20,8 @@
 #pragma once
 
 #include <tinysparql.h>
-#include <libtracker-sparql/tracker-private.h>
+
+#include "tracker-private.h"
 
 typedef enum
 {

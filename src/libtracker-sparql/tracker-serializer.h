@@ -22,7 +22,8 @@
 #pragma once
 
 #include <tinysparql.h>
-#include <libtracker-sparql/tracker-enums-private.h>
+
+#include "tracker-enums-private.h"
 
 #define TRACKER_TYPE_SERIALIZER (tracker_serializer_get_type())
 

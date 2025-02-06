@@ -28,17 +28,17 @@
 
 #include <tracker-common.h>
 
-#include <libtracker-sparql/tracker-cursor.h>
-#include <libtracker-sparql/tracker-private.h>
+#include "tracker-cursor.h"
+#include "tracker-private.h"
 
-#include "tracker-fts-tokenizer.h"
-#include "tracker-collation.h"
-#include "tracker-db-interface-sqlite.h"
-#include "tracker-db-manager.h"
-#include "tracker-data-enum-types.h"
-#include "tracker-uuid.h"
-#include "tracker-vtab-service.h"
-#include "tracker-vtab-triples.h"
+#include "core/tracker-fts-tokenizer.h"
+#include "core/tracker-collation.h"
+#include "core/tracker-db-interface-sqlite.h"
+#include "core/tracker-db-manager.h"
+#include "core/tracker-data-enum-types.h"
+#include "core/tracker-uuid.h"
+#include "core/tracker-vtab-service.h"
+#include "core/tracker-vtab-triples.h"
 
 /* Avoid casts everywhere. */
 #define sqlite3_value_text(x) ((const gchar *) sqlite3_value_text(x))

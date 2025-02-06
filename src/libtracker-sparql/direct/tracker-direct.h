@@ -21,10 +21,10 @@
 #pragma once
 
 #include <tinysparql.h>
-#include <libtracker-sparql/core/tracker-data.h>
 
-#include "tracker-direct-batch.h"
-#include "tracker-direct-statement.h"
+#include "core/tracker-data.h"
+#include "direct/tracker-direct-batch.h"
+#include "direct/tracker-direct-statement.h"
 
 #define TRACKER_TYPE_DIRECT_CONNECTION         (tracker_direct_connection_get_type())
 #define TRACKER_DIRECT_CONNECTION(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), TRACKER_TYPE_DIRECT_CONNECTION, TrackerDirectConnection))

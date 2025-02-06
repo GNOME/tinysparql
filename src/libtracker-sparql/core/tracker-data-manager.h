@@ -29,12 +29,12 @@ G_BEGIN_DECLS
 typedef struct _TrackerDataManager TrackerDataManager;
 typedef struct _TrackerDataManagerClass TrackerDataManagerClass;
 
-#include <libtracker-sparql/tracker-ontologies.h>
+#include "tracker-ontologies.h"
 
-#include "tracker-rowid.h"
-#include "tracker-data-update.h"
-#include "tracker-db-interface.h"
-#include "tracker-db-manager.h"
+#include "core/tracker-rowid.h"
+#include "core/tracker-data-update.h"
+#include "core/tracker-db-interface.h"
+#include "core/tracker-db-manager.h"
 
 #define TRACKER_DEFAULT_GRAPH TRACKER_PREFIX_NRL "DefaultGraph"
 

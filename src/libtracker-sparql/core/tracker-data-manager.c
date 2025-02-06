@@ -26,22 +26,22 @@
 
 #include <tracker-common.h>
 
-#include <libtracker-sparql/tracker-deserializer-rdf.h>
+#include "tracker-deserializer-rdf.h"
 
-#include "tracker-class.h"
-#include "tracker-data-manager.h"
-#include "tracker-data-update.h"
-#include "tracker-db-interface-sqlite.h"
-#include "tracker-db-manager.h"
-#include "tracker-namespace.h"
-#include "tracker-ontologies.h"
-#include "tracker-ontologies-diff.h"
-#include "tracker-ontologies-introspect.h"
-#include "tracker-ontologies-rdf.h"
-#include "tracker-ontology.h"
-#include "tracker-property.h"
-#include "tracker-data-query.h"
-#include "tracker-sparql-parser.h"
+#include "core/tracker-class.h"
+#include "core/tracker-data-manager.h"
+#include "core/tracker-data-update.h"
+#include "core/tracker-db-interface-sqlite.h"
+#include "core/tracker-db-manager.h"
+#include "core/tracker-namespace.h"
+#include "core/tracker-ontologies.h"
+#include "core/tracker-ontologies-diff.h"
+#include "core/tracker-ontologies-introspect.h"
+#include "core/tracker-ontologies-rdf.h"
+#include "core/tracker-ontology.h"
+#include "core/tracker-property.h"
+#include "core/tracker-data-query.h"
+#include "core/tracker-sparql-parser.h"
 
 struct _TrackerDataManager {
 	GObject parent_instance;

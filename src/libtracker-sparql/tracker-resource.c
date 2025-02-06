@@ -24,18 +24,18 @@
 
 #include <string.h>
 
-#include <tracker-deserializer-resource.h>
-#include <tracker-uri.h>
-#include <tracker-resource.h>
-#include <tracker-ontologies.h>
+#include "tracker-deserializer-resource.h"
+#include "tracker-uri.h"
+#include "tracker-resource.h"
+#include "tracker-ontologies.h"
 
 /* For tracker_sparql_escape_string */
 #include "tracker-utils.h"
 
 /* For prefixed names parsing */
-#include <libtracker-sparql/core/tracker-sparql-grammar.h>
+#include "core/tracker-sparql-grammar.h"
 
-#include <tracker-private.h>
+#include "tracker-private.h"
 
 typedef struct {
 	char *identifier;

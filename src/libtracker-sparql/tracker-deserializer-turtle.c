@@ -30,11 +30,11 @@
 
 #include "tracker-deserializer-turtle.h"
 
-#include <libtracker-sparql/core/tracker-sparql-grammar.h>
-#include <libtracker-sparql/core/tracker-uuid.h>
-#include <libtracker-sparql/tracker-private.h>
-
 #include <strings.h>
+
+#include "core/tracker-sparql-grammar.h"
+#include "core/tracker-uuid.h"
+#include "tracker-private.h"
 
 #define BUF_SIZE 4096
 #define RDF_TYPE "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"

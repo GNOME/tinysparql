@@ -24,7 +24,7 @@
 
 #include <tracker-common.h>
 
-#include <libtracker-sparql/tracker-connection.h>
+#include "tracker-connection.h"
 
 #define N_VARIABLES 100
 #define N_PARAMETERS 50

@@ -24,11 +24,11 @@
 
 #include <glib.h>
 
-#include <libtracker-sparql/tracker-ontologies.h>
-
-#include "tracker-namespace.h"
 #include "tracker-ontologies.h"
-#include "tracker-property.h"
+
+#include "core/tracker-namespace.h"
+#include "core/tracker-ontologies.h"
+#include "core/tracker-property.h"
 
 #define XSD_BOOLEAN  TRACKER_PREFIX_XSD "boolean"
 #define XSD_DATE     TRACKER_PREFIX_XSD "date"

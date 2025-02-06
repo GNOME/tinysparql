@@ -21,11 +21,12 @@
 
 #include "config.h"
 
-#include <libtracker-sparql/core/tracker-data.h>
+#include "core/tracker-data.h"
 
-#include "tracker-direct-batch.h"
-#include "tracker-direct-statement.h"
-#include "tracker-direct.h"
+#include "direct/tracker-direct-batch.h"
+#include "direct/tracker-direct-statement.h"
+#include "direct/tracker-direct.h"
+
 #include "tracker-private.h"
 
 typedef struct _TrackerDirectBatchPrivate TrackerDirectBatchPrivate;

@@ -20,11 +20,11 @@
 
 #pragma once
 
-#include <libtracker-sparql/tracker-version-generated.h>
-#include <libtracker-sparql/tracker-cursor.h>
-#include <libtracker-sparql/tracker-endpoint-dbus.h>
-#include <libtracker-sparql/tracker-enums-private.h>
-#include <libtracker-sparql/tracker-deserializer.h>
+#include "tracker-version-generated.h"
+#include "tracker-cursor.h"
+#include "tracker-endpoint-dbus.h"
+#include "tracker-enums-private.h"
+#include "tracker-deserializer.h"
 
 struct _TrackerSparqlConnectionClass
 {

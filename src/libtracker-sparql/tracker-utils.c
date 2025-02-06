@@ -26,7 +26,7 @@
 #include "tracker-gresources.h"
 #include "tracker-nepomuk-gresources.h"
 
-#include <libtracker-sparql/core/tracker-uuid.h>
+#include "core/tracker-uuid.h"
 
 static const char *extensions[] = {
 	".ttl",
