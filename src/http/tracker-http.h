@@ -24,7 +24,7 @@
 #include <gio/gio.h>
 
 #ifndef MODULE
-#include <libtracker-sparql/tracker-enums-private.h>
+#include <tracker-enums-private.h>
 #endif
 
 typedef enum
