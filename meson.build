@@ -363,6 +363,7 @@ tracker_c_args = [
 
 configinc = include_directories('./')
 srcinc = include_directories('src/')
+libinc = include_directories('src/libtracker-sparql')
 
 source_root = meson.current_source_dir()
 build_root = meson.current_build_dir()

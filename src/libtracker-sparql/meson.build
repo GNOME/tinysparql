@@ -116,7 +116,7 @@ libtracker_sparql_private = static_library('tracker-sparql-private',
 
 tracker_sparql_private_dep = declare_dependency(
     link_with: [libtracker_sparql_private],
-    include_directories: [srcinc, include_directories('.')],
+    include_directories: [srcinc, libinc],
     sources: enum_types[1],
     dependencies: [glib, gio],
 )
@@ -137,7 +137,7 @@ libtracker_sparql = library('tinysparql-' + tracker_api_version,
 
 tracker_sparql_dep = declare_dependency(
     link_with: libtracker_sparql,
-    include_directories: [srcinc, include_directories('.')],
+    include_directories: [srcinc, libinc],
     dependencies: [glib, gio],
     sources: enum_types[1],
 )
