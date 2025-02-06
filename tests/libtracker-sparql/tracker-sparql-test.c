@@ -24,7 +24,6 @@
 #include <glib-object.h>
 
 #include <tinysparql.h>
-#include <libtracker-sparql/tracker-version.h>
 
 typedef struct {
 	const gchar *input ;
