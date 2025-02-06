@@ -1,5 +1,3 @@
-test_env.set('LANG', 'en_GB.utf-8')
-
 bus_query_cancellation_test = executable('test-bus-query-cancellation',
   'test-bus-query-cancellation.c',
   c_args: test_c_args,
