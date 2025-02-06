@@ -284,8 +284,7 @@ test (TestFixture   *test_fixture,
 
 	test_fixture->loop = g_main_loop_new (NULL, FALSE);
 
-	path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
-	                         test_info->data_file, NULL);
+	path = g_build_filename (TEST_SRCDIR, test_info->data_file, NULL);
 	file = g_file_new_for_path (path);
 	istream = G_INPUT_STREAM (g_file_read (file, NULL, &error));
 	g_object_unref (file);
@@ -304,10 +303,8 @@ test (TestFixture   *test_fixture,
 
 	g_main_loop_run (test_fixture->loop);
 
-	query_path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
-	                               test_info->query_file, NULL);
-	path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
-	                         test_info->output_file, NULL);
+	query_path = g_build_filename (TEST_SRCDIR, test_info->query_file, NULL);
+	path = g_build_filename (TEST_SRCDIR, test_info->output_file, NULL);
 
 	retval = g_file_get_contents (query_path, &query, NULL, &error);
 	g_assert_true (retval);

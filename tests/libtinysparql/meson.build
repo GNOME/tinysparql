@@ -1,5 +1,6 @@
 libtracker_sparql_test_c_args = tracker_c_args + [
   '-DTEST',
+  '-DTEST_SRCDIR="@0@"'.format(meson.current_source_dir()),
 ]
 
 libtracker_sparql_test_deps = [

@@ -157,8 +157,7 @@ serialize (TestFixture   *test_fixture,
 
 	test_fixture->loop = g_main_loop_new (NULL, FALSE);
 
-	path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
-	                         test_info->query_file, NULL);
+	path = g_build_filename (TEST_SRCDIR, test_info->query_file, NULL);
 	retval = g_file_get_contents (path, &query, NULL, &error);
 	g_assert_true (retval);
 	g_assert_no_error (error);
@@ -194,8 +193,7 @@ serialize (TestFixture   *test_fixture,
 
 	g_assert_nonnull (test_fixture->istream);
 
-	path = g_build_filename (TOP_SRCDIR, "tests", "libtracker-sparql",
-	                         test_info->output_file, NULL);
+	path = g_build_filename (TEST_SRCDIR, test_info->output_file, NULL);
 	check_result (test_fixture->istream, path);
 	g_input_stream_close (test_fixture->istream, NULL, NULL);
 	g_object_unref (test_fixture->istream);

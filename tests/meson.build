@@ -8,7 +8,7 @@ test_bus_conf_file = configure_file(
 subdir('fts')
 subdir('core')
 subdir('common')
-subdir('libtracker-sparql')
+subdir('libtinysparql')
 subdir('functional-tests')
 subdir('services')
 
