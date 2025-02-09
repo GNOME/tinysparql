@@ -1,6 +1,6 @@
 fts_test = executable('tracker-fts-test',
   'tracker-fts-test.c',
-  dependencies: [tracker_sparql_dep, tracker_testcommon_dep],
+  dependencies: [tracker_sparql_dep],
   c_args: test_c_args
 )
 

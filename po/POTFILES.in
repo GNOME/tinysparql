@@ -1,14 +1,14 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
-src/libtracker-common/tracker-utils.c
-src/libtracker-sparql/core/tracker-collation.c
+src/cli/tracker-endpoint.c
+src/cli/tracker-export.c
+src/cli/tracker-help.c
+src/cli/tracker-import.c
+src/cli/tracker-introspect.c
+src/cli/tracker-main.c
+src/cli/tracker-query.c
+src/cli/tracker-sql.c
+src/cli/tracker-webide.c
+src/common/tracker-utils.c
+src/libtinysparql/core/tracker-collation.c
 src/portal/tracker-main.c
-src/tracker/tracker-endpoint.c
-src/tracker/tracker-export.c
-src/tracker/tracker-help.c
-src/tracker/tracker-import.c
-src/tracker/tracker-introspect.c
-src/tracker/tracker-main.c
-src/tracker/tracker-query.c
-src/tracker/tracker-sql.c
-src/tracker/tracker-webide.c

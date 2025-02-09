@@ -29,8 +29,6 @@
 #include <glib/gi18n.h>
 #include <gio/gio.h>
 
-#include <libtracker-common/tracker-common.h>
-
 #include "tracker-portal.h"
 
 static gboolean version = FALSE;

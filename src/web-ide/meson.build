@@ -23,9 +23,8 @@ web_ide_lib = static_library('tracker-webide',
         '-DBUILDROOT="@0@"'.format(meson.global_build_root()),
     ] + tracker_c_args,
 
-    dependencies: [gobject, gmodule],
-    link_with: [tsparql_http_lib],
-    include_directories: [configinc, srcinc],
+    dependencies: [tsparql_http_dep, gobject, gmodule],
+    include_directories: [configinc, httpinc, srcinc],
 )
 
 web_ide_dep = declare_dependency(

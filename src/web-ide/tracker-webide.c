@@ -21,7 +21,7 @@
 
 #include "tracker-webide.h"
 
-#include "libtracker-http/tracker-http.h"
+#include <tracker-http.h>
 
 
 const gchar *get_request_mimetypes[] = {

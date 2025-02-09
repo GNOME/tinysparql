@@ -363,6 +363,7 @@ tracker_c_args = [
 
 configinc = include_directories('./')
 srcinc = include_directories('src/')
+libinc = include_directories('src/libtinysparql')
 
 source_root = meson.current_source_dir()
 build_root = meson.current_build_dir()
@@ -385,7 +386,6 @@ test_c_args = tracker_c_args + [
     '-DTOP_SRCDIR="@0@"'.format(source_root),
 ]
 
-tracker_uninstalled_cli_dir = join_paths(meson.current_build_dir(), 'src', 'tracker')
 tracker_uninstalled_testutils_dir = join_paths(meson.current_source_dir(), 'utils')
 
 if get_option('tests')
