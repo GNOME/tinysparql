@@ -24,22 +24,27 @@
 int
 LLVMFuzzerTestOneInput (const unsigned char *data, size_t size)
 {
-	TrackerSparqlConnection *conn;
+	static TrackerSparqlConnection *conn = NULL;
 	TrackerBatch *batch;
 	GInputStream *istream;
-	GFile *nepomuk;
 
 	sqlite3_config (SQLITE_CONFIG_LOOKASIDE, 0, 0);
 
 	fuzz_set_logging_func ();
 
-	nepomuk = tracker_sparql_get_ontology_nepomuk ();
 	istream = g_memory_input_stream_new_from_data (data, size, NULL);
 
-	conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
-	                                      NULL,
-	                                      nepomuk,
-	                                      NULL, NULL);
+	if (!conn) {
+		GFile *ontology;
+
+		/* Point to empty ontology */
+		ontology = g_file_new_for_uri ("resource:///");
+		conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+		                                      NULL,
+		                                      ontology,
+		                                      NULL, NULL);
+		g_clear_object (&ontology);
+	}
 
 	batch = tracker_sparql_connection_create_batch (conn);
 
@@ -51,12 +56,8 @@ LLVMFuzzerTestOneInput (const unsigned char *data, size_t size)
 
 	tracker_batch_execute (batch, NULL, NULL);
 
-	tracker_sparql_connection_close (conn);
-
 	g_clear_object (&batch);
-	g_clear_object (&conn);
 	g_clear_object (&istream);
-	g_clear_object (&nepomuk);
 
 	return 0;
 }
