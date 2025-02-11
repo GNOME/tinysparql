@@ -440,30 +440,6 @@ handle_type_cast (TrackerDeserializerTurtle  *deserializer,
 	return TRUE;
 }
 
-static void
-advance_whitespace_and_comments (TrackerDeserializerTurtle *deserializer)
-{
-	const gchar *buffer, *str;
-	gsize size;
-
-	while (TRUE) {
-		advance_whitespace (deserializer);
-		buffer = g_buffered_input_stream_peek_buffer (deserializer->buffered_stream,
-		                                              &size);
-		if (size == 0)
-			break;
-		if (buffer[0] != '#')
-			break;
-
-		str = strchr (buffer, '\n');
-		if (!str)
-			break;
-
-		if (!seek_input (deserializer, str + 1 - buffer))
-			break;
-	}
-}
-
 static gboolean
 find_needle (const gchar *buffer,
              gsize        buffer_len,
@@ -492,6 +468,44 @@ find_needle (const gchar *buffer,
 
 	return TRUE;
 }
+
+static void
+advance_whitespace_and_comments (TrackerDeserializerTurtle *deserializer)
+{
+	const gchar *buffer, *str;
+	gsize size, skip;
+
+	while (TRUE) {
+		advance_whitespace (deserializer);
+		buffer = g_buffered_input_stream_peek_buffer (deserializer->buffered_stream,
+		                                              &size);
+		if (size == 0)
+			break;
+		if (buffer[0] != '#')
+			break;
+
+		while (!find_needle (buffer, size, 0, "\n")) {
+			if (!seek_input (deserializer, size))
+				break;
+
+			buffer = g_buffered_input_stream_peek_buffer (deserializer->buffered_stream,
+			                                              &size);
+
+			if (size == 0)
+				break;
+		}
+
+		str = memmem (buffer, size, "\n", strlen ("\n"));
+		if (str)
+			skip = str + 1 - buffer;
+		else
+			skip = size;
+
+		if (!seek_input (deserializer, skip))
+			break;
+	}
+}
+
 
 static gboolean
 maybe_expand_buffer (TrackerDeserializerTurtle  *deserializer,
