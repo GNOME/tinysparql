@@ -117,6 +117,13 @@ tracker_deserializer_turtle_constructed (GObject *object)
 }
 
 static void
+clear_parser_state (StateStack *state)
+{
+	g_free (state->subject);
+	g_free (state->predicate);
+}
+
+static void
 push_stack (TrackerDeserializerTurtle *deserializer)
 {
 	StateStack state;
@@ -139,8 +146,8 @@ pop_stack (TrackerDeserializerTurtle *deserializer)
 	deserializer->subject = deserializer->predicate = deserializer->object = NULL;
 
 	state = &g_array_index (deserializer->parser_state, StateStack, deserializer->parser_state->len - 1);
-	deserializer->subject = state->subject;
-	deserializer->predicate = state->predicate;
+	deserializer->subject = g_steal_pointer (&state->subject);
+	deserializer->predicate = g_steal_pointer (&state->predicate);
 	deserializer->state = state->state;
 
 	if (deserializer->state == STATE_OBJECT) {
@@ -974,6 +981,8 @@ static void
 tracker_deserializer_turtle_init (TrackerDeserializerTurtle *deserializer)
 {
 	deserializer->parser_state = g_array_new (FALSE, FALSE, sizeof (StateStack));
+	g_array_set_clear_func (deserializer->parser_state,
+	                        (GDestroyNotify) clear_parser_state);
 }
 
 TrackerSparqlCursor *
