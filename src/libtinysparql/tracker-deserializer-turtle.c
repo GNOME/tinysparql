@@ -711,6 +711,7 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 				deserializer->predicate = g_strdup (RDF_TYPE);
 			} else if (parse_terminal (deserializer, terminal_IRIREF, 1, &str)) {
 				deserializer->predicate = expand_base (deserializer, str);
+				g_free (str);
 			} else if (parse_terminal (deserializer, terminal_PNAME_LN, 0, &str) ||
 			           parse_terminal (deserializer, terminal_PNAME_NS, 0, &str)) {
 				deserializer->predicate = expand_prefix (deserializer, str, error);
