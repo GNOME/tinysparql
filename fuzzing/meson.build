@@ -27,6 +27,9 @@ foreach target_name : fuzz_targets
     exe = executable(target_name, [extra_sources, target_name + '.c'],
         c_args : extra_c_args,
         dependencies : deps,
+        # Prefer RPATH over RUNPATH so the executable
+        # always finds the uninstalled library.
+        link_args: ['-Wl,--disable-new-dtags'],
     )
 
     # If the FuzzingEngine isn’t available, build some unit tests to check that
