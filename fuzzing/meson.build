@@ -32,12 +32,15 @@ foreach target_name : fuzz_targets
         link_args: ['-Wl,--disable-new-dtags'],
     )
 
+    samples_dir = meson.current_source_dir() / 'samples' / target_name.replace('fuzz_', '')
+    samples = run_command('get-samples.sh', samples_dir, check: true).stdout().strip().split('\n')
+
     # If the FuzzingEngine isn’t available, build some unit tests to check that
     # the fuzzing files do basically work. This doesn’t do any actual fuzzing though.
     # Pass in the README as an arbitrary fuzzing input, just so we have something.
     if get_option('tests') and not have_fuzzing_engine
         test(target_name, exe,
-            args : files('README.md'),
+            args : [samples, files('README.md')],
             suite : 'fuzzing',
         )
     endif
