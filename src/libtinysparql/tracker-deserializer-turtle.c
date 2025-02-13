@@ -455,6 +455,9 @@ find_needle (const gchar *buffer,
 {
 	const gchar *ptr, *prev;
 
+	if (start >= buffer_len)
+		return FALSE;
+
  retry:
 	ptr = memmem (&buffer[start], buffer_len - start,
 	              needle, strlen (needle));
