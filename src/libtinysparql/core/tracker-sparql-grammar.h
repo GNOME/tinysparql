@@ -1561,19 +1561,19 @@ static const TrackerGrammarRule rule_Query[] = { R(Prologue), OR(helper_Query_or
 static const TrackerGrammarRule rule_QueryUnit[] = { R(Query), NIL };
 
 /* Inline funcs for terminal parsers */
-#define READ_CHAR(set, _C_)			\
-	G_STMT_START {				\
-		gchar ch = *str;		\
-		if ((set)) {			\
-			str++;			\
-		} else {			\
-			_C_;			\
-		}				\
+#define READ_CHAR(set, _C_)				\
+	G_STMT_START {					\
+		gchar ch = (str < end) ? *str : 0;	\
+		if ((set)) {				\
+			str++;				\
+		} else {				\
+			_C_;				\
+		}					\
 	} G_STMT_END
 
 #define READ_UNICHAR(set, _C_)				\
 	G_STMT_START {					\
-		gunichar ch = g_utf8_get_char (str);	\
+		gunichar ch = g_utf8_get_char_validated (str, end - str); \
 		if ((set)) {				\
 			str = g_utf8_next_char (str);	\
 		} else {				\
