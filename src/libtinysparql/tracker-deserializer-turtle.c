@@ -90,6 +90,7 @@ tracker_deserializer_turtle_finalize (GObject *object)
 	g_clear_pointer (&deserializer->subject, g_free);
 	g_clear_pointer (&deserializer->predicate, g_free);
 	g_clear_pointer (&deserializer->object, g_free);
+	g_clear_pointer (&deserializer->object_lang, g_free);
 	g_clear_pointer (&deserializer->graph, g_free);
 	g_clear_pointer (&deserializer->base, g_free);
 
