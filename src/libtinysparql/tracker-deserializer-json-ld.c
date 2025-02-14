@@ -455,7 +455,8 @@ forward_state_for_value (TrackerDeserializerJsonLD *deserializer)
 }
 
 static gboolean
-forward_state (TrackerDeserializerJsonLD *deserializer)
+forward_state (TrackerDeserializerJsonLD  *deserializer,
+               GError                    **error)
 {
 	TrackerNamespaceManager *namespaces;
 	const gchar *member;
@@ -477,7 +478,15 @@ forward_state (TrackerDeserializerJsonLD *deserializer)
 			break;
 		}
 
-		push_stack (deserializer, STATE_MAYBE_GRAPH);
+		if (json_reader_is_object (deserializer->reader)) {
+			push_stack (deserializer, STATE_MAYBE_GRAPH);
+		} else {
+			g_set_error (error,
+			             TRACKER_SPARQL_ERROR,
+			             TRACKER_SPARQL_ERROR_PARSE,
+			             "Expected graph or resource object");
+			return FALSE;
+		}
 		break;
 	case STATE_MAYBE_GRAPH:
 		load_context (deserializer);
@@ -485,7 +494,16 @@ forward_state (TrackerDeserializerJsonLD *deserializer)
 		if (json_reader_read_member (deserializer->reader, "@graph")) {
 			g_clear_pointer (&deserializer->cur_graph, g_free);
 			deserializer->cur_graph = g_strdup (current_graph (deserializer));
-			push_stack (deserializer, STATE_OBJECT_LIST);
+
+			if (json_reader_is_array (deserializer->reader)) {
+				push_stack (deserializer, STATE_OBJECT_LIST);
+			} else {
+				g_set_error (error,
+				             TRACKER_SPARQL_ERROR,
+				             TRACKER_SPARQL_ERROR_PARSE,
+				             "Expected resource list");
+				return FALSE;
+			}
 		} else {
 			json_reader_end_member (deserializer->reader);
 			g_clear_pointer (&deserializer->cur_subject, g_free);
@@ -504,8 +522,16 @@ forward_state (TrackerDeserializerJsonLD *deserializer)
 			break;
 		}
 
-		push_stack (deserializer, STATE_PROPERTIES);
-		deserializer->state = STATE_MAYBE_GRAPH;
+		if (json_reader_is_object (deserializer->reader)) {
+			push_stack (deserializer, STATE_PROPERTIES);
+			deserializer->state = STATE_MAYBE_GRAPH;
+		} else {
+			g_set_error (error,
+			             TRACKER_SPARQL_ERROR,
+			             TRACKER_SPARQL_ERROR_PARSE,
+			             "Expected resource object");
+			return FALSE;
+		}
 		break;
 	case STATE_PROPERTIES:
 		if (!advance_stack (deserializer)) {
@@ -688,15 +714,22 @@ tracker_deserializer_json_ld_next (TrackerSparqlCursor  *cursor,
 	deserializer->has_row = FALSE;
 
 	while (!deserializer->has_row) {
+		GError *inner_error = NULL;
+
 		if (g_cancellable_set_error_if_cancelled (cancellable, error))
 			return FALSE;
 
-		if (!forward_state (deserializer)) {
-			const GError *reader_error;
+		if (!forward_state (deserializer, &inner_error)) {
+			if (inner_error) {
+				g_propagate_error (error, inner_error);
+			} else {
+				const GError *reader_error;
 
-			reader_error = json_reader_get_error (deserializer->reader);
-			if (error && reader_error)
-				*error = g_error_copy (reader_error);
+				reader_error = json_reader_get_error (deserializer->reader);
+				if (error && reader_error)
+					*error = g_error_copy (reader_error);
+			}
+
 			return FALSE;
 		}
 	}

@@ -90,6 +90,7 @@ tracker_deserializer_turtle_finalize (GObject *object)
 	g_clear_pointer (&deserializer->subject, g_free);
 	g_clear_pointer (&deserializer->predicate, g_free);
 	g_clear_pointer (&deserializer->object, g_free);
+	g_clear_pointer (&deserializer->object_lang, g_free);
 	g_clear_pointer (&deserializer->graph, g_free);
 	g_clear_pointer (&deserializer->base, g_free);
 
@@ -117,6 +118,13 @@ tracker_deserializer_turtle_constructed (GObject *object)
 }
 
 static void
+clear_parser_state (StateStack *state)
+{
+	g_free (state->subject);
+	g_free (state->predicate);
+}
+
+static void
 push_stack (TrackerDeserializerTurtle *deserializer)
 {
 	StateStack state;
@@ -139,8 +147,8 @@ pop_stack (TrackerDeserializerTurtle *deserializer)
 	deserializer->subject = deserializer->predicate = deserializer->object = NULL;
 
 	state = &g_array_index (deserializer->parser_state, StateStack, deserializer->parser_state->len - 1);
-	deserializer->subject = state->subject;
-	deserializer->predicate = state->predicate;
+	deserializer->subject = g_steal_pointer (&state->subject);
+	deserializer->predicate = g_steal_pointer (&state->predicate);
 	deserializer->state = state->state;
 
 	if (deserializer->state == STATE_OBJECT) {
@@ -448,6 +456,9 @@ find_needle (const gchar *buffer,
 {
 	const gchar *ptr, *prev;
 
+	if (start >= buffer_len)
+		return FALSE;
+
  retry:
 	ptr = memmem (&buffer[start], buffer_len - start,
 	              needle, strlen (needle));
@@ -704,6 +715,7 @@ tracker_deserializer_turtle_iterate_next (TrackerDeserializerTurtle  *deserializ
 				deserializer->predicate = g_strdup (RDF_TYPE);
 			} else if (parse_terminal (deserializer, terminal_IRIREF, 1, &str)) {
 				deserializer->predicate = expand_base (deserializer, str);
+				g_free (str);
 			} else if (parse_terminal (deserializer, terminal_PNAME_LN, 0, &str) ||
 			           parse_terminal (deserializer, terminal_PNAME_NS, 0, &str)) {
 				deserializer->predicate = expand_prefix (deserializer, str, error);
@@ -974,6 +986,8 @@ static void
 tracker_deserializer_turtle_init (TrackerDeserializerTurtle *deserializer)
 {
 	deserializer->parser_state = g_array_new (FALSE, FALSE, sizeof (StateStack));
+	g_array_set_clear_func (deserializer->parser_state,
+	                        (GDestroyNotify) clear_parser_state);
 }
 
 TrackerSparqlCursor *

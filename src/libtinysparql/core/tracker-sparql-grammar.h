@@ -1105,14 +1105,18 @@ static const TrackerGrammarRule rule_ExpressionList[] = { OR(helper_ExpressionLi
 /* ArgList ::= NIL | '(' 'DISTINCT'? Expression ( ',' Expression )* ')'
  *
  * TRACKER EXTENSION:
- * First argument may be an ArgList in itself for fn:string-join, resulting in:
- * ( ArgList | 'DISTINCT'? Expression )
+ * First argument may be a bracketted sequence of arguments in itself for fn:string-join, resulting in:
+ * ( '(' ( RDFLiteral | Var) ( ',' ( RDFLiteral | Var ) )* ')' | 'DISTINCT'? Expression )
  */
 static const TrackerGrammarRule helper_ArgList_seq_1[] = { L(COMMA), R(Expression), NIL };
 static const TrackerGrammarRule helper_ArgList_gte0[] = { S(helper_ArgList_seq_1), NIL };
 static const TrackerGrammarRule helper_ArgList_opt[] = { L(DISTINCT), NIL };
+static const TrackerGrammarRule helper_ArgList_or_3[] = { R(RDFLiteral), R(Var), NIL };
 static const TrackerGrammarRule helper_ArgList_seq_3[] = { OPT(helper_ArgList_opt), R(Expression), NIL };
-static const TrackerGrammarRule helper_ArgList_or_2[] = { S(helper_ArgList_seq_3), R(ArgList), NIL };
+static const TrackerGrammarRule helper_ArgList_seq_4[] = { L(COMMA), OR(helper_ArgList_or_3), NIL };
+static const TrackerGrammarRule helper_ArgList_gte_2[] = { S(helper_ArgList_seq_4), NIL };
+static const TrackerGrammarRule helper_ArgList_seq_5[] = { L(OPEN_PARENS), OR(helper_ArgList_or_3), GTE0(helper_ArgList_gte_2), L(CLOSE_PARENS), NIL };
+static const TrackerGrammarRule helper_ArgList_or_2[] = { S(helper_ArgList_seq_3), T(NIL), S(helper_ArgList_seq_5), NIL };
 static const TrackerGrammarRule helper_ArgList_seq_2[] = {  L(OPEN_PARENS), OR(helper_ArgList_or_2), GTE0(helper_ArgList_gte0), L(CLOSE_PARENS), NIL };
 static const TrackerGrammarRule helper_ArgList_or[] = { T(NIL), S(helper_ArgList_seq_2), NIL };
 static const TrackerGrammarRule rule_ArgList[] = { OR(helper_ArgList_or), NIL };
@@ -1561,19 +1565,19 @@ static const TrackerGrammarRule rule_Query[] = { R(Prologue), OR(helper_Query_or
 static const TrackerGrammarRule rule_QueryUnit[] = { R(Query), NIL };
 
 /* Inline funcs for terminal parsers */
-#define READ_CHAR(set, _C_)			\
-	G_STMT_START {				\
-		gchar ch = *str;		\
-		if ((set)) {			\
-			str++;			\
-		} else {			\
-			_C_;			\
-		}				\
+#define READ_CHAR(set, _C_)				\
+	G_STMT_START {					\
+		gchar ch = (str < end) ? *str : 0;	\
+		if ((set)) {				\
+			str++;				\
+		} else {				\
+			_C_;				\
+		}					\
 	} G_STMT_END
 
 #define READ_UNICHAR(set, _C_)				\
 	G_STMT_START {					\
-		gunichar ch = g_utf8_get_char (str);	\
+		gunichar ch = g_utf8_get_char_validated (str, end - str); \
 		if ((set)) {				\
 			str = g_utf8_next_char (str);	\
 		} else {				\
