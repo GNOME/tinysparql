@@ -6171,7 +6171,8 @@ translate_ArgList (TrackerSparql  *sparql,
 	 */
 	if (_accept (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_NIL)) {
 	} else if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_PARENS)) {
-		if (_check_in_rule (sparql, NAMED_RULE_ArgList))
+		if (_accept (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_NIL) ||
+		    _accept (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_PARENS))
 			_raise (PARSE, "Recursive ArgList is not allowed", "ArgList");
 
 		if (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_DISTINCT)) {
@@ -8030,6 +8031,75 @@ handle_type_cast (TrackerSparql  *sparql,
 }
 
 static gboolean
+handle_fn_string_join_argument (TrackerSparql  *sparql,
+				GError        **error)
+{
+	TrackerSelectContext *select_context;
+	TrackerBinding *binding;
+
+	select_context = TRACKER_SELECT_CONTEXT (sparql->current_state->top_context);
+
+	if (_check_in_rule (sparql, NAMED_RULE_Var)) {
+		TrackerVariable *variable;
+		gchar *name;
+
+		_call_rule (sparql, NAMED_RULE_Var, error);
+		name = _dup_last_string (sparql);
+
+		if (tracker_context_lookup_variable_by_name (sparql->current_state->context,
+		                                             name)) {
+			variable = _last_node_variable (sparql);
+			_append_variable_sql (sparql, variable);
+
+			/* If the variable is bound, propagate the binding data type */
+			if (tracker_variable_has_bindings (variable)) {
+				binding = TRACKER_BINDING (tracker_variable_get_sample_binding (variable));
+				sparql->current_state->expression_type = binding->data_type;
+			}
+		} else {
+			_append_string (sparql, "NULL ");
+		}
+
+		g_free (name);
+	} else if (_check_in_rule (sparql, NAMED_RULE_RDFLiteral)) {
+		_call_rule (sparql, NAMED_RULE_RDFLiteral, error);
+		binding = g_ptr_array_index (select_context->literal_bindings,
+		                             select_context->literal_bindings->len - 1);
+		sparql->current_state->expression_type = binding->data_type;
+
+		_append_literal_sql (sparql, TRACKER_LITERAL_BINDING (binding));
+	}
+
+	return TRUE;
+}
+
+static gboolean
+handle_fn_string_join_arglist (TrackerSparql  *sparql,
+			       GError        **error)
+{
+	if (_check_in_rule (sparql, NAMED_RULE_Expression))
+		_raise (PARSE, "List of strings to join must be surrounded by parentheses", "fn:string-join");
+
+	if (!_accept (sparql, RULE_TYPE_TERMINAL, TERMINAL_TYPE_NIL)) {
+		_expect (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_PARENS);
+
+		if (!handle_fn_string_join_argument (sparql, error))
+			return FALSE;
+
+		while (_accept (sparql, RULE_TYPE_LITERAL, LITERAL_COMMA)) {
+			_append_string (sparql, ", ");
+
+			if (!handle_fn_string_join_argument (sparql, error))
+				return FALSE;
+		}
+
+		_expect (sparql, RULE_TYPE_LITERAL, LITERAL_CLOSE_PARENS);
+	}
+
+	return TRUE;
+}
+
+static gboolean
 handle_xpath_function (TrackerSparql  *sparql,
                        const gchar    *function,
                        GError        **error)
@@ -8121,12 +8191,12 @@ handle_xpath_function (TrackerSparql  *sparql,
 		_step (sparql);
 		_expect (sparql, RULE_TYPE_LITERAL, LITERAL_OPEN_PARENS);
 
-		if (!_check_in_rule (sparql, NAMED_RULE_ArgList))
-			_raise (PARSE, "List of strings to join must be surrounded by parentheses", "fn:string-join");
-
 		str = _append_placeholder (sparql);
 		old = tracker_sparql_swap_builder (sparql, str);
-		_call_rule (sparql, NAMED_RULE_ArgList, error);
+
+		if (!handle_fn_string_join_arglist (sparql, error))
+			return FALSE;
+
 		has_args = !tracker_string_builder_is_empty (str);
 		tracker_sparql_swap_builder (sparql, old);
 
