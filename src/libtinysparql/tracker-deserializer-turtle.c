@@ -228,6 +228,8 @@ parse_token (TrackerDeserializerTurtle *deserializer,
 	                                              &size);
 	if (size == 0)
 		return FALSE;
+	if (size < (gsize) len)
+		return FALSE;
 	if (strncasecmp (buffer, token, len) != 0)
 		return FALSE;
 	if (!seek_input (deserializer, len))
