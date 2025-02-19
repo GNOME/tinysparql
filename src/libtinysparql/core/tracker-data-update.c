@@ -3410,6 +3410,25 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		TrackerRowid subject;
 		const gchar *object_langtag;
 
+		/* Validate cursor format, and skip rows that would result in invalid
+		 * production of triples.
+		 */
+		if (tracker_sparql_cursor_get_value_type (cursor, TRACKER_RDF_COL_GRAPH) !=
+		    TRACKER_SPARQL_VALUE_TYPE_UNBOUND &&
+		    tracker_sparql_cursor_get_value_type (cursor, TRACKER_RDF_COL_GRAPH) !=
+		    TRACKER_SPARQL_VALUE_TYPE_URI)
+			continue;
+		if (tracker_sparql_cursor_get_value_type (cursor, TRACKER_RDF_COL_SUBJECT) !=
+		    TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE &&
+		    tracker_sparql_cursor_get_value_type (cursor, TRACKER_RDF_COL_SUBJECT) !=
+		    TRACKER_SPARQL_VALUE_TYPE_URI)
+			continue;
+		if (tracker_sparql_cursor_get_value_type (cursor, TRACKER_RDF_COL_PREDICATE) !=
+		    TRACKER_SPARQL_VALUE_TYPE_URI)
+			continue;
+		if (!tracker_sparql_cursor_is_bound (cursor, TRACKER_RDF_COL_OBJECT))
+			continue;
+
 		subject_str = tracker_sparql_cursor_get_string (cursor,
 		                                                TRACKER_RDF_COL_SUBJECT,
 		                                                NULL);
