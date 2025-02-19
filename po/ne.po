@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Gnome Nepali Translation Project\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-05-03 13:04+0000\n"
-"PO-Revision-Date: 2024-06-01 20:36+0545\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
+"POT-Creation-Date: 2025-01-10 20:36+0000\n"
+"PO-Revision-Date: 2025-02-19 10:31+0545\n"
 "Last-Translator: Pawan Chitrakar <chautari@gmail.com>\n"
 "Language-Team: Nepali Translation Team <chautari@gmail.com>\n"
 "Language: ne\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.5\n"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -32,15 +32,16 @@ msgstr "the|a|an"
 msgid "Version"
 msgstr "संस्करण"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
-#: src/tracker/tracker-export.c:549 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:239
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
+#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
 msgid "Unrecognized options"
 msgstr "पहिचान नभएको विकल्प"
 
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
-#: src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
+#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "डाटाबेसको स्थान"
 
@@ -50,7 +51,7 @@ msgstr "DIR"
 
 #: src/tracker/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
-msgstr ""
+msgstr "यो अन्त्यबिन्दुको डीबस नाम निर्दिष्ट गर्नुहोस्"
 
 #: src/tracker/tracker-endpoint.c:63 src/tracker/tracker-endpoint.c:67
 msgid "NAME"
@@ -62,7 +63,7 @@ msgstr "यो अन्तिमबिन्दुमा प्रयोग ग
 
 #: src/tracker/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
-msgstr ""
+msgstr "यो अन्त्यबिन्दुमा प्रयोग गरिने ओन्टोलोजीको मार्ग निर्दिष्ट गर्नुहोस्"
 
 #: src/tracker/tracker-endpoint.c:74
 msgid "HTTP port"
@@ -70,28 +71,28 @@ msgstr "HTTP पोर्ट"
 
 #: src/tracker/tracker-endpoint.c:78
 msgid "Whether to only allow HTTP connections in the loopback device"
-msgstr ""
+msgstr "लुपब्याक यन्त्रमा मात्र एचटीटीपी जडानलाई अनुमति दिने या नदिने"
 
 #: src/tracker/tracker-endpoint.c:82
 msgid "Use session bus"
-msgstr ""
+msgstr "सत्र बस प्रयोग गर्नुहोस्"
 
 #: src/tracker/tracker-endpoint.c:86
 msgid "Use system bus"
-msgstr ""
+msgstr "प्रणाली बस प्रयोग गर्नुहोस्"
 
 #: src/tracker/tracker-endpoint.c:90
 msgid "List SPARQL endpoints available in DBus"
-msgstr ""
+msgstr "डीबसमा उपलब्ध स्पारक्यूएल अन्त्यबिन्दुहरूको सूची बनाउनुहोस्"
 
 #: src/tracker/tracker-endpoint.c:94
 msgid "List network-local HTTP SPARQL endpoints"
-msgstr ""
+msgstr "सूची सञ्जाल-स्थानीय HTTP SPARQL endpoints"
 
 #. TRANSLATORS: these are commandline arguments
 #: src/tracker/tracker-endpoint.c:115
 msgid "--list can only be used with --session or --system"
-msgstr ""
+msgstr "--सूची --सत्र वा --प्रणालीसँग मात्र प्रयोग गर्न सकिन्छ"
 
 #. TRANSLATORS: those are commandline arguments
 #: src/tracker/tracker-endpoint.c:121
@@ -101,46 +102,46 @@ msgstr "एउटा \"Ontology\" वा \"Ontology-path\" विकल्प �
 #. TRANSLATORS: those are commandline arguments
 #: src/tracker/tracker-endpoint.c:127
 msgid "--http-port cannot be used with --dbus-service"
-msgstr ""
+msgstr "--http-port --dbus-service सँग प्रयोग गर्न सकिदैन"
 
 #: src/tracker/tracker-endpoint.c:198
 #, c-format
-msgid "Creating HTTP endpoint at %s…"
-msgstr ""
+msgid "Creating HTTP endpoint at %s…\n"
+msgstr "%s मा एचटीटीपी अन्त्यबिन्दु सिर्जना गर्दैछ…\n"
 
-#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr ""
+msgstr "आदेशहरू सुन्दै। रोक्नका लागि सीटीआरएल-सी थिच्नुहोस्।."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
+#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-webide.c:101
 msgid "Closing connection…"
 msgstr "जडान बन्द गर्दै…"
 
-#: src/tracker/tracker-endpoint.c:241
+#: src/tracker/tracker-endpoint.c:240
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "%s मा अन्तिमबिन्दु सिर्जना गर्दैछ…"
 
-#: src/tracker/tracker-endpoint.c:277
-#| msgid "Could not run update"
+#: src/tracker/tracker-endpoint.c:276
 msgid "Could not own DBus name"
-msgstr ""
+msgstr "डीबस नामस्वामित्व गर्न सकेन"
 
-#: src/tracker/tracker-endpoint.c:291
+#: src/tracker/tracker-endpoint.c:290
 msgid "DBus name lost"
-msgstr ""
+msgstr "डीबस नाम हरायो"
 
-#: src/tracker/tracker-endpoint.c:651
+#: src/tracker/tracker-endpoint.c:650
 #, c-format
 msgid "Opening database at %s…"
 msgstr "%s मा डाटाबेस खोल्दै…"
 
-#: src/tracker/tracker-endpoint.c:654
+#: src/tracker/tracker-endpoint.c:653
 msgid "Creating in-memory database"
-msgstr ""
+msgstr "इन-मेमोरी डाटाबेस सिर्जना गर्दैछ"
 
-#: src/tracker/tracker-endpoint.c:681
+#: src/tracker/tracker-endpoint.c:680
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database on a message "
 "bus."
@@ -148,218 +149,249 @@ msgstr ""
 "नयाँ डाटाबेस सिर्जना गरियो । सन्देश बसमा यो डाटावेस साझेदार गर्न \"--dbus-service\" विकल्प प्रयोग "
 "गर्नुहोस् ।."
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-endpoint.desktop.in:6
-msgid "endpoint"
-msgstr "अन्तिमबिन्दु"
-
-#: src/tracker/tracker-endpoint.desktop.in:7
-msgid "Create a SPARQL endpoint"
-msgstr ""
-
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
+#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "फाईल"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "DBus सेवामा जडान गर्दछ"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
 msgid "DBus service name"
-msgstr ""
+msgstr "डीबस सेवा नाम"
 
-#: src/tracker/tracker-export.c:57
+#: src/tracker/tracker-export.c:55
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
-msgstr ""
+msgstr "निर्गत परिणाम ढाँचा: \"कछुवा\", \"ट्रिग\" वा \"जेसन-एलडी\""
 
-#: src/tracker/tracker-export.c:58
-#| msgid "FORMAT"
+#: src/tracker/tracker-export.c:56
 msgid "RDF_FORMAT"
-msgstr ""
+msgstr "RDF_FORMAT"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "टाढाको सेवामा जडान गर्दछ"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:122
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
 msgid "Remote service URI"
-msgstr ""
+msgstr "टाढाको सेवा यूआरआई"
 
-#: src/tracker/tracker-export.c:65
+#: src/tracker/tracker-export.c:63
 msgid "Output TriG format which includes named graph information"
 msgstr "नामकरण गरिएको ग्राफ सूचना समावेश गर्ने निर्गत ट्रिजी ढाँचा"
 
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:206
+#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
+"एउटा \"--database\", \"--dbus-service\" वा \"---remote-service\" विकल्प निर्दिष्ट गर्नुहोस्"
 
-#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
+#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
+#: src/tracker/tracker-query.c:345
 msgid "No error given"
 msgstr "कुनै त्रुटि दिएन"
 
-#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1072
+#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "ट्रयाकर जडान स्थापाना असफल"
 
-#: src/tracker/tracker-export.c:382
+#: src/tracker/tracker-export.c:180
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "असमर्थित क्रमबद्धिकरण ढाँचा “%s”\n"
 
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:446
-#: src/tracker/tracker-export.c:455 src/tracker/tracker-sparql.c:1334
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "क्वेरी चलाउन सकेन"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-export.desktop.in:6
-msgid "export"
-msgstr "निर्यात गर्नुहोस्"
-
-#: src/tracker/tracker-export.desktop.in:7
-msgid "Export data from a Tracker database"
-msgstr ""
-
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr ""
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-help.desktop.in:6
-msgid "help"
-msgstr "सहयोग"
-
-#: src/tracker/tracker-help.desktop.in:7
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr "ट्रयाकर र यी आदेशमध्ये कुनै पनि कसरी प्रयोग गर्ने मद्दत प्राप्त गर्नुहोस्"
-
 #: src/tracker/tracker-import.c:58
-#| msgid "Output TriG format which includes named graph information"
 msgid "Read TriG format which includes named graph information"
-msgstr ""
+msgstr "नामकरण गरिएको ग्राफ जानकारी समावेश गर्ने ट्राइग ढाँचा पढ्नुहोस्"
 
 #: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
 msgid "Could not run import"
 msgstr "आयात चालु गर्न सकेन"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-import.desktop.in:6
-msgid "import"
-msgstr "आयात गर्नुहोस्"
+#: src/tracker/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "सबै उपलब्ध वर्गहरूको सूची बनाउँदछ"
 
-#: src/tracker/tracker-import.desktop.in:7
-msgid "Import data into a Tracker database"
-msgstr "ट्र्याकर डाटाबेसमा डेटा आयात गर्नुहोस् ।."
+#: src/tracker/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "सबै उपलब्ध उपसर्गहरू सूचीबद्ध गर्दछ"
 
-#: src/tracker/tracker-main.c:123
-msgid "Available tracker3 commands are:"
-msgstr "उपलब्ध ट्र्याकर३ आदेशहरू:"
+#: src/tracker/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr "डेटाबेसमा परिवर्तनहरू सूचित गर्ने सबै वर्गहरू सूचीबद्ध गर्दछ"
 
-#: src/tracker/tracker-main.c:155
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
-msgstr "निर्दिष्ट उपआदेशको बारेमा पढ्नका लागि \"tracker3 help <command>\" हेर्नुहोस् ।."
+#: src/tracker/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr "प्रदर्शन सुधार गर्न डाटाबेसमा प्रयोग गरिएका अनुक्रमणिकाहरूको सूची बनाउनुहोस्"
 
-#: src/tracker/tracker-main.c:208
-#, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr ""
-
-#: src/tracker/tracker-sparql.c:125
-msgid "Path to use to run a query or update from file"
-msgstr "फाइलबाट क्वेरी वा अद्यावधिक चलाउनका लागि प्रयोग हुने मार्ग"
-
-#: src/tracker/tracker-sparql.c:129
-msgid "SPARQL query"
-msgstr "SPARQL क्वेरी"
-
-#: src/tracker/tracker-sparql.c:130
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:133
-msgid "This is used with --query and for database updates only."
-msgstr ""
-
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve classes"
-msgstr "वर्गहरू पुन: प्राप्त गर्नुहोस्"
-
-#: src/tracker/tracker-sparql.c:141
-msgid "Retrieve class prefixes"
-msgstr "वर्ग उपसर्गहरू पुन: प्राप्त गर्नुहोस्"
-
-#: src/tracker/tracker-sparql.c:145
-msgid "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:Resource)"
-msgstr ""
-
-#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
-#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
-#: src/tracker/tracker-sparql.c:174
-msgid "CLASS"
-msgstr "CLASS"
-
-#: src/tracker/tracker-sparql.c:149
-msgid "Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-
-#: src/tracker/tracker-sparql.c:153
-msgid "Retrieve indexes used in database to improve performance (PROPERTY is optional)"
-msgstr ""
-
-#: src/tracker/tracker-sparql.c:154
-msgid "PROPERTY"
-msgstr "गुण"
-
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "सबै नाम गरेका मानचित्र पुन: प्राप्त गर्नुहोस्"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of the tree and "
 "-p to show properties)"
 msgstr ""
 "उपवर्ग वर्णन गर्नुहोस्, सुपरक्लासहरू (ट्रीको भाग हाइलाइट गर्न -s र गुण देखाउन -p सँग प्रयोग गर्न सकिन्छ)"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "CLASS"
+
+#: src/tracker/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "सबै उपलब्ध गुणहरू सूचीबद्ध गर्दछ"
+
+#: src/tracker/tracker-introspect.c:137
 msgid "Search for a class or property and display more information (e.g. Document)"
 msgstr "वर्ग वा विशेषताका लागि खोजी गर्नुहोस् र बढी जानकारी प्रदर्शन गर्नुहोस् (जस्तै: कागजात)"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "वर्ग/गुण"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "वर्गका लागि सर्टह्यान्ड फर्काउँछ (उदाहरणका लागि nfo:FileDataObject) ।."
+#: src/tracker/tracker-introspect.c:716
+msgid "Could not create tree: subclass query failed"
+msgstr "ट्री सिर्जना गर्न सकेन: उपवर्ग क्वेरी असफल भयो"
 
-#: src/tracker/tracker-sparql.c:173
-msgid "Returns the full namespace for a class."
-msgstr "वर्गका लागि पूरा नेमस्पेस फर्काउँछ ।."
+#: src/tracker/tracker-introspect.c:766
+msgid "Could not create tree: class properties query failed"
+msgstr "ट्री सिर्जना गर्न सकेन: वर्ग गुण क्वेरी असफल भयो"
 
-#: src/tracker/tracker-sparql.c:177
+#: src/tracker/tracker-introspect.c:850
+msgid "Could not search classes"
+msgstr "वर्गहरू खोज्न सकिएन"
+
+#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+msgid "Classes"
+msgstr "वर्गहरू"
+
+#: src/tracker/tracker-introspect.c:870
+msgid "Could not search properties"
+msgstr "गुणहरू खोज्न सकिएन"
+
+#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+msgid "Properties"
+msgstr "गुणहरू"
+
+#: src/tracker/tracker-introspect.c:904
+msgid "Could not list properties"
+msgstr "गुण सूचीबद्ध गर्न सकेन"
+
+#: src/tracker/tracker-introspect.c:920
+msgid "Namespaces"
+msgstr "नामस्थान"
+
+#: src/tracker/tracker-introspect.c:934
+msgid "Could not list classes"
+msgstr "वर्गहरू सूचीबद्ध गर्न सकिएन"
+
+#: src/tracker/tracker-introspect.c:954
+msgid "Could not find notify classes"
+msgstr "वर्गहरू सूचना प्राप्त गर्न सकेन"
+
+#: src/tracker/tracker-introspect.c:962
+msgid "Notifies"
+msgstr "सूचित गर्दछ"
+
+#: src/tracker/tracker-introspect.c:974
+msgid "Could not find indexed properties"
+msgstr "अनुक्रमित गुणहरू फेला पार्न सकिएन"
+
+#: src/tracker/tracker-introspect.c:982
+msgid "Indexes"
+msgstr "अनुक्रमणिका"
+
+#: src/tracker/tracker-introspect.c:994
+msgid "Could not list named graphs"
+msgstr "नामकरण गरिएका ग्राफहरू सूचीबद्ध गर्न सकेन"
+
+#: src/tracker/tracker-introspect.c:1002
+msgid "Named graphs"
+msgstr "नाम गरेको मानचित्र"
+
+#: src/tracker/tracker-introspect.c:1036
+msgid "The --list-properties argument can only be empty when used with the --tree argument"
+msgstr "--list-properties तर्क --tree तर्कसँग प्रयोग गर्दा मात्र खाली हुन सक्दछ"
+
+#: src/tracker/tracker-main.c:72
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "TinySPARQLर यी आदेशहरू मध्ये कुनै पनि कसरी प्रयोग गर्ने भनेर मद्दत प्राप्त गर्नुहोस्"
+
+#: src/tracker/tracker-main.c:73
+msgid "Create a SPARQL endpoint"
+msgstr "SPARQL अन्त्यबिन्दु सिर्जना गर्नुहोस्"
+
+#: src/tracker/tracker-main.c:74
+msgid "Export data from a TinySPARQL database"
+msgstr "TinySPARQL डाटाबेसबाट डेटा निर्यात गर्नुहोस्"
+
+#: src/tracker/tracker-main.c:75
+msgid "Import data into a TinySPARQL database"
+msgstr "TinySPARQL डाटाबेसमा डेटा आयात गर्नुहोस्"
+
+#: src/tracker/tracker-main.c:76
+msgid "Introspect a SPARQL endpoint"
+msgstr "SPARQL अन्त्यबिन्दु आत्मनिरीक्षण गर्नुहोस्"
+
+#: src/tracker/tracker-main.c:77
+msgid "Query and update the index using SPARQL"
+msgstr "SPARQL प्रयोग गरी अनुक्रमणिकालाई सोध्नुहोस् र अद्यावधिक गर्नुहोस्"
+
+#: src/tracker/tracker-main.c:78
+msgid "Create a Web IDE to query local databases"
+msgstr "स्थानीय डाटाबेस क्वेरी गर्न वेब आईडीई सिर्जना गर्नुहोस्"
+
+#: src/tracker/tracker-main.c:95
+msgid "Available tinysparql commands are:"
+msgstr "उपलब्ध TinySPARQL आदेशहरू हुन्:"
+
+#: src/tracker/tracker-main.c:114
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr "<command>कुनै खास उपआदेशबारे पढ् न \"TinySPARQL  मदत \" हेर्नुहोस् ।."
+
+#: src/tracker/tracker-main.c:157
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "\"%s\" एउटाTinySPARQL  आदेश होइन । \"TinySPARQL  -- मद्दत\" हेर्नुहोस्"
+
+#: src/tracker/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr "फाइलबाट क्वेरी वा अद्यावधिक चलाउनका लागि प्रयोग हुने मार्ग"
+
+#: src/tracker/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "SPARQL क्वेरी"
+
+#: src/tracker/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/tracker/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr "यो --query र डाटाबेस अद्यावधिकहरूको लागि मात्र प्रयोग गरिन्छ."
+
+#: src/tracker/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
-msgstr ""
+msgstr "क्वेरी प्यारामिटरको लागि तर्क प्रदान गर्दछ।."
 
-#: src/tracker/tracker-sparql.c:178
+#: src/tracker/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
 msgstr "PARAMETER:TYPE:VALUE"
 
@@ -367,145 +399,53 @@ msgstr "PARAMETER:TYPE:VALUE"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
+#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
 msgid "None"
 msgstr "कुनै पनि होइन"
 
-#: src/tracker/tracker-sparql.c:899
-msgid "Could not create tree: subclass query failed"
-msgstr "ट्री सिर्जना गर्न सकेन: उपवर्ग क्वेरी असफल भयो"
-
-#: src/tracker/tracker-sparql.c:949
-msgid "Could not create tree: class properties query failed"
-msgstr "ट्री सिर्जना गर्न सकेन: वर्ग गुण क्वेरी असफल भयो"
-
-#: src/tracker/tracker-sparql.c:1009
+#: src/tracker/tracker-query.c:282
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "अवैध तर्क स्ट्रिङ %s"
 
-#: src/tracker/tracker-sparql.c:1019
+#: src/tracker/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "तर्क %s का लागि अवैध परिमिति प्रकार"
 
-#: src/tracker/tracker-sparql.c:1089
-msgid "Could not list classes"
-msgstr "वर्गहरू सूचीबद्ध गर्न सकिएन"
-
-#: src/tracker/tracker-sparql.c:1097
-msgid "No classes were found"
-msgstr "वर्ग फेला परेन"
-
-#: src/tracker/tracker-sparql.c:1097 src/tracker/tracker-sparql.c:1219
-msgid "Classes"
-msgstr "वर्गहरू"
-
-#: src/tracker/tracker-sparql.c:1120
-msgid "Could not list properties"
-msgstr "गुण सूचीबद्ध गर्न सकेन"
-
-#: src/tracker/tracker-sparql.c:1128
-msgid "No properties were found"
-msgstr "कुनै गुणहरू फेला परेन"
-
-#: src/tracker/tracker-sparql.c:1128 src/tracker/tracker-sparql.c:1237
-msgid "Properties"
-msgstr "गुणहरू"
-
-#: src/tracker/tracker-sparql.c:1144
-msgid "Could not find notify classes"
-msgstr "वर्गहरू सूचना प्राप्त गर्न सकेन"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "No notifies were found"
-msgstr "कुनै सूचना फेला परेन"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "Notifies"
-msgstr "सूचित गर्दछ"
-
-#: src/tracker/tracker-sparql.c:1168
-msgid "Could not find indexed properties"
-msgstr "अनुक्रमित गुणहरू फेला पार्न सकिएन"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "No indexes were found"
-msgstr "कुनै अनुक्रमणिका फेला परेन"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "Indexes"
-msgstr "अनुक्रमणिका"
-
-#: src/tracker/tracker-sparql.c:1186
-msgid "Could not list named graphs"
-msgstr "नामकरण गरिएका ग्राफहरू सूचीबद्ध गर्न सकेन"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "No graphs were found"
-msgstr "कुनै मानचित्र फेला परेन"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "Named graphs"
-msgstr "नाम गरेको मानचित्र"
-
-#: src/tracker/tracker-sparql.c:1211
-msgid "Could not search classes"
-msgstr "वर्गहरू खोज्न सकिएन"
-
-#: src/tracker/tracker-sparql.c:1219
-msgid "No classes were found to match search term"
-msgstr "खोज शब्दसँग मेल खाने कुनै वर्ग भेटिएन"
-
-#: src/tracker/tracker-sparql.c:1229
-msgid "Could not search properties"
-msgstr "गुणहरू खोज्न सकिएन"
-
-#: src/tracker/tracker-sparql.c:1237
-msgid "No properties were found to match search term"
-msgstr "खोज शब्दसँग मेल खाने कुनै गुण भेटिएन"
-
-#: src/tracker/tracker-sparql.c:1266 src/tracker/tracker-sql.c:70
+#: src/tracker/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
-msgstr ""
+msgstr "पथबाट UTF-8 पथ प्राप्त गर्न सकेन"
 
-#: src/tracker/tracker-sparql.c:1278 src/tracker/tracker-sql.c:81
+#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
 msgid "Could not read file"
 msgstr "फाइल पढ्न सकिएन"
 
-#: src/tracker/tracker-sparql.c:1309
+#: src/tracker/tracker-query.c:403
 msgid "Could not run update"
 msgstr "अद्यावधिक चलाउन सकेन"
 
-#: src/tracker/tracker-sparql.c:1316
+#: src/tracker/tracker-query.c:410
 msgid "Done"
 msgstr "सम्पन्न भयो"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
+#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
+#: src/tracker/tracker-sql.c:163
+msgid "Could not run query"
+msgstr "क्वेरी चलाउन सकेन"
+
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
 msgid "No results found matching your query"
 msgstr "क्वेरिसँग मेल खाने कुनै परिणाम भेटिएन"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
-#: src/tracker/tracker-sql.c:144
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/tracker/tracker-sql.c:137
 msgid "Results"
 msgstr "नतिजा"
 
-#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:250
+#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
 msgid "File and query can not be used together"
-msgstr "फाइल र क्वेरी सँगै प्रयोग गर्न सकिँदैन ।."
-
-#: src/tracker/tracker-sparql.c:1403
-msgid "The --list-properties argument can only be empty when used with the --tree argument"
-msgstr "--list-properties तर्क --tree तर्कसँग प्रयोग गर्दा मात्र खाली हुन सक्दछ"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sparql.desktop.in:6
-msgid "sparql"
-msgstr "sparql"
-
-#: src/tracker/tracker-sparql.desktop.in:7
-msgid "Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
+msgstr "फाइल र क्वेरी सँगै प्रयोग गर्न सकिँदैन"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -519,26 +459,90 @@ msgstr "SQL क्वेरी"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:114
+#: src/tracker/tracker-sql.c:107
 msgid "Failed to initialize data manager"
 msgstr "डाटा प्रबन्धक सुरु गर्न असफल भयो"
 
-#: src/tracker/tracker-sql.c:178
+#: src/tracker/tracker-sql.c:171
 msgid "Empty result set"
 msgstr "खाली परिणाम"
 
-#: src/tracker/tracker-sql.c:248
+#: src/tracker/tracker-sql.c:247
 msgid "A database path must be specified"
 msgstr "एउटा डाटाबेस मार्ग निर्दिष्ट गरिएको हुनुपर्छ"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sql.desktop.in:6
-msgid "sql"
-msgstr "sql"
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "सुन्नको लागि एउटा पोर्ट"
 
-#: src/tracker/tracker-sql.desktop.in:7
-msgid "Query the database at the lowest level using SQL"
-msgstr ""
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "पोर्ट निर्दिष्ट गरिएको छैन"
+
+#: src/tracker/tracker-webide.c:80
+#, c-format
+msgid "%s %s…\n"
+msgstr "%s %s…\n"
+
+#: src/tracker/tracker-webide.c:80
+msgid "Creating Web IDE at"
+msgstr "यसमा वेब आईडीई सिर्जना गर्दैछ"
+
+#~ msgid "endpoint"
+#~ msgstr "अन्तिमबिन्दु"
+
+#~ msgid "export"
+#~ msgstr "निर्यात गर्नुहोस्"
+
+#~ msgid "help"
+#~ msgstr "सहयोग"
+
+#~ msgid "import"
+#~ msgstr "आयात गर्नुहोस्"
+
+#~ msgid "Retrieve classes"
+#~ msgstr "वर्गहरू पुन: प्राप्त गर्नुहोस्"
+
+#~ msgid "Retrieve class prefixes"
+#~ msgstr "वर्ग उपसर्गहरू पुन: प्राप्त गर्नुहोस्"
+
+#~ msgid "PROPERTY"
+#~ msgstr "गुण"
+
+#~ msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+#~ msgstr "वर्गका लागि सर्टह्यान्ड फर्काउँछ (उदाहरणका लागि nfo:FileDataObject) ।."
+
+#~ msgid "Returns the full namespace for a class."
+#~ msgstr "वर्गका लागि पूरा नेमस्पेस फर्काउँछ ।."
+
+#~ msgid "No classes were found"
+#~ msgstr "वर्ग फेला परेन"
+
+#~ msgid "No properties were found"
+#~ msgstr "कुनै गुणहरू फेला परेन"
+
+#~ msgid "No notifies were found"
+#~ msgstr "कुनै सूचना फेला परेन"
+
+#~ msgid "No indexes were found"
+#~ msgstr "कुनै अनुक्रमणिका फेला परेन"
+
+#~ msgid "No graphs were found"
+#~ msgstr "कुनै मानचित्र फेला परेन"
+
+#~ msgid "No classes were found to match search term"
+#~ msgstr "खोज शब्दसँग मेल खाने कुनै वर्ग भेटिएन"
+
+#~ msgid "No properties were found to match search term"
+#~ msgstr "खोज शब्दसँग मेल खाने कुनै गुण भेटिएन"
+
+#~ msgid "sparql"
+#~ msgstr "sparql"
+
+#~ msgid "sql"
+#~ msgstr "sql"
 
 #~ msgid "Additional / third party commands are:"
 #~ msgstr "थप / तेस्रो पक्षका आदेशहरू निम्न छन्:"
@@ -739,9 +743,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "List pause reasons"
 #~ msgstr "पज गर्नुहोस्"
-
-#~ msgid "List all Tracker processes"
-#~ msgstr "सबै ट्रयाकर प्रक्रियाको सुची"
 
 #~ msgid "APPS"
 #~ msgstr "अनुप्रयोग"
