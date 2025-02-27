@@ -18,11 +18,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-02-20 10:00+0000\n"
-"PO-Revision-Date: 2024-02-23 08:18+0100\n"
-"Last-Translator: Alexandre Franke <afranke@gnome.org>\n"
-"Language-Team: GNOME French Team <gnomefr@traduc.org>\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
+"POT-Creation-Date: 2025-01-12 11:07+0000\n"
+"PO-Revision-Date: 2025-02-23 17:09+0100\n"
+"Last-Translator: Vincent Chatelain <vincent_chatelain@proton.me>\n"
+"Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -44,15 +44,16 @@ msgstr "the|a|an|le|la|les|un|une|des"
 msgid "Version"
 msgstr "Version"
 
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
-#: src/tracker/tracker-export.c:552 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1398 src/tracker/tracker-sql.c:239
+#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
+#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
+#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
+#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
 msgid "Unrecognized options"
 msgstr "Options non reconnues"
 
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
-#: src/tracker/tracker-sql.c:44
+#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
+#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
+#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
 msgid "Location of the database"
 msgstr "Emplacement de la base de données"
 
@@ -113,7 +114,7 @@ msgstr ""
 #: src/tracker/tracker-endpoint.c:121
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr ""
-"L’option « ontology » (ontologie) ou « ontology-path » (chemin d’ontologie) "
+"L’option « ontology » (ontologie) ou « ontology-path » (chemin d’ontologie) "
 "doit être fournie"
 
 #. TRANSLATORS: those are commandline arguments
@@ -123,153 +124,116 @@ msgstr "--http-port ne peut pas être utilisé avec --dbus-service"
 
 #: src/tracker/tracker-endpoint.c:198
 #, c-format
-msgid "Creating HTTP endpoint at %s…"
-msgstr "Création d’un point terminal HTTP à %s…"
+msgid "Creating HTTP endpoint at %s…\n"
+msgstr "Création d’un point terminal HTTP à %s…\n"
 
-#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
+#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "À l’écoute de commandes SPARQL. Appuyer sur Ctrl-C pour arrêter."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
+#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
+#: src/tracker/tracker-webide.c:101
 msgid "Closing connection…"
 msgstr "Fermeture de la connexion…"
 
-#: src/tracker/tracker-endpoint.c:241
+#: src/tracker/tracker-endpoint.c:240
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Création d’un point terminal à %s…"
 
-#: src/tracker/tracker-endpoint.c:277
+#: src/tracker/tracker-endpoint.c:276
 msgid "Could not own DBus name"
 msgstr "Impossible de récupérer la propriété du nom DBus"
 
-#: src/tracker/tracker-endpoint.c:291
+#: src/tracker/tracker-endpoint.c:290
 msgid "DBus name lost"
 msgstr "Nom DBus perdu"
 
-#: src/tracker/tracker-endpoint.c:651
+#: src/tracker/tracker-endpoint.c:650
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Ouverture de la base de données à %s…"
 
-#: src/tracker/tracker-endpoint.c:654
+#: src/tracker/tracker-endpoint.c:653
 msgid "Creating in-memory database"
 msgstr "Création d’une base de données en mémoire"
 
-#: src/tracker/tracker-endpoint.c:681
+#: src/tracker/tracker-endpoint.c:680
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
-"Nouvelle base de données créée. Utilisez l’option « --dbus-"
-"service » (service DBus) pour partager cette base de données sur un bus de "
-"messagerie."
+"Nouvelle base de données créée. Utilisez l’option « --dbus-service » "
+"(service DBus) pour partager cette base de données sur un bus de messagerie."
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-endpoint.desktop.in:6
-msgid "endpoint"
-msgstr "endpoint"
-
-#: src/tracker/tracker-endpoint.desktop.in:7
-msgid "Create a SPARQL endpoint"
-msgstr "Créer un point terminal SPARQL"
-
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
+#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
 #: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
+#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
+#: src/tracker/tracker-sql.c:49
 msgid "FILE"
 msgstr "FICHIER"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:117
+#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
+#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "Se connecte à un service DBus"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:118
+#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
+#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
 msgid "DBus service name"
 msgstr "Nom de service DBus"
 
-#: src/tracker/tracker-export.c:57
+#: src/tracker/tracker-export.c:55
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Résultats du format de sortie : « turtle », « trig » ou « json-ld »"
 
-#: src/tracker/tracker-export.c:58
+#: src/tracker/tracker-export.c:56
 msgid "RDF_FORMAT"
 msgstr "FORMAT_RDF"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:121
+#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
+#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Se connecte à un service distant"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:122
+#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
+#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "URI de service distant"
 
-#: src/tracker/tracker-export.c:65
+#: src/tracker/tracker-export.c:63
 msgid "Output TriG format which includes named graph information"
 msgstr "Sortie au format TriG qui inclut des informations de graphe nommés"
 
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:206
+#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
+#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
-"Préciser une option « --database » (base de données), « --dbus-"
-"service » (service DBus) ou « --remote-service » (service distant)"
+"Préciser une option « --database » (base de données), « --dbus-service » "
+"(service DBus) ou « --remote-service » (service distant)"
 
-#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1079
+#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
+#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
+#: src/tracker/tracker-query.c:345
 msgid "No error given"
 msgstr "Aucune erreur indiquée"
 
-#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1078
+#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
+#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Impossible d’établir une connexion vers Tracker"
 
-#: src/tracker/tracker-export.c:382
+#: src/tracker/tracker-export.c:180
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Format de sérialisation non pris en charge « %s »\n"
-
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:447
-#: src/tracker/tracker-export.c:457 src/tracker/tracker-sparql.c:1340
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "Impossible de lancer la requête"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-export.desktop.in:6
-msgid "export"
-msgstr "export"
-
-#: src/tracker/tracker-export.desktop.in:7
-msgid "Export data from a Tracker database"
-msgstr "Exporter les données depuis une base de données Tracker"
-
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "échec d’exécution de « %s » : %s"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-help.desktop.in:6
-msgid "help"
-msgstr "help"
-
-#: src/tracker/tracker-help.desktop.in:7
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr ""
-"Obtenir de l’aide sur l’utilisation de Tracker et l’une de ces commandes"
 
 #: src/tracker/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
@@ -279,96 +243,31 @@ msgstr "Lecture au format TriG qui inclut des informations de graphe nommés"
 msgid "Could not run import"
 msgstr "Impossible de lancer l’importation"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-import.desktop.in:6
-msgid "import"
-msgstr "import"
+#: src/tracker/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "Liste toutes les classes disponibles"
 
-#: src/tracker/tracker-import.desktop.in:7
-msgid "Import data into a Tracker database"
-msgstr "Importer des données dans une base de données Tracker"
+#: src/tracker/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "Liste tous les préfixes disponibles"
 
-#: src/tracker/tracker-main.c:123
-msgid "Available tracker3 commands are:"
-msgstr "Les commandes tracker3 disponibles sont :"
-
-#: src/tracker/tracker-main.c:155
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
+#: src/tracker/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
 msgstr ""
-"Veuillez consulter « tracker3 help <commande> » pour des informations sur "
-"une sous-commande spécifique."
+"Liste toutes les classes qui signalent des modifications dans la base de "
+"données"
 
-#: src/tracker/tracker-main.c:213
-#, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "« %s » n’est pas une commande tracker3. Consultez « tracker3 --help »"
-
-#: src/tracker/tracker-sparql.c:125
-msgid "Path to use to run a query or update from file"
+#: src/tracker/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
 msgstr ""
-"Chemin à utiliser pour lancer une requête ou une mise à jour à partir d’un "
-"fichier"
+"Liste les index utilisés dans la base de données pour améliorer la "
+"performance"
 
-#: src/tracker/tracker-sparql.c:129
-msgid "SPARQL query"
-msgstr "Requête SPARQL"
-
-#: src/tracker/tracker-sparql.c:130
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:133
-msgid "This is used with --query and for database updates only."
-msgstr ""
-"Ceci est utilisé avec --query et uniquement pour les mises à jour de la base "
-"de données."
-
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve classes"
-msgstr "Récupère les classes"
-
-#: src/tracker/tracker-sparql.c:141
-msgid "Retrieve class prefixes"
-msgstr "Récupère les préfixes de classes"
-
-#: src/tracker/tracker-sparql.c:145
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
-msgstr ""
-"Récupère les propriétés d’une classe, les préfixes peuvent aussi être "
-"utilisés (par ex. rdfs:Resource)"
-
-#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
-#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
-#: src/tracker/tracker-sparql.c:174
-msgid "CLASS"
-msgstr "CLASSE"
-
-#: src/tracker/tracker-sparql.c:149
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-"Récupère les classes qui avertissent des changements dans la base de données "
-"(CLASSE est facultatif)"
-
-#: src/tracker/tracker-sparql.c:153
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
-msgstr ""
-"Récupère les index utilisés dans la base de données pour améliorer la "
-"performance (PROPRIÉTÉ est facultatif)"
-
-#: src/tracker/tracker-sparql.c:154
-msgid "PROPERTY"
-msgstr "PROPRIÉTÉ"
-
-#: src/tracker/tracker-sparql.c:157
+#: src/tracker/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Récupérer tous les graphes nommés"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/tracker/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -377,169 +276,90 @@ msgstr ""
 "mettre en surbrillance des parties de l’arborescence et -p pour afficher les "
 "propriétés)"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "CLASSE"
+
+#: src/tracker/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "Liste toutes les propriétés disponibles"
+
+#: src/tracker/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Recherche une classe ou une propriété et affiche plus d’informations (par "
 "ex. Document)"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/tracker/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "CLASSE/PROPRIÉTÉ"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Renvoie l’abréviation d’une classe (par ex. nfo:FileDataObject)."
-
-#: src/tracker/tracker-sparql.c:173
-msgid "Returns the full namespace for a class."
-msgstr "Renvoie l’espace de noms complet d’une classe."
-
-#: src/tracker/tracker-sparql.c:177
-msgid "Provides an argument for a query parameter."
-msgstr "Fournit un argument pour un paramètre de requête."
-
-#: src/tracker/tracker-sparql.c:178
-msgid "PARAMETER:TYPE:VALUE"
-msgstr "PARAMETRE:TYPE:VALEUR"
-
-#. To translators: This is to say there are no
-#. * search results found. We use a "foo: None"
-#. * with multiple print statements, where "foo"
-#. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
-msgid "None"
-msgstr "Aucun"
-
-#: src/tracker/tracker-sparql.c:899
+#: src/tracker/tracker-introspect.c:716
 msgid "Could not create tree: subclass query failed"
 msgstr ""
 "Impossible de créer l’arborescence : la requête de la classe inférieure a "
 "échoué"
 
-#: src/tracker/tracker-sparql.c:948
+#: src/tracker/tracker-introspect.c:766
 msgid "Could not create tree: class properties query failed"
 msgstr ""
 "Impossible de créer l’arborescence : la requête des propriétés de la classe "
 "a échoué"
 
-#: src/tracker/tracker-sparql.c:1015
-#, c-format
-msgid "Invalid argument string %s"
-msgstr "Chaîne d’argument non valide %s"
-
-#: src/tracker/tracker-sparql.c:1025
-#, c-format
-msgid "Invalid parameter type for argument %s"
-msgstr "Type de paramètre invalide pour l’argument %s"
-
-#: src/tracker/tracker-sparql.c:1095
-msgid "Could not list classes"
-msgstr "Impossible d’énumérer les classes"
-
-#: src/tracker/tracker-sparql.c:1103
-msgid "No classes were found"
-msgstr "Aucune classe n’a été trouvée"
-
-#: src/tracker/tracker-sparql.c:1103 src/tracker/tracker-sparql.c:1225
-msgid "Classes"
-msgstr "Classes"
-
-#: src/tracker/tracker-sparql.c:1126
-msgid "Could not list properties"
-msgstr "Impossible d’énumérer les propriétés"
-
-#: src/tracker/tracker-sparql.c:1134
-msgid "No properties were found"
-msgstr "Aucune propriété n’a été trouvée"
-
-#: src/tracker/tracker-sparql.c:1134 src/tracker/tracker-sparql.c:1243
-msgid "Properties"
-msgstr "Propriétés"
-
-#: src/tracker/tracker-sparql.c:1150
-msgid "Could not find notify classes"
-msgstr "Impossible de trouver les classes de notification"
-
-#: src/tracker/tracker-sparql.c:1158
-msgid "No notifies were found"
-msgstr "Aucune notification n’a été trouvée"
-
-#: src/tracker/tracker-sparql.c:1158
-msgid "Notifies"
-msgstr "Notifications"
-
-#: src/tracker/tracker-sparql.c:1174
-msgid "Could not find indexed properties"
-msgstr "Impossible de trouver les propriétés indexées"
-
-#: src/tracker/tracker-sparql.c:1182
-msgid "No indexes were found"
-msgstr "Aucun index n’a été trouvé"
-
-#: src/tracker/tracker-sparql.c:1182
-msgid "Indexes"
-msgstr "Index"
-
-#: src/tracker/tracker-sparql.c:1192
-msgid "Could not list named graphs"
-msgstr "Impossible d’énumérer les graphes nommés"
-
-#: src/tracker/tracker-sparql.c:1200
-msgid "No graphs were found"
-msgstr "Aucun graphe n’a été trouvé"
-
-#: src/tracker/tracker-sparql.c:1200
-msgid "Named graphs"
-msgstr "Graphes nommés"
-
-#: src/tracker/tracker-sparql.c:1217
+#: src/tracker/tracker-introspect.c:850
 msgid "Could not search classes"
 msgstr "Impossible de rechercher des classes"
 
-#: src/tracker/tracker-sparql.c:1225
-msgid "No classes were found to match search term"
-msgstr "Aucune classe ne correspond au texte recherché"
+#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+msgid "Classes"
+msgstr "Classes"
 
-#: src/tracker/tracker-sparql.c:1235
+#: src/tracker/tracker-introspect.c:870
 msgid "Could not search properties"
 msgstr "Impossible de rechercher des propriétés"
 
-#: src/tracker/tracker-sparql.c:1243
-msgid "No properties were found to match search term"
-msgstr "Aucune propriété ne correspond au texte recherché"
+#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+msgid "Properties"
+msgstr "Propriétés"
 
-#: src/tracker/tracker-sparql.c:1272 src/tracker/tracker-sql.c:70
-msgid "Could not get UTF-8 path from path"
-msgstr "Impossible d’obtenir le chemin UTF-8 à partir du chemin"
+#: src/tracker/tracker-introspect.c:904
+msgid "Could not list properties"
+msgstr "Impossible d’énumérer les propriétés"
 
-#: src/tracker/tracker-sparql.c:1284 src/tracker/tracker-sql.c:81
-msgid "Could not read file"
-msgstr "Impossible de lire le fichier"
+#: src/tracker/tracker-introspect.c:920
+msgid "Namespaces"
+msgstr "Espaces de noms"
 
-#: src/tracker/tracker-sparql.c:1315
-msgid "Could not run update"
-msgstr "Impossible de lancer la mise à jour"
+#: src/tracker/tracker-introspect.c:934
+msgid "Could not list classes"
+msgstr "Impossible d’énumérer les classes"
 
-#: src/tracker/tracker-sparql.c:1322
-msgid "Done"
-msgstr "Terminé"
+#: src/tracker/tracker-introspect.c:954
+msgid "Could not find notify classes"
+msgstr "Impossible de trouver les classes de notification"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
-msgid "No results found matching your query"
-msgstr "Aucun résultat ne correspond à votre requête"
+#: src/tracker/tracker-introspect.c:962
+msgid "Notifies"
+msgstr "Notifications"
 
-#: src/tracker/tracker-sparql.c:1349 src/tracker/tracker-sparql.c:1351
-#: src/tracker/tracker-sql.c:144
-msgid "Results"
-msgstr "Résultats"
+#: src/tracker/tracker-introspect.c:974
+msgid "Could not find indexed properties"
+msgstr "Impossible de trouver les propriétés indexées"
 
-#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:250
-msgid "File and query can not be used together"
-msgstr "Les paramètres file et query ne peuvent être employés simultanément"
+#: src/tracker/tracker-introspect.c:982
+msgid "Indexes"
+msgstr "Index"
 
-#: src/tracker/tracker-sparql.c:1409
+#: src/tracker/tracker-introspect.c:994
+msgid "Could not list named graphs"
+msgstr "Impossible d’énumérer les graphes nommés"
+
+#: src/tracker/tracker-introspect.c:1002
+msgid "Named graphs"
+msgstr "Graphes nommés"
+
+#: src/tracker/tracker-introspect.c:1036
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -547,17 +367,130 @@ msgstr ""
 "Le paramètre --list-properties ne peut être que vide quand il est utilisé en "
 "même temps que le paramètre --tree"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sparql.desktop.in:6
-msgid "sparql"
-msgstr "sparql"
-
-#: src/tracker/tracker-sparql.desktop.in:7
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
+#: src/tracker/tracker-main.c:72
+msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr ""
-"Interroger et mettre à jour l’indexation avec SPARQL, ou rechercher, lister "
-"et mettre l’ontologie en arborescence"
+"Obtenir de l’aide sur l’utilisation de TinySPARQL et l’une de ces commandes"
+
+#: src/tracker/tracker-main.c:73
+msgid "Create a SPARQL endpoint"
+msgstr "Créer un point terminal SPARQL"
+
+#: src/tracker/tracker-main.c:74
+msgid "Export data from a TinySPARQL database"
+msgstr "Exporter les données depuis une base de données TinySPARQL"
+
+#: src/tracker/tracker-main.c:75
+msgid "Import data into a TinySPARQL database"
+msgstr "Importer des données dans une base de données TinySPARQL"
+
+#: src/tracker/tracker-main.c:76
+msgid "Introspect a SPARQL endpoint"
+msgstr "Inspecter un point terminal SPARQL"
+
+#: src/tracker/tracker-main.c:77
+msgid "Query and update the index using SPARQL"
+msgstr "Interroger et mettre à jour l’indexation avec SPARQL"
+
+#: src/tracker/tracker-main.c:78
+msgid "Create a Web IDE to query local databases"
+msgstr "Créer un EDI Web pour interroger les bases de données locales"
+
+#: src/tracker/tracker-main.c:95
+msgid "Available tinysparql commands are:"
+msgstr "Les commandes tinysparql disponibles sont :"
+
+#: src/tracker/tracker-main.c:114
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+"Veuillez consulter « tinysparql help <commande> » pour des informations sur "
+"une sous-commande spécifique."
+
+#: src/tracker/tracker-main.c:157
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr ""
+"« %s » n’est pas une commande tinysparql. Consultez « tinysparql --help »"
+
+#: src/tracker/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr ""
+"Chemin à utiliser pour lancer une requête ou une mise à jour à partir d’un "
+"fichier"
+
+#: src/tracker/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "Requête SPARQL"
+
+#: src/tracker/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/tracker/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr ""
+"Ceci est utilisé avec --query et uniquement pour les mises à jour de la base "
+"de données."
+
+#: src/tracker/tracker-query.c:76
+msgid "Provides an argument for a query parameter."
+msgstr "Fournit un argument pour un paramètre de requête."
+
+#: src/tracker/tracker-query.c:77
+msgid "PARAMETER:TYPE:VALUE"
+msgstr "PARAMETRE:TYPE:VALEUR"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
+msgid "None"
+msgstr "Aucun"
+
+#: src/tracker/tracker-query.c:282
+#, c-format
+msgid "Invalid argument string %s"
+msgstr "Chaîne d’argument non valide %s"
+
+#: src/tracker/tracker-query.c:292
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr "Type de paramètre invalide pour l’argument %s"
+
+#: src/tracker/tracker-query.c:360
+msgid "Could not get UTF-8 path from path"
+msgstr "Impossible d’obtenir le chemin UTF-8 à partir du chemin"
+
+#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
+msgid "Could not read file"
+msgstr "Impossible de lire le fichier"
+
+#: src/tracker/tracker-query.c:403
+msgid "Could not run update"
+msgstr "Impossible de lancer la mise à jour"
+
+#: src/tracker/tracker-query.c:410
+msgid "Done"
+msgstr "Terminé"
+
+#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
+#: src/tracker/tracker-sql.c:163
+msgid "Could not run query"
+msgstr "Impossible de lancer la requête"
+
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+msgid "No results found matching your query"
+msgstr "Aucun résultat ne correspond à votre requête"
+
+#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/tracker/tracker-sql.c:137
+msgid "Results"
+msgstr "Résultats"
+
+#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
+msgid "File and query can not be used together"
+msgstr "Les paramètres file et query ne peuvent être employés simultanément"
 
 #: src/tracker/tracker-sql.c:48
 msgid "Path to use to run a query from file"
@@ -571,1155 +504,33 @@ msgstr "Requête SQL"
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:114
+#: src/tracker/tracker-sql.c:107
 msgid "Failed to initialize data manager"
 msgstr "Impossible d’initialiser le gestionnaire de données"
 
-#: src/tracker/tracker-sql.c:178
+#: src/tracker/tracker-sql.c:171
 msgid "Empty result set"
 msgstr "Ensemble résultant vide"
 
-#: src/tracker/tracker-sql.c:248
+#: src/tracker/tracker-sql.c:247
 msgid "A database path must be specified"
 msgstr "Un chemin vers une base de données doit être indiqué"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sql.desktop.in:6
-msgid "sql"
-msgstr "sql"
-
-#: src/tracker/tracker-sql.desktop.in:7
-msgid "Query the database at the lowest level using SQL"
-msgstr "Interroger la base de données à son niveau le plus bas avec SQL"
-
-#~ msgid "Additional / third party commands are:"
-#~ msgstr "Les commandes supplémentaires / de tierce-partie sont :"
-
-#~ msgid "Unable to retrieve namespace prefixes"
-#~ msgstr "Impossible de récupérer les préfixes d’espace de noms"
-
-#~ msgid "No namespace prefixes were returned"
-#~ msgstr "Aucun préfixe d’espace de noms n’a été renvoyé"
-
-#~ msgid "Could not get namespace prefixes"
-#~ msgstr "Impossible d’obtenir les préfixes d’espace de noms"
-
-#~ msgid "No namespace prefixes were found"
-#~ msgstr "Aucun préfixe d’espace de noms n’a été trouvé"
-
-#~ msgid "Could not list class prefixes"
-#~ msgstr "Impossible d’énumérer les préfixes de classes"
-
-#~ msgid "No class prefixes were found"
-#~ msgstr "Aucun préfixe de classe n’a été trouvé"
-
-#~ msgid "Prefixes"
-#~ msgstr "Préfixes"
-
-#~ msgid ""
-#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
-#~ "Resource”"
-#~ msgstr ""
-#~ "Impossible de trouver la propriété du préfixe de classe, par ex. : "
-#~ "Resource dans « rdfs:Resource »"
-
-#~ msgid "unknown time"
-#~ msgstr "date inconnue"
-
-#~ msgid "less than one second"
-#~ msgstr "moins d’une seconde"
-
-#~ msgid " %dd"
-#~ msgstr " %d j"
-
-#~ msgid " %2.2dh"
-#~ msgstr " %2.2d h"
-
-#~ msgid " %2.2dm"
-#~ msgstr " %2.2d m"
-
-#~ msgid " %2.2ds"
-#~ msgstr " %2.2d s"
-
-#~ msgid " %d day"
-#~ msgid_plural " %d days"
-#~ msgstr[0] " %d jour"
-#~ msgstr[1] " %d jours"
-
-#~ msgid " %2.2d hour"
-#~ msgid_plural " %2.2d hours"
-#~ msgstr[0] " %2.2d heure"
-#~ msgstr[1] " %2.2d heures"
-
-#~ msgid " %2.2d minute"
-#~ msgid_plural " %2.2d minutes"
-#~ msgstr[0] " %2.2d minute"
-#~ msgstr[1] " %2.2d minutes"
-
-#~ msgid " %2.2d second"
-#~ msgid_plural " %2.2d seconds"
-#~ msgstr[0] " %2.2d seconde"
-#~ msgstr[1] " %2.2d secondes"
-
-#~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
-#~ msgstr ""
-#~ "Afficher l’espace de noms complet (ne pas utiliser nie:title, mais plutôt "
-#~ "des URL complets)"
-
-#~ msgid "Show plain text content if available for resources"
-#~ msgstr ""
-#~ "Afficher le contenu de texte brut s’il est disponible pour les ressources"
-
-#~ msgid ""
-#~ "Instead of looking up a file name, treat the FILE arguments as actual "
-#~ "IRIs (e.g. <file:///path/to/some/file.txt>)"
-#~ msgstr ""
-#~ "Au lieu de rechercher un nom de fichier, considérer les arguments de "
-#~ "FICHIER comme l’URI actuel (par ex. <fichier:///chemin/vers/un/fichier."
-#~ "txt>)"
-
-#~ msgid "Output results as RDF in Turtle format"
-#~ msgstr "Afficher les résultats en RDF au format Turtle"
-
-#~ msgid "RDF property to treat as URL (eg. “nie:url”)"
-#~ msgstr "Propriété RDF à traiter comme une URL (par ex. « nie:url »)"
-
-#~ msgid "Querying information for entity"
-#~ msgstr "Demande d’information sur l’entité"
-
-#~ msgid "Unable to retrieve URN for URI"
-#~ msgstr "Impossible d’obtenir l’URN de l’URI"
-
-#~ msgid "Unable to retrieve data for URI"
-#~ msgstr "Impossible d’obtenir les données de l’URI"
-
-#~ msgid "No metadata available for that URI"
-#~ msgstr "Aucune métadonnée disponible pour cet URI"
-
-#~ msgid "Show information known about local files or items indexed"
-#~ msgstr ""
-#~ "Afficher les informations connues sur les fichiers locaux ou les éléments "
-#~ "indexés"
-
-#~ msgid "Maximum size of journal"
-#~ msgstr "Taille maximale du journal"
-
-#~ msgid "Size of the journal at rotation in MB. Use -1 to disable rotating."
-#~ msgstr "Taille du journal à la rotation en Mo. -1 désactive la rotation."
-
-#~ msgid "Location of journal pieces"
-#~ msgstr "Emplacement des éléments de journal"
-
-#~ msgid "Where to store a journal chunk when it hits the max size."
-#~ msgstr ""
-#~ "Où enregistrer un élément de journal lorsque celui-ci atteint la taille "
-#~ "maximale."
-
-#~ msgid "Maximum length of a word to be indexed"
-#~ msgstr "Longueur maximale des mots à indexer"
-
-#~ msgid ""
-#~ "Words with more characters than this length will be ignored by the "
-#~ "indexer."
-#~ msgstr ""
-#~ "Les mots contenant plus de caractères que ce nombre seront ignorés par "
-#~ "l’indexeur."
-
-#~ msgid "Maximum number of words to index in a document"
-#~ msgstr "Nombre maximum de mots à indexer par document"
-
-#~ msgid ""
-#~ "Indexer will read only this maximum number of words from a single "
-#~ "document."
-#~ msgstr ""
-#~ "L’indexeur ne lira que ce nombre maximum de mots pour un même document."
-
-# http://fr.wikipedia.org/wiki/Racinisation
-#~ msgid "Enable stemmer"
-#~ msgstr "Activer la racinisation"
-
-#~ msgid ""
-#~ "Simplify the words to their root to provide more results. E.g. “shelves” "
-#~ "and “shelf” to “shel”"
-#~ msgstr ""
-#~ "Simplifie les mots à leur racine pour fournir plus de résultats. Par ex. "
-#~ "« contrôler », « contrôleur » en « contrôl »"
-
-#~ msgid "Enable unaccent"
-#~ msgstr "Activer la désaccentuation"
-
-#~ msgid ""
-#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” "
-#~ "to “Idea” for improved matching."
-#~ msgstr ""
-#~ "Transforme les caractères accentués en leur équivalent non accentué. Par "
-#~ "ex. « idée » en « idee » pour une recherche plus efficace."
-
-#~ msgid "Ignore numbers"
-#~ msgstr "Ignorer les nombres"
-
-#~ msgid "If enabled, numbers will not be indexed."
-#~ msgstr "Si activé, les nombres ne sont pas indexés."
-
-#~ msgid "Ignore stop words"
-#~ msgstr "Ignorer les mots vides"
-
-#~ msgid ""
-#~ "If enabled, the words listed in the stop-words list are ignored. E.g. "
-#~ "common words like “the”, “yes”, “no”, etc."
-#~ msgstr ""
-#~ "Si activé, les mots de la liste des mots vides sont ignorés. Par ex., des "
-#~ "mots courants comme « le », « oui », « non », etc."
-
-#~ msgid "Log verbosity"
-#~ msgstr "Verbosité de la journalisation"
-
-#~ msgid "Log verbosity."
-#~ msgstr "Verbosité de la journalisation."
-
-#~ msgid "GraphUpdated delay"
-#~ msgstr "Délai de GraphUpdated"
-
-#~ msgid ""
-#~ "Period in milliseconds between GraphUpdated signals being emitted when "
-#~ "indexed data has changed inside the database."
-#~ msgstr ""
-#~ "Intervalle d’émission des signaux GraphUpdated, exprimé en millisecondes, "
-#~ "pendant lequel les données indexées ont changé dans la base de données."
-
-#~ msgid "Error starting “tar” program"
-#~ msgstr "Erreur de lancement du programme « tar »"
-
-#~ msgid "Unknown error, “tar” exited with status %d"
-#~ msgstr "Erreur inconnue, « tar » a quitté avec l’état %d"
-
-#~ msgid "Operation not supported"
-#~ msgstr "Opération non prise en charge"
-
-#~ msgid "Cookie not recognized to resume paused miner"
-#~ msgstr "Le cookie n’est pas reconnu pour relancer le collecteur en pause"
-
-#~ msgid "Pause application and reason match an already existing pause request"
-#~ msgstr ""
-#~ "L’application et la raison de la pause correspondent à une requête de "
-#~ "pause déjà existante"
-
-#~ msgid "Displays version information"
-#~ msgstr "Affiche les informations de version"
-
-#~ msgid ""
-#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
-#~ "(default = 0)"
-#~ msgstr ""
-#~ "Type de rapport, 0 = erreurs seulement, 1 = minimal, 2 = détaillé et 3 = "
-#~ "débogage (valeur par défaut = 0)"
-
-#~ msgid "Disable automatic shutdown"
-#~ msgstr "Désactive l’extinction automatique"
-
-#~ msgid "Force a re-index of all content"
-#~ msgstr "Force une ré-indexation de tout le contenu"
-
-#~ msgid "Load a specified domain ontology"
-#~ msgstr "Charge une ontologie de domaine indiquée"
-
-#~ msgid "— start the tracker daemon"
-#~ msgstr "— démarre le service tracker"
-
-#~ msgid "Tracker Store"
-#~ msgstr "Dépôt Tracker"
-
-#~ msgid "Metadata database store and lookup manager"
-#~ msgstr "Base de données de métadonnées et gestionnaire de recherche"
-
-#~ msgid "Could not get GSettings for miners, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impossible d’obtenir GSettings pour les collecteurs, le gestionnaire n’a "
-#~ "pas pu être créé, %s"
-
-#~ msgid "Unavailable"
-#~ msgstr "Indisponible"
-
-#~ msgid "Initializing"
-#~ msgstr "Initialisation"
-
-#~ msgid "Processing…"
-#~ msgstr "Traitement en cours…"
-
-#~ msgid "Fetching…"
-#~ msgstr "Récupération…"
-
-#~ msgid "Crawling single directory “%s”"
-#~ msgstr "Parcours du seul dossier « %s »"
-
-#~ msgid "Crawling recursively directory “%s”"
-#~ msgstr "Parcours récursif du dossier « %s »"
-
-#~ msgid "Paused"
-#~ msgstr "En pause"
-
-#~ msgid "Idle"
-#~ msgstr "Inactif"
-
-#~ msgid "Follow status changes as they happen"
-#~ msgstr "Suit les changements d’état lorsqu’ils surviennent"
-
-#~ msgid ""
-#~ "Watch changes to the database in real time (e.g. resources or files being "
-#~ "added)"
-#~ msgstr ""
-#~ "Surveille en temps réel les modifications faites à la base de données "
-#~ "(par ex. ajout de sources ou de fichiers)"
-
-#~ msgid "ONTOLOGY"
-#~ msgstr "ONTOLOGY"
-
-#~ msgid "List common statuses for miners and the store"
-#~ msgstr "Liste les états courants des collecteurs et du dépôt"
-
-#~ msgid "Pause a miner (you must use this with --miner)"
-#~ msgstr ""
-#~ "Met un collecteur en pause (vous devez combiner cette commande avec --"
-#~ "miner)"
-
-#~ msgid "REASON"
-#~ msgstr "RAISON"
-
-#~ msgid ""
-#~ "Pause a miner while the calling process is alive or until resumed (you "
-#~ "must use this with --miner)"
-#~ msgstr ""
-#~ "Met un collecteur en pause quand le processus appelant est actif ou "
-#~ "jusqu’à ce qu’il soit relancé (vous devez combiner cette commande avec --"
-#~ "miner)"
-
-#~ msgid "Resume a miner (you must use this with --miner)"
-#~ msgstr ""
-#~ "Relance un collecteur (vous devez combiner cette commande avec --miner)"
-
-#~ msgid "COOKIE"
-#~ msgstr "COOKIE"
-
-#~ msgid ""
-#~ "Miner to use with --resume or --pause (you can use suffixes, e.g. Files "
-#~ "or Applications)"
-#~ msgstr ""
-#~ "Collecteur à utiliser avec --resume ou --pause (vous pouvez employer des "
-#~ "suffixes, comme par ex. Files ou Applications)"
-
-#~ msgid "MINER"
-#~ msgstr "COLLECTEUR"
-
-#~ msgid "List all miners currently running"
-#~ msgstr "Liste tous les collecteurs en cours de fonctionnement"
-
-#~ msgid "List all miners installed"
-#~ msgstr "Liste tous les collecteurs installés"
-
-#~ msgid "List pause reasons"
-#~ msgstr "Liste les raisons de la mise en pause"
-
-#~ msgid "List all Tracker processes"
-#~ msgstr "Affiche la liste de tous les processus de Tracker"
-
-#~ msgid ""
-#~ "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
-#~ "“all” may be used, no parameter equals “all”"
-#~ msgstr ""
-#~ "Utilise SIGKILL pour arrêter tous les processus correspondants, soit "
-#~ "« store » (dépôt), « miners » (collecteurs) ou « all » (tous) ; « all » "
-#~ "est utilisé si aucun paramètre n’est indiqué"
-
-#~ msgid "APPS"
-#~ msgstr "APPLICATIONS"
-
-#~ msgid ""
-#~ "Use SIGTERM to stop all matching processes, either “store”, “miners” or "
-#~ "“all” may be used, no parameter equals “all”"
-#~ msgstr ""
-#~ "Utilise SIGTERM pour arrêter tous les processus correspondants, soit "
-#~ "« store » (dépôt), « miners » (collecteurs) ou « all » (tous) ; « all » "
-#~ "est utilisé si aucun paramètre n’est indiqué"
-
-#~ msgid "Starts miners (which indirectly starts tracker-store too)"
-#~ msgstr ""
-#~ "Démarre les collecteurs (ce qui démarre aussi tracker-store indirectement)"
-
-#~ msgid ""
-#~ "Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
-#~ "“errors”) for all processes"
-#~ msgstr ""
-#~ "Définit la verbosité de journalisation à NIVEAU (« debug », « detailed », "
-#~ "« minimal », « errors ») pour tous les processus"
-
-#~ msgid "LEVEL"
-#~ msgstr "NIVEAU"
-
-#~ msgid "Show logging values in terms of log verbosity for each process"
-#~ msgstr ""
-#~ "Affiche les valeurs du journal en terme de verbosité pour chaque processus"
-
-#~ msgid "Could not get status from miner: %s"
-#~ msgstr "Impossible d’obtenir l’état du collecteur : %s"
-
-#~ msgid "%s remaining"
-#~ msgstr "il reste %s"
-
-#~ msgid "unknown time left"
-#~ msgstr "temps restant inconnu"
-
-#~ msgid "PAUSED"
-#~ msgstr "EN PAUSE"
-
-#~ msgid "Not running or is a disabled plugin"
-#~ msgstr "Ce greffon n’est pas lancé ou est désactivé"
-
-#~ msgid "Could not retrieve tracker-store status"
-#~ msgstr "Impossible de récupérer l’état de tracker-store"
-
-#~ msgid "Could not retrieve tracker-store progress"
-#~ msgstr "Impossible de récupérer la progression de tracker-store"
-
-#~ msgid "Could not run SPARQL query"
-#~ msgstr "Impossible de lancer la requête SPARQL"
-
-#~ msgid "Could not call tracker_sparql_cursor_next() on SPARQL query"
-#~ msgstr ""
-#~ "Impossible d’appeler tracker_sparql_cursor_next() dans la requête SPARQL"
-
-#~ msgid "Could not pause miner, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impossible de mettre le collecteur en pause, aucun gestionnaire n’a pu "
-#~ "être créé, %s"
-
-#~ msgid "Attempting to pause miner “%s” with reason “%s”"
-#~ msgstr ""
-#~ "Tentative de mise en pause du collecteur « %s » avec la raison « %s »"
-
-#~ msgid "Could not pause miner: %s"
-#~ msgstr "Impossible de mettre le collecteur en pause : %s"
-
-#~ msgid "Cookie is %d"
-#~ msgstr "Le cookie est %d"
-
-#~ msgid "Press Ctrl+C to stop"
-#~ msgstr "Appuyez sur Ctrl+C pour arrêter"
-
-#~ msgid "Could not resume miner, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impossible de relancer le collecteur, aucun gestionnaire n’a pu être "
-#~ "créé, %s"
-
-#~ msgid "Attempting to resume miner %s with cookie %d"
-#~ msgstr "Tentative de relancer le collecteur %s avec le cookie %d"
-
-#~ msgid "Could not resume miner: %s"
-#~ msgstr "Impossible de relancer le collecteur : %s"
-
-#~ msgid "Could not list miners, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impossible d’énumérer les collecteurs, aucun gestionnaire n’a pu être "
-#~ "créé, %s"
-
-#~ msgid "Found %d miner installed"
-#~ msgid_plural "Found %d miners installed"
-#~ msgstr[0] "%d collecteur est installé"
-#~ msgstr[1] "%d collecteurs sont installés"
-
-#~ msgid "Found %d miner running"
-#~ msgid_plural "Found %d miners running"
-#~ msgstr[0] "%d collecteur fonctionne en ce moment"
-#~ msgstr[1] "%d collecteurs fonctionnent en ce moment"
-
-#~ msgid "Could not get pause details, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impossible d’obtenir les détails de la pause, aucun gestionnaire n’a pu "
-#~ "être créé, %s"
-
-#~ msgid "No miners are running"
-#~ msgstr "Aucun collecteur n’est actuellement lancé"
-
-#~ msgid "Miners"
-#~ msgstr "Collecteurs"
-
-#~ msgid "Application"
-#~ msgstr "Application"
-
-#~ msgid "Reason"
-#~ msgstr "Raison"
-
-#~ msgid "No miners are paused"
-#~ msgstr "Aucun collecteur n’est en pause"
-
-#~ msgid "Only one of “all”, “store” and “miners” options are allowed"
-#~ msgstr ""
-#~ "Une seule option parmi « all », « store » et « miners » est autorisée"
-
-#~ msgid "Could not get SPARQL connection"
-#~ msgstr "Impossible d’établir une connexion SPARQL"
-
-#~ msgid "Now listening for resource updates to the database"
-#~ msgstr "Écoute des mises à jour des sources de la base de données en cours"
-
-#~ msgid "All nie:plainTextContent properties are omitted"
-#~ msgstr "Toutes les propriétés nie:plainTextContent sont ignorées"
-
-#~ msgid "Common statuses include"
-#~ msgstr "Les états courants sont"
-
-#~ msgid "Could not get status, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impossible d’obtenir l’état, aucun gestionnaire n’a pu être créé, %s"
-
-#~ msgid "Store"
-#~ msgstr "Dépôt"
-
-#~ msgid "Could not get display name for miner “%s”"
-#~ msgstr "Impossible d’obtenir le nom d’affichage du collecteur « %s »"
-
-#~ msgid "You can not use miner pause and resume switches together"
-#~ msgstr ""
-#~ "Vous ne pouvez pas utiliser simultanément les paramètres pause et resume "
-#~ "d’un collecteur"
-
-#~ msgid "You must provide the miner for pause or resume commands"
-#~ msgstr "Vous devez fournir au collecteur des commandes pause ou resume"
-
-#~ msgid "You must provide a pause or resume command for the miner"
-#~ msgstr "Vous devez fournir au collecteur une commande pause ou resume"
-
-#~ msgid "You can not use the --kill and --terminate arguments together"
-#~ msgstr ""
-#~ "Vous ne pouvez pas employer les paramètres --kill et --terminate en même "
-#~ "temps"
-
-#~ msgid ""
-#~ "You can not use the --get-logging and --set-logging arguments together"
-#~ msgstr ""
-#~ "Vous ne pouvez pas employer les paramètres --get-logging et --set-logging "
-#~ "en même temps"
-
-#~ msgid ""
-#~ "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
-#~ msgstr ""
-#~ "Verbosité de journalisation non valide, essayez « debug », « detailed », "
-#~ "« minimal » ou « errors »"
-
-#~ msgid "Found %d PID…"
-#~ msgid_plural "Found %d PIDs…"
-#~ msgstr[0] "%d PID trouvé…"
-#~ msgstr[1] "%d PID trouvés…"
-
-#~ msgid "Found process ID %d for “%s”"
-#~ msgstr "Identifiant de processus %d trouvé pour « %s »"
-
-#~ msgid "Components"
-#~ msgstr "Composants"
-
-#~ msgid "Only those with config listed"
-#~ msgstr "Seuls ceux qui ont une config dans la liste"
-
-#~ msgid "Setting log verbosity for all components to “%s”…"
-#~ msgstr ""
-#~ "Définition de la verbosité de journalisation pour tous les composants à "
-#~ "« %s »…"
-
-#~ msgid "Starting miners…"
-#~ msgstr "Démarrage des collecteurs…"
-
-#~ msgid "Could not start miners, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impossible de démarrer les collecteurs, aucun gestionnaire n’a pu être "
-#~ "créé, %s"
-
-#~ msgid "perhaps a disabled plugin?"
-#~ msgstr "peut-être un greffon désactivé ?"
-
-#~ msgid ""
-#~ "If no arguments are given, the status of the store and data miners is "
-#~ "shown"
-#~ msgstr ""
-#~ "Si aucun argument n’est spécifié, l’état du dépôt et des collecteurs de "
-#~ "données est affiché"
-
-#~ msgid "Could not get D-Bus connection"
-#~ msgstr "Impossible d’obtenir la connexion D-Bus"
-
-#~ msgid "Could not create D-Bus proxy to tracker-store"
-#~ msgstr "Impossible de créer le serveur mandataire D-Bus de tracker-store"
-
-#~ msgid "Could not run tracker-extract: "
-#~ msgstr "Impossible d’exécuter tracker-extract :"
-
-#~ msgid ""
-#~ "Tell miners to reindex files which match the mime type supplied (for new "
-#~ "extractors), use -m MIME1 -m MIME2"
-#~ msgstr ""
-#~ "Demande aux collecteurs de ré-indexer les fichiers qui correspondent au "
-#~ "type MIME indiqué (pour les nouveaux extracteurs), la syntaxe est -m "
-#~ "MIME1 -m MIME2"
-
-#~ msgid "MIME"
-#~ msgstr "MIME"
-
-#~ msgid "Tell miners to (re)index a given file"
-#~ msgstr "Demande aux collecteurs de (ré)indexer un fichier donné"
-
-#~ msgid "Backup current index / database to the file provided"
-#~ msgstr ""
-#~ "Sauvegarde la base de données actuelle et son indexation dans le fichier "
-#~ "indiqué"
-
-#~ msgid "Restore a database from a previous backup (see --backup)"
-#~ msgstr ""
-#~ "Restaure la base de données à partir d’une sauvegarde antérieure (voir --"
-#~ "backup)"
-
-#~ msgid "Import a dataset from the provided file (in Turtle format)"
-#~ msgstr ""
-#~ "Importe un paquet de données depuis le fichier donné (au format Turtle)"
-
-#~ msgid "Could not reindex mimetypes, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impossible de ré-indexer les types MIME, aucun gestionnaire n’a pu être "
-#~ "créé, %s"
-
-#~ msgid "Could not reindex mimetypes"
-#~ msgstr "Impossible de ré-indexer les types MIME"
-
-#~ msgid "Reindexing mime types was successful"
-#~ msgstr "La ré-indexation des types MIME a été réalisée avec succès"
-
-#~ msgid "Could not (re)index file, manager could not be created, %s"
-#~ msgstr ""
-#~ "Impossible de (ré)indexer le fichier, aucun gestionnaire n’a pu être "
-#~ "créé, %s"
-
-#~ msgid "Could not (re)index file"
-#~ msgstr "Impossible de (ré)indexer le fichier"
-
-#~ msgid "(Re)indexing file was successful"
-#~ msgstr "La (ré)indexation du fichier a été réalisée avec succès"
-
-#~ msgid "Importing Turtle file"
-#~ msgstr "Importation d’un fichier Turtle"
-
-#~ msgid "Unable to import Turtle file"
-#~ msgstr "Impossible d’importer le fichier Turtle"
-
-#~ msgid "Restoring database from backup"
-#~ msgstr "Restauration de la base de données à partir de la sauvegarde"
-
-#~ msgid ""
-#~ "Only one action (--backup, --restore, --index-file or --import) can be "
-#~ "used at a time"
-#~ msgstr ""
-#~ "Une seule commande (--backup, --index-file ou --import) peut être "
-#~ "utilisée à la fois"
-
-#~ msgid "Missing one or more files which are required"
-#~ msgstr "Il manque un ou plusieurs fichiers indispensables"
-
-#~ msgid "Only one file can be used with --backup and --restore"
-#~ msgstr "Un seul fichier peut être utilisé avec --backup et --restore"
-
-#~ msgid ""
-#~ "Actions (--backup, --restore, --index-file and --import) can not be used "
-#~ "with --reindex-mime-type"
-#~ msgstr ""
-#~ "Les commandes (--backup, --restore, --index-file et --import) ne peuvent "
-#~ "pas être utilisées avec --reindex-mime-type"
-
-#~ msgid ""
-#~ "Start, stop, pause and list processes responsible for indexing content"
-#~ msgstr ""
-#~ "Démarrer, arrêter, mettre en pause ou lister les processus responsables "
-#~ "de l’indexation du contenu"
-
-#~ msgid "Extract information from a file"
-#~ msgstr "Extraire les informations du fichier"
-
-#~ msgid "Backup, restore, import and (re)index by MIME type or file name"
-#~ msgstr ""
-#~ "Sauvegarder, restaurer, importer et (ré)indexer par type MIME ou nom de "
-#~ "fichier"
-
-#~ msgid "Reset or remove index and revert configurations to defaults"
-#~ msgstr ""
-#~ "Réinitialiser ou supprimer l’indexation et reconfigurer aux valeurs par "
-#~ "défaut"
-
-#~ msgid "Search for content indexed or show content by type"
-#~ msgstr "Rechercher du contenu indexé ou afficher du contenu par type"
-
-#~ msgid "Show the indexing progress, content statistics and index state"
-#~ msgstr ""
-#~ "Afficher la progression de l’indexation, les statistiques du contenu et "
-#~ "le niveau d’indexation"
-
-#~ msgid "Create, list or delete tags for indexed content"
-#~ msgstr "Créer, lister ou supprimer les étiquettes du contenu indexé"
-
-#~ msgid "Show the license and version in use"
-#~ msgstr "Afficher la licence et la version en service"
-
-#~ msgid "Could not open /proc"
-#~ msgstr "Impossible d’ouvrir /proc"
-
-#~ msgid "Could not stat() file"
-#~ msgstr "Impossible d’exécuter stat() sur le fichier"
-
-#~ msgid "Could not open “%s”"
-#~ msgstr "Impossible d’ouvrir « %s »"
-
-#~ msgid "Could not terminate process %d — “%s”"
-#~ msgstr "Impossible de fermer le processus %d — « %s »"
-
-#~ msgid "Terminated process %d — “%s”"
-#~ msgstr "Processus %d — « %s » terminé"
-
-#~ msgid "Could not kill process %d — “%s”"
-#~ msgstr "Impossible de tuer le processus %d — « %s »"
-
-#~ msgid "Killed process %d — “%s”"
-#~ msgstr "Processus %d — « %s » tué"
-
-#~ msgid "Kill all Tracker processes and remove all databases"
-#~ msgstr ""
-#~ "Tue tous les processus Tracker et supprime toutes les bases de données"
-
-#~ msgid "Same as --hard but the backup & journal are restored after restart"
-#~ msgstr ""
-#~ "Identique à --hard mais la sauvegarde et le journal sont restaurés après "
-#~ "le redémarrage"
-
-#~ msgid ""
-#~ "Remove all configuration files so they are re-generated on next start"
-#~ msgstr ""
-#~ "Supprime tous les fichiers de configuration afin qu’ils soient regénérés "
-#~ "au prochain démarrage"
-
-#~ msgid ""
-#~ "Erase indexed information about a file, works recursively for directories"
-#~ msgstr ""
-#~ "Effacer les informations à propos du fichier, fonctionne récursivement "
-#~ "pour les répertoires"
-
-#~ msgid "Deleting…"
-#~ msgstr "Suppression…"
-
-#~ msgid ""
-#~ "The indexed data for this file has been deleted and will be reindexed "
-#~ "again."
-#~ msgstr ""
-#~ "Les données indexées pour ce fichier ont été supprimées et seront "
-#~ "réindexées de nouveau."
-
-#~ msgid "You can not use the --hard and --soft arguments together"
-#~ msgstr ""
-#~ "Vous ne pouvez pas employer les paramètres --hard et --soft en même temps"
-
-#~ msgid "CAUTION: This process may irreversibly delete data."
-#~ msgstr ""
-#~ "AVERTISSEMENT : cette opération peut supprimer définitivement les données."
-
-#~ msgid ""
-#~ "Although most content indexed by Tracker can be safely reindexed, it "
-#~ "can’t be assured that this is the case for all data. Be aware that you "
-#~ "may be incurring in a data loss situation, proceed at your own risk."
-#~ msgstr ""
-#~ "Bien que la plupart du contenu indexé par Tracker puisse être réindexé en "
-#~ "toute sécurité, il ne peut être assuré que ce soit le cas pour toutes les "
-#~ "données. Soyez conscient des risques encourus en cas de perte de données, "
-#~ "continuez à vos risques et périls."
-
-#~ msgid "Are you sure you want to proceed?"
-#~ msgstr "Voulez-vous vraiment continuer ?"
-
-#~ msgid "[y|N]"
-#~ msgstr "[o|N]"
-
-#~ msgid "yes"
-#~ msgstr "oui"
-
-#~ msgid "Resetting existing configuration…"
-#~ msgstr "Réinitialisation de la configuration existante…"
-
-#~ msgid "Search for files"
-#~ msgstr "Recherche des fichiers"
-
-#~ msgid "Search for folders"
-#~ msgstr "Recherche des dossiers"
-
-#~ msgid "Search for music files"
-#~ msgstr "Recherche des fichiers musicaux"
-
-#~ msgid "Search for music albums (--all has no effect on this)"
-#~ msgstr ""
-#~ "Recherche des albums musicaux (--all n’a pas d’effet sur cette commande)"
-
-#~ msgid "Search for music artists (--all has no effect on this)"
-#~ msgstr ""
-#~ "Recherche des artistes musicaux (--all n’a pas d’effet sur cette commande)"
-
-#~ msgid "Search for image files"
-#~ msgstr "Recherche des fichiers image"
-
-#~ msgid "Search for video files"
-#~ msgstr "Recherche des fichiers vidéo"
-
-#~ msgid "Search for document files"
-#~ msgstr "Recherche des documents"
-
-#~ msgid "Search for emails"
-#~ msgstr "Recherche des courriels"
-
-#~ msgid "Search for contacts"
-#~ msgstr "Recherche des contacts"
-
-#~ msgid "Search for software (--all has no effect on this)"
-#~ msgstr "Recherche des logiciels (--all n’a pas d’effet sur cette commande)"
-
-#~ msgid "Search for software categories (--all has no effect on this)"
-#~ msgstr ""
-#~ "Recherche des catégories de logiciels (--all n’a pas d’effet sur cette "
-#~ "commande)"
-
-#~ msgid "Search for feeds (--all has no effect on this)"
-#~ msgstr "Recherche des flux (--all n’a pas d’effet sur cette commande)"
-
-#~ msgid "Search for bookmarks (--all has no effect on this)"
-#~ msgstr "Recherche des signets (--all n’a pas d’effet sur cette commande)"
-
-#~ msgid "Limit the number of results shown"
-#~ msgstr "Limite le nombre de résultats affichés"
-
-#~ msgid "Offset the results"
-#~ msgstr "Décaler les résultats"
-
-#~ msgid "Use OR for search terms instead of AND (the default)"
-#~ msgstr "Utiliser OU pour les termes de recherche au lieu de ET (par défaut)"
-
-#~ msgid ""
-#~ "Show URNs for results (doesn’t apply to --music-albums, --music-artists, "
-#~ "--feeds, --software, --software-categories)"
-#~ msgstr ""
-#~ "Affiche les URN pour les résultats (ne s’applique pas à --music-albums, --"
-#~ "music-artists, --feeds, --software, --software-categories)"
-
-#~ msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
-#~ msgstr ""
-#~ "Renvoie aussi toutes les correspondances inexistantes (comme les volumes "
-#~ "non montés)"
-
-#~ msgid ""
-#~ "Disable showing snippets with results. This is only shown for some "
-#~ "categories, e.g. Documents, Music…"
-#~ msgstr ""
-#~ "Désactive l’affichage d’extraits avec les résultats. Ils ne sont affichés "
-#~ "que pour certaines catégories, par exemple les documents, la musique…"
-
-#~ msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
-#~ msgstr ""
-#~ "Désactive la recherche en texte intégral. Implique --disable-snippets"
-
-#~ msgid "Disable color when printing snippets and results"
-#~ msgstr "Désactive la couleur lors de l’affichage d’extraits et de résultats"
-
-#~ msgid "search terms"
-#~ msgstr "termes à rechercher"
-
-#~ msgid "EXPRESSION"
-#~ msgstr "EXPRESSION"
-
-#~ msgid ""
-#~ "NOTE: Limit was reached, there are more items in the database not listed "
-#~ "here"
-#~ msgstr ""
-#~ "NOTE : la limite a été atteinte, il y a d’autres éléments de la base de "
-#~ "données qui ne figurent pas ici"
-
-#~ msgid "Could not get search results"
-#~ msgstr "Impossible d’obtenir les résultats de la recherche"
-
-#~ msgid "No contacts were found"
-#~ msgstr "Aucun contact n’a été trouvé"
-
-#~ msgid "Contacts"
-#~ msgstr "Contacts"
-
-#~ msgid "No name"
-#~ msgstr "Aucun nom"
-
-#~ msgid "No E-mail address"
-#~ msgstr "Aucune adresse électronique"
-
-#~ msgid "No emails were found"
-#~ msgstr "Aucun courriel n’a été trouvé"
-
-#~ msgid "Emails"
-#~ msgstr "Courriels"
-
-#~ msgid "No files were found"
-#~ msgstr "Aucun fichier n’a été trouvé"
-
-#~ msgid "Files"
-#~ msgstr "Fichiers"
-
-#~ msgid "No artists were found"
-#~ msgstr "Aucun artiste n’a été trouvé"
-
-#~ msgid "Artists"
-#~ msgstr "Artistes"
-
-#~ msgid "No music was found"
-#~ msgstr "Aucune musique n’a été trouvée"
-
-#~ msgid "Albums"
-#~ msgstr "Albums"
-
-#~ msgid "No bookmarks were found"
-#~ msgstr "Aucun signet n’a été trouvé"
-
-#~ msgid "Bookmarks"
-#~ msgstr "Signets"
-
-#~ msgid "No feeds were found"
-#~ msgstr "Aucun flux n’a été trouvé"
-
-#~ msgid "Feeds"
-#~ msgstr "Flux"
-
-#~ msgid "No software was found"
-#~ msgstr "Aucun logiciel n’a été trouvé"
-
-#~ msgid "Software"
-#~ msgstr "Logiciel"
-
-#~ msgid "No software categories were found"
-#~ msgstr "Aucune catégorie de logiciel n’a été trouvée"
-
-#~ msgid "Software Categories"
-#~ msgstr "Catégories de logiciel"
-
-#~ msgid "No results were found matching your query"
-#~ msgstr "Aucun résultat ne correspond à votre requête"
-
-#~ msgid "Search term “%s” is a stop word."
-#~ msgstr "Le terme recherché « %s » est un mot ignoré."
-
-#~ msgid ""
-#~ "Stop words are common words which may be ignored during the indexing "
-#~ "process."
-#~ msgstr ""
-#~ "Les mots ignorés sont des mots communs qui peuvent ne pas être pris en "
-#~ "compte dans le processus d’indexation."
-
-#~ msgid "BASE_URL"
-#~ msgstr "URL_DE_BASE"
-
-#~ msgid "Show statistics for current index / data set"
-#~ msgstr "Afficher les statistiques du paquet de données indexé actuel"
-
-#~ msgid ""
-#~ "Collect debug information useful for problem reporting and investigation, "
-#~ "results are output to terminal"
-#~ msgstr ""
-#~ "Collecte des informations de débogage utiles pour faire remonter des "
-#~ "problèmes et faciliter les investigations. Les résultats sortent sur le "
-#~ "terminal."
-
-#~ msgid "Could not get Tracker statistics"
-#~ msgstr "Impossible d’obtenir les statistiques de Tracker"
-
-#~ msgid "No statistics available"
-#~ msgstr "Aucune statistique disponible"
-
-#~ msgid "Statistics:"
-#~ msgstr "Statistiques :"
-
-#~ msgid "Disk Information"
-#~ msgstr "Informations sur le disque"
-
-#~ msgid "Remaining space on database partition"
-#~ msgstr "Il reste de la place sur la partition de la base de données"
-
-#~ msgid "Data Set"
-#~ msgstr "Jeu de données"
-
-#~ msgid "Configuration"
-#~ msgstr "Configuration"
-
-#~ msgid "No configuration was found"
-#~ msgstr "Aucune configuration n’a été trouvée"
-
-#~ msgid "States"
-#~ msgstr "États"
-
-#~ msgid "Data Statistics"
-#~ msgstr "Statistiques des données"
-
-#~ msgid "No connection available"
-#~ msgstr "Aucune connexion disponible"
-
-#~ msgid "Could not get statistics"
-#~ msgstr "Impossible d’obtenir les statistiques"
-
-#~ msgid "No statistics were available"
-#~ msgstr "Aucune statistique n’était disponible"
-
-#~ msgid "Database is currently empty"
-#~ msgstr "La base de données est actuellement vide"
-
-#~ msgid "Could not get basic status for Tracker"
-#~ msgstr "Impossible d’obtenir l’état de base de Tracker"
-
-#~ msgid "Currently indexed"
-#~ msgstr "Actuellement indexé"
-
-#~ msgid "%d file"
-#~ msgid_plural "%d files"
-#~ msgstr[0] "%d fichier"
-#~ msgstr[1] "%d fichiers"
-
-#~ msgid "%d folder"
-#~ msgid_plural "%d folders"
-#~ msgstr[0] "%d dossier"
-#~ msgstr[1] "%d dossiers"
-
-#~ msgid "Data is still being indexed"
-#~ msgstr "Les données sont en cours d’indexation"
-
-#~ msgid "Estimated %s left"
-#~ msgstr "Il reste environ %s"
-
-#~ msgid "All data miners are idle, indexing complete"
-#~ msgstr ""
-#~ "Tous les collecteurs de données sont arrêtés. L’indexation est terminée"
-
-#~ msgid ""
-#~ "List all tags (using FILTER if specified; FILTER always uses logical OR)"
-#~ msgstr ""
-#~ "Énumère toutes les étiquettes (en utilisant FILTRE si indiqué ; FILTRE "
-#~ "utilise toujours un OU logique)"
-
-#~ msgid "FILTER"
-#~ msgstr "FILTRE"
-
-#~ msgid "Show files associated with each tag (this is only used with --list)"
-#~ msgstr ""
-#~ "Affiche les fichiers associés à chaque étiquette (utilisable uniquement "
-#~ "avec --list)"
-
-#~ msgid ""
-#~ "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
-#~ msgstr ""
-#~ "Ajoute une étiquette (si FICHIER n’est pas indiqué, ÉTIQUETTE ne sera "
-#~ "attribuée à aucun fichier)"
-
-#~ msgid "TAG"
-#~ msgstr "ÉTIQUETTE"
-
-#~ msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
-#~ msgstr ""
-#~ "Supprime une étiquette (si FICHIER n’est pas indiqué, ÉTIQUETTE est "
-#~ "enlevée pour tous les fichiers)"
-
-#~ msgid "Description for a tag (this is only used with --add)"
-#~ msgstr "Description d’une étiquette (utilisable uniquement avec --add)"
-
-#~ msgid "STRING"
-#~ msgstr "CHAÎNE"
-
-#~ msgid "Use AND for search terms instead of OR (the default)"
-#~ msgstr "Utiliser ET pour les termes de recherche au lieu de OU (par défaut)"
-
-#~ msgid "FILE…"
-#~ msgstr "FICHIER…"
-
-#~ msgid "FILE [FILE…]"
-#~ msgstr "FICHIER [FICHIER…]"
-
-#~ msgid "Could not get file URNs"
-#~ msgstr "Impossible d’obtenir les URN des fichiers"
-
-#~ msgid "Could not get files related to tag"
-#~ msgstr "Impossible d’obtenir les fichiers liés à cette étiquette"
-
-#~ msgid "Could not get all tags in the database"
-#~ msgstr "Impossible d’obtenir toutes les étiquettes de la base de données"
-
-#~ msgid "No files have been tagged"
-#~ msgstr "Aucun fichier n’a été étiqueté"
-
-#~ msgid "Could not get files for matching tags"
-#~ msgstr "Impossible d’obtenir les fichiers correspondants à ces étiquettes"
-
-#~ msgid "No files were found matching ALL of those tags"
-#~ msgstr "Aucun fichier correspondant à TOUTES ces étiquettes n’a été trouvé"
-
-#~ msgid "Could not get all tags"
-#~ msgstr "Impossible d’obtenir toutes les étiquettes"
-
-#~ msgid "Tags (shown by name)"
-#~ msgstr "Étiquettes (affichées par nom)"
-
-#~ msgid "No files were modified"
-#~ msgstr "Aucun fichier n’a été modifié"
-
-#~ msgid "Files do not exist or aren’t indexed"
-#~ msgstr "Les fichiers sont inexistants ou non indexés"
-
-#~ msgid "Could not add tag"
-#~ msgstr "Impossible d’ajouter l’étiquette"
-
-#~ msgid "Tag was added successfully"
-#~ msgstr "L’étiquette a bien été ajoutée"
-
-#~ msgid "Could not add tag to files"
-#~ msgstr "Impossible d’ajouter l’étiquette aux fichiers"
-
-#~ msgid "Tagged"
-#~ msgstr "Étiqueté"
-
-#~ msgid "Not tagged, file is not indexed"
-#~ msgstr "Non étiqueté, le fichier n’est pas indexé"
-
-#~ msgid "Could not get tag by label"
-#~ msgstr "Impossible d’obtenir l’étiquette par son titre"
-
-#~ msgid "No tags were found by that name"
-#~ msgstr "Ce nom ne correspond à aucune étiquette"
-
-#~ msgid "None of the files had this tag set"
-#~ msgstr "Aucun des fichiers n’avait cette étiquette"
-
-#~ msgid "Could not remove tag"
-#~ msgstr "Impossible d’enlever l’étiquette"
-
-#~ msgid "Tag was removed successfully"
-#~ msgstr "L’étiquette a bien été supprimée"
-
-#~ msgid "Untagged"
-#~ msgstr "Non étiqueté"
-
-#~ msgid "File not indexed or already untagged"
-#~ msgstr "Fichier non indexé ou étiquette déjà enlevée"
-
-#~ msgid "The --list option is required for --show-files"
-#~ msgstr "L’option --list est obligatoire pour --show-files"
-
-#~ msgid ""
-#~ "The --and-operator option can only be used with --list and tag label "
-#~ "arguments"
-#~ msgstr ""
-#~ "L’option --and-operator ne peut être utilisée qu’avec --list et le nom de "
-#~ "l’étiquette"
-
-#~ msgid "Add and delete actions can not be used together"
-#~ msgstr ""
-#~ "Les actions ajouter et supprimer ne peuvent pas être utilisées en même "
-#~ "temps"
-
-#~ msgid "The --description option can only be used with --add"
-#~ msgstr "L’option --description ne peut être utilisée qu’avec --add"
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "Port sur lequel écouter"
+
+#. Translators: this is a HTTP port
+#: src/tracker/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "Port non indiqué"
+
+#: src/tracker/tracker-webide.c:80
+#, c-format
+msgid "%s %s…\n"
+msgstr "%s %s…\n"
+
+#: src/tracker/tracker-webide.c:80
+msgid "Creating Web IDE at"
+msgstr "Création d’un EDI Web à"
