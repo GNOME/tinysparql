@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Gnome Nepali Translation Project\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
-"POT-Creation-Date: 2025-01-10 20:36+0000\n"
-"PO-Revision-Date: 2025-02-19 10:31+0545\n"
+"POT-Creation-Date: 2025-01-10 20:35+0000\n"
+"PO-Revision-Date: 2025-02-27 15:15+0545\n"
 "Last-Translator: Pawan Chitrakar <chautari@gmail.com>\n"
 "Language-Team: Nepali Translation Team <chautari@gmail.com>\n"
 "Language: ne\n"
@@ -364,7 +364,7 @@ msgstr "उपलब्ध TinySPARQL आदेशहरू हुन्:"
 
 #: src/tracker/tracker-main.c:114
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
-msgstr "<command>कुनै खास उपआदेशबारे पढ् न \"TinySPARQL  मदत \" हेर्नुहोस् ।."
+msgstr "कुनै खास उपआदेशबारे <command> पढ्न \"TinySPARQL मदत \" हेर्नुहोस्."
 
 #: src/tracker/tracker-main.c:157
 #, c-format
