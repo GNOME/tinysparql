@@ -1,3 +1,9 @@
+NEW in 3.9.rc - 2025-03-02
+==========================
+  * Multiple fixes to issues found by OSS fuzz
+  * Restructure project directories
+  * Error handling fixes in SPARQL updates via D-Bus
+
 NEW in 3.9.alpha - 2025-01-11
 =============================
   * Hide again unintentionally leaked tracker_http_* symbols
