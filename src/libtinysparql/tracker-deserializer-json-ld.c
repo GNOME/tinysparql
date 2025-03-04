@@ -415,7 +415,7 @@ load_context (TrackerDeserializerJsonLD *deserializer)
 		gchar **members = json_reader_list_members (deserializer->reader);
 		guint i;
 
-		for (i = 0; members[i] != NULL; i++) {
+		for (i = 0; members && members[i] != NULL; i++) {
 			if (members[i][0] == '@') {
 				load_special_key (deserializer, members[i]);
 				continue;
