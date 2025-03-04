@@ -73,7 +73,7 @@ struct _TrackerDeserializerJsonLD {
 	gchar *cur_subject;
 	gchar *cur_predicate;
 	gchar *cur_object;
-	const gchar *cur_object_lang;
+	gchar *cur_object_lang;
 	TrackerSparqlValueType object_type;
 	guint state;
 	gboolean has_row;
@@ -101,6 +101,7 @@ tracker_deserializer_json_ld_finalize (GObject *object)
 	g_clear_pointer (&deserializer->cur_subject, g_free);
 	g_clear_pointer (&deserializer->cur_predicate, g_free);
 	g_clear_pointer (&deserializer->cur_object, g_free);
+	g_clear_pointer (&deserializer->cur_object_lang, g_free);
 
 	G_OBJECT_CLASS (tracker_deserializer_json_ld_parent_class)->finalize (object);
 }
@@ -316,7 +317,7 @@ current_graph (TrackerDeserializerJsonLD *deserializer)
 static gchar *
 object_to_value (TrackerDeserializerJsonLD  *deserializer,
                  TrackerNamespaceManager    *namespaces,
-                 const gchar               **langtag,
+                 gchar                     **langtag,
                  TrackerSparqlValueType     *value_type)
 {
 	const gchar *value = NULL, *type = NULL;
@@ -552,8 +553,8 @@ forward_state (TrackerDeserializerJsonLD  *deserializer,
 				deserializer->cur_predicate =
 					tracker_namespace_manager_expand_uri (namespaces, current_member (deserializer));
 				g_clear_pointer (&deserializer->cur_object, g_free);
+				g_clear_pointer (&deserializer->cur_object_lang, g_free);
 				deserializer->cur_object = nested_object_id;
-				deserializer->cur_object_lang = NULL;
 				deserializer->object_type = TRACKER_SPARQL_VALUE_TYPE_STRING;
 				deserializer->has_row = TRUE;
 			}
@@ -586,6 +587,7 @@ forward_state (TrackerDeserializerJsonLD  *deserializer,
 		break;
 	case STATE_VALUE_AS_OBJECT:
 		g_clear_pointer (&deserializer->cur_object, g_free);
+		g_clear_pointer (&deserializer->cur_object_lang, g_free);
 		deserializer->cur_object = object_to_value (deserializer,
 		                                            namespaces,
 		                                            &deserializer->cur_object_lang,
@@ -596,7 +598,7 @@ forward_state (TrackerDeserializerJsonLD  *deserializer,
 		break;
 	case STATE_VALUE:
 		g_clear_pointer (&deserializer->cur_object, g_free);
-		deserializer->cur_object_lang = NULL;
+		g_clear_pointer (&deserializer->cur_object_lang, g_free);
 		deserializer->cur_object = node_to_value (json_reader_get_value (deserializer->reader),
 		                                          namespaces,
 		                                          &deserializer->object_type);
