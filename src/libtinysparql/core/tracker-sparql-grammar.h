@@ -1605,7 +1605,8 @@ static const TrackerGrammarRule rule_QueryUnit[] = { R(Query), NIL };
 	G_STMT_START {						\
 		const gchar *tmp = str;				\
 		while (str < end) {				\
-			gunichar ch = g_utf8_get_char (str);	\
+			gunichar ch =				\
+				g_utf8_get_char_validated (str, end - str); \
 			if ((set)) {				\
 				str = g_utf8_next_char (str);	\
 			} else {				\

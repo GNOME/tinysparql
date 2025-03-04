@@ -54,7 +54,8 @@ LLVMFuzzerTestOneInput (const unsigned char *data, size_t size)
 	                       NULL,
 	                       istream);
 
-	tracker_batch_execute (batch, NULL, NULL);
+	if (tracker_batch_execute (batch, NULL, NULL))
+		g_clear_object (&conn);
 
 	g_clear_object (&batch);
 	g_clear_object (&istream);

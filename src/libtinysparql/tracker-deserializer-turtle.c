@@ -533,16 +533,16 @@ maybe_expand_buffer (TrackerDeserializerTurtle  *deserializer,
 	 */
 	buffer = g_buffered_input_stream_peek_buffer (deserializer->buffered_stream,
 	                                              &buffer_len);
-	if (strncmp (buffer, "\"\"\"", 3) == 0) {
+	if (buffer_len >= 3 && strncmp (buffer, "\"\"\"", 3) == 0) {
 		needle = "\"\"\"";
 		start = 3;
-	} else if (strncmp (buffer, "'''", 3) == 0) {
+	} else if (buffer_len >= 3 && strncmp (buffer, "'''", 3) == 0) {
 		needle = "'''";
 		start = 3;
-	} else if (strncmp (buffer, "\"", 1) == 0) {
+	} else if (buffer_len >= 1 && strncmp (buffer, "\"", 1) == 0) {
 		needle = "\"";
 		start = 1;
-	} else if (strncmp (buffer, "'", 1) == 0) {
+	} else if (buffer_len >= 1 && strncmp (buffer, "'", 1) == 0) {
 		needle = "'";
 		start = 1;
 	} else {

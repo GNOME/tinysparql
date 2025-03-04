@@ -368,15 +368,10 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			                                         bnodes,
 			                                         &inner_error);
 		} else if (elem->type == TRACKER_DIRECT_BATCH_RDF) {
-			TrackerSparqlConnection *conn;
 			TrackerSparqlCursor *deserializer;
-			TrackerNamespaceManager *namespaces;
-
-			conn = tracker_batch_get_connection (TRACKER_BATCH (batch));
-			namespaces = tracker_sparql_connection_get_namespace_manager (conn);
 
 			deserializer = tracker_deserializer_new (elem->d.rdf.stream,
-			                                         namespaces,
+			                                         NULL,
 			                                         convert_format (elem->d.rdf.format));
 
 			tracker_data_load_from_deserializer (data,
