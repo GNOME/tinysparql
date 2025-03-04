@@ -315,7 +315,7 @@ update_thread_func (gpointer data,
 			break;
 
 		deserializer = tracker_deserializer_new (task_data->d.deserialize.stream,
-		                                         priv->namespace_manager,
+							 NULL,
 		                                         convert_format (task_data->d.deserialize.format));
 
 		if (tracker_data_load_from_deserializer (tracker_data,
