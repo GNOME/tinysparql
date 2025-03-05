@@ -73,6 +73,8 @@ typedef struct {
 	GDBusConnection *dbus_conn;
 	GMainLoop *thread_loop;
 	gboolean started;
+	GMutex mutex;
+	GCond cond;
 } StartupData;
 
 typedef struct {
@@ -361,11 +363,16 @@ thread_func (gpointer user_data)
 	main_loop = g_main_loop_new (context, FALSE);
 
 	endpoint = tracker_endpoint_dbus_new (data->direct, data->dbus_conn, NULL, NULL, NULL);
+
+	g_mutex_lock (&data->mutex);
+	data->started = TRUE;
+	g_cond_signal (&data->cond);
+	g_mutex_unlock (&data->mutex);
+
 	if (!endpoint)
 		return NULL;
 
 	data->thread_loop = main_loop;
-	data->started = TRUE;
 	g_main_loop_run (main_loop);
 
 	g_main_loop_unref (main_loop);
@@ -394,6 +401,8 @@ create_connections (TrackerSparqlConnection **dbus,
 	EndpointData *endpoint_data;
 	GThread *thread;
 
+	g_mutex_init (&data.mutex);
+	g_cond_init (&data.cond);
 	data.direct = create_local_connection (NULL);
 	if (!data.direct)
 		return FALSE;
@@ -403,8 +412,10 @@ create_connections (TrackerSparqlConnection **dbus,
 
 	thread = g_thread_new (NULL, thread_func, &data);
 
+	g_mutex_lock (&data.mutex);
 	while (!data.started)
-		g_usleep (100);
+		g_cond_wait (&data.cond, &data.mutex);
+	g_mutex_unlock (&data.mutex);
 
 	endpoint_data = g_new0 (EndpointData, 1);
 	endpoint_data->thread = thread;
