@@ -75,7 +75,8 @@ tracker_quad_init_from_cursor (TrackerQuad         *quad,
 	quad->subject = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 	quad->predicate = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
 	quad->object = g_strdup (tracker_sparql_cursor_get_langstring (cursor, 2, &langtag, NULL));
-	quad->object_langtag = g_strdup (langtag);
+	if (quad->object)
+		quad->object_langtag = g_strdup (langtag);
 
 	if (tracker_sparql_cursor_get_n_columns (cursor) >= 4)
 		quad->graph = g_strdup (tracker_sparql_cursor_get_string (cursor, 3, NULL));
@@ -243,11 +244,12 @@ serialize_up_to_size (TrackerSerializerTrig  *serializer_trig,
 
 		tracker_quad_init_from_cursor (&cur, cursor);
 
-		if (!cur.subject && cur.predicate && cur.object) {
+		if (!cur.subject && !cur.predicate && !cur.object) {
 			g_set_error (error,
 			             TRACKER_SPARQL_ERROR,
 			             TRACKER_SPARQL_ERROR_INTERNAL,
 			             "Cursor has no subject/predicate/object/graph columns");
+			tracker_quad_clear (&cur);
 			return FALSE;
 		}
 
