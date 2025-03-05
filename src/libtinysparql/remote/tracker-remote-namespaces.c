@@ -60,8 +60,8 @@ G_DEFINE_TYPE_WITH_CODE (TrackerRemoteNamespaceManager,
 
 static gboolean
 initialize_namespaces_from_rdf (TrackerNamespaceManager  *manager,
-				GInputStream             *istream,
-				GError                  **error)
+                                GInputStream             *istream,
+                                GError                  **error)
 {
 	TrackerSparqlCursor *deserializer;
 	GError *inner_error = NULL;
@@ -71,7 +71,8 @@ initialize_namespaces_from_rdf (TrackerNamespaceManager  *manager,
 	/* We don't care much about the content, just to have the
 	 * prefixes parsed.
 	 */
-	tracker_sparql_cursor_next (deserializer, NULL, &inner_error);
+	if (tracker_sparql_cursor_next (deserializer, NULL, &inner_error))
+		g_warning ("The remote endpoint replied with unexpected data");
 	g_object_unref (deserializer);
 
 	if (inner_error) {
