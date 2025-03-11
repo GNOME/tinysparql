@@ -252,6 +252,11 @@ run_endpoint (TrackerSparqlConnection  *connection,
 		                                                        NULL, NULL, &inner_error));
 	}
 
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		return FALSE;
+	}
+
 	main_loop = g_main_loop_new (NULL, FALSE);
 
 	if (endpoint) {
@@ -263,11 +268,6 @@ run_endpoint (TrackerSparqlConnection  *connection,
 		                              main_loop, NULL);
 
 		g_main_loop_run (main_loop);
-	}
-
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
 	}
 
 	if (!name_owned) {
