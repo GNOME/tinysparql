@@ -243,34 +243,12 @@ tracker_webide_set_property (GObject      *object,
 }
 
 static void
-tracker_webide_get_property (GObject      *object,
-                             guint         prop_id,
-                             GValue       *value,
-                             GParamSpec   *pspec)
-{
-	TrackerWebide *webide = TRACKER_WEBIDE (object);
-
-	switch (prop_id) {
-	case PROP_HTTP_PORT:
-		g_value_set_uint (value, webide->port);
-		break;
-	case PROP_HTTP_CERTIFICATE:
-		g_value_set_object (value, webide->certificate);
-		break;
-	default:
-		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-		break;
-	}
-}
-
-static void
 tracker_webide_class_init (TrackerWebideClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_webide_finalize;
 	object_class->set_property = tracker_webide_set_property;
-	object_class->get_property = tracker_webide_get_property;
 
 	props[PROP_HTTP_PORT] =
 		g_param_spec_uint ("http-port",
@@ -278,14 +256,14 @@ tracker_webide_class_init (TrackerWebideClass *klass)
 		                   "HTTP Port",
 		                   0, G_MAXUINT,
 		                   8080,
-		                   G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+		                   G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY);
 
 	props[PROP_HTTP_CERTIFICATE] =
 		g_param_spec_object ("http-certificate",
 		                     "HTTP certificate",
 		                     "HTTP certificate",
 		                     G_TYPE_TLS_CERTIFICATE,
-		                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+		                     G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY);
 
 	g_object_class_install_properties (object_class, N_PROPS, props);
 }

@@ -22,6 +22,7 @@ Test `tracker` commandline tool
 
 import random
 import unittest
+import http.client
 
 import configuration
 import fixtures
@@ -695,6 +696,256 @@ class TestCli(fixtures.TrackerCommandLineTestCase):
             )
             self.assertIn("rdfs:Class", output, "Output not found")
             self.assertIn("rdfs:subClassOf", output, "Output not found")
+
+    def test_endpoint_same_dbus_name(self):
+        """Call 2 endpoint commands on the same dbus name."""
+        with self.tmpdir() as tmpdir:
+            nr = random.randint(0, 65000)
+            bus_name = "org.example.EndpointSameDBusName%d" % nr
+
+            self.run_background(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--ontology", "nepomuk",
+                    "--dbus-service", bus_name,
+                ],
+                "Listening",
+            )
+
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "endpoint", "--ontology", "nepomuk", "--dbus-service", bus_name])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Could not own DBus name", str(ex), "Output not found")
+
+    def test_endpoint_same_http_port(self):
+        """Call 2 endpoint commands on the same HTTP port."""
+        with self.tmpdir() as tmpdir:
+            port = random.randint(30000, 65000)
+
+            self.run_background(
+                [
+                    COMMAND_NAME,
+                    "endpoint",
+                    "--ontology", "nepomuk",
+                    "--http-port", port,
+                ],
+                "Listening",
+            )
+
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "endpoint", "--ontology", "nepomuk", "--http-port", port])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Error:", str(ex), "Output not found")
+
+    def test_endpoint_bad_location(self):
+        """Call endpoint with nonexistent database."""
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "endpoint", "--ontology", "nepomuk", "--database", "/dev/null"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Could not create database directory", str(ex), "Output not found")
+
+    def test_endpoint_no_ontology(self):
+        """Call endpoint with nonexistent ontology."""
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "endpoint", "--ontology", "banana"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("is not a ontology location", str(ex), "Output not found")
+
+    def test_endpoint_no_ontology_path(self):
+        """Call endpoint with nonexistent ontology path."""
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "endpoint", "--ontology-path", "./banana"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("is not a ontology location", str(ex), "Output not found")
+
+    def test_endpoint_noarg(self):
+        """Call endpoint command with no arguments."""
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "endpoint"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("One “ontology” or “ontology-path” option should be provided", str(ex), "Output not found")
+
+    def test_endpoint_wrongarg(self):
+        """Call endpoint command with wrong arguments."""
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "endpoint", "--banana"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Unknown option", str(ex), "Output not found")
+
+    def test_endpoint_mixed_args1(self):
+        """Call endpoint command with mixed http/dbus arguments."""
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "endpoint", "--ontology", "nepomuk", "--http-port", "8080", "--dbus-service", "a.b.c"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("--http-port cannot be used with --dbus-service", str(ex), "Output not found")
+
+    def test_endpoint_mixed_args2(self):
+        """Call endpoint list command with other arguments."""
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "endpoint", "--ontology", "nepomuk", "--list"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("--list can only be used with --session or --system", str(ex), "Output not found")
+
+    def test_webide(self):
+        """Call webide command"""
+        with self.tmpdir() as tmpdir:
+            port = random.randint(32000, 65000)
+
+            self.run_background(
+                [
+                    COMMAND_NAME,
+                    "webide",
+                    "--port", port,
+                ],
+                "Listening",
+            )
+
+            # Check that we get a web IDE up
+            conn = http.client.HTTPConnection("127.0.0.1", port)
+            conn.request("GET", "/")
+            response = conn.getresponse()
+            self.assertEqual(response.status, 200)
+            self.assertEqual(response.reason, "OK")
+            self.assertIn("<title>TinySPARQL web-IDE</title>", str(response.read(1000)), "HTML title not found")
+
+    def test_webide_404(self):
+        """Call webide command"""
+        with self.tmpdir() as tmpdir:
+            port = random.randint(32000, 65000)
+
+            self.run_background(
+                [
+                    COMMAND_NAME,
+                    "webide",
+                    "--port", port,
+                ],
+                "Listening",
+            )
+
+            # Check that we get a web IDE up
+            conn = http.client.HTTPConnection("127.0.0.1", port)
+            conn.request("GET", "/foo/bar/invalid")
+            response = conn.getresponse()
+            self.assertEqual(response.status, 404)
+
+    def test_webide_404_2(self):
+        """Call webide command"""
+        with self.tmpdir() as tmpdir:
+            port = random.randint(32000, 65000)
+
+            self.run_background(
+                [
+                    COMMAND_NAME,
+                    "webide",
+                    "--port", port,
+                ],
+                "Listening",
+            )
+
+            # Check that we get a web IDE up
+            conn = http.client.HTTPConnection("127.0.0.1", port)
+            conn.request("GET", "/nonexistent.html")
+            response = conn.getresponse()
+            self.assertEqual(response.status, 404)
+
+    def test_webide_non_GET(self):
+        """Call webide command"""
+        with self.tmpdir() as tmpdir:
+            port = random.randint(32000, 65000)
+
+            self.run_background(
+                [
+                    COMMAND_NAME,
+                    "webide",
+                    "--port", port,
+                ],
+                "Listening",
+            )
+
+            # Check that we get a web IDE up
+            conn = http.client.HTTPConnection("127.0.0.1", port)
+            conn.request("HEAD", "/index.html")
+            response = conn.getresponse()
+            self.assertEqual(response.status, 405)
+
+    def test_webide_same_http_port(self):
+        """Call 2 web IDEs on the same HTTP port."""
+        with self.tmpdir() as tmpdir:
+            port = random.randint(30000, 65000)
+
+            self.run_background(
+                [
+                    COMMAND_NAME,
+                    "webide",
+                    "--port", port,
+                ],
+                "Listening",
+            )
+
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "webide", "--port", port])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Error:", str(ex), "Output not found")
+
+    def test_webide_noargs(self):
+        """Call webide command with no arguments"""
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "webide"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Usage:", str(ex), "Output not found")
+
+    def test_webide_wrongarg(self):
+        """Call webide command with wrong arguments"""
+        with self.tmpdir() as tmpdir:
+            ex = None
+            try:
+                self.run_cli([COMMAND_NAME, "webide", "--banana"])
+            except Exception as e:
+                ex = e
+            finally:
+                self.assertIn("Unrecognized options", str(ex), "Output not found")
 
     def test_sql(self):
         """Call sql command"""

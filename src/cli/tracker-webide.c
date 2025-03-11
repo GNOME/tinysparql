@@ -95,6 +95,8 @@ run_webide (GError **error)
 	g_unix_signal_add (SIGINT, sigterm_cb, main_loop);
 	g_unix_signal_add (SIGTERM, sigterm_cb, main_loop);
 
+	g_print ("%s\n", _("Listening to SPARQL commands. Press Ctrl-C to stop."));
+
 	g_main_loop_run (main_loop);
 
 	/* Carriage return, so we paper over the ^C */
@@ -133,12 +135,13 @@ int tracker_webide (int argc, const char **argv)
 
 	run_webide (&error);
 
+	g_option_context_free (context);
+
 	if (error) {
 		g_printerr ("%s\n", error->message);
 		g_error_free (error);
+		return EXIT_FAILURE;
 	}
-
-	g_option_context_free (context);
 
 	return EXIT_SUCCESS;
 }
