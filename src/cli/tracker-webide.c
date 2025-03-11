@@ -95,6 +95,8 @@ run_webide (GError **error)
 	g_unix_signal_add (SIGINT, sigterm_cb, main_loop);
 	g_unix_signal_add (SIGTERM, sigterm_cb, main_loop);
 
+	g_print ("%s\n", _("Listening to SPARQL commands. Press Ctrl-C to stop."));
+
 	g_main_loop_run (main_loop);
 
 	/* Carriage return, so we paper over the ^C */
