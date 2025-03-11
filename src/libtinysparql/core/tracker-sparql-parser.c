@@ -34,6 +34,12 @@ typedef struct _TrackerGrammarParser TrackerGrammarParser;
 #define RULE_STATE_DEFAULT_SIZE 128
 #define SNIPPET_LENGTH 30
 
+/* Some limit to avoid testing every possible path, to cater
+ * for some SPARQL extensions that may turn unadvertently
+ * quadratic.
+ */
+#define ERROR_COUNT_LIMIT 1000
+
 struct _TrackerRuleState {
 	const TrackerGrammarRule *rule;
 	TrackerParserNode *node;
@@ -71,6 +77,7 @@ struct _TrackerParserState {
 
 	GPtrArray *error_rules;
 	gssize error_len;
+	int error_counter;
 };
 
 struct _TrackerGrammarParser {
@@ -361,8 +368,13 @@ tracker_parser_state_take_error (TrackerParserState       *state,
 	}
 
 	/* If we advance in parsing, reset the expect token stack */
-	if (state->current > state->error_len)
+	if (state->current > state->error_len) {
 		g_ptr_array_set_size (state->error_rules, 0);
+		state->error_counter = 0;
+	} else {
+		/* Bump counter if we hit the same point again */
+		state->error_counter++;
+	}
 
 	if (rule->type == RULE_TYPE_LITERAL ||
 	    rule->type == RULE_TYPE_TERMINAL) {
@@ -566,6 +578,9 @@ tracker_parser_state_rollback (TrackerParserState   *state,
 {
 	const TrackerGrammarRule *rule, *child;
 	TrackerParserNode *node, *discard;
+
+	if (state->error_counter > ERROR_COUNT_LIMIT)
+		return FALSE;
 
 	/* Reset state to retry again the failed portions */
 	tracker_parser_state_rewind (state);
