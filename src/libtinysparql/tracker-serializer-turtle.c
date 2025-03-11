@@ -73,7 +73,8 @@ tracker_triple_init_from_cursor (TrackerTriple       *triple,
 	triple->subject = g_strdup (tracker_sparql_cursor_get_string (cursor, 0, NULL));
 	triple->predicate = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
 	triple->object = g_strdup (tracker_sparql_cursor_get_langstring (cursor, 2, &langtag, NULL));
-	triple->object_langtag = g_strdup (langtag);
+	if (triple->object)
+		triple->object_langtag = g_strdup (langtag);
 
 	if (triple->subject_type == TRACKER_SPARQL_VALUE_TYPE_STRING) {
 		if (g_str_has_prefix (triple->subject, "urn:bnode:")) {
@@ -235,6 +236,7 @@ serialize_up_to_size (TrackerSerializerTurtle *serializer_ttl,
 			             TRACKER_SPARQL_ERROR,
 			             TRACKER_SPARQL_ERROR_INTERNAL,
 			             "Cursor has no subject/predicate/object columns");
+			tracker_triple_clear (&cur);
 			return FALSE;
 		}
 
