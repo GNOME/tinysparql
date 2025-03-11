@@ -596,6 +596,7 @@ tracker_endpoint (int argc, const char **argv)
 	GOptionContext *context;
 	GError *error = NULL;
 	GFile *database = NULL, *ontology = NULL;
+	gboolean success = FALSE;
 
 	context = g_option_context_new (NULL);
 	g_option_context_add_main_entries (context, entries, NULL);
@@ -663,20 +664,21 @@ tracker_endpoint (int argc, const char **argv)
 	}
 
 	if (http_port > 0) {
-		run_http_endpoint (connection, &error);
+		success = run_http_endpoint (connection, &error);
 
 		if (error) {
 			g_printerr ("%s\n", error->message);
 			g_error_free (error);
 		}
 	} else if (dbus_service) {
-		run_endpoint (connection, &error);
+		success = run_endpoint (connection, &error);
 
 		if (error) {
 			g_printerr ("%s\n", error->message);
 			g_error_free (error);
 		}
 	} else {
+		success = TRUE;
 		g_print (_("New database created. Use the “--dbus-service” option to "
 		           "share this database on a message bus."));
 		g_print ("\n");
@@ -689,5 +691,5 @@ tracker_endpoint (int argc, const char **argv)
 
 	g_option_context_free (context);
 
-	return EXIT_SUCCESS;
+	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
