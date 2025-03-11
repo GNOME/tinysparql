@@ -46,7 +46,14 @@ g_strcanon (char *string, char *valid_chars, char substitutor)
 }
 
 char *
-g_strstrip (char *string)
+g_strchug (char *string)
+{
+	__coverity_string_null_sink__ (string);
+	return string;
+}
+
+char *
+g_strchomp (char *string)
 {
 	__coverity_string_null_sink__ (string);
 	return string;

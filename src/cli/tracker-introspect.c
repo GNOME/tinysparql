@@ -765,7 +765,6 @@ tree_get (TrackerSparqlConnection *connection,
 			            _("Could not create tree: class properties query failed"),
 			            error->message);
 			g_error_free (error);
-			g_object_unref (connection);
 
 			g_free (class_lookup_longhand);
 
