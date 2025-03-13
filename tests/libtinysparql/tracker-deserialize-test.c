@@ -196,7 +196,6 @@ teardown (TestFixture   *fixture,
 	tracker_sparql_connection_close (fixture->dbus);
 	g_clear_object (&fixture->dbus);
 	g_clear_object (&fixture->direct);
-	started = FALSE;
 }
 
 static void
@@ -417,6 +416,7 @@ create_connections (TrackerSparqlConnection **dbus,
 	g_mutex_lock (&data.mutex);
 	while (!started)
 		g_cond_wait (&data.cond, &data.mutex);
+	started = FALSE;
 	g_mutex_unlock (&data.mutex);
 
 	endpoint_data = g_new0 (EndpointData, 1);
