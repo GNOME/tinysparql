@@ -1,3 +1,8 @@
+NEW in 3.9.0 - 2025-03-16
+=========================
+  * Many fuzzing fixes
+  * Multiple coverity fixes
+
 NEW in 3.9.rc - 2025-03-02
 ==========================
   * Multiple fixes to issues found by OSS fuzz
