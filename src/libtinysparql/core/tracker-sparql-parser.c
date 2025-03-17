@@ -62,6 +62,7 @@ struct _TrackerParserNode {
 	gssize end;
 	guint n_children;
 	gint cur_child;
+	gint tree_idx;
 };
 
 struct _TrackerParserState {
@@ -117,7 +118,6 @@ tracker_node_tree_allocate (TrackerNodeTree *tree)
 
 	chunk = tree->current / NODES_PER_CHUNK;
 	chunk_idx = tree->current % NODES_PER_CHUNK;
-	tree->current++;
 
 	if (chunk >= tree->chunks->len) {
 		node_array = g_new0 (TrackerParserNode, NODES_PER_CHUNK);
@@ -126,6 +126,9 @@ tracker_node_tree_allocate (TrackerNodeTree *tree)
 		node_array = g_ptr_array_index (tree->chunks, chunk);
 	}
 
+	node_array[chunk_idx].tree_idx = tree->current;
+	tree->current++;
+
 	return &node_array[chunk_idx];
 }
 
@@ -133,24 +136,16 @@ static void
 tracker_node_tree_reset (TrackerNodeTree   *tree,
                          TrackerParserNode *node)
 {
-	gint i;
+	guint chunk;
 
 	if (!node)
 		return;
 
 	g_node_unlink ((GNode *) node);
 
-	for (i = tree->chunks->len - 1; i >= 0; i--) {
-		TrackerParserNode *range = g_ptr_array_index (tree->chunks, i);
-
-		if (node >= range && node < &range[NODES_PER_CHUNK]) {
-			guint pos = node - range;
-			tree->current = (i * NODES_PER_CHUNK) + pos;
-			return;
-		}
-	}
-
-	g_assert_not_reached ();
+	chunk = node->tree_idx / NODES_PER_CHUNK;
+	g_assert (chunk < tree->chunks->len);
+	tree->current = node->tree_idx;
 }
 
 static inline void
