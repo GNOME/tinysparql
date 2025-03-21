@@ -21,6 +21,8 @@
 
 #include "fuzz.h"
 
+#define MAX_SIZE 800 * 1024
+
 int
 LLVMFuzzerTestOneInput (const unsigned char *data, size_t size)
 {
@@ -31,6 +33,9 @@ LLVMFuzzerTestOneInput (const unsigned char *data, size_t size)
 	sqlite3_config (SQLITE_CONFIG_LOOKASIDE, 0, 0);
 
 	fuzz_set_logging_func ();
+
+	if (size > MAX_SIZE)
+		return 0;
 
 	istream = g_memory_input_stream_new_from_data (data, size, NULL);
 
