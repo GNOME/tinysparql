@@ -361,7 +361,7 @@ thread_func (gpointer user_data)
 	context = g_main_context_new ();
 	g_main_context_push_thread_default (context);
 
-	main_loop = g_main_loop_new (context, FALSE);
+	main_loop = data->thread_loop = g_main_loop_new (context, FALSE);
 
 	endpoint = tracker_endpoint_dbus_new (data->direct, data->dbus_conn, NULL, NULL, NULL);
 
@@ -373,7 +373,6 @@ thread_func (gpointer user_data)
 	if (!endpoint)
 		return NULL;
 
-	data->thread_loop = main_loop;
 	g_main_loop_run (main_loop);
 
 	g_main_loop_unref (main_loop);
