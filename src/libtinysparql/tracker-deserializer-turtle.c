@@ -59,7 +59,7 @@ struct _TrackerDeserializerTurtle {
 	TrackerDeserializerRdf parent_instance;
 	GBufferedInputStream *buffered_stream;
 	GArray *parser_state;
-	gchar *base;
+	GString *base;
 	gchar *graph;
 	gchar *subject;
 	gchar *predicate;
@@ -92,7 +92,9 @@ tracker_deserializer_turtle_finalize (GObject *object)
 	g_clear_pointer (&deserializer->object, g_free);
 	g_clear_pointer (&deserializer->object_lang, g_free);
 	g_clear_pointer (&deserializer->graph, g_free);
-	g_clear_pointer (&deserializer->base, g_free);
+
+	if (deserializer->base)
+		g_string_free (deserializer->base, TRUE);
 
 	G_OBJECT_CLASS (tracker_deserializer_turtle_parent_class)->finalize (object);
 }
@@ -304,10 +306,7 @@ expand_base (TrackerDeserializerTurtle *deserializer,
              const gchar               *suffix)
 {
 	if (deserializer->base && !strstr (suffix, ":/")) {
-		gchar *str;
-
-		str = g_strdup_printf ("%s%s", deserializer->base, suffix);
-		return str;
+		return g_strconcat (deserializer->base->str, suffix, NULL);
 	} else {
 		return g_strdup (suffix);
 	}
@@ -405,7 +404,7 @@ static gboolean
 handle_base (TrackerDeserializerTurtle  *deserializer,
              GError                    **error)
 {
-	gchar *base = NULL, *expanded;
+	gchar *base = NULL;
 
 	advance_whitespace_and_comments (deserializer);
 	if (!parse_terminal (deserializer, terminal_IRIREF, 1, &base))
@@ -415,9 +414,11 @@ handle_base (TrackerDeserializerTurtle  *deserializer,
 	if (!parse_token (deserializer, "."))
 		goto error;
 
-	expanded = expand_base (deserializer, base);
-	g_clear_pointer (&deserializer->base, g_free);
-	deserializer->base = expanded;
+	if (deserializer->base)
+		g_string_append (deserializer->base, base);
+	else
+		deserializer->base = g_string_new (base);
+
 	g_free (base);
 	return TRUE;
 error:
