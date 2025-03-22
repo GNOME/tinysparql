@@ -1635,6 +1635,26 @@ tracker_data_ensure_graph_fts_stmts (TrackerData                   *data,
 	return graph->fts_insert && graph->fts_delete;
 }
 
+static void
+tracker_data_update_buffer_clear (TrackerData *data)
+{
+	TrackerDataUpdateBufferGraph *graph;
+	guint i;
+
+	for (i = 0; i < data->update_buffer.graphs->len; i++) {
+		graph = g_ptr_array_index (data->update_buffer.graphs, i);
+		g_hash_table_remove_all (graph->resources);
+		g_array_set_size (graph->refcounts, 0);
+	}
+
+	g_hash_table_remove_all (data->update_buffer.new_resources);
+	g_hash_table_remove_all (data->update_buffer.resource_cache);
+	g_hash_table_remove_all (data->update_buffer.class_updates);
+	g_array_set_size (data->update_buffer.properties, 0);
+	g_ptr_array_set_size (data->update_buffer.update_log, 0);
+	data->resource_buffer = NULL;
+}
+
 void
 tracker_data_update_buffer_flush (TrackerData  *data,
                                   GError      **error)
@@ -1698,9 +1718,6 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 			g_propagate_error (error, actual_error);
 			goto out;
 		}
-
-		g_hash_table_remove_all (graph->resources);
-		g_array_set_size (graph->refcounts, 0);
 	}
 
 #ifdef G_ENABLE_DEBUG
@@ -1728,12 +1745,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 #endif
 
 out:
-	g_hash_table_remove_all (data->update_buffer.new_resources);
-	g_hash_table_remove_all (data->update_buffer.resource_cache);
-	g_hash_table_remove_all (data->update_buffer.class_updates);
-	g_array_set_size (data->update_buffer.properties, 0);
-	g_ptr_array_set_size (data->update_buffer.update_log, 0);
-	data->resource_buffer = NULL;
+	tracker_data_update_buffer_clear (data);
 }
 
 void
@@ -1752,26 +1764,6 @@ tracker_data_update_buffer_might_flush (TrackerData  *data,
 	}
 
 	tracker_data_update_buffer_flush (data, error);
-}
-
-static void
-tracker_data_update_buffer_clear (TrackerData *data)
-{
-	TrackerDataUpdateBufferGraph *graph;
-	guint i;
-
-	for (i = 0; i < data->update_buffer.graphs->len; i++) {
-		graph = g_ptr_array_index (data->update_buffer.graphs, i);
-		g_hash_table_remove_all (graph->resources);
-		g_array_set_size (graph->refcounts, 0);
-	}
-
-	g_hash_table_remove_all (data->update_buffer.new_resources);
-	g_hash_table_remove_all (data->update_buffer.resource_cache);
-	g_hash_table_remove_all (data->update_buffer.class_updates);
-	g_array_set_size (data->update_buffer.properties, 0);
-	g_ptr_array_set_size (data->update_buffer.update_log, 0);
-	data->resource_buffer = NULL;
 }
 
 static gboolean
