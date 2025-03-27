@@ -68,6 +68,7 @@ typedef enum
 
 typedef struct {
 	gint prev;
+	TrackerPropertyOp type;
 	TrackerProperty *property;
 	GValue value;
 } TrackerDataPropertyEntry;
@@ -354,6 +355,31 @@ tracker_data_log_entry_free (TrackerDataLogEntry *entry)
 		g_array_unref (entry->properties_ptr);
 
 	g_slice_free (TrackerDataLogEntry, entry);
+}
+
+static gboolean
+tracker_data_log_entry_has_property (TrackerDataLogEntry *entry,
+                                     TrackerProperty     *property)
+{
+	if (entry->type == TRACKER_LOG_CLASS_INSERT ||
+	    entry->type == TRACKER_LOG_CLASS_UPDATE) {
+		TrackerDataPropertyEntry *prop;
+		gint idx;
+
+		/* Unite with hash of properties */
+		idx = entry->table.class.last_property_idx;
+
+		while (idx >= 0) {
+			prop = &g_array_index (entry->properties_ptr,
+			                       TrackerDataPropertyEntry, idx);
+			if (prop->property == property)
+				return TRUE;
+
+			idx = prop->prev;
+		}
+	}
+
+	return FALSE;
 }
 
 void
@@ -770,10 +796,11 @@ log_entry_for_multi_value_property (TrackerData             *data,
 }
 
 static void
-log_entry_for_single_value_property (TrackerData     *data,
-                                     TrackerClass    *class,
-                                     TrackerProperty *property,
-				     const GValue    *value)
+log_entry_for_single_value_property (TrackerData       *data,
+                                     TrackerClass      *class,
+                                     TrackerPropertyOp  type,
+                                     TrackerProperty   *property,
+                                     const GValue      *value)
 {
 	TrackerDataLogEntry entry = { 0, }, *entry_ptr;
 	TrackerDataPropertyEntry prop = { 0, };
@@ -788,12 +815,15 @@ log_entry_for_single_value_property (TrackerData     *data,
 
 	entry_ptr = g_hash_table_lookup (data->update_buffer.class_updates, &entry);
 
-	if (!entry_ptr) {
+	if (!entry_ptr || tracker_data_log_entry_has_property (entry_ptr, property)) {
+		if (entry_ptr)
+			g_hash_table_remove (data->update_buffer.class_updates, entry_ptr);
 		entry_ptr = append_to_update_log (data, entry);
 		g_hash_table_add (data->update_buffer.class_updates, entry_ptr);
 	}
 
 	prop.property = property;
+	prop.type = type;
 	prop.prev = entry_ptr->table.class.last_property_idx;
 	if (value) {
 		g_value_init (&prop.value, G_VALUE_TYPE (value));
@@ -1238,13 +1268,17 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 				if (g_hash_table_contains (visited_properties, property_entry->property))
 					continue;
 
-				if (param > 2)
+				if (g_hash_table_size (visited_properties) > 0)
 					g_string_append (sql, ", ");
 
-				g_string_append_printf (sql, "\"%s\" = ?%d",
+				g_string_append_printf (sql, "\"%s\" = SparqlUpdateValue('%s', ?%d, \"%s\", ?%d)",
 				                        tracker_property_get_name (property_entry->property),
-				                        param++);
+				                        tracker_property_get_name (property_entry->property),
+				                        param,
+				                        tracker_property_get_name (property_entry->property),
+				                        param + 1);
 				g_hash_table_add (visited_properties, property_entry->property);
+				param += 2;
 			}
 
 			g_string_append (sql, " WHERE ID = ?1");
@@ -1315,6 +1349,9 @@ tracker_data_flush_log_chunk (TrackerData  *data,
 
 				if (g_list_find (visited_properties, property_entry->property))
 					continue;
+
+				if (entry->type == TRACKER_LOG_CLASS_UPDATE)
+					tracker_db_statement_bind_int (stmt, param++, property_entry->type);
 
 				if (G_VALUE_TYPE (&property_entry->value) == G_TYPE_INVALID) {
 					/* just set value to NULL for single value properties */
@@ -1824,6 +1861,7 @@ cache_create_service_decomposed (TrackerData   *data,
 		g_value_set_int64 (&gvalue, get_transaction_modseq (data));
 		log_entry_for_single_value_property (data,
 		                                     tracker_property_get_domain (modified),
+		                                     TRACKER_OP_RESET,
 		                                     modified, &gvalue);
 	}
 
@@ -1841,6 +1879,7 @@ cache_create_service_decomposed (TrackerData   *data,
 		g_value_set_int64 (&gvalue, data->resource_time);
 		log_entry_for_single_value_property (data,
 		                                     tracker_property_get_domain (added),
+		                                     TRACKER_OP_INSERT,
 		                                     added, &gvalue);
 	}
 
@@ -1883,7 +1922,9 @@ cache_create_service_decomposed (TrackerData   *data,
 			         tracker_class_get_name (cl));
 
 			v = &g_array_index (old_values, GValue, 0);
-			log_entry_for_single_value_property (data, cl, *domain_indexes, v);
+			log_entry_for_single_value_property (data, cl,
+			                                     TRACKER_OP_INSERT,
+			                                     *domain_indexes, v);
 		}
 
 		domain_indexes++;
@@ -2150,6 +2191,7 @@ insert_property_domain_indexes (TrackerData     *data,
 		if (resource_in_domain_index_class (data, *domain_index_classes)) {
 			log_entry_for_single_value_property (data,
 			                                     *domain_index_classes,
+			                                     TRACKER_OP_INSERT,
 			                                     property,
 			                                     gvalue);
 		}
@@ -2169,7 +2211,8 @@ delete_property_domain_indexes (TrackerData     *data,
 		if (resource_in_domain_index_class (data, *domain_index_classes)) {
 			log_entry_for_single_value_property (data,
 			                                     *domain_index_classes,
-			                                     property, NULL);
+			                                     TRACKER_OP_DELETE,
+			                                     property, gvalue);
 		}
 		domain_index_classes++;
 	}
@@ -2356,6 +2399,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		} else {
 			log_entry_for_single_value_property (data,
 			                                     tracker_property_get_domain (property),
+			                                     TRACKER_OP_INSERT,
 			                                     property, object);
 		}
 
@@ -2373,6 +2417,7 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 			g_value_set_int64 (&gvalue, get_transaction_modseq (data));
 			log_entry_for_single_value_property (data,
 			                                     tracker_property_get_domain (modified),
+			                                     TRACKER_OP_RESET,
 			                                     modified, &gvalue);
 		}
 
@@ -2422,7 +2467,8 @@ delete_metadata_decomposed (TrackerData      *data,
 		} else {
 			log_entry_for_single_value_property (data,
 			                                     tracker_property_get_domain (property),
-			                                     property, NULL);
+			                                     TRACKER_OP_DELETE,
+			                                     property, object);
 		}
 
 		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
@@ -2566,7 +2612,8 @@ cache_delete_resource_type_full (TrackerData   *data,
 				if (!multiple_values) {
 					log_entry_for_single_value_property (data,
 					                                     tracker_property_get_domain (prop),
-					                                     prop, NULL);
+					                                     TRACKER_OP_DELETE,
+					                                     prop, &copy);
 				}
 
 				if (tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_RESOURCE)
@@ -2805,7 +2852,8 @@ delete_all_helper (TrackerData      *data,
 			value = &g_array_index (old_values, GValue, 0);
 			log_entry_for_single_value_property (data,
 			                                     tracker_property_get_domain (property),
-			                                     property, NULL);
+			                                     TRACKER_OP_DELETE,
+			                                     property, value);
 
 			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
 				tracker_data_resource_unref (data, g_value_get_int64 (value), FALSE);
@@ -2828,7 +2876,8 @@ delete_all_helper (TrackerData      *data,
 			} else {
 				log_entry_for_single_value_property (data,
 				                                     tracker_property_get_domain (property),
-				                                     property, NULL);
+				                                     TRACKER_OP_DELETE,
+				                                     property, value);
 			}
 
 			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
@@ -2921,6 +2970,7 @@ delete_single_valued (TrackerData       *data,
 
 		log_entry_for_single_value_property (data,
 		                                     tracker_property_get_domain (predicate),
+		                                     TRACKER_OP_RESET,
 		                                     predicate, NULL);
 
 		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
