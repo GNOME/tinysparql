@@ -36,6 +36,13 @@ typedef enum {
 	TRACKER_DB_INTERFACE_IN_MEMORY = 1 << 2,
 } TrackerDBInterfaceFlags;
 
+typedef enum {
+	TRACKER_OP_INSERT,
+	TRACKER_OP_INSERT_FAILABLE,
+	TRACKER_OP_DELETE,
+	TRACKER_OP_RESET,
+} TrackerPropertyOp;
+
 TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename,
                                                                         const gchar              *shared_cache_key,
                                                                         TrackerDBInterfaceFlags   flags,

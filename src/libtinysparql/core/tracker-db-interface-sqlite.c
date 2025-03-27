@@ -1595,6 +1595,79 @@ function_sparql_print_value (sqlite3_context *context,
 }
 
 static void
+function_sparql_update_value (sqlite3_context *context,
+                              int              argc,
+                              sqlite3_value   *argv[])
+{
+	gboolean old_value_is_null, new_value_is_null, values_are_equal;
+	TrackerPropertyOp op;
+	enum {
+		ARG_PROPERTY_NAME,
+		ARG_OP,
+		ARG_OLD_VALUE,
+		ARG_NEW_VALUE,
+	};
+
+	op = sqlite3_value_int64 (argv[ARG_OP]);
+	old_value_is_null = sqlite3_value_type (argv[ARG_OLD_VALUE]) == SQLITE_NULL;
+	new_value_is_null = sqlite3_value_type (argv[ARG_NEW_VALUE]) == SQLITE_NULL;
+
+	if (!old_value_is_null && !new_value_is_null) {
+		if (sqlite3_value_type (argv[ARG_OLD_VALUE]) ==
+		    sqlite3_value_type (argv[ARG_NEW_VALUE])) {
+			values_are_equal =
+				g_strcmp0 (sqlite3_value_text (argv[ARG_OLD_VALUE]),
+				           sqlite3_value_text (argv[ARG_NEW_VALUE])) == 0;
+		} else {
+			values_are_equal = FALSE;
+		}
+	} else {
+		values_are_equal = old_value_is_null == new_value_is_null;
+	}
+
+	if (op == TRACKER_OP_INSERT) {
+		if (old_value_is_null) {
+			/* Replace */
+			sqlite3_result_value (context, argv[ARG_NEW_VALUE]);
+		} else if (values_are_equal) {
+			/* Values match, pick either */
+			sqlite3_result_value (context, argv[ARG_OLD_VALUE]);
+		} else {
+			gchar *err_str;
+
+			/* Insert on a single-valued column that already has a value */
+			err_str = g_strdup_printf ("Unable to insert multiple values on "
+			                           "single valued property (old: %s, new: %s)",
+			                           sqlite3_value_text (argv[ARG_OLD_VALUE]),
+			                           sqlite3_value_text (argv[ARG_NEW_VALUE]));
+			result_context_function_error (context,
+			                               sqlite3_value_text (argv[ARG_PROPERTY_NAME]),
+			                               err_str);
+			g_free (err_str);
+		}
+	} else if (op == TRACKER_OP_INSERT_FAILABLE) {
+		if (old_value_is_null) {
+			/* Replace */
+			sqlite3_result_value (context, argv[ARG_NEW_VALUE]);
+		} else {
+			/* Preserve old value, continue without error */
+			sqlite3_result_value (context, argv[ARG_OLD_VALUE]);
+		}
+	} else if (op == TRACKER_OP_DELETE) {
+		if (!new_value_is_null && values_are_equal) {
+			/* Remove after matching */
+			sqlite3_result_null (context);
+		} else {
+			/* Preserve old value */
+			sqlite3_result_value (context, argv[ARG_OLD_VALUE]);
+		}
+	} else if (op == TRACKER_OP_RESET) {
+		/* Just reset without checks */
+		sqlite3_result_value (context, argv[ARG_NEW_VALUE]);
+	}
+}
+
+static void
 function_sparql_fts_tokenize (sqlite3_context *context,
                               int              argc,
                               sqlite3_value   *argv[])
@@ -1725,8 +1798,6 @@ initialize_functions (TrackerDBInterface *db_interface)
 		  function_sparql_langmatches },
 		{ "SparqlStrLang", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_strlang },
-		{ "SparqlPrintValue", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
-		  function_sparql_print_value },
 		{ "SparqlFtsTokenize", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_fts_tokenize },
 		/* Numbers */
@@ -1741,6 +1812,11 @@ initialize_functions (TrackerDBInterface *db_interface)
 		/* UUID */
 		{ "SparqlUUID", -1, SQLITE_ANY, function_sparql_uuid },
 		{ "SparqlBNODE", -1, SQLITE_ANY | SQLITE_DETERMINISTIC, function_sparql_bnode },
+		/* Helpers */
+		{ "SparqlPrintValue", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_print_value },
+		{ "SparqlUpdateValue", 4, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_update_value },
 	};
 
 	for (i = 0; i < G_N_ELEMENTS (functions); i++) {
