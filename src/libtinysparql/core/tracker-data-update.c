@@ -2042,6 +2042,31 @@ check_property_domain (TrackerData     *data,
 	return FALSE;
 }
 
+static void
+insert_property_value (TrackerData     *data,
+                       TrackerProperty *property,
+                       const GValue    *value)
+{
+	GArray *values;
+
+	if (!data->resource_buffer->predicates) {
+		data->resource_buffer->predicates =
+			g_hash_table_new_full (NULL, NULL, g_object_unref,
+			                       (GDestroyNotify) g_array_unref);
+	}
+
+	values = g_hash_table_lookup (data->resource_buffer->predicates, property);
+
+	if (!values) {
+		values = g_array_new (FALSE, FALSE, sizeof (GValue));
+		g_hash_table_insert (data->resource_buffer->predicates,
+		                     g_object_ref (property), values);
+	}
+
+	value_set_add_value (values, value);
+}
+
+
 static GArray *
 get_property_values (TrackerData      *data,
                      TrackerProperty  *property,
@@ -2262,11 +2287,9 @@ cache_insert_metadata_decomposed (TrackerData      *data,
                                   const GValue     *object,
                                   GError          **error)
 {
-	gboolean            multiple_values;
-	TrackerProperty   **super_properties;
-	GArray             *old_values;
-	GError             *new_error = NULL;
-	gboolean            change = FALSE;
+	gboolean multiple_values;
+	TrackerProperty **super_properties;
+	GError *new_error = NULL;
 
 	if (!check_property_domain (data, property)) {
 		if (data->implicit_create) {
@@ -2293,13 +2316,6 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 
 			return FALSE;
 		}
-	}
-
-	/* read existing property values */
-	old_values = get_property_values (data, property, &new_error);
-	if (new_error) {
-		g_propagate_error (error, new_error);
-		return FALSE;
 	}
 
 	/* also insert super property values */
@@ -2333,8 +2349,8 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 			val = object;
 
 		if (super_is_multi || super_old_values->len == 0) {
-			change |= cache_insert_metadata_decomposed (data, *super_properties, val,
-			                                            &new_error);
+			cache_insert_metadata_decomposed (data, *super_properties, val,
+			                                  &new_error);
 			if (new_error) {
 				g_value_unset (&converted);
 				g_propagate_error (error, new_error);
@@ -2345,92 +2361,44 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		super_properties++;
 	}
 
-	if (!value_set_add_value (old_values, object)) {
-		/* value already inserted */
-	} else if (!multiple_values && old_values->len > 1) {
-		/* trying to add second value to single valued property */
-		TrackerDBInterface *iface;
-		gchar *resource;
-		GValue old_value = { 0 };
-		GValue new_value = { 0 };
-		GValue *v;
-		gchar *old_value_str = NULL;
-		gchar *new_value_str = NULL;
+	insert_property_value (data, property, object);
 
-		g_value_init (&old_value, G_TYPE_STRING);
-		g_value_init (&new_value, G_TYPE_STRING);
-
-		/* Get both old and new values as strings letting glib do
-		 * whatever transformation needed */
-		v = &g_array_index (old_values, GValue, 0);
-		if (g_value_transform (v, &old_value)) {
-			old_value_str = tracker_utf8_truncate (g_value_get_string (&old_value), 255);
-		}
-
-		v = &g_array_index (old_values, GValue, 1);
-		if (g_value_transform (v, &new_value)) {
-			new_value_str = tracker_utf8_truncate (g_value_get_string (&new_value), 255);
-		}
-
-		iface = tracker_data_manager_get_writable_db_interface (data->manager);
-		resource = tracker_data_query_resource_urn (data->manager,
-		                                            iface,
-		                                            data->resource_buffer->id);
-
-		g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_CONSTRAINT,
-		             "Unable to insert multiple values on single valued property `%s' for %s %s "
-		             "(old_value: '%s', new value: '%s')",
-		             tracker_property_get_name (property),
-		             resource ? "resource" : "blank node",
-		             resource ? resource : "",
-		             old_value_str ? old_value_str : "<untransformable>",
-		             new_value_str ? new_value_str : "<untransformable>");
-
-		g_free (resource);
-		g_free (old_value_str);
-		g_free (new_value_str);
-		g_value_unset (&old_value);
-		g_value_unset (&new_value);
+	if (multiple_values) {
+		log_entry_for_multi_value_property (data,
+		                                    TRACKER_LOG_MULTIVALUED_PROPERTY_INSERT,
+		                                    property, object);
 	} else {
-		if (multiple_values) {
-			log_entry_for_multi_value_property (data,
-			                                    TRACKER_LOG_MULTIVALUED_PROPERTY_INSERT,
-			                                    property, object);
-		} else {
-			log_entry_for_single_value_property (data,
-			                                     tracker_property_get_domain (property),
-			                                     TRACKER_OP_INSERT,
-			                                     property, object);
-		}
-
-		if (!data->resource_buffer->modified) {
-			/* first modification of this particular resource, update nrl:modified */
-			TrackerOntologies *ontologies;
-			TrackerProperty *modified;
-			GValue gvalue = { 0 };
-
-			data->resource_buffer->modified = TRUE;
-			ontologies = tracker_data_manager_get_ontologies (data->manager);
-			modified = tracker_ontologies_get_nrl_modified (ontologies);
-
-			g_value_init (&gvalue, G_TYPE_INT64);
-			g_value_set_int64 (&gvalue, get_transaction_modseq (data));
-			log_entry_for_single_value_property (data,
-			                                     tracker_property_get_domain (modified),
-			                                     TRACKER_OP_RESET,
-			                                     modified, &gvalue);
-		}
-
-		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
-			tracker_data_resource_ref (data, g_value_get_int64 (object), multiple_values);
-
-		if (!multiple_values)
-			insert_property_domain_indexes (data, property, object);
-
-		change = TRUE;
+		log_entry_for_single_value_property (data,
+		                                     tracker_property_get_domain (property),
+		                                     TRACKER_OP_INSERT,
+		                                     property, object);
 	}
 
-	return change;
+	if (!data->resource_buffer->modified) {
+		/* first modification of this particular resource, update nrl:modified */
+		TrackerOntologies *ontologies;
+		TrackerProperty *modified;
+		GValue gvalue = { 0 };
+
+		data->resource_buffer->modified = TRUE;
+		ontologies = tracker_data_manager_get_ontologies (data->manager);
+		modified = tracker_ontologies_get_nrl_modified (ontologies);
+
+		g_value_init (&gvalue, G_TYPE_INT64);
+		g_value_set_int64 (&gvalue, get_transaction_modseq (data));
+		log_entry_for_single_value_property (data,
+		                                     tracker_property_get_domain (modified),
+		                                     TRACKER_OP_RESET,
+		                                     modified, &gvalue);
+	}
+
+	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
+		tracker_data_resource_ref (data, g_value_get_int64 (object), multiple_values);
+
+	if (!multiple_values)
+		insert_property_domain_indexes (data, property, object);
+
+	return TRUE;
 }
 
 static gboolean
@@ -2439,46 +2407,29 @@ delete_metadata_decomposed (TrackerData      *data,
                             const GValue     *object,
                             GError          **error)
 {
-	gboolean            multiple_values;
-	TrackerProperty   **super_properties;
-	GArray             *old_values;
-	GError             *new_error = NULL;
-	gboolean            change = FALSE;
+	gboolean multiple_values;
+	TrackerProperty **super_properties;
 
 	multiple_values = tracker_property_get_multiple_values (property);
 
 	maybe_update_fts (data, property);
 
-	/* read existing property values */
-	old_values = get_property_values (data, property, &new_error);
-	if (new_error) {
-		/* no need to error out if statement does not exist for any reason */
-		g_clear_error (&new_error);
-		return FALSE;
-	}
-
-	if (!value_set_remove_value (old_values, object)) {
-		/* value not found */
+	if (multiple_values) {
+		log_entry_for_multi_value_property (data,
+		                                    TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
+		                                    property, object);
 	} else {
-		if (multiple_values) {
-			log_entry_for_multi_value_property (data,
-			                                    TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
-			                                    property, object);
-		} else {
-			log_entry_for_single_value_property (data,
-			                                     tracker_property_get_domain (property),
-			                                     TRACKER_OP_DELETE,
-			                                     property, object);
-		}
-
-		if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
-			tracker_data_resource_unref (data, g_value_get_int64 (object), multiple_values);
-
-		if (!multiple_values)
-			delete_property_domain_indexes (data, property, object);
-
-		change = TRUE;
+		log_entry_for_single_value_property (data,
+		                                     tracker_property_get_domain (property),
+		                                     TRACKER_OP_DELETE,
+		                                     property, object);
 	}
+
+	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
+		tracker_data_resource_unref (data, g_value_get_int64 (object), multiple_values);
+
+	if (!multiple_values)
+		delete_property_domain_indexes (data, property, object);
 
 	/* also delete super property values */
 	super_properties = tracker_property_get_super_properties (property);
@@ -2495,12 +2446,12 @@ delete_metadata_decomposed (TrackerData      *data,
 		else
 			val = object;
 
-		change |= delete_metadata_decomposed (data, *super_properties, val, error);
+		delete_metadata_decomposed (data, *super_properties, val, error);
 		super_properties++;
 		g_value_unset (&converted);
 	}
 
-	return change;
+	return TRUE;
 }
 
 static gboolean
