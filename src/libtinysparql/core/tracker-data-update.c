@@ -58,6 +58,10 @@ typedef enum {
 	TRACKER_LOG_MULTIVALUED_PROPERTY_INSERT,
 	TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
 	TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
+	TRACKER_LOG_REF_CHANGE_FOR_PROPERTY,
+	TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY,
+	TRACKER_LOG_REF_INC,
+	TRACKER_LOG_REF_DEC,
 } TrackerDataLogEntryType;
 
 typedef enum
@@ -65,6 +69,12 @@ typedef enum
 	TRACKER_BUS_OP_SPARQL,
 	TRACKER_BUS_OP_RDF,
 } TrackerBusOpType;
+
+typedef enum
+{
+	TRACKER_INC_REF,
+	TRACKER_DEC_REF,
+} TrackerRefcountChange;
 
 typedef struct {
 	gint prev;
@@ -86,6 +96,14 @@ typedef struct {
 			TrackerProperty *property;
 			gint change_idx; /* Index in properties_ptr array */
 		} multivalued;
+		struct {
+			TrackerProperty *property;
+			gint64 refcount;
+		} prop_refcount;
+		struct {
+			gpointer dummy;
+			gint64 refcount;
+		} refcount;
 		GObject *any;
 	} table;
 	GArray *properties_ptr;
@@ -110,26 +128,18 @@ struct _TrackerDataUpdateBuffer {
 	 * coalesce single-valued property changes.
 	 */
 	GHashTable *class_updates;
+	/* Set of TrackerDataLogEntry. Used to coalesce refcount */
+	GHashTable *refcounts;
 
 	TrackerDBStatementMru stmt_mru;
 };
-
-typedef struct {
-	TrackerRowid rowid;
-	gint refcount_change;
-} RefcountEntry;
 
 struct _TrackerDataUpdateBufferGraph {
 	gchar *graph;
 
 	/* id -> TrackerDataUpdateBufferResource */
 	GHashTable *resources;
-	/* id -> integer */
-	GArray *refcounts;
 
-	TrackerDBStatement *insert_ref;
-	TrackerDBStatement *update_ref;
-	TrackerDBStatement *delete_ref;
 	TrackerDBStatement *query_rdf_types;
 	TrackerDBStatement *fts_delete;
 	TrackerDBStatement *fts_insert;
@@ -685,6 +695,7 @@ tracker_data_finalize (GObject *object)
 	g_clear_pointer (&data->update_buffer.properties, g_array_unref);
 	g_clear_pointer (&data->update_buffer.update_log, g_ptr_array_unref);
 	g_clear_pointer (&data->update_buffer.class_updates, g_hash_table_unref);
+	g_clear_pointer (&data->update_buffer.refcounts, g_hash_table_unref);
 	g_clear_object (&data->update_buffer.insert_resource);
 	g_clear_object (&data->update_buffer.query_resource);
 	tracker_db_statement_mru_finish (&data->update_buffer.stmt_mru);
@@ -861,6 +872,66 @@ log_entry_for_class (TrackerData             *data,
 		g_hash_table_remove (data->update_buffer.class_updates, entry_ptr);
 	else
 		g_hash_table_add (data->update_buffer.class_updates, entry_ptr);
+}
+
+static void
+log_entry_for_resource_property_refcount (TrackerData             *data,
+                                          TrackerDataLogEntryType  type,
+                                          TrackerProperty         *property,
+                                          TrackerRefcountChange    change)
+{
+	TrackerDataLogEntry entry = { 0, };
+	gint64 inc;
+
+	g_assert (type == TRACKER_LOG_REF_CHANGE_FOR_PROPERTY ||
+	          type == TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY);
+
+	inc = change == TRACKER_INC_REF ? 1 : -1;
+
+	entry.type = type;
+	entry.graph = data->resource_buffer->graph;
+	entry.id = data->resource_buffer->id;
+	entry.table.prop_refcount.property = property;
+	entry.table.prop_refcount.refcount = inc;
+	entry.properties_ptr = data->update_buffer.properties;
+
+	append_to_update_log (data, entry);
+}
+
+static void
+log_entry_for_resource_refcount (TrackerData             *data,
+                                 TrackerDataLogEntryType  type,
+                                 TrackerRowid             rowid,
+                                 TrackerRefcountChange    change)
+{
+	TrackerDataLogEntry entry = { 0, }, *entry_ptr;
+	gint64 inc;
+
+	g_assert (type == TRACKER_LOG_REF_INC ||
+	          type == TRACKER_LOG_REF_DEC);
+
+	inc = type == TRACKER_LOG_REF_INC ? 1 : -1;
+
+	entry.type = type;
+	entry.graph = data->resource_buffer->graph;
+	entry.id = rowid;
+	entry.properties_ptr = data->update_buffer.properties;
+
+	entry_ptr = g_hash_table_lookup (data->update_buffer.refcounts, &entry);
+
+	if (entry_ptr) {
+		entry_ptr->table.refcount.refcount += inc;
+
+		/* Change type if refcount changes sign */
+		if (entry_ptr->table.refcount.refcount >= 0)
+			entry_ptr->type = TRACKER_LOG_REF_INC;
+		else
+			entry_ptr->type = TRACKER_LOG_REF_DEC;
+	} else {
+		entry_ptr = append_to_update_log (data, entry);
+		entry_ptr->table.refcount.refcount = inc;
+		g_hash_table_add (data->update_buffer.refcounts, entry_ptr);
+	}
 }
 
 static GPtrArray*
@@ -1208,7 +1279,41 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
 		                                               database,
 		                                               tracker_class_get_name (entry->table.class.class));
-	} else {
+	} else if (entry->type == TRACKER_LOG_REF_CHANGE_FOR_PROPERTY) {
+		const char *table_name;
+
+		table_name = tracker_property_get_table_name (entry->table.prop_refcount.property);
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
+		                                               "INSERT INTO \"%s\".Refcount (ROWID, Refcount) "
+		                                               "SELECT \"%s\", ?1 FROM \"%s\".\"%s\" WHERE ROWID = ?2 "
+		                                               "ON CONFLICT(ROWID) DO "
+		                                               "UPDATE SET Refcount = Refcount + excluded.Refcount WHERE ROWID = excluded.ROWID",
+		                                               database,
+		                                               tracker_property_get_name (entry->table.prop_refcount.property),
+		                                               database, table_name);
+	} else if (entry->type == TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY) {
+		const char *table_name;
+
+		table_name = tracker_property_get_table_name (entry->table.prop_refcount.property);
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
+		                                               "UPDATE \"%s\".Refcount "
+		                                               "SET Refcount = Refcount + (?1 * (SELECT COUNT (*) FROM \"%s\".\"%s\" WHERE ROWID = ?1)) "
+		                                               "WHERE ROWID = ?2",
+		                                               database,
+		                                               database, table_name);
+	} else if (entry->type == TRACKER_LOG_REF_INC) {
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
+		                                               "INSERT INTO \"%s\".Refcount (ROWID, Refcount) "
+		                                               "VALUES ($1, $2) "
+		                                               "ON CONFLICT(ROWID) DO "
+		                                               "UPDATE SET Refcount = Refcount + excluded.Refcount WHERE ROWID = excluded.ROWID",
+		                                               database);
+	} else if (entry->type == TRACKER_LOG_REF_DEC) {
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
+		                                               "UPDATE \"%s\".Refcount SET Refcount = Refcount + $1 WHERE ROWID = ?2",
+		                                               database);
+	} else if (entry->type == TRACKER_LOG_CLASS_INSERT ||
+	           entry->type == TRACKER_LOG_CLASS_UPDATE) {
 		GHashTable *visited_properties;
 		TrackerDataPropertyEntry *property_entry;
 		gint param, property_idx;
@@ -1330,7 +1435,22 @@ tracker_data_flush_log_chunk (TrackerData  *data,
 			                                 TrackerDataPropertyEntry,
 			                                 entry->table.multivalued.change_idx);
 			statement_bind_gvalue (stmt, 1, &property_entry->value);
-		} else {
+		} else if (entry->type == TRACKER_LOG_REF_CHANGE_FOR_PROPERTY) {
+			tracker_db_statement_bind_int (stmt, 0, entry->table.prop_refcount.refcount);
+			tracker_db_statement_bind_int (stmt, 1, entry->id);
+		} else if (entry->type == TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY) {
+			tracker_db_statement_bind_int (stmt, 0, entry->id);
+			tracker_db_statement_bind_int (stmt, 1, entry->table.prop_refcount.refcount);
+		} else if (entry->type == TRACKER_LOG_REF_INC) {
+			tracker_db_statement_bind_int (stmt, 0, entry->id);
+			tracker_db_statement_bind_int (stmt, 1,
+			                               entry->table.refcount.refcount);
+		} else if (entry->type == TRACKER_LOG_REF_DEC) {
+			tracker_db_statement_bind_int (stmt, 0,
+			                               entry->table.refcount.refcount);
+			tracker_db_statement_bind_int (stmt, 1, entry->id);
+		} else if (entry->type == TRACKER_LOG_CLASS_INSERT ||
+		           entry->type == TRACKER_LOG_CLASS_UPDATE) {
 			GList *visited_properties = NULL;
 			gint param, property_idx;
 
@@ -1399,191 +1519,12 @@ tracker_data_flush_log (TrackerData  *data,
 }
 
 static void
-tracker_data_update_refcount (TrackerData  *data,
-                              TrackerRowid  id,
-                              gint          refcount)
-{
-	const TrackerDataUpdateBufferGraph *graph;
-	RefcountEntry entry;
-	guint i;
-
-	g_assert (data->resource_buffer != NULL);
-	graph = data->resource_buffer->graph;
-
-	for (i = 0; i < graph->refcounts->len; i++) {
-		RefcountEntry *ptr;
-
-		ptr = &g_array_index (graph->refcounts, RefcountEntry, i);
-		if (ptr->rowid == id) {
-			ptr->refcount_change += refcount;
-			return;
-		}
-	}
-
-	entry.rowid = id;
-	entry.refcount_change = refcount;
-	g_array_append_val (graph->refcounts, entry);
-}
-
-static void
-tracker_data_resource_ref (TrackerData  *data,
-                           TrackerRowid  id,
-                           gboolean      multivalued)
-{
-	if (multivalued)
-		tracker_data_update_refcount (data, data->resource_buffer->id, 1);
-
-	tracker_data_update_refcount (data, id, 1);
-}
-
-static void
-tracker_data_resource_unref (TrackerData  *data,
-                             TrackerRowid  id,
-                             gboolean      multivalued)
-{
-	if (multivalued)
-		tracker_data_update_refcount (data, data->resource_buffer->id, -1);
-
-	tracker_data_update_refcount (data, id, -1);
-}
-
-/* Only applies to multivalued properties */
-static gboolean
-tracker_data_resource_unref_all (TrackerData      *data,
-                                 TrackerProperty  *property,
-                                 GError          **error)
-{
-	GArray *old_values;
-	guint i;
-
-	g_assert (tracker_property_get_multiple_values (property) == TRUE);
-	g_assert (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE);
-
-	old_values = get_property_values (data, property, error);
-	if (!old_values)
-		return FALSE;
-
-	for (i = 0; i < old_values->len; i++) {
-		GValue *value;
-
-		value = &g_array_index (old_values, GValue, i);
-		tracker_data_resource_unref (data, g_value_get_int64 (value), TRUE);
-	}
-
-	return TRUE;
-}
-
-static void
-tracker_data_flush_graph_refcounts (TrackerData                   *data,
-                                    TrackerDataUpdateBufferGraph  *graph,
-                                    GError                       **error)
-{
-	TrackerDBInterface *iface;
-	TrackerRowid id;
-	gint refcount;
-	guint i;
-	GError *inner_error = NULL;
-	const gchar *database;
-	gchar *query;
-
-	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	database = graph->graph ? graph->graph : "main";
-
-	for (i = 0; i < graph->refcounts->len; i++) {
-		RefcountEntry *entry;
-
-		entry = &g_array_index (graph->refcounts, RefcountEntry, i);
-		id = entry->rowid;
-		refcount = entry->refcount_change;
-
-		if (refcount > 0) {
-			if (!graph->insert_ref) {
-				query = g_strdup_printf ("INSERT OR IGNORE INTO \"%s\".Refcount (ROWID, Refcount) VALUES (?1, 0)",
-				                         database);
-				graph->insert_ref =
-					tracker_db_interface_create_statement (iface,
-					                                       TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-					                                       &inner_error, query);
-				g_free (query);
-
-				if (inner_error) {
-					g_propagate_error (error, inner_error);
-					break;
-				}
-			}
-
-			tracker_db_statement_bind_int (graph->insert_ref, 0, id);
-			tracker_db_statement_execute (graph->insert_ref, &inner_error);
-
-			if (inner_error) {
-				g_propagate_error (error, inner_error);
-				break;
-			}
-		}
-
-		if (refcount != 0) {
-			if (!graph->update_ref) {
-				query = g_strdup_printf ("UPDATE \"%s\".Refcount SET Refcount = Refcount + ?2 WHERE Refcount.ROWID = ?1",
-				                         database);
-				graph->update_ref =
-					tracker_db_interface_create_statement (iface,
-					                                       TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-					                                       &inner_error, query);
-				g_free (query);
-
-				if (inner_error) {
-					g_propagate_error (error, inner_error);
-					break;
-				}
-			}
-
-			tracker_db_statement_bind_int (graph->update_ref, 0, id);
-			tracker_db_statement_bind_int (graph->update_ref, 1, refcount);
-			tracker_db_statement_execute (graph->update_ref, &inner_error);
-
-			if (inner_error) {
-				g_propagate_error (error, inner_error);
-				break;
-			}
-		}
-
-		if (refcount < 0) {
-			if (!graph->delete_ref) {
-				query = g_strdup_printf ("DELETE FROM \"%s\".Refcount WHERE Refcount.ROWID = ?1 AND Refcount.Refcount = 0",
-				                         database);
-				graph->delete_ref =
-					tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-					                                       &inner_error, query);
-				g_free (query);
-
-				if (inner_error) {
-					g_propagate_error (error, inner_error);
-					break;
-				}
-			}
-
-			tracker_db_statement_bind_int (graph->delete_ref, 0, id);
-			tracker_db_statement_execute (graph->delete_ref, &inner_error);
-
-			if (inner_error) {
-				g_propagate_error (error, inner_error);
-				break;
-			}
-		}
-	}
-}
-
-static void
 graph_buffer_free (TrackerDataUpdateBufferGraph *graph)
 {
-	g_clear_object (&graph->insert_ref);
-	g_clear_object (&graph->update_ref);
-	g_clear_object (&graph->delete_ref);
 	g_clear_object (&graph->query_rdf_types);
 	g_clear_object (&graph->fts_delete);
 	g_clear_object (&graph->fts_insert);
 	g_hash_table_unref (graph->resources);
-	g_array_unref (graph->refcounts);
 	g_free (graph->graph);
 	tracker_db_statement_mru_finish (&graph->values_mru);
 	g_slice_free (TrackerDataUpdateBufferGraph, graph);
@@ -1681,12 +1622,12 @@ tracker_data_update_buffer_clear (TrackerData *data)
 	for (i = 0; i < data->update_buffer.graphs->len; i++) {
 		graph = g_ptr_array_index (data->update_buffer.graphs, i);
 		g_hash_table_remove_all (graph->resources);
-		g_array_set_size (graph->refcounts, 0);
 	}
 
 	g_hash_table_remove_all (data->update_buffer.new_resources);
 	g_hash_table_remove_all (data->update_buffer.resource_cache);
 	g_hash_table_remove_all (data->update_buffer.class_updates);
+	g_hash_table_remove_all (data->update_buffer.refcounts);
 	g_array_set_size (data->update_buffer.properties, 0);
 	g_ptr_array_set_size (data->update_buffer.update_log, 0);
 	data->resource_buffer = NULL;
@@ -1699,7 +1640,6 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 	TrackerDataUpdateBufferGraph *graph;
 	TrackerDataUpdateBufferResource *resource;
 	GHashTableIter iter;
-	GError *actual_error = NULL;
 	G_GNUC_UNUSED gboolean fts_updated = FALSE;
 	guint i;
 
@@ -1750,11 +1690,7 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 			}
 		}
 
-		tracker_data_flush_graph_refcounts (data, graph, &actual_error);
-		if (actual_error) {
-			g_propagate_error (error, actual_error);
-			goto out;
-		}
+		g_hash_table_remove_all (graph->resources);
 	}
 
 #ifdef G_ENABLE_DEBUG
@@ -1833,7 +1769,10 @@ cache_create_service_decomposed (TrackerData   *data,
 	g_ptr_array_add (data->resource_buffer->types, cl);
 
 	log_entry_for_class (data, TRACKER_LOG_CLASS_INSERT, cl);
-	tracker_data_resource_ref (data, data->resource_buffer->id, FALSE);
+
+	log_entry_for_resource_refcount (data, TRACKER_LOG_REF_INC,
+	                                 data->resource_buffer->id,
+	                                 TRACKER_INC_REF);
 
 	class_id = tracker_class_get_id (cl);
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
@@ -1845,7 +1784,11 @@ cache_create_service_decomposed (TrackerData   *data,
 	                                    tracker_ontologies_get_rdf_type (ontologies),
 	                                    &gvalue);
 
-	tracker_data_resource_ref (data, class_id, TRUE);
+	log_entry_for_resource_refcount (data, TRACKER_LOG_REF_INC,
+	                                 data->resource_buffer->id,
+	                                 TRACKER_INC_REF);
+	log_entry_for_resource_refcount (data, TRACKER_LOG_REF_INC, class_id,
+	                                 TRACKER_INC_REF);
 
 	if (!data->resource_buffer->modified) {
 		/* first modification of this particular resource, update nrl:modified */
@@ -2392,8 +2335,12 @@ cache_insert_metadata_decomposed (TrackerData      *data,
 		                                     modified, &gvalue);
 	}
 
-	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
-		tracker_data_resource_ref (data, g_value_get_int64 (object), multiple_values);
+	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+		log_entry_for_resource_refcount (data,
+		                                 TRACKER_LOG_REF_INC,
+		                                 g_value_get_int64 (object),
+		                                 TRACKER_INC_REF);
+	}
 
 	if (!multiple_values)
 		insert_property_domain_indexes (data, property, object);
@@ -2414,6 +2361,20 @@ delete_metadata_decomposed (TrackerData      *data,
 
 	maybe_update_fts (data, property);
 
+	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+		if (multiple_values) {
+			log_entry_for_resource_property_refcount (data,
+			                                          TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY,
+			                                          property,
+			                                          TRACKER_DEC_REF);
+		}
+
+		log_entry_for_resource_property_refcount (data,
+		                                          TRACKER_LOG_REF_CHANGE_FOR_PROPERTY,
+		                                          property,
+		                                          TRACKER_DEC_REF);
+	}
+
 	if (multiple_values) {
 		log_entry_for_multi_value_property (data,
 		                                    TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
@@ -2424,9 +2385,6 @@ delete_metadata_decomposed (TrackerData      *data,
 		                                     TRACKER_OP_DELETE,
 		                                     property, object);
 	}
-
-	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
-		tracker_data_resource_unref (data, g_value_get_int64 (object), multiple_values);
 
 	if (!multiple_values)
 		delete_property_domain_indexes (data, property, object);
@@ -2545,8 +2503,21 @@ cache_delete_resource_type_full (TrackerData   *data,
 
 		maybe_update_fts (data, prop);
 
-		if (*tracker_property_get_domain_indexes (prop) ||
-		    tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+		if (tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			if (multiple_values) {
+				log_entry_for_resource_property_refcount (data,
+				                                          TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY,
+				                                          prop,
+				                                          TRACKER_DEC_REF);
+			}
+
+			log_entry_for_resource_property_refcount (data,
+			                                          TRACKER_LOG_REF_CHANGE_FOR_PROPERTY,
+			                                          prop,
+			                                          TRACKER_DEC_REF);
+		}
+
+		if (*tracker_property_get_domain_indexes (prop)) {
 			old_values = get_property_values (data, prop, error);
 			if (!old_values)
 				return FALSE;
@@ -2567,9 +2538,6 @@ cache_delete_resource_type_full (TrackerData   *data,
 					                                     prop, &copy);
 				}
 
-				if (tracker_property_get_data_type (prop) == TRACKER_PROPERTY_TYPE_RESOURCE)
-					tracker_data_resource_unref (data, g_value_get_int64 (&copy), multiple_values);
-
 				if (!multiple_values)
 					delete_property_domain_indexes (data, prop, &copy);
 
@@ -2589,13 +2557,25 @@ cache_delete_resource_type_full (TrackerData   *data,
 
 	g_value_init (&gvalue, G_TYPE_INT64);
 	g_value_set_int64 (&gvalue, tracker_class_get_id (class));
+
+	log_entry_for_resource_refcount (data,
+	                                 TRACKER_LOG_REF_DEC,
+	                                 tracker_class_get_id (class),
+	                                 TRACKER_DEC_REF);
+	log_entry_for_resource_refcount (data,
+	                                 TRACKER_LOG_REF_DEC,
+	                                 data->resource_buffer->id,
+	                                 TRACKER_DEC_REF);
 	log_entry_for_multi_value_property (data, TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
 	                                    tracker_ontologies_get_rdf_type (ontologies),
 	                                    &gvalue);
-	tracker_data_resource_unref (data, tracker_class_get_id (class), TRUE);
 
 	log_entry_for_class (data, TRACKER_LOG_CLASS_DELETE, class);
-	tracker_data_resource_unref (data, data->resource_buffer->id, FALSE);
+
+	log_entry_for_resource_refcount (data,
+	                                 TRACKER_LOG_REF_DEC,
+	                                 data->resource_buffer->id,
+	                                 TRACKER_DEC_REF);
 
 	tracker_data_dispatch_delete_statement_callbacks (data,
 	                                                  tracker_property_get_id (tracker_ontologies_get_rdf_type (ontologies)),
@@ -2635,7 +2615,6 @@ ensure_graph_buffer (TrackerDataUpdateBuffer  *buffer,
 	}
 
 	graph_buffer = g_slice_new0 (TrackerDataUpdateBufferGraph);
-	graph_buffer->refcounts = g_array_sized_new (FALSE, FALSE, sizeof (RefcountEntry), UPDATE_LOG_SIZE);
 	graph_buffer->graph = g_strdup (name);
 
 	graph_buffer->resources =
@@ -2789,25 +2768,32 @@ delete_all_helper (TrackerData      *data,
 	GValue *value;
 	guint i;
 
+	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+		if (tracker_property_get_multiple_values (property)) {
+			log_entry_for_resource_property_refcount (data,
+			                                          TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY,
+			                                          property,
+			                                          TRACKER_DEC_REF);
+		}
+
+		log_entry_for_resource_property_refcount (data,
+		                                          TRACKER_LOG_REF_CHANGE_FOR_PROPERTY,
+		                                          property,
+		                                          TRACKER_DEC_REF);
+	}
+
 	if (subproperty == property) {
 		if (tracker_property_get_multiple_values (property)) {
 			log_entry_for_multi_value_property (data,
 			                                    TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
 			                                    property, NULL);
 
-			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-				if (!tracker_data_resource_unref_all (data, property, error))
-					return FALSE;
-			}
 		} else {
 			value = &g_array_index (old_values, GValue, 0);
 			log_entry_for_single_value_property (data,
 			                                     tracker_property_get_domain (property),
 			                                     TRACKER_OP_DELETE,
 			                                     property, value);
-
-			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE)
-				tracker_data_resource_unref (data, g_value_get_int64 (value), FALSE);
 		}
 	} else {
 		super_old_values = get_property_values (data, property, error);
@@ -2829,11 +2815,6 @@ delete_all_helper (TrackerData      *data,
 				                                     tracker_property_get_domain (property),
 				                                     TRACKER_OP_DELETE,
 				                                     property, value);
-			}
-
-			if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-				tracker_data_resource_unref (data, g_value_get_int64 (value),
-				                             tracker_property_get_multiple_values (property));
 			}
 		}
 	}
@@ -2907,37 +2888,32 @@ delete_single_valued (TrackerData       *data,
 	multiple_values = tracker_property_get_multiple_values (predicate);
 
 	if (super_is_single_valued && multiple_values) {
+		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			log_entry_for_resource_property_refcount (data,
+			                                          TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY,
+			                                          predicate,
+			                                          TRACKER_DEC_REF);
+			log_entry_for_resource_property_refcount (data,
+			                                          TRACKER_LOG_REF_CHANGE_FOR_PROPERTY,
+			                                          predicate,
+			                                          TRACKER_DEC_REF);
+		}
+
 		log_entry_for_multi_value_property (data,
 		                                    TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
 		                                    predicate, NULL);
-
-		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-			if (!tracker_data_resource_unref_all (data, predicate, error))
-				return FALSE;
-		}
 	} else if (!multiple_values) {
-		GError *inner_error = NULL;
-		GArray *old_values;
+		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			log_entry_for_resource_property_refcount (data,
+			                                          TRACKER_LOG_REF_CHANGE_FOR_PROPERTY,
+			                                          predicate,
+			                                          TRACKER_DEC_REF);
+		}
 
 		log_entry_for_single_value_property (data,
 		                                     tracker_property_get_domain (predicate),
 		                                     TRACKER_OP_RESET,
 		                                     predicate, NULL);
-
-		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-			old_values = get_property_values (data, predicate, &inner_error);
-
-			if (old_values && old_values->len == 1) {
-				GValue *value;
-
-				value = &g_array_index (old_values, GValue, 0);
-				tracker_data_resource_unref (data, g_value_get_int64 (value), multiple_values);
-				g_array_remove_index (old_values, 0);
-			}
-		} else {
-			/* no need to error out if statement does not exist for any reason */
-			g_clear_error (&inner_error);
-		}
 	}
 
 	while (*super_properties) {
@@ -3126,14 +3102,20 @@ tracker_data_update_statement (TrackerData      *data,
 
 		maybe_update_fts (data, predicate);
 
+		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+			log_entry_for_resource_property_refcount (data,
+			                                          TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY,
+			                                          predicate,
+			                                          TRACKER_DEC_REF);
+			log_entry_for_resource_property_refcount (data,
+			                                          TRACKER_LOG_REF_CHANGE_FOR_PROPERTY,
+			                                          predicate,
+			                                          TRACKER_DEC_REF);
+		}
+
 		log_entry_for_multi_value_property (data,
 		                                    TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
 		                                    predicate, NULL);
-
-		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-			if (!tracker_data_resource_unref_all (data, predicate, error))
-				return;
-		}
 	} else {
 		if (!resource_buffer_switch (data, graph, subject, error))
 			return;
@@ -3211,6 +3193,8 @@ tracker_data_begin_transaction (TrackerData  *data,
 		g_ptr_array_set_free_func (data->update_buffer.update_log, (GDestroyNotify) g_array_unref);
 		data->update_buffer.class_updates = g_hash_table_new (tracker_data_log_entry_hash,
 		                                                      tracker_data_log_entry_equal);
+		data->update_buffer.refcounts = g_hash_table_new (tracker_data_log_entry_hash,
+		                                                  tracker_data_log_entry_equal);
 		tracker_db_statement_mru_init (&data->update_buffer.stmt_mru, 100,
 		                               tracker_data_log_entry_schema_hash,
 		                               tracker_data_log_entry_schema_equal,
