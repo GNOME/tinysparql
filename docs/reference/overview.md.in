@@ -10,8 +10,8 @@ in addition to connecting to remote endpoints for [federated
 queries](https://en.wikipedia.org/wiki/Federated_search) or creating such
 public endpoints.
 
-TinySPARQL is the data storage backend for the
-[Tracker Miner FS filesystem indexer](https://gnome.pages.gitlab.gnome.org/tracker-miners/),
+TinySPARQL is the data storage backend for
+[Localsearch](https://gnome.pages.gitlab.gnome.org/localsearch/),
 and is also used by apps that want to store, query and publish structured data
 using SPARQL.
 
