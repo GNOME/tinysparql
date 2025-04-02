@@ -1,0 +1,517 @@
+# Uzbek (Latin) translation for TinySPARQL.
+# Copyright (C) 2025 TinySPARQL's COPYRIGHT HOLDER
+# This file is distributed under the same license as the TinySPARQL package.
+# Baxrom Raxmatov <magdiyevbahrom@gmail.com>,  2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: TinySPARQL main\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
+"POT-Creation-Date: 2025-03-11 02:50+0000\n"
+"PO-Revision-Date: 2025-04-02 21:31+0500\n"
+"Last-Translator: \n"
+"Language-Team: Uzbek (Latin) <uz@li.org>\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.5\n"
+
+#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
+#: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
+#: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
+msgid "Location of the database"
+msgstr "Ma'lumotlar bazasining joylashuvi"
+
+#: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
+msgid "DIR"
+msgstr "DIR"
+
+#: src/cli/tracker-endpoint.c:62
+msgid "Specify the DBus name of this endpoint"
+msgstr "Ushbu oxirgi nuqtaning DBus nomini belgilang"
+
+#: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
+#, fuzzy
+msgid "NAME"
+msgstr "NAME"
+
+#: src/cli/tracker-endpoint.c:66
+msgid "Specify the ontology name used in this endpoint"
+msgstr "Ushbu oxirgi nuqtada ishlatiladigan ontologiya nomini belgilang"
+
+#: src/cli/tracker-endpoint.c:70
+msgid "Specify a path to an ontology to be used in this endpoint"
+msgstr "Ushbu oxirgi nuqtada ishlatiladigan ontologiyaga yo'lni belgilang"
+
+#: src/cli/tracker-endpoint.c:74
+msgid "HTTP port"
+msgstr "HTTP porti"
+
+#: src/cli/tracker-endpoint.c:78
+msgid "Whether to only allow HTTP connections in the loopback device"
+msgstr "Orqaga aylanish qurilmasida faqat HTTP ulanishlariga ruxsat beriladimi"
+
+#: src/cli/tracker-endpoint.c:82
+msgid "Use session bus"
+msgstr "Seans avtobusidan foydalaning"
+
+#: src/cli/tracker-endpoint.c:86
+#, fuzzy
+msgid "Use system bus"
+msgstr "Tizim avtobusidan foydalaning"
+
+#: src/cli/tracker-endpoint.c:90
+msgid "List SPARQL endpoints available in DBus"
+msgstr "DBus-da mavjud bo'lgan SPARQL so'nggi nuqtalarini ro'yxatlang"
+
+#: src/cli/tracker-endpoint.c:94
+msgid "List network-local HTTP SPARQL endpoints"
+msgstr "Tarmoqning mahalliy HTTP SPARQL so'nggi nuqtalarini ro'yxatlang"
+
+#. TRANSLATORS: these are commandline arguments
+#: src/cli/tracker-endpoint.c:115
+msgid "--list can only be used with --session or --system"
+msgstr "--list faqat --session yoki --system bilan ishlatilishi mumkin"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/cli/tracker-endpoint.c:121
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr ""
+"Bitta \"ontologiya\" yoki \"ontologiya-yo'l\" variantini taqdim etish kerak"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/cli/tracker-endpoint.c:127
+msgid "--http-port cannot be used with --dbus-service"
+msgstr "--http-portni --dbus-service bilan ishlatib bo'lmaydi"
+
+#: src/cli/tracker-endpoint.c:198
+#, c-format
+msgid "Creating HTTP endpoint at %s…\n"
+msgstr "HTTP oxirgi nuqtasi yaratilmoqda: %s…\n"
+
+#: src/cli/tracker-endpoint.c:217 src/cli/tracker-endpoint.c:280
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr ""
+"SPARQL buyruqlarini tinglash. To'xtatish uchun Ctrl-C tugmalarini bosing."
+
+#. Carriage return, so we paper over the ^C
+#: src/cli/tracker-endpoint.c:225 src/cli/tracker-endpoint.c:295
+#: src/cli/tracker-webide.c:101
+msgid "Closing connection…"
+msgstr "Ulanish yopilyapti…"
+
+#: src/cli/tracker-endpoint.c:240
+#, c-format
+msgid "Creating endpoint at %s…"
+msgstr "%s da oxirgi nuqta yaratilmoqda…"
+
+#: src/cli/tracker-endpoint.c:276
+msgid "Could not own DBus name"
+msgstr "DBus nomiga ega boʻlmadi"
+
+#: src/cli/tracker-endpoint.c:290
+msgid "DBus name lost"
+msgstr "DBus nomi yo'qolgan"
+
+#: src/cli/tracker-endpoint.c:606 src/cli/tracker-export.c:214
+#: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1026
+#: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
+#: src/cli/tracker-webide.c:118 src/portal/tracker-main.c:108
+msgid "Unrecognized options"
+msgstr "Noma'lum variantlar"
+
+#: src/cli/tracker-endpoint.c:650
+#, c-format
+msgid "Opening database at %s…"
+msgstr "Maʼlumotlar bazasi ochilmoqda: %s…"
+
+#: src/cli/tracker-endpoint.c:653
+msgid "Creating in-memory database"
+msgstr "Xotirada ma'lumotlar bazasini yaratish"
+
+#: src/cli/tracker-endpoint.c:680
+msgid ""
+"New database created. Use the “--dbus-service” option to share this database "
+"on a message bus."
+msgstr ""
+"Yangi ma'lumotlar bazasi yaratildi. Ushbu ma'lumotlar bazasini xabarlar "
+"avtobusida almashish uchun \"--dbus-service\" opsiyasidan foydalaning."
+
+#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
+#: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
+#: src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
+#: src/cli/tracker-query.c:65 src/cli/tracker-sql.c:46 src/cli/tracker-sql.c:50
+#, fuzzy
+msgid "FILE"
+msgstr "FILE"
+
+#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
+#: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
+msgid "Connects to a DBus service"
+msgstr "DBus xizmatiga ulanadi"
+
+#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
+#: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
+msgid "DBus service name"
+msgstr "DBus xizmati nomi"
+
+#: src/cli/tracker-export.c:54
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr "Chiqish natijalari formati: “toshbaqa”, “trig” yoki “json-ld”"
+
+#: src/cli/tracker-export.c:55
+msgid "RDF_FORMAT"
+msgstr "RDF_FORMAT"
+
+#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
+#: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
+msgid "Connects to a remote service"
+msgstr "Masofaviy xizmatga ulanadi"
+
+#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
+#: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
+msgid "Remote service URI"
+msgstr "Masofaviy xizmat URI"
+
+#: src/cli/tracker-export.c:62
+msgid "Output TriG format which includes named graph information"
+msgstr ""
+"Nomlangan grafik ma'lumotlarini o'z ichiga olgan TriG formatini chiqaring"
+
+#: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
+#, fuzzy
+msgid "IRI"
+msgstr "IRI"
+
+#. TRANSLATORS: Those are commandline arguments
+#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
+#: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr ""
+"Bitta “—database”, “--dbus-service” yoki “--remote-service” opsiyalarini "
+"belgilang"
+
+#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
+#: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:830
+#: src/cli/tracker-query.c:345
+msgid "No error given"
+msgstr "Xato berilmagan"
+
+#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
+#: src/cli/tracker-introspect.c:829 src/cli/tracker-query.c:344
+msgid "Could not establish a connection to Tracker"
+msgstr "Tracker bilan aloqa o‘rnatib bo‘lmadi"
+
+#: src/cli/tracker-export.c:179
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "“%s” seriyali formati qo‘llab-quvvatlanmaydi\n"
+
+#: src/cli/tracker-import.c:58
+msgid "Read TriG format which includes named graph information"
+msgstr "Grafik ma'lumotlarini o'z ichiga olgan TriG formatini o'qing"
+
+#: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
+msgid "Could not run import"
+msgstr "Importni amalga oshirib bo‘lmadi"
+
+#: src/cli/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "Barcha mavjud sinflar ro'yxati"
+
+#: src/cli/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "Barcha mavjud prefikslarni ko'rsatadi"
+
+#: src/cli/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr ""
+"Ma'lumotlar bazasidagi o'zgarishlar haqida xabar beradigan barcha sinflar "
+"ro'yxati"
+
+#: src/cli/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr ""
+"Ishlashni yaxshilash uchun ma'lumotlar bazasida ishlatiladigan indekslarni "
+"sanab o'ting"
+
+#: src/cli/tracker-introspect.c:125
+msgid "Retrieve all named graphs"
+msgstr "Barcha nomlangan grafiklarni oling"
+
+#: src/cli/tracker-introspect.c:129
+msgid ""
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
+msgstr ""
+"Pastki sinflarni, yuqori sinflarni tavsiflang (daraxt qismlarini ajratib "
+"ko'rsatish uchun -s va xususiyatlarni ko'rsatish uchun -p bilan ishlatilishi "
+"mumkin)"
+
+#: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "CreateObject da berilgan noto'g'ri upnp:class"
+
+#: src/cli/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "Barcha mavjud xususiyatlar ro'yxati"
+
+#: src/cli/tracker-introspect.c:137
+msgid ""
+"Search for a class or property and display more information (e.g. Document)"
+msgstr ""
+"Sinf yoki mulkni qidiring va qo'shimcha ma'lumotni ko'rsating (masalan, "
+"Hujjat)"
+
+#: src/cli/tracker-introspect.c:138
+#, fuzzy
+msgid "CLASS/PROPERTY"
+msgstr "KLASS/MULK"
+
+#: src/cli/tracker-introspect.c:716
+msgid "Could not create tree: subclass query failed"
+msgstr "Daraxt yaratib bo‘lmadi: pastki sinf so‘rovi bajarilmadi"
+
+#: src/cli/tracker-introspect.c:765
+msgid "Could not create tree: class properties query failed"
+msgstr "Daraxt yaratib bo‘lmadi: sinf xususiyatlari so‘rovi amalga oshmadi"
+
+#: src/cli/tracker-introspect.c:849
+msgid "Could not search classes"
+msgstr "Sinflarni qidirib boʻlmadi"
+
+#: src/cli/tracker-introspect.c:857 src/cli/tracker-introspect.c:941
+msgid "Classes"
+msgstr "Sinflar"
+
+#: src/cli/tracker-introspect.c:869
+msgid "Could not search properties"
+msgstr "Xususiyatlarni qidirib bo'lmadi"
+
+#: src/cli/tracker-introspect.c:877 src/cli/tracker-introspect.c:911
+#, fuzzy
+msgid "Properties"
+msgstr "Xususiyatlari"
+
+#: src/cli/tracker-introspect.c:903
+msgid "Could not list properties"
+msgstr "Xususiyatlarni roʻyxatga kiritib boʻlmadi"
+
+#: src/cli/tracker-introspect.c:919
+msgid "Namespaces"
+msgstr "Nom maydonlari"
+
+#: src/cli/tracker-introspect.c:933
+msgid "Could not list classes"
+msgstr "Sinflar roʻyxatini kiritib boʻlmadi"
+
+#: src/cli/tracker-introspect.c:953
+msgid "Could not find notify classes"
+msgstr "Xabar berish sinflari topilmadi"
+
+#: src/cli/tracker-introspect.c:961
+msgid "Notifies"
+msgstr "Xabar beradi"
+
+#: src/cli/tracker-introspect.c:973
+msgid "Could not find indexed properties"
+msgstr "Indekslangan xususiyatlar topilmadi"
+
+#: src/cli/tracker-introspect.c:981
+msgid "Indexes"
+msgstr "Indekslar"
+
+#: src/cli/tracker-introspect.c:993
+msgid "Could not list named graphs"
+msgstr "Nomlangan grafiklarni roʻyxatga kiritib boʻlmadi"
+
+#: src/cli/tracker-introspect.c:1001
+msgid "Named graphs"
+msgstr "Nomlangan grafikalar"
+
+#: src/cli/tracker-introspect.c:1035
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"--list-properties argumenti faqat --tree argumenti bilan foydalanilganda "
+"bo'sh bo'lishi mumkin"
+
+#: src/cli/tracker-main.c:70
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr ""
+"TinySPARQL va ushbu buyruqlardan qanday foydalanish haqida yordam oling"
+
+#: src/cli/tracker-main.c:71
+msgid "Create a SPARQL endpoint"
+msgstr "SPARQL so'nggi nuqtasini yarating"
+
+#: src/cli/tracker-main.c:72
+msgid "Export data from a TinySPARQL database"
+msgstr "TinySPARQL ma'lumotlar bazasidan ma'lumotlarni eksport qiling"
+
+#: src/cli/tracker-main.c:73
+msgid "Import data into a TinySPARQL database"
+msgstr "TinySPARQL ma'lumotlar bazasiga ma'lumotlarni import qiling"
+
+#: src/cli/tracker-main.c:74
+msgid "Introspect a SPARQL endpoint"
+msgstr "SPARQL so'nggi nuqtasini o'rganing"
+
+#: src/cli/tracker-main.c:75
+msgid "Query and update the index using SPARQL"
+msgstr "SPARQL yordamida indeksni so'rang va yangilang"
+
+#: src/cli/tracker-main.c:76
+msgid "Create a Web IDE to query local databases"
+msgstr "Mahalliy ma'lumotlar bazalarini so'rash uchun Web IDE yarating"
+
+#: src/cli/tracker-main.c:93
+msgid "Available tinysparql commands are:"
+msgstr "Mavjud tinysparql buyruqlari:"
+
+#: src/cli/tracker-main.c:112
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+"“tinysparql yordamiga qarang<command> ” ma'lum bir kichik buyruq haqida "
+"o'qish uchun."
+
+#: src/cli/tracker-main.c:155
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "“%s” tinysparql buyrug‘i emas. \"tinysparql --help\" ga qarang"
+
+#: src/cli/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr "So'rovni bajarish yoki fayldan yangilash uchun foydalaniladigan yo'l"
+
+#: src/cli/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "SPARQL so'rovi"
+
+#: src/cli/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/cli/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr ""
+"Bu --query bilan va faqat ma'lumotlar bazasi yangilanishi uchun ishlatiladi."
+
+#: src/cli/tracker-query.c:76
+msgid "Provides an argument for a query parameter."
+msgstr "So'rov parametri uchun argument beradi."
+
+#: src/cli/tracker-query.c:77
+msgid "PARAMETER:TYPE:VALUE"
+msgstr "PARAMETER:TYPE:VALUE"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/cli/tracker-query.c:214 src/cli/tracker-query.c:262
+msgid "None"
+msgstr "Hech biri"
+
+#: src/cli/tracker-query.c:282
+#, c-format
+msgid "Invalid argument string %s"
+msgstr "Argument qatori yaroqsiz %s"
+
+#: src/cli/tracker-query.c:292
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr "%s argumenti uchun parametr turi yaroqsiz"
+
+#: src/cli/tracker-query.c:360
+msgid "Could not get UTF-8 path from path"
+msgstr "Yoʻldan UTF-8 yoʻlini olib boʻlmadi"
+
+#: src/cli/tracker-query.c:372 src/cli/tracker-sql.c:75
+msgid "Could not read file"
+msgstr "Faylni oʻqib boʻlmadi"
+
+#: src/cli/tracker-query.c:403
+msgid "Could not run update"
+msgstr "Yangilashni ishga tushirib boʻlmadi"
+
+#: src/cli/tracker-query.c:410
+msgid "Done"
+msgstr "Bajarildi"
+
+#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
+#: src/cli/tracker-sql.c:164
+msgid "Could not run query"
+msgstr "So‘rovni bajarib bo‘lmadi"
+
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+msgid "No results found matching your query"
+msgstr "So‘rovingizga mos keladigan natija topilmadi"
+
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+#: src/cli/tracker-sql.c:138
+msgid "Results"
+msgstr "Natijalar"
+
+#: src/cli/tracker-query.c:498 src/cli/tracker-sql.c:250
+msgid "File and query can not be used together"
+msgstr "Fayl va so'rovni birgalikda ishlatib bo'lmaydi"
+
+#: src/cli/tracker-sql.c:49
+msgid "Path to use to run a query from file"
+msgstr "Fayldan so'rovni bajarish uchun foydalaniladigan yo'l"
+
+#: src/cli/tracker-sql.c:53
+msgid "SQL query"
+msgstr "SQL so'rovi"
+
+#: src/cli/tracker-sql.c:54
+msgid "SQL"
+msgstr "SQL"
+
+#: src/cli/tracker-sql.c:108
+msgid "Failed to initialize data manager"
+msgstr "Maʼlumotlar menejerini ishga tushirib boʻlmadi"
+
+#: src/cli/tracker-sql.c:172
+msgid "Empty result set"
+msgstr "Boʻsh natijalar toʻplami"
+
+#: src/cli/tracker-sql.c:248
+msgid "A database path must be specified"
+msgstr "Ma'lumotlar bazasi yo'li ko'rsatilishi kerak"
+
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "Tinglash uchun port"
+
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "Port ko'rsatilmagan"
+
+#: src/cli/tracker-webide.c:80
+#, c-format
+msgid "%s %s…\n"
+msgstr "%s %s…\n"
+
+#: src/cli/tracker-webide.c:80
+msgid "Creating Web IDE at"
+msgstr "Veb IDE yaratish"
+
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtinysparql/core/tracker-collation.c:116
+msgid "the|a|an"
+msgstr "the|a|an"
+
+#: src/portal/tracker-main.c:51
+msgid "Version"
+msgstr "Versiya"
