@@ -1607,6 +1607,23 @@ tracker_data_manager_attempt_repair (TrackerDataManager  *data_manager,
 }
 
 static gboolean
+tracker_data_manager_create_refcount_trigger (TrackerDataManager  *manager,
+                                              TrackerDBInterface  *iface,
+                                              const gchar         *database,
+                                              GError             **error)
+{
+	return tracker_db_interface_execute_query (iface, error,
+	                                           "CREATE TRIGGER IF NOT EXISTS "
+	                                           "\"%s\".trigger_Refcount "
+	                                           "AFTER UPDATE OF Refcount ON Refcount "
+	                                           "FOR EACH ROW WHEN NEW.Refcount = 0 "
+	                                           "BEGIN "
+	                                           "DELETE FROM Refcount WHERE ROWID = OLD.ROWID; "
+	                                           "END",
+	                                           database);
+}
+
+static gboolean
 tracker_data_manager_update_from_version (TrackerDataManager  *manager,
                                           TrackerDBVersion     version,
                                           TrackerOntologies   *ontologies,
@@ -1657,6 +1674,25 @@ tracker_data_manager_update_from_version (TrackerDataManager  *manager,
 			if (!tracker_data_manager_delete_fts (manager, iface, database, &internal_error))
 				goto error;
 			if (!tracker_data_manager_update_fts (manager, iface, database, ontologies, &internal_error))
+				goto error;
+		}
+	}
+
+	if (version < TRACKER_DB_VERSION_3_10) {
+		GHashTableIter iter;
+		const gchar *graph;
+
+		g_hash_table_iter_init (&iter, manager->graphs);
+
+		while (g_hash_table_iter_next (&iter, (gpointer *) &graph, NULL)) {
+			const gchar *database;
+
+			database = (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0) ? "main" : graph;
+
+			if (!tracker_data_manager_create_refcount_trigger (manager,
+			                                                   iface,
+			                                                   database,
+			                                                   error))
 				goto error;
 		}
 	}
@@ -2058,6 +2094,9 @@ tracker_data_manager_apply_db_changes (TrackerDataManager     *manager,
 	                                         " \"%s\".Refcount (ID INTEGER NOT NULL PRIMARY KEY,"
 	                                         " Refcount INTEGER DEFAULT 0)",
 	                                         database))
+		return FALSE;
+
+	if (!tracker_data_manager_create_refcount_trigger (manager, iface, database, error))
 		return FALSE;
 
 	for (i = 0; i < n_changes; i++) {
