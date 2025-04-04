@@ -165,8 +165,6 @@ struct _TrackerDataUpdateBufferResource {
 	TrackerRowid id;
 	gboolean create;
 	gboolean modified;
-	/* TrackerProperty -> GArray of GValue */
-	GHashTable *predicates;
 	/* TrackerClass */
 	GPtrArray *types;
 
@@ -1659,8 +1657,6 @@ graph_buffer_free (TrackerDataUpdateBufferGraph *graph)
 
 static void resource_buffer_free (TrackerDataUpdateBufferResource *resource)
 {
-	g_clear_pointer (&resource->predicates, g_hash_table_unref);
-
 	g_ptr_array_free (resource->types, TRUE);
 	resource->types = NULL;
 
@@ -1979,78 +1975,6 @@ cache_create_service_decomposed (TrackerData   *data,
 }
 
 static gboolean
-value_equal (const GValue *value1,
-             const GValue *value2)
-{
-	GType type = G_VALUE_TYPE (value1);
-
-	if (type != G_VALUE_TYPE (value2)) {
-		/* Handle booleans specially */
-		if (type == G_TYPE_BOOLEAN && G_VALUE_TYPE (value2) == G_TYPE_INT64) {
-			return (g_value_get_boolean (value1) ==
-			        (g_value_get_int64 (value2) != 0));
-		} else if (type == G_TYPE_INT64 && G_VALUE_TYPE (value2) == G_TYPE_BOOLEAN) {
-			return ((g_value_get_int64 (value1) != 0) ==
-			        g_value_get_boolean (value2));
-		}
-
-		return FALSE;
-	}
-
-	switch (type) {
-	case G_TYPE_STRING:
-		return (strcmp (g_value_get_string (value1), g_value_get_string (value2)) == 0);
-	case G_TYPE_INT64:
-		return g_value_get_int64 (value1) == g_value_get_int64 (value2);
-	case G_TYPE_BOOLEAN:
-		return g_value_get_boolean (value1) == g_value_get_boolean (value2);
-	case G_TYPE_DOUBLE:
-		/* does RDF define equality for floating point values? */
-		return g_value_get_double (value1) == g_value_get_double (value2);
-	default:
-		if (type == G_TYPE_DATE_TIME) {
-			/* UTC offset is ignored for comparison, irrelevant according to xsd:dateTime spec
-			 * http://www.w3.org/TR/xmlschema-2/#dateTime
-			 */
-			return g_date_time_compare (g_value_get_boxed (value1),
-			                            g_value_get_boxed (value2)) == 0;
-		} else if (type == G_TYPE_BYTES) {
-			return g_bytes_equal (g_value_get_boxed (value1),
-			                      g_value_get_boxed (value2));
-		}
-
-		g_critical ("No conversion for type %s", g_type_name (type));
-		g_assert_not_reached ();
-	}
-}
-
-static gboolean
-value_set_add_value (GArray       *value_set,
-                     const GValue *value)
-{
-	GValue gvalue_copy = { 0 };
-	guint i;
-
-	g_return_val_if_fail (G_VALUE_TYPE (value), FALSE);
-
-	for (i = 0; i < value_set->len; i++) {
-		GValue *v;
-
-		v = &g_array_index (value_set, GValue, i);
-		if (value_equal (v, value)) {
-			/* no change, value already in set */
-			return FALSE;
-		}
-	}
-
-	g_value_init (&gvalue_copy, G_VALUE_TYPE (value));
-	g_value_copy (value, &gvalue_copy);
-	g_array_append_val (value_set, gvalue_copy);
-
-	return TRUE;
-}
-
-static gboolean
 check_property_domain (TrackerData     *data,
                        TrackerProperty *property)
 {
@@ -2062,30 +1986,6 @@ check_property_domain (TrackerData     *data,
 		}
 	}
 	return FALSE;
-}
-
-static void
-insert_property_value (TrackerData     *data,
-                       TrackerProperty *property,
-                       const GValue    *value)
-{
-	GArray *values;
-
-	if (!data->resource_buffer->predicates) {
-		data->resource_buffer->predicates =
-			g_hash_table_new_full (NULL, NULL, g_object_unref,
-			                       (GDestroyNotify) g_array_unref);
-	}
-
-	values = g_hash_table_lookup (data->resource_buffer->predicates, property);
-
-	if (!values) {
-		values = g_array_new (FALSE, FALSE, sizeof (GValue));
-		g_hash_table_insert (data->resource_buffer->predicates,
-		                     g_object_ref (property), values);
-	}
-
-	value_set_add_value (values, value);
 }
 
 static TrackerRowid
@@ -2302,8 +2202,6 @@ cache_insert_metadata_decomposed (TrackerData        *data,
 		g_value_unset (&converted);
 		super_properties++;
 	}
-
-	insert_property_value (data, property, object);
 
 	if (multiple_values) {
 		log_entry_for_multi_value_property (data,
@@ -2522,9 +2420,6 @@ cache_delete_resource_type_full (TrackerData   *data,
 			                                    TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
 			                                    prop, NULL);
 		}
-
-		if (data->resource_buffer->predicates)
-			g_hash_table_remove (data->resource_buffer->predicates, prop);
 	}
 
 	g_value_init (&gvalue, G_TYPE_INT64);
