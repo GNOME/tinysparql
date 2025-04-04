@@ -58,10 +58,14 @@ typedef enum {
 	TRACKER_LOG_MULTIVALUED_PROPERTY_INSERT,
 	TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
 	TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR,
+	TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_INSERT,
+	TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_DELETE,
 	TRACKER_LOG_REF_CHANGE_FOR_PROPERTY,
 	TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY,
 	TRACKER_LOG_REF_INC,
 	TRACKER_LOG_REF_DEC,
+	TRACKER_LOG_PROPERTY_PROPAGATE_INSERT,
+	TRACKER_LOG_PROPERTY_PROPAGATE_DELETE,
 } TrackerDataLogEntryType;
 
 typedef enum
@@ -104,6 +108,10 @@ typedef struct {
 			gpointer dummy;
 			gint64 refcount;
 		} refcount;
+		struct {
+			TrackerProperty *source;
+			TrackerProperty *dest;
+		} propagation;
 		GObject *any;
 	} table;
 	GArray *properties_ptr;
@@ -934,6 +942,29 @@ log_entry_for_resource_refcount (TrackerData             *data,
 	}
 }
 
+static void
+log_entry_for_property_propagation (TrackerData             *data,
+                                    TrackerDataLogEntryType  type,
+                                    TrackerProperty         *source,
+                                    TrackerProperty         *dest)
+{
+	TrackerDataLogEntry entry = { 0, };
+
+	g_assert (type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_INSERT ||
+	          type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_DELETE ||
+	          type == TRACKER_LOG_PROPERTY_PROPAGATE_INSERT ||
+	          type == TRACKER_LOG_PROPERTY_PROPAGATE_DELETE);
+
+	entry.type = type;
+	entry.graph = data->resource_buffer->graph;
+	entry.id = data->resource_buffer->id;
+	entry.table.propagation.source = source;
+	entry.table.propagation.dest = dest;
+	entry.properties_ptr = data->update_buffer.properties;
+
+	append_to_update_log (data, entry);
+}
+
 static GPtrArray*
 tracker_data_query_rdf_type (TrackerData                   *data,
                              TrackerDataUpdateBufferGraph  *graph,
@@ -1312,6 +1343,49 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 		                                               "UPDATE \"%s\".Refcount SET Refcount = Refcount + $1 WHERE ROWID = ?2",
 		                                               database);
+	} else if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_INSERT) {
+		const gchar *source_table, *dest_table;
+
+		source_table = tracker_property_get_table_name (entry->table.propagation.source);
+		dest_table = tracker_property_get_table_name (entry->table.propagation.dest);
+
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
+		                                               "INSERT OR IGNORE INTO \"%s\".\"%s\" (ID, \"%s\") "
+		                                               "SELECT ROWID, \"%s\" FROM \"%s\".\"%s\" WHERE ROWID = $1",
+		                                               database, dest_table,
+		                                               tracker_property_get_name (entry->table.propagation.dest),
+		                                               tracker_property_get_name (entry->table.propagation.source),
+		                                               database, source_table);
+	} else if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_DELETE) {
+		const gchar *source_table, *dest_table;
+
+		source_table = tracker_property_get_table_name (entry->table.propagation.source);
+		dest_table = tracker_property_get_table_name (entry->table.propagation.dest);
+
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
+		                                               "DELETE FROM \"%s\".\"%s\" WHERE ROWID = $1 AND \"%s\" IN ("
+		                                               "SELECT \"%s\" FROM \"%s\".\"%s\" WHERE ROWID = $1)",
+		                                               database, dest_table,
+		                                               tracker_property_get_name (entry->table.propagation.dest),
+		                                               tracker_property_get_name (entry->table.propagation.source),
+		                                               database, source_table);
+	} else if (entry->type == TRACKER_LOG_PROPERTY_PROPAGATE_INSERT ||
+	           entry->type == TRACKER_LOG_PROPERTY_PROPAGATE_DELETE) {
+		const gchar *source_table, *dest_table;
+
+		source_table = tracker_property_get_table_name (entry->table.propagation.source);
+		dest_table = tracker_property_get_table_name (entry->table.propagation.dest);
+
+		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
+		                                               "UPDATE \"%s\".\"%s\" "
+		                                               "SET \"%s\" = SparqlUpdateValue('%s', $1, \"%s\", (SELECT \"%s\" FROM \"%s\".\"%s\" WHERE ROWID = $2))"
+		                                               "WHERE ROWID = $2",
+		                                               database, dest_table,
+		                                               tracker_property_get_name (entry->table.propagation.dest),
+		                                               tracker_property_get_name (entry->table.propagation.dest),
+		                                               tracker_property_get_name (entry->table.propagation.dest),
+		                                               tracker_property_get_name (entry->table.propagation.source),
+		                                               database, source_table);
 	} else if (entry->type == TRACKER_LOG_CLASS_INSERT ||
 	           entry->type == TRACKER_LOG_CLASS_UPDATE) {
 		GHashTable *visited_properties;
@@ -1448,6 +1522,15 @@ tracker_data_flush_log_chunk (TrackerData  *data,
 		} else if (entry->type == TRACKER_LOG_REF_DEC) {
 			tracker_db_statement_bind_int (stmt, 0,
 			                               entry->table.refcount.refcount);
+			tracker_db_statement_bind_int (stmt, 1, entry->id);
+		} else if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_INSERT ||
+		           entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_DELETE) {
+			tracker_db_statement_bind_int (stmt, 0, entry->id);
+		} else if (entry->type == TRACKER_LOG_PROPERTY_PROPAGATE_INSERT ||
+		           entry->type == TRACKER_LOG_PROPERTY_PROPAGATE_DELETE) {
+			tracker_db_statement_bind_int (stmt, 0,
+			                               entry->type == TRACKER_LOG_PROPERTY_PROPAGATE_INSERT ?
+			                               TRACKER_OP_INSERT_FAILABLE : TRACKER_OP_DELETE);
 			tracker_db_statement_bind_int (stmt, 1, entry->id);
 		} else if (entry->type == TRACKER_LOG_CLASS_INSERT ||
 		           entry->type == TRACKER_LOG_CLASS_UPDATE) {
@@ -2751,13 +2834,9 @@ delete_all_helper (TrackerData      *data,
                    TrackerRowid      subject,
                    TrackerProperty  *subproperty,
                    TrackerProperty  *property,
-                   GArray           *old_values,
                    GError          **error)
 {
 	TrackerProperty **super_properties;
-	GArray *super_old_values;
-	GValue *value;
-	guint i;
 
 	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 		if (tracker_property_get_multiple_values (property)) {
@@ -2780,34 +2859,18 @@ delete_all_helper (TrackerData      *data,
 			                                    property, NULL);
 
 		} else {
-			value = &g_array_index (old_values, GValue, 0);
 			log_entry_for_single_value_property (data,
 			                                     tracker_property_get_domain (property),
-			                                     TRACKER_OP_DELETE,
-			                                     property, value);
+			                                     TRACKER_OP_RESET,
+			                                     property, NULL);
 		}
 	} else {
-		super_old_values = get_property_values (data, property, error);
-		if (!super_old_values)
-			return FALSE;
-
-		for (i = 0; i < old_values->len; i++) {
-			value = &g_array_index (old_values, GValue, i);
-
-			if (!value_set_remove_value (super_old_values, value))
-				continue;
-
-			if (tracker_property_get_multiple_values (property)) {
-				log_entry_for_multi_value_property (data,
-				                                    TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE,
-				                                    property, value);
-			} else {
-				log_entry_for_single_value_property (data,
-				                                     tracker_property_get_domain (property),
-				                                     TRACKER_OP_DELETE,
-				                                     property, value);
-			}
-		}
+		log_entry_for_property_propagation (data,
+		                                    tracker_property_get_multiple_values (property) ?
+		                                    TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_DELETE :
+		                                    TRACKER_LOG_PROPERTY_PROPAGATE_DELETE,
+		                                    subproperty,
+		                                    property);
 	}
 
 	/* also delete super property values */
@@ -2815,15 +2878,10 @@ delete_all_helper (TrackerData      *data,
 	while (*super_properties) {
 		if (!delete_all_helper (data, graph, subject,
 		                        subproperty, *super_properties,
-		                        old_values, error))
+		                        error))
 			return FALSE;
 
 		super_properties++;
-	}
-
-	if (subproperty == property) {
-		/* Clear the buffered property values */
-		g_array_remove_range (old_values, 0, old_values->len);
 	}
 
 	return TRUE;
@@ -2838,8 +2896,6 @@ tracker_data_delete_all (TrackerData   *data,
 {
 	TrackerOntologies *ontologies;
 	TrackerProperty *property;
-	GArray *old_values;
-	GError *inner_error = NULL;
 
 	g_return_val_if_fail (subject != 0, FALSE);
 	g_return_val_if_fail (predicate != NULL, FALSE);
@@ -2851,17 +2907,10 @@ tracker_data_delete_all (TrackerData   *data,
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
 	property = tracker_ontologies_get_property_by_uri (ontologies,
 	                                                   predicate);
-	old_values = get_property_values (data, property, &inner_error);
-	if (inner_error) {
-		g_propagate_error (error, inner_error);
-		return FALSE;
-	} else if (!old_values || old_values->len == 0) {
-		return FALSE;
-	}
 
 	return delete_all_helper (data, graph, subject,
 	                          property, property,
-	                          old_values, error);
+	                          error);
 }
 
 static gboolean
