@@ -3751,6 +3751,10 @@ resource_maybe_reset_property (TrackerData      *data,
 	if (tracker_resource_is_blank_node (resource))
 		return TRUE;
 
+	/* New resources do not need their properties cleared */
+	if (g_hash_table_contains (data->update_buffer.new_resources, &subject))
+		return TRUE;
+
 	if (!tracker_data_delete_all (data,
 	                              graph, subject, property_uri,
 	                              &inner_error)) {
@@ -3936,6 +3940,7 @@ update_resource_single (TrackerData      *data,
 			return FALSE;
 	}
 
+	g_hash_table_remove (data->update_buffer.new_resources, &subject);
 
 	return TRUE;
 }
