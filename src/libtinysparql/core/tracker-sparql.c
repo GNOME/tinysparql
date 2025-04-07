@@ -10599,11 +10599,6 @@ apply_update (TrackerSparql    *sparql,
 			tracker_data_update_thaw_flush (tracker_data_manager_get_data (sparql->data_manager));
 		}
 
-		if (!inner_error) {
-			tracker_data_update_buffer_flush (tracker_data_manager_get_data (sparql->data_manager),
-			                                  &inner_error);
-		}
-
 		if (inner_error)
 			goto out;
 
@@ -10618,8 +10613,6 @@ apply_update (TrackerSparql    *sparql,
 		i = update_group->end_idx + 1;
 	}
 
-	tracker_data_update_buffer_flush (tracker_data_manager_get_data (sparql->data_manager),
-	                                  &inner_error);
  out:
 	g_clear_pointer (&updated_bnode_labels, g_hash_table_unref);
 	g_clear_pointer (&bnode_rowids, g_hash_table_unref);

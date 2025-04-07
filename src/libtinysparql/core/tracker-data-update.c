@@ -2909,7 +2909,6 @@ tracker_data_update_statement (TrackerData      *data,
                                GError          **error)
 {
 	TrackerOntologies *ontologies;
-	GError *new_error = NULL;
 
 	g_return_if_fail (subject != 0);
 	g_return_if_fail (predicate != NULL);
@@ -2922,15 +2921,6 @@ tracker_data_update_statement (TrackerData      *data,
 			g_set_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_UNSUPPORTED,
 			             "Using 'null' with '%s' is not supported",
 			             tracker_property_get_uri (predicate));
-			return;
-		}
-
-		/* Flush upfront to make a null,x,null,y,z work: When x is set then
-		 * if a null comes, we need to be flushed */
-
-		tracker_data_update_buffer_flush (data, &new_error);
-		if (new_error) {
-			g_propagate_error (error, new_error);
 			return;
 		}
 
@@ -2964,22 +2954,11 @@ tracker_data_update_statement (TrackerData      *data,
 		                           error))
 			return;
 
-		tracker_data_update_buffer_flush (data, &new_error);
-		if (new_error) {
-			g_propagate_error (error, new_error);
-			return;
-		}
-
 		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
 			tracker_data_insert_statement_with_uri (data, graph, subject, predicate, object, error);
 		} else {
 			tracker_data_insert_statement_with_string (data, graph, subject, predicate, object, error);
 		}
-	}
-
-	tracker_data_update_buffer_flush (data, &new_error);
-	if (new_error) {
-		g_propagate_error (error, new_error);
 	}
 }
 
