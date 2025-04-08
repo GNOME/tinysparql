@@ -195,7 +195,6 @@ struct _TrackerData {
 	time_t resource_time;
 	gint transaction_modseq;
 	gboolean has_persistent;
-	gint flush_frozen;
 
 	GPtrArray *insert_callbacks;
 	GPtrArray *delete_callbacks;
@@ -1716,8 +1715,6 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 	G_GNUC_UNUSED gboolean fts_updated = FALSE;
 	guint i;
 
-	if (data->flush_frozen > 0)
-		return;
 	if (data->update_buffer.update_log->len == 0)
 		return;
 
@@ -2459,13 +2456,6 @@ resource_buffer_switch (TrackerData   *data,
 
 	if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
 		graph = NULL;
-
-	/* large INSERTs with thousands of resources could lead to
-	   high peak memory usage due to the update buffer
-	   flush the buffer if it already contains 1000 resources */
-	tracker_data_update_buffer_might_flush (data, &inner_error);
-	if (inner_error)
-		return FALSE;
 
 	if (data->resource_buffer != NULL &&
 	    g_strcmp0 (data->resource_buffer->graph->graph, graph) == 0 &&
@@ -3939,17 +3929,4 @@ tracker_data_generate_bnode (TrackerData  *data,
 	                  tracker_rowid_copy (&id));
 
 	return id;
-}
-
-void
-tracker_data_update_freeze_flush (TrackerData *data)
-{
-	data->flush_frozen++;
-}
-
-void
-tracker_data_update_thaw_flush (TrackerData *data)
-{
-	g_assert (data->flush_frozen > 0);
-	data->flush_frozen--;
 }

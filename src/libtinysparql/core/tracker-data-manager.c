@@ -2191,6 +2191,10 @@ tracker_data_manager_import_ontology (TrackerDataManager     *manager,
 			goto error;
 	}
 
+	tracker_data_update_buffer_flush (manager->data_update, &inner_error);
+	if (inner_error)
+		goto error;
+
 	/* Import all RDF from the ontology files */
 	ontology_files = get_ontologies (manager, manager->ontology_location, &inner_error);
 	if (!ontology_files)
@@ -2237,6 +2241,10 @@ tracker_data_manager_import_ontology (TrackerDataManager     *manager,
 			                               &inner_error);
 			g_value_unset (&value);
 
+			if (inner_error)
+				break;
+
+			tracker_data_update_buffer_might_flush (manager->data_update, &inner_error);
 			if (inner_error)
 				break;
 		}
