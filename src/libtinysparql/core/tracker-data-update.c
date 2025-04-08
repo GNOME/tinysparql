@@ -132,7 +132,6 @@ struct _TrackerDataUpdateBuffer {
 	GPtrArray *graphs;
 	/* Statement to insert in Resource table */
 	TrackerDBStatement *insert_resource;
-	TrackerDBStatement *query_resource;
 
 	/* Array of TrackerDataPropertyEntry */
 	GArray *properties;
@@ -706,7 +705,6 @@ tracker_data_finalize (GObject *object)
 	g_clear_pointer (&data->update_buffer.class_updates, g_hash_table_unref);
 	g_clear_pointer (&data->update_buffer.refcounts, g_hash_table_unref);
 	g_clear_object (&data->update_buffer.insert_resource);
-	g_clear_object (&data->update_buffer.query_resource);
 	tracker_db_statement_mru_finish (&data->update_buffer.stmt_mru);
 
 	g_clear_pointer (&data->insert_callbacks, g_ptr_array_unref);
@@ -1051,56 +1049,6 @@ tracker_data_query_rdf_type (TrackerData                   *data,
 	return ret;
 }
 
-static TrackerRowid
-query_resource_id (TrackerData  *data,
-                   const gchar  *uri,
-                   GError      **error)
-{
-	TrackerDBInterface *iface;
-	TrackerDBStatement *stmt;
-	TrackerRowid *value, id = 0;
-	GError *inner_error = NULL;
-	GArray *res = NULL;
-
-	value = g_hash_table_lookup (data->update_buffer.resource_cache, uri);
-	if (value)
-		return *value;
-
-	stmt = data->update_buffer.query_resource;
-	if (!stmt) {
-		iface = tracker_data_manager_get_writable_db_interface (data->manager);
-		stmt = data->update_buffer.query_resource =
-			tracker_db_interface_create_statement (iface,
-			                                       TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-			                                       &inner_error,
-			                                       "SELECT ID FROM Resource WHERE Uri = ?");
-	}
-
-	if (stmt) {
-		tracker_db_statement_bind_text (stmt, 0, uri);
-		res = tracker_db_statement_get_values (stmt,
-		                                       TRACKER_PROPERTY_TYPE_INTEGER,
-		                                       &inner_error);
-	}
-
-	if (G_UNLIKELY (inner_error)) {
-		g_propagate_prefixed_error (error,
-		                            inner_error,
-		                            "Querying resource ID:");
-		return 0;
-	}
-
-	if (res && res->len == 1) {
-		id = g_value_get_int64 (&g_array_index (res, GValue, 0));
-		g_hash_table_insert (data->update_buffer.resource_cache, g_strdup (uri),
-		                     tracker_rowid_copy (&id));
-	}
-
-	g_clear_pointer (&res, g_array_unref);
-
-	return id;
-}
-
 static gboolean
 tracker_data_ensure_insert_resource_stmt (TrackerData  *data,
                                           GError      **error)
@@ -1190,15 +1138,17 @@ tracker_data_update_ensure_resource (TrackerData  *data,
 	tracker_db_statement_bind_int (stmt, 1, FALSE);
 	inserted = tracker_db_statement_execute (stmt, NULL);
 
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
+
 	if (inserted) {
-		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 		id = tracker_db_interface_sqlite_get_last_insert_id (iface);
 		g_hash_table_add (data->update_buffer.new_resources,
 		                  tracker_rowid_copy (&id));
 	} else {
 		GError *inner_error = NULL;
 
-		id = query_resource_id (data, uri, &inner_error);
+		id = tracker_data_query_resource_id (data->manager, iface,
+		                                     uri, &inner_error);
 
 		if (id == 0) {
 			if (inner_error) {
@@ -3694,13 +3644,21 @@ tracker_data_delete_graph (TrackerData  *data,
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	TrackerRowid id;
+	TrackerRowid id = 0, *value;
 
-	id = query_resource_id (data, uri, error);
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
+
+	value = g_hash_table_lookup (data->update_buffer.resource_cache, uri);
+	if (value) {
+		id = *value;
+		g_hash_table_remove (data->update_buffer.resource_cache, uri);
+	}
+
+	if (id == 0)
+		id = tracker_data_query_resource_id (data->manager, iface, uri, error);
 	if (id == 0)
 		return FALSE;
 
-	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 	                                              "DELETE FROM Graph WHERE ID = ?");
 	if (!stmt)
