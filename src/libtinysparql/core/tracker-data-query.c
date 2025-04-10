@@ -42,7 +42,8 @@ tracker_data_query_resource_urn (TrackerDataManager  *manager,
 {
 	TrackerDBStatement *stmt;
 	gchar *uri = NULL;
-	GArray *res = NULL;
+	const char *value;
+	gboolean first = TRUE;
 
 	g_return_val_if_fail (id != 0, NULL);
 
@@ -52,15 +53,12 @@ tracker_data_query_resource_urn (TrackerDataManager  *manager,
 		return NULL;
 
 	tracker_db_statement_bind_int (stmt, 0, id);
-	res = tracker_db_statement_get_values (stmt,
-	                                       TRACKER_PROPERTY_TYPE_STRING,
-	                                       NULL);
-	g_object_unref (stmt);
 
-	if (res && res->len == 1)
-		uri = g_value_dup_string (&g_array_index (res, GValue, 0));
-
-	g_clear_pointer (&res, g_array_unref);
+	if (tracker_db_statement_next_string (stmt, &first, &value, NULL)) {
+		uri = g_strdup (value);
+		g_assert (tracker_db_statement_next_string (stmt, &first, NULL, NULL) == FALSE);
+		g_object_unref (stmt);
+	}
 
 	return uri;
 }
@@ -72,34 +70,22 @@ tracker_data_query_resource_id (TrackerDataManager  *manager,
                                 GError             **error)
 {
 	TrackerDBStatement *stmt;
-	GError *inner_error = NULL;
 	TrackerRowid id = 0;
-	GArray *res = NULL;
+	gboolean first = TRUE;
 
 	g_return_val_if_fail (uri != NULL, 0);
 
-	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, &inner_error,
+	stmt = tracker_db_interface_create_statement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT, error,
 	                                              "SELECT ID FROM Resource WHERE Uri = ?");
-
-	if (stmt) {
-		tracker_db_statement_bind_text (stmt, 0, uri);
-		res = tracker_db_statement_get_values (stmt,
-		                                       TRACKER_PROPERTY_TYPE_INTEGER,
-		                                       &inner_error);
-		g_object_unref (stmt);
-	}
-
-	if (res && res->len == 1)
-		id = g_value_get_int64 (&g_array_index (res, GValue, 0));
-
-	g_clear_pointer (&res, g_array_unref);
-
-	if (G_UNLIKELY (inner_error)) {
-		g_propagate_prefixed_error (error,
-		                            inner_error,
-		                            "Querying resource ID:");
+	if (!stmt)
 		return 0;
-	}
+
+	tracker_db_statement_bind_text (stmt, 0, uri);
+
+	if (tracker_db_statement_next_integer (stmt, &first, &id, error))
+		g_assert (tracker_db_statement_next_integer (stmt, &first, NULL, NULL) == FALSE);
+
+	g_object_unref (stmt);
 
 	return id;
 }
