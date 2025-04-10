@@ -3291,6 +3291,118 @@ tracker_db_statement_execute (TrackerDBStatement  *stmt,
 	return retval;
 }
 
+gboolean
+tracker_db_statement_next_integer (TrackerDBStatement  *stmt,
+                                   gboolean            *first,
+                                   gint64              *value,
+                                   GError             **error)
+{
+	int result;
+
+	if (*first) {
+		tracker_db_interface_lock (stmt->db_interface);
+		tracker_db_interface_ref_use (stmt->db_interface);
+		tracker_db_statement_sqlite_grab (stmt);
+
+#ifdef G_ENABLE_DEBUG
+		if (TRACKER_DEBUG_CHECK (SQL)) {
+			gchar *full_query;
+
+			full_query = sqlite3_expanded_sql (stmt->stmt);
+
+			if (full_query) {
+				g_message ("Executing query: '%s'", full_query);
+				sqlite3_free (full_query);
+			} else {
+				g_message ("Executing query: '%s'",
+				           sqlite3_sql (stmt->stmt));
+			}
+		}
+#endif
+	}
+
+	result = stmt_step (stmt->stmt);
+
+	if (result == SQLITE_DONE) {
+		goto end;
+	} else if (result != SQLITE_ROW) {
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_QUERY_ERROR,
+		             "%s", sqlite3_errmsg (stmt->db_interface->db));
+		goto end;
+	}
+
+	*first = FALSE;
+	if (value)
+		*value = sqlite3_column_int (stmt->stmt, 0);
+
+	return TRUE;
+
+ end:
+	tracker_db_statement_sqlite_release (stmt);
+	tracker_db_interface_unref_use (stmt->db_interface);
+	tracker_db_interface_unlock (stmt->db_interface);
+
+	return FALSE;
+}
+
+gboolean
+tracker_db_statement_next_string (TrackerDBStatement  *stmt,
+                                  gboolean            *first,
+                                  const char         **value,
+                                  GError             **error)
+{
+	int result;
+
+	if (*first) {
+		tracker_db_interface_lock (stmt->db_interface);
+		tracker_db_interface_ref_use (stmt->db_interface);
+		tracker_db_statement_sqlite_grab (stmt);
+
+#ifdef G_ENABLE_DEBUG
+		if (TRACKER_DEBUG_CHECK (SQL)) {
+			gchar *full_query;
+
+			full_query = sqlite3_expanded_sql (stmt->stmt);
+
+			if (full_query) {
+				g_message ("Executing query: '%s'", full_query);
+				sqlite3_free (full_query);
+			} else {
+				g_message ("Executing query: '%s'",
+				           sqlite3_sql (stmt->stmt));
+			}
+		}
+#endif
+	}
+
+	result = stmt_step (stmt->stmt);
+
+	if (result == SQLITE_DONE) {
+		goto end;
+	} else if (result != SQLITE_ROW) {
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_QUERY_ERROR,
+		             "%s", sqlite3_errmsg (stmt->db_interface->db));
+		goto end;
+	}
+
+	*first = FALSE;
+	if (value)
+		*value = (const char*) sqlite3_column_text (stmt->stmt, 0);
+
+	return TRUE;
+
+ end:
+	tracker_db_statement_sqlite_release (stmt);
+	tracker_db_interface_unref_use (stmt->db_interface);
+	tracker_db_interface_unlock (stmt->db_interface);
+
+	return FALSE;
+}
+
 GArray *
 tracker_db_statement_get_values (TrackerDBStatement   *stmt,
                                  TrackerPropertyType   type,

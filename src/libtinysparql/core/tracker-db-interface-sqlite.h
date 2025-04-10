@@ -75,4 +75,14 @@ GArray * tracker_db_statement_get_values (TrackerDBStatement   *stmt,
                                           TrackerPropertyType   type,
                                           GError              **error);
 
+gboolean tracker_db_statement_next_integer (TrackerDBStatement  *stmt,
+                                            gboolean            *first,
+                                            gint64              *value,
+                                            GError             **error);
+
+gboolean tracker_db_statement_next_string (TrackerDBStatement  *stmt,
+                                           gboolean            *first,
+                                           const char         **value,
+                                           GError             **error);
+
 G_END_DECLS
