@@ -986,12 +986,12 @@ tracker_data_query_rdf_type (TrackerData                   *data,
 {
 	TrackerDBInterface *iface;
 	TrackerDBStatement *stmt;
-	GArray *classes = NULL;
 	GPtrArray *ret = NULL;
 	GError *inner_error = NULL;
 	TrackerOntologies *ontologies;
 	const gchar *class_uri;
-	guint i;
+	TrackerClass *cl;
+	gboolean first = TRUE;
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	ontologies = tracker_data_manager_get_ontologies (data->manager);
@@ -1007,36 +1007,28 @@ tracker_data_query_rdf_type (TrackerData                   *data,
 			                                        graph->graph ? graph->graph : "main");
 	}
 
-	if (stmt) {
-		tracker_db_statement_bind_int (stmt, 0, id);
-		classes = tracker_db_statement_get_values (stmt,
-		                                           TRACKER_PROPERTY_TYPE_STRING,
-		                                           &inner_error);
-	}
-
-	if (G_UNLIKELY (inner_error)) {
+	if (!stmt) {
 		g_propagate_prefixed_error (error,
 		                            inner_error,
 		                            "Querying RDF type:");
 		return NULL;
 	}
 
-	if (classes) {
-		ret = g_ptr_array_sized_new (classes->len);
+	tracker_db_statement_bind_int (stmt, 0, id);
+	ret = g_ptr_array_new ();
 
-		for (i = 0; i < classes->len; i++) {
-			TrackerClass *cl;
+	while (tracker_db_statement_next_string (stmt, &first, &class_uri, &inner_error)) {
+		cl = tracker_ontologies_get_class_by_uri (ontologies, class_uri);
+		g_assert (cl != NULL);
+		g_ptr_array_add (ret, cl);
+	}
 
-			class_uri = g_value_get_string (&g_array_index (classes, GValue, i));
-			cl = tracker_ontologies_get_class_by_uri (ontologies, class_uri);
-			if (!cl) {
-				g_critical ("Unknown class %s", class_uri);
-				continue;
-			}
-			g_ptr_array_add (ret, cl);
-		}
-
-		g_array_unref (classes);
+	if (G_UNLIKELY (inner_error)) {
+		g_clear_pointer (&ret, g_ptr_array_unref);
+		g_propagate_prefixed_error (error,
+		                            inner_error,
+		                            "Querying RDF type:");
+		return NULL;
 	}
 
 	return ret;
