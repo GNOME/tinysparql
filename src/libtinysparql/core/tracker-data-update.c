@@ -630,9 +630,9 @@ tracker_data_update_initialize_modseq (TrackerData  *data,
 	TrackerDBStatement *stmt;
 	TrackerOntologies *ontologies;
 	TrackerProperty *property;
-	GArray *res = NULL;
 	GError *inner_error = NULL;
-	gint max_modseq = 0;
+	gint64 max_modseq = 0;
+	gboolean retval = FALSE, first = TRUE;
 
 	/* Is it already initialized? */
 	if (data->transaction_modseq != 0)
@@ -648,23 +648,17 @@ tracker_data_update_initialize_modseq (TrackerData  *data,
 	                                               tracker_property_get_id (property));
 
 	if (stmt) {
-		res = tracker_db_statement_get_values (stmt,
-		                                       TRACKER_PROPERTY_TYPE_INTEGER,
-		                                       &inner_error);
+		retval = tracker_db_statement_next_integer (stmt, &first, &max_modseq, &inner_error);
+		g_assert (tracker_db_statement_next_integer (stmt, &first, NULL, NULL) == FALSE);
 		g_object_unref (stmt);
 	}
 
-	if (res) {
-		max_modseq = g_value_get_int64 (&g_array_index (res, GValue, 0));
-		data->transaction_modseq = max_modseq + 1;
-		g_array_unref (res);
-	}
-
-	if (G_UNLIKELY (inner_error)) {
+	if (!retval) {
 		g_propagate_error (error, inner_error);
 		return FALSE;
 	}
 
+	data->transaction_modseq = max_modseq + 1;
 	return TRUE;
 }
 
