@@ -1359,13 +1359,11 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		                                               tracker_property_get_table_name (entry->table.domain_index.property));
 	} else if (entry->type == TRACKER_LOG_CLASS_INSERT ||
 	           entry->type == TRACKER_LOG_CLASS_UPDATE) {
-		GHashTable *visited_properties;
 		TrackerDataPropertyEntry *property_entry;
 		gint param, property_idx;
 		GString *sql;
 
 		sql = g_string_new (NULL);
-		visited_properties = g_hash_table_new (NULL, NULL);
 		param = 2;
 
 		if (entry->type == TRACKER_LOG_CLASS_INSERT) {
@@ -1385,12 +1383,8 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 				                                 property_idx);
 				property_idx = property_entry->prev;
 
-				if (g_hash_table_contains (visited_properties, property_entry->property))
-					continue;
-
 				g_string_append_printf (sql, ", \"%s\"", tracker_property_get_name (property_entry->property));
 				g_string_append_printf (values_sql, ", ?%d", param++);
-				g_hash_table_add (visited_properties, property_entry->property);
 			}
 
 			g_string_append (sql, ")");
@@ -1415,10 +1409,7 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 				                                 property_idx);
 				property_idx = property_entry->prev;
 
-				if (g_hash_table_contains (visited_properties, property_entry->property))
-					continue;
-
-				if (g_hash_table_size (visited_properties) > 0)
+				if (param > 2)
 					g_string_append (sql, ", ");
 
 				g_string_append_printf (sql, "\"%s\" = SparqlUpdateValue('%s', ?%d, \"%s\", ?%d)",
@@ -1427,7 +1418,6 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 				                        param,
 				                        tracker_property_get_name (property_entry->property),
 				                        param + 1);
-				g_hash_table_add (visited_properties, property_entry->property);
 				param += 2;
 			}
 
@@ -1437,8 +1427,6 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 			                                              sql->str);
 			g_string_free (sql, TRUE);
 		}
-
-		g_hash_table_unref (visited_properties);
 	}
 
 	if (stmt) {
@@ -1511,7 +1499,6 @@ tracker_data_flush_log_chunk (TrackerData  *data,
 			tracker_db_statement_bind_int (stmt, 1, entry->id);
 		} else if (entry->type == TRACKER_LOG_CLASS_INSERT ||
 		           entry->type == TRACKER_LOG_CLASS_UPDATE) {
-			GList *visited_properties = NULL;
 			gint param, property_idx;
 
 			tracker_db_statement_bind_int (stmt, 0, entry->id);
@@ -1527,9 +1514,6 @@ tracker_data_flush_log_chunk (TrackerData  *data,
 				                                 property_idx);
 				property_idx = property_entry->prev;
 
-				if (g_list_find (visited_properties, property_entry->property))
-					continue;
-
 				if (entry->type == TRACKER_LOG_CLASS_UPDATE)
 					tracker_db_statement_bind_int (stmt, param++, property_entry->type);
 
@@ -1539,11 +1523,7 @@ tracker_data_flush_log_chunk (TrackerData  *data,
 				} else {
 					statement_bind_gvalue (stmt, param++, &property_entry->value);
 				}
-
-				visited_properties = g_list_prepend (visited_properties, property_entry->property);
 			}
-
-			g_list_free (visited_properties);
 		}
 
 		tracker_db_statement_execute (stmt, &inner_error);
