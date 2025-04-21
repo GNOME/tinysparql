@@ -45,8 +45,8 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              &internal_error,
-	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"nrl:Ontology\".ID) "
-	                                              "FROM \"nrl:Ontology\"");
+	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = O.ID) "
+	                                              "FROM \"nrl:Ontology\" AS O");
 
 	if (stmt) {
 		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &internal_error));
@@ -79,9 +79,9 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              &internal_error,
-	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = \"nrl:Namespace\".ID), "
+	                                              "SELECT (SELECT Uri FROM Resource WHERE ID = N.ID), "
 	                                              "\"nrl:prefix\" "
-	                                              "FROM \"nrl:Namespace\"");
+	                                              "FROM \"nrl:Namespace\" AS N");
 
 	if (stmt) {
 		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &internal_error));
@@ -117,10 +117,10 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              &internal_error,
-	                                              "SELECT \"rdfs:Class\".ID, "
-	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:Class\".ID), "
+	                                              "SELECT ID, "
+	                                              "(SELECT Uri FROM Resource WHERE ID = C.ID), "
 	                                              "\"nrl:notify\" "
-	                                              "FROM \"rdfs:Class\" ORDER BY ID");
+	                                              "FROM \"rdfs:Class\" AS C ORDER BY ID");
 
 	if (stmt) {
 		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &internal_error));
@@ -162,16 +162,16 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              &internal_error,
-	                                              "SELECT \"rdf:Property\".ID, (SELECT Uri FROM Resource WHERE ID = \"rdf:Property\".ID), "
+	                                              "SELECT P.ID, (SELECT Uri FROM Resource WHERE ID = P.ID), "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:domain\"), "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"rdfs:range\"), "
 	                                              "\"nrl:maxCardinality\", "
 	                                              "\"nrl:indexed\", "
 	                                              "(SELECT Uri FROM Resource WHERE ID = \"nrl:secondaryIndex\"), "
 	                                              "\"nrl:fulltextIndexed\", "
-	                                              "(SELECT 1 FROM \"rdfs:Resource_rdf:type\" WHERE ID = \"rdf:Property\".ID AND "
+	                                              "(SELECT 1 FROM \"rdfs:Resource_rdf:type\" WHERE ID = P.ID AND "
 	                                              "\"rdf:type\" = (SELECT ID FROM Resource WHERE Uri = '" NRL_INVERSE_FUNCTIONAL_PROPERTY "')) "
-	                                              "FROM \"rdf:Property\" ORDER BY ID");
+	                                              "FROM \"rdf:Property\" AS P ORDER BY ID");
 
 	if (stmt) {
 		cursor = TRACKER_SPARQL_CURSOR (tracker_db_statement_start_cursor (stmt, &internal_error));

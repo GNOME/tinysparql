@@ -140,15 +140,15 @@ db_set_params (TrackerDBInterface   *iface,
 	TrackerDBStatement *stmt;
 
 	TRACKER_NOTE (SQLITE, g_message ("  Setting page size to %d", page_size));
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".page_size = %d", database, page_size);
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA page_size = %d", page_size);
 
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".synchronous = NORMAL", database);
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".auto_vacuum = 0", database);
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA synchronous = NORMAL");
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA auto_vacuum = 0");
 
 	if (enable_wal) {
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 		                                               &internal_error,
-		                                               "PRAGMA \"%s\".journal_mode = WAL", database);
+		                                               "PRAGMA journal_mode = WAL");
 
 		if (internal_error) {
 			g_debug ("Can't set journal mode to WAL: '%s'",
@@ -172,9 +172,9 @@ db_set_params (TrackerDBInterface   *iface,
 		g_clear_object (&stmt);
 	}
 
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".journal_size_limit = 10240000", database);
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA journal_size_limit = 10240000");
 
-	tracker_db_interface_execute_query (iface, NULL, "PRAGMA \"%s\".cache_size = %d", database, cache_size);
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", cache_size);
 	TRACKER_NOTE (SQLITE, g_message ("  Setting cache size to %d", cache_size));
 }
 

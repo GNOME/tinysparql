@@ -365,7 +365,7 @@ collect_graphs (TrackerTriplesCursor *cursor)
 		uri = sqlite3_column_text (stmt, 1);
 
 		if (g_strcmp0 (uri, TRACKER_DEFAULT_GRAPH) == 0)
-			uri = "main";
+			uri = NULL;
 
 		if (cursor->match.graph) {
 			gboolean negated = !!(cursor->match.idxFlags & IDX_MATCH_GRAPH_NEG);
@@ -536,24 +536,27 @@ init_stmt (TrackerTriplesCursor *cursor)
 			}
 
 			g_string_append_printf (sql,
-			                        "FROM \"%s\".\"%s\" AS t ",
-			                        graph,
+			                        "FROM \"%s%s%s\" AS t ",
+			                        graph ? graph : "",
+			                        graph ? "_" : "",
 			                        tracker_class_get_name (class));
 		} else if (property) {
 			if (tracker_property_get_multiple_values (property)) {
 				g_string_append_printf (sql,
 				                        "SELECT %" G_GINT64_FORMAT ", * "
-				                        "FROM \"%s\".\"%s\" AS t ",
+				                        "FROM \"%s%s%s\" AS t ",
 				                        graph_id,
-				                        graph,
+				                        graph ? graph : "",
+				                        graph ? "_" : "",
 				                        tracker_property_get_table_name (property));
 			} else {
 				g_string_append_printf (sql,
 				                        "SELECT %" G_GINT64_FORMAT ", ROWID, \"%s\" "
-				                        "FROM \"%s\".\"%s\" AS t ",
+				                        "FROM \"%s%s%s\" AS t ",
 				                        graph_id,
 				                        tracker_property_get_name (property),
-				                        graph,
+				                        graph ? graph : "",
+				                        graph ? "_" : "",
 				                        tracker_property_get_table_name (property));
 			}
 		}

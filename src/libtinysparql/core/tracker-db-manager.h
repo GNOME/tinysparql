@@ -55,6 +55,7 @@ typedef enum {
 	TRACKER_DB_VERSION_3_7,      /* SQLite 3.45.3 being a moron for changing syntax in views */
 	TRACKER_DB_VERSION_3_8,      /* Default graph gets a name */
 	TRACKER_DB_VERSION_3_10,     /* Refcount trigger */
+	TRACKER_DB_VERSION_3_10_B,   /* Unification of all graphs in a single DB file */
 	TRACKER_DB_N_VERSIONS,
 } TrackerDBVersion;
 
