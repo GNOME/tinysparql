@@ -390,16 +390,6 @@ tracker_binding_get_sql_expression (TrackerBinding *binding)
 	return binding->sql_expression;
 }
 
-gchar *
-tracker_binding_get_extra_sql_expression (TrackerBinding *binding,
-                                          const gchar    *suffix)
-{
-	return g_strdup_printf ("\"%s\".\"%s:%s\"",
-				binding->table->sql_query_tablename,
-				binding->sql_db_column_name,
-				suffix);
-}
-
 void
 tracker_binding_set_data_type (TrackerBinding      *binding,
                                TrackerPropertyType  property_type)
