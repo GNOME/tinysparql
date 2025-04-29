@@ -58,7 +58,7 @@ icu_uc = dependency('icu-uc', version: '> 4.8.1.1', required: false)
 json_glib = dependency('json-glib-1.0', version: '>= 1.4', required: true)
 libxml2 = dependency('libxml-2.0', version: '> 2.6')
 sqlite = dependency('sqlite3', version: '>' + sqlite_required, required: false)
-dbus = dependency('dbus-1')
+dbus = dependency('dbus-1', required: false)
 avahi_glib = dependency('avahi-glib', required: get_option('avahi'))
 avahi_client = dependency('avahi-client', required: get_option('avahi'))
 libsoup3 = dependency('libsoup-3.0', version: '>= 2.99.2',
@@ -270,8 +270,12 @@ endif
 ####################################################################
 
 if get_option('dbus_services_dir') == ''
-  dbus_services_dir = dbus.get_variable(pkgconfig: 'session_bus_services_dir',
-                                        pkgconfig_define: [ 'datadir', datadir ])
+  if dbus.found()
+    dbus_services_dir = dbus.get_variable(pkgconfig: 'session_bus_services_dir',
+                                          pkgconfig_define: [ 'datadir', datadir ])
+  else
+    dbus_services_dir = join_paths(datadir, 'dbus-1', 'services')
+  endif
 else
   dbus_services_dir = get_option('dbus_services_dir')
 endif
