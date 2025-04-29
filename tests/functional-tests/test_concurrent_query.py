@@ -20,12 +20,11 @@
 Send concurrent inserts and queries to the daemon to check the concurrency.
 """
 
-from gi.repository import GLib
-
 import unittest as ut
 
 import fixtures
 
+from gi.repository import GLib
 
 AMOUNT_OF_TEST_INSTANCES = 100
 AMOUNT_OF_QUERIES = 10

@@ -83,7 +83,7 @@ if get_option('man')
 endif
 
 py_modules = []
-if get_option('tests')
+if get_option('tests') and get_option('introspection').enabled()
   py_modules += 'gi'
   if get_option('tests_tap_protocol')
     py_modules += 'tap'
