@@ -59,7 +59,7 @@ struct _TrackerDeserializerTurtle {
 	TrackerDeserializerRdf parent_instance;
 	GBufferedInputStream *buffered_stream;
 	GArray *parser_state;
-	GString *base;
+	gchar *base;
 	gchar *graph;
 	gchar *subject;
 	gchar *predicate;
@@ -92,9 +92,7 @@ tracker_deserializer_turtle_finalize (GObject *object)
 	g_clear_pointer (&deserializer->object, g_free);
 	g_clear_pointer (&deserializer->object_lang, g_free);
 	g_clear_pointer (&deserializer->graph, g_free);
-
-	if (deserializer->base)
-		g_string_free (deserializer->base, TRUE);
+	g_clear_pointer (&deserializer->base, g_free);
 
 	G_OBJECT_CLASS (tracker_deserializer_turtle_parent_class)->finalize (object);
 }
@@ -306,7 +304,7 @@ expand_base (TrackerDeserializerTurtle *deserializer,
              const gchar               *suffix)
 {
 	if (deserializer->base && !strstr (suffix, ":/")) {
-		return g_strconcat (deserializer->base->str, suffix, NULL);
+		return g_strconcat (deserializer->base, suffix, NULL);
 	} else {
 		return g_strdup (suffix);
 	}
@@ -414,12 +412,9 @@ handle_base (TrackerDeserializerTurtle  *deserializer,
 	if (!parse_token (deserializer, "."))
 		goto error;
 
-	if (deserializer->base)
-		g_string_append (deserializer->base, base);
-	else
-		deserializer->base = g_string_new (base);
+	g_clear_pointer (&deserializer->base, g_free);
+	deserializer->base = g_steal_pointer (&base);
 
-	g_free (base);
 	return TRUE;
 error:
 	g_free (base);
