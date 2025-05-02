@@ -393,9 +393,6 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			break;
 	}
 
-	if (!inner_error)
-		tracker_data_update_buffer_flush (data, &inner_error);
-
 	if (inner_error) {
 		tracker_data_rollback_transaction (data);
 		goto error;

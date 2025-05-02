@@ -1595,6 +1595,79 @@ function_sparql_print_value (sqlite3_context *context,
 }
 
 static void
+function_sparql_update_value (sqlite3_context *context,
+                              int              argc,
+                              sqlite3_value   *argv[])
+{
+	gboolean old_value_is_null, new_value_is_null, values_are_equal;
+	TrackerPropertyOp op;
+	enum {
+		ARG_PROPERTY_NAME,
+		ARG_OP,
+		ARG_OLD_VALUE,
+		ARG_NEW_VALUE,
+	};
+
+	op = sqlite3_value_int64 (argv[ARG_OP]);
+	old_value_is_null = sqlite3_value_type (argv[ARG_OLD_VALUE]) == SQLITE_NULL;
+	new_value_is_null = sqlite3_value_type (argv[ARG_NEW_VALUE]) == SQLITE_NULL;
+
+	if (!old_value_is_null && !new_value_is_null) {
+		if (sqlite3_value_type (argv[ARG_OLD_VALUE]) ==
+		    sqlite3_value_type (argv[ARG_NEW_VALUE])) {
+			values_are_equal =
+				g_strcmp0 (sqlite3_value_text (argv[ARG_OLD_VALUE]),
+				           sqlite3_value_text (argv[ARG_NEW_VALUE])) == 0;
+		} else {
+			values_are_equal = FALSE;
+		}
+	} else {
+		values_are_equal = old_value_is_null == new_value_is_null;
+	}
+
+	if (op == TRACKER_OP_INSERT) {
+		if (old_value_is_null) {
+			/* Replace */
+			sqlite3_result_value (context, argv[ARG_NEW_VALUE]);
+		} else if (values_are_equal) {
+			/* Values match, pick either */
+			sqlite3_result_value (context, argv[ARG_OLD_VALUE]);
+		} else {
+			gchar *err_str;
+
+			/* Insert on a single-valued column that already has a value */
+			err_str = g_strdup_printf ("Unable to insert multiple values on "
+			                           "single valued property (old: %s, new: %s)",
+			                           sqlite3_value_text (argv[ARG_OLD_VALUE]),
+			                           sqlite3_value_text (argv[ARG_NEW_VALUE]));
+			result_context_function_error (context,
+			                               sqlite3_value_text (argv[ARG_PROPERTY_NAME]),
+			                               err_str);
+			g_free (err_str);
+		}
+	} else if (op == TRACKER_OP_INSERT_FAILABLE) {
+		if (old_value_is_null) {
+			/* Replace */
+			sqlite3_result_value (context, argv[ARG_NEW_VALUE]);
+		} else {
+			/* Preserve old value, continue without error */
+			sqlite3_result_value (context, argv[ARG_OLD_VALUE]);
+		}
+	} else if (op == TRACKER_OP_DELETE) {
+		if (!new_value_is_null && values_are_equal) {
+			/* Remove after matching */
+			sqlite3_result_null (context);
+		} else {
+			/* Preserve old value */
+			sqlite3_result_value (context, argv[ARG_OLD_VALUE]);
+		}
+	} else if (op == TRACKER_OP_RESET) {
+		/* Just reset without checks */
+		sqlite3_result_value (context, argv[ARG_NEW_VALUE]);
+	}
+}
+
+static void
 function_sparql_fts_tokenize (sqlite3_context *context,
                               int              argc,
                               sqlite3_value   *argv[])
@@ -1725,8 +1798,6 @@ initialize_functions (TrackerDBInterface *db_interface)
 		  function_sparql_langmatches },
 		{ "SparqlStrLang", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_strlang },
-		{ "SparqlPrintValue", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
-		  function_sparql_print_value },
 		{ "SparqlFtsTokenize", 1, SQLITE_ANY | SQLITE_DETERMINISTIC,
 		  function_sparql_fts_tokenize },
 		/* Numbers */
@@ -1741,6 +1812,11 @@ initialize_functions (TrackerDBInterface *db_interface)
 		/* UUID */
 		{ "SparqlUUID", -1, SQLITE_ANY, function_sparql_uuid },
 		{ "SparqlBNODE", -1, SQLITE_ANY | SQLITE_DETERMINISTIC, function_sparql_bnode },
+		/* Helpers */
+		{ "SparqlPrintValue", 2, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_print_value },
+		{ "SparqlUpdateValue", 4, SQLITE_ANY | SQLITE_DETERMINISTIC,
+		  function_sparql_update_value },
 	};
 
 	for (i = 0; i < G_N_ELEMENTS (functions); i++) {
@@ -3215,117 +3291,116 @@ tracker_db_statement_execute (TrackerDBStatement  *stmt,
 	return retval;
 }
 
-GArray *
-tracker_db_statement_get_values (TrackerDBStatement   *stmt,
-                                 TrackerPropertyType   type,
-                                 GError              **error)
+gboolean
+tracker_db_statement_next_integer (TrackerDBStatement  *stmt,
+                                   gboolean            *first,
+                                   gint64              *value,
+                                   GError             **error)
 {
-	gint result = SQLITE_OK;
-	GArray *values;
+	int result;
 
-	tracker_db_interface_lock (stmt->db_interface);
-	tracker_db_interface_ref_use (stmt->db_interface);
-	tracker_db_statement_sqlite_grab (stmt);
+	if (*first) {
+		tracker_db_interface_lock (stmt->db_interface);
+		tracker_db_interface_ref_use (stmt->db_interface);
+		tracker_db_statement_sqlite_grab (stmt);
 
 #ifdef G_ENABLE_DEBUG
-        if (TRACKER_DEBUG_CHECK (SQL)) {
-	        gchar *full_query;
+		if (TRACKER_DEBUG_CHECK (SQL)) {
+			gchar *full_query;
 
-	        full_query = sqlite3_expanded_sql (stmt->stmt);
+			full_query = sqlite3_expanded_sql (stmt->stmt);
 
-	        if (full_query) {
-		        g_message ("Executing query: '%s'", full_query);
-		        sqlite3_free (full_query);
-	        } else {
-		        g_message ("Executing query: '%s'",
-		                   sqlite3_sql (stmt->stmt));
-	        }
-        }
-#endif
-
-	values = g_array_new (FALSE, TRUE, sizeof (GValue));
-	g_array_set_clear_func (values, (GDestroyNotify) g_value_unset);
-
-	while (TRUE) {
-		GError *inner_error = NULL;
-		GDateTime *datetime;
-		GValue gvalue = G_VALUE_INIT;
-
-		result = stmt_step (stmt->stmt);
-
-		if (result == SQLITE_DONE) {
-			break;
-		} else if (result != SQLITE_ROW) {
-			g_set_error (error,
-			             TRACKER_DB_INTERFACE_ERROR,
-			             TRACKER_DB_QUERY_ERROR,
-			             "%s", sqlite3_errmsg (stmt->db_interface->db));
-			g_clear_pointer (&values, g_array_unref);
-			break;
-		}
-
-		if (sqlite3_column_type (stmt->stmt, 0) == SQLITE_NULL)
-			continue;
-
-		switch (type) {
-		case TRACKER_PROPERTY_TYPE_UNKNOWN:
-		case TRACKER_PROPERTY_TYPE_STRING:
-			g_value_init (&gvalue, G_TYPE_STRING);
-			g_value_set_string (&gvalue, (gchar *) sqlite3_column_text (stmt->stmt, 0));
-			break;
-		case TRACKER_PROPERTY_TYPE_LANGSTRING: {
-			sqlite3_value *val = sqlite3_column_value (stmt->stmt, 0);
-			gchar *text;
-
-			text = g_strdup ((const gchar *) sqlite3_value_text (val));
-
-			g_value_init (&gvalue, G_TYPE_BYTES);
-			g_value_take_boxed (&gvalue,
-			                    g_bytes_new_with_free_func (text,
-			                                                sqlite3_value_bytes (val),
-			                                                g_free, text));
-			break;
-		}
-		case TRACKER_PROPERTY_TYPE_DOUBLE:
-			g_value_init (&gvalue, G_TYPE_DOUBLE);
-			g_value_set_double (&gvalue, sqlite3_column_double (stmt->stmt, 0));
-			break;
-		case TRACKER_PROPERTY_TYPE_BOOLEAN:
-		case TRACKER_PROPERTY_TYPE_INTEGER:
-		case TRACKER_PROPERTY_TYPE_RESOURCE:
-			g_value_init (&gvalue, G_TYPE_INT64);
-			g_value_set_int64 (&gvalue, sqlite3_column_int64 (stmt->stmt, 0));
-			break;
-		case TRACKER_PROPERTY_TYPE_DATE:
-		case TRACKER_PROPERTY_TYPE_DATETIME:
-			if (sqlite3_column_type (stmt->stmt, 0) == SQLITE_INTEGER) {
-				datetime = g_date_time_new_from_unix_utc (sqlite3_column_int64 (stmt->stmt, 0));
+			if (full_query) {
+				g_message ("Executing query: '%s'", full_query);
+				sqlite3_free (full_query);
 			} else {
-				datetime = tracker_date_new_from_iso8601 ((const gchar *) sqlite3_column_text (stmt->stmt, 0),
-				                                          &inner_error);
-				if (!datetime)
-					break;
+				g_message ("Executing query: '%s'",
+				           sqlite3_sql (stmt->stmt));
 			}
-
-			g_value_init (&gvalue, G_TYPE_DATE_TIME);
-			g_value_take_boxed (&gvalue, datetime);
-			break;
 		}
-
-		if (inner_error) {
-			g_propagate_error (error, inner_error);
-			g_clear_pointer (&values, g_array_unref);
-			break;
-		}
-
-		g_array_append_val (values, gvalue);
+#endif
 	}
 
+	result = stmt_step (stmt->stmt);
+
+	if (result == SQLITE_DONE) {
+		goto end;
+	} else if (result != SQLITE_ROW) {
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_QUERY_ERROR,
+		             "%s", sqlite3_errmsg (stmt->db_interface->db));
+		goto end;
+	}
+
+	*first = FALSE;
+	if (value)
+		*value = sqlite3_column_int (stmt->stmt, 0);
+
+	return TRUE;
+
+ end:
 	tracker_db_statement_sqlite_release (stmt);
 	tracker_db_interface_unref_use (stmt->db_interface);
 	tracker_db_interface_unlock (stmt->db_interface);
 
-	return values;
+	return FALSE;
+}
+
+gboolean
+tracker_db_statement_next_string (TrackerDBStatement  *stmt,
+                                  gboolean            *first,
+                                  const char         **value,
+                                  GError             **error)
+{
+	int result;
+
+	if (*first) {
+		tracker_db_interface_lock (stmt->db_interface);
+		tracker_db_interface_ref_use (stmt->db_interface);
+		tracker_db_statement_sqlite_grab (stmt);
+
+#ifdef G_ENABLE_DEBUG
+		if (TRACKER_DEBUG_CHECK (SQL)) {
+			gchar *full_query;
+
+			full_query = sqlite3_expanded_sql (stmt->stmt);
+
+			if (full_query) {
+				g_message ("Executing query: '%s'", full_query);
+				sqlite3_free (full_query);
+			} else {
+				g_message ("Executing query: '%s'",
+				           sqlite3_sql (stmt->stmt));
+			}
+		}
+#endif
+	}
+
+	result = stmt_step (stmt->stmt);
+
+	if (result == SQLITE_DONE) {
+		goto end;
+	} else if (result != SQLITE_ROW) {
+		g_set_error (error,
+		             TRACKER_DB_INTERFACE_ERROR,
+		             TRACKER_DB_QUERY_ERROR,
+		             "%s", sqlite3_errmsg (stmt->db_interface->db));
+		goto end;
+	}
+
+	*first = FALSE;
+	if (value)
+		*value = (const char*) sqlite3_column_text (stmt->stmt, 0);
+
+	return TRUE;
+
+ end:
+	tracker_db_statement_sqlite_release (stmt);
+	tracker_db_interface_unref_use (stmt->db_interface);
+	tracker_db_interface_unlock (stmt->db_interface);
+
+	return FALSE;
 }
 
 TrackerDBCursor *
