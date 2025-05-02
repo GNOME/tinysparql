@@ -77,7 +77,9 @@ run_webide (GError **error)
 	web_ide_address = g_strdup_printf ("http://%s:%d/",
 	                                   loopback_str,
 	                                   port);
-	g_print (_("%s %s…\n"), _("Creating Web IDE at"), web_ide_address);
+	/* Translators: This will point to a local HTTP address */
+	g_print (_("Creating Web IDE at %s…"), web_ide_address);
+	g_print ("\n");
 	g_free (loopback_str);
 	g_free (web_ide_address);
 	g_object_unref (loopback);
