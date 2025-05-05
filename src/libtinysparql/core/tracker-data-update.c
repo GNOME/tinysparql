@@ -3630,12 +3630,13 @@ update_resource_property (TrackerData      *data,
 			g_value_init (&free_me, G_TYPE_INT64);
 			g_value_set_int64 (&free_me, id);
 		} else {
-			gchar *object_str;
+			gchar *free_str = NULL;
+			const char *object_str;
 			gboolean retval;
 
 			object_str = tracker_data_manager_expand_prefix (data->manager,
 			                                                 g_value_get_string (val),
-			                                                 NULL);
+			                                                 NULL, &free_str);
 
 			retval = tracker_data_query_string_to_value (data->manager,
 			                                             object_str,
@@ -3643,7 +3644,7 @@ update_resource_property (TrackerData      *data,
 			                                             tracker_property_get_data_type (property),
 			                                             &free_me,
 			                                             error);
-			g_free (object_str);
+			g_free (free_str);
 
 			if (!retval)
 				return FALSE;
@@ -3694,13 +3695,16 @@ update_resource_single (TrackerData      *data,
 		if (!subject)
 			return FALSE;
 	} else {
-		gchar *subject_uri;
+		const char *subject_uri;
+		char *free_str = NULL;
 
 		subject_str = tracker_resource_get_identifier (resource);
-		subject_uri = tracker_data_manager_expand_prefix (data->manager,
-		                                                  subject_str, NULL);
+
+		subject_uri = tracker_data_manager_expand_prefix (data->manager, subject_str,
+		                                                  NULL, &free_str);
 		subject = tracker_data_update_ensure_resource (data, subject_uri, error);
-		g_free (subject_uri);
+		g_free (free_str);
+
 		if (subject == 0)
 			return FALSE;
 	}
@@ -3778,7 +3782,8 @@ tracker_data_update_resource (TrackerData      *data,
                               GError          **error)
 {
 	gboolean retval;
-	gchar *graph_uri = NULL;
+	const gchar *graph_uri = NULL;
+	char *free_me = NULL;
 
 	if (bnodes)
 		g_hash_table_ref (bnodes);
@@ -3787,13 +3792,13 @@ tracker_data_update_resource (TrackerData      *data,
 
 	if (graph) {
 		graph_uri = tracker_data_manager_expand_prefix (data->manager,
-		                                                graph, NULL);
+		                                                graph, NULL, &free_me);
 	}
 
 	retval = update_resource_single (data, graph_uri, resource, visited, bnodes, NULL, error);
 
 	g_hash_table_unref (bnodes);
-	g_free (graph_uri);
+	g_free (free_me);
 
 	return retval;
 }

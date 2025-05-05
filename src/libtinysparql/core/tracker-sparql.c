@@ -1421,12 +1421,22 @@ _extract_node_string (TrackerParserNode *node,
 			/* Fall through */
 		case TERMINAL_TYPE_PNAME_LN: {
 			gchar *unexpanded;
+			const char *retval;
 
 			unexpanded = g_strndup (terminal_start + add_start,
-						terminal_end - terminal_start - subtract_end);
-			str = tracker_data_manager_expand_prefix (sparql->data_manager,
-			                                          unexpanded,
-			                                          sparql->current_state->prefix_map);
+			                        terminal_end - terminal_start - subtract_end);
+
+			retval = tracker_data_manager_expand_prefix (sparql->data_manager,
+			                                             unexpanded,
+			                                             sparql->current_state->prefix_map,
+			                                             &str);
+			if (!str) {
+				if (retval == unexpanded)
+					str = g_steal_pointer (&unexpanded);
+				else
+					str = g_strdup (retval);
+			}
+
 			g_free (unexpanded);
 			break;
 		}
