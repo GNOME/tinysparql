@@ -9843,6 +9843,7 @@ prepare_query (TrackerSparql         *sparql,
 {
 	TrackerDBStatement *stmt;
 	GError *inner_error = NULL;
+	GTimeZone *tz = NULL;
 	guint i;
 
 	stmt = tracker_db_interface_create_statement (iface,
@@ -9896,8 +9897,11 @@ prepare_query (TrackerSparql         *sparql,
 			gchar *full_str;
 			GDateTime *datetime;
 
+			if (!tz)
+				tz = g_time_zone_new_local ();
+
 			full_str = g_strdup_printf ("%sT00:00:00Z", binding->literal);
-			datetime = tracker_date_new_from_iso8601 (full_str, &inner_error);
+			datetime = tracker_date_new_from_iso8601 (tz, full_str, &inner_error);
 			g_free (full_str);
 
 			if (!datetime)
@@ -9909,7 +9913,10 @@ prepare_query (TrackerSparql         *sparql,
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME) {
 			GDateTime *datetime;
 
-			datetime = tracker_date_new_from_iso8601 (binding->literal, &inner_error);
+			if (!tz)
+				tz = g_time_zone_new_local ();
+
+			datetime = tracker_date_new_from_iso8601 (tz, binding->literal, &inner_error);
 			if (!datetime)
 				goto error;
 
@@ -9939,6 +9946,8 @@ prepare_query (TrackerSparql         *sparql,
 		g_propagate_error (error, inner_error);
 		g_clear_object (&stmt);
 	}
+
+	g_clear_pointer (&tz, g_time_zone_unref);
 
 	return stmt;
 }

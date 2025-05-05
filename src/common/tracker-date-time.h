@@ -40,8 +40,9 @@ typedef enum  {
 
 GQuark   tracker_date_error_quark              (void);
 
-GDateTime * tracker_date_new_from_iso8601 (const gchar  *string,
-					   GError      **error);
+GDateTime * tracker_date_new_from_iso8601 (GTimeZone    *tz,
+                                           const gchar  *string,
+                                           GError      **error);
 gchar * tracker_date_format_iso8601 (GDateTime *datetime);
 
 G_END_DECLS

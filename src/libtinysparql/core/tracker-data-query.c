@@ -102,6 +102,7 @@ tracker_data_query_string_to_value (TrackerDataManager   *manager,
 	TrackerRowid object_id;
 	gchar *datetime_str;
 	GDateTime *datetime;
+	GTimeZone *tz;
 
 	switch (type) {
 	case TRACKER_PROPERTY_TYPE_STRING:
@@ -129,9 +130,11 @@ tracker_data_query_string_to_value (TrackerDataManager   *manager,
 		g_value_set_double (gvalue, g_ascii_strtod (value, NULL));
 		break;
 	case TRACKER_PROPERTY_TYPE_DATE:
+		data = tracker_data_manager_get_data (manager);
+		tz = tracker_data_get_time_zone (data);
 		g_value_init (gvalue, G_TYPE_INT64);
 		datetime_str = g_strdup_printf ("%sT00:00:00Z", value);
-		datetime = tracker_date_new_from_iso8601 (datetime_str, error);
+		datetime = tracker_date_new_from_iso8601 (tz, datetime_str, error);
 		g_free (datetime_str);
 
 		if (!datetime)
@@ -141,8 +144,10 @@ tracker_data_query_string_to_value (TrackerDataManager   *manager,
 		g_date_time_unref (datetime);
 		break;
 	case TRACKER_PROPERTY_TYPE_DATETIME:
+		data = tracker_data_manager_get_data (manager);
+		tz = tracker_data_get_time_zone (data);
 		g_value_init (gvalue, G_TYPE_DATE_TIME);
-		datetime = tracker_date_new_from_iso8601 (value, error);
+		datetime = tracker_date_new_from_iso8601 (tz, value, error);
 
 		if (!datetime)
 			return FALSE;

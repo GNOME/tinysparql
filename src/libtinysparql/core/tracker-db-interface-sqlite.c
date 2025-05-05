@@ -416,10 +416,18 @@ function_sparql_timestamp (sqlite3_context *context,
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 		GError *error = NULL;
 		GDateTime *datetime;
+		GTimeZone *tz;
 		const gchar *str;
 
+		tz = sqlite3_get_auxdata (context, 1);
+
+		if (!tz) {
+			tz = g_time_zone_new_local ();
+			sqlite3_set_auxdata (context, 1, tz, (void (*) (void*)) g_time_zone_unref);
+		}
+
 		str = sqlite3_value_text (argv[0]);
-		datetime = tracker_date_new_from_iso8601 (str, &error);
+		datetime = tracker_date_new_from_iso8601 (tz, str, &error);
 		if (error) {
 			result_context_function_error (context, fn, "Failed time string conversion");
 			g_error_free (error);
@@ -460,11 +468,19 @@ function_sparql_time_sort (sqlite3_context *context,
 		sqlite3_result_int64 (context, sort_key);
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 		GDateTime *datetime;
+		GTimeZone *tz;
 		const gchar *value;
 		GError *error = NULL;
 
+		tz = sqlite3_get_auxdata (context, 1);
+
+		if (!tz) {
+			tz = g_time_zone_new_local ();
+			sqlite3_set_auxdata (context, 1, tz, (void (*) (void*)) g_time_zone_unref);
+		}
+
 		value = sqlite3_value_text (argv[0]);
-		datetime = tracker_date_new_from_iso8601 (value, &error);
+		datetime = tracker_date_new_from_iso8601 (tz, value, &error);
 		if (error) {
 			result_context_function_error (context, fn, error->message);
 			g_error_free (error);
@@ -498,10 +514,18 @@ function_sparql_time_zone_duration (sqlite3_context *context,
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 		GError *error = NULL;
 		GDateTime *datetime;
+		GTimeZone *tz;
 		const gchar *str;
 
+		tz = sqlite3_get_auxdata (context, 1);
+
+		if (!tz) {
+			tz = g_time_zone_new_local ();
+			sqlite3_set_auxdata (context, 1, tz, (void (*) (void*)) g_time_zone_unref);
+		}
+
 		str = sqlite3_value_text (argv[0]);
-		datetime = tracker_date_new_from_iso8601 (str, &error);
+		datetime = tracker_date_new_from_iso8601 (tz, str, &error);
 		if (error) {
 			result_context_function_error (context, fn, "Invalid date");
 			g_error_free (error);
@@ -602,11 +626,19 @@ function_sparql_time_zone (sqlite3_context *context,
 	} else if (sqlite3_value_type (argv[0]) == SQLITE_TEXT) {
 		GError *error = NULL;
 		GDateTime *datetime;
+		GTimeZone *tz;
 		const gchar *str;
 		gchar *duration;
 
+		tz = sqlite3_get_auxdata (context, 1);
+
+		if (!tz) {
+			tz = g_time_zone_new_local ();
+			sqlite3_set_auxdata (context, 1, tz, (void (*) (void*)) g_time_zone_unref);
+		}
+
 		str = sqlite3_value_text (argv[0]);
-		datetime = tracker_date_new_from_iso8601 (str, &error);
+		datetime = tracker_date_new_from_iso8601 (tz, str, &error);
 		if (error) {
 			result_context_function_error (context, fn, "Invalid date");
 			g_error_free (error);

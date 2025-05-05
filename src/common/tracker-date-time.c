@@ -29,15 +29,13 @@ GQuark tracker_date_error_quark (void) {
 }
 
 GDateTime *
-tracker_date_new_from_iso8601 (const gchar  *string,
-			       GError      **error)
+tracker_date_new_from_iso8601 (GTimeZone    *tz,
+                               const gchar  *string,
+                               GError      **error)
 {
 	GDateTime *datetime;
-	GTimeZone *tz;
 
-	tz = g_time_zone_new_local ();
 	datetime = g_date_time_new_from_iso8601 (string, tz);
-	g_time_zone_unref (tz);
 
 	if (!datetime) {
 		g_set_error (error,
