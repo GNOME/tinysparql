@@ -42,13 +42,26 @@ typedef struct _TrackerDataClass TrackerDataClass;
 
 typedef struct _TrackerData TrackerDataUpdate;
 
-typedef void (*TrackerStatementCallback) (const gchar  *graph,
-                                          TrackerRowid  subject_id,
-                                          TrackerRowid  predicate_id,
-                                          TrackerRowid  object_id,
-                                          GPtrArray    *rdf_types,
-                                          gpointer      user_data);
-typedef void (*TrackerCommitCallback)    (gpointer      user_data);
+typedef enum {
+	TRACKER_DATA_INSERT,
+	TRACKER_DATA_DELETE,
+} TrackerDataUpdateType;
+
+typedef void (*TrackerStatementCallback) (TrackerDataUpdateType  type,
+                                          const gchar           *graph,
+                                          TrackerRowid           subject_id,
+                                          TrackerRowid           predicate_id,
+                                          TrackerRowid           object_id,
+                                          GPtrArray             *rdf_types,
+                                          gpointer               user_data);
+
+typedef enum {
+	TRACKER_DATA_ROLLBACK,
+	TRACKER_DATA_COMMIT,
+} TrackerDataTransactionType;
+
+typedef void (*TrackerTransactionCallback) (TrackerDataTransactionType type,
+                                            gpointer                   user_data);
 
 GQuark   tracker_data_error_quark                   (void);
 
@@ -116,30 +129,21 @@ gboolean tracker_data_delete_graph                  (TrackerData               *
                                                      GError                   **error);
 
 /* Calling back */
-void     tracker_data_add_insert_statement_callback      (TrackerData               *data,
-                                                          TrackerStatementCallback   callback,
-                                                          gpointer                   user_data);
-void     tracker_data_add_delete_statement_callback      (TrackerData               *data,
-                                                          TrackerStatementCallback   callback,
-                                                          gpointer                   user_data);
-void     tracker_data_add_commit_statement_callback      (TrackerData               *data,
-                                                          TrackerCommitCallback      callback,
-                                                          gpointer                   user_data);
-void     tracker_data_add_rollback_statement_callback    (TrackerData               *data,
-                                                          TrackerCommitCallback      callback,
-                                                          gpointer                   user_data);
-void     tracker_data_remove_insert_statement_callback   (TrackerData               *data,
-                                                          TrackerStatementCallback   callback,
-                                                          gpointer                   user_data);
-void     tracker_data_remove_delete_statement_callback   (TrackerData               *data,
-                                                          TrackerStatementCallback   callback,
-                                                          gpointer                   user_data);
-void     tracker_data_remove_commit_statement_callback   (TrackerData               *data,
-                                                          TrackerCommitCallback      callback,
-                                                          gpointer                   user_data);
-void     tracker_data_remove_rollback_statement_callback (TrackerData               *data,
-                                                          TrackerCommitCallback      callback,
-                                                          gpointer                   user_data);
+void tracker_data_add_statement_callback (TrackerData              *data,
+                                          TrackerStatementCallback  callback,
+                                          gpointer                  user_data);
+
+void tracker_data_remove_statement_callback (TrackerData              *data,
+                                             TrackerStatementCallback  callback,
+                                             gpointer                  user_data);
+
+void tracker_data_add_transaction_callback (TrackerData                *data,
+                                            TrackerTransactionCallback  callback,
+                                            gpointer                    user_data);
+
+void tracker_data_remove_transaction_callback (TrackerData                *data,
+                                               TrackerTransactionCallback  callback,
+                                               gpointer                    user_data);
 
 gboolean tracker_data_update_resource (TrackerData      *data,
                                        const gchar      *graph,
