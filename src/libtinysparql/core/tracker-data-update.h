@@ -154,6 +154,8 @@ TrackerRowid tracker_data_update_ensure_resource (TrackerData  *data,
 TrackerRowid tracker_data_generate_bnode (TrackerData  *data,
                                           GError      **error);
 
+GTimeZone * tracker_data_get_time_zone (TrackerData *data);
+
 GType         tracker_data_get_type (void) G_GNUC_CONST;
 TrackerData * tracker_data_new      (TrackerDataManager *manager);
 

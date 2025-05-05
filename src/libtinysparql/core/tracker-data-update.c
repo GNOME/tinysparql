@@ -190,6 +190,8 @@ struct _TrackerData {
 	gboolean implicit_create;
 	TrackerDataUpdateBuffer update_buffer;
 
+	GTimeZone *tz;
+
 	/* current resource */
 	TrackerDataUpdateBufferResource *resource_buffer;
 	time_t resource_time;
@@ -704,6 +706,8 @@ tracker_data_finalize (GObject *object)
 	g_clear_pointer (&data->delete_callbacks, g_ptr_array_unref);
 	g_clear_pointer (&data->commit_callbacks, g_ptr_array_unref);
 	g_clear_pointer (&data->rollback_callbacks, g_ptr_array_unref);
+
+	g_clear_pointer (&data->tz, g_time_zone_unref);
 
 	G_OBJECT_CLASS (tracker_data_parent_class)->finalize (object);
 }
@@ -2985,6 +2989,8 @@ tracker_data_commit_transaction (TrackerData  *data,
 
 	tracker_data_dispatch_commit_statement_callbacks (data);
 
+	g_clear_pointer (&data->tz, g_time_zone_unref);
+
 	return TRUE;
 }
 
@@ -3015,6 +3021,8 @@ tracker_data_rollback_transaction (TrackerData *data)
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 
 	tracker_data_dispatch_rollback_statement_callbacks (data);
+
+	g_clear_pointer (&data->tz, g_time_zone_unref);
 }
 
 static GVariant *
@@ -3895,4 +3903,13 @@ tracker_data_generate_bnode (TrackerData  *data,
 	                  tracker_rowid_copy (&id));
 
 	return id;
+}
+
+GTimeZone *
+tracker_data_get_time_zone (TrackerData *data)
+{
+	if (!data->tz)
+		data->tz = g_time_zone_new_local ();
+
+	return data->tz;
 }
