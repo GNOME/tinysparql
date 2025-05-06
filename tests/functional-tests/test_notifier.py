@@ -21,6 +21,8 @@
 Test change notifications using TrackerNotifier.
 """
 
+import fixtures
+
 import gi
 
 gi.require_version("Tracker", "3.0")
@@ -31,7 +33,6 @@ import logging
 import unittest as ut
 
 import configuration
-import fixtures
 import mainloop
 
 

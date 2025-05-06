@@ -22,11 +22,13 @@
 Fixtures used by the Tracker functional-tests.
 """
 
-import gi
-
-gi.require_version("Tracker", "3.0")
-from gi.repository import Gio, GLib
-from gi.repository import Tracker
+import sys
+try:
+    import gi
+    gi.require_version("Tracker", "3.0")
+    from gi.repository import Gio, GLib, Tracker
+except:
+    sys.exit(77)
 
 import contextlib
 import logging
@@ -36,7 +38,6 @@ import multiprocessing
 import threading
 import shutil
 import subprocess
-import sys
 import tempfile
 import unittest as ut
 

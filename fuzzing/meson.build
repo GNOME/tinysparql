@@ -23,13 +23,18 @@ else
     extra_sources += 'driver.c'
 endif
 
+link_args = []
+if host_machine.system() == 'linux'
+    link_args = ['-Wl,--disable-new-dtags']
+endif
+
 foreach target_name : fuzz_targets
     exe = executable(target_name, [extra_sources, target_name + '.c'],
         c_args : extra_c_args,
         dependencies : deps,
         # Prefer RPATH over RUNPATH so the executable
         # always finds the uninstalled library.
-        link_args: ['-Wl,--disable-new-dtags'],
+        link_args: link_args,
     )
 
     samples_dir = meson.current_source_dir() / 'samples' / target_name.replace('fuzz_', '')

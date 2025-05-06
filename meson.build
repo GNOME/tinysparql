@@ -53,12 +53,12 @@ glib = dependency('glib-2.0', version: '>' + glib_required)
 gmodule = dependency('gmodule-2.0', version: '>' + glib_required)
 gobject = dependency('gobject-2.0', version: '>' + glib_required)
 gobject_introspection = dependency('gobject-introspection-1.0', required: get_option('introspection'))
-icu_i18n = dependency('icu-i18n', version: '> 4.8.1.1', required: false)
-icu_uc = dependency('icu-uc', version: '> 4.8.1.1', required: false)
-json_glib = dependency('json-glib-1.0', version: '>= 1.4', required: true)
 libxml2 = dependency('libxml-2.0', version: '> 2.6')
+icu_i18n = dependency('icu-i18n', version: '> 4.8.1.1', required: get_option('unicode_support') != 'unistring')
+icu_uc = dependency('icu-uc', version: '> 4.8.1.1', required: get_option('unicode_support') != 'unistring')
+json_glib = dependency('json-glib-1.0', version: '>= 1.4', required: true)
 sqlite = dependency('sqlite3', version: '>' + sqlite_required, required: false)
-dbus = dependency('dbus-1')
+dbus = dependency('dbus-1', required: false)
 avahi_glib = dependency('avahi-glib', required: get_option('avahi'))
 avahi_client = dependency('avahi-client', required: get_option('avahi'))
 libsoup3 = dependency('libsoup-3.0', version: '>= 2.99.2',
@@ -83,7 +83,7 @@ if get_option('man')
 endif
 
 py_modules = []
-if get_option('tests')
+if get_option('tests') and get_option('introspection').enabled()
   py_modules += 'gi'
   if get_option('tests_tap_protocol')
     py_modules += 'tap'
@@ -270,8 +270,12 @@ endif
 ####################################################################
 
 if get_option('dbus_services_dir') == ''
-  dbus_services_dir = dbus.get_variable(pkgconfig: 'session_bus_services_dir',
-                                        pkgconfig_define: [ 'datadir', datadir ])
+  if dbus.found()
+    dbus_services_dir = dbus.get_variable(pkgconfig: 'session_bus_services_dir',
+                                          pkgconfig_define: [ 'datadir', datadir ])
+  else
+    dbus_services_dir = join_paths(datadir, 'dbus-1', 'services')
+  endif
 else
   dbus_services_dir = get_option('dbus_services_dir')
 endif
