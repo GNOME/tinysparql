@@ -6,7 +6,7 @@
 <a1> a rdfs:Resource .
 <a1> :b4 <c1> .
 
-@base <foo/> .
+@base <http://example.org/ns/foo/> .
 # In-scope base URI is http://example.org/ns/foo/ at this point
 <a2> a rdfs:Resource .
 <a2> :b4 <c1> .
