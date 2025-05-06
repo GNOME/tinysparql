@@ -47,7 +47,7 @@ typedef struct _TrackerDataUpdateBufferGraph TrackerDataUpdateBufferGraph;
 typedef struct _TrackerDataUpdateBufferResource TrackerDataUpdateBufferResource;
 typedef struct _TrackerDataBlankBuffer TrackerDataBlankBuffer;
 typedef struct _TrackerStatementDelegate TrackerStatementDelegate;
-typedef struct _TrackerCommitDelegate TrackerCommitDelegate;
+typedef struct _TrackerTransactionDelegate TrackerTransactionDelegate;
 
 #define UPDATE_LOG_SIZE 64
 
@@ -175,8 +175,8 @@ struct _TrackerStatementDelegate {
 	gpointer user_data;
 };
 
-struct _TrackerCommitDelegate {
-	TrackerCommitCallback callback;
+struct _TrackerTransactionDelegate {
+	TrackerTransactionCallback callback;
 	gpointer user_data;
 };
 
@@ -190,16 +190,16 @@ struct _TrackerData {
 	gboolean implicit_create;
 	TrackerDataUpdateBuffer update_buffer;
 
+	GTimeZone *tz;
+
 	/* current resource */
 	TrackerDataUpdateBufferResource *resource_buffer;
 	time_t resource_time;
 	gint transaction_modseq;
 	gboolean has_persistent;
 
-	GPtrArray *insert_callbacks;
-	GPtrArray *delete_callbacks;
-	GPtrArray *commit_callbacks;
-	GPtrArray *rollback_callbacks;
+	GPtrArray *statement_callbacks;
+	GPtrArray *transaction_callbacks;
 };
 
 struct _TrackerDataClass {
@@ -400,38 +400,38 @@ tracker_data_log_entry_has_property (TrackerDataLogEntry *entry,
 }
 
 void
-tracker_data_add_commit_statement_callback (TrackerData             *data,
-                                            TrackerCommitCallback    callback,
-                                            gpointer                 user_data)
+tracker_data_add_transaction_callback (TrackerData                *data,
+                                       TrackerTransactionCallback  callback,
+                                       gpointer                    user_data)
 {
-	TrackerCommitDelegate *delegate = g_new0 (TrackerCommitDelegate, 1);
+	TrackerTransactionDelegate *delegate = g_new0 (TrackerTransactionDelegate, 1);
 
-	if (!data->commit_callbacks) {
-		data->commit_callbacks = g_ptr_array_new_with_free_func (g_free);
+	if (!data->transaction_callbacks) {
+		data->transaction_callbacks = g_ptr_array_new_with_free_func (g_free);
 	}
 
 	delegate->callback = callback;
 	delegate->user_data = user_data;
 
-	g_ptr_array_add (data->commit_callbacks, delegate);
+	g_ptr_array_add (data->transaction_callbacks, delegate);
 }
 
 void
-tracker_data_remove_commit_statement_callback (TrackerData           *data,
-                                               TrackerCommitCallback  callback,
-                                               gpointer               user_data)
+tracker_data_remove_transaction_callback (TrackerData                *data,
+                                          TrackerTransactionCallback  callback,
+                                          gpointer                    user_data)
 {
-	TrackerCommitDelegate *delegate;
+	TrackerTransactionDelegate *delegate;
 	guint i;
 
-	if (!data->commit_callbacks) {
+	if (!data->transaction_callbacks) {
 		return;
 	}
 
-	for (i = 0; i < data->commit_callbacks->len; i++) {
-		delegate = g_ptr_array_index (data->commit_callbacks, i);
+	for (i = 0; i < data->transaction_callbacks->len; i++) {
+		delegate = g_ptr_array_index (data->transaction_callbacks, i);
 		if (delegate->callback == callback && delegate->user_data == user_data) {
-			g_ptr_array_remove_index (data->commit_callbacks, i);
+			g_ptr_array_remove_index (data->transaction_callbacks, i);
 			return;
 		}
 	}
@@ -440,51 +440,13 @@ tracker_data_remove_commit_statement_callback (TrackerData           *data,
 void
 tracker_data_dispatch_commit_statement_callbacks (TrackerData *data)
 {
-	if (data->commit_callbacks) {
+	if (data->transaction_callbacks) {
 		guint n;
-		for (n = 0; n < data->commit_callbacks->len; n++) {
-			TrackerCommitDelegate *delegate;
-			delegate = g_ptr_array_index (data->commit_callbacks, n);
-			delegate->callback (delegate->user_data);
-		}
-	}
-}
-
-void
-tracker_data_add_rollback_statement_callback (TrackerData             *data,
-                                              TrackerCommitCallback    callback,
-                                              gpointer                 user_data)
-{
-	TrackerCommitDelegate *delegate = g_new0 (TrackerCommitDelegate, 1);
-
-	if (!data->rollback_callbacks) {
-		data->rollback_callbacks = g_ptr_array_new_with_free_func (g_free);
-	}
-
-	delegate->callback = callback;
-	delegate->user_data = user_data;
-
-	g_ptr_array_add (data->rollback_callbacks, delegate);
-}
-
-
-void
-tracker_data_remove_rollback_statement_callback (TrackerData          *data,
-                                                 TrackerCommitCallback callback,
-                                                 gpointer              user_data)
-{
-	TrackerCommitDelegate *delegate;
-	guint i;
-
-	if (!data->rollback_callbacks) {
-		return;
-	}
-
-	for (i = 0; i < data->rollback_callbacks->len; i++) {
-		delegate = g_ptr_array_index (data->rollback_callbacks, i);
-		if (delegate->callback == callback && delegate->user_data == user_data) {
-			g_ptr_array_remove_index (data->rollback_callbacks, i);
-			return;
+		for (n = 0; n < data->transaction_callbacks->len; n++) {
+			TrackerTransactionDelegate *delegate;
+			delegate = g_ptr_array_index (data->transaction_callbacks, n);
+			delegate->callback (TRACKER_DATA_COMMIT,
+			                    delegate->user_data);
 		}
 	}
 }
@@ -492,49 +454,50 @@ tracker_data_remove_rollback_statement_callback (TrackerData          *data,
 void
 tracker_data_dispatch_rollback_statement_callbacks (TrackerData *data)
 {
-	if (data->rollback_callbacks) {
+	if (data->transaction_callbacks) {
 		guint n;
-		for (n = 0; n < data->rollback_callbacks->len; n++) {
-			TrackerCommitDelegate *delegate;
-			delegate = g_ptr_array_index (data->rollback_callbacks, n);
-			delegate->callback (delegate->user_data);
+		for (n = 0; n < data->transaction_callbacks->len; n++) {
+			TrackerTransactionDelegate *delegate;
+			delegate = g_ptr_array_index (data->transaction_callbacks, n);
+			delegate->callback (TRACKER_DATA_ROLLBACK,
+			                    delegate->user_data);
 		}
 	}
 }
 
 void
-tracker_data_add_insert_statement_callback (TrackerData             *data,
-                                            TrackerStatementCallback callback,
-                                            gpointer                 user_data)
+tracker_data_add_statement_callback (TrackerData              *data,
+                                     TrackerStatementCallback  callback,
+                                     gpointer                  user_data)
 {
 	TrackerStatementDelegate *delegate = g_new0 (TrackerStatementDelegate, 1);
 
-	if (!data->insert_callbacks) {
-		data->insert_callbacks = g_ptr_array_new_with_free_func (g_free);
+	if (!data->statement_callbacks) {
+		data->statement_callbacks = g_ptr_array_new_with_free_func (g_free);
 	}
 
 	delegate->callback = callback;
 	delegate->user_data = user_data;
 
-	g_ptr_array_add (data->insert_callbacks, delegate);
+	g_ptr_array_add (data->statement_callbacks, delegate);
 }
 
 void
-tracker_data_remove_insert_statement_callback (TrackerData             *data,
-                                               TrackerStatementCallback callback,
-                                               gpointer                 user_data)
+tracker_data_remove_statement_callback (TrackerData             *data,
+                                        TrackerStatementCallback callback,
+                                        gpointer                 user_data)
 {
 	TrackerStatementDelegate *delegate;
 	guint i;
 
-	if (!data->insert_callbacks) {
+	if (!data->statement_callbacks) {
 		return;
 	}
 
-	for (i = 0; i < data->insert_callbacks->len; i++) {
-		delegate = g_ptr_array_index (data->insert_callbacks, i);
+	for (i = 0; i < data->statement_callbacks->len; i++) {
+		delegate = g_ptr_array_index (data->statement_callbacks, i);
 		if (delegate->callback == callback && delegate->user_data == user_data) {
-			g_ptr_array_remove_index (data->insert_callbacks, i);
+			g_ptr_array_remove_index (data->statement_callbacks, i);
 			return;
 		}
 	}
@@ -545,14 +508,15 @@ tracker_data_dispatch_insert_statement_callbacks (TrackerData  *data,
                                                   TrackerRowid  predicate_id,
                                                   TrackerRowid  class_id)
 {
-	if (data->insert_callbacks) {
+	if (data->statement_callbacks) {
 		guint n;
 
-		for (n = 0; n < data->insert_callbacks->len; n++) {
+		for (n = 0; n < data->statement_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
 
-			delegate = g_ptr_array_index (data->insert_callbacks, n);
-			delegate->callback (data->resource_buffer->graph->graph,
+			delegate = g_ptr_array_index (data->statement_callbacks, n);
+			delegate->callback (TRACKER_DATA_INSERT,
+			                    data->resource_buffer->graph->graph,
 			                    data->resource_buffer->id,
 			                    predicate_id,
 			                    class_id,
@@ -563,56 +527,19 @@ tracker_data_dispatch_insert_statement_callbacks (TrackerData  *data,
 }
 
 void
-tracker_data_add_delete_statement_callback (TrackerData             *data,
-                                            TrackerStatementCallback callback,
-                                            gpointer                 user_data)
-{
-	TrackerStatementDelegate *delegate = g_new0 (TrackerStatementDelegate, 1);
-
-	if (!data->delete_callbacks) {
-		data->delete_callbacks = g_ptr_array_new_with_free_func (g_free);
-	}
-
-	delegate->callback = callback;
-	delegate->user_data = user_data;
-
-	g_ptr_array_add (data->delete_callbacks, delegate);
-}
-
-void
-tracker_data_remove_delete_statement_callback (TrackerData             *data,
-                                               TrackerStatementCallback callback,
-                                               gpointer                 user_data)
-{
-	TrackerStatementDelegate *delegate;
-	guint i;
-
-	if (!data->delete_callbacks) {
-		return;
-	}
-
-	for (i = 0; i < data->delete_callbacks->len; i++) {
-		delegate = g_ptr_array_index (data->delete_callbacks, i);
-		if (delegate->callback == callback && delegate->user_data == user_data) {
-			g_ptr_array_remove_index (data->delete_callbacks, i);
-			return;
-		}
-	}
-}
-
-void
 tracker_data_dispatch_delete_statement_callbacks (TrackerData  *data,
                                                   TrackerRowid  predicate_id,
                                                   TrackerRowid  class_id)
 {
-	if (data->delete_callbacks) {
+	if (data->statement_callbacks) {
 		guint n;
 
-		for (n = 0; n < data->delete_callbacks->len; n++) {
+		for (n = 0; n < data->statement_callbacks->len; n++) {
 			TrackerStatementDelegate *delegate;
 
-			delegate = g_ptr_array_index (data->delete_callbacks, n);
-			delegate->callback (data->resource_buffer->graph->graph,
+			delegate = g_ptr_array_index (data->statement_callbacks, n);
+			delegate->callback (TRACKER_DATA_DELETE,
+			                    data->resource_buffer->graph->graph,
 			                    data->resource_buffer->id,
 			                    predicate_id,
 			                    class_id,
@@ -700,10 +627,10 @@ tracker_data_finalize (GObject *object)
 	g_clear_object (&data->update_buffer.insert_resource);
 	tracker_db_statement_mru_finish (&data->update_buffer.stmt_mru);
 
-	g_clear_pointer (&data->insert_callbacks, g_ptr_array_unref);
-	g_clear_pointer (&data->delete_callbacks, g_ptr_array_unref);
-	g_clear_pointer (&data->commit_callbacks, g_ptr_array_unref);
-	g_clear_pointer (&data->rollback_callbacks, g_ptr_array_unref);
+	g_clear_pointer (&data->statement_callbacks, g_ptr_array_unref);
+	g_clear_pointer (&data->transaction_callbacks, g_ptr_array_unref);
+
+	g_clear_pointer (&data->tz, g_time_zone_unref);
 
 	G_OBJECT_CLASS (tracker_data_parent_class)->finalize (object);
 }
@@ -2985,6 +2912,8 @@ tracker_data_commit_transaction (TrackerData  *data,
 
 	tracker_data_dispatch_commit_statement_callbacks (data);
 
+	g_clear_pointer (&data->tz, g_time_zone_unref);
+
 	return TRUE;
 }
 
@@ -3015,6 +2944,8 @@ tracker_data_rollback_transaction (TrackerData *data)
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA cache_size = %d", TRACKER_DB_CACHE_SIZE_DEFAULT);
 
 	tracker_data_dispatch_rollback_statement_callbacks (data);
+
+	g_clear_pointer (&data->tz, g_time_zone_unref);
 }
 
 static GVariant *
@@ -3699,12 +3630,13 @@ update_resource_property (TrackerData      *data,
 			g_value_init (&free_me, G_TYPE_INT64);
 			g_value_set_int64 (&free_me, id);
 		} else {
-			gchar *object_str;
+			gchar *free_str = NULL;
+			const char *object_str;
 			gboolean retval;
 
 			object_str = tracker_data_manager_expand_prefix (data->manager,
 			                                                 g_value_get_string (val),
-			                                                 NULL);
+			                                                 NULL, &free_str);
 
 			retval = tracker_data_query_string_to_value (data->manager,
 			                                             object_str,
@@ -3712,7 +3644,7 @@ update_resource_property (TrackerData      *data,
 			                                             tracker_property_get_data_type (property),
 			                                             &free_me,
 			                                             error);
-			g_free (object_str);
+			g_free (free_str);
 
 			if (!retval)
 				return FALSE;
@@ -3763,13 +3695,16 @@ update_resource_single (TrackerData      *data,
 		if (!subject)
 			return FALSE;
 	} else {
-		gchar *subject_uri;
+		const char *subject_uri;
+		char *free_str = NULL;
 
 		subject_str = tracker_resource_get_identifier (resource);
-		subject_uri = tracker_data_manager_expand_prefix (data->manager,
-		                                                  subject_str, NULL);
+
+		subject_uri = tracker_data_manager_expand_prefix (data->manager, subject_str,
+		                                                  NULL, &free_str);
 		subject = tracker_data_update_ensure_resource (data, subject_uri, error);
-		g_free (subject_uri);
+		g_free (free_str);
+
 		if (subject == 0)
 			return FALSE;
 	}
@@ -3847,7 +3782,8 @@ tracker_data_update_resource (TrackerData      *data,
                               GError          **error)
 {
 	gboolean retval;
-	gchar *graph_uri = NULL;
+	const gchar *graph_uri = NULL;
+	char *free_me = NULL;
 
 	if (bnodes)
 		g_hash_table_ref (bnodes);
@@ -3856,13 +3792,13 @@ tracker_data_update_resource (TrackerData      *data,
 
 	if (graph) {
 		graph_uri = tracker_data_manager_expand_prefix (data->manager,
-		                                                graph, NULL);
+		                                                graph, NULL, &free_me);
 	}
 
 	retval = update_resource_single (data, graph_uri, resource, visited, bnodes, NULL, error);
 
 	g_hash_table_unref (bnodes);
-	g_free (graph_uri);
+	g_free (free_me);
 
 	return retval;
 }
@@ -3895,4 +3831,13 @@ tracker_data_generate_bnode (TrackerData  *data,
 	                  tracker_rowid_copy (&id));
 
 	return id;
+}
+
+GTimeZone *
+tracker_data_get_time_zone (TrackerData *data)
+{
+	if (!data->tz)
+		data->tz = g_time_zone_new_local ();
+
+	return data->tz;
 }

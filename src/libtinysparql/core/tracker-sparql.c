@@ -1421,12 +1421,22 @@ _extract_node_string (TrackerParserNode *node,
 			/* Fall through */
 		case TERMINAL_TYPE_PNAME_LN: {
 			gchar *unexpanded;
+			const char *retval;
 
 			unexpanded = g_strndup (terminal_start + add_start,
-						terminal_end - terminal_start - subtract_end);
-			str = tracker_data_manager_expand_prefix (sparql->data_manager,
-			                                          unexpanded,
-			                                          sparql->current_state->prefix_map);
+			                        terminal_end - terminal_start - subtract_end);
+
+			retval = tracker_data_manager_expand_prefix (sparql->data_manager,
+			                                             unexpanded,
+			                                             sparql->current_state->prefix_map,
+			                                             &str);
+			if (!str) {
+				if (retval == unexpanded)
+					str = g_steal_pointer (&unexpanded);
+				else
+					str = g_strdup (retval);
+			}
+
 			g_free (unexpanded);
 			break;
 		}
@@ -9842,16 +9852,18 @@ prepare_query (TrackerSparql         *sparql,
                GError               **error)
 {
 	TrackerDBStatement *stmt;
+	GError *inner_error = NULL;
+	GTimeZone *tz = NULL;
 	guint i;
 
 	stmt = tracker_db_interface_create_statement (iface,
 	                                              cached ?
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_SELECT :
 	                                              TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
-	                                              error, sql);
+	                                              &inner_error, sql);
 
 	if (!stmt || !literals)
-		return stmt;
+		goto error;
 
 	for (i = 0; i < literals->len; i++) {
 		TrackerLiteralBinding *binding;
@@ -9872,11 +9884,10 @@ prepare_query (TrackerSparql         *sparql,
 			if (value) {
 				tracker_db_statement_bind_value (stmt, i, value);
 			} else {
-				g_set_error (error, TRACKER_SPARQL_ERROR,
+				g_set_error (&inner_error, TRACKER_SPARQL_ERROR,
 					     TRACKER_SPARQL_ERROR_TYPE,
 					     "Parameter '%s' has no given value", name);
-				g_object_unref (stmt);
-				return NULL;
+				goto error;
 			}
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_BOOLEAN) {
 			if (g_str_equal (binding->literal, "1") ||
@@ -9886,41 +9897,38 @@ prepare_query (TrackerSparql         *sparql,
 			           g_ascii_strcasecmp (binding->literal, "false") == 0) {
 				tracker_db_statement_bind_int (stmt, i, 0);
 			} else {
-				g_set_error (error, TRACKER_SPARQL_ERROR,
+				g_set_error (&inner_error, TRACKER_SPARQL_ERROR,
 					     TRACKER_SPARQL_ERROR_TYPE,
 					     "'%s' is not a valid boolean",
 				             binding->literal);
-				g_object_unref (stmt);
-				return NULL;
+				goto error;
 			}
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_DATE) {
-			GError *inner_error = NULL;
 			gchar *full_str;
 			GDateTime *datetime;
 
+			if (!tz)
+				tz = g_time_zone_new_local ();
+
 			full_str = g_strdup_printf ("%sT00:00:00Z", binding->literal);
-			datetime = tracker_date_new_from_iso8601 (full_str, &inner_error);
+			datetime = tracker_date_new_from_iso8601 (tz, full_str, &inner_error);
 			g_free (full_str);
 
-			if (inner_error) {
-				g_propagate_error (error, inner_error);
-				g_object_unref (stmt);
-				return NULL;
-			}
+			if (!datetime)
+				goto error;
 
 			tracker_db_statement_bind_int (stmt, i,
 						       g_date_time_to_unix (datetime));
 			g_date_time_unref (datetime);
 		} else if (prop_type == TRACKER_PROPERTY_TYPE_DATETIME) {
-			GError *inner_error = NULL;
 			GDateTime *datetime;
 
-			datetime = tracker_date_new_from_iso8601 (binding->literal, &inner_error);
-			if (inner_error) {
-				g_propagate_error (error, inner_error);
-				g_object_unref (stmt);
-				return NULL;
-			}
+			if (!tz)
+				tz = g_time_zone_new_local ();
+
+			datetime = tracker_date_new_from_iso8601 (tz, binding->literal, &inner_error);
+			if (!datetime)
+				goto error;
 
 			/* If we have anything that prevents a unix timestamp to be
 			 * lossless, we use the ISO8601 string.
@@ -9942,6 +9950,14 @@ prepare_query (TrackerSparql         *sparql,
 			tracker_db_statement_bind_text (stmt, i, binding->literal);
 		}
 	}
+
+ error:
+	if (inner_error) {
+		g_propagate_error (error, inner_error);
+		g_clear_object (&stmt);
+	}
+
+	g_clear_pointer (&tz, g_time_zone_unref);
 
 	return stmt;
 }

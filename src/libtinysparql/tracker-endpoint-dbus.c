@@ -384,17 +384,20 @@ write_cursor (QueryRequest          *request,
 	while (tracker_sparql_cursor_next (cursor, request->cancellable, &inner_error)) {
 		glong cur_offset = -1;
 
+		if (g_cancellable_set_error_if_cancelled (request->cancellable, &inner_error))
+			goto out;
+
 		if (!g_data_output_stream_put_int32 (request->data_stream, n_columns,
-		                                     request->cancellable,
+		                                     NULL,
 		                                     &inner_error))
-			break;
+			goto out;
 
 		for (i = 0; i < n_columns; i++) {
 			glong len;
 
 			if (!g_data_output_stream_put_int32 (request->data_stream,
 			                                     tracker_sparql_cursor_get_value_type (cursor, i),
-			                                     request->cancellable,
+			                                     NULL,
 			                                     &inner_error))
 				goto out;
 
@@ -410,12 +413,15 @@ write_cursor (QueryRequest          *request,
 		for (i = 0; i < n_columns; i++) {
 			if (!g_data_output_stream_put_int32 (request->data_stream,
 			                                     offsets[i],
-			                                     request->cancellable,
+			                                     NULL,
 			                                     &inner_error))
 				goto out;
 		}
 
 		for (i = 0; i < n_columns; i++) {
+			if (g_cancellable_set_error_if_cancelled (request->cancellable, &inner_error))
+				goto out;
+
 			if (!g_data_output_stream_put_string (request->data_stream,
 			                                      values[i] ? values[i] : "",
 			                                      request->cancellable,
@@ -424,7 +430,7 @@ write_cursor (QueryRequest          *request,
 
 			if (langtags[i]) {
 				if (!g_data_output_stream_put_byte (request->data_stream, 0,
-				                                    request->cancellable,
+				                                    NULL,
 				                                    &inner_error))
 					goto out;
 
@@ -436,7 +442,7 @@ write_cursor (QueryRequest          *request,
 			}
 
 			if (!g_data_output_stream_put_byte (request->data_stream, 0,
-			                                    request->cancellable,
+			                                    NULL,
 			                                    &inner_error))
 				goto out;
 		}

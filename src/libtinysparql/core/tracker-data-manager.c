@@ -3025,53 +3025,76 @@ tracker_data_manager_release_memory (TrackerDataManager *manager)
 	tracker_db_manager_release_memory (manager->db_manager);
 }
 
-gchar *
+const char *
 tracker_data_manager_expand_prefix (TrackerDataManager  *manager,
                                     const gchar         *term,
-                                    GHashTable          *prefix_map)
+                                    GHashTable          *prefix_map,
+                                    char               **free_str)
 {
-	const gchar *sep, *expanded_ns = NULL;
+	const gchar *sep, *suffix = NULL, *expanded_ns = NULL, *retval;
 	TrackerOntologies *ontologies;
 	TrackerNamespace **namespaces;
 	guint n_namespaces, i;
-	gchar *ns;
+	gchar *free_me = NULL;
 
 	sep = strchr (term, ':');
 
 	if (sep) {
-		ns = g_strndup (term, sep - term);
-		sep++;
-	} else {
-		ns = g_strdup (term);
-	}
+		if (prefix_map) {
+			char *str;
 
-	if (prefix_map)
-		expanded_ns = g_hash_table_lookup (prefix_map, ns);
+			str = g_strndup (term, sep - term);
+			expanded_ns = g_hash_table_lookup (prefix_map, str);
+			g_free (str);
+		}
+
+		suffix = sep + 1;
+	} else {
+		sep = &term[strlen (term)];
+
+		if (prefix_map)
+			expanded_ns = g_hash_table_lookup (prefix_map, term);
+	}
 
 	if (!expanded_ns) {
 		ontologies = tracker_data_manager_get_ontologies (manager);
 		namespaces = tracker_ontologies_get_namespaces (ontologies, &n_namespaces);
 
 		for (i = 0; i < n_namespaces; i++) {
-			if (!g_str_equal (ns, tracker_namespace_get_prefix (namespaces[i])))
+			const char *ns_prefix;
+
+			ns_prefix = tracker_namespace_get_prefix (namespaces[i]);
+
+			if (strlen (ns_prefix) != (size_t) (sep - term) ||
+			    strncmp (term, ns_prefix, sep - term) != 0)
 				continue;
 
 			expanded_ns = tracker_namespace_get_uri (namespaces[i]);
 
-			if (prefix_map)
-				g_hash_table_insert (prefix_map, g_strdup (ns), g_strdup (expanded_ns));
+			if (prefix_map) {
+				g_hash_table_insert (prefix_map,
+				                     g_strdup (tracker_namespace_get_prefix (namespaces[i])),
+				                     g_strdup (tracker_namespace_get_uri (namespaces[i])));
+			}
+
 			break;
 		}
 	}
 
-	g_free (ns);
+	g_free (free_me);
 
-	if (!expanded_ns)
-		return g_strdup (term);
-	else if (sep)
-		return g_strconcat (expanded_ns, sep, NULL);
-	else
-		return g_strdup (expanded_ns);
+	if (expanded_ns) {
+		if (suffix) {
+			*free_str = g_strconcat (expanded_ns, suffix, NULL);
+			retval = *free_str;
+		} else {
+			retval = expanded_ns;
+		}
+	} else {
+		retval = term;
+	}
+
+	return retval;
 }
 
 TrackerSparqlConnection *

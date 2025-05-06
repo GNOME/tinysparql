@@ -697,12 +697,13 @@ lookup_event_cache (TrackerNotifier *notifier,
  * (always the same one though), handle with care.
  */
 static void
-insert_statement_cb (const gchar  *graph,
-                     TrackerRowid  subject_id,
-                     TrackerRowid  predicate_id,
-                     TrackerRowid  object_id,
-                     GPtrArray    *rdf_types,
-                     gpointer      user_data)
+statement_cb (TrackerDataUpdateType  type,
+              const gchar           *graph,
+              TrackerRowid           subject_id,
+              TrackerRowid           predicate_id,
+              TrackerRowid           object_id,
+              GPtrArray             *rdf_types,
+              gpointer               user_data)
 {
 	TrackerNotifier *notifier = user_data;
 	TrackerSparqlConnection *conn = _tracker_notifier_get_connection (notifier);
@@ -711,7 +712,7 @@ insert_statement_cb (const gchar  *graph,
 	TrackerOntologies *ontologies = tracker_data_manager_get_ontologies (priv->data_manager);
 	TrackerProperty *rdf_type = tracker_ontologies_get_rdf_type (ontologies);
 	TrackerNotifierEventCache *cache;
-	TrackerClass *new_class = NULL;
+	TrackerClass *rdf_type_class = NULL;
 	guint i;
 
 	cache = lookup_event_cache (notifier, graph);
@@ -720,7 +721,7 @@ insert_statement_cb (const gchar  *graph,
 		const gchar *uri;
 
 		uri = tracker_ontologies_get_uri_by_id (ontologies, object_id);
-		new_class = tracker_ontologies_get_class_by_uri (ontologies, uri);
+		rdf_type_class = tracker_ontologies_get_class_by_uri (ontologies, uri);
 	}
 
 	for (i = 0; i < rdf_types->len; i++) {
@@ -730,51 +731,11 @@ insert_statement_cb (const gchar  *graph,
 		if (!tracker_class_get_notify (class))
 			continue;
 
-		if (class == new_class)
-			event_type = TRACKER_NOTIFIER_EVENT_CREATE;
-		else
-			event_type = TRACKER_NOTIFIER_EVENT_UPDATE;
-
-		_tracker_notifier_event_cache_push_event (cache, subject_id, event_type);
-	}
-}
-
-static void
-delete_statement_cb (const gchar  *graph,
-                     TrackerRowid  subject_id,
-                     TrackerRowid  predicate_id,
-                     TrackerRowid  object_id,
-                     GPtrArray    *rdf_types,
-                     gpointer      user_data)
-{
-	TrackerNotifier *notifier = user_data;
-	TrackerSparqlConnection *conn = _tracker_notifier_get_connection (notifier);
-	TrackerDirectConnection *direct = TRACKER_DIRECT_CONNECTION (conn);
-	TrackerDirectConnectionPrivate *priv = tracker_direct_connection_get_instance_private (direct);
-	TrackerOntologies *ontologies = tracker_data_manager_get_ontologies (priv->data_manager);
-	TrackerProperty *rdf_type = tracker_ontologies_get_rdf_type (ontologies);
-	TrackerNotifierEventCache *cache;
-	TrackerClass *class_being_removed = NULL;
-	guint i;
-
-	cache = lookup_event_cache (notifier, graph);
-
-	if (predicate_id == tracker_property_get_id (rdf_type)) {
-		const gchar *uri;
-
-		uri = tracker_ontologies_get_uri_by_id (ontologies, object_id);
-		class_being_removed = tracker_ontologies_get_class_by_uri (ontologies, uri);
-	}
-
-	for (i = 0; i < rdf_types->len; i++) {
-		TrackerClass *class = g_ptr_array_index (rdf_types, i);
-		TrackerNotifierEventType event_type;
-
-		if (!tracker_class_get_notify (class))
-			continue;
-
-		if (class_being_removed && class == class_being_removed) {
-			event_type = TRACKER_NOTIFIER_EVENT_DELETE;
+		if (rdf_type_class && class == rdf_type_class) {
+			if (type == TRACKER_DATA_INSERT)
+				event_type = TRACKER_NOTIFIER_EVENT_CREATE;
+			else
+				event_type = TRACKER_NOTIFIER_EVENT_DELETE;
 		} else {
 			event_type = TRACKER_NOTIFIER_EVENT_UPDATE;
 		}
@@ -784,30 +745,27 @@ delete_statement_cb (const gchar  *graph,
 }
 
 static void
-commit_statement_cb (gpointer user_data)
+transaction_cb (TrackerDataTransactionType type,
+                gpointer                   user_data)
 {
-	TrackerNotifierEventCache *cache;
 	TrackerNotifier *notifier = user_data;
 	GHashTable *events;
-	GHashTableIter iter;
 
 	events = get_event_cache_ht (notifier);
-	g_hash_table_iter_init (&iter, events);
 
-	while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &cache)) {
-		g_hash_table_iter_steal (&iter);
-		_tracker_notifier_event_cache_flush_events (notifier, cache);
+	if (type == TRACKER_DATA_COMMIT) {
+		TrackerNotifierEventCache *cache;
+		GHashTableIter iter;
+
+		g_hash_table_iter_init (&iter, events);
+
+		while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &cache)) {
+			g_hash_table_iter_steal (&iter);
+			_tracker_notifier_event_cache_flush_events (notifier, cache);
+		}
+	} else {
+		g_hash_table_remove_all (events);
 	}
-}
-
-static void
-rollback_statement_cb (gpointer user_data)
-{
-	TrackerNotifier *notifier = user_data;
-	GHashTable *events;
-
-	events = get_event_cache_ht (notifier);
-	g_hash_table_remove_all (events);
 }
 
 static void
@@ -822,18 +780,12 @@ detach_notifier (TrackerDirectConnection *conn,
 	priv->notifiers = g_list_remove (priv->notifiers, notifier);
 
 	tracker_data = tracker_data_manager_get_data (priv->data_manager);
-	tracker_data_remove_insert_statement_callback (tracker_data,
-	                                               insert_statement_cb,
-	                                               notifier);
-	tracker_data_remove_delete_statement_callback (tracker_data,
-	                                               delete_statement_cb,
-	                                               notifier);
-	tracker_data_remove_commit_statement_callback (tracker_data,
-	                                               commit_statement_cb,
-	                                               notifier);
-	tracker_data_remove_rollback_statement_callback (tracker_data,
-	                                                 rollback_statement_cb,
-	                                                 notifier);
+	tracker_data_remove_statement_callback (tracker_data,
+	                                        statement_cb,
+	                                        notifier);
+	tracker_data_remove_transaction_callback (tracker_data,
+	                                          transaction_cb,
+	                                          notifier);
 }
 
 static void
@@ -1211,18 +1163,12 @@ tracker_direct_connection_create_notifier (TrackerSparqlConnection *self)
 				 NULL);
 
 	tracker_data = tracker_data_manager_get_data (priv->data_manager);
-	tracker_data_add_insert_statement_callback (tracker_data,
-						    insert_statement_cb,
-						    notifier);
-	tracker_data_add_delete_statement_callback (tracker_data,
-						    delete_statement_cb,
-						    notifier);
-	tracker_data_add_commit_statement_callback (tracker_data,
-						    commit_statement_cb,
-						    notifier);
-	tracker_data_add_rollback_statement_callback (tracker_data,
-						      rollback_statement_cb,
-						      notifier);
+	tracker_data_add_statement_callback (tracker_data,
+	                                     statement_cb,
+	                                     notifier);
+	tracker_data_add_transaction_callback (tracker_data,
+	                                       transaction_cb,
+	                                       notifier);
 
 	g_object_weak_ref (G_OBJECT (notifier), weak_ref_notify, self);
 	priv->notifiers = g_list_prepend (priv->notifiers, notifier);

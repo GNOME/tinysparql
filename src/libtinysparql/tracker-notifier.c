@@ -94,8 +94,9 @@ struct _TrackerNotifierEventCache {
 	GWeakRef notifier;
 	GCancellable *cancellable;
 	TrackerSparqlStatement *stmt;
-	GSequence *sequence;
-	GSequenceIter *first;
+	GPtrArray *events;
+	GHashTable *events_by_id;
+	guint first;
 };
 
 struct _TrackerNotifierEvent {
@@ -196,15 +197,6 @@ G_DEFINE_BOXED_TYPE (TrackerNotifierEvent,
                      tracker_notifier_event_ref,
                      tracker_notifier_event_unref)
 
-static gint
-compare_event_cb (gconstpointer a,
-                  gconstpointer b,
-                  gpointer      user_data)
-{
-	const TrackerNotifierEvent *event1 = a, *event2 = b;
-	return event1->id - event2->id;
-}
-
 static TrackerNotifierEventCache *
 _tracker_notifier_event_cache_new_full (TrackerNotifier             *notifier,
                                         TrackerNotifierSubscription *subscription,
@@ -219,7 +211,8 @@ _tracker_notifier_event_cache_new_full (TrackerNotifier             *notifier,
 	g_weak_ref_init (&event_cache->notifier, notifier);
 	event_cache->graph = g_strdup (graph);
 	event_cache->cancellable = g_object_ref (priv->cancellable);
-	event_cache->sequence = g_sequence_new ((GDestroyNotify) tracker_notifier_event_unref);
+	event_cache->events = g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_notifier_event_unref);
+	event_cache->events_by_id = g_hash_table_new (g_int64_hash, g_int64_equal);
 	event_cache->stmt = ensure_extra_info_statement (notifier, subscription);
 
 	if (subscription)
@@ -238,7 +231,8 @@ _tracker_notifier_event_cache_new (TrackerNotifier *notifier,
 void
 _tracker_notifier_event_cache_free (TrackerNotifierEventCache *event_cache)
 {
-	g_sequence_free (event_cache->sequence);
+	g_hash_table_unref (event_cache->events_by_id);
+	g_clear_pointer (&event_cache->events, g_ptr_array_unref);
 	g_weak_ref_clear (&event_cache->notifier);
 	g_object_unref (event_cache->cancellable);
 	g_free (event_cache->service);
@@ -251,26 +245,17 @@ static TrackerNotifierEvent *
 tracker_notifier_event_cache_get_event (TrackerNotifierEventCache *cache,
                                         gint64                     id)
 {
-	TrackerNotifierEvent *event = NULL, search;
-	GSequenceIter *iter, *prev;
+	TrackerNotifierEvent *event;
 
-	search.id = id;
-	iter = g_sequence_search (cache->sequence, &search,
-	                          compare_event_cb, NULL);
+	event = g_hash_table_lookup (cache->events_by_id, &id);
 
-	if (!g_sequence_iter_is_begin (iter)) {
-		prev = g_sequence_iter_prev (iter);
-		event = g_sequence_get (prev);
-		if (event->id == id)
-			return event;
-	} else if (!g_sequence_iter_is_end (iter)) {
-		event = g_sequence_get (iter);
-		if (event->id == id)
-			return event;
+	if (!event) {
+		g_assert (cache->events != NULL);
+		event = tracker_notifier_event_new (id);
+		g_ptr_array_add (cache->events, event);
+		g_hash_table_insert (cache->events_by_id,
+		                     &event->id, event);
 	}
-
-	event = tracker_notifier_event_new (id);
-	g_sequence_insert_before (iter, event);
 
 	return event;
 }
@@ -308,27 +293,10 @@ handle_events (TrackerNotifier           *notifier,
 static GPtrArray *
 tracker_notifier_event_cache_take_events (TrackerNotifierEventCache *cache)
 {
-	TrackerNotifierEvent *event;
-	GSequenceIter *iter, *next;
 	GPtrArray *events;
 
-	events = g_ptr_array_new_with_free_func ((GDestroyNotify) tracker_notifier_event_unref);
-
-	iter = g_sequence_get_begin_iter (cache->sequence);
-
-	while (!g_sequence_iter_is_end (iter)) {
-		next = g_sequence_iter_next (iter);
-		event = g_sequence_get (iter);
-
-		g_ptr_array_add (events, tracker_notifier_event_ref (event));
-		g_sequence_remove (iter);
-		iter = next;
-	}
-
-	if (events->len == 0) {
-		g_ptr_array_unref (events);
-		return NULL;
-	}
+	g_hash_table_remove_all (cache->events_by_id);
+	events = g_steal_pointer (&cache->events);
 
 	return events;
 }
@@ -452,8 +420,6 @@ create_extra_info_query (TrackerNotifier             *notifier,
 	if (service)
 		g_string_append (sparql, "} ");
 
-	g_string_append (sparql, "ORDER BY xsd:integer(?id)");
-
 	g_free (service);
 
 	return g_string_free (sparql, FALSE);
@@ -507,20 +473,11 @@ handle_cursor (GTask        *task,
 	TrackerNotifier *notifier;
 	TrackerNotifierPrivate *priv;
 	TrackerNotifierEvent *event;
-	GSequenceIter *iter;
 	gint64 id;
 
-	iter = cache->first;
-
-	/* We rely here in both the GPtrArray and the query items being
-	 * sorted by tracker:id, the former will be so because the way it's
-	 * extracted from the GSequence, the latter because of the ORDER BY
-	 * clause.
-	 */
 	while (tracker_sparql_cursor_next (cursor, cancellable, NULL)) {
 		id = tracker_sparql_cursor_get_integer (cursor, 0);
-		event = g_sequence_get (iter);
-		iter = g_sequence_iter_next (iter);
+		event = g_ptr_array_index (cache->events, cache->first);
 
 		if (!event || event->id != id) {
 			g_critical ("Queried for id %" G_GINT64_FORMAT " but it is not "
@@ -529,6 +486,7 @@ handle_cursor (GTask        *task,
 		}
 
 		event->urn = g_strdup (tracker_sparql_cursor_get_string (cursor, 1, NULL));
+		cache->first++;
 	}
 
 	tracker_sparql_cursor_close (cursor);
@@ -545,9 +503,8 @@ handle_cursor (GTask        *task,
 	}
 
 	priv = tracker_notifier_get_instance_private (notifier);
-	cache->first = iter;
 
-	if (g_sequence_iter_is_end (cache->first)) {
+	if (cache->first >= cache->events->len) {
 		TrackerNotifierEventCache *next;
 
 		tracker_notifier_emit_events_in_idle (notifier, cache);
@@ -623,31 +580,30 @@ static void
 bind_arguments (TrackerSparqlStatement    *statement,
                 TrackerNotifierEventCache *cache)
 {
-	GSequenceIter *iter;
 	gchar *arg_name;
-	gint i = 0;
+	guint i = 0, n_args = 0;
 
 	tracker_sparql_statement_clear_bindings (statement);
 
-	for (iter = cache->first;
-	     !g_sequence_iter_is_end (iter) && i < N_SLOTS;
-	     iter = g_sequence_iter_next (iter)) {
+	for (i = cache->first;
+	     (n_args < N_SLOTS && i < cache->events->len);
+	     i++) {
 		TrackerNotifierEvent *event;
 
-		event = g_sequence_get (iter);
+		event = g_ptr_array_index (cache->events, i);
 
 		arg_name = g_strdup_printf ("arg%d", i + 1);
 		tracker_sparql_statement_bind_int (statement, arg_name, event->id);
 		g_free (arg_name);
-		i++;
+		n_args++;
 	}
 
 	/* Fill in missing slots with 0's */
-	while (i < N_SLOTS) {
-		arg_name = g_strdup_printf ("arg%d", i + 1);
+	while (n_args < N_SLOTS) {
+		arg_name = g_strdup_printf ("arg%d", n_args + 1);
 		tracker_sparql_statement_bind_int (statement, arg_name, 0);
 		g_free (arg_name);
-		i++;
+		n_args++;
 	}
 }
 
@@ -676,12 +632,12 @@ _tracker_notifier_event_cache_flush_events (TrackerNotifier           *notifier,
 {
 	TrackerNotifierPrivate *priv = tracker_notifier_get_instance_private (notifier);
 
-	if (g_sequence_is_empty (cache->sequence)) {
+	if (cache->events->len == 0) {
 		_tracker_notifier_event_cache_free (cache);
 		return;
 	}
 
-	cache->first = g_sequence_get_begin_iter (cache->sequence);
+	cache->first = 0;
 
 	g_async_queue_lock (priv->queue);
 	if (priv->urn_query_disabled) {
