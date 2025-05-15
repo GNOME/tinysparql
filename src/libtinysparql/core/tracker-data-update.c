@@ -1220,19 +1220,20 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		table_name = tracker_property_get_table_name (entry->table.prop_refcount.property);
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 		                                               "INSERT INTO \"%s\".Refcount (ROWID, Refcount) "
-		                                               "SELECT \"%s\", ?1 FROM \"%s\".\"%s\" WHERE ROWID = ?2 "
+		                                               "SELECT \"%s\", ?1 FROM \"%s\".\"%s\" WHERE \"%s\" IS NOT NULL AND ID = ?2 "
 		                                               "ON CONFLICT(ROWID) DO "
 		                                               "UPDATE SET Refcount = Refcount + excluded.Refcount WHERE ROWID = excluded.ROWID",
 		                                               database,
 		                                               tracker_property_get_name (entry->table.prop_refcount.property),
-		                                               database, table_name);
+		                                               database, table_name,
+							       tracker_property_get_name (entry->table.prop_refcount.property));
 	} else if (entry->type == TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY) {
 		const char *table_name;
 
 		table_name = tracker_property_get_table_name (entry->table.prop_refcount.property);
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 		                                               "UPDATE \"%s\".Refcount "
-		                                               "SET Refcount = Refcount + (?1 * (SELECT COUNT (*) FROM \"%s\".\"%s\" WHERE ROWID = ?1)) "
+		                                               "SET Refcount = Refcount + (?1 * (SELECT COUNT (*) FROM \"%s\".\"%s\" WHERE ROWID = ?2)) "
 		                                               "WHERE ROWID = ?2",
 		                                               database,
 		                                               database, table_name);
@@ -1415,12 +1416,10 @@ tracker_data_flush_log_chunk (TrackerData  *data,
 			                                 TrackerDataPropertyEntry,
 			                                 entry->table.multivalued.change_idx);
 			statement_bind_gvalue (stmt, 1, &property_entry->value);
-		} else if (entry->type == TRACKER_LOG_REF_CHANGE_FOR_PROPERTY) {
+		} else if (entry->type == TRACKER_LOG_REF_CHANGE_FOR_PROPERTY ||
+			   entry->type == TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY) {
 			tracker_db_statement_bind_int (stmt, 0, entry->table.prop_refcount.refcount);
 			tracker_db_statement_bind_int (stmt, 1, entry->id);
-		} else if (entry->type == TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY) {
-			tracker_db_statement_bind_int (stmt, 0, entry->id);
-			tracker_db_statement_bind_int (stmt, 1, entry->table.prop_refcount.refcount);
 		} else if (entry->type == TRACKER_LOG_REF_INC) {
 			tracker_db_statement_bind_int (stmt, 0, entry->id);
 			tracker_db_statement_bind_int (stmt, 1,
