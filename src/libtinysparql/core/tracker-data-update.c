@@ -283,6 +283,14 @@ tracker_data_log_entry_schema_hash (gconstpointer value)
 			hash ^= g_direct_hash (prop->property);
 			idx = prop->prev;
 		}
+	} else if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_INSERT ||
+		   entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_DELETE ||
+		   entry->type == TRACKER_LOG_PROPERTY_PROPAGATE_INSERT ||
+		   entry->type == TRACKER_LOG_PROPERTY_PROPAGATE_DELETE) {
+		hash ^= g_direct_hash (entry->table.propagation.dest);
+	} else if (entry->type == TRACKER_LOG_DOMAIN_INDEX_PROPAGATE_INSERT ||
+		   entry->type == TRACKER_LOG_DOMAIN_INDEX_PROPAGATE_DELETE) {
+		hash ^= g_direct_hash (entry->table.domain_index.dest_class);
 	}
 
 	return hash;
@@ -325,6 +333,18 @@ tracker_data_log_entry_schema_equal (gconstpointer value1,
 		}
 
 		if (idx1 >= 0 || idx2 >= 0)
+			return FALSE;
+	} else if (entry1->type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_INSERT ||
+		   entry1->type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_DELETE ||
+		   entry1->type == TRACKER_LOG_PROPERTY_PROPAGATE_INSERT ||
+		   entry1->type == TRACKER_LOG_PROPERTY_PROPAGATE_DELETE) {
+		if (entry1->table.propagation.dest !=
+		    entry2->table.propagation.dest)
+			return FALSE;
+	} else if (entry1->type == TRACKER_LOG_DOMAIN_INDEX_PROPAGATE_INSERT ||
+		   entry1->type == TRACKER_LOG_DOMAIN_INDEX_PROPAGATE_DELETE) {
+		if (entry1->table.domain_index.dest_class !=
+		    entry2->table.domain_index.dest_class)
 			return FALSE;
 	}
 
