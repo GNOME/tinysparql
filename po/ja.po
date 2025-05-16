@@ -1,5 +1,5 @@
-# tracker ja.po.
-# Copyright (C) 2008-2013, 2020 Free Software Foundation, Inc
+# TinySPARQL ja.po (tracker ja.po).
+# Copyright (C) 2008-2013, 2020, 2025 Free Software Foundation, Inc
 # This file is distributed under the same license as the tracker package.
 # Takao Fujiwara <takao.fujiwara@sun.com>, 2008.
 # Takeshi AIHANA <takeshi.aihana@gmail.com>, 2010, 2011.
@@ -8,74 +8,490 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker tracker-0.12\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2020-05-26 22:53+0000\n"
-"PO-Revision-Date: 2020-06-10 18:45+0900\n"
-"Last-Translator: sicklylife <translation@sicklylife.jp>\n"
-"Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
+"Project-Id-Version: TinySPARQL tinysparql-3.9\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
+"POT-Creation-Date: 2025-05-10 22:41+0000\n"
+"PO-Revision-Date: 2025-05-15 01:34+0900\n"
+"Last-Translator: Kusano Takayuki <https://bsky.app/profile/tkusano.jp>\n"
+"Language-Team: Japanese <https://l10n.gnome.org/teams/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/libtracker-common/tracker-utils.c:90
-msgid "unknown time"
-msgstr "時刻不明"
+#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
+#: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
+#: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
+msgid "Location of the database"
+msgstr "データベースの場所"
 
-#: src/libtracker-common/tracker-utils.c:104
-#: src/libtracker-common/tracker-utils.c:155
-msgid "less than one second"
-msgstr "1秒以下"
+#: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
+msgid "DIR"
+msgstr "ディレクトリ"
 
-#. Translators: this is %d days
-#: src/libtracker-common/tracker-utils.c:119
+#: src/cli/tracker-endpoint.c:62
+msgid "Specify the DBus name of this endpoint"
+msgstr "このエンドポイントの DBus 名を指定"
+
+#: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
+msgid "NAME"
+msgstr "名前"
+
+#: src/cli/tracker-endpoint.c:66
+msgid "Specify the ontology name used in this endpoint"
+msgstr "このエンドポイントで使われているオントロジーの名前を指定"
+
+#: src/cli/tracker-endpoint.c:70
+msgid "Specify a path to an ontology to be used in this endpoint"
+msgstr "このエンドポイントで使われているオントロジーのパスを指定"
+
+#: src/cli/tracker-endpoint.c:74
+msgid "HTTP port"
+msgstr "HTTP ポート"
+
+#: src/cli/tracker-endpoint.c:78
+msgid "Whether to only allow HTTP connections in the loopback device"
+msgstr "ループバックデバイスで HTTP 接続のみ許可するかどうか"
+
+#: src/cli/tracker-endpoint.c:82
+msgid "Use session bus"
+msgstr "セッションバスを使用"
+
+#: src/cli/tracker-endpoint.c:86
+msgid "Use system bus"
+msgstr "システムバスを使用"
+
+#: src/cli/tracker-endpoint.c:90
+msgid "List SPARQL endpoints available in DBus"
+msgstr "DBus で利用可能な SPARQL エンドポイントの一覧を表示"
+
+#: src/cli/tracker-endpoint.c:94
+msgid "List network-local HTTP SPARQL endpoints"
+msgstr "ネットワークローカルな HTTP の SPARQL エンドポイントの一覧を表示"
+
+#. TRANSLATORS: these are commandline arguments
+#: src/cli/tracker-endpoint.c:115
+msgid "--list can only be used with --session or --system"
+msgstr "--list は --session か --system との組み合わせだけで使用可能"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/cli/tracker-endpoint.c:121
+msgid "One “ontology” or “ontology-path” option should be provided"
+msgstr "“ontology” か “ontology-path” オプションのうち1つのみ指定できます"
+
+#. TRANSLATORS: those are commandline arguments
+#: src/cli/tracker-endpoint.c:127
+msgid "--http-port cannot be used with --dbus-service"
+msgstr "--http-port は --dbus-service と一緒に使えません"
+
+#: src/cli/tracker-endpoint.c:198
 #, c-format
-msgid " %dd"
-msgstr " %d日間"
+msgid "Creating HTTP endpoint at %s…\n"
+msgstr "%s に HTTP エンドポイントを作成…\n"
 
-#. Translators: this is %2.2d hours
-#: src/libtracker-common/tracker-utils.c:123
-#, c-format
-msgid " %2.2dh"
-msgstr " %2.2d時間"
+#: src/cli/tracker-endpoint.c:217 src/cli/tracker-endpoint.c:280
+#: src/cli/tracker-webide.c:98
+msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
+msgstr "SPARQL コマンドを待ち受け中。Ctrl-C で停止します。"
 
-#. Translators: this is %2.2d minutes
-#: src/libtracker-common/tracker-utils.c:127
-#, c-format
-msgid " %2.2dm"
-msgstr " %2.2d分"
+#. Carriage return, so we paper over the ^C
+#: src/cli/tracker-endpoint.c:225 src/cli/tracker-endpoint.c:295
+#: src/cli/tracker-webide.c:103
+msgid "Closing connection…"
+msgstr "接続を閉じています…"
 
-#. Translators: this is %2.2d seconds
-#: src/libtracker-common/tracker-utils.c:131
+#: src/cli/tracker-endpoint.c:240
 #, c-format
-msgid " %2.2ds"
-msgstr " %2.2d秒"
+msgid "Creating endpoint at %s…"
+msgstr "エンドポイントを %s に作成中…"
 
-#: src/libtracker-common/tracker-utils.c:135
-#, c-format
-msgid " %d day"
-msgid_plural " %d days"
-msgstr[0] " %d日間"
+#: src/cli/tracker-endpoint.c:276
+msgid "Could not own DBus name"
+msgstr "DBus 名を確保できません"
 
-#: src/libtracker-common/tracker-utils.c:139
-#, c-format
-msgid " %2.2d hour"
-msgid_plural " %2.2d hours"
-msgstr[0] " %2.2d時間"
+#: src/cli/tracker-endpoint.c:290
+msgid "DBus name lost"
+msgstr "DBus 名を失いました"
 
-#: src/libtracker-common/tracker-utils.c:143
-#, c-format
-msgid " %2.2d minute"
-msgid_plural " %2.2d minutes"
-msgstr[0] " %2.2d分"
+#: src/cli/tracker-endpoint.c:607 src/cli/tracker-export.c:214
+#: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
+#: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
+#: src/cli/tracker-webide.c:120 src/portal/tracker-main.c:108
+msgid "Unrecognized options"
+msgstr "不明なオプション"
 
-#: src/libtracker-common/tracker-utils.c:147
+#: src/cli/tracker-endpoint.c:651
 #, c-format
-msgid " %2.2d second"
-msgid_plural " %2.2d seconds"
-msgstr[0] " %2.2d秒"
+msgid "Opening database at %s…"
+msgstr "%s のデータベースを開いています"
+
+#: src/cli/tracker-endpoint.c:654
+msgid "Creating in-memory database"
+msgstr "インメモリーデータベースを作成中"
+
+#: src/cli/tracker-endpoint.c:682
+msgid ""
+"New database created. Use the “--dbus-service” option to share this database "
+"on a message bus."
+msgstr ""
+"新規にデータベースを作りました。このデータベースをメッセージバスで共有するに"
+"は “--dbus-service” オプションを使ってください。"
+
+#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
+#: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
+#: src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
+#: src/cli/tracker-query.c:65 src/cli/tracker-sql.c:46 src/cli/tracker-sql.c:50
+msgid "FILE"
+msgstr "ファイル"
+
+#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
+#: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
+msgid "Connects to a DBus service"
+msgstr "DBus サービスに接続"
+
+#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
+#: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
+msgid "DBus service name"
+msgstr "DBus サービス名"
+
+#: src/cli/tracker-export.c:54
+msgid "Output results format: “turtle”, “trig” or “json-ld”"
+msgstr "出力フォーマット: “turtle”、“trig” または “json-ld”"
+
+#: src/cli/tracker-export.c:55
+msgid "RDF_FORMAT"
+msgstr "RDFのフォーマット"
+
+#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
+#: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
+msgid "Connects to a remote service"
+msgstr "リモートサービスに接続"
+
+#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
+#: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
+msgid "Remote service URI"
+msgstr "リモートサービスの URI"
+
+#: src/cli/tracker-export.c:62
+msgid "Output TriG format which includes named graph information"
+msgstr "名前付きグラフの情報を含んだ TriG フォーマットを出力"
+
+#: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
+msgid "IRI"
+msgstr "IRI"
+
+#. TRANSLATORS: Those are commandline arguments
+#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
+#: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
+msgstr ""
+"“--database”、“--dbus-service” または “--remote-service” のうち1つのオプショ"
+"ンを指定してください"
+
+#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
+#: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
+#: src/cli/tracker-query.c:345
+msgid "No error given"
+msgstr "エラーはありません"
+
+#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
+#: src/cli/tracker-introspect.c:828 src/cli/tracker-query.c:344
+msgid "Could not establish a connection to Tracker"
+msgstr "Tracker への接続を確立できませんでした"
+
+#: src/cli/tracker-export.c:179
+#, c-format
+msgid "Unsupported serialization format “%s”\n"
+msgstr "サポートしていないシリアライズフォーマット “%s”\n"
+
+#: src/cli/tracker-import.c:58
+msgid "Read TriG format which includes named graph information"
+msgstr "名前付きグラフ情報を含む TriG フォーマットを読み込む"
+
+#: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
+msgid "Could not run import"
+msgstr "インポートを実行できません"
+
+#: src/cli/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "すべての利用可能なクラス一覧表示する"
+
+#: src/cli/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "すべての利用可能なプリフィックスを一覧表示する"
+
+#: src/cli/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr "データベース内の変更を通知するクラスを一覧表示する"
+
+#: src/cli/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr ""
+"パフォーマンスを改善するためにデータベースの中で使用しているインデックスを一"
+"覧表示する"
+
+#: src/cli/tracker-introspect.c:125
+msgid "Retrieve all named graphs"
+msgstr "名前付きグラフをすべて取得"
+
+#: src/cli/tracker-introspect.c:129
+msgid ""
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
+msgstr ""
+"サブクラス、スーパークラスを表示 (-s と組み合わせてツリーの一部を強調した"
+"り、-p と組み合わせてプロパティを表示できます)"
+
+#: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "クラス"
+
+#: src/cli/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "すべての利用可能なプロパティを一覧表示"
+
+#: src/cli/tracker-introspect.c:137
+msgid ""
+"Search for a class or property and display more information (e.g. Document)"
+msgstr "クラスまたはそのプロパティを検索し詳細な情報を表示する (例: Document)"
+
+#: src/cli/tracker-introspect.c:138
+msgid "CLASS/PROPERTY"
+msgstr "クラス/プロパティ"
+
+#: src/cli/tracker-introspect.c:716
+msgid "Could not create tree: subclass query failed"
+msgstr "ツリーを作れません: サブクラスのクエリに失敗しました"
+
+#: src/cli/tracker-introspect.c:765
+msgid "Could not create tree: class properties query failed"
+msgstr "ツリーを作れません: クラスのプロパティのクエリに失敗しました"
+
+#: src/cli/tracker-introspect.c:848
+msgid "Could not search classes"
+msgstr "クラスを検索できませんでした"
+
+#: src/cli/tracker-introspect.c:856 src/cli/tracker-introspect.c:940
+msgid "Classes"
+msgstr "クラス"
+
+#: src/cli/tracker-introspect.c:868
+msgid "Could not search properties"
+msgstr "プロパティを検索できませんでした"
+
+#: src/cli/tracker-introspect.c:876 src/cli/tracker-introspect.c:910
+msgid "Properties"
+msgstr "プロパティ"
+
+#: src/cli/tracker-introspect.c:902
+msgid "Could not list properties"
+msgstr "プロパティの一覧を表示できませんでした"
+
+#: src/cli/tracker-introspect.c:918
+msgid "Namespaces"
+msgstr "ネームスペース"
+
+#: src/cli/tracker-introspect.c:932
+msgid "Could not list classes"
+msgstr "クラスの一覧を表示できませんでした"
+
+#: src/cli/tracker-introspect.c:952
+msgid "Could not find notify classes"
+msgstr "通知クラスが見つかりませんでした"
+
+#: src/cli/tracker-introspect.c:960
+msgid "Notifies"
+msgstr "通知"
+
+#: src/cli/tracker-introspect.c:972
+msgid "Could not find indexed properties"
+msgstr "インデックス化されたプロパティが見つかりませんでした"
+
+#: src/cli/tracker-introspect.c:980
+msgid "Indexes"
+msgstr "インデックス"
+
+#: src/cli/tracker-introspect.c:992
+msgid "Could not list named graphs"
+msgstr "名前付きグラフの一覧表示ができません"
+
+#: src/cli/tracker-introspect.c:1000
+msgid "Named graphs"
+msgstr "名前付きグラフ"
+
+#: src/cli/tracker-introspect.c:1034
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
+msgstr ""
+"--tree 引数と組み合わせて使う時は --list-properties の引数は空でなければなり"
+"ません"
+
+#: src/cli/tracker-main.c:70
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "TinySPARQL やこれらのコマンドの使い方のヘルプを見る"
+
+#: src/cli/tracker-main.c:71
+msgid "Create a SPARQL endpoint"
+msgstr "SPARQL エンドポイントを作成"
+
+#: src/cli/tracker-main.c:72
+msgid "Export data from a TinySPARQL database"
+msgstr "データを TinySPARQL データベースからエクスポート"
+
+#: src/cli/tracker-main.c:73
+msgid "Import data into a TinySPARQL database"
+msgstr "データを TinySPARQL データベースへインポート"
+
+#: src/cli/tracker-main.c:74
+msgid "Introspect a SPARQL endpoint"
+msgstr "SPARQL エンドポイントをイントロスペクト"
+
+#: src/cli/tracker-main.c:75
+msgid "Query and update the index using SPARQL"
+msgstr "SPARQL インデックスのクエリや更新"
+
+#: src/cli/tracker-main.c:76
+msgid "Create a Web IDE to query local databases"
+msgstr "ローカルのデータベースへのクエリを行う Web IDE を作成"
+
+#: src/cli/tracker-main.c:93
+msgid "Available tinysparql commands are:"
+msgstr "利用可能な tinysparql コマンド:"
+
+#: src/cli/tracker-main.c:112
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr ""
+"特定のサブコマンドについて見るには “tinysparql help <コマンド>” を見てくださ"
+"い"
+
+#: src/cli/tracker-main.c:155
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr ""
+"“%s” は tinysparql のコマンドではありません。“tinysparql --help” をご覧くださ"
+"い"
+
+#: src/cli/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr "検索または更新するときに使用するパスを指定する"
+
+#: src/cli/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "SPARQL クエリを指定する"
+
+#: src/cli/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/cli/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr ""
+"このオプションはデータベースを更新する時にだけ --query と一緒に指定すること"
+
+#: src/cli/tracker-query.c:76
+msgid "Provides an argument for a query parameter."
+msgstr "引数でクエリのパラメータを提供する。"
+
+#: src/cli/tracker-query.c:77
+msgid "PARAMETER:TYPE:VALUE"
+msgstr "パラメーター:型:値"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/cli/tracker-query.c:214 src/cli/tracker-query.c:262
+msgid "None"
+msgstr "なし"
+
+#: src/cli/tracker-query.c:282
+#, c-format
+msgid "Invalid argument string %s"
+msgstr "無効な引数の文字列 %s"
+
+#: src/cli/tracker-query.c:292
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr "引数として無効なパラメーターの型 %s"
+
+#: src/cli/tracker-query.c:360
+msgid "Could not get UTF-8 path from path"
+msgstr "指定したパスを UTF-8 エンコーディングに変換できませんでした"
+
+#: src/cli/tracker-query.c:372 src/cli/tracker-sql.c:75
+msgid "Could not read file"
+msgstr "ファイルの読み込みに失敗しました"
+
+#: src/cli/tracker-query.c:403
+msgid "Could not run update"
+msgstr "アップグレードを実施できませんでした"
+
+#: src/cli/tracker-query.c:410
+msgid "Done"
+msgstr "完了"
+
+#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
+#: src/cli/tracker-sql.c:164
+msgid "Could not run query"
+msgstr "クエリを実行できませんでした"
+
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+msgid "No results found matching your query"
+msgstr "クエリを満足する結果が見つかりませんでした"
+
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+#: src/cli/tracker-sql.c:138
+msgid "Results"
+msgstr "結果"
+
+#: src/cli/tracker-query.c:498 src/cli/tracker-sql.c:250
+msgid "File and query can not be used together"
+msgstr "ファイルとクエリの両方を指定することはできません"
+
+#: src/cli/tracker-sql.c:49
+msgid "Path to use to run a query from file"
+msgstr "ファイルからクエリを実行するために使うパス"
+
+#: src/cli/tracker-sql.c:53
+msgid "SQL query"
+msgstr "SQL クエリ"
+
+#: src/cli/tracker-sql.c:54
+msgid "SQL"
+msgstr "SQL"
+
+#: src/cli/tracker-sql.c:108
+msgid "Failed to initialize data manager"
+msgstr "データマネージャーを初期化できませんでした"
+
+#: src/cli/tracker-sql.c:172
+msgid "Empty result set"
+msgstr "結果を空にする"
+
+#: src/cli/tracker-sql.c:248
+msgid "A database path must be specified"
+msgstr "データベースのパスを指定してください"
+
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "待ち受けるポート"
+
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "ポートが指定されていません"
+
+#: src/cli/tracker-webide.c:80
+#, c-format
+msgid "%s %s…\n"
+msgstr "%s %s…\n"
+
+#: src/cli/tracker-webide.c:80
+msgid "Creating Web IDE at"
+msgstr "Web IDE を作成中:"
 
 #. Translators: this is a '|' (U+007C) separated list of common
 #. * title beginnings. Meant to be skipped for sorting purposes,
@@ -83,513 +499,141 @@ msgstr[0] " %2.2d秒"
 #. * advised to leave the untranslated articles in addition to
 #. * the translated ones.
 #.
-#: src/libtracker-data/tracker-collation.c:333
+#: src/libtinysparql/core/tracker-collation.c:116
 msgid "the|a|an"
-msgstr ""
+msgstr "the|a|an"
 
-#: src/tracker/tracker-endpoint.c:47 src/tracker/tracker-export.c:42
-#: src/tracker/tracker-import.c:45 src/tracker/tracker-info.c:53
-#: src/tracker/tracker-sparql.c:109 src/tracker/tracker-sql.c:44
-msgid "Location of the database"
-msgstr ""
+#: src/portal/tracker-main.c:51
+msgid "Version"
+msgstr "バージョン"
 
-#: src/tracker/tracker-endpoint.c:48 src/tracker/tracker-endpoint.c:60
-msgid "DIR"
-msgstr ""
+#~ msgid "unknown time"
+#~ msgstr "時刻不明"
 
-#: src/tracker/tracker-endpoint.c:51
-msgid "Specify the DBus name of this endpoint"
-msgstr ""
+#~ msgid "less than one second"
+#~ msgstr "1秒以下"
 
-#: src/tracker/tracker-endpoint.c:52 src/tracker/tracker-endpoint.c:56
-msgid "NAME"
-msgstr ""
-
-#: src/tracker/tracker-endpoint.c:55
-msgid "Specify the ontology name used in this endpoint"
-msgstr ""
-
-#: src/tracker/tracker-endpoint.c:59
-msgid "Specify a path to an ontology to be used in this endpoint"
-msgstr ""
-
-#: src/tracker/tracker-endpoint.c:63
-msgid "Use session bus"
-msgstr ""
-
-#: src/tracker/tracker-endpoint.c:67
-msgid "Use system bus"
-msgstr ""
-
-#. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:87
-msgid "One “ontology” or “ontology-path” option should be provided"
-msgstr ""
-
-#: src/tracker/tracker-endpoint.c:129
 #, c-format
-msgid "Creating endpoint at %s…"
-msgstr ""
+#~ msgid " %dd"
+#~ msgstr " %d日間"
 
-#: src/tracker/tracker-endpoint.c:165
-msgid "Could not own DBus name"
-msgstr ""
-
-#: src/tracker/tracker-endpoint.c:169
-msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr ""
-
-#: src/tracker/tracker-endpoint.c:179
-msgid "DBus name lost"
-msgstr ""
-
-#. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:184
-msgid "Closing connection…"
-msgstr ""
-
-#: src/tracker/tracker-endpoint.c:204 src/tracker/tracker-export.c:305
-#: src/tracker/tracker-import.c:160 src/tracker/tracker-info.c:471
-#: src/tracker/tracker-sparql.c:1546 src/tracker/tracker-sql.c:231
-msgid "Unrecognized options"
-msgstr "不明なオプション"
-
-#: src/tracker/tracker-endpoint.c:234
 #, c-format
-msgid "Opening database at %s…"
-msgstr ""
+#~ msgid " %2.2dh"
+#~ msgstr " %2.2d時間"
 
-#: src/tracker/tracker-endpoint.c:237
-msgid "Creating in-memory database"
-msgstr ""
-
-#: src/tracker/tracker-endpoint.c:257
-msgid ""
-"New database created. Use the --dbus-service option to share this database "
-"on a message bus."
-msgstr ""
-
-#: src/tracker/tracker-export.c:43 src/tracker/tracker-import.c:46
-#: src/tracker/tracker-import.c:57 src/tracker/tracker-import.c:58
-#: src/tracker/tracker-info.c:54 src/tracker/tracker-info.c:91
-#: src/tracker/tracker-info.c:92 src/tracker/tracker-sparql.c:110
-#: src/tracker/tracker-sparql.c:122 src/tracker/tracker-sql.c:45
-#: src/tracker/tracker-sql.c:49
-msgid "FILE"
-msgstr "ファイル"
-
-#: src/tracker/tracker-export.c:46 src/tracker/tracker-import.c:49
-#: src/tracker/tracker-info.c:57 src/tracker/tracker-sparql.c:113
-msgid "Connects to a DBus service"
-msgstr ""
-
-#: src/tracker/tracker-export.c:47 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-info.c:58 src/tracker/tracker-sparql.c:114
-msgid "DBus service name"
-msgstr ""
-
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:53
-#: src/tracker/tracker-info.c:61 src/tracker/tracker-sparql.c:117
-msgid "Connects to a remote service"
-msgstr ""
-
-#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-info.c:62 src/tracker/tracker-sparql.c:118
-msgid "Remote service URI"
-msgstr ""
-
-#: src/tracker/tracker-export.c:54
-msgid "Output TriG format which includes named graph information"
-msgstr ""
-
-#. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:81 src/tracker/tracker-import.c:83
-#: src/tracker/tracker-sparql.c:196
-msgid "Specify one --database, --dbus-service or --remote-service option"
-msgstr ""
-
-#: src/tracker/tracker-export.c:254 src/tracker/tracker-import.c:99
-#: src/tracker/tracker-info.c:309 src/tracker/tracker-sparql.c:1111
-msgid "Could not establish a connection to Tracker"
-msgstr "Tracker への接続を確立できませんでした"
-
-#: src/tracker/tracker-export.c:255 src/tracker/tracker-import.c:100
-#: src/tracker/tracker-info.c:310 src/tracker/tracker-sparql.c:1112
-msgid "No error given"
-msgstr "エラーはありません"
-
-#: src/tracker/tracker-export.c:276 src/tracker/tracker-sparql.c:1486
-#: src/tracker/tracker-sql.c:132 src/tracker/tracker-sql.c:165
-msgid "Could not run query"
-msgstr "クエリを実行できませんでした"
-
-#: src/tracker/tracker-help.c:59 src/tracker/tracker-help.c:71
 #, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "“%s”の実行に失敗しました: %s"
+#~ msgid " %2.2dm"
+#~ msgstr " %2.2d分"
 
-#: src/tracker/tracker-import.c:117
-msgid "Could not run import"
-msgstr ""
-
-#: src/tracker/tracker-info.c:65
-msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
-msgstr "名前空間をすべて表示する (i.e. nie:title 表記ではなく URL 表記)"
-
-#: src/tracker/tracker-info.c:69
-msgid "Show plain text content if available for resources"
-msgstr "プレーンテキストの内容がリソースとして利用できる場合はそれを表示"
-
-#. To translators:
-#. * IRI (International Resource Identifier) is a generalization
-#. * of the URI. While URI supports only ASCI encoding, IRI
-#. * fully supports international characters. In practice, UTF-8
-#. * is the most popular encoding used for IRI.
-#.
-#: src/tracker/tracker-info.c:79
-msgid ""
-"Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-"(e.g. <file:///path/to/some/file.txt>)"
-msgstr ""
-
-#: src/tracker/tracker-info.c:83
-msgid "Output results as RDF in Turtle format"
-msgstr "結果を Turtle 形式の RDF として出力する"
-
-#: src/tracker/tracker-info.c:87
-msgid "RDF property to treat as URL (eg. “nie:url”)"
-msgstr ""
-
-#: src/tracker/tracker-info.c:334
-msgid "Querying information for entity"
-msgstr "次のエントリに関する情報の取得中"
-
-#: src/tracker/tracker-info.c:358
-msgid "Unable to retrieve URN for URI"
-msgstr "URI に対する URN を取得できません"
-
-#: src/tracker/tracker-info.c:368 src/tracker/tracker-info.c:402
-msgid "Unable to retrieve data for URI"
-msgstr "URI の情報を取得できません"
-
-#: src/tracker/tracker-info.c:411
-msgid "No metadata available for that URI"
-msgstr "その URI で利用できるメタデータはありません"
-
-#: src/tracker/tracker-info.c:416 src/tracker/tracker-sparql.c:1498
-#: src/tracker/tracker-sparql.c:1501 src/tracker/tracker-sql.c:139
-msgid "Results"
-msgstr "結果"
-
-#: src/tracker/tracker-main.c:44
-msgid "See “tracker help <command>” to read about a specific subcommand."
-msgstr ""
-
-#: src/tracker/tracker-main.c:93
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr ""
-
-#: src/tracker/tracker-main.c:94
-msgid "Create a SPARQL endpoint"
-msgstr ""
-
-#: src/tracker/tracker-main.c:95
-msgid "Export data from a Tracker database"
-msgstr ""
-
-#: src/tracker/tracker-main.c:96
-msgid "Import data into a Tracker database"
-msgstr ""
-
-#: src/tracker/tracker-main.c:97
-msgid "Show information known about local files or items indexed"
-msgstr ""
-
-#: src/tracker/tracker-main.c:98
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-
-#: src/tracker/tracker-main.c:99
-msgid "Query the database at the lowest level using SQL"
-msgstr ""
-
-#: src/tracker/tracker-main.c:139
 #, c-format
-msgid "“%s” is not a tracker command. See “tracker --help”"
-msgstr ""
+#~ msgid " %2.2ds"
+#~ msgstr " %2.2d秒"
 
-#: src/tracker/tracker-main.c:174
-msgid "Available tracker commands are:"
-msgstr ""
+#, c-format
+#~ msgid " %d day"
+#~ msgid_plural " %d days"
+#~ msgstr[0] " %d日間"
 
-#: src/tracker/tracker-main.c:212
-msgid "Additional / third party commands are:"
-msgstr ""
+#, c-format
+#~ msgid " %2.2d hour"
+#~ msgid_plural " %2.2d hours"
+#~ msgstr[0] " %2.2d時間"
 
-#: src/tracker/tracker-sparql.c:121
-msgid "Path to use to run a query or update from file"
-msgstr "検索または更新するときに使用するパスを指定する"
+#, c-format
+#~ msgid " %2.2d minute"
+#~ msgid_plural " %2.2d minutes"
+#~ msgstr[0] " %2.2d分"
 
-#: src/tracker/tracker-sparql.c:125
-msgid "SPARQL query"
-msgstr "SPARQL クエリを指定する"
+#, c-format
+#~ msgid " %2.2d second"
+#~ msgid_plural " %2.2d seconds"
+#~ msgstr[0] " %2.2d秒"
 
-#: src/tracker/tracker-sparql.c:126
-msgid "SPARQL"
-msgstr "SPARQL"
+#, c-format
+#~ msgid "failed to exec “%s”: %s"
+#~ msgstr "“%s”の実行に失敗しました: %s"
 
-#: src/tracker/tracker-sparql.c:129
-msgid "This is used with --query and for database updates only."
-msgstr ""
-"このオプションはデータベースを更新する時にだけ --query と一緒に指定すること"
+#~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
+#~ msgstr "名前空間をすべて表示する (i.e. nie:title 表記ではなく URL 表記)"
 
-#: src/tracker/tracker-sparql.c:133
-msgid "Retrieve classes"
-msgstr "クラスの一覧を取得する"
+#~ msgid "Show plain text content if available for resources"
+#~ msgstr "プレーンテキストの内容がリソースとして利用できる場合はそれを表示"
 
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve class prefixes"
-msgstr "クラスが持つ接頭子の一覧を取得する"
+#~ msgid "Output results as RDF in Turtle format"
+#~ msgstr "結果を Turtle 形式の RDF として出力する"
 
-#: src/tracker/tracker-sparql.c:141
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
-msgstr ""
-"クラスのプロパティを取得する (クラスの接頭子も指定可; 例: rdfs:Resource)"
+#~ msgid "Querying information for entity"
+#~ msgstr "次のエントリに関する情報の取得中"
 
-#: src/tracker/tracker-sparql.c:142 src/tracker/tracker-sparql.c:146
-#: src/tracker/tracker-sparql.c:158 src/tracker/tracker-sparql.c:166
-#: src/tracker/tracker-sparql.c:170
-msgid "CLASS"
-msgstr "CLASS"
+#~ msgid "Unable to retrieve URN for URI"
+#~ msgstr "URI に対する URN を取得できません"
 
-#: src/tracker/tracker-sparql.c:145
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-"データベース内の変更を通知するクラスの一覧を取得する (CLASS はオプション)"
+#~ msgid "Unable to retrieve data for URI"
+#~ msgstr "URI の情報を取得できません"
 
-#: src/tracker/tracker-sparql.c:149
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
-msgstr ""
-"パフォーマンスを改善するためにデータベースの中で使用しているインデックスを取"
-"得する (PROPERTY はオプション)"
+#~ msgid "No metadata available for that URI"
+#~ msgstr "その URI で利用できるメタデータはありません"
 
-#: src/tracker/tracker-sparql.c:150
-msgid "PROPERTY"
-msgstr "PROPERTY"
+#~ msgid "Retrieve classes"
+#~ msgstr "クラスの一覧を取得する"
 
-#: src/tracker/tracker-sparql.c:153
-msgid "Retrieve all named graphs"
-msgstr ""
+#~ msgid "Retrieve class prefixes"
+#~ msgstr "クラスが持つ接頭子の一覧を取得する"
 
-#: src/tracker/tracker-sparql.c:157
-msgid ""
-"Describe subclasses, superclasses (can be used with -s to highlight parts of "
-"the tree and -p to show properties)"
-msgstr ""
+#~ msgid ""
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+#~ "Resource)"
+#~ msgstr ""
+#~ "クラスのプロパティを取得する (クラスの接頭子も指定可; 例: rdfs:Resource)"
 
-#: src/tracker/tracker-sparql.c:161
-msgid ""
-"Search for a class or property and display more information (e.g. Document)"
-msgstr "クラスまたはそのプロパティを検索し詳細な情報を表示する (例: Document)"
+#~ msgid "PROPERTY"
+#~ msgstr "PROPERTY"
 
-#: src/tracker/tracker-sparql.c:162
-msgid "CLASS/PROPERTY"
-msgstr "CLASS/PROPERTY"
+#~ msgid "Unable to retrieve namespace prefixes"
+#~ msgstr "名前空間の接頭子を取得できませんでした"
 
-#: src/tracker/tracker-sparql.c:165
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr ""
+#~ msgid "No namespace prefixes were returned"
+#~ msgstr "名前空間の接頭子が見つかりませんでした"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the full namespace for a class."
-msgstr ""
+#~ msgid "Could not get namespace prefixes"
+#~ msgstr "名前空間の接頭子を取得できませんでした"
 
-#: src/tracker/tracker-sparql.c:229
-msgid "Unable to retrieve namespace prefixes"
-msgstr "名前空間の接頭子を取得できませんでした"
+#~ msgid "No namespace prefixes were found"
+#~ msgstr "名前空間の接頭子が見つかりませんでした"
 
-#: src/tracker/tracker-sparql.c:237
-msgid "No namespace prefixes were returned"
-msgstr "名前空間の接頭子が見つかりませんでした"
+#~ msgid "No classes were found"
+#~ msgstr "クラスが見つかりませんでした"
 
-#: src/tracker/tracker-sparql.c:283
-msgid "Could not get namespace prefixes"
-msgstr "名前空間の接頭子を取得できませんでした"
+#~ msgid "Could not list class prefixes"
+#~ msgstr "クラスの接頭子の一覧を表示できませんでした"
 
-#: src/tracker/tracker-sparql.c:292
-msgid "No namespace prefixes were found"
-msgstr "名前空間の接頭子が見つかりませんでした"
+#~ msgid "No class prefixes were found"
+#~ msgstr "クラスの接頭子が見つかりませんでした"
 
-#. To translators: This is to say there are no
-#. * search results found. We use a "foo: None"
-#. * with multiple print statements, where "foo"
-#. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:538 src/tracker/tracker-sparql.c:586
-msgid "None"
-msgstr "なし"
+#~ msgid "Prefixes"
+#~ msgstr "接頭子"
 
-#: src/tracker/tracker-sparql.c:992
-msgid "Could not create tree: subclass query failed"
-msgstr ""
+#~ msgid ""
+#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
+#~ "Resource”"
+#~ msgstr ""
+#~ "クラスの接頭子のプロパティが見つかりませんでした (例: “rdfs:Resource”のリ"
+#~ "ソース)"
 
-#: src/tracker/tracker-sparql.c:1041
-msgid "Could not create tree: class properties query failed"
-msgstr ""
+#~ msgid "No properties were found"
+#~ msgstr "プロパティが見つかりませんでした"
 
-#: src/tracker/tracker-sparql.c:1125
-msgid "Could not list classes"
-msgstr "クラスの一覧を表示できませんでした"
+#~ msgid "No notifies were found"
+#~ msgstr "通知はありませんでした"
 
-#: src/tracker/tracker-sparql.c:1133
-msgid "No classes were found"
-msgstr "クラスが見つかりませんでした"
+#~ msgid "No indexes were found"
+#~ msgstr "インデクスが見つかりませんでした"
 
-#: src/tracker/tracker-sparql.c:1133 src/tracker/tracker-sparql.c:1348
-msgid "Classes"
-msgstr "クラス"
+#~ msgid "No classes were found to match search term"
+#~ msgstr "検索文字列にマッチするクラスが見つかりませんでした"
 
-#: src/tracker/tracker-sparql.c:1149
-msgid "Could not list class prefixes"
-msgstr "クラスの接頭子の一覧を表示できませんでした"
-
-#: src/tracker/tracker-sparql.c:1157
-msgid "No class prefixes were found"
-msgstr "クラスの接頭子が見つかりませんでした"
-
-#: src/tracker/tracker-sparql.c:1157
-msgid "Prefixes"
-msgstr "接頭子"
-
-#: src/tracker/tracker-sparql.c:1177
-msgid ""
-"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
-msgstr ""
-"クラスの接頭子のプロパティが見つかりませんでした (例: “rdfs:Resource”のリソー"
-"ス)"
-
-#: src/tracker/tracker-sparql.c:1216
-msgid "Could not list properties"
-msgstr "プロパティの一覧を表示できませんでした"
-
-#: src/tracker/tracker-sparql.c:1224
-msgid "No properties were found"
-msgstr "プロパティが見つかりませんでした"
-
-#: src/tracker/tracker-sparql.c:1224 src/tracker/tracker-sparql.c:1371
-msgid "Properties"
-msgstr "プロパティ"
-
-#: src/tracker/tracker-sparql.c:1252
-msgid "Could not find notify classes"
-msgstr "通知クラスが見つかりませんでした"
-
-#: src/tracker/tracker-sparql.c:1260
-msgid "No notifies were found"
-msgstr "通知はありませんでした"
-
-#: src/tracker/tracker-sparql.c:1260
-msgid "Notifies"
-msgstr "通知"
-
-#: src/tracker/tracker-sparql.c:1286
-msgid "Could not find indexed properties"
-msgstr "インデックス化されたプロパティが見つかりませんでした"
-
-#: src/tracker/tracker-sparql.c:1294
-msgid "No indexes were found"
-msgstr "インデクスが見つかりませんでした"
-
-#: src/tracker/tracker-sparql.c:1294
-msgid "Indexes"
-msgstr "インデックス"
-
-#: src/tracker/tracker-sparql.c:1310
-msgid "Could not list named graphs"
-msgstr ""
-
-#: src/tracker/tracker-sparql.c:1318
-msgid "No graphs were found"
-msgstr ""
-
-#: src/tracker/tracker-sparql.c:1318
-msgid "Named graphs"
-msgstr ""
-
-#: src/tracker/tracker-sparql.c:1340
-msgid "Could not search classes"
-msgstr "クラスを検索できませんでした"
-
-#: src/tracker/tracker-sparql.c:1348
-msgid "No classes were found to match search term"
-msgstr "検索文字列にマッチするクラスが見つかりませんでした"
-
-#: src/tracker/tracker-sparql.c:1363
-msgid "Could not search properties"
-msgstr "プロパティを検索できませんでした"
-
-#: src/tracker/tracker-sparql.c:1371
-msgid "No properties were found to match search term"
-msgstr "検索文字列にマッチするプロパティが見つかりませんでした"
-
-#: src/tracker/tracker-sparql.c:1407 src/tracker/tracker-sql.c:70
-msgid "Could not get UTF-8 path from path"
-msgstr "指定したパスを UTF-8 エンコーディングに変換できませんでした"
-
-#: src/tracker/tracker-sparql.c:1419 src/tracker/tracker-sql.c:81
-msgid "Could not read file"
-msgstr "ファイルの読み込みに失敗しました"
-
-#: src/tracker/tracker-sparql.c:1438
-msgid "Could not run update"
-msgstr "アップグレードを実施できませんでした"
-
-#: src/tracker/tracker-sparql.c:1445
-msgid "Done"
-msgstr "完了"
-
-#: src/tracker/tracker-sparql.c:1498 src/tracker/tracker-sparql.c:1501
-msgid "No results found matching your query"
-msgstr "クエリを満足する結果が見つかりませんでした"
-
-#: src/tracker/tracker-sparql.c:1555 src/tracker/tracker-sql.c:242
-msgid "File and query can not be used together"
-msgstr "ファイルとクエリの両方を指定することはできません"
-
-#: src/tracker/tracker-sparql.c:1557
-msgid ""
-"The --list-properties argument can only be empty when used with the --tree "
-"argument"
-msgstr ""
-
-#: src/tracker/tracker-sql.c:48
-msgid "Path to use to run a query from file"
-msgstr ""
-
-#: src/tracker/tracker-sql.c:52
-msgid "SQL query"
-msgstr ""
-
-#: src/tracker/tracker-sql.c:53
-msgid "SQL"
-msgstr "SQL"
-
-#: src/tracker/tracker-sql.c:113
-msgid "Failed to initialize data manager"
-msgstr "データマネージャーを初期化できませんでした"
-
-#: src/tracker/tracker-sql.c:173
-msgid "Empty result set"
-msgstr "結果を空にする"
-
-#: src/tracker/tracker-sql.c:240
-msgid "A database path must be specified"
-msgstr "データベースのパスを指定してください"
+#~ msgid "No properties were found to match search term"
+#~ msgstr "検索文字列にマッチするプロパティが見つかりませんでした"
 
 #~ msgid "Maximum size of journal"
 #~ msgstr "ジャーナルのサイズ (最大値)"
@@ -766,9 +810,6 @@ msgstr "データベースのパスを指定してください"
 
 #~ msgid "List pause reasons"
 #~ msgstr "停止の理由を一覧表示する"
-
-#~ msgid "List all Tracker processes"
-#~ msgstr "すべての Tracker プロセスを一覧表示する"
 
 #~ msgid ""
 #~ "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
@@ -1203,9 +1244,6 @@ msgstr "データベースのパスを指定してください"
 
 #~ msgid "Statistics:"
 #~ msgstr "統計情報:"
-
-#~ msgid "Version"
-#~ msgstr "バージョン"
 
 #~ msgid "Disk Information"
 #~ msgstr "ディスク情報"
@@ -2220,9 +2258,6 @@ msgstr "データベースのパスを指定してください"
 
 #~ msgid "Search terms are missing"
 #~ msgstr "検索する文字列を指定してください"
-
-#~ msgid "- Query or update using SPARQL"
-#~ msgstr "- SPARQL を使ってデータベースを検索したり更新する"
 
 #~ msgid " - Show statistics for all Nepomuk defined ontology classes"
 #~ msgstr " - ネポムクが定義したオントロジークラスの統計情報を表示する"
