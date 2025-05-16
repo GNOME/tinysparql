@@ -2,6 +2,7 @@ libtracker_data_tests = [
     'initialization',
     'ontology-change',
     'ontology-error',
+    'refcount',
     'sparql-blank',
     'insert-or-replace',
     'service',
