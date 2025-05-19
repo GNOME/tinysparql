@@ -288,6 +288,19 @@ class TrackerStoreSparqlBugsTests(fixtures.TrackerSparqlDirectTest):
         # If we are here, everything is fine.
         self.assertIsNotNone(results)
 
+    def test_10_domain_indexes(self):
+        self.tracker.update("INSERT DATA { <foo:a> a nmm:MusicPiece ; nie:title 'a' . <foo:b> a nmm:MusicAlbum ; nie:title 'b' }")
+
+        results = self.tracker.query("ASK { ?u a nmm:MusicPiece ; nie:title 'a' }")
+        self.assertEqual(results, [['true']])
+        results = self.tracker.query("ASK { ?u a nie:InformationElement ; nie:title 'a' }")
+        self.assertEqual(results, [['true']])
+
+        results = self.tracker.query("ASK { ?u a nmm:MusicAlbum ; nie:title 'b' }")
+        self.assertEqual(results, [['true']])
+        results = self.tracker.query("ASK { ?u a nie:InformationElement ; nie:title 'b' }")
+        self.assertEqual(results, [['true']])
+
 
 if __name__ == "__main__":
     fixtures.tracker_test_main()
