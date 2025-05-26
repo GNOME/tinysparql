@@ -95,12 +95,12 @@ a namespace you can do:
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 # This is our example namespace
-@prefix ex: <http://example.org/#>
+@prefix ex: <http://example.org/#> .
 
-ex: a nrl:Namespace, nrl:Ontology
-    nrl:prefix "ex"
-    rdfs:comment "example ontology"
-    nrl:lastModified "2017-01-01T15:00:00Z"
+ex: a nrl:Namespace, nrl:Ontology;
+    nrl:prefix "ex";
+    rdfs:comment "example ontology";
+    nrl:lastModified "2017-01-01T15:00:00Z".
 ```
 
 ## Defining classes
@@ -158,11 +158,11 @@ ex:cromosomes a rdf:Property;
 
 ex:unicellular a rdf:Property;
                rdfs:domain ex:Eukaryote;
-               rdfs:range xsd:bool;
+               rdfs:range xsd:bool.
 
 ex:dateOfBirth a rdf:Property;
                rdfs:domain ex:Mammal;
-               rdfs:range xsd:dateTime;
+               rdfs:range xsd:dateTime.
 ```
 
 The class the property belongs to is defined by `rdfs:domain`, while the
@@ -185,11 +185,11 @@ other classes, so stored resources can conform a graph:
 ```turtle
 ex:parent a rdf:Property;
           rdfs:domain ex:Mammal;
-          rdfs:range ex:Mammal;
+          rdfs:range ex:Mammal.
 
 ex:pet a rdf:Property;
        rdfs:domain ex:Mammal;
-       rdfs:range ex:Eukaryote;
+       rdfs:range ex:Eukaryote.
 ```
 
 There is also inheritance of properties, an example would be a property
@@ -198,7 +198,7 @@ in a subclass concretizing a more generic property from a superclass.
 ```turtle
 ex:geneticInformation a rdf:Property;
                       rdfs:domain ex:Eukaryote;
-                      rdfs:range xsd:string;
+                      rdfs:range xsd:string.
 
 ex:dna a rdf:Property;
        rdfs:domain ex:Mammal;
@@ -229,7 +229,7 @@ INSERT DATA {
   <dog> a ex:Mammal .
 
   <peter> a ex:Mammal ;
-     ex:pets <cat>, <dog>
+     ex:pets <cat>, <dog>.
 }
 ```
 
@@ -250,11 +250,11 @@ in the property inserted multiple times.
 # This will fail
 INSERT DATA { <cat> a ex:Mammal;
                     ex:cromosomes 38;
-                    ex:cromosomes 42 }
+                    ex:cromosomes 42. }
 
 # This will succeed
 INSERT DATA { <donald> a ex:Mammal;
-                       ex:cromosomes 47 }
+                       ex:cromosomes 47. }
 ```
 
 TinySPARQL does not implement support for other maximum cardinalities
@@ -290,7 +290,7 @@ INSERT DATA { <melanogaster> a ex:Eukariote;
 ```
 
 <!---
-    XXX: explain how inverse functional proeprties affect sub/superproperties
+    XXX: explain how inverse functional properties affect sub/superproperties
 --->
 
 ## Defining indexes
@@ -304,7 +304,7 @@ In this case, the ontology may use `nrl:indexed` in property definitions:
 ex:name a rdf:Property ;
         nrl:indexed true ;
         rdfs:domain ex:Animal ;
-        rdfs:range xsd:string ,
+        rdfs:range xsd:string .
 ```
 
 Sometimes, it may be desirable to make a combined index on two properties
@@ -380,7 +380,7 @@ could be inserted in the endpoint.
 
 ```SPARQL
 INSERT DATA { ex:self ex:pets <cat> .
-              <cat> ex:pets ex:self }
+              <cat> ex:pets ex:self . }
 ```
 
 ## Updating an ontology
