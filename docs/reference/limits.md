@@ -78,8 +78,8 @@ to a statement, controlled by `SQLITE_MAX_VARIABLE_NUMBER`.
 
 ## Maximum number of pages in a database
 
-SQLite sets a default restriction of 1073741823 pages to
-database file size (about 8 TB with TinySPARQL settings). This limit
+SQLite sets a default restriction of 4294967294 pages to
+database file size (about 32 TB with TinySPARQL settings). This limit
 applies per graph.
 
 ## Type formats and precision
