@@ -57,12 +57,16 @@ e.g. `coalesce`.
 
 ## Limits on the number of graphs
 
-SQLite has a limit on the number of databases that can be attached,
-defined by `SQLITE_MAX_LIMIT_ATTACHED` (defaults to 10, maximum 128).
+TinySPARQL implements graphs as a set of tables with a common name
+prefix, mirroring the ontology structure for each graph. SQLite requires
+that at a table has at least one page in the database, so the theoretical
+maximum amount of graphs for an ontology the size of Nepomuk is
+approximately 14 million graphs (4294967294 pages is the maximum for
+SQLite, divided by ~300 tables in Nepomuk).
 
-TinySPARQL uses attached databases to implement its support for multiple
-graphs, so the maximum amount of graphs for a given [class@SparqlConnection]
-is equally restricted.
+It should be accounted that the practical limit will be smaller than that,
+since tables with a moderate amount of data will use more than a single
+page each.
 
 ## Limits on glob search
 
@@ -80,7 +84,7 @@ to a statement, controlled by `SQLITE_MAX_VARIABLE_NUMBER`.
 
 SQLite sets a default restriction of 4294967294 pages to
 database file size (about 32 TB with TinySPARQL settings). This limit
-applies per graph.
+applies collectively to all graphs.
 
 ## Type formats and precision
 
