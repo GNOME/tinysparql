@@ -178,6 +178,7 @@ const VersionTest version_tests[] = {
 	{ "/core/version/3.3/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.26.tar.xz" },
 	{ "/core/version/3.4/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.27.tar.xz" },
 	{ "/core/version/3.8/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.30.tar.xz" },
+	{ "/core/version/3.8/graphs", "../../src/ontologies/nepomuk", "initialization/versions/graphs.30.tar.xz" },
 };
 
 int
