@@ -117,15 +117,15 @@ init_test (gconstpointer context)
 static void
 version_test (gconstpointer context)
 {
-	gchar *prefix, *data_dir, *ontology_dir, *xz_command, *command, *unquoted, *quoted;
+	gchar *prefix, *data_dir, *ontology_dir, *tar_command, *command;
 	GError *error = NULL;
 	GFile *data_location, *test_schemas;
 	TrackerSparqlConnection *conn;
 	const VersionTest *test = context;
 
-	xz_command = g_find_program_in_path ("xz");
-	if (!xz_command) {
-		g_test_skip ("xz not found in path");
+	tar_command = g_find_program_in_path ("tar");
+	if (!tar_command) {
+		g_test_skip ("tar not found in path");
 		return;
 	}
 
@@ -139,10 +139,8 @@ version_test (gconstpointer context)
 	data_dir = g_mkdtemp_full (data_dir, 0700);
 	data_location = g_file_new_for_path (data_dir);
 
-	unquoted = g_strdup_printf ("%s -c -d %s/%s >%s/meta.db",
-	                            xz_command, prefix, test->original_db, data_dir);
-	quoted = g_shell_quote (unquoted);
-	command = g_strdup_printf ("sh -c %s", quoted);
+	command = g_strdup_printf ("%s -C %s -Jxf %s/%s",
+	                           tar_command, data_dir, prefix, test->original_db);
 	g_spawn_command_line_sync (command, NULL, NULL, NULL, &error);
 	g_assert_no_error (error);
 
@@ -157,10 +155,8 @@ version_test (gconstpointer context)
 	g_object_unref (test_schemas);
 	g_free (data_dir);
 	g_free (prefix);
-	g_free (unquoted);
-	g_free (quoted);
 	g_free (command);
-	g_free (xz_command);
+	g_free (tar_command);
 }
 
 const InitTest init_tests[] = {
@@ -170,15 +166,15 @@ const InitTest init_tests[] = {
 };
 
 const VersionTest version_tests[] = {
-	{ "/core/version/3.0/fts", "initialization/fts", "initialization/versions/fts.db.25.xz" },
-	{ "/core/version/3.3/fts", "initialization/fts", "initialization/versions/fts.db.26.xz" },
-	{ "/core/version/3.4/fts", "initialization/fts", "initialization/versions/fts.db.27.xz" },
-	{ "/core/version/3.0/non-fts", "initialization/non-fts", "initialization/versions/non-fts.db.25.xz" },
-	{ "/core/version/3.3/non-fts", "initialization/non-fts", "initialization/versions/non-fts.db.26.xz" },
-	{ "/core/version/3.4/non-fts", "initialization/non-fts", "initialization/versions/non-fts.db.27.xz" },
-	{ "/core/version/3.0/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.db.25.xz" },
-	{ "/core/version/3.3/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.db.26.xz" },
-	{ "/core/version/3.4/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.db.27.xz" },
+	{ "/core/version/3.0/fts", "initialization/fts", "initialization/versions/fts.25.tar.xz" },
+	{ "/core/version/3.3/fts", "initialization/fts", "initialization/versions/fts.26.tar.xz" },
+	{ "/core/version/3.4/fts", "initialization/fts", "initialization/versions/fts.27.tar.xz" },
+	{ "/core/version/3.0/non-fts", "initialization/non-fts", "initialization/versions/non-fts.25.tar.xz" },
+	{ "/core/version/3.3/non-fts", "initialization/non-fts", "initialization/versions/non-fts.26.tar.xz" },
+	{ "/core/version/3.4/non-fts", "initialization/non-fts", "initialization/versions/non-fts.27.tar.xz" },
+	{ "/core/version/3.0/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.25.tar.xz" },
+	{ "/core/version/3.3/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.26.tar.xz" },
+	{ "/core/version/3.4/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.27.tar.xz" },
 };
 
 int
