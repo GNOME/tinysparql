@@ -97,15 +97,6 @@ void                tracker_db_manager_tokenizer_update       (TrackerDBManager 
 
 void                tracker_db_manager_check_perform_vacuum   (TrackerDBManager      *db_manager);
 
-gboolean            tracker_db_manager_attach_database        (TrackerDBManager      *db_manager,
-                                                               TrackerDBInterface    *iface,
-                                                               const gchar           *name,
-                                                               gboolean               create,
-                                                               GError               **error);
-gboolean            tracker_db_manager_detach_database        (TrackerDBManager      *db_manager,
-                                                               TrackerDBInterface    *iface,
-                                                               const gchar           *name,
-                                                               GError               **error);
 void                tracker_db_manager_release_memory         (TrackerDBManager      *db_manager);
 
 TrackerDBVersion    tracker_db_manager_get_version            (TrackerDBManager      *db_manager);
