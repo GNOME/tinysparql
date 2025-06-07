@@ -42,6 +42,10 @@
 
 #define CORRUPTED_FILENAME            ".meta.corrupted"
 
+#define DEFAULT_PAGE_SIZE 8192
+
+#define DEFAULT_DATABASE_FILENAME "meta.db"
+
 #define TOSTRING1(x) #x
 #define TOSTRING(x) TOSTRING1(x)
 #define TRACKER_PARSER_VERSION_STRING TOSTRING(TRACKER_PARSER_VERSION)
@@ -51,27 +55,11 @@
                    TRACKER_DB_MANAGER_FTS_ENABLE_STOP_WORDS |	  \
                    TRACKER_DB_MANAGER_FTS_IGNORE_NUMBERS)
 
-typedef struct {
-	TrackerDBInterface *iface;
-	const gchar        *file;
-	const gchar        *name;
-	gchar              *abs_filename;
-	gint                cache_size;
-	gint                page_size;
-} TrackerDBDefinition;
-
-static TrackerDBDefinition db_base = {
-	NULL,
-	"meta.db",
-	"meta",
-	NULL,
-	TRACKER_DB_CACHE_SIZE_DEFAULT,
-	8192,
-};
-
 struct _TrackerDBManager {
 	GObject parent_instance;
-	TrackerDBDefinition db;
+
+	TrackerDBInterface *iface;
+	gchar *abs_filename;
 	gchar *data_dir;
 	gchar *corrupted_filename;
 	GFile *cache_location;
@@ -392,10 +380,8 @@ tracker_db_manager_ensure_location (TrackerDBManager *db_manager,
 
 	db_manager->data_dir = g_file_get_path (cache_location);
 
-	db_manager->db = db_base;
-
 	dir = g_file_get_path (cache_location);
-	db_manager->db.abs_filename = g_build_filename (dir, db_manager->db.file, NULL);
+	db_manager->abs_filename = g_build_filename (dir, DEFAULT_DATABASE_FILENAME, NULL);
 	g_free (dir);
 }
 
@@ -411,11 +397,11 @@ tracker_db_manager_rollback_db_creation (TrackerDBManager *db_manager)
 		return;
 
 	dir = g_file_get_path (db_manager->cache_location);
-	filename = g_build_filename (dir, db_base.file, NULL);
+	filename = g_build_filename (dir, DEFAULT_DATABASE_FILENAME, NULL);
 
 	if (g_unlink (filename) < 0) {
 		g_warning ("Could not delete database file '%s': %m",
-		           db_base.file);
+		           DEFAULT_DATABASE_FILENAME);
 	}
 
 	g_free (dir);
@@ -429,7 +415,7 @@ tracker_db_manager_check_integrity (TrackerDBManager  *db_manager,
 	TrackerDBStatement *stmt;
 	TrackerSparqlCursor *cursor = NULL;
 
-	stmt = tracker_db_interface_create_statement (db_manager->db.iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
+	stmt = tracker_db_interface_create_statement (db_manager->iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 	                                              error,
 	                                              "PRAGMA integrity_check(1)");
 	if (!stmt)
@@ -516,15 +502,15 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 
 	if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) != 0) {
 		need_to_create = TRUE;
-	} else if (!g_file_test (db_manager->db.abs_filename, G_FILE_TEST_EXISTS)) {
+	} else if (!g_file_test (db_manager->abs_filename, G_FILE_TEST_EXISTS)) {
 		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
-			TRACKER_NOTE (SQLITE, g_message ("Could not find database file:'%s', will create it.", db_manager->db.abs_filename));
+			TRACKER_NOTE (SQLITE, g_message ("Could not find database file:'%s', will create it.", db_manager->abs_filename));
 			need_to_create = TRUE;
 		} else {
 			g_set_error (error,
 			             TRACKER_DB_INTERFACE_ERROR,
 			             TRACKER_DB_OPEN_ERROR,
-			             "Could not find database file:'%s'.", db_manager->db.abs_filename);
+			             "Could not find database file:'%s'.", db_manager->abs_filename);
 
 			g_object_unref (db_manager);
 			return NULL;
@@ -581,16 +567,16 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 			return FALSE;
 		}
 
-		TRACKER_NOTE (SQLITE, g_message ("Creating database files for %s...", db_manager->db.abs_filename));
+		TRACKER_NOTE (SQLITE, g_message ("Creating database files for %s...", db_manager->abs_filename));
 
-		db_manager->db.iface = tracker_db_manager_create_db_interface (db_manager, FALSE, &internal_error);
+		db_manager->iface = tracker_db_manager_create_db_interface (db_manager, FALSE, &internal_error);
 		if (internal_error) {
 			g_propagate_error (error, internal_error);
 			g_object_unref (db_manager);
 			return FALSE;
 		}
 
-		g_clear_object (&db_manager->db.iface);
+		g_clear_object (&db_manager->iface);
 	}
 
 	resources_iface = tracker_db_manager_create_db_interface (db_manager,
@@ -616,12 +602,12 @@ tracker_db_manager_finalize (GObject *object)
 	tracker_db_manager_release_memory (db_manager);
 
 	g_async_queue_unref (db_manager->interfaces);
-	g_free (db_manager->db.abs_filename);
+	g_free (db_manager->abs_filename);
 
-	if (db_manager->db.iface) {
+	if (db_manager->iface) {
 		if (!readonly)
-			tracker_db_interface_sqlite_wal_checkpoint (db_manager->db.iface, TRUE, NULL);
-		g_object_unref (db_manager->db.iface);
+			tracker_db_interface_sqlite_wal_checkpoint (db_manager->iface, TRUE, NULL);
+		g_object_unref (db_manager->iface);
 	}
 
 	g_weak_ref_clear (&db_manager->iface_data);
@@ -650,7 +636,7 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 	if (db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY)
 		flags |= TRACKER_DB_INTERFACE_IN_MEMORY;
 
-	connection = tracker_db_interface_sqlite_new (db_manager->db.abs_filename,
+	connection = tracker_db_interface_sqlite_new (db_manager->abs_filename,
 	                                              db_manager->shared_cache_key,
 	                                              flags,
 	                                              &internal_error);
@@ -669,8 +655,8 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 	                  readonly,
 	                  &internal_error);
 	db_set_params (connection, "main",
-	               db_manager->db.cache_size,
-	               db_manager->db.page_size,
+	               TRACKER_DB_CACHE_SIZE_DEFAULT,
+	               DEFAULT_PAGE_SIZE,
 	               !(db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY),
 	               &internal_error);
 
@@ -800,10 +786,10 @@ init_writable_db_interface (TrackerDBManager *db_manager)
 TrackerDBInterface *
 tracker_db_manager_get_writable_db_interface (TrackerDBManager *db_manager)
 {
-	if (db_manager->db.iface == NULL)
-		db_manager->db.iface = init_writable_db_interface (db_manager);
+	if (db_manager->iface == NULL)
+		db_manager->iface = init_writable_db_interface (db_manager);
 
-	return db_manager->db.iface;
+	return db_manager->iface;
 }
 
 /**
@@ -874,7 +860,7 @@ tracker_db_manager_check_perform_vacuum (TrackerDBManager *db_manager)
 
 	if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) != 0)
 		return;
-	if (tracker_file_get_size (db_manager->db.abs_filename) < TRACKER_VACUUM_CHECK_SIZE)
+	if (tracker_file_get_size (db_manager->abs_filename) < TRACKER_VACUUM_CHECK_SIZE)
 		return;
 
 	iface = tracker_db_manager_get_writable_db_interface (db_manager);
@@ -916,10 +902,10 @@ tracker_db_manager_release_memory (TrackerDBManager *db_manager)
 		         len - g_async_queue_length_unlocked (db_manager->interfaces));
 	}
 
-	if (db_manager->db.iface) {
+	if (db_manager->iface) {
 		gssize bytes;
 
-		bytes = tracker_db_interface_sqlite_release_memory (db_manager->db.iface);
+		bytes = tracker_db_interface_sqlite_release_memory (db_manager->iface);
 
 		if (bytes > 0) {
 			g_debug ("Freed %" G_GSSIZE_MODIFIER "d bytes from writable interface",
