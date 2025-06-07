@@ -55,10 +55,11 @@ typedef enum {
 	TRACKER_DB_VERSION_3_7,      /* SQLite 3.45.3 being a moron for changing syntax in views */
 	TRACKER_DB_VERSION_3_8,      /* Default graph gets a name */
 	TRACKER_DB_VERSION_3_10,     /* Refcount trigger */
+	TRACKER_DB_N_VERSIONS,
 } TrackerDBVersion;
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_3_8
+#define TRACKER_DB_VERSION_NOW        (TRACKER_DB_N_VERSIONS - 1)
 
 void                tracker_db_manager_rollback_db_creation   (TrackerDBManager *db_manager);
 
