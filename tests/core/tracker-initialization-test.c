@@ -169,12 +169,15 @@ const VersionTest version_tests[] = {
 	{ "/core/version/3.0/fts", "initialization/fts", "initialization/versions/fts.25.tar.xz" },
 	{ "/core/version/3.3/fts", "initialization/fts", "initialization/versions/fts.26.tar.xz" },
 	{ "/core/version/3.4/fts", "initialization/fts", "initialization/versions/fts.27.tar.xz" },
+	{ "/core/version/3.8/fts", "initialization/fts", "initialization/versions/fts.30.tar.xz" },
 	{ "/core/version/3.0/non-fts", "initialization/non-fts", "initialization/versions/non-fts.25.tar.xz" },
 	{ "/core/version/3.3/non-fts", "initialization/non-fts", "initialization/versions/non-fts.26.tar.xz" },
 	{ "/core/version/3.4/non-fts", "initialization/non-fts", "initialization/versions/non-fts.27.tar.xz" },
+	{ "/core/version/3.8/non-fts", "initialization/non-fts", "initialization/versions/non-fts.30.tar.xz" },
 	{ "/core/version/3.0/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.25.tar.xz" },
 	{ "/core/version/3.3/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.26.tar.xz" },
 	{ "/core/version/3.4/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.27.tar.xz" },
+	{ "/core/version/3.8/nepomuk", "../../src/ontologies/nepomuk", "initialization/versions/nepomuk.30.tar.xz" },
 };
 
 int
