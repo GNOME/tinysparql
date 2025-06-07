@@ -86,14 +86,6 @@ struct _TrackerDBManager {
 	GAsyncQueue *interfaces;
 };
 
-enum {
-	SETUP_INTERFACE,
-	UPDATE_INTERFACE,
-	N_SIGNALS
-};
-
-static guint signals[N_SIGNALS] = { 0 };
-
 G_DEFINE_TYPE (TrackerDBManager, tracker_db_manager, G_TYPE_OBJECT)
 
 static TrackerDBInterface *tracker_db_manager_create_db_interface   (TrackerDBManager    *db_manager,
@@ -766,16 +758,12 @@ tracker_db_manager_get_db_interface (TrackerDBManager  *db_manager,
 		interface = g_async_queue_try_pop_unlocked (db_manager->interfaces);
 	}
 
-	if (interface) {
-		g_signal_emit (db_manager, signals[UPDATE_INTERFACE], 0, interface);
-	} else {
+	if (!interface) {
 		/* 3rd. Create a new interface to satisfy the request */
 		interface = tracker_db_manager_create_db_interface (db_manager,
 		                                                    TRUE, &internal_error);
 
-		if (interface) {
-			g_signal_emit (db_manager, signals[SETUP_INTERFACE], 0, interface);
-		} else {
+		if (!interface) {
 			if (g_async_queue_length_unlocked (db_manager->interfaces) == 0) {
 				g_propagate_prefixed_error (error, internal_error, "Error opening database: ");
 				g_async_queue_unlock (db_manager->interfaces);
@@ -807,23 +795,6 @@ tracker_db_manager_class_init (TrackerDBManagerClass *klass)
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
 	object_class->finalize = tracker_db_manager_finalize;
-
-	signals[SETUP_INTERFACE] =
-               g_signal_new ("setup-interface",
-                             G_TYPE_FROM_CLASS (klass),
-                             G_SIGNAL_RUN_LAST, 0,
-                             NULL, NULL,
-                             g_cclosure_marshal_VOID__OBJECT,
-                             G_TYPE_NONE,
-                             1, TRACKER_TYPE_DB_INTERFACE);
-	signals[UPDATE_INTERFACE] =
-               g_signal_new ("update-interface",
-                             G_TYPE_FROM_CLASS (klass),
-                             G_SIGNAL_RUN_LAST, 0,
-                             NULL, NULL,
-                             g_cclosure_marshal_VOID__OBJECT,
-                             G_TYPE_NONE,
-                             1, TRACKER_TYPE_DB_INTERFACE);
 }
 
 static TrackerDBInterface *
