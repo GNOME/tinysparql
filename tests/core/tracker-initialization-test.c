@@ -54,7 +54,7 @@ change_locale (const gchar *data_dir)
 static void
 fool_integrity_check (const gchar *data_dir)
 {
-	gchar *path = g_build_filename (data_dir, ".meta.corrupted", NULL);
+	gchar *path = g_build_filename (data_dir, ".meta.db.corrupted", NULL);
 	gboolean retval;
 
 	/* Add the "corrupted" file, to fool next DB open */

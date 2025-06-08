@@ -40,8 +40,6 @@
 
 #define TRACKER_VACUUM_CHECK_SIZE     ((goffset) 4 * 1024 * 1024 * 1024) /* 4GB */
 
-#define CORRUPTED_FILENAME            ".meta.corrupted"
-
 #define DEFAULT_PAGE_SIZE 8192
 
 #define DEFAULT_DATABASE_FILENAME "meta.db"
@@ -370,17 +368,32 @@ static void
 tracker_db_manager_ensure_location (TrackerDBManager *db_manager,
 				    GFile            *cache_location)
 {
-	gchar *dir;
+	gchar *path, *basename;
 
 	if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) != 0) {
 		return;
 	}
 
-	db_manager->data_dir = g_file_get_path (cache_location);
+	path = g_file_get_path (cache_location);
+	basename = g_file_get_basename (cache_location);
 
-	dir = g_file_get_path (cache_location);
-	db_manager->abs_filename = g_build_filename (dir, DEFAULT_DATABASE_FILENAME, NULL);
-	g_free (dir);
+	/* If the basename has an extension, we consider the cache location
+	 * to describe a database file name. We however ensure backwards
+	 * compatible behavior by checking that the path does not exist already
+	 * as a directory.
+	 *
+	 * Otherwise (no extension, path is an existing directory), we use
+	 * the path as the dir, with a default database filename.
+	 */
+	if (!g_file_test (path, G_FILE_TEST_IS_DIR) && strstr (basename, ".")) {
+		db_manager->data_dir = g_path_get_dirname (path);
+		db_manager->abs_filename = path;
+	} else {
+		db_manager->data_dir = path;
+		db_manager->abs_filename = g_build_filename (path, DEFAULT_DATABASE_FILENAME, NULL);
+	}
+
+	g_free (basename);
 }
 
 void
@@ -465,10 +478,18 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 	g_weak_ref_init (&db_manager->iface_data, iface_data);
 
 	if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) == 0) {
+		gchar *basename, *corrupted_basename;
+
 		tracker_db_manager_ensure_location (db_manager, cache_location);
+
+		basename = g_path_get_basename (db_manager->abs_filename);
+		corrupted_basename = g_strdup_printf (".%s.corrupted", basename);
+		g_free (basename);
+
 		db_manager->corrupted_filename = g_build_filename (db_manager->data_dir,
-		                                                   CORRUPTED_FILENAME,
+		                                                   corrupted_basename,
 		                                                   NULL);
+		g_free (corrupted_basename);
 
 		/* Don't do need_reindex checks for readonly (direct-access) */
 		if ((flags & TRACKER_DB_MANAGER_READONLY) == 0) {
