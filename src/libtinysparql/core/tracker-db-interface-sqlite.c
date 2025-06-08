@@ -3505,27 +3505,6 @@ tracker_db_interface_attach_database (TrackerDBInterface  *db_interface,
 	return retval;
 }
 
-gboolean
-tracker_db_interface_detach_database (TrackerDBInterface  *db_interface,
-                                      const gchar         *name,
-                                      GError             **error)
-{
-	sqlite3_stmt *stmt;
-	gboolean retval;
-	gchar *sql;
-
-	sql = g_strdup_printf ("DETACH DATABASE \"%s\"", name);
-	stmt = tracker_db_interface_prepare_stmt (db_interface, sql, error);
-	g_free (sql);
-
-	if (!stmt)
-		return FALSE;
-
-	retval = execute_stmt (db_interface, stmt, NULL, error);
-	sqlite3_finalize (stmt);
-	return retval;
-}
-
 gssize
 tracker_db_interface_sqlite_release_memory (TrackerDBInterface *db_interface)
 {
