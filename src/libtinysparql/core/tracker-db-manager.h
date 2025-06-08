@@ -64,8 +64,6 @@ typedef enum {
 
 void                tracker_db_manager_rollback_db_creation   (TrackerDBManager *db_manager);
 
-gboolean            tracker_db_manager_db_exists              (GFile *cache_location);
-
 TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerFlags   flags,
                                                                GFile                  *cache_location,
                                                                guint                   select_cache_size,

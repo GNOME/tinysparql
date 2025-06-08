@@ -399,24 +399,6 @@ tracker_db_manager_ensure_location (TrackerDBManager *db_manager,
 	g_free (dir);
 }
 
-gboolean
-tracker_db_manager_db_exists (GFile *cache_location)
-{
-	gchar *dir;
-	gchar *filename;
-	gboolean db_exists = FALSE;
-
-	dir = g_file_get_path (cache_location);
-	filename = g_build_filename (dir, db_base.file, NULL);
-
-	db_exists = g_file_test (filename, G_FILE_TEST_EXISTS);
-
-	g_free (dir);
-	g_free (filename);
-
-	return db_exists;
-}
-
 void
 tracker_db_manager_rollback_db_creation (TrackerDBManager *db_manager)
 {
