@@ -2995,6 +2995,31 @@ tracker_data_rollback_transaction (TrackerData *data)
 	g_clear_pointer (&data->tz, g_time_zone_unref);
 }
 
+gboolean
+tracker_data_savepoint (TrackerData         *data,
+                        TrackerSavepointOp   op,
+                        const char          *name,
+                        GError             **error)
+{
+	TrackerDBInterface *iface;
+
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
+
+	switch (op) {
+	case TRACKER_SAVEPOINT_SET:
+		return tracker_db_interface_execute_query (iface, error, "SAVEPOINT %s", name);
+		break;
+	case TRACKER_SAVEPOINT_RELEASE:
+		return tracker_db_interface_execute_query (iface, error, "RELEASE SAVEPOINT %s", name);
+		break;
+	case TRACKER_SAVEPOINT_ROLLBACK:
+		return tracker_db_interface_execute_query (iface, error, "ROLLBACK TRANSACTION TO SAVEPOINT %s", name);
+		break;
+	}
+
+	g_assert_not_reached ();
+}
+
 static GVariant *
 update_sparql (TrackerData  *data,
                const gchar  *update,

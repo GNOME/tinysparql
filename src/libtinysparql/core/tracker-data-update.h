@@ -63,6 +63,12 @@ typedef enum {
 typedef void (*TrackerTransactionCallback) (TrackerDataTransactionType type,
                                             gpointer                   user_data);
 
+typedef enum {
+	TRACKER_SAVEPOINT_SET,
+	TRACKER_SAVEPOINT_RELEASE,
+	TRACKER_SAVEPOINT_ROLLBACK,
+} TrackerSavepointOp;
+
 GQuark   tracker_data_error_quark                   (void);
 
 /* Metadata */
@@ -159,6 +165,11 @@ TrackerRowid tracker_data_generate_bnode (TrackerData  *data,
                                           GError      **error);
 
 GTimeZone * tracker_data_get_time_zone (TrackerData *data);
+
+gboolean tracker_data_savepoint (TrackerData         *data,
+                                 TrackerSavepointOp   op,
+                                 const char          *name,
+                                 GError             **error);
 
 GType         tracker_data_get_type (void) G_GNUC_CONST;
 TrackerData * tracker_data_new      (TrackerDataManager *manager);

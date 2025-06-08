@@ -10279,6 +10279,13 @@ apply_update_op (TrackerSparql    *sparql,
 		}
 	}
 
+	if (op->silent) {
+		if (!tracker_data_savepoint (tracker_data_manager_get_data (sparql->data_manager),
+		                             TRACKER_SAVEPOINT_SET,
+		                             "silent_op", error))
+			return FALSE;
+	}
+
 	if (op->update_type == TRACKER_UPDATE_INSERT ||
 	    op->update_type == TRACKER_UPDATE_DELETE ||
 	    op->update_type == TRACKER_UPDATE_UPDATE) {
@@ -10421,10 +10428,6 @@ apply_update_op (TrackerSparql    *sparql,
 		}
 
 		for (l = op_graphs; l; l = l->next) {
-			/* Ensure the current transaction doesn't keep tables in this database locked */
-			tracker_data_commit_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
-			tracker_data_begin_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
-
 			if (!tracker_sparql_graph_is_allowed (sparql, l->data)) {
 				inner_error = g_error_new (TRACKER_SPARQL_ERROR,
 				                           TRACKER_SPARQL_ERROR_CONSTRAINT,
@@ -10488,10 +10491,6 @@ apply_update_op (TrackerSparql    *sparql,
 			goto out;
 
 		if (op->update_type == TRACKER_UPDATE_GRAPH_MOVE) {
-			/* Ensure the current transaction doesn't keep tables in this database locked */
-			tracker_data_commit_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
-			tracker_data_begin_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
-
 			if (!tracker_data_manager_drop_graph (sparql->data_manager,
 			                                      source,
 			                                      &inner_error))
@@ -10525,10 +10524,20 @@ apply_update_op (TrackerSparql    *sparql,
 		/* Flush to ensure the resulting errors go silent */
 		tracker_data_update_buffer_flush (tracker_data_manager_get_data (sparql->data_manager),
 		                                  &inner_error);
+
+		if (!inner_error) {
+			/* Silent op was successful, we can release the savepoint */
+			tracker_data_savepoint (tracker_data_manager_get_data (sparql->data_manager),
+			                        TRACKER_SAVEPOINT_RELEASE,
+			                        "silent_op", NULL);
+		}
 	}
 
 	if (inner_error) {
 		if (op->silent) {
+			tracker_data_savepoint (tracker_data_manager_get_data (sparql->data_manager),
+			                        TRACKER_SAVEPOINT_ROLLBACK,
+			                        "silent_op", NULL);
 			g_clear_error (&inner_error);
 			return TRUE;
 		} else {
