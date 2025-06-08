@@ -388,24 +388,13 @@ tracker_db_manager_ensure_location (TrackerDBManager *db_manager,
 void
 tracker_db_manager_rollback_db_creation (TrackerDBManager *db_manager)
 {
-	gchar *dir;
-	gchar *filename;
-
 	g_return_if_fail (db_manager->first_time);
 
 	if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) != 0)
 		return;
 
-	dir = g_file_get_path (db_manager->cache_location);
-	filename = g_build_filename (dir, DEFAULT_DATABASE_FILENAME, NULL);
-
-	if (g_unlink (filename) < 0) {
-		g_warning ("Could not delete database file '%s': %m",
-		           DEFAULT_DATABASE_FILENAME);
-	}
-
-	g_free (dir);
-	g_free (filename);
+	if (g_unlink (db_manager->abs_filename) < 0)
+		g_warning ("Could not delete database file: %m");
 }
 
 gboolean
