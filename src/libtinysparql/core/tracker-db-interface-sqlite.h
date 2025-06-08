@@ -44,7 +44,6 @@ typedef enum {
 } TrackerPropertyOp;
 
 TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename,
-                                                                        const gchar              *shared_cache_key,
                                                                         TrackerDBInterfaceFlags   flags,
                                                                         GError                  **error);
 gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterface       *interface);

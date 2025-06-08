@@ -484,7 +484,7 @@ tracker_db_manager_new (TrackerDBManagerFlags   flags,
 			}
 		}
 	} else {
-		db_manager->shared_cache_key = tracker_generate_uuid (NULL);
+		db_manager->shared_cache_key = tracker_generate_uuid ("file");
 	}
 
 	if ((db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY) != 0) {
@@ -616,6 +616,7 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 	TrackerDBInterface *connection;
 	GError *internal_error = NULL;
 	TrackerDBInterfaceFlags flags = 0;
+	const gchar *path_or_handle = NULL;
 	GObject *user_data;
 
 	if (readonly)
@@ -623,8 +624,10 @@ tracker_db_manager_create_db_interface (TrackerDBManager  *db_manager,
 	if (db_manager->flags & TRACKER_DB_MANAGER_IN_MEMORY)
 		flags |= TRACKER_DB_INTERFACE_IN_MEMORY;
 
-	connection = tracker_db_interface_sqlite_new (db_manager->abs_filename,
-	                                              db_manager->shared_cache_key,
+	path_or_handle = db_manager->abs_filename ?
+		db_manager->abs_filename : db_manager->shared_cache_key;
+
+	connection = tracker_db_interface_sqlite_new (path_or_handle,
 	                                              flags,
 	                                              &internal_error);
 	if (internal_error) {
