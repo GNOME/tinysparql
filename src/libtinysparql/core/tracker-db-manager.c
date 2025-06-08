@@ -422,7 +422,7 @@ tracker_db_manager_check_integrity (TrackerDBManager  *db_manager,
 			GError *inner_error = NULL;
 
 			if (!g_file_set_contents (db_manager->corrupted_filename, "", -1, &inner_error))
-				g_warning ("Could not save " CORRUPTED_FILENAME ": %s", inner_error->message);
+				g_warning ("Could not mark database as corrupted: %s", inner_error->message);
 
 			g_clear_error (&inner_error);
 			g_clear_object (&cursor);
@@ -878,7 +878,7 @@ tracker_db_manager_release_memory (TrackerDBManager *db_manager)
 				GError *error = NULL;
 
 				if (!g_file_set_contents (db_manager->corrupted_filename, "", -1, &error))
-					g_warning ("Could not save " CORRUPTED_FILENAME ": %s", error->message);
+					g_warning ("Could not mark database as corrupted: %s", error->message);
 
 				g_clear_error (&error);
 			}
@@ -917,7 +917,7 @@ tracker_db_manager_needs_repair (TrackerDBManager *db_manager)
 {
 	if (g_file_test (db_manager->corrupted_filename, G_FILE_TEST_EXISTS)) {
 		if (g_unlink (db_manager->corrupted_filename) < 0)
-			g_warning ("Could not delete " CORRUPTED_FILENAME ": %m");
+			g_warning ("Could not unmark database as corrupted: %m");
 
 		return TRUE;
 	}
