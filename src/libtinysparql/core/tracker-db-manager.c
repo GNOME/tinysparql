@@ -95,7 +95,10 @@ iface_set_params (TrackerDBInterface   *iface,
                   gboolean              readonly,
                   GError              **error)
 {
+	int32_t application_id = ('S' << 24 | 'p' << 16 | 'q' << 8 | 'l' << 0);
+
 	tracker_db_interface_execute_query (iface, NULL, "PRAGMA encoding = 'UTF-8'");
+	tracker_db_interface_execute_query (iface, NULL, "PRAGMA application_id = %d", application_id);
 
 	if (readonly) {
 		tracker_db_interface_execute_query (iface, NULL, "PRAGMA temp_store = MEMORY;");

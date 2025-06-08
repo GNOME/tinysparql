@@ -1,0 +1,5 @@
+# This file contains the suggested magic(5) text for file(1)
+# utility to recognize TinySPARQL databases.
+
+0    string  =SQLite\ format\ 3
+>68  belong  =0x5370716c  TinySPARQL database
