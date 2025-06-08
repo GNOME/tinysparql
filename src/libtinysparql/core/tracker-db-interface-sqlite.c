@@ -3510,20 +3510,9 @@ tracker_db_interface_attach_database (TrackerDBInterface  *db_interface,
 	sqlite3_stmt *stmt;
 	gboolean retval;
 
-	g_return_val_if_fail (file || db_interface->shared_cache_key, FALSE);
+	g_return_val_if_fail (file, FALSE);
 
-	if (file) {
-		uri = g_file_get_path (file);
-	} else if (db_interface->shared_cache_key &&
-	           (db_interface->flags & TRACKER_DB_INTERFACE_IN_MEMORY) != 0) {
-		gchar *md5;
-
-		md5 = g_compute_checksum_for_string (G_CHECKSUM_MD5, name, -1);
-		uri = g_strdup_printf ("file:%s-%s?mode=memory&cache=shared",
-		                       db_interface->shared_cache_key, md5);
-		g_free (md5);
-	}
-
+	uri = g_file_get_path (file);
 	sql = g_strdup_printf ("ATTACH DATABASE \"%s\" AS \"%s\"",
 	                       uri, name);
 	g_free (uri);
