@@ -397,8 +397,10 @@ load_special_key (TrackerDeserializerJsonLD *deserializer,
 	if (json_reader_read_member (deserializer->reader, key)) {
 		value = json_reader_get_string_value (deserializer->reader);
 
-		if (g_strcmp0 (key, "@language") == 0)
+		if (g_strcmp0 (key, "@language") == 0) {
+			g_clear_pointer (&deserializer->default_lang, g_free);
 			deserializer->default_lang = g_strdup (value);
+		}
 	}
 
 	json_reader_end_member (deserializer->reader);
