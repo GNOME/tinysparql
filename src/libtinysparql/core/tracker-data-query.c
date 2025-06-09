@@ -57,8 +57,9 @@ tracker_data_query_resource_urn (TrackerDataManager  *manager,
 	if (tracker_db_statement_next_string (stmt, &first, &value, NULL)) {
 		uri = g_strdup (value);
 		g_assert (tracker_db_statement_next_string (stmt, &first, NULL, NULL) == FALSE);
-		g_object_unref (stmt);
 	}
+
+	g_object_unref (stmt);
 
 	return uri;
 }
