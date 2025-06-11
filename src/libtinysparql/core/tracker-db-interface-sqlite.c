@@ -2626,23 +2626,17 @@ tracker_db_statement_sqlite_grab (TrackerDBStatement *stmt)
 {
 	g_assert (!stmt->stmt_is_used);
 	stmt->stmt_is_used = TRUE;
-	g_object_ref (stmt->db_interface);
 	return stmt;
 }
 
 static void
 tracker_db_statement_sqlite_release (TrackerDBStatement *stmt)
 {
-	TrackerDBInterface *iface = stmt->db_interface;
-
 	stmt->stmt_is_borrowed = FALSE;
 
 	tracker_db_statement_sqlite_reset (stmt);
 
-	if (stmt->stmt_is_used) {
-		stmt->stmt_is_used = FALSE;
-		g_object_unref (iface);
-	}
+	stmt->stmt_is_used = FALSE;
 }
 
 static void

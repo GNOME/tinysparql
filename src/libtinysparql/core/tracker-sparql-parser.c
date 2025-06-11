@@ -40,6 +40,13 @@ typedef struct _TrackerGrammarParser TrackerGrammarParser;
  */
 #define ERROR_COUNT_LIMIT 1000
 
+/* If we find ourselves rolling back this much in the stack,
+ * it seems likely we've hit a hard wall after a long query,
+ * and will be retrying different variants that do fail at
+ * the same point.
+ */
+#define SUSPICIOUS_REWIND_LIMIT 500000
+
 struct _TrackerRuleState {
 	const TrackerGrammarRule *rule;
 	TrackerParserNode *node;
@@ -72,6 +79,7 @@ struct _TrackerParserState {
 		TrackerRuleState *rules;
 		guint array_size;
 		guint len;
+		guint max_len;
 		gint64 last_matched;
 		TrackerParserNode *last_matched_node;
 	} rule_states;
@@ -203,6 +211,8 @@ tracker_parser_state_push (TrackerParserState       *state,
 	TrackerRuleState *rule_state;
 
 	state->rule_states.len++;
+	state->rule_states.max_len =
+		MAX (state->rule_states.max_len, state->rule_states.len);
 
 	if (state->rule_states.len > state->rule_states.array_size) {
 		state->rule_states.array_size <<= 1;
@@ -583,6 +593,9 @@ tracker_parser_state_rollback (TrackerParserState   *state,
 
 	while (state->rule_states.len > 0) {
 		rule = tracker_parser_state_peek_current_rule (state);
+
+		if (state->rule_states.max_len - state->rule_states.len > SUSPICIOUS_REWIND_LIMIT)
+			break;
 
 		switch (rule->type) {
 		case RULE_TYPE_OR:
