@@ -41,7 +41,12 @@ exec_man_man (const char *command,
 	                       NULL, NULL, NULL, NULL,
 	                       &status, NULL);
 
-	return (!retval || !g_spawn_check_wait_status (status, NULL)) ? -1 : 0;
+	if (!retval) {
+		g_printerr ("Could not find \"man\" command in PATH\n");
+		return -1;
+	}
+
+	return g_spawn_check_wait_status (status, NULL) ? 0 : -1;
 }
 
 static char *
