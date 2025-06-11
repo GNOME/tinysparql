@@ -27,17 +27,14 @@
 #include "tracker-help.h"
 
 static int
-exec_man_man (const char *path, const char *page)
+exec_man_man (const char *command,
+              const char *page)
 {
 	const gchar *argv[3] = { 0, };
 	gboolean retval;
 	int status;
 
-	if (!path) {
-		path = "man";
-	}
-
-	argv[0] = path;
+	argv[0] = command;
 	argv[1] = page;
 	retval = g_spawn_sync (NULL, (gchar**) argv, NULL,
 	                       G_SPAWN_SEARCH_PATH,
