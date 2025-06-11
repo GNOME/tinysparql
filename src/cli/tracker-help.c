@@ -26,29 +26,6 @@
 
 #include "tracker-help.h"
 
-static void
-setup_man_path (void)
-{
-	GString *new_path = g_string_new ("");
-	const char *old_path = g_getenv ("MANPATH");
-
-	/* We should always put ':' after our path. If there is no
-	 * old_path, the ':' at the end will let 'man' to try
-	 * system-wide paths after ours to find the manual page. If
-	 * there is old_path, we need ':' as delimiter. */
-	g_string_append (new_path, MANDIR);
-	g_string_append_c (new_path, ':');
-
-	if (old_path) {
-		g_string_append (new_path, old_path); 
-	}
-
-	if (!g_setenv ("MANPATH", new_path->str, TRUE))
-		g_warning ("Could not set MANPATH");
-
-	g_string_free (new_path, TRUE);
-}
-
 static int
 exec_man_man (const char *path, const char *page)
 {
@@ -87,8 +64,6 @@ tracker_help_show_man_page (const char *cmd)
 {
 	char *page = cmd_to_page (cmd);
 	int retval;
-
-	setup_man_path ();
 
 	retval = exec_man_man ("man", page);
 	g_free (page);
