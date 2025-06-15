@@ -105,16 +105,19 @@ at the time of bundling the software, e.g.:
 ```json
 {
   "finish-args" : [
-    "--add-policy=Tracker3.dbus:org.example.Endpoint=example:A",
-    "--add-policy=Tracker3.dbus:org.example.Endpoint=example:B"
+    "--add-policy=Tracker3.dbus:org.example.Endpoint:/org/freedesktop/Tracker3/Endpoint=example:A",
+    "--add-policy=Tracker3.dbus:org.example.Endpoint:/org/example/CustomEndpoint=example:B",
+    "--add-policy=Tracker3.dbus:org.example.Endpoint:/org/example/AnotherCustomEndpoint=example:C"
   ]
 }
 ```
 
+Note that if the endpoint object has the default name '/org/freedesktop/Tracker3/Endpoint', it can be omitted from the policy.
+
 The portal will pick the policy from the `/.flatpak-info` file created
-by Flatpak, and (with the example arguments) allow access to graphs `example:A`
+by Flatpak, and (with the example arguments) allow read-only access to graphs `example:A`
 and `example:B` from the `org.example.Endpoint` D-Bus SPARQL endpoint.
-Access to other graphs, or other services will be disallowed.
+Access to other graphs, or other services will be disallowed. More information about access control can be found in the [Security considerations](security.html) page.
 
 The TinySPARQL library is included in the
 [GNOME Flatpak SDK and runtime](https://docs.flatpak.org/en/latest/available-runtimes.html#gnome).
