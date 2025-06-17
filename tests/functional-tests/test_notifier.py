@@ -166,6 +166,25 @@ class TrackerNotifierTests:
         self.assertEqual(len(self.results_inserts), 1)
         self.assertEqual(len(self.results_updates), 1)
 
+    def test_05_big_update(self):
+        str = ""
+
+        for i in range(0, 200):
+            if i != 0:
+                str += ";"
+            str += "INSERT DATA { <test://many-updates/%d> a nco:PersonContact; nco:fullname 'a' }" % i
+
+        self.tracker.update(str)
+
+        self.__wait_for_signal()
+        self.assertEqual(len(self.results_inserts), 200);
+        urns = {}
+
+        for ev in self.results_inserts:
+            self.assertIsNotNone(ev.get_urn())
+            self.assertNotIn(ev.get_urn(), urns)
+            urns[ev.get_urn()] = 1
+
 
 class TrackerLocalNotifierTest(fixtures.TrackerSparqlDirectTest, TrackerNotifierTests):
     """
