@@ -195,7 +195,8 @@ run_http_endpoint (TrackerSparqlConnection  *connection,
 	                            loopback_str,
 	                            http_port);
 
-	g_print (_("Creating HTTP endpoint at %s…\n"), address);
+	g_print (_("Creating HTTP endpoint at %s…"), address);
+	g_print ("\n");
 	g_free (address);
 	g_free (loopback_str);
 	g_object_unref (loopback);

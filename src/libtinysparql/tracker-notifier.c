@@ -592,7 +592,7 @@ bind_arguments (TrackerSparqlStatement    *statement,
 
 		event = g_ptr_array_index (cache->events, i);
 
-		arg_name = g_strdup_printf ("arg%d", i + 1);
+		arg_name = g_strdup_printf ("arg%d", n_args + 1);
 		tracker_sparql_statement_bind_int (statement, arg_name, event->id);
 		g_free (arg_name);
 		n_args++;
