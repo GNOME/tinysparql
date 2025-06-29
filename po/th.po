@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
-"POT-Creation-Date: 2025-05-02 10:36+0000\n"
+"POT-Creation-Date: 2025-05-10 22:40+0000\n"
 "PO-Revision-Date: 2025-06-29 22:31+0700\n"
 "Last-Translator: Manatsawin Hanmongkolchai <manatsawin@gmail.com>\n"
 "Language-Team: Thai <thai-l10n@googlegroups.com>\n"
@@ -20,8 +20,9 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Poedit 3.6\n"
 
-#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46 src/cli/tracker-import.c:46
-#: src/cli/tracker-introspect.c:98 src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
+#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
+#: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
+#: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
 msgid "Location of the database"
 msgstr "ตำแหน่งที่ตั้งของฐานข้อมูล"
 
@@ -89,12 +90,14 @@ msgstr "--http-port ไม่สามารถใช้กับ --dbus-service
 msgid "Creating HTTP endpoint at %s…\n"
 msgstr "กำลังสร้างเอนด์พอยต์ HTTP ที่ %s…\n"
 
-#: src/cli/tracker-endpoint.c:217 src/cli/tracker-endpoint.c:280 src/cli/tracker-webide.c:98
+#: src/cli/tracker-endpoint.c:217 src/cli/tracker-endpoint.c:280
+#: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "กำลังฟังคำสั่ง SPARQL กด Ctrl-C เพื่อหยุด"
 
 #. Carriage return, so we paper over the ^C
-#: src/cli/tracker-endpoint.c:225 src/cli/tracker-endpoint.c:295 src/cli/tracker-webide.c:103
+#: src/cli/tracker-endpoint.c:225 src/cli/tracker-endpoint.c:295
+#: src/cli/tracker-webide.c:105
 msgid "Closing connection…"
 msgstr "กำลังปิดการเชื่อมต่อ…"
 
@@ -105,7 +108,6 @@ msgstr "กำลังสร้างเอนด์พอยต์ที่ %s
 
 #: src/cli/tracker-endpoint.c:276
 #, fuzzy
-#| msgid "Could not open help document."
 msgid "Could not own DBus name"
 msgstr "ไม่สามารถเปิดเอกสารวิธีใช้"
 
@@ -113,9 +115,10 @@ msgstr "ไม่สามารถเปิดเอกสารวิธีใ
 msgid "DBus name lost"
 msgstr ""
 
-#: src/cli/tracker-endpoint.c:607 src/cli/tracker-export.c:214 src/cli/tracker-import.c:196
-#: src/cli/tracker-introspect.c:1025 src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
-#: src/cli/tracker-webide.c:120 src/portal/tracker-main.c:108
+#: src/cli/tracker-endpoint.c:607 src/cli/tracker-export.c:214
+#: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
+#: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
+#: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
 msgid "Unrecognized options"
 msgstr "ไม่รู้จักตัวเลือก"
 
@@ -130,22 +133,24 @@ msgstr ""
 
 #: src/cli/tracker-endpoint.c:682
 msgid ""
-"New database created. Use the “--dbus-service” option to share this database on a message bus."
+"New database created. Use the “--dbus-service” option to share this database "
+"on a message bus."
 msgstr ""
 
-#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47 src/cli/tracker-import.c:62
-#: src/cli/tracker-import.c:63 src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
+#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
+#: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
+#: src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
 #: src/cli/tracker-query.c:65 src/cli/tracker-sql.c:46 src/cli/tracker-sql.c:50
 msgid "FILE"
 msgstr "ไฟล์"
 
-#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50 src/cli/tracker-introspect.c:102
-#: src/cli/tracker-query.c:56
+#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
+#: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr ""
 
-#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51 src/cli/tracker-introspect.c:103
-#: src/cli/tracker-query.c:57
+#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
+#: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
 msgid "DBus service name"
 msgstr ""
 
@@ -157,13 +162,13 @@ msgstr ""
 msgid "RDF_FORMAT"
 msgstr ""
 
-#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54 src/cli/tracker-introspect.c:106
-#: src/cli/tracker-query.c:60
+#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
+#: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr ""
 
-#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55 src/cli/tracker-introspect.c:107
-#: src/cli/tracker-query.c:61
+#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
+#: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
 msgid "Remote service URI"
 msgstr ""
 
@@ -176,20 +181,20 @@ msgid "IRI"
 msgstr ""
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88 src/cli/tracker-introspect.c:164
-#: src/cli/tracker-query.c:105
+#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
+#: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 
-#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137 src/cli/tracker-import.c:125
-#: src/cli/tracker-introspect.c:829 src/cli/tracker-query.c:345
+#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
+#: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
+#: src/cli/tracker-query.c:345
 msgid "No error given"
 msgstr ""
 
-#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124 src/cli/tracker-introspect.c:828
-#: src/cli/tracker-query.c:344
+#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
+#: src/cli/tracker-introspect.c:828 src/cli/tracker-query.c:344
 #, fuzzy
-#| msgid "%s: no connection to tracker daemon"
 msgid "Could not establish a connection to Tracker"
 msgstr "%s: ไม่มีการเชื่อมต่อไปยังดีมอน tracker"
 
@@ -204,7 +209,6 @@ msgstr ""
 
 #: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
 #, fuzzy
-#| msgid "Could not open help document."
 msgid "Could not run import"
 msgstr "ไม่สามารถเปิดเอกสารวิธีใช้"
 
@@ -230,8 +234,8 @@ msgstr ""
 
 #: src/cli/tracker-introspect.c:129
 msgid ""
-"Describe subclasses, superclasses (can be used with -s to highlight parts of the tree and -p "
-"to show properties)"
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
 msgstr ""
 
 #: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
@@ -243,7 +247,8 @@ msgid "Lists all available properties"
 msgstr ""
 
 #: src/cli/tracker-introspect.c:137
-msgid "Search for a class or property and display more information (e.g. Document)"
+msgid ""
+"Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 
 #: src/cli/tracker-introspect.c:138
@@ -260,7 +265,6 @@ msgstr ""
 
 #: src/cli/tracker-introspect.c:848
 #, fuzzy
-#| msgid "Could not save document."
 msgid "Could not search classes"
 msgstr "ไม่สามารถบันทึกเอกสาร"
 
@@ -270,7 +274,6 @@ msgstr ""
 
 #: src/cli/tracker-introspect.c:868
 #, fuzzy
-#| msgid "no search performed"
 msgid "Could not search properties"
 msgstr "ยังไม่ได้เริ่มค้นหา"
 
@@ -280,7 +283,6 @@ msgstr ""
 
 #: src/cli/tracker-introspect.c:902
 #, fuzzy
-#| msgid "Could not delete \"%s\"."
 msgid "Could not list properties"
 msgstr "ไม่สามารถลบ  \"%s\""
 
@@ -290,7 +292,6 @@ msgstr ""
 
 #: src/cli/tracker-introspect.c:932
 #, fuzzy
-#| msgid "Could not delete \"%s\"."
 msgid "Could not list classes"
 msgstr "ไม่สามารถลบ  \"%s\""
 
@@ -308,13 +309,11 @@ msgstr ""
 
 #: src/cli/tracker-introspect.c:980
 #, fuzzy
-#| msgid "Indexing"
 msgid "Indexes"
 msgstr "กำลังทำดัชนี"
 
 #: src/cli/tracker-introspect.c:992
 #, fuzzy
-#| msgid "Could not delete \"%s\"."
 msgid "Could not list named graphs"
 msgstr "ไม่สามารถลบ  \"%s\""
 
@@ -323,48 +322,49 @@ msgid "Named graphs"
 msgstr ""
 
 #: src/cli/tracker-introspect.c:1034
-msgid "The --list-properties argument can only be empty when used with the --tree argument"
+msgid ""
+"The --list-properties argument can only be empty when used with the --tree "
+"argument"
 msgstr ""
 
-#: src/cli/tracker-main.c:70
+#: src/cli/tracker-main.c:69
 #, fuzzy
-#| msgid "Get help on how to use Tracker and any of these commands"
 msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr "ดูวิธีการใช้ Tracker และชุดคำสั่งต่างๆ"
 
-#: src/cli/tracker-main.c:71
+#: src/cli/tracker-main.c:70
 msgid "Create a SPARQL endpoint"
 msgstr "สร้างเอนด์พอยต์ SPARQL"
 
-#: src/cli/tracker-main.c:72
+#: src/cli/tracker-main.c:71
 msgid "Export data from a TinySPARQL database"
 msgstr "ส่งออกข้อมูลจากฐานข้อมูล TinySPARQL"
 
-#: src/cli/tracker-main.c:73
+#: src/cli/tracker-main.c:72
 msgid "Import data into a TinySPARQL database"
 msgstr "นำเข้าข้อมูลไปยังฐานข้อมูล TinySPARQL"
 
-#: src/cli/tracker-main.c:74
+#: src/cli/tracker-main.c:73
 msgid "Introspect a SPARQL endpoint"
 msgstr "ตรวจสอบเอนด์พอยต์ SPARQL"
 
-#: src/cli/tracker-main.c:75
+#: src/cli/tracker-main.c:74
 msgid "Query and update the index using SPARQL"
 msgstr "สอบถามและปรับปรุงดัชนีโดยใช้ SPARQL"
 
-#: src/cli/tracker-main.c:76
+#: src/cli/tracker-main.c:75
 msgid "Create a Web IDE to query local databases"
 msgstr "สร้าง Web IDE เพื่อสอบถามฐานข้อมูลเฉพาะที่"
 
-#: src/cli/tracker-main.c:93
+#: src/cli/tracker-main.c:92
 msgid "Available tinysparql commands are:"
 msgstr "คำสั่ง tinysparql ที่ใช้ได้คือ:"
 
-#: src/cli/tracker-main.c:112
+#: src/cli/tracker-main.c:111
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr "ดู “tinysparql help <command>” เพื่ออ่านข้อมูลเกี่ยวกับคำสั่งย่อยที่เฉพาะเจาะจง"
 
-#: src/cli/tracker-main.c:155
+#: src/cli/tracker-main.c:154
 #, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
 msgstr "“%s” ไม่ใช่คำสั่ง tinysparql โปรดดู “tinysparql —help”"
@@ -403,7 +403,6 @@ msgstr ""
 
 #: src/cli/tracker-query.c:282
 #, fuzzy, c-format
-#| msgid "%s: invalid arguments"
 msgid "Invalid argument string %s"
 msgstr "%s: อากิวเมนต์ไม่ถูกต้อง"
 
@@ -428,7 +427,8 @@ msgstr "ไม่สามารถเรียกคำสั่งปรับ
 msgid "Done"
 msgstr "เสร็จสิ้น"
 
-#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131 src/cli/tracker-sql.c:164
+#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
+#: src/cli/tracker-sql.c:164
 msgid "Could not run query"
 msgstr "ไม่สามารถเรียกทำงานข้อคำถามได้"
 
@@ -436,7 +436,8 @@ msgstr "ไม่สามารถเรียกทำงานข้อคำ
 msgid "No results found matching your query"
 msgstr "ไม่มีผลลัพธ์ตรงกับคำค้นของคุณ"
 
-#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439 src/cli/tracker-sql.c:138
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+#: src/cli/tracker-sql.c:138
 msgid "Results"
 msgstr "ผลลัพธ์"
 
@@ -478,13 +479,10 @@ msgstr "พอร์ตที่จะฟัง"
 msgid "Port not specified"
 msgstr "ไม่ได้ระบุพอร์ต"
 
-#: src/cli/tracker-webide.c:80
-#, c-format
-msgid "%s %s…\n"
-msgstr "%s %s…\n"
-
-#: src/cli/tracker-webide.c:80
-msgid "Creating Web IDE at"
+#. Translators: This will point to a local HTTP address
+#: src/cli/tracker-webide.c:81
+#, fuzzy, c-format
+msgid "Creating Web IDE at %s…"
 msgstr "กำลังสร้าง Web IDE ที่"
 
 #. Translators: this is a '|' (U+007C) separated list of common
@@ -784,11 +782,11 @@ msgstr "รุ่น"
 #~ msgstr "คำค้น... - ค้นหาคำที่กำหนดในแฟ้มต่างๆ"
 
 #~ msgid ""
-#~ "Specifying more then one term, will be showed items containing ALL the specified terms "
-#~ "(term1 AND term2 - logical conjunction)"
+#~ "Specifying more then one term, will be showed items containing ALL the "
+#~ "specified terms (term1 AND term2 - logical conjunction)"
 #~ msgstr ""
-#~ "การระบุคำค้นมากกว่าหนึ่งคำ จะแสดงเฉพาะรายการที่มีคำค้นที่ระบุทั้งหมด (เป็นการเชื่อมตรรกะแบบ \"คำค้น1 และ "
-#~ "คำค้น2\")"
+#~ "การระบุคำค้นมากกว่าหนึ่งคำ จะแสดงเฉพาะรายการที่มีคำค้นที่ระบุทั้งหมด "
+#~ "(เป็นการเชื่อมตรรกะแบบ \"คำค้น1 และ คำค้น2\")"
 
 #~ msgid "The list of recognized services is:"
 #~ msgstr "รายชื่อบริการที่รู้จักได้แก่:"
@@ -841,8 +839,10 @@ msgstr "รุ่น"
 #~ msgstr "FILE... - แก้ไขแท็กในแฟ้ม"
 
 #~ msgid ""
-#~ "To add, remove, or search for multiple tags at the same time, join multiple options like:"
-#~ msgstr "การเพิ่ม, ลบ หรือค้นหาแท็กหลายแท็กพร้อมกัน ทำได้โดยใช้ตัวเลือกหลายตัวประกอบกัน เช่น:"
+#~ "To add, remove, or search for multiple tags at the same time, join "
+#~ "multiple options like:"
+#~ msgstr ""
+#~ "การเพิ่ม, ลบ หรือค้นหาแท็กหลายแท็กพร้อมกัน ทำได้โดยใช้ตัวเลือกหลายตัวประกอบกัน เช่น:"
 
 #, c-format
 #~ msgid "%s: file %s not found"
@@ -864,19 +864,21 @@ msgstr "รุ่น"
 #~ msgstr "ปิดการทำดัชนีหรือการเฝ้าสังเกตใดๆ"
 
 #~ msgid ""
-#~ "Value that controls the level of logging. Valid values are 0 (displays/logs only errors), "
-#~ "1 (minimal), 2 (detailed), and 3 (debug)"
+#~ "Value that controls the level of logging. Valid values are 0 (displays/"
+#~ "logs only errors), 1 (minimal), 2 (detailed), and 3 (debug)"
 #~ msgstr ""
-#~ "ค่าระดับการบันทึกปูม ค่าที่ใช้ได้คือ 0(แสดง/บันทึกเฉพาะข้อผิดพลาด), 1 (น้อยที่สุด), 2 (ละเอียด) และ 3 (ดีบั๊ก)"
+#~ "ค่าระดับการบันทึกปูม ค่าที่ใช้ได้คือ 0(แสดง/บันทึกเฉพาะข้อผิดพลาด), 1 (น้อยที่สุด), 2 "
+#~ "(ละเอียด) และ 3 (ดีบั๊ก)"
 
 #~ msgid "VALUE"
 #~ msgstr "VALUE"
 
 #~ msgid ""
-#~ "Value to use for throttling indexing. Value must be in range 0-99 (default 0) with lower "
-#~ "values increasing indexing speed"
+#~ "Value to use for throttling indexing. Value must be in range 0-99 "
+#~ "(default 0) with lower values increasing indexing speed"
 #~ msgstr ""
-#~ "ค่าที่ใช้ในการผ่อนเครื่องการทำดัชนี ค่าต้องอยู่ในช่วง 0-99 (ค่าปริยายคือ 0) โดยค่าที่ต่ำจะเพิ่มความเร็วการทำดัชนีั"
+#~ "ค่าที่ใช้ในการผ่อนเครื่องการทำดัชนี ค่าต้องอยู่ในช่วง 0-99 (ค่าปริยายคือ 0) "
+#~ "โดยค่าที่ต่ำจะเพิ่มความเร็วการทำดัชนีั"
 
 #~ msgid "Minimizes the use of memory but may slow indexing down"
 #~ msgstr "ลดการใช้หน่วยความจำ แต่อาจทำให้ทำดัชนีช้าลง"
@@ -884,7 +886,9 @@ msgstr "รุ่น"
 #~ msgid "Initial sleep time, just before indexing, in seconds"
 #~ msgstr "เวลาพักเริ่มต้นก่อนการทำดัชนี (เป็นวินาที)"
 
-#~ msgid "Language to use for stemmer and stop words list (ISO 639-1 2 characters code)"
+#~ msgid ""
+#~ "Language to use for stemmer and stop words list (ISO 639-1 2 characters "
+#~ "code)"
 #~ msgstr "ภาษาที่จะโหลดรายการคำสำหรับแยกคำ (เป็นรหัส ISO 639-1 แบบ 2 อักขระ)"
 
 #~ msgid "LANG"
@@ -903,8 +907,11 @@ msgstr "รุ่น"
 #~ msgstr "DIRECTORY"
 
 #~ msgid ""
-#~ "To include or exclude multiple directories at the same time, join multiple options like:"
-#~ msgstr "การรวมหรือไม่รวมไดเรกทอรีหลายไดเรกทอรีในเวลาเดียวกัน ทำได้โดยใช้ตัวเลือกหลายตัวประกอบกัน เช่น:"
+#~ "To include or exclude multiple directories at the same time, join "
+#~ "multiple options like:"
+#~ msgstr ""
+#~ "การรวมหรือไม่รวมไดเรกทอรีหลายไดเรกทอรีในเวลาเดียวกัน "
+#~ "ทำได้โดยใช้ตัวเลือกหลายตัวประกอบกัน เช่น:"
 
 #~ msgid "Control and monitor the Tracker search and indexing service"
 #~ msgstr "ควบคุมและเฝ้าสังเกตบริการค้นหาและทำดัชนี Tracker"
@@ -949,33 +956,38 @@ msgstr "รุ่น"
 #~ msgstr "<span weight=\"bold\" size=\"larger\">สถิติการทำดัชนี</span>"
 
 #~ msgid ""
-#~ "Tracker is free software; you can redistribute it and/or modify it under the terms of the "
-#~ "GNU General Public License as published by the Free Software Foundation; either version 2 "
-#~ "of the License, or (at your option) any later version."
+#~ "Tracker is free software; you can redistribute it and/or modify it under "
+#~ "the terms of the GNU General Public License as published by the Free "
+#~ "Software Foundation; either version 2 of the License, or (at your option) "
+#~ "any later version."
 #~ msgstr ""
-#~ "Tracker เป็นซอฟต์แวร์เสรี คุณสามารถแจกจ่ายต่อ และ/หรือ แก้ไขโปรแกรมได้ ภายใต้เงื่อนไขของ GNU General "
-#~ "Public License ที่เผยแพร่โดยมูลนิธิซอฟต์แวร์เสรี ไม่ว่าจะเป็นสัญญาอนุญาตรุ่นที่ 2 หรือรุ่นถัดมา (ตามแต่คุณจะเลือก)"
+#~ "Tracker เป็นซอฟต์แวร์เสรี คุณสามารถแจกจ่ายต่อ และ/หรือ แก้ไขโปรแกรมได้ "
+#~ "ภายใต้เงื่อนไขของ GNU General Public License ที่เผยแพร่โดยมูลนิธิซอฟต์แวร์เสรี "
+#~ "ไม่ว่าจะเป็นสัญญาอนุญาตรุ่นที่ 2 หรือรุ่นถัดมา (ตามแต่คุณจะเลือก)"
 
 #~ msgid ""
-#~ "Tracker is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; "
-#~ "without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  "
-#~ "See the GNU General Public License for more details."
+#~ "Tracker is distributed in the hope that it will be useful, but WITHOUT "
+#~ "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
+#~ "FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for "
+#~ "more details."
 #~ msgstr ""
-#~ "Tracker เผยแพร่ด้วยความหวังว่าโปรแกรมจะมีประโยชน์ แต่ *ไม่มีการรับประกันใดๆ* ไม่มีแม้การรับประกัน "
-#~ "*อรรถประโยชน์เชิงพาณิชย์* หรือ *ความเหมาะสมสำหรับวัตถุประสงค์เฉพาะกิจใดๆ* กรุณาอ่าน GNU General Public "
-#~ "License เพื่อดูรายละเอียดเพิ่มเติม"
+#~ "Tracker เผยแพร่ด้วยความหวังว่าโปรแกรมจะมีประโยชน์ แต่ *ไม่มีการรับประกันใดๆ* "
+#~ "ไม่มีแม้การรับประกัน *อรรถประโยชน์เชิงพาณิชย์* หรือ "
+#~ "*ความเหมาะสมสำหรับวัตถุประสงค์เฉพาะกิจใดๆ* กรุณาอ่าน GNU General Public License "
+#~ "เพื่อดูรายละเอียดเพิ่มเติม"
 
 #~ msgid ""
-#~ "You should have received a copy of the GNU General Public License along with Tracker; if "
-#~ "not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  "
-#~ "02111-1307  USA"
+#~ "You should have received a copy of the GNU General Public License along "
+#~ "with Tracker; if not, write to the Free Software Foundation, Inc., 59 "
+#~ "Temple Place, Suite 330, Boston, MA  02111-1307  USA"
 #~ msgstr ""
-#~ "คุณควรจะได้รับสำเนาของ GNU General Public License มาพร้อมกับ Tracker ถ้าคุณไม่ได้รับ กรุณาติดต่อไปที่ "
-#~ "Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA"
+#~ "คุณควรจะได้รับสำเนาของ GNU General Public License มาพร้อมกับ Tracker "
+#~ "ถ้าคุณไม่ได้รับ กรุณาติดต่อไปที่ Free Software Foundation, Inc., 59 Temple Place, "
+#~ "Suite 330, Boston, MA  02111-1307  USA"
 
 #~ msgid ""
-#~ "Tracker is a tool designed to extract info and metadata about your personal data so that "
-#~ "it can be searched easily and quickly"
+#~ "Tracker is a tool designed to extract info and metadata about your "
+#~ "personal data so that it can be searched easily and quickly"
 #~ msgstr ""
 #~ "Tracker เป็นเครื่องมือที่ออกแบบมาสำหรับดึงรายละเอียดเกี่ยวกับข้อมูลต่างๆ ในเครื่องของคุณ "
 #~ "เพื่อการค้นหาข้อมูลที่ง่ายและรวดเร็ว"
@@ -1017,12 +1029,15 @@ msgstr "รุ่น"
 #~ msgstr "Tracker"
 
 #~ msgid ""
-#~ "Your computer is about to be indexed so you can perform fast searches of your files and "
-#~ "emails"
-#~ msgstr "โปรแกรมกำลังจะเริ่มทำดัชนีข้อมูลในคอมพิวเตอร์ของคุณ เพื่อว่าคุณจะสามารถค้นหาแฟ้มและอีเมลได้รวดเร็วขึ้น"
+#~ "Your computer is about to be indexed so you can perform fast searches of "
+#~ "your files and emails"
+#~ msgstr ""
+#~ "โปรแกรมกำลังจะเริ่มทำดัชนีข้อมูลในคอมพิวเตอร์ของคุณ "
+#~ "เพื่อว่าคุณจะสามารถค้นหาแฟ้มและอีเมลได้รวดเร็วขึ้น"
 
 #~ msgid ""
-#~ "You can pause indexing at any time and configure index settings by right clicking here"
+#~ "You can pause indexing at any time and configure index settings by right "
+#~ "clicking here"
 #~ msgstr "คุณสามารถหยุดพักการทำดัชนีได้ตลอดเวลา และตั้งค่าการทำดัชนีอื่นๆ โดยคลิกขวาที่นี่"
 
 #~ msgid "Tracker has finished indexing your system"
@@ -1095,8 +1110,8 @@ msgstr "รุ่น"
 #~ msgstr "ปรับแต่งแอพเพล็ต"
 
 #~ msgid ""
-#~ "Automatically _pause if indexing may degrade performance of other applications in active "
-#~ "use"
+#~ "Automatically _pause if indexing may degrade performance of other "
+#~ "applications in active use"
 #~ msgstr "พักถ้าการทำดัชนีทำให้โปรแกรมอื่น_ช้าลง"
 
 #~ msgid "_Automatically pause all indexing when computer is in active use"
@@ -1112,12 +1127,13 @@ msgstr "รุ่น"
 #~ msgstr "ข้อมูลต้องทำดัชนีใหม่"
 
 #~ msgid ""
-#~ "In order for your changes to take effect, Tracker must reindex your files. Click the "
-#~ "Reindex button to start reindexing now, otherwise this action will be performed the next "
-#~ "time the Tracker daemon is restarted."
+#~ "In order for your changes to take effect, Tracker must reindex your "
+#~ "files. Click the Reindex button to start reindexing now, otherwise this "
+#~ "action will be performed the next time the Tracker daemon is restarted."
 #~ msgstr ""
-#~ "เพื่อให้การเปลี่ยนแปลงเกิดผล Tracker ต้องทำดัชนีแฟ้มของคุณใหม่ ถ้าต้องการเริ่มทำดัชนีทันที ให้คลิกที่ปุ่ม 'ทำดัชนีใหม่' "
-#~ "หรือมิฉะนั้น ระบบจะเริ่มทำดัชนีโดยอัตโนมัติเมื่อดีมอน Tracker เริ่มทำงานในครั้งต่อไป"
+#~ "เพื่อให้การเปลี่ยนแปลงเกิดผล Tracker ต้องทำดัชนีแฟ้มของคุณใหม่ ถ้าต้องการเริ่มทำดัชนีทันที "
+#~ "ให้คลิกที่ปุ่ม 'ทำดัชนีใหม่' หรือมิฉะนั้น ระบบจะเริ่มทำดัชนีโดยอัตโนมัติเมื่อดีมอน Tracker "
+#~ "เริ่มทำงานในครั้งต่อไป"
 
 #~ msgid "_Reindex"
 #~ msgstr "_ทำดัชนีใหม่"
@@ -1126,11 +1142,11 @@ msgstr "รุ่น"
 #~ msgstr "ต้องเริ่มการทำงานของดีมอน Tracker ใหม่"
 
 #~ msgid ""
-#~ "In order for your changes to take effect, the Tracker daemon has to be restarted. Click "
-#~ "the Restart button to restart the daemon now."
+#~ "In order for your changes to take effect, the Tracker daemon has to be "
+#~ "restarted. Click the Restart button to restart the daemon now."
 #~ msgstr ""
-#~ "เพื่อให้การเปลี่ยนแปลงเกิดผล คุณต้องเริ่มการทำงานของดีมอน Tracker ใหม่ ถ้าต้องการเริ่มการทำงานของดีมอนทันที "
-#~ "ให้คลิกที่ปุ่ม 'เริ่มทำงานใหม่'"
+#~ "เพื่อให้การเปลี่ยนแปลงเกิดผล คุณต้องเริ่มการทำงานของดีมอน Tracker ใหม่ "
+#~ "ถ้าต้องการเริ่มการทำงานของดีมอนทันที ให้คลิกที่ปุ่ม 'เริ่มทำงานใหม่'"
 
 #~ msgid "_Restart"
 #~ msgstr "เ_ริ่มทำงานใหม่"
@@ -1406,7 +1422,8 @@ msgstr "รุ่น"
 #~ msgid "_Search:"
 #~ msgstr "_ค้นหา:"
 
-#~ msgid "Tracker is still indexing so not all search results are available yet"
+#~ msgid ""
+#~ "Tracker is still indexing so not all search results are available yet"
 #~ msgstr "Tracker กำลังทำดัชนีอยู่ ยังไม่สามารถเริ่มการค้นหาได้"
 
 #~ msgid "Enter a search term with multiple words seperated with spaces."
@@ -1498,7 +1515,9 @@ msgstr "รุ่น"
 #~ msgid "You may not have write permissions to the document."
 #~ msgstr "คุณไม่มีสิทธิ์เขียนเอกสารนี้"
 
-#~ msgid "Locate documents and folders on this computer by name or content using Tracker"
+#~ msgid ""
+#~ "Locate documents and folders on this computer by name or content using "
+#~ "Tracker"
 #~ msgstr "ค้นหาเอกสารและโฟลเดอร์ในคอมพิวเตอร์นี้จากชื่อหรือเนื้อหาโดยใช้ Tracker"
 
 #, c-format
@@ -1527,3 +1546,7 @@ msgstr "รุ่น"
 
 #~ msgid "Tracker search and indexing service"
 #~ msgstr "บริการสืบค้นและทำดัชนี Tracker"
+
+#, c-format
+#~ msgid "%s %s…\n"
+#~ msgstr "%s %s…\n"
