@@ -1,3 +1,16 @@
+NEW in 3.10.alpha - 2025-07-01
+==============================
+  * Improved performance during database updates
+  * Minimized memory allocations during updates
+  * Fixes to @base handling in Turtle format
+  * Memory leak fixes
+  * Improved performance at handling pathologically long
+    queries with syntax errors
+  * String translation fixes
+  * Documentation improvements
+
+Translations: be, sl, th, tr
+
 NEW in 3.9.2 - 2025-04-19
 =========================
   * Fix installing pre-generated documentation in tarballs
