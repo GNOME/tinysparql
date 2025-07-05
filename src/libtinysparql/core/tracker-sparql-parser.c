@@ -45,7 +45,7 @@ typedef struct _TrackerGrammarParser TrackerGrammarParser;
  * and will be retrying different variants that do fail at
  * the same point.
  */
-#define SUSPICIOUS_REWIND_LIMIT 500000
+#define SUSPICIOUS_REWIND_LIMIT 100000
 
 struct _TrackerRuleState {
 	const TrackerGrammarRule *rule;
