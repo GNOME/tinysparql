@@ -1,3 +1,12 @@
+NEW in 3.10.beta - 2025-08-03
+=============================
+  * Changed the database format, so that all graphs are stored in
+    a single database file. This reduces the maximum theoretical
+    database size to 32 TB (Down from 320 TB), but dramatically
+    boosts the maximum amount of graphs that could be created in
+    a single database/endpoint (14 Million, up from 10. Not
+    millions, just ten).
+
 NEW in 3.10.alpha - 2025-07-01
 ==============================
   * Improved performance during database updates
