@@ -257,8 +257,6 @@ void tracker_binding_set_data_type (TrackerBinding      *binding,
 				    TrackerPropertyType  type);
 
 const gchar * tracker_binding_get_sql_expression (TrackerBinding *binding);
-gchar * tracker_binding_get_extra_sql_expression (TrackerBinding *binding,
-						  const gchar    *suffix);
 
 /* Literal binding */
 GType            tracker_literal_binding_get_type (void) G_GNUC_CONST;

@@ -1188,7 +1188,7 @@ tracker_sparql_connection_remote_new (const gchar *uri_base)
 /**
  * tracker_sparql_connection_new:
  * @flags: Connection flags to define the SPARQL connection behavior
- * @store: (nullable): The directory that contains the database as a [iface@Gio.File], or %NULL
+ * @store: (nullable): The database location as a [iface@Gio.File], or %NULL
  * @ontology: (nullable): The directory that contains the database schemas as a [iface@Gio.File], or %NULL
  * @cancellable: (nullable): Optional [type@Gio.Cancellable]
  * @error: Error location
@@ -1199,7 +1199,12 @@ tracker_sparql_connection_remote_new (const gchar *uri_base)
  * To connect to databases managed by other processes, use
  * [ctor@SparqlConnection.bus_new].
  *
- * If @store is %NULL, the database will be created in memory.
+ * The @store argument determines where in the local filesystem the database
+ * will be stored. If @store is %NULL, the database will be created in memory.
+ * Traditionally, @store describes a directory where a file named `meta.db`
+ * contains the data. Starting with version 3.10, if the basename of @store
+ * contains a `.` extension separator, it will be considered as the database
+ * file itself.
  *
  * If defined, the @ontology argument must point to a location containing
  * suitable `.ontology` files in Turtle format. These define the structure of
@@ -1221,7 +1226,7 @@ tracker_sparql_connection_remote_new (const gchar *uri_base)
  *
  * Operations on a [class@SparqlConnection] resulting on a
  * `CORRUPT` [error@SparqlError] will have the event recorded
- * persistently through a `.meta.corrupted` file alongside the database files.
+ * persistently through a `.$DB_BASENAME.corrupted` file alongside the database file.
  * If the database is opened without the `READONLY` [flags@SparqlConnectionFlags]
  * flag enabled and the file is found, this constructor will attempt to repair the
  * database. In that situation, this constructor will either return a valid
@@ -1274,7 +1279,7 @@ new_async_cb (GObject      *source,
 /**
  * tracker_sparql_connection_new_async:
  * @flags: Connection flags to define the SPARQL connection behavior
- * @store: (nullable): The directory that contains the database as a [iface@Gio.File], or %NULL
+ * @store: (nullable): The database location as a [iface@Gio.File], or %NULL
  * @ontology: (nullable): The directory that contains the database schemas as a [iface@Gio.File], or %NULL
  * @cancellable: (nullable): Optional [type@Gio.Cancellable]
  * @callback: User-defined [type@Gio.AsyncReadyCallback] to be called when

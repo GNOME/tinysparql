@@ -172,92 +172,94 @@ tracker_ontologies_diff (TrackerOntologies      *db_ontology,
 
 	array = g_array_new (FALSE, FALSE, sizeof (TrackerOntologyChange));
 
-	/* Handle new class additions */
-	classes = tracker_ontologies_get_classes (current_ontology, &len);
-	for (i = 0; i < len; i++) {
-		if (db_ontology &&
-		    tracker_ontologies_get_class_by_uri (db_ontology,
-		                                         tracker_class_get_uri (classes[i])))
-			continue;
+	if (current_ontology) {
+		/* Handle new class additions */
+		classes = tracker_ontologies_get_classes (current_ontology, &len);
+		for (i = 0; i < len; i++) {
+			if (db_ontology &&
+			    tracker_ontologies_get_class_by_uri (db_ontology,
+			                                         tracker_class_get_uri (classes[i])))
+				continue;
 
-		/* Class is is new */
-		add_class_change (TRACKER_CHANGE_CLASS_NEW,
-		                  classes[i], array);
-	}
-
-	/* Handle new property additions */
-	props = tracker_ontologies_get_properties (current_ontology, &len);
-	for (i = 0; i < len; i++) {
-		TrackerProperty **super;
-
-		/* Updated properties are handled elsewhere */
-		if (db_ontology &&
-		    tracker_ontologies_get_property_by_uri (db_ontology,
-		                                            tracker_property_get_uri (props[i])))
-			continue;
-
-		/* Property changes are only handled individually if:
-		 * - The property is multi-valued
-		 * - The class of its domain existed previously
-		 */
-		if (tracker_property_get_multiple_values (props[i]) ||
-		    (db_ontology &&
-		     tracker_ontologies_get_class_by_uri (db_ontology,
-		                                          tracker_class_get_uri (tracker_property_get_domain (props[i]))))) {
-			add_property_change (TRACKER_CHANGE_PROPERTY_NEW,
-			                     props[i], array);
+			/* Class is is new */
+			add_class_change (TRACKER_CHANGE_CLASS_NEW,
+			                  classes[i], array);
 		}
 
-		super = tracker_property_get_super_properties (props[i]);
-		while (*super) {
-			add_superproperty_change (TRACKER_CHANGE_PROPERTY_SUPERPROPERTY_NEW,
-			                          props[i], *super, array);
-			super++;
+		/* Handle new property additions */
+		props = tracker_ontologies_get_properties (current_ontology, &len);
+		for (i = 0; i < len; i++) {
+			TrackerProperty **super;
+
+			/* Updated properties are handled elsewhere */
+			if (db_ontology &&
+			    tracker_ontologies_get_property_by_uri (db_ontology,
+			                                            tracker_property_get_uri (props[i])))
+				continue;
+
+			/* Property changes are only handled individually if:
+			 * - The property is multi-valued
+			 * - The class of its domain existed previously
+			 */
+			if (tracker_property_get_multiple_values (props[i]) ||
+			    (db_ontology &&
+			     tracker_ontologies_get_class_by_uri (db_ontology,
+			                                          tracker_class_get_uri (tracker_property_get_domain (props[i]))))) {
+				add_property_change (TRACKER_CHANGE_PROPERTY_NEW,
+				                     props[i], array);
+			}
+
+			super = tracker_property_get_super_properties (props[i]);
+			while (*super) {
+				add_superproperty_change (TRACKER_CHANGE_PROPERTY_SUPERPROPERTY_NEW,
+				                          props[i], *super, array);
+				super++;
+			}
+
+			if (tracker_property_get_is_inverse_functional_property (props[i])) {
+				add_property_change (TRACKER_CHANGE_PROPERTY_INVERSE_FUNCTIONAL_NEW,
+				                     props[i], array);
+			}
+
+			if (tracker_property_get_indexed (props[i])) {
+				add_property_change (TRACKER_CHANGE_PROPERTY_INDEX_NEW,
+				                     props[i], array);
+			}
+
+			if (tracker_property_get_secondary_index (props[i])) {
+				add_property_change (TRACKER_CHANGE_PROPERTY_SECONDARY_INDEX_NEW,
+				                     props[i], array);
+			}
+
+			if (tracker_property_get_fulltext_indexed (props[i])) {
+				add_property_change (TRACKER_CHANGE_PROPERTY_FTS_INDEX,
+				                     props[i], array);
+			}
 		}
 
-		if (tracker_property_get_is_inverse_functional_property (props[i])) {
-			add_property_change (TRACKER_CHANGE_PROPERTY_INVERSE_FUNCTIONAL_NEW,
-			                     props[i], array);
-		}
+		classes = tracker_ontologies_get_classes (current_ontology, &len);
+		for (i = 0; i < len; i++) {
+			TrackerProperty **domain_indexes;
+			TrackerClass **super;
 
-		if (tracker_property_get_indexed (props[i])) {
-			add_property_change (TRACKER_CHANGE_PROPERTY_INDEX_NEW,
-			                     props[i], array);
-		}
+			if (db_ontology &&
+			    tracker_ontologies_get_class_by_uri (db_ontology,
+			                                         tracker_class_get_uri (classes[i])))
+				continue;
 
-		if (tracker_property_get_secondary_index (props[i])) {
-			add_property_change (TRACKER_CHANGE_PROPERTY_SECONDARY_INDEX_NEW,
-			                     props[i], array);
-		}
+			super = tracker_class_get_super_classes (classes[i]);
+			while (*super) {
+				add_superclass_change (TRACKER_CHANGE_CLASS_SUPERCLASS_NEW,
+				                       classes[i], *super, array);
+				super++;
+			}
 
-		if (tracker_property_get_fulltext_indexed (props[i])) {
-			add_property_change (TRACKER_CHANGE_PROPERTY_FTS_INDEX,
-			                     props[i], array);
-		}
-	}
-
-	classes = tracker_ontologies_get_classes (current_ontology, &len);
-	for (i = 0; i < len; i++) {
-		TrackerProperty **domain_indexes;
-		TrackerClass **super;
-
-		if (db_ontology &&
-		    tracker_ontologies_get_class_by_uri (db_ontology,
-		                                         tracker_class_get_uri (classes[i])))
-			continue;
-
-		super = tracker_class_get_super_classes (classes[i]);
-		while (*super) {
-			add_superclass_change (TRACKER_CHANGE_CLASS_SUPERCLASS_NEW,
-			                       classes[i], *super, array);
-			super++;
-		}
-
-		domain_indexes = tracker_class_get_domain_indexes (classes[i]);
-		while (*domain_indexes) {
-			add_domain_index_change (TRACKER_CHANGE_CLASS_DOMAIN_INDEX_NEW,
-			                         classes[i], *domain_indexes, array);
-			domain_indexes++;
+			domain_indexes = tracker_class_get_domain_indexes (classes[i]);
+			while (*domain_indexes) {
+				add_domain_index_change (TRACKER_CHANGE_CLASS_DOMAIN_INDEX_NEW,
+				                         classes[i], *domain_indexes, array);
+				domain_indexes++;
+			}
 		}
 	}
 
@@ -265,10 +267,13 @@ tracker_ontologies_diff (TrackerOntologies      *db_ontology,
 	if (db_ontology) {
 		classes = tracker_ontologies_get_classes (db_ontology, &len);
 		for (i = 0; i < len; i++) {
-			TrackerClass *cur_class =
-				tracker_ontologies_get_class_by_uri (current_ontology,
-				                                     tracker_class_get_uri (classes[i]));
+			TrackerClass *cur_class = NULL;
 			TrackerProperty **domain_indexes;
+
+			if (current_ontology) {
+				cur_class = tracker_ontologies_get_class_by_uri (current_ontology,
+				                                                 tracker_class_get_uri (classes[i]));
+			}
 
 			if (cur_class) {
 				TrackerClass **super;
@@ -323,35 +328,17 @@ tracker_ontologies_diff (TrackerOntologies      *db_ontology,
 					}
 					domain_indexes++;
 				}
-			} else {
-				TrackerProperty **domain_indexes;
-				TrackerClass **super;
-
-				/* Class is deleted */
-				domain_indexes = tracker_class_get_domain_indexes (classes[i]);
-				while (*domain_indexes) {
-					add_domain_index_change (TRACKER_CHANGE_CLASS_DOMAIN_INDEX_DELETE,
-					                         classes[i], *domain_indexes, array);
-					domain_indexes++;
-				}
-
-				super = tracker_class_get_super_classes (classes[i]);
-				while (*super) {
-					add_superclass_change (TRACKER_CHANGE_CLASS_SUPERCLASS_DELETE,
-					                       cur_class, *super, array);
-					super++;
-				}
-
-				add_class_change (TRACKER_CHANGE_CLASS_DELETE,
-				                  classes[i], array);
 			}
 		}
 
 		props = tracker_ontologies_get_properties (db_ontology, &len);
 		for (i = 0; i < len; i++) {
-			TrackerProperty *cur_property =
-				tracker_ontologies_get_property_by_uri (current_ontology,
-				                                        tracker_property_get_uri (props[i]));
+			TrackerProperty *cur_property = NULL;
+
+			if (current_ontology) {
+				cur_property = tracker_ontologies_get_property_by_uri (current_ontology,
+				                                                       tracker_property_get_uri (props[i]));
+			}
 
 			if (cur_property) {
 				TrackerProperty **super;
@@ -484,6 +471,39 @@ tracker_ontologies_diff (TrackerOntologies      *db_ontology,
 
 				add_property_change (TRACKER_CHANGE_PROPERTY_DELETE,
 				                     props[i], array);
+			}
+		}
+
+		classes = tracker_ontologies_get_classes (db_ontology, &len);
+		for (i = 0; i < len; i++) {
+			TrackerClass *cur_class = NULL;
+
+			if (current_ontology) {
+				cur_class = tracker_ontologies_get_class_by_uri (current_ontology,
+				                                                 tracker_class_get_uri (classes[i]));
+			}
+
+			if (!cur_class) {
+				TrackerProperty **domain_indexes;
+				TrackerClass **super;
+
+				/* Class is deleted */
+				domain_indexes = tracker_class_get_domain_indexes (classes[i]);
+				while (*domain_indexes) {
+					add_domain_index_change (TRACKER_CHANGE_CLASS_DOMAIN_INDEX_DELETE,
+					                         classes[i], *domain_indexes, array);
+					domain_indexes++;
+				}
+
+				super = tracker_class_get_super_classes (classes[i]);
+				while (*super) {
+					add_superclass_change (TRACKER_CHANGE_CLASS_SUPERCLASS_DELETE,
+					                       cur_class, *super, array);
+					super++;
+				}
+
+				add_class_change (TRACKER_CHANGE_CLASS_DELETE,
+				                  classes[i], array);
 			}
 		}
 	}

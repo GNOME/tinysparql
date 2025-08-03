@@ -55,14 +55,14 @@ typedef enum {
 	TRACKER_DB_VERSION_3_7,      /* SQLite 3.45.3 being a moron for changing syntax in views */
 	TRACKER_DB_VERSION_3_8,      /* Default graph gets a name */
 	TRACKER_DB_VERSION_3_10,     /* Refcount trigger */
+	TRACKER_DB_VERSION_3_10_B,   /* Unification of all graphs in a single DB file */
+	TRACKER_DB_N_VERSIONS,
 } TrackerDBVersion;
 
 /* Set current database version we are working with */
-#define TRACKER_DB_VERSION_NOW        TRACKER_DB_VERSION_3_8
+#define TRACKER_DB_VERSION_NOW        (TRACKER_DB_N_VERSIONS - 1)
 
 void                tracker_db_manager_rollback_db_creation   (TrackerDBManager *db_manager);
-
-gboolean            tracker_db_manager_db_exists              (GFile *cache_location);
 
 TrackerDBManager   *tracker_db_manager_new                    (TrackerDBManagerFlags   flags,
                                                                GFile                  *cache_location,
@@ -95,15 +95,6 @@ void                tracker_db_manager_tokenizer_update       (TrackerDBManager 
 
 void                tracker_db_manager_check_perform_vacuum   (TrackerDBManager      *db_manager);
 
-gboolean            tracker_db_manager_attach_database        (TrackerDBManager      *db_manager,
-                                                               TrackerDBInterface    *iface,
-                                                               const gchar           *name,
-                                                               gboolean               create,
-                                                               GError               **error);
-gboolean            tracker_db_manager_detach_database        (TrackerDBManager      *db_manager,
-                                                               TrackerDBInterface    *iface,
-                                                               const gchar           *name,
-                                                               GError               **error);
 void                tracker_db_manager_release_memory         (TrackerDBManager      *db_manager);
 
 TrackerDBVersion    tracker_db_manager_get_version            (TrackerDBManager      *db_manager);

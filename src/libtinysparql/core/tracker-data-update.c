@@ -949,9 +949,10 @@ tracker_data_query_rdf_type (TrackerData                   *data,
 		stmt = graph->query_rdf_types =
 			tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, &inner_error,
 			                                        "SELECT (SELECT Uri FROM Resource WHERE ID = \"rdf:type\") "
-			                                        "FROM \"%s\".\"rdfs:Resource_rdf:type\" "
+			                                        "FROM \"%s%srdfs:Resource_rdf:type\" "
 			                                        "WHERE ID = ?",
-			                                        graph->graph ? graph->graph : "main");
+								graph->graph ? graph->graph : "",
+								graph->graph ? "_" : "");
 	}
 
 	if (!stmt) {
@@ -1181,7 +1182,6 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 {
 	TrackerDBStatement *stmt;
 	TrackerDBInterface *iface;
-	const gchar *database;
 
 	stmt = tracker_db_statement_mru_lookup (&data->update_buffer.stmt_mru, entry);
 	if (stmt) {
@@ -1190,64 +1190,75 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 	}
 
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
-	database = entry->graph->graph ? entry->graph->graph : "main";
 
 	if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_CLEAR) {
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
-		                                               database,
+		                                               "DELETE FROM \"%s%s%s\" WHERE ID = ?",
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
 		                                               tracker_property_get_table_name (entry->table.multivalued.property));
 	} else if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_DELETE) {
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ? AND \"%s\" = ?",
-		                                               database,
+		                                               "DELETE FROM \"%s%s%s\" WHERE ID = ? AND \"%s\" = ?",
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
 		                                               tracker_property_get_table_name (entry->table.multivalued.property),
 		                                               tracker_property_get_name (entry->table.multivalued.property));
 	} else if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_INSERT) {
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "INSERT OR IGNORE INTO \"%s\".\"%s\" (ID, \"%s\") VALUES (?, ?)",
-		                                               database,
+		                                               "INSERT OR IGNORE INTO \"%s%s%s\" (ID, \"%s\") VALUES (?, ?)",
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
 		                                               tracker_property_get_table_name (entry->table.multivalued.property),
 		                                               tracker_property_get_name (entry->table.multivalued.property));
 	} else if (entry->type == TRACKER_LOG_CLASS_DELETE) {
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "DELETE FROM \"%s\".\"%s\" WHERE ID = ?",
-		                                               database,
+		                                               "DELETE FROM \"%s%s%s\" WHERE ID = ?",
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
 		                                               tracker_class_get_name (entry->table.class.class));
 	} else if (entry->type == TRACKER_LOG_REF_CHANGE_FOR_PROPERTY) {
 		const char *table_name;
 
 		table_name = tracker_property_get_table_name (entry->table.prop_refcount.property);
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "INSERT INTO \"%s\".Refcount (ROWID, Refcount) "
-		                                               "SELECT \"%s\", ?1 FROM \"%s\".\"%s\" WHERE \"%s\" IS NOT NULL AND ID = ?2 "
+		                                               "INSERT INTO \"%s%sRefcount\" (ROWID, Refcount) "
+		                                               "SELECT \"%s\", ?1 FROM \"%s%s%s\" WHERE \"%s\" IS NOT NULL AND ID = ?2 "
 		                                               "ON CONFLICT(ROWID) DO "
 		                                               "UPDATE SET Refcount = Refcount + excluded.Refcount WHERE ROWID = excluded.ROWID",
-		                                               database,
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
 		                                               tracker_property_get_name (entry->table.prop_refcount.property),
-		                                               database, table_name,
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
+		                                               table_name,
 							       tracker_property_get_name (entry->table.prop_refcount.property));
 	} else if (entry->type == TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY) {
 		const char *table_name;
 
 		table_name = tracker_property_get_table_name (entry->table.prop_refcount.property);
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "UPDATE \"%s\".Refcount "
-		                                               "SET Refcount = Refcount + (?1 * (SELECT COUNT (*) FROM \"%s\".\"%s\" WHERE ROWID = ?2)) "
+		                                               "UPDATE \"%s%sRefcount\" "
+		                                               "SET Refcount = Refcount + (?1 * (SELECT COUNT (*) FROM \"%s%s%s\" WHERE ROWID = ?2)) "
 		                                               "WHERE ROWID = ?2",
-		                                               database,
-		                                               database, table_name);
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
+		                                               table_name);
 	} else if (entry->type == TRACKER_LOG_REF_INC) {
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "INSERT INTO \"%s\".Refcount (ROWID, Refcount) "
+		                                               "INSERT INTO \"%s%sRefcount\" (ROWID, Refcount) "
 		                                               "VALUES ($1, $2) "
 		                                               "ON CONFLICT(ROWID) DO "
 		                                               "UPDATE SET Refcount = Refcount + excluded.Refcount WHERE ROWID = excluded.ROWID",
-		                                               database);
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "");
 	} else if (entry->type == TRACKER_LOG_REF_DEC) {
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "UPDATE \"%s\".Refcount SET Refcount = Refcount + $1 WHERE ROWID = ?2",
-		                                               database);
+		                                               "UPDATE \"%s%sRefcount\" SET Refcount = Refcount + $1 WHERE ROWID = ?2",
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "");
 	} else if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_INSERT) {
 		const gchar *source_table, *dest_table;
 
@@ -1255,12 +1266,16 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		dest_table = tracker_property_get_table_name (entry->table.propagation.dest);
 
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "INSERT OR IGNORE INTO \"%s\".\"%s\" (ID, \"%s\") "
-		                                               "SELECT ROWID, \"%s\" FROM \"%s\".\"%s\" WHERE ROWID = $1",
-		                                               database, dest_table,
+		                                               "INSERT OR IGNORE INTO \"%s%s%s\" (ID, \"%s\") "
+		                                               "SELECT ROWID, \"%s\" FROM \"%s%s%s\" WHERE ROWID = $1",
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
+		                                               dest_table,
 		                                               tracker_property_get_name (entry->table.propagation.dest),
 		                                               tracker_property_get_name (entry->table.propagation.source),
-		                                               database, source_table);
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
+		                                               source_table);
 	} else if (entry->type == TRACKER_LOG_MULTIVALUED_PROPERTY_PROPAGATE_DELETE) {
 		const gchar *source_table, *dest_table;
 
@@ -1268,12 +1283,16 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		dest_table = tracker_property_get_table_name (entry->table.propagation.dest);
 
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "DELETE FROM \"%s\".\"%s\" WHERE ROWID = $1 AND \"%s\" IN ("
-		                                               "SELECT \"%s\" FROM \"%s\".\"%s\" WHERE ROWID = $1)",
-		                                               database, dest_table,
+		                                               "DELETE FROM \"%s%s%s\" WHERE ROWID = $1 AND \"%s\" IN ("
+		                                               "SELECT \"%s\" FROM \"%s%s%s\" WHERE ROWID = $1)",
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
+		                                               dest_table,
 		                                               tracker_property_get_name (entry->table.propagation.dest),
 		                                               tracker_property_get_name (entry->table.propagation.source),
-		                                               database, source_table);
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
+		                                               source_table);
 	} else if (entry->type == TRACKER_LOG_PROPERTY_PROPAGATE_INSERT ||
 	           entry->type == TRACKER_LOG_PROPERTY_PROPAGATE_DELETE) {
 		const gchar *source_table, *dest_table;
@@ -1282,28 +1301,34 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		dest_table = tracker_property_get_table_name (entry->table.propagation.dest);
 
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "UPDATE \"%s\".\"%s\" "
-		                                               "SET \"%s\" = SparqlUpdateValue('%s', $1, \"%s\", (SELECT \"%s\" FROM \"%s\".\"%s\" WHERE ROWID = $2))"
+		                                               "UPDATE \"%s%s%s\" "
+		                                               "SET \"%s\" = SparqlUpdateValue('%s', $1, \"%s\", (SELECT \"%s\" FROM \"%s%s%s\" WHERE ROWID = $2))"
 		                                               "WHERE ROWID = $2",
-		                                               database, dest_table,
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
+		                                               dest_table,
 		                                               tracker_property_get_name (entry->table.propagation.dest),
 		                                               tracker_property_get_name (entry->table.propagation.dest),
 		                                               tracker_property_get_name (entry->table.propagation.dest),
 		                                               tracker_property_get_name (entry->table.propagation.source),
-		                                               database, source_table);
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
+		                                               source_table);
 	} else if (entry->type == TRACKER_LOG_DOMAIN_INDEX_PROPAGATE_INSERT ||
 	           entry->type == TRACKER_LOG_DOMAIN_INDEX_PROPAGATE_DELETE) {
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
-		                                               "UPDATE \"%s\".\"%s\" "
-		                                               "SET \"%s\" = SparqlUpdateValue('%s', $1, \"%s\", (SELECT \"%s\" FROM \"%s\".\"%s\" WHERE ROWID = $2)) "
+		                                               "UPDATE \"%s%s%s\" "
+		                                               "SET \"%s\" = SparqlUpdateValue('%s', $1, \"%s\", (SELECT \"%s\" FROM \"%s%s%s\" WHERE ROWID = $2)) "
 		                                               "WHERE ROWID = $2",
-		                                               database,
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
 		                                               tracker_class_get_name (entry->table.domain_index.dest_class),
 		                                               tracker_property_get_name (entry->table.domain_index.property),
 		                                               tracker_property_get_name (entry->table.domain_index.property),
 		                                               tracker_property_get_name (entry->table.domain_index.property),
 		                                               tracker_property_get_name (entry->table.domain_index.property),
-		                                               database,
+		                                               entry->graph->graph ? entry->graph->graph : "",
+		                                               entry->graph->graph ? "_" : "",
 		                                               tracker_property_get_table_name (entry->table.domain_index.property));
 	} else if (entry->type == TRACKER_LOG_CLASS_INSERT ||
 	           entry->type == TRACKER_LOG_CLASS_UPDATE) {
@@ -1318,8 +1343,9 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 			GString *values_sql;
 
 			g_string_append_printf (sql,
-			                        "INSERT INTO \"%s\".\"%s\" (ID",
-			                        database,
+			                        "INSERT INTO \"%s%s%s\" (ID",
+			                        entry->graph->graph ? entry->graph->graph : "",
+			                        entry->graph->graph ? "_" : "",
 			                        tracker_class_get_name (entry->table.class.class));
 			values_sql = g_string_new ("VALUES (?1");
 
@@ -1344,8 +1370,9 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 			g_string_free (values_sql, TRUE);
 		} else if (entry->type == TRACKER_LOG_CLASS_UPDATE) {
 			g_string_append_printf (sql,
-			                        "UPDATE \"%s\".\"%s\" SET ",
-			                        database,
+			                        "UPDATE \"%s%s%s\" SET ",
+			                        entry->graph->graph ? entry->graph->graph : "",
+			                        entry->graph->graph ? "_" : "",
 			                        tracker_class_get_name (entry->table.class.class));
 			property_idx = entry->table.class.last_property_idx;
 
@@ -1556,13 +1583,11 @@ tracker_data_ensure_graph_fts_stmts (TrackerData                   *data,
                                      GError                       **error)
 {
 	TrackerDBInterface *iface;
-	const gchar *database;
 	gchar *fts_properties;
 
 	if (G_LIKELY (graph->fts_insert && graph->fts_delete))
 		return TRUE;
 
-	database = graph->graph ? graph->graph : "main";
 	iface = tracker_data_manager_get_writable_db_interface (data->manager);
 	fts_properties = get_fts_properties (data);
 
@@ -1571,12 +1596,16 @@ tracker_data_ensure_graph_fts_stmts (TrackerData                   *data,
 			tracker_db_interface_create_vstatement (iface,
 			                                        TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 			                                        error,
-			                                        "INSERT INTO \"%s\".fts5 (fts5, ROWID, %s) "
-			                                        "SELECT 'delete', ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
-			                                        database,
+			                                        "INSERT INTO \"%s%sfts5\" (\"%s%sfts5\", ROWID, %s) "
+			                                        "SELECT 'delete', ROWID, %s FROM \"%s%sfts_view\" WHERE ROWID = ?",
+			                                        graph->graph ? graph->graph : "",
+			                                        graph->graph ? "_" : "",
+			                                        graph->graph ? graph->graph : "",
+			                                        graph->graph ? "_" : "",
 			                                        fts_properties,
 			                                        fts_properties,
-			                                        database);
+			                                        graph->graph ? graph->graph : "",
+			                                        graph->graph ? "_" : "");
 	}
 
 	if (graph->fts_delete && !graph->fts_insert) {
@@ -1584,12 +1613,14 @@ tracker_data_ensure_graph_fts_stmts (TrackerData                   *data,
 			tracker_db_interface_create_vstatement (iface,
 			                                        TRACKER_DB_STATEMENT_CACHE_TYPE_NONE,
 			                                        error,
-			                                        "INSERT INTO \"%s\".fts5 (ROWID, %s) "
-			                                        "SELECT ROWID, %s FROM \"%s\".fts_view WHERE ROWID = ?",
-			                                        database,
+			                                        "INSERT INTO \"%s%sfts5\" (ROWID, %s) "
+			                                        "SELECT ROWID, %s FROM \"%s%sfts_view\" WHERE ROWID = ?",
+			                                        graph->graph ? graph->graph : "",
+			                                        graph->graph ? "_" : "",
 			                                        fts_properties,
 			                                        fts_properties,
-			                                        database);
+			                                        graph->graph ? graph->graph : "",
+			                                        graph->graph ? "_" : "");
 	}
 
 	g_free (fts_properties);
@@ -1682,17 +1713,14 @@ tracker_data_update_buffer_flush (TrackerData  *data,
 		iface = tracker_data_manager_get_writable_db_interface (data->manager);
 
 		for (i = 0; i < data->update_buffer.graphs->len; i++) {
-			const gchar *database;
-
 			graph = g_ptr_array_index (data->update_buffer.graphs, i);
-			database = graph->graph ? graph->graph : "main";
 
-			if (!tracker_data_manager_fts_integrity_check (data->manager, iface, database)) {
+			if (!tracker_data_manager_fts_integrity_check (data->manager, iface, graph->graph)) {
 				g_set_error (error,
 					     TRACKER_DB_INTERFACE_ERROR,
 					     TRACKER_DB_CORRUPT,
 					     "FTS index is corrupt in %s",
-					     graph->graph ? graph->graph : "default graph");
+				             graph->graph);
 				goto out;
 			}
 		}
@@ -2965,6 +2993,31 @@ tracker_data_rollback_transaction (TrackerData *data)
 	tracker_data_dispatch_rollback_statement_callbacks (data);
 
 	g_clear_pointer (&data->tz, g_time_zone_unref);
+}
+
+gboolean
+tracker_data_savepoint (TrackerData         *data,
+                        TrackerSavepointOp   op,
+                        const char          *name,
+                        GError             **error)
+{
+	TrackerDBInterface *iface;
+
+	iface = tracker_data_manager_get_writable_db_interface (data->manager);
+
+	switch (op) {
+	case TRACKER_SAVEPOINT_SET:
+		return tracker_db_interface_execute_query (iface, error, "SAVEPOINT %s", name);
+		break;
+	case TRACKER_SAVEPOINT_RELEASE:
+		return tracker_db_interface_execute_query (iface, error, "RELEASE SAVEPOINT %s", name);
+		break;
+	case TRACKER_SAVEPOINT_ROLLBACK:
+		return tracker_db_interface_execute_query (iface, error, "ROLLBACK TRANSACTION TO SAVEPOINT %s", name);
+		break;
+	}
+
+	g_assert_not_reached ();
 }
 
 static GVariant *

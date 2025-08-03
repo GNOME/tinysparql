@@ -44,7 +44,6 @@ typedef enum {
 } TrackerPropertyOp;
 
 TrackerDBInterface *tracker_db_interface_sqlite_new                    (const gchar              *filename,
-                                                                        const gchar              *shared_cache_key,
                                                                         TrackerDBInterfaceFlags   flags,
                                                                         GError                  **error);
 gint64              tracker_db_interface_sqlite_get_last_insert_id     (TrackerDBInterface       *interface);
@@ -59,9 +58,6 @@ void                tracker_db_interface_init_vtabs                    (TrackerD
 
 gboolean            tracker_db_interface_attach_database               (TrackerDBInterface       *db_interface,
                                                                         GFile                    *file,
-                                                                        const gchar              *name,
-                                                                        GError                  **error);
-gboolean            tracker_db_interface_detach_database               (TrackerDBInterface       *db_interface,
                                                                         const gchar              *name,
                                                                         GError                  **error);
 gssize              tracker_db_interface_sqlite_release_memory         (TrackerDBInterface       *db_interface);

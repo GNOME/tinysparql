@@ -664,7 +664,7 @@ _append_resource_rowid_access_check (TrackerSparql *sparql,
 	TrackerStringBuilder *str;
 	GHashTableIter iter;
 	GHashTable *graphs;
-	const gchar *name;
+	const gchar *graph;
 	TrackerRowid *rowid;
 	gboolean first = TRUE;
 
@@ -673,10 +673,9 @@ _append_resource_rowid_access_check (TrackerSparql *sparql,
 	str = _append_placeholder (sparql);
 
 	g_hash_table_iter_init (&iter, graphs);
-	while (g_hash_table_iter_next (&iter, (gpointer *) &name, (gpointer *) &rowid)) {
-		const gchar *database;
-
-		database = (g_strcmp0 (name, TRACKER_DEFAULT_GRAPH) == 0) ? "main" : name;
+	while (g_hash_table_iter_next (&iter, (gpointer *) &graph, (gpointer *) &rowid)) {
+		if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
+			graph = NULL;
 
 		if (first) {
 			tracker_string_builder_append (str, "VALUES ", -1);
@@ -686,8 +685,9 @@ _append_resource_rowid_access_check (TrackerSparql *sparql,
 		}
 
 		tracker_string_builder_append_printf (str, "(%" G_GUINT64_FORMAT ") ", *rowid);
-		_append_string_printf (sparql, "SELECT ID FROM \"%s\".Refcount ",
-				       database);
+		_append_string_printf (sparql, "SELECT ID FROM \"%s%sRefcount\" ",
+		                       graph ? graph : "",
+		                       graph ? "_" : "");
 		first = FALSE;
 	}
 
@@ -915,7 +915,8 @@ _append_union_graph_with_clause (TrackerSparql *sparql,
                                  const gchar   *properties,
                                  gint           n_properties)
 {
-	gpointer graph_name, value;
+	gpointer value;
+	const gchar *graph;
 	GHashTable *graphs;
 	GHashTableIter iter;
 	gboolean first = TRUE;
@@ -926,21 +927,21 @@ _append_union_graph_with_clause (TrackerSparql *sparql,
 	                       table_name, properties);
 
 	g_hash_table_iter_init (&iter, graphs);
-	while (g_hash_table_iter_next (&iter, &graph_name, &value)) {
+	while (g_hash_table_iter_next (&iter, (gpointer*) &graph, &value)) {
 		TrackerRowid *graph_id = value;
-		const gchar *database;
 
-		database = (g_strcmp0 (graph_name, TRACKER_DEFAULT_GRAPH) == 0) ?
-			"main" : (const char *) graph_name;
+		if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
+			graph = NULL;
 
 		if (!first)
 			_append_string (sparql, "UNION ALL ");
 
 		_append_string_printf (sparql,
-		                       "SELECT ID, %s %" G_GINT64_FORMAT " AS graph FROM \"%s\".\"%s\" ",
+		                       "SELECT ID, %s %" G_GINT64_FORMAT " AS graph FROM \"%s%s%s\" ",
 		                       properties,
 		                       *graph_id,
-		                       database,
+		                       graph ? graph : "",
+		                       graph ? "_" : "",
 		                       table_name);
 		first = FALSE;
 	}
@@ -1151,16 +1152,19 @@ _prepend_path_element (TrackerSparql      *sparql,
 			                                     TRACKER_PROPERTY_TYPE_RESOURCE);
 		} else if (tracker_token_get_literal (&sparql->current_state->graph) &&
 		           tracker_sparql_find_graph (sparql, tracker_token_get_idstring (&sparql->current_state->graph))) {
-			const gchar *graph, *database;
+			const gchar *graph;
 
 			graph = tracker_token_get_idstring (&sparql->current_state->graph);
-			database = (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0) ? "main" : graph;
+			if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
+				graph = NULL;
+
 			zero_length_match = g_strdup_printf ("SELECT ID, ID, %" G_GINT64_FORMAT ", %d, %d "
-			                                     "FROM \"%s\".\"rdfs:Resource\"",
+			                                     "FROM \"%s%srdfs:Resource\"",
 			                                     tracker_sparql_find_graph (sparql, graph),
 			                                     TRACKER_PROPERTY_TYPE_RESOURCE,
 			                                     TRACKER_PROPERTY_TYPE_RESOURCE,
-			                                     database);
+			                                     graph ? graph : "",
+			                                     graph ? "_" : "");
 		} else {
 			/* Graph does not exist, ensure to come back empty */
 			zero_length_match = g_strdup ("SELECT * FROM (SELECT 0 AS ID, NULL, NULL, 0, 0 LIMIT 0)");
@@ -1184,14 +1188,15 @@ _prepend_path_element (TrackerSparql      *sparql,
 			graph_column = g_strdup ("graph");
 		} else if (tracker_token_get_literal (&sparql->current_state->graph) &&
 		           tracker_sparql_find_graph (sparql, tracker_token_get_idstring (&sparql->current_state->graph))) {
-			const char *database;
+			const char *graph;
 
-			database = tracker_token_get_idstring (&sparql->current_state->graph);
-			if (g_strcmp0 (database, TRACKER_DEFAULT_GRAPH) == 0)
-				database = "main";
+			graph = tracker_token_get_idstring (&sparql->current_state->graph);
+			if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
+				graph = NULL;
 
-			table_name = g_strdup_printf ("\"%s\".\"%s\"",
-			                              database,
+			table_name = g_strdup_printf ("\"%s%s%s\"",
+			                              graph ? graph : "",
+			                              graph ? "_" : "",
 			                              tracker_property_get_table_name (path_elem->data.property));
 			graph_column = g_strdup_printf ("%" G_GINT64_FORMAT,
 			                                tracker_sparql_find_graph (sparql,
@@ -1685,19 +1690,19 @@ extract_fts_snippet_parameters (TrackerSparql      *sparql,
 }
 
 static gboolean
-introspect_fts_snippet (TrackerSparql         *sparql,
-                        TrackerVariable       *subject,
-                        gchar                **expression,
-                        GError               **error)
+introspect_fts_snippet (TrackerSparql      *sparql,
+                        TrackerVariable    *subject,
+                        TrackerParserNode **node_ret,
+                        GError            **error)
 {
 	TrackerParserNode *node = tracker_node_tree_get_root (sparql->tree);
 
 	for (node = tracker_sparql_parser_tree_find_first (node, TRUE);
 	     node;
 	     node = tracker_sparql_parser_tree_find_next (node, TRUE)) {
-		gchar *str, *match_start = NULL, *match_end = NULL, *ellipsis = NULL, *num_tokens = NULL;
 		const TrackerGrammarRule *rule;
 		TrackerVariable *var;
+		gchar *str;
 
 		rule = tracker_parser_node_get_rule (node);
 		if (!tracker_grammar_rule_is_a (rule, RULE_TYPE_TERMINAL,
@@ -1722,36 +1727,51 @@ introspect_fts_snippet (TrackerSparql         *sparql,
 		if (var != subject)
 			continue;
 
-		node = tracker_sparql_parser_tree_find_next (node, TRUE);
-
-		if (!extract_fts_snippet_parameters (sparql, node,
-		                                     &match_start,
-		                                     &match_end,
-		                                     &ellipsis,
-		                                     &num_tokens,
-		                                     error)) {
-			g_free (match_start);
-			g_free (match_end);
-			g_free (ellipsis);
-			g_free (num_tokens);
-			return FALSE;
-		}
-
-		*expression = g_strdup_printf ("snippet(\"fts5\", -1, '%s', '%s', '%s', %s)",
-		                               match_start ? match_start : "",
-		                               match_end ? match_end : "",
-		                               ellipsis ? ellipsis : "…",
-		                               num_tokens ? num_tokens : "5");
-
-		g_free (match_start);
-		g_free (match_end);
-		g_free (ellipsis);
-		g_free (num_tokens);
+		*node_ret = tracker_sparql_parser_tree_find_next (node, TRUE);
 
 		return TRUE;
 	}
 
 	return TRUE;
+}
+
+static gboolean
+_append_fts_snippet (TrackerSparql      *sparql,
+                     TrackerParserNode  *node,
+                     const gchar        *graph,
+                     GError            **error)
+{
+	gchar *match_start = NULL, *match_end = NULL, *ellipsis = NULL, *num_tokens = NULL;
+	gboolean success;
+
+	if (!node) {
+		_append_string (sparql, ", NULL ");
+		return TRUE;
+	}
+
+	if (extract_fts_snippet_parameters (sparql, node,
+	                                    &match_start,
+	                                    &match_end,
+	                                    &ellipsis,
+	                                    &num_tokens,
+	                                    error)) {
+		success = TRUE;
+		_append_string_printf (sparql,
+		                       ", snippet(\"%s%sfts5\", -1, '%s', '%s', '%s', %s)",
+		                       graph ? graph : "",
+		                       graph ? "_" : "",
+		                       match_start ? match_start : "",
+		                       match_end ? match_end : "",
+		                       ellipsis ? ellipsis : "…",
+		                       num_tokens ? num_tokens : "5");
+	}
+
+	g_free (match_start);
+	g_free (match_end);
+	g_free (ellipsis);
+	g_free (num_tokens);
+
+	return success;
 }
 
 static gboolean
@@ -1763,8 +1783,7 @@ tracker_sparql_add_fts_subquery (TrackerSparql          *sparql,
                                  GError                **error)
 {
 	TrackerStringBuilder *old;
-	gchar *snippet_expression = NULL;
-	GString *select_items;
+	TrackerParserNode *fts_snippet_node = NULL;
 	gchar *table_name;
 	gint n_properties;
 
@@ -1778,26 +1797,16 @@ tracker_sparql_add_fts_subquery (TrackerSparql          *sparql,
 	table_name = g_strdup_printf ("ftsMatch%d",
 	                              sparql->current_state->fts_match_idx++);
 	_append_string_printf (sparql, "\"%s\"(ID ", table_name);
-	select_items = g_string_new ("SELECT ROWID");
 	n_properties = 1;
 
 	if (tracker_token_get_variable (subject)) {
-		_append_string (sparql, ",\"ftsRank\", \"ftsOffsets\" ");
-		g_string_append (select_items, ",-rank, tracker_offsets(fts5) ");
-
-		_append_string (sparql, ",\"ftsSnippet\" ");
+		_append_string (sparql, ",\"ftsRank\", \"ftsOffsets\", \"ftsSnippet\" ");
 		n_properties += 3;
 
-		if (introspect_fts_snippet (sparql, tracker_token_get_variable (subject),
-		                            &snippet_expression, error)) {
-			if (snippet_expression) {
-				g_string_append_printf (select_items, ", %s ", snippet_expression);
-				g_free (snippet_expression);
-			} else {
-				g_string_append (select_items, ", NULL ");
-			}
-		} else {
-			g_string_free (select_items, TRUE);
+		if (!introspect_fts_snippet (sparql,
+					     tracker_token_get_variable (subject),
+					     &fts_snippet_node,
+					     error)) {
 			g_free (table_name);
 			return FALSE;
 		}
@@ -1812,16 +1821,32 @@ tracker_sparql_add_fts_subquery (TrackerSparql          *sparql,
 
 	if (tracker_token_get_literal (graph) &&
 	    tracker_sparql_find_graph (sparql, tracker_token_get_idstring (graph))) {
-		const char *database;
+		const char *graph_name;
 
-		database = tracker_token_get_idstring (graph);
-		if (g_strcmp0 (database, TRACKER_DEFAULT_GRAPH) == 0)
-			database = "main";
+		graph_name = tracker_token_get_idstring (graph);
+		if (g_strcmp0 (graph_name, TRACKER_DEFAULT_GRAPH) == 0)
+			graph_name = NULL;
+
+		_append_string (sparql, "SELECT ROWID ");
+
+		if (tracker_token_get_variable (subject)) {
+			_append_string_printf (sparql, ",-rank, tracker_offsets(\"%s%sfts5\") ",
+			                       graph_name ? graph_name : "",
+			                       graph_name ? "_" : "");
+
+			if (!_append_fts_snippet (sparql, fts_snippet_node, graph_name, error)) {
+				g_free (table_name);
+				return FALSE;
+			}
+		}
 
 		_append_string_printf (sparql,
-		                       "%s FROM \"%s\".\"fts5\" "
-		                       "WHERE fts5 = SparqlFtsTokenize(",
-		                       select_items->str, database);
+		                       "FROM \"%s%sfts5\" "
+		                       "WHERE \"%s%sfts5\" = SparqlFtsTokenize(",
+		                       graph_name ? graph_name : "",
+		                       graph_name ? "_" : "",
+		                       graph_name ? graph_name : "",
+		                       graph_name ? "_" : "");
 		_append_literal_sql (sparql, binding);
 		_append_string (sparql, ") || '*' ");
 	} else if (tracker_token_is_empty (graph) ||
@@ -1838,21 +1863,35 @@ tracker_sparql_add_fts_subquery (TrackerSparql          *sparql,
 
 		while (g_hash_table_iter_next (&iter, &graph_name, &value)) {
 			TrackerRowid *graph_id = value;
-			const gchar *database;
 
-			database = (g_strcmp0 (graph_name, TRACKER_DEFAULT_GRAPH) == 0) ?
-			           "main" : (const char *) graph_name;
+			if (g_strcmp0 (graph_name, TRACKER_DEFAULT_GRAPH) == 0)
+				graph_name = NULL;
 
 			if (!first)
 				_append_string (sparql, "UNION ALL ");
 
+			_append_string (sparql, "SELECT ROWID ");
+
+			if (tracker_token_get_variable (subject)) {
+				_append_string_printf (sparql, ",-rank, tracker_offsets(\"%s%sfts5\") ",
+				                       graph_name ? graph_name : "",
+				                       graph_name ? "_" : "");
+
+				if (!_append_fts_snippet (sparql, fts_snippet_node, graph_name, error)) {
+					g_free (table_name);
+					return FALSE;
+				}
+			}
+
 			_append_string_printf (sparql,
-			                       "%s, %" G_GINT64_FORMAT " AS graph "
-			                       "FROM \"%s\".\"fts5\" "
-			                       "WHERE fts5 = SparqlFtsTokenize(",
-			                       select_items->str,
+			                       ", %" G_GINT64_FORMAT " AS graph "
+			                       "FROM \"%s%sfts5\" "
+			                       "WHERE \"%s%sfts5\" = SparqlFtsTokenize(",
 			                       *graph_id,
-			                       database);
+			                       graph_name ? graph_name : "",
+			                       graph_name ? "_" : "",
+			                       graph_name ? graph_name : "",
+			                       graph_name ? "_" : "");
 			_append_literal_sql (sparql, binding);
 			_append_string (sparql, ") || '*' ");
 			first = FALSE;
@@ -1868,7 +1907,6 @@ tracker_sparql_add_fts_subquery (TrackerSparql          *sparql,
 
 	_append_string (sparql, ") ");
 	tracker_sparql_swap_builder (sparql, old);
-	g_string_free (select_items, TRUE);
 
 	*table = table_name;
 
@@ -2916,14 +2954,15 @@ _end_triples_block (TrackerSparql  *sparql,
 		} else {
 			if (tracker_token_get_literal (&sparql->current_state->graph) &&
 			    tracker_sparql_find_graph (sparql, tracker_token_get_idstring (&sparql->current_state->graph))) {
-				const char *database;
+				const char *graph_name;
 
-				database = tracker_token_get_idstring (&sparql->current_state->graph);
-				if (g_strcmp0 (database, TRACKER_DEFAULT_GRAPH) == 0)
-					database = "main";
+				graph_name = tracker_token_get_idstring (&sparql->current_state->graph);
+				if (g_strcmp0 (graph_name, TRACKER_DEFAULT_GRAPH) == 0)
+					graph_name = NULL;
 
-				_append_string_printf (sparql, "\"%s\".\"%s\" ",
-				                       database,
+				_append_string_printf (sparql, "\"%s%s%s\" ",
+				                       graph_name ? graph_name : "",
+				                       graph_name ? "_" : "",
 				                       table->sql_db_tablename);
 			} else {
 				_append_string_printf (sparql,
@@ -7972,11 +8011,12 @@ handle_property_function (TrackerSparql    *sparql,
 		graph = tracker_token_get_idstring (&sparql->current_state->graph);
 
 		if (tracker_sparql_find_graph (sparql, graph)) {
-			const char *database;
+			if (g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0)
+				graph = NULL;
 
-			database = g_strcmp0 (graph, TRACKER_DEFAULT_GRAPH) == 0 ? "main" : graph;
-			_append_string_printf (sparql, "FROM \"%s\".\"%s\" ",
-			                       database,
+			_append_string_printf (sparql, "FROM \"%s%s%s\" ",
+			                       graph ? graph : "",
+			                       graph ? "_" : "",
 			                       tracker_property_get_table_name (property));
 		} else {
 			/* Graph does not exist, ensure to come back empty */
@@ -10239,6 +10279,13 @@ apply_update_op (TrackerSparql    *sparql,
 		}
 	}
 
+	if (op->silent) {
+		if (!tracker_data_savepoint (tracker_data_manager_get_data (sparql->data_manager),
+		                             TRACKER_SAVEPOINT_SET,
+		                             "silent_op", error))
+			return FALSE;
+	}
+
 	if (op->update_type == TRACKER_UPDATE_INSERT ||
 	    op->update_type == TRACKER_UPDATE_DELETE ||
 	    op->update_type == TRACKER_UPDATE_UPDATE) {
@@ -10381,10 +10428,6 @@ apply_update_op (TrackerSparql    *sparql,
 		}
 
 		for (l = op_graphs; l; l = l->next) {
-			/* Ensure the current transaction doesn't keep tables in this database locked */
-			tracker_data_commit_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
-			tracker_data_begin_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
-
 			if (!tracker_sparql_graph_is_allowed (sparql, l->data)) {
 				inner_error = g_error_new (TRACKER_SPARQL_ERROR,
 				                           TRACKER_SPARQL_ERROR_CONSTRAINT,
@@ -10448,10 +10491,6 @@ apply_update_op (TrackerSparql    *sparql,
 			goto out;
 
 		if (op->update_type == TRACKER_UPDATE_GRAPH_MOVE) {
-			/* Ensure the current transaction doesn't keep tables in this database locked */
-			tracker_data_commit_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
-			tracker_data_begin_transaction (tracker_data_manager_get_data (sparql->data_manager), NULL);
-
 			if (!tracker_data_manager_drop_graph (sparql->data_manager,
 			                                      source,
 			                                      &inner_error))
@@ -10485,10 +10524,20 @@ apply_update_op (TrackerSparql    *sparql,
 		/* Flush to ensure the resulting errors go silent */
 		tracker_data_update_buffer_flush (tracker_data_manager_get_data (sparql->data_manager),
 		                                  &inner_error);
+
+		if (!inner_error) {
+			/* Silent op was successful, we can release the savepoint */
+			tracker_data_savepoint (tracker_data_manager_get_data (sparql->data_manager),
+			                        TRACKER_SAVEPOINT_RELEASE,
+			                        "silent_op", NULL);
+		}
 	}
 
 	if (inner_error) {
 		if (op->silent) {
+			tracker_data_savepoint (tracker_data_manager_get_data (sparql->data_manager),
+			                        TRACKER_SAVEPOINT_ROLLBACK,
+			                        "silent_op", NULL);
 			g_clear_error (&inner_error);
 			return TRUE;
 		} else {
