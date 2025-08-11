@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
-"POT-Creation-Date: 2025-05-02 10:35+0000\n"
-"PO-Revision-Date: 2025-05-02 12:50+0200\n"
+"POT-Creation-Date: 2025-08-11 00:47+0000\n"
+"PO-Revision-Date: 2025-08-11 11:11+0200\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -93,51 +93,51 @@ msgstr "argumenta --http-port ni mogoče uporabiti z --dbus-service"
 
 #: src/cli/tracker-endpoint.c:198
 #, c-format
-msgid "Creating HTTP endpoint at %s…\n"
-msgstr "Poteka ustvarjanje končne točne HTTP na %s …\n"
+msgid "Creating HTTP endpoint at %s…"
+msgstr "Poteka ustvarjanje končne točne HTTP na %s …"
 
-#: src/cli/tracker-endpoint.c:217 src/cli/tracker-endpoint.c:280
+#: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
 #: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr ""
 "Poteka prisluh za izvedbo ukazov SPARQL. Tipki Ctlr-C zaustavita opravilo."
 
 #. Carriage return, so we paper over the ^C
-#: src/cli/tracker-endpoint.c:225 src/cli/tracker-endpoint.c:295
+#: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
 #: src/cli/tracker-webide.c:105
 msgid "Closing connection…"
 msgstr "Poteka zapiranje omrežne povezave"
 
-#: src/cli/tracker-endpoint.c:240
+#: src/cli/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Poteka ustvarjanje končne točne na %s …"
 
-#: src/cli/tracker-endpoint.c:276
+#: src/cli/tracker-endpoint.c:277
 msgid "Could not own DBus name"
 msgstr "Ni si mogoče prilastiti imena vodila DBus"
 
-#: src/cli/tracker-endpoint.c:290
+#: src/cli/tracker-endpoint.c:291
 msgid "DBus name lost"
 msgstr "Ime vodila DBus je izgubljeno"
 
-#: src/cli/tracker-endpoint.c:607 src/cli/tracker-export.c:214
+#: src/cli/tracker-endpoint.c:608 src/cli/tracker-export.c:214
 #: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
 #: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
 #: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
 msgid "Unrecognized options"
 msgstr "Nepoznane možnosti"
 
-#: src/cli/tracker-endpoint.c:651
+#: src/cli/tracker-endpoint.c:652
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Poteka odpiranje podatkovne zbirke %s …"
 
-#: src/cli/tracker-endpoint.c:654
+#: src/cli/tracker-endpoint.c:655
 msgid "Creating in-memory database"
 msgstr "Poteka ustvarjanje pomnilniške podatkovne zbirke"
 
-#: src/cli/tracker-endpoint.c:682
+#: src/cli/tracker-endpoint.c:683
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -336,45 +336,45 @@ msgstr ""
 "Argument --list-properties je lahko prazen le, kadar je uporabljen skupaj z "
 "argumentom --tree"
 
-#: src/cli/tracker-main.c:70
+#: src/cli/tracker-main.c:69
 msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr "Pridobi pomoč za uporabo programa TinySPARQL in njegovih ukazov"
 
-#: src/cli/tracker-main.c:71
+#: src/cli/tracker-main.c:70
 msgid "Create a SPARQL endpoint"
 msgstr "Ustvari končno točko SPARQL"
 
-#: src/cli/tracker-main.c:72
+#: src/cli/tracker-main.c:71
 msgid "Export data from a TinySPARQL database"
 msgstr "Izvozi podatke iz zbirke podatkov TinySPARQL"
 
-#: src/cli/tracker-main.c:73
+#: src/cli/tracker-main.c:72
 msgid "Import data into a TinySPARQL database"
 msgstr "Uvozi podatke v zbirko podatkov TinySPARQL"
 
-#: src/cli/tracker-main.c:74
+#: src/cli/tracker-main.c:73
 msgid "Introspect a SPARQL endpoint"
 msgstr "Preglej končno točko SPARQL"
 
-#: src/cli/tracker-main.c:75
+#: src/cli/tracker-main.c:74
 msgid "Query and update the index using SPARQL"
 msgstr "Izvedite poizvedbe in posodobite kazal s SPARQL"
 
-#: src/cli/tracker-main.c:76
+#: src/cli/tracker-main.c:75
 msgid "Create a Web IDE to query local databases"
 msgstr "Ustvarite spletni IDE za poizvedovanje po krajevnih zbirkah podatkov"
 
-#: src/cli/tracker-main.c:93
+#: src/cli/tracker-main.c:92
 msgid "Available tinysparql commands are:"
 msgstr "Na voljo so ukazi programa tinysparql:"
 
-#: src/cli/tracker-main.c:112
+#: src/cli/tracker-main.c:111
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
 "Oglejte si ukaz »tinysparql help <ukaz>«, kjer so zabeležene podrobnosti o "
 "posameznem pod-ukazu."
 
-#: src/cli/tracker-main.c:155
+#: src/cli/tracker-main.c:154
 #, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
 msgstr ""
