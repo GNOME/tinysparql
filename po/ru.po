@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ru\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
-"POT-Creation-Date: 2025-05-10 22:40+0000\n"
-"PO-Revision-Date: 2025-07-20 13:17+0300\n"
+"POT-Creation-Date: 2025-08-11 00:47+0000\n"
+"PO-Revision-Date: 2025-08-11 13:20+0300\n"
 "Last-Translator: Artur So <arturios2005@mail.ru>\n"
 "Language-Team: Русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
@@ -91,50 +91,50 @@ msgstr "--http-port cannot не может использоваться с --dbu
 
 #: src/cli/tracker-endpoint.c:198
 #, c-format
-msgid "Creating HTTP endpoint at %s…\n"
-msgstr "Создание конечной точки HTTP в %s…\n"
+msgid "Creating HTTP endpoint at %s…"
+msgstr "Создание конечной точки HTTP в %s…"
 
-#: src/cli/tracker-endpoint.c:217 src/cli/tracker-endpoint.c:280
+#: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
 #: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Прослушивание команд SPARQL. Нажмите Ctrl-C, чтобы остановить."
 
 #. Carriage return, so we paper over the ^C
-#: src/cli/tracker-endpoint.c:225 src/cli/tracker-endpoint.c:295
+#: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
 #: src/cli/tracker-webide.c:105
 msgid "Closing connection…"
 msgstr "Закрытие соединения…"
 
-#: src/cli/tracker-endpoint.c:240
+#: src/cli/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Создание конечной точки в %s…"
 
-#: src/cli/tracker-endpoint.c:276
+#: src/cli/tracker-endpoint.c:277
 msgid "Could not own DBus name"
 msgstr "Не удалось захватить имя DBus"
 
-#: src/cli/tracker-endpoint.c:290
+#: src/cli/tracker-endpoint.c:291
 msgid "DBus name lost"
 msgstr "Потеряно имя DBus"
 
-#: src/cli/tracker-endpoint.c:607 src/cli/tracker-export.c:214
+#: src/cli/tracker-endpoint.c:608 src/cli/tracker-export.c:214
 #: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
 #: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
 #: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
 msgid "Unrecognized options"
 msgstr "Неизвестный параметр"
 
-#: src/cli/tracker-endpoint.c:651
+#: src/cli/tracker-endpoint.c:652
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Открытие базы данных в %s…"
 
-#: src/cli/tracker-endpoint.c:654
+#: src/cli/tracker-endpoint.c:655
 msgid "Creating in-memory database"
 msgstr "Создание базы данных в памяти"
 
-#: src/cli/tracker-endpoint.c:682
+#: src/cli/tracker-endpoint.c:683
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -525,11 +525,11 @@ msgstr "Версия"
 #~ msgstr "Получить префиксы классов"
 
 #~ msgid ""
-#~ "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-#~ "Resource)"
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. "
+#~ "rdfs:Resource)"
 #~ msgstr ""
-#~ "Получить свойства класса, также можно использовать префиксы (напр. rdfs:"
-#~ "Resource)"
+#~ "Получить свойства класса, также можно использовать префиксы (напр. "
+#~ "rdfs:Resource)"
 
 #~ msgid "PROPERTY"
 #~ msgstr "СВОЙСТВО"
@@ -607,8 +607,8 @@ msgstr "Версия"
 #~ msgstr "Префиксы"
 
 #~ msgid ""
-#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
-#~ "Resource”"
+#~ "Could not find property for class prefix, e.g. :Resource in "
+#~ "“rdfs:Resource”"
 #~ msgstr ""
 #~ "Не удалось найти свойство для префикса класса, например, :Resource в "
 #~ "«rdfs:Resource»"
@@ -1843,15 +1843,15 @@ msgstr "Версия"
 #~ msgstr "Каталоги для рекурсивного индексирования"
 
 #~ msgid ""
-#~ "List of directories to index recursively, Special values include: &amp;"
-#~ "DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
-#~ "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs."
-#~ "defaults and $HOME/.config/user-dirs.default"
+#~ "List of directories to index recursively, Special values include: "
+#~ "&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, "
+#~ "&amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
+#~ "dirs.defaults and $HOME/.config/user-dirs.default"
 #~ msgstr ""
-#~ "Список каталогов, индексируемых рекурсивно. Специальные значения: &amp;"
-#~ "DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
-#~ "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. См. /etc/xdg/user-dirs."
-#~ "defaults и $HOME/.config/user-dirs.default"
+#~ "Список каталогов, индексируемых рекурсивно. Специальные значения: "
+#~ "&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, "
+#~ "&amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. См. /etc/xdg/user-"
+#~ "dirs.defaults и $HOME/.config/user-dirs.default"
 
 #~ msgid "Directories to index non-recursively"
 #~ msgstr "Каталоги, индексируемые не рекурсивно"
@@ -1863,9 +1863,10 @@ msgstr "Версия"
 #~ "xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
 #~ msgstr ""
 #~ "Список каталогов, индексируемых без учёта вложенных каталогов. "
-#~ "Специальные значения: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;"
-#~ "MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. "
-#~ "См. /etc/xdg/user-dirs.defaults и $HOME/.config/user-dirs.default"
+#~ "Специальные значения: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, "
+#~ "&amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, "
+#~ "&amp;VIDEOS. См. /etc/xdg/user-dirs.defaults и $HOME/.config/user-"
+#~ "dirs.default"
 
 #~ msgid "List of file patterns to avoid"
 #~ msgstr "Список игнорируемых файловых шаблонов"
