@@ -43,6 +43,8 @@
 #include "core/tracker-data-query.h"
 #include "core/tracker-sparql-parser.h"
 
+#define MAX_HTTP_URI_LEN 16000 /* De-facto limit in browsers is 8KB, double that for good measure */
+
 struct _TrackerDataManager {
 	GObject parent_instance;
 
@@ -2810,6 +2812,39 @@ tracker_data_manager_create_graph (TrackerDataManager  *manager,
 	gint n_changes;
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
+
+	if (strlen (name) > MAX_HTTP_URI_LEN) {
+		g_set_error (error,
+			     TRACKER_SPARQL_ERROR,
+			     TRACKER_SPARQL_ERROR_TYPE,
+			     "Graph name exceeds the %d bytes limit",
+			     MAX_HTTP_URI_LEN);
+		goto out;
+	}
+
+#if GLIB_CHECK_VERSION(2, 66, 0)
+	if (!g_uri_is_valid (name,
+			     G_URI_FLAGS_HAS_PASSWORD |
+			     G_URI_FLAGS_HAS_AUTH_PARAMS |
+			     G_URI_FLAGS_NON_DNS,
+			     error))
+		goto out;
+#else
+	{
+		gchar *uri_scheme;
+
+		uri_scheme = g_uri_parse_scheme (name);
+		if (!uri_scheme) {
+			g_set_error (error,
+				     TRACKER_SPARQL_ERROR,
+				     TRACKER_SPARQL_ERROR_TYPE,
+				     "Graph name is not a correct URI");
+			goto out;
+		}
+
+		g_free (uri_scheme);
+	}
+#endif
 
 	tracker_ontologies_diff (NULL, manager->ontologies, &changes, &n_changes);
 
