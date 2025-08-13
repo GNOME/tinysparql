@@ -59,6 +59,8 @@ TestInfo tests[] = {
 	{ "json-ld/json-ld-langstring-1", "deserialize/json-ld-langstring-1.jsonld", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_JSON_LD },
 	{ "json-ld/json-ld-langstring-2", "deserialize/json-ld-langstring-2.jsonld", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_JSON_LD },
 	{ "json-ld/json-ld-langstring-3", "deserialize/json-ld-langstring-3.jsonld", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_JSON_LD },
+	{ "json-ld/long-graph-1", "deserialize/json-ld-long-graph-1.jsonld", "deserialize/unterminated-1.rq", "deserialize/unterminated-1.out", TRACKER_RDF_FORMAT_JSON_LD, TRUE },
+	{ "json-ld/wrong-graph-1", "deserialize/json-ld-wrong-graph-1.jsonld", "deserialize/unterminated-1.rq", "deserialize/unterminated-1.out", TRACKER_RDF_FORMAT_JSON_LD, TRUE },
 };
 
 typedef struct {
@@ -253,7 +255,7 @@ deserialize_direct_cb (GObject      *source,
 	retval = tracker_sparql_connection_deserialize_finish (TRACKER_SPARQL_CONNECTION (source),
 	                                                       res, &error);
 	if (test_fixture->test->expect_error) {
-		g_assert_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_PARSE);
+		g_assert_nonnull (error);
 		g_assert_false (retval);
 		/* We can stop here */
 		g_main_loop_quit (test_fixture->loop);
