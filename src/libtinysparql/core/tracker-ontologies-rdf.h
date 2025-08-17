@@ -25,6 +25,7 @@
 #include "tracker-data-manager.h"
 
 TrackerOntologies * tracker_ontologies_load_from_rdf (GList   *files,
+                                                      char   **checksum,
                                                       GError **error);
 
 #endif /* __TRACKER_ONTOLOGIES_RDF_H__ */

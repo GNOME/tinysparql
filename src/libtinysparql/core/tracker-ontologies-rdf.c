@@ -111,7 +111,8 @@ get_class (TrackerOntologies   *ontologies,
 static gboolean
 tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
                                     TrackerDeserializer  *rdf,
-                                    GFile                *file)
+                                    GFile                *file,
+                                    GChecksum            *checksum)
 {
 	const gchar *subject, *predicate;
 	goffset line, column;
@@ -415,6 +416,18 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		tracker_namespace_set_prefix (namespace, prefix);
 	}
 
+	if (checksum) {
+		const char *object;
+
+		object = tracker_sparql_cursor_get_string (TRACKER_SPARQL_CURSOR (rdf),
+		                                           TRACKER_RDF_COL_OBJECT,
+		                                           NULL);
+
+		g_checksum_update (checksum, (guchar *) subject, -1);
+		g_checksum_update (checksum, (guchar *) predicate, -1);
+		g_checksum_update (checksum, (guchar *) object, -1);
+	}
+
 	return !had_error;
 }
 
@@ -422,13 +435,14 @@ static gboolean
 load_ontology_rdf (TrackerOntologies    *ontologies,
                    TrackerDeserializer  *rdf,
                    GFile                *file,
+                   GChecksum            *checksum,
                    GError              **error)
 {
 	GError *inner_error = NULL;
 	gboolean had_errors = FALSE;
 
 	while (tracker_sparql_cursor_next (TRACKER_SPARQL_CURSOR (rdf), NULL, &inner_error))
-		had_errors |= !tracker_ontologies_rdf_load_triple (ontologies, rdf, file);
+		had_errors |= !tracker_ontologies_rdf_load_triple (ontologies, rdf, file, checksum);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -616,14 +630,17 @@ check_ontology_completeness (TrackerOntologies  *ontologies,
 
 TrackerOntologies *
 tracker_ontologies_load_from_rdf (GList   *files,
+                                  char   **checksum,
                                   GError **error)
 {
 	TrackerOntologies *ontologies;
 	GError *inner_error = NULL;
 	TrackerSparqlCursor *rdf = NULL;
+	GChecksum *md5;
 	GList *l;
 
 	ontologies = tracker_ontologies_new ();
+	md5 = g_checksum_new (G_CHECKSUM_MD5);
 
 	for (l = files; l; l = l->next) {
 		rdf = tracker_deserializer_new_for_file (l->data,
@@ -634,7 +651,7 @@ tracker_ontologies_load_from_rdf (GList   *files,
 
 		if (!load_ontology_rdf (ontologies,
 		                        TRACKER_DESERIALIZER (rdf),
-		                        l->data, &inner_error))
+		                        l->data, md5, &inner_error))
 			break;
 
 		g_clear_object (&rdf);
@@ -648,8 +665,14 @@ tracker_ontologies_load_from_rdf (GList   *files,
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
 		g_clear_object (&ontologies);
+		g_clear_pointer (&md5, g_checksum_free);
 		return NULL;
 	}
+
+	if (checksum)
+		*checksum = g_strdup (g_checksum_get_string (md5));
+
+	g_clear_pointer (&md5, g_checksum_free);
 
 	return ontologies;
 }

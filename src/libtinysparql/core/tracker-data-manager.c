@@ -1189,51 +1189,6 @@ get_ontologies (TrackerDataManager  *manager,
 	return g_list_concat (stock, user);
 }
 
-static gchar *
-get_ontologies_checksum (GList   *ontologies,
-                         GError **error)
-{
-	GFileInputStream *stream = NULL;
-	GError *inner_error = NULL;
-	gchar *retval = NULL;
-	GChecksum *checksum;
-	guchar buf[4096];
-	gsize len;
-	GList *l;
-
-	checksum = g_checksum_new (G_CHECKSUM_MD5);
-
-	for (l = ontologies; l && !inner_error; l = l->next) {
-		stream = g_file_read (l->data, NULL, &inner_error);
-		if (!stream)
-			break;
-
-		while (g_input_stream_read_all (G_INPUT_STREAM (stream),
-		                                buf,
-		                                sizeof (buf),
-		                                &len,
-		                                NULL,
-		                                &inner_error)) {
-			g_checksum_update (checksum, buf, len);
-			if (len != sizeof (buf))
-				break;
-		}
-
-		g_clear_object (&stream);
-	}
-
-	g_clear_object (&stream);
-
-	if (!inner_error)
-		retval = g_strdup (g_checksum_get_string (checksum));
-	else
-		g_propagate_error (error, inner_error);
-
-	g_checksum_free (checksum);
-
-	return retval;
-}
-
 static gboolean
 tracker_data_manager_recreate_indexes (TrackerDataManager  *manager,
                                        TrackerDBInterface  *iface,
@@ -2461,21 +2416,17 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		if (!ontologies)
 			goto error;
 
-		checksum = get_ontologies_checksum (ontologies, error);
-		if (!checksum) {
+		current_ontology = tracker_ontologies_load_from_rdf (ontologies, &checksum, error);
+		if (!current_ontology) {
 			g_list_free_full (ontologies, g_object_unref);
 			goto error;
 		}
 
 		if (create_db ||
-		    tracker_db_manager_ontology_checksum_changed (manager->db_manager, checksum)) {
+		    tracker_db_manager_ontology_checksum_changed (manager->db_manager, checksum))
 			apply_ontology = TRUE;
-			current_ontology = tracker_ontologies_load_from_rdf (ontologies, error);
-			if (!current_ontology) {
-				g_list_free_full (ontologies, g_object_unref);
-				goto error;
-			}
-		}
+		else
+			g_clear_object (&current_ontology);
 
 		g_list_free_full (ontologies, g_object_unref);
 	}
