@@ -750,10 +750,14 @@ tracker_deserializer_json_ld_close (TrackerSparqlCursor *cursor)
 }
 
 gboolean
-tracker_deserializer_json_ld_get_parser_location (TrackerDeserializer *deserializer,
-                                                  goffset             *line_no,
-                                                  goffset             *column_no)
+tracker_deserializer_json_ld_get_parser_location (TrackerDeserializer  *deserializer,
+                                                  const char          **name,
+                                                  goffset              *line_no,
+                                                  goffset              *column_no)
 {
+	if (name)
+		*name = tracker_deserializer_get_name (deserializer);
+
 	return FALSE;
 }
 

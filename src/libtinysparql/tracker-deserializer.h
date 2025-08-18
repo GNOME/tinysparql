@@ -39,9 +39,12 @@ TrackerSparqlCursor * tracker_deserializer_new_for_file (GFile                  
                                                          TrackerNamespaceManager  *manager,
                                                          GError                  **error);
 
-gboolean tracker_deserializer_get_parser_location (TrackerDeserializer *deserializer,
-                                                   goffset             *line_no,
-                                                   goffset             *column_no);
+gboolean tracker_deserializer_get_parser_location (TrackerDeserializer  *deserializer,
+                                                   const char          **name,
+                                                   goffset              *line_no,
+                                                   goffset              *column_no);
 GInputStream * tracker_deserializer_get_stream (TrackerDeserializer *deserializer);
 
 TrackerNamespaceManager * tracker_deserializer_get_namespaces (TrackerDeserializer *deserializer);
+
+const char * tracker_deserializer_get_name (TrackerDeserializer *deserializer);

@@ -51,21 +51,19 @@
 
 static void
 print_parsing_error (TrackerDeserializer *deserializer,
-                     GFile               *file,
                      const gchar         *format,
                      ...)
 {
 	goffset line_no = 0, column_no = 0;
-	gchar *prefix, *uri, *msg;
+	gchar *prefix, *msg;
+	const char *name;
 	va_list va_args;
 
-	uri = g_file_get_uri (file);
-
 	if (tracker_deserializer_get_parser_location (TRACKER_DESERIALIZER (deserializer),
-	                                              &line_no, &column_no))
-		prefix = g_strdup_printf ("%s:%d:%d: ", uri, (int) line_no, (int) column_no);
+	                                              &name, &line_no, &column_no))
+		prefix = g_strdup_printf ("%s:%d:%d: ", name, (int) line_no, (int) column_no);
 	else
-		prefix = g_strdup_printf ("%s: ", uri);
+		prefix = g_strdup_printf ("%s: ", name);
 
 	va_start (va_args, format);
 	msg = g_strdup_vprintf (format, va_args);
@@ -75,20 +73,18 @@ print_parsing_error (TrackerDeserializer *deserializer,
 
 	g_free (prefix);
 	g_free (msg);
-	g_free (uri);
 }
 
 static TrackerProperty *
 get_property (TrackerOntologies   *ontologies,
               const gchar         *property_uri,
-              TrackerDeserializer *rdf,
-              GFile               *file)
+              TrackerDeserializer *rdf)
 {
 	TrackerProperty *property;
 
 	property = tracker_ontologies_get_property_by_uri (ontologies, property_uri);
 	if (!property)
-		print_parsing_error (rdf, file, "Unknown property %s", property_uri);
+		print_parsing_error (rdf, "Unknown property %s", property_uri);
 
 	return property;
 }
@@ -96,14 +92,13 @@ get_property (TrackerOntologies   *ontologies,
 static TrackerClass *
 get_class (TrackerOntologies   *ontologies,
            const gchar         *class_uri,
-           TrackerDeserializer *rdf,
-           GFile               *file)
+           TrackerDeserializer *rdf)
 {
 	TrackerClass *class;
 
 	class = tracker_ontologies_get_class_by_uri (ontologies, class_uri);
 	if (!class)
-		print_parsing_error (rdf, file, "Unknown class %s", class_uri);
+		print_parsing_error (rdf, "Unknown class %s", class_uri);
 
 	return class;
 }
@@ -111,10 +106,9 @@ get_class (TrackerOntologies   *ontologies,
 static gboolean
 tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
                                     TrackerDeserializer  *rdf,
-                                    GFile                *file,
                                     GChecksum            *checksum)
 {
-	const gchar *subject, *predicate;
+	const gchar *subject, *predicate, *uri;
 	goffset line, column;
 	gboolean had_error = FALSE;
 
@@ -126,7 +120,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 	                                              NULL);
 
 	tracker_deserializer_get_parser_location (TRACKER_DESERIALIZER (rdf),
-	                                          &line, &column);
+	                                          &uri, &line, &column);
 
 	if (g_strcmp0 (predicate, RDF_TYPE) == 0) {
 		const gchar *object;
@@ -137,16 +131,13 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
 			TrackerClass *class;
-			gchar *uri;
 
 			class = tracker_ontologies_get_class_by_uri (ontologies, subject);
 
 			if (class != NULL) {
-				print_parsing_error (rdf, file, "Duplicate definition of class %s", subject);
+				print_parsing_error (rdf, "Duplicate definition of class %s", subject);
 				return TRUE;
 			}
-
-			uri = g_file_get_uri (file);
 
 			class = tracker_class_new ();
 			tracker_class_set_ontologies (class, ontologies);
@@ -156,18 +147,14 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			tracker_class_set_definition_column_no (class, column);
 			tracker_ontologies_add_class (ontologies, class);
 			g_object_unref (class);
-			g_free (uri);
 		} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
 			TrackerProperty *property;
-			gchar *uri;
 
 			property = tracker_ontologies_get_property_by_uri (ontologies, subject);
 			if (property != NULL) {
-				print_parsing_error (rdf, file, "Duplicate definition of property %s", subject);
+				print_parsing_error (rdf, "Duplicate definition of property %s", subject);
 				return TRUE;
 			}
-
-			uri = g_file_get_uri (file);
 
 			property = tracker_property_new ();
 			tracker_property_set_ontologies (property, ontologies);
@@ -178,11 +165,10 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			tracker_property_set_definition_column_no (property, column);
 			tracker_ontologies_add_property (ontologies, property);
 			g_object_unref (property);
-			g_free (uri);
 		} else if (g_strcmp0 (object, NRL_INVERSE_FUNCTIONAL_PROPERTY) == 0) {
 			TrackerProperty *property;
 
-			property = get_property (ontologies, subject, rdf, file);
+			property = get_property (ontologies, subject, rdf);
 			had_error |= property == NULL;
 
 			if (property)
@@ -191,7 +177,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			TrackerNamespace *namespace;
 
 			if (tracker_ontologies_get_namespace_by_uri (ontologies, subject) != NULL) {
-				print_parsing_error (rdf, file, "Duplicate definition of namespace %s", subject);
+				print_parsing_error (rdf, "Duplicate definition of namespace %s", subject);
 				return TRUE;
 			}
 
@@ -204,7 +190,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			TrackerOntology *ontology;
 
 			if (tracker_ontologies_get_ontology_by_uri (ontologies, subject) != NULL) {
-				print_parsing_error (rdf, file, "Duplicate definition of ontology %s", subject);
+				print_parsing_error (rdf, "Duplicate definition of ontology %s", subject);
 				return TRUE;
 			}
 
@@ -219,13 +205,13 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		TrackerClass *class, *super_class;
 		const gchar *object;
 
-		class = get_class (ontologies, subject, rdf, file);
+		class = get_class (ontologies, subject, rdf);
 		had_error |= class == NULL;
 
 		object = tracker_sparql_cursor_get_string (TRACKER_SPARQL_CURSOR (rdf),
 		                                           TRACKER_RDF_COL_OBJECT,
 		                                           NULL);
-		super_class = get_class (ontologies, object, rdf, file);
+		super_class = get_class (ontologies, object, rdf);
 		had_error |= super_class == NULL;
 
 		if (class && super_class)
@@ -234,7 +220,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		TrackerClass *class;
 		gboolean notify;
 
-		class = get_class (ontologies, subject, rdf, file);
+		class = get_class (ontologies, subject, rdf);
 		had_error |= class == NULL;
 
 		notify = tracker_sparql_cursor_get_boolean (TRACKER_SPARQL_CURSOR (rdf),
@@ -248,14 +234,14 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		guint n_props, i;
 		const gchar *object;
 
-		class = get_class (ontologies, subject, rdf, file);
+		class = get_class (ontologies, subject, rdf);
 		had_error |= class == NULL;
 
 		object = tracker_sparql_cursor_get_string (TRACKER_SPARQL_CURSOR (rdf),
 		                                           TRACKER_RDF_COL_OBJECT,
 		                                           NULL);
 
-		property = get_property (ontologies, object, rdf, file);
+		property = get_property (ontologies, object, rdf);
 		had_error |= property == NULL;
 
 		if (class && property) {
@@ -263,7 +249,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			for (i = 0; i < n_props; i++) {
 				if (tracker_property_get_domain (properties[i]) == class &&
 				    properties[i] == property) {
-					print_parsing_error (rdf, file,
+					print_parsing_error (rdf,
 					                     "Property %s is already a first-class property of %s while trying to add it as nrl:domainIndex",
 					                     object, subject);
 					had_error |= TRUE;
@@ -277,13 +263,13 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		TrackerProperty *property, *super_property;
 		const gchar *object;
 
-		property = get_property (ontologies, subject, rdf, file);
+		property = get_property (ontologies, subject, rdf);
 		had_error |= property == NULL;
 
 		object = tracker_sparql_cursor_get_string (TRACKER_SPARQL_CURSOR (rdf),
 		                                           TRACKER_RDF_COL_OBJECT,
 		                                           NULL);
-		super_property = get_property (ontologies, object, rdf, file);
+		super_property = get_property (ontologies, object, rdf);
 		had_error |= super_property == NULL;
 
 		if (property && super_property)
@@ -293,13 +279,13 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		TrackerClass *domain;
 		const gchar *object;
 
-		property = get_property (ontologies, subject, rdf, file);
+		property = get_property (ontologies, subject, rdf);
 		had_error |= property == NULL;
 
 		object = tracker_sparql_cursor_get_string (TRACKER_SPARQL_CURSOR (rdf),
 		                                           TRACKER_RDF_COL_OBJECT,
 		                                           NULL);
-		domain = get_class (ontologies, object, rdf, file);
+		domain = get_class (ontologies, object, rdf);
 		had_error |= domain == NULL;
 
 		if (property && domain)
@@ -309,13 +295,13 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		TrackerClass *range;
 		const gchar *object;
 
-		property = get_property (ontologies, subject, rdf, file);
+		property = get_property (ontologies, subject, rdf);
 		had_error |= property == NULL;
 
 		object = tracker_sparql_cursor_get_string (TRACKER_SPARQL_CURSOR (rdf),
 		                                           TRACKER_RDF_COL_OBJECT,
 		                                           NULL);
-		range = get_class (ontologies, object, rdf, file);
+		range = get_class (ontologies, object, rdf);
 		had_error |= range == NULL;
 
 		if (property && range)
@@ -324,14 +310,14 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		TrackerProperty *property;
 		gint64 cardinality;
 
-		property = get_property (ontologies, subject, rdf, file);
+		property = get_property (ontologies, subject, rdf);
 		had_error |= property == NULL;
 
 		cardinality = tracker_sparql_cursor_get_integer (TRACKER_SPARQL_CURSOR (rdf),
 		                                                 TRACKER_RDF_COL_OBJECT);
 
 		if (cardinality == 0) {
-			print_parsing_error (rdf, file, "Property nrl:maxCardinality only accepts integers greater than 0");
+			print_parsing_error (rdf, "Property nrl:maxCardinality only accepts integers greater than 0");
 			had_error |= TRUE;
 		}
 
@@ -340,7 +326,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		TrackerProperty *property;
 		gboolean indexed;
 
-		property = get_property (ontologies, subject, rdf, file);
+		property = get_property (ontologies, subject, rdf);
 		had_error |= property == NULL;
 
 		indexed = tracker_sparql_cursor_get_boolean (TRACKER_SPARQL_CURSOR (rdf),
@@ -356,21 +342,21 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		                                           TRACKER_RDF_COL_OBJECT,
 		                                           NULL);
 
-		property = get_property (ontologies, subject, rdf, file);
+		property = get_property (ontologies, subject, rdf);
 		had_error |= property == NULL;
 
-		secondary_index = get_property (ontologies, object, rdf, file);
+		secondary_index = get_property (ontologies, object, rdf);
 		had_error |= secondary_index == NULL;
 
 		if (property && secondary_index) {
 			if (!tracker_property_get_indexed (property)) {
-				print_parsing_error (rdf, file, "nrl:secondaryindex only applies to nrl:indexed properties");
+				print_parsing_error (rdf, "nrl:secondaryindex only applies to nrl:indexed properties");
 				had_error |= TRUE;
 			}
 
 			if (tracker_property_get_multiple_values (property) ||
 			    tracker_property_get_multiple_values (secondary_index)) {
-				print_parsing_error (rdf, file, "nrl:secondaryindex cannot be applied to properties with nrl:maxCardinality higher than one");
+				print_parsing_error (rdf, "nrl:secondaryindex cannot be applied to properties with nrl:maxCardinality higher than one");
 				had_error |= TRUE;
 			}
 
@@ -380,7 +366,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		TrackerProperty *property;
 		gboolean indexed;
 
-		property = get_property (ontologies, subject, rdf, file);
+		property = get_property (ontologies, subject, rdf);
 		had_error |= property == NULL;
 
 		indexed = tracker_sparql_cursor_get_boolean (TRACKER_SPARQL_CURSOR (rdf),
@@ -392,7 +378,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 		TrackerProperty *property;
 		gint64 weight;
 
-		property = get_property (ontologies, subject, rdf, file);
+		property = get_property (ontologies, subject, rdf);
 		had_error |= property == NULL;
 
 		weight = tracker_sparql_cursor_get_integer (TRACKER_SPARQL_CURSOR (rdf),
@@ -406,7 +392,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 
 		namespace = tracker_ontologies_get_namespace_by_uri (ontologies, subject);
 		if (namespace == NULL) {
-			print_parsing_error (rdf, file, "Unknown namespace %s", subject);
+			print_parsing_error (rdf, "Unknown namespace %s", subject);
 			return TRUE;
 		}
 
@@ -434,7 +420,6 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 static gboolean
 load_ontology_rdf (TrackerOntologies    *ontologies,
                    TrackerDeserializer  *rdf,
-                   GFile                *file,
                    GChecksum            *checksum,
                    GError              **error)
 {
@@ -442,7 +427,7 @@ load_ontology_rdf (TrackerOntologies    *ontologies,
 	gboolean had_errors = FALSE;
 
 	while (tracker_sparql_cursor_next (TRACKER_SPARQL_CURSOR (rdf), NULL, &inner_error))
-		had_errors |= !tracker_ontologies_rdf_load_triple (ontologies, rdf, file, checksum);
+		had_errors |= !tracker_ontologies_rdf_load_triple (ontologies, rdf, checksum);
 
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
@@ -651,7 +636,7 @@ tracker_ontologies_load_from_rdf (GList   *files,
 
 		if (!load_ontology_rdf (ontologies,
 		                        TRACKER_DESERIALIZER (rdf),
-		                        l->data, md5, &inner_error))
+		                        md5, &inner_error))
 			break;
 
 		g_clear_object (&rdf);

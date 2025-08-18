@@ -33,6 +33,7 @@ enum {
 	PROP_0,
 	PROP_STREAM,
 	PROP_NAMESPACE_MANAGER,
+	PROP_NAME,
 	N_PROPS
 };
 
@@ -44,6 +45,7 @@ struct _TrackerDeserializerPrivate
 {
 	GInputStream *stream;
 	TrackerNamespaceManager *namespaces;
+	char *name;
 };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (TrackerDeserializer, tracker_deserializer,
@@ -58,6 +60,7 @@ tracker_deserializer_finalize (GObject *object)
 
 	g_clear_object (&priv->stream);
 	g_clear_object (&priv->namespaces);
+	g_clear_pointer (&priv->name, g_free);
 
 	G_OBJECT_CLASS (tracker_deserializer_parent_class)->finalize (object);
 }
@@ -77,6 +80,10 @@ tracker_deserializer_set_property (GObject      *object,
 		break;
 	case PROP_NAMESPACE_MANAGER:
 		priv->namespaces = g_value_dup_object (value);
+		break;
+	case PROP_NAME:
+		g_clear_pointer (&priv->name, g_free);
+		priv->name = g_value_dup_string (value);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -128,6 +135,11 @@ tracker_deserializer_class_init (TrackerDeserializerClass *klass)
 		                     "Namespace Manager",
 		                     TRACKER_TYPE_NAMESPACE_MANAGER,
 		                     G_PARAM_CONSTRUCT_ONLY |
+		                     G_PARAM_STATIC_STRINGS |
+		                     G_PARAM_WRITABLE);
+	props[PROP_NAME] =
+		g_param_spec_string ("name", NULL, NULL,
+		                     NULL,
 		                     G_PARAM_STATIC_STRINGS |
 		                     G_PARAM_WRITABLE);
 
@@ -198,6 +210,7 @@ tracker_deserializer_new_for_file (GFile                    *file,
 	TrackerSparqlCursor *deserializer;
 	GInputStream *istream;
 	TrackerSerializerFormat format;
+	char *name;
 
 	g_return_val_if_fail (G_IS_FILE (file), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
@@ -210,17 +223,28 @@ tracker_deserializer_new_for_file (GFile                    *file,
 	deserializer = tracker_deserializer_new (istream, namespaces, format);
 	g_object_unref (istream);
 
+	name = g_file_get_uri (file);
+	g_object_set (deserializer, "name", name, NULL);
+
 	return TRACKER_SPARQL_CURSOR (deserializer);
 }
 
 gboolean
-tracker_deserializer_get_parser_location (TrackerDeserializer *deserializer,
-                                          goffset             *line_no,
-                                          goffset             *column_no)
+tracker_deserializer_get_parser_location (TrackerDeserializer  *deserializer,
+                                          const char          **name,
+                                          goffset              *line_no,
+                                          goffset              *column_no)
 {
-	return TRACKER_DESERIALIZER_GET_CLASS (deserializer)->get_parser_location (deserializer,
-	                                                                           line_no,
-	                                                                           column_no);
+	gboolean retval;
+
+	retval = TRACKER_DESERIALIZER_GET_CLASS (deserializer)->get_parser_location (deserializer,
+	                                                                             name,
+	                                                                             line_no,
+	                                                                             column_no);
+	if (name && !*name)
+		*name = "<stream>";
+
+	return retval;
 }
 
 GInputStream *
@@ -242,4 +266,13 @@ tracker_deserializer_get_namespaces (TrackerDeserializer *deserializer)
 		priv->namespaces = tracker_namespace_manager_new ();
 
 	return priv->namespaces;
+}
+
+const char *
+tracker_deserializer_get_name (TrackerDeserializer *deserializer)
+{
+	TrackerDeserializerPrivate *priv =
+		tracker_deserializer_get_instance_private (deserializer);
+
+	return priv->name;
 }

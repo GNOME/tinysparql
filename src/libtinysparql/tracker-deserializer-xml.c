@@ -564,12 +564,16 @@ tracker_deserializer_xml_close (TrackerSparqlCursor *cursor)
 }
 
 gboolean
-tracker_deserializer_xml_get_parser_location (TrackerDeserializer *deserializer,
-                                              goffset             *line_no,
-                                              goffset             *column_no)
+tracker_deserializer_xml_get_parser_location (TrackerDeserializer  *deserializer,
+                                              const char          **name,
+                                              goffset              *line_no,
+                                              goffset              *column_no)
 {
 	TrackerDeserializerXml *deserializer_xml =
 		TRACKER_DESERIALIZER_XML (deserializer);
+
+	if (name)
+		*name = tracker_deserializer_get_name (deserializer);
 
 	*line_no = xmlTextReaderGetParserLineNumber (deserializer_xml->reader);
 	*column_no = xmlTextReaderGetParserColumnNumber (deserializer_xml->reader);

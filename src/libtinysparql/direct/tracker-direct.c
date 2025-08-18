@@ -321,7 +321,6 @@ update_thread_func (gpointer data,
 		if (tracker_data_load_from_deserializer (tracker_data,
 		                                         TRACKER_DESERIALIZER (deserializer),
 		                                         task_data->d.deserialize.default_graph,
-		                                         "<stream>",
 		                                         NULL,
 		                                         &error)) {
 			tracker_data_commit_transaction (tracker_data, &error);

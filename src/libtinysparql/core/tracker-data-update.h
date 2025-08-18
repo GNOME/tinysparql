@@ -112,7 +112,6 @@ void     tracker_data_update_buffer_might_flush     (TrackerData               *
 gboolean tracker_data_load_from_deserializer        (TrackerData               *data,
                                                      TrackerDeserializer       *deserializer,
                                                      const gchar               *graph,
-                                                     const gchar               *location,
                                                      GHashTable                *bnodes,
                                                      GError                   **error);
 
