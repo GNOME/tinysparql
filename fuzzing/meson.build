@@ -3,6 +3,7 @@ fuzz_targets = [
     'fuzz_rdf_jsonld',
     'fuzz_rdf_trig',
     'fuzz_rdf_turtle',
+    'fuzz_ontology_turtle',
 ]
 
 deps = [gio, glib, tracker_sparql_dep, sqlite]
