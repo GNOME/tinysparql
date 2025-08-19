@@ -37,6 +37,14 @@ ESCAPE_TEST_DATA test_data []  = {
 	{ NULL, NULL }
 };
 
+#define ONTOLOGY_RDF \
+	"@prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .\n"        \
+	"@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n"               \
+	"@prefix foo: <http://example.com/#> .\n"                                 \
+	"foo: a nrl:Namespace, nrl:Ontology ;\n"                                  \
+	"	nrl:prefix 'foo' .\n"                                             \
+	"foo:Object a rdfs:Class ."
+
 TrackerSparqlConnection *
 create_local_connection (GError **error)
 {
@@ -209,6 +217,136 @@ test_tracker_sparql_connection_new_async (void)
 }
 
 static void
+test_tracker_sparql_connection_new_rdf (void)
+{
+	TrackerSparqlConnection *conn;
+	TrackerSparqlCursor *cursor;
+	GInputStream *ontology;
+	GError *error = NULL;
+
+	ontology = g_memory_input_stream_new_from_data (ONTOLOGY_RDF, -1, NULL);
+
+	conn = tracker_sparql_connection_new_from_rdf (0, NULL,
+	                                               TRACKER_DESERIALIZE_FLAGS_NONE,
+	                                               TRACKER_RDF_FORMAT_TURTLE,
+	                                               ontology,
+	                                               NULL, &error);
+	g_assert_no_error (error);
+	g_assert_nonnull (conn);
+
+	cursor = tracker_sparql_connection_query (conn, "SELECT ?u { ?u a foo:Object }", NULL, &error);
+	g_assert_no_error (error);
+	g_assert_false (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_no_error (error);
+
+	g_object_unref (cursor);
+	g_object_unref (ontology);
+	g_clear_object (&conn);
+}
+
+static void
+test_tracker_sparql_connection_new_rdf_error (void)
+{
+	TrackerSparqlConnection *conn;
+	GInputStream *ontology;
+	GError *error = NULL;
+
+	/* Parse just a substring */
+	ontology = g_memory_input_stream_new_from_data (ONTOLOGY_RDF, 5, NULL);
+
+	conn = tracker_sparql_connection_new_from_rdf (0, NULL,
+	                                               TRACKER_DESERIALIZE_FLAGS_NONE,
+	                                               TRACKER_RDF_FORMAT_TURTLE,
+	                                               ontology,
+	                                               NULL, &error);
+	g_assert_null (conn);
+	g_assert_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_PARSE);
+
+	g_object_unref (ontology);
+}
+
+static void
+new_from_rdf_async_cb (GObject      *source,
+                       GAsyncResult *res,
+                       gpointer      user_data)
+{
+	TrackerSparqlConnection *conn;
+	TrackerSparqlCursor *cursor;
+	GError *error = NULL;
+
+	conn = tracker_sparql_connection_new_from_rdf_finish (res, &error);
+	g_assert_no_error (error);
+
+	cursor = tracker_sparql_connection_query (conn, "SELECT ?u { ?u a foo:Object }", NULL, &error);
+	g_assert_no_error (error);
+	g_assert_false (tracker_sparql_cursor_next (cursor, NULL, &error));
+	g_assert_no_error (error);
+	g_object_unref (cursor);
+
+	tracker_sparql_connection_close_async (conn, NULL, close_cb, user_data);
+}
+
+static void
+test_tracker_sparql_connection_new_rdf_async (void)
+{
+	GMainLoop *loop;
+	GInputStream *ontology;
+
+	loop = g_main_loop_new (NULL, FALSE);
+
+	ontology = g_memory_input_stream_new_from_data (ONTOLOGY_RDF, -1, NULL);
+
+	tracker_sparql_connection_new_from_rdf_async (0, NULL,
+	                                              TRACKER_DESERIALIZE_FLAGS_NONE,
+	                                              TRACKER_RDF_FORMAT_TURTLE,
+	                                              ontology,
+	                                              NULL,
+	                                              new_from_rdf_async_cb,
+	                                              loop);
+	g_main_loop_run (loop);
+
+	g_object_unref (ontology);
+}
+
+static void
+new_from_rdf_async_error_cb (GObject      *source,
+                             GAsyncResult *res,
+                             gpointer      user_data)
+{
+	TrackerSparqlConnection *conn;
+	GError *error = NULL;
+
+	conn = tracker_sparql_connection_new_from_rdf_finish (res, &error);
+	g_assert_null (conn);
+	g_assert_error (error, TRACKER_SPARQL_ERROR, TRACKER_SPARQL_ERROR_PARSE);
+
+	g_main_loop_quit (user_data);
+}
+
+static void
+test_tracker_sparql_connection_new_rdf_async_error (void)
+{
+	GMainLoop *loop;
+	GInputStream *ontology;
+
+	loop = g_main_loop_new (NULL, FALSE);
+
+	/* Parse just a substring */
+	ontology = g_memory_input_stream_new_from_data (ONTOLOGY_RDF, 5, NULL);
+
+	tracker_sparql_connection_new_from_rdf_async (0, NULL,
+	                                              TRACKER_DESERIALIZE_FLAGS_NONE,
+	                                              TRACKER_RDF_FORMAT_TURTLE,
+	                                              ontology,
+	                                              NULL,
+	                                              new_from_rdf_async_error_cb,
+	                                              loop);
+	g_main_loop_run (loop);
+
+	g_object_unref (ontology);
+}
+
+static void
 test_tracker_sparql_connection_bus_new_unknown (void)
 {
 	TrackerSparqlConnection *conn;
@@ -299,6 +437,14 @@ main (gint argc, gchar **argv)
 	                 test_tracker_sparql_connection_interleaved);
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_new_async",
 	                 test_tracker_sparql_connection_new_async);
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_new_rdf",
+	                 test_tracker_sparql_connection_new_rdf);
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_new_rdf_error",
+	                 test_tracker_sparql_connection_new_rdf_error);
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_new_rdf_async",
+	                 test_tracker_sparql_connection_new_rdf_async);
+	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_new_rdf_async_error",
+	                 test_tracker_sparql_connection_new_rdf_async_error);
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_bus_new_unknown",
 	                 test_tracker_sparql_connection_bus_new_unknown);
 	g_test_add_func ("/libtracker-sparql/tracker-sparql/tracker_sparql_connection_bus_new_async_unknown",

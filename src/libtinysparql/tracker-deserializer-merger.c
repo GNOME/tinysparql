@@ -80,7 +80,7 @@ tracker_deserializer_merger_next (TrackerSparqlCursor  *cursor,
 
 	while (!has_next && priv->current_deserializer) {
 		has_next = tracker_sparql_cursor_next (priv->current_deserializer->data,
-						       cancellable, error);
+		                                       cancellable, error);
 		if (!has_next) {
 			GList *to_remove;
 
