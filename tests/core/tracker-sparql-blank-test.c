@@ -394,6 +394,7 @@ setup (TestInfo      *info,
 	/* NOTE: g_test_build_filename() doesn't work env vars G_TEST_* are not defined?? */
 	basename = g_strdup_printf ("%d", g_test_rand_int_range (0, G_MAXINT));
 	info->data_location = g_build_path (G_DIR_SEPARATOR_S, tests_data_dir, basename, NULL);
+	g_mkdir_with_parents (info->data_location, 0700);
 	g_free (basename);
 }
 

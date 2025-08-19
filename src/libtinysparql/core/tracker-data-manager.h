@@ -57,10 +57,10 @@ GType    tracker_data_manager_get_type               (void) G_GNUC_CONST;
 
 GQuark   tracker_data_ontology_error_quark           (void);
 
-TrackerDataManager * tracker_data_manager_new        (TrackerDBManagerFlags   flags,
-                                                      GFile                  *cache_location,
-                                                      GFile                  *ontology_location,
-                                                      guint                   select_cache_size);
+TrackerDataManager * tracker_data_manager_new        (TrackerDBManagerFlags  flags,
+                                                      GFile                 *cache_location,
+                                                      TrackerDeserializer   *ontology,
+                                                      guint                  select_cache_size);
 
 void                 tracker_data_manager_shutdown            (TrackerDataManager *manager);
 

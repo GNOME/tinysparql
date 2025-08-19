@@ -27,6 +27,7 @@
 #include <tracker-common.h>
 
 #include "core/tracker-data.h"
+#include "tracker-deserializer-directory.h"
 #include "tracker-notifier-private.h"
 #include "tracker-private.h"
 #include "tracker-serializer.h"
@@ -557,6 +558,7 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
 	TrackerDBManagerFlags db_flags;
+	TrackerSparqlCursor *ontology_data = NULL;
 	GHashTable *namespaces;
 	GHashTableIter iter;
 	gchar *prefix, *ns;
@@ -568,14 +570,29 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	if (!set_up_thread_pools (conn, error))
 		return FALSE;
 
+	if (priv->ontology &&
+	    g_file_query_file_type (priv->ontology, G_FILE_QUERY_INFO_NONE, NULL) != G_FILE_TYPE_DIRECTORY) {
+		gchar *uri;
+
+		uri = g_file_get_uri (priv->ontology);
+		g_set_error (error, TRACKER_DATA_ONTOLOGY_ERROR,
+		             TRACKER_DATA_ONTOLOGY_NOT_FOUND,
+		             "'%s' is not a ontology location", uri);
+		g_free (uri);
+		return FALSE;
+	}
+
 	db_flags = translate_flags (priv->flags);
 
 	if (!priv->store) {
 		db_flags |= TRACKER_DB_MANAGER_IN_MEMORY;
 	}
 
+	if (priv->ontology)
+		ontology_data = tracker_deserializer_directory_new (priv->ontology, NULL);
+
 	priv->data_manager = tracker_data_manager_new (db_flags, priv->store,
-	                                               priv->ontology,
+	                                               TRACKER_DESERIALIZER (ontology_data),
 	                                               100);
 	if (!g_initable_init (G_INITABLE (priv->data_manager), cancellable, &inner_error)) {
 		g_propagate_error (error, _translate_internal_error (inner_error));

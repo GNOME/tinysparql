@@ -614,39 +614,26 @@ check_ontology_completeness (TrackerOntologies  *ontologies,
 }
 
 TrackerOntologies *
-tracker_ontologies_load_from_rdf (GList   *files,
-                                  char   **checksum,
-                                  GError **error)
+tracker_ontologies_load_from_rdf (TrackerDeserializer  *ontology_data,
+                                  char                **checksum,
+                                  GError              **error)
 {
 	TrackerOntologies *ontologies;
 	GError *inner_error = NULL;
-	TrackerSparqlCursor *rdf = NULL;
 	GChecksum *md5;
-	GList *l;
 
 	ontologies = tracker_ontologies_new ();
 	md5 = g_checksum_new (G_CHECKSUM_MD5);
 
-	for (l = files; l; l = l->next) {
-		rdf = tracker_deserializer_new_for_file (l->data,
-		                                         NULL,
-		                                         &inner_error);
-		if (!rdf)
-			break;
+	if (!load_ontology_rdf (ontologies,
+	                        ontology_data,
+	                        md5, &inner_error))
+		goto error;
 
-		if (!load_ontology_rdf (ontologies,
-		                        TRACKER_DESERIALIZER (rdf),
-		                        md5, &inner_error))
-			break;
+	if (!check_ontology_completeness (ontologies, &inner_error))
+		goto error;
 
-		g_clear_object (&rdf);
-	}
-
-	g_clear_object (&rdf);
-
-	if (!inner_error)
-		check_ontology_completeness (ontologies, &inner_error);
-
+ error:
 	if (inner_error) {
 		g_propagate_error (error, inner_error);
 		g_clear_object (&ontologies);
