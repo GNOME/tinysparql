@@ -1426,6 +1426,8 @@ tracker_sparql_connection_new_async (TrackerSparqlConnectionFlags  flags,
  * @error: Error location
  *
  * Finishes the operation started with [func@SparqlConnection.new_async].
+ *
+ * Returns: (transfer full): a new `TrackerSparqlConnection`.
  */
 TrackerSparqlConnection *
 tracker_sparql_connection_new_finish (GAsyncResult  *res,
