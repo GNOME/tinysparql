@@ -129,6 +129,29 @@ TRACKER_AVAILABLE_IN_ALL
 TrackerSparqlConnection * tracker_sparql_connection_new_finish (GAsyncResult  *result,
                                                                 GError       **error);
 
+TRACKER_AVAILABLE_IN_3_11
+TrackerSparqlConnection * tracker_sparql_connection_new_from_rdf (TrackerSparqlConnectionFlags   flags,
+                                                                  GFile                         *store,
+                                                                  TrackerDeserializeFlags        deserialize_flags,
+                                                                  TrackerRdfFormat               rdf_format,
+                                                                  GInputStream                  *rdf_stream,
+                                                                  GCancellable                  *cancellable,
+                                                                  GError                       **error);
+
+TRACKER_AVAILABLE_IN_3_11
+void tracker_sparql_connection_new_from_rdf_async (TrackerSparqlConnectionFlags  flags,
+                                                   GFile                        *store,
+                                                   TrackerDeserializeFlags       deserialize_flags,
+                                                   TrackerRdfFormat              rdf_format,
+                                                   GInputStream                 *rdf_stream,
+                                                   GCancellable                 *cancellable,
+                                                   GAsyncReadyCallback           callback,
+                                                   gpointer                      user_data);
+
+TRACKER_AVAILABLE_IN_3_11
+TrackerSparqlConnection * tracker_sparql_connection_new_from_rdf_finish (GAsyncResult  *result,
+                                                                         GError       **error);
+
 TRACKER_AVAILABLE_IN_ALL
 TrackerSparqlConnection * tracker_sparql_connection_bus_new (const gchar      *service_name,
                                                              const gchar      *object_path,

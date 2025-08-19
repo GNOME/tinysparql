@@ -61,6 +61,24 @@ void tracker_direct_connection_new_async (TrackerSparqlConnectionFlags  flags,
 TrackerSparqlConnection * tracker_direct_connection_new_finish (GAsyncResult  *res,
                                                                 GError       **error);
 
+TrackerSparqlConnection * tracker_direct_connection_new_from_rdf (TrackerSparqlConnectionFlags   flags,
+                                                                  GFile                         *store,
+                                                                  TrackerDeserializeFlags        deserialize_flags,
+                                                                  TrackerRdfFormat               rdf_format,
+                                                                  GInputStream                  *rdf_stream,
+                                                                  GCancellable                  *cancellable,
+                                                                  GError                       **error);
+void tracker_direct_connection_new_from_rdf_async (TrackerSparqlConnectionFlags  flags,
+                                                   GFile                        *store,
+                                                   TrackerDeserializeFlags       deserialize_flags,
+                                                   TrackerRdfFormat              rdf_format,
+                                                   GInputStream                 *rdf_stream,
+                                                   GCancellable                 *cancellable,
+                                                   GAsyncReadyCallback           cb,
+                                                   gpointer                      user_data);
+TrackerSparqlConnection * tracker_direct_connection_new_from_rdf_finish (GAsyncResult  *res,
+                                                                         GError       **error);
+
 TrackerDataManager *tracker_direct_connection_get_data_manager (TrackerDirectConnection *conn);
 
 void tracker_direct_connection_update_timestamp (TrackerDirectConnection *conn);
