@@ -2817,10 +2817,13 @@ tracker_data_update_statement (TrackerData      *data,
 		maybe_update_fts (data, predicate);
 
 		if (tracker_property_get_data_type (predicate) == TRACKER_PROPERTY_TYPE_RESOURCE) {
-			log_entry_for_resource_property_refcount (data,
-			                                          TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY,
-			                                          predicate,
-			                                          TRACKER_DEC_REF);
+			if (tracker_property_get_multiple_values (predicate)) {
+				log_entry_for_resource_property_refcount (data,
+									  TRACKER_LOG_REF_CHANGE_FOR_MULTIVALUED_PROPERTY,
+									  predicate,
+									  TRACKER_DEC_REF);
+			}
+
 			log_entry_for_resource_property_refcount (data,
 			                                          TRACKER_LOG_REF_CHANGE_FOR_PROPERTY,
 			                                          predicate,
