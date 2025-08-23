@@ -1239,7 +1239,7 @@ tracker_data_ensure_update_statement (TrackerData          *data,
 		table_name = tracker_property_get_table_name (entry->table.prop_refcount.property);
 		stmt = tracker_db_interface_create_vstatement (iface, TRACKER_DB_STATEMENT_CACHE_TYPE_NONE, error,
 		                                               "UPDATE \"%s%sRefcount\" "
-		                                               "SET Refcount = Refcount + (?1 * (SELECT COUNT (*) FROM \"%s%s%s\" WHERE ROWID = ?2)) "
+		                                               "SET Refcount = Refcount + (?1 * (SELECT COUNT (*) FROM \"%s%s%s\" WHERE ID = ?2)) "
 		                                               "WHERE ROWID = ?2",
 		                                               entry->graph->graph ? entry->graph->graph : "",
 		                                               entry->graph->graph ? "_" : "",
