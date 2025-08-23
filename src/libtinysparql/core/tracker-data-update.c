@@ -2119,6 +2119,13 @@ cache_insert_metadata_decomposed (TrackerData        *data,
 	}
 
 	if (tracker_property_get_data_type (property) == TRACKER_PROPERTY_TYPE_RESOURCE) {
+		if (multiple_values) {
+			log_entry_for_resource_refcount (data,
+							 TRACKER_LOG_REF_INC,
+							 data->resource_buffer->id,
+							 TRACKER_INC_REF);
+		}
+
 		log_entry_for_resource_refcount (data,
 		                                 TRACKER_LOG_REF_INC,
 		                                 g_value_get_int64 (object),
