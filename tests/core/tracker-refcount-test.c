@@ -2,6 +2,8 @@
 
 #include <tinysparql.h>
 
+#define N_ITERS 10
+
 static TrackerSparqlConnection *
 open_database (const char *data_dir)
 {
@@ -77,20 +79,24 @@ resource_exists (TrackerSparqlConnection *conn,
 }
 
 void
-test_resource_refcount (void)
+test_rdfs_resource_refcount (void)
 {
 	TrackerSparqlConnection *conn;
 	GError *error = NULL;
 	gchar *data_dir;
+	int i;
 
 	data_dir = g_build_filename (g_get_tmp_dir (), "tracker-refcount-test-XXXXXX", NULL);
 	data_dir = g_mkdtemp_full (data_dir, 0700);
 
 	conn = open_database (data_dir);
 
-	tracker_sparql_connection_update (conn, "INSERT DATA { <foo:a> a nie:InformationElement }",
-					  NULL, &error);
-	g_assert_no_error (error);
+	for (i = 0; i < N_ITERS; i++) {
+		tracker_sparql_connection_update (conn, "INSERT DATA { <foo:a> a nie:InformationElement }",
+						  NULL, &error);
+		g_assert_no_error (error);
+	}
+
 	g_assert_true (resource_exists (conn, "foo:a"));
 
 	/* Delete nie:InformationElement subclass, still should be a rdfs:Resource */
@@ -124,25 +130,33 @@ test_single_property_refcount (void)
 	TrackerSparqlConnection *conn;
 	GError *error = NULL;
 	gchar *data_dir;
+	int i;
 
 	data_dir = g_build_filename (g_get_tmp_dir (), "tracker-refcount-test-XXXXXX", NULL);
 	data_dir = g_mkdtemp_full (data_dir, 0700);
 
 	conn = open_database (data_dir);
 
-	tracker_sparql_connection_update (conn,
-					  "INSERT DATA { <foo:a> a nie:InformationElement ; nco:publisher <foo:b> ; nie:rootElementOf <foo:c> }",
-					  NULL, &error);
-	g_assert_no_error (error);
+	for (i = 0; i < N_ITERS; i++) {
+		tracker_sparql_connection_update (conn,
+						  "INSERT DATA { <foo:a> a nie:InformationElement ; nco:publisher <foo:b> ; nie:rootElementOf <foo:c> }",
+						  NULL, &error);
+		g_assert_no_error (error);
+	}
+
+	close_database (conn, FALSE);
+	conn = open_database (data_dir);
 	g_assert_true (resource_exists (conn, "foo:a"));
 	g_assert_true (resource_exists (conn, "foo:b"));
 	g_assert_true (resource_exists (conn, "foo:c"));
 
-	/* Delete property holding ref to foo:b */
-	tracker_sparql_connection_update (conn,
-					  "DELETE DATA { <foo:a> nco:publisher <foo:b> }",
-					  NULL, &error);
-	g_assert_no_error (error);
+	for (i = 0; i < N_ITERS; i++) {
+		/* Delete property holding ref to foo:b */
+		tracker_sparql_connection_update (conn,
+						  "DELETE DATA { <foo:a> nco:publisher <foo:b> }",
+						  NULL, &error);
+		g_assert_no_error (error);
+	}
 
 	/* Reopen database to ensure resource cleanup,
 	 * expect that resource IRI does not exist after it
@@ -177,26 +191,34 @@ test_multi_property_refcount (void)
 	TrackerSparqlConnection *conn;
 	GError *error = NULL;
 	gchar *data_dir;
+	int i;
 
 	data_dir = g_build_filename (g_get_tmp_dir (), "tracker-refcount-test-XXXXXX", NULL);
 	data_dir = g_mkdtemp_full (data_dir, 0700);
 
 	conn = open_database (data_dir);
 
-	/* nie:depends is an interesting property, as it is a subproperty of multi-valued nie:relatedTo */
-	tracker_sparql_connection_update (conn,
-					  "INSERT DATA { <foo:a> a nie:InformationElement ; nie:depends <foo:b> ; nie:hasLogicalPart <foo:c> }",
-					  NULL, &error);
-	g_assert_no_error (error);
+	for (i = 0; i < N_ITERS; i++) {
+		/* nie:depends is an interesting property, as it is a subproperty of multi-valued nie:relatedTo */
+		tracker_sparql_connection_update (conn,
+						  "INSERT DATA { <foo:a> a nie:InformationElement ; nie:depends <foo:b> ; nie:hasLogicalPart <foo:c> }",
+						  NULL, &error);
+		g_assert_no_error (error);
+	}
+
+	close_database (conn, FALSE);
+	conn = open_database (data_dir);
 	g_assert_true (resource_exists (conn, "foo:a"));
 	g_assert_true (resource_exists (conn, "foo:b"));
 	g_assert_true (resource_exists (conn, "foo:c"));
 
-	/* Delete property holding ref to foo:b */
-	tracker_sparql_connection_update (conn,
-					  "DELETE DATA { <foo:a> nie:depends <foo:b> }",
-					  NULL, &error);
-	g_assert_no_error (error);
+	for (i = 0; i < N_ITERS; i++) {
+		/* Delete property holding ref to foo:b */
+		tracker_sparql_connection_update (conn,
+						  "DELETE DATA { <foo:a> nie:depends <foo:b> }",
+						  NULL, &error);
+		g_assert_no_error (error);
+	}
 
 	/* Reopen database to ensure resource cleanup,
 	 * expect that resource IRI does not exist after it
@@ -230,7 +252,7 @@ main (int argc, char *argv[])
 {
 	g_test_init (&argc, &argv, NULL);
 
-	g_test_add_func ("/core/resource-refcount", test_resource_refcount);
+	g_test_add_func ("/core/rdfs-resource-refcount", test_rdfs_resource_refcount);
 	g_test_add_func ("/core/single-property-refcount", test_single_property_refcount);
 	g_test_add_func ("/core/multi-property-refcount", test_multi_property_refcount);
 
