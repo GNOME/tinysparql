@@ -760,7 +760,7 @@ log_entry_for_single_value_property (TrackerData       *data,
                                      TrackerProperty   *property,
                                      const GValue      *value)
 {
-	TrackerDataLogEntry entry = { 0, }, *entry_ptr;
+	TrackerDataLogEntry entry = { 0, }, *entry_ptr = NULL;
 	TrackerDataPropertyEntry prop = { 0, };
 	guint prop_idx;
 
@@ -771,7 +771,8 @@ log_entry_for_single_value_property (TrackerData       *data,
 	entry.table.class.last_property_idx = -1;
 	entry.properties_ptr = data->update_buffer.properties;
 
-	entry_ptr = g_hash_table_lookup (data->update_buffer.class_updates, &entry);
+	if (tracker_property_get_data_type (property) != TRACKER_PROPERTY_TYPE_RESOURCE)
+		entry_ptr = g_hash_table_lookup (data->update_buffer.class_updates, &entry);
 
 	if (!entry_ptr || tracker_data_log_entry_has_property (entry_ptr, property)) {
 		if (entry_ptr)
