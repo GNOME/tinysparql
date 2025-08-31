@@ -117,12 +117,13 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2024-12-10.0'
+    BASE_TAG: '2025-08-31.1'
     FDO_DISTRIBUTION_PACKAGES:
       clang
       clang-analyzer
       cmake
       diffutils
+      file
       git
       libasan
       libsoup-devel
@@ -142,12 +143,8 @@ check-merge-request:
       uncrustify
 
     FDO_DISTRIBUTION_EXEC: |
-      if [ -z $(command -v dnf5) ]; then
-        dnf install -y 'dnf-command(builddep)' 'dnf-command(download)';
-      else
-        dnf install -y 'dnf5-command(builddep)' 'dnf5-command(download)';
-      fi &&
-      dnf builddep -y tracker --setopt=install_weak_deps=False &&
+      dnf install -y 'dnf5-command(builddep)' 'dnf5-command(download)';
+      dnf builddep -y tracker --setopt=install_weak_deps=False || dnf builddep -y tinysparql --setopt=install_weak_deps=False;
       # For tests, this isn't packaged in Fedora.
       pip3 install tap.py gcovr &&
       dnf clean all
