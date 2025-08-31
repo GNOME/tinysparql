@@ -10,9 +10,6 @@
 /* Defined if Sqlite has FTS5 compiled in */
 #mesondefine HAVE_BUILTIN_FTS
 
-/* Define if we have libstemmer */
-#mesondefine HAVE_LIBSTEMMER
-
 /* Define if we have avahi */
 #mesondefine HAVE_AVAHI
 

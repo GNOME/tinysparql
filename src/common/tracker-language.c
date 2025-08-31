@@ -24,9 +24,7 @@
 
 #include <glib.h>
 
-#ifdef HAVE_LIBSTEMMER
 #include <libstemmer.h>
-#endif /* HAVE_LIBSTEMMER */
 
 #include "tracker-language.h"
 
@@ -87,14 +85,12 @@ language_finalize (GObject *object)
 
 	priv = tracker_language_get_instance_private (TRACKER_LANGUAGE (object));
 
-#ifdef HAVE_LIBSTEMMER
 	if (priv->stemmer) {
 		g_mutex_lock (&priv->stemmer_mutex);
 		sb_stemmer_delete (priv->stemmer);
 		g_mutex_unlock (&priv->stemmer_mutex);
 	}
 	g_mutex_clear (&priv->stemmer_mutex);
-#endif /* HAVE_LIBSTEMMER */
 
 	g_free (priv->language_code);
 
@@ -170,13 +166,11 @@ language_constructed (GObject *object)
 	if (!priv->language_code)
 		ensure_language (language);
 
-#ifdef HAVE_LIBSTEMMER
 	priv->stemmer = sb_stemmer_new (priv->language_code, NULL);
 	if (!priv->stemmer) {
 		g_debug ("No stemmer could be found for language:'%s'",
 		           priv->language_code);
 	}
-#endif /* HAVE_LIBSTEMMER */
 }
 
 /**
@@ -205,16 +199,13 @@ tracker_language_stem_word (TrackerLanguage *language,
                             gint            *buffer_len,
                             gint             buffer_size)
 {
-#ifdef HAVE_LIBSTEMMER
 	TrackerLanguagePrivate *priv;
-#endif /* HAVE_LIBSTEMMER */
 
 	g_return_if_fail (TRACKER_IS_LANGUAGE (language));
 	g_return_if_fail (buffer != NULL);
 	g_return_if_fail (buffer_len != NULL);
 	g_return_if_fail (*buffer_len >= 0);
 
-#ifdef HAVE_LIBSTEMMER
 	priv = tracker_language_get_instance_private (language);
 
 	g_mutex_lock (&priv->stemmer_mutex);
@@ -235,5 +226,4 @@ tracker_language_stem_word (TrackerLanguage *language,
 	}
 
 	g_mutex_unlock (&priv->stemmer_mutex);
-#endif /* HAVE_LIBSTEMMER */
 }

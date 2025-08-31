@@ -149,7 +149,9 @@ add_project_arguments(debug_cflags, language: 'c')
 ##################################################################
 
 libstemmer = cc.find_library('stemmer', required: get_option('stemmer'))
-have_libstemmer = libstemmer.found()
+if not libstemmer.found()
+  libstemmer = dependency('libstemmer', required: true)
+endif
 
 if meson.is_cross_build() and not meson.has_exe_wrapper()
   sqlite3_fts5 = meson.get_cross_property('sqlite3_has_fts5')
@@ -323,7 +325,6 @@ conf = configuration_data()
 
 # Config that goes in config.h
 
-conf.set('HAVE_LIBSTEMMER', have_libstemmer)
 conf.set('HAVE_AVAHI', have_avahi)
 
 conf.set('HAVE_STATVFS64', cc.has_header_symbol('sys/statvfs.h', 'statvfs64', args: '-D_LARGEFILE64_SOURCE'))
@@ -435,7 +436,6 @@ summary({
 
 summary({
   'Unicode support library':                unicode_library_name,
-  'Build with Stemming support':            have_libstemmer,
   'API documentation':                      get_option('docs'),
   'CLI documentation (manpages)':           get_option('man'),
   'Libsoup backends':                       soup_backends,
