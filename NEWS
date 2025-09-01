@@ -1,3 +1,11 @@
+NEW in 3.10.rc - 2025-09-01
+===========================
+  * Validation improvements to JSON-LD parsing
+  * Fixes to database resource refcounting introduced in 3.10.alpha
+  * Add meson subproject for libstemmer
+
+Translations: he, hu, pl, ru, sl
+
 NEW in 3.10.beta - 2025-08-03
 =============================
   * Changed the database format, so that all graphs are stored in
