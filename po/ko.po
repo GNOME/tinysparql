@@ -8,142 +8,129 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TinySPARQL main\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
-"POT-Creation-Date: 2025-01-10 20:35+0000\n"
-"PO-Revision-Date: 2025-03-01 03:30+0900\n"
-"Last-Translator: Seong-ho Cho <shcho@gnome.org>\n"
+"POT-Creation-Date: 2025-08-11 00:47+0000\n"
+"PO-Revision-Date: 2025-09-06 13:35+0900\n"
+"Last-Translator: Seong-ho Cho <darkcircle.0426@gmail.com>\n"
 "Language-Team: Gnome Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.6\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#. Translators: this is a '|' (U+007C) separated list of common
-#. * title beginnings. Meant to be skipped for sorting purposes,
-#. * case doesn't matter. Given English media is quite common, it is
-#. * advised to leave the untranslated articles in addition to
-#. * the translated ones.
-#.
-#: src/libtracker-sparql/core/tracker-collation.c:116
-msgid "the|a|an"
-msgstr "the|a|an"
-
-#: src/portal/tracker-main.c:53
-msgid "Version"
-msgstr "버전"
-
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
-#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
-#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
-msgid "Unrecognized options"
-msgstr "인식할 수 없는 옵션"
-
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
-#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
+#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
+#: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
+#: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
 msgid "Location of the database"
 msgstr "데이터베이스 위치"
 
-#: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
+#: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
 msgid "DIR"
 msgstr "<디렉터리>"
 
-#: src/tracker/tracker-endpoint.c:62
+#: src/cli/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
 msgstr "이 종단점의 DBus 명칭을 지정합니다"
 
-#: src/tracker/tracker-endpoint.c:63 src/tracker/tracker-endpoint.c:67
+#: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
 msgid "NAME"
 msgstr "<이름>"
 
-#: src/tracker/tracker-endpoint.c:66
+#: src/cli/tracker-endpoint.c:66
 msgid "Specify the ontology name used in this endpoint"
 msgstr "이 종단점에서 활용하는 온톨로지 명칭을 지정합니다"
 
-#: src/tracker/tracker-endpoint.c:70
+#: src/cli/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "이 종단점에서 활용할 돈톨로지 경로를 지정합니다"
 
-#: src/tracker/tracker-endpoint.c:74
+#: src/cli/tracker-endpoint.c:74
 msgid "HTTP port"
 msgstr "HTTP 포트"
 
-#: src/tracker/tracker-endpoint.c:78
+#: src/cli/tracker-endpoint.c:78
 msgid "Whether to only allow HTTP connections in the loopback device"
 msgstr "루프백 장치의 HTTP 연결을 허용할 지 여부"
 
-#: src/tracker/tracker-endpoint.c:82
+#: src/cli/tracker-endpoint.c:82
 msgid "Use session bus"
 msgstr "세션 버스 사용"
 
-#: src/tracker/tracker-endpoint.c:86
+#: src/cli/tracker-endpoint.c:86
 msgid "Use system bus"
 msgstr "시스템 버스 사용"
 
-#: src/tracker/tracker-endpoint.c:90
+#: src/cli/tracker-endpoint.c:90
 msgid "List SPARQL endpoints available in DBus"
 msgstr "DBus에 있는 SPARQL 종단점 조회"
 
-#: src/tracker/tracker-endpoint.c:94
+#: src/cli/tracker-endpoint.c:94
 msgid "List network-local HTTP SPARQL endpoints"
-msgstr "network-local HTTP SPARQL 종단점 목록"
+msgstr "network-local HTTP SPARQL 종단점 조회"
 
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:115
+#: src/cli/tracker-endpoint.c:115
 msgid "--list can only be used with --session or --system"
 msgstr "--list 옵션은 --session 또는 --system과만 함께 사용할 수 있습니다"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:121
+#: src/cli/tracker-endpoint.c:121
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "단일 “ontology” 또는 “ontology-path” 옵션을 지정해야합니다"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:127
+#: src/cli/tracker-endpoint.c:127
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "--http-port 옵션은 --dbus-service 옵션과 사용할 수 없습니다"
 
-#: src/tracker/tracker-endpoint.c:198
+#: src/cli/tracker-endpoint.c:198
 #, c-format
-msgid "Creating HTTP endpoint at %s…\n"
-msgstr "%s에 HTTP 종단점 만드는 중…\n"
+msgid "Creating HTTP endpoint at %s…"
+msgstr "%s에 HTTP 종단점 만드는 중…"
 
-#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
+#: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
+#: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "SPARQL 명령으로 조회중입니다. 멈추려면 Ctrl-C를 누르십시오."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
-#: src/tracker/tracker-webide.c:101
+#: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
+#: src/cli/tracker-webide.c:105
 msgid "Closing connection…"
 msgstr "연결 끊는중…"
 
-#: src/tracker/tracker-endpoint.c:240
+#: src/cli/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "%s에 종단점 만드는 중…"
 
-#: src/tracker/tracker-endpoint.c:276
+#: src/cli/tracker-endpoint.c:277
 msgid "Could not own DBus name"
 msgstr "DBus 명칭을 부여할 수 없습니다"
 
-#: src/tracker/tracker-endpoint.c:290
+#: src/cli/tracker-endpoint.c:291
 msgid "DBus name lost"
 msgstr "DBus 명칭을 분실했습니다"
 
-#: src/tracker/tracker-endpoint.c:650
+#: src/cli/tracker-endpoint.c:608 src/cli/tracker-export.c:214
+#: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
+#: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
+#: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
+msgid "Unrecognized options"
+msgstr "인식할 수 없는 옵션"
+
+#: src/cli/tracker-endpoint.c:652
 #, c-format
 msgid "Opening database at %s…"
 msgstr "%s 데이터베이스 여는 중…"
 
-#: src/tracker/tracker-endpoint.c:653
+#: src/cli/tracker-endpoint.c:655
 msgid "Creating in-memory database"
 msgstr "메모리 내징 데이터베이스 만드는 중"
 
-#: src/tracker/tracker-endpoint.c:680
+#: src/cli/tracker-endpoint.c:683
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -151,103 +138,102 @@ msgstr ""
 "새 데이터베이스를 만들었습니다. 메시지 버스에서 이 데이터베이스를 공유하려면 "
 "“--dbus-service” 옵션을 사용하십시오."
 
-#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
-#: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
-#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
-#: src/tracker/tracker-sql.c:49
+#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
+#: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
+#: src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
+#: src/cli/tracker-query.c:65 src/cli/tracker-sql.c:46 src/cli/tracker-sql.c:50
 msgid "FILE"
 msgstr "<파일>"
 
-#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
+#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
+#: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "DBus 서비스로 연결합니다"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
+#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
+#: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
 msgid "DBus service name"
 msgstr "DBus 서비스 명칭"
 
-#: src/tracker/tracker-export.c:55
+#: src/cli/tracker-export.c:54
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "출력 결과 형식: “turtle”, “trig”, “json-ld”"
 
-#: src/tracker/tracker-export.c:56
+#: src/cli/tracker-export.c:55
 msgid "RDF_FORMAT"
 msgstr "<RDF_형식>"
 
-#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
+#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
+#: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "원격 서비스로 연결합니다"
 
-#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
+#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
+#: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "원격 서비스 URI"
 
-#: src/tracker/tracker-export.c:63
+#: src/cli/tracker-export.c:62
 msgid "Output TriG format which includes named graph information"
 msgstr "이름을 부여한 그래프 정보가 들어간 TriG 형식으로 출력"
 
-#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
+#: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
 msgid "IRI"
 msgstr "<IRI>"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
+#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
+#: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "“--database”, “--dbus-service”, “--remote-service” 옵션 중 하나를 지정하십시"
 "오"
 
-#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
-#: src/tracker/tracker-query.c:345
+#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
+#: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
+#: src/cli/tracker-query.c:345
 msgid "No error given"
 msgstr "발생한 오류가 없습니다"
 
-#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
+#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
+#: src/cli/tracker-introspect.c:828 src/cli/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "트래커로 연결을 수립할 수 없습니다"
 
-#: src/tracker/tracker-export.c:180
+#: src/cli/tracker-export.c:179
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "지원하지 않는 “%s” 직렬화 형식\n"
 
-#: src/tracker/tracker-import.c:58
+#: src/cli/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
 msgstr "이름을 부여한 그래프 정보가 들어간 TriG 형식으로 읽기"
 
-#: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
+#: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
 msgid "Could not run import"
 msgstr "가져오기를 실행할 수 없습니다"
 
-#: src/tracker/tracker-introspect.c:110
+#: src/cli/tracker-introspect.c:110
 msgid "Lists all available classes"
 msgstr "가용 클래스 전체를 조회합니다"
 
-#: src/tracker/tracker-introspect.c:114
+#: src/cli/tracker-introspect.c:114
 msgid "Lists all available prefixes"
 msgstr "가용 접두사 전체를 조회합니다"
 
-#: src/tracker/tracker-introspect.c:118
+#: src/cli/tracker-introspect.c:118
 msgid "Lists all classes which notify changes in the database"
 msgstr "데이터베이스에서 알림이 바뀐 클래스를 가져옵니다"
 
-#: src/tracker/tracker-introspect.c:122
+#: src/cli/tracker-introspect.c:122
 msgid "List indexes used in database to improve performance"
 msgstr "성능을 개선하려 데이터베이스에서 사용하는 색인을 받습니다"
 
-#: src/tracker/tracker-introspect.c:125
+#: src/cli/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "이름있는 모든 그래프를 가져옵니다"
 
-#: src/tracker/tracker-introspect.c:129
+#: src/cli/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -255,155 +241,155 @@ msgstr ""
 "하위 클래스, 상위 클래스를 나타냅니다(트리의 강조 부분을 나타낼 때 -s를 사용"
 "할 수 있으며 속성을 표시할 때 -p를 사용할 수 있습니다)"
 
-#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+#: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
 msgid "CLASS"
 msgstr "<클래스>"
 
-#: src/tracker/tracker-introspect.c:133
+#: src/cli/tracker-introspect.c:133
 msgid "Lists all available properties"
 msgstr "가용 속성 전체를 조회합니다"
 
-#: src/tracker/tracker-introspect.c:137
+#: src/cli/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr "클래스 또는 속성을 검색하고 더 많은 정보를 표시합니다(예: 문서)"
 
-#: src/tracker/tracker-introspect.c:138
+#: src/cli/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "<클래스>/<속성>"
 
-#: src/tracker/tracker-introspect.c:716
+#: src/cli/tracker-introspect.c:716
 msgid "Could not create tree: subclass query failed"
 msgstr "트리를 만들 수 없습니다: 하위클래스 질의에 실패했습니다"
 
-#: src/tracker/tracker-introspect.c:766
+#: src/cli/tracker-introspect.c:765
 msgid "Could not create tree: class properties query failed"
 msgstr "트리를 만들 수 없습니다: 클래스 속성 질의에 실패했습니다"
 
-#: src/tracker/tracker-introspect.c:850
+#: src/cli/tracker-introspect.c:848
 msgid "Could not search classes"
 msgstr "클래스를 검색할 수 없습니다"
 
-#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+#: src/cli/tracker-introspect.c:856 src/cli/tracker-introspect.c:940
 msgid "Classes"
 msgstr "클래스"
 
-#: src/tracker/tracker-introspect.c:870
+#: src/cli/tracker-introspect.c:868
 msgid "Could not search properties"
 msgstr "속성을 검색할 수 없습니다"
 
-#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+#: src/cli/tracker-introspect.c:876 src/cli/tracker-introspect.c:910
 msgid "Properties"
 msgstr "속성"
 
-#: src/tracker/tracker-introspect.c:904
+#: src/cli/tracker-introspect.c:902
 msgid "Could not list properties"
 msgstr "속성을 조회할 수 없습니다"
 
-#: src/tracker/tracker-introspect.c:920
+#: src/cli/tracker-introspect.c:918
 msgid "Namespaces"
 msgstr "이름 영역"
 
-#: src/tracker/tracker-introspect.c:934
+#: src/cli/tracker-introspect.c:932
 msgid "Could not list classes"
 msgstr "클래스를 조회할 수 없습니다"
 
-#: src/tracker/tracker-introspect.c:954
+#: src/cli/tracker-introspect.c:952
 msgid "Could not find notify classes"
 msgstr "알림 클래스를 찾을 수 없습니다"
 
-#: src/tracker/tracker-introspect.c:962
+#: src/cli/tracker-introspect.c:960
 msgid "Notifies"
 msgstr "알림"
 
-#: src/tracker/tracker-introspect.c:974
+#: src/cli/tracker-introspect.c:972
 msgid "Could not find indexed properties"
 msgstr "색인 기록한 속성을 찾을 수 없습니다"
 
-#: src/tracker/tracker-introspect.c:982
+#: src/cli/tracker-introspect.c:980
 msgid "Indexes"
 msgstr "색인"
 
-#: src/tracker/tracker-introspect.c:994
+#: src/cli/tracker-introspect.c:992
 msgid "Could not list named graphs"
 msgstr "이름 있는 그래프를 조회할 수 없습니다"
 
-#: src/tracker/tracker-introspect.c:1002
+#: src/cli/tracker-introspect.c:1000
 msgid "Named graphs"
 msgstr "이름 있는 그래프"
 
-#: src/tracker/tracker-introspect.c:1036
+#: src/cli/tracker-introspect.c:1034
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
 msgstr ""
 "--list-properties 인자는 --tree 인자를 함께 사용할 때만 비울 수 있습니다"
 
-#: src/tracker/tracker-main.c:72
+#: src/cli/tracker-main.c:69
 msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr "TinySPARQL 사용법과 명령 사용법 도움말을 봅니다"
 
-#: src/tracker/tracker-main.c:73
+#: src/cli/tracker-main.c:70
 msgid "Create a SPARQL endpoint"
 msgstr "SPARQL 종단점을 만듭니다"
 
-#: src/tracker/tracker-main.c:74
+#: src/cli/tracker-main.c:71
 msgid "Export data from a TinySPARQL database"
 msgstr "TinySPARQL 데이터베이스에서 데이터를 내보냅니다"
 
-#: src/tracker/tracker-main.c:75
+#: src/cli/tracker-main.c:72
 msgid "Import data into a TinySPARQL database"
 msgstr "TinySPARQL 데이터베이스로 데이터를 가져옵니다"
 
-#: src/tracker/tracker-main.c:76
+#: src/cli/tracker-main.c:73
 msgid "Introspect a SPARQL endpoint"
 msgstr "SPARQL 종단점을 검사합니다"
 
-#: src/tracker/tracker-main.c:77
+#: src/cli/tracker-main.c:74
 msgid "Query and update the index using SPARQL"
 msgstr "SPARQL로 색인을 질의하고 업데이트합니다"
 
-#: src/tracker/tracker-main.c:78
+#: src/cli/tracker-main.c:75
 msgid "Create a Web IDE to query local databases"
 msgstr "로컬 데이터베이스에 질의 요청할 웹 IDE를 만듭니다"
 
-#: src/tracker/tracker-main.c:95
+#: src/cli/tracker-main.c:92
 msgid "Available tinysparql commands are:"
 msgstr "사용할 수 있는 TinySPARQL 명령:"
 
-#: src/tracker/tracker-main.c:114
+#: src/cli/tracker-main.c:111
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
 "지정 하위 명령 정보를 읽어보려면 “tinysparql help <명령>” 결과를 살펴보십시"
 "오."
 
-#: src/tracker/tracker-main.c:157
+#: src/cli/tracker-main.c:154
 #, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
 msgstr ""
 "“%s”은(는) tinysparql 명령이 아닙니다. “tinysparql --help”를 참고하십시오"
 
-#: src/tracker/tracker-query.c:64
+#: src/cli/tracker-query.c:64
 msgid "Path to use to run a query or update from file"
 msgstr "질의문을 실행하거나 파일로부터 업데이트할 때 사용할 경로"
 
-#: src/tracker/tracker-query.c:68
+#: src/cli/tracker-query.c:68
 msgid "SPARQL query"
 msgstr "SPARQL 질의문"
 
-#: src/tracker/tracker-query.c:69
+#: src/cli/tracker-query.c:69
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-query.c:72
+#: src/cli/tracker-query.c:72
 msgid "This is used with --query and for database updates only."
 msgstr "이 옵션은 --query와 데이터베이스 업데이트시에만 사용합니다."
 
-#: src/tracker/tracker-query.c:76
+#: src/cli/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
 msgstr "요청문 매개 변수의 인자값을 제공합니다."
 
-#: src/tracker/tracker-query.c:77
+#: src/cli/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
 msgstr "<매개변수>:<형식>:<값>"
 
@@ -411,96 +397,111 @@ msgstr "<매개변수>:<형식>:<값>"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
+#: src/cli/tracker-query.c:214 src/cli/tracker-query.c:262
 msgid "None"
 msgstr "없음"
 
-#: src/tracker/tracker-query.c:282
+#: src/cli/tracker-query.c:282
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "잘못된 %s 인자 값 문자열"
 
-#: src/tracker/tracker-query.c:292
+#: src/cli/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "%s 인자 값에 대한 잘못된 매개변수 형식"
 
-#: src/tracker/tracker-query.c:360
+#: src/cli/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
 msgstr "경로로부터 UTF-8 경로를 가져올 수 없습니다"
 
-#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
+#: src/cli/tracker-query.c:372 src/cli/tracker-sql.c:75
 msgid "Could not read file"
 msgstr "파일을 읽을 수 없습니다"
 
-#: src/tracker/tracker-query.c:403
+#: src/cli/tracker-query.c:403
 msgid "Could not run update"
 msgstr "업데이트를 실행할 수 없습니다"
 
-#: src/tracker/tracker-query.c:410
+#: src/cli/tracker-query.c:410
 msgid "Done"
 msgstr "완료"
 
-#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
-#: src/tracker/tracker-sql.c:163
+#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
+#: src/cli/tracker-sql.c:164
 msgid "Could not run query"
 msgstr "질의문을 실행할 수 없습니다"
 
-#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
 msgid "No results found matching your query"
 msgstr "질의에 일치하는 결과를 찾지 못했습니다"
 
-#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
-#: src/tracker/tracker-sql.c:137
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+#: src/cli/tracker-sql.c:138
 msgid "Results"
 msgstr "결과"
 
-#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
+#: src/cli/tracker-query.c:498 src/cli/tracker-sql.c:250
 msgid "File and query can not be used together"
 msgstr "파일과 질의문을 함께 사용할 수 없습니다"
 
-#: src/tracker/tracker-sql.c:48
+#: src/cli/tracker-sql.c:49
 msgid "Path to use to run a query from file"
 msgstr "질의문을 실행하거나 파일로부터 업데이트할 때 사용할 경로"
 
-#: src/tracker/tracker-sql.c:52
+#: src/cli/tracker-sql.c:53
 msgid "SQL query"
 msgstr "SQL 질의문"
 
-#: src/tracker/tracker-sql.c:53
+#: src/cli/tracker-sql.c:54
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:107
+#: src/cli/tracker-sql.c:108
 msgid "Failed to initialize data manager"
 msgstr "데이터 관리자를 초기화 하는데 실패했습니다"
 
-#: src/tracker/tracker-sql.c:171
+#: src/cli/tracker-sql.c:172
 msgid "Empty result set"
 msgstr "빈 결과 세트"
 
-#: src/tracker/tracker-sql.c:247
+#: src/cli/tracker-sql.c:248
 msgid "A database path must be specified"
 msgstr "데이터베이스 경로를 지정해야합니다"
 
 #. Translators: this is a HTTP port
-#: src/tracker/tracker-webide.c:40
+#: src/cli/tracker-webide.c:40
 msgid "Port to listen on"
 msgstr "감청 포트"
 
 #. Translators: this is a HTTP port
-#: src/tracker/tracker-webide.c:50
+#: src/cli/tracker-webide.c:50
 msgid "Port not specified"
 msgstr "포트를 지정하지 않았습니다"
 
-#: src/tracker/tracker-webide.c:80
+#. Translators: This will point to a local HTTP address
+#: src/cli/tracker-webide.c:81
 #, c-format
-msgid "%s %s…\n"
-msgstr "%s %s…\n"
+msgid "Creating Web IDE at %s…"
+msgstr "%s에 웹 IDE 만드는 중…"
 
-#: src/tracker/tracker-webide.c:80
-msgid "Creating Web IDE at"
-msgstr "웹 IDE를 다음 위치에 만드는 중"
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtinysparql/core/tracker-collation.c:116
+msgid "the|a|an"
+msgstr "the|a|an"
+
+#: src/portal/tracker-main.c:51
+msgid "Version"
+msgstr "버전"
+
+#, c-format
+#~ msgid "%s %s…\n"
+#~ msgstr "%s %s…\n"
 
 #, c-format
 #~ msgid "Web IDE available at %s\n"
@@ -517,11 +518,11 @@ msgstr "웹 IDE를 다음 위치에 만드는 중"
 #~ msgstr "클래스 접두어를 가져옵니다"
 
 #~ msgid ""
-#~ "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-#~ "Resource)"
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. "
+#~ "rdfs:Resource)"
 #~ msgstr ""
-#~ "클래스에 대한 속성을 가져옵니다. 접두어도 사용할 수 있습니다(예:rdfs:"
-#~ "Resource)"
+#~ "클래스에 대한 속성을 가져옵니다. 접두어도 사용할 수 있습니다"
+#~ "(예:rdfs:Resource)"
 
 #~ msgid "PROPERTY"
 #~ msgstr "<속성>"
@@ -599,8 +600,8 @@ msgstr "웹 IDE를 다음 위치에 만드는 중"
 #~ msgstr "접두어"
 
 #~ msgid ""
-#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
-#~ "Resource”"
+#~ "Could not find property for class prefix, e.g. :Resource in "
+#~ "“rdfs:Resource”"
 #~ msgstr ""
 #~ "클래스 접두어에 대한 속성을 찾을 수 없습니다. 예: “rdfs:Resource”의 "
 #~ "Resource"
