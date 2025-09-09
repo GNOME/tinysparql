@@ -10,6 +10,8 @@ i18n = import('i18n')
 pkg = import('pkgconfig')
 cc = meson.get_compiler('c')
 
+subproject('libstemmer')
+
 # This is the X.Y used in -llibtracker-FOO-X.Y
 tracker_api_version = '3.0'
 tracker_api_major = tracker_api_version.split('.')[0]
