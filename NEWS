@@ -1,3 +1,9 @@
+NEW in 3.10.rc.1 - 2025-09-10
+=============================
+  * Bundle libstemmer as a fallback in the tarball
+
+Translations: ca, cs, da, eu, fa, gl, ka, ko, lt, pt_BR, sv, tr, uk, zh_CN
+
 NEW in 3.10.rc - 2025-09-01
 ===========================
   * Validation improvements to JSON-LD parsing
