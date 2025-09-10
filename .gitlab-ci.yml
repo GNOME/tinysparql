@@ -117,18 +117,30 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2025-08-31.1'
+    BASE_TAG: '2025-09-09.5'
     FDO_DISTRIBUTION_PACKAGES:
+      asciidoc
+      avahi-gobject-devel
+      bash-completion-devel
       clang
       clang-analyzer
       cmake
+      dbus-daemon
       diffutils
       file
+      gcc
+      gi-docgen
       git
+      glib2-devel
+      gobject-introspection-devel
+      json-glib-devel
       libasan
-      libsoup-devel
+      libicu-devel
+      libsoup3-devel
       libubsan
+      libxml2-devel
       man-db
+      meson
       patch
       python-devel
       python3-gobject
@@ -138,13 +150,13 @@ check-merge-request:
       python3-pip
       python3-pygments
       python3-typogrify
-      umockdev-devel
+      sqlite-devel
+      systemd-devel
+      vala
       xmlto
       uncrustify
 
     FDO_DISTRIBUTION_EXEC: |
-      dnf install -y 'dnf5-command(builddep)' 'dnf5-command(download)';
-      dnf builddep -y tracker --setopt=install_weak_deps=False || dnf builddep -y tinysparql --setopt=install_weak_deps=False;
       # For tests, this isn't packaged in Fedora.
       pip3 install tap.py gcovr &&
       dnf clean all

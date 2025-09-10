@@ -29,7 +29,7 @@
  * at runtime, the former must be rebuilt for those to match perfectly
  * to avoid returning meaningless results on FTS searches.
  */
-#define TRACKER_PARSER_VERSION 6
+#define TRACKER_PARSER_VERSION 7
 
 G_BEGIN_DECLS
 
