@@ -627,7 +627,8 @@ static const TrackerGrammarRule helper_Aggregate_seq_4[] = { L(MAX), L(OPEN_PARE
 static const TrackerGrammarRule helper_Aggregate_seq_5[] = { L(AVG), L(OPEN_PARENS), OPT(helper_Aggregate_opt_1), R(Expression), L(CLOSE_PARENS), NIL };
 static const TrackerGrammarRule helper_Aggregate_seq_6[] = { L(SAMPLE), L(OPEN_PARENS), OPT(helper_Aggregate_opt_1), R(Expression), L(CLOSE_PARENS), NIL };
 static const TrackerGrammarRule helper_Aggregate_seq_8[] = { L(SEMICOLON), L(SEPARATOR), L(OP_EQ), NIL };
-static const TrackerGrammarRule helper_Aggregate_or_3[] = { S(helper_Aggregate_seq_8), L(COMMA), NIL };
+static const TrackerGrammarRule helper_Aggregate_ext_1[] = { L(COMMA), NIL };
+static const TrackerGrammarRule helper_Aggregate_or_3[] = { S(helper_Aggregate_seq_8), EXT(helper_Aggregate_ext_1), NIL };
 static const TrackerGrammarRule helper_Aggregate_seq_in_opt[] = { OR(helper_Aggregate_or_3), R(String), NIL };
 static const TrackerGrammarRule helper_Aggregate_opt_2[] = { S(helper_Aggregate_seq_in_opt), NIL };
 static const TrackerGrammarRule helper_Aggregate_seq_7[] = { L(GROUP_CONCAT), L(OPEN_PARENS), OPT(helper_Aggregate_opt_1), R(Expression), OPT(helper_Aggregate_opt_2), L(CLOSE_PARENS), NIL };
@@ -726,7 +727,8 @@ static const TrackerGrammarRule helper_BuiltInCall_seq_2[] = { L(STR), S(helper_
 static const TrackerGrammarRule helper_BuiltInCall_seq_3[] = { L(LANG), S(helper_BuiltInCall_seq_1), NIL };
 static const TrackerGrammarRule helper_BuiltInCall_seq_4[] = { L(LANGMATCHES), L(OPEN_PARENS), R(Expression), L(COMMA), R(Expression), L(CLOSE_PARENS), NIL };
 static const TrackerGrammarRule helper_BuiltInCall_seq_5[] = { L(DATATYPE), S(helper_BuiltInCall_seq_1), NIL };
-static const TrackerGrammarRule helper_BuiltInCall_seq_6[] = { L(BOUND), L(OPEN_PARENS), R(Expression), L(CLOSE_PARENS), NIL };
+static const TrackerGrammarRule helper_BuiltinCall_ext_1[] = { R(Expression), R(Var), NIL };
+static const TrackerGrammarRule helper_BuiltInCall_seq_6[] = { L(BOUND), L(OPEN_PARENS), EXT(helper_BuiltinCall_ext_1), L(CLOSE_PARENS), NIL };
 static const TrackerGrammarRule helper_BuiltInCall_seq_7[] = { L(IRI), S(helper_BuiltInCall_seq_1), NIL };
 static const TrackerGrammarRule helper_BuiltInCall_seq_8[] = { L(URI), S(helper_BuiltInCall_seq_1), NIL };
 static const TrackerGrammarRule helper_BuiltInCall_seq_9[] = { L(BNODE), OR(helper_BuiltInCall_or_1), NIL };
@@ -804,7 +806,8 @@ static const TrackerGrammarRule rule_BuiltInCall[] = { OR(helper_BuiltInCall_or_
  * SubSelect is accepted too, thus the grammar results in:
  * '(' ( Expression | SubSelect) ')'
  */
-static const TrackerGrammarRule ext_BrackettedExpression_or[] = { R(Expression), R(SubSelect), NIL };
+static const TrackerGrammarRule rule_BrackettedExpression_ext[] = { R(SubSelect), NIL };
+static const TrackerGrammarRule ext_BrackettedExpression_or[] = { EXT(rule_BrackettedExpression_ext), R(Expression), NIL };
 static const TrackerGrammarRule rule_BrackettedExpression[] = { L(OPEN_PARENS), OR(ext_BrackettedExpression_or), L(CLOSE_PARENS), NIL };
 
 /* iriOrFunction ::= iri ArgList?
@@ -919,7 +922,8 @@ static const TrackerGrammarRule rule_GraphNodePath[] = { OR(helper_GraphNodePath
  * Literal 'NULL' is also accepted, rule is effectively:
  *   VarOrTerm | TriplesNode | 'NULL'
  */
-static const TrackerGrammarRule helper_GraphNode_or[] = { R(VarOrTerm), R(TriplesNode), L(NULL), NIL };
+static const TrackerGrammarRule helper_GraphNode_ext[] = { L(NULL), NIL };
+static const TrackerGrammarRule helper_GraphNode_or[] = { R(VarOrTerm), R(TriplesNode), EXT(helper_GraphNode_ext), NIL };
 static const TrackerGrammarRule rule_GraphNode[] = { OR(helper_GraphNode_or), NIL };
 
 /* CollectionPath ::= '(' GraphNodePath+ ')'
@@ -1118,7 +1122,9 @@ static const TrackerGrammarRule helper_ArgList_seq_3[] = { OPT(helper_ArgList_op
 static const TrackerGrammarRule helper_ArgList_seq_4[] = { L(COMMA), OR(helper_ArgList_or_3), NIL };
 static const TrackerGrammarRule helper_ArgList_gte_2[] = { S(helper_ArgList_seq_4), NIL };
 static const TrackerGrammarRule helper_ArgList_seq_5[] = { L(OPEN_PARENS), OR(helper_ArgList_or_3), GTE0(helper_ArgList_gte_2), L(CLOSE_PARENS), NIL };
-static const TrackerGrammarRule helper_ArgList_or_2[] = { S(helper_ArgList_seq_3), T(NIL), S(helper_ArgList_seq_5), NIL };
+static const TrackerGrammarRule helper_ArgList_or_4[] = { T(NIL), S(helper_ArgList_seq_5), NIL };
+static const TrackerGrammarRule helper_ArgList_ext_1[] = { OR(helper_ArgList_or_4), NIL };
+static const TrackerGrammarRule helper_ArgList_or_2[] = { S(helper_ArgList_seq_3), EXT(helper_ArgList_ext_1), NIL };
 static const TrackerGrammarRule helper_ArgList_seq_2[] = {  L(OPEN_PARENS), OR(helper_ArgList_or_2), GTE0(helper_ArgList_gte0), L(CLOSE_PARENS), NIL };
 static const TrackerGrammarRule helper_ArgList_or[] = { T(NIL), S(helper_ArgList_seq_2), NIL };
 static const TrackerGrammarRule rule_ArgList[] = { OR(helper_ArgList_or), NIL };
@@ -1276,10 +1282,13 @@ static const TrackerGrammarRule rule_UsingClause[] = { L(USING), OR(helper_Using
  */
 static const TrackerGrammarRule helper_InsertClause_seq_1[] = { L(OR), L(REPLACE), NIL };
 static const TrackerGrammarRule helper_InsertClause_opt_1[] = { S(helper_InsertClause_seq_1), NIL };
+static const TrackerGrammarRule helper_InsertClause_ext_1[] = { OPT(helper_InsertClause_opt_1), NIL };
 static const TrackerGrammarRule helper_InsertClause_opt_2[] = { L(SILENT), NIL };
+static const TrackerGrammarRule helper_InsertClause_ext_2[] = { OPT(helper_InsertClause_opt_2), NIL };
 static const TrackerGrammarRule helper_InsertClause_seq_2[] = { L(INTO), R(iri), NIL };
 static const TrackerGrammarRule helper_InsertClause_opt_3[] = { S(helper_InsertClause_seq_2), NIL };
-static const TrackerGrammarRule rule_InsertClause[] = { L(INSERT), OPT(helper_InsertClause_opt_1), OPT(helper_InsertClause_opt_2), OPT(helper_InsertClause_opt_3), R(QuadPattern), NIL };
+static const TrackerGrammarRule helper_InsertClause_ext_3[] = { OPT(helper_InsertClause_opt_3), NIL };
+static const TrackerGrammarRule rule_InsertClause[] = { L(INSERT), EXT(helper_InsertClause_ext_1), EXT(helper_InsertClause_ext_2), EXT(helper_InsertClause_ext_3), R(QuadPattern), NIL };
 
 /* DeleteClause ::= 'DELETE' QuadPattern
  *
@@ -1288,7 +1297,8 @@ static const TrackerGrammarRule rule_InsertClause[] = { L(INSERT), OPT(helper_In
  * 'DELETE' 'SILENT'
  */
 static const TrackerGrammarRule helper_DeleteClause_opt_1[] = { L(SILENT), NIL };
-static const TrackerGrammarRule rule_DeleteClause[] = { L(DELETE), OPT(helper_DeleteClause_opt_1), R(QuadPattern), NIL };
+static const TrackerGrammarRule helper_DeleteClause_ext_1[] = { OPT(helper_DeleteClause_opt_1), NIL };
+static const TrackerGrammarRule rule_DeleteClause[] = { L(DELETE), EXT(helper_DeleteClause_ext_1), R(QuadPattern), NIL };
 
 /* Modify ::= ( 'WITH' iri )? ( DeleteClause InsertClause? | InsertClause ) UsingClause* 'WHERE' GroupGraphPattern
  *
@@ -1304,7 +1314,8 @@ static const TrackerGrammarRule helper_Modify_or[] = { S(helper_Modify_seq_2), R
 static const TrackerGrammarRule helper_Modify_gte0[] = { R(UsingClause), NIL };
 static const TrackerGrammarRule helper_Modify_seq_3[] = { L(WHERE), R(GroupGraphPattern), NIL };
 static const TrackerGrammarRule helper_Modify_opt_3[] = { S(helper_Modify_seq_3), NIL };
-static const TrackerGrammarRule rule_Modify[] = { OPT(helper_Modify_opt_1), OR(helper_Modify_or), GTE0(helper_Modify_gte0), OPT(helper_Modify_opt_3), NIL };
+static const TrackerGrammarRule helper_Modify_ext_1[] = { OPT(helper_Modify_opt_3), S(helper_Modify_seq_3), NIL };
+static const TrackerGrammarRule rule_Modify[] = { OPT(helper_Modify_opt_1), OR(helper_Modify_or), GTE0(helper_Modify_gte0), EXT(helper_Modify_ext_1), NIL };
 
 /* DeleteWhere ::= 'DELETE WHERE' QuadPattern
  */
@@ -1399,7 +1410,8 @@ static const TrackerGrammarRule rule_LimitOffsetClauses[] = { OR(helper_LimitOff
  * ( ( 'ASC' | 'DESC' ) Expression )
  */
 static const TrackerGrammarRule helper_OrderCondition_or_1[] = { L(ASC), L(DESC), NIL };
-static const TrackerGrammarRule helper_OrderCondition_seq[] = { OR(helper_OrderCondition_or_1), R(Expression), NIL };
+static const TrackerGrammarRule helper_OrderCondition_ext_1[] = { R(Expression), R(BrackettedExpression), NIL };
+static const TrackerGrammarRule helper_OrderCondition_seq[] = { OR(helper_OrderCondition_or_1), EXT(helper_OrderCondition_ext_1), NIL };
 static const TrackerGrammarRule helper_OrderCondition_or_2[] = { S(helper_OrderCondition_seq), R(Constraint), R(Var), NIL };
 static const TrackerGrammarRule rule_OrderCondition[] = { OR(helper_OrderCondition_or_2), NIL };
 
@@ -1493,10 +1505,12 @@ static const TrackerGrammarRule rule_ConstructQuery[] = { L(CONSTRUCT), OR(helpe
 static const TrackerGrammarRule ext_SelectClause_seq_1[] = { L(AS), R(Var), NIL };
 static const TrackerGrammarRule ext_SelectClause_opt[] = { S(ext_SelectClause_seq_1), NIL };
 static const TrackerGrammarRule ext_SelectClause_seq_2[] = { R(Var), OPT(ext_SelectClause_opt), NIL };
+static const TrackerGrammarRule helper_SelectClause_ext_1[] = { S(ext_SelectClause_seq_2), NIL };
 static const TrackerGrammarRule ext_SelectClause_seq_3[] = { R(Expression), OPT(ext_SelectClause_opt), NIL };
+static const TrackerGrammarRule helper_SelectClause_ext_2[] = { S(ext_SelectClause_seq_3), NIL };
 static const TrackerGrammarRule helper_SelectClause_seq_1[] = { L(OPEN_PARENS), R(Expression), L(AS), R(Var), L(CLOSE_PARENS), NIL };
 static const TrackerGrammarRule helper_SelectClause_or_1[] = { L(DISTINCT), L(REDUCED), NIL };
-static const TrackerGrammarRule helper_SelectClause_or_2[] = { S(ext_SelectClause_seq_2), S(ext_SelectClause_seq_3), R(Var), S(helper_SelectClause_seq_1), NIL };
+static const TrackerGrammarRule helper_SelectClause_or_2[] = { EXT(helper_SelectClause_ext_1), EXT(helper_SelectClause_ext_2), R(Var), S(helper_SelectClause_seq_1), NIL };
 static const TrackerGrammarRule helper_SelectClause_gt0[] = { OR(helper_SelectClause_or_2), NIL };
 static const TrackerGrammarRule helper_SelectClause_opt[] = { OR(helper_SelectClause_or_1), NIL };
 static const TrackerGrammarRule helper_SelectClause_or_3[] = { L(GLOB), GT0(helper_SelectClause_gt0), NIL };
@@ -1545,7 +1559,8 @@ static const TrackerGrammarRule rule_Prologue[] = { GTE0 (helper_Prologue_gte0),
  * ';' separator is made optional.
  */
 static const TrackerGrammarRule helper_Update_opt_3[] = { L(SEMICOLON), NIL };
-static const TrackerGrammarRule helper_Update_seq_1[] = { OPT(helper_Update_opt_3), R(Update), NIL };
+static const TrackerGrammarRule helper_Update_ext_1[] = { OPT(helper_Update_opt_3), L(SEMICOLON), NIL };
+static const TrackerGrammarRule helper_Update_seq_1[] = { EXT(helper_Update_ext_1), R(Update), NIL };
 static const TrackerGrammarRule helper_Update_opt_1[] = { S (helper_Update_seq_1), NIL };
 static const TrackerGrammarRule helper_Update_seq_2[] = { R(Update1), OPT (helper_Update_opt_1), NIL };
 static const TrackerGrammarRule helper_Update_opt_2[] = { S(helper_Update_seq_2), NIL };
