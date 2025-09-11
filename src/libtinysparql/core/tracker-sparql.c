@@ -9870,7 +9870,8 @@ tracker_sparql_new (TrackerDataManager  *manager,
 	else
 		sparql->sparql = g_strdup (query);
 
-	sparql->tree = tracker_sparql_parse_query (sparql->sparql, -1, NULL,
+	sparql->tree = tracker_sparql_parse_query (TRACKER_SPARQL_PARSE_NONE,
+	                                           sparql->sparql, -1, NULL,
 	                                           &inner_error);
 
 	if (inner_error) {
@@ -10104,7 +10105,8 @@ tracker_sparql_new_update (TrackerDataManager  *manager,
 	else
 		sparql->sparql = g_strdup (query);
 
-	tree = tracker_sparql_parse_update (sparql->sparql, -1, &len,
+	tree = tracker_sparql_parse_update (TRACKER_SPARQL_PARSE_NONE,
+	                                    sparql->sparql, -1, &len,
 	                                    &inner_error);
 
 	if (tree && !inner_error && query[len] != '\0') {

@@ -92,6 +92,7 @@ struct _TrackerParserState {
 struct _TrackerGrammarParser {
 	const gchar *query;
 	gssize query_len;
+	TrackerParseFlags flags;
 };
 
 static TrackerNodeTree *
@@ -197,9 +198,11 @@ tracker_parser_node_new (const TrackerGrammarRule *rule,
 
 static void
 tracker_grammar_parser_init (TrackerGrammarParser *parser,
+                             TrackerParseFlags     flags,
                              const gchar          *query,
                              gsize                 len)
 {
+	parser->flags = flags;
 	parser->query = query;
 	parser->query_len = len;
 }
@@ -832,10 +835,11 @@ tracker_grammar_parser_apply (TrackerGrammarParser      *parser,
 }
 
 TrackerNodeTree *
-tracker_sparql_parse_query (const gchar  *query,
-                            gssize        len,
-                            gsize        *len_out,
-                            GError      **error)
+tracker_sparql_parse_query (TrackerParseFlags   flags,
+                            const gchar        *query,
+                            gssize              len,
+                            gsize              *len_out,
+                            GError            **error)
 {
 	TrackerGrammarParser parser;
 	TrackerNodeTree *tree;
@@ -845,17 +849,18 @@ tracker_sparql_parse_query (const gchar  *query,
 	if (len < 0)
 		len = strlen (query);
 
-	tracker_grammar_parser_init (&parser, query, len);
+	tracker_grammar_parser_init (&parser, flags, query, len);
 	tree = tracker_grammar_parser_apply (&parser, NAMED_RULE (QueryUnit), len_out, error);
 
 	return tree;
 }
 
 TrackerNodeTree *
-tracker_sparql_parse_update (const gchar  *query,
-                             gssize        len,
-                             gsize        *len_out,
-                             GError      **error)
+tracker_sparql_parse_update (TrackerParseFlags   flags,
+                             const gchar        *query,
+                             gssize              len,
+                             gsize              *len_out,
+                             GError            **error)
 {
 	TrackerGrammarParser parser;
 	TrackerNodeTree *tree;
@@ -865,7 +870,7 @@ tracker_sparql_parse_update (const gchar  *query,
 	if (len < 0)
 		len = strlen (query);
 
-	tracker_grammar_parser_init (&parser, query, len);
+	tracker_grammar_parser_init (&parser, flags, query, len);
 	tree = tracker_grammar_parser_apply (&parser, NAMED_RULE (UpdateUnit), len_out, error);
 
 	return tree;

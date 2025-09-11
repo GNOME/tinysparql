@@ -26,14 +26,20 @@ typedef struct _TrackerParserNode TrackerParserNode;
 typedef struct _TrackerGrammarRule TrackerGrammarRule;
 typedef struct _TrackerNodeTree TrackerNodeTree;
 
-TrackerNodeTree * tracker_sparql_parse_query  (const gchar  *query,
-                                               gssize        len,
-                                               gsize        *len_out,
-                                               GError      **error);
-TrackerNodeTree * tracker_sparql_parse_update (const gchar  *query,
-                                               gssize        len,
-                                               gsize        *len_out,
-                                               GError      **error);
+typedef enum {
+	TRACKER_SPARQL_PARSE_NONE = 0,
+} TrackerParseFlags;
+
+TrackerNodeTree * tracker_sparql_parse_query  (TrackerParseFlags   flags,
+                                               const gchar        *query,
+                                               gssize              len,
+                                               gsize              *len_out,
+                                               GError            **error);
+TrackerNodeTree * tracker_sparql_parse_update (TrackerParseFlags   flags,
+                                               const gchar        *query,
+                                               gssize              len,
+                                               gsize              *len_out,
+                                               GError            **error);
 
 void   tracker_node_tree_free     (TrackerNodeTree *tree);
 TrackerParserNode * tracker_node_tree_get_root (TrackerNodeTree *tree);
