@@ -28,6 +28,7 @@ typedef struct _TrackerNodeTree TrackerNodeTree;
 
 typedef enum {
 	TRACKER_SPARQL_PARSE_NONE = 0,
+	TRACKER_SPARQL_PARSE_ALLOW_EXTENSIONS = 1 << 0,
 } TrackerParseFlags;
 
 TrackerNodeTree * tracker_sparql_parse_query  (TrackerParseFlags   flags,

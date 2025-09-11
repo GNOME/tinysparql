@@ -172,6 +172,7 @@ tracker_parser_node_reset (TrackerParserNode        *node,
 	case RULE_TYPE_GTE0:
 	case RULE_TYPE_OPTIONAL:
 	case RULE_TYPE_OR:
+	case RULE_TYPE_EXTENSION:
 		node->cur_child = -1;
 		break;
 	case RULE_TYPE_LITERAL:
@@ -274,7 +275,8 @@ tracker_parser_state_peek_current_rule (TrackerParserState *state)
 }
 
 static const TrackerGrammarRule *
-tracker_parser_state_lookup_child (TrackerParserState *state)
+tracker_parser_state_lookup_child (TrackerParserState *state,
+                                   TrackerParseFlags   flags)
 {
 	TrackerRuleState *rule_state;
 	const TrackerGrammarRule *children;
@@ -292,6 +294,12 @@ tracker_parser_state_lookup_child (TrackerParserState *state)
 	if (!children)
 		return NULL;
 
+	if (rule_state->rule->type == RULE_TYPE_EXTENSION &&
+	    !(flags & TRACKER_SPARQL_PARSE_ALLOW_EXTENSIONS)) {
+		/* Pick the second path if no extensions are allowed */
+		rule_state->cur_child++;
+	}
+
 	return &children[rule_state->cur_child];
 }
 
@@ -306,6 +314,14 @@ tracker_parser_state_next_child (TrackerParserState *state,
 
 	if (rule_state->finished)
 		return FALSE;
+
+	if (rule_state->rule->type == RULE_TYPE_EXTENSION) {
+		/* EXT() rules are always handled as having a single child,
+		 * either the extension-yes path, or the extension-no path.
+		 */
+		rule_state->finished = TRUE;
+		return FALSE;
+	}
 
 	if (success) {
 		if (rule_state->rule->type == RULE_TYPE_OR) {
@@ -537,6 +553,18 @@ tracker_grammar_parser_apply_rule (TrackerGrammarParser     *parser,
 	case RULE_TYPE_OPTIONAL:
 	case RULE_TYPE_OR:
 		return TRUE;
+	case RULE_TYPE_EXTENSION: {
+		const TrackerGrammarRule *children;
+
+		children = tracker_grammar_rule_get_children (rule);
+		g_assert (children && children[0].type != RULE_TYPE_NIL);
+
+		/* On EXT() rules, we pick the second path if ALLOW_EXTENSIONS
+		 * is disabled, this may be RULE_TYPE_NIL, in which case
+		 * !ALLOW_EXTENSIONS is considered to have no child */
+		return (!!(parser->flags & TRACKER_SPARQL_PARSE_ALLOW_EXTENSIONS) ||
+		        children[1].type != RULE_TYPE_NIL);
+	}
 	case RULE_TYPE_NIL:
 		g_assert_not_reached ();
 		return FALSE;
@@ -554,7 +582,7 @@ tracker_parser_state_iterate (TrackerParserState   *state,
 
 	if (try_children) {
 		/* Try iterating into children first */
-		child = tracker_parser_state_lookup_child (state);
+		child = tracker_parser_state_lookup_child (state, parser->flags);
 
 		if (child) {
 			tracker_parser_state_skip_whitespace (state, parser);
@@ -568,7 +596,7 @@ tracker_parser_state_iterate (TrackerParserState   *state,
 	/* Find the first parent that has a next child to handle */
 	while (state->rule_states.len > 0) {
 		if (tracker_parser_state_next_child (state, TRUE)) {
-			child = tracker_parser_state_lookup_child (state);
+			child = tracker_parser_state_lookup_child (state, parser->flags);
 			tracker_parser_state_skip_whitespace (state, parser);
 			tracker_parser_state_push (state, child);
 			return TRUE;
@@ -604,7 +632,7 @@ tracker_parser_state_rollback (TrackerParserState   *state,
 		case RULE_TYPE_OR:
 			if (tracker_parser_state_next_child (state, FALSE)) {
 				tracker_node_tree_reset (state->node_tree, discard);
-				child = tracker_parser_state_lookup_child (state);
+				child = tracker_parser_state_lookup_child (state, parser->flags);
 				tracker_parser_state_skip_whitespace (state, parser);
 				tracker_parser_state_push (state, child);
 				return TRUE;

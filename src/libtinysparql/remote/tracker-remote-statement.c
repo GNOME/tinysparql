@@ -508,7 +508,7 @@ tracker_remote_statement_new (TrackerSparqlConnection  *conn,
 	                            NULL);
 	remote_stmt = TRACKER_REMOTE_STATEMENT (stmt);
 	remote_stmt->parser_tree =
-		tracker_sparql_parse_query (TRACKER_SPARQL_PARSE_NONE,
+		tracker_sparql_parse_query (TRACKER_SPARQL_PARSE_ALLOW_EXTENSIONS,
 		                            tracker_sparql_statement_get_sparql (stmt),
 		                            -1, NULL, error);
 	if (!remote_stmt->parser_tree) {

@@ -505,6 +505,7 @@ typedef enum {
 	RULE_TYPE_GT0,
 	RULE_TYPE_GTE0,
 	RULE_TYPE_OPTIONAL,
+	RULE_TYPE_EXTENSION,
 } TrackerGrammarRuleType;
 
 struct _TrackerGrammarRule {
@@ -522,7 +523,7 @@ typedef gboolean (*TrackerTerminalFunc) (const gchar  *str,
 					 const gchar  *end,
 					 const gchar **str_out);
 
-/* R=Rule, L=Literal, S=Sequence, T=Terminal, OR=Or, GTE0=">=0"(*) GT0=">0"(+) OPT=Optional(?), NIL=Closing rule */
+/* R=Rule, L=Literal, S=Sequence, T=Terminal, OR=Or, GTE0=">=0"(*), GT0=">0"(+), OPT=Optional(?), EXT=Extension, NIL=Closing rule */
 #define R(target) { RULE_TYPE_RULE, #target, .data = { .rule = NAMED_RULE_##target } }
 #define L(lit) { RULE_TYPE_LITERAL, literals[LITERAL_##lit], .data = { .literal = LITERAL_##lit } }
 #define T(name) { RULE_TYPE_TERMINAL, #name, .data = { .terminal = TERMINAL_TYPE_##name } }
@@ -532,6 +533,7 @@ typedef gboolean (*TrackerTerminalFunc) (const gchar  *str,
 #define GT0(rules) { RULE_TYPE_GT0, NULL, .data = { .children = (rules) } }
 #define GTE0(rules) { RULE_TYPE_GTE0, NULL, .data = { .children = (rules) } }
 #define OPT(rules) { RULE_TYPE_OPTIONAL, NULL, .data = { .children = (rules) } }
+#define EXT(rules) { RULE_TYPE_EXTENSION, NULL, .data = { .children = (rules) } }
 #define NIL { RULE_TYPE_NIL }
 
 /* Rules to parse SPARQL, as per https://www.w3.org/TR/sparql11-query/#sparqlGrammar */
@@ -2386,6 +2388,7 @@ tracker_grammar_rule_is_a (const TrackerGrammarRule *rule,
 	case RULE_TYPE_GT0:
 	case RULE_TYPE_GTE0:
 	case RULE_TYPE_OPTIONAL:
+	case RULE_TYPE_EXTENSION:
 		return TRUE;
 	case RULE_TYPE_RULE:
 		g_assert (value < N_NAMED_RULES);
