@@ -44,7 +44,7 @@ LLVMFuzzerTestOneInput (const unsigned char *data, size_t size)
 
 		/* Point to empty ontology */
 		ontology = g_file_new_for_uri ("resource:///");
-		conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_NONE,
+		conn = tracker_sparql_connection_new (TRACKER_SPARQL_CONNECTION_FLAGS_SPARQL_STRICT,
 		                                      NULL,
 		                                      ontology,
 		                                      NULL, NULL);
