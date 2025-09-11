@@ -565,7 +565,8 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	if (!set_up_thread_pools (conn, error))
 		return FALSE;
 
-	db_flags = translate_flags (priv->flags);
+	db_flags = translate_flags (priv->flags) |
+		TRACKER_DB_MANAGER_ENABLE_SYNTAX_EXTENSIONS;
 
 	if (!priv->store) {
 		db_flags |= TRACKER_DB_MANAGER_IN_MEMORY;

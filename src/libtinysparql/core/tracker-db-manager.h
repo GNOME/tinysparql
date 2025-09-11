@@ -43,6 +43,7 @@ typedef enum {
 	TRACKER_DB_MANAGER_IN_MEMORY             = 1 << 7,
 	TRACKER_DB_MANAGER_SKIP_VERSION_CHECK    = 1 << 8,
 	TRACKER_DB_MANAGER_ANONYMOUS_BNODES      = 1 << 9,
+	TRACKER_DB_MANAGER_ENABLE_SYNTAX_EXTENSIONS = 1 << 10,
 } TrackerDBManagerFlags;
 
 typedef enum {

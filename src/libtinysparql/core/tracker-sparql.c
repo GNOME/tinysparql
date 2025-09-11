@@ -9856,6 +9856,7 @@ tracker_sparql_new (TrackerDataManager  *manager,
                     GError             **error)
 {
 	TrackerSparql *sparql;
+	TrackerParseFlags flags;
 	GError *inner_error = NULL;
 
 	g_return_val_if_fail (TRACKER_IS_DATA_MANAGER (manager), NULL);
@@ -9870,7 +9871,12 @@ tracker_sparql_new (TrackerDataManager  *manager,
 	else
 		sparql->sparql = g_strdup (query);
 
-	sparql->tree = tracker_sparql_parse_query (TRACKER_SPARQL_PARSE_ALLOW_EXTENSIONS,
+	flags = (tracker_db_manager_get_flags (tracker_data_manager_get_db_manager (manager)) &
+	         TRACKER_DB_MANAGER_ENABLE_SYNTAX_EXTENSIONS) ?
+		TRACKER_SPARQL_PARSE_ALLOW_EXTENSIONS :
+		TRACKER_SPARQL_PARSE_NONE;
+
+	sparql->tree = tracker_sparql_parse_query (flags,
 	                                           sparql->sparql, -1, NULL,
 	                                           &inner_error);
 
@@ -10091,6 +10097,7 @@ tracker_sparql_new_update (TrackerDataManager  *manager,
 {
 	TrackerNodeTree *tree;
 	TrackerSparql *sparql;
+	TrackerParseFlags flags;
 	GError *inner_error = NULL;
 	gsize len;
 
@@ -10105,7 +10112,12 @@ tracker_sparql_new_update (TrackerDataManager  *manager,
 	else
 		sparql->sparql = g_strdup (query);
 
-	tree = tracker_sparql_parse_update (TRACKER_SPARQL_PARSE_ALLOW_EXTENSIONS,
+	flags = (tracker_db_manager_get_flags (tracker_data_manager_get_db_manager (manager)) &
+	         TRACKER_DB_MANAGER_ENABLE_SYNTAX_EXTENSIONS) ?
+		TRACKER_SPARQL_PARSE_ALLOW_EXTENSIONS :
+		TRACKER_SPARQL_PARSE_NONE;
+
+	tree = tracker_sparql_parse_update (flags,
 	                                    sparql->sparql, -1, &len,
 	                                    &inner_error);
 
