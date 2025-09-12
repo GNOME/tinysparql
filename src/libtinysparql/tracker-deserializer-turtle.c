@@ -331,32 +331,15 @@ advance_whitespace (TrackerDeserializerTurtle *deserializer)
 	}
 }
 
-static gboolean
-maybe_add_prefix (TrackerDeserializerTurtle  *deserializer,
-                  const gchar                *prefix,
-                  const gchar                *uri,
-                  GError                    **error)
+static void
+add_prefix (TrackerDeserializerTurtle  *deserializer,
+            const gchar                *prefix,
+            const gchar                *uri)
 {
 	TrackerNamespaceManager *namespaces;
-	const gchar *existing;
 
 	namespaces = tracker_deserializer_get_namespaces (TRACKER_DESERIALIZER (deserializer));
-	existing = tracker_namespace_manager_lookup_prefix (namespaces, prefix);
-
-	if (existing) {
-		if (g_strcmp0 (existing, uri) == 0)
-			return TRUE;
-
-		g_set_error (error,
-		             TRACKER_SPARQL_ERROR,
-		             TRACKER_SPARQL_ERROR_PARSE,
-		             "Prefix '%s' already expands to '%s'",
-		             prefix, existing);
-		return FALSE;
-	}
-
 	tracker_namespace_manager_add_prefix (namespaces, prefix, uri);
-	return TRUE;
 }
 
 static gboolean
@@ -364,7 +347,6 @@ handle_prefix (TrackerDeserializerTurtle  *deserializer,
                GError                    **error)
 {
 	gchar *prefix = NULL, *uri = NULL, *expanded;
-	gboolean retval;
 
 	advance_whitespace_and_comments (deserializer);
 	if (!parse_terminal (deserializer, terminal_PNAME_NS, 0, &prefix))
@@ -382,12 +364,12 @@ handle_prefix (TrackerDeserializerTurtle  *deserializer,
 	prefix[strlen(prefix) - 1] = '\0';
 
 	expanded = expand_base (deserializer, uri);
-	retval = maybe_add_prefix (deserializer, prefix, expanded, error);
+	add_prefix (deserializer, prefix, expanded);
 	g_free (prefix);
 	g_free (uri);
 	g_free (expanded);
 
-	return retval;
+	return TRUE;
 error:
 	g_free (prefix);
 	g_free (uri);
