@@ -1742,7 +1742,7 @@ _append_fts_snippet (TrackerSparql      *sparql,
                      GError            **error)
 {
 	gchar *match_start = NULL, *match_end = NULL, *ellipsis = NULL, *num_tokens = NULL;
-	gboolean success;
+	gboolean success = FALSE;
 
 	if (!node) {
 		_append_string (sparql, ", NULL ");
