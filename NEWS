@@ -1,3 +1,20 @@
+NEW in 3.10.0 - 2025-09-14
+==========================
+  * Relax TrackerNamespaceManager impositions on having a single prefix
+    pointing to a same URI, and to avoid changes in prefixes. This is
+    not consistent with RDF standards.
+  * Fixes to libstemmer subproject fallback for git snapshot users with
+    --wrap-mode=nodownload
+
+Translations: es
+
+Notable changes since 3.9.0:
+  * Changed database format to store all data in a single database file,
+    see 3.10.beta release notes
+  * More resilient SPARQL and RDF parsers
+  * Improved memory usage and performance during database updates
+  * Stemming became a mandatory feature
+
 NEW in 3.10.rc.1 - 2025-09-10
 =============================
   * Bundle libstemmer as a fallback in the tarball
