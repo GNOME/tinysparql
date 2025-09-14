@@ -211,10 +211,7 @@ tracker_namespace_manager_lookup_prefix (TrackerNamespaceManager *self,
  * @prefix: a short, unique prefix to identify @namespace
  * @ns: the URL of the given namespace
  *
- * Adds @prefix as the recognised abbreviaton of @namespace.
- *
- * Only one prefix is allowed for a given namespace, and all prefixes must
- * be unique.
+ * Adds @prefix as the recognised abbreviation of @namespace.
  *
  * Since 3.3, The `TrackerNamespaceManager` instances obtained through
  * [method@SparqlConnection.get_namespace_manager] are "sealed",
@@ -226,33 +223,16 @@ tracker_namespace_manager_add_prefix (TrackerNamespaceManager *self,
                                       const char              *ns)
 {
 	TrackerNamespaceManagerPrivate *priv;
-	const char *str;
 	gchar *prefix_copy, *ns_copy;
 	PrefixMap map;
 
 	g_return_if_fail (TRACKER_IS_NAMESPACE_MANAGER (self));
+	g_return_if_fail (strlen (prefix) <= MAX_PREFIX_LENGTH);
 	g_return_if_fail (prefix != NULL);
 	g_return_if_fail (ns != NULL);
 
 	priv = GET_PRIVATE (TRACKER_NAMESPACE_MANAGER (self));
 	g_return_if_fail (priv->sealed == FALSE);
-
-	if (strlen (prefix) > MAX_PREFIX_LENGTH) {
-		g_error ("Prefix is too long: max %i characters.", MAX_PREFIX_LENGTH);
-		return;
-	}
-
-	str = g_hash_table_lookup (priv->prefix_to_namespace, prefix);
-	if (str) {
-		g_error ("Prefix %s already points to %s", prefix, str);
-		return;
-	}
-
-	str = g_hash_table_lookup (priv->namespace_to_prefix, ns);
-	if (str) {
-		g_error ("Namespace %s already has prefix %s", ns, str);
-		return;
-	}
 
 	prefix_copy = g_strdup (prefix);
 	ns_copy = g_strdup (ns);
