@@ -125,6 +125,9 @@ ensure_language (TrackerLanguage *language)
 	const gchar * const *langs;
 	gint i;
 
+	if (priv->language_code)
+		return;
+
 	langs = g_get_language_names ();
 
 	for (i = 0; langs[i]; i++) {
@@ -163,13 +166,12 @@ language_constructed (GObject *object)
 
 	G_OBJECT_CLASS (tracker_language_parent_class)->constructed (object);
 
-	if (!priv->language_code)
-		ensure_language (language);
+	ensure_language (language);
 
 	priv->stemmer = sb_stemmer_new (priv->language_code, NULL);
 	if (!priv->stemmer) {
 		g_debug ("No stemmer could be found for language:'%s'",
-		           priv->language_code);
+		         priv->language_code);
 	}
 }
 
