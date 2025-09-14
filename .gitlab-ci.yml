@@ -117,7 +117,7 @@ check-merge-request:
 
 .tracker.fedora@common:
   variables:
-    BASE_TAG: '2025-09-09.5'
+    BASE_TAG: '2025-09-14.0'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
       avahi-gobject-devel
@@ -137,6 +137,7 @@ check-merge-request:
       libasan
       libicu-devel
       libsoup3-devel
+      libstemmer-devel
       libubsan
       libxml2-devel
       man-db
@@ -305,8 +306,8 @@ check-code-style:
 .build-template: &build
   stage: build
   script:
-    - meson . build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_coverage=true -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true -Davahi=disabled --prefix /usr
-    - ninja -C build
+    - meson setup build -Ddocs=$([ -z "$NO_DOCS" ] && echo "true" || echo "false") -Db_coverage=true -Db_lto=true -Dsystemd_user_services=false -Dtests_tap_protocol=true -Davahi=disabled -Dstemmer=disabled --prefix /usr
+    - meson compile -C build
   artifacts:
     expire_in: 1 day
     paths:
@@ -599,7 +600,7 @@ coverity:
     - tar zxf /tmp/coverity_tool.tgz
     - mkdir coverity-build
     - cd coverity-build
-    - env CC=clang meson setup .. -Dsystemd_user_services=false
+    - env CC=clang meson setup .. -Dsystemd_user_services=false -Dstemmer=enabled
     - ../cov-analysis-linux64-*/bin/cov-build --dir cov-int ninja
     - tar czf cov-int.tar.gz cov-int
     - curl https://scan.coverity.com/builds?project=Tracker
