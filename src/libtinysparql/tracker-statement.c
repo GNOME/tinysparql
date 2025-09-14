@@ -383,6 +383,9 @@ tracker_sparql_statement_execute (TrackerSparqlStatement  *stmt,
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
 
+	if (tracker_sparql_connection_set_error_on_closed (priv->connection, error))
+		return NULL;
+
 	cursor = TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->execute (stmt,
 	                                                             cancellable,
 	                                                             error);
@@ -419,8 +422,16 @@ tracker_sparql_statement_execute_async (TrackerSparqlStatement *stmt,
                                         GAsyncReadyCallback     callback,
                                         gpointer                user_data)
 {
+	TrackerSparqlStatementPrivate *priv =
+		tracker_sparql_statement_get_instance_private (stmt);
+
 	g_return_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt));
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+	if (tracker_sparql_connection_report_async_error_on_closed (priv->connection,
+	                                                            callback,
+	                                                            user_data))
+		return;
 
 	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->execute_async (stmt,
 	                                                          cancellable,
@@ -485,9 +496,15 @@ tracker_sparql_statement_update (TrackerSparqlStatement  *stmt,
                                  GCancellable            *cancellable,
                                  GError                 **error)
 {
+	TrackerSparqlStatementPrivate *priv =
+		tracker_sparql_statement_get_instance_private (stmt);
+
 	g_return_val_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt), FALSE);
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), FALSE);
 	g_return_val_if_fail (!error || !*error, FALSE);
+
+	if (tracker_sparql_connection_set_error_on_closed (priv->connection, error))
+		return FALSE;
 
 	return TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->update (stmt,
 	                                                          cancellable,
@@ -519,8 +536,16 @@ tracker_sparql_statement_update_async (TrackerSparqlStatement *stmt,
                                        GAsyncReadyCallback     callback,
                                        gpointer                user_data)
 {
+	TrackerSparqlStatementPrivate *priv =
+		tracker_sparql_statement_get_instance_private (stmt);
+
 	g_return_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt));
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+	if (tracker_sparql_connection_report_async_error_on_closed (priv->connection,
+	                                                            callback,
+	                                                            user_data))
+		return;
 
 	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->update_async (stmt,
 	                                                         cancellable,
@@ -604,10 +629,18 @@ tracker_sparql_statement_serialize_async (TrackerSparqlStatement *stmt,
                                           GAsyncReadyCallback     callback,
                                           gpointer                user_data)
 {
+	TrackerSparqlStatementPrivate *priv =
+		tracker_sparql_statement_get_instance_private (stmt);
+
 	g_return_if_fail (TRACKER_IS_SPARQL_STATEMENT (stmt));
 	g_return_if_fail (flags == TRACKER_SERIALIZE_FLAGS_NONE);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 	g_return_if_fail (callback != NULL);
+
+	if (tracker_sparql_connection_report_async_error_on_closed (priv->connection,
+	                                                            callback,
+	                                                            user_data))
+		return;
 
 	TRACKER_SPARQL_STATEMENT_GET_CLASS (stmt)->serialize_async (stmt,
 	                                                            flags,

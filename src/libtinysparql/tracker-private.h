@@ -344,6 +344,14 @@ tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
                                                const gchar              *dbus_path,
                                                gchar                   **name,
                                                gchar                   **path);
+
+gboolean tracker_sparql_connection_set_error_on_closed (TrackerSparqlConnection  *connection,
+                                                        GError                  **error);
+
+gboolean tracker_sparql_connection_report_async_error_on_closed (TrackerSparqlConnection *connection,
+                                                                 GAsyncReadyCallback      callback,
+                                                                 gpointer                 user_data);
+
 void tracker_sparql_cursor_set_connection (TrackerSparqlCursor     *cursor,
                                            TrackerSparqlConnection *connection);
 GError * _translate_internal_error (GError *error);
