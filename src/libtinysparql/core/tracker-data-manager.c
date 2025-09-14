@@ -1665,8 +1665,8 @@ tracker_data_manager_update_from_version (TrackerDataManager  *manager,
 				g_set_error (&internal_error,
 				             TRACKER_SPARQL_ERROR,
 				             TRACKER_SPARQL_ERROR_OPEN_ERROR,
-				             "Database file '%s' not found",
-				             filename);
+				             "Database file for graph '%s' not found",
+				             graph);
 				goto error;
 			}
 
