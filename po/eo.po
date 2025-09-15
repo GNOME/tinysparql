@@ -1,14 +1,14 @@
-# Esperanto translation for tracker.
-# Copyright (C) 2011 Free Software Foundation, Inc.
-# This file is distributed under the same license as the tracker package.
-# Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>, 2011-2023.
-#
+# Esperanto translation for TinySPARQL
+# Copyright (C) 2011-2025 Free Software Foundation, Inc.
+# This file is distributed under the same license as the TinySPARQL package.
+# Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>, 2011-2025.
+
 msgid ""
 msgstr ""
-"Project-Id-Version: tracker\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues\n"
-"POT-Creation-Date: 2023-09-14 21:52+0000\n"
-"PO-Revision-Date: 2023-09-20 22:43+0200\n"
+"Project-Id-Version: tinysparql\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
+"POT-Creation-Date: 2025-09-10 23:36+0000\n"
+"PO-Revision-Date: 2025-09-14 20:20+0200\n"
 "Last-Translator: Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>\n"
 "Language-Team: Esperanto <gnome-eo-list@gnome.org>\n"
 "Language: eo\n"
@@ -16,128 +16,120 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"X-Generator: Gtranslator 42.0\n"
+"X-Generator: Gtranslator 48.0\n"
 "X-Project-Style: gnome\n"
 
-#. Translators: this is a '|' (U+007C) separated list of common
-#. * title beginnings. Meant to be skipped for sorting purposes,
-#. * case doesn't matter. Given English media is quite common, it is
-#. * advised to leave the untranslated articles in addition to
-#. * the translated ones.
-#.
-#: src/libtracker-sparql/core/tracker-collation.c:116
-msgid "the|a|an"
-msgstr "the|a|an|la"
-
-#: src/portal/tracker-main.c:53
-msgid "Version"
-msgstr "Versio"
-
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:387
-#: src/tracker/tracker-export.c:543 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1566 src/tracker/tracker-sql.c:239
-msgid "Unrecognized options"
-msgstr "Nerekonitaj opcioj"
-
-#: src/tracker/tracker-endpoint.c:50 src/tracker/tracker-export.c:49
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:110
-#: src/tracker/tracker-sql.c:44
+#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
+#: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
+#: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
 msgid "Location of the database"
 msgstr "Loko de la datumbazo"
 
-#: src/tracker/tracker-endpoint.c:51 src/tracker/tracker-endpoint.c:63
+#: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
 msgid "DIR"
 msgstr "DOSIERUJO"
 
-#: src/tracker/tracker-endpoint.c:54
+#: src/cli/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
 msgstr "Specifi la DBus-nomon de ĉi tiu finpunkto"
 
-#: src/tracker/tracker-endpoint.c:55 src/tracker/tracker-endpoint.c:59
+#: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
 msgid "NAME"
 msgstr "NOMO"
 
-#: src/tracker/tracker-endpoint.c:58
+#: src/cli/tracker-endpoint.c:66
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Specifi la ontologian nomon uzatan en ĉi tiu finpunkto"
 
-#: src/tracker/tracker-endpoint.c:62
+#: src/cli/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr "Specifi vojon al ontologio por esti uzata en ĉi tiu finpunkto"
 
-#: src/tracker/tracker-endpoint.c:66
+#: src/cli/tracker-endpoint.c:74
 msgid "HTTP port"
 msgstr "HTTP-pordo"
 
-#: src/tracker/tracker-endpoint.c:70
-#, fuzzy
+#: src/cli/tracker-endpoint.c:78
 msgid "Whether to only allow HTTP connections in the loopback device"
-msgstr "Ĉu permesi nur HTTP-konektojn en la loopback-aparato"
+msgstr "Ĉu permesi nur HTTP-konektojn en la loka buklaparato"
 
-#: src/tracker/tracker-endpoint.c:74
+#: src/cli/tracker-endpoint.c:82
 msgid "Use session bus"
 msgstr "Uzi sesian buson"
 
-#: src/tracker/tracker-endpoint.c:78
+#: src/cli/tracker-endpoint.c:86
 msgid "Use system bus"
 msgstr "Use sisteman buson"
 
-#: src/tracker/tracker-endpoint.c:82
+#: src/cli/tracker-endpoint.c:90
 msgid "List SPARQL endpoints available in DBus"
 msgstr "Listigi SPARQL-finpunktojn disponeblajn en DBus"
 
+#: src/cli/tracker-endpoint.c:94
+msgid "List network-local HTTP SPARQL endpoints"
+msgstr "Listigi rete-lokajn HTTP-SPARQL-finpunktojn"
+
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:103
+#: src/cli/tracker-endpoint.c:115
 msgid "--list can only be used with --session or --system"
 msgstr "--list povas esti uzata nur kun --session aŭ --system"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:109
+#: src/cli/tracker-endpoint.c:121
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Unu opcio \"ontologio\" aŭ \"ontologio-vojo\" devus esti disponigita"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:115
+#: src/cli/tracker-endpoint.c:127
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "--http-port ne povas esti uzata kun --dbus-service"
 
-#: src/tracker/tracker-endpoint.c:186
+#: src/cli/tracker-endpoint.c:198
 #, c-format
 msgid "Creating HTTP endpoint at %s…"
 msgstr "Kreante HTTP-finpunkton ĉe %s…"
 
-#: src/tracker/tracker-endpoint.c:206 src/tracker/tracker-endpoint.c:269
+#: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
+#: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Aŭskultante SPARQL-komandojn. Premu Ctrl-C por ĉesi."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:214 src/tracker/tracker-endpoint.c:284
+#: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
+#: src/cli/tracker-webide.c:105
 msgid "Closing connection…"
 msgstr "Fermante konekton…"
 
-#: src/tracker/tracker-endpoint.c:229
+#: src/cli/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Kreante finpunkton ĉe %s…"
 
-#: src/tracker/tracker-endpoint.c:265
+#: src/cli/tracker-endpoint.c:277
 msgid "Could not own DBus name"
 msgstr "Ne eblis posedi DBus-nomon"
 
-#: src/tracker/tracker-endpoint.c:279
+#: src/cli/tracker-endpoint.c:291
 msgid "DBus name lost"
 msgstr "DBus-nomo perdita"
 
-#: src/tracker/tracker-endpoint.c:421
+#: src/cli/tracker-endpoint.c:608 src/cli/tracker-export.c:214
+#: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
+#: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
+#: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
+msgid "Unrecognized options"
+msgstr "Nerekonitaj opcioj"
+
+#: src/cli/tracker-endpoint.c:652
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Malfermi datumbazo ĉe %s…"
 
-#: src/tracker/tracker-endpoint.c:424
+#: src/cli/tracker-endpoint.c:655
 msgid "Creating in-memory database"
 msgstr "Kreante en-memora datumbazo"
 
-#: src/tracker/tracker-endpoint.c:451
+#: src/cli/tracker-endpoint.c:683
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -145,195 +137,101 @@ msgstr ""
 "Nova datumbazo kreita. Uzu la opcion \"--dbus-service\" por dividi ĉi tiun "
 "datumbazon sur mesaĝa buso."
 
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
-#: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:111 src/tracker/tracker-sparql.c:123
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
+#: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
+#: src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
+#: src/cli/tracker-query.c:65 src/cli/tracker-sql.c:46 src/cli/tracker-sql.c:50
 msgid "FILE"
 msgstr "DOSIERO"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:114
+#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
+#: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "Konektas al servo DBus"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:115
+#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
+#: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
 msgid "DBus service name"
 msgstr "Nomo de servo DBus"
 
-#: src/tracker/tracker-export.c:57
+#: src/cli/tracker-export.c:54
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Formato de eligo: \"testudo\", \"trig\" aŭ \"json-ld\""
 
-#: src/tracker/tracker-export.c:58
+#: src/cli/tracker-export.c:55
 msgid "RDF_FORMAT"
 msgstr "RDF_FORMATO"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:118
+#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
+#: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Konektas al fora servo"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:119
+#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
+#: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "URI de fora servo"
 
-#: src/tracker/tracker-export.c:65
+#: src/cli/tracker-export.c:62
 msgid "Output TriG format which includes named graph information"
 msgstr "Eliga TriG-formato kiu inkluzivas nomitajn grafikajn informojn"
 
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+#: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:199
+#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
+#: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Specifu unu opcion \"--database\", \"--dbus-service\" aŭ \"--remote-service\""
 
-#: src/tracker/tracker-export.c:310 src/tracker/tracker-export.c:331
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1124
+#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
+#: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
+#: src/cli/tracker-query.c:345
 msgid "No error given"
 msgstr "Neniu eraro donita"
 
-#: src/tracker/tracker-export.c:330 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1123
+#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
+#: src/cli/tracker-introspect.c:828 src/cli/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Ne eblis establi konekton al Tracker"
 
-#: src/tracker/tracker-export.c:373
-#, fuzzy, c-format
-msgid "Unsupported serialization format “%s”\n"
-msgstr "Nesubtenata seriigformato “%s”\n"
-
-#: src/tracker/tracker-export.c:425 src/tracker/tracker-export.c:438
-#: src/tracker/tracker-export.c:448 src/tracker/tracker-sparql.c:1502
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "Ne eblis ruli informpeton"
-
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
+#: src/cli/tracker-export.c:179
 #, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "malsukcesita ruli na “%s”: %s"
+msgid "Unsupported serialization format “%s”\n"
+msgstr "Nesubtenata seriiga formato “%s”\n"
 
-#: src/tracker/tracker-import.c:58
+#: src/cli/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
 msgstr "Legu TriG-formaton, kiu inkluzivas nomitajn grafikajn informojn"
 
-#: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
+#: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
 msgid "Could not run import"
-msgstr "Ne eblis ruli importon"
+msgstr "Ne eblis ruli enporton"
 
-#: src/tracker/tracker-main.c:89
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr "Ricevu helpon pri kiel uzi Tracker kaj iun el ĉi tiuj komandoj"
+#: src/cli/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "Listigas ĉiujn disponeblajn klasojn"
 
-#: src/tracker/tracker-main.c:90
-msgid "Create a SPARQL endpoint"
-msgstr "Krei SPARQL-finpunkton"
+#: src/cli/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "Listigas ĉiujn disponeblajn prefiksojn"
 
-#: src/tracker/tracker-main.c:91
-msgid "Export data from a Tracker database"
-msgstr "Elporti datumojn de Tracker-datumbazo"
+#: src/cli/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr "Listigas ĉiujn klasojn kiuj sciigas pri ŝanĝoj en la datumbazo"
 
-#: src/tracker/tracker-main.c:92
-msgid "Import data into a Tracker database"
-msgstr "Enportu datumojn en Tracker-datumbazon"
+#: src/cli/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr "Listigi indeksojn uzatajn en la datumbazo por plibonigi rendimenton"
 
-#: src/tracker/tracker-main.c:93
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
-msgstr ""
-"Petu kaj ĝisdatigu la indekson uzante SPARQL aŭ serĉu, listigu kaj arboregu "
-"la ontologion"
-
-#: src/tracker/tracker-main.c:94
-msgid "Query the database at the lowest level using SQL"
-msgstr "Pridemandi la datumbazon ĉe la plej malalta nivelo uzante SQL"
-
-#: src/tracker/tracker-main.c:134
-#, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "“%s” ne estas komando tracker3. Vidu \"tracker3 --help\""
-
-#: src/tracker/tracker-main.c:169
-msgid "Available tracker3 commands are:"
-msgstr "Disponeblaj tracker3-komandoj estas:"
-
-#: src/tracker/tracker-main.c:209
-#, fuzzy
-msgid "Additional / third party commands are:"
-msgstr "Kromaj/triaj komandoj estas:"
-
-#: src/tracker/tracker-main.c:224
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
-msgstr "Vidu \"tracker3 help <command>\" por legi pri specifa subkomando."
-
-#: src/tracker/tracker-sparql.c:122
-msgid "Path to use to run a query or update from file"
-msgstr "Vojo por uzi por fari demandon aŭ ĝisdatigi el dosiero"
-
-#: src/tracker/tracker-sparql.c:126
-msgid "SPARQL query"
-msgstr "SPARQL-informpeto"
-
-#: src/tracker/tracker-sparql.c:127
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:130
-msgid "This is used with --query and for database updates only."
-msgstr "Ĉi tio estas uzata kun --query kaj nur por datumbazaj ĝisdatigoj."
-
-#: src/tracker/tracker-sparql.c:134
-msgid "Retrieve classes"
-msgstr "Reakiri klasojn"
-
-#: src/tracker/tracker-sparql.c:138
-msgid "Retrieve class prefixes"
-msgstr "Reakiri klasprefiksojn"
-
-#: src/tracker/tracker-sparql.c:142
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
-msgstr ""
-"Preni ecojn por klaso, ankaŭ prefiksoj povas esti uzataj (ekz. rdfs:Resource)"
-
-#: src/tracker/tracker-sparql.c:143 src/tracker/tracker-sparql.c:147
-#: src/tracker/tracker-sparql.c:159 src/tracker/tracker-sparql.c:167
-#: src/tracker/tracker-sparql.c:171
-msgid "CLASS"
-msgstr "KLASO"
-
-#: src/tracker/tracker-sparql.c:146
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-"Preni klasojn kiuj sciigas ŝanĝojn en la datumbazo (KLASO estas laŭvola)"
-
-#: src/tracker/tracker-sparql.c:150
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
-msgstr ""
-"Preni indeksojn uzitajn en datumbazo por plibonigi rendimenton (PROPERTO "
-"estas laŭvola)"
-
-#: src/tracker/tracker-sparql.c:151
-msgid "PROPERTY"
-msgstr "ATRIBUTO"
-
-#: src/tracker/tracker-sparql.c:154
+#: src/cli/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Preni ĉiujn nomitajn grafikaĵojn"
 
-#: src/tracker/tracker-sparql.c:158
+#: src/cli/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -341,182 +239,83 @@ msgstr ""
 "Priskribu subklasojn, superklasojn (povas esti uzataj per -s por emfazi "
 "partojn de la arbo kaj -p por montri ecojn)"
 
-#: src/tracker/tracker-sparql.c:162
-#, fuzzy
-msgid ""
-"Search for a class or property and display more information (e.g. Document)"
-msgstr "Serĉu klason aŭ ecoj kaj montru pli da informoj (ekz. Dokumento)"
+#: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "KLASO"
 
-#: src/tracker/tracker-sparql.c:163
+#: src/cli/tracker-introspect.c:133
+msgid "Lists all available properties"
+msgstr "Listigas ĉiujn disponeblajn ecojn"
+
+#: src/cli/tracker-introspect.c:137
+msgid "Search for a class or property and display more information (e.g. Document)"
+msgstr "Serĉi klason aŭ econ kaj montri pli da informoj (ekz. Document)"
+
+#: src/cli/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
-msgstr "KLASO/ATRIBUTO"
+msgstr "KLASO/ECO"
 
-#: src/tracker/tracker-sparql.c:166
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Liveras la malongigon por klaso (ekz. nfo:FileDataObject)."
-
-#: src/tracker/tracker-sparql.c:170
-msgid "Returns the full namespace for a class."
-msgstr "Liveras la plenan nomspacon por klaso."
-
-#: src/tracker/tracker-sparql.c:232
-msgid "Unable to retrieve namespace prefixes"
-msgstr "Ne eblas retrovi nomspacprefiksojn"
-
-#: src/tracker/tracker-sparql.c:240
-msgid "No namespace prefixes were returned"
-msgstr "Neniuj nomspacaj prefiksoj estis resenditaj"
-
-#: src/tracker/tracker-sparql.c:286
-msgid "Could not get namespace prefixes"
-msgstr "Ne eblis ricevi nomspacprefiksojn"
-
-#: src/tracker/tracker-sparql.c:295
-msgid "No namespace prefixes were found"
-msgstr "Neniuj nomspacaj prefiksoj estis trovitaj"
-
-#. To translators: This is to say there are no
-#. * search results found. We use a "foo: None"
-#. * with multiple print statements, where "foo"
-#. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:541 src/tracker/tracker-sparql.c:589
-msgid "None"
-msgstr "Neniu"
-
-#: src/tracker/tracker-sparql.c:1003
+#: src/cli/tracker-introspect.c:716
 msgid "Could not create tree: subclass query failed"
 msgstr "Ne eblis kreii arbon: subklasa informpeto malsukcesis"
 
-#: src/tracker/tracker-sparql.c:1052
+#: src/cli/tracker-introspect.c:765
 msgid "Could not create tree: class properties query failed"
 msgstr "Ne eblis kreii arbon: klas-atributa informpeto malsukcesis"
 
-#: src/tracker/tracker-sparql.c:1139
-msgid "Could not list classes"
-msgstr "Ne eblis listigi klasojn"
-
-#: src/tracker/tracker-sparql.c:1147
-msgid "No classes were found"
-msgstr "Neniuj klasoj estis trovitaj"
-
-#: src/tracker/tracker-sparql.c:1147 src/tracker/tracker-sparql.c:1363
-msgid "Classes"
-msgstr "Klasoj"
-
-#: src/tracker/tracker-sparql.c:1163
-msgid "Could not list class prefixes"
-msgstr "Ne eblis listigi klasprefiksojn"
-
-#: src/tracker/tracker-sparql.c:1171
-msgid "No class prefixes were found"
-msgstr "Neniuj klasprefiksoj estis trovitaj"
-
-#: src/tracker/tracker-sparql.c:1171
-msgid "Prefixes"
-msgstr "Prefiksoj"
-
-#: src/tracker/tracker-sparql.c:1191
-msgid ""
-"Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
-msgstr ""
-"Ne eblis trovi posedaĵon por klasprefikso, ekz. :Resource en \"rdfs:"
-"Resource\""
-
-#: src/tracker/tracker-sparql.c:1230
-msgid "Could not list properties"
-msgstr "Ne eblis listigi ecojn"
-
-#: src/tracker/tracker-sparql.c:1238
-msgid "No properties were found"
-msgstr "Neniuj ecoj estis trovitaj"
-
-#: src/tracker/tracker-sparql.c:1238 src/tracker/tracker-sparql.c:1386
-msgid "Properties"
-msgstr "Atributoj"
-
-#: src/tracker/tracker-sparql.c:1266
-msgid "Could not find notify classes"
-msgstr "Ne eblis trovi sciigajn klasojn"
-
-#: src/tracker/tracker-sparql.c:1274
-msgid "No notifies were found"
-msgstr "Neniuj sciigoj estis trovitaj"
-
-#: src/tracker/tracker-sparql.c:1274
-msgid "Notifies"
-msgstr "Sciigoj"
-
-#: src/tracker/tracker-sparql.c:1300
-msgid "Could not find indexed properties"
-msgstr "Ne eblis trovi indeksitajn ecojn"
-
-#: src/tracker/tracker-sparql.c:1308
-msgid "No indexes were found"
-msgstr "Neniuj indeksoj estis trovitaj"
-
-#: src/tracker/tracker-sparql.c:1308
-msgid "Indexes"
-msgstr "Indeksoj"
-
-#: src/tracker/tracker-sparql.c:1324
-msgid "Could not list named graphs"
-msgstr "Ne eblis listigi nomitajn grafikaĵojn"
-
-#: src/tracker/tracker-sparql.c:1332
-#, fuzzy
-msgid "No graphs were found"
-msgstr "Neniuj grafikaĵoj estis trovitaj"
-
-#: src/tracker/tracker-sparql.c:1332
-msgid "Named graphs"
-msgstr "Nomitaj grafikaĵoj"
-
-#: src/tracker/tracker-sparql.c:1355
+#: src/cli/tracker-introspect.c:848
 msgid "Could not search classes"
 msgstr "Ne eblis serĉi klasojn"
 
-#: src/tracker/tracker-sparql.c:1363
-msgid "No classes were found to match search term"
-msgstr "Neniuj klasoj estis trovitaj kongruaj kun serĉtermino"
+#: src/cli/tracker-introspect.c:856 src/cli/tracker-introspect.c:940
+msgid "Classes"
+msgstr "Klasoj"
 
-#: src/tracker/tracker-sparql.c:1378
+#: src/cli/tracker-introspect.c:868
 msgid "Could not search properties"
 msgstr "Ne eblis serĉi ecojn"
 
-#: src/tracker/tracker-sparql.c:1386
-msgid "No properties were found to match search term"
-msgstr "Neniuj atributoj estis trovitaj kongruaj kun serĉtermino"
+#: src/cli/tracker-introspect.c:876 src/cli/tracker-introspect.c:910
+msgid "Properties"
+msgstr "Atributoj"
 
-#: src/tracker/tracker-sparql.c:1423 src/tracker/tracker-sql.c:70
-msgid "Could not get UTF-8 path from path"
-msgstr "Ne eblis ricevi UTF-8-vojon de pado"
+#: src/cli/tracker-introspect.c:902
+msgid "Could not list properties"
+msgstr "Ne eblis listigi ecojn"
 
-#: src/tracker/tracker-sparql.c:1435 src/tracker/tracker-sql.c:81
-msgid "Could not read file"
-msgstr "Ne eblis legi dosieron"
+#: src/cli/tracker-introspect.c:918
+msgid "Namespaces"
+msgstr "Nomspacoj"
 
-#: src/tracker/tracker-sparql.c:1454
-msgid "Could not run update"
-msgstr "Ne eblis ruli ĝisdatigon"
+#: src/cli/tracker-introspect.c:932
+msgid "Could not list classes"
+msgstr "Ne eblis listigi klasojn"
 
-#: src/tracker/tracker-sparql.c:1461
-msgid "Done"
-msgstr "Farite"
+#: src/cli/tracker-introspect.c:952
+msgid "Could not find notify classes"
+msgstr "Ne eblis trovi sciigajn klasojn"
 
-#: src/tracker/tracker-sparql.c:1515 src/tracker/tracker-sparql.c:1518
-msgid "No results found matching your query"
-msgstr "Neniuj rezultoj trovitaj kongruas kun via demando"
+#: src/cli/tracker-introspect.c:960
+msgid "Notifies"
+msgstr "Sciigoj"
 
-#: src/tracker/tracker-sparql.c:1515 src/tracker/tracker-sparql.c:1518
-#: src/tracker/tracker-sql.c:144
-msgid "Results"
-msgstr "Rezultoj"
+#: src/cli/tracker-introspect.c:972
+msgid "Could not find indexed properties"
+msgstr "Ne eblis trovi indeksitajn ecojn"
 
-#: src/tracker/tracker-sparql.c:1575 src/tracker/tracker-sql.c:250
-msgid "File and query can not be used together"
-msgstr "Dosiero kaj demando ne povas esti uzataj kune"
+#: src/cli/tracker-introspect.c:980
+msgid "Indexes"
+msgstr "Indeksoj"
 
-#: src/tracker/tracker-sparql.c:1577
+#: src/cli/tracker-introspect.c:992
+msgid "Could not list named graphs"
+msgstr "Ne eblis listigi nomitajn grafikaĵojn"
+
+#: src/cli/tracker-introspect.c:1000
+msgid "Named graphs"
+msgstr "Nomitaj grafikaĵoj"
+
+#: src/cli/tracker-introspect.c:1034
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -524,31 +323,259 @@ msgstr ""
 "La argumento --list-properties povas esti malplena nur kiam uzata kun la "
 "argumento --tree"
 
-#: src/tracker/tracker-sql.c:48
-#, fuzzy
-msgid "Path to use to run a query from file"
-msgstr "Vojo por uzi por ruli demandon el dosiero"
+#: src/cli/tracker-main.c:69
+msgid "Get help on how to use TinySPARQL and any of these commands"
+msgstr "Ricevi helpon pri uzo de TinySPARQL kaj pri iu el ĉi tiuj komandoj"
 
-#: src/tracker/tracker-sql.c:52
+#: src/cli/tracker-main.c:70
+msgid "Create a SPARQL endpoint"
+msgstr "Krei SPARQL-finpunkton"
+
+#: src/cli/tracker-main.c:71
+msgid "Export data from a TinySPARQL database"
+msgstr "Elporti datumojn el TinySPARQL-datumbazo"
+
+#: src/cli/tracker-main.c:72
+msgid "Import data into a TinySPARQL database"
+msgstr "Enporti datumojn en TinySPARQL-datumbazon"
+
+#: src/cli/tracker-main.c:73
+msgid "Introspect a SPARQL endpoint"
+msgstr "Introspekti SPARQL-finpunkton"
+
+#: src/cli/tracker-main.c:74
+msgid "Query and update the index using SPARQL"
+msgstr "Informpeti kaj ĝisdatigi la indekson per SPARQL"
+
+#: src/cli/tracker-main.c:75
+msgid "Create a Web IDE to query local databases"
+msgstr "Krei retan IDE por informpeti lokajn datumbazojn"
+
+#: src/cli/tracker-main.c:92
+msgid "Available tinysparql commands are:"
+msgstr "Disponeblaj tinysparql-komandoj estas:"
+
+#: src/cli/tracker-main.c:111
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr "Vidu “tinysparql help <command>” por legi pri specifa subkomando."
+
+#: src/cli/tracker-main.c:154
+#, c-format
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "“%s” ne estas tinysparql-komando. Vidu “tinysparql --help”"
+
+#: src/cli/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr "Vojo por uzi por fari demandon aŭ ĝisdatigi el dosiero"
+
+#: src/cli/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "SPARQL-informpeto"
+
+#: src/cli/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/cli/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr "Ĉi tio estas uzata kun --query kaj nur por datumbazaj ĝisdatigoj."
+
+#: src/cli/tracker-query.c:76
+msgid "Provides an argument for a query parameter."
+msgstr "Provizas argumenton por informpeta parametro."
+
+#: src/cli/tracker-query.c:77
+msgid "PARAMETER:TYPE:VALUE"
+msgstr "PARAMETRO:TIPO:VALORO"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/cli/tracker-query.c:214 src/cli/tracker-query.c:262
+msgid "None"
+msgstr "Neniu"
+
+#: src/cli/tracker-query.c:282
+#, c-format
+msgid "Invalid argument string %s"
+msgstr "Nevalida argument-ĉeno %s"
+
+#: src/cli/tracker-query.c:292
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr "Nevalida parametra tipo por argumento %s"
+
+#: src/cli/tracker-query.c:360
+msgid "Could not get UTF-8 path from path"
+msgstr "Ne eblis ricevi UTF-8-vojon de pado"
+
+#: src/cli/tracker-query.c:372 src/cli/tracker-sql.c:75
+msgid "Could not read file"
+msgstr "Ne eblis legi dosieron"
+
+#: src/cli/tracker-query.c:403
+msgid "Could not run update"
+msgstr "Ne eblis ruli ĝisdatigon"
+
+#: src/cli/tracker-query.c:410
+msgid "Done"
+msgstr "Farite"
+
+#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
+#: src/cli/tracker-sql.c:164
+msgid "Could not run query"
+msgstr "Ne eblis ruli informpeton"
+
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+msgid "No results found matching your query"
+msgstr "Neniuj rezultoj trovitaj kongruas kun via demando"
+
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+#: src/cli/tracker-sql.c:138
+msgid "Results"
+msgstr "Rezultoj"
+
+#: src/cli/tracker-query.c:498 src/cli/tracker-sql.c:250
+msgid "File and query can not be used together"
+msgstr "Dosiero kaj demando ne povas esti uzataj kune"
+
+#: src/cli/tracker-sql.c:49
+msgid "Path to use to run a query from file"
+msgstr "Vojo por ruli informpeton el dosiero"
+
+#: src/cli/tracker-sql.c:53
 msgid "SQL query"
 msgstr "SQL-informpeto"
 
-#: src/tracker/tracker-sql.c:53
+#: src/cli/tracker-sql.c:54
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:114
+#: src/cli/tracker-sql.c:108
 msgid "Failed to initialize data manager"
 msgstr "Malsukcesis pravalorigi datuman administranton"
 
-#: src/tracker/tracker-sql.c:178
-#, fuzzy
+#: src/cli/tracker-sql.c:172
 msgid "Empty result set"
 msgstr "Malplena rezultaro"
 
-#: src/tracker/tracker-sql.c:248
+#: src/cli/tracker-sql.c:248
 msgid "A database path must be specified"
 msgstr "Datumbaza vojo devas esti specifita"
+
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "Pordo por aŭskulti"
+
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "Pordo ne specifita"
+
+#. Translators: This will point to a local HTTP address
+#: src/cli/tracker-webide.c:81
+#, c-format
+msgid "Creating Web IDE at %s…"
+msgstr "Kreante retan IDE ĉe %s…"
+
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtinysparql/core/tracker-collation.c:116
+msgid "the|a|an"
+msgstr "the|a|an|la"
+
+#: src/portal/tracker-main.c:51
+msgid "Version"
+msgstr "Versio"
+
+#, c-format
+#~ msgid "failed to exec “%s”: %s"
+#~ msgstr "malsukcesita ruli na “%s”: %s"
+
+#~ msgid "Query the database at the lowest level using SQL"
+#~ msgstr "Pridemandi la datumbazon ĉe la plej malalta nivelo uzante SQL"
+
+#, fuzzy
+#~ msgid "Additional / third party commands are:"
+#~ msgstr "Kromaj/triaj komandoj estas:"
+
+#~ msgid "Retrieve classes"
+#~ msgstr "Reakiri klasojn"
+
+#~ msgid "Retrieve class prefixes"
+#~ msgstr "Reakiri klasprefiksojn"
+
+#~ msgid ""
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. "
+#~ "rdfs:Resource)"
+#~ msgstr ""
+#~ "Preni ecojn por klaso, ankaŭ prefiksoj povas esti uzataj (ekz. "
+#~ "rdfs:Resource)"
+
+#~ msgid "PROPERTY"
+#~ msgstr "ATRIBUTO"
+
+#~ msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+#~ msgstr "Liveras la malongigon por klaso (ekz. nfo:FileDataObject)."
+
+#~ msgid "Returns the full namespace for a class."
+#~ msgstr "Liveras la plenan nomspacon por klaso."
+
+#~ msgid "Unable to retrieve namespace prefixes"
+#~ msgstr "Ne eblas retrovi nomspacprefiksojn"
+
+#~ msgid "No namespace prefixes were returned"
+#~ msgstr "Neniuj nomspacaj prefiksoj estis resenditaj"
+
+#~ msgid "Could not get namespace prefixes"
+#~ msgstr "Ne eblis ricevi nomspacprefiksojn"
+
+#~ msgid "No namespace prefixes were found"
+#~ msgstr "Neniuj nomspacaj prefiksoj estis trovitaj"
+
+#~ msgid "No classes were found"
+#~ msgstr "Neniuj klasoj estis trovitaj"
+
+#~ msgid "Could not list class prefixes"
+#~ msgstr "Ne eblis listigi klasprefiksojn"
+
+#~ msgid "No class prefixes were found"
+#~ msgstr "Neniuj klasprefiksoj estis trovitaj"
+
+#~ msgid "Prefixes"
+#~ msgstr "Prefiksoj"
+
+#~ msgid ""
+#~ "Could not find property for class prefix, e.g. :Resource in "
+#~ "“rdfs:Resource”"
+#~ msgstr ""
+#~ "Ne eblis trovi posedaĵon por klasprefikso, ekz. :Resource en "
+#~ "\"rdfs:Resource\""
+
+#~ msgid "No properties were found"
+#~ msgstr "Neniuj ecoj estis trovitaj"
+
+#~ msgid "No notifies were found"
+#~ msgstr "Neniuj sciigoj estis trovitaj"
+
+#~ msgid "No indexes were found"
+#~ msgstr "Neniuj indeksoj estis trovitaj"
+
+#, fuzzy
+#~ msgid "No graphs were found"
+#~ msgstr "Neniuj grafikaĵoj estis trovitaj"
+
+#~ msgid "No classes were found to match search term"
+#~ msgstr "Neniuj klasoj estis trovitaj kongruaj kun serĉtermino"
+
+#~ msgid "No properties were found to match search term"
+#~ msgstr "Neniuj atributoj estis trovitaj kongruaj kun serĉtermino"
 
 #~ msgid "Ignore numbers"
 #~ msgstr "Ihnori numerojn"
