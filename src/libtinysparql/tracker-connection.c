@@ -713,7 +713,7 @@ tracker_sparql_connection_get_namespace_manager (TrackerSparqlConnection *connec
  * This prepared statement can be executed through [method@SparqlStatement.execute]
  * or [method@SparqlStatement.serialize_async] families of functions.
  *
- * Returns: (transfer full) (nullable): A prepared statement
+ * Returns: (transfer full): A prepared statement
  */
 TrackerSparqlStatement *
 tracker_sparql_connection_query_statement (TrackerSparqlConnection  *connection,
@@ -744,7 +744,7 @@ tracker_sparql_connection_query_statement (TrackerSparqlConnection  *connection,
  * This prepared statement can be executed through
  * the [method@SparqlStatement.update] family of functions.
  *
- * Returns: (transfer full) (nullable): A prepared statement
+ * Returns: (transfer full): A prepared statement
  *
  * Since: 3.5
  */
@@ -899,7 +899,7 @@ tracker_sparql_connection_create_batch (TrackerSparqlConnection *connection)
  * [method@SparqlConnection.query_statement] or [method@SparqlConnection.update_statement]
  * underneath to indistinctly return SPARQL query or update statements.
  *
- * Returns: (transfer full) (nullable): A prepared statement
+ * Returns: (transfer full): A prepared statement
  *
  * Since: 3.3
  **/
