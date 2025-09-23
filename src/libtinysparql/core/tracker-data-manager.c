@@ -1665,8 +1665,8 @@ tracker_data_manager_update_from_version (TrackerDataManager  *manager,
 				g_set_error (&internal_error,
 				             TRACKER_SPARQL_ERROR,
 				             TRACKER_SPARQL_ERROR_OPEN_ERROR,
-				             "Database file '%s' not found",
-				             filename);
+				             "Database file for graph '%s' not found",
+				             graph);
 				goto error;
 			}
 
@@ -2900,8 +2900,7 @@ tracker_data_manager_drop_graph (TrackerDataManager  *manager,
 
 		if (!tracker_db_interface_execute_query (iface, error,
 		                                         "DROP TABLE \"%s%s%s\"",
-		                                         graph ? graph : "",
-		                                         graph ? "_" : "",
+		                                         graph, "_",
 		                                         tracker_class_get_name (classes[i])))
 			return FALSE;
 	}
@@ -2915,8 +2914,7 @@ tracker_data_manager_drop_graph (TrackerDataManager  *manager,
 		service = tracker_property_get_domain (properties[i]);
 		if (!tracker_db_interface_execute_query (iface, error,
 		                                         "DROP TABLE \"%s%s%s_%s\"",
-		                                         graph ? graph : "",
-		                                         graph ? "_" : "",
+		                                         graph, "_",
 		                                         tracker_class_get_name (service),
 		                                         tracker_property_get_name (properties[i])))
 			return FALSE;
@@ -2925,8 +2923,7 @@ tracker_data_manager_drop_graph (TrackerDataManager  *manager,
 	if (!tracker_db_interface_execute_query (iface,
 	                                         error,
 	                                         "DROP TABLE \"%s%sRefcount\"",
-	                                         graph ? graph : "",
-	                                         graph ? "_" : ""))
+	                                         graph, "_"))
 		return FALSE;
 
 	if (!tracker_data_delete_graph (manager->data_update, graph, error))
