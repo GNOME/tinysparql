@@ -779,6 +779,7 @@ detach_notifier (TrackerDirectConnection *conn,
 
 	priv->notifiers = g_list_remove (priv->notifiers, notifier);
 
+	tracker_notifier_stop (notifier);
 	tracker_data = tracker_data_manager_get_data (priv->data_manager);
 	tracker_data_remove_statement_callback (tracker_data,
 	                                        statement_cb,

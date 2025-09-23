@@ -132,6 +132,82 @@ teardown (gpointer      *fixture,
 }
 
 static void
+query_closed_cb (GObject      *object,
+                 GAsyncResult *res,
+                 gpointer      user_data)
+{
+	GError *error = NULL;
+	TrackerSparqlCursor *cursor;
+
+	cursor = tracker_sparql_connection_query_finish (TRACKER_SPARQL_CONNECTION (object),
+	                                                 res, &error);
+	g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED);
+	g_assert_null (cursor);
+	g_clear_error (&error);
+
+	g_main_loop_quit (user_data);
+}
+
+static void
+update_closed_cb (GObject      *object,
+                  GAsyncResult *res,
+                  gpointer      user_data)
+{
+	GError *error = NULL;
+
+	tracker_sparql_connection_update_finish (TRACKER_SPARQL_CONNECTION (object),
+	                                         res, &error);
+	g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED);
+	g_clear_error (&error);
+
+	g_main_loop_quit (user_data);
+}
+
+static void
+assert_operations_after_close (TrackerSparqlConnection *conn)
+{
+	TrackerResource *resource;
+	GError *error = NULL;
+	GMainLoop *main_loop;
+
+	resource = tracker_resource_new ("file:///");
+	tracker_resource_set_uri (resource, "rdf:type", "rdfs:Resource");
+
+	main_loop = g_main_loop_new (NULL, FALSE);
+
+	/* Test queries */
+	tracker_sparql_connection_query (conn, "", NULL, &error);
+	g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED);
+	g_clear_error (&error);
+
+	tracker_sparql_connection_query_async (conn, "", NULL, query_closed_cb, main_loop);
+	g_main_loop_run (main_loop);
+
+	if (g_strcmp0 (G_OBJECT_TYPE_NAME (conn), "TrackerRemoteConnection") != 0) {
+		/* Test updates */
+		tracker_sparql_connection_update (conn, "", NULL, &error);
+		g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED);
+		g_clear_error (&error);
+
+		G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+			tracker_sparql_connection_update_blank (conn, "", NULL, &error);
+		g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED);
+		g_clear_error (&error);
+		G_GNUC_END_IGNORE_DEPRECATIONS
+
+			tracker_sparql_connection_update_resource (conn, NULL, resource, NULL, &error);
+		g_assert_error (error, G_IO_ERROR, G_IO_ERROR_CONNECTION_CLOSED);
+		g_clear_error (&error);
+
+		tracker_sparql_connection_update_async (conn, "", NULL, update_closed_cb, main_loop);
+		g_main_loop_run (main_loop);
+	}
+
+	g_clear_object (&resource);
+	g_clear_pointer (&main_loop, g_main_loop_unref);
+}
+
+static void
 test_connection_close (gpointer      fixture,
                        gconstpointer user_data)
 {
@@ -142,7 +218,8 @@ test_connection_close (gpointer      fixture,
 	/* Test that it may close multiple times */
 	tracker_sparql_connection_close (conn);
 
-	/* FIXME: test queries/udpates after close */
+	/* Test queries and updates */
+	assert_operations_after_close (conn);
 }
 
 static void
@@ -178,7 +255,8 @@ test_connection_close_async (gpointer      fixture,
 
 	g_main_loop_unref (loop);
 
-	/* FIXME: test queries/udpates after close */
+	/* Test queries and updates */
+	assert_operations_after_close (conn);
 }
 
 static TrackerResource *

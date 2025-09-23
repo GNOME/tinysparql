@@ -42,3 +42,5 @@ void _tracker_notifier_event_cache_flush_events (TrackerNotifier           *noti
 const gchar * tracker_notifier_event_cache_get_graph (TrackerNotifierEventCache *cache);
 
 void tracker_notifier_disable_urn_query (TrackerNotifier *notifier);
+
+void tracker_notifier_stop (TrackerNotifier *notifier);

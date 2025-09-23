@@ -90,8 +90,13 @@
 #include "direct/tracker-direct.h"
 #include "remote/tracker-remote.h"
 
-G_DEFINE_ABSTRACT_TYPE (TrackerSparqlConnection, tracker_sparql_connection,
-                        G_TYPE_OBJECT)
+typedef struct
+{
+	gboolean closing;
+} TrackerSparqlConnectionPrivate;
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (TrackerSparqlConnection, tracker_sparql_connection,
+                                     G_TYPE_OBJECT)
 
 static void
 tracker_sparql_connection_init (TrackerSparqlConnection *connection)
@@ -140,6 +145,43 @@ tracker_sparql_connection_lookup_dbus_service (TrackerSparqlConnection  *connect
 	                                                                              path);
 }
 
+gboolean
+tracker_sparql_connection_set_error_on_closed (TrackerSparqlConnection  *connection,
+                                               GError                  **error)
+{
+	TrackerSparqlConnectionPrivate *priv =
+		tracker_sparql_connection_get_instance_private (connection);
+
+	if (priv->closing) {
+		g_set_error (error,
+		             G_IO_ERROR,
+		             G_IO_ERROR_CONNECTION_CLOSED,
+		             "Connection is closed");
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+gboolean
+tracker_sparql_connection_report_async_error_on_closed (TrackerSparqlConnection *connection,
+                                                        GAsyncReadyCallback      callback,
+                                                        gpointer                 user_data)
+{
+	TrackerSparqlConnectionPrivate *priv =
+		tracker_sparql_connection_get_instance_private (connection);
+
+	if (priv->closing) {
+		g_task_report_new_error (connection, callback, user_data, NULL,
+		                         G_IO_ERROR,
+		                         G_IO_ERROR_CONNECTION_CLOSED,
+		                         "Connection is closed");
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 /**
  * tracker_sparql_connection_query:
  * @connection: A `TrackerSparqlConnection`
@@ -174,6 +216,9 @@ tracker_sparql_connection_query (TrackerSparqlConnection  *connection,
 	g_return_val_if_fail (sparql != NULL, NULL);
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
+
+	if (tracker_sparql_connection_set_error_on_closed (connection, error))
+		return NULL;
 
 	cursor = TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->query (connection,
 	                                                                  sparql,
@@ -213,6 +258,11 @@ tracker_sparql_connection_query_async (TrackerSparqlConnection *connection,
 	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
 	g_return_if_fail (sparql != NULL);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+	if (tracker_sparql_connection_report_async_error_on_closed (connection,
+	                                                            callback,
+	                                                            user_data))
+		return;
 
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->query_async (connection,
 	                                                               sparql,
@@ -287,6 +337,9 @@ tracker_sparql_connection_update (TrackerSparqlConnection  *connection,
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 	g_return_if_fail (!error || !*error);
 
+	if (tracker_sparql_connection_set_error_on_closed (connection, error))
+		return;
+
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update (connection,
 	                                                          sparql,
 	                                                          cancellable,
@@ -326,6 +379,11 @@ tracker_sparql_connection_update_async (TrackerSparqlConnection *connection,
 	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
 	g_return_if_fail (sparql != NULL);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+	if (tracker_sparql_connection_report_async_error_on_closed (connection,
+	                                                            callback,
+	                                                            user_data))
+		return;
 
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_async (connection,
 	                                                                sparql,
@@ -388,6 +446,11 @@ tracker_sparql_connection_update_array_async (TrackerSparqlConnection  *connecti
 	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
 	g_return_if_fail (sparql != NULL || sparql_length == 0);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+	if (tracker_sparql_connection_report_async_error_on_closed (connection,
+	                                                            callback,
+	                                                            user_data))
+		return;
 
 	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_array_async) {
 		g_task_report_new_error (G_OBJECT (connection), callback, user_data,
@@ -481,6 +544,9 @@ tracker_sparql_connection_update_blank (TrackerSparqlConnection  *connection,
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
 
+	if (tracker_sparql_connection_set_error_on_closed (connection, error))
+		return NULL;
+
 	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_blank (connection,
 	                                                                       sparql,
 	                                                                       cancellable,
@@ -514,6 +580,11 @@ tracker_sparql_connection_update_blank_async (TrackerSparqlConnection *connectio
 	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
 	g_return_if_fail (sparql != NULL);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+	if (tracker_sparql_connection_report_async_error_on_closed (connection,
+	                                                            callback,
+	                                                            user_data))
+		return;
 
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_blank_async (connection,
 	                                                                      sparql,
@@ -586,6 +657,9 @@ tracker_sparql_connection_update_resource (TrackerSparqlConnection  *connection,
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), FALSE);
 	g_return_val_if_fail (!error || !*error, FALSE);
 
+	if (tracker_sparql_connection_set_error_on_closed (connection, error))
+		return FALSE;
+
 	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_resource) {
 		g_set_error (error,
 		             TRACKER_SPARQL_ERROR,
@@ -631,6 +705,11 @@ tracker_sparql_connection_update_resource_async (TrackerSparqlConnection *connec
 	g_return_if_fail (TRACKER_IS_RESOURCE (resource));
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 	g_return_if_fail (callback != NULL);
+
+	if (tracker_sparql_connection_report_async_error_on_closed (connection,
+	                                                            callback,
+	                                                            user_data))
+		return;
 
 	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_resource_async) {
 		g_task_report_new_error (G_OBJECT (connection), callback, user_data,
@@ -726,6 +805,9 @@ tracker_sparql_connection_query_statement (TrackerSparqlConnection  *connection,
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
 
+	if (tracker_sparql_connection_set_error_on_closed (connection, error))
+		return NULL;
+
 	return TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->query_statement (connection,
 	                                                                          sparql,
 	                                                                          cancellable,
@@ -758,6 +840,9 @@ tracker_sparql_connection_update_statement (TrackerSparqlConnection  *connection
 	g_return_val_if_fail (sparql != NULL, NULL);
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
+
+	if (tracker_sparql_connection_set_error_on_closed (connection, error))
+		return NULL;
 
 	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->update_statement) {
 		g_set_error (error,
@@ -812,7 +897,12 @@ tracker_sparql_connection_create_notifier (TrackerSparqlConnection *connection)
 void
 tracker_sparql_connection_close (TrackerSparqlConnection *connection)
 {
+	TrackerSparqlConnectionPrivate *priv =
+		tracker_sparql_connection_get_instance_private (connection);
+
 	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
+
+	priv->closing = TRUE;
 
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->close (connection);
 }
@@ -835,7 +925,12 @@ tracker_sparql_connection_close_async (TrackerSparqlConnection *connection,
                                        GAsyncReadyCallback      callback,
                                        gpointer                 user_data)
 {
+	TrackerSparqlConnectionPrivate *priv =
+		tracker_sparql_connection_get_instance_private (connection);
+
 	g_return_if_fail (TRACKER_IS_SPARQL_CONNECTION (connection));
+
+	priv->closing = TRUE;
 
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->close_async (connection,
 	                                                               cancellable,
@@ -918,6 +1013,9 @@ tracker_sparql_connection_load_statement_from_gresource (TrackerSparqlConnection
 	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
 	g_return_val_if_fail (!error || !*error, NULL);
 
+	if (tracker_sparql_connection_set_error_on_closed (connection, error))
+		return NULL;
+
 	query = g_resources_lookup_data (resource_path,
 	                                 G_RESOURCE_LOOKUP_FLAGS_NONE,
 	                                 error);
@@ -989,6 +1087,11 @@ tracker_sparql_connection_serialize_async (TrackerSparqlConnection *connection,
 	g_return_if_fail (query != NULL);
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 	g_return_if_fail (callback != NULL);
+
+	if (tracker_sparql_connection_report_async_error_on_closed (connection,
+	                                                            callback,
+	                                                            user_data))
+		return;
 
 	TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->serialize_async (connection,
 	                                                                   flags,
@@ -1068,6 +1171,11 @@ tracker_sparql_connection_deserialize_async (TrackerSparqlConnection *connection
 	g_return_if_fail (G_IS_INPUT_STREAM (stream));
 	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
 	g_return_if_fail (callback != NULL);
+
+	if (tracker_sparql_connection_report_async_error_on_closed (connection,
+	                                                            callback,
+	                                                            user_data))
+		return;
 
 	if (!TRACKER_SPARQL_CONNECTION_GET_CLASS (connection)->deserialize_async) {
 		g_task_report_new_error (G_OBJECT (connection), callback, user_data,

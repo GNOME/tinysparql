@@ -651,6 +651,14 @@ _tracker_notifier_event_cache_flush_events (TrackerNotifier           *notifier,
 	g_async_queue_unlock (priv->queue);
 }
 
+void
+tracker_notifier_stop (TrackerNotifier *notifier)
+{
+	TrackerNotifierPrivate *priv = tracker_notifier_get_instance_private (notifier);
+
+	g_cancellable_cancel (priv->cancellable);
+}
+
 static void
 graph_updated_cb (GDBusConnection *connection,
                   const gchar     *sender_name,

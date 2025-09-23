@@ -31,6 +31,7 @@
 #include "tracker-bus-batch.h"
 #include "tracker-bus-cursor.h"
 #include "tracker-bus-statement.h"
+#include "tracker-notifier-private.h"
 
 #define DBUS_PEER_IFACE "org.freedesktop.DBus.Peer"
 
@@ -47,6 +48,7 @@ struct _TrackerBusConnection {
 
 	GDBusConnection *dbus_conn;
 	TrackerNamespaceManager *namespaces;
+	GList *notifiers;
 	gchar *dbus_name;
 	gchar *object_path;
 	gboolean sandboxed;
@@ -1251,13 +1253,15 @@ tracker_bus_connection_create_notifier (TrackerSparqlConnection *self)
 
 	notifier = g_object_new (TRACKER_TYPE_NOTIFIER,
 	                         "connection", self,
-				 NULL);
+	                         NULL);
 
 	tracker_notifier_signal_subscribe (notifier,
 	                                   bus->dbus_conn,
 	                                   bus->dbus_name,
 	                                   bus->object_path,
 	                                   NULL);
+
+	bus->notifiers = g_list_prepend (bus->notifiers, notifier);
 
 	return notifier;
 }
@@ -1266,6 +1270,12 @@ static void
 tracker_bus_connection_close (TrackerSparqlConnection *self)
 {
 	TrackerBusConnection *bus = TRACKER_BUS_CONNECTION (self);
+
+	while (bus->notifiers) {
+		tracker_notifier_stop (bus->notifiers->data);
+		bus->notifiers = g_list_remove (bus->notifiers,
+		                                bus->notifiers->data);
+	}
 
 	if (bus->sandboxed) {
 		GDBusMessage *message;

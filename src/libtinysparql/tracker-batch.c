@@ -430,6 +430,9 @@ tracker_batch_execute (TrackerBatch  *batch,
 
 	priv->already_executed = TRUE;
 
+	if (tracker_sparql_connection_set_error_on_closed (priv->connection, error))
+		return FALSE;
+
 	return TRACKER_BATCH_GET_CLASS (batch)->execute (batch, cancellable, error);
 }
 
@@ -460,6 +463,12 @@ tracker_batch_execute_async (TrackerBatch        *batch,
 	g_return_if_fail (!priv->already_executed);
 
 	priv->already_executed = TRUE;
+
+	if (tracker_sparql_connection_report_async_error_on_closed (priv->connection,
+	                                                            callback,
+	                                                            user_data))
+		return;
+
 	TRACKER_BATCH_GET_CLASS (batch)->execute_async (batch, cancellable, callback, user_data);
 }
 
