@@ -660,9 +660,34 @@ tracker_bus_connection_async_initable_iface_init (GAsyncInitableIface *iface)
 }
 
 static void
+notifier_weak_ref_cb (gpointer  data,
+                      GObject  *prev_location)
+{
+	TrackerBusConnection *bus = data;
+
+	bus->notifiers = g_list_remove (bus->notifiers, prev_location);
+}
+
+static void
+clear_notifiers (TrackerBusConnection *bus)
+{
+	while (bus->notifiers) {
+		TrackerNotifier *notifier = bus->notifiers->data;
+
+		tracker_notifier_stop (notifier);
+		g_object_weak_unref (G_OBJECT (notifier),
+		                     notifier_weak_ref_cb,
+		                     bus);
+		bus->notifiers = g_list_remove (bus->notifiers, notifier);
+	}
+}
+
+static void
 tracker_bus_connection_finalize (GObject *object)
 {
 	TrackerBusConnection *bus = TRACKER_BUS_CONNECTION (object);
+
+	clear_notifiers (bus);
 
 	g_clear_object (&bus->dbus_conn);
 	g_clear_pointer (&bus->dbus_name, g_free);
@@ -1261,6 +1286,7 @@ tracker_bus_connection_create_notifier (TrackerSparqlConnection *self)
 	                                   bus->object_path,
 	                                   NULL);
 
+	g_object_weak_ref (G_OBJECT (notifier), notifier_weak_ref_cb, self);
 	bus->notifiers = g_list_prepend (bus->notifiers, notifier);
 
 	return notifier;
@@ -1271,11 +1297,7 @@ tracker_bus_connection_close (TrackerSparqlConnection *self)
 {
 	TrackerBusConnection *bus = TRACKER_BUS_CONNECTION (self);
 
-	while (bus->notifiers) {
-		tracker_notifier_stop (bus->notifiers->data);
-		bus->notifiers = g_list_remove (bus->notifiers,
-		                                bus->notifiers->data);
-	}
+	clear_notifiers (bus);
 
 	if (bus->sandboxed) {
 		GDBusMessage *message;
@@ -1299,6 +1321,8 @@ tracker_bus_connection_close_async (TrackerSparqlConnection *connection,
 	GTask *task;
 
 	task = g_task_new (connection, cancellable, callback, user_data);
+
+	clear_notifiers (bus);
 
 	if (bus->sandboxed) {
 		GDBusMessage *message;
