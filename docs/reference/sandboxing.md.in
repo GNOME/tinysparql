@@ -107,7 +107,7 @@ at the time of bundling the software, e.g.:
   "finish-args" : [
     "--add-policy=Tracker3.dbus:org.example.Endpoint:/org/freedesktop/Tracker3/Endpoint=example:A",
     "--add-policy=Tracker3.dbus:org.example.Endpoint:/org/example/CustomEndpoint=example:B",
-    "--add-policy=Tracker3.dbus:org.example.Endpoint:/org/example/AnotherCustomEndpoint=example:C"
+    "--add-policy=Tracker3.dbus:org.example.Endpoint:/org/example/AnotherCustomEndpoint=default"
   ]
 }
 ```
@@ -117,6 +117,7 @@ Note that if the endpoint object has the default name '/org/freedesktop/Tracker3
 The portal will pick the policy from the `/.flatpak-info` file created
 by Flatpak, and (with the example arguments) allow read-only access to graphs `example:A`
 and `example:B` from the `org.example.Endpoint` D-Bus SPARQL endpoint.
+The default graph can be specified by using `default` or `nrl:DefaultGraph`.
 Access to other graphs, or other services will be disallowed. More information about access control can be found in the [Security considerations](security.html) page.
 
 The TinySPARQL library is included in the
