@@ -320,11 +320,30 @@ write_sparql_queries_in_thread (GTask        *task,
 	GBytes *bytes = NULL;
 	gchar *params_str = NULL;
 	GError *error = NULL;
+	TrackerBusOp *first_op = NULL;
 	guint i;
 
 	op_array = g_task_get_task_data (task);
 	data = g_data_output_stream_new (ostream);
 	g_data_output_stream_set_byte_order (data, G_DATA_STREAM_BYTE_ORDER_HOST_ENDIAN);
+
+	if (op_array->len >= 1)
+		first_op = &g_array_index (op_array, TrackerBusOp, 0);
+
+	/* Short circuit the forwarding of a single D-Bus FD */
+	if (op_array->len == 1 &&
+	    first_op && first_op->type == TRACKER_BUS_OP_DBUS_FD) {
+		if (g_output_stream_splice (G_OUTPUT_STREAM (data),
+		                            first_op->d.fd.stream,
+		                            G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+		                            G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+		                            cancellable,
+		                            &error) < 0)
+			goto error;
+
+		g_task_return_boolean (task, TRUE);
+		return;
+	}
 
 	if (!g_data_output_stream_put_int32 (data, op_array->len, cancellable, &error))
 		goto error;
@@ -406,6 +425,8 @@ write_sparql_queries_in_thread (GTask        *task,
 				goto error;
 
 			g_clear_pointer (&bytes, g_bytes_unref);
+		} else {
+			g_assert_not_reached ();
 		}
 	}
 

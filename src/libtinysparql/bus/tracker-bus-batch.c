@@ -241,7 +241,7 @@ tracker_bus_batch_add_statement (TrackerBatch           *batch,
 	g_array_append_val (bus_batch->ops, op);
 }
 
-void
+static void
 tracker_bus_batch_add_rdf (TrackerBatch            *batch,
                            TrackerDeserializeFlags  flags,
                            TrackerRdfFormat         format,
@@ -256,6 +256,18 @@ tracker_bus_batch_add_rdf (TrackerBatch            *batch,
 	op.d.rdf.format = format;
 	op.d.rdf.default_graph = g_strdup (default_graph);
 	op.d.rdf.stream = g_object_ref (stream);
+	g_array_append_val (bus_batch->ops, op);
+}
+
+static void
+tracker_bus_batch_add_dbus_fd (TrackerBatch *batch,
+                               GInputStream *istream)
+{
+	TrackerBusBatch *bus_batch = TRACKER_BUS_BATCH (batch);
+	TrackerBusOp op = { 0, };
+
+	op.type = TRACKER_BUS_OP_DBUS_FD;
+	op.d.fd.stream = g_object_ref (istream);
 	g_array_append_val (bus_batch->ops, op);
 }
 
@@ -361,6 +373,7 @@ tracker_bus_batch_class_init (TrackerBusBatchClass *klass)
 	batch_class->add_resource = tracker_bus_batch_add_resource;
 	batch_class->add_statement = tracker_bus_batch_add_statement;
 	batch_class->add_rdf = tracker_bus_batch_add_rdf;
+	batch_class->add_dbus_fd = tracker_bus_batch_add_dbus_fd;
 	batch_class->execute = tracker_bus_batch_execute;
 	batch_class->execute_async = tracker_bus_batch_execute_async;
 	batch_class->execute_finish = tracker_bus_batch_execute_finish;

@@ -39,9 +39,11 @@ struct _TestFixture {
 };
 
 typedef struct {
-	TrackerSparqlConnection *direct;
+	TrackerSparqlConnection *sparql_conn;
 	GDBusConnection *dbus_conn;
 	GMainLoop *thread_loop;
+	const char *object_path;
+	gboolean started;
 } StartupData;
 
 typedef struct {
@@ -49,7 +51,6 @@ typedef struct {
 	GMainLoop *loop;
 } EndpointData;
 
-static gboolean started = FALSE;
 static const gchar *bus_name = NULL;
 
 #define PHOTO_INSERT_SPARQL \
@@ -1332,12 +1333,13 @@ thread_func (gpointer user_data)
 
 	main_loop = g_main_loop_new (context, FALSE);
 
-	endpoint = tracker_endpoint_dbus_new (data->direct, data->dbus_conn, NULL, NULL, NULL);
-	if (!endpoint)
-		return NULL;
+	endpoint = tracker_endpoint_dbus_new (data->sparql_conn,
+					      data->dbus_conn,
+					      data->object_path, NULL, NULL);
+	g_assert_nonnull (endpoint);
 
 	data->thread_loop = main_loop;
-	started = TRUE;
+	data->started = TRUE;
 	g_main_loop_run (main_loop);
 
 	g_main_loop_unref (main_loop);
@@ -1345,6 +1347,8 @@ thread_func (gpointer user_data)
 	g_main_context_unref (context);
 
 	g_object_unref (endpoint);
+	g_object_unref (data->sparql_conn);
+	g_free (data);
 
 	return NULL;
 }
@@ -1357,46 +1361,90 @@ finish_endpoint (EndpointData *endpoint_data)
 	g_free (endpoint_data);
 }
 
-static gboolean
-create_connections (TrackerSparqlConnection **dbus,
-                    TrackerSparqlConnection **direct,
-                    GError                  **error)
+static TrackerSparqlConnection *
+create_dbus_connection (GDBusConnection  *dbus_conn,
+			const char       *object_path,
+			GError          **error)
 {
-	StartupData data;
+	TrackerSparqlConnection *dbus;
+	StartupData *data;
 	EndpointData *endpoint_data;
 	GThread *thread;
 
-	data.direct = create_local_connection (NULL);
-	if (!data.direct)
+	data = g_new0 (StartupData, 1);
+	data->sparql_conn = create_local_connection (NULL);
+	data->object_path = object_path;
+
+	if (!data->sparql_conn)
 		return FALSE;
-	data.dbus_conn = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, error);
-	if (!data.dbus_conn)
+	data->dbus_conn = dbus_conn;
+	if (!data->dbus_conn)
 		return FALSE;
 
-	thread = g_thread_new (NULL, thread_func, &data);
+	thread = g_thread_new (NULL, thread_func, data);
 
-	while (!started)
+	while (!data->started)
 		g_usleep (100);
 
 	endpoint_data = g_new0 (EndpointData, 1);
 	endpoint_data->thread = thread;
-	endpoint_data->loop = data.thread_loop;
+	endpoint_data->loop = data->thread_loop;
 
-	bus_name = g_dbus_connection_get_unique_name (data.dbus_conn);
-	*dbus = tracker_sparql_connection_bus_new (bus_name,
-	                                           NULL, data.dbus_conn, error);
+	bus_name = g_dbus_connection_get_unique_name (data->dbus_conn);
+	dbus = tracker_sparql_connection_bus_new (bus_name,
+						  data->object_path,
+						  data->dbus_conn, error);
+	g_assert_nonnull (dbus);
 
-	g_object_set_data_full (G_OBJECT (*dbus),
-	                        "endpoint-data",
-	                        endpoint_data,
-	                        (GDestroyNotify) finish_endpoint);
+	g_object_set_data_full (G_OBJECT (dbus),
+				"endpoint-data",
+				endpoint_data,
+				(GDestroyNotify) finish_endpoint);
 
-	*direct = create_local_connection (error);
+	return dbus;
+}
 
-	g_object_unref (data.direct);
-	g_object_unref (data.dbus_conn);
+static TrackerSparqlConnection *
+create_dbus_over_dbus_connection (GDBusConnection  *dbus_conn,
+				  GError          **error)
+{
+	TrackerSparqlConnection *dbus_over_dbus;
+	StartupData *data;
+	EndpointData *endpoint_data;
+	GThread *thread;
 
-	return TRUE;
+	data = g_new0 (StartupData, 1);
+	data->sparql_conn = create_dbus_connection (dbus_conn,
+						    "/org/test/nested1",
+						    error);
+	data->object_path = "/org/test/nested2";
+
+	if (!data->sparql_conn)
+		return FALSE;
+	data->dbus_conn = dbus_conn;
+	if (!data->dbus_conn)
+		return FALSE;
+
+	thread = g_thread_new (NULL, thread_func, data);
+
+	while (!data->started)
+		g_usleep (100);
+
+	endpoint_data = g_new0 (EndpointData, 1);
+	endpoint_data->thread = thread;
+	endpoint_data->loop = data->thread_loop;
+
+	bus_name = g_dbus_connection_get_unique_name (data->dbus_conn);
+	dbus_over_dbus = tracker_sparql_connection_bus_new (bus_name,
+							    data->object_path,
+							    data->dbus_conn, error);
+
+	g_object_set_data_full (G_OBJECT (dbus_over_dbus),
+				"endpoint-data",
+				endpoint_data,
+				(GDestroyNotify) finish_endpoint);
+
+	return dbus_over_dbus;
 }
 
 static void
@@ -1482,17 +1530,27 @@ add_tests (TrackerSparqlConnection *conn,
 gint
 main (gint argc, gchar **argv)
 {
-	TrackerSparqlConnection *dbus = NULL, *direct = NULL;
+	TrackerSparqlConnection *dbus_over_dbus = NULL, *dbus = NULL, *direct = NULL;
+	GDBusConnection *dbus_conn;
 	GError *error = NULL;
 
 	g_test_init (&argc, &argv, NULL);
 
-	g_assert_true (create_connections (&dbus, &direct, &error));
+	dbus_conn = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+	g_assert_no_error (error);
+
+	direct = create_local_connection (&error);
+	g_assert_no_error (error);
+	dbus = create_dbus_connection (dbus_conn, "/org/test/object3", &error);
+	g_assert_no_error (error);
+	dbus_over_dbus = create_dbus_over_dbus_connection (dbus_conn, &error);
 	g_assert_no_error (error);
 
 	add_tests (direct, "direct", TRUE);
 	add_tests (dbus, "dbus", FALSE);
+	add_tests (dbus_over_dbus, "dbus-over-dbus", FALSE);
 
+	g_clear_object (&dbus_over_dbus);
 	g_clear_object (&dbus);
 	g_clear_object (&direct);
 

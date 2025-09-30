@@ -27,6 +27,7 @@ typedef enum
 {
 	TRACKER_BUS_OP_SPARQL,
 	TRACKER_BUS_OP_RDF,
+	TRACKER_BUS_OP_DBUS_FD,
 } TrackerBusOpType;
 
 typedef struct _TrackerBusOp TrackerBusOp;
@@ -47,6 +48,10 @@ struct _TrackerBusOp
 			gchar *default_graph;
 			GInputStream *stream;
 		} rdf;
+
+		struct {
+			GInputStream *stream;
+		} fd;
 	} d;
 };
 
