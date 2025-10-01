@@ -582,6 +582,7 @@ stmt_serialize_cb (GObject      *object,
 	                              request->global_cancellable,
 	                              splice_rdf_cb,
 	                              request);
+	g_object_unref (istream);
 }
 
 static void
@@ -867,6 +868,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			}
 		}
 
+		g_variant_iter_free (arguments);
 		g_free (query);
 	} else if (g_strcmp0 (method_name, "UpdateArray") == 0) {
 		if (tracker_endpoint_get_readonly (TRACKER_ENDPOINT (endpoint_dbus))) {
@@ -965,6 +967,7 @@ endpoint_dbus_iface_method_call (GDBusConnection       *connection,
 			g_object_unref (istream);
 		}
 
+		g_variant_iter_free (arguments);
 		g_free (graph);
 	} else {
 		g_dbus_method_invocation_return_error (invocation,
