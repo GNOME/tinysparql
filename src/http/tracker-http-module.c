@@ -927,6 +927,7 @@ create_message (const gchar *uri,
 
 	query_encoded = g_bytes_new (query, strlen (query));
 	soup_message_set_request_body_from_bytes (message, "application/sparql-query", query_encoded);
+	g_bytes_unref (query_encoded);
 
 	return message;
 }
@@ -989,21 +990,37 @@ tracker_http_client_soup_send_message (TrackerHttpClient        *client,
 	                            cancellable,
 	                            error);
 	if (!stream)
-		return NULL;
+		goto out;
 
 	if (!get_content_type_format (message, format, error)) {
 		g_clear_object (&stream);
-		return NULL;
+		goto out;
 	}
+
+ out:
+	g_clear_object (&message);
 
 	return stream;
 }
 
 static void
+tracker_http_client_soup_finalize (GObject *object)
+{
+	TrackerHttpClientSoup *client = TRACKER_HTTP_CLIENT_SOUP (object);
+
+	g_clear_object (&client->session);
+
+	G_OBJECT_CLASS (tracker_http_client_soup_parent_class)->finalize (object);
+}
+
+static void
 tracker_http_client_soup_class_init (TrackerHttpClientSoupClass *klass)
 {
+	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 	TrackerHttpClientClass *client_class =
 		TRACKER_HTTP_CLIENT_CLASS (klass);
+
+	object_class->finalize = tracker_http_client_soup_finalize;
 
 	client_class->send_message_async = tracker_http_client_soup_send_message_async;
 	client_class->send_message_finish = tracker_http_client_soup_send_message_finish;
