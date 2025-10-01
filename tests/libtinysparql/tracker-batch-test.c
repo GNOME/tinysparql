@@ -1363,23 +1363,22 @@ finish_endpoint (EndpointData *endpoint_data)
 
 static TrackerSparqlConnection *
 create_dbus_connection (GDBusConnection  *dbus_conn,
-			const char       *object_path,
-			GError          **error)
+                        const char       *object_path,
+                        GError          **error)
 {
 	TrackerSparqlConnection *dbus;
 	StartupData *data;
 	EndpointData *endpoint_data;
 	GThread *thread;
+	GError *inner_error = NULL;
 
 	data = g_new0 (StartupData, 1);
-	data->sparql_conn = create_local_connection (NULL);
 	data->object_path = object_path;
-
-	if (!data->sparql_conn)
-		return FALSE;
 	data->dbus_conn = dbus_conn;
-	if (!data->dbus_conn)
-		return FALSE;
+
+	data->sparql_conn = create_local_connection (&inner_error);
+	g_assert_no_error (inner_error);
+	g_assert_nonnull (data->sparql_conn);
 
 	thread = g_thread_new (NULL, thread_func, data);
 
@@ -1406,24 +1405,23 @@ create_dbus_connection (GDBusConnection  *dbus_conn,
 
 static TrackerSparqlConnection *
 create_dbus_over_dbus_connection (GDBusConnection  *dbus_conn,
-				  GError          **error)
+                                  GError          **error)
 {
 	TrackerSparqlConnection *dbus_over_dbus;
 	StartupData *data;
 	EndpointData *endpoint_data;
 	GThread *thread;
+	GError *inner_error = NULL;
 
 	data = g_new0 (StartupData, 1);
+	data->object_path = "/org/test/nested2";
+	data->dbus_conn = dbus_conn;
+
 	data->sparql_conn = create_dbus_connection (dbus_conn,
 						    "/org/test/nested1",
-						    error);
-	data->object_path = "/org/test/nested2";
-
-	if (!data->sparql_conn)
-		return FALSE;
-	data->dbus_conn = dbus_conn;
-	if (!data->dbus_conn)
-		return FALSE;
+	                                            &inner_error);
+	g_assert_no_error (inner_error);
+	g_assert_nonnull (data->sparql_conn);
 
 	thread = g_thread_new (NULL, thread_func, data);
 

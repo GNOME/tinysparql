@@ -1014,9 +1014,11 @@ query_helper (TrackerSparqlConnection *conn,
 	g_assert_no_error (error);
 
 	cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
+	g_free (query);
 
 	if (expect_error) {
 		g_assert_nonnull (error);
+		g_clear_error (&error);
 		g_free (results);
 		return;
 	}
@@ -1076,7 +1078,6 @@ query_helper (TrackerSparqlConnection *conn,
 
 	g_string_free (test_results, TRUE);
 	g_free (results);
-	g_free (query);
 }
 
 static void
@@ -1093,6 +1094,7 @@ handle_queries (TrackerSparqlConnection *conn,
 		query_helper (conn, query_filename, results_filename, queries->expect_error);
 		g_free (query_filename);
 		g_free (results_filename);
+		g_free (test_prefix);
 		queries++;
 	}
 }
@@ -1119,6 +1121,7 @@ handle_updates (TrackerSparqlConnection *conn,
 			else
 				g_assert_no_error (error);
 
+			g_clear_error (&error);
 			g_free (queries);
 		}
 
@@ -1172,6 +1175,7 @@ test_ontology_change (gconstpointer context)
 		ontology_file = g_build_path (G_DIR_SEPARATOR_S, build_prefix, "change", "ontologies", filename, NULL);
 		file2 = g_file_new_for_path (ontology_file);
 		g_file_delete (file2, NULL, NULL);
+		g_free (filename);
 
 		from = g_file_get_path (file1);
 		to = g_file_get_path (file2);
