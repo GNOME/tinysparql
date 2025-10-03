@@ -111,6 +111,8 @@ test_sparql_query (gconstpointer test_data)
 		g_assert_no_error (error);
 
 		cursor = tracker_sparql_connection_query (conn, query, NULL, &error);
+		g_free (query);
+
 		if (test_info->expect_error) {
 			g_assert_nonnull (error);
 			g_clear_error (&error);
@@ -178,7 +180,6 @@ test_sparql_query (gconstpointer test_data)
 
 		/* cleanup */
 
-		g_free (query);
 		g_free (results_filename);
 		g_free (results);
 		g_string_free (test_results, TRUE);

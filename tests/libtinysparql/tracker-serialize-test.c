@@ -197,7 +197,9 @@ serialize (TestFixture   *test_fixture,
 	check_result (test_fixture->istream, path);
 	g_input_stream_close (test_fixture->istream, NULL, NULL);
 	g_object_unref (test_fixture->istream);
+	g_main_loop_unref (test_fixture->loop);
 	g_free (path);
+	g_free (query);
 }
 
 static void

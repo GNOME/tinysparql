@@ -2085,17 +2085,19 @@ out:
  */
 static inline gboolean
 terminal_STRING_LITERAL_LONG1 (const gchar  *str,
-			       const gchar  *end,
-			       const gchar **str_out)
+                               const gchar  *end,
+                               const gchar **str_out)
 {
 	ACCEPT_CHAR ((ch == '\''));
 	ACCEPT_CHAR ((ch == '\''));
 	ACCEPT_CHAR ((ch == '\''));
 
 	while (str < end) {
-		if (strncmp (str, "\\'",  2) == 0) {
+		size_t len = end - str;
+
+		if (len >= 2 && strncmp (str, "\\'",  2) == 0) {
 			str += 2;
-		} else if (strncmp (str, "'''", 3) == 0) {
+		} else if (len >= 3 && strncmp (str, "'''", 3) == 0) {
 			str += 3;
 			*str_out = str;
 			return TRUE;
@@ -2111,17 +2113,19 @@ terminal_STRING_LITERAL_LONG1 (const gchar  *str,
  */
 static inline gboolean
 terminal_STRING_LITERAL_LONG2 (const gchar  *str,
-			       const gchar  *end,
-			       const gchar **str_out)
+                               const gchar  *end,
+                               const gchar **str_out)
 {
 	ACCEPT_CHAR ((ch == '"'));
 	ACCEPT_CHAR ((ch == '"'));
 	ACCEPT_CHAR ((ch == '"'));
 
 	while (str < end) {
-		if (strncmp (str, "\\\"",  2) == 0) {
+		size_t len = end - str;
+
+		if (len >= 2 && strncmp (str, "\\\"",  2) == 0) {
 			str += 2;
-		} else if (strncmp (str, "\"\"\"", 3) == 0) {
+		} else if (len >= 3 && strncmp (str, "\"\"\"", 3) == 0) {
 			str += 3;
 			*str_out = str;
 			return TRUE;
