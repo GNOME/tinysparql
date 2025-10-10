@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tracker\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
-"POT-Creation-Date: 2025-09-10 23:36+0000\n"
-"PO-Revision-Date: 2025-09-14 15:06+0200\n"
+"POT-Creation-Date: 2025-09-29 04:18+0000\n"
+"PO-Revision-Date: 2025-10-10 16:39+0200\n"
 "Last-Translator: Antonio Marin <gnmer.6qxyg@slmail.me>\n"
 "Language-Team: Romanian <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -28,7 +28,7 @@ msgstr ""
 #: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
 #: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
 msgid "Location of the database"
-msgstr "Locația bazei de date"
+msgstr "Locul bazei de date"
 
 #: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
 msgid "DIR"
@@ -68,11 +68,11 @@ msgstr "Utilizează magistrala sistemului"
 
 #: src/cli/tracker-endpoint.c:90
 msgid "List SPARQL endpoints available in DBus"
-msgstr "Listează punctele finale SPARQL disponibile în DBus"
+msgstr "Afișează punctele finale SPARQL disponibile în DBus"
 
 #: src/cli/tracker-endpoint.c:94
 msgid "List network-local HTTP SPARQL endpoints"
-msgstr "Listează punctele finale HTTP SPARQL din rețea"
+msgstr "Afișează punctele finale HTTP SPARQL locale din rețea"
 
 #. TRANSLATORS: these are commandline arguments
 #: src/cli/tracker-endpoint.c:115
@@ -97,7 +97,7 @@ msgstr "Se creează punctul final HTTP la %s…"
 #: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
 #: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
-msgstr "Se ascultă de comenzile SPARQL. Apăsați Ctrl-C pentru a stopa."
+msgstr "Se primesc comenzile SPARQL. Apasă Ctrl-C pentru a stopa."
 
 #. Carriage return, so we paper over the ^C
 #: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
@@ -128,19 +128,21 @@ msgstr "Opțiuni nerecunoscute"
 #: src/cli/tracker-endpoint.c:652
 #, c-format
 msgid "Opening database at %s…"
-msgstr "Se deschide baza de date ca %s…"
+msgstr "Se deschide baza de date din %s…"
 
 #: src/cli/tracker-endpoint.c:655
+#, c-format
 msgid "Creating in-memory database"
 msgstr "Creează o bază de date în memorie"
 
 #: src/cli/tracker-endpoint.c:683
+#, c-format
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
 msgstr ""
-"A fost creată o nouă bază de date. Utilizați opțiunea „--dbus-service” "
-"pentru a partaja această bază de date pe o magistrală de mesaj."
+"A fost creată o nouă bază de date. Folosește opțiunea „--dbus-service” "
+"pentru a face această bază de date accesibilă altor servicii și aplicații."
 
 #: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
 #: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
@@ -161,7 +163,7 @@ msgstr "Nume de serviciu DBus"
 
 #: src/cli/tracker-export.c:54
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
-msgstr "Formatul rezultatelor de ieșire: „turtle”, „trig” sau „json-ld”"
+msgstr "Formatul rezultatelor: „turtle”, „trig” sau „json-ld”"
 
 #: src/cli/tracker-export.c:55
 msgid "RDF_FORMAT"
@@ -175,11 +177,11 @@ msgstr "Se conectează la un serviciu de la distanță"
 #: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
 #: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
 msgid "Remote service URI"
-msgstr "Serviciu URI la distanță"
+msgstr "URI-ul serviciului la distanță"
 
 #: src/cli/tracker-export.c:62
 msgid "Output TriG format which includes named graph information"
-msgstr "Formatul de ieșire TriG care include informațiile de graf numit"
+msgstr "Rezultat în format TriG care include informațiile grafurilor denumite"
 
 #: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
 msgid "IRI"
@@ -188,6 +190,7 @@ msgstr "IRI"
 #. TRANSLATORS: Those are commandline arguments
 #: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
 #: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
+#, c-format
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
 "Specifică o opțiune „--database”, „--dbus-service” sau „--remote-service”"
@@ -196,7 +199,7 @@ msgstr ""
 #: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
 #: src/cli/tracker-query.c:345
 msgid "No error given"
-msgstr "Nu s-a primit nicio"
+msgstr "Nicio eroare"
 
 #: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
 #: src/cli/tracker-introspect.c:828 src/cli/tracker-query.c:344
@@ -206,36 +209,36 @@ msgstr "Nu s-a putut stabili o conexiune la Tracker"
 #: src/cli/tracker-export.c:179
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
-msgstr "Format de serializare nesuportat „%s”\n"
+msgstr "Format de serializare neacceptat „%s”\n"
 
 #: src/cli/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
-msgstr "Formatul de citire TriG care include informațiile de graf numit"
+msgstr "Citește formatul TriG care include informațiile grafurilor denumite"
 
 #: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
 msgid "Could not run import"
-msgstr "Nu s-a putut rula importarea"
+msgstr "Nu s-a putut efectua importarea"
 
 #: src/cli/tracker-introspect.c:110
 msgid "Lists all available classes"
-msgstr "Listează toate clasele disponibile"
+msgstr "Afișează toate clasele disponibile"
 
 #: src/cli/tracker-introspect.c:114
 msgid "Lists all available prefixes"
-msgstr "Listează toate prefixele diposnibile"
+msgstr "Afișează toate prefixele diposnibile"
 
 #: src/cli/tracker-introspect.c:118
 msgid "Lists all classes which notify changes in the database"
-msgstr "Listează toate clasele care înștiințează modificări în baza de date"
+msgstr "Afișează toate clasele care notifică modificări în baza de date"
 
 #: src/cli/tracker-introspect.c:122
 msgid "List indexes used in database to improve performance"
 msgstr ""
-"Listează indexurile utilizate în baza de date pentru a îmbunătăți performanța"
+"Afișează indexurile utilizate în baza de date pentru a îmbunătăți performanța"
 
 #: src/cli/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
-msgstr "Obține toate graficele numite"
+msgstr "Obține toate grafurile denumite"
 
 #: src/cli/tracker-introspect.c:129
 msgid ""
@@ -251,7 +254,7 @@ msgstr "CLASĂ"
 
 #: src/cli/tracker-introspect.c:133
 msgid "Lists all available properties"
-msgstr "Listează toate proprietățile disponibile"
+msgstr "Afișează toate proprietățile disponibile"
 
 #: src/cli/tracker-introspect.c:137
 msgid ""
@@ -290,7 +293,7 @@ msgstr "Proprietăți"
 
 #: src/cli/tracker-introspect.c:902
 msgid "Could not list properties"
-msgstr "Nu s-au putut lista proprietățile"
+msgstr "Nu s-au putut afișa proprietățile"
 
 #: src/cli/tracker-introspect.c:918
 msgid "Namespaces"
@@ -298,7 +301,7 @@ msgstr "Spații de nume"
 
 #: src/cli/tracker-introspect.c:932
 msgid "Could not list classes"
-msgstr "Nu s-au putut lista clasele"
+msgstr "Nu s-au putut afișa clasele"
 
 #: src/cli/tracker-introspect.c:952
 msgid "Could not find notify classes"
@@ -306,7 +309,7 @@ msgstr "Nu s-au găsit clasele de notificare"
 
 #: src/cli/tracker-introspect.c:960
 msgid "Notifies"
-msgstr "Notifică"
+msgstr "Notificări"
 
 #: src/cli/tracker-introspect.c:972
 msgid "Could not find indexed properties"
@@ -318,11 +321,11 @@ msgstr "Indexuri"
 
 #: src/cli/tracker-introspect.c:992
 msgid "Could not list named graphs"
-msgstr "Nu s-au putut lista graficele numite"
+msgstr "Nu s-au putut afișa grafurile denumite"
 
 #: src/cli/tracker-introspect.c:1000
 msgid "Named graphs"
-msgstr "Grafice numite"
+msgstr "Grafuri denumite"
 
 #: src/cli/tracker-introspect.c:1034
 msgid ""
@@ -335,8 +338,7 @@ msgstr ""
 #: src/cli/tracker-main.c:69
 msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr ""
-"Obțineți ajutor despre cum să utilizați TinySPARQL și oricare din aceste "
-"comenzi"
+"Ajutor despre cum să fie utilizat TinySPARQL și oricare din aceste comenzi"
 
 #: src/cli/tracker-main.c:70
 msgid "Create a SPARQL endpoint"
@@ -352,7 +354,7 @@ msgstr "Importă datele într-o bază de date TinySPARQL"
 
 #: src/cli/tracker-main.c:73
 msgid "Introspect a SPARQL endpoint"
-msgstr "Introspectează un punct final SPARQL"
+msgstr "Analizează un punct final SPARQL"
 
 #: src/cli/tracker-main.c:74
 msgid "Query and update the index using SPARQL"
@@ -369,21 +371,22 @@ msgstr "Comenzile tinysparql disponibile sunt:"
 #: src/cli/tracker-main.c:111
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
-"Consultați „tinysparql help <command>” pentru a citi despre o subcomandă "
+"A se vedea „tinysparql help <command>” pentru a citi despre o subcomandă "
 "specifică."
 
 #: src/cli/tracker-main.c:154
 #, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
-msgstr "„%s” nu este o comandă tinysparql. Consultați „tinysparql --help”"
+msgstr "„%s” nu este o comandă tinysparql. A se vedea „tinysparql --help”"
 
 #: src/cli/tracker-query.c:64
 msgid "Path to use to run a query or update from file"
-msgstr "Calea de utilizat pentru a rula o cerere sau o actualizare din fișier"
+msgstr ""
+"Calea de utilizat pentru a efectua o interogare sau o actualizare din fișier"
 
 #: src/cli/tracker-query.c:68
 msgid "SPARQL query"
-msgstr "Cerere SPARQL"
+msgstr "Interogare SPARQL"
 
 #: src/cli/tracker-query.c:69
 msgid "SPARQL"
@@ -391,9 +394,7 @@ msgstr "SPARQL"
 
 #: src/cli/tracker-query.c:72
 msgid "This is used with --query and for database updates only."
-msgstr ""
-"Aceasta este utilizat cu --query și doar pentru actualizări ale bazei de "
-"date."
+msgstr "Este utilizat cu --query și doar pentru actualizări ale bazei de date."
 
 #: src/cli/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
@@ -401,7 +402,7 @@ msgstr "Furnizează un argument pentru un parametru de interogare."
 
 #: src/cli/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
-msgstr "PARAMETER:TYPE:VALUE"
+msgstr "PARAMETRU:TIP:VALOARE"
 
 #. To translators: This is to say there are no
 #. * search results found. We use a "foo: None"
@@ -414,12 +415,12 @@ msgstr "Nimic"
 #: src/cli/tracker-query.c:282
 #, c-format
 msgid "Invalid argument string %s"
-msgstr "Șir de argument nevalid %s"
+msgstr "Argument greșit %s"
 
 #: src/cli/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
-msgstr "Tip de parametru nevalid pentru argumentul %s"
+msgstr "Tip de parametru greșit pentru argumentul %s"
 
 #: src/cli/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
@@ -440,11 +441,11 @@ msgstr "Terminat"
 #: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
 #: src/cli/tracker-sql.c:164
 msgid "Could not run query"
-msgstr "Nu s-a putut rula cererea"
+msgstr "Nu s-a putut interoga"
 
 #: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
 msgid "No results found matching your query"
-msgstr "Pentru căutarea dumneavoastră nu a fost găsit nici un rezultat"
+msgstr "Niciun rezultat nu corespunde interogării"
 
 #: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
 #: src/cli/tracker-sql.c:138
@@ -453,11 +454,11 @@ msgstr "Rezultate"
 
 #: src/cli/tracker-query.c:498 src/cli/tracker-sql.c:250
 msgid "File and query can not be used together"
-msgstr "Fișierul și cererea nu pot fi utilizate împreună"
+msgstr "Fișierul și interogarea nu pot fi utilizate împreună"
 
 #: src/cli/tracker-sql.c:49
 msgid "Path to use to run a query from file"
-msgstr "Calea de utilizat pentru a rula o interogare din fișier"
+msgstr "Calea de utilizat pentru a efectua o interogare din fișier"
 
 #: src/cli/tracker-sql.c:53
 msgid "SQL query"
@@ -473,7 +474,7 @@ msgstr "Imposibil de inițializat administratorul de date"
 
 #: src/cli/tracker-sql.c:172
 msgid "Empty result set"
-msgstr "Set de rezultate gol"
+msgstr "Niciun rezultat"
 
 #: src/cli/tracker-sql.c:248
 msgid "A database path must be specified"
@@ -482,7 +483,7 @@ msgstr "Trebuie specificată o cale a bazei de date"
 #. Translators: this is a HTTP port
 #: src/cli/tracker-webide.c:40
 msgid "Port to listen on"
-msgstr "Portul la care se ascultă"
+msgstr "Portul monitorizat"
 
 #. Translators: this is a HTTP port
 #: src/cli/tracker-webide.c:50
@@ -503,8 +504,8 @@ msgstr "Se creează IDE-ul Web la %s…"
 #.
 #: src/libtinysparql/core/tracker-collation.c:116
 msgid "the|a|an"
-msgstr "the|a|an|un|o"
+msgstr "the|a|an|un|o|niște|al|a|ai|ale|cel|cea|cei|cele"
 
 #: src/portal/tracker-main.c:51
 msgid "Version"
-msgstr "Versiune"
+msgstr "Versiunea"
