@@ -1945,13 +1945,23 @@ terminal_DOUBLE (const gchar  *str,
 {
 	const gchar *start = str;
 
+	/* We part before the exponent can be either of:
+	 * - number dot
+	 * - dot number
+	 * - number dot number
+	 *
+	 * Try the most generic combination (the last), and
+	 * check later for invalid situations.
+	 */
 	OPTIONAL_STRING (RANGE_NUMBER);
 	OPTIONAL_CHAR ((ch == '.'));
 	OPTIONAL_STRING (RANGE_NUMBER);
 
+	/* There was nothing number-like */
 	if (str == start)
 		return FALSE;
-	if (str == start + 1 && str[0] != '.')
+	/* There was a single dot */
+	if (str < end && str == start + 1 && str[0] != '.')
 		return FALSE;
 
 	return terminal_EXPONENT (str, end, str_out);
