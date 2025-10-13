@@ -1,3 +1,15 @@
+NEW in 3.10.1 - 2025-10-13
+==========================
+  * Introspection annotation fixes
+  * Documentation improvements
+  * Several minor fixes for Coverity warnings
+  * Fixed possible crashes and warnings if database is closed while a
+    TrackerNotifier is actively handling changes
+  * Fixed crash if using TrackerBatch on daisy-chained D-Bus
+    connections
+
+Translations: bg, eo, fr, pt, ro, ug
+
 NEW in 3.10.0 - 2025-09-14
 ==========================
   * Relax TrackerNamespaceManager impositions on having a single prefix
