@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: tracker master\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-10-03 11:11+0000\n"
-"PO-Revision-Date: 2024-10-07 14:01+0000\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
+"POT-Creation-Date: 2025-10-11 03:17+0000\n"
+"PO-Revision-Date: 2025-10-15 17:13+0200\n"
 "Last-Translator: Fabio T. <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <f.t.public@gmail.com>\n"
 "Language: fur\n"
@@ -17,400 +17,386 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Editor: HaiPO 2.0 beta\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.4.4\n"
 
-#. Translators: this is a '|' (U+007C) separated list of common
-#. * title beginnings. Meant to be skipped for sorting purposes,
-#. * case doesn't matter. Given English media is quite common, it is
-#. * advised to leave the untranslated articles in addition to
-#. * the translated ones.
-#: src/libtracker-sparql/core/tracker-collation.c:116
-msgid "the|a|an"
-msgstr "the|a|an|il|la|i|lis|l'"
-
-#: src/portal/tracker-main.c:53
-msgid "Version"
-msgstr "Version"
-
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:606
-#: src/tracker/tracker-export.c:215 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-introspect.c:1027 src/tracker/tracker-query.c:486
-#: src/tracker/tracker-sql.c:238 src/tracker/tracker-webide.c:118
-msgid "Unrecognized options"
-msgstr "Opzions no ricognossudis"
-
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:47
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-introspect.c:98
-#: src/tracker/tracker-query.c:52 src/tracker/tracker-sql.c:44
+#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
+#: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
+#: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
 msgid "Location of the database"
 msgstr "Ubicazion de base di dât"
 
-#: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
+#: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
 msgid "DIR"
 msgstr "DIR"
 
-#: src/tracker/tracker-endpoint.c:62
+#: src/cli/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
 msgstr "Specifiche il non DBus di chest pont finâl"
 
-#: src/tracker/tracker-endpoint.c:63 src/tracker/tracker-endpoint.c:67
+#: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
 msgid "NAME"
 msgstr "NON"
 
-#: src/tracker/tracker-endpoint.c:66
+#: src/cli/tracker-endpoint.c:66
 msgid "Specify the ontology name used in this endpoint"
 msgstr "Specifiche il non de ontologjie doprât in chest pont finâl"
 
-#: src/tracker/tracker-endpoint.c:70
+#: src/cli/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr ""
 "Specifiche un percors a une ontologjie di jessi doprât in chest pont finâl"
 
-#: src/tracker/tracker-endpoint.c:74
+#: src/cli/tracker-endpoint.c:74
 msgid "HTTP port"
 msgstr "Puarte HTTP"
 
-#: src/tracker/tracker-endpoint.c:78
+#: src/cli/tracker-endpoint.c:78
 msgid "Whether to only allow HTTP connections in the loopback device"
 msgstr ""
 "Indiche se permeti dome lis conessions HTTP intal dispositîf di loopback"
 
-#: src/tracker/tracker-endpoint.c:82
+#: src/cli/tracker-endpoint.c:82
 msgid "Use session bus"
 msgstr "Dopre il bus de session"
 
-#: src/tracker/tracker-endpoint.c:86
+#: src/cli/tracker-endpoint.c:86
 msgid "Use system bus"
 msgstr "Dopre il bus dal sisteme"
 
-#: src/tracker/tracker-endpoint.c:90
+#: src/cli/tracker-endpoint.c:90
 msgid "List SPARQL endpoints available in DBus"
 msgstr "Liste i ponts finâi SPARQL disponibii tal DBus"
 
-#: src/tracker/tracker-endpoint.c:94
+#: src/cli/tracker-endpoint.c:94
 msgid "List network-local HTTP SPARQL endpoints"
 msgstr "Liste i ponts finâls SPARQL HTTP locâi de rêt"
 
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:115
+#: src/cli/tracker-endpoint.c:115
 msgid "--list can only be used with --session or --system"
 msgstr "Al è pussibil doprâ --list dome cun --session o --system"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:121
+#: src/cli/tracker-endpoint.c:121
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Une opzion tra “ontology” o “ontology-path” e scugne jessi indicade"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:127
+#: src/cli/tracker-endpoint.c:127
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "No si pues doprâ --http-port cun --dbus-service"
 
-#: src/tracker/tracker-endpoint.c:198
+#: src/cli/tracker-endpoint.c:198
 #, c-format
-msgid "Creating HTTP endpoint at %s…\n"
-msgstr "Daûr a creâ il pont finâl HTTP su %s…\n"
+msgid "Creating HTTP endpoint at %s…"
+msgstr "Daûr a creâ il pont finâl HTTP su %s…"
 
-#: src/tracker/tracker-endpoint.c:217 src/tracker/tracker-endpoint.c:280
+#: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
+#: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "In scolte pai comants SPARQL. Frache Ctrl-c par fermâ."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:225 src/tracker/tracker-endpoint.c:295
-#: src/tracker/tracker-webide.c:101
+#: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
+#: src/cli/tracker-webide.c:105
 msgid "Closing connection…"
 msgstr "Daûr a sierâ la conession…"
 
-#: src/tracker/tracker-endpoint.c:240
+#: src/cli/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Daûr a creâ il pont finâl su %s…"
 
-#: src/tracker/tracker-endpoint.c:276
+#: src/cli/tracker-endpoint.c:277
 msgid "Could not own DBus name"
 msgstr "Impussibil apropriâsi dal non DBus"
 
-#: src/tracker/tracker-endpoint.c:290
+#: src/cli/tracker-endpoint.c:291
 msgid "DBus name lost"
 msgstr "Non DBus pierdût"
 
-#: src/tracker/tracker-endpoint.c:650
+#: src/cli/tracker-endpoint.c:608 src/cli/tracker-export.c:214
+#: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
+#: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
+#: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
+msgid "Unrecognized options"
+msgstr "Opzions no ricognossudis"
+
+#: src/cli/tracker-endpoint.c:652
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Daûr a vierzi la base di dâts su %s…"
 
-#: src/tracker/tracker-endpoint.c:653
+#: src/cli/tracker-endpoint.c:655
+#, c-format
 msgid "Creating in-memory database"
 msgstr "Daûr a creâ la base di dâts in-memorie"
 
-#: src/tracker/tracker-endpoint.c:680
+#: src/cli/tracker-endpoint.c:683
+#, c-format
 msgid ""
-"New database created. Use the “--dbus-service” option to share this database"
-" on a message bus."
+"New database created. Use the “--dbus-service” option to share this database "
+"on a message bus."
 msgstr ""
 "Gnove base di dâts creade. Dopre la opzion “--dbus-service” par condividi "
 "cheste base di dâts suntun bus dai messaçs."
 
-#: src/tracker/tracker-export.c:48 src/tracker/tracker-import.c:47
-#: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-introspect.c:99 src/tracker/tracker-query.c:53
-#: src/tracker/tracker-query.c:65 src/tracker/tracker-sql.c:45
-#: src/tracker/tracker-sql.c:49
+#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
+#: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
+#: src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
+#: src/cli/tracker-query.c:65 src/cli/tracker-sql.c:46 src/cli/tracker-sql.c:50
 msgid "FILE"
 msgstr "FILE"
 
-#: src/tracker/tracker-export.c:51 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-introspect.c:102 src/tracker/tracker-query.c:56
+#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
+#: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "Si conet a un servizi DBus"
 
-#: src/tracker/tracker-export.c:52 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-introspect.c:103 src/tracker/tracker-query.c:57
+#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
+#: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
 msgid "DBus service name"
 msgstr "Non dal servizi DBus"
 
-#: src/tracker/tracker-export.c:55
+#: src/cli/tracker-export.c:54
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Formât dai risultâts di jessude: “turtle”, “trig” o “json-ld”"
 
-#: src/tracker/tracker-export.c:56
+#: src/cli/tracker-export.c:55
 msgid "RDF_FORMAT"
 msgstr "FORMÂT_RDF"
 
-#: src/tracker/tracker-export.c:59 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-introspect.c:106 src/tracker/tracker-query.c:60
+#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
+#: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Si conet a un servizi esterni"
 
-#: src/tracker/tracker-export.c:60 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-introspect.c:107 src/tracker/tracker-query.c:61
+#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
+#: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "URI dal servizi esterni"
 
-#: src/tracker/tracker-export.c:63
+#: src/cli/tracker-export.c:62
 msgid "Output TriG format which includes named graph information"
 msgstr ""
 "Formât TriG di jessude che al inclût lis informazions dai grafics cul non"
 
-#: src/tracker/tracker-export.c:67 src/tracker/tracker-export.c:68
+#: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:93 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-introspect.c:164 src/tracker/tracker-query.c:105
-msgid ""
-"Specify one “--database”, “--dbus-service” or “--remote-service” option"
+#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
+#: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
+#, c-format
+msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
 msgstr ""
-"Specifiche une opzion tra “--database”, “--dbus-service” o “--remote-"
-"service”"
+"Specifiche une opzion tra “--database”, “--dbus-service” o “--remote-service”"
 
-#: src/tracker/tracker-export.c:117 src/tracker/tracker-export.c:138
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-introspect.c:831
-#: src/tracker/tracker-query.c:345
+#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
+#: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
+#: src/cli/tracker-query.c:345
 msgid "No error given"
 msgstr "Nissun erôr furnît"
 
-#: src/tracker/tracker-export.c:137 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-introspect.c:830 src/tracker/tracker-query.c:344
+#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
+#: src/cli/tracker-introspect.c:828 src/cli/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Impussibil stabilî une conession cun Tracker"
 
-#: src/tracker/tracker-export.c:180
+#: src/cli/tracker-export.c:179
 #, c-format
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Formât «%s» di serializazion no supuartât\n"
 
-#: src/tracker/tracker-import.c:58
+#: src/cli/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
 msgstr "Lei il formât TriG che al inclût lis informazions dai grafics cul non"
 
-#: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
+#: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
 msgid "Could not run import"
 msgstr "Impussibil eseguî la importazion"
 
-#: src/tracker/tracker-introspect.c:110
+#: src/cli/tracker-introspect.c:110
 msgid "Lists all available classes"
 msgstr "Al liste dutis lis classis disponibilis"
 
-#: src/tracker/tracker-introspect.c:114
+#: src/cli/tracker-introspect.c:114
 msgid "Lists all available prefixes"
 msgstr "Al liste ducj i prefìs disponibii"
 
-#: src/tracker/tracker-introspect.c:118
+#: src/cli/tracker-introspect.c:118
 msgid "Lists all classes which notify changes in the database"
-msgstr ""
-"Al liste dutis lis classis che a notifichin modifichis te base di dâts"
+msgstr "Al liste dutis lis classis che a notifichin modifichis te base di dâts"
 
-#: src/tracker/tracker-introspect.c:122
+#: src/cli/tracker-introspect.c:122
 msgid "List indexes used in database to improve performance"
 msgstr "Liste i indiçs doprâts te base di dâts par miorâ lis prestazions"
 
-#: src/tracker/tracker-introspect.c:125
+#: src/cli/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Recupere ducj i grafics cul non"
 
-#: src/tracker/tracker-introspect.c:129
+#: src/cli/tracker-introspect.c:129
 msgid ""
-"Describe subclasses, superclasses (can be used with -s to highlight parts of"
-" the tree and -p to show properties)"
+"Describe subclasses, superclasses (can be used with -s to highlight parts of "
+"the tree and -p to show properties)"
 msgstr ""
 "Al descrîf lis sot-classis, super-classis (tu lu puedis doprâ cun -s par "
 "evidenziâ parts dal arbul e cun -p par mostrâ lis proprietâts)"
 
-#: src/tracker/tracker-introspect.c:130 src/tracker/tracker-introspect.c:134
+#: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
 msgid "CLASS"
 msgstr "CLASSE"
 
-#: src/tracker/tracker-introspect.c:133
+#: src/cli/tracker-introspect.c:133
 msgid "Lists all available properties"
 msgstr "Al liste dutis lis proprietâts disponibilis"
 
-#: src/tracker/tracker-introspect.c:137
+#: src/cli/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Cîr une classe o une proprietât e mostre plui informazions (p.e. Document)"
 
-#: src/tracker/tracker-introspect.c:138
+#: src/cli/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "CLASSE/PROPRIETÂT"
 
-#: src/tracker/tracker-introspect.c:716
+#: src/cli/tracker-introspect.c:716
 msgid "Could not create tree: subclass query failed"
 msgstr "Impussibil creâ l'arbul: interogazion sot-classe falide"
 
-#: src/tracker/tracker-introspect.c:766
+#: src/cli/tracker-introspect.c:765
 msgid "Could not create tree: class properties query failed"
 msgstr "Impussibil creâ l'arbul: interogazion proprietât classe falide"
 
-#: src/tracker/tracker-introspect.c:850
+#: src/cli/tracker-introspect.c:848
 msgid "Could not search classes"
 msgstr "Impussibil cirî lis classis"
 
-#: src/tracker/tracker-introspect.c:858 src/tracker/tracker-introspect.c:942
+#: src/cli/tracker-introspect.c:856 src/cli/tracker-introspect.c:940
 msgid "Classes"
 msgstr "Classis"
 
-#: src/tracker/tracker-introspect.c:870
+#: src/cli/tracker-introspect.c:868
 msgid "Could not search properties"
 msgstr "Impussibil cirî lis proprietâts"
 
-#: src/tracker/tracker-introspect.c:878 src/tracker/tracker-introspect.c:912
+#: src/cli/tracker-introspect.c:876 src/cli/tracker-introspect.c:910
 msgid "Properties"
 msgstr "Proprietâts"
 
-#: src/tracker/tracker-introspect.c:904
+#: src/cli/tracker-introspect.c:902
 msgid "Could not list properties"
 msgstr "Impussibil listâ lis proprietâts"
 
-#: src/tracker/tracker-introspect.c:920
+#: src/cli/tracker-introspect.c:918
 msgid "Namespaces"
 msgstr "Spazis dai nons"
 
-#: src/tracker/tracker-introspect.c:934
+#: src/cli/tracker-introspect.c:932
 msgid "Could not list classes"
 msgstr "Impussibil listâ lis classis"
 
-#: src/tracker/tracker-introspect.c:954
+#: src/cli/tracker-introspect.c:952
 msgid "Could not find notify classes"
 msgstr "Impussibil cjatâ lis classis di notifiche"
 
-#: src/tracker/tracker-introspect.c:962
+#: src/cli/tracker-introspect.c:960
 msgid "Notifies"
 msgstr "Notifichis"
 
-#: src/tracker/tracker-introspect.c:974
+#: src/cli/tracker-introspect.c:972
 msgid "Could not find indexed properties"
 msgstr "Impussibil cjatâ lis proprietâts metudis in indiç"
 
-#: src/tracker/tracker-introspect.c:982
+#: src/cli/tracker-introspect.c:980
 msgid "Indexes"
 msgstr "Indiçs"
 
-#: src/tracker/tracker-introspect.c:994
+#: src/cli/tracker-introspect.c:992
 msgid "Could not list named graphs"
 msgstr "Impussibil listâ i grafics cul non"
 
-#: src/tracker/tracker-introspect.c:1002
+#: src/cli/tracker-introspect.c:1000
 msgid "Named graphs"
 msgstr "Grafics cul non"
 
-#: src/tracker/tracker-introspect.c:1036
+#: src/cli/tracker-introspect.c:1034
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
 msgstr ""
-"L'argoment --list-properties al pues jessi vueit nome se doprât cul argoment"
-" --tree"
+"L'argoment --list-properties al pues jessi vueit nome se doprât cul argoment "
+"--tree"
 
-#: src/tracker/tracker-main.c:72
+#: src/cli/tracker-main.c:69
 msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr "Oten aiût su cemût doprâ TinySPARQL e ducj chescj comants"
 
-#: src/tracker/tracker-main.c:73
+#: src/cli/tracker-main.c:70
 msgid "Create a SPARQL endpoint"
 msgstr "Cree un pont finâl SPARQL"
 
-#: src/tracker/tracker-main.c:74
+#: src/cli/tracker-main.c:71
 msgid "Export data from a TinySPARQL database"
 msgstr "Espuarte dâts di une base di dâts TinySPARQL"
 
-#: src/tracker/tracker-main.c:75
+#: src/cli/tracker-main.c:72
 msgid "Import data into a TinySPARQL database"
 msgstr "Impuarte i dâts intune base di dâts TinySPARQL"
 
-#: src/tracker/tracker-main.c:76
+#: src/cli/tracker-main.c:73
 msgid "Introspect a SPARQL endpoint"
 msgstr "Introspezione un pont finâl SPARQL"
 
-#: src/tracker/tracker-main.c:77
+#: src/cli/tracker-main.c:74
 msgid "Query and update the index using SPARQL"
 msgstr "Interoghe e inzorne l'indiç doprant SPARQL"
 
-#: src/tracker/tracker-main.c:78
+#: src/cli/tracker-main.c:75
 msgid "Create a Web IDE to query local databases"
 msgstr "Cree un IDE Web par interogâ lis basis di dâts locâls"
 
-#: src/tracker/tracker-main.c:95
+#: src/cli/tracker-main.c:92
 msgid "Available tinysparql commands are:"
 msgstr "I comants tinysparql disponibii a son:"
 
-#: src/tracker/tracker-main.c:114
+#: src/cli/tracker-main.c:111
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
 msgstr ""
 "Viôt “tinysparql help <comant>” par lei informazions suntun specific sot-"
 "comant."
 
-#: src/tracker/tracker-main.c:157
+#: src/cli/tracker-main.c:154
 #, c-format
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
 msgstr "“%s” nol è un comant tinysparql. Consulte “tinysparql --help”"
 
 # equivocabile il "di un file"
-#: src/tracker/tracker-query.c:64
+#: src/cli/tracker-query.c:64
 msgid "Path to use to run a query or update from file"
 msgstr ""
-"Percors di doprâ par eseguî une interogazion o un inzornament furnint un "
-"file"
+"Percors di doprâ par eseguî une interogazion o un inzornament furnint un file"
 
-#: src/tracker/tracker-query.c:68
+#: src/cli/tracker-query.c:68
 msgid "SPARQL query"
 msgstr "Interogazion SPARQL"
 
-#: src/tracker/tracker-query.c:69
+#: src/cli/tracker-query.c:69
 msgid "SPARQL"
 msgstr "SPARQL"
 
-#: src/tracker/tracker-query.c:72
+#: src/cli/tracker-query.c:72
 msgid "This is used with --query and for database updates only."
 msgstr "Chest al ven doprât cun --query e par inzornaments de base di dâts."
 
-#: src/tracker/tracker-query.c:76
+#: src/cli/tracker-query.c:76
 msgid "Provides an argument for a query parameter."
 msgstr "Al furnìs un argoment par un parametri di interogazion."
 
-#: src/tracker/tracker-query.c:77
+#: src/cli/tracker-query.c:77
 msgid "PARAMETER:TYPE:VALUE"
 msgstr "PARAMETRI:GJENAR:VALÔR"
 
@@ -418,96 +404,111 @@ msgstr "PARAMETRI:GJENAR:VALÔR"
 #. * search results found. We use a "foo: None"
 #. * with multiple print statements, where "foo"
 #. * may be Music or Images, etc.
-#: src/tracker/tracker-query.c:214 src/tracker/tracker-query.c:262
+#: src/cli/tracker-query.c:214 src/cli/tracker-query.c:262
 msgid "None"
 msgstr "Nissun"
 
-#: src/tracker/tracker-query.c:282
+#: src/cli/tracker-query.c:282
 #, c-format
 msgid "Invalid argument string %s"
 msgstr "Stringhe di argoment %s no valide"
 
-#: src/tracker/tracker-query.c:292
+#: src/cli/tracker-query.c:292
 #, c-format
 msgid "Invalid parameter type for argument %s"
 msgstr "Gjenar di parametri pal argoment %s no valit"
 
-#: src/tracker/tracker-query.c:360
+#: src/cli/tracker-query.c:360
 msgid "Could not get UTF-8 path from path"
 msgstr "Impussibil otignî un percors UTF-8 dal percors"
 
-#: src/tracker/tracker-query.c:372 src/tracker/tracker-sql.c:74
+#: src/cli/tracker-query.c:372 src/cli/tracker-sql.c:75
 msgid "Could not read file"
 msgstr "Impussibil lei il file"
 
-#: src/tracker/tracker-query.c:403
+#: src/cli/tracker-query.c:403
 msgid "Could not run update"
 msgstr "Impussibil eseguî l'inzornament"
 
-#: src/tracker/tracker-query.c:410
+#: src/cli/tracker-query.c:410
 msgid "Done"
 msgstr "Fat"
 
-#: src/tracker/tracker-query.c:428 src/tracker/tracker-sql.c:130
-#: src/tracker/tracker-sql.c:163
+#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
+#: src/cli/tracker-sql.c:164
 msgid "Could not run query"
 msgstr "Impussibil eseguî la interogazion"
 
-#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
 msgid "No results found matching your query"
 msgstr "Nissun risultât cjatât che al corispuint ae interogazion"
 
-#: src/tracker/tracker-query.c:437 src/tracker/tracker-query.c:439
-#: src/tracker/tracker-sql.c:137
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+#: src/cli/tracker-sql.c:138
 msgid "Results"
 msgstr "Risultâts"
 
-#: src/tracker/tracker-query.c:498 src/tracker/tracker-sql.c:249
+#: src/cli/tracker-query.c:498 src/cli/tracker-sql.c:250
 msgid "File and query can not be used together"
 msgstr "File e interogazion no puedin jessi doprâts adun"
 
-#: src/tracker/tracker-sql.c:48
+#: src/cli/tracker-sql.c:49
 msgid "Path to use to run a query from file"
 msgstr "Percors di doprâ par eseguî une interogazion furnint un file"
 
-#: src/tracker/tracker-sql.c:52
+#: src/cli/tracker-sql.c:53
 msgid "SQL query"
 msgstr "Interogazion SQL"
 
-#: src/tracker/tracker-sql.c:53
+#: src/cli/tracker-sql.c:54
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:107
+#: src/cli/tracker-sql.c:108
 msgid "Failed to initialize data manager"
 msgstr "No si è rivâts a inizializâ il gjestôr di dâts"
 
-#: src/tracker/tracker-sql.c:171
+#: src/cli/tracker-sql.c:172
 msgid "Empty result set"
 msgstr "Cumbinazion di risultâts vueide"
 
-#: src/tracker/tracker-sql.c:247
+#: src/cli/tracker-sql.c:248
 msgid "A database path must be specified"
 msgstr "Si scugne specificâ un percors pe base di dâts"
 
 #. Translators: this is a HTTP port
-#: src/tracker/tracker-webide.c:40
+#: src/cli/tracker-webide.c:40
 msgid "Port to listen on"
 msgstr "Puarte dulà scoltâ"
 
 #. Translators: this is a HTTP port
-#: src/tracker/tracker-webide.c:50
+#: src/cli/tracker-webide.c:50
 msgid "Port not specified"
 msgstr "Puarte no specificade"
 
-#: src/tracker/tracker-webide.c:80
+#. Translators: This will point to a local HTTP address
+#: src/cli/tracker-webide.c:81
 #, c-format
-msgid "%s %s…\n"
-msgstr "%s %s…\n"
+msgid "Creating Web IDE at %s…"
+msgstr "Daûr a creâ l'IDE Web su %s…"
 
-#: src/tracker/tracker-webide.c:80
-msgid "Creating Web IDE at"
-msgstr "Daûr a creâ l'IDE Web su"
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtinysparql/core/tracker-collation.c:116
+msgid "the|a|an"
+msgstr "the|a|an|il|la|i|lis|l'"
+
+#: src/portal/tracker-main.c:51
+msgid "Version"
+msgstr "Version"
+
+#, c-format
+#~ msgid "%s %s…\n"
+#~ msgstr "%s %s…\n"
 
 #~ msgid "endpoint"
 #~ msgstr "endpoint"
@@ -532,8 +533,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Recuperâ prefìs des classis"
 
 #~ msgid ""
-#~ "Retrieve properties for a class, prefixes can be used too (e.g. "
-#~ "rdfs:Resource)"
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
+#~ "Resource)"
 #~ msgstr ""
 #~ "Al recupere lis proprietâts di une classe, a puedin jessi doprâts ancje i "
 #~ "prefìs (p.e. rdfs:Resource)"
@@ -563,7 +564,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Nol è stât cjatât nissun grafic"
 
 #~ msgid "No classes were found to match search term"
-#~ msgstr "No je stade cjatade nissune classe che e corispuint al tiermin cirût"
+#~ msgstr ""
+#~ "No je stade cjatade nissune classe che e corispuint al tiermin cirût"
 
 #~ msgid "No properties were found to match search term"
 #~ msgstr ""
@@ -603,7 +605,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Prefìs"
 
 #~ msgid ""
-#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:Resource”"
+#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
+#~ "Resource”"
 #~ msgstr ""
 #~ "Impussibil cjatâ la proprietât pal prefìs de classe, p.e. :Risorse in "
 #~ "«rdfs:Resource»"
@@ -648,17 +651,18 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid "Show full namespaces (i.e. don’t use nie:title, use full URLs)"
 #~ msgstr ""
-#~ "Mostre il namespace complet (p.e. no doprâ nie:titul, doprâ i URL complets)"
+#~ "Mostre il namespace complet (p.e. no doprâ nie:titul, doprâ i URL "
+#~ "complets)"
 
 #~ msgid "Show plain text content if available for resources"
 #~ msgstr "Mostre, se disponibii, i contignûts in test sempliç pes risorsis"
 
 #~ msgid ""
-#~ "Instead of looking up a file name, treat the FILE arguments as actual IRIs "
-#~ "(e.g. <file:///path/to/some/file.txt>)"
+#~ "Instead of looking up a file name, treat the FILE arguments as actual "
+#~ "IRIs (e.g. <file:///path/to/some/file.txt>)"
 #~ msgstr ""
-#~ "Al puest di cirî un non di file, dopre i argoments FILE come dai IRI (p.e. "
-#~ "<file:///percors/a/cualchi/file.txt>)"
+#~ "Al puest di cirî un non di file, dopre i argoments FILE come dai IRI (p."
+#~ "e. <file:///percors/a/cualchi/file.txt>)"
 
 #~ msgid "Output results as RDF in Turtle format"
 #~ msgstr "Da fûr i risultâts come RDF in formât Turtle"
@@ -680,8 +684,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid "Show information known about local files or items indexed"
 #~ msgstr ""
-#~ "Mostre informazions cognossudis in merit ai file locâi o ai elements metûts "
-#~ "in indiç"
+#~ "Mostre informazions cognossudis in merit ai file locâi o ai elements "
+#~ "metûts in indiç"
 
 #~ msgid "Maximum size of journal"
 #~ msgstr "Dimension massime dal gjornâl"
@@ -695,21 +699,25 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Posizion dai tocs di gjornâl"
 
 #~ msgid "Where to store a journal chunk when it hits the max size."
-#~ msgstr "Dulà salvâ un toc di gjornâl cuant che al rive ae dimension massime."
+#~ msgstr ""
+#~ "Dulà salvâ un toc di gjornâl cuant che al rive ae dimension massime."
 
 #~ msgid "Maximum length of a word to be indexed"
 #~ msgstr "Massime lungjece di une peraule di meti in indiç"
 
 #~ msgid ""
-#~ "Words with more characters than this length will be ignored by the indexer."
+#~ "Words with more characters than this length will be ignored by the "
+#~ "indexer."
 #~ msgstr ""
-#~ "Peraulis cun plui caratars di cheste lungjece no vegnaran metudis in indiç."
+#~ "Peraulis cun plui caratars di cheste lungjece no vegnaran metudis in "
+#~ "indiç."
 
 #~ msgid "Maximum number of words to index in a document"
 #~ msgstr "Massim numar di peraulis di meti in indiç intun document"
 
 #~ msgid ""
-#~ "Indexer will read only this maximum number of words from a single document."
+#~ "Indexer will read only this maximum number of words from a single "
+#~ "document."
 #~ msgstr ""
 #~ "L'indicizadôr al learà nome chest numar massim di peraulis di un singul "
 #~ "document."
@@ -718,8 +726,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Abilite stemmer"
 
 #~ msgid ""
-#~ "Simplify the words to their root to provide more results. E.g. “shelves” and"
-#~ " “shelf” to “shel”"
+#~ "Simplify the words to their root to provide more results. E.g. “shelves” "
+#~ "and “shelf” to “shel”"
 #~ msgstr ""
 #~ "Semplifiche la peraule te lôr lidrîs par vê plui risultâts. Par esempli: "
 #~ "«cjacare», «cjacari», «cjacarai» in «cjacar»"
@@ -728,8 +736,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Abilite letaris cence acent"
 
 #~ msgid ""
-#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” to "
-#~ "“Idea” for improved matching."
+#~ "Translate accented characters to the equivalent unaccented. E.g. “Idéa” "
+#~ "to “Idea” for improved matching."
 #~ msgstr ""
 #~ "Volte i caratars cun acent intai ecuivalents cence acent. Par esempli: "
 #~ "«bruntulâ» in «bruntula»."
@@ -744,11 +752,12 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Ignore lis peraulis di ferme"
 
 #~ msgid ""
-#~ "If enabled, the words listed in the stop-words list are ignored. E.g. common"
-#~ " words like “the”, “yes”, “no”, etc."
+#~ "If enabled, the words listed in the stop-words list are ignored. E.g. "
+#~ "common words like “the”, “yes”, “no”, etc."
 #~ msgstr ""
-#~ "Se abilitât, lis peraulis listadis te liste des peraulis di ferme a vegnaran"
-#~ " ignoradis. Par esempli peraulis come «sì», «no», «il» e vie indenant."
+#~ "Se abilitât, lis peraulis listadis te liste des peraulis di ferme a "
+#~ "vegnaran ignoradis. Par esempli peraulis come «sì», «no», «il» e vie "
+#~ "indenant."
 
 #~ msgid "Log verbosity"
 #~ msgstr "Detais regjistri"
@@ -770,8 +779,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Mostre informazions su la version"
 
 #~ msgid ""
-#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug (default ="
-#~ " 0)"
+#~ "Logging, 0 = errors only, 1 = minimal, 2 = detailed and 3 = debug "
+#~ "(default = 0)"
 #~ msgstr ""
 #~ "Regjistrazion: 0 = nome erôrs, 1 = minimâl, 2 = detaiade, 3 = debug "
 #~ "(predefinît = 0)"
@@ -811,12 +820,13 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid "Pause application and reason match an already existing pause request"
 #~ msgstr ""
-#~ "La aplicazion in pause e la sô reson a corispuindin a une domande esistente"
+#~ "La aplicazion in pause e la sô reson a corispuindin a une domande "
+#~ "esistente"
 
 #~ msgid "Could not get GSettings for miners, manager could not be created, %s"
 #~ msgstr ""
-#~ "Impussibil otignî GSettings pai estratôrs, il gjestôr nol pues jessi creât, "
-#~ "%s"
+#~ "Impussibil otignî GSettings pai estratôrs, il gjestôr nol pues jessi "
+#~ "creât, %s"
 
 #~ msgid "Unavailable"
 #~ msgstr "No disponibil"
@@ -849,8 +859,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Watch changes to the database in real time (e.g. resources or files being "
 #~ "added)"
 #~ msgstr ""
-#~ "Ten di voli i cambiaments ae base di dâts in timp reâl (come risorsis o file"
-#~ " zontâts)"
+#~ "Ten di voli i cambiaments ae base di dâts in timp reâl (come risorsis o "
+#~ "file zontâts)"
 
 #~ msgid "ONTOLOGY"
 #~ msgstr "ONTOLOGJIE"
@@ -865,8 +875,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "RESON"
 
 #~ msgid ""
-#~ "Pause a miner while the calling process is alive or until resumed (you must "
-#~ "use this with --miner)"
+#~ "Pause a miner while the calling process is alive or until resumed (you "
+#~ "must use this with --miner)"
 #~ msgstr ""
 #~ "Al interomp un estratôr intant che il procès clamant al è ancjemò atîf o "
 #~ "fintremai che nol è stât ripristinât (al à di jessi doprât cun --miner)"
@@ -879,8 +889,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "COOKIE"
 
 #~ msgid ""
-#~ "Miner to use with --resume or --pause (you can use suffixes, e.g. Files or "
-#~ "Applications)"
+#~ "Miner to use with --resume or --pause (you can use suffixes, e.g. Files "
+#~ "or Applications)"
 #~ msgstr ""
 #~ "Estratôr di doprâ cun --resume o --pause (al è pussibil doprâ sufìs come "
 #~ "\"File\" o \"Aplicazions\")"
@@ -901,8 +911,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
 #~ "“all” may be used, no parameter equals “all”"
 #~ msgstr ""
-#~ "Dopre SIGKILL par fermâ ducj i procès corispuindints; a puedin jessi doprâts"
-#~ " «store», «miners» o «all», cence parametris al vûl dî «all»"
+#~ "Dopre SIGKILL par fermâ ducj i procès corispuindints; a puedin jessi "
+#~ "doprâts «store», «miners» o «all», cence parametris al vûl dî «all»"
 
 #~ msgid "APPS"
 #~ msgstr "APLICAZIONS"
@@ -911,8 +921,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Use SIGTERM to stop all matching processes, either “store”, “miners” or "
 #~ "“all” may be used, no parameter equals “all”"
 #~ msgstr ""
-#~ "Dopre SIGTERM par fermâ ducj i procès corispuindints; a puedin jessi doprâts"
-#~ " «store», «miners» o «all», cence parametris al vûl dî «all»"
+#~ "Dopre SIGTERM par fermâ ducj i procès corispuindints; a puedin jessi "
+#~ "doprâts «store», «miners» o «all», cence parametris al vûl dî «all»"
 
 #~ msgid "Starts miners (which indirectly starts tracker-store too)"
 #~ msgstr "Invie i estratôrs (al ven inviât ancje tracker-store)"
@@ -921,16 +931,16 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Sets the logging verbosity to LEVEL (“debug”, “detailed”, “minimal”, "
 #~ "“errors”) for all processes"
 #~ msgstr ""
-#~ "Al met il nivel di detais dal regjistri par ducj i procès a NIVEL(«debug», "
-#~ "«detailed», «minimal», «errors»)"
+#~ "Al met il nivel di detais dal regjistri par ducj i procès a "
+#~ "NIVEL(«debug», «detailed», «minimal», «errors»)"
 
 #~ msgid "LEVEL"
 #~ msgstr "NIVEL"
 
 #~ msgid "Show logging values in terms of log verbosity for each process"
 #~ msgstr ""
-#~ "Mostre i valôrs di regjistrazion in tiermins di regjistri detaiât par ogni "
-#~ "procès"
+#~ "Mostre i valôrs di regjistrazion in tiermins di regjistri detaiât par "
+#~ "ogni procès"
 
 #~ msgid "Could not get status from miner: %s"
 #~ msgstr "Impussibil otignî il stât dal estratôr: %s"
@@ -961,7 +971,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Impussibil clamâ tracker_sparql_cursor_next() su la interogazion SPARQL"
 
 #~ msgid "Could not pause miner, manager could not be created, %s"
-#~ msgstr "Impussibil interompi l'estratôr, il gjestôr nol pues jessi creât, %s"
+#~ msgstr ""
+#~ "Impussibil interompi l'estratôr, il gjestôr nol pues jessi creât, %s"
 
 #~ msgid "Attempting to pause miner “%s” with reason “%s”"
 #~ msgstr "Tentatîf di interompi l'estratôr «%s» cun la reson «%s»"
@@ -977,8 +988,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid "Could not resume miner, manager could not be created, %s"
 #~ msgstr ""
-#~ "Impussibil tornâ a meti in vore l'estratôr, il gjestôr nol pues jessi creât,"
-#~ " %s"
+#~ "Impussibil tornâ a meti in vore l'estratôr, il gjestôr nol pues jessi "
+#~ "creât, %s"
 
 #~ msgid "Attempting to resume miner %s with cookie %d"
 #~ msgstr "Tentatîf di tornâ a meti in vore l'estratôr %s cul cookie %d"
@@ -1001,8 +1012,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid "Could not get pause details, manager could not be created, %s"
 #~ msgstr ""
-#~ "Impussibil otignî i detais de interuzion, il gjestôr nol pues jessi creât, "
-#~ "%s"
+#~ "Impussibil otignî i detais de interuzion, il gjestôr nol pues jessi "
+#~ "creât, %s"
 
 #~ msgid "No miners are running"
 #~ msgstr "Nissun estratôr in esecuzion"
@@ -1058,13 +1069,15 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgid "You can not use the --kill and --terminate arguments together"
 #~ msgstr "Nol è pussibil doprâ adun i argoments --kill e --terminate"
 
-#~ msgid "You can not use the --get-logging and --set-logging arguments together"
+#~ msgid ""
+#~ "You can not use the --get-logging and --set-logging arguments together"
 #~ msgstr "Nol è pussibil doprâ adun i argoments --get-logging e --set-logging"
 
-#~ msgid "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
+#~ msgid ""
+#~ "Invalid log verbosity, try “debug”, “detailed”, “minimal” or “errors”"
 #~ msgstr ""
-#~ "Nivel di detais dal regjistri no valit, prove «debug», «detailed», «minimal»"
-#~ " o «errors»"
+#~ "Nivel di detais dal regjistri no valit, prove «debug», «detailed», "
+#~ "«minimal» o «errors»"
 
 #~ msgid "Found %d PID…"
 #~ msgid_plural "Found %d PIDs…"
@@ -1095,7 +1108,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "salacor un plugin disabilitât?"
 
 #~ msgid ""
-#~ "If no arguments are given, the status of the store and data miners is shown"
+#~ "If no arguments are given, the status of the store and data miners is "
+#~ "shown"
 #~ msgstr "Cence argoments, al ven mostrât il stât dal archivi e dai estratôrs"
 
 #~ msgid "Could not get D-Bus connection"
@@ -1131,8 +1145,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid "Could not reindex mimetypes, manager could not be created, %s"
 #~ msgstr ""
-#~ "Impussibil tornâ a meti in indiç i gjenars MIME, il gjestôr nol pues jessi "
-#~ "creât, %s"
+#~ "Impussibil tornâ a meti in indiç i gjenars MIME, il gjestôr nol pues "
+#~ "jessi creât, %s"
 
 #~ msgid "Could not reindex mimetypes"
 #~ msgstr "Impussibil tornâ a meti in indiç i gjenars MIME"
@@ -1142,8 +1156,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid "Could not (re)index file, manager could not be created, %s"
 #~ msgstr ""
-#~ "Impussibil (tornâ a)meti in indiç il file, il gjestôr nol pues jessi creât, "
-#~ "%s"
+#~ "Impussibil (tornâ a)meti in indiç il file, il gjestôr nol pues jessi "
+#~ "creât, %s"
 
 #~ msgid "Could not (re)index file"
 #~ msgstr "Impussibil (tornâ a)meti in indiç il file"
@@ -1161,11 +1175,11 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Daûr a tornâ a meti la base di dâts dal backup"
 
 #~ msgid ""
-#~ "Only one action (--backup, --restore, --index-file or --import) can be used "
-#~ "at a time"
+#~ "Only one action (--backup, --restore, --index-file or --import) can be "
+#~ "used at a time"
 #~ msgstr ""
-#~ "A pues jessi doprade nome une azion ae volte (--backup, --restore, --index-"
-#~ "file o --import)"
+#~ "A pues jessi doprade nome une azion ae volte (--backup, --restore, --"
+#~ "index-file o --import)"
 
 #~ msgid "Missing one or more files which are required"
 #~ msgstr "A mancjin un o plui file necessaris"
@@ -1180,28 +1194,31 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Azions (--backup, --restore, --index-file e --import) no puedin jessi "
 #~ "dopradis cun --reindex-mime-type"
 
-#~ msgid "Start, stop, pause and list processes responsible for indexing content"
+#~ msgid ""
+#~ "Start, stop, pause and list processes responsible for indexing content"
 #~ msgstr ""
-#~ "Tache, ferme, met in pause e liste i procès responsabii pe metude in indiç "
-#~ "dai contignûts"
+#~ "Tache, ferme, met in pause e liste i procès responsabii pe metude in "
+#~ "indiç dai contignûts"
 
 #~ msgid "Extract information from a file"
 #~ msgstr "Tire fûr informazions di un file"
 
 #~ msgid "Backup, restore, import and (re)index by MIME type or file name"
 #~ msgstr ""
-#~ "Fâs il backup, ripristine, impuarte e (torne a meti)met in indiç par gjenar "
-#~ "di MIME o par non di file"
+#~ "Fâs il backup, ripristine, impuarte e (torne a meti)met in indiç par "
+#~ "gjenar di MIME o par non di file"
 
 #~ msgid "Reset or remove index and revert configurations to defaults"
-#~ msgstr "Ripristine o gjave l'indiç e torne a lis configurazions predefinidis"
+#~ msgstr ""
+#~ "Ripristine o gjave l'indiç e torne a lis configurazions predefinidis"
 
 #~ msgid "Search for content indexed or show content by type"
 #~ msgstr "Cîr contignûts metûts in indiç o mostre il contignût par gjenar"
 
 #~ msgid "Show the indexing progress, content statistics and index state"
 #~ msgstr ""
-#~ "Mostre l'avanzament de metude in indiç, lis statistichis e il stât dal indiç"
+#~ "Mostre l'avanzament de metude in indiç, lis statistichis e il stât dal "
+#~ "indiç"
 
 #~ msgid "Create, list or delete tags for indexed content"
 #~ msgstr "Cree, liste o elimine etichetis pai contignûts metûts in indiç"
@@ -1238,7 +1255,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Come --hard ma il backup e il diari a son ripristinâts daspò il gnûf "
 #~ "inviament"
 
-#~ msgid "Remove all configuration files so they are re-generated on next start"
+#~ msgid ""
+#~ "Remove all configuration files so they are re-generated on next start"
 #~ msgstr ""
 #~ "Gjave ducj i file di configurazion cussì che al prossim inviament a sedin "
 #~ "gjenerâts di gnûf"
@@ -1246,14 +1264,15 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgid ""
 #~ "Erase indexed information about a file, works recursively for directories"
 #~ msgstr ""
-#~ "Scancele la informazion metude in indiç in merit di un file, al funzione in "
-#~ "maniere ricorsive pes cartelis"
+#~ "Scancele la informazion metude in indiç in merit di un file, al funzione "
+#~ "in maniere ricorsive pes cartelis"
 
 #~ msgid "Deleting…"
 #~ msgstr "Daûr a eliminâ..."
 
 #~ msgid ""
-#~ "The indexed data for this file has been deleted and will be reindexed again."
+#~ "The indexed data for this file has been deleted and will be reindexed "
+#~ "again."
 #~ msgstr ""
 #~ "I dâts metûts in indiç par chest file a son stâts eliminâts e a vegnaran "
 #~ "tornâts a meti in indiç di gnûf."
@@ -1265,13 +1284,13 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "ATENZION: Chest procès al pues eliminâ dâts par simpri."
 
 #~ msgid ""
-#~ "Although most content indexed by Tracker can be safely reindexed, it can’t "
-#~ "be assured that this is the case for all data. Be aware that you may be "
-#~ "incurring in a data loss situation, proceed at your own risk."
+#~ "Although most content indexed by Tracker can be safely reindexed, it "
+#~ "can’t be assured that this is the case for all data. Be aware that you "
+#~ "may be incurring in a data loss situation, proceed at your own risk."
 #~ msgstr ""
 #~ "Ancje se si pues tornâ a meti in indiç in maniere sigure la plui part dai "
-#~ "contignûts metûts in indiç di Tracker, nol è dite che al sedi il câs di ducj"
-#~ " i dâts. Sta atent che tu podaressis pierdi dâts, continue ma cun to "
+#~ "contignûts metûts in indiç di Tracker, nol è dite che al sedi il câs di "
+#~ "ducj i dâts. Sta atent che tu podaressis pierdi dâts, continue ma cun to "
 #~ "pericul."
 
 #~ msgid "Are you sure you want to proceed?"
@@ -1341,8 +1360,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Show URNs for results (doesn’t apply to --music-albums, --music-artists, "
 #~ "--feeds, --software, --software-categories)"
 #~ msgstr ""
-#~ "Mostre i URN pai risultâts (no si apliche a --music-albums, --music-artists,"
-#~ " --feeds, --software, --software-categories)"
+#~ "Mostre i URN pai risultâts (no si apliche a --music-albums, --music-"
+#~ "artists, --feeds, --software, --software-categories)"
 
 #~ msgid "Return all non-existing matches too (i.e. include unmounted volumes)"
 #~ msgstr ""
@@ -1358,7 +1377,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid "Disable Full Text Search (FTS). Implies --disable-snippets"
 #~ msgstr ""
-#~ "Disabilite la ricercje su dut il test (FTS). Al impliche --disable-snippets"
+#~ "Disabilite la ricercje su dut il test (FTS). Al impliche --disable-"
+#~ "snippets"
 
 #~ msgid "Disable color when printing snippets and results"
 #~ msgstr "Disabilite i colôrs tal mostrâ i tocs e i risultâts"
@@ -1373,7 +1393,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "NOTE: Limit was reached, there are more items in the database not listed "
 #~ "here"
 #~ msgstr ""
-#~ "NOTE: si è rivâts al limit, a son altris vôs te base di dâts no listadis chi"
+#~ "NOTE: si è rivâts al limit, a son altris vôs te base di dâts no listadis "
+#~ "chi"
 
 #~ msgid "Could not get search results"
 #~ msgstr "Impussibil otignî i risultâts di ricercje"
@@ -1541,18 +1562,19 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr ""
 #~ "Mostre i file associâts cun ognidune etichete (doprade nome cun --list)"
 
-#~ msgid "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
+#~ msgid ""
+#~ "Add a tag (if FILEs are omitted, TAG is not associated with any files)"
 #~ msgstr ""
-#~ "Zonte une etichete (se FILE al è ometût, ETICHETE no ven associade a nissun "
-#~ "file)"
+#~ "Zonte une etichete (se FILE al è ometût, ETICHETE no ven associade a "
+#~ "nissun file)"
 
 #~ msgid "TAG"
 #~ msgstr "ETICHETE"
 
 #~ msgid "Delete a tag (if FILEs are omitted, TAG is removed for all files)"
 #~ msgstr ""
-#~ "Elimine une etichete (Se FILE al è ometût, ETICHETE e je gjavade di ducj i "
-#~ "file)"
+#~ "Elimine une etichete (Se FILE al è ometût, ETICHETE e je gjavade di ducj "
+#~ "i file)"
 
 #~ msgid "Description for a tag (this is only used with --add)"
 #~ msgstr "Descrizion par une etichete (doprade nome cun --add)"
@@ -1721,9 +1743,9 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "application will be executed by the CPU next. Each application has an "
 #~ "associated scheduling policy and priority."
 #~ msgstr ""
-#~ "Il planificadôr al è chel component dal kernel che al decît cuale aplicazion"
-#~ " e vegnarà eseguide subite dopo sul processôr. Ogni aplicazion e à assegnât "
-#~ "une politiche e une prioritât di planificazion."
+#~ "Il planificadôr al è chel component dal kernel che al decît cuale "
+#~ "aplicazion e vegnarà eseguide subite dopo sul processôr. Ogni aplicazion "
+#~ "e à assegnât une politiche e une prioritât di planificazion."
 
 #~ msgid "Throttle"
 #~ msgstr "Regoladôr"
@@ -1757,11 +1779,11 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Liminâr di permanence dai dâts tai dispositîfs estraibii"
 
 #~ msgid ""
-#~ "Threshold in days after which files from removables devices will be removed "
-#~ "from database if not mounted. 0 means never, maximum is 365."
+#~ "Threshold in days after which files from removables devices will be "
+#~ "removed from database if not mounted. 0 means never, maximum is 365."
 #~ msgstr ""
-#~ "Limit in dîs daspò i cuai i file di dispositîfs estraibii no plui montâts a "
-#~ "vegnin gjavâts de base di dâts. 0 al indiche mai, il massim al è 365."
+#~ "Limit in dîs daspò i cuai i file di dispositîfs estraibii no plui montâts "
+#~ "a vegnin gjavâts de base di dâts. 0 al indiche mai, il massim al è 365."
 
 #~ msgid "Enable monitors"
 #~ msgstr "Abilite il monitorâ"
@@ -1805,38 +1827,39 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgid "Perform initial indexing when running on battery"
 #~ msgstr "Eseguìs la metude in indiç iniziâl cuant che si va a batarie"
 
-#~ msgid "Set to true to index while running on battery for the first time only"
+#~ msgid ""
+#~ "Set to true to index while running on battery for the first time only"
 #~ msgstr ""
-#~ "Met a VÊR par meti in indiç nome pe prime volte cuant che si è alimentâts a "
-#~ "batarie"
+#~ "Met a VÊR par meti in indiç nome pe prime volte cuant che si è alimentâts "
+#~ "a batarie"
 
 #~ msgid "Directories to index recursively"
 #~ msgstr "Cartelis di meti in indiç in maniere ricorsive"
 
 #~ msgid ""
-#~ "List of directories to index recursively, Special values include: "
-#~ "&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, "
-#~ "&amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
-#~ "dirs.defaults and $HOME/.config/user-dirs.default"
+#~ "List of directories to index recursively, Special values include: &amp;"
+#~ "DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
+#~ "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs."
+#~ "defaults and $HOME/.config/user-dirs.default"
 #~ msgstr ""
-#~ "Liste di cartelis di meti in indiç in maniere ricorsive, i valôrs speciâi a "
-#~ "son: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES,"
-#~ " &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Consultâ /etc/xdg/user-"
-#~ "dirs.defaults e $HOME/.config/user-dirs.default"
+#~ "Liste di cartelis di meti in indiç in maniere ricorsive, i valôrs speciâi "
+#~ "a son: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;"
+#~ "PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Consultâ /etc/"
+#~ "xdg/user-dirs.defaults e $HOME/.config/user-dirs.default"
 
 #~ msgid "Directories to index non-recursively"
 #~ msgstr "Cartelis di meti in indiç in maniere no ricorsive"
 
 #~ msgid ""
-#~ "List of directories to index without inspecting subfolders, Special values "
-#~ "include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, "
-#~ "&amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See "
-#~ "/etc/xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
+#~ "List of directories to index without inspecting subfolders, Special "
+#~ "values include: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, "
+#~ "&amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/"
+#~ "xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
 #~ msgstr ""
-#~ "Liste di cartelis di meti in indiç cence ispezionâ lis sotcartelis, i valôrs"
-#~ " speciâi a son: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, "
-#~ "&amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. Consultâ "
-#~ "/etc/xdg/user-dirs.defaults e $HOME/.config/user-dirs.default"
+#~ "Liste di cartelis di meti in indiç cence ispezionâ lis sotcartelis, i "
+#~ "valôrs speciâi a son: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;"
+#~ "MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. "
+#~ "Consultâ /etc/xdg/user-dirs.defaults e $HOME/.config/user-dirs.default"
 
 #~ msgid "List of file patterns to avoid"
 #~ msgstr "Liste di modei di file di ignorâ"
@@ -1858,12 +1881,13 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid "Runs until all configured locations are indexed and then exits"
 #~ msgstr ""
-#~ "Reste in esecuzion fintremai che dutis lis posizions configuradis no sedin "
-#~ "metudis in indiç, daspò jes"
+#~ "Reste in esecuzion fintremai che dutis lis posizions configuradis no "
+#~ "sedin metudis in indiç, daspò jes"
 
 #~ msgid "Checks if FILE is eligible for being mined based on configuration"
 #~ msgstr ""
-#~ "Verifiche che al sedi pussibil estrai dâts da FILE in base ae configurazion"
+#~ "Verifiche che al sedi pussibil estrai dâts da FILE in base ae "
+#~ "configurazion"
 
 #~ msgid "Data object “%s” currently exists"
 #~ msgstr "L'ogjet dâts «%s» al esist za"
@@ -1974,34 +1998,34 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid ""
 #~ "Maximum width in pixels for any media art extracted. Anything bigger is "
-#~ "resized. Set to -1 to disable saving media art from files. Setting to 0 sets"
-#~ " no limit on the media art width."
+#~ "resized. Set to -1 to disable saving media art from files. Setting to 0 "
+#~ "sets no limit on the media art width."
 #~ msgstr ""
-#~ "Massime largjece in pixel des figuris estratis, cualsisei file plui grant al"
-#~ " ven ridimensionât. Met a -1 par disabilitâ il salvament des figuris, met a "
-#~ "0 par disabilitâ il limit su la largjece."
+#~ "Massime largjece in pixel des figuris estratis, cualsisei file plui grant "
+#~ "al ven ridimensionât. Met a -1 par disabilitâ il salvament des figuris, "
+#~ "met a 0 par disabilitâ il limit su la largjece."
 
 #~ msgid "Wait for FS miner to be done before extracting"
 #~ msgstr "Spiete che l'analizadôr dal file system al finissi prime di estrai"
 
 #~ msgid ""
 #~ "When true, tracker-extract will wait for tracker-miner-fs to be done "
-#~ "crawling before extracting meta-data. This option is useful on constrained "
-#~ "environment where it is important to list files as fast as possible and can "
-#~ "wait to get meta-data later."
+#~ "crawling before extracting meta-data. This option is useful on "
+#~ "constrained environment where it is important to list files as fast as "
+#~ "possible and can wait to get meta-data later."
 #~ msgstr ""
-#~ "Se VÊR, tracker-extract al spietarà che tracker-miner-fs al finissi prime di"
-#~ " estrai i meta-dâts. Cheste opzion e je utile sui sistemis limitâts dulà che"
-#~ " al è impuartant listâ i file in maniere veloce e al è pussibil spietâ il "
-#~ "recupar dai meta-dâts."
+#~ "Se VÊR, tracker-extract al spietarà che tracker-miner-fs al finissi prime "
+#~ "di estrai i meta-dâts. Cheste opzion e je utile sui sistemis limitâts "
+#~ "dulà che al è impuartant listâ i file in maniere veloce e al è pussibil "
+#~ "spietâ il recupar dai meta-dâts."
 
 #~ msgid "Metadata extraction failed"
 #~ msgstr "Estrazion dai meta-dâts falide"
 
 #~ msgid "No metadata or extractor modules found to handle this file"
 #~ msgstr ""
-#~ "Nol è stât cjatât nissun modul par meta-dâts o di estrazion par gjestî chest"
-#~ " file"
+#~ "Nol è stât cjatât nissun modul par meta-dâts o di estrazion par gjestî "
+#~ "chest file"
 
 #~ msgid "File to extract metadata for"
 #~ msgstr "File di dulà tirâ fûr i metadâts"
@@ -2011,8 +2035,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid "Force a module to be used for extraction (e.g. “foo” for “foo.so”)"
 #~ msgstr ""
-#~ "Sfuarce l'ûs di un modul pe estrazion (par esempli «cjossul» par "
-#~ "«cjossul.so»)"
+#~ "Sfuarce l'ûs di un modul pe estrazion (par esempli «cjossul» par «cjossul."
+#~ "so»)"
 
 #~ msgid "MODULE"
 #~ msgstr "MODUL"
@@ -2072,7 +2096,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Etichetis"
 
 #~ msgid "_Set the tags you want to associate with the %d selected item:"
-#~ msgid_plural "_Set the tags you want to associate with the %d selected items:"
+#~ msgid_plural ""
+#~ "_Set the tags you want to associate with the %d selected items:"
 #~ msgstr[0] "_Met lis etichetis di associâ cun %d element selezionât:"
 #~ msgstr[1] "_Met lis etichetis di associâ cun %d elements selezionâts:"
 
@@ -2080,13 +2105,13 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Visualizazion predefinide"
 
 #~ msgid ""
-#~ "When 0, default view of tracker-needle will be Icons view. When 1, default "
-#~ "view of tracker-needle will be Categories view. When 2, default view of "
-#~ "tracker-needle will be Files view."
+#~ "When 0, default view of tracker-needle will be Icons view. When 1, "
+#~ "default view of tracker-needle will be Categories view. When 2, default "
+#~ "view of tracker-needle will be Files view."
 #~ msgstr ""
 #~ "Cuant che al è metût a 0, la viodude predefinide di tracker-needle e sarà "
-#~ "chê a iconis; cuant che al è metût a 1 e sarà chê a categoriis e cuant che "
-#~ "al è metût a 2 chê a file."
+#~ "chê a iconis; cuant che al è metût a 1 e sarà chê a categoriis e cuant "
+#~ "che al è metût a 2 chê a file."
 
 #~ msgid "Desktop Search"
 #~ msgstr "Ricercje scritori"
@@ -2095,16 +2120,16 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Find what you’re looking for on this computer by name or content using "
 #~ "Tracker"
 #~ msgstr ""
-#~ "Cjate, doprant Tracker, ce che tu stâs cirint su chest computer, par non o "
-#~ "par contignût"
+#~ "Cjate, doprant Tracker, ce che tu stâs cirint su chest computer, par non "
+#~ "o par contignût"
 
 #~ msgid ""
-#~ "Display results by category, for example, Music, Videos, Applications, etc. "
-#~ "This includes searching the contents of files where applicable."
+#~ "Display results by category, for example, Music, Videos, Applications, "
+#~ "etc. This includes searching the contents of files where applicable."
 #~ msgstr ""
-#~ "Mostre i risultâts par categorie, par esempli Musiche, Videos, Aplicazions, "
-#~ "e vie indenant. Chest al inclût la ricercje sui contignûts dai file dulà "
-#~ "pussibil."
+#~ "Mostre i risultâts par categorie, par esempli Musiche, Videos, "
+#~ "Aplicazions, e vie indenant. Chest al inclût la ricercje sui contignûts "
+#~ "dai file dulà pussibil."
 
 #~ msgid "Display results by files found in a list"
 #~ msgstr "Mostre i risultâts in base ai file cjatâts intune liste"
@@ -2161,8 +2186,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "The statistics represented here do not reflect their availability, rather "
 #~ "the total data stored:"
 #~ msgstr ""
-#~ "Lis statistichis mostradis chi no corispuindin ae reâl disponibilitât, ma il"
-#~ " totâl dai dâts archiviâts:"
+#~ "Lis statistichis mostradis chi no corispuindin ae reâl disponibilitât, ma "
+#~ "il totâl dai dâts archiviâts:"
 
 #~ msgid "Tag"
 #~ msgid_plural "Tags"
@@ -2281,8 +2306,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Select the view on the toolbar for the content you want, e.g. everything, "
 #~ "files or just images"
 #~ msgstr ""
-#~ "Selezione la viodude su la sbare dai struments pal contignût che tu vûs, par"
-#~ " esempli file o nome imagjins"
+#~ "Selezione la viodude su la sbare dai struments pal contignût che tu vûs, "
+#~ "par esempli file o nome imagjins"
 
 #~ msgid "Start to search using the entry box above"
 #~ msgstr "Tache a cirî doprant la casele di test chi parsore"
@@ -2348,8 +2373,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 
 #~ msgid "This covers ALL removable media, memory cards, CDs, DVDs, etc."
 #~ msgstr ""
-#~ "Chest al inclût DUCJ i supuarts estraibii, schedis di memorie, CD, DVD e vie"
-#~ " indenant"
+#~ "Chest al inclût DUCJ i supuarts estraibii, schedis di memorie, CD, DVD e "
+#~ "vie indenant"
 
 #~ msgid "Include optical di_scs"
 #~ msgstr "Includi i di_scs otics"
@@ -2358,13 +2383,19 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Semantichis"
 
 #~ msgid ""
-#~ "The  scheduler  is  the kernel component that decides which runnable application will be executed by the CPU next.  Each application has an associated scheduling  policy and priority.\n"
+#~ "The  scheduler  is  the kernel component that decides which runnable "
+#~ "application will be executed by the CPU next.  Each application has an "
+#~ "associated scheduling  policy and priority.\n"
 #~ "\n"
-#~ "This option allows you to make Tracker take a back seat and not eat up too much CPU time if you have other applications more deserving of it."
+#~ "This option allows you to make Tracker take a back seat and not eat up "
+#~ "too much CPU time if you have other applications more deserving of it."
 #~ msgstr ""
-#~ "Il planificadôr (scheduler) al è chel component dal kernel che al decît cuale aplicazion e vegnarà eseguide subite dopo su la CPU. Ogni aplicazion e à assegnade une politiche di planificazion e une prioritât.\n"
+#~ "Il planificadôr (scheduler) al è chel component dal kernel che al decît "
+#~ "cuale aplicazion e vegnarà eseguide subite dopo su la CPU. Ogni "
+#~ "aplicazion e à assegnade une politiche di planificazion e une prioritât.\n"
 #~ "\n"
-#~ "Cheste opzion e fâs in mût che Tracker nol dopri masse la CPU in presince di aplicazions che a'nd' àn plui dibisugne."
+#~ "Cheste opzion e fâs in mût che Tracker nol dopri masse la CPU in presince "
+#~ "di aplicazions che a'nd' àn plui dibisugne."
 
 # sostituire background con qualcosa di più consono
 #~ msgid "Index content in the background:"
@@ -2374,11 +2405,11 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Nome cuant che il computer _nol è doprât"
 
 #~ msgid ""
-#~ "Indexing content will be <b>much slower</b> but other applications will have"
-#~ " priority."
+#~ "Indexing content will be <b>much slower</b> but other applications will "
+#~ "have priority."
 #~ msgstr ""
-#~ "La metude in indiç dai contignûts e sarà <b>une vore plui lente</b>, ma lis "
-#~ "altris aplicazions a varan prioritât."
+#~ "La metude in indiç dai contignûts e sarà <b>une vore plui lente</b>, ma "
+#~ "lis altris aplicazions a varan prioritât."
 
 #~ msgid ""
 #~ "_While other applications are running, except for initial data population"
@@ -2387,24 +2418,24 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "popolament iniziâl dai dâts"
 
 #~ msgid ""
-#~ "Indexing content will be <b>much slower</b> but other applications will have"
-#~ " priority. This will only be the case on the <b>first index</b> of your "
-#~ "content after you start your computer from a new install"
+#~ "Indexing content will be <b>much slower</b> but other applications will "
+#~ "have priority. This will only be the case on the <b>first index</b> of "
+#~ "your content after you start your computer from a new install"
 #~ msgstr ""
-#~ "La metude in indiç dai contignûts e sarà <b>une vore plui lente</b>, ma lis "
-#~ "altris aplicazions a varan prioritât. Chest si apliche nome ae <b>prime "
-#~ "metude in indiç</b> dal contignût al inviament dal computer di une gnove "
-#~ "instalazion"
+#~ "La metude in indiç dai contignûts e sarà <b>une vore plui lente</b>, ma "
+#~ "lis altris aplicazions a varan prioritât. Chest si apliche nome ae "
+#~ "<b>prime metude in indiç</b> dal contignût al inviament dal computer di "
+#~ "une gnove instalazion"
 
 #~ msgid "While _other applications are running"
 #~ msgstr "Intant che lis _altris aplicazions a son in esecuzion"
 
 #~ msgid ""
-#~ "Indexing content will be as <b>fast</b> as possible but other applications "
-#~ "may suffer and be slower as a result."
+#~ "Indexing content will be as <b>fast</b> as possible but other "
+#~ "applications may suffer and be slower as a result."
 #~ msgstr ""
-#~ "La metude in indiç dai contignûts e sarà la plui <b>veloce</b> pussibile, ma"
-#~ " lis altris aplicazions e podaressin risultâ plui lentis."
+#~ "La metude in indiç dai contignûts e sarà la plui <b>veloce</b> pussibile, "
+#~ "ma lis altris aplicazions e podaressin risultâ plui lentis."
 
 #~ msgid "Stop indexing when _disk space is below:"
 #~ msgstr "Ferme la metude in indiç cuant che il spazi _disc al è inferiôr a:"
@@ -2416,8 +2447,8 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Indexed content from removable devices that have not been inserted for a "
 #~ "while, are cleaned up to avoid build up of unused resources."
 #~ msgstr ""
-#~ "I contignûts metûts in indiç dai dispositîfs estraibii no tacâts di resint a"
-#~ " vegnaran netâts par limitâ l'ûs des risorsis disponibilis."
+#~ "I contignûts metûts in indiç dai dispositîfs estraibii no tacâts di "
+#~ "resint a vegnaran netâts par limitâ l'ûs des risorsis disponibilis."
 
 #~ msgid "Days before deleting removable devices:"
 #~ msgstr "Dîs prime di eliminâ dispositîfs estraibii:"
@@ -2429,13 +2460,21 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Metude in indiç"
 
 #~ msgid ""
-#~ "Special locations such as your <b>Home</b>, <b>Desktop</b> or <b>Documents</b> directory, can be easily toggled below. This will add or remove their real paths from the list underneath.\n"
+#~ "Special locations such as your <b>Home</b>, <b>Desktop</b> or "
+#~ "<b>Documents</b> directory, can be easily toggled below. This will add or "
+#~ "remove their real paths from the list underneath.\n"
 #~ "\n"
-#~ "If a directory is toggled to <b>Recurse</b>, it means that all sub-directories underneath it will also be indexed. Otherwise, only files immediately in that directory will be indexed."
+#~ "If a directory is toggled to <b>Recurse</b>, it means that all sub-"
+#~ "directories underneath it will also be indexed. Otherwise, only files "
+#~ "immediately in that directory will be indexed."
 #~ msgstr ""
-#~ "Posizions speciâi come lis cartelis <b>Cjase</b>, <b>Scritori</b> o <b>Documents</b>, a puedin jessi abilitadis chi sot. Chest al zontarà o al gjavarà il lôr percors reâi de liste chi parsot.\n"
+#~ "Posizions speciâi come lis cartelis <b>Cjase</b>, <b>Scritori</b> o "
+#~ "<b>Documents</b>, a puedin jessi abilitadis chi sot. Chest al zontarà o "
+#~ "al gjavarà il lôr percors reâi de liste chi parsot.\n"
 #~ "\n"
-#~ "Se par une cartele e je abilitade la vôs <b>Ricors</b>, dutis lis sot-cartelis al so interni a vegnaran metudis in indiç, se no nome i siei file disponibii lu saran."
+#~ "Se par une cartele e je abilitade la vôs <b>Ricors</b>, dutis lis sot-"
+#~ "cartelis al so interni a vegnaran metudis in indiç, se no nome i siei "
+#~ "file disponibii lu saran."
 
 #~ msgid "Index Home Directory"
 #~ msgstr "Met in indiç la cartele Cjase"
@@ -2496,8 +2535,10 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ "Globbing patterns can be used here, for example: “*bar*”.\n"
 #~ "Most commonly this is used to ignore directories like *~, *.o, *.la, etc"
 #~ msgstr ""
-#~ "Al è pussibil doprâ modei di coincidence cun caratars speciâi, par esempli: «*bar*».\n"
-#~ "Di solit chest al ven doprât par ignorâ cartelis come *~, *.o, *.la, e vie indenant"
+#~ "Al è pussibil doprâ modei di coincidence cun caratars speciâi, par "
+#~ "esempli: «*bar*».\n"
+#~ "Di solit chest al ven doprât par ignorâ cartelis come *~, *.o, *.la, e "
+#~ "vie indenant"
 
 #~ msgid "Ignored Content"
 #~ msgstr "Contignût ignorât"
@@ -2518,10 +2559,11 @@ msgstr "Daûr a creâ l'IDE Web su"
 #~ msgstr "Cartele"
 
 #~ msgid ""
-#~ "Some of the requested changes will take effect on the next session restart."
+#~ "Some of the requested changes will take effect on the next session "
+#~ "restart."
 #~ msgstr ""
-#~ "Cualchidun dai cambiaments domandâts a varan efiet al prossim inviament di "
-#~ "session."
+#~ "Cualchidun dai cambiaments domandâts a varan efiet al prossim inviament "
+#~ "di session."
 
 #~ msgid "Disabled"
 #~ msgstr "Disabilitât"
