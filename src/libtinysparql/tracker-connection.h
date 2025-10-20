@@ -49,8 +49,8 @@ G_BEGIN_DECLS
 /**
  * TRACKER_SPARQL_CONNECTION_FLAGS_DISABLE_SYNTAX_EXTENSIONS:
  *
- * Disables no longer recommended syntax extensions to the SPARQL 1.1
- * specifications.
+ * Disables no longer recommended [legacy syntax extensions to the SPARQL 1.1
+ * specifications](sparql-and-tracker.md#legacy-syntax-extensions).
  *
  * Since: 3.11
  */

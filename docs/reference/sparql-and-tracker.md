@@ -123,11 +123,13 @@ Notably, resources must be given `rdf:type` properties explicitly in order to
 be able to receive properties belonging to these classes. The effect of
 `rdf:type` properties is local to the graph where it was defined.
 
-## Syntax extensions
+## Legacy syntax extensions
 
 TinySPARQL offers some SPARQL syntax extensions. These predate the
 existence of SPARQL 1.1 and stay for legacy reasons. These
-extensions should be used sparingly, if at all.
+extensions should be avoided, and might be disabled altogether by the endpoint
+through the the [flags@Tsparql.SparqlConnectionFlags.DISABLE_SYNTAX_EXTENSIONS]
+flag.
 
 ### GROUP_CONCAT
 
@@ -240,7 +242,7 @@ TinySPARQL makes the use of the `;` separator
 between update clauses optional. Its use is still recommended for
 readability.
 
-### CONSTRAINT syntax
+## CONSTRAINT syntax
 
 TinySPARQL supports `CONSTRAINT GRAPH` and `CONSTRAINT SERVICE` clauses
 in the query prologue. These clauses limit the access outside of the
