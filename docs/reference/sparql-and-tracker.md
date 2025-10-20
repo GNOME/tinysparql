@@ -73,7 +73,7 @@ identifies that blank node and can be used as an URI reference in
 future queries.
 
 The blank node behavior defined in the RDF/SPARQL specifications can
-be enabled with the #TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES
+be enabled with the [flags@Tsparql.SparqlConnectionFlags.ANONYMOUS_BNODES]
 flag.
 
 ## Property functions
