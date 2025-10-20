@@ -123,6 +123,104 @@ Notably, resources must be given `rdf:type` properties explicitly in order to
 be able to receive properties belonging to these classes. The effect of
 `rdf:type` properties is local to the graph where it was defined.
 
+## CONSTRAINT syntax
+
+TinySPARQL supports `CONSTRAINT GRAPH` and `CONSTRAINT SERVICE` clauses
+in the query prologue. These clauses limit the access outside of the
+specified graphs and services.
+
+```SPARQL
+# Only triples in the tracker:Audio graph will be returned
+CONSTRAINT GRAPH tracker:Audio
+SELECT * { ?s ?p ?o }
+```
+
+If a graph is specified within the query, but not allowed by a
+`CONSTRAINT GRAPH` clause, it will be
+effectively interpreted as an empty graph.
+
+If a service is accessed within the query, but not allowed by a
+`CONSTRAINT SERVICE` clause, it will be interpreted as an error, unless
+`SERVICE SILENT` syntax is used. In that
+case it will be interpreted as an empty graph.
+
+The `CONSTRAINT` clauses cannot be
+contradicted, multiple `CONSTRAINT` clauses
+effectively intersect the set of allowed graphs/services with
+previous clauses.
+
+```SPARQL
+CONSTRAINT GRAPH tracker:Video, tracker:Audio
+CONSTRAINT GRAPH tracker:Video
+# Only tracker:Video graph can be accessed
+SELECT * { ?s ?p ?o }
+```
+
+```SPARQL
+CONSTRAINT GRAPH tracker:Video
+CONSTRAINT GRAPH tracker:Video, tracker:Audio
+# Only tracker:Video graph can be accessed
+SELECT * { ?s ?p ?o }
+```
+
+Disjoint sets result in an empty set of accessible graphs and services.
+
+```SPARQL
+CONSTRAINT GRAPH tracker:Video
+CONSTRAINT GRAPH tracker:Audio
+# There are no accessible graphs, this query returns no results
+SELECT * { ?s ?p ?o }
+```
+
+## Mapping IDs and IRIs
+
+TinySPARQL provides the `tracker:id` and `tracker:uri` SPARQL
+functions, that allow converting an URI reference to a numeric
+identifier, and back.
+
+These identifiers are expected to be valid a long as the URI is
+referenced in the store. The existence of these SPARQL functions
+mostly obey legacy reasons and its use is not recommended.
+
+## Parameters and prepared statements
+
+TinySPARQL accepts `~` prefixed variables in place of literals
+throughout most of the SPARQL select syntax. These variables
+are treated as parameters at query time, so it is possible
+to prepare a query statement once and reuse it many times
+assigning different values to those parameters at query time.
+
+See [class@SparqlStatement] documentation for more information.
+
+## Full-text search
+
+TinySPARQL provides full-text search capabilities, these are exposed
+as a `fts:match` pseudo-property that will match the resources
+matching the given text string.
+
+To complement this pseudo property, TinySPARQL provides the
+`fts:snippet`, `fts:offsets` and `fts:rank` SPARQL functions that
+can be used on the matches.
+
+The ontology needs to define the properties that are matched via
+this full-text search mechanism, by toggling the
+`tracker:fulltextIndexed` property on in the
+text `rdf:Property` instances. See the documentation
+on [defining ontologies](ontologies.html).
+
+## DESCRIBE queries
+
+The [SPARQL documentation](https://www.w3.org/TR/sparql11-query/#describe)
+says:
+
+```
+The DESCRIBE form returns a single result RDF graph containing RDF data about resources.
+```
+
+In order to allow serialization to RDF formats that allow expressing graph information
+(e.g. [Trig](https://www.w3.org/TR/trig/)), DESCRIBE resultsets have 4 columns for
+subject / predicate / object / graph information.
+
 ## Legacy syntax extensions
 
 TinySPARQL offers some SPARQL syntax extensions. These predate the
@@ -241,101 +339,3 @@ so its use is not recommended.
 TinySPARQL makes the use of the `;` separator
 between update clauses optional. Its use is still recommended for
 readability.
-
-## CONSTRAINT syntax
-
-TinySPARQL supports `CONSTRAINT GRAPH` and `CONSTRAINT SERVICE` clauses
-in the query prologue. These clauses limit the access outside of the
-specified graphs and services.
-
-```SPARQL
-# Only triples in the tracker:Audio graph will be returned
-CONSTRAINT GRAPH tracker:Audio
-SELECT * { ?s ?p ?o }
-```
-
-If a graph is specified within the query, but not allowed by a
-`CONSTRAINT GRAPH` clause, it will be
-effectively interpreted as an empty graph.
-
-If a service is accessed within the query, but not allowed by a
-`CONSTRAINT SERVICE` clause, it will be interpreted as an error, unless
-`SERVICE SILENT` syntax is used. In that
-case it will be interpreted as an empty graph.
-
-The `CONSTRAINT` clauses cannot be
-contradicted, multiple `CONSTRAINT` clauses
-effectively intersect the set of allowed graphs/services with
-previous clauses.
-
-```SPARQL
-CONSTRAINT GRAPH tracker:Video, tracker:Audio
-CONSTRAINT GRAPH tracker:Video
-# Only tracker:Video graph can be accessed
-SELECT * { ?s ?p ?o }
-```
-
-```SPARQL
-CONSTRAINT GRAPH tracker:Video
-CONSTRAINT GRAPH tracker:Video, tracker:Audio
-# Only tracker:Video graph can be accessed
-SELECT * { ?s ?p ?o }
-```
-
-Disjoint sets result in an empty set of accessible graphs and services.
-
-```SPARQL
-CONSTRAINT GRAPH tracker:Video
-CONSTRAINT GRAPH tracker:Audio
-# There are no accessible graphs, this query returns no results
-SELECT * { ?s ?p ?o }
-```
-
-## Mapping IDs and IRIs
-
-TinySPARQL provides the `tracker:id` and `tracker:uri` SPARQL
-functions, that allow converting an URI reference to a numeric
-identifier, and back.
-
-These identifiers are expected to be valid a long as the URI is
-referenced in the store. The existence of these SPARQL functions
-mostly obey legacy reasons and its use is not recommended.
-
-## Parameters and prepared statements
-
-TinySPARQL accepts `~` prefixed variables in place of literals
-throughout most of the SPARQL select syntax. These variables
-are treated as parameters at query time, so it is possible
-to prepare a query statement once and reuse it many times
-assigning different values to those parameters at query time.
-
-See [class@SparqlStatement] documentation for more information.
-
-## Full-text search
-
-TinySPARQL provides full-text search capabilities, these are exposed
-as a `fts:match` pseudo-property that will match the resources
-matching the given text string.
-
-To complement this pseudo property, TinySPARQL provides the
-`fts:snippet`, `fts:offsets` and `fts:rank` SPARQL functions that
-can be used on the matches.
-
-The ontology needs to define the properties that are matched via
-this full-text search mechanism, by toggling the
-`tracker:fulltextIndexed` property on in the
-text `rdf:Property` instances. See the documentation
-on [defining ontologies](ontologies.html).
-
-## DESCRIBE queries
-
-The [SPARQL documentation](https://www.w3.org/TR/sparql11-query/#describe)
-says:
-
-```
-The DESCRIBE form returns a single result RDF graph containing RDF data about resources.
-```
-
-In order to allow serialization to RDF formats that allow expressing graph information
-(e.g. [Trig](https://www.w3.org/TR/trig/)), DESCRIBE resultsets have 4 columns for
-subject / predicate / object / graph information.
