@@ -46,6 +46,23 @@ G_BEGIN_DECLS
  *
  * Connection flags to modify #TrackerSparqlConnection behavior.
  */
+/**
+ * TRACKER_SPARQL_CONNECTION_FLAGS_DISABLE_SYNTAX_EXTENSIONS:
+ *
+ * Disables no longer recommended [legacy syntax extensions to the SPARQL 1.1
+ * specifications](sparql-and-tracker.md#legacy-syntax-extensions).
+ *
+ * Since: 3.11
+ */
+/**
+ * TRACKER_SPARQL_CONNECTION_FLAGS_SPARQL_STRICT:
+ *
+ * Enables all behavior that provides most adherence to SPARQL 1.1 standards.
+ * Currently this is equivalent to `ANONYMOUS_BNODES | DISABLE_SYNTAX_EXTENSIONS`.
+ * More flags may be added in the future.
+ *
+ * Since: 3.11
+ */
 typedef enum {
 	TRACKER_SPARQL_CONNECTION_FLAGS_NONE                  = 0,
 	TRACKER_SPARQL_CONNECTION_FLAGS_READONLY              = 1 << 0,
@@ -54,6 +71,10 @@ typedef enum {
 	TRACKER_SPARQL_CONNECTION_FLAGS_FTS_ENABLE_STOP_WORDS = 1 << 3,
 	TRACKER_SPARQL_CONNECTION_FLAGS_FTS_IGNORE_NUMBERS    = 1 << 4,
 	TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES      = 1 << 5,
+	TRACKER_SPARQL_CONNECTION_FLAGS_DISABLE_SYNTAX_EXTENSIONS = 1 << 6,
+
+	TRACKER_SPARQL_CONNECTION_FLAGS_SPARQL_STRICT = (TRACKER_SPARQL_CONNECTION_FLAGS_DISABLE_SYNTAX_EXTENSIONS |
+	                                                 TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES),
 } TrackerSparqlConnectionFlags;
 
 /**

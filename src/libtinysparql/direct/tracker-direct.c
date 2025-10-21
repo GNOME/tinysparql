@@ -543,6 +543,10 @@ translate_flags (TrackerSparqlConnectionFlags flags)
 	if ((flags & TRACKER_SPARQL_CONNECTION_FLAGS_ANONYMOUS_BNODES) != 0)
 		db_flags |= TRACKER_DB_MANAGER_ANONYMOUS_BNODES;
 
+	/* This flag is inverted */
+	if ((flags & TRACKER_SPARQL_CONNECTION_FLAGS_DISABLE_SYNTAX_EXTENSIONS) == 0)
+		db_flags |= TRACKER_DB_MANAGER_ENABLE_SYNTAX_EXTENSIONS;
+
 	return db_flags;
 }
 
