@@ -8,8 +8,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: el\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tracker/issues/\n"
-"POT-Creation-Date: 2024-05-03 13:04+0000\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
+"POT-Creation-Date: 2025-10-21 16:05+0000\n"
 "PO-Revision-Date: 2020-07-15 20:18+0300\n"
 "Last-Translator: Giannis Antypas <gianni.antypas@gmail.com>\n"
 "Language-Team: Ελληνικά <>\n"
@@ -21,132 +21,123 @@ msgstr ""
 "X-Generator: Poedit 1.8.7.1\n"
 "X-Project-Style: gnome\n"
 
-#. Translators: this is a '|' (U+007C) separated list of common
-#. * title beginnings. Meant to be skipped for sorting purposes,
-#. * case doesn't matter. Given English media is quite common, it is
-#. * advised to leave the untranslated articles in addition to
-#. * the translated ones.
-#.
-#: src/libtracker-sparql/core/tracker-collation.c:116
-msgid "the|a|an"
-msgstr "το|ένα|μία"
-
-#: src/portal/tracker-main.c:53
-msgid "Version"
-msgstr "Έκδοση"
-
-#: src/portal/tracker-main.c:110 src/tracker/tracker-endpoint.c:607
-#: src/tracker/tracker-export.c:549 src/tracker/tracker-import.c:196
-#: src/tracker/tracker-sparql.c:1392 src/tracker/tracker-sql.c:239
-msgid "Unrecognized options"
-msgstr "Άγνωστες επιλογές"
-
-#: src/tracker/tracker-endpoint.c:58 src/tracker/tracker-export.c:49
-#: src/tracker/tracker-import.c:46 src/tracker/tracker-sparql.c:113
-#: src/tracker/tracker-sql.c:44
+#: src/cli/tracker-endpoint.c:58 src/cli/tracker-export.c:46
+#: src/cli/tracker-import.c:46 src/cli/tracker-introspect.c:98
+#: src/cli/tracker-query.c:52 src/cli/tracker-sql.c:45
 msgid "Location of the database"
 msgstr "Τοποθεσία της βάσης δεδομένων"
 
-#: src/tracker/tracker-endpoint.c:59 src/tracker/tracker-endpoint.c:71
+#: src/cli/tracker-endpoint.c:59 src/cli/tracker-endpoint.c:71
 msgid "DIR"
 msgstr "ΚΑΤΑΛΟΓΟΣ"
 
-#: src/tracker/tracker-endpoint.c:62
+#: src/cli/tracker-endpoint.c:62
 msgid "Specify the DBus name of this endpoint"
 msgstr "Καθορίστε το όνομα DBus αυτού του τελικού σημείου"
 
-#: src/tracker/tracker-endpoint.c:63 src/tracker/tracker-endpoint.c:67
+#: src/cli/tracker-endpoint.c:63 src/cli/tracker-endpoint.c:67
 msgid "NAME"
 msgstr "ΟΝΟΜΑ"
 
-#: src/tracker/tracker-endpoint.c:66
+#: src/cli/tracker-endpoint.c:66
 msgid "Specify the ontology name used in this endpoint"
 msgstr ""
 "Καθορίστε το όνομα οντολογίας που χρησιμοποιείται σε αυτό το τελικό σημείο"
 
-#: src/tracker/tracker-endpoint.c:70
+#: src/cli/tracker-endpoint.c:70
 msgid "Specify a path to an ontology to be used in this endpoint"
 msgstr ""
 "Καθορίστε μια διαδρομή για μια οντολογία που θα χρησιμοποιηθεί σε αυτό το "
 "τελικό σημείο"
 
-#: src/tracker/tracker-endpoint.c:74
+#: src/cli/tracker-endpoint.c:74
 msgid "HTTP port"
 msgstr "Πόρτα HTTP"
 
-#: src/tracker/tracker-endpoint.c:78
+#: src/cli/tracker-endpoint.c:78
 msgid "Whether to only allow HTTP connections in the loopback device"
 msgstr "Εάν θα επιτρέπονται μόνο συνδέσεις HTTP στη συσκευή επανάληψης"
 
-#: src/tracker/tracker-endpoint.c:82
+#: src/cli/tracker-endpoint.c:82
 msgid "Use session bus"
 msgstr "Χρήση συνεδρίας διαύλου"
 
-#: src/tracker/tracker-endpoint.c:86
+#: src/cli/tracker-endpoint.c:86
 msgid "Use system bus"
 msgstr "Χρήση διαύλου συστήματος"
 
-#: src/tracker/tracker-endpoint.c:90
+#: src/cli/tracker-endpoint.c:90
 msgid "List SPARQL endpoints available in DBus"
 msgstr "Εμφανίζει τα διαθέσιμα σημεία πρόσβασης SPARQL στο DBus"
 
-#: src/tracker/tracker-endpoint.c:94
+#: src/cli/tracker-endpoint.c:94
 msgid "List network-local HTTP SPARQL endpoints"
 msgstr "Εμφανίζει τα σημεία πρόσβασης network-local HTTP SPARQL"
 
 #. TRANSLATORS: these are commandline arguments
-#: src/tracker/tracker-endpoint.c:115
+#: src/cli/tracker-endpoint.c:115
 msgid "--list can only be used with --session or --system"
 msgstr "Το --list μπορεί να χρησιμοποιηθεί μόνο με το --session ή το --system"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:121
+#: src/cli/tracker-endpoint.c:121
 msgid "One “ontology” or “ontology-path” option should be provided"
 msgstr "Θα πρέπει να παρέχεται μία επιλογή «ontology» ή «ontology-path»"
 
 #. TRANSLATORS: those are commandline arguments
-#: src/tracker/tracker-endpoint.c:127
+#: src/cli/tracker-endpoint.c:127
 msgid "--http-port cannot be used with --dbus-service"
 msgstr "Το --http-port δεν μπορεί να χρησιμοποιηθεί με το --dbus-service"
 
-#: src/tracker/tracker-endpoint.c:198
-#, fuzzy, c-format
+#: src/cli/tracker-endpoint.c:198
+#, c-format
 #| msgid "Creating endpoint at %s…"
 msgid "Creating HTTP endpoint at %s…"
-msgstr "Δημιουργία τελικού σημείου στο %s…"
+msgstr "Δημιουργία τελικού σημείου HTTP στο %s…"
 
-#: src/tracker/tracker-endpoint.c:218 src/tracker/tracker-endpoint.c:281
+#: src/cli/tracker-endpoint.c:218 src/cli/tracker-endpoint.c:281
+#: src/cli/tracker-webide.c:100
 msgid "Listening to SPARQL commands. Press Ctrl-C to stop."
 msgstr "Ακούγοντας εντολές SPARQL. Πατήστε Ctrl-C για διακοπή."
 
 #. Carriage return, so we paper over the ^C
-#: src/tracker/tracker-endpoint.c:226 src/tracker/tracker-endpoint.c:296
+#: src/cli/tracker-endpoint.c:226 src/cli/tracker-endpoint.c:296
+#: src/cli/tracker-webide.c:105
 msgid "Closing connection…"
 msgstr "Κλείσιμο σύνδεσης…"
 
-#: src/tracker/tracker-endpoint.c:241
+#: src/cli/tracker-endpoint.c:241
 #, c-format
 msgid "Creating endpoint at %s…"
 msgstr "Δημιουργία τελικού σημείου στο %s…"
 
-#: src/tracker/tracker-endpoint.c:277
+#: src/cli/tracker-endpoint.c:277
 msgid "Could not own DBus name"
 msgstr "Αδυναμία κατοχής ονόματος DBus"
 
-#: src/tracker/tracker-endpoint.c:291
+#: src/cli/tracker-endpoint.c:291
 msgid "DBus name lost"
 msgstr "Λίστα ονομάτων DBus"
 
-#: src/tracker/tracker-endpoint.c:651
+#: src/cli/tracker-endpoint.c:608 src/cli/tracker-export.c:214
+#: src/cli/tracker-import.c:196 src/cli/tracker-introspect.c:1025
+#: src/cli/tracker-query.c:486 src/cli/tracker-sql.c:239
+#: src/cli/tracker-webide.c:122 src/portal/tracker-main.c:108
+msgid "Unrecognized options"
+msgstr "Άγνωστες επιλογές"
+
+#: src/cli/tracker-endpoint.c:652
 #, c-format
 msgid "Opening database at %s…"
 msgstr "Άνοιγμα βάσης δεδομένων στο %s…"
 
-#: src/tracker/tracker-endpoint.c:654
+#: src/cli/tracker-endpoint.c:655
+#, c-format
 msgid "Creating in-memory database"
 msgstr "Δημιουργία βάσης δεδομένων στην μνήμη"
 
-#: src/tracker/tracker-endpoint.c:681
+#: src/cli/tracker-endpoint.c:683
+#, c-format
 msgid ""
 "New database created. Use the “--dbus-service” option to share this database "
 "on a message bus."
@@ -154,211 +145,104 @@ msgstr ""
 "Δημιουργήθηκε νέα βάση δεδομένων. Χρησιμοποιήστε την επιλογή “--dbus-"
 "service” για να μοιραστείτε αυτήν τη βάση δεδομένων σε ένα διαύλου μηνυμάτων."
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-endpoint.desktop.in:6
-msgid "endpoint"
-msgstr "endpoint"
-
-#: src/tracker/tracker-endpoint.desktop.in:7
-msgid "Create a SPARQL endpoint"
-msgstr "Δημιουργία τελικού σημείου SPARQL"
-
-#: src/tracker/tracker-export.c:50 src/tracker/tracker-import.c:47
-#: src/tracker/tracker-import.c:62 src/tracker/tracker-import.c:63
-#: src/tracker/tracker-sparql.c:114 src/tracker/tracker-sparql.c:126
-#: src/tracker/tracker-sql.c:45 src/tracker/tracker-sql.c:49
+#: src/cli/tracker-export.c:47 src/cli/tracker-import.c:47
+#: src/cli/tracker-import.c:62 src/cli/tracker-import.c:63
+#: src/cli/tracker-introspect.c:99 src/cli/tracker-query.c:53
+#: src/cli/tracker-query.c:65 src/cli/tracker-sql.c:46 src/cli/tracker-sql.c:50
 msgid "FILE"
 msgstr "ΑΡΧΕΙΟ"
 
-#: src/tracker/tracker-export.c:53 src/tracker/tracker-import.c:50
-#: src/tracker/tracker-sparql.c:117
+#: src/cli/tracker-export.c:50 src/cli/tracker-import.c:50
+#: src/cli/tracker-introspect.c:102 src/cli/tracker-query.c:56
 msgid "Connects to a DBus service"
 msgstr "Συνδέεται στην υπηρεσία DBus"
 
-#: src/tracker/tracker-export.c:54 src/tracker/tracker-import.c:51
-#: src/tracker/tracker-sparql.c:118
+#: src/cli/tracker-export.c:51 src/cli/tracker-import.c:51
+#: src/cli/tracker-introspect.c:103 src/cli/tracker-query.c:57
 msgid "DBus service name"
 msgstr "Όνομα υπηρεσίας DBus"
 
-#: src/tracker/tracker-export.c:57
-#, fuzzy
+#: src/cli/tracker-export.c:54
 #| msgid "Output results format: “sparql”, “turtle” or “json-ld”"
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
-msgstr "Αποτελέσματα εξόδου: «sparql», «turtle» ή «json-ld»"
+msgstr "Μορφή αποτελεσμάτων εξόδου: «turtle», «trig» ή «json-ld»"
 
-#: src/tracker/tracker-export.c:58
+#: src/cli/tracker-export.c:55
 msgid "RDF_FORMAT"
 msgstr "RDF_FORMAT"
 
-#: src/tracker/tracker-export.c:61 src/tracker/tracker-import.c:54
-#: src/tracker/tracker-sparql.c:121
+#: src/cli/tracker-export.c:58 src/cli/tracker-import.c:54
+#: src/cli/tracker-introspect.c:106 src/cli/tracker-query.c:60
 msgid "Connects to a remote service"
 msgstr "Συνδέεται με απομακρυσμένη υπηρεσία"
 
-#: src/tracker/tracker-export.c:62 src/tracker/tracker-import.c:55
-#: src/tracker/tracker-sparql.c:122
+#: src/cli/tracker-export.c:59 src/cli/tracker-import.c:55
+#: src/cli/tracker-introspect.c:107 src/cli/tracker-query.c:61
 msgid "Remote service URI"
 msgstr "URI απομακρυσμένης υπηρεσίας"
 
-#: src/tracker/tracker-export.c:65
+#: src/cli/tracker-export.c:62
 msgid "Output TriG format which includes named graph information"
 msgstr "Μορφή TriG εξόδου που περιλαμβάνει πληροφορίες γραφήματος με όνομα"
 
-#: src/tracker/tracker-export.c:77 src/tracker/tracker-export.c:78
+#: src/cli/tracker-export.c:66 src/cli/tracker-export.c:67
 msgid "IRI"
 msgstr "IRI"
 
 #. TRANSLATORS: Those are commandline arguments
-#: src/tracker/tracker-export.c:103 src/tracker/tracker-import.c:88
-#: src/tracker/tracker-sparql.c:206
-#, fuzzy
+#: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
+#: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
+#, c-format
 #| msgid "Specify one --database, --dbus-service or --remote-service option"
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
-msgstr "Καθορίστε μια επιλογή --database, --dbus-service ή --remote-service"
+msgstr "Καθορίστε μία επιλογή «--database», «--dbus-service» ή «--remote-service»"
 
-#: src/tracker/tracker-export.c:319 src/tracker/tracker-export.c:340
-#: src/tracker/tracker-import.c:125 src/tracker/tracker-sparql.c:1073
+#: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
+#: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
+#: src/cli/tracker-query.c:345
 msgid "No error given"
 msgstr "Δεν προέκυψε σφάλμα"
 
-#: src/tracker/tracker-export.c:339 src/tracker/tracker-import.c:124
-#: src/tracker/tracker-sparql.c:1072
+#: src/cli/tracker-export.c:136 src/cli/tracker-import.c:124
+#: src/cli/tracker-introspect.c:828 src/cli/tracker-query.c:344
 msgid "Could not establish a connection to Tracker"
 msgstr "Αδυναμία σύνδεσης με το Tracker"
 
-#: src/tracker/tracker-export.c:382
-#, fuzzy, c-format
+#: src/cli/tracker-export.c:179
+#, c-format
 #| msgid "Unsupported serialization format '%s'\n"
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Μη υποστηριζόμενη μορφή σειριοποίησης '%s'\n"
 
-#: src/tracker/tracker-export.c:434 src/tracker/tracker-export.c:446
-#: src/tracker/tracker-export.c:455 src/tracker/tracker-sparql.c:1334
-#: src/tracker/tracker-sql.c:137 src/tracker/tracker-sql.c:170
-msgid "Could not run query"
-msgstr "Αδυναμία εκτέλεσης ερωτήματος"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-export.desktop.in:6
-msgid "export"
-msgstr "export"
-
-#: src/tracker/tracker-export.desktop.in:7
-msgid "Export data from a Tracker database"
-msgstr "Εξαγωγή δεδομένων από την βάση δεδομένων Tracker"
-
-#: src/tracker/tracker-help.c:60 src/tracker/tracker-help.c:72
-#, c-format
-msgid "failed to exec “%s”: %s"
-msgstr "αποτυχία εκτέλεσης του «%s»: %s"
-
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-help.desktop.in:6
-msgid "help"
-msgstr "help"
-
-#: src/tracker/tracker-help.desktop.in:7
-msgid "Get help on how to use Tracker and any of these commands"
-msgstr ""
-"Λήψη βοήθειας για τη χρήση του Tracker οποιασδήποτε από αυτές τις εντολές"
-
-#: src/tracker/tracker-import.c:58
+#: src/cli/tracker-import.c:58
 msgid "Read TriG format which includes named graph information"
 msgstr "Ανάγνωση μορφής TriG που περιλαμβάνει πληροφορίες γραφήματος με όνομα"
 
-#: src/tracker/tracker-import.c:103 src/tracker/tracker-import.c:141
+#: src/cli/tracker-import.c:103 src/cli/tracker-import.c:141
 msgid "Could not run import"
 msgstr "Δεν ήταν δυνατή η εκτέλεση εισαγωγής"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-import.desktop.in:6
-msgid "import"
-msgstr "import"
+#: src/cli/tracker-introspect.c:110
+msgid "Lists all available classes"
+msgstr "Λίστα όλων των διαθέσιμων κλάσεων"
 
-#: src/tracker/tracker-import.desktop.in:7
-msgid "Import data into a Tracker database"
-msgstr "Εισαγωγή δεδομένων σε μια βάση δεδομένων Tracker"
+#: src/cli/tracker-introspect.c:114
+msgid "Lists all available prefixes"
+msgstr "Λίστα όλων των διαθέσιμων προθεμάτων"
 
-#: src/tracker/tracker-main.c:123
-msgid "Available tracker3 commands are:"
-msgstr "Οι διαθέσιμες εντολές tracker3 είναι:"
+#: src/cli/tracker-introspect.c:118
+msgid "Lists all classes which notify changes in the database"
+msgstr "Λίστα όλων των κλάσεων που ενημερώνουν για αλλαγές στη βάση δεδομένων"
 
-#: src/tracker/tracker-main.c:155
-msgid "See “tracker3 help <command>” to read about a specific subcommand."
-msgstr ""
-"Δείτε την «tracker3 help <command>» για να διαβάσετε σχετικά με μια "
-"συγκεκριμένη υποεντολή."
+#: src/cli/tracker-introspect.c:122
+msgid "List indexes used in database to improve performance"
+msgstr "Λίστα ευρετηρίων που χρησιμοποιούνται στη βάση δεδομένων για βελτίωση της απόδοσης"
 
-#: src/tracker/tracker-main.c:208
-#, c-format
-msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
-msgstr "Το «%s» δεν είναι μια εντολή του tracker3. Δείτε «tracker --help»"
-
-#: src/tracker/tracker-sparql.c:125
-msgid "Path to use to run a query or update from file"
-msgstr ""
-"Χρησιμοποιούμενη διαδρομή εκτέλεσης ενός ερωτήματος ή ενημέρωσης από αρχείο"
-
-#: src/tracker/tracker-sparql.c:129
-msgid "SPARQL query"
-msgstr "Ερώτημα SPARQL"
-
-#: src/tracker/tracker-sparql.c:130
-msgid "SPARQL"
-msgstr "SPARQL"
-
-#: src/tracker/tracker-sparql.c:133
-msgid "This is used with --query and for database updates only."
-msgstr ""
-"Αυτό χρησιμοποιείται με το --query και μόνο για την ενημέρωση της βάσης "
-"δεδομένων."
-
-#: src/tracker/tracker-sparql.c:137
-msgid "Retrieve classes"
-msgstr "Ανάκτηση κλάσεων"
-
-#: src/tracker/tracker-sparql.c:141
-msgid "Retrieve class prefixes"
-msgstr "Ανάκτηση προθεμάτων κλάσης"
-
-#: src/tracker/tracker-sparql.c:145
-msgid ""
-"Retrieve properties for a class, prefixes can be used too (e.g. rdfs:"
-"Resource)"
-msgstr ""
-"Ανάκτηση ιδιοτήτων για μια κλάση, επίσης μπορείτε να χρησιμοποιήσετε "
-"προθέματα (π.χ. rdfs:Resource)"
-
-#: src/tracker/tracker-sparql.c:146 src/tracker/tracker-sparql.c:150
-#: src/tracker/tracker-sparql.c:162 src/tracker/tracker-sparql.c:170
-#: src/tracker/tracker-sparql.c:174
-msgid "CLASS"
-msgstr "ΚΛΑΣΗ"
-
-#: src/tracker/tracker-sparql.c:149
-msgid ""
-"Retrieve classes which notify changes in the database (CLASS is optional)"
-msgstr ""
-"Ανάκτηση κλάσεων που ενημερώνουν για αλλαγές στην βάση δεδομένων (Η ΚΛΑΣΗ "
-"είναι προαιρετική)"
-
-#: src/tracker/tracker-sparql.c:153
-msgid ""
-"Retrieve indexes used in database to improve performance (PROPERTY is "
-"optional)"
-msgstr ""
-"Ανάκτηση ευρετηρίων που χρησιμοποιούνται στη βάση δεδομένων για την βελτίωση "
-"της απόδοσης (το PROPERTY είναι προαιρετικό) "
-
-#: src/tracker/tracker-sparql.c:154
-msgid "PROPERTY"
-msgstr "ΙΔΙΟΤΗΤΑ"
-
-#: src/tracker/tracker-sparql.c:157
+#: src/cli/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
 msgstr "Ανάκτηση όλων των γραφημάτων με ονόματα"
 
-#: src/tracker/tracker-sparql.c:161
+#: src/cli/tracker-introspect.c:129
 msgid ""
 "Describe subclasses, superclasses (can be used with -s to highlight parts of "
 "the tree and -p to show properties)"
@@ -367,167 +251,89 @@ msgstr ""
 "για να τονίσει κάποια τμήματα του δένδρου και με το -p για να δείξει τις "
 "ιδιότητες)"
 
-#: src/tracker/tracker-sparql.c:165
+#: src/cli/tracker-introspect.c:130 src/cli/tracker-introspect.c:134
+msgid "CLASS"
+msgstr "ΚΛΑΣΗ"
+
+#: src/cli/tracker-introspect.c:133
+#| msgid "List all Tracker processes"
+msgid "Lists all available properties"
+msgstr "Προβολή όλων των διαθέσιμων ιδιοτήτων"
+
+#: src/cli/tracker-introspect.c:137
 msgid ""
 "Search for a class or property and display more information (e.g. Document)"
 msgstr ""
 "Αναζήτηση για κλάση ή ιδιότητα και προβολή περισσότερων πληροφοριών (π.χ. "
 "έγγραφο)"
 
-#: src/tracker/tracker-sparql.c:166
+#: src/cli/tracker-introspect.c:138
 msgid "CLASS/PROPERTY"
 msgstr "ΚΛΑΣΗ/ΙΔΙΟΤΗΤΑ"
 
-#: src/tracker/tracker-sparql.c:169
-msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
-msgstr "Επιστρέφει τη συντομογραφία για μια κλάση (π.χ. nfo:FileDataObject)."
-
-#: src/tracker/tracker-sparql.c:173
-msgid "Returns the full namespace for a class."
-msgstr "Επιστρέφει το πλήρες όνομα χώρου (namespace) για μια κλάση"
-
-#: src/tracker/tracker-sparql.c:177
-msgid "Provides an argument for a query parameter."
-msgstr "Παρέχει ένα όρισμα για μια παράμετρο ερωτήματος."
-
-#: src/tracker/tracker-sparql.c:178
-msgid "PARAMETER:TYPE:VALUE"
-msgstr "ΠΑΡΑΜΕΤΡΟΣ:ΤΥΠΟΣ:ΤΙΜΗ"
-
-#. To translators: This is to say there are no
-#. * search results found. We use a "foo: None"
-#. * with multiple print statements, where "foo"
-#. * may be Music or Images, etc.
-#: src/tracker/tracker-sparql.c:375 src/tracker/tracker-sparql.c:423
-msgid "None"
-msgstr "Κανένα"
-
-#: src/tracker/tracker-sparql.c:899
+#: src/cli/tracker-introspect.c:716
 msgid "Could not create tree: subclass query failed"
 msgstr "Αδυναμία δημιουργίας του δένδρου: αποτυχία του ερωτήματος για υποκλάση"
 
-#: src/tracker/tracker-sparql.c:949
+#: src/cli/tracker-introspect.c:765
 msgid "Could not create tree: class properties query failed"
 msgstr ""
 "Αδυναμία δημιουργίας του δένδρου: αποτυχία του ερωτήματος για ιδιότητες "
 "κλάσης"
 
-#: src/tracker/tracker-sparql.c:1009
-#, c-format
-msgid "Invalid argument string %s"
-msgstr "Μη έγκυρη συμβολοσειρά ορίσματος %s"
-
-#: src/tracker/tracker-sparql.c:1019
-#, c-format
-msgid "Invalid parameter type for argument %s"
-msgstr "Μη έγκυρος τύπος παραμέτρων για όρισμα %s"
-
-#: src/tracker/tracker-sparql.c:1089
-msgid "Could not list classes"
-msgstr "Αδυναμία προβολής της λίστας των κλάσεων"
-
-#: src/tracker/tracker-sparql.c:1097
-msgid "No classes were found"
-msgstr "Δεν βρέθηκαν κλάσεις"
-
-#: src/tracker/tracker-sparql.c:1097 src/tracker/tracker-sparql.c:1219
-msgid "Classes"
-msgstr "Κλάσεις"
-
-#: src/tracker/tracker-sparql.c:1120
-msgid "Could not list properties"
-msgstr "Αδυναμία προβολής λίστας με τις ιδιότητες"
-
-#: src/tracker/tracker-sparql.c:1128
-msgid "No properties were found"
-msgstr "Δεν βρέθηκαν ιδιότητες"
-
-#: src/tracker/tracker-sparql.c:1128 src/tracker/tracker-sparql.c:1237
-msgid "Properties"
-msgstr "Ιδιότητες"
-
-#: src/tracker/tracker-sparql.c:1144
-msgid "Could not find notify classes"
-msgstr "Αδυναμία εύρεσης κλάσεων ειδοποίησης"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "No notifies were found"
-msgstr "Δεν βρέθηκαν ειδοποιήσεις"
-
-#: src/tracker/tracker-sparql.c:1152
-msgid "Notifies"
-msgstr "Ειδοποιήσεις"
-
-#: src/tracker/tracker-sparql.c:1168
-msgid "Could not find indexed properties"
-msgstr "Αδυναμία εύρεσης ευρετηριοποιημένων ιδιοτήτων"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "No indexes were found"
-msgstr "Δεν βρέθηκαν ευρετήρια"
-
-#: src/tracker/tracker-sparql.c:1176
-msgid "Indexes"
-msgstr "Ευρετήρια"
-
-#: src/tracker/tracker-sparql.c:1186
-msgid "Could not list named graphs"
-msgstr "Αδυναμία προβολής της λίστας γραφημάτων με ονόματα"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "No graphs were found"
-msgstr "Δεν βρέθηκαν γραφικά"
-
-#: src/tracker/tracker-sparql.c:1194
-msgid "Named graphs"
-msgstr "Γραφήματα μη ονόματα"
-
-#: src/tracker/tracker-sparql.c:1211
+#: src/cli/tracker-introspect.c:848
 msgid "Could not search classes"
 msgstr "Αδυναμία αναζήτησης κλάσεων"
 
-#: src/tracker/tracker-sparql.c:1219
-msgid "No classes were found to match search term"
-msgstr "Δεν βρέθηκαν κλάσεις που να ταιριάζουν με τον όρο αναζήτησης"
+#: src/cli/tracker-introspect.c:856 src/cli/tracker-introspect.c:940
+msgid "Classes"
+msgstr "Κλάσεις"
 
-#: src/tracker/tracker-sparql.c:1229
+#: src/cli/tracker-introspect.c:868
 msgid "Could not search properties"
 msgstr "Αδυναμία αναζήτησης ιδιοτήτων"
 
-#: src/tracker/tracker-sparql.c:1237
-msgid "No properties were found to match search term"
-msgstr "Δεν βρέθηκαν ιδιότητες που να ταιριάζουν με τον όρο αναζήτησης"
+#: src/cli/tracker-introspect.c:876 src/cli/tracker-introspect.c:910
+msgid "Properties"
+msgstr "Ιδιότητες"
 
-#: src/tracker/tracker-sparql.c:1266 src/tracker/tracker-sql.c:70
-msgid "Could not get UTF-8 path from path"
-msgstr "Αδυναμία λήψης της διαδρομής UTF-8 από διαδρομή"
+#: src/cli/tracker-introspect.c:902
+msgid "Could not list properties"
+msgstr "Αδυναμία προβολής λίστας με τις ιδιότητες"
 
-#: src/tracker/tracker-sparql.c:1278 src/tracker/tracker-sql.c:81
-msgid "Could not read file"
-msgstr "Αδυναμία ανάγνωσης του αρχείου"
+#: src/cli/tracker-introspect.c:918
+msgid "Namespaces"
+msgstr "Namespaces"
 
-#: src/tracker/tracker-sparql.c:1309
-msgid "Could not run update"
-msgstr "Αδυναμία εκτέλεσης ενημέρωσης"
+#: src/cli/tracker-introspect.c:932
+msgid "Could not list classes"
+msgstr "Αδυναμία προβολής της λίστας των κλάσεων"
 
-#: src/tracker/tracker-sparql.c:1316
-msgid "Done"
-msgstr "Ολοκληρώθηκε"
+#: src/cli/tracker-introspect.c:952
+msgid "Could not find notify classes"
+msgstr "Αδυναμία εύρεσης κλάσεων ειδοποίησης"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
-msgid "No results found matching your query"
-msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν στο ερώτημά σας"
+#: src/cli/tracker-introspect.c:960
+msgid "Notifies"
+msgstr "Ειδοποιήσεις"
 
-#: src/tracker/tracker-sparql.c:1343 src/tracker/tracker-sparql.c:1345
-#: src/tracker/tracker-sql.c:144
-msgid "Results"
-msgstr "Αποτελέσματα"
+#: src/cli/tracker-introspect.c:972
+msgid "Could not find indexed properties"
+msgstr "Αδυναμία εύρεσης ευρετηριοποιημένων ιδιοτήτων"
 
-#: src/tracker/tracker-sparql.c:1401 src/tracker/tracker-sql.c:250
-msgid "File and query can not be used together"
-msgstr "Το αρχείο και το ερώτημα δεν μπορούν να χρησιμοποιηθούν ταυτόχρονα"
+#: src/cli/tracker-introspect.c:980
+msgid "Indexes"
+msgstr "Ευρετήρια"
 
-#: src/tracker/tracker-sparql.c:1403
+#: src/cli/tracker-introspect.c:992
+msgid "Could not list named graphs"
+msgstr "Αδυναμία προβολής της λίστας γραφημάτων με ονόματα"
+
+#: src/cli/tracker-introspect.c:1000
+msgid "Named graphs"
+msgstr "Γραφήματα μη ονόματα"
+
+#: src/cli/tracker-introspect.c:1034
 msgid ""
 "The --list-properties argument can only be empty when used with the --tree "
 "argument"
@@ -535,50 +341,265 @@ msgstr ""
 "Το όρισμα --list-properties μπορεί να είναι κενό μόνο όταν χρησιμοποιείται "
 "με το όρισμα --tree"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sparql.desktop.in:6
-msgid "sparql"
-msgstr "sparql"
-
-#: src/tracker/tracker-sparql.desktop.in:7
-msgid ""
-"Query and update the index using SPARQL or search, list and tree the ontology"
+#: src/cli/tracker-main.c:69
+#, fuzzy
+#| msgid "Get help on how to use Tracker and any of these commands"
+msgid "Get help on how to use TinySPARQL and any of these commands"
 msgstr ""
-"Ερώτηση και ενημέρωση του ευρετηρίου χρησιμοποιώντας SPARQL ή αναζήτηση, "
-"κατάλογο και δένδρο της οντολογίας"
+"Λήψη βοήθειας για τη χρήση του TinySPARQL οποιασδήποτε από αυτές τις εντολές"
 
-#: src/tracker/tracker-sql.c:48
+#: src/cli/tracker-main.c:70
+msgid "Create a SPARQL endpoint"
+msgstr "Δημιουργία τελικού σημείου SPARQL"
+
+#: src/cli/tracker-main.c:71
+#| msgid "Export data from a Tracker database"
+msgid "Export data from a TinySPARQL database"
+msgstr "Εξαγωγή δεδομένων από την βάση δεδομένων TinySPARQL"
+
+#: src/cli/tracker-main.c:72
+#| msgid "Import data into a Tracker database"
+msgid "Import data into a TinySPARQL database"
+msgstr "Εισαγωγή δεδομένων σε μια βάση δεδομένων TinySPARQL"
+
+#: src/cli/tracker-main.c:73
+#| msgid "Create a SPARQL endpoint"
+msgid "Introspect a SPARQL endpoint"
+msgstr "Εσωτερική εξέταση ενός τελικού σημείου SPARQL"
+
+#: src/cli/tracker-main.c:74
+msgid "Query and update the index using SPARQL"
+msgstr "Ερώτηση και ενημέρωση του ευρετηρίου χρησιμοποιώντας SPARQL"
+
+#: src/cli/tracker-main.c:75
+msgid "Create a Web IDE to query local databases"
+msgstr "Δημιουργία Web IDE για ερώτηση τοπικών βάσεων δεδομένων"
+
+#: src/cli/tracker-main.c:92
+msgid "Available tinysparql commands are:"
+msgstr "Οι διαθέσιμες εντολές tinysparql είναι:"
+
+#: src/cli/tracker-main.c:111
+#| msgid "See “tracker3 help <command>” to read about a specific subcommand."
+msgid "See “tinysparql help <command>” to read about a specific subcommand."
+msgstr "Δείτε «tinysparql help <command>» για να διαβάσετε σχετικά με μια συγκεκριμένη υποεντολή."
+
+#: src/cli/tracker-main.c:154
+#, c-format
+#| msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
+msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
+msgstr "Το «%s» δεν είναι εντολή tinysparql. Δείτε «tinysparql --help»"
+
+#: src/cli/tracker-query.c:64
+msgid "Path to use to run a query or update from file"
+msgstr ""
+"Χρησιμοποιούμενη διαδρομή εκτέλεσης ενός ερωτήματος ή ενημέρωσης από αρχείο"
+
+#: src/cli/tracker-query.c:68
+msgid "SPARQL query"
+msgstr "Ερώτημα SPARQL"
+
+#: src/cli/tracker-query.c:69
+msgid "SPARQL"
+msgstr "SPARQL"
+
+#: src/cli/tracker-query.c:72
+msgid "This is used with --query and for database updates only."
+msgstr ""
+"Αυτό χρησιμοποιείται με το --query και μόνο για την ενημέρωση της βάσης "
+"δεδομένων."
+
+#: src/cli/tracker-query.c:76
+msgid "Provides an argument for a query parameter."
+msgstr "Παρέχει ένα όρισμα για μια παράμετρο ερωτήματος."
+
+#: src/cli/tracker-query.c:77
+msgid "PARAMETER:TYPE:VALUE"
+msgstr "ΠΑΡΑΜΕΤΡΟΣ:ΤΥΠΟΣ:ΤΙΜΗ"
+
+#. To translators: This is to say there are no
+#. * search results found. We use a "foo: None"
+#. * with multiple print statements, where "foo"
+#. * may be Music or Images, etc.
+#: src/cli/tracker-query.c:214 src/cli/tracker-query.c:262
+msgid "None"
+msgstr "Κανένα"
+
+#: src/cli/tracker-query.c:282
+#, c-format
+msgid "Invalid argument string %s"
+msgstr "Μη έγκυρη συμβολοσειρά ορίσματος %s"
+
+#: src/cli/tracker-query.c:292
+#, c-format
+msgid "Invalid parameter type for argument %s"
+msgstr "Μη έγκυρος τύπος παραμέτρων για όρισμα %s"
+
+#: src/cli/tracker-query.c:360
+msgid "Could not get UTF-8 path from path"
+msgstr "Αδυναμία λήψης της διαδρομής UTF-8 από διαδρομή"
+
+#: src/cli/tracker-query.c:372 src/cli/tracker-sql.c:75
+msgid "Could not read file"
+msgstr "Αδυναμία ανάγνωσης του αρχείου"
+
+#: src/cli/tracker-query.c:403
+msgid "Could not run update"
+msgstr "Αδυναμία εκτέλεσης ενημέρωσης"
+
+#: src/cli/tracker-query.c:410
+msgid "Done"
+msgstr "Ολοκληρώθηκε"
+
+#: src/cli/tracker-query.c:428 src/cli/tracker-sql.c:131
+#: src/cli/tracker-sql.c:164
+msgid "Could not run query"
+msgstr "Αδυναμία εκτέλεσης ερωτήματος"
+
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+msgid "No results found matching your query"
+msgstr "Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν στο ερώτημά σας"
+
+#: src/cli/tracker-query.c:437 src/cli/tracker-query.c:439
+#: src/cli/tracker-sql.c:138
+msgid "Results"
+msgstr "Αποτελέσματα"
+
+#: src/cli/tracker-query.c:498 src/cli/tracker-sql.c:250
+msgid "File and query can not be used together"
+msgstr "Το αρχείο και το ερώτημα δεν μπορούν να χρησιμοποιηθούν ταυτόχρονα"
+
+#: src/cli/tracker-sql.c:49
 msgid "Path to use to run a query from file"
 msgstr "Χρησιμοποιούμενη διαδρομή εκτέλεσης ενός ερωτήματος από αρχείο"
 
-#: src/tracker/tracker-sql.c:52
+#: src/cli/tracker-sql.c:53
 msgid "SQL query"
 msgstr "Ερώτημα SQL"
 
-#: src/tracker/tracker-sql.c:53
+#: src/cli/tracker-sql.c:54
 msgid "SQL"
 msgstr "SQL"
 
-#: src/tracker/tracker-sql.c:114
+#: src/cli/tracker-sql.c:108
 msgid "Failed to initialize data manager"
 msgstr "Αποτυχία αρχικοποίησης διαχειριστή δεδομένων"
 
-#: src/tracker/tracker-sql.c:178
+#: src/cli/tracker-sql.c:172
 msgid "Empty result set"
 msgstr "Κενό σύνολο αποτελέσματος"
 
-#: src/tracker/tracker-sql.c:248
+#: src/cli/tracker-sql.c:248
 msgid "A database path must be specified"
 msgstr "Πρέπει να καθοριστεί μια διαδρομή βάσης δεδομένων"
 
-#. Translators: This is a CLI command name that should not be translated.
-#: src/tracker/tracker-sql.desktop.in:6
-msgid "sql"
-msgstr "sql"
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:40
+msgid "Port to listen on"
+msgstr "Θύρα για ακρόαση"
 
-#: src/tracker/tracker-sql.desktop.in:7
-msgid "Query the database at the lowest level using SQL"
-msgstr "Ερώτημα στη βάση δεδομένων στο πιο χαμηλό επίπεδο χρησιμοποιώντας SQL"
+#. Translators: this is a HTTP port
+#: src/cli/tracker-webide.c:50
+msgid "Port not specified"
+msgstr "Δεν έχει καθοριστεί θύρα"
+
+#. Translators: This will point to a local HTTP address
+#: src/cli/tracker-webide.c:81
+#, c-format
+#| msgid "Creating endpoint at %s…"
+msgid "Creating Web IDE at %s…"
+msgstr "Δημιουργία Web IDE στο %s…"
+
+#. Translators: this is a '|' (U+007C) separated list of common
+#. * title beginnings. Meant to be skipped for sorting purposes,
+#. * case doesn't matter. Given English media is quite common, it is
+#. * advised to leave the untranslated articles in addition to
+#. * the translated ones.
+#.
+#: src/libtinysparql/core/tracker-collation.c:116
+msgid "the|a|an"
+msgstr "το|ένα|μία"
+
+#: src/portal/tracker-main.c:51
+msgid "Version"
+msgstr "Έκδοση"
+
+#~ msgid "endpoint"
+#~ msgstr "endpoint"
+
+#~ msgid "export"
+#~ msgstr "export"
+
+#, c-format
+#~ msgid "failed to exec “%s”: %s"
+#~ msgstr "αποτυχία εκτέλεσης του «%s»: %s"
+
+#~ msgid "help"
+#~ msgstr "help"
+
+#~ msgid "import"
+#~ msgstr "import"
+
+#~ msgid "Retrieve classes"
+#~ msgstr "Ανάκτηση κλάσεων"
+
+#~ msgid "Retrieve class prefixes"
+#~ msgstr "Ανάκτηση προθεμάτων κλάσης"
+
+#~ msgid ""
+#~ "Retrieve properties for a class, prefixes can be used too (e.g. "
+#~ "rdfs:Resource)"
+#~ msgstr ""
+#~ "Ανάκτηση ιδιοτήτων για μια κλάση, επίσης μπορείτε να χρησιμοποιήσετε "
+#~ "προθέματα (π.χ. rdfs:Resource)"
+
+#~ msgid "PROPERTY"
+#~ msgstr "ΙΔΙΟΤΗΤΑ"
+
+#~ msgid "Returns the shorthand for a class (e.g. nfo:FileDataObject)."
+#~ msgstr ""
+#~ "Επιστρέφει τη συντομογραφία για μια κλάση (π.χ. nfo:FileDataObject)."
+
+#~ msgid "Returns the full namespace for a class."
+#~ msgstr "Επιστρέφει το πλήρες όνομα χώρου (namespace) για μια κλάση"
+
+#~ msgid "No classes were found"
+#~ msgstr "Δεν βρέθηκαν κλάσεις"
+
+#~ msgid "No properties were found"
+#~ msgstr "Δεν βρέθηκαν ιδιότητες"
+
+#~ msgid "No notifies were found"
+#~ msgstr "Δεν βρέθηκαν ειδοποιήσεις"
+
+#~ msgid "No indexes were found"
+#~ msgstr "Δεν βρέθηκαν ευρετήρια"
+
+#~ msgid "No graphs were found"
+#~ msgstr "Δεν βρέθηκαν γραφικά"
+
+#~ msgid "No classes were found to match search term"
+#~ msgstr "Δεν βρέθηκαν κλάσεις που να ταιριάζουν με τον όρο αναζήτησης"
+
+#~ msgid "No properties were found to match search term"
+#~ msgstr "Δεν βρέθηκαν ιδιότητες που να ταιριάζουν με τον όρο αναζήτησης"
+
+#~ msgid "sparql"
+#~ msgstr "sparql"
+
+#~ msgid ""
+#~ "Query and update the index using SPARQL or search, list and tree the "
+#~ "ontology"
+#~ msgstr ""
+#~ "Ερώτηση και ενημέρωση του ευρετηρίου χρησιμοποιώντας SPARQL ή αναζήτηση, "
+#~ "κατάλογο και δένδρο της οντολογίας"
+
+#~ msgid "sql"
+#~ msgstr "sql"
+
+#~ msgid "Query the database at the lowest level using SQL"
+#~ msgstr ""
+#~ "Ερώτημα στη βάση δεδομένων στο πιο χαμηλό επίπεδο χρησιμοποιώντας SQL"
 
 #~ msgid "Additional / third party commands are:"
 #~ msgstr "Οι πρόσθετες / εντολές τρίτων είναι:"
@@ -606,11 +627,11 @@ msgstr "Ερώτημα στη βάση δεδομένων στο πιο χαμη
 #~ msgstr "Προθέματα"
 
 #~ msgid ""
-#~ "Could not find property for class prefix, e.g. :Resource in “rdfs:"
-#~ "Resource”"
+#~ "Could not find property for class prefix, e.g. :Resource in "
+#~ "“rdfs:Resource”"
 #~ msgstr ""
-#~ "Αδυναμία εύρεσης ιδιότητας για πρόθεμα κλάσης, π.χ. Πηγές στο «rdfs:"
-#~ "Resource»"
+#~ "Αδυναμία εύρεσης ιδιότητας για πρόθεμα κλάσης, π.χ. Πηγές στο "
+#~ "«rdfs:Resource»"
 
 # #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
 #
@@ -917,9 +938,6 @@ msgstr "Ερώτημα στη βάση δεδομένων στο πιο χαμη
 
 #~ msgid "List pause reasons"
 #~ msgstr "Κατάλογων των αιτιών παύσης"
-
-#~ msgid "List all Tracker processes"
-#~ msgstr "Προβολή όλων των διεργασιών του Tracker"
 
 #~ msgid ""
 #~ "Use SIGKILL to stop all matching processes, either “store”, “miners” or "
@@ -1968,10 +1986,10 @@ msgstr "Ερώτημα στη βάση δεδομένων στο πιο χαμη
 #~ msgstr "Κατάλογοι για ευρετηριοποίηση αναδρομικά"
 
 #~ msgid ""
-#~ "List of directories to index recursively, Special values include: &amp;"
-#~ "DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, &amp;"
-#~ "PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-dirs."
-#~ "defaults and $HOME/.config/user-dirs.default"
+#~ "List of directories to index recursively, Special values include: "
+#~ "&amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, &amp;PICTURES, "
+#~ "&amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. See /etc/xdg/user-"
+#~ "dirs.defaults and $HOME/.config/user-dirs.default"
 #~ msgstr ""
 #~ "Λίστα των καταλόγων για αναδρομική ευρετηριοποίηση, ειδικές τιμές "
 #~ "περιλαμβάνουν: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;MUSIC, "
@@ -1988,9 +2006,10 @@ msgstr "Ερώτημα στη βάση δεδομένων στο πιο χαμη
 #~ "xdg/user-dirs.defaults and $HOME/.config/user-dirs.default"
 #~ msgstr ""
 #~ "Λίστα των καταλόγων για ευρετηριοποίηση επιθεωρώντας υποφακέλους, ειδικές "
-#~ "τιμές περιλαμβάνουν: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, &amp;"
-#~ "MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, &amp;VIDEOS. "
-#~ "Δείτε /etc/xdg/user-dirs.defaults και $HOME/.config/user-dirs.default"
+#~ "τιμές περιλαμβάνουν: &amp;DESKTOP, &amp;DOCUMENTS, &amp;DOWNLOAD, "
+#~ "&amp;MUSIC, &amp;PICTURES, &amp;PUBLIC_SHARE, &amp;TEMPLATES, "
+#~ "&amp;VIDEOS. Δείτε /etc/xdg/user-dirs.defaults και $HOME/.config/user-"
+#~ "dirs.default"
 
 #~ msgid "List of file patterns to avoid"
 #~ msgstr "Λίστα των αποφευκτέων προτύπων αρχείου"
@@ -2544,8 +2563,8 @@ msgstr "Ερώτημα στη βάση δεδομένων στο πιο χαμη
 #~ "Select the view on the toolbar for the content you want, e.g. everything, "
 #~ "files or just images"
 #~ msgstr ""
-#~ "Επιλογή της προβολής στην εργαλειοθήκη για το περιεχόμενο που θέλετε, π."
-#~ "χ. οτιδήποτε, αρχεία ή μόνο εικόνες"
+#~ "Επιλογή της προβολής στην εργαλειοθήκη για το περιεχόμενο που θέλετε, "
+#~ "π.χ. οτιδήποτε, αρχεία ή μόνο εικόνες"
 
 #~ msgid "Start to search using the entry box above"
 #~ msgstr ""
@@ -3053,9 +3072,6 @@ msgstr "Ερώτημα στη βάση δεδομένων στο πιο χαμη
 #~ msgid "Search terms are missing"
 #~ msgstr "Απουσιάζουν οι όροι αναζήτησης"
 
-#~ msgid "- Query or update using SPARQL"
-#~ msgstr "- Ερώτημα ή ενημέρωση με την χρήση SPARQL"
-
 #~ msgid " - Show statistics for all Nepomuk defined ontology classes"
 #~ msgstr ""
 #~ " - Εμφάνιση στατιστικών για όλες τις ορισμένες κλάσεις οντολογίας Nepomuk"
@@ -3283,13 +3299,11 @@ msgstr "Ερώτημα στη βάση δεδομένων στο πιο χαμη
 
 # #-#-#-#-#  nautilus.HEAD.el.po (el)  #-#-#-#-#
 #
-#, fuzzy
 #~ msgid "Unknown"
-#~ msgstr "Άγνωστος χρόνος"
+#~ msgstr "αγνωστο"
 
-#, fuzzy
 #~ msgid "No Subject"
-#~ msgstr "Θέμα:"
+#~ msgstr "Κανένα θέμα"
 
 #~ msgid "Search Bar"
 #~ msgstr "Μπάρα αναζήτησης"
@@ -3332,8 +3346,8 @@ msgstr "Ερώτημα στη βάση δεδομένων στο πιο χαμη
 #~ msgstr ""
 #~ "Θα·πρέπει·να·έχετε·λάβει·ένα·αντίγραφο·της· "
 #~ "GNU·General·Public·License·μαζί·με·τον ανιχνευτή (Tracker). Αν όχι γράψτε "
-#~ "στο Free Software Foundation, Inc., 59 Temple Place, Suite·330,·Boston,"
-#~ "·MA··02111-1307 USA"
+#~ "στο Free Software Foundation, Inc., 59 Temple Place, "
+#~ "Suite·330,·Boston,·MA··02111-1307 USA"
 
 #~ msgid "A notification icon application to monitor data miners for Tracker"
 #~ msgstr ""
