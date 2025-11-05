@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023, Red Hat Inc.
+ * Copyright (C) 2025, Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,13 +19,21 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef __TRACKER_ONTOLOGIES_RDF_H__
-#define __TRACKER_ONTOLOGIES_RDF_H__
+#pragma once
 
-#include "tracker-data-manager.h"
+#include "tracker-deserializer-rdf.h"
 
-TrackerOntologies * tracker_ontologies_load_from_rdf (TrackerDeserializer  *ontology_data,
-                                                      char                **checksum,
-                                                      GError              **error);
+#define TRACKER_TYPE_DESERIALIZER_MERGER (tracker_deserializer_merger_get_type ())
+G_DECLARE_DERIVABLE_TYPE (TrackerDeserializerMerger,
+                          tracker_deserializer_merger,
+                          TRACKER, DESERIALIZER_MERGER,
+                          TrackerDeserializerRdf);
 
-#endif /* __TRACKER_ONTOLOGIES_RDF_H__ */
+struct _TrackerDeserializerMergerClass {
+	TrackerDeserializerRdfClass parent_class;
+};
+
+TrackerSparqlCursor * tracker_deserializer_merger_new (void);
+
+void tracker_deserializer_merger_add_child (TrackerDeserializerMerger *deserializer,
+                                            TrackerDeserializer       *child);

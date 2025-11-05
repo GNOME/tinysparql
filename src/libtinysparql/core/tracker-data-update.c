@@ -3179,14 +3179,13 @@ gboolean
 tracker_data_load_from_deserializer (TrackerData          *data,
                                      TrackerDeserializer  *deserializer,
                                      const gchar          *graph,
-                                     const gchar          *location,
                                      GHashTable           *bnodes,
                                      GError              **error)
 {
 	TrackerSparqlCursor *cursor = TRACKER_SPARQL_CURSOR (deserializer);
 	TrackerOntologies *ontologies;
 	GError *inner_error = NULL;
-	const gchar *subject_str, *predicate_str, *object_str, *graph_str;
+	const gchar *subject_str, *predicate_str, *object_str, *graph_str, *location;
 	goffset last_parsed_line_no = 0, last_parsed_column_no = 0;
 
 	if (bnodes)
@@ -3312,6 +3311,7 @@ failed:
 	g_hash_table_unref (bnodes);
 
 	tracker_deserializer_get_parser_location (deserializer,
+	                                          &location,
 						  &last_parsed_line_no,
 						  &last_parsed_column_no);
 
@@ -3339,7 +3339,6 @@ tracker_data_load_rdf_file (TrackerData  *data,
 	tracker_data_load_from_deserializer (data,
 	                                     TRACKER_DESERIALIZER (deserializer),
 	                                     graph,
-	                                     uri,
 	                                     NULL,
 	                                     error);
 	g_object_unref (deserializer);
@@ -3587,7 +3586,6 @@ handle_update_rdf (TrackerData       *data,
 	tracker_data_load_from_deserializer (data,
 	                                     deserializer,
 	                                     graph,
-	                                     "<stream>",
 	                                     bnodes,
 	                                     &inner_error);
 	g_object_unref (deserializer);

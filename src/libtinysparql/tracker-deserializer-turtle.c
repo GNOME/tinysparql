@@ -933,11 +933,15 @@ tracker_deserializer_turtle_close (TrackerSparqlCursor* cursor)
 }
 
 static gboolean
-tracker_deserializer_turtle_get_parser_location (TrackerDeserializer *deserializer,
-                                                 goffset             *line_no,
-                                                 goffset             *column_no)
+tracker_deserializer_turtle_get_parser_location (TrackerDeserializer  *deserializer,
+                                                 const char          **name,
+                                                 goffset              *line_no,
+                                                 goffset              *column_no)
 {
 	TrackerDeserializerTurtle *deserializer_ttl = TRACKER_DESERIALIZER_TURTLE (deserializer);
+
+	if (name)
+		*name = tracker_deserializer_get_name (deserializer);
 
 	*line_no = deserializer_ttl->line_no;
 	*column_no = deserializer_ttl->column_no;

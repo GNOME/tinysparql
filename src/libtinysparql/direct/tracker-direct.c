@@ -27,6 +27,7 @@
 #include <tracker-common.h>
 
 #include "core/tracker-data.h"
+#include "tracker-deserializer-directory.h"
 #include "tracker-notifier-private.h"
 #include "tracker-private.h"
 #include "tracker-serializer.h"
@@ -38,6 +39,7 @@ struct _TrackerDirectConnectionPrivate
 	TrackerSparqlConnectionFlags flags;
 	GFile *store;
 	GFile *ontology;
+	GInputStream *ontology_rdf;
 
 	TrackerNamespaceManager *namespace_manager;
 	TrackerDataManager *data_manager;
@@ -52,6 +54,7 @@ struct _TrackerDirectConnectionPrivate
 	gint64 cleanup_timestamp;
 
 	guint cleanup_timeout_id;
+	TrackerRdfFormat ontology_rdf_format;
 
 	guint initialized : 1;
 	guint closing     : 1;
@@ -116,6 +119,8 @@ enum {
 	PROP_FLAGS,
 	PROP_STORE_LOCATION,
 	PROP_ONTOLOGY_LOCATION,
+	PROP_ONTOLOGY_STREAM,
+	PROP_ONTOLOGY_STREAM_FORMAT,
 	N_PROPS
 };
 
@@ -321,7 +326,6 @@ update_thread_func (gpointer data,
 		if (tracker_data_load_from_deserializer (tracker_data,
 		                                         TRACKER_DESERIALIZER (deserializer),
 		                                         task_data->d.deserialize.default_graph,
-		                                         "<stream>",
 		                                         NULL,
 		                                         &error)) {
 			tracker_data_commit_transaction (tracker_data, &error);
@@ -558,6 +562,7 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	TrackerDirectConnectionPrivate *priv;
 	TrackerDirectConnection *conn;
 	TrackerDBManagerFlags db_flags;
+	TrackerSparqlCursor *ontology_data = NULL;
 	GHashTable *namespaces;
 	GHashTableIter iter;
 	gchar *prefix, *ns;
@@ -569,14 +574,49 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	if (!set_up_thread_pools (conn, error))
 		return FALSE;
 
+	if (priv->ontology &&
+	    g_file_query_file_type (priv->ontology, G_FILE_QUERY_INFO_NONE, NULL) != G_FILE_TYPE_DIRECTORY) {
+		gchar *uri;
+
+		uri = g_file_get_uri (priv->ontology);
+		g_set_error (error, TRACKER_DATA_ONTOLOGY_ERROR,
+		             TRACKER_DATA_ONTOLOGY_NOT_FOUND,
+		             "'%s' is not a ontology location", uri);
+		g_free (uri);
+		return FALSE;
+	}
+
 	db_flags = translate_flags (priv->flags);
 
 	if (!priv->store) {
 		db_flags |= TRACKER_DB_MANAGER_IN_MEMORY;
 	}
 
+	if (priv->ontology) {
+		ontology_data = tracker_deserializer_directory_new (priv->ontology, NULL);
+	} else if (priv->ontology_rdf) {
+		TrackerSerializerFormat format;
+
+		switch (priv->ontology_rdf_format) {
+		case TRACKER_RDF_FORMAT_TURTLE:
+			format = TRACKER_SERIALIZER_FORMAT_TTL;
+			break;
+		case TRACKER_RDF_FORMAT_TRIG:
+			format = TRACKER_SERIALIZER_FORMAT_TRIG;
+			break;
+		case TRACKER_RDF_FORMAT_JSON_LD:
+			format = TRACKER_SERIALIZER_FORMAT_JSON_LD;
+			break;
+		default:
+			g_assert_not_reached ();
+			break;
+		}
+
+		ontology_data = tracker_deserializer_new (priv->ontology_rdf, NULL, format);
+	}
+
 	priv->data_manager = tracker_data_manager_new (db_flags, priv->store,
-	                                               priv->ontology,
+	                                               TRACKER_DESERIALIZER (ontology_data),
 	                                               100);
 	if (!g_initable_init (G_INITABLE (priv->data_manager), cancellable, &inner_error)) {
 		g_propagate_error (error, _translate_internal_error (inner_error));
@@ -842,6 +882,12 @@ tracker_direct_connection_set_property (GObject      *object,
 		break;
 	case PROP_ONTOLOGY_LOCATION:
 		priv->ontology = g_value_dup_object (value);
+		break;
+	case PROP_ONTOLOGY_STREAM:
+		priv->ontology_rdf = g_value_dup_object (value);
+		break;
+	case PROP_ONTOLOGY_STREAM_FORMAT:
+		priv->ontology_rdf_format = g_value_get_enum (value);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1534,6 +1580,17 @@ tracker_direct_connection_class_init (TrackerDirectConnectionClass *klass)
 		                     G_TYPE_FILE,
 		                     G_PARAM_READWRITE |
 		                     G_PARAM_CONSTRUCT_ONLY);
+	props[PROP_ONTOLOGY_STREAM] =
+		g_param_spec_object ("ontology-stream", NULL, NULL,
+		                     G_TYPE_INPUT_STREAM,
+		                     G_PARAM_WRITABLE |
+		                     G_PARAM_CONSTRUCT_ONLY);
+	props[PROP_ONTOLOGY_STREAM_FORMAT] =
+		g_param_spec_enum ("ontology-stream-format", NULL, NULL,
+		                   TRACKER_TYPE_RDF_FORMAT,
+		                   TRACKER_RDF_FORMAT_TURTLE,
+		                   G_PARAM_WRITABLE |
+		                   G_PARAM_CONSTRUCT_ONLY);
 
 	g_object_class_install_properties (object_class, N_PROPS, props);
 }
@@ -1574,6 +1631,59 @@ tracker_direct_connection_new_async (TrackerSparqlConnectionFlags  flags,
 TrackerSparqlConnection *
 tracker_direct_connection_new_finish (GAsyncResult  *res,
                                       GError       **error)
+{
+	GAsyncInitable *initable;
+
+	initable = g_task_get_source_object (G_TASK (res));
+
+	return TRACKER_SPARQL_CONNECTION (g_async_initable_new_finish (initable,
+	                                                               res,
+	                                                               error));
+}
+
+TrackerSparqlConnection *
+tracker_direct_connection_new_from_rdf (TrackerSparqlConnectionFlags   flags,
+                                        GFile                         *store,
+                                        TrackerDeserializeFlags        deserialize_flags,
+                                        TrackerRdfFormat               rdf_format,
+                                        GInputStream                  *rdf_stream,
+                                        GCancellable                  *cancellable,
+                                        GError                       **error)
+{
+	return g_initable_new (TRACKER_TYPE_DIRECT_CONNECTION,
+	                       cancellable, error,
+	                       "flags", flags,
+	                       "store-location", store,
+	                       "ontology-stream-format", rdf_format,
+	                       "ontology-stream", rdf_stream,
+	                       NULL);
+}
+
+void
+tracker_direct_connection_new_from_rdf_async (TrackerSparqlConnectionFlags  flags,
+                                              GFile                        *store,
+                                              TrackerDeserializeFlags       deserialize_flags,
+                                              TrackerRdfFormat              rdf_format,
+                                              GInputStream                 *rdf_stream,
+                                              GCancellable                 *cancellable,
+                                              GAsyncReadyCallback           cb,
+                                              gpointer                      user_data)
+{
+	g_async_initable_new_async (TRACKER_TYPE_DIRECT_CONNECTION,
+	                            G_PRIORITY_DEFAULT,
+	                            cancellable,
+	                            cb,
+	                            user_data,
+	                            "flags", flags,
+	                            "store-location", store,
+	                            "ontology-stream-format", rdf_format,
+	                            "ontology-stream", rdf_stream,
+	                            NULL);
+}
+
+TrackerSparqlConnection *
+tracker_direct_connection_new_from_rdf_finish (GAsyncResult  *res,
+                                               GError       **error)
 {
 	GAsyncInitable *initable;
 

@@ -1426,6 +1426,8 @@ tracker_sparql_connection_new_async (TrackerSparqlConnectionFlags  flags,
  * @error: Error location
  *
  * Finishes the operation started with [func@SparqlConnection.new_async].
+ *
+ * Returns: (transfer full): a new `TrackerSparqlConnection`.
  */
 TrackerSparqlConnection *
 tracker_sparql_connection_new_finish (GAsyncResult  *res,
@@ -1437,6 +1439,133 @@ tracker_sparql_connection_new_finish (GAsyncResult  *res,
 	                      NULL);
 
 	return g_task_propagate_pointer (G_TASK (res), error);
+}
+
+/**
+ * tracker_sparql_connection_new_from_rdf: (constructor):
+ * @flags: Connection flags to define the SPARQL connection behavior
+ * @store: (nullable): The database location as a [iface@Gio.File], or %NULL
+ * @deserialize_flags: Deserialization flags
+ * @rdf_format: RDF format of the @rdf_stream argument
+ * @rdf_stream: RDF Schema definition of the database format
+ * @cancellable: (nullable): Optional [type@Gio.Cancellable]
+ * @error: Error location
+ *
+ * Constructor similar to [ctor@SparqlConnection.new], that takes the
+ * RDF Schema definitions declaring the database schema as an input stream.
+ *
+ * Unlike that constructor, databases created this way will not have the
+ * RDF Schema data snapshot into the database itself. It will need to be
+ * done by the caller as a separate step, e.g. via
+ * [method@SparqlConnection.deserialize_async].
+ *
+ * Returns: (transfer full): a new `TrackerSparqlConnection`.
+ *
+ * Since: 3.11
+ */
+TrackerSparqlConnection *
+tracker_sparql_connection_new_from_rdf (TrackerSparqlConnectionFlags   flags,
+                                        GFile                         *store,
+                                        TrackerDeserializeFlags        deserialize_flags,
+                                        TrackerRdfFormat               rdf_format,
+                                        GInputStream                  *rdf_stream,
+                                        GCancellable                  *cancellable,
+                                        GError                       **error)
+{
+	g_return_val_if_fail (!store || G_IS_FILE (store), NULL);
+	g_return_val_if_fail (deserialize_flags == TRACKER_DESERIALIZE_FLAGS_NONE, NULL);
+	g_return_val_if_fail (rdf_format < TRACKER_N_RDF_FORMATS, NULL);
+	g_return_val_if_fail (G_IS_INPUT_STREAM (rdf_stream), NULL);
+	g_return_val_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable), NULL);
+
+	return tracker_direct_connection_new_from_rdf (flags, store,
+	                                               deserialize_flags,
+	                                               rdf_format, rdf_stream,
+	                                               cancellable, error);
+}
+
+static void
+new_from_rdf_async_cb (GObject      *source,
+                       GAsyncResult *res,
+                       gpointer      user_data)
+{
+	TrackerSparqlConnection *conn;
+	GTask *task = user_data;
+	GError *error = NULL;
+
+	conn = tracker_direct_connection_new_from_rdf_finish (res, &error);
+
+	if (conn)
+		g_task_return_pointer (task, conn, g_object_unref);
+	else
+		g_task_return_error (task, error);
+}
+
+/**
+ * tracker_sparql_connection_new_from_rdf_async:
+ * @flags: Connection flags to define the SPARQL connection behavior
+ * @store: (nullable): The database location as a [iface@Gio.File], or %NULL
+ * @deserialize_flags: Deserialization flags
+ * @rdf_format: RDF format of the @rdf_stream argument
+ * @rdf_stream: RDF Schema definition of the database format
+ * @cancellable: (nullable): Optional [type@Gio.Cancellable]
+ * @callback: User-defined [type@Gio.AsyncReadyCallback] to be called when
+ *            the asynchronous operation is finished.
+ * @user_data: User-defined data to be passed to @callback
+ *
+ * Asynchronous version of [ctor@SparqlConnection.new_from_rdf].
+ *
+ * Since: 3.11
+ */
+void
+tracker_sparql_connection_new_from_rdf_async (TrackerSparqlConnectionFlags  flags,
+                                              GFile                        *store,
+                                              TrackerDeserializeFlags       deserialize_flags,
+                                              TrackerRdfFormat              rdf_format,
+                                              GInputStream                 *rdf_stream,
+                                              GCancellable                 *cancellable,
+                                              GAsyncReadyCallback           callback,
+                                              gpointer                      user_data)
+{
+	GTask *task;
+
+	g_return_if_fail (!store || G_IS_FILE (store));
+	g_return_if_fail (deserialize_flags == TRACKER_DESERIALIZE_FLAGS_NONE);
+	g_return_if_fail (rdf_format < TRACKER_N_RDF_FORMATS);
+	g_return_if_fail (G_IS_INPUT_STREAM (rdf_stream));
+	g_return_if_fail (!cancellable || G_IS_CANCELLABLE (cancellable));
+
+	task = g_task_new (NULL, cancellable, callback, user_data);
+	g_task_set_source_tag (task, tracker_sparql_connection_new_from_rdf_async);
+
+	tracker_direct_connection_new_from_rdf_async (flags, store,
+	                                              deserialize_flags,
+	                                              rdf_format, rdf_stream,
+	                                              cancellable,
+	                                              new_from_rdf_async_cb, task);
+}
+
+/**
+ * tracker_sparql_connection_new_from_rdf_finish: (constructor):
+ * @result: A [type@Gio.AsyncResult] with the result of the operation
+ * @error: Error location
+ *
+ * Finishes the operation started with [func@SparqlConnection.new_from_rdf_async].
+ *
+ * Returns: (transfer full): a new `TrackerSparqlConnection`.
+ *
+ * Since: 3.11
+ */
+TrackerSparqlConnection *
+tracker_sparql_connection_new_from_rdf_finish (GAsyncResult  *result,
+                                               GError       **error)
+{
+	g_return_val_if_fail (G_IS_TASK (result), NULL);
+	g_return_val_if_fail (g_task_get_source_tag (G_TASK (result)) ==
+	                      tracker_sparql_connection_new_from_rdf_async,
+	                      NULL);
+
+	return g_task_propagate_pointer (G_TASK (result), error);
 }
 
 /**

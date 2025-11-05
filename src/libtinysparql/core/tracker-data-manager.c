@@ -26,6 +26,7 @@
 
 #include <tracker-common.h>
 
+#include "tracker-deserializer-directory.h"
 #include "tracker-deserializer-rdf.h"
 
 #include "core/tracker-class.h"
@@ -48,7 +49,7 @@
 struct _TrackerDataManager {
 	GObject parent_instance;
 
-	GFile *ontology_location;
+	TrackerDeserializer *ontology_data;
 	GFile *cache_location;
 	guint initialized      : 1;
 	guint flags;
@@ -1069,23 +1070,6 @@ create_base_tables (TrackerDataManager  *manager,
 	return TRUE;
 }
 
-static gint
-compare_file_names (GFile *file_a,
-                    GFile *file_b)
-{
-	gchar *name_a, *name_b;
-	gint return_val;
-
-	name_a = g_file_get_basename (file_a);
-	name_b = g_file_get_basename (file_b);
-	return_val = strcmp (name_a, name_b);
-
-	g_free (name_a);
-	g_free (name_b);
-
-	return return_val;
-}
-
 static void
 get_superclasses (GPtrArray    *array,
                   TrackerClass *class)
@@ -1120,118 +1104,6 @@ get_superproperties (GPtrArray       *array,
 
 	for (i = 0; superproperties[i]; i++)
 		get_superproperties (array, superproperties[i]);
-}
-
-static gboolean
-get_directory_ontologies (TrackerDataManager  *manager,
-                          GFile               *directory,
-                          GList              **ontologies,
-                          GError             **error)
-{
-	GFileEnumerator *enumerator;
-	GList *sorted = NULL;
-
-	enumerator = g_file_enumerate_children (directory,
-	                                        G_FILE_ATTRIBUTE_STANDARD_NAME,
-	                                        G_FILE_QUERY_INFO_NONE,
-	                                        NULL, error);
-	if (!enumerator)
-		return FALSE;
-
-	while (TRUE) {
-		GFileInfo *info;
-		GFile *child;
-		const gchar *name;
-
-		if (!g_file_enumerator_iterate (enumerator, &info, &child, NULL, error)) {
-			g_list_free_full (sorted, g_object_unref);
-			g_object_unref (enumerator);
-			return FALSE;
-		}
-
-		if (!info)
-			break;
-
-		name = g_file_info_get_name (info);
-		if (g_str_has_suffix (name, ".ontology") ||
-		    tracker_rdf_format_pick_for_file (child, NULL)) {
-			sorted = g_list_prepend (sorted, g_object_ref (child));
-		}
-	}
-
-	*ontologies = g_list_sort (sorted, (GCompareFunc) compare_file_names);
-	g_object_unref (enumerator);
-
-	return TRUE;
-}
-
-static GList*
-get_ontologies (TrackerDataManager  *manager,
-                GFile               *ontologies,
-                GError             **error)
-{
-	GList *stock = NULL, *user = NULL;
-	GFile *stock_location;
-
-	stock_location = g_file_new_for_uri ("resource://org/freedesktop/tracker/ontology");
-	if (!get_directory_ontologies (manager, stock_location, &stock, error)) {
-		g_object_unref (stock_location);
-		return NULL;
-	}
-
-	g_object_unref (stock_location);
-
-	if (!get_directory_ontologies (manager, ontologies, &user, error)) {
-		g_list_free_full (stock, g_object_unref);
-		return NULL;
-	}
-
-	return g_list_concat (stock, user);
-}
-
-static gchar *
-get_ontologies_checksum (GList   *ontologies,
-                         GError **error)
-{
-	GFileInputStream *stream = NULL;
-	GError *inner_error = NULL;
-	gchar *retval = NULL;
-	GChecksum *checksum;
-	guchar buf[4096];
-	gsize len;
-	GList *l;
-
-	checksum = g_checksum_new (G_CHECKSUM_MD5);
-
-	for (l = ontologies; l && !inner_error; l = l->next) {
-		stream = g_file_read (l->data, NULL, &inner_error);
-		if (!stream)
-			break;
-
-		while (g_input_stream_read_all (G_INPUT_STREAM (stream),
-		                                buf,
-		                                sizeof (buf),
-		                                &len,
-		                                NULL,
-		                                &inner_error)) {
-			g_checksum_update (checksum, buf, len);
-			if (len != sizeof (buf))
-				break;
-		}
-
-		g_clear_object (&stream);
-	}
-
-	g_clear_object (&stream);
-
-	if (!inner_error)
-		retval = g_strdup (g_checksum_get_string (checksum));
-	else
-		g_propagate_error (error, inner_error);
-
-	g_checksum_free (checksum);
-
-	return retval;
 }
 
 static gboolean
@@ -1500,10 +1372,10 @@ tracker_data_manager_delete_fts (TrackerDataManager  *manager,
 }
 
 TrackerDataManager *
-tracker_data_manager_new (TrackerDBManagerFlags   flags,
-                          GFile                  *cache_location,
-                          GFile                  *ontology_location,
-                          guint                   select_cache_size)
+tracker_data_manager_new (TrackerDBManagerFlags  flags,
+                          GFile                 *cache_location,
+                          TrackerDeserializer   *ontology,
+                          guint                  select_cache_size)
 {
 	TrackerDataManager *manager;
 
@@ -1516,7 +1388,7 @@ tracker_data_manager_new (TrackerDBManagerFlags   flags,
 
 	/* TODO: Make these properties */
 	g_set_object (&manager->cache_location, cache_location);
-	g_set_object (&manager->ontology_location, ontology_location);
+	g_set_object (&manager->ontology_data, ontology);
 	manager->flags = flags;
 	manager->select_cache_size = select_cache_size;
 
@@ -2176,6 +2048,30 @@ tracker_data_manager_apply_db_changes (TrackerDataManager     *manager,
 	return TRUE;
 }
 
+static TrackerSparqlCursor *
+create_full_ontology_deserializer (TrackerDataManager *manager)
+{
+	TrackerSparqlCursor *ontology_data, *stock_ontology;
+	GFile *stock_ontology_location;
+
+	g_assert (manager->ontology_data);
+
+	stock_ontology_location =
+		g_file_new_for_uri ("resource://org/freedesktop/tracker/ontology");
+	stock_ontology = tracker_deserializer_directory_new (stock_ontology_location,
+	                                                     NULL);
+	g_object_unref (stock_ontology_location);
+
+	ontology_data = tracker_deserializer_merger_new ();
+	tracker_deserializer_merger_add_child (TRACKER_DESERIALIZER_MERGER (ontology_data),
+	                                       TRACKER_DESERIALIZER (stock_ontology));
+	tracker_deserializer_merger_add_child (TRACKER_DESERIALIZER_MERGER (ontology_data),
+	                                       manager->ontology_data);
+	g_object_unref (stock_ontology);
+
+	return ontology_data;
+}
+
 static gboolean
 tracker_data_manager_import_ontology (TrackerDataManager     *manager,
                                       TrackerDBInterface     *iface,
@@ -2184,7 +2080,6 @@ tracker_data_manager_import_ontology (TrackerDataManager     *manager,
                                       GError                **error)
 {
 	TrackerSparqlCursor *deserializer = NULL;
-	GList *ontology_files = NULL, *l;
 	GError *inner_error = NULL;
 	TrackerClass *rdfs_resource;
 	GValue resource_value = G_VALUE_INIT;
@@ -2256,15 +2151,11 @@ tracker_data_manager_import_ontology (TrackerDataManager     *manager,
 	if (inner_error)
 		goto error;
 
-	/* Import all RDF from the ontology files */
-	ontology_files = get_ontologies (manager, manager->ontology_location, &inner_error);
-	if (!ontology_files)
-		goto error;
+	if (TRACKER_IS_DESERIALIZER_DIRECTORY (manager->ontology_data)) {
+		/* Import all RDF from the ontology files */
+		tracker_deserializer_directory_reset (TRACKER_DESERIALIZER_DIRECTORY (manager->ontology_data));
 
-	for (l = ontology_files; l; l = l->next) {
-		deserializer = tracker_deserializer_new_for_file (l->data, NULL, &inner_error);
-		if (!deserializer)
-			goto error;
+		deserializer = create_full_ontology_deserializer (manager);
 
 		while (tracker_sparql_cursor_next (deserializer, NULL, &inner_error)) {
 			const gchar *subject, *predicate, *object, *object_lang;
@@ -2318,14 +2209,12 @@ tracker_data_manager_import_ontology (TrackerDataManager     *manager,
 
 	g_value_unset (&resource_value);
 	g_clear_object (&deserializer);
-	g_list_free_full (ontology_files, g_object_unref);
 	return TRUE;
 
  error:
 	g_propagate_error (error, inner_error);
 	g_value_unset (&resource_value);
 	g_clear_object (&deserializer);
-	g_list_free_full (ontology_files, g_object_unref);
 	return FALSE;
 }
 
@@ -2367,18 +2256,6 @@ tracker_data_manager_initable_init (GInitable     *initable,
 
 	iface = tracker_db_manager_get_writable_db_interface (manager->db_manager);
 
-	if (manager->ontology_location &&
-	    g_file_query_file_type (manager->ontology_location, G_FILE_QUERY_INFO_NONE, NULL) != G_FILE_TYPE_DIRECTORY) {
-		gchar *uri;
-
-		uri = g_file_get_uri (manager->ontology_location);
-		g_set_error (error, TRACKER_DATA_ONTOLOGY_ERROR,
-		             TRACKER_DATA_ONTOLOGY_NOT_FOUND,
-		             "'%s' is not a ontology location", uri);
-		g_free (uri);
-		goto error;
-	}
-
 	if (!create_db &&
 	    !tracker_data_manager_initialize_graphs (manager, iface, error))
 		goto error;
@@ -2393,11 +2270,11 @@ tracker_data_manager_initable_init (GInitable     *initable,
 			goto error;
 		}
 
-		if (!manager->ontology_location) {
+		if (!manager->ontology_data) {
 			g_set_error (error,
 			             TRACKER_DATA_ONTOLOGY_ERROR,
 			             TRACKER_DATA_ONTOLOGY_NOT_FOUND,
-			             "Creating a database requires an ontology location.");
+			             "Creating a database requires ontology information.");
 			goto error;
 		}
 
@@ -2427,7 +2304,7 @@ tracker_data_manager_initable_init (GInitable     *initable,
 		    !tracker_data_manager_attempt_repair (manager, iface, db_ontology, error))
 			goto error;
 
-		check_apply_ontology = manager->ontology_location != NULL;
+		check_apply_ontology = manager->ontology_data != NULL;
 		apply_base_tables = FALSE;
 		apply_locale = tracker_db_manager_locale_changed (manager->db_manager, NULL);
 		apply_fts_tokenizer = tracker_db_manager_get_tokenizer_changed (manager->db_manager);
@@ -2454,30 +2331,20 @@ tracker_data_manager_initable_init (GInitable     *initable,
 	}
 
 	if (check_apply_ontology) {
-		GList *ontologies = NULL;
+		TrackerSparqlCursor *ontology_data;
 
-		g_assert (manager->ontology_location);
-		ontologies = get_ontologies (manager, manager->ontology_location, error);
-		if (!ontologies)
+		ontology_data = create_full_ontology_deserializer (manager);
+		current_ontology = tracker_ontologies_load_from_rdf (TRACKER_DESERIALIZER (ontology_data),
+		                                                     &checksum, error);
+		g_object_unref (ontology_data);
+		if (!current_ontology)
 			goto error;
-
-		checksum = get_ontologies_checksum (ontologies, error);
-		if (!checksum) {
-			g_list_free_full (ontologies, g_object_unref);
-			goto error;
-		}
 
 		if (create_db ||
-		    tracker_db_manager_ontology_checksum_changed (manager->db_manager, checksum)) {
+		    tracker_db_manager_ontology_checksum_changed (manager->db_manager, checksum))
 			apply_ontology = TRUE;
-			current_ontology = tracker_ontologies_load_from_rdf (ontologies, error);
-			if (!current_ontology) {
-				g_list_free_full (ontologies, g_object_unref);
-				goto error;
-			}
-		}
-
-		g_list_free_full (ontologies, g_object_unref);
+		else
+			g_clear_object (&current_ontology);
 	}
 
 	/* Apply all database changes */
@@ -2694,7 +2561,7 @@ tracker_data_manager_finalize (GObject *object)
 	TrackerDataManager *manager = TRACKER_DATA_MANAGER (object);
 
 	g_clear_object (&manager->ontologies);
-	g_clear_object (&manager->ontology_location);
+	g_clear_object (&manager->ontology_data);
 	g_clear_object (&manager->cache_location);
 	g_clear_pointer (&manager->graphs, g_hash_table_unref);
 	g_mutex_clear (&manager->connections_lock);

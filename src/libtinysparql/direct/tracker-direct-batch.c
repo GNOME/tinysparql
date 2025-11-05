@@ -377,7 +377,6 @@ tracker_direct_batch_update (TrackerDirectBatch  *batch,
 			tracker_data_load_from_deserializer (data,
 			                                     TRACKER_DESERIALIZER (deserializer),
 			                                     elem->d.rdf.default_graph,
-			                                     "<stream>",
 			                                     bnodes,
 			                                     &inner_error);
 			g_object_unref (deserializer);
