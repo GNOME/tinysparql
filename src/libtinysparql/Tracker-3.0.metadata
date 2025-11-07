@@ -3,6 +3,8 @@ Sparql* name="Sparql(.*)" parent="Tracker.Sparql"
 SparqlConnection.new symbol_type="function"
 SparqlConnection.new_async symbol_type="function"
 SparqlConnection.new_finish symbol_type="function"
+SparqlConnection.new_from_rdf symbol_type="function"
+SparqlConnection.new_from_rdf_finish symbol_type="function"
 SparqlConnection.bus_new symbol_type="function"
 SparqlConnection.bus_new.dbus_connection default=null
 SparqlConnection.remote_new symbol_type="function"
