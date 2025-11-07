@@ -131,11 +131,18 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
 			TrackerClass *class;
+			gchar *shorthand;
 
 			class = tracker_ontologies_get_class_by_uri (ontologies, subject);
 
 			if (class != NULL) {
 				print_parsing_error (rdf, "Duplicate definition of class %s", subject);
+				return TRUE;
+			}
+
+			shorthand = tracker_ontologies_get_shorthand (ontologies, subject);
+			if (!shorthand) {
+				print_parsing_error (rdf, "Class URI %s does no have a pre-defined prefix", subject);
 				return TRUE;
 			}
 
@@ -147,12 +154,20 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			tracker_class_set_definition_column_no (class, column);
 			tracker_ontologies_add_class (ontologies, class);
 			g_object_unref (class);
+			g_free (shorthand);
 		} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
 			TrackerProperty *property;
+			gchar *shorthand;
 
 			property = tracker_ontologies_get_property_by_uri (ontologies, subject);
 			if (property != NULL) {
 				print_parsing_error (rdf, "Duplicate definition of property %s", subject);
+				return TRUE;
+			}
+
+			shorthand = tracker_ontologies_get_shorthand (ontologies, subject);
+			if (!shorthand) {
+				print_parsing_error (rdf, "Property URI %s does no have a pre-defined prefix", subject);
 				return TRUE;
 			}
 
@@ -165,6 +180,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			tracker_property_set_definition_column_no (property, column);
 			tracker_ontologies_add_property (ontologies, property);
 			g_object_unref (property);
+			g_free (shorthand);
 		} else if (g_strcmp0 (object, NRL_INVERSE_FUNCTIONAL_PROPERTY) == 0) {
 			TrackerProperty *property;
 

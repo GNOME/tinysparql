@@ -48,6 +48,9 @@ struct _TrackerOntologiesClass {
 
 TrackerOntologies *tracker_ontologies_new                  (void);
 
+gchar * tracker_ontologies_get_shorthand (TrackerOntologies *ontologies,
+                                          const gchar       *uri);
+
 /* Service mechanics */
 void               tracker_ontologies_add_class            (TrackerOntologies *ontologies,
                                                             TrackerClass      *service);
