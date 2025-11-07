@@ -149,6 +149,8 @@ add_deserializer_for_current_file (TrackerDeserializerDirectory  *deserializer,
 
 	tracker_deserializer_merger_add_child (TRACKER_DESERIALIZER_MERGER (deserializer),
 	                                       TRACKER_DESERIALIZER (child_cursor));
+	g_object_unref (child_cursor);
+
 	return TRUE;
 }
 

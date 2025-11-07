@@ -225,6 +225,7 @@ tracker_deserializer_new_for_file (GFile                    *file,
 
 	name = g_file_get_uri (file);
 	g_object_set (deserializer, "name", name, NULL);
+	g_free (name);
 
 	return TRACKER_SPARQL_CURSOR (deserializer);
 }
