@@ -132,6 +132,7 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 			TrackerClass *class;
 			TrackerRowid id;
 			const gchar  *uri;
+			gchar *shorthand;
 			gboolean notify;
 
 			class = tracker_class_new ();
@@ -140,9 +141,12 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 			uri = tracker_sparql_cursor_get_string (cursor, 1, NULL);
 			notify = tracker_sparql_cursor_get_integer (cursor, 2);
 
+			shorthand = tracker_ontologies_get_shorthand (ontologies, uri);
+
 			tracker_class_set_ontologies (class, ontologies);
 			tracker_class_set_id (class, id);
 			tracker_class_set_uri (class, uri);
+			tracker_class_set_name (class, shorthand);
 			tracker_class_set_notify (class, notify);
 
 			/* We add domain indexes later , we first need to load the properties */
@@ -150,6 +154,7 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 			tracker_ontologies_add_class (ontologies, class);
 			tracker_ontologies_add_id_uri_pair (ontologies, id, uri);
 			g_object_unref (class);
+			g_free (shorthand);
 		}
 
 		g_clear_object (&cursor);
@@ -186,6 +191,7 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 			gboolean is_inverse_functional_property;
 			gint64 max_cardinality;
 			TrackerRowid id;
+			gchar *shorthand;
 
 			property = tracker_property_new ();
 
@@ -199,9 +205,12 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 			fulltext_indexed = tracker_sparql_cursor_get_boolean (cursor, 7);
 			is_inverse_functional_property = tracker_sparql_cursor_get_boolean (cursor, 8);
 
+			shorthand = tracker_ontologies_get_shorthand (ontologies, uri);
+
 			tracker_property_set_ontologies (property, ontologies);
 			tracker_property_set_id (property, id);
 			tracker_property_set_uri (property, uri);
+			tracker_property_set_name (property, shorthand);
 			tracker_property_set_domain (property, tracker_ontologies_get_class_by_uri (ontologies, domain_uri));
 			tracker_property_set_range (property, tracker_ontologies_get_class_by_uri (ontologies, range_uri));
 			tracker_property_set_multiple_values (property, max_cardinality != 1);
@@ -217,6 +226,7 @@ tracker_ontologies_load_from_database (TrackerDataManager  *manager,
 			tracker_ontologies_add_property (ontologies, property);
 			tracker_ontologies_add_id_uri_pair (ontologies, id, uri);
 			g_object_unref (property);
+			g_free (shorthand);
 		}
 
 		g_clear_object (&cursor);

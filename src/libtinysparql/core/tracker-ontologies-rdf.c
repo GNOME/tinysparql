@@ -149,6 +149,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			class = tracker_class_new ();
 			tracker_class_set_ontologies (class, ontologies);
 			tracker_class_set_uri (class, subject);
+			tracker_class_set_name (class, shorthand);
 			tracker_class_set_ontology_path (class, uri);
 			tracker_class_set_definition_line_no (class, line);
 			tracker_class_set_definition_column_no (class, column);
@@ -174,6 +175,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			property = tracker_property_new ();
 			tracker_property_set_ontologies (property, ontologies);
 			tracker_property_set_uri (property, subject);
+			tracker_property_set_name (property, shorthand);
 			tracker_property_set_multiple_values (property, TRUE);
 			tracker_property_set_ontology_path (property, uri);
 			tracker_property_set_definition_line_no (property, line);
