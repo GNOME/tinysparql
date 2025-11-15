@@ -618,6 +618,8 @@ tracker_direct_connection_initable_init (GInitable     *initable,
 	priv->data_manager = tracker_data_manager_new (db_flags, priv->store,
 	                                               TRACKER_DESERIALIZER (ontology_data),
 	                                               100);
+	g_clear_object (&ontology_data);
+
 	if (!g_initable_init (G_INITABLE (priv->data_manager), cancellable, &inner_error)) {
 		g_propagate_error (error, _translate_internal_error (inner_error));
 		g_clear_object (&priv->data_manager);
@@ -857,6 +859,7 @@ tracker_direct_connection_finalize (GObject *object)
 	g_clear_object (&priv->store);
 	g_clear_object (&priv->ontology);
 	g_clear_object (&priv->namespace_manager);
+	g_clear_object (&priv->ontology_rdf);
 
 	G_OBJECT_CLASS (tracker_direct_connection_parent_class)->finalize (object);
 }

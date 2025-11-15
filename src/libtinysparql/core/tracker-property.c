@@ -406,34 +406,21 @@ tracker_property_set_uri (TrackerProperty *property,
 	priv = tracker_property_get_instance_private (property);
 
 	g_free (priv->uri);
+	priv->uri = g_strdup (value);
+}
+
+void
+tracker_property_set_name (TrackerProperty *property,
+                           const gchar     *value)
+{
+	TrackerPropertyPrivate *priv;
+
+	g_return_if_fail (TRACKER_IS_PROPERTY (property));
+
+	priv = tracker_property_get_instance_private (property);
+
 	g_free (priv->name);
-	priv->uri = NULL;
-	priv->name = NULL;
-
-	if (value) {
-		TrackerNamespace *namespace;
-		gchar *namespace_uri, *hash;
-
-		priv->uri = g_strdup (value);
-
-		hash = strrchr (priv->uri, '#');
-		if (hash == NULL) {
-			/* support ontologies whose namespace uri does not end in a hash, e.g. dc */
-			hash = strrchr (priv->uri, '/');
-		}
-		if (hash == NULL) {
-			g_critical ("Unknown namespace of property %s", priv->uri);
-		} else {
-			namespace_uri = g_strndup (priv->uri, hash - priv->uri + 1);
-			namespace = tracker_ontologies_get_namespace_by_uri (priv->ontologies, namespace_uri);
-			if (namespace == NULL) {
-				g_critical ("Unknown namespace %s of property %s", namespace_uri, priv->uri);
-			} else {
-				priv->name = g_strdup_printf ("%s:%s", tracker_namespace_get_prefix (namespace), hash + 1);
-			}
-			g_free (namespace_uri);
-		}
-	}
+	priv->name = g_strdup (value);
 }
 
 void

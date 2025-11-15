@@ -131,6 +131,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 
 		if (g_strcmp0 (object, RDFS_CLASS) == 0) {
 			TrackerClass *class;
+			gchar *shorthand;
 
 			class = tracker_ontologies_get_class_by_uri (ontologies, subject);
 
@@ -139,16 +140,25 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 				return TRUE;
 			}
 
+			shorthand = tracker_ontologies_get_shorthand (ontologies, subject);
+			if (!shorthand) {
+				print_parsing_error (rdf, "Class URI %s does no have a pre-defined prefix", subject);
+				return TRUE;
+			}
+
 			class = tracker_class_new ();
 			tracker_class_set_ontologies (class, ontologies);
 			tracker_class_set_uri (class, subject);
+			tracker_class_set_name (class, shorthand);
 			tracker_class_set_ontology_path (class, uri);
 			tracker_class_set_definition_line_no (class, line);
 			tracker_class_set_definition_column_no (class, column);
 			tracker_ontologies_add_class (ontologies, class);
 			g_object_unref (class);
+			g_free (shorthand);
 		} else if (g_strcmp0 (object, RDF_PROPERTY) == 0) {
 			TrackerProperty *property;
+			gchar *shorthand;
 
 			property = tracker_ontologies_get_property_by_uri (ontologies, subject);
 			if (property != NULL) {
@@ -156,15 +166,23 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 				return TRUE;
 			}
 
+			shorthand = tracker_ontologies_get_shorthand (ontologies, subject);
+			if (!shorthand) {
+				print_parsing_error (rdf, "Property URI %s does no have a pre-defined prefix", subject);
+				return TRUE;
+			}
+
 			property = tracker_property_new ();
 			tracker_property_set_ontologies (property, ontologies);
 			tracker_property_set_uri (property, subject);
+			tracker_property_set_name (property, shorthand);
 			tracker_property_set_multiple_values (property, TRUE);
 			tracker_property_set_ontology_path (property, uri);
 			tracker_property_set_definition_line_no (property, line);
 			tracker_property_set_definition_column_no (property, column);
 			tracker_ontologies_add_property (ontologies, property);
 			g_object_unref (property);
+			g_free (shorthand);
 		} else if (g_strcmp0 (object, NRL_INVERSE_FUNCTIONAL_PROPERTY) == 0) {
 			TrackerProperty *property;
 

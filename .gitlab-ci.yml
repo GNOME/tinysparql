@@ -290,6 +290,8 @@ check-code-style:
   artifacts:
     expire_in: 1 day
     paths:
+      - subprojects/packagecache
+      - subprojects/libstemmer*/
       - build
 
 build-fedora@x86_64:

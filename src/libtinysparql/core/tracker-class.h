@@ -64,6 +64,8 @@ TrackerOntologies * tracker_class_get_ontologies (TrackerClass *service);
 
 void              tracker_class_set_uri                (TrackerClass        *service,
                                                         const gchar         *value);
+void              tracker_class_set_name               (TrackerClass        *service,
+                                                        const gchar         *value);
 void              tracker_class_add_super_class        (TrackerClass        *service,
                                                         TrackerClass        *value);
 void              tracker_class_add_domain_index       (TrackerClass        *service,

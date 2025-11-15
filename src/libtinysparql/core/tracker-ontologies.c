@@ -366,3 +366,33 @@ tracker_ontologies_new (void)
 {
 	return g_object_new (TRACKER_TYPE_ONTOLOGIES, NULL);
 }
+
+gchar *
+tracker_ontologies_get_shorthand (TrackerOntologies *ontologies,
+                                  const gchar       *uri)
+{
+	const char *suffix;
+	gchar *namespace_uri;
+	TrackerNamespace *namespace;
+
+	suffix = strrchr (uri, '#');
+	if (!suffix) {
+		/* support ontologies whose namespace uri does not end in a hash, e.g. dc */
+		suffix = strrchr (uri, '/');
+	}
+
+	if (!suffix)
+		return NULL;
+
+	namespace_uri = g_strndup (uri, suffix - uri + 1);
+	namespace = tracker_ontologies_get_namespace_by_uri (ontologies,
+	                                                     namespace_uri);
+	g_free (namespace_uri);
+
+	if (namespace) {
+		return g_strconcat (tracker_namespace_get_prefix (namespace),
+		                    ":", suffix + 1, NULL);
+	}
+
+	return NULL;
+}
