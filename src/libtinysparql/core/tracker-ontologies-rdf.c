@@ -378,7 +378,13 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 				had_error |= TRUE;
 			}
 
-			tracker_property_set_secondary_index (property, secondary_index);
+			if (property == secondary_index) {
+				print_parsing_error (rdf, "A property cannot be nrl:secondaryindex of itself");
+				had_error |= TRUE;
+			}
+
+			if (!had_error)
+			    tracker_property_set_secondary_index (property, secondary_index);
 		}
 	} else if (g_strcmp0 (predicate, NRL_FULL_TEXT_INDEXED) == 0) {
 		TrackerProperty *property;
