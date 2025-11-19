@@ -578,9 +578,10 @@ static gboolean
 check_ontology_completeness (TrackerOntologies  *ontologies,
                              GError            **error)
 {
-	guint i, n_properties, n_classes;
+	guint i, n_properties, n_classes, n_namespaces;
 	TrackerProperty **properties;
 	TrackerClass **classes;
+	TrackerNamespace **namespaces;
 	gboolean had_errors = FALSE;
 
 	properties = tracker_ontologies_get_properties (ontologies, &n_properties);
@@ -624,6 +625,16 @@ check_ontology_completeness (TrackerOntologies  *ontologies,
 		had_errors |= check_class_domain_indexes (class, error_prefix);
 		g_ptr_array_unref (visited);
 		g_free (error_prefix);
+	}
+
+	namespaces = tracker_ontologies_get_namespaces (ontologies, &n_namespaces);
+
+	for (i = 0; i < n_namespaces; i++) {
+		if (!tracker_namespace_get_prefix (namespaces[i])) {
+			g_printerr ("Namespace '%s' has no prefix\n",
+			            tracker_namespace_get_uri (namespaces[i]));
+			had_errors |= TRUE;
+		}
 	}
 
 	if (had_errors) {
