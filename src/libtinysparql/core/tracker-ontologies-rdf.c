@@ -339,7 +339,8 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			had_error |= TRUE;
 		}
 
-		tracker_property_set_multiple_values (property, cardinality != 1);
+		if (property)
+			tracker_property_set_multiple_values (property, cardinality != 1);
 	} else if (g_strcmp0 (predicate, NRL_INDEXED) == 0) {
 		TrackerProperty *property;
 		gboolean indexed;
@@ -502,7 +503,7 @@ check_property_inheritance (TrackerProperty *property,
 
 		super_domain = tracker_property_get_domain (*super);
 
-		if (super_domain && !has_superclass (domain, super_domain)) {
+		if (!domain || (super_domain && !has_superclass (domain, super_domain))) {
 			g_printerr ("%s: Property %s is not in the domain of a subclass of %s, to be a subproperty of %s\n",
 			            error_prefix, tracker_property_get_name (property),
 			            tracker_class_get_name (super_domain),
