@@ -1,0 +1,45 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix test: <http://example.org/ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix nrl: <http://tracker.api.gnome.org/ontology/v3/nrl#> .
+
+test: a nrl:Namespace, nrl:Ontology ;
+    nrl:prefix "test" .
+
+# Namespace without prefix
+test:NamespaceWithoutPrefix a nrl:Namespace .
+
+test:A a rdfs:Class .
+
+test:A1 a rdfs:Class .
+
+# Property with no range or domain
+test:a_string a rdf:Property ;
+    nrl:maxCardinality 1 .
+
+test:prop1 a rdf:Property ;
+    rdfs:domain test:A ;
+    rdfs:range xsd:integer ;
+    nrl:maxCardinality 1 .
+
+# Subproperty not in a valid class to be a subproperty
+test:subprop1 a rdf:Property ;
+    rdfs:domain test:A1 ;
+    rdfs:subPropertyOf test:prop1 .
+
+# Subproperty not in a class to be a subproperty
+test:subprop2 a rdf:Property ;
+    rdfs:subPropertyOf test:prop1 .
+
+# Test classes with cycles
+test:B1 a rdfs:Class .
+
+test:B2 a rdfs:Class ;
+    rdfs:subClassOf test:B1 .
+
+test:B1 rdfs:subClassOf test:B2 .
+
+# Test domain index on an invalid property (not a subclass of test:A)
+test:C1 a rdfs:Class ;
+    nrl:domainIndex test:prop1 .

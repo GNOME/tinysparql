@@ -71,3 +71,26 @@ test:prop4 a rdf:Property ;
     rdfs:range xsd:integer .
 
 test:non_exist nrl:prefix 'idontexist:' . # Prefix on a non namespace
+
+test:prop5 a rdf:Property ;
+    nrl:indexed true ;
+    nrl:maxCardinality 1 ;
+    nrl:secondaryIndex test:prop5 . # Secondary index of itself
+
+# Re-defined class
+test:A a rdfs:Class .
+
+# Re-defined property
+test:a_string a rdf:Property .
+
+# Re-defined namespace / ontology
+test: a nrl:Namespace, nrl:Ontology .
+
+# Class without a shorthand prefix
+<http://http://example.org/invalidns#Foo> a rdfs:Class .
+
+# Property without a shorthand prefix
+<http://http://example.org/invalidns#foo> a rdf:Property .
+
+# Property is already in the domain of the class, it should not be allowed to be a nrl:domainIndex
+test:A nrl:domainIndex test:a_string .

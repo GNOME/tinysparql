@@ -142,7 +142,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 
 			shorthand = tracker_ontologies_get_shorthand (ontologies, subject);
 			if (!shorthand) {
-				print_parsing_error (rdf, "Class URI %s does no have a pre-defined prefix", subject);
+				print_parsing_error (rdf, "Class URI %s does not have a pre-defined prefix", subject);
 				return TRUE;
 			}
 
@@ -168,7 +168,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 
 			shorthand = tracker_ontologies_get_shorthand (ontologies, subject);
 			if (!shorthand) {
-				print_parsing_error (rdf, "Property URI %s does no have a pre-defined prefix", subject);
+				print_parsing_error (rdf, "Property URI %s does not have a pre-defined prefix", subject);
 				return TRUE;
 			}
 
@@ -339,7 +339,8 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 			had_error |= TRUE;
 		}
 
-		tracker_property_set_multiple_values (property, cardinality != 1);
+		if (property)
+			tracker_property_set_multiple_values (property, cardinality != 1);
 	} else if (g_strcmp0 (predicate, NRL_INDEXED) == 0) {
 		TrackerProperty *property;
 		gboolean indexed;
@@ -378,7 +379,13 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 				had_error |= TRUE;
 			}
 
-			tracker_property_set_secondary_index (property, secondary_index);
+			if (property == secondary_index) {
+				print_parsing_error (rdf, "A property cannot be nrl:secondaryindex of itself");
+				had_error |= TRUE;
+			}
+
+			if (!had_error)
+			    tracker_property_set_secondary_index (property, secondary_index);
 		}
 	} else if (g_strcmp0 (predicate, NRL_FULL_TEXT_INDEXED) == 0) {
 		TrackerProperty *property;
@@ -496,7 +503,7 @@ check_property_inheritance (TrackerProperty *property,
 
 		super_domain = tracker_property_get_domain (*super);
 
-		if (super_domain && !has_superclass (domain, super_domain)) {
+		if (!domain || (super_domain && !has_superclass (domain, super_domain))) {
 			g_printerr ("%s: Property %s is not in the domain of a subclass of %s, to be a subproperty of %s\n",
 			            error_prefix, tracker_property_get_name (property),
 			            tracker_class_get_name (super_domain),
@@ -572,9 +579,10 @@ static gboolean
 check_ontology_completeness (TrackerOntologies  *ontologies,
                              GError            **error)
 {
-	guint i, n_properties, n_classes;
+	guint i, n_properties, n_classes, n_namespaces;
 	TrackerProperty **properties;
 	TrackerClass **classes;
+	TrackerNamespace **namespaces;
 	gboolean had_errors = FALSE;
 
 	properties = tracker_ontologies_get_properties (ontologies, &n_properties);
@@ -588,13 +596,13 @@ check_ontology_completeness (TrackerOntologies  *ontologies,
 		                                       ontology_path, line_no, column_no);
 
 		if (!tracker_property_get_domain (property)) {
-			g_printerr ("%s: Property %s has no defined domain",
+			g_printerr ("%s: Property %s has no defined domain\n",
 			            error_prefix, tracker_property_get_name (property));
 			had_errors |= TRUE;
 		}
 
 		if (!tracker_property_get_range (property)) {
-			g_printerr ("%s: Property %s has no defined range",
+			g_printerr ("%s: Property %s has no defined range\n",
 			            error_prefix, tracker_property_get_name (property));
 			had_errors |= TRUE;
 		}
@@ -618,6 +626,16 @@ check_ontology_completeness (TrackerOntologies  *ontologies,
 		had_errors |= check_class_domain_indexes (class, error_prefix);
 		g_ptr_array_unref (visited);
 		g_free (error_prefix);
+	}
+
+	namespaces = tracker_ontologies_get_namespaces (ontologies, &n_namespaces);
+
+	for (i = 0; i < n_namespaces; i++) {
+		if (!tracker_namespace_get_prefix (namespaces[i])) {
+			g_printerr ("Namespace '%s' has no prefix\n",
+			            tracker_namespace_get_uri (namespaces[i]));
+			had_errors |= TRUE;
+		}
 	}
 
 	if (had_errors) {

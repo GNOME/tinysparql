@@ -1,0 +1,21 @@
+18:29: Property test:a_string has no defined domain
+~
+18:29: Property test:a_string has no defined range
+~
+27:29: Property test:subprop1 has no defined range
+~
+27:29: Property test:subprop1 is not in the domain of a subclass of test:A, to be a subproperty of test:prop1
+~
+32:29: Property test:subprop2 has no defined domain
+~
+32:29: Property test:subprop2 has no defined range
+~
+32:29: Property test:subprop2 is not in the domain of a subclass of test:A, to be a subproperty of test:prop1
+~
+36:21: Class test:B1 has cycles in rdfs:subClassOf hierarchy
+~
+38:21: Class test:B2 has cycles in rdfs:subClassOf hierarchy
+~
+44:21: Class test:C1 wants domain index on property test:prop1, but is not a subclass of test:A
+~
+Namespace 'http://example.org/ns#NamespaceWithoutPrefix' has no prefix

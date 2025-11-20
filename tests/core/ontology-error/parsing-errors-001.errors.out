@@ -17,3 +17,19 @@
 67:34: nrl:secondaryindex cannot be applied to properties with nrl:maxCardinality higher than one
 ~
 73:40: Unknown namespace http://example.org/ns#non_exist
+~
+78:34: A property cannot be nrl:secondaryindex of itself
+~
+81:20: Duplicate definition of class http://example.org/ns#A
+~
+84:29: Duplicate definition of property http://example.org/ns#a_string
+~
+87:22: Duplicate definition of namespace http://example.org/ns#
+~
+87:36: Duplicate definition of ontology http://example.org/ns#
+~
+90:55: Class URI http://http://example.org/invalidns#Foo does not have a pre-defined prefix
+~
+93:57: Property URI http://http://example.org/invalidns#foo does not have a pre-defined prefix
+~
+96:37: Property http://example.org/ns#a_string is already a first-class property of http://example.org/ns#A while trying to add it as nrl:domainIndex
