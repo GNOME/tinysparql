@@ -596,13 +596,13 @@ check_ontology_completeness (TrackerOntologies  *ontologies,
 		                                       ontology_path, line_no, column_no);
 
 		if (!tracker_property_get_domain (property)) {
-			g_printerr ("%s: Property %s has no defined domain",
+			g_printerr ("%s: Property %s has no defined domain\n",
 			            error_prefix, tracker_property_get_name (property));
 			had_errors |= TRUE;
 		}
 
 		if (!tracker_property_get_range (property)) {
-			g_printerr ("%s: Property %s has no defined range",
+			g_printerr ("%s: Property %s has no defined range\n",
 			            error_prefix, tracker_property_get_name (property));
 			had_errors |= TRUE;
 		}
