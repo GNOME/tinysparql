@@ -142,7 +142,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 
 			shorthand = tracker_ontologies_get_shorthand (ontologies, subject);
 			if (!shorthand) {
-				print_parsing_error (rdf, "Class URI %s does no have a pre-defined prefix", subject);
+				print_parsing_error (rdf, "Class URI %s does not have a pre-defined prefix", subject);
 				return TRUE;
 			}
 
@@ -168,7 +168,7 @@ tracker_ontologies_rdf_load_triple (TrackerOntologies    *ontologies,
 
 			shorthand = tracker_ontologies_get_shorthand (ontologies, subject);
 			if (!shorthand) {
-				print_parsing_error (rdf, "Property URI %s does no have a pre-defined prefix", subject);
+				print_parsing_error (rdf, "Property URI %s does not have a pre-defined prefix", subject);
 				return TRUE;
 			}
 

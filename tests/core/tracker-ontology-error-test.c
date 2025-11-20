@@ -39,6 +39,7 @@ const TestInfo tests[] = {
 	{ "ontology-error/unknown-prefix-003" },
 	{ "ontology-error/incomplete-property-001" },
 	{ "ontology-error/parsing-errors-001" },
+	{ "ontology-error/incompleteness-001" },
 	{ NULL }
 };
 
@@ -97,8 +98,14 @@ load_error_msgs (gchar *errors_path, gchar *ontology_path)
 		}
 
 		g_strstrip (error_msg);
-		g_string_append_printf (prefixed_errors, "%s:%s\n",
-		                        ontology_uri, error_msg);
+
+		if (strstr (error_msg, ": ")) {
+			g_string_append_printf (prefixed_errors, "%s:%s\n",
+			                        ontology_uri, error_msg);
+		} else {
+			g_string_append_printf (prefixed_errors, "%s\n", error_msg);
+		}
+
 		error_msg = strtok (NULL, "~");
 	}
 
