@@ -37,6 +37,7 @@ typedef struct {
 TestInfo tests[] = {
 	{ "ttl/ttl-1", "deserialize/ttl-1.ttl", "deserialize/ttl-1.rq", "deserialize/ttl-1.out", TRACKER_RDF_FORMAT_TURTLE },
 	{ "ttl/ttl-bnode-1", "deserialize/ttl-bnode-1.ttl", "deserialize/ttl-bnode-1.rq", "deserialize/ttl-bnode-1.out", TRACKER_RDF_FORMAT_TURTLE },
+	{ "ttl/ttl-bnode-2", "deserialize/ttl-bnode-2.ttl", "deserialize/ttl-bnode-2.rq", "deserialize/ttl-bnode-2.out", TRACKER_RDF_FORMAT_TURTLE },
 	{ "ttl/ttl-langstring-1", "deserialize/ttl-langstring-1.ttl", "deserialize/langstring-1.rq", "deserialize/langstring-1.out", TRACKER_RDF_FORMAT_TURTLE },
 	{ "ttl/ttl-unterminated-1", "deserialize/ttl-unterminated-1.ttl", "deserialize/unterminated-1.rq", "deserialize/unterminated-1.out", TRACKER_RDF_FORMAT_TURTLE, TRUE },
 	{ "ttl/ttl-unterminated-2", "deserialize/ttl-unterminated-2.ttl", "deserialize/unterminated-1.rq", "deserialize/unterminated-1.out", TRACKER_RDF_FORMAT_TURTLE, TRUE },
