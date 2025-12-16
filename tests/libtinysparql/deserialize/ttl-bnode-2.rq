@@ -1,0 +1,6 @@
+ASK {
+  <b:> nco:publisher ?p .
+  ?p nco:fullname "Full name" .
+  FILTER (isBlank (?p)) .
+  FILTER (STRLEN(dc:publisher(<b:>)) > 0) .
+}

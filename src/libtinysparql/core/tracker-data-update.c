@@ -3266,13 +3266,22 @@ tracker_data_load_from_deserializer (TrackerData          *data,
 		if (tracker_sparql_cursor_get_value_type (cursor, TRACKER_RDF_COL_OBJECT) ==
 		    TRACKER_SPARQL_VALUE_TYPE_BLANK_NODE) {
 			TrackerRowid object_id;
+			GValue val = G_VALUE_INIT;
 
 			object_id = get_bnode_id (bnodes, data, object_str, &inner_error);
 			if (inner_error)
 				goto failed;
 
-			g_value_init (&object, G_TYPE_INT64);
-			g_value_set_int64 (&object, object_id);
+			g_value_init (&val, G_TYPE_INT64);
+			g_value_set_int64 (&val, object_id);
+
+			if (maybe_convert_value (data,
+			                         TRACKER_PROPERTY_TYPE_RESOURCE,
+			                         tracker_property_get_data_type (predicate),
+			                         &val, &object))
+				g_value_unset (&val);
+			else
+				object = val;
 		} else {
 			if (!tracker_data_query_string_to_value (data->manager,
 			                                         object_str,

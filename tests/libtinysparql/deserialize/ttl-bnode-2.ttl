@@ -1,0 +1,10 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix nie: <http://tracker.api.gnome.org/ontology/v3/nie#> .
+@prefix nco: <http://tracker.api.gnome.org/ontology/v3/nco#> .
+
+_:a a nco:Contact ;
+  nco:fullname "Full name" .
+
+<b:> a nie:InformationElement ;
+  nco:publisher _:a ;
+  dc:publisher _:a .
