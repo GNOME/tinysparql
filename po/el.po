@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: el\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/tinysparql/-/issues\n"
-"POT-Creation-Date: 2025-10-21 16:05+0000\n"
+"POT-Creation-Date: 2025-12-10 23:05+0000\n"
 "PO-Revision-Date: 2020-07-15 20:18+0300\n"
 "Last-Translator: Giannis Antypas <gianni.antypas@gmail.com>\n"
 "Language-Team: Ελληνικά <>\n"
@@ -91,7 +91,6 @@ msgstr "Το --http-port δεν μπορεί να χρησιμοποιηθεί �
 
 #: src/cli/tracker-endpoint.c:198
 #, c-format
-#| msgid "Creating endpoint at %s…"
 msgid "Creating HTTP endpoint at %s…"
 msgstr "Δημιουργία τελικού σημείου HTTP στο %s…"
 
@@ -163,7 +162,6 @@ msgid "DBus service name"
 msgstr "Όνομα υπηρεσίας DBus"
 
 #: src/cli/tracker-export.c:54
-#| msgid "Output results format: “sparql”, “turtle” or “json-ld”"
 msgid "Output results format: “turtle”, “trig” or “json-ld”"
 msgstr "Μορφή αποτελεσμάτων εξόδου: «turtle», «trig» ή «json-ld»"
 
@@ -193,9 +191,9 @@ msgstr "IRI"
 #: src/cli/tracker-export.c:92 src/cli/tracker-import.c:88
 #: src/cli/tracker-introspect.c:164 src/cli/tracker-query.c:105
 #, c-format
-#| msgid "Specify one --database, --dbus-service or --remote-service option"
 msgid "Specify one “--database”, “--dbus-service” or “--remote-service” option"
-msgstr "Καθορίστε μία επιλογή «--database», «--dbus-service» ή «--remote-service»"
+msgstr ""
+"Καθορίστε μία επιλογή «--database», «--dbus-service» ή «--remote-service»"
 
 #: src/cli/tracker-export.c:116 src/cli/tracker-export.c:137
 #: src/cli/tracker-import.c:125 src/cli/tracker-introspect.c:829
@@ -210,7 +208,6 @@ msgstr "Αδυναμία σύνδεσης με το Tracker"
 
 #: src/cli/tracker-export.c:179
 #, c-format
-#| msgid "Unsupported serialization format '%s'\n"
 msgid "Unsupported serialization format “%s”\n"
 msgstr "Μη υποστηριζόμενη μορφή σειριοποίησης '%s'\n"
 
@@ -236,7 +233,9 @@ msgstr "Λίστα όλων των κλάσεων που ενημερώνουν 
 
 #: src/cli/tracker-introspect.c:122
 msgid "List indexes used in database to improve performance"
-msgstr "Λίστα ευρετηρίων που χρησιμοποιούνται στη βάση δεδομένων για βελτίωση της απόδοσης"
+msgstr ""
+"Λίστα ευρετηρίων που χρησιμοποιούνται στη βάση δεδομένων για βελτίωση της "
+"απόδοσης"
 
 #: src/cli/tracker-introspect.c:125
 msgid "Retrieve all named graphs"
@@ -256,7 +255,6 @@ msgid "CLASS"
 msgstr "ΚΛΑΣΗ"
 
 #: src/cli/tracker-introspect.c:133
-#| msgid "List all Tracker processes"
 msgid "Lists all available properties"
 msgstr "Προβολή όλων των διαθέσιμων ιδιοτήτων"
 
@@ -342,28 +340,23 @@ msgstr ""
 "με το όρισμα --tree"
 
 #: src/cli/tracker-main.c:69
-#, fuzzy
 #| msgid "Get help on how to use Tracker and any of these commands"
 msgid "Get help on how to use TinySPARQL and any of these commands"
-msgstr ""
-"Λήψη βοήθειας για τη χρήση του TinySPARQL οποιασδήποτε από αυτές τις εντολές"
+msgstr "Λήψη βοήθειας για τον τρόπο χρήσης του TinySPARQL και οποιασδήποτε από αυτές τις εντολές"
 
 #: src/cli/tracker-main.c:70
 msgid "Create a SPARQL endpoint"
 msgstr "Δημιουργία τελικού σημείου SPARQL"
 
 #: src/cli/tracker-main.c:71
-#| msgid "Export data from a Tracker database"
 msgid "Export data from a TinySPARQL database"
 msgstr "Εξαγωγή δεδομένων από την βάση δεδομένων TinySPARQL"
 
 #: src/cli/tracker-main.c:72
-#| msgid "Import data into a Tracker database"
 msgid "Import data into a TinySPARQL database"
 msgstr "Εισαγωγή δεδομένων σε μια βάση δεδομένων TinySPARQL"
 
 #: src/cli/tracker-main.c:73
-#| msgid "Create a SPARQL endpoint"
 msgid "Introspect a SPARQL endpoint"
 msgstr "Εσωτερική εξέταση ενός τελικού σημείου SPARQL"
 
@@ -380,13 +373,13 @@ msgid "Available tinysparql commands are:"
 msgstr "Οι διαθέσιμες εντολές tinysparql είναι:"
 
 #: src/cli/tracker-main.c:111
-#| msgid "See “tracker3 help <command>” to read about a specific subcommand."
 msgid "See “tinysparql help <command>” to read about a specific subcommand."
-msgstr "Δείτε «tinysparql help <command>» για να διαβάσετε σχετικά με μια συγκεκριμένη υποεντολή."
+msgstr ""
+"Δείτε «tinysparql help <command>» για να διαβάσετε σχετικά με μια "
+"συγκεκριμένη υποεντολή."
 
 #: src/cli/tracker-main.c:154
 #, c-format
-#| msgid "“%s” is not a tracker3 command. See “tracker3 --help”"
 msgid "“%s” is not a tinysparql command. See “tinysparql --help”"
 msgstr "Το «%s» δεν είναι εντολή tinysparql. Δείτε «tinysparql --help»"
 
@@ -506,7 +499,6 @@ msgstr "Δεν έχει καθοριστεί θύρα"
 #. Translators: This will point to a local HTTP address
 #: src/cli/tracker-webide.c:81
 #, c-format
-#| msgid "Creating endpoint at %s…"
 msgid "Creating Web IDE at %s…"
 msgstr "Δημιουργία Web IDE στο %s…"
 
