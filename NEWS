@@ -1,3 +1,15 @@
+NEW in 3.11.alpha - 2026-01-05
+==============================
+  * Added TrackerSparqlConnectionFlags values to disable legacy and
+    pre-sparql-1.1 syntax
+  * Added tracker_sparql_connection_new_from_rdf() family of constructors
+    to specify the defining ontology as an input stream, instead of a set
+    of files
+  * Fixes to issues spotted by OSS Fuzz
+  * Fixes to handling of blank nodes during (de)serialization
+
+Translations: el, fur, sr, sr@latin
+
 NEW in 3.10.1 - 2025-10-13
 ==========================
   * Introspection annotation fixes
